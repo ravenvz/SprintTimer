@@ -19,6 +19,9 @@ set ("${PROJECT}_BINARY_DIR" bin)
 set ("${PROJECT}_SOURCE_DIR" src:include)
 # set ("${PROJECT}_LIB_DIR" lib)
 
+# to change Clion build directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
+
 set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
 set (CMAKE_LIBRARY_PATH ${${PROJECT}_LIB_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
@@ -42,19 +45,19 @@ endif ()
 
 #find_library(CppUTest REQUIRED)
 
-include_directories(src)
+include_directories(src dialogs)
 
 set(SOURCE_FILES src/main.cpp
                  src/mainwindow.cpp
-                 src/addtodoitemdialog.cpp
-                 src/pomodorocanceldialog.cpp
+                 src/dialogs/addtodoitemdialog.cpp
+                 src/dialogs/pomodorocanceldialog.cpp
                  src/todoitemslistview.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS
-    src/mainwindow.ui
-    src/add_todo_dialog.ui
-    src/pom_cancel_dialog.ui
+    src/ui/mainwindow.ui
+    src/ui/add_todo_dialog.ui
+    src/ui/pom_cancel_dialog.ui
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})
@@ -62,6 +65,6 @@ add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})
 
 qt5_use_modules(${PROJECT} Widgets)
 
+add_subdirectory(tests)
 # add_subdirectory(${EXTERNAL_LIBS}/docopt)
-# add_subdirectory(tests)
-# target_link_libraries(${PROJECT} Docopt)
+

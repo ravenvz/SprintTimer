@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "pomodorocanceldialog.h"
-#include "addtodoitemdialog.h"
+#include "dialogs/pomodorocanceldialog.h"
+#include "dialogs/addtodoitemdialog.h"
 
 
 MainWindow::MainWindow(QWidget* parent) :
