@@ -1,0 +1,67 @@
+cmake_minimum_required(VERSION 3.2)
+project(Pomodoro)
+
+set (PROJECT Pomodoro)
+project(${PROJECT})
+
+# Tell CMake to run moc when necessary:
+set(CMAKE_AUTOMOC ON)
+# As moc files are generated in the binary dir, tell CMake
+# to always look for includes there:
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+# Widgets finds its own dependencies.
+find_package(Qt5Widgets REQUIRED)
+
+# set (EXTERNAL_LIBS external_libs)
+
+set ("${PROJECT}_BINARY_DIR" bin)
+set ("${PROJECT}_SOURCE_DIR" src:include)
+# set ("${PROJECT}_LIB_DIR" lib)
+
+set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
+set (CMAKE_LIBRARY_PATH ${${PROJECT}_LIB_DIR})
+set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
+set (CMAKE_VERBOSE_MAKEFILE ON)
+set (CMAKE_BUILD_TYPE Debug)
+
+set (ERR_NO_UNIX "Cannot build on non Unix systems")
+
+if ( WITH_DEBUG_MODE )
+     ADD_DEFINITIONS( -DMY_DEBUG_MODE=1)
+endif()
+
+if ( CMAKE_COMPILER_IS_GNUCXX )
+    set(MY_CXX_FLAGS  "-Wall -std=c++11 -pedantic")
+    set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
+    #set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-reorder-blocks -fno-schedule-insns -fno-inline")
+    #set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+else ()
+    message (FATAL_ERROR ${ERR_NO_UNIX})
+endif ()
+
+#find_library(CppUTest REQUIRED)
+
+include_directories(src)
+
+set(SOURCE_FILES src/main.cpp
+                 src/mainwindow.cpp
+                 src/addtodoitemdialog.cpp
+                 src/pomodorocanceldialog.cpp
+                 src/todoitemslistview.cpp
+)
+
+QT5_WRAP_UI(UI_HEADERS
+    src/mainwindow.ui
+    src/add_todo_dialog.ui
+    src/pom_cancel_dialog.ui
+)
+
+add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})
+# add_executable(pomodoro src/main.cpp mainwindow.cpp)
+
+qt5_use_modules(${PROJECT} Widgets)
+
+# add_subdirectory(${EXTERNAL_LIBS}/docopt)
+# add_subdirectory(tests)
+# target_link_libraries(${PROJECT} Docopt)
