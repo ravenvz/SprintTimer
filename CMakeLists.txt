@@ -20,7 +20,7 @@ set ("${PROJECT}_SOURCE_DIR" src:include)
 # set ("${PROJECT}_LIB_DIR" lib)
 
 # to change Clion build directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
 
 set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
 set (CMAKE_LIBRARY_PATH ${${PROJECT}_LIB_DIR})
