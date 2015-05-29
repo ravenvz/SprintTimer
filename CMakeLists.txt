@@ -52,6 +52,7 @@ set(SOURCE_FILES src/main.cpp
                  src/dialogs/addtodoitemdialog.cpp
                  src/dialogs/pomodorocanceldialog.cpp
                  src/todoitemslistview.cpp
+                 src/TaskScheduler.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS

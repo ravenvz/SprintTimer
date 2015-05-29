@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.2)
 project(test_pomodoro)
 set(SOURCE_FILES
     run_all_tests.cpp
+    TestTaskScheduler.cpp
+    ../src/TaskScheduler.cpp
 )
 find_library(CppUTest REQUIRED)
 
