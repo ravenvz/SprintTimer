@@ -1,0 +1,78 @@
+cmake_minimum_required(VERSION 3.2)
+project(Pomodoro)
+
+set (PROJECT Pomodoro)
+project(${PROJECT})
+
+# Tell CMake to run moc when necessary:
+set(CMAKE_AUTOMOC ON)
+# As moc files are generated in the binary dir, tell CMake
+# to always look for includes there:
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+# Widgets finds its own dependencies.
+find_package(Qt5Widgets REQUIRED)
+
+find_package(Qt5Multimedia REQUIRED)
+find_package(Qt5MultimediaWidgets REQUIRED)
+
+set(QT_USE_QTMULTIMEDIA TRUE)
+# set(QT_USE_QTMULTIMEDIAWIDGETS TRUE)
+
+
+# set (EXTERNAL_LIBS external_libs)
+
+set ("${PROJECT}_BINARY_DIR" bin)
+set ("${PROJECT}_SOURCE_DIR" src:include)
+# set ("${PROJECT}_LIB_DIR" lib)
+
+# to change Clion build directory
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
+
+set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
+set (CMAKE_LIBRARY_PATH ${${PROJECT}_LIB_DIR})
+set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
+set (CMAKE_VERBOSE_MAKEFILE ON)
+set (CMAKE_BUILD_TYPE Debug)
+
+set (ERR_NO_UNIX "Cannot build on non Unix systems")
+
+if ( WITH_DEBUG_MODE )
+     ADD_DEFINITIONS( -DMY_DEBUG_MODE=1)
+endif()
+
+if ( CMAKE_COMPILER_IS_GNUCXX )
+    set(MY_CXX_FLAGS  "-Wall -std=c++11 -pedantic")
+    set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
+    #set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-reorder-blocks -fno-schedule-insns -fno-inline")
+    #set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+else ()
+    message (FATAL_ERROR ${ERR_NO_UNIX})
+endif ()
+
+#find_library(CppUTest REQUIRED)
+
+include_directories(src dialogs)
+
+set(SOURCE_FILES src/main.cpp
+                 src/mainwindow.cpp
+                 src/dialogs/addtodoitemdialog.cpp
+                 src/dialogs/pomodorocanceldialog.cpp
+                 src/todoitemslistview.cpp
+                 src/TaskScheduler.cpp
+)
+
+QT5_WRAP_UI(UI_HEADERS
+    src/ui/mainwindow.ui
+    src/ui/add_todo_dialog.ui
+    src/ui/pom_cancel_dialog.ui
+)
+
+add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})
+# add_executable(pomodoro src/main.cpp mainwindow.cpp)
+
+qt5_use_modules(${PROJECT} Multimedia Widgets)
+
+add_subdirectory(tests)
+# add_subdirectory(${EXTERNAL_LIBS}/docopt)
+
