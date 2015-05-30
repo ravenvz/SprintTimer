@@ -20,7 +20,7 @@ set ("${PROJECT}_SOURCE_DIR" src:include)
 # set ("${PROJECT}_LIB_DIR" lib)
 
 # to change Clion build directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
 
 set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
 set (CMAKE_LIBRARY_PATH ${${PROJECT}_LIB_DIR})
@@ -52,6 +52,7 @@ set(SOURCE_FILES src/main.cpp
                  src/dialogs/addtodoitemdialog.cpp
                  src/dialogs/pomodorocanceldialog.cpp
                  src/todoitemslistview.cpp
+                 src/TaskScheduler.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS
