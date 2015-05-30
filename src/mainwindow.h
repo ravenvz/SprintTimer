@@ -34,7 +34,7 @@ private:
     QMediaPlayer* player;
     std::vector<TimeInterval> completedTasksIntervals;
     unsigned progressBarMaxValue;
-    unsigned timerDurationInSeconds;
+    int timerDurationInSeconds;
 
     void connectSlots();
     void setUiToIdleState();

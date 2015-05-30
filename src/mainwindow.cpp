@@ -81,7 +81,7 @@ void MainWindow::startTask() {
 
 void MainWindow::updateTimerCounter() {
     timerDurationInSeconds--;
-    if (timerDurationInSeconds > 0) {
+    if (timerDurationInSeconds >= 0) {
         ui->progressBar->setValue(progressBarMaxValue - timerDurationInSeconds);
         QString s = QString("%1:%2").arg(QString::number(timerDurationInSeconds / secondsPerMinute),
                                          QString::number(timerDurationInSeconds % secondsPerMinute).rightJustified(2, '0'));
@@ -118,6 +118,7 @@ void MainWindow::submitPomodoro() {
         // TODO store pomodoro in db
         // Something.storePomodoro(whatever needed);
         //
+        // NOTE Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
     completedTasksIntervals.clear();
 
