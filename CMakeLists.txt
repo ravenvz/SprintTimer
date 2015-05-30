@@ -13,6 +13,13 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Widgets finds its own dependencies.
 find_package(Qt5Widgets REQUIRED)
 
+find_package(Qt5Multimedia REQUIRED)
+find_package(Qt5MultimediaWidgets REQUIRED)
+
+set(QT_USE_QTMULTIMEDIA TRUE)
+# set(QT_USE_QTMULTIMEDIAWIDGETS TRUE)
+
+
 # set (EXTERNAL_LIBS external_libs)
 
 set ("${PROJECT}_BINARY_DIR" bin)
@@ -64,7 +71,7 @@ QT5_WRAP_UI(UI_HEADERS
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})
 # add_executable(pomodoro src/main.cpp mainwindow.cpp)
 
-qt5_use_modules(${PROJECT} Widgets)
+qt5_use_modules(${PROJECT} Multimedia Widgets)
 
 add_subdirectory(tests)
 # add_subdirectory(${EXTERNAL_LIBS}/docopt)

@@ -2,6 +2,9 @@
 #define MAINWINDOW_H 
 
 #include <QMainWindow>
+#include <QTimer>
+#include <QMediaPlayer>
+#include <vector>
 #include "TaskScheduler.h"
 
 namespace Ui {
@@ -17,17 +20,26 @@ public:
     ~MainWindow();
 
 private slots:
-    void cancelPomodoro();
-    void addTodoItem();
     void startTask();
+    void cancelTask();
+    void addTodoItem();
+    void updateTimerCounter();
+    void submitPomodoro();
 
 private:
+    const unsigned secondsPerMinute = 60;
     Ui::MainWindow *ui;
     TaskScheduler taskScheduler;
+    QTimer* timer;
+    QMediaPlayer* player;
+    std::vector<TimeInterval> completedTasksIntervals;
+    unsigned progressBarMaxValue;
+    int timerDurationInSeconds;
 
     void connectSlots();
+    void setUiToIdleState();
+    void setUiToRunningState();
+    void setUiToSubmissionState();
 };
-
-
 
 #endif // MAINWINDOW_H 

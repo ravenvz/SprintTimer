@@ -1,7 +1,7 @@
 #include "TaskScheduler.h"
 
-TaskScheduler::TaskScheduler(Config& config, unsigned completedTasks) :
-        config(config),
+TaskScheduler::TaskScheduler(Config applicationConfig, unsigned completedTasks) :
+        config(applicationConfig),
         completedTasks(completedTasks),
         inTheZoneMode(false),
         currentState(TaskState::TASK)
@@ -45,7 +45,7 @@ void TaskScheduler::setNextState() {
     }
 }
 
-unsigned TaskScheduler::getTaskDuration() {
+unsigned TaskScheduler::getTaskDurationInMinutes() {
     switch (currentState) {
         case TaskState::TASK:
             return config.pomodoroDuration;
