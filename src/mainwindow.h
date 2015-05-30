@@ -2,6 +2,7 @@
 #define MAINWINDOW_H 
 
 #include <QMainWindow>
+#include <QTimer>
 #include "TaskScheduler.h"
 
 namespace Ui {
@@ -20,12 +21,20 @@ private slots:
     void cancelPomodoro();
     void addTodoItem();
     void startTask();
+    void updateTimerCounter();
 
 private:
+    const unsigned secondsPerMinute = 60;
     Ui::MainWindow *ui;
     TaskScheduler taskScheduler;
+    QTimer* timer;
+    unsigned progressBarMaxValue;
+    unsigned timerDurationInSeconds;
 
     void connectSlots();
+    void setUiToIdleState();
+    void setUiToRunningState();
+    void setUiToSubmissionState();
 };
 
 

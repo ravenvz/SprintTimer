@@ -1,7 +1,11 @@
+#include <QString>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "dialogs/pomodorocanceldialog.h"
 #include "dialogs/addtodoitemdialog.h"
+
+
+#include <iostream>
 
 
 MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
@@ -10,17 +14,46 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     taskScheduler(scheduler)
 {
     ui->setupUi(this);
+    timer = new QTimer(this);
+    setUiToIdleState();
     connectSlots();
 }
 
 MainWindow::~MainWindow() {
+    delete timer;
     delete ui;
 }
 
 void MainWindow::connectSlots() {
-    connect(ui->pushButtonCancelPom, SIGNAL(clicked(bool)), this, SLOT(cancelPomodoro()));
+    connect(ui->btnCancel, SIGNAL(clicked(bool)), this, SLOT(cancelPomodoro()));
     connect(ui->btnAddTodo, SIGNAL(clicked(bool)), this, SLOT(addTodoItem()));
-    connect(ui->pushButtonStart, SIGNAL(clicked(bool)), this, SLOT(startTask()));
+    connect(ui->btnStart, SIGNAL(clicked(bool)), this, SLOT(startTask()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
+}
+
+void MainWindow::setUiToIdleState() {
+    ui->lcdTimer->hide();
+    ui->progressBar->setValue(0);
+    ui->progressBar->hide();
+    ui->leDoneTask->hide();
+    ui->btnCancel->hide();
+    ui->btnStart->show();
+    progressBarMaxValue = 0;
+}
+
+void MainWindow::setUiToRunningState() {
+    ui->btnStart->hide();
+    ui->lcdTimer->show();
+    ui->progressBar->show();
+    ui->btnCancel->show();
+    progressBarMaxValue = timerDurationInSeconds;
+    ui->progressBar->setMaximum(progressBarMaxValue);
+}
+
+void MainWindow::setUiToSubmissionState() {
+    ui->lcdTimer->hide();
+    ui->progressBar->hide();
+    ui->leDoneTask->show();
 }
 
 void MainWindow::cancelPomodoro() {
@@ -34,6 +67,33 @@ void MainWindow::addTodoItem() {
 }
 
 void MainWindow::startTask() {
-    
+    taskScheduler.startTask();
+    timerDurationInSeconds = secondsPerMinute * taskScheduler.getTaskDurationInMinutes();
+    setUiToRunningState();
+    timer->start(1000);
+}
+
+void MainWindow::updateTimerCounter() {
+    timerDurationInSeconds--;
+    if (timerDurationInSeconds > 0) {
+        ui->progressBar->setValue(progressBarMaxValue - timerDurationInSeconds);
+        QString s = QString("%1:%2").arg(QString::number(timerDurationInSeconds / secondsPerMinute),
+                                         QString::number(timerDurationInSeconds % secondsPerMinute).rightJustified(2, '0'));
+        ui->lcdTimer->display(s);
+        ui->progressBar->repaint();
+    } else {
+        timer->stop();
+        if (!ui->btnZone->isChecked()) {
+            // TODO play sound
+        }
+        if (ui->btnZone->isChecked()) {
+
+        } else if (taskScheduler.isBreak()) {
+            taskScheduler.finishTask();
+            setUiToIdleState();
+        } else {
+            setUiToSubmissionState();
+        }
+    }
 }
 
