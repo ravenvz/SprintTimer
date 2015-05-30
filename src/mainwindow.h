@@ -20,10 +20,11 @@ public:
     ~MainWindow();
 
 private slots:
-    void cancelPomodoro();
-    void addTodoItem();
     void startTask();
+    void cancelTask();
+    void addTodoItem();
     void updateTimerCounter();
+    void submitPomodoro();
 
 private:
     const unsigned secondsPerMinute = 60;

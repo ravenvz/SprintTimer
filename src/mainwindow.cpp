@@ -26,9 +26,10 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::connectSlots() {
-    connect(ui->btnCancel, SIGNAL(clicked(bool)), this, SLOT(cancelPomodoro()));
     connect(ui->btnAddTodo, SIGNAL(clicked(bool)), this, SLOT(addTodoItem()));
     connect(ui->btnStart, SIGNAL(clicked(bool)), this, SLOT(startTask()));
+    connect(ui->btnCancel, SIGNAL(clicked(bool)), this, SLOT(cancelTask()));
+    connect(ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
 }
 
@@ -57,9 +58,13 @@ void MainWindow::setUiToSubmissionState() {
     ui->leDoneTask->show();
 }
 
-void MainWindow::cancelPomodoro() {
+void MainWindow::cancelTask() {
     PomodoroCancelDialog cancelDialog {};
-    cancelDialog.exec();
+    if (taskScheduler.isBreak() || cancelDialog.exec()) {
+        taskScheduler.cancelTask();
+        timer->stop();
+        setUiToIdleState();
+    }
 }
 
 void MainWindow::addTodoItem() {
@@ -92,7 +97,8 @@ void MainWindow::updateTimerCounter() {
             player->play();
         }
         if (ui->btnZone->isChecked()) {
-
+            completedTasksIntervals.push_back(taskScheduler.finishTask());
+            startTask();
         } else if (taskScheduler.isBreak()) {
             taskScheduler.finishTask();
             setUiToIdleState();
@@ -100,5 +106,23 @@ void MainWindow::updateTimerCounter() {
             setUiToSubmissionState();
         }
     }
+}
+
+void MainWindow::submitPomodoro() {
+    QString name = ui->leDoneTask->text();
+    if (name.isEmpty()) {
+        return;
+    }
+    completedTasksIntervals.push_back(taskScheduler.finishTask());
+    for (TimeInterval interval : completedTasksIntervals) {
+        // TODO store pomodoro in db
+        // Something.storePomodoro(whatever needed);
+        //
+    }
+    completedTasksIntervals.clear();
+
+    // TODO 
+    // Update pomodoros in the list view
+    startTask();
 }
 
