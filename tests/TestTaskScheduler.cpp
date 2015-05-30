@@ -87,4 +87,16 @@ TEST(TaskSchedulerGroup, should_not_increment_completed_tasks_counter_when_finis
     CHECK_EQUAL(3, defaultScheduler.getNumCompletedTasks());
 }
 
+TEST(TaskSchedulerGroup, should_only_schedule_tasks_if_in_the_zone_mode_active) {
+    Config defaultConfig {taskDuration, shortBreakDuration, longBreakDuration, tasksBeforeBreak};
+    unsigned numCompleted = 2;
+    TaskScheduler defaultScheduler {defaultConfig, numCompleted};
+    defaultScheduler.toggleInTheZoneMode();
+    for (size_t i = 0; i < 20; ++i) {
+        defaultScheduler.startTask();
+        defaultScheduler.finishTask();
+        CHECK(!defaultScheduler.isBreak());
+    }
+}
+
 

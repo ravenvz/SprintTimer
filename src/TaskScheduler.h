@@ -61,17 +61,24 @@ struct Config {
 };
 
 
+struct TimeInterval {
+    std::chrono::system_clock::time_point startTime;
+    std::chrono::system_clock::time_point finishTime;
+};
+
+
 class TaskScheduler {
 
 public:
     TaskScheduler(Config& config, unsigned completedPomodoros);
     void startTask();
-    void finishTask();
+    TimeInterval finishTask();
     void cancelTask();
     void setNextState();
     unsigned getTaskDuration();
     bool isBreak();
     unsigned getNumCompletedTasks();
+    void toggleInTheZoneMode();
 
 private:
     Config& config;
@@ -79,8 +86,7 @@ private:
     bool inTheZoneMode;
     enum class TaskState { TASK, SHORT_BREAK, LONG_BREAK  };
     TaskState currentState;
-    std::chrono::system_clock::time_point startTime;
-    std::chrono::system_clock::time_point finishTime;
+    TimeInterval currentTimeInterval;
 };
 
 
