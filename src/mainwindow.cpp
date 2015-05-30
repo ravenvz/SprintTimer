@@ -1,4 +1,3 @@
-#include <QString>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "dialogs/pomodorocanceldialog.h"
@@ -15,12 +14,14 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
 {
     ui->setupUi(this);
     timer = new QTimer(this);
+    player = new QMediaPlayer;
     setUiToIdleState();
     connectSlots();
 }
 
 MainWindow::~MainWindow() {
     delete timer;
+    delete player;
     delete ui;
 }
 
@@ -84,7 +85,11 @@ void MainWindow::updateTimerCounter() {
     } else {
         timer->stop();
         if (!ui->btnZone->isChecked()) {
-            // TODO play sound
+            // TODO might not be the best way to handle this, as it requires gstreamer-ugly-plugins on my system
+            player->setMedia(QUrl::fromLocalFile("/home/vizier/Projects/pomodoro_cpp/resources/ring.mp3"));
+            // TODO Volume should not be a magic number and should be set in config
+            player->setVolume(50);
+            player->play();
         }
         if (ui->btnZone->isChecked()) {
 

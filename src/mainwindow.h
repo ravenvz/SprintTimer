@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QMediaPlayer>
+#include <vector>
 #include "TaskScheduler.h"
 
 namespace Ui {
@@ -28,6 +30,8 @@ private:
     Ui::MainWindow *ui;
     TaskScheduler taskScheduler;
     QTimer* timer;
+    QMediaPlayer* player;
+    std::vector<TimeInterval> completedTasksIntervals;
     unsigned progressBarMaxValue;
     unsigned timerDurationInSeconds;
 
@@ -36,7 +40,5 @@ private:
     void setUiToRunningState();
     void setUiToSubmissionState();
 };
-
-
 
 #endif // MAINWINDOW_H 
