@@ -4,7 +4,7 @@ project(test_pomodoro)
 set(SOURCE_FILES
     run_all_tests.cpp
     TestTaskScheduler.cpp
-    ../src/TaskScheduler.cpp
+    ../src/core/TaskScheduler.cpp
 )
 find_library(CppUTest REQUIRED)
 

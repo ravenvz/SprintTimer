@@ -1,8 +1,8 @@
 #include <QApplication>
-#include "mainwindow.h"
+#include "gui/mainwindow.h"
 #include "db_helper.h"
 
-#include "TaskScheduler.h"
+#include "core/TaskScheduler.h"
 
 
 Config readConfig() {

@@ -1,7 +1,7 @@
-#include "mainwindow.h"
+#include "gui/mainwindow.h"
 #include "ui_mainwindow.h"
-#include "dialogs/pomodorocanceldialog.h"
-#include "dialogs/addtodoitemdialog.h"
+#include "gui/dialogs/pomodorocanceldialog.h"
+#include "gui/dialogs/addtodoitemdialog.h"
 
 
 #include <iostream>

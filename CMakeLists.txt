@@ -56,17 +56,17 @@ endif ()
 include_directories(src dialogs)
 
 set(SOURCE_FILES src/main.cpp
-                 src/mainwindow.cpp
-                 src/dialogs/addtodoitemdialog.cpp
-                 src/dialogs/pomodorocanceldialog.cpp
-                 src/todoitemslistview.cpp
-                 src/TaskScheduler.cpp
+                 src/gui/mainwindow.cpp
+                 src/gui/dialogs/addtodoitemdialog.cpp
+                 src/gui/dialogs/pomodorocanceldialog.cpp
+                 src/gui/todoitemslistview.cpp
+                 src/core/TaskScheduler.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS
-    src/ui/mainwindow.ui
-    src/ui/add_todo_dialog.ui
-    src/ui/pom_cancel_dialog.ui
+    src/gui/ui/mainwindow.ui
+    src/gui/ui/add_todo_dialog.ui
+    src/gui/ui/pom_cancel_dialog.ui
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})

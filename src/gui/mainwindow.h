@@ -5,7 +5,7 @@
 #include <QTimer>
 #include <QMediaPlayer>
 #include <vector>
-#include "TaskScheduler.h"
+#include "core/TaskScheduler.h"
 
 namespace Ui {
     class MainWindow;
