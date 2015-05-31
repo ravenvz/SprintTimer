@@ -1,5 +1,4 @@
 #include <QApplication>
-#include <QtSql>
 #include "mainwindow.h"
 #include "db_helper.h"
 

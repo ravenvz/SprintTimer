@@ -1,3 +1,5 @@
+#include <QtSql>
+
 void createDatabase(QSqlDatabase& db, QString& filename) {
     db.setDatabaseName(filename);
     db.open();
@@ -24,4 +26,3 @@ bool connectToDatabase() {
     }
     return db.isOpen();
 }
-
