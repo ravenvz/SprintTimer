@@ -14,7 +14,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
 
 find_package(Qt5Multimedia REQUIRED)
-find_package(Qt5MultimediaWidgets REQUIRED)
+# find_package(Qt5MultimediaWidgets REQUIRED)
+find_package(Qt5Sql REQUIRED)
 
 set(QT_USE_QTMULTIMEDIA TRUE)
 # set(QT_USE_QTMULTIMEDIAWIDGETS TRUE)
@@ -71,7 +72,7 @@ QT5_WRAP_UI(UI_HEADERS
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})
 # add_executable(pomodoro src/main.cpp mainwindow.cpp)
 
-qt5_use_modules(${PROJECT} Multimedia Widgets)
+qt5_use_modules(${PROJECT} Multimedia Widgets Sql)
 
 add_subdirectory(tests)
 # add_subdirectory(${EXTERNAL_LIBS}/docopt)

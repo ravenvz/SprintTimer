@@ -1,5 +1,8 @@
-#include "mainwindow.h"
 #include <QApplication>
+#include <QtSql>
+#include "mainwindow.h"
+#include "db_helper.h"
+
 #include "TaskScheduler.h"
 
 
@@ -17,9 +20,16 @@ TaskScheduler initTaskScheduler() {
     return taskScheduler;
 }
 
+
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+    if (!connectToDatabase()) {
+        qDebug() << "FATAL unable to connect to database";
+        return -1;
+    }
+    qDebug() << "Successfully connected to database";
     MainWindow w {initTaskScheduler()};
     w.show();
 
