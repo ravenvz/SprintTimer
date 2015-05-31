@@ -1,4 +1,4 @@
-#include "TaskScheduler.h"
+#include "core/TaskScheduler.h"
 #include <TestHarness.h>
 
 TEST_GROUP(TaskSchedulerGroup) {
