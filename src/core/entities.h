@@ -1,3 +1,6 @@
+#ifndef ENTITIES_H
+#define ENTITIES_H
+
 #include <chrono>
 #include <string>
 
@@ -8,3 +11,4 @@ struct Pomodoro {
     std::chrono::system_clock::time_point finishTime;
 };
 
+#endif // ENTITIES_H 

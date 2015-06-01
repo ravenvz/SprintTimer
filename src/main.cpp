@@ -1,6 +1,6 @@
 #include <QApplication>
 #include "gui/mainwindow.h"
-#include "db_helper.h"
+#include "data_base/db_helper.h"
 
 #include "core/TaskScheduler.h"
 
