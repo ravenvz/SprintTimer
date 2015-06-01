@@ -25,4 +25,6 @@ bool connectToDatabase() {
         db.open();
     }
     return db.isOpen();
+    db.close();
+    QSqlDatabase::removeDatabase("QSQLITE");
 }
