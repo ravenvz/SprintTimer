@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "gui/dialogs/pomodorocanceldialog.h"
 #include "gui/dialogs/addtodoitemdialog.h"
+#include "core/entities.h"
 
 
 #include <iostream>
