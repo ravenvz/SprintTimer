@@ -1,12 +1,12 @@
 #include <QApplication>
 #include "gui/mainwindow.h"
-#include "data_base/db_helper.h"
+// #include <data_base/db_helper.h>
 
 #include "core/TaskScheduler.h"
 
 
 Config readConfig() {
-    Config applicationConfig {25, 5, 15, 4};
+    Config applicationConfig {1, 5, 15, 4};
     return applicationConfig;
 }
 
@@ -24,7 +24,7 @@ TaskScheduler initTaskScheduler() {
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    if (!connectToDatabase()) {
+    if (!createDbConnection()) {
         qDebug() << "FATAL unable to connect to database";
         return -1;
     }
