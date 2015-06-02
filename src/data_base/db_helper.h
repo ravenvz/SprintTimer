@@ -7,36 +7,9 @@
 #include "core/entities.h"
 
 
-// void createDatabase(QSqlDatabase& db, QString& filename);
-inline void createDatabase(QSqlDatabase& db, QString& filename) {
-    db.setDatabaseName(filename);
-    db.open();
-    QSqlQuery query;
-    query.exec("create table pomodoro "
-            "(id integer primary key autoincrement, "
-            "name varchar(50), "
-            "start_time datetime, "
-            "finish_time datetime)");
-    db.close();
-}
+void createDatabase(QSqlDatabase& db, QString& filename);
 
-// bool createDbConnection();
-inline bool createDbConnection() {
-    QString filename = "db/pomodoro.db";
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    QFile databaseFile(filename);
-    if (!databaseFile.exists()) {
-        qDebug() << "Database not found. Creating...";
-        createDatabase(db, filename);
-    } else {
-        qDebug() << "Database found. Opening...";
-        db.setDatabaseName(filename);
-    }
-    if (!db.open()) {
-        return false;
-    }
-    return true;
-}
+bool createDbConnection();
 
 
 class PomodoroGateway
@@ -56,6 +29,19 @@ public:
             result.append(r);
         }
         return result;
+    }
+
+    static void storePomodoro(Pomodoro pomodoro) {
+        QSqlQuery query;
+        QVariant name(pomodoro.name);
+        QVariant startTime(pomodoro.startTime);
+        QVariant finishTime(pomodoro.finishTime);
+        query.prepare("insert into pomodoro (name, start_time, finish_time) "
+                      "values (:name, :start_time, :finish_time)");
+        query.bindValue(":name", name);
+        query.bindValue(":start_time", startTime);
+        query.bindValue(":finish_time", finishTime);
+        query.exec();
     }
 };
 

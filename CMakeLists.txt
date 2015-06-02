@@ -12,14 +12,13 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Widgets finds its own dependencies.
 find_package(Qt5Widgets REQUIRED)
-
 find_package(Qt5Multimedia REQUIRED)
-# find_package(Qt5MultimediaWidgets REQUIRED)
 find_package(Qt5Sql REQUIRED)
+find_package(Qt5Core REQUIRED)
 
 set(QT_USE_QTMULTIMEDIA TRUE)
-# set(QT_USE_QTMULTIMEDIAWIDGETS TRUE)
 
+# set(QT_USE_QTMULTIMEDIAWIDGETS TRUE)
 
 # set (EXTERNAL_LIBS external_libs)
 
@@ -53,7 +52,7 @@ endif ()
 
 #find_library(CppUTest REQUIRED)
 
-include_directories(src dialogs)
+include_directories(src dialogs data_base)
 
 set(SOURCE_FILES src/main.cpp
                  src/gui/mainwindow.cpp
@@ -61,6 +60,7 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/dialogs/pomodorocanceldialog.cpp
                  src/gui/todoitemslistview.cpp
                  src/core/TaskScheduler.cpp
+                 src/data_base/db_helper.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS
@@ -72,7 +72,7 @@ QT5_WRAP_UI(UI_HEADERS
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})
 # add_executable(pomodoro src/main.cpp mainwindow.cpp)
 
-qt5_use_modules(${PROJECT} Multimedia Widgets Sql)
+qt5_use_modules(${PROJECT} Core Multimedia Widgets Sql)
 
 add_subdirectory(tests)
 # add_subdirectory(${EXTERNAL_LIBS}/docopt)

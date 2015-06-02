@@ -118,6 +118,8 @@ void MainWindow::submitPomodoro() {
     }
     completedTasksIntervals.push_back(taskScheduler.finishTask());
     for (TimeInterval interval : completedTasksIntervals) {
+        Pomodoro pomodoro {name, interval.startTime, interval.finishTime};
+        PomodoroGateway::storePomodoro(pomodoro);
         // TODO store pomodoro in db
         // Something.storePomodoro(whatever needed);
         //
