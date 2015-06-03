@@ -8,6 +8,7 @@ struct Pomodoro {
     QString name;
     QDateTime startTime;
     QDateTime finishTime;
+
 };
 
 #endif // ENTITIES_H 
