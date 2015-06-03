@@ -19,6 +19,7 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     pomodoroViewModel = new QStringListModel(this);
     setUiToIdleState();
     connectSlots();
+    updatePomodoroView();
 }
 
 MainWindow::~MainWindow() {

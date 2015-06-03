@@ -21,12 +21,10 @@ public:
         query.exec("select * from pomodoro");
         while (query.next()) {
             QStringList m;
-            m.append(query.value(0).toString());
-            m.append(query.value(1).toString());
-            m.append(query.value(2).toString());
-            m.append(query.value(3).toString());
-            QString r = m.join(" ");
-            result.append(r);
+            Pomodoro pomodoro {query.value(1).toString(),
+                               query.value(2).toDateTime(),
+                               query.value(3).toDateTime()};
+            result.append(pomodoro.asString());
         }
         return result;
     }
