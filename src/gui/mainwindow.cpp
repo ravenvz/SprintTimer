@@ -117,6 +117,7 @@ void MainWindow::submitPomodoro() {
     if (name.isEmpty()) {
         return;
     }
+    ui->leDoneTask->hide();
     completedTasksIntervals.push_back(taskScheduler.finishTask());
     for (TimeInterval interval : completedTasksIntervals) {
         Pomodoro pomodoro {name, interval.startTime, interval.finishTime};

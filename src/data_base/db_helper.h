@@ -18,7 +18,7 @@ public:
     static QStringList getPomodorosForToday() {
         QStringList result;
         QSqlQuery query;
-        query.exec("select * from pomodoro");
+        query.exec("select * from pomodoro where date(start_time) = date('now')");
         while (query.next()) {
             QStringList m;
             Pomodoro pomodoro {query.value(1).toString(),
