@@ -1,7 +1,7 @@
 #ifndef POMODORO_TASKSCHEDULER_H
 #define POMODORO_TASKSCHEDULER_H
 
-#include <qt/QtCore/QDateTime>
+#include <QDateTime>
 
 
 struct Config {
