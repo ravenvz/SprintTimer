@@ -10,20 +10,9 @@ set(CMAKE_AUTOMOC ON)
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Widgets finds its own dependencies.
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Multimedia REQUIRED)
-find_package(Qt5Sql REQUIRED)
-find_package(Qt5Core REQUIRED)
-# find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
-
-# get_target_property(QtCore_location Qt5::Core LOCATION)
+find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
 
 # set(QT_USE_QTMULTIMEDIA TRUE)
-
-# set(QT_USE_QTMULTIMEDIAWIDGETS TRUE)
-
-# set (EXTERNAL_LIBS external_libs)
 
 set ("${PROJECT}_BINARY_DIR" bin)
 set ("${PROJECT}_SOURCE_DIR" src:include)
@@ -80,7 +69,7 @@ add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})
 
 qt5_use_modules(${PROJECT} Multimedia Widgets Sql Core)
 
-target_link_libraries(${PROJECT} Qt5::Core)
+# target_link_libraries(${PROJECT} Qt5::Core)
 
 add_subdirectory(tests)
 # add_subdirectory(${EXTERNAL_LIBS}/docopt)
