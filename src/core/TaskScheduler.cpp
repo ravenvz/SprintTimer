@@ -10,12 +10,12 @@ TaskScheduler::TaskScheduler(Config applicationConfig, unsigned completedTasks) 
 
 void TaskScheduler::startTask() {
     currentTimeInterval = TimeInterval();
-    currentTimeInterval.startTime = std::chrono::system_clock::now();
+    currentTimeInterval.startTime = QDateTime::currentDateTime();
 }
 
 TimeInterval TaskScheduler::finishTask() {
     TaskState previousState = currentState;
-    currentTimeInterval.finishTime = std::chrono::system_clock::now();
+    currentTimeInterval.finishTime = QDateTime::currentDateTime();
     if (previousState != TaskState::TASK) {
         setNextState();
         return currentTimeInterval;

@@ -1,7 +1,8 @@
-#include "mainwindow.h"
+#include "gui/mainwindow.h"
 #include "ui_mainwindow.h"
-#include "dialogs/pomodorocanceldialog.h"
-#include "dialogs/addtodoitemdialog.h"
+#include "gui/dialogs/pomodorocanceldialog.h"
+#include "gui/dialogs/addtodoitemdialog.h"
+#include "core/entities.h"
 
 
 #include <iostream>
@@ -15,14 +16,17 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     ui->setupUi(this);
     timer = new QTimer(this);
     player = new QMediaPlayer;
+    pomodoroViewModel = new QStringListModel(this);
     setUiToIdleState();
     connectSlots();
+    updatePomodoroView();
 }
 
 MainWindow::~MainWindow() {
     delete timer;
     delete player;
     delete ui;
+    delete pomodoroViewModel;
 }
 
 void MainWindow::connectSlots() {
@@ -113,17 +117,26 @@ void MainWindow::submitPomodoro() {
     if (name.isEmpty()) {
         return;
     }
+    ui->leDoneTask->hide();
     completedTasksIntervals.push_back(taskScheduler.finishTask());
     for (TimeInterval interval : completedTasksIntervals) {
+        Pomodoro pomodoro {name, interval.startTime, interval.finishTime};
+        PomodoroGateway::storePomodoro(pomodoro);
         // TODO store pomodoro in db
         // Something.storePomodoro(whatever needed);
         //
         // NOTE Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
     completedTasksIntervals.clear();
+    updatePomodoroView();
 
     // TODO 
     // Update pomodoros in the list view
     startTask();
 }
 
+void MainWindow::updatePomodoroView() {
+    QStringList lst = PomodoroGateway::getPomodorosForToday();
+    pomodoroViewModel->setStringList(lst);
+    ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
+}
