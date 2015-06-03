@@ -5,9 +5,9 @@
 bool createTestDbConnection() {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(":memory:");
-    if (!db.open()) {
-        return false;
-    }
+    // if (!db.open()) {
+    //     return false;
+    // }
     return true;
 }
 
@@ -26,7 +26,8 @@ TEST_GROUP(PomodoroGatewayGroup) {
 };
 
 TEST(PomodoroGatewayGroup, test_name) {
-    // createTestDbConnection();
+    // QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    // db.setDatabaseName(":memory:");
     // QDateTime start = QDateTime::currentDateTime();
     // QDateTime finish = QDateTime::currentDateTime();
     // Pomodoro pomodoro {"TestPomo1", start, finish};
