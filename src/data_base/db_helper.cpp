@@ -6,10 +6,26 @@ void createDatabase(QSqlDatabase& db, QString& filename) {
     QSqlQuery query;
     query.exec("create table pomodoro "
             "(id integer primary key autoincrement, "
-            "name varchar(50), "
+            "name varchar, "
             "start_time datetime, "
             "finish_time datetime)");
-    db.close();
+    query.exec("create table tag "
+            "(id integer primary key autoincrement, "
+            "name varchar)");
+    query.exec("create table todo_item "
+            "(id integer primary key autoincrement, "
+            "name varchar unique, "
+            "estimated_pomodoros integer, "
+            "spent_pomodoros integer, "
+            "completed boolean, "
+            "priority integer, "
+            "last_modified datetime)");
+    query.exec("create table todotag "
+            "(id integer primary key autoincrement, "
+            "foreign key(tag_id) references tag(id) not null, "
+            "foreign key(todo_id) references todo_item(id) not null)");
+
+    // db.close();
 }
 
 bool createDbConnection() {
@@ -28,6 +44,3 @@ bool createDbConnection() {
     }
     return true;
 }
-
-
-
