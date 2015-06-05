@@ -14,9 +14,11 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     timer = new QTimer(this);
     player = new QMediaPlayer;
     pomodoroViewModel = new QStringListModel(this);
+    todoitemViewModel = new QStringListModel(this);
     setUiToIdleState();
     connectSlots();
     updatePomodoroView();
+    updateTodoItemView();
 }
 
 MainWindow::~MainWindow() {
@@ -24,6 +26,7 @@ MainWindow::~MainWindow() {
     delete player;
     delete ui;
     delete pomodoroViewModel;
+    delete todoitemViewModel;
 }
 
 void MainWindow::connectSlots() {
@@ -73,6 +76,7 @@ void MainWindow::addTodoItem() {
     if (dialog.exec()) {
         TodoItem item = dialog.getNewTodoItem();
         TodoItemGateway::storeTodoItem(item);
+        updateTodoItemView();
     }
 }
 
@@ -122,10 +126,7 @@ void MainWindow::submitPomodoro() {
     for (TimeInterval interval : completedTasksIntervals) {
         Pomodoro pomodoro {name, interval.startTime, interval.finishTime};
         PomodoroGateway::storePomodoro(pomodoro);
-        // TODO store pomodoro in db
-        // Something.storePomodoro(whatever needed);
-        //
-        // NOTE Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
+        // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
     completedTasksIntervals.clear();
     updatePomodoroView();
@@ -136,4 +137,13 @@ void MainWindow::updatePomodoroView() {
     QStringList lst = PomodoroGateway::getPomodorosForToday();
     pomodoroViewModel->setStringList(lst);
     ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
+}
+
+void MainWindow::updateTodoItemView() {
+    QStringList lst = TodoItemGateway::getUncompleteTodoItems();
+    // for (QString s : lst) {
+    //     qDebug() << s;
+    // }
+    todoitemViewModel->setStringList(lst);
+    ui->lvTodoItems->setModel(todoitemViewModel);
 }

@@ -30,6 +30,18 @@ struct TodoItem {
     unsigned priority;
     QStringList tags;
     bool completed;
+
+    QString asString() {
+        QStringList hashedTags;
+        for (QString tag : tags) {
+            hashedTags.append(tag.prepend("#"));
+        }
+        QStringList result;
+        result.append(hashedTags.join(" "));
+        result.append(name);
+        result.append(QString(" %1/%2 ").arg(spentPomodoros).arg(estimatedPomodoros));
+        return result.join(" ");
+    }
 };
 
 #endif // ENTITIES_H 

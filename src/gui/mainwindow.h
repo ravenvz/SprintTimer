@@ -38,12 +38,14 @@ private:
     unsigned progressBarMaxValue;
     int timerDurationInSeconds;
     QStringListModel* pomodoroViewModel;
+    QStringListModel* todoitemViewModel;
 
     void connectSlots();
     void setUiToIdleState();
     void setUiToRunningState();
     void setUiToSubmissionState();
     void updatePomodoroView();
+    void updateTodoItemView();
 };
 
 #endif // MAINWINDOW_H 

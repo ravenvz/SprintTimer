@@ -25,8 +25,8 @@ void createDatabase(QSqlDatabase& db, QString& filename) {
             "(id integer primary key autoincrement, "
             "tag_id integer not null, "
             "todo_id integer not null, "
-            // "foreign key(tag_id) references tag(id) on delete cascade, "
-            "foreign key(todo_id) references todo_item(id) on delete cascade)");
+            "foreign key(tag_id) references tag(id) on delete cascade on update cascade, "
+            "foreign key(todo_id) references todo_item(id) on delete cascade on update cascade)");
 
     // qDebug() << query.lastError() << " this error";
     // db.close();
