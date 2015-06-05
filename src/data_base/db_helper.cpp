@@ -4,6 +4,7 @@ void createDatabase(QSqlDatabase& db, QString& filename) {
     db.setDatabaseName(filename);
     db.open();
     QSqlQuery query;
+    query.exec("pragma foreign_keys = on");
     query.exec("create table pomodoro "
             "(id integer primary key autoincrement, "
             "name varchar, "
@@ -22,9 +23,12 @@ void createDatabase(QSqlDatabase& db, QString& filename) {
             "last_modified datetime)");
     query.exec("create table todotag "
             "(id integer primary key autoincrement, "
-            "foreign key(tag_id) references tag(id) not null, "
-            "foreign key(todo_id) references todo_item(id) not null)");
+            "tag_id integer not null, "
+            "todo_id integer not null, "
+            // "foreign key(tag_id) references tag(id) on delete cascade, "
+            "foreign key(todo_id) references todo_item(id) on delete cascade)");
 
+    // qDebug() << query.lastError() << " this error";
     // db.close();
 }
 

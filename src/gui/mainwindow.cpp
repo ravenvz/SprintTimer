@@ -5,9 +5,6 @@
 #include "core/entities.h"
 
 
-#include <iostream>
-
-
 MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -73,7 +70,10 @@ void MainWindow::cancelTask() {
 
 void MainWindow::addTodoItem() {
     AddTodoItemDialog dialog {};
-    dialog.exec();
+    if (dialog.exec()) {
+        TodoItem item = dialog.getNewTodoItem();
+        TodoItemGateway::storeTodoItem(item);
+    }
 }
 
 void MainWindow::startTask() {
@@ -129,9 +129,6 @@ void MainWindow::submitPomodoro() {
     }
     completedTasksIntervals.clear();
     updatePomodoroView();
-
-    // TODO 
-    // Update pomodoros in the list view
     startTask();
 }
 

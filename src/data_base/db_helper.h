@@ -1,7 +1,6 @@
 #ifndef DB_HELPER_H
 #define DB_HELPER_H
 
-
 #include <QtSql>
 #include <QSqlDatabase>
 #include "core/entities.h"
@@ -18,6 +17,7 @@ public:
     static QStringList getPomodorosForToday() {
         QStringList result;
         QSqlQuery query;
+        // TODO replace star
         query.exec("select * from pomodoro where date(start_time) = date('now') order by start_time desc");
         while (query.next()) {
             QStringList m;
@@ -31,15 +31,56 @@ public:
 
     static void storePomodoro(Pomodoro pomodoro) {
         QSqlQuery query;
-        QVariant name(pomodoro.name);
-        QVariant startTime(pomodoro.startTime);
-        QVariant finishTime(pomodoro.finishTime);
         query.prepare("insert into pomodoro (name, start_time, finish_time) "
                       "values (:name, :start_time, :finish_time)");
-        query.bindValue(":name", name);
-        query.bindValue(":start_time", startTime);
-        query.bindValue(":finish_time", finishTime);
+        query.bindValue(":name", QVariant(pomodoro.name));
+        query.bindValue(":start_time", QVariant(pomodoro.startTime));
+        query.bindValue(":finish_time", QVariant(pomodoro.finishTime));
         query.exec();
+    }
+};
+
+
+class TodoItemGateway
+{
+public:
+    static void storeTodoItem(TodoItem item) {
+        QSqlQuery query;
+        query.prepare("insert into todo_item (name, estimated_pomodoros, spent_pomodoros, completed, priority, last_modified) "
+                "values (:name, :estimated_pomodoros, :spent_pomodoros, :completed, :priority, :last_modified)");
+        query.bindValue(":name", QVariant(item.name));
+        query.bindValue(":estimated_pomodoros", QVariant(item.estimatedPomodoros));
+        query.bindValue(":spent_pomodoros", QVariant(item.spentPomodoros));
+        query.bindValue(":completed", QVariant(item.completed));
+        query.bindValue(":priority", QVariant(item.priority));
+        query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
+        query.exec();
+        QVariant todoId = query.lastInsertId();
+        // std::cout << todoId.toInt() << std::endl;
+        qDebug() << todoId.toInt();
+        if (!item.tags.isEmpty()) {
+            for (QString tag : item.tags) {
+                query.prepare("select id from tag where name = (:name)");
+                query.bindValue(":name", QVariant(tag));
+                query.exec();
+                QVariant tagId;
+                if (query.next()) {
+                    qDebug() << "Found tag";
+                    tagId = query.value(0);
+                } else {
+                    qDebug() << "NOT fount tag";
+                    query.prepare("insert into tag (name) values (:name)");
+                    query.bindValue(":name", QVariant(tag));
+                    query.exec();
+                    tagId = query.lastInsertId();
+                }
+
+                query.prepare("insert into todotag (tag_id, todo_id) values (:tag_id, :todo_id)");
+                query.bindValue(":tag_id", tagId);
+                query.bindValue(":todo_id", todoId);
+                query.exec();
+            }
+        }
     }
 };
 

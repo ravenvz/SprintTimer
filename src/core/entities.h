@@ -1,7 +1,7 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include <chrono>
+#include <QDateTime>
 
 
 struct Pomodoro {
@@ -21,6 +21,15 @@ struct Pomodoro {
         result.append(name);
         return result.join(" ");
     }
+};
+
+struct TodoItem {
+    QString name;
+    unsigned estimatedPomodoros;
+    unsigned spentPomodoros;
+    unsigned priority;
+    QStringList tags;
+    bool completed;
 };
 
 #endif // ENTITIES_H 
