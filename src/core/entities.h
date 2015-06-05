@@ -9,7 +9,7 @@ struct Pomodoro {
     QDateTime startTime;
     QDateTime finishTime;
 
-    QString asString() {
+    QString asString() const {
         QStringList result;
         QString start = startTime.time().toString();
         QString finish = finishTime.time().toString();
@@ -31,7 +31,7 @@ struct TodoItem {
     QStringList tags;
     bool completed;
 
-    QString asString() {
+    QString asString() const {
         QStringList hashedTags;
         for (QString tag : tags) {
             hashedTags.append(tag.prepend("#"));

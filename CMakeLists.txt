@@ -54,6 +54,7 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/dialogs/addtodoitemdialog.cpp
                  src/gui/dialogs/pomodorocanceldialog.cpp
                  src/gui/todoitemslistview.cpp
+                 src/gui/todoitemslistmodel.cpp
                  src/core/TaskScheduler.cpp
                  src/data_base/db_helper.cpp
 )

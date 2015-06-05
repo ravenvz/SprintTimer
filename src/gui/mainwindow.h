@@ -8,6 +8,7 @@
 #include <vector>
 #include "core/TaskScheduler.h"
 #include <data_base/db_helper.h>
+#include "todoitemslistmodel.h"
 
 namespace Ui {
     class MainWindow;
@@ -38,7 +39,7 @@ private:
     unsigned progressBarMaxValue;
     int timerDurationInSeconds;
     QStringListModel* pomodoroViewModel;
-    QStringListModel* todoitemViewModel;
+    TodoItemsListModel* todoitemViewModel;
 
     void connectSlots();
     void setUiToIdleState();

@@ -4,6 +4,7 @@
 #include <QtSql>
 #include <QSqlDatabase>
 #include "core/entities.h"
+#include <vector>
 
 
 void createDatabase(QSqlDatabase& db, QString& filename);
@@ -83,7 +84,7 @@ public:
         }
     }
 
-    static QStringList getUncompleteTodoItems() {
+    static std::vector<TodoItem> getUncompleteTodoItems() {
         QSqlQuery query;
         query.exec("select todo_item.name, todo_item.estimated_pomodoros, "
                "todo_item.spent_pomodoros, todo_item.priority, todo_item.completed, group_concat(tag.name) "
@@ -91,7 +92,7 @@ public:
                "join tag on tag.id = todotag.tag_id "
                "where completed = 0 "
                "group by todo_item.name");
-        QStringList result;
+        std::vector<TodoItem> items;
         while (query.next()) {
             QStringList tags = query.value(5).toString().split(",");
             TodoItem item {query.value(0).toString(),
@@ -100,9 +101,9 @@ public:
                            query.value(3).toUInt(),
                            tags,
                            query.value(4).toBool()};
-            result.append(item.asString());
+            items.push_back(item);
         }
-        return result;
+        return items;
     }
 };
 

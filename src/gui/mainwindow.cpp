@@ -14,7 +14,7 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     timer = new QTimer(this);
     player = new QMediaPlayer;
     pomodoroViewModel = new QStringListModel(this);
-    todoitemViewModel = new QStringListModel(this);
+    todoitemViewModel = new TodoItemsListModel(this);
     setUiToIdleState();
     connectSlots();
     updatePomodoroView();
@@ -140,10 +140,8 @@ void MainWindow::updatePomodoroView() {
 }
 
 void MainWindow::updateTodoItemView() {
-    QStringList lst = TodoItemGateway::getUncompleteTodoItems();
-    // for (QString s : lst) {
-    //     qDebug() << s;
-    // }
-    todoitemViewModel->setStringList(lst);
+    // QStringList lst = TodoItemGateway::getUncompleteTodoItems();
+    // ui->lvTodoItems->setMovement(QListView::Free);
+    todoitemViewModel->setItems(TodoItemGateway::getUncompleteTodoItems());
     ui->lvTodoItems->setModel(todoitemViewModel);
 }
