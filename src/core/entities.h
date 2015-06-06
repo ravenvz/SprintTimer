@@ -32,15 +32,24 @@ struct TodoItem {
     bool completed;
 
     QString asString() const {
+        QStringList result;
+        result.append(tagsAsHashedString());
+        result.append(name);
+        result.append(QString(" %1/%2 ").arg(spentPomodoros).arg(estimatedPomodoros));
+        return result.join(" ");
+    }
+
+    QString tagsAndNameAsString() const {
+        return QString("%1 %2").arg(tagsAsHashedString()).arg(name);
+    }
+
+private:
+    QString tagsAsHashedString() const {
         QStringList hashedTags;
         for (QString tag : tags) {
             hashedTags.append(tag.prepend("#"));
         }
-        QStringList result;
-        result.append(hashedTags.join(" "));
-        result.append(name);
-        result.append(QString(" %1/%2 ").arg(spentPomodoros).arg(estimatedPomodoros));
-        return result.join(" ");
+        return hashedTags.join(" ");
     }
 };
 

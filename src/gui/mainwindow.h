@@ -28,6 +28,7 @@ private slots:
     void addTodoItem();
     void updateTimerCounter();
     void submitPomodoro();
+    void autoPutTodoToPomodoro(QModelIndex index);
 
 private:
     const unsigned secondsPerMinute = 60;

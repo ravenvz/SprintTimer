@@ -35,6 +35,7 @@ void MainWindow::connectSlots() {
     connect(ui->btnCancel, SIGNAL(clicked(bool)), this, SLOT(cancelTask()));
     connect(ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
+    connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoToPomodoro(QModelIndex)));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -144,4 +145,11 @@ void MainWindow::updateTodoItemView() {
     // ui->lvTodoItems->setMovement(QListView::Free);
     todoitemViewModel->setItems(TodoItemGateway::getUncompleteTodoItems());
     ui->lvTodoItems->setModel(todoitemViewModel);
+}
+
+void MainWindow::autoPutTodoToPomodoro(QModelIndex index) {
+    if (ui->leDoneTask->isVisible()) {
+        ui->leDoneTask->setText(todoitemViewModel->index(index.row(), 0)
+                .data(TodoItemsListModel::CopyToPomodoroRole).toString());
+    }
 }
