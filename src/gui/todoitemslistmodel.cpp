@@ -1,6 +1,7 @@
 #include <QSize>
 #include "todoitemslistmodel.h"
 
+
 TodoItemsListModel::TodoItemsListModel(QObject* parent) :
     QAbstractListModel(parent) 
 {

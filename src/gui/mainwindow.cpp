@@ -129,8 +129,17 @@ void MainWindow::submitPomodoro() {
         PomodoroGateway::storePomodoro(pomodoro);
         // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
+    // Check if pomodoro tags + name matches any uncompleted item in todo list view
+    // and increment spent pomodoros if it does
+    for (size_t i = 0; i < todoitemViewModel->rowCount(); ++i) {
+       if (name == todoitemViewModel->index(i, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
+           QString todoItemName = todoitemViewModel->index(i, 0).data(Qt::EditRole).toString();
+           TodoItemGateway::incrementSpentPomodoros(todoItemName, completedTasksIntervals.size());
+       }
+    } 
     completedTasksIntervals.clear();
     updatePomodoroView();
+    updateTodoItemView();
     startTask();
 }
 
@@ -141,10 +150,9 @@ void MainWindow::updatePomodoroView() {
 }
 
 void MainWindow::updateTodoItemView() {
-    // QStringList lst = TodoItemGateway::getUncompleteTodoItems();
-    // ui->lvTodoItems->setMovement(QListView::Free);
     todoitemViewModel->setItems(TodoItemGateway::getUncompleteTodoItems());
     ui->lvTodoItems->setModel(todoitemViewModel);
+    ui->lvTodoItems->viewport()->update();
 }
 
 void MainWindow::autoPutTodoToPomodoro(QModelIndex index) {

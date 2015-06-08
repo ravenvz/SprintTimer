@@ -84,6 +84,14 @@ public:
         }
     }
 
+    static void incrementSpentPomodoros(QString itemName, int incrementBy) {
+        QSqlQuery query;
+        query.prepare("update todo_item set spent_pomodoros = spent_pomodoros + (:increment_by) where name = (:name)");
+        query.bindValue(":increment_by", QVariant(incrementBy));
+        query.bindValue(":name", QVariant(itemName));
+        query.exec();
+    }
+
     static std::vector<TodoItem> getUncompleteTodoItems() {
         QSqlQuery query;
         query.exec("select todo_item.name, todo_item.estimated_pomodoros, "
@@ -105,6 +113,7 @@ public:
         }
         return items;
     }
+
 };
 
 #endif // DB_HELPER_H
