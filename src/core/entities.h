@@ -47,7 +47,9 @@ private:
     QString tagsAsHashedString() const {
         QStringList hashedTags;
         for (QString tag : tags) {
-            hashedTags.append(tag.prepend("#"));
+            if (!tag.isEmpty()) {
+                hashedTags.append(tag.prepend("#"));
+            }
         }
         return hashedTags.join(" ");
     }
