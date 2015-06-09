@@ -84,15 +84,15 @@ public:
         }
     }
 
-    static void incrementSpentPomodoros(QString itemName, int incrementBy) {
+    static void incrementSpentPomodoros(TodoItem& item) {
         QSqlQuery query;
-        query.prepare("update todo_item set spent_pomodoros = spent_pomodoros + (:increment_by) where name = (:name)");
-        query.bindValue(":increment_by", QVariant(incrementBy));
-        query.bindValue(":name", QVariant(itemName));
+        query.prepare("update todo_item set spent_pomodoros = (:spent_pomodoros) where name = (:name)");
+        query.bindValue(":name", QVariant(item.name));
+        query.bindValue(":spent_pomodoros", QVariant(item.spentPomodoros));
         query.exec();
     }
 
-    static std::vector<TodoItem> getUncompleteTodoItems() {
+    static QList<TodoItem> getUncompleteTodoItems() {
         QSqlQuery query;
         query.exec("select todo_item.name, todo_item.estimated_pomodoros, "
                "todo_item.spent_pomodoros, todo_item.priority, todo_item.completed, group_concat(tag.name) "
@@ -100,7 +100,7 @@ public:
                "join tag on tag.id = todotag.tag_id "
                "where completed = 0 "
                "group by todo_item.name");
-        std::vector<TodoItem> items;
+        QList<TodoItem> items;
         while (query.next()) {
             QStringList tags = query.value(5).toString().split(",");
             TodoItem item {query.value(0).toString(),
@@ -109,7 +109,7 @@ public:
                            query.value(3).toUInt(),
                            tags,
                            query.value(4).toBool()};
-            items.push_back(item);
+            items << item;
         }
         return items;
     }

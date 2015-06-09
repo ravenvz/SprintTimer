@@ -15,10 +15,10 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     player = new QMediaPlayer;
     pomodoroViewModel = new QStringListModel(this);
     todoitemViewModel = new TodoItemsListModel(this);
+    ui->lvTodoItems->setModel(todoitemViewModel);
     setUiToIdleState();
     connectSlots();
     updatePomodoroView();
-    updateTodoItemView();
 }
 
 MainWindow::~MainWindow() {
@@ -76,8 +76,7 @@ void MainWindow::addTodoItem() {
     AddTodoItemDialog dialog {};
     if (dialog.exec()) {
         TodoItem item = dialog.getNewTodoItem();
-        TodoItemGateway::storeTodoItem(item);
-        updateTodoItemView();
+        todoitemViewModel->addTodoItem(item);
     }
 }
 
@@ -131,15 +130,14 @@ void MainWindow::submitPomodoro() {
     }
     // Check if pomodoro tags + name matches any uncompleted item in todo list view
     // and increment spent pomodoros if it does
-    for (size_t i = 0; i < todoitemViewModel->rowCount(); ++i) {
+    for (int i = 0; i < todoitemViewModel->rowCount(); ++i) {
        if (name == todoitemViewModel->index(i, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
-           QString todoItemName = todoitemViewModel->index(i, 0).data(Qt::EditRole).toString();
-           TodoItemGateway::incrementSpentPomodoros(todoItemName, completedTasksIntervals.size());
+           todoitemViewModel->incrementPomodoros(i, completedTasksIntervals.size());
        }
     } 
     completedTasksIntervals.clear();
     updatePomodoroView();
-    updateTodoItemView();
+    ui->lvTodoItems->viewport()->update();
     startTask();
 }
 
@@ -147,12 +145,6 @@ void MainWindow::updatePomodoroView() {
     QStringList lst = PomodoroGateway::getPomodorosForToday();
     pomodoroViewModel->setStringList(lst);
     ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
-}
-
-void MainWindow::updateTodoItemView() {
-    todoitemViewModel->setItems(TodoItemGateway::getUncompleteTodoItems());
-    ui->lvTodoItems->setModel(todoitemViewModel);
-    ui->lvTodoItems->viewport()->update();
 }
 
 void MainWindow::autoPutTodoToPomodoro(QModelIndex index) {

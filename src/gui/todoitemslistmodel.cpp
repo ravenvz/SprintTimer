@@ -1,13 +1,15 @@
 #include <QSize>
 #include "todoitemslistmodel.h"
+#include "data_base/db_helper.h"
 
 
 TodoItemsListModel::TodoItemsListModel(QObject* parent) :
     QAbstractListModel(parent) 
 {
+    setItems(TodoItemGateway::getUncompleteTodoItems());
 }
 
-void TodoItemsListModel::setItems(std::vector<TodoItem> items) {
+void TodoItemsListModel::setItems(QList<TodoItem> items) {
     this->items = items;
 }
 
@@ -63,4 +65,16 @@ QHash<int, QByteArray> TodoItemsListModel::roleNames() const {
     QHash<int, QByteArray> roles;
     roles[CopyToPomodoroRole] = "copy";
     return roles;
+}
+
+void TodoItemsListModel::addTodoItem(TodoItem item) {
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    TodoItemGateway::storeTodoItem(item);
+    items.insert(rowCount(), item);
+    endInsertRows();
+}
+
+void TodoItemsListModel::incrementPomodoros(int row, int incrementBy) {
+    items[row].spentPomodoros += incrementBy;
+    TodoItemGateway::incrementSpentPomodoros(items[row]);
 }

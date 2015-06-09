@@ -47,7 +47,7 @@ private:
     void setUiToRunningState();
     void setUiToSubmissionState();
     void updatePomodoroView();
-    void updateTodoItemView();
+    // void updateTodoItemView();
 };
 
 #endif // MAINWINDOW_H 
