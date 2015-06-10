@@ -9,6 +9,7 @@
 #include "core/TaskScheduler.h"
 #include <data_base/db_helper.h>
 #include "todoitemslistmodel.h"
+#include "todoitemsviewdelegate.h"
 
 namespace Ui {
     class MainWindow;
@@ -41,6 +42,7 @@ private:
     int timerDurationInSeconds;
     QStringListModel* pomodoroViewModel;
     TodoItemsListModel* todoitemViewModel;
+    TodoItemsViewDelegate* todoitemViewDelegate;
 
     void connectSlots();
     void setUiToIdleState();

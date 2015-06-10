@@ -15,6 +15,8 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     player = new QMediaPlayer;
     pomodoroViewModel = new QStringListModel(this);
     todoitemViewModel = new TodoItemsListModel(this);
+    todoitemViewDelegate = new TodoItemsViewDelegate();
+    ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
     ui->lvTodoItems->setModel(todoitemViewModel);
     setUiToIdleState();
     connectSlots();
@@ -24,9 +26,10 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
 MainWindow::~MainWindow() {
     delete timer;
     delete player;
-    delete ui;
     delete pomodoroViewModel;
     delete todoitemViewModel;
+    delete todoitemViewDelegate;
+    delete ui;
 }
 
 void MainWindow::connectSlots() {
