@@ -30,6 +30,9 @@ private slots:
     void updateTimerCounter();
     void submitPomodoro();
     void autoPutTodoToPomodoro(QModelIndex index);
+    void showContextMenu(const QPoint& pos);
+    void onEditAction();
+    void onDeleteAction();
 
 private:
     const unsigned secondsPerMinute = 60;

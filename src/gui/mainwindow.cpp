@@ -18,6 +18,7 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     todoitemViewDelegate = new TodoItemsViewDelegate();
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
     ui->lvTodoItems->setModel(todoitemViewModel);
+    ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);
     setUiToIdleState();
     connectSlots();
     updatePomodoroView();
@@ -39,6 +40,7 @@ void MainWindow::connectSlots() {
     connect(ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
     connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoToPomodoro(QModelIndex)));
+    connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -155,4 +157,32 @@ void MainWindow::autoPutTodoToPomodoro(QModelIndex index) {
         ui->leDoneTask->setText(todoitemViewModel->index(index.row(), 0)
                 .data(TodoItemsListModel::CopyToPomodoroRole).toString());
     }
+}
+
+void MainWindow::showContextMenu(const QPoint& pos) {
+    QPoint globalPos = ui->lvTodoItems->mapToGlobal(pos);
+
+    QMenu todoItemsMenu;
+    QAction* editAction = new QAction("Edit", this);
+    QAction* deleteAction = new QAction("Delete", this);
+    todoItemsMenu.addAction(editAction);
+    todoItemsMenu.addAction(deleteAction);
+
+    connect(editAction, SIGNAL(triggered()), this, SLOT(onEditAction()));
+    connect(deleteAction, SIGNAL(triggered()), this, SLOT(onDeleteAction()));
+
+    QAction* selectedItem = todoItemsMenu.exec(globalPos);
+
+    if (selectedItem) {
+        qDebug() << "Ololol";
+        qDebug() << selectedItem;
+    } else {
+        qDebug() << "No waaaay!";
+    }
+}
+
+void MainWindow::onEditAction() {
+}
+
+void MainWindow::onDeleteAction() {
 }
