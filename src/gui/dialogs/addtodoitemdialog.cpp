@@ -28,3 +28,9 @@ void AddTodoItemDialog::accept() {
         QDialog::accept();
     }
 }
+
+void AddTodoItemDialog::fillItemData(TodoItem item) {
+    ui->todoName->setText(item.name);
+    ui->estimatedPomodoros->setValue(item.estimatedPomodoros);
+    ui->tags->setCurrentText(item.tagsAsString());
+}

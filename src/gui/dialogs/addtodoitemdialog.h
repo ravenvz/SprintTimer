@@ -17,6 +17,7 @@ public:
     ~AddTodoItemDialog();
     void accept() override;
     TodoItem getNewTodoItem();
+    void fillItemData(TodoItem item);
 
 private:
     Ui::AddTodoItemDialog *ui;

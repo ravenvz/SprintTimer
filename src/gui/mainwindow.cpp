@@ -175,14 +175,35 @@ void MainWindow::showContextMenu(const QPoint& pos) {
 
     if (selectedItem) {
         qDebug() << "Ololol";
-        qDebug() << selectedItem;
+        qDebug() << selectedItem->text();
     } else {
         qDebug() << "No waaaay!";
     }
 }
 
+// void MainWindow::addTodoItem() {
+//     AddTodoItemDialog dialog {};
+//     if (dialog.exec()) {
+//         TodoItem item = dialog.getNewTodoItem();
+//         todoitemViewModel->addTodoItem(item);
+//     }
+// }
+
+void MainWindow::editTodoItem(const QModelIndex& index) {
+    AddTodoItemDialog dialog {};
+    TodoItem itemToEdit = todoitemViewModel->getTodoItemByModelIndex(index);
+    dialog.setWindowTitle("Edit TodoItem");
+    dialog.fillItemData(itemToEdit);
+    if (dialog.exec()) {
+        todoitemViewModel->updateTodoItem(index, dialog.getNewTodoItem());
+    }
+}
+
 void MainWindow::onEditAction() {
+    qDebug() << ui->lvTodoItems->currentIndex();
+    editTodoItem(ui->lvTodoItems->currentIndex());
 }
 
 void MainWindow::onDeleteAction() {
+    qDebug() << ui->lvTodoItems->currentIndex();
 }

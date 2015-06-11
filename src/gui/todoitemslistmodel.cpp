@@ -78,3 +78,13 @@ void TodoItemsListModel::incrementPomodoros(int row, int incrementBy) {
     items[row].spentPomodoros += incrementBy;
     TodoItemGateway::incrementSpentPomodoros(items[row]);
 }
+
+TodoItem TodoItemsListModel::getTodoItemByModelIndex(const QModelIndex& index) {
+    return items[index.row()];
+}
+
+void TodoItemsListModel::updateTodoItem(const QModelIndex& index, const TodoItem updatedItem) {
+    QString oldItemName = item[index.row()].name;
+    item[index.row()] = updatedItem;
+    // TodoItemGateway::
+}

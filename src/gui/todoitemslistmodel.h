@@ -21,7 +21,7 @@ public:
     void addTodoItem(TodoItem item);
     void incrementPomodoros(int row, int incrementBy);
     // void removeTodoItem(TodoItem item);
-    // void getTodoItem(int 
+    TodoItem getTodoItemByModelIndex(const QModelIndex& index);
     // void updateTodoItem();
 
 private:

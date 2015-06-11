@@ -43,6 +43,14 @@ struct TodoItem {
         return QString("%1 %2").arg(tagsAsHashedString()).arg(name);
     }
 
+    QString tagsAsString() const {
+        QStringList tagsList;
+        for (QString tag : tags) {
+            tagsList << tag;
+        }
+        return tagsList.join(" ");
+    }
+
 private:
     QString tagsAsHashedString() const {
         QStringList hashedTags;
