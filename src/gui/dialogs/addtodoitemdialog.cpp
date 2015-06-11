@@ -24,7 +24,7 @@ void AddTodoItemDialog::accept() {
 
     if (!name.isEmpty()) {
         QStringList tags = tagsString.trimmed().split(" ");
-        item = TodoItem {name, estimatedPomodoros, 0, 0, tags, false};
+        item = TodoItem {name, estimatedPomodoros, 0, 0, tags, false, AddTodoItemDialog::tempId};
         QDialog::accept();
     }
 }

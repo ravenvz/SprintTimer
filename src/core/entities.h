@@ -30,6 +30,7 @@ struct TodoItem {
     unsigned priority;
     QStringList tags;
     bool completed;
+    int id;
 
     QString asString() const {
         QStringList result;

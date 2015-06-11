@@ -22,6 +22,7 @@ public:
 private:
     Ui::AddTodoItemDialog *ui;
     TodoItem item;
+    static const int tempId = -1;
 };
 
 #endif // ADDTODOITEMDIALOG_H

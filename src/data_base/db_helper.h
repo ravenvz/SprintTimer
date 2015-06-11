@@ -42,10 +42,38 @@ public:
 };
 
 
+class TagGateway
+{
+public:
+    static void insertTag(QString tag, QVariant associatedTodoItemId) {
+        QSqlQuery query;
+        query.prepare("select id from tag where name = (:name)");
+        query.bindValue(":name", QVariant(tag));
+        query.exec();
+        QVariant tagId;
+        if (query.next()) {
+            qDebug() << "Found tag";
+            tagId = query.value(0);
+        } else {
+            qDebug() << "NOT fount tag";
+            query.prepare("insert into tag (name) values (:name)");
+            query.bindValue(":name", QVariant(tag));
+            query.exec();
+            tagId = query.lastInsertId();
+        }
+
+        query.prepare("insert into todotag (tag_id, todo_id) values (:tag_id, :todo_id)");
+        query.bindValue(":tag_id", tagId);
+        query.bindValue(":todo_id", associatedTodoItemId);
+        query.exec();
+    }
+};
+
+
 class TodoItemGateway
 {
 public:
-    static void storeTodoItem(TodoItem item) {
+    static int storeTodoItem(TodoItem item) {
         QSqlQuery query;
         query.prepare("insert into todo_item (name, estimated_pomodoros, spent_pomodoros, completed, priority, last_modified) "
                 "values (:name, :estimated_pomodoros, :spent_pomodoros, :completed, :priority, :last_modified)");
@@ -57,34 +85,21 @@ public:
         query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
         query.exec();
         QVariant todoId = query.lastInsertId();
-        // std::cout << todoId.toInt() << std::endl;
-        qDebug() << todoId.toInt();
         if (!item.tags.isEmpty()) {
             for (QString tag : item.tags) {
-                query.prepare("select id from tag where name = (:name)");
-                query.bindValue(":name", QVariant(tag));
-                query.exec();
-                QVariant tagId;
-                if (query.next()) {
-                    qDebug() << "Found tag";
-                    tagId = query.value(0);
-                } else {
-                    qDebug() << "NOT fount tag";
-                    query.prepare("insert into tag (name) values (:name)");
-                    query.bindValue(":name", QVariant(tag));
-                    query.exec();
-                    tagId = query.lastInsertId();
-                }
-
-                query.prepare("insert into todotag (tag_id, todo_id) values (:tag_id, :todo_id)");
-                query.bindValue(":tag_id", tagId);
-                query.bindValue(":todo_id", todoId);
-                query.exec();
+                TagGateway::insertTag(tag, todoId);
             }
         }
+        return todoId.toInt();
+    }
+
+    static void updateTodoItem(TodoItem& item) {
+        // QSqlQuery query;
+        // query.prepare("update todo_item set name = (:name), 
     }
 
     static void incrementSpentPomodoros(TodoItem& item) {
+        // TODO replace with id
         QSqlQuery query;
         query.prepare("update todo_item set spent_pomodoros = (:spent_pomodoros) where name = (:name)");
         query.bindValue(":name", QVariant(item.name));
@@ -95,7 +110,7 @@ public:
     static QList<TodoItem> getUncompleteTodoItems() {
         QSqlQuery query;
         query.exec("select todo_item.name, todo_item.estimated_pomodoros, "
-               "todo_item.spent_pomodoros, todo_item.priority, todo_item.completed, group_concat(tag.name) "
+               "todo_item.spent_pomodoros, todo_item.priority, todo_item.completed, group_concat(tag.name), todo_item.id "
                "from todo_item join todotag on todo_item.id = todotag.todo_id "
                "join tag on tag.id = todotag.tag_id "
                "where completed = 0 "
@@ -108,7 +123,8 @@ public:
                            query.value(2).toUInt(),
                            query.value(3).toUInt(),
                            tags,
-                           query.value(4).toBool()};
+                           query.value(4).toBool(),
+                           query.value(6).toInt()};
             items << item;
         }
         return items;

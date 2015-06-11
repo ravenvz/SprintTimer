@@ -69,7 +69,8 @@ QHash<int, QByteArray> TodoItemsListModel::roleNames() const {
 
 void TodoItemsListModel::addTodoItem(TodoItem item) {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    TodoItemGateway::storeTodoItem(item);
+    int id = TodoItemGateway::storeTodoItem(item);
+    item.id = id;
     items.insert(rowCount(), item);
     endInsertRows();
 }
@@ -83,8 +84,8 @@ TodoItem TodoItemsListModel::getTodoItemByModelIndex(const QModelIndex& index) {
     return items[index.row()];
 }
 
-void TodoItemsListModel::updateTodoItem(const QModelIndex& index, const TodoItem updatedItem) {
-    QString oldItemName = item[index.row()].name;
-    item[index.row()] = updatedItem;
-    // TodoItemGateway::
+void TodoItemsListModel::updateTodoItem(const QModelIndex& index, TodoItem updatedItem) {
+    updatedItem.id = items[index.row()].id;
+    items[index.row()] = updatedItem;
+    TodoItemGateway::updateTodoItem(updatedItem);
 }
