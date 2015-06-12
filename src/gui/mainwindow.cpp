@@ -1,6 +1,6 @@
 #include "gui/mainwindow.h"
 #include "ui_mainwindow.h"
-#include "gui/dialogs/pomodorocanceldialog.h"
+#include "gui/dialogs/confirmationdialog.h"
 #include "gui/dialogs/addtodoitemdialog.h"
 #include "core/entities.h"
 
@@ -69,7 +69,9 @@ void MainWindow::setUiToSubmissionState() {
 }
 
 void MainWindow::cancelTask() {
-    PomodoroCancelDialog cancelDialog {};
+    ConfirmationDialog cancelDialog;
+    QString description("This will destroy current pomodoro!");
+    cancelDialog.setActionDescription(description);
     if (taskScheduler.isBreak() || cancelDialog.exec()) {
         taskScheduler.cancelTask();
         timer->stop();
@@ -200,7 +202,9 @@ void MainWindow::editTodoItem(const QModelIndex& index) {
 }
 
 void MainWindow::removeTodoItem(const QModelIndex& index) {
-    PomodoroCancelDialog dialog;
+    ConfirmationDialog dialog;
+    QString description("This will delete todo item permanently!");
+    dialog.setActionDescription(description);
     if (dialog.exec()) {
         todoitemViewModel->removeTodoItem(index);
     }
