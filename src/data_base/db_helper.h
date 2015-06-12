@@ -70,6 +70,7 @@ public:
 
     static void removeTagIfOrphaned(QVariant tag_id) {
         QSqlQuery query;
+        query.exec("pragma foreign_keys = on");
         query.prepare("select count(*) from todotag where todotag.tag_id = (:tag_id)");
         query.bindValue(":tag_id", tag_id);
         query.exec();
@@ -138,9 +139,35 @@ public:
         query.exec();
     }
 
-    static void updateTodoItem(TodoItem& item) {
-        // QSqlQuery query;
-        // query.prepare("update todo_item set name = (:name), 
+    static void updateTodoItem(TodoItem& updatedItem) {
+        // Assumes that updatedItem has the same id as an old one
+        QList<QVariant> oldItemTagsIds = TagGateway::getTagsForTodoItem(updatedItem.id);
+        QSqlQuery query;
+        query.prepare("update todo_item set name = (:name), "
+               "estimated_pomodoros = (:estimated_pomodoros), "
+               "last_modified = (:last_modified) "
+               "where id = (:id)");
+        query.bindValue(":name", QVariant(updatedItem.name));
+        query.bindValue(":estimated_pomodoros", QVariant(updatedItem.estimatedPomodoros));
+        query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
+        query.bindValue(":id", QVariant(updatedItem.id));
+        query.exec();
+        qDebug() << query.lastError();
+
+        for (QVariant tag_id : oldItemTagsIds) {
+            TagGateway::removeTagIfOrphaned(tag_id);
+            query.prepare("delete from todotag "
+                   "where todotag.tag_id = (:tag_id) and todotag.todo_id = (:todo_id)");
+            query.bindValue(":tag_id", tag_id);
+            query.bindValue(":todo_id", QVariant(updatedItem.id));
+            query.exec();
+        }
+
+        if (!updatedItem.tags.isEmpty()) {
+            for (QString tag : updatedItem.tags) {
+                TagGateway::insertTag(tag, updatedItem.id);
+            }
+        }
     }
 
     static void incrementSpentPomodoros(TodoItem& item) {
