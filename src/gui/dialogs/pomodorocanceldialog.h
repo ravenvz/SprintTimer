@@ -14,6 +14,7 @@ class PomodoroCancelDialog : public QDialog
 public:
     explicit PomodoroCancelDialog(QWidget* parent = 0);
     ~PomodoroCancelDialog();
+    setActionDescription(QString& description);
 
 private:
     Ui::PomodoroCancelDialog *ui;

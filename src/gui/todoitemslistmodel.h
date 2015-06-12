@@ -20,7 +20,7 @@ public:
     enum customRoles { CopyToPomodoroRole = Qt::UserRole + 1 };
     void addTodoItem(TodoItem item);
     void incrementPomodoros(int row, int incrementBy);
-    // void removeTodoItem(TodoItem item);
+    void removeTodoItem(const QModelIndex& index);
     TodoItem getTodoItemByModelIndex(const QModelIndex& index);
     void updateTodoItem(const QModelIndex& index, const TodoItem updatedItem);
 

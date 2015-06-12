@@ -89,3 +89,10 @@ void TodoItemsListModel::updateTodoItem(const QModelIndex& index, TodoItem updat
     items[index.row()] = updatedItem;
     TodoItemGateway::updateTodoItem(updatedItem);
 }
+
+void TodoItemsListModel::removeTodoItem(const QModelIndex& index) {
+    beginRemoveRows(QModelIndex(), index.row(), index.row());
+    TodoItemGateway::removeTodoItem(getTodoItemByModelIndex(index).id);
+    items.removeAt(index.row());
+    endRemoveRows();
+}

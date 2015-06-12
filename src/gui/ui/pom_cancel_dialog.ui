@@ -29,7 +29,7 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="lblDescribeAction">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -42,7 +42,7 @@
     <string>This will destroy current pomodoro!</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="lblConfirm">
    <property name="geometry">
     <rect>
      <x>100</x>

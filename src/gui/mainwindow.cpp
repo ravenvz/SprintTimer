@@ -199,6 +199,13 @@ void MainWindow::editTodoItem(const QModelIndex& index) {
     }
 }
 
+void MainWindow::removeTodoItem(const QModelIndex& index) {
+    PomodoroCancelDialog dialog;
+    if (dialog.exec()) {
+        todoitemViewModel->removeTodoItem(index);
+    }
+}
+
 void MainWindow::onEditAction() {
     qDebug() << ui->lvTodoItems->currentIndex();
     editTodoItem(ui->lvTodoItems->currentIndex());
@@ -206,4 +213,5 @@ void MainWindow::onEditAction() {
 
 void MainWindow::onDeleteAction() {
     qDebug() << ui->lvTodoItems->currentIndex();
+    removeTodoItem(ui->lvTodoItems->currentIndex());
 }

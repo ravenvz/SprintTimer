@@ -53,6 +53,7 @@ private:
     void setUiToSubmissionState();
     void updatePomodoroView();
     void editTodoItem(const QModelIndex& index);
+    void removeTodoItem(const QModelIndex& index);
     // void updateTodoItemView();
 };
 

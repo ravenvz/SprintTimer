@@ -12,3 +12,7 @@ PomodoroCancelDialog::~PomodoroCancelDialog()
 {
     delete ui;
 }
+
+void PomodoroCancelDialog::setActionDescription(QString& description) {
+    ui->lblDescribeAction->setText(description);
+}

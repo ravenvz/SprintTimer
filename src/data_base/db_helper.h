@@ -67,6 +67,23 @@ public:
         query.bindValue(":todo_id", associatedTodoItemId);
         query.exec();
     }
+
+    static void removeTagIfOrphaned(QVariant tag_id) {
+        QSqlQuery query;
+        query.prepare("select count(*) from todotag where todotag.tag_id = (:tag_id)");
+        query.bindValue(":tag_id", tag_id);
+        query.exec();
+        if (query.next()) {
+            int numTimesTagEncountered = query.value(0).toInt();
+            if (numTimesTagEncountered > 1) {
+
+            } else {
+                query.prepare("delete from tag where tag.id = (:tag_id)");
+                query.bindValue(":tag_id", tag_id);
+                query.exec();
+            }
+        }
+    }
 };
 
 
@@ -91,6 +108,28 @@ public:
             }
         }
         return todoId.toInt();
+    }
+
+    static void removeTodoItem(int id) {
+        QSqlQuery query;
+        query.exec("pragma foreign_keys = on");
+        query.prepare("select tag.id "
+                "from todo_item "
+                "join todotag on todo_item.id = todotag.todo_id "
+                "join tag on tag.id = todotag.tag_id "
+                "where todo_item.id = (:removed_item_id) ");
+        query.bindValue(":removed_item_id", QVariant(id));
+        query.exec();
+        QList<QVariant> removedItemTags;
+        while (query.next()) {
+            removedItemTags << query.value(0);
+        }
+        for (QVariant tag_id : removedItemTags) {
+            TagGateway::removeTagIfOrphaned(tag_id);
+        }
+        query.prepare("delete from todo_item where id = (:removed_item_id)");
+        query.bindValue(":removed_item_id", id);
+        query.exec();
     }
 
     static void updateTodoItem(TodoItem& item) {
