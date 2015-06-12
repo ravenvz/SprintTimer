@@ -144,10 +144,9 @@ public:
     }
 
     static void incrementSpentPomodoros(TodoItem& item) {
-        // TODO replace with id
         QSqlQuery query;
-        query.prepare("update todo_item set spent_pomodoros = (:spent_pomodoros) where name = (:name)");
-        query.bindValue(":name", QVariant(item.name));
+        query.prepare("update todo_item set spent_pomodoros = (:spent_pomodoros) where id = (:todo_item_id)");
+        query.bindValue(":todo_item_id", QVariant(item.id));
         query.bindValue(":spent_pomodoros", QVariant(item.spentPomodoros));
         query.exec();
     }

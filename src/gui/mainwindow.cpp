@@ -137,9 +137,9 @@ void MainWindow::submitPomodoro() {
     }
     // Check if pomodoro tags + name matches any uncompleted item in todo list view
     // and increment spent pomodoros if it does
-    for (int i = 0; i < todoitemViewModel->rowCount(); ++i) {
-       if (name == todoitemViewModel->index(i, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
-           todoitemViewModel->incrementPomodoros(i, completedTasksIntervals.size());
+    for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
+       if (name == todoitemViewModel->index(row, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
+           todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
        }
     } 
     completedTasksIntervals.clear();
