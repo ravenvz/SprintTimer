@@ -183,13 +183,10 @@ void MainWindow::showContextMenu(const QPoint& pos) {
     }
 }
 
-// void MainWindow::addTodoItem() {
-//     AddTodoItemDialog dialog {};
-//     if (dialog.exec()) {
-//         TodoItem item = dialog.getNewTodoItem();
-//         todoitemViewModel->addTodoItem(item);
-//     }
-// }
+void MainWindow::onEditAction() {
+    qDebug() << ui->lvTodoItems->currentIndex();
+    editTodoItem(ui->lvTodoItems->currentIndex());
+}
 
 void MainWindow::editTodoItem(const QModelIndex& index) {
     AddTodoItemDialog dialog {};
@@ -201,6 +198,11 @@ void MainWindow::editTodoItem(const QModelIndex& index) {
     }
 }
 
+void MainWindow::onDeleteAction() {
+    qDebug() << ui->lvTodoItems->currentIndex();
+    removeTodoItem(ui->lvTodoItems->currentIndex());
+}
+
 void MainWindow::removeTodoItem(const QModelIndex& index) {
     ConfirmationDialog dialog;
     QString description("This will delete todo item permanently!");
@@ -208,14 +210,4 @@ void MainWindow::removeTodoItem(const QModelIndex& index) {
     if (dialog.exec()) {
         todoitemViewModel->removeTodoItem(index);
     }
-}
-
-void MainWindow::onEditAction() {
-    qDebug() << ui->lvTodoItems->currentIndex();
-    editTodoItem(ui->lvTodoItems->currentIndex());
-}
-
-void MainWindow::onDeleteAction() {
-    qDebug() << ui->lvTodoItems->currentIndex();
-    removeTodoItem(ui->lvTodoItems->currentIndex());
 }

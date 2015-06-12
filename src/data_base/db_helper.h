@@ -84,6 +84,22 @@ public:
             }
         }
     }
+
+    static QList<QVariant> getTagsForTodoItem(int id) {
+        QSqlQuery query;
+        query.prepare("select tag.id "
+                "from todo_item "
+                "join todotag on todo_item.id = todotag.todo_id "
+                "join tag on tag.id = todotag.tag_id "
+                "where todo_item.id = (:removed_item_id) ");
+        query.bindValue(":removed_item_id", QVariant(id));
+        query.exec();
+        QList<QVariant> itemTags;
+        while (query.next()) {
+            itemTags << query.value(0);
+        }
+        return itemTags;
+    }
 };
 
 
@@ -113,17 +129,7 @@ public:
     static void removeTodoItem(int id) {
         QSqlQuery query;
         query.exec("pragma foreign_keys = on");
-        query.prepare("select tag.id "
-                "from todo_item "
-                "join todotag on todo_item.id = todotag.todo_id "
-                "join tag on tag.id = todotag.tag_id "
-                "where todo_item.id = (:removed_item_id) ");
-        query.bindValue(":removed_item_id", QVariant(id));
-        query.exec();
-        QList<QVariant> removedItemTags;
-        while (query.next()) {
-            removedItemTags << query.value(0);
-        }
+        QList<QVariant> removedItemTags = TagGateway::getTagsForTodoItem(id);
         for (QVariant tag_id : removedItemTags) {
             TagGateway::removeTagIfOrphaned(tag_id);
         }
