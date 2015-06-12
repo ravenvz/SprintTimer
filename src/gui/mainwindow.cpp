@@ -15,7 +15,7 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     player = new QMediaPlayer;
     pomodoroViewModel = new QStringListModel(this);
     todoitemViewModel = new TodoItemsListModel(this);
-    todoitemViewDelegate = new TodoItemsViewDelegate();
+    todoitemViewDelegate = new TodoItemsViewDelegate(this);
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
     ui->lvTodoItems->setModel(todoitemViewModel);
     ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);

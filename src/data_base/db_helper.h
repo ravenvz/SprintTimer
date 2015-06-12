@@ -185,7 +185,7 @@ public:
                "todo_item.spent_pomodoros, todo_item.priority, todo_item.completed, group_concat(tag.name), todo_item.id "
                "from todo_item join todotag on todo_item.id = todotag.todo_id "
                "join tag on tag.id = todotag.tag_id "
-               "where completed = 0 "
+               "where completed = 0 or todo_item.last_modified > DATETIME('NOW', '-1 DAY') "
                "group by todo_item.name");
         QList<TodoItem> items;
         while (query.next()) {

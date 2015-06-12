@@ -91,14 +91,14 @@
       <height>311</height>
      </rect>
     </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
     <property name="autoFillBackground">
      <bool>true</bool>
     </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
+    <property name="styleSheet">
+     <string notr="true"/>
     </property>
     <property name="dragEnabled">
      <bool>true</bool>
@@ -115,20 +115,8 @@
     <property name="movement">
      <enum>QListView::Snap</enum>
     </property>
-    <property name="flow">
-     <enum>QListView::TopToBottom</enum>
-    </property>
-    <property name="isWrapping" stdset="0">
-     <bool>false</bool>
-    </property>
-    <property name="resizeMode">
-     <enum>QListView::Adjust</enum>
-    </property>
     <property name="spacing">
-     <number>0</number>
-    </property>
-    <property name="wordWrap">
-     <bool>false</bool>
+     <number>3</number>
     </property>
    </widget>
    <widget class="QLCDNumber" name="lcdTimer">
@@ -617,7 +605,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
