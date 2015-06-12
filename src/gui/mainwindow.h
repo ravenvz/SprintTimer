@@ -31,8 +31,6 @@ private slots:
     void submitPomodoro();
     void autoPutTodoToPomodoro(QModelIndex index);
     void showContextMenu(const QPoint& pos);
-    void onEditAction();
-    void onDeleteAction();
 
 private:
     const unsigned secondsPerMinute = 60;
@@ -52,9 +50,8 @@ private:
     void setUiToRunningState();
     void setUiToSubmissionState();
     void updatePomodoroView();
-    void editTodoItem(const QModelIndex& index);
-    void removeTodoItem(const QModelIndex& index);
-    // void updateTodoItemView();
+    void editTodoItem();
+    void removeTodoItem();
 };
 
 #endif // MAINWINDOW_H 
