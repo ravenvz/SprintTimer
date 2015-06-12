@@ -29,8 +29,8 @@ QVariant TodoItemsListModel::data(const QModelIndex &index, int role) const {
             return item.asString();
         case Qt::SizeHintRole:
             return QSize(10, 18); // TODO consider change through config
-        case Qt::EditRole:
-            return item.name;
+        // case Qt::EditRole:
+        //     return item.completed;
         case Qt::CheckStateRole:
             return item.completed;
         case CopyToPomodoroRole:
@@ -40,18 +40,19 @@ QVariant TodoItemsListModel::data(const QModelIndex &index, int role) const {
     }
 }
 
-bool TodoItemsListModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    if (!index.isValid()) {
-        return false;
-    }
-    switch (role) {
-        case Qt::CheckStateRole:
-            items[index.row()].completed = !items[index.row()].completed;
-            return true;
-       default:
-            return false;
-    }
-}
+// bool TodoItemsListModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+//     if (!index.isValid()) {
+//         return false;
+//     }
+//     switch (role) {
+//         case ToggleCompletedRole:
+//             items[index.row()].completed = !items[index.row()].completed;
+//             TodoItemGateway::setItemChecked(items[index.row()].id, items[index.row()].completed);
+//             return true;
+//        default:
+//             return false;
+//     }
+// }
 
 Qt::ItemFlags TodoItemsListModel::flags(const QModelIndex& index) const {
     return Qt::ItemIsEditable |
@@ -95,4 +96,9 @@ void TodoItemsListModel::removeTodoItem(const QModelIndex& index) {
     TodoItemGateway::removeTodoItem(getTodoItemByModelIndex(index).id);
     items.removeAt(index.row());
     endRemoveRows();
+}
+
+void TodoItemsListModel::toggleCompleted(const QModelIndex& index) {
+    items[index.row()].completed = !items[index.row()].completed;
+    TodoItemGateway::setItemChecked(items[index.row()].id, items[index.row()].completed);
 }

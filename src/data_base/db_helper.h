@@ -202,6 +202,15 @@ public:
         return items;
     }
 
+    static void setItemChecked(int itemId, bool value) {
+        QSqlQuery query;
+        query.prepare("update todo_item set completed = (:completed), last_modified = (:last_modified) where id = (:id)");
+        query.bindValue(":completed", QVariant(value));
+        query.bindValue(":id", QVariant(itemId));
+        query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
+        query.exec();
+    }
+
 };
 
 #endif // DB_HELPER_H

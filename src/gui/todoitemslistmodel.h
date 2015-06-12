@@ -13,7 +13,7 @@ public:
     // virtual ~TodoItemsListModel ();
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
+    // bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     QHash<int, QByteArray> roleNames() const override;
     enum customRoles { CopyToPomodoroRole = Qt::UserRole + 1 };
@@ -22,6 +22,7 @@ public:
     void removeTodoItem(const QModelIndex& index);
     TodoItem getTodoItemByModelIndex(const QModelIndex& index);
     void updateTodoItem(const QModelIndex& index, const TodoItem updatedItem);
+    void toggleCompleted(const QModelIndex& index);
 
 private:
     QList<TodoItem> items;

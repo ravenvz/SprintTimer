@@ -41,6 +41,7 @@ void MainWindow::connectSlots() {
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
     connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoToPomodoro(QModelIndex)));
     connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
+    connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -201,4 +202,8 @@ void MainWindow::removeTodoItem() {
     if (dialog.exec()) {
         todoitemViewModel->removeTodoItem(index);
     }
+}
+
+void MainWindow::toggleTodoItemCompleted() {
+    todoitemViewModel->toggleCompleted(ui->lvTodoItems->currentIndex());
 }
