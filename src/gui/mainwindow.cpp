@@ -42,6 +42,7 @@ void MainWindow::connectSlots() {
     connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoToPomodoro(QModelIndex)));
     connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
     connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
+    connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -206,4 +207,8 @@ void MainWindow::removeTodoItem() {
 
 void MainWindow::toggleTodoItemCompleted() {
     todoitemViewModel->toggleCompleted(ui->lvTodoItems->currentIndex());
+}
+
+void MainWindow::onInTheZoneToggled() {
+    taskScheduler.toggleInTheZoneMode();
 }

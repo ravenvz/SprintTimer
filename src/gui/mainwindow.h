@@ -32,6 +32,7 @@ private slots:
     void autoPutTodoToPomodoro(QModelIndex index);
     void showContextMenu(const QPoint& pos);
     void toggleTodoItemCompleted();
+    void onInTheZoneToggled();
 
 private:
     const unsigned secondsPerMinute = 60;

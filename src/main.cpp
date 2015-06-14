@@ -6,7 +6,7 @@
 
 
 Config readConfig() {
-    Config applicationConfig {25, 5, 15, 4};
+    Config applicationConfig {1, 5, 15, 4};
     return applicationConfig;
 }
 
