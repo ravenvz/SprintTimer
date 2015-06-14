@@ -18,7 +18,7 @@ public:
     static QStringList getPomodorosForToday() {
         QStringList result;
         QSqlQuery query;
-        query.exec("select id, start_time, finish_time "
+        query.exec("select id, name, start_time, finish_time "
                "from pomodoro where date(start_time) = date('now') "
                "order by start_time desc");
         while (query.next()) {
@@ -53,10 +53,8 @@ public:
         query.exec();
         QVariant tagId;
         if (query.next()) {
-            qDebug() << "Found tag";
             tagId = query.value(0);
         } else {
-            qDebug() << "NOT fount tag";
             query.prepare("insert into tag (name) values (:name)");
             query.bindValue(":name", QVariant(tag));
             query.exec();
@@ -101,6 +99,16 @@ public:
             itemTags << query.value(0);
         }
         return itemTags;
+    }
+
+    static QStringList getAllTags() {
+        QStringList tags;
+        QSqlQuery query;
+        query.exec("select name from tag");
+        while (query.next()) {
+            tags << query.value(0).toString();
+        }
+        return tags;
     }
 };
 
@@ -153,7 +161,6 @@ public:
         query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
         query.bindValue(":id", QVariant(updatedItem.id));
         query.exec();
-        qDebug() << query.lastError();
 
         for (QVariant tag_id : oldItemTagsIds) {
             TagGateway::removeTagIfOrphaned(tag_id);

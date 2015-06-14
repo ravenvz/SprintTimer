@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "core/entities.h"
+#include <QStringListModel>
 
 namespace Ui {
 class AddTodoItemDialog;
@@ -22,7 +23,12 @@ public:
 private:
     Ui::AddTodoItemDialog *ui;
     TodoItem item;
+    QStringListModel* tagModel;
     static const int tempId = -1;
+    void setTagsModel();
+
+private slots:
+    void quickAddTag(const QString& tag);
 };
 
 #endif // ADDTODOITEMDIALOG_H
