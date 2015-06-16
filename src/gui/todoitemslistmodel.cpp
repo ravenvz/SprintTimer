@@ -9,6 +9,60 @@ TodoItemsListModel::TodoItemsListModel(QObject* parent) :
     setItems(TodoItemGateway::getUncompleteTodoItems());
 }
 
+Qt::DropActions TodoItemsListModel::supportedDropActions() const {
+    return Qt::MoveAction;
+}
+
+Qt::DropActions TodoItemsListModel::supportedDragActions() const {
+    return Qt::MoveAction;
+}
+
+Qt::ItemFlags TodoItemsListModel::flags(const QModelIndex &index) const {
+    if (!index.isValid() || index.row() >= items.count() || index.model() != this)
+            return Qt::ItemIsDropEnabled; // we allow drops outside the items
+    return QAbstractListModel::flags(index) | Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled;
+}
+
+bool TodoItemsListModel::insertRows(int row, int count, const QModelIndex &parent) {
+    if (count < 1 || row < 0 || row > rowCount() || parent.isValid()) {
+        return false;
+    }
+    beginInsertRows(QModelIndex(), row, row + count - 1);
+    qDebug() << index(row, 0, parent).data();
+    tmp = row;
+    // for(int ind = row, end = row + count; ind < end; ++ind) {
+    items.insert(row, items[0]);
+    // }
+    // items.insert(row, items[tmp]);
+    qDebug() << "After inserting";
+    endInsertRows();
+    return true;
+}
+
+bool TodoItemsListModel::removeRows(int row, int count, const QModelIndex &parent) {
+    if (count < 1 || row < 0 || (row + count) > rowCount() || parent.isValid())
+        return false;
+    beginRemoveRows(QModelIndex(), row, row + count - 1);
+    items[tmp] = items[row];
+    // for(int ind = row, end = row + count; ind < end; ++ind) {
+    items.removeAt(row);
+    // }
+    endRemoveRows();
+    return true;
+}
+
+// bool TodoItemsListModel::removeRows(int row, int count, const QModelIndex& parent) {
+//     qDebug() << "Ololol";
+//     // beginRemoveRows(QModelIndex(), index.row(), index.row());
+//     // TodoItemGateway::removeTodoItem(getTodoItemByModelIndex(index).id);
+//     // items.removeAt(index.row());
+//     if (count < 1 || row < 0 || row > rowCount() || parent.isValid()) {
+//         return false;
+//     }
+//     removeTodoItem(parent);
+//     return true;
+// }
+
 void TodoItemsListModel::setItems(QList<TodoItem> items) {
     this->items = items;
 }
@@ -53,14 +107,6 @@ QVariant TodoItemsListModel::data(const QModelIndex &index, int role) const {
 //             return false;
 //     }
 // }
-
-Qt::ItemFlags TodoItemsListModel::flags(const QModelIndex& index) const {
-    return Qt::ItemIsEditable |
-           Qt::ItemIsEnabled |
-           Qt::ItemIsUserCheckable |
-           Qt::ItemIsSelectable |
-           Qt::ItemIsDragEnabled;
-}
 
 QHash<int, QByteArray> TodoItemsListModel::roleNames() const {
     QHash<int, QByteArray> roles;

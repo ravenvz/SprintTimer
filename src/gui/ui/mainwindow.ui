@@ -82,7 +82,7 @@
      <string>QuickAdd TODO</string>
     </property>
    </widget>
-   <widget class="TodoItemsListView" name="lvTodoItems">
+   <widget class="QListView" name="lvTodoItems">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -93,6 +93,9 @@
     </property>
     <property name="contextMenuPolicy">
      <enum>Qt::DefaultContextMenu</enum>
+    </property>
+    <property name="acceptDrops">
+     <bool>true</bool>
     </property>
     <property name="autoFillBackground">
      <bool>true</bool>
@@ -112,8 +115,11 @@
     <property name="dragDropMode">
      <enum>QAbstractItemView::InternalMove</enum>
     </property>
+    <property name="defaultDropAction">
+     <enum>Qt::MoveAction</enum>
+    </property>
     <property name="selectionBehavior">
-     <enum>QAbstractItemView::SelectRows</enum>
+     <enum>QAbstractItemView::SelectItems</enum>
     </property>
     <property name="movement">
      <enum>QListView::Snap</enum>
@@ -614,13 +620,6 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>TodoItemsListView</class>
-   <extends>QListView</extends>
-   <header>gui/todoitemslistview.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

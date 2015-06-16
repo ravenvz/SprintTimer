@@ -16,6 +16,10 @@ public:
     // bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     QHash<int, QByteArray> roleNames() const override;
+    Qt::DropActions supportedDropActions() const override;
+    Qt::DropActions supportedDragActions() const override;
+    bool insertRows(int row, int count, const QModelIndex &parent) override;
+    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
     enum customRoles { CopyToPomodoroRole = Qt::UserRole + 1 };
     void addTodoItem(TodoItem item);
     void incrementPomodoros(int row, int incrementBy);
@@ -27,6 +31,7 @@ public:
 private:
     QList<TodoItem> items;
     void setItems(QList<TodoItem> items);
+    int tmp;
 };
 
 #endif // TODOITEMSLISTMODEL_H

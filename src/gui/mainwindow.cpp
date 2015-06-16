@@ -16,6 +16,7 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     pomodoroViewModel = new QStringListModel(this);
     todoitemViewModel = new TodoItemsListModel(this);
     todoitemViewDelegate = new TodoItemsViewDelegate(this);
+    qDebug() << todoitemViewModel->supportedDragActions();
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
     ui->lvTodoItems->setModel(todoitemViewModel);
     ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -182,6 +183,9 @@ void MainWindow::showContextMenu(const QPoint& pos) {
             removeTodoItem();
         }
     }
+
+    delete editAction;
+    delete deleteAction;
 }
 
 void MainWindow::editTodoItem() {

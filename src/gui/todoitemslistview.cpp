@@ -6,15 +6,15 @@ TodoItemsListView::TodoItemsListView(QWidget* centralWidget)
 {
 }
 
-void TodoItemsListView::dragEnterEvent(QDragEnterEvent* event) {
-    std::cout << "Enter Drag Event" << std::endl;
-//    event.acceptProposedAction();
-}
-
-void TodoItemsListView::dragMoveEvent(QDragMoveEvent* event) {
-
-}
-
-void TodoItemsListView::dropEvent(QDropEvent* event) {
-
-}
+// void TodoItemsListView::dragEnterEvent(QDragEnterEvent* event) {
+//     std::cout << "Enter Drag Event" << std::endl;
+// //    event.acceptProposedAction();
+// }
+//
+// void TodoItemsListView::dragMoveEvent(QDragMoveEvent* event) {
+//
+// }
+//
+// void TodoItemsListView::dropEvent(QDropEvent* event) {
+//
+// }
