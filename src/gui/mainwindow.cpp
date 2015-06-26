@@ -195,7 +195,9 @@ void MainWindow::editTodoItem() {
     dialog.setWindowTitle("Edit TodoItem");
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {
-        todoitemViewModel->updateTodoItem(index, dialog.getNewTodoItem());
+        TodoItem updatedItem = dialog.getNewTodoItem();
+        updatedItem.spentPomodoros = itemToEdit.spentPomodoros;
+        todoitemViewModel->updateTodoItem(index, updatedItem);
     }
 }
 

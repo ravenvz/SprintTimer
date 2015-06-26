@@ -28,25 +28,19 @@ bool TodoItemsListModel::insertRows(int row, int count, const QModelIndex &paren
         return false;
     }
     beginInsertRows(QModelIndex(), row, row + count - 1);
-    qDebug() << index(row, 0, parent).data();
     tmp = row;
-    // for(int ind = row, end = row + count; ind < end; ++ind) {
     items.insert(row, items[0]);
-    // }
-    // items.insert(row, items[tmp]);
-    qDebug() << "After inserting";
     endInsertRows();
     return true;
 }
 
 bool TodoItemsListModel::removeRows(int row, int count, const QModelIndex &parent) {
-    if (count < 1 || row < 0 || (row + count) > rowCount() || parent.isValid())
+    if (count < 1 || row < 0 || (row + count) > rowCount() || parent.isValid()) {
         return false;
+    }
     beginRemoveRows(QModelIndex(), row, row + count - 1);
-    items[tmp] = items[row];
-    // for(int ind = row, end = row + count; ind < end; ++ind) {
+    items.swap(tmp, row);
     items.removeAt(row);
-    // }
     endRemoveRows();
     return true;
 }
