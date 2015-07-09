@@ -154,11 +154,13 @@ public:
         QSqlQuery query;
         query.prepare("update todo_item set name = (:name), "
                "estimated_pomodoros = (:estimated_pomodoros), "
-               "last_modified = (:last_modified) "
+               "last_modified = (:last_modified), "
+               "completed = (:completed) "
                "where id = (:id)");
         query.bindValue(":name", QVariant(updatedItem.name));
         query.bindValue(":estimated_pomodoros", QVariant(updatedItem.estimatedPomodoros));
         query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
+        query.bindValue(":completed", QVariant(updatedItem.completed));
         query.bindValue(":id", QVariant(updatedItem.id));
         query.exec();
 

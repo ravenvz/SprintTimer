@@ -197,6 +197,7 @@ void MainWindow::editTodoItem() {
     if (dialog.exec()) {
         TodoItem updatedItem = dialog.getNewTodoItem();
         updatedItem.spentPomodoros = itemToEdit.spentPomodoros;
+        updatedItem.completed = itemToEdit.completed;
         todoitemViewModel->updateTodoItem(index, updatedItem);
     }
 }
