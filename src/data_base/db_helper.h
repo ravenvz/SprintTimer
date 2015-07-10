@@ -195,7 +195,8 @@ public:
                "from todo_item join todotag on todo_item.id = todotag.todo_id "
                "join tag on tag.id = todotag.tag_id "
                "where completed = 0 or todo_item.last_modified > DATETIME('NOW', '-1 DAY') "
-               "group by todo_item.name");
+               "group by todo_item.name "
+               "order by todo_item.priority");
         QList<TodoItem> items;
         while (query.next()) {
             QStringList tags = query.value(5).toString().split(",");
@@ -218,6 +219,18 @@ public:
         query.bindValue(":id", QVariant(itemId));
         query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
         query.exec();
+    }
+
+    static void setItemsPriority(const QList<TodoItem>& items) {
+        QSqlDatabase::database().transaction();
+        for (int i = 0; i < items.size(); ++i) {
+            QSqlQuery query;
+            query.prepare("update todo_item set priority = (:priority) where id = (:id)");
+            query.bindValue(":priority", QVariant(i));
+            query.bindValue(":id", QVariant(items[i].id));
+            query.exec();
+        }
+        QSqlDatabase::database().commit();
     }
 
 };

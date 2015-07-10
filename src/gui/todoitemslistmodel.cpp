@@ -41,21 +41,10 @@ bool TodoItemsListModel::removeRows(int row, int count, const QModelIndex &paren
     beginRemoveRows(QModelIndex(), row, row + count - 1);
     items.swap(tmp, row);
     items.removeAt(row);
+    updateItemsPriority(items);
     endRemoveRows();
     return true;
 }
-
-// bool TodoItemsListModel::removeRows(int row, int count, const QModelIndex& parent) {
-//     qDebug() << "Ololol";
-//     // beginRemoveRows(QModelIndex(), index.row(), index.row());
-//     // TodoItemGateway::removeTodoItem(getTodoItemByModelIndex(index).id);
-//     // items.removeAt(index.row());
-//     if (count < 1 || row < 0 || row > rowCount() || parent.isValid()) {
-//         return false;
-//     }
-//     removeTodoItem(parent);
-//     return true;
-// }
 
 void TodoItemsListModel::setItems(QList<TodoItem> items) {
     this->items = items;
@@ -77,8 +66,6 @@ QVariant TodoItemsListModel::data(const QModelIndex &index, int role) const {
             return item.asString();
         case Qt::SizeHintRole:
             return QSize(10, 18); // TODO consider change through config
-        // case Qt::EditRole:
-        //     return item.completed;
         case Qt::CheckStateRole:
             return item.completed;
         case CopyToPomodoroRole:
@@ -87,20 +74,6 @@ QVariant TodoItemsListModel::data(const QModelIndex &index, int role) const {
             return QVariant();
     }
 }
-
-// bool TodoItemsListModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-//     if (!index.isValid()) {
-//         return false;
-//     }
-//     switch (role) {
-//         case ToggleCompletedRole:
-//             items[index.row()].completed = !items[index.row()].completed;
-//             TodoItemGateway::setItemChecked(items[index.row()].id, items[index.row()].completed);
-//             return true;
-//        default:
-//             return false;
-//     }
-// }
 
 QHash<int, QByteArray> TodoItemsListModel::roleNames() const {
     QHash<int, QByteArray> roles;
@@ -141,4 +114,8 @@ void TodoItemsListModel::removeTodoItem(const QModelIndex& index) {
 void TodoItemsListModel::toggleCompleted(const QModelIndex& index) {
     items[index.row()].completed = !items[index.row()].completed;
     TodoItemGateway::setItemChecked(items[index.row()].id, items[index.row()].completed);
+}
+
+void TodoItemsListModel::updateItemsPriority(const QList<TodoItem>& items) const {
+    TodoItemGateway::setItemsPriority(items);
 }

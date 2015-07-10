@@ -27,6 +27,7 @@ public:
     TodoItem getTodoItemByModelIndex(const QModelIndex& index);
     void updateTodoItem(const QModelIndex& index, const TodoItem updatedItem);
     void toggleCompleted(const QModelIndex& index);
+    void updateItemsPriority(const QList<TodoItem>& items) const;
 
 private:
     QList<TodoItem> items;
