@@ -23,14 +23,12 @@ TodoItem::TodoItem() {
 TodoItem::TodoItem(QString name,
          unsigned estimatedPomodoros,
          unsigned spentPomodoros,
-         int priority,
          QStringList tags,
          bool completed,
          int id) :
     name(name),
     estimatedPomodoros(estimatedPomodoros),
     spentPomodoros(spentPomodoros),
-    priority(priority),
     tags(tags),
     completed(completed),
     id(id)

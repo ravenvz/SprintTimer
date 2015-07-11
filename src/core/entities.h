@@ -19,7 +19,6 @@ struct TodoItem {
     QString name;
     unsigned estimatedPomodoros = 0;
     unsigned spentPomodoros;
-    int priority;
     QStringList tags;
     bool completed;
     int id;
@@ -29,7 +28,6 @@ struct TodoItem {
     TodoItem(QString name,
              unsigned estimatedPomodoros,
              unsigned spentPomodoros,
-             int priority,
              QStringList tags,
              bool completed,
              int id);

@@ -45,7 +45,7 @@ TEST(TodoItemGroup, test_description_only_last_num_estimated_should_be_considere
 }
 
 // TEST(TodoItemGroup, test_encode_all_parts_present) {
-//     TodoItem item {"Todo name", 4, 3, 0, QStringList {"Test"}, false, 123};
+//     TodoItem item {"Todo name", 4, 3, QStringList {"Test"}, false, 123};
 //
 //     CHECK_TRUE(QString {"#Test Todo name (3/4)"} == item.description)
 // }

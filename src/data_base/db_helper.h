@@ -116,15 +116,16 @@ public:
 class TodoItemGateway
 {
 public:
-    static int storeTodoItem(TodoItem item) {
+    static int storeTodoItem(const TodoItem& item) {
+        const int newItemPriority = 10000;
         QSqlQuery query;
         query.prepare("insert into todo_item (name, estimated_pomodoros, spent_pomodoros, completed, priority, last_modified) "
                 "values (:name, :estimated_pomodoros, :spent_pomodoros, :completed, :priority, :last_modified)");
         query.bindValue(":name", QVariant(item.name));
         query.bindValue(":estimated_pomodoros", QVariant(item.estimatedPomodoros));
         query.bindValue(":spent_pomodoros", QVariant(item.spentPomodoros));
-        query.bindValue(":completed", QVariant(item.completed));
-        query.bindValue(":priority", QVariant(item.priority));
+        query.bindValue(":completed", QVariant(newItemPriority));
+        query.bindValue(":priority", QVariant());
         query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
         query.exec();
         QVariant todoId = query.lastInsertId();
@@ -203,7 +204,6 @@ public:
             TodoItem item {query.value(0).toString(),
                            query.value(1).toUInt(),
                            query.value(2).toUInt(),
-                           query.value(3).toInt(),
                            tags,
                            query.value(4).toBool(),
                            query.value(6).toInt()};
