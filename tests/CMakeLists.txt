@@ -7,6 +7,7 @@ set(SOURCE_FILES
     test_pomodoro_gateway.cpp
     test_todoitem.cpp
     ../src/core/TaskScheduler.cpp
+    ../src/core/entities.cpp
     ../src/data_base/db_helper.cpp
     ../src/core/entities.h
 )

@@ -57,6 +57,7 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/todoitemslistmodel.cpp
                  src/gui/todoitemsviewdelegate.cpp
                  src/core/TaskScheduler.cpp
+                 src/core/entities.cpp
                  src/data_base/db_helper.cpp
 )
 
