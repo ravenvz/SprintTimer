@@ -43,6 +43,7 @@ void MainWindow::connectSlots() {
     connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
     connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
     connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
+    connect(ui->leTodoItem, SIGNAL(returnPressed()), this, SLOT(quickAddTodoItem()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -85,6 +86,15 @@ void MainWindow::addTodoItem() {
     AddTodoItemDialog dialog {};
     if (dialog.exec()) {
         TodoItem item = dialog.getNewTodoItem();
+        todoitemViewModel->addTodoItem(item);
+    }
+}
+
+void MainWindow::quickAddTodoItem() {
+    QString encodedDescription = ui->leTodoItem->text();
+    ui->leTodoItem->clear();
+    if (!encodedDescription.isEmpty()) {
+        TodoItem item {encodedDescription};
         todoitemViewModel->addTodoItem(item);
     }
 }

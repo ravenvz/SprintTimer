@@ -5,8 +5,10 @@ set(SOURCE_FILES
     run_all_tests.cpp
     TestTaskScheduler.cpp
     test_pomodoro_gateway.cpp
+    test_todoitem.cpp
     ../src/core/TaskScheduler.cpp
     ../src/data_base/db_helper.cpp
+    ../src/core/entities.h
 )
 find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql)

@@ -2,6 +2,9 @@
 #define ENTITIES_H
 
 #include <QDateTime>
+#include <QChar>
+#include <QStringList>
+#include <QDebug>
 
 
 struct Pomodoro {
@@ -24,13 +27,40 @@ struct Pomodoro {
 };
 
 struct TodoItem {
+    TodoItem() {
+    }
+    TodoItem(QString name,
+             unsigned estimatedPomodoros,
+             unsigned spentPomodoros,
+             int priority,
+             QStringList tags,
+             bool completed,
+             int id) :
+        name(name),
+        estimatedPomodoros(estimatedPomodoros),
+        spentPomodoros(spentPomodoros),
+        priority(priority),
+        tags(tags),
+        completed(completed),
+        id(id)
+    {
+    }
+    TodoItem(QString encodedDescription) :
+        encodedDescription(encodedDescription)
+    {
+        decodeDescription(encodedDescription);
+        completed = false;
+        spentPomodoros = 0;
+    }
+
     QString name;
-    unsigned estimatedPomodoros;
+    unsigned estimatedPomodoros = 0;
     unsigned spentPomodoros;
-    unsigned priority;
+    int priority;
     QStringList tags;
     bool completed;
     int id;
+    QString encodedDescription;
 
     QString asString() const {
         QStringList result;
@@ -53,6 +83,9 @@ struct TodoItem {
     }
 
 private:
+    QStringList nameParts;
+    QChar tagPrefix = '#';
+    QChar estimatedPrefix = '*';
     QString tagsAsHashedString() const {
         QStringList hashedTags;
         for (QString tag : tags) {
@@ -62,6 +95,34 @@ private:
         }
         return hashedTags.join(" ");
     }
+
+    void tryParseTag(QString& part) {
+        if (part.startsWith(tagPrefix)) {
+            tags << part.right(part.size() - 1);
+        }
+    }
+
+    void tryParseNamePart(QString& part) {
+        if (!part.startsWith(tagPrefix) && !part.startsWith(estimatedPrefix)) {
+            nameParts << part;
+        }
+    }
+
+    void tryParseEstimatedPomodoros(QString& part) {
+        if (part.startsWith(estimatedPrefix)) {
+            estimatedPomodoros = part.right(part.size() - 1).toInt();
+        }
+    }
+
+    void decodeDescription(QString& encodedDescription) {
+        QStringList parts = encodedDescription.split(" ");
+        for (auto part : parts) {
+            tryParseTag(part);
+            tryParseEstimatedPomodoros(part);
+            tryParseNamePart(part);
+        }
+        name = nameParts.join(' ');
+    }
 };
 
-#endif // ENTITIES_H 
+#endif // ENTITIES_H

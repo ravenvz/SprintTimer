@@ -203,7 +203,7 @@ public:
             TodoItem item {query.value(0).toString(),
                            query.value(1).toUInt(),
                            query.value(2).toUInt(),
-                           query.value(3).toUInt(),
+                           query.value(3).toInt(),
                            tags,
                            query.value(4).toBool(),
                            query.value(6).toInt()};

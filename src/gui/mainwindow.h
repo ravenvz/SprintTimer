@@ -27,6 +27,7 @@ private slots:
     void startTask();
     void cancelTask();
     void addTodoItem();
+    void quickAddTodoItem();
     void updateTimerCounter();
     void submitPomodoro();
     void autoPutTodoToPomodoro(QModelIndex index);
