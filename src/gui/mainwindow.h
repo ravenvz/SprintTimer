@@ -2,10 +2,12 @@
 #define MAINWINDOW_H 
 
 #include <QMainWindow>
+#include <QStringListModel>
 #include <QTimer>
 #include <QMediaPlayer>
 #include <vector>
-#include "TaskScheduler.h"
+#include "core/TaskScheduler.h"
+#include <data_base/db_helper.h>
 
 namespace Ui {
     class MainWindow;
@@ -35,11 +37,13 @@ private:
     std::vector<TimeInterval> completedTasksIntervals;
     unsigned progressBarMaxValue;
     int timerDurationInSeconds;
+    QStringListModel* pomodoroViewModel;
 
     void connectSlots();
     void setUiToIdleState();
     void setUiToRunningState();
     void setUiToSubmissionState();
+    void updatePomodoroView();
 };
 
 #endif // MAINWINDOW_H 

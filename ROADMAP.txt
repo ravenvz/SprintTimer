@@ -1,0 +1,33 @@
+
+
+Version 0.1.0
+-------------
+
+Application should be usable on day-to-day basis
+
+    Added simplest possible completed pomodoro list to GUI
+    Added simplest possible TODO list to select tasks from to GUI
+    Added quick-add todo item functionality
+    
+    
+HISTORY
+----------------------------------------------------------------
+
+
+Version 0.0.2
+-------------
+
+    Completed pomodoros are stored in the db
+
+
+
+Version 0.0.1
+-------------
+
+Working pomodoro timer
+
+    Added functionality to start and cancel pomodoro
+    Short breaks are working
+    Added sound notification when pomodoro/break ends
+    Created basic GUI
+

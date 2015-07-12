@@ -606,7 +606,7 @@
   <customwidget>
    <class>TodoItemsListView</class>
    <extends>QListView</extends>
-   <header>todoitemslistview.h</header>
+   <header>gui/todoitemslistview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

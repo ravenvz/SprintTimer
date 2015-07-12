@@ -1,0 +1,104 @@
+INTRODUCTION
+------------------------------------------------
+
+This is an informal Software Requirements Specification document.
+
+I've got an interest in pomodoro technique to help me to
+concentrate at task at hand, as well as to develop ability
+to estimate the time required to finish certain tasks.
+
+As for december 2014, I haven't found software I was looking for.
+As the matter of fact, I found one cloud service that met all requirements,
+but it was unreliable to the point that it could not be used for a few days
+in a row. This was not the first time when I was disappointed in cloud-based
+app, so I wanted a stand-alone application.
+
+As I could not find stand-alone application that meets my requirements,
+I decided to write it myself. Maybe I will open-source it when most of
+the features are completed.
+
+USER REQUIREMENTS
+------------------------------------------------
+
+Core features
+-------------
+
+    - Application should support Pomodoro technique workflow (pomodoros should be
+        interleaved with short and long breaks)
+        * After submitting pomodoro, short break should be started automatically
+        * After completing specified number of pomodoros in a row, long break should
+          be started automatically
+        * When pomodoro or break is completed, User should be notified
+
+    - User should be able to configure following parameters (not sure yet if on runtime)
+        * pomodoro duration (in minutes)
+        * short break duration (in minutes)
+        * long break duration (in minutes)
+        * number of pomodoros to be completed before the long break
+        * sound file to be used for notification (in mp3 format) or not use sound at all
+
+    - User should be able to provide a description of task he accomplished when
+      submitting pomodoro
+
+    - User should be able to see a list submitted pomodoros
+        * User should see 16 last submitted pomodoros
+        * Pomodoros should be ordered by last submitted to first submitted
+
+    - User should be able to select 'In The Zone' mode, where he will not be distracted
+        by any signals, and application will run pomodoro tasks in cycle, ignoring breaks.
+        Such mode is useful, when working, say on programming task and each distraction
+        comes with a price.
+
+    - User should be able to keep a list of tasks, called Todo items
+        * Todo items can optionally contain multiple tags, prefixed with character '#'
+        * Todo items can optionally contain number, prefixed with character '*'. This
+          number should be treated like estimated number of pomodoros, this task could take
+        * Todo items list should support filtering by tag.
+        * Selecting item from the list when submitting pomodoro should copy item description
+          to pomodoro description
+        * Items in list should contain information about number of pomodoros spent and
+          number of pomodoros estimated, if number of estimated pomodoros was specified
+        * User should be able to edit/delete item in the list
+        * When User decides that he has done the task, he could 'complete' it. Task should
+          then be removed from the list (but information about task should be stored)
+
+    - User should be able to set goals (number of pomodoros to complete)
+        * User should be able to set how many pomodoros he plans
+          to complete for a day, week and month
+        * User should be able to keep track of his progress towards reaching the goals
+
+    - User should be able to access all stored pomodoros and todo items
+        * User should be able to manually add/edit/delete pomodoros and todo items
+
+    - User should be able to get statistical information
+        * average pomodoros completed for day, week, month, year
+        * best workday/week/month (most pomodoros completed)
+        * best working hours
+        * total pomodoros completed (optional)
+        * statistics should be represented in human-friendly format
+          (like diagrams, graphs, etc.)
+
+Optional features
+-----------------
+
+    - User should be able to import completed pomodoros from a CSV file with a specified fields
+
+    - User can configure pomodoro time, break time, long break time
+
+    - User can configure how many pomodoros should be completed before a long break
+
+    - User can backup application data to another machine or cloud service
+
+    - User should be able to sync data (on local network) with android application (if it
+      will be written)
+
+    - Weekly and monthly reports
+
+CONSTRAINTS
+------------------------------------------------
+
+- Application should work on GNU/Linux operation system
+
+SYSTEM REQUIREMENTS
+------------------------------------------------
+
