@@ -1,4 +1,4 @@
-#include "TaskScheduler.h"
+#include "core/TaskScheduler.h"
 #include <TestHarness.h>
 
 TEST_GROUP(TaskSchedulerGroup) {
@@ -83,7 +83,7 @@ TEST(TaskSchedulerGroup, should_not_increment_completed_tasks_counter_when_finis
 }
 
 TEST(TaskSchedulerGroup, should_only_schedule_tasks_if_in_the_zone_mode_active) {
-    unsigned numCompleted = 2;
+    unsigned numCompleted = 0;
     TaskScheduler defaultScheduler {defaultConfig, numCompleted};
     defaultScheduler.toggleInTheZoneMode();
     for (size_t i = 0; i < 20; ++i) {

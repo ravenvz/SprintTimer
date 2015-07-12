@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>816</width>
+    <height>707</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -82,7 +82,7 @@
      <string>QuickAdd TODO</string>
     </property>
    </widget>
-   <widget class="TodoItemsListView" name="lvTodoItems">
+   <widget class="QListView" name="lvTodoItems">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -91,8 +91,20 @@
       <height>311</height>
      </rect>
     </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
+    <property name="acceptDrops">
+     <bool>true</bool>
+    </property>
     <property name="autoFillBackground">
      <bool>true</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
     </property>
     <property name="dragEnabled">
      <bool>true</bool>
@@ -103,11 +115,17 @@
     <property name="dragDropMode">
      <enum>QAbstractItemView::InternalMove</enum>
     </property>
+    <property name="defaultDropAction">
+     <enum>Qt::MoveAction</enum>
+    </property>
     <property name="selectionBehavior">
-     <enum>QAbstractItemView::SelectRows</enum>
+     <enum>QAbstractItemView::SelectItems</enum>
     </property>
     <property name="movement">
      <enum>QListView::Snap</enum>
+    </property>
+    <property name="spacing">
+     <number>3</number>
     </property>
    </widget>
    <widget class="QLCDNumber" name="lcdTimer">
@@ -595,20 +613,13 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>28</height>
+     <width>816</width>
+     <height>19</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>TodoItemsListView</class>
-   <extends>QListView</extends>
-   <header>todoitemslistview.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

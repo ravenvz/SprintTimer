@@ -1,7 +1,7 @@
 #ifndef POMODORO_TASKSCHEDULER_H
 #define POMODORO_TASKSCHEDULER_H
 
-#include <chrono>
+#include <QDateTime>
 
 
 struct Config {
@@ -13,8 +13,8 @@ struct Config {
 
 
 struct TimeInterval {
-    std::chrono::system_clock::time_point startTime;
-    std::chrono::system_clock::time_point finishTime;
+    QDateTime startTime;
+    QDateTime finishTime;
 };
 
 
