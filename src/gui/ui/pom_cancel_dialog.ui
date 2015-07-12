@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PomodoroCancelDialog</class>
- <widget class="QDialog" name="PomodoroCancelDialog">
+ <class>ConfirmationDialog</class>
+ <widget class="QDialog" name="ConfirmationDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>292</width>
+    <width>315</width>
     <height>138</height>
    </rect>
   </property>
@@ -16,7 +16,7 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>60</x>
+     <x>70</x>
      <y>90</y>
      <width>171</width>
      <height>32</height>
@@ -29,23 +29,23 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="lblDescribeAction">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>40</x>
      <y>10</y>
      <width>231</width>
      <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>This will destroy current pomodoro!</string>
+    <string/>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="lblConfirm">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>110</x>
      <y>50</y>
      <width>91</width>
      <height>20</height>
@@ -61,7 +61,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>PomodoroCancelDialog</receiver>
+   <receiver>ConfirmationDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -77,7 +77,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>PomodoroCancelDialog</receiver>
+   <receiver>ConfirmationDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

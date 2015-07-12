@@ -1,11 +1,8 @@
 #include "gui/mainwindow.h"
 #include "ui_mainwindow.h"
-#include "gui/dialogs/pomodorocanceldialog.h"
+#include "gui/dialogs/confirmationdialog.h"
 #include "gui/dialogs/addtodoitemdialog.h"
 #include "core/entities.h"
-
-
-#include <iostream>
 
 
 MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
@@ -17,6 +14,11 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
     timer = new QTimer(this);
     player = new QMediaPlayer;
     pomodoroViewModel = new QStringListModel(this);
+    todoitemViewModel = new TodoItemsListModel(this);
+    todoitemViewDelegate = new TodoItemsViewDelegate(this);
+    ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
+    ui->lvTodoItems->setModel(todoitemViewModel);
+    ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);
     setUiToIdleState();
     connectSlots();
     updatePomodoroView();
@@ -25,8 +27,10 @@ MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
 MainWindow::~MainWindow() {
     delete timer;
     delete player;
-    delete ui;
     delete pomodoroViewModel;
+    delete todoitemViewModel;
+    delete todoitemViewDelegate;
+    delete ui;
 }
 
 void MainWindow::connectSlots() {
@@ -35,6 +39,11 @@ void MainWindow::connectSlots() {
     connect(ui->btnCancel, SIGNAL(clicked(bool)), this, SLOT(cancelTask()));
     connect(ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
+    connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoToPomodoro(QModelIndex)));
+    connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
+    connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
+    connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
+    connect(ui->leTodoItem, SIGNAL(returnPressed()), this, SLOT(quickAddTodoItem()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -63,7 +72,9 @@ void MainWindow::setUiToSubmissionState() {
 }
 
 void MainWindow::cancelTask() {
-    PomodoroCancelDialog cancelDialog {};
+    ConfirmationDialog cancelDialog;
+    QString description("This will destroy current pomodoro!");
+    cancelDialog.setActionDescription(description);
     if (taskScheduler.isBreak() || cancelDialog.exec()) {
         taskScheduler.cancelTask();
         timer->stop();
@@ -73,7 +84,19 @@ void MainWindow::cancelTask() {
 
 void MainWindow::addTodoItem() {
     AddTodoItemDialog dialog {};
-    dialog.exec();
+    if (dialog.exec()) {
+        TodoItem item = dialog.getNewTodoItem();
+        todoitemViewModel->addTodoItem(item);
+    }
+}
+
+void MainWindow::quickAddTodoItem() {
+    QString encodedDescription = ui->leTodoItem->text();
+    ui->leTodoItem->clear();
+    if (!encodedDescription.isEmpty()) {
+        TodoItem item {encodedDescription};
+        todoitemViewModel->addTodoItem(item);
+    }
 }
 
 void MainWindow::startTask() {
@@ -122,16 +145,18 @@ void MainWindow::submitPomodoro() {
     for (TimeInterval interval : completedTasksIntervals) {
         Pomodoro pomodoro {name, interval.startTime, interval.finishTime};
         PomodoroGateway::storePomodoro(pomodoro);
-        // TODO store pomodoro in db
-        // Something.storePomodoro(whatever needed);
-        //
-        // NOTE Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
+        // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
+    // Check if pomodoro tags + name matches any uncompleted item in todo list view
+    // and increment spent pomodoros if it does
+    for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
+       if (name == todoitemViewModel->index(row, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
+           todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
+       }
+    } 
     completedTasksIntervals.clear();
     updatePomodoroView();
-
-    // TODO 
-    // Update pomodoros in the list view
+    ui->lvTodoItems->viewport()->update();
     startTask();
 }
 
@@ -139,4 +164,67 @@ void MainWindow::updatePomodoroView() {
     QStringList lst = PomodoroGateway::getPomodorosForToday();
     pomodoroViewModel->setStringList(lst);
     ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
+}
+
+void MainWindow::autoPutTodoToPomodoro(QModelIndex index) {
+    if (ui->leDoneTask->isVisible()) {
+        ui->leDoneTask->setText(todoitemViewModel->index(index.row(), 0)
+                .data(TodoItemsListModel::CopyToPomodoroRole).toString());
+    }
+}
+
+void MainWindow::showContextMenu(const QPoint& pos) {
+    QPoint globalPos = ui->lvTodoItems->mapToGlobal(pos);
+
+    QMenu todoItemsMenu;
+    QAction* editAction = new QAction("Edit", this);
+    QAction* deleteAction = new QAction("Delete", this);
+    todoItemsMenu.addAction(editAction);
+    todoItemsMenu.addAction(deleteAction);
+
+    QAction* selectedItem = todoItemsMenu.exec(globalPos);
+
+    if (selectedItem) {
+        if (selectedItem->text() == "Edit") {
+            editTodoItem();
+        }
+        if (selectedItem->text() == "Delete") {
+            removeTodoItem();
+        }
+    }
+
+    delete editAction;
+    delete deleteAction;
+}
+
+void MainWindow::editTodoItem() {
+    QModelIndex index = ui->lvTodoItems->currentIndex();
+    AddTodoItemDialog dialog {};
+    TodoItem itemToEdit = todoitemViewModel->getTodoItemByModelIndex(index);
+    dialog.setWindowTitle("Edit TodoItem");
+    dialog.fillItemData(itemToEdit);
+    if (dialog.exec()) {
+        TodoItem updatedItem = dialog.getNewTodoItem();
+        updatedItem.spentPomodoros = itemToEdit.spentPomodoros;
+        updatedItem.completed = itemToEdit.completed;
+        todoitemViewModel->updateTodoItem(index, updatedItem);
+    }
+}
+
+void MainWindow::removeTodoItem() {
+    QModelIndex index = ui->lvTodoItems->currentIndex();
+    ConfirmationDialog dialog;
+    QString description("This will delete todo item permanently!");
+    dialog.setActionDescription(description);
+    if (dialog.exec()) {
+        todoitemViewModel->removeTodoItem(index);
+    }
+}
+
+void MainWindow::toggleTodoItemCompleted() {
+    todoitemViewModel->toggleCompleted(ui->lvTodoItems->currentIndex());
+}
+
+void MainWindow::onInTheZoneToggled() {
+    taskScheduler.toggleInTheZoneMode();
 }

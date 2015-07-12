@@ -52,9 +52,12 @@ include_directories(src dialogs data_base)
 set(SOURCE_FILES src/main.cpp
                  src/gui/mainwindow.cpp
                  src/gui/dialogs/addtodoitemdialog.cpp
-                 src/gui/dialogs/pomodorocanceldialog.cpp
-                 src/gui/todoitemslistview.cpp
+                 src/gui/dialogs/confirmationdialog.cpp
+                 # src/gui/todoitemslistview.cpp
+                 src/gui/todoitemslistmodel.cpp
+                 src/gui/todoitemsviewdelegate.cpp
                  src/core/TaskScheduler.cpp
+                 src/core/entities.cpp
                  src/data_base/db_helper.cpp
 )
 

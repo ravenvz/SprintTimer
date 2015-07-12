@@ -1,7 +1,10 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include <chrono>
+#include <QDateTime>
+#include <QChar>
+#include <QStringList>
+#include <QDebug>
 
 
 struct Pomodoro {
@@ -9,18 +12,40 @@ struct Pomodoro {
     QDateTime startTime;
     QDateTime finishTime;
 
-    QString asString() {
-        QStringList result;
-        QString start = startTime.time().toString();
-        QString finish = finishTime.time().toString();
-        start.chop(3);
-        finish.chop(3);
-        result.append(start);
-        result.append(" - ");
-        result.append(finish);
-        result.append(name);
-        return result.join(" ");
-    }
+    QString asString() const;
 };
 
-#endif // ENTITIES_H 
+struct TodoItem {
+    QString name;
+    unsigned estimatedPomodoros = 0;
+    unsigned spentPomodoros;
+    QStringList tags;
+    bool completed;
+    int id;
+    QString encodedDescription;
+
+    TodoItem(); 
+    TodoItem(QString name,
+             unsigned estimatedPomodoros,
+             unsigned spentPomodoros,
+             QStringList tags,
+             bool completed,
+             int id);
+    TodoItem(QString encodedDescription);
+    QString asString() const;
+    QString tagsAndNameAsString() const;
+    QString tagsAsString() const;
+
+private:
+    QStringList nameParts;
+    QChar tagPrefix = '#';
+    QChar estimatedPrefix = '*';
+
+    QString tagsAsHashedString() const;
+    void tryParseTag(QString& part);
+    void tryParseNamePart(QString& part);
+    void tryParseEstimatedPomodoros(QString& part);
+    void decodeDescription(QString& encodedDescription);
+};
+
+#endif // ENTITIES_H
