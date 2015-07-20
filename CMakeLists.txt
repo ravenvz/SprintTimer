@@ -35,7 +35,7 @@ if ( WITH_DEBUG_MODE )
 endif()
 
 # if ( CMAKE_COMPILER_IS_GNUCXX )
-#     set(MY_CXX_FLAGS  "-Wall -std=c++11 -pedantic")
+#     set(MY_CXX_FLAGS  "-Wall -Werror -j 4 -std=c++11 -pedantic")
 #     set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
 #     #set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-reorder-blocks -fno-schedule-insns -fno-inline")
 #     #set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")

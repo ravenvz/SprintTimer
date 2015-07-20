@@ -1,3 +1,13 @@
+Version 0.2.0
+-------------
+
+Application should be configurable by user
+
+    Added configuration options
+
+    
+HISTORY
+----------------------------------------------------------------
 
 
 Version 0.1.0
@@ -5,20 +15,15 @@ Version 0.1.0
 
 Application should be usable on day-to-day basis
 
-    Added simplest possible completed pomodoro list to GUI
-    Added simplest possible TODO list to select tasks from to GUI
+    Added basic pomodoro list to GUI
+    Added basic Todo Items list to select tasks from to GUI
     Added quick-add todo item functionality
     
-    
-HISTORY
-----------------------------------------------------------------
-
 
 Version 0.0.2
 -------------
 
     Completed pomodoros are stored in the db
-
 
 
 Version 0.0.1
