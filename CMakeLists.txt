@@ -10,9 +10,13 @@ set(CMAKE_AUTOMOC ON)
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+
+set (CMAKE_AUTORCC ON)
+
 find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
 
 # set(QT_USE_QTMULTIMEDIA TRUE)
+# set ("${PROJECT}_RCCS" resources/resources.qrc)
 
 set ("${PROJECT}_BINARY_DIR" bin)
 set ("${PROJECT}_SOURCE_DIR" src:include)
@@ -65,9 +69,10 @@ QT5_WRAP_UI(UI_HEADERS
     src/gui/ui/mainwindow.ui
     src/gui/ui/add_todo_dialog.ui
     src/gui/ui/pom_cancel_dialog.ui
+    src/gui/ui/settings.ui
 )
 
-add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})
+add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)
 # add_executable(pomodoro src/main.cpp mainwindow.cpp)
 
 qt5_use_modules(${PROJECT} Multimedia Widgets Sql Core)
