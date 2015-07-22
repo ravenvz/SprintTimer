@@ -57,7 +57,7 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/mainwindow.cpp
                  src/gui/dialogs/addtodoitemdialog.cpp
                  src/gui/dialogs/confirmationdialog.cpp
-                 src/gui/settings_window.cpp
+                 src/gui/dialogs/settings_dialog.cpp
                  # src/gui/todoitemslistview.cpp
                  src/gui/todoitemslistmodel.cpp
                  src/gui/todoitemsviewdelegate.cpp

@@ -36,7 +36,7 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>50</x>
      <y>30</y>
      <width>131</width>
      <height>16</height>
@@ -51,7 +51,7 @@
     <rect>
      <x>230</x>
      <y>70</y>
-     <width>131</width>
+     <width>151</width>
      <height>21</height>
     </rect>
    </property>
@@ -68,18 +68,21 @@
     <string> minutes</string>
    </property>
    <property name="minimum">
-    <number>5</number>
+    <number>1</number>
    </property>
    <property name="maximum">
     <number>120</number>
+   </property>
+   <property name="value">
+    <number>5</number>
    </property>
   </widget>
   <widget class="QCheckBox" name="chBxPlaySound">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>190</y>
-     <width>131</width>
+     <x>40</x>
+     <y>200</y>
+     <width>121</width>
      <height>23</height>
     </rect>
    </property>
@@ -98,7 +101,7 @@
     <rect>
      <x>230</x>
      <y>30</y>
-     <width>131</width>
+     <width>151</width>
      <height>21</height>
     </rect>
    </property>
@@ -115,7 +118,7 @@
     <string> minutes</string>
    </property>
    <property name="minimum">
-    <number>5</number>
+    <number>1</number>
    </property>
    <property name="maximum">
     <number>120</number>
@@ -127,7 +130,7 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>50</x>
      <y>150</y>
      <width>131</width>
      <height>16</height>
@@ -142,7 +145,7 @@
     <rect>
      <x>230</x>
      <y>150</y>
-     <width>131</width>
+     <width>151</width>
      <height>21</height>
     </rect>
    </property>
@@ -159,10 +162,13 @@
     <string> pomodoros</string>
    </property>
    <property name="minimum">
-    <number>5</number>
+    <number>2</number>
    </property>
    <property name="maximum">
     <number>120</number>
+   </property>
+   <property name="value">
+    <number>4</number>
    </property>
   </widget>
   <widget class="QSpinBox" name="spBxLongDuration">
@@ -170,7 +176,7 @@
     <rect>
      <x>230</x>
      <y>110</y>
-     <width>131</width>
+     <width>151</width>
      <height>21</height>
     </rect>
    </property>
@@ -187,7 +193,7 @@
     <string> minutes</string>
    </property>
    <property name="minimum">
-    <number>5</number>
+    <number>1</number>
    </property>
    <property name="maximum">
     <number>120</number>
@@ -199,7 +205,7 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>50</x>
      <y>70</y>
      <width>131</width>
      <height>16</height>
@@ -212,7 +218,7 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>50</x>
      <y>110</y>
      <width>131</width>
      <height>16</height>

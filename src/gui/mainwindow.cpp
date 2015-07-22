@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "gui/dialogs/confirmationdialog.h"
 #include "gui/dialogs/addtodoitemdialog.h"
-#include "gui/settings_window.h"
+#include "gui/dialogs/settings_dialog.h"
 #include "core/entities.h"
 
 
@@ -102,12 +102,10 @@ void MainWindow::quickAddTodoItem() {
 }
 
 void MainWindow::launchSettingsDialog() {
-    SettingsWindow* window = new SettingsWindow();
-    qDebug() << "Clicked on fucking button";
-    window->show();
-    // window.setVisible(true);
-    // if (window.exec()) {
-    // }
+    SettingsDialog settingsWindow {};
+    if (settingsWindow.exec()) {
+        qDebug() << "Applying changes";
+    }
 }
 
 void MainWindow::startTask() {
