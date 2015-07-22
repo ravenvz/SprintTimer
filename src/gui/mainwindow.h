@@ -34,6 +34,7 @@ private slots:
     void showContextMenu(const QPoint& pos);
     void toggleTodoItemCompleted();
     void onInTheZoneToggled();
+    void launchSettingsDialog();
 
 private:
     const unsigned secondsPerMinute = 60;

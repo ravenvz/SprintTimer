@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "gui/dialogs/confirmationdialog.h"
 #include "gui/dialogs/addtodoitemdialog.h"
+#include "gui/settings_window.h"
 #include "core/entities.h"
 
 
@@ -44,6 +45,7 @@ void MainWindow::connectSlots() {
     connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
     connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
     connect(ui->leTodoItem, SIGNAL(returnPressed()), this, SLOT(quickAddTodoItem()));
+    connect(ui->btnSettings, SIGNAL(clicked(bool)), this, SLOT(launchSettingsDialog()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -97,6 +99,15 @@ void MainWindow::quickAddTodoItem() {
         TodoItem item {encodedDescription};
         todoitemViewModel->addTodoItem(item);
     }
+}
+
+void MainWindow::launchSettingsDialog() {
+    SettingsWindow* window = new SettingsWindow();
+    qDebug() << "Clicked on fucking button";
+    window->show();
+    // window.setVisible(true);
+    // if (window.exec()) {
+    // }
 }
 
 void MainWindow::startTask() {
