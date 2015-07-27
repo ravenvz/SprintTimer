@@ -1,6 +1,5 @@
 #include "addtodoitemdialog.h"
 #include "ui_add_todo_dialog.h"
-#include <QStringListModel>
 #include <data_base/db_helper.h>
 
 AddTodoItemDialog::AddTodoItemDialog(QWidget* parent) :

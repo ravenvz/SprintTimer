@@ -1,23 +1,6 @@
 #include <QApplication>
 #include "gui/mainwindow.h"
-// #include <data_base/db_helper.h>
-
-#include "core/TaskScheduler.h"
-
-
-Config readConfig() {
-    Config applicationConfig {25, 5, 15, 4};
-    return applicationConfig;
-}
-
-TaskScheduler initTaskScheduler() {
-    Config applicationConfig = readConfig();
-    // TODO number of completed pomodoros could be non-zero 
-    // It will be stored in db and should be read at this point
-    unsigned completedPomodoros = 0;
-    TaskScheduler taskScheduler {applicationConfig, completedPomodoros};
-    return taskScheduler;
-}
+#include "core/config.h"
 
 
 
@@ -29,7 +12,12 @@ int main(int argc, char *argv[])
         return -1;
     }
     qDebug() << "Successfully connected to database";
-    MainWindow w {initTaskScheduler()};
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QApplication::setOrganizationName("RavenStudio");
+    QApplication::setApplicationName("Pomodoro");
+    Config applicationSettings;
+    TaskScheduler scheduler {&applicationSettings};
+    MainWindow w {scheduler, applicationSettings};
     w.show();
 
     return app.exec();

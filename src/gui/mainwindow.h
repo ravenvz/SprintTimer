@@ -10,6 +10,7 @@
 #include <data_base/db_helper.h>
 #include "todoitemslistmodel.h"
 #include "todoitemsviewdelegate.h"
+#include <QSettings>
 
 namespace Ui {
     class MainWindow;
@@ -20,7 +21,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(TaskScheduler scheduler, QWidget *parent = 0);
+    explicit MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent = 0);
     ~MainWindow();
 
 private slots:
@@ -34,11 +35,13 @@ private slots:
     void showContextMenu(const QPoint& pos);
     void toggleTodoItemCompleted();
     void onInTheZoneToggled();
+    void launchSettingsDialog();
 
 private:
-    const unsigned secondsPerMinute = 60;
     Ui::MainWindow *ui;
-    TaskScheduler taskScheduler;
+    TaskScheduler& taskScheduler;
+    Config& applicationSettings;
+    const unsigned secondsPerMinute = 60;
     QTimer* timer;
     QMediaPlayer* player;
     std::vector<TimeInterval> completedTasksIntervals;
@@ -55,6 +58,7 @@ private:
     void updatePomodoroView();
     void editTodoItem();
     void removeTodoItem();
+    void playSound();
 };
 
 #endif // MAINWINDOW_H 

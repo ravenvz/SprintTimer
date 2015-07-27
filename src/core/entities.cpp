@@ -95,7 +95,7 @@ void TodoItem::tryParseNamePart(QString& part) {
 
 void TodoItem::tryParseEstimatedPomodoros(QString& part) {
     if (part.startsWith(estimatedPrefix)) {
-        estimatedPomodoros = part.right(part.size() - 1).toInt();
+        estimatedPomodoros = part.right(part.size() - 1).toUInt();
     }
 }
 

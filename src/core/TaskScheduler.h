@@ -2,14 +2,8 @@
 #define POMODORO_TASKSCHEDULER_H
 
 #include <QDateTime>
-
-
-struct Config {
-    const unsigned pomodoroDuration;
-    const unsigned breakDuration;
-    const unsigned longBreakDuration;
-    const unsigned tasksBeforeBreak;
-};
+#include <QSettings>
+#include "config.h"
 
 
 struct TimeInterval {
@@ -21,7 +15,7 @@ struct TimeInterval {
 class TaskScheduler {
 
 public:
-    TaskScheduler(Config applicationConfig, unsigned completedPomodoros);
+    TaskScheduler(IConfig* applicationSettings);
     void startTask();
     TimeInterval finishTask();
     void cancelTask();
@@ -29,10 +23,11 @@ public:
     unsigned getTaskDurationInMinutes();
     bool isBreak();
     unsigned getNumCompletedTasks();
+    void setNumCompletedTasks(unsigned numTasks);
     void toggleInTheZoneMode();
 
 private:
-    Config config;
+    IConfig* applicationSettings;
     unsigned completedTasks;
     bool inTheZoneMode;
     enum class TaskState { TASK, SHORT_BREAK, LONG_BREAK  };
