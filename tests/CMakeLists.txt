@@ -10,6 +10,7 @@ set(SOURCE_FILES
     ../src/core/entities.cpp
     ../src/data_base/db_helper.cpp
     ../src/core/entities.h
+    ../src/core/config.h
 )
 find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql)

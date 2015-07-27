@@ -11,7 +11,7 @@ class AddTodoItemDialog;
 
 class AddTodoItemDialog : public QDialog
 {
-    Q_OBJECT  // remove if no signal/slots here
+    Q_OBJECT
 
 public:
     explicit AddTodoItemDialog(QWidget* parent = 0);
