@@ -107,5 +107,15 @@ void TodoItem::decodeDescription(QString& encodedDescription) {
         tryParseEstimatedPomodoros(part);
         tryParseNamePart(part);
     }
+    if (estimatedPomodoros == 0) {
+        estimatedPomodoros = 1;
+    }
+    // TODO this is ugly workaround that is nessessery due to another
+    // ugly workaround introduced before. The issue is actually in db
+    // design - special tag "" is used when todo item has no tag.
+    // it should be removed when PM-30 is resolved.
+    if (tags.isEmpty()) {
+        tags << "";
+    }
     name = nameParts.join(' ');
 }

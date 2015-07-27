@@ -146,7 +146,6 @@ void MainWindow::updateTimerCounter() {
 void MainWindow::playSound() {
     // TODO might not be the best way to handle this, as it requires gstreamer-ugly-plugins on my system
     player->setMedia(QUrl::fromLocalFile("/home/vizier/Projects/pomodoro_cpp/resources/ring.wav"));
-    // TODO Volume should not be a magic number and should be set in config
     player->setVolume(applicationSettings.getSoundVolume());
     player->play();
 }

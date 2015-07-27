@@ -49,7 +49,9 @@ void AddTodoItemDialog::setTagsModel() {
 
 void AddTodoItemDialog::quickAddTag(const QString& tag) {
     QString prevTag = ui->leTags->text();
-    prevTag.append(" ");
+    if (!prevTag.isEmpty()) {
+        prevTag.append(" ");
+    }
     prevTag.append(tag);
     ui->leTags->setText(prevTag);
 }
