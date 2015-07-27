@@ -124,8 +124,8 @@ public:
         query.bindValue(":name", QVariant(item.name));
         query.bindValue(":estimated_pomodoros", QVariant(item.estimatedPomodoros));
         query.bindValue(":spent_pomodoros", QVariant(item.spentPomodoros));
-        query.bindValue(":completed", QVariant(newItemPriority));
-        query.bindValue(":priority", QVariant());
+        query.bindValue(":completed", QVariant(item.completed));
+        query.bindValue(":priority", QVariant(newItemPriority));
         query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
         query.exec();
         QVariant todoId = query.lastInsertId();
