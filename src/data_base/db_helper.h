@@ -191,13 +191,13 @@ public:
 
     static QList<TodoItem> getUncompleteTodoItems() {
         QSqlQuery query;
-        query.exec("select todo_item.name, todo_item.estimated_pomodoros, "
+        query.exec("SELECT todo_item.name, todo_item.estimated_pomodoros, "
                "todo_item.spent_pomodoros, todo_item.priority, todo_item.completed, group_concat(tag.name), todo_item.id "
-               "from todo_item join todotag on todo_item.id = todotag.todo_id "
-               "join tag on tag.id = todotag.tag_id "
-               "where completed = 0 or todo_item.last_modified > DATETIME('NOW', '-1 DAY') "
-               "group by todo_item.name "
-               "order by todo_item.priority");
+               "FROM todo_item LEFT JOIN todotag ON todo_item.id = todotag.todo_id "
+               "LEFT JOIN tag ON tag.id = todotag.tag_id "
+               "WHERE completed = 0 OR todo_item.last_modified > DATETIME('NOW', '-1 DAY') "
+               "GROUP BY todo_item.id "
+               "ORDER BY todo_item.priority");
         QList<TodoItem> items;
         while (query.next()) {
             QStringList tags = query.value(5).toString().split(",");

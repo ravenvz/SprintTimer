@@ -26,6 +26,7 @@ private:
     QStringListModel* tagModel;
     static const int tempId = -1;
     void setTagsModel();
+    QStringList parseTags(QString& tagsString);
 
 private slots:
     void quickAddTag(const QString& tag);
