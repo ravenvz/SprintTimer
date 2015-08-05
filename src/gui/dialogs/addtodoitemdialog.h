@@ -11,7 +11,7 @@ class AddTodoItemDialog;
 
 class AddTodoItemDialog : public QDialog
 {
-    Q_OBJECT  // remove if no signal/slots here
+    Q_OBJECT
 
 public:
     explicit AddTodoItemDialog(QWidget* parent = 0);
@@ -26,6 +26,7 @@ private:
     QStringListModel* tagModel;
     static const int tempId = -1;
     void setTagsModel();
+    QStringList parseTags(QString& tagsString);
 
 private slots:
     void quickAddTag(const QString& tag);

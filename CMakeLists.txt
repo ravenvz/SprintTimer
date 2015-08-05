@@ -10,9 +10,13 @@ set(CMAKE_AUTOMOC ON)
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+
+set (CMAKE_AUTORCC ON)
+
 find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
 
 # set(QT_USE_QTMULTIMEDIA TRUE)
+# set ("${PROJECT}_RCCS" resources/resources.qrc)
 
 set ("${PROJECT}_BINARY_DIR" bin)
 set ("${PROJECT}_SOURCE_DIR" src:include)
@@ -35,7 +39,7 @@ if ( WITH_DEBUG_MODE )
 endif()
 
 # if ( CMAKE_COMPILER_IS_GNUCXX )
-#     set(MY_CXX_FLAGS  "-Wall -std=c++11 -pedantic")
+#     set(MY_CXX_FLAGS  "-Wall -Werror -j 4 -std=c++11 -pedantic")
 #     set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
 #     #set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-reorder-blocks -fno-schedule-insns -fno-inline")
 #     #set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
@@ -53,6 +57,7 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/mainwindow.cpp
                  src/gui/dialogs/addtodoitemdialog.cpp
                  src/gui/dialogs/confirmationdialog.cpp
+                 src/gui/dialogs/settings_dialog.cpp
                  # src/gui/todoitemslistview.cpp
                  src/gui/todoitemslistmodel.cpp
                  src/gui/todoitemsviewdelegate.cpp
@@ -65,9 +70,10 @@ QT5_WRAP_UI(UI_HEADERS
     src/gui/ui/mainwindow.ui
     src/gui/ui/add_todo_dialog.ui
     src/gui/ui/pom_cancel_dialog.ui
+    src/gui/ui/settings.ui
 )
 
-add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS})
+add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)
 # add_executable(pomodoro src/main.cpp mainwindow.cpp)
 
 qt5_use_modules(${PROJECT} Multimedia Widgets Sql Core)

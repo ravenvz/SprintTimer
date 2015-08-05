@@ -17,7 +17,7 @@ struct Pomodoro {
 
 struct TodoItem {
     QString name;
-    unsigned estimatedPomodoros = 0;
+    unsigned estimatedPomodoros = 1;
     unsigned spentPomodoros;
     QStringList tags;
     bool completed;
@@ -31,20 +31,16 @@ struct TodoItem {
              QStringList tags,
              bool completed,
              int id);
-    TodoItem(QString encodedDescription);
+    TodoItem(QString& encodedDescription);
     QString asString() const;
     QString tagsAndNameAsString() const;
     QString tagsAsString() const;
 
 private:
-    QStringList nameParts;
     QChar tagPrefix = '#';
     QChar estimatedPrefix = '*';
 
     QString tagsAsHashedString() const;
-    void tryParseTag(QString& part);
-    void tryParseNamePart(QString& part);
-    void tryParseEstimatedPomodoros(QString& part);
     void decodeDescription(QString& encodedDescription);
 };
 

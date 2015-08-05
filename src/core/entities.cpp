@@ -1,4 +1,5 @@
 #include "entities.h"
+#include <QRegularExpression>
 
 
 QString Pomodoro::asString() const {
@@ -36,7 +37,7 @@ TodoItem::TodoItem(QString name,
 }
 
 
-TodoItem::TodoItem(QString encodedDescription) :
+TodoItem::TodoItem(QString& encodedDescription) :
     encodedDescription(encodedDescription)
 {
     decodeDescription(encodedDescription);
@@ -79,33 +80,19 @@ QString TodoItem::tagsAsHashedString() const {
 }
 
 
-void TodoItem::tryParseTag(QString& part) {
-    if (part.startsWith(tagPrefix)) {
-        tags << part.right(part.size() - 1);
-    }
-}
-
-
-void TodoItem::tryParseNamePart(QString& part) {
-    if (!part.startsWith(tagPrefix) && !part.startsWith(estimatedPrefix)) {
-        nameParts << part;
-    }
-}
-
-
-void TodoItem::tryParseEstimatedPomodoros(QString& part) {
-    if (part.startsWith(estimatedPrefix)) {
-        estimatedPomodoros = part.right(part.size() - 1).toInt();
-    }
-}
-
-
 void TodoItem::decodeDescription(QString& encodedDescription) {
+    QStringList nameParts;
+    QRegularExpression tagRegexp {QString ("^%1\\w+").arg(tagPrefix)};
+    encodedDescription.replace(QRegularExpression("\\s+"), " ");
     QStringList parts = encodedDescription.split(" ");
-    for (auto part : parts) {
-        tryParseTag(part);
-        tryParseEstimatedPomodoros(part);
-        tryParseNamePart(part);
+    for (QString part : parts) {
+        if (part.contains(tagRegexp)) {
+            tags << part.right(part.size() - 1);
+        } else if (part.startsWith(estimatedPrefix)) {
+            estimatedPomodoros = part.right(part.size() - 1).toUInt();
+        } else {
+            nameParts << part;
+        }
     }
     name = nameParts.join(' ');
 }

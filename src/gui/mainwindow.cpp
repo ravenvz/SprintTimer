@@ -1,14 +1,17 @@
+#include <src/core/config.h>
 #include "gui/mainwindow.h"
 #include "ui_mainwindow.h"
 #include "gui/dialogs/confirmationdialog.h"
 #include "gui/dialogs/addtodoitemdialog.h"
+#include "gui/dialogs/settings_dialog.h"
 #include "core/entities.h"
 
 
-MainWindow::MainWindow(TaskScheduler scheduler, QWidget* parent) :
+MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    taskScheduler(scheduler)
+    taskScheduler(scheduler),
+    applicationSettings(applicationSettings)
 {
     ui->setupUi(this);
     timer = new QTimer(this);
@@ -44,6 +47,7 @@ void MainWindow::connectSlots() {
     connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
     connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
     connect(ui->leTodoItem, SIGNAL(returnPressed()), this, SLOT(quickAddTodoItem()));
+    connect(ui->btnSettings, SIGNAL(clicked(bool)), this, SLOT(launchSettingsDialog()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -99,6 +103,14 @@ void MainWindow::quickAddTodoItem() {
     }
 }
 
+void MainWindow::launchSettingsDialog() {
+    SettingsDialog settingsDialog {applicationSettings};
+    settingsDialog.fillSettingsData();
+    if (settingsDialog.exec()) {
+        qDebug() << "Applying changes";
+    }
+}
+
 void MainWindow::startTask() {
     taskScheduler.startTask();
     timerDurationInSeconds = secondsPerMinute * taskScheduler.getTaskDurationInMinutes();
@@ -116,12 +128,8 @@ void MainWindow::updateTimerCounter() {
         ui->progressBar->repaint();
     } else {
         timer->stop();
-        if (!ui->btnZone->isChecked()) {
-            // TODO might not be the best way to handle this, as it requires gstreamer-ugly-plugins on my system
-            player->setMedia(QUrl::fromLocalFile("/home/vizier/Projects/pomodoro_cpp/resources/ring.mp3"));
-            // TODO Volume should not be a magic number and should be set in config
-            player->setVolume(50);
-            player->play();
+        if (!ui->btnZone->isChecked() && applicationSettings.soundIsEnabled()) {
+            playSound();
         }
         if (ui->btnZone->isChecked()) {
             completedTasksIntervals.push_back(taskScheduler.finishTask());
@@ -133,6 +141,13 @@ void MainWindow::updateTimerCounter() {
             setUiToSubmissionState();
         }
     }
+}
+
+void MainWindow::playSound() {
+    // TODO might not be the best way to handle this, as it requires gstreamer-ugly-plugins on my system
+    player->setMedia(QUrl::fromLocalFile("/home/vizier/Projects/pomodoro_cpp/resources/ring.wav"));
+    player->setVolume(applicationSettings.getSoundVolume());
+    player->play();
 }
 
 void MainWindow::submitPomodoro() {

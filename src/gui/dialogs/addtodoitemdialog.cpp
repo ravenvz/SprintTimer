@@ -1,7 +1,7 @@
 #include "addtodoitemdialog.h"
 #include "ui_add_todo_dialog.h"
-#include <QStringListModel>
 #include <data_base/db_helper.h>
+#include <QRegularExpression>
 
 AddTodoItemDialog::AddTodoItemDialog(QWidget* parent) :
     QDialog(parent),
@@ -29,10 +29,20 @@ void AddTodoItemDialog::accept() {
     QString tagsString = ui->leTags->text();
 
     if (!name.isEmpty()) {
-        QStringList tags = tagsString.trimmed().split(" ");
+        QStringList tags = parseTags(tagsString);
         item = TodoItem {name, estimatedPomodoros, 0, tags, false, AddTodoItemDialog::tempId};
         QDialog::accept();
     }
+}
+
+QStringList AddTodoItemDialog::parseTags(QString& tagsString) {
+    tagsString.replace(QRegularExpression("(\\s|,)+"), " ");
+    QStringList tags;
+    if (tagsString != " " && tagsString != "") {
+        tags = tagsString.trimmed().split(" ");
+    }
+    tags.removeDuplicates();
+    return tags;
 }
 
 void AddTodoItemDialog::fillItemData(TodoItem item) {
@@ -50,7 +60,9 @@ void AddTodoItemDialog::setTagsModel() {
 
 void AddTodoItemDialog::quickAddTag(const QString& tag) {
     QString prevTag = ui->leTags->text();
-    prevTag.append(" ");
+    if (!prevTag.isEmpty()) {
+        prevTag.append(" ");
+    }
     prevTag.append(tag);
     ui->leTags->setText(prevTag);
 }

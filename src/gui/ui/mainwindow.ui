@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Pomodoro</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../../resources/resources.qrc">
+    <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLineEdit" name="leDoneTask">
     <property name="geometry">
@@ -607,6 +611,91 @@
      <string>Add TODO</string>
     </property>
    </widget>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>560</y>
+      <width>311</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QPushButton" name="btnSettings">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>10</y>
+       <width>71</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../resources/resources.qrc">
+       <normaloff>:/icons/config.ico</normaloff>:/icons/config.ico</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>47</width>
+       <height>47</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnConfig_2">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>10</y>
+       <width>71</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../resources/resources.qrc">
+       <normaloff>:/icons/statistics.png</normaloff>:/icons/statistics.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>47</width>
+       <height>47</height>
+      </size>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnConfig_3">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>10</y>
+       <width>71</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../resources/resources.qrc">
+       <normaloff>:/icons/config.ico</normaloff>:/icons/config.ico</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>47</width>
+       <height>47</height>
+      </size>
+     </property>
+    </widget>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -614,12 +703,14 @@
      <x>0</x>
      <y>0</y>
      <width>816</width>
-     <height>19</height>
+     <height>28</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

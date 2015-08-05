@@ -15,7 +15,7 @@ void createDatabase(QSqlDatabase& db, QString& filename) {
             "name varchar)");
     query.exec("create table todo_item "
             "(id integer primary key autoincrement, "
-            "name varchar unique, "
+            "name varchar, "
             "estimated_pomodoros integer, "
             "spent_pomodoros integer, "
             "completed boolean, "

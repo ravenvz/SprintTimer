@@ -1,8 +1,10 @@
 #include "TaskScheduler.h"
+#include "config.h"
 
-TaskScheduler::TaskScheduler(Config applicationConfig, unsigned completedTasks) :
-        config(applicationConfig),
-        completedTasks(completedTasks),
+
+TaskScheduler::TaskScheduler(IConfig* applicationSettings) :
+        applicationSettings(applicationSettings),
+        completedTasks(0),
         inTheZoneMode(false),
         currentState(TaskState::TASK)
 {
@@ -37,7 +39,7 @@ void TaskScheduler::setNextState() {
     if (currentState != TaskState::TASK) {
         currentState = TaskState::TASK;
     } else {
-        if (completedTasks % config.tasksBeforeBreak == 0) {
+        if (completedTasks % applicationSettings->getTasksBeforeBreak() == 0) {
             currentState = TaskState::LONG_BREAK;
         } else {
             currentState = TaskState::SHORT_BREAK;
@@ -48,11 +50,11 @@ void TaskScheduler::setNextState() {
 unsigned TaskScheduler::getTaskDurationInMinutes() {
     switch (currentState) {
         case TaskState::TASK:
-            return config.pomodoroDuration;
-        case TaskState::SHORT_BREAK:
-            return config.breakDuration;
+            return applicationSettings->getPomodoroDuration();
+        case TaskState::LONG_BREAK:
+            return applicationSettings->getLongBreakDuration();
         default:
-            return config.longBreakDuration;
+            return applicationSettings->getShortBreakDuration();
     }
 }
 
@@ -60,10 +62,14 @@ unsigned TaskScheduler::getNumCompletedTasks() {
     return completedTasks;
 }
 
+void TaskScheduler::setNumCompletedTasks(unsigned numTasks) {
+    TaskScheduler::completedTasks = numTasks;
+}
+
 bool TaskScheduler::isBreak() {
     return currentState != TaskState::TASK;
 }
 
 void TaskScheduler::toggleInTheZoneMode() {
-    inTheZoneMode = inTheZoneMode ? false : true;
+    inTheZoneMode = !inTheZoneMode;
 }
