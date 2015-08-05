@@ -672,7 +672,7 @@
       </size>
      </property>
     </widget>
-    <widget class="QPushButton" name="btnConfig_3">
+    <widget class="QPushButton" name="btnTodoHistory">
      <property name="geometry">
       <rect>
        <x>200</x>
@@ -686,7 +686,7 @@
      </property>
      <property name="icon">
       <iconset resource="../../../resources/resources.qrc">
-       <normaloff>:/icons/config.ico</normaloff>:/icons/config.ico</iconset>
+       <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -703,7 +703,7 @@
      <x>0</x>
      <y>0</y>
      <width>816</width>
-     <height>28</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>

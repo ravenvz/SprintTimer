@@ -64,6 +64,7 @@ set(SOURCE_FILES src/main.cpp
                  src/core/TaskScheduler.cpp
                  src/core/entities.cpp
                  src/data_base/db_helper.cpp
+                 src/gui/dialogs/historyview.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS
@@ -71,6 +72,7 @@ QT5_WRAP_UI(UI_HEADERS
     src/gui/ui/add_todo_dialog.ui
     src/gui/ui/pom_cancel_dialog.ui
     src/gui/ui/settings.ui
+    src/gui/ui/history.ui
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)

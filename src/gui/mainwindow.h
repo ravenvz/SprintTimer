@@ -36,6 +36,7 @@ private slots:
     void toggleTodoItemCompleted();
     void onInTheZoneToggled();
     void launchSettingsDialog();
+    void launchHistoryView();
 
 private:
     Ui::MainWindow *ui;
