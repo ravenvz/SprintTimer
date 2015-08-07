@@ -31,6 +31,26 @@ public:
         return result;
     }
 
+    static QVector<Pomodoro> getPomodoroForMonth(QString year, QString month) {
+        QVector<Pomodoro> result;
+        QSqlQuery query;
+        query.prepare("select id, name, start_time, finish_time "
+                "from pomodoro where strftime('%Y', start_time) = (:year) and "
+                "strftime('%m', start_time) = (:month) ");
+        query.bindValue(":year", QVariant(year));
+        query.bindValue(":month", QVariant(month));
+        query.exec();
+        while (query.next()) {
+            Pomodoro pomodoro {query.value(1).toString(),
+                               query.value(2).toDateTime(),
+                               query.value(3).toDateTime()};
+            result.append(pomodoro);
+        }
+        return result;
+    }
+
+                
+
     static void storePomodoro(Pomodoro pomodoro) {
         QSqlQuery query;
         query.prepare("insert into pomodoro (name, start_time, finish_time) "

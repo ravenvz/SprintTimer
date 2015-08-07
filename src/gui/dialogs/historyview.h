@@ -1,8 +1,10 @@
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H 
 
+#include <QStringListModel>
 #include <QObject>
 #include <QDialog>
+#include <src/core/entities.h>
 
 namespace Ui {
     class HistoryView;
@@ -17,7 +19,21 @@ public:
     ~HistoryView();
 
 private:
-    Ui::HistoryView *ui;
+    Ui::HistoryView* ui;
+    QStringListModel* yearsModel;
+    QStringListModel* monthsModel;
+    QStringListModel* pomodoroModel;
+
+    void populatePomodoroHistory();
+    void populateTodoHistory();
+    void getPomodoroHistory(const QString& year,
+                            const QString& month,
+                            QStringList& preprocessedHistory) const;
+    void formatPomodoroHistory(const QVector<Pomodoro>& pomodoros, QStringList& preparedPomodoroHistory) const;
+
+private slots:
+    void displayHistory();
+
 };
 
 #endif //HISTORY_VIEW_H 
