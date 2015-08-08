@@ -3,19 +3,19 @@
 
 #include <QStringListModel>
 #include <QObject>
-#include <QDialog>
+#include <QWidget>
 #include <src/core/entities.h>
 
 namespace Ui {
     class HistoryView;
 }
 
-class HistoryView : public QDialog
+class HistoryView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit HistoryView(QDialog* parent = 0);
+    explicit HistoryView(QWidget* parent = 0);
     ~HistoryView();
 
 private:

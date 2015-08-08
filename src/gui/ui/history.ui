@@ -1,49 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>HistoryView</class>
- <widget class="QDialog" name="HistoryView">
+ <widget class="QWidget" name="HistoryView">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>606</width>
-    <height>501</height>
+    <width>624</width>
+    <height>481</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>History</string>
+   <string>Form</string>
   </property>
-  <widget class="QComboBox" name="cbxManualSelect">
+  <widget class="QComboBox" name="cbxYear">
    <property name="geometry">
     <rect>
-     <x>340</x>
+     <x>10</x>
      <y>10</y>
      <width>78</width>
      <height>22</height>
     </rect>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="cbxMonth">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>10</y>
-     <width>101</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnOptional">
-   <property name="geometry">
-    <rect>
-     <x>440</x>
-     <y>10</y>
-     <width>80</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Optional</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnLastThirty">
@@ -57,6 +34,29 @@
    </property>
    <property name="text">
     <string>Last 30 days</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="cbxMonth">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>10</y>
+     <width>101</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnDisplayHistory">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>50</y>
+     <width>311</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Display History</string>
    </property>
   </widget>
   <widget class="QTabWidget" name="twHistoryDisplay">
@@ -102,27 +102,27 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QComboBox" name="cbxYear">
+  <widget class="QPushButton" name="btnOptional">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>440</x>
      <y>10</y>
-     <width>78</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnDisplayHistory">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>50</y>
-     <width>311</width>
+     <width>80</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>Display History</string>
+    <string>Optional</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="cbxManualSelect">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>10</y>
+     <width>78</width>
+     <height>22</height>
+    </rect>
    </property>
   </widget>
  </widget>

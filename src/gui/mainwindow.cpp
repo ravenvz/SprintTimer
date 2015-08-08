@@ -247,7 +247,9 @@ void MainWindow::onInTheZoneToggled() {
 }
 
 void MainWindow::launchHistoryView() {
-    HistoryView historyView {};
-    historyView.exec();
+    // HistoryView historyView {};
+    QPointer<HistoryView> historyView = new HistoryView();
+    historyView->show();
+    // historyView.exec();
 
 }

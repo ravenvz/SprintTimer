@@ -5,10 +5,11 @@
 #include "data_base/db_helper.h"
 
 
-HistoryView::HistoryView(QDialog* parent) : 
-    QDialog(parent),
+HistoryView::HistoryView(QWidget* parent) : 
+    QWidget(parent),
     ui(new Ui::HistoryView)
 {
+    // this->setWindowModality(Qt::ApplicationModal);
     ui->setupUi(this);
     QStringList years {"2015", "2016"};
     yearsModel = new QStringListModel(years);
