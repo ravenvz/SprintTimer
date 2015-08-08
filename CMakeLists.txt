@@ -65,6 +65,7 @@ set(SOURCE_FILES src/main.cpp
                  src/core/entities.cpp
                  src/data_base/db_helper.cpp
                  src/gui/dialogs/historyview.cpp
+                 src/gui/dialogs/datepickdialog.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS
@@ -73,6 +74,7 @@ QT5_WRAP_UI(UI_HEADERS
     src/gui/ui/pom_cancel_dialog.ui
     src/gui/ui/settings.ui
     src/gui/ui/history.ui
+    src/gui/ui/date_pick_dialog.ui
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)

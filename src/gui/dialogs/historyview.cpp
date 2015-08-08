@@ -3,6 +3,7 @@
 #include <QStringList>
 #include <QDebug>
 #include "data_base/db_helper.h"
+#include "gui/dialogs/datepickdialog.h"
 
 
 HistoryView::HistoryView(QWidget* parent) : 
@@ -22,6 +23,7 @@ HistoryView::HistoryView(QWidget* parent) :
     ui->lvTodoHistory->hide();
     ui->lvPomodoroHistory->hide();
     connect(ui->btnDisplayHistory, SIGNAL(clicked(bool)), this, SLOT(displayHistory()));
+    connect(ui->btnPickPeriod, SIGNAL(clicked(bool)), this, SLOT(openDatePicker()));
 }
 
 HistoryView::~HistoryView() {
@@ -72,4 +74,9 @@ void HistoryView::formatPomodoroHistory(const QVector<Pomodoro> &pomodoros, QStr
 
 void HistoryView::populateTodoHistory() {
 
+}
+
+void HistoryView::openDatePicker() {
+    DatePickDialog dialog;
+    dialog.exec();
 }

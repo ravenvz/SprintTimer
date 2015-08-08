@@ -23,7 +23,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="btnLastThirty">
+  <widget class="QPushButton" name="btnPickPeriod">
    <property name="geometry">
     <rect>
      <x>220</x>
@@ -33,7 +33,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Last 30 days</string>
+    <string>Pick Period</string>
    </property>
   </widget>
   <widget class="QComboBox" name="cbxMonth">
