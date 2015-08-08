@@ -22,7 +22,7 @@ private:
     Ui::HistoryView* ui;
     QStringListModel* yearsModel;
     QStringListModel* monthsModel;
-    QStringListModel* pomodoroModel;
+    // QStringListModel* pomodoroModel;
 
     void populatePomodoroHistory();
     void populateTodoHistory();

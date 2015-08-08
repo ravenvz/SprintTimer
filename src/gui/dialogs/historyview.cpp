@@ -26,7 +26,6 @@ HistoryView::HistoryView(QDialog* parent) :
 HistoryView::~HistoryView() {
     delete yearsModel;
     delete monthsModel;
-    delete pomodoroModel;
     delete ui;
 }
 
@@ -39,7 +38,7 @@ void HistoryView::populatePomodoroHistory() {
     QString month = QString("%1").arg(ui->cbxMonth->currentIndex() + 1, 2, 10, QChar('0'));
     QStringList preprocessedHistory;
     getPomodoroHistory(year, month, preprocessedHistory);
-    pomodoroModel = new QStringListModel(preprocessedHistory);
+    QPointer<QStringListModel> pomodoroModel = new QStringListModel(preprocessedHistory);
     ui->lvPomodoroHistory->setModel(pomodoroModel);
     ui->lvPomodoroHistory->show();
 }
@@ -49,6 +48,7 @@ void HistoryView::getPomodoroHistory(const QString& year,
                                      QStringList& preprocessedHistory) const {
     QVector<Pomodoro> pomodorosForPeriod = PomodoroGateway::getPomodoroForMonth(year, month);
     if (!pomodorosForPeriod.isEmpty()) {
+        preprocessedHistory << QString("Completed %1 pomodoros").arg(pomodorosForPeriod.size());
         formatPomodoroHistory(pomodorosForPeriod, preprocessedHistory);
     } else {
         preprocessedHistory << "No data stored for selected period";
