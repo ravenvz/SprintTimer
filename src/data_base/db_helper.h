@@ -232,6 +232,35 @@ public:
         return items;
     }
 
+    static QVector<std::pair<TodoItem, QString> > getTodoItemsForMonth(const QString& year, const QString& month) {
+        QVector<std::pair<TodoItem, QString> > result;
+        QSqlQuery query;
+        query.prepare("SELECT todo_item.name, todo_item.estimated_pomodoros, "
+                           "todo_item.spent_pomodoros, todo_item.priority, todo_item.completed, group_concat(tag.name), "
+                           "todo_item.id, todo_item.last_modified "
+                           "FROM todo_item LEFT JOIN todotag ON todo_item.id = todotag.todo_id "
+                           "LEFT JOIN tag ON tag.id = todotag.tag_id "
+                           "WHERE completed = 1 and strftime('%Y', todo_item.last_modified) = (:year) and "
+                           "strftime('%m', todo_item.last_modified) = (:month) "
+                           "GROUP BY todo_item.id "
+                           "ORDER BY todo_item.priority");
+        query.bindValue(":year", QVariant(year));
+        query.bindValue(":month", QVariant(month));
+        query.exec();
+        qDebug() << query.lastError();
+        while (query.next()) {
+            QStringList tags = query.value(5).toString().split(",");
+            TodoItem item {query.value(0).toString(),
+                           query.value(1).toUInt(),
+                           query.value(2).toUInt(),
+                           tags,
+                           query.value(4).toBool(),
+                           query.value(6).toInt()};
+            result << std::make_pair(item, query.value(7).toDate().toString());
+        }
+        return result;
+    }
+
     static void setItemChecked(int itemId, bool value) {
         QSqlQuery query;
         query.prepare("update todo_item set completed = (:completed), last_modified = (:last_modified) where id = (:id)");

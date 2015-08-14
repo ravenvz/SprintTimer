@@ -30,6 +30,10 @@ private:
                             const QString& month,
                             QStringList& preprocessedHistory) const;
     void formatPomodoroHistory(const QVector<Pomodoro>& pomodoros, QStringList& preparedPomodoroHistory) const;
+    QString getPeriodMonth() const;
+    QString getPeriodYear() const;
+    void getTodoItemsHistory(const QString& year, const QString& month, QStringList& formattedHistory);
+    void formatTodoItemHistory(const QVector<std::pair<TodoItem, QString> > todoItemsForPeriod, QStringList& formattedHistory);
 
 private slots:
     void displayHistory();
