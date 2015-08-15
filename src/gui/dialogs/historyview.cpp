@@ -61,12 +61,13 @@ void HistoryView::getPomodoroHistory(QStringList& preprocessedHistory) const {
 void HistoryView::formatPomodoroHistory(const QVector<Pomodoro> &pomodoros, QStringList &preparedPomodoroHistory) const {
     preparedPomodoroHistory << pomodoros[0].startTime.date().toString();
     QDate currentDate = pomodoros[0].startTime.date();
-    QVector<unsigned> headerIndexes {0};
+    unsigned headerOffset = 1;
+    QVector<unsigned> headerIndexes {headerOffset};
     for (int i = 0; i < pomodoros.size(); ++i) {
         if (currentDate != pomodoros[i].startTime.date()) {
             currentDate = pomodoros[i].startTime.date();
             preparedPomodoroHistory << pomodoros[i].startTime.date().toString();
-            headerIndexes << i;
+            headerIndexes << i + headerOffset;
         }
         preparedPomodoroHistory << pomodoros[i].asString();
     }
@@ -93,12 +94,13 @@ void HistoryView::getTodoItemsHistory(QStringList& formattedHistory) {
 void HistoryView::formatTodoItemHistory(const QVector<std::pair<TodoItem, QString> > todoItemsForPeriod, QStringList& formattedHistory) {
     QString currentDate = todoItemsForPeriod[0].second;
     formattedHistory << currentDate;
-    QVector<unsigned> headerIndexes {0};
+    unsigned headerOffset = 1;
+    QVector<unsigned> headerIndexes {headerOffset};
     for (int i = 0; i < todoItemsForPeriod.size(); ++i) {
         if (currentDate != todoItemsForPeriod[i].second) {
             currentDate = todoItemsForPeriod[i].second;
             formattedHistory << currentDate;
-            headerIndexes << i;
+            headerIndexes << i + headerOffset;
         }
         formattedHistory << todoItemsForPeriod[i].first.asString();
     }
