@@ -10,8 +10,8 @@ HistoryView::HistoryView(QWidget* parent) :
     QWidget(parent),
     ui(new Ui::HistoryView)
 {
-    // this->setWindowModality(Qt::ApplicationModal);
     ui->setupUi(this);
+    // TODO years should be computed dynamically
     QStringList years {"2015", "2016"};
     yearsModel = new QStringListModel(years);
     ui->cbxYear->setModel(yearsModel);
@@ -19,10 +19,14 @@ HistoryView::HistoryView(QWidget* parent) :
     QStringList months {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
     monthsModel = new QStringListModel(months);
     ui->cbxMonth->setModel(monthsModel);
-    ui->cbxMonth->setCurrentIndex(0);
-    ui->lvTodoHistory->hide();
-    ui->lvPomodoroHistory->hide();
-    connect(ui->btnDisplayHistory, SIGNAL(clicked(bool)), this, SLOT(displayHistory()));
+    ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
+    updatePeriod();
+    displayHistory();
+    connect(ui->cbxYear, SIGNAL(activated(int)), this, SLOT(updatePeriod()));
+    connect(ui->cbxMonth, SIGNAL(activated(int)), this, SLOT(updatePeriod()));
+    connect(ui->cbxYear, SIGNAL(activated(int)), this, SLOT(displayHistory()));
+    connect(ui->cbxMonth, SIGNAL(activated(int)), this, SLOT(displayHistory()));
+    connect(ui->twHistoryDisplay, SIGNAL(currentChanged(int)), this, SLOT(displayHistory()));
     connect(ui->btnPickPeriod, SIGNAL(clicked(bool)), this, SLOT(openDatePicker()));
 }
 
@@ -37,29 +41,15 @@ void HistoryView::displayHistory() {
 }
 
 void HistoryView::populatePomodoroHistory() {
-    QString year = getPeriodMonth();
-    QString month = getPeriodYear();
     QStringList preprocessedHistory;
-    getPomodoroHistory(year, month, preprocessedHistory);
+    getPomodoroHistory(preprocessedHistory);
     QPointer<QStringListModel> pomodoroModel = new QStringListModel(preprocessedHistory);
     ui->lvPomodoroHistory->setModel(pomodoroModel);
     ui->lvPomodoroHistory->show();
 }
 
-QString HistoryView::getPeriodYear() const {
-    QString month = QString("%1").arg(ui->cbxMonth->currentIndex() + 1, 2, 10, QChar('0'));
-    return month;
-}
-
-QString HistoryView::getPeriodMonth() const {
-    QString year = ui->cbxYear->currentText();
-    return year;
-}
-
-void HistoryView::getPomodoroHistory(const QString& year,
-                                     const QString& month,
-                                     QStringList& preprocessedHistory) const {
-    QVector<Pomodoro> pomodorosForPeriod = PomodoroGateway::getPomodoroForMonth(year, month);
+void HistoryView::getPomodoroHistory(QStringList& preprocessedHistory) const {
+    QVector<Pomodoro> pomodorosForPeriod = PomodoroGateway::getPomodoroForMonth(startDate, endDate);
     if (!pomodorosForPeriod.isEmpty()) {
         preprocessedHistory << QString("Completed %1 pomodoros").arg(pomodorosForPeriod.size());
         formatPomodoroHistory(pomodorosForPeriod, preprocessedHistory);
@@ -83,29 +73,21 @@ void HistoryView::formatPomodoroHistory(const QVector<Pomodoro> &pomodoros, QStr
 }
 
 void HistoryView::populateTodoHistory() {
-    QString year = getPeriodMonth();
-    QString month = getPeriodYear();
     QStringList preprocessedHistory;
-    getTodoItemsHistory(year, month, preprocessedHistory);
+    getTodoItemsHistory(preprocessedHistory);
     QPointer<QStringListModel> todoItemModel = new QStringListModel(preprocessedHistory);
     ui->lvTodoHistory->setModel(todoItemModel);
     ui->lvTodoHistory->show();
 }
 
-void HistoryView::openDatePicker() {
-    DatePickDialog dialog;
-    dialog.exec();
-}
-
-void HistoryView::getTodoItemsHistory(const QString& year, const QString& month, QStringList& formattedHistory) {
-    QVector<std::pair<TodoItem, QString> > todoItemsForPeriod = TodoItemGateway::getTodoItemsForMonth(year, month);
+void HistoryView::getTodoItemsHistory(QStringList& formattedHistory) {
+    QVector<std::pair<TodoItem, QString> > todoItemsForPeriod = TodoItemGateway::getTodoItemsForMonth(startDate, endDate);
     if (!todoItemsForPeriod.isEmpty()) {
         formattedHistory << QString("Completed %1 items").arg(todoItemsForPeriod.size());
         formatTodoItemHistory(todoItemsForPeriod, formattedHistory);
     } else {
         formattedHistory << "No data stored for selected period";
     }
-
 }
 
 void HistoryView::formatTodoItemHistory(const QVector<std::pair<TodoItem, QString> > todoItemsForPeriod, QStringList& formattedHistory) {
@@ -120,5 +102,24 @@ void HistoryView::formatTodoItemHistory(const QVector<std::pair<TodoItem, QStrin
         }
         formattedHistory << todoItemsForPeriod[i].first.asString();
     }
-
 }
+
+void HistoryView::updatePeriod(const QDate& start, const QDate& end) {
+    startDate = start;
+    endDate = end;
+}
+
+void HistoryView::updatePeriod() {
+    startDate = QDate(ui->cbxYear->currentText().toInt(), ui->cbxMonth->currentIndex() + 1, 1);
+    endDate = startDate.addDays(startDate.daysInMonth());
+}
+
+void HistoryView::openDatePicker() {
+    DatePickDialog dialog;
+    if (dialog.exec()) {
+        std::pair<QDate, QDate> period = dialog.getNewPeriod();
+        updatePeriod(period.first, period.second);
+        displayHistory();
+    }
+}
+

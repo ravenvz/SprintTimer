@@ -14,9 +14,9 @@ class DatePickDialog : public QDialog
 public:
     explicit DatePickDialog(QWidget* parent = 0);
     ~DatePickDialog();
+    std::pair<QDate, QDate> getNewPeriod();
 
 private slots:
-    void showCalendar();
 
 private:
     Ui::DatePickDialog *ui;

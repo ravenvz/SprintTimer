@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>History</string>
   </property>
   <widget class="QComboBox" name="cbxYear">
    <property name="geometry">
@@ -26,7 +26,7 @@
   <widget class="QPushButton" name="btnPickPeriod">
    <property name="geometry">
     <rect>
-     <x>220</x>
+     <x>270</x>
      <y>10</y>
      <width>101</width>
      <height>31</height>
@@ -44,19 +44,6 @@
      <width>101</width>
      <height>31</height>
     </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnDisplayHistory">
-   <property name="geometry">
-    <rect>
-     <x>160</x>
-     <y>50</y>
-     <width>311</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Display History</string>
    </property>
   </widget>
   <widget class="QTabWidget" name="twHistoryDisplay">
@@ -101,19 +88,6 @@
      </property>
     </widget>
    </widget>
-  </widget>
-  <widget class="QPushButton" name="btnOptional">
-   <property name="geometry">
-    <rect>
-     <x>440</x>
-     <y>10</y>
-     <width>80</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Optional</string>
-   </property>
   </widget>
  </widget>
  <resources/>

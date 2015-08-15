@@ -1,3 +1,4 @@
+#include <QtCore/qdatetime.h>
 #include "datepickdialog.h"
 #include "ui_date_pick_dialog.h"
 
@@ -6,9 +7,9 @@ DatePickDialog::DatePickDialog(QWidget* parent) :
     ui(new Ui::DatePickDialog)
 {
     ui->setupUi(this);
-    ui->calendarWidget->hide();
-    connect(ui->btnPickStartDate, SIGNAL(clicked(bool)), this, SLOT(showCalendar()));
-    connect(ui->btnPickEndDate, SIGNAL(clicked(bool)), this, SLOT(showCalendar()));
+    ui->dePickEndDate->setDate(QDate::currentDate());
+    ui->dePickStartDate->setDate(QDate::currentDate().addMonths(-1));
+    configureCalendar();
 }
 
 DatePickDialog::~DatePickDialog()
@@ -17,11 +18,14 @@ DatePickDialog::~DatePickDialog()
 }
 
 void DatePickDialog::configureCalendar() {
-    // set max date
-    // set first day of week (possibly with global settings)
+    ui->cwStart->setMaximumDate(QDate::currentDate());
+    ui->cwEnd->setMaximumDate(QDate::currentDate());
 
+    // set first day of week TODO (make this configurable with global settings)
+    ui->cwStart->setFirstDayOfWeek(Qt::Monday);
+    ui->cwEnd->setFirstDayOfWeek(Qt::Monday);
 }
 
-void DatePickDialog::showCalendar() {
-    ui->calendarWidget->show();
+std::pair<QDate, QDate> DatePickDialog::getNewPeriod() {
+    return std::make_pair(ui->cwStart->selectedDate(), ui->cwEnd->selectedDate());
 }

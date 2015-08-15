@@ -22,22 +22,21 @@ private:
     Ui::HistoryView* ui;
     QStringListModel* yearsModel;
     QStringListModel* monthsModel;
-    // QStringListModel* pomodoroModel;
+    QDate startDate;
+    QDate endDate;
 
     void populatePomodoroHistory();
     void populateTodoHistory();
-    void getPomodoroHistory(const QString& year,
-                            const QString& month,
-                            QStringList& preprocessedHistory) const;
+    void getPomodoroHistory(QStringList& preprocessedHistory) const;
     void formatPomodoroHistory(const QVector<Pomodoro>& pomodoros, QStringList& preparedPomodoroHistory) const;
-    QString getPeriodMonth() const;
-    QString getPeriodYear() const;
-    void getTodoItemsHistory(const QString& year, const QString& month, QStringList& formattedHistory);
+    void getTodoItemsHistory(QStringList& formattedHistory);
     void formatTodoItemHistory(const QVector<std::pair<TodoItem, QString> > todoItemsForPeriod, QStringList& formattedHistory);
 
 private slots:
     void displayHistory();
     void openDatePicker();
+    void updatePeriod(const QDate& start, const QDate& end);
+    void updatePeriod();
 
 };
 
