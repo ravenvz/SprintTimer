@@ -64,7 +64,7 @@ set(SOURCE_FILES src/main.cpp
                  src/core/TaskScheduler.cpp
                  src/core/entities.cpp
         src/db_layer/db_helper.cpp
-                 src/gui/dialogs/historyview.cpp
+        src/gui/historyview.cpp
                  src/gui/dialogs/datepickdialog.cpp
 )
 

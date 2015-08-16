@@ -4,8 +4,7 @@
 #include "gui/dialogs/confirmationdialog.h"
 #include "gui/dialogs/addtodoitemdialog.h"
 #include "gui/dialogs/settings_dialog.h"
-#include "gui/dialogs/historyview.h"
-#include "core/entities.h"
+#include "gui/historyview.h"
 
 
 MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent) :
