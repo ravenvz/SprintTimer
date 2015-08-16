@@ -25,6 +25,7 @@ private:
     QDate startDate;
     QDate endDate;
 
+    void connectSlots();
     void populatePomodoroHistory();
     void populateTodoHistory();
     void getPomodoroHistory(QStringList& preprocessedHistory) const;

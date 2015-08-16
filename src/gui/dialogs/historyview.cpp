@@ -22,6 +22,10 @@ HistoryView::HistoryView(QWidget* parent) :
     ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
     updatePeriod();
     displayHistory();
+    connectSlots();
+}
+
+void HistoryView::connectSlots() {
     connect(ui->cbxYear, SIGNAL(activated(int)), this, SLOT(updatePeriod()));
     connect(ui->cbxMonth, SIGNAL(activated(int)), this, SLOT(updatePeriod()));
     connect(ui->cbxYear, SIGNAL(activated(int)), this, SLOT(displayHistory()));
