@@ -51,7 +51,7 @@ set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
 
 #find_library(CppUTest REQUIRED)
 
-include_directories(src dialogs data_base)
+include_directories(src dialogs db_layer)
 
 set(SOURCE_FILES src/main.cpp
                  src/gui/mainwindow.cpp
@@ -63,7 +63,7 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/todoitemsviewdelegate.cpp
                  src/core/TaskScheduler.cpp
                  src/core/entities.cpp
-                 src/data_base/db_helper.cpp
+        src/db_layer/db_helper.cpp
                  src/gui/dialogs/historyview.cpp
                  src/gui/dialogs/datepickdialog.cpp
 )

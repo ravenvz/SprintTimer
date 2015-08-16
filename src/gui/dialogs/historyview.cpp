@@ -2,7 +2,7 @@
 #include "ui_history.h"
 #include <QStringList>
 #include <QDebug>
-#include "data_base/db_helper.h"
+#include "db_layer/db_helper.h"
 #include "gui/dialogs/datepickdialog.h"
 
 
