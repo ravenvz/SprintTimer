@@ -1,6 +1,6 @@
 #include <QSize>
 #include "todoitemslistmodel.h"
-#include "data_base/db_helper.h"
+#include "db_layer/db_helper.h"
 
 
 TodoItemsListModel::TodoItemsListModel(QObject* parent) :

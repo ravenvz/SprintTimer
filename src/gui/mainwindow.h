@@ -7,7 +7,7 @@
 #include <QMediaPlayer>
 #include <vector>
 #include "core/TaskScheduler.h"
-#include <data_base/db_helper.h>
+#include "db_layer/db_helper.h"
 #include "todoitemslistmodel.h"
 #include "todoitemsviewdelegate.h"
 #include <QSettings>
@@ -36,6 +36,7 @@ private slots:
     void toggleTodoItemCompleted();
     void onInTheZoneToggled();
     void launchSettingsDialog();
+    void launchHistoryView();
 
 private:
     Ui::MainWindow *ui;

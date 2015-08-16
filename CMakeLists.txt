@@ -51,7 +51,7 @@ set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
 
 #find_library(CppUTest REQUIRED)
 
-include_directories(src dialogs data_base)
+include_directories(src dialogs db_layer)
 
 set(SOURCE_FILES src/main.cpp
                  src/gui/mainwindow.cpp
@@ -63,7 +63,9 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/todoitemsviewdelegate.cpp
                  src/core/TaskScheduler.cpp
                  src/core/entities.cpp
-                 src/data_base/db_helper.cpp
+        src/db_layer/db_helper.cpp
+        src/gui/historyview.cpp
+                 src/gui/dialogs/datepickdialog.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS
@@ -71,6 +73,8 @@ QT5_WRAP_UI(UI_HEADERS
     src/gui/ui/add_todo_dialog.ui
     src/gui/ui/pom_cancel_dialog.ui
     src/gui/ui/settings.ui
+    src/gui/ui/history.ui
+    src/gui/ui/date_pick_dialog.ui
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)

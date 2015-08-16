@@ -4,7 +4,7 @@
 #include "gui/dialogs/confirmationdialog.h"
 #include "gui/dialogs/addtodoitemdialog.h"
 #include "gui/dialogs/settings_dialog.h"
-#include "core/entities.h"
+#include "gui/historyview.h"
 
 
 MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent) :
@@ -48,6 +48,7 @@ void MainWindow::connectSlots() {
     connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
     connect(ui->leTodoItem, SIGNAL(returnPressed()), this, SLOT(quickAddTodoItem()));
     connect(ui->btnSettings, SIGNAL(clicked(bool)), this, SLOT(launchSettingsDialog()));
+    connect(ui->btnTodoHistory, SIGNAL(clicked(bool)), this, SLOT(launchHistoryView()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -242,4 +243,12 @@ void MainWindow::toggleTodoItemCompleted() {
 
 void MainWindow::onInTheZoneToggled() {
     taskScheduler.toggleInTheZoneMode();
+}
+
+void MainWindow::launchHistoryView() {
+    // HistoryView historyView {};
+    QPointer<HistoryView> historyView = new HistoryView();
+    historyView->show();
+    // historyView.exec();
+
 }
