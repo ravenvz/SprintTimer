@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DatePickDialog</class>
+ <widget class="QDialog" name="DatePickDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>657</width>
+    <height>306</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>250</y>
+     <width>161</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QDateEdit" name="dePickStartDate">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>210</y>
+     <width>110</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="displayFormat">
+    <string>dd.MM.yyyy</string>
+   </property>
+  </widget>
+  <widget class="QDateEdit" name="dePickEndDate">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>210</y>
+     <width>110</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="displayFormat">
+    <string>dd.MM.yyyy</string>
+   </property>
+  </widget>
+  <widget class="QCalendarWidget" name="cwStart">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>304</width>
+     <height>181</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QCalendarWidget" name="cwEnd">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>10</y>
+     <width>304</width>
+     <height>181</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>210</y>
+     <width>81</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Start date</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>210</y>
+     <width>81</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>End date</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>DatePickDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>DatePickDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwStart</sender>
+   <signal>clicked(QDate)</signal>
+   <receiver>dePickStartDate</receiver>
+   <slot>setDate(QDate)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>161</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwEnd</sender>
+   <signal>clicked(QDate)</signal>
+   <receiver>dePickEndDate</receiver>
+   <slot>setDate(QDate)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>491</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>584</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dePickStartDate</sender>
+   <signal>dateChanged(QDate)</signal>
+   <receiver>cwStart</receiver>
+   <slot>setSelectedDate(QDate)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>254</x>
+     <y>222</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>161</x>
+     <y>100</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dePickEndDate</sender>
+   <signal>dateChanged(QDate)</signal>
+   <receiver>cwEnd</receiver>
+   <slot>setSelectedDate(QDate)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>584</x>
+     <y>222</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>491</x>
+     <y>100</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

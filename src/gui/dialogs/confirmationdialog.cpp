@@ -1,7 +1,6 @@
 #include "confirmationdialog.h"
 #include "ui_pom_cancel_dialog.h"
 
-// TODO replace QWidget with QDialog
 ConfirmationDialog::ConfirmationDialog(QWidget* parent) :
     QDialog(parent),
     ui(new Ui::ConfirmationDialog)

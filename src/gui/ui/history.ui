@@ -1,26 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>HistoryView</class>
- <widget class="QDialog" name="HistoryView">
+ <widget class="QWidget" name="HistoryView">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>606</width>
-    <height>501</height>
+    <width>624</width>
+    <height>481</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>History</string>
   </property>
-  <widget class="QComboBox" name="cbxManualSelect">
+  <widget class="QComboBox" name="cbxYear">
    <property name="geometry">
     <rect>
-     <x>340</x>
+     <x>10</x>
      <y>10</y>
      <width>78</width>
-     <height>22</height>
+     <height>31</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnPickPeriod">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>10</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Pick Period</string>
    </property>
   </widget>
   <widget class="QComboBox" name="cbxMonth">
@@ -29,47 +42,21 @@
      <x>110</x>
      <y>10</y>
      <width>101</width>
-     <height>22</height>
+     <height>31</height>
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="btnOptional">
-   <property name="geometry">
-    <rect>
-     <x>440</x>
-     <y>10</y>
-     <width>80</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Optional</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnLastThirty">
-   <property name="geometry">
-    <rect>
-     <x>220</x>
-     <y>10</y>
-     <width>101</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Last 30 days</string>
-   </property>
-  </widget>
-  <widget class="QTabWidget" name="tabWidget">
+  <widget class="QTabWidget" name="twHistoryDisplay">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>60</y>
+     <y>90</y>
      <width>601</width>
      <height>341</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tabPomodoroHistory">
     <attribute name="title">
@@ -101,16 +88,6 @@
      </property>
     </widget>
    </widget>
-  </widget>
-  <widget class="QComboBox" name="cbxYear">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>78</width>
-     <height>22</height>
-    </rect>
-   </property>
   </widget>
  </widget>
  <resources/>

@@ -8,7 +8,7 @@ set(SOURCE_FILES
     test_todoitem.cpp
     ../src/core/TaskScheduler.cpp
     ../src/core/entities.cpp
-    ../src/data_base/db_helper.cpp
+        ../src/db_layer/db_helper.cpp
     ../src/core/entities.h
     ../src/core/config.h
 )

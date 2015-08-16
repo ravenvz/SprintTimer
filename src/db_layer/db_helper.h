@@ -31,6 +31,24 @@ public:
         return result;
     }
 
+    static QVector<Pomodoro> getPomodoroForMonth(const QDate& startDate, const QDate& endDate) {
+        QVector<Pomodoro> result;
+        QSqlQuery query;
+        query.prepare("select id, name, start_time, finish_time "
+                "from pomodoro where start_time >= (:start_date) and "
+                "start_time <= (:end_date) ");
+        query.bindValue(":start_date", QVariant(startDate));
+        query.bindValue(":end_date", QVariant(endDate));
+        query.exec();
+        while (query.next()) {
+            Pomodoro pomodoro {query.value(1).toString(),
+                               query.value(2).toDateTime(),
+                               query.value(3).toDateTime()};
+            result.append(pomodoro);
+        }
+        return result;
+    }
+
     static void storePomodoro(Pomodoro pomodoro) {
         QSqlQuery query;
         query.prepare("insert into pomodoro (name, start_time, finish_time) "
@@ -210,6 +228,34 @@ public:
             items << item;
         }
         return items;
+    }
+
+    static QVector<std::pair<TodoItem, QString> > getTodoItemsForMonth(const QDate& startDate, const QDate& endDate) {
+        QVector<std::pair<TodoItem, QString> > result;
+        QSqlQuery query;
+        query.prepare("SELECT todo_item.name, todo_item.estimated_pomodoros, "
+                           "todo_item.spent_pomodoros, todo_item.priority, todo_item.completed, group_concat(tag.name), "
+                           "todo_item.id, todo_item.last_modified "
+                           "FROM todo_item LEFT JOIN todotag ON todo_item.id = todotag.todo_id "
+                           "LEFT JOIN tag ON tag.id = todotag.tag_id "
+                           "WHERE completed = 1 and todo_item.last_modified >= (:start_date) and "
+                           "todo_item.last_modified <= (:end_date) "
+                           "GROUP BY todo_item.id "
+                           "ORDER BY todo_item.priority");
+        query.bindValue(":start_date", QVariant(startDate));
+        query.bindValue(":end_date", QVariant(endDate));
+        query.exec();
+        while (query.next()) {
+            QStringList tags = query.value(5).toString().split(",");
+            TodoItem item {query.value(0).toString(),
+                           query.value(1).toUInt(),
+                           query.value(2).toUInt(),
+                           tags,
+                           query.value(4).toBool(),
+                           query.value(6).toInt()};
+            result << std::make_pair(item, query.value(7).toDate().toString());
+        }
+        return result;
     }
 
     static void setItemChecked(int itemId, bool value) {
