@@ -67,6 +67,7 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/historyview.cpp
                  src/gui/dialogs/datepickdialog.cpp
                  src/gui/goalsview.cpp
+                 src/gui/gauge.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS

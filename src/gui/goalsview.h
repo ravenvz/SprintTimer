@@ -17,6 +17,8 @@ public:
 
 private:
     Ui::GoalsView* ui;
+
+    void drawDiagrams();
 };
 
 
