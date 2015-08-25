@@ -17,6 +17,9 @@ GoalsView::GoalsView(Config& applicationSettings, QWidget* parent) :
     lastThirty = PomodoroGateway::getNumCompletedPomodorosForLastThirtyDays();
     lastQuarter = PomodoroGateway::getCompletedPomodorosDistributionForLastThreeMonths();
     lastYear = PomodoroGateway::getCompletedPomodorosDistributionForLastTwelveMonths();
+    ui->labelLastMonthAverage->setText(computeAverage(lastThirty));
+    ui->labelLastQuarterAverage->setText(computeAverage(lastQuarter));
+    ui->labelLastYearAverage->setText(computeAverage(lastYear));
     connectSlots();
     drawDiagrams();
 }
@@ -29,6 +32,14 @@ void GoalsView::connectSlots() {
     connect(ui->spinBoxDailyGoal, SIGNAL(valueChanged(int)), this, SLOT(updateDailyGoal()));
     connect(ui->spinBoxWeeklyGoal, SIGNAL(valueChanged(int)), this, SLOT(updateWeeklyGoal()));
     connect(ui->spinBoxMonthlyGoal, SIGNAL(valueChanged(int)), this, SLOT(updateMonthlyGoal()));
+}
+
+QString GoalsView::computeAverage(QVector<unsigned>& pomodoroDistribution) {
+    unsigned int total = 0;
+    for (unsigned numCompleted : pomodoroDistribution) {
+        total += numCompleted;
+    }
+    return QString("%1").arg(double(total) / pomodoroDistribution.size(), 2, 'f', 2, '0');
 }
 
 void GoalsView::drawDiagrams() {
@@ -51,7 +62,6 @@ void GoalsView::drawDiagrams() {
 
 void GoalsView::updateDailyGoal() {
     applicationSettings.setDailyPomodorosGoal(ui->spinBoxDailyGoal->value());
-    qDebug() << "Here";
     drawDiagrams();
 }
 

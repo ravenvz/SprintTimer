@@ -30,6 +30,7 @@ private:
 
     void connectSlots();
     void drawDiagrams();
+    QString computeAverage(QVector<unsigned>& pomodoroDistribution);
 };
 
 
