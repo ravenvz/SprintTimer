@@ -14,6 +14,9 @@ GoalsView::GoalsView(Config& applicationSettings, QWidget* parent) :
     ui->spinBoxDailyGoal->setValue(applicationSettings.getDailyPomodorosGoal());
     ui->spinBoxWeeklyGoal->setValue(applicationSettings.getWeeklyPomodorosGoal());
     ui->spinBoxMonthlyGoal->setValue(applicationSettings.getMonthlyPomodorosGoal());
+    lastThirty = PomodoroGateway::getNumCompletedPomodorosForLastThirtyDays();
+    lastQuarter = PomodoroGateway::getCompletedPomodorosDistributionForLastThreeMonths();
+    lastYear = PomodoroGateway::getCompletedPomodorosDistributionForLastTwelveMonths();
     connectSlots();
     drawDiagrams();
 }
@@ -29,28 +32,21 @@ void GoalsView::connectSlots() {
 }
 
 void GoalsView::drawDiagrams() {
-    QVector<unsigned> lastThirty = PomodoroGateway::getNumCompletedPomodorosForLastThirtyDays();
-    QVector<unsigned> lastQuarter = PomodoroGateway::getCompletedPomodorosDistributionForLastThreeMonths();
-    QVector<unsigned> lastYear = PomodoroGateway::getCompletedPomodorosDistributionForLastTwelveMonths();
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
     unsigned weeklyGoal = applicationSettings.getWeeklyPomodorosGoal();
     unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 10; ++j) {
-            ui->gridLayoutLastMonthDiagram->addWidget(new Gauge(12, dailyGoal, this), i, j);
+    for (int row = 0, ind = 0; row < 3; ++row) {
+        for (int col = 0; col < 10; ++col, ++ind) {
+            ui->gridLayoutLastMonthDiagram->addWidget(new Gauge(lastThirty.at(ind), dailyGoal, this), row, col);
         }
     }
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            ui->gridLayoutLastQuarterDiagram->addWidget(new Gauge(10, weeklyGoal, this), i, j);
+    for (int row = 0, ind = 0; row < 3; ++row) {
+        for (int col = 0; col < 4; ++col, ++ind) {
+            qDebug() << ind;
+            ui->gridLayoutLastQuarterDiagram->addWidget(new Gauge(lastQuarter.at(ind), weeklyGoal, this), row, col);
+            ui->gridLayoutLastYearDiagram->addWidget(new Gauge(lastYear.at(ind), monthlyGoal, this), row, col);
         }
     }
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            ui->gridLayoutLastYearDiagram->addWidget(new Gauge(79, monthlyGoal, this), i, j);
-        }
-    }
-
 }
 
 void GoalsView::updateDailyGoal() {

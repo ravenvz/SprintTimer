@@ -24,6 +24,9 @@ private slots:
 private:
     Ui::GoalsView* ui;
     Config& applicationSettings;
+    QVector<unsigned> lastThirty;
+    QVector<unsigned> lastQuarter;
+    QVector<unsigned> lastYear;
 
     void connectSlots();
     void drawDiagrams();

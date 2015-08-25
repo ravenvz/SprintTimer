@@ -12,16 +12,29 @@ Gauge::Gauge(unsigned actual, unsigned goal, QWidget* parent) :
 void Gauge::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
-    // QRectF size = QRectF(0, 0, this->width() - 65, this->width() - 65);
-    QRectF size = QRectF(10, 10, 30, 30);
-    if (goal > 0) {
-        int completedAngle = actual * 360 * 16 / goal;
-        painter.setBrush(QColor("#6baa15"));
-        painter.drawPie(size, 90*16, -completedAngle);
-        painter.setBrush(Qt::gray);
-        painter.drawPie(size, 90*16, 360*16 - completedAngle);
-    } else {
-        painter.setBrush(Qt::gray);
-        painter.drawPie(size, 90*16, 360*16);
+    if (goal == 0 || actual == 0) {
+        painter.setBrush(noWork);
+        painter.drawEllipse(size);
+        return;
     }
+    if (goal == actual) {
+        painter.setBrush(normalWork);
+        painter.drawEllipse(size);
+        return;
+    }
+    int completedAngle;
+    if (actual > goal) {
+        painter.setBrush(overwork);
+        completedAngle = (actual % goal) * fullCircle / goal;
+    } else {
+        completedAngle = actual * fullCircle / goal;
+        painter.setBrush(normalWork);
+    }
+    painter.drawPie(size, offsetToTop, -completedAngle);
+    if (actual > goal) {
+        painter.setBrush(normalWork);
+    } else {
+        painter.setBrush(noWork);
+    }
+    painter.drawPie(size, offsetToTop, fullCircle - completedAngle);
 }
