@@ -255,6 +255,6 @@ void MainWindow::launchHistoryView() {
 }
 
 void MainWindow::launchGoalsView() {
-    QPointer<GoalsView> goalsView = new GoalsView();
+    QPointer<GoalsView> goalsView = new GoalsView(applicationSettings);
     goalsView->show();
 }
