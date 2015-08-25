@@ -31,6 +31,7 @@ private:
     void connectSlots();
     void drawDiagrams();
     QString computeAverage(QVector<unsigned>& pomodoroDistribution);
+    QString computePercentage(QVector<unsigned>& pomodoroDistribution, unsigned goal);
 };
 
 

@@ -11,15 +11,21 @@ GoalsView::GoalsView(Config& applicationSettings, QWidget* parent) :
     applicationSettings(applicationSettings)
 {
     ui->setupUi(this);
-    ui->spinBoxDailyGoal->setValue(applicationSettings.getDailyPomodorosGoal());
-    ui->spinBoxWeeklyGoal->setValue(applicationSettings.getWeeklyPomodorosGoal());
-    ui->spinBoxMonthlyGoal->setValue(applicationSettings.getMonthlyPomodorosGoal());
     lastThirty = PomodoroGateway::getNumCompletedPomodorosForLastThirtyDays();
     lastQuarter = PomodoroGateway::getCompletedPomodorosDistributionForLastThreeMonths();
     lastYear = PomodoroGateway::getCompletedPomodorosDistributionForLastTwelveMonths();
+    unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
+    unsigned weeklyGoal = applicationSettings.getWeeklyPomodorosGoal();
+    unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
+    ui->spinBoxDailyGoal->setValue(dailyGoal);
+    ui->spinBoxWeeklyGoal->setValue(weeklyGoal);
+    ui->spinBoxMonthlyGoal->setValue(monthlyGoal);
     ui->labelLastMonthAverage->setText(computeAverage(lastThirty));
     ui->labelLastQuarterAverage->setText(computeAverage(lastQuarter));
     ui->labelLastYearAverage->setText(computeAverage(lastYear));
+    ui->labelLastMonthPercentage->setText(computePercentage(lastThirty, dailyGoal));
+    ui->labelLastQuarterPercentage->setText(computePercentage(lastQuarter, weeklyGoal));
+    ui->labelLastYearPercentage->setText(computePercentage(lastYear, monthlyGoal));
     connectSlots();
     drawDiagrams();
 }
@@ -40,6 +46,14 @@ QString GoalsView::computeAverage(QVector<unsigned>& pomodoroDistribution) {
         total += numCompleted;
     }
     return QString("%1").arg(double(total) / pomodoroDistribution.size(), 2, 'f', 2, '0');
+}
+
+QString GoalsView::computePercentage(QVector<unsigned>& pomodoroDistribution, unsigned goal) {
+    unsigned int total = 0;
+    for (unsigned numCompleted : pomodoroDistribution) {
+        total += numCompleted;
+    }
+    return QString("%1 %").arg(double(total) / (goal * pomodoroDistribution.size()), 2, 'f', 2, '0');
 }
 
 void GoalsView::drawDiagrams() {
