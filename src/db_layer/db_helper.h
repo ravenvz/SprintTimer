@@ -58,7 +58,8 @@ public:
                       "from calendar left join pomodoro "
                       "on date(start_time) = dt "
                       "where dt > (:start_date) and dt <= (:end_date) "
-                      "group by date(dt)");
+                      "group by date(dt) "
+                      "order by dt");
         query.bindValue(":start_date", QVariant(thirtyDaysAgo));
         query.bindValue(":end_date", QVariant(today));
         query.exec();
@@ -81,7 +82,8 @@ public:
                       "from calendar left join pomodoro "
                       "on date(start_time) = dt "
                       "where dt > (:start_date) and dt <= (:end_date) "
-                      "group by strftime('%W', dt)");
+                      "group by strftime('%W', dt) "
+                      "order by dt");
         query.bindValue(":start_date", QVariant(startDate));
         query.bindValue(":end_date", QVariant(today));
         query.exec();
@@ -98,16 +100,19 @@ public:
     static QVector<unsigned> getCompletedPomodorosDistributionForLastTwelveMonths() {
         QVector<unsigned> result;
         QDate today = QDate::currentDate();
-        QDate startDate = today.addMonths(-11 - today.day());
+        QDate startDate = today.addMonths(-11).addDays(- today.day());
         QSqlQuery query;
         query.prepare("select count(start_time) "
                       "from calendar left join pomodoro "
                       "on date(start_time) = dt "
                       "where dt > (:start_date) and dt <= (:end_date) "
-                      "group by strftime('%m', dt)");
+                      "group by strftime('%m', dt) "
+                      "order by dt");
         query.bindValue(":start_date", QVariant(startDate));
         query.bindValue(":end_date", QVariant(today));
         query.exec();
+        qDebug() << "Start date: " << startDate;
+        qDebug() << "End date: " << today;
         qDebug() << query.lastError();
         while (query.next()) {
             result << query.value(0).toUInt();
