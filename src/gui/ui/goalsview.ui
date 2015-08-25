@@ -73,17 +73,17 @@
       </property>
      </spacer>
     </item>
-    <item row="2" column="0">
+    <item row="2" column="0" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_4">
       <property name="text">
-       <string>Average: 5</string>
+       <string>Average completed: </string>
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
+    <item row="3" column="0" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_5">
       <property name="text">
-       <string>Percent: 50%</string>
+       <string>Percent completed: </string>
       </property>
      </widget>
     </item>
@@ -99,14 +99,14 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1" alignment="Qt::AlignHCenter">
+    <item row="2" column="1" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="labelLastMonthAverage">
       <property name="text">
        <string>TextLabel</string>
       </property>
      </widget>
     </item>
-    <item row="3" column="1" alignment="Qt::AlignHCenter">
+    <item row="3" column="1" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="labelLastMonthPercentage">
       <property name="text">
        <string>TextLabel</string>
@@ -170,17 +170,17 @@
       </property>
      </spacer>
     </item>
-    <item row="2" column="0">
+    <item row="2" column="0" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_8">
       <property name="text">
-       <string>Average: 5</string>
+       <string>Average completed: </string>
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
+    <item row="3" column="0" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_9">
       <property name="text">
-       <string>Percent: 50%</string>
+       <string>Percent completed: </string>
       </property>
      </widget>
     </item>
@@ -209,14 +209,14 @@
       </property>
      </spacer>
     </item>
-    <item row="2" column="1" alignment="Qt::AlignHCenter">
+    <item row="2" column="1" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="labelLastQuarterAverage">
       <property name="text">
        <string>TextLabel</string>
       </property>
      </widget>
     </item>
-    <item row="3" column="1" alignment="Qt::AlignHCenter">
+    <item row="3" column="1" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="labelLastQuarterPercentage">
       <property name="text">
        <string>TextLabel</string>
@@ -272,10 +272,10 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_5">
-    <item row="2" column="0">
+    <item row="2" column="0" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_12">
       <property name="text">
-       <string>Average: 5</string>
+       <string>Average completed: </string>
       </property>
      </widget>
     </item>
@@ -321,10 +321,10 @@
       </property>
      </spacer>
     </item>
-    <item row="3" column="0">
+    <item row="3" column="0" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_11">
       <property name="text">
-       <string>Percent: 50%</string>
+       <string>Percent completed: </string>
       </property>
      </widget>
     </item>
@@ -340,14 +340,14 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1" alignment="Qt::AlignHCenter">
+    <item row="2" column="1" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="labelLastYearAverage">
       <property name="text">
        <string>TextLabel</string>
       </property>
      </widget>
     </item>
-    <item row="3" column="1" alignment="Qt::AlignHCenter">
+    <item row="3" column="1" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="labelLastYearPercentage">
       <property name="text">
        <string>TextLabel</string>

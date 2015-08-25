@@ -27,11 +27,16 @@ private:
     QVector<unsigned> lastThirty;
     QVector<unsigned> lastQuarter;
     QVector<unsigned> lastYear;
+    unsigned lastThirtyTotal;
+    unsigned lastQuarterTotal;
+    unsigned lastYearTotal;
 
     void connectSlots();
+    void displayData();
     void drawDiagrams();
-    QString computeAverage(QVector<unsigned>& pomodoroDistribution);
-    QString computePercentage(QVector<unsigned>& pomodoroDistribution, unsigned goal);
+    unsigned int computeTotal(QVector<unsigned>& pomodoroDistribution);
+    QString computeAverage(unsigned total, unsigned size);
+    QString computePercentage(unsigned total, unsigned size, unsigned goal);
 };
 
 
