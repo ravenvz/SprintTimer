@@ -49,6 +49,81 @@ public:
         return result;
     }
 
+    static QVector<unsigned> getNumCompletedPomodorosForLastThirtyDays() {
+        QVector<unsigned> result;
+        QDate today = QDate::currentDate();
+        QDate thirtyDaysAgo = today.addDays(-30);
+        QSqlQuery query;
+        query.prepare("select count(start_time) "
+                      "from calendar left join pomodoro "
+                      "on date(start_time) = dt "
+                      "where dt > (:start_date) and dt <= (:end_date) "
+                      "group by date(dt)");
+        query.bindValue(":start_date", QVariant(thirtyDaysAgo));
+        query.bindValue(":end_date", QVariant(today));
+        query.exec();
+        qDebug() << query.lastError();
+        while (query.next()) {
+            result << query.value(0).toUInt();
+        }
+        for (auto p : result) {
+            qDebug() << p;
+        }
+        return result;
+    }
+
+    static QVector<unsigned> getCompletedPomodorosDistributionForLastThreeMonths() {
+        QVector<unsigned> result;
+        QDate today = QDate::currentDate();
+        QDate startDate = today.addDays(-7*11 - today.dayOfWeek());
+        QSqlQuery query;
+        query.prepare("select count(start_time) "
+                      "from calendar left join pomodoro "
+                      "on date(start_time) = dt "
+                      "where dt > (:start_date) and dt <= (:end_date) "
+                      "group by strftime('%W', dt)");
+        query.bindValue(":start_date", QVariant(startDate));
+        query.bindValue(":end_date", QVariant(today));
+        query.exec();
+        qDebug() << query.lastError();
+        while (query.next()) {
+            result << query.value(0).toUInt();
+        }
+        for (auto p : result) {
+            qDebug() << p;
+        }
+        return result;
+    }
+
+    static QVector<unsigned> getCompletedPomodorosDistributionForLastTwelveMonths() {
+        QVector<unsigned> result;
+        QDate today = QDate::currentDate();
+        QDate startDate = today.addMonths(-11 - today.day());
+        QSqlQuery query;
+        query.prepare("select count(start_time) "
+                      "from calendar left join pomodoro "
+                      "on date(start_time) = dt "
+                      "where dt > (:start_date) and dt <= (:end_date) "
+                      "group by strftime('%m', dt)");
+        query.bindValue(":start_date", QVariant(startDate));
+        query.bindValue(":end_date", QVariant(today));
+        query.exec();
+        qDebug() << query.lastError();
+        while (query.next()) {
+            result << query.value(0).toUInt();
+        }
+        for (auto p : result) {
+            qDebug() << p;
+        }
+        return result;
+    }
+
+    static QVector<Pomodoro> getPomodorosForLastQuarter() {
+        QDate today = QDate::currentDate();
+        QDate thirtyDaysAgo = today.addMonths(-3);
+        return PomodoroGateway::getPomodoroForMonth(thirtyDaysAgo, today);
+    }
+
     static void storePomodoro(Pomodoro pomodoro) {
         QSqlQuery query;
         query.prepare("insert into pomodoro (name, start_time, finish_time) "
