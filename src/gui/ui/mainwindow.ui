@@ -240,8 +240,8 @@ color: white;
    <widget class="QPushButton" name="btnCancel">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>100</y>
+      <x>340</x>
+      <y>90</y>
       <width>121</width>
       <height>41</height>
      </rect>
@@ -807,90 +807,140 @@ color: white;
      <string>Add TODO</string>
     </property>
    </widget>
-   <widget class="QFrame" name="frame">
+   <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>280</x>
       <y>560</y>
-      <width>311</width>
+      <width>254</width>
       <height>91</height>
      </rect>
     </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="btnConfig_2">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../resources/resources.qrc">
+         <normaloff>:/icons/statistics.png</normaloff>:/icons/statistics.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>47</width>
+         <height>47</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnTodoHistory">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../resources/resources.qrc">
+         <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>47</width>
+         <height>47</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnGoals">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../resources/resources.qrc">
+         <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>47</width>
+         <height>47</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnSettings">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../resources/resources.qrc">
+         <normaloff>:/icons/config.ico</normaloff>:/icons/config.ico</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>47</width>
+         <height>47</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLabel" name="labelDailyGoalProgress">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>160</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
     </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
-    <widget class="QPushButton" name="btnSettings">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>10</y>
-       <width>71</width>
-       <height>71</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../../resources/resources.qrc">
-       <normaloff>:/icons/config.ico</normaloff>:/icons/config.ico</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>47</width>
-       <height>47</height>
-      </size>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="btnConfig_2">
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>10</y>
-       <width>71</width>
-       <height>71</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../../resources/resources.qrc">
-       <normaloff>:/icons/statistics.png</normaloff>:/icons/statistics.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>47</width>
-       <height>47</height>
-      </size>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="btnTodoHistory">
-     <property name="geometry">
-      <rect>
-       <x>200</x>
-       <y>10</y>
-       <width>71</width>
-       <height>71</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../../resources/resources.qrc">
-       <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>47</width>
-       <height>47</height>
-      </size>
-     </property>
-    </widget>
+    <property name="font">
+     <font>
+      <pointsize>17</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>6/12</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>160</y>
+      <width>141</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Daily goal progress:</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

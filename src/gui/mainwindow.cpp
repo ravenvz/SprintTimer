@@ -5,6 +5,7 @@
 #include "gui/dialogs/addtodoitemdialog.h"
 #include "gui/dialogs/settings_dialog.h"
 #include "gui/historyview.h"
+#include "gui/goalsview.h"
 
 
 MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent) :
@@ -49,6 +50,7 @@ void MainWindow::connectSlots() {
     connect(ui->leTodoItem, SIGNAL(returnPressed()), this, SLOT(quickAddTodoItem()));
     connect(ui->btnSettings, SIGNAL(clicked(bool)), this, SLOT(launchSettingsDialog()));
     connect(ui->btnTodoHistory, SIGNAL(clicked(bool)), this, SLOT(launchHistoryView()));
+    connect(ui->btnGoals, SIGNAL(clicked(bool)), this, SLOT(launchGoalsView()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -180,6 +182,20 @@ void MainWindow::updatePomodoroView() {
     QStringList lst = PomodoroGateway::getPomodorosForToday();
     pomodoroViewModel->setStringList(lst);
     ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
+    unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
+    if (dailyGoal == 0) {
+        ui->labelDailyGoalProgress->hide();
+        return;
+    }
+    unsigned completedSoFar = lst.size();
+    ui->labelDailyGoalProgress->setText(QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
+    if (completedSoFar == dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
+    } else if (completedSoFar > dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: red; }");
+    } else {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: black; }");
+    }
 }
 
 void MainWindow::autoPutTodoToPomodoro(QModelIndex index) {
@@ -250,5 +266,9 @@ void MainWindow::launchHistoryView() {
     QPointer<HistoryView> historyView = new HistoryView();
     historyView->show();
     // historyView.exec();
+}
 
+void MainWindow::launchGoalsView() {
+    QPointer<GoalsView> goalsView = new GoalsView(applicationSettings);
+    goalsView->show();
 }

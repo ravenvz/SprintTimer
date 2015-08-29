@@ -61,6 +61,27 @@ TEST_GROUP(TaskSchedulerGroup) {
                 TestConfig::playSound = playSound;
             }
 
+            unsigned int getDailyPomodorosGoal() const override {
+                return 0;
+            }
+
+            void setDailyPomodorosGoal(unsigned dailyPomodorosGoal) override {
+            }
+
+            unsigned int getWeeklyPomodorosGoal() const override {
+                return 0;
+            }
+
+            void setWeeklyPomodorosGoal(unsigned weeklyPomodorosGoal) override {
+            }
+
+            unsigned int getMonthlyPomodorosGoal() const override {
+                return 0;
+            }
+
+            void setMonthlyPomodorosGoal(unsigned monthlyPomodorosGoal) override {
+            }
+
         private:
             unsigned pomodoroDuration = 25;
             unsigned shortBreakDuration = 5;

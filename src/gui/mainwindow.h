@@ -37,6 +37,7 @@ private slots:
     void onInTheZoneToggled();
     void launchSettingsDialog();
     void launchHistoryView();
+    void launchGoalsView();
 
 private:
     Ui::MainWindow *ui;
