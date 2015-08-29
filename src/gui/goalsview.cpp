@@ -63,15 +63,15 @@ void GoalsView::updateProgressBar(QProgressBar* bar, unsigned goal, int value) {
     }
     QPalette p = bar->palette();
     if (value == (int) goal) {
-        p.setColor(QPalette::Highlight, Qt::darkGreen);
-        p.setColor(QPalette::Base, Qt::darkGreen);
+        p.setColor(QPalette::Highlight, targetGoalReached);
+        p.setColor(QPalette::Base, targetGoalReached);
     } else if (value > (int) goal) {
-        p.setColor(QPalette::Highlight, Qt::red);
-        p.setColor(QPalette::Base, Qt::darkGreen);
+        p.setColor(QPalette::Highlight, overwork);
+        p.setColor(QPalette::Base, targetGoalReached);
         bar->setFormat(QString("%1").arg(value) + QString("/%m"));
         value %= goal;
     } else {
-        p.setColor(QPalette::Highlight, Qt::gray);
+        p.setColor(QPalette::Highlight, workInProgress);
         p.setColor(QPalette::Base, Qt::white);
     }
     bar->setPalette(p);
@@ -79,7 +79,7 @@ void GoalsView::updateProgressBar(QProgressBar* bar, unsigned goal, int value) {
     bar->show();
 }
 
-unsigned GoalsView::computeTotal(const QVector<unsigned>& pomodoroDistribution) {
+unsigned GoalsView::computeTotal(const QVector<unsigned>& pomodoroDistribution) const {
     unsigned int total = 0;
     for (unsigned numCompleted : pomodoroDistribution) {
         total += numCompleted;
@@ -87,46 +87,73 @@ unsigned GoalsView::computeTotal(const QVector<unsigned>& pomodoroDistribution) 
     return total;
 }
 
-QString GoalsView::computeAverage(unsigned total, unsigned size) {
+QString GoalsView::computeAverage(unsigned total, unsigned size) const {
     return QString("%1").arg(double(total) / size, 2, 'f', 2, '0');
 }
 
-QString GoalsView::computePercentage(unsigned total, unsigned size, unsigned goal) {
+QString GoalsView::computePercentage(unsigned total, unsigned size, unsigned goal) const {
     double percentage = goal * size != 0 ? double(total) * 100 / (goal * size) : 0;
     return QString("%1%").arg(percentage, 2, 'f', 2, '0');
 }
 
 void GoalsView::drawDiagrams() {
+    drawLastMonthDiagram();
+    drawLastQuarterDiagram();
+    drawLastYearDiagram();
+}
+
+void GoalsView::drawLastMonthDiagram() {
+    clearDiagramLayout(ui->gridLayoutLastMonthDiagram);
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
-    unsigned weeklyGoal = applicationSettings.getWeeklyPomodorosGoal();
-    unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
     for (int row = 0, ind = 0; row < 3; ++row) {
         for (int col = 0; col < 10; ++col, ++ind) {
             ui->gridLayoutLastMonthDiagram->addWidget(new Gauge(lastThirty.at(ind), dailyGoal, this), row, col);
         }
     }
+}
+
+void GoalsView::drawLastQuarterDiagram() {
+    clearDiagramLayout(ui->gridLayoutLastQuarterDiagram);
+    unsigned weeklyGoal = applicationSettings.getWeeklyPomodorosGoal();
     for (int row = 0, ind = 0; row < 3; ++row) {
         for (int col = 0; col < 4; ++col, ++ind) {
             ui->gridLayoutLastQuarterDiagram->addWidget(new Gauge(lastQuarter.at(ind), weeklyGoal, this), row, col);
+        }
+    }
+}
+
+void GoalsView::drawLastYearDiagram() {
+    clearDiagramLayout(ui->gridLayoutLastYearDiagram);
+    unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
+    for (int row = 0, ind = 0; row < 3; ++row) {
+        for (int col = 0; col < 4; ++col, ++ind) {
             ui->gridLayoutLastYearDiagram->addWidget(new Gauge(lastYear.at(ind), monthlyGoal, this), row, col);
         }
+    }
+}
+
+void GoalsView::clearDiagramLayout(QGridLayout* layout) {
+    QLayoutItem *child;
+    while ((child = layout->takeAt(0)) != 0) {
+        delete child->widget();
+        delete child;
     }
 }
 
 void GoalsView::updateDailyGoal() {
     applicationSettings.setDailyPomodorosGoal(ui->spinBoxDailyGoal->value());
     displayData();
-    drawDiagrams();
+    drawLastMonthDiagram();
 }
 
 void GoalsView::updateWeeklyGoal() {
     applicationSettings.setWeeklyPomodorosGoal(ui->spinBoxWeeklyGoal->value());
     displayData();
-    drawDiagrams();
+    drawLastQuarterDiagram();
 }
 
 void GoalsView::updateMonthlyGoal() {
     applicationSettings.setMonthlyPomodorosGoal(ui->spinBoxMonthlyGoal->value());
     displayData();
-    drawDiagrams();
+    drawLastYearDiagram();
 }

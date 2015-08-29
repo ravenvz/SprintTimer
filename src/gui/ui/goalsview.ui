@@ -10,6 +10,11 @@
     <height>659</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <stylestrategy>PreferAntialias</stylestrategy>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Progress</string>
   </property>

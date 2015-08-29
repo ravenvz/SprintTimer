@@ -11,30 +11,30 @@ Gauge::Gauge(unsigned actual, unsigned goal, QWidget* parent) :
 
 void Gauge::paintEvent(QPaintEvent*) {
     QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::Antialiasing);
     if (goal == 0 || actual == 0) {
         painter.setBrush(noWork);
-        painter.drawEllipse(size);
+        painter.drawEllipse(gaugeSize);
         return;
     }
     if (goal == actual) {
         painter.setBrush(normalWork);
-        painter.drawEllipse(size);
+        painter.drawEllipse(gaugeSize);
         return;
     }
-    int completedAngle;
+    float completedAngle;
     if (actual > goal) {
         painter.setBrush(overwork);
-        completedAngle = (actual % goal) * fullCircle / goal;
+        completedAngle = (actual % goal) * fullCircle / float(goal);
     } else {
-        completedAngle = actual * fullCircle / goal;
+        completedAngle = actual * fullCircle / float(goal);
         painter.setBrush(normalWork);
     }
-    painter.drawPie(size, offsetToTop, -completedAngle);
+    painter.drawPie(gaugeSize, offsetToTop, -completedAngle);
     if (actual > goal) {
         painter.setBrush(normalWork);
     } else {
         painter.setBrush(noWork);
     }
-    painter.drawPie(size, offsetToTop, fullCircle - completedAngle);
+    painter.drawPie(gaugeSize, offsetToTop, fullCircle - completedAngle);
 }
