@@ -182,6 +182,20 @@ void MainWindow::updatePomodoroView() {
     QStringList lst = PomodoroGateway::getPomodorosForToday();
     pomodoroViewModel->setStringList(lst);
     ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
+    unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
+    if (dailyGoal == 0) {
+        ui->labelDailyGoalProgress->hide();
+        return;
+    }
+    unsigned completedSoFar = lst.size();
+    ui->labelDailyGoalProgress->setText(QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
+    if (completedSoFar == dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
+    } else if (completedSoFar > dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: red; }");
+    } else {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: black; }");
+    }
 }
 
 void MainWindow::autoPutTodoToPomodoro(QModelIndex index) {
