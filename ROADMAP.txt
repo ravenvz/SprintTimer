@@ -1,17 +1,29 @@
-Version 0.1.3
+Version 0.1.4
 -------------
 
-User should be able to specify goals in terms of expected number
-of completed pomodoros for a month, week, day
+Added statistics view
 
 
 HISTORY
 ----------------------------------------------------------------
 
+
+Version 0.1.3
+-------------
+
+Added goals system
+
+    Added Goals View where users are able to 
+        to specify goals in terms of expected number
+        of completed pomodoros for a month, week, day
+    Added dynamic diagrams indicating goal achievement progress 
+        for the last 30 days, last 12 weeks and last 12 months
+
+
 Version 0.1.2
 -------------
 
-User should be able to browse history of completed pomodoros 
+It is now possible to browse history of completed pomodoros 
 and todo items
 
     Added basic pomodoro history browser

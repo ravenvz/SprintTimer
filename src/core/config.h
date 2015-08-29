@@ -20,7 +20,14 @@ public:
     virtual bool soundIsEnabled() const = 0;
     virtual void setPlaySound(bool playSound) = 0;
     virtual int getSoundVolume() const = 0;
+    // TODO split into separate group
     virtual void setSoundVolume(int soundVolume) = 0;
+    virtual unsigned int getDailyPomodorosGoal() const = 0;
+    virtual void setDailyPomodorosGoal(unsigned dailyPomodorosGoal) = 0;
+    virtual unsigned int getWeeklyPomodorosGoal() const = 0;
+    virtual void setWeeklyPomodorosGoal(unsigned weeklyPomodorosGoal) = 0;
+    virtual unsigned int getMonthlyPomodorosGoal() const = 0;
+    virtual void setMonthlyPomodorosGoal(unsigned monthlyPomodorosGoal) = 0;
 };
 
 
@@ -81,9 +88,32 @@ public:
         Config::settings.setValue("soundVolume", QVariant(soundVolume));
     }
 
+    unsigned int getDailyPomodorosGoal() const override {
+        return settings.value("dailyPomodorosGoal").toUInt();
+    }
+
+    void setDailyPomodorosGoal(unsigned dailyPomodorosGoal) override {
+        Config::settings.setValue("dailyPomodorosGoal", QVariant(dailyPomodorosGoal));
+    }
+
+    unsigned int getWeeklyPomodorosGoal() const override {
+        return settings.value("weeklyPomodorosGoal").toUInt();
+    }
+
+    void setWeeklyPomodorosGoal(unsigned weeklyPomodorosGoal) override {
+        Config::settings.setValue("weeklyPomodorosGoal", QVariant(weeklyPomodorosGoal));
+    }
+
+    unsigned int getMonthlyPomodorosGoal() const override {
+        return settings.value("monthlyPomodorosGoal").toUInt();
+    }
+
+    void setMonthlyPomodorosGoal(unsigned monthlyPomodorosGoal) override {
+        Config::settings.setValue("monthlyPomodorosGoal", QVariant(monthlyPomodorosGoal));
+    }
+
 private:
     QSettings settings;
-
 };
 
 #endif //POMODORO_CONFIG_H
