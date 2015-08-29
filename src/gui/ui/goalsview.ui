@@ -83,7 +83,7 @@
     <item row="3" column="0" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_5">
       <property name="text">
-       <string>Percent completed: </string>
+       <string>Goal progress</string>
       </property>
      </widget>
     </item>
@@ -110,6 +110,13 @@
      <widget class="QLabel" name="labelLastMonthPercentage">
       <property name="text">
        <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Today progress:</string>
       </property>
      </widget>
     </item>
@@ -180,7 +187,7 @@
     <item row="3" column="0" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_9">
       <property name="text">
-       <string>Percent completed: </string>
+       <string>Goal progress</string>
       </property>
      </widget>
     </item>
@@ -223,6 +230,13 @@
       </property>
      </widget>
     </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_7">
+      <property name="text">
+       <string>This week progress:</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="gridLayoutWidget_4">
@@ -236,7 +250,7 @@
    </property>
    <layout class="QGridLayout" name="gridLayoutLastQuarterDiagram"/>
   </widget>
-  <widget class="QProgressBar" name="progressBarLastMonth">
+  <widget class="QProgressBar" name="progressBarToday">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -249,7 +263,7 @@
     <number>24</number>
    </property>
   </widget>
-  <widget class="QProgressBar" name="progressBarLastQuarter">
+  <widget class="QProgressBar" name="progressBarWeek">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -324,7 +338,7 @@
     <item row="3" column="0" alignment="Qt::AlignLeft">
      <widget class="QLabel" name="label_11">
       <property name="text">
-       <string>Percent completed: </string>
+       <string>Goal progress</string>
       </property>
      </widget>
     </item>
@@ -354,6 +368,13 @@
       </property>
      </widget>
     </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_13">
+      <property name="text">
+       <string>This month progress:</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="gridLayoutWidget_6">
@@ -367,7 +388,7 @@
    </property>
    <layout class="QGridLayout" name="gridLayoutLastYearDiagram"/>
   </widget>
-  <widget class="QProgressBar" name="progressBarLastYear">
+  <widget class="QProgressBar" name="progressBarMonth">
    <property name="geometry">
     <rect>
      <x>940</x>
@@ -518,11 +539,11 @@
   <zorder>gridLayoutWidget_2</zorder>
   <zorder>gridLayoutWidget_3</zorder>
   <zorder>gridLayoutWidget_4</zorder>
-  <zorder>progressBarLastMonth</zorder>
-  <zorder>progressBarLastQuarter</zorder>
+  <zorder>progressBarToday</zorder>
+  <zorder>progressBarWeek</zorder>
   <zorder>gridLayoutWidget_5</zorder>
   <zorder>gridLayoutWidget_6</zorder>
-  <zorder>progressBarLastYear</zorder>
+  <zorder>progressBarMonth</zorder>
  </widget>
  <resources/>
  <connections/>

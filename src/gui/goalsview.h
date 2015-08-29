@@ -2,6 +2,7 @@
 #define GOALSVIEW_H
 
 #include <QWidget>
+#include <QProgressBar>
 #include "core/config.h"
 
 namespace Ui {
@@ -34,9 +35,10 @@ private:
     void connectSlots();
     void displayData();
     void drawDiagrams();
-    unsigned int computeTotal(QVector<unsigned>& pomodoroDistribution);
+    unsigned int computeTotal(const QVector<unsigned>& pomodoroDistribution);
     QString computeAverage(unsigned total, unsigned size);
     QString computePercentage(unsigned total, unsigned size, unsigned goal);
+    void updateProgressBar(QProgressBar* bar, unsigned goal, int value);
 };
 
 

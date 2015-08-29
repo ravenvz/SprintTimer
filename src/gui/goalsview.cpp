@@ -11,6 +11,7 @@ GoalsView::GoalsView(Config& applicationSettings, QWidget* parent) :
     applicationSettings(applicationSettings)
 {
     ui->setupUi(this);
+    // TODO handle the case when these vectors are empty (e.g. db returns no values)
     lastThirty = PomodoroGateway::getNumCompletedPomodorosForLastThirtyDays();
     lastQuarter = PomodoroGateway::getCompletedPomodorosDistributionForLastThreeMonths();
     lastYear = PomodoroGateway::getCompletedPomodorosDistributionForLastTwelveMonths();
@@ -44,10 +45,41 @@ void GoalsView::displayData() {
     ui->labelLastMonthPercentage->setText(computePercentage(lastThirtyTotal, lastThirty.size(), dailyGoal));
     ui->labelLastQuarterPercentage->setText(computePercentage(lastQuarterTotal, lastQuarter.size(), weeklyGoal));
     ui->labelLastYearPercentage->setText(computePercentage(lastYearTotal, lastYear.size(), monthlyGoal));
+    ui->labelTodayProgress->setText(QString("%1/%2").arg(lastThirty.last()).arg(dailyGoal));
+    ui->labelWeekProgress->setText(QString("%1/%2").arg(lastQuarter.last()).arg(weeklyGoal));
+    ui->labelMonthProgress->setText(QString("%1/%2").arg(lastYear.last()).arg(monthlyGoal));
+    updateProgressBar(ui->progressBarToday, dailyGoal, lastThirty.last());
+    updateProgressBar(ui->progressBarWeek, weeklyGoal, lastQuarter.last());
+    updateProgressBar(ui->progressBarMonth, monthlyGoal, lastYear.last());
     drawDiagrams();
 }
 
-unsigned GoalsView::computeTotal(QVector<unsigned>& pomodoroDistribution) {
+void GoalsView::updateProgressBar(QProgressBar* bar, unsigned goal, int value) {
+    bar->setMaximum(goal);
+    bar->setFormat("%v/%m");
+    bar->hide();
+    if (goal == 0) {
+        return;
+    }
+    QPalette p = bar->palette();
+    if (value == (int) goal) {
+        p.setColor(QPalette::Highlight, Qt::darkGreen);
+        p.setColor(QPalette::Base, Qt::darkGreen);
+    } else if (value > (int) goal) {
+        p.setColor(QPalette::Highlight, Qt::red);
+        p.setColor(QPalette::Base, Qt::darkGreen);
+        bar->setFormat(QString("%1").arg(value) + QString("/%m"));
+        value %= goal;
+    } else {
+        p.setColor(QPalette::Highlight, Qt::gray);
+        p.setColor(QPalette::Base, Qt::white);
+    }
+    bar->setPalette(p);
+    bar->setValue(value);
+    bar->show();
+}
+
+unsigned GoalsView::computeTotal(const QVector<unsigned>& pomodoroDistribution) {
     unsigned int total = 0;
     for (unsigned numCompleted : pomodoroDistribution) {
         total += numCompleted;
@@ -60,7 +92,8 @@ QString GoalsView::computeAverage(unsigned total, unsigned size) {
 }
 
 QString GoalsView::computePercentage(unsigned total, unsigned size, unsigned goal) {
-    return QString("%1%").arg(double(total) * 100 / (goal * size), 2, 'f', 2, '0');
+    double percentage = goal * size != 0 ? double(total) * 100 / (goal * size) : 0;
+    return QString("%1%").arg(percentage, 2, 'f', 2, '0');
 }
 
 void GoalsView::drawDiagrams() {
