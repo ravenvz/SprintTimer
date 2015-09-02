@@ -100,7 +100,7 @@ public:
     static QVector<unsigned> getCompletedPomodorosDistributionForLastTwelveMonths() {
         QVector<unsigned> result;
         QDate today = QDate::currentDate();
-        QDate startDate = today.addMonths(-11).addDays(- today.day());
+        QDate startDate = today.addMonths(-11).addDays(-today.day());
         QSqlQuery query;
         query.prepare("select count(start_time) "
                       "from calendar left join pomodoro "

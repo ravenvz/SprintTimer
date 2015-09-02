@@ -917,7 +917,7 @@ color: white;
     </property>
     <property name="font">
      <font>
-      <pointsize>17</pointsize>
+      <pointsize>14</pointsize>
      </font>
     </property>
     <property name="text">

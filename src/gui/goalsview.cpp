@@ -42,12 +42,12 @@ void GoalsView::displayData() {
     ui->labelLastMonthAverage->setText(computeAverage(lastThirtyTotal, lastThirty.size()));
     ui->labelLastQuarterAverage->setText(computeAverage(lastQuarterTotal, lastQuarter.size()));
     ui->labelLastYearAverage->setText(computeAverage(lastYearTotal, lastYear.size()));
-    ui->labelLastMonthPercentage->setText(computePercentage(lastThirtyTotal, lastThirty.size(), dailyGoal));
+    ui->labelLastMonthPercentage->setText(computePercentage(lastThirtyTotal, monthlyGoal, 1));
     ui->labelLastQuarterPercentage->setText(computePercentage(lastQuarterTotal, lastQuarter.size(), weeklyGoal));
     ui->labelLastYearPercentage->setText(computePercentage(lastYearTotal, lastYear.size(), monthlyGoal));
-    ui->labelTodayProgress->setText(QString("%1/%2").arg(lastThirty.last()).arg(dailyGoal));
-    ui->labelWeekProgress->setText(QString("%1/%2").arg(lastQuarter.last()).arg(weeklyGoal));
-    ui->labelMonthProgress->setText(QString("%1/%2").arg(lastYear.last()).arg(monthlyGoal));
+    ui->labelTodayProgress->setText(QString("%1").arg(lastThirtyTotal));
+    ui->labelWeekProgress->setText(QString("%1").arg(lastQuarterTotal));
+    ui->labelMonthProgress->setText(QString("%1").arg(lastYearTotal));
     updateProgressBar(ui->progressBarToday, dailyGoal, lastThirty.last());
     updateProgressBar(ui->progressBarWeek, weeklyGoal, lastQuarter.last());
     updateProgressBar(ui->progressBarMonth, monthlyGoal, lastYear.last());
