@@ -195,20 +195,20 @@
   <widget class="QLabel" name="lblSoundVolume">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>280</y>
-     <width>212</width>
-     <height>90</height>
+     <x>150</x>
+     <y>300</y>
+     <width>61</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>Sound Volume</string>
+    <string>Volume</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="chBxPlaySound">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>50</x>
      <y>270</y>
      <width>111</width>
      <height>20</height>
