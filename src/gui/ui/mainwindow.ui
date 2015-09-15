@@ -818,7 +818,7 @@ color: white;
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="btnConfig_2">
+      <widget class="QPushButton" name="btnStatistics">
        <property name="text">
         <string/>
        </property>

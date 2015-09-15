@@ -6,6 +6,7 @@
 #include "gui/dialogs/settings_dialog.h"
 #include "gui/historyview.h"
 #include "gui/goalsview.h"
+#include "gui/statisticswidget.h"
 
 
 MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent) :
@@ -51,6 +52,7 @@ void MainWindow::connectSlots() {
     connect(ui->btnSettings, SIGNAL(clicked(bool)), this, SLOT(launchSettingsDialog()));
     connect(ui->btnTodoHistory, SIGNAL(clicked(bool)), this, SLOT(launchHistoryView()));
     connect(ui->btnGoals, SIGNAL(clicked(bool)), this, SLOT(launchGoalsView()));
+    connect(ui->btnStatistics, SIGNAL(clicked(bool)), this, SLOT(launchStatisticsView()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -271,4 +273,9 @@ void MainWindow::launchHistoryView() {
 void MainWindow::launchGoalsView() {
     QPointer<GoalsView> goalsView = new GoalsView(applicationSettings);
     goalsView->show();
+}
+
+void MainWindow::launchStatisticsView() {
+    QPointer<StatisticsWidget> statisticsView = new StatisticsWidget(applicationSettings);
+    statisticsView->show();
 }

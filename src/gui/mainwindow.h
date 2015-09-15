@@ -38,6 +38,7 @@ private slots:
     void launchSettingsDialog();
     void launchHistoryView();
     void launchGoalsView();
+    void launchStatisticsView();
 
 private:
     Ui::MainWindow *ui;

@@ -13,14 +13,15 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set (CMAKE_AUTORCC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
+find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia PrintSupport)
 
 # set(QT_USE_QTMULTIMEDIA TRUE)
 # set ("${PROJECT}_RCCS" resources/resources.qrc)
 
 set ("${PROJECT}_BINARY_DIR" bin)
-set ("${PROJECT}_SOURCE_DIR" src:include)
+set ("${PROJECT}_SOURCE_DIR" src:include:external_libs/qcustomplot-source)
 # set ("${PROJECT}_LIB_DIR" lib)
+# set (EXTERNAL_LIBS external_libs)
 
 # to change Clion build directory
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
@@ -68,6 +69,8 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/dialogs/datepickdialog.cpp
                  src/gui/goalsview.cpp
                  src/gui/gauge.cpp
+                 src/gui/statisticswidget.cpp
+                 external_libs/qcustomplot-source/qcustomplot.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS
@@ -78,14 +81,15 @@ QT5_WRAP_UI(UI_HEADERS
     src/gui/ui/history.ui
     src/gui/ui/date_pick_dialog.ui
     src/gui/ui/goalsview.ui
+    src/gui/ui/statistics_widget.ui
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)
 # add_executable(pomodoro src/main.cpp mainwindow.cpp)
 
-qt5_use_modules(${PROJECT} Multimedia Widgets Sql Core)
+qt5_use_modules(${PROJECT} Multimedia Widgets Sql Core PrintSupport)
 
 # target_link_libraries(${PROJECT} Qt5::Core)
 
 add_subdirectory(tests)
-# add_subdirectory(${EXTERNAL_LIBS}/docopt)
+# add_subdirectory(${EXTERNAL_LIBS}/qcustomplot-source)
