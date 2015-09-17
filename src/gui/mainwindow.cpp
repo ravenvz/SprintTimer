@@ -1,4 +1,5 @@
 #include <src/core/config.h>
+#include <QtWidgets/qmenu.h>
 #include "gui/mainwindow.h"
 #include "ui_mainwindow.h"
 #include "gui/dialogs/confirmationdialog.h"
@@ -7,6 +8,7 @@
 #include "gui/historyview.h"
 #include "gui/goalsview.h"
 #include "gui/statisticswidget.h"
+#include "gui/dialogs/manualaddpomodorodialog.h"
 
 
 MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent) :
@@ -53,6 +55,7 @@ void MainWindow::connectSlots() {
     connect(ui->btnTodoHistory, SIGNAL(clicked(bool)), this, SLOT(launchHistoryView()));
     connect(ui->btnGoals, SIGNAL(clicked(bool)), this, SLOT(launchGoalsView()));
     connect(ui->btnStatistics, SIGNAL(clicked(bool)), this, SLOT(launchStatisticsView()));
+    connect(ui->btnAddPomodoroManually, SIGNAL(clicked(bool)), this, SLOT(launchManualAddPomodoroDialog()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -278,4 +281,12 @@ void MainWindow::launchGoalsView() {
 void MainWindow::launchStatisticsView() {
     QPointer<StatisticsWidget> statisticsView = new StatisticsWidget(applicationSettings);
     statisticsView->show();
+}
+
+void MainWindow::launchManualAddPomodoroDialog() {
+    PomodoroManualAddDialog dialog {todoitemViewModel, applicationSettings.getPomodoroDuration()};
+    if (dialog.exec()) {
+        updatePomodoroView();
+        ui->lvTodoItems->viewport()->update();
+    }
 }

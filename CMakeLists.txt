@@ -59,6 +59,7 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/dialogs/addtodoitemdialog.cpp
                  src/gui/dialogs/confirmationdialog.cpp
                  src/gui/dialogs/settings_dialog.cpp
+                 src/gui/dialogs/manualaddpomodorodialog.cpp
                  # src/gui/todoitemslistview.cpp
                  src/gui/todoitemslistmodel.cpp
                  src/gui/todoitemsviewdelegate.cpp
@@ -82,6 +83,7 @@ QT5_WRAP_UI(UI_HEADERS
     src/gui/ui/date_pick_dialog.ui
     src/gui/ui/goalsview.ui
     src/gui/ui/statistics_widget.ui
+    src/gui/ui/manual_add_pomodoro_dialog.ui
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)

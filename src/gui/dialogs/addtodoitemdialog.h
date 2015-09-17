@@ -21,7 +21,7 @@ public:
     void fillItemData(TodoItem item);
 
 private:
-    Ui::AddTodoItemDialog *ui;
+    Ui::AddTodoItemDialog* ui;
     TodoItem item;
     QStringListModel* tagModel;
     static const int tempId = -1;

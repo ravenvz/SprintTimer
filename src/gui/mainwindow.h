@@ -39,6 +39,7 @@ private slots:
     void launchHistoryView();
     void launchGoalsView();
     void launchStatisticsView();
+    void launchManualAddPomodoroDialog();
 
 private:
     Ui::MainWindow *ui;
