@@ -20,7 +20,7 @@ public:
         QSqlQuery query;
         query.exec("select id, name, start_time, finish_time "
                "from pomodoro where date(start_time) = date('now') "
-               "order by start_time desc");
+               "order by start_time");
         while (query.next()) {
             QStringList m;
             Pomodoro pomodoro {query.value(1).toString(),
@@ -113,6 +113,25 @@ public:
         QDate today = QDate::currentDate();
         QDate thirtyDaysAgo = today.addMonths(-3);
         return PomodoroGateway::getPomodoroForMonth(thirtyDaysAgo, today);
+    }
+
+    static QVector<double> getWorkdayDistributionForMonth(int month, int year) {
+        QVector<double> result;
+        QSqlQuery query;
+        query.prepare("select avg(id) "
+                      "from calendar left join pomodoro "
+                      "on date(start_time) = dt "
+                      "where strftime('%m', dt) = (:month) and strftime('%y', dt) = (:year) "
+                      "group by strftime('%w', dt) "
+                      "order by strftime('%w', dt)");
+        query.bindValue(":month", QVariant(month));
+        query.bindValue(":year", QVariant(year));
+        query.exec();
+        qDebug() << query.lastError();
+        while (query.next()) {
+            result << query.value(0).toInt();
+        }
+        return result;
     }
 
     static void storePomodoro(Pomodoro pomodoro) {
