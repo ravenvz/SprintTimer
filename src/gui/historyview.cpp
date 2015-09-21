@@ -63,14 +63,15 @@ void HistoryView::getPomodoroHistory(QStringList& preprocessedHistory) const {
 }
 
 void HistoryView::formatPomodoroHistory(const QVector<Pomodoro> &pomodoros, QStringList &preparedPomodoroHistory) const {
-    preparedPomodoroHistory << pomodoros[0].startTime.date().toString();
-    QDate currentDate = pomodoros[0].startTime.date();
+    preparedPomodoroHistory << pomodoros[0].getStartTime().date().toString();
+    QDate currentDate = pomodoros[0].getStartTime().date();
     unsigned headerOffset = 1;
     QVector<unsigned> headerIndexes {headerOffset};
     for (int i = 0; i < pomodoros.size(); ++i) {
-        if (currentDate != pomodoros[i].startTime.date()) {
-            currentDate = pomodoros[i].startTime.date();
-            preparedPomodoroHistory << pomodoros[i].startTime.date().toString();
+        const QDate& date = pomodoros[i].getStartTime().date();
+        if (currentDate != date) {
+            currentDate = date;
+            preparedPomodoroHistory << date.toString();
             headerIndexes << i + headerOffset;
         }
         preparedPomodoroHistory << pomodoros[i].asString();

@@ -1,6 +1,35 @@
 #include "entities.h"
+
 #include <QRegularExpression>
 
+Pomodoro::Pomodoro() { }
+
+Pomodoro::Pomodoro(const QString& name, QDateTime startTime, QDateTime finishTime)
+        : name(name), startTime(startTime), finishTime(finishTime) { }
+
+void Pomodoro::setFinishTime(const QDateTime& finishTime) {
+    Pomodoro::finishTime = finishTime;
+}
+
+const QDateTime& Pomodoro::getFinishTime() const {
+    return finishTime;
+}
+
+void Pomodoro::setStartTime(const QDateTime& startTime) {
+    Pomodoro::startTime = startTime;
+}
+
+const QDateTime& Pomodoro::getStartTime() const {
+    return startTime;
+}
+
+void Pomodoro::setName(const QString& name) {
+    Pomodoro::name = name;
+}
+
+const QString& Pomodoro::getName() const {
+    return name;
+}
 
 QString Pomodoro::asString() const {
     QStringList result;
@@ -96,3 +125,4 @@ void TodoItem::decodeDescription(QString& encodedDescription) {
     }
     name = nameParts.join(' ');
 }
+

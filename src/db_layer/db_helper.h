@@ -41,9 +41,9 @@ public:
         query.bindValue(":end_date", QVariant(endDate));
         query.exec();
         while (query.next()) {
-            Pomodoro pomodoro {query.value(1).toString(),
+            Pomodoro pomodoro (query.value(1).toString(),
                                query.value(2).toDateTime(),
-                               query.value(3).toDateTime()};
+                               query.value(3).toDateTime());
             result.append(pomodoro);
         }
         return result;
@@ -138,9 +138,9 @@ public:
         QSqlQuery query;
         query.prepare("insert into pomodoro (name, start_time, finish_time) "
                       "values (:name, :start_time, :finish_time)");
-        query.bindValue(":name", QVariant(pomodoro.name));
-        query.bindValue(":start_time", QVariant(pomodoro.startTime));
-        query.bindValue(":finish_time", QVariant(pomodoro.finishTime));
+        query.bindValue(":name", QVariant(pomodoro.getName()));
+        query.bindValue(":start_time", QVariant(pomodoro.getStartTime()));
+        query.bindValue(":finish_time", QVariant(pomodoro.getFinishTime()));
         query.exec();
     }
 };
