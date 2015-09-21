@@ -40,14 +40,14 @@ if ( WITH_DEBUG_MODE )
 endif()
 
 # if ( CMAKE_COMPILER_IS_GNUCXX )
-#     set(MY_CXX_FLAGS  "-Wall -Werror -j 4 -std=c++11 -pedantic")
-#     set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
-#     #set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-reorder-blocks -fno-schedule-insns -fno-inline")
-#     #set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+#     set(MY_CXX_FLAGS  "-Wall -Werror -std=c++11 -pedantic")
+##     set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
+##     set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-reorder-blocks -fno-schedule-insns -fno-inline")
+##     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 # else ()
 #     message (FATAL_ERROR ${ERR_NO_UNIX})
 # endif ()
-set(MY_CXX_FLAGS  "-Wall -std=c++11 -pedantic")
+set(MY_CXX_FLAGS  "-Wall -Werror -std=c++11 -pedantic")
 set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
 
 #find_library(CppUTest REQUIRED)
@@ -60,11 +60,11 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/dialogs/confirmationdialog.cpp
                  src/gui/dialogs/settings_dialog.cpp
                  src/gui/dialogs/manualaddpomodorodialog.cpp
-                 # src/gui/todoitemslistview.cpp
                  src/gui/todoitemslistmodel.cpp
                  src/gui/todoitemsviewdelegate.cpp
                  src/core/TaskScheduler.cpp
-                 src/core/entities.cpp
+                 src/core/entities/Pomodoro.cpp
+                 src/core/entities/TodoItem.cpp
                  src/db_layer/db_helper.cpp
                  src/gui/historyview.cpp
                  src/gui/dialogs/datepickdialog.cpp

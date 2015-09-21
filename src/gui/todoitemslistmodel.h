@@ -3,7 +3,7 @@
 
 #include <QAbstractListModel>
 #include <QHash>
-#include "core/entities.h"
+#include "core/entities/TodoItem.h"
 
 
 class TodoItemsListModel : public QAbstractListModel

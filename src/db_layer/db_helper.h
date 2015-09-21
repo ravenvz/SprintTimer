@@ -3,8 +3,9 @@
 
 #include <QtSql>
 #include <QSqlDatabase>
-#include "core/entities.h"
 #include <vector>
+#include "core/entities/TodoItem.h"
+#include "core/entities/Pomodoro.h"
 
 
 void createDatabase(QSqlDatabase& db, QString& filename);

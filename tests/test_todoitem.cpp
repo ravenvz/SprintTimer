@@ -1,4 +1,4 @@
-#include "core/entities.h"
+#include "core/entities/TodoItem.h"
 #include <TestHarness.h>
 
 

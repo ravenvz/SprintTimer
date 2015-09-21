@@ -4,7 +4,8 @@
 #include <QStringListModel>
 #include <QObject>
 #include <QWidget>
-#include <src/core/entities.h>
+#include "core/entities/TodoItem.h"
+#include "core/entities/Pomodoro.h"
 
 namespace Ui {
     class HistoryView;

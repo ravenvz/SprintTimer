@@ -2,8 +2,8 @@
 #define ADDTODOITEMDIALOG_H
 
 #include <QDialog>
-#include "core/entities.h"
 #include <QStringListModel>
+#include "core/entities/TodoItem.h"
 
 namespace Ui {
 class AddTodoItemDialog;

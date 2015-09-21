@@ -7,9 +7,9 @@ set(SOURCE_FILES
     test_pomodoro_gateway.cpp
     test_todoitem.cpp
     ../src/core/TaskScheduler.cpp
-    ../src/core/entities.cpp
+        ../src/core/entities/TodoItem.cpp
         ../src/db_layer/db_helper.cpp
-    ../src/core/entities.h
+        ../src/core/entities/TodoItem.h
     ../src/core/config.h
 )
 find_library(CppUTest REQUIRED)
