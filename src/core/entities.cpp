@@ -44,11 +44,7 @@ QString Pomodoro::asString() const {
     return result.join(" ");
 }
 
-
-TodoItem::TodoItem() {
-    
-}
-
+TodoItem::TodoItem() {}
 
 TodoItem::TodoItem(QString name,
          unsigned estimatedPomodoros,
@@ -65,7 +61,6 @@ TodoItem::TodoItem(QString name,
 {
 }
 
-
 TodoItem::TodoItem(QString& encodedDescription) :
     encodedDescription(encodedDescription)
 {
@@ -74,6 +69,65 @@ TodoItem::TodoItem(QString& encodedDescription) :
     spentPomodoros = 0;
 }
 
+void TodoItem::setEncodedDescription(const QString& encodedDescription) {
+    TodoItem::encodedDescription = encodedDescription;
+}
+
+const QString& TodoItem::getEncodedDescription() const {
+    return encodedDescription;
+}
+
+void TodoItem::setId(int id) {
+    TodoItem::id = id;
+}
+
+int TodoItem::getId() const {
+    return id;
+}
+
+void TodoItem::setCompleted(bool completed) {
+    TodoItem::completed = completed;
+}
+
+bool TodoItem::isCompleted() const {
+    return completed;
+}
+
+void TodoItem::toggleCompleted() {
+    TodoItem::completed = !TodoItem::completed;
+}
+
+void TodoItem::setTags(const QStringList& tags) {
+    TodoItem::tags = tags;
+}
+
+const QStringList& TodoItem::getTags() const {
+    return tags;
+}
+
+void TodoItem::setSpentPomodoros(unsigned int spentPomodoros) {
+    TodoItem::spentPomodoros = spentPomodoros;
+}
+
+unsigned int TodoItem::getSpentPomodoros() const {
+    return spentPomodoros;
+}
+
+void TodoItem::setEstimatedPomodoros(unsigned int estimatedPomodoros) {
+    TodoItem::estimatedPomodoros = estimatedPomodoros;
+}
+
+unsigned int TodoItem::getEstimatedPomodoros() const {
+    return estimatedPomodoros;
+}
+
+void TodoItem::setName(const QString& name) {
+    TodoItem::name = name;
+}
+
+const QString& TodoItem::getName() const {
+    return name;
+}
 
 QString TodoItem::asString() const {
     QStringList result;
@@ -83,11 +137,9 @@ QString TodoItem::asString() const {
     return result.join(" ");
 }
 
-
 QString TodoItem::tagsAndNameAsString() const {
     return QString("%1 %2").arg(tagsAsHashedString()).arg(name);
 }
-
 
 QString TodoItem::tagsAsString() const {
     QStringList tagsList;
@@ -96,7 +148,6 @@ QString TodoItem::tagsAsString() const {
     }
     return tagsList.join(" ");
 }
-
 
 QString TodoItem::tagsAsHashedString() const {
     QStringList hashedTags;
@@ -107,7 +158,6 @@ QString TodoItem::tagsAsHashedString() const {
     }
     return hashedTags.join(" ");
 }
-
 
 void TodoItem::decodeDescription(QString& encodedDescription) {
     QStringList nameParts;
@@ -125,4 +175,3 @@ void TodoItem::decodeDescription(QString& encodedDescription) {
     }
     name = nameParts.join(' ');
 }
-

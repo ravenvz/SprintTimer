@@ -67,7 +67,7 @@ QVariant TodoItemsListModel::data(const QModelIndex &index, int role) const {
         case Qt::SizeHintRole:
             return QSize(10, 18); // TODO consider change through config
         case Qt::CheckStateRole:
-            return item.completed;
+            return item.isCompleted();
         case CopyToPomodoroRole:
             return item.tagsAndNameAsString();
         default:
@@ -83,14 +83,13 @@ QHash<int, QByteArray> TodoItemsListModel::roleNames() const {
 
 void TodoItemsListModel::addTodoItem(TodoItem item) {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    int id = TodoItemGateway::storeTodoItem(item);
-    item.id = id;
+    item.setId(TodoItemGateway::storeTodoItem(item));
     items.insert(rowCount(), item);
     endInsertRows();
 }
 
 void TodoItemsListModel::incrementPomodoros(int row, int incrementBy) {
-    items[row].spentPomodoros += incrementBy;
+    items[row].setSpentPomodoros(items[row].getSpentPomodoros() + incrementBy);
     TodoItemGateway::incrementSpentPomodoros(items[row]);
 }
 
@@ -99,21 +98,21 @@ TodoItem TodoItemsListModel::getTodoItemByModelIndex(const QModelIndex& index) {
 }
 
 void TodoItemsListModel::updateTodoItem(const QModelIndex& index, TodoItem updatedItem) {
-    updatedItem.id = items[index.row()].id;
+    updatedItem.setId(items[index.row()].getId());
     items[index.row()] = updatedItem;
     TodoItemGateway::updateTodoItem(updatedItem);
 }
 
 void TodoItemsListModel::removeTodoItem(const QModelIndex& index) {
     beginRemoveRows(QModelIndex(), index.row(), index.row());
-    TodoItemGateway::removeTodoItem(getTodoItemByModelIndex(index).id);
+    TodoItemGateway::removeTodoItem(getTodoItemByModelIndex(index).getId());
     items.removeAt(index.row());
     endRemoveRows();
 }
 
 void TodoItemsListModel::toggleCompleted(const QModelIndex& index) {
-    items[index.row()].completed = !items[index.row()].completed;
-    TodoItemGateway::setItemChecked(items[index.row()].id, items[index.row()].completed);
+    items[index.row()].setCompleted(!items[index.row()].isCompleted());
+    TodoItemGateway::setItemChecked(items[index.row()].getId(), items[index.row()].isCompleted());
 }
 
 void TodoItemsListModel::updateItemsPriority(const QList<TodoItem>& items) const {

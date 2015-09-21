@@ -224,16 +224,17 @@ public:
         QSqlQuery query;
         query.prepare("insert into todo_item (name, estimated_pomodoros, spent_pomodoros, completed, priority, last_modified) "
                 "values (:name, :estimated_pomodoros, :spent_pomodoros, :completed, :priority, :last_modified)");
-        query.bindValue(":name", QVariant(item.name));
-        query.bindValue(":estimated_pomodoros", QVariant(item.estimatedPomodoros));
-        query.bindValue(":spent_pomodoros", QVariant(item.spentPomodoros));
-        query.bindValue(":completed", QVariant(item.completed));
+        query.bindValue(":name", QVariant(item.getName()));
+        query.bindValue(":estimated_pomodoros", QVariant(item.getEstimatedPomodoros()));
+        query.bindValue(":spent_pomodoros", QVariant(item.getSpentPomodoros()));
+        query.bindValue(":completed", QVariant(item.isCompleted()));
         query.bindValue(":priority", QVariant(newItemPriority));
         query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
         query.exec();
         QVariant todoId = query.lastInsertId();
-        if (!item.tags.isEmpty()) {
-            for (QString tag : item.tags) {
+        const QStringList& tags = item.getTags();
+        if (!tags.isEmpty()) {
+            for (QString tag : tags) {
                 TagGateway::insertTag(tag, todoId);
             }
         }
@@ -254,18 +255,18 @@ public:
 
     static void updateTodoItem(TodoItem& updatedItem) {
         // Assumes that updatedItem has the same id as an old one
-        QList<QVariant> oldItemTagsIds = TagGateway::getTagsForTodoItem(updatedItem.id);
+        QList<QVariant> oldItemTagsIds = TagGateway::getTagsForTodoItem(updatedItem.getId());
         QSqlQuery query;
         query.prepare("update todo_item set name = (:name), "
                "estimated_pomodoros = (:estimated_pomodoros), "
                "last_modified = (:last_modified), "
                "completed = (:completed) "
                "where id = (:id)");
-        query.bindValue(":name", QVariant(updatedItem.name));
-        query.bindValue(":estimated_pomodoros", QVariant(updatedItem.estimatedPomodoros));
+        query.bindValue(":name", QVariant(updatedItem.getName()));
+        query.bindValue(":estimated_pomodoros", QVariant(updatedItem.getEstimatedPomodoros()));
         query.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
-        query.bindValue(":completed", QVariant(updatedItem.completed));
-        query.bindValue(":id", QVariant(updatedItem.id));
+        query.bindValue(":completed", QVariant(updatedItem.isCompleted()));
+        query.bindValue(":id", QVariant(updatedItem.getId()));
         query.exec();
 
         for (QVariant tag_id : oldItemTagsIds) {
@@ -273,13 +274,14 @@ public:
             query.prepare("delete from todotag "
                    "where todotag.tag_id = (:tag_id) and todotag.todo_id = (:todo_id)");
             query.bindValue(":tag_id", tag_id);
-            query.bindValue(":todo_id", QVariant(updatedItem.id));
+            query.bindValue(":todo_id", QVariant(updatedItem.getId()));
             query.exec();
         }
 
-        if (!updatedItem.tags.isEmpty()) {
-            for (QString tag : updatedItem.tags) {
-                TagGateway::insertTag(tag, updatedItem.id);
+        const QStringList& tags = updatedItem.getTags();
+        if (!tags.isEmpty()) {
+            for (QString tag : tags) {
+                TagGateway::insertTag(tag, updatedItem.getId());
             }
         }
     }
@@ -287,8 +289,8 @@ public:
     static void incrementSpentPomodoros(TodoItem& item) {
         QSqlQuery query;
         query.prepare("update todo_item set spent_pomodoros = (:spent_pomodoros) where id = (:todo_item_id)");
-        query.bindValue(":todo_item_id", QVariant(item.id));
-        query.bindValue(":spent_pomodoros", QVariant(item.spentPomodoros));
+        query.bindValue(":todo_item_id", QVariant(item.getId()));
+        query.bindValue(":spent_pomodoros", QVariant(item.getSpentPomodoros()));
         query.exec();
     }
 
@@ -358,7 +360,7 @@ public:
             QSqlQuery query;
             query.prepare("update todo_item set priority = (:priority) where id = (:id)");
             query.bindValue(":priority", QVariant(i));
-            query.bindValue(":id", QVariant(items[i].id));
+            query.bindValue(":id", QVariant(items[i].getId()));
             query.exec();
         }
         QSqlDatabase::database().commit();

@@ -46,8 +46,8 @@ QStringList AddTodoItemDialog::parseTags(QString& tagsString) {
 }
 
 void AddTodoItemDialog::fillItemData(TodoItem item) {
-    ui->todoName->setText(item.name);
-    ui->estimatedPomodoros->setValue(item.estimatedPomodoros);
+    ui->todoName->setText(item.getName());
+    ui->estimatedPomodoros->setValue(item.getEstimatedPomodoros());
     ui->leTags->setText(item.tagsAsString());
 }
 
