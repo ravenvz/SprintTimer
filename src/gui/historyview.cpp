@@ -53,7 +53,7 @@ void HistoryView::populatePomodoroHistory() {
 }
 
 void HistoryView::getPomodoroHistory(QStringList& preprocessedHistory) const {
-    QVector<Pomodoro> pomodorosForPeriod = PomodoroDataSource::getPomodoroForMonth(startDate, endDate);
+    QVector<Pomodoro> pomodorosForPeriod = PomodoroDataSource::getPomodorosBetween(startDate, endDate);
     if (!pomodorosForPeriod.isEmpty()) {
         preprocessedHistory << QString("Completed %1 pomodoros").arg(pomodorosForPeriod.size());
         formatPomodoroHistory(pomodorosForPeriod, preprocessedHistory);

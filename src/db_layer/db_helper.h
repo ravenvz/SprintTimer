@@ -32,7 +32,7 @@ public:
         return result;
     }
 
-    static QVector<Pomodoro> getPomodoroForMonth(const QDate& startDate, const QDate& endDate) {
+    static QVector<Pomodoro> getPomodorosBetween(const QDate& startDate, const QDate& endDate) {
         QVector<Pomodoro> result;
         QSqlQuery query;
         query.prepare("select id, name, start_time, finish_time "
@@ -113,7 +113,7 @@ public:
     static QVector<Pomodoro> getPomodorosForLastQuarter() {
         QDate today = QDate::currentDate();
         QDate thirtyDaysAgo = today.addMonths(-3);
-        return PomodoroDataSource::getPomodoroForMonth(thirtyDaysAgo, today);
+        return PomodoroDataSource::getPomodorosBetween(thirtyDaysAgo, today);
     }
 
     static QVector<double> getWorkdayDistributionForMonth(int month, int year) {
