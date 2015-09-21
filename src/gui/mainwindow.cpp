@@ -167,7 +167,7 @@ void MainWindow::submitPomodoro() {
     completedTasksIntervals.push_back(taskScheduler.finishTask());
     for (TimeInterval interval : completedTasksIntervals) {
         Pomodoro pomodoro {name, interval.startTime, interval.finishTime};
-        PomodoroGateway::storePomodoro(pomodoro);
+        PomodoroDataSource::storePomodoro(pomodoro);
         // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
     // Check if pomodoro tags + name matches any uncompleted item in todo list view
@@ -184,7 +184,7 @@ void MainWindow::submitPomodoro() {
 }
 
 void MainWindow::updatePomodoroView() {
-    QStringList lst = PomodoroGateway::getPomodorosForToday();
+    QStringList lst = PomodoroDataSource::getPomodorosForToday();
     pomodoroViewModel->setStringList(lst);
     ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();

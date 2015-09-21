@@ -1,3 +1,4 @@
+#include <external_libs/qcustomplot-source/qcustomplot.h>
 #include "statisticswidget.h"
 #include "ui_statistics_widget.h"
 

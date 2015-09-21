@@ -53,7 +53,7 @@ void HistoryView::populatePomodoroHistory() {
 }
 
 void HistoryView::getPomodoroHistory(QStringList& preprocessedHistory) const {
-    QVector<Pomodoro> pomodorosForPeriod = PomodoroGateway::getPomodoroForMonth(startDate, endDate);
+    QVector<Pomodoro> pomodorosForPeriod = PomodoroDataSource::getPomodoroForMonth(startDate, endDate);
     if (!pomodorosForPeriod.isEmpty()) {
         preprocessedHistory << QString("Completed %1 pomodoros").arg(pomodorosForPeriod.size());
         formatPomodoroHistory(pomodorosForPeriod, preprocessedHistory);
@@ -87,7 +87,7 @@ void HistoryView::populateTodoHistory() {
 }
 
 void HistoryView::getTodoItemsHistory(QStringList& formattedHistory) {
-    QVector<std::pair<TodoItem, QString> > todoItemsForPeriod = TodoItemGateway::getTodoItemsForMonth(startDate, endDate);
+    QVector<std::pair<TodoItem, QString> > todoItemsForPeriod = TodoItemDataSource::getTodoItemsForMonth(startDate, endDate);
     if (!todoItemsForPeriod.isEmpty()) {
         formattedHistory << QString("Completed %1 items").arg(todoItemsForPeriod.size());
         formatTodoItemHistory(todoItemsForPeriod, formattedHistory);

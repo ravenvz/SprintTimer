@@ -13,7 +13,7 @@ void createDatabase(QSqlDatabase& db, QString& filename);
 bool createDbConnection();
 
 
-class PomodoroGateway
+class PomodoroDataSource
 {
 public:
     static QStringList getPomodorosForToday() {
@@ -113,7 +113,7 @@ public:
     static QVector<Pomodoro> getPomodorosForLastQuarter() {
         QDate today = QDate::currentDate();
         QDate thirtyDaysAgo = today.addMonths(-3);
-        return PomodoroGateway::getPomodoroForMonth(thirtyDaysAgo, today);
+        return PomodoroDataSource::getPomodoroForMonth(thirtyDaysAgo, today);
     }
 
     static QVector<double> getWorkdayDistributionForMonth(int month, int year) {
@@ -147,8 +147,7 @@ public:
 };
 
 
-class TagGateway
-{
+class TagDataSource {
 public:
     static void insertTag(QString tag, QVariant associatedTodoItemId) {
         QSqlQuery query;
@@ -217,7 +216,7 @@ public:
 };
 
 
-class TodoItemGateway
+class TodoItemDataSource
 {
 public:
     static int storeTodoItem(const TodoItem& item) {
@@ -236,7 +235,7 @@ public:
         const QStringList& tags = item.getTags();
         if (!tags.isEmpty()) {
             for (QString tag : tags) {
-                TagGateway::insertTag(tag, todoId);
+                TagDataSource::insertTag(tag, todoId);
             }
         }
         return todoId.toInt();
@@ -245,9 +244,9 @@ public:
     static void removeTodoItem(int id) {
         QSqlQuery query;
         query.exec("pragma foreign_keys = on");
-        QList<QVariant> removedItemTags = TagGateway::getTagsForTodoItem(id);
+        QList<QVariant> removedItemTags = TagDataSource::getTagsForTodoItem(id);
         for (QVariant tag_id : removedItemTags) {
-            TagGateway::removeTagIfOrphaned(tag_id);
+            TagDataSource::removeTagIfOrphaned(tag_id);
         }
         query.prepare("delete from todo_item where id = (:removed_item_id)");
         query.bindValue(":removed_item_id", id);
@@ -256,7 +255,7 @@ public:
 
     static void updateTodoItem(TodoItem& updatedItem) {
         // Assumes that updatedItem has the same id as an old one
-        QList<QVariant> oldItemTagsIds = TagGateway::getTagsForTodoItem(updatedItem.getId());
+        QList<QVariant> oldItemTagsIds = TagDataSource::getTagsForTodoItem(updatedItem.getId());
         QSqlQuery query;
         query.prepare("update todo_item set name = (:name), "
                "estimated_pomodoros = (:estimated_pomodoros), "
@@ -271,7 +270,7 @@ public:
         query.exec();
 
         for (QVariant tag_id : oldItemTagsIds) {
-            TagGateway::removeTagIfOrphaned(tag_id);
+            TagDataSource::removeTagIfOrphaned(tag_id);
             query.prepare("delete from todotag "
                    "where todotag.tag_id = (:tag_id) and todotag.todo_id = (:todo_id)");
             query.bindValue(":tag_id", tag_id);
@@ -282,7 +281,7 @@ public:
         const QStringList& tags = updatedItem.getTags();
         if (!tags.isEmpty()) {
             for (QString tag : tags) {
-                TagGateway::insertTag(tag, updatedItem.getId());
+                TagDataSource::insertTag(tag, updatedItem.getId());
             }
         }
     }

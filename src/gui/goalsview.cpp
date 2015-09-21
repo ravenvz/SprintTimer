@@ -12,9 +12,9 @@ GoalsView::GoalsView(Config& applicationSettings, QWidget* parent) :
 {
     ui->setupUi(this);
     // TODO handle the case when these vectors are empty (e.g. db returns no values)
-    lastThirty = PomodoroGateway::getNumCompletedPomodorosForLastThirtyDays();
-    lastQuarter = PomodoroGateway::getCompletedPomodorosDistributionForLastThreeMonths();
-    lastYear = PomodoroGateway::getCompletedPomodorosDistributionForLastTwelveMonths();
+    lastThirty = PomodoroDataSource::getNumCompletedPomodorosForLastThirtyDays();
+    lastQuarter = PomodoroDataSource::getCompletedPomodorosDistributionForLastThreeMonths();
+    lastYear = PomodoroDataSource::getCompletedPomodorosDistributionForLastTwelveMonths();
     lastThirtyTotal = MathUtils::sum(lastThirty);
     lastQuarterTotal = MathUtils::sum(lastQuarter);
     lastYearTotal = MathUtils::sum(lastYear);

@@ -41,6 +41,6 @@ void PomodoroManualAddDialog::accept() {
     TodoItem pickedItem = model->getTodoItemByModelIndex(model->index(ui->comboBoxPickTodoItem->currentIndex(), 0));
     model->incrementPomodoros(ui->comboBoxPickTodoItem->currentIndex(), 1);
     Pomodoro pomodoro {pickedItem.tagsAndNameAsString(), startTime, finishTime};
-    PomodoroGateway::storePomodoro(pomodoro);
+    PomodoroDataSource::storePomodoro(pomodoro);
     QDialog::accept();
 }

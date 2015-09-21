@@ -52,7 +52,7 @@ void AddTodoItemDialog::fillItemData(TodoItem item) {
 }
 
 void AddTodoItemDialog::setTagsModel() {
-    QStringList lst = TagGateway::getAllTags();
+    QStringList lst = TagDataSource::getAllTags();
     tagModel->setStringList(lst);
     ui->tags->setModel(tagModel);
     ui->tags->setCurrentText("");
