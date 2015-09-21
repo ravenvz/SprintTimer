@@ -69,6 +69,7 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/goalsview.cpp
                  src/gui/gauge.cpp
                  src/gui/statisticswidget.cpp
+                 src/utils/MathUtils.cpp
                  external_libs/qcustomplot-source/qcustomplot.cpp
 )
 

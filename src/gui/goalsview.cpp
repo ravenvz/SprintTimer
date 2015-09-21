@@ -2,7 +2,7 @@
 #include "ui_goalsview.h"
 #include "gauge.h"
 #include "db_layer/db_helper.h"
-#include <QDebug>
+#include "utils/MathUtils.h"
 
 
 GoalsView::GoalsView(Config& applicationSettings, QWidget* parent) :
@@ -15,9 +15,9 @@ GoalsView::GoalsView(Config& applicationSettings, QWidget* parent) :
     lastThirty = PomodoroGateway::getNumCompletedPomodorosForLastThirtyDays();
     lastQuarter = PomodoroGateway::getCompletedPomodorosDistributionForLastThreeMonths();
     lastYear = PomodoroGateway::getCompletedPomodorosDistributionForLastTwelveMonths();
-    lastThirtyTotal = computeTotal(lastThirty);
-    lastQuarterTotal = computeTotal(lastQuarter);
-    lastYearTotal = computeTotal(lastYear);
+    lastThirtyTotal = MathUtils::sum(lastThirty);
+    lastQuarterTotal = MathUtils::sum(lastQuarter);
+    lastYearTotal = MathUtils::sum(lastYear);
     displayData();
     connectSlots();
 }
@@ -39,12 +39,12 @@ void GoalsView::displayData() {
     ui->spinBoxDailyGoal->setValue(dailyGoal);
     ui->spinBoxWeeklyGoal->setValue(weeklyGoal);
     ui->spinBoxMonthlyGoal->setValue(monthlyGoal);
-    ui->labelLastMonthAverage->setText(computeAverage(lastThirtyTotal, lastThirty.size()));
-    ui->labelLastQuarterAverage->setText(computeAverage(lastQuarterTotal, lastQuarter.size()));
-    ui->labelLastYearAverage->setText(computeAverage(lastYearTotal, lastYear.size()));
-    ui->labelLastMonthPercentage->setText(computePercentage(lastThirtyTotal, monthlyGoal, 1));
-    ui->labelLastQuarterPercentage->setText(computePercentage(lastQuarterTotal, lastQuarter.size(), weeklyGoal));
-    ui->labelLastYearPercentage->setText(computePercentage(lastYearTotal, lastYear.size(), monthlyGoal));
+    ui->labelLastMonthAverage->setText(MathUtils::averageAsQString(lastThirtyTotal, lastThirty.size()));
+    ui->labelLastQuarterAverage->setText(MathUtils::averageAsQString(lastQuarterTotal, lastQuarter.size()));
+    ui->labelLastYearAverage->setText(MathUtils::averageAsQString(lastYearTotal, lastYear.size()));
+    ui->labelLastMonthPercentage->setText(MathUtils::percentageAsQString(lastThirtyTotal, monthlyGoal));
+    ui->labelLastQuarterPercentage->setText(MathUtils::percentageAsQString(lastQuarterTotal, lastQuarter.size() * weeklyGoal));
+    ui->labelLastYearPercentage->setText(MathUtils::percentageAsQString(lastYearTotal, lastYear.size() * monthlyGoal));
     ui->labelTodayProgress->setText(QString("%1").arg(lastThirtyTotal));
     ui->labelWeekProgress->setText(QString("%1").arg(lastQuarterTotal));
     ui->labelMonthProgress->setText(QString("%1").arg(lastYearTotal));
@@ -77,23 +77,6 @@ void GoalsView::updateProgressBar(QProgressBar* bar, unsigned goal, int value) {
     bar->setPalette(p);
     bar->setValue(value);
     bar->show();
-}
-
-unsigned GoalsView::computeTotal(const QVector<unsigned>& pomodoroDistribution) const {
-    unsigned int total = 0;
-    for (unsigned numCompleted : pomodoroDistribution) {
-        total += numCompleted;
-    }
-    return total;
-}
-
-QString GoalsView::computeAverage(unsigned total, unsigned size) const {
-    return QString("%1").arg(double(total) / size, 2, 'f', 2, '0');
-}
-
-QString GoalsView::computePercentage(unsigned total, unsigned size, unsigned goal) const {
-    double percentage = goal * size != 0 ? double(total) * 100 / (goal * size) : 0;
-    return QString("%1%").arg(percentage, 2, 'f', 2, '0');
 }
 
 void GoalsView::drawDiagrams() {
