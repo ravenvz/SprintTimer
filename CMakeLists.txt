@@ -63,12 +63,14 @@ set(SOURCE_FILES src/main.cpp
                  src/core/TaskScheduler.cpp
                  src/core/entities/Pomodoro.cpp
                  src/core/entities/TodoItem.cpp
+                 src/core/PomodoroStatistics.cpp
                  src/db_layer/db_helper.cpp
                  src/gui/historyview.cpp
                  src/gui/dialogs/datepickdialog.cpp
                  src/gui/goalsview.cpp
                  src/gui/gauge.cpp
                  src/gui/statisticswidget.cpp
+                 src/gui/pickperiodwidget.cpp
                  src/utils/MathUtils.cpp
                  external_libs/qcustomplot-source/qcustomplot.cpp
 )
@@ -83,6 +85,7 @@ QT5_WRAP_UI(UI_HEADERS
     src/gui/ui/goalsview.ui
     src/gui/ui/statistics_widget.ui
     src/gui/ui/manual_add_pomodoro_dialog.ui
+    src/gui/ui/pickperiodwidget.ui
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)

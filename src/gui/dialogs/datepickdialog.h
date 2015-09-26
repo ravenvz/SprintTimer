@@ -4,17 +4,28 @@
 #include <QDialog>
 
 namespace Ui {
-class DatePickDialog;
+    class DatePickDialog;
 }
+
+
+struct DateInterval {
+    QDate startDate;
+    QDate endDate;
+
+    QString toString() {
+        return QString("%1 - %2").arg(startDate.toString()).arg(endDate.toString());
+    }
+};
+
 
 class DatePickDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DatePickDialog(QWidget* parent = 0);
+    explicit DatePickDialog(DateInterval initialPeriod, QWidget* parent = 0);
     ~DatePickDialog();
-    std::pair<QDate, QDate> getNewPeriod();
+    DateInterval getNewInterval();
 
 private slots:
 
@@ -22,6 +33,7 @@ private:
     Ui::DatePickDialog *ui;
 
     void configureCalendar();
+    void updateCalendarDates(DateInterval& period);
 
 };
 

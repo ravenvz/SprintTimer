@@ -1,0 +1,38 @@
+#ifndef POMODORO_PICKPERIODWIDGET_H
+#define POMODORO_PICKPERIODWIDGET_H
+
+#include <src/gui/dialogs/datepickdialog.h>
+
+namespace Ui {
+    class PickPeriodWidget;
+}
+
+
+class PickPeriodWidget : public QWidget {
+
+    Q_OBJECT
+        
+public:
+    explicit PickPeriodWidget(QWidget* parent = 0);
+    ~PickPeriodWidget();
+    void setInterval(DateInterval interval);
+
+signals:
+    void intervalChanged(DateInterval newInterval);
+
+private slots:
+    void openDatePickDialog();
+    void updateInterval();
+    void updateInterval(DateInterval interval);
+
+private:
+    Ui::PickPeriodWidget* ui;
+    DateInterval selectedInterval;
+
+    void connectSlots();
+    void updateSelectionHintLabel();
+
+};
+
+
+#endif //POMODORO_PICKPERIODWIDGET_H
