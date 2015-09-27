@@ -24,13 +24,13 @@ private slots:
     void openDatePickDialog();
     void updateInterval();
     void updateInterval(DateInterval interval);
+    void updateSelectionHintLabel();
 
 private:
     Ui::PickPeriodWidget* ui;
     DateInterval selectedInterval;
 
     void connectSlots();
-    void updateSelectionHintLabel();
 
 };
 
