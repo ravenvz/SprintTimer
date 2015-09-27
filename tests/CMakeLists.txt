@@ -6,11 +6,14 @@ set(SOURCE_FILES
     TestTaskScheduler.cpp
     test_pomodoro_gateway.cpp
     test_todoitem.cpp
+    test_pomodoro_statistics.cpp
     ../src/core/TaskScheduler.cpp
-        ../src/core/entities/TodoItem.cpp
-        ../src/db_layer/db_helper.cpp
-        ../src/core/entities/TodoItem.h
+    ../src/core/entities/TodoItem.cpp
+    ../src/db_layer/db_helper.cpp
+    ../src/core/entities/TodoItem.h
     ../src/core/config.h
+    ../src/core/entities/Pomodoro.cpp
+    ../src/core/PomodoroStatistics.cpp
 )
 find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql)

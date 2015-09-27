@@ -27,8 +27,6 @@ public:
     ~DatePickDialog();
     DateInterval getNewInterval();
 
-private slots:
-
 private:
     Ui::DatePickDialog *ui;
 

@@ -29,9 +29,9 @@
   <widget class="QComboBox" name="cbxMonth">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>100</x>
      <y>10</y>
-     <width>91</width>
+     <width>101</width>
      <height>21</height>
     </rect>
    </property>

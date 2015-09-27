@@ -1,7 +1,3 @@
-//
-// Created by vizier on 9/21/15.
-//
-
 #include "Pomodoro.h"
 
 
@@ -14,7 +10,7 @@ void Pomodoro::setFinishTime(const QDateTime& finishTime) {
     Pomodoro::finishTime = finishTime;
 }
 
-const QDateTime& Pomodoro::getFinishTime() const {
+const QDateTime Pomodoro::getFinishTime() const {
     return finishTime;
 }
 
@@ -22,7 +18,7 @@ void Pomodoro::setStartTime(const QDateTime& startTime) {
     Pomodoro::startTime = startTime;
 }
 
-const QDateTime& Pomodoro::getStartTime() const {
+const QDateTime Pomodoro::getStartTime() const {
     return startTime;
 }
 

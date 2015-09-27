@@ -13,9 +13,9 @@ public:
     Pomodoro(const QString& name, QDateTime startTime, QDateTime finishTime);
     const QString& getName() const;
     void setName(const QString& name);
-    const QDateTime& getStartTime() const;
+    const QDateTime getStartTime() const;
     void setStartTime(const QDateTime& startTime);
-    const QDateTime& getFinishTime() const;
+    const QDateTime getFinishTime() const;
     void setFinishTime(const QDateTime& finishTime);
     QString asString() const;
 
