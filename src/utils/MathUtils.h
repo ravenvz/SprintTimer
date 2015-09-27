@@ -70,9 +70,11 @@ protected:
     int maxValueBin = 0;
     QVector<double> distribution;
 
-    void computeMaxAndAverage(int total) {
+    void computeMaxAndAverage() {
+        double total = 0;
         for (int bin = 0; bin < distribution.size(); ++bin) {
             double value = getBinValue(bin);
+            total += value;
             if (value > max) {
                 max = value;
                 maxValueBin = bin;

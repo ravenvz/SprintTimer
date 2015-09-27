@@ -24,7 +24,7 @@ TEST(WeekdayDistribution, test_empty) {
 }
 
 TEST(WeekdayDistribution, test_whatever) {
-    double expected_average = 15;
+    double expected_average = 7.5;
     double expected_max = 10.5;
     int expected_max_value_bin = 6;
     QVector<Pomodoro> increasingPomodoros;

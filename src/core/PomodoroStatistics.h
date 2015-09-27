@@ -19,7 +19,7 @@ public:
         distributeToBins(pomodoros);
         countWeekdays();
         normalizeByWeekdayCount();
-        computeMaxAndAverage(pomodoros.size());
+        computeMaxAndAverage();
     }
 
     void distributeToBins(const QVector<Pomodoro>& pomodoros) {
@@ -65,7 +65,7 @@ public:
         distributeToBins(pomodoros);
         countWorkHours();
         normalizeByWorkHours();
-        computeMaxAndAverage(numBins);
+        computeMaxAndAverage();
     }
 
     void distributeToBins(const QVector<Pomodoro>& pomodoros) {
