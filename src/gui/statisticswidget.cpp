@@ -77,9 +77,14 @@ void StatisticsWidget::updateWeekdayBarChart(PomoWeekdayDistribution& weekdayDis
 }
 
 void StatisticsWidget::updateWeekdayBarChartLegend(PomoWeekdayDistribution& weekdayDistribution) const {
-    ui->labelBestWorkdayName->setText(QDate::longDayName(weekdayDistribution.getMaxValueBin() + 1));
-    ui->labelBestWorkdayMsg->setText(QString("%1% more than average")
-         .arg(int(weekdayDistribution.getMax() * 100 / weekdayDistribution.getAverage())));
+    int relativeComparisonInPercent = int(weekdayDistribution.getMax() * 100 / weekdayDistribution.getAverage());
+    if (relativeComparisonInPercent == 0) {
+        ui->labelBestWorkdayName->setText("No data");
+        ui->labelBestWorkdayMsg->setText("");
+    } else {
+        ui->labelBestWorkdayName->setText(QDate::longDayName(weekdayDistribution.getMaxValueBin() + 1));
+        ui->labelBestWorkdayMsg->setText(QString("%1% more than average").arg(relativeComparisonInPercent));
+    }
 }
 
 void StatisticsWidget::setupTimelineDiagram() {
