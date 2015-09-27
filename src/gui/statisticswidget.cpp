@@ -1,19 +1,19 @@
 #include "statisticswidget.h"
 #include "ui_statistics_widget.h"
-// #include "core/entities/Pomodoro.h"
 #include "db_layer/db_helper.h"
-//#include "pickperiodwidget.h"
 
 
 StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent) :
     QWidget(parent),
     ui(new Ui::StatisticsWidget),
-    applicationSettings(applicationSettings)
-//    weekdayDistribution(pomodoros)
+    applicationSettings(applicationSettings),
+    currentInterval(DateInterval {QDate::currentDate().addDays(-30), QDate::currentDate()})
 {
     ui->setupUi(this);
-    connectSlots();
+    ui->widgetPickPeriod->setInterval(currentInterval);
     setupGraphs();
+    drawGraphs();
+    connectSlots();
 }
 
 StatisticsWidget::~StatisticsWidget() {
@@ -28,15 +28,16 @@ void StatisticsWidget::setupGraphs() {
     setupWeekdayBarChart();
 }
 
-void StatisticsWidget::updateGraphs() {
-    updateWeekdayBarChart();
-}
-
 void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval) {
     currentInterval = newInterval;
-    retrievePomodoros();
-    computePomodoroWorkdayDistribution();
-    updateGraphs();
+    drawGraphs();
+}
+
+void StatisticsWidget::drawGraphs() {
+    QVector<Pomodoro> pomodoros = PomodoroDataSource::getPomodorosBetween(currentInterval.startDate,
+                                                                          currentInterval.endDate);
+    PomoWeekdayDistribution weekdayDistribution = PomoWeekdayDistribution {pomodoros};
+    updateWeekdayBarChart(weekdayDistribution);
 }
 
 void StatisticsWidget::setupWeekdayBarChart() {
@@ -55,7 +56,7 @@ void StatisticsWidget::setupWeekdayBarChart() {
     ui->workdayBarChart->yAxis->setVisible(false);
 }
 
-void StatisticsWidget::updateWeekdayBarChart() {
+void StatisticsWidget::updateWeekdayBarChart(PomoWeekdayDistribution& weekdayDistribution) {
     QVector<double> ticks;
     ticks << 1 << 2 << 3 << 4 << 5 << 6 << 7;
     ui->workdayBarChart->xAxis->setTickVector(ticks);
@@ -68,14 +69,13 @@ void StatisticsWidget::updateWeekdayBarChart() {
     weekdayBarChart->setData(ticks, weekdayDistribution.getDistributionVector());
     ui->workdayBarChart->replot();
 
+    updateWeekdayBarChartLegend(weekdayDistribution);
 }
 
-void StatisticsWidget::retrievePomodoros() {
-    pomodoros = PomodoroDataSource::getPomodorosBetween(currentInterval.startDate, currentInterval.endDate);
-}
-
-void StatisticsWidget::computePomodoroWorkdayDistribution() {
-    weekdayDistribution = PomoWeekdayDistribution {pomodoros};
+void StatisticsWidget::updateWeekdayBarChartLegend(PomoWeekdayDistribution& weekdayDistribution) const {
+    ui->labelBestWorkdayName->setText(QDate::longDayName(weekdayDistribution.getMaxValueBin() + 1));
+    ui->labelBestWorkdayMsg->setText(QString("%1% more than average")
+         .arg(int(weekdayDistribution.getMax() * 100 / weekdayDistribution.getAverage())));
 }
 
 void StatisticsWidget::setupTimelineDiagram() {
