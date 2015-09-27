@@ -49,22 +49,26 @@ void StatisticsWidget::setupWeekdayBarChart() {
     pen.setColor(Qt::red);
     weekdayBarChart->setPen(pen);
     weekdayBarChart->setBrush(QBrush(Qt::green));
+    ui->workdayBarChart->setBackground(this->palette().color(QWidget::backgroundRole()));
     ui->workdayBarChart->xAxis->grid()->setVisible(false);
     ui->workdayBarChart->yAxis->grid()->setVisible(false);
-    ui->workdayBarChart->xAxis->grid()->setSubGridVisible(false);
-    ui->workdayBarChart->xAxis->setVisible(false);
+    ui->workdayBarChart->xAxis->setAutoSubTicks(false);
+    ui->workdayBarChart->xAxis->setSubTickCount(0);
+    QPen tickPen;
+    tickPen.setStyle(Qt::NoPen);
+    ui->workdayBarChart->xAxis->setTickPen(tickPen);
     ui->workdayBarChart->yAxis->setVisible(false);
 }
 
 void StatisticsWidget::updateWeekdayBarChart(PomoWeekdayDistribution& weekdayDistribution) {
     QVector<double> ticks;
-    ticks << 1 << 2 << 3 << 4 << 5 << 6 << 7;
+    ticks << 0 << 1 << 2 << 3 << 4 << 5 << 6 << 7;
     ui->workdayBarChart->xAxis->setTickVector(ticks);
-//    QVector<QString> labels;
-//    labels << "Mo" << "Tu" << "We" << "Th" << "Fr" << "Sa" << "Su";
-//    ui->workdayBarChart->xAxis->setAutoTickLabels(false);
-//    ui->workdayBarChart->xAxis->setTickVectorLabels(labels);
-    ui->workdayBarChart->xAxis->setRange(0, ticks.size() + 1);
+    QVector<QString> labels;
+    labels << "" << "Mo" << "Tu" << "We" << "Th" << "Fr" << "Sa" << "Su";
+    ui->workdayBarChart->xAxis->setAutoTickLabels(false);
+    ui->workdayBarChart->xAxis->setTickVectorLabels(labels);
+    ui->workdayBarChart->xAxis->setRange(-0.5, ticks.size() - 1.5);
     ui->workdayBarChart->yAxis->setRange(0, weekdayDistribution.getMax());
     weekdayBarChart->setData(ticks, weekdayDistribution.getDistributionVector());
     ui->workdayBarChart->replot();
