@@ -58,7 +58,7 @@
     </rect>
    </property>
    <property name="displayFormat">
-    <string>dd.mm.yyyy</string>
+    <string>dd.MM.yyyy</string>
    </property>
   </widget>
   <widget class="QTimeEdit" name="timeEditPomodoroStartTime">
