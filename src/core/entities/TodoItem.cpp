@@ -5,11 +5,11 @@
 TodoItem::TodoItem() {}
 
 TodoItem::TodoItem(QString name,
-         unsigned estimatedPomodoros,
-         unsigned spentPomodoros,
-         QStringList tags,
-         bool completed,
-         int id) :
+                   unsigned estimatedPomodoros,
+                   unsigned spentPomodoros,
+                   QStringList tags,
+                   bool completed,
+                   int id) :
     name(name),
     estimatedPomodoros(estimatedPomodoros),
     spentPomodoros(spentPomodoros),
