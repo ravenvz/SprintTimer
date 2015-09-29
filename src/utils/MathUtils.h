@@ -23,11 +23,22 @@ class Distribution
 {
 
 public:
-    Distribution(int numBins) :
+    explicit Distribution(int numBins) :
         numBins(numBins),
         distribution(QVector<double> (numBins, 0))
     {
 
+    }
+
+    explicit Distribution(QVector<double> distribution) :
+        numBins(distribution.size()),
+        distribution(distribution)
+    {
+        computeMaxAndAverage();
+    }
+
+    int getNumBins() const {
+        return numBins;
     }
 
     double getAverage() const {
@@ -64,7 +75,7 @@ public:
 
 
 protected:
-    double average;
+    double average = 0;
     double max = 0;
     int numBins;
     int maxValueBin = 0;

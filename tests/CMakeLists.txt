@@ -7,6 +7,7 @@ set(SOURCE_FILES
     test_pomodoro_gateway.cpp
     test_todoitem.cpp
     test_pomodoro_statistics.cpp
+    test_math_utils.cpp
     ../src/core/TaskScheduler.cpp
     ../src/core/entities/TodoItem.cpp
     ../src/db_layer/db_helper.cpp
@@ -14,6 +15,7 @@ set(SOURCE_FILES
     ../src/core/config.h
     ../src/core/entities/Pomodoro.cpp
     ../src/core/PomodoroStatistics.cpp
+    ../src/utils/MathUtils.cpp
 )
 find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql)
