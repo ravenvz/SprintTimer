@@ -36,8 +36,8 @@ private:
     void setupTimelineDiagram();
     void setupTopTagsDiagram();
     void setupWorkHoursDiagram();
-    void updateWeekdayBarChart(Distribution* weekdayDistribution);
-    void updateWeekdayBarChartLegend(Distribution* weekdayDistribution);
+    void updateWeekdayBarChart(Distribution<double>* weekdayDistribution);
+    void updateWeekdayBarChartLegend(Distribution<double>* weekdayDistribution);
 };
 
 

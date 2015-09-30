@@ -19,19 +19,20 @@ public:
 };
 
 
+template <class T>
 class Distribution
 {
 
 public:
     explicit Distribution(int binNumber) :
         numBins(binNumber),
-        distribution(QVector<double> (binNumber, 0)),
+        distribution(QVector<T> (binNumber, 0)),
         binFrequency(QVector<int> (binNumber, 1))
     {
 
     }
 
-    explicit Distribution(QVector<double> distribution) :
+    explicit Distribution(QVector<T> distribution) :
         numBins(distribution.size()),
         distribution(distribution),
         binFrequency(QVector<int> (distribution.size(), 1))
@@ -39,7 +40,7 @@ public:
         computeMaxAndAverage();
     }
 
-    Distribution(QVector<double> distribution, QVector<int> binFrequency) :
+    Distribution(QVector<T> distribution, QVector<int> binFrequency) :
         numBins(distribution.size()),
         distribution(distribution),
         binFrequency(binFrequency)
@@ -80,7 +81,7 @@ public:
         return bin >= 0 && bin < numBins;
     }
 
-    QVector<double> getDistributionVector() const {
+    QVector<T> getDistributionVector() const {
         return distribution;
     }
 
@@ -90,7 +91,7 @@ protected:
     double max = 0;
     int numBins = 0;
     int maxValueBin = 0;
-    QVector<double> distribution;
+    QVector<T> distribution;
     QVector<int> binFrequency;
     QStringList binLabels;
 

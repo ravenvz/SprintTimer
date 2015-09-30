@@ -36,7 +36,7 @@ void StatisticsWidget::drawGraphs() {
     QVector<Pomodoro> pomodoros = PomodoroDataSource::getPomodorosBetween(currentInterval.startDate,
                                                                           currentInterval.endDate);
     PomodoroStatItem statistics {pomodoros, currentInterval};
-    Distribution* weekdayDistribution = statistics.getWeekdayDistribution();
+    Distribution<double>* weekdayDistribution = statistics.getWeekdayDistribution();
     updateWeekdayBarChart(weekdayDistribution);
 }
 
@@ -60,7 +60,7 @@ void StatisticsWidget::setupWeekdayBarChart() {
 //    ui->workdayBarChart->yAxis->setVisible(false);
 }
 
-void StatisticsWidget::updateWeekdayBarChart(Distribution* weekdayDistribution) {
+void StatisticsWidget::updateWeekdayBarChart(Distribution<double>* weekdayDistribution) {
     QVector<double> ticks;
     ticks << 0 << 1 << 2 << 3 << 4 << 5 << 6 << 7;
     ui->workdayBarChart->xAxis->setTickVector(ticks);
@@ -76,7 +76,7 @@ void StatisticsWidget::updateWeekdayBarChart(Distribution* weekdayDistribution) 
     updateWeekdayBarChartLegend(weekdayDistribution);
 }
 
-void StatisticsWidget::updateWeekdayBarChartLegend(Distribution* weekdayDistribution) {
+void StatisticsWidget::updateWeekdayBarChartLegend(Distribution<double>* weekdayDistribution) {
     int relativeComparisonInPercent = int(weekdayDistribution->getMax() * 100 / weekdayDistribution->getAverage());
     if (relativeComparisonInPercent == 0) {
         ui->labelBestWorkdayName->setText("No data");

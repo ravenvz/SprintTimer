@@ -17,7 +17,7 @@ TEST(PomoStatItem, test_empty) {
     double expected_max = 0;
     QVector<double> expected_distribution = QVector<double> (7, 0);
 
-    Distribution* weekdayDistribution = statistics.getWeekdayDistribution();
+    Distribution<double>* weekdayDistribution = statistics.getWeekdayDistribution();
     QVector<double> distributionVector = weekdayDistribution->getDistributionVector();
 
     DOUBLES_EQUAL(expected_average, weekdayDistribution->getAverage(), threshold)
@@ -46,7 +46,7 @@ TEST(PomoStatItem, test_whatever) {
     QVector<double> expected_distribution {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
     PomodoroStatItem statistics {increasingPomodoros, interval};
 
-    Distribution* weekdayDistribution = statistics.getWeekdayDistribution();
+    Distribution<double>* weekdayDistribution = statistics.getWeekdayDistribution();
     QVector<double> distributionVector = weekdayDistribution->getDistributionVector();
 
     CHECK_EQUAL(expected_max_value_bin, weekdayDistribution->getMaxValueBin())
