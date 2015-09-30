@@ -71,12 +71,6 @@ public:
         return 0;
     }
 
-    void incrementBinValue(int bin) {
-        if (isValidBin(bin)) {
-            distribution[bin]++;
-        }
-    }
-
     bool isValidBin(int bin) const {
         return bin >= 0 && bin < numBins;
     }
