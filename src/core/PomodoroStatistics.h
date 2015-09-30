@@ -6,52 +6,7 @@
 #include "core/entities/Pomodoro.h"
 #include <QDebug>
 #include "utils/MathUtils.h"
-
-
-class PomoWeekdayDistribution : public Distribution
-{
-
-public:
-    PomoWeekdayDistribution(const QVector<Pomodoro>& pomodoros) :
-        Distribution(7)
-    {
-        if (pomodoros.empty()) return;
-        distributeToBins(pomodoros);
-        countWeekdays();
-        normalizeByWeekdayCount();
-        computeMaxAndAverage();
-    }
-
-    void distributeToBins(const QVector<Pomodoro>& pomodoros) {
-        for (const Pomodoro& pomo : pomodoros) {
-            QDate pomoDate = pomo.getStartTime().date();
-            minDate = std::min(minDate, pomoDate);
-            maxDate = std::max(maxDate, pomoDate);
-            incrementBinValue(pomo.getStartTime().date().dayOfWeek() - 1);
-        }
-    }
-
-    void countWeekdays() {
-        for (int weekdayNum = 0; weekdayNum <= minDate.daysTo(maxDate); ++weekdayNum) {
-            weekdayCount[minDate.addDays(weekdayNum).dayOfWeek() - 1]++;
-        }
-    }
-
-    void normalizeByWeekdayCount() {
-        for (int i = 0; i < distribution.size(); ++i) {
-            if (weekdayCount[i] > 0)
-                distribution[i] /= weekdayCount[i];
-        }
-    }
-
-private:
-    // TODO if ensured that pomodoros are sorted by date, it is possible
-    // to use first and last pomodoros to retrieve dates.
-    QDate minDate = QDate(3000, 1, 1);
-    QDate maxDate = QDate(1, 1, 1);
-    QVector<int> weekdayCount = QVector<int> (7, 0);
-
-};
+#include "TaskScheduler.h"
 
 
 class PomoWorkTimeDistribution : public Distribution
@@ -103,7 +58,7 @@ class PomoDailyDistribution : public Distribution
 {
 
 public:
-    PomoDailyDistribution(QVector<Pomodoro>& pomodoros) :
+    PomoDailyDistribution(const QVector<Pomodoro>& pomodoros) :
         Distribution(30) {
     }
 
@@ -113,29 +68,50 @@ public:
 class PomodoroStatItem
 {
 public:
-    PomodoroStatItem(QVector<Pomodoro>& pomodoros) :
-        weekdayDistribution(PomoWeekdayDistribution {pomodoros}),
-        workTimeDistribution(PomoWorkTimeDistribution {pomodoros}),
-        dailyDistribution(PomoDailyDistribution {pomodoros})
+    PomodoroStatItem(const QVector<Pomodoro>& pomodoros, const DateInterval& dateInterval) :
+         interval(dateInterval)
     {
+        weekdayDistribution = new Distribution {computeWeekdayDistribution(pomodoros), countWeekdays()};
     }
 
-    const PomoWeekdayDistribution& getWeekdayDistribution() const {
+    ~PomodoroStatItem() {
+        delete weekdayDistribution;
+    }
+
+    Distribution* getWeekdayDistribution() const {
         return weekdayDistribution;
     }
 
-    const PomoWorkTimeDistribution& getWorkTimeDistribution() const {
-        return workTimeDistribution;
+    // const Distribution& getWorkTimeDistribution() const {
+    //     return workTimeDistribution;
+    // }
+    //
+    // const Distribution& getDailyDistribution() const {
+    //     return dailyDistribution;
+    // }
+    
+    QVector<int> countWeekdays() const {
+        QVector<int> result (7, 0);
+        for (int weekdayNum = 0; weekdayNum <= interval.startDate.daysTo(interval.endDate); ++weekdayNum) {
+            result[interval.startDate.addDays(weekdayNum).dayOfWeek() - 1]++;
+        }
+        return result;
     }
-
-    const PomoDailyDistribution& getDailyDistribution() const {
-        return dailyDistribution;
+    
+     QVector<double> computeWeekdayDistribution(const QVector<Pomodoro>& pomodoros) const {
+        QVector<double> distribution (7, 0);
+        if (pomodoros.empty()) return distribution;
+        for (const Pomodoro& pomo : pomodoros) {
+            distribution[pomo.getStartTime().date().dayOfWeek() - 1]++;
+        }
+        return distribution;
     }
 
 private:
-    PomoWeekdayDistribution weekdayDistribution;
-    PomoWorkTimeDistribution workTimeDistribution;
-    PomoDailyDistribution dailyDistribution;
+     const DateInterval interval;
+    Distribution* weekdayDistribution;
+    // Distribution workTimeDistribution;
+    // Distribution dailyDistribution;
 };
 
 

@@ -23,17 +23,28 @@ class Distribution
 {
 
 public:
-    explicit Distribution(int numBins) :
-        numBins(numBins),
-        distribution(QVector<double> (numBins, 0))
+    explicit Distribution(int binNumber) :
+        numBins(binNumber),
+        distribution(QVector<double> (binNumber, 0)),
+        binFrequency(QVector<int> (binNumber, 1))
     {
 
     }
 
     explicit Distribution(QVector<double> distribution) :
         numBins(distribution.size()),
-        distribution(distribution)
+        distribution(distribution),
+        binFrequency(QVector<int> (distribution.size(), 1))
     {
+        computeMaxAndAverage();
+    }
+
+    Distribution(QVector<double> distribution, QVector<int> binFrequency) :
+        numBins(distribution.size()),
+        distribution(distribution),
+        binFrequency(binFrequency)
+    {
+        normalizeByBinFrequency();
         computeMaxAndAverage();
     }
 
@@ -53,7 +64,7 @@ public:
         return maxValueBin;
     }
 
-    double getBinValue(int bin) {
+    double getBinValue(int bin) const {
         if (isValidBin(bin))
             return distribution[bin];
         return 0;
@@ -65,11 +76,11 @@ public:
         }
     }
 
-    bool isValidBin(int bin) {
+    bool isValidBin(int bin) const {
         return bin >= 0 && bin < numBins;
     }
 
-    QVector<double> getDistributionVector() {
+    QVector<double> getDistributionVector() const {
         return distribution;
     }
 
@@ -77,9 +88,11 @@ public:
 protected:
     double average = 0;
     double max = 0;
-    int numBins;
+    int numBins = 0;
     int maxValueBin = 0;
     QVector<double> distribution;
+    QVector<int> binFrequency;
+    QStringList binLabels;
 
     void computeMaxAndAverage() {
         double total = 0;
@@ -92,6 +105,13 @@ protected:
             }
         }
         average = total / double(numBins);
+    }
+
+    void normalizeByBinFrequency() {
+        for (int bin = 0; bin < numBins; ++bin) {
+            if (binFrequency[bin] > 0)
+                distribution[bin] /= binFrequency[bin];
+        }
     }
 };
 

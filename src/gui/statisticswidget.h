@@ -36,8 +36,8 @@ private:
     void setupTimelineDiagram();
     void setupTopTagsDiagram();
     void setupWorkHoursDiagram();
-    void updateWeekdayBarChart(PomoWeekdayDistribution& weekdayDistribution);
-    void updateWeekdayBarChartLegend(PomoWeekdayDistribution& weekdayDistribution) const;
+    void updateWeekdayBarChart(Distribution* weekdayDistribution);
+    void updateWeekdayBarChartLegend(Distribution* weekdayDistribution);
 };
 
 

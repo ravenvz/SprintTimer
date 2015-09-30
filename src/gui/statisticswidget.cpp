@@ -36,7 +36,8 @@ void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval) {
 void StatisticsWidget::drawGraphs() {
     QVector<Pomodoro> pomodoros = PomodoroDataSource::getPomodorosBetween(currentInterval.startDate,
                                                                           currentInterval.endDate);
-    PomoWeekdayDistribution weekdayDistribution = PomoWeekdayDistribution {pomodoros};
+    PomodoroStatItem statistics {pomodoros, currentInterval};
+    Distribution* weekdayDistribution = statistics.getWeekdayDistribution();
     updateWeekdayBarChart(weekdayDistribution);
 }
 
@@ -57,10 +58,10 @@ void StatisticsWidget::setupWeekdayBarChart() {
     QPen tickPen;
     tickPen.setStyle(Qt::NoPen);
     ui->workdayBarChart->xAxis->setTickPen(tickPen);
-    ui->workdayBarChart->yAxis->setVisible(false);
+//    ui->workdayBarChart->yAxis->setVisible(false);
 }
 
-void StatisticsWidget::updateWeekdayBarChart(PomoWeekdayDistribution& weekdayDistribution) {
+void StatisticsWidget::updateWeekdayBarChart(Distribution* weekdayDistribution) {
     QVector<double> ticks;
     ticks << 0 << 1 << 2 << 3 << 4 << 5 << 6 << 7;
     ui->workdayBarChart->xAxis->setTickVector(ticks);
@@ -69,20 +70,20 @@ void StatisticsWidget::updateWeekdayBarChart(PomoWeekdayDistribution& weekdayDis
     ui->workdayBarChart->xAxis->setAutoTickLabels(false);
     ui->workdayBarChart->xAxis->setTickVectorLabels(labels);
     ui->workdayBarChart->xAxis->setRange(-0.5, ticks.size() - 1.5);
-    ui->workdayBarChart->yAxis->setRange(0, weekdayDistribution.getMax());
-    weekdayBarChart->setData(ticks, weekdayDistribution.getDistributionVector());
+    ui->workdayBarChart->yAxis->setRange(0, weekdayDistribution->getMax());
+    weekdayBarChart->setData(ticks, weekdayDistribution->getDistributionVector());
     ui->workdayBarChart->replot();
 
     updateWeekdayBarChartLegend(weekdayDistribution);
 }
 
-void StatisticsWidget::updateWeekdayBarChartLegend(PomoWeekdayDistribution& weekdayDistribution) const {
-    int relativeComparisonInPercent = int(weekdayDistribution.getMax() * 100 / weekdayDistribution.getAverage());
+void StatisticsWidget::updateWeekdayBarChartLegend(Distribution* weekdayDistribution) {
+    int relativeComparisonInPercent = int(weekdayDistribution->getMax() * 100 / weekdayDistribution->getAverage());
     if (relativeComparisonInPercent == 0) {
         ui->labelBestWorkdayName->setText("No data");
         ui->labelBestWorkdayMsg->setText("");
     } else {
-        ui->labelBestWorkdayName->setText(QDate::longDayName(weekdayDistribution.getMaxValueBin() + 1));
+        ui->labelBestWorkdayName->setText(QDate::longDayName(weekdayDistribution->getMaxValueBin() + 1));
         ui->labelBestWorkdayMsg->setText(QString("%1% more than average").arg(relativeComparisonInPercent));
     }
 }

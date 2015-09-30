@@ -2,6 +2,7 @@
 #include <QtCore/qstringlistmodel.h>
 #include "pickperiodwidget.h"
 #include "ui_pickperiodwidget.h"
+//#include "TaskScheduler.h"
 
 
 PickPeriodWidget::PickPeriodWidget(QWidget* parent) :

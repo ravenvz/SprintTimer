@@ -2,20 +2,11 @@
 #define DATEPICKDIALOG_H
 
 #include <QDialog>
+#include "core/TaskScheduler.h"
 
 namespace Ui {
     class DatePickDialog;
 }
-
-
-struct DateInterval {
-    QDate startDate;
-    QDate endDate;
-
-    QString toString() {
-        return QString("%1 - %2").arg(startDate.toString()).arg(endDate.toString());
-    }
-};
 
 
 class DatePickDialog : public QDialog

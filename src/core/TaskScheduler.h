@@ -12,6 +12,16 @@ struct TimeInterval {
 };
 
 
+struct DateInterval {
+    QDate startDate;
+    QDate endDate;
+
+    QString toString() {
+        return QString("%1 - %2").arg(startDate.toString()).arg(endDate.toString());
+    }
+};
+
+
 class TaskScheduler {
 
 public:
@@ -34,7 +44,6 @@ private:
     TaskState currentState;
     TimeInterval currentTimeInterval;
 };
-
 
 
 #endif //POMODORO_TASKSCHEDULER_H
