@@ -151,7 +151,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Last 3 Months</string>
+       <string>Last 12 weeks</string>
       </property>
      </widget>
     </item>
