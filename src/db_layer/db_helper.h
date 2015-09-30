@@ -36,8 +36,8 @@ public:
         QVector<Pomodoro> result;
         QSqlQuery query;
         query.prepare("select id, name, start_time, finish_time "
-                "from pomodoro where start_time >= (:start_date) and "
-                "start_time <= (:end_date) ");
+                "from pomodoro where date(start_time) >= (:start_date) and "
+                "date(start_time) <= (:end_date) ");
         query.bindValue(":start_date", QVariant(startDate));
         query.bindValue(":end_date", QVariant(endDate));
         query.exec();
