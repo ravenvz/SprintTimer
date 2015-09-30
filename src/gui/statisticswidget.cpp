@@ -62,8 +62,11 @@ void StatisticsWidget::updateWeekdayBarChart(Distribution<double>* weekdayDistri
     QVector<double> ticks;
     ticks << 0 << 1 << 2 << 3 << 4 << 5 << 6 << 7;
     ui->workdayBarChart->xAxis->setTickVector(ticks);
-    QVector<QString> labels;
-    labels << "" << "Mo" << "Tu" << "We" << "Th" << "Fr" << "Sa" << "Su";
+    QVector<QString> labels {""};
+    for (int i = 1; i <= 7; ++i) {
+        labels << QDate::shortDayName(i);
+    }
+    // TODO replace ticks and labels with Map
     ui->workdayBarChart->xAxis->setAutoTickLabels(false);
     ui->workdayBarChart->xAxis->setTickVectorLabels(labels);
     ui->workdayBarChart->xAxis->setRange(-0.5, ticks.size() - 1.5);
