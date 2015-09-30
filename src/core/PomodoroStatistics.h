@@ -7,6 +7,7 @@
 #include <QDebug>
 #include "utils/MathUtils.h"
 #include "TaskScheduler.h"
+#include "db_layer/db_helper.h"
 
 
 //class PomoWorkTimeDistribution
@@ -67,10 +68,20 @@
 
 class PomodoroStatItem
 {
+
 public:
+
     PomodoroStatItem(const QVector<Pomodoro>& pomodoros, const DateInterval& dateInterval) :
-         interval(dateInterval)
+        interval(dateInterval)
     {
+        weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(pomodoros), countWeekdays()};
+    }
+
+    explicit PomodoroStatItem(const DateInterval& dateInterval) :
+        interval(dateInterval)
+    {
+        const QVector<Pomodoro> pomodoros = PomodoroDataSource::getPomodorosBetween(dateInterval.startDate,
+                                                                                    dateInterval.endDate);
         weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(pomodoros), countWeekdays()};
     }
 

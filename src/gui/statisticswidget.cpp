@@ -33,9 +33,7 @@ void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval) {
 }
 
 void StatisticsWidget::drawGraphs() {
-    QVector<Pomodoro> pomodoros = PomodoroDataSource::getPomodorosBetween(currentInterval.startDate,
-                                                                          currentInterval.endDate);
-    PomodoroStatItem statistics {pomodoros, currentInterval};
+    PomodoroStatItem statistics {currentInterval};
     Distribution<double>* weekdayDistribution = statistics.getWeekdayDistribution();
     updateWeekdayBarChart(weekdayDistribution);
 }
