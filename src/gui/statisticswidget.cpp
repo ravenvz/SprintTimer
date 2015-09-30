@@ -6,11 +6,10 @@
 StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent) :
     QWidget(parent),
     ui(new Ui::StatisticsWidget),
-    applicationSettings(applicationSettings),
-    currentInterval(DateInterval {QDate::currentDate().addDays(-30), QDate::currentDate()})
+    applicationSettings(applicationSettings)
 {
     ui->setupUi(this);
-    ui->widgetPickPeriod->setInterval(currentInterval);
+    currentInterval = ui->widgetPickPeriod->getInterval();
     setupGraphs();
     drawGraphs();
     connectSlots();

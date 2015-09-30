@@ -8,6 +8,7 @@ HistoryView::HistoryView(QWidget* parent) :
     ui(new Ui::HistoryView)
 {
     ui->setupUi(this);
+    selectedDateInterval = ui->widgetPickPeriod->getInterval();
     displayHistory();
     connectSlots();
 }

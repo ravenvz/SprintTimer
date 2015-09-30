@@ -8,7 +8,8 @@
 PickPeriodWidget::PickPeriodWidget(QWidget* parent) :
     QWidget(parent),
     ui(new Ui::PickPeriodWidget),
-    selectedInterval(DateInterval {QDate::currentDate().addDays(-30), QDate::currentDate()})
+    selectedInterval(DateInterval {QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1),
+                                   QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1).addMonths(1).addDays(-1)})
 {
     ui->setupUi(this);
     QStringList years {"2015", "2016"};
@@ -20,8 +21,8 @@ PickPeriodWidget::PickPeriodWidget(QWidget* parent) :
     QStringListModel* monthsModel = new QStringListModel(months);
     ui->cbxMonth->setModel(monthsModel);
     ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
-    updateInterval();
     connectSlots();
+    updateInterval();
 }
 
 PickPeriodWidget::~PickPeriodWidget()
@@ -62,4 +63,8 @@ void PickPeriodWidget::updateInterval() {
 void PickPeriodWidget::updateInterval(DateInterval interval) {
     selectedInterval = interval;
     emit intervalChanged(selectedInterval);
+}
+
+DateInterval PickPeriodWidget::getInterval() const {
+    return selectedInterval;
 }

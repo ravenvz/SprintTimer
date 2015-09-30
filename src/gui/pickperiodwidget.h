@@ -16,6 +16,7 @@ public:
     explicit PickPeriodWidget(QWidget* parent = 0);
     ~PickPeriodWidget();
     void setInterval(DateInterval interval);
+    DateInterval getInterval() const;
 
 signals:
     void intervalChanged(DateInterval newInterval);
