@@ -30,4 +30,5 @@ TEST(Distribution, test_correctly_initializes_from_distribution_vector) {
     DOUBLES_EQUAL(2, distribution.getAverage(), tolerance)
     DOUBLES_EQUAL(4, distribution.getMax(), tolerance)
     CHECK_EQUAL(3, distribution.getMaxValueBin())
+    CHECK_EQUAL(16, distribution.getTotal())
 }

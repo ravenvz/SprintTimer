@@ -5,6 +5,8 @@
 #include <QProgressBar>
 #include "core/config.h"
 #include <QGridLayout>
+#include <src/utils/MathUtils.h>
+#include "core/PomodoroStatistics.h"
 
 namespace Ui {
     class GoalsView;
@@ -26,12 +28,7 @@ private slots:
 private:
     Ui::GoalsView* ui;
     Config& applicationSettings;
-    QVector<unsigned> lastThirty;
-    QVector<unsigned> lastQuarter;
-    QVector<unsigned> lastYear;
-    unsigned lastThirtyTotal;
-    unsigned lastQuarterTotal;
-    unsigned lastYearTotal;
+    GoalStatItem goalStatistics;
     const QColor targetGoalReached = QColor("#6baa15");
     const QColor overwork = Qt::red;
     const QColor workInProgress = Qt::gray;
@@ -43,8 +40,8 @@ private:
     void drawLastQuarterDiagram();
     void drawLastYearDiagram();
     void clearDiagramLayout(QGridLayout* layout);
-
     void updateProgressBar(QProgressBar* bar, unsigned goal, int value);
+    QString formatDecimal(double decimal) const;
 };
 
 

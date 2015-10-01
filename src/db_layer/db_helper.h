@@ -50,7 +50,7 @@ public:
         return result;
     }
 
-    static QVector<unsigned> getNumCompletedPomodorosForLastThirtyDays() {
+    static QVector<unsigned> getPomodorosForLastThirtyDays() {
         QVector<unsigned> result;
         QDate today = QDate::currentDate();
         QDate thirtyDaysAgo = today.addDays(-30);
@@ -70,7 +70,7 @@ public:
         return result;
     }
 
-    static QVector<unsigned> getCompletedPomodorosDistributionForLastThreeMonths() {
+    static QVector<unsigned> getPomodorosForLastTwelveWeeks() {
         QVector<unsigned> result;
         QDate today = QDate::currentDate();
         QDate startDate = today.addDays(-7*11 - today.dayOfWeek());
@@ -90,7 +90,7 @@ public:
         return result;
     }
 
-    static QVector<unsigned> getCompletedPomodorosDistributionForLastTwelveMonths() {
+    static QVector<unsigned> getPomodorosForLastTwelveMonths() {
         QVector<unsigned> result;
         QDate today = QDate::currentDate();
         QDate startDate = today.addMonths(-11).addDays(-today.day());

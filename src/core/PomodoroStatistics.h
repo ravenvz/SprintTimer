@@ -65,6 +65,40 @@
 //
 //};
 
+class GoalStatItem
+{
+
+public:
+    GoalStatItem() {
+        lastThirtyDays = new Distribution<unsigned> {PomodoroDataSource::getPomodorosForLastThirtyDays()};
+        lastTwelveWeeks = new Distribution<unsigned> {PomodoroDataSource::getPomodorosForLastTwelveWeeks()};
+        lastTwelveMonths = new Distribution<unsigned> {PomodoroDataSource::getPomodorosForLastTwelveMonths()};
+    }
+
+    ~GoalStatItem() {
+        delete lastThirtyDays;
+        delete lastTwelveWeeks;
+        delete lastTwelveMonths;
+    }
+
+    Distribution<unsigned>* getDistributionForLastThirtyDays() const {
+        return lastThirtyDays;
+    }
+
+    Distribution<unsigned>* getDistributionForLastTwelveWeeks() const {
+        return lastTwelveWeeks;
+    }
+
+    Distribution<unsigned>* getDistributionForLastTwelveMonths() const {
+        return lastTwelveMonths;
+    }
+
+private:
+    Distribution<unsigned>* lastThirtyDays;
+    Distribution<unsigned>* lastTwelveWeeks;
+    Distribution<unsigned>* lastTwelveMonths;
+};
+
 
 class PomodoroStatItem
 {
