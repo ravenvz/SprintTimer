@@ -65,7 +65,7 @@ public:
         return maxValueBin;
     }
 
-    double getBinValue(int bin) const {
+    T getBinValue(int bin) const {
         if (isValidBin(bin))
             return distribution[bin];
         return 0;
@@ -79,27 +79,34 @@ public:
         return distribution;
     }
 
+    T getTotal() const {
+        return total;
+    }
 
-protected:
+
+private:
     double average = 0;
     double max = 0;
     int numBins = 0;
     int maxValueBin = 0;
+    T total;
     QVector<T> distribution;
     QVector<int> binFrequency;
     QStringList binLabels;
 
     void computeMaxAndAverage() {
-        double total = 0;
+        // TODO what if there is an overflow?
+        T sum = 0;
         for (int bin = 0; bin < distribution.size(); ++bin) {
             double value = getBinValue(bin);
-            total += value;
+            sum += value;
             if (value > max) {
                 max = value;
                 maxValueBin = bin;
             }
         }
-        average = total / double(numBins);
+        total = sum;
+        average = sum / double(numBins);
     }
 
     void normalizeByBinFrequency() {
