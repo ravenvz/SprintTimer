@@ -10,12 +10,7 @@
 class MathUtils {
 
 public:
-    static double average(unsigned total, int numBins);
-    static QString averageAsQString(unsigned total, int numBins);
     static double percentage(unsigned chunk, unsigned total);
-    static QString percentageAsQString(unsigned chunk, unsigned total);
-    static unsigned int sum(const QVector<unsigned>& values);
-
 };
 
 
@@ -95,6 +90,7 @@ private:
     QStringList binLabels;
 
     void computeMaxAndAverage() {
+        if (numBins == 0) return;
         // TODO what if there is an overflow?
         T sum = 0;
         for (int bin = 0; bin < distribution.size(); ++bin) {

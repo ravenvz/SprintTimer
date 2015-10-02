@@ -7,7 +7,29 @@ TEST_GROUP(PomoStatItem) {
     const double threshold = 0.00001;
 };
 
-TEST(PomoStatItem, test_empty) {
+TEST(PomoStatItem, test_empty_daily_statistics) {
+    QVector<Pomodoro> pomodoros;
+    DateInterval interval;
+    interval.startDate = QDate::currentDate();
+    interval.endDate = QDate::currentDate();
+    PomodoroStatItem statistics {pomodoros, interval};
+    double expected_average = 0;
+    double expected_max = 0;
+    QVector<double> expected_distribution;
+
+    Distribution<unsigned>* dailyDistribution = statistics.getDailyDistribution();
+    QVector<unsigned> distributionVector = dailyDistribution->getDistributionVector();
+
+    CHECK_EQUAL(0, dailyDistribution->getNumBins())
+    DOUBLES_EQUAL(expected_average, dailyDistribution->getAverage(), threshold)
+    DOUBLES_EQUAL(expected_max, dailyDistribution->getMax(), threshold)
+    CHECK_EQUAL(expected_distribution.size(), distributionVector.size())
+    for (int i = 0; i < expected_distribution.size(); ++i) {
+        DOUBLES_EQUAL(expected_distribution[i], distributionVector[i], threshold)
+    }
+}
+
+TEST(PomoStatItem, test_empty_weekday_statistics) {
     QVector<Pomodoro> pomodoros;
     DateInterval interval;
     interval.startDate = QDate::currentDate();
@@ -28,7 +50,41 @@ TEST(PomoStatItem, test_empty) {
     }
 }
 
-TEST(PomoStatItem, test_whatever) {
+TEST(PomoStatItem, test_computes_daily_distribution_correctly) {
+    double expected_average = 24;
+    double expected_max = 47;
+    int expected_max_value_bin = 46;
+    unsigned expected_total = 1128;
+    QVector<Pomodoro> pomodoros;
+    DateInterval interval;
+    interval.startDate = QDate::currentDate();
+    interval.endDate = QDate::currentDate().addDays(47);
+    QVector<unsigned> expectedDistributionVector (47, 0);
+    for (int i = 0; i <= 47; ++i) {
+        for (int j = 0; j < i + 1; ++j) {
+            pomodoros << Pomodoro {QString("Irrelevant"),
+                                   QDateTime(QDate::currentDate().addDays(i)),
+                                   QDateTime(QDate::currentDate().addDays(i))};
+            expectedDistributionVector[i]++;
+        }
+    }
+
+    PomodoroStatItem statistics {pomodoros, interval};
+    Distribution<unsigned>* distribution = statistics.getDailyDistribution();
+    QVector<unsigned> distributionVector = distribution->getDistributionVector();
+
+    CHECK_EQUAL(expectedDistributionVector.size(), distribution->getNumBins())
+    CHECK_EQUAL(expected_max_value_bin, distribution->getMaxValueBin())
+    DOUBLES_EQUAL(expected_average, distribution->getAverage(), threshold)
+    CHECK_EQUAL(expected_max, distribution->getMax())
+    CHECK_EQUAL(expected_total, distribution->getTotal())
+
+    for (int i = 0; i < expectedDistributionVector.size(); ++i) {
+        DOUBLES_EQUAL(expectedDistributionVector[i], distributionVector[i], threshold)
+    }
+}
+
+TEST(PomoStatItem, test_computes_weekday_distribution_correctly) {
     double expected_average = 7.5;
     double expected_max = 10.5;
     int expected_max_value_bin = 6;

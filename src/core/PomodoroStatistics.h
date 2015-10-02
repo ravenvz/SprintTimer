@@ -108,6 +108,7 @@ public:
     PomodoroStatItem(const QVector<Pomodoro>& pomodoros, const DateInterval& dateInterval) :
         interval(dateInterval)
     {
+        dailyDistribution = new Distribution<unsigned> {computeDailyDistribution(pomodoros, dateInterval)};
         weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(pomodoros), countWeekdays()};
     }
 
@@ -116,34 +117,36 @@ public:
     {
         const QVector<Pomodoro> pomodoros = PomodoroDataSource::getPomodorosBetween(dateInterval.startDate,
                                                                                     dateInterval.endDate);
+        dailyDistribution = new Distribution<unsigned> {computeDailyDistribution(pomodoros, dateInterval)};
         weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(pomodoros), countWeekdays()};
     }
 
     ~PomodoroStatItem() {
+        delete dailyDistribution;
         delete weekdayDistribution;
+    }
+
+    Distribution<unsigned>* getDailyDistribution() const {
+        return dailyDistribution;
     }
 
     Distribution<double>* getWeekdayDistribution() const {
         return weekdayDistribution;
     }
 
-    // const Distribution& getWorkTimeDistribution() const {
-    //     return workTimeDistribution;
-    // }
-    //
     // const Distribution& getDailyDistribution() const {
     //     return dailyDistribution;
     // }
-    
-    QVector<int> countWeekdays() const {
-        QVector<int> result (7, 0);
-        for (int weekdayNum = 0; weekdayNum <= interval.startDate.daysTo(interval.endDate); ++weekdayNum) {
-            result[interval.startDate.addDays(weekdayNum).dayOfWeek() - 1]++;
+
+    QVector<unsigned> computeDailyDistribution(const QVector<Pomodoro>& pomodoros, const DateInterval& dateInterval) const {
+        QVector<unsigned> distribution (dateInterval.sizeInDays(), 0);
+        for (const Pomodoro& pomo : pomodoros) {
+            distribution[dateInterval.startDate.daysTo(pomo.getStartTime().date())]++;
         }
-        return result;
+        return distribution;
     }
-    
-     QVector<double> computeWeekdayDistribution(const QVector<Pomodoro>& pomodoros) const {
+
+    QVector<double> computeWeekdayDistribution(const QVector<Pomodoro>& pomodoros) const {
         QVector<double> distribution (7, 0);
         if (pomodoros.empty()) return distribution;
         for (const Pomodoro& pomo : pomodoros) {
@@ -152,11 +155,19 @@ public:
         return distribution;
     }
 
+    QVector<int> countWeekdays() const {
+        QVector<int> result (7, 0);
+        for (int weekdayNum = 0; weekdayNum <= interval.startDate.daysTo(interval.endDate); ++weekdayNum) {
+            result[interval.startDate.addDays(weekdayNum).dayOfWeek() - 1]++;
+        }
+        return result;
+    }
+    
 private:
      const DateInterval interval;
+    Distribution<unsigned>* dailyDistribution;
     Distribution<double>* weekdayDistribution;
     // Distribution workTimeDistribution;
-    // Distribution dailyDistribution;
 };
 
 

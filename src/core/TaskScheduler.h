@@ -16,8 +16,12 @@ struct DateInterval {
     QDate startDate;
     QDate endDate;
 
-    QString toString() {
+    QString toString() const {
         return QString("%1 - %2").arg(startDate.toString()).arg(endDate.toString());
+    }
+
+    int sizeInDays() const {
+        return int(startDate.daysTo(endDate));
     }
 };
 
