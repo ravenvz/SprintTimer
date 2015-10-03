@@ -84,7 +84,7 @@ private:
     double max = 0;
     int numBins = 0;
     int maxValueBin = 0;
-    T total;
+    T total = 0;
     QVector<T> distribution;
     QVector<int> binFrequency;
     QStringList binLabels;

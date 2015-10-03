@@ -28,16 +28,19 @@ private:
     Config& applicationSettings;
     DateInterval currentInterval;
     QPointer<QCPBars> weekdayBarChart;
+//    QPointer<QCPGraph> dailyTimeline;
 
     void connectSlots();
     void setupGraphs();
     void drawGraphs();
     void setupWeekdayBarChart();
-    void setupTimelineDiagram();
+    void setupDailyTimelineGraph();
     void setupTopTagsDiagram();
     void setupWorkHoursDiagram();
     void updateWeekdayBarChart(Distribution<double>* weekdayDistribution);
     void updateWeekdayBarChartLegend(Distribution<double>* weekdayDistribution);
+    void updateDailyTimelineGraph(Distribution<double>* dailyDistribution);
+    void updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution);
 };
 
 

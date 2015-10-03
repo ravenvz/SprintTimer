@@ -21,7 +21,7 @@ struct DateInterval {
     }
 
     int sizeInDays() const {
-        return int(startDate.daysTo(endDate));
+        return int(startDate.daysTo(endDate) + 1);
     }
 };
 

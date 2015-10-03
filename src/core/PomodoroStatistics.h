@@ -8,6 +8,8 @@
 #include "utils/MathUtils.h"
 #include "TaskScheduler.h"
 #include "db_layer/db_helper.h"
+#include <typeinfo>
+#include <iostream>
 
 
 //class PomoWorkTimeDistribution
@@ -108,25 +110,27 @@ public:
     PomodoroStatItem(const QVector<Pomodoro>& pomodoros, const DateInterval& dateInterval) :
         interval(dateInterval)
     {
-        dailyDistribution = new Distribution<unsigned> {computeDailyDistribution(pomodoros, dateInterval)};
+        dailyDistribution = new Distribution<double> {computeDailyDistribution(pomodoros)};
         weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(pomodoros), countWeekdays()};
     }
 
     explicit PomodoroStatItem(const DateInterval& dateInterval) :
         interval(dateInterval)
     {
-        const QVector<Pomodoro> pomodoros = PomodoroDataSource::getPomodorosBetween(dateInterval.startDate,
+        QVector<Pomodoro> pomodoros = PomodoroDataSource::getPomodorosBetween(dateInterval.startDate,
                                                                                     dateInterval.endDate);
-        dailyDistribution = new Distribution<unsigned> {computeDailyDistribution(pomodoros, dateInterval)};
+        dailyDistribution = new Distribution<double> {computeDailyDistribution(pomodoros)};
         weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(pomodoros), countWeekdays()};
     }
+
+    PomodoroStatItem(const PomodoroStatItem&) = default;
 
     ~PomodoroStatItem() {
         delete dailyDistribution;
         delete weekdayDistribution;
     }
 
-    Distribution<unsigned>* getDailyDistribution() const {
+    Distribution<double>* getDailyDistribution() const {
         return dailyDistribution;
     }
 
@@ -138,10 +142,11 @@ public:
     //     return dailyDistribution;
     // }
 
-    QVector<unsigned> computeDailyDistribution(const QVector<Pomodoro>& pomodoros, const DateInterval& dateInterval) const {
-        QVector<unsigned> distribution (dateInterval.sizeInDays(), 0);
+    QVector<double> computeDailyDistribution(const QVector<Pomodoro>& pomodoros) const {
+        if (pomodoros.empty()) return QVector<double> (0, 0);
+        QVector<double> distribution (interval.sizeInDays(), 0);
         for (const Pomodoro& pomo : pomodoros) {
-            distribution[dateInterval.startDate.daysTo(pomo.getStartTime().date())]++;
+            distribution[interval.startDate.daysTo(pomo.getStartTime().date())]++;
         }
         return distribution;
     }
@@ -164,8 +169,8 @@ public:
     }
     
 private:
-     const DateInterval interval;
-    Distribution<unsigned>* dailyDistribution;
+    const DateInterval interval;
+    Distribution<double>* dailyDistribution;
     Distribution<double>* weekdayDistribution;
     // Distribution workTimeDistribution;
 };
