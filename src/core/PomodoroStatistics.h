@@ -108,19 +108,21 @@ class PomodoroStatItem
 public:
 
     PomodoroStatItem(const QVector<Pomodoro>& pomodoros, const DateInterval& dateInterval) :
-        interval(dateInterval)
+        interval(dateInterval),
+        pomodoros(pomodoros)
     {
-        dailyDistribution = new Distribution<double> {computeDailyDistribution(pomodoros)};
-        weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(pomodoros), countWeekdays()};
+        dailyDistribution = new Distribution<double> {computeDailyDistribution()};
+        weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(), countWeekdays()};
+        workTimeDistribution = new Distribution<double> {computeWorkTimeDistribution()};
     }
 
     explicit PomodoroStatItem(const DateInterval& dateInterval) :
-        interval(dateInterval)
+        interval(dateInterval),
+        pomodoros(PomodoroDataSource::getPomodorosBetween(dateInterval.startDate, dateInterval.endDate))
     {
-        QVector<Pomodoro> pomodoros = PomodoroDataSource::getPomodorosBetween(dateInterval.startDate,
-                                                                                    dateInterval.endDate);
-        dailyDistribution = new Distribution<double> {computeDailyDistribution(pomodoros)};
-        weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(pomodoros), countWeekdays()};
+        dailyDistribution = new Distribution<double> {computeDailyDistribution()};
+        weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(), countWeekdays()};
+        workTimeDistribution = new Distribution<double> {computeWorkTimeDistribution()};
     }
 
     PomodoroStatItem(const PomodoroStatItem&) = default;
@@ -128,6 +130,7 @@ public:
     ~PomodoroStatItem() {
         delete dailyDistribution;
         delete weekdayDistribution;
+        delete workTimeDistribution;
     }
 
     Distribution<double>* getDailyDistribution() const {
@@ -138,11 +141,15 @@ public:
         return weekdayDistribution;
     }
 
-    // const Distribution& getDailyDistribution() const {
-    //     return dailyDistribution;
-    // }
+    Distribution<double>* getWorkTimeDistribution() const {
+        return workTimeDistribution;
+    }
 
-    QVector<double> computeDailyDistribution(const QVector<Pomodoro>& pomodoros) const {
+    QVector<Pomodoro> getPomodoros() const {
+        return pomodoros;
+    }
+
+    QVector<double> computeDailyDistribution() const {
         if (pomodoros.empty()) return QVector<double> (0, 0);
         QVector<double> distribution (interval.sizeInDays(), 0);
         for (const Pomodoro& pomo : pomodoros) {
@@ -151,11 +158,20 @@ public:
         return distribution;
     }
 
-    QVector<double> computeWeekdayDistribution(const QVector<Pomodoro>& pomodoros) const {
+    QVector<double> computeWeekdayDistribution() const {
         QVector<double> distribution (7, 0);
         if (pomodoros.empty()) return distribution;
         for (const Pomodoro& pomo : pomodoros) {
             distribution[pomo.getStartTime().date().dayOfWeek() - 1]++;
+        }
+        return distribution;
+    }
+
+    QVector<double> computeWorkTimeDistribution() {
+        QVector<double> distribution (6, 0);
+        for (const Pomodoro& pomo : pomodoros) {
+            TimeInterval currentInterval = TimeInterval {pomo.getStartTime(), pomo.getFinishTime()};
+            distribution[static_cast<int>(currentInterval.getDayPart())]++;
         }
         return distribution;
     }
@@ -170,9 +186,10 @@ public:
     
 private:
     const DateInterval interval;
+    const QVector<Pomodoro> pomodoros;
     Distribution<double>* dailyDistribution;
     Distribution<double>* weekdayDistribution;
-    // Distribution workTimeDistribution;
+    Distribution<double>* workTimeDistribution;
 };
 
 

@@ -1,6 +1,7 @@
 #include "statisticswidget.h"
 #include "ui_statistics_widget.h"
 #include "db_layer/db_helper.h"
+#include "timediagram.h"
 
 
 StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent) :
@@ -10,6 +11,8 @@ StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent)
 {
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
+    workTimeDiagram = new TimeDiagram(this);
+    ui->verticalLayoutBestWorktime->addWidget(workTimeDiagram);
     setupGraphs();
     drawGraphs();
     connectSlots();
@@ -37,8 +40,10 @@ void StatisticsWidget::drawGraphs() {
     PomodoroStatItem statistics {currentInterval};
     Distribution<double>* dailyDistribution = statistics.getDailyDistribution();
     Distribution<double>* weekdayDistribution = statistics.getWeekdayDistribution();
+    Distribution<double>* workTimeDistribution = statistics.getWorkTimeDistribution();
     updateDailyTimelineGraph(dailyDistribution);
     updateWeekdayBarChart(weekdayDistribution);
+    updateWorkHoursDiagram(workTimeDistribution, statistics.getPomodoros());
 }
 
 void StatisticsWidget::setupWeekdayBarChart() {
@@ -89,6 +94,23 @@ void StatisticsWidget::updateWeekdayBarChartLegend(Distribution<double>* weekday
     }
 }
 
+void StatisticsWidget::updateWorkHoursDiagram(Distribution<double>* workTimeDistribution, const QVector<Pomodoro>& pomodoros) {
+    QVector<TimeInterval> intervals;
+    for (const Pomodoro& pomo : pomodoros) {
+        intervals.append(TimeInterval {pomo.getStartTime(), pomo.getFinishTime()});
+    }
+    if (intervals.empty()) {
+        ui->labelBestWorktimeName->setText("No data");
+        ui->labelBestWorktimeHours->setText("");
+    } else {
+        ui->labelBestWorktimeName->setText(
+                QString("%1").arg(TimeInterval::getDayPartName(workTimeDistribution->getMaxValueBin())));
+        ui->labelBestWorktimeHours->setText(
+                QString("%1").arg(TimeInterval::getDayPartHours(workTimeDistribution->getMaxValueBin())));
+    }
+    workTimeDiagram->setIntervals(intervals);
+}
+
 void StatisticsWidget::setupDailyTimelineGraph() {
 //    dailyTimeline = new QCPGraph(ui->dailyTimelineGraph->xAxis, ui->dailyTimelineGraph->yAxis);
     ui->dailyTimelineGraph->addGraph();
@@ -109,9 +131,6 @@ void StatisticsWidget::setupDailyTimelineGraph() {
 }
 
 void StatisticsWidget::setupTopTagsDiagram() {
-}
-
-void StatisticsWidget::setupWorkHoursDiagram() {
 }
 
 void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistribution) {

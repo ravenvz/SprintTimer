@@ -205,16 +205,6 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="widget_2" native="true">
-   <property name="geometry">
-    <rect>
-     <x>700</x>
-     <y>501</y>
-     <width>331</width>
-     <height>191</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QFrame" name="frame_2">
    <property name="geometry">
     <rect>
@@ -224,12 +214,25 @@
      <height>311</height>
     </rect>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>1011</width>
+     <height>311</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>311</height>
+    </size>
+   </property>
    <property name="frameShape">
     <enum>QFrame::StyledPanel</enum>
    </property>
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
+   <zorder>frame_3</zorder>
   </widget>
   <widget class="QFrame" name="frame_3">
    <property name="geometry">
@@ -246,6 +249,69 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>370</y>
+      <width>351</width>
+      <height>291</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayoutBestWorktime">
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="font">
+        <font>
+         <family>.Helvetica Neue Desk UI</family>
+         <pointsize>13</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Best Worktime</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelBestWorktimeName">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>.Helvetica Neue Desk UI</family>
+         <pointsize>13</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Afternoon</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelBestWorktimeHours">
+       <property name="font">
+        <font>
+         <family>.Helvetica Neue Desk UI</family>
+         <pointsize>13</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>14:00-18:00</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <zorder>frame_2</zorder>
   <zorder>frame_3</zorder>
@@ -256,7 +322,6 @@
   <zorder>labelBestWorkdayMsg</zorder>
   <zorder>widget</zorder>
   <zorder>frame</zorder>
-  <zorder>widget_2</zorder>
  </widget>
  <customwidgets>
   <customwidget>

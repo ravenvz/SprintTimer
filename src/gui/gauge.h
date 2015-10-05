@@ -10,7 +10,7 @@ class Gauge : public QWidget
     Q_OBJECT
 
 public:
-    explicit Gauge(unsigned actual, unsigned goal, QWidget* parent = 0);
+    Gauge(unsigned actual, unsigned goal, QWidget* parent = 0);
 
 protected:
     void paintEvent(QPaintEvent*) override;

@@ -71,6 +71,7 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/gauge.cpp
                  src/gui/statisticswidget.cpp
                  src/gui/pickperiodwidget.cpp
+        src/gui/timediagram.cpp
                  src/utils/MathUtils.cpp
                  external_libs/qcustomplot-source/qcustomplot.cpp
 )

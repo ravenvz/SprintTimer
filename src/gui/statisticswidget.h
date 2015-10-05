@@ -6,7 +6,8 @@
 #include <external_libs/qcustomplot-source/qcustomplot.h>
 #include "gui/dialogs/datepickdialog.h"
 #include "core/config.h"
-#include <src/core/PomodoroStatistics.h>
+#include "core/PomodoroStatistics.h"
+#include "timediagram.h"
 
 namespace Ui {
     class StatisticsWidget;
@@ -26,6 +27,7 @@ private slots:
 private:
     Ui::StatisticsWidget* ui;
     Config& applicationSettings;
+    TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
     QPointer<QCPBars> weekdayBarChart;
 //    QPointer<QCPGraph> dailyTimeline;
@@ -36,11 +38,12 @@ private:
     void setupWeekdayBarChart();
     void setupDailyTimelineGraph();
     void setupTopTagsDiagram();
-    void setupWorkHoursDiagram();
+    // void setupWorkHoursDiagram();
     void updateWeekdayBarChart(Distribution<double>* weekdayDistribution);
     void updateWeekdayBarChartLegend(Distribution<double>* weekdayDistribution);
     void updateDailyTimelineGraph(Distribution<double>* dailyDistribution);
     void updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution);
+    void updateWorkHoursDiagram(Distribution<double>* workTimeDistribution, const QVector<Pomodoro>& pomodoros);
 };
 
 
