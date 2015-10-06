@@ -14,8 +14,10 @@ class TimeDiagram : public QWidget
 public:
     explicit TimeDiagram(QWidget* parent = 0);
     ~TimeDiagram();
-    void paintEvent(QPaintEvent*) override;
     void setIntervals(QVector<TimeInterval> newIntervals);
+
+protected:
+    void paintEvent(QPaintEvent*) override;
 
 private:
     const QColor timeSpanColor = QColor::fromRgb(246, 61, 13, 20);
