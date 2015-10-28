@@ -4,7 +4,11 @@
 Pomodoro::Pomodoro() { }
 
 Pomodoro::Pomodoro(const QString& name, QDateTime startTime, QDateTime finishTime)
-        : name(name), startTime(startTime), finishTime(finishTime) { }
+        : name(name), startTime(startTime), finishTime(finishTime) 
+{
+    QRegularExpression tagRegexp {QString ("^%1\\w+").arg(tagPrefix)};
+    tags = tagRegexp.match(name).capturedTexts();
+}
 
 void Pomodoro::setFinishTime(const QDateTime& finishTime) {
     Pomodoro::finishTime = finishTime;
@@ -26,11 +30,15 @@ void Pomodoro::setName(const QString& name) {
     Pomodoro::name = name;
 }
 
-const QString& Pomodoro::getName() const {
+const QString Pomodoro::getName() const {
     return name;
 }
 
-QString Pomodoro::asString() const {
+const QStringList Pomodoro::getTags() const {
+    return tags;
+}
+
+const QString Pomodoro::asString() const {
     QStringList result;
     QString start = startTime.time().toString();
     QString finish = finishTime.time().toString();

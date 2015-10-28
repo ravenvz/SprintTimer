@@ -72,6 +72,7 @@ class GoalStatItem
 
 public:
     GoalStatItem() {
+        // TODO remove data fetching in constructor. Probably can remove the whole class on second thought
         lastThirtyDays = new Distribution<unsigned> {PomodoroDataSource::getPomodorosForLastThirtyDays()};
         lastTwelveWeeks = new Distribution<unsigned> {PomodoroDataSource::getPomodorosForLastTwelveWeeks()};
         lastTwelveMonths = new Distribution<unsigned> {PomodoroDataSource::getPomodorosForLastTwelveMonths()};
@@ -110,15 +111,6 @@ public:
     PomodoroStatItem(const QVector<Pomodoro>& pomodoros, const DateInterval& dateInterval) :
         interval(dateInterval),
         pomodoros(pomodoros)
-    {
-        dailyDistribution = new Distribution<double> {computeDailyDistribution()};
-        weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(), countWeekdays()};
-        workTimeDistribution = new Distribution<double> {computeWorkTimeDistribution()};
-    }
-
-    explicit PomodoroStatItem(const DateInterval& dateInterval) :
-        interval(dateInterval),
-        pomodoros(PomodoroDataSource::getPomodorosBetween(dateInterval.startDate, dateInterval.endDate))
     {
         dailyDistribution = new Distribution<double> {computeDailyDistribution()};
         weekdayDistribution = new Distribution<double> {computeWeekdayDistribution(), countWeekdays()};

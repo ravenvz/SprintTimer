@@ -8,6 +8,7 @@
 #include "core/config.h"
 #include "core/PomodoroStatistics.h"
 #include "timediagram.h"
+#include "piediagram.h"
 
 namespace Ui {
     class StatisticsWidget;
@@ -30,6 +31,7 @@ private:
     TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
     QPointer<QCPBars> weekdayBarChart;
+    PieDiagram* topTagDiagram;
 //    QPointer<QCPGraph> dailyTimeline;
 
     void connectSlots();
@@ -44,6 +46,7 @@ private:
     void updateDailyTimelineGraph(Distribution<double>* dailyDistribution);
     void updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution);
     void updateWorkHoursDiagram(Distribution<double>* workTimeDistribution, const QVector<Pomodoro>& pomodoros);
+    void updateTopTagsDiagram(PomodoroStatItem& statistics);
 };
 
 

@@ -2,6 +2,7 @@
 #include "ui_statistics_widget.h"
 #include "db_layer/db_helper.h"
 #include "timediagram.h"
+#include "piediagram.h"
 
 
 StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent) :
@@ -12,6 +13,7 @@ StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent)
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
     workTimeDiagram = new TimeDiagram(this);
+    topTagDiagram = new PieDiagram(6, this);
     ui->verticalLayoutBestWorktime->addWidget(workTimeDiagram);
     setupGraphs();
     drawGraphs();
@@ -29,6 +31,7 @@ void StatisticsWidget::connectSlots() {
 void StatisticsWidget::setupGraphs() {
     setupWeekdayBarChart();
     setupDailyTimelineGraph();
+    setupTopTagsDiagram();
 }
 
 void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval) {
@@ -37,13 +40,14 @@ void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval) {
 }
 
 void StatisticsWidget::drawGraphs() {
-    PomodoroStatItem statistics {currentInterval};
+    PomodoroStatItem statistics {PomodoroDataSource::getPomodorosBetween(currentInterval.startDate, currentInterval.endDate), currentInterval};
     Distribution<double>* dailyDistribution = statistics.getDailyDistribution();
     Distribution<double>* weekdayDistribution = statistics.getWeekdayDistribution();
     Distribution<double>* workTimeDistribution = statistics.getWorkTimeDistribution();
     updateDailyTimelineGraph(dailyDistribution);
     updateWeekdayBarChart(weekdayDistribution);
     updateWorkHoursDiagram(workTimeDistribution, statistics.getPomodoros());
+    updateTopTagsDiagram(statistics);
 }
 
 void StatisticsWidget::setupWeekdayBarChart() {
@@ -131,6 +135,22 @@ void StatisticsWidget::setupDailyTimelineGraph() {
 }
 
 void StatisticsWidget::setupTopTagsDiagram() {
+    ui->horizontalLayoutTopTags->addWidget(topTagDiagram);
+}
+
+void StatisticsWidget::updateTopTagsDiagram(PomodoroStatItem& statistics) {
+    QVector<Pomodoro> pomodoros = statistics.getPomodoros();
+    QHash<QString, unsigned> tagsMap;
+    for (Pomodoro& pomo : pomodoros) {
+        for (auto tag : pomo.getTags()) {
+            if (tagsMap.contains(tag)) {
+                tagsMap[tag] += 1;
+            } else {
+                tagsMap.insert(tag, 1);
+            }
+        }
+    }
+    topTagDiagram->setData(tagsMap);
 }
 
 void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistribution) {

@@ -40,7 +40,7 @@ if ( WITH_DEBUG_MODE )
 endif()
 
  if ( CMAKE_COMPILER_IS_GNUCXX )
-     set(MY_CXX_FLAGS  "-Wall -Werror -std=c++11 -pedantic")
+     set(MY_CXX_FLAGS  "-Wall -Werror -std=c++14 -pedantic")
      set(CMAKE_CXX_FLAGS "-O3 ${MY_CXX_FLAGS}")
      set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-reorder-blocks -fno-schedule-insns -fno-inline")
      set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
@@ -71,7 +71,8 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/gauge.cpp
                  src/gui/statisticswidget.cpp
                  src/gui/pickperiodwidget.cpp
-        src/gui/timediagram.cpp
+                 src/gui/timediagram.cpp
+                 src/gui/piediagram.cpp
                  src/utils/MathUtils.cpp
                  external_libs/qcustomplot-source/qcustomplot.cpp
 )
