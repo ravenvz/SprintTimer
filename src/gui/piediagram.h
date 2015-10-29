@@ -5,14 +5,16 @@
 #include <QWidget>
 #include <QMouseEvent>
 
+typedef std::pair<QString, double> Slice;
+
 
 class PieDiagram : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit PieDiagram(int numSlices, QWidget* parent = 0);
-    void setData(QHash<QString, unsigned> data);
+    explicit PieDiagram(QWidget* parent = 0);
+    void setData(QVector<Slice> data);
 
 protected:
     void paintEvent(QPaintEvent*) override;
@@ -23,15 +25,12 @@ private:
     QRectF expandedSliceRect;
     QRectF diagramRect;
     double expandedShiftLength;
-    QHash<QString, unsigned> dataHash;
-    const int numSlices;
-    QVector<double> angles;
+    QVector<Slice> sortedData;
     int selectedPieIndex = -1;
 
     void connectSlots();
     void computeAdaptiveSizes();
     QPointF computeOffsetPoint(double current, double offset);
-    void computeAngles();
     void updateSelectedSliceIndex(const QPoint& pos);
 
 private slots:

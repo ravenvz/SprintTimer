@@ -3,6 +3,7 @@
 #include "db_layer/db_helper.h"
 #include "timediagram.h"
 #include "piediagram.h"
+#include <algorithm>
 
 
 StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent) :
@@ -13,7 +14,7 @@ StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent)
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
     workTimeDiagram = new TimeDiagram(this);
-    topTagDiagram = new PieDiagram(6, this);
+    topTagDiagram = new PieDiagram(this);
     ui->verticalLayoutBestWorktime->addWidget(workTimeDiagram);
     setupGraphs();
     drawGraphs();
@@ -150,7 +151,24 @@ void StatisticsWidget::updateTopTagsDiagram(PomodoroStatItem& statistics) {
             }
         }
     }
-    topTagDiagram->setData(tagsMap);
+    unsigned total = 0;
+    QVector<Slice> sortedData;
+    QHash<QString, unsigned>::const_iterator it;
+    for (it = tagsMap.begin(); it != tagsMap.end(); ++it) {
+        sortedData.push_back(std::make_pair(it.key(), it.value()));
+        total += it.value();
+    }
+    transform(sortedData.begin(), sortedData.end(), sortedData.begin(), 
+            [total](auto entry) {
+                return std::make_pair(entry.first, double(entry.second) / total);
+            });
+    sort(sortedData.begin(), sortedData.end(), [](auto a, auto b) { return a.second > b.second; });
+    int numSlices = 6;
+    while (sortedData.size() > numSlices) {
+        sortedData[sortedData.size() - 2].second += sortedData[sortedData.size() - 1].second;
+        sortedData.pop_back();
+    }
+    topTagDiagram->setData(sortedData);
 }
 
 void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistribution) {

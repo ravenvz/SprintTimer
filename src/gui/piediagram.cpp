@@ -8,9 +8,8 @@ constexpr double pi() {
     return acos(-1);
 }
 
-PieDiagram::PieDiagram(int numSlices, QWidget* parent) :
-    QWidget(parent),
-    numSlices(numSlices)
+PieDiagram::PieDiagram(QWidget* parent) :
+    QWidget(parent)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     connectSlots();
@@ -20,11 +19,13 @@ void PieDiagram::connectSlots() {
     connect(this, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
 }
 
-void PieDiagram::setData(QHash<QString, unsigned> data) {
-    dataHash = data;
+void PieDiagram::setData(QVector<Slice> data) {
     selectedPieIndex = -1;
-    angles.clear();
-    computeAngles();
+    sortedData.clear();
+    std::transform(data.begin(), data.end(), std::back_inserter(sortedData),
+        [](auto entry) {
+            return std::make_pair(entry.first, entry.second * 360);
+        });
     repaint();
 }
 
@@ -49,39 +50,18 @@ void PieDiagram::paintEvent(QPaintEvent* event) {
     painter.setPen(QPen(Qt::gray));
 
     double offset = 0;
-    for (int i = 0; i < std::min(dataHash.size(), numSlices); ++i) {
+    for (int i = 0; i < sortedData.size(); ++i) {
         painter.setBrush(brushes[i % brushes.size()]);
         if (i == selectedPieIndex) {
-            QPointF offsetPoint = computeOffsetPoint(angles[i], offset);
+            QPointF offsetPoint = computeOffsetPoint(sortedData[i].second, offset);
             painter.translate(offsetPoint);
-            painter.drawPie(diagramRect, int(offset * 16), int(angles[i] * 16));
+            painter.drawPie(diagramRect, int(offset * 16), int(sortedData[i].second * 16));
             painter.resetTransform();
         } else {
-            painter.drawPie(diagramRect, int(offset * 16), int(angles[i] * 16));
+            painter.drawPie(diagramRect, int(offset * 16), int(sortedData[i].second * 16));
         }
-        offset += angles[i];
+        offset += sortedData[i].second;
     }
-}
-
-void PieDiagram::computeAngles() {
-    unsigned total = 0;
-    QVector<std::pair<unsigned, QString> > sortedValues;
-    QHash<QString, unsigned>::const_iterator it;
-    for (it = dataHash.begin(); it != dataHash.end(); ++it) {
-        sortedValues.push_back(std::make_pair(it.value(), it.key()));
-        total += it.value();
-    }
-    sort(sortedValues.begin(), sortedValues.end(), [](auto a, auto b) { return a > b; });
-    transform(sortedValues.begin(), sortedValues.end(), std::back_inserter(angles),
-        [total](auto entry) {
-            return double(entry.first)/total * 360;
-        });
-    qDebug() << angles;
-    while (angles.size() > numSlices) {
-        angles[angles.size() - 2] += angles[angles.size() - 1];
-        angles.pop_back();
-    }
-    qDebug() << angles;
 }
 
 QPointF PieDiagram::computeOffsetPoint(double current, double offset) {
@@ -123,8 +103,8 @@ void PieDiagram::mousePressEvent(QMouseEvent * event) {
 void PieDiagram::updateSelectedSliceIndex(const QPoint& pos) {
     double angle = QLineF(diagramRect.center(), pos).angle();
     double offset = 0;
-    for (int i = 0; i < angles.size(); ++i) {
-        offset += angles[i];
+    for (int i = 0; i < sortedData.size(); ++i) {
+        offset += sortedData[i].second;
         if (angle < offset) {
             emit sliceSelectionChanged(i);
             break;
