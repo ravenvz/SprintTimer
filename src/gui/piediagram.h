@@ -3,6 +3,7 @@
 
 
 #include <QWidget>
+#include <QMouseEvent>
 
 
 class PieDiagram : public QWidget
@@ -15,6 +16,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent*) override;
+    void mousePressEvent(QMouseEvent * event) override;
 
 private:
     QRectF totalSizeRect;
@@ -23,10 +25,21 @@ private:
     double expandedShiftLength;
     QHash<QString, unsigned> dataHash;
     const int numSlices;
+    QVector<double> angles;
+    int selectedPieIndex = -1;
 
+    void connectSlots();
     void computeAdaptiveSizes();
     QPointF computeOffsetPoint(double current, double offset);
-    QVector<double> computeAngles() const;
+    void computeAngles();
+    void updateSelectedSliceIndex(const QPoint& pos);
+
+private slots:
+    void onSliceSelectionChanged(int sliceIndex);
+
+signals:
+    void sliceSelectionChanged(int newSliceIndex);
+
 };
 
 
