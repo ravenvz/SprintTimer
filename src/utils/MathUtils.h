@@ -78,6 +78,10 @@ public:
         return total;
     }
 
+    bool empty() const {
+        return total == 0;
+    }
+
 
 private:
     double average = 0;

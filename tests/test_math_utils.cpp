@@ -17,6 +17,8 @@ TEST(Distribution, test_empty_distribution_initialized_correctly) {
     CHECK_FALSE(distribution.isValidBin(7))
     CHECK_EQUAL(0, distribution.getMaxValueBin())
 
+    CHECK(distribution.empty())
+
     for (int i = 0; i < numBins; ++i) {
         DOUBLES_EQUAL(0, distribution.getBinValue(i), tolerance)
     }

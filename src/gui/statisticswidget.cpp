@@ -107,7 +107,7 @@ void StatisticsWidget::updateWeekdayBarChart(Distribution<double>* weekdayDistri
 }
 
 void StatisticsWidget::updateWeekdayBarChartLegend(Distribution<double>* weekdayDistribution) {
-    if (weekdayDistribution->getMax() < 1) {
+    if (weekdayDistribution->empty()) {
         ui->labelBestWorkdayName->setText("No data");
         ui->labelBestWorkdayMsg->setText("");
     } else {
