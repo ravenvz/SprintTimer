@@ -40,8 +40,7 @@ void StatisticsWidget::setupGraphs() {
 void StatisticsWidget::fetchPomodoros() {
     pomodoros = PomodoroDataSource::getPomodorosBetween(currentInterval.startDate,
                                                         currentInterval.endDate);
-    int numSlices = 6;
-    tagPomoMap = TagPomoMap(pomodoros, numSlices);
+    tagPomoMap = TagPomoMap(pomodoros, numDisplayedTagSlices);
     QVector<Slice> tagSlices = tagPomoMap.getSortedSliceVector();
     updateTopTagsDiagram(tagSlices);
 }
