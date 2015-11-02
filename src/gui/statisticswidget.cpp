@@ -27,28 +27,46 @@ StatisticsWidget::~StatisticsWidget() {
 
 void StatisticsWidget::connectSlots() {
     connect(ui->widgetPickPeriod, SIGNAL(intervalChanged(DateInterval)), this, SLOT(onDatePickerIntervalChanged(DateInterval)));
+    connect(topTagDiagram, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
 }
 
 void StatisticsWidget::setupGraphs() {
+    fetchPomodoros();
     setupWeekdayBarChart();
     setupDailyTimelineGraph();
     setupTopTagsDiagram();
 }
 
+void StatisticsWidget::fetchPomodoros() {
+    pomodoros = PomodoroDataSource::getPomodorosBetween(currentInterval.startDate,
+                                                        currentInterval.endDate);
+    int numSlices = 6;
+    tagPomoMap = TagPomoMap(pomodoros, numSlices);
+    QVector<Slice> tagSlices = tagPomoMap.getSortedSliceVector();
+    updateTopTagsDiagram(tagSlices);
+}
+
 void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval) {
     currentInterval = newInterval;
+    fetchPomodoros();
     drawGraphs();
 }
 
 void StatisticsWidget::drawGraphs() {
-    PomodoroStatItem statistics {PomodoroDataSource::getPomodorosBetween(currentInterval.startDate, currentInterval.endDate), currentInterval};
+    PomodoroStatItem statistics {
+        selectedSliceIndex == -1 ? pomodoros : tagPomoMap.getPomodorosForSlice(selectedSliceIndex),
+        currentInterval};
+    // if (selectedSliceIndex == -1) {
+    //     statistics {pomodoros, currentInterval};
+    // } else {
+    //     statistics {tagPomoMap.getPomodorosForSlice(selectedSliceIndex), currentInterval};
+    // }
     Distribution<double>* dailyDistribution = statistics.getDailyDistribution();
     Distribution<double>* weekdayDistribution = statistics.getWeekdayDistribution();
     Distribution<double>* workTimeDistribution = statistics.getWorkTimeDistribution();
     updateDailyTimelineGraph(dailyDistribution);
     updateWeekdayBarChart(weekdayDistribution);
     updateWorkHoursDiagram(workTimeDistribution, statistics.getPomodoros());
-    updateTopTagsDiagram(statistics);
 }
 
 void StatisticsWidget::setupWeekdayBarChart() {
@@ -139,36 +157,8 @@ void StatisticsWidget::setupTopTagsDiagram() {
     ui->horizontalLayoutTopTags->addWidget(topTagDiagram);
 }
 
-void StatisticsWidget::updateTopTagsDiagram(PomodoroStatItem& statistics) {
-    QVector<Pomodoro> pomodoros = statistics.getPomodoros();
-    QHash<QString, unsigned> tagsMap;
-    for (Pomodoro& pomo : pomodoros) {
-        for (auto tag : pomo.getTags()) {
-            if (tagsMap.contains(tag)) {
-                tagsMap[tag] += 1;
-            } else {
-                tagsMap.insert(tag, 1);
-            }
-        }
-    }
-    unsigned total = 0;
-    QVector<Slice> sortedData;
-    QHash<QString, unsigned>::const_iterator it;
-    for (it = tagsMap.begin(); it != tagsMap.end(); ++it) {
-        sortedData.push_back(std::make_pair(it.key(), it.value()));
-        total += it.value();
-    }
-    transform(sortedData.begin(), sortedData.end(), sortedData.begin(), 
-            [total](auto entry) {
-                return std::make_pair(entry.first, double(entry.second) / total);
-            });
-    sort(sortedData.begin(), sortedData.end(), [](auto a, auto b) { return a.second > b.second; });
-    int numSlices = 6;
-    while (sortedData.size() > numSlices) {
-        sortedData[sortedData.size() - 2].second += sortedData[sortedData.size() - 1].second;
-        sortedData.pop_back();
-    }
-    topTagDiagram->setData(sortedData);
+void StatisticsWidget::updateTopTagsDiagram(QVector<Slice>& tagSlices) {
+    topTagDiagram->setData(tagSlices);
 }
 
 void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistribution) {
@@ -192,4 +182,11 @@ void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistr
 void StatisticsWidget::updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution) {
     ui->labelTotalPomodoros->setText(QString("%1").arg(dailyDistribution->getTotal()));
     ui->labelDailyAverage->setText(QString("%1").arg(dailyDistribution->getAverage(), 2, 'f', 2, '0'));
+}
+
+void StatisticsWidget::onSliceSelectionChanged(int newSliceIndex) {
+    qDebug() << "In slot " << selectedSliceIndex << ", " << newSliceIndex;
+    selectedSliceIndex = selectedSliceIndex == newSliceIndex ? -1 : newSliceIndex;
+    qDebug() << "In slot " << selectedSliceIndex << ", " << newSliceIndex;
+    drawGraphs();
 }

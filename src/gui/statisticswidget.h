@@ -14,6 +14,7 @@ namespace Ui {
     class StatisticsWidget;
 }
 
+
 class StatisticsWidget : public QWidget
 {
     Q_OBJECT
@@ -24,18 +25,24 @@ public:
 
 private slots:
     void onDatePickerIntervalChanged(DateInterval newInterval);
+    void onSliceSelectionChanged(int newSliceIndex);
 
 private:
     Ui::StatisticsWidget* ui;
     Config& applicationSettings;
+    QVector<Pomodoro> pomodoros;
+    TagPomoMap tagPomoMap;
     TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
     QPointer<QCPBars> weekdayBarChart;
     PieDiagram* topTagDiagram;
+    const int numDisplayedTagSlices = 6;
+    int selectedSliceIndex = -1;
 //    QPointer<QCPGraph> dailyTimeline;
 
     void connectSlots();
     void setupGraphs();
+    void fetchPomodoros();
     void drawGraphs();
     void setupWeekdayBarChart();
     void setupDailyTimelineGraph();
@@ -46,7 +53,7 @@ private:
     void updateDailyTimelineGraph(Distribution<double>* dailyDistribution);
     void updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution);
     void updateWorkHoursDiagram(Distribution<double>* workTimeDistribution, const QVector<Pomodoro>& pomodoros);
-    void updateTopTagsDiagram(PomodoroStatItem& statistics);
+    void updateTopTagsDiagram(QVector<Slice>& tagSlices);
 };
 
 

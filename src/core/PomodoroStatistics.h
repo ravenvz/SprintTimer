@@ -8,64 +8,102 @@
 #include "utils/MathUtils.h"
 #include "TaskScheduler.h"
 #include "db_layer/db_helper.h"
-#include <typeinfo>
 #include <iostream>
+#include <algorithm>
 
 
-//class PomoWorkTimeDistribution
-//{
-//
-//public:
-//    PomoWorkTimeDistribution(const QVector<Pomodoro>& pomodoros) :
-//            Distribution(7)
-//    {
-//        if (pomodoros.empty()) return;
-//        distributeToBins(pomodoros);
-//        countWorkHours();
-//        normalizeByWorkHours();
-//        computeMaxAndAverage();
-//    }
-//
-//    void distributeToBins(const QVector<Pomodoro>& pomodoros) {
-//        for (const Pomodoro& pomo : pomodoros) {
-//            int pomoHour = pomo.getStartTime().time().hour();
-//            if (22 < pomoHour || pomoHour <= 2) {
-//                incrementBinValue(0);
-//            } else if (2 < pomoHour && pomoHour <= 6) {
-//                incrementBinValue(1);
-//            } else if (6 < pomoHour && pomoHour <= 10) {
-//                incrementBinValue(2);
-//            } else if (10 < pomoHour && pomoHour <= 14) {
-//                incrementBinValue(3);
-//            } else if (14 < pomoHour && pomoHour <= 18) {
-//                incrementBinValue(4);
-//            } else if (18 < pomoHour && pomoHour <= 22) {
-//                incrementBinValue(5);
-//            }
-//        }
-//    }
-//
-//    void countWorkHours() {
-//
-//    }
-//
-//    void normalizeByWorkHours() {
-//
-//    }
-//
-//};
-//
-//// TODO this is actually solvable by a single DB query, not yet sure
-//// how to handle it best
-//class PomoDailyDistribution
-//{
-//
-//public:
-//    PomoDailyDistribution(const QVector<Pomodoro>& pomodoros) :
-//        Distribution(30) {
-//    }
-//
-//};
+typedef QHash<QString, QVector<Pomodoro> > PomoHash;
+typedef std::pair<QString, double> Slice;
+
+
+class TagPomoMap
+{
+public:
+    explicit TagPomoMap(QVector<Pomodoro> pomodoros, unsigned numSlices) :
+        numSlices(numSlices)
+    {
+        numSlices = numSlices;
+        for (const Pomodoro pomo : pomodoros) {
+            for (auto tag : pomo.getTags()) {
+                tagToPomodoroVec[tag] << pomo;
+            }
+        }
+        compute();
+    }
+
+    TagPomoMap() {
+    }
+
+    QVector<Slice> getSortedSliceVector() const {
+        return sliceData;
+    }
+
+    QVector<Pomodoro> getPomodorosWithTag(QString tag) const {
+        return tagToPomodoroVec.value(tag, QVector<Pomodoro> ());
+    }
+
+    QVector<Pomodoro> getPomodorosForSlice(int sliceIndex) const {
+        return tagToPomodoroVec[sliceIndexMap[sliceIndex]];
+    }
+
+    QString getTag(int sliceIndex) const {
+        return sliceIndexMap.value(sliceIndex, "");
+    }
+
+private:
+    PomoHash map;
+    QHash<QString, QVector<Pomodoro> > tagToPomodoroVec;
+    QVector<Slice> sliceData;
+    QHash<int, QString> sliceIndexMap;
+    int numSlices;
+
+    void compute() {
+        unsigned total = 0;
+        QHash<QString, QVector<Pomodoro> >::const_iterator it;
+        for (it = tagToPomodoroVec.begin(); it != tagToPomodoroVec.end(); ++it) {
+            sliceData.append(std::make_pair(it.key(), it.value().size()));
+            total += it.value().size();
+        }
+
+        // Normalize and sort slice data
+        transform(sliceData.begin(), sliceData.end(), sliceData.begin(),
+                [total](auto entry) {
+                    return std::make_pair(entry.first, double(entry.second) / total);
+                });
+        sort(sliceData.begin(), sliceData.end(), [](auto a, auto b) { return a.second > b.second; });
+        reduceTailToSum();
+        buildIndexMap();
+    }
+
+    void reduceTailToSum() {
+        if (sliceData.size() < numSlices) {
+            return;
+        }
+        while (sliceData.size() > numSlices) {
+            sliceData[sliceData.size() - 2].second += sliceData.last().second;
+            sliceData.pop_back();
+        }
+        sliceData.back().first = "";
+        QSet<QString> topTagsSet;
+        for (auto data : sliceData) {
+            topTagsSet.insert(data.first);
+        }
+        QSet<QString> allTags = QSet<QString>::fromList(tagToPomodoroVec.keys());
+        QSet<QString> otherTags = allTags - topTagsSet;
+
+        QSet<QString>::const_iterator it;
+        for (it = otherTags.constBegin(); it != otherTags.constEnd(); ++it) {
+            tagToPomodoroVec[""] << tagToPomodoroVec.value(*it);
+        }
+    }
+
+    void buildIndexMap() {
+        for (int i = 0; i < sliceData.size(); ++i) {
+            sliceIndexMap[i] = sliceData[i].first;
+        }
+    }
+};
+
 
 class GoalStatItem
 {
@@ -175,7 +213,7 @@ public:
         }
         return result;
     }
-    
+
 private:
     const DateInterval interval;
     const QVector<Pomodoro> pomodoros;
