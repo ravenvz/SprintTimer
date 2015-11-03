@@ -2,13 +2,12 @@
 #include "datepickdialog.h"
 #include "ui_date_pick_dialog.h"
 
-DatePickDialog::DatePickDialog(QWidget* parent) :
+DatePickDialog::DatePickDialog(DateInterval initialPeriod, QWidget* parent) :
     QDialog(parent),
     ui(new Ui::DatePickDialog)
 {
     ui->setupUi(this);
-    ui->dePickEndDate->setDate(QDate::currentDate());
-    ui->dePickStartDate->setDate(QDate::currentDate().addMonths(-1));
+    updateCalendarDates(initialPeriod);
     configureCalendar();
 }
 
@@ -26,6 +25,11 @@ void DatePickDialog::configureCalendar() {
     ui->cwEnd->setFirstDayOfWeek(Qt::Monday);
 }
 
-std::pair<QDate, QDate> DatePickDialog::getNewPeriod() {
-    return std::make_pair(ui->cwStart->selectedDate(), ui->cwEnd->selectedDate());
+void DatePickDialog::updateCalendarDates(DateInterval& period) {
+    ui->dePickStartDate->setDate(period.startDate);
+    ui->dePickEndDate->setDate(period.endDate);
+}
+
+DateInterval DatePickDialog::getNewInterval() {
+    return DateInterval {ui->cwStart->selectedDate(), ui->cwEnd->selectedDate()};
 }

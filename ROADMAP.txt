@@ -1,11 +1,16 @@
-Version 0.1.4
+Version 0.1.5
 -------------
 
-Added statistics view
+Change goal system
 
 
 HISTORY
 ----------------------------------------------------------------
+
+Version 0.1.4
+-------------
+
+Added statistics view
 
 
 Version 0.1.3

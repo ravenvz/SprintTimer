@@ -1,4 +1,5 @@
 #include <src/core/config.h>
+#include <QtWidgets/qmenu.h>
 #include "gui/mainwindow.h"
 #include "ui_mainwindow.h"
 #include "gui/dialogs/confirmationdialog.h"
@@ -6,6 +7,8 @@
 #include "gui/dialogs/settings_dialog.h"
 #include "gui/historyview.h"
 #include "gui/goalsview.h"
+#include "gui/statisticswidget.h"
+#include "gui/dialogs/manualaddpomodorodialog.h"
 
 
 MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent) :
@@ -51,6 +54,8 @@ void MainWindow::connectSlots() {
     connect(ui->btnSettings, SIGNAL(clicked(bool)), this, SLOT(launchSettingsDialog()));
     connect(ui->btnTodoHistory, SIGNAL(clicked(bool)), this, SLOT(launchHistoryView()));
     connect(ui->btnGoals, SIGNAL(clicked(bool)), this, SLOT(launchGoalsView()));
+    connect(ui->btnStatistics, SIGNAL(clicked(bool)), this, SLOT(launchStatisticsView()));
+    connect(ui->btnAddPomodoroManually, SIGNAL(clicked(bool)), this, SLOT(launchManualAddPomodoroDialog()));
 }
 
 void MainWindow::setUiToIdleState() {
@@ -162,7 +167,7 @@ void MainWindow::submitPomodoro() {
     completedTasksIntervals.push_back(taskScheduler.finishTask());
     for (TimeInterval interval : completedTasksIntervals) {
         Pomodoro pomodoro {name, interval.startTime, interval.finishTime};
-        PomodoroGateway::storePomodoro(pomodoro);
+        PomodoroDataSource::storePomodoro(pomodoro);
         // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
     // Check if pomodoro tags + name matches any uncompleted item in todo list view
@@ -179,7 +184,7 @@ void MainWindow::submitPomodoro() {
 }
 
 void MainWindow::updatePomodoroView() {
-    QStringList lst = PomodoroGateway::getPomodorosForToday();
+    QStringList lst = PomodoroDataSource::getPomodorosForToday();
     pomodoroViewModel->setStringList(lst);
     ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
@@ -237,8 +242,8 @@ void MainWindow::editTodoItem() {
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {
         TodoItem updatedItem = dialog.getNewTodoItem();
-        updatedItem.spentPomodoros = itemToEdit.spentPomodoros;
-        updatedItem.completed = itemToEdit.completed;
+        updatedItem.setSpentPomodoros(itemToEdit.getSpentPomodoros());
+        updatedItem.setCompleted(itemToEdit.isCompleted());
         todoitemViewModel->updateTodoItem(index, updatedItem);
     }
 }
@@ -271,4 +276,17 @@ void MainWindow::launchHistoryView() {
 void MainWindow::launchGoalsView() {
     QPointer<GoalsView> goalsView = new GoalsView(applicationSettings);
     goalsView->show();
+}
+
+void MainWindow::launchStatisticsView() {
+    QPointer<StatisticsWidget> statisticsView = new StatisticsWidget(applicationSettings);
+    statisticsView->show();
+}
+
+void MainWindow::launchManualAddPomodoroDialog() {
+    PomodoroManualAddDialog dialog {todoitemViewModel, applicationSettings.getPomodoroDuration()};
+    if (dialog.exec()) {
+        updatePomodoroView();
+        ui->lvTodoItems->viewport()->update();
+    }
 }
