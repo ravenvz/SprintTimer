@@ -35,8 +35,7 @@ private:
     TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
     QPointer<QCPBars> weekdayBarChart;
-    PieDiagram* topTagDiagram;
-    const int numDisplayedTagSlices = 6;
+    const int numDisplayedTagSlices = 16;
     int selectedSliceIndex = -1;
 //    QPointer<QCPGraph> dailyTimeline;
 
@@ -46,8 +45,6 @@ private:
     void drawGraphs();
     void setupWeekdayBarChart();
     void setupDailyTimelineGraph();
-    void setupTopTagsDiagram();
-    // void setupWorkHoursDiagram();
     void updateWeekdayBarChart(Distribution<double>* weekdayDistribution);
     void updateWeekdayBarChartLegend(Distribution<double>* weekdayDistribution);
     void updateDailyTimelineGraph(Distribution<double>* dailyDistribution);

@@ -7,22 +7,12 @@
     <x>0</x>
     <y>0</y>
     <width>1081</width>
-    <height>739</height>
+    <height>736</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QCustomPlot" name="workdayBarChart" native="true">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>500</y>
-     <width>261</width>
-     <height>191</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="PickPeriodWidget" name="widgetPickPeriod" native="true">
    <property name="geometry">
     <rect>
@@ -31,62 +21,6 @@
      <width>471</width>
      <height>81</height>
     </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>400</y>
-     <width>111</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Best Workday</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="labelBestWorkdayName">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>430</y>
-     <width>231</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>12</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>wordayNamePlaceholder</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="labelBestWorkdayMsg">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>460</y>
-     <width>291</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Average comparison message</string>
    </property>
   </widget>
   <widget class="QFrame" name="frame">
@@ -301,93 +235,83 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="horizontalLayoutWidget_2">
+   <widget class="PieDiagram" name="topTagDiagram" native="true">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>310</x>
       <y>370</y>
-      <width>341</width>
+      <width>351</width>
       <height>291</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayoutTopTags">
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>370</y>
+      <width>251</width>
+      <height>291</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QLabel" name="label_11">
-         <property name="font">
-          <font>
-           <pointsize>11</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Top Tags</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <family>.Helvetica Neue Desk UI</family>
+         <pointsize>13</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Best Workday</string>
+       </property>
+      </widget>
      </item>
      <item>
-      <widget class="QWidget" name="widget" native="true"/>
+      <widget class="QLabel" name="labelBestWorkdayName">
+       <property name="font">
+        <font>
+         <family>.Helvetica Neue Desk UI</family>
+         <pointsize>13</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>wordayNamePlaceholder</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelBestWorkdayMsg">
+       <property name="font">
+        <font>
+         <family>.Helvetica Neue Desk UI</family>
+         <pointsize>13</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Average comparison message</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCustomPlot" name="workdayBarChart" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
   </widget>
   <zorder>frame_2</zorder>
   <zorder>frame_3</zorder>
-  <zorder>workdayBarChart</zorder>
   <zorder>widgetPickPeriod</zorder>
-  <zorder>label</zorder>
-  <zorder>labelBestWorkdayName</zorder>
-  <zorder>labelBestWorkdayMsg</zorder>
   <zorder>frame</zorder>
  </widget>
  <customwidgets>
@@ -401,6 +325,12 @@
    <class>QCustomPlot</class>
    <extends>QWidget</extends>
    <header>external_libs/qcustomplot-source/qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PieDiagram</class>
+   <extends>QWidget</extends>
+   <header>src/gui/piediagram.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -14,7 +14,6 @@ StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent)
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
     workTimeDiagram = new TimeDiagram(this);
-    topTagDiagram = new PieDiagram(this);
     ui->verticalLayoutBestWorktime->addWidget(workTimeDiagram);
     setupGraphs();
     drawGraphs();
@@ -27,14 +26,13 @@ StatisticsWidget::~StatisticsWidget() {
 
 void StatisticsWidget::connectSlots() {
     connect(ui->widgetPickPeriod, SIGNAL(intervalChanged(DateInterval)), this, SLOT(onDatePickerIntervalChanged(DateInterval)));
-    connect(topTagDiagram, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
+    connect(ui->topTagDiagram, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
 }
 
 void StatisticsWidget::setupGraphs() {
     fetchPomodoros();
     setupWeekdayBarChart();
     setupDailyTimelineGraph();
-    setupTopTagsDiagram();
 }
 
 void StatisticsWidget::fetchPomodoros() {
@@ -55,11 +53,6 @@ void StatisticsWidget::drawGraphs() {
     PomodoroStatItem statistics {
         selectedSliceIndex == -1 ? pomodoros : tagPomoMap.getPomodorosForSlice(selectedSliceIndex),
         currentInterval};
-    // if (selectedSliceIndex == -1) {
-    //     statistics {pomodoros, currentInterval};
-    // } else {
-    //     statistics {tagPomoMap.getPomodorosForSlice(selectedSliceIndex), currentInterval};
-    // }
     Distribution<double>* dailyDistribution = statistics.getDailyDistribution();
     Distribution<double>* weekdayDistribution = statistics.getWeekdayDistribution();
     Distribution<double>* workTimeDistribution = statistics.getWorkTimeDistribution();
@@ -152,12 +145,12 @@ void StatisticsWidget::setupDailyTimelineGraph() {
 //    ui->dailyTimelineGraph->addPlottable(dailyTimeline);
 }
 
-void StatisticsWidget::setupTopTagsDiagram() {
-    ui->horizontalLayoutTopTags->addWidget(topTagDiagram);
-}
-
 void StatisticsWidget::updateTopTagsDiagram(QVector<Slice>& tagSlices) {
-    topTagDiagram->setData(tagSlices);
+    if (!tagSlices.empty() && tagSlices.last().first == "")
+        tagSlices.last().first = "others";
+    ui->topTagDiagram->setData(tagSlices);
+    ui->topTagDiagram->setLegendTitle("Top tags");
+    ui->topTagDiagram->setFont(this->font());
 }
 
 void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistribution) {
@@ -184,8 +177,6 @@ void StatisticsWidget::updateDailyTimelineGraphLegend(Distribution<double>* dail
 }
 
 void StatisticsWidget::onSliceSelectionChanged(int newSliceIndex) {
-    qDebug() << "In slot " << selectedSliceIndex << ", " << newSliceIndex;
     selectedSliceIndex = selectedSliceIndex == newSliceIndex ? -1 : newSliceIndex;
-    qDebug() << "In slot " << selectedSliceIndex << ", " << newSliceIndex;
     drawGraphs();
 }

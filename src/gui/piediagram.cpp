@@ -1,25 +1,82 @@
 #include <QtGui/qpainter.h>
+#include <QHBoxLayout>
 #include "piediagram.h"
-#include <algorithm>
 
-#include <QDebug>
 
 constexpr double pi() {
     return acos(-1);
 }
 
+
 PieDiagram::PieDiagram(QWidget* parent) :
+    QWidget(parent) 
+{
+    QHBoxLayout* horLayout = new QHBoxLayout();
+    verLayout = new QVBoxLayout();
+    diagram = new Diagram(this);
+    labelLegendTitle = new QLabel();
+    verLayout->addWidget(labelLegendTitle);
+    horLayout->addLayout(verLayout);
+    horLayout->addWidget(diagram);
+    setLayout(horLayout);
+    connect(diagram, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
+}
+
+PieDiagram::~PieDiagram() {
+    delete diagram;
+}
+
+void PieDiagram::setData(QVector<Slice>& data) {
+    for (auto label : labels) {
+        verLayout->removeWidget(label);
+        delete label;
+    }
+    labels.clear();
+    for (int i = 0; i < data.size(); ++i) {
+        LegendLabel* label = new LegendLabel(data[i].first, i);
+        verLayout->addWidget(label);
+        label->setVisible(true);
+        connect(label, SIGNAL(clicked(int)), this, SLOT(onLegendItemClicked(int)));
+        labels << label;
+    }
+    verLayout->addStretch(1);
+    diagram->setData(data);
+}
+
+void PieDiagram::setLegendTitle(QString title) {
+    labelLegendTitle->setText(title);
+    labelLegendTitle->setVisible(true);
+}
+
+void PieDiagram::setFont(QFont font) {
+    labelLegendTitle->setFont(font);
+}
+
+void PieDiagram::onSliceSelectionChanged(int sliceIndex) {
+    if (selectedSlice != -1)
+        labels[selectedSlice]->setStyleSheet("QLabel { color: black; }");
+    if (sliceIndex != -1 && sliceIndex != selectedSlice)
+        labels[sliceIndex]->setStyleSheet("QLabel { color: green; }");
+    selectedSlice = selectedSlice == sliceIndex ? -1 : sliceIndex;
+    emit sliceSelectionChanged(sliceIndex);
+}
+
+void PieDiagram::onLegendItemClicked(int itemIndex) {
+    diagram->setSelectedSlice(itemIndex);
+}
+
+Diagram::Diagram(QWidget* parent) :
     QWidget(parent)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     connectSlots();
 }
 
-void PieDiagram::connectSlots() {
+void Diagram::connectSlots() {
     connect(this, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
 }
 
-void PieDiagram::setData(QVector<Slice> data) {
+void Diagram::setData(QVector<Slice>& data) {
     selectedPieIndex = -1;
     sortedData.clear();
     std::transform(data.begin(), data.end(), std::back_inserter(sortedData),
@@ -29,7 +86,7 @@ void PieDiagram::setData(QVector<Slice> data) {
     repaint();
 }
 
-void PieDiagram::paintEvent(QPaintEvent* event) {
+void Diagram::paintEvent(QPaintEvent* event) {
     computeAdaptiveSizes();
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -40,12 +97,6 @@ void PieDiagram::paintEvent(QPaintEvent* event) {
 //    painter.drawEllipse(diagramRect);
 //    painter.drawEllipse(expandedSliceRect);
 
-    QVector<QBrush> brushes {QBrush(Qt::red),
-                             QBrush(Qt::magenta),
-                             QBrush(Qt::darkGreen),
-                             QBrush(Qt::cyan),
-                             QBrush(Qt::darkCyan),
-                             QBrush(Qt::blue)};
 
     painter.setPen(QPen(Qt::gray));
 
@@ -64,9 +115,8 @@ void PieDiagram::paintEvent(QPaintEvent* event) {
     }
 }
 
-QPointF PieDiagram::computeOffsetPoint(double current, double offset) {
+QPointF Diagram::computeOffsetPoint(double current, double offset) {
     double angle = offset + current / 2;
-    qDebug() << "Angle " << angle;
     double angleRads = angle * pi() / 180;
     double x = expandedShiftLength * cos(angleRads);
     double y = expandedShiftLength * sin(angleRads);
@@ -77,7 +127,7 @@ QPointF PieDiagram::computeOffsetPoint(double current, double offset) {
     return QPointF {x, y};
 }
 
-void PieDiagram::computeAdaptiveSizes() {
+void Diagram::computeAdaptiveSizes() {
     totalSizeRect = QRectF(QPointF(0, 0), this->size());
     QPointF center = totalSizeRect.center();
     double expandedSliceRelativeDiameter = 0.98 * std::min(totalSizeRect.width(), totalSizeRect.height());
@@ -94,13 +144,13 @@ void PieDiagram::computeAdaptiveSizes() {
 
 }
 
-void PieDiagram::mousePressEvent(QMouseEvent * event) {
+void Diagram::mousePressEvent(QMouseEvent * event) {
     if (event->button() == Qt::LeftButton) {
         updateSelectedSliceIndex(event->pos());
     }
 }
 
-void PieDiagram::updateSelectedSliceIndex(const QPoint& pos) {
+void Diagram::updateSelectedSliceIndex(const QPoint& pos) {
     double angle = QLineF(diagramRect.center(), pos).angle();
     double offset = 0;
     for (int i = 0; i < sortedData.size(); ++i) {
@@ -112,8 +162,27 @@ void PieDiagram::updateSelectedSliceIndex(const QPoint& pos) {
     }
 }
 
-void PieDiagram::onSliceSelectionChanged(int sliceIndex) {
+void Diagram::onSliceSelectionChanged(int sliceIndex) {
     selectedPieIndex = selectedPieIndex == sliceIndex ? -1 : sliceIndex;
     repaint();
 }
 
+void Diagram::setSelectedSlice(int sliceIndex) {
+    emit sliceSelectionChanged(sliceIndex);
+}
+
+LegendLabel::LegendLabel(const QString& text, int itemIndex, QWidget* parent) :
+    QLabel(parent),
+    itemIndex(itemIndex)
+{
+    this->setText(text);
+}
+
+LegendLabel::~LegendLabel() {
+
+}
+
+void LegendLabel::mousePressEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton)
+        emit clicked(itemIndex);
+}
