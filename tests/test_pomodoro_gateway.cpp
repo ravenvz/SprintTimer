@@ -1,5 +1,5 @@
 #include "db_layer/db_helper.h"
-#include "core/entities.h"
+#include "core/entities/TodoItem.h"
 #include <TestHarness.h>
 
 bool createTestDbConnection() {

@@ -4,7 +4,9 @@
 #include <QStringListModel>
 #include <QObject>
 #include <QWidget>
-#include <src/core/entities.h>
+#include "core/entities/TodoItem.h"
+#include "core/entities/Pomodoro.h"
+#include "gui/pickperiodwidget.h"
 
 namespace Ui {
     class HistoryView;
@@ -20,10 +22,7 @@ public:
 
 private:
     Ui::HistoryView* ui;
-    QStringListModel* yearsModel;
-    QStringListModel* monthsModel;
-    QDate startDate;
-    QDate endDate;
+    DateInterval selectedDateInterval;
 
     void connectSlots();
     void populatePomodoroHistory();
@@ -34,10 +33,8 @@ private:
     void formatTodoItemHistory(const QVector<std::pair<TodoItem, QString> > todoItemsForPeriod, QStringList& formattedHistory);
 
 private slots:
+    void onDatePickerIntervalChanged(DateInterval newInterval);
     void displayHistory();
-    void openDatePicker();
-    void updatePeriod(const QDate& start, const QDate& end);
-    void updatePeriod();
 
 };
 

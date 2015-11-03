@@ -2,8 +2,8 @@
 #define ADDTODOITEMDIALOG_H
 
 #include <QDialog>
-#include "core/entities.h"
 #include <QStringListModel>
+#include "core/entities/TodoItem.h"
 
 namespace Ui {
 class AddTodoItemDialog;
@@ -21,7 +21,7 @@ public:
     void fillItemData(TodoItem item);
 
 private:
-    Ui::AddTodoItemDialog *ui;
+    Ui::AddTodoItemDialog* ui;
     TodoItem item;
     QStringListModel* tagModel;
     static const int tempId = -1;
