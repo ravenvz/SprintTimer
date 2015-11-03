@@ -27,7 +27,7 @@ public:
 private:
     Diagram* diagram;
     QVector<LegendLabel*> labels;
-    QVBoxLayout* verLayout;
+    QVBoxLayout* legendLayout;
     QLabel* labelLegendTitle;
     int selectedSlice = -1;
 

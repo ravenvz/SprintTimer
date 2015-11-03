@@ -11,14 +11,14 @@ constexpr double pi() {
 PieDiagram::PieDiagram(QWidget* parent) :
     QWidget(parent) 
 {
-    QHBoxLayout* horLayout = new QHBoxLayout();
-    verLayout = new QVBoxLayout();
+    QHBoxLayout* layout = new QHBoxLayout();
+    legendLayout = new QVBoxLayout();
     diagram = new Diagram(this);
     labelLegendTitle = new QLabel();
-    verLayout->addWidget(labelLegendTitle);
-    horLayout->addLayout(verLayout);
-    horLayout->addWidget(diagram);
-    setLayout(horLayout);
+    legendLayout->addWidget(labelLegendTitle);
+    layout->addLayout(legendLayout);
+    layout->addWidget(diagram);
+    setLayout(layout);
     connect(diagram, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
 }
 
@@ -27,19 +27,20 @@ PieDiagram::~PieDiagram() {
 }
 
 void PieDiagram::setData(QVector<Slice>& data) {
+    selectedSlice = -1;
     for (auto label : labels) {
-        verLayout->removeWidget(label);
+        legendLayout->removeWidget(label);
         delete label;
     }
     labels.clear();
     for (int i = 0; i < data.size(); ++i) {
         LegendLabel* label = new LegendLabel(data[i].first, i);
-        verLayout->addWidget(label);
+        legendLayout->addWidget(label);
         label->setVisible(true);
         connect(label, SIGNAL(clicked(int)), this, SLOT(onLegendItemClicked(int)));
         labels << label;
     }
-    verLayout->addStretch(1);
+    legendLayout->addStretch(1);
     diagram->setData(data);
 }
 
