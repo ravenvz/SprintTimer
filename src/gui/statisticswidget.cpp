@@ -99,7 +99,8 @@ void StatisticsWidget::updateWeekdayBarChartLegend(Distribution<double>* weekday
         ui->labelBestWorkdayName->setText("No data");
         ui->labelBestWorkdayMsg->setText("");
     } else {
-        int relativeComparisonInPercent = int(weekdayDistribution->getMax() * 100 / weekdayDistribution->getAverage());
+        double average = weekdayDistribution->getAverage();
+        int relativeComparisonInPercent = int((weekdayDistribution->getMax() - average) * 100 / average);
         ui->labelBestWorkdayName->setText(QDate::longDayName(weekdayDistribution->getMaxValueBin() + 1));
         ui->labelBestWorkdayMsg->setText(QString("%1% more than average").arg(relativeComparisonInPercent));
     }
