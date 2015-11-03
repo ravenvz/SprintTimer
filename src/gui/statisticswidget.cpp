@@ -133,7 +133,10 @@ void StatisticsWidget::setupDailyTimelineGraph() {
     ui->dailyTimelineGraph->addGraph();
     ui->dailyTimelineGraph->xAxis->grid()->setVisible(false);
     ui->dailyTimelineGraph->yAxis->grid()->setVisible(false);
-    ui->dailyTimelineGraph->graph(0)->setPen(QPen(QColor("#f53d0c")));
+    QPen normalPen;
+    normalPen.setColor(QColor::fromRgb(246, 61, 13, 255));
+    normalPen.setWidthF(2.2);
+    ui->dailyTimelineGraph->graph(0)->setPen(normalPen);
     QPen averagePen;
     averagePen.setStyle(Qt::DotLine);
     ui->dailyTimelineGraph->graph(1)->setPen(averagePen);
