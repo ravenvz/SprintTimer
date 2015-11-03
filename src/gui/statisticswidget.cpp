@@ -1,9 +1,5 @@
 #include "statisticswidget.h"
 #include "ui_statistics_widget.h"
-#include "db_layer/db_helper.h"
-#include "timediagram.h"
-#include "piediagram.h"
-#include <algorithm>
 
 
 StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent) :
