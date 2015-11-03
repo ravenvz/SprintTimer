@@ -65,7 +65,7 @@ void StatisticsWidget::setupWeekdayBarChart() {
     pen.setWidthF(1.2);
     pen.setColor(Qt::red);
     weekdayBarChart->setPen(pen);
-    weekdayBarChart->setBrush(QBrush(Qt::green));
+    weekdayBarChart->setBrush(QBrush(QColor("#73c245")));
     ui->workdayBarChart->setBackground(this->palette().color(QWidget::backgroundRole()));
     ui->workdayBarChart->xAxis->grid()->setVisible(false);
     ui->workdayBarChart->yAxis->grid()->setVisible(false);
