@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Statistics</string>
   </property>
   <widget class="PickPeriodWidget" name="widgetPickPeriod" native="true">
    <property name="geometry">

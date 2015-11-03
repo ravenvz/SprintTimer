@@ -149,7 +149,7 @@ void StatisticsWidget::updateTopTagsDiagram(QVector<Slice>& tagSlices) {
         tagSlices.last().first = "others";
     ui->topTagDiagram->setData(tagSlices);
     ui->topTagDiagram->setLegendTitle("Top tags");
-    ui->topTagDiagram->setFont(this->font());
+    ui->topTagDiagram->setFont(QFont(".Helvetica Neue Desk UI", 13));
 }
 
 void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistribution) {
