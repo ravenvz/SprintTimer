@@ -89,9 +89,11 @@ void GoalsView::drawLastMonthDiagram() {
     clearDiagramLayout(ui->gridLayoutLastMonthDiagram);
     Distribution<unsigned>* distribution = goalStatistics.getDistributionForLastThirtyDays();
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
+    GaugeFactory factory;
     for (int row = 0, ind = 0; row < 3; ++row) {
         for (int col = 0; col < 10; ++col, ++ind) {
-            ui->gridLayoutLastMonthDiagram->addWidget(new Gauge(distribution->getBinValue(ind), dailyGoal, this), row, col);
+            ui->gridLayoutLastMonthDiagram->addWidget(
+                    factory.create(distribution->getBinValue(ind), dailyGoal), row, col);
         }
     }
 }
@@ -100,9 +102,11 @@ void GoalsView::drawLastQuarterDiagram() {
     clearDiagramLayout(ui->gridLayoutLastQuarterDiagram);
     Distribution<unsigned>* distribution = goalStatistics.getDistributionForLastTwelveWeeks();
     unsigned weeklyGoal = applicationSettings.getWeeklyPomodorosGoal();
+    GaugeFactory factory;
     for (int row = 0, ind = 0; row < 3; ++row) {
         for (int col = 0; col < 4; ++col, ++ind) {
-            ui->gridLayoutLastQuarterDiagram->addWidget(new Gauge(distribution->getBinValue(ind), weeklyGoal, this), row, col);
+            ui->gridLayoutLastQuarterDiagram->addWidget(
+                    factory.create(distribution->getBinValue(ind), weeklyGoal), row, col);
         }
     }
 }
@@ -111,9 +115,11 @@ void GoalsView::drawLastYearDiagram() {
     clearDiagramLayout(ui->gridLayoutLastYearDiagram);
     Distribution<unsigned>* distribution = goalStatistics.getDistributionForLastTwelveMonths();
     unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
+    GaugeFactory factory;
     for (int row = 0, ind = 0; row < 3; ++row) {
         for (int col = 0; col < 4; ++col, ++ind) {
-            ui->gridLayoutLastYearDiagram->addWidget(new Gauge(distribution->getBinValue(ind), monthlyGoal, this), row, col);
+            ui->gridLayoutLastYearDiagram->addWidget(
+                    factory.create(distribution->getBinValue(ind), monthlyGoal), row, col);
         }
     }
 }
