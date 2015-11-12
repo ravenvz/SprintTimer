@@ -34,7 +34,6 @@ private:
     TagPomoMap tagPomoMap;
     TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
-    QPointer<QCPBars> weekdayBarChart;
     const int numDisplayedTagSlices = 16;
     int selectedSliceIndex = -1;
 //    QPointer<QCPGraph> dailyTimeline;

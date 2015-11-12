@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1081</width>
-    <height>736</height>
+    <height>731</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -297,7 +297,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QCustomPlot" name="workdayBarChart" native="true">
+      <widget class="BarChart" name="workdayBarChart" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
@@ -313,6 +313,7 @@
   <zorder>frame_3</zorder>
   <zorder>widgetPickPeriod</zorder>
   <zorder>frame</zorder>
+  <zorder>workdayBarChart</zorder>
  </widget>
  <customwidgets>
   <customwidget>
@@ -331,6 +332,12 @@
    <class>PieDiagram</class>
    <extends>QWidget</extends>
    <header>src/gui/piediagram.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BarChart</class>
+   <extends>QWidget</extends>
+   <header>src/gui/barchart.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

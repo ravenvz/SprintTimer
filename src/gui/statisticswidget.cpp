@@ -1,5 +1,6 @@
 #include "statisticswidget.h"
 #include "ui_statistics_widget.h"
+#include "gui/barchart.h"
 
 
 StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent) :
@@ -59,39 +60,22 @@ void StatisticsWidget::drawGraphs() {
 }
 
 void StatisticsWidget::setupWeekdayBarChart() {
-    weekdayBarChart = new QCPBars(ui->workdayBarChart->xAxis, ui->workdayBarChart->yAxis);
-    ui->workdayBarChart->addPlottable(weekdayBarChart);
-
     QPen pen;
     pen.setWidthF(1.2);
     pen.setColor(Qt::red);
-    weekdayBarChart->setPen(pen);
-    weekdayBarChart->setBrush(QBrush(QColor("#73c245")));
-    ui->workdayBarChart->setBackground(this->palette().color(QWidget::backgroundRole()));
-    ui->workdayBarChart->xAxis->grid()->setVisible(false);
-    ui->workdayBarChart->yAxis->grid()->setVisible(false);
-    ui->workdayBarChart->xAxis->setAutoSubTicks(false);
-    ui->workdayBarChart->xAxis->setSubTickCount(0);
-    ui->workdayBarChart->xAxis->setTickPen(QPen(Qt::NoPen));
-//    ui->workdayBarChart->yAxis->setVisible(false);
+    ui->workdayBarChart->setPen(pen);
+    QBrush brush = QBrush(QColor("#73c245"));
+    ui->workdayBarChart->setBrush(brush);
 }
 
 void StatisticsWidget::updateWeekdayBarChart(Distribution<double>* weekdayDistribution) {
-    QVector<double> ticks;
-    ticks << 0 << 1 << 2 << 3 << 4 << 5 << 6 << 7;
-    ui->workdayBarChart->xAxis->setTickVector(ticks);
-    QVector<QString> labels {""};
-    for (int i = 1; i <= 7; ++i) {
-        labels << QDate::shortDayName(i);
+    QVector<double> values = weekdayDistribution->getDistributionVector();
+    QVector<QString> labels;
+    for (int i = 0; i < 7; ++i) {
+        labels.push_back(QDate::shortDayName(i + 1));
     }
-    // TODO replace ticks and labels with Map
-    ui->workdayBarChart->xAxis->setAutoTickLabels(false);
-    ui->workdayBarChart->xAxis->setTickVectorLabels(labels);
-    ui->workdayBarChart->xAxis->setRange(-0.5, ticks.size() - 1.5);
-    ui->workdayBarChart->yAxis->setRange(0, weekdayDistribution->getMax());
-    weekdayBarChart->setData(ticks, weekdayDistribution->getDistributionVector());
-    ui->workdayBarChart->replot();
-
+    BarData data = BarData(values, labels);
+    ui->workdayBarChart->setData(data);
     updateWeekdayBarChartLegend(weekdayDistribution);
 }
 
