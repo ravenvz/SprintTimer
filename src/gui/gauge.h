@@ -17,6 +17,7 @@ class Gauge : public QWidget
 
 public:
     Gauge(unsigned actual, unsigned goal, QWidget* parent = 0);
+    virtual ~Gauge() = default;
 
 protected:
     unsigned actual;
