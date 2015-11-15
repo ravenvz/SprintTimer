@@ -5,9 +5,6 @@
 #include "gui/dialogs/confirmationdialog.h"
 #include "gui/dialogs/addtodoitemdialog.h"
 #include "gui/dialogs/settings_dialog.h"
-#include "gui/historyview.h"
-#include "gui/goalsview.h"
-#include "gui/statisticswidget.h"
 #include "gui/dialogs/manualaddpomodorodialog.h"
 
 
@@ -267,20 +264,30 @@ void MainWindow::onInTheZoneToggled() {
 }
 
 void MainWindow::launchHistoryView() {
-    // HistoryView historyView {};
-    QPointer<HistoryView> historyView = new HistoryView();
-    historyView->show();
-    // historyView.exec();
+    if (!historyView) {
+        historyView.reset(new HistoryView());
+        historyView->show();
+    } else {
+        bringToForeground(*historyView);
+    }
 }
 
 void MainWindow::launchGoalsView() {
-    QPointer<GoalsView> goalsView = new GoalsView(applicationSettings);
-    goalsView->show();
+    if (!goalsView) {
+        goalsView.reset(new GoalsView(applicationSettings));
+        goalsView->show();
+    } else {
+        bringToForeground(*goalsView);
+    }
 }
 
 void MainWindow::launchStatisticsView() {
-    QPointer<StatisticsWidget> statisticsView = new StatisticsWidget(applicationSettings);
-    statisticsView->show();
+    if (!statisticsView) {
+        statisticsView.reset(new StatisticsWidget(applicationSettings));
+        statisticsView->show();
+    } else {
+        bringToForeground(*statisticsView);
+    }
 }
 
 void MainWindow::launchManualAddPomodoroDialog() {
@@ -290,3 +297,10 @@ void MainWindow::launchManualAddPomodoroDialog() {
         ui->lvTodoItems->viewport()->update();
     }
 }
+
+void MainWindow::bringToForeground(QWidget& widgetPtr) {
+    widgetPtr.raise();
+    widgetPtr.activateWindow();
+    widgetPtr.showNormal();
+}
+

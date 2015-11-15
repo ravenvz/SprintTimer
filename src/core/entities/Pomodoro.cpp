@@ -6,7 +6,7 @@ Pomodoro::Pomodoro() { }
 Pomodoro::Pomodoro(const QString& name, QDateTime startTime, QDateTime finishTime)
         : name(name), startTime(startTime), finishTime(finishTime) 
 {
-    QRegularExpression tagRegexp {QString ("(%1\\w+)").arg(tagPrefix)};
+    QRegularExpression tagRegexp {QString ("(%1\\S+)").arg(tagPrefix)};
     QRegularExpressionMatchIterator it = tagRegexp.globalMatch(name);
     while (it.hasNext()) {
         QRegularExpressionMatch match = it.next();

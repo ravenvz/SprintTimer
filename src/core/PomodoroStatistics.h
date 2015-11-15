@@ -23,8 +23,8 @@ public:
         numSlices(numSlices)
     {
         numSlices = numSlices;
-        for (const Pomodoro pomo : pomodoros) {
-            for (auto tag : pomo.getTags()) {
+        for (const Pomodoro& pomo : pomodoros) {
+            for (const auto& tag : pomo.getTags()) {
                 tagToPomodoroVec[tag] << pomo;
             }
         }
@@ -66,11 +66,12 @@ private:
         }
 
         // Normalize and sort slice data
-        transform(sliceData.begin(), sliceData.end(), sliceData.begin(),
-                [total](auto entry) {
-                    return std::make_pair(entry.first, double(entry.second) / total);
-                });
-        sort(sliceData.begin(), sliceData.end(), [](auto a, auto b) { return a.second > b.second; });
+        transform(sliceData.begin(), sliceData.end(), sliceData.begin(), [total](const auto& entry) {
+                return std::make_pair(entry.first, double(entry.second) / total);
+            });
+        sort(sliceData.begin(), sliceData.end(), [](const auto& a, const auto& b) {
+               return a.second > b.second;
+           });
         reduceTailToSum();
         buildIndexMap();
     }
@@ -85,7 +86,7 @@ private:
         }
         sliceData.back().first = "";
         QSet<QString> topTagsSet;
-        for (auto data : sliceData) {
+        for (const auto& data : sliceData) {
             topTagsSet.insert(data.first);
         }
         QSet<QString> allTags = QSet<QString>::fromList(tagToPomodoroVec.keys());
