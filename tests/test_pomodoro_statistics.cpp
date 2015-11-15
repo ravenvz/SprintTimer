@@ -164,7 +164,7 @@ TEST(TagPomoMap, test_distributes_pomodoros_to_tags_ignoring_non_tagged) {
     pushToPomodoros(pomodoros, "#Tag1 irrelevant", 4);
     pushToPomodoros(pomodoros, "#Tag2 irrelevant", 49);
     pushToPomodoros(pomodoros, "#Tag2 #Tag1 irrelevant", 1);
-    pushToPomodoros(pomodoros, "#Tag3 #Tag4 irrelevant", 10);
+    pushToPomodoros(pomodoros, "#C++ #Tag4 irrelevant", 10);
     pushToPomodoros(pomodoros, "#Tag4 irrelevant", 25);
     pushToPomodoros(pomodoros, "#Tag5 irrelevant", 4);
     pushToPomodoros(pomodoros, "irrelevant", 100);
@@ -172,13 +172,13 @@ TEST(TagPomoMap, test_distributes_pomodoros_to_tags_ignoring_non_tagged) {
     QVector<Slice> expected;
     expected.append(std::make_pair("#Tag2", double(50)/104));
     expected.append(std::make_pair("#Tag4", double(35)/104));
-    expected.append(std::make_pair("#Tag3", double(10)/104));
+    expected.append(std::make_pair("#C++", double(10)/104));
     expected.append(std::make_pair("#Tag1", double(5)/104));
     expected.append(std::make_pair("", double(4)/104));
 
     CHECK("#Tag2" == map.getTag(0))
     CHECK("#Tag4" == map.getTag(1))
-    CHECK("#Tag3" == map.getTag(2))
+    CHECK("#C++" == map.getTag(2))
     CHECK("#Tag1" == map.getTag(3))
     CHECK("" == map.getTag(4))
 
