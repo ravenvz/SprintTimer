@@ -93,7 +93,7 @@ void GoalsView::drawLastMonthDiagram() {
     for (int row = 0, ind = 0; row < 3; ++row) {
         for (int col = 0; col < 10; ++col, ++ind) {
             ui->gridLayoutLastMonthDiagram->addWidget(
-                    factory.create(distribution->getBinValue(ind), dailyGoal), row, col);
+                    factory.create(distribution->getBinValue(ind), dailyGoal, this), row, col);
         }
     }
 }
@@ -106,7 +106,7 @@ void GoalsView::drawLastQuarterDiagram() {
     for (int row = 0, ind = 0; row < 3; ++row) {
         for (int col = 0; col < 4; ++col, ++ind) {
             ui->gridLayoutLastQuarterDiagram->addWidget(
-                    factory.create(distribution->getBinValue(ind), weeklyGoal), row, col);
+                    factory.create(distribution->getBinValue(ind), weeklyGoal, this), row, col);
         }
     }
 }
@@ -119,7 +119,7 @@ void GoalsView::drawLastYearDiagram() {
     for (int row = 0, ind = 0; row < 3; ++row) {
         for (int col = 0; col < 4; ++col, ++ind) {
             ui->gridLayoutLastYearDiagram->addWidget(
-                    factory.create(distribution->getBinValue(ind), monthlyGoal), row, col);
+                    factory.create(distribution->getBinValue(ind), monthlyGoal, this), row, col);
         }
     }
 }

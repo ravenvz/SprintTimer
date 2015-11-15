@@ -2,15 +2,19 @@
 #define MAINWINDOW_H 
 
 #include <QMainWindow>
+#include <QMediaPlayer>
+#include <QSettings>
 #include <QStringListModel>
 #include <QTimer>
-#include <QMediaPlayer>
+#include <memory>
 #include <vector>
 #include "core/TaskScheduler.h"
 #include "db_layer/db_helper.h"
+#include "gui/goalsview.h"
+#include "gui/historyview.h"
+#include "gui/statisticswidget.h"
 #include "todoitemslistmodel.h"
 #include "todoitemsviewdelegate.h"
-#include <QSettings>
 
 namespace Ui {
     class MainWindow;
@@ -54,6 +58,9 @@ private:
     QStringListModel* pomodoroViewModel;
     TodoItemsListModel* todoitemViewModel;
     TodoItemsViewDelegate* todoitemViewDelegate;
+    std::unique_ptr<GoalsView> goalsView;
+    std::unique_ptr<StatisticsWidget> statisticsView;
+    std::unique_ptr<HistoryView> historyView;
 
     void connectSlots();
     void setUiToIdleState();
@@ -63,6 +70,7 @@ private:
     void editTodoItem();
     void removeTodoItem();
     void playSound();
+    void bringToForeground(QWidget& widgetPtr);
 };
 
 #endif // MAINWINDOW_H 

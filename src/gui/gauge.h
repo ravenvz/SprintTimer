@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QEvent>
 
+#include <QDebug>
+
 
 // TODO when final decision will be made on how gauges should look
 // like in different states, Gauge class hierarhy should be reviewed
@@ -74,16 +76,18 @@ public:
     GaugeFactory() {
     }
 
-    Gauge* create(unsigned filled, unsigned total) {
+    Gauge* create(unsigned filled, unsigned total, QWidget* parent = 0) {
+        Gauge* ptr;
         if (filled == 0 || total == 0) {
-            return new EmptyGauge(filled, total);
+            ptr = new EmptyGauge(filled, total, parent);
         } else if (filled == total) {
-            return new FilledGauge(filled, total);
+            ptr = new FilledGauge(filled, total, parent);
         } else if (filled > total) {
-            return new OverfilledGauge(filled, total);
+            ptr = new OverfilledGauge(filled, total, parent);
         } else {
-            return new Gauge(filled, total);
+            ptr = new Gauge(filled, total, parent);
         }
+        return ptr;
     }
 };
 
