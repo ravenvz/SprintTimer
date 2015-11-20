@@ -62,7 +62,7 @@ void Gauge::drawInnerCircle(QPainter& painter) {
         painter.setPen(Qt::black);
         painter.drawEllipse(innerRect);
     } else {
-        text = QString("%1%").arg(actual*100/goal);
+        text = QString("%1%").arg(goal != 0 ? actual*100/goal : 0);
         painter.setBrush(QColor("#354a5f"));
         painter.drawEllipse(innerRect);
         painter.setPen(Qt::white);
