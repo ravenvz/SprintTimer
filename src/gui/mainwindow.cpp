@@ -173,7 +173,7 @@ void MainWindow::submitPomodoro() {
        if (name == todoitemViewModel->index(row, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
            todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
        }
-    } 
+    }
     completedTasksIntervals.clear();
     updatePomodoroView();
     ui->lvTodoItems->viewport()->update();
