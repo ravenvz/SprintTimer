@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QVector>
-#include <external_libs/qcustomplot-source/qcustomplot.h>
 // #include <memory>
 #include "core/PomodoroStatistics.h"
 #include "core/config.h"

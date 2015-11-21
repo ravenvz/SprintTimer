@@ -76,7 +76,6 @@ set(SOURCE_FILES src/main.cpp
                  src/gui/barchart.cpp
                  src/gui/plot.cpp
                  src/utils/MathUtils.cpp
-                 external_libs/qcustomplot-source/qcustomplot.cpp
 )
 
 QT5_WRAP_UI(UI_HEADERS
