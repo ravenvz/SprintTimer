@@ -62,10 +62,11 @@ void BarChart::drawBars(QPainter& painter) {
 }
 
 void BarChart::computeAdaptiveSizes() {
-    QRectF totalSizeRect = QRectF(QPointF(0, 0), this->size());
-    QPointF center = totalSizeRect.center();
-    double availableWidth = 0.9 * totalSizeRect.width();
-    double availableHeight = 0.9 * totalSizeRect.height();
+    const QRectF totalSizeRect = QRectF(QPointF(0, 0), this->size());
+    const QPointF center = totalSizeRect.center();
+    const double margin = 0.1;
+    const double availableWidth = (1 - margin) * totalSizeRect.width();
+    const double availableHeight = (1 - margin) * totalSizeRect.height();
     availableRect = QRectF {center.x() - availableWidth / 2,
                             center.y() - availableHeight / 2,
                             availableWidth,

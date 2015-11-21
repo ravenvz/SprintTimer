@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd build && cmake .. && make -j5 && cd ../bin && ./test_pomodoro -c && cd ..
+cd build && cmake .. && make -j$(nproc) && cd ../bin && ./test_pomodoro -c && cd ..

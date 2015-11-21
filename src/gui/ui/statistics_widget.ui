@@ -38,12 +38,12 @@
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QCustomPlot" name="dailyTimelineGraph" native="true">
+   <widget class="Plot" name="dailyTimeline" native="true">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>50</y>
-      <width>961</width>
+      <width>991</width>
       <height>181</height>
      </rect>
     </property>
@@ -313,19 +313,12 @@
   <zorder>frame_3</zorder>
   <zorder>widgetPickPeriod</zorder>
   <zorder>frame</zorder>
-  <zorder>workdayBarChart</zorder>
  </widget>
  <customwidgets>
   <customwidget>
    <class>PickPeriodWidget</class>
    <extends>QWidget</extends>
    <header>src/gui/pickperiodwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header>external_libs/qcustomplot-source/qcustomplot.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -338,6 +331,12 @@
    <class>BarChart</class>
    <extends>QWidget</extends>
    <header>src/gui/barchart.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Plot</class>
+   <extends>QWidget</extends>
+   <header>src/gui/plot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

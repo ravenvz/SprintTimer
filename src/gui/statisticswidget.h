@@ -4,11 +4,13 @@
 #include <QWidget>
 #include <QVector>
 #include <external_libs/qcustomplot-source/qcustomplot.h>
-#include "gui/dialogs/datepickdialog.h"
-#include "core/config.h"
+// #include <memory>
 #include "core/PomodoroStatistics.h"
-#include "timediagram.h"
+#include "core/config.h"
+#include "gui/dialogs/datepickdialog.h"
 #include "piediagram.h"
+#include "plot.h"
+#include "timediagram.h"
 
 namespace Ui {
     class StatisticsWidget;
@@ -36,7 +38,7 @@ private:
     DateInterval currentInterval;
     const int numDisplayedTagSlices = 16;
     int selectedSliceIndex = -1;
-//    QPointer<QCPGraph> dailyTimeline;
+    // std::unique_ptr<Plot> dailyTimeline;
 
     void connectSlots();
     void setupGraphs();
