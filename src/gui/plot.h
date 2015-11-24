@@ -30,6 +30,7 @@ public:
     void setPen(QPen& pen);
     const QPen getPen() const;
     const GraphPoint& operator[](std::size_t idx) const;
+    void clearData();
     const_iterator cbegin() const { 
         return points.cbegin();
     }
@@ -65,6 +66,7 @@ class Plot : public QWidget
     Q_OBJECT
 
 public:
+    using PointBoxData = QVector<QRectF>;
     explicit Plot(QWidget* parent = 0);
     virtual ~Plot () = default;
     void reset();
@@ -76,9 +78,11 @@ public:
 
 protected:
     void paintEvent(QPaintEvent*) override;
+    void showEvent(QShowEvent*) override;
 
 private:
     QVector<Graph> graphs;
+    QVector<PointBoxData> graphPointBoxes;
     AxisRange rangeX;
     AxisRange rangeY;
     QRectF availableRect;

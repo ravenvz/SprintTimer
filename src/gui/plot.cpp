@@ -12,9 +12,10 @@ void Graph::setData(GraphData& data) {
     std::sort(points.begin(), points.end(), [](auto& point1, auto& point2) {
             return point1.x < point2.x;
         });
-    // for (auto& point : points) {
-    //     qDebug() << "(" << point.x << ", " << point.y << ")";
-    // }
+}
+
+void Graph::clearData() {
+    points.clear();
 }
 
 void Graph::setPen(QPen& pen) {
@@ -41,13 +42,30 @@ Plot::Plot(QWidget* parent) :
 
 void Plot::addGraph(Graph& graph) {
     graphs.push_back(graph);
+    graphPointBoxes.push_back(PointBoxData());
 }
 
 
 void Plot::setGraphData(int graphNum, GraphData& data) {
-    if (0 <= graphNum && graphNum < graphs.size()) {
-        graphs[graphNum].setData(data);
+    if (graphNum < 0 || graphNum >= graphs.size()) {
+        return;
     }
+    graphs[graphNum].setData(data);
+    const double maxHeight = availableRect.height();
+    const double maxWidth = availableRect.width();
+    const double scaleX = maxWidth / (rangeX.getSpan() - 1);
+    const double scaleY = maxHeight / (rangeY.getSpan() - 1);
+    const double pointBoxSize = 0.025 * maxHeight;
+    QPointF referencePoint = availableRect.bottomLeft();
+    graphPointBoxes[graphNum].clear();
+    std::transform(graphs[graphNum].cbegin(), graphs[graphNum].cend(), std::back_inserter(graphPointBoxes[graphNum]),
+            [scaleX, scaleY, referencePoint, pointBoxSize](auto& p) {
+            return QRectF {p.x * scaleX + referencePoint.x() - pointBoxSize / 2,
+                           referencePoint.y() - p.y * scaleY - pointBoxSize / 2,
+                           pointBoxSize,
+                           pointBoxSize};
+            });
+    qDebug() << availableRect;
 }
 
 void Plot::replot() {
@@ -59,42 +77,25 @@ void Plot::paintEvent(QPaintEvent*) {
     painter.setRenderHint(QPainter::Antialiasing);
     computeAdaptiveSizes();
     // Initial call to paintEvent could be before graphs are set
-    if (graphs.empty() || graphs[0].size() < 2) {
+    if (graphPointBoxes.empty()) {
         painter.eraseRect(availableRect);
         return;
     }
-    double maxHeight = availableRect.height();
-    double maxWidth = availableRect.width();
-    double scaleX = maxWidth / (rangeX.getSpan() - 1);
-    double scaleY = maxHeight / (rangeY.getSpan() - 1);
-    qDebug() << availableRect;
-    qDebug() << "Scale X" << scaleX;
-    qDebug() << "Scale Y" << scaleY;
-    // QPointF currentZeroPoint = availableRect.bottomLeft();
-    // QPen bigRed;
-    // bigRed.setWidthF(2.2);
-    // bigRed.setColor(Qt::red);
-    // painter.setPen(bigRed);
 
+    int graphNum = 0;
     for (auto& graph : graphs) {
         painter.setPen(graph.getPen());
-        QPointF referencePoint = availableRect.bottomLeft();
-        QVector<QPointF> points;
-        std::transform(graph.cbegin(), graph.cend(), std::back_inserter(points), [scaleX, scaleY, referencePoint](auto& p) {
-                return QPointF(p.x * scaleX + referencePoint.x(), referencePoint.y() - p.y * scaleY);
-            });
-        QPainterPath path;
-        for (int i = 0; i < points.size(); ++i) {
-            if (i < points.size() - 1) { 
-                painter.drawLine(points[i], points[i + 1]);
+        PointBoxData pointBoxes = graphPointBoxes[graphNum++];
+        for (int i = 0; i < pointBoxes.size(); ++i) {
+            if (i < pointBoxes.size() - 1) {
+                painter.drawLine(pointBoxes[i].center(), pointBoxes[i + 1].center());
             }
+            QRectF currentBox = pointBoxes[i];
             painter.setBrush(Qt::red);
-            painter.drawEllipse(points[i], 0.025 * maxHeight, 0.025 * maxHeight);
+            painter.drawEllipse(currentBox.center(), currentBox.width(), currentBox.height());
             painter.setBrush(Qt::white);
-            painter.drawEllipse(points[i], 0.02 * maxHeight, 0.02 * maxHeight);
+            painter.drawEllipse(currentBox.center(), 0.8 * currentBox.width(), 0.8 * currentBox.height());
         }
-        painter.drawPath(path);
-        points.clear();
     }
 }
 
@@ -116,4 +117,18 @@ void Plot::computeAdaptiveSizes() {
                             center.y() - availableHeight / 2,
                             availableWidth,
                             availableHeight};
+}
+
+void Plot::reset() {
+    for(auto& pointBoxes : graphPointBoxes) {
+        pointBoxes.clear();
+    }
+    for (auto& graph : graphs) {
+        graph.clearData();
+    }
+}
+
+void Plot::showEvent(QShowEvent*) {
+    qDebug() << "Here we go";
+    this->repaint();
 }

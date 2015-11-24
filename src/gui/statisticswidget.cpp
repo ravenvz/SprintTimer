@@ -51,9 +51,9 @@ void StatisticsWidget::drawGraphs() {
     PomodoroStatItem statistics {
         selectedSliceIndex == -1 ? pomodoros : tagPomoMap.getPomodorosForSlice(selectedSliceIndex),
         currentInterval};
-    Distribution<double>* dailyDistribution = statistics.getDailyDistribution();
-    Distribution<double>* weekdayDistribution = statistics.getWeekdayDistribution();
-    Distribution<double>* workTimeDistribution = statistics.getWorkTimeDistribution();
+    auto dailyDistribution = statistics.getDailyDistribution();
+    auto weekdayDistribution = statistics.getWeekdayDistribution();
+    auto workTimeDistribution = statistics.getWorkTimeDistribution();
     updateDailyTimelineGraph(dailyDistribution);
     updateWeekdayBarChart(weekdayDistribution);
     updateWorkHoursDiagram(workTimeDistribution, statistics.getPomodoros());
@@ -110,7 +110,6 @@ void StatisticsWidget::updateWorkHoursDiagram(Distribution<double>* workTimeDist
 
 void StatisticsWidget::setupDailyTimelineGraph() {
     const double penWidthF = 2.2;
-    // dailyTimeline.reset();
     Graph averageGraph = Graph();
     Graph goalGraph = Graph();
     Graph normalGraph = Graph();
@@ -135,67 +134,31 @@ void StatisticsWidget::setupDailyTimelineGraph() {
     ui->dailyTimeline->addGraph(averageGraph);
     ui->dailyTimeline->addGraph(goalGraph);
     ui->dailyTimeline->addGraph(normalGraph);
-
-//    dailyTimeline = new QCPGraph(ui->dailyTimelineGraph->xAxis, ui->dailyTimelineGraph->yAxis);
-    // ui->dailyTimelineGraph->addGraph();
-    // ui->dailyTimelineGraph->addGraph();
-    // ui->dailyTimelineGraph->addGraph();
-    // ui->dailyTimelineGraph->xAxis->grid()->setVisible(false);
-    // ui->dailyTimelineGraph->yAxis->grid()->setVisible(false);
-    // QPen normalPen;
-    // normalPen.setColor(QColor::fromRgb(246, 61, 13, 255));
-    // normalPen.setWidthF(2.2);
-    // ui->dailyTimelineGraph->graph(0)->setPen(normalPen);
-    // QPen averagePen;
-    // averagePen.setStyle(Qt::DotLine);
-    // ui->dailyTimelineGraph->graph(1)->setPen(averagePen);
-    // QPen goalPen;
-    // goalPen.setColor(Qt::green);
-    // goalPen.setStyle(Qt::DashLine);
-    // ui->dailyTimelineGraph->graph(2)->setPen(goalPen);
-    // ui->dailyTimelineGraph->setBackground(this->palette().color(QWidget::backgroundRole()));
-//    ui->dailyTimelineGraph->addPlottable(dailyTimeline);
 }
 
 void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistribution) {
-    // if (dailyDistribution->empty()) {
-    //     return;
-    // }
-    double average = dailyDistribution->getAverage();
-    qDebug() << "Average" << average;
-    double dailyGoal = applicationSettings.getDailyPomodorosGoal();
-    QVector<double> pomodoros = dailyDistribution->getDistributionVector();
-    GraphData averageData {GraphPoint {0, average},
-                           GraphPoint {double(currentInterval.sizeInDays() - 1), average}};
-    GraphData goalData {GraphPoint {0, dailyGoal},
-                        GraphPoint {double(currentInterval.sizeInDays() - 1), dailyGoal}};
-    GraphData normalData;
-    for (int i = 0; i < pomodoros.size(); ++i) {
-        normalData.push_back(GraphPoint {double(i), pomodoros[i]});
+    if (dailyDistribution->empty()) {
+        ui->dailyTimeline->reset();
+    } else {
+        double average = dailyDistribution->getAverage();
+        double dailyGoal = applicationSettings.getDailyPomodorosGoal();
+        auto pomodoros = dailyDistribution->getDistributionVector();
+        GraphData averageData {GraphPoint {0, average},
+                               GraphPoint {double(currentInterval.sizeInDays() - 1), average}};
+        GraphData goalData {GraphPoint {0, dailyGoal},
+                            GraphPoint {double(currentInterval.sizeInDays() - 1), dailyGoal}};
+        GraphData normalData;
+        for (int i = 0; i < pomodoros.size(); ++i) {
+            normalData.push_back(GraphPoint {double(i), pomodoros[i]});
+        }
+
+        ui->dailyTimeline->setRangeX(0, currentInterval.sizeInDays());
+        ui->dailyTimeline->setRangeY(0, dailyDistribution->getMax() + 1);
+        ui->dailyTimeline->setGraphData(0, averageData);
+        ui->dailyTimeline->setGraphData(1, goalData);
+        ui->dailyTimeline->setGraphData(2, normalData);
     }
-
-    ui->dailyTimeline->setGraphData(0, averageData);
-    ui->dailyTimeline->setGraphData(1, goalData);
-    ui->dailyTimeline->setGraphData(2, normalData);
-    ui->dailyTimeline->setRangeX(0, currentInterval.sizeInDays());
-    ui->dailyTimeline->setRangeY(0, dailyDistribution->getMax() + 3);
     ui->dailyTimeline->replot();
-
-    //
-    // QVector<double> ticks;
-    // for (int i = 0; i < dailyDistribution->getNumBins(); ++i) {
-    //     ticks << i;
-    // }
-    // QVector<double> completedPomodoros = dailyDistribution->getDistributionVector();
-    // QVector<double> average (dailyDistribution->getNumBins(), dailyDistribution->getAverage());
-    // QVector<double> dailyGoal (dailyDistribution->getNumBins(), applicationSettings.getDailyPomodorosGoal());
-    // ui->dailyTimelineGraph->graph(0)->setData(ticks, completedPomodoros);
-    // ui->dailyTimelineGraph->graph(1)->setData(ticks, average);
-    // ui->dailyTimelineGraph->graph(2)->setData(ticks, dailyGoal);
-    // ui->dailyTimelineGraph->xAxis->setRange(0, currentInterval.sizeInDays() - 1);
-    // ui->dailyTimelineGraph->yAxis->setRange(0, dailyDistribution->getMax() + 3);
-    // ui->dailyTimelineGraph->replot();
-    //
     updateDailyTimelineGraphLegend(dailyDistribution);
 }
 
