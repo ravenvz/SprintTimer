@@ -80,14 +80,22 @@ protected:
     void paintEvent(QPaintEvent*) override;
     void showEvent(QShowEvent*) override;
 
+signals:
+    void sizeComputed();
+
+private slots:
+    void onSizeComputed();
+
 private:
     QVector<Graph> graphs;
     QVector<PointBoxData> graphPointBoxes;
     AxisRange rangeX;
     AxisRange rangeY;
     QRectF availableRect;
+    bool adaptiveSizeComputed = false;
 
     void computeAdaptiveSizes();
+    void constructPointBoxes();
 };
 
 

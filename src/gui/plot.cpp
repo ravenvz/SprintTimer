@@ -38,6 +38,7 @@ size_t Graph::size() const {
 Plot::Plot(QWidget* parent) :
     QWidget(parent)
 {
+    connect(this, SIGNAL(sizeComputed()), this, SLOT(onSizeComputed()));
 }
 
 void Plot::addGraph(Graph& graph) {
@@ -51,21 +52,27 @@ void Plot::setGraphData(int graphNum, GraphData& data) {
         return;
     }
     graphs[graphNum].setData(data);
+    adaptiveSizeComputed = false;
+}
+
+void Plot::constructPointBoxes() {
     const double maxHeight = availableRect.height();
     const double maxWidth = availableRect.width();
     const double scaleX = maxWidth / (rangeX.getSpan() - 1);
     const double scaleY = maxHeight / (rangeY.getSpan() - 1);
     const double pointBoxSize = 0.025 * maxHeight;
-    QPointF referencePoint = availableRect.bottomLeft();
-    graphPointBoxes[graphNum].clear();
-    std::transform(graphs[graphNum].cbegin(), graphs[graphNum].cend(), std::back_inserter(graphPointBoxes[graphNum]),
-            [scaleX, scaleY, referencePoint, pointBoxSize](auto& p) {
-            return QRectF {p.x * scaleX + referencePoint.x() - pointBoxSize / 2,
-                           referencePoint.y() - p.y * scaleY - pointBoxSize / 2,
-                           pointBoxSize,
-                           pointBoxSize};
-            });
-    qDebug() << availableRect;
+    for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
+        QPointF referencePoint = availableRect.bottomLeft();
+        graphPointBoxes[graphNum].clear();
+        std::transform(graphs[graphNum].cbegin(), graphs[graphNum].cend(),
+                       std::back_inserter(graphPointBoxes[graphNum]),
+                       [scaleX, scaleY, referencePoint, pointBoxSize](auto& p) {
+                return QRectF {p.x * scaleX + referencePoint.x() - pointBoxSize / 2,
+                               referencePoint.y() - p.y * scaleY - pointBoxSize / 2,
+                               pointBoxSize,
+                               pointBoxSize};
+                });
+    }
 }
 
 void Plot::replot() {
@@ -75,8 +82,8 @@ void Plot::replot() {
 void Plot::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    computeAdaptiveSizes();
-    // Initial call to paintEvent could be before graphs are set
+    if (!adaptiveSizeComputed)
+        computeAdaptiveSizes();
     if (graphPointBoxes.empty()) {
         painter.eraseRect(availableRect);
         return;
@@ -117,6 +124,7 @@ void Plot::computeAdaptiveSizes() {
                             center.y() - availableHeight / 2,
                             availableWidth,
                             availableHeight};
+    emit sizeComputed();
 }
 
 void Plot::reset() {
@@ -131,4 +139,10 @@ void Plot::reset() {
 void Plot::showEvent(QShowEvent*) {
     qDebug() << "Here we go";
     this->repaint();
+}
+
+void Plot::onSizeComputed() {
+    constructPointBoxes();
+    adaptiveSizeComputed = true;
+    qDebug() << "Signal received";
 }
