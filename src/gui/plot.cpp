@@ -59,16 +59,17 @@ void Plot::constructPointBoxes() {
     const double maxHeight = availableRect.height();
     const double maxWidth = availableRect.width();
     const double scaleX = maxWidth / (rangeX.getSpan() - 1);
-    const double scaleY = maxHeight / (rangeY.getSpan() - 1);
+    const double labelOffset = 0.15 * maxHeight;
+    const double scaleY = (maxHeight - labelOffset) / (rangeY.getSpan() - 1);
     const double pointBoxSize = 0.025 * maxHeight;
     for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
         QPointF referencePoint = availableRect.bottomLeft();
         graphPointBoxes[graphNum].clear();
         std::transform(graphs[graphNum].cbegin(), graphs[graphNum].cend(),
                        std::back_inserter(graphPointBoxes[graphNum]),
-                       [scaleX, scaleY, referencePoint, pointBoxSize](auto& p) {
+                       [scaleX, scaleY, referencePoint, pointBoxSize, labelOffset](auto& p) {
                 return QRectF {p.x * scaleX + referencePoint.x() - pointBoxSize / 2,
-                               referencePoint.y() - p.y * scaleY - pointBoxSize / 2,
+                               referencePoint.y() - p.y * scaleY - pointBoxSize / 2 - labelOffset,
                                pointBoxSize,
                                pointBoxSize};
                 });
@@ -90,6 +91,8 @@ void Plot::paintEvent(QPaintEvent*) {
     }
 
     int graphNum = 0;
+    // Skip each labelSkip label so that labels are not cluttered.
+    const int labelSkip = (rangeX.getSpan() - 1) / 28;
     for (auto& graph : graphs) {
         painter.setPen(graph.getPen());
         PointBoxData pointBoxes = graphPointBoxes[graphNum++];
@@ -102,6 +105,8 @@ void Plot::paintEvent(QPaintEvent*) {
             painter.drawEllipse(currentBox.center(), currentBox.width(), currentBox.height());
             painter.setBrush(Qt::white);
             painter.drawEllipse(currentBox.center(), 0.8 * currentBox.width(), 0.8 * currentBox.height());
+            if (i % labelSkip == 0)
+                painter.drawText(pointBoxes[i].x(), availableRect.bottomLeft().y(), graph[i].label);
         }
     }
 }
@@ -137,12 +142,10 @@ void Plot::reset() {
 }
 
 void Plot::showEvent(QShowEvent*) {
-    qDebug() << "Here we go";
     this->repaint();
 }
 
 void Plot::onSizeComputed() {
     constructPointBoxes();
     adaptiveSizeComputed = true;
-    qDebug() << "Signal received";
 }

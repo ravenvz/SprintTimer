@@ -14,6 +14,7 @@ struct GraphPoint
 {
     double x;
     double y;
+    QString label;
 };
 
 
