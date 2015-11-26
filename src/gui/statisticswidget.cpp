@@ -124,6 +124,7 @@ void StatisticsWidget::setupDailyTimelineGraph() {
     normalPen.setColor(QColor::fromRgb(246, 61, 13, 255));
     normalPen.setWidthF(penWidthF);
     normalGraph.setPen(normalPen);
+    normalGraph.setShowPoints(true);
 
     QPen goalPen;
     goalPen.setColor(Qt::green);

@@ -1,7 +1,50 @@
 #include <algorithm>
 #include "plot.h"
+#include <QHelpEvent>
+#include <QToolTip>
 
 #include <QDebug>
+
+
+QPainterPath PointBox::path() const
+{
+    return mPath;
+}
+
+QPoint PointBox::position() const
+{
+    return mPosition;
+}
+
+QColor PointBox::color() const
+{
+    return mColor;
+}
+
+QString PointBox::toolTip() const
+{
+    return mToolTip;
+}
+
+void PointBox::setPath(const QPainterPath &path)
+{
+    mPath = path;
+}
+
+void PointBox::setToolTip(const QString &toolTip)
+{
+    mToolTip = toolTip;
+}
+
+void PointBox::setPosition(const QPoint &position)
+{
+    mPosition = position;
+}
+
+void PointBox::setColor(const QColor &color)
+{
+    mColor = color;
+}
 
 Graph::Graph() {
 
@@ -34,18 +77,27 @@ size_t Graph::size() const {
     return points.size();
 }
 
+void Graph::setShowPoints(bool showPoints) {
+    mShowPoints = showPoints;
+}
+
+bool Graph::showPoints() const {
+    return mShowPoints;
+}
+
 
 Plot::Plot(QWidget* parent) :
     QWidget(parent)
 {
+    setMouseTracking(true);
     connect(this, SIGNAL(sizeComputed()), this, SLOT(onSizeComputed()));
 }
 
 void Plot::addGraph(Graph& graph) {
     graphs.push_back(graph);
-    graphPointBoxes.push_back(PointBoxData());
-}
+    translatedPoints.push_back(PointPixelCoordinates());
 
+}
 
 void Plot::setGraphData(int graphNum, GraphData& data) {
     if (graphNum < 0 || graphNum >= graphs.size()) {
@@ -56,23 +108,18 @@ void Plot::setGraphData(int graphNum, GraphData& data) {
 }
 
 void Plot::constructPointBoxes() {
-    const double maxHeight = availableRect.height();
-    const double maxWidth = availableRect.width();
-    const double scaleX = maxWidth / (rangeX.getSpan() - 1);
-    const double labelOffset = 0.15 * maxHeight;
-    const double scaleY = (maxHeight - labelOffset) / (rangeY.getSpan() - 1);
-    const double pointBoxSize = 0.025 * maxHeight;
+    const double labelOffset = 0.15 * availableRect.height();
+    const double scaleX = availableRect.width() / (rangeX.getSpan() - 1);
+    const double scaleY = (availableRect.height() - labelOffset) / (rangeY.getSpan() - 1);
     for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
         QPointF referencePoint = availableRect.bottomLeft();
-        graphPointBoxes[graphNum].clear();
+        translatedPoints[graphNum].clear();
         std::transform(graphs[graphNum].cbegin(), graphs[graphNum].cend(),
-                       std::back_inserter(graphPointBoxes[graphNum]),
-                       [scaleX, scaleY, referencePoint, pointBoxSize, labelOffset](auto& p) {
-                return QRectF {p.x * scaleX + referencePoint.x() - pointBoxSize / 2,
-                               referencePoint.y() - p.y * scaleY - pointBoxSize / 2 - labelOffset,
-                               pointBoxSize,
-                               pointBoxSize};
-                });
+                       std::back_inserter(translatedPoints[graphNum]),
+                       [scaleX, scaleY, referencePoint, labelOffset](auto& p) {
+               return QPointF {p.x * scaleX + referencePoint.x(),
+                               referencePoint.y() - p.y * scaleY - labelOffset};
+               });
     }
 }
 
@@ -85,28 +132,28 @@ void Plot::paintEvent(QPaintEvent*) {
     painter.setRenderHint(QPainter::Antialiasing);
     if (!adaptiveSizeComputed)
         computeAdaptiveSizes();
-    if (graphPointBoxes.empty()) {
+    if (translatedPoints.empty()) {
         painter.eraseRect(availableRect);
         return;
     }
 
-    int graphNum = 0;
     // Skip each labelSkip label so that labels are not cluttered.
     const int labelSkip = (rangeX.getSpan() - 1) / 28;
+    const double innerRelSize = 0.8 * pointBoxSize;
+    int graphNum = 0;
     for (auto& graph : graphs) {
+        const QPolygonF points = translatedPoints[graphNum++];
         painter.setPen(graph.getPen());
-        PointBoxData pointBoxes = graphPointBoxes[graphNum++];
-        for (int i = 0; i < pointBoxes.size(); ++i) {
-            if (i < pointBoxes.size() - 1) {
-                painter.drawLine(pointBoxes[i].center(), pointBoxes[i + 1].center());
-            }
-            QRectF currentBox = pointBoxes[i];
+        painter.drawPolyline((QPolygonF) points);
+        if (!graph.showPoints())
+            continue;
+        for (int i = 0; i < points.size(); ++i) {
             painter.setBrush(Qt::red);
-            painter.drawEllipse(currentBox.center(), currentBox.width(), currentBox.height());
+            painter.drawEllipse(points[i], pointBoxSize, pointBoxSize);
             painter.setBrush(Qt::white);
-            painter.drawEllipse(currentBox.center(), 0.8 * currentBox.width(), 0.8 * currentBox.height());
+            painter.drawEllipse(points[i], innerRelSize * pointBoxSize, innerRelSize * pointBoxSize);
             if (i % labelSkip == 0)
-                painter.drawText(pointBoxes[i].x(), availableRect.bottomLeft().y(), graph[i].label);
+                painter.drawText(points[i].x(), availableRect.bottomLeft().y(), graph[i].label);
         }
     }
 }
@@ -129,23 +176,48 @@ void Plot::computeAdaptiveSizes() {
                             center.y() - availableHeight / 2,
                             availableWidth,
                             availableHeight};
+    pointBoxSize = 0.0125 * availableRect.height();
     emit sizeComputed();
 }
 
 void Plot::reset() {
-    for(auto& pointBoxes : graphPointBoxes) {
-        pointBoxes.clear();
+    for(auto& points : translatedPoints) {
+        points.clear();
     }
     for (auto& graph : graphs) {
         graph.clearData();
     }
 }
 
-void Plot::showEvent(QShowEvent*) {
-    this->repaint();
-}
-
 void Plot::onSizeComputed() {
     constructPointBoxes();
     adaptiveSizeComputed = true;
+}
+
+void Plot::mouseMoveEvent(QMouseEvent* event) {
+    auto index = pointBoxContain(event->pos());
+    if (index.first != -1) {
+        QString toolTip = QString("%1").arg(graphs[index.first][index.second].y);
+        QToolTip::showText(event->globalPos() - QPoint {0, int(15 * pointBoxSize)}, toolTip);
+    } else {
+        QToolTip::hideText();
+        event->ignore();
+    }
+}
+
+std::pair<int, int> Plot::pointBoxContain(const QPoint& pos) const {
+    for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
+        if (!graphs[graphNum].showPoints())
+            continue;
+        for (int i = 0; i < translatedPoints[graphNum].size(); ++i) {
+            QRectF pointBox {translatedPoints[graphNum][i].x() - pointBoxSize,
+                             translatedPoints[graphNum][i].y() - pointBoxSize,
+                             pointBoxSize,
+                             pointBoxSize};
+            if (pointBox.contains(pos)) {
+                return std::make_pair(graphNum, i);
+            }
+        }
+    }
+    return std::make_pair(-1, -1);
 }

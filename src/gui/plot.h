@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QWidget>
 #include <QEvent>
+#include <QGraphicsScene>
 
 #include <QDebug>
 
@@ -15,6 +16,26 @@ struct GraphPoint
     double x;
     double y;
     QString label;
+};
+
+class PointBox
+{
+public:
+    void setPath(const QPainterPath &path);
+    void setToolTip(const QString &toolTip);
+    void setPosition(const QPoint &position);
+    void setColor(const QColor &color);
+
+    QPainterPath path() const;
+    QPoint position() const;
+    QColor color() const;
+    QString toolTip() const;
+
+private:
+    QPainterPath mPath;
+    QPoint mPosition;
+    QColor mColor;
+    QString mToolTip;
 };
 
 
@@ -32,6 +53,8 @@ public:
     const QPen getPen() const;
     const GraphPoint& operator[](std::size_t idx) const;
     void clearData();
+    void setShowPoints(bool showPoints);
+    bool showPoints() const;
     const_iterator cbegin() const { 
         return points.cbegin();
     }
@@ -43,6 +66,7 @@ public:
 private:
     QPen pen;
     GraphData points;
+    bool mShowPoints = false;
 
 };
 
@@ -67,7 +91,8 @@ class Plot : public QWidget
     Q_OBJECT
 
 public:
-    using PointBoxData = QVector<QRectF>;
+    // using PointBoxData = QVector<QRectF>;
+    using PointPixelCoordinates = QVector<QPointF>;
     explicit Plot(QWidget* parent = 0);
     virtual ~Plot () = default;
     void reset();
@@ -79,7 +104,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent*) override;
-    void showEvent(QShowEvent*) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
 
 signals:
     void sizeComputed();
@@ -89,14 +114,17 @@ private slots:
 
 private:
     QVector<Graph> graphs;
-    QVector<PointBoxData> graphPointBoxes;
+    QVector<PointPixelCoordinates> translatedPoints;
+    // QVector<PointBoxData> graphPointBoxes;
     AxisRange rangeX;
     AxisRange rangeY;
     QRectF availableRect;
     bool adaptiveSizeComputed = false;
+    double pointBoxSize;
 
     void computeAdaptiveSizes();
     void constructPointBoxes();
+    std::pair<int, int> pointBoxContain(const QPoint& pos) const;
 };
 
 
