@@ -18,26 +18,6 @@ struct GraphPoint
     QString label;
 };
 
-class PointBox
-{
-public:
-    void setPath(const QPainterPath &path);
-    void setToolTip(const QString &toolTip);
-    void setPosition(const QPoint &position);
-    void setColor(const QColor &color);
-
-    QPainterPath path() const;
-    QPoint position() const;
-    QColor color() const;
-    QString toolTip() const;
-
-private:
-    QPainterPath mPath;
-    QPoint mPosition;
-    QColor mColor;
-    QString mToolTip;
-};
-
 
 using GraphData = QVector<GraphPoint>;
 
@@ -90,11 +70,18 @@ class Plot : public QWidget
 {
     Q_OBJECT
 
+private:
+    struct PointBox {
+        QPainterPath path;
+        QPointF position;
+        QString toolTip;
+        QString label;
+    };
+
 public:
-    // using PointBoxData = QVector<QRectF>;
-    using PointPixelCoordinates = QVector<QPointF>;
+    using PointBoxContainer = QVector<PointBox>;
     explicit Plot(QWidget* parent = 0);
-    virtual ~Plot () = default;
+    virtual ~Plot() = default;
     void reset();
     void addGraph(Graph& graph);
     void setGraphData(int graphNum, GraphData& data);
@@ -114,17 +101,23 @@ private slots:
 
 private:
     QVector<Graph> graphs;
-    QVector<PointPixelCoordinates> translatedPoints;
-    // QVector<PointBoxData> graphPointBoxes;
+    QVector<PointBoxContainer> pointBoxes;
     AxisRange rangeX;
     AxisRange rangeY;
     QRectF availableRect;
-    bool adaptiveSizeComputed = false;
+    bool adaptiveSizeComputed {false};
     double pointBoxSize;
+    const QBrush pointBoxBrush {Qt::white};
+    constexpr static int labelSkipInd {28};
+    constexpr static int toolTipOffset {10};
+    // RelSizes' are relative to Widget's rect() height
+    constexpr static double labelOffsetRelSize {0.15};
+    constexpr static double marginRelSize {0.07};
+    constexpr static double pointBoxRelSize {0.025};
 
     void computeAdaptiveSizes();
     void constructPointBoxes();
-    std::pair<int, int> pointBoxContain(const QPoint& pos) const;
+    const QString getPosTooltip(const QPoint& pos) const;
 };
 
 
