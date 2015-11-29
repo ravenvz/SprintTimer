@@ -91,7 +91,6 @@ private:
     T total = 0;
     QVector<T> distribution;
     QVector<int> binFrequency;
-    QStringList binLabels;
 
     void computeMaxAndAverage() {
         if (numBins == 0) return;
