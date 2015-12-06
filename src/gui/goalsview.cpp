@@ -25,13 +25,18 @@ void GoalsView::connectSlots() {
     connect(ui->spinBoxMonthlyGoal, SIGNAL(valueChanged(int)), this, SLOT(updateMonthlyGoal()));
 }
 
+void GoalsView::updateView() {
+    displayData();
+}
+
 void GoalsView::displayData() {
+    goalStatistics.reset(new GoalStatItem {});
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
     unsigned weeklyGoal = applicationSettings.getWeeklyPomodorosGoal();
     unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
-    Distribution<unsigned>* lastDays = goalStatistics.getDistributionForLastThirtyDays();
-    Distribution<unsigned>* lastWeeks = goalStatistics.getDistributionForLastTwelveWeeks();
-    Distribution<unsigned>* lastMonths = goalStatistics.getDistributionForLastTwelveMonths();
+    Distribution<unsigned>* lastDays = goalStatistics->getDistributionForLastThirtyDays();
+    Distribution<unsigned>* lastWeeks = goalStatistics->getDistributionForLastTwelveWeeks();
+    Distribution<unsigned>* lastMonths = goalStatistics->getDistributionForLastTwelveMonths();
     ui->spinBoxDailyGoal->setValue(dailyGoal);
     ui->spinBoxWeeklyGoal->setValue(weeklyGoal);
     ui->spinBoxMonthlyGoal->setValue(monthlyGoal);
@@ -87,7 +92,7 @@ void GoalsView::drawDiagrams() {
 
 void GoalsView::drawLastMonthDiagram() {
     clearDiagramLayout(ui->gridLayoutLastMonthDiagram);
-    Distribution<unsigned>* distribution = goalStatistics.getDistributionForLastThirtyDays();
+    Distribution<unsigned>* distribution = goalStatistics->getDistributionForLastThirtyDays();
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
     GaugeFactory factory;
     for (int row = 0, ind = 0; row < 3; ++row) {
@@ -100,7 +105,7 @@ void GoalsView::drawLastMonthDiagram() {
 
 void GoalsView::drawLastQuarterDiagram() {
     clearDiagramLayout(ui->gridLayoutLastQuarterDiagram);
-    Distribution<unsigned>* distribution = goalStatistics.getDistributionForLastTwelveWeeks();
+    Distribution<unsigned>* distribution = goalStatistics->getDistributionForLastTwelveWeeks();
     unsigned weeklyGoal = applicationSettings.getWeeklyPomodorosGoal();
     GaugeFactory factory;
     for (int row = 0, ind = 0; row < 3; ++row) {
@@ -113,7 +118,7 @@ void GoalsView::drawLastQuarterDiagram() {
 
 void GoalsView::drawLastYearDiagram() {
     clearDiagramLayout(ui->gridLayoutLastYearDiagram);
-    Distribution<unsigned>* distribution = goalStatistics.getDistributionForLastTwelveMonths();
+    Distribution<unsigned>* distribution = goalStatistics->getDistributionForLastTwelveMonths();
     unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
     GaugeFactory factory;
     for (int row = 0, ind = 0; row < 3; ++row) {

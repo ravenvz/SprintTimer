@@ -66,7 +66,11 @@ private:
     void setUiToIdleState();
     void setUiToRunningState();
     void setUiToSubmissionState();
+    void updateOpenedWindows();
     void updatePomodoroView();
+    void updateStatisticsWindow();
+    void updateHistoryWindow();
+    void updateGoalWindow();
     void editTodoItem();
     void removeTodoItem();
     void playSound();

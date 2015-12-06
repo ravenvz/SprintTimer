@@ -176,6 +176,7 @@ void MainWindow::submitPomodoro() {
     }
     completedTasksIntervals.clear();
     updatePomodoroView();
+    updateOpenedWindows();
     ui->lvTodoItems->viewport()->update();
     startTask();
 }
@@ -294,6 +295,7 @@ void MainWindow::launchManualAddPomodoroDialog() {
     PomodoroManualAddDialog dialog {todoitemViewModel, applicationSettings.getPomodoroDuration()};
     if (dialog.exec()) {
         updatePomodoroView();
+        updateOpenedWindows();
         ui->lvTodoItems->viewport()->update();
     }
 }
@@ -304,3 +306,20 @@ void MainWindow::bringToForeground(QWidget& widgetPtr) {
     widgetPtr.showNormal();
 }
 
+void MainWindow::updateOpenedWindows() {
+    updateStatisticsWindow();
+    updateHistoryWindow();
+    updateGoalWindow();
+}
+
+void MainWindow::updateStatisticsWindow() {
+    if (statisticsView) statisticsView->update();
+}
+
+void MainWindow::updateHistoryWindow() {
+    if (historyView) historyView->update();
+}
+
+void MainWindow::updateGoalWindow() {
+    if (goalsView) goalsView->update();
+}

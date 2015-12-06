@@ -20,7 +20,12 @@ void HistoryView::connectSlots() {
 }
 
 HistoryView::~HistoryView() {
+    qDebug() << "HistoryView destroyed";
     delete ui;
+}
+
+void HistoryView::updateView() {
+    displayHistory();
 }
 
 void HistoryView::displayHistory() {

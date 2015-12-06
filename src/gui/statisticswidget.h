@@ -23,6 +23,7 @@ class StatisticsWidget : public QWidget
 public:
     explicit StatisticsWidget(Config& applicationSettings, QWidget* parent = 0);
     ~StatisticsWidget();
+    void updateView();
 
 private slots:
     void onDatePickerIntervalChanged(DateInterval newInterval);
@@ -37,7 +38,6 @@ private:
     DateInterval currentInterval;
     const int numDisplayedTagSlices = 16;
     int selectedSliceIndex = -1;
-    // std::unique_ptr<Plot> dailyTimeline;
 
     void connectSlots();
     void setupGraphs();

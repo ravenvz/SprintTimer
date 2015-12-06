@@ -26,6 +26,11 @@ void StatisticsWidget::connectSlots() {
     connect(ui->topTagDiagram, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
 }
 
+void StatisticsWidget::updateView() {
+    setupGraphs();
+    drawGraphs();
+}
+
 void StatisticsWidget::setupGraphs() {
     fetchPomodoros();
     setupWeekdayBarChart();

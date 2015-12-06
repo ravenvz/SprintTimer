@@ -19,6 +19,7 @@ class HistoryView : public QWidget
 public:
     explicit HistoryView(QWidget* parent = 0);
     ~HistoryView();
+    void updateView();
 
 private:
     Ui::HistoryView* ui;
