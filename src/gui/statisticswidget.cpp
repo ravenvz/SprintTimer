@@ -8,6 +8,7 @@ StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent)
     ui(new Ui::StatisticsWidget),
     applicationSettings(applicationSettings)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
     workTimeDiagram = new TimeDiagram(this);
@@ -24,6 +25,11 @@ StatisticsWidget::~StatisticsWidget() {
 void StatisticsWidget::connectSlots() {
     connect(ui->widgetPickPeriod, SIGNAL(intervalChanged(DateInterval)), this, SLOT(onDatePickerIntervalChanged(DateInterval)));
     connect(ui->topTagDiagram, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
+}
+
+void StatisticsWidget::updateView() {
+    setupGraphs();
+    drawGraphs();
 }
 
 void StatisticsWidget::setupGraphs() {

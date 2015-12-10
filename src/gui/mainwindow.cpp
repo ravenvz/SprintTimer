@@ -34,6 +34,9 @@ MainWindow::~MainWindow() {
     delete pomodoroViewModel;
     delete todoitemViewModel;
     delete todoitemViewDelegate;
+    delete historyView;
+    delete statisticsView;
+    delete goalsView;
     delete ui;
 }
 
@@ -176,6 +179,7 @@ void MainWindow::submitPomodoro() {
     }
     completedTasksIntervals.clear();
     updatePomodoroView();
+    updateOpenedWindows();
     ui->lvTodoItems->viewport()->update();
     startTask();
 }
@@ -257,6 +261,7 @@ void MainWindow::removeTodoItem() {
 
 void MainWindow::toggleTodoItemCompleted() {
     todoitemViewModel->toggleCompleted(ui->lvTodoItems->currentIndex());
+    updateHistoryWindow();
 }
 
 void MainWindow::onInTheZoneToggled() {
@@ -265,28 +270,28 @@ void MainWindow::onInTheZoneToggled() {
 
 void MainWindow::launchHistoryView() {
     if (!historyView) {
-        historyView.reset(new HistoryView());
+        historyView = new HistoryView();
         historyView->show();
     } else {
-        bringToForeground(*historyView);
+        bringToForeground(historyView);
     }
 }
 
 void MainWindow::launchGoalsView() {
     if (!goalsView) {
-        goalsView.reset(new GoalsView(applicationSettings));
+        goalsView = new GoalsView(applicationSettings);
         goalsView->show();
     } else {
-        bringToForeground(*goalsView);
+        bringToForeground(goalsView);
     }
 }
 
 void MainWindow::launchStatisticsView() {
     if (!statisticsView) {
-        statisticsView.reset(new StatisticsWidget(applicationSettings));
+        statisticsView = new StatisticsWidget(applicationSettings);
         statisticsView->show();
     } else {
-        bringToForeground(*statisticsView);
+        bringToForeground(statisticsView);
     }
 }
 
@@ -294,13 +299,31 @@ void MainWindow::launchManualAddPomodoroDialog() {
     PomodoroManualAddDialog dialog {todoitemViewModel, applicationSettings.getPomodoroDuration()};
     if (dialog.exec()) {
         updatePomodoroView();
+        updateOpenedWindows();
         ui->lvTodoItems->viewport()->update();
     }
 }
 
-void MainWindow::bringToForeground(QWidget& widgetPtr) {
-    widgetPtr.raise();
-    widgetPtr.activateWindow();
-    widgetPtr.showNormal();
+void MainWindow::bringToForeground(QWidget* widgetPtr) {
+    widgetPtr->raise();
+    widgetPtr->activateWindow();
+    widgetPtr->showNormal();
 }
 
+void MainWindow::updateOpenedWindows() {
+    updateStatisticsWindow();
+    updateHistoryWindow();
+    updateGoalWindow();
+}
+
+void MainWindow::updateStatisticsWindow() {
+    if (statisticsView) statisticsView->updateView();
+}
+
+void MainWindow::updateHistoryWindow() {
+    if (historyView) historyView->updateView();
+}
+
+void MainWindow::updateGoalWindow() {
+    if (goalsView) goalsView->updateView();
+}
