@@ -25,7 +25,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent = 0);
+    MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent = 0);
     ~MainWindow();
 
 private slots:
@@ -58,9 +58,9 @@ private:
     QStringListModel* pomodoroViewModel;
     TodoItemsListModel* todoitemViewModel;
     TodoItemsViewDelegate* todoitemViewDelegate;
-    std::unique_ptr<GoalsView> goalsView;
-    std::unique_ptr<StatisticsWidget> statisticsView;
-    std::unique_ptr<HistoryView> historyView;
+    QPointer<GoalsView> goalsView;
+    QPointer<StatisticsWidget> statisticsView;
+    QPointer<HistoryView> historyView;
 
     void connectSlots();
     void setUiToIdleState();
@@ -74,7 +74,7 @@ private:
     void editTodoItem();
     void removeTodoItem();
     void playSound();
-    void bringToForeground(QWidget& widgetPtr);
+    void bringToForeground(QWidget* widgetPtr);
 };
 
 #endif // MAINWINDOW_H 

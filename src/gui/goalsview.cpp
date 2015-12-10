@@ -10,6 +10,7 @@ GoalsView::GoalsView(Config& applicationSettings, QWidget* parent) :
     ui(new Ui::GoalsView),
     applicationSettings(applicationSettings)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     displayData();
     connectSlots();

@@ -8,6 +8,7 @@ StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent)
     ui(new Ui::StatisticsWidget),
     applicationSettings(applicationSettings)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
     workTimeDiagram = new TimeDiagram(this);

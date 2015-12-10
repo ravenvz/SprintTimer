@@ -7,6 +7,7 @@ HistoryView::HistoryView(QWidget* parent) :
     QWidget(parent),
     ui(new Ui::HistoryView)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
     displayHistory();
@@ -20,7 +21,6 @@ void HistoryView::connectSlots() {
 }
 
 HistoryView::~HistoryView() {
-    qDebug() << "HistoryView destroyed";
     delete ui;
 }
 

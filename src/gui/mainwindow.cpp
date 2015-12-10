@@ -34,6 +34,9 @@ MainWindow::~MainWindow() {
     delete pomodoroViewModel;
     delete todoitemViewModel;
     delete todoitemViewDelegate;
+    delete historyView;
+    delete statisticsView;
+    delete goalsView;
     delete ui;
 }
 
@@ -258,6 +261,7 @@ void MainWindow::removeTodoItem() {
 
 void MainWindow::toggleTodoItemCompleted() {
     todoitemViewModel->toggleCompleted(ui->lvTodoItems->currentIndex());
+    updateHistoryWindow();
 }
 
 void MainWindow::onInTheZoneToggled() {
@@ -266,28 +270,28 @@ void MainWindow::onInTheZoneToggled() {
 
 void MainWindow::launchHistoryView() {
     if (!historyView) {
-        historyView.reset(new HistoryView());
+        historyView = new HistoryView();
         historyView->show();
     } else {
-        bringToForeground(*historyView);
+        bringToForeground(historyView);
     }
 }
 
 void MainWindow::launchGoalsView() {
     if (!goalsView) {
-        goalsView.reset(new GoalsView(applicationSettings));
+        goalsView = new GoalsView(applicationSettings);
         goalsView->show();
     } else {
-        bringToForeground(*goalsView);
+        bringToForeground(goalsView);
     }
 }
 
 void MainWindow::launchStatisticsView() {
     if (!statisticsView) {
-        statisticsView.reset(new StatisticsWidget(applicationSettings));
+        statisticsView = new StatisticsWidget(applicationSettings);
         statisticsView->show();
     } else {
-        bringToForeground(*statisticsView);
+        bringToForeground(statisticsView);
     }
 }
 
@@ -300,10 +304,10 @@ void MainWindow::launchManualAddPomodoroDialog() {
     }
 }
 
-void MainWindow::bringToForeground(QWidget& widgetPtr) {
-    widgetPtr.raise();
-    widgetPtr.activateWindow();
-    widgetPtr.showNormal();
+void MainWindow::bringToForeground(QWidget* widgetPtr) {
+    widgetPtr->raise();
+    widgetPtr->activateWindow();
+    widgetPtr->showNormal();
 }
 
 void MainWindow::updateOpenedWindows() {
@@ -313,13 +317,13 @@ void MainWindow::updateOpenedWindows() {
 }
 
 void MainWindow::updateStatisticsWindow() {
-    if (statisticsView) statisticsView->update();
+    if (statisticsView) statisticsView->updateView();
 }
 
 void MainWindow::updateHistoryWindow() {
-    if (historyView) historyView->update();
+    if (historyView) historyView->updateView();
 }
 
 void MainWindow::updateGoalWindow() {
-    if (goalsView) goalsView->update();
+    if (goalsView) goalsView->updateView();
 }
