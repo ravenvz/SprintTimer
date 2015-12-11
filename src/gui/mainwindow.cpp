@@ -72,7 +72,7 @@ void MainWindow::setUiToRunningState() {
     ui->lcdTimer->show();
     ui->progressBar->show();
     ui->btnCancel->show();
-    progressBarMaxValue = timerDurationInSeconds;
+    progressBarMaxValue = timerDuration;
     ui->progressBar->setMaximum(progressBarMaxValue);
 }
 
@@ -120,17 +120,17 @@ void MainWindow::launchSettingsDialog() {
 
 void MainWindow::startTask() {
     taskScheduler.startTask();
-    timerDurationInSeconds = secondsPerMinute * taskScheduler.getTaskDurationInMinutes();
+    timerDuration = secondsPerMinute * taskScheduler.getTaskDurationInMinutes();
     setUiToRunningState();
     timer->start(1000);
 }
 
 void MainWindow::updateTimerCounter() {
-    timerDurationInSeconds--;
-    if (timerDurationInSeconds >= 0) {
-        ui->progressBar->setValue(progressBarMaxValue - timerDurationInSeconds);
-        QString s = QString("%1:%2").arg(QString::number(timerDurationInSeconds / secondsPerMinute),
-                                         QString::number(timerDurationInSeconds % secondsPerMinute).rightJustified(2, '0'));
+    timerDuration--;
+    if (timerDuration >= 0) {
+        ui->progressBar->setValue(progressBarMaxValue - timerDuration);
+        QString s = QString("%1:%2").arg(QString::number(timerDuration / secondsPerMinute),
+                                         QString::number(timerDuration % secondsPerMinute).rightJustified(2, '0'));
         ui->lcdTimer->display(s);
         ui->progressBar->repaint();
     } else {
@@ -213,24 +213,13 @@ void MainWindow::showContextMenu(const QPoint& pos) {
     QPoint globalPos = ui->lvTodoItems->mapToGlobal(pos);
 
     QMenu todoItemsMenu;
-    QAction* editAction = new QAction("Edit", this);
-    QAction* deleteAction = new QAction("Delete", this);
-    todoItemsMenu.addAction(editAction);
-    todoItemsMenu.addAction(deleteAction);
+    todoItemsMenu.addAction("Edit");
+    todoItemsMenu.addAction("Delete");
 
-    QAction* selectedItem = todoItemsMenu.exec(globalPos);
+    std::unique_ptr<QAction> selectedItem = std::make_unique<QAction> (todoItemsMenu.exec(globalPos));
 
-    if (selectedItem) {
-        if (selectedItem->text() == "Edit") {
-            editTodoItem();
-        }
-        if (selectedItem->text() == "Delete") {
-            removeTodoItem();
-        }
-    }
-
-    delete editAction;
-    delete deleteAction;
+    if (selectedItem && selectedItem->text() == "Edit") editTodoItem();
+    if (selectedItem && selectedItem->text() == "Delete") removeTodoItem();
 }
 
 void MainWindow::editTodoItem() {

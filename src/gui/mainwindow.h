@@ -21,7 +21,8 @@ namespace Ui {
 }
 
 
-constexpr unsigned secondsPerMinute = 60;
+using Second = int;
+constexpr Second secondsPerMinute = 60;
 
 
 class MainWindow : public QMainWindow
@@ -56,8 +57,8 @@ private:
     QPointer<QTimer> timer;
     std::unique_ptr<QMediaPlayer> player;
     std::vector<TimeInterval> completedTasksIntervals;
-    unsigned progressBarMaxValue;
-    int timerDurationInSeconds;
+    int progressBarMaxValue {0};
+    Second timerDuration {0};
     QPointer<QStringListModel> pomodoroViewModel;
     QPointer<TodoItemsListModel> todoitemViewModel;
     QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
