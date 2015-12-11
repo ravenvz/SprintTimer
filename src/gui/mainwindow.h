@@ -20,6 +20,10 @@ namespace Ui {
     class MainWindow;
 }
 
+
+constexpr unsigned secondsPerMinute = 60;
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -49,15 +53,14 @@ private:
     Ui::MainWindow *ui;
     TaskScheduler& taskScheduler;
     Config& applicationSettings;
-    const unsigned secondsPerMinute = 60;
-    QTimer* timer;
-    QMediaPlayer* player;
+    QPointer<QTimer> timer;
+    std::unique_ptr<QMediaPlayer> player;
     std::vector<TimeInterval> completedTasksIntervals;
     unsigned progressBarMaxValue;
     int timerDurationInSeconds;
-    QStringListModel* pomodoroViewModel;
-    TodoItemsListModel* todoitemViewModel;
-    TodoItemsViewDelegate* todoitemViewDelegate;
+    QPointer<QStringListModel> pomodoroViewModel;
+    QPointer<TodoItemsListModel> todoitemViewModel;
+    QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
     QPointer<GoalsView> goalsView;
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;

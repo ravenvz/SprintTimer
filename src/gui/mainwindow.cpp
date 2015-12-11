@@ -16,12 +16,13 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
 {
     ui->setupUi(this);
     timer = new QTimer(this);
-    player = new QMediaPlayer;
-    pomodoroViewModel = new QStringListModel(this);
+    player = std::make_unique<QMediaPlayer> ();
+    pomodoroViewModel = new QStringListModel();
+    ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
     todoitemViewModel = new TodoItemsListModel(this);
+    ui->lvTodoItems->setModel(todoitemViewModel);
     todoitemViewDelegate = new TodoItemsViewDelegate(this);
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
-    ui->lvTodoItems->setModel(todoitemViewModel);
     ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);
     setUiToIdleState();
     connectSlots();
@@ -30,8 +31,6 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
 
 MainWindow::~MainWindow() {
     delete timer;
-    delete player;
-    delete pomodoroViewModel;
     delete todoitemViewModel;
     delete todoitemViewDelegate;
     delete historyView;
@@ -187,7 +186,6 @@ void MainWindow::submitPomodoro() {
 void MainWindow::updatePomodoroView() {
     QStringList lst = PomodoroDataSource::getPomodorosForToday();
     pomodoroViewModel->setStringList(lst);
-    ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
     if (dailyGoal == 0) {
         ui->labelDailyGoalProgress->hide();
