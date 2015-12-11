@@ -126,14 +126,10 @@ public:
                       "where strftime('%m', dt) = (:month) and strftime('%Y', dt) = (:year) "
                       "group by strftime('%w', dt) "
                       "order by strftime('%w', dt)");
-        // query.bindValue(":month", QVariant(QString::number(month).rightJustified(2, '0')));
-        qDebug() << "FUCK " << monthStr;
         query.bindValue(":month", QVariant("07"));
         query.bindValue(":year", QVariant(QString(year)));
         query.exec();
-        qDebug() << query.lastError();
         while (query.next()) {
-            qDebug() << "HERE";
             result << query.value(0).toInt();
         }
         return result;
