@@ -38,9 +38,8 @@ private:
     void connectSlots();
     void displayData();
     void drawDiagrams();
-    void drawLastMonthDiagram();
-    void drawLastQuarterDiagram();
-    void drawLastYearDiagram();
+    void drawPeriodDiagram(QGridLayout* layout, Distribution<unsigned>* distribution,
+            unsigned goal, int rowNum, int colNum);
     void clearDiagramLayout(QGridLayout* layout);
     void updateProgressBar(QProgressBar* bar, unsigned goal, int value);
     QString formatDecimal(double decimal) const;
