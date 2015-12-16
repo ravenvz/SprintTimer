@@ -37,7 +37,6 @@ private:
 
     void connectSlots();
     void displayData();
-    void drawDiagrams();
     void drawPeriodDiagram(QGridLayout* layout, Distribution<unsigned>* distribution,
             unsigned goal, int rowNum, int colNum);
     void clearDiagramLayout(QGridLayout* layout);

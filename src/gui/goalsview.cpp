@@ -57,7 +57,9 @@ void GoalsView::displayData() {
     updateProgressBar(ui->progressBarWeek, weeklyGoal, lastWeeks->getBinValue(lastWeeks->getNumBins() - 1));
     updateProgressBar(ui->progressBarMonth, monthlyGoal, lastMonths->getBinValue(
             lastMonths->getNumBins() - 1));
-    drawDiagrams();
+    drawPeriodDiagram(ui->gridLayoutLastMonthDiagram, lastDays, dailyGoal, 3, 10);
+    drawPeriodDiagram(ui->gridLayoutLastQuarterDiagram, lastWeeks, weeklyGoal, 3, 4);
+    drawPeriodDiagram(ui->gridLayoutLastYearDiagram, lastMonths, monthlyGoal, 3, 4);
 }
 
 void GoalsView::updateProgressBar(QProgressBar* bar, unsigned goal, int value) {
@@ -83,21 +85,6 @@ void GoalsView::updateProgressBar(QProgressBar* bar, unsigned goal, int value) {
     bar->setPalette(p);
     bar->setValue(value);
     bar->show();
-}
-
-void GoalsView::drawDiagrams() {
-    drawPeriodDiagram(ui->gridLayoutLastMonthDiagram, 
-                      goalStatistics->getDistributionForLastThirtyDays(),
-                      applicationSettings.getDailyPomodorosGoal(),
-                      3, 10);
-    drawPeriodDiagram(ui->gridLayoutLastQuarterDiagram, 
-                      goalStatistics->getDistributionForLastTwelveWeeks(),
-                      applicationSettings.getWeeklyPomodorosGoal(),
-                      3, 4);
-    drawPeriodDiagram(ui->gridLayoutLastYearDiagram, 
-                      goalStatistics->getDistributionForLastTwelveMonths(),
-                      applicationSettings.getMonthlyPomodorosGoal(),
-                      3, 4);
 }
 
 void GoalsView::drawPeriodDiagram(QGridLayout* layout, Distribution<unsigned>* distribution,
