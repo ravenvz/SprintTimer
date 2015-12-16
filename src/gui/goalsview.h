@@ -6,8 +6,6 @@
 #include "core/config.h"
 #include <QGridLayout>
 #include <src/utils/MathUtils.h>
-#include "core/PomodoroStatistics.h"
-#include <memory>
 
 namespace Ui {
     class GoalsView;
@@ -30,14 +28,13 @@ private slots:
 private:
     Ui::GoalsView* ui;
     Config& applicationSettings;
-    std::unique_ptr<GoalStatItem> goalStatistics;
     const QColor targetGoalReached = QColor("#6baa15");
     const QColor overwork = Qt::red;
     const QColor workInProgress = Qt::gray;
 
     void connectSlots();
     void displayData();
-    void drawPeriodDiagram(QGridLayout* layout, Distribution<unsigned>* distribution,
+    void drawPeriodDiagram(QGridLayout* layout, Distribution<unsigned>& distribution,
             unsigned goal, int rowNum, int colNum);
     void clearDiagramLayout(QGridLayout* layout);
     void updateProgressBar(QProgressBar* bar, unsigned goal, int value);
