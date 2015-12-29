@@ -8,11 +8,13 @@ void createDatabase(QSqlDatabase& db, QString& filename) {
     query.exec("create table pomodoro "
             "(id integer primary key autoincrement, "
             "name varchar, "
+            "todo_id integer, "
             "start_time datetime, "
-            "finish_time datetime)");
+            "finish_time datetime), "
+            "foreign key (todo_id) references todo_item(id) on delete cascade on update cascade");
     query.exec("create table tag "
             "(id integer primary key autoincrement, "
-            "name varchar)");
+            "name varchar unique not null)");
     query.exec("create table todo_item "
             "(id integer primary key autoincrement, "
             "name varchar, "
