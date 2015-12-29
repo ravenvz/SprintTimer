@@ -1,9 +1,11 @@
+#include <algorithm>
 #include "Pomodoro.h"
+#include <QDebug>
 
 
 Pomodoro::Pomodoro() { }
 
-Pomodoro::Pomodoro(const QString& name, QDateTime startTime, QDateTime finishTime)
+Pomodoro::Pomodoro(const QString& name, const QDateTime& startTime, const QDateTime& finishTime)
         : name(name), startTime(startTime), finishTime(finishTime) 
 {
     QRegularExpression tagRegexp {QString ("(%1\\S+)").arg(tagPrefix)};
@@ -12,6 +14,19 @@ Pomodoro::Pomodoro(const QString& name, QDateTime startTime, QDateTime finishTim
         QRegularExpressionMatch match = it.next();
         tags << match.captured(1);
     }
+}
+
+Pomodoro::Pomodoro(const QString& todoName, const QDateTime& startTime, const QDateTime& finishTime, const QString& rawTags) :
+        startTime(startTime), finishTime(finishTime) 
+{
+    // QString tags;
+    QStringList tagList = rawTags.split(",");
+    std::for_each(tagList.begin(), tagList.end(), [](auto& el) {
+            return el.prepend("#"); 
+        });
+    name.append(tagList.join(" "));
+    name.append(" ");
+    name.append(todoName);
 }
 
 void Pomodoro::setFinishTime(const QDateTime& finishTime) {

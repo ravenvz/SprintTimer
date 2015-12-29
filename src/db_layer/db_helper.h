@@ -19,14 +19,22 @@ public:
     static QStringList getPomodorosForToday() {
         QStringList result;
         QSqlQuery query;
-        query.exec("select id, name, start_time, finish_time "
-               "from pomodoro where date(start_time) = date('now') "
-               "order by start_time");
+        constexpr int nameCol = 1;
+        const int startTimeCol = 2;
+        const int finishTimeCol = 3;
+        const int tagsCol = 4;
+        query.exec("select pomodoro.id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
+                   "from pomodoro "
+                   "join todo_item on pomodoro.todo_id = todo_item.id "
+                   "join todotag on todo_item.id = todotag.todo_id "
+                   "join tag on todotag.tag_id = tag.id "
+                   "where date(start_time) = date('now', '-1 day') "
+                   "group by pomodoro.id;");
         while (query.next()) {
-            QStringList m;
-            Pomodoro pomodoro {query.value(1).toString(),
-                               query.value(2).toDateTime(),
-                               query.value(3).toDateTime()};
+            Pomodoro pomodoro {query.value(nameCol).toString(),
+                               query.value(startTimeCol).toDateTime(),
+                               query.value(finishTimeCol).toDateTime(),
+                               query.value(tagsCol).toString()};
             result.append(pomodoro.asString());
         }
         return result;

@@ -17,7 +17,7 @@ set ("${PROJECT}_BINARY_DIR" bin)
 set ("${PROJECT}_SOURCE_DIR" src:include:external_libs/qcustomplot-source)
 
 # to change Clion build directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
 
 set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})

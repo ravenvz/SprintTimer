@@ -11,7 +11,8 @@ class Pomodoro
 
 public:
     Pomodoro();
-    Pomodoro(const QString& name, QDateTime startTime, QDateTime finishTime);
+    Pomodoro(const QString& name, const QDateTime& startTime, const QDateTime& finishTime);
+    Pomodoro(const QString& todoName, const QDateTime& startTime, const QDateTime& finishTime, const QString& rawTags);
     const QString getName() const;
     void setName(const QString& name);
     const QDateTime getStartTime() const;
