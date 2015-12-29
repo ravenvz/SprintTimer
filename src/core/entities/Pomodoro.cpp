@@ -19,12 +19,13 @@ Pomodoro::Pomodoro(const QString& name, const QDateTime& startTime, const QDateT
 Pomodoro::Pomodoro(const QString& todoName, const QDateTime& startTime, const QDateTime& finishTime, const QString& rawTags) :
         startTime(startTime), finishTime(finishTime) 
 {
-    // QString tags;
-    QStringList tagList = rawTags.split(",");
-    std::for_each(tagList.begin(), tagList.end(), [](auto& el) {
-            return el.prepend("#"); 
-        });
-    name.append(tagList.join(" "));
+    if (!rawTags.size() == 0) {
+        QStringList tagList = rawTags.split(",");
+        std::for_each(tagList.begin(), tagList.end(), [tagPrefix = tagPrefix](auto& el) {
+                return el.prepend(tagPrefix); 
+            });
+        name.append(tagList.join(" "));
+    }
     name.append(" ");
     name.append(todoName);
 }

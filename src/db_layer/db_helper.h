@@ -4,6 +4,7 @@
 #include <QtSql>
 #include <QSqlDatabase>
 #include <vector>
+#include <algorithm>
 #include "core/entities/TodoItem.h"
 #include "core/entities/Pomodoro.h"
 
@@ -19,40 +20,36 @@ public:
     static QStringList getPomodorosForToday() {
         QStringList result;
         QSqlQuery query;
-        constexpr int nameCol = 1;
-        const int startTimeCol = 2;
-        const int finishTimeCol = 3;
-        const int tagsCol = 4;
-        query.exec("select pomodoro.id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
-                   "from pomodoro "
-                   "join todo_item on pomodoro.todo_id = todo_item.id "
-                   "join todotag on todo_item.id = todotag.todo_id "
-                   "join tag on todotag.tag_id = tag.id "
-                   "where date(start_time) = date('now', '-1 day') "
-                   "group by pomodoro.id;");
-        while (query.next()) {
-            Pomodoro pomodoro {query.value(nameCol).toString(),
-                               query.value(startTimeCol).toDateTime(),
-                               query.value(finishTimeCol).toDateTime(),
-                               query.value(tagsCol).toString()};
-            result.append(pomodoro.asString());
-        }
+        QDate today = QDate::currentDate();
+        QVector<Pomodoro> pomodoros = getPomodorosBetween(today, today);
+        std::transform(pomodoros.begin(), pomodoros.end(), std::back_inserter(result), [](const auto& pomo) {
+                return pomo.asString(); 
+            });
         return result;
     }
 
     static QVector<Pomodoro> getPomodorosBetween(const QDate& startDate, const QDate& endDate) {
         QVector<Pomodoro> result;
         QSqlQuery query;
-        query.prepare("select id, name, start_time, finish_time "
-                "from pomodoro where date(start_time) >= (:start_date) and "
-                "date(start_time) <= (:end_date) ");
+        const int nameCol = 1;
+        const int startTimeCol = 2;
+        const int finishTimeCol = 3;
+        const int tagsCol = 4;
+        query.prepare("select pomodoro.id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
+                      "from pomodoro "
+                      "join todo_item on pomodoro.todo_id = todo_item.id "
+                      "left join todotag on todo_item.id = todotag.todo_id "
+                      "left join tag on todotag.tag_id = tag.id "
+                      "where date(start_time) >= (:start_date) and date(start_time) <= (:end_date) "
+                      "group by pomodoro.id;");
         query.bindValue(":start_date", QVariant(startDate));
         query.bindValue(":end_date", QVariant(endDate));
         query.exec();
         while (query.next()) {
-            Pomodoro pomodoro (query.value(1).toString(),
-                               query.value(2).toDateTime(),
-                               query.value(3).toDateTime());
+            Pomodoro pomodoro {query.value(nameCol).toString(),
+                               query.value(startTimeCol).toDateTime(),
+                               query.value(finishTimeCol).toDateTime(),
+                               query.value(tagsCol).toString()};
             result.append(pomodoro);
         }
         return result;
