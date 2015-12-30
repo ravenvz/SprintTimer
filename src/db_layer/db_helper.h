@@ -23,7 +23,7 @@ public:
         QDate today = QDate::currentDate();
         QVector<Pomodoro> pomodoros = getPomodorosBetween(today, today);
         std::transform(pomodoros.begin(), pomodoros.end(), std::back_inserter(result), [](const auto& pomo) {
-                return pomo.asString(); 
+                return pomo.toString();
             });
         return result;
     }
@@ -31,11 +31,12 @@ public:
     static QVector<Pomodoro> getPomodorosBetween(const QDate& startDate, const QDate& endDate) {
         QVector<Pomodoro> result;
         QSqlQuery query;
-        const int nameCol = 1;
-        const int startTimeCol = 2;
-        const int finishTimeCol = 3;
-        const int tagsCol = 4;
-        query.prepare("select pomodoro.id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
+        const int todoIdCol = 1;
+        const int nameCol = 2;
+        const int startTimeCol = 3;
+        const int finishTimeCol = 4;
+        const int tagsCol = 5;
+        query.prepare("select pomodoro.id, pomodoro.todo_id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
                       "from pomodoro "
                       "join todo_item on pomodoro.todo_id = todo_item.id "
                       "left join todotag on todo_item.id = todotag.todo_id "
@@ -46,10 +47,16 @@ public:
         query.bindValue(":end_date", QVariant(endDate));
         query.exec();
         while (query.next()) {
+            QString rawTags = query.value(tagsCol).toString();
+            QStringList tags;
+            if (!rawTags.isEmpty()) {
+                tags = rawTags.split(",");
+            }
             Pomodoro pomodoro {query.value(nameCol).toString(),
                                query.value(startTimeCol).toDateTime(),
                                query.value(finishTimeCol).toDateTime(),
-                               query.value(tagsCol).toString()};
+                               tags,
+                               query.value(todoIdCol).toInt()};
             result.append(pomodoro);
         }
         return result;
@@ -57,18 +64,13 @@ public:
 
     static QVector<unsigned> getPomodorosForLastThirtyDays() {
         QVector<unsigned> result;
-        QDate today = QDate::currentDate();
-        QDate thirtyDaysAgo = today.addDays(-30);
         QSqlQuery query;
-        query.prepare("select count(start_time) "
-                      "from calendar left join pomodoro "
-                      "on date(start_time) = dt "
-                      "where dt > (:start_date) and dt <= (:end_date) "
-                      "group by date(dt) "
-                      "order by dt");
-        query.bindValue(":start_date", QVariant(thirtyDaysAgo));
-        query.bindValue(":end_date", QVariant(today));
-        query.exec();
+        query.exec("select count(start_time) "
+                   "from calendar left join pomodoro "
+                   "on date(start_time) = dt "
+                   "where dt > date('now', '-30 days') and dt <= date('now') "
+                   "group by date(dt) "
+                   "order by dt");
         while (query.next()) {
             result << query.value(0).toUInt();
         }
@@ -119,25 +121,6 @@ public:
         QDate today = QDate::currentDate();
         QDate thirtyDaysAgo = today.addMonths(-3);
         return PomodoroDataSource::getPomodorosBetween(thirtyDaysAgo, today);
-    }
-
-    static QVector<double> getWorkdayDistributionForMonth(int month, int year) {
-        QVector<double> result;
-        QSqlQuery query;
-        QString monthStr = QString::number(month).rightJustified(2, '0');
-        query.prepare("select count(*) "
-                      "from calendar left join pomodoro "
-                      "on date(start_time) = dt "
-                      "where strftime('%m', dt) = (:month) and strftime('%Y', dt) = (:year) "
-                      "group by strftime('%w', dt) "
-                      "order by strftime('%w', dt)");
-        query.bindValue(":month", QVariant("07"));
-        query.bindValue(":year", QVariant(QString(year)));
-        query.exec();
-        while (query.next()) {
-            result << query.value(0).toInt();
-        }
-        return result;
     }
 
     static void storePomodoro(Pomodoro pomodoro) {
