@@ -5,6 +5,7 @@
 
 TEST_GROUP(PomoStatItem) {
     const double threshold = 0.00001;
+    const long long irrelevantTodoId = 42;
 };
 
 TEST(PomoStatItem, test_empty_daily_statistics) {
@@ -66,7 +67,9 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly) {
         for (int j = 0; j < i + 1; ++j) {
             pomodoros << Pomodoro {QString("Irrelevant"),
                                    QDateTime(QDate::currentDate().addDays(i)),
-                                   QDateTime(QDate::currentDate().addDays(i))};
+                                   QDateTime(QDate::currentDate().addDays(i)),
+                                   QStringList {},
+                                   irrelevantTodoId};
             expectedDistributionVector[i]++;
         }
     }
@@ -98,7 +101,9 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly) {
         for (int j = 0; j < i; ++j) {
             increasingPomodoros << Pomodoro {QString("Whatever"),
                                              QDateTime(QDate(2015, 6, i)),
-                                             QDateTime(QDate(2015, 6, i))};
+                                             QDateTime(QDate(2015, 6, i)),
+                                             QStringList {},
+                                             irrelevantTodoId};
         }
     }
     QVector<double> expected_distribution {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
@@ -117,11 +122,14 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly) {
 
 TEST_GROUP(TagPomoMap) {
 
-    void pushToPomodoros(QVector<Pomodoro>& pomodoros, QString name, int n) {
+    void pushToPomodoros(QVector<Pomodoro>& pomodoros, QString name, QStringList tags, int n) {
+        const int todoId = 42; // irrelevant
         for (int i = 0; i < n; ++i) {
             pomodoros.push_back(Pomodoro {name,
                                           QDateTime::currentDateTime(),
-                                          QDateTime::currentDateTime()});
+                                          QDateTime::currentDateTime(),
+                                          tags,
+                                          todoId});
         }
     }
 
@@ -129,12 +137,12 @@ TEST_GROUP(TagPomoMap) {
 
 TEST(TagPomoMap, test_does_not_reduce_slice_vector_when_all_tags_fit) {
     QVector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "#Tag1 irrelevant", 4);
-    pushToPomodoros(pomodoros, "#Tag2 irrelevant", 49);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag1"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag2"}, 49);
     TagPomoMap map {pomodoros, 3};
     QVector<Slice> expected;
-    expected.append(std::make_pair("#Tag2", double(49)/53));
-    expected.append(std::make_pair("#Tag1", double(4)/53));
+    expected.append(std::make_pair("Tag2", double(49)/53));
+    expected.append(std::make_pair("Tag1", double(4)/53));
 
     CHECK(expected == map.getSortedSliceVector())
 
@@ -144,14 +152,14 @@ TEST(TagPomoMap, test_does_not_reduce_slice_vector_when_all_tags_fit) {
 
 TEST(TagPomoMap, test_does_not_reduce_slice_vector_when_has_less_tags_than_allowed) {
     QVector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "#Tag1 irrelevant", 4);
-    pushToPomodoros(pomodoros, "#Tag2 irrelevant", 49);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag1"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag2"}, 49);
     TagPomoMap map {pomodoros, 5};
     QVector<Slice> expected;
-    expected.append(std::make_pair("#Tag2", double(49)/53));
-    expected.append(std::make_pair("#Tag1", double(4)/53));
-    CHECK("#Tag2" == map.getTag(0))
-    CHECK("#Tag1" == map.getTag(1))
+    expected.append(std::make_pair("Tag2", double(49)/53));
+    expected.append(std::make_pair("Tag1", double(4)/53));
+    CHECK("Tag2" == map.getTag(0))
+    CHECK("Tag1" == map.getTag(1))
 
     CHECK(expected == map.getSortedSliceVector())
 
@@ -161,25 +169,25 @@ TEST(TagPomoMap, test_does_not_reduce_slice_vector_when_has_less_tags_than_allow
 
 TEST(TagPomoMap, test_distributes_pomodoros_to_tags_ignoring_non_tagged) {
     QVector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "#Tag1 irrelevant", 4);
-    pushToPomodoros(pomodoros, "#Tag2 irrelevant", 49);
-    pushToPomodoros(pomodoros, "#Tag2 #Tag1 irrelevant", 1);
-    pushToPomodoros(pomodoros, "#C++ #Tag4 irrelevant", 10);
-    pushToPomodoros(pomodoros, "#Tag4 irrelevant", 25);
-    pushToPomodoros(pomodoros, "#Tag5 irrelevant", 4);
-    pushToPomodoros(pomodoros, "irrelevant", 100);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag1"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag2"}, 49);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag2", "Tag1"}, 1);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"C++", "Tag4"}, 10);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag4"}, 25);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag5"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {}, 100);
     TagPomoMap map {pomodoros, 5};
     QVector<Slice> expected;
-    expected.append(std::make_pair("#Tag2", double(50)/104));
-    expected.append(std::make_pair("#Tag4", double(35)/104));
-    expected.append(std::make_pair("#C++", double(10)/104));
-    expected.append(std::make_pair("#Tag1", double(5)/104));
+    expected.append(std::make_pair("Tag2", double(50)/104));
+    expected.append(std::make_pair("Tag4", double(35)/104));
+    expected.append(std::make_pair("C++", double(10)/104));
+    expected.append(std::make_pair("Tag1", double(5)/104));
     expected.append(std::make_pair("", double(4)/104));
 
-    CHECK("#Tag2" == map.getTag(0))
-    CHECK("#Tag4" == map.getTag(1))
-    CHECK("#C++" == map.getTag(2))
-    CHECK("#Tag1" == map.getTag(3))
+    CHECK("Tag2" == map.getTag(0))
+    CHECK("Tag4" == map.getTag(1))
+    CHECK("C++" == map.getTag(2))
+    CHECK("Tag1" == map.getTag(3))
     CHECK("" == map.getTag(4))
 
     CHECK(expected == map.getSortedSliceVector())
@@ -193,22 +201,21 @@ TEST(TagPomoMap, test_distributes_pomodoros_to_tags_ignoring_non_tagged) {
 
 TEST(TagPomoMap, test_reduces_slice_vector_tail_when_has_more_tags_than_allowed) {
     QVector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "#Tag1 irrelevant", 4);
-    pushToPomodoros(pomodoros, "#Tag2 irrelevant", 49);
-    pushToPomodoros(pomodoros, "#Tag2 #Tag1 irrelevant", 1);
-    pushToPomodoros(pomodoros, "#Tag3 #Tag4 irrelevant", 10);
-    pushToPomodoros(pomodoros, "#Tag4 irrelevant", 25);
-    pushToPomodoros(pomodoros, "irrelevant", 100);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag1"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag2"}, 49);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag2", "Tag1"}, 1);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag3", "Tag4"}, 10);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {"Tag4"}, 25);
+    pushToPomodoros(pomodoros, "irrelevant", QStringList {}, 100);
     TagPomoMap map {pomodoros, 4};
-    QVector<Slice> expected;
-    expected.append(std::make_pair("#Tag2", double(50)/100));
-    expected.append(std::make_pair("#Tag4", double(35)/100));
-    expected.append(std::make_pair("#Tag3", double(10)/100));
-    expected.append(std::make_pair("", double(5)/100));
+    QVector<Slice> expected {std::make_pair("Tag2", double(50)/100),
+                             std::make_pair("Tag4", double(35)/100),
+                             std::make_pair("Tag3", double(10)/100),
+                             std::make_pair("", double(5)/100)};
 
-    CHECK("#Tag2" == map.getTag(0))
-    CHECK("#Tag4" == map.getTag(1))
-    CHECK("#Tag3" == map.getTag(2))
+    CHECK("Tag2" == map.getTag(0))
+    CHECK("Tag4" == map.getTag(1))
+    CHECK("Tag3" == map.getTag(2))
     CHECK("" == map.getTag(3))
 
     CHECK(expected == map.getSortedSliceVector())

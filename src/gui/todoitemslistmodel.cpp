@@ -63,7 +63,7 @@ QVariant TodoItemsListModel::data(const QModelIndex &index, int role) const {
 
     switch (role) {
         case Qt::DisplayRole:
-            return item.asString();
+            return item.toString();
         case Qt::SizeHintRole:
             return QSize(10, 18); // TODO consider change through config
         case Qt::CheckStateRole:

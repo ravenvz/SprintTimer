@@ -64,7 +64,7 @@ void HistoryView::formatPomodoroHistory(const QVector<Pomodoro> &pomodoros, QStr
             preparedPomodoroHistory << date.toString();
             headerIndexes << i + headerOffset;
         }
-        preparedPomodoroHistory << pomodoros[i].asString();
+        preparedPomodoroHistory << pomodoros[i].toString();
     }
 }
 
@@ -99,7 +99,7 @@ void HistoryView::formatTodoItemHistory(const QVector<std::pair<TodoItem, QStrin
             formattedHistory << currentDate;
             headerIndexes << i + headerOffset;
         }
-        formattedHistory << todoItemsForPeriod[i].first.asString();
+        formattedHistory << todoItemsForPeriod[i].first.toString();
     }
 }
 
