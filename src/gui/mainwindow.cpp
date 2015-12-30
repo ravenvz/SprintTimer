@@ -45,7 +45,7 @@ void MainWindow::connectSlots() {
     connect(ui->btnCancel, SIGNAL(clicked(bool)), this, SLOT(cancelTask()));
     connect(ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
-    connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoToPomodoro(QModelIndex)));
+    connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoOnClick(QModelIndex)));
     connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
     connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
     connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
@@ -202,7 +202,7 @@ void MainWindow::updatePomodoroView() {
     }
 }
 
-void MainWindow::autoPutTodoToPomodoro(QModelIndex index) {
+void MainWindow::autoPutTodoOnClick(QModelIndex index) {
     if (ui->leDoneTask->isVisible()) {
         ui->leDoneTask->setText(todoitemViewModel->index(index.row(), 0)
                 .data(TodoItemsListModel::CopyToPomodoroRole).toString());
