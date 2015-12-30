@@ -12,17 +12,21 @@
 #include <algorithm>
 
 
-typedef QHash<QString, QVector<Pomodoro> > PomoHash;
-typedef std::pair<QString, double> Slice;
+// TODO refactor this ugly mess
+
+// typedef QHash<QString, QVector<Pomodoro> > PomoHash;
+// typedef std::pair<QString, double> Slice;
+using Slice = std::pair<QString, double>;
 
 
 class TagPomoMap
 {
 public:
-    explicit TagPomoMap(QVector<Pomodoro> pomodoros, unsigned numSlices) :
-        numSlices(numSlices)
+    using PomoHash = QHash<QString, QVector<Pomodoro> >;
+
+    TagPomoMap(const QVector<Pomodoro>& pomodoros, int numTopSlices) :
+        numTopSlices(numTopSlices)
     {
-        numSlices = numSlices;
         for (const Pomodoro& pomo : pomodoros) {
             for (const auto& tag : pomo.getTags()) {
                 tagToPomodoroVec[tag] << pomo;
@@ -55,12 +59,11 @@ private:
     QHash<QString, QVector<Pomodoro> > tagToPomodoroVec;
     QVector<Slice> sliceData;
     QHash<int, QString> sliceIndexMap;
-    int numSlices;
+    int numTopSlices;
 
     void compute() {
         unsigned total = 0;
-        QHash<QString, QVector<Pomodoro> >::const_iterator it;
-        for (it = tagToPomodoroVec.begin(); it != tagToPomodoroVec.end(); ++it) {
+        for (auto it = tagToPomodoroVec.cbegin(); it != tagToPomodoroVec.cend(); ++it) {
             sliceData.append(std::make_pair(it.key(), it.value().size()));
             total += it.value().size();
         }
@@ -77,10 +80,10 @@ private:
     }
 
     void reduceTailToSum() {
-        if (sliceData.size() < numSlices) {
+        if (sliceData.size() < numTopSlices) {
             return;
         }
-        while (sliceData.size() > numSlices) {
+        while (sliceData.size() > numTopSlices) {
             sliceData[sliceData.size() - 2].second += sliceData.last().second;
             sliceData.pop_back();
         }
