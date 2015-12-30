@@ -5,29 +5,24 @@
 
 Pomodoro::Pomodoro() { }
 
-Pomodoro::Pomodoro(const QString& name, const QDateTime& startTime, const QDateTime& finishTime)
-        : name(name), startTime(startTime), finishTime(finishTime) 
+Pomodoro::Pomodoro(const QString todoName, const QDateTime startTime, const QDateTime finishTime,
+                   const QStringList tags, long long associatedTodoItemId) :
+        startTime {startTime},
+        finishTime {finishTime},
+        tags(tags)
 {
-    QRegularExpression tagRegexp {QString ("(%1\\S+)").arg(tagPrefix)};
-    QRegularExpressionMatchIterator it = tagRegexp.globalMatch(name);
-    while (it.hasNext()) {
-        QRegularExpressionMatch match = it.next();
-        tags << match.captured(1);
-    }
-}
-
-Pomodoro::Pomodoro(const QString& todoName, const QDateTime& startTime, const QDateTime& finishTime, const QString& rawTags) :
-        startTime(startTime), finishTime(finishTime) 
-{
-    if (!rawTags.size() == 0) {
-        QStringList tagList = rawTags.split(",");
-        std::for_each(tagList.begin(), tagList.end(), [tagPrefix = tagPrefix](auto& el) {
-                return el.prepend(tagPrefix); 
-            });
-        name.append(tagList.join(" "));
-    }
+    todoId = associatedTodoItemId;
     name.append(" ");
     name.append(todoName);
+}
+
+Pomodoro::Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime) :
+        name {todoItem.getName()},
+        startTime {startTime},
+        finishTime {finishTime},
+        tags {todoItem.getTags()}
+{
+    todoId = todoItem.getId();
 }
 
 void Pomodoro::setFinishTime(const QDateTime& finishTime) {
@@ -58,8 +53,12 @@ const QStringList Pomodoro::getTags() const {
     return tags;
 }
 
-const QString Pomodoro::asString() const {
+const QString Pomodoro::toString() const {
     QStringList result;
+    QStringList tagsCopy = tags;
+    std::for_each(tagsCopy.begin(), tagsCopy.end(), [prefix = tagPrefix](auto& el) {
+        return el.prepend(prefix);
+    });
     QString start = startTime.time().toString();
     QString finish = finishTime.time().toString();
     start.chop(3);
@@ -67,6 +66,7 @@ const QString Pomodoro::asString() const {
     result.append(start);
     result.append(" - ");
     result.append(finish);
+    result.append(tagsCopy.join(" "));
     result.append(name);
     return result.join(" ");
 }
