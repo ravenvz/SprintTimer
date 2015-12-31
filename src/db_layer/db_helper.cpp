@@ -29,6 +29,18 @@ void createDatabase(QSqlDatabase& db, QString& filename) {
             "todo_id integer not null, "
             "foreign key(tag_id) references tag(id) on delete cascade on update cascade, "
             "foreign key(todo_id) references todo_item(id) on delete cascade on update cascade)");
+    query.exec("create trigger increment_spent_after_pomo_insert "
+               "after insert on pomodoro "
+               "begin "
+               "update todo_items set spent_pomodoros = spent_pomodoros + 1 "
+               "where todo_item.id = NEW.todo_id; "
+               "end;");
+    query.exec("create trigger decrement_spent_after_pomo_delete "
+               "after delete on pomodoro "
+               "begin "
+               "update todo_items set spent_pomodoros = spent_pomodoros - 1 "
+               "where todo_item.id = OLD.todo_id; "
+               "end;");
     query.exec("create table calendar (id integer primary key)");
     query.exec("insert into calendar default values");
     query.exec("insert into calendar default values");
