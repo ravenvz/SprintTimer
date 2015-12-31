@@ -5,10 +5,9 @@
 
 Pomodoro::Pomodoro() { }
 
-Pomodoro::Pomodoro(const QString todoName, const QDateTime startTime, const QDateTime finishTime,
-                   const QStringList tags, long long associatedTodoItemId) :
-        startTime {startTime},
-        finishTime {finishTime},
+Pomodoro::Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags,
+                   long long associatedTodoItemId) :
+        interval {interval},
         tags(tags)
 {
     todoId = associatedTodoItemId;
@@ -18,27 +17,26 @@ Pomodoro::Pomodoro(const QString todoName, const QDateTime startTime, const QDat
 
 Pomodoro::Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime) :
         name {todoItem.getName()},
-        startTime {startTime},
-        finishTime {finishTime},
+        interval {startTime, finishTime},
         tags {todoItem.getTags()}
 {
     todoId = todoItem.getId();
 }
 
-void Pomodoro::setFinishTime(const QDateTime& finishTime) {
-    Pomodoro::finishTime = finishTime;
+void Pomodoro::setFinishTime(const QDateTime finishTime) {
+    interval.finishTime = finishTime;
 }
 
 const QDateTime Pomodoro::getFinishTime() const {
-    return finishTime;
+    return interval.finishTime;
 }
 
-void Pomodoro::setStartTime(const QDateTime& startTime) {
-    Pomodoro::startTime = startTime;
+void Pomodoro::setStartTime(const QDateTime startTime) {
+    interval.startTime = startTime;
 }
 
 const QDateTime Pomodoro::getStartTime() const {
-    return startTime;
+    return interval.startTime;
 }
 
 void Pomodoro::setName(const QString& name) {
@@ -59,13 +57,7 @@ const QString Pomodoro::toString() const {
     std::for_each(tagsCopy.begin(), tagsCopy.end(), [prefix = tagPrefix](auto& el) {
         return el.prepend(prefix);
     });
-    QString start = startTime.time().toString();
-    QString finish = finishTime.time().toString();
-    start.chop(3);
-    finish.chop(3);
-    result.append(start);
-    result.append(" - ");
-    result.append(finish);
+    result.append(interval.toTimeString());
     result.append(tagsCopy.join(" "));
     result.append(name);
     return result.join(" ");

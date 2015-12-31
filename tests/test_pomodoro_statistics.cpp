@@ -65,9 +65,10 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly) {
     QVector<unsigned> expectedDistributionVector (48, 0);
     for (int i = 0; i < 48; ++i) {
         for (int j = 0; j < i + 1; ++j) {
+            QDateTime pomoDate = QDateTime(QDate::currentDate().addDays(i));
+            TimeInterval pomoInterval {pomoDate, pomoDate};
             pomodoros << Pomodoro {QString("Irrelevant"),
-                                   QDateTime(QDate::currentDate().addDays(i)),
-                                   QDateTime(QDate::currentDate().addDays(i)),
+                                   pomoInterval,
                                    QStringList {},
                                    irrelevantTodoId};
             expectedDistributionVector[i]++;
@@ -99,9 +100,10 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly) {
     interval.endDate = QDate(2015, 6, 14);
     for (int i = 1; i < 15; ++i) {
         for (int j = 0; j < i; ++j) {
+            QDateTime pomoDate = QDateTime(QDate(2015, 6, i));
+            TimeInterval pomoInterval {pomoDate, pomoDate};
             increasingPomodoros << Pomodoro {QString("Whatever"),
-                                             QDateTime(QDate(2015, 6, i)),
-                                             QDateTime(QDate(2015, 6, i)),
+                                             pomoInterval,
                                              QStringList {},
                                              irrelevantTodoId};
         }
@@ -126,8 +128,7 @@ TEST_GROUP(TagPomoMap) {
         const int todoId = 42; // irrelevant
         for (int i = 0; i < n; ++i) {
             pomodoros.push_back(Pomodoro {name,
-                                          QDateTime::currentDateTime(),
-                                          QDateTime::currentDateTime(),
+                                          TimeInterval {QDateTime::currentDateTime(), QDateTime::currentDateTime()},
                                           tags,
                                           todoId});
         }

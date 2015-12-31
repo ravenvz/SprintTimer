@@ -53,8 +53,7 @@ public:
                 tags = rawTags.split(",");
             }
             Pomodoro pomodoro {query.value(nameCol).toString(),
-                               query.value(startTimeCol).toDateTime(),
-                               query.value(finishTimeCol).toDateTime(),
+                               TimeInterval {query.value(startTimeCol).toDateTime(), query.value(finishTimeCol).toDateTime()},
                                tags,
                                query.value(todoIdCol).toInt()};
             result.append(pomodoro);

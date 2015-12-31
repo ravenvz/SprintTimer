@@ -6,6 +6,7 @@
 #include <QtCore/qdatetime.h>
 #include <QRegularExpression>
 #include <experimental/optional>
+#include "core/timeinterval.h"
 #include "TodoItem.h"
 
 class Pomodoro
@@ -13,23 +14,22 @@ class Pomodoro
 
 public:
     Pomodoro();
-    Pomodoro(const QString todoName, const QDateTime startTime, const QDateTime finishTime,
-             const QStringList tags, long long assosiatedTodoItemId);
+    Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags,
+             long long assosiatedTodoItemId);
     Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime);
 
     const QString getName() const;
     void setName(const QString& name);
     const QDateTime getStartTime() const;
-    void setStartTime(const QDateTime& startTime);
+    void setStartTime(const QDateTime startTime);
     const QDateTime getFinishTime() const;
-    void setFinishTime(const QDateTime& finishTime);
+    void setFinishTime(const QDateTime finishTime);
     const QStringList getTags() const;
     const QString toString() const;
 
 private:
     QString name;
-    QDateTime startTime;
-    QDateTime finishTime;
+    TimeInterval interval;
     QStringList tags;
     std::experimental::optional<long long> id;
     std::experimental::optional<long long> todoId;

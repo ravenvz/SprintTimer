@@ -82,6 +82,10 @@ struct TimeInterval {
     QString toString() const {
         return QString("%1 - %2").arg(startTime.toString()).arg(finishTime.toString());
     }
+
+    QString toTimeString() const {
+        return QString("%1 - %2").arg(startTime.toString("HH:mm")).arg(finishTime.toString("HH:mm"));
+    }
 };
 
 #endif /* end of include guard: TIMEINTERVAL_H */
