@@ -79,7 +79,7 @@ public:
                       "from calendar left join pomodoro "
                       "on date(start_time) = dt "
                       "where dt > (:start_date) and dt <= (:end_date) "
-                      "group by strftime('%W', dt) "
+                      "group by (strftime('%j', date(dt, '-3 days', 'weekday 4')) - 1) / 7 + 1 "
                       "order by dt");
         query.bindValue(":start_date", QVariant(startDate));
         query.bindValue(":end_date", QVariant(today));
