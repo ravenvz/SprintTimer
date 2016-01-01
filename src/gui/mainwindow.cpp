@@ -1,5 +1,6 @@
 #include <src/core/config.h>
 #include <QtWidgets/qmenu.h>
+#include <experimental/optional>
 #include "gui/mainwindow.h"
 #include "ui_mainwindow.h"
 #include "gui/dialogs/confirmationdialog.h"
@@ -157,6 +158,7 @@ void MainWindow::playSound() {
     player->play();
 }
 
+// TODO figure out a way to enter pomo manually
 void MainWindow::submitPomodoro() {
     QString name = ui->leDoneTask->text();
     if (name.isEmpty()) {
@@ -164,18 +166,35 @@ void MainWindow::submitPomodoro() {
     }
     ui->leDoneTask->hide();
     completedTasksIntervals.push_back(taskScheduler.finishTask());
+    // TODO this is a workaround and should be replaced 
+    // 1. Check if entered name matches any of incompleted TodoItems
+    std::experimental::optional<long long> associatedTodoItemId;
+    for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
+       if (name == todoitemViewModel->index(row, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
+           associatedTodoItemId = todoitemViewModel->index(row, 0).data(TodoItemsListModel::GetIdRole).toInt();
+           todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
+       }
+    }
+    // // 2. If no such item found, create new TodoItem
+    if (!associatedTodoItemId) {
+        qDebug() << "No associated TodoItem can be found";
+        return;
+        // associatedTodoItem = TodoItem {name};
+        // store todo item
+    }
+
+    // // 3. Notify user that new item has been created
+
     for (TimeInterval interval : completedTasksIntervals) {
-        Pomodoro pomodoro {name, interval.startTime, interval.finishTime};
-        PomodoroDataSource::storePomodoro(pomodoro);
+        Pomodoro pomodoro {name, interval, QStringList {}, *associatedTodoItemId};
+        PomodoroDataSource::storePomodoro(pomodoro, *associatedTodoItemId);
+        // todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
         // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
     // Check if pomodoro tags + name matches any uncompleted item in todo list view
     // and increment spent pomodoros if it does
-    for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
-       if (name == todoitemViewModel->index(row, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
-           todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
-       }
-    }
+    
+    // NOTE spent_pomodoros of associtated TodoItem will be incremented by SQL trigger
     completedTasksIntervals.clear();
     updatePomodoroView();
     updateOpenedWindows();

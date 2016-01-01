@@ -122,13 +122,14 @@ public:
         return PomodoroDataSource::getPomodorosBetween(thirtyDaysAgo, today);
     }
 
-    static void storePomodoro(Pomodoro pomodoro) {
+    static void storePomodoro(const Pomodoro& pomodoro, long long associatedTodoItemId) {
         QSqlQuery query;
-        query.prepare("insert into pomodoro (name, start_time, finish_time) "
-                      "values (:name, :start_time, :finish_time)");
+        query.prepare("insert into pomodoro (name, start_time, finish_time, todo_id) "
+                      "values (:name, :start_time, :finish_time, :todo_id)");
         query.bindValue(":name", QVariant(pomodoro.getName()));
         query.bindValue(":start_time", QVariant(pomodoro.getStartTime()));
         query.bindValue(":finish_time", QVariant(pomodoro.getFinishTime()));
+        query.bindValue(":todo_id", QVariant(associatedTodoItemId));
         query.exec();
     }
 };
