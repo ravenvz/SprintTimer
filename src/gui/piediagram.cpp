@@ -3,11 +3,6 @@
 #include "piediagram.h"
 
 
-constexpr double pi() {
-    return acos(-1);
-}
-
-
 PieDiagram::PieDiagram(QWidget* parent) :
     QWidget(parent) 
 {
@@ -118,7 +113,7 @@ void Diagram::paintEvent(QPaintEvent* event) {
 
 QPointF Diagram::computeOffsetPoint(double current, double offset) {
     double angle = offset + current / 2;
-    double angleRads = angle * pi() / 180;
+    double angleRads = angle * pi / 180;
     double x = expandedShiftLength * cos(angleRads);
     double y = expandedShiftLength * sin(angleRads);
     if (0 <= angle && angle <= 90) y = -y;
