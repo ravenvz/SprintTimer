@@ -144,6 +144,17 @@ public:
         query.bindValue(":finish_time", QVariant(pomodoro.getFinishTime()));
         query.exec();
     }
+
+    static QStringList getStoredPomodorosYearsRange() {
+        QStringList result;
+        QSqlQuery query;
+        query.exec("select distinct strftime('%Y', start_time) "
+                   "from pomodoro order by start_time;");
+        while (query.next()) {
+            result << query.value(0).toString();
+        }
+        return result;
+    }
 };
 
 

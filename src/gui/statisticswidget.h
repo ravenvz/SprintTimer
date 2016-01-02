@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QVector>
-// #include <memory>
 #include "core/PomodoroStatistics.h"
 #include "core/config.h"
 #include "gui/dialogs/datepickdialog.h"
