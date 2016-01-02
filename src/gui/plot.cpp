@@ -107,8 +107,8 @@ void Plot::paintEvent(QPaintEvent*) {
     const int labelSkip {int(rangeX.getSpan() - 1) / labelSkipInd};
 
     for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
-        const auto& graph {graphs[graphNum]};
-        const auto& boxes {pointBoxes[graphNum]};
+        const auto& graph = graphs[graphNum];
+        const auto& boxes = pointBoxes[graphNum];
         QPolygonF centerPoints;
         std::transform(boxes.cbegin(),
                        boxes.cend(),
