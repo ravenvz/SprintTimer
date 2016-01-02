@@ -195,7 +195,7 @@ public:
     static QStringList getAllTags() {
         QStringList tags;
         QSqlQuery query;
-        query.exec("select name from tag");
+        query.exec("select name from tag order by name");
         while (query.next()) {
             tags << query.value(0).toString();
         }
@@ -257,6 +257,7 @@ public:
         query.bindValue(":id", QVariant(updatedItem.getId()));
         query.exec();
 
+        // TODO what if tags are not changed? Why on earth to do that??
         for (QVariant tag_id : oldItemTagsIds) {
             TagDataSource::removeTagIfOrphaned(tag_id);
             query.prepare("delete from todotag "

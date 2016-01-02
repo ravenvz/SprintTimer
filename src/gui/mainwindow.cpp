@@ -259,7 +259,14 @@ void MainWindow::editTodoItem() {
 void MainWindow::removeTodoItem() {
     QModelIndex index = ui->lvTodoItems->currentIndex();
     ConfirmationDialog dialog;
-    QString description("This will delete todo item permanently!");
+    // TODO figure out a way to handle this situation more gracefully
+    QString description;
+    if (todoitemViewModel->getTodoItemByModelIndex(index).getSpentPomodoros() > 0) {
+        description = "WARNING! This todo item has pomodoros associated with it "
+                      "and they will be removed permanently along with this item.";
+    } else {
+        description = "This will delete todo item permanently!";
+    }
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         todoitemViewModel->removeTodoItem(index);
