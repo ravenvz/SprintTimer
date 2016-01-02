@@ -22,7 +22,6 @@ public:
     explicit TagPomoMap(QVector<Pomodoro> pomodoros, unsigned numSlices) :
         numSlices(numSlices)
     {
-        numSlices = numSlices;
         for (const Pomodoro& pomo : pomodoros) {
             for (const auto& tag : pomo.getTags()) {
                 tagToPomodoroVec[tag] << pomo;
