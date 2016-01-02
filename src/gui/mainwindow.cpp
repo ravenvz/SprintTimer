@@ -232,10 +232,11 @@ void MainWindow::showContextMenu(const QPoint& pos) {
     QPoint globalPos = ui->lvTodoItems->mapToGlobal(pos);
 
     QMenu todoItemsMenu;
+    // Note QMenu takes ownership of Action
     todoItemsMenu.addAction("Edit");
     todoItemsMenu.addAction("Delete");
 
-    std::unique_ptr<QAction> selectedItem = std::make_unique<QAction> (todoItemsMenu.exec(globalPos));
+    QAction* selectedItem = todoItemsMenu.exec(globalPos);
 
     if (selectedItem && selectedItem->text() == "Edit") editTodoItem();
     if (selectedItem && selectedItem->text() == "Delete") removeTodoItem();
