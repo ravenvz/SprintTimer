@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "core/entities/TodoItem.h"
 #include "core/entities/Pomodoro.h"
+#include <QDebug>
 
 
 void createDatabase(QSqlDatabase& db, QString& filename);
@@ -137,6 +138,7 @@ public:
 
 class TagDataSource {
 public:
+    using TagData = QVector<std::pair<long long, QString> >;
     static void insertTag(QString tag, QVariant associatedTodoItemId) {
         QSqlQuery query;
         query.prepare("select id from tag where name = (:name)");
@@ -176,22 +178,29 @@ public:
         }
     }
 
-    static QList<QVariant> getTagsForTodoItem(int id) {
+    static TagData getTagsForTodoItem(long long id) {
+        TagData result;
         QSqlQuery query;
-        query.prepare("select tag.id "
+        query.prepare("select tag.id, tag.name "
                 "from todo_item "
                 "join todotag on todo_item.id = todotag.todo_id "
                 "join tag on tag.id = todotag.tag_id "
                 "where todo_item.id = (:removed_item_id) ");
         query.bindValue(":removed_item_id", QVariant(id));
         query.exec();
-        QList<QVariant> itemTags;
         while (query.next()) {
-            itemTags << query.value(0);
+            result << std::make_pair(query.value(0).toInt(), query.value(1).toString());
         }
-        return itemTags;
+        return result;
     }
 
+    static bool tagDataContainsName(const TagData& data, const QString& name) {
+        auto found = std::find_if(data.cbegin(), data.cend(), [&name] (const auto& entry) {
+                    return entry.second == name;
+                });
+        return found != data.cend();
+    }
+        
     static QStringList getAllTags() {
         QStringList tags;
         QSqlQuery query;
@@ -229,21 +238,22 @@ public:
         return todoId.toInt();
     }
 
-    static void removeTodoItem(int id) {
+    static void removeTodoItem(long long id) {
         QSqlQuery query;
-        query.exec("pragma foreign_keys = on");
-        QList<QVariant> removedItemTags = TagDataSource::getTagsForTodoItem(id);
-        for (QVariant tag_id : removedItemTags) {
-            TagDataSource::removeTagIfOrphaned(tag_id);
+        TagDataSource::TagData removedItemTags = TagDataSource::getTagsForTodoItem(id);
+        for (const auto& entry : removedItemTags) {
+            TagDataSource::removeTagIfOrphaned(entry.first);
         }
         query.prepare("delete from todo_item where id = (:removed_item_id)");
         query.bindValue(":removed_item_id", id);
         query.exec();
     }
 
+    // TODO refactor - method is too long
+    // split into updateTodoItem and updateTodoItemTags
     static void updateTodoItem(TodoItem& updatedItem) {
         // Assumes that updatedItem has the same id as an old one
-        QList<QVariant> oldItemTagsIds = TagDataSource::getTagsForTodoItem(updatedItem.getId());
+        TagDataSource::TagData oldItemTags = TagDataSource::getTagsForTodoItem(updatedItem.getId());
         QSqlQuery query;
         query.prepare("update todo_item set name = (:name), "
                "estimated_pomodoros = (:estimated_pomodoros), "
@@ -257,20 +267,35 @@ public:
         query.bindValue(":id", QVariant(updatedItem.getId()));
         query.exec();
 
-        // TODO what if tags are not changed? Why on earth to do that??
-        for (QVariant tag_id : oldItemTagsIds) {
-            TagDataSource::removeTagIfOrphaned(tag_id);
-            query.prepare("delete from todotag "
-                   "where todotag.tag_id = (:tag_id) and todotag.todo_id = (:todo_id)");
-            query.bindValue(":tag_id", tag_id);
-            query.bindValue(":todo_id", QVariant(updatedItem.getId()));
-            query.exec();
+        TagDataSource::TagData tagsToRemove;
+        QStringList tagNamesToAdd;
+        QStringList tags = updatedItem.getTags();
+
+        std::copy_if(oldItemTags.cbegin(), oldItemTags.cend(), std::back_inserter(tagsToRemove),
+                [&tags] (const auto& entry) {
+                    return !tags.contains(entry.second);
+                });
+        std::copy_if(tags.cbegin(), tags.cend(), std::back_inserter(tagNamesToAdd), 
+                [&oldItemTags] (const auto& tag) {
+                    return !TagDataSource::tagDataContainsName(oldItemTags, tag);
+                });
+
+        if (!tagsToRemove.isEmpty()) {
+            QSqlQuery removeTagRelation;
+            removeTagRelation.prepare("delete from todotag "
+                                      "where todotag.tag_id = (:tag_id) and todotag.todo_id = (:todo_id)");
+
+            for (const auto& entry : tagsToRemove) {
+                TagDataSource::removeTagIfOrphaned(QVariant(entry.first));
+                removeTagRelation.bindValue(":tag_id", QVariant(entry.first));
+                removeTagRelation.bindValue(":todo_id", QVariant(updatedItem.getId()));
+                removeTagRelation.exec();
+            }
         }
 
-        const QStringList& tags = updatedItem.getTags();
-        if (!tags.isEmpty()) {
-            for (QString tag : tags) {
-                TagDataSource::insertTag(tag, updatedItem.getId());
+        if (!tagNamesToAdd.isEmpty()) {
+            for (const auto& name : tagNamesToAdd) {
+                TagDataSource::insertTag(name, updatedItem.getId());
             }
         }
     }
