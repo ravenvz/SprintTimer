@@ -1,8 +1,19 @@
-Version 0.1.5
+Version 0.2.0
 -------------
 
-Change goal system
+Updates in todo items' tags and name are now 
+reflected in pomodoros history and statistics.
+    That means that if todo item name/tags are changed,
+    it's 'spent' pomodoros' names/tags are changed too
 
+Pomodoros can now be removed from main window
+
+Tags can now be edited globally
+    If tag is edited globally, it will be changed in all
+    previously stored todo items and pomodoros
+
+Database schema has changed and is not compatible with previous versions.
+    To alter DB schema migration script is needed.
 
 HISTORY
 ----------------------------------------------------------------
@@ -34,7 +45,6 @@ and todo items
     Added basic pomodoro history browser
     Added basic pomodoro history browser
     History can be browsed for any valid period specified by user
-
 
 
 Version 0.1.1
