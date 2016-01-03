@@ -4,8 +4,10 @@
 #include <QtSql>
 #include <QSqlDatabase>
 #include <vector>
+#include <algorithm>
 #include "core/entities/TodoItem.h"
 #include "core/entities/Pomodoro.h"
+#include <QDebug>
 
 
 void createDatabase(QSqlDatabase& db, QString& filename);
@@ -19,32 +21,42 @@ public:
     static QStringList getPomodorosForToday() {
         QStringList result;
         QSqlQuery query;
-        query.exec("select id, name, start_time, finish_time "
-               "from pomodoro where date(start_time) = date('now') "
-               "order by start_time");
-        while (query.next()) {
-            QStringList m;
-            Pomodoro pomodoro {query.value(1).toString(),
-                               query.value(2).toDateTime(),
-                               query.value(3).toDateTime()};
-            result.append(pomodoro.asString());
-        }
+        QDate today = QDate::currentDate();
+        QVector<Pomodoro> pomodoros = getPomodorosBetween(today, today);
+        std::transform(pomodoros.begin(), pomodoros.end(), std::back_inserter(result), [](const auto& pomo) {
+                return pomo.toString();
+            });
         return result;
     }
 
     static QVector<Pomodoro> getPomodorosBetween(const QDate& startDate, const QDate& endDate) {
         QVector<Pomodoro> result;
         QSqlQuery query;
-        query.prepare("select id, name, start_time, finish_time "
-                "from pomodoro where date(start_time) >= (:start_date) and "
-                "date(start_time) <= (:end_date) ");
+        const int todoIdCol = 1;
+        const int nameCol = 2;
+        const int startTimeCol = 3;
+        const int finishTimeCol = 4;
+        const int tagsCol = 5;
+        query.prepare("select pomodoro.id, pomodoro.todo_id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
+                      "from pomodoro "
+                      "join todo_item on pomodoro.todo_id = todo_item.id "
+                      "left join todotag on todo_item.id = todotag.todo_id "
+                      "left join tag on todotag.tag_id = tag.id "
+                      "where date(start_time) >= (:start_date) and date(start_time) <= (:end_date) "
+                      "group by pomodoro.id;");
         query.bindValue(":start_date", QVariant(startDate));
         query.bindValue(":end_date", QVariant(endDate));
         query.exec();
         while (query.next()) {
-            Pomodoro pomodoro (query.value(1).toString(),
-                               query.value(2).toDateTime(),
-                               query.value(3).toDateTime());
+            QString rawTags = query.value(tagsCol).toString();
+            QStringList tags;
+            if (!rawTags.isEmpty()) {
+                tags = rawTags.split(",");
+            }
+            Pomodoro pomodoro {query.value(nameCol).toString(),
+                               TimeInterval {query.value(startTimeCol).toDateTime(), query.value(finishTimeCol).toDateTime()},
+                               tags,
+                               query.value(todoIdCol).toInt()};
             result.append(pomodoro);
         }
         return result;
@@ -52,18 +64,13 @@ public:
 
     static QVector<unsigned> getPomodorosForLastThirtyDays() {
         QVector<unsigned> result;
-        QDate today = QDate::currentDate();
-        QDate thirtyDaysAgo = today.addDays(-30);
         QSqlQuery query;
-        query.prepare("select count(start_time) "
-                      "from calendar left join pomodoro "
-                      "on date(start_time) = dt "
-                      "where dt > (:start_date) and dt <= (:end_date) "
-                      "group by date(dt) "
-                      "order by dt");
-        query.bindValue(":start_date", QVariant(thirtyDaysAgo));
-        query.bindValue(":end_date", QVariant(today));
-        query.exec();
+        query.exec("select count(start_time) "
+                   "from calendar left join pomodoro "
+                   "on date(start_time) = dt "
+                   "where dt > date('now', '-30 days') and dt <= date('now') "
+                   "group by date(dt) "
+                   "order by dt");
         while (query.next()) {
             result << query.value(0).toUInt();
         }
@@ -116,32 +123,14 @@ public:
         return PomodoroDataSource::getPomodorosBetween(thirtyDaysAgo, today);
     }
 
-    static QVector<double> getWorkdayDistributionForMonth(int month, int year) {
-        QVector<double> result;
+    static void storePomodoro(const Pomodoro& pomodoro, long long associatedTodoItemId) {
         QSqlQuery query;
-        QString monthStr = QString::number(month).rightJustified(2, '0');
-        query.prepare("select count(*) "
-                      "from calendar left join pomodoro "
-                      "on date(start_time) = dt "
-                      "where strftime('%m', dt) = (:month) and strftime('%Y', dt) = (:year) "
-                      "group by strftime('%w', dt) "
-                      "order by strftime('%w', dt)");
-        query.bindValue(":month", QVariant("07"));
-        query.bindValue(":year", QVariant(QString(year)));
-        query.exec();
-        while (query.next()) {
-            result << query.value(0).toInt();
-        }
-        return result;
-    }
-
-    static void storePomodoro(Pomodoro pomodoro) {
-        QSqlQuery query;
-        query.prepare("insert into pomodoro (name, start_time, finish_time) "
-                      "values (:name, :start_time, :finish_time)");
+        query.prepare("insert into pomodoro (name, start_time, finish_time, todo_id) "
+                      "values (:name, :start_time, :finish_time, :todo_id)");
         query.bindValue(":name", QVariant(pomodoro.getName()));
         query.bindValue(":start_time", QVariant(pomodoro.getStartTime()));
         query.bindValue(":finish_time", QVariant(pomodoro.getFinishTime()));
+        query.bindValue(":todo_id", QVariant(associatedTodoItemId));
         query.exec();
     }
 };
@@ -149,6 +138,7 @@ public:
 
 class TagDataSource {
 public:
+    using TagData = QVector<std::pair<long long, QString> >;
     static void insertTag(QString tag, QVariant associatedTodoItemId) {
         QSqlQuery query;
         query.prepare("select id from tag where name = (:name)");
@@ -188,26 +178,33 @@ public:
         }
     }
 
-    static QList<QVariant> getTagsForTodoItem(int id) {
+    static TagData getTagsForTodoItem(long long id) {
+        TagData result;
         QSqlQuery query;
-        query.prepare("select tag.id "
+        query.prepare("select tag.id, tag.name "
                 "from todo_item "
                 "join todotag on todo_item.id = todotag.todo_id "
                 "join tag on tag.id = todotag.tag_id "
                 "where todo_item.id = (:removed_item_id) ");
         query.bindValue(":removed_item_id", QVariant(id));
         query.exec();
-        QList<QVariant> itemTags;
         while (query.next()) {
-            itemTags << query.value(0);
+            result << std::make_pair(query.value(0).toInt(), query.value(1).toString());
         }
-        return itemTags;
+        return result;
     }
 
+    static bool tagDataContainsName(const TagData& data, const QString& name) {
+        auto found = std::find_if(data.cbegin(), data.cend(), [&name] (const auto& entry) {
+                    return entry.second == name;
+                });
+        return found != data.cend();
+    }
+        
     static QStringList getAllTags() {
         QStringList tags;
         QSqlQuery query;
-        query.exec("select name from tag");
+        query.exec("select name from tag order by name");
         while (query.next()) {
             tags << query.value(0).toString();
         }
@@ -241,21 +238,22 @@ public:
         return todoId.toInt();
     }
 
-    static void removeTodoItem(int id) {
+    static void removeTodoItem(long long id) {
         QSqlQuery query;
-        query.exec("pragma foreign_keys = on");
-        QList<QVariant> removedItemTags = TagDataSource::getTagsForTodoItem(id);
-        for (QVariant tag_id : removedItemTags) {
-            TagDataSource::removeTagIfOrphaned(tag_id);
+        TagDataSource::TagData removedItemTags = TagDataSource::getTagsForTodoItem(id);
+        for (const auto& entry : removedItemTags) {
+            TagDataSource::removeTagIfOrphaned(entry.first);
         }
         query.prepare("delete from todo_item where id = (:removed_item_id)");
         query.bindValue(":removed_item_id", id);
         query.exec();
     }
 
+    // TODO refactor - method is too long
+    // split into updateTodoItem and updateTodoItemTags
     static void updateTodoItem(TodoItem& updatedItem) {
         // Assumes that updatedItem has the same id as an old one
-        QList<QVariant> oldItemTagsIds = TagDataSource::getTagsForTodoItem(updatedItem.getId());
+        TagDataSource::TagData oldItemTags = TagDataSource::getTagsForTodoItem(updatedItem.getId());
         QSqlQuery query;
         query.prepare("update todo_item set name = (:name), "
                "estimated_pomodoros = (:estimated_pomodoros), "
@@ -269,19 +267,35 @@ public:
         query.bindValue(":id", QVariant(updatedItem.getId()));
         query.exec();
 
-        for (QVariant tag_id : oldItemTagsIds) {
-            TagDataSource::removeTagIfOrphaned(tag_id);
-            query.prepare("delete from todotag "
-                   "where todotag.tag_id = (:tag_id) and todotag.todo_id = (:todo_id)");
-            query.bindValue(":tag_id", tag_id);
-            query.bindValue(":todo_id", QVariant(updatedItem.getId()));
-            query.exec();
+        TagDataSource::TagData tagsToRemove;
+        QStringList tagNamesToAdd;
+        QStringList tags = updatedItem.getTags();
+
+        std::copy_if(oldItemTags.cbegin(), oldItemTags.cend(), std::back_inserter(tagsToRemove),
+                [&tags] (const auto& entry) {
+                    return !tags.contains(entry.second);
+                });
+        std::copy_if(tags.cbegin(), tags.cend(), std::back_inserter(tagNamesToAdd), 
+                [&oldItemTags] (const auto& tag) {
+                    return !TagDataSource::tagDataContainsName(oldItemTags, tag);
+                });
+
+        if (!tagsToRemove.isEmpty()) {
+            QSqlQuery removeTagRelation;
+            removeTagRelation.prepare("delete from todotag "
+                                      "where todotag.tag_id = (:tag_id) and todotag.todo_id = (:todo_id)");
+
+            for (const auto& entry : tagsToRemove) {
+                TagDataSource::removeTagIfOrphaned(QVariant(entry.first));
+                removeTagRelation.bindValue(":tag_id", QVariant(entry.first));
+                removeTagRelation.bindValue(":todo_id", QVariant(updatedItem.getId()));
+                removeTagRelation.exec();
+            }
         }
 
-        const QStringList& tags = updatedItem.getTags();
-        if (!tags.isEmpty()) {
-            for (QString tag : tags) {
-                TagDataSource::insertTag(tag, updatedItem.getId());
+        if (!tagNamesToAdd.isEmpty()) {
+            for (const auto& name : tagNamesToAdd) {
+                TagDataSource::insertTag(name, updatedItem.getId());
             }
         }
     }

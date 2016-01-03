@@ -1,5 +1,6 @@
 #include <src/core/config.h>
 #include <QtWidgets/qmenu.h>
+#include <experimental/optional>
 #include "gui/mainwindow.h"
 #include "ui_mainwindow.h"
 #include "gui/dialogs/confirmationdialog.h"
@@ -45,7 +46,7 @@ void MainWindow::connectSlots() {
     connect(ui->btnCancel, SIGNAL(clicked(bool)), this, SLOT(cancelTask()));
     connect(ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
-    connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoToPomodoro(QModelIndex)));
+    connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoOnClick(QModelIndex)));
     connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
     connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
     connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
@@ -157,6 +158,7 @@ void MainWindow::playSound() {
     player->play();
 }
 
+// TODO figure out a way to enter pomo manually
 void MainWindow::submitPomodoro() {
     QString name = ui->leDoneTask->text();
     if (name.isEmpty()) {
@@ -164,18 +166,35 @@ void MainWindow::submitPomodoro() {
     }
     ui->leDoneTask->hide();
     completedTasksIntervals.push_back(taskScheduler.finishTask());
+    // TODO this is a workaround and should be replaced 
+    // 1. Check if entered name matches any of incompleted TodoItems
+    std::experimental::optional<long long> associatedTodoItemId;
+    for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
+       if (name == todoitemViewModel->index(row, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
+           associatedTodoItemId = todoitemViewModel->index(row, 0).data(TodoItemsListModel::GetIdRole).toInt();
+           todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
+       }
+    }
+    // // 2. If no such item found, create new TodoItem
+    if (!associatedTodoItemId) {
+        qDebug() << "No associated TodoItem can be found";
+        return;
+        // associatedTodoItem = TodoItem {name};
+        // store todo item
+    }
+
+    // // 3. Notify user that new item has been created
+
     for (TimeInterval interval : completedTasksIntervals) {
-        Pomodoro pomodoro {name, interval.startTime, interval.finishTime};
-        PomodoroDataSource::storePomodoro(pomodoro);
+        Pomodoro pomodoro {name, interval, QStringList {}, *associatedTodoItemId};
+        PomodoroDataSource::storePomodoro(pomodoro, *associatedTodoItemId);
+        // todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
         // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
     // Check if pomodoro tags + name matches any uncompleted item in todo list view
     // and increment spent pomodoros if it does
-    for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
-       if (name == todoitemViewModel->index(row, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
-           todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
-       }
-    }
+    
+    // NOTE spent_pomodoros of associtated TodoItem will be incremented by SQL trigger
     completedTasksIntervals.clear();
     updatePomodoroView();
     updateOpenedWindows();
@@ -202,7 +221,7 @@ void MainWindow::updatePomodoroView() {
     }
 }
 
-void MainWindow::autoPutTodoToPomodoro(QModelIndex index) {
+void MainWindow::autoPutTodoOnClick(QModelIndex index) {
     if (ui->leDoneTask->isVisible()) {
         ui->leDoneTask->setText(todoitemViewModel->index(index.row(), 0)
                 .data(TodoItemsListModel::CopyToPomodoroRole).toString());
@@ -213,10 +232,11 @@ void MainWindow::showContextMenu(const QPoint& pos) {
     QPoint globalPos = ui->lvTodoItems->mapToGlobal(pos);
 
     QMenu todoItemsMenu;
+    // Note QMenu takes ownership of Action
     todoItemsMenu.addAction("Edit");
     todoItemsMenu.addAction("Delete");
 
-    std::unique_ptr<QAction> selectedItem = std::make_unique<QAction> (todoItemsMenu.exec(globalPos));
+    QAction* selectedItem = todoItemsMenu.exec(globalPos);
 
     if (selectedItem && selectedItem->text() == "Edit") editTodoItem();
     if (selectedItem && selectedItem->text() == "Delete") removeTodoItem();
@@ -239,7 +259,14 @@ void MainWindow::editTodoItem() {
 void MainWindow::removeTodoItem() {
     QModelIndex index = ui->lvTodoItems->currentIndex();
     ConfirmationDialog dialog;
-    QString description("This will delete todo item permanently!");
+    // TODO figure out a way to handle this situation more gracefully
+    QString description;
+    if (todoitemViewModel->getTodoItemByModelIndex(index).getSpentPomodoros() > 0) {
+        description = "WARNING! This todo item has pomodoros associated with it "
+                      "and they will be removed permanently along with this item.";
+    } else {
+        description = "This will delete todo item permanently!";
+    }
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         todoitemViewModel->removeTodoItem(index);

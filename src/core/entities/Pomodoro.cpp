@@ -1,33 +1,42 @@
+#include <algorithm>
 #include "Pomodoro.h"
+#include <QDebug>
 
 
 Pomodoro::Pomodoro() { }
 
-Pomodoro::Pomodoro(const QString& name, QDateTime startTime, QDateTime finishTime)
-        : name(name), startTime(startTime), finishTime(finishTime) 
+Pomodoro::Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags,
+                   long long associatedTodoItemId) :
+        interval {interval},
+        tags(tags)
 {
-    QRegularExpression tagRegexp {QString ("(%1\\S+)").arg(tagPrefix)};
-    QRegularExpressionMatchIterator it = tagRegexp.globalMatch(name);
-    while (it.hasNext()) {
-        QRegularExpressionMatch match = it.next();
-        tags << match.captured(1);
-    }
+    todoId = associatedTodoItemId;
+    name.append(" ");
+    name.append(todoName);
 }
 
-void Pomodoro::setFinishTime(const QDateTime& finishTime) {
-    Pomodoro::finishTime = finishTime;
+Pomodoro::Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime) :
+        name {todoItem.getName()},
+        interval {startTime, finishTime},
+        tags {todoItem.getTags()}
+{
+    todoId = todoItem.getId();
+}
+
+void Pomodoro::setFinishTime(const QDateTime finishTime) {
+    interval.finishTime = finishTime;
 }
 
 const QDateTime Pomodoro::getFinishTime() const {
-    return finishTime;
+    return interval.finishTime;
 }
 
-void Pomodoro::setStartTime(const QDateTime& startTime) {
-    Pomodoro::startTime = startTime;
+void Pomodoro::setStartTime(const QDateTime startTime) {
+    interval.startTime = startTime;
 }
 
 const QDateTime Pomodoro::getStartTime() const {
-    return startTime;
+    return interval.startTime;
 }
 
 void Pomodoro::setName(const QString& name) {
@@ -42,15 +51,14 @@ const QStringList Pomodoro::getTags() const {
     return tags;
 }
 
-const QString Pomodoro::asString() const {
+const QString Pomodoro::toString() const {
     QStringList result;
-    QString start = startTime.time().toString();
-    QString finish = finishTime.time().toString();
-    start.chop(3);
-    finish.chop(3);
-    result.append(start);
-    result.append(" - ");
-    result.append(finish);
+    QStringList tagsCopy = tags;
+    std::for_each(tagsCopy.begin(), tagsCopy.end(), [prefix = tagPrefix](auto& el) {
+        return el.prepend(prefix);
+    });
+    result.append(interval.toTimeString());
+    result.append(tagsCopy.join(" "));
     result.append(name);
     return result.join(" ");
 }

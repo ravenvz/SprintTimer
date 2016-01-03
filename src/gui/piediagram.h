@@ -31,6 +31,7 @@ private:
     QLabel* labelLegendTitle;
     int selectedSlice = -1;
 
+
 private slots:
     void onSliceSelectionChanged(int sliceIndex);
     void onLegendItemClicked(int itemIndex);
@@ -80,6 +81,7 @@ private:
     double expandedShiftLength;
     QVector<Slice> sortedData;
     int selectedPieIndex = -1;
+    const double pi {acos(-1)};
     QVector<QBrush> brushes {QBrush(QColor("#28245a")),
                              QBrush(QColor("#73c245")),
                              QBrush(QColor("#ea6136")),

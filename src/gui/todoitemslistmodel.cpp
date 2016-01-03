@@ -63,13 +63,15 @@ QVariant TodoItemsListModel::data(const QModelIndex &index, int role) const {
 
     switch (role) {
         case Qt::DisplayRole:
-            return item.asString();
+            return item.toString();
         case Qt::SizeHintRole:
             return QSize(10, 18); // TODO consider change through config
         case Qt::CheckStateRole:
             return item.isCompleted();
         case CopyToPomodoroRole:
             return item.tagsAndNameAsString();
+        case GetIdRole:
+            return item.getId();
         default:
             return QVariant();
     }
@@ -90,7 +92,8 @@ void TodoItemsListModel::addTodoItem(TodoItem item) {
 
 void TodoItemsListModel::incrementPomodoros(int row, int incrementBy) {
     items[row].setSpentPomodoros(items[row].getSpentPomodoros() + incrementBy);
-    TodoItemDataSource::incrementSpentPomodoros(items[row]);
+    // TodoItemDataSource::incrementSpentPomodoros(items[row]);
+    // NOTE spent_pomodoros in underlying db will be incremented by SQL trigger
 }
 
 TodoItem TodoItemsListModel::getTodoItemByModelIndex(const QModelIndex& index) {

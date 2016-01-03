@@ -40,7 +40,7 @@ private slots:
     void quickAddTodoItem();
     void updateTimerCounter();
     void submitPomodoro();
-    void autoPutTodoToPomodoro(QModelIndex index);
+    void autoPutTodoOnClick(QModelIndex index);
     void showContextMenu(const QPoint& pos);
     void toggleTodoItemCompleted();
     void onInTheZoneToggled();
