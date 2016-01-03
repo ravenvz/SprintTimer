@@ -22,8 +22,8 @@ set ("${PROJECT}_SOURCE_DIR" src:include:external_libs/qcustomplot-source)
 set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 set (CMAKE_VERBOSE_MAKEFILE ON)
-# set (CMAKE_BUILD_TYPE Debug)
-set (CMAKE_BUILD_TYPE Release)
+set (CMAKE_BUILD_TYPE Debug)
+# set (CMAKE_BUILD_TYPE Release)
 
 set (ERR_NO_UNIX "Cannot build on non Unix systems")
 

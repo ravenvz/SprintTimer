@@ -94,6 +94,10 @@ void FilledGauge::drawOuterCircle(QPainter& painter) {
 bool Gauge::eventFilter(QObject* object, QEvent* event) {
     if (object == this && (event->type() == QEvent::Enter || event->type() == QEvent::Leave)) {
         displayDetails = event->type() == QEvent::Enter;
+        // Gauges are messed up for some reason when they are not focused and
+        // Return key is pressed
+        // TODO figure out the reason for this
+        setFocus();
         this->repaint();
         return true;
     }

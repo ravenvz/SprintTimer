@@ -10,6 +10,7 @@ StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
+    ui->widgetPickPeriod->setYears(PomodoroDataSource::getStoredPomodorosYearsRange());
     currentInterval = ui->widgetPickPeriod->getInterval();
     workTimeDiagram = new TimeDiagram(this);
     ui->verticalLayoutBestWorktime->addWidget(workTimeDiagram);

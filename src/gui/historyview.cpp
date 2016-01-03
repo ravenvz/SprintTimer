@@ -9,6 +9,7 @@ HistoryView::HistoryView(QWidget* parent) :
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
+    ui->widgetPickPeriod->setYears(PomodoroDataSource::getStoredPomodorosYearsRange());
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
     displayHistory();
     connectSlots();
