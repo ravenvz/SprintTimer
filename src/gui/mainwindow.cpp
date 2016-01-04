@@ -209,14 +209,15 @@ void MainWindow::submitPomodoro() {
 }
 
 void MainWindow::updatePomodoroView() {
-    QStringList lst = PomodoroDataSource::getPomodorosForToday();
+    // QStringList lst = PomodoroDataSource::getPomodorosForToday();
+    pomodoroViewModel->refresh();
     // pomodoroViewModel->setStringList(lst);
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
     if (dailyGoal == 0) {
         ui->labelDailyGoalProgress->hide();
         return;
     }
-    unsigned completedSoFar = lst.size();
+    unsigned completedSoFar = pomodoroViewModel->rowCount();
     ui->labelDailyGoalProgress->setText(QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
     if (completedSoFar == dailyGoal) {
         ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
@@ -298,7 +299,8 @@ void MainWindow::removePomodoro() {
     QString description {"This will remove pomodoro permanently"};
     dialog.setActionDescription(description);
     if (dialog.exec()) {
-        qDebug() << "Going to remove pomodoro " << index;
+        pomodoroViewModel->removePomodoro(index);
+        todoitemViewModel->queryData();
     }
 }
 

@@ -9,6 +9,8 @@ class PomodoroQueryModel : public QSqlQueryModel
 public:
     explicit PomodoroQueryModel(QObject* parent = 0);
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    void removePomodoro(const QModelIndex& index);
+    void refresh();
     enum class Columns {
         Id = 0,
         TodoId,
@@ -20,7 +22,6 @@ public:
 
 
 private:
-    /* data */
     Pomodoro rowToPomodoro(const QModelIndex& index, int role = Qt::DisplayRole) const;
     QVariant columnData(const QModelIndex& index, const Columns& column, int role = Qt::DisplayRole) const;
 

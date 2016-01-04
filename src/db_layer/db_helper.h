@@ -36,9 +36,19 @@ public:
                    "left join todotag on todo_item.id = todotag.todo_id "
                    "left join tag on todotag.tag_id = tag.id "
                    "where date(start_time) >= date('now') and date(start_time) <= date('now') "
-                   "group by pomodoro.id;");
+                   "group by pomodoro.id "
+                   "order by start_time;");
         return query;
     }
+
+    static QSqlQuery buildQueryToRemovePomodoro(long long id) {
+        QSqlQuery query;
+        query.prepare("delete from pomodoro where id = (:id)");
+        query.bindValue(":id", QVariant(id));
+        // query.exec();
+        return query;
+    }
+
 
     static QVector<Pomodoro> getPomodorosBetween(const QDate& startDate, const QDate& endDate) {
         QVector<Pomodoro> result;

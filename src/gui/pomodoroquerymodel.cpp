@@ -1,4 +1,5 @@
 #include "pomodoroquerymodel.h"
+#include "db_layer/db_helper.h"
 #include <QDebug>
 #include <QSqlRecord>
 #include <QDateTime>
@@ -34,4 +35,17 @@ Pomodoro PomodoroQueryModel::rowToPomodoro(const QModelIndex& index, int role) c
 
 QVariant PomodoroQueryModel::columnData(const QModelIndex& index, const Columns& column, int role) const {
     return QSqlQueryModel::data(index.model()->index(index.row(), static_cast<int>(column)), role);
+}
+
+void PomodoroQueryModel::removePomodoro(const QModelIndex& index) {
+    QSqlQuery removePomodoroQuery = PomodoroDataSource::buildQueryToRemovePomodoro(
+            columnData(index, Columns::Id).toInt()
+        );
+    removePomodoroQuery.exec();
+    refresh();
+}
+
+void PomodoroQueryModel::refresh() {
+    // clear();
+    QSqlQueryModel::setQuery(query().executedQuery());
 }
