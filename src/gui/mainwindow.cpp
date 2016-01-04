@@ -21,9 +21,7 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
     pomodoroViewModel = new PomodoroQueryModel();
     pomodoroViewModel->setQuery(PomodoroDataSource::buildQueryForTodayPomodoros());
     ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
-    // ui->lvCompletedPomodoros->resizeColumnsToContents();
-    // ui->lvCompletedPomodoros->resizeRowsToContents();
-    ui->lvCompletedPomodoros->setModelColumn(2);
+    ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
     todoitemViewModel = new TodoItemsListModel(this);
     ui->lvTodoItems->setModel(todoitemViewModel);
     todoitemViewDelegate = new TodoItemsViewDelegate(this);
@@ -54,7 +52,8 @@ void MainWindow::connectSlots() {
     connect(ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
     connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoOnClick(QModelIndex)));
-    connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
+    connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showTodoItemContextMenu(const QPoint&)));
+    connect(ui->lvCompletedPomodoros, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPomodoroContextMenu(const QPoint&)));
     connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
     connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
     connect(ui->leTodoItem, SIGNAL(returnPressed()), this, SLOT(quickAddTodoItem()));
@@ -235,7 +234,7 @@ void MainWindow::autoPutTodoOnClick(QModelIndex index) {
     }
 }
 
-void MainWindow::showContextMenu(const QPoint& pos) {
+void MainWindow::showTodoItemContextMenu(const QPoint& pos) {
     QPoint globalPos = ui->lvTodoItems->mapToGlobal(pos);
 
     QMenu todoItemsMenu;
@@ -279,6 +278,27 @@ void MainWindow::removeTodoItem() {
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         todoitemViewModel->removeTodoItem(index);
+    }
+}
+
+void MainWindow::showPomodoroContextMenu(const QPoint& pos) {
+    QPoint globalPos = ui->lvCompletedPomodoros->mapToGlobal(pos);
+
+    QMenu pomodoroMenu;
+    pomodoroMenu.addAction("Delete");
+
+    QAction* selectedItem = pomodoroMenu.exec(globalPos);
+
+    if (selectedItem && selectedItem->text() == "Delete") removePomodoro();
+}
+
+void MainWindow::removePomodoro() {
+    QModelIndex index = ui->lvCompletedPomodoros->currentIndex();
+    ConfirmationDialog dialog;
+    QString description {"This will remove pomodoro permanently"};
+    dialog.setActionDescription(description);
+    if (dialog.exec()) {
+        qDebug() << "Going to remove pomodoro " << index;
     }
 }
 

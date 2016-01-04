@@ -43,7 +43,8 @@ private slots:
     void updateTimerCounter();
     void submitPomodoro();
     void autoPutTodoOnClick(QModelIndex index);
-    void showContextMenu(const QPoint& pos);
+    void showTodoItemContextMenu(const QPoint& pos);
+    void showPomodoroContextMenu(const QPoint& pos);
     void toggleTodoItemCompleted();
     void onInTheZoneToggled();
     void launchSettingsDialog();
@@ -81,6 +82,7 @@ private:
     void updateGoalWindow();
     void editTodoItem();
     void removeTodoItem();
+    void removePomodoro();
     void playSound();
     void bringToForeground(QWidget* widgetPtr);
     void launchTagEditor();
