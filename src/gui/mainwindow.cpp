@@ -37,6 +37,7 @@ MainWindow::~MainWindow() {
     delete historyView;
     delete statisticsView;
     delete goalsView;
+    delete tagEditor;
     delete ui;
 }
 
@@ -235,11 +236,13 @@ void MainWindow::showContextMenu(const QPoint& pos) {
     // Note QMenu takes ownership of Action
     todoItemsMenu.addAction("Edit");
     todoItemsMenu.addAction("Delete");
+    todoItemsMenu.addAction("Tag editor");
 
     QAction* selectedItem = todoItemsMenu.exec(globalPos);
 
     if (selectedItem && selectedItem->text() == "Edit") editTodoItem();
     if (selectedItem && selectedItem->text() == "Delete") removeTodoItem();
+    if (selectedItem && selectedItem->text() == "Tag editor") launchTagEditor();
 }
 
 void MainWindow::editTodoItem() {
@@ -340,4 +343,13 @@ void MainWindow::updateHistoryWindow() {
 
 void MainWindow::updateGoalWindow() {
     if (goalsView) goalsView->updateView();
+}
+
+void MainWindow::launchTagEditor() {
+    if (!tagEditor) {
+        tagEditor = new TagEditorWidget();
+        tagEditor->show();
+    } else {
+        bringToForeground(tagEditor);
+    }
 }

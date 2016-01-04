@@ -13,6 +13,7 @@
 #include "gui/goalsview.h"
 #include "gui/historyview.h"
 #include "gui/statisticswidget.h"
+#include "gui/tageditorwidget.h"
 #include "todoitemslistmodel.h"
 #include "todoitemsviewdelegate.h"
 
@@ -65,6 +66,7 @@ private:
     QPointer<GoalsView> goalsView;
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
+    QPointer<TagEditorWidget> tagEditor;
 
     void connectSlots();
     void setUiToIdleState();
@@ -79,6 +81,7 @@ private:
     void removeTodoItem();
     void playSound();
     void bringToForeground(QWidget* widgetPtr);
+    void launchTagEditor();
 };
 
 #endif // MAINWINDOW_H 
