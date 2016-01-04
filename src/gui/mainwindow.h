@@ -11,6 +11,7 @@
 #include "core/TaskScheduler.h"
 #include "db_layer/db_helper.h"
 #include "gui/goalsview.h"
+#include "gui/pomodoroquerymodel.h"
 #include "gui/historyview.h"
 #include "gui/statisticswidget.h"
 #include "gui/tageditorwidget.h"
@@ -61,7 +62,7 @@ private:
     std::vector<TimeInterval> completedTasksIntervals;
     int progressBarMaxValue {0};
     Second timerDuration {0};
-    QPointer<QStringListModel> pomodoroViewModel;
+    QPointer<PomodoroQueryModel> pomodoroViewModel;
     QPointer<TodoItemsListModel> todoitemViewModel;
     QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
     QPointer<GoalsView> goalsView;

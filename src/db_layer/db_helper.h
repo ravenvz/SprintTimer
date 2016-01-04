@@ -20,13 +20,24 @@ class PomodoroDataSource
 public:
     static QStringList getPomodorosForToday() {
         QStringList result;
-        QSqlQuery query;
         QDate today = QDate::currentDate();
         QVector<Pomodoro> pomodoros = getPomodorosBetween(today, today);
         std::transform(pomodoros.begin(), pomodoros.end(), std::back_inserter(result), [](const auto& pomo) {
                 return pomo.toString();
             });
         return result;
+    }
+
+    static QSqlQuery buildQueryForTodayPomodoros() {
+        QSqlQuery query;
+        query.exec("select pomodoro.id, pomodoro.todo_id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
+                   "from pomodoro "
+                   "join todo_item on pomodoro.todo_id = todo_item.id "
+                   "left join todotag on todo_item.id = todotag.todo_id "
+                   "left join tag on todotag.tag_id = tag.id "
+                   "where date(start_time) >= date('now') and date(start_time) <= date('now') "
+                   "group by pomodoro.id;");
+        return query;
     }
 
     static QVector<Pomodoro> getPomodorosBetween(const QDate& startDate, const QDate& endDate) {
