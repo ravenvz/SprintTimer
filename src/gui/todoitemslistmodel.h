@@ -20,6 +20,7 @@ public:
     Qt::DropActions supportedDragActions() const override;
     bool insertRows(int row, int count, const QModelIndex &parent) override;
     bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
+    void queryData();
     enum customRoles { CopyToPomodoroRole = Qt::UserRole + 1, 
                        GetIdRole = Qt::UserRole + 2 };
     void addTodoItem(TodoItem item);

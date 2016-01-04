@@ -59,6 +59,7 @@ QT5_WRAP_UI(UI_HEADERS
     src/gui/ui/statistics_widget.ui
     src/gui/ui/manual_add_pomodoro_dialog.ui
     src/gui/ui/pickperiodwidget.ui
+    src/gui/ui/tageditor.ui
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc src/main.cpp)
