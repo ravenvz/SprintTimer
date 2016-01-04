@@ -1,5 +1,8 @@
 #include "tageditorwidget.h"
 #include "ui_tageditor.h"
+#include <QSqlError>
+#include <QDebug>
+#include <QMessageBox>
 
 
 TagEditorWidget::TagEditorWidget(QWidget* parent) :
@@ -26,6 +29,13 @@ TagEditorWidget::~TagEditorWidget() {
 
 void TagEditorWidget::onAccept() {
     model->submitAll();
+    if (model->lastError().isValid()) {
+        // TODO check for specific error for unique constraint violation
+        QMessageBox msgBox;
+        msgBox.setText("Tag name must be unique.");
+        msgBox.exec();
+        return;
+    }
     emit dataSetChanged();
     this->close();
 }
