@@ -348,8 +348,13 @@ void MainWindow::updateGoalWindow() {
 void MainWindow::launchTagEditor() {
     if (!tagEditor) {
         tagEditor = new TagEditorWidget();
+        connect(tagEditor, SIGNAL(dataSetChanged()), this, SLOT(updateTodoItemModel()));
         tagEditor->show();
     } else {
         bringToForeground(tagEditor);
     }
+}
+
+void MainWindow::updateTodoItemModel() {
+    todoitemViewModel->queryData();
 }

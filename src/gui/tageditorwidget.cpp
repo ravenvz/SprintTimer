@@ -26,6 +26,7 @@ TagEditorWidget::~TagEditorWidget() {
 
 void TagEditorWidget::onAccept() {
     model->submitAll();
+    emit dataSetChanged();
     this->close();
 }
 

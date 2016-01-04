@@ -50,6 +50,7 @@ private slots:
     void launchGoalsView();
     void launchStatisticsView();
     void launchManualAddPomodoroDialog();
+    void updateTodoItemModel();
 
 private:
     Ui::MainWindow *ui;

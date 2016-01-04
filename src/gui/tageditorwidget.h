@@ -20,9 +20,13 @@ private slots:
     void onAccept();
     void onReject();
 
+signals:
+    void dataSetChanged();
+
 private:
     Ui::TagEditorWidget* ui;
     QSqlTableModel* model;
+
 
 };
 

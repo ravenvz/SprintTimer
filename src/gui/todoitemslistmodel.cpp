@@ -6,6 +6,10 @@
 TodoItemsListModel::TodoItemsListModel(QObject* parent) :
     QAbstractListModel(parent) 
 {
+    queryData();
+}
+
+void TodoItemsListModel::queryData() {
     setItems(TodoItemDataSource::getUncompleteTodoItems());
 }
 
