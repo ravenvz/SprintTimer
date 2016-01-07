@@ -18,9 +18,9 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
     ui->setupUi(this);
     timer = new QTimer(this);
     player = std::make_unique<QMediaPlayer> ();
-    pomodoroViewModel = new PomodoroQueryModel();
-    pomodoroViewModel->setQuery(PomodoroDataSource::buildQueryForTodayPomodoros());
-    ui->lvCompletedPomodoros->setModel(pomodoroViewModel);
+    pomodoroModel = PomodoroDataSource::buildPomodoroModelForTodayView();
+    pomodoroModel->select();
+    ui->lvCompletedPomodoros->setModel(pomodoroModel);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
     todoitemViewModel = new TodoItemsListModel(this);
     ui->lvTodoItems->setModel(todoitemViewModel);
@@ -33,8 +33,8 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
 }
 
 MainWindow::~MainWindow() {
-    pomodoroViewModel.clear();
-    delete pomodoroViewModel;
+    pomodoroModel.clear();
+    delete pomodoroModel;
     delete timer;
     delete todoitemViewModel;
     delete todoitemViewDelegate;
@@ -164,7 +164,6 @@ void MainWindow::playSound() {
     player->play();
 }
 
-// TODO figure out a way to enter pomo manually
 void MainWindow::submitPomodoro() {
     QString name = ui->leDoneTask->text();
     if (name.isEmpty()) {
@@ -178,7 +177,7 @@ void MainWindow::submitPomodoro() {
     for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
        if (name == todoitemViewModel->index(row, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
            associatedTodoItemId = todoitemViewModel->index(row, 0).data(TodoItemsListModel::GetIdRole).toInt();
-           todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
+           // todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
        }
     }
     // // 2. If no such item found, create new TodoItem
@@ -193,7 +192,8 @@ void MainWindow::submitPomodoro() {
 
     for (TimeInterval interval : completedTasksIntervals) {
         Pomodoro pomodoro {name, interval, QStringList {}, *associatedTodoItemId};
-        PomodoroDataSource::storePomodoro(pomodoro, *associatedTodoItemId);
+        pomodoroModel->insertPomodoro(pomodoro, *associatedTodoItemId);
+        // PomodoroDataSource::storePomodoro(pomodoro, *associatedTodoItemId);
         // todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
         // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
@@ -210,14 +210,14 @@ void MainWindow::submitPomodoro() {
 
 void MainWindow::updatePomodoroView() {
     // QStringList lst = PomodoroDataSource::getPomodorosForToday();
-    pomodoroViewModel->refresh();
-    // pomodoroViewModel->setStringList(lst);
+    pomodoroModel->select();
+    // pomodoroModel->setStringList(lst);
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
     if (dailyGoal == 0) {
         ui->labelDailyGoalProgress->hide();
         return;
     }
-    unsigned completedSoFar = pomodoroViewModel->rowCount();
+    unsigned completedSoFar = pomodoroModel->rowCount();
     ui->labelDailyGoalProgress->setText(QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
     if (completedSoFar == dailyGoal) {
         ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
@@ -299,7 +299,8 @@ void MainWindow::removePomodoro() {
     QString description {"This will remove pomodoro permanently"};
     dialog.setActionDescription(description);
     if (dialog.exec()) {
-        pomodoroViewModel->removePomodoro(index);
+        // pomodoroModel->setData(index, QVariant(), Qt::EditRole);
+        pomodoroModel->removePomodoro(index);
         todoitemViewModel->queryData();
     }
 }
@@ -341,7 +342,9 @@ void MainWindow::launchStatisticsView() {
 }
 
 void MainWindow::launchManualAddPomodoroDialog() {
-    PomodoroManualAddDialog dialog {todoitemViewModel, applicationSettings.getPomodoroDuration()};
+    PomodoroManualAddDialog dialog {pomodoroModel,
+                                    todoitemViewModel,
+                                    applicationSettings.getPomodoroDuration()};
     if (dialog.exec()) {
         updatePomodoroView();
         updateOpenedWindows();

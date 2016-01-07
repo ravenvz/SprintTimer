@@ -4,13 +4,14 @@
 #include <QSqlRecord>
 #include <QDateTime>
 
-PomodoroQueryModel::PomodoroQueryModel(QObject* parent) :
-    QSqlQueryModel(parent) 
+
+PomodoroModel::PomodoroModel(QObject* parent) :
+    QSqlTableModel(parent) 
 {
 
 }
 
-QVariant PomodoroQueryModel::data(const QModelIndex& index, int role) const {
+QVariant PomodoroModel::data(const QModelIndex& index, int role) const {
     if (!index.isValid()) {
         return QVariant();
     }
@@ -23,29 +24,53 @@ QVariant PomodoroQueryModel::data(const QModelIndex& index, int role) const {
     }
 }
 
-Pomodoro PomodoroQueryModel::rowToPomodoro(const QModelIndex& index, int role) const {
+// bool PomodoroModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+//     if (role == Qt::EditRole) {
+//         qDebug() << "Edit role";
+//     }
+//     if (!index.isValid()) {
+//         return false;
+//     } 
+//
+//     if (role == Qt::EditRole) {
+//         qDebug() << "Removing row. Sort of...";
+//         QSqlTableModel::removeRows(index.row(), 1);
+//         emit dataChanged();
+//     }
+//     
+//     return false;
+// }
+
+Pomodoro PomodoroModel::rowToPomodoro(const QModelIndex& index, int role) const {
     QString name = columnData(index, Columns::Name).toString();
     TimeInterval interval {columnData(index, Columns::StartTime).toDateTime(),
                            columnData(index, Columns::FinishTime).toDateTime()};
     QStringList tags = columnData(index, Columns::Tags).toString().split(",");
     long long id_to_remove = columnData(index, Columns::TodoId).toInt();
 
-    return Pomodoro {name, interval, tags, id_to_remove};
+   return Pomodoro {name, interval, tags, id_to_remove};
 }
 
-QVariant PomodoroQueryModel::columnData(const QModelIndex& index, const Columns& column, int role) const {
+QVariant PomodoroModel::columnData(const QModelIndex& index, const Columns& column, int role) const {
     return QSqlQueryModel::data(index.model()->index(index.row(), static_cast<int>(column)), role);
 }
 
-void PomodoroQueryModel::removePomodoro(const QModelIndex& index) {
-    QSqlQuery removePomodoroQuery = PomodoroDataSource::buildQueryToRemovePomodoro(
-            columnData(index, Columns::Id).toInt()
-        );
-    removePomodoroQuery.exec();
-    refresh();
+void PomodoroModel::removePomodoro(const QModelIndex& index) {
+    // TODO handle sad path
+    removePomodoroFunctor(columnData(index, Columns::Id));
+    select();
 }
 
-void PomodoroQueryModel::refresh() {
-    // clear();
-    QSqlQueryModel::setQuery(query().executedQuery());
+void PomodoroModel::insertPomodoro(const Pomodoro& pomodoro, long long associatedTodoItemId) {
+    // TODO handle sad path
+    insertPomodoroFunctor(pomodoro, associatedTodoItemId);
+    select();
+}
+
+void PomodoroModel::setRemovePomodoroFunctor(std::function<void(QVariant)> func) {
+    removePomodoroFunctor = func;
+}
+
+void PomodoroModel::setInsertPomodoroFunctor(std::function<bool (const Pomodoro& pomodoro, long long associatedTodoItemId)> func) {
+    insertPomodoroFunctor = func;
 }

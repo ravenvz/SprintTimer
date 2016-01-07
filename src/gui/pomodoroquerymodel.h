@@ -1,27 +1,38 @@
 #ifndef POMODOROQUERYMODEL_H
 #define POMODOROQUERYMODEL_H
 
-#include <QSqlQueryModel>
+#include <QSqlTableModel>
+#include <QSqlQuery>
+#include <functional>
 #include "core/entities/Pomodoro.h"
 
-class PomodoroQueryModel : public QSqlQueryModel
+class PomodoroModel : public QSqlTableModel
 {
 public:
-    explicit PomodoroQueryModel(QObject* parent = 0);
+    explicit PomodoroModel(QObject* parent = 0);
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    // bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
+
     void removePomodoro(const QModelIndex& index);
-    void refresh();
+    void insertPomodoro(const Pomodoro& pomodoro, long long associatedTodoItemId);
+
+    void setRemovePomodoroFunctor(std::function<void (QVariant pomoId)> func);
+    void setInsertPomodoroFunctor(std::function<bool (const Pomodoro& pomodoro, long long associatedTodoItemId)> func);
+
     enum class Columns {
         Id = 0,
         TodoId,
         Name,
+        Tags,
         StartTime,
         FinishTime,
-        Tags
     };
 
 
 private:
+    std::function<void (QVariant pomoId)> removePomodoroFunctor;
+    std::function<bool (const Pomodoro& pomodoro, long long associatedTodoItemId)> insertPomodoroFunctor;
+
     Pomodoro rowToPomodoro(const QModelIndex& index, int role = Qt::DisplayRole) const;
     QVariant columnData(const QModelIndex& index, const Columns& column, int role = Qt::DisplayRole) const;
 

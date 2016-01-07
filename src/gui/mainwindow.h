@@ -63,7 +63,7 @@ private:
     std::vector<TimeInterval> completedTasksIntervals;
     int progressBarMaxValue {0};
     Second timerDuration {0};
-    QPointer<PomodoroQueryModel> pomodoroViewModel;
+    QPointer<PomodoroModel> pomodoroModel;
     QPointer<TodoItemsListModel> todoitemViewModel;
     QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
     QPointer<GoalsView> goalsView;

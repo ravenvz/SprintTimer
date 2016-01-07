@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "core/entities/TodoItem.h"
 #include "core/entities/Pomodoro.h"
+#include <gui/pomodoroquerymodel.h>
 #include <QDebug>
 
 
@@ -28,24 +29,44 @@ public:
         return result;
     }
 
+    static PomodoroModel* buildPomodoroModelForTodayView() {
+        PomodoroModel* model = new PomodoroModel();
+        const int startTimeCol {4};
+        model->setTable("pomodoro_view");
+        model->setFilter("date(start_time) = date('now')");
+        model->setSort(startTimeCol, Qt::AscendingOrder);
+        model->setRemovePomodoroFunctor([](QVariant id) {
+                QSqlQuery query;
+                query.prepare("delete from pomodoro where id = (:id)");
+                query.bindValue(":id", id);
+                query.exec();
+            });
+        model->setInsertPomodoroFunctor(
+                [](const Pomodoro& pomodoro, long long associatedTodoItemId) {
+                    QSqlQuery query;
+                    query.prepare("insert into pomodoro (name, start_time, finish_time, todo_id) "
+                                  "values (:name, :start_time, :finish_time, :todo_id)");
+                    query.bindValue(":name", QVariant(pomodoro.getName()));
+                    query.bindValue(":start_time", QVariant(pomodoro.getStartTime()));
+                    query.bindValue(":finish_time", QVariant(pomodoro.getFinishTime()));
+                    query.bindValue(":todo_id", QVariant(associatedTodoItemId));
+                    return query.exec();
+                });
+        return model;
+    }  
+
     static QSqlQuery buildQueryForTodayPomodoros() {
         QSqlQuery query;
         query.exec("select pomodoro.id, pomodoro.todo_id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
-                   "from pomodoro "
-                   "join todo_item on pomodoro.todo_id = todo_item.id "
-                   "left join todotag on todo_item.id = todotag.todo_id "
-                   "left join tag on todotag.tag_id = tag.id "
+                   "from pomodoro_view "
                    "where date(start_time) >= date('now') and date(start_time) <= date('now') "
-                   "group by pomodoro.id "
                    "order by start_time;");
         return query;
     }
 
-    static QSqlQuery buildQueryToRemovePomodoro(long long id) {
+    static QSqlQuery buildQueryToRemovePomodoro() {
         QSqlQuery query;
         query.prepare("delete from pomodoro where id = (:id)");
-        query.bindValue(":id", QVariant(id));
-        // query.exec();
         return query;
     }
 
