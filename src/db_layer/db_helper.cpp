@@ -49,7 +49,18 @@ void createDatabase(QSqlDatabase& db, QString& filename) {
     query.exec("alter table calendar add dt datetime");
     query.exec("update calendar set dt=date('2000-01-01',(-1+id)||' day')");
     query.exec("CREATE INDEX idx1 on calendar(dt)");
-
+    // View for pomodoros
+    query.exec("CREATE VIEW pomodoro_view AS "
+               "SELECT pomodoro.id, pomodoro.todo_id, todo_item.name, group_concat(tag.name) tags, start_time, finish_time "
+               "FROM pomodoro join todo_item on pomodoro.todo_id = todo_item.id "
+               "LEFT JOIN todotag ON todotag.todo_id = todo_item.id "
+               "LEFT JOIN tag ON tag.id = todotag.tag_id "
+               "GROUP BY pomodoro.id; ");
+    // Trigger to remove from pomodoro_view as view are read-only in Sqlite3
+    query.exec("CREATE TRIGGER delete_from_pomodoro_view INSTEAD OF DELETE ON pomodoro_view "
+               "BEGIN "
+               "DELETE FROM pomodoro WHERE id = old.id; "
+               "END;");
     // qDebug() << query.lastError() << " this error";
     // db.close();
 }

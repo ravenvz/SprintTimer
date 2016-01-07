@@ -11,6 +11,7 @@
 #include "core/TaskScheduler.h"
 #include "db_layer/db_helper.h"
 #include "gui/goalsview.h"
+#include "gui/pomodoroquerymodel.h"
 #include "gui/historyview.h"
 #include "gui/statisticswidget.h"
 #include "gui/tageditorwidget.h"
@@ -42,7 +43,8 @@ private slots:
     void updateTimerCounter();
     void submitPomodoro();
     void autoPutTodoOnClick(QModelIndex index);
-    void showContextMenu(const QPoint& pos);
+    void showTodoItemContextMenu(const QPoint& pos);
+    void showPomodoroContextMenu(const QPoint& pos);
     void toggleTodoItemCompleted();
     void onInTheZoneToggled();
     void launchSettingsDialog();
@@ -61,7 +63,7 @@ private:
     std::vector<TimeInterval> completedTasksIntervals;
     int progressBarMaxValue {0};
     Second timerDuration {0};
-    QPointer<QStringListModel> pomodoroViewModel;
+    QPointer<PomodoroModel> pomodoroModel;
     QPointer<TodoItemsListModel> todoitemViewModel;
     QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
     QPointer<GoalsView> goalsView;
@@ -80,6 +82,7 @@ private:
     void updateGoalWindow();
     void editTodoItem();
     void removeTodoItem();
+    void removePomodoro();
     void playSound();
     void bringToForeground(QWidget* widgetPtr);
     void launchTagEditor();

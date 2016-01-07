@@ -14,10 +14,10 @@ TagEditorWidget::TagEditorWidget(QWidget* parent) :
     model = new QSqlTableModel();
     model->setTable("tag");
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    model->setSort(1, Qt::AscendingOrder);
     model->select();
-    ui->tableViewTags->setModel(model);
-    ui->tableViewTags->hideColumn(0);
-    ui->tableViewTags->resizeColumnToContents(1);
+    ui->listViewTags->setModel(model);
+    ui->listViewTags->setModelColumn(1);
     connect(ui->buttonBoxConfirm, SIGNAL(accepted()), this, SLOT(onAccept()));
     connect(ui->buttonBoxConfirm, SIGNAL(rejected()), this, SLOT(onReject()));
 }

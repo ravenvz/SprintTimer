@@ -768,9 +768,6 @@ color: white;
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
-    <property name="resizeMode">
-     <enum>QListView::Fixed</enum>
-    </property>
    </widget>
    <widget class="QPushButton" name="btnZone">
     <property name="geometry">
