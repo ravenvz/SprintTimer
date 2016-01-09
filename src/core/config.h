@@ -9,6 +9,7 @@
 class IConfig {
 
 public:
+    virtual ~IConfig() = default;
     virtual unsigned int getPomodoroDuration() const = 0;
     virtual void setPomodoroDuration(unsigned int pomodoroDuration) = 0;
     virtual unsigned int getShortBreakDuration() const = 0;

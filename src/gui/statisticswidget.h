@@ -3,12 +3,12 @@
 
 #include <QWidget>
 #include <QVector>
-#include <external_libs/qcustomplot-source/qcustomplot.h>
-#include "gui/dialogs/datepickdialog.h"
-#include "core/config.h"
 #include "core/PomodoroStatistics.h"
-#include "timediagram.h"
+#include "core/config.h"
+#include "gui/dialogs/datepickdialog.h"
 #include "piediagram.h"
+#include "plot.h"
+#include "timediagram.h"
 
 namespace Ui {
     class StatisticsWidget;
@@ -22,6 +22,7 @@ class StatisticsWidget : public QWidget
 public:
     explicit StatisticsWidget(Config& applicationSettings, QWidget* parent = 0);
     ~StatisticsWidget();
+    void updateView();
 
 private slots:
     void onDatePickerIntervalChanged(DateInterval newInterval);
@@ -30,14 +31,13 @@ private slots:
 private:
     Ui::StatisticsWidget* ui;
     Config& applicationSettings;
+    PomodoroModel* pomodoroModel;
     QVector<Pomodoro> pomodoros;
     TagPomoMap tagPomoMap;
     TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
-    QPointer<QCPBars> weekdayBarChart;
-    const int numDisplayedTagSlices = 16;
+    const int numDisplayedTagSlices = 7; // TODO move to config
     int selectedSliceIndex = -1;
-//    QPointer<QCPGraph> dailyTimeline;
 
     void connectSlots();
     void setupGraphs();

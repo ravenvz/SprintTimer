@@ -9,7 +9,7 @@ TodoItem::TodoItem(QString name,
                    unsigned spentPomodoros,
                    QStringList tags,
                    bool completed,
-                   int id) :
+                   long long id) :
     name(name),
     estimatedPomodoros(estimatedPomodoros),
     spentPomodoros(spentPomodoros),
@@ -31,15 +31,15 @@ void TodoItem::setEncodedDescription(const QString& encodedDescription) {
     TodoItem::encodedDescription = encodedDescription;
 }
 
-const QString& TodoItem::getEncodedDescription() const {
+QString TodoItem::getEncodedDescription() const {
     return encodedDescription;
 }
 
-void TodoItem::setId(int id) {
+void TodoItem::setId(long long id) {
     TodoItem::id = id;
 }
 
-int TodoItem::getId() const {
+long long TodoItem::getId() const {
     return id;
 }
 
@@ -59,7 +59,7 @@ void TodoItem::setTags(const QStringList& tags) {
     TodoItem::tags = tags;
 }
 
-const QStringList& TodoItem::getTags() const {
+QStringList TodoItem::getTags() const {
     return tags;
 }
 
@@ -83,11 +83,11 @@ void TodoItem::setName(const QString& name) {
     TodoItem::name = name;
 }
 
-const QString& TodoItem::getName() const {
+QString TodoItem::getName() const {
     return name;
 }
 
-QString TodoItem::asString() const {
+QString TodoItem::toString() const {
     QStringList result;
     result.append(tagsAsHashedString());
     result.append(name);

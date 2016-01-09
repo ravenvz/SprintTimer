@@ -7,7 +7,10 @@ HistoryView::HistoryView(QWidget* parent) :
     QWidget(parent),
     ui(new Ui::HistoryView)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
+    pomodoroModelToRename = new PomodoroModel(this);
+    ui->widgetPickPeriod->setYears(pomodoroModelToRename->yearRange());
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
     displayHistory();
     connectSlots();
@@ -20,7 +23,12 @@ void HistoryView::connectSlots() {
 }
 
 HistoryView::~HistoryView() {
+    delete pomodoroModelToRename;
     delete ui;
+}
+
+void HistoryView::updateView() {
+    displayHistory();
 }
 
 void HistoryView::displayHistory() {
@@ -36,9 +44,9 @@ void HistoryView::populatePomodoroHistory() {
 }
 
 void HistoryView::getPomodoroHistory(QStringList& preprocessedHistory) const {
-    QVector<Pomodoro> pomodorosForInterval = PomodoroDataSource::getPomodorosBetween(
-            selectedDateInterval.startDate,
-            selectedDateInterval.endDate);
+    pomodoroModelToRename->setDateFilter(selectedDateInterval);
+    pomodoroModelToRename->select();
+    QVector<Pomodoro> pomodorosForInterval {pomodoroModelToRename->pomodoros()};
     if (!pomodorosForInterval.isEmpty()) {
         preprocessedHistory << QString("Completed %1 pomodoros").arg(pomodorosForInterval.size());
         formatPomodoroHistory(pomodorosForInterval, preprocessedHistory);
@@ -59,7 +67,7 @@ void HistoryView::formatPomodoroHistory(const QVector<Pomodoro> &pomodoros, QStr
             preparedPomodoroHistory << date.toString();
             headerIndexes << i + headerOffset;
         }
-        preparedPomodoroHistory << pomodoros[i].asString();
+        preparedPomodoroHistory << pomodoros[i].toString();
     }
 }
 
@@ -94,7 +102,7 @@ void HistoryView::formatTodoItemHistory(const QVector<std::pair<TodoItem, QStrin
             formattedHistory << currentDate;
             headerIndexes << i + headerOffset;
         }
-        formattedHistory << todoItemsForPeriod[i].first.asString();
+        formattedHistory << todoItemsForPeriod[i].first.toString();
     }
 }
 

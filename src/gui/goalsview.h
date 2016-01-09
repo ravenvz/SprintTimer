@@ -6,7 +6,6 @@
 #include "core/config.h"
 #include <QGridLayout>
 #include <src/utils/MathUtils.h>
-#include "core/PomodoroStatistics.h"
 
 namespace Ui {
     class GoalsView;
@@ -19,6 +18,7 @@ class GoalsView : public QWidget
 public:
     explicit GoalsView(Config& applicationSettings, QWidget* parent = 0);
     ~GoalsView();
+    void updateView();
 
 private slots:
     void updateDailyGoal();
@@ -28,17 +28,14 @@ private slots:
 private:
     Ui::GoalsView* ui;
     Config& applicationSettings;
-    GoalStatItem goalStatistics;
     const QColor targetGoalReached = QColor("#6baa15");
     const QColor overwork = Qt::red;
     const QColor workInProgress = Qt::gray;
 
     void connectSlots();
     void displayData();
-    void drawDiagrams();
-    void drawLastMonthDiagram();
-    void drawLastQuarterDiagram();
-    void drawLastYearDiagram();
+    void drawPeriodDiagram(QGridLayout* layout, Distribution<unsigned>& distribution,
+            unsigned goal, int rowNum, int colNum);
     void clearDiagramLayout(QGridLayout* layout);
     void updateProgressBar(QProgressBar* bar, unsigned goal, int value);
     QString formatDecimal(double decimal) const;

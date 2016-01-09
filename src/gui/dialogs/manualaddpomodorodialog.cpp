@@ -3,10 +3,11 @@
 #include "db_layer/db_helper.h"
 
 
-PomodoroManualAddDialog::PomodoroManualAddDialog(TodoItemsListModel* model, unsigned pomodoroDuration, QDialog* parent) :
+PomodoroManualAddDialog::PomodoroManualAddDialog(PomodoroModel* pomodoroModel, TodoItemsListModel* todoItemModel, unsigned pomodoroDuration, QDialog* parent) :
     QDialog(parent),
     ui(new Ui::PomodoroManualAddDialog),
-    model(model),
+    pomodoroModel(pomodoroModel),
+    todoItemModel(todoItemModel),
     pomodoroDuration(pomodoroDuration)
 {
     ui->setupUi(this);
@@ -19,7 +20,7 @@ PomodoroManualAddDialog::~PomodoroManualAddDialog() {
 }
 
 void PomodoroManualAddDialog::setData() {
-    ui->comboBoxPickTodoItem->setModel(model);
+    ui->comboBoxPickTodoItem->setModel(todoItemModel);
     ui->dateEditPomodoroDate->setDate(QDate::currentDate());
 }
 
@@ -38,9 +39,14 @@ void PomodoroManualAddDialog::accept() {
     if (startTime >= finishTime) {
         autoAdjustFinishTime();
     }
-    TodoItem pickedItem = model->getTodoItemByModelIndex(model->index(ui->comboBoxPickTodoItem->currentIndex(), 0));
-    model->incrementPomodoros(ui->comboBoxPickTodoItem->currentIndex(), 1);
-    Pomodoro pomodoro {pickedItem.tagsAndNameAsString(), startTime, finishTime};
-    PomodoroDataSource::storePomodoro(pomodoro);
+    // TODO query model to get id directly, when removed id from todoitem entity
+    TodoItem pickedItem = todoItemModel->getTodoItemByModelIndex(todoItemModel->index(ui->comboBoxPickTodoItem->currentIndex(), 0));
+    // todoItemModel->incrementPomodoros(ui->comboBoxPickTodoItem->currentIndex(), 1);
+    Pomodoro pomodoro {pickedItem.getName(),
+                       TimeInterval {startTime, finishTime},
+                       pickedItem.getTags(),
+                       pickedItem.getId()};
+    // PomodoroDataSource::storePomodoro(pomodoro, pickedItem.getId());
+    pomodoroModel->insertPomodoro(pomodoro, pickedItem.getId());
     QDialog::accept();
 }

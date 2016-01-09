@@ -3,11 +3,6 @@
 #include "piediagram.h"
 
 
-constexpr double pi() {
-    return acos(-1);
-}
-
-
 PieDiagram::PieDiagram(QWidget* parent) :
     QWidget(parent) 
 {
@@ -28,7 +23,7 @@ PieDiagram::~PieDiagram() {
 
 void PieDiagram::setData(QVector<Slice>& data) {
     selectedSlice = -1;
-    for (auto label : labels) {
+    for (LegendLabel* label : labels) {
         legendLayout->removeWidget(label);
         delete label;
     }
@@ -81,7 +76,7 @@ void Diagram::setData(QVector<Slice>& data) {
     selectedPieIndex = -1;
     sortedData.clear();
     std::transform(data.begin(), data.end(), std::back_inserter(sortedData),
-        [](auto entry) {
+        [](const auto& entry) {
             return std::make_pair(entry.first, entry.second * 360);
         });
     repaint();
@@ -118,7 +113,7 @@ void Diagram::paintEvent(QPaintEvent* event) {
 
 QPointF Diagram::computeOffsetPoint(double current, double offset) {
     double angle = offset + current / 2;
-    double angleRads = angle * pi() / 180;
+    double angleRads = angle * pi / 180;
     double x = expandedShiftLength * cos(angleRads);
     double y = expandedShiftLength * sin(angleRads);
     if (0 <= angle && angle <= 90) y = -y;

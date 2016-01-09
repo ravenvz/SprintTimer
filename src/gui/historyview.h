@@ -7,6 +7,7 @@
 #include "core/entities/TodoItem.h"
 #include "core/entities/Pomodoro.h"
 #include "gui/pickperiodwidget.h"
+#include "gui/pomodoroquerymodel.h"
 
 namespace Ui {
     class HistoryView;
@@ -19,10 +20,12 @@ class HistoryView : public QWidget
 public:
     explicit HistoryView(QWidget* parent = 0);
     ~HistoryView();
+    void updateView();
 
 private:
     Ui::HistoryView* ui;
     DateInterval selectedDateInterval;
+    PomodoroModel* pomodoroModelToRename;
 
     void connectSlots();
     void populatePomodoroHistory();

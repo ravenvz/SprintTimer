@@ -2,6 +2,9 @@
 #include <QtCore/qstringlistmodel.h>
 #include "pickperiodwidget.h"
 #include "ui_pickperiodwidget.h"
+#include <algorithm>
+#include <iterator>
+#include <memory>
 //#include "TaskScheduler.h"
 
 
@@ -12,21 +15,20 @@ PickPeriodWidget::PickPeriodWidget(QWidget* parent) :
                                    QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1).addMonths(1).addDays(-1)})
 {
     ui->setupUi(this);
-    QStringList years {"2015", "2016"};
-    QStringListModel* yearsModel = new QStringListModel(years);
-    ui->cbxYear->setModel(yearsModel);
-    ui->cbxYear->setCurrentIndex(0);
     // TODO replace with Qt-generated months names
-    QStringList months {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-    QStringListModel* monthsModel = new QStringListModel(months);
+    QStringList months;
+    for (int monthNumber = 1; monthNumber <= 12; ++monthNumber) {
+        months.append(QDate::longMonthName(monthNumber));
+    }
+    monthsModel = new QStringListModel(months);
     ui->cbxMonth->setModel(monthsModel);
-    ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
     connectSlots();
-    updateInterval();
 }
 
 PickPeriodWidget::~PickPeriodWidget()
 {
+    delete yearsModel;
+    delete monthsModel;
     delete ui;
 }
 
@@ -67,4 +69,16 @@ void PickPeriodWidget::updateInterval(DateInterval interval) {
 
 DateInterval PickPeriodWidget::getInterval() const {
     return selectedInterval;
+}
+
+void PickPeriodWidget::setYears(const QStringList& years) {
+    if (yearsModel) {
+        delete yearsModel;
+    }
+    yearsModel = new QStringListModel(years);
+    ui->cbxYear->setModel(yearsModel);
+    ui->cbxYear->setCurrentIndex(std::distance(years.begin(),
+                std::find(years.begin(), years.end(), QString("%1").arg(QDate::currentDate().year())))); 
+    ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
+    updateInterval();
 }

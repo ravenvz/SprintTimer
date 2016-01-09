@@ -27,6 +27,9 @@
       <height>41</height>
      </rect>
     </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
     <property name="placeholderText">
      <string>Enter what you have just done or select TODO item</string>
     </property>
@@ -764,9 +767,6 @@ color: white;
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
-    </property>
-    <property name="resizeMode">
-     <enum>QListView::Fixed</enum>
     </property>
    </widget>
    <widget class="QPushButton" name="btnZone">
