@@ -1,3 +1,13 @@
+Version 0.2.1
+-------------
+
+Improved History view
+
+
+HISTORY
+----------------------------------------------------------------
+
+
 Version 0.2.0
 -------------
 
@@ -14,9 +24,6 @@ Tags can now be edited globally
 
 Database schema has changed and is not compatible with previous versions.
     To alter DB schema migration script is needed.
-
-HISTORY
-----------------------------------------------------------------
 
 Version 0.1.4
 -------------
