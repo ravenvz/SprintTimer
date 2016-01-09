@@ -15,7 +15,7 @@
 #include "gui/historyview.h"
 #include "gui/statisticswidget.h"
 #include "gui/tageditorwidget.h"
-#include "todoitemslistmodel.h"
+#include "todoitemmodel.h"
 #include "todoitemsviewdelegate.h"
 
 namespace Ui {
@@ -64,7 +64,7 @@ private:
     int progressBarMaxValue {0};
     Second timerDuration {0};
     QPointer<PomodoroModel> pomodoroModel;
-    QPointer<TodoItemsListModel> todoitemViewModel;
+    QPointer<TodoItemModel> todoitemViewModel;
     QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
     QPointer<GoalsView> goalsView;
     QPointer<StatisticsWidget> statisticsView;

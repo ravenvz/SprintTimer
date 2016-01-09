@@ -24,7 +24,7 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
     pomodoroModel->select();
     ui->lvCompletedPomodoros->setModel(pomodoroModel);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
-    todoitemViewModel = new TodoItemsListModel(this);
+    todoitemViewModel = new TodoItemModel(this);
     ui->lvTodoItems->setModel(todoitemViewModel);
     todoitemViewDelegate = new TodoItemsViewDelegate(this);
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
@@ -177,8 +177,8 @@ void MainWindow::submitPomodoro() {
     // 1. Check if entered name matches any of incompleted TodoItems
     std::experimental::optional<long long> associatedTodoItemId;
     for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
-       if (name == todoitemViewModel->index(row, 0).data(TodoItemsListModel::CopyToPomodoroRole)) {
-           associatedTodoItemId = todoitemViewModel->index(row, 0).data(TodoItemsListModel::GetIdRole).toInt();
+       if (name == todoitemViewModel->index(row, 0).data(TodoItemModel::CopyToPomodoroRole)) {
+           associatedTodoItemId = todoitemViewModel->index(row, 0).data(TodoItemModel::GetIdRole).toInt();
            // todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
        }
     }
@@ -233,7 +233,7 @@ void MainWindow::updatePomodoroView() {
 void MainWindow::autoPutTodoOnClick(QModelIndex index) {
     if (ui->leDoneTask->isVisible()) {
         ui->leDoneTask->setText(todoitemViewModel->index(index.row(), 0)
-                .data(TodoItemsListModel::CopyToPomodoroRole).toString());
+                .data(TodoItemModel::CopyToPomodoroRole).toString());
     }
 }
 

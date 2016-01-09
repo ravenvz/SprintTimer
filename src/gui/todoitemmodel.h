@@ -6,11 +6,11 @@
 #include "core/entities/TodoItem.h"
 
 
-class TodoItemsListModel : public QAbstractListModel
+class TodoItemModel : public QAbstractListModel
 {
 public:
-    explicit TodoItemsListModel(QObject* parent = 0);
-    // virtual ~TodoItemsListModel ();
+    explicit TodoItemModel(QObject* parent = 0);
+    // virtual ~TodoItemModel ();
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     // bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
