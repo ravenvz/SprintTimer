@@ -19,90 +19,6 @@ bool createDbConnection();
 class PomodoroDataSource
 {
 public:
-    static QStringList getPomodorosForToday() {
-        QStringList result;
-        QDate today = QDate::currentDate();
-        QVector<Pomodoro> pomodoros = getPomodorosBetween(today, today);
-        std::transform(pomodoros.begin(), pomodoros.end(), std::back_inserter(result), [](const auto& pomo) {
-                return pomo.toString();
-            });
-        return result;
-    }
-
-    static PomodoroModel* buildPomodoroModelForTodayView() {
-        PomodoroModel* model = new PomodoroModel();
-        const int startTimeCol {4};
-        model->setTable("pomodoro_view");
-        model->setFilter("date(start_time) = date('now')");
-        model->setSort(startTimeCol, Qt::AscendingOrder);
-        model->setRemovePomodoroFunctor([](QVariant id) {
-                QSqlQuery query;
-                query.prepare("delete from pomodoro where id = (:id)");
-                query.bindValue(":id", id);
-                query.exec();
-            });
-        model->setInsertPomodoroFunctor(
-                [](const Pomodoro& pomodoro, long long associatedTodoItemId) {
-                    QSqlQuery query;
-                    query.prepare("insert into pomodoro (name, start_time, finish_time, todo_id) "
-                                  "values (:name, :start_time, :finish_time, :todo_id)");
-                    query.bindValue(":name", QVariant(pomodoro.getName()));
-                    query.bindValue(":start_time", QVariant(pomodoro.getStartTime()));
-                    query.bindValue(":finish_time", QVariant(pomodoro.getFinishTime()));
-                    query.bindValue(":todo_id", QVariant(associatedTodoItemId));
-                    return query.exec();
-                });
-        return model;
-    }  
-
-    static QSqlQuery buildQueryForTodayPomodoros() {
-        QSqlQuery query;
-        query.exec("select pomodoro.id, pomodoro.todo_id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
-                   "from pomodoro_view "
-                   "where date(start_time) >= date('now') and date(start_time) <= date('now') "
-                   "order by start_time;");
-        return query;
-    }
-
-    static QSqlQuery buildQueryToRemovePomodoro() {
-        QSqlQuery query;
-        query.prepare("delete from pomodoro where id = (:id)");
-        return query;
-    }
-
-
-    static QVector<Pomodoro> getPomodorosBetween(const QDate& startDate, const QDate& endDate) {
-        QVector<Pomodoro> result;
-        QSqlQuery query;
-        const int todoIdCol = 1;
-        const int nameCol = 2;
-        const int startTimeCol = 3;
-        const int finishTimeCol = 4;
-        const int tagsCol = 5;
-        query.prepare("select pomodoro.id, pomodoro.todo_id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
-                      "from pomodoro "
-                      "join todo_item on pomodoro.todo_id = todo_item.id "
-                      "left join todotag on todo_item.id = todotag.todo_id "
-                      "left join tag on todotag.tag_id = tag.id "
-                      "where date(start_time) >= (:start_date) and date(start_time) <= (:end_date) "
-                      "group by pomodoro.id;");
-        query.bindValue(":start_date", QVariant(startDate));
-        query.bindValue(":end_date", QVariant(endDate));
-        query.exec();
-        while (query.next()) {
-            QString rawTags = query.value(tagsCol).toString();
-            QStringList tags;
-            if (!rawTags.isEmpty()) {
-                tags = rawTags.split(",");
-            }
-            Pomodoro pomodoro {query.value(nameCol).toString(),
-                               TimeInterval {query.value(startTimeCol).toDateTime(), query.value(finishTimeCol).toDateTime()},
-                               tags,
-                               query.value(todoIdCol).toInt()};
-            result.append(pomodoro);
-        }
-        return result;
-    }
 
     static QVector<unsigned> getPomodorosForLastThirtyDays() {
         QVector<unsigned> result;
@@ -157,23 +73,6 @@ public:
             result << query.value(0).toUInt();
         }
         return result;
-    }
-
-    static QVector<Pomodoro> getPomodorosForLastQuarter() {
-        QDate today = QDate::currentDate();
-        QDate thirtyDaysAgo = today.addMonths(-3);
-        return PomodoroDataSource::getPomodorosBetween(thirtyDaysAgo, today);
-    }
-
-    static void storePomodoro(const Pomodoro& pomodoro, long long associatedTodoItemId) {
-        QSqlQuery query;
-        query.prepare("insert into pomodoro (name, start_time, finish_time, todo_id) "
-                      "values (:name, :start_time, :finish_time, :todo_id)");
-        query.bindValue(":name", QVariant(pomodoro.getName()));
-        query.bindValue(":start_time", QVariant(pomodoro.getStartTime()));
-        query.bindValue(":finish_time", QVariant(pomodoro.getFinishTime()));
-        query.bindValue(":todo_id", QVariant(associatedTodoItemId));
-        query.exec();
     }
 
     static QStringList getStoredPomodorosYearsRange() {

@@ -18,7 +18,9 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
     ui->setupUi(this);
     timer = new QTimer(this);
     player = std::make_unique<QMediaPlayer> ();
-    pomodoroModel = PomodoroDataSource::buildPomodoroModelForTodayView();
+    pomodoroModel = new PomodoroModel(this);
+    pomodoroModel->setDateFilter(DateInterval {QDate::currentDate(), QDate::currentDate()});
+    pomodoroModel->setSortByTime();
     pomodoroModel->select();
     ui->lvCompletedPomodoros->setModel(pomodoroModel);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);

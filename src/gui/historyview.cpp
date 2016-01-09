@@ -9,7 +9,8 @@ HistoryView::HistoryView(QWidget* parent) :
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    ui->widgetPickPeriod->setYears(PomodoroDataSource::getStoredPomodorosYearsRange());
+    pomodoroModelToRename = new PomodoroModel(this);
+    ui->widgetPickPeriod->setYears(pomodoroModelToRename->yearRange());
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
     displayHistory();
     connectSlots();
@@ -22,6 +23,7 @@ void HistoryView::connectSlots() {
 }
 
 HistoryView::~HistoryView() {
+    delete pomodoroModelToRename;
     delete ui;
 }
 
@@ -42,9 +44,9 @@ void HistoryView::populatePomodoroHistory() {
 }
 
 void HistoryView::getPomodoroHistory(QStringList& preprocessedHistory) const {
-    QVector<Pomodoro> pomodorosForInterval = PomodoroDataSource::getPomodorosBetween(
-            selectedDateInterval.startDate,
-            selectedDateInterval.endDate);
+    pomodoroModelToRename->setDateFilter(selectedDateInterval);
+    pomodoroModelToRename->select();
+    QVector<Pomodoro> pomodorosForInterval {pomodoroModelToRename->pomodoros()};
     if (!pomodorosForInterval.isEmpty()) {
         preprocessedHistory << QString("Completed %1 pomodoros").arg(pomodorosForInterval.size());
         formatPomodoroHistory(pomodorosForInterval, preprocessedHistory);
