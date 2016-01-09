@@ -9,8 +9,9 @@ StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent)
     applicationSettings(applicationSettings)
 {
     setAttribute(Qt::WA_DeleteOnClose);
+    pomodoroModel = new PomodoroModel(this);
     ui->setupUi(this);
-    ui->widgetPickPeriod->setYears(PomodoroDataSource::getStoredPomodorosYearsRange());
+    ui->widgetPickPeriod->setYears(pomodoroModel->yearRange());
     currentInterval = ui->widgetPickPeriod->getInterval();
     workTimeDiagram = new TimeDiagram(this);
     ui->verticalLayoutBestWorktime->addWidget(workTimeDiagram);
@@ -40,8 +41,9 @@ void StatisticsWidget::setupGraphs() {
 }
 
 void StatisticsWidget::fetchPomodoros() {
-    pomodoros = PomodoroDataSource::getPomodorosBetween(currentInterval.startDate,
-                                                        currentInterval.endDate);
+    pomodoroModel->setDateFilter(currentInterval);
+    pomodoroModel->select();
+    pomodoros = pomodoroModel->pomodoros();
     selectedSliceIndex = -1;
     tagPomoMap = TagPomoMap(pomodoros, numDisplayedTagSlices);
     QVector<Slice> tagSlices = tagPomoMap.getSortedSliceVector();

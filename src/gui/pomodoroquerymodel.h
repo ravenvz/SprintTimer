@@ -10,14 +10,17 @@ class PomodoroModel : public QSqlTableModel
 {
 public:
     explicit PomodoroModel(QObject* parent = 0);
+    QVector<Pomodoro> pomodoros();
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     // bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
     void removePomodoro(const QModelIndex& index);
     void insertPomodoro(const Pomodoro& pomodoro, long long associatedTodoItemId);
 
-    void setRemovePomodoroFunctor(std::function<void (QVariant pomoId)> func);
-    void setInsertPomodoroFunctor(std::function<bool (const Pomodoro& pomodoro, long long associatedTodoItemId)> func);
+    void setDateFilter(const DateInterval& interval);
+    void setSortByTime();
+
+    QStringList yearRange();
 
     enum class Columns {
         Id = 0,
@@ -27,14 +30,17 @@ public:
         StartTime,
         FinishTime,
     };
+    enum customRoles { GetPomodoroIdRole = Qt::UserRole + 1 };
 
 
 private:
-    std::function<void (QVariant pomoId)> removePomodoroFunctor;
-    std::function<bool (const Pomodoro& pomodoro, long long associatedTodoItemId)> insertPomodoroFunctor;
+    QSqlQuery removePomodoroQuery;
+    QSqlQuery insertPomodoroQuery;
 
     Pomodoro rowToPomodoro(const QModelIndex& index, int role = Qt::DisplayRole) const;
     QVariant columnData(const QModelIndex& index, const Columns& column, int role = Qt::DisplayRole) const;
+    Pomodoro rowToPomodoro(const int row) const;
+    QVariant columnData(const QSqlRecord& rowRecord, const Columns& column) const;
 
 };
 

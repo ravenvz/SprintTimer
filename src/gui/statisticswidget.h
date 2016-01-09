@@ -31,11 +31,12 @@ private slots:
 private:
     Ui::StatisticsWidget* ui;
     Config& applicationSettings;
+    PomodoroModel* pomodoroModel;
     QVector<Pomodoro> pomodoros;
     TagPomoMap tagPomoMap;
     TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
-    const int numDisplayedTagSlices = 16;
+    const int numDisplayedTagSlices = 7; // TODO move to config
     int selectedSliceIndex = -1;
 
     void connectSlots();

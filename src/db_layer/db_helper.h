@@ -29,48 +29,6 @@ public:
         return result;
     }
 
-    static PomodoroModel* buildPomodoroModelForTodayView() {
-        PomodoroModel* model = new PomodoroModel();
-        const int startTimeCol {4};
-        model->setTable("pomodoro_view");
-        model->setFilter("date(start_time) = date('now')");
-        model->setSort(startTimeCol, Qt::AscendingOrder);
-        model->setRemovePomodoroFunctor([](QVariant id) {
-                QSqlQuery query;
-                query.prepare("delete from pomodoro where id = (:id)");
-                query.bindValue(":id", id);
-                query.exec();
-            });
-        model->setInsertPomodoroFunctor(
-                [](const Pomodoro& pomodoro, long long associatedTodoItemId) {
-                    QSqlQuery query;
-                    query.prepare("insert into pomodoro (name, start_time, finish_time, todo_id) "
-                                  "values (:name, :start_time, :finish_time, :todo_id)");
-                    query.bindValue(":name", QVariant(pomodoro.getName()));
-                    query.bindValue(":start_time", QVariant(pomodoro.getStartTime()));
-                    query.bindValue(":finish_time", QVariant(pomodoro.getFinishTime()));
-                    query.bindValue(":todo_id", QVariant(associatedTodoItemId));
-                    return query.exec();
-                });
-        return model;
-    }  
-
-    static QSqlQuery buildQueryForTodayPomodoros() {
-        QSqlQuery query;
-        query.exec("select pomodoro.id, pomodoro.todo_id, todo_item.name, start_time, finish_time, group_concat(tag.name) "
-                   "from pomodoro_view "
-                   "where date(start_time) >= date('now') and date(start_time) <= date('now') "
-                   "order by start_time;");
-        return query;
-    }
-
-    static QSqlQuery buildQueryToRemovePomodoro() {
-        QSqlQuery query;
-        query.prepare("delete from pomodoro where id = (:id)");
-        return query;
-    }
-
-
     static QVector<Pomodoro> getPomodorosBetween(const QDate& startDate, const QDate& endDate) {
         QVector<Pomodoro> result;
         QSqlQuery query;

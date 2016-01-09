@@ -6,20 +6,6 @@
 #include "config.h"
 
 
-struct DateInterval {
-    QDate startDate;
-    QDate endDate;
-
-    QString toString() const {
-        return QString("%1 - %2").arg(startDate.toString()).arg(endDate.toString());
-    }
-
-    int sizeInDays() const {
-        return int(startDate.daysTo(endDate) + 1);
-    }
-};
-
-
 class TaskScheduler {
 
 public:

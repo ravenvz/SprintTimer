@@ -3,6 +3,21 @@
 
 #include <QDateTime>
 
+
+struct DateInterval {
+    QDate startDate;
+    QDate endDate;
+
+    QString toString() const {
+        return QString("%1 - %2").arg(startDate.toString()).arg(endDate.toString());
+    }
+
+    int sizeInDays() const {
+        return int(startDate.daysTo(endDate) + 1);
+    }
+};
+
+
 struct TimeInterval {
     QDateTime startTime;
     QDateTime finishTime;
@@ -51,9 +66,8 @@ struct TimeInterval {
                 return "Afternoon";
             case DayPart::EVENING:
                 return "Evening";
-            default:
-                return "Invalid";
         }
+        return "Invalid";
     }
 
     static QString dayPartHours(int dayPart) {
@@ -74,9 +88,8 @@ struct TimeInterval {
                 return "14:00 - 18:00";
             case DayPart::EVENING:
                 return "18:00 - 22:00";
-            default:
-                return "Invalid";
         }
+        return "Invalid";
     }
 
     QString toString() const {
