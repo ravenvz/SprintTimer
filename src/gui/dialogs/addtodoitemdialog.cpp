@@ -3,19 +3,19 @@
 #include "db_layer/db_helper.h"
 #include <QRegularExpression>
 
-AddTodoItemDialog::AddTodoItemDialog(QWidget* parent) :
+AddTodoItemDialog::AddTodoItemDialog(QSqlTableModel* tagModel, QWidget* parent) :
     QDialog(parent),
-    ui(new Ui::AddTodoItemDialog)
+    ui(new Ui::AddTodoItemDialog),
+    tagModel(tagModel)
 {
     ui->setupUi(this);
-    tagModel = new QStringListModel(this);
+    // tagModel = new QStringListModel(this);
     setTagsModel();
     connect(ui->tags, SIGNAL(activated(const QString&)), this, SLOT(quickAddTag(const QString&)));
 }
 
 AddTodoItemDialog::~AddTodoItemDialog()
 {
-    delete tagModel;
     delete ui;
 }
 
@@ -52,9 +52,11 @@ void AddTodoItemDialog::fillItemData(TodoItem item) {
 }
 
 void AddTodoItemDialog::setTagsModel() {
-    QStringList lst = TagDataSource::getAllTags();
-    tagModel->setStringList(lst);
+    // QStringList lst = TagDataSource::getAllTags();
+    // tagModel->setStringList(lst);
     ui->tags->setModel(tagModel);
+    ui->tags->setModelColumn(1);
+    tagModel->select();
     ui->tags->setCurrentText("");
 }
 

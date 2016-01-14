@@ -12,6 +12,7 @@
 #include "db_layer/db_helper.h"
 #include "gui/goalsview.h"
 #include "gui/pomodoroquerymodel.h"
+#include "gui/tagmodel.h"
 #include "gui/historyview.h"
 #include "gui/statisticswidget.h"
 #include "gui/tageditorwidget.h"
@@ -64,6 +65,7 @@ private:
     int progressBarMaxValue {0};
     Second timerDuration {0};
     QPointer<PomodoroModel> pomodoroModel;
+    QPointer<TagModel> tagModel;
     QPointer<TodoItemModel> todoitemViewModel;
     QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
     QPointer<GoalsView> goalsView;

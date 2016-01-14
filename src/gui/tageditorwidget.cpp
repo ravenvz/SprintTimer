@@ -5,16 +5,13 @@
 #include <QMessageBox>
 
 
-TagEditorWidget::TagEditorWidget(QWidget* parent) :
+TagEditorWidget::TagEditorWidget(QSqlTableModel* tagModel, QWidget* parent) :
     QWidget(parent),
-    ui(new Ui::TagEditorWidget)
+    ui(new Ui::TagEditorWidget),
+    model {tagModel}
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    model = new QSqlTableModel();
-    model->setTable("tag");
-    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    model->setSort(1, Qt::AscendingOrder);
     model->select();
     ui->listViewTags->setModel(model);
     ui->listViewTags->setModelColumn(1);
@@ -23,7 +20,6 @@ TagEditorWidget::TagEditorWidget(QWidget* parent) :
 }
 
 TagEditorWidget::~TagEditorWidget() {
-    delete model;
     delete ui;
 }
 

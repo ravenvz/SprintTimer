@@ -13,7 +13,11 @@
 
 void createDatabase(QSqlDatabase& db, QString& filename);
 
+void createSchema();
+
 bool createDbConnection();
+
+bool activateForeignKeys();
 
 
 class PomodoroDataSource
@@ -152,7 +156,7 @@ public:
                 });
         return found != data.cend();
     }
-        
+
     static QStringList getAllTags() {
         QStringList tags;
         QSqlQuery query;
@@ -192,10 +196,6 @@ public:
 
     static void removeTodoItem(long long id) {
         QSqlQuery query;
-        TagDataSource::TagData removedItemTags = TagDataSource::getTagsForTodoItem(id);
-        for (const auto& entry : removedItemTags) {
-            TagDataSource::removeTagIfOrphaned(entry.first);
-        }
         query.prepare("delete from todo_item where id = (:removed_item_id)");
         query.bindValue(":removed_item_id", id);
         query.exec();
@@ -227,7 +227,7 @@ public:
                 [&tags] (const auto& entry) {
                     return !tags.contains(entry.second);
                 });
-        std::copy_if(tags.cbegin(), tags.cend(), std::back_inserter(tagNamesToAdd), 
+        std::copy_if(tags.cbegin(), tags.cend(), std::back_inserter(tagNamesToAdd),
                 [&oldItemTags] (const auto& tag) {
                     return !TagDataSource::tagDataContainsName(oldItemTags, tag);
                 });

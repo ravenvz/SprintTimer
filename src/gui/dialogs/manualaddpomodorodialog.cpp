@@ -40,13 +40,11 @@ void PomodoroManualAddDialog::accept() {
         autoAdjustFinishTime();
     }
     // TODO query model to get id directly, when removed id from todoitem entity
-    TodoItem pickedItem = todoItemModel->getTodoItemByModelIndex(todoItemModel->index(ui->comboBoxPickTodoItem->currentIndex(), 0));
-    // todoItemModel->incrementPomodoros(ui->comboBoxPickTodoItem->currentIndex(), 1);
+    TodoItem pickedItem = todoItemModel->itemAt(ui->comboBoxPickTodoItem->currentIndex());
     Pomodoro pomodoro {pickedItem.getName(),
                        TimeInterval {startTime, finishTime},
                        pickedItem.getTags(),
                        pickedItem.getId()};
-    // PomodoroDataSource::storePomodoro(pomodoro, pickedItem.getId());
     pomodoroModel->insertPomodoro(pomodoro, pickedItem.getId());
     QDialog::accept();
 }

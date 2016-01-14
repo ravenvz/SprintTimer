@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QStringListModel>
+#include <QSqlTableModel>
 #include "core/entities/TodoItem.h"
 
 namespace Ui {
@@ -14,7 +15,7 @@ class AddTodoItemDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AddTodoItemDialog(QWidget* parent = 0);
+    explicit AddTodoItemDialog(QSqlTableModel* tagModel, QWidget* parent = 0);
     ~AddTodoItemDialog();
     void accept() override;
     TodoItem getNewTodoItem();
@@ -23,7 +24,7 @@ public:
 private:
     Ui::AddTodoItemDialog* ui;
     TodoItem item;
-    QStringListModel* tagModel;
+    QSqlTableModel* tagModel;
     static const int tempId = -1;
     void setTagsModel();
     QStringList parseTags(QString& tagsString);

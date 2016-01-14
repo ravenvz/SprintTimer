@@ -18,17 +18,25 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
     ui->setupUi(this);
     timer = new QTimer(this);
     player = std::make_unique<QMediaPlayer> ();
+
     pomodoroModel = new PomodoroModel(this);
     pomodoroModel->setDateFilter(DateInterval {QDate::currentDate(), QDate::currentDate()});
     pomodoroModel->setSortByTime();
     pomodoroModel->select();
     ui->lvCompletedPomodoros->setModel(pomodoroModel);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
+
     todoitemViewModel = new TodoItemModel(this);
+    todoitemViewModel->setNotCompletedFilter();
+    todoitemViewModel->select();
+    qDebug() << ui->lvTodoItems->dragDropMode();
     ui->lvTodoItems->setModel(todoitemViewModel);
     todoitemViewDelegate = new TodoItemsViewDelegate(this);
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
     ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    tagModel = new TagModel();
+
     setUiToIdleState();
     connectSlots();
     updatePomodoroView();
@@ -37,6 +45,7 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
 MainWindow::~MainWindow() {
     pomodoroModel.clear();
     delete pomodoroModel;
+    delete tagModel;
     delete timer;
     delete todoitemViewModel;
     delete todoitemViewDelegate;
@@ -103,10 +112,10 @@ void MainWindow::cancelTask() {
 }
 
 void MainWindow::addTodoItem() {
-    AddTodoItemDialog dialog {};
+    AddTodoItemDialog dialog {tagModel};
     if (dialog.exec()) {
         TodoItem item = dialog.getNewTodoItem();
-        todoitemViewModel->addTodoItem(item);
+        todoitemViewModel->insert(item);
     }
 }
 
@@ -115,7 +124,7 @@ void MainWindow::quickAddTodoItem() {
     ui->leTodoItem->clear();
     if (!encodedDescription.isEmpty()) {
         TodoItem item {encodedDescription};
-        todoitemViewModel->addTodoItem(item);
+        todoitemViewModel->insert(item);
     }
 }
 
@@ -255,15 +264,15 @@ void MainWindow::showTodoItemContextMenu(const QPoint& pos) {
 
 void MainWindow::editTodoItem() {
     QModelIndex index = ui->lvTodoItems->currentIndex();
-    AddTodoItemDialog dialog {};
-    TodoItem itemToEdit = todoitemViewModel->getTodoItemByModelIndex(index);
+    AddTodoItemDialog dialog {tagModel};
+    TodoItem itemToEdit = todoitemViewModel->itemAt(index.row());
     dialog.setWindowTitle("Edit TodoItem");
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {
         TodoItem updatedItem = dialog.getNewTodoItem();
         updatedItem.setSpentPomodoros(itemToEdit.getSpentPomodoros());
         updatedItem.setCompleted(itemToEdit.isCompleted());
-        todoitemViewModel->updateTodoItem(index, updatedItem);
+        todoitemViewModel->replaceItemAt(index.row(), updatedItem);
     }
 }
 
@@ -272,7 +281,7 @@ void MainWindow::removeTodoItem() {
     ConfirmationDialog dialog;
     // TODO figure out a way to handle this situation more gracefully
     QString description;
-    if (todoitemViewModel->getTodoItemByModelIndex(index).getSpentPomodoros() > 0) {
+    if (todoitemViewModel->itemAt(index.row()).getSpentPomodoros() > 0) {
         description = "WARNING! This todo item has pomodoros associated with it "
                       "and they will be removed permanently along with this item.";
     } else {
@@ -303,7 +312,7 @@ void MainWindow::removePomodoro() {
     if (dialog.exec()) {
         // pomodoroModel->setData(index, QVariant(), Qt::EditRole);
         pomodoroModel->removePomodoro(index);
-        todoitemViewModel->queryData();
+        todoitemViewModel->select();
     }
 }
 
@@ -380,7 +389,7 @@ void MainWindow::updateGoalWindow() {
 
 void MainWindow::launchTagEditor() {
     if (!tagEditor) {
-        tagEditor = new TagEditorWidget();
+        tagEditor = new TagEditorWidget {tagModel};
         connect(tagEditor, SIGNAL(dataSetChanged()), this, SLOT(updateTodoItemModel()));
         tagEditor->show();
     } else {
@@ -389,5 +398,5 @@ void MainWindow::launchTagEditor() {
 }
 
 void MainWindow::updateTodoItemModel() {
-    todoitemViewModel->queryData();
+    todoitemViewModel->select();
 }

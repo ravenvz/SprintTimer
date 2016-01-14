@@ -1,10 +1,7 @@
 #include "db_helper.h"
 
-void createDatabase(QSqlDatabase& db, QString& filename) {
-    db.setDatabaseName(filename);
-    db.open();
+void createSchema() {
     QSqlQuery query;
-    query.exec("pragma foreign_keys = on");
     query.exec("create table pomodoro "
             "(id integer primary key autoincrement, "
             "name varchar, "
@@ -27,8 +24,14 @@ void createDatabase(QSqlDatabase& db, QString& filename) {
             "(id integer primary key autoincrement, "
             "tag_id integer not null, "
             "todo_id integer not null, "
-            "foreign key(tag_id) references tag(id) on delete cascade on update cascade, "
-            "foreign key(todo_id) references todo_item(id) on delete cascade on update cascade)");
+            "foreign key(tag_id) references tag(id), "
+            "foreign key(todo_id) references todo_item(id) on delete cascade)");
+    // Trigger to remove orphaned tags (tags, that are not bound to any todo item)
+    query.exec("CREATE TRIGGER on_todotag_delete AFTER DELETE ON todotag "
+               "BEGIN "
+               "DELETE FROM tag WHERE id = old.tag_id AND "
+               "(SELECT count(*) FROM todotag WHERE tag_id = old.tag_id) = 0;"
+               "END;");
     query.exec("create trigger increment_spent_after_pomo_insert "
                "after insert on pomodoro "
                "begin "
@@ -61,6 +64,44 @@ void createDatabase(QSqlDatabase& db, QString& filename) {
                "BEGIN "
                "DELETE FROM pomodoro WHERE id = old.id; "
                "END;");
+
+    // View for todo items
+    query.exec("CREATE VIEW task_view AS "
+               "select todo_item.id, "
+               "todo_item.name, "
+               "estimated_pomodoros, "
+               "spent_pomodoros, "
+               "priority, "
+               "completed, "
+               "group_concat(tag.name) tags, "
+               "last_modified "
+               "from todo_item "
+               "LEFT JOIN todotag on todo_item.id = todotag.todo_id "
+               "LEFT JOIN tag ON todotag.tag_id = tag.id "
+               "GROUP BY todo_item.id "
+               "ORDER BY todo_item.priority;");
+    // Trigger to remove from task_view
+    query.exec("CREATE TRIGGER on_task_view_delete INSTEAD OF DELETE ON task_view "
+               "BEGIN "
+               "DELETE FROM todo_item WHERE id = old.id; "
+               "END; ");
+    // Trigger on update on task_view
+    query.exec("CREATE TRIGGER on_task_view_update INSTEAD OF UPDATE ON task_view "
+               "BEGIN "
+               "UPDATE todo_item SET name = new.name, "
+                         "estimated_pomodoros = new.estimated_pomodoros, "
+                         "spent_pomodoros = new.spent_pomodoros, "
+                         "priority = new.priority, "
+                         "completed = new.completed, "
+                         "last_modified = new.last_modified "
+               "WHERE id = old.id; "
+               "END;");
+}
+
+void createDatabase(QSqlDatabase& db, QString& filename) {
+    db.setDatabaseName(filename);
+    db.open();
+    createSchema();
     // qDebug() << query.lastError() << " this error";
     // db.close();
 }
@@ -79,5 +120,11 @@ bool createDbConnection() {
     if (!db.open()) {
         return false;
     }
+    activateForeignKeys();
     return true;
+}
+
+bool activateForeignKeys() {
+    QSqlQuery query;
+    return query.exec("PRAGMA foreign_keys = ON");
 }
