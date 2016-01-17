@@ -8,14 +8,12 @@ TodoItem::TodoItem(QString name,
                    unsigned estimatedPomodoros,
                    unsigned spentPomodoros,
                    QStringList tags,
-                   bool completed,
-                   long long id) :
+                   bool completed) :
     name(name),
     estimatedPomodoros(estimatedPomodoros),
     spentPomodoros(spentPomodoros),
     tags(tags),
-    completed(completed),
-    id(id)
+    completed(completed)
 {
 }
 
@@ -33,14 +31,6 @@ void TodoItem::setEncodedDescription(const QString& encodedDescription) {
 
 QString TodoItem::getEncodedDescription() const {
     return encodedDescription;
-}
-
-void TodoItem::setId(long long id) {
-    TodoItem::id = id;
-}
-
-long long TodoItem::getId() const {
-    return id;
 }
 
 void TodoItem::setCompleted(bool completed) {

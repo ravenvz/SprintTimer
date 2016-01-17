@@ -45,8 +45,7 @@ Pomodoro PomodoroModel::rowToPomodoro(const int row) const {
     TimeInterval interval {columnData(rowRecord, Columns::StartTime).toDateTime(),
                            columnData(rowRecord, Columns::FinishTime).toDateTime()};
     QStringList tags {columnData(rowRecord, Columns::Tags).toString().split(",")};
-    long long id_to_remove = columnData(rowRecord, Columns::TodoId).toInt();
-    return Pomodoro {name, interval, tags, id_to_remove};
+    return Pomodoro {name, interval, tags};
 }
 
 QVariant PomodoroModel::columnData(const QSqlRecord& rowRecord, const Columns& column) const {

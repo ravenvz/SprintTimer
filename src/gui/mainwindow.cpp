@@ -202,7 +202,8 @@ void MainWindow::submitPomodoro() {
     // // 3. Notify user that new item has been created
 
     for (TimeInterval interval : completedTasksIntervals) {
-        Pomodoro pomodoro {name, interval, QStringList {}, *associatedTodoItemId};
+        Pomodoro pomodoro {name, interval, QStringList {}};
+        // TODO replace with overload
         pomodoroModel->insertPomodoro(pomodoro, *associatedTodoItemId);
         // PomodoroDataSource::storePomodoro(pomodoro, *associatedTodoItemId);
         // todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());

@@ -101,8 +101,7 @@ TodoItem TodoItemModel::itemAt(const int row) const {
     QVariant tagsVariant {columnData(rowRecord, Column::Tags)};
     QStringList tags = tagsVariant.isNull() ? QStringList() : tagsVariant.toString().split(",");
     bool completed {columnData(rowRecord, Column::Completed).toBool()};
-    long long id_to_remove {columnData(rowRecord, Column::Id).toInt()};
-    return TodoItem {name, estimatedPomodoros, spentPomodoros, tags, completed, id_to_remove};
+    return TodoItem {name, estimatedPomodoros, spentPomodoros, tags, completed};
 }
 
 bool TodoItemModel::toggleCompleted(const QModelIndex& index) {
@@ -184,6 +183,14 @@ QVariant TodoItemModel::columnData(const QSqlRecord& rowRecord, const Column& co
 
 QVariant TodoItemModel::columnData(const int row, const Column& column) const {
     return record(row).value(static_cast<int>(column));
+}
+
+long long TodoItemModel::itemIdAt(const int row) const {
+    return columnData(row, Column::Id).toInt();
+}
+
+QString TodoItemModel::itemNameAt(const int row) const {
+    return columnData(row, Column::Name).toString();
 }
 
 bool TodoItemModel::updateTags(const int row, const QSet<QString>& tagsToRemove, const QSet<QString>& tagsToInsert) {

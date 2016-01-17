@@ -25,7 +25,6 @@ private:
     Ui::AddTodoItemDialog* ui;
     TodoItem item;
     QSqlTableModel* tagModel;
-    static const int tempId = -1;
     void setTagsModel();
     QStringList parseTags(QString& tagsString);
 

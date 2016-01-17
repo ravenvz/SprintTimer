@@ -53,8 +53,7 @@ TEST(TodoItemModel, test_relation_created_when_inserting_with_few_new_tags) {
     model.select();
     QString name {"Test item"};
     QStringList tags {"Tag1", "Tag2"};
-    long long id {10};
-    TodoItem item {name, defaultEstimatedPomos, defaultSpentPomos, tags, false, id};
+    TodoItem item {name, defaultEstimatedPomos, defaultSpentPomos, tags, false};
 
     CHECK(model.insert(item));
     CHECK(todo_item_equal(item, model.itemAt(0)));
@@ -62,8 +61,7 @@ TEST(TodoItemModel, test_relation_created_when_inserting_with_few_new_tags) {
 
 TEST(TodoItemModel, test_insertion_with_no_tags) {
     TodoItemModel model;
-    long long id {4};
-    TodoItem item {"Test item", defaultEstimatedPomos, defaultSpentPomos, QStringList(), false, id};
+    TodoItem item {"Test item", defaultEstimatedPomos, defaultSpentPomos, QStringList(), false};
 
     CHECK(model.insert(item));
     CHECK(todo_item_equal(item, model.itemAt(0)));
@@ -71,11 +69,10 @@ TEST(TodoItemModel, test_insertion_with_no_tags) {
 
 TEST(TodoItemModel, test_insertion_with_mixed_old_and_new_tags) {
     TodoItemModel model;
-    long long id {4};
-    TodoItem testItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, {"Tag2", "Tag3"}, false, id};
+    TodoItem testItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, {"Tag2", "Tag3"}, false};
 
     CHECK(model.insert(
-        TodoItem {"Item 1", defaultEstimatedPomos, defaultSpentPomos, {"Tag1", "Tag2"}, false, 1}
+        TodoItem {"Item 1", defaultEstimatedPomos, defaultSpentPomos, {"Tag1", "Tag2"}, false}
     ));
     CHECK(model.insert(testItem));
     CHECK(todo_item_equal(testItem, model.itemAt(1)));
@@ -84,7 +81,7 @@ TEST(TodoItemModel, test_insertion_with_mixed_old_and_new_tags) {
 TEST(TodoItemModel, test_remove_todo_item_with_no_related_tags) {
     TodoItemModel model;
     CHECK(model.insert(
-                TodoItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, QStringList(), false, 77}
+                TodoItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, QStringList(), false}
     ));
     CHECK(model.numRecords() == 1);
     CHECK(model.removeTodoItem(0));
@@ -95,7 +92,7 @@ TEST(TodoItemModel, test_remove_todo_item_should_clean_orphaned_tags) {
     TodoItemModel model;
 
     CHECK(model.insert(
-                TodoItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, {"Tag1, Tag2"}, false, 77}
+                TodoItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, {"Tag1, Tag2"}, false}
     ));
     CHECK(model.removeTodoItem(0));
 
@@ -115,10 +112,10 @@ TEST(TodoItemModel, test_remove_todo_item_should_not_remove_tags_if_not_orphaned
     TodoItemModel model;
 
     CHECK(model.insert(
-                TodoItem {"Item 1", defaultEstimatedPomos, defaultSpentPomos, {"Tag1"}, false, 77}
+                TodoItem {"Item 1", defaultEstimatedPomos, defaultSpentPomos, {"Tag1"}, false}
     ));
     CHECK(model.insert(
-                TodoItem {"Item 2", defaultEstimatedPomos, defaultSpentPomos, {"Tag1"}, false, 77}
+                TodoItem {"Item 2", defaultEstimatedPomos, defaultSpentPomos, {"Tag1"}, false}
     ));
     CHECK(model.removeTodoItem(0));
 
@@ -136,8 +133,7 @@ TEST(TodoItemModel, test_remove_todo_item_should_not_remove_tags_if_not_orphaned
 
 TEST(TodoItemModel, test_toggle_item_completed) {
     TodoItemModel model;
-    long long id {4};
-    TodoItem testItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, {"Tag2", "Tag3"}, false, id};
+    TodoItem testItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, {"Tag2", "Tag3"}, false};
     CHECK(model.insert(testItem));
 
     model.toggleCompleted(model.index(0, 1));
@@ -149,7 +145,7 @@ TEST(TodoItemModel, test_toggle_item_completed) {
 TEST(TodoItemModel, test_get_all_items) {
     TodoItemModel model;
     int numRecordsToAdd {300};
-    TodoItem item {"Whatever", defaultEstimatedPomos, defaultSpentPomos, QStringList(), false, 77};
+    TodoItem item {"Whatever", defaultEstimatedPomos, defaultSpentPomos, QStringList(), false};
     for (int i = 0; i < numRecordsToAdd; ++i) {
         model.insert(item);
     }
@@ -160,8 +156,8 @@ TEST(TodoItemModel, test_get_all_items) {
 
 TEST(TodoItemModel, test_update_item_with_no_tag_updating) {
     TodoItemModel model;
-    TodoItem item {"Initial name", defaultEstimatedPomos, defaultSpentPomos, {"Tag1", "Tag2"}, false, 77};
-    TodoItem updatedItem {"New name after update", 4, 2, {"Tag1", "Tag2"}, true, 77};
+    TodoItem item {"Initial name", defaultEstimatedPomos, defaultSpentPomos, {"Tag1", "Tag2"}, false};
+    TodoItem updatedItem {"New name after update", 4, 2, {"Tag1", "Tag2"}, true};
 
     CHECK(model.insert(item));
 
@@ -171,8 +167,8 @@ TEST(TodoItemModel, test_update_item_with_no_tag_updating) {
 
 TEST(TodoItemModel, test_update_item_with_tags) {
     TodoItemModel model;
-    TodoItem item {"Initial name", defaultEstimatedPomos, defaultSpentPomos, {"Tag1", "Tag2", "Tag3"}, false, 77};
-    TodoItem updatedItem {"New name after update", 4, 2, {"Tag3", "Tag4"}, true, 77};
+    TodoItem item {"Initial name", defaultEstimatedPomos, defaultSpentPomos, {"Tag1", "Tag2", "Tag3"}, false};
+    TodoItem updatedItem {"New name after update", 4, 2, {"Tag3", "Tag4"}, true};
 
     CHECK(model.insert(item));
 

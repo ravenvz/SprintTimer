@@ -67,6 +67,12 @@ public:
     // less than 1 day ago.
     void setNotCompletedFilter();
 
+    // Return item id at a given row.
+    long long itemIdAt(const int row) const;
+
+    // Return item name at a given row.
+    QString itemNameAt(const int row) const;
+
 private:
     int tmp;
 
