@@ -2,16 +2,6 @@
 #include "gui/todoitemmodel.h"
 #include <TestHarness.h>
 
-bool createTestDbConnection() {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(":memory:");
-    if (!db.open()) {
-        return false;
-    }
-    createSchema();
-    activateForeignKeys();
-    return true;
-}
 
 TEST_GROUP(TodoItemModel) {
     const unsigned defaultEstimatedPomos {1};
@@ -30,11 +20,13 @@ TEST_GROUP(TodoItemModel) {
     void setup() {
         // QSqlTableModel confuses memory leak checker
         MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
-        createTestDbConnection();
+        QSqlQuery query;
+        query.exec("delete from todo_item;");
+        query.exec("delete from todotag;");
+        query.exec("delete from tag;");
     }
 
     void teardown() {
-        QSqlDatabase::removeDatabase("qt_sql_default_connection");
         MemoryLeakWarningPlugin::turnOnNewDeleteOverloads();
     }
 
