@@ -16,8 +16,7 @@ public:
              unsigned estimatedPomodoros,
              unsigned spentPomodoros,
              QStringList tags,
-             bool completed,
-             long long id);
+             bool completed);
     TodoItem(QString& encodedDescription);
     QString getName() const;
     void setName(const QString& name);
@@ -30,8 +29,6 @@ public:
     bool isCompleted() const;
     void setCompleted(bool completed);
     void toggleCompleted();
-    long long getId() const;
-    void setId(long long id);
     QString getEncodedDescription() const;
     void setEncodedDescription(const QString& encodedDescription);
     QString toString() const;
@@ -44,7 +41,6 @@ private:
     unsigned spentPomodoros;
     QStringList tags;
     bool completed;
-    long long id;
     QString encodedDescription;
     QChar tagPrefix = '#';
     QChar estimatedPrefix = '*';

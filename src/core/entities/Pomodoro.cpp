@@ -5,12 +5,10 @@
 
 Pomodoro::Pomodoro() { }
 
-Pomodoro::Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags,
-                   long long associatedTodoItemId) :
+Pomodoro::Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags) :
         interval {interval},
         tags(tags)
 {
-    todoId = associatedTodoItemId;
     name.append(" ");
     name.append(todoName);
 }
@@ -20,7 +18,7 @@ Pomodoro::Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const Q
         interval {startTime, finishTime},
         tags {todoItem.getTags()}
 {
-    todoId = todoItem.getId();
+
 }
 
 void Pomodoro::setFinishTime(const QDateTime finishTime) {

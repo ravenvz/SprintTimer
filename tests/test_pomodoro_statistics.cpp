@@ -69,8 +69,7 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly) {
             TimeInterval pomoInterval {pomoDate, pomoDate};
             pomodoros << Pomodoro {QString("Irrelevant"),
                                    pomoInterval,
-                                   QStringList {},
-                                   irrelevantTodoId};
+                                   QStringList {}};
             expectedDistributionVector[i]++;
         }
     }
@@ -104,8 +103,7 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly) {
             TimeInterval pomoInterval {pomoDate, pomoDate};
             increasingPomodoros << Pomodoro {QString("Whatever"),
                                              pomoInterval,
-                                             QStringList {},
-                                             irrelevantTodoId};
+                                             QStringList {}};
         }
     }
     QVector<double> expected_distribution {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
@@ -125,12 +123,11 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly) {
 TEST_GROUP(TagPomoMap) {
 
     void pushToPomodoros(QVector<Pomodoro>& pomodoros, QString name, QStringList tags, int n) {
-        const int todoId = 42; // irrelevant
         for (int i = 0; i < n; ++i) {
-            pomodoros.push_back(Pomodoro {name,
-                                          TimeInterval {QDateTime::currentDateTime(), QDateTime::currentDateTime()},
-                                          tags,
-                                          todoId});
+            pomodoros.push_back(
+                    Pomodoro {name,
+                              TimeInterval {QDateTime::currentDateTime(), QDateTime::currentDateTime()},
+                              tags});
         }
     }
 

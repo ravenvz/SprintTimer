@@ -3,7 +3,7 @@
 #include "db_layer/db_helper.h"
 
 
-PomodoroManualAddDialog::PomodoroManualAddDialog(PomodoroModel* pomodoroModel, TodoItemsListModel* todoItemModel, unsigned pomodoroDuration, QDialog* parent) :
+PomodoroManualAddDialog::PomodoroManualAddDialog(PomodoroModel* pomodoroModel, TodoItemModel* todoItemModel, unsigned pomodoroDuration, QDialog* parent) :
     QDialog(parent),
     ui(new Ui::PomodoroManualAddDialog),
     pomodoroModel(pomodoroModel),
@@ -39,14 +39,16 @@ void PomodoroManualAddDialog::accept() {
     if (startTime >= finishTime) {
         autoAdjustFinishTime();
     }
-    // TODO query model to get id directly, when removed id from todoitem entity
-    TodoItem pickedItem = todoItemModel->getTodoItemByModelIndex(todoItemModel->index(ui->comboBoxPickTodoItem->currentIndex(), 0));
-    // todoItemModel->incrementPomodoros(ui->comboBoxPickTodoItem->currentIndex(), 1);
+    // TODO simplify access to name and id in the model
+    // TODO does pomodoro need to have tags here?
+    // maybe it's simplier to have overload for 
+    // PomodoroModel->insert(const long long assosiatedTodoItemId, const TimeInterval& interval)
+    long long todoId = todoItemModel->itemIdAt(ui->comboBoxPickTodoItem->currentIndex());
+    // QString todoName = todoItemModel->itemNameAt(ui->comboBoxPickTodoItem->currentIndex());
+    TodoItem pickedItem = todoItemModel->itemAt(ui->comboBoxPickTodoItem->currentIndex());
     Pomodoro pomodoro {pickedItem.getName(),
                        TimeInterval {startTime, finishTime},
-                       pickedItem.getTags(),
-                       pickedItem.getId()};
-    // PomodoroDataSource::storePomodoro(pomodoro, pickedItem.getId());
-    pomodoroModel->insertPomodoro(pomodoro, pickedItem.getId());
+                       pickedItem.getTags()};
+    pomodoroModel->insertPomodoro(pomodoro, todoId);
     QDialog::accept();
 }

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QPointer>
-#include "gui/todoitemslistmodel.h"
+#include "gui/todoitemmodel.h"
 #include "gui/pomodoroquerymodel.h"
 
 namespace Ui {
@@ -15,7 +15,7 @@ class PomodoroManualAddDialog : public QDialog
     Q_OBJECT
 
 public:
-    PomodoroManualAddDialog(PomodoroModel* pomodoroModel, TodoItemsListModel* todoItemModel, unsigned pomodoroDuration, QDialog* parent = 0);
+    PomodoroManualAddDialog(PomodoroModel* pomodoroModel, TodoItemModel* todoItemModel, unsigned pomodoroDuration, QDialog* parent = 0);
     ~PomodoroManualAddDialog();
     void accept() override;
 
@@ -25,7 +25,7 @@ private slots:
 private:
     Ui::PomodoroManualAddDialog* ui;
     QPointer<PomodoroModel> pomodoroModel;
-    QPointer<TodoItemsListModel> todoItemModel;
+    QPointer<TodoItemModel> todoItemModel;
     unsigned pomodoroDuration;
 
     void setData();

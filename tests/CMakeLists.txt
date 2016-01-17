@@ -4,10 +4,11 @@ project(test_pomodoro)
 set(SOURCE_FILES
     run_all_tests.cpp
     TestTaskScheduler.cpp
-    test_pomodoro_gateway.cpp
+    test_todoitem_model.cpp
     test_todoitem.cpp
     test_pomodoro_statistics.cpp
     test_math_utils.cpp
+    ../src/gui/todoitemmodel.cpp
     ../src/core/TaskScheduler.cpp
     ../src/core/entities/TodoItem.cpp
     ../src/db_layer/db_helper.cpp

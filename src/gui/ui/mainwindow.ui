@@ -282,7 +282,7 @@ color: white;
      <string>QuickAdd TODO</string>
     </property>
    </widget>
-   <widget class="QListView" name="lvTodoItems">
+   <widget class="TodoItemView" name="lvTodoItems">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -968,6 +968,13 @@ color: white;
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TodoItemView</class>
+   <extends>QListView</extends>
+   <header>gui/todoitemview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../resources/resources.qrc"/>
  </resources>

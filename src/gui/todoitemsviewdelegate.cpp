@@ -28,8 +28,8 @@ void TodoItemsViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         painter->fillRect(option.rect, option.palette.highlight());
         painter->setPen(option.palette.highlightedText().color());
     } else {
-        painter->setPen(option.palette.text().color());
+        // painter->setPen(option.palette.text().color());
     }
-    painter->drawText(option.rect, Qt::TextWordWrap, index.data().toString());
+    painter->drawText(option.rect, Qt::TextWordWrap, index.data(Qt::DisplayRole).toString());
     painter->restore();
 }
