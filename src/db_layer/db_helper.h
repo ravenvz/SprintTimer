@@ -7,7 +7,6 @@
 #include <algorithm>
 #include "core/entities/TodoItem.h"
 #include "core/entities/Pomodoro.h"
-#include <gui/pomodoroquerymodel.h>
 #include <QDebug>
 
 

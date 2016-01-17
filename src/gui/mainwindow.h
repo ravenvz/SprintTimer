@@ -11,7 +11,7 @@
 #include "core/TaskScheduler.h"
 #include "db_layer/db_helper.h"
 #include "gui/goalsview.h"
-#include "gui/pomodoroquerymodel.h"
+#include "gui/pomodoromodel.h"
 #include "gui/tagmodel.h"
 #include "gui/historyview.h"
 #include "gui/statisticswidget.h"

@@ -1,4 +1,4 @@
-#include "pomodoroquerymodel.h"
+#include "pomodoromodel.h"
 #include "db_layer/db_helper.h"
 #include <QDebug>
 #include <QSqlRecord>

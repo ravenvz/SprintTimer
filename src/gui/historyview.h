@@ -1,5 +1,5 @@
 #ifndef HISTORY_VIEW_H
-#define HISTORY_VIEW_H 
+#define HISTORY_VIEW_H
 
 #include <QStringListModel>
 #include <QObject>
@@ -7,7 +7,7 @@
 #include "core/entities/TodoItem.h"
 #include "core/entities/Pomodoro.h"
 #include "gui/pickperiodwidget.h"
-#include "gui/pomodoroquerymodel.h"
+#include "gui/pomodoromodel.h"
 
 namespace Ui {
     class HistoryView;
@@ -41,4 +41,4 @@ private slots:
 
 };
 
-#endif //HISTORY_VIEW_H 
+#endif //HISTORY_VIEW_H

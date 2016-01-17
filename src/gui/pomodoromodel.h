@@ -1,5 +1,5 @@
-#ifndef POMODOROQUERYMODEL_H
-#define POMODOROQUERYMODEL_H
+#ifndef POMODOROMODEL_H
+#define POMODOROMODEL_H
 
 #include <QSqlTableModel>
 #include <QSqlQuery>
@@ -46,4 +46,4 @@ private:
 
 
 
-#endif /* end of include guard: POMODOROQUERYMODEL_H */
+#endif /* end of include guard: POMODOROMODEL_H */
