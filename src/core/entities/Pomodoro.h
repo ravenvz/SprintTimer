@@ -17,11 +17,8 @@ public:
     Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime);
 
     const QString getName() const;
-    void setName(const QString& name);
     const QDateTime getStartTime() const;
-    void setStartTime(const QDateTime startTime);
     const QDateTime getFinishTime() const;
-    void setFinishTime(const QDateTime finishTime);
     const QStringList getTags() const;
     const QString toString() const;
 

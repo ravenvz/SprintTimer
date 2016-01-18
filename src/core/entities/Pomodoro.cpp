@@ -21,24 +21,12 @@ Pomodoro::Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const Q
 
 }
 
-void Pomodoro::setFinishTime(const QDateTime finishTime) {
-    interval.finishTime = finishTime;
-}
-
 const QDateTime Pomodoro::getFinishTime() const {
     return interval.finishTime;
 }
 
-void Pomodoro::setStartTime(const QDateTime startTime) {
-    interval.startTime = startTime;
-}
-
 const QDateTime Pomodoro::getStartTime() const {
     return interval.startTime;
-}
-
-void Pomodoro::setName(const QString& name) {
-    Pomodoro::name = name;
 }
 
 const QString Pomodoro::getName() const {
