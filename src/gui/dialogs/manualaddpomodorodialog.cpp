@@ -39,16 +39,9 @@ void PomodoroManualAddDialog::accept() {
     if (startTime >= finishTime) {
         autoAdjustFinishTime();
     }
-    // TODO simplify access to name and id in the model
-    // TODO does pomodoro need to have tags here?
-    // maybe it's simplier to have overload for 
-    // PomodoroModel->insert(const long long assosiatedTodoItemId, const TimeInterval& interval)
     long long todoId = todoItemModel->itemIdAt(ui->comboBoxPickTodoItem->currentIndex());
-    // QString todoName = todoItemModel->itemNameAt(ui->comboBoxPickTodoItem->currentIndex());
-    TodoItem pickedItem = todoItemModel->itemAt(ui->comboBoxPickTodoItem->currentIndex());
-    Pomodoro pomodoro {pickedItem.getName(),
-                       TimeInterval {startTime, finishTime},
-                       pickedItem.getTags()};
-    pomodoroModel->insertPomodoro(pomodoro, todoId);
+    QString todoName = todoItemModel->itemNameAt(ui->comboBoxPickTodoItem->currentIndex());
+    // TODO handle sad path
+    pomodoroModel->insert(todoId, TimeInterval {startTime, finishTime});
     QDialog::accept();
 }

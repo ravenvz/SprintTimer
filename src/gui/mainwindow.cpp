@@ -182,7 +182,7 @@ void MainWindow::submitPomodoro() {
     }
     ui->leDoneTask->hide();
     completedTasksIntervals.push_back(taskScheduler.finishTask());
-    // TODO this is a workaround and should be replaced 
+    // TODO this is a workaround and should be replaced
     // 1. Check if entered name matches any of incompleted TodoItems
     std::experimental::optional<long long> associatedTodoItemId;
     for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
@@ -201,17 +201,13 @@ void MainWindow::submitPomodoro() {
 
     // // 3. Notify user that new item has been created
 
-    for (TimeInterval interval : completedTasksIntervals) {
-        Pomodoro pomodoro {name, interval, QStringList {}};
-        // TODO replace with overload
-        pomodoroModel->insertPomodoro(pomodoro, *associatedTodoItemId);
-        // PomodoroDataSource::storePomodoro(pomodoro, *associatedTodoItemId);
-        // todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
+    for (const TimeInterval& interval : completedTasksIntervals) {
+        pomodoroModel->insert(*associatedTodoItemId, interval);
         // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
     // Check if pomodoro tags + name matches any uncompleted item in todo list view
     // and increment spent pomodoros if it does
-    
+
     // NOTE spent_pomodoros of associtated TodoItem will be incremented by SQL trigger
     completedTasksIntervals.clear();
     updatePomodoroView();
@@ -311,8 +307,9 @@ void MainWindow::removePomodoro() {
     QString description {"This will remove pomodoro permanently"};
     dialog.setActionDescription(description);
     if (dialog.exec()) {
-        // pomodoroModel->setData(index, QVariant(), Qt::EditRole);
-        pomodoroModel->removePomodoro(index);
+        // TODO handle sad path
+        pomodoroModel->remove(index.row());
+        // TODO replace with call to refresh
         todoitemViewModel->select();
     }
 }

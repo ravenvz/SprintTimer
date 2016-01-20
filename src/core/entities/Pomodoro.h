@@ -4,7 +4,6 @@
 
 #include <QtCore/qstring.h>
 #include <QtCore/qdatetime.h>
-#include <QRegularExpression>
 #include "core/timeinterval.h"
 #include "TodoItem.h"
 
@@ -16,16 +15,17 @@ public:
     Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags);
     Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime);
 
-    const QString getName() const;
-    const QDateTime getStartTime() const;
-    const QDateTime getFinishTime() const;
-    const QStringList getTags() const;
-    const QString toString() const;
+    QString name() const;
+    QDateTime startTime() const;
+    QDateTime finishTime() const;
+    TimeInterval interval() const;
+    QStringList tags() const;
+    QString toString() const;
 
 private:
-    QString name;
-    TimeInterval interval;
-    QStringList tags;
+    QString mName;
+    TimeInterval mInterval;
+    QStringList mTags;
     QString tagPrefix = "#";
 
 };

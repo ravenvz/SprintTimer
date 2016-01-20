@@ -13,13 +13,13 @@ class TodoItemModel : public SqliteTableModel
 public:
     explicit TodoItemModel(QObject* parent = 0);
 
-    // Override to support drag and drop
+    // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
 
-    // Override to support drag and drop
+    // Override to support drag and drop.
     Qt::DropActions supportedDragActions() const override;
 
-    // Override to support drag and drop
+    // Override to support drag and drop.
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     // Override to provide support for custom roles as well as to customize behaviour
@@ -27,7 +27,7 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
     // Override to support drag and drop. Changes items' priorities instead of
-    // removing row and inserting it at destination position as in default 
+    // removing row and inserting it at destination position as in default
     // behavour for drag and drop. That default behaviour would not work here,
     // as sqlite view is set to this model, and removing row from it would have
     // undesired consequences.
@@ -39,19 +39,19 @@ public:
                        GetSpentPomodorosRole = Qt::UserRole + 3,
                        PriorityRole = Qt::UserRole + 4 };
 
-    // Insert new TodoItem into the database. 
-    // Return boolean, indicating success of the operation. 
+    // Insert new TodoItem into the database.
+    // Return boolean, indicating success of the operation.
     // Changes are rolled back in case of failure.
     bool insert(const TodoItem& item);
 
-    // Remove item with given index and return boolean, indicating success of the operation. 
+    // Remove item with given index and return boolean, indicating success of the operation.
     bool removeTodoItem(const QModelIndex& index);
 
     // Overload that accepts row number as item identifier.
     bool removeTodoItem(const int row);
 
     // Return item at given row. This is a convinient method that allows to get item
-    // without tedious calls to data().
+    // without verbose calls to data().
     TodoItem itemAt(const int row) const;
 
     // Mark item as completed if it is not completed and vice versa.
@@ -74,8 +74,6 @@ public:
     QString itemNameAt(const int row) const;
 
 private:
-    int tmp;
-
     // Sql helper queries that are needed to maintain database invariants.
     QSqlQuery insertTodoItemQuery;
     QSqlQuery findTagByNameQuery;
@@ -122,6 +120,7 @@ private:
     // Note that this method does not update tags.
     bool updateRow(const int row, const TodoItem& newItem);
 
+    // Set priority of item at given row.
     bool setItemPriority(const int row, const int priority);
 };
 

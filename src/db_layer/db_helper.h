@@ -10,9 +10,9 @@
 #include <QDebug>
 
 
-void createDatabase(QSqlDatabase& db, QString& filename);
+bool createDatabase(QSqlDatabase& db, QString& filename);
 
-void createSchema();
+bool createSchema();
 
 bool createDbConnection();
 

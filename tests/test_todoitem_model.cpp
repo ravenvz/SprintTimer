@@ -10,8 +10,7 @@ TEST_GROUP(TodoItemModel) {
         TodoId,
         TodoName,
         EstimatedPomodoros,
-        SpentPomodoros,
-        Priority,
+        SpentPomodoros, Priority,
         Completed,
         Tags,
         LastModified
@@ -87,6 +86,8 @@ TEST(TodoItemModel, test_remove_todo_item_should_clean_orphaned_tags) {
                 TodoItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, {"Tag1, Tag2"}, false}
     ));
     CHECK(model.removeTodoItem(0));
+
+    CHECK_EQUAL(0, model.numRecords());
 
     // Check todotag relation removed
     QSqlQuery query;

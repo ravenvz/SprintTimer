@@ -6,46 +6,50 @@
 Pomodoro::Pomodoro() { }
 
 Pomodoro::Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags) :
-        interval {interval},
-        tags(tags)
+        mName {todoName},
+        mInterval {interval},
+        mTags {tags}
 {
-    name.append(" ");
-    name.append(todoName);
+
 }
 
 Pomodoro::Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime) :
-        name {todoItem.getName()},
-        interval {startTime, finishTime},
-        tags {todoItem.getTags()}
+        mName {todoItem.getName()},
+        mInterval {startTime, finishTime},
+        mTags {todoItem.getTags()}
 {
 
 }
 
-const QDateTime Pomodoro::getFinishTime() const {
-    return interval.finishTime;
+QDateTime Pomodoro::finishTime() const {
+    return mInterval.finishTime;
 }
 
-const QDateTime Pomodoro::getStartTime() const {
-    return interval.startTime;
+QDateTime Pomodoro::startTime() const {
+    return mInterval.startTime;
 }
 
-const QString Pomodoro::getName() const {
-    return name;
+TimeInterval Pomodoro::interval() const {
+    return mInterval;
 }
 
-const QStringList Pomodoro::getTags() const {
-    return tags;
+QString Pomodoro::name() const {
+    return mName;
 }
 
-const QString Pomodoro::toString() const {
+QStringList Pomodoro::tags() const {
+    return mTags;
+}
+
+QString Pomodoro::toString() const {
     QStringList result;
-    QStringList tagsCopy = tags;
+    QStringList tagsCopy = mTags;
     std::for_each(tagsCopy.begin(), tagsCopy.end(), [prefix = tagPrefix](auto& el) {
         return el.prepend(prefix);
     });
-    result.append(interval.toTimeString());
+    result.append(mInterval.toTimeString());
     result.append(tagsCopy.join(" "));
-    result.append(name);
+    result.append(mName);
     return result.join(" ");
 }
 

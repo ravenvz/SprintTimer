@@ -28,7 +28,7 @@ public:
         numTopSlices(numTopSlices)
     {
         for (const Pomodoro& pomo : pomodoros) {
-            for (const auto& tag : pomo.getTags()) {
+            for (const auto& tag : pomo.tags()) {
                 tagToPomodoroVec[tag] << pomo;
             }
         }
@@ -151,7 +151,7 @@ public:
         if (pomodoros.empty()) return QVector<double> (0, 0);
         QVector<double> distribution (interval.sizeInDays(), 0);
         for (const Pomodoro& pomo : pomodoros) {
-            distribution[interval.startDate.daysTo(pomo.getStartTime().date())]++;
+            distribution[interval.startDate.daysTo(pomo.startTime().date())]++;
         }
         return distribution;
     }
@@ -160,7 +160,7 @@ public:
         QVector<double> distribution (7, 0);
         if (pomodoros.empty()) return distribution;
         for (const Pomodoro& pomo : pomodoros) {
-            distribution[pomo.getStartTime().date().dayOfWeek() - 1]++;
+            distribution[pomo.startTime().date().dayOfWeek() - 1]++;
         }
         return distribution;
     }
@@ -168,8 +168,7 @@ public:
     QVector<double> computeWorkTimeDistribution() {
         QVector<double> distribution (6, 0);
         for (const Pomodoro& pomo : pomodoros) {
-            TimeInterval currentInterval = TimeInterval {pomo.getStartTime(), pomo.getFinishTime()};
-            distribution[static_cast<int>(currentInterval.getDayPart())]++;
+            distribution[static_cast<int>(pomo.interval().getDayPart())]++;
         }
         return distribution;
     }

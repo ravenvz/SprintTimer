@@ -90,7 +90,7 @@ bool TodoItemModel::removeTodoItem(const QModelIndex& index) {
 }
 
 bool TodoItemModel::removeTodoItem(const int row) {
-    return QSqlTableModel::removeRow(row) && submitAll();
+    return QSqlTableModel::removeRow(row) && submitAll() && select();
 }
 
 TodoItem TodoItemModel::itemAt(const int row) const {

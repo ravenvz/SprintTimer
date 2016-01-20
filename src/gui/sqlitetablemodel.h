@@ -1,3 +1,6 @@
+#ifndef SQLITETABLEMODEL_H
+#define SQLITETABLEMODEL_H
+
 #include <QSqlTableModel>
 
 class SqliteTableModel : public QSqlTableModel
@@ -27,5 +30,7 @@ public:
         return QSqlTableModel::submitAll() && QSqlDatabase::database().commit();
     }
 
-
 };
+
+
+#endif /* end of include guard: SQLITETABLEMODEL_H */

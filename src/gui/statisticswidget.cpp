@@ -43,7 +43,7 @@ void StatisticsWidget::setupGraphs() {
 void StatisticsWidget::fetchPomodoros() {
     pomodoroModel->setDateFilter(currentInterval);
     pomodoroModel->select();
-    pomodoros = pomodoroModel->pomodoros();
+    pomodoros = pomodoroModel->items();
     selectedSliceIndex = -1;
     tagPomoMap = TagPomoMap(pomodoros, numDisplayedTagSlices);
     QVector<Slice> tagSlices = tagPomoMap.getSortedSliceVector();
@@ -103,7 +103,7 @@ void StatisticsWidget::updateWeekdayBarChartLegend(Distribution<double>* weekday
 void StatisticsWidget::updateWorkHoursDiagram(Distribution<double>* workTimeDistribution, const QVector<Pomodoro>& pomodoros) {
     QVector<TimeInterval> intervals;
     for (const Pomodoro& pomo : pomodoros) {
-        intervals.append(TimeInterval {pomo.getStartTime(), pomo.getFinishTime()});
+        intervals.append(pomo.interval());
     }
     if (intervals.empty()) {
         ui->labelBestWorktimeName->setText("No data");
