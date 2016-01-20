@@ -12,14 +12,10 @@ HistoryView::HistoryView(QWidget* parent) :
     pomodoroModelToRename = new PomodoroModel(this);
     ui->widgetPickPeriod->setYears(pomodoroModelToRename->yearRange());
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
-    displayHistory();
-    connectSlots();
-}
-
-void HistoryView::connectSlots() {
     connect(ui->twHistoryDisplay, SIGNAL(currentChanged(int)), this, SLOT(displayHistory()));
     connect(ui->widgetPickPeriod, SIGNAL(intervalChanged(DateInterval)), this, SLOT(
             onDatePickerIntervalChanged(DateInterval)));
+    displayHistory();
 }
 
 HistoryView::~HistoryView() {
@@ -83,6 +79,7 @@ void HistoryView::getTodoItemsHistory(QStringList& formattedHistory) {
     QVector<std::pair<TodoItem, QString> > todoItemsForPeriod = TodoItemDataSource::getTodoItemsForMonth(
             selectedDateInterval.startDate,
             selectedDateInterval.endDate);
+    // QVector<TodoItem> todoItems = todoitem
     if (!todoItemsForPeriod.isEmpty()) {
         formattedHistory << QString("Completed %1 items").arg(todoItemsForPeriod.size());
         formatTodoItemHistory(todoItemsForPeriod, formattedHistory);
