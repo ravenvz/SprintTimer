@@ -21,20 +21,20 @@ Pomodoro::Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const Q
 
 }
 
-QDateTime Pomodoro::finishTime() const {
-    return mInterval.finishTime;
+QString Pomodoro::name() const {
+    return mName;
 }
 
 QDateTime Pomodoro::startTime() const {
     return mInterval.startTime;
 }
 
-TimeInterval Pomodoro::interval() const {
-    return mInterval;
+QDateTime Pomodoro::finishTime() const {
+    return mInterval.finishTime;
 }
 
-QString Pomodoro::name() const {
-    return mName;
+TimeInterval Pomodoro::interval() const {
+    return mInterval;
 }
 
 QStringList Pomodoro::tags() const {

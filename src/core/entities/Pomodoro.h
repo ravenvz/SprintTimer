@@ -12,14 +12,27 @@ class Pomodoro
 
 public:
     Pomodoro();
+
     Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags);
+
     Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime);
 
+    // Return name of Pomodoro. It is identical to the associated task name.
     QString name() const;
+
+    // Return starting date and time.
     QDateTime startTime() const;
+
+    // Return finishing date and time.
     QDateTime finishTime() const;
+
+    // Return time interval when this Pomodoro was active.
     TimeInterval interval() const;
+
+    // Return tags. Tags are identical the associated task tags.
     QStringList tags() const;
+
+    // Return string representation.
     QString toString() const;
 
 private:
