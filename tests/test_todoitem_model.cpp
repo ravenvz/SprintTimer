@@ -10,8 +10,7 @@ TEST_GROUP(TodoItemModel) {
         TodoId,
         TodoName,
         EstimatedPomodoros,
-        SpentPomodoros,
-        Priority,
+        SpentPomodoros, Priority,
         Completed,
         Tags,
         LastModified
@@ -31,11 +30,11 @@ TEST_GROUP(TodoItemModel) {
     }
 
     bool todo_item_equal(const TodoItem& item1, const TodoItem& item2) {
-        return item1.getName() == item2.getName() &&
-               item1.getEstimatedPomodoros() == item2.getEstimatedPomodoros() &&
-               item1.getSpentPomodoros() == item2.getSpentPomodoros() &&
+        return item1.name() == item2.name() &&
+               item1.estimatedPomodoros() == item2.estimatedPomodoros() &&
+               item1.spentPomodoros() == item2.spentPomodoros() &&
                item1.isCompleted() == item2.isCompleted() &&
-               item1.getTags() == item2.getTags();
+               item1.tags() == item2.tags();
     }
 
 };
@@ -76,7 +75,7 @@ TEST(TodoItemModel, test_remove_todo_item_with_no_related_tags) {
                 TodoItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, QStringList(), false}
     ));
     CHECK(model.numRecords() == 1);
-    CHECK(model.removeTodoItem(0));
+    CHECK(model.remove(0));
     CHECK(model.numRecords() == 0);
 }
 
@@ -86,7 +85,9 @@ TEST(TodoItemModel, test_remove_todo_item_should_clean_orphaned_tags) {
     CHECK(model.insert(
                 TodoItem {"Test item", defaultEstimatedPomos, defaultSpentPomos, {"Tag1, Tag2"}, false}
     ));
-    CHECK(model.removeTodoItem(0));
+    CHECK(model.remove(0));
+
+    CHECK_EQUAL(0, model.numRecords());
 
     // Check todotag relation removed
     QSqlQuery query;
@@ -109,7 +110,7 @@ TEST(TodoItemModel, test_remove_todo_item_should_not_remove_tags_if_not_orphaned
     CHECK(model.insert(
                 TodoItem {"Item 2", defaultEstimatedPomos, defaultSpentPomos, {"Tag1"}, false}
     ));
-    CHECK(model.removeTodoItem(0));
+    CHECK(model.remove(0));
 
     // Check only one relation left
     QSqlQuery query;

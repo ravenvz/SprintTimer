@@ -182,7 +182,7 @@ void MainWindow::submitPomodoro() {
     }
     ui->leDoneTask->hide();
     completedTasksIntervals.push_back(taskScheduler.finishTask());
-    // TODO this is a workaround and should be replaced 
+    // TODO this is a workaround and should be replaced
     // 1. Check if entered name matches any of incompleted TodoItems
     std::experimental::optional<long long> associatedTodoItemId;
     for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
@@ -201,22 +201,19 @@ void MainWindow::submitPomodoro() {
 
     // // 3. Notify user that new item has been created
 
-    for (TimeInterval interval : completedTasksIntervals) {
-        Pomodoro pomodoro {name, interval, QStringList {}};
-        // TODO replace with overload
-        pomodoroModel->insertPomodoro(pomodoro, *associatedTodoItemId);
-        // PomodoroDataSource::storePomodoro(pomodoro, *associatedTodoItemId);
-        // todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
+    for (const TimeInterval& interval : completedTasksIntervals) {
+        pomodoroModel->insert(*associatedTodoItemId, interval);
         // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
     }
     // Check if pomodoro tags + name matches any uncompleted item in todo list view
     // and increment spent pomodoros if it does
-    
+
     // NOTE spent_pomodoros of associtated TodoItem will be incremented by SQL trigger
     completedTasksIntervals.clear();
+    updateTodoItemModel();
     updatePomodoroView();
     updateOpenedWindows();
-    ui->lvTodoItems->viewport()->update();
+    // ui->lvTodoItems->viewport()->update();
     startTask();
 }
 
@@ -259,7 +256,7 @@ void MainWindow::showTodoItemContextMenu(const QPoint& pos) {
     QAction* selectedItem = todoItemsMenu.exec(globalPos);
 
     if (selectedItem && selectedItem->text() == "Edit") editTodoItem();
-    if (selectedItem && selectedItem->text() == "Delete") removeTodoItem();
+    if (selectedItem && selectedItem->text() == "Delete") remove();
     if (selectedItem && selectedItem->text() == "Tag editor") launchTagEditor();
 }
 
@@ -271,18 +268,18 @@ void MainWindow::editTodoItem() {
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {
         TodoItem updatedItem = dialog.getNewTodoItem();
-        updatedItem.setSpentPomodoros(itemToEdit.getSpentPomodoros());
+        updatedItem.setSpentPomodoros(itemToEdit.spentPomodoros());
         updatedItem.setCompleted(itemToEdit.isCompleted());
         todoitemViewModel->replaceItemAt(index.row(), updatedItem);
     }
 }
 
-void MainWindow::removeTodoItem() {
+void MainWindow::remove() {
     QModelIndex index = ui->lvTodoItems->currentIndex();
     ConfirmationDialog dialog;
     // TODO figure out a way to handle this situation more gracefully
     QString description;
-    if (todoitemViewModel->itemAt(index.row()).getSpentPomodoros() > 0) {
+    if (todoitemViewModel->itemAt(index.row()).spentPomodoros() > 0) {
         description = "WARNING! This todo item has pomodoros associated with it "
                       "and they will be removed permanently along with this item.";
     } else {
@@ -290,7 +287,7 @@ void MainWindow::removeTodoItem() {
     }
     dialog.setActionDescription(description);
     if (dialog.exec()) {
-        todoitemViewModel->removeTodoItem(index);
+        todoitemViewModel->remove(index);
     }
 }
 
@@ -311,8 +308,9 @@ void MainWindow::removePomodoro() {
     QString description {"This will remove pomodoro permanently"};
     dialog.setActionDescription(description);
     if (dialog.exec()) {
-        // pomodoroModel->setData(index, QVariant(), Qt::EditRole);
-        pomodoroModel->removePomodoro(index);
+        // TODO handle sad path
+        pomodoroModel->remove(index.row());
+        // TODO replace with call to refresh
         todoitemViewModel->select();
     }
 }
@@ -360,7 +358,7 @@ void MainWindow::launchManualAddPomodoroDialog() {
     if (dialog.exec()) {
         updatePomodoroView();
         updateOpenedWindows();
-        ui->lvTodoItems->viewport()->update();
+        updateTodoItemModel();
     }
 }
 

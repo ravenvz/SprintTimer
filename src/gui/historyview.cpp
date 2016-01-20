@@ -46,7 +46,7 @@ void HistoryView::populatePomodoroHistory() {
 void HistoryView::getPomodoroHistory(QStringList& preprocessedHistory) const {
     pomodoroModelToRename->setDateFilter(selectedDateInterval);
     pomodoroModelToRename->select();
-    QVector<Pomodoro> pomodorosForInterval {pomodoroModelToRename->pomodoros()};
+    QVector<Pomodoro> pomodorosForInterval {pomodoroModelToRename->items()};
     if (!pomodorosForInterval.isEmpty()) {
         preprocessedHistory << QString("Completed %1 pomodoros").arg(pomodorosForInterval.size());
         formatPomodoroHistory(pomodorosForInterval, preprocessedHistory);
@@ -56,12 +56,12 @@ void HistoryView::getPomodoroHistory(QStringList& preprocessedHistory) const {
 }
 
 void HistoryView::formatPomodoroHistory(const QVector<Pomodoro> &pomodoros, QStringList &preparedPomodoroHistory) const {
-    preparedPomodoroHistory << pomodoros[0].getStartTime().date().toString();
-    QDate currentDate = pomodoros[0].getStartTime().date();
+    preparedPomodoroHistory << pomodoros[0].startTime().date().toString();
+    QDate currentDate = pomodoros[0].startTime().date();
     unsigned headerOffset = 1;
     QVector<unsigned> headerIndexes {headerOffset};
     for (int i = 0; i < pomodoros.size(); ++i) {
-        const QDate& date = pomodoros[i].getStartTime().date();
+        const QDate& date = pomodoros[i].startTime().date();
         if (currentDate != date) {
             currentDate = date;
             preparedPomodoroHistory << date.toString();

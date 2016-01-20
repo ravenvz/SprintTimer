@@ -7,13 +7,12 @@
 #include <algorithm>
 #include "core/entities/TodoItem.h"
 #include "core/entities/Pomodoro.h"
-#include <gui/pomodoroquerymodel.h>
 #include <QDebug>
 
 
-void createDatabase(QSqlDatabase& db, QString& filename);
+bool createDatabase(QSqlDatabase& db, QString& filename);
 
-void createSchema();
+bool createSchema();
 
 bool createDbConnection();
 

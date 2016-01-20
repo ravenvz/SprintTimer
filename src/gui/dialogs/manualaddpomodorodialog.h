@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QPointer>
 #include "gui/todoitemmodel.h"
-#include "gui/pomodoroquerymodel.h"
+#include "gui/pomodoromodel.h"
 
 namespace Ui {
     class PomodoroManualAddDialog;

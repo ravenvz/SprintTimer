@@ -1,5 +1,5 @@
 #ifndef MAINWINDOW_H
-#define MAINWINDOW_H 
+#define MAINWINDOW_H
 
 #include <QMainWindow>
 #include <QMediaPlayer>
@@ -11,7 +11,7 @@
 #include "core/TaskScheduler.h"
 #include "db_layer/db_helper.h"
 #include "gui/goalsview.h"
-#include "gui/pomodoroquerymodel.h"
+#include "gui/pomodoromodel.h"
 #include "gui/tagmodel.h"
 #include "gui/historyview.h"
 #include "gui/statisticswidget.h"
@@ -83,11 +83,11 @@ private:
     void updateHistoryWindow();
     void updateGoalWindow();
     void editTodoItem();
-    void removeTodoItem();
+    void remove();
     void removePomodoro();
     void playSound();
     void bringToForeground(QWidget* widgetPtr);
     void launchTagEditor();
 };
 
-#endif // MAINWINDOW_H 
+#endif // MAINWINDOW_H

@@ -5,7 +5,7 @@
 
 
 TodoItemModel::TodoItemModel(QObject* parent) :
-    SqliteTableModel(parent) 
+    SqliteTableModel(parent)
 {
     setTable("task_view");
     setEditStrategy(QSqlTableModel::OnManualSubmit);
@@ -64,9 +64,9 @@ bool TodoItemModel::insert(const TodoItem& item) {
     QSqlDatabase::database().transaction();
     bool shouldRollback = false;
     const int newItemPriority = 10000;
-    insertTodoItemQuery.bindValue(":name", QVariant(item.getName()));
-    insertTodoItemQuery.bindValue(":estimated_pomodoros", QVariant(item.getEstimatedPomodoros()));
-    insertTodoItemQuery.bindValue(":spent_pomodoros", QVariant(item.getSpentPomodoros()));
+    insertTodoItemQuery.bindValue(":name", QVariant(item.name()));
+    insertTodoItemQuery.bindValue(":estimated_pomodoros", QVariant(item.estimatedPomodoros()));
+    insertTodoItemQuery.bindValue(":spent_pomodoros", QVariant(item.spentPomodoros()));
     insertTodoItemQuery.bindValue(":completed", QVariant(item.isCompleted()));
     insertTodoItemQuery.bindValue(":priority", QVariant(newItemPriority));
     insertTodoItemQuery.bindValue(":last_modified", QVariant(QDateTime::currentDateTime()));
@@ -74,7 +74,7 @@ bool TodoItemModel::insert(const TodoItem& item) {
     QVariant todoId = insertTodoItemQuery.lastInsertId();
 
     QVariantList tagIds;
-    QSet<QString> tagsToInsert = QSet<QString>::fromList(item.getTags());
+    QSet<QString> tagsToInsert = QSet<QString>::fromList(item.tags());
     if (!insertTags(todoId, tagsToInsert)) shouldRollback = true;
 
     if (shouldRollback || !QSqlDatabase::database().commit()) {
@@ -85,12 +85,12 @@ bool TodoItemModel::insert(const TodoItem& item) {
     return true;
 }
 
-bool TodoItemModel::removeTodoItem(const QModelIndex& index) {
-    return removeTodoItem(index.row());
+bool TodoItemModel::remove(const QModelIndex& index) {
+    return remove(index.row());
 }
 
-bool TodoItemModel::removeTodoItem(const int row) {
-    return QSqlTableModel::removeRow(row) && submitAll();
+bool TodoItemModel::remove(const int row) {
+    return QSqlTableModel::removeRow(row) && submitAll() && select();
 }
 
 TodoItem TodoItemModel::itemAt(const int row) const {
@@ -136,8 +136,8 @@ QVector<TodoItem> TodoItemModel::items() {
 
 bool TodoItemModel::replaceItemAt(const int row, const TodoItem& newItem) {
     TodoItem oldItem = itemAt(row);
-    QSet<QString> oldTags = QSet<QString>::fromList(oldItem.getTags());
-    QSet<QString> newTags = QSet<QString>::fromList(newItem.getTags());
+    QSet<QString> oldTags = QSet<QString>::fromList(oldItem.tags());
+    QSet<QString> newTags = QSet<QString>::fromList(newItem.tags());
     if (oldTags != newTags) {
         QSet<QString> tagsToRemove = oldTags;
         QSet<QString> tagsToInsert = newTags;
@@ -239,15 +239,15 @@ bool TodoItemModel::removeTags(QVariant itemId, const QSet<QString>& tags) {
 bool TodoItemModel::updateRow(const int row, const TodoItem& newItem) {
     bool nameUpdated = QSqlTableModel::setData(
             index(row, static_cast<int>(Column::Name)),
-            newItem.getName(),
+            newItem.name(),
             Qt::EditRole);
     bool estimatedUpdated = QSqlTableModel::setData(
             index(row, static_cast<int>(Column::EstimatedPomodoros)),
-            newItem.getEstimatedPomodoros(),
+            newItem.estimatedPomodoros(),
             Qt::EditRole);
     bool spentUpdated = QSqlTableModel::setData(
             index(row, static_cast<int>(Column::SpentPomodoros)),
-            newItem.getSpentPomodoros(),
+            newItem.spentPomodoros(),
             Qt::EditRole);
     bool completedUpdated = QSqlTableModel::setData(
             index(row, static_cast<int>(Column::Completed)),
