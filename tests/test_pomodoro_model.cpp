@@ -51,7 +51,7 @@ TEST(PomodoroModel, test_insert_and_delete) {
     // Check that spent pomodoros have been incremented
     todoItemModel.select();
     TodoItem insertedTodo = todoItemModel.itemAt(0);
-    CHECK_EQUAL(spentPomodoros + 1, insertedTodo.getSpentPomodoros());
+    CHECK_EQUAL(spentPomodoros + 1, insertedTodo.spentPomodoros());
 
     CHECK(pomodoroModel.remove(0));
 
@@ -60,7 +60,7 @@ TEST(PomodoroModel, test_insert_and_delete) {
     // Check that spent pomodoros have been decremented
     todoItemModel.select();
     insertedTodo = todoItemModel.itemAt(0);
-    CHECK_EQUAL(spentPomodoros, insertedTodo.getSpentPomodoros());
+    CHECK_EQUAL(spentPomodoros, insertedTodo.spentPomodoros());
 }
 
 TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros) {
@@ -86,7 +86,7 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros) {
     // be refreshed
     todoItemModel.select();
 
-    CHECK(todoItemModel.removeTodoItem(0));
+    CHECK(todoItemModel.remove(0));
     CHECK_EQUAL(0, todoItemModel.numRecords());
     pomodoroModel.select();
     CHECK_EQUAL(0, pomodoroModel.numRecords());

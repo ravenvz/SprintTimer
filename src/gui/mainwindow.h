@@ -83,7 +83,7 @@ private:
     void updateHistoryWindow();
     void updateGoalWindow();
     void editTodoItem();
-    void removeTodoItem();
+    void remove();
     void removePomodoro();
     void playSound();
     void bringToForeground(QWidget* widgetPtr);

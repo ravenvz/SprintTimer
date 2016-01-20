@@ -14,9 +14,9 @@ Pomodoro::Pomodoro(const QString todoName, const TimeInterval interval, const QS
 }
 
 Pomodoro::Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime) :
-        mName {todoItem.getName()},
+        mName {todoItem.name()},
         mInterval {startTime, finishTime},
-        mTags {todoItem.getTags()}
+        mTags {todoItem.tags()}
 {
 
 }

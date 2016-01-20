@@ -45,10 +45,10 @@ public:
     bool insert(const TodoItem& item);
 
     // Remove item with given index and return boolean, indicating success of the operation.
-    bool removeTodoItem(const QModelIndex& index);
+    bool remove(const QModelIndex& index);
 
     // Overload that accepts row number as item identifier.
-    bool removeTodoItem(const int row);
+    bool remove(const int row);
 
     // Return item at given row. This is a convinient method that allows to get item
     // without verbose calls to data().

@@ -255,7 +255,7 @@ void MainWindow::showTodoItemContextMenu(const QPoint& pos) {
     QAction* selectedItem = todoItemsMenu.exec(globalPos);
 
     if (selectedItem && selectedItem->text() == "Edit") editTodoItem();
-    if (selectedItem && selectedItem->text() == "Delete") removeTodoItem();
+    if (selectedItem && selectedItem->text() == "Delete") remove();
     if (selectedItem && selectedItem->text() == "Tag editor") launchTagEditor();
 }
 
@@ -267,18 +267,18 @@ void MainWindow::editTodoItem() {
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {
         TodoItem updatedItem = dialog.getNewTodoItem();
-        updatedItem.setSpentPomodoros(itemToEdit.getSpentPomodoros());
+        updatedItem.setSpentPomodoros(itemToEdit.spentPomodoros());
         updatedItem.setCompleted(itemToEdit.isCompleted());
         todoitemViewModel->replaceItemAt(index.row(), updatedItem);
     }
 }
 
-void MainWindow::removeTodoItem() {
+void MainWindow::remove() {
     QModelIndex index = ui->lvTodoItems->currentIndex();
     ConfirmationDialog dialog;
     // TODO figure out a way to handle this situation more gracefully
     QString description;
-    if (todoitemViewModel->itemAt(index.row()).getSpentPomodoros() > 0) {
+    if (todoitemViewModel->itemAt(index.row()).spentPomodoros() > 0) {
         description = "WARNING! This todo item has pomodoros associated with it "
                       "and they will be removed permanently along with this item.";
     } else {
@@ -286,7 +286,7 @@ void MainWindow::removeTodoItem() {
     }
     dialog.setActionDescription(description);
     if (dialog.exec()) {
-        todoitemViewModel->removeTodoItem(index);
+        todoitemViewModel->remove(index);
     }
 }
 
