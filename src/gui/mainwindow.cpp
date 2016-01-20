@@ -210,9 +210,10 @@ void MainWindow::submitPomodoro() {
 
     // NOTE spent_pomodoros of associtated TodoItem will be incremented by SQL trigger
     completedTasksIntervals.clear();
+    updateTodoItemModel();
     updatePomodoroView();
     updateOpenedWindows();
-    ui->lvTodoItems->viewport()->update();
+    // ui->lvTodoItems->viewport()->update();
     startTask();
 }
 
@@ -357,7 +358,7 @@ void MainWindow::launchManualAddPomodoroDialog() {
     if (dialog.exec()) {
         updatePomodoroView();
         updateOpenedWindows();
-        ui->lvTodoItems->viewport()->update();
+        updateTodoItemModel();
     }
 }
 

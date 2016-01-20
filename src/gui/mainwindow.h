@@ -1,5 +1,5 @@
 #ifndef MAINWINDOW_H
-#define MAINWINDOW_H 
+#define MAINWINDOW_H
 
 #include <QMainWindow>
 #include <QMediaPlayer>
@@ -90,4 +90,4 @@ private:
     void launchTagEditor();
 };
 
-#endif // MAINWINDOW_H 
+#endif // MAINWINDOW_H
