@@ -59,7 +59,6 @@ QVector<Pomodoro> PomodoroModel::items() {
     return result;
 }
 
-
 void PomodoroModel::setDateFilter(const DateInterval& interval) {
     QString filter {QString("date(start_time) >= '%1' and date(start_time) <= '%2'")
         .arg(interval.startDate.toString("yyyy-MM-dd"))
