@@ -1,29 +1,52 @@
+#include <QPainter>
 #include "historyview.h"
 #include "ui_history.h"
 #include "db_layer/db_helper.h"
 
+#include <QDebug>
 
-HistoryView::HistoryView(QWidget* parent) : 
+
+HistoryViewDelegate::HistoryViewDelegate(QObject* parent) :
+    QStyledItemDelegate(parent)
+{
+
+}
+
+void HistoryViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
+    if (!index.parent().isValid()) {
+        QStyleOptionViewItem changedOption {option};
+        changedOption.font.setWeight(QFont::Bold);
+        QStyledItemDelegate::paint(painter, changedOption, index);
+    } else {
+        QStyledItemDelegate::paint(painter, option, index);
+    }
+}
+
+HistoryView::HistoryView(QWidget* parent) :
     QWidget(parent),
     ui(new Ui::HistoryView)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    pomodoroModelToRename = new PomodoroModel(this);
-    ui->widgetPickPeriod->setYears(pomodoroModelToRename->yearRange());
+    pomodoroModel = new PomodoroModel(this);
+    todoItemModel = new TodoItemModel(this);
+    ui->widgetPickPeriod->setYears(pomodoroModel->yearRange());
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
-    displayHistory();
-    connectSlots();
-}
-
-void HistoryView::connectSlots() {
+    viewModel = new QStandardItemModel(this);
+    ui->lvTodoHistory->setHeaderHidden(true);
+    ui->lvPomodoroHistory->setHeaderHidden(true);
+    ui->lvPomodoroHistory->setItemDelegate(new HistoryViewDelegate(this));
+    ui->lvTodoHistory->setItemDelegate(new HistoryViewDelegate(this));
     connect(ui->twHistoryDisplay, SIGNAL(currentChanged(int)), this, SLOT(displayHistory()));
     connect(ui->widgetPickPeriod, SIGNAL(intervalChanged(DateInterval)), this, SLOT(
             onDatePickerIntervalChanged(DateInterval)));
+    displayHistory();
 }
 
 HistoryView::~HistoryView() {
-    delete pomodoroModelToRename;
+    delete pomodoroModel;
+    delete todoItemModel;
+    delete viewModel;
     delete ui;
 }
 
@@ -32,77 +55,71 @@ void HistoryView::updateView() {
 }
 
 void HistoryView::displayHistory() {
-    ui->twHistoryDisplay->currentIndex() == 0 ? populatePomodoroHistory() : populateTodoHistory();
-}
-
-void HistoryView::populatePomodoroHistory() {
-    QStringList preprocessedHistory;
-    getPomodoroHistory(preprocessedHistory);
-    QPointer<QStringListModel> pomodoroModel = new QStringListModel(preprocessedHistory);
-    ui->lvPomodoroHistory->setModel(pomodoroModel);
-    ui->lvPomodoroHistory->show();
-}
-
-void HistoryView::getPomodoroHistory(QStringList& preprocessedHistory) const {
-    pomodoroModelToRename->setDateFilter(selectedDateInterval);
-    pomodoroModelToRename->select();
-    QVector<Pomodoro> pomodorosForInterval {pomodoroModelToRename->items()};
-    if (!pomodorosForInterval.isEmpty()) {
-        preprocessedHistory << QString("Completed %1 pomodoros").arg(pomodorosForInterval.size());
-        formatPomodoroHistory(pomodorosForInterval, preprocessedHistory);
+    if (ui->twHistoryDisplay->currentIndex() == 0) {
+        QVector<HistoryItem> pomodoroHistory = getPomodoroHistory();
+        fillHistoryModel(pomodoroHistory);
+        setHistoryModel(HistoryType::Pomodoro);
     } else {
-        preprocessedHistory << "No data stored for selected period";
+        QVector<HistoryItem> taskHistory = getTaskHistory();
+        fillHistoryModel(taskHistory);
+        setHistoryModel(HistoryType::Task);
     }
 }
 
-void HistoryView::formatPomodoroHistory(const QVector<Pomodoro> &pomodoros, QStringList &preparedPomodoroHistory) const {
-    preparedPomodoroHistory << pomodoros[0].startTime().date().toString();
-    QDate currentDate = pomodoros[0].startTime().date();
-    unsigned headerOffset = 1;
-    QVector<unsigned> headerIndexes {headerOffset};
-    for (int i = 0; i < pomodoros.size(); ++i) {
-        const QDate& date = pomodoros[i].startTime().date();
-        if (currentDate != date) {
-            currentDate = date;
-            preparedPomodoroHistory << date.toString();
-            headerIndexes << i + headerOffset;
+QVector<HistoryView::HistoryItem> HistoryView::getPomodoroHistory() const {
+    pomodoroModel->setDateFilter(selectedDateInterval);
+    pomodoroModel->select();
+    QVector<Pomodoro> pomodoros {pomodoroModel->items()};
+    QVector<HistoryItem> pomodoroHistory;
+    pomodoroHistory.reserve(pomodoros.size());
+    std::transform(pomodoros.cbegin(), pomodoros.cend(), std::back_inserter(pomodoroHistory),
+            [](const auto& pomo) {
+                return std::make_pair(pomo.startTime().date(), pomo.toString());
+        });
+    return pomodoroHistory;
+}
+
+QVector<HistoryView::HistoryItem> HistoryView::getTaskHistory() const {
+    todoItemModel->setCompletedInIntervalFilter(selectedDateInterval);
+    todoItemModel->select();
+    return todoItemModel->itemsWithTimestamp();
+}
+
+void HistoryView::fillHistoryModel(const QVector<HistoryItem>& history) {
+    viewModel->clear();
+    if (history.empty()) {
+        viewModel->appendRow(new QStandardItem("No data for selected period."));
+        return;
+    }
+    QStandardItem* parent = new QStandardItem(
+            QString("Completed %1 items.").arg(history.size())
+        );
+    viewModel->appendRow(parent);
+    int children {0};
+    QDate date = history.front().first;
+    parent = new QStandardItem(date.toString());
+    for (const auto& historyItem : history) {
+        if (historyItem.first != date) {
+            children = 0;
+            date = historyItem.first;
+            parent = new QStandardItem(date.toString());
+            viewModel->appendRow(parent);
         }
-        preparedPomodoroHistory << pomodoros[i].toString();
+        QStandardItem* item = new QStandardItem(historyItem.second);
+        parent->setChild(children, item);
+        ++children;
     }
 }
 
-void HistoryView::populateTodoHistory() {
-    QStringList preprocessedHistory;
-    getTodoItemsHistory(preprocessedHistory);
-    QPointer<QStringListModel> todoItemModel = new QStringListModel(preprocessedHistory);
-    ui->lvTodoHistory->setModel(todoItemModel);
-    ui->lvTodoHistory->show();
-}
-
-void HistoryView::getTodoItemsHistory(QStringList& formattedHistory) {
-    QVector<std::pair<TodoItem, QString> > todoItemsForPeriod = TodoItemDataSource::getTodoItemsForMonth(
-            selectedDateInterval.startDate,
-            selectedDateInterval.endDate);
-    if (!todoItemsForPeriod.isEmpty()) {
-        formattedHistory << QString("Completed %1 items").arg(todoItemsForPeriod.size());
-        formatTodoItemHistory(todoItemsForPeriod, formattedHistory);
+void HistoryView::setHistoryModel(const HistoryType& type) {
+    if (type == HistoryType::Pomodoro) {
+        ui->lvPomodoroHistory->setModel(viewModel);
+        ui->lvPomodoroHistory->expandAll();
+        ui->lvPomodoroHistory->show();
     } else {
-        formattedHistory << "No data stored for selected period";
-    }
-}
-
-void HistoryView::formatTodoItemHistory(const QVector<std::pair<TodoItem, QString> > todoItemsForPeriod, QStringList& formattedHistory) {
-    QString currentDate = todoItemsForPeriod[0].second;
-    formattedHistory << currentDate;
-    unsigned headerOffset = 1;
-    QVector<unsigned> headerIndexes {headerOffset};
-    for (int i = 0; i < todoItemsForPeriod.size(); ++i) {
-        if (currentDate != todoItemsForPeriod[i].second) {
-            currentDate = todoItemsForPeriod[i].second;
-            formattedHistory << currentDate;
-            headerIndexes << i + headerOffset;
-        }
-        formattedHistory << todoItemsForPeriod[i].first.toString();
+        ui->lvTodoHistory->setModel(viewModel);
+        ui->lvTodoHistory->expandAll();
+        ui->lvTodoHistory->show();
     }
 }
 

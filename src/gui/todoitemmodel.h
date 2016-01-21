@@ -6,11 +6,14 @@
 #include <QHash>
 #include <QSqlQuery>
 #include "core/entities/TodoItem.h"
+#include "core/timeinterval.h"
 
 
 class TodoItemModel : public SqliteTableModel
 {
 public:
+    using TodoItemWithTimeStamp = std::pair<QDate, QString>;
+
     explicit TodoItemModel(QObject* parent = 0);
 
     // Override to support drag and drop.
@@ -60,12 +63,18 @@ public:
     // Return QVector of all items (not only cached) in the model.
     QVector<TodoItem> items();
 
+    // Return vector of pairs of date and time when item was last edited and item itself.
+    QVector<TodoItemModel::TodoItemWithTimeStamp> itemsWithTimestamp();
+
     // Replace data of item at given row with data from the newItem.
     bool replaceItemAt(const int row, const TodoItem& newItem);
 
     // Set filter to show only items that are not completed or last updated
     // less than 1 day ago.
     void setNotCompletedFilter();
+
+    // Set filter to show only items that are completed between dates in the given interval.
+    void setCompletedInIntervalFilter(const DateInterval& interval);
 
     // Return item id at a given row.
     long long itemIdAt(const int row) const;
