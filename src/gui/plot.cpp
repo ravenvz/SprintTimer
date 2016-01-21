@@ -104,7 +104,8 @@ void Plot::paintEvent(QPaintEvent*) {
     }
 
     // Only labelSkip-th labels will be shown, so that labels are not cluttered with large span.
-    const int labelSkip {int(rangeX.getSpan() - 1) / labelSkipInd};
+    int labelSkip {static_cast<int>(rangeX.getSpan()) / labelSkipInd};
+    if (labelSkip < 1) labelSkip = 1;
 
     for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
         const auto& graph = graphs[graphNum];

@@ -35,7 +35,7 @@ public:
     void clearData();
     void setShowPoints(bool showPoints);
     bool showPoints() const;
-    const_iterator cbegin() const { 
+    const_iterator cbegin() const {
         return points.cbegin();
     }
     const_iterator cend() const {
@@ -61,6 +61,9 @@ struct AxisRange {
     }
 
     double getSpan() const {
+        if (end - start <= 1) {
+            return 2;
+        }
         return end - start;
     }
 };
