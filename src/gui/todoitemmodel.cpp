@@ -134,6 +134,17 @@ QVector<TodoItem> TodoItemModel::items() {
     return allItems;
 }
 
+QVector<TodoItemModel::TodoItemWithTimeStamp> TodoItemModel::itemsWithTimestamp() {
+    auto numItems = numRecords();
+    QVector<TodoItemWithTimeStamp> allItems;
+    allItems.reserve(numItems);
+    for (int row = 0; row < numItems; ++row) {
+        allItems.push_back(std::make_pair(columnData(row, Column::LastModified).toDateTime().date(),
+                           itemAt(row).toString()));
+    }
+    return allItems;
+}
+
 bool TodoItemModel::replaceItemAt(const int row, const TodoItem& newItem) {
     TodoItem oldItem = itemAt(row);
     QSet<QString> oldTags = QSet<QString>::fromList(oldItem.tags());
@@ -150,6 +161,21 @@ bool TodoItemModel::replaceItemAt(const int row, const TodoItem& newItem) {
 
 void TodoItemModel::setNotCompletedFilter() {
     setFilter("completed = 0 or last_modified > datetime('now', '-1 day')");
+}
+
+void TodoItemModel::setCompletedInIntervalFilter(const DateInterval& interval) {
+    QString filter {QString("completed = 1 and date(last_modified) >= '%1' and date(last_modified) <= '%2'")
+        .arg(interval.startDate.toString("yyyy-MM-dd"))
+        .arg(interval.endDate.toString("yyyy-MM-dd"))};
+    setFilter(filter);
+}
+
+long long TodoItemModel::itemIdAt(const int row) const {
+    return columnData(row, Column::Id).toInt();
+}
+
+QString TodoItemModel::itemNameAt(const int row) const {
+    return columnData(row, Column::Name).toString();
 }
 
 bool TodoItemModel::moveRows(const QModelIndex& sourceParent, int sourceRow, int count,
@@ -183,14 +209,6 @@ QVariant TodoItemModel::columnData(const QSqlRecord& rowRecord, const Column& co
 
 QVariant TodoItemModel::columnData(const int row, const Column& column) const {
     return record(row).value(static_cast<int>(column));
-}
-
-long long TodoItemModel::itemIdAt(const int row) const {
-    return columnData(row, Column::Id).toInt();
-}
-
-QString TodoItemModel::itemNameAt(const int row) const {
-    return columnData(row, Column::Name).toString();
 }
 
 bool TodoItemModel::updateTags(const int row, const QSet<QString>& tagsToRemove, const QSet<QString>& tagsToInsert) {

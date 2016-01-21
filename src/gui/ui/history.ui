@@ -23,13 +23,13 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tabPomodoroHistory">
     <attribute name="title">
      <string>Pomodoro History</string>
     </attribute>
-    <widget class="QListView" name="lvPomodoroHistory">
+    <widget class="QTreeView" name="lvPomodoroHistory">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -44,7 +44,7 @@
     <attribute name="title">
      <string>Todo History</string>
     </attribute>
-    <widget class="QListView" name="lvTodoHistory">
+    <widget class="QTreeView" name="lvTodoHistory">
      <property name="geometry">
       <rect>
        <x>0</x>
