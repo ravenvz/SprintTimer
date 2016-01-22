@@ -21,9 +21,9 @@ public:
     void updateView();
 
 private slots:
-    void updateDailyGoal();
-    void updateWeeklyGoal();
-    void updateMonthlyGoal();
+    void updateDailyGoal(int newValue);
+    void updateWeeklyGoal(int newValue);
+    void updateMonthlyGoal(int newValue);
 
 private:
     Ui::GoalsView* ui;
@@ -32,8 +32,10 @@ private:
     const QColor overwork = Qt::red;
     const QColor workInProgress = Qt::gray;
 
-    void connectSlots();
     void displayData();
+    void displayDailyData();
+    void displayWeeklyData();
+    void displayMonthlyData();
     void drawPeriodDiagram(QGridLayout* layout, Distribution<unsigned>& distribution,
             unsigned goal, int rowNum, int colNum);
     void clearDiagramLayout(QGridLayout* layout);
