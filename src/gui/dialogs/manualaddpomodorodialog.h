@@ -3,8 +3,8 @@
 
 #include <QDialog>
 #include <QPointer>
-#include "gui/todoitemmodel.h"
-#include "gui/pomodoromodel.h"
+#include "src/models/todoitemmodel.h"
+#include "src/models/pomodoromodel.h"
 
 namespace Ui {
     class PomodoroManualAddDialog;

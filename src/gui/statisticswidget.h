@@ -6,7 +6,7 @@
 #include "core/PomodoroStatistics.h"
 #include "core/config.h"
 #include "gui/dialogs/datepickdialog.h"
-#include "gui/pomodoromodel.h"
+#include "src/models/pomodoromodel.h"
 #include "piediagram.h"
 #include "plot.h"
 #include "timediagram.h"

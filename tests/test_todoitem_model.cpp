@@ -1,5 +1,5 @@
 #include "db_layer/db_helper.h"
-#include "gui/todoitemmodel.h"
+#include "models/todoitemmodel.h"
 #include <TestHarness.h>
 
 

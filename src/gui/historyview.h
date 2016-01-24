@@ -9,8 +9,8 @@
 #include "core/entities/TodoItem.h"
 #include "core/entities/Pomodoro.h"
 #include "gui/pickperiodwidget.h"
-#include "gui/pomodoromodel.h"
-#include "gui/todoitemmodel.h"
+#include "src/models/pomodoromodel.h"
+#include "src/models/todoitemmodel.h"
 
 namespace Ui {
     class HistoryView;

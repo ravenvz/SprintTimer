@@ -16,8 +16,8 @@ set(SOURCE_FILES
     ../src/core/entities/TodoItem.cpp
     ../src/core/entities/TodoItem.h
     ../src/db_layer/db_helper.cpp
-    ../src/gui/todoitemmodel.cpp
-    ../src/gui/pomodoromodel.cpp
+        ../src/models/todoitemmodel.cpp
+        ../src/models/pomodoromodel.cpp
     ../src/utils/MathUtils.cpp
 )
 find_library(CppUTest REQUIRED)

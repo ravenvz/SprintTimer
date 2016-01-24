@@ -1,5 +1,5 @@
-#include "gui/pomodoromodel.h"
-#include "gui/todoitemmodel.h"
+#include "models/pomodoromodel.h"
+#include "models/todoitemmodel.h"
 #include <TestHarness.h>
 
 #include <QSqlRecord>
