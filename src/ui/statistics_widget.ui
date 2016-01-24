@@ -324,25 +324,25 @@
   <customwidget>
    <class>PickPeriodWidget</class>
    <extends>QWidget</extends>
-   <header>src/gui/pickperiodwidget.h</header>
+   <header>src/widgets/pickperiodwidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>PieDiagram</class>
    <extends>QWidget</extends>
-   <header>src/gui/piediagram.h</header>
+   <header>src/widgets/piediagram.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>BarChart</class>
    <extends>QWidget</extends>
-   <header>src/gui/barchart.h</header>
+   <header>src/widgets/barchart.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Plot</class>
    <extends>QWidget</extends>
-   <header>src/gui/plot.h</header>
+   <header>src/widgets/plot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

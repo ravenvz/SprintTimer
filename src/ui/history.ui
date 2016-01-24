@@ -71,7 +71,7 @@
   <customwidget>
    <class>PickPeriodWidget</class>
    <extends>QWidget</extends>
-   <header>src/gui/pickperiodwidget.h</header>
+   <header>src/widgets/pickperiodwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

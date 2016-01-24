@@ -5,7 +5,7 @@
 #include <QVector>
 #include "core/PomodoroStatistics.h"
 #include "core/config.h"
-#include "gui/dialogs/datepickdialog.h"
+#include "dialogs/datepickdialog.h"
 #include "src/models/pomodoromodel.h"
 #include "piediagram.h"
 #include "plot.h"

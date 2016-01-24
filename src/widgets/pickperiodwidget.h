@@ -2,7 +2,7 @@
 #define POMODORO_PICKPERIODWIDGET_H
 
 #include <QPointer>
-#include <src/gui/dialogs/datepickdialog.h>
+#include "dialogs/datepickdialog.h"
 
 namespace Ui {
     class PickPeriodWidget;

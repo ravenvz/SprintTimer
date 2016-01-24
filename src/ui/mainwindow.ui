@@ -14,7 +14,7 @@
    <string>Pomodoro</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../resources/resources.qrc">
+   <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -823,7 +823,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/statistics.png</normaloff>:/icons/statistics.png</iconset>
        </property>
        <property name="iconSize">
@@ -840,7 +840,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
        </property>
        <property name="iconSize">
@@ -857,7 +857,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
        </property>
        <property name="iconSize">
@@ -874,7 +874,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../resources/resources.qrc">
+        <iconset resource="../../resources/resources.qrc">
          <normaloff>:/icons/config.ico</normaloff>:/icons/config.ico</iconset>
        </property>
        <property name="iconSize">
@@ -972,11 +972,11 @@ color: white;
   <customwidget>
    <class>TodoItemView</class>
    <extends>QListView</extends>
-   <header>gui/todoitemview.h</header>
+   <header>widgets/todoitemview.h</header>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../resources/resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

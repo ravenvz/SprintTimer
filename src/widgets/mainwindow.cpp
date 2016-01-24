@@ -3,10 +3,10 @@
 #include <experimental/optional>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "gui/dialogs/confirmationdialog.h"
-#include "gui/dialogs/addtodoitemdialog.h"
-#include "gui/dialogs/settings_dialog.h"
-#include "gui/dialogs/manualaddpomodorodialog.h"
+#include "dialogs/confirmationdialog.h"
+#include "dialogs/addtodoitemdialog.h"
+#include "dialogs/settings_dialog.h"
+#include "dialogs/manualaddpomodorodialog.h"
 
 
 MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent) :

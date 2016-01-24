@@ -49,17 +49,17 @@ include_directories(src dialogs db_layer)
 file(GLOB SOURCE_FILES src/*/*.cpp src/*/*/*.cpp)
 
 QT5_WRAP_UI(UI_HEADERS
-    src/gui/ui/mainwindow.ui
-    src/gui/ui/add_todo_dialog.ui
-    src/gui/ui/pom_cancel_dialog.ui
-    src/gui/ui/settings.ui
-    src/gui/ui/history.ui
-    src/gui/ui/date_pick_dialog.ui
-    src/gui/ui/goalsview.ui
-    src/gui/ui/statistics_widget.ui
-    src/gui/ui/manual_add_pomodoro_dialog.ui
-    src/gui/ui/pickperiodwidget.ui
-    src/gui/ui/tageditor.ui
+        src/ui/mainwindow.ui
+        src/ui/add_todo_dialog.ui
+        src/ui/pom_cancel_dialog.ui
+        src/ui/settings.ui
+        src/ui/history.ui
+        src/ui/date_pick_dialog.ui
+        src/ui/goalsview.ui
+        src/ui/statistics_widget.ui
+        src/ui/manual_add_pomodoro_dialog.ui
+        src/ui/pickperiodwidget.ui
+        src/ui/tageditor.ui
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc src/main.cpp)
