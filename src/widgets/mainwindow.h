@@ -10,12 +10,12 @@
 #include <vector>
 #include "core/TaskScheduler.h"
 #include "db_layer/db_helper.h"
-#include "gui/goalsview.h"
+#include "goalsview.h"
 #include "src/models/pomodoromodel.h"
 #include "src/models/tagmodel.h"
-#include "gui/historyview.h"
-#include "gui/statisticswidget.h"
-#include "gui/tageditorwidget.h"
+#include "historyview.h"
+#include "statisticswidget.h"
+#include "tageditorwidget.h"
 #include "src/models/todoitemmodel.h"
 #include "todoitemsviewdelegate.h"
 

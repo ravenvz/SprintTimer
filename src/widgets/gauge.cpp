@@ -1,6 +1,6 @@
 #include <QPainter>
 #include <QWidget>
-#include "gui/gauge.h"
+#include "gauge.h"
 
 #include <QDebug>
 

@@ -8,7 +8,7 @@
 #include <QStyledItemDelegate>
 #include "core/entities/TodoItem.h"
 #include "core/entities/Pomodoro.h"
-#include "gui/pickperiodwidget.h"
+#include "pickperiodwidget.h"
 #include "src/models/pomodoromodel.h"
 #include "src/models/todoitemmodel.h"
 

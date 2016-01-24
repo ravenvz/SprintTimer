@@ -1,7 +1,7 @@
 #include <src/core/config.h>
 #include <QtWidgets/qmenu.h>
 #include <experimental/optional>
-#include "gui/mainwindow.h"
+#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "gui/dialogs/confirmationdialog.h"
 #include "gui/dialogs/addtodoitemdialog.h"

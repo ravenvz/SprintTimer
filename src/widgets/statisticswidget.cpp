@@ -1,6 +1,6 @@
 #include "statisticswidget.h"
 #include "ui_statistics_widget.h"
-#include "gui/barchart.h"
+#include "barchart.h"
 
 
 StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent) :
