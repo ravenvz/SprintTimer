@@ -6,9 +6,9 @@
 
 
 GoalsView::GoalsView(Config& applicationSettings, QWidget* parent) :
-    QWidget(parent),
-    ui(new Ui::GoalsView),
-    applicationSettings(applicationSettings)
+    QWidget {parent},
+    ui {new Ui::GoalsView},
+    applicationSettings {applicationSettings}
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
@@ -38,7 +38,7 @@ void GoalsView::displayData() {
 void GoalsView::displayDailyData() {
     unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
     unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
-    Distribution<unsigned> lastDays {PomodoroDataSource::getPomodorosForLastThirtyDays()};
+    Distribution<int> lastDays {goalStatModel.itemsDaysBack()};
     ui->labelLastMonthAverage->setText(formatDecimal(lastDays.getAverage()));
     ui->labelLastMonthPercentage->setText(QString("%1%")
             .arg(formatDecimal(MathUtils::percentage(lastDays.getTotal(), monthlyGoal))));
@@ -49,7 +49,7 @@ void GoalsView::displayDailyData() {
 
 void GoalsView::displayWeeklyData() {
     unsigned weeklyGoal = applicationSettings.getWeeklyPomodorosGoal();
-    Distribution<unsigned> lastWeeks {PomodoroDataSource::getPomodorosForLastTwelveWeeks()};
+    Distribution<int> lastWeeks {goalStatModel.itemsWeeksBack()};
     ui->labelLastQuarterAverage->setText(formatDecimal(lastWeeks.getAverage()));
     ui->labelLastQuarterPercentage->setText(QString("%1%")
             .arg(formatDecimal(MathUtils::percentage(lastWeeks.getTotal(), lastWeeks.getNumBins() * weeklyGoal))));
@@ -60,7 +60,7 @@ void GoalsView::displayWeeklyData() {
 
 void GoalsView::displayMonthlyData() {
     unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
-    Distribution<unsigned> lastMonths {PomodoroDataSource::getPomodorosForLastTwelveMonths()};
+    Distribution<int> lastMonths {goalStatModel.itemsMonthsBack()};
     ui->labelLastYearAverage->setText(formatDecimal(lastMonths.getAverage()));
     ui->labelLastYearPercentage->setText(QString("%1%")
             .arg(formatDecimal(MathUtils::percentage(lastMonths.getTotal(), lastMonths.getNumBins() * monthlyGoal))));
@@ -95,7 +95,7 @@ void GoalsView::updateProgressBar(QProgressBar* bar, unsigned goal, int value) {
     bar->show();
 }
 
-void GoalsView::drawPeriodDiagram(QGridLayout* layout, Distribution<unsigned>& distribution,
+void GoalsView::drawPeriodDiagram(QGridLayout* layout, Distribution<int>& distribution,
         unsigned goal, int rowNum, int colNum) {
     clearDiagramLayout(layout);
     GaugeFactory factory;
