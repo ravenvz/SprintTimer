@@ -8,108 +8,62 @@ TodoItem::TodoItem(QString name,
                    unsigned estimatedPomodoros,
                    unsigned spentPomodoros,
                    QStringList tags,
-                   bool completed,
-                   long long id) :
-    name(name),
-    estimatedPomodoros(estimatedPomodoros),
-    spentPomodoros(spentPomodoros),
-    tags(tags),
-    completed(completed),
-    id(id)
+                   bool completed) :
+    mName(name),
+    mEstimatedPomodoros(estimatedPomodoros),
+    mSpentPomodoros(spentPomodoros),
+    mTags(tags),
+    mCompleted(completed)
 {
 }
 
-TodoItem::TodoItem(QString& encodedDescription) :
-    encodedDescription(encodedDescription)
+TodoItem::TodoItem(QString encodedDescription) :
+    mEncodedDescription(encodedDescription)
 {
     decodeDescription(encodedDescription);
-    completed = false;
-    spentPomodoros = 0;
+    mCompleted = false;
+    mSpentPomodoros = 0;
 }
 
-void TodoItem::setEncodedDescription(const QString& encodedDescription) {
-    TodoItem::encodedDescription = encodedDescription;
+QString TodoItem::name() const {
+    return mName;
 }
 
-QString TodoItem::getEncodedDescription() const {
-    return encodedDescription;
+unsigned int TodoItem::estimatedPomodoros() const {
+    return mEstimatedPomodoros;
 }
 
-void TodoItem::setId(long long id) {
-    TodoItem::id = id;
+unsigned int TodoItem::spentPomodoros() const {
+    return mSpentPomodoros;
 }
 
-long long TodoItem::getId() const {
-    return id;
-}
-
-void TodoItem::setCompleted(bool completed) {
-    TodoItem::completed = completed;
+QStringList TodoItem::tags() const {
+    return mTags;
 }
 
 bool TodoItem::isCompleted() const {
-    return completed;
+    return mCompleted;
 }
 
-void TodoItem::toggleCompleted() {
-    TodoItem::completed = !TodoItem::completed;
-}
-
-void TodoItem::setTags(const QStringList& tags) {
-    TodoItem::tags = tags;
-}
-
-QStringList TodoItem::getTags() const {
-    return tags;
+void TodoItem::setCompleted(bool completed) {
+    mCompleted = completed;
 }
 
 void TodoItem::setSpentPomodoros(unsigned int spentPomodoros) {
-    TodoItem::spentPomodoros = spentPomodoros;
-}
-
-unsigned int TodoItem::getSpentPomodoros() const {
-    return spentPomodoros;
-}
-
-void TodoItem::setEstimatedPomodoros(unsigned int estimatedPomodoros) {
-    TodoItem::estimatedPomodoros = estimatedPomodoros;
-}
-
-unsigned int TodoItem::getEstimatedPomodoros() const {
-    return estimatedPomodoros;
-}
-
-void TodoItem::setName(const QString& name) {
-    TodoItem::name = name;
-}
-
-QString TodoItem::getName() const {
-    return name;
+    mSpentPomodoros = spentPomodoros;
 }
 
 QString TodoItem::toString() const {
     QStringList result;
     result.append(tagsAsHashedString());
-    result.append(name);
-    result.append(QString(" %1/%2 ").arg(spentPomodoros).arg(estimatedPomodoros));
+    result.append(mName);
+    result.append(QString(" %1/%2 ").arg(mSpentPomodoros).arg(mEstimatedPomodoros));
     return result.join(" ");
-}
-
-QString TodoItem::tagsAndNameAsString() const {
-    return QString("%1 %2").arg(tagsAsHashedString()).arg(name);
-}
-
-QString TodoItem::tagsAsString() const {
-    QStringList tagsList;
-    for (QString tag : tags) {
-        tagsList << tag;
-    }
-    return tagsList.join(" ");
 }
 
 QString TodoItem::tagsAsHashedString() const {
     QStringList hashedTags;
-    for (QString tag : tags) {
+    for (QString tag : mTags) {
         if (!tag.isEmpty()) {
             hashedTags.append(tag.prepend("#"));
         }
@@ -120,16 +74,16 @@ QString TodoItem::tagsAsHashedString() const {
 void TodoItem::decodeDescription(QString& encodedDescription) {
     QStringList nameParts;
     QRegularExpression tagRegexp {QString ("^%1\\w+").arg(tagPrefix)};
-    encodedDescription.replace(QRegularExpression("\\s+"), " ");
-    QStringList parts = encodedDescription.split(" ");
+    mEncodedDescription.replace(QRegularExpression("\\s+"), " ");
+    QStringList parts = mEncodedDescription.split(" ");
     for (QString part : parts) {
         if (part.contains(tagRegexp)) {
-            tags << part.right(part.size() - 1);
+            mTags << part.right(part.size() - 1);
         } else if (part.startsWith(estimatedPrefix)) {
-            estimatedPomodoros = part.right(part.size() - 1).toUInt();
+            mEstimatedPomodoros = part.right(part.size() - 1).toUInt();
         } else {
             nameParts << part;
         }
     }
-    name = nameParts.join(' ');
+    mName = nameParts.join(' ');
 }

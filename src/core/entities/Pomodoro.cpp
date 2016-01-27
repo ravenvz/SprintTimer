@@ -5,61 +5,51 @@
 
 Pomodoro::Pomodoro() { }
 
-Pomodoro::Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags,
-                   long long associatedTodoItemId) :
-        interval {interval},
-        tags(tags)
+Pomodoro::Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags) :
+        mName {todoName},
+        mInterval {interval},
+        mTags {tags}
 {
-    todoId = associatedTodoItemId;
-    name.append(" ");
-    name.append(todoName);
+
 }
 
 Pomodoro::Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime) :
-        name {todoItem.getName()},
-        interval {startTime, finishTime},
-        tags {todoItem.getTags()}
+        mName {todoItem.name()},
+        mInterval {startTime, finishTime},
+        mTags {todoItem.tags()}
 {
-    todoId = todoItem.getId();
+
 }
 
-void Pomodoro::setFinishTime(const QDateTime finishTime) {
-    interval.finishTime = finishTime;
+QString Pomodoro::name() const {
+    return mName;
 }
 
-const QDateTime Pomodoro::getFinishTime() const {
-    return interval.finishTime;
+QDateTime Pomodoro::startTime() const {
+    return mInterval.startTime;
 }
 
-void Pomodoro::setStartTime(const QDateTime startTime) {
-    interval.startTime = startTime;
+QDateTime Pomodoro::finishTime() const {
+    return mInterval.finishTime;
 }
 
-const QDateTime Pomodoro::getStartTime() const {
-    return interval.startTime;
+TimeInterval Pomodoro::interval() const {
+    return mInterval;
 }
 
-void Pomodoro::setName(const QString& name) {
-    Pomodoro::name = name;
+QStringList Pomodoro::tags() const {
+    return mTags;
 }
 
-const QString Pomodoro::getName() const {
-    return name;
-}
-
-const QStringList Pomodoro::getTags() const {
-    return tags;
-}
-
-const QString Pomodoro::toString() const {
+QString Pomodoro::toString() const {
     QStringList result;
-    QStringList tagsCopy = tags;
+    QStringList tagsCopy = mTags;
     std::for_each(tagsCopy.begin(), tagsCopy.end(), [prefix = tagPrefix](auto& el) {
         return el.prepend(prefix);
     });
-    result.append(interval.toTimeString());
+    result.append(mInterval.toTimeString());
     result.append(tagsCopy.join(" "));
-    result.append(name);
+    result.append(mName);
     return result.join(" ");
 }
 

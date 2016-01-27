@@ -1,11 +1,18 @@
-Version 0.2.1
+Version 0.2.2
 -------------
 
-Improved History view
+Improve design of the main window
 
 
 HISTORY
 ----------------------------------------------------------------
+
+Version 0.2.1
+-------------
+
+Improved History view.
+
+Fixed crashes when picking period in statistics view.
 
 
 Version 0.2.0
@@ -24,6 +31,7 @@ Tags can now be edited globally
 
 Database schema has changed and is not compatible with previous versions.
     To alter DB schema migration script is needed.
+
 
 Version 0.1.4
 -------------

@@ -1,5 +1,5 @@
 #include <QApplication>
-#include "gui/mainwindow.h"
+#include "src/widgets/mainwindow.h"
 #include "core/config.h"
 
 

@@ -4,17 +4,20 @@ project(test_pomodoro)
 set(SOURCE_FILES
     run_all_tests.cpp
     TestTaskScheduler.cpp
-    test_pomodoro_gateway.cpp
-    test_todoitem.cpp
-    test_pomodoro_statistics.cpp
     test_math_utils.cpp
+    test_pomodoro_model.cpp
+    test_pomodoro_statistics.cpp
+    test_todoitem.cpp
+    test_todoitem_model.cpp
+    ../src/core/PomodoroStatistics.cpp
     ../src/core/TaskScheduler.cpp
-    ../src/core/entities/TodoItem.cpp
-    ../src/db_layer/db_helper.cpp
-    ../src/core/entities/TodoItem.h
     ../src/core/config.h
     ../src/core/entities/Pomodoro.cpp
-    ../src/core/PomodoroStatistics.cpp
+    ../src/core/entities/TodoItem.cpp
+    ../src/core/entities/TodoItem.h
+    ../src/db_layer/db_helper.cpp
+        ../src/models/todoitemmodel.cpp
+        ../src/models/pomodoromodel.cpp
     ../src/utils/MathUtils.cpp
 )
 find_library(CppUTest REQUIRED)

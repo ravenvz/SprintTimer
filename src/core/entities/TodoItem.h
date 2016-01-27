@@ -11,41 +11,48 @@ class TodoItem
 {
 
 public:
+    // TODO consider if default c-tor is needed
     TodoItem();
+
     TodoItem(QString name,
              unsigned estimatedPomodoros,
              unsigned spentPomodoros,
              QStringList tags,
-             bool completed,
-             long long id);
-    TodoItem(QString& encodedDescription);
-    QString getName() const;
-    void setName(const QString& name);
-    unsigned int getEstimatedPomodoros() const;
-    void setEstimatedPomodoros(unsigned int estimatedPomodoros);
-    unsigned int getSpentPomodoros() const;
-    void setSpentPomodoros(unsigned int spentPomodoros);
-    QStringList getTags() const;
-    void setTags(const QStringList& tags);
+             bool completed);
+
+    TodoItem(QString encodedDescription);
+
+    // Task name.
+    QString name() const;
+
+    // Estimation task cost in pomodoros.
+    unsigned int estimatedPomodoros() const;
+
+    // Pomodoros spent on task.
+    unsigned int spentPomodoros() const;
+
+    // Task tags.
+    QStringList tags() const;
+
+    // Task completion status.
     bool isCompleted() const;
+
+    // Set task status.
     void setCompleted(bool completed);
-    void toggleCompleted();
-    long long getId() const;
-    void setId(long long id);
-    QString getEncodedDescription() const;
-    void setEncodedDescription(const QString& encodedDescription);
+
+    // Set number of pomodoros spent on this task.
+    void setSpentPomodoros(unsigned int spentPomodoros);
+
+    // Return string representation.
     QString toString() const;
-    QString tagsAndNameAsString() const;
-    QString tagsAsString() const;
 
 private:
-    QString name;
-    unsigned estimatedPomodoros = 1;
-    unsigned spentPomodoros;
-    QStringList tags;
-    bool completed;
-    long long id;
-    QString encodedDescription;
+    QString mName;
+    unsigned mEstimatedPomodoros = 1;
+    unsigned mSpentPomodoros;
+    QStringList mTags;
+    bool mCompleted;
+    QString mEncodedDescription;
     QChar tagPrefix = '#';
     QChar estimatedPrefix = '*';
 
