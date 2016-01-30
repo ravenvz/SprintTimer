@@ -41,6 +41,16 @@ QStringList TodoItem::tags() const {
     return mTags;
 }
 
+QString TodoItem::tagsAsString() const {
+    QStringList hashedTags;
+    for (QString tag : mTags) {
+        if (!tag.isEmpty()) {
+            hashedTags.append(tag.prepend("#"));
+        }
+    }
+    return hashedTags.join(" ");
+}
+
 bool TodoItem::isCompleted() const {
     return mCompleted;
 }
@@ -55,20 +65,10 @@ void TodoItem::setSpentPomodoros(unsigned int spentPomodoros) {
 
 QString TodoItem::toString() const {
     QStringList result;
-    result.append(tagsAsHashedString());
+    result.append(tagsAsString());
     result.append(mName);
     result.append(QString(" %1/%2 ").arg(mSpentPomodoros).arg(mEstimatedPomodoros));
     return result.join(" ");
-}
-
-QString TodoItem::tagsAsHashedString() const {
-    QStringList hashedTags;
-    for (QString tag : mTags) {
-        if (!tag.isEmpty()) {
-            hashedTags.append(tag.prepend("#"));
-        }
-    }
-    return hashedTags.join(" ");
 }
 
 void TodoItem::decodeDescription(QString& encodedDescription) {

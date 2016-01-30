@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <memory>
 #include <vector>
+#include <experimental/optional>
 #include "core/TaskScheduler.h"
 #include "db_layer/db_helper.h"
 #include "goalsview.h"
@@ -43,7 +44,7 @@ private slots:
     void quickAddTodoItem();
     void updateTimerCounter();
     void submitPomodoro();
-    void autoPutTodoOnClick(QModelIndex index);
+    void changeSelectedTask(QModelIndex index);
     void showTodoItemContextMenu(const QPoint& pos);
     void showPomodoroContextMenu(const QPoint& pos);
     void toggleTodoItemCompleted();
@@ -72,6 +73,7 @@ private:
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
     QPointer<TagEditorWidget> tagEditor;
+    std::experimental::optional<long long> selectedTaskId;
 
     void connectSlots();
     void setUiToIdleState();
@@ -83,7 +85,7 @@ private:
     void updateHistoryWindow();
     void updateGoalWindow();
     void editTodoItem();
-    void remove();
+    void removeTask();
     void removePomodoro();
     void playSound();
     void bringToForeground(QWidget* widgetPtr);

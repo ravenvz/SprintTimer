@@ -1,6 +1,5 @@
 #include <src/core/config.h>
 #include <QtWidgets/qmenu.h>
-#include <experimental/optional>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "dialogs/confirmationdialog.h"
@@ -62,7 +61,7 @@ void MainWindow::connectSlots() {
     connect(ui->btnCancel, SIGNAL(clicked(bool)), this, SLOT(cancelTask()));
     connect(ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
     connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
-    connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(autoPutTodoOnClick(QModelIndex)));
+    connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(changeSelectedTask(QModelIndex)));
     connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showTodoItemContextMenu(const QPoint&)));
     connect(ui->lvCompletedPomodoros, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPomodoroContextMenu(const QPoint&)));
     connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
@@ -176,44 +175,20 @@ void MainWindow::playSound() {
 }
 
 void MainWindow::submitPomodoro() {
-    QString name = ui->leDoneTask->text();
-    if (name.isEmpty()) {
+    if (!selectedTaskId || ui->leDoneTask->text().isEmpty()) {
+        qDebug() << "No associated Task can be found";
         return;
     }
     ui->leDoneTask->hide();
     completedTasksIntervals.push_back(taskScheduler.finishTask());
-    // TODO this is a workaround and should be replaced
-    // 1. Check if entered name matches any of incompleted TodoItems
-    std::experimental::optional<long long> associatedTodoItemId;
-    for (int row = 0; row < todoitemViewModel->rowCount(); ++row) {
-       if (name == todoitemViewModel->index(row, 0).data(TodoItemModel::CopyToPomodoroRole)) {
-           associatedTodoItemId = todoitemViewModel->index(row, 0).data(TodoItemModel::GetIdRole).toInt();
-           // todoitemViewModel->incrementPomodoros(row, completedTasksIntervals.size());
-       }
-    }
-    // // 2. If no such item found, create new TodoItem
-    if (!associatedTodoItemId) {
-        qDebug() << "No associated TodoItem can be found";
-        return;
-        // associatedTodoItem = TodoItem {name};
-        // store todo item
-    }
-
-    // // 3. Notify user that new item has been created
-
     for (const TimeInterval& interval : completedTasksIntervals) {
-        pomodoroModel->insert(*associatedTodoItemId, interval);
-        // TODO Maybe squash pomodoros like "14:30 - 17:30 Task (x7)"
+        pomodoroModel->insert(*selectedTaskId, interval);
     }
-    // Check if pomodoro tags + name matches any uncompleted item in todo list view
-    // and increment spent pomodoros if it does
 
-    // NOTE spent_pomodoros of associtated TodoItem will be incremented by SQL trigger
     completedTasksIntervals.clear();
     updateTodoItemModel();
     updatePomodoroView();
     updateOpenedWindows();
-    // ui->lvTodoItems->viewport()->update();
     startTask();
 }
 
@@ -237,10 +212,13 @@ void MainWindow::updatePomodoroView() {
     }
 }
 
-void MainWindow::autoPutTodoOnClick(QModelIndex index) {
+void MainWindow::changeSelectedTask(QModelIndex index) {
+    // TODO consider having states like State::Submission instead
     if (ui->leDoneTask->isVisible()) {
-        ui->leDoneTask->setText(todoitemViewModel->index(index.row(), 0)
-                .data(TodoItemModel::CopyToPomodoroRole).toString());
+        selectedTaskId = todoitemViewModel->itemIdAt(index.row());
+        TodoItem item = todoitemViewModel->itemAt(index.row());
+        QString description = QString("%1 %2").arg(item.tagsAsString()).arg(item.name());
+        ui->leDoneTask->setText(description);
     }
 }
 
@@ -256,7 +234,7 @@ void MainWindow::showTodoItemContextMenu(const QPoint& pos) {
     QAction* selectedItem = todoItemsMenu.exec(globalPos);
 
     if (selectedItem && selectedItem->text() == "Edit") editTodoItem();
-    if (selectedItem && selectedItem->text() == "Delete") remove();
+    if (selectedItem && selectedItem->text() == "Delete") removeTask();
     if (selectedItem && selectedItem->text() == "Tag editor") launchTagEditor();
 }
 
@@ -274,7 +252,7 @@ void MainWindow::editTodoItem() {
     }
 }
 
-void MainWindow::remove() {
+void MainWindow::removeTask() {
     QModelIndex index = ui->lvTodoItems->currentIndex();
     ConfirmationDialog dialog;
     // TODO figure out a way to handle this situation more gracefully
@@ -287,6 +265,10 @@ void MainWindow::remove() {
     }
     dialog.setActionDescription(description);
     if (dialog.exec()) {
+        // If removing currently selected task, clear the linedit
+        if (selectedTaskId && todoitemViewModel->itemIdAt(index.row()) == *selectedTaskId) {
+            ui->leDoneTask->clear();
+        }
         todoitemViewModel->remove(index);
     }
 }

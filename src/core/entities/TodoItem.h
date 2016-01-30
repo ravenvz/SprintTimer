@@ -34,6 +34,8 @@ public:
     // Task tags.
     QStringList tags() const;
 
+    QString tagsAsString() const;
+
     // Task completion status.
     bool isCompleted() const;
 
