@@ -841,7 +841,7 @@ color: white;
        </property>
        <property name="icon">
         <iconset resource="../../resources/resources.qrc">
-         <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
+         <normaloff>:/icons/history.ico</normaloff>:/icons/history.ico</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -875,7 +875,7 @@ color: white;
        </property>
        <property name="icon">
         <iconset resource="../../resources/resources.qrc">
-         <normaloff>:/icons/config.ico</normaloff>:/icons/config.ico</iconset>
+         <normaloff>:/icons/control_panel.ico</normaloff>:/icons/control_panel.ico</iconset>
        </property>
        <property name="iconSize">
         <size>
