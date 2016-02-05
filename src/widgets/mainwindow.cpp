@@ -34,7 +34,7 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
     ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    tagModel = new TagModel();
+    tagModel = new TagModel(this);
 
     setUiToIdleState();
     connectSlots();
@@ -42,9 +42,6 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
 }
 
 MainWindow::~MainWindow() {
-    pomodoroModel.clear();
-    delete pomodoroModel;
-    delete tagModel;
     delete timer;
     delete todoitemViewModel;
     delete todoitemViewDelegate;
