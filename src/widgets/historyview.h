@@ -49,9 +49,9 @@ private:
     using HistoryItem = std::pair<QDate, QString>;
     Ui::HistoryView* ui;
     DateInterval selectedDateInterval;
-    PomodoroModel* pomodoroModel;
-    TodoItemModel* todoItemModel;
-    QStandardItemModel* viewModel;
+    QPointer<PomodoroModel> pomodoroModel;
+    QPointer<TodoItemModel> todoItemModel;
+    QPointer<QStandardItemModel> viewModel;
     enum class HistoryType {
         Pomodoro,
         Task
