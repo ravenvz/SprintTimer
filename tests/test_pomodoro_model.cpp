@@ -22,10 +22,19 @@ TEST_GROUP(PomodoroModel) {
     }
 
     bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2) {
-        return pomodoro1.name() == pomodoro2.name() &&
-               pomodoro1.startTime() == pomodoro2.startTime() &&
-               pomodoro1.finishTime() == pomodoro2.finishTime() &&
-               pomodoro1.tags() == pomodoro2.tags();
+        if (pomodoro1.name() != pomodoro2.name() ||
+            pomodoro1.startTime() != pomodoro2.startTime() ||
+            pomodoro1.finishTime() != pomodoro2.finishTime()) {
+            return false;
+        }
+        // Tags are compared sorted, because there is no guarantee of tag
+        // ordering
+        QStringList tags1 = pomodoro1.tags();
+        QStringList tags2 = pomodoro2.tags();
+        std::sort(tags1.begin(), tags1.end());
+        std::sort(tags2.begin(), tags2.end());
+
+        return tags1 == tags2;
     }
 
 };
