@@ -42,8 +42,15 @@ QVariant TodoItemModel::data(const QModelIndex &index, int role) const {
     switch (role) {
         case Qt::DisplayRole:
             return itemAt(index.row()).toString();
-        case Qt::SizeHintRole:
-            return QSize(10, 18); // TODO consider change through config
+        case TagsRole:
+            return itemAt(index.row()).tagsAsString();
+            // return columnData(index.row(), Column::Tags);
+        case DescriptionRole:
+            return columnData(index.row(), Column::Name);
+        case StatsRole:
+            return QString("%1/%2")
+                .arg(columnData(index.row(), Column::SpentPomodoros).toString())
+                .arg(columnData(index.row(), Column::EstimatedPomodoros).toString());
         case Qt::CheckStateRole:
             return columnData(index.row(), Column::Completed);
         case GetSpentPomodorosRole:
@@ -52,8 +59,6 @@ QVariant TodoItemModel::data(const QModelIndex &index, int role) const {
             return columnData(index.row(), Column::Priority);
         case GetIdRole:
             return columnData(index.row(), Column::Id);
-        case CopyToPomodoroRole:
-            return itemAt(index.row()).toString();
         default:
             return QSqlTableModel::data(index, role);
     }

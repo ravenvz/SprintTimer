@@ -768,6 +768,9 @@ color: white;
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
    </widget>
    <widget class="QPushButton" name="btnZone">
     <property name="geometry">

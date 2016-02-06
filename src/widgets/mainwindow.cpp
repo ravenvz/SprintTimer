@@ -28,7 +28,6 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
     todoitemViewModel = new TodoItemModel(this);
     todoitemViewModel->setNotCompletedFilter();
     todoitemViewModel->select();
-    qDebug() << ui->lvTodoItems->dragDropMode();
     ui->lvTodoItems->setModel(todoitemViewModel);
     todoitemViewDelegate = new TodoItemsViewDelegate(this);
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);

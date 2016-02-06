@@ -37,10 +37,12 @@ public:
     bool moveRows(const QModelIndex& sourceParent, int sourceRow, int count,
                  const QModelIndex& destinationParent, int destinationChild) override;
 
-    enum customRoles { CopyToPomodoroRole = Qt::UserRole + 1,
-                       GetIdRole = Qt::UserRole + 2,
-                       GetSpentPomodorosRole = Qt::UserRole + 3,
-                       PriorityRole = Qt::UserRole + 4 };
+    enum customRoles { TagsRole = Qt::UserRole + 1,
+                       DescriptionRole,
+                       StatsRole,
+                       GetIdRole,
+                       GetSpentPomodorosRole,
+                       PriorityRole};
 
     // Insert new TodoItem into the database.
     // Return boolean, indicating success of the operation.
