@@ -17,10 +17,8 @@ TodoItem::TodoItem(QString name,
 {
 }
 
-TodoItem::TodoItem(QString encodedDescription) :
-    mEncodedDescription(encodedDescription)
-{
-    decodeDescription(encodedDescription);
+TodoItem::TodoItem(QString&& encodedDescription) {
+    decodeDescription(std::move(encodedDescription));
     mCompleted = false;
     mSpentPomodoros = 0;
 }
@@ -70,12 +68,13 @@ QString TodoItem::tagsAsHashedString() const {
     return hashedTags.join(" ");
 }
 
-void TodoItem::decodeDescription(QString& encodedDescription) {
+void TodoItem::decodeDescription(QString&& encodedDescription) {
     QStringList nameParts;
     QRegularExpression tagRegexp {QString ("^%1\\w+").arg(tagPrefix)};
-    mEncodedDescription.replace(QRegularExpression("\\s+"), " ");
-    QStringList parts = mEncodedDescription.split(" ");
-    for (QString part : parts) {
+    encodedDescription.replace(QRegularExpression("\\s+"), " ");
+    const QStringList& parts = encodedDescription.split(" ");
+
+    for (const QString& part : parts) {
         if (part.contains(tagRegexp)) {
             mTags << part.right(part.size() - 1);
         } else if (part.startsWith(estimatedPrefix)) {

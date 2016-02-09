@@ -123,7 +123,7 @@ void MainWindow::quickAddTodoItem() {
     QString encodedDescription = ui->leTodoItem->text();
     ui->leTodoItem->clear();
     if (!encodedDescription.isEmpty()) {
-        TodoItem item {encodedDescription};
+        TodoItem item {std::move(encodedDescription)};
         todoitemViewModel->insert(item);
     }
 }
