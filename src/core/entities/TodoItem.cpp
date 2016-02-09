@@ -63,11 +63,10 @@ QString TodoItem::toString() const {
 
 QString TodoItem::tagsAsHashedString() const {
     QStringList hashedTags;
-    for (QString tag : mTags) {
-        if (!tag.isEmpty()) {
-            hashedTags.append(tag.prepend("#"));
-        }
-    }
+    std::transform(mTags.cbegin(), mTags.cend(), std::back_inserter(hashedTags),
+            [](const auto& tag) {
+                return QString("#%1").arg(tag);
+            });
     return hashedTags.join(" ");
 }
 
