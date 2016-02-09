@@ -28,7 +28,8 @@ public:
         numTopSlices(numTopSlices)
     {
         for (const Pomodoro& pomo : pomodoros) {
-            for (const auto& tag : pomo.tags()) {
+            const auto& tags = pomo.tags();
+            for (const auto& tag : tags) {
                 tagToPomodoroVec[tag] << pomo;
             }
         }
@@ -89,7 +90,8 @@ private:
         }
         sliceData.back().first = "";
         QSet<QString> topTagsSet;
-        for (const auto& data : sliceData) {
+        const auto& sliceDataRef = sliceData;
+        for (const auto& data : sliceDataRef) {
             topTagsSet.insert(data.first);
         }
         QSet<QString> allTags = QSet<QString>::fromList(tagToPomodoroVec.keys());
@@ -150,7 +152,8 @@ public:
     QVector<double> computeDailyDistribution() const {
         if (pomodoros.empty()) return QVector<double> (0, 0);
         QVector<double> distribution (interval.sizeInDays(), 0);
-        for (const Pomodoro& pomo : pomodoros) {
+        const auto& pomodorosRef = pomodoros;
+        for (const auto& pomo : pomodorosRef) {
             distribution[interval.startDate.daysTo(pomo.startTime().date())]++;
         }
         return distribution;
@@ -159,7 +162,8 @@ public:
     QVector<double> computeWeekdayDistribution() const {
         QVector<double> distribution (7, 0);
         if (pomodoros.empty()) return distribution;
-        for (const Pomodoro& pomo : pomodoros) {
+        const auto& pomodorosRef = pomodoros;
+        for (const Pomodoro& pomo : pomodorosRef) {
             distribution[pomo.startTime().date().dayOfWeek() - 1]++;
         }
         return distribution;
@@ -167,7 +171,8 @@ public:
 
     QVector<double> computeWorkTimeDistribution() {
         QVector<double> distribution (6, 0);
-        for (const Pomodoro& pomo : pomodoros) {
+        const auto& pomodorosRef = pomodoros;
+        for (const Pomodoro& pomo : pomodorosRef) {
             distribution[static_cast<int>(pomo.interval().getDayPart())]++;
         }
         return distribution;

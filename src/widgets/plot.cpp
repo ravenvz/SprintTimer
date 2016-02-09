@@ -161,7 +161,8 @@ const QString Plot::getPosTooltip(const QPoint& pos) const {
     for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
         if (!graphs[graphNum].showPoints())
             continue;
-        for (const auto& box : pointBoxes[graphNum]) {
+        const auto& pointBoxesGraphRef = pointBoxes[graphNum];
+        for (const auto& box : pointBoxesGraphRef) {
             if (box.path.contains(pos - box.position)) {
                 return box.toolTip;
             }
