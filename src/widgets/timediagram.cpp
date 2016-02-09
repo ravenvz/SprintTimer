@@ -65,7 +65,8 @@ void TimeDiagram::drawIntervals(QPainter& painter) {
     int offsetInDegrees = 90;
     int pomoDurationInMinutes = 25;
     int numSegmentsInDegree = 16;
-    for (const TimeInterval& interval : intervals) {
+    const auto& intervalsRef = intervals;
+    for (const TimeInterval& interval : intervalsRef) {
         double start = (interval.startTime.time().hour() * 60 + interval.startTime.time().minute()) * oneMinuteInDegrees;
         // TODO replace with stored pomodoro duration when implemented
         double span = pomoDurationInMinutes * oneMinuteInDegrees;

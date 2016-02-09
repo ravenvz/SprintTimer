@@ -23,7 +23,8 @@ PieDiagram::~PieDiagram() {
 
 void PieDiagram::setData(QVector<Slice>& data) {
     selectedSlice = -1;
-    for (LegendLabel* label : labels) {
+    const auto& labelsRef = labels;
+    for (LegendLabel* label : labelsRef) {
         legendLayout->removeWidget(label);
         delete label;
     }

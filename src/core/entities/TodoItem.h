@@ -20,7 +20,7 @@ public:
              QStringList tags,
              bool completed);
 
-    TodoItem(QString encodedDescription);
+    TodoItem(QString&& encodedDescription);
 
     // Task name.
     QString name() const;
@@ -52,12 +52,11 @@ private:
     unsigned mSpentPomodoros;
     QStringList mTags;
     bool mCompleted;
-    QString mEncodedDescription;
     QChar tagPrefix = '#';
     QChar estimatedPrefix = '*';
 
     QString tagsAsHashedString() const;
-    void decodeDescription(QString& encodedDescription);
+    void decodeDescription(QString&& encodedDescription);
 
 };
 

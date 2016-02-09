@@ -17,10 +17,8 @@ TodoItem::TodoItem(QString name,
 {
 }
 
-TodoItem::TodoItem(QString encodedDescription) :
-    mEncodedDescription(encodedDescription)
-{
-    decodeDescription(encodedDescription);
+TodoItem::TodoItem(QString&& encodedDescription) {
+    decodeDescription(std::move(encodedDescription));
     mCompleted = false;
     mSpentPomodoros = 0;
 }
@@ -63,20 +61,20 @@ QString TodoItem::toString() const {
 
 QString TodoItem::tagsAsHashedString() const {
     QStringList hashedTags;
-    for (QString tag : mTags) {
-        if (!tag.isEmpty()) {
-            hashedTags.append(tag.prepend("#"));
-        }
-    }
+    std::transform(mTags.cbegin(), mTags.cend(), std::back_inserter(hashedTags),
+            [](const auto& tag) {
+                return QString("#%1").arg(tag);
+            });
     return hashedTags.join(" ");
 }
 
-void TodoItem::decodeDescription(QString& encodedDescription) {
+void TodoItem::decodeDescription(QString&& encodedDescription) {
     QStringList nameParts;
     QRegularExpression tagRegexp {QString ("^%1\\w+").arg(tagPrefix)};
-    mEncodedDescription.replace(QRegularExpression("\\s+"), " ");
-    QStringList parts = mEncodedDescription.split(" ");
-    for (QString part : parts) {
+    encodedDescription.replace(QRegularExpression("\\s+"), " ");
+    const QStringList& parts = encodedDescription.split(" ");
+
+    for (const QString& part : parts) {
         if (part.contains(tagRegexp)) {
             mTags << part.right(part.size() - 1);
         } else if (part.startsWith(estimatedPrefix)) {
