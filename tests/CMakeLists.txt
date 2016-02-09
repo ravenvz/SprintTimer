@@ -20,7 +20,7 @@ set(SOURCE_FILES
         ../src/models/pomodoromodel.cpp
     ../src/utils/MathUtils.cpp
 )
-find_library(CppUTest REQUIRED)
+# find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql)
 
 add_executable(test_pomodoro ${SOURCE_FILES})
