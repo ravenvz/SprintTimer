@@ -137,10 +137,6 @@ public:
 
     using const_iterator = GraphData::const_iterator;
 
-    Graph();
-
-    virtual ~Graph() = default;
-
     // Set data for this Graph.
     void setData(GraphData& data);
 

@@ -24,10 +24,10 @@ private:
     QVector<TimeInterval> intervals;
     QRectF totalSizeRect;
     QRectF diagramRect;
-    double diagramRadius;
-    double tickOffset;
-    double longTickLength;
-    double shortTickLength;
+    double diagramRadius {0};
+    double tickOffset {0};
+    double longTickLength {0};
+    double shortTickLength {0};
 
     void computeAdaptiveSizes();
     void drawDiagramCanvas(QPainter& painter);

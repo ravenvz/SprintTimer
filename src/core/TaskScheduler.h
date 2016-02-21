@@ -9,14 +9,14 @@
 class TaskScheduler {
 
 public:
-    TaskScheduler(IConfig* applicationSettings);
+    explicit TaskScheduler(IConfig* applicationSettings);
     void startTask();
     TimeInterval finishTask();
     void cancelTask();
     void setNextState();
     unsigned getTaskDurationInMinutes();
     bool isBreak();
-    unsigned getNumCompletedTasks();
+    unsigned numCompletedTasks();
     void setNumCompletedTasks(unsigned numTasks);
     void toggleInTheZoneMode();
 

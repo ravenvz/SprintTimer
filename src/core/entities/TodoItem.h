@@ -20,7 +20,7 @@ public:
              QStringList tags,
              bool completed);
 
-    TodoItem(QString encodedDescription);
+    explicit TodoItem(QString encodedDescription);
 
     // Task name.
     QString name() const;

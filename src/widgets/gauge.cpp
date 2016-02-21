@@ -47,7 +47,7 @@ void Gauge::computeAdaptiveSizes() {
 
 void Gauge::drawOuterCircle(QPainter& painter) {
     const int fullCircle = 360 * 16;
-    float completedAngle = (actual % goal) * fullCircle / float(goal);
+    int completedAngle = static_cast<int>((actual % goal) * fullCircle / float(goal));
     painter.setBrush(empty);
     painter.drawEllipse(outerRect);
     painter.setBrush(filled);
@@ -68,7 +68,7 @@ void Gauge::drawInnerCircle(QPainter& painter) {
         painter.setPen(Qt::white);
     }
     QFont font = painter.font();
-    font.setPixelSize(0.3 * innerRect.width());
+    font.setPixelSize(static_cast<int>(0.3 * innerRect.width()));
     painter.setFont(font);
     painter.drawText(innerRect, Qt::AlignCenter, text);
 }

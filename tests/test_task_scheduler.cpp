@@ -157,7 +157,7 @@ TEST(TaskSchedulerGroup, should_increment_completed_tasks_counter_when_finishing
     scheduler.startTask();
     scheduler.finishTask();
 
-    CHECK_EQUAL(3, scheduler.getNumCompletedTasks());
+    CHECK_EQUAL(3, scheduler.numCompletedTasks());
 }
 
 TEST(TaskSchedulerGroup, should_not_increment_completed_tasks_counter_when_finishing_break) {
@@ -172,7 +172,7 @@ TEST(TaskSchedulerGroup, should_not_increment_completed_tasks_counter_when_finis
     scheduler.finishTask();
     // Break finished, numCompletedTasks should not increment
 
-    CHECK_EQUAL(3, scheduler.getNumCompletedTasks());
+    CHECK_EQUAL(3, scheduler.numCompletedTasks());
 }
 
 TEST(TaskSchedulerGroup, should_only_schedule_tasks_if_in_the_zone_mode_active) {

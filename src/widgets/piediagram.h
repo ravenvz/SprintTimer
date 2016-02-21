@@ -18,7 +18,7 @@ class PieDiagram : public QWidget
     Q_OBJECT
 
 public:
-    PieDiagram(QWidget* parent = 0);
+    explicit PieDiagram(QWidget* parent = 0);
     ~PieDiagram();
     void setData(QVector<Slice>& data);
     void setLegendTitle(QString title);

@@ -79,7 +79,7 @@ public:
     }
 
     bool empty() const {
-        return total == 0;
+        return static_cast<int>(total) == 0;
     }
 
 
@@ -88,7 +88,7 @@ private:
     double max = 0;
     int numBins = 0;
     int maxValueBin = 0;
-    T total = 0;
+    double total = 0;
     QVector<T> distribution;
     QVector<int> binFrequency;
 

@@ -53,12 +53,14 @@ unsigned TaskScheduler::getTaskDurationInMinutes() {
             return applicationSettings->getPomodoroDuration();
         case TaskState::LONG_BREAK:
             return applicationSettings->getLongBreakDuration();
+        case TaskState::SHORT_BREAK:
+            return applicationSettings->getShortBreakDuration();
         default:
             return applicationSettings->getShortBreakDuration();
     }
 }
 
-unsigned TaskScheduler::getNumCompletedTasks() {
+unsigned TaskScheduler::numCompletedTasks() {
     return completedTasks;
 }
 

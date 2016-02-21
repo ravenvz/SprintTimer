@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 project(test_pomodoro)
 set(SOURCE_FILES
     run_all_tests.cpp
-    TestTaskScheduler.cpp
+    test_task_scheduler.cpp
     test_math_utils.cpp
     test_pomodoro_model.cpp
     test_pomodoro_statistics.cpp
@@ -26,5 +26,6 @@ find_package(Qt5 REQUIRED Core Sql)
 add_executable(test_pomodoro ${SOURCE_FILES})
 
 include_directories("/usr/include/CppUTest")
+# include_directories("../libs/cpputest/include/CppUTest/*")
 qt5_use_modules(test_pomodoro Core Sql)
 target_link_libraries(test_pomodoro CppUTest)

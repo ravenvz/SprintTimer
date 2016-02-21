@@ -153,7 +153,7 @@ void Plot::paintPoints(const PointBoxContainer& boxes, QPainter& painter) const 
         painter.drawPath(point.path);
         painter.translate(-point.position);
         if (i % labelSkip == 0)
-            painter.drawText(point.position.x(), availableRect.bottomLeft().y(), point.label);
+            painter.drawText(QPointF {point.position.x(), availableRect.bottomLeft().y()}, point.label);
     }
 }
 
@@ -170,10 +170,6 @@ const QString Plot::getPosTooltip(const QPoint& pos) const {
     return {""};
 }
 
-
-Graph::Graph() {
-
-}
 
 void Graph::setData(GraphData& data) {
     points = data;

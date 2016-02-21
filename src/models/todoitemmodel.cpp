@@ -62,7 +62,6 @@ QVariant TodoItemModel::data(const QModelIndex &index, int role) const {
         default:
             return QSqlTableModel::data(index, role);
     }
-    return QVariant();
 }
 
 bool TodoItemModel::insert(const TodoItem& item) {

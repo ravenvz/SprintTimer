@@ -22,9 +22,6 @@ int main(int argc, char* argv[]) {
     if (!createTestDbConnection()) {
         return 1;
     };
-    // if (!createDbConnection()) {
-    //     return 1;
-    // };
 
     return CommandLineTestRunner::RunAllTests(argc, argv);
 }

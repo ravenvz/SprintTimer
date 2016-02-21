@@ -6,7 +6,7 @@
 class SqliteTableModel : public QSqlTableModel
 {
 public:
-    SqliteTableModel(QObject* parent = 0) :
+    explicit SqliteTableModel(QObject* parent = 0) :
         QSqlTableModel(parent)
     {
 
