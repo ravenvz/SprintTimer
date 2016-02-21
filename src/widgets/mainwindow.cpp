@@ -71,18 +71,18 @@ void MainWindow::connectSlots() {
 }
 
 void MainWindow::setUiToIdleState() {
-    ui->lcdTimer->hide();
     ui->progressBar->setValue(0);
     ui->progressBar->hide();
     ui->leDoneTask->hide();
     ui->btnCancel->hide();
     ui->btnStart->show();
+    ui->labelTimer->hide();
     progressBarMaxValue = 0;
 }
 
 void MainWindow::setUiToRunningState() {
     ui->btnStart->hide();
-    ui->lcdTimer->show();
+    ui->labelTimer->show();
     ui->progressBar->show();
     ui->btnCancel->show();
     progressBarMaxValue = timerDuration;
@@ -90,7 +90,7 @@ void MainWindow::setUiToRunningState() {
 }
 
 void MainWindow::setUiToSubmissionState() {
-    ui->lcdTimer->hide();
+    ui->labelTimer->hide();
     ui->progressBar->hide();
     ui->leDoneTask->show();
 }
@@ -142,24 +142,24 @@ void MainWindow::updateTimerCounter() {
     timerDuration--;
     if (timerDuration >= 0) {
         ui->progressBar->setValue(progressBarMaxValue - timerDuration);
-        QString s = QString("%1:%2").arg(QString::number(timerDuration / secondsPerMinute),
-                                         QString::number(timerDuration % secondsPerMinute).rightJustified(2, '0'));
-        ui->lcdTimer->display(s);
+        QString timerValue = QString("%1:%2")
+            .arg(QString::number(timerDuration / secondsPerMinute),
+                 QString::number(timerDuration % secondsPerMinute).rightJustified(2, '0'));
+        ui->labelTimer->setText(timerValue);
         ui->progressBar->repaint();
+        return;
+    } 
+    timer->stop();
+    if (!ui->btnZone->isChecked() && applicationSettings.soundIsEnabled()) {
+        playSound();
+    } else if (ui->btnZone->isChecked()) {
+        completedTasksIntervals.push_back(taskScheduler.finishTask());
+        startTask();
+    } else if (taskScheduler.isBreak()) {
+        taskScheduler.finishTask();
+        setUiToIdleState();
     } else {
-        timer->stop();
-        if (!ui->btnZone->isChecked() && applicationSettings.soundIsEnabled()) {
-            playSound();
-        }
-        if (ui->btnZone->isChecked()) {
-            completedTasksIntervals.push_back(taskScheduler.finishTask());
-            startTask();
-        } else if (taskScheduler.isBreak()) {
-            taskScheduler.finishTask();
-            setUiToIdleState();
-        } else {
-            setUiToSubmissionState();
-        }
+        setUiToSubmissionState();
     }
 }
 

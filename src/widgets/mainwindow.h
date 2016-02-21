@@ -79,6 +79,7 @@ private:
     void setUiToIdleState();
     void setUiToRunningState();
     void setUiToSubmissionState();
+    void updateTimerDisplay();
     void updateOpenedWindows();
     void updatePomodoroView();
     void updateStatisticsWindow();
