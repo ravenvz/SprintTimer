@@ -98,7 +98,7 @@ const BarDataItem& BarData::operator[](std::size_t idx) const {
     return data[idx];
 }
 
-const int BarData::size() const {
+int BarData::size() const {
     return data.size();
 }
 

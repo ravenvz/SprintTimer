@@ -24,7 +24,7 @@ public:
      * be set only for number of bars equal to shortest vector */
     BarData(QVector<double>& values, QVector<QString>& labels);
     const BarDataItem& operator[](std::size_t idx) const;
-    const int size() const;
+    int size() const;
 
 private:
     QVector<BarDataItem> data;
