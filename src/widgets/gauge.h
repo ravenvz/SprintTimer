@@ -18,12 +18,12 @@ class Gauge : public QWidget
     Q_OBJECT
 
 public:
-    Gauge(unsigned actual, unsigned goal, QWidget* parent = 0);
+    Gauge(int actual, int goal, QWidget* parent = 0);
     virtual ~Gauge() = default;
 
 protected:
-    unsigned actual;
-    unsigned goal;
+    int actual;
+    int goal;
     bool displayDetails = false;
     bool sizesComputed = false;
     QRectF outerRect;
@@ -45,14 +45,14 @@ protected:
 
 class OverfilledGauge : public Gauge {
 public:
-    OverfilledGauge(unsigned actual, unsigned goal, QWidget* parent = 0);
+    OverfilledGauge(int actual, int goal, QWidget* parent = 0);
 };
 
 
 class EmptyGauge : public Gauge
 {
 public:
-    EmptyGauge(unsigned actual, unsigned goal, QWidget* parent = 0);
+    EmptyGauge(int actual, int goal, QWidget* parent = 0);
 
 protected:
     void drawOuterCircle(QPainter& painter) override;
@@ -62,7 +62,7 @@ protected:
 class FilledGauge : public Gauge
 {
 public:
-    FilledGauge(unsigned actual, unsigned goal, QWidget* parent = 0);
+    FilledGauge(int actual, int goal, QWidget* parent = 0);
 
 protected:
     void drawOuterCircle(QPainter& painter) override;
@@ -76,7 +76,7 @@ public:
     GaugeFactory() {
     }
 
-    Gauge* create(unsigned filled, unsigned total, QWidget* parent = 0) {
+    Gauge* create(int filled, int total, QWidget* parent = 0) {
         Gauge* ptr;
         if (filled == 0 || total == 0) {
             ptr = new EmptyGauge(filled, total, parent);

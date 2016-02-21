@@ -13,82 +13,82 @@ TEST_GROUP(TaskSchedulerGroup) {
 
             }
 
-            int getSoundVolume() const override {
-                return soundVolume;
+            int soundVolume() const override {
+                return mSoundVolume;
             }
 
             void setSoundVolume(int soundVolume) override {
-                TestConfig::soundVolume = soundVolume;
+                TestConfig::mSoundVolume = soundVolume;
             }
 
-            unsigned int getPomodoroDuration() const override {
-                return pomodoroDuration;
+            int pomodoroDuration() const override {
+                return mPomodoroDuration;
             }
 
-            void setPomodoroDuration(unsigned int pomodoroDuration) override {
-                TestConfig::pomodoroDuration = pomodoroDuration;
+            void setPomodoroDuration(int pomodoroDuration) override {
+                TestConfig::mPomodoroDuration = pomodoroDuration;
             }
 
-            unsigned int getShortBreakDuration() const override {
-                return shortBreakDuration;
+            int shortBreakDuration() const override {
+                return mShortBreakDuration;
             }
 
-            void setShortBreakDuration(unsigned int shortBreakDuration) override {
-                TestConfig::shortBreakDuration = shortBreakDuration;
+            void setShortBreakDuration(int shortBreakDuration) override {
+                TestConfig::mShortBreakDuration = shortBreakDuration;
             }
 
-            unsigned int getLongBreakDuration() const override {
-                return longBreakDuration;
+            int longBreakDuration() const override {
+                return mLongBreakDuration;
             }
 
-            void setLongBreakDuration(unsigned int longBreakDuration) override {
-                TestConfig::longBreakDuration = longBreakDuration;
+            void setLongBreakDuration(int longBreakDuration) override {
+                TestConfig::mLongBreakDuration = longBreakDuration;
             }
 
-            unsigned int getTasksBeforeBreak() const override {
-                return tasksBeforeBreak;
+            int numTasksBeforeBreak() const override {
+                return mTasksBeforeBreak;
             }
 
-            void setTasksBeforeBreak(unsigned int tasksBeforeBreak) override {
-                TestConfig::tasksBeforeBreak = tasksBeforeBreak;
+            void setTasksBeforeBreak(int tasksBeforeBreak) override {
+                TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
             }
 
             bool soundIsEnabled() const override {
-                return playSound;
+                return mPlaySound;
             }
 
             void setPlaySound(bool playSound) override {
-                TestConfig::playSound = playSound;
+                TestConfig::mPlaySound = playSound;
             }
 
-            unsigned int getDailyPomodorosGoal() const override {
+            int dailyPomodorosGoal() const override {
                 return 0;
             }
 
-            void setDailyPomodorosGoal(unsigned dailyPomodorosGoal) override {
+            void setDailyPomodorosGoal(int dailyPomodorosGoal) override {
             }
 
-            unsigned int getWeeklyPomodorosGoal() const override {
+            int weeklyPomodorosGoal() const override {
                 return 0;
             }
 
-            void setWeeklyPomodorosGoal(unsigned weeklyPomodorosGoal) override {
+            void setWeeklyPomodorosGoal(int weeklyPomodorosGoal) override {
             }
 
-            unsigned int getMonthlyPomodorosGoal() const override {
+            int monthlyPomodorosGoal() const override {
                 return 0;
             }
 
-            void setMonthlyPomodorosGoal(unsigned monthlyPomodorosGoal) override {
+            void setMonthlyPomodorosGoal(int monthlyPomodorosGoal) override {
             }
 
         private:
-            unsigned pomodoroDuration = 25;
-            unsigned shortBreakDuration = 5;
-            unsigned longBreakDuration = 15;
-            unsigned tasksBeforeBreak = 4;
-            bool playSound;
-            int soundVolume;
+            int mPomodoroDuration = 25;
+            int mShortBreakDuration = 5;
+            int mLongBreakDuration = 15;
+            int mTasksBeforeBreak = 4;
+            bool mPlaySound;
+            int mSoundVolume;
     };
 
 };
@@ -100,7 +100,7 @@ TEST(TaskSchedulerGroup, should_set_state_to_break_when_finishing_task) {
     scheduler.finishTask();
 
     CHECK(scheduler.isBreak());
-    CHECK_EQUAL(testConfig.getShortBreakDuration(), scheduler.getTaskDurationInMinutes());
+    CHECK_EQUAL(testConfig.shortBreakDuration(), scheduler.taskDurationInMinutes());
 }
 
 TEST(TaskSchedulerGroup, should_set_state_to_long_break_when_finishing_task_cycle) {
@@ -111,7 +111,7 @@ TEST(TaskSchedulerGroup, should_set_state_to_long_break_when_finishing_task_cycl
     scheduler.startTask();
     scheduler.finishTask();
 
-    CHECK_EQUAL(testConfig.getLongBreakDuration(), scheduler.getTaskDurationInMinutes());
+    CHECK_EQUAL(testConfig.longBreakDuration(), scheduler.taskDurationInMinutes());
 }
 
 TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_finishing_break) {
@@ -124,7 +124,7 @@ TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_finishing_break) {
     scheduler.startTask();
     scheduler.finishTask();
 
-    CHECK_EQUAL(testConfig.getPomodoroDuration(), scheduler.getTaskDurationInMinutes());
+    CHECK_EQUAL(testConfig.pomodoroDuration(), scheduler.taskDurationInMinutes());
 }
 
 TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_task) {
@@ -134,7 +134,7 @@ TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_task) {
     scheduler.startTask();
     scheduler.cancelTask();
 
-    CHECK_EQUAL(testConfig.getPomodoroDuration(), scheduler.getTaskDurationInMinutes());
+    CHECK_EQUAL(testConfig.pomodoroDuration(), scheduler.taskDurationInMinutes());
 }
 
 TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_break) {
@@ -147,7 +147,7 @@ TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_break) {
     scheduler.startTask();
     scheduler.cancelTask();
 
-    CHECK_EQUAL(testConfig.getPomodoroDuration(), scheduler.getTaskDurationInMinutes());
+    CHECK_EQUAL(testConfig.pomodoroDuration(), scheduler.taskDurationInMinutes());
 }
 TEST(TaskSchedulerGroup, should_increment_completed_tasks_counter_when_finishing_task) {
     TestConfig testConfig;

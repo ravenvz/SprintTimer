@@ -151,7 +151,7 @@ void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistr
         ui->dailyTimeline->reset();
     } else {
         double average = dailyDistribution->getAverage();
-        double dailyGoal = applicationSettings.getDailyPomodorosGoal();
+        double dailyGoal = applicationSettings.dailyPomodorosGoal();
         auto pomosByDay = dailyDistribution->getDistributionVector();
         GraphData averageData {GraphPoint {0, average, ""},
                                GraphPoint {static_cast<double>(currentInterval.sizeInDays() - 1), average, ""}};

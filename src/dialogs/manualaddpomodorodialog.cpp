@@ -3,7 +3,7 @@
 #include "db_layer/db_helper.h"
 
 
-PomodoroManualAddDialog::PomodoroManualAddDialog(PomodoroModel* pomodoroModel, TodoItemModel* todoItemModel, unsigned pomodoroDuration, QDialog* parent) :
+PomodoroManualAddDialog::PomodoroManualAddDialog(PomodoroModel* pomodoroModel, TodoItemModel* todoItemModel, int pomodoroDuration, QDialog* parent) :
     QDialog(parent),
     ui(new Ui::PomodoroManualAddDialog),
     pomodoroModel(pomodoroModel),

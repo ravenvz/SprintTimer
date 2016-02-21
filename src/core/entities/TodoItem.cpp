@@ -5,8 +5,8 @@
 TodoItem::TodoItem() {}
 
 TodoItem::TodoItem(QString name,
-                   unsigned estimatedPomodoros,
-                   unsigned spentPomodoros,
+                   int estimatedPomodoros,
+                   int spentPomodoros,
                    QStringList tags,
                    bool completed) :
     mName(name),
@@ -29,11 +29,11 @@ QString TodoItem::name() const {
     return mName;
 }
 
-unsigned int TodoItem::estimatedPomodoros() const {
+int TodoItem::estimatedPomodoros() const {
     return mEstimatedPomodoros;
 }
 
-unsigned int TodoItem::spentPomodoros() const {
+int TodoItem::spentPomodoros() const {
     return mSpentPomodoros;
 }
 
@@ -59,7 +59,7 @@ void TodoItem::setCompleted(bool completed) {
     mCompleted = completed;
 }
 
-void TodoItem::setSpentPomodoros(unsigned int spentPomodoros) {
+void TodoItem::setSpentPomodoros(int spentPomodoros) {
     mSpentPomodoros = spentPomodoros;
 }
 
@@ -80,7 +80,7 @@ void TodoItem::decodeDescription(QString& encodedDescription) {
         if (part.contains(tagRegexp)) {
             mTags << part.right(part.size() - 1);
         } else if (part.startsWith(estimatedPrefix)) {
-            mEstimatedPomodoros = part.right(part.size() - 1).toUInt();
+            mEstimatedPomodoros = part.right(part.size() - 1).toInt();
         } else {
             nameParts << part;
         }

@@ -4,8 +4,8 @@
 
 
 TEST_GROUP(TodoItemModel) {
-    const unsigned defaultEstimatedPomos {1};
-    const unsigned defaultSpentPomos {0};
+    const int defaultEstimatedPomos {1};
+    const int defaultSpentPomos {0};
     enum Column {
         TodoId,
         TodoName,

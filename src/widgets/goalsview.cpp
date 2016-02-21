@@ -12,9 +12,9 @@ GoalsView::GoalsView(Config& applicationSettings, QWidget* parent) :
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    ui->spinBoxDailyGoal->setValue(applicationSettings.getDailyPomodorosGoal());
-    ui->spinBoxWeeklyGoal->setValue(applicationSettings.getWeeklyPomodorosGoal());
-    ui->spinBoxMonthlyGoal->setValue(applicationSettings.getMonthlyPomodorosGoal());
+    ui->spinBoxDailyGoal->setValue(applicationSettings.dailyPomodorosGoal());
+    ui->spinBoxWeeklyGoal->setValue(applicationSettings.weeklyPomodorosGoal());
+    ui->spinBoxMonthlyGoal->setValue(applicationSettings.monthlyPomodorosGoal());
     displayData();
     connect(ui->spinBoxDailyGoal, SIGNAL(valueChanged(int)), this, SLOT(updateDailyGoal(int)));
     connect(ui->spinBoxWeeklyGoal, SIGNAL(valueChanged(int)), this, SLOT(updateWeeklyGoal(int)));
@@ -36,8 +36,8 @@ void GoalsView::displayData() {
 }
 
 void GoalsView::displayDailyData() {
-    unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
-    unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
+    int dailyGoal = applicationSettings.dailyPomodorosGoal();
+    int monthlyGoal = applicationSettings.monthlyPomodorosGoal();
     Distribution<int> lastDays {goalStatModel.itemsDaysBack()};
     ui->labelLastMonthAverage->setText(formatDecimal(lastDays.getAverage()));
     ui->labelLastMonthPercentage->setText(QString("%1%")
@@ -48,7 +48,7 @@ void GoalsView::displayDailyData() {
 }
 
 void GoalsView::displayWeeklyData() {
-    unsigned weeklyGoal = applicationSettings.getWeeklyPomodorosGoal();
+    int weeklyGoal = applicationSettings.weeklyPomodorosGoal();
     Distribution<int> lastWeeks {goalStatModel.itemsWeeksBack()};
     ui->labelLastQuarterAverage->setText(formatDecimal(lastWeeks.getAverage()));
     ui->labelLastQuarterPercentage->setText(QString("%1%")
@@ -59,7 +59,7 @@ void GoalsView::displayWeeklyData() {
 }
 
 void GoalsView::displayMonthlyData() {
-    unsigned monthlyGoal = applicationSettings.getMonthlyPomodorosGoal();
+    int monthlyGoal = applicationSettings.monthlyPomodorosGoal();
     Distribution<int> lastMonths {goalStatModel.itemsMonthsBack()};
     ui->labelLastYearAverage->setText(formatDecimal(lastMonths.getAverage()));
     ui->labelLastYearPercentage->setText(QString("%1%")
@@ -70,7 +70,7 @@ void GoalsView::displayMonthlyData() {
     drawPeriodDiagram(ui->gridLayoutLastYearDiagram, lastMonths, monthlyGoal, 3, 4);
 }
 
-void GoalsView::updateProgressBar(QProgressBar* bar, unsigned goal, int value) {
+void GoalsView::updateProgressBar(QProgressBar* bar, int goal, int value) {
     bar->setMaximum(goal);
     bar->setFormat("%v/%m");
     bar->hide();
@@ -96,7 +96,7 @@ void GoalsView::updateProgressBar(QProgressBar* bar, unsigned goal, int value) {
 }
 
 void GoalsView::drawPeriodDiagram(QGridLayout* layout, Distribution<int>& distribution,
-        unsigned goal, int rowNum, int colNum) {
+        int goal, int rowNum, int colNum) {
     clearDiagramLayout(layout);
     GaugeFactory factory;
     for (int row = 0, ind = 0; row < rowNum; ++row) {
@@ -116,17 +116,17 @@ void GoalsView::clearDiagramLayout(QGridLayout* layout) {
 }
 
 void GoalsView::updateDailyGoal(int newValue) {
-    applicationSettings.setDailyPomodorosGoal(static_cast<unsigned>(newValue));
+    applicationSettings.setDailyPomodorosGoal(static_cast<int>(newValue));
     displayDailyData();
 }
 
 void GoalsView::updateWeeklyGoal(int newValue) {
-    applicationSettings.setWeeklyPomodorosGoal(static_cast<unsigned>(newValue));
+    applicationSettings.setWeeklyPomodorosGoal(static_cast<int>(newValue));
     displayWeeklyData();
 }
 
 void GoalsView::updateMonthlyGoal(int newValue) {
-    applicationSettings.setMonthlyPomodorosGoal(static_cast<unsigned>(newValue));
+    applicationSettings.setMonthlyPomodorosGoal(static_cast<int>(newValue));
     displayMonthlyData();
 }
 

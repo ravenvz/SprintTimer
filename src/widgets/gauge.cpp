@@ -5,7 +5,7 @@
 #include <QDebug>
 
 
-Gauge::Gauge(unsigned actual, unsigned goal, QWidget* parent) :
+Gauge::Gauge(int actual, int goal, QWidget* parent) :
     QWidget(parent),
     actual(actual),
     goal(goal)
@@ -104,17 +104,17 @@ bool Gauge::eventFilter(QObject* object, QEvent* event) {
     return false;
 }
 
-EmptyGauge::EmptyGauge(unsigned actual, unsigned goal, QWidget* parent) :
+EmptyGauge::EmptyGauge(int actual, int goal, QWidget* parent) :
     Gauge(actual, goal, parent)
 {
 }
 
-FilledGauge::FilledGauge(unsigned actual, unsigned goal, QWidget* parent) :
+FilledGauge::FilledGauge(int actual, int goal, QWidget* parent) :
     Gauge(actual, goal, parent)
 {
 }
 
-OverfilledGauge::OverfilledGauge(unsigned actual, unsigned goal, QWidget* parent) :
+OverfilledGauge::OverfilledGauge(int actual, int goal, QWidget* parent) :
     Gauge(actual, goal, parent)
 {
     filled = Qt::red;

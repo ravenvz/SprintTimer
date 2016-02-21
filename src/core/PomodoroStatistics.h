@@ -62,7 +62,7 @@ private:
     int numTopSlices;
 
     void compute() {
-        unsigned total = 0;
+        int total = 0;
         for (auto it = tagToPomodoroVec.cbegin(); it != tagToPomodoroVec.cend(); ++it) {
             sliceData.append(std::make_pair(it.key(), it.value().size()));
             total += it.value().size();

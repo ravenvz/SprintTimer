@@ -62,7 +62,7 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly) {
     DateInterval interval;
     interval.startDate = QDate::currentDate();
     interval.endDate = QDate::currentDate().addDays(47);
-    QVector<unsigned> expectedDistributionVector (48, 0);
+    QVector<int> expectedDistributionVector (48, 0);
     for (int i = 0; i < 48; ++i) {
         for (int j = 0; j < i + 1; ++j) {
             QDateTime pomoDate = QDateTime(QDate::currentDate().addDays(i));

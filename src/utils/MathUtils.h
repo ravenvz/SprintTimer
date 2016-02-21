@@ -10,7 +10,7 @@
 class MathUtils {
 
 public:
-    static double percentage(unsigned chunk, unsigned total);
+    static double percentage(int chunk, int total);
 };
 
 

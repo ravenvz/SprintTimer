@@ -133,7 +133,7 @@ void MainWindow::launchSettingsDialog() {
 
 void MainWindow::startTask() {
     taskScheduler.startTask();
-    timerDuration = secondsPerMinute * taskScheduler.getTaskDurationInMinutes();
+    timerDuration = secondsPerMinute * taskScheduler.taskDurationInMinutes();
     setUiToRunningState();
     timer->start(1000);
 }
@@ -166,7 +166,7 @@ void MainWindow::updateTimerCounter() {
 void MainWindow::playSound() {
     // TODO might not be the best way to handle this, as it requires gstreamer-ugly-plugins on my system
     player->setMedia(QUrl::fromLocalFile("/home/vizier/Projects/pomodoro_cpp/resources/ring.wav"));
-    player->setVolume(applicationSettings.getSoundVolume());
+    player->setVolume(applicationSettings.soundVolume());
     player->play();
 }
 
@@ -192,12 +192,12 @@ void MainWindow::updatePomodoroView() {
     // QStringList lst = PomodoroDataSource::getPomodorosForToday();
     pomodoroModel->select();
     // pomodoroModel->setStringList(lst);
-    unsigned dailyGoal = applicationSettings.getDailyPomodorosGoal();
+    int dailyGoal = applicationSettings.dailyPomodorosGoal();
     if (dailyGoal == 0) {
         ui->labelDailyGoalProgress->hide();
         return;
     }
-    unsigned completedSoFar = pomodoroModel->rowCount();
+    int completedSoFar = pomodoroModel->rowCount();
     ui->labelDailyGoalProgress->setText(QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
     if (completedSoFar == dailyGoal) {
         ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
@@ -332,7 +332,7 @@ void MainWindow::launchStatisticsView() {
 void MainWindow::launchManualAddPomodoroDialog() {
     PomodoroManualAddDialog dialog {pomodoroModel,
                                     todoitemViewModel,
-                                    applicationSettings.getPomodoroDuration()};
+                                    applicationSettings.pomodoroDuration()};
     if (dialog.exec()) {
         updatePomodoroView();
         updateOpenedWindows();

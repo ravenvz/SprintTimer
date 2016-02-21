@@ -100,8 +100,8 @@ bool TodoItemModel::remove(const int row) {
 TodoItem TodoItemModel::itemAt(const int row) const {
     QSqlRecord rowRecord {QSqlTableModel::record(row)};
     QString name {columnData(rowRecord, Column::Name).toString()};
-    unsigned estimatedPomodoros {columnData(rowRecord, Column::EstimatedPomodoros).toUInt()};
-    unsigned spentPomodoros {columnData(rowRecord, Column::SpentPomodoros).toUInt()};
+    int estimatedPomodoros {columnData(rowRecord, Column::EstimatedPomodoros).toInt()};
+    int spentPomodoros {columnData(rowRecord, Column::SpentPomodoros).toInt()};
     QVariant tagsVariant {columnData(rowRecord, Column::Tags)};
     QStringList tags = tagsVariant.isNull() ? QStringList() : tagsVariant.toString().split(",");
     bool completed {columnData(rowRecord, Column::Completed).toBool()};

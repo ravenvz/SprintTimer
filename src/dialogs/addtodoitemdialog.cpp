@@ -25,7 +25,7 @@ TodoItem AddTodoItemDialog::getNewTodoItem() {
 
 void AddTodoItemDialog::accept() {
     QString name = ui->todoName->text();
-    unsigned estimatedPomodoros = ui->estimatedPomodoros->value();
+    int estimatedPomodoros = ui->estimatedPomodoros->value();
     QString tagsString = ui->leTags->text();
 
     if (name.isEmpty()) {

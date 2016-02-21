@@ -39,9 +39,9 @@ private:
     void displayWeeklyData();
     void displayMonthlyData();
     void drawPeriodDiagram(QGridLayout* layout, Distribution<int>& distribution,
-            unsigned goal, int rowNum, int colNum);
+            int goal, int rowNum, int colNum);
     void clearDiagramLayout(QGridLayout* layout);
-    void updateProgressBar(QProgressBar* bar, unsigned goal, int value);
+    void updateProgressBar(QProgressBar* bar, int goal, int value);
     QString formatDecimal(double decimal) const;
 };
 

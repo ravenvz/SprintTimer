@@ -15,8 +15,8 @@ public:
     TodoItem();
 
     TodoItem(QString name,
-             unsigned estimatedPomodoros,
-             unsigned spentPomodoros,
+             int estimatedPomodoros,
+             int spentPomodoros,
              QStringList tags,
              bool completed);
 
@@ -26,10 +26,10 @@ public:
     QString name() const;
 
     // Estimation task cost in pomodoros.
-    unsigned int estimatedPomodoros() const;
+    int estimatedPomodoros() const;
 
     // Pomodoros spent on task.
-    unsigned int spentPomodoros() const;
+    int spentPomodoros() const;
 
     // Task tags.
     QStringList tags() const;
@@ -43,15 +43,15 @@ public:
     void setCompleted(bool completed);
 
     // Set number of pomodoros spent on this task.
-    void setSpentPomodoros(unsigned int spentPomodoros);
+    void setSpentPomodoros(int spentPomodoros);
 
     // Return string representation.
     QString toString() const;
 
 private:
     QString mName;
-    unsigned mEstimatedPomodoros = 1;
-    unsigned mSpentPomodoros;
+    int mEstimatedPomodoros = 1;
+    int mSpentPomodoros;
     QStringList mTags;
     bool mCompleted;
     QString mEncodedDescription;

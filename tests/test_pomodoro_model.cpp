@@ -46,8 +46,8 @@ TEST(PomodoroModel, test_insert_and_delete) {
     TodoItemModel todoItemModel;
     QString name {"Test item"};
     QStringList tags {"Tag1", "Tag2"};
-    unsigned estimatedPomodoros {4};
-    unsigned spentPomodoros {0};
+    int estimatedPomodoros {4};
+    int spentPomodoros {0};
     TodoItem item {name, estimatedPomodoros, spentPomodoros, tags, false};
     Pomodoro expectedPomodoro {name, interval, tags};
 
@@ -78,8 +78,8 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros) {
     TodoItemModel todoItemModel;
     QString name {"Test item"};
     QStringList tags {"Tag1", "Tag2"};
-    unsigned estimatedPomodoros {4};
-    unsigned spentPomodoros {0};
+    int estimatedPomodoros {4};
+    int spentPomodoros {0};
     TodoItem item {name, estimatedPomodoros, spentPomodoros, tags, false};
 
     CHECK(todoItemModel.insert(item));
