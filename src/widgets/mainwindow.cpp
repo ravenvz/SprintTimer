@@ -171,7 +171,7 @@ void MainWindow::setTimerValue(Second timeLeft) {
 void MainWindow::playSound() {
     if (ui->btnZone->isChecked() && !applicationSettings.soundIsEnabled()) {
         playSound();
-    } 
+    }
 
     // TODO might not be the best way to handle this, as it requires gstreamer-ugly-plugins on my system
     player->setMedia(QUrl::fromLocalFile("/home/vizier/Projects/pomodoro_cpp/resources/ring.wav"));
