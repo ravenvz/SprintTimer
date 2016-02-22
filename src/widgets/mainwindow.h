@@ -64,7 +64,7 @@ private:
     std::unique_ptr<QMediaPlayer> player;
     std::vector<TimeInterval> completedTasksIntervals;
     int progressBarMaxValue {0};
-    Second timerDuration {0};
+    Second timeLeft {0};
     QPointer<PomodoroModel> pomodoroModel;
     QPointer<TagModel> tagModel;
     QPointer<TodoItemModel> todoitemViewModel;
@@ -80,6 +80,10 @@ private:
     void setUiToRunningState();
     void setUiToSubmissionState();
     void updateTimerDisplay();
+
+    /* Set stopwatch value. */
+    void setTimerValue(Second timeLeft);
+
     void updateOpenedWindows();
     void updatePomodoroView();
     void updateStatisticsWindow();

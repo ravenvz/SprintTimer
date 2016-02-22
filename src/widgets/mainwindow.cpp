@@ -81,11 +81,12 @@ void MainWindow::setUiToIdleState() {
 }
 
 void MainWindow::setUiToRunningState() {
+    setTimerValue(taskScheduler.taskDurationInMinutes() * secondsPerMinute);
     ui->btnStart->hide();
     ui->labelTimer->show();
     ui->progressBar->show();
     ui->btnCancel->show();
-    progressBarMaxValue = timerDuration;
+    progressBarMaxValue = timeLeft;
     ui->progressBar->setMaximum(progressBarMaxValue);
 }
 
@@ -133,26 +134,23 @@ void MainWindow::launchSettingsDialog() {
 
 void MainWindow::startTask() {
     taskScheduler.startTask();
-    timerDuration = secondsPerMinute * taskScheduler.taskDurationInMinutes();
+    timeLeft = secondsPerMinute * taskScheduler.taskDurationInMinutes();
     setUiToRunningState();
     timer->start(1000);
 }
 
 void MainWindow::updateTimerCounter() {
-    timerDuration--;
-    if (timerDuration >= 0) {
-        ui->progressBar->setValue(progressBarMaxValue - timerDuration);
-        QString timerValue = QString("%1:%2")
-            .arg(QString::number(timerDuration / secondsPerMinute),
-                 QString::number(timerDuration % secondsPerMinute).rightJustified(2, '0'));
-        ui->labelTimer->setText(timerValue);
+    timeLeft--;
+    if (timeLeft >= 0) {
+        ui->progressBar->setValue(progressBarMaxValue - timeLeft);
+        setTimerValue(timeLeft);
         ui->progressBar->repaint();
         return;
-    } 
+    }
     timer->stop();
-    if (!ui->btnZone->isChecked() && applicationSettings.soundIsEnabled()) {
-        playSound();
-    } else if (ui->btnZone->isChecked()) {
+    playSound();
+
+    if (ui->btnZone->isChecked()) {
         completedTasksIntervals.push_back(taskScheduler.finishTask());
         startTask();
     } else if (taskScheduler.isBreak()) {
@@ -163,7 +161,18 @@ void MainWindow::updateTimerCounter() {
     }
 }
 
+void MainWindow::setTimerValue(Second timeLeft) {
+    QString timerValue = QString("%1:%2")
+        .arg(QString::number(timeLeft / secondsPerMinute),
+             QString::number(timeLeft % secondsPerMinute).rightJustified(2, '0'));
+    ui->labelTimer->setText(timerValue);
+}
+
 void MainWindow::playSound() {
+    if (ui->btnZone->isChecked() && !applicationSettings.soundIsEnabled()) {
+        playSound();
+    } 
+
     // TODO might not be the best way to handle this, as it requires gstreamer-ugly-plugins on my system
     player->setMedia(QUrl::fromLocalFile("/home/vizier/Projects/pomodoro_cpp/resources/ring.wav"));
     player->setVolume(applicationSettings.soundVolume());
