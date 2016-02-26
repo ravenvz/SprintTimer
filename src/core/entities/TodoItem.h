@@ -50,11 +50,11 @@ public:
 
 private:
     QString mName;
+    QString mEncodedDescription;
     int mEstimatedPomodoros = 1;
     int mSpentPomodoros;
     QStringList mTags;
     bool mCompleted;
-    QString mEncodedDescription;
     QChar tagPrefix = '#';
     QChar estimatedPrefix = '*';
 

@@ -2,8 +2,7 @@
 #include "src/widgets/mainwindow.h"
 #include "core/config.h"
 
-
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     if (!createDbConnection()) {
@@ -15,8 +14,8 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("RavenStudio");
     QApplication::setApplicationName("Pomodoro");
     Config applicationSettings;
-    TaskScheduler scheduler {&applicationSettings};
-    MainWindow w {scheduler, applicationSettings};
+    TaskScheduler scheduler{&applicationSettings};
+    MainWindow w{scheduler, applicationSettings};
     w.show();
 
     return app.exec();

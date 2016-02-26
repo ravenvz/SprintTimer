@@ -37,9 +37,9 @@ class Config : public IConfig
 
 public:
 
-    Config() {
-
-    }
+    // Config() {
+    //
+    // }
 
     int pomodoroDuration() const override {
         return settings.value("pomodoroDuration").toInt();

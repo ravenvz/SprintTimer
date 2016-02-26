@@ -1,20 +1,17 @@
 #ifndef PLOT_H
 #define PLOT_H
 
-
 #include <QString>
 #include <QPainter>
 #include <QWidget>
 #include <QEvent>
 #include <QGraphicsScene>
 
-
 struct GraphPoint;
 
 using GraphData = QVector<GraphPoint>;
 
 class Graph;
-
 
 struct AxisRange {
     // Set minimum and maximum values on axis.
@@ -27,12 +24,9 @@ struct AxisRange {
 private:
     double start;
     double end;
-
 };
 
-
-class Plot : public QWidget
-{
+class Plot : public QWidget {
     Q_OBJECT
 
 private:
@@ -44,7 +38,6 @@ private:
     };
 
 public:
-
     using PointBoxContainer = QVector<PointBox>;
 
     explicit Plot(QWidget* parent = 0);
@@ -61,7 +54,8 @@ public:
     // Empty graphs remain attached to Plot.
     void reset();
 
-    // Repaint plot. This method is ment to be called when graph data is changed.
+    // Repaint plot. This method is ment to be called when graph data is
+    // changed.
     void replot();
 
     // Set visible axis range.
@@ -71,7 +65,6 @@ public:
     void setRangeY(double start, double end);
 
 protected:
-
     // Override to paint graphs.
     void paintEvent(QPaintEvent*) override;
 
@@ -96,15 +89,15 @@ private:
     AxisRange rangeX;
     AxisRange rangeY;
     QRectF availableRect;
-    bool adaptiveSizeComputed {false};
+    bool adaptiveSizeComputed{false};
     double pointBoxSize;
-    const QBrush pointBoxBrush {Qt::white};
-    constexpr static int labelSkipInd {28};
-    constexpr static int toolTipOffset {10};
+    const QBrush pointBoxBrush{Qt::white};
+    constexpr static int labelSkipInd{28};
+    constexpr static int toolTipOffset{10};
     // RelSizes' are relative to Widget's rect() height
-    constexpr static double labelOffsetRelSize {0.15};
-    constexpr static double marginRelSize {0.07};
-    constexpr static double pointBoxRelSize {0.025};
+    constexpr static double labelOffsetRelSize{0.15};
+    constexpr static double marginRelSize{0.07};
+    constexpr static double pointBoxRelSize{0.025};
 
     // Compute sizes of plot graphic primitives that depend on size of Widget.
     void computeAdaptiveSizes();
@@ -122,19 +115,14 @@ private:
     const QString getPosTooltip(const QPoint& pos) const;
 };
 
-
-struct GraphPoint
-{
+struct GraphPoint {
     double x;
     double y;
     QString label;
 };
 
-
-class Graph
-{
+class Graph {
 public:
-
     using const_iterator = GraphData::const_iterator;
 
     // Set data for this Graph.
@@ -147,7 +135,8 @@ public:
     const QPen pen() const;
 
     // Overload for subscript operator to get access to graph points data.
-    const GraphPoint& operator[](std::size_t idx) const;
+    // TODO change int to std::size_t when switched to std::vector
+    const GraphPoint& operator[](int idx) const;
 
     // Clear graph points.
     void clearData();
@@ -166,14 +155,13 @@ public:
     const_iterator cend() const;
 
     // Return number of points in graph.
-    size_t size() const;
+    // TODO change int to std::size_t when switched to std::vector
+    int size() const;
 
 private:
     QPen mPen;
     GraphData points;
     bool mShowPoints = false;
-
 };
-
 
 #endif // PLOT_H
