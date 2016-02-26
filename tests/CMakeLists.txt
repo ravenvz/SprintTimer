@@ -23,6 +23,23 @@ set(SOURCE_FILES
 # find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql)
 
+if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+  # silence warnings from CppUTest
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-keyword-macro -Wno-inconsistent-missing-override") 
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reserved-id-macro -Wno-disabled-macro-expansion") 
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-old-style-cast") 
+  set(CMAKE_CXX_FLAGS_DEBUG "-O0 -fno-inline -g3 -fstack-protector-all")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g0 -march=native -mtune=native -DNDEBUG")
+elseif(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -ftemplate-backtrace-limit=0")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Werror -pedantic-errors")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS_DEBUG "-O0 -fno-inline -g3 -fstack-protector-all")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g0 -march=native -mtune=native -DNDEBUG")
+else()
+  message(FATAL_ERROR "Unknown compiler.")
+endif()
+
 add_executable(test_pomodoro ${SOURCE_FILES})
 
 include_directories("/usr/include/CppUTest")
