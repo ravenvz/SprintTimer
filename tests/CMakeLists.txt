@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 
-project(test_pomodoro)
+set(TEST_PROJECT test_pomodoro)
+project(${TEST_PROJECT})
 set(SOURCE_FILES
     run_all_tests.cpp
     test_task_scheduler.cpp
@@ -23,26 +24,26 @@ set(SOURCE_FILES
 # find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql)
 
+add_executable(${TEST_PROJECT} ${SOURCE_FILES})
+target_compile_features(${TEST_PROJECT} PRIVATE cxx_return_type_deduction)
+
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-  # silence warnings from CppUTest
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-keyword-macro -Wno-inconsistent-missing-override") 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reserved-id-macro -Wno-disabled-macro-expansion") 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-old-style-cast") 
-  set(CMAKE_CXX_FLAGS_DEBUG "-O0 -fno-inline -g3 -fstack-protector-all")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g0 -march=native -mtune=native -DNDEBUG")
+#   # silence warnings from CppUTest
+    target_compile_options(${TEST_PROJECT} PRIVATE ${CLANG_COMPILE_OPTIONS}
+                                                     -Wno-keyword-macro
+                                                     -Wno-inconsistent-missing-override
+                                                     -Wno-reserved-id-macro
+                                                     -Wno-disabled-macro-expansion
+                                                     -Wno-old-style-cast)
 elseif(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -ftemplate-backtrace-limit=0")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Werror -pedantic-errors")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
-  set(CMAKE_CXX_FLAGS_DEBUG "-O0 -fno-inline -g3 -fstack-protector-all")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g0 -march=native -mtune=native -DNDEBUG")
+    target_compile_options(${TEST_PROJECT} PRIVATE ${GCC_COMPILE_OPTIONS}
+                                                   -Wno-unused-parameter)
 else()
   message(FATAL_ERROR "Unknown compiler.")
 endif()
 
-add_executable(test_pomodoro ${SOURCE_FILES})
+target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
+target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
-include_directories("/usr/include/CppUTest")
-# include_directories("../libs/cpputest/include/CppUTest/*")
-qt5_use_modules(test_pomodoro Core Sql)
-target_link_libraries(test_pomodoro CppUTest)
+target_include_directories(${TEST_PROJECT} PRIVATE /usr/include/CppUTest ../src)
+target_link_libraries(${TEST_PROJECT} CppUTest Qt5::Core Qt5::Sql)
