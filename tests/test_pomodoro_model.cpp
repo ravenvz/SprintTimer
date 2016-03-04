@@ -22,10 +22,19 @@ TEST_GROUP(PomodoroModel) {
     }
 
     bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2) {
-        return pomodoro1.name() == pomodoro2.name() &&
-               pomodoro1.startTime() == pomodoro2.startTime() &&
-               pomodoro1.finishTime() == pomodoro2.finishTime() &&
-               pomodoro1.tags() == pomodoro2.tags();
+        if (pomodoro1.name() != pomodoro2.name() ||
+            pomodoro1.startTime() != pomodoro2.startTime() ||
+            pomodoro1.finishTime() != pomodoro2.finishTime()) {
+            return false;
+        }
+        // Tags are compared sorted, because there is no guarantee of tag
+        // ordering
+        QStringList tags1 = pomodoro1.tags();
+        QStringList tags2 = pomodoro2.tags();
+        std::sort(tags1.begin(), tags1.end());
+        std::sort(tags2.begin(), tags2.end());
+
+        return tags1 == tags2;
     }
 
 };
@@ -37,8 +46,8 @@ TEST(PomodoroModel, test_insert_and_delete) {
     TodoItemModel todoItemModel;
     QString name {"Test item"};
     QStringList tags {"Tag1", "Tag2"};
-    unsigned estimatedPomodoros {4};
-    unsigned spentPomodoros {0};
+    int estimatedPomodoros {4};
+    int spentPomodoros {0};
     TodoItem item {name, estimatedPomodoros, spentPomodoros, tags, false};
     Pomodoro expectedPomodoro {name, interval, tags};
 
@@ -69,8 +78,8 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros) {
     TodoItemModel todoItemModel;
     QString name {"Test item"};
     QStringList tags {"Tag1", "Tag2"};
-    unsigned estimatedPomodoros {4};
-    unsigned spentPomodoros {0};
+    int estimatedPomodoros {4};
+    int spentPomodoros {0};
     TodoItem item {name, estimatedPomodoros, spentPomodoros, tags, false};
 
     CHECK(todoItemModel.insert(item));

@@ -3,15 +3,15 @@
 #include "db_layer/db_helper.h"
 #include <QRegularExpression>
 
-AddTodoItemDialog::AddTodoItemDialog(QSqlTableModel* tagModel, QWidget* parent) :
+AddTodoItemDialog::AddTodoItemDialog(TagModel* tagModel, QWidget* parent) :
     QDialog(parent),
     ui(new Ui::AddTodoItemDialog),
     tagModel(tagModel)
 {
     ui->setupUi(this);
-    // tagModel = new QStringListModel(this);
     setTagsModel();
     connect(ui->tags, SIGNAL(activated(const QString&)), this, SLOT(quickAddTag(const QString&)));
+    connect(ui->todoName, SIGNAL(textEdited(const QString&)), this, SLOT(resetNameLineEditStyle()));
 }
 
 AddTodoItemDialog::~AddTodoItemDialog()
@@ -25,10 +25,14 @@ TodoItem AddTodoItemDialog::getNewTodoItem() {
 
 void AddTodoItemDialog::accept() {
     QString name = ui->todoName->text();
-    unsigned estimatedPomodoros = ui->estimatedPomodoros->value();
+    int estimatedPomodoros = ui->estimatedPomodoros->value();
     QString tagsString = ui->leTags->text();
 
-    if (!name.isEmpty()) {
+    if (name.isEmpty()) {
+        ui->todoName->setStyleSheet("QLineEdit {"
+                                    "   border: 2px solid red;"
+                                    "}");
+    } else {
         QStringList tags = parseTags(tagsString);
         item = TodoItem {name, estimatedPomodoros, 0, tags, false};
         QDialog::accept();
@@ -52,8 +56,6 @@ void AddTodoItemDialog::fillItemData(TodoItem item) {
 }
 
 void AddTodoItemDialog::setTagsModel() {
-    // QStringList lst = TagDataSource::getAllTags();
-    // tagModel->setStringList(lst);
     ui->tags->setModel(tagModel);
     ui->tags->setModelColumn(1);
     tagModel->select();
@@ -67,4 +69,8 @@ void AddTodoItemDialog::quickAddTag(const QString& tag) {
     }
     prevTag.append(tag);
     ui->leTags->setText(prevTag);
+}
+
+void AddTodoItemDialog::resetNameLineEditStyle() {
+    ui->todoName->setStyleSheet("");
 }

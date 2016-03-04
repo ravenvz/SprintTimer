@@ -3,101 +3,112 @@
 
 #include <QDateTime>
 
-
 struct DateInterval {
     QDate startDate;
     QDate endDate;
 
-    QString toString() const {
-        return QString("%1 - %2").arg(startDate.toString()).arg(endDate.toString());
+    QString toString() const
+    {
+        return QString("%1 - %2")
+            .arg(startDate.toString())
+            .arg(endDate.toString());
     }
 
-    int sizeInDays() const {
-        return int(startDate.daysTo(endDate) + 1);
+    int sizeInDays() const
+    {
+        return static_cast<int>(startDate.daysTo(endDate) + 1);
     }
 };
-
 
 struct TimeInterval {
     QDateTime startTime;
     QDateTime finishTime;
 
-    enum class DayPart {
-        MIDNIGHT,
-        NIGHT,
-        MORNING,
-        NOON,
-        AFTERNOON,
-        EVENING
-    };
+    enum class DayPart { MIDNIGHT, NIGHT, MORNING, NOON, AFTERNOON, EVENING };
 
-    DayPart getDayPart() const {
+    DayPart getDayPart() const
+    {
         int hour = startTime.time().hour();
         if (22 < hour || hour <= 2) {
             return DayPart::MIDNIGHT;
-        } else if (2 < hour && hour <= 6) {
+        }
+        else if (2 < hour && hour <= 6) {
             return DayPart::NIGHT;
-        } else if (6 < hour && hour <= 10) {
+        }
+        else if (6 < hour && hour <= 10) {
             return DayPart::MORNING;
-        } else if (10 < hour && hour <= 14) {
+        }
+        else if (10 < hour && hour <= 14) {
             return DayPart::NOON;
-        } else if (14 < hour && hour <= 18) {
+        }
+        else if (14 < hour && hour <= 18) {
             return DayPart::AFTERNOON;
-        } else {
+        }
+        else {
             return DayPart::EVENING;
         }
     }
 
-    static QString dayPartName(int dayPart) {
+    static QString dayPartName(int dayPart)
+    {
         return dayPartName(static_cast<DayPart>(dayPart));
     }
 
-    static QString dayPartName(DayPart dayPart) {
+    static QString dayPartName(DayPart dayPart)
+    {
         switch (dayPart) {
-            case DayPart::MIDNIGHT:
-                return "Midnight";
-            case DayPart::NIGHT:
-                return "Night";
-            case DayPart::MORNING:
-                return "Morning";
-            case DayPart::NOON:
-                return "Noon";
-            case DayPart::AFTERNOON:
-                return "Afternoon";
-            case DayPart::EVENING:
-                return "Evening";
+        case DayPart::MIDNIGHT:
+            return "Midnight";
+        case DayPart::NIGHT:
+            return "Night";
+        case DayPart::MORNING:
+            return "Morning";
+        case DayPart::NOON:
+            return "Noon";
+        case DayPart::AFTERNOON:
+            return "Afternoon";
+        case DayPart::EVENING:
+            return "Evening";
         }
         return "Invalid";
     }
 
-    static QString dayPartHours(int dayPart) {
+    static QString dayPartHours(int dayPart)
+    {
         return dayPartHours(static_cast<DayPart>(dayPart));
     }
 
-    static QString dayPartHours(DayPart dayPart) {
+    static QString dayPartHours(DayPart dayPart)
+    {
         switch (dayPart) {
-            case DayPart::MIDNIGHT:
-                return "22:00 - 2:00";
-            case DayPart::NIGHT:
-                return "2:00 - 6:00";
-            case DayPart::MORNING:
-                return "6:00 - 10:00";
-            case DayPart::NOON:
-                return "10:00 - 14:00";
-            case DayPart::AFTERNOON:
-                return "14:00 - 18:00";
-            case DayPart::EVENING:
-                return "18:00 - 22:00";
+        case DayPart::MIDNIGHT:
+            return "22:00 - 2:00";
+        case DayPart::NIGHT:
+            return "2:00 - 6:00";
+        case DayPart::MORNING:
+            return "6:00 - 10:00";
+        case DayPart::NOON:
+            return "10:00 - 14:00";
+        case DayPart::AFTERNOON:
+            return "14:00 - 18:00";
+        case DayPart::EVENING:
+            return "18:00 - 22:00";
         }
         return "Invalid";
     }
 
-    QString toString() const {
-        return QString("%1 - %2").arg(startTime.toString()).arg(finishTime.toString());
+    QString toString() const
+    {
+        return QString("%1 - %2")
+            .arg(startTime.toString())
+            .arg(finishTime.toString());
     }
 
-    QString toTimeString() const {
-        return QString("%1 - %2").arg(startTime.toString("HH:mm")).arg(finishTime.toString("HH:mm"));
+    QString toTimeString() const
+    {
+        return QString("%1 - %2")
+            .arg(startTime.toString("HH:mm"))
+            .arg(finishTime.toString("HH:mm"));
     }
 };
 

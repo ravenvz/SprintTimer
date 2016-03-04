@@ -3,5 +3,7 @@
     <file>icons/config.ico</file>
     <file>icons/pomodoro.png</file>
     <file>icons/statistics.png</file>
+    <file>icons/control_panel.ico</file>
+    <file>icons/history.ico</file>
 </qresource>
 </RCC>

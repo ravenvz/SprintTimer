@@ -2,9 +2,8 @@
 #include <QHBoxLayout>
 #include "piediagram.h"
 
-
-PieDiagram::PieDiagram(QWidget* parent) :
-    QWidget(parent) 
+PieDiagram::PieDiagram(QWidget* parent)
+    : QWidget(parent)
 {
     QHBoxLayout* layout = new QHBoxLayout();
     legendLayout = new QVBoxLayout();
@@ -14,14 +13,14 @@ PieDiagram::PieDiagram(QWidget* parent) :
     layout->addLayout(legendLayout);
     layout->addWidget(diagram);
     setLayout(layout);
-    connect(diagram, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
+    connect(diagram, SIGNAL(sliceSelectionChanged(int)), this,
+        SLOT(onSliceSelectionChanged(int)));
 }
 
-PieDiagram::~PieDiagram() {
-    delete diagram;
-}
+PieDiagram::~PieDiagram() { delete diagram; }
 
-void PieDiagram::setData(QVector<Slice>& data) {
+void PieDiagram::setData(QVector<Slice>& data)
+{
     selectedSlice = -1;
     const auto& labelsRef = labels;
     for (LegendLabel* label : labelsRef) {
@@ -33,23 +32,24 @@ void PieDiagram::setData(QVector<Slice>& data) {
         LegendLabel* label = new LegendLabel(data[i].first, i);
         legendLayout->addWidget(label);
         label->setVisible(true);
-        connect(label, SIGNAL(clicked(int)), this, SLOT(onLegendItemClicked(int)));
+        connect(
+            label, SIGNAL(clicked(int)), this, SLOT(onLegendItemClicked(int)));
         labels << label;
     }
     legendLayout->addStretch(1);
     diagram->setData(data);
 }
 
-void PieDiagram::setLegendTitle(QString title) {
+void PieDiagram::setLegendTitle(QString title)
+{
     labelLegendTitle->setText(title);
     labelLegendTitle->setVisible(true);
 }
 
-void PieDiagram::setFont(QFont font) {
-    labelLegendTitle->setFont(font);
-}
+void PieDiagram::setFont(QFont font) { labelLegendTitle->setFont(font); }
 
-void PieDiagram::onSliceSelectionChanged(int sliceIndex) {
+void PieDiagram::onSliceSelectionChanged(int sliceIndex)
+{
     if (selectedSlice != -1)
         labels[selectedSlice]->setStyleSheet("QLabel { color: black; }");
     if (sliceIndex != -1 && sliceIndex != selectedSlice)
@@ -58,22 +58,26 @@ void PieDiagram::onSliceSelectionChanged(int sliceIndex) {
     emit sliceSelectionChanged(sliceIndex);
 }
 
-void PieDiagram::onLegendItemClicked(int itemIndex) {
+void PieDiagram::onLegendItemClicked(int itemIndex)
+{
     diagram->setSelectedSlice(itemIndex);
 }
 
-Diagram::Diagram(QWidget* parent) :
-    QWidget(parent)
+Diagram::Diagram(QWidget* parent)
+    : QWidget(parent)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     connectSlots();
 }
 
-void Diagram::connectSlots() {
-    connect(this, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
+void Diagram::connectSlots()
+{
+    connect(this, SIGNAL(sliceSelectionChanged(int)), this,
+        SLOT(onSliceSelectionChanged(int)));
 }
 
-void Diagram::setData(QVector<Slice>& data) {
+void Diagram::setData(QVector<Slice>& data)
+{
     selectedPieIndex = -1;
     sortedData.clear();
     std::transform(data.begin(), data.end(), std::back_inserter(sortedData),
@@ -83,7 +87,8 @@ void Diagram::setData(QVector<Slice>& data) {
     repaint();
 }
 
-void Diagram::paintEvent(QPaintEvent* event) {
+void Diagram::paintEvent(QPaintEvent*)
+{
     computeAdaptiveSizes();
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -91,9 +96,8 @@ void Diagram::paintEvent(QPaintEvent* event) {
     pen.setWidthF(1.2);
     pen.setColor(Qt::black);
     painter.setPen(pen);
-//    painter.drawEllipse(diagramRect);
-//    painter.drawEllipse(expandedSliceRect);
-
+    //    painter.drawEllipse(diagramRect);
+    //    painter.drawEllipse(expandedSliceRect);
 
     painter.setPen(QPen(Qt::gray));
 
@@ -101,53 +105,65 @@ void Diagram::paintEvent(QPaintEvent* event) {
     for (int i = 0; i < sortedData.size(); ++i) {
         painter.setBrush(brushes[i % brushes.size()]);
         if (i == selectedPieIndex) {
-            QPointF offsetPoint = computeOffsetPoint(sortedData[i].second, offset);
+            QPointF offsetPoint
+                = computeOffsetPoint(sortedData[i].second, offset);
             painter.translate(offsetPoint);
-            painter.drawPie(diagramRect, int(offset * 16), int(sortedData[i].second * 16));
+            painter.drawPie(
+                diagramRect, int(offset * 16), int(sortedData[i].second * 16));
             painter.resetTransform();
-        } else {
-            painter.drawPie(diagramRect, int(offset * 16), int(sortedData[i].second * 16));
+        }
+        else {
+            painter.drawPie(
+                diagramRect, int(offset * 16), int(sortedData[i].second * 16));
         }
         offset += sortedData[i].second;
     }
 }
 
-QPointF Diagram::computeOffsetPoint(double current, double offset) {
+QPointF Diagram::computeOffsetPoint(double current, double offset)
+{
     double angle = offset + current / 2;
     double angleRads = angle * pi / 180;
     double x = expandedShiftLength * cos(angleRads);
     double y = expandedShiftLength * sin(angleRads);
-    if (0 <= angle && angle <= 90) y = -y;
-    else if (90 < angle && angle <= 180) y = -y;
-    else if (180 < angle && angle <= 270) y = -y;
-    else y = -y;
-    return QPointF {x, y};
+    if (0 <= angle && angle <= 90)
+        y = -y;
+    else if (90 < angle && angle <= 180)
+        y = -y;
+    else if (180 < angle && angle <= 270)
+        y = -y;
+    else
+        y = -y;
+    return QPointF{x, y};
 }
 
-void Diagram::computeAdaptiveSizes() {
+void Diagram::computeAdaptiveSizes()
+{
     totalSizeRect = QRectF(QPointF(0, 0), this->size());
     QPointF center = totalSizeRect.center();
-    double expandedSliceRelativeDiameter = 0.98 * std::min(totalSizeRect.width(), totalSizeRect.height());
-    double diagramRelativeDiameter = expandedSliceRelativeDiameter - 0.1*expandedSliceRelativeDiameter;
-    expandedShiftLength = (expandedSliceRelativeDiameter -  diagramRelativeDiameter) / 2;
-    expandedSliceRect = QRectF {center.x() - expandedSliceRelativeDiameter / 2,
-                                center.y() - expandedSliceRelativeDiameter / 2,
-                                expandedSliceRelativeDiameter,
-                                expandedSliceRelativeDiameter};
-    diagramRect = QRectF {center.x() - diagramRelativeDiameter / 2,
-                          center.y() - diagramRelativeDiameter / 2,
-                          diagramRelativeDiameter,
-                          diagramRelativeDiameter};
-
+    double expandedSliceRelativeDiameter
+        = 0.98 * std::min(totalSizeRect.width(), totalSizeRect.height());
+    double diagramRelativeDiameter
+        = expandedSliceRelativeDiameter - 0.1 * expandedSliceRelativeDiameter;
+    expandedShiftLength
+        = (expandedSliceRelativeDiameter - diagramRelativeDiameter) / 2;
+    expandedSliceRect = QRectF{center.x() - expandedSliceRelativeDiameter / 2,
+        center.y() - expandedSliceRelativeDiameter / 2,
+        expandedSliceRelativeDiameter, expandedSliceRelativeDiameter};
+    diagramRect = QRectF{center.x() - diagramRelativeDiameter / 2,
+        center.y() - diagramRelativeDiameter / 2, diagramRelativeDiameter,
+        diagramRelativeDiameter};
 }
 
-void Diagram::mousePressEvent(QMouseEvent * event) {
+void Diagram::mousePressEvent(QMouseEvent* event)
+{
     if (event->button() == Qt::LeftButton) {
         updateSelectedSliceIndex(event->pos());
     }
 }
 
-void Diagram::updateSelectedSliceIndex(const QPoint& pos) {
+void Diagram::updateSelectedSliceIndex(const QPoint& pos)
+{
     double angle = QLineF(diagramRect.center(), pos).angle();
     double offset = 0;
     for (int i = 0; i < sortedData.size(); ++i) {
@@ -159,27 +175,28 @@ void Diagram::updateSelectedSliceIndex(const QPoint& pos) {
     }
 }
 
-void Diagram::onSliceSelectionChanged(int sliceIndex) {
+void Diagram::onSliceSelectionChanged(int sliceIndex)
+{
     selectedPieIndex = selectedPieIndex == sliceIndex ? -1 : sliceIndex;
     repaint();
 }
 
-void Diagram::setSelectedSlice(int sliceIndex) {
+void Diagram::setSelectedSlice(int sliceIndex)
+{
     emit sliceSelectionChanged(sliceIndex);
 }
 
-LegendLabel::LegendLabel(const QString& text, int itemIndex, QWidget* parent) :
-    QLabel(parent),
-    itemIndex(itemIndex)
+LegendLabel::LegendLabel(const QString& text, int itemIndex, QWidget* parent)
+    : QLabel(parent)
+    , itemIndex(itemIndex)
 {
     this->setText(text);
 }
 
-LegendLabel::~LegendLabel() {
+LegendLabel::~LegendLabel() {}
 
-}
-
-void LegendLabel::mousePressEvent(QMouseEvent* event) {
+void LegendLabel::mousePressEvent(QMouseEvent* event)
+{
     if (event->button() == Qt::LeftButton)
         emit clicked(itemIndex);
 }

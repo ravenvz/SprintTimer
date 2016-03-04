@@ -9,20 +9,20 @@
 class TaskScheduler {
 
 public:
-    TaskScheduler(IConfig* applicationSettings);
+    explicit TaskScheduler(IConfig* applicationSettings);
     void startTask();
     TimeInterval finishTask();
     void cancelTask();
     void setNextState();
-    unsigned getTaskDurationInMinutes();
+    int taskDurationInMinutes();
     bool isBreak();
-    unsigned getNumCompletedTasks();
-    void setNumCompletedTasks(unsigned numTasks);
+    int numCompletedTasks();
+    void setNumCompletedTasks(int numTasks);
     void toggleInTheZoneMode();
 
 private:
     IConfig* applicationSettings;
-    unsigned completedTasks;
+    int completedTasks;
     bool inTheZoneMode;
     enum class TaskState { TASK, SHORT_BREAK, LONG_BREAK  };
     TaskState currentState;

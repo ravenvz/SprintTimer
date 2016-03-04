@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <memory>
 #include <vector>
+#include <experimental/optional>
 #include "core/TaskScheduler.h"
 #include "db_layer/db_helper.h"
 #include "goalsview.h"
@@ -43,7 +44,7 @@ private slots:
     void quickAddTodoItem();
     void updateTimerCounter();
     void submitPomodoro();
-    void autoPutTodoOnClick(QModelIndex index);
+    void changeSelectedTask(QModelIndex index);
     void showTodoItemContextMenu(const QPoint& pos);
     void showPomodoroContextMenu(const QPoint& pos);
     void toggleTodoItemCompleted();
@@ -63,7 +64,7 @@ private:
     std::unique_ptr<QMediaPlayer> player;
     std::vector<TimeInterval> completedTasksIntervals;
     int progressBarMaxValue {0};
-    Second timerDuration {0};
+    Second timeLeft {0};
     QPointer<PomodoroModel> pomodoroModel;
     QPointer<TagModel> tagModel;
     QPointer<TodoItemModel> todoitemViewModel;
@@ -72,18 +73,24 @@ private:
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
     QPointer<TagEditorWidget> tagEditor;
+    std::experimental::optional<long long> selectedTaskId;
 
     void connectSlots();
     void setUiToIdleState();
     void setUiToRunningState();
     void setUiToSubmissionState();
+    void updateTimerDisplay();
+
+    /* Set stopwatch value. */
+    void setTimerValue(Second timeLeft);
+
     void updateOpenedWindows();
     void updatePomodoroView();
     void updateStatisticsWindow();
     void updateHistoryWindow();
     void updateGoalWindow();
     void editTodoItem();
-    void remove();
+    void removeTask();
     void removePomodoro();
     void playSound();
     void bringToForeground(QWidget* widgetPtr);

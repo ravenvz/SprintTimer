@@ -39,7 +39,7 @@ void TaskScheduler::setNextState() {
     if (currentState != TaskState::TASK) {
         currentState = TaskState::TASK;
     } else {
-        if (completedTasks % applicationSettings->getTasksBeforeBreak() == 0) {
+        if (completedTasks % applicationSettings->numTasksBeforeBreak() == 0) {
             currentState = TaskState::LONG_BREAK;
         } else {
             currentState = TaskState::SHORT_BREAK;
@@ -47,22 +47,24 @@ void TaskScheduler::setNextState() {
     }
 }
 
-unsigned TaskScheduler::getTaskDurationInMinutes() {
+int TaskScheduler::taskDurationInMinutes() {
     switch (currentState) {
         case TaskState::TASK:
-            return applicationSettings->getPomodoroDuration();
+            return applicationSettings->pomodoroDuration();
         case TaskState::LONG_BREAK:
-            return applicationSettings->getLongBreakDuration();
+            return applicationSettings->longBreakDuration();
+        case TaskState::SHORT_BREAK:
+            return applicationSettings->shortBreakDuration();
         default:
-            return applicationSettings->getShortBreakDuration();
+            return applicationSettings->shortBreakDuration();
     }
 }
 
-unsigned TaskScheduler::getNumCompletedTasks() {
+int TaskScheduler::numCompletedTasks() {
     return completedTasks;
 }
 
-void TaskScheduler::setNumCompletedTasks(unsigned numTasks) {
+void TaskScheduler::setNumCompletedTasks(int numTasks) {
     TaskScheduler::completedTasks = numTasks;
 }
 

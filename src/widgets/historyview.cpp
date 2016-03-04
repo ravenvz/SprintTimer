@@ -44,9 +44,6 @@ HistoryView::HistoryView(QWidget* parent) :
 }
 
 HistoryView::~HistoryView() {
-    delete pomodoroModel;
-    delete todoItemModel;
-    delete viewModel;
     delete ui;
 }
 
@@ -86,6 +83,8 @@ QVector<HistoryView::HistoryItem> HistoryView::getTaskHistory() const {
 }
 
 void HistoryView::fillHistoryModel(const QVector<HistoryItem>& history) {
+    // QStandardItemModel takes ownership of items that are added with appendRow()
+    // so they will be deleted when model is deleted.
     viewModel->clear();
     if (history.empty()) {
         viewModel->appendRow(new QStandardItem("No data for selected period."));
@@ -98,6 +97,7 @@ void HistoryView::fillHistoryModel(const QVector<HistoryItem>& history) {
     int children {0};
     QDate date = history.front().first;
     parent = new QStandardItem(date.toString());
+    viewModel->appendRow(parent);
     for (const auto& historyItem : history) {
         if (historyItem.first != date) {
             children = 0;

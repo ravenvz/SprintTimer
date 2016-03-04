@@ -5,7 +5,7 @@
 #include <QDebug>
 
 
-Gauge::Gauge(unsigned actual, unsigned goal, QWidget* parent) :
+Gauge::Gauge(int actual, int goal, QWidget* parent) :
     QWidget(parent),
     actual(actual),
     goal(goal)
@@ -47,7 +47,7 @@ void Gauge::computeAdaptiveSizes() {
 
 void Gauge::drawOuterCircle(QPainter& painter) {
     const int fullCircle = 360 * 16;
-    float completedAngle = (actual % goal) * fullCircle / float(goal);
+    int completedAngle = static_cast<int>((actual % goal) * fullCircle / float(goal));
     painter.setBrush(empty);
     painter.drawEllipse(outerRect);
     painter.setBrush(filled);
@@ -68,7 +68,7 @@ void Gauge::drawInnerCircle(QPainter& painter) {
         painter.setPen(Qt::white);
     }
     QFont font = painter.font();
-    font.setPixelSize(0.3 * innerRect.width());
+    font.setPixelSize(static_cast<int>(0.3 * innerRect.width()));
     painter.setFont(font);
     painter.drawText(innerRect, Qt::AlignCenter, text);
 }
@@ -104,17 +104,17 @@ bool Gauge::eventFilter(QObject* object, QEvent* event) {
     return false;
 }
 
-EmptyGauge::EmptyGauge(unsigned actual, unsigned goal, QWidget* parent) :
+EmptyGauge::EmptyGauge(int actual, int goal, QWidget* parent) :
     Gauge(actual, goal, parent)
 {
 }
 
-FilledGauge::FilledGauge(unsigned actual, unsigned goal, QWidget* parent) :
+FilledGauge::FilledGauge(int actual, int goal, QWidget* parent) :
     Gauge(actual, goal, parent)
 {
 }
 
-OverfilledGauge::OverfilledGauge(unsigned actual, unsigned goal, QWidget* parent) :
+OverfilledGauge::OverfilledGauge(int actual, int goal, QWidget* parent) :
     Gauge(actual, goal, parent)
 {
     filled = Qt::red;

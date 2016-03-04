@@ -20,12 +20,12 @@ SettingsDialog::~SettingsDialog() {
 
 
 void SettingsDialog::fillSettingsData() {
-    ui->spBxPomodoroDuration->setValue(applicationSettings.getPomodoroDuration());
-    ui->spBxShortDuration->setValue(applicationSettings.getShortBreakDuration());
-    ui->spBxLongDuration->setValue(applicationSettings.getLongBreakDuration());
-    ui->spBxLongBreakAfter->setValue(applicationSettings.getTasksBeforeBreak());
+    ui->spBxPomodoroDuration->setValue(applicationSettings.pomodoroDuration());
+    ui->spBxShortDuration->setValue(applicationSettings.shortBreakDuration());
+    ui->spBxLongDuration->setValue(applicationSettings.longBreakDuration());
+    ui->spBxLongBreakAfter->setValue(applicationSettings.numTasksBeforeBreak());
     ui->chBxPlaySound->setChecked(applicationSettings.soundIsEnabled());
-    ui->hSliderVolume->setValue(applicationSettings.getSoundVolume());
+    ui->hSliderVolume->setValue(applicationSettings.soundVolume());
 }
 
 

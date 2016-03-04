@@ -20,7 +20,8 @@ namespace Ui {
 class HistoryViewDelegate : public QStyledItemDelegate
 {
 public:
-    HistoryViewDelegate(QObject* parent = 0);
+
+    explicit HistoryViewDelegate(QObject* parent = 0);
 
     // Override to paint root items in bold font.
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
@@ -49,9 +50,9 @@ private:
     using HistoryItem = std::pair<QDate, QString>;
     Ui::HistoryView* ui;
     DateInterval selectedDateInterval;
-    PomodoroModel* pomodoroModel;
-    TodoItemModel* todoItemModel;
-    QStandardItemModel* viewModel;
+    QPointer<PomodoroModel> pomodoroModel;
+    QPointer<TodoItemModel> todoItemModel;
+    QPointer<QStandardItemModel> viewModel;
     enum class HistoryType {
         Pomodoro,
         Task

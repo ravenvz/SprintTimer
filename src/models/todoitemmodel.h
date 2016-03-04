@@ -8,9 +8,7 @@
 #include "core/entities/TodoItem.h"
 #include "core/timeinterval.h"
 
-
-class TodoItemModel : public SqliteTableModel
-{
+class TodoItemModel : public SqliteTableModel {
 public:
     using TodoItemWithTimeStamp = std::pair<QDate, QString>;
 
@@ -25,9 +23,11 @@ public:
     // Override to support drag and drop.
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    // Override to provide support for custom roles as well as to customize behaviour
+    // Override to provide support for custom roles as well as to customize
+    // behaviour
     // of the default roles.
-    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    QVariant data(
+        const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
     // Override to support drag and drop. Changes items' priorities instead of
     // removing row and inserting it at destination position as in default
@@ -35,25 +35,31 @@ public:
     // as sqlite view is set to this model, and removing row from it would have
     // undesired consequences.
     bool moveRows(const QModelIndex& sourceParent, int sourceRow, int count,
-                 const QModelIndex& destinationParent, int destinationChild) override;
+        const QModelIndex& destinationParent, int destinationChild) override;
 
-    enum customRoles { CopyToPomodoroRole = Qt::UserRole + 1,
-                       GetIdRole = Qt::UserRole + 2,
-                       GetSpentPomodorosRole = Qt::UserRole + 3,
-                       PriorityRole = Qt::UserRole + 4 };
+    enum customRoles {
+        TagsRole = Qt::UserRole + 1,
+        DescriptionRole,
+        StatsRole,
+        GetIdRole,
+        GetSpentPomodorosRole,
+        PriorityRole
+    };
 
     // Insert new TodoItem into the database.
     // Return boolean, indicating success of the operation.
     // Changes are rolled back in case of failure.
     bool insert(const TodoItem& item);
 
-    // Remove item with given index and return boolean, indicating success of the operation.
+    // Remove item with given index and return boolean, indicating success of
+    // the operation.
     bool remove(const QModelIndex& index);
 
     // Overload that accepts row number as item identifier.
     bool remove(const int row);
 
-    // Return item at given row. This is a convinient method that allows to get item
+    // Return item at given row. This is a convinient method that allows to get
+    // item
     // without verbose calls to data().
     TodoItem itemAt(const int row) const;
 
@@ -63,7 +69,8 @@ public:
     // Return QVector of all items (not only cached) in the model.
     QVector<TodoItem> items();
 
-    // Return vector of pairs of date and time when item was last edited and item itself.
+    // Return vector of pairs of date and time when item was last edited and
+    // item itself.
     QVector<TodoItemModel::TodoItemWithTimeStamp> itemsWithTimestamp();
 
     // Replace data of item at given row with data from the newItem.
@@ -73,7 +80,8 @@ public:
     // less than 1 day ago.
     void setNotCompletedFilter();
 
-    // Set filter to show only items that are completed between dates in the given interval.
+    // Set filter to show only items that are completed between dates in the
+    // given interval.
     void setCompletedInIntervalFilter(const DateInterval& interval);
 
     // Return item id at a given row.
@@ -101,18 +109,20 @@ private:
         LastModified
     };
 
-
     // Return value in the field identified by QSqlRecord and column number
     // wrapped in QVariant
-    QVariant columnData(const QSqlRecord& rowRecord, const Column& column) const;
+    QVariant columnData(
+        const QSqlRecord& rowRecord, const Column& column) const;
 
     // Return value in given row and column wrapped in QVariant.
     QVariant columnData(const int row, const Column& column) const;
 
-    // Given row number and two sets of tag names, update tags accordingly for item at this row.
+    // Given row number and two sets of tag names, update tags accordingly for
+    // item at this row.
     // Tag sets may contain identical tags.
     // Relations between items and tags are also updated.
-    bool updateTags(const int row, const QSet<QString>& tagsToRemove, const QSet<QString>& tagsToInsert);
+    bool updateTags(const int row, const QSet<QString>& tagsToRemove,
+        const QSet<QString>& tagsToInsert);
 
     // Given row number and set of tag names, insert tags in the database.
     // Create relations between items and tags.
@@ -120,8 +130,10 @@ private:
 
     // Given row number and set of tag names, remove tags from the database.
     // Remove relations between items and tags.
-    // Note that after removing relation, tag might become orphaned (that is, not
-    // associated with any item). This implementation relies on the SQL trigger to
+    // Note that after removing relation, tag might become orphaned (that is,
+    // not
+    // associated with any item). This implementation relies on the SQL trigger
+    // to
     // clean up such orphaned tags.
     bool removeTags(QVariant itemId, const QSet<QString>& tags);
 

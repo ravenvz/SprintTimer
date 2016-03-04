@@ -4,8 +4,8 @@
 
 
 TEST_GROUP(TodoItemModel) {
-    const unsigned defaultEstimatedPomos {1};
-    const unsigned defaultSpentPomos {0};
+    const int defaultEstimatedPomos {1};
+    const int defaultSpentPomos {0};
     enum Column {
         TodoId,
         TodoName,
@@ -30,11 +30,19 @@ TEST_GROUP(TodoItemModel) {
     }
 
     bool todo_item_equal(const TodoItem& item1, const TodoItem& item2) {
-        return item1.name() == item2.name() &&
-               item1.estimatedPomodoros() == item2.estimatedPomodoros() &&
-               item1.spentPomodoros() == item2.spentPomodoros() &&
-               item1.isCompleted() == item2.isCompleted() &&
-               item1.tags() == item2.tags();
+        if (item1.name() != item2.name() ||
+            item1.estimatedPomodoros() != item2.estimatedPomodoros() ||
+            item1.spentPomodoros() != item2.spentPomodoros() ||
+            item1.isCompleted() != item2.isCompleted()) {
+            return false;
+        }
+        // Tags are compared sorted, because there is no guarantee of tag
+        // ordering
+        QStringList tags1 = item1.tags();
+        QStringList tags2 = item2.tags();
+        std::sort(tags1.begin(), tags1.end());
+        std::sort(tags2.begin(), tags2.end());
+        return tags1 == tags2;
     }
 
 };
