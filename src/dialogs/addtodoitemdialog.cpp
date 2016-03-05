@@ -1,6 +1,6 @@
 #include "addtodoitemdialog.h"
 #include "ui_add_todo_dialog.h"
-#include "db_layer/db_helper.h"
+#include "db_layer/db_service.h"
 #include <QRegularExpression>
 
 AddTodoItemDialog::AddTodoItemDialog(TagModel* tagModel, QWidget* parent) :

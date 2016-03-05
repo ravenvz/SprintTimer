@@ -16,7 +16,7 @@ set(SOURCE_FILES
     ../src/core/entities/Pomodoro.cpp
     ../src/core/entities/TodoItem.cpp
     ../src/core/entities/TodoItem.h
-    ../src/db_layer/db_helper.cpp
+    ../src/db_layer/db_service.cpp
         ../src/models/todoitemmodel.cpp
         ../src/models/pomodoromodel.cpp
     ../src/utils/MathUtils.cpp

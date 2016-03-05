@@ -1,7 +1,7 @@
 #include <QSize>
 #include <QSet>
 #include "todoitemmodel.h"
-#include "db_layer/db_helper.h"
+#include "db_layer/db_service.h"
 
 TodoItemModel::TodoItemModel(QObject* parent)
     : SqliteTableModel(parent)

@@ -10,7 +10,7 @@
 #include <vector>
 #include <experimental/optional>
 #include "core/TaskScheduler.h"
-#include "db_layer/db_helper.h"
+#include "db_layer/db_service.h"
 #include "goalsview.h"
 #include "src/models/pomodoromodel.h"
 #include "src/models/tagmodel.h"

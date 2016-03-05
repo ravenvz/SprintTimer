@@ -1,5 +1,5 @@
 #include "pomodoromodel.h"
-#include "db_layer/db_helper.h"
+#include "db_layer/db_service.h"
 #include <QDebug>
 #include <QSqlRecord>
 #include <QDateTime>

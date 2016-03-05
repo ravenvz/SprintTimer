@@ -1,6 +1,6 @@
 #include "manualaddpomodorodialog.h"
 #include "ui_manual_add_pomodoro_dialog.h"
-#include "db_layer/db_helper.h"
+#include "db_layer/db_service.h"
 
 
 PomodoroManualAddDialog::PomodoroManualAddDialog(PomodoroModel* pomodoroModel, TodoItemModel* todoItemModel, int pomodoroDuration, QDialog* parent) :
