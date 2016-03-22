@@ -95,7 +95,7 @@ TEST_GROUP(TaskSchedulerGroup) {
 
 TEST(TaskSchedulerGroup, should_set_state_to_break_when_finishing_task) {
     TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+    TaskScheduler scheduler {testConfig};
     scheduler.startTask();
     scheduler.finishTask();
 
@@ -105,7 +105,7 @@ TEST(TaskSchedulerGroup, should_set_state_to_break_when_finishing_task) {
 
 TEST(TaskSchedulerGroup, should_set_state_to_long_break_when_finishing_task_cycle) {
     TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+    TaskScheduler scheduler {testConfig};
     scheduler.setNumCompletedTasks(3);
 
     scheduler.startTask();
@@ -116,7 +116,7 @@ TEST(TaskSchedulerGroup, should_set_state_to_long_break_when_finishing_task_cycl
 
 TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_finishing_break) {
     TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+    TaskScheduler scheduler {testConfig};
     scheduler.setNumCompletedTasks(3);
 
     scheduler.startTask();
@@ -129,7 +129,7 @@ TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_finishing_break) {
 
 TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_task) {
     TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+    TaskScheduler scheduler {testConfig};
 
     scheduler.startTask();
     scheduler.cancelTask();
@@ -139,7 +139,7 @@ TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_task) {
 
 TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_break) {
     TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+    TaskScheduler scheduler {testConfig};
 
     scheduler.startTask();
     scheduler.finishTask();
@@ -151,7 +151,7 @@ TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_break) {
 }
 TEST(TaskSchedulerGroup, should_increment_completed_tasks_counter_when_finishing_task) {
     TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+    TaskScheduler scheduler {testConfig};
     scheduler.setNumCompletedTasks(2);
 
     scheduler.startTask();
@@ -162,7 +162,7 @@ TEST(TaskSchedulerGroup, should_increment_completed_tasks_counter_when_finishing
 
 TEST(TaskSchedulerGroup, should_not_increment_completed_tasks_counter_when_finishing_break) {
     TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+    TaskScheduler scheduler {testConfig};
     scheduler.setNumCompletedTasks(2);
 
     scheduler.startTask();
@@ -177,7 +177,7 @@ TEST(TaskSchedulerGroup, should_not_increment_completed_tasks_counter_when_finis
 
 TEST(TaskSchedulerGroup, should_only_schedule_tasks_if_in_the_zone_mode_active) {
     TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+    TaskScheduler scheduler {testConfig};
 
     scheduler.toggleInTheZoneMode();
 

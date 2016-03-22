@@ -2,6 +2,7 @@
 #define POMODORO_TASKSCHEDULER_H
 
 #include <QSettings>
+#include <QTimer>
 #include <core/timeinterval.h>
 #include "config.h"
 
@@ -9,7 +10,7 @@
 class TaskScheduler {
 
 public:
-    explicit TaskScheduler(IConfig* applicationSettings);
+    explicit TaskScheduler(const IConfig& applicationSettings);
     void startTask();
     TimeInterval finishTask();
     void cancelTask();
@@ -21,13 +22,13 @@ public:
     void toggleInTheZoneMode();
 
 private:
-    IConfig* applicationSettings;
+    const IConfig& applicationSettings;
     int completedTasks;
     bool inTheZoneMode;
-    enum class TaskState { TASK, SHORT_BREAK, LONG_BREAK  };
+    enum class TaskState { TASK, SHORT_BREAK, LONG_BREAK };
     TaskState currentState;
     TimeInterval currentTimeInterval;
 };
 
 
-#endif //POMODORO_TASKSCHEDULER_H
+#endif // POMODORO_TASKSCHEDULER_H
