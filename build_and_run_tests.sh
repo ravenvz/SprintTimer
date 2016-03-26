@@ -8,8 +8,9 @@ cxx_compiler="g++"
 memory_sanitizer="OFF"
 address_sanitizer="OFF"
 ub_sanitizer="OFF"
+thread_sanitizer="OFF"
 
-while getopts "rcamu" opt ; do
+while getopts "rcamut" opt ; do
     case "$opt" in
         r) build_type="Release"
             ;;
@@ -25,6 +26,11 @@ while getopts "rcamu" opt ; do
            memory_sanitizer="OFF"
            address_sanitizer="OFF"
            ;;
+       t) thread_sanitizer="ON"
+          memory_sanitizer="OFF"
+          address_sanitizer="OFF"
+          ub_sanitizer="OFF"
+           ;;
     esac
 done
 
@@ -35,6 +41,7 @@ echo "$build_type build using $cxx_compiler"
     -DADDRESS_SANITIZER=$address_sanitizer \
     -DMEMORY_SANITIZER=$memory_sanitizer \
     -DUNDEFINED_SANITIZER=$ub_sanitizer \
+    -DTHREAD_SANITIZER=$thread_sanitizer \
     .. && make -j$(nproc))
 
 (cd bin && ./test_pomodoro)
