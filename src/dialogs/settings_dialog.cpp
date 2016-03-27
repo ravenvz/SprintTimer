@@ -3,23 +3,25 @@
 #include "ui_settings.h"
 
 
-SettingsDialog::SettingsDialog(Config& applicationSettings, QDialog* parent) :
-    QDialog(parent),
-    ui(new Ui::SettingsDialog),
-    applicationSettings(applicationSettings)
+SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
+    : QDialog(parent)
+    , ui(new Ui::SettingsDialog)
+    , applicationSettings(applicationSettings)
 {
     ui->setupUi(this);
     connect(this, SIGNAL(accepted()), this, SLOT(storeSettingsData()));
-    connect(ui->chBxPlaySound, SIGNAL(stateChanged(int)), this, SLOT(toggleVolumeControlVisibility()));
+    connect(ui->chBxPlaySound,
+            SIGNAL(stateChanged(int)),
+            this,
+            SLOT(toggleVolumeControlVisibility()));
 }
 
 
-SettingsDialog::~SettingsDialog() {
-    delete ui;
-}
+SettingsDialog::~SettingsDialog() { delete ui; }
 
 
-void SettingsDialog::fillSettingsData() {
+void SettingsDialog::fillSettingsData()
+{
     ui->spBxPomodoroDuration->setValue(applicationSettings.pomodoroDuration());
     ui->spBxShortDuration->setValue(applicationSettings.shortBreakDuration());
     ui->spBxLongDuration->setValue(applicationSettings.longBreakDuration());
@@ -29,7 +31,8 @@ void SettingsDialog::fillSettingsData() {
 }
 
 
-void SettingsDialog::storeSettingsData() {
+void SettingsDialog::storeSettingsData()
+{
     applicationSettings.setPomodoroDuration(ui->spBxPomodoroDuration->value());
     applicationSettings.setShortBreakDuration(ui->spBxShortDuration->value());
     applicationSettings.setLongBreakDuration(ui->spBxLongDuration->value());
@@ -39,8 +42,8 @@ void SettingsDialog::storeSettingsData() {
 }
 
 
-void SettingsDialog::toggleVolumeControlVisibility() {
+void SettingsDialog::toggleVolumeControlVisibility()
+{
     ui->lblSoundVolume->setEnabled(ui->chBxPlaySound->isChecked());
     ui->hSliderVolume->setEnabled(ui->chBxPlaySound->isChecked());
 }
-

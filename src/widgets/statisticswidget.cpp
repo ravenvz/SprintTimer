@@ -3,10 +3,11 @@
 #include "barchart.h"
 
 
-StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent) :
-    QWidget(parent),
-    ui(new Ui::StatisticsWidget),
-    applicationSettings(applicationSettings)
+StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,
+                                   QWidget* parent)
+    : QWidget(parent)
+    , ui(new Ui::StatisticsWidget)
+    , applicationSettings(applicationSettings)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     pomodoroModel = new PomodoroModel(this);
@@ -20,27 +21,35 @@ StatisticsWidget::StatisticsWidget(Config& applicationSettings, QWidget* parent)
     connectSlots();
 }
 
-StatisticsWidget::~StatisticsWidget() {
-    delete ui;
+StatisticsWidget::~StatisticsWidget() { delete ui; }
+
+void StatisticsWidget::connectSlots()
+{
+    connect(ui->widgetPickPeriod,
+            SIGNAL(intervalChanged(DateInterval)),
+            this,
+            SLOT(onDatePickerIntervalChanged(DateInterval)));
+    connect(ui->topTagDiagram,
+            SIGNAL(sliceSelectionChanged(int)),
+            this,
+            SLOT(onSliceSelectionChanged(int)));
 }
 
-void StatisticsWidget::connectSlots() {
-    connect(ui->widgetPickPeriod, SIGNAL(intervalChanged(DateInterval)), this, SLOT(onDatePickerIntervalChanged(DateInterval)));
-    connect(ui->topTagDiagram, SIGNAL(sliceSelectionChanged(int)), this, SLOT(onSliceSelectionChanged(int)));
-}
-
-void StatisticsWidget::updateView() {
+void StatisticsWidget::updateView()
+{
     setupGraphs();
     drawGraphs();
 }
 
-void StatisticsWidget::setupGraphs() {
+void StatisticsWidget::setupGraphs()
+{
     fetchPomodoros();
     setupWeekdayBarChart();
     setupDailyTimelineGraph();
 }
 
-void StatisticsWidget::fetchPomodoros() {
+void StatisticsWidget::fetchPomodoros()
+{
     pomodoroModel->setDateFilter(currentInterval);
     pomodoroModel->select();
     pomodoros = pomodoroModel->items();
@@ -50,15 +59,18 @@ void StatisticsWidget::fetchPomodoros() {
     updateTopTagsDiagram(tagSlices);
 }
 
-void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval) {
+void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval)
+{
     currentInterval = newInterval;
     fetchPomodoros();
     drawGraphs();
 }
 
-void StatisticsWidget::drawGraphs() {
-    PomodoroStatItem statistics {
-        selectedSliceIndex == -1 ? pomodoros : tagPomoMap.getPomodorosForSlice(selectedSliceIndex),
+void StatisticsWidget::drawGraphs()
+{
+    PomodoroStatItem statistics{
+        selectedSliceIndex == -1 ? pomodoros : tagPomoMap.getPomodorosForSlice(
+                                                   selectedSliceIndex),
         currentInterval};
     auto dailyDistribution = statistics.getDailyDistribution();
     auto weekdayDistribution = statistics.getWeekdayDistribution();
@@ -68,7 +80,8 @@ void StatisticsWidget::drawGraphs() {
     updateWorkHoursDiagram(workTimeDistribution, statistics.getPomodoros());
 }
 
-void StatisticsWidget::setupWeekdayBarChart() {
+void StatisticsWidget::setupWeekdayBarChart()
+{
     QPen pen;
     pen.setWidthF(1.2);
     pen.setColor(Qt::red);
@@ -77,7 +90,9 @@ void StatisticsWidget::setupWeekdayBarChart() {
     ui->workdayBarChart->setBrush(brush);
 }
 
-void StatisticsWidget::updateWeekdayBarChart(Distribution<double>* weekdayDistribution) {
+void StatisticsWidget::updateWeekdayBarChart(
+    Distribution<double>* weekdayDistribution)
+{
     QVector<double> values = weekdayDistribution->getDistributionVector();
     QVector<QString> labels;
     for (int i = 0; i < 7; ++i) {
@@ -88,19 +103,28 @@ void StatisticsWidget::updateWeekdayBarChart(Distribution<double>* weekdayDistri
     updateWeekdayBarChartLegend(weekdayDistribution);
 }
 
-void StatisticsWidget::updateWeekdayBarChartLegend(Distribution<double>* weekdayDistribution) {
+void StatisticsWidget::updateWeekdayBarChartLegend(
+    Distribution<double>* weekdayDistribution)
+{
     if (weekdayDistribution->empty()) {
         ui->labelBestWorkdayName->setText("No data");
         ui->labelBestWorkdayMsg->setText("");
-    } else {
+    }
+    else {
         double average = weekdayDistribution->getAverage();
-        int relativeComparisonInPercent = int((weekdayDistribution->getMax() - average) * 100 / average);
-        ui->labelBestWorkdayName->setText(QDate::longDayName(weekdayDistribution->getMaxValueBin() + 1));
-        ui->labelBestWorkdayMsg->setText(QString("%1% more than average").arg(relativeComparisonInPercent));
+        int relativeComparisonInPercent
+            = int((weekdayDistribution->getMax() - average) * 100 / average);
+        ui->labelBestWorkdayName->setText(
+            QDate::longDayName(weekdayDistribution->getMaxValueBin() + 1));
+        ui->labelBestWorkdayMsg->setText(
+            QString("%1% more than average").arg(relativeComparisonInPercent));
     }
 }
 
-void StatisticsWidget::updateWorkHoursDiagram(Distribution<double>* workTimeDistribution, const QVector<Pomodoro>& pomodoros) {
+void StatisticsWidget::updateWorkHoursDiagram(
+    Distribution<double>* workTimeDistribution,
+    const QVector<Pomodoro>& pomodoros)
+{
     QVector<TimeInterval> intervals;
     for (const Pomodoro& pomo : pomodoros) {
         intervals.append(pomo.interval());
@@ -108,16 +132,19 @@ void StatisticsWidget::updateWorkHoursDiagram(Distribution<double>* workTimeDist
     if (intervals.empty()) {
         ui->labelBestWorktimeName->setText("No data");
         ui->labelBestWorktimeHours->setText("");
-    } else {
-        ui->labelBestWorktimeName->setText(
-                QString("%1").arg(TimeInterval::dayPartName(workTimeDistribution->getMaxValueBin())));
+    }
+    else {
+        ui->labelBestWorktimeName->setText(QString("%1").arg(
+            TimeInterval::dayPartName(workTimeDistribution->getMaxValueBin())));
         ui->labelBestWorktimeHours->setText(
-                QString("%1").arg(TimeInterval::dayPartHours(workTimeDistribution->getMaxValueBin())));
+            QString("%1").arg(TimeInterval::dayPartHours(
+                workTimeDistribution->getMaxValueBin())));
     }
     workTimeDiagram->setIntervals(intervals);
 }
 
-void StatisticsWidget::setupDailyTimelineGraph() {
+void StatisticsWidget::setupDailyTimelineGraph()
+{
     const double penWidthF = 2.2;
     Graph averageGraph = Graph();
     Graph goalGraph = Graph();
@@ -146,23 +173,32 @@ void StatisticsWidget::setupDailyTimelineGraph() {
     ui->dailyTimeline->addGraph(normalGraph);
 }
 
-void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistribution) {
+void StatisticsWidget::updateDailyTimelineGraph(
+    Distribution<double>* dailyDistribution)
+{
     if (dailyDistribution->empty()) {
         ui->dailyTimeline->reset();
-    } else {
+    }
+    else {
         double average = dailyDistribution->getAverage();
         double dailyGoal = applicationSettings.dailyPomodorosGoal();
         auto pomosByDay = dailyDistribution->getDistributionVector();
-        GraphData averageData {GraphPoint {0, average, ""},
-                               GraphPoint {static_cast<double>(currentInterval.sizeInDays() - 1), average, ""}};
-        GraphData goalData {GraphPoint {0, dailyGoal, ""},
-                            GraphPoint {static_cast<double>(currentInterval.sizeInDays() - 1), dailyGoal, ""}};
+        GraphData averageData{
+            GraphPoint{0, average, ""},
+            GraphPoint{static_cast<double>(currentInterval.sizeInDays() - 1),
+                       average,
+                       ""}};
+        GraphData goalData{
+            GraphPoint{0, dailyGoal, ""},
+            GraphPoint{static_cast<double>(currentInterval.sizeInDays() - 1),
+                       dailyGoal,
+                       ""}};
         GraphData normalData;
         for (int i = 0; i < pomosByDay.size(); ++i) {
-            normalData.push_back(
-                    GraphPoint {double(i),
-                                pomosByDay[i],
-                                QString("%1").arg(currentInterval.startDate.addDays(i).day())});
+            normalData.push_back(GraphPoint{
+                double(i),
+                pomosByDay[i],
+                QString("%1").arg(currentInterval.startDate.addDays(i).day())});
         }
 
         ui->dailyTimeline->setRangeX(0, currentInterval.sizeInDays());
@@ -175,7 +211,8 @@ void StatisticsWidget::updateDailyTimelineGraph(Distribution<double>* dailyDistr
     updateDailyTimelineGraphLegend(dailyDistribution);
 }
 
-void StatisticsWidget::updateTopTagsDiagram(QVector<Slice>& tagSlices) {
+void StatisticsWidget::updateTopTagsDiagram(QVector<Slice>& tagSlices)
+{
     if (!tagSlices.empty() && tagSlices.last().first == "")
         tagSlices.last().first = "others";
     ui->topTagDiagram->setData(tagSlices);
@@ -183,12 +220,18 @@ void StatisticsWidget::updateTopTagsDiagram(QVector<Slice>& tagSlices) {
     ui->topTagDiagram->setFont(QFont(".Helvetica Neue Desk UI", 13));
 }
 
-void StatisticsWidget::updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution) {
-    ui->labelTotalPomodoros->setText(QString("%1").arg(dailyDistribution->getTotal()));
-    ui->labelDailyAverage->setText(QString("%1").arg(dailyDistribution->getAverage(), 2, 'f', 2, '0'));
+void StatisticsWidget::updateDailyTimelineGraphLegend(
+    Distribution<double>* dailyDistribution)
+{
+    ui->labelTotalPomodoros->setText(
+        QString("%1").arg(dailyDistribution->getTotal()));
+    ui->labelDailyAverage->setText(
+        QString("%1").arg(dailyDistribution->getAverage(), 2, 'f', 2, '0'));
 }
 
-void StatisticsWidget::onSliceSelectionChanged(int newSliceIndex) {
-    selectedSliceIndex = selectedSliceIndex == newSliceIndex ? -1 : newSliceIndex;
+void StatisticsWidget::onSliceSelectionChanged(int newSliceIndex)
+{
+    selectedSliceIndex
+        = selectedSliceIndex == newSliceIndex ? -1 : newSliceIndex;
     drawGraphs();
 }

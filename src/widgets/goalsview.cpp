@@ -4,7 +4,7 @@
 #include "db_layer/db_service.h"
 #include "utils/MathUtils.h"
 
-GoalsView::GoalsView(Config& applicationSettings, QWidget* parent)
+GoalsView::GoalsView(IConfig& applicationSettings, QWidget* parent)
     : QWidget{parent}
     , ui{new Ui::GoalsView}
     , applicationSettings{applicationSettings}
@@ -16,12 +16,18 @@ GoalsView::GoalsView(Config& applicationSettings, QWidget* parent)
     ui->spinBoxMonthlyGoal->setValue(
         applicationSettings.monthlyPomodorosGoal());
     displayData();
-    connect(ui->spinBoxDailyGoal, SIGNAL(valueChanged(int)), this,
-        SLOT(updateDailyGoal(int)));
-    connect(ui->spinBoxWeeklyGoal, SIGNAL(valueChanged(int)), this,
-        SLOT(updateWeeklyGoal(int)));
-    connect(ui->spinBoxMonthlyGoal, SIGNAL(valueChanged(int)), this,
-        SLOT(updateMonthlyGoal(int)));
+    connect(ui->spinBoxDailyGoal,
+            SIGNAL(valueChanged(int)),
+            this,
+            SLOT(updateDailyGoal(int)));
+    connect(ui->spinBoxWeeklyGoal,
+            SIGNAL(valueChanged(int)),
+            this,
+            SLOT(updateWeeklyGoal(int)));
+    connect(ui->spinBoxMonthlyGoal,
+            SIGNAL(valueChanged(int)),
+            this,
+            SLOT(updateMonthlyGoal(int)));
 }
 
 GoalsView::~GoalsView() { delete ui; }
@@ -44,8 +50,9 @@ void GoalsView::displayDailyData()
     ui->labelLastMonthPercentage->setText(QString("%1%").arg(formatDecimal(
         MathUtils::percentage(lastDays.getTotal(), monthlyGoal))));
     ui->labelTodayProgress->setText(QString("%1").arg(lastDays.getTotal()));
-    updateProgressBar(ui->progressBarToday, dailyGoal,
-        lastDays.getBinValue(lastDays.getNumBins() - 1));
+    updateProgressBar(ui->progressBarToday,
+                      dailyGoal,
+                      lastDays.getBinValue(lastDays.getNumBins() - 1));
     drawPeriodDiagram(
         ui->gridLayoutLastMonthDiagram, lastDays, dailyGoal, 3, 10);
 }
@@ -59,8 +66,9 @@ void GoalsView::displayWeeklyData()
         QString("%1%").arg(formatDecimal(MathUtils::percentage(
             lastWeeks.getTotal(), lastWeeks.getNumBins() * weeklyGoal))));
     ui->labelWeekProgress->setText(QString("%1").arg(lastWeeks.getTotal()));
-    updateProgressBar(ui->progressBarWeek, weeklyGoal,
-        lastWeeks.getBinValue(lastWeeks.getNumBins() - 1));
+    updateProgressBar(ui->progressBarWeek,
+                      weeklyGoal,
+                      lastWeeks.getBinValue(lastWeeks.getNumBins() - 1));
     drawPeriodDiagram(
         ui->gridLayoutLastQuarterDiagram, lastWeeks, weeklyGoal, 3, 4);
 }
@@ -74,8 +82,9 @@ void GoalsView::displayMonthlyData()
         QString("%1%").arg(formatDecimal(MathUtils::percentage(
             lastMonths.getTotal(), lastMonths.getNumBins() * monthlyGoal))));
     ui->labelMonthProgress->setText(QString("%1").arg(lastMonths.getTotal()));
-    updateProgressBar(ui->progressBarMonth, monthlyGoal,
-        lastMonths.getBinValue(lastMonths.getNumBins() - 1));
+    updateProgressBar(ui->progressBarMonth,
+                      monthlyGoal,
+                      lastMonths.getBinValue(lastMonths.getNumBins() - 1));
     drawPeriodDiagram(
         ui->gridLayoutLastYearDiagram, lastMonths, monthlyGoal, 3, 4);
 }
@@ -109,14 +118,18 @@ void GoalsView::updateProgressBar(QProgressBar* bar, int goal, int value)
 }
 
 void GoalsView::drawPeriodDiagram(QGridLayout* layout,
-    Distribution<int>& distribution, int goal, int rowNum, int colNum)
+                                  Distribution<int>& distribution,
+                                  int goal,
+                                  int rowNum,
+                                  int colNum)
 {
     clearDiagramLayout(layout);
     GaugeFactory factory;
     for (int row = 0, ind = 0; row < rowNum; ++row) {
         for (int col = 0; col < colNum; ++col, ++ind) {
             layout->addWidget(
-                factory.create(distribution.getBinValue(ind), goal, this), row,
+                factory.create(distribution.getBinValue(ind), goal, this),
+                row,
                 col);
         }
     }
