@@ -12,6 +12,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
 # Note, that options are mutually exclusive but nothing enforces this.
 option(ADDRESS_SANITIZER "Address sanitizer in Debug build" OFF)
@@ -119,6 +121,6 @@ target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTI
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
                           
 target_include_directories(${PROJECT} PUBLIC src dialogs db_layer)
-target_link_libraries(${PROJECT} PUBLIC Qt5::Core PUBLIC Qt5::Widgets PUBLIC Qt5::Sql PUBLIC Qt5::Multimedia)
+target_link_libraries(${PROJECT} PUBLIC Qt5::Core PUBLIC Qt5::Widgets PUBLIC Qt5::Sql PUBLIC Qt5::Multimedia Threads::Threads)
 
 add_subdirectory(tests)
