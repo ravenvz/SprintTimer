@@ -67,3 +67,5 @@ void TaskRunner::onTimerTick()
     }
     onTickCallback(currentTaskDuration.count());
 }
+
+void TaskRunner::toggleInTheZoneMode() { taskScheduler.toggleInTheZoneMode(); }

@@ -34,6 +34,8 @@ public:
 
     bool isBreak() const;
 
+    void toggleInTheZoneMode();
+
 private:
     const IConfig& applicationSettings;
     TaskScheduler taskScheduler;

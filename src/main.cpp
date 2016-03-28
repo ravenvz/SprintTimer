@@ -15,10 +15,7 @@ int main(int argc, char* argv[])
     QApplication::setOrganizationName("RavenStudio");
     QApplication::setApplicationName("Pomodoro");
     Config applicationSettings;
-    // TaskRunner taskRunner{applicationSettings};
-    // TaskScheduler scheduler{applicationSettings};
-    TaskScheduler scheduler{};
-    MainWindow w{scheduler, applicationSettings};
+    MainWindow w{applicationSettings};
     w.show();
 
     return app.exec();

@@ -35,9 +35,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(TaskScheduler& taskScheduler,
-               IConfig& applicationSettings,
-               QWidget* parent = 0);
+    MainWindow(IConfig& applicationSettings, QWidget* parent = 0);
     ~MainWindow();
 
 signals:
@@ -48,7 +46,6 @@ private slots:
     void cancelTask();
     void addTodoItem();
     void quickAddTodoItem();
-    void updateTimerCounter();
     void submitPomodoro();
     void changeSelectedTask(QModelIndex index);
     void showTodoItemContextMenu(const QPoint& pos);
@@ -65,7 +62,6 @@ private slots:
 
 private:
     Ui::MainWindow* ui;
-    TaskScheduler& taskScheduler;
     IConfig& applicationSettings;
     std::unique_ptr<QMediaPlayer> player;
     std::vector<TimeInterval> completedTasksIntervals;

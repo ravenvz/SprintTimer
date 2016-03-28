@@ -10,12 +10,9 @@
 #include "dialogs/manualaddpomodorodialog.h"
 
 
-MainWindow::MainWindow(TaskScheduler& scheduler,
-                       IConfig& applicationSettings,
-                       QWidget* parent)
+MainWindow::MainWindow(IConfig& applicationSettings, QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , taskScheduler(scheduler)
     , applicationSettings(applicationSettings)
 {
     ui->setupUi(this);
@@ -175,31 +172,6 @@ void MainWindow::startTask()
 {
     taskRunner.startTask();
     setUiToRunningState();
-}
-
-void MainWindow::updateTimerCounter()
-{
-    timeLeft--;
-    if (timeLeft >= 0) {
-        ui->progressBar->setValue(progressBarMaxValue - timeLeft);
-        setTimerValue(timeLeft);
-        ui->progressBar->repaint();
-        return;
-    }
-    // timer->stop();
-    playSound();
-
-    if (ui->btnZone->isChecked()) {
-        completedTasksIntervals.push_back(taskRunner.finishTask());
-        startTask();
-    }
-    else if (taskScheduler.isBreak()) {
-        taskRunner.finishTask();
-        setUiToIdleState();
-    }
-    else {
-        setUiToSubmissionState();
-    }
 }
 
 void MainWindow::setTimerValue(Second timeLeft)
@@ -372,7 +344,7 @@ void MainWindow::toggleTodoItemCompleted()
     updateHistoryWindow();
 }
 
-void MainWindow::onInTheZoneToggled() { taskScheduler.toggleInTheZoneMode(); }
+void MainWindow::onInTheZoneToggled() { taskRunner.toggleInTheZoneMode(); }
 
 void MainWindow::launchHistoryView()
 {
