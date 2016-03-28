@@ -10,6 +10,7 @@ Timer::Timer(std::function<void(void)> tickCallback,
 
 Timer::~Timer()
 {
+    stop();
     if (tr.joinable())
         tr.join();
     std::cout << "Timer destroyed" << std::endl;
