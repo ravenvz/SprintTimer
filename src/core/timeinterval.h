@@ -2,6 +2,8 @@
 #define TIMEINTERVAL_H
 
 #include <QDateTime>
+// #include <chrono>
+// #include "date/date.h"
 
 struct DateInterval {
     QDate startDate;
@@ -21,8 +23,11 @@ struct DateInterval {
 };
 
 struct TimeInterval {
+
     QDateTime startTime;
     QDateTime finishTime;
+    // std::chrono::time_point<std::chrono::system_clock> sTime;
+    // std::chrono::time_point<std::chrono::system_clock> fTime;
 
     enum class DayPart { MIDNIGHT, NIGHT, MORNING, NOON, AFTERNOON, EVENING };
 

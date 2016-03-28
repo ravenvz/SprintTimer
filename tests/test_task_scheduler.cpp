@@ -2,188 +2,184 @@
 #include <TestHarness.h>
 
 
-TEST_GROUP(TaskSchedulerGroup) {
+TEST_GROUP(TaskSchedulerGroup)
+{
 
-    class TestConfig : public IConfig
-    {
+    class TestConfig : public IConfig {
 
-        public:
+    public:
+        TestConfig() {}
 
-            TestConfig() {
+        int soundVolume() const override { return mSoundVolume; }
 
-            }
+        void setSoundVolume(int soundVolume) override
+        {
+            TestConfig::mSoundVolume = soundVolume;
+        }
 
-            int soundVolume() const override {
-                return mSoundVolume;
-            }
+        int pomodoroDuration() const override { return mPomodoroDuration; }
 
-            void setSoundVolume(int soundVolume) override {
-                TestConfig::mSoundVolume = soundVolume;
-            }
+        void setPomodoroDuration(int pomodoroDuration) override
+        {
+            TestConfig::mPomodoroDuration = pomodoroDuration;
+        }
 
-            int pomodoroDuration() const override {
-                return mPomodoroDuration;
-            }
+        int shortBreakDuration() const override { return mShortBreakDuration; }
 
-            void setPomodoroDuration(int pomodoroDuration) override {
-                TestConfig::mPomodoroDuration = pomodoroDuration;
-            }
+        void setShortBreakDuration(int shortBreakDuration) override
+        {
+            TestConfig::mShortBreakDuration = shortBreakDuration;
+        }
 
-            int shortBreakDuration() const override {
-                return mShortBreakDuration;
-            }
+        int longBreakDuration() const override { return mLongBreakDuration; }
 
-            void setShortBreakDuration(int shortBreakDuration) override {
-                TestConfig::mShortBreakDuration = shortBreakDuration;
-            }
+        void setLongBreakDuration(int longBreakDuration) override
+        {
+            TestConfig::mLongBreakDuration = longBreakDuration;
+        }
 
-            int longBreakDuration() const override {
-                return mLongBreakDuration;
-            }
+        int numTasksBeforeBreak() const override { return mTasksBeforeBreak; }
 
-            void setLongBreakDuration(int longBreakDuration) override {
-                TestConfig::mLongBreakDuration = longBreakDuration;
-            }
+        void setTasksBeforeBreak(int tasksBeforeBreak) override
+        {
+            TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
+        }
 
-            int numTasksBeforeBreak() const override {
-                return mTasksBeforeBreak;
-            }
+        bool soundIsEnabled() const override { return mPlaySound; }
 
-            void setTasksBeforeBreak(int tasksBeforeBreak) override {
-                TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
-            }
+        void setPlaySound(bool playSound) override
+        {
+            TestConfig::mPlaySound = playSound;
+        }
 
-            bool soundIsEnabled() const override {
-                return mPlaySound;
-            }
+        int dailyPomodorosGoal() const override { return 0; }
 
-            void setPlaySound(bool playSound) override {
-                TestConfig::mPlaySound = playSound;
-            }
+        void setDailyPomodorosGoal(int dailyPomodorosGoal) override {}
 
-            int dailyPomodorosGoal() const override {
-                return 0;
-            }
+        int weeklyPomodorosGoal() const override { return 0; }
 
-            void setDailyPomodorosGoal(int dailyPomodorosGoal) override {
-            }
+        void setWeeklyPomodorosGoal(int weeklyPomodorosGoal) override {}
 
-            int weeklyPomodorosGoal() const override {
-                return 0;
-            }
+        int monthlyPomodorosGoal() const override { return 0; }
 
-            void setWeeklyPomodorosGoal(int weeklyPomodorosGoal) override {
-            }
+        void setMonthlyPomodorosGoal(int monthlyPomodorosGoal) override {}
 
-            int monthlyPomodorosGoal() const override {
-                return 0;
-            }
-
-            void setMonthlyPomodorosGoal(int monthlyPomodorosGoal) override {
-            }
-
-        private:
-            int mPomodoroDuration = 25;
-            int mShortBreakDuration = 5;
-            int mLongBreakDuration = 15;
-            int mTasksBeforeBreak = 4;
-            bool mPlaySound;
-            int mSoundVolume;
+    private:
+        int mPomodoroDuration = 25;
+        int mShortBreakDuration = 5;
+        int mLongBreakDuration = 15;
+        int mTasksBeforeBreak = 4;
+        bool mPlaySound;
+        int mSoundVolume;
     };
-
 };
 
-TEST(TaskSchedulerGroup, should_set_state_to_break_when_finishing_task) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {testConfig};
-    scheduler.startTask();
-    scheduler.finishTask();
+bool stateIsShortBreak(const TaskScheduler& scheduler)
+{
+    return scheduler.state() == TaskScheduler::TaskState::ShortBreak;
+}
+
+bool stateIsLongBreak(const TaskScheduler& scheduler)
+{
+    return scheduler.state() == TaskScheduler::TaskState::LongBreak;
+}
+
+bool stateIsTask(const TaskScheduler& scheduler)
+{
+    return scheduler.state() == TaskScheduler::TaskState::Task;
+}
+
+TEST(TaskSchedulerGroup, should_set_state_to_break_when_finishing_task)
+{
+    TaskScheduler scheduler;
+    scheduler.setNextState();
 
     CHECK(scheduler.isBreak());
-    CHECK_EQUAL(testConfig.shortBreakDuration(), scheduler.taskDurationInMinutes());
+    CHECK(stateIsShortBreak(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_state_to_long_break_when_finishing_task_cycle) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {testConfig};
+TEST(TaskSchedulerGroup,
+     should_set_state_to_long_break_when_finishing_task_cycle)
+{
+    TaskScheduler scheduler;
     scheduler.setNumCompletedTasks(3);
 
-    scheduler.startTask();
-    scheduler.finishTask();
+    scheduler.setNextState();
 
-    CHECK_EQUAL(testConfig.longBreakDuration(), scheduler.taskDurationInMinutes());
+    CHECK(scheduler.isBreak())
+    CHECK(stateIsLongBreak(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_finishing_break) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {testConfig};
+TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_finishing_break)
+{
+    TaskScheduler scheduler;
     scheduler.setNumCompletedTasks(3);
 
-    scheduler.startTask();
-    scheduler.finishTask();
-    scheduler.startTask();
-    scheduler.finishTask();
+    scheduler.setNextState();
+    scheduler.setNextState();
 
-    CHECK_EQUAL(testConfig.pomodoroDuration(), scheduler.taskDurationInMinutes());
+    CHECK(!scheduler.isBreak())
+    CHECK(stateIsTask(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_task) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {testConfig};
+TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_task)
+{
+    TaskScheduler scheduler;
 
-    scheduler.startTask();
-    scheduler.cancelTask();
+    scheduler.cancelState();
 
-    CHECK_EQUAL(testConfig.pomodoroDuration(), scheduler.taskDurationInMinutes());
+    CHECK(!scheduler.isBreak())
+    CHECK(stateIsTask(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_break) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {testConfig};
+TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_break)
+{
+    TaskScheduler scheduler;
 
-    scheduler.startTask();
-    scheduler.finishTask();
-    // Task completed, should start break
-    scheduler.startTask();
-    scheduler.cancelTask();
+    scheduler.setNextState();
+    // Task completed, should be in break state
+    scheduler.cancelState();
 
-    CHECK_EQUAL(testConfig.pomodoroDuration(), scheduler.taskDurationInMinutes());
+    CHECK(!scheduler.isBreak())
+    CHECK(stateIsTask(scheduler))
 }
-TEST(TaskSchedulerGroup, should_increment_completed_tasks_counter_when_finishing_task) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {testConfig};
+
+TEST(TaskSchedulerGroup,
+     should_increment_completed_tasks_counter_when_finishing_task)
+{
+    TaskScheduler scheduler;
     scheduler.setNumCompletedTasks(2);
 
-    scheduler.startTask();
-    scheduler.finishTask();
+    scheduler.setNextState();
 
     CHECK_EQUAL(3, scheduler.numCompletedTasks());
 }
 
-TEST(TaskSchedulerGroup, should_not_increment_completed_tasks_counter_when_finishing_break) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {testConfig};
+TEST(TaskSchedulerGroup,
+     should_not_increment_completed_tasks_counter_when_finishing_break)
+{
+    TaskScheduler scheduler;
     scheduler.setNumCompletedTasks(2);
 
-    scheduler.startTask();
-    scheduler.finishTask();
-    // Task completed numCompletedTasks should increment, should start break
-    scheduler.startTask();
-    scheduler.finishTask();
+    scheduler.setNextState();
+    // Task completed numCompletedTasks should increment and transition to
+    // the break state
+    scheduler.setNextState();
     // Break finished, numCompletedTasks should not increment
 
     CHECK_EQUAL(3, scheduler.numCompletedTasks());
 }
 
-TEST(TaskSchedulerGroup, should_only_schedule_tasks_if_in_the_zone_mode_active) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {testConfig};
+TEST(TaskSchedulerGroup, should_only_schedule_tasks_if_in_the_zone_mode_active)
+{
+    TaskScheduler scheduler;
 
     scheduler.toggleInTheZoneMode();
 
     for (size_t i = 0; i < 20; ++i) {
-        scheduler.startTask();
-        scheduler.finishTask();
+        scheduler.setNextState();
         CHECK(!scheduler.isBreak());
     }
+
+    CHECK_EQUAL(20, scheduler.numCompletedTasks())
 }

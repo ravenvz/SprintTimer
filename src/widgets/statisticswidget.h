@@ -12,16 +12,16 @@
 #include "timediagram.h"
 
 namespace Ui {
-    class StatisticsWidget;
+class StatisticsWidget;
 }
 
 
-class StatisticsWidget : public QWidget
-{
+class StatisticsWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit StatisticsWidget(Config& applicationSettings, QWidget* parent = 0);
+    explicit StatisticsWidget(IConfig& applicationSettings,
+                              QWidget* parent = 0);
     ~StatisticsWidget();
     void updateView();
 
@@ -31,7 +31,7 @@ private slots:
 
 private:
     Ui::StatisticsWidget* ui;
-    Config& applicationSettings;
+    IConfig& applicationSettings;
     PomodoroModel* pomodoroModel;
     QVector<Pomodoro> pomodoros;
     TagPomoMap tagPomoMap;
@@ -49,11 +49,12 @@ private:
     void updateWeekdayBarChart(Distribution<double>* weekdayDistribution);
     void updateWeekdayBarChartLegend(Distribution<double>* weekdayDistribution);
     void updateDailyTimelineGraph(Distribution<double>* dailyDistribution);
-    void updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution);
-    void updateWorkHoursDiagram(Distribution<double>* workTimeDistribution, const QVector<Pomodoro>& pomodoros);
+    void
+    updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution);
+    void updateWorkHoursDiagram(Distribution<double>* workTimeDistribution,
+                                const QVector<Pomodoro>& pomodoros);
     void updateTopTagsDiagram(QVector<Slice>& tagSlices);
 };
-
 
 
 #endif /* end of include guard: STATISTICSWIDGET_H */

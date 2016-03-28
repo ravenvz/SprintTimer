@@ -7,27 +7,28 @@
 #include "config.h"
 
 
+/*
+ * Responsible for managing schedule of tasks and breaks,
+ * that is for interleaving tasks with short and long breaks.
+ */
 class TaskScheduler {
 
 public:
-    explicit TaskScheduler(const IConfig& applicationSettings);
-    void startTask();
-    TimeInterval finishTask();
-    void cancelTask();
+    enum class TaskState { Task, ShortBreak, LongBreak };
+    explicit TaskScheduler(int numTasksBeforeBreak = 4);
     void setNextState();
-    int taskDurationInMinutes();
-    bool isBreak();
+    void cancelState();
+    bool isBreak() const;
     int numCompletedTasks();
     void setNumCompletedTasks(int numTasks);
     void toggleInTheZoneMode();
+    TaskScheduler::TaskState state() const;
 
 private:
-    const IConfig& applicationSettings;
+    int numTasksBeforeBreak;
     int completedTasks;
     bool inTheZoneMode;
-    enum class TaskState { TASK, SHORT_BREAK, LONG_BREAK };
     TaskState currentState;
-    TimeInterval currentTimeInterval;
 };
 
 

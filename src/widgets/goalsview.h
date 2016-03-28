@@ -9,15 +9,14 @@
 #include <src/utils/MathUtils.h>
 
 namespace Ui {
-    class GoalsView;
+class GoalsView;
 }
 
-class GoalsView : public QWidget
-{
+class GoalsView : public QWidget {
     Q_OBJECT
 
 public:
-    explicit GoalsView(Config& applicationSettings, QWidget* parent = 0);
+    explicit GoalsView(IConfig& applicationSettings, QWidget* parent = 0);
     ~GoalsView();
     void updateView();
 
@@ -28,7 +27,7 @@ private slots:
 
 private:
     Ui::GoalsView* ui;
-    Config& applicationSettings;
+    IConfig& applicationSettings;
     GoalStatModel goalStatModel;
     const QColor targetGoalReached = QColor("#6baa15");
     const QColor overwork = Qt::red;
@@ -38,8 +37,11 @@ private:
     void displayDailyData();
     void displayWeeklyData();
     void displayMonthlyData();
-    void drawPeriodDiagram(QGridLayout* layout, Distribution<int>& distribution,
-            int goal, int rowNum, int colNum);
+    void drawPeriodDiagram(QGridLayout* layout,
+                           Distribution<int>& distribution,
+                           int goal,
+                           int rowNum,
+                           int colNum);
     void clearDiagramLayout(QGridLayout* layout);
     void updateProgressBar(QProgressBar* bar, int goal, int value);
     QString formatDecimal(double decimal) const;
