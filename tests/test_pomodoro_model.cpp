@@ -1,55 +1,57 @@
 #include "models/pomodoromodel.h"
 #include "models/todoitemmodel.h"
+#include <chrono>
 #include <TestHarness.h>
 
 #include <QSqlRecord>
 
 
-TEST_GROUP(PomodoroModel) {
+TEST_GROUP(PomodoroModel){
 
-    void setup() {
+    void setup(){
         // Memory leak checker does not play well with Qt objects at all.
         MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
-        QSqlQuery query;
-        query.exec("delete from pomodoro;");
-        query.exec("delete from todo_item");
-        query.exec("delete from todotag");
-        query.exec("delete from tag");
+QSqlQuery query;
+query.exec("delete from pomodoro;");
+query.exec("delete from todo_item");
+query.exec("delete from todotag");
+query.exec("delete from tag");
+}
+
+void teardown() { MemoryLeakWarningPlugin::turnOnNewDeleteOverloads(); }
+
+bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2)
+{
+    if (pomodoro1.name() != pomodoro2.name()
+        || pomodoro1.startTime() != pomodoro2.startTime()
+        || pomodoro1.finishTime() != pomodoro2.finishTime()) {
+        return false;
     }
+    // Tags are compared sorted, because there is no guarantee of tag
+    // ordering
+    QStringList tags1 = pomodoro1.tags();
+    QStringList tags2 = pomodoro2.tags();
+    std::sort(tags1.begin(), tags1.end());
+    std::sort(tags2.begin(), tags2.end());
 
-    void teardown() {
-        MemoryLeakWarningPlugin::turnOnNewDeleteOverloads();
-    }
+    return tags1 == tags2;
+}
+}
+;
 
-    bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2) {
-        if (pomodoro1.name() != pomodoro2.name() ||
-            pomodoro1.startTime() != pomodoro2.startTime() ||
-            pomodoro1.finishTime() != pomodoro2.finishTime()) {
-            return false;
-        }
-        // Tags are compared sorted, because there is no guarantee of tag
-        // ordering
-        QStringList tags1 = pomodoro1.tags();
-        QStringList tags2 = pomodoro2.tags();
-        std::sort(tags1.begin(), tags1.end());
-        std::sort(tags2.begin(), tags2.end());
-
-        return tags1 == tags2;
-    }
-
-};
-
-TEST(PomodoroModel, test_insert_and_delete) {
+TEST(PomodoroModel, test_insert_and_delete)
+{
     PomodoroModel pomodoroModel;
-    TimeInterval interval {QDateTime::currentDateTime(), QDateTime::currentDateTime()};
+    TimeInterval interval{std::chrono::system_clock::now(),
+                          std::chrono::system_clock::now()};
 
     TodoItemModel todoItemModel;
-    QString name {"Test item"};
-    QStringList tags {"Tag1", "Tag2"};
-    int estimatedPomodoros {4};
-    int spentPomodoros {0};
-    TodoItem item {name, estimatedPomodoros, spentPomodoros, tags, false};
-    Pomodoro expectedPomodoro {name, interval, tags};
+    QString name{"Test item"};
+    QStringList tags{"Tag1", "Tag2"};
+    int estimatedPomodoros{4};
+    int spentPomodoros{0};
+    TodoItem item{name, estimatedPomodoros, spentPomodoros, tags, false};
+    Pomodoro expectedPomodoro{name, interval, tags};
 
     CHECK(todoItemModel.insert(item));
     auto todoId = todoItemModel.itemIdAt(0);
@@ -72,26 +74,29 @@ TEST(PomodoroModel, test_insert_and_delete) {
     CHECK_EQUAL(spentPomodoros, insertedTodo.spentPomodoros());
 }
 
-TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros) {
+TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros)
+{
     PomodoroModel pomodoroModel;
-    TimeInterval interval {QDateTime::currentDateTime(), QDateTime::currentDateTime()};
+    TimeInterval interval{std::chrono::system_clock::now(),
+                          std::chrono::system_clock::now()};
     TodoItemModel todoItemModel;
-    QString name {"Test item"};
-    QStringList tags {"Tag1", "Tag2"};
-    int estimatedPomodoros {4};
-    int spentPomodoros {0};
-    TodoItem item {name, estimatedPomodoros, spentPomodoros, tags, false};
+    QString name{"Test item"};
+    QStringList tags{"Tag1", "Tag2"};
+    int estimatedPomodoros{4};
+    int spentPomodoros{0};
+    TodoItem item{name, estimatedPomodoros, spentPomodoros, tags, false};
 
     CHECK(todoItemModel.insert(item));
     auto todoId = todoItemModel.itemIdAt(0);
 
-    int numInsertedPomos {10};
+    int numInsertedPomos{10};
     for (int i = 0; i < numInsertedPomos; ++i) {
         CHECK(pomodoroModel.insert(todoId, interval));
     }
 
     CHECK_EQUAL(numInsertedPomos, pomodoroModel.numRecords());
-    // As inserting pomodoros increments todo_item spent_pomodoros, model needs to
+    // As inserting pomodoros increments todo_item spent_pomodoros, model needs
+    // to
     // be refreshed
     todoItemModel.select();
 
@@ -100,5 +105,3 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros) {
     pomodoroModel.select();
     CHECK_EQUAL(0, pomodoroModel.numRecords());
 }
-
-

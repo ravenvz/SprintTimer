@@ -7,21 +7,20 @@ TaskRunner::TaskRunner(std::function<void(long timeLeft)> tickCallback,
     , taskScheduler{}
     , tickInterval{updateIntervalInMilliseconds}
     , onTickCallback{tickCallback}
+    , start{std::chrono::system_clock::time_point{}}
+    , finish{std::chrono::system_clock::time_point{}}
 {
 }
 
 void TaskRunner::startTask()
 {
     using namespace date;
-    start = std::chrono::system_clock::now();
-    std::cout << start << std::endl;
+    start = DateTime::currentDateTime();
     timerPtr = std::make_unique<Timer>(
         std::bind(&TaskRunner::onTimerTick, this), tickInterval);
     timerPtr->start();
     currentTaskDuration
         = std::chrono::milliseconds{taskDuration() * millisecondsInMinute};
-    std::cout << "Current task duration " << currentTaskDuration.count()
-              << std::endl;
 }
 
 void TaskRunner::cancelTask()
@@ -33,11 +32,7 @@ void TaskRunner::cancelTask()
 TimeInterval TaskRunner::finishTask()
 {
     taskScheduler.setNextState();
-    std::cout << "Current task is break: " << isBreak() << std::endl;
-    return TimeInterval{QDateTime::fromTime_t(static_cast<unsigned>(
-                            std::chrono::system_clock::to_time_t(start))),
-                        QDateTime::fromTime_t(static_cast<unsigned>(
-                            std::chrono::system_clock::to_time_t(finish)))};
+    return TimeInterval{start, finish};
 }
 
 int TaskRunner::taskDuration()
@@ -59,10 +54,8 @@ bool TaskRunner::isBreak() const { return taskScheduler.isBreak(); }
 void TaskRunner::onTimerTick()
 {
     currentTaskDuration -= tickInterval;
-    std::cout << currentTaskDuration.count() << std::endl;
     if (currentTaskDuration.count() == 0) {
-        std::cout << "Timer stopped normally" << std::endl;
-        finish = std::chrono::system_clock::now();
+        finish = DateTime::currentDateTime();
         timerPtr->stop();
     }
     onTickCallback(currentTaskDuration.count());

@@ -11,8 +11,6 @@
 
 class TaskRunner {
 public:
-    using SystemTime = std::chrono::time_point<std::chrono::system_clock>;
-
     TaskRunner(std::function<void(long timeLeft)> tickCallback,
                long updateIntervalInMilliseconds,
                const IConfig& applicationSettings);
@@ -42,8 +40,8 @@ private:
     const std::chrono::milliseconds tickInterval;
     std::function<void(long timeLeft)> onTickCallback;
     std::unique_ptr<Timer> timerPtr;
-    SystemTime start;
-    SystemTime finish;
+    DateTime start;
+    DateTime finish;
     std::chrono::milliseconds currentTaskDuration;
     const int millisecondsInMinute{60000};
 

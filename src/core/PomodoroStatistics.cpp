@@ -143,7 +143,12 @@ QVector<double> PomodoroStatItem::computeDailyDistribution() const
     for (const Pomodoro& pomo : pomodoros) {
         // TODO when switched to std::vector, remove cast
         distribution[static_cast<int>(
-            interval.startDate.daysTo(pomo.startTime().date()))]++;
+            // interval.startDate.daysTo(pomo.startTime().date()))]++;
+            // TODO Fix when changed DateInterval
+            interval.startDate.daysTo(
+                QDateTime::fromTime_t(
+                    static_cast<unsigned>(pomo.startTime().toTime_t()))
+                    .date()))]++;
     }
     return distribution;
 }
@@ -156,7 +161,12 @@ QVector<double> PomodoroStatItem::computeWeekdayDistribution() const
         return distribution;
     const auto& pomodorosRef = pomodoros;
     for (const Pomodoro& pomo : pomodorosRef) {
-        distribution[pomo.startTime().date().dayOfWeek() - 1]++;
+        // TODO Fix when changed DateInterval
+        distribution[QDateTime::fromTime_t(
+                         static_cast<unsigned>(pomo.startTime().toTime_t()))
+                         .date()
+                         .dayOfWeek()
+                     - 1]++;
     }
     return distribution;
 }

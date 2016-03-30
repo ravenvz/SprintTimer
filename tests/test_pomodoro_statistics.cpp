@@ -74,8 +74,9 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
     QVector<int> expectedDistributionVector(48, 0);
     for (int i = 0; i < 48; ++i) {
         for (int j = 0; j < i + 1; ++j) {
-            QDateTime pomoDate = QDateTime(QDate::currentDate().addDays(i));
-            TimeInterval pomoInterval{pomoDate, pomoDate};
+            DateTime pomoDateTime
+                = DateTime{DateTime::currentDateTime().addDays(i)};
+            TimeInterval pomoInterval{pomoDateTime, pomoDateTime};
             pomodoros << Pomodoro{
                 QString("Irrelevant"), pomoInterval, QStringList{}};
             expectedDistributionVector[i]++;
@@ -109,8 +110,8 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
     interval.endDate = QDate(2015, 6, 14);
     for (int i = 1; i < 15; ++i) {
         for (int j = 0; j < i; ++j) {
-            QDateTime pomoDate = QDateTime(QDate(2015, 6, i));
-            TimeInterval pomoInterval{pomoDate, pomoDate};
+            DateTime pomoDateTime = DateTime::fromYMD(2015, 6, i);
+            TimeInterval pomoInterval{pomoDateTime, pomoDateTime};
             increasingPomodoros
                 << Pomodoro{QString("Whatever"), pomoInterval, QStringList{}};
         }
@@ -135,12 +136,14 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
 
 TEST_GROUP(TagPomoMap){
 
-    void pushToPomodoros(QVector<Pomodoro> & pomodoros, QString name,
-        QStringList tags,
-        int n){for (int i = 0; i < n; ++i){pomodoros.push_back(
-        Pomodoro{name, TimeInterval{QDateTime::currentDateTime(),
-                           QDateTime::currentDateTime()},
-            tags});
+    void pushToPomodoros(QVector<Pomodoro> & pomodoros,
+                         QString name,
+                         QStringList tags,
+                         int n){for (int i = 0; i < n;
+                                     ++i){pomodoros.push_back(Pomodoro{
+        name,
+        TimeInterval{DateTime::currentDateTime(), DateTime::currentDateTime()},
+        tags});
 }
 }
 }
@@ -163,7 +166,7 @@ TEST(TagPomoMap, test_does_not_reduce_slice_vector_when_all_tags_fit)
 }
 
 TEST(TagPomoMap,
-    test_does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
+     test_does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
     QVector<Pomodoro> pomodoros;
     pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag1"}, 4);
@@ -225,9 +228,9 @@ TEST(TagPomoMap, test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
     pushToPomodoros(pomodoros, "irrelevant", QStringList{}, 100);
     TagPomoMap map{pomodoros, 4};
     QVector<Slice> expected{std::make_pair("Tag2", double(50) / 100),
-        std::make_pair("Tag4", double(35) / 100),
-        std::make_pair("Tag3", double(10) / 100),
-        std::make_pair("", double(5) / 100)};
+                            std::make_pair("Tag4", double(35) / 100),
+                            std::make_pair("Tag3", double(10) / 100),
+                            std::make_pair("", double(5) / 100)};
 
     CHECK("Tag2" == map.getTag(0))
     CHECK("Tag4" == map.getTag(1))

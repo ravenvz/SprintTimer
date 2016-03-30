@@ -3,28 +3,29 @@
 
 
 #include <QtCore/qstring.h>
-#include <QtCore/qdatetime.h>
+// #include <QtCore/qdatetime.h>
 #include "core/timeinterval.h"
 #include "TodoItem.h"
 
-class Pomodoro
-{
+class Pomodoro {
 
 public:
     Pomodoro();
 
-    Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags);
+    Pomodoro(const QString todoName,
+             const TimeInterval& interval,
+             const QStringList tags);
 
-    Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime);
+    Pomodoro(const TodoItem& todoItem, const TimeInterval& interval);
 
     // Return name of Pomodoro. It is identical to the associated task name.
     QString name() const;
 
     // Return starting date and time.
-    QDateTime startTime() const;
+    DateTime startTime() const;
 
     // Return finishing date and time.
-    QDateTime finishTime() const;
+    DateTime finishTime() const;
 
     // Return time interval when this Pomodoro was active.
     TimeInterval interval() const;
@@ -40,9 +41,7 @@ private:
     TimeInterval mInterval;
     QStringList mTags;
     QString tagPrefix = "#";
-
 };
 
 
-
-#endif //POMODORO_POMODORO_H
+#endif // POMODORO_POMODORO_H
