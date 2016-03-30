@@ -3,9 +3,9 @@
 
 #include <QDateTime>
 #include <sstream>
-#include <cstring>
-#include <memory>
-#include <ctime>
+// #include <cstring>
+// #include <memory>
+// #include <ctime>
 #include "../../lib/date/date.h"
 
 
@@ -24,95 +24,41 @@ void to_time_point(const std::tm& t,
 }
 
 
-// template <class Clock, class Duration = typename Clock::duration>
 class DateTime {
 
 public:
-    DateTime(std::chrono::system_clock::time_point timepoint)
-        : time{timepoint}
-        , daypoint{date::floor<date::days>(time)}
-        , ymd{date::year_month_day(daypoint)}
-        , tod{date::make_time(time - daypoint)}
-    {
-    }
+    DateTime(std::chrono::system_clock::time_point timepoint);
 
-    static DateTime fromYMD(int year, int month, int day)
-    {
-        date::year_month_day dateYMD{date::year(year) / month / day};
-        if (!dateYMD.ok())
-            throw std::runtime_error("Invalid date");
-        std::chrono::system_clock::time_point tp = date::day_point(dateYMD);
-        return DateTime{tp};
-    }
+    static DateTime fromYMD(int year, int month, int day);
 
-    static DateTime fromTime_t(std::time_t timeT,
-                               int offsetFromUtcInSeconds = 0)
-    {
-        return DateTime{std::chrono::system_clock::from_time_t(timeT)
-                        + std::chrono::seconds{offsetFromUtcInSeconds}};
-    }
+    static DateTime fromTime_t(std::time_t timeT, int offsetFromUtcInSeconds);
 
-    static DateTime currentDateTime()
-    {
-        return DateTime{std::chrono::system_clock::now()};
-    }
+    static DateTime currentDateTime();
 
-    static DateTime currentDateTimeLocal()
-    {
-        auto timepoint = std::chrono::system_clock::now();
-        std::time_t t = std::chrono::system_clock::to_time_t(timepoint);
-        std::tm localTime = *std::localtime(&t);
-        to_time_point(localTime, timepoint);
-        return DateTime{timepoint};
-    }
+    /* Not thread-safe */
+    static DateTime currentDateTimeLocal();
 
+    std::time_t toTime_t() const;
 
-    std::time_t toTime_t() const
-    {
-        return std::chrono::system_clock::to_time_t(time);
-    }
+    DateTime addDays(int days) const;
 
-    DateTime addDays(int days) const
-    {
-        return DateTime{time + date::days{days}};
-    }
+    int daysTo(const DateTime& other) const;
 
-    int daysTo(const DateTime& other)
-    {
-        return (other.ymd.day() - this->ymd.day()).count();
-    }
+    std::chrono::system_clock::time_point chronoTimepoint() const;
 
-    std::chrono::system_clock::time_point chronoTimepoint() const
-    {
-        return time;
-    }
+    int year() const;
 
-    int year() const { return int(ymd.year()); }
+    unsigned month() const;
 
-    unsigned month() const { return unsigned(ymd.month()); }
+    unsigned day() const;
 
-    unsigned day() const { return unsigned(ymd.day()); }
+    long hour() const;
 
-    long hour() const { return tod.hours().count(); }
+    long minute() const;
 
-    long minute() const { return tod.minutes().count(); }
+    long second() const;
 
-    long second() const { return tod.seconds().count(); }
-
-    date::time_of_day<std::chrono::system_clock::duration> time_of_day() const
-    {
-        return tod;
-    }
-
-    std::string toTimeString() const
-    {
-        using namespace date;
-        std::stringstream ss;
-        auto tp = floor<std::chrono::minutes>(time);
-        auto dp = floor<date::days>(time);
-        ss << make_time(tp - dp);
-        return ss.str();
-    }
+    std::string toTimeString() const;
 
     friend inline bool operator==(const DateTime& dt1, const DateTime& dt2);
 
@@ -262,36 +208,13 @@ struct TimeInterval {
         return "Invalid";
     }
 
-    // QString toString() const
-    // {
-    //     using namespace date;
-    //     std::stringstream ss;
-    //     ss << startTime;
-    //     ss << " - ";
-    //     ss << finishTime;
-    //     return QString::fromStdString(ss.str());
-    //     // return QString("%1 - %2")
-    //     //     .arg(startTime.toString())
-    //     //     .arg(finishTime.toString());
-    // }
-    //
     QString toTimeString() const
     {
-        // using namespace date;
-        // auto daypoint_start = date::floor<date::days>(startTime);
-        // auto timeofday_start = date::make_time(startTime - daypoint_start);
-        // auto daypoint_finish = date::floor<date::days>(finishTime);
-        // auto timeofday_finish = date::make_time(finishTime -
-        // daypoint_finish);
         std::string res{startTime.toTimeString()};
         res += " - ";
         res += finishTime.toTimeString();
 
         return QString::fromStdString(res);
-
-        // return QString("%1 - %2")
-        //     .arg(startTime.toString("HH:mm"))
-        //     .arg(finishTime.toString("HH:mm"));
     }
 };
 
