@@ -77,8 +77,7 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
             DateTime pomoDateTime
                 = DateTime{DateTime::currentDateTime().addDays(i)};
             TimeInterval pomoInterval{pomoDateTime, pomoDateTime};
-            pomodoros << Pomodoro{
-                QString("Irrelevant"), pomoInterval, QStringList{}};
+            pomodoros << Pomodoro{"Irrelevant", pomoInterval, QStringList{}};
             expectedDistributionVector[i]++;
         }
     }
@@ -113,7 +112,7 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
             DateTime pomoDateTime = DateTime::fromYMD(2015, 6, i);
             TimeInterval pomoInterval{pomoDateTime, pomoDateTime};
             increasingPomodoros
-                << Pomodoro{QString("Whatever"), pomoInterval, QStringList{}};
+                << Pomodoro{"Whatever", pomoInterval, QStringList{}};
         }
     }
     QVector<double> expected_distribution{4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
@@ -141,7 +140,7 @@ TEST_GROUP(TagPomoMap){
                          QStringList tags,
                          int n){for (int i = 0; i < n;
                                      ++i){pomodoros.push_back(Pomodoro{
-        name,
+        name.toStdString(),
         TimeInterval{DateTime::currentDateTime(), DateTime::currentDateTime()},
         tags});
 }

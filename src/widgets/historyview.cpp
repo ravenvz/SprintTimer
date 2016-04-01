@@ -85,7 +85,7 @@ QVector<HistoryView::HistoryItem> HistoryView::getPomodoroHistory() const
                 QDateTime::fromTime_t(
                     static_cast<unsigned>(pomo.startTime().toTime_t()))
                     .date(),
-                pomo.toString());
+                QString::fromStdString(pomo.toString()));
         });
     return pomodoroHistory;
 }

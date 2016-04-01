@@ -1,27 +1,35 @@
 #include <algorithm>
 #include "Pomodoro.h"
 #include <QDebug>
+#include "utils/StringUtils.h"
 
 
 Pomodoro::Pomodoro() {}
 
-Pomodoro::Pomodoro(const QString todoName,
+Pomodoro::Pomodoro(const std::string& todoName,
                    const TimeInterval& interval,
-                   const QStringList tags)
+                   const QStringList& tags)
     : mName{todoName}
     , mInterval{interval}
-    , mTags{tags}
 {
+    std::transform(tags.cbegin(),
+                   tags.cend(),
+                   std::back_inserter(mTags),
+                   [](const auto& elem) { return elem.toStdString(); });
 }
 
 Pomodoro::Pomodoro(const TodoItem& todoItem, const TimeInterval& interval)
-    : mName{todoItem.name()}
+    : mName{todoItem.name().toStdString()}
     , mInterval{interval}
-    , mTags{todoItem.tags()}
 {
+    auto tags = todoItem.tags();
+    std::transform(tags.cbegin(),
+                   tags.cend(),
+                   std::back_inserter(mTags),
+                   [](const auto& elem) { return elem.toStdString(); });
 }
 
-QString Pomodoro::name() const { return mName; }
+std::string Pomodoro::name() const { return mName; }
 
 DateTime Pomodoro::startTime() const { return mInterval.startTime; }
 
@@ -29,18 +37,24 @@ DateTime Pomodoro::finishTime() const { return mInterval.finishTime; }
 
 TimeInterval Pomodoro::interval() const { return mInterval; }
 
-QStringList Pomodoro::tags() const { return mTags; }
+std::vector<std::string> Pomodoro::tags() const { return mTags; }
 
-QString Pomodoro::toString() const
+std::string Pomodoro::toString() const
 {
+
     QStringList result;
-    QStringList tagsCopy = mTags;
-    std::for_each(
-        tagsCopy.begin(),
-        tagsCopy.end(),
-        [prefix = tagPrefix](auto& el) { return el.prepend(prefix); });
-    result.append(QString::fromStdString(mInterval.toTimeString()));
-    result.append(tagsCopy.join(" "));
-    result.append(mName);
-    return result.join(" ");
+    std::vector<std::string> tagsCopy;
+    std::vector<std::string> res;
+
+    std::copy(mTags.cbegin(), mTags.cend(), std::back_inserter(tagsCopy));
+
+    std::for_each(tagsCopy.begin(),
+                  tagsCopy.end(),
+                  [&](auto& elem) { elem.insert(0, tagPrefix); });
+
+    res.push_back(mInterval.toTimeString());
+    res.push_back(join(tagsCopy, std::string(" ")));
+    res.push_back(mName);
+
+    return join(res, " ");
 }

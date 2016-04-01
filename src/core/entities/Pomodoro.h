@@ -3,7 +3,7 @@
 
 
 #include <QtCore/qstring.h>
-// #include <QtCore/qdatetime.h>
+#include <string>
 #include "core/timeinterval.h"
 #include "TodoItem.h"
 
@@ -12,14 +12,14 @@ class Pomodoro {
 public:
     Pomodoro();
 
-    Pomodoro(const QString todoName,
+    Pomodoro(const std::string& todoName,
              const TimeInterval& interval,
-             const QStringList tags);
+             const QStringList& tags);
 
     Pomodoro(const TodoItem& todoItem, const TimeInterval& interval);
 
     // Return name of Pomodoro. It is identical to the associated task name.
-    QString name() const;
+    std::string name() const;
 
     // Return starting date and time.
     DateTime startTime() const;
@@ -30,17 +30,17 @@ public:
     // Return time interval when this Pomodoro was active.
     TimeInterval interval() const;
 
-    // Return tags. Tags are identical the associated task tags.
-    QStringList tags() const;
+    // Return vector of tags. Tags are identical the associated task tags.
+    std::vector<std::string> tags() const;
 
     // Return string representation.
-    QString toString() const;
+    std::string toString() const;
 
 private:
-    QString mName;
+    std::string mName;
     TimeInterval mInterval;
-    QStringList mTags;
-    QString tagPrefix = "#";
+    std::vector<std::string> mTags;
+    std::string tagPrefix{"#"};
 };
 
 

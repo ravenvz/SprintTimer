@@ -29,8 +29,8 @@ bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2)
     }
     // Tags are compared sorted, because there is no guarantee of tag
     // ordering
-    QStringList tags1 = pomodoro1.tags();
-    QStringList tags2 = pomodoro2.tags();
+    auto tags1 = pomodoro1.tags();
+    auto tags2 = pomodoro2.tags();
     std::sort(tags1.begin(), tags1.end());
     std::sort(tags2.begin(), tags2.end());
 
@@ -51,7 +51,7 @@ TEST(PomodoroModel, test_insert_and_delete)
     int estimatedPomodoros{4};
     int spentPomodoros{0};
     TodoItem item{name, estimatedPomodoros, spentPomodoros, tags, false};
-    Pomodoro expectedPomodoro{name, interval, tags};
+    Pomodoro expectedPomodoro{item, interval};
 
     CHECK(todoItemModel.insert(item));
     auto todoId = todoItemModel.itemIdAt(0);

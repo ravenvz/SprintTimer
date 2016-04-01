@@ -20,7 +20,7 @@ QVariant PomodoroModel::data(const QModelIndex& index, int role) const
 
     switch (role) {
     case Qt::DisplayRole:
-        return itemAt(index.row()).toString();
+        return QString::fromStdString(itemAt(index.row()).toString());
     default:
         return QSqlTableModel::data(index, role);
     }
@@ -59,7 +59,7 @@ Pomodoro PomodoroModel::itemAt(const int row) const
         start.toTime_t(), finish.toTime_t(), offsetFromUtcInSeconds};
     QStringList tags{
         columnData(rowRecord, Columns::Tags).toString().split(",")};
-    return Pomodoro{name, interval, tags};
+    return Pomodoro{name.toStdString(), interval, tags};
 }
 
 QVector<Pomodoro> PomodoroModel::items()

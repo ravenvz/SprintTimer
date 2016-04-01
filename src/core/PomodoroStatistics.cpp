@@ -5,7 +5,11 @@ TagPomoMap::TagPomoMap(const QVector<Pomodoro>& pomodoros, int numTopSlices)
     : numTopSlices(numTopSlices)
 {
     for (const Pomodoro& pomo : pomodoros) {
-        const auto& tags = pomo.tags();
+        QStringList tags;
+        for (const auto& tag : pomo.tags()) {
+            tags << QString::fromStdString(tag);
+        }
+        // const auto& tags = pomo.tags();
         for (const auto& tag : tags) {
             tagToPomodoroVec[tag] << pomo;
         }
