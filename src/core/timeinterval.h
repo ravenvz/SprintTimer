@@ -160,12 +160,12 @@ struct TimeInterval {
         }
     }
 
-    static QString dayPartName(int dayPart)
+    static std::string dayPartName(int dayPart)
     {
         return dayPartName(static_cast<DayPart>(dayPart));
     }
 
-    static QString dayPartName(DayPart dayPart)
+    static std::string dayPartName(DayPart dayPart)
     {
         switch (dayPart) {
         case DayPart::MIDNIGHT:
@@ -184,12 +184,12 @@ struct TimeInterval {
         return "Invalid";
     }
 
-    static QString dayPartHours(int dayPart)
+    static std::string dayPartHours(int dayPart)
     {
         return dayPartHours(static_cast<DayPart>(dayPart));
     }
 
-    static QString dayPartHours(DayPart dayPart)
+    static std::string dayPartHours(DayPart dayPart)
     {
         switch (dayPart) {
         case DayPart::MIDNIGHT:
@@ -208,13 +208,12 @@ struct TimeInterval {
         return "Invalid";
     }
 
-    QString toTimeString() const
+    std::string toTimeString() const
     {
         std::string res{startTime.toTimeString()};
         res += " - ";
         res += finishTime.toTimeString();
-
-        return QString::fromStdString(res);
+        return res;
     }
 };
 

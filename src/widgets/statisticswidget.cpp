@@ -134,10 +134,10 @@ void StatisticsWidget::updateWorkHoursDiagram(
         ui->labelBestWorktimeHours->setText("");
     }
     else {
-        ui->labelBestWorktimeName->setText(QString("%1").arg(
+        ui->labelBestWorktimeName->setText(QString::fromStdString(
             TimeInterval::dayPartName(workTimeDistribution->getMaxValueBin())));
         ui->labelBestWorktimeHours->setText(
-            QString("%1").arg(TimeInterval::dayPartHours(
+            QString::fromStdString(TimeInterval::dayPartHours(
                 workTimeDistribution->getMaxValueBin())));
     }
     workTimeDiagram->setIntervals(intervals);

@@ -39,7 +39,7 @@ QString Pomodoro::toString() const
         tagsCopy.begin(),
         tagsCopy.end(),
         [prefix = tagPrefix](auto& el) { return el.prepend(prefix); });
-    result.append(mInterval.toTimeString());
+    result.append(QString::fromStdString(mInterval.toTimeString()));
     result.append(tagsCopy.join(" "));
     result.append(mName);
     return result.join(" ");
