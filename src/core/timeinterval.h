@@ -103,118 +103,32 @@ struct DateInterval {
 struct TimeInterval {
 
     using SystemClock = std::chrono::system_clock::time_point;
+    DateTime startTime;
+    DateTime finishTime;
+    enum class DayPart { MIDNIGHT, NIGHT, MORNING, NOON, AFTERNOON, EVENING };
 
-    TimeInterval(SystemClock start, SystemClock finish)
-        : startTime{DateTime{std::move(start)}}
-        , finishTime{DateTime{std::move(finish)}}
-    {
-    }
+    TimeInterval(SystemClock start, SystemClock finish);
 
-    TimeInterval(const DateTime& start, const DateTime& finish)
-        : startTime{start}
-        , finishTime{finish}
-    {
-    }
+    TimeInterval(const DateTime& start, const DateTime& finish);
 
     TimeInterval(std::time_t start,
                  std::time_t finish,
-                 int offsetFromUtcInSeconds = 0)
-        : startTime{DateTime::fromTime_t(start, offsetFromUtcInSeconds)}
-        , finishTime{DateTime::fromTime_t(finish, offsetFromUtcInSeconds)}
-    {
-    }
+                 int offsetFromUtcInSeconds = 0);
 
     // TODO remove when got rid of Qt containers
-    TimeInterval()
-        : startTime{DateTime::currentDateTime()}
-        , finishTime{DateTime::currentDateTime()}
-    {
-    }
+    TimeInterval();
 
-    DateTime startTime;
-    DateTime finishTime;
+    DayPart getDayPart() const;
 
-    enum class DayPart { MIDNIGHT, NIGHT, MORNING, NOON, AFTERNOON, EVENING };
+    static std::string dayPartName(int dayPart);
 
-    DayPart getDayPart() const
-    {
-        auto hour = startTime.hour();
+    static std::string dayPartName(DayPart dayPart);
 
-        if (22 < hour || hour <= 2) {
-            return DayPart::MIDNIGHT;
-        }
-        else if (2 < hour && hour <= 6) {
-            return DayPart::NIGHT;
-        }
-        else if (6 < hour && hour <= 10) {
-            return DayPart::MORNING;
-        }
-        else if (10 < hour && hour <= 14) {
-            return DayPart::NOON;
-        }
-        else if (14 < hour && hour <= 18) {
-            return DayPart::AFTERNOON;
-        }
-        else {
-            return DayPart::EVENING;
-        }
-    }
+    static std::string dayPartHours(int dayPart);
 
-    static std::string dayPartName(int dayPart)
-    {
-        return dayPartName(static_cast<DayPart>(dayPart));
-    }
+    static std::string dayPartHours(DayPart dayPart);
 
-    static std::string dayPartName(DayPart dayPart)
-    {
-        switch (dayPart) {
-        case DayPart::MIDNIGHT:
-            return "Midnight";
-        case DayPart::NIGHT:
-            return "Night";
-        case DayPart::MORNING:
-            return "Morning";
-        case DayPart::NOON:
-            return "Noon";
-        case DayPart::AFTERNOON:
-            return "Afternoon";
-        case DayPart::EVENING:
-            return "Evening";
-        }
-        return "Invalid";
-    }
-
-    static std::string dayPartHours(int dayPart)
-    {
-        return dayPartHours(static_cast<DayPart>(dayPart));
-    }
-
-    static std::string dayPartHours(DayPart dayPart)
-    {
-        switch (dayPart) {
-        case DayPart::MIDNIGHT:
-            return "22:00 - 2:00";
-        case DayPart::NIGHT:
-            return "2:00 - 6:00";
-        case DayPart::MORNING:
-            return "6:00 - 10:00";
-        case DayPart::NOON:
-            return "10:00 - 14:00";
-        case DayPart::AFTERNOON:
-            return "14:00 - 18:00";
-        case DayPart::EVENING:
-            return "18:00 - 22:00";
-        }
-        return "Invalid";
-    }
-
-    std::string toTimeString() const
-    {
-        std::string res{startTime.toTimeString()};
-        res += " - ";
-        res += finishTime.toTimeString();
-        return res;
-    }
+    std::string toTimeString() const;
 };
 
 #endif /* end of include guard: TIMEINTERVAL_H */
