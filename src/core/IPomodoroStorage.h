@@ -24,7 +24,7 @@ public:
 
     virtual std::vector<Pomodoro> items() = 0;
 
-    virtual std::vector<Pomodoro> items(const DateInterval& interval) = 0;
+    virtual std::vector<Pomodoro> items(const TimeInterval& interval) = 0;
 
     virtual std::vector<std::string> yearRange() = 0;
 };

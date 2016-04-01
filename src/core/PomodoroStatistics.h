@@ -1,14 +1,15 @@
 #ifndef POMODORO_POMODOROSTATISTICS_H
 #define POMODORO_POMODOROSTATISTICS_H
 
-#include <QtCore/qvector.h>
-#include "core/entities/Pomodoro.h"
 #include <QDebug>
-#include "utils/MathUtils.h"
-#include "TaskScheduler.h"
-#include "db_layer/db_service.h"
-#include <iostream>
+#include <QtCore/qvector.h>
 #include <algorithm>
+#include <iostream>
+#include "TaskScheduler.h"
+#include "core/entities/Pomodoro.h"
+#include "db_layer/db_service.h"
+#include "utils/MathUtils.h"
+#include "utils/DateInterval.h"
 
 // TODO refactor this ugly mess
 

@@ -3,14 +3,14 @@
 
 #include <QDialog>
 #include "core/TaskScheduler.h"
+#include "utils/DateInterval.h"
 
 namespace Ui {
-    class DatePickDialog;
+class DatePickDialog;
 }
 
 
-class DatePickDialog : public QDialog
-{
+class DatePickDialog : public QDialog {
     Q_OBJECT
 
 public:
@@ -19,11 +19,10 @@ public:
     DateInterval getNewInterval();
 
 private:
-    Ui::DatePickDialog *ui;
+    Ui::DatePickDialog* ui;
 
     void configureCalendar();
     void updateCalendarDates(DateInterval& period);
-
 };
 
 #endif // DATEPICKDIALOG_H

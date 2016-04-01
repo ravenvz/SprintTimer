@@ -7,6 +7,7 @@
 #include <QSqlQuery>
 #include "core/entities/TodoItem.h"
 #include "core/timeinterval.h"
+#include "utils/DateInterval.h"
 
 class TodoItemModel : public SqliteTableModel {
 public:
@@ -26,16 +27,19 @@ public:
     // Override to provide support for custom roles as well as to customize
     // behaviour
     // of the default roles.
-    QVariant data(
-        const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const override;
 
     // Override to support drag and drop. Changes items' priorities instead of
     // removing row and inserting it at destination position as in default
     // behavour for drag and drop. That default behaviour would not work here,
     // as sqlite view is set to this model, and removing row from it would have
     // undesired consequences.
-    bool moveRows(const QModelIndex& sourceParent, int sourceRow, int count,
-        const QModelIndex& destinationParent, int destinationChild) override;
+    bool moveRows(const QModelIndex& sourceParent,
+                  int sourceRow,
+                  int count,
+                  const QModelIndex& destinationParent,
+                  int destinationChild) override;
 
     enum customRoles {
         TagsRole = Qt::UserRole + 1,
@@ -111,8 +115,8 @@ private:
 
     // Return value in the field identified by QSqlRecord and column number
     // wrapped in QVariant
-    QVariant columnData(
-        const QSqlRecord& rowRecord, const Column& column) const;
+    QVariant columnData(const QSqlRecord& rowRecord,
+                        const Column& column) const;
 
     // Return value in given row and column wrapped in QVariant.
     QVariant columnData(const int row, const Column& column) const;
@@ -121,8 +125,9 @@ private:
     // item at this row.
     // Tag sets may contain identical tags.
     // Relations between items and tags are also updated.
-    bool updateTags(const int row, const QSet<QString>& tagsToRemove,
-        const QSet<QString>& tagsToInsert);
+    bool updateTags(const int row,
+                    const QSet<QString>& tagsToRemove,
+                    const QSet<QString>& tagsToInsert);
 
     // Given row number and set of tag names, insert tags in the database.
     // Create relations between items and tags.
