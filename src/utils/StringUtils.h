@@ -5,16 +5,21 @@
 #include <string>
 #include <iostream>
 
+namespace StringUtils {
 std::string join(const std::vector<std::string>& vec,
-                 const std::string& delimeter)
+                 const std::string& delimeter);
+
+template <class ForwardIterator>
+std::string
+join(ForwardIterator first, ForwardIterator last, const std::string& delimeter)
 {
     std::string res;
-    for (const auto& element : vec) {
-        res += element;
+    for (auto it = first; it != last; ++it) {
+        res += *it;
         res += delimeter;
     }
-    res.pop_back();
     return res;
+}
 }
 
 // std::string join(std::vector<std::string>&& vec, const std::string&

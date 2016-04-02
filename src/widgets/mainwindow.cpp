@@ -151,9 +151,9 @@ void MainWindow::addTodoItem()
 
 void MainWindow::quickAddTodoItem()
 {
-    QString encodedDescription = ui->leTodoItem->text();
+    std::string encodedDescription = ui->leTodoItem->text().toStdString();
     ui->leTodoItem->clear();
-    if (!encodedDescription.isEmpty()) {
+    if (!encodedDescription.empty()) {
         TodoItem item{std::move(encodedDescription)};
         todoitemViewModel->insert(item);
     }
@@ -246,7 +246,9 @@ void MainWindow::changeSelectedTask(QModelIndex index)
         selectedTaskId = todoitemViewModel->itemIdAt(index.row());
         TodoItem item = todoitemViewModel->itemAt(index.row());
         QString description
-            = QString("%1 %2").arg(item.tagsAsString()).arg(item.name());
+            = QString("%1 %2")
+                  .arg(QString::fromStdString(item.tagsAsString()))
+                  .arg(QString::fromStdString(item.name()));
         ui->leDoneTask->setText(description);
     }
 }

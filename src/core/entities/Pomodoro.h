@@ -4,6 +4,7 @@
 
 #include <QtCore/qstring.h>
 #include <string>
+#include <list>
 #include "core/timeinterval.h"
 #include "TodoItem.h"
 
@@ -14,7 +15,7 @@ public:
 
     Pomodoro(const std::string& todoName,
              const TimeInterval& interval,
-             const QStringList& tags);
+             const std::list<std::string>& tags);
 
     Pomodoro(const TodoItem& todoItem, const TimeInterval& interval);
 
@@ -31,7 +32,7 @@ public:
     TimeInterval interval() const;
 
     // Return vector of tags. Tags are identical the associated task tags.
-    std::vector<std::string> tags() const;
+    std::list<std::string> tags() const;
 
     // Return string representation.
     std::string toString() const;
@@ -39,7 +40,7 @@ public:
 private:
     std::string mName;
     TimeInterval mInterval;
-    std::vector<std::string> mTags;
+    std::list<std::string> mTags;
     std::string tagPrefix{"#"};
 };
 

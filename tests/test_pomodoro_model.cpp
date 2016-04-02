@@ -29,10 +29,12 @@ bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2)
     }
     // Tags are compared sorted, because there is no guarantee of tag
     // ordering
-    auto tags1 = pomodoro1.tags();
-    auto tags2 = pomodoro2.tags();
-    std::sort(tags1.begin(), tags1.end());
-    std::sort(tags2.begin(), tags2.end());
+    std::list<std::string> tags1 = pomodoro1.tags();
+    std::list<std::string> tags2 = pomodoro2.tags();
+    tags1.sort();
+    tags2.sort();
+    // std::sort(tags1.begin(), tags1.end());
+    // std::sort(tags2.begin(), tags2.end());
 
     return tags1 == tags2;
 }
@@ -46,8 +48,8 @@ TEST(PomodoroModel, test_insert_and_delete)
                           std::chrono::system_clock::now()};
 
     TodoItemModel todoItemModel;
-    QString name{"Test item"};
-    QStringList tags{"Tag1", "Tag2"};
+    std::string name{"Test item"};
+    std::list<std::string> tags{"Tag1", "Tag2"};
     int estimatedPomodoros{4};
     int spentPomodoros{0};
     TodoItem item{name, estimatedPomodoros, spentPomodoros, tags, false};
@@ -80,8 +82,8 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros)
     TimeInterval interval{std::chrono::system_clock::now(),
                           std::chrono::system_clock::now()};
     TodoItemModel todoItemModel;
-    QString name{"Test item"};
-    QStringList tags{"Tag1", "Tag2"};
+    std::string name{"Test item"};
+    std::list<std::string> tags{"Tag1", "Tag2"};
     int estimatedPomodoros{4};
     int spentPomodoros{0};
     TodoItem item{name, estimatedPomodoros, spentPomodoros, tags, false};

@@ -24,6 +24,8 @@ set(SOURCE_FILES
         ../src/models/todoitemmodel.cpp
         ../src/models/pomodoromodel.cpp
     ../src/utils/MathUtils.cpp
+    ../src/utils/StringUtils.h
+    ../src/utils/StringUtils.cpp
 )
 # find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql)
