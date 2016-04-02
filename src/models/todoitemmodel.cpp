@@ -51,9 +51,9 @@ QVariant TodoItemModel::data(const QModelIndex& index, int role) const
     }
     switch (role) {
     case Qt::DisplayRole:
-        return itemAt(index.row()).toString();
+        return QString::fromStdString(itemAt(index.row()).toString());
     case TagsRole:
-        return itemAt(index.row()).tagsAsString();
+        return QString::fromStdString(itemAt(index.row()).tagsAsString());
     // return columnData(index.row(), Column::Tags);
     case DescriptionRole:
         return columnData(index.row(), Column::Name);
@@ -80,21 +80,30 @@ bool TodoItemModel::insert(const TodoItem& item)
     QSqlDatabase::database().transaction();
     bool shouldRollback = false;
     const int newItemPriority = 10000;
-    insertTodoItemQuery.bindValue(":name", QVariant(item.name()));
     insertTodoItemQuery.bindValue(
-        ":estimated_pomodoros", QVariant(item.estimatedPomodoros()));
-    insertTodoItemQuery.bindValue(
-        ":spent_pomodoros", QVariant(item.spentPomodoros()));
+        ":name", QVariant(QString::fromStdString(item.name())));
+    insertTodoItemQuery.bindValue(":estimated_pomodoros",
+                                  QVariant(item.estimatedPomodoros()));
+    insertTodoItemQuery.bindValue(":spent_pomodoros",
+                                  QVariant(item.spentPomodoros()));
     insertTodoItemQuery.bindValue(":completed", QVariant(item.isCompleted()));
     insertTodoItemQuery.bindValue(":priority", QVariant(newItemPriority));
-    insertTodoItemQuery.bindValue(
-        ":last_modified", QVariant(QDateTime::currentDateTime()));
+    insertTodoItemQuery.bindValue(":last_modified",
+                                  QVariant(QDateTime::currentDateTime()));
     if (!insertTodoItemQuery.exec())
         shouldRollback = true;
     QVariant todoId = insertTodoItemQuery.lastInsertId();
 
     QVariantList tagIds;
-    QSet<QString> tagsToInsert = QSet<QString>::fromList(item.tags());
+    // TODO should really get rid of this double-convertion here
+    //
+    QSet<QString> tagsToInsert;
+    for (const auto& tag : item.tags()) {
+        tagsToInsert << QString::fromStdString(tag);
+    }
+    // QSet<QString> tagsToInsert
+    //     =
+    //     QSet<QString>::fromList(QList<std::string>::fromStdList(item.tags()));
     if (!insertTags(todoId, tagsToInsert))
         shouldRollback = true;
 
@@ -124,10 +133,20 @@ TodoItem TodoItemModel::itemAt(const int row) const
         columnData(rowRecord, Column::EstimatedPomodoros).toInt()};
     int spentPomodoros{columnData(rowRecord, Column::SpentPomodoros).toInt()};
     QVariant tagsVariant{columnData(rowRecord, Column::Tags)};
-    QStringList tags = tagsVariant.isNull() ? QStringList()
-                                            : tagsVariant.toString().split(",");
+    QStringList qTags = tagsVariant.isNull()
+        ? QStringList()
+        : tagsVariant.toString().split(",");
+    std::list<std::string> tags;
+    std::transform(qTags.cbegin(),
+                   qTags.cend(),
+                   std::back_inserter(tags),
+                   [](const auto& tag) { return tag.toStdString(); });
     bool completed{columnData(rowRecord, Column::Completed).toBool()};
-    return TodoItem{name, estimatedPomodoros, spentPomodoros, tags, completed};
+    return TodoItem{name.toStdString(),
+                    estimatedPomodoros,
+                    spentPomodoros,
+                    tags,
+                    completed};
 }
 
 bool TodoItemModel::toggleCompleted(const QModelIndex& index)
@@ -136,11 +155,13 @@ bool TodoItemModel::toggleCompleted(const QModelIndex& index)
     QVariant value = QVariant(!state.toBool());
     bool completedToggled = QSqlTableModel::setData(
         index.model()->index(index.row(), static_cast<int>(Column::Completed)),
-        value, Qt::EditRole);
-    bool timeStampUpdated
-        = QSqlTableModel::setData(index.model()->index(index.row(),
-                                      static_cast<int>(Column::LastModified)),
-            QVariant(QDateTime::currentDateTime()), Qt::EditRole);
+        value,
+        Qt::EditRole);
+    bool timeStampUpdated = QSqlTableModel::setData(
+        index.model()->index(index.row(),
+                             static_cast<int>(Column::LastModified)),
+        QVariant(QDateTime::currentDateTime()),
+        Qt::EditRole);
     if (!(completedToggled && timeStampUpdated)) {
         revertAll();
         return false;
@@ -171,7 +192,7 @@ TodoItemModel::itemsWithTimestamp()
     for (int row = 0; row < numItems; ++row) {
         allItems.push_back(std::make_pair(
             columnData(row, Column::LastModified).toDateTime().date(),
-            itemAt(row).toString()));
+            QString::fromStdString(itemAt(row).toString())));
     }
     return allItems;
 }
@@ -179,8 +200,16 @@ TodoItemModel::itemsWithTimestamp()
 bool TodoItemModel::replaceItemAt(const int row, const TodoItem& newItem)
 {
     TodoItem oldItem = itemAt(row);
-    QSet<QString> oldTags = QSet<QString>::fromList(oldItem.tags());
-    QSet<QString> newTags = QSet<QString>::fromList(newItem.tags());
+    QSet<QString> oldTags;
+    QSet<QString> newTags;
+    for (const auto& tag : oldItem.tags()) {
+        oldTags << QString::fromStdString(tag);
+    }
+    for (const auto& tag : newItem.tags()) {
+        newTags << QString::fromStdString(tag);
+    }
+    // QSet<QString> oldTags = QSet<QString>::fromList(oldItem.tags());
+    // QSet<QString> newTags = QSet<QString>::fromList(newItem.tags());
     if (oldTags != newTags) {
         QSet<QString> tagsToRemove = oldTags;
         QSet<QString> tagsToInsert = newTags;
@@ -216,8 +245,11 @@ QString TodoItemModel::itemNameAt(const int row) const
     return columnData(row, Column::Name).toString();
 }
 
-bool TodoItemModel::moveRows(const QModelIndex& sourceParent, int sourceRow,
-    int count, const QModelIndex& destinationParent, int destinationChild)
+bool TodoItemModel::moveRows(const QModelIndex& sourceParent,
+                             int sourceRow,
+                             int count,
+                             const QModelIndex& destinationParent,
+                             int destinationChild)
 {
     // If item is dropped below all rows, destination child would be -1
     int destinationRow
@@ -242,8 +274,8 @@ bool TodoItemModel::setItemPriority(const int row, const int priority)
         index(row, static_cast<int>(Column::Priority)), priority, Qt::EditRole);
 }
 
-QVariant TodoItemModel::columnData(
-    const QSqlRecord& rowRecord, const Column& column) const
+QVariant TodoItemModel::columnData(const QSqlRecord& rowRecord,
+                                   const Column& column) const
 {
     return rowRecord.value(static_cast<int>(column));
 }
@@ -253,13 +285,14 @@ QVariant TodoItemModel::columnData(const int row, const Column& column) const
     return record(row).value(static_cast<int>(column));
 }
 
-bool TodoItemModel::updateTags(const int row, const QSet<QString>& tagsToRemove,
-    const QSet<QString>& tagsToInsert)
+bool TodoItemModel::updateTags(const int row,
+                               const QSet<QString>& tagsToRemove,
+                               const QSet<QString>& tagsToInsert)
 {
     QVariant todoId = data(index(row, static_cast<int>(Column::Id)), GetIdRole);
     QSqlDatabase::database().transaction();
-    bool shouldRollback = !(
-        insertTags(todoId, tagsToInsert) && removeTags(todoId, tagsToRemove));
+    bool shouldRollback = !(insertTags(todoId, tagsToInsert)
+                            && removeTags(todoId, tagsToRemove));
     if (shouldRollback || !QSqlDatabase::database().commit()) {
         QSqlDatabase::database().rollback();
         return false;
@@ -309,19 +342,24 @@ bool TodoItemModel::updateRow(const int row, const TodoItem& newItem)
 {
     bool nameUpdated
         = QSqlTableModel::setData(index(row, static_cast<int>(Column::Name)),
-            newItem.name(), Qt::EditRole);
+                                  QString::fromStdString(newItem.name()),
+                                  Qt::EditRole);
     bool estimatedUpdated = QSqlTableModel::setData(
         index(row, static_cast<int>(Column::EstimatedPomodoros)),
-        newItem.estimatedPomodoros(), Qt::EditRole);
+        newItem.estimatedPomodoros(),
+        Qt::EditRole);
     bool spentUpdated = QSqlTableModel::setData(
         index(row, static_cast<int>(Column::SpentPomodoros)),
-        newItem.spentPomodoros(), Qt::EditRole);
+        newItem.spentPomodoros(),
+        Qt::EditRole);
     bool completedUpdated = QSqlTableModel::setData(
-        index(row, static_cast<int>(Column::Completed)), newItem.isCompleted(),
+        index(row, static_cast<int>(Column::Completed)),
+        newItem.isCompleted(),
         Qt::EditRole);
     bool timestampUpdated = QSqlTableModel::setData(
         index(row, static_cast<int>(Column::LastModified)),
-        QDateTime::currentDateTime(), Qt::EditRole);
+        QDateTime::currentDateTime(),
+        Qt::EditRole);
     if (nameUpdated && estimatedUpdated && spentUpdated && completedUpdated
         && timestampUpdated) {
         submitAll();

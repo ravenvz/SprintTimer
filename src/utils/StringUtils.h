@@ -5,16 +5,9 @@
 #include <string>
 #include <iostream>
 
+namespace StringUtils {
 std::string join(const std::vector<std::string>& vec,
-                 const std::string& delimeter)
-{
-    std::string res;
-    for (const auto& element : vec) {
-        res += element;
-        res += delimeter;
-    }
-    res.pop_back();
-    return res;
+                 const std::string& delimeter);
 }
 
 // std::string join(std::vector<std::string>&& vec, const std::string&

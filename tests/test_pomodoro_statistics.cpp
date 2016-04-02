@@ -77,7 +77,7 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
             DateTime pomoDateTime
                 = DateTime{DateTime::currentDateTime().addDays(i)};
             TimeInterval pomoInterval{pomoDateTime, pomoDateTime};
-            pomodoros << Pomodoro{"Irrelevant", pomoInterval, QStringList{}};
+            pomodoros << Pomodoro{"Irrelevant", pomoInterval, {}};
             expectedDistributionVector[i]++;
         }
     }
@@ -111,8 +111,7 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
         for (int j = 0; j < i; ++j) {
             DateTime pomoDateTime = DateTime::fromYMD(2015, 6, i);
             TimeInterval pomoInterval{pomoDateTime, pomoDateTime};
-            increasingPomodoros
-                << Pomodoro{"Whatever", pomoInterval, QStringList{}};
+            increasingPomodoros << Pomodoro{"Whatever", pomoInterval, {}};
         }
     }
     QVector<double> expected_distribution{4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
@@ -136,11 +135,11 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
 TEST_GROUP(TagPomoMap){
 
     void pushToPomodoros(QVector<Pomodoro> & pomodoros,
-                         QString name,
-                         QStringList tags,
+                         std::string name,
+                         std::list<std::string> tags,
                          int n){for (int i = 0; i < n;
                                      ++i){pomodoros.push_back(Pomodoro{
-        name.toStdString(),
+        name,
         TimeInterval{DateTime::currentDateTime(), DateTime::currentDateTime()},
         tags});
 }
@@ -151,8 +150,8 @@ TEST_GROUP(TagPomoMap){
 TEST(TagPomoMap, test_does_not_reduce_slice_vector_when_all_tags_fit)
 {
     QVector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag1"}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag2"}, 49);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag2"}, 49);
     TagPomoMap map{pomodoros, 3};
     QVector<Slice> expected;
     expected.append(std::make_pair("Tag2", double(49) / 53));
@@ -168,8 +167,8 @@ TEST(TagPomoMap,
      test_does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
     QVector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag1"}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag2"}, 49);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag2"}, 49);
     TagPomoMap map{pomodoros, 5};
     QVector<Slice> expected;
     expected.append(std::make_pair("Tag2", double(49) / 53));
@@ -186,13 +185,13 @@ TEST(TagPomoMap,
 TEST(TagPomoMap, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
 {
     QVector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag1"}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag2"}, 49);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag2", "Tag1"}, 1);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"C++", "Tag4"}, 10);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag4"}, 25);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag5"}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{}, 100);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag2"}, 49);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag2", "Tag1"}, 1);
+    pushToPomodoros(pomodoros, "irrelevant", {"C++", "Tag4"}, 10);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag4"}, 25);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag5"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", {}, 100);
     TagPomoMap map{pomodoros, 5};
     QVector<Slice> expected;
     expected.append(std::make_pair("Tag2", double(50) / 104));
@@ -219,12 +218,12 @@ TEST(TagPomoMap, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
 TEST(TagPomoMap, test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
     QVector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag1"}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag2"}, 49);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag2", "Tag1"}, 1);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag3", "Tag4"}, 10);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{"Tag4"}, 25);
-    pushToPomodoros(pomodoros, "irrelevant", QStringList{}, 100);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag2"}, 49);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag2", "Tag1"}, 1);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag3", "Tag4"}, 10);
+    pushToPomodoros(pomodoros, "irrelevant", {"Tag4"}, 25);
+    pushToPomodoros(pomodoros, "irrelevant", {}, 100);
     TagPomoMap map{pomodoros, 4};
     QVector<Slice> expected{std::make_pair("Tag2", double(50) / 100),
                             std::make_pair("Tag4", double(35) / 100),

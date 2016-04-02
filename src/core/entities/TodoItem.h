@@ -1,29 +1,28 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include <QDateTime>
-#include <QChar>
-#include <QStringList>
-#include <QDebug>
+#include <string>
+#include <vector>
+#include <list>
+#include "utils/StringUtils.h"
 
 
-class TodoItem
-{
+class TodoItem {
 
 public:
     // TODO consider if default c-tor is needed
     TodoItem();
 
-    TodoItem(QString name,
+    TodoItem(std::string name,
              int estimatedPomodoros,
              int spentPomodoros,
-             QStringList tags,
+             std::list<std::string> tags,
              bool completed);
 
-    explicit TodoItem(QString encodedDescription);
+    explicit TodoItem(std::string encodedDescription);
 
     // Task name.
-    QString name() const;
+    std::string name() const;
 
     // Estimation task cost in pomodoros.
     int estimatedPomodoros() const;
@@ -32,9 +31,9 @@ public:
     int spentPomodoros() const;
 
     // Task tags.
-    QStringList tags() const;
+    std::list<std::string> tags() const;
 
-    QString tagsAsString() const;
+    std::string tagsAsString() const;
 
     // Task completion status.
     bool isCompleted() const;
@@ -46,21 +45,20 @@ public:
     void setSpentPomodoros(int spentPomodoros);
 
     // Return string representation.
-    QString toString() const;
+    std::string toString() const;
 
 private:
-    QString mName;
-    QString mEncodedDescription;
+    std::string mName;
+    std::string mEncodedDescription;
     int mEstimatedPomodoros = 1;
     int mSpentPomodoros;
-    QStringList mTags;
+    std::list<std::string> mTags;
     bool mCompleted;
-    QChar tagPrefix = '#';
-    QChar estimatedPrefix = '*';
+    std::string tagPrefix{"#"};
+    std::string estimatedPrefix{"*"};
 
-    QString tagsAsHashedString() const;
-    void decodeDescription(QString&& encodedDescription);
-
+    // std::string tagsAsHashedString() const;
+    void decodeDescription(std::string&& encodedDescription);
 };
 
 #endif // ENTITIES_H

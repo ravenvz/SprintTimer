@@ -57,8 +57,14 @@ Pomodoro PomodoroModel::itemAt(const int row) const
     int offsetFromUtcInSeconds{start.offsetFromUtc()};
     TimeInterval interval{
         start.toTime_t(), finish.toTime_t(), offsetFromUtcInSeconds};
-    QStringList tags{
+    QStringList qTags{
         columnData(rowRecord, Columns::Tags).toString().split(",")};
+    std::list<std::string> tags;
+    std::transform(qTags.cbegin(),
+                   qTags.cend(),
+                   std::back_inserter(tags),
+                   [](const auto& tag) { return tag.toStdString(); });
+
     return Pomodoro{name.toStdString(), interval, tags};
 }
 

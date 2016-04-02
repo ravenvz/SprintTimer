@@ -8,25 +8,18 @@ Pomodoro::Pomodoro() {}
 
 Pomodoro::Pomodoro(const std::string& todoName,
                    const TimeInterval& interval,
-                   const QStringList& tags)
+                   const std::list<std::string>& tags)
     : mName{todoName}
     , mInterval{interval}
+    , mTags{tags}
 {
-    std::transform(tags.cbegin(),
-                   tags.cend(),
-                   std::back_inserter(mTags),
-                   [](const auto& elem) { return elem.toStdString(); });
 }
 
 Pomodoro::Pomodoro(const TodoItem& todoItem, const TimeInterval& interval)
-    : mName{todoItem.name().toStdString()}
+    : mName{todoItem.name()}
     , mInterval{interval}
+    , mTags{todoItem.tags()}
 {
-    auto tags = todoItem.tags();
-    std::transform(tags.cbegin(),
-                   tags.cend(),
-                   std::back_inserter(mTags),
-                   [](const auto& elem) { return elem.toStdString(); });
 }
 
 std::string Pomodoro::name() const { return mName; }
@@ -37,7 +30,7 @@ DateTime Pomodoro::finishTime() const { return mInterval.finishTime; }
 
 TimeInterval Pomodoro::interval() const { return mInterval; }
 
-std::vector<std::string> Pomodoro::tags() const { return mTags; }
+std::list<std::string> Pomodoro::tags() const { return mTags; }
 
 std::string Pomodoro::toString() const
 {
@@ -53,8 +46,8 @@ std::string Pomodoro::toString() const
                   [&](auto& elem) { elem.insert(0, tagPrefix); });
 
     res.push_back(mInterval.toTimeString());
-    res.push_back(join(tagsCopy, std::string(" ")));
+    res.push_back(StringUtils::join(tagsCopy, std::string(" ")));
     res.push_back(mName);
 
-    return join(res, " ");
+    return StringUtils::join(res, " ");
 }
