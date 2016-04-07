@@ -40,7 +40,7 @@ echo "$build_type build using $cxx_compiler"
     -DCMAKE_BUILD_TYPE=$build_type \
     -DADDRESS_SANITIZER=$address_sanitizer \
     -DMEMORY_SANITIZER=$memory_sanitizer \
-    -DUNDEFINED_SANITIZER=$ub_sanitizer \
+    -DUB_SANITIZER=$ub_sanitizer \
     -DTHREAD_SANITIZER=$thread_sanitizer \
     .. && make -j$(nproc))
 

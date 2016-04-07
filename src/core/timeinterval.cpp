@@ -28,6 +28,16 @@ TimeInterval::TimeInterval()
 {
 }
 
+unsigned TimeInterval::sizeInDays() const
+{
+    if (startTime <= finishTime) {
+        return static_cast<unsigned>(startTime.daysTo(finishTime) + 1);
+    }
+    else {
+        return static_cast<unsigned>(finishTime.daysTo(startTime) + 1);
+    }
+}
+
 TimeInterval::DayPart TimeInterval::getDayPart() const
 {
     auto hour = startTime.hour();
@@ -53,7 +63,7 @@ TimeInterval::DayPart TimeInterval::getDayPart() const
 }
 
 /* static */
-std::string TimeInterval::dayPartName(int dayPart)
+std::string TimeInterval::dayPartName(unsigned dayPart)
 {
     return dayPartName(static_cast<DayPart>(dayPart));
 }
@@ -79,7 +89,7 @@ std::string TimeInterval::dayPartName(DayPart dayPart)
 }
 
 /* static */
-std::string TimeInterval::dayPartHours(int dayPart)
+std::string TimeInterval::dayPartHours(unsigned dayPart)
 {
     return dayPartHours(static_cast<DayPart>(dayPart));
 }
@@ -110,4 +120,14 @@ std::string TimeInterval::toTimeString() const
     res += " - ";
     res += finishTime.toTimeString();
     return res;
+}
+
+unsigned startDateAbsDiff(const TimeInterval& one, const TimeInterval& other)
+{
+    if (one.startTime <= other.startTime) {
+        return static_cast<unsigned>(one.startTime.daysTo(other.startTime));
+    }
+    else {
+        return static_cast<unsigned>(other.startTime.daysTo(one.startTime));
+    }
 }

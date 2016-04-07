@@ -13,8 +13,7 @@ using GraphData = QVector<GraphPoint>;
 
 class Graph;
 
-struct AxisRange {
-    // Set minimum and maximum values on axis.
+struct AxisRange { // Set minimum and maximum values on axis.
     // If start > end, then start is asssigned to end, and end to start.
     void setRange(double start, double end);
 

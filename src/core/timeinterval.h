@@ -23,17 +23,25 @@ struct TimeInterval {
     // TODO remove when got rid of Qt containers
     TimeInterval();
 
+    unsigned sizeInDays() const;
+
     DayPart getDayPart() const;
 
-    static std::string dayPartName(int dayPart);
+    static std::string dayPartName(unsigned dayPart);
 
     static std::string dayPartName(DayPart dayPart);
 
-    static std::string dayPartHours(int dayPart);
+    static std::string dayPartHours(unsigned dayPart);
 
     static std::string dayPartHours(DayPart dayPart);
 
     std::string toTimeString() const;
 };
+
+/* Return absolute number of days between startTime of this TimeInterval and
+ * startTime of other TimeInterval
+ */
+unsigned startDateAbsDiff(const TimeInterval& one, const TimeInterval& other);
+
 
 #endif /* end of include guard: TIMEINTERVAL_H */

@@ -4,7 +4,9 @@
 #include <QDebug>
 #include <QtCore/qvector.h>
 #include <algorithm>
+#include <vector>
 #include <iostream>
+#include <unordered_map>
 #include "TaskScheduler.h"
 #include "core/entities/Pomodoro.h"
 #include "db_layer/db_service.h"
@@ -14,31 +16,34 @@
 // TODO refactor this ugly mess
 
 // typedef QHash<QString, QVector<Pomodoro> > PomoHash;
-// typedef std::pair<QString, double> Slice;
-using Slice = std::pair<QString, double>;
+// typedef std::pair<QString, double> TagCount;
+// using TagCount = std::pair<QString, double>;
+using TagCount = std::pair<std::string, double>;
+
 
 class TagPomoMap {
 public:
-    using PomoHash = QHash<QString, QVector<Pomodoro>>;
+    // using PomoHash = QHash<QString, QVector<Pomodoro>>;
+    using PomoHash = std::unordered_map<std::string, std::vector<Pomodoro>>;
 
-    TagPomoMap(const QVector<Pomodoro>& pomodoros, int numTopSlices);
+    TagPomoMap(const std::vector<Pomodoro>& pomodoros, int numTopTagCounts);
 
     TagPomoMap() = default;
 
-    QVector<Slice> getSortedSliceVector() const;
+    std::vector<TagCount> getSortedTagCountVector() const;
 
-    QVector<Pomodoro> getPomodorosWithTag(QString tag) const;
+    std::vector<Pomodoro> getPomodorosWithTag(const std::string& tag) const;
 
-    QVector<Pomodoro> getPomodorosForSlice(int sliceIndex) const;
+    std::vector<Pomodoro> getPomodorosForTagCount(size_t sliceIndex) const;
 
-    QString getTag(int sliceIndex) const;
+    std::string getTag(size_t sliceIndex) const;
 
 private:
     PomoHash map;
-    QHash<QString, QVector<Pomodoro>> tagToPomodoroVec;
-    QVector<Slice> sliceData;
-    QHash<int, QString> sliceIndexMap;
-    int numTopSlices;
+    std::unordered_map<std::string, std::vector<Pomodoro>> tagToPomodoroVec;
+    std::vector<TagCount> sliceData;
+    std::unordered_map<size_t, std::string> sliceIndexMap;
+    size_t numTopTagCounts;
 
     void compute();
 
@@ -50,8 +55,8 @@ private:
 class PomodoroStatItem {
 
 public:
-    PomodoroStatItem(const QVector<Pomodoro>& pomodoros,
-                     const DateInterval& dateInterval);
+    PomodoroStatItem(const std::vector<Pomodoro>& pomodoros,
+                     const TimeInterval& timeInterval);
 
     PomodoroStatItem(const PomodoroStatItem&) = default;
 
@@ -63,19 +68,19 @@ public:
 
     Distribution<double>* getWorkTimeDistribution() const;
 
-    QVector<Pomodoro> getPomodoros() const;
+    std::vector<Pomodoro> getPomodoros() const;
 
-    QVector<double> computeDailyDistribution() const;
+    std::vector<double> computeDailyDistribution() const;
 
-    QVector<double> computeWeekdayDistribution() const;
+    std::vector<double> computeWeekdayDistribution() const;
 
-    QVector<double> computeWorkTimeDistribution();
+    std::vector<double> computeWorkTimeDistribution();
 
-    QVector<int> countWeekdays() const;
+    std::vector<int> countWeekdays() const;
 
 private:
-    const DateInterval interval;
-    const QVector<Pomodoro> pomodoros;
+    const TimeInterval interval;
+    const std::vector<Pomodoro> pomodoros;
     Distribution<double>* dailyDistribution;
     Distribution<double>* weekdayDistribution;
     Distribution<double>* workTimeDistribution;

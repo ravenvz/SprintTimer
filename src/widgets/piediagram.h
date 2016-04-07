@@ -5,9 +5,14 @@
 #include <QMouseEvent>
 #include <QLabel>
 #include <QVBoxLayout>
+#include "widgets/PieChart.h"
+#include <experimental/optional>
 
-typedef std::pair<QString, double> Slice;
-class Diagram;
+using std::experimental::optional;
+
+
+using TagCount = std::pair<std::string, double>;
+
 class LegendLabel;
 
 class PieDiagram : public QWidget {
@@ -16,78 +21,47 @@ class PieDiagram : public QWidget {
 public:
     explicit PieDiagram(QWidget* parent = 0);
     ~PieDiagram();
-    void setData(QVector<Slice>& data);
-    void setLegendTitle(QString title);
+    void setData(const std::vector<IStatisticalChart::LabelValuePair>& data);
+    void setLegendTitle(const QString& title);
     void setFont(QFont font);
 
-private:
-    Diagram* diagram;
-    QVector<LegendLabel*> labels;
-    QVBoxLayout* legendLayout;
-    QLabel* labelLegendTitle;
-    int selectedSlice = -1;
-
 private slots:
-    void onSliceSelectionChanged(int sliceIndex);
-    void onLegendItemClicked(int itemIndex);
+    void onPieSliceClicked(size_t sliceIndex);
+    void onLegendItemClicked(size_t itemIndex);
 
 signals:
-    void sliceSelectionChanged(int newSliceIndex);
+    void sliceSelectionChanged(size_t newTagCountIndex);
+
+private:
+    IStatisticalChart* diagram;
+    std::vector<LegendLabel*> labels;
+    QVBoxLayout* legendLayout;
+    QLabel* labelLegendTitle;
+    // int selectedSliceIndex = -1;
+    optional<size_t> selectedSliceIndex;
+
+    void addLegendLabels(const std::vector<TagCount>& data);
 };
 
 class LegendLabel : public QLabel {
     Q_OBJECT
 
 public:
-    LegendLabel(const QString& text, int itemIndex, QWidget* parent = 0);
+    LegendLabel(const QString& text, size_t itemIndex, QWidget* parent = 0);
+    void toggleSelected();
+    bool isSelected() const;
     ~LegendLabel();
 
 protected:
     void mousePressEvent(QMouseEvent* event);
 
 private:
-    int itemIndex;
+    size_t itemIndex;
+    bool selected{false};
 
 signals:
-    void clicked(int itemIndex);
+    void clicked(size_t itemIndex);
 };
 
-class Diagram : public QWidget {
-    Q_OBJECT
-
-public:
-    explicit Diagram(QWidget* parent = 0);
-    void setData(QVector<Slice>& data);
-    void setSelectedSlice(int sliceIndex);
-
-protected:
-    void paintEvent(QPaintEvent*) override;
-    void mousePressEvent(QMouseEvent* event) override;
-
-private:
-    QRectF totalSizeRect;
-    QRectF expandedSliceRect;
-    QRectF diagramRect;
-    double expandedShiftLength;
-    QVector<Slice> sortedData;
-    int selectedPieIndex = -1;
-    const double pi{acos(-1)};
-    QVector<QBrush> brushes{QBrush(QColor("#28245a")),
-        QBrush(QColor("#73c245")), QBrush(QColor("#ea6136")),
-        QBrush(QColor("#1d589b")), QBrush(QColor("#d62a36")),
-        QBrush(QColor("#401b60")), QBrush(QColor("#f8cd32")),
-        QBrush(QColor("#258bc8")), QBrush(QColor("#087847"))};
-
-    void connectSlots();
-    void computeAdaptiveSizes();
-    QPointF computeOffsetPoint(double current, double offset);
-    void updateSelectedSliceIndex(const QPoint& pos);
-
-private slots:
-    void onSliceSelectionChanged(int sliceIndex);
-
-signals:
-    void sliceSelectionChanged(int newSliceIndex);
-};
 
 #endif // POMODORO_TAGDIAGRAM_H

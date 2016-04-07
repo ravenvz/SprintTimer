@@ -64,7 +64,8 @@ void GoalsView::displayWeeklyData()
     ui->labelLastQuarterAverage->setText(formatDecimal(lastWeeks.getAverage()));
     ui->labelLastQuarterPercentage->setText(
         QString("%1%").arg(formatDecimal(MathUtils::percentage(
-            lastWeeks.getTotal(), lastWeeks.getNumBins() * weeklyGoal))));
+            lastWeeks.getTotal(),
+            static_cast<int>(lastWeeks.getNumBins()) * weeklyGoal))));
     ui->labelWeekProgress->setText(QString("%1").arg(lastWeeks.getTotal()));
     updateProgressBar(ui->progressBarWeek,
                       weeklyGoal,
@@ -80,7 +81,8 @@ void GoalsView::displayMonthlyData()
     ui->labelLastYearAverage->setText(formatDecimal(lastMonths.getAverage()));
     ui->labelLastYearPercentage->setText(
         QString("%1%").arg(formatDecimal(MathUtils::percentage(
-            lastMonths.getTotal(), lastMonths.getNumBins() * monthlyGoal))));
+            lastMonths.getTotal(),
+            static_cast<int>(lastMonths.getNumBins()) * monthlyGoal))));
     ui->labelMonthProgress->setText(QString("%1").arg(lastMonths.getTotal()));
     updateProgressBar(ui->progressBarMonth,
                       monthlyGoal,
@@ -127,10 +129,12 @@ void GoalsView::drawPeriodDiagram(QGridLayout* layout,
     GaugeFactory factory;
     for (int row = 0, ind = 0; row < rowNum; ++row) {
         for (int col = 0; col < colNum; ++col, ++ind) {
-            layout->addWidget(
-                factory.create(distribution.getBinValue(ind), goal, this),
-                row,
-                col);
+            layout->addWidget(factory.create(distribution.getBinValue(
+                                                 static_cast<unsigned>(ind)),
+                                             goal,
+                                             this),
+                              row,
+                              col);
         }
     }
 }

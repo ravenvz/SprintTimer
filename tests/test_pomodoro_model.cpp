@@ -20,21 +20,38 @@ query.exec("delete from tag");
 
 void teardown() { MemoryLeakWarningPlugin::turnOnNewDeleteOverloads(); }
 
+bool interval_equals_to_minute(const TimeInterval& lhs, const TimeInterval& rhs)
+{
+    return (lhs.startTime.year() == rhs.startTime.year())
+        && (lhs.startTime.hour() == rhs.startTime.hour())
+        && (lhs.startTime.month() == rhs.startTime.month())
+        && (lhs.startTime.minute() == rhs.startTime.minute())
+        && (lhs.finishTime.year() == rhs.finishTime.year())
+        && (lhs.finishTime.hour() == rhs.finishTime.hour())
+        && (lhs.finishTime.month() == rhs.finishTime.month())
+        && (lhs.finishTime.minute() == rhs.finishTime.minute());
+}
+
 bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2)
 {
-    if (pomodoro1.name() != pomodoro2.name()
-        || pomodoro1.startTime() != pomodoro2.startTime()
-        || pomodoro1.finishTime() != pomodoro2.finishTime()) {
+    if (pomodoro1.name() != pomodoro2.name()) {
+        std::cout << pomodoro1.name() << " != " << std::endl;
         return false;
     }
+    if (!interval_equals_to_minute(pomodoro1.interval(),
+                                   pomodoro2.interval())) {
+        std::cout << pomodoro1.startTime() << " - " << pomodoro1.finishTime()
+                  << " != " << pomodoro2.startTime() << " - "
+                  << pomodoro2.finishTime() << std::endl;
+        return false;
+    }
+
     // Tags are compared sorted, because there is no guarantee of tag
     // ordering
     std::list<std::string> tags1 = pomodoro1.tags();
     std::list<std::string> tags2 = pomodoro2.tags();
     tags1.sort();
     tags2.sort();
-    // std::sort(tags1.begin(), tags1.end());
-    // std::sort(tags2.begin(), tags2.end());
 
     return tags1 == tags2;
 }
@@ -44,8 +61,12 @@ bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2)
 TEST(PomodoroModel, test_insert_and_delete)
 {
     PomodoroModel pomodoroModel;
-    TimeInterval interval{std::chrono::system_clock::now(),
-                          std::chrono::system_clock::now()};
+    TimeInterval interval;
+    // TODO fix when streamlined time zones issues
+    // For now, the system stores time in local time zone, so need to
+    // compare with local time
+    TimeInterval expectedInterval{DateTime::currentDateTimeLocal(),
+                                  DateTime::currentDateTimeLocal()};
 
     TodoItemModel todoItemModel;
     std::string name{"Test item"};
@@ -53,7 +74,7 @@ TEST(PomodoroModel, test_insert_and_delete)
     int estimatedPomodoros{4};
     int spentPomodoros{0};
     TodoItem item{name, estimatedPomodoros, spentPomodoros, tags, false};
-    Pomodoro expectedPomodoro{item, interval};
+    Pomodoro expectedPomodoro{item, expectedInterval};
 
     CHECK(todoItemModel.insert(item));
     auto todoId = todoItemModel.itemIdAt(0);

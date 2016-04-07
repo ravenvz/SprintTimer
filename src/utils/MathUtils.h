@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QtCore/qvector.h>
 #include <QDebug>
+#include <iostream>
 
 class MathUtils {
 
@@ -12,51 +13,55 @@ public:
     static double percentage(double chunk, double total);
 };
 
-template <class T> class Distribution {
+template <class T>
+class Distribution {
 
 public:
-    explicit Distribution(int binNumber)
+    explicit Distribution(size_t binNumber)
         : numBins(binNumber)
-        , distribution(QVector<T>(binNumber, 0))
-        , binFrequency(QVector<int>(binNumber, 1))
+        , distribution(std::vector<T>(binNumber, 0))
+        , binFrequency(std::vector<int>(binNumber, 1))
     {
     }
 
-    explicit Distribution(QVector<T> distribution)
+    explicit Distribution(std::vector<T>&& distribution)
         : numBins(distribution.size())
-        , distribution(distribution)
-        , binFrequency(QVector<int>(distribution.size(), 1))
+        , distribution(std::move(distribution))
+        , binFrequency(std::vector<int>(distribution.size(), 1))
     {
         computeMaxAndAverage();
+        // for (const auto& element : getDistributionVector()) {
+        //     qDebug() << element;
+        // }
     }
 
-    Distribution(QVector<T> distribution, QVector<int> binFrequency)
+    Distribution(std::vector<T>&& distribution, std::vector<int>&& binFrequency)
         : numBins(distribution.size())
-        , distribution(distribution)
-        , binFrequency(binFrequency)
+        , distribution(std::move(distribution))
+        , binFrequency(std::move(binFrequency))
     {
         normalizeByBinFrequency();
         computeMaxAndAverage();
     }
 
-    int getNumBins() const { return numBins; }
+    size_t getNumBins() const { return numBins; }
 
     double getAverage() const { return average; }
 
     double getMax() const { return max; }
 
-    int getMaxValueBin() const { return maxValueBin; }
+    size_t getMaxValueBin() const { return maxValueBin; }
 
-    T getBinValue(int bin) const
+    T getBinValue(size_t bin) const
     {
         if (isValidBin(bin))
             return distribution[bin];
         return 0;
     }
 
-    bool isValidBin(int bin) const { return bin >= 0 && bin < numBins; }
+    bool isValidBin(size_t bin) const { return bin >= 0 && bin < numBins; }
 
-    QVector<T> getDistributionVector() const { return distribution; }
+    std::vector<T> getDistributionVector() const { return distribution; }
 
     double getTotal() const { return total; }
 
@@ -65,11 +70,11 @@ public:
 private:
     double average = 0;
     double max = 0;
-    int numBins = 0;
-    int maxValueBin = 0;
+    size_t numBins = 0;
+    size_t maxValueBin = 0;
     double total = 0;
-    QVector<T> distribution;
-    QVector<int> binFrequency;
+    std::vector<T> distribution;
+    std::vector<int> binFrequency;
 
     void computeMaxAndAverage()
     {
@@ -77,7 +82,7 @@ private:
             return;
         // TODO what if there is an overflow?
         double sum = 0;
-        for (int bin = 0; bin < distribution.size(); ++bin) {
+        for (size_t bin = 0; bin < distribution.size(); ++bin) {
             double value = getBinValue(bin);
             sum += value;
             if (value > max) {
@@ -91,7 +96,7 @@ private:
 
     void normalizeByBinFrequency()
     {
-        for (int bin = 0; bin < numBins; ++bin) {
+        for (size_t bin = 0; bin < numBins; ++bin) {
             if (binFrequency[bin] > 0)
                 distribution[bin] /= binFrequency[bin];
         }

@@ -11,6 +11,9 @@
 #include "plot.h"
 #include "timediagram.h"
 
+
+using std::experimental::optional;
+
 namespace Ui {
 class StatisticsWidget;
 }
@@ -27,18 +30,18 @@ public:
 
 private slots:
     void onDatePickerIntervalChanged(DateInterval newInterval);
-    void onSliceSelectionChanged(int newSliceIndex);
+    void onTagSelected(size_t tagIndex);
 
 private:
     Ui::StatisticsWidget* ui;
     IConfig& applicationSettings;
     PomodoroModel* pomodoroModel;
-    QVector<Pomodoro> pomodoros;
+    std::vector<Pomodoro> pomodoros;
     TagPomoMap tagPomoMap;
     TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
-    const int numDisplayedTagSlices = 7; // TODO move to config
-    int selectedSliceIndex = -1;
+    const int numTopTags = 7; // TODO move to config
+    optional<size_t> selectedTagIndex;
 
     void connectSlots();
     void setupGraphs();
@@ -52,8 +55,8 @@ private:
     void
     updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution);
     void updateWorkHoursDiagram(Distribution<double>* workTimeDistribution,
-                                const QVector<Pomodoro>& pomodoros);
-    void updateTopTagsDiagram(QVector<Slice>& tagSlices);
+                                const std::vector<Pomodoro>& pomodoros);
+    void updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts);
 };
 
 

@@ -10,6 +10,8 @@ set(SOURCE_FILES
     test_pomodoro_statistics.cpp
     test_todoitem.cpp
     test_todoitem_model.cpp
+    test_datetime.cpp
+    test_time_interval.cpp
     ../src/core/PomodoroStatistics.cpp
     ../src/core/TaskScheduler.cpp
     ../src/core/config.h
@@ -21,8 +23,8 @@ set(SOURCE_FILES
     ../src/core/DateTime.h
     ../src/core/DateTime.cpp
     ../src/db_layer/db_service.cpp
-        ../src/models/todoitemmodel.cpp
-        ../src/models/pomodoromodel.cpp
+    ../src/models/todoitemmodel.cpp
+    ../src/models/pomodoromodel.cpp
     ../src/utils/MathUtils.cpp
     ../src/utils/StringUtils.h
     ../src/utils/StringUtils.cpp

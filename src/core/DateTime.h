@@ -55,11 +55,21 @@ public:
 
     long second() const;
 
+    unsigned dayOfWeek() const;
+
     std::string toTimeString() const;
 
     friend inline bool operator==(const DateTime& dt1, const DateTime& dt2);
 
     friend inline bool operator!=(const DateTime& dt1, const DateTime& dt2);
+
+    friend inline bool operator<(const DateTime& dt1, const DateTime& dt2);
+
+    friend inline bool operator<=(const DateTime& dt1, const DateTime& dt2);
+
+    friend inline bool operator>(const DateTime& dt1, const DateTime& dt2);
+
+    friend inline bool operator>=(const DateTime& dt1, const DateTime& dt2);
 
 private:
     std::chrono::system_clock::time_point time;
@@ -68,14 +78,34 @@ private:
     date::time_of_day<std::chrono::system_clock::duration> tod;
 };
 
-inline bool operator==(const DateTime& dt1, const DateTime& dt2)
+std::ostream& operator<<(std::ostream& os, const DateTime& dt);
+
+inline bool operator==(const DateTime& lhs, const DateTime& rhs)
 {
-    return dt1.time == dt1.time;
+    return lhs.time == rhs.time;
 }
 
-inline bool operator!=(const DateTime& dt1, const DateTime& dt2)
+inline bool operator!=(const DateTime& lhs, const DateTime& rhs)
 {
-    return !(dt1 == dt2);
+    return !(lhs == rhs);
+}
+
+inline bool operator<(const DateTime& lhs, const DateTime& rhs)
+{
+    return lhs.time < rhs.time;
+}
+
+inline bool operator>(const DateTime& lhs, const DateTime& rhs)
+{
+    return rhs < lhs;
+}
+inline bool operator<=(const DateTime& lhs, const DateTime& rhs)
+{
+    return !(lhs > rhs);
+}
+inline bool operator>=(const DateTime& lhs, const DateTime& rhs)
+{
+    return !(lhs < rhs);
 }
 
 #endif /* end of include guard: DATETIME_H_RTJVB37W */

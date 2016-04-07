@@ -13,8 +13,7 @@
 // hierarhy and factory makes sence, as it simplifies experimenting.
 
 
-class Gauge : public QWidget
-{
+class Gauge : public QWidget {
     Q_OBJECT
 
 public:
@@ -39,7 +38,6 @@ protected:
     void setupPainter(QPainter& painter);
     virtual void drawOuterCircle(QPainter& painter);
     virtual void drawInnerCircle(QPainter& painter);
-
 };
 
 
@@ -49,8 +47,7 @@ public:
 };
 
 
-class EmptyGauge : public Gauge
-{
+class EmptyGauge : public Gauge {
 public:
     EmptyGauge(int actual, int goal, QWidget* parent = 0);
 
@@ -59,8 +56,7 @@ protected:
 };
 
 
-class FilledGauge : public Gauge
-{
+class FilledGauge : public Gauge {
 public:
     FilledGauge(int actual, int goal, QWidget* parent = 0);
 
@@ -69,22 +65,24 @@ protected:
 };
 
 
-class GaugeFactory 
-{
+class GaugeFactory {
 
 public:
-    GaugeFactory() {
-    }
+    GaugeFactory() {}
 
-    Gauge* create(int filled, int total, QWidget* parent = 0) {
+    Gauge* create(int filled, int total, QWidget* parent = 0)
+    {
         Gauge* ptr;
         if (filled == 0 || total == 0) {
             ptr = new EmptyGauge(filled, total, parent);
-        } else if (filled == total) {
+        }
+        else if (filled == total) {
             ptr = new FilledGauge(filled, total, parent);
-        } else if (filled > total) {
+        }
+        else if (filled > total) {
             ptr = new OverfilledGauge(filled, total, parent);
-        } else {
+        }
+        else {
             ptr = new Gauge(filled, total, parent);
         }
         return ptr;

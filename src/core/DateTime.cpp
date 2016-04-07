@@ -1,4 +1,6 @@
 #include "DateTime.h"
+#include <array>
+#include <iostream>
 
 
 DateTime::DateTime(std::chrono::system_clock::time_point timepoint)
@@ -54,7 +56,8 @@ DateTime DateTime::addDays(int days) const
 
 int DateTime::daysTo(const DateTime& other) const
 {
-    return (other.ymd.day() - this->ymd.day()).count();
+    using namespace date;
+    return (floor<days>(other.time) - floor<days>(this->time)).count();
 }
 
 std::chrono::system_clock::time_point DateTime::chronoTimepoint() const
@@ -74,6 +77,13 @@ long DateTime::minute() const { return tod.minutes().count(); }
 
 long DateTime::second() const { return tod.seconds().count(); }
 
+unsigned DateTime::dayOfWeek() const
+{
+    // TODO should fix sunday == 0 bullshit issue
+    std::array<unsigned, 7> mondayFirstTable{{7u, 1u, 2u, 3u, 4u, 5u, 6u}};
+    return mondayFirstTable[static_cast<unsigned>(date::weekday(ymd))];
+}
+
 std::string DateTime::toTimeString() const
 {
     using namespace date;
@@ -82,4 +92,10 @@ std::string DateTime::toTimeString() const
     auto dp = floor<date::days>(time);
     ss << make_time(tp - dp);
     return ss.str();
+}
+
+std::ostream& operator<<(std::ostream& os, const DateTime& dt)
+{
+    using namespace date;
+    return os << dt.chronoTimepoint();
 }

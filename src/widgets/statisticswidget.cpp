@@ -30,9 +30,9 @@ void StatisticsWidget::connectSlots()
             this,
             SLOT(onDatePickerIntervalChanged(DateInterval)));
     connect(ui->topTagDiagram,
-            SIGNAL(sliceSelectionChanged(int)),
+            SIGNAL(sliceSelectionChanged(size_t)),
             this,
-            SLOT(onSliceSelectionChanged(int)));
+            SLOT(onTagSelected(size_t)));
 }
 
 void StatisticsWidget::updateView()
@@ -52,11 +52,13 @@ void StatisticsWidget::fetchPomodoros()
 {
     pomodoroModel->setDateFilter(currentInterval);
     pomodoroModel->select();
-    pomodoros = pomodoroModel->items();
-    selectedSliceIndex = -1;
-    tagPomoMap = TagPomoMap(pomodoros, numDisplayedTagSlices);
-    QVector<Slice> tagSlices = tagPomoMap.getSortedSliceVector();
-    updateTopTagsDiagram(tagSlices);
+    // TODO convert in the model
+    pomodoros = pomodoroModel->items().toStdVector();
+    selectedTagIndex = optional<size_t>();
+    // TODO get rid of QVector -> std::vector conversion
+    tagPomoMap = TagPomoMap(pomodoros, numTopTags);
+    std::vector<TagCount> tagTagCounts = tagPomoMap.getSortedTagCountVector();
+    updateTopTagsDiagram(tagTagCounts);
 }
 
 void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval)
@@ -69,9 +71,9 @@ void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval)
 void StatisticsWidget::drawGraphs()
 {
     PomodoroStatItem statistics{
-        selectedSliceIndex == -1 ? pomodoros : tagPomoMap.getPomodorosForSlice(
-                                                   selectedSliceIndex),
-        currentInterval};
+        selectedTagIndex ? tagPomoMap.getPomodorosForTagCount(*selectedTagIndex)
+                         : pomodoros,
+        currentInterval.toTimeInterval()};
     auto dailyDistribution = statistics.getDailyDistribution();
     auto weekdayDistribution = statistics.getWeekdayDistribution();
     auto workTimeDistribution = statistics.getWorkTimeDistribution();
@@ -93,12 +95,14 @@ void StatisticsWidget::setupWeekdayBarChart()
 void StatisticsWidget::updateWeekdayBarChart(
     Distribution<double>* weekdayDistribution)
 {
-    QVector<double> values = weekdayDistribution->getDistributionVector();
+    std::vector<double> values = weekdayDistribution->getDistributionVector();
+    // TODO get rid of QVector
     QVector<QString> labels;
     for (int i = 0; i < 7; ++i) {
         labels.push_back(QDate::shortDayName(i + 1));
     }
-    BarData data = BarData(values, labels);
+    QVector<double> qValues = QVector<double>::fromStdVector(values);
+    BarData data = BarData(qValues, labels);
     ui->workdayBarChart->setData(data);
     updateWeekdayBarChartLegend(weekdayDistribution);
 }
@@ -114,8 +118,8 @@ void StatisticsWidget::updateWeekdayBarChartLegend(
         double average = weekdayDistribution->getAverage();
         int relativeComparisonInPercent
             = int((weekdayDistribution->getMax() - average) * 100 / average);
-        ui->labelBestWorkdayName->setText(
-            QDate::longDayName(weekdayDistribution->getMaxValueBin() + 1));
+        ui->labelBestWorkdayName->setText(QDate::longDayName(
+            static_cast<int>(weekdayDistribution->getMaxValueBin()) + 1));
         ui->labelBestWorkdayMsg->setText(
             QString("%1% more than average").arg(relativeComparisonInPercent));
     }
@@ -123,7 +127,7 @@ void StatisticsWidget::updateWeekdayBarChartLegend(
 
 void StatisticsWidget::updateWorkHoursDiagram(
     Distribution<double>* workTimeDistribution,
-    const QVector<Pomodoro>& pomodoros)
+    const std::vector<Pomodoro>& pomodoros)
 {
     QVector<TimeInterval> intervals;
     for (const Pomodoro& pomo : pomodoros) {
@@ -134,11 +138,12 @@ void StatisticsWidget::updateWorkHoursDiagram(
         ui->labelBestWorktimeHours->setText("");
     }
     else {
-        ui->labelBestWorktimeName->setText(QString::fromStdString(
-            TimeInterval::dayPartName(workTimeDistribution->getMaxValueBin())));
+        auto maxValueBin
+            = static_cast<unsigned>(workTimeDistribution->getMaxValueBin());
+        ui->labelBestWorktimeName->setText(
+            QString::fromStdString(TimeInterval::dayPartName(maxValueBin)));
         ui->labelBestWorktimeHours->setText(
-            QString::fromStdString(TimeInterval::dayPartHours(
-                workTimeDistribution->getMaxValueBin())));
+            QString::fromStdString(TimeInterval::dayPartHours(maxValueBin)));
     }
     workTimeDiagram->setIntervals(intervals);
 }
@@ -194,11 +199,13 @@ void StatisticsWidget::updateDailyTimelineGraph(
                        dailyGoal,
                        ""}};
         GraphData normalData;
-        for (int i = 0; i < pomosByDay.size(); ++i) {
+        for (size_t i = 0; i < pomosByDay.size(); ++i) {
             normalData.push_back(GraphPoint{
                 double(i),
                 pomosByDay[i],
-                QString("%1").arg(currentInterval.startDate.addDays(i).day())});
+                QString("%1")
+                    .arg(currentInterval.startDate.addDays(static_cast<long>(i))
+                             .day())});
         }
 
         ui->dailyTimeline->setRangeX(0, currentInterval.sizeInDays());
@@ -211,11 +218,11 @@ void StatisticsWidget::updateDailyTimelineGraph(
     updateDailyTimelineGraphLegend(dailyDistribution);
 }
 
-void StatisticsWidget::updateTopTagsDiagram(QVector<Slice>& tagSlices)
+void StatisticsWidget::updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts)
 {
-    if (!tagSlices.empty() && tagSlices.last().first == "")
-        tagSlices.last().first = "others";
-    ui->topTagDiagram->setData(tagSlices);
+    if (!tagTagCounts.empty() && tagTagCounts.back().first == "")
+        tagTagCounts.back().first = "others";
+    ui->topTagDiagram->setData(tagTagCounts);
     ui->topTagDiagram->setLegendTitle("Top tags");
     ui->topTagDiagram->setFont(QFont(".Helvetica Neue Desk UI", 13));
 }
@@ -229,9 +236,15 @@ void StatisticsWidget::updateDailyTimelineGraphLegend(
         QString("%1").arg(dailyDistribution->getAverage(), 2, 'f', 2, '0'));
 }
 
-void StatisticsWidget::onSliceSelectionChanged(int newSliceIndex)
+void StatisticsWidget::onTagSelected(size_t tagIndex)
 {
-    selectedSliceIndex
-        = selectedSliceIndex == newSliceIndex ? -1 : newSliceIndex;
+    if (!selectedTagIndex) {
+        selectedTagIndex = tagIndex;
+    }
+    else {
+        selectedTagIndex
+            = (*selectedTagIndex == tagIndex) ? optional<size_t>() : tagIndex;
+    }
+
     drawGraphs();
 }
