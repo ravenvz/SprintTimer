@@ -5,10 +5,10 @@
 #include "IStatisticalChart.h"
 
 
-class PieDiagramMockup : public IStatisticalChart {
+class TopTagDiagramMockup : public IStatisticalChart {
     Q_OBJECT
 public:
-    explicit PieDiagramMockup(QWidget* parent = 0);
+    explicit TopTagDiagramMockup(QWidget* parent = 0);
 
     void setData(const std::vector<LabelValuePair>& data) override;
 

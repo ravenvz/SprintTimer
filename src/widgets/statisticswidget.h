@@ -7,7 +7,7 @@
 #include "core/config.h"
 #include "dialogs/datepickdialog.h"
 #include "src/models/pomodoromodel.h"
-#include "piediagram.h"
+#include "widgets/TopTagDiagram.h"
 #include "plot.h"
 #include "timediagram.h"
 

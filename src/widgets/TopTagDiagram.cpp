@@ -1,10 +1,10 @@
 #include <QtGui/qpainter.h>
 #include <QHBoxLayout>
-#include "piediagram.h"
+#include "widgets/TopTagDiagram.h"
 #include <iostream>
 
 
-PieDiagram::PieDiagram(QWidget* parent)
+TopTagDiagram::TopTagDiagram(QWidget* parent)
     : QWidget(parent)
 {
     // QWidget takes ownership of objects allocated below,
@@ -23,9 +23,9 @@ PieDiagram::PieDiagram(QWidget* parent)
             SLOT(onPieSliceClicked(size_t)));
 }
 
-PieDiagram::~PieDiagram() {}
+TopTagDiagram::~TopTagDiagram() {}
 
-void PieDiagram::setData(const std::vector<TagCount>& data)
+void TopTagDiagram::setData(const std::vector<TagCount>& data)
 {
     selectedSliceIndex = optional<size_t>();
     addLegendLabels(data);
@@ -33,15 +33,15 @@ void PieDiagram::setData(const std::vector<TagCount>& data)
     diagram->setData(data);
 }
 
-void PieDiagram::setLegendTitle(const QString& title)
+void TopTagDiagram::setLegendTitle(const QString& title)
 {
     labelLegendTitle->setText(title);
     labelLegendTitle->setVisible(true);
 }
 
-void PieDiagram::setFont(QFont font) { labelLegendTitle->setFont(font); }
+void TopTagDiagram::setFont(QFont font) { labelLegendTitle->setFont(font); }
 
-void PieDiagram::onPieSliceClicked(size_t sliceIndex)
+void TopTagDiagram::onPieSliceClicked(size_t sliceIndex)
 {
     const bool selectedNewItem
         = selectedSliceIndex && (*selectedSliceIndex != sliceIndex);
@@ -62,13 +62,13 @@ void PieDiagram::onPieSliceClicked(size_t sliceIndex)
     emit sliceSelectionChanged(sliceIndex);
 }
 
-void PieDiagram::onLegendItemClicked(size_t itemIndex)
+void TopTagDiagram::onLegendItemClicked(size_t itemIndex)
 {
     onPieSliceClicked(itemIndex);
 }
 
 // TODO this method is just asks to be refactored out to separate class
-void PieDiagram::addLegendLabels(const std::vector<TagCount>& data)
+void TopTagDiagram::addLegendLabels(const std::vector<TagCount>& data)
 {
     const auto& labelsRef = labels;
     for (LegendLabel* label : labelsRef) {

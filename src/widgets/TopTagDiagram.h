@@ -15,12 +15,12 @@ using TagCount = std::pair<std::string, double>;
 
 class LegendLabel;
 
-class PieDiagram : public QWidget {
+class TopTagDiagram : public QWidget {
     Q_OBJECT
 
 public:
-    explicit PieDiagram(QWidget* parent = 0);
-    ~PieDiagram();
+    explicit TopTagDiagram(QWidget* parent = 0);
+    ~TopTagDiagram();
     void setData(const std::vector<IStatisticalChart::LabelValuePair>& data);
     void setLegendTitle(const QString& title);
     void setFont(QFont font);
@@ -37,7 +37,6 @@ private:
     std::vector<LegendLabel*> labels;
     QVBoxLayout* legendLayout;
     QLabel* labelLegendTitle;
-    // int selectedSliceIndex = -1;
     optional<size_t> selectedSliceIndex;
 
     void addLegendLabels(const std::vector<TagCount>& data);
