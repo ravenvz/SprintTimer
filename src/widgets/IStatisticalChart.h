@@ -34,7 +34,7 @@ public:
     //     virtual void onSelectionChanged(size_t selectionIndex) = 0;
 
 signals:
-    /* Emitted when user clicked on chart's part. */
+    /* Emitted when part of the chart is clicked with left mouse button. */
     void partClicked(size_t);
 };
 

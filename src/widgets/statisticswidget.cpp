@@ -30,7 +30,7 @@ void StatisticsWidget::connectSlots()
             this,
             SLOT(onDatePickerIntervalChanged(DateInterval)));
     connect(ui->topTagDiagram,
-            SIGNAL(sliceSelectionChanged(size_t)),
+            SIGNAL(chartSelectionChanged(size_t)),
             this,
             SLOT(onTagSelected(size_t)));
 }
@@ -224,7 +224,7 @@ void StatisticsWidget::updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts)
         tagTagCounts.back().first = "others";
     ui->topTagDiagram->setData(tagTagCounts);
     ui->topTagDiagram->setLegendTitle("Top tags");
-    ui->topTagDiagram->setFont(QFont(".Helvetica Neue Desk UI", 13));
+    ui->topTagDiagram->setLegendTitleFont(QFont(".Helvetica Neue Desk UI", 13));
 }
 
 void StatisticsWidget::updateDailyTimelineGraphLegend(
