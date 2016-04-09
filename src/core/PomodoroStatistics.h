@@ -1,8 +1,6 @@
 #ifndef POMODORO_POMODOROSTATISTICS_H
 #define POMODORO_POMODOROSTATISTICS_H
 
-#include <QDebug>
-#include <QtCore/qvector.h>
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -15,15 +13,11 @@
 
 // TODO refactor this ugly mess
 
-// typedef QHash<QString, QVector<Pomodoro> > PomoHash;
-// typedef std::pair<QString, double> TagCount;
-// using TagCount = std::pair<QString, double>;
 using TagCount = std::pair<std::string, double>;
 
 
 class TagPomoMap {
 public:
-    // using PomoHash = QHash<QString, QVector<Pomodoro>>;
     using PomoHash = std::unordered_map<std::string, std::vector<Pomodoro>>;
 
     TagPomoMap(const std::vector<Pomodoro>& pomodoros, int numTopTagCounts);

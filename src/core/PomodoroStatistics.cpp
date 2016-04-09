@@ -26,7 +26,6 @@ TagPomoMap::getPomodorosWithTag(const std::string& tag) const
     // May throw out_of_range, but if there is no tag in map, we're screwed
     // anyway so let it crash for now
     return tagToPomodoroVec.at(tag);
-    // return tagToPomodoroVec.value(tag, QVector<Pomodoro>());
 }
 
 
@@ -44,7 +43,6 @@ std::string TagPomoMap::getTag(size_t sliceIndex) const
     // May throw out_of_range, but if there is no key in map, we're screwed
     // anyway so let it crash for now
     return sliceIndexMap.at(sliceIndex);
-    // return sliceIndexMap.value(sliceIndex, "");
 }
 
 
@@ -55,11 +53,6 @@ void TagPomoMap::compute()
         sliceData.push_back(std::make_pair(entry.first, entry.second.size()));
         total += entry.second.size();
     }
-    // for (auto it = tagToPomodoroVec.cbegin(); it != tagToPomodoroVec.cend();
-    //      ++it) {
-    //     sliceData.append(std::make_pair(it.key(), it.value().size()));
-    //     total += it.value().size();
-    // }
 
     // Normalize and sort slice data
     transform(sliceData.begin(),
@@ -181,15 +174,6 @@ std::vector<double> PomodoroStatItem::computeDailyDistribution() const
     std::vector<double> distribution(interval.sizeInDays(), 0);
     // return std::vector<double>(0, 0);
     for (const Pomodoro& pomo : pomodoros) {
-        // TODO when switched to std::vector, remove cast
-        // distribution[
-        //     // interval.startDate.daysTo(pomo.startTime().date()))]++;
-        //     // TODO Fix when changed DateInterval
-        //     interval.startDate.daysTo(
-        //         QDateTime::fromTime_t(
-        //             static_cast<size_t>(pomo.startTime().toTime_t()))
-        //             .date())]++;
-
         distribution[startDateAbsDiff(interval, pomo.interval())]++;
     }
     return distribution;
@@ -202,12 +186,6 @@ std::vector<double> PomodoroStatItem::computeWeekdayDistribution() const
     if (pomodoros.empty())
         return distribution;
     for (const Pomodoro& pomo : pomodoros) {
-        // TODO Fix when changed DateInterval
-        // distribution[QDateTime::fromTime_t(
-        //                  static_cast<size_t>(pomo.startTime().toTime_t()))
-        //                  .date()
-        //                  .dayOfWeek()
-        //              - 1]++;
         distribution[pomo.startTime().dayOfWeek() - 1]++;
     }
     return distribution;

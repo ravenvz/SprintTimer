@@ -19,6 +19,19 @@ class StatisticsWidget;
 }
 
 
+/* Displays statistical information on completed Pomodoros
+ * for a given timespan.
+ *
+ * Has following major parts:
+ *      widget that allows to select timespan;
+ *      widget that displays number of Pomodoros
+ *      for each day in a timespan;
+ *      widget that displays average number of Pomodoros for each
+ *      weekday;
+ *      widget that displays distribution of tags for all completed
+ *      Pomodoros;
+ *      widget that displays distribution of worktime.
+ */
 class StatisticsWidget : public QWidget {
     Q_OBJECT
 
@@ -26,6 +39,7 @@ public:
     explicit StatisticsWidget(IConfig& applicationSettings,
                               QWidget* parent = 0);
     ~StatisticsWidget();
+
     void updateView();
 
 private slots:
