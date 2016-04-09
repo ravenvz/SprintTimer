@@ -131,7 +131,7 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
     }
 }
 
-TEST_GROUP(TagPomoMap){
+TEST_GROUP(TagDistribution){
 
     void pushToPomodoros(std::vector<Pomodoro> & pomodoros,
                          std::string name,
@@ -146,42 +146,42 @@ TEST_GROUP(TagPomoMap){
 }
 ;
 
-TEST(TagPomoMap, test_does_not_reduce_slice_vector_when_all_tags_fit)
+TEST(TagDistribution, test_does_not_reduce_slice_vector_when_all_tags_fit)
 {
     std::vector<Pomodoro> pomodoros;
     pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
     pushToPomodoros(pomodoros, "irrelevant", {"Tag2"}, 49);
-    TagPomoMap map{pomodoros, 3};
+    TagDistribution map{pomodoros, 3};
     std::vector<TagCount> expected;
     expected.push_back(std::make_pair("Tag2", double(49) / 53));
     expected.push_back(std::make_pair("Tag1", double(4) / 53));
 
-    CHECK(expected == map.getSortedTagCountVector())
+    CHECK(expected == map.topTagsDistribution())
 
-    CHECK_EQUAL(49, map.getPomodorosForTagCount(0).size())
-    CHECK_EQUAL(4, map.getPomodorosForTagCount(1).size())
+    CHECK_EQUAL(49, map.pomodorosForNthTopTag(0).size())
+    CHECK_EQUAL(4, map.pomodorosForNthTopTag(1).size())
 }
 
-TEST(TagPomoMap,
+TEST(TagDistribution,
      test_does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
     std::vector<Pomodoro> pomodoros;
     pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
     pushToPomodoros(pomodoros, "irrelevant", {"Tag2"}, 49);
-    TagPomoMap map{pomodoros, 5};
+    TagDistribution map{pomodoros, 5};
     std::vector<TagCount> expected;
     expected.push_back(std::make_pair("Tag2", double(49) / 53));
     expected.push_back(std::make_pair("Tag1", double(4) / 53));
-    CHECK("Tag2" == map.getTag(0))
-    CHECK("Tag1" == map.getTag(1))
+    CHECK("Tag2" == map.getNthTopTagName(0))
+    CHECK("Tag1" == map.getNthTopTagName(1))
 
-    CHECK(expected == map.getSortedTagCountVector())
+    CHECK(expected == map.topTagsDistribution())
 
-    CHECK_EQUAL(49, map.getPomodorosForTagCount(0).size())
-    CHECK_EQUAL(4, map.getPomodorosForTagCount(1).size())
+    CHECK_EQUAL(49, map.pomodorosForNthTopTag(0).size())
+    CHECK_EQUAL(4, map.pomodorosForNthTopTag(1).size())
 }
 
-TEST(TagPomoMap, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
+TEST(TagDistribution, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
 {
     std::vector<Pomodoro> pomodoros;
     pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
@@ -191,7 +191,7 @@ TEST(TagPomoMap, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
     pushToPomodoros(pomodoros, "irrelevant", {"Tag4"}, 25);
     pushToPomodoros(pomodoros, "irrelevant", {"Tag5"}, 4);
     pushToPomodoros(pomodoros, "irrelevant", {}, 100);
-    TagPomoMap map{pomodoros, 5};
+    TagDistribution map{pomodoros, 5};
     std::vector<TagCount> expected;
     expected.push_back(std::make_pair("Tag2", double(50) / 104));
     expected.push_back(std::make_pair("Tag4", double(35) / 104));
@@ -199,22 +199,22 @@ TEST(TagPomoMap, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
     expected.push_back(std::make_pair("Tag1", double(5) / 104));
     expected.push_back(std::make_pair("", double(4) / 104));
 
-    CHECK("Tag2" == map.getTag(0))
-    CHECK("Tag4" == map.getTag(1))
-    CHECK("C++" == map.getTag(2))
-    CHECK("Tag1" == map.getTag(3))
-    CHECK("" == map.getTag(4))
+    CHECK("Tag2" == map.getNthTopTagName(0))
+    CHECK("Tag4" == map.getNthTopTagName(1))
+    CHECK("C++" == map.getNthTopTagName(2))
+    CHECK("Tag1" == map.getNthTopTagName(3))
+    CHECK("" == map.getNthTopTagName(4))
 
-    CHECK(expected == map.getSortedTagCountVector())
+    CHECK(expected == map.topTagsDistribution())
 
-    CHECK_EQUAL(50, map.getPomodorosForTagCount(0).size())
-    CHECK_EQUAL(35, map.getPomodorosForTagCount(1).size())
-    CHECK_EQUAL(10, map.getPomodorosForTagCount(2).size())
-    CHECK_EQUAL(5, map.getPomodorosForTagCount(3).size())
-    CHECK_EQUAL(4, map.getPomodorosForTagCount(4).size())
+    CHECK_EQUAL(50, map.pomodorosForNthTopTag(0).size())
+    CHECK_EQUAL(35, map.pomodorosForNthTopTag(1).size())
+    CHECK_EQUAL(10, map.pomodorosForNthTopTag(2).size())
+    CHECK_EQUAL(5, map.pomodorosForNthTopTag(3).size())
+    CHECK_EQUAL(4, map.pomodorosForNthTopTag(4).size())
 }
 
-TEST(TagPomoMap, test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
+TEST(TagDistribution, test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
     std::vector<Pomodoro> pomodoros;
     pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
@@ -223,21 +223,21 @@ TEST(TagPomoMap, test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
     pushToPomodoros(pomodoros, "irrelevant", {"Tag3", "Tag4"}, 10);
     pushToPomodoros(pomodoros, "irrelevant", {"Tag4"}, 25);
     pushToPomodoros(pomodoros, "irrelevant", {}, 100);
-    TagPomoMap map{pomodoros, 4};
+    TagDistribution map{pomodoros, 4};
     std::vector<TagCount> expected{std::make_pair("Tag2", double(50) / 100),
                                    std::make_pair("Tag4", double(35) / 100),
                                    std::make_pair("Tag3", double(10) / 100),
                                    std::make_pair("", double(5) / 100)};
 
-    CHECK("Tag2" == map.getTag(0))
-    CHECK("Tag4" == map.getTag(1))
-    CHECK("Tag3" == map.getTag(2))
-    CHECK("" == map.getTag(3))
+    CHECK("Tag2" == map.getNthTopTagName(0))
+    CHECK("Tag4" == map.getNthTopTagName(1))
+    CHECK("Tag3" == map.getNthTopTagName(2))
+    CHECK("" == map.getNthTopTagName(3))
 
-    CHECK(expected == map.getSortedTagCountVector())
+    CHECK(expected == map.topTagsDistribution())
 
-    CHECK_EQUAL(50, map.getPomodorosForTagCount(0).size())
-    CHECK_EQUAL(35, map.getPomodorosForTagCount(1).size())
-    CHECK_EQUAL(10, map.getPomodorosForTagCount(2).size())
-    CHECK_EQUAL(5, map.getPomodorosForTagCount(3).size())
+    CHECK_EQUAL(50, map.pomodorosForNthTopTag(0).size())
+    CHECK_EQUAL(35, map.pomodorosForNthTopTag(1).size())
+    CHECK_EQUAL(10, map.pomodorosForNthTopTag(2).size())
+    CHECK_EQUAL(5, map.pomodorosForNthTopTag(3).size())
 }

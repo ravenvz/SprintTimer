@@ -56,8 +56,8 @@ void StatisticsWidget::fetchPomodoros()
     pomodoros = pomodoroModel->items().toStdVector();
     selectedTagIndex = optional<size_t>();
     // TODO get rid of QVector -> std::vector conversion
-    tagPomoMap = TagPomoMap(pomodoros, numTopTags);
-    std::vector<TagCount> tagTagCounts = tagPomoMap.getSortedTagCountVector();
+    tagPomoMap = TagDistribution(pomodoros, numTopTags);
+    std::vector<TagCount> tagTagCounts = tagPomoMap.topTagsDistribution();
     updateTopTagsDiagram(tagTagCounts);
 }
 
@@ -71,7 +71,7 @@ void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval)
 void StatisticsWidget::drawGraphs()
 {
     PomodoroStatItem statistics{
-        selectedTagIndex ? tagPomoMap.getPomodorosForTagCount(*selectedTagIndex)
+        selectedTagIndex ? tagPomoMap.pomodorosForNthTopTag(*selectedTagIndex)
                          : pomodoros,
         currentInterval.toTimeInterval()};
     auto dailyDistribution = statistics.dailyDistribution();

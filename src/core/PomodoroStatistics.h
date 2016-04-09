@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <vector>
-#include <memory>
 #include <iostream>
 #include <unordered_map>
 #include "TaskScheduler.h"
@@ -17,30 +16,41 @@
 using TagCount = std::pair<std::string, double>;
 
 
-class TagPomoMap {
+/* Datastructure that stores number of completed pomodoros for each tag. */
+class TagDistribution {
 public:
-    using PomoHash = std::unordered_map<std::string, std::vector<Pomodoro>>;
+    using TagPomoMap = std::unordered_map<std::string, std::vector<Pomodoro>>;
 
-    TagPomoMap(const std::vector<Pomodoro>& pomodoros, int numTopTagCounts);
+    TagDistribution(const std::vector<Pomodoro>& pomodoros, int numTopTags);
 
-    TagPomoMap() = default;
+    TagDistribution() = default;
 
-    std::vector<TagCount> getSortedTagCountVector() const;
+    /* Return vector of (tag, number of completed pomodoros) pairs.
+     * Only top tags are considered (specified by numTopTags). Completed
+     * pomodoros for all other tags are summed up, stored in empty '' tag and
+     * appended to the returned vector.
+     * Returned vector is sorted in descending order of completed pomodoros,
+     * except for last item that containes number of completed pomodoros
+     * for all other tags (if it is present). */
+    std::vector<TagCount> topTagsDistribution() const;
 
-    std::vector<Pomodoro> getPomodorosWithTag(const std::string& tag) const;
+    /* Return vector of pomodoros that have given tag. */
+    std::vector<Pomodoro> pomodorosWithTag(const std::string& tag) const;
 
-    std::vector<Pomodoro> getPomodorosForTagCount(size_t sliceIndex) const;
+    /* Return vector of pomodoros for n-th top tag. */
+    std::vector<Pomodoro> pomodorosForNthTopTag(size_t n) const;
 
-    std::string getTag(size_t sliceIndex) const;
+    /* Return n-th top tag name. */
+    std::string getNthTopTagName(size_t n) const;
 
 private:
-    PomoHash map;
+    TagPomoMap map;
     std::unordered_map<std::string, std::vector<Pomodoro>> tagToPomodoroVec;
     std::vector<TagCount> sliceData;
     std::unordered_map<size_t, std::string> sliceIndexMap;
-    size_t numTopTagCounts;
+    size_t numTopTags;
 
-    void compute();
+    void buildDistribution();
 
     void reduceTailToSum();
 

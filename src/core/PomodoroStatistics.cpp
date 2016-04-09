@@ -1,27 +1,27 @@
 #include "PomodoroStatistics.h"
 
 
-TagPomoMap::TagPomoMap(const std::vector<Pomodoro>& pomodoros,
-                       int numTopTagCounts)
-    : numTopTagCounts(static_cast<size_t>(numTopTagCounts))
+TagDistribution::TagDistribution(const std::vector<Pomodoro>& pomodoros,
+                                 int numTopTags)
+    : numTopTags(static_cast<size_t>(numTopTags))
 {
     for (const Pomodoro& pomo : pomodoros) {
         for (const auto& tag : pomo.tags()) {
             tagToPomodoroVec[tag].push_back(pomo);
         }
     }
-    compute();
+    buildDistribution();
 }
 
 
-std::vector<TagCount> TagPomoMap::getSortedTagCountVector() const
+std::vector<TagCount> TagDistribution::topTagsDistribution() const
 {
     return sliceData;
 }
 
 
 std::vector<Pomodoro>
-TagPomoMap::getPomodorosWithTag(const std::string& tag) const
+TagDistribution::pomodorosWithTag(const std::string& tag) const
 {
     // May throw out_of_range, but if there is no tag in map, we're screwed
     // anyway so let it crash for now
@@ -29,24 +29,23 @@ TagPomoMap::getPomodorosWithTag(const std::string& tag) const
 }
 
 
-std::vector<Pomodoro>
-TagPomoMap::getPomodorosForTagCount(size_t sliceIndex) const
+std::vector<Pomodoro> TagDistribution::pomodorosForNthTopTag(size_t n) const
 {
     // May throw out_of_range, but if there is no keys in maps, we're screwed
     // anyway so let it crash for now
-    return tagToPomodoroVec.at(sliceIndexMap.at(sliceIndex));
+    return tagToPomodoroVec.at(sliceIndexMap.at(n));
 }
 
 
-std::string TagPomoMap::getTag(size_t sliceIndex) const
+std::string TagDistribution::getNthTopTagName(size_t n) const
 {
     // May throw out_of_range, but if there is no key in map, we're screwed
     // anyway so let it crash for now
-    return sliceIndexMap.at(sliceIndex);
+    return sliceIndexMap.at(n);
 }
 
 
-void TagPomoMap::compute()
+void TagDistribution::buildDistribution()
 {
     int total = 0;
     for (const auto& entry : tagToPomodoroVec) {
@@ -55,28 +54,28 @@ void TagPomoMap::compute()
     }
 
     // Normalize and sort slice data
-    transform(sliceData.begin(),
+    std::transform(sliceData.begin(),
+                   sliceData.end(),
+                   sliceData.begin(),
+                   [total](const auto& entry) {
+                       return std::make_pair(entry.first,
+                                             double(entry.second) / total);
+                   });
+    std::sort(sliceData.begin(),
               sliceData.end(),
-              sliceData.begin(),
-              [total](const auto& entry) {
-                  return std::make_pair(entry.first,
-                                        double(entry.second) / total);
-              });
-    sort(sliceData.begin(),
-         sliceData.end(),
-         [](const auto& a, const auto& b) { return a.second > b.second; });
+              [](const auto& a, const auto& b) { return a.second > b.second; });
     reduceTailToSum();
     buildIndexMap();
 }
 
 
 // TODO should probably be able to find a way to simplify this method
-void TagPomoMap::reduceTailToSum()
+void TagDistribution::reduceTailToSum()
 {
-    if (sliceData.size() < numTopTagCounts) {
+    if (sliceData.size() < numTopTags) {
         return;
     }
-    while (sliceData.size() > numTopTagCounts) {
+    while (sliceData.size() > numTopTags) {
         sliceData[sliceData.size() - 2].second += sliceData.back().second;
         sliceData.pop_back();
     }
@@ -114,7 +113,7 @@ void TagPomoMap::reduceTailToSum()
 }
 
 
-void TagPomoMap::buildIndexMap()
+void TagDistribution::buildIndexMap()
 {
     for (size_t i = 0; i < sliceData.size(); ++i) {
         sliceIndexMap[i] = sliceData[i].first;
@@ -148,10 +147,7 @@ Distribution<double> PomodoroStatItem::worktimeDistribution() const
 }
 
 
-std::vector<Pomodoro> PomodoroStatItem::pomodoros() const
-{
-    return pomos;
-}
+std::vector<Pomodoro> PomodoroStatItem::pomodoros() const { return pomos; }
 
 
 std::vector<double> PomodoroStatItem::computeDailyDistribution() const
