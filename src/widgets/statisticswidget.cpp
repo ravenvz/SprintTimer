@@ -55,7 +55,7 @@ void StatisticsWidget::fetchPomodoros()
     // TODO convert in the model
     pomodoros = pomodoroModel->items().toStdVector();
     selectedTagIndex = optional<size_t>();
-    // TODO get rid of QVector -> std::vector conversion
+    // TODO rename tagPomoMap as it's now has different class name
     tagPomoMap = TagDistribution(pomodoros, numTopTags);
     std::vector<TagCount> tagTagCounts = tagPomoMap.topTagsDistribution();
     updateTopTagsDiagram(tagTagCounts);
@@ -96,13 +96,11 @@ void StatisticsWidget::updateWeekdayBarChart(
     const Distribution<double>& weekdayDistribution)
 {
     std::vector<double> values = weekdayDistribution.getDistributionVector();
-    // TODO get rid of QVector
-    QVector<QString> labels;
+    std::vector<QString> labels;
     for (int i = 0; i < 7; ++i) {
         labels.push_back(QDate::shortDayName(i + 1));
     }
-    QVector<double> qValues = QVector<double>::fromStdVector(values);
-    BarData data = BarData(qValues, labels);
+    BarData data = BarData(values, labels);
     ui->workdayBarChart->setData(data);
     updateWeekdayBarChartLegend(weekdayDistribution);
 }
