@@ -63,12 +63,12 @@ private:
     void drawGraphs();
     void setupWeekdayBarChart();
     void setupDailyTimelineGraph();
-    void updateWeekdayBarChart(Distribution<double>* weekdayDistribution);
-    void updateWeekdayBarChartLegend(Distribution<double>* weekdayDistribution);
-    void updateDailyTimelineGraph(Distribution<double>* dailyDistribution);
+    void updateWeekdayBarChart(const Distribution<double>& weekdayDistribution);
+    void updateWeekdayBarChartLegend(const Distribution<double>& weekdayDistribution);
+    void updateDailyTimelineGraph(const Distribution<double>& dailyDistribution);
     void
-    updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution);
-    void updateWorkHoursDiagram(Distribution<double>* workTimeDistribution,
+    updateDailyTimelineGraphLegend(const Distribution<double>& dailyDistribution);
+    void updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
                                 const std::vector<Pomodoro>& pomodoros);
     void updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts);
 };

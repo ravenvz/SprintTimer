@@ -74,12 +74,12 @@ void StatisticsWidget::drawGraphs()
         selectedTagIndex ? tagPomoMap.getPomodorosForTagCount(*selectedTagIndex)
                          : pomodoros,
         currentInterval.toTimeInterval()};
-    auto dailyDistribution = statistics.getDailyDistribution();
-    auto weekdayDistribution = statistics.getWeekdayDistribution();
-    auto workTimeDistribution = statistics.getWorkTimeDistribution();
+    auto dailyDistribution = statistics.dailyDistribution();
+    auto weekdayDistribution = statistics.weekdayDistribution();
+    auto workTimeDistribution = statistics.worktimeDistribution();
     updateDailyTimelineGraph(dailyDistribution);
     updateWeekdayBarChart(weekdayDistribution);
-    updateWorkHoursDiagram(workTimeDistribution, statistics.getPomodoros());
+    updateWorkHoursDiagram(workTimeDistribution, statistics.pomodoros());
 }
 
 void StatisticsWidget::setupWeekdayBarChart()
@@ -93,9 +93,9 @@ void StatisticsWidget::setupWeekdayBarChart()
 }
 
 void StatisticsWidget::updateWeekdayBarChart(
-    Distribution<double>* weekdayDistribution)
+    const Distribution<double>& weekdayDistribution)
 {
-    std::vector<double> values = weekdayDistribution->getDistributionVector();
+    std::vector<double> values = weekdayDistribution.getDistributionVector();
     // TODO get rid of QVector
     QVector<QString> labels;
     for (int i = 0; i < 7; ++i) {
@@ -108,25 +108,25 @@ void StatisticsWidget::updateWeekdayBarChart(
 }
 
 void StatisticsWidget::updateWeekdayBarChartLegend(
-    Distribution<double>* weekdayDistribution)
+    const Distribution<double>& weekdayDistribution)
 {
-    if (weekdayDistribution->empty()) {
+    if (weekdayDistribution.empty()) {
         ui->labelBestWorkdayName->setText("No data");
         ui->labelBestWorkdayMsg->setText("");
     }
     else {
-        double average = weekdayDistribution->getAverage();
+        double average = weekdayDistribution.getAverage();
         int relativeComparisonInPercent
-            = int((weekdayDistribution->getMax() - average) * 100 / average);
+            = int((weekdayDistribution.getMax() - average) * 100 / average);
         ui->labelBestWorkdayName->setText(QDate::longDayName(
-            static_cast<int>(weekdayDistribution->getMaxValueBin()) + 1));
+            static_cast<int>(weekdayDistribution.getMaxValueBin()) + 1));
         ui->labelBestWorkdayMsg->setText(
             QString("%1% more than average").arg(relativeComparisonInPercent));
     }
 }
 
 void StatisticsWidget::updateWorkHoursDiagram(
-    Distribution<double>* workTimeDistribution,
+    const Distribution<double>& workTimeDistribution,
     const std::vector<Pomodoro>& pomodoros)
 {
     QVector<TimeInterval> intervals;
@@ -139,7 +139,7 @@ void StatisticsWidget::updateWorkHoursDiagram(
     }
     else {
         auto maxValueBin
-            = static_cast<unsigned>(workTimeDistribution->getMaxValueBin());
+            = static_cast<unsigned>(workTimeDistribution.getMaxValueBin());
         ui->labelBestWorktimeName->setText(
             QString::fromStdString(TimeInterval::dayPartName(maxValueBin)));
         ui->labelBestWorktimeHours->setText(
@@ -179,15 +179,15 @@ void StatisticsWidget::setupDailyTimelineGraph()
 }
 
 void StatisticsWidget::updateDailyTimelineGraph(
-    Distribution<double>* dailyDistribution)
+    const Distribution<double>& dailyDistribution)
 {
-    if (dailyDistribution->empty()) {
+    if (dailyDistribution.empty()) {
         ui->dailyTimeline->reset();
     }
     else {
-        double average = dailyDistribution->getAverage();
+        double average = dailyDistribution.getAverage();
         double dailyGoal = applicationSettings.dailyPomodorosGoal();
-        auto pomosByDay = dailyDistribution->getDistributionVector();
+        auto pomosByDay = dailyDistribution.getDistributionVector();
         GraphData averageData{
             GraphPoint{0, average, ""},
             GraphPoint{static_cast<double>(currentInterval.sizeInDays() - 1),
@@ -209,7 +209,7 @@ void StatisticsWidget::updateDailyTimelineGraph(
         }
 
         ui->dailyTimeline->setRangeX(0, currentInterval.sizeInDays());
-        ui->dailyTimeline->setRangeY(0, dailyDistribution->getMax() + 1);
+        ui->dailyTimeline->setRangeY(0, dailyDistribution.getMax() + 1);
         ui->dailyTimeline->setGraphData(0, averageData);
         ui->dailyTimeline->setGraphData(1, goalData);
         ui->dailyTimeline->setGraphData(2, normalData);
@@ -228,12 +228,12 @@ void StatisticsWidget::updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts)
 }
 
 void StatisticsWidget::updateDailyTimelineGraphLegend(
-    Distribution<double>* dailyDistribution)
+    const Distribution<double>& dailyDistribution)
 {
     ui->labelTotalPomodoros->setText(
-        QString("%1").arg(dailyDistribution->getTotal()));
+        QString("%1").arg(dailyDistribution.getTotal()));
     ui->labelDailyAverage->setText(
-        QString("%1").arg(dailyDistribution->getAverage(), 2, 'f', 2, '0'));
+        QString("%1").arg(dailyDistribution.getAverage(), 2, 'f', 2, '0'));
 }
 
 void StatisticsWidget::onTagSelected(size_t tagIndex)

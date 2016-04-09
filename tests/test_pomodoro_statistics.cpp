@@ -17,14 +17,14 @@ TEST(PomoStatItem, test_empty_daily_statistics)
     double expected_total = 0;
     std::vector<double> expected_distribution;
 
-    Distribution<double>* dailyDistribution = statistics.getDailyDistribution();
+    Distribution<double> dailyDistribution = statistics.dailyDistribution();
     std::vector<double> distributionVector
-        = dailyDistribution->getDistributionVector();
+        = dailyDistribution.getDistributionVector();
 
-    CHECK_EQUAL(0, dailyDistribution->getNumBins())
-    DOUBLES_EQUAL(expected_average, dailyDistribution->getAverage(), threshold)
-    DOUBLES_EQUAL(expected_max, dailyDistribution->getMax(), threshold)
-    DOUBLES_EQUAL(expected_total, dailyDistribution->getTotal(), threshold)
+    CHECK_EQUAL(0, dailyDistribution.getNumBins())
+    DOUBLES_EQUAL(expected_average, dailyDistribution.getAverage(), threshold)
+    DOUBLES_EQUAL(expected_max, dailyDistribution.getMax(), threshold)
+    DOUBLES_EQUAL(expected_total, dailyDistribution.getTotal(), threshold)
     CHECK_EQUAL(expected_distribution.size(), distributionVector.size())
     for (size_t i = 0; i < expected_distribution.size(); ++i) {
         DOUBLES_EQUAL(
@@ -40,14 +40,14 @@ TEST(PomoStatItem, test_empty_weekday_statistics)
     double expected_max = 0;
     std::vector<double> expected_distribution = std::vector<double>(7, 0);
 
-    Distribution<double>* weekdayDistribution
-        = statistics.getWeekdayDistribution();
+    Distribution<double> weekdayDistribution
+        = statistics.weekdayDistribution();
     std::vector<double> distributionVector
-        = weekdayDistribution->getDistributionVector();
+        = weekdayDistribution.getDistributionVector();
 
     DOUBLES_EQUAL(
-        expected_average, weekdayDistribution->getAverage(), threshold)
-    DOUBLES_EQUAL(expected_max, weekdayDistribution->getMax(), threshold)
+        expected_average, weekdayDistribution.getAverage(), threshold)
+    DOUBLES_EQUAL(expected_max, weekdayDistribution.getMax(), threshold)
     CHECK_EQUAL(expected_distribution.size(), distributionVector.size())
     for (size_t i = 0; i < expected_distribution.size(); ++i) {
         DOUBLES_EQUAL(
@@ -76,15 +76,15 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
     }
 
     PomodoroStatItem statistics{pomodoros, interval};
-    Distribution<double>* distribution = statistics.getDailyDistribution();
+    Distribution<double> distribution = statistics.dailyDistribution();
     std::vector<double> distributionVector
-        = distribution->getDistributionVector();
+        = distribution.getDistributionVector();
 
-    CHECK_EQUAL(expectedDistributionVector.size(), distribution->getNumBins())
-    CHECK_EQUAL(expected_max_value_bin, distribution->getMaxValueBin())
-    DOUBLES_EQUAL(expected_average, distribution->getAverage(), threshold)
-    DOUBLES_EQUAL(expected_max, distribution->getMax(), threshold)
-    DOUBLES_EQUAL(expected_total, distribution->getTotal(), threshold)
+    CHECK_EQUAL(expectedDistributionVector.size(), distribution.getNumBins())
+    CHECK_EQUAL(expected_max_value_bin, distribution.getMaxValueBin())
+    DOUBLES_EQUAL(expected_average, distribution.getAverage(), threshold)
+    DOUBLES_EQUAL(expected_max, distribution.getMax(), threshold)
+    DOUBLES_EQUAL(expected_total, distribution.getTotal(), threshold)
 
     for (size_t i = 0; i < expectedDistributionVector.size(); ++i) {
         DOUBLES_EQUAL(
@@ -116,15 +116,15 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
         4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
     PomodoroStatItem statistics{increasingPomodoros, interval};
 
-    Distribution<double>* weekdayDistribution
-        = statistics.getWeekdayDistribution();
+    Distribution<double> weekdayDistribution
+        = statistics.weekdayDistribution();
     std::vector<double> distributionVector
-        = weekdayDistribution->getDistributionVector();
+        = weekdayDistribution.getDistributionVector();
 
-    CHECK_EQUAL(expected_max_value_bin, weekdayDistribution->getMaxValueBin())
+    CHECK_EQUAL(expected_max_value_bin, weekdayDistribution.getMaxValueBin())
     DOUBLES_EQUAL(
-        expected_average, weekdayDistribution->getAverage(), threshold)
-    DOUBLES_EQUAL(expected_max, weekdayDistribution->getMax(), threshold)
+        expected_average, weekdayDistribution.getAverage(), threshold)
+    DOUBLES_EQUAL(expected_max, weekdayDistribution.getMax(), threshold)
     for (size_t i = 0; i < expected_distribution.size(); ++i) {
         DOUBLES_EQUAL(
             expected_distribution[i], distributionVector[i], threshold)

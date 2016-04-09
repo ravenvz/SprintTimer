@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <memory>
 #include <iostream>
 #include <unordered_map>
 #include "TaskScheduler.h"
@@ -54,30 +55,27 @@ public:
 
     PomodoroStatItem(const PomodoroStatItem&) = default;
 
-    ~PomodoroStatItem();
+    ~PomodoroStatItem() = default;
 
-    Distribution<double>* getDailyDistribution() const;
+    Distribution<double> dailyDistribution() const;
 
-    Distribution<double>* getWeekdayDistribution() const;
+    Distribution<double> weekdayDistribution() const;
 
-    Distribution<double>* getWorkTimeDistribution() const;
+    Distribution<double> worktimeDistribution() const;
 
-    std::vector<Pomodoro> getPomodoros() const;
+    std::vector<Pomodoro> pomodoros() const;
+
+private:
+    const TimeInterval interval;
+    const std::vector<Pomodoro> pomos;
 
     std::vector<double> computeDailyDistribution() const;
 
     std::vector<double> computeWeekdayDistribution() const;
 
-    std::vector<double> computeWorkTimeDistribution();
+    std::vector<double> computeWorkTimeDistribution() const;
 
     std::vector<int> countWeekdays() const;
-
-private:
-    const TimeInterval interval;
-    const std::vector<Pomodoro> pomodoros;
-    Distribution<double>* dailyDistribution;
-    Distribution<double>* weekdayDistribution;
-    Distribution<double>* workTimeDistribution;
 };
 
 #endif // POMODORO_POMODOROSTATISTICS_H
