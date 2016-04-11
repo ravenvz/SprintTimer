@@ -1,15 +1,15 @@
 #ifndef PLOT_H
 #define PLOT_H
 
-#include <QString>
-#include <QPainter>
-#include <QWidget>
 #include <QEvent>
 #include <QGraphicsScene>
+#include <QPainter>
+#include <QString>
+#include <QWidget>
 
 struct GraphPoint;
 
-using GraphData = QVector<GraphPoint>;
+using GraphData = std::vector<GraphPoint>;
 
 class Graph;
 
@@ -37,7 +37,7 @@ private:
     };
 
 public:
-    using PointBoxContainer = QVector<PointBox>;
+    using PointBoxContainer = std::vector<PointBox>;
 
     explicit Plot(QWidget* parent = 0);
 
@@ -47,7 +47,7 @@ public:
     void addGraph(Graph& graph);
 
     // Set data points to graph with given number.
-    void setGraphData(int graphNum, GraphData& data);
+    void setGraphData(size_t graphNum, GraphData& data);
 
     // Clear data points from all graphs in plot.
     // Empty graphs remain attached to Plot.
@@ -83,8 +83,8 @@ private slots:
     void onSizeComputed();
 
 private:
-    QVector<Graph> graphs;
-    QVector<PointBoxContainer> pointBoxes;
+    std::vector<Graph> graphs;
+    std::vector<PointBoxContainer> pointBoxes;
     AxisRange rangeX;
     AxisRange rangeY;
     QRectF availableRect;
@@ -105,7 +105,7 @@ private:
     void constructPointBoxes();
 
     // Paint graph with given number.
-    void paintGraph(const int graphNum, QPainter& painter) const;
+    void paintGraph(size_t graphNum, QPainter& painter) const;
 
     // Paint graph points and labels.
     void paintPoints(const PointBoxContainer& boxes, QPainter& painter) const;
@@ -134,8 +134,7 @@ public:
     const QPen pen() const;
 
     // Overload for subscript operator to get access to graph points data.
-    // TODO change int to std::size_t when switched to std::vector
-    const GraphPoint& operator[](int idx) const;
+    const GraphPoint& operator[](size_t idx) const;
 
     // Clear graph points.
     void clearData();
@@ -154,8 +153,7 @@ public:
     const_iterator cend() const;
 
     // Return number of points in graph.
-    // TODO change int to std::size_t when switched to std::vector
-    int size() const;
+    size_t size() const;
 
 private:
     QPen mPen;
