@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
-//#include "TaskScheduler.h"
+//#include "PomodoroTimerModeScheduler.h"
 
 PickPeriodWidget::PickPeriodWidget(QWidget* parent)
     : QWidget(parent)

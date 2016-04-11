@@ -1,7 +1,7 @@
 #ifndef TASKRUNNER_H_9VSDY5UR
 #define TASKRUNNER_H_9VSDY5UR
 
-#include "TaskScheduler.h"
+#include "PomodoroTimerModeScheduler.h"
 #include "TimeSpan.h" 
 #include "Timer.h"
 #include "config.h"
@@ -92,7 +92,7 @@ public:
      * Duration is obtained from application config. */
     int taskDuration();
 
-    /* Return true if current task type is ShortBrake or TaskScheduler
+    /* Return true if current task type is ShortBrake or PomodoroTimerModeScheduler
      * and false otherwise. */
     bool isBreak() const;
 
@@ -102,7 +102,7 @@ public:
 
 private:
     const IConfig& applicationSettings;
-    TaskScheduler taskScheduler;
+    PomodoroTimerModeScheduler taskScheduler;
     const std::chrono::milliseconds tickInterval;
     std::function<void(long timeLeft)> onTickCallback;
     std::unique_ptr<Timer> timerPtr;

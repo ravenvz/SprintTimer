@@ -4,7 +4,7 @@
 #include <QVector>
 #include <QWidget>
 #include <QEvent>
-#include "core/TaskScheduler.h"
+#include "core/PomodoroTimerModeScheduler.h"
 
 
 class TimeDiagram : public QWidget

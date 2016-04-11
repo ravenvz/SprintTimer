@@ -1,8 +1,8 @@
-#include "core/TaskScheduler.h"
+#include "core/PomodoroTimerModeScheduler.h"
 #include <TestHarness.h>
 
 
-TEST_GROUP(TaskSchedulerGroup)
+TEST_GROUP(PomodoroTimerModeSchedulerGroup)
 {
 
     class TestConfig : public IConfig {
@@ -74,112 +74,120 @@ TEST_GROUP(TaskSchedulerGroup)
     };
 };
 
-bool stateIsShortBreak(const TaskScheduler& scheduler)
+bool stateIsShortBreak(const PomodoroTimerModeScheduler& scheduler)
 {
-    return scheduler.state() == TaskScheduler::TaskState::ShortBreak;
+    return scheduler.mode()
+        == PomodoroTimerModeScheduler::PomodoroTimerMode::ShortBreak;
 }
 
-bool stateIsLongBreak(const TaskScheduler& scheduler)
+bool stateIsLongBreak(const PomodoroTimerModeScheduler& scheduler)
 {
-    return scheduler.state() == TaskScheduler::TaskState::LongBreak;
+    return scheduler.mode()
+        == PomodoroTimerModeScheduler::PomodoroTimerMode::LongBreak;
 }
 
-bool stateIsTask(const TaskScheduler& scheduler)
+bool stateIsTask(const PomodoroTimerModeScheduler& scheduler)
 {
-    return scheduler.state() == TaskScheduler::TaskState::Task;
+    return scheduler.mode()
+        == PomodoroTimerModeScheduler::PomodoroTimerMode::Task;
 }
 
-TEST(TaskSchedulerGroup, should_set_state_to_break_when_finishing_task)
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_set_state_to_break_when_finishing_task)
 {
-    TaskScheduler scheduler;
-    scheduler.setNextState();
+    PomodoroTimerModeScheduler scheduler;
+    scheduler.setNextMode();
 
     CHECK(scheduler.isBreak());
     CHECK(stateIsShortBreak(scheduler))
 }
 
-TEST(TaskSchedulerGroup,
+TEST(PomodoroTimerModeSchedulerGroup,
      should_set_state_to_long_break_when_finishing_task_cycle)
 {
-    TaskScheduler scheduler;
-    scheduler.setNumCompletedTasks(3);
+    PomodoroTimerModeScheduler scheduler;
+    scheduler.setNumCompletedPomodoros(3);
 
-    scheduler.setNextState();
+    scheduler.setNextMode();
 
     CHECK(scheduler.isBreak())
     CHECK(stateIsLongBreak(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_finishing_break)
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_set_schedulable_to_task_when_finishing_break)
 {
-    TaskScheduler scheduler;
-    scheduler.setNumCompletedTasks(3);
+    PomodoroTimerModeScheduler scheduler;
+    scheduler.setNumCompletedPomodoros(3);
 
-    scheduler.setNextState();
-    scheduler.setNextState();
+    scheduler.setNextMode();
+    scheduler.setNextMode();
 
     CHECK(!scheduler.isBreak())
     CHECK(stateIsTask(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_task)
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_set_schedulable_to_task_when_cancelling_task)
 {
-    TaskScheduler scheduler;
+    PomodoroTimerModeScheduler scheduler;
 
-    scheduler.cancelState();
+    scheduler.cancelMode();
 
     CHECK(!scheduler.isBreak())
     CHECK(stateIsTask(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_break)
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_set_schedulable_to_task_when_cancelling_break)
 {
-    TaskScheduler scheduler;
+    PomodoroTimerModeScheduler scheduler;
 
-    scheduler.setNextState();
+    scheduler.setNextMode();
     // Task completed, should be in break state
-    scheduler.cancelState();
+    scheduler.cancelMode();
 
     CHECK(!scheduler.isBreak())
     CHECK(stateIsTask(scheduler))
 }
 
-TEST(TaskSchedulerGroup,
-     should_increment_completed_tasks_counter_when_finishing_task)
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_increment_completed_pomodoros_counter_when_finishing_task)
 {
-    TaskScheduler scheduler;
-    scheduler.setNumCompletedTasks(2);
+    PomodoroTimerModeScheduler scheduler;
+    scheduler.setNumCompletedPomodoros(2);
 
-    scheduler.setNextState();
+    scheduler.setNextMode();
 
-    CHECK_EQUAL(3, scheduler.numCompletedTasks());
+    CHECK_EQUAL(3, scheduler.numCompletedPomodoros());
 }
 
-TEST(TaskSchedulerGroup,
-     should_not_increment_completed_tasks_counter_when_finishing_break)
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_not_increment_completed_pomodoros_counter_when_finishing_break)
 {
-    TaskScheduler scheduler;
-    scheduler.setNumCompletedTasks(2);
+    PomodoroTimerModeScheduler scheduler;
+    scheduler.setNumCompletedPomodoros(2);
 
-    scheduler.setNextState();
-    // Task completed numCompletedTasks should increment and transition to
+    scheduler.setNextMode();
+    // Task completed numCompletedPomodoros should increment and transition to
     // the break state
-    scheduler.setNextState();
-    // Break finished, numCompletedTasks should not increment
+    scheduler.setNextMode();
+    // Break finished, numCompletedPomodoros should not increment
 
-    CHECK_EQUAL(3, scheduler.numCompletedTasks());
+    CHECK_EQUAL(3, scheduler.numCompletedPomodoros());
 }
 
-TEST(TaskSchedulerGroup, should_only_schedule_tasks_if_in_the_zone_mode_active)
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_only_schedule_pomodoros_if_in_the_zone_mode_active)
 {
-    TaskScheduler scheduler;
+    PomodoroTimerModeScheduler scheduler;
 
     scheduler.toggleInTheZoneMode();
 
     for (size_t i = 0; i < 20; ++i) {
-        scheduler.setNextState();
+        scheduler.setNextMode();
         CHECK(!scheduler.isBreak());
     }
 
-    CHECK_EQUAL(20, scheduler.numCompletedTasks())
+    CHECK_EQUAL(20, scheduler.numCompletedPomodoros())
 }

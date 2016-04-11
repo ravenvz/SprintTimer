@@ -2,7 +2,7 @@
 #define DATEPICKDIALOG_H
 
 #include <QDialog>
-#include "core/TaskScheduler.h"
+#include "core/PomodoroTimerModeScheduler.h"
 #include "utils/DateInterval.h"
 
 namespace Ui {

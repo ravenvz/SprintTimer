@@ -26,24 +26,24 @@ void PomodoroTimer::run()
 void PomodoroTimer::cancel()
 {
     timerPtr->stop();
-    taskScheduler.cancelState();
+    taskScheduler.cancelMode();
 }
 
 TimeSpan PomodoroTimer::finish()
 {
-    taskScheduler.setNextState();
+    taskScheduler.setNextMode();
     mFinish = DateTime::currentDateTime();
     return TimeSpan{mStart, mFinish};
 }
 
 int PomodoroTimer::taskDuration()
 {
-    switch (taskScheduler.state()) {
-    case TaskScheduler::TaskState::Task:
+    switch (taskScheduler.mode()) {
+    case PomodoroTimerModeScheduler::PomodoroTimerMode::Task:
         return applicationSettings.pomodoroDuration();
-    case TaskScheduler::TaskState::LongBreak:
+    case PomodoroTimerModeScheduler::PomodoroTimerMode::LongBreak:
         return applicationSettings.longBreakDuration();
-    case TaskScheduler::TaskState::ShortBreak:
+    case PomodoroTimerModeScheduler::PomodoroTimerMode::ShortBreak:
         return applicationSettings.shortBreakDuration();
     default:
         return applicationSettings.shortBreakDuration();

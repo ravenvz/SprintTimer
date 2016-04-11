@@ -10,7 +10,7 @@
 #include <vector>
 #include <functional>
 #include <experimental/optional>
-#include "core/TaskScheduler.h"
+#include "core/PomodoroTimerModeScheduler.h"
 #include "core/PomodoroTimer.h"
 #include "db_layer/db_service.h"
 #include "goalsview.h"

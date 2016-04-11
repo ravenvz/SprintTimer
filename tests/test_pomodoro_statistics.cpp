@@ -1,5 +1,5 @@
 #include "core/PomodoroStatistics.h"
-#include "core/TaskScheduler.h"
+#include "core/PomodoroTimerModeScheduler.h"
 #include <TestHarness.h>
 
 TEST_GROUP(PomoStatItem)

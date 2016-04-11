@@ -13,7 +13,7 @@ set(SOURCE_FILES
     test_datetime.cpp
     test_time_span.cpp
     ../src/core/PomodoroStatistics.cpp
-    ../src/core/TaskScheduler.cpp
+    ../src/core/PomodoroTimerModeScheduler.cpp
     ../src/core/config.h
     ../src/core/entities/Pomodoro.cpp
     ../src/core/entities/TodoItem.cpp

@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <unordered_map>
-#include "TaskScheduler.h"
+#include "PomodoroTimerModeScheduler.h"
 #include "core/entities/Pomodoro.h"
 #include "db_layer/db_service.h"
 #include "utils/MathUtils.h"
