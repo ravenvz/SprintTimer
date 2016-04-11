@@ -27,7 +27,7 @@ QVariant PomodoroModel::data(const QModelIndex& index, int role) const
 }
 
 bool PomodoroModel::insert(const long long associatedTodoItemId,
-                           const TimeSpan& interval)
+                           const TimeSpan& timeSpan)
 {
     QSqlRecord rec = record();
     rec.setGenerated(static_cast<int>(Columns::Id), false);
@@ -36,10 +36,10 @@ bool PomodoroModel::insert(const long long associatedTodoItemId,
     rec.setValue(static_cast<int>(Columns::TodoId), associatedTodoItemId);
     rec.setValue(static_cast<int>(Columns::StartTime),
                  QDateTime::fromTime_t(
-                     static_cast<unsigned>(interval.startTime.toTime_t())));
+                     static_cast<unsigned>(timeSpan.startTime.toTime_t())));
     rec.setValue(static_cast<int>(Columns::FinishTime),
                  QDateTime::fromTime_t(
-                     static_cast<unsigned>(interval.finishTime.toTime_t())));
+                     static_cast<unsigned>(timeSpan.finishTime.toTime_t())));
     return QSqlTableModel::insertRecord(-1, rec) && submitAll();
 }
 
@@ -55,7 +55,7 @@ Pomodoro PomodoroModel::itemAt(const int row) const
     QDateTime start = columnData(rowRecord, Columns::StartTime).toDateTime();
     QDateTime finish = columnData(rowRecord, Columns::FinishTime).toDateTime();
     int offsetFromUtcInSeconds{start.offsetFromUtc()};
-    TimeSpan interval{
+    TimeSpan timeSpan{
         start.toTime_t(), finish.toTime_t(), offsetFromUtcInSeconds};
     QStringList qTags{
         columnData(rowRecord, Columns::Tags).toString().split(",")};
@@ -65,7 +65,7 @@ Pomodoro PomodoroModel::itemAt(const int row) const
                    std::back_inserter(tags),
                    [](const auto& tag) { return tag.toStdString(); });
 
-    return Pomodoro{name.toStdString(), interval, tags};
+    return Pomodoro{name.toStdString(), timeSpan, tags};
 }
 
 QVector<Pomodoro> PomodoroModel::items()
@@ -79,12 +79,12 @@ QVector<Pomodoro> PomodoroModel::items()
     return result;
 }
 
-void PomodoroModel::setDateFilter(const DateInterval& interval)
+void PomodoroModel::setDateFilter(const DateInterval& timeSpan)
 {
     QString filter{
         QString("date(start_time) >= '%1' and date(start_time) <= '%2'")
-            .arg(interval.startDate.toString("yyyy-MM-dd"))
-            .arg(interval.endDate.toString("yyyy-MM-dd"))};
+            .arg(timeSpan.startDate.toString("yyyy-MM-dd"))
+            .arg(timeSpan.endDate.toString("yyyy-MM-dd"))};
     setFilter(filter);
 }
 

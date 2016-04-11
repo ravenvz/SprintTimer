@@ -21,7 +21,7 @@ protected:
 
 private:
     const QColor timeSpanColor = QColor::fromRgb(246, 61, 13, 20);
-    QVector<TimeSpan> intervals;
+    QVector<TimeSpan> timeSpans;
     QRectF totalSizeRect;
     QRectF diagramRect;
     double diagramRadius {0};

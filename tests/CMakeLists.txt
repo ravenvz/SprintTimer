@@ -11,7 +11,7 @@ set(SOURCE_FILES
     test_todoitem.cpp
     test_todoitem_model.cpp
     test_datetime.cpp
-    test_time_interval.cpp
+    test_time_timeSpan.cpp
     ../src/core/PomodoroStatistics.cpp
     ../src/core/TaskScheduler.cpp
     ../src/core/config.h

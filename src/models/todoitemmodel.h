@@ -85,8 +85,8 @@ public:
     void setNotCompletedFilter();
 
     // Set filter to show only items that are completed between dates in the
-    // given interval.
-    void setCompletedInIntervalFilter(const DateInterval& interval);
+    // given timeSpan.
+    void setCompletedInIntervalFilter(const DateInterval& timeSpan);
 
     // Return item id at a given row.
     long long itemIdAt(const int row) const;

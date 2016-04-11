@@ -15,10 +15,10 @@
 class TaskRunner {
 public:
     /* Construct TaskRunner given callback function, update
-     * interval and reference to application settings.
+     * timeSpan and reference to application settings.
      *
      * When task is running, callback function will be executed after
-     * each update interval until time for the task runs out or task
+     * each update timeSpan until time for the task runs out or task
      * is cancelled. */
     TaskRunner(std::function<void(long timeLeft)> tickCallback,
                long updateIntervalInMilliseconds,
@@ -44,7 +44,7 @@ public:
     /* Return TimeSpan for last task that had been completed normally
      * (had not been cancelled).
      *
-     * Note that interval's finish time will be recorded only after this method
+     * Note that timeSpan's finish time will be recorded only after this method
      * is called. */
     TimeSpan finishTask();
 

@@ -15,13 +15,13 @@ public:
     QVariant data(const QModelIndex& index,
                   int role = Qt::DisplayRole) const override;
 
-    // Insert pomodoro identified by time interval and it's associated TodoItem.
+    // Insert pomodoro identified by time timeSpan and it's associated TodoItem.
     // Return boolean, indicating success of the operation.
     // Note that method doesn't check if associated TodoItem with given id
     // actually
     // exists in the database.
     bool insert(const long long associatedTodoItemId,
-                const TimeSpan& interval);
+                const TimeSpan& timeSpan);
 
     // Remove pomodoro at given row number.
     // Return boolean, indicating success of the operation.
@@ -33,9 +33,9 @@ public:
     // Return vector, containing all pomodoros.
     QVector<Pomodoro> items();
 
-    // Only pomodoros that have starting time in the given interval will be
+    // Only pomodoros that have starting time in the given timeSpan will be
     // in the model.
-    void setDateFilter(const DateInterval& interval);
+    void setDateFilter(const DateInterval& timeSpan);
 
     // Pomodoros in the model will be sorted by starting time ascending.
     void setSortByTime();

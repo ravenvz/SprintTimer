@@ -226,12 +226,12 @@ void TodoItemModel::setNotCompletedFilter()
     setFilter("completed = 0 or last_modified > datetime('now', '-1 day')");
 }
 
-void TodoItemModel::setCompletedInIntervalFilter(const DateInterval& interval)
+void TodoItemModel::setCompletedInIntervalFilter(const DateInterval& timeSpan)
 {
     QString filter{QString("completed = 1 and date(last_modified) >= '%1' and "
                            "date(last_modified) <= '%2'")
-                       .arg(interval.startDate.toString("yyyy-MM-dd"))
-                       .arg(interval.endDate.toString("yyyy-MM-dd"))};
+                       .arg(timeSpan.startDate.toString("yyyy-MM-dd"))
+                       .arg(timeSpan.endDate.toString("yyyy-MM-dd"))};
     setFilter(filter);
 }
 

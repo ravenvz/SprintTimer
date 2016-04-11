@@ -20,7 +20,7 @@ query.exec("delete from tag");
 
 void teardown() { MemoryLeakWarningPlugin::turnOnNewDeleteOverloads(); }
 
-bool interval_equals_to_minute(const TimeSpan& lhs, const TimeSpan& rhs)
+bool timeSpan_equals_to_minute(const TimeSpan& lhs, const TimeSpan& rhs)
 {
     return (lhs.startTime.year() == rhs.startTime.year())
         && (lhs.startTime.hour() == rhs.startTime.hour())
@@ -38,8 +38,8 @@ bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2)
         std::cout << pomodoro1.name() << " != " << std::endl;
         return false;
     }
-    if (!interval_equals_to_minute(pomodoro1.interval(),
-                                   pomodoro2.interval())) {
+    if (!timeSpan_equals_to_minute(pomodoro1.timeSpan(),
+                                   pomodoro2.timeSpan())) {
         std::cout << pomodoro1.startTime() << " - " << pomodoro1.finishTime()
                   << " != " << pomodoro2.startTime() << " - "
                   << pomodoro2.finishTime() << std::endl;
@@ -61,7 +61,7 @@ bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2)
 TEST(PomodoroModel, test_insert_and_delete)
 {
     PomodoroModel pomodoroModel;
-    TimeSpan interval;
+    TimeSpan timeSpan;
     // TODO fix when streamlined time zones issues
     // For now, the system stores time in local time zone, so need to
     // compare with local time
@@ -79,7 +79,7 @@ TEST(PomodoroModel, test_insert_and_delete)
     CHECK(todoItemModel.insert(item));
     auto todoId = todoItemModel.itemIdAt(0);
 
-    CHECK(pomodoroModel.insert(todoId, interval));
+    CHECK(pomodoroModel.insert(todoId, timeSpan));
     CHECK(pomodoro_equal(expectedPomodoro, pomodoroModel.itemAt(0)));
 
     // Check that spent pomodoros have been incremented
@@ -100,7 +100,7 @@ TEST(PomodoroModel, test_insert_and_delete)
 TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros)
 {
     PomodoroModel pomodoroModel;
-    TimeSpan interval{std::chrono::system_clock::now(),
+    TimeSpan timeSpan{std::chrono::system_clock::now(),
                           std::chrono::system_clock::now()};
     TodoItemModel todoItemModel;
     std::string name{"Test item"};
@@ -114,7 +114,7 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros)
 
     int numInsertedPomos{10};
     for (int i = 0; i < numInsertedPomos; ++i) {
-        CHECK(pomodoroModel.insert(todoId, interval));
+        CHECK(pomodoroModel.insert(todoId, timeSpan));
     }
 
     CHECK_EQUAL(numInsertedPomos, pomodoroModel.numRecords());

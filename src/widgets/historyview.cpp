@@ -45,7 +45,7 @@ HistoryView::HistoryView(QWidget* parent)
             this,
             SLOT(displayHistory()));
     connect(ui->widgetPickPeriod,
-            SIGNAL(intervalChanged(DateInterval)),
+            SIGNAL(timeSpanChanged(DateInterval)),
             this,
             SLOT(onDatePickerIntervalChanged(DateInterval)));
     displayHistory();

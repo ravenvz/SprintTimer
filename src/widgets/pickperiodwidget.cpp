@@ -40,7 +40,7 @@ void PickPeriodWidget::connectSlots()
         SLOT(openDatePickDialog()));
     connect(ui->cbxYear, SIGNAL(activated(int)), this, SLOT(updateInterval()));
     connect(ui->cbxMonth, SIGNAL(activated(int)), this, SLOT(updateInterval()));
-    connect(this, SIGNAL(intervalChanged(DateInterval)), this,
+    connect(this, SIGNAL(timeSpanChanged(DateInterval)), this,
         SLOT(updateSelectionHintLabel()));
 }
 
@@ -57,10 +57,10 @@ void PickPeriodWidget::updateSelectionHintLabel()
     ui->labelSelectionHint->setText(selectedInterval.toString());
 }
 
-void PickPeriodWidget::setInterval(DateInterval interval)
+void PickPeriodWidget::setInterval(DateInterval timeSpan)
 {
-    selectedInterval = interval;
-    emit intervalChanged(selectedInterval);
+    selectedInterval = timeSpan;
+    emit timeSpanChanged(selectedInterval);
 }
 
 void PickPeriodWidget::updateInterval()
@@ -69,13 +69,13 @@ void PickPeriodWidget::updateInterval()
         ui->cbxMonth->currentIndex() + 1, 1};
     QDate endDate = startDate.addDays(startDate.daysInMonth() - 1);
     selectedInterval = DateInterval{startDate, endDate};
-    emit intervalChanged(selectedInterval);
+    emit timeSpanChanged(selectedInterval);
 }
 
-void PickPeriodWidget::updateInterval(DateInterval interval)
+void PickPeriodWidget::updateInterval(DateInterval timeSpan)
 {
-    selectedInterval = interval;
-    emit intervalChanged(selectedInterval);
+    selectedInterval = timeSpan;
+    emit timeSpanChanged(selectedInterval);
 }
 
 DateInterval PickPeriodWidget::getInterval() const { return selectedInterval; }

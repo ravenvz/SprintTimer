@@ -23,13 +23,13 @@ struct TimeSpan {
 
     /* Construct from std::time_t start and finish points. */
     TimeSpan(std::time_t start,
-                 std::time_t finish,
-                 int offsetFromUtcInSeconds = 0);
+             std::time_t finish,
+             int offsetFromUtcInSeconds = 0);
 
     // TODO remove when got rid of Qt containers
     TimeSpan();
 
-    /* Return interval size in days as unsigned integer.
+    /* Return time span size in days as unsigned integer.
      *
      * It doesn't matter if start point is further in time compared to
      * finish point. */
@@ -59,7 +59,7 @@ struct TimeSpan {
     /* Return hours corresponding to DayPart as string. */
     static std::string dayPartHours(DayPart dayPart);
 
-    /* Return time representation of interval as "HH:mm - HH:mm". */
+    /* Return time representation as string in "HH:mm - HH:mm" format. */
     std::string toTimeString() const;
 };
 

@@ -10,14 +10,14 @@ struct DateInterval {
     QDate startDate;
     QDate endDate;
 
-    static DateInterval fromTimeSpan(const TimeSpan& interval)
+    static DateInterval fromTimeSpan(const TimeSpan& timeSpan)
     {
         return DateInterval{
             QDateTime::fromTime_t(
-                static_cast<unsigned>(interval.startTime.toTime_t()))
+                static_cast<unsigned>(timeSpan.startTime.toTime_t()))
                 .date(),
             QDateTime::fromTime_t(
-                static_cast<unsigned>(interval.finishTime.toTime_t()))
+                static_cast<unsigned>(timeSpan.finishTime.toTime_t()))
                 .date()};
     }
 
@@ -50,9 +50,9 @@ struct DateInterval {
     }
 };
 
-// std::ostream& operator<<(std::ostream& os, const DateInterval& interval)
+// std::ostream& operator<<(std::ostream& os, const DateInterval& timeSpan)
 // {
-//     TimeSpan t = interval.toTimeSpan();
+//     TimeSpan t = timeSpan.toTimeSpan();
 //     os << "DateInterval: " << t.startTime.day() << "." << t.startTime.month()
 //        << "." << t.startTime.year() << " - " << t.finishTime.day() << "."
 //        << t.finishTime.month() << "." << t.finishTime.year();

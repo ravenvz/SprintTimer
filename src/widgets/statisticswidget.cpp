@@ -26,7 +26,7 @@ StatisticsWidget::~StatisticsWidget() { delete ui; }
 void StatisticsWidget::connectSlots()
 {
     connect(ui->widgetPickPeriod,
-            SIGNAL(intervalChanged(DateInterval)),
+            SIGNAL(timeSpanChanged(DateInterval)),
             this,
             SLOT(onDatePickerIntervalChanged(DateInterval)));
     connect(ui->topTagDiagram,
@@ -127,11 +127,11 @@ void StatisticsWidget::updateWorkHoursDiagram(
     const Distribution<double>& workTimeDistribution,
     const std::vector<Pomodoro>& pomodoros)
 {
-    QVector<TimeSpan> intervals;
+    QVector<TimeSpan> timeSpans;
     for (const Pomodoro& pomo : pomodoros) {
-        intervals.append(pomo.interval());
+        timeSpans.append(pomo.timeSpan());
     }
-    if (intervals.empty()) {
+    if (timeSpans.empty()) {
         ui->labelBestWorktimeName->setText("No data");
         ui->labelBestWorktimeHours->setText("");
     }
@@ -143,7 +143,7 @@ void StatisticsWidget::updateWorkHoursDiagram(
         ui->labelBestWorktimeHours->setText(
             QString::fromStdString(TimeSpan::dayPartHours(maxValueBin)));
     }
-    workTimeDiagram->setIntervals(intervals);
+    workTimeDiagram->setIntervals(timeSpans);
 }
 
 void StatisticsWidget::setupDailyTimelineGraph()

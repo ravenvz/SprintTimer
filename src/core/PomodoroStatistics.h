@@ -76,7 +76,7 @@ public:
     std::vector<Pomodoro> pomodoros() const;
 
 private:
-    const TimeSpan interval;
+    const TimeSpan timeSpan;
     const std::vector<Pomodoro> pomos;
 
     std::vector<double> computeDailyDistribution() const;

@@ -2,9 +2,9 @@
 
 
 Timer::Timer(std::function<void(void)> tickCallback,
-             std::chrono::milliseconds interval)
+             std::chrono::milliseconds tickPeriod)
     : onTickCallback{tickCallback}
-    , interval{interval}
+    , tickPeriod{tickPeriod}
 {
 }
 
@@ -13,7 +13,6 @@ Timer::~Timer()
     stop();
     if (tr.joinable())
         tr.join();
-    std::cout << "Timer destroyed" << std::endl;
 }
 
 void Timer::start()
@@ -21,7 +20,7 @@ void Timer::start()
     running = true;
     tr = std::thread([&]() {
         while (running) {
-            std::this_thread::sleep_for(interval);
+            std::this_thread::sleep_for(tickPeriod);
             onTickCallback();
         }
     });

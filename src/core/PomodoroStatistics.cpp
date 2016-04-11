@@ -123,7 +123,7 @@ void TagDistribution::buildIndexMap()
 
 PomodoroStatItem::PomodoroStatItem(const std::vector<Pomodoro>& pomodoros,
                                    const TimeSpan& timeInterval)
-    : interval(timeInterval)
+    : timeSpan(timeInterval)
     , pomos(pomodoros)
 {
 }
@@ -154,9 +154,9 @@ std::vector<double> PomodoroStatItem::computeDailyDistribution() const
 {
     if (pomos.empty())
         return std::vector<double>(0, 0);
-    std::vector<double> distribution(interval.sizeInDays(), 0);
+    std::vector<double> distribution(timeSpan.sizeInDays(), 0);
     for (const Pomodoro& pomo : pomos) {
-        distribution[startDateAbsDiff(interval, pomo.interval())]++;
+        distribution[startDateAbsDiff(timeSpan, pomo.timeSpan())]++;
     }
     return distribution;
 }
@@ -178,7 +178,7 @@ std::vector<double> PomodoroStatItem::computeWorkTimeDistribution() const
 {
     std::vector<double> distribution(6, 0);
     for (const Pomodoro& pomo : pomos) {
-        distribution[static_cast<size_t>(pomo.interval().getDayPart())]++;
+        distribution[static_cast<size_t>(pomo.timeSpan().getDayPart())]++;
     }
     return distribution;
 }
@@ -187,8 +187,8 @@ std::vector<double> PomodoroStatItem::computeWorkTimeDistribution() const
 std::vector<int> PomodoroStatItem::countWeekdays() const
 {
     std::vector<int> result(7, 0);
-    for (size_t dayNum = 0; dayNum < interval.sizeInDays(); ++dayNum) {
-        result[interval.startTime.addDays(static_cast<int>(dayNum)).dayOfWeek()
+    for (size_t dayNum = 0; dayNum < timeSpan.sizeInDays(); ++dayNum) {
+        result[timeSpan.startTime.addDays(static_cast<int>(dayNum)).dayOfWeek()
                - 1]++;
     }
     return result;

@@ -64,7 +64,7 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
     std::vector<Pomodoro> pomodoros;
     DateTime start = DateTime::currentDateTime();
     DateTime end = start.addDays(47);
-    TimeSpan interval{start, end};
+    TimeSpan timeSpan{start, end};
     std::vector<int> expectedDistributionVector(48, 0);
     for (size_t i = 0; i < 48; ++i) {
         for (size_t j = 0; j < i + 1; ++j) {
@@ -75,7 +75,7 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
         }
     }
 
-    PomodoroStatItem statistics{pomodoros, interval};
+    PomodoroStatItem statistics{pomodoros, timeSpan};
     Distribution<double> distribution = statistics.dailyDistribution();
     std::vector<double> distributionVector
         = distribution.getDistributionVector();
@@ -99,8 +99,8 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
     size_t expected_max_value_bin = 6;
     std::vector<Pomodoro> increasingPomodoros;
     // (2015, 6, 1) is Monday, so each weekday occures exactly twice
-    // in 14-day interval
-    TimeSpan interval{DateTime::fromYMD(2015, 6, 1),
+    // in 14-day timeSpan
+    TimeSpan timeSpan{DateTime::fromYMD(2015, 6, 1),
                           DateTime::fromYMD(2015, 6, 14)};
 
     for (int i = 1; i < 15; ++i) {
@@ -114,7 +114,7 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
 
     std::vector<double> expected_distribution{
         4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
-    PomodoroStatItem statistics{increasingPomodoros, interval};
+    PomodoroStatItem statistics{increasingPomodoros, timeSpan};
 
     Distribution<double> weekdayDistribution
         = statistics.weekdayDistribution();

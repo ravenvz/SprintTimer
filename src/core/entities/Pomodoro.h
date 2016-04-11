@@ -17,13 +17,13 @@ class Pomodoro {
 public:
     Pomodoro();
 
-    /* Construct from time interval and associated Task's name and tags. */
+    /* Construct from time timeSpan and associated Task's name and tags. */
     Pomodoro(const std::string& taskName,
-             const TimeSpan& interval,
+             const TimeSpan& timeSpan,
              const std::list<std::string>& tags);
 
-    /* Construct from associated Task and time interval. */
-    Pomodoro(const TodoItem& task, const TimeSpan& interval);
+    /* Construct from associated Task and time timeSpan. */
+    Pomodoro(const TodoItem& task, const TimeSpan& timeSpan);
 
     // Return name of Pomodoro. It is identical to the associated task name.
     std::string name() const;
@@ -35,7 +35,7 @@ public:
     DateTime finishTime() const;
 
     // Return time interval when this Pomodoro was active.
-    TimeSpan interval() const;
+    TimeSpan timeSpan() const;
 
     // Return vector of tags. Tags are identical the associated task tags.
     std::list<std::string> tags() const;

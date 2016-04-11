@@ -6,17 +6,17 @@
 Pomodoro::Pomodoro() {}
 
 Pomodoro::Pomodoro(const std::string& taskName,
-                   const TimeSpan& interval,
+                   const TimeSpan& timeSpan,
                    const std::list<std::string>& tags)
     : mName{taskName}
-    , mInterval{interval}
+    , mInterval{timeSpan}
     , mTags{tags}
 {
 }
 
-Pomodoro::Pomodoro(const TodoItem& task, const TimeSpan& interval)
+Pomodoro::Pomodoro(const TodoItem& task, const TimeSpan& timeSpan)
     : mName{task.name()}
-    , mInterval{interval}
+    , mInterval{timeSpan}
     , mTags{task.tags()}
 {
 }
@@ -27,7 +27,7 @@ DateTime Pomodoro::startTime() const { return mInterval.startTime; }
 
 DateTime Pomodoro::finishTime() const { return mInterval.finishTime; }
 
-TimeSpan Pomodoro::interval() const { return mInterval; }
+TimeSpan Pomodoro::timeSpan() const { return mInterval; }
 
 std::list<std::string> Pomodoro::tags() const { return mTags; }
 
