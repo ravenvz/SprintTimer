@@ -8,9 +8,11 @@
 #include <QTimer>
 #include <memory>
 #include <vector>
+#include <functional>
 #include <experimental/optional>
-#include "core/TaskScheduler.h"
-#include "db_layer/db_helper.h"
+#include "core/PomodoroTimerModeScheduler.h"
+#include "core/PomodoroTimer.h"
+#include "db_layer/db_service.h"
 #include "goalsview.h"
 #include "src/models/pomodoromodel.h"
 #include "src/models/tagmodel.h"
@@ -21,7 +23,7 @@
 #include "todoitemsviewdelegate.h"
 
 namespace Ui {
-    class MainWindow;
+class MainWindow;
 }
 
 
@@ -29,20 +31,21 @@ using Second = int;
 constexpr Second secondsPerMinute = 60;
 
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent = 0);
+    MainWindow(IConfig& applicationSettings, QWidget* parent = 0);
     ~MainWindow();
+
+signals:
+    void timerUpdated(long timeLeft);
 
 private slots:
     void startTask();
     void cancelTask();
     void addTodoItem();
     void quickAddTodoItem();
-    void updateTimerCounter();
     void submitPomodoro();
     void changeSelectedTask(QModelIndex index);
     void showTodoItemContextMenu(const QPoint& pos);
@@ -55,16 +58,15 @@ private slots:
     void launchStatisticsView();
     void launchManualAddPomodoroDialog();
     void updateTodoItemModel();
+    void onTimerUpdated(long);
 
 private:
-    Ui::MainWindow *ui;
-    TaskScheduler& taskScheduler;
-    Config& applicationSettings;
-    QPointer<QTimer> timer;
+    Ui::MainWindow* ui;
+    IConfig& applicationSettings;
     std::unique_ptr<QMediaPlayer> player;
-    std::vector<TimeInterval> completedTasksIntervals;
-    int progressBarMaxValue {0};
-    Second timeLeft {0};
+    std::vector<TimeSpan> completedTasksIntervals;
+    int progressBarMaxValue{0};
+    Second timeLeft{0};
     QPointer<PomodoroModel> pomodoroModel;
     QPointer<TagModel> tagModel;
     QPointer<TodoItemModel> todoitemViewModel;
@@ -74,6 +76,10 @@ private:
     QPointer<HistoryView> historyView;
     QPointer<TagEditorWidget> tagEditor;
     std::experimental::optional<long long> selectedTaskId;
+    PomodoroTimer pomodoroTimer{
+        std::bind(&MainWindow::onTimerTick, this, std::placeholders::_1),
+        1000,
+        applicationSettings};
 
     void connectSlots();
     void setUiToIdleState();
@@ -95,6 +101,7 @@ private:
     void playSound();
     void bringToForeground(QWidget* widgetPtr);
     void launchTagEditor();
+    void onTimerTick(long timeLeft);
 };
 
 #endif // MAINWINDOW_H

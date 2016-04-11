@@ -7,38 +7,55 @@
 #include "core/config.h"
 #include "dialogs/datepickdialog.h"
 #include "src/models/pomodoromodel.h"
-#include "piediagram.h"
+#include "widgets/DistributionDiagram.h"
 #include "plot.h"
 #include "timediagram.h"
 
+
+using std::experimental::optional;
+
 namespace Ui {
-    class StatisticsWidget;
+class StatisticsWidget;
 }
 
 
-class StatisticsWidget : public QWidget
-{
+/* Displays statistical information on completed Pomodoros
+ * for a given timespan.
+ *
+ * Has following major parts:
+ *      widget that allows to select timespan;
+ *      widget that displays number of Pomodoros
+ *      for each day in a timespan;
+ *      widget that displays average number of Pomodoros for each
+ *      weekday;
+ *      widget that displays distribution of tags for all completed
+ *      Pomodoros;
+ *      widget that displays distribution of worktime.
+ */
+class StatisticsWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit StatisticsWidget(Config& applicationSettings, QWidget* parent = 0);
+    explicit StatisticsWidget(IConfig& applicationSettings,
+                              QWidget* parent = 0);
     ~StatisticsWidget();
+
     void updateView();
 
 private slots:
     void onDatePickerIntervalChanged(DateInterval newInterval);
-    void onSliceSelectionChanged(int newSliceIndex);
+    void onTagSelected(size_t tagIndex);
 
 private:
     Ui::StatisticsWidget* ui;
-    Config& applicationSettings;
+    IConfig& applicationSettings;
     PomodoroModel* pomodoroModel;
-    QVector<Pomodoro> pomodoros;
-    TagPomoMap tagPomoMap;
+    std::vector<Pomodoro> pomodoros;
+    TagDistribution tagPomoMap;
     TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
-    const int numDisplayedTagSlices = 7; // TODO move to config
-    int selectedSliceIndex = -1;
+    const int numTopTags = 7; // TODO move to config
+    optional<size_t> selectedTagIndex;
 
     void connectSlots();
     void setupGraphs();
@@ -46,14 +63,15 @@ private:
     void drawGraphs();
     void setupWeekdayBarChart();
     void setupDailyTimelineGraph();
-    void updateWeekdayBarChart(Distribution<double>* weekdayDistribution);
-    void updateWeekdayBarChartLegend(Distribution<double>* weekdayDistribution);
-    void updateDailyTimelineGraph(Distribution<double>* dailyDistribution);
-    void updateDailyTimelineGraphLegend(Distribution<double>* dailyDistribution);
-    void updateWorkHoursDiagram(Distribution<double>* workTimeDistribution, const QVector<Pomodoro>& pomodoros);
-    void updateTopTagsDiagram(QVector<Slice>& tagSlices);
+    void updateWeekdayBarChart(const Distribution<double>& weekdayDistribution);
+    void updateWeekdayBarChartLegend(const Distribution<double>& weekdayDistribution);
+    void updateDailyTimelineGraph(const Distribution<double>& dailyDistribution);
+    void
+    updateDailyTimelineGraphLegend(const Distribution<double>& dailyDistribution);
+    void updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
+                                const std::vector<Pomodoro>& pomodoros);
+    void updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts);
 };
-
 
 
 #endif /* end of include guard: STATISTICSWIDGET_H */

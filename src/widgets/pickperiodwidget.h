@@ -16,17 +16,17 @@ class PickPeriodWidget : public QWidget {
 public:
     explicit PickPeriodWidget(QWidget* parent = 0);
     ~PickPeriodWidget();
-    void setInterval(DateInterval interval);
+    void setInterval(DateInterval timeSpan);
     DateInterval getInterval() const;
     void setYears(const QStringList& years);
 
 signals:
-    void intervalChanged(DateInterval newInterval);
+    void timeSpanChanged(DateInterval newInterval);
 
 private slots:
     void openDatePickDialog();
     void updateInterval();
-    void updateInterval(DateInterval interval);
+    void updateInterval(DateInterval timeSpan);
     void updateSelectionHintLabel();
 
 private:

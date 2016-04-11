@@ -48,12 +48,14 @@ void BarChart::drawBars(QPainter& painter)
         QPointF legendOffsetPoint = QPointF(
             barWidth / 2, -legendHeightRatio * availableRect.height());
         painter.drawText(current - legendOffsetPoint, barData[i].label);
-        QRectF barRect = QRectF{current.x() - barWidth / 2,
-            current.y() - barData[i].normalizedValue * maxHeight, barWidth,
-            barData[i].normalizedValue * maxHeight};
-        painter.drawText(
-            barRect.topLeft() - QPointF(0, legendHeightRatio / 2 * maxHeight),
-            QString("%1").arg(barData[i].value, 1, 'f', 1, '0'));
+        QRectF barRect
+            = QRectF{current.x() - barWidth / 2,
+                     current.y() - barData[i].normalizedValue * maxHeight,
+                     barWidth,
+                     barData[i].normalizedValue * maxHeight};
+        painter.drawText(barRect.topLeft()
+                             - QPointF(0, legendHeightRatio / 2 * maxHeight),
+                         QString("%1").arg(barData[i].value, 1, 'f', 1, '0'));
         painter.setPen(pen);
         painter.drawRect(barRect);
         current.setX(current.x() + barWidth + gapWidth);
@@ -68,15 +70,18 @@ void BarChart::computeAdaptiveSizes()
     const double availableWidth = (1 - margin) * totalSizeRect.width();
     const double availableHeight = (1 - margin) * totalSizeRect.height();
     availableRect = QRectF{center.x() - availableWidth / 2,
-        center.y() - availableHeight / 2, availableWidth, availableHeight};
+                           center.y() - availableHeight / 2,
+                           availableWidth,
+                           availableHeight};
 }
 
 BarData::BarData() {}
 
-BarData::BarData(QVector<double>& values, QVector<QString>& labels)
+BarData::BarData(const std::vector<double>& values,
+                 const std::vector<QString>& labels)
 {
-    int length = std::min(values.size(), labels.size());
-    for (int i = 0; i < length; ++i) {
+    size_t length = std::min(values.size(), labels.size());
+    for (size_t i = 0; i < length; ++i) {
         data.push_back(BarDataItem{labels[i], values[i], 0.0});
     }
     normalize();
@@ -84,15 +89,19 @@ BarData::BarData(QVector<double>& values, QVector<QString>& labels)
 
 void BarData::normalize()
 {
-    double maxValue = std::max_element(data.begin(), data.end(),
-                          [](auto entry1, auto entry2) {
-                              return entry1.value < entry2.value;
-                          })
+    double maxValue = std::max_element(data.begin(),
+                                       data.end(),
+                                       [](auto entry1, auto entry2) {
+                                           return entry1.value < entry2.value;
+                                       })
                           ->value;
-    std::transform(data.begin(), data.end(), data.begin(), [maxValue](
-                                                               auto entry) {
-        return BarDataItem{entry.label, entry.value, entry.value / maxValue};
-    });
+    std::transform(data.begin(),
+                   data.end(),
+                   data.begin(),
+                   [maxValue](auto entry) {
+                       return BarDataItem{
+                           entry.label, entry.value, entry.value / maxValue};
+                   });
 }
 
 const BarDataItem& BarData::operator[](int idx) const { return data[idx]; }

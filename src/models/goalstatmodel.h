@@ -1,25 +1,24 @@
 #ifndef GOALSTATMODEL_H
 #define GOALSTATMODEL_H
 
-#include <QVector>
+#include <vector>
 #include <QSqlQuery>
 
-class GoalStatModel
-{
+class GoalStatModel {
 public:
     GoalStatModel();
 
     // Return vector containing number of completed pomodoros
     // up to 30 days back.
-    QVector<int> itemsDaysBack();
+    std::vector<int> itemsDaysBack();
 
     // Return vector containing number of completed pomodoros
     // up to 12 weeks back.
-    QVector<int> itemsWeeksBack();
+    std::vector<int> itemsWeeksBack();
 
     // Return vector containing number of completed pomodoros
     // up to 12 months back.
-    QVector<int> itemsMonthsBack();
+    std::vector<int> itemsMonthsBack();
 
     // Return number of pomodoros completed today.
     int itemsCurrentDay();

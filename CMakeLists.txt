@@ -12,15 +12,19 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
 # Note, that options are mutually exclusive but nothing enforces this.
 option(ADDRESS_SANITIZER "Address sanitizer in Debug build" OFF)
 option(MEMORY_SANITIZER "Memory sanitizer in Debug build" OFF)
 option(UB_SANITIZER "Undefined behavior sanitizer in Debug build" OFF)
+option(THREAD_SANITIZER "Thread sanitizer in Debug build" OFF)
 
 message("Address sanitizer is " {${ADDRESS_SANITIZER}})
 message("Memory sanitizer is " {${MEMORY_SANITIZER}})
 message("Undefined behavior sanitizer is " {${UB_SANITIZER}})
+message("Thread sanitizer is " {${THREAD_SANITIZER}})
 
 set("${PROJECT}_BINARY_DIR" bin)
 set("${PROJECT}_SOURCE_DIR" src)
@@ -28,7 +32,7 @@ set("${PROJECT}_SOURCE_DIR" src)
 # to change Clion build directory
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
 
-set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
+# set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
@@ -101,19 +105,23 @@ if(ADDRESS_SANITIZER)
     set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fstack-protector-all -fsanitize=address -fno-omit-frame-pointer)
     set_target_properties(${PROJECT} PROPERTIES LINK_FLAGS_DEBUG -fsanitize=address)
 elseif(MEMORY_SANITIZER)
-    set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fstack-protector-all -fsanitize=memory)
+    # set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fstack-protector-all -fsanitize=memory -fsanitize-memory-track-origins=2)
+    set(DEBUG_COMPILE_OPTIONS -O0 -fsanitize=memory -fsanitize-memory-track-origins -fno-omit-frame-pointer)
     set_target_properties(${PROJECT} PROPERTIES LINK_FLAGS_DEBUG -fsanitize=memory)
-elseif (ADDRESS_SANITIZER)
+elseif (UB_SANITIZER)
     set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fstack-protector-all -fsanitize=undefined)
     set_target_properties(${PROJECT} PROPERTIES LINK_FLAGS_DEBUG -fsanitize=undefined)
+elseif (THREAD_SANITIZER)
+    set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fsanitize=thread)
+    set_target_properties(${PROJECT} PROPERTIES LINK_FLAGS_DEBUG -fsanitize=thread)
 else()
     set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fstack-protector-all)
 endif()
 
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
-                          
-target_include_directories(${PROJECT} PUBLIC src dialogs db_layer)
-target_link_libraries(${PROJECT} PUBLIC Qt5::Core PUBLIC Qt5::Widgets PUBLIC Qt5::Sql PUBLIC Qt5::Multimedia)
+
+target_include_directories(${PROJECT} PUBLIC src lib)
+target_link_libraries(${PROJECT} PUBLIC Qt5::Core PUBLIC Qt5::Widgets PUBLIC Qt5::Sql PUBLIC Qt5::Multimedia Threads::Threads)
 
 add_subdirectory(tests)

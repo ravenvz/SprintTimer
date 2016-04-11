@@ -7,15 +7,14 @@
 #include <src/core/config.h>
 
 namespace Ui {
-    class SettingsDialog;
+class SettingsDialog;
 }
 
-class SettingsDialog : public QDialog
-{
+class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit SettingsDialog(Config &applicationSettings, QDialog *parent = 0);
+    explicit SettingsDialog(IConfig& applicationSettings, QDialog* parent = 0);
     ~SettingsDialog();
     void fillSettingsData();
 
@@ -24,9 +23,8 @@ private slots:
     void toggleVolumeControlVisibility();
 
 private:
-    Ui::SettingsDialog *ui;
-    Config& applicationSettings;
-
+    Ui::SettingsDialog* ui;
+    IConfig& applicationSettings;
 };
 
 #endif // SETTINGSDIALOG_H

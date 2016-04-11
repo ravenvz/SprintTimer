@@ -4,7 +4,7 @@
 #include <QVector>
 #include <QWidget>
 #include <QEvent>
-#include "core/TaskScheduler.h"
+#include "core/PomodoroTimerModeScheduler.h"
 
 
 class TimeDiagram : public QWidget
@@ -14,14 +14,14 @@ class TimeDiagram : public QWidget
 public:
     explicit TimeDiagram(QWidget* parent = 0);
     ~TimeDiagram();
-    void setIntervals(QVector<TimeInterval> newIntervals);
+    void setIntervals(QVector<TimeSpan> newIntervals);
 
 protected:
     void paintEvent(QPaintEvent*) override;
 
 private:
     const QColor timeSpanColor = QColor::fromRgb(246, 61, 13, 20);
-    QVector<TimeInterval> intervals;
+    QVector<TimeSpan> timeSpans;
     QRectF totalSizeRect;
     QRectF diagramRect;
     double diagramRadius {0};

@@ -1,3 +1,5 @@
+#include <thread>
+#include "core/Timer.h"
 #include <src/core/config.h>
 #include <QtWidgets/qmenu.h>
 #include "mainwindow.h"
@@ -8,18 +10,17 @@
 #include "dialogs/manualaddpomodorodialog.h"
 
 
-MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QWidget* parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    taskScheduler(scheduler),
-    applicationSettings(applicationSettings)
+MainWindow::MainWindow(IConfig& applicationSettings, QWidget* parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+    , applicationSettings(applicationSettings)
 {
     ui->setupUi(this);
-    timer = new QTimer(this);
-    player = std::make_unique<QMediaPlayer> ();
+    player = std::make_unique<QMediaPlayer>();
 
     pomodoroModel = new PomodoroModel(this);
-    pomodoroModel->setDateFilter(DateInterval {QDate::currentDate(), QDate::currentDate()});
+    pomodoroModel->setDateFilter(
+        DateInterval{QDate::currentDate(), QDate::currentDate()});
     pomodoroModel->setSortByTime();
     pomodoroModel->select();
     ui->lvCompletedPomodoros->setModel(pomodoroModel);
@@ -40,8 +41,8 @@ MainWindow::MainWindow(TaskScheduler& scheduler, Config& applicationSettings, QW
     updatePomodoroView();
 }
 
-MainWindow::~MainWindow() {
-    delete timer;
+MainWindow::~MainWindow()
+{
     delete todoitemViewModel;
     delete todoitemViewDelegate;
     delete historyView;
@@ -51,26 +52,56 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::connectSlots() {
+void MainWindow::connectSlots()
+{
     connect(ui->btnAddTodo, SIGNAL(clicked(bool)), this, SLOT(addTodoItem()));
     connect(ui->btnStart, SIGNAL(clicked(bool)), this, SLOT(startTask()));
     connect(ui->btnCancel, SIGNAL(clicked(bool)), this, SLOT(cancelTask()));
-    connect(ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
-    connect(timer, SIGNAL(timeout()), this, SLOT(updateTimerCounter()));
-    connect(ui->lvTodoItems, SIGNAL(clicked(QModelIndex)), this, SLOT(changeSelectedTask(QModelIndex)));
-    connect(ui->lvTodoItems, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showTodoItemContextMenu(const QPoint&)));
-    connect(ui->lvCompletedPomodoros, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showPomodoroContextMenu(const QPoint&)));
-    connect(ui->lvTodoItems, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(toggleTodoItemCompleted()));
+    connect(
+        ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
+    connect(ui->lvTodoItems,
+            SIGNAL(clicked(QModelIndex)),
+            this,
+            SLOT(changeSelectedTask(QModelIndex)));
+    connect(ui->lvTodoItems,
+            SIGNAL(customContextMenuRequested(const QPoint&)),
+            this,
+            SLOT(showTodoItemContextMenu(const QPoint&)));
+    connect(ui->lvCompletedPomodoros,
+            SIGNAL(customContextMenuRequested(const QPoint&)),
+            this,
+            SLOT(showPomodoroContextMenu(const QPoint&)));
+    connect(ui->lvTodoItems,
+            SIGNAL(doubleClicked(const QModelIndex&)),
+            this,
+            SLOT(toggleTodoItemCompleted()));
     connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
-    connect(ui->leTodoItem, SIGNAL(returnPressed()), this, SLOT(quickAddTodoItem()));
-    connect(ui->btnSettings, SIGNAL(clicked(bool)), this, SLOT(launchSettingsDialog()));
-    connect(ui->btnTodoHistory, SIGNAL(clicked(bool)), this, SLOT(launchHistoryView()));
+    connect(ui->leTodoItem,
+            SIGNAL(returnPressed()),
+            this,
+            SLOT(quickAddTodoItem()));
+    connect(ui->btnSettings,
+            SIGNAL(clicked(bool)),
+            this,
+            SLOT(launchSettingsDialog()));
+    connect(ui->btnTodoHistory,
+            SIGNAL(clicked(bool)),
+            this,
+            SLOT(launchHistoryView()));
     connect(ui->btnGoals, SIGNAL(clicked(bool)), this, SLOT(launchGoalsView()));
-    connect(ui->btnStatistics, SIGNAL(clicked(bool)), this, SLOT(launchStatisticsView()));
-    connect(ui->btnAddPomodoroManually, SIGNAL(clicked(bool)), this, SLOT(launchManualAddPomodoroDialog()));
+    connect(ui->btnStatistics,
+            SIGNAL(clicked(bool)),
+            this,
+            SLOT(launchStatisticsView()));
+    connect(ui->btnAddPomodoroManually,
+            SIGNAL(clicked(bool)),
+            this,
+            SLOT(launchManualAddPomodoroDialog()));
+    connect(this, SIGNAL(timerUpdated(long)), this, SLOT(onTimerUpdated(long)));
 }
 
-void MainWindow::setUiToIdleState() {
+void MainWindow::setUiToIdleState()
+{
     ui->progressBar->setValue(0);
     ui->progressBar->hide();
     ui->leDoneTask->hide();
@@ -80,114 +111,101 @@ void MainWindow::setUiToIdleState() {
     progressBarMaxValue = 0;
 }
 
-void MainWindow::setUiToRunningState() {
-    setTimerValue(taskScheduler.taskDurationInMinutes() * secondsPerMinute);
+void MainWindow::setUiToRunningState()
+{
+    setTimerValue(pomodoroTimer.taskDuration() * secondsPerMinute);
+    progressBarMaxValue = pomodoroTimer.taskDuration() * secondsPerMinute;
+    ui->progressBar->setMaximum(progressBarMaxValue);
     ui->btnStart->hide();
     ui->labelTimer->show();
     ui->progressBar->show();
     ui->btnCancel->show();
-    progressBarMaxValue = timeLeft;
-    ui->progressBar->setMaximum(progressBarMaxValue);
 }
 
-void MainWindow::setUiToSubmissionState() {
+void MainWindow::setUiToSubmissionState()
+{
     ui->labelTimer->hide();
     ui->progressBar->hide();
     ui->leDoneTask->show();
 }
 
-void MainWindow::cancelTask() {
+void MainWindow::cancelTask()
+{
     ConfirmationDialog cancelDialog;
     QString description("This will destroy current pomodoro!");
     cancelDialog.setActionDescription(description);
-    if (taskScheduler.isBreak() || cancelDialog.exec()) {
-        taskScheduler.cancelTask();
-        timer->stop();
+    if (pomodoroTimer.isBreak() || cancelDialog.exec()) {
+        pomodoroTimer.cancel();
         setUiToIdleState();
     }
 }
 
-void MainWindow::addTodoItem() {
-    AddTodoItemDialog dialog {tagModel};
+void MainWindow::addTodoItem()
+{
+    AddTodoItemDialog dialog{tagModel};
     if (dialog.exec()) {
         TodoItem item = dialog.getNewTodoItem();
         todoitemViewModel->insert(item);
     }
 }
 
-void MainWindow::quickAddTodoItem() {
-    QString encodedDescription = ui->leTodoItem->text();
+void MainWindow::quickAddTodoItem()
+{
+    std::string encodedDescription = ui->leTodoItem->text().toStdString();
     ui->leTodoItem->clear();
-    if (!encodedDescription.isEmpty()) {
-        TodoItem item {std::move(encodedDescription)};
+    if (!encodedDescription.empty()) {
+        TodoItem item{std::move(encodedDescription)};
         todoitemViewModel->insert(item);
     }
 }
 
-void MainWindow::launchSettingsDialog() {
-    SettingsDialog settingsDialog {applicationSettings};
+void MainWindow::launchSettingsDialog()
+{
+    SettingsDialog settingsDialog{applicationSettings};
     settingsDialog.fillSettingsData();
     if (settingsDialog.exec()) {
         qDebug() << "Applying changes";
     }
 }
 
-void MainWindow::startTask() {
-    taskScheduler.startTask();
-    timeLeft = secondsPerMinute * taskScheduler.taskDurationInMinutes();
+void MainWindow::startTask()
+{
+    pomodoroTimer.run();
     setUiToRunningState();
-    timer->start(1000);
 }
 
-void MainWindow::updateTimerCounter() {
-    timeLeft--;
-    if (timeLeft >= 0) {
-        ui->progressBar->setValue(progressBarMaxValue - timeLeft);
-        setTimerValue(timeLeft);
-        ui->progressBar->repaint();
-        return;
-    }
-    timer->stop();
-    playSound();
-
-    if (ui->btnZone->isChecked()) {
-        completedTasksIntervals.push_back(taskScheduler.finishTask());
-        startTask();
-    } else if (taskScheduler.isBreak()) {
-        taskScheduler.finishTask();
-        setUiToIdleState();
-    } else {
-        setUiToSubmissionState();
-    }
-}
-
-void MainWindow::setTimerValue(Second timeLeft) {
-    QString timerValue = QString("%1:%2")
-        .arg(QString::number(timeLeft / secondsPerMinute),
-             QString::number(timeLeft % secondsPerMinute).rightJustified(2, '0'));
+void MainWindow::setTimerValue(Second timeLeft)
+{
+    QString timerValue = QString("%1:%2").arg(
+        QString::number(timeLeft / secondsPerMinute),
+        QString::number(timeLeft % secondsPerMinute).rightJustified(2, '0'));
     ui->labelTimer->setText(timerValue);
 }
 
-void MainWindow::playSound() {
+void MainWindow::playSound()
+{
     if (ui->btnZone->isChecked() && !applicationSettings.soundIsEnabled()) {
         playSound();
     }
 
-    // TODO might not be the best way to handle this, as it requires gstreamer-ugly-plugins on my system
-    player->setMedia(QUrl::fromLocalFile("/home/vizier/Projects/pomodoro_cpp/resources/ring.wav"));
+    // TODO might not be the best way to handle this, as it requires
+    // gstreamer-ugly-plugins on my system
+    player->setMedia(QUrl::fromLocalFile(
+        "/home/vizier/Projects/pomodoro_cpp/resources/ring.wav"));
     player->setVolume(applicationSettings.soundVolume());
     player->play();
 }
 
-void MainWindow::submitPomodoro() {
+void MainWindow::submitPomodoro()
+{
     if (!selectedTaskId || ui->leDoneTask->text().isEmpty()) {
         qDebug() << "No associated Task can be found";
         return;
     }
     ui->leDoneTask->hide();
-    completedTasksIntervals.push_back(taskScheduler.finishTask());
-    for (const TimeInterval& interval : completedTasksIntervals) {
-        pomodoroModel->insert(*selectedTaskId, interval);
+    completedTasksIntervals.push_back(pomodoroTimer.finish());
+    for (const TimeSpan& timeSpan : completedTasksIntervals) {
+        pomodoroModel->insert(*selectedTaskId, timeSpan);
     }
 
     completedTasksIntervals.clear();
@@ -197,7 +215,8 @@ void MainWindow::submitPomodoro() {
     startTask();
 }
 
-void MainWindow::updatePomodoroView() {
+void MainWindow::updatePomodoroView()
+{
     // QStringList lst = PomodoroDataSource::getPomodorosForToday();
     pomodoroModel->select();
     // pomodoroModel->setStringList(lst);
@@ -207,27 +226,35 @@ void MainWindow::updatePomodoroView() {
         return;
     }
     int completedSoFar = pomodoroModel->rowCount();
-    ui->labelDailyGoalProgress->setText(QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
+    ui->labelDailyGoalProgress->setText(
+        QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
     if (completedSoFar == dailyGoal) {
         ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
-    } else if (completedSoFar > dailyGoal) {
+    }
+    else if (completedSoFar > dailyGoal) {
         ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: red; }");
-    } else {
+    }
+    else {
         ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: black; }");
     }
 }
 
-void MainWindow::changeSelectedTask(QModelIndex index) {
+void MainWindow::changeSelectedTask(QModelIndex index)
+{
     // TODO consider having states like State::Submission instead
     if (ui->leDoneTask->isVisible()) {
         selectedTaskId = todoitemViewModel->itemIdAt(index.row());
         TodoItem item = todoitemViewModel->itemAt(index.row());
-        QString description = QString("%1 %2").arg(item.tagsAsString()).arg(item.name());
+        QString description
+            = QString("%1 %2")
+                  .arg(QString::fromStdString(item.tagsAsString()))
+                  .arg(QString::fromStdString(item.name()));
         ui->leDoneTask->setText(description);
     }
 }
 
-void MainWindow::showTodoItemContextMenu(const QPoint& pos) {
+void MainWindow::showTodoItemContextMenu(const QPoint& pos)
+{
     QPoint globalPos = ui->lvTodoItems->mapToGlobal(pos);
 
     QMenu todoItemsMenu;
@@ -238,14 +265,18 @@ void MainWindow::showTodoItemContextMenu(const QPoint& pos) {
 
     QAction* selectedItem = todoItemsMenu.exec(globalPos);
 
-    if (selectedItem && selectedItem->text() == "Edit") editTodoItem();
-    if (selectedItem && selectedItem->text() == "Delete") removeTask();
-    if (selectedItem && selectedItem->text() == "Tag editor") launchTagEditor();
+    if (selectedItem && selectedItem->text() == "Edit")
+        editTodoItem();
+    if (selectedItem && selectedItem->text() == "Delete")
+        removeTask();
+    if (selectedItem && selectedItem->text() == "Tag editor")
+        launchTagEditor();
 }
 
-void MainWindow::editTodoItem() {
+void MainWindow::editTodoItem()
+{
     QModelIndex index = ui->lvTodoItems->currentIndex();
-    AddTodoItemDialog dialog {tagModel};
+    AddTodoItemDialog dialog{tagModel};
     TodoItem itemToEdit = todoitemViewModel->itemAt(index.row());
     dialog.setWindowTitle("Edit TodoItem");
     dialog.fillItemData(itemToEdit);
@@ -257,28 +288,33 @@ void MainWindow::editTodoItem() {
     }
 }
 
-void MainWindow::removeTask() {
+void MainWindow::removeTask()
+{
     QModelIndex index = ui->lvTodoItems->currentIndex();
     ConfirmationDialog dialog;
     // TODO figure out a way to handle this situation more gracefully
     QString description;
     if (todoitemViewModel->itemAt(index.row()).spentPomodoros() > 0) {
-        description = "WARNING! This todo item has pomodoros associated with it "
-                      "and they will be removed permanently along with this item.";
-    } else {
+        description
+            = "WARNING! This todo item has pomodoros associated with it "
+              "and they will be removed permanently along with this item.";
+    }
+    else {
         description = "This will delete todo item permanently!";
     }
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         // If removing currently selected task, clear the linedit
-        if (selectedTaskId && todoitemViewModel->itemIdAt(index.row()) == *selectedTaskId) {
+        if (selectedTaskId
+            && todoitemViewModel->itemIdAt(index.row()) == *selectedTaskId) {
             ui->leDoneTask->clear();
         }
         todoitemViewModel->remove(index);
     }
 }
 
-void MainWindow::showPomodoroContextMenu(const QPoint& pos) {
+void MainWindow::showPomodoroContextMenu(const QPoint& pos)
+{
     QPoint globalPos = ui->lvCompletedPomodoros->mapToGlobal(pos);
 
     QMenu pomodoroMenu;
@@ -286,13 +322,15 @@ void MainWindow::showPomodoroContextMenu(const QPoint& pos) {
 
     QAction* selectedItem = pomodoroMenu.exec(globalPos);
 
-    if (selectedItem && selectedItem->text() == "Delete") removePomodoro();
+    if (selectedItem && selectedItem->text() == "Delete")
+        removePomodoro();
 }
 
-void MainWindow::removePomodoro() {
+void MainWindow::removePomodoro()
+{
     QModelIndex index = ui->lvCompletedPomodoros->currentIndex();
     ConfirmationDialog dialog;
-    QString description {"This will remove pomodoro permanently"};
+    QString description{"This will remove pomodoro permanently"};
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         // TODO handle sad path
@@ -302,46 +340,52 @@ void MainWindow::removePomodoro() {
     }
 }
 
-void MainWindow::toggleTodoItemCompleted() {
+void MainWindow::toggleTodoItemCompleted()
+{
     todoitemViewModel->toggleCompleted(ui->lvTodoItems->currentIndex());
     updateHistoryWindow();
 }
 
-void MainWindow::onInTheZoneToggled() {
-    taskScheduler.toggleInTheZoneMode();
-}
+void MainWindow::onInTheZoneToggled() { pomodoroTimer.toggleInTheZoneMode(); }
 
-void MainWindow::launchHistoryView() {
+void MainWindow::launchHistoryView()
+{
     if (!historyView) {
         historyView = new HistoryView();
         historyView->show();
-    } else {
+    }
+    else {
         bringToForeground(historyView);
     }
 }
 
-void MainWindow::launchGoalsView() {
+void MainWindow::launchGoalsView()
+{
     if (!goalsView) {
         goalsView = new GoalsView(applicationSettings);
         goalsView->show();
-    } else {
+    }
+    else {
         bringToForeground(goalsView);
     }
 }
 
-void MainWindow::launchStatisticsView() {
+void MainWindow::launchStatisticsView()
+{
     if (!statisticsView) {
         statisticsView = new StatisticsWidget(applicationSettings);
         statisticsView->show();
-    } else {
+    }
+    else {
         bringToForeground(statisticsView);
     }
 }
 
-void MainWindow::launchManualAddPomodoroDialog() {
-    PomodoroManualAddDialog dialog {pomodoroModel,
-                                    todoitemViewModel,
-                                    applicationSettings.pomodoroDuration()};
+void MainWindow::launchManualAddPomodoroDialog()
+{
+    PomodoroManualAddDialog dialog{pomodoroModel,
+                                   todoitemViewModel,
+                                   applicationSettings.pomodoroDuration()};
     if (dialog.exec()) {
         updatePomodoroView();
         updateOpenedWindows();
@@ -349,40 +393,82 @@ void MainWindow::launchManualAddPomodoroDialog() {
     }
 }
 
-void MainWindow::bringToForeground(QWidget* widgetPtr) {
+void MainWindow::bringToForeground(QWidget* widgetPtr)
+{
     widgetPtr->raise();
     widgetPtr->activateWindow();
     widgetPtr->showNormal();
 }
 
-void MainWindow::updateOpenedWindows() {
+void MainWindow::updateOpenedWindows()
+{
     updateStatisticsWindow();
     updateHistoryWindow();
     updateGoalWindow();
 }
 
-void MainWindow::updateStatisticsWindow() {
-    if (statisticsView) statisticsView->updateView();
+void MainWindow::updateStatisticsWindow()
+{
+    if (statisticsView)
+        statisticsView->updateView();
 }
 
-void MainWindow::updateHistoryWindow() {
-    if (historyView) historyView->updateView();
+void MainWindow::updateHistoryWindow()
+{
+    if (historyView)
+        historyView->updateView();
 }
 
-void MainWindow::updateGoalWindow() {
-    if (goalsView) goalsView->updateView();
+void MainWindow::updateGoalWindow()
+{
+    if (goalsView)
+        goalsView->updateView();
 }
 
-void MainWindow::launchTagEditor() {
+void MainWindow::launchTagEditor()
+{
     if (!tagEditor) {
-        tagEditor = new TagEditorWidget {tagModel};
-        connect(tagEditor, SIGNAL(dataSetChanged()), this, SLOT(updateTodoItemModel()));
+        tagEditor = new TagEditorWidget{tagModel};
+        connect(tagEditor,
+                SIGNAL(dataSetChanged()),
+                this,
+                SLOT(updateTodoItemModel()));
         tagEditor->show();
-    } else {
+    }
+    else {
         bringToForeground(tagEditor);
     }
 }
 
-void MainWindow::updateTodoItemModel() {
-    todoitemViewModel->select();
+void MainWindow::updateTodoItemModel() { todoitemViewModel->select(); }
+
+void MainWindow::onTimerTick(long timeLeft)
+{
+    std::cout << "onTimerTick " << timeLeft << std::endl;
+    emit timerUpdated(timeLeft / 1000);
+}
+
+void MainWindow::onTimerUpdated(long timeLeft)
+{
+    std::cout << "Time left " << timeLeft << " seconds" << std::endl;
+    if (timeLeft > 0) {
+        int curVal{static_cast<int>(timeLeft)};
+        ui->progressBar->setValue(progressBarMaxValue - curVal);
+        setTimerValue(curVal);
+        ui->progressBar->repaint();
+        return;
+    }
+    playSound();
+
+    if (ui->btnZone->isChecked()) {
+        completedTasksIntervals.push_back(pomodoroTimer.finish());
+        startTask();
+    }
+    else if (pomodoroTimer.isBreak()) {
+        pomodoroTimer.finish();
+        setUiToIdleState();
+    }
+    else {
+        setUiToSubmissionState();
+    }
 }

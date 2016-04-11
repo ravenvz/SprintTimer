@@ -71,7 +71,8 @@ void Plot::mouseMoveEvent(QMouseEvent* event)
 {
     const auto& toolTip = getPosTooltip(event->pos());
     if (toolTip.size() != 0) {
-        const QPoint toolTipPos{event->globalPos()
+        const QPoint toolTipPos{
+            event->globalPos()
             - QPoint{int(pointBoxSize), toolTipOffset * int(pointBoxSize)}};
         QToolTip::showText(toolTipPos, toolTip);
     }
@@ -94,7 +95,9 @@ void Plot::computeAdaptiveSizes()
     const double availableWidth{(1 - marginRelSize) * totalSizeRect.width()};
     const double availableHeight{(1 - marginRelSize) * totalSizeRect.height()};
     availableRect = {QRectF{center.x() - availableWidth / 2,
-        center.y() - availableHeight / 2, availableWidth, availableHeight}};
+                            center.y() - availableHeight / 2,
+                            availableWidth,
+                            availableHeight}};
     pointBoxSize = {pointBoxRelSize * availableRect.height()};
     emit sizeComputed();
 }
@@ -110,7 +113,9 @@ void Plot::constructPointBoxes()
     for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
         QPointF referencePoint = availableRect.bottomLeft();
         pointBoxes[graphNum].clear();
-        std::transform(graphs[graphNum].cbegin(), graphs[graphNum].cend(),
+        std::transform(
+            graphs[graphNum].cbegin(),
+            graphs[graphNum].cend(),
             std::back_inserter(pointBoxes[graphNum]),
             [
               pointBoxSize = pointBoxSize,
@@ -121,7 +126,8 @@ void Plot::constructPointBoxes()
             ](const auto& p) {
                 QPainterPath path;
                 QPointF position{p.x * scaleX + referencePoint.x(),
-                    referencePoint.y() - p.y * scaleY - labelOffset};
+                                 referencePoint.y() - p.y * scaleY
+                                     - labelOffset};
                 path.addEllipse(QPointF{0, 0}, pointBoxSize, pointBoxSize);
                 return PointBox{
                     path, position, QString("%1").arg(p.y), p.label};
@@ -134,9 +140,10 @@ void Plot::paintGraph(const int graphNum, QPainter& painter) const
     const auto& graph = graphs[graphNum];
     const auto& boxes = pointBoxes[graphNum];
     QPolygonF centerPoints;
-    std::transform(boxes.cbegin(), boxes.cend(),
-        std::back_inserter(centerPoints),
-        [](const auto& box) { return box.position; });
+    std::transform(boxes.cbegin(),
+                   boxes.cend(),
+                   std::back_inserter(centerPoints),
+                   [](const auto& box) { return box.position; });
 
     painter.setPen(graph.pen());
     painter.drawPolyline(centerPoints);
@@ -184,10 +191,11 @@ const QString Plot::getPosTooltip(const QPoint& pos) const
 void Graph::setData(GraphData& data)
 {
     points = data;
-    std::sort(points.begin(), points.end(),
-        [](const auto& point1, const auto& point2) {
-            return point1.x < point2.x;
-        });
+    std::sort(points.begin(),
+              points.end(),
+              [](const auto& point1, const auto& point2) {
+                  return point1.x < point2.x;
+              });
 }
 
 void Graph::setPen(QPen& pen) { mPen = pen; }

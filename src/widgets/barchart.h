@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QEvent>
 #include <QPen>
+#include <vector>
 
 struct BarDataItem {
     QString label;
@@ -15,9 +16,13 @@ class BarData {
 
 public:
     BarData();
+
     /* Both vectors should be of equal size, otherwise data would
      * be set only for number of bars equal to shortest vector */
-    BarData(QVector<double>& values, QVector<QString>& labels);
+    // BarData(QVector<double>& values, QVector<QString>& labels);
+    BarData(const std::vector<double>& values,
+            const std::vector<QString>& labels);
+
     // TODO change to std::size_t when switched to std::vector
     const BarDataItem& operator[](int idx) const;
     int size() const;

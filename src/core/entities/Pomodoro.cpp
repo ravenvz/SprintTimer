@@ -1,55 +1,51 @@
-#include <algorithm>
 #include "Pomodoro.h"
-#include <QDebug>
+#include "utils/StringUtils.h"
+#include <algorithm>
 
 
-Pomodoro::Pomodoro() { }
+Pomodoro::Pomodoro() {}
 
-Pomodoro::Pomodoro(const QString todoName, const TimeInterval interval, const QStringList tags) :
-        mName {todoName},
-        mInterval {interval},
-        mTags {tags}
+Pomodoro::Pomodoro(const std::string& taskName,
+                   const TimeSpan& timeSpan,
+                   const std::list<std::string>& tags)
+    : mName{taskName}
+    , mInterval{timeSpan}
+    , mTags{tags}
+{
+}
+
+Pomodoro::Pomodoro(const TodoItem& task, const TimeSpan& timeSpan)
+    : mName{task.name()}
+    , mInterval{timeSpan}
+    , mTags{task.tags()}
+{
+}
+
+std::string Pomodoro::name() const { return mName; }
+
+DateTime Pomodoro::startTime() const { return mInterval.startTime; }
+
+DateTime Pomodoro::finishTime() const { return mInterval.finishTime; }
+
+TimeSpan Pomodoro::timeSpan() const { return mInterval; }
+
+std::list<std::string> Pomodoro::tags() const { return mTags; }
+
+std::string Pomodoro::toString() const
 {
 
-}
+    std::vector<std::string> tagsCopy;
+    std::vector<std::string> result;
 
-Pomodoro::Pomodoro(const TodoItem& todoItem, const QDateTime& startTime, const QDateTime& finishTime) :
-        mName {todoItem.name()},
-        mInterval {startTime, finishTime},
-        mTags {todoItem.tags()}
-{
+    std::copy(mTags.cbegin(), mTags.cend(), std::back_inserter(tagsCopy));
 
-}
-
-QString Pomodoro::name() const {
-    return mName;
-}
-
-QDateTime Pomodoro::startTime() const {
-    return mInterval.startTime;
-}
-
-QDateTime Pomodoro::finishTime() const {
-    return mInterval.finishTime;
-}
-
-TimeInterval Pomodoro::interval() const {
-    return mInterval;
-}
-
-QStringList Pomodoro::tags() const {
-    return mTags;
-}
-
-QString Pomodoro::toString() const {
-    QStringList result;
-    QStringList tagsCopy = mTags;
-    std::for_each(tagsCopy.begin(), tagsCopy.end(), [prefix = tagPrefix](auto& el) {
-        return el.prepend(prefix);
+    std::for_each(tagsCopy.begin(), tagsCopy.end(), [&](auto& elem) {
+        elem.insert(0, TodoItem::tagPrefix);
     });
-    result.append(mInterval.toTimeString());
-    result.append(tagsCopy.join(" "));
-    result.append(mName);
-    return result.join(" ");
-}
 
+    result.push_back(mInterval.toTimeString());
+    result.push_back(StringUtils::join(tagsCopy, std::string(" ")));
+    result.push_back(mName);
+
+    return StringUtils::join(result, " ");
+}

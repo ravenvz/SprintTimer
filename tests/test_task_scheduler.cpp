@@ -1,189 +1,193 @@
-#include "core/TaskScheduler.h"
+#include "core/PomodoroTimerModeScheduler.h"
 #include <TestHarness.h>
 
 
-TEST_GROUP(TaskSchedulerGroup) {
+TEST_GROUP(PomodoroTimerModeSchedulerGroup)
+{
 
-    class TestConfig : public IConfig
-    {
+    class TestConfig : public IConfig {
 
-        public:
+    public:
+        TestConfig() {}
 
-            TestConfig() {
+        int soundVolume() const override { return mSoundVolume; }
 
-            }
+        void setSoundVolume(int soundVolume) override
+        {
+            TestConfig::mSoundVolume = soundVolume;
+        }
 
-            int soundVolume() const override {
-                return mSoundVolume;
-            }
+        int pomodoroDuration() const override { return mPomodoroDuration; }
 
-            void setSoundVolume(int soundVolume) override {
-                TestConfig::mSoundVolume = soundVolume;
-            }
+        void setPomodoroDuration(int pomodoroDuration) override
+        {
+            TestConfig::mPomodoroDuration = pomodoroDuration;
+        }
 
-            int pomodoroDuration() const override {
-                return mPomodoroDuration;
-            }
+        int shortBreakDuration() const override { return mShortBreakDuration; }
 
-            void setPomodoroDuration(int pomodoroDuration) override {
-                TestConfig::mPomodoroDuration = pomodoroDuration;
-            }
+        void setShortBreakDuration(int shortBreakDuration) override
+        {
+            TestConfig::mShortBreakDuration = shortBreakDuration;
+        }
 
-            int shortBreakDuration() const override {
-                return mShortBreakDuration;
-            }
+        int longBreakDuration() const override { return mLongBreakDuration; }
 
-            void setShortBreakDuration(int shortBreakDuration) override {
-                TestConfig::mShortBreakDuration = shortBreakDuration;
-            }
+        void setLongBreakDuration(int longBreakDuration) override
+        {
+            TestConfig::mLongBreakDuration = longBreakDuration;
+        }
 
-            int longBreakDuration() const override {
-                return mLongBreakDuration;
-            }
+        int numPomodorosBeforeBreak() const override { return mTasksBeforeBreak; }
 
-            void setLongBreakDuration(int longBreakDuration) override {
-                TestConfig::mLongBreakDuration = longBreakDuration;
-            }
+        void setPomodorosBeforeBreak(int tasksBeforeBreak) override
+        {
+            TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
+        }
 
-            int numTasksBeforeBreak() const override {
-                return mTasksBeforeBreak;
-            }
+        bool soundIsEnabled() const override { return mPlaySound; }
 
-            void setTasksBeforeBreak(int tasksBeforeBreak) override {
-                TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
-            }
+        void setPlaySound(bool playSound) override
+        {
+            TestConfig::mPlaySound = playSound;
+        }
 
-            bool soundIsEnabled() const override {
-                return mPlaySound;
-            }
+        int dailyPomodorosGoal() const override { return 0; }
 
-            void setPlaySound(bool playSound) override {
-                TestConfig::mPlaySound = playSound;
-            }
+        void setDailyPomodorosGoal(int dailyPomodorosGoal) override {}
 
-            int dailyPomodorosGoal() const override {
-                return 0;
-            }
+        int weeklyPomodorosGoal() const override { return 0; }
 
-            void setDailyPomodorosGoal(int dailyPomodorosGoal) override {
-            }
+        void setWeeklyPomodorosGoal(int weeklyPomodorosGoal) override {}
 
-            int weeklyPomodorosGoal() const override {
-                return 0;
-            }
+        int monthlyPomodorosGoal() const override { return 0; }
 
-            void setWeeklyPomodorosGoal(int weeklyPomodorosGoal) override {
-            }
+        void setMonthlyPomodorosGoal(int monthlyPomodorosGoal) override {}
 
-            int monthlyPomodorosGoal() const override {
-                return 0;
-            }
-
-            void setMonthlyPomodorosGoal(int monthlyPomodorosGoal) override {
-            }
-
-        private:
-            int mPomodoroDuration = 25;
-            int mShortBreakDuration = 5;
-            int mLongBreakDuration = 15;
-            int mTasksBeforeBreak = 4;
-            bool mPlaySound;
-            int mSoundVolume;
+    private:
+        int mPomodoroDuration = 25;
+        int mShortBreakDuration = 5;
+        int mLongBreakDuration = 15;
+        int mTasksBeforeBreak = 4;
+        bool mPlaySound;
+        int mSoundVolume;
     };
-
 };
 
-TEST(TaskSchedulerGroup, should_set_state_to_break_when_finishing_task) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
-    scheduler.startTask();
-    scheduler.finishTask();
+bool stateIsShortBreak(const PomodoroTimerModeScheduler& scheduler)
+{
+    return scheduler.mode()
+        == PomodoroTimerModeScheduler::PomodoroTimerMode::ShortBreak;
+}
+
+bool stateIsLongBreak(const PomodoroTimerModeScheduler& scheduler)
+{
+    return scheduler.mode()
+        == PomodoroTimerModeScheduler::PomodoroTimerMode::LongBreak;
+}
+
+bool stateIsTask(const PomodoroTimerModeScheduler& scheduler)
+{
+    return scheduler.mode()
+        == PomodoroTimerModeScheduler::PomodoroTimerMode::Task;
+}
+
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_set_state_to_break_when_finishing_task)
+{
+    PomodoroTimerModeScheduler scheduler;
+    scheduler.setNextMode();
 
     CHECK(scheduler.isBreak());
-    CHECK_EQUAL(testConfig.shortBreakDuration(), scheduler.taskDurationInMinutes());
+    CHECK(stateIsShortBreak(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_state_to_long_break_when_finishing_task_cycle) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
-    scheduler.setNumCompletedTasks(3);
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_set_state_to_long_break_when_finishing_task_cycle)
+{
+    PomodoroTimerModeScheduler scheduler;
+    scheduler.setNumCompletedPomodoros(3);
 
-    scheduler.startTask();
-    scheduler.finishTask();
+    scheduler.setNextMode();
 
-    CHECK_EQUAL(testConfig.longBreakDuration(), scheduler.taskDurationInMinutes());
+    CHECK(scheduler.isBreak())
+    CHECK(stateIsLongBreak(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_finishing_break) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
-    scheduler.setNumCompletedTasks(3);
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_set_schedulable_to_task_when_finishing_break)
+{
+    PomodoroTimerModeScheduler scheduler;
+    scheduler.setNumCompletedPomodoros(3);
 
-    scheduler.startTask();
-    scheduler.finishTask();
-    scheduler.startTask();
-    scheduler.finishTask();
+    scheduler.setNextMode();
+    scheduler.setNextMode();
 
-    CHECK_EQUAL(testConfig.pomodoroDuration(), scheduler.taskDurationInMinutes());
+    CHECK(!scheduler.isBreak())
+    CHECK(stateIsTask(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_task) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_set_schedulable_to_task_when_cancelling_task)
+{
+    PomodoroTimerModeScheduler scheduler;
 
-    scheduler.startTask();
-    scheduler.cancelTask();
+    scheduler.cancelMode();
 
-    CHECK_EQUAL(testConfig.pomodoroDuration(), scheduler.taskDurationInMinutes());
+    CHECK(!scheduler.isBreak())
+    CHECK(stateIsTask(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_set_schedulable_to_task_when_cancelling_break) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_set_schedulable_to_task_when_cancelling_break)
+{
+    PomodoroTimerModeScheduler scheduler;
 
-    scheduler.startTask();
-    scheduler.finishTask();
-    // Task completed, should start break
-    scheduler.startTask();
-    scheduler.cancelTask();
+    scheduler.setNextMode();
+    // Task completed, should be in break state
+    scheduler.cancelMode();
 
-    CHECK_EQUAL(testConfig.pomodoroDuration(), scheduler.taskDurationInMinutes());
-}
-TEST(TaskSchedulerGroup, should_increment_completed_tasks_counter_when_finishing_task) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
-    scheduler.setNumCompletedTasks(2);
-
-    scheduler.startTask();
-    scheduler.finishTask();
-
-    CHECK_EQUAL(3, scheduler.numCompletedTasks());
+    CHECK(!scheduler.isBreak())
+    CHECK(stateIsTask(scheduler))
 }
 
-TEST(TaskSchedulerGroup, should_not_increment_completed_tasks_counter_when_finishing_break) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
-    scheduler.setNumCompletedTasks(2);
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_increment_completed_pomodoros_counter_when_finishing_task)
+{
+    PomodoroTimerModeScheduler scheduler;
+    scheduler.setNumCompletedPomodoros(2);
 
-    scheduler.startTask();
-    scheduler.finishTask();
-    // Task completed numCompletedTasks should increment, should start break
-    scheduler.startTask();
-    scheduler.finishTask();
-    // Break finished, numCompletedTasks should not increment
+    scheduler.setNextMode();
 
-    CHECK_EQUAL(3, scheduler.numCompletedTasks());
+    CHECK_EQUAL(3, scheduler.numCompletedPomodoros());
 }
 
-TEST(TaskSchedulerGroup, should_only_schedule_tasks_if_in_the_zone_mode_active) {
-    TestConfig testConfig;
-    TaskScheduler scheduler {&testConfig};
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_not_increment_completed_pomodoros_counter_when_finishing_break)
+{
+    PomodoroTimerModeScheduler scheduler;
+    scheduler.setNumCompletedPomodoros(2);
+
+    scheduler.setNextMode();
+    // Task completed numCompletedPomodoros should increment and transition to
+    // the break state
+    scheduler.setNextMode();
+    // Break finished, numCompletedPomodoros should not increment
+
+    CHECK_EQUAL(3, scheduler.numCompletedPomodoros());
+}
+
+TEST(PomodoroTimerModeSchedulerGroup,
+     should_only_schedule_pomodoros_if_in_the_zone_mode_active)
+{
+    PomodoroTimerModeScheduler scheduler;
 
     scheduler.toggleInTheZoneMode();
 
     for (size_t i = 0; i < 20; ++i) {
-        scheduler.startTask();
-        scheduler.finishTask();
+        scheduler.setNextMode();
         CHECK(!scheduler.isBreak());
     }
+
+    CHECK_EQUAL(20, scheduler.numCompletedPomodoros())
 }

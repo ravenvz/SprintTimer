@@ -10,16 +10,24 @@ set(SOURCE_FILES
     test_pomodoro_statistics.cpp
     test_todoitem.cpp
     test_todoitem_model.cpp
+    test_datetime.cpp
+    test_time_span.cpp
     ../src/core/PomodoroStatistics.cpp
-    ../src/core/TaskScheduler.cpp
+    ../src/core/PomodoroTimerModeScheduler.cpp
     ../src/core/config.h
     ../src/core/entities/Pomodoro.cpp
     ../src/core/entities/TodoItem.cpp
     ../src/core/entities/TodoItem.h
-    ../src/db_layer/db_helper.cpp
-        ../src/models/todoitemmodel.cpp
-        ../src/models/pomodoromodel.cpp
+    ../src/core/TimeSpan.h
+    ../src/core/TimeSpan.cpp
+    ../src/core/DateTime.h
+    ../src/core/DateTime.cpp
+    ../src/db_layer/db_service.cpp
+    ../src/models/todoitemmodel.cpp
+    ../src/models/pomodoromodel.cpp
     ../src/utils/MathUtils.cpp
+    ../src/utils/StringUtils.h
+    ../src/utils/StringUtils.cpp
 )
 # find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql)

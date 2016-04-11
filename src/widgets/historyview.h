@@ -76,7 +76,7 @@ private:
 
 private slots:
 
-    // Set interval to newInterval and refresh model for currently displayed tab.
+    // Set timeSpan to newInterval and refresh model for currently displayed tab.
     void onDatePickerIntervalChanged(DateInterval newInterval);
 
     // Refresh model for currently displayed tab.

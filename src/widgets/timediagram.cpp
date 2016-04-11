@@ -2,16 +2,16 @@
 #include <QPainter>
 
 
-TimeDiagram::TimeDiagram(QWidget* parent) :
-    QWidget(parent)
+TimeDiagram::TimeDiagram(QWidget* parent)
+    : QWidget(parent)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 }
 
-TimeDiagram::~TimeDiagram() {
-}
+TimeDiagram::~TimeDiagram() {}
 
-void TimeDiagram::paintEvent(QPaintEvent*) {
+void TimeDiagram::paintEvent(QPaintEvent*)
+{
     computeAdaptiveSizes();
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -19,22 +19,27 @@ void TimeDiagram::paintEvent(QPaintEvent*) {
     drawIntervals(painter);
 }
 
-void TimeDiagram::computeAdaptiveSizes() {
+void TimeDiagram::computeAdaptiveSizes()
+{
     totalSizeRect = QRectF(QPointF(0, 0), this->size());
     double longTickRelativeLength = 0.05;
-    longTickLength = longTickRelativeLength * std::min(totalSizeRect.width(), totalSizeRect.height());
+    longTickLength = longTickRelativeLength
+        * std::min(totalSizeRect.width(), totalSizeRect.height());
     shortTickLength = longTickLength / 2;
     tickOffset = shortTickLength;
-    diagramRadius = (std::min(totalSizeRect.width(), totalSizeRect.height()) - 2 * (longTickLength + tickOffset)) / 2;
-    diagramRect = QRectF {totalSizeRect.center().x() - diagramRadius, 
-                 totalSizeRect.center().y() - diagramRadius,
-                 diagramRadius * 2,
-                 diagramRadius * 2};
+    diagramRadius = (std::min(totalSizeRect.width(), totalSizeRect.height())
+                     - 2 * (longTickLength + tickOffset))
+        / 2;
+    diagramRect = QRectF{totalSizeRect.center().x() - diagramRadius,
+                         totalSizeRect.center().y() - diagramRadius,
+                         diagramRadius * 2,
+                         diagramRadius * 2};
 }
 
-void TimeDiagram::drawDiagramCanvas(QPainter& painter) {
+void TimeDiagram::drawDiagramCanvas(QPainter& painter)
+{
     QPen pen;
-    float tickAngle = float(360 / 24);
+    double tickAngle = double(360 / 24);
     pen.setWidthF(1.2);
     pen.setColor(Qt::gray);
     painter.setPen(pen);
@@ -42,14 +47,22 @@ void TimeDiagram::drawDiagramCanvas(QPainter& painter) {
     QPointF center = diagramRect.center();
     for (size_t i = 0; i < 6; ++i) {
         double length = i % 6 == 0 ? longTickLength : shortTickLength;
-        painter.drawLine(QPointF(center.x(), center.y() - diagramRadius - tickOffset),
-                         QPointF(center.x(), center.y() - diagramRadius - tickOffset - length));
-        painter.drawLine(QPointF(center.x(), center.y() + diagramRadius + tickOffset),
-                         QPointF(center.x(), center.y() + diagramRadius + tickOffset + length));
-        painter.drawLine(QPointF(center.x() - diagramRadius - tickOffset, center.y()),
-                         QPointF(center.x() - diagramRadius - tickOffset - length, center.y()));
-        painter.drawLine(QPointF(center.x() + diagramRadius + tickOffset, center.y()),
-                         QPointF(center.x() + diagramRadius + tickOffset + length, center.y()));
+        painter.drawLine(
+            QPointF(center.x(), center.y() - diagramRadius - tickOffset),
+            QPointF(center.x(),
+                    center.y() - diagramRadius - tickOffset - length));
+        painter.drawLine(
+            QPointF(center.x(), center.y() + diagramRadius + tickOffset),
+            QPointF(center.x(),
+                    center.y() + diagramRadius + tickOffset + length));
+        painter.drawLine(
+            QPointF(center.x() - diagramRadius - tickOffset, center.y()),
+            QPointF(center.x() - diagramRadius - tickOffset - length,
+                    center.y()));
+        painter.drawLine(
+            QPointF(center.x() + diagramRadius + tickOffset, center.y()),
+            QPointF(center.x() + diagramRadius + tickOffset + length,
+                    center.y()));
         painter.translate(center);
         painter.rotate(tickAngle);
         painter.translate(-center);
@@ -57,7 +70,8 @@ void TimeDiagram::drawDiagramCanvas(QPainter& painter) {
     painter.resetTransform();
 }
 
-void TimeDiagram::drawIntervals(QPainter& painter) {
+void TimeDiagram::drawIntervals(QPainter& painter)
+{
     QBrush arcBrush = QBrush(timeSpanColor);
     painter.setBrush(arcBrush);
     painter.setPen(Qt::NoPen);
@@ -65,16 +79,21 @@ void TimeDiagram::drawIntervals(QPainter& painter) {
     int offsetInDegrees = 90;
     int pomoDurationInMinutes = 25;
     int numSegmentsInDegree = 16;
-    const auto& intervalsRef = intervals;
-    for (const TimeInterval& interval : intervalsRef) {
-        double start = (interval.startTime.time().hour() * 60 + interval.startTime.time().minute()) * oneMinuteInDegrees;
+    const auto& timeSpansRef = timeSpans;
+    for (const TimeSpan& timeSpan : timeSpansRef) {
+        double start
+            = (timeSpan.startTime.hour() * 60 + timeSpan.startTime.minute())
+            * oneMinuteInDegrees;
         // TODO replace with stored pomodoro duration when implemented
         double span = pomoDurationInMinutes * oneMinuteInDegrees;
-        painter.drawPie(diagramRect, -(int(start) - offsetInDegrees)* numSegmentsInDegree, -int(span)* numSegmentsInDegree);
+        painter.drawPie(diagramRect,
+                        -(int(start) - offsetInDegrees) * numSegmentsInDegree,
+                        -int(span) * numSegmentsInDegree);
     }
 }
 
-void TimeDiagram::setIntervals(QVector<TimeInterval> newIntervals) {
-    intervals = newIntervals;
+void TimeDiagram::setIntervals(QVector<TimeSpan> newIntervals)
+{
+    timeSpans = newIntervals;
     update();
 }
