@@ -38,9 +38,9 @@ TEST_GROUP(PomodoroTimerModeSchedulerGroup)
             TestConfig::mLongBreakDuration = longBreakDuration;
         }
 
-        int numTasksBeforeBreak() const override { return mTasksBeforeBreak; }
+        int numPomodorosBeforeBreak() const override { return mTasksBeforeBreak; }
 
-        void setTasksBeforeBreak(int tasksBeforeBreak) override
+        void setPomodorosBeforeBreak(int tasksBeforeBreak) override
         {
             TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
         }

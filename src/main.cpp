@@ -1,6 +1,6 @@
-#include <QApplication>
+#include "qt_config.h"
 #include "src/widgets/mainwindow.h"
-#include "core/config.h"
+#include <QApplication>
 
 int main(int argc, char* argv[])
 {

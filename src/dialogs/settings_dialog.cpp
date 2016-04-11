@@ -25,7 +25,7 @@ void SettingsDialog::fillSettingsData()
     ui->spBxPomodoroDuration->setValue(applicationSettings.pomodoroDuration());
     ui->spBxShortDuration->setValue(applicationSettings.shortBreakDuration());
     ui->spBxLongDuration->setValue(applicationSettings.longBreakDuration());
-    ui->spBxLongBreakAfter->setValue(applicationSettings.numTasksBeforeBreak());
+    ui->spBxLongBreakAfter->setValue(applicationSettings.numPomodorosBeforeBreak());
     ui->chBxPlaySound->setChecked(applicationSettings.soundIsEnabled());
     ui->hSliderVolume->setValue(applicationSettings.soundVolume());
 }
@@ -36,7 +36,7 @@ void SettingsDialog::storeSettingsData()
     applicationSettings.setPomodoroDuration(ui->spBxPomodoroDuration->value());
     applicationSettings.setShortBreakDuration(ui->spBxShortDuration->value());
     applicationSettings.setLongBreakDuration(ui->spBxLongDuration->value());
-    applicationSettings.setTasksBeforeBreak(ui->spBxLongBreakAfter->value());
+    applicationSettings.setPomodorosBeforeBreak(ui->spBxLongBreakAfter->value());
     applicationSettings.setPlaySound(ui->chBxPlaySound->isChecked());
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
 }
