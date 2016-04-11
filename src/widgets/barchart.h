@@ -1,9 +1,9 @@
 #ifndef BARCHART_H
 #define BARCHART_H
 
-#include <QWidget>
 #include <QEvent>
 #include <QPen>
+#include <QWidget>
 #include <vector>
 
 struct BarDataItem {
@@ -19,16 +19,16 @@ public:
 
     /* Both vectors should be of equal size, otherwise data would
      * be set only for number of bars equal to shortest vector */
-    // BarData(QVector<double>& values, QVector<QString>& labels);
+    // BarData(std::vector<double>& values, std::vector<QString>& labels);
     BarData(const std::vector<double>& values,
             const std::vector<QString>& labels);
 
     // TODO change to std::size_t when switched to std::vector
-    const BarDataItem& operator[](int idx) const;
-    int size() const;
+    const BarDataItem& operator[](size_t idx) const;
+    size_t size() const;
 
 private:
-    QVector<BarDataItem> data;
+    std::vector<BarDataItem> data;
 
     void normalize();
 };
@@ -50,7 +50,7 @@ private:
     QPen pen;
     QBrush brush;
     QRectF availableRect;
-    QVector<QRectF> barRectangles;
+    std::vector<QRectF> barRectangles;
 
     void computeAdaptiveSizes();
     void drawBars(QPainter& painter);

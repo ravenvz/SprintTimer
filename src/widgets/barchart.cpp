@@ -1,6 +1,6 @@
 #include "barchart.h"
-#include <QPainter>
 #include <QMouseEvent>
+#include <QPainter>
 
 #include <QDebug>
 
@@ -43,7 +43,7 @@ void BarChart::drawBars(QPainter& painter)
     current.setX(current.x() + barWidth / 2 + gapWidth);
     QPen labelPen;
     painter.setBrush(brush);
-    for (int i = 0; i < barData.size(); ++i) {
+    for (size_t i = 0; i < barData.size(); ++i) {
         painter.setPen(labelPen);
         QPointF legendOffsetPoint = QPointF(
             barWidth / 2, -legendHeightRatio * availableRect.height());
@@ -95,15 +95,13 @@ void BarData::normalize()
                                            return entry1.value < entry2.value;
                                        })
                           ->value;
-    std::transform(data.begin(),
-                   data.end(),
-                   data.begin(),
-                   [maxValue](auto entry) {
-                       return BarDataItem{
-                           entry.label, entry.value, entry.value / maxValue};
-                   });
+    std::transform(
+        data.begin(), data.end(), data.begin(), [maxValue](auto entry) {
+            return BarDataItem{
+                entry.label, entry.value, entry.value / maxValue};
+        });
 }
 
-const BarDataItem& BarData::operator[](int idx) const { return data[idx]; }
+const BarDataItem& BarData::operator[](size_t idx) const { return data[idx]; }
 
-int BarData::size() const { return data.size(); }
+size_t BarData::size() const { return data.size(); }
