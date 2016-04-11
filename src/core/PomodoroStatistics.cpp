@@ -122,7 +122,7 @@ void TagDistribution::buildIndexMap()
 
 
 PomodoroStatItem::PomodoroStatItem(const std::vector<Pomodoro>& pomodoros,
-                                   const TimeInterval& timeInterval)
+                                   const TimeSpan& timeInterval)
     : interval(timeInterval)
     , pomos(pomodoros)
 {

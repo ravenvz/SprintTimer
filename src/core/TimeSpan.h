@@ -6,7 +6,7 @@
 
 
 /* Represent finite interval in time with start and finish points. */
-struct TimeInterval {
+struct TimeSpan {
 
     using SystemClock = std::chrono::system_clock::time_point;
 
@@ -16,18 +16,18 @@ struct TimeInterval {
     enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
 
     /* Construct from chrono time_point. */
-    TimeInterval(SystemClock start, SystemClock finish);
+    TimeSpan(SystemClock start, SystemClock finish);
 
     /* Construct from DateTime start and finish points. */
-    TimeInterval(const DateTime& start, const DateTime& finish);
+    TimeSpan(const DateTime& start, const DateTime& finish);
 
     /* Construct from std::time_t start and finish points. */
-    TimeInterval(std::time_t start,
+    TimeSpan(std::time_t start,
                  std::time_t finish,
                  int offsetFromUtcInSeconds = 0);
 
     // TODO remove when got rid of Qt containers
-    TimeInterval();
+    TimeSpan();
 
     /* Return interval size in days as unsigned integer.
      *
@@ -63,9 +63,9 @@ struct TimeInterval {
     std::string toTimeString() const;
 };
 
-/* Return absolute number of days between startTime of this TimeInterval and
- * startTime of other TimeInterval. */
-unsigned startDateAbsDiff(const TimeInterval& one, const TimeInterval& other);
+/* Return absolute number of days between startTime of this TimeSpan and
+ * startTime of other TimeSpan. */
+unsigned startDateAbsDiff(const TimeSpan& one, const TimeSpan& other);
 
 
 #endif /* end of include guard: TIMEINTERVAL_H */

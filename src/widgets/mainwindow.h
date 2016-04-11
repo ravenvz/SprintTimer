@@ -64,7 +64,7 @@ private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
     std::unique_ptr<QMediaPlayer> player;
-    std::vector<TimeInterval> completedTasksIntervals;
+    std::vector<TimeSpan> completedTasksIntervals;
     int progressBarMaxValue{0};
     Second timeLeft{0};
     QPointer<PomodoroModel> pomodoroModel;

@@ -3,7 +3,7 @@
 
 
 #include "TodoItem.h"
-#include "core/timeinterval.h"
+#include "core/TimeSpan.h"
 #include <list>
 #include <string>
 
@@ -19,11 +19,11 @@ public:
 
     /* Construct from time interval and associated Task's name and tags. */
     Pomodoro(const std::string& taskName,
-             const TimeInterval& interval,
+             const TimeSpan& interval,
              const std::list<std::string>& tags);
 
     /* Construct from associated Task and time interval. */
-    Pomodoro(const TodoItem& task, const TimeInterval& interval);
+    Pomodoro(const TodoItem& task, const TimeSpan& interval);
 
     // Return name of Pomodoro. It is identical to the associated task name.
     std::string name() const;
@@ -35,7 +35,7 @@ public:
     DateTime finishTime() const;
 
     // Return time interval when this Pomodoro was active.
-    TimeInterval interval() const;
+    TimeSpan interval() const;
 
     // Return vector of tags. Tags are identical the associated task tags.
     std::list<std::string> tags() const;
@@ -45,7 +45,7 @@ public:
 
 private:
     std::string mName;
-    TimeInterval mInterval;
+    TimeSpan mInterval;
     std::list<std::string> mTags;
 };
 

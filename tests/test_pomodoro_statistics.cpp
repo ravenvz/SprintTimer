@@ -11,7 +11,7 @@ TEST_GROUP(PomoStatItem)
 TEST(PomoStatItem, test_empty_daily_statistics)
 {
     std::vector<Pomodoro> pomodoros;
-    PomodoroStatItem statistics{pomodoros, TimeInterval{}};
+    PomodoroStatItem statistics{pomodoros, TimeSpan{}};
     double expected_average = 0;
     double expected_max = 0;
     double expected_total = 0;
@@ -35,7 +35,7 @@ TEST(PomoStatItem, test_empty_daily_statistics)
 TEST(PomoStatItem, test_empty_weekday_statistics)
 {
     std::vector<Pomodoro> pomodoros;
-    PomodoroStatItem statistics{pomodoros, TimeInterval{}};
+    PomodoroStatItem statistics{pomodoros, TimeSpan{}};
     double expected_average = 0;
     double expected_max = 0;
     std::vector<double> expected_distribution = std::vector<double>(7, 0);
@@ -64,12 +64,12 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
     std::vector<Pomodoro> pomodoros;
     DateTime start = DateTime::currentDateTime();
     DateTime end = start.addDays(47);
-    TimeInterval interval{start, end};
+    TimeSpan interval{start, end};
     std::vector<int> expectedDistributionVector(48, 0);
     for (size_t i = 0; i < 48; ++i) {
         for (size_t j = 0; j < i + 1; ++j) {
             DateTime pomoDateTime = start.addDays(static_cast<int>(i));
-            TimeInterval pomoInterval{pomoDateTime, pomoDateTime};
+            TimeSpan pomoInterval{pomoDateTime, pomoDateTime};
             pomodoros.push_back(Pomodoro{"Irrelevant", pomoInterval, {}});
             expectedDistributionVector[i]++;
         }
@@ -100,13 +100,13 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
     std::vector<Pomodoro> increasingPomodoros;
     // (2015, 6, 1) is Monday, so each weekday occures exactly twice
     // in 14-day interval
-    TimeInterval interval{DateTime::fromYMD(2015, 6, 1),
+    TimeSpan interval{DateTime::fromYMD(2015, 6, 1),
                           DateTime::fromYMD(2015, 6, 14)};
 
     for (int i = 1; i < 15; ++i) {
         for (int j = 0; j < i; ++j) {
             DateTime pomoDateTime = DateTime::fromYMD(2015, 6, i);
-            TimeInterval pomoInterval{pomoDateTime, pomoDateTime};
+            TimeSpan pomoInterval{pomoDateTime, pomoDateTime};
             increasingPomodoros.push_back(
                 Pomodoro{"Whatever", pomoInterval, {}});
         }
@@ -139,7 +139,7 @@ TEST_GROUP(TagDistribution){
                          int n){for (int i = 0; i < n;
                                      ++i){pomodoros.push_back(Pomodoro{
         name,
-        TimeInterval{DateTime::currentDateTime(), DateTime::currentDateTime()},
+        TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
         tags});
 }
 }

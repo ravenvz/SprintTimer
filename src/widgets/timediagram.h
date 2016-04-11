@@ -14,14 +14,14 @@ class TimeDiagram : public QWidget
 public:
     explicit TimeDiagram(QWidget* parent = 0);
     ~TimeDiagram();
-    void setIntervals(QVector<TimeInterval> newIntervals);
+    void setIntervals(QVector<TimeSpan> newIntervals);
 
 protected:
     void paintEvent(QPaintEvent*) override;
 
 private:
     const QColor timeSpanColor = QColor::fromRgb(246, 61, 13, 20);
-    QVector<TimeInterval> intervals;
+    QVector<TimeSpan> intervals;
     QRectF totalSizeRect;
     QRectF diagramRect;
     double diagramRadius {0};

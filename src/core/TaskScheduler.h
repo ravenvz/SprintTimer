@@ -3,7 +3,7 @@
 
 #include <QSettings>
 #include <QTimer>
-#include <core/timeinterval.h>
+#include <core/TimeSpan.h>
 #include "config.h"
 
 

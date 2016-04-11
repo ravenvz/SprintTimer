@@ -73,7 +73,7 @@ void StatisticsWidget::drawGraphs()
     PomodoroStatItem statistics{
         selectedTagIndex ? tagPomoMap.pomodorosForNthTopTag(*selectedTagIndex)
                          : pomodoros,
-        currentInterval.toTimeInterval()};
+        currentInterval.toTimeSpan()};
     auto dailyDistribution = statistics.dailyDistribution();
     auto weekdayDistribution = statistics.weekdayDistribution();
     auto workTimeDistribution = statistics.worktimeDistribution();
@@ -127,7 +127,7 @@ void StatisticsWidget::updateWorkHoursDiagram(
     const Distribution<double>& workTimeDistribution,
     const std::vector<Pomodoro>& pomodoros)
 {
-    QVector<TimeInterval> intervals;
+    QVector<TimeSpan> intervals;
     for (const Pomodoro& pomo : pomodoros) {
         intervals.append(pomo.interval());
     }
@@ -139,9 +139,9 @@ void StatisticsWidget::updateWorkHoursDiagram(
         auto maxValueBin
             = static_cast<unsigned>(workTimeDistribution.getMaxValueBin());
         ui->labelBestWorktimeName->setText(
-            QString::fromStdString(TimeInterval::dayPartName(maxValueBin)));
+            QString::fromStdString(TimeSpan::dayPartName(maxValueBin)));
         ui->labelBestWorktimeHours->setText(
-            QString::fromStdString(TimeInterval::dayPartHours(maxValueBin)));
+            QString::fromStdString(TimeSpan::dayPartHours(maxValueBin)));
     }
     workTimeDiagram->setIntervals(intervals);
 }

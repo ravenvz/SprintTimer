@@ -1,19 +1,19 @@
-#include "timeinterval.h"
+#include "TimeSpan.h"
 
 
-TimeInterval::TimeInterval(SystemClock start, SystemClock finish)
+TimeSpan::TimeSpan(SystemClock start, SystemClock finish)
     : startTime{DateTime{std::move(start)}}
     , finishTime{DateTime{std::move(finish)}}
 {
 }
 
-TimeInterval::TimeInterval(const DateTime& start, const DateTime& finish)
+TimeSpan::TimeSpan(const DateTime& start, const DateTime& finish)
     : startTime{start}
     , finishTime{finish}
 {
 }
 
-TimeInterval::TimeInterval(std::time_t start,
+TimeSpan::TimeSpan(std::time_t start,
                            std::time_t finish,
                            int offsetFromUtcInSeconds)
     : startTime{DateTime::fromTime_t(start, offsetFromUtcInSeconds)}
@@ -22,13 +22,13 @@ TimeInterval::TimeInterval(std::time_t start,
 }
 
 // TODO remove when got rid of Qt containers
-TimeInterval::TimeInterval()
+TimeSpan::TimeSpan()
     : startTime{DateTime::currentDateTime()}
     , finishTime{DateTime::currentDateTime()}
 {
 }
 
-unsigned TimeInterval::sizeInDays() const
+unsigned TimeSpan::sizeInDays() const
 {
     if (startTime <= finishTime) {
         return static_cast<unsigned>(startTime.daysTo(finishTime) + 1);
@@ -38,7 +38,7 @@ unsigned TimeInterval::sizeInDays() const
     }
 }
 
-TimeInterval::DayPart TimeInterval::getDayPart() const
+TimeSpan::DayPart TimeSpan::getDayPart() const
 {
     auto hour = startTime.hour();
 
@@ -63,13 +63,13 @@ TimeInterval::DayPart TimeInterval::getDayPart() const
 }
 
 /* static */
-std::string TimeInterval::dayPartName(unsigned dayPart)
+std::string TimeSpan::dayPartName(unsigned dayPart)
 {
     return dayPartName(static_cast<DayPart>(dayPart));
 }
 
 /* static */
-std::string TimeInterval::dayPartName(DayPart dayPart)
+std::string TimeSpan::dayPartName(DayPart dayPart)
 {
     switch (dayPart) {
     case DayPart::Midnight:
@@ -89,13 +89,13 @@ std::string TimeInterval::dayPartName(DayPart dayPart)
 }
 
 /* static */
-std::string TimeInterval::dayPartHours(unsigned dayPart)
+std::string TimeSpan::dayPartHours(unsigned dayPart)
 {
     return dayPartHours(static_cast<DayPart>(dayPart));
 }
 
 /* static */
-std::string TimeInterval::dayPartHours(DayPart dayPart)
+std::string TimeSpan::dayPartHours(DayPart dayPart)
 {
     switch (dayPart) {
     case DayPart::Midnight:
@@ -114,7 +114,7 @@ std::string TimeInterval::dayPartHours(DayPart dayPart)
     return "Invalid";
 }
 
-std::string TimeInterval::toTimeString() const
+std::string TimeSpan::toTimeString() const
 {
     std::string res{startTime.toTimeString()};
     res += " - ";
@@ -122,7 +122,7 @@ std::string TimeInterval::toTimeString() const
     return res;
 }
 
-unsigned startDateAbsDiff(const TimeInterval& one, const TimeInterval& other)
+unsigned startDateAbsDiff(const TimeSpan& one, const TimeSpan& other)
 {
     if (one.startTime <= other.startTime) {
         return static_cast<unsigned>(one.startTime.daysTo(other.startTime));

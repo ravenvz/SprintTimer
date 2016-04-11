@@ -204,7 +204,7 @@ void MainWindow::submitPomodoro()
     }
     ui->leDoneTask->hide();
     completedTasksIntervals.push_back(taskRunner.finishTask());
-    for (const TimeInterval& interval : completedTasksIntervals) {
+    for (const TimeSpan& interval : completedTasksIntervals) {
         pomodoroModel->insert(*selectedTaskId, interval);
     }
 

@@ -5,7 +5,7 @@
 #include "Timer.h"
 #include "config.h"
 #include "date/date.h"
-#include "timeinterval.h"
+#include "TimeSpan.h"
 #include <chrono>
 #include <memory>
 
@@ -41,12 +41,12 @@ public:
     /* Cancel currently running task and stop timer. */
     void cancelTask();
 
-    /* Return TimeInterval for last task that had been completed normally
+    /* Return TimeSpan for last task that had been completed normally
      * (had not been cancelled).
      *
      * Note that interval's finish time will be recorded only after this method
      * is called. */
-    TimeInterval finishTask();
+    TimeSpan finishTask();
 
     /* Return task duration in minutes.
      *

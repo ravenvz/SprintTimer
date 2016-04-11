@@ -17,14 +17,14 @@ public:
     IPomodoroStorage& operator=(const IPomodoroStorage&) = delete;
 
     virtual bool insert(const long long assocTaskId,
-                        const TimeInterval& interval)
+                        const TimeSpan& interval)
         = 0;
 
     virtual bool remove(int row) = 0;
 
     virtual std::vector<Pomodoro> items() = 0;
 
-    virtual std::vector<Pomodoro> items(const TimeInterval& interval) = 0;
+    virtual std::vector<Pomodoro> items(const TimeSpan& interval) = 0;
 
     virtual std::vector<std::string> yearRange() = 0;
 };

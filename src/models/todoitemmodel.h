@@ -6,7 +6,7 @@
 #include <QHash>
 #include <QSqlQuery>
 #include "core/entities/TodoItem.h"
-#include "core/timeinterval.h"
+#include "core/TimeSpan.h"
 #include "utils/DateInterval.h"
 
 class TodoItemModel : public SqliteTableModel {

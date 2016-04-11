@@ -29,10 +29,10 @@ void TaskRunner::cancelTask()
     taskScheduler.cancelState();
 }
 
-TimeInterval TaskRunner::finishTask()
+TimeSpan TaskRunner::finishTask()
 {
     taskScheduler.setNextState();
-    return TimeInterval{start, finish};
+    return TimeSpan{start, finish};
 }
 
 int TaskRunner::taskDuration()

@@ -54,6 +54,6 @@ void PomodoroManualAddDialog::accept()
         = todoItemModel->itemNameAt(ui->comboBoxPickTodoItem->currentIndex());
     // TODO handle sad path
     pomodoroModel->insert(
-        todoId, TimeInterval{startTime.toTime_t(), finishTime.toTime_t()});
+        todoId, TimeSpan{startTime.toTime_t(), finishTime.toTime_t()});
     QDialog::accept();
 }

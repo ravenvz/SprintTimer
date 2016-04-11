@@ -27,7 +27,7 @@ QVariant PomodoroModel::data(const QModelIndex& index, int role) const
 }
 
 bool PomodoroModel::insert(const long long associatedTodoItemId,
-                           const TimeInterval& interval)
+                           const TimeSpan& interval)
 {
     QSqlRecord rec = record();
     rec.setGenerated(static_cast<int>(Columns::Id), false);
@@ -55,7 +55,7 @@ Pomodoro PomodoroModel::itemAt(const int row) const
     QDateTime start = columnData(rowRecord, Columns::StartTime).toDateTime();
     QDateTime finish = columnData(rowRecord, Columns::FinishTime).toDateTime();
     int offsetFromUtcInSeconds{start.offsetFromUtc()};
-    TimeInterval interval{
+    TimeSpan interval{
         start.toTime_t(), finish.toTime_t(), offsetFromUtcInSeconds};
     QStringList qTags{
         columnData(rowRecord, Columns::Tags).toString().split(",")};

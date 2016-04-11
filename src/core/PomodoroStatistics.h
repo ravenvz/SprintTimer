@@ -61,7 +61,7 @@ class PomodoroStatItem {
 
 public:
     PomodoroStatItem(const std::vector<Pomodoro>& pomodoros,
-                     const TimeInterval& timeInterval);
+                     const TimeSpan& timeInterval);
 
     PomodoroStatItem(const PomodoroStatItem&) = default;
 
@@ -76,7 +76,7 @@ public:
     std::vector<Pomodoro> pomodoros() const;
 
 private:
-    const TimeInterval interval;
+    const TimeSpan interval;
     const std::vector<Pomodoro> pomos;
 
     std::vector<double> computeDailyDistribution() const;

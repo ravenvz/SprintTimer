@@ -18,8 +18,8 @@ set(SOURCE_FILES
     ../src/core/entities/Pomodoro.cpp
     ../src/core/entities/TodoItem.cpp
     ../src/core/entities/TodoItem.h
-    ../src/core/timeinterval.h
-    ../src/core/timeinterval.cpp
+    ../src/core/TimeSpan.h
+    ../src/core/TimeSpan.cpp
     ../src/core/DateTime.h
     ../src/core/DateTime.cpp
     ../src/db_layer/db_service.cpp

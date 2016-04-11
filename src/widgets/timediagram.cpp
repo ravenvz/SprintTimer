@@ -80,7 +80,7 @@ void TimeDiagram::drawIntervals(QPainter& painter)
     int pomoDurationInMinutes = 25;
     int numSegmentsInDegree = 16;
     const auto& intervalsRef = intervals;
-    for (const TimeInterval& interval : intervalsRef) {
+    for (const TimeSpan& interval : intervalsRef) {
         double start
             = (interval.startTime.hour() * 60 + interval.startTime.minute())
             * oneMinuteInDegrees;
@@ -92,7 +92,7 @@ void TimeDiagram::drawIntervals(QPainter& painter)
     }
 }
 
-void TimeDiagram::setIntervals(QVector<TimeInterval> newIntervals)
+void TimeDiagram::setIntervals(QVector<TimeSpan> newIntervals)
 {
     intervals = newIntervals;
     update();

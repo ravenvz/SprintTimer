@@ -21,7 +21,7 @@ public:
     // actually
     // exists in the database.
     bool insert(const long long associatedTodoItemId,
-                const TimeInterval& interval);
+                const TimeSpan& interval);
 
     // Remove pomodoro at given row number.
     // Return boolean, indicating success of the operation.

@@ -10,7 +10,7 @@ struct DateInterval {
     QDate startDate;
     QDate endDate;
 
-    static DateInterval fromTimeInterval(const TimeInterval& interval)
+    static DateInterval fromTimeSpan(const TimeSpan& interval)
     {
         return DateInterval{
             QDateTime::fromTime_t(
@@ -38,21 +38,21 @@ struct DateInterval {
         }
     }
 
-    TimeInterval toTimeInterval() const
+    TimeSpan toTimeSpan() const
     {
         /* When QDateTime constructs from QDate, it sets time to 00:00,
          * which is treated like a previous day by chrono (or date lib,
          * it's hard to say...). That is why another day is added.
          * It might be better to make DateInterval dependent on date lib
          * instead of QDate TODO */
-        return TimeInterval{QDateTime{startDate}.addDays(1).toTime_t(),
+        return TimeSpan{QDateTime{startDate}.addDays(1).toTime_t(),
                             QDateTime{endDate}.addDays(1).toTime_t()};
     }
 };
 
 // std::ostream& operator<<(std::ostream& os, const DateInterval& interval)
 // {
-//     TimeInterval t = interval.toTimeInterval();
+//     TimeSpan t = interval.toTimeSpan();
 //     os << "DateInterval: " << t.startTime.day() << "." << t.startTime.month()
 //        << "." << t.startTime.year() << " - " << t.finishTime.day() << "."
 //        << t.finishTime.month() << "." << t.finishTime.year();

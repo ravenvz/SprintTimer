@@ -20,7 +20,7 @@ query.exec("delete from tag");
 
 void teardown() { MemoryLeakWarningPlugin::turnOnNewDeleteOverloads(); }
 
-bool interval_equals_to_minute(const TimeInterval& lhs, const TimeInterval& rhs)
+bool interval_equals_to_minute(const TimeSpan& lhs, const TimeSpan& rhs)
 {
     return (lhs.startTime.year() == rhs.startTime.year())
         && (lhs.startTime.hour() == rhs.startTime.hour())
@@ -61,11 +61,11 @@ bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2)
 TEST(PomodoroModel, test_insert_and_delete)
 {
     PomodoroModel pomodoroModel;
-    TimeInterval interval;
+    TimeSpan interval;
     // TODO fix when streamlined time zones issues
     // For now, the system stores time in local time zone, so need to
     // compare with local time
-    TimeInterval expectedInterval{DateTime::currentDateTimeLocal(),
+    TimeSpan expectedInterval{DateTime::currentDateTimeLocal(),
                                   DateTime::currentDateTimeLocal()};
 
     TodoItemModel todoItemModel;
@@ -100,7 +100,7 @@ TEST(PomodoroModel, test_insert_and_delete)
 TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros)
 {
     PomodoroModel pomodoroModel;
-    TimeInterval interval{std::chrono::system_clock::now(),
+    TimeSpan interval{std::chrono::system_clock::now(),
                           std::chrono::system_clock::now()};
     TodoItemModel todoItemModel;
     std::string name{"Test item"};
