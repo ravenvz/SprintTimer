@@ -1,7 +1,7 @@
-#include <QSize>
-#include <QSet>
 #include "todoitemmodel.h"
 #include "db_layer/db_service.h"
+#include <QSet>
+#include <QSize>
 
 TodoItemModel::TodoItemModel(QObject* parent)
     : SqliteTableModel(parent)
@@ -172,23 +172,23 @@ bool TodoItemModel::toggleCompleted(const QModelIndex& index)
     return completedToggled && timeStampUpdated;
 }
 
-QVector<TodoItem> TodoItemModel::items()
+std::vector<TodoItem> TodoItemModel::items()
 {
     auto numItems = numRecords();
-    QVector<TodoItem> allItems;
-    allItems.reserve(numItems);
+    std::vector<TodoItem> allItems;
+    // allItems.reserve(numItems);
     for (int row = 0; row < numItems; ++row) {
         allItems.push_back(itemAt(row));
     }
     return allItems;
 }
 
-QVector<TodoItemModel::TodoItemWithTimeStamp>
+std::vector<TodoItemModel::TodoItemWithTimeStamp>
 TodoItemModel::itemsWithTimestamp()
 {
     auto numItems = numRecords();
-    QVector<TodoItemWithTimeStamp> allItems;
-    allItems.reserve(numItems);
+    std::vector<TodoItemWithTimeStamp> allItems;
+    // allItems.reserve(numItems);
     for (int row = 0; row < numItems; ++row) {
         allItems.push_back(std::make_pair(
             columnData(row, Column::LastModified).toDateTime().date(),

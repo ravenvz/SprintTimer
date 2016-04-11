@@ -174,8 +174,8 @@ TEST(TodoItemModel, test_get_all_items)
         model.insert(item);
     }
     CHECK_EQUAL(numRecordsToAdd, model.numRecords());
-    QVector<TodoItem> allItems = model.items();
-    CHECK_EQUAL(numRecordsToAdd, allItems.size());
+    std::vector<TodoItem> allItems = model.items();
+    CHECK_EQUAL(static_cast<size_t>(numRecordsToAdd), allItems.size());
 }
 
 TEST(TodoItemModel, test_update_item_with_no_tag_updating)

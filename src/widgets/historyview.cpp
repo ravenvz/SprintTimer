@@ -94,7 +94,7 @@ std::vector<HistoryView::HistoryItem> HistoryView::getTaskHistory() const
 {
     todoItemModel->setCompletedInIntervalFilter(selectedDateInterval);
     todoItemModel->select();
-    return todoItemModel->itemsWithTimestamp().toStdVector();
+    return todoItemModel->itemsWithTimestamp();
 }
 
 void HistoryView::fillHistoryModel(const std::vector<HistoryItem>& history)
