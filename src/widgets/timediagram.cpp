@@ -39,7 +39,7 @@ void TimeDiagram::computeAdaptiveSizes()
 void TimeDiagram::drawDiagramCanvas(QPainter& painter)
 {
     QPen pen;
-    float tickAngle = float(360 / 24);
+    double tickAngle = double(360 / 24);
     pen.setWidthF(1.2);
     pen.setColor(Qt::gray);
     painter.setPen(pen);
