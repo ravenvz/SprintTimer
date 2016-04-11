@@ -1,8 +1,8 @@
 #include "pomodoromodel.h"
 #include "db_layer/db_service.h"
+#include <QDateTime>
 #include <QDebug>
 #include <QSqlRecord>
-#include <QDateTime>
 
 
 PomodoroModel::PomodoroModel(QObject* parent)
@@ -68,11 +68,11 @@ Pomodoro PomodoroModel::itemAt(const int row) const
     return Pomodoro{name.toStdString(), timeSpan, tags};
 }
 
-QVector<Pomodoro> PomodoroModel::items()
+std::vector<Pomodoro> PomodoroModel::items()
 {
     auto numRows = numRecords();
-    QVector<Pomodoro> result;
-    result.reserve(numRows);
+    std::vector<Pomodoro> result;
+    // result.reserve(numRows);
     for (int row = 0; row < numRows; ++row) {
         result.push_back(itemAt(row));
     }

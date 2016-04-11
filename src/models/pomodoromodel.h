@@ -1,11 +1,10 @@
 #ifndef POMODOROMODEL_H
 #define POMODOROMODEL_H
 
-#include <QSqlQuery>
-#include <functional>
-#include "sqlitetablemodel.h"
 #include "core/entities/Pomodoro.h"
+#include "sqlitetablemodel.h"
 #include "utils/DateInterval.h"
+#include <QSqlQuery>
 
 class PomodoroModel : public SqliteTableModel {
 public:
@@ -20,8 +19,7 @@ public:
     // Note that method doesn't check if associated TodoItem with given id
     // actually
     // exists in the database.
-    bool insert(const long long associatedTodoItemId,
-                const TimeSpan& timeSpan);
+    bool insert(const long long associatedTodoItemId, const TimeSpan& timeSpan);
 
     // Remove pomodoro at given row number.
     // Return boolean, indicating success of the operation.
@@ -31,7 +29,7 @@ public:
     Pomodoro itemAt(const int row) const;
 
     // Return vector, containing all pomodoros.
-    QVector<Pomodoro> items();
+    std::vector<Pomodoro> items();
 
     // Only pomodoros that have starting time in the given timeSpan will be
     // in the model.

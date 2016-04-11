@@ -1,15 +1,14 @@
 #ifndef STATISTICSWIDGET_H
 #define STATISTICSWIDGET_H
 
-#include <QWidget>
-#include <QVector>
 #include "core/PomodoroStatistics.h"
 #include "core/config.h"
 #include "dialogs/datepickdialog.h"
-#include "src/models/pomodoromodel.h"
-#include "widgets/DistributionDiagram.h"
 #include "plot.h"
+#include "src/models/pomodoromodel.h"
 #include "timediagram.h"
+#include "widgets/DistributionDiagram.h"
+#include <QWidget>
 
 
 using std::experimental::optional;
@@ -64,12 +63,15 @@ private:
     void setupWeekdayBarChart();
     void setupDailyTimelineGraph();
     void updateWeekdayBarChart(const Distribution<double>& weekdayDistribution);
-    void updateWeekdayBarChartLegend(const Distribution<double>& weekdayDistribution);
-    void updateDailyTimelineGraph(const Distribution<double>& dailyDistribution);
+    void updateWeekdayBarChartLegend(
+        const Distribution<double>& weekdayDistribution);
     void
-    updateDailyTimelineGraphLegend(const Distribution<double>& dailyDistribution);
-    void updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
-                                const std::vector<Pomodoro>& pomodoros);
+    updateDailyTimelineGraph(const Distribution<double>& dailyDistribution);
+    void updateDailyTimelineGraphLegend(
+        const Distribution<double>& dailyDistribution);
+    void
+    updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
+                           const std::vector<Pomodoro>& pomodoros);
     void updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts);
 };
 

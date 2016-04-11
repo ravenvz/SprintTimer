@@ -53,7 +53,7 @@ void StatisticsWidget::fetchPomodoros()
     pomodoroModel->setDateFilter(currentInterval);
     pomodoroModel->select();
     // TODO convert in the model
-    pomodoros = pomodoroModel->items().toStdVector();
+    pomodoros = pomodoroModel->items();
     selectedTagIndex = optional<size_t>();
     // TODO rename tagPomoMap as it's now has different class name
     tagPomoMap = TagDistribution(pomodoros, numTopTags);
