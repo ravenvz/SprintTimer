@@ -113,8 +113,8 @@ void MainWindow::setUiToIdleState()
 
 void MainWindow::setUiToRunningState()
 {
-    setTimerValue(taskRunner.taskDuration() * secondsPerMinute);
-    progressBarMaxValue = taskRunner.taskDuration() * secondsPerMinute;
+    setTimerValue(pomodoroTimer.taskDuration() * secondsPerMinute);
+    progressBarMaxValue = pomodoroTimer.taskDuration() * secondsPerMinute;
     ui->progressBar->setMaximum(progressBarMaxValue);
     ui->btnStart->hide();
     ui->labelTimer->show();
@@ -134,8 +134,8 @@ void MainWindow::cancelTask()
     ConfirmationDialog cancelDialog;
     QString description("This will destroy current pomodoro!");
     cancelDialog.setActionDescription(description);
-    if (taskRunner.isBreak() || cancelDialog.exec()) {
-        taskRunner.cancelTask();
+    if (pomodoroTimer.isBreak() || cancelDialog.exec()) {
+        pomodoroTimer.cancel();
         setUiToIdleState();
     }
 }
@@ -170,7 +170,7 @@ void MainWindow::launchSettingsDialog()
 
 void MainWindow::startTask()
 {
-    taskRunner.startTask();
+    pomodoroTimer.run();
     setUiToRunningState();
 }
 
@@ -203,7 +203,7 @@ void MainWindow::submitPomodoro()
         return;
     }
     ui->leDoneTask->hide();
-    completedTasksIntervals.push_back(taskRunner.finishTask());
+    completedTasksIntervals.push_back(pomodoroTimer.finish());
     for (const TimeSpan& timeSpan : completedTasksIntervals) {
         pomodoroModel->insert(*selectedTaskId, timeSpan);
     }
@@ -346,7 +346,7 @@ void MainWindow::toggleTodoItemCompleted()
     updateHistoryWindow();
 }
 
-void MainWindow::onInTheZoneToggled() { taskRunner.toggleInTheZoneMode(); }
+void MainWindow::onInTheZoneToggled() { pomodoroTimer.toggleInTheZoneMode(); }
 
 void MainWindow::launchHistoryView()
 {
@@ -461,11 +461,11 @@ void MainWindow::onTimerUpdated(long timeLeft)
     playSound();
 
     if (ui->btnZone->isChecked()) {
-        completedTasksIntervals.push_back(taskRunner.finishTask());
+        completedTasksIntervals.push_back(pomodoroTimer.finish());
         startTask();
     }
-    else if (taskRunner.isBreak()) {
-        taskRunner.finishTask();
+    else if (pomodoroTimer.isBreak()) {
+        pomodoroTimer.finish();
         setUiToIdleState();
     }
     else {

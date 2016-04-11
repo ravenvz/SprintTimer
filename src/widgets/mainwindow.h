@@ -11,7 +11,7 @@
 #include <functional>
 #include <experimental/optional>
 #include "core/TaskScheduler.h"
-#include "core/TaskRunner.h"
+#include "core/PomodoroTimer.h"
 #include "db_layer/db_service.h"
 #include "goalsview.h"
 #include "src/models/pomodoromodel.h"
@@ -76,7 +76,7 @@ private:
     QPointer<HistoryView> historyView;
     QPointer<TagEditorWidget> tagEditor;
     std::experimental::optional<long long> selectedTaskId;
-    TaskRunner taskRunner{
+    PomodoroTimer pomodoroTimer{
         std::bind(&MainWindow::onTimerTick, this, std::placeholders::_1),
         1000,
         applicationSettings};

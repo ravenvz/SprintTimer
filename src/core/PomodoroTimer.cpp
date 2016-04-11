@@ -1,41 +1,42 @@
-#include "TaskRunner.h"
+#include "PomodoroTimer.h"
 
-TaskRunner::TaskRunner(std::function<void(long timeLeft)> tickCallback,
-                       long updateIntervalInMilliseconds,
-                       const IConfig& applicationSettings)
+PomodoroTimer::PomodoroTimer(std::function<void(long timeLeft)> tickCallback,
+                             long tickPeriodInMillisecs,
+                             const IConfig& applicationSettings)
     : applicationSettings{applicationSettings}
     , taskScheduler{}
-    , tickInterval{updateIntervalInMilliseconds}
+    , tickInterval{tickPeriodInMillisecs}
     , onTickCallback{tickCallback}
-    , start{std::chrono::system_clock::time_point{}}
-    , finish{std::chrono::system_clock::time_point{}}
+    , mStart{std::chrono::system_clock::time_point{}}
+    , mFinish{std::chrono::system_clock::time_point{}}
 {
 }
 
-void TaskRunner::startTask()
+void PomodoroTimer::run()
 {
     using namespace date;
-    start = DateTime::currentDateTime();
+    mStart = DateTime::currentDateTime();
     timerPtr = std::make_unique<Timer>(
-        std::bind(&TaskRunner::onTimerTick, this), tickInterval);
+        std::bind(&PomodoroTimer::onTimerTick, this), tickInterval);
     timerPtr->start();
     currentTaskDuration
         = std::chrono::milliseconds{taskDuration() * millisecondsInMinute};
 }
 
-void TaskRunner::cancelTask()
+void PomodoroTimer::cancel()
 {
     timerPtr->stop();
     taskScheduler.cancelState();
 }
 
-TimeSpan TaskRunner::finishTask()
+TimeSpan PomodoroTimer::finish()
 {
     taskScheduler.setNextState();
-    return TimeSpan{start, finish};
+    mFinish = DateTime::currentDateTime();
+    return TimeSpan{mStart, mFinish};
 }
 
-int TaskRunner::taskDuration()
+int PomodoroTimer::taskDuration()
 {
     switch (taskScheduler.state()) {
     case TaskScheduler::TaskState::Task:
@@ -49,16 +50,18 @@ int TaskRunner::taskDuration()
     }
 }
 
-bool TaskRunner::isBreak() const { return taskScheduler.isBreak(); }
+bool PomodoroTimer::isBreak() const { return taskScheduler.isBreak(); }
 
-void TaskRunner::onTimerTick()
+void PomodoroTimer::onTimerTick()
 {
     currentTaskDuration -= tickInterval;
     if (currentTaskDuration.count() == 0) {
-        finish = DateTime::currentDateTime();
         timerPtr->stop();
     }
     onTickCallback(currentTaskDuration.count());
 }
 
-void TaskRunner::toggleInTheZoneMode() { taskScheduler.toggleInTheZoneMode(); }
+void PomodoroTimer::toggleInTheZoneMode()
+{
+    taskScheduler.toggleInTheZoneMode();
+}
