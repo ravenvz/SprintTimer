@@ -92,7 +92,7 @@ void TimeDiagram::drawIntervals(QPainter& painter)
     }
 }
 
-void TimeDiagram::setIntervals(QVector<TimeSpan> newIntervals)
+void TimeDiagram::setIntervals(std::vector<TimeSpan> newIntervals)
 {
     timeSpans = newIntervals;
     update();
