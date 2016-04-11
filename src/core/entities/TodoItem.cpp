@@ -22,6 +22,10 @@ TodoItem::TodoItem(std::string encodedDescription)
     decodeDescription(std::move(encodedDescription));
 }
 
+std::string TodoItem::tagPrefix = std::string{"#"};
+
+std::string TodoItem::estimatedPrefix = std::string{"*"};
+
 std::string TodoItem::name() const { return mName; }
 
 int TodoItem::estimatedPomodoros() const { return mEstimatedPomodoros; }
@@ -33,12 +37,10 @@ std::list<std::string> TodoItem::tags() const { return mTags; }
 std::string TodoItem::tagsAsString() const
 {
     std::list<std::string> res{mTags.begin(), mTags.end()};
-    std::for_each(res.begin(),
-                  res.end(),
-                  [&](auto& tag) {
-                      tag.insert(0, tagPrefix);
-                      return tag;
-                  });
+    std::for_each(res.begin(), res.end(), [&](auto& tag) {
+        tag.insert(0, tagPrefix);
+        return tag;
+    });
 
     return StringUtils::join(res.begin(), res.end(), " ");
 }

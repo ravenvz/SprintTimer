@@ -1,24 +1,23 @@
-#include <algorithm>
 #include "Pomodoro.h"
-#include <QDebug>
 #include "utils/StringUtils.h"
+#include <algorithm>
 
 
 Pomodoro::Pomodoro() {}
 
-Pomodoro::Pomodoro(const std::string& todoName,
+Pomodoro::Pomodoro(const std::string& taskName,
                    const TimeInterval& interval,
                    const std::list<std::string>& tags)
-    : mName{todoName}
+    : mName{taskName}
     , mInterval{interval}
     , mTags{tags}
 {
 }
 
-Pomodoro::Pomodoro(const TodoItem& todoItem, const TimeInterval& interval)
-    : mName{todoItem.name()}
+Pomodoro::Pomodoro(const TodoItem& task, const TimeInterval& interval)
+    : mName{task.name()}
     , mInterval{interval}
-    , mTags{todoItem.tags()}
+    , mTags{task.tags()}
 {
 }
 
@@ -35,19 +34,18 @@ std::list<std::string> Pomodoro::tags() const { return mTags; }
 std::string Pomodoro::toString() const
 {
 
-    QStringList result;
     std::vector<std::string> tagsCopy;
-    std::vector<std::string> res;
+    std::vector<std::string> result;
 
     std::copy(mTags.cbegin(), mTags.cend(), std::back_inserter(tagsCopy));
 
-    std::for_each(tagsCopy.begin(),
-                  tagsCopy.end(),
-                  [&](auto& elem) { elem.insert(0, tagPrefix); });
+    std::for_each(tagsCopy.begin(), tagsCopy.end(), [&](auto& elem) {
+        elem.insert(0, TodoItem::tagPrefix);
+    });
 
-    res.push_back(mInterval.toTimeString());
-    res.push_back(StringUtils::join(tagsCopy, std::string(" ")));
-    res.push_back(mName);
+    result.push_back(mInterval.toTimeString());
+    result.push_back(StringUtils::join(tagsCopy, std::string(" ")));
+    result.push_back(mName);
 
-    return StringUtils::join(res, " ");
+    return StringUtils::join(result, " ");
 }

@@ -2,22 +2,28 @@
 #define POMODORO_POMODORO_H
 
 
-#include <QtCore/qstring.h>
-#include <string>
-#include <list>
-#include "core/timeinterval.h"
 #include "TodoItem.h"
+#include "core/timeinterval.h"
+#include <list>
+#include <string>
 
+/* Represents Pomodoro concept.
+ *
+ * Pomodoro is an n-minute time interval that is associated with
+ * a Task. It has same name and tags it's associated Task has.
+ */
 class Pomodoro {
 
 public:
     Pomodoro();
 
-    Pomodoro(const std::string& todoName,
+    /* Construct from time interval and associated Task's name and tags. */
+    Pomodoro(const std::string& taskName,
              const TimeInterval& interval,
              const std::list<std::string>& tags);
 
-    Pomodoro(const TodoItem& todoItem, const TimeInterval& interval);
+    /* Construct from associated Task and time interval. */
+    Pomodoro(const TodoItem& task, const TimeInterval& interval);
 
     // Return name of Pomodoro. It is identical to the associated task name.
     std::string name() const;
@@ -41,7 +47,6 @@ private:
     std::string mName;
     TimeInterval mInterval;
     std::list<std::string> mTags;
-    std::string tagPrefix{"#"};
 };
 
 
