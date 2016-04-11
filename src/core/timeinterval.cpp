@@ -43,22 +43,22 @@ TimeInterval::DayPart TimeInterval::getDayPart() const
     auto hour = startTime.hour();
 
     if (22 < hour || hour <= 2) {
-        return DayPart::MIDNIGHT;
+        return DayPart::Midnight;
     }
     else if (2 < hour && hour <= 6) {
-        return DayPart::NIGHT;
+        return DayPart::Night;
     }
     else if (6 < hour && hour <= 10) {
-        return DayPart::MORNING;
+        return DayPart::Morning;
     }
     else if (10 < hour && hour <= 14) {
-        return DayPart::NOON;
+        return DayPart::Noon;
     }
     else if (14 < hour && hour <= 18) {
-        return DayPart::AFTERNOON;
+        return DayPart::Afternoon;
     }
     else {
-        return DayPart::EVENING;
+        return DayPart::Evening;
     }
 }
 
@@ -72,17 +72,17 @@ std::string TimeInterval::dayPartName(unsigned dayPart)
 std::string TimeInterval::dayPartName(DayPart dayPart)
 {
     switch (dayPart) {
-    case DayPart::MIDNIGHT:
+    case DayPart::Midnight:
         return "Midnight";
-    case DayPart::NIGHT:
+    case DayPart::Night:
         return "Night";
-    case DayPart::MORNING:
+    case DayPart::Morning:
         return "Morning";
-    case DayPart::NOON:
+    case DayPart::Noon:
         return "Noon";
-    case DayPart::AFTERNOON:
+    case DayPart::Afternoon:
         return "Afternoon";
-    case DayPart::EVENING:
+    case DayPart::Evening:
         return "Evening";
     }
     return "Invalid";
@@ -98,17 +98,17 @@ std::string TimeInterval::dayPartHours(unsigned dayPart)
 std::string TimeInterval::dayPartHours(DayPart dayPart)
 {
     switch (dayPart) {
-    case DayPart::MIDNIGHT:
+    case DayPart::Midnight:
         return "22:00 - 2:00";
-    case DayPart::NIGHT:
+    case DayPart::Night:
         return "2:00 - 6:00";
-    case DayPart::MORNING:
+    case DayPart::Morning:
         return "6:00 - 10:00";
-    case DayPart::NOON:
+    case DayPart::Noon:
         return "10:00 - 14:00";
-    case DayPart::AFTERNOON:
+    case DayPart::Afternoon:
         return "14:00 - 18:00";
-    case DayPart::EVENING:
+    case DayPart::Evening:
         return "18:00 - 22:00";
     }
     return "Invalid";

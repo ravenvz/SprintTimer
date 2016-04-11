@@ -1,21 +1,27 @@
 #ifndef TIMEINTERVAL_H
 #define TIMEINTERVAL_H
 
-#include <chrono>
 #include "DateTime.h"
+#include <chrono>
 
 
+/* Represent finite interval in time with start and finish points. */
 struct TimeInterval {
 
     using SystemClock = std::chrono::system_clock::time_point;
+
     DateTime startTime;
     DateTime finishTime;
-    enum class DayPart { MIDNIGHT, NIGHT, MORNING, NOON, AFTERNOON, EVENING };
 
+    enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
+
+    /* Construct from chrono time_point. */
     TimeInterval(SystemClock start, SystemClock finish);
 
+    /* Construct from DateTime start and finish points. */
     TimeInterval(const DateTime& start, const DateTime& finish);
 
+    /* Construct from std::time_t start and finish points. */
     TimeInterval(std::time_t start,
                  std::time_t finish,
                  int offsetFromUtcInSeconds = 0);
@@ -23,24 +29,42 @@ struct TimeInterval {
     // TODO remove when got rid of Qt containers
     TimeInterval();
 
+    /* Return interval size in days as unsigned integer.
+     *
+     * It doesn't matter if start point is further in time compared to
+     * finish point. */
     unsigned sizeInDays() const;
 
+    /* Return enum representing part of the day.
+     *
+     * Day has 6 4-hour parts:
+     *      Midnight  22:00 - 2:00
+     *      Nigth      2:00 - 6:00
+     *      Morning    6:00 - 10:00
+     *      Noon      10:00 - 14:00
+     *      Afternoon 14:00 - 18:00
+     *      Evening   18:00 - 22:00
+     */
     DayPart getDayPart() const;
 
+    /* Return name of the day part given as unsigned integer as string. */
     static std::string dayPartName(unsigned dayPart);
 
+    /* Return name of the given DayPart as string. */
     static std::string dayPartName(DayPart dayPart);
 
+    /* Return hours corresponding to DayPart as string. */
     static std::string dayPartHours(unsigned dayPart);
 
+    /* Return hours corresponding to DayPart as string. */
     static std::string dayPartHours(DayPart dayPart);
 
+    /* Return time representation of interval as "HH:mm - HH:mm". */
     std::string toTimeString() const;
 };
 
 /* Return absolute number of days between startTime of this TimeInterval and
- * startTime of other TimeInterval
- */
+ * startTime of other TimeInterval. */
 unsigned startDateAbsDiff(const TimeInterval& one, const TimeInterval& other);
 
 
