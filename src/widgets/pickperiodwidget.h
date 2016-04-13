@@ -1,18 +1,19 @@
 #ifndef POMODORO_PICKPERIODWIDGET_H
 #define POMODORO_PICKPERIODWIDGET_H
 
-#include <QPointer>
 #include "dialogs/datepickdialog.h"
+#include <QPointer>
+#include <QStringListModel>
 
 namespace Ui {
-    class PickPeriodWidget;
+class PickPeriodWidget;
 }
 
 
 class PickPeriodWidget : public QWidget {
 
     Q_OBJECT
-        
+
 public:
     explicit PickPeriodWidget(QWidget* parent = 0);
     ~PickPeriodWidget();
@@ -36,8 +37,7 @@ private:
     QPointer<QStringListModel> monthsModel;
 
     void connectSlots();
-
 };
 
 
-#endif //POMODORO_PICKPERIODWIDGET_H
+#endif // POMODORO_PICKPERIODWIDGET_H

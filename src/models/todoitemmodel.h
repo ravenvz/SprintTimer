@@ -70,12 +70,12 @@ public:
     // Mark item as completed if it is not completed and vice versa.
     bool toggleCompleted(const QModelIndex& index);
 
-    // Return QVector of all items (not only cached) in the model.
-    QVector<TodoItem> items();
+    // Return std::vector of all items (not only cached) in the model.
+    std::vector<TodoItem> items();
 
     // Return vector of pairs of date and time when item was last edited and
     // item itself.
-    QVector<TodoItemModel::TodoItemWithTimeStamp> itemsWithTimestamp();
+    std::vector<TodoItemModel::TodoItemWithTimeStamp> itemsWithTimestamp();
 
     // Replace data of item at given row with data from the newItem.
     bool replaceItemAt(const int row, const TodoItem& newItem);

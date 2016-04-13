@@ -1,11 +1,10 @@
-#include <QtCore/qdatetime.h>
-#include <QtCore/qstringlistmodel.h>
 #include "pickperiodwidget.h"
 #include "ui_pickperiodwidget.h"
+#include <QtCore/qdatetime.h>
+#include <QtCore/qstringlistmodel.h>
 #include <algorithm>
 #include <iterator>
 #include <memory>
-//#include "PomodoroTimerModeScheduler.h"
 
 PickPeriodWidget::PickPeriodWidget(QWidget* parent)
     : QWidget(parent)
@@ -36,12 +35,16 @@ PickPeriodWidget::~PickPeriodWidget()
 
 void PickPeriodWidget::connectSlots()
 {
-    connect(ui->btnPickPeriod, SIGNAL(clicked(bool)), this,
-        SLOT(openDatePickDialog()));
+    connect(ui->btnPickPeriod,
+            SIGNAL(clicked(bool)),
+            this,
+            SLOT(openDatePickDialog()));
     connect(ui->cbxYear, SIGNAL(activated(int)), this, SLOT(updateInterval()));
     connect(ui->cbxMonth, SIGNAL(activated(int)), this, SLOT(updateInterval()));
-    connect(this, SIGNAL(timeSpanChanged(DateInterval)), this,
-        SLOT(updateSelectionHintLabel()));
+    connect(this,
+            SIGNAL(timeSpanChanged(DateInterval)),
+            this,
+            SLOT(updateSelectionHintLabel()));
 }
 
 void PickPeriodWidget::openDatePickDialog()
@@ -66,7 +69,8 @@ void PickPeriodWidget::setInterval(DateInterval timeSpan)
 void PickPeriodWidget::updateInterval()
 {
     QDate startDate{ui->cbxYear->currentText().toInt(),
-        ui->cbxMonth->currentIndex() + 1, 1};
+                    ui->cbxMonth->currentIndex() + 1,
+                    1};
     QDate endDate = startDate.addDays(startDate.daysInMonth() - 1);
     selectedInterval = DateInterval{startDate, endDate};
     emit timeSpanChanged(selectedInterval);
@@ -88,8 +92,10 @@ void PickPeriodWidget::setYears(const QStringList& years)
     yearsModel = new QStringListModel(years);
     ui->cbxYear->setModel(yearsModel);
     ui->cbxYear->setCurrentIndex(static_cast<int>(std::distance(
-        years.begin(), std::find(years.begin(), years.end(),
-                           QString("%1").arg(QDate::currentDate().year())))));
+        years.begin(),
+        std::find(years.begin(),
+                  years.end(),
+                  QString("%1").arg(QDate::currentDate().year())))));
     ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
     updateInterval();
 }

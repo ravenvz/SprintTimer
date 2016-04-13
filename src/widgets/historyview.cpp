@@ -1,7 +1,7 @@
-#include <QPainter>
 #include "historyview.h"
-#include "ui_history.h"
 #include "db_layer/db_service.h"
+#include "ui_history.h"
+#include <QPainter>
 
 #include <QDebug>
 
@@ -58,23 +58,23 @@ void HistoryView::updateView() { displayHistory(); }
 void HistoryView::displayHistory()
 {
     if (ui->twHistoryDisplay->currentIndex() == 0) {
-        QVector<HistoryItem> pomodoroHistory = getPomodoroHistory();
+        std::vector<HistoryItem> pomodoroHistory = getPomodoroHistory();
         fillHistoryModel(pomodoroHistory);
         setHistoryModel(HistoryType::Pomodoro);
     }
     else {
-        QVector<HistoryItem> taskHistory = getTaskHistory();
+        std::vector<HistoryItem> taskHistory = getTaskHistory();
         fillHistoryModel(taskHistory);
         setHistoryModel(HistoryType::Task);
     }
 }
 
-QVector<HistoryView::HistoryItem> HistoryView::getPomodoroHistory() const
+std::vector<HistoryView::HistoryItem> HistoryView::getPomodoroHistory() const
 {
     pomodoroModel->setDateFilter(selectedDateInterval);
     pomodoroModel->select();
-    QVector<Pomodoro> pomodoros{pomodoroModel->items()};
-    QVector<HistoryItem> pomodoroHistory;
+    std::vector<Pomodoro> pomodoros{pomodoroModel->items()};
+    std::vector<HistoryItem> pomodoroHistory;
     pomodoroHistory.reserve(pomodoros.size());
     std::transform(
         pomodoros.cbegin(),
@@ -90,14 +90,14 @@ QVector<HistoryView::HistoryItem> HistoryView::getPomodoroHistory() const
     return pomodoroHistory;
 }
 
-QVector<HistoryView::HistoryItem> HistoryView::getTaskHistory() const
+std::vector<HistoryView::HistoryItem> HistoryView::getTaskHistory() const
 {
     todoItemModel->setCompletedInIntervalFilter(selectedDateInterval);
     todoItemModel->select();
     return todoItemModel->itemsWithTimestamp();
 }
 
-void HistoryView::fillHistoryModel(const QVector<HistoryItem>& history)
+void HistoryView::fillHistoryModel(const std::vector<HistoryItem>& history)
 {
     // QStandardItemModel takes ownership of items that are added with
     // appendRow()

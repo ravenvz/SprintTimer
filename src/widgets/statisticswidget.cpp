@@ -1,6 +1,6 @@
 #include "statisticswidget.h"
-#include "ui_statistics_widget.h"
 #include "barchart.h"
+#include "ui_statistics_widget.h"
 
 
 StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,
@@ -53,7 +53,7 @@ void StatisticsWidget::fetchPomodoros()
     pomodoroModel->setDateFilter(currentInterval);
     pomodoroModel->select();
     // TODO convert in the model
-    pomodoros = pomodoroModel->items().toStdVector();
+    pomodoros = pomodoroModel->items();
     selectedTagIndex = optional<size_t>();
     // TODO rename tagPomoMap as it's now has different class name
     tagPomoMap = TagDistribution(pomodoros, numTopTags);
@@ -127,10 +127,12 @@ void StatisticsWidget::updateWorkHoursDiagram(
     const Distribution<double>& workTimeDistribution,
     const std::vector<Pomodoro>& pomodoros)
 {
-    QVector<TimeSpan> timeSpans;
-    for (const Pomodoro& pomo : pomodoros) {
-        timeSpans.append(pomo.timeSpan());
-    }
+    std::vector<TimeSpan> timeSpans;
+    timeSpans.reserve(pomodoros.size());
+    std::transform(pomodoros.cbegin(),
+                   pomodoros.cend(),
+                   std::back_inserter(timeSpans),
+                   [](const auto& pomo) { return pomo.timeSpan(); });
     if (timeSpans.empty()) {
         ui->labelBestWorktimeName->setText("No data");
         ui->labelBestWorktimeHours->setText("");
@@ -198,12 +200,12 @@ void StatisticsWidget::updateDailyTimelineGraph(
                        ""}};
         GraphData normalData;
         for (size_t i = 0; i < pomosByDay.size(); ++i) {
-            normalData.push_back(GraphPoint{
-                double(i),
-                pomosByDay[i],
-                QString("%1")
-                    .arg(currentInterval.startDate.addDays(static_cast<long>(i))
-                             .day())});
+            normalData.push_back(
+                GraphPoint{double(i),
+                           pomosByDay[i],
+                           QString("%1").arg(currentInterval.startDate
+                                                 .addDays(static_cast<long>(i))
+                                                 .day())});
         }
 
         ui->dailyTimeline->setRangeX(0, currentInterval.sizeInDays());

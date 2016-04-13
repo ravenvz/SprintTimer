@@ -1,7 +1,7 @@
-#include <algorithm>
 #include "plot.h"
 #include <QHelpEvent>
 #include <QToolTip>
+#include <algorithm>
 
 #include <QDebug>
 
@@ -26,9 +26,9 @@ void Plot::addGraph(Graph& graph)
     pointBoxes.push_back(PointBoxContainer{});
 }
 
-void Plot::setGraphData(int graphNum, GraphData& data)
+void Plot::setGraphData(size_t graphNum, GraphData& data)
 {
-    if (graphNum < 0 || graphNum >= graphs.size()) {
+    if (graphNum >= graphs.size()) {
         return;
     }
     graphs[graphNum].setData(data);
@@ -62,7 +62,7 @@ void Plot::paintEvent(QPaintEvent*)
         return;
     }
 
-    for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
+    for (size_t graphNum = 0; graphNum < graphs.size(); ++graphNum) {
         paintGraph(graphNum, painter);
     }
 }
@@ -110,7 +110,7 @@ void Plot::constructPointBoxes()
     const double scaleY = rangeY.span() > 0
         ? (availableRect.height() - labelOffset) / (rangeY.span())
         : 1;
-    for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
+    for (size_t graphNum = 0; graphNum < graphs.size(); ++graphNum) {
         QPointF referencePoint = availableRect.bottomLeft();
         pointBoxes[graphNum].clear();
         std::transform(
@@ -135,7 +135,7 @@ void Plot::constructPointBoxes()
     }
 }
 
-void Plot::paintGraph(const int graphNum, QPainter& painter) const
+void Plot::paintGraph(size_t graphNum, QPainter& painter) const
 {
     const auto& graph = graphs[graphNum];
     const auto& boxes = pointBoxes[graphNum];
@@ -156,11 +156,11 @@ void Plot::paintPoints(const PointBoxContainer& boxes, QPainter& painter) const
 {
     // Only labelSkip-th labels will be shown, so that labels are not cluttered
     // with large span.
-    int labelSkip{static_cast<int>(rangeX.span()) / labelSkipInd};
+    size_t labelSkip{static_cast<size_t>(rangeX.span()) / labelSkipInd};
     if (labelSkip < 1)
         labelSkip = 1;
 
-    for (int i = 0; i < boxes.size(); ++i) {
+    for (size_t i = 0; i < boxes.size(); ++i) {
         const auto& point = boxes[i];
         painter.setBrush(pointBoxBrush);
         painter.translate(point.position);
@@ -175,7 +175,7 @@ void Plot::paintPoints(const PointBoxContainer& boxes, QPainter& painter) const
 
 const QString Plot::getPosTooltip(const QPoint& pos) const
 {
-    for (int graphNum = 0; graphNum < graphs.size(); ++graphNum) {
+    for (size_t graphNum = 0; graphNum < graphs.size(); ++graphNum) {
         if (!graphs[graphNum].showPoints())
             continue;
         const auto& pointBoxesGraphRef = pointBoxes[graphNum];
@@ -202,7 +202,7 @@ void Graph::setPen(QPen& pen) { mPen = pen; }
 
 const QPen Graph::pen() const { return mPen; }
 
-const GraphPoint& Graph::operator[](int idx) const { return points[idx]; }
+const GraphPoint& Graph::operator[](size_t idx) const { return points[idx]; }
 
 void Graph::clearData() { points.clear(); }
 
@@ -214,4 +214,4 @@ Graph::const_iterator Graph::cbegin() const { return points.cbegin(); }
 
 Graph::const_iterator Graph::cend() const { return points.cend(); }
 
-int Graph::size() const { return points.size(); }
+size_t Graph::size() const { return points.size(); }

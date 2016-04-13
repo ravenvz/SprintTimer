@@ -1,11 +1,8 @@
 #ifndef POMODORO_MATHUTILS_H
 #define POMODORO_MATHUTILS_H
 
-#include <QString>
-#include <QVector>
-#include <QtCore/qvector.h>
-#include <QDebug>
-#include <iostream>
+#include <cstddef>
+#include <vector>
 
 class MathUtils {
 
