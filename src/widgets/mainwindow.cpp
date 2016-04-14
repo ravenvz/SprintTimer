@@ -117,9 +117,10 @@ void MainWindow::setUiToIdleState()
 
 void MainWindow::setUiToRunningState()
 {
-    setTimerValue(pomodoroTimer.taskDuration() * secondsPerMinute);
     progressBarMaxValue = pomodoroTimer.taskDuration() * secondsPerMinute;
+    setTimerValue(progressBarMaxValue);
     ui->progressBar->setMaximum(progressBarMaxValue);
+    ui->progressBar->setValue(0);
     ui->btnStart->hide();
     ui->labelTimer->show();
     ui->progressBar->show();
@@ -448,13 +449,11 @@ void MainWindow::updateTodoItemModel() { todoitemViewModel->select(); }
 
 void MainWindow::onTimerTick(long timeLeft)
 {
-    std::cout << "onTimerTick " << timeLeft << std::endl;
     emit timerUpdated(timeLeft / 1000);
 }
 
 void MainWindow::onTimerUpdated(long timeLeft)
 {
-    std::cout << "Time left " << timeLeft << " seconds" << std::endl;
     if (timeLeft > 0) {
         int curVal{static_cast<int>(timeLeft)};
         ui->progressBar->setValue(progressBarMaxValue - curVal);
