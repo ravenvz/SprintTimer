@@ -1,19 +1,23 @@
-#include <thread>
-#include "core/Timer.h"
-#include <src/core/config.h>
-#include <QtWidgets/qmenu.h>
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "dialogs/confirmationdialog.h"
+#include "core/Timer.h"
 #include "dialogs/addtodoitemdialog.h"
-#include "dialogs/settings_dialog.h"
+#include "dialogs/confirmationdialog.h"
 #include "dialogs/manualaddpomodorodialog.h"
+#include "dialogs/settings_dialog.h"
+#include "ui_mainwindow.h"
+#include <QtWidgets/qmenu.h>
+#include <src/core/config.h>
+#include <thread>
 
 
 MainWindow::MainWindow(IConfig& applicationSettings, QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , applicationSettings(applicationSettings)
+    , pomodoroTimer{
+          std::bind(&MainWindow::onTimerTick, this, std::placeholders::_1),
+          1000,
+          applicationSettings}
 {
     ui->setupUi(this);
     player = std::make_unique<QMediaPlayer>();
@@ -113,9 +117,10 @@ void MainWindow::setUiToIdleState()
 
 void MainWindow::setUiToRunningState()
 {
-    setTimerValue(pomodoroTimer.taskDuration() * secondsPerMinute);
     progressBarMaxValue = pomodoroTimer.taskDuration() * secondsPerMinute;
+    setTimerValue(progressBarMaxValue);
     ui->progressBar->setMaximum(progressBarMaxValue);
+    ui->progressBar->setValue(0);
     ui->btnStart->hide();
     ui->labelTimer->show();
     ui->progressBar->show();
@@ -444,13 +449,11 @@ void MainWindow::updateTodoItemModel() { todoitemViewModel->select(); }
 
 void MainWindow::onTimerTick(long timeLeft)
 {
-    std::cout << "onTimerTick " << timeLeft << std::endl;
     emit timerUpdated(timeLeft / 1000);
 }
 
 void MainWindow::onTimerUpdated(long timeLeft)
 {
-    std::cout << "Time left " << timeLeft << " seconds" << std::endl;
     if (timeLeft > 0) {
         int curVal{static_cast<int>(timeLeft)};
         ui->progressBar->setValue(progressBarMaxValue - curVal);

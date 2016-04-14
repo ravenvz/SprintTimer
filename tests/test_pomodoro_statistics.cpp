@@ -1,5 +1,4 @@
 #include "core/PomodoroStatistics.h"
-#include "core/PomodoroTimerModeScheduler.h"
 #include <TestHarness.h>
 
 TEST_GROUP(PomoStatItem)
@@ -40,13 +39,11 @@ TEST(PomoStatItem, test_empty_weekday_statistics)
     double expected_max = 0;
     std::vector<double> expected_distribution = std::vector<double>(7, 0);
 
-    Distribution<double> weekdayDistribution
-        = statistics.weekdayDistribution();
+    Distribution<double> weekdayDistribution = statistics.weekdayDistribution();
     std::vector<double> distributionVector
         = weekdayDistribution.getDistributionVector();
 
-    DOUBLES_EQUAL(
-        expected_average, weekdayDistribution.getAverage(), threshold)
+    DOUBLES_EQUAL(expected_average, weekdayDistribution.getAverage(), threshold)
     DOUBLES_EQUAL(expected_max, weekdayDistribution.getMax(), threshold)
     CHECK_EQUAL(expected_distribution.size(), distributionVector.size())
     for (size_t i = 0; i < expected_distribution.size(); ++i) {
@@ -101,7 +98,7 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
     // (2015, 6, 1) is Monday, so each weekday occures exactly twice
     // in 14-day timeSpan
     TimeSpan timeSpan{DateTime::fromYMD(2015, 6, 1),
-                          DateTime::fromYMD(2015, 6, 14)};
+                      DateTime::fromYMD(2015, 6, 14)};
 
     for (int i = 1; i < 15; ++i) {
         for (int j = 0; j < i; ++j) {
@@ -116,14 +113,12 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
         4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
     PomodoroStatItem statistics{increasingPomodoros, timeSpan};
 
-    Distribution<double> weekdayDistribution
-        = statistics.weekdayDistribution();
+    Distribution<double> weekdayDistribution = statistics.weekdayDistribution();
     std::vector<double> distributionVector
         = weekdayDistribution.getDistributionVector();
 
     CHECK_EQUAL(expected_max_value_bin, weekdayDistribution.getMaxValueBin())
-    DOUBLES_EQUAL(
-        expected_average, weekdayDistribution.getAverage(), threshold)
+    DOUBLES_EQUAL(expected_average, weekdayDistribution.getAverage(), threshold)
     DOUBLES_EQUAL(expected_max, weekdayDistribution.getMax(), threshold)
     for (size_t i = 0; i < expected_distribution.size(); ++i) {
         DOUBLES_EQUAL(
@@ -136,11 +131,11 @@ TEST_GROUP(TagDistribution){
     void pushToPomodoros(std::vector<Pomodoro> & pomodoros,
                          std::string name,
                          const std::list<std::string>& tags,
-                         int n){for (int i = 0; i < n;
-                                     ++i){pomodoros.push_back(Pomodoro{
-        name,
-        TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
-        tags});
+                         int n){
+        for (int i = 0; i < n; ++i){pomodoros.push_back(Pomodoro{
+            name,
+            TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
+            tags});
 }
 }
 }
@@ -214,7 +209,8 @@ TEST(TagDistribution, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
     CHECK_EQUAL(4, map.pomodorosForNthTopTag(4).size())
 }
 
-TEST(TagDistribution, test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
+TEST(TagDistribution,
+     test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
     std::vector<Pomodoro> pomodoros;
     pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);

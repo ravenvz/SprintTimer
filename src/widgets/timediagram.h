@@ -1,7 +1,7 @@
 #ifndef POMOTIMEDIAGRAM_H
 #define POMOTIMEDIAGRAM_H
 
-#include "core/PomodoroTimerModeScheduler.h"
+#include "core/TimeSpan.h"
 #include <QEvent>
 #include <QWidget>
 #include <vector>

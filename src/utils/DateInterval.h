@@ -1,8 +1,9 @@
 #ifndef DATEINTERVAL_H_DO5P2YKX
 #define DATEINTERVAL_H_DO5P2YKX
 
-#include <QDate>
 #include "core/DateTime.h"
+#include "core/TimeSpan.h"
+#include <QDate>
 #include <iostream>
 
 struct DateInterval {
@@ -46,7 +47,7 @@ struct DateInterval {
          * It might be better to make DateInterval dependent on date lib
          * instead of QDate TODO */
         return TimeSpan{QDateTime{startDate}.addDays(1).toTime_t(),
-                            QDateTime{endDate}.addDays(1).toTime_t()};
+                        QDateTime{endDate}.addDays(1).toTime_t()};
     }
 };
 
