@@ -1,9 +1,8 @@
 #ifndef DATEPICKDIALOG_H
 #define DATEPICKDIALOG_H
 
-#include <QDialog>
-#include "core/PomodoroTimerModeScheduler.h"
 #include "utils/DateInterval.h"
+#include <QDialog>
 
 namespace Ui {
 class DatePickDialog;

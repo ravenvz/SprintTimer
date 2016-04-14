@@ -4,7 +4,6 @@ set(TEST_PROJECT test_pomodoro)
 project(${TEST_PROJECT})
 set(SOURCE_FILES
     run_all_tests.cpp
-    test_task_scheduler.cpp
     test_math_utils.cpp
     test_pomodoro_model.cpp
     test_pomodoro_statistics.cpp
@@ -12,8 +11,12 @@ set(SOURCE_FILES
     test_todoitem_model.cpp
     test_datetime.cpp
     test_time_span.cpp
+    test_pomodoro_timer.cpp
     ../src/core/PomodoroStatistics.cpp
-    ../src/core/PomodoroTimerModeScheduler.cpp
+    ../src/core/PomodoroTimer.h
+    ../src/core/PomodoroTimer.cpp
+    ../src/core/Timer.h
+    ../src/core/Timer.cpp
     ../src/core/config.h
     ../src/core/entities/Pomodoro.cpp
     ../src/core/entities/TodoItem.cpp
@@ -31,6 +34,8 @@ set(SOURCE_FILES
 )
 # find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
 add_executable(${TEST_PROJECT} ${SOURCE_FILES})
 target_compile_features(${TEST_PROJECT} PRIVATE cxx_return_type_deduction)
@@ -53,5 +58,5 @@ endif()
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
-target_include_directories(${TEST_PROJECT} PRIVATE /usr/include/CppUTest ../src)
-target_link_libraries(${TEST_PROJECT} CppUTest Qt5::Core Qt5::Sql)
+target_include_directories(${TEST_PROJECT} PRIVATE /usr/include/CppUTest ../src lib)
+target_link_libraries(${TEST_PROJECT} CppUTest Qt5::Core Qt5::Sql Threads::Threads)

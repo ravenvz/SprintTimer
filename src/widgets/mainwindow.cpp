@@ -1,19 +1,23 @@
-#include <thread>
-#include "core/Timer.h"
-#include <src/core/config.h>
-#include <QtWidgets/qmenu.h>
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "dialogs/confirmationdialog.h"
+#include "core/Timer.h"
 #include "dialogs/addtodoitemdialog.h"
-#include "dialogs/settings_dialog.h"
+#include "dialogs/confirmationdialog.h"
 #include "dialogs/manualaddpomodorodialog.h"
+#include "dialogs/settings_dialog.h"
+#include "ui_mainwindow.h"
+#include <QtWidgets/qmenu.h>
+#include <src/core/config.h>
+#include <thread>
 
 
 MainWindow::MainWindow(IConfig& applicationSettings, QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , applicationSettings(applicationSettings)
+    , pomodoroTimer{
+          std::bind(&MainWindow::onTimerTick, this, std::placeholders::_1),
+          1000,
+          applicationSettings}
 {
     ui->setupUi(this);
     player = std::make_unique<QMediaPlayer>();

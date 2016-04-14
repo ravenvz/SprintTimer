@@ -4,16 +4,21 @@ PomodoroTimer::PomodoroTimer(std::function<void(long timeLeft)> tickCallback,
                              long tickPeriodInMillisecs,
                              const IConfig& applicationSettings)
     : applicationSettings{applicationSettings}
-    , taskScheduler{}
     , tickInterval{tickPeriodInMillisecs}
     , onTickCallback{tickCallback}
     , mStart{std::chrono::system_clock::time_point{}}
-    , mFinish{std::chrono::system_clock::time_point{}}
+    , shortBreakState{std::make_unique<ShortBreakState>(*this)}
+    , longBreakState{std::make_unique<LongBreakState>(*this)}
+    , pomodoroState{std::make_unique<PomodoroState>(*this)}
+    , currentState{pomodoroState.get()}
 {
 }
 
 void PomodoroTimer::run()
 {
+    if (running)
+        return;
+    running = true;
     using namespace date;
     mStart = DateTime::currentDateTime();
     timerPtr = std::make_unique<Timer>(
@@ -25,32 +30,27 @@ void PomodoroTimer::run()
 
 void PomodoroTimer::cancel()
 {
-    timerPtr->stop();
-    taskScheduler.cancelMode();
+    if (running) {
+        timerPtr->stop();
+    }
+    running = false;
+    currentState->cancel();
 }
 
 TimeSpan PomodoroTimer::finish()
 {
-    taskScheduler.setNextMode();
-    mFinish = DateTime::currentDateTime();
-    return TimeSpan{mStart, mFinish};
+    if (currentState == pomodoroState.get())
+        completedPomodoros++;
+    currentState->setNextState();
+    if (running)
+        timerPtr->stop();
+    running = false;
+    return TimeSpan{mStart, DateTime::currentDateTime()};
 }
 
-int PomodoroTimer::taskDuration()
-{
-    switch (taskScheduler.mode()) {
-    case PomodoroTimerModeScheduler::PomodoroTimerMode::Task:
-        return applicationSettings.pomodoroDuration();
-    case PomodoroTimerModeScheduler::PomodoroTimerMode::LongBreak:
-        return applicationSettings.longBreakDuration();
-    case PomodoroTimerModeScheduler::PomodoroTimerMode::ShortBreak:
-        return applicationSettings.shortBreakDuration();
-    default:
-        return applicationSettings.shortBreakDuration();
-    }
-}
+int PomodoroTimer::taskDuration() { return currentState->duration(); }
 
-bool PomodoroTimer::isBreak() const { return taskScheduler.isBreak(); }
+bool PomodoroTimer::isBreak() const { return currentState->isBreak(); }
 
 void PomodoroTimer::onTimerTick()
 {
@@ -61,7 +61,11 @@ void PomodoroTimer::onTimerTick()
     onTickCallback(currentTaskDuration.count());
 }
 
-void PomodoroTimer::toggleInTheZoneMode()
+void PomodoroTimer::toggleInTheZoneMode() { inTheZoneMode = !inTheZoneMode; }
+
+void PomodoroTimer::setNumCompletedPomodoros(int num)
 {
-    taskScheduler.toggleInTheZoneMode();
+    completedPomodoros = num;
 }
+
+int PomodoroTimer::numCompletedPomodoros() const { return completedPomodoros; }

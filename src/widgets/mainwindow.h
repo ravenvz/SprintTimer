@@ -1,26 +1,25 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "core/PomodoroTimer.h"
+#include "db_layer/db_service.h"
+#include "goalsview.h"
+#include "historyview.h"
+#include "src/models/pomodoromodel.h"
+#include "src/models/tagmodel.h"
+#include "src/models/todoitemmodel.h"
+#include "statisticswidget.h"
+#include "tageditorwidget.h"
+#include "todoitemsviewdelegate.h"
 #include <QMainWindow>
 #include <QMediaPlayer>
 #include <QSettings>
 #include <QStringListModel>
 #include <QTimer>
+#include <experimental/optional>
+#include <functional>
 #include <memory>
 #include <vector>
-#include <functional>
-#include <experimental/optional>
-#include "core/PomodoroTimerModeScheduler.h"
-#include "core/PomodoroTimer.h"
-#include "db_layer/db_service.h"
-#include "goalsview.h"
-#include "src/models/pomodoromodel.h"
-#include "src/models/tagmodel.h"
-#include "historyview.h"
-#include "statisticswidget.h"
-#include "tageditorwidget.h"
-#include "src/models/todoitemmodel.h"
-#include "todoitemsviewdelegate.h"
 
 namespace Ui {
 class MainWindow;
@@ -76,10 +75,7 @@ private:
     QPointer<HistoryView> historyView;
     QPointer<TagEditorWidget> tagEditor;
     std::experimental::optional<long long> selectedTaskId;
-    PomodoroTimer pomodoroTimer{
-        std::bind(&MainWindow::onTimerTick, this, std::placeholders::_1),
-        1000,
-        applicationSettings};
+    PomodoroTimer pomodoroTimer;
 
     void connectSlots();
     void setUiToIdleState();

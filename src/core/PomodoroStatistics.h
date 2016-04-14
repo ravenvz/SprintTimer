@@ -1,15 +1,14 @@
 #ifndef POMODORO_POMODOROSTATISTICS_H
 #define POMODORO_POMODOROSTATISTICS_H
 
-#include <algorithm>
-#include <vector>
-#include <iostream>
-#include <unordered_map>
-#include "PomodoroTimerModeScheduler.h"
 #include "core/entities/Pomodoro.h"
 #include "db_layer/db_service.h"
-#include "utils/MathUtils.h"
 #include "utils/DateInterval.h"
+#include "utils/MathUtils.h"
+#include <algorithm>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
 
 // TODO refactor this ugly mess
 
