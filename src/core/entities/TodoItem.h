@@ -15,9 +15,6 @@
 class TodoItem {
 
 public:
-    // TODO consider if default c-tor is needed
-    // TodoItem();
-
     TodoItem(std::string name,
              int estimatedPomodoros,
              int spentPomodoros,
