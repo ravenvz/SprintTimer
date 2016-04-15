@@ -15,7 +15,7 @@
 class Pomodoro {
 
 public:
-    Pomodoro();
+    // Pomodoro();
 
     /* Construct from time timeSpan and associated Task's name and tags. */
     Pomodoro(const std::string& taskName,
