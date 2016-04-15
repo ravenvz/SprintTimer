@@ -79,7 +79,6 @@ long DateTime::second() const { return tod.seconds().count(); }
 
 unsigned DateTime::dayOfWeek() const
 {
-    // TODO should fix sunday == 0 bullshit issue
     std::array<unsigned, 7> mondayFirstTable{{7u, 1u, 2u, 3u, 4u, 5u, 6u}};
     return mondayFirstTable[static_cast<unsigned>(date::weekday(ymd))];
 }

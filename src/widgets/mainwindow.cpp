@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "core/Timer.h"
-#include "dialogs/addtodoitemdialog.h"
+#include "dialogs/AddTaskDialog.h"
 #include "dialogs/confirmationdialog.h"
 #include "dialogs/manualaddpomodorodialog.h"
 #include "dialogs/settings_dialog.h"
@@ -149,7 +149,7 @@ void MainWindow::addTodoItem()
 {
     AddTodoItemDialog dialog{tagModel};
     if (dialog.exec()) {
-        TodoItem item = dialog.getNewTodoItem();
+        TodoItem item = dialog.constructedTask();
         todoitemViewModel->insert(item);
     }
 }
@@ -281,12 +281,12 @@ void MainWindow::showTodoItemContextMenu(const QPoint& pos)
 void MainWindow::editTodoItem()
 {
     QModelIndex index = ui->lvTodoItems->currentIndex();
-    AddTodoItemDialog dialog{tagModel};
     TodoItem itemToEdit = todoitemViewModel->itemAt(index.row());
+    AddTodoItemDialog dialog{tagModel};
     dialog.setWindowTitle("Edit TodoItem");
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {
-        TodoItem updatedItem = dialog.getNewTodoItem();
+        TodoItem updatedItem = dialog.constructedTask();
         updatedItem.setSpentPomodoros(itemToEdit.spentPomodoros());
         updatedItem.setCompleted(itemToEdit.isCompleted());
         todoitemViewModel->replaceItemAt(index.row(), updatedItem);
