@@ -26,9 +26,6 @@ struct TimeSpan {
              std::time_t finish,
              int offsetFromUtcInSeconds = 0);
 
-    // TODO remove when got rid of Qt containers
-    TimeSpan();
-
     /* Return time span size in days as unsigned integer.
      *
      * It doesn't matter if start point is further in time compared to

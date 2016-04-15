@@ -14,17 +14,10 @@ TimeSpan::TimeSpan(const DateTime& start, const DateTime& finish)
 }
 
 TimeSpan::TimeSpan(std::time_t start,
-                           std::time_t finish,
-                           int offsetFromUtcInSeconds)
+                   std::time_t finish,
+                   int offsetFromUtcInSeconds)
     : startTime{DateTime::fromTime_t(start, offsetFromUtcInSeconds)}
     , finishTime{DateTime::fromTime_t(finish, offsetFromUtcInSeconds)}
-{
-}
-
-// TODO remove when got rid of Qt containers
-TimeSpan::TimeSpan()
-    : startTime{DateTime::currentDateTime()}
-    , finishTime{DateTime::currentDateTime()}
 {
 }
 
