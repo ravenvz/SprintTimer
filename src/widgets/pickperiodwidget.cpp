@@ -16,7 +16,6 @@ PickPeriodWidget::PickPeriodWidget(QWidget* parent)
               .addDays(-1)})
 {
     ui->setupUi(this);
-    // TODO replace with Qt-generated months names
     QStringList months;
     for (int monthNumber = 1; monthNumber <= 12; ++monthNumber) {
         months.append(QDate::longMonthName(monthNumber));
