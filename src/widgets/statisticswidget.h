@@ -50,7 +50,7 @@ private:
     IConfig& applicationSettings;
     PomodoroModel* pomodoroModel;
     std::vector<Pomodoro> pomodoros;
-    TagDistribution tagPomoMap;
+    TagDistribution tagDistribution;
     TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
     const int numTopTags = 7; // TODO move to config

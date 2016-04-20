@@ -55,9 +55,8 @@ void StatisticsWidget::fetchPomodoros()
     // TODO convert in the model
     pomodoros = pomodoroModel->items();
     selectedTagIndex = optional<size_t>();
-    // TODO rename tagPomoMap as it's now has different class name
-    tagPomoMap = TagDistribution(pomodoros, numTopTags);
-    std::vector<TagCount> tagTagCounts = tagPomoMap.topTagsDistribution();
+    tagDistribution = TagDistribution(pomodoros, numTopTags);
+    std::vector<TagCount> tagTagCounts = tagDistribution.topTagsDistribution();
     updateTopTagsDiagram(tagTagCounts);
 }
 
@@ -71,8 +70,9 @@ void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval)
 void StatisticsWidget::drawGraphs()
 {
     PomodoroStatItem statistics{
-        selectedTagIndex ? tagPomoMap.pomodorosForNthTopTag(*selectedTagIndex)
-                         : pomodoros,
+        selectedTagIndex
+            ? tagDistribution.pomodorosForNthTopTag(*selectedTagIndex)
+            : pomodoros,
         currentInterval.toTimeSpan()};
     auto dailyDistribution = statistics.dailyDistribution();
     auto weekdayDistribution = statistics.weekdayDistribution();
