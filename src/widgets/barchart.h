@@ -23,7 +23,6 @@ public:
     BarData(const std::vector<double>& values,
             const std::vector<QString>& labels);
 
-    // TODO change to std::size_t when switched to std::vector
     const BarDataItem& operator[](size_t idx) const;
     size_t size() const;
 

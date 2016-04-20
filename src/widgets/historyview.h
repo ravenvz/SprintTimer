@@ -36,14 +36,6 @@ public:
     ~HistoryView();
 
     // Refresh model for currenly displayed tab.
-    // TODO it just calls displayData, so might be a good idea to get rid of one
-    // of them
-    // Problem is that methods with the same name do exist in statistics widget
-    // and the
-    // goal view, and the situation might be the same there. In order to
-    // simplify things
-    // a bit, only one such method with the same name should exist in all three
-    // of those.
     void updateView();
 
 private:

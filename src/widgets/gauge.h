@@ -1,69 +1,116 @@
 #ifndef GAUGE_H
 #define GAUGE_H
 
-#include <QWidget>
 #include <QEvent>
+#include <QWidget>
+#include <iostream>
+#include <memory>
 
-#include <QDebug>
 
+class HoverState;
 
-// TODO when final decision will be made on how gauges should look
-// like in different states, Gauge class hierarhy should be reviewed
-// (and possibly even be reduced to single class). Until then, having
-// hierarhy and factory makes sence, as it simplifies experimenting.
-
+class WorkProgressState;
 
 class Gauge : public QWidget {
     Q_OBJECT
 
+    friend class HoverState;
+    friend class HoverStateHovered;
+    friend class HoverStateUnhovered;
+    friend class WorkProgressState;
+    friend class WorkProgressNone;
+    friend class WorkProgressDone;
+    friend class WorkProgressUnderwork;
+    friend class WorkProgressOverwork;
+
 public:
     Gauge(int actual, int goal, QWidget* parent = 0);
-    virtual ~Gauge() = default;
+    void setData(int actual, int goal);
+    ~Gauge() = default;
 
-protected:
+private:
     int actual;
     int goal;
-    bool displayDetails = false;
+    std::unique_ptr<HoverState> hoveredState;
+    std::unique_ptr<HoverState> unhoveredState;
+    std::unique_ptr<WorkProgressState> workProgressUnderwork;
+    std::unique_ptr<WorkProgressState> workProgressOverwork;
+    std::unique_ptr<WorkProgressState> workProgressNone;
+    std::unique_ptr<WorkProgressState> workProgressDone;
+    HoverState* hoverState;
+    WorkProgressState* workProgressState;
     bool sizesComputed = false;
     QRectF outerRect;
     QRectF innerRect;
-    QColor filled = QColor("#6baa15");
-    QColor empty = Qt::gray;
-    QColor overfilled = Qt::red; // TODO not being used right now
-    const int offsetToTop = 90 * 16;
+    static QColor normalEmpty;
+    static QColor normalFilled;
+    static QColor overfilledEmpty;
+    static QColor overfilledFilled;
+    static QColor backgroundFree;
+    static QColor backgroundHovered;
 
     void paintEvent(QPaintEvent*) override;
     bool eventFilter(QObject* object, QEvent* event) override;
     void computeAdaptiveSizes();
     void setupPainter(QPainter& painter);
-    virtual void drawOuterCircle(QPainter& painter);
-    virtual void drawInnerCircle(QPainter& painter);
+    void drawOuterCircle(QPainter& painter);
+    void drawInnerCircle(QPainter& painter);
 };
 
 
-class OverfilledGauge : public Gauge {
+class HoverState {
 public:
-    OverfilledGauge(int actual, int goal, QWidget* parent = 0);
-};
+    virtual ~HoverState() = default;
 
-
-class EmptyGauge : public Gauge {
-public:
-    EmptyGauge(int actual, int goal, QWidget* parent = 0);
+    virtual void draw(const Gauge& gauge, QPainter& painter) = 0;
 
 protected:
-    void drawOuterCircle(QPainter& painter) override;
+    virtual void
+    drawText(const Gauge& gauge, QPainter& painter, const QString& text);
 };
 
-
-class FilledGauge : public Gauge {
+class HoverStateHovered : public HoverState {
 public:
-    FilledGauge(int actual, int goal, QWidget* parent = 0);
+    void draw(const Gauge& gauge, QPainter& painter) final;
+};
+
+class HoverStateUnhovered : public HoverState {
+public:
+    void draw(const Gauge& gauge, QPainter& painter) final;
+};
+
+class WorkProgressState {
+public:
+    virtual void draw(const Gauge& gauge, QPainter& painter);
+
+    virtual ~WorkProgressState() = default;
 
 protected:
-    void drawOuterCircle(QPainter& painter) override;
+    QBrush empty;
+    QBrush filled;
+
+    virtual void setupBrushes();
 };
 
+class WorkProgressUnderwork : public WorkProgressState {
+protected:
+    void setupBrushes() final;
+};
+
+class WorkProgressOverwork : public WorkProgressState {
+protected:
+    void setupBrushes() final;
+};
+
+class WorkProgressDone : public WorkProgressState {
+public:
+    void draw(const Gauge& gauge, QPainter& painter) final;
+};
+
+class WorkProgressNone : public WorkProgressState {
+public:
+    void draw(const Gauge& gauge, QPainter& painter) final;
+};
 
 class GaugeFactory {
 
@@ -72,20 +119,7 @@ public:
 
     Gauge* create(int filled, int total, QWidget* parent = 0)
     {
-        Gauge* ptr;
-        if (filled == 0 || total == 0) {
-            ptr = new EmptyGauge(filled, total, parent);
-        }
-        else if (filled == total) {
-            ptr = new FilledGauge(filled, total, parent);
-        }
-        else if (filled > total) {
-            ptr = new OverfilledGauge(filled, total, parent);
-        }
-        else {
-            ptr = new Gauge(filled, total, parent);
-        }
-        return ptr;
+        return new Gauge(filled, total, parent);
     }
 };
 

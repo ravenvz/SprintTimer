@@ -1,7 +1,7 @@
 #include "models/pomodoromodel.h"
 #include "models/todoitemmodel.h"
-#include <chrono>
 #include <TestHarness.h>
+#include <chrono>
 
 #include <QSqlRecord>
 
@@ -61,12 +61,13 @@ bool pomodoro_equal(const Pomodoro& pomodoro1, const Pomodoro& pomodoro2)
 TEST(PomodoroModel, test_insert_and_delete)
 {
     PomodoroModel pomodoroModel;
-    TimeSpan timeSpan;
+    TimeSpan timeSpan{std::chrono::system_clock::now(),
+                      std::chrono::system_clock::now()};
     // TODO fix when streamlined time zones issues
     // For now, the system stores time in local time zone, so need to
     // compare with local time
     TimeSpan expectedInterval{DateTime::currentDateTimeLocal(),
-                                  DateTime::currentDateTimeLocal()};
+                              DateTime::currentDateTimeLocal()};
 
     TodoItemModel todoItemModel;
     std::string name{"Test item"};
@@ -101,7 +102,7 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros)
 {
     PomodoroModel pomodoroModel;
     TimeSpan timeSpan{std::chrono::system_clock::now(),
-                          std::chrono::system_clock::now()};
+                      std::chrono::system_clock::now()};
     TodoItemModel todoItemModel;
     std::string name{"Test item"};
     std::list<std::string> tags{"Tag1", "Tag2"};

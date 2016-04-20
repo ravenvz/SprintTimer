@@ -3,7 +3,7 @@
 #include <algorithm>
 
 
-Pomodoro::Pomodoro() {}
+// Pomodoro::Pomodoro() {}
 
 Pomodoro::Pomodoro(const std::string& taskName,
                    const TimeSpan& timeSpan,

@@ -2,7 +2,7 @@
 #include <regex>
 
 
-TodoItem::TodoItem() {}
+// TodoItem::TodoItem() {}
 
 TodoItem::TodoItem(std::string name,
                    int estimatedPomodoros,

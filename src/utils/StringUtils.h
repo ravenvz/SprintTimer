@@ -1,9 +1,10 @@
 #ifndef STRINGUTILS_H_Y89VODRG
 #define STRINGUTILS_H_Y89VODRG
 
-#include <vector>
-#include <string>
 #include <iostream>
+#include <list>
+#include <string>
+#include <vector>
 
 namespace StringUtils {
 std::string join(const std::vector<std::string>& vec,
@@ -20,7 +21,12 @@ join(ForwardIterator first, ForwardIterator last, const std::string& delimeter)
     }
     return res;
 }
-}
+
+/* Given a text as string, return list<string> that contains all words in text.
+ */
+std::list<std::string> parseWords(std::string text);
+
+} // namespace StringUtils
 
 // std::string join(std::vector<std::string>&& vec, const std::string&
 // delimeter)

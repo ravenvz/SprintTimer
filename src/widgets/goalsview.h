@@ -1,11 +1,11 @@
 #ifndef GOALSVIEW_H
 #define GOALSVIEW_H
 
-#include <QWidget>
-#include <QProgressBar>
 #include "core/config.h"
 #include "models/goalstatmodel.h"
 #include <QGridLayout>
+#include <QProgressBar>
+#include <QWidget>
 #include <src/utils/MathUtils.h>
 
 namespace Ui {

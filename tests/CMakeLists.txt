@@ -12,6 +12,7 @@ set(SOURCE_FILES
     test_datetime.cpp
     test_time_span.cpp
     test_pomodoro_timer.cpp
+    test_string_utils.cpp
     ../src/core/PomodoroStatistics.cpp
     ../src/core/PomodoroTimer.h
     ../src/core/PomodoroTimer.cpp
@@ -33,7 +34,7 @@ set(SOURCE_FILES
     ../src/utils/StringUtils.cpp
 )
 # find_library(CppUTest REQUIRED)
-find_package(Qt5 REQUIRED Core Sql)
+find_package(Qt5 REQUIRED Core Sql Widgets)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
@@ -59,4 +60,4 @@ target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPT
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
 target_include_directories(${TEST_PROJECT} PRIVATE /usr/include/CppUTest ../src lib)
-target_link_libraries(${TEST_PROJECT} CppUTest Qt5::Core Qt5::Sql Threads::Threads)
+target_link_libraries(${TEST_PROJECT} CppUTest Qt5::Core Qt5::Sql Qt5::Widgets Threads::Threads)

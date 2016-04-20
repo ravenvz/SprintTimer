@@ -10,7 +10,9 @@ TEST_GROUP(PomoStatItem)
 TEST(PomoStatItem, test_empty_daily_statistics)
 {
     std::vector<Pomodoro> pomodoros;
-    PomodoroStatItem statistics{pomodoros, TimeSpan{}};
+    PomodoroStatItem statistics{pomodoros,
+                                TimeSpan{std::chrono::system_clock::now(),
+                                         std::chrono::system_clock::now()}};
     double expected_average = 0;
     double expected_max = 0;
     double expected_total = 0;
@@ -34,7 +36,9 @@ TEST(PomoStatItem, test_empty_daily_statistics)
 TEST(PomoStatItem, test_empty_weekday_statistics)
 {
     std::vector<Pomodoro> pomodoros;
-    PomodoroStatItem statistics{pomodoros, TimeSpan{}};
+    PomodoroStatItem statistics{pomodoros,
+                                TimeSpan{std::chrono::system_clock::now(),
+                                         std::chrono::system_clock::now()}};
     double expected_average = 0;
     double expected_max = 0;
     std::vector<double> expected_distribution = std::vector<double>(7, 0);
