@@ -1,7 +1,7 @@
 #include "goalsview.h"
-#include "ui_goalsview.h"
-#include "gauge.h"
 #include "db_layer/db_service.h"
+#include "gauge.h"
+#include "ui_goalsview.h"
 #include "utils/MathUtils.h"
 
 GoalsView::GoalsView(IConfig& applicationSettings, QWidget* parent)
