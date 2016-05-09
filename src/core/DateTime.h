@@ -85,6 +85,8 @@ public:
     /* Return string reprentation of time in HH:mm format. */
     std::string toTimeString() const;
 
+    std::string yyyymmddString() const;
+
     friend inline bool operator==(const DateTime& dt1, const DateTime& dt2);
 
     friend inline bool operator!=(const DateTime& dt1, const DateTime& dt2);

@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     QApplication::setOrganizationName("RavenStudio");
     QApplication::setApplicationName("Pomodoro");
     Config applicationSettings;
-    MainWindow w{applicationSettings};
+    MainWindow w{applicationSettings, dbService};
     w.show();
 
     return app.exec();

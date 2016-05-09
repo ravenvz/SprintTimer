@@ -28,8 +28,7 @@ public:
     // behaviour
     // of the default roles.
     QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const override;
-
+                  int role = Qt::DisplayRole) const override; 
     // Override to support drag and drop. Changes items' priorities instead of
     // removing row and inserting it at destination position as in default
     // behavour for drag and drop. That default behaviour would not work here,

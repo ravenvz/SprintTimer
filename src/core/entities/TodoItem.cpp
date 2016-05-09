@@ -28,11 +28,32 @@ std::string TodoItem::estimatedPrefix = std::string{"*"};
 
 std::string TodoItem::name() const { return mName; }
 
+bool TodoItem::isCompleted() const { return mCompleted; }
+
 int TodoItem::estimatedPomodoros() const { return mEstimatedPomodoros; }
 
 int TodoItem::spentPomodoros() const { return mSpentPomodoros; }
 
 std::list<std::string> TodoItem::tags() const { return mTags; }
+
+void TodoItem::setName(const std::string& name) { mName = name; }
+
+void TodoItem::setCompleted(bool completed) { mCompleted = completed; }
+
+void TodoItem::setEstimatedPomodoros(int estimatedPomodoros)
+{
+    mEstimatedPomodoros = estimatedPomodoros;
+}
+
+void TodoItem::setTags(const std::list<std::string>& newTags)
+{
+    mTags = newTags;
+}
+
+void TodoItem::setSpentPomodoros(int spentPomodoros)
+{
+    mSpentPomodoros = spentPomodoros;
+}
 
 std::string TodoItem::tagsAsString() const
 {
@@ -45,14 +66,6 @@ std::string TodoItem::tagsAsString() const
     return StringUtils::join(res.begin(), res.end(), " ");
 }
 
-bool TodoItem::isCompleted() const { return mCompleted; }
-
-void TodoItem::setCompleted(bool completed) { mCompleted = completed; }
-
-void TodoItem::setSpentPomodoros(int spentPomodoros)
-{
-    mSpentPomodoros = spentPomodoros;
-}
 
 std::string TodoItem::toString() const
 {

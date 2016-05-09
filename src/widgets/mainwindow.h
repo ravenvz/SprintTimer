@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "core/IPomodoroStorageReader.h"
 #include "core/PomodoroTimer.h"
+#include "core/use_cases/use_cases.h"
 #include "db_layer/db_service.h"
 #include "goalsview.h"
 #include "historyview.h"
@@ -14,6 +16,7 @@
 #include <QMainWindow>
 #include <QMediaPlayer>
 #include <QSettings>
+#include <QStringListModel>
 #include <QStringListModel>
 #include <QTimer>
 #include <experimental/optional>
@@ -34,7 +37,9 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(IConfig& applicationSettings, QWidget* parent = 0);
+    MainWindow(IConfig& applicationSettings,
+               DBService& dbService,
+               QWidget* parent = 0);
     ~MainWindow();
 
 signals:
@@ -62,6 +67,7 @@ private slots:
 private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
+    DBService& dbService;
     std::unique_ptr<QMediaPlayer> player;
     std::vector<TimeSpan> completedTasksIntervals;
     int progressBarMaxValue{0};
@@ -85,6 +91,12 @@ private:
 
     /* Set stopwatch value. */
     void setTimerValue(Second timeLeft);
+
+    UseCases::IPomodoroYearRangeReader* reader;
+    IPomodoroStorageReader* pomodoroReader;
+    void onYearRangeReceived(const std::vector<std::string>& range);
+    void onPomodorosUpdated(const std::vector<Pomodoro>& items);
+    QStringListModel* pomoTempModel;
 
     void updateOpenedWindows();
     void updatePomodoroView();

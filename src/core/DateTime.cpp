@@ -1,5 +1,6 @@
 #include "DateTime.h"
 #include <array>
+#include <iomanip>
 #include <iostream>
 
 
@@ -90,6 +91,19 @@ std::string DateTime::toTimeString() const
     auto tp = floor<std::chrono::minutes>(time);
     auto dp = floor<date::days>(time);
     ss << make_time(tp - dp);
+    return ss.str();
+}
+
+std::string DateTime::yyyymmddString() const
+{
+    std::stringstream ss;
+    ss << year();
+    ss << "-";
+    ss << std::setfill('0') << std::setw(2);
+    ss << month();
+    ss << "-";
+    ss << std::setfill('0') << std::setw(2);
+    ss << day();
     return ss.str();
 }
 

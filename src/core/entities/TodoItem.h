@@ -51,27 +51,33 @@ public:
     /* Return Task name. */
     std::string name() const;
 
+    /* Return true if Task is completed and false otherwise. */
+    bool isCompleted() const;
+
     /* Return estimated task cost in pomodoros. */
     int estimatedPomodoros() const;
 
-    /* Pomodoros spent on task. */
+    /* Number of Pomodoros that had been spent on this task. */
     int spentPomodoros() const;
 
     /* Return list containing Task tags. */
     std::list<std::string> tags() const;
 
-    /* Return string representation of tags.
-     * Tags will be concatenated with ', '. */
-    std::string tagsAsString() const;
-
-    /* Return true if Task is completed and false otherwise. */
-    bool isCompleted() const;
+    void setName(const std::string& name);
 
     /* Set task status. */
     void setCompleted(bool completed);
 
+    void setEstimatedPomodoros(int estimatedPomodoros);
+
     /* Set number of pomodoros spent on this task. */
     void setSpentPomodoros(int spentPomodoros);
+
+    void setTags(const std::list<std::string>& newTags);
+
+    /* Return string representation of tags.
+     * Tags will be concatenated with ', '. */
+    std::string tagsAsString() const;
 
     /* Return string representation of Task. */
     std::string toString() const;

@@ -3,6 +3,57 @@
 
 
 DBService::DBService(QString filename)
+{
+    Worker* worker = new Worker(filename);
+    worker->moveToThread(&workerThread);
+    qRegisterMetaType<std::vector<QSqlRecord>>("std::vector<QSqlRecord>");
+    connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
+    connect(this, &DBService::queue, worker, &Worker::execute);
+    connect(this, &DBService::queuePrepared, worker, &Worker::executePrepared);
+    connect(worker, &Worker::results, this, &DBService::handleResults);
+    connect(this, &DBService::prepare, worker, &Worker::prepare);
+    connect(this, &DBService::bind, worker, &Worker::bindValue);
+    workerThread.start();
+}
+
+
+DBService::~DBService()
+{
+    workerThread.quit();
+    workerThread.wait();
+}
+
+
+void DBService::executeQuery(const QString& query) { emit queue(query); }
+
+
+void DBService::executePrepared(const QString& queryId)
+{
+    emit queuePrepared(queryId);
+}
+
+
+void DBService::handleResults(const std::vector<QSqlRecord>& records)
+{
+    emit results(records);
+}
+
+
+void DBService::handleError(const QString& errorMessage)
+{
+    qDebug() << errorMessage;
+}
+
+
+void DBService::bindValue(const QString& query,
+                          const QString& placeholder,
+                          const QVariant& value)
+{
+    emit bind(query, placeholder, value);
+}
+
+
+Worker::Worker(const QString& filename)
     : filename{std::move(filename)}
     , db{QSqlDatabase::addDatabase("QSQLITE")}
 {
@@ -11,21 +62,101 @@ DBService::DBService(QString filename)
 }
 
 
-DBService::~DBService()
+void Worker::execute(const QString& query)
+{
+    QSqlQuery q;
+    if (!q.exec(query)) {
+        emit error(q.lastError().text());
+    }
+    else {
+        std::vector<QSqlRecord> recs;
+        while (q.next()) {
+            recs.push_back(q.record());
+        }
+        emit results(recs);
+    }
+}
+
+void Worker::executePrepared(const QString& queryId)
+{
+    QSqlQuery query = preparedQueries.value(queryId);
+    if (!query.exec()) {
+        emit error(query.lastError().text());
+    }
+    else {
+        std::vector<QSqlRecord> recs;
+        while (query.next()) {
+            recs.push_back(query.record());
+        }
+        emit results(recs);
+    }
+}
+
+
+void Worker::prepare(const QString& queryId, const QString& queryStr)
+{
+    QSqlQuery query;
+    query.prepare(queryStr);
+    preparedQueries.insert(queryId, query);
+}
+
+
+void Worker::bindValue(const QString& queryId,
+                       const QString& placeholder,
+                       const QVariant& value)
+{
+    // QSqlQuery* query = preparedQueries.value(queryId).get();
+    preparedQueries[queryId].bindValue(placeholder, value);
+    // query->bindValue(placeholder, value);
+}
+
+
+Worker::~Worker()
 {
     db.close();
     QSqlDatabase::removeDatabase("QSQLITE");
 }
 
-
-bool DBService::createDatabase()
+bool Worker::createDatabase()
 {
     db.setDatabaseName(filename);
     return db.open() && createSchema();
 }
 
 
-bool DBService::createSchema()
+bool Worker::createDbConnection()
+{
+    // QString filename = "db/pomodoro.db";
+    // QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    QFile databaseFile(filename);
+    if (filename == ":memory:") {
+        db.open();
+        createSchema();
+        activateForeignKeys();
+        return true;
+    }
+    // if (filename == ":memory:" || !databaseFile.exists()) {
+    if (!databaseFile.exists()) {
+        qDebug() << "Database not found. Creating...";
+        if (!createDatabase()) {
+            return false;
+        }
+    }
+    else {
+        qDebug() << "Database found. Opening...";
+        db.setDatabaseName(filename);
+    }
+
+    if (!db.open()) {
+        qDebug() << "Failed to open database";
+        return false;
+    }
+    activateForeignKeys();
+    return true;
+}
+
+
+bool Worker::createSchema()
 {
     QSqlQuery query;
 
@@ -51,13 +182,13 @@ bool DBService::createSchema()
                              "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
                              "name VARCHAR(15) UNIQUE NOT NULL)";
 
-    QString createTodoTagTable
-        = "CREATE TABLE todotag "
-          "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
-          "tag_id INTEGER NOT NULL, "
-          "todo_id INTEGER NOT NULL, "
-          "FOREIGN KEY(tag_id) REFERENCES tag(id), "
-          "FOREIGN KEY(todo_id) REFERENCES todo_item(id) ON DELETE CASCADE)";
+    QString createTodoTagTable = "CREATE TABLE todotag "
+                                 "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                                 "tag_id INTEGER NOT NULL, "
+                                 "todo_id INTEGER NOT NULL, "
+                                 "FOREIGN KEY(tag_id) REFERENCES tag(id), "
+                                 "FOREIGN KEY(todo_id) REFERENCES "
+                                 "todo_item(id) ON DELETE CASCADE)";
 
     // Trigger to remove orphaned tags (tags, that are not bound to any todo
     // item)
@@ -70,7 +201,8 @@ bool DBService::createSchema()
           "WHERE tag_id = old.tag_id) = 0;"
           "END;";
 
-    // Trigger to increment spent pomodoros in todo_item when new pomodoro is
+    // Trigger to increment spent pomodoros in todo_item when new pomodoro
+    // is
     // inserted
     QString createIncrementSpentTrigger
         = "CREATE TRIGGER increment_spent_after_pomo_insert "
@@ -185,46 +317,14 @@ bool DBService::createSchema()
 }
 
 
-bool DBService::createDbConnection()
-{
-    // QString filename = "db/pomodoro.db";
-    // QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    QFile databaseFile(filename);
-    if (filename == ":memory:") {
-        db.open();
-        createSchema();
-        activateForeignKeys();
-        return true;
-    }
-    // if (filename == ":memory:" || !databaseFile.exists()) {
-    if (!databaseFile.exists()) {
-        qDebug() << "Database not found. Creating...";
-        if (!createDatabase()) {
-            return false;
-        }
-    }
-    else {
-        qDebug() << "Database found. Opening...";
-        db.setDatabaseName(filename);
-    }
-
-    if (!db.open()) {
-        qDebug() << "Failed to open database";
-        return false;
-    }
-    activateForeignKeys();
-    return true;
-}
-
-
-bool DBService::activateForeignKeys()
+bool Worker::activateForeignKeys()
 {
     QSqlQuery query;
     return query.exec("PRAGMA foreign_keys = ON");
 }
 
 
-bool DBService::execAndCheck(QSqlQuery& query, const QString& queryStr)
+bool Worker::execAndCheck(QSqlQuery& query, const QString& queryStr)
 {
     bool ok = query.exec(queryStr);
     if (!ok) {

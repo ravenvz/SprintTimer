@@ -22,6 +22,8 @@ public:
 
     virtual bool remove(int row) = 0;
 
+    virtual Pomodoro itemAt(const int row) const = 0;
+
     virtual std::vector<Pomodoro> items() = 0;
 
     virtual std::vector<Pomodoro> items(const TimeSpan& timeSpan) = 0;

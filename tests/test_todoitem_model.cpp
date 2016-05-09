@@ -44,8 +44,6 @@ TEST_GROUP(TodoItemModel)
         std::list<std::string> tags2 = item2.tags();
         tags1.sort();
         tags2.sort();
-        // std::sort(tags1.begin(), tags1.end());
-        // std::sort(tags2.begin(), tags2.end());
         return tags1 == tags2;
     }
 };
