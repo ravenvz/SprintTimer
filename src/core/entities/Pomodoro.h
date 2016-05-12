@@ -4,6 +4,7 @@
 
 #include "TodoItem.h"
 #include "core/TimeSpan.h"
+#include "utils/UuidUtils.h"
 #include <list>
 #include <string>
 
@@ -15,12 +16,14 @@
 class Pomodoro {
 
 public:
-    // Pomodoro();
-
-    /* Construct from time timeSpan and associated Task's name and tags. */
     Pomodoro(const std::string& taskName,
              const TimeSpan& timeSpan,
              const std::list<std::string>& tags);
+
+    Pomodoro(const std::string& taskName,
+             const TimeSpan& timeSpan,
+             const std::list<std::string>& tags,
+             const std::string& uuid);
 
     /* Construct from associated Task and time timeSpan. */
     Pomodoro(const TodoItem& task, const TimeSpan& timeSpan);
@@ -37,6 +40,9 @@ public:
     // Return time interval when this Pomodoro was active.
     TimeSpan timeSpan() const;
 
+    // Return uuid
+    std::string uuid() const;
+
     // Return vector of tags. Tags are identical the associated task tags.
     std::list<std::string> tags() const;
 
@@ -44,8 +50,10 @@ public:
     std::string toString() const;
 
 private:
+    static BoostUUUIDGenerator generator;
     std::string mName;
     TimeSpan mInterval;
+    std::string mUuid;
     std::list<std::string> mTags;
 };
 

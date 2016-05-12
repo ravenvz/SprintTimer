@@ -5,11 +5,26 @@
 
 // Pomodoro::Pomodoro() {}
 
+// static
+BoostUUUIDGenerator Pomodoro::generator;
+
 Pomodoro::Pomodoro(const std::string& taskName,
                    const TimeSpan& timeSpan,
                    const std::list<std::string>& tags)
     : mName{taskName}
     , mInterval{timeSpan}
+    , mUuid{generator.generateUUID()}
+    , mTags{tags}
+{
+}
+
+Pomodoro::Pomodoro(const std::string& taskName,
+                   const TimeSpan& timeSpan,
+                   const std::list<std::string>& tags,
+                   const std::string& uuid)
+    : mName{taskName}
+    , mInterval{timeSpan}
+    , mUuid{uuid}
     , mTags{tags}
 {
 }
@@ -17,6 +32,7 @@ Pomodoro::Pomodoro(const std::string& taskName,
 Pomodoro::Pomodoro(const TodoItem& task, const TimeSpan& timeSpan)
     : mName{task.name()}
     , mInterval{timeSpan}
+    , mUuid{generator.generateUUID()}
     , mTags{task.tags()}
 {
 }
@@ -29,11 +45,12 @@ DateTime Pomodoro::finishTime() const { return mInterval.finishTime; }
 
 TimeSpan Pomodoro::timeSpan() const { return mInterval; }
 
+std::string Pomodoro::uuid() const { return mUuid; }
+
 std::list<std::string> Pomodoro::tags() const { return mTags; }
 
 std::string Pomodoro::toString() const
 {
-
     std::vector<std::string> tagsCopy;
     std::vector<std::string> result;
 
