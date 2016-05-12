@@ -2,7 +2,8 @@
 #include <regex>
 
 
-// TodoItem::TodoItem() {}
+// static
+BoostUUUIDGenerator TodoItem::generator;
 
 TodoItem::TodoItem(std::string name,
                    int estimatedPomodoros,
@@ -12,12 +13,29 @@ TodoItem::TodoItem(std::string name,
     : mName(name)
     , mEstimatedPomodoros(estimatedPomodoros)
     , mSpentPomodoros(spentPomodoros)
+    , mUuid{generator.generateUUID()}
+    , mTags(tags)
+    , mCompleted(completed)
+{
+}
+
+TodoItem::TodoItem(std::string name,
+                   int estimatedPomodoros,
+                   int spentPomodoros,
+                   const std::string& uuid,
+                   std::list<std::string> tags,
+                   bool completed)
+    : mName(name)
+    , mEstimatedPomodoros(estimatedPomodoros)
+    , mSpentPomodoros(spentPomodoros)
+    , mUuid{uuid}
     , mTags(tags)
     , mCompleted(completed)
 {
 }
 
 TodoItem::TodoItem(std::string encodedDescription)
+    : mUuid{generator.generateUUID()}
 {
     decodeDescription(std::move(encodedDescription));
 }

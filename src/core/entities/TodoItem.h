@@ -2,6 +2,7 @@
 #define ENTITIES_H
 
 #include "utils/StringUtils.h"
+#include "utils/UuidUtils.h"
 #include <list>
 #include <string>
 #include <vector>
@@ -18,7 +19,14 @@ public:
     TodoItem(std::string name,
              int estimatedPomodoros,
              int spentPomodoros,
-             std::list<std::string> tags,
+             std::list<std::string> tags, // TODO should be reference or moved
+             bool completed);
+
+    TodoItem(std::string name,
+             int estimatedPomodoros,
+             int spentPomodoros,
+             const std::string& uuid,
+             std::list<std::string> tags, // TODO should be reference or moved
              bool completed);
 
     /* Construct Task from encoded description.
@@ -60,6 +68,9 @@ public:
     /* Number of Pomodoros that had been spent on this task. */
     int spentPomodoros() const;
 
+    /* Return UUID. */
+    std::string uuid() const;
+
     /* Return list containing Task tags. */
     std::list<std::string> tags() const;
 
@@ -83,10 +94,12 @@ public:
     std::string toString() const;
 
 private:
+    static BoostUUUIDGenerator generator;
     std::string mName;
     std::string mEncodedDescription;
     int mEstimatedPomodoros = 1;
     int mSpentPomodoros{0};
+    std::string mUuid;
     std::list<std::string> mTags;
     bool mCompleted{false};
 
