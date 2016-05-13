@@ -1,10 +1,11 @@
 #include "mainwindow.h"
 #include "core/Timer.h"
-#include "db_layer/qtsqlite.h"
+// #include "db_layer/qtsqlite.h"
 #include "dialogs/AddTaskDialog.h"
 #include "dialogs/confirmationdialog.h"
 #include "dialogs/manualaddpomodorodialog.h"
 #include "dialogs/settings_dialog.h"
+#include "qt_storage_impl/QtSqlitePomodoroYearRangeReader.h"
 #include "ui_mainwindow.h"
 #include <QtWidgets/qmenu.h>
 #include <src/core/config.h>
@@ -29,25 +30,28 @@ MainWindow::MainWindow(IConfig& applicationSettings,
         dbService,
         std::bind(
             &MainWindow::onYearRangeReceived, this, std::placeholders::_1)};
-    pomoTempModel = new QStringListModel(this);
-    pomodoroReader = new QtSqlitePomodoroStorageReader{dbService};
-    UseCases::RequestPomodorosInTimeRangeCommand command{
-        *pomodoroReader,
-        TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
-        std::bind(
-            &MainWindow::onPomodorosUpdated, this, std::placeholders::_1)};
-    command.execute();
+    // pomoTempModel = new QStringListModel(this);
+    pomodoroModelNew = new PomodoroModelNew(dbService, this);
+    // pomodoroReader = new QtSqlitePomodoroStorageReader{dbService};
+    // UseCases::RequestPomodorosInTimeRangeCommand command{
+    //     *pomodoroReader,
+    //     TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
+    //     std::bind(
+    //         &MainWindow::onPomodorosUpdated, this, std::placeholders::_1)};
+    // command.execute();
 
 
-    pomodoroModel = new PomodoroModel(this);
-    pomodoroModel->setDateFilter(
-        DateInterval{QDate::currentDate(), QDate::currentDate()});
-    pomodoroModel->setSortByTime();
-    pomodoroModel->select();
+    // pomodoroModel = new PomodoroModel(this);
+    // pomodoroModel->setDateFilter(
+    //     DateInterval{QDate::currentDate(), QDate::currentDate()});
+    // pomodoroModel->setSortByTime();
+    // pomodoroModel->select();
     // ui->lvCompletedPomodoros->setModel(pomodoroModel);
-    ui->lvCompletedPomodoros->setModel(pomoTempModel);
+    ui->lvCompletedPomodoros->setModel(pomodoroModelNew);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
 
+    // pomodoroModelNew->setDateFilter(
+    //     TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()});
     todoitemViewModel = new TodoItemModel(this);
     todoitemViewModel->setNotCompletedFilter();
     todoitemViewModel->select();
@@ -72,7 +76,7 @@ MainWindow::~MainWindow()
     delete goalsView;
     delete tagEditor;
     delete reader;
-    delete pomodoroReader;
+    // delete pomodoroReader;
     delete ui;
 }
 
@@ -201,23 +205,24 @@ void MainWindow::onYearRangeReceived(const std::vector<std::string>& range)
     std::cout << std::endl;
 }
 
-void MainWindow::onPomodorosUpdated(const std::vector<Pomodoro>& items)
-{
-    QStringList lst;
-    std::transform(items.cbegin(),
-                   items.cend(),
-                   std::back_inserter(lst),
-                   [](const auto& elem) {
-                       return QString::fromStdString(elem.toString());
-                   });
-    pomoTempModel->setStringList(lst);
-}
+// void MainWindow::onPomodorosUpdated(
+//     const std::vector<std::pair<Pomodoro, long long>>& items)
+// {
+//     QStringList lst;
+//     std::transform(items.cbegin(),
+//                    items.cend(),
+//                    std::back_inserter(lst),
+//                    [](const auto& elem) {
+//                        return QString::fromStdString(elem.first.toString());
+//                    });
+//     pomoTempModel->setStringList(lst);
+// }
 
 void MainWindow::startTask()
 {
     // QtSqlitePomodoroYearRangeReader reader{dbService};
-    UseCases::RequestPomodoroYearRangeCommand command{*reader};
-    command.execute();
+    // UseCases::RequestPomodoroYearRangeCommand command{*reader};
+    // command.execute();
     // reader->requestYearRange(std::bind(
     //     &MainWindow::onYearRangeReceived, this, std::placeholders::_1));
 
@@ -256,7 +261,7 @@ void MainWindow::submitPomodoro()
     ui->leDoneTask->hide();
     completedTasksIntervals.push_back(pomodoroTimer.finish());
     for (const TimeSpan& timeSpan : completedTasksIntervals) {
-        pomodoroModel->insert(*selectedTaskId, timeSpan);
+        pomodoroModelNew->insert(*selectedTaskId, timeSpan);
     }
 
     completedTasksIntervals.clear();
@@ -269,14 +274,14 @@ void MainWindow::submitPomodoro()
 void MainWindow::updatePomodoroView()
 {
     // QStringList lst = PomodoroDataSource::getPomodorosForToday();
-    pomodoroModel->select();
+    // pomodoroModel->select();
     // pomodoroModel->setStringList(lst);
     int dailyGoal = applicationSettings.dailyPomodorosGoal();
     if (dailyGoal == 0) {
         ui->labelDailyGoalProgress->hide();
         return;
     }
-    int completedSoFar = pomodoroModel->rowCount();
+    int completedSoFar = pomodoroModelNew->rowCount();
     ui->labelDailyGoalProgress->setText(
         QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
     if (completedSoFar == dailyGoal) {
@@ -385,7 +390,7 @@ void MainWindow::removePomodoro()
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         // TODO handle sad path
-        pomodoroModel->remove(index.row());
+        pomodoroModelNew->remove(index.row());
         // TODO replace with call to refresh
         todoitemViewModel->select();
     }
@@ -434,7 +439,7 @@ void MainWindow::launchStatisticsView()
 
 void MainWindow::launchManualAddPomodoroDialog()
 {
-    PomodoroManualAddDialog dialog{pomodoroModel,
+    PomodoroManualAddDialog dialog{pomodoroModelNew,
                                    todoitemViewModel,
                                    applicationSettings.pomodoroDuration()};
     if (dialog.exec()) {

@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include "widgets/IStatisticalChart.h"
 #include <experimental/optional>
+#include <cmath>
 
 using std::experimental::optional;
 
@@ -53,7 +54,7 @@ private:
     /* Data that is to be displayed as a pie chart. */
     std::vector<LabelValuePair> data;
     /* Constant pi. */
-    const double pi{acos(-1)};
+    const double pi{std::acos(-1)};
     /* Colors for the slices. */
     std::vector<QBrush> brushes{QBrush(QColor("#28245a")),
                                 QBrush(QColor("#73c245")),

@@ -2,11 +2,13 @@
 #define MAINWINDOW_H
 
 #include "core/IPomodoroStorageReader.h"
+#include "core/IPomodoroYearRangeReader.h"
 #include "core/PomodoroTimer.h"
 #include "core/use_cases/use_cases.h"
 #include "db_layer/db_service.h"
 #include "goalsview.h"
 #include "historyview.h"
+#include "models/PomodoroModelNew.h"
 #include "src/models/pomodoromodel.h"
 #include "src/models/tagmodel.h"
 #include "src/models/todoitemmodel.h"
@@ -73,6 +75,7 @@ private:
     int progressBarMaxValue{0};
     Second timeLeft{0};
     QPointer<PomodoroModel> pomodoroModel;
+    QPointer<PomodoroModelNew> pomodoroModelNew;
     QPointer<TagModel> tagModel;
     QPointer<TodoItemModel> todoitemViewModel;
     QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
@@ -92,11 +95,12 @@ private:
     /* Set stopwatch value. */
     void setTimerValue(Second timeLeft);
 
-    UseCases::IPomodoroYearRangeReader* reader;
-    IPomodoroStorageReader* pomodoroReader;
+    IPomodoroYearRangeReader* reader;
+    // IPomodoroStorageReader* pomodoroReader;
     void onYearRangeReceived(const std::vector<std::string>& range);
-    void onPomodorosUpdated(const std::vector<Pomodoro>& items);
-    QStringListModel* pomoTempModel;
+    // void onPomodorosUpdated(
+    //     const std::vector<std::pair<Pomodoro, long long>>& items);
+    // QStringListModel* pomoTempModel;
 
     void updateOpenedWindows();
     void updatePomodoroView();

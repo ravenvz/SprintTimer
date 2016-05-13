@@ -1,12 +1,14 @@
-#include "manualaddpomodorodialog.h"
-#include "ui_manual_add_pomodoro_dialog.h"
+#include "dialogs/manualaddpomodorodialog.h"
 #include "db_layer/db_service.h"
+#include "models/PomodoroModelNew.h"
+#include "ui_manual_add_pomodoro_dialog.h"
 
 
-PomodoroManualAddDialog::PomodoroManualAddDialog(PomodoroModel* pomodoroModel,
-                                                 TodoItemModel* todoItemModel,
-                                                 int pomodoroDuration,
-                                                 QDialog* parent)
+PomodoroManualAddDialog::PomodoroManualAddDialog(
+    PomodoroModelNew* pomodoroModel,
+    TodoItemModel* todoItemModel,
+    int pomodoroDuration,
+    QDialog* parent)
     : QDialog(parent)
     , ui(new Ui::PomodoroManualAddDialog)
     , pomodoroModel(pomodoroModel)

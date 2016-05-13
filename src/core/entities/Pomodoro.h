@@ -16,6 +16,8 @@
 class Pomodoro {
 
 public:
+    Pomodoro(const TimeSpan& timeSpan);
+
     Pomodoro(const std::string& taskName,
              const TimeSpan& timeSpan,
              const std::list<std::string>& tags);

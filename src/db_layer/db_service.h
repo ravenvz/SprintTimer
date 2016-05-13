@@ -47,6 +47,7 @@ signals:
     void queue(const QString& query);
     void queuePrepared(const QString& queryId);
     void results(const std::vector<QSqlRecord>& records);
+    void error(const QString& errorMessage);
     void prepare(const QString& queryId, const QString& queryStr);
     void bind(const QString& query,
               const QString& placeholder,
@@ -95,6 +96,8 @@ private:
     bool activateForeignKeys();
 
     bool execAndCheck(QSqlQuery& query, const QString& queryStr);
+
+    void migrate();
 };
 
 

@@ -1,4 +1,5 @@
 #include "db_service.h"
+#include "utils/UuidUtils.h"
 #include <exception>
 
 
@@ -11,6 +12,7 @@ DBService::DBService(QString filename)
     connect(this, &DBService::queue, worker, &Worker::execute);
     connect(this, &DBService::queuePrepared, worker, &Worker::executePrepared);
     connect(worker, &Worker::results, this, &DBService::handleResults);
+    connect(worker, &Worker::error, this, &DBService::handleError);
     connect(this, &DBService::prepare, worker, &Worker::prepare);
     connect(this, &DBService::bind, worker, &Worker::bindValue);
     workerThread.start();
@@ -42,6 +44,7 @@ void DBService::handleResults(const std::vector<QSqlRecord>& records)
 void DBService::handleError(const QString& errorMessage)
 {
     qDebug() << errorMessage;
+    emit error(errorMessage);
 }
 
 
@@ -152,7 +155,40 @@ bool Worker::createDbConnection()
         return false;
     }
     activateForeignKeys();
+    // migrate();
     return true;
+}
+
+// TODO remove
+void Worker::migrate()
+{
+    BoostUUUIDGenerator generator;
+    QSqlQuery query;
+    QSqlDatabase::database().transaction();
+    QString qstr{"select id from pomodoro;"};
+    query.exec(qstr);
+    while (query.next()) {
+        long long id = query.value(0).toUInt();
+        QSqlQuery q;
+        QString uuid = QString::fromStdString(generator.generateUUID());
+        q.prepare("update pomodoro set uuid = :uuid where id = :id");
+        q.bindValue(":uuid", QVariant(uuid));
+        q.bindValue(":id", QVariant(id));
+        q.exec();
+    }
+    QSqlDatabase::database().commit();
+    query.exec("select id from todo_item;");
+    QSqlDatabase::database().transaction();
+    while (query.next()) {
+        long long id = query.value(0).toUInt();
+        QSqlQuery m;
+        QString uuid = QString::fromStdString(generator.generateUUID());
+        m.prepare("update todo_item set uuid = :uuid where id = :id");
+        m.bindValue(":uuid", QVariant(uuid));
+        m.bindValue(":id", QVariant(id));
+        m.exec();
+    }
+    QSqlDatabase::database().commit();
 }
 
 
@@ -167,7 +203,8 @@ bool Worker::createSchema()
                                   "spent_pomodoros INTEGER, "
                                   "completed BOOLEAN, "
                                   "priority INTEGER, "
-                                  "last_modified DATETIME)";
+                                  "last_modified DATETIME, "
+                                  "uuid TEXT UNIQUE NOT NULL)";
 
     QString createPomodoroTable
         = "CREATE TABLE pomodoro "
@@ -175,6 +212,7 @@ bool Worker::createSchema()
           "todo_id INTEGER, "
           "start_time DATETIME, "
           "finish_time DATETIME, "
+          "uuid TEXT UNIQUE NOT NULL, "
           "FOREIGN KEY (todo_id) REFERENCES todo_item(id) "
           "ON DELETE CASCADE)";
 
@@ -226,7 +264,7 @@ bool Worker::createSchema()
     QString createPomodoroView
         = "CREATE VIEW pomodoro_view AS "
           "SELECT pomodoro.id, pomodoro.todo_id, todo_item.name, "
-          "group_concat(tag.name) tags, start_time, finish_time "
+          "group_concat(tag.name) tags, start_time, finish_time, pomodoro.uuid "
           "FROM pomodoro join todo_item ON pomodoro.todo_id = todo_item.id "
           "LEFT JOIN todotag ON todotag.todo_id = todo_item.id "
           "LEFT JOIN tag ON tag.id = todotag.tag_id "
@@ -245,8 +283,8 @@ bool Worker::createSchema()
           "INSTEAD OF INSERT "
           "ON pomodoro_view "
           "BEGIN "
-          "INSERT INTO pomodoro (todo_id, start_time, finish_time) "
-          "SELECT new.todo_id, new.start_time, new.finish_time;"
+          "INSERT INTO pomodoro (todo_id, start_time, finish_time, uuid) "
+          "SELECT new.todo_id, new.start_time, new.finish_time, new.uuid;"
           "END;";
 
     // View for todo items

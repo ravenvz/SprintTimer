@@ -15,7 +15,7 @@ find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-# Note, that options are mutually exclusive but nothing enforces this.
+# Note that options are mutually exclusive but nothing enforces this.
 option(ADDRESS_SANITIZER "Address sanitizer in Debug build" OFF)
 option(MEMORY_SANITIZER "Memory sanitizer in Debug build" OFF)
 option(UB_SANITIZER "Undefined behavior sanitizer in Debug build" OFF)
@@ -63,6 +63,7 @@ set(CLANG_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
                           -Wno-missing-prototypes
                           -Wno-unused-parameter
                           -Wno-global-constructors
+                          -Wno-missing-noreturn
                           -Wno-undefined-reinterpret-cast # Qt's mock
                           -Wno-exit-time-destructors)
 

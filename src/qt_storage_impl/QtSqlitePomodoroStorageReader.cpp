@@ -1,46 +1,24 @@
-#include "qtsqlite.h"
-
-
-QtSqlitePomodoroYearRangeReader::QtSqlitePomodoroYearRangeReader(
-    DBService& dbService, Handler handler)
-    : dbService{dbService}
-    , handler{handler}
-{
-    connect(&dbService,
-            &DBService::results,
-            this,
-            &QtSqlitePomodoroYearRangeReader::onResultsReceived);
-}
-
-void QtSqlitePomodoroYearRangeReader::requestYearRange()
-{
-    dbService.executeQuery("select distinct strftime('%Y', start_time) "
-                           "from pomodoro order by start_time;");
-}
-
-void QtSqlitePomodoroYearRangeReader::onResultsReceived(
-    const std::vector<QSqlRecord>& records)
-{
-    std::vector<std::string> range;
-    for (const auto& record : records) {
-        range.push_back(record.value(0).toString().toStdString());
-    }
-    handler(range);
-}
+#include "qt_storage_impl/QtSqlitePomodoroStorageReader.h"
 
 
 QtSqlitePomodoroStorageReader::QtSqlitePomodoroStorageReader(
     DBService& dbService)
     : dbService{dbService}
 {
-    dbService.prepare(queryId,
-                      "select * from pomodoro_view "
-                      "where date(start_time) >= (:startTime) "
-                      "and date(start_time) <= (:finishTime)");
+    dbService.prepare(
+        queryId,
+        "select id, todo_id, name, tags, start_time, finish_time, uuid "
+        "from pomodoro_view "
+        "where date(start_time) >= (:startTime) "
+        "and date(start_time) <= (:finishTime)");
     connect(&dbService,
             &DBService::results,
             this,
             &QtSqlitePomodoroStorageReader::onResultsReceived);
+    connect(&dbService,
+            &DBService::error,
+            this,
+            &QtSqlitePomodoroStorageReader::onError);
 }
 
 void QtSqlitePomodoroStorageReader::requestItems(const TimeSpan& timeSpan,
@@ -57,24 +35,18 @@ void QtSqlitePomodoroStorageReader::requestItems(const TimeSpan& timeSpan,
                    ":finishTime",
                    QVariant(QString::fromStdString(finish.yyyymmddString())));
 
-    // QString query{
-    //     QString("select * from pomodoro_view "
-    //             "where date(start_time) >= '%1' and date(start_time) <=
-    //             '%2'")
-    //         .arg(QString::fromStdString(start.yyyymmddString()))
-    //         .arg(QString::fromStdString(finish.yyyymmddString()))};
     dbService.executePrepared(queryId);
 }
 
 void QtSqlitePomodoroStorageReader::onResultsReceived(
     const std::vector<QSqlRecord>& records)
 {
-    std::vector<Pomodoro> pomodoros;
+    Items pomodoros;
     std::transform(
         records.cbegin(),
         records.cend(),
         std::back_inserter(pomodoros),
-        [&](const auto& elem) { return pomodoroFromQSqlRecord(elem); });
+        [&](const auto& elem) { return this->pomodoroFromQSqlRecord(elem); });
     handler(pomodoros);
 }
 
@@ -84,6 +56,8 @@ QtSqlitePomodoroStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
     QDateTime finish = columnData(record, Columns::FinishTime).toDateTime();
+    std::string uuid
+        = columnData(record, Columns::Uuid).toString().toStdString();
     int offsetFromUtcInSeconds{start.offsetFromUtc()};
     TimeSpan timeSpan{
         start.toTime_t(), finish.toTime_t(), offsetFromUtcInSeconds};
@@ -93,7 +67,8 @@ QtSqlitePomodoroStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
                    qTags.cend(),
                    std::back_inserter(tags),
                    [](const auto& tag) { return tag.toStdString(); });
-    return Pomodoro{name.toStdString(), timeSpan, tags};
+    std::cout << uuid << std::endl;
+    return Pomodoro{name.toStdString(), timeSpan, tags, uuid};
 }
 
 QVariant QtSqlitePomodoroStorageReader::columnData(const QSqlRecord& record,
@@ -101,3 +76,9 @@ QVariant QtSqlitePomodoroStorageReader::columnData(const QSqlRecord& record,
 {
     return record.value(static_cast<int>(column));
 }
+
+void QtSqlitePomodoroStorageReader::onError(const QString& error)
+{
+    qDebug() << error;
+}
+

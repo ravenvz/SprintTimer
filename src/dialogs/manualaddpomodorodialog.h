@@ -1,21 +1,23 @@
 #ifndef MANUALADDPOMODORODIALOG_H
 #define MANUALADDPOMODORODIALOG_H
 
+#include "models/PomodoroModelNew.h"
+#include "src/models/todoitemmodel.h"
 #include <QDialog>
 #include <QPointer>
-#include "src/models/todoitemmodel.h"
-#include "src/models/pomodoromodel.h"
 
 namespace Ui {
-    class PomodoroManualAddDialog;
+class PomodoroManualAddDialog;
 }
 
-class PomodoroManualAddDialog : public QDialog
-{
+class PomodoroManualAddDialog : public QDialog {
     Q_OBJECT
 
 public:
-    PomodoroManualAddDialog(PomodoroModel* pomodoroModel, TodoItemModel* todoItemModel, int pomodoroDuration, QDialog* parent = 0);
+    PomodoroManualAddDialog(PomodoroModelNew* pomodoroModel,
+                            TodoItemModel* todoItemModel,
+                            int pomodoroDuration,
+                            QDialog* parent = 0);
     ~PomodoroManualAddDialog();
     void accept() override;
 
@@ -24,13 +26,12 @@ private slots:
 
 private:
     Ui::PomodoroManualAddDialog* ui;
-    QPointer<PomodoroModel> pomodoroModel;
+    QPointer<PomodoroModelNew> pomodoroModel;
     QPointer<TodoItemModel> todoItemModel;
     int pomodoroDuration;
 
     void setData();
     void connectSlots();
-
 };
 
-#endif //MANUALADDPOMODORODIALOG_H
+#endif // MANUALADDPOMODORODIALOG_H

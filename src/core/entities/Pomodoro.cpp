@@ -8,6 +8,12 @@
 // static
 BoostUUUIDGenerator Pomodoro::generator;
 
+Pomodoro::Pomodoro(const TimeSpan& timeSpan)
+    : mInterval{timeSpan}
+    , mUuid{generator.generateUUID()}
+{
+}
+
 Pomodoro::Pomodoro(const std::string& taskName,
                    const TimeSpan& timeSpan,
                    const std::list<std::string>& tags)
