@@ -27,6 +27,6 @@ private:
     std::function<void(const std::vector<Pomodoro>&)> handler;
 };
 
-} /* UseCases */ 
+} /* UseCases */
 
 #endif /* end of include guard: REQUESTPOMODOROSINTIMERANGECOMMAND_H_4QUSWCF0 */

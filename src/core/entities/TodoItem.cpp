@@ -52,6 +52,8 @@ int TodoItem::estimatedPomodoros() const { return mEstimatedPomodoros; }
 
 int TodoItem::spentPomodoros() const { return mSpentPomodoros; }
 
+std::string TodoItem::uuid() const { return mUuid; }
+
 std::list<std::string> TodoItem::tags() const { return mTags; }
 
 void TodoItem::setName(const std::string& name) { mName = name; }

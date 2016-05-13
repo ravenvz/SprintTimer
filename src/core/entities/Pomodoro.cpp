@@ -3,10 +3,11 @@
 #include <algorithm>
 
 
-// Pomodoro::Pomodoro() {}
-
 // static
 BoostUUUIDGenerator Pomodoro::generator;
+
+
+//TODO too much constructors that instantiate partial pomodoros.
 
 Pomodoro::Pomodoro(const TimeSpan& timeSpan)
     : mInterval{timeSpan}
@@ -39,6 +40,7 @@ Pomodoro::Pomodoro(const TodoItem& task, const TimeSpan& timeSpan)
     : mName{task.name()}
     , mInterval{timeSpan}
     , mUuid{generator.generateUUID()}
+    , mTaskUuid{task.uuid()}
     , mTags{task.tags()}
 {
 }
@@ -52,6 +54,8 @@ DateTime Pomodoro::finishTime() const { return mInterval.finishTime; }
 TimeSpan Pomodoro::timeSpan() const { return mInterval; }
 
 std::string Pomodoro::uuid() const { return mUuid; }
+
+std::string Pomodoro::taskUuid() const { return mTaskUuid; }
 
 std::list<std::string> Pomodoro::tags() const { return mTags; }
 

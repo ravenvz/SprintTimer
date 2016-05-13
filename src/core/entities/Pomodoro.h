@@ -42,8 +42,11 @@ public:
     // Return time interval when this Pomodoro was active.
     TimeSpan timeSpan() const;
 
-    // Return uuid
+    // Return uuid.
     std::string uuid() const;
+
+    // Return associated Task uuid.
+    std::string taskUuid() const;
 
     // Return vector of tags. Tags are identical the associated task tags.
     std::list<std::string> tags() const;
@@ -56,6 +59,7 @@ private:
     std::string mName;
     TimeSpan mInterval;
     std::string mUuid;
+    std::string mTaskUuid;
     std::list<std::string> mTags;
 };
 
