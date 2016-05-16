@@ -36,6 +36,19 @@ TEST(DateTime, test_add_days_backward)
     CHECK_EQUAL(10, dt.day());
 }
 
+TEST(DateTime, test_add_days_backward_2)
+{
+    DateTime dt = DateTime::fromYMD(2016, 5, 16);
+    DateTime thirtyDaysBack = dt.addDays(-30);
+
+    CHECK_EQUAL(2016, thirtyDaysBack.year())
+    CHECK_EQUAL(4, thirtyDaysBack.month())
+    CHECK_EQUAL(16, thirtyDaysBack.day())
+    CHECK_EQUAL(2016, dt.year())
+    CHECK_EQUAL(5, dt.month())
+    CHECK_EQUAL(16, dt.day())
+}
+
 TEST(DateTime, test_computes_days_forward)
 {
     DateTime currentDt = DateTime::currentDateTime();

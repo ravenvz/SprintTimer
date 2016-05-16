@@ -23,8 +23,15 @@ void QtSqlitePomodoroDailyDistributionReader::requestDailyDistribution(
     const TimeSpan& timeSpan, Handler handler)
 {
     this->handler = handler;
-    QDate now = QDate::currentDate();
-    dbService.bind(mQueryId, ":start_date", now.addDays(-30));
+    // QDate now = QDate::currentDate();
+    QDate from = QDateTime::fromTime_t(
+                     static_cast<unsigned>(timeSpan.startTime.toTime_t()))
+                     .date();
+    QDate now = QDateTime::fromTime_t(
+                    static_cast<unsigned>(timeSpan.finishTime.toTime_t()))
+                    .date();
+
+    dbService.bind(mQueryId, ":start_date", from);
     dbService.bind(mQueryId, ":end_date", now);
     dbService.executePrepared(mQueryId);
 }

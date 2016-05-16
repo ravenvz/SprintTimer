@@ -49,9 +49,11 @@ void GoalsView::displayData()
 
 void GoalsView::displayDailyData()
 {
+    DateTime now = DateTime::currentDateTime();
+    DateTime from = now.addDays(-30);
     UseCases::RequestPomoDailyDistribution requestDistribution{
         *dailyDistributionReader,
-        TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
+        TimeSpan{from, now},
         std::bind(&GoalsView::onDailyDistributionReceived,
                   this,
                   std::placeholders::_1)};
@@ -60,6 +62,8 @@ void GoalsView::displayDailyData()
 
 void GoalsView::displayWeeklyData()
 {
+    // DateTime now = DateTime::currentDateTime();
+    // DateTime from = now.addDays(-7 * 11 - now.dayOfWeek() + 1);
     int weeklyGoal = applicationSettings.weeklyPomodorosGoal();
     Distribution<int> lastWeeks{goalStatModel.itemsWeeksBack()};
     ui->labelLastQuarterAverage->setText(formatDecimal(lastWeeks.getAverage()));
