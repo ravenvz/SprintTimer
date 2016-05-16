@@ -28,10 +28,12 @@ Pomodoro::Pomodoro(const std::string& taskName,
 Pomodoro::Pomodoro(const std::string& taskName,
                    const TimeSpan& timeSpan,
                    const std::list<std::string>& tags,
-                   const std::string& uuid)
+                   const std::string& uuid,
+                   const std::string& taskUuid)
     : mName{taskName}
     , mInterval{timeSpan}
     , mUuid{uuid}
+    , mTaskUuid{taskUuid}
     , mTags{tags}
 {
 }

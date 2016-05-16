@@ -31,25 +31,27 @@ public:
 
 public slots:
 
-    void executeQuery(const QString& query);
+    void executeQuery(const QString& queryId, const QString& query);
 
     void executePrepared(const QString& queryId);
 
-    void handleResults(const std::vector<QSqlRecord>& records);
+    void handleResults(const QString& queryId,
+                       const std::vector<QSqlRecord>& records);
 
-    void handleError(const QString& errorMessage);
+    void handleError(const QString& queryId, const QString& errorMessage);
 
-    void bindValue(const QString& query,
+    void bindValue(const QString& queryId,
                    const QString& placeholder,
                    const QVariant& value);
 
 signals:
-    void queue(const QString& query);
+    void queue(const QString& queryId, const QString& query);
     void queuePrepared(const QString& queryId);
-    void results(const std::vector<QSqlRecord>& records);
-    void error(const QString& errorMessage);
+    void results(const QString& queryId,
+                 const std::vector<QSqlRecord>& records);
+    void error(const QString& queryId, const QString& errorMessage);
     void prepare(const QString& queryId, const QString& queryStr);
-    void bind(const QString& query,
+    void bind(const QString& queryId,
               const QString& placeholder,
               const QVariant& value);
 
@@ -66,7 +68,7 @@ public:
     ~Worker();
 
 public slots:
-    void execute(const QString& query);
+    void execute(const QString& queryId, const QString& query);
 
     void executePrepared(const QString& queryId);
 
@@ -77,14 +79,14 @@ public slots:
                    const QVariant& value);
 
 signals:
-    void results(const std::vector<QSqlRecord>& records);
+    void results(const QString& queryId,
+                 const std::vector<QSqlRecord>& records);
 
-    void error(const QString& errorMessage);
+    void error(const QString& queryId, const QString& errorMessage);
 
 private:
     QString filename;
     QSqlDatabase db;
-    // QHash<QString, std::unique_ptr<QSqlQuery>> preparedQueries;
     QHash<QString, QSqlQuery> preparedQueries;
 
     bool createDatabase();
@@ -100,14 +102,5 @@ private:
     void migrate();
 };
 
-
-// bool createDatabase(QSqlDatabase& db, QString& filename);
-//
-// bool createSchema();
-//
-// bool createDbConnection();
-//
-// bool activateForeignKeys();
-//
 
 #endif // DB_HELPER_H

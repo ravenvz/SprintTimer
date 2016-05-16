@@ -1,9 +1,9 @@
 #ifndef QTSQLITEPOMODOROSTORAGEREADER_H_JXULCJ6I
 #define QTSQLITEPOMODOROSTORAGEREADER_H_JXULCJ6I
 
-#include <QObject>
 #include "core/IPomodoroStorageReader.h"
 #include "db_layer/db_service.h"
+#include <QObject>
 
 
 class QtSqlitePomodoroStorageReader : public QObject,
@@ -18,14 +18,14 @@ public:
 private:
     enum class Columns {
         Id = 0,
-        TodoId,
+        TodoUuid,
         Name,
         Tags,
         StartTime,
         FinishTime,
         Uuid,
     };
-    const QString queryId{"pomodoroStorageReader"};
+    const QString mQueryId{"pomodoroStorageReader"};
     DBService& dbService;
     Handler handler;
 
@@ -34,10 +34,9 @@ private:
     QVariant columnData(const QSqlRecord& record, Columns column);
 
 private slots:
-    void onResultsReceived(const std::vector<QSqlRecord>& records);
-    void onError(const QString& errorMessage);
+    void onResultsReceived(const QString& queryId,
+                           const std::vector<QSqlRecord>& records);
 };
-
 
 
 #endif /* end of include guard: QTSQLITEPOMODOROSTORAGEREADER_H_JXULCJ6I */

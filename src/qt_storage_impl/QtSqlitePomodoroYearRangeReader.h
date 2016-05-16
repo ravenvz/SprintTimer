@@ -2,9 +2,9 @@
 #define QTSQLITEPOMODOROYEARRANGEREADER_H_6LK9HHEM
 
 #include "core/IPomodoroYearRangeReader.h"
+#include "db_layer/db_service.h"
 #include <QObject>
 #include <functional>
-#include "db_layer/db_service.h"
 
 class QtSqlitePomodoroYearRangeReader : public QObject,
                                         public IPomodoroYearRangeReader {
@@ -20,9 +20,11 @@ public:
 private:
     DBService& dbService;
     Handler handler;
+    const QString mQueryId{"ReadYearRange"};
 
 private slots:
-    void onResultsReceived(const std::vector<QSqlRecord>& records);
+    void onResultsReceived(const QString& queryId,
+                           const std::vector<QSqlRecord>& records);
 };
 
 

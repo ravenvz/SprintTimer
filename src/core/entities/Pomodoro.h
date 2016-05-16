@@ -25,9 +25,10 @@ public:
     Pomodoro(const std::string& taskName,
              const TimeSpan& timeSpan,
              const std::list<std::string>& tags,
-             const std::string& uuid);
+             const std::string& uuid,
+             const std::string& taskUuid);
 
-    /* Construct from associated Task and time timeSpan. */
+    /* Construct from associated Task and timeSpan. */
     Pomodoro(const TodoItem& task, const TimeSpan& timeSpan);
 
     // Return name of Pomodoro. It is identical to the associated task name.

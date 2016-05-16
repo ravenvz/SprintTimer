@@ -142,9 +142,11 @@ TodoItem TodoItemModel::itemAt(const int row) const
                    std::back_inserter(tags),
                    [](const auto& tag) { return tag.toStdString(); });
     bool completed{columnData(rowRecord, Column::Completed).toBool()};
+    std::string uuid{columnData(rowRecord, Column::Uuid).toString().toStdString()};
     return TodoItem{name.toStdString(),
                     estimatedPomodoros,
                     spentPomodoros,
+                    uuid,
                     tags,
                     completed};
 }

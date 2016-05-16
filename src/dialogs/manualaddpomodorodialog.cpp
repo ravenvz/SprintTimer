@@ -50,12 +50,10 @@ void PomodoroManualAddDialog::accept()
     if (startTime >= finishTime) {
         autoAdjustFinishTime();
     }
-    long long todoId
-        = todoItemModel->itemIdAt(ui->comboBoxPickTodoItem->currentIndex());
-    QString todoName
-        = todoItemModel->itemNameAt(ui->comboBoxPickTodoItem->currentIndex());
-    // TODO handle sad path
-    pomodoroModel->insert(
-        todoId, TimeSpan{startTime.toTime_t(), finishTime.toTime_t()});
+    TodoItem task
+        = todoItemModel->itemAt(ui->comboBoxPickTodoItem->currentIndex());
+    Pomodoro pomodoro{task,
+                      TimeSpan{startTime.toTime_t(), finishTime.toTime_t()}};
+    pomodoroModel->insert(pomodoro);
     QDialog::accept();
 }

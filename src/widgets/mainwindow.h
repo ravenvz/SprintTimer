@@ -83,7 +83,7 @@ private:
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
     QPointer<TagEditorWidget> tagEditor;
-    std::experimental::optional<long long> selectedTaskId;
+    std::experimental::optional<TodoItem> selectedTask;
     PomodoroTimer pomodoroTimer;
 
     void connectSlots();

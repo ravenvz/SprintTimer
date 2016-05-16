@@ -254,14 +254,15 @@ void MainWindow::playSound()
 
 void MainWindow::submitPomodoro()
 {
-    if (!selectedTaskId || ui->leDoneTask->text().isEmpty()) {
+    if (!selectedTask || ui->leDoneTask->text().isEmpty()) {
         qDebug() << "No associated Task can be found";
         return;
     }
     ui->leDoneTask->hide();
     completedTasksIntervals.push_back(pomodoroTimer.finish());
     for (const TimeSpan& timeSpan : completedTasksIntervals) {
-        pomodoroModelNew->insert(*selectedTaskId, timeSpan);
+        Pomodoro pomodoro{*selectedTask, timeSpan};
+        pomodoroModelNew->insert(pomodoro);
     }
 
     completedTasksIntervals.clear();
@@ -299,7 +300,7 @@ void MainWindow::changeSelectedTask(QModelIndex index)
 {
     // TODO consider having states like State::Submission instead
     if (ui->leDoneTask->isVisible()) {
-        selectedTaskId = todoitemViewModel->itemIdAt(index.row());
+        selectedTask = todoitemViewModel->itemAt(index.row());
         TodoItem item = todoitemViewModel->itemAt(index.row());
         QString description
             = QString("%1 %2")
@@ -361,8 +362,9 @@ void MainWindow::removeTask()
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         // If removing currently selected task, clear the linedit
-        if (selectedTaskId
-            && todoitemViewModel->itemIdAt(index.row()) == *selectedTaskId) {
+        if (selectedTask
+            && todoitemViewModel->itemAt(index.row()).uuid()
+                == selectedTask->uuid()) {
             ui->leDoneTask->clear();
         }
         todoitemViewModel->remove(index);
@@ -418,7 +420,7 @@ void MainWindow::launchHistoryView()
 void MainWindow::launchGoalsView()
 {
     if (!goalsView) {
-        goalsView = new GoalsView(applicationSettings);
+        goalsView = new GoalsView(applicationSettings, dbService);
         goalsView->show();
     }
     else {

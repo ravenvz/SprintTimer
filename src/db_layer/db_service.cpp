@@ -26,7 +26,10 @@ DBService::~DBService()
 }
 
 
-void DBService::executeQuery(const QString& query) { emit queue(query); }
+void DBService::executeQuery(const QString& queryId, const QString& query)
+{
+    emit queue(queryId, query);
+}
 
 
 void DBService::executePrepared(const QString& queryId)
@@ -35,24 +38,25 @@ void DBService::executePrepared(const QString& queryId)
 }
 
 
-void DBService::handleResults(const std::vector<QSqlRecord>& records)
+void DBService::handleResults(const QString& queryId,
+                              const std::vector<QSqlRecord>& records)
 {
-    emit results(records);
+    emit results(queryId, records);
 }
 
 
-void DBService::handleError(const QString& errorMessage)
+void DBService::handleError(const QString& queryId, const QString& errorMessage)
 {
     qDebug() << errorMessage;
-    emit error(errorMessage);
+    emit error(queryId, errorMessage);
 }
 
 
-void DBService::bindValue(const QString& query,
+void DBService::bindValue(const QString& queryId,
                           const QString& placeholder,
                           const QVariant& value)
 {
-    emit bind(query, placeholder, value);
+    emit bind(queryId, placeholder, value);
 }
 
 
@@ -65,18 +69,20 @@ Worker::Worker(const QString& filename)
 }
 
 
-void Worker::execute(const QString& query)
+void Worker::execute(const QString& queryId, const QString& query)
 {
     QSqlQuery q;
     if (!q.exec(query)) {
-        emit error(q.lastError().text());
+        QString errormsg
+            = QString("%1 %2").arg(q.lastQuery()).arg(q.lastError().text());
+        emit error(queryId, errormsg);
     }
     else {
         std::vector<QSqlRecord> recs;
         while (q.next()) {
             recs.push_back(q.record());
         }
-        emit results(recs);
+        emit results(queryId, recs);
     }
 }
 
@@ -84,14 +90,17 @@ void Worker::executePrepared(const QString& queryId)
 {
     QSqlQuery query = preparedQueries.value(queryId);
     if (!query.exec()) {
-        emit error(query.lastError().text());
+        QString errormsg = QString("%1 %2")
+                               .arg(query.lastQuery())
+                               .arg(query.lastError().text());
+        emit error(queryId, errormsg);
     }
     else {
         std::vector<QSqlRecord> recs;
         while (query.next()) {
             recs.push_back(query.record());
         }
-        emit results(recs);
+        emit results(queryId, recs);
     }
 }
 
@@ -213,7 +222,8 @@ bool Worker::createSchema()
           "start_time DATETIME, "
           "finish_time DATETIME, "
           "uuid TEXT UNIQUE NOT NULL, "
-          "FOREIGN KEY (todo_id) REFERENCES todo_item(id) "
+          "todo_uuid TEXT, "
+          "FOREIGN KEY (todo_uuid) REFERENCES todo_item(uuid) "
           "ON DELETE CASCADE)";
 
     QString createTagTable = "CREATE TABLE tag "
@@ -247,7 +257,7 @@ bool Worker::createSchema()
           "AFTER INSERT ON pomodoro "
           "BEGIN "
           "UPDATE todo_item SET spent_pomodoros = spent_pomodoros + 1 "
-          "WHERE todo_item.id = NEW.todo_id; "
+          "WHERE todo_item.uuid = NEW.todo_uuid; "
           "END;";
 
     // Trigger to decrement spent pomodoros in todo_item after pomodoro is
@@ -257,15 +267,15 @@ bool Worker::createSchema()
           "AFTER DELETE ON pomodoro "
           "BEGIN "
           "UPDATE todo_item SET spent_pomodoros = spent_pomodoros - 1 "
-          "WHERE todo_item.id = OLD.todo_id; "
+          "WHERE todo_item.uuid = OLD.todo_uuid; "
           "END;";
 
     // View for pomodoros
     QString createPomodoroView
         = "CREATE VIEW pomodoro_view AS "
-          "SELECT pomodoro.id, pomodoro.todo_id, todo_item.name, "
+          "SELECT pomodoro.id, pomodoro.todo_uuid, todo_item.name, "
           "group_concat(tag.name) tags, start_time, finish_time, pomodoro.uuid "
-          "FROM pomodoro join todo_item ON pomodoro.todo_id = todo_item.id "
+          "FROM pomodoro join todo_item ON pomodoro.todo_uuid = todo_item.uuid "
           "LEFT JOIN todotag ON todotag.todo_id = todo_item.id "
           "LEFT JOIN tag ON tag.id = todotag.tag_id "
           "GROUP BY pomodoro.id;";
@@ -275,7 +285,7 @@ bool Worker::createSchema()
         = "CREATE TRIGGER delete_from_pomodoro_view "
           "INSTEAD OF DELETE ON pomodoro_view "
           "BEGIN "
-          "DELETE FROM pomodoro WHERE id = old.id; "
+          "DELETE FROM pomodoro WHERE uuid = old.uuid; "
           "END;";
 
     QString createPomodoroViewInsertTrigger
@@ -283,8 +293,8 @@ bool Worker::createSchema()
           "INSTEAD OF INSERT "
           "ON pomodoro_view "
           "BEGIN "
-          "INSERT INTO pomodoro (todo_id, start_time, finish_time, uuid) "
-          "SELECT new.todo_id, new.start_time, new.finish_time, new.uuid;"
+          "INSERT INTO pomodoro (todo_uuid, start_time, finish_time, uuid) "
+          "SELECT new.todo_uuid, new.start_time, new.finish_time, new.uuid;"
           "END;";
 
     // View for todo items
@@ -297,7 +307,8 @@ bool Worker::createSchema()
           "priority, "
           "completed, "
           "GROUP_CONCAT(tag.name) tags, "
-          "last_modified "
+          "last_modified, "
+          "uuid "
           "FROM todo_item "
           "LEFT JOIN todotag ON todo_item.id = todotag.todo_id "
           "LEFT JOIN tag ON todotag.tag_id = tag.id "

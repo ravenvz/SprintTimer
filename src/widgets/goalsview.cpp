@@ -1,13 +1,19 @@
 #include "goalsview.h"
+#include "core/IPomodoroDailyDistributionReader.h"
+#include "core/use_cases/RequestPomoDailyDistribution.h"
 #include "db_layer/db_service.h"
 #include "gauge.h"
 #include "ui_goalsview.h"
 #include "utils/MathUtils.h"
 
-GoalsView::GoalsView(IConfig& applicationSettings, QWidget* parent)
+GoalsView::GoalsView(IConfig& applicationSettings,
+                     DBService& dbService,
+                     QWidget* parent)
     : QWidget{parent}
     , ui{new Ui::GoalsView}
     , applicationSettings{applicationSettings}
+    , dailyDistributionReader{
+          std::make_unique<QtSqlitePomodoroDailyDistributionReader>(dbService)}
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
@@ -43,18 +49,13 @@ void GoalsView::displayData()
 
 void GoalsView::displayDailyData()
 {
-    int dailyGoal = applicationSettings.dailyPomodorosGoal();
-    int monthlyGoal = applicationSettings.monthlyPomodorosGoal();
-    Distribution<int> lastDays{goalStatModel.itemsDaysBack()};
-    ui->labelLastMonthAverage->setText(formatDecimal(lastDays.getAverage()));
-    ui->labelLastMonthPercentage->setText(QString("%1%").arg(formatDecimal(
-        MathUtils::percentage(lastDays.getTotal(), monthlyGoal))));
-    ui->labelTodayProgress->setText(QString("%1").arg(lastDays.getTotal()));
-    updateProgressBar(ui->progressBarToday,
-                      dailyGoal,
-                      lastDays.getBinValue(lastDays.getNumBins() - 1));
-    drawPeriodDiagram(
-        ui->gridLayoutLastMonthDiagram, lastDays, dailyGoal, 3, 10);
+    UseCases::RequestPomoDailyDistribution requestDistribution{
+        *dailyDistributionReader,
+        TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
+        std::bind(&GoalsView::onDailyDistributionReceived,
+                  this,
+                  std::placeholders::_1)};
+    requestDistribution.execute();
 }
 
 void GoalsView::displayWeeklyData()
@@ -120,7 +121,7 @@ void GoalsView::updateProgressBar(QProgressBar* bar, int goal, int value)
 }
 
 void GoalsView::drawPeriodDiagram(QGridLayout* layout,
-                                  Distribution<int>& distribution,
+                                  const Distribution<int>& distribution,
                                   int goal,
                                   int rowNum,
                                   int colNum)
@@ -169,4 +170,23 @@ void GoalsView::updateMonthlyGoal(int newValue)
 QString GoalsView::formatDecimal(double decimal) const
 {
     return QString("%1").arg(decimal, 2, 'f', 2, '0');
+}
+
+void GoalsView::onDailyDistributionReceived(
+    const Distribution<int>& dailyDistribution)
+{
+    int dailyGoal = applicationSettings.dailyPomodorosGoal();
+    int monthlyGoal = applicationSettings.monthlyPomodorosGoal();
+    ui->labelLastMonthAverage->setText(
+        formatDecimal(dailyDistribution.getAverage()));
+    ui->labelLastMonthPercentage->setText(QString("%1%").arg(formatDecimal(
+        MathUtils::percentage(dailyDistribution.getTotal(), monthlyGoal))));
+    ui->labelTodayProgress->setText(
+        QString("%1").arg(dailyDistribution.getTotal()));
+    updateProgressBar(
+        ui->progressBarToday,
+        dailyGoal,
+        dailyDistribution.getBinValue(dailyDistribution.getNumBins() - 1));
+    drawPeriodDiagram(
+        ui->gridLayoutLastMonthDiagram, dailyDistribution, dailyGoal, 3, 10);
 }

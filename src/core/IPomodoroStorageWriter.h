@@ -9,7 +9,7 @@ class IPomodoroStorageWriter {
 public:
     virtual ~IPomodoroStorageWriter() = default;
 
-    virtual void save(const Pomodoro& pomodoro, long long taskId) = 0;
+    virtual void save(const Pomodoro& pomodoro) = 0;
 
     virtual void remove(const Pomodoro& pomodoro) = 0;
 };

@@ -9,17 +9,15 @@ namespace UseCases {
 class AddPomodoroTransaction : public ITransaction {
 public:
     AddPomodoroTransaction(IPomodoroStorageWriter& writer,
-                           const Pomodoro& pomodoro,
-                           long long associatedTaskId)
+                           const Pomodoro& pomodoro)
         : writer{writer}
         , pomodoro{pomodoro}
-        , taskId{associatedTaskId}
     {
     }
 
     bool execute() final
     {
-        writer.save(pomodoro, taskId);
+        writer.save(pomodoro);
         wasExecuted = true;
         return true;
     }
@@ -37,7 +35,6 @@ public:
 private:
     IPomodoroStorageWriter& writer;
     const Pomodoro& pomodoro;
-    long long taskId;
     bool wasExecuted{false};
 };
 

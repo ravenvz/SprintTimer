@@ -1,9 +1,9 @@
 #include "models/PomodoroModelNew.h"
-#include "qt_storage_impl/QtSqlitePomodoroStorageReader.h"
-#include "qt_storage_impl/QtSqlitePomodoroStorageWriter.h"
 #include "core/use_cases/AddPomodoroTransaction.h"
 #include "core/use_cases/RemovePomodoroTransaction.h"
 #include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
+#include "qt_storage_impl/QtSqlitePomodoroStorageReader.h"
+#include "qt_storage_impl/QtSqlitePomodoroStorageWriter.h"
 
 PomodoroModelNew::PomodoroModelNew(DBService& dbService, QObject* parent)
     : QAbstractListModel(parent)
@@ -41,27 +41,19 @@ void PomodoroModelNew::setDateFilter(const TimeSpan& timeSpan)
     retrieveData();
 }
 
-void PomodoroModelNew::insert(const long long associatedTaskId,
-                              const TimeSpan& timeSpan)
+void PomodoroModelNew::insert(const Pomodoro& pomodoro)
 {
-    Pomodoro pomodoro{timeSpan};
-    UseCases::AddPomodoroTransaction addPomodoro{
-        *writer, pomodoro, associatedTaskId};
+    UseCases::AddPomodoroTransaction addPomodoro{*writer, pomodoro};
     addPomodoro.execute();
     retrieveData();
 }
-
-// void PomodoroModelNew::remove(long long pomodoroId)
-// {
-//     // UseCases::RemovePomodoroTransaction removePomodoro{
-//     //     *writer,
-// }
 
 void PomodoroModelNew::remove(int row)
 {
     UseCases::RemovePomodoroTransaction removePomodoro{
         *writer, storage[static_cast<size_t>(row)]};
     removePomodoro.execute();
+    retrieveData();
 }
 
 void PomodoroModelNew::retrieveData()

@@ -6,19 +6,16 @@ QtSqlitePomodoroStorageReader::QtSqlitePomodoroStorageReader(
     : dbService{dbService}
 {
     dbService.prepare(
-        queryId,
-        "select id, todo_id, name, tags, start_time, finish_time, uuid "
+        mQueryId,
+        "select id, todo_uuid, name, tags, start_time, finish_time, uuid "
         "from pomodoro_view "
         "where date(start_time) >= (:startTime) "
-        "and date(start_time) <= (:finishTime)");
+        "and date(start_time) <= (:finishTime) "
+        "order by start_time");
     connect(&dbService,
             &DBService::results,
             this,
             &QtSqlitePomodoroStorageReader::onResultsReceived);
-    connect(&dbService,
-            &DBService::error,
-            this,
-            &QtSqlitePomodoroStorageReader::onError);
 }
 
 void QtSqlitePomodoroStorageReader::requestItems(const TimeSpan& timeSpan,
@@ -28,19 +25,22 @@ void QtSqlitePomodoroStorageReader::requestItems(const TimeSpan& timeSpan,
     DateTime start = timeSpan.startTime;
     DateTime finish = timeSpan.finishTime;
 
-    dbService.bind(queryId,
+    dbService.bind(mQueryId,
                    ":startTime",
                    QVariant(QString::fromStdString(start.yyyymmddString())));
-    dbService.bind(queryId,
+    dbService.bind(mQueryId,
                    ":finishTime",
                    QVariant(QString::fromStdString(finish.yyyymmddString())));
 
-    dbService.executePrepared(queryId);
+    dbService.executePrepared(mQueryId);
 }
 
 void QtSqlitePomodoroStorageReader::onResultsReceived(
-    const std::vector<QSqlRecord>& records)
+    const QString& queryId, const std::vector<QSqlRecord>& records)
 {
+    if (mQueryId != queryId) {
+        return;
+    }
     Items pomodoros;
     std::transform(
         records.cbegin(),
@@ -62,13 +62,14 @@ QtSqlitePomodoroStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
     TimeSpan timeSpan{
         start.toTime_t(), finish.toTime_t(), offsetFromUtcInSeconds};
     QStringList qTags{columnData(record, Columns::Tags).toString().split(",")};
+    std::string taskUuid
+        = columnData(record, Columns::TodoUuid).toString().toStdString();
     std::list<std::string> tags;
     std::transform(qTags.cbegin(),
                    qTags.cend(),
                    std::back_inserter(tags),
                    [](const auto& tag) { return tag.toStdString(); });
-    std::cout << uuid << std::endl;
-    return Pomodoro{name.toStdString(), timeSpan, tags, uuid};
+    return Pomodoro{name.toStdString(), timeSpan, tags, uuid, taskUuid};
 }
 
 QVariant QtSqlitePomodoroStorageReader::columnData(const QSqlRecord& record,
@@ -76,9 +77,3 @@ QVariant QtSqlitePomodoroStorageReader::columnData(const QSqlRecord& record,
 {
     return record.value(static_cast<int>(column));
 }
-
-void QtSqlitePomodoroStorageReader::onError(const QString& error)
-{
-    qDebug() << error;
-}
-

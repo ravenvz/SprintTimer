@@ -5,10 +5,10 @@
 #include "core/IPomodoroStorageWriter.h"
 #include "core/TimeSpan.h"
 #include "core/entities/Pomodoro.h"
+#include "db_layer/db_service.h"
 #include <QAbstractListModel>
 #include <memory>
 #include <vector>
-#include "db_layer/db_service.h"
 
 class PomodoroModelNew : public QAbstractListModel {
 public:
@@ -21,7 +21,7 @@ public:
 
     void setDateFilter(const TimeSpan& timeSpan);
 
-    void insert(const long long associatedTaskId, const TimeSpan& timeSpan);
+    void insert(const Pomodoro& pomodoro);
 
     // void remove(long long pomodoroId);
     void remove(int row);

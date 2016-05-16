@@ -109,7 +109,8 @@ private:
         Priority,
         Completed,
         Tags,
-        LastModified
+        LastModified,
+        Uuid
     };
 
     // Return value in the field identified by QSqlRecord and column number
