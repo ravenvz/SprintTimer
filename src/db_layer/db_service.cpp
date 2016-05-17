@@ -47,6 +47,7 @@ void DBService::handleResults(const QString& queryId,
 
 void DBService::handleError(const QString& queryId, const QString& errorMessage)
 {
+    qDebug() << queryId;
     qDebug() << errorMessage;
     emit error(queryId, errorMessage);
 }

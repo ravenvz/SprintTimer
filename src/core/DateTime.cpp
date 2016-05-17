@@ -55,6 +55,11 @@ DateTime DateTime::addDays(int days) const
     return DateTime{time + date::days{days}};
 }
 
+DateTime DateTime::addMonths(int months) const
+{
+    return DateTime{time + date::months{months}};
+}
+
 int DateTime::daysTo(const DateTime& other) const
 {
     using namespace date;

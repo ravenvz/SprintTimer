@@ -47,6 +47,10 @@ public:
      * days apart from current. */
     DateTime addDays(int days) const;
 
+    /* Return DateTime object that is (positive or negative) integer number of
+     * months apart from current. */
+    DateTime addMonths(int months) const;
+
     /* Return distance in days to other DateTime object.
      *
      * If other DateTime object is behind in time, result will be negative.

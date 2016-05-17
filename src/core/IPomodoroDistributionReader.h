@@ -5,10 +5,10 @@
 #include "utils/MathUtils.h"
 #include <functional>
 
-class IPomodoroDailyDistributionReader {
+class IPomodoroDistributionReader {
 public:
     using Handler = std::function<void(const Distribution<int>&)>;
-    virtual ~IPomodoroDailyDistributionReader() = default;
+    virtual ~IPomodoroDistributionReader() = default;
     virtual void requestDailyDistribution(const TimeSpan& timeSpan,
                                           Handler handler)
         = 0;

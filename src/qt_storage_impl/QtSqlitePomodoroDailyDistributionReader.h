@@ -1,32 +1,50 @@
 #ifndef QTSQLITEPOMODORODAILYDISTRIBUTIONREADER_H_TS4GUJR3
 #define QTSQLITEPOMODORODAILYDISTRIBUTIONREADER_H_TS4GUJR3
 
-#include "core/IPomodoroDailyDistributionReader.h"
+#include "core/IPomodoroDistributionReader.h"
 #include "db_layer/db_service.h"
 #include <QObject>
 
-class QtSqlitePomodoroDailyDistributionReader
-    : public QObject,
-      public IPomodoroDailyDistributionReader {
+
+class DistributionReaderBase : public QObject,
+                               public IPomodoroDistributionReader {
 
     Q_OBJECT
 
 public:
-    QtSqlitePomodoroDailyDistributionReader(DBService& dbService);
+    DistributionReaderBase(DBService& dbService, QString queryId);
 
-    void requestDailyDistribution(const TimeSpan& timeSpan,
-                                  Handler handler) final;
+    virtual void requestDailyDistribution(const TimeSpan& timeSpan,
+                                          Handler handler) final;
 
 private slots:
 
-    void onResultsReceived(const QString& queryId,
-                           const std::vector<QSqlRecord>& records);
+    virtual void onResultsReceived(const QString& queryId,
+                                   const std::vector<QSqlRecord>& records);
 
-private:
+protected:
     DBService& dbService;
-    QString mQueryId{"RequestDailyDistribution"};
     Handler handler;
+    QString mQueryId;
 };
+
+
+class QtSqlitePomodoroDailyDistributionReader : public DistributionReaderBase {
+public:
+    QtSqlitePomodoroDailyDistributionReader(DBService& dbService);
+};
+
+class QtSqlitePomodoroWeeklyDistributionReader : public DistributionReaderBase {
+public:
+    QtSqlitePomodoroWeeklyDistributionReader(DBService& dbService);
+};
+
+class QtSqlitePomodoroMonthlyDistributionReader
+    : public DistributionReaderBase {
+public:
+    QtSqlitePomodoroMonthlyDistributionReader(DBService& dbService);
+};
+
 
 #endif /* end of include guard:                                                \
           QTSQLITEPOMODORODAILYDISTRIBUTIONREADER_H_TS4GUJR3 */

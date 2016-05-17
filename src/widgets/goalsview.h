@@ -2,13 +2,13 @@
 #define GOALSVIEW_H
 
 #include "core/config.h"
-#include "models/goalstatmodel.h"
-#include "qt_storage_impl/QtSqlitePomodoroDailyDistributionReader.h"
 #include <QGridLayout>
 #include <QProgressBar>
 #include <QWidget>
 #include <memory>
+#include "db_layer/db_service.h"
 #include <src/utils/MathUtils.h>
+#include "core/IPomodoroDistributionReader.h"
 
 namespace Ui {
 class GoalsView;
@@ -28,17 +28,19 @@ private slots:
     void updateDailyGoal(int newValue);
     void updateWeeklyGoal(int newValue);
     void updateMonthlyGoal(int newValue);
-    void
-    onDailyDistributionReceived(const Distribution<int>& dailyDistribution);
+    void onDailyDistributionReceived(const Distribution<int>& lastDays);
+    void onWeeklyDistributionReceived(const Distribution<int>& lastWeeks);
+    void onMonthlyDistributionReceived(const Distribution<int>& lastMonths);
 
 private:
     Ui::GoalsView* ui;
     IConfig& applicationSettings;
-    GoalStatModel goalStatModel;
     const QColor targetGoalReached = QColor("#6baa15");
     const QColor overwork = Qt::red;
     const QColor workInProgress = Qt::gray;
-    std::unique_ptr<IPomodoroDailyDistributionReader> dailyDistributionReader;
+    std::unique_ptr<IPomodoroDistributionReader> dailyDistributionReader;
+    std::unique_ptr<IPomodoroDistributionReader> weeklyDistributionReader;
+    std::unique_ptr<IPomodoroDistributionReader> monthlyDistributionReader;
 
     void displayData();
     void displayDailyData();

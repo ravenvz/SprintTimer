@@ -49,6 +49,26 @@ TEST(DateTime, test_add_days_backward_2)
     CHECK_EQUAL(16, dt.day())
 }
 
+TEST(DateTime, test_add_months_forward)
+{
+    DateTime dt = DateTime::fromYMD(2016, 5, 17);
+    DateTime yearForward = dt.addMonths(12);
+
+    CHECK_EQUAL(2017, yearForward.year());
+    CHECK_EQUAL(5, yearForward.month());
+    CHECK_EQUAL(17, yearForward.day());
+}
+
+TEST(DateTime, test_add_months_backward)
+{
+    DateTime dt = DateTime::fromYMD(2016, 5, 17);
+    DateTime yearBack = dt.addMonths(-12);
+
+    CHECK_EQUAL(2015, yearBack.year());
+    CHECK_EQUAL(5, yearBack.month());
+    CHECK_EQUAL(17, yearBack.day());
+}
+
 TEST(DateTime, test_computes_days_forward)
 {
     DateTime currentDt = DateTime::currentDateTime();
@@ -61,7 +81,6 @@ TEST(DateTime, test_computes_days_backward)
 
     CHECK_EQUAL(-11, currentDt.daysTo(currentDt.addDays(-11)));
 }
-
 
 TEST(DateTime, test_returns_correct_weekday_num)
 {
