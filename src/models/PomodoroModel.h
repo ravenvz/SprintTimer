@@ -10,9 +10,9 @@
 #include <memory>
 #include <vector>
 
-class PomodoroModelNew : public QAbstractListModel {
+class PomodoroModel : public QAbstractListModel {
 public:
-    explicit PomodoroModelNew(DBService& dbService, QObject* parent = 0);
+    explicit PomodoroModel(DBService& dbService, QObject* parent = 0);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const final;
 

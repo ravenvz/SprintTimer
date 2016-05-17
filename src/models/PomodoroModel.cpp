@@ -1,11 +1,11 @@
-#include "models/PomodoroModelNew.h"
+#include "models/PomodoroModel.h"
 #include "core/use_cases/AddPomodoroTransaction.h"
 #include "core/use_cases/RemovePomodoroTransaction.h"
 #include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
 #include "qt_storage_impl/QtPomoStorageReader.h"
 #include "qt_storage_impl/QtPomoStorageWriter.h"
 
-PomodoroModelNew::PomodoroModelNew(DBService& dbService, QObject* parent)
+PomodoroModel::PomodoroModel(DBService& dbService, QObject* parent)
     : QAbstractListModel(parent)
     , interval{TimeSpan{DateTime::currentDateTime(),
                         DateTime::currentDateTime()}}
@@ -15,12 +15,12 @@ PomodoroModelNew::PomodoroModelNew(DBService& dbService, QObject* parent)
     retrieveData();
 }
 
-int PomodoroModelNew::rowCount(const QModelIndex& parent) const
+int PomodoroModel::rowCount(const QModelIndex& parent) const
 {
     return static_cast<int>(storage.size());
 }
 
-QVariant PomodoroModelNew::data(const QModelIndex& index, int role) const
+QVariant PomodoroModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -35,20 +35,20 @@ QVariant PomodoroModelNew::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void PomodoroModelNew::setDateFilter(const TimeSpan& timeSpan)
+void PomodoroModel::setDateFilter(const TimeSpan& timeSpan)
 {
     interval = timeSpan;
     retrieveData();
 }
 
-void PomodoroModelNew::insert(const Pomodoro& pomodoro)
+void PomodoroModel::insert(const Pomodoro& pomodoro)
 {
     UseCases::AddPomodoroTransaction addPomodoro{*writer, pomodoro};
     addPomodoro.execute();
     retrieveData();
 }
 
-void PomodoroModelNew::remove(int row)
+void PomodoroModel::remove(int row)
 {
     UseCases::RemovePomodoroTransaction removePomodoro{
         *writer, storage[static_cast<size_t>(row)]};
@@ -56,17 +56,17 @@ void PomodoroModelNew::remove(int row)
     retrieveData();
 }
 
-void PomodoroModelNew::retrieveData()
+void PomodoroModel::retrieveData()
 {
     UseCases::RequestPomodorosInTimeRangeCommand command{
         *reader,
         interval,
         std::bind(
-            &PomodoroModelNew::onDataChanged, this, std::placeholders::_1)};
+            &PomodoroModel::onDataChanged, this, std::placeholders::_1)};
     command.execute();
 }
 
-void PomodoroModelNew::onDataChanged(const std::vector<Pomodoro>& items)
+void PomodoroModel::onDataChanged(const std::vector<Pomodoro>& items)
 {
     beginResetModel();
     storage = items;

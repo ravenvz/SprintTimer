@@ -25,7 +25,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
 {
     ui->setupUi(this);
     player = std::make_unique<QMediaPlayer>();
-    pomodoroModelNew = new PomodoroModelNew(dbService, this);
+    pomodoroModelNew = new PomodoroModel(dbService, this);
     ui->lvCompletedPomodoros->setModel(pomodoroModelNew);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
     todoitemViewModel = new TodoItemModel(this);

@@ -8,7 +8,7 @@
 #include "db_layer/db_service.h"
 #include "goalsview.h"
 #include "historyview.h"
-#include "models/PomodoroModelNew.h"
+#include "models/PomodoroModel.h"
 #include "src/models/tagmodel.h"
 #include "src/models/todoitemmodel.h"
 #include "statisticswidget.h"
@@ -73,7 +73,7 @@ private:
     std::vector<TimeSpan> completedTasksIntervals;
     int progressBarMaxValue{0};
     Second timeLeft{0};
-    QPointer<PomodoroModelNew> pomodoroModelNew;
+    QPointer<PomodoroModel> pomodoroModelNew;
     QPointer<TagModel> tagModel;
     QPointer<TodoItemModel> todoitemViewModel;
     QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
