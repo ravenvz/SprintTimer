@@ -1,9 +1,12 @@
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H
 
+#include "core/IPomodoroStorageReader.h"
 #include "core/entities/Pomodoro.h"
 #include "core/entities/TodoItem.h"
+#include "db_layer/db_service.h"
 #include "pickperiodwidget.h"
+#include "src/models/PomodoroModelNew.h"
 #include "src/models/pomodoromodel.h"
 #include "src/models/todoitemmodel.h"
 #include <QObject>
@@ -16,6 +19,7 @@ namespace Ui {
 class HistoryView;
 }
 
+class HistoryState;
 
 class HistoryViewDelegate : public QStyledItemDelegate {
 public:
@@ -30,8 +34,13 @@ public:
 class HistoryView : public QWidget {
     Q_OBJECT
 
+    friend class HistoryStatePomodoro;
+    friend class HistoryStateTask;
+
 public:
-    explicit HistoryView(QWidget* parent = 0);
+    using HistoryItem = std::pair<QDate, QString>;
+
+    explicit HistoryView(DBService& dbService, QWidget* parent = 0);
 
     ~HistoryView();
 
@@ -39,29 +48,20 @@ public:
     void updateView();
 
 private:
-    using HistoryItem = std::pair<QDate, QString>;
     Ui::HistoryView* ui;
     DateInterval selectedDateInterval;
+    std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader;
     QPointer<PomodoroModel> pomodoroModel;
     QPointer<TodoItemModel> todoItemModel;
     QPointer<QStandardItemModel> viewModel;
-    enum class HistoryType { Pomodoro, Task };
-
-    // Query pomodoro model for required history data and return it as a
-    // vector of pairs of QData and string representation of pomodoro.
-    // Data indicates pomodoro start time.
-    std::vector<HistoryView::HistoryItem> getPomodoroHistory() const;
-
-    // Query task model for required history data and return it as a vector
-    // of pairs of QData and string representation of task.
-    // Data indicates when particular task was last edited.
-    std::vector<HistoryView::HistoryItem> getTaskHistory() const;
+    std::unique_ptr<HistoryState> historyStatePomodoro;
+    std::unique_ptr<HistoryState> historyStateTask;
+    HistoryState* historyState;
+    const int pomodoroTabIndex{0};
+    const int taskTabIndex{1};
 
     // Fill history model with data.
     void fillHistoryModel(const std::vector<HistoryItem>& history);
-
-    // Set history model to the appropriate view depending on type.
-    void setHistoryModel(const HistoryType& type);
 
 private slots:
 
@@ -69,8 +69,45 @@ private slots:
     // tab.
     void onDatePickerIntervalChanged(DateInterval newInterval);
 
-    // Refresh model for currently displayed tab.
-    void displayHistory();
+    // Change History View state depending on tab selected.
+    void onTabSelected(int tabIndex);
+};
+
+class HistoryState {
+public:
+    virtual ~HistoryState() = default;
+
+    HistoryState(HistoryView& historyView);
+
+    virtual void retrieveHistory() = 0;
+
+    virtual void setHistoryModel() = 0;
+
+protected:
+    HistoryView& historyView;
+};
+
+class HistoryStatePomodoro : public HistoryState {
+public:
+    HistoryStatePomodoro(HistoryView& historyView);
+
+    void retrieveHistory() final;
+
+    void onHistoryRetrieved(const std::vector<Pomodoro>& history);
+
+    void setHistoryModel() final;
+};
+
+class HistoryStateTask : public HistoryState {
+public:
+    HistoryStateTask(HistoryView& historyView);
+
+    void retrieveHistory() final;
+
+    void
+    onHistoryRetrieved(const std::vector<std::pair<QDate, QString>>& history);
+
+    void setHistoryModel() final;
 };
 
 

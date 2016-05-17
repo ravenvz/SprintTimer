@@ -409,7 +409,7 @@ void MainWindow::onInTheZoneToggled() { pomodoroTimer.toggleInTheZoneMode(); }
 void MainWindow::launchHistoryView()
 {
     if (!historyView) {
-        historyView = new HistoryView();
+        historyView = new HistoryView(dbService);
         historyView->show();
     }
     else {
