@@ -6,12 +6,12 @@
 #include <QObject>
 
 
-class QtSqlitePomodoroStorageReader : public QObject,
+class QtPomoStorageReader : public QObject,
                                       public IPomodoroStorageReader {
     Q_OBJECT
 
 public:
-    explicit QtSqlitePomodoroStorageReader(DBService& dbService);
+    explicit QtPomoStorageReader(DBService& dbService);
 
     void requestItems(const TimeSpan& timeSpan, Handler handler) final;
 

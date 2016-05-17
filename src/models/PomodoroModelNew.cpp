@@ -2,15 +2,15 @@
 #include "core/use_cases/AddPomodoroTransaction.h"
 #include "core/use_cases/RemovePomodoroTransaction.h"
 #include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
-#include "qt_storage_impl/QtSqlitePomodoroStorageReader.h"
-#include "qt_storage_impl/QtSqlitePomodoroStorageWriter.h"
+#include "qt_storage_impl/QtPomoStorageReader.h"
+#include "qt_storage_impl/QtPomoStorageWriter.h"
 
 PomodoroModelNew::PomodoroModelNew(DBService& dbService, QObject* parent)
     : QAbstractListModel(parent)
     , interval{TimeSpan{DateTime::currentDateTime(),
                         DateTime::currentDateTime()}}
-    , reader{std::make_unique<QtSqlitePomodoroStorageReader>(dbService)}
-    , writer{std::make_unique<QtSqlitePomodoroStorageWriter>(dbService)}
+    , reader{std::make_unique<QtPomoStorageReader>(dbService)}
+    , writer{std::make_unique<QtPomoStorageWriter>(dbService)}
 {
     retrieveData();
 }

@@ -3,7 +3,7 @@
 #include "db_layer/db_service.h"
 #include "gauge.h"
 #include "ui_goalsview.h"
-#include "qt_storage_impl/QtSqlitePomodoroDailyDistributionReader.h"
+#include "qt_storage_impl/QtPomoDistributionReader.h"
 #include "utils/MathUtils.h"
 
 GoalsView::GoalsView(IConfig& applicationSettings,
@@ -13,7 +13,7 @@ GoalsView::GoalsView(IConfig& applicationSettings,
     , ui{new Ui::GoalsView}
     , applicationSettings{applicationSettings}
     , dailyDistributionReader{
-        std::make_unique<QtSqlitePomodoroDailyDistributionReader>(dbService)}
+        std::make_unique<QtPomoDailyDistributionReader>(dbService)}
     , weeklyDistributionReader{
         std::make_unique<QtSqlitePomodoroWeeklyDistributionReader>(dbService)}
     , monthlyDistributionReader{

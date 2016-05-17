@@ -1,7 +1,7 @@
-#include "qt_storage_impl/QtSqlitePomodoroStorageWriter.h"
+#include "qt_storage_impl/QtPomoStorageWriter.h"
 
 
-QtSqlitePomodoroStorageWriter::QtSqlitePomodoroStorageWriter(
+QtPomoStorageWriter::QtPomoStorageWriter(
     DBService& dbService)
     : dbService{dbService}
 {
@@ -13,7 +13,7 @@ QtSqlitePomodoroStorageWriter::QtSqlitePomodoroStorageWriter(
                       "delete from pomodoro_view where uuid = (:uuid);");
 }
 
-void QtSqlitePomodoroStorageWriter::save(const Pomodoro& pomodoro)
+void QtPomoStorageWriter::save(const Pomodoro& pomodoro)
 {
     QDateTime startTime = QDateTime::fromTime_t(
         static_cast<unsigned>(pomodoro.timeSpan().startTime.toTime_t()));
@@ -29,7 +29,7 @@ void QtSqlitePomodoroStorageWriter::save(const Pomodoro& pomodoro)
     dbService.executePrepared(addQueryId);
 }
 
-void QtSqlitePomodoroStorageWriter::remove(const Pomodoro& pomodoro)
+void QtPomoStorageWriter::remove(const Pomodoro& pomodoro)
 {
     dbService.bind(removeQueryId,
                    ":uuid",

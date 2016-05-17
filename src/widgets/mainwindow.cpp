@@ -5,7 +5,7 @@
 #include "dialogs/confirmationdialog.h"
 #include "dialogs/manualaddpomodorodialog.h"
 #include "dialogs/settings_dialog.h"
-#include "qt_storage_impl/QtSqlitePomodoroYearRangeReader.h"
+#include "qt_storage_impl/QtPomoYearRangeReader.h"
 #include "ui_mainwindow.h"
 #include <QtWidgets/qmenu.h>
 #include <src/core/config.h>
@@ -26,13 +26,13 @@ MainWindow::MainWindow(IConfig& applicationSettings,
 {
     ui->setupUi(this);
     player = std::make_unique<QMediaPlayer>();
-    reader = new QtSqlitePomodoroYearRangeReader{
+    reader = new QtPomoYearRangeReader{
         dbService,
         std::bind(
             &MainWindow::onYearRangeReceived, this, std::placeholders::_1)};
     // pomoTempModel = new QStringListModel(this);
     pomodoroModelNew = new PomodoroModelNew(dbService, this);
-    // pomodoroReader = new QtSqlitePomodoroStorageReader{dbService};
+    // pomodoroReader = new QtPomoStorageReader{dbService};
     // UseCases::RequestPomodorosInTimeRangeCommand command{
     //     *pomodoroReader,
     //     TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
@@ -220,7 +220,7 @@ void MainWindow::onYearRangeReceived(const std::vector<std::string>& range)
 
 void MainWindow::startTask()
 {
-    // QtSqlitePomodoroYearRangeReader reader{dbService};
+    // QtPomoYearRangeReader reader{dbService};
     // UseCases::RequestPomodoroYearRangeCommand command{*reader};
     // command.execute();
     // reader->requestYearRange(std::bind(

@@ -6,14 +6,14 @@
 #include <QObject>
 #include <functional>
 
-class QtSqlitePomodoroYearRangeReader : public QObject,
+class QtPomoYearRangeReader : public QObject,
                                         public IPomodoroYearRangeReader {
     Q_OBJECT
 
 public:
     using Handler = std::function<void(const std::vector<std::string>&)>;
 
-    QtSqlitePomodoroYearRangeReader(DBService& dbService, Handler handler);
+    QtPomoYearRangeReader(DBService& dbService, Handler handler);
 
     void requestYearRange() final;
 

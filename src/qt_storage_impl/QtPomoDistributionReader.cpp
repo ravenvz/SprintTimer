@@ -1,4 +1,4 @@
-#include "QtSqlitePomodoroDailyDistributionReader.h"
+#include "QtPomoDistributionReader.h"
 #include "utils/MathUtils.h"
 
 
@@ -44,8 +44,8 @@ void DistributionReaderBase::onResultsReceived(
     handler(Distribution<int>{std::move(pomodoroCount)});
 }
 
-QtSqlitePomodoroDailyDistributionReader::
-    QtSqlitePomodoroDailyDistributionReader(DBService& dbService)
+QtPomoDailyDistributionReader::
+    QtPomoDailyDistributionReader(DBService& dbService)
     : DistributionReaderBase{dbService, QString{"RequestDailyDistribution"}}
 {
     dbService.prepare(mQueryId,

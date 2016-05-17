@@ -29,9 +29,9 @@ protected:
 };
 
 
-class QtSqlitePomodoroDailyDistributionReader : public DistributionReaderBase {
+class QtPomoDailyDistributionReader : public DistributionReaderBase {
 public:
-    QtSqlitePomodoroDailyDistributionReader(DBService& dbService);
+    QtPomoDailyDistributionReader(DBService& dbService);
 };
 
 class QtSqlitePomodoroWeeklyDistributionReader : public DistributionReaderBase {

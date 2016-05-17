@@ -5,12 +5,12 @@
 #include "db_layer/db_service.h"
 #include <QObject>
 
-class QtSqlitePomodoroStorageWriter : public QObject,
+class QtPomoStorageWriter : public QObject,
                                       public IPomodoroStorageWriter {
     Q_OBJECT
 
 public:
-    explicit QtSqlitePomodoroStorageWriter(DBService& dbService);
+    explicit QtPomoStorageWriter(DBService& dbService);
 
     void save(const Pomodoro& pomodoro) final;
 
