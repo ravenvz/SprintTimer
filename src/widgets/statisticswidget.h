@@ -1,14 +1,17 @@
 #ifndef STATISTICSWIDGET_H
 #define STATISTICSWIDGET_H
 
+#include "core/IPomodoroStorageReader.h"
+#include "core/IPomodoroYearRangeReader.h"
 #include "core/PomodoroStatistics.h"
 #include "core/config.h"
+#include "db_layer/db_service.h"
 #include "dialogs/datepickdialog.h"
 #include "plot.h"
-#include "src/models/pomodoromodel.h"
 #include "timediagram.h"
 #include "widgets/DistributionDiagram.h"
 #include <QWidget>
+#include <memory>
 
 
 using std::experimental::optional;
@@ -35,8 +38,9 @@ class StatisticsWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit StatisticsWidget(IConfig& applicationSettings,
-                              QWidget* parent = 0);
+    StatisticsWidget(IConfig& applicationSettings,
+                     DBService& dbService,
+                     QWidget* parent = 0);
     ~StatisticsWidget();
 
     void updateView();
@@ -48,7 +52,8 @@ private slots:
 private:
     Ui::StatisticsWidget* ui;
     IConfig& applicationSettings;
-    PomodoroModel* pomodoroModel;
+    std::unique_ptr<IPomodoroStorageReader> pomodoroReader;
+    std::unique_ptr<IPomodoroYearRangeReader> pomodoroYearRangeReader;
     std::vector<Pomodoro> pomodoros;
     TagDistribution tagDistribution;
     TimeDiagram* workTimeDiagram;
@@ -73,6 +78,8 @@ private:
     updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
                            const std::vector<Pomodoro>& pomodoros);
     void updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts);
+    void onYearRangeUpdated(const std::vector<std::string>& yearRange);
+    void onPomodorosFetched(const std::vector<Pomodoro>& pomodoros);
 };
 
 

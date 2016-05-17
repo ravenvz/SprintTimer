@@ -1,23 +1,34 @@
 #include "statisticswidget.h"
 #include "barchart.h"
+#include "core/use_cases/RequestPomodoroYearRangeCommand.h"
+#include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
+#include "qt_storage_impl/QtPomoStorageReader.h"
+#include "qt_storage_impl/QtPomoYearRangeReader.h"
 #include "ui_statistics_widget.h"
 
 
 StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,
+                                   DBService& dbService,
                                    QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::StatisticsWidget)
     , applicationSettings(applicationSettings)
+    , pomodoroReader{std::make_unique<QtPomoStorageReader>(dbService)}
+    , pomodoroYearRangeReader{
+          std::make_unique<QtPomoYearRangeReader>(dbService)}
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    pomodoroModel = new PomodoroModel(this);
+    UseCases::RequestPomodoroYearRangeCommand requestYearRange{
+        *pomodoroYearRangeReader,
+        std::bind(&StatisticsWidget::onYearRangeUpdated,
+                  this,
+                  std::placeholders::_1)};
+    requestYearRange.execute();
     ui->setupUi(this);
-    ui->widgetPickPeriod->setYears(pomodoroModel->yearRange());
     currentInterval = ui->widgetPickPeriod->getInterval();
     workTimeDiagram = new TimeDiagram(this);
     ui->verticalLayoutBestWorktime->addWidget(workTimeDiagram);
-    setupGraphs();
-    drawGraphs();
+    updateView();
     connectSlots();
 }
 
@@ -35,36 +46,47 @@ void StatisticsWidget::connectSlots()
             SLOT(onTagSelected(size_t)));
 }
 
-void StatisticsWidget::updateView()
-{
-    setupGraphs();
-    drawGraphs();
-}
+void StatisticsWidget::updateView() { fetchPomodoros(); }
 
 void StatisticsWidget::setupGraphs()
 {
-    fetchPomodoros();
     setupWeekdayBarChart();
     setupDailyTimelineGraph();
 }
 
 void StatisticsWidget::fetchPomodoros()
 {
-    pomodoroModel->setDateFilter(currentInterval);
-    pomodoroModel->select();
-    // TODO convert in the model
-    pomodoros = pomodoroModel->items();
+    UseCases::RequestPomodorosInTimeRangeCommand requestPomodoros{
+        *pomodoroReader,
+        currentInterval.toTimeSpan(),
+        std::bind(&StatisticsWidget::onPomodorosFetched,
+                  this,
+                  std::placeholders::_1)};
+    requestPomodoros.execute();
+}
+
+void StatisticsWidget::onPomodorosFetched(
+    const std::vector<Pomodoro>& pomodoros)
+{
+    this->pomodoros = pomodoros;
     selectedTagIndex = optional<size_t>();
     tagDistribution = TagDistribution(pomodoros, numTopTags);
     std::vector<TagCount> tagTagCounts = tagDistribution.topTagsDistribution();
+    setupGraphs();
+    drawGraphs();
     updateTopTagsDiagram(tagTagCounts);
+}
+
+void StatisticsWidget::onYearRangeUpdated(
+    const std::vector<std::string>& yearRange)
+{
+    ui->widgetPickPeriod->setYears(yearRange);
 }
 
 void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval)
 {
     currentInterval = newInterval;
     fetchPomodoros();
-    drawGraphs();
 }
 
 void StatisticsWidget::drawGraphs()

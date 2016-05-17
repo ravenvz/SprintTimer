@@ -9,7 +9,6 @@
 #include "goalsview.h"
 #include "historyview.h"
 #include "models/PomodoroModelNew.h"
-#include "src/models/pomodoromodel.h"
 #include "src/models/tagmodel.h"
 #include "src/models/todoitemmodel.h"
 #include "statisticswidget.h"
@@ -74,7 +73,6 @@ private:
     std::vector<TimeSpan> completedTasksIntervals;
     int progressBarMaxValue{0};
     Second timeLeft{0};
-    QPointer<PomodoroModel> pomodoroModel;
     QPointer<PomodoroModelNew> pomodoroModelNew;
     QPointer<TagModel> tagModel;
     QPointer<TodoItemModel> todoitemViewModel;
@@ -94,14 +92,6 @@ private:
 
     /* Set stopwatch value. */
     void setTimerValue(Second timeLeft);
-
-    IPomodoroYearRangeReader* reader;
-    // IPomodoroStorageReader* pomodoroReader;
-    void onYearRangeReceived(const std::vector<std::string>& range);
-    // void onPomodorosUpdated(
-    //     const std::vector<std::pair<Pomodoro, long long>>& items);
-    // QStringListModel* pomoTempModel;
-
     void updateOpenedWindows();
     void updatePomodoroView();
     void updateStatisticsWindow();

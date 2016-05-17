@@ -1,10 +1,8 @@
 #include "qt_storage_impl/QtPomoYearRangeReader.h"
 
 
-QtPomoYearRangeReader::QtPomoYearRangeReader(DBService& dbService,
-                                             Handler handler)
+QtPomoYearRangeReader::QtPomoYearRangeReader(DBService& dbService)
     : dbService{dbService}
-    , handler{handler}
 {
     connect(&dbService,
             &DBService::results,
@@ -12,8 +10,9 @@ QtPomoYearRangeReader::QtPomoYearRangeReader(DBService& dbService,
             &QtPomoYearRangeReader::onResultsReceived);
 }
 
-void QtPomoYearRangeReader::requestYearRange()
+void QtPomoYearRangeReader::requestYearRange(Handler handler)
 {
+    this->handler = handler;
     mQueryId
         = dbService.executeQuery("select distinct strftime('%Y', start_time) "
                                  "from pomodoro order by start_time;");

@@ -30,7 +30,7 @@ set(SOURCE_FILES
     ../src/core/DateTime.cpp
     ../src/db_layer/db_service.cpp
     ../src/models/todoitemmodel.cpp
-    ../src/models/pomodoromodel.cpp
+    # ../src/models/pomodoromodel.cpp
     ../src/utils/MathUtils.cpp
     ../src/utils/StringUtils.h
     ../src/utils/StringUtils.cpp

@@ -2,12 +2,11 @@
 #define HISTORY_VIEW_H
 
 #include "core/IPomodoroStorageReader.h"
+#include "core/IPomodoroYearRangeReader.h"
 #include "core/entities/Pomodoro.h"
 #include "core/entities/TodoItem.h"
 #include "db_layer/db_service.h"
 #include "pickperiodwidget.h"
-#include "src/models/PomodoroModelNew.h"
-#include "src/models/pomodoromodel.h"
 #include "src/models/todoitemmodel.h"
 #include <QObject>
 #include <QStandardItemModel>
@@ -51,7 +50,7 @@ private:
     Ui::HistoryView* ui;
     DateInterval selectedDateInterval;
     std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader;
-    QPointer<PomodoroModel> pomodoroModel;
+    std::unique_ptr<IPomodoroYearRangeReader> pomodoroYearRangeReader;
     QPointer<TodoItemModel> todoItemModel;
     QPointer<QStandardItemModel> viewModel;
     std::unique_ptr<HistoryState> historyStatePomodoro;
@@ -62,6 +61,8 @@ private:
 
     // Fill history model with data.
     void fillHistoryModel(const std::vector<HistoryItem>& history);
+
+    void onYearRangeUpdated(const std::vector<std::string>& yearRange);
 
 private slots:
 

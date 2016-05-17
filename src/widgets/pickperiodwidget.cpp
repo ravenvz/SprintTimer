@@ -83,17 +83,24 @@ void PickPeriodWidget::updateInterval(DateInterval timeSpan)
 
 DateInterval PickPeriodWidget::getInterval() const { return selectedInterval; }
 
-void PickPeriodWidget::setYears(const QStringList& years)
+void PickPeriodWidget::setYears(const std::vector<std::string>& years)
 {
+    QStringList yearRange;
+    std::transform(
+        years.cbegin(),
+        years.cend(),
+        std::back_inserter(yearRange),
+        [](const auto& elem) { return QString::fromStdString(elem); });
+
     if (yearsModel) {
         delete yearsModel;
     }
-    yearsModel = new QStringListModel(years);
+    yearsModel = new QStringListModel(yearRange);
     ui->cbxYear->setModel(yearsModel);
     ui->cbxYear->setCurrentIndex(static_cast<int>(std::distance(
-        years.begin(),
-        std::find(years.begin(),
-                  years.end(),
+        yearRange.begin(),
+        std::find(yearRange.begin(),
+                  yearRange.end(),
                   QString("%1").arg(QDate::currentDate().year())))));
     ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
     updateInterval();

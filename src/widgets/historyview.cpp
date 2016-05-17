@@ -1,7 +1,9 @@
 #include "historyview.h"
+#include "core/use_cases/RequestPomodoroYearRangeCommand.h"
 #include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
 #include "db_layer/db_service.h"
 #include "qt_storage_impl/QtPomoStorageReader.h"
+#include "qt_storage_impl/QtPomoYearRangeReader.h"
 #include "ui_history.h"
 #include <QPainter>
 
@@ -31,14 +33,19 @@ HistoryView::HistoryView(DBService& dbService, QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::HistoryView)
     , pomodoroStorageReader{std::make_unique<QtPomoStorageReader>(dbService)}
+    , pomodoroYearRangeReader{std::make_unique<QtPomoYearRangeReader>(
+          dbService)}
     , historyStatePomodoro{std::make_unique<HistoryStatePomodoro>(*this)}
     , historyStateTask{std::make_unique<HistoryStateTask>(*this)}
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    pomodoroModel = new PomodoroModel(this);
     todoItemModel = new TodoItemModel(this);
-    ui->widgetPickPeriod->setYears(pomodoroModel->yearRange());
+    UseCases::RequestPomodoroYearRangeCommand requestYearRange{
+        *pomodoroYearRangeReader,
+        std::bind(
+            &HistoryView::onYearRangeUpdated, this, std::placeholders::_1)};
+    requestYearRange.execute();
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
     viewModel = new QStandardItemModel(this);
     ui->lvTodoHistory->setHeaderHidden(true);
@@ -108,6 +115,10 @@ void HistoryView::onTabSelected(int tabIndex)
     updateView();
 }
 
+void HistoryView::onYearRangeUpdated(const std::vector<std::string>& yearRange)
+{
+    ui->widgetPickPeriod->setYears(yearRange);
+}
 
 HistoryState::HistoryState(HistoryView& historyView)
     : historyView{historyView}
@@ -134,7 +145,6 @@ void HistoryStatePomodoro::retrieveHistory()
 void HistoryStatePomodoro::onHistoryRetrieved(
     const std::vector<Pomodoro>& pomodoros)
 {
-    // std::vector<Pomodoro> pomodoros{historyView.pomodoroModel->items()};
     std::vector<HistoryView::HistoryItem> pomodoroHistory;
     pomodoroHistory.reserve(pomodoros.size());
     std::transform(

@@ -19,7 +19,7 @@ public:
     ~PickPeriodWidget();
     void setInterval(DateInterval timeSpan);
     DateInterval getInterval() const;
-    void setYears(const QStringList& years);
+    void setYears(const std::vector<std::string>& years);
 
 signals:
     void timeSpanChanged(DateInterval newInterval);

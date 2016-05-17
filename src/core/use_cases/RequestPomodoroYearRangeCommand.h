@@ -8,15 +8,18 @@ namespace UseCases {
 
 class RequestPomodoroYearRangeCommand : public ICommand {
 public:
-    RequestPomodoroYearRangeCommand(IPomodoroYearRangeReader& reader)
+    RequestPomodoroYearRangeCommand(IPomodoroYearRangeReader& reader,
+                                    IPomodoroYearRangeReader::Handler handler)
         : reader{reader}
+        , handler{handler}
     {
     }
 
-    void execute() final { reader.requestYearRange(); }
+    void execute() final { reader.requestYearRange(handler); }
 
 private:
     IPomodoroYearRangeReader& reader;
+    IPomodoroYearRangeReader::Handler handler;
 };
 
 

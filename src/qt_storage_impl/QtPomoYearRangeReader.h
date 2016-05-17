@@ -10,11 +10,9 @@ class QtPomoYearRangeReader : public QObject, public IPomodoroYearRangeReader {
     Q_OBJECT
 
 public:
-    using Handler = std::function<void(const std::vector<std::string>&)>;
+    QtPomoYearRangeReader(DBService& dbService);
 
-    QtPomoYearRangeReader(DBService& dbService, Handler handler);
-
-    void requestYearRange() final;
+    void requestYearRange(Handler handler) final;
 
 private:
     DBService& dbService;

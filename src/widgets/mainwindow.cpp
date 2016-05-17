@@ -5,7 +5,6 @@
 #include "dialogs/confirmationdialog.h"
 #include "dialogs/manualaddpomodorodialog.h"
 #include "dialogs/settings_dialog.h"
-#include "qt_storage_impl/QtPomoYearRangeReader.h"
 #include "ui_mainwindow.h"
 #include <QtWidgets/qmenu.h>
 #include <src/core/config.h>
@@ -26,32 +25,9 @@ MainWindow::MainWindow(IConfig& applicationSettings,
 {
     ui->setupUi(this);
     player = std::make_unique<QMediaPlayer>();
-    reader = new QtPomoYearRangeReader{
-        dbService,
-        std::bind(
-            &MainWindow::onYearRangeReceived, this, std::placeholders::_1)};
-    // pomoTempModel = new QStringListModel(this);
     pomodoroModelNew = new PomodoroModelNew(dbService, this);
-    // pomodoroReader = new QtPomoStorageReader{dbService};
-    // UseCases::RequestPomodorosInTimeRangeCommand command{
-    //     *pomodoroReader,
-    //     TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
-    //     std::bind(
-    //         &MainWindow::onPomodorosUpdated, this, std::placeholders::_1)};
-    // command.execute();
-
-
-    // pomodoroModel = new PomodoroModel(this);
-    // pomodoroModel->setDateFilter(
-    //     DateInterval{QDate::currentDate(), QDate::currentDate()});
-    // pomodoroModel->setSortByTime();
-    // pomodoroModel->select();
-    // ui->lvCompletedPomodoros->setModel(pomodoroModel);
     ui->lvCompletedPomodoros->setModel(pomodoroModelNew);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    // pomodoroModelNew->setDateFilter(
-    //     TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()});
     todoitemViewModel = new TodoItemModel(this);
     todoitemViewModel->setNotCompletedFilter();
     todoitemViewModel->select();
@@ -75,8 +51,6 @@ MainWindow::~MainWindow()
     delete statisticsView;
     delete goalsView;
     delete tagEditor;
-    delete reader;
-    // delete pomodoroReader;
     delete ui;
 }
 
@@ -197,14 +171,6 @@ void MainWindow::launchSettingsDialog()
     }
 }
 
-void MainWindow::onYearRangeReceived(const std::vector<std::string>& range)
-{
-    std::copy(range.cbegin(),
-              range.cend(),
-              std::ostream_iterator<std::string>(std::cout, ", "));
-    std::cout << std::endl;
-}
-
 // void MainWindow::onPomodorosUpdated(
 //     const std::vector<std::pair<Pomodoro, long long>>& items)
 // {
@@ -220,12 +186,6 @@ void MainWindow::onYearRangeReceived(const std::vector<std::string>& range)
 
 void MainWindow::startTask()
 {
-    // QtPomoYearRangeReader reader{dbService};
-    // UseCases::RequestPomodoroYearRangeCommand command{*reader};
-    // command.execute();
-    // reader->requestYearRange(std::bind(
-    //     &MainWindow::onYearRangeReceived, this, std::placeholders::_1));
-
     pomodoroTimer.run();
     setUiToRunningState();
 }
@@ -431,7 +391,7 @@ void MainWindow::launchGoalsView()
 void MainWindow::launchStatisticsView()
 {
     if (!statisticsView) {
-        statisticsView = new StatisticsWidget(applicationSettings);
+        statisticsView = new StatisticsWidget(applicationSettings, dbService);
         statisticsView->show();
     }
     else {
