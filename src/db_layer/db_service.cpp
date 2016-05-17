@@ -13,7 +13,7 @@ DBService::DBService(QString filename)
     connect(this, &DBService::queuePrepared, worker, &Worker::executePrepared);
     connect(worker, &Worker::results, this, &DBService::handleResults);
     connect(worker, &Worker::error, this, &DBService::handleError);
-    connect(this, &DBService::prepare, worker, &Worker::prepare);
+    connect(this, &DBService::prepareQuery, worker, &Worker::prepare);
     connect(this, &DBService::bind, worker, &Worker::bindValue);
     workerThread.start();
 }
@@ -26,26 +26,32 @@ DBService::~DBService()
 }
 
 
-void DBService::executeQuery(const QString& queryId, const QString& query)
+long long DBService::executeQuery(const QString& query)
 {
-    emit queue(queryId, query);
+    emit queue(nextQueryId, query);
+    return nextQueryId++;
 }
 
+long long DBService::prepare(const QString& query)
+{
+    emit prepareQuery(nextQueryId, query);
+    return nextQueryId++;
+}
 
-void DBService::executePrepared(const QString& queryId)
+void DBService::executePrepared(long long queryId)
 {
     emit queuePrepared(queryId);
 }
 
 
-void DBService::handleResults(const QString& queryId,
+void DBService::handleResults(long long queryId,
                               const std::vector<QSqlRecord>& records)
 {
     emit results(queryId, records);
 }
 
 
-void DBService::handleError(const QString& queryId, const QString& errorMessage)
+void DBService::handleError(long long queryId, const QString& errorMessage)
 {
     qDebug() << queryId;
     qDebug() << errorMessage;
@@ -53,7 +59,7 @@ void DBService::handleError(const QString& queryId, const QString& errorMessage)
 }
 
 
-void DBService::bindValue(const QString& queryId,
+void DBService::bindValue(long long queryId,
                           const QString& placeholder,
                           const QVariant& value)
 {
@@ -70,7 +76,7 @@ Worker::Worker(const QString& filename)
 }
 
 
-void Worker::execute(const QString& queryId, const QString& query)
+void Worker::execute(long long queryId, const QString& query)
 {
     QSqlQuery q;
     if (!q.exec(query)) {
@@ -87,7 +93,7 @@ void Worker::execute(const QString& queryId, const QString& query)
     }
 }
 
-void Worker::executePrepared(const QString& queryId)
+void Worker::executePrepared(long long queryId)
 {
     QSqlQuery query = preparedQueries.value(queryId);
     if (!query.exec()) {
@@ -106,7 +112,7 @@ void Worker::executePrepared(const QString& queryId)
 }
 
 
-void Worker::prepare(const QString& queryId, const QString& queryStr)
+void Worker::prepare(long long queryId, const QString& queryStr)
 {
     QSqlQuery query;
     query.prepare(queryStr);
@@ -114,7 +120,7 @@ void Worker::prepare(const QString& queryId, const QString& queryStr)
 }
 
 
-void Worker::bindValue(const QString& queryId,
+void Worker::bindValue(long long queryId,
                        const QString& placeholder,
                        const QVariant& value)
 {

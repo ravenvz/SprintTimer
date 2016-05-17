@@ -29,34 +29,42 @@ public:
     DBService(const DBService&) = default;
     DBService& operator=(const DBService&) = default;
 
-public slots:
+    /* Execute single query and return it's id. */
+    long long executeQuery(const QString& query);
 
-    void executeQuery(const QString& queryId, const QString& query);
+    /* Prepare query and return it's id. */
+    long long prepare(const QString& query);
 
-    void executePrepared(const QString& queryId);
+    // TODO what if no query with such id
+    /* Execute previously prepared query */
+    void executePrepared(long long queryId);
 
-    void handleResults(const QString& queryId,
-                       const std::vector<QSqlRecord>& records);
-
-    void handleError(const QString& queryId, const QString& errorMessage);
-
-    void bindValue(const QString& queryId,
+    // TODO what if no query with such id
+    /* Bind value to a placeholder for a previously prepared query
+     * with given id. */
+    void bindValue(long long queryId,
                    const QString& placeholder,
                    const QVariant& value);
 
+public slots:
+
+    void handleResults(long long queryId,
+                       const std::vector<QSqlRecord>& records);
+
+    void handleError(long long queryId, const QString& errorMessage);
+
 signals:
-    void queue(const QString& queryId, const QString& query);
-    void queuePrepared(const QString& queryId);
-    void results(const QString& queryId,
-                 const std::vector<QSqlRecord>& records);
-    void error(const QString& queryId, const QString& errorMessage);
-    void prepare(const QString& queryId, const QString& queryStr);
-    void bind(const QString& queryId,
-              const QString& placeholder,
-              const QVariant& value);
+    void queue(long long queryId, const QString& query);
+    void queuePrepared(long long queryId);
+    void results(long long queryId, const std::vector<QSqlRecord>& records);
+    void error(long long queryId, const QString& errorMessage);
+    void prepareQuery(long long queryId, const QString& queryStr);
+    void
+    bind(long long queryId, const QString& placeholder, const QVariant& value);
 
 private:
     QThread workerThread;
+    long long nextQueryId{0};
 };
 
 
@@ -68,26 +76,25 @@ public:
     ~Worker();
 
 public slots:
-    void execute(const QString& queryId, const QString& query);
+    void execute(long long queryId, const QString& query);
 
-    void executePrepared(const QString& queryId);
+    void executePrepared(long long queryId);
 
-    void prepare(const QString& queryId, const QString& queryStr);
+    void prepare(long long queryId, const QString& queryStr);
 
-    void bindValue(const QString& queryId,
+    void bindValue(long long queryId,
                    const QString& placeholder,
                    const QVariant& value);
 
 signals:
-    void results(const QString& queryId,
-                 const std::vector<QSqlRecord>& records);
+    void results(long long queryId, const std::vector<QSqlRecord>& records);
 
-    void error(const QString& queryId, const QString& errorMessage);
+    void error(long long queryId, const QString& errorMessage);
 
 private:
     QString filename;
     QSqlDatabase db;
-    QHash<QString, QSqlQuery> preparedQueries;
+    QHash<long long, QSqlQuery> preparedQueries;
 
     bool createDatabase();
 

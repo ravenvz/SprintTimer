@@ -1,16 +1,14 @@
 #include "qt_storage_impl/QtPomoStorageWriter.h"
 
 
-QtPomoStorageWriter::QtPomoStorageWriter(
-    DBService& dbService)
+QtPomoStorageWriter::QtPomoStorageWriter(DBService& dbService)
     : dbService{dbService}
 {
-    dbService.prepare(
-        addQueryId,
+    addQueryId = dbService.prepare(
         "insert into pomodoro_view(todo_uuid, start_time, finish_time, uuid) "
         "values(:todo_uuid, :startTime, :finishTime, :uuid);");
-    dbService.prepare(removeQueryId,
-                      "delete from pomodoro_view where uuid = (:uuid);");
+    removeQueryId
+        = dbService.prepare("delete from pomodoro_view where uuid = (:uuid);");
 }
 
 void QtPomoStorageWriter::save(const Pomodoro& pomodoro)

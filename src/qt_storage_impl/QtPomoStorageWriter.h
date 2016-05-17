@@ -5,8 +5,7 @@
 #include "db_layer/db_service.h"
 #include <QObject>
 
-class QtPomoStorageWriter : public QObject,
-                                      public IPomodoroStorageWriter {
+class QtPomoStorageWriter : public QObject, public IPomodoroStorageWriter {
     Q_OBJECT
 
 public:
@@ -18,8 +17,8 @@ public:
 
 private:
     DBService& dbService;
-    QString addQueryId{"AddPomodoro"};
-    QString removeQueryId{"RemovePomodoro"};
+    long long addQueryId;
+    long long removeQueryId;
 };
 
 #endif /* end of include guard: QTSQLITEPOMODOROSTORAGEWRITER_H_U7AAXVTC */

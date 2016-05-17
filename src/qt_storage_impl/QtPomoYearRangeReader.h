@@ -6,8 +6,7 @@
 #include <QObject>
 #include <functional>
 
-class QtPomoYearRangeReader : public QObject,
-                                        public IPomodoroYearRangeReader {
+class QtPomoYearRangeReader : public QObject, public IPomodoroYearRangeReader {
     Q_OBJECT
 
 public:
@@ -20,10 +19,10 @@ public:
 private:
     DBService& dbService;
     Handler handler;
-    const QString mQueryId{"ReadYearRange"};
+    long long mQueryId;
 
 private slots:
-    void onResultsReceived(const QString& queryId,
+    void onResultsReceived(long long queryId,
                            const std::vector<QSqlRecord>& records);
 };
 

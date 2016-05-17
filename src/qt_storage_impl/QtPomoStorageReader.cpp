@@ -1,12 +1,10 @@
 #include "qt_storage_impl/QtPomoStorageReader.h"
 
 
-QtPomoStorageReader::QtPomoStorageReader(
-    DBService& dbService)
+QtPomoStorageReader::QtPomoStorageReader(DBService& dbService)
     : dbService{dbService}
 {
-    dbService.prepare(
-        mQueryId,
+    mQueryId = dbService.prepare(
         "select id, todo_uuid, name, tags, start_time, finish_time, uuid "
         "from pomodoro_view "
         "where date(start_time) >= (:startTime) "
@@ -19,7 +17,7 @@ QtPomoStorageReader::QtPomoStorageReader(
 }
 
 void QtPomoStorageReader::requestItems(const TimeSpan& timeSpan,
-                                                 Handler handler)
+                                       Handler handler)
 {
     this->handler = handler;
     DateTime start = timeSpan.startTime;
@@ -36,7 +34,7 @@ void QtPomoStorageReader::requestItems(const TimeSpan& timeSpan,
 }
 
 void QtPomoStorageReader::onResultsReceived(
-    const QString& queryId, const std::vector<QSqlRecord>& records)
+    long long queryId, const std::vector<QSqlRecord>& records)
 {
     if (mQueryId != queryId) {
         return;
@@ -50,8 +48,7 @@ void QtPomoStorageReader::onResultsReceived(
     handler(pomodoros);
 }
 
-Pomodoro
-QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
+Pomodoro QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
 {
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
@@ -73,7 +70,7 @@ QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
 }
 
 QVariant QtPomoStorageReader::columnData(const QSqlRecord& record,
-                                                   Columns column)
+                                         Columns column)
 {
     return record.value(static_cast<int>(column));
 }

@@ -12,20 +12,20 @@ class DistributionReaderBase : public QObject,
     Q_OBJECT
 
 public:
-    DistributionReaderBase(DBService& dbService, QString queryId);
+    DistributionReaderBase(DBService& dbService);
 
     virtual void requestDailyDistribution(const TimeSpan& timeSpan,
                                           Handler handler) final;
 
 private slots:
 
-    virtual void onResultsReceived(const QString& queryId,
+    virtual void onResultsReceived(long long queryId,
                                    const std::vector<QSqlRecord>& records);
 
 protected:
     DBService& dbService;
     Handler handler;
-    QString mQueryId;
+    long long mQueryId;
 };
 
 

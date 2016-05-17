@@ -6,8 +6,7 @@
 #include <QObject>
 
 
-class QtPomoStorageReader : public QObject,
-                                      public IPomodoroStorageReader {
+class QtPomoStorageReader : public QObject, public IPomodoroStorageReader {
     Q_OBJECT
 
 public:
@@ -25,7 +24,7 @@ private:
         FinishTime,
         Uuid,
     };
-    const QString mQueryId{"pomodoroStorageReader"};
+    long long mQueryId;
     DBService& dbService;
     Handler handler;
 
@@ -34,7 +33,7 @@ private:
     QVariant columnData(const QSqlRecord& record, Columns column);
 
 private slots:
-    void onResultsReceived(const QString& queryId,
+    void onResultsReceived(long long queryId,
                            const std::vector<QSqlRecord>& records);
 };
 
