@@ -1,5 +1,5 @@
 #include "db_service.h"
-#include "utils/UuidUtils.h"
+// #include "utils/UuidUtils.h"
 #include <exception>
 
 
@@ -178,7 +178,7 @@ bool Worker::createDbConnection()
 // TODO remove
 void Worker::migrate()
 {
-    BoostUUUIDGenerator generator;
+    BoostUUIDGenerator generator;
     QSqlQuery query;
     QSqlDatabase::database().transaction();
     QString qstr{"select id from pomodoro;"};

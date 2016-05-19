@@ -1,10 +1,10 @@
 #include "Pomodoro.h"
-#include "utils/StringUtils.h"
+#include "core/StringUtils.h"
 #include <algorithm>
 
 
 // static
-BoostUUUIDGenerator Pomodoro::generator;
+BoostUUIDGenerator Pomodoro::generator;
 
 
 //TODO too much constructors that instantiate partial pomodoros.

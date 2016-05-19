@@ -1,14 +1,13 @@
 #ifndef GOALSVIEW_H
 #define GOALSVIEW_H
 
+#include "core/IPomodoroDistributionReader.h"
 #include "core/config.h"
+#include "db_layer/db_service.h"
 #include <QGridLayout>
 #include <QProgressBar>
 #include <QWidget>
 #include <memory>
-#include "db_layer/db_service.h"
-#include <src/utils/MathUtils.h>
-#include "core/IPomodoroDistributionReader.h"
 
 namespace Ui {
 class GoalsView;
@@ -53,8 +52,11 @@ private:
                            int colNum);
     void clearDiagramLayout(QGridLayout* layout);
     void updateProgressBar(QProgressBar* bar, int goal, int value);
-    QString formatDecimal(double decimal) const;
 };
+
+QString formatDecimal(double decimal);
+
+double percentage(int chunk, int total);
 
 
 #endif

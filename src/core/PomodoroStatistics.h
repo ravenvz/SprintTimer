@@ -4,7 +4,7 @@
 #include "core/entities/Pomodoro.h"
 #include "db_layer/db_service.h"
 #include "utils/DateInterval.h"
-#include "utils/MathUtils.h"
+#include "core/Distribution.h"
 #include <algorithm>
 #include <iostream>
 #include <unordered_map>

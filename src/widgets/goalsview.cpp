@@ -2,9 +2,8 @@
 #include "core/use_cases/RequestPomoDistribution.h"
 #include "db_layer/db_service.h"
 #include "gauge.h"
-#include "ui_goalsview.h"
 #include "qt_storage_impl/QtPomoDistributionReader.h"
-#include "utils/MathUtils.h"
+#include "ui_goalsview.h"
 
 GoalsView::GoalsView(IConfig& applicationSettings,
                      DBService& dbService,
@@ -12,12 +11,14 @@ GoalsView::GoalsView(IConfig& applicationSettings,
     : QWidget{parent}
     , ui{new Ui::GoalsView}
     , applicationSettings{applicationSettings}
-    , dailyDistributionReader{
-        std::make_unique<QtPomoDailyDistributionReader>(dbService)}
-    , weeklyDistributionReader{
-        std::make_unique<QtSqlitePomodoroWeeklyDistributionReader>(dbService)}
+    , dailyDistributionReader{std::make_unique<QtPomoDailyDistributionReader>(
+          dbService)}
+    , weeklyDistributionReader{std::
+                                   make_unique<QtSqlitePomodoroWeeklyDistributionReader>(
+                                       dbService)}
     , monthlyDistributionReader{
-          std::make_unique<QtSqlitePomodoroMonthlyDistributionReader>(dbService)}
+          std::make_unique<QtSqlitePomodoroMonthlyDistributionReader>(
+              dbService)}
 
 {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -167,18 +168,13 @@ void GoalsView::updateMonthlyGoal(int newValue)
     displayMonthlyData();
 }
 
-QString GoalsView::formatDecimal(double decimal) const
-{
-    return QString("%1").arg(decimal, 2, 'f', 2, '0');
-}
-
 void GoalsView::onDailyDistributionReceived(const Distribution<int>& lastDays)
 {
     int dailyGoal = applicationSettings.dailyPomodorosGoal();
     int monthlyGoal = applicationSettings.monthlyPomodorosGoal();
     ui->labelLastMonthAverage->setText(formatDecimal(lastDays.getAverage()));
-    ui->labelLastMonthPercentage->setText(QString("%1%").arg(formatDecimal(
-        MathUtils::percentage(lastDays.getTotal(), monthlyGoal))));
+    ui->labelLastMonthPercentage->setText(QString("%1%").arg(
+        formatDecimal(percentage(lastDays.getTotal(), monthlyGoal))));
     ui->labelTodayProgress->setText(QString("%1").arg(lastDays.getTotal()));
     updateProgressBar(ui->progressBarToday,
                       dailyGoal,
@@ -191,10 +187,9 @@ void GoalsView::onWeeklyDistributionReceived(const Distribution<int>& lastWeeks)
 {
     int weeklyGoal = applicationSettings.weeklyPomodorosGoal();
     ui->labelLastQuarterAverage->setText(formatDecimal(lastWeeks.getAverage()));
-    ui->labelLastQuarterPercentage->setText(
-        QString("%1%").arg(formatDecimal(MathUtils::percentage(
-            lastWeeks.getTotal(),
-            static_cast<int>(lastWeeks.getNumBins()) * weeklyGoal))));
+    ui->labelLastQuarterPercentage->setText(QString("%1%").arg(formatDecimal(
+        percentage(lastWeeks.getTotal(),
+                   static_cast<int>(lastWeeks.getNumBins()) * weeklyGoal))));
     ui->labelWeekProgress->setText(QString("%1").arg(lastWeeks.getTotal()));
     updateProgressBar(ui->progressBarWeek,
                       weeklyGoal,
@@ -208,14 +203,23 @@ void GoalsView::onMonthlyDistributionReceived(
 {
     int monthlyGoal = applicationSettings.monthlyPomodorosGoal();
     ui->labelLastYearAverage->setText(formatDecimal(lastMonths.getAverage()));
-    ui->labelLastYearPercentage->setText(
-        QString("%1%").arg(formatDecimal(MathUtils::percentage(
-            lastMonths.getTotal(),
-            static_cast<int>(lastMonths.getNumBins()) * monthlyGoal))));
+    ui->labelLastYearPercentage->setText(QString("%1%").arg(formatDecimal(
+        percentage(lastMonths.getTotal(),
+                   static_cast<int>(lastMonths.getNumBins()) * monthlyGoal))));
     ui->labelMonthProgress->setText(QString("%1").arg(lastMonths.getTotal()));
     updateProgressBar(ui->progressBarMonth,
                       monthlyGoal,
                       lastMonths.getBinValue(lastMonths.getNumBins() - 1));
     drawPeriodDiagram(
         ui->gridLayoutLastYearDiagram, lastMonths, monthlyGoal, 3, 4);
+}
+
+QString formatDecimal(double decimal)
+{
+    return QString("%1").arg(decimal, 2, 'f', 2, '0');
+}
+
+double percentage(int chunk, int total)
+{
+    return total != 0 ? static_cast<double>(chunk) * 100 / total : 0;
 }

@@ -1,5 +1,4 @@
 #include "QtPomoDistributionReader.h"
-#include "utils/MathUtils.h"
 
 
 DistributionReaderBase::DistributionReaderBase(DBService& dbService)

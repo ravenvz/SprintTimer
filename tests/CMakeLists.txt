@@ -31,9 +31,12 @@ set(SOURCE_FILES
     ../src/db_layer/db_service.cpp
     ../src/models/todoitemmodel.cpp
     # ../src/models/pomodoromodel.cpp
-    ../src/utils/MathUtils.cpp
-    ../src/utils/StringUtils.h
-    ../src/utils/StringUtils.cpp
+    # ../src/utils/MathUtils.cpp
+    # ../src/utils/StringUtils.h
+    # ../src/utils/StringUtils.cpp
+    # ../src/core/Distribution.h
+    # ../src/core/StringUtils.h
+    ../src/core/StringUtils.cpp
     ../src/core/use_cases/use_cases.h
 )
 # find_library(CppUTest REQUIRED)

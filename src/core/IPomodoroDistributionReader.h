@@ -2,7 +2,7 @@
 #define IPOMODORODAILYDISTRIBUTIONREADER_H_XMW7JEI6
 
 #include "core/TimeSpan.h"
-#include "utils/MathUtils.h"
+#include "core/Distribution.h"
 #include <functional>
 
 class IPomodoroDistributionReader {

@@ -4,7 +4,7 @@
 
 #include "TodoItem.h"
 #include "core/TimeSpan.h"
-#include "utils/UuidUtils.h"
+#include "core/BoostUUIDGenerator.h"
 #include <list>
 #include <string>
 
@@ -56,7 +56,7 @@ public:
     std::string toString() const;
 
 private:
-    static BoostUUUIDGenerator generator;
+    static BoostUUIDGenerator generator;
     std::string mName;
     TimeSpan mInterval;
     std::string mUuid;

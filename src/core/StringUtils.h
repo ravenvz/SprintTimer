@@ -28,19 +28,4 @@ std::list<std::string> parseWords(std::string text);
 
 } // namespace StringUtils
 
-// std::string join(std::vector<std::string>&& vec, const std::string&
-// delimeter)
-// {
-//     std::cout << "Move overload called" << std::endl;
-//     std::string res;
-//     std::for_each(std::make_move_iterator(vec.begin()),
-//                   std::make_move_iterator(vec.end()),
-//                   [&](const auto& elem) {
-//                       res += elem;
-//                       res += delimeter;
-//                   });
-//     res.pop_back();
-//     return res;
-// }
-
 #endif /* end of include guard: STRINGUTILS_H_Y89VODRG */

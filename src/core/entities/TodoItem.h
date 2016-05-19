@@ -1,8 +1,8 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include "utils/StringUtils.h"
-#include "utils/UuidUtils.h"
+#include "core/BoostUUIDGenerator.h"
+#include "core/StringUtils.h"
 #include <list>
 #include <string>
 #include <vector>
@@ -94,7 +94,7 @@ public:
     std::string toString() const;
 
 private:
-    static BoostUUUIDGenerator generator;
+    static BoostUUIDGenerator generator;
     std::string mName;
     std::string mEncodedDescription;
     int mEstimatedPomodoros = 1;

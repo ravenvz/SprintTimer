@@ -3,7 +3,7 @@
 
 
 // static
-BoostUUUIDGenerator TodoItem::generator;
+BoostUUIDGenerator TodoItem::generator;
 
 TodoItem::TodoItem(std::string name,
                    int estimatedPomodoros,

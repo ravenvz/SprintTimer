@@ -1,14 +1,9 @@
-#ifndef POMODORO_MATHUTILS_H
-#define POMODORO_MATHUTILS_H
+#ifndef DISTRIBUTION_H_HG9WILUN
+#define DISTRIBUTION_H_HG9WILUN
 
-#include <cstddef>
 #include <vector>
+#include <cstdlib>
 
-class MathUtils {
-
-public:
-    static double percentage(double chunk, double total);
-};
 
 template <class T>
 class Distribution {
@@ -27,9 +22,6 @@ public:
         , binFrequency(std::vector<int>(distribution.size(), 1))
     {
         computeMaxAndAverage();
-        // for (const auto& element : getDistributionVector()) {
-        //     qDebug() << element;
-        // }
     }
 
     Distribution(std::vector<T>&& distribution, std::vector<int>&& binFrequency)
@@ -60,16 +52,16 @@ public:
 
     std::vector<T> getDistributionVector() const { return distribution; }
 
-    double getTotal() const { return total; }
+    T getTotal() const { return total; }
 
     bool empty() const { return static_cast<int>(total) == 0; }
 
 private:
-    double average = 0;
-    double max = 0;
-    size_t numBins = 0;
-    size_t maxValueBin = 0;
-    double total = 0;
+    double average{0};
+    double max{0};
+    size_t numBins{0};
+    size_t maxValueBin{0};
+    T total{0};
     std::vector<T> distribution;
     std::vector<int> binFrequency;
 
@@ -78,7 +70,7 @@ private:
         if (numBins == 0)
             return;
         // TODO what if there is an overflow?
-        double sum = 0;
+        T sum = 0;
         for (size_t bin = 0; bin < distribution.size(); ++bin) {
             double value = getBinValue(bin);
             sum += value;
@@ -100,4 +92,4 @@ private:
     }
 };
 
-#endif // POMODORO_MATHUTILS_H
+#endif /* end of include guard: DISTRIBUTION_H_HG9WILUN */
