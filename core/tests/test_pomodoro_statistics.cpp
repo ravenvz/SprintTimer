@@ -1,4 +1,4 @@
-#include "PomodoroStatistics.h"
+#include "core/PomodoroStatistics.h"
 #include <TestHarness.h>
 
 TEST_GROUP(PomoStatItem)

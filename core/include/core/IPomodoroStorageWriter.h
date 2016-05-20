@@ -1,8 +1,8 @@
 #ifndef IPOMODOROSTORAGEWRITER_H_PMJNRBFY
 #define IPOMODOROSTORAGEWRITER_H_PMJNRBFY
 
-#include "core/TimeSpan.h"
-#include "core/entities/Pomodoro.h"
+#include "TimeSpan.h"
+#include "entities/Pomodoro.h"
 
 
 class IPomodoroStorageWriter {

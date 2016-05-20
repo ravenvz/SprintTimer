@@ -1,4 +1,4 @@
-#include "PomodoroStatistics.h"
+#include "core/PomodoroStatistics.h"
 
 
 TagDistribution::TagDistribution(const std::vector<Pomodoro>& pomodoros,

@@ -1,4 +1,3 @@
-#include <src/core/config.h>
 #include "settings_dialog.h"
 #include "ui_settings.h"
 

@@ -34,6 +34,7 @@ set("${PROJECT}_SOURCE_DIR" src)
 
 # set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
+set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
 set (ERR_NO_UNIX "Cannot build on non Unix systems")
@@ -99,8 +100,12 @@ endif()
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
-target_include_directories(${PROJECT} PUBLIC src lib src/core)
-target_link_libraries(${PROJECT} PUBLIC Qt5::Core PUBLIC Qt5::Widgets PUBLIC Qt5::Sql PUBLIC Qt5::Multimedia Threads::Threads)
+target_include_directories(${PROJECT} PUBLIC src lib)
+target_link_libraries(${PROJECT} PUBLIC Qt5::Core PUBLIC Qt5::Widgets PUBLIC Qt5::Sql PUBLIC Qt5::Multimedia Threads::Threads pomodoro_core)
+
+enable_testing()
 
 add_subdirectory(core)
 add_subdirectory(tests)
+
+add_test(test_pomodoro_core test_pomodoro_core)

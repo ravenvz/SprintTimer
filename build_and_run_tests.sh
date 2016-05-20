@@ -44,4 +44,4 @@ echo "$build_type build using $cxx_compiler"
     -DTHREAD_SANITIZER=$thread_sanitizer \
     .. && make -j$(nproc))
 
-(cd bin && ./test_pomodoro)
+(cd bin && ./test_pomodoro && ./test_pomodoro_core)

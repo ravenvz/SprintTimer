@@ -1,4 +1,4 @@
-#include "PomodoroTimer.h"
+#include "core/PomodoroTimer.h"
 
 PomodoroTimer::PomodoroTimer(std::function<void(long timeLeft)> tickCallback,
                              long tickPeriodInMillisecs,

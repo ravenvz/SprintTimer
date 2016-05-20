@@ -7,7 +7,7 @@
 #include "dialogs/settings_dialog.h"
 #include "ui_mainwindow.h"
 #include <QtWidgets/qmenu.h>
-#include <src/core/config.h>
+#include "core/config.h"
 #include <thread>
 
 

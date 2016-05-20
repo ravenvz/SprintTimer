@@ -4,34 +4,8 @@ set(TEST_PROJECT test_pomodoro)
 project(${TEST_PROJECT})
 set(SOURCE_FILES
     run_all_tests.cpp
-    # test_pomodoro_model.cpp
-    # test_todoitem_model.cpp
-    test_pomodoro_timer.cpp
-    test_add_pomodoro.cpp
-    test_add_task.cpp
-    ../core/PomodoroStatistics.cpp
-    ../core/PomodoroTimer.h
-    ../core/PomodoroTimer.cpp
-    ../core/Timer.h
-    ../core/Timer.cpp
-    ../core/config.h
-    ../core/entities/Pomodoro.cpp
-    ../core/entities/TodoItem.cpp
-    # ../src/core/entities/TodoItem.h
-    ../core/TimeSpan.h
-    ../core/TimeSpan.cpp
-    ../core/DateTime.h
-    ../core/DateTime.cpp
-    ../src/db_layer/db_service.cpp
-    ../src/models/todoitemmodel.cpp
-    # ../src/models/pomodoromodel.cpp
-    # ../src/utils/MathUtils.cpp
-    # ../src/utils/StringUtils.h
-    # ../src/utils/StringUtils.cpp
-    # ../src/core/Distribution.h
-    # ../src/core/StringUtils.h
-    ../core/StringUtils.cpp
-    ../core/use_cases/use_cases.h
+    # ../src/db_layer/db_service.cpp
+    # ../src/models/todoitemmodel.cpp
 )
 # find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql Widgets)

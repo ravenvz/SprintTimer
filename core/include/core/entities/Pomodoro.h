@@ -2,9 +2,9 @@
 #define POMODORO_POMODORO_H
 
 
-#include "TodoItem.h"
-#include "TimeSpan.h"
-#include "BoostUUIDGenerator.h"
+#include "core/entities/TodoItem.h"
+#include "core/TimeSpan.h"
+#include "core/BoostUUIDGenerator.h"
 #include <list>
 #include <string>
 

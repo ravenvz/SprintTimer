@@ -1,7 +1,7 @@
 #ifndef IPOMODOROSTORAGEREADER_H_UJ8CZPXS
 #define IPOMODOROSTORAGEREADER_H_UJ8CZPXS
 
-#include "core/entities/Pomodoro.h"
+#include "entities/Pomodoro.h"
 #include <functional>
 
 

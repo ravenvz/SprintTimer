@@ -11,6 +11,8 @@ set(SOURCE_FILES
     test_time_span.cpp
     test_todoitem.cpp
     test_pomodoro_timer.cpp
+    test_add_task.cpp
+    test_add_pomodoro.cpp
     ../src/DateTime.cpp
     ../src/PomodoroStatistics.cpp
     ../src/Pomodoro.cpp
@@ -45,5 +47,5 @@ endif()
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
-target_include_directories(${TEST_CORE} PRIVATE /usr/include/CppUTest ../include/pomodoro_core lib)
+target_include_directories(${TEST_CORE} PRIVATE /usr/include/CppUTest ../include lib)
 target_link_libraries(${TEST_CORE} CppUTest Threads::Threads)

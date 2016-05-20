@@ -10,6 +10,7 @@ set(CORE_SOURCE_FILES
     src/TimeSpan.cpp
     src/Pomodoro.cpp
     src/TodoItem.cpp
+    src/StringUtils.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -17,7 +18,7 @@ find_package(Threads REQUIRED)
 
 add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
 
-target_include_directories(${PROJECT} PUBLIC include/pomodoro_core) 
+target_include_directories(${PROJECT} PUBLIC include) 
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
 add_subdirectory(tests)

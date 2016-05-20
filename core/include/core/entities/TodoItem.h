@@ -1,8 +1,8 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include "BoostUUIDGenerator.h"
-#include "StringUtils.h"
+#include "core/BoostUUIDGenerator.h"
+#include "core/StringUtils.h"
 #include <list>
 #include <string>
 #include <vector>

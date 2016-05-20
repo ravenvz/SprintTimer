@@ -4,7 +4,7 @@
 
 #include <QDialog>
 #include <QSettings>
-#include <src/core/config.h>
+#include "core/config.h"
 
 namespace Ui {
 class SettingsDialog;
