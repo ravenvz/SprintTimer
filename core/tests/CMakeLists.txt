@@ -10,12 +10,15 @@ set(SOURCE_FILES
     test_string_utils.cpp
     test_time_span.cpp
     test_todoitem.cpp
+    test_pomodoro_timer.cpp
     ../src/DateTime.cpp
     ../src/PomodoroStatistics.cpp
     ../src/Pomodoro.cpp
     ../src/TodoItem.cpp
     ../src/TimeSpan.cpp
     ../src/StringUtils.cpp
+    ../src/PomodoroTimer.cpp
+    ../src/Timer.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

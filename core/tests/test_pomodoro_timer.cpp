@@ -1,4 +1,4 @@
-#include "core/PomodoroTimer.h"
+#include "PomodoroTimer.h"
 #include <TestHarness.h>
 
 

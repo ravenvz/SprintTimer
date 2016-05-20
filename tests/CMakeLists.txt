@@ -4,14 +4,9 @@ set(TEST_PROJECT test_pomodoro)
 project(${TEST_PROJECT})
 set(SOURCE_FILES
     run_all_tests.cpp
-    test_math_utils.cpp
     # test_pomodoro_model.cpp
-    test_pomodoro_statistics.cpp
-    test_todoitem.cpp
     # test_todoitem_model.cpp
-    test_time_span.cpp
     test_pomodoro_timer.cpp
-    test_string_utils.cpp
     test_add_pomodoro.cpp
     test_add_task.cpp
     ../core/PomodoroStatistics.cpp
