@@ -1,4 +1,4 @@
-#include "core/TimeSpan.h"
+#include "TimeSpan.h"
 #include <TestHarness.h>
 
 

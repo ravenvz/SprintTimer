@@ -1,5 +1,5 @@
-#include "Pomodoro.h"
-#include "core/StringUtils.h"
+#include "entities/Pomodoro.h"
+#include "StringUtils.h"
 #include <algorithm>
 
 

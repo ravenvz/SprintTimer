@@ -1,11 +1,6 @@
 #ifndef POMODORO_CONFIG_H
 #define POMODORO_CONFIG_H
 
-#include <QDebug>
-#include <QSettings>
-#include <QVariant>
-
-
 class IConfig {
 
 public:

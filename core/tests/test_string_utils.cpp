@@ -1,4 +1,4 @@
-#include "core/StringUtils.h"
+#include "StringUtils.h"
 #include <TestHarness.h>
 #include <iostream>
 #include <iterator>

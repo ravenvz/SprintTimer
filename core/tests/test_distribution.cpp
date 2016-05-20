@@ -1,4 +1,4 @@
-#include "core/Distribution.h"
+#include "Distribution.h"
 #include <TestHarness.h>
 
 TEST_GROUP(Distribution) { const double tolerance = 0.00001; };

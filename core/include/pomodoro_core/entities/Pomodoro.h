@@ -3,8 +3,8 @@
 
 
 #include "TodoItem.h"
-#include "core/TimeSpan.h"
-#include "core/BoostUUIDGenerator.h"
+#include "TimeSpan.h"
+#include "BoostUUIDGenerator.h"
 #include <list>
 #include <string>
 

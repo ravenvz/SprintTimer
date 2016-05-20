@@ -9,25 +9,24 @@ set(SOURCE_FILES
     test_pomodoro_statistics.cpp
     test_todoitem.cpp
     # test_todoitem_model.cpp
-    test_datetime.cpp
     test_time_span.cpp
     test_pomodoro_timer.cpp
     test_string_utils.cpp
     test_add_pomodoro.cpp
     test_add_task.cpp
-    ../src/core/PomodoroStatistics.cpp
-    ../src/core/PomodoroTimer.h
-    ../src/core/PomodoroTimer.cpp
-    ../src/core/Timer.h
-    ../src/core/Timer.cpp
-    ../src/core/config.h
-    ../src/core/entities/Pomodoro.cpp
-    ../src/core/entities/TodoItem.cpp
+    ../core/PomodoroStatistics.cpp
+    ../core/PomodoroTimer.h
+    ../core/PomodoroTimer.cpp
+    ../core/Timer.h
+    ../core/Timer.cpp
+    ../core/config.h
+    ../core/entities/Pomodoro.cpp
+    ../core/entities/TodoItem.cpp
     # ../src/core/entities/TodoItem.h
-    ../src/core/TimeSpan.h
-    ../src/core/TimeSpan.cpp
-    ../src/core/DateTime.h
-    ../src/core/DateTime.cpp
+    ../core/TimeSpan.h
+    ../core/TimeSpan.cpp
+    ../core/DateTime.h
+    ../core/DateTime.cpp
     ../src/db_layer/db_service.cpp
     ../src/models/todoitemmodel.cpp
     # ../src/models/pomodoromodel.cpp
@@ -36,8 +35,8 @@ set(SOURCE_FILES
     # ../src/utils/StringUtils.cpp
     # ../src/core/Distribution.h
     # ../src/core/StringUtils.h
-    ../src/core/StringUtils.cpp
-    ../src/core/use_cases/use_cases.h
+    ../core/StringUtils.cpp
+    ../core/use_cases/use_cases.h
 )
 # find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql Widgets)

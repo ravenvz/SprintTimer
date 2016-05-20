@@ -1,6 +1,8 @@
 #ifndef QT_CONFIG_H_3HPQW7BI
 #define QT_CONFIG_H_3HPQW7BI
 
+#include <QSettings>
+#include <QVariant>
 #include "core/config.h"
 
 /* Implements IConfig application config interface using Qt framework

@@ -50,30 +50,7 @@ else()
   set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
 endif()
 
-set(CLANG_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
-                          -Weverything
-                          -Werror
-                          -pedantic-errors
-                          -Wno-c++98-compat
-                          -Wno-c++98-compat-pedantic
-                          -Wno-weak-vtables
-                          -Wno-padded
-                          -Wno-covered-switch-default
-                          -Wno-shadow
-                          -Wno-missing-prototypes
-                          -Wno-unused-parameter
-                          -Wno-global-constructors
-                          -Wno-missing-noreturn
-                          -Wno-undefined-reinterpret-cast # Qt's mock
-                          -Wno-exit-time-destructors)
-
-set(GCC_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
-                        -Wall
-                        -Wextra
-                        -pedantic
-                        -Werror
-                        -Wno-unused-parameter
-                        -pedantic-errors)
+include(compiler_options.cmake)
 
 file(GLOB SOURCE_FILES src/*/*.cpp src/*/*/*.cpp)
 
@@ -122,7 +99,8 @@ endif()
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
-target_include_directories(${PROJECT} PUBLIC src lib)
+target_include_directories(${PROJECT} PUBLIC src lib src/core)
 target_link_libraries(${PROJECT} PUBLIC Qt5::Core PUBLIC Qt5::Widgets PUBLIC Qt5::Sql PUBLIC Qt5::Multimedia Threads::Threads)
 
+add_subdirectory(core)
 add_subdirectory(tests)

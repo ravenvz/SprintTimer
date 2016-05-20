@@ -1,10 +1,8 @@
 #ifndef POMODORO_POMODOROSTATISTICS_H
 #define POMODORO_POMODOROSTATISTICS_H
 
-#include "core/entities/Pomodoro.h"
-#include "db_layer/db_service.h"
-#include "utils/DateInterval.h"
-#include "core/Distribution.h"
+#include "entities/Pomodoro.h"
+#include "Distribution.h"
 #include <algorithm>
 #include <iostream>
 #include <unordered_map>
