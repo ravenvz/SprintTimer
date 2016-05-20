@@ -40,43 +40,6 @@ using std::experimental::make_optional;
 // }
 
 
-class ITaskStorageWriter {
-public:
-    virtual ~ITaskStorageWriter() = default;
-    virtual bool save(const TodoItem& task) = 0;
-    virtual bool remove(const TodoItem& task) = 0;
-    virtual bool edit(const TodoItem& task, const TodoItem& editedTodoItem) = 0;
-};
-
-
-class AddTaskTransaction : public ITransaction {
-public:
-    AddTaskTransaction(ITaskStorageWriter& gateway, const TodoItem& task)
-        : gateway{gateway}
-        , task{task}
-    {
-    }
-
-    bool execute() final
-    {
-        wasExecuted = gateway.save(task);
-        return wasExecuted;
-    }
-
-    bool undo() final
-    {
-        if (wasExecuted) {
-            return gateway.remove(task);
-        }
-        return false;
-    }
-
-private:
-    ITaskStorageWriter& gateway;
-    const TodoItem& task;
-    bool wasExecuted{false};
-};
-
 /* Task use cases */
 
 bool addTask(const TodoItem& task);
