@@ -5,14 +5,16 @@
 #include "core/IPomodoroStorageWriter.h"
 #include "core/TimeSpan.h"
 #include "core/entities/Pomodoro.h"
-#include "db_layer/db_service.h"
 #include <QAbstractListModel>
 #include <memory>
 #include <vector>
 
 class PomodoroModel : public QAbstractListModel {
 public:
-    explicit PomodoroModel(DBService& dbService, QObject* parent = 0);
+    explicit PomodoroModel(
+        std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader,
+        std::unique_ptr<IPomodoroStorageWriter> pomodoroStorageWriter,
+        QObject* parent = 0);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const final;
 

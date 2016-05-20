@@ -1,23 +1,22 @@
 #include "mainwindow.h"
 #include "core/Timer.h"
-// #include "db_layer/qtsqlite.h"
+#include "core/config.h"
 #include "dialogs/AddTaskDialog.h"
 #include "dialogs/confirmationdialog.h"
 #include "dialogs/manualaddpomodorodialog.h"
 #include "dialogs/settings_dialog.h"
 #include "ui_mainwindow.h"
 #include <QtWidgets/qmenu.h>
-#include "core/config.h"
 #include <thread>
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
-                       DBService& dbService,
+                       IPomodoroStorageFactory& pomodoroStorageFactory,
                        QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , applicationSettings(applicationSettings)
-    , dbService{dbService}
+    , pomodoroStorageFactory{pomodoroStorageFactory}
     , pomodoroTimer{
           std::bind(&MainWindow::onTimerTick, this, std::placeholders::_1),
           1000,
@@ -25,7 +24,10 @@ MainWindow::MainWindow(IConfig& applicationSettings,
 {
     ui->setupUi(this);
     player = std::make_unique<QMediaPlayer>();
-    pomodoroModelNew = new PomodoroModel(dbService, this);
+    pomodoroModelNew = new PomodoroModel(
+        pomodoroStorageFactory.createPomodoroStorageReader(),
+        pomodoroStorageFactory.createPomodoroStorageWriter(),
+        this);
     ui->lvCompletedPomodoros->setModel(pomodoroModelNew);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
     todoitemViewModel = new TodoItemModel(this);
@@ -369,7 +371,9 @@ void MainWindow::onInTheZoneToggled() { pomodoroTimer.toggleInTheZoneMode(); }
 void MainWindow::launchHistoryView()
 {
     if (!historyView) {
-        historyView = new HistoryView(dbService);
+        historyView = new HistoryView(
+            pomodoroStorageFactory.createPomodoroStorageReader(),
+            pomodoroStorageFactory.createPomodoroYearRangeReader());
         historyView->show();
     }
     else {
@@ -380,7 +384,12 @@ void MainWindow::launchHistoryView()
 void MainWindow::launchGoalsView()
 {
     if (!goalsView) {
-        goalsView = new GoalsView(applicationSettings, dbService);
+        goalsView = new GoalsView(
+            applicationSettings,
+            pomodoroStorageFactory.createPomoDailyDistributionReader(),
+            pomodoroStorageFactory.createPomoWeeklyDistributionReader(),
+            pomodoroStorageFactory.createPomoMonthlyDistributionReader());
+
         goalsView->show();
     }
     else {
@@ -391,7 +400,10 @@ void MainWindow::launchGoalsView()
 void MainWindow::launchStatisticsView()
 {
     if (!statisticsView) {
-        statisticsView = new StatisticsWidget(applicationSettings, dbService);
+        statisticsView = new StatisticsWidget(
+            applicationSettings,
+            pomodoroStorageFactory.createPomodoroStorageReader(),
+            pomodoroStorageFactory.createPomodoroYearRangeReader());
         statisticsView->show();
     }
     else {

@@ -5,20 +5,18 @@
 #include "qt_storage_impl/QtPomoDistributionReader.h"
 #include "ui_goalsview.h"
 
-GoalsView::GoalsView(IConfig& applicationSettings,
-                     DBService& dbService,
-                     QWidget* parent)
+GoalsView::GoalsView(
+    IConfig& applicationSettings,
+    std::unique_ptr<IPomodoroDistributionReader> dailyDistributionReader,
+    std::unique_ptr<IPomodoroDistributionReader> weeklyDistributionReader,
+    std::unique_ptr<IPomodoroDistributionReader> monthlyDistributionReader,
+    QWidget* parent)
     : QWidget{parent}
     , ui{new Ui::GoalsView}
     , applicationSettings{applicationSettings}
-    , dailyDistributionReader{std::make_unique<QtPomoDailyDistributionReader>(
-          dbService)}
-    , weeklyDistributionReader{std::
-                                   make_unique<QtSqlitePomodoroWeeklyDistributionReader>(
-                                       dbService)}
-    , monthlyDistributionReader{
-          std::make_unique<QtSqlitePomodoroMonthlyDistributionReader>(
-              dbService)}
+    , dailyDistributionReader{std::move(dailyDistributionReader)}
+    , weeklyDistributionReader{std::move(weeklyDistributionReader)}
+    , monthlyDistributionReader{std::move(monthlyDistributionReader)}
 
 {
     setAttribute(Qt::WA_DeleteOnClose);

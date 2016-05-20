@@ -34,15 +34,15 @@ public:
     QtPomoDailyDistributionReader(DBService& dbService);
 };
 
-class QtSqlitePomodoroWeeklyDistributionReader : public DistributionReaderBase {
+class QtPomoWeeklyDistributionReader : public DistributionReaderBase {
 public:
-    QtSqlitePomodoroWeeklyDistributionReader(DBService& dbService);
+    QtPomoWeeklyDistributionReader(DBService& dbService);
 };
 
-class QtSqlitePomodoroMonthlyDistributionReader
+class QtPomoMonthlyDistributionReader
     : public DistributionReaderBase {
 public:
-    QtSqlitePomodoroMonthlyDistributionReader(DBService& dbService);
+    QtPomoMonthlyDistributionReader(DBService& dbService);
 };
 
 

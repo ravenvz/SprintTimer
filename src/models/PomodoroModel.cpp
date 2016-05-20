@@ -2,15 +2,16 @@
 #include "core/use_cases/AddPomodoroTransaction.h"
 #include "core/use_cases/RemovePomodoroTransaction.h"
 #include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
-#include "qt_storage_impl/QtPomoStorageReader.h"
-#include "qt_storage_impl/QtPomoStorageWriter.h"
 
-PomodoroModel::PomodoroModel(DBService& dbService, QObject* parent)
+PomodoroModel::PomodoroModel(
+    std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader,
+    std::unique_ptr<IPomodoroStorageWriter> pomodoroStorageWriter,
+    QObject* parent)
     : QAbstractListModel(parent)
     , interval{TimeSpan{DateTime::currentDateTime(),
                         DateTime::currentDateTime()}}
-    , reader{std::make_unique<QtPomoStorageReader>(dbService)}
-    , writer{std::make_unique<QtPomoStorageWriter>(dbService)}
+    , reader{std::move(pomodoroStorageReader)}
+    , writer{std::move(pomodoroStorageWriter)}
 {
     retrieveData();
 }
@@ -61,8 +62,7 @@ void PomodoroModel::retrieveData()
     UseCases::RequestPomodorosInTimeRangeCommand command{
         *reader,
         interval,
-        std::bind(
-            &PomodoroModel::onDataChanged, this, std::placeholders::_1)};
+        std::bind(&PomodoroModel::onDataChanged, this, std::placeholders::_1)};
     command.execute();
 }
 

@@ -5,7 +5,6 @@
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/PomodoroStatistics.h"
 #include "core/config.h"
-#include "db_layer/db_service.h"
 #include "dialogs/datepickdialog.h"
 #include "plot.h"
 #include "timediagram.h"
@@ -38,9 +37,11 @@ class StatisticsWidget : public QWidget {
     Q_OBJECT
 
 public:
-    StatisticsWidget(IConfig& applicationSettings,
-                     DBService& dbService,
-                     QWidget* parent = 0);
+    StatisticsWidget(
+        IConfig& applicationSettings,
+        std::unique_ptr<IPomodoroStorageReader> pomoStorageReader,
+        std::unique_ptr<IPomodoroYearRangeReader> pomoYearRangeReader,
+        QWidget* parent = 0);
     ~StatisticsWidget();
 
     void updateView();

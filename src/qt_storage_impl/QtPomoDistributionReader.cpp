@@ -54,8 +54,8 @@ QtPomoDailyDistributionReader::QtPomoDailyDistributionReader(
         "order by dt");
 }
 
-QtSqlitePomodoroWeeklyDistributionReader::
-    QtSqlitePomodoroWeeklyDistributionReader(DBService& dbService)
+QtPomoWeeklyDistributionReader::
+    QtPomoWeeklyDistributionReader(DBService& dbService)
     : DistributionReaderBase{dbService}
 {
     mQueryId = dbService.prepare(
@@ -68,8 +68,8 @@ QtSqlitePomodoroWeeklyDistributionReader::
         "order by dt");
 }
 
-QtSqlitePomodoroMonthlyDistributionReader::
-    QtSqlitePomodoroMonthlyDistributionReader(DBService& dbService)
+QtPomoMonthlyDistributionReader::
+    QtPomoMonthlyDistributionReader(DBService& dbService)
     : DistributionReaderBase{dbService}
 {
     mQueryId

@@ -2,20 +2,19 @@
 #include "barchart.h"
 #include "core/use_cases/RequestPomodoroYearRangeCommand.h"
 #include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
-#include "qt_storage_impl/QtPomoStorageReader.h"
-#include "qt_storage_impl/QtPomoYearRangeReader.h"
 #include "ui_statistics_widget.h"
 
 
-StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,
-                                   DBService& dbService,
-                                   QWidget* parent)
+StatisticsWidget::StatisticsWidget(
+    IConfig& applicationSettings,
+    std::unique_ptr<IPomodoroStorageReader> pomoStorageReader,
+    std::unique_ptr<IPomodoroYearRangeReader> pomoYearRangeReader,
+    QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::StatisticsWidget)
     , applicationSettings(applicationSettings)
-    , pomodoroReader{std::make_unique<QtPomoStorageReader>(dbService)}
-    , pomodoroYearRangeReader{
-          std::make_unique<QtPomoYearRangeReader>(dbService)}
+    , pomodoroReader{std::move(pomoStorageReader)}
+    , pomodoroYearRangeReader{std::move(pomoYearRangeReader)}
 {
     setAttribute(Qt::WA_DeleteOnClose);
     UseCases::RequestPomodoroYearRangeCommand requestYearRange{

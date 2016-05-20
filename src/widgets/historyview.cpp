@@ -1,9 +1,6 @@
 #include "historyview.h"
 #include "core/use_cases/RequestPomodoroYearRangeCommand.h"
 #include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
-#include "db_layer/db_service.h"
-#include "qt_storage_impl/QtPomoStorageReader.h"
-#include "qt_storage_impl/QtPomoYearRangeReader.h"
 #include "ui_history.h"
 #include <QPainter>
 
@@ -29,12 +26,14 @@ void HistoryViewDelegate::paint(QPainter* painter,
     }
 }
 
-HistoryView::HistoryView(DBService& dbService, QWidget* parent)
+HistoryView::HistoryView(
+    std::unique_ptr<IPomodoroStorageReader> pomoStorageReader,
+    std::unique_ptr<IPomodoroYearRangeReader> pomoYearRangeReader,
+    QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::HistoryView)
-    , pomodoroStorageReader{std::make_unique<QtPomoStorageReader>(dbService)}
-    , pomodoroYearRangeReader{std::make_unique<QtPomoYearRangeReader>(
-          dbService)}
+    , pomodoroStorageReader{std::move(pomoStorageReader)}
+    , pomodoroYearRangeReader{std::move(pomoYearRangeReader)}
     , historyStatePomodoro{std::make_unique<HistoryStatePomodoro>(*this)}
     , historyStateTask{std::make_unique<HistoryStateTask>(*this)}
 {

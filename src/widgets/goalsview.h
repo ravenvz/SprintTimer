@@ -3,7 +3,6 @@
 
 #include "core/IPomodoroDistributionReader.h"
 #include "core/config.h"
-#include "db_layer/db_service.h"
 #include <QGridLayout>
 #include <QProgressBar>
 #include <QWidget>
@@ -17,9 +16,12 @@ class GoalsView : public QWidget {
     Q_OBJECT
 
 public:
-    explicit GoalsView(IConfig& applicationSettings,
-                       DBService& dbService,
-                       QWidget* parent = 0);
+    GoalsView(
+        IConfig& applicationSettings,
+        std::unique_ptr<IPomodoroDistributionReader> dailyDistributionReader,
+        std::unique_ptr<IPomodoroDistributionReader> weeklyDistributionReader,
+        std::unique_ptr<IPomodoroDistributionReader> monthlyDistributionReader,
+        QWidget* parent = 0);
     ~GoalsView();
     void updateView();
 

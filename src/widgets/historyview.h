@@ -5,7 +5,6 @@
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/entities/Pomodoro.h"
 #include "core/entities/TodoItem.h"
-#include "db_layer/db_service.h"
 #include "pickperiodwidget.h"
 #include "src/models/todoitemmodel.h"
 #include <QObject>
@@ -39,7 +38,9 @@ class HistoryView : public QWidget {
 public:
     using HistoryItem = std::pair<QDate, QString>;
 
-    explicit HistoryView(DBService& dbService, QWidget* parent = 0);
+    HistoryView(std::unique_ptr<IPomodoroStorageReader> pomoStorageReader,
+                std::unique_ptr<IPomodoroYearRangeReader> pomoYearRangeReader,
+                QWidget* parent = 0);
 
     ~HistoryView();
 
