@@ -13,6 +13,7 @@ set(SOURCE_FILES
     test_pomodoro_timer.cpp
     test_add_task.cpp
     test_add_pomodoro.cpp
+    test_remove_pomodoro.cpp
     ../src/DateTime.cpp
     ../src/PomodoroStatistics.cpp
     ../src/Pomodoro.cpp

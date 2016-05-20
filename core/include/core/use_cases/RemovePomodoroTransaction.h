@@ -18,23 +18,24 @@ public:
     bool execute() final
     {
         writer.remove(pomodoro);
+        wasExecuted = true;
         return true;
     }
 
     bool undo() final
     {
-        // if (pomoData) {
-        //     long long taskId = (*pomoData).first;
-        //     TimeSpan timeSpan = (*pomoData).second;
-        //     pomoData = optional<std::pair<long long, TimeSpan>>();
-        //     return bool(writer.save(taskId, timeSpan));
-        // }
+        if (wasExecuted) {
+            writer.save(pomodoro);
+            wasExecuted = false;
+            return true;
+        }
         return false;
     }
 
 private:
     IPomodoroStorageWriter& writer;
     const Pomodoro& pomodoro;
+    bool wasExecuted{false};
 };
 
 } // namespace UseCases
