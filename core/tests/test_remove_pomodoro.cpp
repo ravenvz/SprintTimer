@@ -1,7 +1,6 @@
 #include "core/use_cases/RemovePomodoroTransaction.h"
 #include "core/entities/Pomodoro.h"
-#include "fixtures/FakePomodoroStorage.h"
-#include "fixtures/FakePomodoroWriter.h"
+#include "fixtures/FakePomodoroStorageWriter.h"
 #include <TestHarness.h>
 
 using namespace UseCases;

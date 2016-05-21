@@ -1,6 +1,5 @@
 #include "core/use_cases/AddPomodoroTransaction.h"
-#include "fixtures/FakePomodoroStorage.h"
-#include "fixtures/FakePomodoroWriter.h"
+#include "fixtures/FakePomodoroStorageWriter.h"
 #include <algorithm>
 #include <vector>
 #include <TestHarness.h>

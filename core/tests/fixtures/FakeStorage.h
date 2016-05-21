@@ -3,11 +3,12 @@
 
 #include <unordered_map>
 
-class FakePomodoroStorage {
+template <class Entity>
+class FakeStorage {
 public:
-    void store(const Pomodoro& pomodoro)
+    void store(const Entity& item)
     {
-        storage.insert(std::make_pair(pomodoro.uuid(), pomodoro));
+        storage.insert(std::make_pair(item.uuid(), item));
     }
 
     bool contains(const std::string& uuid)
@@ -27,7 +28,7 @@ public:
     size_t size() const { return storage.size(); }
 
 private:
-    std::unordered_map<std::string, Pomodoro> storage;
+    std::unordered_map<std::string, Entity> storage;
 };
 
 

@@ -1,6 +1,8 @@
 #ifndef FAKEPOMODOROWRITER_H_IHZ1QWFR
 #define FAKEPOMODOROWRITER_H_IHZ1QWFR
 
+#include "fixtures/FakeStorage.h"
+
 /* Fake implementation of IPomodoroStorageWriter that exposes
  * internal storage and allows to test execute/undo. */
 class FakePomodoroWriter : public IPomodoroStorageWriter {
@@ -9,7 +11,7 @@ public:
 
     void remove(const Pomodoro& pomodoro) final { storage.remove(pomodoro.uuid()); }
 
-    FakePomodoroStorage storage;
+    FakeStorage<Pomodoro> storage;
 };
 
 

@@ -2,7 +2,7 @@
 #define FAKETASKSTORAGEWRITER_H_L9TXWRHX
 
 #include "core/ITaskStorageWriter.h"
-#include "fixtures/FakeTaskStorage.h"
+#include "fixtures/FakeStorage.h"
 
 class FakeTaskStorageWriter : public ITaskStorageWriter {
 public:
@@ -12,7 +12,7 @@ public:
 
     void edit(const TodoItem& task, const TodoItem& editedTask) final {}
 
-    FakeTaskStorage storage;
+    FakeStorage<TodoItem> storage;
 };
 
 #endif /* end of include guard: FAKETASKSTORAGEWRITER_H_L9TXWRHX */
