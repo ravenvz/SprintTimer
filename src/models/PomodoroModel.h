@@ -3,6 +3,7 @@
 
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroStorageWriter.h"
+#include "core/ITaskStorageWriter.h"
 #include "core/TimeSpan.h"
 #include "core/entities/Pomodoro.h"
 #include <QAbstractListModel>
@@ -14,6 +15,7 @@ public:
     explicit PomodoroModel(
         std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader,
         std::unique_ptr<IPomodoroStorageWriter> pomodoroStorageWriter,
+        std::unique_ptr<ITaskStorageWriter> taskStorageWriter,
         QObject* parent = 0);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const final;
@@ -31,8 +33,9 @@ public:
 private:
     std::vector<Pomodoro> storage;
     TimeSpan interval;
-    std::unique_ptr<IPomodoroStorageReader> reader;
-    std::unique_ptr<IPomodoroStorageWriter> writer;
+    std::unique_ptr<IPomodoroStorageReader> pomodoroReader;
+    std::unique_ptr<IPomodoroStorageWriter> pomodoroWriter;
+    std::unique_ptr<ITaskStorageWriter> taskWriter;
 
     void retrieveData();
 

@@ -15,6 +15,10 @@ DBService::DBService(QString filename)
     connect(worker, &Worker::error, this, &DBService::handleError);
     connect(this, &DBService::prepareQuery, worker, &Worker::prepare);
     connect(this, &DBService::bind, worker, &Worker::bindValue);
+    // connect(this,
+    //         &DBService::executeTransaction,
+    //         worker,
+    //         &Worker::executeTransaction);
     workerThread.start();
 }
 
@@ -32,16 +36,24 @@ long long DBService::executeQuery(const QString& query)
     return nextQueryId++;
 }
 
+
 long long DBService::prepare(const QString& query)
 {
     emit prepareQuery(nextQueryId, query);
     return nextQueryId++;
 }
 
+
 void DBService::executePrepared(long long queryId)
 {
     emit queuePrepared(queryId);
 }
+
+
+// void DBService::executeInTransaction(const std::vector<long long> ids)
+// {
+//     emit executeTransaction(ids);
+// }
 
 
 void DBService::handleResults(long long queryId,
@@ -95,6 +107,7 @@ void Worker::execute(long long queryId, const QString& query)
 
 void Worker::executePrepared(long long queryId)
 {
+    // TODO handle missing id case
     QSqlQuery query = preparedQueries.value(queryId);
     if (!query.exec()) {
         QString errormsg = QString("%1 %2")
@@ -110,6 +123,23 @@ void Worker::executePrepared(long long queryId)
         emit results(queryId, recs);
     }
 }
+
+
+// void executeTransaction(const std::vector<long long> ids)
+// {
+//     QSqlDatabase::database().transaction();
+//     for (const auto& queryId : ids) {
+//         // TODO handle missing id case
+//         QSqlQuery query = preparedQueries.value(queryId);
+//         if (!query.exec()) {
+//             QString errormsg = QString("Error executing transaction");
+//             emit error(queryId, errormsg);
+//             QSqlDatabase::database().rollback();
+//             return;
+//         }
+//     }
+//     QSqlDatabase::database().commit();
+// }
 
 
 void Worker::prepare(long long queryId, const QString& queryStr)
@@ -259,30 +289,32 @@ bool Worker::createSchema()
     // Trigger to increment spent pomodoros in todo_item when new pomodoro
     // is
     // inserted
-    QString createIncrementSpentTrigger
-        = "CREATE TRIGGER increment_spent_after_pomo_insert "
-          "AFTER INSERT ON pomodoro "
-          "BEGIN "
-          "UPDATE todo_item SET spent_pomodoros = spent_pomodoros + 1 "
-          "WHERE todo_item.uuid = NEW.todo_uuid; "
-          "END;";
+    // QString createIncrementSpentTrigger
+    //     = "CREATE TRIGGER increment_spent_after_pomo_insert "
+    //       "AFTER INSERT ON pomodoro "
+    //       "BEGIN "
+    //       "UPDATE todo_item SET spent_pomodoros = spent_pomodoros + 1 "
+    //       "WHERE todo_item.uuid = NEW.todo_uuid; "
+    //       "END;";
 
     // Trigger to decrement spent pomodoros in todo_item after pomodoro is
     // removed
-    QString createDecrementSpentTrigger
-        = "CREATE TRIGGER decrement_spent_after_pomo_delete "
-          "AFTER DELETE ON pomodoro "
-          "BEGIN "
-          "UPDATE todo_item SET spent_pomodoros = spent_pomodoros - 1 "
-          "WHERE todo_item.uuid = OLD.todo_uuid; "
-          "END;";
+    // QString createDecrementSpentTrigger
+    //     = "CREATE TRIGGER decrement_spent_after_pomo_delete "
+    //       "AFTER DELETE ON pomodoro "
+    //       "BEGIN "
+    //       "UPDATE todo_item SET spent_pomodoros = spent_pomodoros - 1 "
+    //       "WHERE todo_item.uuid = OLD.todo_uuid; "
+    //       "END;";
 
     // View for pomodoros
     QString createPomodoroView
         = "CREATE VIEW pomodoro_view AS "
           "SELECT pomodoro.id, pomodoro.todo_uuid, todo_item.name, "
-          "group_concat(tag.name) tags, start_time, finish_time, pomodoro.uuid "
-          "FROM pomodoro join todo_item ON pomodoro.todo_uuid = todo_item.uuid "
+          "group_concat(tag.name) tags, start_time, finish_time, "
+          "pomodoro.uuid "
+          "FROM pomodoro join todo_item ON pomodoro.todo_uuid = "
+          "todo_item.uuid "
           "LEFT JOIN todotag ON todotag.todo_id = todo_item.id "
           "LEFT JOIN tag ON tag.id = todotag.tag_id "
           "GROUP BY pomodoro.id;";
@@ -362,8 +394,8 @@ bool Worker::createSchema()
         && execAndCheck(query, createPomodoroTable)
         && execAndCheck(query, createTodoTagTable)
         && execAndCheck(query, createCleanOrphanedTagTrigger)
-        && execAndCheck(query, createIncrementSpentTrigger)
-        && execAndCheck(query, createDecrementSpentTrigger)
+        // && execAndCheck(query, createIncrementSpentTrigger)
+        // && execAndCheck(query, createDecrementSpentTrigger)
         && execAndCheck(query, createPomodoroView)
         && execAndCheck(query, createPomodoroViewDeleteTrigger)
         && execAndCheck(query, createPomodoroViewInsertTrigger)

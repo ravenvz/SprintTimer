@@ -6,6 +6,7 @@
 #include "qt_storage_impl/QtPomoStorageReader.h"
 #include "qt_storage_impl/QtPomoStorageWriter.h"
 #include "qt_storage_impl/QtPomoYearRangeReader.h"
+#include "qt_storage_impl/QtTaskStorageWriter.h"
 
 class QtPomodoroStorageFactory : public IPomodoroStorageFactory {
 public:
@@ -48,6 +49,11 @@ public:
     createPomoMonthlyDistributionReader() const final
     {
         return std::make_unique<QtPomoMonthlyDistributionReader>(dbService);
+    }
+
+    std::unique_ptr<ITaskStorageWriter> createTaskStorageWriter() const final
+    {
+        return std::make_unique<QtTaskStorageWriter>(dbService);
     }
 
 private:

@@ -11,10 +11,11 @@ set(SOURCE_FILES
     test_time_span.cpp
     test_todoitem.cpp
     test_pomodoro_timer.cpp
-    test_add_pomodoro.cpp
-    test_remove_pomodoro.cpp
+    test_add_pomodoro_use_case.cpp
+    test_remove_pomodoro_use_case.cpp
     test_add_task.cpp
     test_remove_task_transaction.cpp
+    test_increment_spent_pomodoros.cpp
     ../src/DateTime.cpp
     ../src/PomodoroStatistics.cpp
     ../src/Pomodoro.cpp
@@ -23,6 +24,7 @@ set(SOURCE_FILES
     ../src/StringUtils.cpp
     ../src/PomodoroTimer.cpp
     ../src/Timer.cpp
+    ../src/use_cases.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

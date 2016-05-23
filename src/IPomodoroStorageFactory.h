@@ -5,6 +5,7 @@
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroStorageWriter.h"
 #include "core/IPomodoroYearRangeReader.h"
+#include "core/ITaskStorageWriter.h"
 #include "db_layer/db_service.h"
 #include <memory>
 
@@ -29,6 +30,9 @@ public:
 
     virtual std::unique_ptr<IPomodoroDistributionReader>
     createPomoMonthlyDistributionReader() const = 0;
+
+    virtual std::unique_ptr<ITaskStorageWriter>
+    createTaskStorageWriter() const = 0;
 };
 
 #endif /* end of include guard: IPOMODOROSTORAGEFACTORY_H_PRIUAOH6 */

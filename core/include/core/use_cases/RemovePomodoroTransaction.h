@@ -2,11 +2,11 @@
 #define REMOVEPOMODOROTRANSACTION_H_GAR8SZLM
 
 #include "core/IPomodoroStorageWriter.h"
-#include "core/ITransaction.h"
+#include "core/RevertableCommand.h"
 
 namespace UseCases {
 
-class RemovePomodoroTransaction : public ITransaction {
+class RemovePomodoroTransaction : public RevertableCommand {
 public:
     RemovePomodoroTransaction(IPomodoroStorageWriter& writer,
                               const Pomodoro& pomodoro)
@@ -15,27 +15,13 @@ public:
     {
     }
 
-    bool execute() final
-    {
-        writer.remove(pomodoro);
-        wasExecuted = true;
-        return true;
-    }
+    void executeAction() final { writer.remove(pomodoro); }
 
-    bool undo() final
-    {
-        if (wasExecuted) {
-            writer.save(pomodoro);
-            wasExecuted = false;
-            return true;
-        }
-        return false;
-    }
+    void undoAction() final { writer.save(pomodoro); }
 
 private:
     IPomodoroStorageWriter& writer;
     const Pomodoro& pomodoro;
-    bool wasExecuted{false};
 };
 
 } // namespace UseCases

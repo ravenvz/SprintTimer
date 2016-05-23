@@ -2,9 +2,9 @@
 #define POMODORO_POMODORO_H
 
 
-#include "core/entities/TodoItem.h"
-#include "core/TimeSpan.h"
 #include "core/BoostUUIDGenerator.h"
+#include "core/TimeSpan.h"
+#include "core/entities/TodoItem.h"
 #include <list>
 #include <string>
 
@@ -30,6 +30,8 @@ public:
 
     /* Construct from associated Task and timeSpan. */
     Pomodoro(const TodoItem& task, const TimeSpan& timeSpan);
+
+    Pomodoro(const std::string& taskUuid, const TimeSpan& timeSpan);
 
     // Return name of Pomodoro. It is identical to the associated task name.
     std::string name() const;

@@ -12,6 +12,18 @@ public:
 
     void edit(const TodoItem& task, const TodoItem& editedTask) final {}
 
+    void incrementSpentPomodoros(const std::string& uuid) final
+    {
+        TodoItem& item = storage.itemRef(uuid);
+        item.setSpentPomodoros(item.spentPomodoros() + 1);
+    }
+
+    void decrementSpentPomodoros(const std::string& uuid) final
+    {
+        TodoItem& item = storage.itemRef(uuid);
+        item.setSpentPomodoros(item.spentPomodoros() - 1);
+    }
+
     FakeStorage<TodoItem> storage;
 };
 

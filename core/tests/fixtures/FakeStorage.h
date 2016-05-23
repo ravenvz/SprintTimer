@@ -1,7 +1,11 @@
 #ifndef FAKEPOMODOROSTORAGE_H_K56HOST8
 #define FAKEPOMODOROSTORAGE_H_K56HOST8
 
+#include <experimental/optional>
 #include <unordered_map>
+
+using std::experimental::optional;
+using std::experimental::make_optional;
 
 template <class Entity>
 class FakeStorage {
@@ -24,6 +28,17 @@ public:
             storage.erase(found);
         }
     }
+
+    optional<Entity> getItem(const std::string& uuid)
+    {
+        auto found = storage.find(uuid);
+        if (found != cend(storage)) {
+            return make_optional(found->second);
+        }
+        return optional<Entity>();
+    }
+
+    Entity& itemRef(const std::string& uuid) { return storage.at(uuid); }
 
     size_t size() const { return storage.size(); }
 

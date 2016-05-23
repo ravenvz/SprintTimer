@@ -46,6 +46,11 @@ public:
                    const QString& placeholder,
                    const QVariant& value);
 
+    // TODO what if no query with such id
+    // Executes queries with given ids in transaction.
+    // Queries are executed in order.
+    // void executeInTransaction(std::vector<long long> ids);
+
 public slots:
 
     void handleResults(long long queryId,
@@ -61,6 +66,7 @@ signals:
     void prepareQuery(long long queryId, const QString& queryStr);
     void
     bind(long long queryId, const QString& placeholder, const QVariant& value);
+    // void executeTransaction(const std::vector<long long> ids);
 
 private:
     QThread workerThread;
@@ -85,6 +91,8 @@ public slots:
     void bindValue(long long queryId,
                    const QString& placeholder,
                    const QVariant& value);
+
+    // void executeTransaction(const std::vector<long long> ids);
 
 signals:
     void results(long long queryId, const std::vector<QSqlRecord>& records);

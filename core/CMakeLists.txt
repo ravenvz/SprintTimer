@@ -11,6 +11,7 @@ set(CORE_SOURCE_FILES
     src/Pomodoro.cpp
     src/TodoItem.cpp
     src/StringUtils.cpp
+    src/use_cases.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

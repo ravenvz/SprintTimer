@@ -2,11 +2,11 @@
 #define ADDPOMODOROTRANSACTION_H_YUMZVLHC
 
 #include "core/IPomodoroStorageWriter.h"
-#include "core/ITransaction.h"
+#include "core/RevertableCommand.h"
 
 namespace UseCases {
 
-class AddPomodoroTransaction : public ITransaction {
+class AddPomodoroTransaction : public RevertableCommand {
 public:
     AddPomodoroTransaction(IPomodoroStorageWriter& writer,
                            const Pomodoro& pomodoro)
@@ -15,27 +15,13 @@ public:
     {
     }
 
-    bool execute() final
-    {
-        writer.save(pomodoro);
-        wasExecuted = true;
-        return true;
-    }
+    void executeAction() final { writer.save(pomodoro); }
 
-    bool undo() final
-    {
-        if (wasExecuted) {
-            writer.remove(pomodoro);
-            wasExecuted = false;
-            return true;
-        }
-        return false;
-    }
+    void undoAction() final { writer.remove(pomodoro); }
 
 private:
     IPomodoroStorageWriter& writer;
     const Pomodoro& pomodoro;
-    bool wasExecuted{false};
 };
 
 } /* UseCases */

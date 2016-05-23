@@ -1,6 +1,7 @@
 #ifndef FAKEPOMODOROWRITER_H_IHZ1QWFR
 #define FAKEPOMODOROWRITER_H_IHZ1QWFR
 
+#include "core/IPomodoroStorageWriter.h"
 #include "fixtures/FakeStorage.h"
 
 /* Fake implementation of IPomodoroStorageWriter that exposes
@@ -9,7 +10,10 @@ class FakePomodoroWriter : public IPomodoroStorageWriter {
 public:
     void save(const Pomodoro& pomodoro) final { storage.store(pomodoro); }
 
-    void remove(const Pomodoro& pomodoro) final { storage.remove(pomodoro.uuid()); }
+    void remove(const Pomodoro& pomodoro) final
+    {
+        storage.remove(pomodoro.uuid());
+    }
 
     FakeStorage<Pomodoro> storage;
 };

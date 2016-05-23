@@ -27,6 +27,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     pomodoroModelNew = new PomodoroModel(
         pomodoroStorageFactory.createPomodoroStorageReader(),
         pomodoroStorageFactory.createPomodoroStorageWriter(),
+        pomodoroStorageFactory.createTaskStorageWriter(),
         this);
     ui->lvCompletedPomodoros->setModel(pomodoroModelNew);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
