@@ -1,4 +1,4 @@
-#include "QtPomodoroStorageFactory.h"
+#include "QtStorageImplementersFactory.h"
 #include "qt_config.h"
 #include "src/widgets/mainwindow.h"
 #include <QApplication>
@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     DBService dbService{"db/pomodoro.db"};
-    QtPomodoroStorageFactory factory{dbService};
+    QtStorageImplementersFactory factory{dbService};
     qDebug() << "Successfully connected to database";
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QApplication::setOrganizationName("RavenStudio");

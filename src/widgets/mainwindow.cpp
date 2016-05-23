@@ -11,7 +11,7 @@
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
-                       IPomodoroStorageFactory& pomodoroStorageFactory,
+                       IStorageImplementersFactory& pomodoroStorageFactory,
                        QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)

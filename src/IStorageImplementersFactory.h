@@ -9,9 +9,9 @@
 #include "db_layer/db_service.h"
 #include <memory>
 
-class IPomodoroStorageFactory {
+class IStorageImplementersFactory {
 public:
-    virtual ~IPomodoroStorageFactory() = default;
+    virtual ~IStorageImplementersFactory() = default;
 
     virtual std::unique_ptr<IPomodoroStorageReader>
     createPomodoroStorageReader() const = 0;

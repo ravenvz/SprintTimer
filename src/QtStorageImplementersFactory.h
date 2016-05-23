@@ -1,16 +1,16 @@
 #ifndef QTPOMODOROSTORAGEFACTORY_H_57Q0AHPC
 #define QTPOMODOROSTORAGEFACTORY_H_57Q0AHPC
 
-#include "IPomodoroStorageFactory.h"
+#include "IStorageImplementersFactory.h"
 #include "qt_storage_impl/QtPomoDistributionReader.h"
 #include "qt_storage_impl/QtPomoStorageReader.h"
 #include "qt_storage_impl/QtPomoStorageWriter.h"
 #include "qt_storage_impl/QtPomoYearRangeReader.h"
 #include "qt_storage_impl/QtTaskStorageWriter.h"
 
-class QtPomodoroStorageFactory : public IPomodoroStorageFactory {
+class QtStorageImplementersFactory : public IStorageImplementersFactory {
 public:
-    QtPomodoroStorageFactory(DBService& dbService)
+    QtStorageImplementersFactory(DBService& dbService)
         : dbService{dbService}
     {
     }
