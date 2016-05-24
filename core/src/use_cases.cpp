@@ -3,6 +3,7 @@
 #include "core/use_cases/DecrementSpentPomodoros.h"
 #include "core/use_cases/IncrementSpentPomodoros.h"
 #include "core/use_cases/RemovePomodoroTransaction.h"
+#include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
 
 namespace CoreApi {
 
@@ -40,6 +41,17 @@ void removePomodoro(IPomodoroStorageWriter& pomodoroStorageWriter,
     removePomodoroTransaction.addCommand(std::move(removePomodoro));
     removePomodoroTransaction.addCommand(std::move(decrementSpentPomodoros));
     removePomodoroTransaction.execute();
+}
+
+void pomodorosInTimeRange(
+    IPomodoroStorageReader& pomodoroStorageReader,
+    const TimeSpan& timeSpan,
+    std::function<void(const std::vector<Pomodoro>&)> onResultsReceivedCallback)
+{
+    std::unique_ptr<ICommand> requestItems
+        = std::make_unique<UseCases::RequestPomodorosInTimeRangeCommand>(
+            pomodoroStorageReader, timeSpan, onResultsReceivedCallback);
+    requestItems->execute();
 }
 
 } /* CoreApi */

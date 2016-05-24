@@ -1,7 +1,5 @@
 #include "models/PomodoroModel.h"
 #include "core/use_cases/use_cases.h"
-// #include "core/use_cases/RemovePomodoroTransaction.h"
-#include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
 
 PomodoroModel::PomodoroModel(
     std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader,
@@ -46,8 +44,6 @@ void PomodoroModel::setDateFilter(const TimeSpan& timeSpan)
 
 void PomodoroModel::insert(const Pomodoro& pomodoro)
 {
-    // UseCases::AddPomodoroTransaction addPomodoro{*pomodoroWriter, pomodoro};
-    // addPomodoro.execute();
     CoreApi::addPomodoro(
         *pomodoroWriter, *taskWriter, pomodoro.timeSpan(), pomodoro.taskUuid());
     retrieveData();
@@ -55,21 +51,17 @@ void PomodoroModel::insert(const Pomodoro& pomodoro)
 
 void PomodoroModel::remove(int row)
 {
-    // UseCases::RemovePomodoroTransaction removePomodoro{
-    //     *writer, storage[static_cast<size_t>(row)]};
     CoreApi::removePomodoro(
         *pomodoroWriter, *taskWriter, storage[static_cast<size_t>(row)]);
-    // removePomodoro.execute();
     retrieveData();
 }
 
 void PomodoroModel::retrieveData()
 {
-    UseCases::RequestPomodorosInTimeRangeCommand command{
+    CoreApi::pomodorosInTimeRange(
         *pomodoroReader,
         interval,
-        std::bind(&PomodoroModel::onDataChanged, this, std::placeholders::_1)};
-    command.execute();
+        std::bind(&PomodoroModel::onDataChanged, this, std::placeholders::_1));
 }
 
 void PomodoroModel::onDataChanged(const std::vector<Pomodoro>& items)

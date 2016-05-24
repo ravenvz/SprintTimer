@@ -1,7 +1,6 @@
 #ifndef USE_CASES_H_FWYXSOEZ
 #define USE_CASES_H_FWYXSOEZ
 
-// #include "core/IPomodoroStorageReader.h"
 // #include "core/IPomodoroStorageWriter.h"
 // #include "core/entities/Pomodoro.h"
 // #include "core/entities/TodoItem.h"
@@ -11,6 +10,7 @@
 
 // #include "core/ICommand.h"
 // #include "core/ITransaction.h"
+#include "core/IPomodoroStorageReader.h"
 #include "core/MacroTransaction.h"
 // #include "core/RevertableCommand.h"
 #include "core/ITaskStorageWriter.h"
@@ -28,6 +28,11 @@ void addPomodoro(IPomodoroStorageWriter& pomodoroStorageWriter,
 void removePomodoro(IPomodoroStorageWriter& pomodoroStorageWriter,
                     ITaskStorageWriter& taskStorageWriter,
                     const Pomodoro& pomodoro);
+
+void pomodorosInTimeRange(IPomodoroStorageReader& pomodoroStorageReader,
+                          const TimeSpan& timeSpan,
+                          std::function<void(const std::vector<Pomodoro>&)>
+                              onResultsReceivedCallback);
 
 
 } // namespace CoreApi

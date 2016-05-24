@@ -1,7 +1,8 @@
 #include "statisticswidget.h"
 #include "barchart.h"
 #include "core/use_cases/RequestPomodoroYearRangeCommand.h"
-#include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
+// #include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
+#include "core/use_cases/use_cases.h"
 #include "ui_statistics_widget.h"
 
 
@@ -55,13 +56,12 @@ void StatisticsWidget::setupGraphs()
 
 void StatisticsWidget::fetchPomodoros()
 {
-    UseCases::RequestPomodorosInTimeRangeCommand requestPomodoros{
+    CoreApi::pomodorosInTimeRange(
         *pomodoroReader,
         currentInterval.toTimeSpan(),
         std::bind(&StatisticsWidget::onPomodorosFetched,
                   this,
-                  std::placeholders::_1)};
-    requestPomodoros.execute();
+                  std::placeholders::_1));
 }
 
 void StatisticsWidget::onPomodorosFetched(

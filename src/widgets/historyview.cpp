@@ -1,6 +1,6 @@
 #include "historyview.h"
 #include "core/use_cases/RequestPomodoroYearRangeCommand.h"
-#include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
+#include "core/use_cases/use_cases.h"
 #include "ui_history.h"
 #include <QPainter>
 
@@ -131,13 +131,12 @@ HistoryStatePomodoro::HistoryStatePomodoro(HistoryView& historyView)
 
 void HistoryStatePomodoro::retrieveHistory()
 {
-    UseCases::RequestPomodorosInTimeRangeCommand requestPomodoros{
+    CoreApi::pomodorosInTimeRange(
         *historyView.pomodoroStorageReader,
         historyView.selectedDateInterval.toTimeSpan(),
         std::bind(&HistoryStatePomodoro::onHistoryRetrieved,
                   this,
-                  std::placeholders::_1)};
-    requestPomodoros.execute();
+                  std::placeholders::_1));
 }
 
 
