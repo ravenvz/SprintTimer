@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     std::unique_ptr<IPomodoroDistributionReader> monthlyDistributionReader{
         factory.createPomoMonthlyDistributionReader()};
 
-    CoreApi::PomodoroCoreFacade pomodoroService{
+    CoreApi::PomodoroService pomodoroService{
         *pomodoroStorageReader.get(),
         *pomodoroStorageWriter.get(),
         *pomodoroYearRangeReader.get(),

@@ -8,7 +8,7 @@
 
 class PomodoroModel : public QAbstractListModel {
 public:
-    explicit PomodoroModel(CoreApi::PomodoroCoreFacade& pomodoroService,
+    explicit PomodoroModel(CoreApi::PomodoroService& pomodoroService,
                            QObject* parent = 0);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const final;
@@ -18,7 +18,7 @@ public:
 
     void setDateFilter(const TimeSpan& timeSpan);
 
-    void insert(const Pomodoro& pomodoro);
+    void insert(const TimeSpan& timeSpan, const std::string& taskUuid);
 
     // void remove(long long pomodoroId);
     void remove(int row);
@@ -26,7 +26,7 @@ public:
 private:
     std::vector<Pomodoro> storage;
     TimeSpan interval;
-    CoreApi::PomodoroCoreFacade& pomodoroService;
+    CoreApi::PomodoroService& pomodoroService;
 
     void retrieveData();
 

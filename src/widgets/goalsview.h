@@ -17,7 +17,7 @@ class GoalsView : public QWidget {
 
 public:
     GoalsView(IConfig& applicationSettings,
-              CoreApi::PomodoroCoreFacade& pomodoroService,
+              CoreApi::PomodoroService& pomodoroService,
               QWidget* parent = 0);
     ~GoalsView();
     void updateView();
@@ -36,7 +36,7 @@ private:
     const QColor targetGoalReached = QColor("#6baa15");
     const QColor overwork = Qt::red;
     const QColor workInProgress = Qt::gray;
-    CoreApi::PomodoroCoreFacade& pomodoroService;
+    CoreApi::PomodoroService& pomodoroService;
 
     void displayData();
     void displayDailyData();

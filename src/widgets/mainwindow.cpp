@@ -11,7 +11,7 @@
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
-                       CoreApi::PomodoroCoreFacade& pomodoroService,
+                       CoreApi::PomodoroService& pomodoroService,
                        QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -210,7 +210,7 @@ void MainWindow::submitPomodoro()
     completedTasksIntervals.push_back(pomodoroTimer.finish());
     for (const TimeSpan& timeSpan : completedTasksIntervals) {
         Pomodoro pomodoro{*selectedTask, timeSpan};
-        pomodoroModelNew->insert(pomodoro);
+        pomodoroModelNew->insert(timeSpan, selectedTask->uuid());
     }
 
     completedTasksIntervals.clear();

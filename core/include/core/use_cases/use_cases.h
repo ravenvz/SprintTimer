@@ -22,9 +22,9 @@
 
 namespace CoreApi {
 
-class PomodoroCoreFacade {
+class PomodoroService {
 public:
-    PomodoroCoreFacade(
+    PomodoroService(
         IPomodoroStorageReader& pomodoroStorageReader,
         IPomodoroStorageWriter& pomodoroStorageWriter,
         IPomodoroYearRangeReader& pomodoroYearRangeReader,
@@ -33,7 +33,7 @@ public:
         IPomodoroDistributionReader& pomoWeeklyDistributionReader,
         IPomodoroDistributionReader& pomoMonthlyDistributionReader);
 
-    void addPomodoro(const TimeSpan& timeSpan, const std::string& taskUuid);
+    void registerPomodoro(const TimeSpan& timeSpan, const std::string& taskUuid);
 
     void removePomodoro(const Pomodoro& pomodoro);
 

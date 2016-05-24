@@ -24,7 +24,7 @@ void HistoryViewDelegate::paint(QPainter* painter,
     }
 }
 
-HistoryView::HistoryView(CoreApi::PomodoroCoreFacade& pomodoroService,
+HistoryView::HistoryView(CoreApi::PomodoroService& pomodoroService,
                          QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::HistoryView)

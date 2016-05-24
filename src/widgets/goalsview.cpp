@@ -4,7 +4,7 @@
 #include "ui_goalsview.h"
 
 GoalsView::GoalsView(IConfig& applicationSettings,
-                     CoreApi::PomodoroCoreFacade& pomodoroService,
+                     CoreApi::PomodoroService& pomodoroService,
                      QWidget* parent)
     : QWidget{parent}
     , ui{new Ui::GoalsView}

@@ -37,7 +37,7 @@ class StatisticsWidget : public QWidget {
 
 public:
     StatisticsWidget(IConfig& applicationSettings,
-                     CoreApi::PomodoroCoreFacade& pomodoroService,
+                     CoreApi::PomodoroService& pomodoroService,
                      QWidget* parent = 0);
     ~StatisticsWidget();
 
@@ -50,7 +50,7 @@ private slots:
 private:
     Ui::StatisticsWidget* ui;
     IConfig& applicationSettings;
-    CoreApi::PomodoroCoreFacade& pomodoroService;
+    CoreApi::PomodoroService& pomodoroService;
     std::vector<Pomodoro> pomodoros;
     TagDistribution tagDistribution;
     TimeDiagram* workTimeDiagram;

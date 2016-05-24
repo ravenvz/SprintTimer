@@ -9,7 +9,7 @@
 
 namespace CoreApi {
 
-PomodoroCoreFacade::PomodoroCoreFacade(
+PomodoroService::PomodoroService(
     IPomodoroStorageReader& pomodoroStorageReader,
     IPomodoroStorageWriter& pomodoroStorageWriter,
     IPomodoroYearRangeReader& pomodoroYearRangeReader,
@@ -27,7 +27,7 @@ PomodoroCoreFacade::PomodoroCoreFacade(
 {
 }
 
-void PomodoroCoreFacade::addPomodoro(const TimeSpan& timeSpan,
+void PomodoroService::registerPomodoro(const TimeSpan& timeSpan,
                                      const std::string& taskUuid)
 {
     MacroTransaction addPomodoroTransaction;
@@ -44,7 +44,7 @@ void PomodoroCoreFacade::addPomodoro(const TimeSpan& timeSpan,
 }
 
 
-void PomodoroCoreFacade::removePomodoro(const Pomodoro& pomodoro)
+void PomodoroService::removePomodoro(const Pomodoro& pomodoro)
 {
     const std::string& taskUuid = pomodoro.taskUuid();
     MacroTransaction removePomodoroTransaction;
@@ -59,7 +59,7 @@ void PomodoroCoreFacade::removePomodoro(const Pomodoro& pomodoro)
     removePomodoroTransaction.execute();
 }
 
-void PomodoroCoreFacade::pomodorosInTimeRange(
+void PomodoroService::pomodorosInTimeRange(
     const TimeSpan& timeSpan,
     std::function<void(const std::vector<Pomodoro>&)> onResultsReceivedCallback)
 {
@@ -69,7 +69,7 @@ void PomodoroCoreFacade::pomodorosInTimeRange(
     requestItems->execute();
 }
 
-void PomodoroCoreFacade::pomodoroYearRange(
+void PomodoroService::pomodoroYearRange(
     std::function<void(const std::vector<std::string>&)>
         onResultsReceivedCallback)
 {
@@ -80,7 +80,7 @@ void PomodoroCoreFacade::pomodoroYearRange(
     requestYearRange->execute();
 }
 
-void PomodoroCoreFacade::requestPomodoroDailyDistribution(
+void PomodoroService::requestPomodoroDailyDistribution(
     const TimeSpan& timeSpan,
     std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
@@ -90,7 +90,7 @@ void PomodoroCoreFacade::requestPomodoroDailyDistribution(
     requestDistribution->execute();
 }
 
-void PomodoroCoreFacade::requestPomodoroWeeklyDistribution(
+void PomodoroService::requestPomodoroWeeklyDistribution(
     const TimeSpan& timeSpan,
     std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
@@ -100,7 +100,7 @@ void PomodoroCoreFacade::requestPomodoroWeeklyDistribution(
     requestDistribution->execute();
 }
 
-void PomodoroCoreFacade::requestPomodoroMonthlyDistribution(
+void PomodoroService::requestPomodoroMonthlyDistribution(
     const TimeSpan& timeSpan,
     std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {

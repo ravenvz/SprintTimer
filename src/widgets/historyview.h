@@ -39,7 +39,7 @@ class HistoryView : public QWidget {
 public:
     using HistoryItem = std::pair<QDate, QString>;
 
-    explicit HistoryView(CoreApi::PomodoroCoreFacade& pomodoroService,
+    explicit HistoryView(CoreApi::PomodoroService& pomodoroService,
                          QWidget* parent = 0);
 
     ~HistoryView();
@@ -50,7 +50,7 @@ public:
 private:
     Ui::HistoryView* ui;
     DateInterval selectedDateInterval;
-    CoreApi::PomodoroCoreFacade& pomodoroService;
+    CoreApi::PomodoroService& pomodoroService;
     QPointer<TodoItemModel> todoItemModel;
     QPointer<QStandardItemModel> viewModel;
     std::unique_ptr<HistoryState> historyStatePomodoro;
