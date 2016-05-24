@@ -17,8 +17,8 @@ public:
 
 private:
     DBService& dbService;
-    long long addQueryId;
-    long long removeQueryId;
+    long long addQueryId{-1};
+    long long removeQueryId{-1};
 };
 
 #endif /* end of include guard: QTSQLITEPOMODOROSTORAGEWRITER_H_U7AAXVTC */

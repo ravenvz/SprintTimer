@@ -11,12 +11,12 @@
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
-                       IStorageImplementersFactory& pomodoroStorageFactory,
+                       CoreApi::PomodoroCoreFacade& pomodoroService,
                        QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , applicationSettings(applicationSettings)
-    , pomodoroStorageFactory{pomodoroStorageFactory}
+    , pomodoroService{pomodoroService}
     , pomodoroTimer{
           std::bind(&MainWindow::onTimerTick, this, std::placeholders::_1),
           1000,
@@ -24,17 +24,15 @@ MainWindow::MainWindow(IConfig& applicationSettings,
 {
     ui->setupUi(this);
     player = std::make_unique<QMediaPlayer>();
-    pomodoroModelNew = new PomodoroModel(
-        pomodoroStorageFactory.createPomodoroStorageReader(),
-        pomodoroStorageFactory.createPomodoroStorageWriter(),
-        pomodoroStorageFactory.createTaskStorageWriter(),
-        this);
+    pomodoroModelNew = new PomodoroModel(pomodoroService, this);
     ui->lvCompletedPomodoros->setModel(pomodoroModelNew);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
     todoitemViewModel = new TodoItemModel(this);
     todoitemViewModel->setNotCompletedFilter();
     todoitemViewModel->select();
     ui->lvTodoItems->setModel(todoitemViewModel);
+
+
     todoitemViewDelegate = new TodoItemsViewDelegate(this);
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
     ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -173,19 +171,6 @@ void MainWindow::launchSettingsDialog()
         qDebug() << "Applying changes";
     }
 }
-
-// void MainWindow::onPomodorosUpdated(
-//     const std::vector<std::pair<Pomodoro, long long>>& items)
-// {
-//     QStringList lst;
-//     std::transform(items.cbegin(),
-//                    items.cend(),
-//                    std::back_inserter(lst),
-//                    [](const auto& elem) {
-//                        return QString::fromStdString(elem.first.toString());
-//                    });
-//     pomoTempModel->setStringList(lst);
-// }
 
 void MainWindow::startTask()
 {
@@ -372,9 +357,7 @@ void MainWindow::onInTheZoneToggled() { pomodoroTimer.toggleInTheZoneMode(); }
 void MainWindow::launchHistoryView()
 {
     if (!historyView) {
-        historyView = new HistoryView(
-            pomodoroStorageFactory.createPomodoroStorageReader(),
-            pomodoroStorageFactory.createPomodoroYearRangeReader());
+        historyView = new HistoryView(pomodoroService);
         historyView->show();
     }
     else {
@@ -385,12 +368,7 @@ void MainWindow::launchHistoryView()
 void MainWindow::launchGoalsView()
 {
     if (!goalsView) {
-        goalsView = new GoalsView(
-            applicationSettings,
-            pomodoroStorageFactory.createPomoDailyDistributionReader(),
-            pomodoroStorageFactory.createPomoWeeklyDistributionReader(),
-            pomodoroStorageFactory.createPomoMonthlyDistributionReader());
-
+        goalsView = new GoalsView(applicationSettings, pomodoroService);
         goalsView->show();
     }
     else {
@@ -401,10 +379,8 @@ void MainWindow::launchGoalsView()
 void MainWindow::launchStatisticsView()
 {
     if (!statisticsView) {
-        statisticsView = new StatisticsWidget(
-            applicationSettings,
-            pomodoroStorageFactory.createPomodoroStorageReader(),
-            pomodoroStorageFactory.createPomodoroYearRangeReader());
+        statisticsView
+            = new StatisticsWidget(applicationSettings, pomodoroService);
         statisticsView->show();
     }
     else {

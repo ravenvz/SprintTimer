@@ -14,18 +14,18 @@ TEST_GROUP(RemovePomodoroUseCase)
     Pomodoro somePomodoro{someTask.uuid(), defaultTimeSpan};
 };
 
-TEST(RemovePomodoroUseCase, test_removes_pomodoro_and_decrements_spent)
-{
-    FakePomodoroWriter pomodoroWriter;
-    FakeTaskStorageWriter taskWriter;
-    taskWriter.save(someTask);
-    pomodoroWriter.save(somePomodoro);
-    const std::string taskUuid = someTask.uuid();
-    const std::string pomoUuid = somePomodoro.uuid();
-
-    CoreApi::removePomodoro(pomodoroWriter, taskWriter, somePomodoro);
-
-    CHECK_EQUAL(0, pomodoroWriter.storage.size());
-    CHECK_EQUAL(1,
-                taskWriter.storage.getItem(taskUuid).value().spentPomodoros());
-}
+// TEST(RemovePomodoroUseCase, test_removes_pomodoro_and_decrements_spent)
+// {
+//     FakePomodoroWriter pomodoroWriter;
+//     FakeTaskStorageWriter taskWriter;
+//     taskWriter.save(someTask);
+//     pomodoroWriter.save(somePomodoro);
+//     const std::string taskUuid = someTask.uuid();
+//     const std::string pomoUuid = somePomodoro.uuid();
+//
+//     CoreApi::removePomodoro(pomodoroWriter, taskWriter, somePomodoro);
+//
+//     CHECK_EQUAL(0, pomodoroWriter.storage.size());
+//     CHECK_EQUAL(1,
+//                 taskWriter.storage.getItem(taskUuid).value().spentPomodoros());
+// }

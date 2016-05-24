@@ -1,22 +1,15 @@
 #include "goalsview.h"
-#include "core/use_cases/RequestPomoDistribution.h"
 #include "db_layer/db_service.h"
 #include "gauge.h"
-#include "qt_storage_impl/QtPomoDistributionReader.h"
 #include "ui_goalsview.h"
 
-GoalsView::GoalsView(
-    IConfig& applicationSettings,
-    std::unique_ptr<IPomodoroDistributionReader> dailyDistributionReader,
-    std::unique_ptr<IPomodoroDistributionReader> weeklyDistributionReader,
-    std::unique_ptr<IPomodoroDistributionReader> monthlyDistributionReader,
-    QWidget* parent)
+GoalsView::GoalsView(IConfig& applicationSettings,
+                     CoreApi::PomodoroCoreFacade& pomodoroService,
+                     QWidget* parent)
     : QWidget{parent}
     , ui{new Ui::GoalsView}
     , applicationSettings{applicationSettings}
-    , dailyDistributionReader{std::move(dailyDistributionReader)}
-    , weeklyDistributionReader{std::move(weeklyDistributionReader)}
-    , monthlyDistributionReader{std::move(monthlyDistributionReader)}
+    , pomodoroService{pomodoroService}
 
 {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -55,13 +48,11 @@ void GoalsView::displayDailyData()
 {
     DateTime now = DateTime::currentDateTime();
     DateTime from = now.addDays(-30);
-    UseCases::RequestPomoDistribution requestDistribution{
-        *dailyDistributionReader,
+    pomodoroService.requestPomodoroDailyDistribution(
         TimeSpan{from, now},
         std::bind(&GoalsView::onDailyDistributionReceived,
                   this,
-                  std::placeholders::_1)};
-    requestDistribution.execute();
+                  std::placeholders::_1));
 }
 
 void GoalsView::displayWeeklyData()
@@ -69,26 +60,22 @@ void GoalsView::displayWeeklyData()
     DateTime now = DateTime::currentDateTime();
     DateTime from
         = now.addDays(-7 * 11 - static_cast<int>(now.dayOfWeek()) + 1);
-    UseCases::RequestPomoDistribution requestDistribution{
-        *weeklyDistributionReader,
+    pomodoroService.requestPomodoroWeeklyDistribution(
         TimeSpan{from, now},
         std::bind(&GoalsView::onWeeklyDistributionReceived,
                   this,
-                  std::placeholders::_1)};
-    requestDistribution.execute();
+                  std::placeholders::_1));
 }
 
 void GoalsView::displayMonthlyData()
 {
     DateTime now = DateTime::currentDateTime();
     DateTime from = now.addMonths(-11).addDays(-static_cast<int>(now.day()));
-    UseCases::RequestPomoDistribution requestDistribution{
-        *monthlyDistributionReader,
+    pomodoroService.requestPomodoroMonthlyDistribution(
         TimeSpan{from, now},
         std::bind(&GoalsView::onMonthlyDistributionReceived,
                   this,
-                  std::placeholders::_1)};
-    requestDistribution.execute();
+                  std::placeholders::_1));
 }
 
 void GoalsView::updateProgressBar(QProgressBar* bar, int goal, int value)

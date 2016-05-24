@@ -1,6 +1,4 @@
 #include "historyview.h"
-#include "core/use_cases/RequestPomodoroYearRangeCommand.h"
-#include "core/use_cases/use_cases.h"
 #include "ui_history.h"
 #include <QPainter>
 
@@ -26,25 +24,19 @@ void HistoryViewDelegate::paint(QPainter* painter,
     }
 }
 
-HistoryView::HistoryView(
-    std::unique_ptr<IPomodoroStorageReader> pomoStorageReader,
-    std::unique_ptr<IPomodoroYearRangeReader> pomoYearRangeReader,
-    QWidget* parent)
+HistoryView::HistoryView(CoreApi::PomodoroCoreFacade& pomodoroService,
+                         QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::HistoryView)
-    , pomodoroStorageReader{std::move(pomoStorageReader)}
-    , pomodoroYearRangeReader{std::move(pomoYearRangeReader)}
+    , pomodoroService{pomodoroService}
     , historyStatePomodoro{std::make_unique<HistoryStatePomodoro>(*this)}
     , historyStateTask{std::make_unique<HistoryStateTask>(*this)}
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     todoItemModel = new TodoItemModel(this);
-    UseCases::RequestPomodoroYearRangeCommand requestYearRange{
-        *pomodoroYearRangeReader,
-        std::bind(
-            &HistoryView::onYearRangeUpdated, this, std::placeholders::_1)};
-    requestYearRange.execute();
+    pomodoroService.pomodoroYearRange(std::bind(
+        &HistoryView::onYearRangeUpdated, this, std::placeholders::_1));
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
     viewModel = new QStandardItemModel(this);
     ui->lvTodoHistory->setHeaderHidden(true);
@@ -131,8 +123,7 @@ HistoryStatePomodoro::HistoryStatePomodoro(HistoryView& historyView)
 
 void HistoryStatePomodoro::retrieveHistory()
 {
-    CoreApi::pomodorosInTimeRange(
-        *historyView.pomodoroStorageReader,
+    historyView.pomodoroService.pomodorosInTimeRange(
         historyView.selectedDateInterval.toTimeSpan(),
         std::bind(&HistoryStatePomodoro::onHistoryRetrieved,
                   this,

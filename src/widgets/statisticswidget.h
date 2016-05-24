@@ -1,10 +1,9 @@
 #ifndef STATISTICSWIDGET_H
 #define STATISTICSWIDGET_H
 
-#include "core/IPomodoroStorageReader.h"
-#include "core/IPomodoroYearRangeReader.h"
 #include "core/PomodoroStatistics.h"
 #include "core/config.h"
+#include "core/use_cases/use_cases.h"
 #include "dialogs/datepickdialog.h"
 #include "plot.h"
 #include "timediagram.h"
@@ -37,11 +36,9 @@ class StatisticsWidget : public QWidget {
     Q_OBJECT
 
 public:
-    StatisticsWidget(
-        IConfig& applicationSettings,
-        std::unique_ptr<IPomodoroStorageReader> pomoStorageReader,
-        std::unique_ptr<IPomodoroYearRangeReader> pomoYearRangeReader,
-        QWidget* parent = 0);
+    StatisticsWidget(IConfig& applicationSettings,
+                     CoreApi::PomodoroCoreFacade& pomodoroService,
+                     QWidget* parent = 0);
     ~StatisticsWidget();
 
     void updateView();
@@ -53,8 +50,7 @@ private slots:
 private:
     Ui::StatisticsWidget* ui;
     IConfig& applicationSettings;
-    std::unique_ptr<IPomodoroStorageReader> pomodoroReader;
-    std::unique_ptr<IPomodoroYearRangeReader> pomodoroYearRangeReader;
+    CoreApi::PomodoroCoreFacade& pomodoroService;
     std::vector<Pomodoro> pomodoros;
     TagDistribution tagDistribution;
     TimeDiagram* workTimeDiagram;

@@ -25,7 +25,7 @@ private slots:
 protected:
     DBService& dbService;
     Handler handler;
-    long long mQueryId;
+    long long mQueryId{-1};
 };
 
 
@@ -39,8 +39,7 @@ public:
     QtPomoWeeklyDistributionReader(DBService& dbService);
 };
 
-class QtPomoMonthlyDistributionReader
-    : public DistributionReaderBase {
+class QtPomoMonthlyDistributionReader : public DistributionReaderBase {
 public:
     QtPomoMonthlyDistributionReader(DBService& dbService);
 };

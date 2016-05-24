@@ -23,11 +23,11 @@ public:
 
 private:
     DBService& dbService;
-    long long addQueryId;
-    long long removeQueryId;
-    long long editQueryId;
-    long long incrementSpentQueryId;
-    long long decrementSpentQueryId;
+    long long addQueryId{-1};
+    long long removeQueryId{-1};
+    long long editQueryId{-1};
+    long long incrementSpentQueryId{-1};
+    long long decrementSpentQueryId{-1};
 };
 
 #endif /* end of include guard: QTTASKSTORAGEWRITER_H_AB4O73ZJ */

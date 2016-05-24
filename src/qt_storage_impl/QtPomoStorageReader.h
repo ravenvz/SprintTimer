@@ -24,7 +24,7 @@ private:
         FinishTime,
         Uuid,
     };
-    long long mQueryId;
+    long long mQueryId{-1};
     DBService& dbService;
     Handler handler;
 

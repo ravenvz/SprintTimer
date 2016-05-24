@@ -39,7 +39,7 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow(IConfig& applicationSettings,
-               IStorageImplementersFactory& pomodoroStorageFactory,
+               CoreApi::PomodoroCoreFacade& pomodoroService,
                QWidget* parent = 0);
     ~MainWindow();
 
@@ -68,7 +68,7 @@ private slots:
 private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
-    IStorageImplementersFactory& pomodoroStorageFactory;
+    CoreApi::PomodoroCoreFacade& pomodoroService;
     std::unique_ptr<QMediaPlayer> player;
     std::vector<TimeSpan> completedTasksIntervals;
     int progressBarMaxValue{0};

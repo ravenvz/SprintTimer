@@ -1,10 +1,11 @@
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H
 
-#include "core/IPomodoroStorageReader.h"
-#include "core/IPomodoroYearRangeReader.h"
-#include "core/entities/Pomodoro.h"
-#include "core/entities/TodoItem.h"
+// #include "core/IPomodoroStorageReader.h"
+// #include "core/IPomodoroYearRangeReader.h"
+// #include "core/entities/Pomodoro.h"
+// #include "core/entities/TodoItem.h"
+#include "core/use_cases/use_cases.h"
 #include "pickperiodwidget.h"
 #include "src/models/todoitemmodel.h"
 #include <QObject>
@@ -38,9 +39,8 @@ class HistoryView : public QWidget {
 public:
     using HistoryItem = std::pair<QDate, QString>;
 
-    HistoryView(std::unique_ptr<IPomodoroStorageReader> pomoStorageReader,
-                std::unique_ptr<IPomodoroYearRangeReader> pomoYearRangeReader,
-                QWidget* parent = 0);
+    explicit HistoryView(CoreApi::PomodoroCoreFacade& pomodoroService,
+                         QWidget* parent = 0);
 
     ~HistoryView();
 
@@ -50,8 +50,7 @@ public:
 private:
     Ui::HistoryView* ui;
     DateInterval selectedDateInterval;
-    std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader;
-    std::unique_ptr<IPomodoroYearRangeReader> pomodoroYearRangeReader;
+    CoreApi::PomodoroCoreFacade& pomodoroService;
     QPointer<TodoItemModel> todoItemModel;
     QPointer<QStandardItemModel> viewModel;
     std::unique_ptr<HistoryState> historyStatePomodoro;
@@ -77,9 +76,9 @@ private slots:
 
 class HistoryState {
 public:
-    virtual ~HistoryState() = default;
+    explicit HistoryState(HistoryView& historyView);
 
-    HistoryState(HistoryView& historyView);
+    virtual ~HistoryState() = default;
 
     virtual void retrieveHistory() = 0;
 
@@ -91,7 +90,7 @@ protected:
 
 class HistoryStatePomodoro : public HistoryState {
 public:
-    HistoryStatePomodoro(HistoryView& historyView);
+    explicit HistoryStatePomodoro(HistoryView& historyView);
 
     void retrieveHistory() final;
 

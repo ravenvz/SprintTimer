@@ -13,6 +13,8 @@
 #include "core/IPomodoroStorageReader.h"
 #include "core/MacroTransaction.h"
 // #include "core/RevertableCommand.h"
+#include "core/IPomodoroDistributionReader.h"
+#include "core/IPomodoroYearRangeReader.h"
 #include "core/ITaskStorageWriter.h"
 #include "core/entities/Pomodoro.h"
 #include "core/use_cases/AddPomodoroTransaction.h"
@@ -20,19 +22,53 @@
 
 namespace CoreApi {
 
-void addPomodoro(IPomodoroStorageWriter& pomodoroStorageWriter,
-                 ITaskStorageWriter& taskStorageWriter,
-                 const TimeSpan& timeSpan,
-                 const std::string& taskUuid);
+class PomodoroCoreFacade {
+public:
+    PomodoroCoreFacade(
+        IPomodoroStorageReader& pomodoroStorageReader,
+        IPomodoroStorageWriter& pomodoroStorageWriter,
+        IPomodoroYearRangeReader& pomodoroYearRangeReader,
+        ITaskStorageWriter& taskStorageWriter,
+        IPomodoroDistributionReader& pomoDailyDistributionReader,
+        IPomodoroDistributionReader& pomoWeeklyDistributionReader,
+        IPomodoroDistributionReader& pomoMonthlyDistributionReader);
 
-void removePomodoro(IPomodoroStorageWriter& pomodoroStorageWriter,
-                    ITaskStorageWriter& taskStorageWriter,
-                    const Pomodoro& pomodoro);
+    void addPomodoro(const TimeSpan& timeSpan, const std::string& taskUuid);
 
-void pomodorosInTimeRange(IPomodoroStorageReader& pomodoroStorageReader,
-                          const TimeSpan& timeSpan,
-                          std::function<void(const std::vector<Pomodoro>&)>
-                              onResultsReceivedCallback);
+    void removePomodoro(const Pomodoro& pomodoro);
+
+    void pomodorosInTimeRange(const TimeSpan& timeSpan,
+                              std::function<void(const std::vector<Pomodoro>&)>
+                                  onResultsReceivedCallback);
+
+    void pomodoroYearRange(std::function<void(const std::vector<std::string>&)>
+                               onResultsReceivedCallback);
+
+    void requestPomodoroDailyDistribution(
+        const TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)>
+            onResultsReceivedCallback);
+
+    void requestPomodoroWeeklyDistribution(
+        const TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)>
+            onResultsReceivedCallback);
+
+    void requestPomodoroMonthlyDistribution(
+        const TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)>
+            onResultsReceivedCallback);
+
+private:
+    IPomodoroStorageReader& pomodoroReader;
+    IPomodoroStorageWriter& pomodoroWriter;
+    IPomodoroYearRangeReader& pomodoroYearRangeReader;
+    ITaskStorageWriter& taskWriter;
+    IPomodoroDistributionReader& pomoDailyDistributionReader;
+    IPomodoroDistributionReader& pomoWeeklyDistributionReader;
+    IPomodoroDistributionReader& pomoMonthlyDistributionReader;
+    std::vector<std::unique_ptr<RevertableCommand>> commandStack;
+};
 
 
 } // namespace CoreApi

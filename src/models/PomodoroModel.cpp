@@ -1,17 +1,11 @@
 #include "models/PomodoroModel.h"
-#include "core/use_cases/use_cases.h"
 
-PomodoroModel::PomodoroModel(
-    std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader,
-    std::unique_ptr<IPomodoroStorageWriter> pomodoroStorageWriter,
-    std::unique_ptr<ITaskStorageWriter> taskStorageWriter,
-    QObject* parent)
+PomodoroModel::PomodoroModel(CoreApi::PomodoroCoreFacade& pomodoroService,
+                             QObject* parent)
     : QAbstractListModel(parent)
     , interval{TimeSpan{DateTime::currentDateTime(),
                         DateTime::currentDateTime()}}
-    , pomodoroReader{std::move(pomodoroStorageReader)}
-    , pomodoroWriter{std::move(pomodoroStorageWriter)}
-    , taskWriter{std::move(taskStorageWriter)}
+    , pomodoroService{pomodoroService}
 {
     retrieveData();
 }
@@ -44,22 +38,19 @@ void PomodoroModel::setDateFilter(const TimeSpan& timeSpan)
 
 void PomodoroModel::insert(const Pomodoro& pomodoro)
 {
-    CoreApi::addPomodoro(
-        *pomodoroWriter, *taskWriter, pomodoro.timeSpan(), pomodoro.taskUuid());
+    pomodoroService.addPomodoro(pomodoro.timeSpan(), pomodoro.taskUuid());
     retrieveData();
 }
 
 void PomodoroModel::remove(int row)
 {
-    CoreApi::removePomodoro(
-        *pomodoroWriter, *taskWriter, storage[static_cast<size_t>(row)]);
+    pomodoroService.removePomodoro(storage[static_cast<size_t>(row)]);
     retrieveData();
 }
 
 void PomodoroModel::retrieveData()
 {
-    CoreApi::pomodorosInTimeRange(
-        *pomodoroReader,
+    pomodoroService.pomodorosInTimeRange(
         interval,
         std::bind(&PomodoroModel::onDataChanged, this, std::placeholders::_1));
 }

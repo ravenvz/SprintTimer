@@ -1,29 +1,20 @@
 #include "statisticswidget.h"
 #include "barchart.h"
 #include "core/use_cases/RequestPomodoroYearRangeCommand.h"
-// #include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
-#include "core/use_cases/use_cases.h"
 #include "ui_statistics_widget.h"
 
 
-StatisticsWidget::StatisticsWidget(
-    IConfig& applicationSettings,
-    std::unique_ptr<IPomodoroStorageReader> pomoStorageReader,
-    std::unique_ptr<IPomodoroYearRangeReader> pomoYearRangeReader,
-    QWidget* parent)
+StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,
+                                   CoreApi::PomodoroCoreFacade& pomodoroService,
+                                   QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::StatisticsWidget)
     , applicationSettings(applicationSettings)
-    , pomodoroReader{std::move(pomoStorageReader)}
-    , pomodoroYearRangeReader{std::move(pomoYearRangeReader)}
+    , pomodoroService{pomodoroService}
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    UseCases::RequestPomodoroYearRangeCommand requestYearRange{
-        *pomodoroYearRangeReader,
-        std::bind(&StatisticsWidget::onYearRangeUpdated,
-                  this,
-                  std::placeholders::_1)};
-    requestYearRange.execute();
+    pomodoroService.pomodoroYearRange(std::bind(
+        &StatisticsWidget::onYearRangeUpdated, this, std::placeholders::_1));
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
     workTimeDiagram = new TimeDiagram(this);
@@ -56,8 +47,7 @@ void StatisticsWidget::setupGraphs()
 
 void StatisticsWidget::fetchPomodoros()
 {
-    CoreApi::pomodorosInTimeRange(
-        *pomodoroReader,
+    pomodoroService.pomodorosInTimeRange(
         currentInterval.toTimeSpan(),
         std::bind(&StatisticsWidget::onPomodorosFetched,
                   this,

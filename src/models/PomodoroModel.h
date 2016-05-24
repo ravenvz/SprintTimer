@@ -1,22 +1,15 @@
 #ifndef POMODOROMODELNEW_H_MQZ2XAPI
 #define POMODOROMODELNEW_H_MQZ2XAPI
 
-#include "core/IPomodoroStorageReader.h"
-#include "core/IPomodoroStorageWriter.h"
-#include "core/ITaskStorageWriter.h"
-#include "core/TimeSpan.h"
-#include "core/entities/Pomodoro.h"
+#include "core/use_cases/use_cases.h"
 #include <QAbstractListModel>
 #include <memory>
 #include <vector>
 
 class PomodoroModel : public QAbstractListModel {
 public:
-    explicit PomodoroModel(
-        std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader,
-        std::unique_ptr<IPomodoroStorageWriter> pomodoroStorageWriter,
-        std::unique_ptr<ITaskStorageWriter> taskStorageWriter,
-        QObject* parent = 0);
+    explicit PomodoroModel(CoreApi::PomodoroCoreFacade& pomodoroService,
+                           QObject* parent = 0);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const final;
 
@@ -33,9 +26,7 @@ public:
 private:
     std::vector<Pomodoro> storage;
     TimeSpan interval;
-    std::unique_ptr<IPomodoroStorageReader> pomodoroReader;
-    std::unique_ptr<IPomodoroStorageWriter> pomodoroWriter;
-    std::unique_ptr<ITaskStorageWriter> taskWriter;
+    CoreApi::PomodoroCoreFacade& pomodoroService;
 
     void retrieveData();
 

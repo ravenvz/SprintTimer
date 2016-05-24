@@ -1,8 +1,8 @@
 #ifndef GOALSVIEW_H
 #define GOALSVIEW_H
 
-#include "core/IPomodoroDistributionReader.h"
 #include "core/config.h"
+#include "core/use_cases/use_cases.h"
 #include <QGridLayout>
 #include <QProgressBar>
 #include <QWidget>
@@ -16,12 +16,9 @@ class GoalsView : public QWidget {
     Q_OBJECT
 
 public:
-    GoalsView(
-        IConfig& applicationSettings,
-        std::unique_ptr<IPomodoroDistributionReader> dailyDistributionReader,
-        std::unique_ptr<IPomodoroDistributionReader> weeklyDistributionReader,
-        std::unique_ptr<IPomodoroDistributionReader> monthlyDistributionReader,
-        QWidget* parent = 0);
+    GoalsView(IConfig& applicationSettings,
+              CoreApi::PomodoroCoreFacade& pomodoroService,
+              QWidget* parent = 0);
     ~GoalsView();
     void updateView();
 
@@ -39,9 +36,7 @@ private:
     const QColor targetGoalReached = QColor("#6baa15");
     const QColor overwork = Qt::red;
     const QColor workInProgress = Qt::gray;
-    std::unique_ptr<IPomodoroDistributionReader> dailyDistributionReader;
-    std::unique_ptr<IPomodoroDistributionReader> weeklyDistributionReader;
-    std::unique_ptr<IPomodoroDistributionReader> monthlyDistributionReader;
+    CoreApi::PomodoroCoreFacade& pomodoroService;
 
     void displayData();
     void displayDailyData();

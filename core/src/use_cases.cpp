@@ -3,22 +3,40 @@
 #include "core/use_cases/DecrementSpentPomodoros.h"
 #include "core/use_cases/IncrementSpentPomodoros.h"
 #include "core/use_cases/RemovePomodoroTransaction.h"
+#include "core/use_cases/RequestPomoDistribution.h"
+#include "core/use_cases/RequestPomodoroYearRangeCommand.h"
 #include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
 
 namespace CoreApi {
 
-void addPomodoro(IPomodoroStorageWriter& pomodoroStorageWriter,
-                 ITaskStorageWriter& taskStorageWriter,
-                 const TimeSpan& timeSpan,
-                 const std::string& taskUuid)
+PomodoroCoreFacade::PomodoroCoreFacade(
+    IPomodoroStorageReader& pomodoroStorageReader,
+    IPomodoroStorageWriter& pomodoroStorageWriter,
+    IPomodoroYearRangeReader& pomodoroYearRangeReader,
+    ITaskStorageWriter& taskStorageWriter,
+    IPomodoroDistributionReader& pomoDailyDistributionReader,
+    IPomodoroDistributionReader& pomoWeeklyDistributionReader,
+    IPomodoroDistributionReader& pomoMonthlyDistributionReader)
+    : pomodoroReader{pomodoroStorageReader}
+    , pomodoroWriter{pomodoroStorageWriter}
+    , pomodoroYearRangeReader{pomodoroYearRangeReader}
+    , taskWriter{taskStorageWriter}
+    , pomoDailyDistributionReader{pomoDailyDistributionReader}
+    , pomoWeeklyDistributionReader{pomoWeeklyDistributionReader}
+    , pomoMonthlyDistributionReader{pomoMonthlyDistributionReader}
+{
+}
+
+void PomodoroCoreFacade::addPomodoro(const TimeSpan& timeSpan,
+                                     const std::string& taskUuid)
 {
     MacroTransaction addPomodoroTransaction;
     Pomodoro pomodoro{taskUuid, timeSpan};
     std::unique_ptr<RevertableCommand> addPomodoro
-        = std::make_unique<UseCases::AddPomodoroTransaction>(
-            pomodoroStorageWriter, pomodoro);
+        = std::make_unique<UseCases::AddPomodoroTransaction>(pomodoroWriter,
+                                                             pomodoro);
     std::unique_ptr<RevertableCommand> incrementSpentPomodoros
-        = std::make_unique<UseCases::IncrementSpentPomodoros>(taskStorageWriter,
+        = std::make_unique<UseCases::IncrementSpentPomodoros>(taskWriter,
                                                               taskUuid);
     addPomodoroTransaction.addCommand(std::move(addPomodoro));
     addPomodoroTransaction.addCommand(std::move(incrementSpentPomodoros));
@@ -26,32 +44,70 @@ void addPomodoro(IPomodoroStorageWriter& pomodoroStorageWriter,
 }
 
 
-void removePomodoro(IPomodoroStorageWriter& pomodoroStorageWriter,
-                    ITaskStorageWriter& taskStorageWriter,
-                    const Pomodoro& pomodoro)
+void PomodoroCoreFacade::removePomodoro(const Pomodoro& pomodoro)
 {
     const std::string& taskUuid = pomodoro.taskUuid();
     MacroTransaction removePomodoroTransaction;
     std::unique_ptr<RevertableCommand> removePomodoro
-        = std::make_unique<UseCases::RemovePomodoroTransaction>(
-            pomodoroStorageWriter, pomodoro);
+        = std::make_unique<UseCases::RemovePomodoroTransaction>(pomodoroWriter,
+                                                                pomodoro);
     std::unique_ptr<RevertableCommand> decrementSpentPomodoros
-        = std::make_unique<UseCases::DecrementSpentPomodoros>(taskStorageWriter,
+        = std::make_unique<UseCases::DecrementSpentPomodoros>(taskWriter,
                                                               taskUuid);
     removePomodoroTransaction.addCommand(std::move(removePomodoro));
     removePomodoroTransaction.addCommand(std::move(decrementSpentPomodoros));
     removePomodoroTransaction.execute();
 }
 
-void pomodorosInTimeRange(
-    IPomodoroStorageReader& pomodoroStorageReader,
+void PomodoroCoreFacade::pomodorosInTimeRange(
     const TimeSpan& timeSpan,
     std::function<void(const std::vector<Pomodoro>&)> onResultsReceivedCallback)
 {
     std::unique_ptr<ICommand> requestItems
         = std::make_unique<UseCases::RequestPomodorosInTimeRangeCommand>(
-            pomodoroStorageReader, timeSpan, onResultsReceivedCallback);
+            pomodoroReader, timeSpan, onResultsReceivedCallback);
     requestItems->execute();
+}
+
+void PomodoroCoreFacade::pomodoroYearRange(
+    std::function<void(const std::vector<std::string>&)>
+        onResultsReceivedCallback)
+{
+
+    std::unique_ptr<ICommand> requestYearRange
+        = std::make_unique<UseCases::RequestPomodoroYearRangeCommand>(
+            pomodoroYearRangeReader, onResultsReceivedCallback);
+    requestYearRange->execute();
+}
+
+void PomodoroCoreFacade::requestPomodoroDailyDistribution(
+    const TimeSpan& timeSpan,
+    std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+{
+    std::unique_ptr<ICommand> requestDistribution
+        = std::make_unique<UseCases::RequestPomoDistribution>(
+            pomoDailyDistributionReader, timeSpan, onResultsReceivedCallback);
+    requestDistribution->execute();
+}
+
+void PomodoroCoreFacade::requestPomodoroWeeklyDistribution(
+    const TimeSpan& timeSpan,
+    std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+{
+    std::unique_ptr<ICommand> requestDistribution
+        = std::make_unique<UseCases::RequestPomoDistribution>(
+            pomoWeeklyDistributionReader, timeSpan, onResultsReceivedCallback);
+    requestDistribution->execute();
+}
+
+void PomodoroCoreFacade::requestPomodoroMonthlyDistribution(
+    const TimeSpan& timeSpan,
+    std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+{
+    std::unique_ptr<ICommand> requestDistribution
+        = std::make_unique<UseCases::RequestPomoDistribution>(
+            pomoMonthlyDistributionReader, timeSpan, onResultsReceivedCallback);
+    requestDistribution->execute();
 }
 
 } /* CoreApi */

@@ -17,7 +17,7 @@ public:
 private:
     DBService& dbService;
     Handler handler;
-    long long mQueryId;
+    long long mQueryId{-1};
 
 private slots:
     void onResultsReceived(long long queryId,
