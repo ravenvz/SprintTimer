@@ -1,11 +1,11 @@
-#include "core/use_cases/use_cases.h"
-#include "core/use_cases/AddPomodoroTransaction.h"
-#include "core/use_cases/DecrementSpentPomodoros.h"
-#include "core/use_cases/IncrementSpentPomodoros.h"
-#include "core/use_cases/RemovePomodoroTransaction.h"
-#include "core/use_cases/RequestPomoDistribution.h"
-#include "core/use_cases/RequestPomodoroYearRangeCommand.h"
-#include "core/use_cases/RequestPomodorosInTimeRangeCommand.h"
+#include "core/PomodoroService.h"
+#include "use_cases/AddPomodoroTransaction.h"
+#include "use_cases/DecrementSpentPomodoros.h"
+#include "use_cases/IncrementSpentPomodoros.h"
+#include "use_cases/RemovePomodoroTransaction.h"
+#include "use_cases/RequestPomoDistribution.h"
+#include "use_cases/RequestPomodoroYearRangeCommand.h"
+#include "use_cases/RequestPomodorosInTimeRangeCommand.h"
 
 namespace CoreApi {
 
@@ -28,7 +28,7 @@ PomodoroService::PomodoroService(
 }
 
 void PomodoroService::registerPomodoro(const TimeSpan& timeSpan,
-                                     const std::string& taskUuid)
+                                       const std::string& taskUuid)
 {
     MacroTransaction addPomodoroTransaction;
     Pomodoro pomodoro{taskUuid, timeSpan};

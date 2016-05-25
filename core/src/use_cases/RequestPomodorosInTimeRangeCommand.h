@@ -3,9 +3,9 @@
 
 
 #include "core/ICommand.h"
+#include "core/IPomodoroStorageReader.h"
 
-namespace UseCases
-{
+namespace UseCases {
 
 class RequestPomodorosInTimeRangeCommand : public ICommand {
 public:
@@ -29,4 +29,5 @@ private:
 
 } /* UseCases */
 
-#endif /* end of include guard: REQUESTPOMODOROSINTIMERANGECOMMAND_H_4QUSWCF0 */
+#endif /* end of include guard: REQUESTPOMODOROSINTIMERANGECOMMAND_H_4QUSWCF0  \
+          */

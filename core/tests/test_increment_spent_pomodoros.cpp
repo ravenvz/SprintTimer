@@ -1,4 +1,4 @@
-#include "core/use_cases/IncrementSpentPomodoros.h"
+#include "use_cases/IncrementSpentPomodoros.h"
 #include "fixtures/FakeTaskStorageWriter.h"
 #include <TestHarness.h>
 

@@ -1,5 +1,5 @@
 #include "QtStorageImplementersFactory.h"
-#include "core/use_cases/use_cases.h"
+#include "core/PomodoroService.h"
 #include "qt_config.h"
 #include "src/widgets/mainwindow.h"
 #include <QApplication>
@@ -25,14 +25,13 @@ int main(int argc, char* argv[])
     std::unique_ptr<IPomodoroDistributionReader> monthlyDistributionReader{
         factory.createPomoMonthlyDistributionReader()};
 
-    CoreApi::PomodoroService pomodoroService{
-        *pomodoroStorageReader.get(),
-        *pomodoroStorageWriter.get(),
-        *pomodoroYearRangeReader.get(),
-        *taskStorageWriter.get(),
-        *dailyDistributionReader.get(),
-        *weeklyDistributionReader.get(),
-        *monthlyDistributionReader.get()};
+    CoreApi::PomodoroService pomodoroService{*pomodoroStorageReader.get(),
+                                             *pomodoroStorageWriter.get(),
+                                             *pomodoroYearRangeReader.get(),
+                                             *taskStorageWriter.get(),
+                                             *dailyDistributionReader.get(),
+                                             *weeklyDistributionReader.get(),
+                                             *monthlyDistributionReader.get()};
 
     qDebug() << "Successfully connected to database";
 

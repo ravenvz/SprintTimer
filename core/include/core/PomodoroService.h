@@ -1,27 +1,17 @@
-#ifndef USE_CASES_H_FWYXSOEZ
-#define USE_CASES_H_FWYXSOEZ
+#ifndef POMODOROSERVICE_H_JXK8PKAI
+#define POMODOROSERVICE_H_JXK8PKAI
 
-// #include "core/IPomodoroStorageWriter.h"
-// #include "core/entities/Pomodoro.h"
-// #include "core/entities/TodoItem.h"
-// #include <experimental/optional>
-// #include <functional>
-// #include <vector>
 
-// #include "core/ICommand.h"
-// #include "core/ITransaction.h"
-#include "core/IPomodoroStorageReader.h"
-#include "core/MacroTransaction.h"
-// #include "core/RevertableCommand.h"
 #include "core/IPomodoroDistributionReader.h"
 #include "core/IPomodoroService.h"
+#include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/ITaskStorageWriter.h"
-#include "core/use_cases/AddPomodoroTransaction.h"
+#include "core/MacroTransaction.h"
+#include "use_cases/AddPomodoroTransaction.h"
 #include <memory>
 
 namespace CoreApi {
-
 
 class PomodoroService : public IPomodoroService {
 public:
@@ -74,4 +64,4 @@ private:
 
 } // namespace CoreApi
 
-#endif /* end of include guard: USE_CASES_H_FWYXSOEZ */
+#endif /* end of include guard: POMODOROSERVICE_H_JXK8PKAI */

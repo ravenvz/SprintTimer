@@ -1,13 +1,12 @@
-#include "core/use_cases/AddPomodoroTransaction.h"
-#include "core/use_cases/use_cases.h"
 #include "fixtures/FakePomodoroStorageWriter.h"
 #include "fixtures/FakeTaskStorageWriter.h"
+#include "use_cases/AddPomodoroTransaction.h"
 #include <TestHarness.h>
 #include <algorithm>
 #include <vector>
 
 
-using namespace UseCases;
+// using namespace UseCases;
 
 
 TEST_GROUP(AddPomodoroUseCase)

@@ -1,4 +1,4 @@
-#include "core/use_cases/AddTaskTransaction.h"
+#include "use_cases/AddTaskTransaction.h"
 #include "fixtures/FakeTaskStorageWriter.h"
 #include <TestHarness.h>
 #include <algorithm>

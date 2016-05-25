@@ -1,6 +1,6 @@
 #include "statisticswidget.h"
 #include "barchart.h"
-#include "core/use_cases/RequestPomodoroYearRangeCommand.h"
+#include "use_cases/RequestPomodoroYearRangeCommand.h"
 #include "ui_statistics_widget.h"
 
 

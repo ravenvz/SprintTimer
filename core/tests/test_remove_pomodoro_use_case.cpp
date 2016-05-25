@@ -1,10 +1,9 @@
 #include "core/entities/Pomodoro.h"
-#include "core/use_cases/use_cases.h"
 #include "fixtures/FakePomodoroStorageWriter.h"
 #include "fixtures/FakeTaskStorageWriter.h"
 #include <TestHarness.h>
 
-using namespace UseCases;
+// using namespace UseCases;
 
 TEST_GROUP(RemovePomodoroUseCase)
 {

@@ -24,7 +24,7 @@ set(SOURCE_FILES
     ../src/StringUtils.cpp
     ../src/PomodoroTimer.cpp
     ../src/Timer.cpp
-    ../src/use_cases.cpp
+    ../src/PomodoroService.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -51,5 +51,5 @@ endif()
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
-target_include_directories(${TEST_CORE} PRIVATE /usr/include/CppUTest ../include lib)
+target_include_directories(${TEST_CORE} PRIVATE /usr/include/CppUTest ../include ../src lib)
 target_link_libraries(${TEST_CORE} CppUTest Threads::Threads)
