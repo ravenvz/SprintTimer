@@ -6,6 +6,7 @@
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/PomodoroTimer.h"
+#include "core/Timer.h"
 #include "goalsview.h"
 #include "historyview.h"
 #include "models/PomodoroModel.h"

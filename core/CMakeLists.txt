@@ -19,7 +19,7 @@ find_package(Threads REQUIRED)
 
 add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
 
-target_include_directories(${PROJECT} PUBLIC include src) 
+target_include_directories(${PROJECT} PUBLIC include PRIVATE src) 
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
 add_subdirectory(tests)

@@ -5,10 +5,10 @@
 #include "core/IPomodoroDistributionReader.h"
 #include "core/IPomodoroService.h"
 #include "core/IPomodoroStorageReader.h"
+#include "core/IPomodoroStorageWriter.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/ITaskStorageWriter.h"
 #include "core/MacroTransaction.h"
-#include "use_cases/AddPomodoroTransaction.h"
 #include <memory>
 
 namespace CoreApi {
