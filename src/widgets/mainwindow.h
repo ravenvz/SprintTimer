@@ -2,10 +2,10 @@
 #define MAINWINDOW_H
 
 #include "IStorageImplementersFactory.h"
+#include "core/IPomodoroService.h"
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/PomodoroTimer.h"
-#include "core/use_cases/use_cases.h"
 #include "goalsview.h"
 #include "historyview.h"
 #include "models/PomodoroModel.h"
@@ -39,7 +39,7 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow(IConfig& applicationSettings,
-               CoreApi::PomodoroService& pomodoroService,
+               IPomodoroService& pomodoroService,
                QWidget* parent = 0);
     ~MainWindow();
 
@@ -68,7 +68,7 @@ private slots:
 private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
-    CoreApi::PomodoroService& pomodoroService;
+    IPomodoroService& pomodoroService;
     std::unique_ptr<QMediaPlayer> player;
     std::vector<TimeSpan> completedTasksIntervals;
     int progressBarMaxValue{0};

@@ -11,7 +11,7 @@
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
-                       CoreApi::PomodoroService& pomodoroService,
+                       IPomodoroService& pomodoroService,
                        QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)

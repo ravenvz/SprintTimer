@@ -1,14 +1,14 @@
 #ifndef POMODOROMODELNEW_H_MQZ2XAPI
 #define POMODOROMODELNEW_H_MQZ2XAPI
 
-#include "core/use_cases/use_cases.h"
+#include "core/IPomodoroService.h"
 #include <QAbstractListModel>
 #include <memory>
 #include <vector>
 
 class PomodoroModel : public QAbstractListModel {
 public:
-    explicit PomodoroModel(CoreApi::PomodoroService& pomodoroService,
+    explicit PomodoroModel(IPomodoroService& pomodoroService,
                            QObject* parent = 0);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const final;
@@ -26,7 +26,7 @@ public:
 private:
     std::vector<Pomodoro> storage;
     TimeSpan interval;
-    CoreApi::PomodoroService& pomodoroService;
+    IPomodoroService& pomodoroService;
 
     void retrieveData();
 

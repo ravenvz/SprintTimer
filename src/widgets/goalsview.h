@@ -1,8 +1,8 @@
 #ifndef GOALSVIEW_H
 #define GOALSVIEW_H
 
+#include "core/IPomodoroService.h"
 #include "core/config.h"
-#include "core/use_cases/use_cases.h"
 #include <QGridLayout>
 #include <QProgressBar>
 #include <QWidget>
@@ -17,7 +17,7 @@ class GoalsView : public QWidget {
 
 public:
     GoalsView(IConfig& applicationSettings,
-              CoreApi::PomodoroService& pomodoroService,
+              IPomodoroService& pomodoroService,
               QWidget* parent = 0);
     ~GoalsView();
     void updateView();
@@ -36,7 +36,7 @@ private:
     const QColor targetGoalReached = QColor("#6baa15");
     const QColor overwork = Qt::red;
     const QColor workInProgress = Qt::gray;
-    CoreApi::PomodoroService& pomodoroService;
+    IPomodoroService& pomodoroService;
 
     void displayData();
     void displayDailyData();

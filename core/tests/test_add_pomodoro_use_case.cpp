@@ -17,17 +17,17 @@ TEST_GROUP(AddPomodoroUseCase)
     TodoItem defaultTask{"Task name", 4, 2, {"Tag1", "Tag2"}, false};
 };
 
-// TEST(AddPomodoroUseCase, test_adds_pomodoro_and_increments_spent)
-// {
-//     FakePomodoroWriter pomodoroWriter;
-//     FakeTaskStorageWriter taskWriter;
-//     taskWriter.save(defaultTask);
-//     const std::string taskUuid = defaultTask.uuid();
-//
-//     CoreApi::addPomodoro(pomodoroWriter, taskWriter, defaultTimeSpan,
-//     taskUuid);
-//
-//     CHECK_EQUAL(1, pomodoroWriter.storage.size());
-//     CHECK_EQUAL(3,
-//                 taskWriter.storage.getItem(taskUuid).value().spentPomodoros());
-// }
+TEST(AddPomodoroUseCase, test_adds_pomodoro_and_increments_spent)
+{
+    // FakePomodoroWriter pomodoroWriter;
+    // FakeTaskStorageWriter taskWriter;
+    // taskWriter.save(defaultTask);
+    // const std::string taskUuid = defaultTask.uuid();
+    //
+    // CoreApi::addPomodoro(pomodoroWriter, taskWriter, defaultTimeSpan,
+    // taskUuid);
+    //
+    // CHECK_EQUAL(1, pomodoroWriter.storage.size());
+    // CHECK_EQUAL(3,
+    //             taskWriter.storage.getItem(taskUuid).value().spentPomodoros());
+}

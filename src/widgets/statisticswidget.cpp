@@ -5,7 +5,7 @@
 
 
 StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,
-                                   CoreApi::PomodoroService& pomodoroService,
+                                   IPomodoroService& pomodoroService,
                                    QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::StatisticsWidget)

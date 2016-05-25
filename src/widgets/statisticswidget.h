@@ -1,9 +1,9 @@
 #ifndef STATISTICSWIDGET_H
 #define STATISTICSWIDGET_H
 
+#include "core/IPomodoroService.h"
 #include "core/PomodoroStatistics.h"
 #include "core/config.h"
-#include "core/use_cases/use_cases.h"
 #include "dialogs/datepickdialog.h"
 #include "plot.h"
 #include "timediagram.h"
@@ -37,7 +37,7 @@ class StatisticsWidget : public QWidget {
 
 public:
     StatisticsWidget(IConfig& applicationSettings,
-                     CoreApi::PomodoroService& pomodoroService,
+                     IPomodoroService& pomodoroService,
                      QWidget* parent = 0);
     ~StatisticsWidget();
 
@@ -50,7 +50,7 @@ private slots:
 private:
     Ui::StatisticsWidget* ui;
     IConfig& applicationSettings;
-    CoreApi::PomodoroService& pomodoroService;
+    IPomodoroService& pomodoroService;
     std::vector<Pomodoro> pomodoros;
     TagDistribution tagDistribution;
     TimeDiagram* workTimeDiagram;

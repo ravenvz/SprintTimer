@@ -1,7 +1,6 @@
 #include "models/PomodoroModel.h"
 
-PomodoroModel::PomodoroModel(CoreApi::PomodoroService& pomodoroService,
-                             QObject* parent)
+PomodoroModel::PomodoroModel(IPomodoroService& pomodoroService, QObject* parent)
     : QAbstractListModel(parent)
     , interval{TimeSpan{DateTime::currentDateTime(),
                         DateTime::currentDateTime()}}
@@ -36,7 +35,8 @@ void PomodoroModel::setDateFilter(const TimeSpan& timeSpan)
     retrieveData();
 }
 
-void PomodoroModel::insert(const TimeSpan& timeSpan, const std::string& taskUuid)
+void PomodoroModel::insert(const TimeSpan& timeSpan,
+                           const std::string& taskUuid)
 {
     pomodoroService.registerPomodoro(timeSpan, taskUuid);
     retrieveData();
