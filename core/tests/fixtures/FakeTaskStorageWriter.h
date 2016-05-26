@@ -6,6 +6,11 @@
 
 class FakeTaskStorageWriter : public ITaskStorageWriter {
 public:
+    FakeTaskStorageWriter(FakeStorage<TodoItem>& storage)
+        : storage{storage}
+    {
+    }
+
     void save(const TodoItem& task) final { storage.store(task); }
 
     void remove(const TodoItem& task) final { storage.remove(task.uuid()); }
@@ -24,7 +29,7 @@ public:
         item.setSpentPomodoros(item.spentPomodoros() - 1);
     }
 
-    FakeStorage<TodoItem> storage;
+    FakeStorage<TodoItem>& storage;
 };
 
 #endif /* end of include guard: FAKETASKSTORAGEWRITER_H_L9TXWRHX */

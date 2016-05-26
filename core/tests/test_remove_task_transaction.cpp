@@ -1,5 +1,5 @@
-#include "use_cases/RemoveTaskTransaction.h"
 #include "fixtures/FakeTaskStorageWriter.h"
+#include "use_cases/RemoveTaskTransaction.h"
 #include <TestHarness.h>
 
 using namespace UseCases;
@@ -11,7 +11,8 @@ TEST_GROUP(RemoveTaskTransaction)
 
 TEST(RemoveTaskTransaction, test_execute_and_undo)
 {
-    FakeTaskStorageWriter writer;
+    FakeStorage<TodoItem> storage;
+    FakeTaskStorageWriter writer{storage};
     writer.storage.store(someTask);
     RemoveTaskTransaction transaction{writer, someTask};
 
@@ -25,7 +26,8 @@ TEST(RemoveTaskTransaction, test_execute_and_undo)
 TEST(RemoveTaskTransaction,
      test_undo_transaction_that_has_not_been_executed_should_return_false)
 {
-    FakeTaskStorageWriter writer;
+    FakeStorage<TodoItem> storage;
+    FakeTaskStorageWriter writer{storage};
     RemoveTaskTransaction transaction{writer, someTask};
 
     CHECK(!transaction.undo());

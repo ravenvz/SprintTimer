@@ -1,5 +1,5 @@
-#include "use_cases/IncrementSpentPomodoros.h"
 #include "fixtures/FakeTaskStorageWriter.h"
+#include "use_cases/IncrementSpentPomodoros.h"
 #include <TestHarness.h>
 
 
@@ -10,7 +10,8 @@ TEST_GROUP(IncrementSpentPomodoros)
 
 TEST(IncrementSpentPomodoros, test_execute_and_undo)
 {
-    FakeTaskStorageWriter writer;
+    FakeStorage<TodoItem> storage;
+    FakeTaskStorageWriter writer{storage};
     writer.save(defaultItem);
     std::string uuid = defaultItem.uuid();
 
@@ -26,7 +27,8 @@ TEST(IncrementSpentPomodoros, test_execute_and_undo)
 
 TEST(IncrementSpentPomodoros, test_should_not_undo_if_was_not_executed)
 {
-    FakeTaskStorageWriter writer;
+    FakeStorage<TodoItem> storage;
+    FakeTaskStorageWriter writer{storage};
     writer.save(defaultItem);
     std::string uuid = defaultItem.uuid();
 

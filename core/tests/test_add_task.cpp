@@ -1,5 +1,5 @@
-#include "use_cases/AddTaskTransaction.h"
 #include "fixtures/FakeTaskStorageWriter.h"
+#include "use_cases/AddTaskTransaction.h"
 #include <TestHarness.h>
 #include <algorithm>
 #include <vector>
@@ -14,7 +14,8 @@ TEST_GROUP(AddTaskUseCase)
 
 TEST(AddTaskUseCase, test_execute_and_undo)
 {
-    FakeTaskStorageWriter writer;
+    FakeStorage<TodoItem> storage;
+    FakeTaskStorageWriter writer{storage};
     AddTaskTransaction transaction{writer, someTask};
 
     CHECK(transaction.execute());
@@ -25,7 +26,8 @@ TEST(AddTaskUseCase, test_execute_and_undo)
 
 TEST(AddTaskUseCase, test_should_not_undo_if_was_not_executed)
 {
-    FakeTaskStorageWriter writer;
+    FakeStorage<TodoItem> storage;
+    FakeTaskStorageWriter writer{storage};
     AddTaskTransaction transaction{writer, someTask};
 
     CHECK(!transaction.undo());

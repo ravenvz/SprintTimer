@@ -32,6 +32,7 @@ struct TimeSpan {
      * finish point. */
     unsigned sizeInDays() const;
 
+    // TODO Those day parts are definitely do not belong here. Move out.
     /* Return enum representing part of the day.
      *
      * Day has 6 4-hour parts:

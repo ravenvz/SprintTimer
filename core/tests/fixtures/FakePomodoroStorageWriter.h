@@ -8,6 +8,11 @@
  * internal storage and allows to test execute/undo. */
 class FakePomodoroWriter : public IPomodoroStorageWriter {
 public:
+    FakePomodoroWriter(FakeStorage<Pomodoro>& storage)
+        : storage{storage}
+    {
+    }
+
     void save(const Pomodoro& pomodoro) final { storage.store(pomodoro); }
 
     void remove(const Pomodoro& pomodoro) final
@@ -15,7 +20,7 @@ public:
         storage.remove(pomodoro.uuid());
     }
 
-    FakeStorage<Pomodoro> storage;
+    FakeStorage<Pomodoro>& storage;
 };
 
 

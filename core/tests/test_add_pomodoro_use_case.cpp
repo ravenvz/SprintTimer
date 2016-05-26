@@ -1,3 +1,4 @@
+#include "fixtures/FakePomodoroStorageReader.h"
 #include "fixtures/FakePomodoroStorageWriter.h"
 #include "fixtures/FakeTaskStorageWriter.h"
 #include "use_cases/AddPomodoroTransaction.h"
@@ -18,6 +19,10 @@ TEST_GROUP(AddPomodoroUseCase)
 
 TEST(AddPomodoroUseCase, test_adds_pomodoro_and_increments_spent)
 {
+    FakeStorage<Pomodoro> pomodoroStorage;
+    FakePomodoroWriter pomodoroWriter{pomodoroStorage};
+    FakePomodoroStorageReader pomodoroReader{pomodoroStorage};
+
     // FakePomodoroWriter pomodoroWriter;
     // FakeTaskStorageWriter taskWriter;
     // taskWriter.save(defaultTask);

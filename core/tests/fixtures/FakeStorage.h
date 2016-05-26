@@ -1,6 +1,8 @@
 #ifndef FAKEPOMODOROSTORAGE_H_K56HOST8
 #define FAKEPOMODOROSTORAGE_H_K56HOST8
 
+#include "core/TimeSpan.h"
+#include <algorithm>
 #include <experimental/optional>
 #include <unordered_map>
 
@@ -27,6 +29,26 @@ public:
         if (found != cend(storage)) {
             storage.erase(found);
         }
+    }
+
+    void
+    itemsInTimeRange(const TimeSpan& timeSpan,
+                     std::function<void(const std::vector<Entity>&)> callback)
+    {
+        std::vector<Entity> result;
+        std::vector<Entity> values;
+        std::transform(storage.cbegin(),
+                       storage.cend(),
+                       std::back_inserter(values),
+                       [](const auto& elem) { return elem.second; });
+        std::copy_if(cbegin(values),
+                     cend(values),
+                     std::back_inserter(result),
+                     [&timeSpan](const auto& elem) {
+                         return startDateAbsDiff(timeSpan, elem.timeSpan())
+                             == 0;
+                     });
+        callback(result);
     }
 
     optional<Entity> getItem(const std::string& uuid)
