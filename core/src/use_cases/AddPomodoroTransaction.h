@@ -21,7 +21,7 @@ public:
 
 private:
     IPomodoroStorageWriter& writer;
-    const Pomodoro& pomodoro;
+    const Pomodoro pomodoro;
 };
 
 } /* UseCases */

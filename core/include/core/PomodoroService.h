@@ -26,7 +26,9 @@ public:
     void registerPomodoro(const TimeSpan& timeSpan,
                           const std::string& taskUuid) final;
 
-    void removePomodoro(const Pomodoro& pomodoro);
+    void removePomodoro(const Pomodoro& pomodoro) final;
+
+    void registerTask(const TodoItem& task) final;
 
     void pomodorosInTimeRange(const TimeSpan& timeSpan,
                               std::function<void(const std::vector<Pomodoro>&)>
@@ -49,6 +51,8 @@ public:
         const TimeSpan& timeSpan,
         std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         final;
+
+    void undoLast() final;
 
 private:
     IPomodoroStorageReader& pomodoroReader;

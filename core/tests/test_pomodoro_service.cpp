@@ -133,3 +133,35 @@ TEST(TestPomodoroService, test_request_monthly_distribution_calls_handler)
         });
     CHECK(pomoDistributionHandlerCalled);
 }
+
+TEST(TestPomodoroService, test_register_task)
+{
+    pomodoroService.registerTask(defaultTask);
+
+    CHECK_EQUAL(1, taskStorage.size());
+}
+
+TEST(TestPomodoroService, test_undo_functions_properly)
+{
+    pomodoroService.registerTask(defaultTask);
+    const std::string taskUuid = defaultTask.uuid();
+    pomodoroService.registerPomodoro(defaultTimeSpan, taskUuid);
+    pomodoroService.registerPomodoro(defaultTimeSpan, taskUuid);
+    pomodoroService.registerPomodoro(defaultTimeSpan, taskUuid);
+
+    CHECK_EQUAL(1, taskStorage.size());
+    CHECK_EQUAL(3, pomodoroStorage.size());
+
+    pomodoroService.undoLast();
+    CHECK_EQUAL(2, pomodoroStorage.size());
+
+    pomodoroService.undoLast();
+    CHECK_EQUAL(1, pomodoroStorage.size());
+
+    pomodoroService.undoLast();
+    CHECK_EQUAL(0, pomodoroStorage.size());
+
+    // TODO uncomment when Task save/remove is implemented
+    // pomodoroService.undoLast();
+    // CHECK_EQUAL(0, taskStorage.size());
+}

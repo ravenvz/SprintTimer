@@ -2,12 +2,12 @@
 #define ADDTASKTRANSACTION_H_LEMDIQ17
 
 #include "core/ITaskStorageWriter.h"
-#include "core/ITransaction.h"
+#include "core/RevertableCommand.h"
 #include "core/entities/TodoItem.h"
 
 namespace UseCases {
 
-class AddTaskTransaction : public ITransaction {
+class AddTaskTransaction : public RevertableCommand {
 public:
     AddTaskTransaction(ITaskStorageWriter& taskStorageWriter,
                        const TodoItem& task)
@@ -16,27 +16,13 @@ public:
     {
     }
 
-    bool execute() final
-    {
-        writer.save(task);
-        wasExecuted = true;
-        return true;
-    }
+    void executeAction() final { writer.save(task); }
 
-    bool undo() final
-    {
-        if (wasExecuted) {
-            writer.remove(task);
-            wasExecuted = false;
-            return true;
-        }
-        return false;
-    }
+    void undoAction() final { writer.remove(task); }
 
 private:
     ITaskStorageWriter& writer;
     const TodoItem& task;
-    bool wasExecuted{false};
 };
 
 

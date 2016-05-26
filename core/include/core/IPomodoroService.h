@@ -18,6 +18,8 @@ public:
 
     virtual void removePomodoro(const Pomodoro& pomodoro) = 0;
 
+    virtual void registerTask(const TodoItem& task) = 0;
+
     virtual void
     pomodorosInTimeRange(const TimeSpan& timeSpan,
                          std::function<void(const std::vector<Pomodoro>&)>
@@ -43,6 +45,8 @@ public:
         const TimeSpan& timeSpan,
         std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
+
+    virtual void undoLast() = 0;
 };
 
 #endif /* end of include guard: IPOMODOROSERVICE_H_XVOMGAES */

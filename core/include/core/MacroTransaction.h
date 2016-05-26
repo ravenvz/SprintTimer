@@ -7,6 +7,11 @@
 
 class MacroTransaction : public RevertableCommand {
 public:
+    MacroTransaction(std::vector<std::unique_ptr<RevertableCommand>>&& commands)
+        : commands{std::move(commands)}
+    {
+    }
+
     void executeAction() final
     {
         for (const auto& command : commands) {
