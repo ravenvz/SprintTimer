@@ -11,8 +11,7 @@ set(SOURCE_FILES
     test_time_span.cpp
     test_todoitem.cpp
     test_pomodoro_timer.cpp
-    test_add_pomodoro_use_case.cpp
-    test_remove_pomodoro_use_case.cpp
+    test_pomodoro_service.cpp
     test_add_task.cpp
     test_remove_task_transaction.cpp
     test_increment_spent_pomodoros.cpp

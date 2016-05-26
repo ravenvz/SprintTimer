@@ -72,6 +72,7 @@ TEST(DateTime, test_add_months_backward)
 TEST(DateTime, test_computes_days_forward)
 {
     DateTime currentDt = DateTime::currentDateTime();
+
     CHECK_EQUAL(10, currentDt.daysTo(currentDt.addDays(10)));
 }
 

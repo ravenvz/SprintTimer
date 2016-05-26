@@ -15,6 +15,7 @@ public:
     void requestDailyDistribution(const TimeSpan& timeSpan,
                                   Handler handler) final
     {
+        return storage.requestDailyDistribution(timeSpan, handler);
     }
 
     FakeStorage<Pomodoro>& storage;

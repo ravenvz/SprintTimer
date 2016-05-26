@@ -1,7 +1,9 @@
 #ifndef FAKEPOMODOROSTORAGE_H_K56HOST8
 #define FAKEPOMODOROSTORAGE_H_K56HOST8
 
+#include "core/Distribution.h"
 #include "core/TimeSpan.h"
+#include "core/entities/Pomodoro.h"
 #include <algorithm>
 #include <experimental/optional>
 #include <unordered_map>
@@ -35,20 +37,16 @@ public:
     itemsInTimeRange(const TimeSpan& timeSpan,
                      std::function<void(const std::vector<Entity>&)> callback)
     {
-        std::vector<Entity> result;
-        std::vector<Entity> values;
-        std::transform(storage.cbegin(),
-                       storage.cend(),
-                       std::back_inserter(values),
-                       [](const auto& elem) { return elem.second; });
-        std::copy_if(cbegin(values),
-                     cend(values),
-                     std::back_inserter(result),
-                     [&timeSpan](const auto& elem) {
-                         return startDateAbsDiff(timeSpan, elem.timeSpan())
-                             == 0;
-                     });
-        callback(result);
+        std::vector<Entity> emptyResult;
+        callback(emptyResult);
+    }
+
+    void requestDailyDistribution(
+        const TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)> callback)
+    {
+        Distribution<int> emptyDistribution{0};
+        callback(emptyDistribution);
     }
 
     optional<Entity> getItem(const std::string& uuid)
@@ -63,6 +61,8 @@ public:
     Entity& itemRef(const std::string& uuid) { return storage.at(uuid); }
 
     size_t size() const { return storage.size(); }
+
+    void clear() { storage.clear(); }
 
 private:
     std::unordered_map<std::string, Entity> storage;
