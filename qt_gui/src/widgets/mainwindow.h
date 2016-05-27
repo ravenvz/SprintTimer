@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "IStorageImplementersFactory.h"
+#include "core/IStorageImplementersFactory.h"
 #include "core/IPomodoroService.h"
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroYearRangeReader.h"
@@ -10,8 +10,8 @@
 #include "goalsview.h"
 #include "historyview.h"
 #include "models/PomodoroModel.h"
-#include "src/models/tagmodel.h"
-#include "src/models/todoitemmodel.h"
+#include "models/tagmodel.h"
+#include "models/todoitemmodel.h"
 #include "statisticswidget.h"
 #include "tageditorwidget.h"
 #include "todoitemsviewdelegate.h"

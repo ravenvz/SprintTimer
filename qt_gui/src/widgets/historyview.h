@@ -3,7 +3,7 @@
 
 #include "core/IPomodoroService.h"
 #include "pickperiodwidget.h"
-#include "src/models/todoitemmodel.h"
+#include "models/todoitemmodel.h"
 #include <QObject>
 #include <QStandardItemModel>
 #include <QStringListModel>

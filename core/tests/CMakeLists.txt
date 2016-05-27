@@ -31,8 +31,8 @@ find_package(Threads REQUIRED)
 add_executable(${TEST_CORE} ${SOURCE_FILES})
 target_compile_features(${TEST_CORE} PRIVATE cxx_return_type_deduction)
 
+# silence warnings from CppUTest
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-#   # silence warnings from CppUTest
     target_compile_options(${TEST_CORE} PRIVATE ${CLANG_COMPILE_OPTIONS}
                                                      -Wno-keyword-macro
                                                      -Wno-inconsistent-missing-override
@@ -49,5 +49,11 @@ endif()
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
-target_include_directories(${TEST_CORE} PRIVATE /usr/include/CppUTest ../include ../src lib)
+target_include_directories(${TEST_CORE} 
+    PRIVATE /usr/include/CppUTest
+    PUBLIC ../include
+    PRIVATE ../src
+    PRIVATE fixtures
+    PRIVATE lib)
+
 target_link_libraries(${TEST_CORE} CppUTest Threads::Threads)

@@ -2,7 +2,7 @@
 #define FAKETASKSTORAGEWRITER_H_L9TXWRHX
 
 #include "core/ITaskStorageWriter.h"
-#include "fixtures/FakeStorage.h"
+#include "FakeStorage.h"
 
 class FakeTaskStorageWriter : public ITaskStorageWriter {
 public:

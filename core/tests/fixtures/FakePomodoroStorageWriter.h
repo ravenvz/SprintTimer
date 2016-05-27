@@ -2,7 +2,7 @@
 #define FAKEPOMODOROWRITER_H_IHZ1QWFR
 
 #include "core/IPomodoroStorageWriter.h"
-#include "fixtures/FakeStorage.h"
+#include "FakeStorage.h"
 
 /* Fake implementation of IPomodoroStorageWriter that exposes
  * internal storage and allows to test execute/undo. */

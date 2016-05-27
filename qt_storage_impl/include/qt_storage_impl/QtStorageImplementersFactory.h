@@ -1,7 +1,7 @@
 #ifndef QTPOMODOROSTORAGEFACTORY_H_57Q0AHPC
 #define QTPOMODOROSTORAGEFACTORY_H_57Q0AHPC
 
-#include "IStorageImplementersFactory.h"
+#include "core/IStorageImplementersFactory.h"
 #include "qt_storage_impl/QtPomoDistributionReader.h"
 #include "qt_storage_impl/QtPomoStorageReader.h"
 #include "qt_storage_impl/QtPomoStorageWriter.h"

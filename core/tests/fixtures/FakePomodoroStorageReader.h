@@ -2,7 +2,7 @@
 #define FAKEPOMODOROSTORAGEREADER_H_MFYC8R5A
 
 #include "core/IPomodoroStorageReader.h"
-#include "fixtures/FakeStorage.h"
+#include "FakeStorage.h"
 
 class FakePomodoroStorageReader : public IPomodoroStorageReader {
 public:

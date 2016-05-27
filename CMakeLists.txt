@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 2.8.11)
 set(PROJECT Pomodoro)
 project(${PROJECT})
 
-# Tell CMake to run moc when necessary:
-set(CMAKE_AUTOMOC ON)
-# As moc files are generated in the build dir, tell CMake
-# to always look for includes there:
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(CMAKE_AUTORCC ON)
+# # Tell CMake to run moc when necessary:
+# set(CMAKE_AUTOMOC ON)
+# # As moc files are generated in the build dir, tell CMake
+# # to always look for includes there:
+# set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#
+# set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -53,23 +53,25 @@ endif()
 
 include(compiler_options.cmake)
 
-file(GLOB SOURCE_FILES src/*/*.cpp src/*/*/*.cpp)
+# file(GLOB SOURCE_FILES src/*/*.cpp src/*/*/*.cpp)
+set(SOURCE_FILES src/main.cpp)
 
-QT5_WRAP_UI(UI_HEADERS
-        src/ui/mainwindow.ui
-        src/ui/add_todo_dialog.ui
-        src/ui/pom_cancel_dialog.ui
-        src/ui/settings.ui
-        src/ui/history.ui
-        src/ui/date_pick_dialog.ui
-        src/ui/goalsview.ui
-        src/ui/statistics_widget.ui
-        src/ui/manual_add_pomodoro_dialog.ui
-        src/ui/pickperiodwidget.ui
-        src/ui/tageditor.ui
-)
+# QT5_WRAP_UI(UI_HEADERS
+#         src/ui/mainwindow.ui
+#         src/ui/add_todo_dialog.ui
+#         src/ui/pom_cancel_dialog.ui
+#         src/ui/settings.ui
+#         src/ui/history.ui
+#         src/ui/date_pick_dialog.ui
+#         src/ui/goalsview.ui
+#         src/ui/statistics_widget.ui
+#         src/ui/manual_add_pomodoro_dialog.ui
+#         src/ui/pickperiodwidget.ui
+#         src/ui/tageditor.ui
+# )
 
-add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc src/main.cpp)
+# add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc src/main.cpp)
+add_executable(${PROJECT} ${SOURCE_FILES}) 
 target_compile_features(${PROJECT} PUBLIC cxx_return_type_deduction)
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -102,11 +104,12 @@ target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_
 
 target_include_directories(${PROJECT} PUBLIC src lib)
 target_link_libraries(${PROJECT}
-    PUBLIC Qt5::Core
-    PUBLIC Qt5::Widgets
-    PUBLIC Qt5::Sql
-    PUBLIC Qt5::Multimedia
-    PUBLIC Threads::Threads
+    # PUBLIC Qt5::Core
+    # PUBLIC Qt5::Widgets
+    # PUBLIC Qt5::Sql
+    # PUBLIC Qt5::Multimedia
+    # PUBLIC Threads::Threads
+    PRIVATE pomodoro_qt_gui
     PRIVATE pomodoro_qt_storage_impl
 )
 
@@ -114,6 +117,7 @@ enable_testing()
 
 add_subdirectory(core)
 add_subdirectory(qt_storage_impl)
+add_subdirectory(qt_gui)
 add_subdirectory(tests)
 
 add_test(test_pomodoro_core test_pomodoro_core)

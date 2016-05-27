@@ -2,7 +2,7 @@
 #define FAKEPOMODORODISTRIBUTIONREADER_H_UREC2M3T
 
 #include "core/IPomodoroDistributionReader.h"
-#include "fixtures/FakeStorage.h"
+#include "FakeStorage.h"
 
 
 class FakePomodoroDistributionReader : public IPomodoroDistributionReader {
