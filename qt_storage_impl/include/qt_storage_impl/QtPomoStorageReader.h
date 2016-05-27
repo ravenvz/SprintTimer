@@ -2,7 +2,7 @@
 #define QTSQLITEPOMODOROSTORAGEREADER_H_JXULCJ6I
 
 #include "core/IPomodoroStorageReader.h"
-#include "db_layer/db_service.h"
+#include "qt_storage_impl/db_service.h"
 #include <QObject>
 
 

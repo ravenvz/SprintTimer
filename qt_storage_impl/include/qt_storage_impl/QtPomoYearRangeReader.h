@@ -2,7 +2,7 @@
 #define QTSQLITEPOMODOROYEARRANGEREADER_H_6LK9HHEM
 
 #include "core/IPomodoroYearRangeReader.h"
-#include "db_layer/db_service.h"
+#include "qt_storage_impl/db_service.h"
 #include <QObject>
 #include <functional>
 

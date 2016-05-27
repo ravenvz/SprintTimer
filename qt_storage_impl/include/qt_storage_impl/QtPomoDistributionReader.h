@@ -2,7 +2,7 @@
 #define QTSQLITEPOMODORODAILYDISTRIBUTIONREADER_H_TS4GUJR3
 
 #include "core/IPomodoroDistributionReader.h"
-#include "db_layer/db_service.h"
+#include "qt_storage_impl/db_service.h"
 #include <QObject>
 
 

@@ -1,5 +1,4 @@
 #include "dialogs/manualaddpomodorodialog.h"
-#include "db_layer/db_service.h"
 #include "models/PomodoroModel.h"
 #include "ui_manual_add_pomodoro_dialog.h"
 

@@ -6,7 +6,6 @@
 #include "core/IPomodoroStorageWriter.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/ITaskStorageWriter.h"
-#include "db_layer/db_service.h"
 #include <memory>
 
 class IStorageImplementersFactory {

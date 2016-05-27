@@ -1,5 +1,4 @@
 #include "goalsview.h"
-#include "db_layer/db_service.h"
 #include "gauge.h"
 #include "ui_goalsview.h"
 

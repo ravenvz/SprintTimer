@@ -2,7 +2,7 @@
 #define QTTASKSTORAGEWRITER_H_AB4O73ZJ
 
 #include "core/ITaskStorageWriter.h"
-#include "db_layer/db_service.h"
+#include "qt_storage_impl/db_service.h"
 #include <QObject>
 
 class QtTaskStorageWriter : public QObject, public ITaskStorageWriter {

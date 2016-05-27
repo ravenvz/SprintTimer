@@ -1,8 +1,6 @@
 #ifndef DB_HELPER_H
 #define DB_HELPER_H
 
-#include "core/entities/Pomodoro.h"
-#include "core/entities/TodoItem.h"
 #include <QDebug>
 #include <QHash>
 #include <QObject>
@@ -114,8 +112,7 @@ private:
 
     bool execAndCheck(QSqlQuery& query, const QString& queryStr);
 
-    void migrate();
+    // void migrate();
 };
-
 
 #endif // DB_HELPER_H

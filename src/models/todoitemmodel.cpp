@@ -1,6 +1,6 @@
 #include "todoitemmodel.h"
-#include "db_layer/db_service.h"
 #include <QSet>
+#include <QSqlRecord>
 #include <QSize>
 
 TodoItemModel::TodoItemModel(QObject* parent)

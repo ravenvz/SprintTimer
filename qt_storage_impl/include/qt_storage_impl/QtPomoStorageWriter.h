@@ -2,7 +2,7 @@
 #define QTSQLITEPOMODOROSTORAGEWRITER_H_U7AAXVTC
 
 #include "core/IPomodoroStorageWriter.h"
-#include "db_layer/db_service.h"
+#include "qt_storage_impl/db_service.h"
 #include <QObject>
 
 class QtPomoStorageWriter : public QObject, public IPomodoroStorageWriter {
