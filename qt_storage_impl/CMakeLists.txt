@@ -39,8 +39,8 @@ target_include_directories(${PROJECT} PUBLIC include PUBLIC src)
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 target_link_libraries(${PROJECT} Qt5::Core Qt5::Sql pomodoro_core)
 
-# add_subdirectory(tests)
-# target_link_libraries(test_pomodoro_core)
+add_subdirectory(tests)
+target_link_libraries(test_qt_storage_impl)
 
 # enable_testing()
 # add_test(test_pomodoro_core test_pomodoro_core)

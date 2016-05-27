@@ -121,3 +121,4 @@ add_subdirectory(qt_gui)
 add_subdirectory(tests)
 
 add_test(test_pomodoro_core test_pomodoro_core)
+add_test(test_qt_storage_impl test_qt_storage_impl)
