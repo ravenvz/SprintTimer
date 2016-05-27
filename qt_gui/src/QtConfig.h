@@ -3,7 +3,7 @@
 
 #include <QSettings>
 #include <QVariant>
-#include "core/config.h"
+#include "core/IConfig.h"
 
 /* Implements IConfig application config interface using Qt framework
  * features. */

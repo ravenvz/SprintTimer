@@ -2,7 +2,7 @@
 #define GOALSVIEW_H
 
 #include "core/IPomodoroService.h"
-#include "core/config.h"
+#include "core/IConfig.h"
 #include <QGridLayout>
 #include <QProgressBar>
 #include <QWidget>

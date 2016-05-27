@@ -2,9 +2,9 @@
 #define TASKRUNNER_H_9VSDY5UR
 
 #include "../../lib/date/date.h"
-#include "TimeSpan.h"
-#include "Timer.h"
-#include "config.h"
+#include "core/TimeSpan.h"
+#include "core/Timer.h"
+#include "core/IConfig.h"
 #include <chrono>
 #include <memory>
 

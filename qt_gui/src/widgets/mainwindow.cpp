@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "core/config.h"
 #include "dialogs/AddTaskDialog.h"
 #include "dialogs/confirmationdialog.h"
 #include "dialogs/manualaddpomodorodialog.h"

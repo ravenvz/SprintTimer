@@ -3,7 +3,7 @@
 
 #include "core/IPomodoroService.h"
 #include "core/PomodoroStatistics.h"
-#include "core/config.h"
+#include "core/IConfig.h"
 #include "dialogs/datepickdialog.h"
 #include "plot.h"
 #include "timediagram.h"

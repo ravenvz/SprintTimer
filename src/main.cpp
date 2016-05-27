@@ -1,6 +1,6 @@
 #include "qt_storage_impl/QtStorageImplementersFactory.h"
 #include "core/PomodoroService.h"
-#include "qt_config.h"
+#include "QtConfig.h"
 #include "widgets/mainwindow.h"
 #include <QApplication>
 #include <memory>
