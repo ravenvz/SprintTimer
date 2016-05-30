@@ -24,6 +24,7 @@ public:
 private:
     DBService& dbService;
     long long addQueryId{-1};
+    long long insertTagQueryId{-1};
     long long removeQueryId{-1};
     long long editQueryId{-1};
     long long incrementSpentQueryId{-1};

@@ -1,10 +1,11 @@
 #include "todoitemmodel.h"
 #include <QSet>
-#include <QSqlRecord>
 #include <QSize>
+#include <QSqlRecord>
 
-TodoItemModel::TodoItemModel(QObject* parent)
+TodoItemModel::TodoItemModel(IPomodoroService& pomodoroService, QObject* parent)
     : SqliteTableModel(parent)
+    , pomodoroService{pomodoroService}
 {
     setTable("task_view");
     setEditStrategy(QSqlTableModel::OnManualSubmit);
@@ -77,40 +78,42 @@ QVariant TodoItemModel::data(const QModelIndex& index, int role) const
 
 bool TodoItemModel::insert(const TodoItem& item)
 {
-    QSqlDatabase::database().transaction();
-    bool shouldRollback = false;
-    const int newItemPriority = 10000;
-    insertTodoItemQuery.bindValue(
-        ":name", QVariant(QString::fromStdString(item.name())));
-    insertTodoItemQuery.bindValue(":estimated_pomodoros",
-                                  QVariant(item.estimatedPomodoros()));
-    insertTodoItemQuery.bindValue(":spent_pomodoros",
-                                  QVariant(item.spentPomodoros()));
-    insertTodoItemQuery.bindValue(":completed", QVariant(item.isCompleted()));
-    insertTodoItemQuery.bindValue(":priority", QVariant(newItemPriority));
-    insertTodoItemQuery.bindValue(":last_modified",
-                                  QVariant(QDateTime::currentDateTime()));
-    if (!insertTodoItemQuery.exec())
-        shouldRollback = true;
-    QVariant todoId = insertTodoItemQuery.lastInsertId();
-
-    QVariantList tagIds;
-    // TODO should really get rid of this double-convertion here
+    // QSqlDatabase::database().transaction();
+    // bool shouldRollback = false;
+    // const int newItemPriority = 10000;
+    // insertTodoItemQuery.bindValue(
+    //     ":name", QVariant(QString::fromStdString(item.name())));
+    // insertTodoItemQuery.bindValue(":estimated_pomodoros",
+    //                               QVariant(item.estimatedPomodoros()));
+    // insertTodoItemQuery.bindValue(":spent_pomodoros",
+    //                               QVariant(item.spentPomodoros()));
+    // insertTodoItemQuery.bindValue(":completed",
+    // QVariant(item.isCompleted()));
+    // insertTodoItemQuery.bindValue(":priority", QVariant(newItemPriority));
+    // insertTodoItemQuery.bindValue(":last_modified",
+    //                               QVariant(QDateTime::currentDateTime()));
+    // if (!insertTodoItemQuery.exec())
+    //     shouldRollback = true;
+    // QVariant todoId = insertTodoItemQuery.lastInsertId();
     //
-    QSet<QString> tagsToInsert;
-    for (const auto& tag : item.tags()) {
-        tagsToInsert << QString::fromStdString(tag);
-    }
-    // QSet<QString> tagsToInsert
-    //     =
-    //     QSet<QString>::fromList(QList<std::string>::fromStdList(item.tags()));
-    if (!insertTags(todoId, tagsToInsert))
-        shouldRollback = true;
-
-    if (shouldRollback || !QSqlDatabase::database().commit()) {
-        QSqlDatabase::database().rollback();
-        return false;
-    }
+    // QVariantList tagIds;
+    // // TODO should really get rid of this double-convertion here
+    // //
+    // QSet<QString> tagsToInsert;
+    // for (const auto& tag : item.tags()) {
+    //     tagsToInsert << QString::fromStdString(tag);
+    // }
+    // // QSet<QString> tagsToInsert
+    // //     =
+    // // QSet<QString>::fromList(QList<std::string>::fromStdList(item.tags()));
+    // if (!insertTags(todoId, tagsToInsert))
+    //     shouldRollback = true;
+    //
+    // if (shouldRollback || !QSqlDatabase::database().commit()) {
+    //     QSqlDatabase::database().rollback();
+    //     return false;
+    // }
+    pomodoroService.registerTask(item);
     select();
     return true;
 }
@@ -142,7 +145,8 @@ TodoItem TodoItemModel::itemAt(const int row) const
                    std::back_inserter(tags),
                    [](const auto& tag) { return tag.toStdString(); });
     bool completed{columnData(rowRecord, Column::Completed).toBool()};
-    std::string uuid{columnData(rowRecord, Column::Uuid).toString().toStdString()};
+    std::string uuid{
+        columnData(rowRecord, Column::Uuid).toString().toStdString()};
     return TodoItem{name.toStdString(),
                     estimatedPomodoros,
                     spentPomodoros,

@@ -33,7 +33,7 @@ HistoryView::HistoryView(IPomodoroService& pomodoroService, QWidget* parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    todoItemModel = new TodoItemModel(this);
+    todoItemModel = new TodoItemModel(pomodoroService, this);
     pomodoroService.pomodoroYearRange(std::bind(
         &HistoryView::onYearRangeUpdated, this, std::placeholders::_1));
     selectedDateInterval = ui->widgetPickPeriod->getInterval();

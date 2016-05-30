@@ -1,19 +1,21 @@
 #ifndef TODOITEMSLISTMODEL_H
 #define TODOITEMSLISTMODEL_H
 
-#include <QSqlTableModel>
+#include "core/IPomodoroService.h"
+#include "core/TimeSpan.h"
+#include "core/entities/TodoItem.h"
 #include "sqlitetablemodel.h"
+#include "utils/DateInterval.h"
 #include <QHash>
 #include <QSqlQuery>
-#include "core/entities/TodoItem.h"
-#include "core/TimeSpan.h"
-#include "utils/DateInterval.h"
+#include <QSqlTableModel>
 
 class TodoItemModel : public SqliteTableModel {
 public:
     using TodoItemWithTimeStamp = std::pair<QDate, QString>;
 
-    explicit TodoItemModel(QObject* parent = 0);
+    explicit TodoItemModel(IPomodoroService& pomodoroService,
+                           QObject* parent = 0);
 
     // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
@@ -28,7 +30,7 @@ public:
     // behaviour
     // of the default roles.
     QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const override; 
+                  int role = Qt::DisplayRole) const override;
     // Override to support drag and drop. Changes items' priorities instead of
     // removing row and inserting it at destination position as in default
     // behavour for drag and drop. That default behaviour would not work here,
@@ -94,6 +96,7 @@ public:
     QString itemNameAt(const int row) const;
 
 private:
+    IPomodoroService& pomodoroService;
     // Sql helper queries that are needed to maintain database invariants.
     QSqlQuery insertTodoItemQuery;
     QSqlQuery findTagByNameQuery;

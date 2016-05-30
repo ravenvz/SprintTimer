@@ -25,7 +25,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     pomodoroModelNew = new PomodoroModel(pomodoroService, this);
     ui->lvCompletedPomodoros->setModel(pomodoroModelNew);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
-    todoitemViewModel = new TodoItemModel(this);
+    todoitemViewModel = new TodoItemModel(pomodoroService, this);
     todoitemViewModel->setNotCompletedFilter();
     todoitemViewModel->select();
     ui->lvTodoItems->setModel(todoitemViewModel);

@@ -6,7 +6,6 @@
 // static
 BoostUUIDGenerator Pomodoro::generator;
 
-
 // TODO too much constructors that instantiate partial pomodoros.
 
 Pomodoro::Pomodoro(const TimeSpan& timeSpan)
