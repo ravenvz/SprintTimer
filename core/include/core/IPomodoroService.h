@@ -20,6 +20,8 @@ public:
 
     virtual void registerTask(const TodoItem& task) = 0;
 
+    virtual void removeTask(const TodoItem& task) = 0;
+
     virtual void
     pomodorosInTimeRange(const TimeSpan& timeSpan,
                          std::function<void(const std::vector<Pomodoro>&)>

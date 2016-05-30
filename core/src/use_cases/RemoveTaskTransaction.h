@@ -2,11 +2,11 @@
 #define REMOVETASKTRANSACTION_H_9P4V02DM
 
 #include "core/ITaskStorageWriter.h"
-#include "core/ITransaction.h"
+#include "core/RevertableCommand.h"
 
 namespace UseCases {
 
-class RemoveTaskTransaction : public ITransaction {
+class RemoveTaskTransaction : public RevertableCommand {
 public:
     RemoveTaskTransaction(ITaskStorageWriter& taskStorageWriter,
                           const TodoItem& taskToRemove)
@@ -15,27 +15,13 @@ public:
     {
     }
 
-    bool execute() final
-    {
-        writer.remove(task);
-        wasExecuted = true;
-        return true;
-    }
+    void executeAction() final { writer.remove(task); }
 
-    bool undo() final
-    {
-        if (wasExecuted) {
-            writer.save(task);
-            wasExecuted = false;
-            return true;
-        }
-        return false;
-    }
+    void undoAction() final { writer.save(task); }
 
 private:
     ITaskStorageWriter& writer;
     const TodoItem& task;
-    bool wasExecuted{false};
 };
 } /* UseCases */
 

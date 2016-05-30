@@ -125,7 +125,10 @@ bool TodoItemModel::remove(const QModelIndex& index)
 
 bool TodoItemModel::remove(const int row)
 {
-    return QSqlTableModel::removeRow(row) && submitAll() && select();
+    pomodoroService.removeTask(itemAt(row));
+    select();
+    // return QSqlTableModel::removeRow(row) && submitAll() && select();
+    return true;
 }
 
 TodoItem TodoItemModel::itemAt(const int row) const

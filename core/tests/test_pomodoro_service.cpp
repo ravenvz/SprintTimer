@@ -162,6 +162,6 @@ TEST(TestPomodoroService, test_undo_functions_properly)
     CHECK_EQUAL(0, pomodoroStorage.size());
 
     // TODO uncomment when Task save/remove is implemented
-    // pomodoroService.undoLast();
-    // CHECK_EQUAL(0, taskStorage.size());
+    pomodoroService.undoLast();
+    CHECK_EQUAL(0, taskStorage.size());
 }

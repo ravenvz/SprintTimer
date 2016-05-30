@@ -4,6 +4,7 @@
 #include "use_cases/DecrementSpentPomodoros.h"
 #include "use_cases/IncrementSpentPomodoros.h"
 #include "use_cases/RemovePomodoroTransaction.h"
+#include "use_cases/RemoveTaskTransaction.h"
 #include "use_cases/RequestPomoDistribution.h"
 #include "use_cases/RequestPomodoroYearRangeCommand.h"
 #include "use_cases/RequestPomodorosInTimeRangeCommand.h"
@@ -70,12 +71,16 @@ void PomodoroService::registerTask(const TodoItem& task)
 {
     std::unique_ptr<RevertableCommand> addTask
         = std::make_unique<UseCases::AddTaskTransaction>(taskWriter, task);
-    std::vector<std::unique_ptr<RevertableCommand>> commands;
-    commands.push_back(std::move(addTask));
-    std::unique_ptr<RevertableCommand> registerTaskTransaction
-        = std::make_unique<MacroTransaction>(std::move(commands));
-    registerTaskTransaction->execute();
-    commandStack.push_back(std::move(registerTaskTransaction));
+    addTask->execute();
+    commandStack.push_back(std::move(addTask));
+}
+
+void PomodoroService::removeTask(const TodoItem& task)
+{
+    std::unique_ptr<RevertableCommand> remove
+        = std::make_unique<UseCases::RemoveTaskTransaction>(taskWriter, task);
+    remove->execute();
+    commandStack.push_back(std::move(remove));
 }
 
 void PomodoroService::pomodorosInTimeRange(

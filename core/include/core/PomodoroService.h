@@ -30,6 +30,8 @@ public:
 
     void registerTask(const TodoItem& task) final;
 
+    void removeTask(const TodoItem& task) final;
+
     void pomodorosInTimeRange(const TimeSpan& timeSpan,
                               std::function<void(const std::vector<Pomodoro>&)>
                                   onResultsReceivedCallback) final;

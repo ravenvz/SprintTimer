@@ -11,7 +11,8 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
         ":priority, :last_modified, :uuid); ");
     insertTagQueryId = dbService.prepare(
         "insert into task_tag_view(tagname, uuid) values(:tag, :uuid);");
-    removeQueryId = dbService.prepare("");
+    removeQueryId
+        = dbService.prepare("delete from todo_item where uuid = (:uuid)");
     editQueryId = dbService.prepare("");
     incrementSpentQueryId = dbService.prepare(
         "update todo_item set spent_pomodoros = spent_pomodoros + 1 "
@@ -43,7 +44,12 @@ void QtTaskStorageWriter::save(const TodoItem& task)
     }
 }
 
-void QtTaskStorageWriter::remove(const TodoItem& task) {}
+void QtTaskStorageWriter::remove(const TodoItem& task)
+{
+    dbService.bindValue(
+        removeQueryId, ":uuid", QString::fromStdString(task.uuid()));
+    dbService.executePrepared(removeQueryId);
+}
 
 void QtTaskStorageWriter::edit(const TodoItem& task, const TodoItem& editedTask)
 {
