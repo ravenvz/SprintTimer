@@ -2,6 +2,7 @@
 #include "use_cases/AddPomodoroTransaction.h"
 #include "use_cases/AddTaskTransaction.h"
 #include "use_cases/DecrementSpentPomodoros.h"
+#include "use_cases/EditTaskCommand.h"
 #include "use_cases/IncrementSpentPomodoros.h"
 #include "use_cases/RemovePomodoroTransaction.h"
 #include "use_cases/RemoveTaskTransaction.h"
@@ -81,6 +82,15 @@ void PomodoroService::removeTask(const TodoItem& task)
         = std::make_unique<UseCases::RemoveTaskTransaction>(taskWriter, task);
     remove->execute();
     commandStack.push_back(std::move(remove));
+}
+
+void PomodoroService::editTask(const TodoItem& task, const TodoItem& editedTask)
+{
+    std::unique_ptr<RevertableCommand> editCommand
+        = std::make_unique<UseCases::EditTaskCommand>(
+            taskWriter, task, editedTask);
+    editCommand->execute();
+    commandStack.push_back(std::move(editCommand));
 }
 
 void PomodoroService::pomodorosInTimeRange(

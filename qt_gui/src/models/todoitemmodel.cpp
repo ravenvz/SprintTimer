@@ -209,25 +209,27 @@ TodoItemModel::itemsWithTimestamp()
 bool TodoItemModel::replaceItemAt(const int row, const TodoItem& newItem)
 {
     TodoItem oldItem = itemAt(row);
-    QSet<QString> oldTags;
-    QSet<QString> newTags;
-    for (const auto& tag : oldItem.tags()) {
-        oldTags << QString::fromStdString(tag);
-    }
-    for (const auto& tag : newItem.tags()) {
-        newTags << QString::fromStdString(tag);
-    }
-    // QSet<QString> oldTags = QSet<QString>::fromList(oldItem.tags());
-    // QSet<QString> newTags = QSet<QString>::fromList(newItem.tags());
-    if (oldTags != newTags) {
-        QSet<QString> tagsToRemove = oldTags;
-        QSet<QString> tagsToInsert = newTags;
-        tagsToRemove.subtract(newTags);
-        tagsToInsert.subtract(oldTags);
-        if (!updateTags(row, tagsToRemove, tagsToInsert))
-            return false;
-    }
-    return updateRow(row, newItem);
+    pomodoroService.editTask(oldItem, newItem);
+    // QSet<QString> oldTags;
+    // QSet<QString> newTags;
+    // for (const auto& tag : oldItem.tags()) {
+    //     oldTags << QString::fromStdString(tag);
+    // }
+    // for (const auto& tag : newItem.tags()) {
+    //     newTags << QString::fromStdString(tag);
+    // }
+    // // QSet<QString> oldTags = QSet<QString>::fromList(oldItem.tags());
+    // // QSet<QString> newTags = QSet<QString>::fromList(newItem.tags());
+    // if (oldTags != newTags) {
+    //     QSet<QString> tagsToRemove = oldTags;
+    //     QSet<QString> tagsToInsert = newTags;
+    //     tagsToRemove.subtract(newTags);
+    //     tagsToInsert.subtract(oldTags);
+    //     if (!updateTags(row, tagsToRemove, tagsToInsert))
+    //         return false;
+    // }
+    // return updateRow(row, newItem);
+    return true;
 }
 
 void TodoItemModel::setNotCompletedFilter()

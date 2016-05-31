@@ -22,6 +22,8 @@ public:
 
     virtual void removeTask(const TodoItem& task) = 0;
 
+    virtual void editTask(const TodoItem& task, const TodoItem& editedTask) = 0;
+
     virtual void
     pomodorosInTimeRange(const TimeSpan& timeSpan,
                          std::function<void(const std::vector<Pomodoro>&)>

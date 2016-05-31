@@ -32,6 +32,8 @@ public:
 
     void removeTask(const TodoItem& task) final;
 
+    void editTask(const TodoItem& task, const TodoItem& editedTask) final;
+
     void pomodorosInTimeRange(const TimeSpan& timeSpan,
                               std::function<void(const std::vector<Pomodoro>&)>
                                   onResultsReceivedCallback) final;

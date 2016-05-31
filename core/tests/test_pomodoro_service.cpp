@@ -161,7 +161,52 @@ TEST(TestPomodoroService, test_undo_functions_properly)
     pomodoroService.undoLast();
     CHECK_EQUAL(0, pomodoroStorage.size());
 
-    // TODO uncomment when Task save/remove is implemented
     pomodoroService.undoLast();
     CHECK_EQUAL(0, taskStorage.size());
+}
+
+TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
+{
+    pomodoroService.registerTask(defaultTask);
+    const std::string taskUuid = defaultTask.uuid();
+
+    const std::string editedTaskName{"Edited"};
+    std::list<std::string> editedTags{"Tag2", "New Tag"};
+    const int editedEstimated{7};
+    const int editedSpent{5};
+    const bool editedCompletionStatus{true};
+
+    TodoItem editedTask{editedTaskName,
+                        editedEstimated,
+                        editedSpent,
+                        editedTags,
+                        editedCompletionStatus};
+
+    pomodoroService.editTask(defaultTask, editedTask);
+    TodoItem& actual = taskStorage.itemRef(taskUuid);
+
+    // TODO write method to compare Tasks
+
+    // Uuid, spentPomodoros and completion status should not be editable
+    CHECK(taskUuid == actual.uuid());
+    CHECK(editedTaskName == actual.name());
+    editedTags.sort();
+    auto actualTags = actual.tags();
+    actualTags.sort();
+    CHECK(editedTags == actualTags);
+    CHECK_EQUAL(editedEstimated, actual.estimatedPomodoros());
+    CHECK_EQUAL(defaultTask.spentPomodoros(), actual.spentPomodoros());
+    CHECK_EQUAL(defaultTask.isCompleted(), actual.isCompleted());
+
+    pomodoroService.undoLast();
+
+    TodoItem& afterUndo = taskStorage.itemRef(taskUuid);
+
+    CHECK(taskUuid == afterUndo.uuid());
+    CHECK(defaultTask.name() == afterUndo.name());
+    CHECK(defaultTask.tags() == afterUndo.tags());
+    CHECK_EQUAL(defaultTask.estimatedPomodoros(),
+                afterUndo.estimatedPomodoros());
+    CHECK_EQUAL(defaultTask.spentPomodoros(), afterUndo.spentPomodoros());
+    CHECK_EQUAL(defaultTask.isCompleted(), afterUndo.isCompleted());
 }

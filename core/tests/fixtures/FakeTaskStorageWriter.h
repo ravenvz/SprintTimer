@@ -1,8 +1,8 @@
 #ifndef FAKETASKSTORAGEWRITER_H_L9TXWRHX
 #define FAKETASKSTORAGEWRITER_H_L9TXWRHX
 
-#include "core/ITaskStorageWriter.h"
 #include "FakeStorage.h"
+#include "core/ITaskStorageWriter.h"
 
 class FakeTaskStorageWriter : public ITaskStorageWriter {
 public:
@@ -15,7 +15,10 @@ public:
 
     void remove(const TodoItem& task) final { storage.remove(task.uuid()); }
 
-    void edit(const TodoItem& task, const TodoItem& editedTask) final {}
+    void edit(const TodoItem& task, const TodoItem& editedTask) final
+    {
+        storage.itemRef(task.uuid()) = editedTask;
+    }
 
     void incrementSpentPomodoros(const std::string& uuid) final
     {
