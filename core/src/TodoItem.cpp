@@ -16,6 +16,7 @@ TodoItem::TodoItem(std::string name,
     , mUuid{generator.generateUUID()}
     , mTags(tags)
     , mCompleted(completed)
+    , mLastModified{DateTime::currentDateTimeLocal()}
 {
 }
 
@@ -24,18 +25,21 @@ TodoItem::TodoItem(std::string name,
                    int spentPomodoros,
                    const std::string& uuid,
                    std::list<std::string> tags,
-                   bool completed)
+                   bool completed,
+                   const DateTime& lastModified)
     : mName(name)
     , mEstimatedPomodoros(estimatedPomodoros)
     , mSpentPomodoros(spentPomodoros)
     , mUuid{uuid}
     , mTags(tags)
     , mCompleted(completed)
+    , mLastModified{lastModified}
 {
 }
 
 TodoItem::TodoItem(std::string encodedDescription)
     : mUuid{generator.generateUUID()}
+    , mLastModified{DateTime::currentDateTimeLocal()}
 {
     decodeDescription(std::move(encodedDescription));
 }
@@ -55,6 +59,8 @@ int TodoItem::spentPomodoros() const { return mSpentPomodoros; }
 std::string TodoItem::uuid() const { return mUuid; }
 
 std::list<std::string> TodoItem::tags() const { return mTags; }
+
+DateTime TodoItem::lastModified() const { return mLastModified; }
 
 void TodoItem::setName(const std::string& name) { mName = name; }
 

@@ -15,7 +15,13 @@ TEST_GROUP(TestPomodoroService)
 {
     const TimeSpan defaultTimeSpan
         = TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()};
-    TodoItem defaultTask{"Task name", 4, 2, {"Tag1", "Tag2"}, false};
+    TodoItem defaultTask{"Task name",
+                         4,
+                         2,
+                         "550e8400-e29b-41d4-a716-446655440000",
+                         {"Tag1", "Tag2"},
+                         false,
+                         DateTime::fromYMD(2015, 11, 10)};
 
     FakeStorage<Pomodoro> pomodoroStorage;
     FakeStorage<TodoItem> taskStorage;
@@ -192,18 +198,22 @@ TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
                         editedTags,
                         editedCompletionStatus};
 
+    const DateTime editedTaskLastModified = editedTask.lastModified();
+
     pomodoroService.editTask(defaultTask, editedTask);
     TodoItem& actual = taskStorage.itemRef(taskUuid);
 
     // TODO write method to compare Tasks
 
-    // Uuid, spentPomodoros and completion status should not be editable
     CHECK(taskUuid == actual.uuid());
     CHECK(editedTaskName == actual.name());
     editedTags.sort();
     auto actualTags = actual.tags();
     actualTags.sort();
     CHECK(editedTags == actualTags);
+    CHECK(editedTaskLastModified == actual.lastModified());
+
+    // Uuid, spentPomodoros and completion status should not be editable
     CHECK_EQUAL(editedEstimated, actual.estimatedPomodoros());
     CHECK_EQUAL(defaultTask.spentPomodoros(), actual.spentPomodoros());
     CHECK_EQUAL(defaultTask.isCompleted(), actual.isCompleted());
@@ -219,6 +229,9 @@ TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
                 afterUndo.estimatedPomodoros());
     CHECK_EQUAL(defaultTask.spentPomodoros(), afterUndo.spentPomodoros());
     CHECK_EQUAL(defaultTask.isCompleted(), afterUndo.isCompleted());
+    // Timestamp of modification should not be changed when edition
+    // cancelled
+    CHECK(defaultTask.lastModified() == afterUndo.lastModified());
 }
 
 TEST(TestPomodoroService, test_request_finished_tasks_calls_handler)

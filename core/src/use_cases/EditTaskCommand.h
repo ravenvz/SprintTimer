@@ -18,7 +18,8 @@ public:
                      task.spentPomodoros(),
                      task.uuid(),
                      editedTask.tags(),
-                     task.isCompleted()}
+                     task.isCompleted(),
+                     DateTime::currentDateTimeLocal()}
     {
     }
 

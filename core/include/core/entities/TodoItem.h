@@ -2,6 +2,7 @@
 #define ENTITIES_H
 
 #include "core/BoostUUIDGenerator.h"
+#include "core/DateTime.h"
 #include "core/StringUtils.h"
 #include <list>
 #include <string>
@@ -27,7 +28,8 @@ public:
              int spentPomodoros,
              const std::string& uuid,
              std::list<std::string> tags, // TODO should be reference or moved
-             bool completed);
+             bool completed,
+             const DateTime& lastModified);
 
     /* Construct Task from encoded description.
      * Description is a string of text that may have some words with
@@ -74,6 +76,8 @@ public:
     /* Return list containing Task tags. */
     std::list<std::string> tags() const;
 
+    DateTime lastModified() const;
+
     void setName(const std::string& name);
 
     /* Set task status. */
@@ -102,6 +106,7 @@ private:
     std::string mUuid;
     std::list<std::string> mTags;
     bool mCompleted{false};
+    DateTime mLastModified;
 
     void decodeDescription(std::string&& encodedDescription);
 };

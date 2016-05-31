@@ -37,11 +37,14 @@ void QtTaskStorageWriter::save(const TodoItem& task)
         addTaskQueryId, ":name", QString::fromStdString(task.name()));
     dbService.bindValue(
         addTaskQueryId, ":estimated_pomodoros", task.estimatedPomodoros());
-    dbService.bindValue(addTaskQueryId, ":spent_pomodoros", task.spentPomodoros());
+    dbService.bindValue(
+        addTaskQueryId, ":spent_pomodoros", task.spentPomodoros());
     dbService.bindValue(addTaskQueryId, ":completed", task.isCompleted());
     dbService.bindValue(addTaskQueryId, ":priority", 10000);
-    dbService.bindValue(
-        addTaskQueryId, ":last_modified", QDateTime::currentDateTime());
+    dbService.bindValue(addTaskQueryId,
+                        ":last_modified",
+                        QDateTime::fromTime_t(static_cast<unsigned>(
+                            task.lastModified().toTime_t())));
     dbService.bindValue(addTaskQueryId, ":uuid", uuid);
     dbService.executePrepared(addTaskQueryId);
 
@@ -64,7 +67,8 @@ void QtTaskStorageWriter::removeTags(const QString& taskUuid,
 {
     for (const auto& tag : tags) {
         dbService.bindValue(removeTagQueryId, ":uuid", taskUuid);
-        dbService.bindValue(removeTagQueryId, ":tag", QString::fromStdString(tag));
+        dbService.bindValue(
+            removeTagQueryId, ":tag", QString::fromStdString(tag));
         dbService.executePrepared(removeTagQueryId);
     }
 }
@@ -87,6 +91,10 @@ void QtTaskStorageWriter::edit(const TodoItem& task, const TodoItem& editedTask)
         editQueryId, ":estimated_pomodoros", editedTask.estimatedPomodoros());
     dbService.bindValue(
         editQueryId, ":last_modified", QDateTime::currentDateTime());
+    dbService.bindValue(editQueryId,
+                        ":last_modified",
+                        QDateTime::fromTime_t(static_cast<unsigned>(
+                            editedTask.lastModified().toTime_t())));
     dbService.executePrepared(editQueryId);
 
     std::list<std::string> oldTags = task.tags();
@@ -104,11 +112,15 @@ void QtTaskStorageWriter::edit(const TodoItem& task, const TodoItem& editedTask)
                std::back_inserter(tagsToInsert));
 
     std::cout << "Tags to insert:" << std::endl;
-    std::copy(tagsToInsert.cbegin(), tagsToInsert.cend(), std::ostream_iterator<std::string>(std::cout, ", "));
+    std::copy(tagsToInsert.cbegin(),
+              tagsToInsert.cend(),
+              std::ostream_iterator<std::string>(std::cout, ", "));
     std::cout << std::endl;
 
     std::cout << "Tags to remove:" << std::endl;
-    std::copy(tagsToRemove.cbegin(), tagsToRemove.cend(), std::ostream_iterator<std::string>(std::cout, ", "));
+    std::copy(tagsToRemove.cbegin(),
+              tagsToRemove.cend(),
+              std::ostream_iterator<std::string>(std::cout, ", "));
     std::cout << std::endl;
 
     removeTags(taskUuid, tagsToRemove);

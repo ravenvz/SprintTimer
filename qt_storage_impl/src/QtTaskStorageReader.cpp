@@ -99,8 +99,19 @@ TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record)
                    std::back_inserter(tags),
                    [](const auto& tag) { return tag.toStdString(); });
     bool finished{columnData(record, Column::Completed).toBool()};
-    return TodoItem{
-        name, estimatedPomodoros, spentPomodoros, uuid, tags, finished};
+    QDateTime qLastModified{
+        columnData(record, Column::LastModified).toDateTime()};
+    int offsetFromUtcInSeconds{qLastModified.offsetFromUtc()};
+    DateTime lastModified = DateTime::fromTime_t(qLastModified.toTime_t(),
+                                                 offsetFromUtcInSeconds);
+
+    return TodoItem{name,
+                    estimatedPomodoros,
+                    spentPomodoros,
+                    uuid,
+                    tags,
+                    finished,
+                    lastModified};
 }
 
 QVariant QtTaskStorageReader::columnData(const QSqlRecord& record,

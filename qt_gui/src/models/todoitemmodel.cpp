@@ -168,12 +168,19 @@ TodoItem TodoItemModel::itemAt(const int row) const
     bool completed{columnData(rowRecord, Column::Completed).toBool()};
     std::string uuid{
         columnData(rowRecord, Column::Uuid).toString().toStdString()};
+    QDateTime qLastModified{
+        columnData(rowRecord, Column::LastModified).toDateTime()};
+    int offsetFromUtcInSeconds{qLastModified.offsetFromUtc()};
+    DateTime lastModified = DateTime::fromTime_t(qLastModified.toTime_t(),
+                                                 offsetFromUtcInSeconds);
+
     return TodoItem{name.toStdString(),
                     estimatedPomodoros,
                     spentPomodoros,
                     uuid,
                     tags,
-                    completed};
+                    completed,
+                    lastModified};
 }
 
 bool TodoItemModel::toggleCompleted(const QModelIndex& index)
