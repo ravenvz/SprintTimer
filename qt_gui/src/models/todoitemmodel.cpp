@@ -35,9 +35,6 @@ void TodoItemModel::onDataChanged(const std::vector<TodoItem>& tasks)
 {
     // beginResetModel();
     storage = tasks;
-    for (const auto& element : storage) {
-        std::cout << element.toString() << std::endl;
-    }
     // endResetModel();
 }
 

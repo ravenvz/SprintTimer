@@ -74,7 +74,6 @@ void QtTaskStorageReader::onResultsReceived(
     if (queryId != mUnfinishedQueryId && queryId != mFinishedQueryId) {
         return;
     }
-    std::cout << "Called here" << std::endl;
     Items tasks;
     std::transform(
         records.cbegin(),
@@ -86,7 +85,6 @@ void QtTaskStorageReader::onResultsReceived(
 
 TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record)
 {
-    qDebug() << record;
     std::string name{columnData(record, Column::Name).toString().toStdString()};
     std::string uuid{columnData(record, Column::Uuid).toString().toStdString()};
     int estimatedPomodoros{
