@@ -3,6 +3,7 @@
 #include "fixtures/FakePomodoroStorageReader.h"
 #include "fixtures/FakePomodoroStorageWriter.h"
 #include "fixtures/FakePomodoroYearRangeReader.h"
+#include "fixtures/FakeTaskStorageReader.h"
 #include "fixtures/FakeTaskStorageWriter.h"
 #include "use_cases/AddPomodoroTransaction.h"
 #include <TestHarness.h>
@@ -22,11 +23,13 @@ TEST_GROUP(TestPomodoroService)
     FakePomodoroStorageReader pomodoroStorageReader{pomodoroStorage};
     FakePomodoroDistributionReader pomodoroDistributionReader{pomodoroStorage};
     FakePomodoroYearRangeReader pomodoroYearRangeReader;
+    FakeTaskStorageReader taskStorageReader{taskStorage};
     FakeTaskStorageWriter taskStorageWriter{taskStorage};
 
     CoreApi::PomodoroService pomodoroService{pomodoroStorageReader,
                                              pomodoroStorageWriter,
                                              pomodoroYearRangeReader,
+                                             taskStorageReader,
                                              taskStorageWriter,
                                              pomodoroDistributionReader,
                                              pomodoroDistributionReader,
@@ -35,6 +38,7 @@ TEST_GROUP(TestPomodoroService)
     bool pomodoroHandlerCalled{false};
     bool pomoDistributionHandlerCalled{false};
     bool pomodoroYearRangeHandlerCalled{false};
+    bool taskHandlerCalled{false};
 
     void setup()
     {
@@ -43,6 +47,7 @@ TEST_GROUP(TestPomodoroService)
         pomodoroHandlerCalled = false;
         pomoDistributionHandlerCalled = false;
         pomodoroYearRangeHandlerCalled = false;
+        taskHandlerCalled = false;
     }
 
     void pomodoroTimeRangeHandler(const std::vector<Pomodoro>& result)
@@ -58,6 +63,11 @@ TEST_GROUP(TestPomodoroService)
     void pomodoroDistributionHandler(const Distribution<int>& result)
     {
         pomoDistributionHandlerCalled = true;
+    }
+
+    void taskHandler(const std::vector<TodoItem>& result)
+    {
+        taskHandlerCalled = true;
     }
 };
 
@@ -209,4 +219,27 @@ TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
                 afterUndo.estimatedPomodoros());
     CHECK_EQUAL(defaultTask.spentPomodoros(), afterUndo.spentPomodoros());
     CHECK_EQUAL(defaultTask.isCompleted(), afterUndo.isCompleted());
+}
+
+TEST(TestPomodoroService, test_request_finished_tasks_calls_handler)
+{
+    pomodoroService.requestFinishedTasks(
+        defaultTimeSpan,
+        [this](const std::vector<TodoItem>& result) { taskHandler(result); });
+    CHECK(taskHandlerCalled);
+}
+
+TEST(TestPomodoroService, test_request_unfinished_tasks_calls_handler)
+{
+    pomodoroService.requestUnfinishedTasks(
+        [this](const std::vector<TodoItem>& result) { taskHandler(result); });
+    CHECK(taskHandlerCalled);
+}
+
+TEST(TestPomodoroService, test_request_tasks_calls_handler)
+{
+    pomodoroService.requestTasks(
+        defaultTimeSpan,
+        [this](const std::vector<TodoItem>& result) { taskHandler(result); });
+    CHECK(taskHandlerCalled);
 }

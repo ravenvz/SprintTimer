@@ -9,6 +9,7 @@ set(QT_STORAGE_IMPL_SOURCE_FILES
     src/QtPomoStorageReader.cpp
     src/QtPomoStorageWriter.cpp
     src/QtPomoYearRangeReader.cpp
+    src/QtTaskStorageReader.cpp
     src/QtTaskStorageWriter.cpp
 )
 
@@ -26,6 +27,7 @@ set(HEADER_FILES_FOR_AUTOMOC_TO_WORK
     include/qt_storage_impl/QtPomoStorageReader.h
     include/qt_storage_impl/QtPomoStorageWriter.h
     include/qt_storage_impl/QtPomoYearRangeReader.h
+    include/qt_storage_impl/QtTaskStorageReader.h
     include/qt_storage_impl/QtTaskStorageWriter.h
 )
 

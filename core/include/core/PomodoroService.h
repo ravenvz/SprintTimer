@@ -7,6 +7,7 @@
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroStorageWriter.h"
 #include "core/IPomodoroYearRangeReader.h"
+#include "core/ITaskStorageReader.h"
 #include "core/ITaskStorageWriter.h"
 #include "core/MacroTransaction.h"
 #include <memory>
@@ -18,21 +19,34 @@ public:
     PomodoroService(IPomodoroStorageReader& pomodoroStorageReader,
                     IPomodoroStorageWriter& pomodoroStorageWriter,
                     IPomodoroYearRangeReader& pomodoroYearRangeReader,
+                    ITaskStorageReader& taskStorageReader,
                     ITaskStorageWriter& taskStorageWriter,
                     IPomodoroDistributionReader& pomoDailyDistributionReader,
                     IPomodoroDistributionReader& pomoWeeklyDistributionReader,
                     IPomodoroDistributionReader& pomoMonthlyDistributionReader);
-
-    void registerPomodoro(const TimeSpan& timeSpan,
-                          const std::string& taskUuid) final;
-
-    void removePomodoro(const Pomodoro& pomodoro) final;
 
     void registerTask(const TodoItem& task) final;
 
     void removeTask(const TodoItem& task) final;
 
     void editTask(const TodoItem& task, const TodoItem& editedTask) final;
+
+    void requestTasks(const TimeSpan& timeSpan,
+                      std::function<void(const std::vector<TodoItem>&)>
+                          onResultsReceivedCallback) final;
+
+    void requestFinishedTasks(const TimeSpan& timeSpan,
+                              std::function<void(const std::vector<TodoItem>&)>
+                                  onResultsReceivedCallback) final;
+
+    void
+    requestUnfinishedTasks(std::function<void(const std::vector<TodoItem>&)>
+                               onResultsReceivedCallback) final;
+
+    void registerPomodoro(const TimeSpan& timeSpan,
+                          const std::string& taskUuid) final;
+
+    void removePomodoro(const Pomodoro& pomodoro) final;
 
     void pomodorosInTimeRange(const TimeSpan& timeSpan,
                               std::function<void(const std::vector<Pomodoro>&)>
@@ -62,6 +76,7 @@ private:
     IPomodoroStorageReader& pomodoroReader;
     IPomodoroStorageWriter& pomodoroWriter;
     IPomodoroYearRangeReader& pomodoroYearRangeReader;
+    ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
     IPomodoroDistributionReader& pomoDailyDistributionReader;
     IPomodoroDistributionReader& pomoWeeklyDistributionReader;

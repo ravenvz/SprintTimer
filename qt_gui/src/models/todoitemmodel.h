@@ -97,6 +97,7 @@ public:
 
 private:
     IPomodoroService& pomodoroService;
+    std::vector<TodoItem> storage;
     // Sql helper queries that are needed to maintain database invariants.
     QSqlQuery insertTodoItemQuery;
     QSqlQuery findTagByNameQuery;
@@ -115,6 +116,10 @@ private:
         LastModified,
         Uuid
     };
+
+    void retrieveData();
+
+    void onDataChanged(const std::vector<TodoItem>& tasks);
 
     // Return value in the field identified by QSqlRecord and column number
     // wrapped in QVariant

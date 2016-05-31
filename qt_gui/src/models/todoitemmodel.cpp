@@ -21,6 +21,24 @@ TodoItemModel::TodoItemModel(IPomodoroService& pomodoroService, QObject* parent)
     removeRelationQuery.prepare(
         "delete from todotag where todo_id = (:todo_id) and "
         "tag_id in (select id from tag where name = (:tag_name))");
+    retrieveData();
+}
+
+void TodoItemModel::retrieveData()
+{
+    std::cout << "Called" << std::endl;
+    pomodoroService.requestUnfinishedTasks(
+        std::bind(&TodoItemModel::onDataChanged, this, std::placeholders::_1));
+}
+
+void TodoItemModel::onDataChanged(const std::vector<TodoItem>& tasks)
+{
+    // beginResetModel();
+    storage = tasks;
+    for (const auto& element : storage) {
+        std::cout << element.toString() << std::endl;
+    }
+    // endResetModel();
 }
 
 Qt::DropActions TodoItemModel::supportedDropActions() const

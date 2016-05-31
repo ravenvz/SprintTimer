@@ -1,6 +1,6 @@
-#include "qt_storage_impl/QtStorageImplementersFactory.h"
-#include "core/PomodoroService.h"
 #include "QtConfig.h"
+#include "core/PomodoroService.h"
+#include "qt_storage_impl/QtStorageImplementersFactory.h"
 #include "widgets/mainwindow.h"
 #include <QApplication>
 #include <memory>
@@ -16,6 +16,8 @@ int main(int argc, char* argv[])
         factory.createPomodoroStorageWriter()};
     std::unique_ptr<IPomodoroYearRangeReader> pomodoroYearRangeReader{
         factory.createPomodoroYearRangeReader()};
+    std::unique_ptr<ITaskStorageReader> taskStorageReader{
+        factory.createTaskStorageReader()};
     std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
         factory.createTaskStorageWriter()};
     std::unique_ptr<IPomodoroDistributionReader> dailyDistributionReader{
@@ -28,6 +30,7 @@ int main(int argc, char* argv[])
     CoreApi::PomodoroService pomodoroService{*pomodoroStorageReader.get(),
                                              *pomodoroStorageWriter.get(),
                                              *pomodoroYearRangeReader.get(),
+                                             *taskStorageReader.get(),
                                              *taskStorageWriter.get(),
                                              *dailyDistributionReader.get(),
                                              *weeklyDistributionReader.get(),

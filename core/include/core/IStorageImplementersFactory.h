@@ -5,6 +5,7 @@
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroStorageWriter.h"
 #include "core/IPomodoroYearRangeReader.h"
+#include "core/ITaskStorageReader.h"
 #include "core/ITaskStorageWriter.h"
 #include <memory>
 
@@ -29,6 +30,9 @@ public:
 
     virtual std::unique_ptr<IPomodoroDistributionReader>
     createPomoMonthlyDistributionReader() const = 0;
+
+    virtual std::unique_ptr<ITaskStorageReader>
+    createTaskStorageReader() const = 0;
 
     virtual std::unique_ptr<ITaskStorageWriter>
     createTaskStorageWriter() const = 0;

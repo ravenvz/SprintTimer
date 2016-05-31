@@ -12,17 +12,33 @@ class IPomodoroService {
 public:
     virtual ~IPomodoroService() = default;
 
-    virtual void registerPomodoro(const TimeSpan& timeSpan,
-                                  const std::string& taskUuid)
-        = 0;
-
-    virtual void removePomodoro(const Pomodoro& pomodoro) = 0;
-
     virtual void registerTask(const TodoItem& task) = 0;
 
     virtual void removeTask(const TodoItem& task) = 0;
 
     virtual void editTask(const TodoItem& task, const TodoItem& editedTask) = 0;
+
+    virtual void requestTasks(const TimeSpan& timeSpan,
+                              std::function<void(const std::vector<TodoItem>&)>
+                                  onResultsReceivedCallback)
+        = 0;
+
+    virtual void
+    requestFinishedTasks(const TimeSpan& timeSpan,
+                         std::function<void(const std::vector<TodoItem>&)>
+                             onResultsReceivedCallback)
+        = 0;
+
+    virtual void
+    requestUnfinishedTasks(std::function<void(const std::vector<TodoItem>&)>
+                               onResultsReceivedCallback)
+        = 0;
+
+    virtual void registerPomodoro(const TimeSpan& timeSpan,
+                                  const std::string& taskUuid)
+        = 0;
+
+    virtual void removePomodoro(const Pomodoro& pomodoro) = 0;
 
     virtual void
     pomodorosInTimeRange(const TimeSpan& timeSpan,
