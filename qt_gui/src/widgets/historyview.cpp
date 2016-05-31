@@ -1,5 +1,6 @@
 #include "historyview.h"
 #include "ui_history.h"
+#include <QListView>
 #include <QPainter>
 
 #include <QDebug>
@@ -33,7 +34,6 @@ HistoryView::HistoryView(IPomodoroService& pomodoroService, QWidget* parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    todoItemModel = new TodoItemModel(pomodoroService, this);
     pomodoroService.pomodoroYearRange(std::bind(
         &HistoryView::onYearRangeUpdated, this, std::placeholders::_1));
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
@@ -110,12 +110,24 @@ void HistoryView::onYearRangeUpdated(const std::vector<std::string>& yearRange)
     ui->widgetPickPeriod->setYears(yearRange);
 }
 
+void HistoryView::setHistoryModel(QTreeView* view)
+{
+    view->setModel(viewModel);
+    view->expandAll();
+    view->show();
+}
+
 HistoryState::HistoryState(HistoryView& historyView)
     : historyView{historyView}
 {
 }
 
 HistoryStatePomodoro::HistoryStatePomodoro(HistoryView& historyView)
+    : HistoryState{historyView}
+{
+}
+
+HistoryStateTask::HistoryStateTask(HistoryView& historyView)
     : HistoryState{historyView}
 {
 }
@@ -129,6 +141,14 @@ void HistoryStatePomodoro::retrieveHistory()
                   std::placeholders::_1));
 }
 
+void HistoryStateTask::retrieveHistory()
+{
+    historyView.pomodoroService.requestFinishedTasks(
+        historyView.selectedDateInterval.toTimeSpan(),
+        std::bind(&HistoryStateTask::onHistoryRetrieved,
+                  this,
+                  std::placeholders::_1));
+}
 
 void HistoryStatePomodoro::onHistoryRetrieved(
     const std::vector<Pomodoro>& pomodoros)
@@ -147,39 +167,30 @@ void HistoryStatePomodoro::onHistoryRetrieved(
                 QString::fromStdString(pomo.toString()));
         });
     historyView.fillHistoryModel(pomodoroHistory);
-    setHistoryModel();
+    historyView.setHistoryModel(historyView.ui->lvPomodoroHistory);
 }
 
-void HistoryStatePomodoro::setHistoryModel()
+void HistoryStateTask::onHistoryRetrieved(const std::vector<TodoItem>& tasks)
 {
-    historyView.ui->lvPomodoroHistory->setModel(historyView.viewModel);
-    historyView.ui->lvPomodoroHistory->expandAll();
-    historyView.ui->lvPomodoroHistory->show();
-}
+    std::vector<HistoryView::HistoryItem> taskHistory;
+    taskHistory.reserve(tasks.size());
+    std::transform(
+        tasks.cbegin(),
+        tasks.cend(),
+        std::back_inserter(taskHistory),
+        [](const auto& task) {
+            return std::make_pair(
+                QDateTime::fromTime_t(
+                    static_cast<unsigned>(task.lastModified().toTime_t()))
+                    .date(),
+                QString::fromStdString(task.toString()));
+        });
 
-HistoryStateTask::HistoryStateTask(HistoryView& historyView)
-    : HistoryState{historyView}
-{
-}
-
-void HistoryStateTask::retrieveHistory()
-{
-    historyView.todoItemModel->setCompletedInIntervalFilter(
-        historyView.selectedDateInterval);
-    historyView.todoItemModel->select();
-    onHistoryRetrieved(historyView.todoItemModel->itemsWithTimestamp());
-}
-
-void HistoryStateTask::onHistoryRetrieved(
-    const std::vector<std::pair<QDate, QString>>& history)
-{
-    historyView.fillHistoryModel(history);
-    setHistoryModel();
-}
-
-void HistoryStateTask::setHistoryModel()
-{
-    historyView.ui->lvTodoHistory->setModel(historyView.viewModel);
-    historyView.ui->lvTodoHistory->expandAll();
-    historyView.ui->lvTodoHistory->show();
+    // std::sort(
+    //     begin(taskHistory),
+    //     end(taskHistory),
+    //     [](const auto& first, const auto& second) { return first < second;
+    //     });
+    historyView.fillHistoryModel(taskHistory);
+    historyView.setHistoryModel(historyView.ui->lvTodoHistory);
 }

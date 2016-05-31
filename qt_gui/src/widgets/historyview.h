@@ -3,11 +3,11 @@
 
 #include "core/IPomodoroService.h"
 #include "pickperiodwidget.h"
-#include "models/todoitemmodel.h"
 #include <QObject>
 #include <QStandardItemModel>
 #include <QStringListModel>
 #include <QStyledItemDelegate>
+#include <QTreeView>
 #include <QWidget>
 
 namespace Ui {
@@ -47,7 +47,6 @@ private:
     Ui::HistoryView* ui;
     DateInterval selectedDateInterval;
     IPomodoroService& pomodoroService;
-    QPointer<TodoItemModel> todoItemModel;
     QPointer<QStandardItemModel> viewModel;
     std::unique_ptr<HistoryState> historyStatePomodoro;
     std::unique_ptr<HistoryState> historyStateTask;
@@ -68,6 +67,9 @@ private slots:
 
     // Change History View state depending on tab selected.
     void onTabSelected(int tabIndex);
+
+    // Set model for currently selected view
+    void setHistoryModel(QTreeView* view);
 };
 
 class HistoryState {
@@ -77,8 +79,6 @@ public:
     virtual ~HistoryState() = default;
 
     virtual void retrieveHistory() = 0;
-
-    virtual void setHistoryModel() = 0;
 
 protected:
     HistoryView& historyView;
@@ -90,9 +90,7 @@ public:
 
     void retrieveHistory() final;
 
-    void onHistoryRetrieved(const std::vector<Pomodoro>& history);
-
-    void setHistoryModel() final;
+    void onHistoryRetrieved(const std::vector<Pomodoro>& pomodoros);
 };
 
 class HistoryStateTask : public HistoryState {
@@ -101,10 +99,7 @@ public:
 
     void retrieveHistory() final;
 
-    void
-    onHistoryRetrieved(const std::vector<std::pair<QDate, QString>>& history);
-
-    void setHistoryModel() final;
+    void onHistoryRetrieved(const std::vector<TodoItem>& tasks);
 };
 
 

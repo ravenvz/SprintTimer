@@ -18,7 +18,7 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
         "FROM task_view "
         "WHERE completed = 1 AND last_modified >= (:start_date) "
         "AND last_modified <= (:end_date) "
-        "ORDER BY priority;");
+        "ORDER BY last_modified;");
     connect(&dbService,
             &DBService::results,
             this,
