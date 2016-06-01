@@ -1,18 +1,11 @@
 #include "core/StringUtils.h"
-#include <iostream>
 #include <regex>
 
 
 std::string StringUtils::join(const std::vector<std::string>& vec,
                               const std::string& delimeter)
 {
-    std::string res;
-    for (const auto& word : vec) {
-        res += word;
-        res += delimeter;
-    }
-    res.pop_back();
-    return res;
+    return join(vec.cbegin(), vec.cend(), delimeter);
 }
 
 std::list<std::string> StringUtils::parseWords(std::string text)

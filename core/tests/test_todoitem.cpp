@@ -1,7 +1,6 @@
 #include "core/entities/TodoItem.h"
 #include <TestHarness.h>
 
-
 TEST_GROUP(TodoItemGroup){
 
 };
@@ -59,4 +58,22 @@ TEST(TodoItemGroup, test_only_threats_words_preceeded_by_single_hash_as_tags)
     CHECK_TRUE(std::list<std::string>{"tag1"} == item.tags())
     CHECK_EQUAL(std::string{"##My # ## beautiful,marvelous, great content"},
                 item.name())
+}
+
+TEST(TodoItemGroup, test_to_string)
+{
+    // TodoItem item{"I am item with no tags"};
+    TodoItem item{"I am item with no tags",
+                  4,
+                  2,
+                  "uuid",
+                  std::list<std::string>(),
+                  false,
+                  DateTime::currentDateTimeLocal()};
+    std::string expected{"I am item with no tags 2/4"};
+
+    std::string actual = item.toString();
+
+    CHECK_EQUAL(expected.size(), actual.size())
+    CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
 }

@@ -88,7 +88,6 @@ std::string TodoItem::tagsAsString() const
         tag.insert(0, tagPrefix);
         return tag;
     });
-
     return StringUtils::join(res.begin(), res.end(), " ");
 }
 

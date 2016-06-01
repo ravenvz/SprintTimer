@@ -58,7 +58,9 @@ Pomodoro QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
     int offsetFromUtcInSeconds{start.offsetFromUtc()};
     TimeSpan timeSpan{
         start.toTime_t(), finish.toTime_t(), offsetFromUtcInSeconds};
-    QStringList qTags{columnData(record, Columns::Tags).toString().split(",")};
+    QStringList qTags{columnData(record, Columns::Tags)
+                          .toString()
+                          .split(",", QString::SkipEmptyParts)};
     std::string taskUuid
         = columnData(record, Columns::TodoUuid).toString().toStdString();
     std::list<std::string> tags;

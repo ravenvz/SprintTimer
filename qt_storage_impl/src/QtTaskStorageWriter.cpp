@@ -111,18 +111,6 @@ void QtTaskStorageWriter::edit(const TodoItem& task, const TodoItem& editedTask)
                std::back_inserter(tagsToRemove),
                std::back_inserter(tagsToInsert));
 
-    std::cout << "Tags to insert:" << std::endl;
-    std::copy(tagsToInsert.cbegin(),
-              tagsToInsert.cend(),
-              std::ostream_iterator<std::string>(std::cout, ", "));
-    std::cout << std::endl;
-
-    std::cout << "Tags to remove:" << std::endl;
-    std::copy(tagsToRemove.cbegin(),
-              tagsToRemove.cend(),
-              std::ostream_iterator<std::string>(std::cout, ", "));
-    std::cout << std::endl;
-
     removeTags(taskUuid, tagsToRemove);
     insertTags(taskUuid, tagsToInsert);
 }

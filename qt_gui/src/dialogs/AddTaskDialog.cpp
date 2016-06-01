@@ -1,6 +1,6 @@
 #include "AddTaskDialog.h"
-#include "ui_add_todo_dialog.h"
 #include "core/StringUtils.h"
+#include "ui_add_todo_dialog.h"
 #include <QRegularExpression>
 
 AddTodoItemDialog::AddTodoItemDialog(TagModel* tagModel, QWidget* parent)
@@ -43,7 +43,6 @@ void AddTodoItemDialog::accept()
 
 void AddTodoItemDialog::fillItemData(const TodoItem& item)
 {
-    std::cout << item.toString() << std::endl;
     ui->todoName->setText(QString::fromStdString(item.name()));
     ui->estimatedPomodoros->setValue(item.estimatedPomodoros());
 

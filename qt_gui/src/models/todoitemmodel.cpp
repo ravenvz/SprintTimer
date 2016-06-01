@@ -26,7 +26,6 @@ TodoItemModel::TodoItemModel(IPomodoroService& pomodoroService, QObject* parent)
 
 void TodoItemModel::retrieveData()
 {
-    std::cout << "Called" << std::endl;
     pomodoroService.requestUnfinishedTasks(
         std::bind(&TodoItemModel::onDataChanged, this, std::placeholders::_1));
 }
@@ -67,6 +66,7 @@ QVariant TodoItemModel::data(const QModelIndex& index, int role) const
     }
     switch (role) {
     case Qt::DisplayRole:
+        std::cout << "Display role called" << std::endl;
         return QString::fromStdString(itemAt(index.row()).toString());
     case TagsRole:
         return QString::fromStdString(itemAt(index.row()).tagsAsString());

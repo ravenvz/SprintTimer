@@ -41,12 +41,13 @@ QRect constructBoundingRect(const QStyleOptionViewItem& option, const QString& t
 
 void TodoItemsViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
     painter->save();
+    QFont completedItemFont {option.font};
+    painter->setFont(completedItemFont);
     if (option.state & QStyle::State_Selected) {
         painter->fillRect(option.rect, option.palette.highlight());
         painter->setPen(option.palette.highlightedText().color());
     }
     if (index.data(Qt::CheckStateRole).toBool()) {
-        QFont completedItemFont {QApplication::font()};
         completedItemFont.setStrikeOut(true);
         painter->setFont(completedItemFont);
         paintText(painter, option, index, completedItemAlpha);

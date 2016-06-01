@@ -90,7 +90,9 @@ TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record)
     int estimatedPomodoros{
         columnData(record, Column::EstimatedPomodoros).toInt()};
     int spentPomodoros{columnData(record, Column::SpentPomodoros).toInt()};
-    QStringList qTags{columnData(record, Column::Tags).toString().split(",")};
+    QStringList qTags{columnData(record, Column::Tags)
+                          .toString()
+                          .split(",", QString::SkipEmptyParts)};
     std::list<std::string> tags;
     std::transform(qTags.cbegin(),
                    qTags.cend(),
@@ -102,7 +104,6 @@ TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record)
     int offsetFromUtcInSeconds{qLastModified.offsetFromUtc()};
     DateTime lastModified = DateTime::fromTime_t(qLastModified.toTime_t(),
                                                  offsetFromUtcInSeconds);
-
     return TodoItem{name,
                     estimatedPomodoros,
                     spentPomodoros,
