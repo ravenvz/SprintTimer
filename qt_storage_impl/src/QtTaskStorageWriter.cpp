@@ -1,6 +1,8 @@
 #include "qt_storage_impl/QtTaskStorageWriter.h"
 #include <algorithm>
 
+#include <iostream>
+
 
 QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
     : dbService{dbService}
@@ -89,12 +91,11 @@ void QtTaskStorageWriter::edit(const TodoItem& task, const TodoItem& editedTask)
         editQueryId, ":name", QString::fromStdString(editedTask.name()));
     dbService.bindValue(
         editQueryId, ":estimated_pomodoros", editedTask.estimatedPomodoros());
-    dbService.bindValue(
-        editQueryId, ":last_modified", QDateTime::currentDateTime());
     dbService.bindValue(editQueryId,
                         ":last_modified",
                         QDateTime::fromTime_t(static_cast<unsigned>(
                             editedTask.lastModified().toTime_t())));
+    dbService.bindValue(editQueryId, ":uuid", taskUuid);
     dbService.executePrepared(editQueryId);
 
     std::list<std::string> oldTags = task.tags();
