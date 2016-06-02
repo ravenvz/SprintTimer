@@ -22,6 +22,9 @@ public:
 
     void decrementSpentPomodoros(const std::string& uuid) final;
 
+    void toggleTaskCompletionStatus(const std::string& uuid,
+                                    const DateTime& timeStamp) final;
+
 private:
     DBService& dbService;
     long long addTaskQueryId{-1};
@@ -31,6 +34,7 @@ private:
     long long editQueryId{-1};
     long long incrementSpentQueryId{-1};
     long long decrementSpentQueryId{-1};
+    long long toggleCompletionQueryId{-1};
 
     void insertTags(const QString& taskUuid,
                     const std::list<std::string>& tags);

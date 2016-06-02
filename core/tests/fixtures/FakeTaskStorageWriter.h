@@ -32,6 +32,14 @@ public:
         item.setSpentPomodoros(item.spentPomodoros() - 1);
     }
 
+    void toggleTaskCompletionStatus(const std::string& uuid,
+                                    const DateTime& timeStamp) final
+    {
+        TodoItem& taskRef = storage.itemRef(uuid);
+        taskRef.setCompleted(!taskRef.isCompleted());
+        taskRef.setModifiedTimeStamp(timeStamp);
+    }
+
     FakeStorage<TodoItem>& storage;
 };
 

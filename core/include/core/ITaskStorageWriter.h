@@ -16,6 +16,10 @@ public:
     virtual void incrementSpentPomodoros(const std::string& uuid) = 0;
 
     virtual void decrementSpentPomodoros(const std::string& uuid) = 0;
+
+    virtual void toggleTaskCompletionStatus(const std::string& uuid,
+                                            const DateTime& timeStamp)
+        = 0;
 };
 
 #endif /* end of include guard: ITASKSTORAGEWRITER_H_PVAMCJ6G */

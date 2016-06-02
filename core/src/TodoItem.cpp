@@ -81,6 +81,10 @@ void TodoItem::setSpentPomodoros(int spentPomodoros)
     mSpentPomodoros = spentPomodoros;
 }
 
+void TodoItem::setModifiedTimeStamp(const DateTime& timeStamp) {
+    mLastModified = timeStamp;
+}
+
 std::string TodoItem::tagsAsString() const
 {
     std::list<std::string> res{mTags.begin(), mTags.end()};

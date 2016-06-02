@@ -26,10 +26,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     ui->lvCompletedPomodoros->setModel(pomodoroModelNew);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
     todoitemViewModel = new TodoItemModel(pomodoroService, this);
-    todoitemViewModel->setNotCompletedFilter();
-    todoitemViewModel->select();
     ui->lvTodoItems->setModel(todoitemViewModel);
-
 
     todoitemViewDelegate = new TodoItemsViewDelegate(this);
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
@@ -340,7 +337,7 @@ void MainWindow::removePomodoro()
         // TODO handle sad path
         pomodoroModelNew->remove(index.row());
         // TODO replace with call to refresh
-        todoitemViewModel->select();
+        todoitemViewModel->retrieveData();
     }
 }
 
@@ -445,7 +442,7 @@ void MainWindow::launchTagEditor()
     }
 }
 
-void MainWindow::updateTodoItemModel() { todoitemViewModel->select(); }
+void MainWindow::updateTodoItemModel() { todoitemViewModel->retrieveData(); }
 
 void MainWindow::onTimerTick(long timeLeft)
 {

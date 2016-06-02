@@ -256,3 +256,21 @@ TEST(TestPomodoroService, test_request_tasks_calls_handler)
         [this](const std::vector<TodoItem>& result) { taskHandler(result); });
     CHECK(taskHandlerCalled);
 }
+
+TEST(TestPomodoroService, test_toggle_task_competion_status)
+{
+    pomodoroService.registerTask(defaultTask);
+    const std::string taskUuid = defaultTask.uuid();
+
+    pomodoroService.toggleTaskCompletionStatus(defaultTask);
+    CHECK(taskStorage.itemRef(taskUuid).isCompleted());
+    CHECK(taskStorage.itemRef(taskUuid).lastModified()
+          == DateTime::currentDateTimeLocal());
+
+    // Should revert time stamp of last modification when
+    // undoing
+    pomodoroService.undoLast();
+    CHECK(!taskStorage.itemRef(taskUuid).isCompleted());
+    CHECK(taskStorage.itemRef(taskUuid).lastModified()
+          == defaultTask.lastModified());
+}

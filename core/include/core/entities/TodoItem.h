@@ -90,6 +90,9 @@ public:
 
     void setTags(const std::list<std::string>& newTags);
 
+    /* Set time stamp of last item modification. */
+    void setModifiedTimeStamp(const DateTime& timeStamp);
+
     /* Return string representation of tags.
      * Tags will be concatenated with ', '. */
     std::string tagsAsString() const;

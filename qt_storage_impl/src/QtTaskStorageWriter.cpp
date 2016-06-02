@@ -30,6 +30,11 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
     decrementSpentQueryId = dbService.prepare(
         "update todo_item set spent_pomodoros = spent_pomodoros - 1 "
         "where todo_item.uuid = (:todo_uuid);");
+    toggleCompletionQueryId
+        = dbService.prepare("update todo_item "
+                            "set completed = not completed, "
+                            "last_modified = :time_stamp "
+                            "where uuid = :uuid;");
 }
 
 void QtTaskStorageWriter::save(const TodoItem& task)
@@ -128,4 +133,16 @@ void QtTaskStorageWriter::decrementSpentPomodoros(const std::string& uuid)
     dbService.bindValue(
         decrementSpentQueryId, ":todo_uuid", QString::fromStdString(uuid));
     dbService.executePrepared(decrementSpentQueryId);
+}
+
+void QtTaskStorageWriter::toggleTaskCompletionStatus(const std::string& uuid,
+                                                     const DateTime& timeStamp)
+{
+    dbService.bindValue(
+        toggleCompletionQueryId, ":uuid", QString::fromStdString(uuid));
+    dbService.bindValue(
+        toggleCompletionQueryId,
+        ":time_stamp",
+        QDateTime::fromTime_t(static_cast<unsigned>(timeStamp.toTime_t())));
+    dbService.executePrepared(toggleCompletionQueryId);
 }

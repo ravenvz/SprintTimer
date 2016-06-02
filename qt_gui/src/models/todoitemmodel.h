@@ -4,18 +4,17 @@
 #include "core/IPomodoroService.h"
 #include "core/TimeSpan.h"
 #include "core/entities/TodoItem.h"
-#include "sqlitetablemodel.h"
 #include "utils/DateInterval.h"
-#include <QHash>
-#include <QSqlQuery>
-#include <QSqlTableModel>
+#include <QAbstractListModel>
 
-class TodoItemModel : public SqliteTableModel {
+class TodoItemModel : public QAbstractListModel {
 public:
     using TodoItemWithTimeStamp = std::pair<QDate, QString>;
 
     explicit TodoItemModel(IPomodoroService& pomodoroService,
                            QObject* parent = 0);
+
+    void retrieveData();
 
     // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
@@ -31,6 +30,7 @@ public:
     // of the default roles.
     QVariant data(const QModelIndex& index,
                   int role = Qt::DisplayRole) const override;
+
     // Override to support drag and drop. Changes items' priorities instead of
     // removing row and inserting it at destination position as in default
     // behavour for drag and drop. That default behaviour would not work here,
@@ -41,6 +41,8 @@ public:
                   int count,
                   const QModelIndex& destinationParent,
                   int destinationChild) override;
+
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
     enum customRoles {
         TagsRole = Qt::UserRole + 1,
@@ -54,14 +56,14 @@ public:
     // Insert new TodoItem into the database.
     // Return boolean, indicating success of the operation.
     // Changes are rolled back in case of failure.
-    bool insert(const TodoItem& item);
+    void insert(const TodoItem& item);
 
     // Remove item with given index and return boolean, indicating success of
     // the operation.
-    bool remove(const QModelIndex& index);
+    void remove(const QModelIndex& index);
 
     // Overload that accepts row number as item identifier.
-    bool remove(const int row);
+    void remove(const int row);
 
     // Return item at given row. This is a convinient method that allows to get
     // item
@@ -69,42 +71,15 @@ public:
     TodoItem itemAt(const int row) const;
 
     // Mark item as completed if it is not completed and vice versa.
-    bool toggleCompleted(const QModelIndex& index);
-
-    // Return std::vector of all items (not only cached) in the model.
-    std::vector<TodoItem> items();
-
-    // Return vector of pairs of date and time when item was last edited and
-    // item itself.
-    std::vector<TodoItemModel::TodoItemWithTimeStamp> itemsWithTimestamp();
+    void toggleCompleted(const QModelIndex& index);
 
     // Replace data of item at given row with data from the newItem.
-    bool replaceItemAt(const int row, const TodoItem& newItem);
-
-    // Set filter to show only items that are not completed or last updated
-    // less than 1 day ago.
-    void setNotCompletedFilter();
-
-    // Set filter to show only items that are completed between dates in the
-    // given timeSpan.
-    void setCompletedInIntervalFilter(const DateInterval& timeSpan);
-
-    // Return item id at a given row.
-    long long itemIdAt(const int row) const;
-
-    // Return item name at a given row.
-    QString itemNameAt(const int row) const;
+    void replaceItemAt(const int row, const TodoItem& newItem);
 
 private:
     IPomodoroService& pomodoroService;
     std::vector<TodoItem> storage;
     // Sql helper queries that are needed to maintain database invariants.
-    QSqlQuery insertTodoItemQuery;
-    QSqlQuery findTagByNameQuery;
-    QSqlQuery insertTagQuery;
-    QSqlQuery createRelationQuery;
-    QSqlQuery removeRelationQuery;
-
     enum class Column {
         Id,
         Name,
@@ -117,42 +92,7 @@ private:
         Uuid
     };
 
-    void retrieveData();
-
     void onDataChanged(const std::vector<TodoItem>& tasks);
-
-    // Return value in the field identified by QSqlRecord and column number
-    // wrapped in QVariant
-    QVariant columnData(const QSqlRecord& rowRecord,
-                        const Column& column) const;
-
-    // Return value in given row and column wrapped in QVariant.
-    QVariant columnData(const int row, const Column& column) const;
-
-    // Given row number and two sets of tag names, update tags accordingly for
-    // item at this row.
-    // Tag sets may contain identical tags.
-    // Relations between items and tags are also updated.
-    bool updateTags(const int row,
-                    const QSet<QString>& tagsToRemove,
-                    const QSet<QString>& tagsToInsert);
-
-    // Given row number and set of tag names, insert tags in the database.
-    // Create relations between items and tags.
-    bool insertTags(QVariant itemId, const QSet<QString>& tags);
-
-    // Given row number and set of tag names, remove tags from the database.
-    // Remove relations between items and tags.
-    // Note that after removing relation, tag might become orphaned (that is,
-    // not
-    // associated with any item). This implementation relies on the SQL trigger
-    // to
-    // clean up such orphaned tags.
-    bool removeTags(QVariant itemId, const QSet<QString>& tags);
-
-    // Replace item data at given row with data from the newItem.
-    // Note that this method does not update tags.
-    bool updateRow(const int row, const TodoItem& newItem);
 
     // Set priority of item at given row.
     bool setItemPriority(const int row, const int priority);

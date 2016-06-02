@@ -154,9 +154,7 @@ void Worker::bindValue(long long queryId,
                        const QString& placeholder,
                        const QVariant& value)
 {
-    // QSqlQuery* query = preparedQueries.value(queryId).get();
     preparedQueries[queryId].bindValue(placeholder, value);
-    // query->bindValue(placeholder, value);
 }
 
 

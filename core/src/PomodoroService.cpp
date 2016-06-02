@@ -12,6 +12,7 @@
 #include "use_cases/RequestPomodorosInTimeRangeCommand.h"
 #include "use_cases/RequestTasksCommand.h"
 #include "use_cases/RequestUnfinishedTasksCommand.h"
+#include "use_cases/ToggleTaskCompletedCommand.h"
 
 namespace CoreApi {
 
@@ -58,6 +59,15 @@ void PomodoroService::editTask(const TodoItem& task, const TodoItem& editedTask)
             taskWriter, task, editedTask);
     editCommand->execute();
     commandStack.push_back(std::move(editCommand));
+}
+
+void PomodoroService::toggleTaskCompletionStatus(const TodoItem& task)
+{
+    auto toggleTaskCommand
+        = std::make_unique<UseCases::ToggleTaskCompletedCommand>(taskWriter,
+                                                                 task);
+    toggleTaskCommand->execute();
+    commandStack.push_back(std::move(toggleTaskCommand));
 }
 
 void PomodoroService::requestTasks(

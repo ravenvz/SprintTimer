@@ -23,6 +23,8 @@ public:
                                   onResultsReceivedCallback)
         = 0;
 
+    virtual void toggleTaskCompletionStatus(const TodoItem& task) = 0;
+
     virtual void
     requestFinishedTasks(const TimeSpan& timeSpan,
                          std::function<void(const std::vector<TodoItem>&)>

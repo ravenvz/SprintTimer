@@ -31,6 +31,8 @@ public:
 
     void editTask(const TodoItem& task, const TodoItem& editedTask) final;
 
+    void toggleTaskCompletionStatus(const TodoItem& task) final;
+
     void requestTasks(const TimeSpan& timeSpan,
                       std::function<void(const std::vector<TodoItem>&)>
                           onResultsReceivedCallback) final;
