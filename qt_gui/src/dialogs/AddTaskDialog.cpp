@@ -43,10 +43,12 @@ void AddTodoItemDialog::accept()
 
 void AddTodoItemDialog::fillItemData(const TodoItem& item)
 {
+    auto tags = item.tags();
+    QString joined_tags = QString::fromStdString(
+        StringUtils::join(tags.cbegin(), tags.cend(), " "));
     ui->todoName->setText(QString::fromStdString(item.name()));
     ui->estimatedPomodoros->setValue(item.estimatedPomodoros());
-
-    ui->leTags->setText(QString::fromStdString(item.tagsAsString()));
+    ui->leTags->setText(joined_tags);
 }
 
 void AddTodoItemDialog::onQuickAddTagActivated(const QString& tag)
