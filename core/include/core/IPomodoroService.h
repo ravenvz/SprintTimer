@@ -25,6 +25,10 @@ public:
 
     virtual void toggleTaskCompletionStatus(const TodoItem& task) = 0;
 
+    virtual void registerTaskPriorities(
+        std::vector<std::pair<std::string, int>>&& priorities)
+        = 0;
+
     virtual void
     requestFinishedTasks(const TimeSpan& timeSpan,
                          std::function<void(const std::vector<TodoItem>&)>

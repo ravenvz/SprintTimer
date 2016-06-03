@@ -40,6 +40,10 @@ public:
         taskRef.setModifiedTimeStamp(timeStamp);
     }
 
+    void updatePriorities(std::vector<std::pair<std::string, int>>&& priorities)
+    {
+    }
+
     FakeStorage<TodoItem>& storage;
 };
 

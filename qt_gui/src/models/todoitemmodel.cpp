@@ -1,5 +1,6 @@
 #include "todoitemmodel.h"
 #include <QSize>
+#include <algorithm>
 
 TodoItemModel::TodoItemModel(IPomodoroService& pomodoroService, QObject* parent)
     : pomodoroService{pomodoroService}
@@ -59,10 +60,6 @@ QVariant TodoItemModel::data(const QModelIndex& index, int role) const
         return storage[index.row()].isCompleted();
     case GetSpentPomodorosRole:
         return storage[index.row()].spentPomodoros();
-    case PriorityRole:
-        // TODO need to figure that one out
-        return 10000;
-    // return columnData(index.row(), Column::Priority);
     default:
         return QVariant();
     }
@@ -76,6 +73,7 @@ int TodoItemModel::rowCount(const QModelIndex& parent) const
 void TodoItemModel::insert(const TodoItem& item)
 {
     pomodoroService.registerTask(item);
+    retrieveData();
 }
 
 void TodoItemModel::remove(const QModelIndex& index) { remove(index.row()); }
@@ -83,6 +81,7 @@ void TodoItemModel::remove(const QModelIndex& index) { remove(index.row()); }
 void TodoItemModel::remove(const int row)
 {
     pomodoroService.removeTask(itemAt(row));
+    retrieveData();
 }
 
 TodoItem TodoItemModel::itemAt(const int row) const { return storage[row]; }
@@ -90,33 +89,14 @@ TodoItem TodoItemModel::itemAt(const int row) const { return storage[row]; }
 void TodoItemModel::toggleCompleted(const QModelIndex& index)
 {
     pomodoroService.toggleTaskCompletionStatus(itemAt(index.row()));
-
-    // QVariant state = data(index, Qt::CheckStateRole);
-    // QVariant value = QVariant(!state.toBool());
-    // bool completedToggled = QSqlTableModel::setData(
-    //     index.model()->index(index.row(),
-    //     static_cast<int>(Column::Completed)),
-    //     value,
-    //     Qt::EditRole);
-    // bool timeStampUpdated = QSqlTableModel::setData(
-    //     index.model()->index(index.row(),
-    //                          static_cast<int>(Column::LastModified)),
-    //     QVariant(QDateTime::currentDateTime()),
-    //     Qt::EditRole);
-    // if (!(completedToggled && timeStampUpdated)) {
-    //     revertAll();
-    //     return false;
-    // }
-    // else {
-    //     submitAll();
-    // }
-    // return completedToggled && timeStampUpdated;
+    retrieveData();
 }
 
 void TodoItemModel::replaceItemAt(const int row, const TodoItem& newItem)
 {
     TodoItem oldItem = itemAt(row);
     pomodoroService.editTask(oldItem, newItem);
+    retrieveData();
 }
 
 bool TodoItemModel::moveRows(const QModelIndex& sourceParent,
@@ -128,25 +108,19 @@ bool TodoItemModel::moveRows(const QModelIndex& sourceParent,
     // If item is dropped below all rows, destination child would be -1
     int destinationRow
         = (destinationChild == -1) ? rowCount() - 1 : destinationChild;
-    QList<int> newPriorities;
+
+    std::vector<std::pair<std::string, int>> priorities;
+    priorities.reserve(rowCount());
+
+    // Assign priorities for tasks based on their row number,
+    // then swap priorities for tasks at source and destination rows
     for (int row = 0; row < rowCount(); ++row) {
-        newPriorities << row;
+        priorities.push_back({itemAt(row).uuid(), row});
     }
+    std::swap(priorities[sourceRow].second, priorities[destinationRow].second);
 
-    newPriorities.move(sourceRow, destinationRow);
+    pomodoroService.registerTaskPriorities(std::move(priorities));
+    retrieveData();
 
-    for (int i = 0; i < newPriorities.size(); ++i) {
-        setItemPriority(newPriorities[i], i);
-    }
-
-    // return submitAllInTransaction();
-    return false;
-}
-
-bool TodoItemModel::setItemPriority(const int row, const int priority)
-{
-    // return QSqlTableModel::setData(
-    //     index(row, static_cast<int>(Column::Priority)), priority,
-    //     Qt::EditRole);
-    return false;
+    return true;
 }

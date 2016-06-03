@@ -33,6 +33,9 @@ public:
 
     void toggleTaskCompletionStatus(const TodoItem& task) final;
 
+    void registerTaskPriorities(
+        std::vector<std::pair<std::string, int>>&& priorities) final;
+
     void requestTasks(const TimeSpan& timeSpan,
                       std::function<void(const std::vector<TodoItem>&)>
                           onResultsReceivedCallback) final;

@@ -93,9 +93,6 @@ private:
     };
 
     void onDataChanged(const std::vector<TodoItem>& tasks);
-
-    // Set priority of item at given row.
-    bool setItemPriority(const int row, const int priority);
 };
 
 #endif // TODOITEMSLISTMODEL_H

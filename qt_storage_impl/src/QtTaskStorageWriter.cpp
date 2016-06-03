@@ -35,6 +35,8 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
                             "set completed = not completed, "
                             "last_modified = :time_stamp "
                             "where uuid = :uuid;");
+    updatePrioritiesQueryId = dbService.prepare(
+        "update todo_item set priority = :priority where uuid = :uuid;");
 }
 
 void QtTaskStorageWriter::save(const TodoItem& task)
@@ -53,9 +55,13 @@ void QtTaskStorageWriter::save(const TodoItem& task)
                         QDateTime::fromTime_t(static_cast<unsigned>(
                             task.lastModified().toTime_t())));
     dbService.bindValue(addTaskQueryId, ":uuid", uuid);
-    dbService.executePrepared(addTaskQueryId);
 
+    dbService.transaction();
+
+    dbService.executePrepared(addTaskQueryId);
     insertTags(uuid, task.tags());
+
+    dbService.commit();
 }
 
 void QtTaskStorageWriter::insertTags(const QString& taskUuid,
@@ -101,10 +107,9 @@ void QtTaskStorageWriter::edit(const TodoItem& task, const TodoItem& editedTask)
                         QDateTime::fromTime_t(static_cast<unsigned>(
                             editedTask.lastModified().toTime_t())));
     dbService.bindValue(editQueryId, ":uuid", taskUuid);
-    dbService.executePrepared(editQueryId);
 
-    std::list<std::string> oldTags = task.tags();
-    std::list<std::string> newTags = editedTask.tags();
+    auto oldTags = task.tags();
+    auto newTags = editedTask.tags();
     oldTags.sort();
     newTags.sort();
     std::list<std::string> tagsToRemove;
@@ -117,8 +122,13 @@ void QtTaskStorageWriter::edit(const TodoItem& task, const TodoItem& editedTask)
                std::back_inserter(tagsToRemove),
                std::back_inserter(tagsToInsert));
 
+    dbService.transaction();
+
+    dbService.executePrepared(editQueryId);
     removeTags(taskUuid, tagsToRemove);
     insertTags(taskUuid, tagsToInsert);
+
+    dbService.commit();
 }
 
 void QtTaskStorageWriter::incrementSpentPomodoros(const std::string& uuid)
@@ -145,4 +155,20 @@ void QtTaskStorageWriter::toggleTaskCompletionStatus(const std::string& uuid,
         ":time_stamp",
         QDateTime::fromTime_t(static_cast<unsigned>(timeStamp.toTime_t())));
     dbService.executePrepared(toggleCompletionQueryId);
+}
+
+void QtTaskStorageWriter::updatePriorities(
+    std::vector<std::pair<std::string, int>>&& priorities)
+{
+    dbService.requestTransaction();
+
+    for (const auto& pair : priorities) {
+        dbService.bindValue(updatePrioritiesQueryId,
+                            ":uuid",
+                            QString::fromStdString(pair.first));
+        dbService.bindValue(updatePrioritiesQueryId, ":priority", pair.second);
+        dbService.executePrepared(updatePrioritiesQueryId);
+    }
+
+    dbService.commit();
 }

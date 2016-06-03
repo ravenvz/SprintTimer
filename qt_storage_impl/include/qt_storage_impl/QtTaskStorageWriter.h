@@ -25,6 +25,9 @@ public:
     void toggleTaskCompletionStatus(const std::string& uuid,
                                     const DateTime& timeStamp) final;
 
+    void updatePriorities(
+        std::vector<std::pair<std::string, int>>&& priorities) final;
+
 private:
     DBService& dbService;
     long long addTaskQueryId{-1};
@@ -35,6 +38,7 @@ private:
     long long incrementSpentQueryId{-1};
     long long decrementSpentQueryId{-1};
     long long toggleCompletionQueryId{-1};
+    long long updatePrioritiesQueryId{-1};
 
     void insertTags(const QString& taskUuid,
                     const std::list<std::string>& tags);

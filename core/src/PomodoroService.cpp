@@ -4,6 +4,7 @@
 #include "use_cases/DecrementSpentPomodoros.h"
 #include "use_cases/EditTaskCommand.h"
 #include "use_cases/IncrementSpentPomodoros.h"
+#include "use_cases/RegisterTaskPrioritiesCommand.h"
 #include "use_cases/RemovePomodoroTransaction.h"
 #include "use_cases/RemoveTaskTransaction.h"
 #include "use_cases/RequestFinishedTasksCommand.h"
@@ -68,6 +69,15 @@ void PomodoroService::toggleTaskCompletionStatus(const TodoItem& task)
                                                                  task);
     toggleTaskCommand->execute();
     commandStack.push_back(std::move(toggleTaskCommand));
+}
+
+void PomodoroService::registerTaskPriorities(
+    std::vector<std::pair<std::string, int>>&& priorities)
+{
+    auto registerPrioritiesCommand
+        = std::make_unique<UseCases::RegisterTaskPrioritiesCommand>(
+            taskWriter, std::move(priorities));
+    registerPrioritiesCommand->execute();
 }
 
 void PomodoroService::requestTasks(

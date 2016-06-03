@@ -20,6 +20,10 @@ public:
     virtual void toggleTaskCompletionStatus(const std::string& uuid,
                                             const DateTime& timeStamp)
         = 0;
+
+    virtual void
+    updatePriorities(std::vector<std::pair<std::string, int>>&& priorities)
+        = 0;
 };
 
 #endif /* end of include guard: ITASKSTORAGEWRITER_H_PVAMCJ6G */
