@@ -15,10 +15,16 @@ DBService::DBService(QString filename)
     connect(worker, &Worker::error, this, &DBService::handleError);
     connect(this, &DBService::prepareQuery, worker, &Worker::prepare);
     connect(this, &DBService::bind, worker, &Worker::bindValue);
-    // connect(this,
-    //         &DBService::executeTransaction,
-    //         worker,
-    //         &Worker::executeTransaction);
+    connect(this,
+            &DBService::requestTransaction,
+            worker,
+            &Worker::onTransactionRequested);
+    connect(this,
+            &DBService::requestRollback,
+            worker,
+            &Worker::rollbackTransaction);
+    connect(
+        this, &DBService::requestCommit, worker, &Worker::onCommitRequested);
     workerThread.start();
 }
 
@@ -50,12 +56,6 @@ void DBService::executePrepared(long long queryId)
 }
 
 
-// void DBService::executeInTransaction(const std::vector<long long> ids)
-// {
-//     emit executeTransaction(ids);
-// }
-
-
 void DBService::handleResults(long long queryId,
                               const std::vector<QSqlRecord>& records)
 {
@@ -79,12 +79,28 @@ void DBService::bindValue(long long queryId,
 }
 
 
+void DBService::transaction() { emit requestTransaction(); }
+
+
+void DBService::rollback() { emit requestRollback(); }
+
+
+void DBService::commit() { emit requestCommit(); }
+
+
 Worker::Worker(const QString& filename)
     : filename{std::move(filename)}
     , db{QSqlDatabase::addDatabase("QSQLITE")}
 {
     if (!createDbConnection())
         throw std::runtime_error("Unable to create database");
+}
+
+
+Worker::~Worker()
+{
+    db.close();
+    QSqlDatabase::removeDatabase("QSQLITE");
 }
 
 
@@ -95,6 +111,9 @@ void Worker::execute(long long queryId, const QString& query)
         QString errormsg
             = QString("%1 %2").arg(q.lastQuery()).arg(q.lastError().text());
         emit error(queryId, errormsg);
+        if (inTransaction) {
+            rollbackTransaction();
+        }
     }
     else {
         std::vector<QSqlRecord> recs;
@@ -114,8 +133,12 @@ void Worker::executePrepared(long long queryId)
                                .arg(query.lastQuery())
                                .arg(query.lastError().text());
         emit error(queryId, errormsg);
+        if (inTransaction) {
+            rollbackTransaction();
+        }
     }
     else {
+        // qDebug() << query.lastQuery();
         std::vector<QSqlRecord> recs;
         while (query.next()) {
             recs.push_back(query.record());
@@ -123,23 +146,6 @@ void Worker::executePrepared(long long queryId)
         emit results(queryId, recs);
     }
 }
-
-
-// void executeTransaction(const std::vector<long long> ids)
-// {
-//     QSqlDatabase::database().transaction();
-//     for (const auto& queryId : ids) {
-//         // TODO handle missing id case
-//         QSqlQuery query = preparedQueries.value(queryId);
-//         if (!query.exec()) {
-//             QString errormsg = QString("Error executing transaction");
-//             emit error(queryId, errormsg);
-//             QSqlDatabase::database().rollback();
-//             return;
-//         }
-//     }
-//     QSqlDatabase::database().commit();
-// }
 
 
 void Worker::prepare(long long queryId, const QString& queryStr)
@@ -158,11 +164,32 @@ void Worker::bindValue(long long queryId,
 }
 
 
-Worker::~Worker()
+void Worker::onTransactionRequested()
 {
-    db.close();
-    QSqlDatabase::removeDatabase("QSQLITE");
+    inTransaction = db.transaction();
+    if (!inTransaction) {
+        emit error(-1, "Transaction request failed");
+    }
 }
+
+
+void Worker::rollbackTransaction()
+{
+    if (!db.rollback()) {
+        emit error(-1, "Transaction rollback failed");
+    }
+    inTransaction = false;
+}
+
+
+void Worker::onCommitRequested()
+{
+    if (!db.commit()) {
+        emit error(-1, "Transaction commit failed");
+    }
+    inTransaction = false;
+}
+
 
 bool Worker::createDatabase()
 {

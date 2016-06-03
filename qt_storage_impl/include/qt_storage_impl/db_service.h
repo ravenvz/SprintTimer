@@ -44,10 +44,11 @@ public:
                    const QString& placeholder,
                    const QVariant& value);
 
-    // TODO what if no query with such id
-    // Executes queries with given ids in transaction.
-    // Queries are executed in order.
-    // void executeInTransaction(std::vector<long long> ids);
+    void transaction();
+
+    void rollback();
+
+    void commit();
 
 public slots:
 
@@ -64,7 +65,9 @@ signals:
     void prepareQuery(long long queryId, const QString& queryStr);
     void
     bind(long long queryId, const QString& placeholder, const QVariant& value);
-    // void executeTransaction(const std::vector<long long> ids);
+    void requestTransaction();
+    void requestRollback();
+    void requestCommit();
 
 private:
     QThread workerThread;
@@ -90,7 +93,11 @@ public slots:
                    const QString& placeholder,
                    const QVariant& value);
 
-    // void executeTransaction(const std::vector<long long> ids);
+    void onTransactionRequested();
+
+    void rollbackTransaction();
+
+    void onCommitRequested();
 
 signals:
     void results(long long queryId, const std::vector<QSqlRecord>& records);
@@ -100,6 +107,7 @@ signals:
 private:
     QString filename;
     QSqlDatabase db;
+    bool inTransaction{false};
     QHash<long long, QSqlQuery> preparedQueries;
 
     bool createDatabase();
