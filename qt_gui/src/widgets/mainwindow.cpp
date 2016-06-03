@@ -189,8 +189,9 @@ void MainWindow::playSound()
 
     // TODO might not be the best way to handle this, as it requires
     // gstreamer-ugly-plugins on my system
+    // TODO move to config
     player->setMedia(QUrl::fromLocalFile(
-        "/home/vizier/Projects/pomodoro_cpp/resources/ring.wav"));
+        "/home/vizier/Projects/pomodoro_cpp/qt_gui/resources/ring.wav"));
     player->setVolume(applicationSettings.soundVolume());
     player->play();
 }

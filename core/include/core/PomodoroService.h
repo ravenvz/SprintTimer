@@ -36,10 +36,6 @@ public:
     void registerTaskPriorities(
         std::vector<std::pair<std::string, int>>&& priorities) final;
 
-    void requestTasks(const TimeSpan& timeSpan,
-                      std::function<void(const std::vector<TodoItem>&)>
-                          onResultsReceivedCallback) final;
-
     void requestFinishedTasks(const TimeSpan& timeSpan,
                               std::function<void(const std::vector<TodoItem>&)>
                                   onResultsReceivedCallback) final;

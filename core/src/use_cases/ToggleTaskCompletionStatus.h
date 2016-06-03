@@ -6,9 +6,9 @@
 
 namespace UseCases {
 
-class ToggleTaskCompletedCommand : public RevertableCommand {
+class ToggleTaskCompletionStatus : public RevertableCommand {
 public:
-    ToggleTaskCompletedCommand(ITaskStorageWriter& taskStorageWriter,
+    ToggleTaskCompletionStatus(ITaskStorageWriter& taskStorageWriter,
                                const TodoItem& task)
         : writer{taskStorageWriter}
         , uuid{task.uuid()}

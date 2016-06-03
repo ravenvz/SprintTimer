@@ -18,11 +18,6 @@ public:
 
     virtual void editTask(const TodoItem& task, const TodoItem& editedTask) = 0;
 
-    virtual void requestTasks(const TimeSpan& timeSpan,
-                              std::function<void(const std::vector<TodoItem>&)>
-                                  onResultsReceivedCallback)
-        = 0;
-
     virtual void toggleTaskCompletionStatus(const TodoItem& task) = 0;
 
     virtual void registerTaskPriorities(

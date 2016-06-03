@@ -6,9 +6,9 @@
 
 namespace UseCases {
 
-class RemoveTaskTransaction : public RevertableCommand {
+class DeleteTask : public RevertableCommand {
 public:
-    RemoveTaskTransaction(ITaskStorageWriter& taskStorageWriter,
+    DeleteTask(ITaskStorageWriter& taskStorageWriter,
                           const TodoItem& taskToRemove)
         : writer{taskStorageWriter}
         , task{taskToRemove}

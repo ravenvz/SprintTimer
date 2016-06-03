@@ -1,7 +1,5 @@
 #include "qt_storage_impl/db_service.h"
-#include <exception>
 
-// #include "core/BoostUUIDGenerator.h"
 
 DBService::DBService(QString filename)
 {
@@ -226,41 +224,8 @@ bool Worker::createDbConnection()
         return false;
     }
     activateForeignKeys();
-    // migrate();
     return true;
 }
-
-// TODO remove
-// void Worker::migrate()
-// {
-//     BoostUUIDGenerator generator;
-//     QSqlQuery query;
-//     QSqlDatabase::database().transaction();
-//     QString qstr{"select id from pomodoro;"};
-//     query.exec(qstr);
-//     while (query.next()) {
-//         long long id = query.value(0).toUInt();
-//         QSqlQuery q;
-//         QString uuid = QString::fromStdString(generator.generateUUID());
-//         q.prepare("update pomodoro set uuid = :uuid where id = :id");
-//         q.bindValue(":uuid", QVariant(uuid));
-//         q.bindValue(":id", QVariant(id));
-//         q.exec();
-//     }
-//     QSqlDatabase::database().commit();
-//     query.exec("select id from todo_item;");
-//     QSqlDatabase::database().transaction();
-//     while (query.next()) {
-//         long long id = query.value(0).toUInt();
-//         QSqlQuery m;
-//         QString uuid = QString::fromStdString(generator.generateUUID());
-//         m.prepare("update todo_item set uuid = :uuid where id = :id");
-//         m.bindValue(":uuid", QVariant(uuid));
-//         m.bindValue(":id", QVariant(id));
-//         m.exec();
-//     }
-//     QSqlDatabase::database().commit();
-// }
 
 
 bool Worker::createSchema()

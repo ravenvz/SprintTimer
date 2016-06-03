@@ -5,7 +5,7 @@
 #include "fixtures/FakePomodoroYearRangeReader.h"
 #include "fixtures/FakeTaskStorageReader.h"
 #include "fixtures/FakeTaskStorageWriter.h"
-#include "use_cases/AddPomodoroTransaction.h"
+#include "use_cases/RegisterNewPomodoro.h"
 #include <TestHarness.h>
 #include <algorithm>
 #include <vector>
@@ -245,14 +245,6 @@ TEST(TestPomodoroService, test_request_finished_tasks_calls_handler)
 TEST(TestPomodoroService, test_request_unfinished_tasks_calls_handler)
 {
     pomodoroService.requestUnfinishedTasks(
-        [this](const std::vector<TodoItem>& result) { taskHandler(result); });
-    CHECK(taskHandlerCalled);
-}
-
-TEST(TestPomodoroService, test_request_tasks_calls_handler)
-{
-    pomodoroService.requestTasks(
-        defaultTimeSpan,
         [this](const std::vector<TodoItem>& result) { taskHandler(result); });
     CHECK(taskHandlerCalled);
 }

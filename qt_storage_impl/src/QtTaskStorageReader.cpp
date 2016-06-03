@@ -25,11 +25,6 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
             &QtTaskStorageReader::onResultsReceived);
 }
 
-void QtTaskStorageReader::requestTasks(const TimeSpan& timeSpan,
-                                       Handler handler)
-{
-}
-
 void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
 {
     // TODO this can potentially end badly if we have multiple clients

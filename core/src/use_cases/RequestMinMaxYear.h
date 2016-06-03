@@ -6,9 +6,9 @@
 
 namespace UseCases {
 
-class RequestPomodoroYearRangeCommand : public ICommand {
+class RequestMinMaxYear : public ICommand {
 public:
-    RequestPomodoroYearRangeCommand(IPomodoroYearRangeReader& reader,
+    RequestMinMaxYear(IPomodoroYearRangeReader& reader,
                                     IPomodoroYearRangeReader::Handler handler)
         : reader{reader}
         , handler{handler}

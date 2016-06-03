@@ -6,9 +6,9 @@
 
 namespace UseCases {
 
-class EditTaskCommand : public RevertableCommand {
+class EditTask : public RevertableCommand {
 public:
-    EditTaskCommand(ITaskStorageWriter& writer,
+    EditTask(ITaskStorageWriter& writer,
                     const TodoItem& task,
                     const TodoItem& editedTask)
         : writer{writer}

@@ -11,11 +11,6 @@ public:
     {
     }
 
-    void requestTasks(const TimeSpan& timeSpan, Handler handler) final
-    {
-        storage.itemsInTimeRange(timeSpan, handler);
-    }
-
     void requestUnfinishedTasks(Handler handler) final
     {
         std::vector<TodoItem> emptyResult;

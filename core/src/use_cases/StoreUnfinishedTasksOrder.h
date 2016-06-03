@@ -6,9 +6,9 @@
 
 namespace UseCases {
 
-class RegisterTaskPrioritiesCommand : public ICommand {
+class StoreUnfinishedTasksOrder : public ICommand {
 public:
-    RegisterTaskPrioritiesCommand(
+    StoreUnfinishedTasksOrder(
         ITaskStorageWriter& taskStorageWriter,
         std::vector<std::pair<std::string, int>>&& priorities)
         : writer{taskStorageWriter}

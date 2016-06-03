@@ -11,8 +11,6 @@ class QtTaskStorageReader : public QObject, public ITaskStorageReader {
 public:
     explicit QtTaskStorageReader(DBService& dbService);
 
-    void requestTasks(const TimeSpan& timeSpan, Handler handler) final;
-
     void requestUnfinishedTasks(Handler handler) final;
 
     void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler) final;

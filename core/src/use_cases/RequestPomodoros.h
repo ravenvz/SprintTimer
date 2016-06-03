@@ -7,9 +7,9 @@
 
 namespace UseCases {
 
-class RequestPomodorosInTimeRangeCommand : public ICommand {
+class RequestPomodoros : public ICommand {
 public:
-    RequestPomodorosInTimeRangeCommand(
+    RequestPomodoros(
         IPomodoroStorageReader& reader,
         const TimeSpan& timeSpan,
         std::function<void(const std::vector<Pomodoro>&)> resultHandler)

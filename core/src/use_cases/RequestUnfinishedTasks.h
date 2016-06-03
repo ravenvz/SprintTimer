@@ -5,9 +5,9 @@
 
 namespace UseCases {
 
-class RequestUnfinishedTasksCommand : public ICommand {
+class RequestUnfinishedTasks : public ICommand {
 public:
-    RequestUnfinishedTasksCommand(ITaskStorageReader& taskStorageReader,
+    RequestUnfinishedTasks(ITaskStorageReader& taskStorageReader,
                                   ITaskStorageReader::Handler handler)
         : reader{taskStorageReader}
         , handler{handler}

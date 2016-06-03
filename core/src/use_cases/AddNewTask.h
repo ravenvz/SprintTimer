@@ -7,9 +7,9 @@
 
 namespace UseCases {
 
-class AddTaskTransaction : public RevertableCommand {
+class AddNewTask : public RevertableCommand {
 public:
-    AddTaskTransaction(ITaskStorageWriter& taskStorageWriter,
+    AddNewTask(ITaskStorageWriter& taskStorageWriter,
                        const TodoItem& task)
         : writer{taskStorageWriter}
         , task{task}

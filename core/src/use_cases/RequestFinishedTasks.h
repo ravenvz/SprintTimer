@@ -6,9 +6,9 @@
 
 namespace UseCases {
 
-class RequestFinishedTasksCommand : public ICommand {
+class RequestFinishedTasks : public ICommand {
 public:
-    RequestFinishedTasksCommand(ITaskStorageReader& taskStorageReader,
+    RequestFinishedTasks(ITaskStorageReader& taskStorageReader,
                                 const TimeSpan& timeSpan,
                                 ITaskStorageReader::Handler handler)
         : reader{taskStorageReader}

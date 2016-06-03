@@ -6,9 +6,9 @@
 
 namespace UseCases {
 
-class AddPomodoroTransaction : public RevertableCommand {
+class RegisterNewPomodoro : public RevertableCommand {
 public:
-    AddPomodoroTransaction(IPomodoroStorageWriter& writer,
+    RegisterNewPomodoro(IPomodoroStorageWriter& writer,
                            const Pomodoro& pomodoro)
         : writer{writer}
         , pomodoro{pomodoro}
