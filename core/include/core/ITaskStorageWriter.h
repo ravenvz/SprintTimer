@@ -24,6 +24,9 @@ public:
     virtual void
     updatePriorities(std::vector<std::pair<std::string, int>>&& priorities)
         = 0;
+
+    virtual void editTag(const std::string& oldName, const std::string& newName)
+        = 0;
 };
 
 #endif /* end of include guard: ITASKSTORAGEWRITER_H_PVAMCJ6G */

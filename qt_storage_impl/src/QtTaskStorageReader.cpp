@@ -1,5 +1,6 @@
 #include "qt_storage_impl/QtTaskStorageReader.h"
 
+#include <iostream>
 
 QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
     : dbService{dbService}
@@ -63,22 +64,37 @@ void QtTaskStorageReader::requestFinishedTasks(const TimeSpan& timeSpan,
     dbService.executePrepared(mFinishedQueryId);
 }
 
+void QtTaskStorageReader::requestAllTags(TagHandler handler)
+{
+    this->tagHandler = handler;
+    mTagQueryId = dbService.executeQuery("select id, name from tag "
+                                         "order by name;");
+}
+
 void QtTaskStorageReader::onResultsReceived(
     long long queryId, const std::vector<QSqlRecord>& records)
 {
-    if (queryId != mUnfinishedQueryId && queryId != mFinishedQueryId) {
-        return;
+    if (queryId == mUnfinishedQueryId || queryId == mFinishedQueryId) {
+        Items tasks;
+        std::transform(
+            records.cbegin(),
+            records.cend(),
+            std::back_inserter(tasks),
+            [&](const auto& elem) { return this->taskFromQSqlRecord(elem); });
+        handler(tasks);
     }
-    Items tasks;
-    std::transform(
-        records.cbegin(),
-        records.cend(),
-        std::back_inserter(tasks),
-        [&](const auto& elem) { return this->taskFromQSqlRecord(elem); });
-    handler(tasks);
+    if (queryId == mTagQueryId) {
+        std::vector<std::string> tags;
+        std::transform(
+            records.cbegin(),
+            records.cend(),
+            std::back_inserter(tags),
+            [&](const auto& elem) { return this->tagFromSqlRecord(elem); });
+        tagHandler(tags);
+    }
 }
 
-TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record)
+TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
 {
     std::string name{columnData(record, Column::Name).toString().toStdString()};
     std::string uuid{columnData(record, Column::Uuid).toString().toStdString()};
@@ -108,8 +124,16 @@ TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record)
                     lastModified};
 }
 
+std::string
+QtTaskStorageReader::tagFromSqlRecord(const QSqlRecord& record) const
+{
+    return record.value(static_cast<int>(TagColumn::Name))
+        .toString()
+        .toStdString();
+}
+
 QVariant QtTaskStorageReader::columnData(const QSqlRecord& record,
-                                         Column column)
+                                         Column column) const
 {
     return record.value(static_cast<int>(column));
 }

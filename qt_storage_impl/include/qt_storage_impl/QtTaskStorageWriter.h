@@ -28,6 +28,8 @@ public:
     void updatePriorities(
         std::vector<std::pair<std::string, int>>&& priorities) final;
 
+    void editTag(const std::string& oldName, const std::string& newName) final;
+
 private:
     DBService& dbService;
     long long addTaskQueryId{-1};
@@ -39,6 +41,7 @@ private:
     long long decrementSpentQueryId{-1};
     long long toggleCompletionQueryId{-1};
     long long updatePrioritiesQueryId{-1};
+    long long editTagQueryId{-1};
 
     void insertTags(const QString& taskUuid,
                     const std::list<std::string>& tags);

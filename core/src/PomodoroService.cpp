@@ -2,10 +2,12 @@
 #include "use_cases/AddNewTask.h"
 #include "use_cases/DecrementSpentPomodoros.h"
 #include "use_cases/DeleteTask.h"
+#include "use_cases/EditTag.h"
 #include "use_cases/EditTask.h"
 #include "use_cases/IncrementSpentPomodoros.h"
 #include "use_cases/RegisterNewPomodoro.h"
 #include "use_cases/RemovePomodoroTransaction.h"
+#include "use_cases/RequestAllTags.h"
 #include "use_cases/RequestFinishedTasks.h"
 #include "use_cases/RequestMinMaxYear.h"
 #include "use_cases/RequestPomoDistribution.h"
@@ -177,6 +179,22 @@ void PomodoroService::requestPomodoroMonthlyDistribution(
         = std::make_unique<UseCases::RequestPomoDistribution>(
             pomoMonthlyDistributionReader, timeSpan, onResultsReceivedCallback);
     requestDistribution->execute();
+}
+
+void PomodoroService::requestAllTags(TagResultHandler onResultsReceivedCallback)
+{
+    auto requestTags = std::make_unique<UseCases::RequestAllTags>(
+        taskReader, onResultsReceivedCallback);
+    requestTags->execute();
+}
+
+void PomodoroService::editTag(const std::string& oldName,
+                              const std::string& newName)
+{
+    auto editTag
+        = std::make_unique<UseCases::EditTag>(taskWriter, oldName, newName);
+    editTag->execute();
+    commandStack.push_back(std::move(editTag));
 }
 
 void PomodoroService::undoLast()

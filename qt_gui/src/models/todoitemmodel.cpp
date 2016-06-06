@@ -1,6 +1,7 @@
 #include "todoitemmodel.h"
 #include <QSize>
 #include <algorithm>
+#include <iostream>
 
 TodoItemModel::TodoItemModel(IPomodoroService& pomodoroService, QObject* parent)
     : pomodoroService{pomodoroService}

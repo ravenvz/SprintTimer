@@ -3,6 +3,8 @@
 #include "ui_add_todo_dialog.h"
 #include <QRegularExpression>
 
+#include <QDebug>
+
 AddTodoItemDialog::AddTodoItemDialog(TagModel* tagModel, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::AddTodoItemDialog)
@@ -69,7 +71,7 @@ void AddTodoItemDialog::resetNameLineEditStyle()
 void AddTodoItemDialog::setTagsModel()
 {
     ui->tags->setModel(tagModel);
-    ui->tags->setModelColumn(1);
-    tagModel->select();
+    // ui->tags->setModelColumn(1);
+    // tagModel->select();
     ui->tags->setCurrentText("");
 }

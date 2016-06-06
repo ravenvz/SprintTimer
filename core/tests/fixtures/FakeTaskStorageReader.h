@@ -22,6 +22,12 @@ public:
         storage.itemsInTimeRange(timeSpan, handler);
     }
 
+    void requestAllTags(TagHandler handler)
+    {
+        const std::vector<std::string> emptyResult;
+        handler(emptyResult);
+    }
+
 private:
     FakeStorage<TodoItem>& storage;
 };

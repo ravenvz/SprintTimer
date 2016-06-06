@@ -32,7 +32,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
     ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    tagModel = new TagModel(this);
+    tagModel = new TagModel(pomodoroService, this);
 
     setUiToIdleState();
     connectSlots();

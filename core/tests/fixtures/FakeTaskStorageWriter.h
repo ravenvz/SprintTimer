@@ -44,6 +44,11 @@ public:
     {
     }
 
+    void editTag(const std::string& oldName, const std::string& newName)
+    {
+        storage.editTag(oldName, newName);
+    }
+
     FakeStorage<TodoItem>& storage;
 };
 

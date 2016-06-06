@@ -71,6 +71,10 @@ public:
         std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         final;
 
+    void requestAllTags(TagResultHandler onResultsReceivedCallback) final;
+
+    void editTag(const std::string& oldName, const std::string& newName) final;
+
     void undoLast() final;
 
 private:

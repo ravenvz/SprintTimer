@@ -1,8 +1,6 @@
 #include "qt_storage_impl/QtTaskStorageWriter.h"
 #include <algorithm>
 
-#include <iostream>
-
 
 QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
     : dbService{dbService}
@@ -37,6 +35,8 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
                             "where uuid = :uuid;");
     updatePrioritiesQueryId = dbService.prepare(
         "update todo_item set priority = :priority where uuid = :uuid;");
+    editTagQueryId = dbService.prepare(
+        "update tag set name = :new_name where name = :old_name;");
 }
 
 void QtTaskStorageWriter::save(const TodoItem& task)
@@ -171,4 +171,14 @@ void QtTaskStorageWriter::updatePriorities(
     }
 
     dbService.commit();
+}
+
+void QtTaskStorageWriter::editTag(const std::string& oldName,
+                                  const std::string& newName)
+{
+    dbService.bindValue(
+        editTagQueryId, ":old_name", QString::fromStdString(oldName));
+    dbService.bindValue(
+        editTagQueryId, ":new_name", QString::fromStdString(newName));
+    dbService.executePrepared(editTagQueryId);
 }

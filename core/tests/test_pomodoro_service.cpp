@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <vector>
 
+#include <iostream>
+#include <iterator>
 
 TEST_GROUP(TestPomodoroService)
 {
@@ -45,6 +47,7 @@ TEST_GROUP(TestPomodoroService)
     bool pomoDistributionHandlerCalled{false};
     bool pomodoroYearRangeHandlerCalled{false};
     bool taskHandlerCalled{false};
+    bool tagHandlerCalled{false};
 
     void setup()
     {
@@ -54,6 +57,7 @@ TEST_GROUP(TestPomodoroService)
         pomoDistributionHandlerCalled = false;
         pomodoroYearRangeHandlerCalled = false;
         taskHandlerCalled = false;
+        tagHandlerCalled = false;
     }
 
     void pomodoroTimeRangeHandler(const std::vector<Pomodoro>& result)
@@ -74,6 +78,11 @@ TEST_GROUP(TestPomodoroService)
     void taskHandler(const std::vector<TodoItem>& result)
     {
         taskHandlerCalled = true;
+    }
+
+    void tagHandler(const std::vector<std::string>& tags)
+    {
+        tagHandlerCalled = true;
     }
 };
 
@@ -265,4 +274,64 @@ TEST(TestPomodoroService, test_toggle_task_competion_status)
     CHECK(!taskStorage.itemRef(taskUuid).isCompleted());
     CHECK(taskStorage.itemRef(taskUuid).lastModified()
           == defaultTask.lastModified());
+}
+
+TEST(TestPomodoroService, test_request_all_tags_calls_handler)
+{
+    pomodoroService.requestAllTags(
+        [this](const std::vector<std::string>& tags) { tagHandler(tags); });
+    CHECK(tagHandlerCalled);
+}
+
+TEST(TestPomodoroService, test_edit_tag_should_edit_tag_for_all_items)
+{
+    const std::list<std::string> tags1{"Tag1", "Tag2"};
+    const std::list<std::string> tags2{"Tag2", "Tag3"};
+    const std::list<std::string> tags3{"Tag1", "Tag5"};
+    TodoItem item1{"Item 1", 4, 0, tags1, false};
+    TodoItem item2{"Item 2", 4, 0, tags2, false};
+    TodoItem item3{"Item 3", 4, 0, tags3, false};
+    const std::list<std::string> exp_tags1{"EditedTag", "Tag2"};
+    const std::list<std::string> exp_tags2{"Tag2", "Tag3"};
+    const std::list<std::string> exp_tags3{"EditedTag", "Tag5"};
+    pomodoroService.registerTask(item1);
+    pomodoroService.registerTask(item2);
+    pomodoroService.registerTask(item3);
+
+    pomodoroService.editTag("Tag1", "EditedTag");
+    auto item_act1 = taskStorage.itemRef(item1.uuid());
+    auto item_act2 = taskStorage.itemRef(item2.uuid());
+    auto item_act3 = taskStorage.itemRef(item3.uuid());
+    auto tags_act1 = item_act1.tags();
+    auto tags_act2 = item_act2.tags();
+    auto tags_act3 = item_act3.tags();
+    tags_act1.sort();
+    tags_act2.sort();
+    tags_act3.sort();
+
+    CHECK_EQUAL(exp_tags1.size(), tags_act1.size())
+    CHECK(std::equal(exp_tags1.begin(), exp_tags1.end(), tags_act1.begin()));
+    CHECK_EQUAL(exp_tags2.size(), tags_act2.size())
+    CHECK(std::equal(exp_tags2.begin(), exp_tags2.end(), tags_act2.begin()));
+    CHECK_EQUAL(exp_tags3.size(), tags_act3.size())
+    CHECK(std::equal(exp_tags3.begin(), exp_tags3.end(), tags_act3.begin()));
+
+    // Undo command should revert tag back for all items
+    pomodoroService.undoLast();
+    auto item_act_un1 = taskStorage.itemRef(item1.uuid());
+    auto item_act_un2 = taskStorage.itemRef(item2.uuid());
+    auto item_act_un3 = taskStorage.itemRef(item3.uuid());
+    auto tags_act_un1 = item_act_un1.tags();
+    auto tags_act_un2 = item_act_un2.tags();
+    auto tags_act_un3 = item_act_un3.tags();
+    tags_act_un1.sort();
+    tags_act_un2.sort();
+    tags_act_un3.sort();
+
+    CHECK_EQUAL(tags1.size(), tags_act_un1.size())
+    CHECK(std::equal(tags1.begin(), tags1.end(), tags_act_un1.begin()));
+    CHECK_EQUAL(tags2.size(), tags_act_un2.size())
+    CHECK(std::equal(tags2.begin(), tags2.end(), tags_act_un2.begin()));
+    CHECK_EQUAL(tags3.size(), tags_act_un3.size())
+    CHECK(std::equal(tags3.begin(), tags3.end(), tags_act_un3.begin()));
 }

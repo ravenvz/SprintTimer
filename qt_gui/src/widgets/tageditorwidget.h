@@ -2,7 +2,7 @@
 #define TAGEDITOR_H
 
 #include <QWidget>
-#include <QSqlTableModel>
+#include <QAbstractListModel>
 
 namespace Ui {
     class TagEditorWidget;
@@ -13,7 +13,7 @@ class TagEditorWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TagEditorWidget(QSqlTableModel* tagModel, QWidget* parent = 0);
+    explicit TagEditorWidget(QAbstractListModel* tagModel, QWidget* parent = 0);
     ~TagEditorWidget();
 
 private slots:
@@ -25,7 +25,7 @@ signals:
 
 private:
     Ui::TagEditorWidget* ui;
-    QSqlTableModel* model;
+    QAbstractListModel* model;
 
 
 };

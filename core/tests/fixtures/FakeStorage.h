@@ -49,6 +49,21 @@ public:
         callback(emptyDistribution);
     }
 
+    void editTag(const std::string& oldName, const std::string& newName)
+    {
+        for (const auto& pair : storage) {
+            for (const auto& tag : pair.second.tags()) {
+                if (tag == oldName) {
+                    std::list<std::string> oldTags = pair.second.tags();
+                    oldTags.remove_if(
+                        [&](const auto& elem) { return elem == oldName; });
+                    oldTags.push_back(newName);
+                    storage.at(pair.first).setTags(oldTags);
+                }
+            }
+        }
+    }
+
     optional<Entity> getItem(const std::string& uuid)
     {
         auto found = storage.find(uuid);

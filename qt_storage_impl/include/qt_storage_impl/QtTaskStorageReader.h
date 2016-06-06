@@ -15,6 +15,8 @@ public:
 
     void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler) final;
 
+    void requestAllTags(TagHandler handler) final;
+
 private:
     enum class Column {
         Id,
@@ -27,14 +29,21 @@ private:
         LastModified,
         Uuid
     };
+
+    enum class TagColumn { Id, Name };
+
     long long mUnfinishedQueryId{-1};
     long long mFinishedQueryId{-1};
+    long long mTagQueryId{-1};
     DBService& dbService;
     Handler handler;
+    TagHandler tagHandler;
 
-    QVariant columnData(const QSqlRecord& record, Column column);
+    QVariant columnData(const QSqlRecord& record, Column column) const;
 
-    TodoItem taskFromQSqlRecord(const QSqlRecord& record);
+    TodoItem taskFromQSqlRecord(const QSqlRecord& record) const;
+
+    std::string tagFromSqlRecord(const QSqlRecord& record) const;
 
 private slots:
     void onResultsReceived(long long queryId,

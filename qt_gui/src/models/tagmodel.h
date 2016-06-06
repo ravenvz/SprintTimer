@@ -2,22 +2,27 @@
 #define TAGMODEL_H
 
 
-#include <QSqlTableModel>
+#include "core/IPomodoroService.h"
+#include <QStringListModel>
 
 
-class TagModel : public QSqlTableModel 
-{
+class TagModel : public QStringListModel {
 
 public:
-    explicit TagModel(QObject* parent = 0);
+    explicit TagModel(IPomodoroService& pomodoroService, QObject* parent = 0);
 
+    bool setData(const QModelIndex& index,
+                 const QVariant& value,
+                 int role = Qt::EditRole) final;
+
+    Qt::ItemFlags flags(const QModelIndex& index) const final;
+
+    void requestData();
 
 private:
-    enum class Columns {
-        Id,
-        Name,
-    };
+    IPomodoroService& pomodoroService;
 
+    void onDataArrived(const std::vector<std::string>& tags);
 };
 
 
