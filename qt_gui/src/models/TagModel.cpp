@@ -1,7 +1,4 @@
-#include "models/tagmodel.h"
-
-#include <QDebug>
-#include <iostream>
+#include "models/TagModel.h"
 
 
 TagModel::TagModel(IPomodoroService& pomodoroService, QObject* parent)

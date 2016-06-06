@@ -10,7 +10,7 @@
 #include "goalsview.h"
 #include "historyview.h"
 #include "models/PomodoroModel.h"
-#include "models/tagmodel.h"
+#include "models/TagModel.h"
 #include "models/todoitemmodel.h"
 #include "statisticswidget.h"
 #include "tageditorwidget.h"

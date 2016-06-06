@@ -2,7 +2,7 @@
 #define ADDTODOITEMDIALOG_H
 
 #include "core/entities/TodoItem.h"
-#include "models/tagmodel.h"
+#include "models/TagModel.h"
 #include <QDialog>
 #include <QPointer>
 
