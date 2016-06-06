@@ -1,18 +1,21 @@
 #include "core/StringUtils.h"
 #include <TestHarness.h>
 
-
 TEST_GROUP(TestStringUtils){
 
 };
 
 TEST(TestStringUtils, test_parse_words)
 {
-    std::string text{"Some    text1, that! should Be parsed..."};
+    std::string text{
+        "Some    text1, ?that! should?Be,parsed... in C++ ..D--  "};
     std::list<std::string> expected{
-        "Some", "text1", "that", "should", "Be", "parsed"};
+        "Some", "text1", "that", "should", "Be", "parsed", "in", "C++", "D--"};
 
-    CHECK(expected == StringUtils::parseWords(text));
+    auto actual = StringUtils::parseWords(text);
+
+    CHECK_EQUAL(expected.size(), actual.size())
+    CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
 }
 
 TEST(TestStringUtils, test_join_with_some_parts_empty)
