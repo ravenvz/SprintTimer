@@ -65,6 +65,7 @@ private slots:
     void launchManualAddPomodoroDialog();
     void updateTodoItemModel();
     void onTimerUpdated(long);
+    void updateDailyProgress();
 
 private:
     Ui::MainWindow* ui;
@@ -94,7 +95,6 @@ private:
     /* Set stopwatch value. */
     void setTimerValue(Second timeLeft);
     void updateOpenedWindows();
-    void updatePomodoroView();
     void updateStatisticsWindow();
     void updateHistoryWindow();
     void updateGoalWindow();

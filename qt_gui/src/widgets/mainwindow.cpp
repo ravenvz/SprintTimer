@@ -36,7 +36,6 @@ MainWindow::MainWindow(IConfig& applicationSettings,
 
     setUiToIdleState();
     connectSlots();
-    updatePomodoroView();
 }
 
 MainWindow::~MainWindow()
@@ -96,6 +95,7 @@ void MainWindow::connectSlots()
             this,
             SLOT(launchManualAddPomodoroDialog()));
     connect(this, SIGNAL(timerUpdated(long)), this, SLOT(onTimerUpdated(long)));
+    connect(pomodoroModelNew, &PomodoroModel::modelReset, this, &MainWindow::updateDailyProgress);
 }
 
 void MainWindow::setUiToIdleState()
@@ -211,16 +211,12 @@ void MainWindow::submitPomodoro()
 
     completedTasksIntervals.clear();
     updateTodoItemModel();
-    updatePomodoroView();
     updateOpenedWindows();
     startTask();
 }
 
-void MainWindow::updatePomodoroView()
+void MainWindow::updateDailyProgress()
 {
-    // QStringList lst = PomodoroDataSource::getPomodorosForToday();
-    // pomodoroModel->select();
-    // pomodoroModel->setStringList(lst);
     int dailyGoal = applicationSettings.dailyPomodorosGoal();
     if (dailyGoal == 0) {
         ui->labelDailyGoalProgress->hide();
@@ -390,7 +386,6 @@ void MainWindow::launchManualAddPomodoroDialog()
                                    todoitemViewModel,
                                    applicationSettings.pomodoroDuration()};
     if (dialog.exec()) {
-        updatePomodoroView();
         updateOpenedWindows();
         updateTodoItemModel();
     }
