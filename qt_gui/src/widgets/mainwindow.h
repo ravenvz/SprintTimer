@@ -63,7 +63,7 @@ private slots:
     void launchGoalsView();
     void launchStatisticsView();
     void launchManualAddPomodoroDialog();
-    void updateTodoItemModel();
+    void updateTaskList();
     void onTimerUpdated(long);
     void updateDailyProgress();
 

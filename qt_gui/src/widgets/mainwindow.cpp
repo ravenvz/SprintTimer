@@ -210,7 +210,7 @@ void MainWindow::submitPomodoro()
     }
 
     completedTasksIntervals.clear();
-    updateTodoItemModel();
+    updateTaskList();
     updateOpenedWindows();
     startTask();
 }
@@ -387,7 +387,7 @@ void MainWindow::launchManualAddPomodoroDialog()
                                    applicationSettings.pomodoroDuration()};
     if (dialog.exec()) {
         updateOpenedWindows();
-        updateTodoItemModel();
+        updateTaskList();
     }
 }
 
@@ -430,7 +430,7 @@ void MainWindow::launchTagEditor()
         connect(tagEditor,
                 SIGNAL(dataSetChanged()),
                 this,
-                SLOT(updateTodoItemModel()));
+                SLOT(updateTaskList()));
         tagEditor->show();
     }
     else {
@@ -438,7 +438,7 @@ void MainWindow::launchTagEditor()
     }
 }
 
-void MainWindow::updateTodoItemModel() { todoitemViewModel->retrieveData(); }
+void MainWindow::updateTaskList() { todoitemViewModel->retrieveData(); }
 
 void MainWindow::onTimerTick(long timeLeft)
 {
