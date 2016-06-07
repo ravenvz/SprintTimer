@@ -1,12 +1,13 @@
 #ifndef REVERTABLECOMMANDBASE_H_WWT2GZMK
 #define REVERTABLECOMMANDBASE_H_WWT2GZMK
 
+#include "core/ICommand.h"
 
-class RevertableCommand {
+class RevertableCommand : public ICommand {
 public:
     virtual ~RevertableCommand() = default;
 
-    virtual void execute()
+    virtual void execute() final
     {
         executeAction();
         wasExecuted = true;
