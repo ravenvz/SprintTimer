@@ -6,7 +6,7 @@ PomodoroModel::PomodoroModel(IPomodoroService& pomodoroService, QObject* parent)
                         DateTime::currentDateTime()}}
     , pomodoroService{pomodoroService}
 {
-    retrieveData();
+    requestDataUpdate();
 }
 
 int PomodoroModel::rowCount(const QModelIndex& parent) const
@@ -32,23 +32,23 @@ QVariant PomodoroModel::data(const QModelIndex& index, int role) const
 void PomodoroModel::setDateFilter(const TimeSpan& timeSpan)
 {
     interval = timeSpan;
-    retrieveData();
+    requestDataUpdate();
 }
 
 void PomodoroModel::insert(const TimeSpan& timeSpan,
                            const std::string& taskUuid)
 {
     pomodoroService.registerPomodoro(timeSpan, taskUuid);
-    retrieveData();
+    requestDataUpdate();
 }
 
 void PomodoroModel::remove(int row)
 {
     pomodoroService.removePomodoro(storage[static_cast<size_t>(row)]);
-    retrieveData();
+    requestDataUpdate();
 }
 
-void PomodoroModel::retrieveData()
+void PomodoroModel::requestDataUpdate()
 {
     pomodoroService.pomodorosInTimeRange(
         interval,

@@ -334,7 +334,7 @@ void MainWindow::removePomodoro()
         // TODO handle sad path
         pomodoroModelNew->remove(index.row());
         // TODO replace with call to refresh
-        todoitemViewModel->retrieveData();
+        todoitemViewModel->requestDataUpdate();
     }
 }
 
@@ -438,7 +438,7 @@ void MainWindow::launchTagEditor()
     }
 }
 
-void MainWindow::updateTaskList() { todoitemViewModel->retrieveData(); }
+void MainWindow::updateTaskList() { todoitemViewModel->requestDataUpdate(); }
 
 void MainWindow::onTimerTick(long timeLeft)
 {

@@ -23,12 +23,13 @@ public:
     // void remove(long long pomodoroId);
     void remove(int row);
 
+    void requestDataUpdate();
+
 private:
     std::vector<Pomodoro> storage;
     TimeSpan interval;
     IPomodoroService& pomodoroService;
 
-    void retrieveData();
 
     void onDataChanged(const std::vector<Pomodoro>& items);
 };

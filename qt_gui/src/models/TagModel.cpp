@@ -5,7 +5,7 @@ TagModel::TagModel(IPomodoroService& pomodoroService, QObject* parent)
     : QStringListModel(parent)
     , pomodoroService{pomodoroService}
 {
-    requestData();
+    requestDataUpdate();
 }
 
 Qt::ItemFlags TagModel::flags(const QModelIndex& index) const
@@ -23,13 +23,13 @@ bool TagModel::setData(const QModelIndex& index,
         pomodoroService.editTag(data(index, role).toString().toStdString(),
                                 value.toString().toStdString());
         QStringListModel::setData(index, value, role);
-        requestData();
+        requestDataUpdate();
         return true;
     }
     return QStringListModel::setData(index, value, role);
 }
 
-void TagModel::requestData()
+void TagModel::requestDataUpdate()
 {
     pomodoroService.requestAllTags(
         std::bind(&TagModel::onDataArrived, this, std::placeholders::_1));

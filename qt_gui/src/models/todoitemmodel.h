@@ -14,7 +14,7 @@ public:
     explicit TodoItemModel(IPomodoroService& pomodoroService,
                            QObject* parent = 0);
 
-    void retrieveData();
+    void requestDataUpdate();
 
     // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
@@ -31,8 +31,7 @@ public:
     QVariant data(const QModelIndex& index,
                   int role = Qt::DisplayRole) const override;
 
-    // Override to support drag and drop. Changes items' priorities instead of
-    // removing row and inserting it at destination position as in default
+    // Override to support drag and drop. Changes items' priorities instead of // removing row and inserting it at destination position as in default
     // behavour for drag and drop. That default behaviour would not work here,
     // as sqlite view is set to this model, and removing row from it would have
     // undesired consequences.

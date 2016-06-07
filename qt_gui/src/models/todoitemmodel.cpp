@@ -6,10 +6,10 @@
 TodoItemModel::TodoItemModel(IPomodoroService& pomodoroService, QObject* parent)
     : pomodoroService{pomodoroService}
 {
-    retrieveData();
+    requestDataUpdate();
 }
 
-void TodoItemModel::retrieveData()
+void TodoItemModel::requestDataUpdate()
 {
     pomodoroService.requestUnfinishedTasks(
         std::bind(&TodoItemModel::onDataChanged, this, std::placeholders::_1));
@@ -74,7 +74,7 @@ int TodoItemModel::rowCount(const QModelIndex& parent) const
 void TodoItemModel::insert(const TodoItem& item)
 {
     pomodoroService.registerTask(item);
-    retrieveData();
+    requestDataUpdate();
 }
 
 void TodoItemModel::remove(const QModelIndex& index) { remove(index.row()); }
@@ -82,7 +82,7 @@ void TodoItemModel::remove(const QModelIndex& index) { remove(index.row()); }
 void TodoItemModel::remove(const int row)
 {
     pomodoroService.removeTask(itemAt(row));
-    retrieveData();
+    requestDataUpdate();
 }
 
 TodoItem TodoItemModel::itemAt(const int row) const { return storage[row]; }
@@ -90,14 +90,14 @@ TodoItem TodoItemModel::itemAt(const int row) const { return storage[row]; }
 void TodoItemModel::toggleCompleted(const QModelIndex& index)
 {
     pomodoroService.toggleTaskCompletionStatus(itemAt(index.row()));
-    retrieveData();
+    requestDataUpdate();
 }
 
 void TodoItemModel::replaceItemAt(const int row, const TodoItem& newItem)
 {
     TodoItem oldItem = itemAt(row);
     pomodoroService.editTask(oldItem, newItem);
-    retrieveData();
+    requestDataUpdate();
 }
 
 bool TodoItemModel::moveRows(const QModelIndex& sourceParent,
@@ -121,7 +121,7 @@ bool TodoItemModel::moveRows(const QModelIndex& sourceParent,
     std::swap(priorities[sourceRow].second, priorities[destinationRow].second);
 
     pomodoroService.registerTaskPriorities(std::move(priorities));
-    retrieveData();
+    requestDataUpdate();
 
     return true;
 }

@@ -17,7 +17,7 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex& index) const final;
 
-    void requestData();
+    void requestDataUpdate();
 
 private:
     IPomodoroService& pomodoroService;
