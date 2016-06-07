@@ -4,6 +4,7 @@
 
 #include "core/BoostUUIDGenerator.h"
 #include "core/TimeSpan.h"
+#include "core/entities/Tag.h"
 #include "core/entities/TodoItem.h"
 #include <list>
 #include <string>
@@ -20,11 +21,11 @@ public:
 
     Pomodoro(const std::string& taskName,
              const TimeSpan& timeSpan,
-             const std::list<std::string>& tags);
+             const std::list<Tag>& tags);
 
     Pomodoro(const std::string& taskName,
              const TimeSpan& timeSpan,
-             const std::list<std::string>& tags,
+             const std::list<Tag>& tags,
              const std::string& uuid,
              const std::string& taskUuid);
 
@@ -52,7 +53,7 @@ public:
     std::string taskUuid() const;
 
     // Return vector of tags. Tags are identical the associated task tags.
-    std::list<std::string> tags() const;
+    std::list<Tag> tags() const;
 
     // Return string representation.
     std::string toString() const;
@@ -63,7 +64,7 @@ private:
     TimeSpan mInterval;
     std::string mUuid;
     std::string mTaskUuid;
-    std::list<std::string> mTags;
+    std::list<Tag> mTags;
 };
 
 

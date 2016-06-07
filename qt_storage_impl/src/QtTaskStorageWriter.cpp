@@ -65,23 +65,23 @@ void QtTaskStorageWriter::save(const TodoItem& task)
 }
 
 void QtTaskStorageWriter::insertTags(const QString& taskUuid,
-                                     const std::list<std::string>& tags)
+                                     const std::list<Tag>& tags)
 {
     for (const auto& tag : tags) {
         dbService.bindValue(
-            insertTagQueryId, ":tag", QString::fromStdString(tag));
+            insertTagQueryId, ":tag", QString::fromStdString(tag.name()));
         dbService.bindValue(insertTagQueryId, ":uuid", taskUuid);
         dbService.executePrepared(insertTagQueryId);
     }
 }
 
 void QtTaskStorageWriter::removeTags(const QString& taskUuid,
-                                     const std::list<std::string>& tags)
+                                     const std::list<Tag>& tags)
 {
     for (const auto& tag : tags) {
         dbService.bindValue(removeTagQueryId, ":uuid", taskUuid);
         dbService.bindValue(
-            removeTagQueryId, ":tag", QString::fromStdString(tag));
+            removeTagQueryId, ":tag", QString::fromStdString(tag.name()));
         dbService.executePrepared(removeTagQueryId);
     }
 }
@@ -112,8 +112,8 @@ void QtTaskStorageWriter::edit(const TodoItem& task, const TodoItem& editedTask)
     auto newTags = editedTask.tags();
     oldTags.sort();
     newTags.sort();
-    std::list<std::string> tagsToRemove;
-    std::list<std::string> tagsToInsert;
+    std::list<Tag> tagsToRemove;
+    std::list<Tag> tagsToInsert;
 
     twoWayDiff(cbegin(oldTags),
                cend(oldTags),

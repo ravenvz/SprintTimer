@@ -230,9 +230,16 @@ void StatisticsWidget::updateDailyTimelineGraph(
 
 void StatisticsWidget::updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts)
 {
-    if (!tagTagCounts.empty() && tagTagCounts.back().first == "")
-        tagTagCounts.back().first = "others";
-    ui->topTagDiagram->setData(tagTagCounts);
+    if (!tagTagCounts.empty() && tagTagCounts.back().first == Tag{""})
+        tagTagCounts.back().first.setName("others");
+    std::vector<std::pair<std::string, double>> data;
+    std::transform(tagTagCounts.cbegin(),
+                   tagTagCounts.cend(),
+                   std::back_inserter(data),
+                   [](const auto& elem) -> std::pair<std::string, double> {
+                       return {elem.first.name(), elem.second};
+                   });
+    ui->topTagDiagram->setData(data);
     ui->topTagDiagram->setLegendTitle("Top tags");
     ui->topTagDiagram->setLegendTitleFont(QFont(".Helvetica Neue Desk UI", 13));
 }

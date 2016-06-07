@@ -1,4 +1,5 @@
 #include "core/entities/TodoItem.h"
+#include <iostream>
 #include <regex>
 
 
@@ -8,7 +9,7 @@ BoostUUIDGenerator TodoItem::generator;
 TodoItem::TodoItem(std::string name,
                    int estimatedPomodoros,
                    int spentPomodoros,
-                   std::list<std::string> tags,
+                   std::list<Tag> tags,
                    bool completed)
     : mName(name)
     , mEstimatedPomodoros(estimatedPomodoros)
@@ -24,7 +25,7 @@ TodoItem::TodoItem(std::string name,
                    int estimatedPomodoros,
                    int spentPomodoros,
                    const std::string& uuid,
-                   std::list<std::string> tags,
+                   std::list<Tag> tags,
                    bool completed,
                    const DateTime& lastModified)
     : mName(name)
@@ -44,8 +45,6 @@ TodoItem::TodoItem(std::string encodedDescription)
     decodeDescription(std::move(encodedDescription));
 }
 
-std::string TodoItem::tagPrefix = std::string{"#"};
-
 std::string TodoItem::estimatedPrefix = std::string{"*"};
 
 std::string TodoItem::name() const { return mName; }
@@ -58,7 +57,7 @@ int TodoItem::spentPomodoros() const { return mSpentPomodoros; }
 
 std::string TodoItem::uuid() const { return mUuid; }
 
-std::list<std::string> TodoItem::tags() const { return mTags; }
+std::list<Tag> TodoItem::tags() const { return mTags; }
 
 DateTime TodoItem::lastModified() const { return mLastModified; }
 
@@ -71,28 +70,26 @@ void TodoItem::setEstimatedPomodoros(int estimatedPomodoros)
     mEstimatedPomodoros = estimatedPomodoros;
 }
 
-void TodoItem::setTags(const std::list<std::string>& newTags)
-{
-    mTags = newTags;
-}
+void TodoItem::setTags(const std::list<Tag>& newTags) { mTags = newTags; }
 
 void TodoItem::setSpentPomodoros(int spentPomodoros)
 {
     mSpentPomodoros = spentPomodoros;
 }
 
-void TodoItem::setModifiedTimeStamp(const DateTime& timeStamp) {
+void TodoItem::setModifiedTimeStamp(const DateTime& timeStamp)
+{
     mLastModified = timeStamp;
 }
 
 std::string TodoItem::tagsAsString() const
 {
-    std::list<std::string> res{mTags.begin(), mTags.end()};
-    std::for_each(res.begin(), res.end(), [&](auto& tag) {
-        tag.insert(0, tagPrefix);
-        return tag;
-    });
-    return StringUtils::join(res.begin(), res.end(), " ");
+    std::list<std::string> prefixedTags;
+    std::transform(mTags.cbegin(),
+                   mTags.cend(),
+                   std::back_inserter(prefixedTags),
+                   [](const auto& elem) { return elem.nameWithPrefix(); });
+    return StringUtils::join(prefixedTags.begin(), prefixedTags.end(), " ");
 }
 
 
@@ -110,7 +107,7 @@ std::string TodoItem::toString() const
 
 void TodoItem::decodeDescription(std::string&& encodedDescription)
 {
-    std::regex tagRegex{"^" + tagPrefix + R"(\w+)"};
+    std::regex tagRegex{"^" + Tag::prefix + R"(\w+)"};
     std::regex estimatedRegex{"^\\" + estimatedPrefix + R"(\w+)"};
     std::regex anyNonWhitespace{"\\S+"};
 

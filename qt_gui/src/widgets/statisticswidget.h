@@ -1,9 +1,9 @@
 #ifndef STATISTICSWIDGET_H
 #define STATISTICSWIDGET_H
 
+#include "core/IConfig.h"
 #include "core/IPomodoroService.h"
 #include "core/PomodoroStatistics.h"
-#include "core/IConfig.h"
 #include "dialogs/datepickdialog.h"
 #include "plot.h"
 #include "timediagram.h"
@@ -74,7 +74,8 @@ private:
     void
     updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
                            const std::vector<Pomodoro>& pomodoros);
-    void updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts);
+    void updateTopTagsDiagram(
+        std::vector<TagCount>& tagTagCounts); // TODO rename it's a shame
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
     void onPomodorosFetched(const std::vector<Pomodoro>& pomodoros);
 };

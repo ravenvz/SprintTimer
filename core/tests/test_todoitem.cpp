@@ -1,6 +1,8 @@
 #include "core/entities/TodoItem.h"
 #include <TestHarness.h>
 
+#include <iostream>
+
 TEST_GROUP(TodoItemGroup){
 
 };
@@ -9,7 +11,7 @@ TEST(TodoItemGroup, test_description_all_parts_present)
 {
     TodoItem item{"#Test All parts present *5"};
 
-    CHECK_TRUE(std::list<std::string>{"Test"} == item.tags())
+    CHECK_TRUE(std::list<Tag>{Tag{"Test"}} == item.tags())
     CHECK_EQUAL(std::string{"All parts present"}, item.name())
     CHECK_EQUAL(5, item.estimatedPomodoros())
 }
@@ -19,7 +21,7 @@ TEST(TodoItemGroup,
 {
     TodoItem item{"#Test Todo with tag"};
 
-    CHECK_TRUE(std::list<std::string>{"Test"} == item.tags())
+    CHECK_TRUE(std::list<Tag>{Tag{"Test"}} == item.tags())
     CHECK_EQUAL(std::string{"Todo with tag"}, item.name())
     CHECK_EQUAL(1, item.estimatedPomodoros())
 }
@@ -34,12 +36,16 @@ TEST(TodoItemGroup, test_description_no_tags)
 }
 
 // TODO figure out what the heck is wrong with this
-IGNORE_TEST(TodoItemGroup, test_description_no_name)
+TEST(TodoItemGroup, test_description_no_name)
 {
     TodoItem item{"#Tag #Test *4"};
 
-    std::list<std::string> expectedTags{"Tag", "Test"};
-    CHECK_TRUE(expectedTags == item.tags())
+    std::list<Tag> expected{Tag{"Tag"}, Tag{"Test"}};
+
+    auto actual = item.tags();
+
+    CHECK_EQUAL(expected.size(), actual.size())
+    CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
     CHECK_EQUAL(4, item.estimatedPomodoros())
 }
 
@@ -55,7 +61,7 @@ TEST(TodoItemGroup, test_only_threats_words_preceeded_by_single_hash_as_tags)
 {
     TodoItem item{"##My #tag1  #   ##    beautiful,marvelous, great   content"};
 
-    CHECK_TRUE(std::list<std::string>{"tag1"} == item.tags())
+    CHECK_TRUE(std::list<Tag>{Tag{"tag1"}} == item.tags())
     CHECK_EQUAL(std::string{"##My # ## beautiful,marvelous, great content"},
                 item.name())
 }
@@ -67,7 +73,7 @@ TEST(TodoItemGroup, test_to_string)
                   4,
                   2,
                   "uuid",
-                  std::list<std::string>(),
+                  std::list<Tag>(),
                   false,
                   DateTime::currentDateTimeLocal()};
     std::string expected{"I am item with no tags 2/4"};

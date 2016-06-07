@@ -21,7 +21,7 @@ TEST_GROUP(TestPomodoroService)
                          4,
                          2,
                          "550e8400-e29b-41d4-a716-446655440000",
-                         {"Tag1", "Tag2"},
+                         {Tag{"Tag1"}, Tag{"Tag2"}},
                          false,
                          DateTime::fromYMD(2015, 11, 10)};
 
@@ -196,7 +196,7 @@ TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
     const std::string taskUuid = defaultTask.uuid();
 
     const std::string editedTaskName{"Edited"};
-    std::list<std::string> editedTags{"Tag2", "New Tag"};
+    std::list<Tag> editedTags{Tag{"Tag2"}, Tag{"New Tag"}};
     const int editedEstimated{7};
     const int editedSpent{5};
     const bool editedCompletionStatus{true};
@@ -285,15 +285,15 @@ TEST(TestPomodoroService, test_request_all_tags_calls_handler)
 
 TEST(TestPomodoroService, test_edit_tag_should_edit_tag_for_all_items)
 {
-    const std::list<std::string> tags1{"Tag1", "Tag2"};
-    const std::list<std::string> tags2{"Tag2", "Tag3"};
-    const std::list<std::string> tags3{"Tag1", "Tag5"};
+    const std::list<Tag> tags1{Tag{"Tag1"}, Tag{"Tag2"}};
+    const std::list<Tag> tags2{Tag{"Tag2"}, Tag{"Tag3"}};
+    const std::list<Tag> tags3{Tag{"Tag1"}, Tag{"Tag5"}};
     TodoItem item1{"Item 1", 4, 0, tags1, false};
     TodoItem item2{"Item 2", 4, 0, tags2, false};
     TodoItem item3{"Item 3", 4, 0, tags3, false};
-    const std::list<std::string> exp_tags1{"EditedTag", "Tag2"};
-    const std::list<std::string> exp_tags2{"Tag2", "Tag3"};
-    const std::list<std::string> exp_tags3{"EditedTag", "Tag5"};
+    const std::list<Tag> exp_tags1{Tag{"EditedTag"}, Tag{"Tag2"}};
+    const std::list<Tag> exp_tags2{Tag{"Tag2"}, Tag{"Tag3"}};
+    const std::list<Tag> exp_tags3{Tag{"EditedTag"}, Tag{"Tag5"}};
     pomodoroService.registerTask(item1);
     pomodoroService.registerTask(item2);
     pomodoroService.registerTask(item3);

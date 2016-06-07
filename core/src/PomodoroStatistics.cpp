@@ -20,8 +20,7 @@ std::vector<TagCount> TagDistribution::topTagsDistribution() const
 }
 
 
-std::vector<Pomodoro>
-TagDistribution::pomodorosWithTag(const std::string& tag) const
+std::vector<Pomodoro> TagDistribution::pomodorosWithTag(const Tag& tag) const
 {
     // May throw out_of_range, but if there is no tag in map, we're screwed
     // anyway so let it crash for now
@@ -41,7 +40,7 @@ std::string TagDistribution::getNthTopTagName(size_t n) const
 {
     // May throw out_of_range, but if there is no key in map, we're screwed
     // anyway so let it crash for now
-    return sliceIndexMap.at(n);
+    return sliceIndexMap.at(n).name();
 }
 
 
@@ -79,15 +78,18 @@ void TagDistribution::reduceTailToSum()
         sliceData[sliceData.size() - 2].second += sliceData.back().second;
         sliceData.pop_back();
     }
-    sliceData.back().first = "";
-    std::vector<std::string> topTagsSet;
+
+    const Tag dummyTag{""};
+
+    sliceData.back().first = dummyTag;
+    std::vector<Tag> topTagsSet;
     topTagsSet.reserve(sliceData.size());
     std::transform(sliceData.cbegin(),
                    sliceData.cend(),
                    std::back_inserter(topTagsSet),
                    [](const auto& elem) { return elem.first; });
 
-    std::vector<std::string> allTags;
+    std::vector<Tag> allTags;
     allTags.reserve(tagToPomodoroVec.size());
     std::transform(tagToPomodoroVec.cbegin(),
                    tagToPomodoroVec.cend(),
@@ -97,18 +99,18 @@ void TagDistribution::reduceTailToSum()
     std::sort(topTagsSet.begin(), topTagsSet.end());
     std::sort(allTags.begin(), allTags.end());
 
-    std::vector<std::string> otherTags;
+    std::vector<Tag> otherTags;
     std::set_difference(allTags.begin(),
                         allTags.end(),
                         topTagsSet.begin(),
                         topTagsSet.end(),
                         std::back_inserter(otherTags));
 
-    tagToPomodoroVec.insert(std::make_pair("", std::vector<Pomodoro>()));
+    tagToPomodoroVec.insert(std::make_pair(dummyTag, std::vector<Pomodoro>()));
     for (const auto& tag : otherTags) {
-        tagToPomodoroVec[""].insert(tagToPomodoroVec[""].end(),
-                                    tagToPomodoroVec[tag].begin(),
-                                    tagToPomodoroVec[tag].end());
+        tagToPomodoroVec[dummyTag].insert(tagToPomodoroVec[dummyTag].end(),
+                                          tagToPomodoroVec[tag].begin(),
+                                          tagToPomodoroVec[tag].end());
     }
 }
 

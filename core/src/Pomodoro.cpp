@@ -16,7 +16,7 @@ Pomodoro::Pomodoro(const TimeSpan& timeSpan)
 
 Pomodoro::Pomodoro(const std::string& taskName,
                    const TimeSpan& timeSpan,
-                   const std::list<std::string>& tags)
+                   const std::list<Tag>& tags)
     : mName{taskName}
     , mInterval{timeSpan}
     , mUuid{generator.generateUUID()}
@@ -26,7 +26,7 @@ Pomodoro::Pomodoro(const std::string& taskName,
 
 Pomodoro::Pomodoro(const std::string& taskName,
                    const TimeSpan& timeSpan,
-                   const std::list<std::string>& tags,
+                   const std::list<Tag>& tags,
                    const std::string& uuid,
                    const std::string& taskUuid)
     : mName{taskName}
@@ -65,22 +65,27 @@ std::string Pomodoro::uuid() const { return mUuid; }
 
 std::string Pomodoro::taskUuid() const { return mTaskUuid; }
 
-std::list<std::string> Pomodoro::tags() const { return mTags; }
+std::list<Tag> Pomodoro::tags() const { return mTags; }
 
 std::string Pomodoro::toString() const
 {
-    std::vector<std::string> tagsCopy;
-    std::vector<std::string> result;
+    std::vector<std::string> prefixedTags;
+    std::vector<std::string> parts;
 
-    std::copy(mTags.cbegin(), mTags.cend(), std::back_inserter(tagsCopy));
+    std::transform(mTags.cbegin(),
+                   mTags.cend(),
+                   std::back_inserter(prefixedTags),
+                   [](const auto& elem) { return elem.nameWithPrefix(); });
+    // std::copy(mTags.cbegin(), mTags.cend(),
+    // std::back_inserter(prefixedTags));
+    //
+    // std::for_each(prefixedTags.begin(), prefixedTags.end(), [&](auto& elem) {
+    //     elem.insert(0, TodoItem::tagPrefix);
+    // });
 
-    std::for_each(tagsCopy.begin(), tagsCopy.end(), [&](auto& elem) {
-        elem.insert(0, TodoItem::tagPrefix);
-    });
+    parts.push_back(mInterval.toTimeString());
+    parts.push_back(StringUtils::join(prefixedTags, " "));
+    parts.push_back(mName);
 
-    result.push_back(mInterval.toTimeString());
-    result.push_back(StringUtils::join(tagsCopy, std::string(" ")));
-    result.push_back(mName);
-
-    return StringUtils::join(result, " ");
+    return StringUtils::join(parts, " ");
 }

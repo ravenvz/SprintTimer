@@ -24,13 +24,20 @@ AddTodoItemDialog::~AddTodoItemDialog() { delete ui; }
 
 TodoItem AddTodoItemDialog::constructedTask()
 {
-    std::string name = ui->todoName->text().toStdString();
-    int estimatedPomodoros = ui->estimatedPomodoros->value();
-    std::list<std::string> tags
+    const std::string name = ui->todoName->text().toStdString();
+    const int estimatedPomodoros = ui->estimatedPomodoros->value();
+    std::list<Tag> tags;
+    std::list<std::string> tagNames
         = StringUtils::parseWords(ui->leTags->text().toStdString());
     // Remove duplicate tags if any.
-    tags.sort();
-    tags.unique();
+    tagNames.sort();
+    tagNames.unique();
+
+    std::transform(tagNames.cbegin(),
+                   tagNames.cend(),
+                   std::back_inserter(tags),
+                   [](const auto& name) { return Tag{name}; });
+
     return TodoItem{name, estimatedPomodoros, 0, tags, false};
 }
 
@@ -43,9 +50,15 @@ void AddTodoItemDialog::accept()
 
 void AddTodoItemDialog::fillItemData(const TodoItem& item)
 {
-    auto tags = item.tags();
+    const auto tags = item.tags();
+    std::list<std::string> tagNames;
+    std::transform(tags.cbegin(),
+                   tags.cend(),
+                   std::back_inserter(tagNames),
+                   [](const auto& tag) { return tag.name(); });
+
     QString joined_tags = QString::fromStdString(
-        StringUtils::join(tags.cbegin(), tags.cend(), " "));
+        StringUtils::join(tagNames.cbegin(), tagNames.cend(), " "));
     ui->todoName->setText(QString::fromStdString(item.name()));
     ui->estimatedPomodoros->setValue(item.estimatedPomodoros());
     ui->leTags->setText(joined_tags);

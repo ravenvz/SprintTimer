@@ -53,11 +53,13 @@ public:
     {
         for (const auto& pair : storage) {
             for (const auto& tag : pair.second.tags()) {
-                if (tag == oldName) {
-                    std::list<std::string> oldTags = pair.second.tags();
-                    oldTags.remove_if(
-                        [&](const auto& elem) { return elem == oldName; });
-                    oldTags.push_back(newName);
+                if (tag.name() == oldName) {
+                    std::list<Tag> oldTags = pair.second.tags();
+                    oldTags.remove_if([&](const auto& elem) {
+                        return elem.name() == oldName;
+                    });
+                    std::string newNameCopy{newName};
+                    oldTags.push_back(Tag{std::move(newNameCopy)});
                     storage.at(pair.first).setTags(oldTags);
                 }
             }

@@ -22,6 +22,7 @@ set(SOURCE_FILES
     ../src/PomodoroTimer.cpp
     ../src/Timer.cpp
     ../src/PomodoroService.cpp
+    ../src/Tag.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

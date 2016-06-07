@@ -2,6 +2,7 @@
 #define QTTASKSTORAGEWRITER_H_AB4O73ZJ
 
 #include "core/ITaskStorageWriter.h"
+#include "core/entities/Tag.h"
 #include "qt_storage_impl/db_service.h"
 #include <QObject>
 #include <algorithm>
@@ -43,11 +44,9 @@ private:
     long long updatePrioritiesQueryId{-1};
     long long editTagQueryId{-1};
 
-    void insertTags(const QString& taskUuid,
-                    const std::list<std::string>& tags);
+    void insertTags(const QString& taskUuid, const std::list<Tag>& tagNames);
 
-    void removeTags(const QString& taskUuid,
-                    const std::list<std::string>& tags);
+    void removeTags(const QString& taskUuid, const std::list<Tag>& tags);
 };
 
 template <class InputIt1, class InputIt2, class OutputIt1, class OutputIt2>

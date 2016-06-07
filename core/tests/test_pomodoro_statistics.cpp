@@ -134,7 +134,7 @@ TEST_GROUP(TagDistribution){
 
     void pushToPomodoros(std::vector<Pomodoro> & pomodoros,
                          std::string name,
-                         const std::list<std::string>& tags,
+                         const std::list<Tag>& tags,
                          int n){
         for (int i = 0; i < n; ++i){pomodoros.push_back(Pomodoro{
             name,
@@ -148,12 +148,12 @@ TEST_GROUP(TagDistribution){
 TEST(TagDistribution, test_does_not_reduce_slice_vector_when_all_tags_fit)
 {
     std::vector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag2"}, 49);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
     TagDistribution map{pomodoros, 3};
     std::vector<TagCount> expected;
-    expected.push_back(std::make_pair("Tag2", double(49) / 53));
-    expected.push_back(std::make_pair("Tag1", double(4) / 53));
+    expected.push_back(std::make_pair(Tag{"Tag2"}, double(49) / 53));
+    expected.push_back(std::make_pair(Tag{"Tag1"}, double(4) / 53));
 
     CHECK(expected == map.topTagsDistribution())
 
@@ -165,12 +165,12 @@ TEST(TagDistribution,
      test_does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
     std::vector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag2"}, 49);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
     TagDistribution map{pomodoros, 5};
     std::vector<TagCount> expected;
-    expected.push_back(std::make_pair("Tag2", double(49) / 53));
-    expected.push_back(std::make_pair("Tag1", double(4) / 53));
+    expected.push_back(std::make_pair(Tag{"Tag2"}, double(49) / 53));
+    expected.push_back(std::make_pair(Tag{"Tag1"}, double(4) / 53));
     CHECK("Tag2" == map.getNthTopTagName(0))
     CHECK("Tag1" == map.getNthTopTagName(1))
 
@@ -183,20 +183,20 @@ TEST(TagDistribution,
 TEST(TagDistribution, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
 {
     std::vector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag2"}, 49);
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag2", "Tag1"}, 1);
-    pushToPomodoros(pomodoros, "irrelevant", {"C++", "Tag4"}, 10);
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag4"}, 25);
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag5"}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"C++"}, Tag{"Tag4"}}, 10);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag4"}}, 25);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag5"}}, 4);
     pushToPomodoros(pomodoros, "irrelevant", {}, 100);
     TagDistribution map{pomodoros, 5};
     std::vector<TagCount> expected;
-    expected.push_back(std::make_pair("Tag2", double(50) / 104));
-    expected.push_back(std::make_pair("Tag4", double(35) / 104));
-    expected.push_back(std::make_pair("C++", double(10) / 104));
-    expected.push_back(std::make_pair("Tag1", double(5) / 104));
-    expected.push_back(std::make_pair("", double(4) / 104));
+    expected.push_back(std::make_pair(Tag{"Tag2"}, double(50) / 104));
+    expected.push_back(std::make_pair(Tag{"Tag4"}, double(35) / 104));
+    expected.push_back(std::make_pair(Tag{"C++"}, double(10) / 104));
+    expected.push_back(std::make_pair(Tag{"Tag1"}, double(5) / 104));
+    expected.push_back(std::make_pair(Tag{""}, double(4) / 104));
 
     CHECK("Tag2" == map.getNthTopTagName(0))
     CHECK("Tag4" == map.getNthTopTagName(1))
@@ -217,17 +217,18 @@ TEST(TagDistribution,
      test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
     std::vector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag1"}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag2"}, 49);
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag2", "Tag1"}, 1);
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag3", "Tag4"}, 10);
-    pushToPomodoros(pomodoros, "irrelevant", {"Tag4"}, 25);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag3"}, Tag{"Tag4"}}, 10);
+    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag4"}}, 25);
     pushToPomodoros(pomodoros, "irrelevant", {}, 100);
     TagDistribution map{pomodoros, 4};
-    std::vector<TagCount> expected{std::make_pair("Tag2", double(50) / 100),
-                                   std::make_pair("Tag4", double(35) / 100),
-                                   std::make_pair("Tag3", double(10) / 100),
-                                   std::make_pair("", double(5) / 100)};
+    std::vector<TagCount> expected{
+        std::make_pair(Tag{"Tag2"}, double(50) / 100),
+        std::make_pair(Tag{"Tag4"}, double(35) / 100),
+        std::make_pair(Tag{"Tag3"}, double(10) / 100),
+        std::make_pair(Tag{""}, double(5) / 100)};
 
     CHECK("Tag2" == map.getNthTopTagName(0))
     CHECK("Tag4" == map.getNthTopTagName(1))

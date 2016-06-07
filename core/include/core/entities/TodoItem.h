@@ -4,6 +4,7 @@
 #include "core/BoostUUIDGenerator.h"
 #include "core/DateTime.h"
 #include "core/StringUtils.h"
+#include "core/entities/Tag.h"
 #include <list>
 #include <string>
 #include <vector>
@@ -20,14 +21,14 @@ public:
     TodoItem(std::string name,
              int estimatedPomodoros,
              int spentPomodoros,
-             std::list<std::string> tags, // TODO should be reference or moved
+             std::list<Tag> tags, // TODO should be reference or moved
              bool completed);
 
     TodoItem(std::string name,
              int estimatedPomodoros,
              int spentPomodoros,
              const std::string& uuid,
-             std::list<std::string> tags, // TODO should be reference or moved
+             std::list<Tag> tags, // TODO should be reference or moved
              bool completed,
              const DateTime& lastModified);
 
@@ -54,8 +55,6 @@ public:
      * as a part of the name. */
     explicit TodoItem(std::string encodedDescription);
 
-    static std::string tagPrefix;
-
     static std::string estimatedPrefix;
 
     /* Return Task name. */
@@ -74,7 +73,7 @@ public:
     std::string uuid() const;
 
     /* Return list containing Task tags. */
-    std::list<std::string> tags() const;
+    std::list<Tag> tags() const;
 
     DateTime lastModified() const;
 
@@ -88,7 +87,7 @@ public:
     /* Set number of pomodoros spent on this task. */
     void setSpentPomodoros(int spentPomodoros);
 
-    void setTags(const std::list<std::string>& newTags);
+    void setTags(const std::list<Tag>& newTags);
 
     /* Set time stamp of last item modification. */
     void setModifiedTimeStamp(const DateTime& timeStamp);
@@ -107,7 +106,7 @@ private:
     int mEstimatedPomodoros = 1;
     int mSpentPomodoros{0};
     std::string mUuid;
-    std::list<std::string> mTags;
+    std::list<Tag> mTags;
     bool mCompleted{false};
     DateTime mLastModified;
 

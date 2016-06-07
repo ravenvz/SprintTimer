@@ -101,14 +101,14 @@ TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
     int estimatedPomodoros{
         columnData(record, Column::EstimatedPomodoros).toInt()};
     int spentPomodoros{columnData(record, Column::SpentPomodoros).toInt()};
-    QStringList qTags{columnData(record, Column::Tags)
-                          .toString()
-                          .split(",", QString::SkipEmptyParts)};
-    std::list<std::string> tags;
-    std::transform(qTags.cbegin(),
-                   qTags.cend(),
+    QStringList tagNames{columnData(record, Column::Tags)
+                             .toString()
+                             .split(",", QString::SkipEmptyParts)};
+    std::list<Tag> tags;
+    std::transform(tagNames.cbegin(),
+                   tagNames.cend(),
                    std::back_inserter(tags),
-                   [](const auto& tag) { return tag.toStdString(); });
+                   [](const auto& tag) { return Tag{tag.toStdString()}; });
     bool finished{columnData(record, Column::Completed).toBool()};
     QDateTime qLastModified{
         columnData(record, Column::LastModified).toDateTime()};

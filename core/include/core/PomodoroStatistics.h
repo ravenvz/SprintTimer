@@ -1,8 +1,8 @@
 #ifndef POMODORO_POMODOROSTATISTICS_H
 #define POMODORO_POMODOROSTATISTICS_H
 
-#include "entities/Pomodoro.h"
 #include "Distribution.h"
+#include "entities/Pomodoro.h"
 #include <algorithm>
 #include <iostream>
 #include <unordered_map>
@@ -10,13 +10,13 @@
 
 // TODO refactor this ugly mess
 
-using TagCount = std::pair<std::string, double>;
+using TagCount = std::pair<Tag, double>;
 
 
 /* Datastructure that stores number of completed pomodoros for each tag. */
 class TagDistribution {
 public:
-    using TagPomoMap = std::unordered_map<std::string, std::vector<Pomodoro>>;
+    using TagPomoMap = std::unordered_map<Tag, std::vector<Pomodoro>>;
 
     TagDistribution(const std::vector<Pomodoro>& pomodoros, int numTopTags);
 
@@ -32,7 +32,7 @@ public:
     std::vector<TagCount> topTagsDistribution() const;
 
     /* Return vector of pomodoros that have given tag. */
-    std::vector<Pomodoro> pomodorosWithTag(const std::string& tag) const;
+    std::vector<Pomodoro> pomodorosWithTag(const Tag& tag) const;
 
     /* Return vector of pomodoros for n-th top tag. */
     std::vector<Pomodoro> pomodorosForNthTopTag(size_t n) const;
@@ -42,9 +42,9 @@ public:
 
 private:
     TagPomoMap map;
-    std::unordered_map<std::string, std::vector<Pomodoro>> tagToPomodoroVec;
+    std::unordered_map<Tag, std::vector<Pomodoro>> tagToPomodoroVec;
     std::vector<TagCount> sliceData;
-    std::unordered_map<size_t, std::string> sliceIndexMap;
+    std::unordered_map<size_t, Tag> sliceIndexMap;
     size_t numTopTags;
 
     void buildDistribution();

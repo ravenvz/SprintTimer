@@ -5,7 +5,8 @@
 
 TEST_GROUP(IncrementSpentPomodoros)
 {
-    TodoItem defaultItem{"Item name", 4, 2, {"Tag 1", "Tag 2"}, false};
+    TodoItem defaultItem{
+        "Item name", 4, 2, {Tag{"Tag 1"}, Tag{"Tag 2"}}, false};
 };
 
 TEST(IncrementSpentPomodoros, test_execute_and_undo)

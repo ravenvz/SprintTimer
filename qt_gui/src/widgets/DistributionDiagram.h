@@ -1,12 +1,12 @@
 #ifndef POMODORO_TAGDIAGRAM_H
 #define POMODORO_TAGDIAGRAM_H
 
-#include <QWidget>
-#include <QMouseEvent>
-#include <QLabel>
-#include <QVBoxLayout>
 #include "widgets/PieChart.h"
 #include "widgets/SimpleLegend.h"
+#include <QLabel>
+#include <QMouseEvent>
+#include <QVBoxLayout>
+#include <QWidget>
 #include <experimental/optional>
 
 using std::experimental::optional;
