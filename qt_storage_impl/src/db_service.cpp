@@ -245,11 +245,10 @@ bool Worker::createSchema()
     QString createPomodoroTable
         = "CREATE TABLE pomodoro "
           "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
-          "todo_id INTEGER, "
+          "todo_uuid TEXT, "
           "start_time DATETIME, "
           "finish_time DATETIME, "
           "uuid TEXT UNIQUE NOT NULL, "
-          "todo_uuid TEXT, "
           "FOREIGN KEY (todo_uuid) REFERENCES todo_item(uuid) "
           "ON DELETE CASCADE)";
 
@@ -257,14 +256,16 @@ bool Worker::createSchema()
                              "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
                              "name VARCHAR(15) UNIQUE NOT NULL)";
 
-    QString createTodoTagTable = "CREATE TABLE todotag "
-                                 "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                                 "tag_id INTEGER NOT NULL, "
-                                 "todo_id INTEGER NOT NULL, "
-                                 "todo_uuid TEXT NOT NULL, "
-                                 "FOREIGN KEY(tag_id) REFERENCES tag(id), "
-                                 "FOREIGN KEY(todo_id) REFERENCES "
-                                 "todo_item(id) ON DELETE CASCADE)";
+    QString createTodoTagTable
+        = "CREATE TABLE todotag "
+          "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+          "tag_id INTEGER NOT NULL, "
+          "todo_id INTEGER NOT NULL, "
+          "todo_uuid TEXT NOT NULL, "
+          "FOREIGN KEY(tag_id) REFERENCES "
+          "tag(id) ON DELETE CASCADE ON UPDATE CASCADE, "
+          "FOREIGN KEY(todo_id) REFERENCES "
+          "todo_item(id) ON DELETE CASCADE ON UPDATE CASCADE)";
 
     // This view is a workaround to let insertion of tags
     // when we don't know tag id of already existing tag
