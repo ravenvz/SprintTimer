@@ -18,7 +18,6 @@ StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,
     currentInterval = ui->widgetPickPeriod->getInterval();
     workTimeDiagram = new TimeDiagram(this);
     ui->verticalLayoutBestWorktime->addWidget(workTimeDiagram);
-    updateView();
     connectSlots();
 }
 
