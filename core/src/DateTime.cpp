@@ -99,6 +99,7 @@ std::string DateTime::toTimeString() const
     return ss.str();
 }
 
+// TODO consider generic method with format string as parameter
 std::string DateTime::yyyymmddString() const
 {
     std::stringstream ss;
@@ -109,6 +110,19 @@ std::string DateTime::yyyymmddString() const
     ss << "-";
     ss << std::setfill('0') << std::setw(2);
     ss << day();
+    return ss.str();
+}
+
+std::string DateTime::ddmmyyyyString() const
+{
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(2);
+    ss << day();
+    ss << ".";
+    ss << std::setfill('0') << std::setw(2);
+    ss << month();
+    ss << ".";
+    ss << year();
     return ss.str();
 }
 

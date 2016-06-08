@@ -23,7 +23,7 @@ public:
 
     std::string inspect() const final
     {
-        return "Request pomodoros in 'placeholder'";
+        return "Request pomodoros in '" + timeSpan.toDateString() + "'";
     }
 
 private:

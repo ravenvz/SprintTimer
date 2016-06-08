@@ -21,7 +21,7 @@ public:
 
     std::string inspect() const final
     {
-        return "Request finished tasks in 'placeholder'";
+        return "Request finished tasks in '" + timeSpan.toDateString() + "'";
     }
 
 private:

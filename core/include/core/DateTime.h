@@ -92,6 +92,8 @@ public:
 
     std::string yyyymmddString() const;
 
+    std::string ddmmyyyyString() const;
+
     friend inline bool operator==(const DateTime& dt1, const DateTime& dt2);
 
     friend inline bool operator!=(const DateTime& dt1, const DateTime& dt2);

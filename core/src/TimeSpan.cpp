@@ -115,6 +115,15 @@ std::string TimeSpan::toTimeString() const
     return res;
 }
 
+std::string TimeSpan::toDateString() const
+{
+    std::string res;
+    res += startTime.ddmmyyyyString();
+    res += " - ";
+    res += finishTime.ddmmyyyyString();
+    return res;
+}
+
 unsigned startDateAbsDiff(const TimeSpan& one, const TimeSpan& other)
 {
     if (one.startTime <= other.startTime) {

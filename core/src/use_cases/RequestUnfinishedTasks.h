@@ -16,10 +16,7 @@ public:
 
     void execute() final { reader.requestUnfinishedTasks(handler); }
 
-    std::string inspect() const final
-    {
-        return "Request unfinished tasks in 'placeholder'";
-    }
+    std::string inspect() const final { return "Request unfinished tasks"; }
 
 private:
     ITaskStorageReader& reader;

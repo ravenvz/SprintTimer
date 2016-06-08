@@ -59,6 +59,9 @@ struct TimeSpan {
 
     /* Return time representation as string in "HH:mm - HH:mm" format. */
     std::string toTimeString() const;
+
+    /* Return "dd.mm.yy - dd.mm.yy" */
+    std::string toDateString() const;
 };
 
 /* Return absolute number of days between startTime of this TimeSpan and
