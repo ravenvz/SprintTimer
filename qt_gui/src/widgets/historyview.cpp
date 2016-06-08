@@ -51,7 +51,6 @@ HistoryView::HistoryView(IPomodoroService& pomodoroService, QWidget* parent)
             SIGNAL(timeSpanChanged(DateInterval)),
             this,
             SLOT(onDatePickerIntervalChanged(DateInterval)));
-    updateView();
 }
 
 HistoryView::~HistoryView() { delete ui; }
