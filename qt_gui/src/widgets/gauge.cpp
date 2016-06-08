@@ -88,7 +88,7 @@ void Gauge::drawInnerCircle(QPainter& painter)
 
 bool Gauge::eventFilter(QObject* object, QEvent* event)
 {
-    if (object != this)
+    if (object != this || !sizesComputed)
         return false;
     if (event->type() == QEvent::Enter) {
         setFocus();
