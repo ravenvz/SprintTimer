@@ -9,7 +9,7 @@ namespace UseCases {
 class DeleteTask : public RevertableCommand {
 public:
     DeleteTask(ITaskStorageWriter& taskStorageWriter,
-                          const TodoItem& taskToRemove)
+               const TodoItem& taskToRemove)
         : writer{taskStorageWriter}
         , task{taskToRemove}
     {
@@ -18,6 +18,11 @@ public:
     void executeAction() final { writer.remove(task); }
 
     void undoAction() final { writer.save(task); }
+
+    std::string inspect() const final
+    {
+        return "Delete task '" + task.toString() + "'";
+    }
 
 private:
     ITaskStorageWriter& writer;

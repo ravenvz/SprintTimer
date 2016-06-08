@@ -9,8 +9,7 @@ namespace UseCases {
 
 class AddNewTask : public RevertableCommand {
 public:
-    AddNewTask(ITaskStorageWriter& taskStorageWriter,
-                       const TodoItem& task)
+    AddNewTask(ITaskStorageWriter& taskStorageWriter, const TodoItem& task)
         : writer{taskStorageWriter}
         , task{task}
     {
@@ -19,6 +18,11 @@ public:
     void executeAction() final { writer.save(task); }
 
     void undoAction() final { writer.remove(task); }
+
+    std::string inspect() const final
+    {
+        return "Add new task command '" + task.toString() + "'";
+    }
 
 private:
     ITaskStorageWriter& writer;

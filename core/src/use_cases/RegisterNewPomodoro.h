@@ -9,7 +9,7 @@ namespace UseCases {
 class RegisterNewPomodoro : public RevertableCommand {
 public:
     RegisterNewPomodoro(IPomodoroStorageWriter& writer,
-                           const Pomodoro& pomodoro)
+                        const Pomodoro& pomodoro)
         : writer{writer}
         , pomodoro{pomodoro}
     {
@@ -18,6 +18,11 @@ public:
     void executeAction() final { writer.save(pomodoro); }
 
     void undoAction() final { writer.remove(pomodoro); }
+
+    std::string inspect() const final
+    {
+        return "Register new pomodoro '" + pomodoro.toString() + "'";
+    }
 
 private:
     IPomodoroStorageWriter& writer;

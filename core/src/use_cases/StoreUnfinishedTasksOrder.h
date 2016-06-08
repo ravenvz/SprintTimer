@@ -1,12 +1,12 @@
 #ifndef REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y
 #define REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y
 
-#include "core/ICommand.h"
+#include "core/Command.h"
 #include "core/ITaskStorageWriter.h"
 
 namespace UseCases {
 
-class StoreUnfinishedTasksOrder : public ICommand {
+class StoreUnfinishedTasksOrder : public Command {
 public:
     StoreUnfinishedTasksOrder(
         ITaskStorageWriter& taskStorageWriter,
@@ -17,6 +17,8 @@ public:
     }
 
     void execute() { writer.updatePriorities(std::move(priorities)); }
+
+    std::string inspect() const final { return "Store unfinished tasks order"; }
 
 private:
     ITaskStorageWriter& writer;

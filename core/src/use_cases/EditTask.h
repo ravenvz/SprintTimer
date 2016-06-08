@@ -9,8 +9,8 @@ namespace UseCases {
 class EditTask : public RevertableCommand {
 public:
     EditTask(ITaskStorageWriter& writer,
-                    const TodoItem& task,
-                    const TodoItem& editedTask)
+             const TodoItem& task,
+             const TodoItem& editedTask)
         : writer{writer}
         , task{task}
         , editedTask{editedTask.name(),
@@ -26,6 +26,12 @@ public:
     void executeAction() final { writer.edit(task, editedTask); }
 
     void undoAction() final { writer.edit(editedTask, task); }
+
+    std::string inspect() const final
+    {
+        return "Edit task '" + task.toString() + " -> " + editedTask.toString()
+            + "'";
+    }
 
 
 private:

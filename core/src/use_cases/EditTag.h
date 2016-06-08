@@ -18,6 +18,11 @@ public:
     {
     }
 
+    std::string inspect() const final
+    {
+        return "Edit tag (" + oldName + " -> " + newName + ")";
+    }
+
 protected:
     void executeAction() final { writer.editTag(oldName, newName); }
 

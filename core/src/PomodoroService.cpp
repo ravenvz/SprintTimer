@@ -41,23 +41,20 @@ PomodoroService::PomodoroService(
 void PomodoroService::registerTask(const TodoItem& task)
 {
     auto addTask = std::make_unique<UseCases::AddNewTask>(taskWriter, task);
-    addTask->execute();
-    commandStack.push_back(std::move(addTask));
+    invoker.executeCommand(std::move(addTask));
 }
 
 void PomodoroService::removeTask(const TodoItem& task)
 {
     auto deleteTask = std::make_unique<UseCases::DeleteTask>(taskWriter, task);
-    deleteTask->execute();
-    commandStack.push_back(std::move(deleteTask));
+    invoker.executeCommand(std::move(deleteTask));
 }
 
 void PomodoroService::editTask(const TodoItem& task, const TodoItem& editedTask)
 {
     auto editTask
         = std::make_unique<UseCases::EditTask>(taskWriter, task, editedTask);
-    editTask->execute();
-    commandStack.push_back(std::move(editTask));
+    invoker.executeCommand(std::move(editTask));
 }
 
 void PomodoroService::toggleTaskCompletionStatus(const TodoItem& task)
@@ -65,8 +62,7 @@ void PomodoroService::toggleTaskCompletionStatus(const TodoItem& task)
     auto toggleTaskCommand
         = std::make_unique<UseCases::ToggleTaskCompletionStatus>(taskWriter,
                                                                  task);
-    toggleTaskCommand->execute();
-    commandStack.push_back(std::move(toggleTaskCommand));
+    invoker.executeCommand(std::move(toggleTaskCommand));
 }
 
 void PomodoroService::registerTaskPriorities(
@@ -75,36 +71,36 @@ void PomodoroService::registerTaskPriorities(
     auto registerPrioritiesCommand
         = std::make_unique<UseCases::StoreUnfinishedTasksOrder>(
             taskWriter, std::move(priorities));
-    registerPrioritiesCommand->execute();
+    invoker.executeCommand(std::move(registerPrioritiesCommand));
 }
 
 void PomodoroService::requestFinishedTasks(
     const TimeSpan& timeSpan,
     std::function<void(const std::vector<TodoItem>&)> onResultsReceivedCallback)
 {
-    std::unique_ptr<ICommand> requestItems
+    std::unique_ptr<Command> requestItems
         = std::make_unique<UseCases::RequestFinishedTasks>(
             taskReader, timeSpan, onResultsReceivedCallback);
-    requestItems->execute();
+    invoker.executeCommand(std::move(requestItems));
 }
 
 void PomodoroService::requestUnfinishedTasks(
     std::function<void(const std::vector<TodoItem>&)> onResultsReceivedCallback)
 {
-    std::unique_ptr<ICommand> requestItems
+    std::unique_ptr<Command> requestItems
         = std::make_unique<UseCases::RequestUnfinishedTasks>(
             taskReader, onResultsReceivedCallback);
-    requestItems->execute();
+    invoker.executeCommand(std::move(requestItems));
 }
 
 void PomodoroService::pomodorosInTimeRange(
     const TimeSpan& timeSpan,
     std::function<void(const std::vector<Pomodoro>&)> onResultsReceivedCallback)
 {
-    std::unique_ptr<ICommand> requestItems
+    std::unique_ptr<Command> requestItems
         = std::make_unique<UseCases::RequestPomodoros>(
             pomodoroReader, timeSpan, onResultsReceivedCallback);
-    requestItems->execute();
+    invoker.executeCommand(std::move(requestItems));
 }
 
 void PomodoroService::registerPomodoro(const TimeSpan& timeSpan,
@@ -121,8 +117,7 @@ void PomodoroService::registerPomodoro(const TimeSpan& timeSpan,
     commands.push_back(std::move(incrementSpentPomodoros));
     auto addPomodoroTransaction
         = std::make_unique<MacroTransaction>(std::move(commands));
-    addPomodoroTransaction->execute();
-    commandStack.push_back(std::move(addPomodoroTransaction));
+    invoker.executeCommand(std::move(addPomodoroTransaction));
 }
 
 void PomodoroService::removePomodoro(const Pomodoro& pomodoro)
@@ -138,8 +133,7 @@ void PomodoroService::removePomodoro(const Pomodoro& pomodoro)
     commands.push_back(std::move(decrementSpentPomodoros));
     auto removePomodoroTransaction
         = std::make_unique<MacroTransaction>(std::move(commands));
-    removePomodoroTransaction->execute();
-    commandStack.push_back(std::move(removePomodoroTransaction));
+    invoker.executeCommand(std::move(removePomodoroTransaction));
 }
 
 void PomodoroService::pomodoroYearRange(
@@ -148,7 +142,7 @@ void PomodoroService::pomodoroYearRange(
 {
     auto requestYearRange = std::make_unique<UseCases::RequestMinMaxYear>(
         pomodoroYearRangeReader, onResultsReceivedCallback);
-    requestYearRange->execute();
+    invoker.executeCommand(std::move(requestYearRange));
 }
 
 void PomodoroService::requestPomodoroDailyDistribution(
@@ -158,7 +152,7 @@ void PomodoroService::requestPomodoroDailyDistribution(
     auto requestDistribution
         = std::make_unique<UseCases::RequestPomoDistribution>(
             pomoDailyDistributionReader, timeSpan, onResultsReceivedCallback);
-    requestDistribution->execute();
+    invoker.executeCommand(std::move(requestDistribution));
 }
 
 void PomodoroService::requestPomodoroWeeklyDistribution(
@@ -168,7 +162,7 @@ void PomodoroService::requestPomodoroWeeklyDistribution(
     auto requestDistribution
         = std::make_unique<UseCases::RequestPomoDistribution>(
             pomoWeeklyDistributionReader, timeSpan, onResultsReceivedCallback);
-    requestDistribution->execute();
+    invoker.executeCommand(std::move(requestDistribution));
 }
 
 void PomodoroService::requestPomodoroMonthlyDistribution(
@@ -178,14 +172,14 @@ void PomodoroService::requestPomodoroMonthlyDistribution(
     auto requestDistribution
         = std::make_unique<UseCases::RequestPomoDistribution>(
             pomoMonthlyDistributionReader, timeSpan, onResultsReceivedCallback);
-    requestDistribution->execute();
+    invoker.executeCommand(std::move(requestDistribution));
 }
 
 void PomodoroService::requestAllTags(TagResultHandler onResultsReceivedCallback)
 {
     auto requestTags = std::make_unique<UseCases::RequestAllTags>(
         taskReader, onResultsReceivedCallback);
-    requestTags->execute();
+    invoker.executeCommand(std::move(requestTags));
 }
 
 void PomodoroService::editTag(const std::string& oldName,
@@ -194,13 +188,9 @@ void PomodoroService::editTag(const std::string& oldName,
     auto editTag
         = std::make_unique<UseCases::EditTag>(taskWriter, oldName, newName);
     editTag->execute();
-    commandStack.push_back(std::move(editTag));
+    invoker.executeCommand(std::move(editTag));
 }
 
-void PomodoroService::undoLast()
-{
-    commandStack.back()->undo();
-    commandStack.pop_back();
-}
+void PomodoroService::undoLast() { invoker.undo(); }
 
 } /* CoreApi */

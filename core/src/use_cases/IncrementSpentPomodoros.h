@@ -14,6 +14,11 @@ public:
     {
     }
 
+    std::string inspect() const final
+    {
+        return "Increment spent pomodoros for " + taskUuid;
+    }
+
 protected:
     void executeAction() final { writer.incrementSpentPomodoros(taskUuid); }
 

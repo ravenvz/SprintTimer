@@ -26,6 +26,17 @@ public:
         }
     }
 
+    std::string inspect() const final
+    {
+        std::vector<std::string> descriptions{"Macro command"};
+        std::transform(commands.cbegin(),
+                       commands.cend(),
+                       std::back_inserter(descriptions),
+                       [](const auto& command) { return command->inspect(); });
+        return StringUtils::join(
+            descriptions.cbegin(), descriptions.cend(), " ");
+    }
+
     void addCommand(std::unique_ptr<RevertableCommand> command)
     {
         commands.push_back(std::move(command));

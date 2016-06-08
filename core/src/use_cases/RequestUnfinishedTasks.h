@@ -1,20 +1,25 @@
 #ifndef REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK
 #define REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK
 
-#include "core/ICommand.h"
+#include "core/Command.h"
 
 namespace UseCases {
 
-class RequestUnfinishedTasks : public ICommand {
+class RequestUnfinishedTasks : public Command {
 public:
     RequestUnfinishedTasks(ITaskStorageReader& taskStorageReader,
-                                  ITaskStorageReader::Handler handler)
+                           ITaskStorageReader::Handler handler)
         : reader{taskStorageReader}
         , handler{handler}
     {
     }
 
     void execute() final { reader.requestUnfinishedTasks(handler); }
+
+    std::string inspect() const final
+    {
+        return "Request unfinished tasks in 'placeholder'";
+    }
 
 private:
     ITaskStorageReader& reader;

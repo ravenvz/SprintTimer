@@ -19,6 +19,11 @@ public:
 
     void undoAction() final { writer.incrementSpentPomodoros(taskUuid); }
 
+    std::string inspect() const final
+    {
+        return "Decrement spent pomodoros for " + taskUuid;
+    }
+
 private:
     ITaskStorageWriter& writer;
     const std::string& taskUuid;

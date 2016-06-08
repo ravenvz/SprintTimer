@@ -2,6 +2,7 @@
 #define POMODOROSERVICE_H_JXK8PKAI
 
 
+#include "core/CommandInvoker.h"
 #include "core/IPomodoroDistributionReader.h"
 #include "core/IPomodoroService.h"
 #include "core/IPomodoroStorageReader.h"
@@ -86,7 +87,7 @@ private:
     IPomodoroDistributionReader& pomoDailyDistributionReader;
     IPomodoroDistributionReader& pomoWeeklyDistributionReader;
     IPomodoroDistributionReader& pomoMonthlyDistributionReader;
-    std::vector<std::unique_ptr<RevertableCommand>> commandStack;
+    CommandInvoker invoker;
 };
 
 

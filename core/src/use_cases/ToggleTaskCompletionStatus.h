@@ -27,6 +27,11 @@ public:
         writer.toggleTaskCompletionStatus(uuid, oldTimeStamp);
     }
 
+    std::string inspect() const final
+    {
+        return "Toggle task completion for " + uuid;
+    }
+
 private:
     ITaskStorageWriter& writer;
     const std::string uuid;

@@ -2,12 +2,12 @@
 #define REQUESTPOMODAILYDISTRIBUTION_H_QUUONEQF
 
 
-#include "core/ICommand.h"
+#include "core/Command.h"
 #include "core/IPomodoroDistributionReader.h"
 
 namespace UseCases {
 
-class RequestPomoDistribution : public ICommand {
+class RequestPomoDistribution : public Command {
 public:
     RequestPomoDistribution(IPomodoroDistributionReader& reader,
                             const TimeSpan& timeSpan,
@@ -18,9 +18,11 @@ public:
     {
     }
 
-    void execute() final
+    void execute() final { reader.requestDailyDistribution(timeSpan, handler); }
+
+    std::string inspect() const final
     {
-        reader.requestDailyDistribution(timeSpan, handler);
+        return "Request pomodoro distribution";
     }
 
 private:

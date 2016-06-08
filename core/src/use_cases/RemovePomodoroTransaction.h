@@ -19,6 +19,11 @@ public:
 
     void undoAction() final { writer.save(pomodoro); }
 
+    std::string inspect() const final
+    {
+        return "Remove Pomodoro '" + pomodoro.toString() + "'";
+    }
+
 private:
     IPomodoroStorageWriter& writer;
     const Pomodoro& pomodoro;

@@ -1,9 +1,9 @@
 #ifndef REVERTABLECOMMANDBASE_H_WWT2GZMK
 #define REVERTABLECOMMANDBASE_H_WWT2GZMK
 
-#include "core/ICommand.h"
+#include "core/Command.h"
 
-class RevertableCommand : public ICommand {
+class RevertableCommand : public Command {
 public:
     virtual ~RevertableCommand() = default;
 
@@ -13,7 +13,9 @@ public:
         wasExecuted = true;
     }
 
-    virtual void undo()
+    virtual bool supportUndo() const override { return true; }
+
+    virtual void undo() final
     {
         if (wasExecuted) {
             undoAction();

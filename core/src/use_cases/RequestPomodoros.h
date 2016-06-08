@@ -2,12 +2,12 @@
 #define REQUESTPOMODOROSINTIMERANGECOMMAND_H_4QUSWCF0
 
 
-#include "core/ICommand.h"
+#include "core/Command.h"
 #include "core/IPomodoroStorageReader.h"
 
 namespace UseCases {
 
-class RequestPomodoros : public ICommand {
+class RequestPomodoros : public Command {
 public:
     RequestPomodoros(
         IPomodoroStorageReader& reader,
@@ -20,6 +20,11 @@ public:
     }
 
     void execute() final { reader.requestItems(timeSpan, handler); }
+
+    std::string inspect() const final
+    {
+        return "Request pomodoros in 'placeholder'";
+    }
 
 private:
     IPomodoroStorageReader& reader;
