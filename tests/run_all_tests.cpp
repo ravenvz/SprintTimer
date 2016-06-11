@@ -1,19 +1,19 @@
-#include "db_layer/db_service.h"
 #include "CommandLineTestRunner.h"
+// #include "db_layer/db_service.h"
 #include <vector>
 
-bool createTestDbConnection()
-{
-    DBService testDbService{":memory:"};
-    // QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    // db.setDatabaseName(":memory:");
-    // if (!db.open()) {
-    //     return false;
-    // }
-    // testDbService.createSchema();
-    // testDbService.activateForeignKeys();
-    return true;
-}
+// bool createTestDbConnection()
+// {
+//     DBService testDbService{":memory:"};
+//     // QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+//     // db.setDatabaseName(":memory:");
+//     // if (!db.open()) {
+//     //     return false;
+//     // }
+//     // testDbService.createSchema();
+//     // testDbService.activateForeignKeys();
+//     return true;
+// }
 
 int main(int argc, char* argv[])
 {
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
     args.push_back("-c");
 
     // Create in-memory test database.
-    DBService testDbService{":memory:"};
+    // DBService testDbService{":memory:"};
     // if (!testDbService.createDbConnection()) {
     //     return 1;
     // };

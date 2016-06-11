@@ -1,0 +1,4 @@
+Figured out simplier way to handle priorities
+Handled missing query id cases in DBService (say, bindValue requested with bogus id)
+Fixed missing sound resource issue
+Add error handling to Storage Implementers

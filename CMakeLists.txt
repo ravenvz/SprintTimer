@@ -3,19 +3,19 @@ cmake_minimum_required(VERSION 2.8.11)
 set(PROJECT Pomodoro)
 project(${PROJECT})
 
-# Tell CMake to run moc when necessary:
-set(CMAKE_AUTOMOC ON)
-# As moc files are generated in the build dir, tell CMake
-# to always look for includes there:
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(CMAKE_AUTORCC ON)
+# # Tell CMake to run moc when necessary:
+# set(CMAKE_AUTOMOC ON)
+# # As moc files are generated in the build dir, tell CMake
+# # to always look for includes there:
+# set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#
+# set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-# Note, that options are mutually exclusive but nothing enforces this.
+# Note that options are mutually exclusive but nothing enforces this.
 option(ADDRESS_SANITIZER "Address sanitizer in Debug build" OFF)
 option(MEMORY_SANITIZER "Memory sanitizer in Debug build" OFF)
 option(UB_SANITIZER "Undefined behavior sanitizer in Debug build" OFF)
@@ -30,10 +30,11 @@ set("${PROJECT}_BINARY_DIR" bin)
 set("${PROJECT}_SOURCE_DIR" src)
 
 # to change Clion build directory
-# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build")
+#  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}}/${${PROJECT}_BINARY_DIR})
 
 # set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
+set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
 set (ERR_NO_UNIX "Cannot build on non Unix systems")
@@ -50,47 +51,27 @@ else()
   set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
 endif()
 
-set(CLANG_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
-                          -Weverything
-                          -Werror
-                          -pedantic-errors
-                          -Wno-c++98-compat
-                          -Wno-c++98-compat-pedantic
-                          -Wno-weak-vtables
-                          -Wno-padded
-                          -Wno-covered-switch-default
-                          -Wno-shadow
-                          -Wno-missing-prototypes
-                          -Wno-unused-parameter
-                          -Wno-global-constructors
-                          -Wno-undefined-reinterpret-cast # Qt's mock
-                          -Wno-exit-time-destructors)
+include(compiler_options.cmake)
 
-set(GCC_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
-                        -Wall
-                        -Wextra
-                        -pedantic
-                        -Werror
-                        -Wno-unused-parameter
-                        -pedantic-errors)
+# file(GLOB SOURCE_FILES src/*/*.cpp src/*/*/*.cpp)
+set(SOURCE_FILES src/main.cpp)
 
-file(GLOB SOURCE_FILES src/*/*.cpp src/*/*/*.cpp)
+# QT5_WRAP_UI(UI_HEADERS
+#         src/ui/mainwindow.ui
+#         src/ui/add_todo_dialog.ui
+#         src/ui/pom_cancel_dialog.ui
+#         src/ui/settings.ui
+#         src/ui/history.ui
+#         src/ui/date_pick_dialog.ui
+#         src/ui/goalsview.ui
+#         src/ui/statistics_widget.ui
+#         src/ui/manual_add_pomodoro_dialog.ui
+#         src/ui/pickperiodwidget.ui
+#         src/ui/tageditor.ui
+# )
 
-QT5_WRAP_UI(UI_HEADERS
-        src/ui/mainwindow.ui
-        src/ui/add_todo_dialog.ui
-        src/ui/pom_cancel_dialog.ui
-        src/ui/settings.ui
-        src/ui/history.ui
-        src/ui/date_pick_dialog.ui
-        src/ui/goalsview.ui
-        src/ui/statistics_widget.ui
-        src/ui/manual_add_pomodoro_dialog.ui
-        src/ui/pickperiodwidget.ui
-        src/ui/tageditor.ui
-)
-
-add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc src/main.cpp)
+# add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc src/main.cpp)
+add_executable(${PROJECT} ${SOURCE_FILES}) 
 target_compile_features(${PROJECT} PUBLIC cxx_return_type_deduction)
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
@@ -122,6 +103,22 @@ target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTI
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
 target_include_directories(${PROJECT} PUBLIC src lib)
-target_link_libraries(${PROJECT} PUBLIC Qt5::Core PUBLIC Qt5::Widgets PUBLIC Qt5::Sql PUBLIC Qt5::Multimedia Threads::Threads)
+target_link_libraries(${PROJECT}
+    # PUBLIC Qt5::Core
+    # PUBLIC Qt5::Widgets
+    # PUBLIC Qt5::Sql
+    # PUBLIC Qt5::Multimedia
+    # PUBLIC Threads::Threads
+    PRIVATE pomodoro_qt_gui
+    PRIVATE pomodoro_qt_storage_impl
+)
 
+enable_testing()
+
+add_subdirectory(core)
+add_subdirectory(qt_storage_impl)
+add_subdirectory(qt_gui)
 add_subdirectory(tests)
+
+add_test(test_pomodoro_core test_pomodoro_core)
+add_test(test_qt_storage_impl test_qt_storage_impl)
