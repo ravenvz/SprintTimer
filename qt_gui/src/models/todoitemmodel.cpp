@@ -18,7 +18,6 @@ void TodoItemModel::requestDataUpdate()
 
 void TodoItemModel::onDataChanged(const std::vector<TodoItem>& tasks)
 {
-    std::cout << "On data changed called" << silent << std::endl;
     beginResetModel();
     storage = tasks;
     endResetModel();

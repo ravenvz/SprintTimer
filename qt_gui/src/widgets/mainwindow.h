@@ -1,10 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "core/IStorageImplementersFactory.h"
 #include "core/IPomodoroService.h"
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroYearRangeReader.h"
+#include "core/IStorageImplementersFactory.h"
 #include "core/PomodoroTimer.h"
 #include "core/Timer.h"
 #include "goalsview.h"
@@ -63,7 +63,6 @@ private slots:
     void launchGoalsView();
     void launchStatisticsView();
     void launchManualAddPomodoroDialog();
-    void updateTaskList();
     void onTimerUpdated(long);
     void updateDailyProgress();
 

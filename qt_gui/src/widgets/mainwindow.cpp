@@ -95,7 +95,28 @@ void MainWindow::connectSlots()
             this,
             SLOT(launchManualAddPomodoroDialog()));
     connect(this, SIGNAL(timerUpdated(long)), this, SLOT(onTimerUpdated(long)));
-    connect(pomodoroModelNew, &PomodoroModel::modelReset, this, &MainWindow::updateDailyProgress);
+    connect(pomodoroModelNew,
+            &PomodoroModel::modelReset,
+            this,
+            &MainWindow::updateDailyProgress);
+
+    // Setup data synchronization signals
+    connect(pomodoroModelNew,
+            &AsyncListModel::updateFinished,
+            todoitemViewModel,
+            &AsyncListModel::synchronize);
+    connect(todoitemViewModel,
+            &AsyncListModel::updateFinished,
+            pomodoroModelNew,
+            &AsyncListModel::synchronize);
+    connect(tagModel,
+            &QAbstractListModel::modelReset,
+            pomodoroModelNew,
+            &AsyncListModel::synchronize);
+    connect(tagModel,
+            &QAbstractListModel::modelReset,
+            todoitemViewModel,
+            &AsyncListModel::synchronize);
 }
 
 void MainWindow::setUiToIdleState()
@@ -210,7 +231,6 @@ void MainWindow::submitPomodoro()
     }
 
     completedTasksIntervals.clear();
-    updateTaskList();
     updateOpenedWindows();
     startTask();
 }
@@ -333,8 +353,6 @@ void MainWindow::removePomodoro()
     if (dialog.exec()) {
         // TODO handle sad path
         pomodoroModelNew->remove(index.row());
-        // TODO replace with call to refresh
-        todoitemViewModel->requestDataUpdate();
     }
 }
 
@@ -387,7 +405,6 @@ void MainWindow::launchManualAddPomodoroDialog()
                                    applicationSettings.pomodoroDuration()};
     if (dialog.exec()) {
         updateOpenedWindows();
-        updateTaskList();
     }
 }
 
@@ -427,18 +444,12 @@ void MainWindow::launchTagEditor()
 {
     if (!tagEditor) {
         tagEditor = new TagEditorWidget{tagModel};
-        connect(tagEditor,
-                SIGNAL(dataSetChanged()),
-                this,
-                SLOT(updateTaskList()));
         tagEditor->show();
     }
     else {
         bringToForeground(tagEditor);
     }
 }
-
-void MainWindow::updateTaskList() { todoitemViewModel->requestDataUpdate(); }
 
 void MainWindow::onTimerTick(long timeLeft)
 {
