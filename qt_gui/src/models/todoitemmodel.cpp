@@ -7,7 +7,7 @@ TodoItemModel::TodoItemModel(IPomodoroService& pomodoroService, QObject* parent)
     : AsyncListModel{parent}
     , pomodoroService{pomodoroService}
 {
-    silentUpdate();
+    synchronize();
 }
 
 void TodoItemModel::requestDataUpdate()

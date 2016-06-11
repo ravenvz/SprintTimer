@@ -6,7 +6,7 @@ AsyncListModel::AsyncListModel(QObject* parent)
 {
 }
 
-void AsyncListModel::silentUpdate()
+void AsyncListModel::synchronize()
 {
     silent = true;
     requestDataUpdate();

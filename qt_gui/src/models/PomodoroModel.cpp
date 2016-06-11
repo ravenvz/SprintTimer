@@ -6,7 +6,7 @@ PomodoroModel::PomodoroModel(IPomodoroService& pomodoroService, QObject* parent)
                         DateTime::currentDateTime()}}
     , pomodoroService{pomodoroService}
 {
-    silentUpdate();
+    synchronize();
 }
 
 int PomodoroModel::rowCount(const QModelIndex& parent) const

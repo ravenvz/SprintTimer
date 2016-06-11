@@ -19,7 +19,7 @@ public:
 public slots:
     /* Update model data, but do not broadcast updateFinished
      * signal when data is received. */
-    virtual void silentUpdate();
+    virtual void synchronize();
 
 protected:
     bool silent{false};
