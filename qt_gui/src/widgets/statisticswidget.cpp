@@ -6,7 +6,7 @@
 StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,
                                    IPomodoroService& pomodoroService,
                                    QWidget* parent)
-    : QWidget(parent)
+    : DataWidget(parent)
     , ui(new Ui::StatisticsWidget)
     , applicationSettings(applicationSettings)
     , pomodoroService{pomodoroService}
@@ -35,7 +35,7 @@ void StatisticsWidget::connectSlots()
             SLOT(onTagSelected(size_t)));
 }
 
-void StatisticsWidget::updateView() { fetchPomodoros(); }
+void StatisticsWidget::synchronize() { fetchPomodoros(); }
 
 void StatisticsWidget::setupGraphs()
 {

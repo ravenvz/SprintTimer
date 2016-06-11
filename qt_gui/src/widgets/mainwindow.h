@@ -78,7 +78,7 @@ private:
     QPointer<TagModel> tagModel;
     QPointer<TodoItemModel> todoitemViewModel;
     QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
-    QPointer<GoalsView> goalsView;
+    QPointer<DataWidget> goalsView;
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
     QPointer<TagEditorWidget> tagEditor;
@@ -93,10 +93,10 @@ private:
 
     /* Set stopwatch value. */
     void setTimerValue(Second timeLeft);
-    void updateOpenedWindows();
-    void updateStatisticsWindow();
-    void updateHistoryWindow();
-    void updateGoalWindow();
+    // void updateOpenedWindows();
+    // void updateStatisticsWindow();
+    // void updateHistoryWindow();
+    // void updateGoalWindow();
     void editTodoItem();
     void removeTask();
     void removePomodoro();

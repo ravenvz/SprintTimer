@@ -26,7 +26,7 @@ void HistoryViewDelegate::paint(QPainter* painter,
 }
 
 HistoryView::HistoryView(IPomodoroService& pomodoroService, QWidget* parent)
-    : QWidget(parent)
+    : DataWidget(parent)
     , ui(new Ui::HistoryView)
     , pomodoroService{pomodoroService}
     , historyStatePomodoro{std::make_unique<HistoryStatePomodoro>(*this)}
@@ -55,7 +55,7 @@ HistoryView::HistoryView(IPomodoroService& pomodoroService, QWidget* parent)
 
 HistoryView::~HistoryView() { delete ui; }
 
-void HistoryView::updateView() { historyState->retrieveHistory(); }
+void HistoryView::synchronize() { historyState->retrieveHistory(); }
 
 void HistoryView::fillHistoryModel(const std::vector<HistoryItem>& history)
 {
@@ -90,7 +90,7 @@ void HistoryView::fillHistoryModel(const std::vector<HistoryItem>& history)
 void HistoryView::onDatePickerIntervalChanged(DateInterval newInterval)
 {
     selectedDateInterval = newInterval;
-    updateView();
+    synchronize();
 }
 
 void HistoryView::onTabSelected(int tabIndex)
@@ -101,7 +101,7 @@ void HistoryView::onTabSelected(int tabIndex)
     if (tabIndex == taskTabIndex) {
         historyState = historyStateTask.get();
     }
-    updateView();
+    synchronize();
 }
 
 void HistoryView::onYearRangeUpdated(const std::vector<std::string>& yearRange)

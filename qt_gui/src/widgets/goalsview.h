@@ -1,18 +1,18 @@
 #ifndef GOALSVIEW_H
 #define GOALSVIEW_H
 
-#include "core/IPomodoroService.h"
 #include "core/IConfig.h"
+#include "core/IPomodoroService.h"
+#include "widgets/DataWidget.h"
 #include <QGridLayout>
 #include <QProgressBar>
-#include <QWidget>
 #include <memory>
 
 namespace Ui {
 class GoalsView;
 }
 
-class GoalsView : public QWidget {
+class GoalsView : public DataWidget {
     Q_OBJECT
 
 public:
@@ -20,7 +20,7 @@ public:
               IPomodoroService& pomodoroService,
               QWidget* parent = 0);
     ~GoalsView();
-    void updateView();
+    void synchronize() final;
 
 private slots:
     void updateDailyGoal(int newValue);

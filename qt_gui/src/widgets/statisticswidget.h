@@ -7,8 +7,8 @@
 #include "dialogs/datepickdialog.h"
 #include "plot.h"
 #include "timediagram.h"
+#include "widgets/DataWidget.h"
 #include "widgets/DistributionDiagram.h"
-#include <QWidget>
 #include <memory>
 
 
@@ -32,7 +32,7 @@ class StatisticsWidget;
  *      Pomodoros;
  *      widget that displays distribution of worktime.
  */
-class StatisticsWidget : public QWidget {
+class StatisticsWidget : public DataWidget {
     Q_OBJECT
 
 public:
@@ -41,7 +41,7 @@ public:
                      QWidget* parent = 0);
     ~StatisticsWidget();
 
-    void updateView();
+    void synchronize();
 
 private slots:
     void onDatePickerIntervalChanged(DateInterval newInterval);

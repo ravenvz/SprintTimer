@@ -5,7 +5,7 @@
 GoalsView::GoalsView(IConfig& applicationSettings,
                      IPomodoroService& pomodoroService,
                      QWidget* parent)
-    : QWidget{parent}
+    : DataWidget{parent}
     , ui{new Ui::GoalsView}
     , applicationSettings{applicationSettings}
     , pomodoroService{pomodoroService}
@@ -34,7 +34,7 @@ GoalsView::GoalsView(IConfig& applicationSettings,
 
 GoalsView::~GoalsView() { delete ui; }
 
-void GoalsView::updateView() { displayData(); }
+void GoalsView::synchronize() { displayData(); }
 
 void GoalsView::displayData()
 {

@@ -3,12 +3,12 @@
 
 #include "core/IPomodoroService.h"
 #include "pickperiodwidget.h"
+#include "widgets/DataWidget.h"
 #include <QObject>
 #include <QStandardItemModel>
 #include <QStringListModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
-#include <QWidget>
 
 namespace Ui {
 class HistoryView;
@@ -26,7 +26,7 @@ public:
                const QModelIndex& index) const override;
 };
 
-class HistoryView : public QWidget {
+class HistoryView : public DataWidget {
     Q_OBJECT
 
     friend class HistoryStatePomodoro;
@@ -40,8 +40,7 @@ public:
 
     ~HistoryView();
 
-    // Refresh model for currenly displayed tab.
-    void updateView();
+    void synchronize() final;
 
 private:
     Ui::HistoryView* ui;

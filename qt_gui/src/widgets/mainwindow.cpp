@@ -231,7 +231,7 @@ void MainWindow::submitPomodoro()
     }
 
     completedTasksIntervals.clear();
-    updateOpenedWindows();
+    // updateOpenedWindows();
     startTask();
 }
 
@@ -359,7 +359,7 @@ void MainWindow::removePomodoro()
 void MainWindow::toggleTodoItemCompleted()
 {
     todoitemViewModel->toggleCompleted(ui->lvTodoItems->currentIndex());
-    updateHistoryWindow();
+    // updateHistoryWindow();
 }
 
 void MainWindow::onInTheZoneToggled() { pomodoroTimer.toggleInTheZoneMode(); }
@@ -368,6 +368,18 @@ void MainWindow::launchHistoryView()
 {
     if (!historyView) {
         historyView = new HistoryView(pomodoroService);
+        connect(pomodoroModelNew,
+                &AsyncListModel::updateFinished,
+                historyView,
+                &DataWidget::synchronize);
+        connect(todoitemViewModel,
+                &AsyncListModel::updateFinished,
+                historyView,
+                &DataWidget::synchronize);
+        connect(tagModel,
+                &QAbstractListModel::modelReset,
+                historyView,
+                &DataWidget::synchronize);
         historyView->show();
     }
     else {
@@ -379,6 +391,10 @@ void MainWindow::launchGoalsView()
 {
     if (!goalsView) {
         goalsView = new GoalsView(applicationSettings, pomodoroService);
+        connect(pomodoroModelNew,
+                &AsyncListModel::updateFinished,
+                goalsView,
+                &DataWidget::synchronize);
         goalsView->show();
     }
     else {
@@ -391,6 +407,14 @@ void MainWindow::launchStatisticsView()
     if (!statisticsView) {
         statisticsView
             = new StatisticsWidget(applicationSettings, pomodoroService);
+        connect(pomodoroModelNew,
+                &AsyncListModel::updateFinished,
+                statisticsView,
+                &DataWidget::synchronize);
+        connect(tagModel,
+                &QAbstractListModel::modelReset,
+                statisticsView,
+                &DataWidget::synchronize);
         statisticsView->show();
     }
     else {
@@ -403,9 +427,10 @@ void MainWindow::launchManualAddPomodoroDialog()
     PomodoroManualAddDialog dialog{pomodoroModelNew,
                                    todoitemViewModel,
                                    applicationSettings.pomodoroDuration()};
-    if (dialog.exec()) {
-        updateOpenedWindows();
-    }
+    dialog.exec();
+    // if (dialog.exec()) {
+    //     updateOpenedWindows();
+    // }
 }
 
 void MainWindow::bringToForeground(QWidget* widgetPtr)
@@ -415,30 +440,30 @@ void MainWindow::bringToForeground(QWidget* widgetPtr)
     widgetPtr->showNormal();
 }
 
-void MainWindow::updateOpenedWindows()
-{
-    updateStatisticsWindow();
-    updateHistoryWindow();
-    updateGoalWindow();
-}
+// void MainWindow::updateOpenedWindows()
+// {
+//     updateStatisticsWindow();
+//     updateHistoryWindow();
+//     updateGoalWindow();
+// }
 
-void MainWindow::updateStatisticsWindow()
-{
-    if (statisticsView)
-        statisticsView->updateView();
-}
-
-void MainWindow::updateHistoryWindow()
-{
-    if (historyView)
-        historyView->updateView();
-}
-
-void MainWindow::updateGoalWindow()
-{
-    if (goalsView)
-        goalsView->updateView();
-}
+// void MainWindow::updateStatisticsWindow()
+// {
+//     if (statisticsView)
+//         statisticsView->updateView();
+// }
+//
+// void MainWindow::updateHistoryWindow()
+// {
+//     if (historyView)
+//         historyView->updateView();
+// }
+//
+// void MainWindow::updateGoalWindow()
+// {
+//     if (goalsView)
+//         goalsView->updateView();
+// }
 
 void MainWindow::launchTagEditor()
 {
