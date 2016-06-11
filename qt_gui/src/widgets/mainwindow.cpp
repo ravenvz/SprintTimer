@@ -109,12 +109,16 @@ void MainWindow::connectSlots()
             &AsyncListModel::updateFinished,
             pomodoroModelNew,
             &AsyncListModel::synchronize);
+    connect(todoitemViewModel,
+            &AsyncListModel::updateFinished,
+            tagModel,
+            &TagModel::synchronize);
     connect(tagModel,
-            &QAbstractListModel::modelReset,
+            &AsyncListModel::updateFinished,
             pomodoroModelNew,
             &AsyncListModel::synchronize);
     connect(tagModel,
-            &QAbstractListModel::modelReset,
+            &AsyncListModel::updateFinished,
             todoitemViewModel,
             &AsyncListModel::synchronize);
 }
@@ -231,7 +235,6 @@ void MainWindow::submitPomodoro()
     }
 
     completedTasksIntervals.clear();
-    // updateOpenedWindows();
     startTask();
 }
 
@@ -359,7 +362,6 @@ void MainWindow::removePomodoro()
 void MainWindow::toggleTodoItemCompleted()
 {
     todoitemViewModel->toggleCompleted(ui->lvTodoItems->currentIndex());
-    // updateHistoryWindow();
 }
 
 void MainWindow::onInTheZoneToggled() { pomodoroTimer.toggleInTheZoneMode(); }
@@ -377,7 +379,7 @@ void MainWindow::launchHistoryView()
                 historyView,
                 &DataWidget::synchronize);
         connect(tagModel,
-                &QAbstractListModel::modelReset,
+                &AsyncListModel::updateFinished,
                 historyView,
                 &DataWidget::synchronize);
         historyView->show();
@@ -412,7 +414,7 @@ void MainWindow::launchStatisticsView()
                 statisticsView,
                 &DataWidget::synchronize);
         connect(tagModel,
-                &QAbstractListModel::modelReset,
+                &AsyncListModel::updateFinished,
                 statisticsView,
                 &DataWidget::synchronize);
         statisticsView->show();
@@ -428,9 +430,6 @@ void MainWindow::launchManualAddPomodoroDialog()
                                    todoitemViewModel,
                                    applicationSettings.pomodoroDuration()};
     dialog.exec();
-    // if (dialog.exec()) {
-    //     updateOpenedWindows();
-    // }
 }
 
 void MainWindow::bringToForeground(QWidget* widgetPtr)
@@ -439,31 +438,6 @@ void MainWindow::bringToForeground(QWidget* widgetPtr)
     widgetPtr->activateWindow();
     widgetPtr->showNormal();
 }
-
-// void MainWindow::updateOpenedWindows()
-// {
-//     updateStatisticsWindow();
-//     updateHistoryWindow();
-//     updateGoalWindow();
-// }
-
-// void MainWindow::updateStatisticsWindow()
-// {
-//     if (statisticsView)
-//         statisticsView->updateView();
-// }
-//
-// void MainWindow::updateHistoryWindow()
-// {
-//     if (historyView)
-//         historyView->updateView();
-// }
-//
-// void MainWindow::updateGoalWindow()
-// {
-//     if (goalsView)
-//         goalsView->updateView();
-// }
 
 void MainWindow::launchTagEditor()
 {
