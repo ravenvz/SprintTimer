@@ -1,11 +1,11 @@
 #ifndef TAGEDITOR_H
 #define TAGEDITOR_H
 
-#include <QWidget>
 #include <QAbstractListModel>
+#include <QWidget>
 
 namespace Ui {
-    class TagEditorWidget;
+class TagEditorWidget;
 }
 
 class TagEditorWidget : public QWidget {
@@ -20,16 +20,10 @@ private slots:
     void onAccept();
     void onReject();
 
-signals:
-    void dataSetChanged();
-
 private:
     Ui::TagEditorWidget* ui;
     QAbstractListModel* model;
-
-
 };
-
 
 
 #endif /* end of include guard: TAGEDITOR_H */
