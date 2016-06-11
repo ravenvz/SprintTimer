@@ -1,11 +1,32 @@
-Version 0.2.2
--------------
+Version 0.3.1
 
-Improve design of the main window
-
+Bugfixes:
+    Fixed bug when only one of Statistics widget or History widget
+        was updated when both were opened
+    Fixed crash when adding Pomodoro manually and there are no tasks
+        present
+    Fixed issue when date picker widget was not working if there is
+        no data about years present
+    Fixed issue when timer displays old value for a second when start
+     button is clicked
 
 HISTORY
 ----------------------------------------------------------------
+
+Version 0.3.0
+-------------
+
+Implement async database access
+
+Split application into modules
+
+Various bug fixes
+
+Improve build system configuration
+
+Core module is now independent from Qt
+
+Database schema has changed and is not compatible with previous versions.
 
 Version 0.2.1
 -------------
@@ -18,7 +39,7 @@ Fixed crashes when picking period in statistics view.
 Version 0.2.0
 -------------
 
-Updates in todo items' tags and name are now 
+Updates in todo items' tags and name are now
 reflected in pomodoros history and statistics.
     That means that if todo item name/tags are changed,
     it's 'spent' pomodoros' names/tags are changed too
@@ -44,17 +65,17 @@ Version 0.1.3
 
 Added goals system
 
-    Added Goals View where users are able to 
+    Added Goals View where users are able to
         to specify goals in terms of expected number
         of completed pomodoros for a month, week, day
-    Added dynamic diagrams indicating goal achievement progress 
+    Added dynamic diagrams indicating goal achievement progress
         for the last 30 days, last 12 weeks and last 12 months
 
 
 Version 0.1.2
 -------------
 
-It is now possible to browse history of completed pomodoros 
+It is now possible to browse history of completed pomodoros
 and todo items
 
     Added basic pomodoro history browser
@@ -78,7 +99,7 @@ Application should be usable on day-to-day basis
     Added basic pomodoro list to GUI
     Added basic Todo Items list to select tasks from to GUI
     Added quick-add todo item functionality
-    
+
 
 Version 0.0.2
 -------------
