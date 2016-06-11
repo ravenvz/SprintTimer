@@ -1,7 +1,0 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-    <file>icons/config.ico</file>
-    <file>icons/pomodoro.png</file>
-    <file>icons/statistics.png</file>
-</qresource>
-</RCC>
