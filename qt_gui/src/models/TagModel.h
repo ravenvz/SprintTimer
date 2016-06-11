@@ -3,10 +3,11 @@
 
 
 #include "core/IPomodoroService.h"
+#include "models/AsyncListModel.h"
 #include <QStringListModel>
 
 
-class TagModel : public QStringListModel {
+class TagModel : public AsyncListModel {
 
 public:
     explicit TagModel(IPomodoroService& pomodoroService, QObject* parent = 0);
@@ -17,9 +18,16 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex& index) const final;
 
-    void requestDataUpdate();
+    int rowCount(const QModelIndex& parent = QModelIndex()) const final;
+
+    QVariant data(const QModelIndex& index,
+                  int role = Qt::DisplayRole) const final;
+
+protected:
+    void requestDataUpdate() final;
 
 private:
+    std::vector<std::string> storage;
     IPomodoroService& pomodoroService;
 
     void onDataArrived(const std::vector<std::string>& tags);

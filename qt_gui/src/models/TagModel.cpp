@@ -1,16 +1,39 @@
 #include "models/TagModel.h"
 
-
 TagModel::TagModel(IPomodoroService& pomodoroService, QObject* parent)
-    : QStringListModel(parent)
+    : AsyncListModel(parent)
     , pomodoroService{pomodoroService}
 {
-    requestDataUpdate();
+    synchronize();
 }
 
 Qt::ItemFlags TagModel::flags(const QModelIndex& index) const
 {
-    return QStringListModel::flags(index) | Qt::ItemIsEditable;
+    return AsyncListModel::flags(index) | Qt::ItemIsEditable;
+}
+
+int TagModel::rowCount(const QModelIndex& parent) const
+{
+    return static_cast<int>(storage.size());
+}
+
+QVariant TagModel::data(const QModelIndex& index, int role) const
+{
+    if (!index.isValid())
+        return QVariant();
+
+    const std::string tag = storage[index.row()];
+
+    switch (role) {
+    case Qt::DisplayRole:
+        return QString::fromStdString(tag);
+        break;
+    case Qt::EditRole:
+        return QString::fromStdString(tag);
+        break;
+    default:
+        return QVariant();
+    }
 }
 
 bool TagModel::setData(const QModelIndex& index,
@@ -22,11 +45,10 @@ bool TagModel::setData(const QModelIndex& index,
     if (role == Qt::EditRole) {
         pomodoroService.editTag(data(index, role).toString().toStdString(),
                                 value.toString().toStdString());
-        QStringListModel::setData(index, value, role);
         requestDataUpdate();
         return true;
     }
-    return QStringListModel::setData(index, value, role);
+    return false;
 }
 
 void TagModel::requestDataUpdate()
@@ -37,11 +59,8 @@ void TagModel::requestDataUpdate()
 
 void TagModel::onDataArrived(const std::vector<std::string>& tags)
 {
-    QStringList storage;
-    std::transform(
-        tags.cbegin(),
-        tags.cend(),
-        std::back_inserter(storage),
-        [](const auto& elem) { return QString::fromStdString(elem); });
-    setStringList(storage);
+    beginResetModel();
+    storage = tags;
+    endResetModel();
+    broadcastUpdateFinished();
 }
