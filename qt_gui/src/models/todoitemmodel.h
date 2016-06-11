@@ -4,17 +4,17 @@
 #include "core/IPomodoroService.h"
 #include "core/TimeSpan.h"
 #include "core/entities/TodoItem.h"
+#include "models/AsyncListModel.h"
 #include "utils/DateInterval.h"
-#include <QAbstractListModel>
 
-class TodoItemModel : public QAbstractListModel {
+class TodoItemModel : public AsyncListModel {
+    Q_OBJECT
+
 public:
     using TodoItemWithTimeStamp = std::pair<QDate, QString>;
 
     explicit TodoItemModel(IPomodoroService& pomodoroService,
                            QObject* parent = 0);
-
-    void requestDataUpdate();
 
     // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
@@ -31,7 +31,8 @@ public:
     QVariant data(const QModelIndex& index,
                   int role = Qt::DisplayRole) const override;
 
-    // Override to support drag and drop. Changes items' priorities instead of // removing row and inserting it at destination position as in default
+    // Override to support drag and drop. Changes items' priorities instead of
+    // // removing row and inserting it at destination position as in default
     // behavour for drag and drop. That default behaviour would not work here,
     // as sqlite view is set to this model, and removing row from it would have
     // undesired consequences.
@@ -74,6 +75,9 @@ public:
 
     // Replace data of item at given row with data from the newItem.
     void replaceItemAt(const int row, const TodoItem& newItem);
+
+protected:
+    void requestDataUpdate() final;
 
 private:
     IPomodoroService& pomodoroService;

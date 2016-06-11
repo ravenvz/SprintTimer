@@ -2,11 +2,12 @@
 #define POMODOROMODELNEW_H_MQZ2XAPI
 
 #include "core/IPomodoroService.h"
-#include <QAbstractListModel>
+#include "models/AsyncListModel.h"
 #include <memory>
 #include <vector>
 
-class PomodoroModel : public QAbstractListModel {
+class PomodoroModel : public AsyncListModel {
+    Q_OBJECT
 public:
     explicit PomodoroModel(IPomodoroService& pomodoroService,
                            QObject* parent = 0);
@@ -20,16 +21,15 @@ public:
 
     void insert(const TimeSpan& timeSpan, const std::string& taskUuid);
 
-    // void remove(long long pomodoroId);
     void remove(int row);
 
-    void requestDataUpdate();
+protected:
+    void requestDataUpdate() final;
 
 private:
     std::vector<Pomodoro> storage;
     TimeSpan interval;
     IPomodoroService& pomodoroService;
-
 
     void onDataChanged(const std::vector<Pomodoro>& items);
 };

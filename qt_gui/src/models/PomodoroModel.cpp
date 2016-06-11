@@ -1,12 +1,12 @@
 #include "models/PomodoroModel.h"
 
 PomodoroModel::PomodoroModel(IPomodoroService& pomodoroService, QObject* parent)
-    : QAbstractListModel(parent)
+    : AsyncListModel(parent)
     , interval{TimeSpan{DateTime::currentDateTime(),
                         DateTime::currentDateTime()}}
     , pomodoroService{pomodoroService}
 {
-    requestDataUpdate();
+    silentUpdate();
 }
 
 int PomodoroModel::rowCount(const QModelIndex& parent) const
@@ -60,4 +60,5 @@ void PomodoroModel::onDataChanged(const std::vector<Pomodoro>& items)
     beginResetModel();
     storage = items;
     endResetModel();
+    broadcastUpdateFinished();
 }
