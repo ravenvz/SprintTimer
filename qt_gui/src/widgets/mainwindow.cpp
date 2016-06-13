@@ -143,8 +143,8 @@ void MainWindow::setUiToIdleState()
 void MainWindow::setUiToRunningState()
 {
     progressBarMaxValue = pomodoroTimer.taskDuration() * secondsPerMinute;
-    setTimerValue(progressBarMaxValue);
     ui->progressBar->setMaximum(progressBarMaxValue);
+    setTimerValue(progressBarMaxValue);
     ui->progressBar->setValue(0);
     ui->btnStart->hide();
     ui->labelTimer->show();
