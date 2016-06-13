@@ -49,6 +49,7 @@ void PomodoroManualAddDialog::accept()
     if (startTime >= finishTime) {
         autoAdjustFinishTime();
     }
+
     const std::string taskUuid
         = todoItemModel->itemAt(ui->comboBoxPickTodoItem->currentIndex()).uuid();
     pomodoroModel->insert(TimeSpan{startTime.toTime_t(), finishTime.toTime_t()},

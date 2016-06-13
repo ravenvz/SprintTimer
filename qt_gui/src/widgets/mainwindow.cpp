@@ -100,6 +100,12 @@ void MainWindow::connectSlots()
             this,
             &MainWindow::updateDailyProgress);
 
+    // Disables AddPomodoro button when there are no active tasks.
+    connect(todoitemViewModel,
+            &QAbstractListModel::modelReset,
+            this,
+            &MainWindow::adjustAddPomodoroButtonState);
+
     // Setup data synchronization signals
     connect(pomodoroModelNew,
             &AsyncListModel::updateFinished,
@@ -477,4 +483,9 @@ void MainWindow::onTimerUpdated(long timeLeft)
     else {
         setUiToSubmissionState();
     }
+}
+
+void MainWindow::adjustAddPomodoroButtonState()
+{
+    ui->btnAddPomodoroManually->setEnabled(todoitemViewModel->rowCount() != 0);
 }
