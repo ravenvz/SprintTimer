@@ -14,9 +14,11 @@ QtPomoStorageWriter::QtPomoStorageWriter(DBService& dbService)
 void QtPomoStorageWriter::save(const Pomodoro& pomodoro)
 {
     QDateTime startTime = QDateTime::fromTime_t(
-        static_cast<unsigned>(pomodoro.timeSpan().startTime.toTime_t()));
+        static_cast<unsigned>(pomodoro.timeSpan().startTime.toTime_t()),
+        Qt::OffsetFromUTC);
     QDateTime finishTime = QDateTime::fromTime_t(
-        static_cast<unsigned>(pomodoro.timeSpan().finishTime.toTime_t()));
+        static_cast<unsigned>(pomodoro.timeSpan().finishTime.toTime_t()),
+        Qt::OffsetFromUTC);
     dbService.bind(addQueryId,
                    ":todo_uuid",
                    QVariant(QString::fromStdString(pomodoro.taskUuid())));
