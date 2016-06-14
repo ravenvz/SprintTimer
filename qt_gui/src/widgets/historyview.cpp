@@ -3,8 +3,6 @@
 #include <QListView>
 #include <QPainter>
 
-#include <QDebug>
-
 
 HistoryViewDelegate::HistoryViewDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
@@ -180,16 +178,12 @@ void HistoryStateTask::onHistoryRetrieved(const std::vector<TodoItem>& tasks)
         [](const auto& task) {
             return std::make_pair(
                 QDateTime::fromTime_t(
-                    static_cast<unsigned>(task.lastModified().toTime_t()))
+                    static_cast<unsigned>(task.lastModified().toTime_t()),
+                    Qt::OffsetFromUTC)
                     .date(),
                 QString::fromStdString(task.toString()));
         });
 
-    // std::sort(
-    //     begin(taskHistory),
-    //     end(taskHistory),
-    //     [](const auto& first, const auto& second) { return first < second;
-    //     });
     historyView.fillHistoryModel(taskHistory);
     historyView.setHistoryModel(historyView.ui->lvTodoHistory);
 }
