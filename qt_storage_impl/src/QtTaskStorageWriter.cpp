@@ -50,10 +50,13 @@ void QtTaskStorageWriter::save(const TodoItem& task)
         addTaskQueryId, ":spent_pomodoros", task.spentPomodoros());
     dbService.bindValue(addTaskQueryId, ":completed", task.isCompleted());
     dbService.bindValue(addTaskQueryId, ":priority", 10000);
-    dbService.bindValue(addTaskQueryId,
-                        ":last_modified",
-                        QDateTime::fromTime_t(static_cast<unsigned>(
-                            task.lastModified().toTime_t())));
+
+    dbService.bindValue(
+        addTaskQueryId,
+        ":last_modified",
+        QDateTime::fromTime_t(
+            static_cast<unsigned>(task.lastModified().toTime_t()),
+            Qt::OffsetFromUTC));
     dbService.bindValue(addTaskQueryId, ":uuid", uuid);
 
     dbService.transaction();
