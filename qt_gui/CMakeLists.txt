@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.2)
 
 set(PROJECT pomodoro_qt_gui)
 project(${PROJECT})
@@ -32,10 +32,10 @@ target_compile_features(${PROJECT} PUBLIC cxx_return_type_deduction)
 
 target_include_directories(${PROJECT} PUBLIC src)
 target_link_libraries(${PROJECT}
-    PUBLIC Qt5::Core
+    # PUBLIC Qt5::Core
     PUBLIC Qt5::Widgets
     PUBLIC Qt5::Sql
     PUBLIC Qt5::Multimedia
     PUBLIC Threads::Threads
-    PUBLIC pomodoro_core
+    PUBLIC pomodoro_qt_common
 )

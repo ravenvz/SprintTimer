@@ -1,4 +1,5 @@
 #include "qt_storage_impl/QtPomoDistributionReader.h"
+#include "qt_common/DateTimeConverter.h"
 
 
 DistributionReaderBase::DistributionReaderBase(DBService& dbService)
@@ -14,12 +15,8 @@ void DistributionReaderBase::requestDailyDistribution(const TimeSpan& timeSpan,
                                                       Handler handler)
 {
     this->handler = handler;
-    QDate from = QDateTime::fromTime_t(
-                     static_cast<unsigned>(timeSpan.startTime.toTime_t()))
-                     .date();
-    QDate now = QDateTime::fromTime_t(
-                    static_cast<unsigned>(timeSpan.finishTime.toTime_t()))
-                    .date();
+    QDate from = DateTimeConverter::qDate(timeSpan.startTime);
+    QDate now = DateTimeConverter::qDate(timeSpan.finishTime);
 
     dbService.bind(mQueryId, ":start_date", from);
     dbService.bind(mQueryId, ":end_date", now);
@@ -54,8 +51,8 @@ QtPomoDailyDistributionReader::QtPomoDailyDistributionReader(
         "order by dt");
 }
 
-QtPomoWeeklyDistributionReader::
-    QtPomoWeeklyDistributionReader(DBService& dbService)
+QtPomoWeeklyDistributionReader::QtPomoWeeklyDistributionReader(
+    DBService& dbService)
     : DistributionReaderBase{dbService}
 {
     mQueryId = dbService.prepare(
@@ -68,8 +65,8 @@ QtPomoWeeklyDistributionReader::
         "order by dt");
 }
 
-QtPomoMonthlyDistributionReader::
-    QtPomoMonthlyDistributionReader(DBService& dbService)
+QtPomoMonthlyDistributionReader::QtPomoMonthlyDistributionReader(
+    DBService& dbService)
     : DistributionReaderBase{dbService}
 {
     mQueryId

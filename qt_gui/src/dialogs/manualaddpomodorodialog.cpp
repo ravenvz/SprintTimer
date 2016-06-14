@@ -1,5 +1,6 @@
 #include "dialogs/manualaddpomodorodialog.h"
 #include "models/PomodoroModel.h"
+#include "qt_common/DateTimeConverter.h"
 #include "ui_manual_add_pomodoro_dialog.h"
 
 
@@ -54,9 +55,8 @@ void PomodoroManualAddDialog::accept()
     const std::string taskUuid
         = todoItemModel->itemAt(ui->comboBoxPickTodoItem->currentIndex())
               .uuid();
-    pomodoroModel->insert(TimeSpan{startTime.toTime_t(),
-                                   finishTime.toTime_t(),
-                                   startTime.offsetFromUtc()},
+    pomodoroModel->insert(TimeSpan{DateTimeConverter::dateTime(startTime),
+                                   DateTimeConverter::dateTime(finishTime)},
                           taskUuid);
     QDialog::accept();
 }

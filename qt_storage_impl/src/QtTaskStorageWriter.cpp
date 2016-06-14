@@ -1,4 +1,5 @@
 #include "qt_storage_impl/QtTaskStorageWriter.h"
+#include "qt_common/DateTimeConverter.h"
 #include <algorithm>
 
 
@@ -51,12 +52,9 @@ void QtTaskStorageWriter::save(const TodoItem& task)
     dbService.bindValue(addTaskQueryId, ":completed", task.isCompleted());
     dbService.bindValue(addTaskQueryId, ":priority", 10000);
 
-    dbService.bindValue(
-        addTaskQueryId,
-        ":last_modified",
-        QDateTime::fromTime_t(
-            static_cast<unsigned>(task.lastModified().toTime_t()),
-            Qt::OffsetFromUTC));
+    dbService.bindValue(addTaskQueryId,
+                        ":last_modified",
+                        DateTimeConverter::qDateTime(task.lastModified()));
     dbService.bindValue(addTaskQueryId, ":uuid", uuid);
 
     dbService.transaction();
@@ -105,10 +103,10 @@ void QtTaskStorageWriter::edit(const TodoItem& task, const TodoItem& editedTask)
         editQueryId, ":name", QString::fromStdString(editedTask.name()));
     dbService.bindValue(
         editQueryId, ":estimated_pomodoros", editedTask.estimatedPomodoros());
-    dbService.bindValue(editQueryId,
-                        ":last_modified",
-                        QDateTime::fromTime_t(static_cast<unsigned>(
-                            editedTask.lastModified().toTime_t())));
+    dbService.bindValue(
+        editQueryId,
+        ":last_modified",
+        DateTimeConverter::qDateTime(editedTask.lastModified()));
     dbService.bindValue(editQueryId, ":uuid", taskUuid);
 
     auto oldTags = task.tags();
@@ -153,10 +151,9 @@ void QtTaskStorageWriter::toggleTaskCompletionStatus(const std::string& uuid,
 {
     dbService.bindValue(
         toggleCompletionQueryId, ":uuid", QString::fromStdString(uuid));
-    dbService.bindValue(
-        toggleCompletionQueryId,
-        ":time_stamp",
-        QDateTime::fromTime_t(static_cast<unsigned>(timeStamp.toTime_t())));
+    dbService.bindValue(toggleCompletionQueryId,
+                        ":time_stamp",
+                        DateTimeConverter::qDateTime(timeStamp));
     dbService.executePrepared(toggleCompletionQueryId);
 }
 

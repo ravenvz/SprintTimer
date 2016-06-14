@@ -1,4 +1,5 @@
 #include "qt_storage_impl/QtPomoStorageReader.h"
+#include "qt_common/DateTimeConverter.h"
 
 
 QtPomoStorageReader::QtPomoStorageReader(DBService& dbService)
@@ -53,11 +54,10 @@ Pomodoro QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
     QDateTime finish = columnData(record, Columns::FinishTime).toDateTime();
+    TimeSpan timeSpan{DateTimeConverter::dateTime(start),
+                      DateTimeConverter::dateTime(finish)};
     std::string uuid
         = columnData(record, Columns::Uuid).toString().toStdString();
-    int offsetFromUtcInSeconds{start.offsetFromUtc()};
-    TimeSpan timeSpan{
-        start.toTime_t(), finish.toTime_t(), offsetFromUtcInSeconds};
     QStringList tagNames{columnData(record, Columns::Tags)
                              .toString()
                              .split(",", QString::SkipEmptyParts)};

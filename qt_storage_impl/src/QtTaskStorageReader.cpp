@@ -1,4 +1,5 @@
 #include "qt_storage_impl/QtTaskStorageReader.h"
+#include "qt_common/DateTimeConverter.h"
 
 
 QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
@@ -111,9 +112,7 @@ TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
     bool finished{columnData(record, Column::Completed).toBool()};
     QDateTime qLastModified{
         columnData(record, Column::LastModified).toDateTime()};
-    int offsetFromUtcInSeconds{qLastModified.offsetFromUtc()};
-    DateTime lastModified = DateTime::fromTime_t(qLastModified.toTime_t(),
-                                                 offsetFromUtcInSeconds);
+    DateTime lastModified = DateTimeConverter::dateTime(qLastModified);
     return TodoItem{name,
                     estimatedPomodoros,
                     spentPomodoros,

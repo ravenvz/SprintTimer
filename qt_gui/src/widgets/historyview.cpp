@@ -3,6 +3,8 @@
 #include <QListView>
 #include <QPainter>
 
+#include "qt_common/DateTimeConverter.h"
+
 
 HistoryViewDelegate::HistoryViewDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
@@ -152,17 +154,14 @@ void HistoryStatePomodoro::onHistoryRetrieved(
 {
     std::vector<HistoryView::HistoryItem> pomodoroHistory;
     pomodoroHistory.reserve(pomodoros.size());
-    std::transform(
-        pomodoros.cbegin(),
-        pomodoros.cend(),
-        std::back_inserter(pomodoroHistory),
-        [](const auto& pomo) {
-            return std::make_pair(
-                QDateTime::fromTime_t(
-                    static_cast<unsigned>(pomo.startTime().toTime_t()))
-                    .date(),
-                QString::fromStdString(pomo.toString()));
-        });
+    std::transform(pomodoros.cbegin(),
+                   pomodoros.cend(),
+                   std::back_inserter(pomodoroHistory),
+                   [](const auto& pomo) {
+                       return std::make_pair(
+                           DateTimeConverter::qDate(pomo.startTime()),
+                           QString::fromStdString(pomo.toString()));
+                   });
     historyView.fillHistoryModel(pomodoroHistory);
     historyView.setHistoryModel(historyView.ui->lvPomodoroHistory);
 }
@@ -171,18 +170,14 @@ void HistoryStateTask::onHistoryRetrieved(const std::vector<TodoItem>& tasks)
 {
     std::vector<HistoryView::HistoryItem> taskHistory;
     taskHistory.reserve(tasks.size());
-    std::transform(
-        tasks.cbegin(),
-        tasks.cend(),
-        std::back_inserter(taskHistory),
-        [](const auto& task) {
-            return std::make_pair(
-                QDateTime::fromTime_t(
-                    static_cast<unsigned>(task.lastModified().toTime_t()),
-                    Qt::OffsetFromUTC)
-                    .date(),
-                QString::fromStdString(task.toString()));
-        });
+    std::transform(tasks.cbegin(),
+                   tasks.cend(),
+                   std::back_inserter(taskHistory),
+                   [](const auto& task) {
+                       return std::make_pair(
+                           DateTimeConverter::qDate(task.lastModified()),
+                           QString::fromStdString(task.toString()));
+                   });
 
     historyView.fillHistoryModel(taskHistory);
     historyView.setHistoryModel(historyView.ui->lvTodoHistory);
