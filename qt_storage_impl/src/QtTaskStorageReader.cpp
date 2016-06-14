@@ -1,6 +1,5 @@
 #include "qt_storage_impl/QtTaskStorageReader.h"
 
-#include <iostream>
 
 QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
     : dbService{dbService}
@@ -17,8 +16,8 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
         "last_modified, "
         "uuid "
         "FROM task_view "
-        "WHERE completed = 1 AND last_modified >= (:start_date) "
-        "AND last_modified <= (:end_date) "
+        "WHERE completed = 1 AND date(last_modified) >= (:start_date) "
+        "AND date(last_modified) <= (:end_date) "
         "ORDER BY last_modified;");
     connect(&dbService,
             &DBService::results,
