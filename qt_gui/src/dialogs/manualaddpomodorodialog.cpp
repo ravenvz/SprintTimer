@@ -1,6 +1,6 @@
 #include "dialogs/manualaddpomodorodialog.h"
 #include "models/PomodoroModel.h"
-#include "qt_common/DateTimeConverter.h"
+#include "utils/DateTimeConverter.h"
 #include "ui_manual_add_pomodoro_dialog.h"
 
 

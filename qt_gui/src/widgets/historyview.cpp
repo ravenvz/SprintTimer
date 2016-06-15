@@ -3,7 +3,7 @@
 #include <QListView>
 #include <QPainter>
 
-#include "qt_common/DateTimeConverter.h"
+#include "utils/DateTimeConverter.h"
 
 
 HistoryViewDelegate::HistoryViewDelegate(QObject* parent)

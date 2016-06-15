@@ -38,9 +38,9 @@ add_library(${PROJECT} SHARED ${QT_STORAGE_IMPL_SOURCE_FILES} ${HEADER_FILES_FOR
 target_include_directories(${PROJECT} PUBLIC include PUBLIC src)
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 target_link_libraries(${PROJECT} 
-    # PUBLIC Qt5::Core
+    PUBLIC Qt5::Core
     PUBLIC Qt5::Sql
-    PUBLIC pomodoro_qt_common)
+    PUBLIC pomodoro_core)
 
 add_subdirectory(tests)
 target_link_libraries(test_qt_storage_impl)

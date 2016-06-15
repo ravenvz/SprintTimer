@@ -2,7 +2,7 @@
 #define DATEINTERVAL_H_DO5P2YKX
 
 #include "core/TimeSpan.h"
-#include "qt_common/DateTimeConverter.h"
+#include "utils/DateTimeConverter.h"
 #include <QDate>
 #include <iostream>
 

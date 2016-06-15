@@ -111,7 +111,6 @@ target_link_libraries(${PROJECT}
 enable_testing()
 
 add_subdirectory(core)
-add_subdirectory(qt_common)
 add_subdirectory(qt_gui)
 add_subdirectory(qt_storage_impl)
 add_subdirectory(tests)

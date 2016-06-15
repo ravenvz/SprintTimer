@@ -32,10 +32,10 @@ target_compile_features(${PROJECT} PUBLIC cxx_return_type_deduction)
 
 target_include_directories(${PROJECT} PUBLIC src)
 target_link_libraries(${PROJECT}
-    # PUBLIC Qt5::Core
+    PUBLIC Qt5::Core
     PUBLIC Qt5::Widgets
     PUBLIC Qt5::Sql
     PUBLIC Qt5::Multimedia
     PUBLIC Threads::Threads
-    PUBLIC pomodoro_qt_common
+    PUBLIC pomodoro_core
 )

@@ -50,4 +50,4 @@ target_include_directories(${PROJECT}
     PRIVATE ../src
 )
 
-target_link_libraries(${PROJECT} CppUTest Threads::Threads Qt5::Sql pomodoro_qt_common)
+target_link_libraries(${PROJECT} CppUTest Threads::Threads Qt5::Sql pomodoro_core)
