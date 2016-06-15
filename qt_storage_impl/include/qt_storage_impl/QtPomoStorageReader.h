@@ -27,7 +27,7 @@ private:
     };
     long long mQueryId{-1};
     DBService& dbService;
-    Handler handler;
+    std::list<Handler> handler_queue;
 
     Pomodoro pomodoroFromQSqlRecord(const QSqlRecord& record);
 

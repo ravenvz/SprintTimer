@@ -28,8 +28,7 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
 
 void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
 {
-    // TODO this can potentially end badly if we have multiple clients
-    this->handler = handler;
+    handler_queue.push_back(handler);
     mUnfinishedQueryId = dbService.executeQuery(
         "SELECT "
         "id, "
@@ -49,8 +48,7 @@ void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
 void QtTaskStorageReader::requestFinishedTasks(const TimeSpan& timeSpan,
                                                Handler handler)
 {
-    // TODO this can potentially end badly if we have multiple clients
-    this->handler = handler;
+    handler_queue.push_back(handler);
 
     DateTime start = timeSpan.startTime;
     DateTime finish = timeSpan.finishTime;
@@ -66,7 +64,7 @@ void QtTaskStorageReader::requestFinishedTasks(const TimeSpan& timeSpan,
 
 void QtTaskStorageReader::requestAllTags(TagHandler handler)
 {
-    this->tagHandler = handler;
+    tag_handler_queue.push_back(handler);
     mTagQueryId = dbService.executeQuery("select id, name from tag "
                                          "order by name;");
 }
@@ -81,7 +79,8 @@ void QtTaskStorageReader::onResultsReceived(
             records.cend(),
             std::back_inserter(tasks),
             [&](const auto& elem) { return this->taskFromQSqlRecord(elem); });
-        handler(tasks);
+        handler_queue.front()(tasks);
+        handler_queue.pop_front();
     }
     if (queryId == mTagQueryId) {
         std::vector<std::string> tags;
@@ -90,7 +89,8 @@ void QtTaskStorageReader::onResultsReceived(
             records.cend(),
             std::back_inserter(tags),
             [&](const auto& elem) { return this->tagFromSqlRecord(elem); });
-        tagHandler(tags);
+        tag_handler_queue.front()(tags);
+        tag_handler_queue.pop_front();
     }
 }
 

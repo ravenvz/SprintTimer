@@ -14,7 +14,7 @@ DistributionReaderBase::DistributionReaderBase(DBService& dbService)
 void DistributionReaderBase::requestDailyDistribution(const TimeSpan& timeSpan,
                                                       Handler handler)
 {
-    this->handler = handler;
+    handler_queue.push_back(handler);
     QDate from = DateTimeConverter::qDate(timeSpan.startTime);
     QDate now = DateTimeConverter::qDate(timeSpan.finishTime);
 
@@ -34,8 +34,8 @@ void DistributionReaderBase::onResultsReceived(
                    records.cend(),
                    std::back_inserter(pomodoroCount),
                    [](const auto& elem) { return elem.value(0).toInt(); });
-    // Distribution<int> dailyDistribution{std::move(pomodoroCount)};
-    handler(Distribution<int>{std::move(pomodoroCount)});
+    handler_queue.front()(Distribution<int>{std::move(pomodoroCount)});
+    handler_queue.pop_front();
 }
 
 QtPomoDailyDistributionReader::QtPomoDailyDistributionReader(

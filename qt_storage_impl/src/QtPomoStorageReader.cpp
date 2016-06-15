@@ -20,7 +20,7 @@ QtPomoStorageReader::QtPomoStorageReader(DBService& dbService)
 void QtPomoStorageReader::requestItems(const TimeSpan& timeSpan,
                                        Handler handler)
 {
-    this->handler = handler;
+    handler_queue.push_back(handler);
     DateTime start = timeSpan.startTime;
     DateTime finish = timeSpan.finishTime;
 
@@ -46,7 +46,8 @@ void QtPomoStorageReader::onResultsReceived(
         records.cend(),
         std::back_inserter(pomodoros),
         [&](const auto& elem) { return this->pomodoroFromQSqlRecord(elem); });
-    handler(pomodoros);
+    handler_queue.front()(pomodoros);
+    handler_queue.pop_front();
 }
 
 Pomodoro QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)

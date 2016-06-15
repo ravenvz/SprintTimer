@@ -24,7 +24,7 @@ private slots:
 
 protected:
     DBService& dbService;
-    Handler handler;
+    std::list<Handler> handler_queue;
     long long mQueryId{-1};
 };
 
