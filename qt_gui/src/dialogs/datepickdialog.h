@@ -13,7 +13,7 @@ class DatePickDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit DatePickDialog(DateInterval initialPeriod, QWidget* parent = 0);
+    explicit DatePickDialog(DateInterval initialPeriod, QWidget* parent = nullptr);
     ~DatePickDialog();
     DateInterval getNewInterval();
 

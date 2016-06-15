@@ -13,7 +13,7 @@ class TagEditorWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TagEditorWidget(QAbstractListModel* tagModel, QWidget* parent = 0);
+    TagEditorWidget(QAbstractListModel* tagModel, QWidget* parent = nullptr);
     ~TagEditorWidget();
 
 private slots:

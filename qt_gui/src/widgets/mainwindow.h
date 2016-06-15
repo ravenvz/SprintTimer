@@ -41,7 +41,7 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(IConfig& applicationSettings,
                IPomodoroService& pomodoroService,
-               QWidget* parent = 0);
+               QWidget* parent = nullptr);
     ~MainWindow();
 
 signals:

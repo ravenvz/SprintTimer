@@ -17,7 +17,7 @@ public:
     PomodoroManualAddDialog(PomodoroModel* pomodoroModel,
                             TodoItemModel* todoItemModel,
                             int pomodoroDuration,
-                            QDialog* parent = 0);
+                            QDialog* parent = nullptr);
     ~PomodoroManualAddDialog();
     void accept() override;
 

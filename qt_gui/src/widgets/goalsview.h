@@ -18,7 +18,7 @@ class GoalsView : public DataWidget {
 public:
     GoalsView(IConfig& applicationSettings,
               IPomodoroService& pomodoroService,
-              QWidget* parent = 0);
+              QWidget* parent = nullptr);
     ~GoalsView();
     void synchronize() final;
 

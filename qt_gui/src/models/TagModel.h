@@ -10,7 +10,7 @@
 class TagModel : public AsyncListModel {
 
 public:
-    explicit TagModel(IPomodoroService& pomodoroService, QObject* parent = 0);
+    TagModel(IPomodoroService& pomodoroService, QObject* parent);
 
     bool setData(const QModelIndex& index,
                  const QVariant& value,

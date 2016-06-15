@@ -8,7 +8,7 @@
 class TodoItemView : public QListView
 {
 public:
-    explicit TodoItemView(QWidget* parent = 0) :
+    explicit TodoItemView(QWidget* parent) :
         QListView(parent)
     {
 

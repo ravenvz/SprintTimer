@@ -15,7 +15,7 @@ class IStatisticalChart : public QWidget {
 public:
     using LabelValuePair = std::pair<std::string, double>;
 
-    explicit IStatisticalChart(QWidget* parent = 0)
+    explicit IStatisticalChart(QWidget* parent)
         : QWidget(parent)
     {
     }

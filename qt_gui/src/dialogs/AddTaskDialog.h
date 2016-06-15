@@ -15,7 +15,7 @@ class AddTodoItemDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit AddTodoItemDialog(TagModel* tagModel, QWidget* parent = 0);
+    explicit AddTodoItemDialog(TagModel* tagModel, QWidget* parent = nullptr);
 
     ~AddTodoItemDialog();
 

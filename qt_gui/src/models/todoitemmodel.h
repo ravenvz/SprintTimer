@@ -12,8 +12,8 @@ class TodoItemModel : public AsyncListModel {
 public:
     using TodoItemWithTimeStamp = std::pair<QDate, QString>;
 
-    explicit TodoItemModel(IPomodoroService& pomodoroService,
-                           QObject* parent = 0);
+    TodoItemModel(IPomodoroService& pomodoroService,
+                           QObject* parent);
 
     // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
