@@ -1,8 +1,19 @@
+Version 0.3.2
+-------------
+
+
+
+HISTORY
+----------------------------------------------------------------
+
 Version 0.3.1
+-------------
 
 Bugfixes:
     Fixed bug when only one of Statistics widget or History widget
         was updated when both were opened
+    Fixed ussue when Statistics widget was not updated when task that
+        has pomodoros has been deleted
     Fixed crash when adding Pomodoro manually and there are no tasks
         present
     Fixed issue when date picker widget was not working if there is
@@ -10,8 +21,6 @@ Bugfixes:
     Fixed issue when timer displays old value for a second when start
      button is clicked
 
-HISTORY
-----------------------------------------------------------------
 
 Version 0.3.0
 -------------
