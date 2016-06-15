@@ -6,7 +6,7 @@ PomodoroTimer::PomodoroTimer(std::function<void(long timeLeft)> tickCallback,
     : applicationSettings{applicationSettings}
     , tickInterval{tickPeriodInMillisecs}
     , onTickCallback{tickCallback}
-    , mStart{std::chrono::system_clock::time_point{}}
+    , mStart{DateTime::currentDateTimeLocal()}
     , shortBreakState{std::make_unique<ShortBreakState>(*this)}
     , longBreakState{std::make_unique<LongBreakState>(*this)}
     , pomodoroState{std::make_unique<PomodoroState>(*this)}
@@ -20,7 +20,7 @@ void PomodoroTimer::run()
         return;
     running = true;
     using namespace date;
-    mStart = DateTime::currentDateTime();
+    mStart = DateTime::currentDateTimeLocal();
     timerPtr = std::make_unique<Timer>(
         std::bind(&PomodoroTimer::onTimerTick, this), tickInterval);
     timerPtr->start();
@@ -45,7 +45,7 @@ TimeSpan PomodoroTimer::finish()
     if (running)
         timerPtr->stop();
     running = false;
-    return TimeSpan{mStart, DateTime::currentDateTime()};
+    return TimeSpan{mStart, DateTime::currentDateTimeLocal()};
 }
 
 int PomodoroTimer::taskDuration() { return currentState->duration(); }

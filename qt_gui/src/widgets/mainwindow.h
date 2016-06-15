@@ -93,10 +93,7 @@ private:
 
     /* Set stopwatch value. */
     void setTimerValue(Second timeLeft);
-    // void updateOpenedWindows();
-    // void updateStatisticsWindow();
-    // void updateHistoryWindow();
-    // void updateGoalWindow();
+    void adjustAddPomodoroButtonState();
     void editTodoItem();
     void removeTask();
     void removePomodoro();

@@ -17,7 +17,7 @@ class PickPeriodWidget : public QWidget {
 public:
     explicit PickPeriodWidget(QWidget* parent = 0);
     ~PickPeriodWidget();
-    void setInterval(DateInterval timeSpan);
+    void setInterval(DateInterval&& timeSpan);
     DateInterval getInterval() const;
     void setYears(const std::vector<std::string>& years);
 

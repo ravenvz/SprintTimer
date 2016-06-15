@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.2)
 
 set(PROJECT pomodoro_qt_gui)
 project(${PROJECT})

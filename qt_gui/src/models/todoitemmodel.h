@@ -5,7 +5,6 @@
 #include "core/TimeSpan.h"
 #include "core/entities/TodoItem.h"
 #include "models/AsyncListModel.h"
-#include "utils/DateInterval.h"
 
 class TodoItemModel : public AsyncListModel {
     Q_OBJECT

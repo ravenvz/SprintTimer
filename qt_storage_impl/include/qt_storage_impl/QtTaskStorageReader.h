@@ -36,8 +36,8 @@ private:
     long long mFinishedQueryId{-1};
     long long mTagQueryId{-1};
     DBService& dbService;
-    Handler handler;
-    TagHandler tagHandler;
+    std::list<Handler> handler_queue;
+    std::list<TagHandler> tag_handler_queue;
 
     QVariant columnData(const QSqlRecord& record, Column column) const;
 
