@@ -4,8 +4,8 @@
 #include "dialogs/manualaddpomodorodialog.h"
 #include "dialogs/settings_dialog.h"
 #include "ui_mainwindow.h"
-#include <QtWidgets/qmenu.h>
 #include <QMessageBox>
+#include <QtWidgets/qmenu.h>
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
@@ -49,50 +49,60 @@ MainWindow::~MainWindow()
 
 void MainWindow::connectSlots()
 {
-    connect(ui->btnAddTodo, SIGNAL(clicked(bool)), this, SLOT(addTodoItem()));
-    connect(ui->btnStart, SIGNAL(clicked(bool)), this, SLOT(startTask()));
-    connect(ui->btnCancel, SIGNAL(clicked(bool)), this, SLOT(cancelTask()));
     connect(
-        ui->leDoneTask, SIGNAL(returnPressed()), this, SLOT(submitPomodoro()));
-    connect(ui->lvTodoItems,
-            SIGNAL(clicked(QModelIndex)),
+        ui->btnAddTodo, &QPushButton::clicked, this, &MainWindow::addTodoItem);
+    connect(ui->btnStart, &QPushButton::clicked, this, &MainWindow::startTask);
+    connect(
+        ui->btnCancel, &QPushButton::clicked, this, &MainWindow::cancelTask);
+    connect(ui->leDoneTask,
+            &QLineEdit::returnPressed,
             this,
-            SLOT(changeSelectedTask(QModelIndex)));
+            &MainWindow::submitPomodoro);
     connect(ui->lvTodoItems,
-            SIGNAL(customContextMenuRequested(const QPoint&)),
+            &QListView::clicked,
             this,
-            SLOT(showTodoItemContextMenu(const QPoint&)));
+            &MainWindow::changeSelectedTask);
+    connect(ui->lvTodoItems,
+            &QListView::customContextMenuRequested,
+            this,
+            &MainWindow::showTodoItemContextMenu);
     connect(ui->lvCompletedPomodoros,
-            SIGNAL(customContextMenuRequested(const QPoint&)),
+            &QListView::customContextMenuRequested,
             this,
-            SLOT(showPomodoroContextMenu(const QPoint&)));
+            &MainWindow::showPomodoroContextMenu);
     connect(ui->lvTodoItems,
-            SIGNAL(doubleClicked(const QModelIndex&)),
+            &QListView::doubleClicked,
             this,
-            SLOT(toggleTodoItemCompleted()));
-    connect(ui->btnZone, SIGNAL(clicked()), this, SLOT(onInTheZoneToggled()));
+            &MainWindow::toggleTodoItemCompleted);
+    connect(ui->btnZone,
+            &QPushButton::clicked,
+            this,
+            &MainWindow::onInTheZoneToggled);
     connect(ui->leTodoItem,
-            SIGNAL(returnPressed()),
+            &QLineEdit::returnPressed,
             this,
-            SLOT(quickAddTodoItem()));
+            &MainWindow::quickAddTodoItem);
     connect(ui->btnSettings,
-            SIGNAL(clicked(bool)),
+            &QPushButton::clicked,
             this,
-            SLOT(launchSettingsDialog()));
+            &MainWindow::launchSettingsDialog);
     connect(ui->btnTodoHistory,
-            SIGNAL(clicked(bool)),
+            &QPushButton::clicked,
             this,
-            SLOT(launchHistoryView()));
-    connect(ui->btnGoals, SIGNAL(clicked(bool)), this, SLOT(launchGoalsView()));
+            &MainWindow::launchHistoryView);
+    connect(ui->btnGoals,
+            &QPushButton::clicked,
+            this,
+            &MainWindow::launchGoalsView);
     connect(ui->btnStatistics,
-            SIGNAL(clicked(bool)),
+            &QPushButton::clicked,
             this,
-            SLOT(launchStatisticsView()));
+            &MainWindow::launchStatisticsView);
     connect(ui->btnAddPomodoroManually,
-            SIGNAL(clicked(bool)),
+            &QPushButton::clicked,
             this,
-            SLOT(launchManualAddPomodoroDialog()));
-    connect(this, SIGNAL(timerUpdated(long)), this, SLOT(onTimerUpdated(long)));
+            &MainWindow::launchManualAddPomodoroDialog);
+    connect(this, &MainWindow::timerUpdated, this, &MainWindow::onTimerUpdated);
     connect(pomodoroModelNew,
             &PomodoroModel::modelReset,
             this,
