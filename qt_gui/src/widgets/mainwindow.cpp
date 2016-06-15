@@ -419,6 +419,10 @@ void MainWindow::launchStatisticsView()
                 &AsyncListModel::updateFinished,
                 statisticsView,
                 &DataWidget::synchronize);
+        connect(todoitemViewModel,
+                &AsyncListModel::updateFinished,
+                statisticsView,
+                &DataWidget::synchronize);
         connect(tagModel,
                 &AsyncListModel::updateFinished,
                 statisticsView,
