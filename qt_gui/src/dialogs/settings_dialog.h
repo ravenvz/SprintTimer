@@ -2,9 +2,9 @@
 #define SETTINGSDIALOG_H
 
 
+#include "core/IConfig.h"
 #include <QDialog>
 #include <QSettings>
-#include "core/IConfig.h"
 
 namespace Ui {
 class SettingsDialog;
@@ -21,6 +21,7 @@ public:
 private slots:
     void storeSettingsData();
     void toggleVolumeControlVisibility();
+    void onBrowseSoundFileButtonClicked();
 
 private:
     Ui::SettingsDialog* ui;
