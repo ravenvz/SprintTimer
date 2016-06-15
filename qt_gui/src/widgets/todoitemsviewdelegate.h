@@ -10,8 +10,7 @@ class TodoItemsViewDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    explicit TodoItemsViewDelegate(QObject* parent = 0);
-    ~TodoItemsViewDelegate();
+    explicit TodoItemsViewDelegate(QObject* parent);
 
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;

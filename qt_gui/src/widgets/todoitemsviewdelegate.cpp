@@ -15,9 +15,6 @@ TodoItemsViewDelegate::TodoItemsViewDelegate(QObject* parent) :
     delimiterColor.setAlpha(50);
 }
 
-TodoItemsViewDelegate::~TodoItemsViewDelegate() {
-}
-
 QSize TodoItemsViewDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {
     if (!index.isValid()) return QSize();
 
