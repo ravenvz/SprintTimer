@@ -5,7 +5,8 @@
 #include "dialogs/settings_dialog.h"
 #include "ui_mainwindow.h"
 #include <QtWidgets/qmenu.h>
-#include <thread>
+// #include <thread>
+#include <QMessageBox>
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
@@ -127,6 +128,20 @@ void MainWindow::connectSlots()
             &AsyncListModel::updateFinished,
             todoitemViewModel,
             &AsyncListModel::synchronize);
+    connect(
+        player.get(),
+        static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
+            &QMediaPlayer::error),
+        [=](QMediaPlayer::Error error) {
+            QMessageBox::warning(
+                this,
+                "Sound playback error",
+                QString(
+                    "Error occured when trying to play sound file:\n %1\n\n%2")
+                    .arg(QString::fromStdString(
+                        applicationSettings.soundFilePath()))
+                    .arg(player->errorString()));
+        });
 }
 
 void MainWindow::setUiToIdleState()
