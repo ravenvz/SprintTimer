@@ -1,4 +1,5 @@
 #include "qt_storage_impl/QtPomoStorageReader.h"
+#include "utils/DateTimeConverter.h"
 
 
 QtPomoStorageReader::QtPomoStorageReader(DBService& dbService)
@@ -19,7 +20,7 @@ QtPomoStorageReader::QtPomoStorageReader(DBService& dbService)
 void QtPomoStorageReader::requestItems(const TimeSpan& timeSpan,
                                        Handler handler)
 {
-    this->handler = handler;
+    handler_queue.push_back(handler);
     DateTime start = timeSpan.startTime;
     DateTime finish = timeSpan.finishTime;
 
@@ -45,7 +46,8 @@ void QtPomoStorageReader::onResultsReceived(
         records.cend(),
         std::back_inserter(pomodoros),
         [&](const auto& elem) { return this->pomodoroFromQSqlRecord(elem); });
-    handler(pomodoros);
+    handler_queue.front()(pomodoros);
+    handler_queue.pop_front();
 }
 
 Pomodoro QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
@@ -53,11 +55,10 @@ Pomodoro QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
     QDateTime finish = columnData(record, Columns::FinishTime).toDateTime();
+    TimeSpan timeSpan{DateTimeConverter::dateTime(start),
+                      DateTimeConverter::dateTime(finish)};
     std::string uuid
         = columnData(record, Columns::Uuid).toString().toStdString();
-    int offsetFromUtcInSeconds{start.offsetFromUtc()};
-    TimeSpan timeSpan{
-        start.toTime_t(), finish.toTime_t(), offsetFromUtcInSeconds};
     QStringList tagNames{columnData(record, Columns::Tags)
                              .toString()
                              .split(",", QString::SkipEmptyParts)};

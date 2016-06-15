@@ -100,6 +100,12 @@ void MainWindow::connectSlots()
             this,
             &MainWindow::updateDailyProgress);
 
+    // Disables AddPomodoro button when there are no active tasks.
+    connect(todoitemViewModel,
+            &QAbstractListModel::modelReset,
+            this,
+            &MainWindow::adjustAddPomodoroButtonState);
+
     // Setup data synchronization signals
     connect(pomodoroModelNew,
             &AsyncListModel::updateFinished,
@@ -137,8 +143,8 @@ void MainWindow::setUiToIdleState()
 void MainWindow::setUiToRunningState()
 {
     progressBarMaxValue = pomodoroTimer.taskDuration() * secondsPerMinute;
-    setTimerValue(progressBarMaxValue);
     ui->progressBar->setMaximum(progressBarMaxValue);
+    setTimerValue(progressBarMaxValue);
     ui->progressBar->setValue(0);
     ui->btnStart->hide();
     ui->labelTimer->show();
@@ -413,6 +419,10 @@ void MainWindow::launchStatisticsView()
                 &AsyncListModel::updateFinished,
                 statisticsView,
                 &DataWidget::synchronize);
+        connect(todoitemViewModel,
+                &AsyncListModel::updateFinished,
+                statisticsView,
+                &DataWidget::synchronize);
         connect(tagModel,
                 &AsyncListModel::updateFinished,
                 statisticsView,
@@ -477,4 +487,9 @@ void MainWindow::onTimerUpdated(long timeLeft)
     else {
         setUiToSubmissionState();
     }
+}
+
+void MainWindow::adjustAddPomodoroButtonState()
+{
+    ui->btnAddPomodoroManually->setEnabled(todoitemViewModel->rowCount() != 0);
 }

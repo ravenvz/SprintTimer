@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.2)
 
 set(PROJECT Pomodoro)
 project(${PROJECT})
@@ -104,11 +104,6 @@ target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_
 
 target_include_directories(${PROJECT} PUBLIC src lib)
 target_link_libraries(${PROJECT}
-    # PUBLIC Qt5::Core
-    # PUBLIC Qt5::Widgets
-    # PUBLIC Qt5::Sql
-    # PUBLIC Qt5::Multimedia
-    # PUBLIC Threads::Threads
     PRIVATE pomodoro_qt_gui
     PRIVATE pomodoro_qt_storage_impl
 )
@@ -116,8 +111,8 @@ target_link_libraries(${PROJECT}
 enable_testing()
 
 add_subdirectory(core)
-add_subdirectory(qt_storage_impl)
 add_subdirectory(qt_gui)
+add_subdirectory(qt_storage_impl)
 add_subdirectory(tests)
 
 add_test(test_pomodoro_core test_pomodoro_core)

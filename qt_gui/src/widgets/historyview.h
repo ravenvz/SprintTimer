@@ -89,6 +89,7 @@ public:
 
     void retrieveHistory() final;
 
+    /* Assumes that pomodoros are sorted by start time. */
     void onHistoryRetrieved(const std::vector<Pomodoro>& pomodoros);
 };
 
@@ -98,6 +99,7 @@ public:
 
     void retrieveHistory() final;
 
+    /* Assumes that tasks are sorted by timestamp */
     void onHistoryRetrieved(const std::vector<TodoItem>& tasks);
 };
 

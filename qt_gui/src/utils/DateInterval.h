@@ -1,8 +1,8 @@
 #ifndef DATEINTERVAL_H_DO5P2YKX
 #define DATEINTERVAL_H_DO5P2YKX
 
-#include "core/DateTime.h"
 #include "core/TimeSpan.h"
+#include "utils/DateTimeConverter.h"
 #include <QDate>
 #include <iostream>
 
@@ -13,13 +13,8 @@ struct DateInterval {
 
     static DateInterval fromTimeSpan(const TimeSpan& timeSpan)
     {
-        return DateInterval{
-            QDateTime::fromTime_t(
-                static_cast<unsigned>(timeSpan.startTime.toTime_t()))
-                .date(),
-            QDateTime::fromTime_t(
-                static_cast<unsigned>(timeSpan.finishTime.toTime_t()))
-                .date()};
+        return DateInterval{DateTimeConverter::qDate(timeSpan.startTime),
+                            DateTimeConverter::qDate(timeSpan.finishTime)};
     }
 
     QString toString() const

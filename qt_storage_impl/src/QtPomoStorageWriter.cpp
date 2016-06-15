@@ -1,4 +1,5 @@
 #include "qt_storage_impl/QtPomoStorageWriter.h"
+#include "utils/DateTimeConverter.h"
 
 
 QtPomoStorageWriter::QtPomoStorageWriter(DBService& dbService)
@@ -13,10 +14,10 @@ QtPomoStorageWriter::QtPomoStorageWriter(DBService& dbService)
 
 void QtPomoStorageWriter::save(const Pomodoro& pomodoro)
 {
-    QDateTime startTime = QDateTime::fromTime_t(
-        static_cast<unsigned>(pomodoro.timeSpan().startTime.toTime_t()));
-    QDateTime finishTime = QDateTime::fromTime_t(
-        static_cast<unsigned>(pomodoro.timeSpan().finishTime.toTime_t()));
+    QDateTime startTime
+        = DateTimeConverter::qDateTime(pomodoro.timeSpan().startTime);
+    QDateTime finishTime
+        = DateTimeConverter::qDateTime(pomodoro.timeSpan().finishTime);
     dbService.bind(addQueryId,
                    ":todo_uuid",
                    QVariant(QString::fromStdString(pomodoro.taskUuid())));

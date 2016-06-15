@@ -6,6 +6,9 @@
 #include <iterator>
 #include <memory>
 
+
+#include <QDebug>
+
 PickPeriodWidget::PickPeriodWidget(QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::PickPeriodWidget)
@@ -20,15 +23,16 @@ PickPeriodWidget::PickPeriodWidget(QWidget* parent)
     for (int monthNumber = 1; monthNumber <= 12; ++monthNumber) {
         months.append(QDate::longMonthName(monthNumber));
     }
-    monthsModel = new QStringListModel(months);
+    monthsModel = new QStringListModel(months, this);
     ui->cbxMonth->setModel(monthsModel);
+    QString currentYear = QDate::currentDate().toString("yyyy");
+    yearsModel = new QStringListModel({currentYear}, this);
+    ui->cbxYear->setModel(yearsModel);
     connectSlots();
 }
 
 PickPeriodWidget::~PickPeriodWidget()
 {
-    delete yearsModel;
-    delete monthsModel;
     delete ui;
 }
 
@@ -59,9 +63,9 @@ void PickPeriodWidget::updateSelectionHintLabel()
     ui->labelSelectionHint->setText(selectedInterval.toString());
 }
 
-void PickPeriodWidget::setInterval(DateInterval timeSpan)
+void PickPeriodWidget::setInterval(DateInterval&& dateInterval)
 {
-    selectedInterval = timeSpan;
+    selectedInterval = std::move(dateInterval);
     emit timeSpanChanged(selectedInterval);
 }
 
@@ -92,11 +96,9 @@ void PickPeriodWidget::setYears(const std::vector<std::string>& years)
         std::back_inserter(yearRange),
         [](const auto& elem) { return QString::fromStdString(elem); });
 
-    if (yearsModel) {
-        delete yearsModel;
-    }
-    yearsModel = new QStringListModel(yearRange);
-    ui->cbxYear->setModel(yearsModel);
+    if (!years.empty())
+        yearsModel->setStringList(yearRange);
+
     ui->cbxYear->setCurrentIndex(static_cast<int>(std::distance(
         yearRange.begin(),
         std::find(yearRange.begin(),

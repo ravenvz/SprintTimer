@@ -28,7 +28,7 @@ TEST(TestTwoWayDiff, test_diff_left_and_right)
 
     CHECK(expectedRemove == tagsToRemove);
     CHECK(expectedInsert == tagsToInsert);
-};
+}
 
 TEST(TestTwoWayDiff, test_diff_left_empty)
 {
@@ -48,7 +48,7 @@ TEST(TestTwoWayDiff, test_diff_left_empty)
 
     CHECK(expectedRemove == tagsToRemove);
     CHECK(expectedInsert == tagsToInsert);
-};
+}
 
 TEST(TestTwoWayDiff, test_diff_right_empty)
 {
@@ -68,7 +68,7 @@ TEST(TestTwoWayDiff, test_diff_right_empty)
 
     CHECK(expectedRemove == tagsToRemove);
     CHECK(expectedInsert == tagsToInsert);
-};
+}
 
 TEST(TestTwoWayDiff, test_all_unique)
 {
@@ -88,4 +88,4 @@ TEST(TestTwoWayDiff, test_all_unique)
 
     CHECK(expectedRemove == tagsToRemove);
     CHECK(expectedInsert == tagsToInsert);
-};
+}

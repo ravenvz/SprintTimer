@@ -87,7 +87,7 @@ void TodoItemModel::remove(const int row)
     requestDataUpdate();
 }
 
-TodoItem TodoItemModel::itemAt(const int row) const { return storage[row]; }
+TodoItem TodoItemModel::itemAt(const int row) const { return storage.at(row); }
 
 void TodoItemModel::toggleCompleted(const QModelIndex& index)
 {
