@@ -168,51 +168,6 @@ void MainWindow::setUiToSubmissionState()
     ui->leDoneTask->show();
 }
 
-void MainWindow::cancelTask()
-{
-    ConfirmationDialog cancelDialog;
-    QString description("This will destroy current pomodoro!");
-    cancelDialog.setActionDescription(description);
-    if (pomodoroTimer.isBreak() || cancelDialog.exec()) {
-        pomodoroTimer.cancel();
-        setUiToIdleState();
-    }
-}
-
-void MainWindow::addTodoItem()
-{
-    AddTodoItemDialog dialog{tagModel};
-    if (dialog.exec()) {
-        TodoItem item = dialog.constructedTask();
-        todoitemViewModel->insert(item);
-    }
-}
-
-void MainWindow::quickAddTodoItem()
-{
-    std::string encodedDescription = ui->leTodoItem->text().toStdString();
-    ui->leTodoItem->clear();
-    if (!encodedDescription.empty()) {
-        TodoItem item{std::move(encodedDescription)};
-        todoitemViewModel->insert(item);
-    }
-}
-
-void MainWindow::launchSettingsDialog()
-{
-    SettingsDialog settingsDialog{applicationSettings};
-    settingsDialog.fillSettingsData();
-    if (settingsDialog.exec()) {
-        qDebug() << "Applying changes";
-    }
-}
-
-void MainWindow::startTask()
-{
-    pomodoroTimer.run();
-    setUiToRunningState();
-}
-
 void MainWindow::setTimerValue(Second timeLeft)
 {
     QString timerValue = QString("%1:%2").arg(
@@ -221,91 +176,9 @@ void MainWindow::setTimerValue(Second timeLeft)
     ui->labelTimer->setText(timerValue);
 }
 
-void MainWindow::playSound()
+void MainWindow::adjustAddPomodoroButtonState()
 {
-    if (ui->btnZone->isChecked() || !applicationSettings.soundIsEnabled()) {
-        return;
-    }
-
-    // TODO might not be the best way to handle this, as it requires
-    // gstreamer-ugly-plugins on my system
-    // TODO move to config
-    player->setMedia(QUrl::fromLocalFile(
-        QString::fromStdString(applicationSettings.soundFilePath())));
-    player->setVolume(applicationSettings.soundVolume());
-    player->play();
-}
-
-void MainWindow::submitPomodoro()
-{
-    if (!selectedTask || ui->leDoneTask->text().isEmpty()) {
-        qDebug() << "No associated Task can be found";
-        return;
-    }
-    ui->leDoneTask->hide();
-    completedTasksIntervals.push_back(pomodoroTimer.finish());
-    for (const TimeSpan& timeSpan : completedTasksIntervals) {
-        Pomodoro pomodoro{*selectedTask, timeSpan};
-        pomodoroModelNew->insert(timeSpan, selectedTask->uuid());
-    }
-
-    completedTasksIntervals.clear();
-    startTask();
-}
-
-void MainWindow::updateDailyProgress()
-{
-    int dailyGoal = applicationSettings.dailyPomodorosGoal();
-    if (dailyGoal == 0) {
-        ui->labelDailyGoalProgress->hide();
-        return;
-    }
-    int completedSoFar = pomodoroModelNew->rowCount();
-    ui->labelDailyGoalProgress->setText(
-        QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
-    if (completedSoFar == dailyGoal) {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
-    }
-    else if (completedSoFar > dailyGoal) {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: red; }");
-    }
-    else {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: black; }");
-    }
-}
-
-void MainWindow::changeSelectedTask(QModelIndex index)
-{
-    // TODO consider having states like State::Submission instead
-    if (ui->leDoneTask->isVisible()) {
-        selectedTask = todoitemViewModel->itemAt(index.row());
-        TodoItem item = todoitemViewModel->itemAt(index.row());
-        QString description
-            = QString("%1 %2")
-                  .arg(QString::fromStdString(item.tagsAsString()))
-                  .arg(QString::fromStdString(item.name()));
-        ui->leDoneTask->setText(description);
-    }
-}
-
-void MainWindow::showTodoItemContextMenu(const QPoint& pos)
-{
-    QPoint globalPos = ui->lvTodoItems->mapToGlobal(pos);
-
-    QMenu todoItemsMenu;
-    // Note QMenu takes ownership of Action
-    todoItemsMenu.addAction("Edit");
-    todoItemsMenu.addAction("Delete");
-    todoItemsMenu.addAction("Tag editor");
-
-    QAction* selectedItem = todoItemsMenu.exec(globalPos);
-
-    if (selectedItem && selectedItem->text() == "Edit")
-        editTodoItem();
-    if (selectedItem && selectedItem->text() == "Delete")
-        removeTask();
-    if (selectedItem && selectedItem->text() == "Tag editor")
-        launchTagEditor();
+    ui->btnAddPomodoroManually->setEnabled(todoitemViewModel->rowCount() != 0);
 }
 
 void MainWindow::editTodoItem()
@@ -349,6 +222,145 @@ void MainWindow::removeTask()
     }
 }
 
+void MainWindow::removePomodoro()
+{
+    QModelIndex index = ui->lvCompletedPomodoros->currentIndex();
+    ConfirmationDialog dialog;
+    QString description{"This will remove pomodoro permanently"};
+    dialog.setActionDescription(description);
+    if (dialog.exec()) {
+        // TODO handle sad path
+        pomodoroModelNew->remove(index.row());
+    }
+}
+
+void MainWindow::playSound()
+{
+    if (ui->btnZone->isChecked() || !applicationSettings.soundIsEnabled()) {
+        return;
+    }
+
+    // TODO might not be the best way to handle this, as it requires
+    // gstreamer-ugly-plugins on my system
+    // TODO move to config
+    player->setMedia(QUrl::fromLocalFile(
+        QString::fromStdString(applicationSettings.soundFilePath())));
+    player->setVolume(applicationSettings.soundVolume());
+    player->play();
+}
+
+void MainWindow::bringToForeground(QWidget* widgetPtr)
+{
+    widgetPtr->raise();
+    widgetPtr->activateWindow();
+    widgetPtr->showNormal();
+}
+
+void MainWindow::launchTagEditor()
+{
+    if (!tagEditor) {
+        tagEditor = new TagEditorWidget{tagModel};
+        tagEditor->show();
+    }
+    else {
+        bringToForeground(tagEditor);
+    }
+}
+
+void MainWindow::onTimerTick(long timeLeft)
+{
+    emit timerUpdated(timeLeft / 1000);
+}
+
+/*********************** SLOTS *****************************/
+
+void MainWindow::startTask()
+{
+    pomodoroTimer.run();
+    setUiToRunningState();
+}
+
+void MainWindow::cancelTask()
+{
+    ConfirmationDialog cancelDialog;
+    QString description("This will destroy current pomodoro!");
+    cancelDialog.setActionDescription(description);
+    if (pomodoroTimer.isBreak() || cancelDialog.exec()) {
+        pomodoroTimer.cancel();
+        setUiToIdleState();
+    }
+}
+
+void MainWindow::addTodoItem()
+{
+    AddTodoItemDialog dialog{tagModel};
+    if (dialog.exec()) {
+        TodoItem item = dialog.constructedTask();
+        todoitemViewModel->insert(item);
+    }
+}
+
+void MainWindow::quickAddTodoItem()
+{
+    std::string encodedDescription = ui->leTodoItem->text().toStdString();
+    ui->leTodoItem->clear();
+    if (!encodedDescription.empty()) {
+        TodoItem item{std::move(encodedDescription)};
+        todoitemViewModel->insert(item);
+    }
+}
+
+void MainWindow::submitPomodoro()
+{
+    if (!selectedTask || ui->leDoneTask->text().isEmpty()) {
+        qDebug() << "No associated Task can be found";
+        return;
+    }
+    ui->leDoneTask->hide();
+    completedTasksIntervals.push_back(pomodoroTimer.finish());
+    for (const TimeSpan& timeSpan : completedTasksIntervals) {
+        Pomodoro pomodoro{*selectedTask, timeSpan};
+        pomodoroModelNew->insert(timeSpan, selectedTask->uuid());
+    }
+
+    completedTasksIntervals.clear();
+    startTask();
+}
+
+void MainWindow::changeSelectedTask(QModelIndex index)
+{
+    // TODO consider having states like State::Submission instead
+    if (ui->leDoneTask->isVisible()) {
+        selectedTask = todoitemViewModel->itemAt(index.row());
+        TodoItem item = todoitemViewModel->itemAt(index.row());
+        QString description
+            = QString("%1 %2")
+                  .arg(QString::fromStdString(item.tagsAsString()))
+                  .arg(QString::fromStdString(item.name()));
+        ui->leDoneTask->setText(description);
+    }
+}
+
+void MainWindow::showTodoItemContextMenu(const QPoint& pos)
+{
+    QPoint globalPos = ui->lvTodoItems->mapToGlobal(pos);
+
+    QMenu todoItemsMenu;
+    // Note QMenu takes ownership of Action
+    todoItemsMenu.addAction("Edit");
+    todoItemsMenu.addAction("Delete");
+    todoItemsMenu.addAction("Tag editor");
+
+    QAction* selectedItem = todoItemsMenu.exec(globalPos);
+
+    if (selectedItem && selectedItem->text() == "Edit")
+        editTodoItem();
+    if (selectedItem && selectedItem->text() == "Delete")
+        removeTask();
+    if (selectedItem && selectedItem->text() == "Tag editor")
+        launchTagEditor();
+}
+
 void MainWindow::showPomodoroContextMenu(const QPoint& pos)
 {
     QPoint globalPos = ui->lvCompletedPomodoros->mapToGlobal(pos);
@@ -362,24 +374,21 @@ void MainWindow::showPomodoroContextMenu(const QPoint& pos)
         removePomodoro();
 }
 
-void MainWindow::removePomodoro()
-{
-    QModelIndex index = ui->lvCompletedPomodoros->currentIndex();
-    ConfirmationDialog dialog;
-    QString description{"This will remove pomodoro permanently"};
-    dialog.setActionDescription(description);
-    if (dialog.exec()) {
-        // TODO handle sad path
-        pomodoroModelNew->remove(index.row());
-    }
-}
-
 void MainWindow::toggleTodoItemCompleted()
 {
     todoitemViewModel->toggleCompleted(ui->lvTodoItems->currentIndex());
 }
 
 void MainWindow::onInTheZoneToggled() { pomodoroTimer.toggleInTheZoneMode(); }
+
+void MainWindow::launchSettingsDialog()
+{
+    SettingsDialog settingsDialog{applicationSettings};
+    settingsDialog.fillSettingsData();
+    if (settingsDialog.exec()) {
+        qDebug() << "Applying changes";
+    }
+}
 
 void MainWindow::launchHistoryView()
 {
@@ -451,29 +460,6 @@ void MainWindow::launchManualAddPomodoroDialog()
     dialog.exec();
 }
 
-void MainWindow::bringToForeground(QWidget* widgetPtr)
-{
-    widgetPtr->raise();
-    widgetPtr->activateWindow();
-    widgetPtr->showNormal();
-}
-
-void MainWindow::launchTagEditor()
-{
-    if (!tagEditor) {
-        tagEditor = new TagEditorWidget{tagModel};
-        tagEditor->show();
-    }
-    else {
-        bringToForeground(tagEditor);
-    }
-}
-
-void MainWindow::onTimerTick(long timeLeft)
-{
-    emit timerUpdated(timeLeft / 1000);
-}
-
 void MainWindow::onTimerUpdated(long timeLeft)
 {
     if (timeLeft > 0) {
@@ -498,9 +484,25 @@ void MainWindow::onTimerUpdated(long timeLeft)
     }
 }
 
-void MainWindow::adjustAddPomodoroButtonState()
+void MainWindow::updateDailyProgress()
 {
-    ui->btnAddPomodoroManually->setEnabled(todoitemViewModel->rowCount() != 0);
+    int dailyGoal = applicationSettings.dailyPomodorosGoal();
+    if (dailyGoal == 0) {
+        ui->labelDailyGoalProgress->hide();
+        return;
+    }
+    int completedSoFar = pomodoroModelNew->rowCount();
+    ui->labelDailyGoalProgress->setText(
+        QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
+    if (completedSoFar == dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
+    }
+    else if (completedSoFar > dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: red; }");
+    }
+    else {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: black; }");
+    }
 }
 
 void MainWindow::onSoundError(QMediaPlayer::Error error) {
@@ -513,3 +515,4 @@ void MainWindow::onSoundError(QMediaPlayer::Error error) {
                 applicationSettings.soundFilePath()))
             .arg(player->errorString()));
 }
+

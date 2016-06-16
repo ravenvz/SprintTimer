@@ -47,26 +47,6 @@ public:
 signals:
     void timerUpdated(long timeLeft);
 
-private slots:
-    void startTask();
-    void cancelTask();
-    void addTodoItem();
-    void quickAddTodoItem();
-    void submitPomodoro();
-    void changeSelectedTask(QModelIndex index);
-    void showTodoItemContextMenu(const QPoint& pos);
-    void showPomodoroContextMenu(const QPoint& pos);
-    void toggleTodoItemCompleted();
-    void onInTheZoneToggled();
-    void launchSettingsDialog();
-    void launchHistoryView();
-    void launchGoalsView();
-    void launchStatisticsView();
-    void launchManualAddPomodoroDialog();
-    void onTimerUpdated(long);
-    void updateDailyProgress();
-    void onSoundError(QMediaPlayer::Error error);
-
 private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
@@ -89,9 +69,6 @@ private:
     void setUiToIdleState();
     void setUiToRunningState();
     void setUiToSubmissionState();
-    void updateTimerDisplay();
-
-    /* Set stopwatch value. */
     void setTimerValue(Second timeLeft);
     void adjustAddPomodoroButtonState();
     void editTodoItem();
@@ -101,6 +78,26 @@ private:
     void bringToForeground(QWidget* widgetPtr);
     void launchTagEditor();
     void onTimerTick(long timeLeft);
+
+private slots:
+    void startTask();
+    void cancelTask();
+    void addTodoItem();
+    void quickAddTodoItem();
+    void submitPomodoro();
+    void changeSelectedTask(QModelIndex index);
+    void showTodoItemContextMenu(const QPoint& pos);
+    void showPomodoroContextMenu(const QPoint& pos);
+    void toggleTodoItemCompleted();
+    void onInTheZoneToggled();
+    void launchSettingsDialog();
+    void launchHistoryView();
+    void launchGoalsView();
+    void launchStatisticsView();
+    void launchManualAddPomodoroDialog();
+    void onTimerUpdated(long);
+    void updateDailyProgress();
+    void onSoundError(QMediaPlayer::Error error);
 };
 
 #endif // MAINWINDOW_H
