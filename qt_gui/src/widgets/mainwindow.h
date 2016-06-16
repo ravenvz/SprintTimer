@@ -65,6 +65,7 @@ private slots:
     void launchManualAddPomodoroDialog();
     void onTimerUpdated(long);
     void updateDailyProgress();
+    void onSoundError(QMediaPlayer::Error error);
 
 private:
     Ui::MainWindow* ui;

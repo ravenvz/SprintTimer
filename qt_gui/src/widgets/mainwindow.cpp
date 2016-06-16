@@ -139,16 +139,7 @@ void MainWindow::connectSlots()
         player.get(),
         static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
             &QMediaPlayer::error),
-        [=](QMediaPlayer::Error error) {
-            QMessageBox::warning(
-                this,
-                "Sound playback error",
-                QString(
-                    "Error occured when trying to play sound file:\n %1\n\n%2")
-                    .arg(QString::fromStdString(
-                        applicationSettings.soundFilePath()))
-                    .arg(player->errorString()));
-        });
+        this, &MainWindow::onSoundError);
 }
 
 void MainWindow::setUiToIdleState()
@@ -514,4 +505,15 @@ void MainWindow::onTimerUpdated(long timeLeft)
 void MainWindow::adjustAddPomodoroButtonState()
 {
     ui->btnAddPomodoroManually->setEnabled(todoitemViewModel->rowCount() != 0);
+}
+
+void MainWindow::onSoundError(QMediaPlayer::Error error) {
+    QMessageBox::warning(
+        this,
+        "Sound playback error",
+        QString(
+            "Error occured when trying to play sound file:\n %1\n\n%2")
+            .arg(QString::fromStdString(
+                applicationSettings.soundFilePath()))
+            .arg(player->errorString()));
 }
