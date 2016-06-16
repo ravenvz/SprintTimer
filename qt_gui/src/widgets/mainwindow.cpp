@@ -26,14 +26,9 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     ui->lvCompletedPomodoros->setModel(pomodoroModelNew);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
     todoitemViewModel = new TodoItemModel(pomodoroService, this);
-    ui->lvTodoItems->setModel(todoitemViewModel);
-
-    todoitemViewDelegate = new TodoItemsViewDelegate(this);
-    ui->lvTodoItems->setItemDelegate(todoitemViewDelegate);
-    ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);
-
     tagModel = new TagModel(pomodoroService, this);
-
+    ui->lvTodoItems->setModels(todoitemViewModel, tagModel);
+    ui->lvTodoItems->setContextMenuPolicy(Qt::CustomContextMenu);
     setUiToIdleState();
 
     connect(
@@ -49,10 +44,10 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &QListView::clicked,
             this,
             &MainWindow::changeSelectedTask);
-    connect(ui->lvTodoItems,
-            &QListView::customContextMenuRequested,
-            this,
-            &MainWindow::showTodoItemContextMenu);
+    // connect(ui->lvTodoItems,
+    //         &QListView::customContextMenuRequested,
+    //         this,
+    //         &MainWindow::showTodoItemContextMenu);
     connect(ui->lvCompletedPomodoros,
             &QListView::customContextMenuRequested,
             this,
@@ -122,11 +117,11 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &AsyncListModel::updateFinished,
             todoitemViewModel,
             &AsyncListModel::synchronize);
-    connect(
-        player.get(),
-        static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
-            &QMediaPlayer::error),
-        this, &MainWindow::onSoundError);
+    connect(player.get(),
+            static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
+                &QMediaPlayer::error),
+            this,
+            &MainWindow::onSoundError);
 }
 
 MainWindow::~MainWindow()
@@ -134,7 +129,7 @@ MainWindow::~MainWindow()
     delete historyView;
     delete statisticsView;
     delete goalsView;
-    delete tagEditor;
+    // delete tagEditor;
     delete ui;
 }
 
@@ -181,47 +176,6 @@ void MainWindow::adjustAddPomodoroButtonState()
     ui->btnAddPomodoroManually->setEnabled(todoitemViewModel->rowCount() != 0);
 }
 
-void MainWindow::editTodoItem()
-{
-    QModelIndex index = ui->lvTodoItems->currentIndex();
-    TodoItem itemToEdit = todoitemViewModel->itemAt(index.row());
-    AddTodoItemDialog dialog{tagModel};
-    dialog.setWindowTitle("Edit TodoItem");
-    dialog.fillItemData(itemToEdit);
-    if (dialog.exec()) {
-        TodoItem updatedItem = dialog.constructedTask();
-        updatedItem.setSpentPomodoros(itemToEdit.spentPomodoros());
-        updatedItem.setCompleted(itemToEdit.isCompleted());
-        todoitemViewModel->replaceItemAt(index.row(), updatedItem);
-    }
-}
-
-void MainWindow::removeTask()
-{
-    QModelIndex index = ui->lvTodoItems->currentIndex();
-    ConfirmationDialog dialog;
-    // TODO figure out a way to handle this situation more gracefully
-    QString description;
-    if (todoitemViewModel->itemAt(index.row()).spentPomodoros() > 0) {
-        description
-            = "WARNING! This todo item has pomodoros associated with it "
-              "and they will be removed permanently along with this item.";
-    }
-    else {
-        description = "This will delete todo item permanently!";
-    }
-    dialog.setActionDescription(description);
-    if (dialog.exec()) {
-        // If removing currently selected task, clear the linedit
-        if (selectedTask
-            && todoitemViewModel->itemAt(index.row()).uuid()
-                == selectedTask->uuid()) {
-            ui->leDoneTask->clear();
-        }
-        todoitemViewModel->remove(index);
-    }
-}
-
 void MainWindow::removePomodoro()
 {
     QModelIndex index = ui->lvCompletedPomodoros->currentIndex();
@@ -254,17 +208,6 @@ void MainWindow::bringToForeground(QWidget* widgetPtr)
     widgetPtr->raise();
     widgetPtr->activateWindow();
     widgetPtr->showNormal();
-}
-
-void MainWindow::launchTagEditor()
-{
-    if (!tagEditor) {
-        tagEditor = new TagEditorWidget{tagModel};
-        tagEditor->show();
-    }
-    else {
-        bringToForeground(tagEditor);
-    }
 }
 
 void MainWindow::onTimerTick(long timeLeft)
@@ -339,26 +282,6 @@ void MainWindow::changeSelectedTask(QModelIndex index)
                   .arg(QString::fromStdString(item.name()));
         ui->leDoneTask->setText(description);
     }
-}
-
-void MainWindow::showTodoItemContextMenu(const QPoint& pos)
-{
-    QPoint globalPos = ui->lvTodoItems->mapToGlobal(pos);
-
-    QMenu todoItemsMenu;
-    // Note QMenu takes ownership of Action
-    todoItemsMenu.addAction("Edit");
-    todoItemsMenu.addAction("Delete");
-    todoItemsMenu.addAction("Tag editor");
-
-    QAction* selectedItem = todoItemsMenu.exec(globalPos);
-
-    if (selectedItem && selectedItem->text() == "Edit")
-        editTodoItem();
-    if (selectedItem && selectedItem->text() == "Delete")
-        removeTask();
-    if (selectedItem && selectedItem->text() == "Tag editor")
-        launchTagEditor();
 }
 
 void MainWindow::showPomodoroContextMenu(const QPoint& pos)
@@ -505,14 +428,12 @@ void MainWindow::updateDailyProgress()
     }
 }
 
-void MainWindow::onSoundError(QMediaPlayer::Error error) {
+void MainWindow::onSoundError(QMediaPlayer::Error error)
+{
     QMessageBox::warning(
         this,
         "Sound playback error",
-        QString(
-            "Error occured when trying to play sound file:\n %1\n\n%2")
-            .arg(QString::fromStdString(
-                applicationSettings.soundFilePath()))
+        QString("Error occured when trying to play sound file:\n %1\n\n%2")
+            .arg(QString::fromStdString(applicationSettings.soundFilePath()))
             .arg(player->errorString()));
 }
-

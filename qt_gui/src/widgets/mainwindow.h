@@ -13,12 +13,9 @@
 #include "models/TagModel.h"
 #include "models/todoitemmodel.h"
 #include "statisticswidget.h"
-#include "tageditorwidget.h"
-#include "todoitemsviewdelegate.h"
 #include <QMainWindow>
 #include <QMediaPlayer>
 #include <QSettings>
-#include <QStringListModel>
 #include <QStringListModel>
 #include <QTimer>
 #include <experimental/optional>
@@ -58,11 +55,9 @@ private:
     QPointer<PomodoroModel> pomodoroModelNew;
     QPointer<TagModel> tagModel;
     QPointer<TodoItemModel> todoitemViewModel;
-    QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
     QPointer<DataWidget> goalsView;
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
-    QPointer<TagEditorWidget> tagEditor;
     std::experimental::optional<TodoItem> selectedTask;
     PomodoroTimer pomodoroTimer;
 
@@ -71,8 +66,6 @@ private:
     void setUiToSubmissionState();
     void setTimerValue(Second timeLeft);
     void adjustAddPomodoroButtonState();
-    void editTodoItem();
-    void removeTask();
     void removePomodoro();
     void playSound();
     void bringToForeground(QWidget* widgetPtr);
@@ -86,7 +79,6 @@ private slots:
     void quickAddTodoItem();
     void submitPomodoro();
     void changeSelectedTask(QModelIndex index);
-    void showTodoItemContextMenu(const QPoint& pos);
     void showPomodoroContextMenu(const QPoint& pos);
     void toggleTodoItemCompleted();
     void onInTheZoneToggled();
