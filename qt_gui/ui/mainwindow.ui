@@ -14,7 +14,7 @@
    <string>Pomodoro</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../resources/resources.qrc">
+   <iconset resource="../resources/resources.qrc">
     <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -427,7 +427,7 @@ color: white;
      <rect>
       <x>280</x>
       <y>560</y>
-      <width>254</width>
+      <width>262</width>
       <height>91</height>
      </rect>
     </property>
@@ -438,7 +438,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../resources/resources.qrc">
+        <iconset resource="../resources/resources.qrc">
          <normaloff>:/icons/statistics.png</normaloff>:/icons/statistics.png</iconset>
        </property>
        <property name="iconSize">
@@ -455,7 +455,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../resources/resources.qrc">
+        <iconset resource="../resources/resources.qrc">
          <normaloff>:/icons/history.ico</normaloff>:/icons/history.ico</iconset>
        </property>
        <property name="iconSize">
@@ -472,7 +472,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../resources/resources.qrc">
+        <iconset resource="../resources/resources.qrc">
          <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
        </property>
        <property name="iconSize">
@@ -489,7 +489,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../resources/resources.qrc">
+        <iconset resource="../resources/resources.qrc">
          <normaloff>:/icons/control_panel.ico</normaloff>:/icons/control_panel.ico</iconset>
        </property>
        <property name="iconSize">
@@ -595,7 +595,7 @@ color: white;
      <x>0</x>
      <y>0</y>
      <width>816</width>
-     <height>19</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -605,11 +605,11 @@ color: white;
   <customwidget>
    <class>TodoItemView</class>
    <extends>QListView</extends>
-   <header>widgets/todoitemview.h</header>
+   <header>widgets/TodoItemView.h</header>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
