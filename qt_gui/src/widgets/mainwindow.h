@@ -86,7 +86,6 @@ private:
     std::experimental::optional<TodoItem> selectedTask;
     PomodoroTimer pomodoroTimer;
 
-    void connectSlots();
     void setUiToIdleState();
     void setUiToRunningState();
     void setUiToSubmissionState();

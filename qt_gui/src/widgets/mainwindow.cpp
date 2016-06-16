@@ -35,20 +35,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     tagModel = new TagModel(pomodoroService, this);
 
     setUiToIdleState();
-    connectSlots();
-}
 
-MainWindow::~MainWindow()
-{
-    delete historyView;
-    delete statisticsView;
-    delete goalsView;
-    delete tagEditor;
-    delete ui;
-}
-
-void MainWindow::connectSlots()
-{
     connect(
         ui->btnAddTodo, &QPushButton::clicked, this, &MainWindow::addTodoItem);
     connect(ui->btnStart, &QPushButton::clicked, this, &MainWindow::startTask);
@@ -140,6 +127,15 @@ void MainWindow::connectSlots()
         static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
             &QMediaPlayer::error),
         this, &MainWindow::onSoundError);
+}
+
+MainWindow::~MainWindow()
+{
+    delete historyView;
+    delete statisticsView;
+    delete goalsView;
+    delete tagEditor;
+    delete ui;
 }
 
 void MainWindow::setUiToIdleState()
