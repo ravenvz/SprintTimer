@@ -44,14 +44,6 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &QListView::clicked,
             this,
             &MainWindow::changeSelectedTask);
-    // connect(ui->lvTodoItems,
-    //         &QListView::customContextMenuRequested,
-    //         this,
-    //         &MainWindow::showTodoItemContextMenu);
-    connect(ui->lvCompletedPomodoros,
-            &QListView::customContextMenuRequested,
-            this,
-            &MainWindow::showPomodoroContextMenu);
     connect(ui->lvTodoItems,
             &QListView::doubleClicked,
             this,
@@ -176,18 +168,6 @@ void MainWindow::adjustAddPomodoroButtonState()
     ui->btnAddPomodoroManually->setEnabled(todoitemViewModel->rowCount() != 0);
 }
 
-void MainWindow::removePomodoro()
-{
-    QModelIndex index = ui->lvCompletedPomodoros->currentIndex();
-    ConfirmationDialog dialog;
-    QString description{"This will remove pomodoro permanently"};
-    dialog.setActionDescription(description);
-    if (dialog.exec()) {
-        // TODO handle sad path
-        pomodoroModelNew->remove(index.row());
-    }
-}
-
 void MainWindow::playSound()
 {
     if (ui->btnZone->isChecked() || !applicationSettings.soundIsEnabled()) {
@@ -282,19 +262,6 @@ void MainWindow::changeSelectedTask(QModelIndex index)
                   .arg(QString::fromStdString(item.name()));
         ui->leDoneTask->setText(description);
     }
-}
-
-void MainWindow::showPomodoroContextMenu(const QPoint& pos)
-{
-    QPoint globalPos = ui->lvCompletedPomodoros->mapToGlobal(pos);
-
-    QMenu pomodoroMenu;
-    pomodoroMenu.addAction("Delete");
-
-    QAction* selectedItem = pomodoroMenu.exec(globalPos);
-
-    if (selectedItem && selectedItem->text() == "Delete")
-        removePomodoro();
 }
 
 void MainWindow::toggleTodoItemCompleted()

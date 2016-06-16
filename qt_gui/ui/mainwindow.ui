@@ -365,7 +365,7 @@ color: white;
      <number>3</number>
     </property>
    </widget>
-   <widget class="QListView" name="lvCompletedPomodoros">
+   <widget class="PomodoroView" name="lvCompletedPomodoros">
     <property name="geometry">
      <rect>
       <x>420</x>
@@ -602,6 +602,11 @@ color: white;
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>PomodoroView</class>
+   <extends>QListView</extends>
+   <header>widgets/PomodoroView.h</header>
+  </customwidget>
   <customwidget>
    <class>TodoItemView</class>
    <extends>QListView</extends>

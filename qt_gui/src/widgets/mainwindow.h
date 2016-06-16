@@ -66,10 +66,8 @@ private:
     void setUiToSubmissionState();
     void setTimerValue(Second timeLeft);
     void adjustAddPomodoroButtonState();
-    void removePomodoro();
     void playSound();
     void bringToForeground(QWidget* widgetPtr);
-    void launchTagEditor();
     void onTimerTick(long timeLeft);
 
 private slots:
@@ -79,7 +77,6 @@ private slots:
     void quickAddTodoItem();
     void submitPomodoro();
     void changeSelectedTask(QModelIndex index);
-    void showPomodoroContextMenu(const QPoint& pos);
     void toggleTodoItemCompleted();
     void onInTheZoneToggled();
     void launchSettingsDialog();
