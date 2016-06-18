@@ -1,5 +1,5 @@
-#ifndef TODOITEMSLISTMODEL_H
-#define TODOITEMSLISTMODEL_H
+#ifndef TASKMODEL_H_FUQ5UCBE
+#define TASKMODEL_H_FUQ5UCBE
 
 #include "core/IPomodoroService.h"
 #include "core/TimeSpan.h"
@@ -10,10 +10,7 @@ class TaskModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    using TodoItemWithTimeStamp = std::pair<QDate, QString>;
-
-    TaskModel(IPomodoroService& pomodoroService,
-                           QObject* parent);
+    TaskModel(IPomodoroService& pomodoroService, QObject* parent);
 
     // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
@@ -97,4 +94,4 @@ private:
     void onDataChanged(const std::vector<Task>& tasks);
 };
 
-#endif // TODOITEMSLISTMODEL_H
+#endif /* end of include guard: TASKMODEL_H_FUQ5UCBE */

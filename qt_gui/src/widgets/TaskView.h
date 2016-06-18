@@ -1,12 +1,13 @@
-#ifndef TODOITEMVIEW_H
-#define TODOITEMVIEW_H
+#ifndef TASKVIEW_H_KN6BYIAY
+#define TASKVIEW_H_KN6BYIAY
+
 
 #include "dialogs/AddTaskDialog.h"
 #include "dialogs/confirmationdialog.h"
 #include "models/TagModel.h"
-#include "models/todoitemmodel.h"
+#include "models/TaskModel.h"
 #include "widgets/tageditorwidget.h"
-#include "widgets/todoitemsviewdelegate.h"
+#include "widgets/TaskViewDelegate.h"
 #include <QDebug>
 #include <QDropEvent>
 #include <QListView>
@@ -14,9 +15,9 @@
 #include <QPointer>
 
 
-class TodoItemView : public QListView {
+class TaskView : public QListView {
 public:
-    explicit TodoItemView(QWidget* parent);
+    explicit TaskView(QWidget* parent);
 
     // Overriding to catch dropEvent and prevent model start removing rows
     // attempting drag and drop by calling another method instead.
@@ -25,11 +26,11 @@ public:
     void setModels(TaskModel* taskModel, TagModel* tagModel);
 
 private:
-    QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
+    QPointer<TaskViewDelegate> taskViewDelegate;
     TagModel* tagModel;
     QPointer<TagEditorWidget> tagEditor;
 
-    void editTodoItem();
+    void editTask();
 
     void removeTask();
 
@@ -37,8 +38,8 @@ private:
 
 public slots:
 
-    void showTodoItemContextMenu(const QPoint& pos);
+    void showTaskContextMenu(const QPoint& pos);
 };
 
 
-#endif /* end of include guard: TODOITEMVIEW_H */
+#endif /* end of include guard: TASKVIEW_H_KN6BYIAY */

@@ -5,7 +5,7 @@ project(${TEST_PROJECT})
 set(SOURCE_FILES
     run_all_tests.cpp
     # ../src/db_layer/db_service.cpp
-    # ../src/models/todoitemmodel.cpp
+    # ../src/models/TaskModel.cpp
 )
 # find_library(CppUTest REQUIRED)
 find_package(Qt5 REQUIRED Core Sql Widgets)

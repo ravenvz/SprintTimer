@@ -11,7 +11,7 @@
 #include "historyview.h"
 #include "models/PomodoroModel.h"
 #include "models/TagModel.h"
-#include "models/todoitemmodel.h"
+#include "models/TaskModel.h"
 #include "statisticswidget.h"
 #include <QMainWindow>
 #include <QMediaPlayer>
@@ -52,9 +52,9 @@ private:
     std::vector<TimeSpan> completedTasksIntervals;
     int progressBarMaxValue{0};
     Second timeLeft{0};
-    QPointer<PomodoroModel> pomodoroModelNew;
+    QPointer<PomodoroModel> pomodoroModel;
     QPointer<TagModel> tagModel;
-    QPointer<TaskModel> todoitemViewModel;
+    QPointer<TaskModel> taskModel;
     QPointer<DataWidget> goalsView;
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
@@ -73,11 +73,11 @@ private:
 private slots:
     void startTask();
     void cancelTask();
-    void addTodoItem();
-    void quickAddTodoItem();
+    void addTask();
+    void quickAddTask();
     void submitPomodoro();
     void changeSelectedTask(QModelIndex index);
-    void toggleTodoItemCompleted();
+    void toggleTaskCompleted();
     void onInTheZoneToggled();
     void launchSettingsDialog();
     void launchHistoryView();

@@ -1,6 +1,6 @@
 #include <QPainter>
 #include <QApplication>
-#include "todoitemsviewdelegate.h"
+#include "TaskViewDelegate.h"
 
 
 QRect constructBoundingRect(const QStyleOptionViewItem& option, const QString& text, const int flags);
@@ -9,13 +9,13 @@ void rescaleTagsRectIfMultiline(QRect& tagsRect, const QRect& statRect, const QR
 
 bool taskOverspent(const QString& stats);
 
-TodoItemsViewDelegate::TodoItemsViewDelegate(QObject* parent) :
+TaskViewDelegate::TaskViewDelegate(QObject* parent) :
     QStyledItemDelegate(parent)
 {
     delimiterColor.setAlpha(50);
 }
 
-QSize TodoItemsViewDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {
+QSize TaskViewDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {
     if (!index.isValid()) return QSize();
 
     QString tags = index.data(Qt::UserRole + 1).toString();
@@ -36,7 +36,7 @@ QRect constructBoundingRect(const QStyleOptionViewItem& option, const QString& t
     return QRect {metrics.boundingRect(0, 0, option.rect.width(), 0, flags, text)};
 }
 
-void TodoItemsViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+void TaskViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
     painter->save();
     QFont completedItemFont {option.font};
     painter->setFont(completedItemFont);
@@ -54,7 +54,7 @@ void TodoItemsViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     painter->restore();
 }
 
-void TodoItemsViewDelegate::paintText(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, const int alpha) const {
+void TaskViewDelegate::paintText(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, const int alpha) const {
     QColor tagCol = tagColor;
     QColor commonCol = commonColor;
     QColor overspentCol = overspentColor;
@@ -98,7 +98,7 @@ void rescaleTagsRectIfMultiline(QRect& tagsRect, const QRect& statRect, const QR
     if (optionRect.width() > 0 && (tagsRect.width() + statRect.width()) > optionRect.width()) {
 
         int scaleFactor = (tagsRect.width() + statRect.width()) / optionRect.width() + 1;
-        tagsRect.setHeight(scaleFactor * tagsRect.height() + scaleFactor * TodoItemsViewDelegate::padding);
+        tagsRect.setHeight(scaleFactor * tagsRect.height() + scaleFactor * TaskViewDelegate::padding);
     }
 }
 

@@ -1,5 +1,6 @@
-#ifndef ADDTODOITEMDIALOG_H
-#define ADDTODOITEMDIALOG_H
+#ifndef ADDTASKDIALOG_H_TBSYZEDZ
+#define ADDTASKDIALOG_H_TBSYZEDZ
+
 
 #include "core/entities/Task.h"
 #include "models/TagModel.h"
@@ -7,17 +8,17 @@
 #include <QPointer>
 
 namespace Ui {
-class AddTodoItemDialog;
+class AddTaskDialog;
 }
 
 /* Provides front end to create or edit Task. */
-class AddTodoItemDialog : public QDialog {
+class AddTaskDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit AddTodoItemDialog(TagModel* tagModel, QWidget* parent = nullptr);
+    explicit AddTaskDialog(TagModel* tagModel, QWidget* parent = nullptr);
 
-    ~AddTodoItemDialog();
+    ~AddTaskDialog();
 
     /* Overidden to accept only if required fields are not empty.
      *
@@ -39,11 +40,11 @@ private slots:
     void resetNameLineEditStyle();
 
 private:
-    Ui::AddTodoItemDialog* ui;
+    Ui::AddTaskDialog* ui;
     QPointer<TagModel> tagModel;
     QString requiredFieldEmptyStyle{"QLineEdit { border: 2px solid red; }"};
 
     void setTagsModel();
 };
 
-#endif // ADDTODOITEMDIALOG_H
+#endif /* end of include guard: ADDTASKDIALOG_H_TBSYZEDZ */

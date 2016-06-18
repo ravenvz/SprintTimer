@@ -306,7 +306,7 @@ color: white;
      <string/>
     </property>
    </widget>
-   <widget class="QLineEdit" name="leTodoItem">
+   <widget class="QLineEdit" name="leTask">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -319,7 +319,7 @@ color: white;
      <string>QuickAdd TODO</string>
     </property>
    </widget>
-   <widget class="TodoItemView" name="lvTodoItems">
+   <widget class="TaskView" name="lvTaskView">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -608,9 +608,9 @@ color: white;
    <header>widgets/PomodoroView.h</header>
   </customwidget>
   <customwidget>
-   <class>TodoItemView</class>
+   <class>TaskView</class>
    <extends>QListView</extends>
-   <header>widgets/TodoItemView.h</header>
+   <header>widgets/TaskView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

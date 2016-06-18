@@ -1,5 +1,6 @@
-#ifndef ENTITIES_H
-#define ENTITIES_H
+#ifndef TASK_H_7VXCYMOK
+#define TASK_H_7VXCYMOK
+
 
 #include "core/BoostUUIDGenerator.h"
 #include "core/DateTime.h"
@@ -113,4 +114,4 @@ private:
     void decodeDescription(std::string&& encodedDescription);
 };
 
-#endif // ENTITIES_H
+#endif /* end of include guard: TASK_H_7VXCYMOK */

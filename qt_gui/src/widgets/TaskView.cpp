@@ -1,18 +1,18 @@
-#include "TodoItemView.h"
+#include "TaskView.h"
 
-TodoItemView::TodoItemView(QWidget* parent)
+TaskView::TaskView(QWidget* parent)
     : QListView(parent)
 {
-    todoitemViewDelegate = new TodoItemsViewDelegate(this);
-    setItemDelegate(todoitemViewDelegate);
+    taskViewDelegate = new TaskViewDelegate(this);
+    setItemDelegate(taskViewDelegate);
 
     connect(this,
             &QListView::customContextMenuRequested,
             this,
-            &TodoItemView::showTodoItemContextMenu);
+            &TaskView::showTaskContextMenu);
 }
 
-void TodoItemView::dropEvent(QDropEvent* event)
+void TaskView::dropEvent(QDropEvent* event)
 {
     int rowMovedFrom = currentIndex().row();
     int rowMovedTo = indexAt(event->pos()).row();
@@ -20,17 +20,17 @@ void TodoItemView::dropEvent(QDropEvent* event)
         QModelIndex(), rowMovedFrom, 1, QModelIndex(), rowMovedTo);
 }
 
-void TodoItemView::setModels(TaskModel* taskModel, TagModel* tagModel)
+void TaskView::setModels(TaskModel* taskModel, TagModel* tagModel)
 {
     setModel(taskModel);
     this->tagModel = tagModel;
 }
 
-void TodoItemView::editTodoItem()
+void TaskView::editTask()
 {
     if (tagModel == nullptr) {
         // TODO log error
-        qDebug() << "Passing null tagModel to TodoItemView";
+        qDebug() << "Passing null tagModel to TaskView";
         return;
     }
     QModelIndex index = currentIndex();
@@ -38,7 +38,7 @@ void TodoItemView::editTodoItem()
     // TaskModel, so that dynamic casts like that could be avoided
     Task itemToEdit
         = dynamic_cast<TaskModel*>(model())->itemAt(index.row());
-    AddTodoItemDialog dialog{tagModel};
+    AddTaskDialog dialog{tagModel};
     dialog.setWindowTitle("Edit Task");
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {
@@ -50,7 +50,7 @@ void TodoItemView::editTodoItem()
     }
 }
 
-void TodoItemView::removeTask()
+void TaskView::removeTask()
 {
     QModelIndex index = currentIndex();
     ConfirmationDialog dialog;
@@ -73,7 +73,7 @@ void TodoItemView::removeTask()
     }
 }
 
-void TodoItemView::launchTagEditor()
+void TaskView::launchTagEditor()
 {
     if (!tagEditor) {
         tagEditor = new TagEditorWidget{tagModel};
@@ -86,20 +86,20 @@ void TodoItemView::launchTagEditor()
     }
 }
 
-void TodoItemView::showTodoItemContextMenu(const QPoint& pos)
+void TaskView::showTaskContextMenu(const QPoint& pos)
 {
     QPoint globalPos = mapToGlobal(pos);
 
-    QMenu todoItemsMenu;
+    QMenu taskMenu;
     // Note QMenu takes ownership of Action
-    todoItemsMenu.addAction("Edit");
-    todoItemsMenu.addAction("Delete");
-    todoItemsMenu.addAction("Tag editor");
+    taskMenu.addAction("Edit");
+    taskMenu.addAction("Delete");
+    taskMenu.addAction("Tag editor");
 
-    QAction* selectedItem = todoItemsMenu.exec(globalPos);
+    QAction* selectedItem = taskMenu.exec(globalPos);
 
     if (selectedItem && selectedItem->text() == "Edit")
-        editTodoItem();
+        editTask();
     if (selectedItem && selectedItem->text() == "Delete")
         removeTask();
     if (selectedItem && selectedItem->text() == "Tag editor")

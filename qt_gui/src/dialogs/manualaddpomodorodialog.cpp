@@ -5,13 +5,13 @@
 
 
 PomodoroManualAddDialog::PomodoroManualAddDialog(PomodoroModel* pomodoroModel,
-                                                 TaskModel* todoItemModel,
+                                                 TaskModel* taskModel,
                                                  int pomodoroDuration,
                                                  QDialog* parent)
     : QDialog(parent)
     , ui(new Ui::PomodoroManualAddDialog)
     , pomodoroModel(pomodoroModel)
-    , todoItemModel(todoItemModel)
+    , taskModel(taskModel)
     , pomodoroDuration(pomodoroDuration)
 {
     ui->setupUi(this);
@@ -23,7 +23,7 @@ PomodoroManualAddDialog::~PomodoroManualAddDialog() { delete ui; }
 
 void PomodoroManualAddDialog::setData()
 {
-    ui->comboBoxPickTodoItem->setModel(todoItemModel);
+    ui->cbPickTask->setModel(taskModel);
     ui->dateEditPomodoroDate->setDate(QDate::currentDate());
 }
 
@@ -53,7 +53,7 @@ void PomodoroManualAddDialog::accept()
     }
 
     const std::string taskUuid
-        = todoItemModel->itemAt(ui->comboBoxPickTodoItem->currentIndex())
+        = taskModel->itemAt(ui->cbPickTask->currentIndex())
               .uuid();
     pomodoroModel->insert(TimeSpan{DateTimeConverter::dateTime(startTime),
                                    DateTimeConverter::dateTime(finishTime)},

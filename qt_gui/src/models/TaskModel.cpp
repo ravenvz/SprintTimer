@@ -1,4 +1,4 @@
-#include "todoitemmodel.h"
+#include "TaskModel.h"
 #include <QSize>
 #include <algorithm>
 #include <iostream>

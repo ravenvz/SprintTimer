@@ -3,11 +3,11 @@
 
 #include <iostream>
 
-TEST_GROUP(TodoItemGroup){
+TEST_GROUP(TestTask){
 
 };
 
-TEST(TodoItemGroup, test_description_all_parts_present)
+TEST(TestTask, test_description_all_parts_present)
 {
     Task item{"#Test All parts present *5"};
 
@@ -16,7 +16,7 @@ TEST(TodoItemGroup, test_description_all_parts_present)
     CHECK_EQUAL(5, item.estimatedPomodoros())
 }
 
-TEST(TodoItemGroup,
+TEST(TestTask,
      test_description_should_set_estimated_pomodoros_to_one_if_no_estimated)
 {
     Task item{"#Test Todo with tag"};
@@ -26,7 +26,7 @@ TEST(TodoItemGroup,
     CHECK_EQUAL(1, item.estimatedPomodoros())
 }
 
-TEST(TodoItemGroup, test_description_no_tags)
+TEST(TestTask, test_description_no_tags)
 {
     Task item{"Simple todo *2"};
 
@@ -36,7 +36,7 @@ TEST(TodoItemGroup, test_description_no_tags)
 }
 
 // TODO figure out what the heck is wrong with this
-TEST(TodoItemGroup, test_description_no_name)
+TEST(TestTask, test_description_no_name)
 {
     Task item{"#Tag #Test *4"};
 
@@ -49,7 +49,7 @@ TEST(TodoItemGroup, test_description_no_name)
     CHECK_EQUAL(4, item.estimatedPomodoros())
 }
 
-TEST(TodoItemGroup,
+TEST(TestTask,
      test_description_only_last_num_estimated_should_be_considered)
 {
     Task item{"Multiple estimated *4 *9"};
@@ -57,7 +57,7 @@ TEST(TodoItemGroup,
     CHECK_EQUAL(9, item.estimatedPomodoros())
 }
 
-TEST(TodoItemGroup, test_only_threats_words_preceeded_by_single_hash_as_tags)
+TEST(TestTask, test_only_threats_words_preceeded_by_single_hash_as_tags)
 {
     Task item{"##My #tag1  #   ##    beautiful,marvelous, great   content"};
 
@@ -66,7 +66,7 @@ TEST(TodoItemGroup, test_only_threats_words_preceeded_by_single_hash_as_tags)
                 item.name())
 }
 
-TEST(TodoItemGroup, test_to_string)
+TEST(TestTask, test_to_string)
 {
     // Task item{"I am item with no tags"};
     Task item{"I am item with no tags",

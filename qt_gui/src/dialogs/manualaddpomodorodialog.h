@@ -2,7 +2,7 @@
 #define MANUALADDPOMODORODIALOG_H
 
 #include "models/PomodoroModel.h"
-#include "src/models/todoitemmodel.h"
+#include "src/models/TaskModel.h"
 #include <QDialog>
 #include <QPointer>
 
@@ -15,7 +15,7 @@ class PomodoroManualAddDialog : public QDialog {
 
 public:
     PomodoroManualAddDialog(PomodoroModel* pomodoroModel,
-                            TaskModel* todoItemModel,
+                            TaskModel* taskModel,
                             int pomodoroDuration,
                             QDialog* parent = nullptr);
     ~PomodoroManualAddDialog();
@@ -27,7 +27,7 @@ private slots:
 private:
     Ui::PomodoroManualAddDialog* ui;
     QPointer<PomodoroModel> pomodoroModel;
-    QPointer<TaskModel> todoItemModel;
+    QPointer<TaskModel> taskModel;
     int pomodoroDuration;
 
     void setData();
