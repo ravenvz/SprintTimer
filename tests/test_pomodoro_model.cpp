@@ -69,7 +69,7 @@ TEST(PomodoroModel, test_insert_and_delete)
     TimeSpan expectedInterval{DateTime::currentDateTimeLocal(),
                               DateTime::currentDateTimeLocal()};
 
-    TodoItemModel todoItemModel;
+    TaskModel todoItemModel;
     std::string name{"Test item"};
     std::list<std::string> tags{"Tag1", "Tag2"};
     int estimatedPomodoros{4};
@@ -103,7 +103,7 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros)
     PomodoroModel pomodoroModel;
     TimeSpan timeSpan{std::chrono::system_clock::now(),
                       std::chrono::system_clock::now()};
-    TodoItemModel todoItemModel;
+    TaskModel todoItemModel;
     std::string name{"Test item"};
     std::list<std::string> tags{"Tag1", "Tag2"};
     int estimatedPomodoros{4};

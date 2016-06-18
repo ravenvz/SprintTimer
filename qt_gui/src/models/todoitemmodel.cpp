@@ -3,20 +3,20 @@
 #include <algorithm>
 #include <iostream>
 
-TodoItemModel::TodoItemModel(IPomodoroService& pomodoroService, QObject* parent)
+TaskModel::TaskModel(IPomodoroService& pomodoroService, QObject* parent)
     : AsyncListModel{parent}
     , pomodoroService{pomodoroService}
 {
     synchronize();
 }
 
-void TodoItemModel::requestDataUpdate()
+void TaskModel::requestDataUpdate()
 {
     pomodoroService.requestUnfinishedTasks(
-        std::bind(&TodoItemModel::onDataChanged, this, std::placeholders::_1));
+        std::bind(&TaskModel::onDataChanged, this, std::placeholders::_1));
 }
 
-void TodoItemModel::onDataChanged(const std::vector<Task>& tasks)
+void TaskModel::onDataChanged(const std::vector<Task>& tasks)
 {
     beginResetModel();
     storage = tasks;
@@ -24,17 +24,17 @@ void TodoItemModel::onDataChanged(const std::vector<Task>& tasks)
     broadcastUpdateFinished();
 }
 
-Qt::DropActions TodoItemModel::supportedDropActions() const
+Qt::DropActions TaskModel::supportedDropActions() const
 {
     return Qt::MoveAction;
 }
 
-Qt::DropActions TodoItemModel::supportedDragActions() const
+Qt::DropActions TaskModel::supportedDragActions() const
 {
     return Qt::MoveAction;
 }
 
-Qt::ItemFlags TodoItemModel::flags(const QModelIndex& index) const
+Qt::ItemFlags TaskModel::flags(const QModelIndex& index) const
 {
     if (!index.isValid() || index.model() != this) {
         return Qt::ItemIsDropEnabled;
@@ -43,7 +43,7 @@ Qt::ItemFlags TodoItemModel::flags(const QModelIndex& index) const
         | Qt::ItemIsDragEnabled;
 }
 
-QVariant TodoItemModel::data(const QModelIndex& index, int role) const
+QVariant TaskModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) {
         return QVariant();
@@ -68,41 +68,41 @@ QVariant TodoItemModel::data(const QModelIndex& index, int role) const
     }
 }
 
-int TodoItemModel::rowCount(const QModelIndex& parent) const
+int TaskModel::rowCount(const QModelIndex& parent) const
 {
     return static_cast<int>(storage.size());
 }
 
-void TodoItemModel::insert(const Task& item)
+void TaskModel::insert(const Task& item)
 {
     pomodoroService.registerTask(item);
     requestDataUpdate();
 }
 
-void TodoItemModel::remove(const QModelIndex& index) { remove(index.row()); }
+void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 
-void TodoItemModel::remove(const int row)
+void TaskModel::remove(const int row)
 {
     pomodoroService.removeTask(itemAt(row));
     requestDataUpdate();
 }
 
-Task TodoItemModel::itemAt(const int row) const { return storage.at(row); }
+Task TaskModel::itemAt(const int row) const { return storage.at(row); }
 
-void TodoItemModel::toggleCompleted(const QModelIndex& index)
+void TaskModel::toggleCompleted(const QModelIndex& index)
 {
     pomodoroService.toggleTaskCompletionStatus(itemAt(index.row()));
     requestDataUpdate();
 }
 
-void TodoItemModel::replaceItemAt(const int row, const Task& newItem)
+void TaskModel::replaceItemAt(const int row, const Task& newItem)
 {
     Task oldItem = itemAt(row);
     pomodoroService.editTask(oldItem, newItem);
     requestDataUpdate();
 }
 
-bool TodoItemModel::moveRows(const QModelIndex& sourceParent,
+bool TaskModel::moveRows(const QModelIndex& sourceParent,
                              int sourceRow,
                              int count,
                              const QModelIndex& destinationParent,

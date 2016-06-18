@@ -6,13 +6,13 @@
 #include "core/entities/Task.h"
 #include "models/AsyncListModel.h"
 
-class TodoItemModel : public AsyncListModel {
+class TaskModel : public AsyncListModel {
     Q_OBJECT
 
 public:
     using TodoItemWithTimeStamp = std::pair<QDate, QString>;
 
-    TodoItemModel(IPomodoroService& pomodoroService,
+    TaskModel(IPomodoroService& pomodoroService,
                            QObject* parent);
 
     // Override to support drag and drop.

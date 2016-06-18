@@ -54,7 +54,7 @@ private:
     Second timeLeft{0};
     QPointer<PomodoroModel> pomodoroModelNew;
     QPointer<TagModel> tagModel;
-    QPointer<TodoItemModel> todoitemViewModel;
+    QPointer<TaskModel> todoitemViewModel;
     QPointer<DataWidget> goalsView;
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;

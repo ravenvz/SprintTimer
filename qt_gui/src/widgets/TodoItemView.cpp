@@ -20,7 +20,7 @@ void TodoItemView::dropEvent(QDropEvent* event)
         QModelIndex(), rowMovedFrom, 1, QModelIndex(), rowMovedTo);
 }
 
-void TodoItemView::setModels(TodoItemModel* taskModel, TagModel* tagModel)
+void TodoItemView::setModels(TaskModel* taskModel, TagModel* tagModel)
 {
     setModel(taskModel);
     this->tagModel = tagModel;
@@ -35,9 +35,9 @@ void TodoItemView::editTodoItem()
     }
     QModelIndex index = currentIndex();
     // TODO provide proper implementation of data() and setData() in
-    // TodoItemModel, so that dynamic casts like that could be avoided
+    // TaskModel, so that dynamic casts like that could be avoided
     Task itemToEdit
-        = dynamic_cast<TodoItemModel*>(model())->itemAt(index.row());
+        = dynamic_cast<TaskModel*>(model())->itemAt(index.row());
     AddTodoItemDialog dialog{tagModel};
     dialog.setWindowTitle("Edit Task");
     dialog.fillItemData(itemToEdit);
@@ -45,7 +45,7 @@ void TodoItemView::editTodoItem()
         Task updatedItem = dialog.constructedTask();
         updatedItem.setSpentPomodoros(itemToEdit.spentPomodoros());
         updatedItem.setCompleted(itemToEdit.isCompleted());
-        dynamic_cast<TodoItemModel*>(model())->replaceItemAt(index.row(),
+        dynamic_cast<TaskModel*>(model())->replaceItemAt(index.row(),
                                                              updatedItem);
     }
 }
@@ -56,7 +56,7 @@ void TodoItemView::removeTask()
     ConfirmationDialog dialog;
     // TODO figure out a way to handle this situation more gracefully
     QString description;
-    if (dynamic_cast<TodoItemModel*>(model())
+    if (dynamic_cast<TaskModel*>(model())
             ->itemAt(index.row())
             .spentPomodoros()
         > 0) {
@@ -69,7 +69,7 @@ void TodoItemView::removeTask()
     }
     dialog.setActionDescription(description);
     if (dialog.exec()) {
-        dynamic_cast<TodoItemModel*>(model())->remove(index);
+        dynamic_cast<TaskModel*>(model())->remove(index);
     }
 }
 

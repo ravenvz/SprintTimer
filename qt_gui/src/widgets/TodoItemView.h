@@ -22,7 +22,7 @@ public:
     // attempting drag and drop by calling another method instead.
     void dropEvent(QDropEvent* event) final;
 
-    void setModels(TodoItemModel* taskModel, TagModel* tagModel);
+    void setModels(TaskModel* taskModel, TagModel* tagModel);
 
 private:
     QPointer<TodoItemsViewDelegate> todoitemViewDelegate;

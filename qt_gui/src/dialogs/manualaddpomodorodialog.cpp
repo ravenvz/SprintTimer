@@ -5,7 +5,7 @@
 
 
 PomodoroManualAddDialog::PomodoroManualAddDialog(PomodoroModel* pomodoroModel,
-                                                 TodoItemModel* todoItemModel,
+                                                 TaskModel* todoItemModel,
                                                  int pomodoroDuration,
                                                  QDialog* parent)
     : QDialog(parent)
