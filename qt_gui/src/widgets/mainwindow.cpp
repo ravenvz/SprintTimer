@@ -218,7 +218,7 @@ void MainWindow::addTodoItem()
 {
     AddTodoItemDialog dialog{tagModel};
     if (dialog.exec()) {
-        TodoItem item = dialog.constructedTask();
+        Task item = dialog.constructedTask();
         todoitemViewModel->insert(item);
     }
 }
@@ -228,7 +228,7 @@ void MainWindow::quickAddTodoItem()
     std::string encodedDescription = ui->leTodoItem->text().toStdString();
     ui->leTodoItem->clear();
     if (!encodedDescription.empty()) {
-        TodoItem item{std::move(encodedDescription)};
+        Task item{std::move(encodedDescription)};
         todoitemViewModel->insert(item);
     }
 }
@@ -255,7 +255,7 @@ void MainWindow::changeSelectedTask(QModelIndex index)
     // TODO consider having states like State::Submission instead
     if (ui->leDoneTask->isVisible()) {
         selectedTask = todoitemViewModel->itemAt(index.row());
-        TodoItem item = todoitemViewModel->itemAt(index.row());
+        Task item = todoitemViewModel->itemAt(index.row());
         QString description
             = QString("%1 %2")
                   .arg(QString::fromStdString(item.tagsAsString()))

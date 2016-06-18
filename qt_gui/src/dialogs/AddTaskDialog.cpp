@@ -23,7 +23,7 @@ AddTodoItemDialog::AddTodoItemDialog(TagModel* tagModel, QWidget* parent)
 
 AddTodoItemDialog::~AddTodoItemDialog() { delete ui; }
 
-TodoItem AddTodoItemDialog::constructedTask()
+Task AddTodoItemDialog::constructedTask()
 {
     const std::string name = ui->todoName->text().toStdString();
     const int estimatedPomodoros = ui->estimatedPomodoros->value();
@@ -39,7 +39,7 @@ TodoItem AddTodoItemDialog::constructedTask()
                    std::back_inserter(tags),
                    [](const auto& name) { return Tag{name}; });
 
-    return TodoItem{name, estimatedPomodoros, 0, tags, false};
+    return Task{name, estimatedPomodoros, 0, tags, false};
 }
 
 void AddTodoItemDialog::accept()
@@ -49,7 +49,7 @@ void AddTodoItemDialog::accept()
                    : QDialog::accept();
 }
 
-void AddTodoItemDialog::fillItemData(const TodoItem& item)
+void AddTodoItemDialog::fillItemData(const Task& item)
 {
     const auto tags = item.tags();
     std::list<std::string> tagNames;

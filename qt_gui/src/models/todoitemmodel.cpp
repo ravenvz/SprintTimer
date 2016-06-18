@@ -16,7 +16,7 @@ void TodoItemModel::requestDataUpdate()
         std::bind(&TodoItemModel::onDataChanged, this, std::placeholders::_1));
 }
 
-void TodoItemModel::onDataChanged(const std::vector<TodoItem>& tasks)
+void TodoItemModel::onDataChanged(const std::vector<Task>& tasks)
 {
     beginResetModel();
     storage = tasks;
@@ -73,7 +73,7 @@ int TodoItemModel::rowCount(const QModelIndex& parent) const
     return static_cast<int>(storage.size());
 }
 
-void TodoItemModel::insert(const TodoItem& item)
+void TodoItemModel::insert(const Task& item)
 {
     pomodoroService.registerTask(item);
     requestDataUpdate();
@@ -87,7 +87,7 @@ void TodoItemModel::remove(const int row)
     requestDataUpdate();
 }
 
-TodoItem TodoItemModel::itemAt(const int row) const { return storage.at(row); }
+Task TodoItemModel::itemAt(const int row) const { return storage.at(row); }
 
 void TodoItemModel::toggleCompleted(const QModelIndex& index)
 {
@@ -95,9 +95,9 @@ void TodoItemModel::toggleCompleted(const QModelIndex& index)
     requestDataUpdate();
 }
 
-void TodoItemModel::replaceItemAt(const int row, const TodoItem& newItem)
+void TodoItemModel::replaceItemAt(const int row, const Task& newItem)
 {
-    TodoItem oldItem = itemAt(row);
+    Task oldItem = itemAt(row);
     pomodoroService.editTask(oldItem, newItem);
     requestDataUpdate();
 }

@@ -16,7 +16,7 @@ set(SOURCE_FILES
     ../src/DateTime.cpp
     ../src/PomodoroStatistics.cpp
     ../src/Pomodoro.cpp
-    ../src/TodoItem.cpp
+    ../src/Task.cpp
     ../src/TimeSpan.cpp
     ../src/StringUtils.cpp
     ../src/PomodoroTimer.cpp

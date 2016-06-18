@@ -1,7 +1,7 @@
 #ifndef ADDTODOITEMDIALOG_H
 #define ADDTODOITEMDIALOG_H
 
-#include "core/entities/TodoItem.h"
+#include "core/entities/Task.h"
 #include "models/TagModel.h"
 #include <QDialog>
 #include <QPointer>
@@ -26,10 +26,10 @@ public:
     void accept() override;
 
     /* Return Task constructed from data in UI elements. */
-    TodoItem constructedTask();
+    Task constructedTask();
 
     /* Corresponding UI elements are filled with data from given Task. */
-    void fillItemData(const TodoItem& item);
+    void fillItemData(const Task& item);
 
 private slots:
     /* Append tag to string of tags when selected from drop-down menu. */

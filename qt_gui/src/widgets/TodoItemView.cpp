@@ -36,13 +36,13 @@ void TodoItemView::editTodoItem()
     QModelIndex index = currentIndex();
     // TODO provide proper implementation of data() and setData() in
     // TodoItemModel, so that dynamic casts like that could be avoided
-    TodoItem itemToEdit
+    Task itemToEdit
         = dynamic_cast<TodoItemModel*>(model())->itemAt(index.row());
     AddTodoItemDialog dialog{tagModel};
-    dialog.setWindowTitle("Edit TodoItem");
+    dialog.setWindowTitle("Edit Task");
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {
-        TodoItem updatedItem = dialog.constructedTask();
+        Task updatedItem = dialog.constructedTask();
         updatedItem.setSpentPomodoros(itemToEdit.spentPomodoros());
         updatedItem.setCompleted(itemToEdit.isCompleted());
         dynamic_cast<TodoItemModel*>(model())->replaceItemAt(index.row(),

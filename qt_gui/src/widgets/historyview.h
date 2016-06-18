@@ -100,7 +100,7 @@ public:
     void retrieveHistory() final;
 
     /* Assumes that tasks are sorted by timestamp */
-    void onHistoryRetrieved(const std::vector<TodoItem>& tasks);
+    void onHistoryRetrieved(const std::vector<Task>& tasks);
 };
 
 

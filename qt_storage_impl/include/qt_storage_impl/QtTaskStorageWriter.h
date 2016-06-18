@@ -13,11 +13,11 @@ class QtTaskStorageWriter : public QObject, public ITaskStorageWriter {
 public:
     explicit QtTaskStorageWriter(DBService& dbService);
 
-    void save(const TodoItem& task) final;
+    void save(const Task& task) final;
 
-    void remove(const TodoItem& task) final;
+    void remove(const Task& task) final;
 
-    void edit(const TodoItem& task, const TodoItem& editedTask) final;
+    void edit(const Task& task, const Task& editedTask) final;
 
     void incrementSpentPomodoros(const std::string& uuid) final;
 

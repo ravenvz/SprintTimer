@@ -15,16 +15,16 @@
  * Task has name and tags and might be either in completed or
  * non-completed state. It also has a number of estimated Pomodoros
  * and a number of Pomodoros that were actually spent on this Task. */
-class TodoItem {
+class Task {
 
 public:
-    TodoItem(std::string name,
+    Task(std::string name,
              int estimatedPomodoros,
              int spentPomodoros,
              std::list<Tag> tags, // TODO should be reference or moved
              bool completed);
 
-    TodoItem(std::string name,
+    Task(std::string name,
              int estimatedPomodoros,
              int spentPomodoros,
              const std::string& uuid,
@@ -53,7 +53,7 @@ public:
      * Description can have multiple words with estimated Pomodoros prefixes,
      * but only last of them will be interpreted, previous will be enterpreted
      * as a part of the name. */
-    explicit TodoItem(std::string encodedDescription);
+    explicit Task(std::string encodedDescription);
 
     static std::string estimatedPrefix;
 

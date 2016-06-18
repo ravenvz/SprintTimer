@@ -58,7 +58,7 @@ private:
     QPointer<DataWidget> goalsView;
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
-    std::experimental::optional<TodoItem> selectedTask;
+    std::experimental::optional<Task> selectedTask;
     PomodoroTimer pomodoroTimer;
 
     void setUiToIdleState();

@@ -10,7 +10,7 @@
 
 class IPomodoroService {
 public:
-    using TaskResultHandler = std::function<void(const std::vector<TodoItem>&)>;
+    using TaskResultHandler = std::function<void(const std::vector<Task>&)>;
     using PomodoroResultHandler
         = std::function<void(const std::vector<Pomodoro>&)>;
     using TagResultHandler
@@ -18,13 +18,13 @@ public:
 
     virtual ~IPomodoroService() = default;
 
-    virtual void registerTask(const TodoItem& task) = 0;
+    virtual void registerTask(const Task& task) = 0;
 
-    virtual void removeTask(const TodoItem& task) = 0;
+    virtual void removeTask(const Task& task) = 0;
 
-    virtual void editTask(const TodoItem& task, const TodoItem& editedTask) = 0;
+    virtual void editTask(const Task& task, const Task& editedTask) = 0;
 
-    virtual void toggleTaskCompletionStatus(const TodoItem& task) = 0;
+    virtual void toggleTaskCompletionStatus(const Task& task) = 0;
 
     virtual void registerTaskPriorities(
         std::vector<std::pair<std::string, int>>&& priorities)
