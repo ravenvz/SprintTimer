@@ -23,12 +23,19 @@ public:
     QVariant data(const QModelIndex& index,
                   int role = Qt::DisplayRole) const final;
 
+public slots:
+    void submitData() final;
+
+    void revertData() final;
+
 protected:
     void requestDataUpdate() final;
 
 private:
+    using OldNewTagPair = std::pair<std::string, std::string>;
     std::vector<std::string> storage;
     IPomodoroService& pomodoroService;
+    std::vector<OldNewTagPair> buffer;
 
     void onDataArrived(const std::vector<std::string>& tags);
 };

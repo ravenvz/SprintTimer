@@ -1,11 +1,9 @@
 #include "tageditorwidget.h"
 #include "ui_tageditor.h"
-#include <QDebug>
 #include <QMessageBox>
-#include <QSqlError>
 
 
-TagEditorWidget::TagEditorWidget(QAbstractListModel* tagModel, QWidget* parent)
+TagEditorWidget::TagEditorWidget(AsyncListModel* tagModel, QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::TagEditorWidget)
     , model{tagModel}
@@ -13,12 +11,22 @@ TagEditorWidget::TagEditorWidget(QAbstractListModel* tagModel, QWidget* parent)
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     ui->listViewTags->setModel(model);
-    connect(ui->buttonBoxConfirm, SIGNAL(accepted()), this, SLOT(onAccept()));
-    connect(ui->buttonBoxConfirm, SIGNAL(rejected()), this, SLOT(onReject()));
+    connect(ui->buttonBoxConfirm,
+            &QDialogButtonBox::accepted,
+            this,
+            &QWidget::close);
+    connect(ui->buttonBoxConfirm,
+            &QDialogButtonBox::rejected,
+            this,
+            &QWidget::close);
+    connect(ui->buttonBoxConfirm,
+            &QDialogButtonBox::accepted,
+            model,
+            &AsyncListModel::submitData);
+    connect(ui->buttonBoxConfirm,
+            &QDialogButtonBox::rejected,
+            model,
+            &AsyncListModel::revertData);
 }
 
 TagEditorWidget::~TagEditorWidget() { delete ui; }
-
-void TagEditorWidget::onAccept() { this->close(); }
-
-void TagEditorWidget::onReject() { this->close(); }

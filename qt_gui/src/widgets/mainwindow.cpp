@@ -121,7 +121,6 @@ MainWindow::~MainWindow()
     delete historyView;
     delete statisticsView;
     delete goalsView;
-    // delete tagEditor;
     delete ui;
 }
 

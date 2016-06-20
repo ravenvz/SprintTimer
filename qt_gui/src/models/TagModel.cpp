@@ -43,12 +43,27 @@ bool TagModel::setData(const QModelIndex& index,
     if (!index.isValid())
         return false;
     if (role == Qt::EditRole) {
-        pomodoroService.editTag(data(index, role).toString().toStdString(),
-                                value.toString().toStdString());
-        requestDataUpdate();
+        buffer.push_back({data(index, role).toString().toStdString(),
+                          value.toString().toStdString()});
+        storage[index.row()] = value.toString().toStdString();
         return true;
     }
     return false;
+}
+
+void TagModel::submitData()
+{
+    while (!buffer.empty()) {
+        pomodoroService.editTag(buffer.back().first, buffer.back().second);
+        buffer.pop_back();
+    }
+    requestDataUpdate();
+}
+
+void TagModel::revertData()
+{
+    buffer.clear();
+    requestDataUpdate();
 }
 
 void TagModel::requestDataUpdate()

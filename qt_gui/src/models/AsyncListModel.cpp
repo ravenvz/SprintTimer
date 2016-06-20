@@ -20,3 +20,7 @@ void AsyncListModel::broadcastUpdateFinished()
     }
     emit updateFinished();
 }
+
+void AsyncListModel::submitData() {}
+
+void AsyncListModel::revertData() {}

@@ -6,9 +6,8 @@
 #include "dialogs/confirmationdialog.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
-#include "widgets/tageditorwidget.h"
 #include "widgets/TaskViewDelegate.h"
-#include <QDebug>
+#include "widgets/tageditorwidget.h"
 #include <QDropEvent>
 #include <QListView>
 #include <QMenu>
