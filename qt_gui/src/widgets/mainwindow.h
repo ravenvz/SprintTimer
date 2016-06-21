@@ -58,7 +58,7 @@ private:
     QPointer<DataWidget> goalsView;
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
-    std::experimental::optional<Task> selectedTask;
+    std::experimental::optional<QModelIndex> selectedTaskIndex;
     PomodoroTimer pomodoroTimer;
 
     void setUiToIdleState();
@@ -76,7 +76,7 @@ private slots:
     void addTask();
     void quickAddTask();
     void submitPomodoro();
-    void changeSelectedTask(QModelIndex index);
+    void setSubmissionCandidateDescription();
     void toggleTaskCompleted();
     void onInTheZoneToggled();
     void launchSettingsDialog();

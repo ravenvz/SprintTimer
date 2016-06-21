@@ -15,6 +15,7 @@
 
 
 class TaskView : public QListView {
+
 public:
     explicit TaskView(QWidget* parent);
 

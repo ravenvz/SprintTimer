@@ -83,8 +83,10 @@ void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 
 void TaskModel::remove(const int row)
 {
+    beginRemoveRows(QModelIndex(), row, row);
     pomodoroService.removeTask(itemAt(row));
     requestDataUpdate();
+    endRemoveRows();
 }
 
 Task TaskModel::itemAt(const int row) const { return storage.at(row); }
@@ -103,10 +105,10 @@ void TaskModel::replaceItemAt(const int row, const Task& newItem)
 }
 
 bool TaskModel::moveRows(const QModelIndex& sourceParent,
-                             int sourceRow,
-                             int count,
-                             const QModelIndex& destinationParent,
-                             int destinationChild)
+                         int sourceRow,
+                         int count,
+                         const QModelIndex& destinationParent,
+                         int destinationChild)
 {
     // If item is dropped below all rows, destination child would be -1
     int destinationRow

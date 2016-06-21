@@ -1,4 +1,5 @@
 #include "TaskView.h"
+#include <QDebug>
 
 TaskView::TaskView(QWidget* parent)
     : QListView(parent)
@@ -36,7 +37,7 @@ void TaskView::editTask()
     QModelIndex index = currentIndex();
     // TODO provide proper implementation of data() and setData() in
     // TaskModel, so that dynamic casts like that could be avoided
-    Task itemToEdit
+    const auto itemToEdit
         = dynamic_cast<TaskModel*>(model())->itemAt(index.row());
     AddTaskDialog dialog{tagModel};
     dialog.setWindowTitle("Edit Task");
@@ -46,20 +47,17 @@ void TaskView::editTask()
         updatedItem.setSpentPomodoros(itemToEdit.spentPomodoros());
         updatedItem.setCompleted(itemToEdit.isCompleted());
         dynamic_cast<TaskModel*>(model())->replaceItemAt(index.row(),
-                                                             updatedItem);
+                                                         updatedItem);
     }
 }
 
 void TaskView::removeTask()
 {
     QModelIndex index = currentIndex();
+    const auto task = dynamic_cast<TaskModel*>(model())->itemAt(index.row());
     ConfirmationDialog dialog;
-    // TODO figure out a way to handle this situation more gracefully
     QString description;
-    if (dynamic_cast<TaskModel*>(model())
-            ->itemAt(index.row())
-            .spentPomodoros()
-        > 0) {
+    if (task.spentPomodoros() > 0) {
         description
             = "WARNING! This todo item has pomodoros associated with it "
               "and they will be removed permanently along with this item.";

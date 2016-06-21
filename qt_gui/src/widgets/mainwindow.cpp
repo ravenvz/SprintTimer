@@ -31,8 +31,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
     setUiToIdleState();
 
-    connect(
-        ui->btnAddTodo, &QPushButton::clicked, this, &MainWindow::addTask);
+    connect(ui->btnAddTodo, &QPushButton::clicked, this, &MainWindow::addTask);
     connect(ui->btnStart, &QPushButton::clicked, this, &MainWindow::startTask);
     connect(
         ui->btnCancel, &QPushButton::clicked, this, &MainWindow::cancelTask);
@@ -40,10 +39,11 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &QLineEdit::returnPressed,
             this,
             &MainWindow::submitPomodoro);
-    connect(ui->lvTaskView,
-            &QListView::clicked,
-            this,
-            &MainWindow::changeSelectedTask);
+    // Update selected task index and description of submission candidate
+    connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
+        selectedTaskIndex = index;
+        setSubmissionCandidateDescription();
+    });
     connect(ui->lvTaskView,
             &QListView::doubleClicked,
             this,
@@ -52,10 +52,8 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &QPushButton::clicked,
             this,
             &MainWindow::onInTheZoneToggled);
-    connect(ui->leTask,
-            &QLineEdit::returnPressed,
-            this,
-            &MainWindow::quickAddTask);
+    connect(
+        ui->leTask, &QLineEdit::returnPressed, this, &MainWindow::quickAddTask);
     connect(ui->btnSettings,
             &QPushButton::clicked,
             this,
@@ -101,6 +99,10 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &AsyncListModel::updateFinished,
             tagModel,
             &TagModel::synchronize);
+    connect(taskModel,
+            &AsyncListModel::updateFinished,
+            this,
+            &MainWindow::setSubmissionCandidateDescription);
     connect(tagModel,
             &AsyncListModel::updateFinished,
             pomodoroModel,
@@ -114,6 +116,15 @@ MainWindow::MainWindow(IConfig& applicationSettings,
                 &QMediaPlayer::error),
             this,
             &MainWindow::onSoundError);
+
+    // Invalidate selectedTaskIndex if the row it was pointing at was removed
+    connect(taskModel,
+            &QAbstractListModel::rowsRemoved,
+            [&](const QModelIndex& parent, int first, int last) {
+                if (selectedTaskIndex && (first <= selectedTaskIndex->row()
+                                          && selectedTaskIndex->row() <= last))
+                    selectedTaskIndex = optional<QModelIndex>();
+            });
 }
 
 MainWindow::~MainWindow()
@@ -234,33 +245,32 @@ void MainWindow::quickAddTask()
 
 void MainWindow::submitPomodoro()
 {
-    if (!selectedTask || ui->leDoneTask->text().isEmpty()) {
+    if (!selectedTaskIndex || ui->leDoneTask->text().isEmpty()) {
         qDebug() << "No associated Task can be found";
         return;
     }
     ui->leDoneTask->hide();
     completedTasksIntervals.push_back(pomodoroTimer.finish());
     for (const TimeSpan& timeSpan : completedTasksIntervals) {
-        Pomodoro pomodoro{*selectedTask, timeSpan};
-        pomodoroModel->insert(timeSpan, selectedTask->uuid());
+        pomodoroModel->insert(
+            timeSpan, taskModel->itemAt(selectedTaskIndex->row()).uuid());
     }
 
     completedTasksIntervals.clear();
     startTask();
 }
 
-void MainWindow::changeSelectedTask(QModelIndex index)
+void MainWindow::setSubmissionCandidateDescription()
 {
-    // TODO consider having states like State::Submission instead
-    if (ui->leDoneTask->isVisible()) {
-        selectedTask = taskModel->itemAt(index.row());
-        Task item = taskModel->itemAt(index.row());
-        QString description
-            = QString("%1 %2")
-                  .arg(QString::fromStdString(item.tagsAsString()))
-                  .arg(QString::fromStdString(item.name()));
-        ui->leDoneTask->setText(description);
+    if (!selectedTaskIndex) {
+        ui->leDoneTask->setText("");
+        return;
     }
+    auto task = taskModel->itemAt(selectedTaskIndex->row());
+    QString description = QString("%1 %2")
+                              .arg(QString::fromStdString(task.tagsAsString()))
+                              .arg(QString::fromStdString(task.name()));
+    ui->leDoneTask->setText(description);
 }
 
 void MainWindow::toggleTaskCompleted()
@@ -343,9 +353,8 @@ void MainWindow::launchStatisticsView()
 
 void MainWindow::launchManualAddPomodoroDialog()
 {
-    PomodoroManualAddDialog dialog{pomodoroModel,
-                                   taskModel,
-                                   applicationSettings.pomodoroDuration()};
+    PomodoroManualAddDialog dialog{
+        pomodoroModel, taskModel, applicationSettings.pomodoroDuration()};
     dialog.exec();
 }
 
