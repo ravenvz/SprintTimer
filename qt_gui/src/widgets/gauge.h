@@ -24,7 +24,7 @@ class Gauge : public QWidget {
     friend class WorkProgressOverwork;
 
 public:
-    Gauge(int actual, int goal, QWidget* parent = 0);
+    Gauge(int actual, int goal, QWidget* parent);
     void setData(int actual, int goal);
     ~Gauge() = default;
 
@@ -117,7 +117,7 @@ class GaugeFactory {
 public:
     GaugeFactory() {}
 
-    Gauge* create(int filled, int total, QWidget* parent = 0)
+    Gauge* create(int filled, int total, QWidget* parent)
     {
         return new Gauge(filled, total, parent);
     }

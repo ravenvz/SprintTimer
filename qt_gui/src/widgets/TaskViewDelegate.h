@@ -1,17 +1,16 @@
-#ifndef TODOITEMSVIEWDELEGATE_H
-#define TODOITEMSVIEWDELEGATE_H
+#ifndef TASKVIEWDELEGATE_H_Z8NDXQM6
+#define TASKVIEWDELEGATE_H_Z8NDXQM6
 
 
 #include <QStyledItemDelegate>
 
 
-class TodoItemsViewDelegate : public QStyledItemDelegate
+class TaskViewDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
 public:
-    explicit TodoItemsViewDelegate(QObject* parent = 0);
-    ~TodoItemsViewDelegate();
+    explicit TaskViewDelegate(QObject* parent);
 
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
@@ -32,4 +31,4 @@ private:
 
 };
 
-#endif // TODOITEMSVIEWDELEGATE_H
+#endif /* end of include guard: TASKVIEWDELEGATE_H_Z8NDXQM6 */

@@ -9,8 +9,8 @@
 class PomodoroModel : public AsyncListModel {
     Q_OBJECT
 public:
-    explicit PomodoroModel(IPomodoroService& pomodoroService,
-                           QObject* parent = 0);
+    PomodoroModel(IPomodoroService& pomodoroService,
+                           QObject* parent);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const final;
 

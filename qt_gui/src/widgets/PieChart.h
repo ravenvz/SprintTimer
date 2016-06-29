@@ -21,7 +21,7 @@ class PieChart : public IStatisticalChart {
     Q_OBJECT
 
 public:
-    explicit PieChart(QWidget* parent = 0);
+    explicit PieChart(QWidget* parent);
 
     /* Set data that should be displayed as a pie chart.
      * Labels are ignored by this implementation and sum of all

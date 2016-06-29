@@ -17,7 +17,7 @@ class LegendItem : public QLabel {
     Q_OBJECT
 
 public:
-    LegendItem(const QString& text, size_t itemIndex, QWidget* parent = 0);
+    LegendItem(const QString& text, size_t itemIndex, QWidget* parent);
 
     virtual ~LegendItem() = default;
 
@@ -50,7 +50,7 @@ class SimpleLegend : public IStatisticalChartLegend {
     Q_OBJECT
 
 public:
-    SimpleLegend(QWidget* parent = 0);
+    SimpleLegend(QWidget* parent);
 
     virtual ~SimpleLegend() = default;
 

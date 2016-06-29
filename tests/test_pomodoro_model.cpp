@@ -1,5 +1,5 @@
 #include "models/pomodoromodel.h"
-#include "models/todoitemmodel.h"
+#include "models/TaskModel.h"
 #include <TestHarness.h>
 #include <chrono>
 
@@ -69,7 +69,7 @@ TEST(PomodoroModel, test_insert_and_delete)
     TimeSpan expectedInterval{DateTime::currentDateTimeLocal(),
                               DateTime::currentDateTimeLocal()};
 
-    TodoItemModel todoItemModel;
+    TaskModel taskModel;
     std::string name{"Test item"};
     std::list<std::string> tags{"Tag1", "Tag2"};
     int estimatedPomodoros{4};
@@ -77,15 +77,15 @@ TEST(PomodoroModel, test_insert_and_delete)
     TodoItem item{name, estimatedPomodoros, spentPomodoros, tags, false};
     Pomodoro expectedPomodoro{item, expectedInterval};
 
-    CHECK(todoItemModel.insert(item));
-    auto todoId = todoItemModel.itemIdAt(0);
+    CHECK(taskModel.insert(item));
+    auto todoId = taskModel.itemIdAt(0);
 
     CHECK(pomodoroModel.insert(todoId, timeSpan));
     CHECK(pomodoro_equal(expectedPomodoro, pomodoroModel.itemAt(0)));
 
     // Check that spent pomodoros have been incremented
-    todoItemModel.select();
-    TodoItem insertedTodo = todoItemModel.itemAt(0);
+    taskModel.select();
+    TodoItem insertedTodo = taskModel.itemAt(0);
     CHECK_EQUAL(spentPomodoros + 1, insertedTodo.spentPomodoros());
 
     CHECK(pomodoroModel.remove(0));
@@ -93,8 +93,8 @@ TEST(PomodoroModel, test_insert_and_delete)
     CHECK_EQUAL(0, pomodoroModel.numRecords());
 
     // Check that spent pomodoros have been decremented
-    todoItemModel.select();
-    insertedTodo = todoItemModel.itemAt(0);
+    taskModel.select();
+    insertedTodo = taskModel.itemAt(0);
     CHECK_EQUAL(spentPomodoros, insertedTodo.spentPomodoros());
 }
 
@@ -103,15 +103,15 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros)
     PomodoroModel pomodoroModel;
     TimeSpan timeSpan{std::chrono::system_clock::now(),
                       std::chrono::system_clock::now()};
-    TodoItemModel todoItemModel;
+    TaskModel taskModel;
     std::string name{"Test item"};
     std::list<std::string> tags{"Tag1", "Tag2"};
     int estimatedPomodoros{4};
     int spentPomodoros{0};
     TodoItem item{name, estimatedPomodoros, spentPomodoros, tags, false};
 
-    CHECK(todoItemModel.insert(item));
-    auto todoId = todoItemModel.itemIdAt(0);
+    CHECK(taskModel.insert(item));
+    auto todoId = taskModel.itemIdAt(0);
 
     int numInsertedPomos{10};
     for (int i = 0; i < numInsertedPomos; ++i) {
@@ -122,10 +122,10 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros)
     // As inserting pomodoros increments todo_item spent_pomodoros, model needs
     // to
     // be refreshed
-    todoItemModel.select();
+    taskModel.select();
 
-    CHECK(todoItemModel.remove(0));
-    CHECK_EQUAL(0, todoItemModel.numRecords());
+    CHECK(taskModel.remove(0));
+    CHECK_EQUAL(0, taskModel.numRecords());
     pomodoroModel.select();
     CHECK_EQUAL(0, pomodoroModel.numRecords());
 }

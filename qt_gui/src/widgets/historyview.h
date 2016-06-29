@@ -18,7 +18,7 @@ class HistoryState;
 
 class HistoryViewDelegate : public QStyledItemDelegate {
 public:
-    explicit HistoryViewDelegate(QObject* parent = 0);
+    explicit HistoryViewDelegate(QObject* parent);
 
     // Override to paint root items in bold font.
     void paint(QPainter* painter,
@@ -36,7 +36,7 @@ public:
     using HistoryItem = std::pair<QDate, QString>;
 
     explicit HistoryView(IPomodoroService& pomodoroService,
-                         QWidget* parent = 0);
+                         QWidget* parent = nullptr);
 
     ~HistoryView();
 
@@ -100,7 +100,7 @@ public:
     void retrieveHistory() final;
 
     /* Assumes that tasks are sorted by timestamp */
-    void onHistoryRetrieved(const std::vector<TodoItem>& tasks);
+    void onHistoryRetrieved(const std::vector<Task>& tasks);
 };
 
 

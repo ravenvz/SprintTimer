@@ -67,6 +67,10 @@ TEST_GROUP(PomodoroTimerStates)
 
         void setMonthlyPomodorosGoal(int monthlyPomodorosGoal) override {}
 
+        std::string soundFilePath() override { return ""; }
+
+        void setSoundFilePath(const std::string& filePath) {}
+
     private:
         int mPomodoroDuration = 25;
         int mShortBreakDuration = 5;

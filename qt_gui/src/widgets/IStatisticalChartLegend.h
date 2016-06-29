@@ -11,7 +11,7 @@ class IStatisticalChartLegend : public QWidget {
     Q_OBJECT
 
 public:
-    IStatisticalChartLegend(QWidget* parent = 0)
+    IStatisticalChartLegend(QWidget* parent)
         : QWidget(parent)
     {
     }

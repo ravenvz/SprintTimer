@@ -1,12 +1,12 @@
-#include "core/entities/TodoItem.h"
+#include "core/entities/Task.h"
 #include <iostream>
 #include <regex>
 
 
 // static
-BoostUUIDGenerator TodoItem::generator;
+BoostUUIDGenerator Task::generator;
 
-TodoItem::TodoItem(std::string name,
+Task::Task(std::string name,
                    int estimatedPomodoros,
                    int spentPomodoros,
                    std::list<Tag> tags,
@@ -21,7 +21,7 @@ TodoItem::TodoItem(std::string name,
 {
 }
 
-TodoItem::TodoItem(std::string name,
+Task::Task(std::string name,
                    int estimatedPomodoros,
                    int spentPomodoros,
                    const std::string& uuid,
@@ -38,51 +38,51 @@ TodoItem::TodoItem(std::string name,
 {
 }
 
-TodoItem::TodoItem(std::string encodedDescription)
+Task::Task(std::string encodedDescription)
     : mUuid{generator.generateUUID()}
     , mLastModified{DateTime::currentDateTimeLocal()}
 {
     decodeDescription(std::move(encodedDescription));
 }
 
-std::string TodoItem::estimatedPrefix = std::string{"*"};
+std::string Task::estimatedPrefix = std::string{"*"};
 
-std::string TodoItem::name() const { return mName; }
+std::string Task::name() const { return mName; }
 
-bool TodoItem::isCompleted() const { return mCompleted; }
+bool Task::isCompleted() const { return mCompleted; }
 
-int TodoItem::estimatedPomodoros() const { return mEstimatedPomodoros; }
+int Task::estimatedPomodoros() const { return mEstimatedPomodoros; }
 
-int TodoItem::spentPomodoros() const { return mSpentPomodoros; }
+int Task::spentPomodoros() const { return mSpentPomodoros; }
 
-std::string TodoItem::uuid() const { return mUuid; }
+std::string Task::uuid() const { return mUuid; }
 
-std::list<Tag> TodoItem::tags() const { return mTags; }
+std::list<Tag> Task::tags() const { return mTags; }
 
-DateTime TodoItem::lastModified() const { return mLastModified; }
+DateTime Task::lastModified() const { return mLastModified; }
 
-void TodoItem::setName(const std::string& name) { mName = name; }
+void Task::setName(const std::string& name) { mName = name; }
 
-void TodoItem::setCompleted(bool completed) { mCompleted = completed; }
+void Task::setCompleted(bool completed) { mCompleted = completed; }
 
-void TodoItem::setEstimatedPomodoros(int estimatedPomodoros)
+void Task::setEstimatedPomodoros(int estimatedPomodoros)
 {
     mEstimatedPomodoros = estimatedPomodoros;
 }
 
-void TodoItem::setTags(const std::list<Tag>& newTags) { mTags = newTags; }
+void Task::setTags(const std::list<Tag>& newTags) { mTags = newTags; }
 
-void TodoItem::setSpentPomodoros(int spentPomodoros)
+void Task::setSpentPomodoros(int spentPomodoros)
 {
     mSpentPomodoros = spentPomodoros;
 }
 
-void TodoItem::setModifiedTimeStamp(const DateTime& timeStamp)
+void Task::setModifiedTimeStamp(const DateTime& timeStamp)
 {
     mLastModified = timeStamp;
 }
 
-std::string TodoItem::tagsAsString() const
+std::string Task::tagsAsString() const
 {
     std::list<std::string> prefixedTags;
     std::transform(mTags.cbegin(),
@@ -93,7 +93,7 @@ std::string TodoItem::tagsAsString() const
 }
 
 
-std::string TodoItem::toString() const
+std::string Task::toString() const
 {
     std::vector<std::string> parts;
     std::string result;
@@ -105,7 +105,7 @@ std::string TodoItem::toString() const
     return StringUtils::join(parts, " ");
 }
 
-void TodoItem::decodeDescription(std::string&& encodedDescription)
+void Task::decodeDescription(std::string&& encodedDescription)
 {
     std::regex tagRegex{"^" + Tag::prefix + R"(\w+)"};
     std::regex estimatedRegex{"^\\" + estimatedPrefix + R"(\w+)"};

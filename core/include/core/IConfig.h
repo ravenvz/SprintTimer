@@ -1,6 +1,8 @@
 #ifndef POMODORO_CONFIG_H
 #define POMODORO_CONFIG_H
 
+#include <string>
+
 class IConfig {
 
 public:
@@ -24,6 +26,8 @@ public:
     virtual void setWeeklyPomodorosGoal(int weeklyPomodorosGoal) = 0;
     virtual int monthlyPomodorosGoal() const = 0;
     virtual void setMonthlyPomodorosGoal(int monthlyPomodorosGoal) = 0;
+    virtual std::string soundFilePath() = 0;
+    virtual void setSoundFilePath(const std::string& filePath) = 0;
 };
 
 

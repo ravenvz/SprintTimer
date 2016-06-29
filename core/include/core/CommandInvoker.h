@@ -19,11 +19,20 @@ public:
 
     void undo()
     {
+        if (commandStack.empty())
+            return;
         std::cout << "Undoing " << commandStack.back()->inspect() << " command"
                   << std::endl;
         commandStack.back()->undo();
         commandStack.pop_back();
     }
+
+    size_t stackSize() const { return commandStack.size(); }
+
+    std::string lastCommandDescription() const {
+        if (commandStack.empty())
+            return "";
+        return commandStack.back()->inspect(); }
 
 private:
     std::vector<std::unique_ptr<Command>> commandStack;

@@ -40,7 +40,7 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
         "update tag set name = :new_name where name = :old_name;");
 }
 
-void QtTaskStorageWriter::save(const TodoItem& task)
+void QtTaskStorageWriter::save(const Task& task)
 {
     QString uuid = QString::fromStdString(task.uuid());
     dbService.bindValue(
@@ -87,7 +87,7 @@ void QtTaskStorageWriter::removeTags(const QString& taskUuid,
     }
 }
 
-void QtTaskStorageWriter::remove(const TodoItem& task)
+void QtTaskStorageWriter::remove(const Task& task)
 {
     // Note that tags are removed by trigger
     dbService.bindValue(
@@ -95,7 +95,7 @@ void QtTaskStorageWriter::remove(const TodoItem& task)
     dbService.executePrepared(removeTaskQueryId);
 }
 
-void QtTaskStorageWriter::edit(const TodoItem& task, const TodoItem& editedTask)
+void QtTaskStorageWriter::edit(const Task& task, const Task& editedTask)
 {
     const QString taskUuid = QString::fromStdString(task.uuid());
 

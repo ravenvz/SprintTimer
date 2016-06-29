@@ -3,9 +3,10 @@
 #include "ui_add_todo_dialog.h"
 #include <QRegularExpression>
 
-AddTodoItemDialog::AddTodoItemDialog(TagModel* tagModel, QWidget* parent)
+
+AddTaskDialog::AddTaskDialog(TagModel* tagModel, QWidget* parent)
     : QDialog(parent)
-    , ui(new Ui::AddTodoItemDialog)
+    , ui(new Ui::AddTaskDialog)
     , tagModel(tagModel)
 {
     ui->setupUi(this);
@@ -14,17 +15,17 @@ AddTodoItemDialog::AddTodoItemDialog(TagModel* tagModel, QWidget* parent)
             SIGNAL(activated(const QString&)),
             this,
             SLOT(onQuickAddTagActivated(const QString&)));
-    connect(ui->todoName,
+    connect(ui->taskName,
             SIGNAL(textEdited(const QString&)),
             this,
             SLOT(resetNameLineEditStyle()));
 }
 
-AddTodoItemDialog::~AddTodoItemDialog() { delete ui; }
+AddTaskDialog::~AddTaskDialog() { delete ui; }
 
-TodoItem AddTodoItemDialog::constructedTask()
+Task AddTaskDialog::constructedTask()
 {
-    const std::string name = ui->todoName->text().toStdString();
+    const std::string name = ui->taskName->text().toStdString();
     const int estimatedPomodoros = ui->estimatedPomodoros->value();
     std::list<Tag> tags;
     std::list<std::string> tagNames
@@ -38,17 +39,17 @@ TodoItem AddTodoItemDialog::constructedTask()
                    std::back_inserter(tags),
                    [](const auto& name) { return Tag{name}; });
 
-    return TodoItem{name, estimatedPomodoros, 0, tags, false};
+    return Task{name, estimatedPomodoros, 0, tags, false};
 }
 
-void AddTodoItemDialog::accept()
+void AddTaskDialog::accept()
 {
-    QString name = ui->todoName->text();
-    name.isEmpty() ? ui->todoName->setStyleSheet(requiredFieldEmptyStyle)
+    QString name = ui->taskName->text();
+    name.isEmpty() ? ui->taskName->setStyleSheet(requiredFieldEmptyStyle)
                    : QDialog::accept();
 }
 
-void AddTodoItemDialog::fillItemData(const TodoItem& item)
+void AddTaskDialog::fillItemData(const Task& item)
 {
     const auto tags = item.tags();
     std::list<std::string> tagNames;
@@ -59,12 +60,12 @@ void AddTodoItemDialog::fillItemData(const TodoItem& item)
 
     QString joined_tags = QString::fromStdString(
         StringUtils::join(tagNames.cbegin(), tagNames.cend(), " "));
-    ui->todoName->setText(QString::fromStdString(item.name()));
+    ui->taskName->setText(QString::fromStdString(item.name()));
     ui->estimatedPomodoros->setValue(item.estimatedPomodoros());
     ui->leTags->setText(joined_tags);
 }
 
-void AddTodoItemDialog::onQuickAddTagActivated(const QString& tag)
+void AddTaskDialog::onQuickAddTagActivated(const QString& tag)
 {
     QString prevTag = ui->leTags->text();
     if (!prevTag.isEmpty()) {
@@ -74,12 +75,12 @@ void AddTodoItemDialog::onQuickAddTagActivated(const QString& tag)
     ui->leTags->setText(prevTag);
 }
 
-void AddTodoItemDialog::resetNameLineEditStyle()
+void AddTaskDialog::resetNameLineEditStyle()
 {
-    ui->todoName->setStyleSheet("");
+    ui->taskName->setStyleSheet("");
 }
 
-void AddTodoItemDialog::setTagsModel()
+void AddTaskDialog::setTagsModel()
 {
     ui->tags->setModel(tagModel);
     // ui->tags->setModelColumn(1);

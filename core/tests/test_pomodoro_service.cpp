@@ -17,7 +17,7 @@ TEST_GROUP(TestPomodoroService)
 {
     const TimeSpan defaultTimeSpan
         = TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()};
-    TodoItem defaultTask{"Task name",
+    Task defaultTask{"Task name",
                          4,
                          2,
                          "550e8400-e29b-41d4-a716-446655440000",
@@ -26,7 +26,7 @@ TEST_GROUP(TestPomodoroService)
                          DateTime::fromYMD(2015, 11, 10)};
 
     FakeStorage<Pomodoro> pomodoroStorage;
-    FakeStorage<TodoItem> taskStorage;
+    FakeStorage<Task> taskStorage;
     FakePomodoroWriter pomodoroStorageWriter{pomodoroStorage};
     FakePomodoroStorageReader pomodoroStorageReader{pomodoroStorage};
     FakePomodoroDistributionReader pomodoroDistributionReader{pomodoroStorage};
@@ -75,7 +75,7 @@ TEST_GROUP(TestPomodoroService)
         pomoDistributionHandlerCalled = true;
     }
 
-    void taskHandler(const std::vector<TodoItem>& result)
+    void taskHandler(const std::vector<Task>& result)
     {
         taskHandlerCalled = true;
     }
@@ -201,7 +201,7 @@ TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
     const int editedSpent{5};
     const bool editedCompletionStatus{true};
 
-    TodoItem editedTask{editedTaskName,
+    Task editedTask{editedTaskName,
                         editedEstimated,
                         editedSpent,
                         editedTags,
@@ -210,7 +210,7 @@ TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
     const DateTime editedTaskLastModified = editedTask.lastModified();
 
     pomodoroService.editTask(defaultTask, editedTask);
-    TodoItem& actual = taskStorage.itemRef(taskUuid);
+    Task& actual = taskStorage.itemRef(taskUuid);
 
     // TODO write method to compare Tasks
 
@@ -229,7 +229,7 @@ TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
 
     pomodoroService.undoLast();
 
-    TodoItem& afterUndo = taskStorage.itemRef(taskUuid);
+    Task& afterUndo = taskStorage.itemRef(taskUuid);
 
     CHECK(taskUuid == afterUndo.uuid());
     CHECK(defaultTask.name() == afterUndo.name());
@@ -247,14 +247,14 @@ TEST(TestPomodoroService, test_request_finished_tasks_calls_handler)
 {
     pomodoroService.requestFinishedTasks(
         defaultTimeSpan,
-        [this](const std::vector<TodoItem>& result) { taskHandler(result); });
+        [this](const std::vector<Task>& result) { taskHandler(result); });
     CHECK(taskHandlerCalled);
 }
 
 TEST(TestPomodoroService, test_request_unfinished_tasks_calls_handler)
 {
     pomodoroService.requestUnfinishedTasks(
-        [this](const std::vector<TodoItem>& result) { taskHandler(result); });
+        [this](const std::vector<Task>& result) { taskHandler(result); });
     CHECK(taskHandlerCalled);
 }
 
@@ -288,9 +288,9 @@ TEST(TestPomodoroService, test_edit_tag_should_edit_tag_for_all_items)
     const std::list<Tag> tags1{Tag{"Tag1"}, Tag{"Tag2"}};
     const std::list<Tag> tags2{Tag{"Tag2"}, Tag{"Tag3"}};
     const std::list<Tag> tags3{Tag{"Tag1"}, Tag{"Tag5"}};
-    TodoItem item1{"Item 1", 4, 0, tags1, false};
-    TodoItem item2{"Item 2", 4, 0, tags2, false};
-    TodoItem item3{"Item 3", 4, 0, tags3, false};
+    Task item1{"Item 1", 4, 0, tags1, false};
+    Task item2{"Item 2", 4, 0, tags2, false};
+    Task item3{"Item 3", 4, 0, tags3, false};
     const std::list<Tag> exp_tags1{Tag{"EditedTag"}, Tag{"Tag2"}};
     const std::list<Tag> exp_tags2{Tag{"Tag2"}, Tag{"Tag3"}};
     const std::list<Tag> exp_tags3{Tag{"EditedTag"}, Tag{"Tag5"}};

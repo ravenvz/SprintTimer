@@ -1,7 +1,7 @@
 #ifndef TAGEDITOR_H
 #define TAGEDITOR_H
 
-#include <QAbstractListModel>
+#include "models/AsyncListModel.h"
 #include <QWidget>
 
 namespace Ui {
@@ -13,16 +13,12 @@ class TagEditorWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TagEditorWidget(QAbstractListModel* tagModel, QWidget* parent = 0);
+    TagEditorWidget(AsyncListModel* tagModel, QWidget* parent = nullptr);
     ~TagEditorWidget();
-
-private slots:
-    void onAccept();
-    void onReject();
 
 private:
     Ui::TagEditorWidget* ui;
-    QAbstractListModel* model;
+    AsyncListModel* model;
 };
 
 

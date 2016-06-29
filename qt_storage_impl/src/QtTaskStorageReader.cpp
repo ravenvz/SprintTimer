@@ -94,7 +94,7 @@ void QtTaskStorageReader::onResultsReceived(
     }
 }
 
-TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
+Task QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
 {
     std::string name{columnData(record, Column::Name).toString().toStdString()};
     std::string uuid{columnData(record, Column::Uuid).toString().toStdString()};
@@ -113,7 +113,7 @@ TodoItem QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
     QDateTime qLastModified{
         columnData(record, Column::LastModified).toDateTime()};
     DateTime lastModified = DateTimeConverter::dateTime(qLastModified);
-    return TodoItem{name,
+    return Task{name,
                     estimatedPomodoros,
                     spentPomodoros,
                     uuid,

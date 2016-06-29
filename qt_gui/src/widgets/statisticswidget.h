@@ -38,7 +38,7 @@ class StatisticsWidget : public DataWidget {
 public:
     StatisticsWidget(IConfig& applicationSettings,
                      IPomodoroService& pomodoroService,
-                     QWidget* parent = 0);
+                     QWidget* parent = nullptr);
     ~StatisticsWidget();
 
     void synchronize();
