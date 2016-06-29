@@ -1,10 +1,20 @@
-Version 0.3.2
+Version 0.3.3
 -------------
 
+Improved start button design
 
+Improved project build configuration
+
+Added basic project documentation
 
 HISTORY
 ----------------------------------------------------------------
+
+Version 0.3.2
+-------------
+
+Users can now undo commands from the main window
+
 
 Version 0.3.1
 -------------
