@@ -191,6 +191,14 @@ void PomodoroService::editTag(const std::string& oldName,
     invoker.executeCommand(std::move(editTag));
 }
 
+std::string PomodoroService::lastCommandDescription() const {
+    return invoker.lastCommandDescription();
+}
+
+size_t PomodoroService::numRevertableCommands() const {
+    return invoker.stackSize();
+}
+
 void PomodoroService::undoLast() { invoker.undo(); }
 
 } /* CoreApi */

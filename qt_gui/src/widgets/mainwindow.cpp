@@ -29,6 +29,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     tagModel = new TagModel(pomodoroService, this);
     ui->lvTaskView->setModels(taskModel, tagModel);
     ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
+    adjustUndoButtonState();
     setUiToIdleState();
 
     connect(ui->btnAddTodo, &QPushButton::clicked, this, &MainWindow::addTask);
@@ -125,6 +126,18 @@ MainWindow::MainWindow(IConfig& applicationSettings,
                                           && selectedTaskIndex->row() <= last))
                     selectedTaskIndex = optional<QModelIndex>();
             });
+    connect(ui->pbUndo,
+            &QPushButton::clicked,
+            this,
+            &MainWindow::onUndoButtonClicked);
+    connect(pomodoroModel,
+            &AsyncListModel::updateFinished,
+            this,
+            &MainWindow::adjustUndoButtonState);
+    connect(taskModel,
+            &AsyncListModel::updateFinished,
+            this,
+            &MainWindow::adjustUndoButtonState);
 }
 
 MainWindow::~MainWindow()
@@ -178,7 +191,7 @@ void MainWindow::adjustAddPomodoroButtonState()
     ui->btnAddPomodoroManually->setEnabled(taskModel->rowCount() != 0);
 }
 
-void MainWindow::playSound()
+void MainWindow::playSound() const
 {
     if (ui->btnZone->isChecked() || !applicationSettings.soundIsEnabled()) {
         return;
@@ -193,7 +206,7 @@ void MainWindow::playSound()
     player->play();
 }
 
-void MainWindow::bringToForeground(QWidget* widgetPtr)
+void MainWindow::bringToForeground(QWidget* widgetPtr) const
 {
     widgetPtr->raise();
     widgetPtr->activateWindow();
@@ -411,4 +424,25 @@ void MainWindow::onSoundError(QMediaPlayer::Error error)
         QString("Error occured when trying to play sound file:\n %1\n\n%2")
             .arg(QString::fromStdString(applicationSettings.soundFilePath()))
             .arg(player->errorString()));
+}
+
+void MainWindow::onUndoButtonClicked()
+{
+    ConfirmationDialog dialog;
+    QString description{"Revert following action:\n"};
+    description.append(
+        QString::fromStdString(pomodoroService.lastCommandDescription()));
+    dialog.setActionDescription(description);
+    if (dialog.exec()) {
+        pomodoroService.undoLast();
+        pomodoroModel->synchronize();
+        taskModel->synchronize();
+        adjustUndoButtonState();
+    }
+}
+
+void MainWindow::adjustUndoButtonState()
+{
+    ui->pbUndo->setVisible(pomodoroService.numRevertableCommands() == 0 ? false
+                                                                        : true);
 }

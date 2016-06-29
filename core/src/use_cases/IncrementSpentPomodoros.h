@@ -26,7 +26,7 @@ protected:
 
 private:
     ITaskStorageWriter& writer;
-    const std::string& taskUuid;
+    const std::string taskUuid;
 };
 
 } /* UseCases */

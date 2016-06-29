@@ -66,8 +66,8 @@ private:
     void setUiToSubmissionState();
     void setTimerValue(Second timeLeft);
     void adjustAddPomodoroButtonState();
-    void playSound();
-    void bringToForeground(QWidget* widgetPtr);
+    void playSound() const;
+    void bringToForeground(QWidget* widgetPtr) const;
     void onTimerTick(long timeLeft);
 
 private slots:
@@ -87,6 +87,8 @@ private slots:
     void onTimerUpdated(long);
     void updateDailyProgress();
     void onSoundError(QMediaPlayer::Error error);
+    void onUndoButtonClicked();
+    void adjustUndoButtonState();
 };
 
 #endif // MAINWINDOW_H

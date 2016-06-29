@@ -75,6 +75,10 @@ public:
     virtual void editTag(const std::string& oldName, const std::string& newName)
         = 0;
 
+    virtual std::string lastCommandDescription() const = 0;
+
+    virtual size_t numRevertableCommands() const = 0;
+
     virtual void undoLast() = 0;
 };
 

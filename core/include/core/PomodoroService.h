@@ -76,6 +76,10 @@ public:
 
     void editTag(const std::string& oldName, const std::string& newName) final;
 
+    virtual std::string lastCommandDescription() const final;
+
+    virtual size_t numRevertableCommands() const final;
+
     void undoLast() final;
 
 private:
