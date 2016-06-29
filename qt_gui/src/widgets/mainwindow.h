@@ -11,14 +11,11 @@
 #include "historyview.h"
 #include "models/PomodoroModel.h"
 #include "models/TagModel.h"
-#include "models/todoitemmodel.h"
+#include "models/TaskModel.h"
 #include "statisticswidget.h"
-#include "tageditorwidget.h"
-#include "todoitemsviewdelegate.h"
 #include <QMainWindow>
 #include <QMediaPlayer>
 #include <QSettings>
-#include <QStringListModel>
 #include <QStringListModel>
 #include <QTimer>
 #include <experimental/optional>
@@ -41,30 +38,11 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(IConfig& applicationSettings,
                IPomodoroService& pomodoroService,
-               QWidget* parent = 0);
+               QWidget* parent = nullptr);
     ~MainWindow();
 
 signals:
     void timerUpdated(long timeLeft);
-
-private slots:
-    void startTask();
-    void cancelTask();
-    void addTodoItem();
-    void quickAddTodoItem();
-    void submitPomodoro();
-    void changeSelectedTask(QModelIndex index);
-    void showTodoItemContextMenu(const QPoint& pos);
-    void showPomodoroContextMenu(const QPoint& pos);
-    void toggleTodoItemCompleted();
-    void onInTheZoneToggled();
-    void launchSettingsDialog();
-    void launchHistoryView();
-    void launchGoalsView();
-    void launchStatisticsView();
-    void launchManualAddPomodoroDialog();
-    void onTimerUpdated(long);
-    void updateDailyProgress();
 
 private:
     Ui::MainWindow* ui;
@@ -74,33 +52,43 @@ private:
     std::vector<TimeSpan> completedTasksIntervals;
     int progressBarMaxValue{0};
     Second timeLeft{0};
-    QPointer<PomodoroModel> pomodoroModelNew;
+    QPointer<PomodoroModel> pomodoroModel;
     QPointer<TagModel> tagModel;
-    QPointer<TodoItemModel> todoitemViewModel;
-    QPointer<TodoItemsViewDelegate> todoitemViewDelegate;
+    QPointer<TaskModel> taskModel;
     QPointer<DataWidget> goalsView;
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
-    QPointer<TagEditorWidget> tagEditor;
-    std::experimental::optional<TodoItem> selectedTask;
+    std::experimental::optional<QModelIndex> selectedTaskIndex;
     PomodoroTimer pomodoroTimer;
 
-    void connectSlots();
     void setUiToIdleState();
     void setUiToRunningState();
     void setUiToSubmissionState();
-    void updateTimerDisplay();
-
-    /* Set stopwatch value. */
     void setTimerValue(Second timeLeft);
     void adjustAddPomodoroButtonState();
-    void editTodoItem();
-    void removeTask();
-    void removePomodoro();
-    void playSound();
-    void bringToForeground(QWidget* widgetPtr);
-    void launchTagEditor();
+    void playSound() const;
+    void bringToForeground(QWidget* widgetPtr) const;
     void onTimerTick(long timeLeft);
+
+private slots:
+    void startTask();
+    void cancelTask();
+    void addTask();
+    void quickAddTask();
+    void submitPomodoro();
+    void setSubmissionCandidateDescription();
+    void toggleTaskCompleted();
+    void onInTheZoneToggled();
+    void launchSettingsDialog();
+    void launchHistoryView();
+    void launchGoalsView();
+    void launchStatisticsView();
+    void launchManualAddPomodoroDialog();
+    void onTimerUpdated(long);
+    void updateDailyProgress();
+    void onSoundError(QMediaPlayer::Error error);
+    void onUndoButtonClicked();
+    void adjustUndoButtonState();
 };
 
 #endif // MAINWINDOW_H

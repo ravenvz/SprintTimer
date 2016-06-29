@@ -9,14 +9,14 @@ set(SOURCE_FILES
     test_distribution.cpp
     test_string_utils.cpp
     test_time_span.cpp
-    test_todoitem.cpp
+    test_task.cpp
     test_pomodoro_timer.cpp
     test_pomodoro_service.cpp
     test_increment_spent_pomodoros.cpp
     ../src/DateTime.cpp
     ../src/PomodoroStatistics.cpp
     ../src/Pomodoro.cpp
-    ../src/TodoItem.cpp
+    ../src/Task.cpp
     ../src/TimeSpan.cpp
     ../src/StringUtils.cpp
     ../src/PomodoroTimer.cpp

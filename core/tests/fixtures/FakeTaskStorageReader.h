@@ -6,14 +6,14 @@
 
 class FakeTaskStorageReader : public ITaskStorageReader {
 public:
-    FakeTaskStorageReader(FakeStorage<TodoItem>& storage)
+    FakeTaskStorageReader(FakeStorage<Task>& storage)
         : storage{storage}
     {
     }
 
     void requestUnfinishedTasks(Handler handler) final
     {
-        std::vector<TodoItem> emptyResult;
+        std::vector<Task> emptyResult;
         handler(emptyResult);
     }
 
@@ -29,7 +29,7 @@ public:
     }
 
 private:
-    FakeStorage<TodoItem>& storage;
+    FakeStorage<Task>& storage;
 };
 
 #endif /* end of include guard: FAKETASKSTORAGEREADER_H_EDPTGODR */

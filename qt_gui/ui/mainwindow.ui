@@ -14,7 +14,7 @@
    <string>Pomodoro</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../resources/resources.qrc">
+   <iconset resource="../resources/resources.qrc">
     <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -244,7 +244,7 @@ color: white;
     <property name="geometry">
      <rect>
       <x>340</x>
-      <y>90</y>
+      <y>100</y>
       <width>121</width>
       <height>41</height>
      </rect>
@@ -306,7 +306,7 @@ color: white;
      <string/>
     </property>
    </widget>
-   <widget class="QLineEdit" name="leTodoItem">
+   <widget class="QLineEdit" name="leTask">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -319,7 +319,7 @@ color: white;
      <string>QuickAdd TODO</string>
     </property>
    </widget>
-   <widget class="TodoItemView" name="lvTodoItems">
+   <widget class="TaskView" name="lvTaskView">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -365,7 +365,7 @@ color: white;
      <number>3</number>
     </property>
    </widget>
-   <widget class="QListView" name="lvCompletedPomodoros">
+   <widget class="PomodoroView" name="lvCompletedPomodoros">
     <property name="geometry">
      <rect>
       <x>420</x>
@@ -427,7 +427,7 @@ color: white;
      <rect>
       <x>280</x>
       <y>560</y>
-      <width>254</width>
+      <width>262</width>
       <height>91</height>
      </rect>
     </property>
@@ -438,7 +438,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../resources/resources.qrc">
+        <iconset resource="../resources/resources.qrc">
          <normaloff>:/icons/statistics.png</normaloff>:/icons/statistics.png</iconset>
        </property>
        <property name="iconSize">
@@ -455,7 +455,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../resources/resources.qrc">
+        <iconset resource="../resources/resources.qrc">
          <normaloff>:/icons/history.ico</normaloff>:/icons/history.ico</iconset>
        </property>
        <property name="iconSize">
@@ -472,7 +472,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../resources/resources.qrc">
+        <iconset resource="../resources/resources.qrc">
          <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
        </property>
        <property name="iconSize">
@@ -489,7 +489,7 @@ color: white;
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../resources/resources.qrc">
+        <iconset resource="../resources/resources.qrc">
          <normaloff>:/icons/control_panel.ico</normaloff>:/icons/control_panel.ico</iconset>
        </property>
        <property name="iconSize">
@@ -588,6 +588,19 @@ color: white;
      <string>23:11</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pbUndo">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>111</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Undo</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -595,7 +608,7 @@ color: white;
      <x>0</x>
      <y>0</y>
      <width>816</width>
-     <height>19</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -603,13 +616,18 @@ color: white;
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TodoItemView</class>
+   <class>PomodoroView</class>
    <extends>QListView</extends>
-   <header>widgets/todoitemview.h</header>
+   <header>widgets/PomodoroView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TaskView</class>
+   <extends>QListView</extends>
+   <header>widgets/TaskView.h</header>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -15,7 +15,7 @@ class PickPeriodWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit PickPeriodWidget(QWidget* parent = 0);
+    explicit PickPeriodWidget(QWidget* parent);
     ~PickPeriodWidget();
     void setInterval(DateInterval&& timeSpan);
     DateInterval getInterval() const;

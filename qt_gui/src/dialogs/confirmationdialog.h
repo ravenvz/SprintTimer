@@ -12,7 +12,7 @@ class ConfirmationDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ConfirmationDialog(QWidget* parent = 0);
+    explicit ConfirmationDialog(QWidget* parent = nullptr);
     ~ConfirmationDialog();
     void setActionDescription(QString& description);
 

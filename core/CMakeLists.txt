@@ -9,7 +9,7 @@ set(CORE_SOURCE_FILES
     src/Timer.cpp
     src/TimeSpan.cpp
     src/Pomodoro.cpp
-    src/TodoItem.cpp
+    src/Task.cpp
     src/Tag.cpp
     src/StringUtils.cpp
     src/PomodoroService.cpp

@@ -14,7 +14,8 @@ class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit SettingsDialog(IConfig& applicationSettings, QDialog* parent = 0);
+    explicit SettingsDialog(IConfig& applicationSettings,
+                            QDialog* parent = nullptr);
     ~SettingsDialog();
     void fillSettingsData();
 

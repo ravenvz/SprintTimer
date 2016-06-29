@@ -5,7 +5,7 @@
 #include "core/BoostUUIDGenerator.h"
 #include "core/TimeSpan.h"
 #include "core/entities/Tag.h"
-#include "core/entities/TodoItem.h"
+#include "core/entities/Task.h"
 #include <list>
 #include <string>
 
@@ -30,7 +30,7 @@ public:
              const std::string& taskUuid);
 
     /* Construct from associated Task and timeSpan. */
-    Pomodoro(const TodoItem& task, const TimeSpan& timeSpan);
+    Pomodoro(const Task& task, const TimeSpan& timeSpan);
 
     Pomodoro(const std::string& taskUuid, const TimeSpan& timeSpan);
 

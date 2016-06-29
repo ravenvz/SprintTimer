@@ -1,17 +1,17 @@
 #ifndef ITASKSTORAGEWRITER_H_PVAMCJ6G
 #define ITASKSTORAGEWRITER_H_PVAMCJ6G
 
-#include "core/entities/TodoItem.h"
+#include "core/entities/Task.h"
 
 class ITaskStorageWriter {
 public:
     virtual ~ITaskStorageWriter() = default;
 
-    virtual void save(const TodoItem& task) = 0;
+    virtual void save(const Task& task) = 0;
 
-    virtual void remove(const TodoItem& task) = 0;
+    virtual void remove(const Task& task) = 0;
 
-    virtual void edit(const TodoItem& task, const TodoItem& editedTask) = 0;
+    virtual void edit(const Task& task, const Task& editedTask) = 0;
 
     virtual void incrementSpentPomodoros(const std::string& uuid) = 0;
 

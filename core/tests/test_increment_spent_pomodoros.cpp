@@ -5,13 +5,13 @@
 
 TEST_GROUP(IncrementSpentPomodoros)
 {
-    TodoItem defaultItem{
+    Task defaultItem{
         "Item name", 4, 2, {Tag{"Tag 1"}, Tag{"Tag 2"}}, false};
 };
 
 TEST(IncrementSpentPomodoros, test_execute_and_undo)
 {
-    FakeStorage<TodoItem> storage;
+    FakeStorage<Task> storage;
     FakeTaskStorageWriter writer{storage};
     writer.save(defaultItem);
     std::string uuid = defaultItem.uuid();
@@ -28,7 +28,7 @@ TEST(IncrementSpentPomodoros, test_execute_and_undo)
 
 TEST(IncrementSpentPomodoros, test_should_not_undo_if_was_not_executed)
 {
-    FakeStorage<TodoItem> storage;
+    FakeStorage<Task> storage;
     FakeTaskStorageWriter writer{storage};
     writer.save(defaultItem);
     std::string uuid = defaultItem.uuid();

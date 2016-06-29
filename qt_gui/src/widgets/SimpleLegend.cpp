@@ -52,7 +52,7 @@ void SimpleLegend::setData(const std::vector<std::string>& labels)
     items.clear();
     for (size_t i = 0; i < labels.size(); ++i) {
         LegendItem* item = new LegendItem(
-            QString::fromStdString(labels[i]), i);
+            QString::fromStdString(labels[i]), i, this);
         layout->addWidget(item);
         item->setVisible(true);
         connect(

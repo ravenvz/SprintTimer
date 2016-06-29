@@ -29,7 +29,7 @@ class DistributionDiagram : public QWidget {
     Q_OBJECT
 
 public:
-    explicit DistributionDiagram(QWidget* parent = 0);
+    explicit DistributionDiagram(QWidget* parent);
     ~DistributionDiagram();
 
     /* Set data to be displayed. */

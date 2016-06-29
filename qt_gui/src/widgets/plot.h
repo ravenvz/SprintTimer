@@ -39,7 +39,7 @@ private:
 public:
     using PointBoxContainer = std::vector<PointBox>;
 
-    explicit Plot(QWidget* parent = 0);
+    explicit Plot(QWidget* parent);
 
     virtual ~Plot() = default;
 

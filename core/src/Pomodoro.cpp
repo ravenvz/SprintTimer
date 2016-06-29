@@ -37,7 +37,7 @@ Pomodoro::Pomodoro(const std::string& taskName,
 {
 }
 
-Pomodoro::Pomodoro(const TodoItem& task, const TimeSpan& timeSpan)
+Pomodoro::Pomodoro(const Task& task, const TimeSpan& timeSpan)
     : mName{task.name()}
     , mInterval{timeSpan}
     , mUuid{generator.generateUUID()}
@@ -80,7 +80,7 @@ std::string Pomodoro::toString() const
     // std::back_inserter(prefixedTags));
     //
     // std::for_each(prefixedTags.begin(), prefixedTags.end(), [&](auto& elem) {
-    //     elem.insert(0, TodoItem::tagPrefix);
+    //     elem.insert(0, Task::tagPrefix);
     // });
 
     parts.push_back(mInterval.toTimeString());

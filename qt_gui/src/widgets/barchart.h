@@ -36,7 +36,7 @@ class BarChart : public QWidget {
     Q_OBJECT
 
 public:
-    explicit BarChart(QWidget* parent = 0);
+    explicit BarChart(QWidget* parent);
     void setData(const BarData& data);
     void setPen(QPen& barPen);
     void setBrush(QBrush& barBrush);

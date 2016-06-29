@@ -38,26 +38,26 @@ PomodoroService::PomodoroService(
 {
 }
 
-void PomodoroService::registerTask(const TodoItem& task)
+void PomodoroService::registerTask(const Task& task)
 {
     auto addTask = std::make_unique<UseCases::AddNewTask>(taskWriter, task);
     invoker.executeCommand(std::move(addTask));
 }
 
-void PomodoroService::removeTask(const TodoItem& task)
+void PomodoroService::removeTask(const Task& task)
 {
     auto deleteTask = std::make_unique<UseCases::DeleteTask>(taskWriter, task);
     invoker.executeCommand(std::move(deleteTask));
 }
 
-void PomodoroService::editTask(const TodoItem& task, const TodoItem& editedTask)
+void PomodoroService::editTask(const Task& task, const Task& editedTask)
 {
     auto editTask
         = std::make_unique<UseCases::EditTask>(taskWriter, task, editedTask);
     invoker.executeCommand(std::move(editTask));
 }
 
-void PomodoroService::toggleTaskCompletionStatus(const TodoItem& task)
+void PomodoroService::toggleTaskCompletionStatus(const Task& task)
 {
     auto toggleTaskCommand
         = std::make_unique<UseCases::ToggleTaskCompletionStatus>(taskWriter,
@@ -76,7 +76,7 @@ void PomodoroService::registerTaskPriorities(
 
 void PomodoroService::requestFinishedTasks(
     const TimeSpan& timeSpan,
-    std::function<void(const std::vector<TodoItem>&)> onResultsReceivedCallback)
+    std::function<void(const std::vector<Task>&)> onResultsReceivedCallback)
 {
     std::unique_ptr<Command> requestItems
         = std::make_unique<UseCases::RequestFinishedTasks>(
@@ -85,7 +85,7 @@ void PomodoroService::requestFinishedTasks(
 }
 
 void PomodoroService::requestUnfinishedTasks(
-    std::function<void(const std::vector<TodoItem>&)> onResultsReceivedCallback)
+    std::function<void(const std::vector<Task>&)> onResultsReceivedCallback)
 {
     std::unique_ptr<Command> requestItems
         = std::make_unique<UseCases::RequestUnfinishedTasks>(
@@ -189,6 +189,14 @@ void PomodoroService::editTag(const std::string& oldName,
         = std::make_unique<UseCases::EditTag>(taskWriter, oldName, newName);
     editTag->execute();
     invoker.executeCommand(std::move(editTag));
+}
+
+std::string PomodoroService::lastCommandDescription() const {
+    return invoker.lastCommandDescription();
+}
+
+size_t PomodoroService::numRevertableCommands() const {
+    return invoker.stackSize();
 }
 
 void PomodoroService::undoLast() { invoker.undo(); }

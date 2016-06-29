@@ -9,7 +9,7 @@ namespace UseCases {
 class ToggleTaskCompletionStatus : public RevertableCommand {
 public:
     ToggleTaskCompletionStatus(ITaskStorageWriter& taskStorageWriter,
-                               const TodoItem& task)
+                               const Task& task)
         : writer{taskStorageWriter}
         , uuid{task.uuid()}
         , oldTimeStamp{task.lastModified()}

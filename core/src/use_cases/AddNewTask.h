@@ -3,13 +3,13 @@
 
 #include "core/ITaskStorageWriter.h"
 #include "core/RevertableCommand.h"
-#include "core/entities/TodoItem.h"
+#include "core/entities/Task.h"
 
 namespace UseCases {
 
 class AddNewTask : public RevertableCommand {
 public:
-    AddNewTask(ITaskStorageWriter& taskStorageWriter, const TodoItem& task)
+    AddNewTask(ITaskStorageWriter& taskStorageWriter, const Task& task)
         : writer{taskStorageWriter}
         , task{task}
     {
@@ -26,7 +26,7 @@ public:
 
 private:
     ITaskStorageWriter& writer;
-    const TodoItem& task;
+    const Task task;
 };
 
 

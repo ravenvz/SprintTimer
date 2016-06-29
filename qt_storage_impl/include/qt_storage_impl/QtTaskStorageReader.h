@@ -41,7 +41,7 @@ private:
 
     QVariant columnData(const QSqlRecord& record, Column column) const;
 
-    TodoItem taskFromQSqlRecord(const QSqlRecord& record) const;
+    Task taskFromQSqlRecord(const QSqlRecord& record) const;
 
     std::string tagFromSqlRecord(const QSqlRecord& record) const;
 

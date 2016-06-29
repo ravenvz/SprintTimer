@@ -26,23 +26,23 @@ public:
                     IPomodoroDistributionReader& pomoWeeklyDistributionReader,
                     IPomodoroDistributionReader& pomoMonthlyDistributionReader);
 
-    void registerTask(const TodoItem& task) final;
+    void registerTask(const Task& task) final;
 
-    void removeTask(const TodoItem& task) final;
+    void removeTask(const Task& task) final;
 
-    void editTask(const TodoItem& task, const TodoItem& editedTask) final;
+    void editTask(const Task& task, const Task& editedTask) final;
 
-    void toggleTaskCompletionStatus(const TodoItem& task) final;
+    void toggleTaskCompletionStatus(const Task& task) final;
 
     void registerTaskPriorities(
         std::vector<std::pair<std::string, int>>&& priorities) final;
 
     void requestFinishedTasks(const TimeSpan& timeSpan,
-                              std::function<void(const std::vector<TodoItem>&)>
+                              std::function<void(const std::vector<Task>&)>
                                   onResultsReceivedCallback) final;
 
     void
-    requestUnfinishedTasks(std::function<void(const std::vector<TodoItem>&)>
+    requestUnfinishedTasks(std::function<void(const std::vector<Task>&)>
                                onResultsReceivedCallback) final;
 
     void registerPomodoro(const TimeSpan& timeSpan,
@@ -75,6 +75,10 @@ public:
     void requestAllTags(TagResultHandler onResultsReceivedCallback) final;
 
     void editTag(const std::string& oldName, const std::string& newName) final;
+
+    virtual std::string lastCommandDescription() const final;
+
+    virtual size_t numRevertableCommands() const final;
 
     void undoLast() final;
 

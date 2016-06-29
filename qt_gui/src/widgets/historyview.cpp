@@ -166,7 +166,7 @@ void HistoryStatePomodoro::onHistoryRetrieved(
     historyView.setHistoryModel(historyView.ui->lvPomodoroHistory);
 }
 
-void HistoryStateTask::onHistoryRetrieved(const std::vector<TodoItem>& tasks)
+void HistoryStateTask::onHistoryRetrieved(const std::vector<Task>& tasks)
 {
     std::vector<HistoryView::HistoryItem> taskHistory;
     taskHistory.reserve(tasks.size());

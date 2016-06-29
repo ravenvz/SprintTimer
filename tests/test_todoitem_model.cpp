@@ -1,9 +1,9 @@
 // #include "db_layer/db_service.h"
-#include "models/todoitemmodel.h"
+#include "models/TaskModel.h"
 #include <TestHarness.h>
 
 
-TEST_GROUP(TodoItemModel)
+TEST_GROUP(TaskModel)
 {
     const int defaultEstimatedPomos{1};
     const int defaultSpentPomos{0};
@@ -48,9 +48,9 @@ TEST_GROUP(TodoItemModel)
     }
 };
 
-TEST(TodoItemModel, test_relation_created_when_inserting_with_few_new_tags)
+TEST(TaskModel, test_relation_created_when_inserting_with_few_new_tags)
 {
-    TodoItemModel model;
+    TaskModel model;
     model.select();
     std::string name{"Test item"};
     std::list<std::string> tags{"Tag1", "Tag2"};
@@ -60,9 +60,9 @@ TEST(TodoItemModel, test_relation_created_when_inserting_with_few_new_tags)
     CHECK(todo_item_equal(item, model.itemAt(0)));
 }
 
-TEST(TodoItemModel, test_insertion_with_no_tags)
+TEST(TaskModel, test_insertion_with_no_tags)
 {
-    TodoItemModel model;
+    TaskModel model;
     TodoItem item{
         "Test item", defaultEstimatedPomos, defaultSpentPomos, {}, false};
 
@@ -70,9 +70,9 @@ TEST(TodoItemModel, test_insertion_with_no_tags)
     CHECK(todo_item_equal(item, model.itemAt(0)));
 }
 
-TEST(TodoItemModel, test_insertion_with_mixed_old_and_new_tags)
+TEST(TaskModel, test_insertion_with_mixed_old_and_new_tags)
 {
-    TodoItemModel model;
+    TaskModel model;
     TodoItem testItem{"Test item",
                       defaultEstimatedPomos,
                       defaultSpentPomos,
@@ -88,9 +88,9 @@ TEST(TodoItemModel, test_insertion_with_mixed_old_and_new_tags)
     CHECK(todo_item_equal(testItem, model.itemAt(1)));
 }
 
-TEST(TodoItemModel, test_remove_todo_item_with_no_related_tags)
+TEST(TaskModel, test_remove_todo_item_with_no_related_tags)
 {
-    TodoItemModel model;
+    TaskModel model;
     CHECK(model.insert(TodoItem{
         "Test item", defaultEstimatedPomos, defaultSpentPomos, {}, false}));
     CHECK(model.numRecords() == 1);
@@ -98,9 +98,9 @@ TEST(TodoItemModel, test_remove_todo_item_with_no_related_tags)
     CHECK(model.numRecords() == 0);
 }
 
-TEST(TodoItemModel, test_remove_todo_item_should_clean_orphaned_tags)
+TEST(TaskModel, test_remove_todo_item_should_clean_orphaned_tags)
 {
-    TodoItemModel model;
+    TaskModel model;
 
     CHECK(model.insert(TodoItem{"Test item",
                                 defaultEstimatedPomos,
@@ -123,10 +123,10 @@ TEST(TodoItemModel, test_remove_todo_item_should_clean_orphaned_tags)
     CHECK_EQUAL(0, query.value(0).toInt());
 }
 
-TEST(TodoItemModel,
+TEST(TaskModel,
      test_remove_todo_item_should_not_remove_tags_if_not_orphaned)
 {
-    TodoItemModel model;
+    TaskModel model;
 
     CHECK(model.insert(TodoItem{
         "Item 1", defaultEstimatedPomos, defaultSpentPomos, {"Tag1"}, false}));
@@ -146,9 +146,9 @@ TEST(TodoItemModel,
     CHECK_EQUAL(1, query.value(0).toInt());
 }
 
-TEST(TodoItemModel, test_toggle_item_completed)
+TEST(TaskModel, test_toggle_item_completed)
 {
-    TodoItemModel model;
+    TaskModel model;
     TodoItem testItem{"Test item",
                       defaultEstimatedPomos,
                       defaultSpentPomos,
@@ -162,9 +162,9 @@ TEST(TodoItemModel, test_toggle_item_completed)
     CHECK(!model.data(model.index(0, 1), Qt::CheckStateRole).toBool());
 }
 
-TEST(TodoItemModel, test_get_all_items)
+TEST(TaskModel, test_get_all_items)
 {
-    TodoItemModel model;
+    TaskModel model;
     int numRecordsToAdd{300};
     TodoItem item{
         "Whatever", defaultEstimatedPomos, defaultSpentPomos, {}, false};
@@ -176,9 +176,9 @@ TEST(TodoItemModel, test_get_all_items)
     CHECK_EQUAL(static_cast<size_t>(numRecordsToAdd), allItems.size());
 }
 
-TEST(TodoItemModel, test_update_item_with_no_tag_updating)
+TEST(TaskModel, test_update_item_with_no_tag_updating)
 {
-    TodoItemModel model;
+    TaskModel model;
     TodoItem item{"Initial name",
                   defaultEstimatedPomos,
                   defaultSpentPomos,
@@ -192,9 +192,9 @@ TEST(TodoItemModel, test_update_item_with_no_tag_updating)
     CHECK(todo_item_equal(updatedItem, model.itemAt(0)));
 }
 
-TEST(TodoItemModel, test_update_item_with_tags)
+TEST(TaskModel, test_update_item_with_tags)
 {
-    TodoItemModel model;
+    TaskModel model;
     TodoItem item{"Initial name",
                   defaultEstimatedPomos,
                   defaultSpentPomos,

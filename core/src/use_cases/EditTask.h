@@ -9,8 +9,8 @@ namespace UseCases {
 class EditTask : public RevertableCommand {
 public:
     EditTask(ITaskStorageWriter& writer,
-             const TodoItem& task,
-             const TodoItem& editedTask)
+             const Task& task,
+             const Task& editedTask)
         : writer{writer}
         , task{task}
         , editedTask{editedTask.name(),
@@ -36,8 +36,8 @@ public:
 
 private:
     ITaskStorageWriter& writer;
-    TodoItem task;
-    TodoItem editedTask;
+    Task task;
+    Task editedTask;
 };
 
 } /* UseCases */

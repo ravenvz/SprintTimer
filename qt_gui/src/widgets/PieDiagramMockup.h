@@ -8,7 +8,7 @@
 class DistributionDiagramMockup : public IStatisticalChart {
     Q_OBJECT
 public:
-    explicit DistributionDiagramMockup(QWidget* parent = 0);
+    explicit DistributionDiagramMockup(QWidget* parent);
 
     void setData(const std::vector<LabelValuePair>& data) override;
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AddTodoItemDialog</class>
- <widget class="QDialog" name="AddTodoItemDialog">
+ <class>AddTaskDialog</class>
+ <widget class="QDialog" name="AddTaskDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -29,7 +29,7 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="todoName">
+  <widget class="QLineEdit" name="taskName">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -137,7 +137,7 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>todoName</tabstop>
+  <tabstop>taskName</tabstop>
   <tabstop>estimatedPomodoros</tabstop>
   <tabstop>leTags</tabstop>
   <tabstop>tags</tabstop>
@@ -147,7 +147,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>AddTodoItemDialog</receiver>
+   <receiver>AddTaskDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -163,7 +163,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>AddTodoItemDialog</receiver>
+   <receiver>AddTaskDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

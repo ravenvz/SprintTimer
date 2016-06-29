@@ -1,19 +1,16 @@
-#ifndef TODOITEMSLISTMODEL_H
-#define TODOITEMSLISTMODEL_H
+#ifndef TASKMODEL_H_FUQ5UCBE
+#define TASKMODEL_H_FUQ5UCBE
 
 #include "core/IPomodoroService.h"
 #include "core/TimeSpan.h"
-#include "core/entities/TodoItem.h"
+#include "core/entities/Task.h"
 #include "models/AsyncListModel.h"
 
-class TodoItemModel : public AsyncListModel {
+class TaskModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    using TodoItemWithTimeStamp = std::pair<QDate, QString>;
-
-    explicit TodoItemModel(IPomodoroService& pomodoroService,
-                           QObject* parent = 0);
+    TaskModel(IPomodoroService& pomodoroService, QObject* parent);
 
     // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
@@ -52,10 +49,10 @@ public:
         PriorityRole
     };
 
-    // Insert new TodoItem into the database.
+    // Insert new Task into the database.
     // Return boolean, indicating success of the operation.
     // Changes are rolled back in case of failure.
-    void insert(const TodoItem& item);
+    void insert(const Task& item);
 
     // Remove item with given index and return boolean, indicating success of
     // the operation.
@@ -67,20 +64,20 @@ public:
     // Return item at given row. This is a convinient method that allows to get
     // item
     // without verbose calls to data().
-    TodoItem itemAt(const int row) const;
+    Task itemAt(const int row) const;
 
     // Mark item as completed if it is not completed and vice versa.
     void toggleCompleted(const QModelIndex& index);
 
     // Replace data of item at given row with data from the newItem.
-    void replaceItemAt(const int row, const TodoItem& newItem);
+    void replaceItemAt(const int row, const Task& newItem);
 
 protected:
     void requestDataUpdate() final;
 
 private:
     IPomodoroService& pomodoroService;
-    std::vector<TodoItem> storage;
+    std::vector<Task> storage;
     // Sql helper queries that are needed to maintain database invariants.
     enum class Column {
         Id,
@@ -94,7 +91,7 @@ private:
         Uuid
     };
 
-    void onDataChanged(const std::vector<TodoItem>& tasks);
+    void onDataChanged(const std::vector<Task>& tasks);
 };
 
-#endif // TODOITEMSLISTMODEL_H
+#endif /* end of include guard: TASKMODEL_H_FUQ5UCBE */

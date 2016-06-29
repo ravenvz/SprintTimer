@@ -21,7 +21,7 @@ class TimeDiagram : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TimeDiagram(QWidget* parent = 0);
+    explicit TimeDiagram(QWidget* parent);
 
     ~TimeDiagram();
 
