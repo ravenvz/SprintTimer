@@ -9,9 +9,13 @@ memory_sanitizer="OFF"
 address_sanitizer="OFF"
 ub_sanitizer="OFF"
 thread_sanitizer="OFF"
+make_options=-j$(nproc)
+debug_make_options="-j1 VERBOSE=1"
 
-while getopts "rcamut" opt ; do
+while getopts "drcamut" opt ; do
     case "$opt" in
+        d) make_options=$debug_make_options
+            ;;
         r) build_type="Release"
             ;;
         c) c_compiler="clang"
@@ -34,6 +38,8 @@ while getopts "rcamut" opt ; do
     esac
 done
 
+echo $make_options
+
 echo "$build_type build using $cxx_compiler"
 
 (cd build && CC=$c_compiler CXX=$cxx_compiler cmake \
@@ -42,7 +48,7 @@ echo "$build_type build using $cxx_compiler"
     -DMEMORY_SANITIZER=$memory_sanitizer \
     -DUB_SANITIZER=$ub_sanitizer \
     -DTHREAD_SANITIZER=$thread_sanitizer \
-    .. && make -j$(nproc))
+    .. && make $make_options)
 
 (cd bin &&
     ./test_pomodoro &&
