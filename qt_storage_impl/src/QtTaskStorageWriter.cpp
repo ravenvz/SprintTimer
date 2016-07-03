@@ -1,5 +1,6 @@
 #include "qt_storage_impl/QtTaskStorageWriter.h"
 #include "utils/DateTimeConverter.h"
+#include "qt_storage_impl/utils.h"
 #include <algorithm>
 
 

@@ -5,7 +5,6 @@
 #include "core/entities/Tag.h"
 #include "qt_storage_impl/db_service.h"
 #include <QObject>
-#include <algorithm>
 
 class QtTaskStorageWriter : public QObject, public ITaskStorageWriter {
     Q_OBJECT
@@ -48,17 +47,5 @@ private:
 
     void removeTags(const QString& taskUuid, const std::list<Tag>& tags);
 };
-
-template <class InputIt1, class InputIt2, class OutputIt1, class OutputIt2>
-void twoWayDiff(InputIt1 first1,
-                InputIt1 last1,
-                InputIt2 first2,
-                InputIt2 last2,
-                OutputIt1 out1,
-                OutputIt2 out2)
-{
-    std::set_difference(first1, last1, first2, last2, out1);
-    std::set_difference(first2, last2, first1, last1, out2);
-}
 
 #endif /* end of include guard: QTTASKSTORAGEWRITER_H_AB4O73ZJ */

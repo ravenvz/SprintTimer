@@ -1,13 +1,9 @@
-// #include "core/entities/Pomodoro.h"
-// #include "core/entities/Task.h"
-#include "qt_storage_impl/QtTaskStorageWriter.h"
-// #include "qt_storage_impl/db_service.h"
+#include "qt_storage_impl/utils.h"
+#include <list>
 #include <TestHarness.h>
 
 
 TEST_GROUP(TestTwoWayDiff){
-    // DBService testDbService{":memory:"};
-    // QtPomoStorageWriter pomoWriter{testDbService};
 };
 
 TEST(TestTwoWayDiff, test_diff_left_and_right)
