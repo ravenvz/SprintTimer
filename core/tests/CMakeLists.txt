@@ -13,16 +13,16 @@ set(SOURCE_FILES
     test_pomodoro_timer.cpp
     test_pomodoro_service.cpp
     test_increment_spent_pomodoros.cpp
-    ../src/DateTime.cpp
-    ../src/PomodoroStatistics.cpp
-    ../src/Pomodoro.cpp
-    ../src/Task.cpp
-    ../src/TimeSpan.cpp
-    ../src/StringUtils.cpp
-    ../src/PomodoroTimer.cpp
-    ../src/Timer.cpp
-    ../src/PomodoroService.cpp
-    ../src/Tag.cpp
+    # ../src/DateTime.cpp
+    # ../src/PomodoroStatistics.cpp
+    # ../src/Pomodoro.cpp
+    # ../src/Task.cpp
+    # ../src/TimeSpan.cpp
+    # ../src/StringUtils.cpp
+    # ../src/PomodoroTimer.cpp
+    # ../src/Timer.cpp
+    # ../src/PomodoroService.cpp
+    # ../src/Tag.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -53,7 +53,9 @@ target_include_directories(${TEST_CORE}
     PRIVATE /usr/include/CppUTest
     PUBLIC ../include
     PRIVATE ../src
-    PRIVATE fixtures
-    PRIVATE lib)
+    PRIVATE fixtures)
 
-target_link_libraries(${TEST_CORE} CppUTest Threads::Threads)
+target_link_libraries(${TEST_CORE}
+    PRIVATE pomodoro_core
+    PRIVATE CppUTest
+    PRIVATE Threads::Threads)
