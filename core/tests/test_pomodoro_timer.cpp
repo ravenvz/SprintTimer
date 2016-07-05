@@ -90,7 +90,7 @@ TEST_GROUP(PomodoroTimerStates)
 
         std::string soundFilePath() override { return ""; }
 
-        void setSoundFilePath(const std::string& filePath) {}
+        void setSoundFilePath(const std::string& filePath) override {}
 
     private:
         int mPomodoroDuration = 25;
