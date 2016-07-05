@@ -18,6 +18,7 @@ set(CORE_SOURCE_FILES
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+include(ExternalProject)
 include(CMakeLists-datelib.txt)
 
 add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
@@ -31,8 +32,12 @@ add_dependencies(${PROJECT} DateLib)
 target_include_directories(${PROJECT} PUBLIC ${Datelib_INCLUDE_DIRS} PUBLIC include PRIVATE src)
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
-add_subdirectory(tests)
 target_link_libraries(${PROJECT} INTERFACE DateLibb)
+
+include(CMakeLists-cpputest.txt)
+
+add_subdirectory(tests)
+
 # target_link_libraries(test_pomodoro_core INTERFACE DateLibb)
 
 # enable_testing()
