@@ -26,26 +26,10 @@ set(HEADER_FILES_FOR_AUTOMOC_TO_WORK
 add_executable(${PROJECT} ${SOURCE_FILES} ${HEADER_FILES_FOR_AUTOMOC_TO_WORK})
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
-# silence warnings from CppUTest
-if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    target_compile_options(${PROJECT} PRIVATE ${CLANG_COMPILE_OPTIONS}
-                                                     -Wno-keyword-macro
-                                                     -Wno-inconsistent-missing-override
-                                                     -Wno-reserved-id-macro
-                                                     -Wno-disabled-macro-expansion
-                                                     -Wno-old-style-cast)
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-    target_compile_options(${PROJECT} PRIVATE ${GCC_COMPILE_OPTIONS}
-                                                   -Wno-unused-parameter)
-else()
-  message(FATAL_ERROR "Unknown compiler.")
-endif()
-
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
 target_include_directories(${PROJECT}
-    PRIVATE /usr/include/CppUTest
     PUBLIC ../include
     PRIVATE ../src
 )

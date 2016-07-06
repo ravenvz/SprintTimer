@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.5)
 
 set(PROJECT pomodoro_core)
 project(${PROJECT})
@@ -18,13 +18,27 @@ set(CORE_SOURCE_FILES
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
+include(ExternalProject)
+include(CMakeLists-datelib.txt)
 
-target_include_directories(${PROJECT} PUBLIC include PRIVATE src)
+add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
+add_library(DateLibb INTERFACE)
+target_sources(DateLibb INTERFACE
+      ${CMAKE_CURRENT_SOURCE_DIR}/lib/date/date.h
+)
+
+add_dependencies(${PROJECT} DateLib)
+
+target_include_directories(${PROJECT} PUBLIC ${Datelib_INCLUDE_DIRS} PUBLIC include PRIVATE src)
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
+target_link_libraries(${PROJECT} INTERFACE DateLibb)
+
+include(CMakeLists-cpputest.txt)
+
 add_subdirectory(tests)
-target_link_libraries(test_pomodoro_core)
+
+# target_link_libraries(test_pomodoro_core INTERFACE DateLibb)
 
 # enable_testing()
 # add_test(test_pomodoro_core test_pomodoro_core)
