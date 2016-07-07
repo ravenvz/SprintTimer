@@ -128,7 +128,7 @@ public:
                                   QVariant(monthlyPomodorosGoal));
     }
 
-    std::string soundFilePath() final
+    std::string soundFilePath() const final
     {
         return Config::settings.value("soundFilePath").toString().toStdString();
     }
