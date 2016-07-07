@@ -30,6 +30,8 @@ PomodoroView::PomodoroView(QWidget* parent)
             &PomodoroView::showContextMenu);
 }
 
+QSize PomodoroView::sizeHint() const { return QSize(300, 200); }
+
 void PomodoroView::showContextMenu(const QPoint& pos)
 {
     QPoint globalPos = mapToGlobal(pos);

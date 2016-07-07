@@ -34,6 +34,8 @@ TaskView::TaskView(QWidget* parent)
             &TaskView::showTaskContextMenu);
 }
 
+QSize TaskView::sizeHint() const { return QSize(300, 200); }
+
 void TaskView::dropEvent(QDropEvent* event)
 {
     int rowMovedFrom = currentIndex().row();

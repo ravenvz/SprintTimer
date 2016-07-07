@@ -30,6 +30,7 @@
 class PomodoroView : public QListView {
 public:
     PomodoroView(QWidget* parent);
+    QSize sizeHint() const override;
 
 private:
     void removePomodoro();

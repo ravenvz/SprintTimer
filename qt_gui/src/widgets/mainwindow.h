@@ -110,6 +110,7 @@ private slots:
     void onSoundError(QMediaPlayer::Error error);
     void onUndoButtonClicked();
     void adjustUndoButtonState();
+    void showExp();
 };
 
 #endif // MAINWINDOW_H

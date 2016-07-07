@@ -25,6 +25,7 @@
 #include "dialogs/manualaddpomodorodialog.h"
 #include "dialogs/settings_dialog.h"
 #include "ui_mainwindow.h"
+#include "widgets/ExpandableWidget.h"
 #include <QMessageBox>
 #include <QtWidgets/qmenu.h>
 
@@ -159,6 +160,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &AsyncListModel::updateFinished,
             this,
             &MainWindow::adjustUndoButtonState);
+    connect(ui->pbExp, &QPushButton::clicked, this, &MainWindow::showExp);
 }
 
 MainWindow::~MainWindow()
@@ -466,4 +468,10 @@ void MainWindow::adjustUndoButtonState()
 {
     ui->pbUndo->setVisible(pomodoroService.numRevertableCommands() == 0 ? false
                                                                         : true);
+}
+
+void MainWindow::showExp()
+{
+    ExpandableWidget* w = new ExpandableWidget();
+    w->show();
 }
