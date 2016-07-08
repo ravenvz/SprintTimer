@@ -23,7 +23,7 @@
 #ifndef DEFAULTTIMER_H_QE49BN8Q
 #define DEFAULTTIMER_H_QE49BN8Q
 
-#include "widgets/ITimerWidget.h"
+#include "widgets/TimerWidgetBase.h"
 #include <QWidget>
 #include <memory>
 
@@ -31,7 +31,7 @@ namespace Ui {
 class DefaultTimer;
 }
 
-class DefaultTimer : public ITimerWidget {
+class DefaultTimer : public TimerWidgetBase {
 
     Q_OBJECT
 

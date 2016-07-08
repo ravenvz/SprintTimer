@@ -32,7 +32,7 @@
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
 #include "statisticswidget.h"
-#include "widgets/ITimerWidget.h"
+#include "widgets/TimerWidgetBase.h"
 #include <QMainWindow>
 #include <QSettings>
 #include <experimental/optional>
@@ -68,7 +68,7 @@ private:
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
     std::experimental::optional<QModelIndex> selectedTaskIndex;
-    ITimerWidget* timerWidget;
+    TimerWidgetBase* timerWidget;
 
     void adjustAddPomodoroButtonState();
     void bringToForeground(QWidget* widgetPtr) const;

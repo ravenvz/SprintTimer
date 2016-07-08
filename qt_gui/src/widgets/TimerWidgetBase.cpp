@@ -1,35 +1,37 @@
-#include "widgets/ITimerWidget.h"
+#include "widgets/TimerWidgetBase.h"
 #include <QMessageBox>
 
 
-ITimerWidget::ITimerWidget(const IConfig& applicationSettings, QWidget* parent)
+TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
+                                 QWidget* parent)
     : QWidget{parent}
     , applicationSettings{applicationSettings}
-    , timer{std::bind(&ITimerWidget::onTimerTick, this, std::placeholders::_1),
-            1000,
-            applicationSettings}
+    , timer{
+          std::bind(&TimerWidgetBase::onTimerTick, this, std::placeholders::_1),
+          1000,
+          applicationSettings}
 {
     connect(player.get(),
             static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
                 &QMediaPlayer::error),
             this,
-            &ITimerWidget::onSoundError);
+            &TimerWidgetBase::onSoundError);
 }
 
-void ITimerWidget::clearBuffer() { buffer.clear(); }
+void TimerWidgetBase::clearBuffer() { buffer.clear(); }
 
-void ITimerWidget::onTimerTick(long timeLeft)
+void TimerWidgetBase::onTimerTick(long timeLeft)
 {
     emit timerUpdated(timeLeft / 1000);
 }
 
-void ITimerWidget::startTask()
+void TimerWidgetBase::startTask()
 {
     timer.run();
     setRunningState();
 }
 
-void ITimerWidget::cancelTask()
+void TimerWidgetBase::cancelTask()
 {
     qDebug() << "Cancelling task";
     ConfirmationDialog cancelDialog;
@@ -41,14 +43,14 @@ void ITimerWidget::cancelTask()
     }
 }
 
-void ITimerWidget::requestSubmission()
+void TimerWidgetBase::requestSubmission()
 {
     emit submitRequested(buffer);
     setRunningState();
     startTask();
 }
 
-void ITimerWidget::playSound() const
+void TimerWidgetBase::playSound() const
 {
     if (timer.inTheZone() || !applicationSettings.soundIsEnabled()) {
         return;
@@ -59,7 +61,7 @@ void ITimerWidget::playSound() const
     player->play();
 }
 
-void ITimerWidget::onSoundError(QMediaPlayer::Error error)
+void TimerWidgetBase::onSoundError(QMediaPlayer::Error error)
 {
     QMessageBox::warning(
         this,
@@ -69,7 +71,7 @@ void ITimerWidget::onSoundError(QMediaPlayer::Error error)
             .arg(player->errorString()));
 }
 
-void ITimerWidget::onTimerUpdated(long timeLeft)
+void TimerWidgetBase::onTimerUpdated(long timeLeft)
 {
     if (timeLeft > 0) {
         int curVal{static_cast<Second>(timeLeft)};

@@ -52,7 +52,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
 
     connect(ui->pbAddTask, &QPushButton::clicked, this, &MainWindow::addTask);
     connect(timerWidget,
-            &ITimerWidget::submitRequested,
+            &TimerWidgetBase::submitRequested,
             this,
             &MainWindow::submitPomodoro);
     // Update selected task index and description of submission candidate

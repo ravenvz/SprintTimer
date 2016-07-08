@@ -24,7 +24,7 @@
 #include "ui_default_timer.h"
 
 DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
-    : ITimerWidget{applicationSettings, parent}
+    : TimerWidgetBase{applicationSettings, parent}
     , ui{new Ui::DefaultTimer}
 {
     ui->setupUi(this);
@@ -32,8 +32,10 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
     connect(ui->pbStart, &QPushButton::clicked, this, &DefaultTimer::startTask);
     connect(
         ui->pbCancel, &QPushButton::clicked, this, &DefaultTimer::cancelTask);
-    connect(
-        this, &ITimerWidget::timerUpdated, this, &DefaultTimer::onTimerUpdated);
+    connect(this,
+            &TimerWidgetBase::timerUpdated,
+            this,
+            &DefaultTimer::onTimerUpdated);
     setIdleState();
     connect(ui->pbZone, &QPushButton::clicked, [&]() {
         timer.toggleInTheZoneMode();

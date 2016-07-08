@@ -37,13 +37,13 @@ using Second = int;
 constexpr Second secondsPerMinute{60};
 
 
-class ITimerWidget : public QWidget {
+class TimerWidgetBase : public QWidget {
 
     Q_OBJECT
 
 public:
-    ITimerWidget(const IConfig& applicationSettings, QWidget* parent);
-    ~ITimerWidget() = default;
+    TimerWidgetBase(const IConfig& applicationSettings, QWidget* parent);
+    ~TimerWidgetBase() = default;
     virtual void clearBuffer();
     virtual void setSubmissionCandidateDescription(const QString& description)
         = 0;
