@@ -24,9 +24,9 @@
 
 // #include "../../lib/date/date.h"
 #include "core/DateTime.h"
+#include "core/IConfig.h"
 #include "core/TimeSpan.h"
 #include "core/Timer.h"
-#include "core/IConfig.h"
 #include <chrono>
 #include <memory>
 
@@ -130,6 +130,12 @@ public:
      * PomodoroTimerModeScheduler
      * and false otherwise. */
     bool isBreak() const;
+
+    /* Return true if timer is running and false otherwise. */
+    bool isRunning() const;
+
+    /* Return true if inTheZoneMode is active and false otherwise. */
+    bool inTheZone() const;
 
     /* Toggles the InTheZone mode when tasks are no longer interleaved with
      * breaks and scheduled one after another without breaks. */

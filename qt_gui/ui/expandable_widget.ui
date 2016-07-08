@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>749</width>
-    <height>548</height>
+    <height>545</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -259,7 +259,7 @@ color: white;
         <string>Add new TODO item</string>
        </property>
        <property name="text">
-        <string>Add TODO</string>
+        <string>Add task</string>
        </property>
       </widget>
      </item>
@@ -317,8 +317,13 @@ color: white;
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Text based task entry.
+# for tag prefix
+* for estimated number</string>
+       </property>
        <property name="placeholderText">
-        <string>QuickAdd TODO</string>
+        <string>QuickAdd task</string>
        </property>
       </widget>
      </item>
@@ -471,6 +476,13 @@ color: white;
         </widget>
        </item>
       </layout>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="pbUndo">
+       <property name="text">
+        <string>Undo</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
