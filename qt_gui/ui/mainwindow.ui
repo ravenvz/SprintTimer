@@ -64,6 +64,9 @@
        <property name="acceptDrops">
         <bool>true</bool>
        </property>
+       <property name="toolTip">
+        <string>Uncompleted and recent tasks</string>
+       </property>
        <property name="autoFillBackground">
         <bool>true</bool>
        </property>
@@ -128,6 +131,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Time intervals spent</string>
+       </property>
        <property name="styleSheet">
         <string notr="true"/>
        </property>
@@ -140,6 +146,9 @@
        </property>
        <item>
         <widget class="QPushButton" name="pbStatistics">
+         <property name="toolTip">
+          <string>Show statistics window</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -157,6 +166,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="pbHistory">
+         <property name="toolTip">
+          <string>Show history window</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -174,6 +186,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="pbGoals">
+         <property name="toolTip">
+          <string>Show goals window</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -191,6 +206,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="pbSettings">
+         <property name="toolTip">
+          <string>Show settings window</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -236,6 +254,9 @@
      </item>
      <item row="3" column="1">
       <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="topMargin">
+        <number>30</number>
+       </property>
        <item alignment="Qt::AlignHCenter">
         <widget class="QPushButton" name="pbToggleView">
          <property name="sizePolicy">
@@ -243,6 +264,9 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Toggle extended mode</string>
          </property>
          <property name="text">
           <string>Expand</string>
@@ -257,6 +281,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="toolTip">
+          <string>Toggle menu</string>
+         </property>
          <property name="text">
           <string>Show menu</string>
          </property>
@@ -266,6 +293,9 @@
      </item>
      <item row="0" column="2">
       <widget class="QPushButton" name="pbUndo">
+       <property name="toolTip">
+        <string>Undo last action</string>
+       </property>
        <property name="text">
         <string>Undo</string>
        </property>

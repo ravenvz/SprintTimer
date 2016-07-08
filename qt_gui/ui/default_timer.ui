@@ -273,6 +273,9 @@
          <bold>true</bold>
         </font>
        </property>
+       <property name="toolTip">
+        <string/>
+       </property>
        <property name="styleSheet">
         <string notr="true">background-color: rgb(245, 61, 13);
 border-style: solid;
@@ -291,7 +294,7 @@ color: white;
        </property>
       </widget>
      </item>
-     <item row="1" column="0" alignment="Qt::AlignLeft">
+     <item row="2" column="0" alignment="Qt::AlignLeft">
       <widget class="QPushButton" name="pbCancel">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -299,12 +302,15 @@ color: white;
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Abort timer</string>
+       </property>
        <property name="text">
         <string>Cancel</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1" alignment="Qt::AlignRight">
+     <item row="2" column="1" alignment="Qt::AlignRight">
       <widget class="QPushButton" name="pbZone">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -313,7 +319,10 @@ color: white;
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>Activate In The Zone mode</string>
+        <string>Activate In The Zone mode
+
+Timer runs without breaks,
+and all intervals are submitted in batch.</string>
        </property>
        <property name="styleSheet">
         <string notr="true"/>
@@ -326,7 +335,7 @@ color: white;
        </property>
       </widget>
      </item>
-     <item row="2" column="0" colspan="2" alignment="Qt::AlignHCenter">
+     <item row="1" column="0" colspan="2" alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="labelDailyGoalProgress">
        <property name="text">
         <string>TextLabel</string>

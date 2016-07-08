@@ -26,7 +26,6 @@
 #include "dialogs/settings_dialog.h"
 #include "ui_mainwindow.h"
 #include "widgets/DefaultTimer.h"
-#include "widgets/ExpandableWidget.h"
 #include <QtWidgets/qmenu.h>
 
 
@@ -37,10 +36,16 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     , ui(new Ui::MainWindow)
     , applicationSettings(applicationSettings)
     , pomodoroService{pomodoroService}
+    , expandedFully{std::make_unique<ExpandedFully>(*this)}
+    , shrinked{std::make_unique<Shrinked>(*this)}
+    , expandedMenuOnly{std::make_unique<ExpandedMenuOnly>(*this)}
+    , expandedWithoutMenu{std::make_unique<ExpandedWithoutMenu>(*this)}
+    , expansionState{shrinked.get()}
 {
     ui->setupUi(this);
     timerWidget = new DefaultTimer{applicationSettings, this};
-    ui->gridLayout->addWidget(timerWidget, 1, 1);
+    ui->gridLayout->addWidget(
+        timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
     pomodoroModel = new PomodoroModel(pomodoroService, this);
     ui->lvCompletedPomodoros->setModel(pomodoroModel);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -139,6 +144,14 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &AsyncListModel::updateFinished,
             this,
             &MainWindow::adjustUndoButtonState);
+
+    // Window expansion
+    connect(
+        ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
+    connect(
+        ui->pbToggleMenu, &QPushButton::clicked, this, &MainWindow::toggleMenu);
+
+    setStateUi();
 }
 
 MainWindow::~MainWindow()
@@ -321,8 +334,156 @@ void MainWindow::adjustUndoButtonState()
                                                                         : true);
 }
 
-void MainWindow::showExp()
+QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }
+
+void MainWindow::toggleView()
 {
-    ExpandableWidget* w = new ExpandableWidget();
-    w->show();
+    expansionState->toggleView();
+    setStateUi();
+}
+
+void MainWindow::toggleMenu()
+{
+    expansionState->toggleMenu();
+    setStateUi();
+}
+
+void MainWindow::setStateUi()
+{
+    expansionState->setStateUi();
+    adjustSize();
+}
+
+
+ExpansionState::ExpansionState(int width, int height, MainWindow& widget)
+    : width{width}
+    , height{height}
+    , widget{widget}
+{
+}
+
+QSize ExpansionState::sizeHint() const { return QSize(width, height); }
+
+
+ExpandedFully::ExpandedFully(MainWindow& widget)
+    : ExpansionState{812, 500, widget}
+{
+}
+
+void ExpandedFully::setStateUi()
+{
+    widget.ui->lvTaskView->setVisible(true);
+    widget.ui->lvCompletedPomodoros->setVisible(true);
+    widget.ui->pbAddTask->setVisible(true);
+    widget.ui->leQuickAddTask->setVisible(true);
+    widget.ui->pbAddPomodoroManually->setVisible(true);
+    widget.ui->pbStatistics->setVisible(true);
+    widget.ui->pbHistory->setVisible(true);
+    widget.ui->pbGoals->setVisible(true);
+    widget.ui->pbSettings->setVisible(true);
+    widget.ui->pbToggleView->setText("Collapse");
+    widget.ui->pbToggleMenu->setText("Hide menu");
+}
+
+void ExpandedFully::toggleView()
+{
+    widget.expansionState = widget.expandedMenuOnly.get();
+}
+
+void ExpandedFully::toggleMenu()
+{
+    widget.expansionState = widget.expandedWithoutMenu.get();
+}
+
+
+Shrinked::Shrinked(MainWindow& widget)
+    : ExpansionState{300, 250, widget}
+{
+}
+
+void Shrinked::setStateUi()
+{
+    widget.ui->lvTaskView->setVisible(false);
+    widget.ui->lvCompletedPomodoros->setVisible(false);
+    widget.ui->pbAddTask->setVisible(false);
+    widget.ui->leQuickAddTask->setVisible(false);
+    widget.ui->pbAddPomodoroManually->setVisible(false);
+    widget.ui->pbStatistics->setVisible(false);
+    widget.ui->pbHistory->setVisible(false);
+    widget.ui->pbGoals->setVisible(false);
+    widget.ui->pbSettings->setVisible(false);
+    widget.ui->pbToggleView->setText("Expand");
+    widget.ui->pbToggleMenu->setText("Show menu");
+}
+
+void Shrinked::toggleView()
+{
+    widget.expansionState = widget.expandedWithoutMenu.get();
+}
+
+void Shrinked::toggleMenu()
+{
+    widget.expansionState = widget.expandedMenuOnly.get();
+}
+
+
+ExpandedMenuOnly::ExpandedMenuOnly(MainWindow& widget)
+    : ExpansionState{300, 250, widget}
+{
+}
+
+void ExpandedMenuOnly::setStateUi()
+{
+    widget.ui->lvTaskView->setVisible(false);
+    widget.ui->lvCompletedPomodoros->setVisible(false);
+    widget.ui->pbAddTask->setVisible(false);
+    widget.ui->leQuickAddTask->setVisible(false);
+    widget.ui->pbAddPomodoroManually->setVisible(false);
+    widget.ui->pbStatistics->setVisible(true);
+    widget.ui->pbHistory->setVisible(true);
+    widget.ui->pbGoals->setVisible(true);
+    widget.ui->pbSettings->setVisible(true);
+    widget.ui->pbToggleView->setText("Expand");
+    widget.ui->pbToggleMenu->setText("Hide menu");
+}
+
+void ExpandedMenuOnly::toggleView()
+{
+    widget.expansionState = widget.expandedFully.get();
+}
+
+void ExpandedMenuOnly::toggleMenu()
+{
+    widget.expansionState = widget.shrinked.get();
+}
+
+
+ExpandedWithoutMenu::ExpandedWithoutMenu(MainWindow& widget)
+    : ExpansionState{812, 450, widget}
+{
+}
+
+void ExpandedWithoutMenu::setStateUi()
+{
+    widget.ui->lvTaskView->setVisible(true);
+    widget.ui->lvCompletedPomodoros->setVisible(true);
+    widget.ui->pbAddTask->setVisible(true);
+    widget.ui->leQuickAddTask->setVisible(true);
+    widget.ui->pbAddPomodoroManually->setVisible(true);
+    widget.ui->pbStatistics->setVisible(false);
+    widget.ui->pbHistory->setVisible(false);
+    widget.ui->pbGoals->setVisible(false);
+    widget.ui->pbSettings->setVisible(false);
+    widget.ui->pbToggleView->setText("Collapse");
+    widget.ui->pbToggleMenu->setText("Show menu");
+}
+
+void ExpandedWithoutMenu::toggleView()
+{
+    widget.expansionState = widget.shrinked.get();
+}
+
+void ExpandedWithoutMenu::toggleMenu()
+{
+    widget.expansionState = widget.expandedFully.get();
 }

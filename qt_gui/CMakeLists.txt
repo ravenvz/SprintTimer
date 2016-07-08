@@ -26,7 +26,6 @@ QT5_WRAP_UI(UI_HEADERS
         ui/pickperiodwidget.ui
         ui/tageditor.ui
         ui/default_timer.ui
-        ui/expandable_widget.ui
 )
 
 add_library(${PROJECT} SHARED ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)

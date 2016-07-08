@@ -100,6 +100,7 @@ void DefaultTimer::setRunningState()
     ui->labelTimer->show();
     ui->progressBar->show();
     ui->pbCancel->show();
+    ui->pbZone->show();
 }
 
 void DefaultTimer::setIdleState()
@@ -111,6 +112,7 @@ void DefaultTimer::setIdleState()
     ui->pbStart->show();
     ui->labelTimer->hide();
     progressBarMaxValue = 0;
+    ui->pbZone->hide();
 }
 
 void DefaultTimer::setSubmissionState()
@@ -118,4 +120,5 @@ void DefaultTimer::setSubmissionState()
     ui->labelTimer->hide();
     ui->progressBar->hide();
     ui->leDoneTask->show();
+    ui->pbZone->hide();
 }

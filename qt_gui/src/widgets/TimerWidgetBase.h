@@ -37,6 +37,7 @@ using Second = int;
 constexpr Second secondsPerMinute{60};
 
 
+/* Provides base class for Timer widget. */
 class TimerWidgetBase : public QWidget {
 
     Q_OBJECT
