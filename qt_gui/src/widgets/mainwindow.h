@@ -26,19 +26,15 @@
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
-#include "core/PomodoroTimer.h"
-#include "core/Timer.h"
 #include "goalsview.h"
 #include "historyview.h"
 #include "models/PomodoroModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
 #include "statisticswidget.h"
+#include "widgets/TimerWidgetBase.h"
 #include <QMainWindow>
-#include <QMediaPlayer>
 #include <QSettings>
-#include <QStringListModel>
-#include <QTimer>
 #include <experimental/optional>
 #include <functional>
 #include <memory>
@@ -49,18 +45,25 @@ class MainWindow;
 }
 
 
-using Second = int;
-constexpr Second secondsPerMinute = 60;
+class ExpansionState;
 
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QWidget {
+
     Q_OBJECT
+
+    friend class ExpansionState;
+    friend class ExpandedFully;
+    friend class Shrinked;
+    friend class ExpandedMenuOnly;
+    friend class ExpandedWithoutMenu;
 
 public:
     MainWindow(IConfig& applicationSettings,
                IPomodoroService& pomodoroService,
                QWidget* parent = nullptr);
     ~MainWindow();
+    QSize sizeHint() const override;
 
 signals:
     void timerUpdated(long timeLeft);
@@ -69,10 +72,7 @@ private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
     IPomodoroService& pomodoroService;
-    std::unique_ptr<QMediaPlayer> player;
     std::vector<TimeSpan> completedTasksIntervals;
-    int progressBarMaxValue{0};
-    Second timeLeft{0};
     QPointer<PomodoroModel> pomodoroModel;
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
@@ -80,36 +80,85 @@ private:
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
     std::experimental::optional<QModelIndex> selectedTaskIndex;
-    PomodoroTimer pomodoroTimer;
+    TimerWidgetBase* timerWidget;
+    std::unique_ptr<ExpansionState> expandedFully;
+    std::unique_ptr<ExpansionState> shrinked;
+    std::unique_ptr<ExpansionState> expandedMenuOnly;
+    std::unique_ptr<ExpansionState> expandedWithoutMenu;
+    ExpansionState* expansionState;
 
-    void setUiToIdleState();
-    void setUiToRunningState();
-    void setUiToSubmissionState();
-    void setTimerValue(Second timeLeft);
     void adjustAddPomodoroButtonState();
-    void playSound() const;
     void bringToForeground(QWidget* widgetPtr) const;
-    void onTimerTick(long timeLeft);
+    void setStateUi();
 
 private slots:
-    void startTask();
-    void cancelTask();
     void addTask();
     void quickAddTask();
-    void submitPomodoro();
+    void submitPomodoro(const std::vector<TimeSpan>& intervalBuffer);
     void setSubmissionCandidateDescription();
     void toggleTaskCompleted();
-    void onInTheZoneToggled();
     void launchSettingsDialog();
     void launchHistoryView();
     void launchGoalsView();
     void launchStatisticsView();
     void launchManualAddPomodoroDialog();
-    void onTimerUpdated(long);
     void updateDailyProgress();
-    void onSoundError(QMediaPlayer::Error error);
     void onUndoButtonClicked();
     void adjustUndoButtonState();
+    void toggleView();
+    void toggleMenu();
+};
+
+
+class ExpansionState {
+public:
+    ExpansionState(int width, int height, MainWindow& widget);
+    virtual ~ExpansionState() = default;
+    QSize sizeHint() const;
+    virtual void setStateUi() = 0;
+    virtual void toggleView() = 0;
+    virtual void toggleMenu() = 0;
+
+protected:
+    const int width;
+    const int height;
+    MainWindow& widget;
+};
+
+
+class ExpandedFully final : public ExpansionState {
+public:
+    ExpandedFully(MainWindow& widget);
+    void setStateUi();
+    void toggleView();
+    void toggleMenu();
+};
+
+
+class Shrinked final : public ExpansionState {
+public:
+    Shrinked(MainWindow& widget);
+    void setStateUi();
+    void toggleView();
+    void toggleMenu();
+};
+
+
+class ExpandedMenuOnly final : public ExpansionState {
+public:
+    ExpandedMenuOnly(MainWindow& widget);
+    void setStateUi();
+    void toggleView();
+    void toggleMenu();
+};
+
+
+class ExpandedWithoutMenu final : public ExpansionState {
+public:
+    ExpandedWithoutMenu(MainWindow& widget);
+    void setStateUi();
+    void toggleView();
+    void toggleMenu();
 };
 
 #endif // MAINWINDOW_H

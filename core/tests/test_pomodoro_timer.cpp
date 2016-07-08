@@ -88,7 +88,7 @@ TEST_GROUP(PomodoroTimerStates)
 
         void setMonthlyPomodorosGoal(int monthlyPomodorosGoal) override {}
 
-        std::string soundFilePath() override { return ""; }
+        std::string soundFilePath() const override { return ""; }
 
         void setSoundFilePath(const std::string& filePath) override {}
 

@@ -19,24 +19,39 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef POMODOROVIEW_H_TMGU1KAJ
-#define POMODOROVIEW_H_TMGU1KAJ
 
-#include "dialogs/confirmationdialog.h"
-#include "models/PomodoroModel.h"
-#include <QListView>
-#include <QMenu>
+#ifndef DEFAULTTIMER_H_QE49BN8Q
+#define DEFAULTTIMER_H_QE49BN8Q
 
-class PomodoroView : public QListView {
+#include "widgets/TimerWidgetBase.h"
+#include <QWidget>
+#include <memory>
+
+namespace Ui {
+class DefaultTimer;
+}
+
+class DefaultTimer : public TimerWidgetBase {
+
+    Q_OBJECT
+
 public:
-    PomodoroView(QWidget* parent);
-    QSize sizeHint() const override;
+    DefaultTimer(const IConfig& applicationSettings, QWidget* parent);
+    ~DefaultTimer();
+    void setSubmissionCandidateDescription(const QString& description) final;
+    void updateProgress(Progress progress) final;
 
 private:
-    void removePomodoro();
+    Ui::DefaultTimer* ui;
+    int progressBarMaxValue{0};
+    Second timeLeft{0};
+    std::vector<TimeSpan> completedTasksIntervals;
 
-private slots:
-    void showContextMenu(const QPoint& pos);
+    void setTimerValue(Second timeLeft);
+    void setIdleState() final;
+    void setRunningState() final;
+    void setSubmissionState() final;
+    void updateIndication(Second timeLeft) final;
 };
 
-#endif /* end of include guard: POMODOROVIEW_H_TMGU1KAJ */
+#endif /* end of include guard: DEFAULTTIMER_H_QE49BN8Q */

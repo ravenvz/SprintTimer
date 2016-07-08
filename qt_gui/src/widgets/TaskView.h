@@ -40,6 +40,8 @@ class TaskView : public QListView {
 public:
     explicit TaskView(QWidget* parent);
 
+    QSize sizeHint() const override;
+
     // Overriding to catch dropEvent and prevent model start removing rows
     // attempting drag and drop by calling another method instead.
     void dropEvent(QDropEvent* event) final;

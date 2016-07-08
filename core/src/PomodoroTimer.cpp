@@ -73,6 +73,10 @@ int PomodoroTimer::taskDuration() { return currentState->duration(); }
 
 bool PomodoroTimer::isBreak() const { return currentState->isBreak(); }
 
+bool PomodoroTimer::isRunning() const { return running; }
+
+bool PomodoroTimer::inTheZone() const { return inTheZoneMode; }
+
 void PomodoroTimer::onTimerTick()
 {
     currentTaskDuration -= tickInterval;
