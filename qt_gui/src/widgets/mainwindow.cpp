@@ -383,6 +383,7 @@ void ExpandedFully::setStateUi()
     widget.ui->pbSettings->setVisible(true);
     widget.ui->pbToggleView->setText("Collapse");
     widget.ui->pbToggleMenu->setText("Hide menu");
+    widget.ui->pbUndo->setVisible(true);
 }
 
 void ExpandedFully::toggleView()
@@ -414,6 +415,7 @@ void Shrinked::setStateUi()
     widget.ui->pbSettings->setVisible(false);
     widget.ui->pbToggleView->setText("Expand");
     widget.ui->pbToggleMenu->setText("Show menu");
+    widget.ui->pbUndo->setVisible(false);
 }
 
 void Shrinked::toggleView()
@@ -445,6 +447,7 @@ void ExpandedMenuOnly::setStateUi()
     widget.ui->pbSettings->setVisible(true);
     widget.ui->pbToggleView->setText("Expand");
     widget.ui->pbToggleMenu->setText("Hide menu");
+    widget.ui->pbUndo->setVisible(false);
 }
 
 void ExpandedMenuOnly::toggleView()
@@ -476,6 +479,7 @@ void ExpandedWithoutMenu::setStateUi()
     widget.ui->pbSettings->setVisible(false);
     widget.ui->pbToggleView->setText("Collapse");
     widget.ui->pbToggleMenu->setText("Show menu");
+    widget.ui->pbUndo->setVisible(true);
 }
 
 void ExpandedWithoutMenu::toggleView()
