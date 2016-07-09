@@ -44,8 +44,6 @@ public:
 private:
     Ui::DefaultTimer* ui;
     int progressBarMaxValue{0};
-    Second timeLeft{0};
-    std::vector<TimeSpan> completedTasksIntervals;
 
     void setTimerValue(Second timeLeft);
     void setIdleState() final;
