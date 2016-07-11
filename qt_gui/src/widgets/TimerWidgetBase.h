@@ -48,7 +48,7 @@ public:
     virtual void clearBuffer();
     virtual void setSubmissionCandidateDescription(const QString& description)
         = 0;
-    virtual void updateProgress(Progress progress) = 0;
+    virtual void updateGoalProgress(Progress progress) = 0;
 
 protected:
     const IConfig& applicationSettings;

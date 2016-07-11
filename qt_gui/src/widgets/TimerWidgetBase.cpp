@@ -55,7 +55,6 @@ void TimerWidgetBase::startTask()
 
 void TimerWidgetBase::cancelTask()
 {
-    qDebug() << "Cancelling task";
     ConfirmationDialog cancelDialog;
     QString description("This will destroy current pomodoro!");
     cancelDialog.setActionDescription(description);
@@ -95,11 +94,11 @@ void TimerWidgetBase::onSoundError(QMediaPlayer::Error error)
 
 void TimerWidgetBase::onTimerUpdated(long timeLeft)
 {
-    if (timeLeft > 0) {
-        int curVal{static_cast<Second>(timeLeft)};
-        updateIndication(curVal);
+    int curVal{static_cast<Second>(timeLeft)};
+    updateIndication(curVal);
+    if (timeLeft > 0)
         return;
-    }
+
     playSound();
 
     if (timer.inTheZone()) {

@@ -53,7 +53,7 @@ void DefaultTimer::setSubmissionCandidateDescription(const QString& description)
     ui->leDoneTask->setText(description);
 }
 
-void DefaultTimer::updateProgress(Progress progress)
+void DefaultTimer::updateGoalProgress(Progress progress)
 {
     int dailyGoal = applicationSettings.dailyPomodorosGoal();
     if (dailyGoal == 0) {

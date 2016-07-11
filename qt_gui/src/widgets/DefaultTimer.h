@@ -39,7 +39,7 @@ public:
     DefaultTimer(const IConfig& applicationSettings, QWidget* parent);
     ~DefaultTimer();
     void setSubmissionCandidateDescription(const QString& description) final;
-    void updateProgress(Progress progress) final;
+    void updateGoalProgress(Progress progress) final;
 
 private:
     Ui::DefaultTimer* ui;
