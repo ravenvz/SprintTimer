@@ -77,10 +77,7 @@ void DefaultTimer::updateGoalProgress(Progress progress)
 
 void DefaultTimer::setTimerValue(Second timeLeft)
 {
-    QString timerValue = QString("%1:%2").arg(
-        QString::number(timeLeft / secondsPerMinute),
-        QString::number(timeLeft % secondsPerMinute).rightJustified(2, '0'));
-    ui->labelTimer->setText(timerValue);
+    ui->labelTimer->setText(constructTimerValue(timeLeft));
 }
 
 void DefaultTimer::updateIndication(Second timeLeft)

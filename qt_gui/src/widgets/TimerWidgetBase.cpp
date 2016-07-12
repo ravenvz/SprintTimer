@@ -114,3 +114,10 @@ void TimerWidgetBase::onTimerUpdated(long timeLeft)
         setSubmissionState();
     }
 }
+
+QString TimerWidgetBase::constructTimerValue(Second timeLeft)
+{
+    return QString("%1:%2").arg(
+        QString::number(timeLeft / secondsPerMinute),
+        QString::number(timeLeft % secondsPerMinute).rightJustified(2, '0'));
+}

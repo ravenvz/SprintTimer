@@ -19,9 +19,9 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "statisticswidget.h"
-#include "barchart.h"
+#include "widgets/statisticswidget.h"
 #include "ui_statistics_widget.h"
+#include "widgets/barchart.h"
 
 
 StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,

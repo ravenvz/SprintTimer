@@ -73,6 +73,12 @@
        <property name="styleSheet">
         <string notr="true"/>
        </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustIgnored</enum>
+       </property>
        <property name="editTriggers">
         <set>QAbstractItemView::NoEditTriggers</set>
        </property>
@@ -93,6 +99,9 @@
        </property>
        <property name="movement">
         <enum>QListView::Snap</enum>
+       </property>
+       <property name="resizeMode">
+        <enum>QListView::Adjust</enum>
        </property>
        <property name="spacing">
         <number>3</number>

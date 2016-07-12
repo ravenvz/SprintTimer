@@ -27,6 +27,7 @@
 #include "core/PomodoroTimer.h"
 #include "core/PomodoroTimer.h"
 #include "dialogs/confirmationdialog.h"
+#include <QAbstractItemModel>
 #include <QMediaPlayer>
 #include <QWidget>
 
@@ -48,6 +49,8 @@ public:
     virtual void clearBuffer();
     virtual void setSubmissionCandidateDescription(const QString& description)
         = 0;
+    virtual void setTaskModel(QAbstractItemModel* model) = 0;
+    virtual void setCandidateIndex(int index) = 0;
     virtual void updateGoalProgress(Progress progress) = 0;
 
 protected:
@@ -62,6 +65,7 @@ protected:
     virtual void requestSubmission();
     void playSound() const;
     virtual void updateIndication(Second timeLeft) = 0;
+    virtual QString constructTimerValue(Second timeLeft);
 
 protected slots:
     void onTimerTick(long timeLeft);
@@ -73,6 +77,7 @@ protected slots:
 signals:
     void timerUpdated(long timeLeft);
     void submitRequested(const std::vector<TimeSpan>& completedTaskIntervals);
+    void submissionCandidateChanged(int index);
 };
 
 #endif /* end of include guard: ITIMERWIDGET_H_REB4PSQX */

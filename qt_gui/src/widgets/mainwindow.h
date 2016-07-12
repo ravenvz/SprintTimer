@@ -50,10 +50,8 @@ class ExpansionState;
 
 class MainWindow : public QWidget {
 
-    Q_OBJECT
-
     friend class ExpansionState;
-    friend class ExpandedFully;
+    friend class Expanded;
     friend class Shrinked;
     friend class ExpandedMenuOnly;
     friend class ExpandedWithoutMenu;
@@ -65,14 +63,10 @@ public:
     ~MainWindow();
     QSize sizeHint() const override;
 
-signals:
-    void timerUpdated(long timeLeft);
-
 private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
     IPomodoroService& pomodoroService;
-    std::vector<TimeSpan> completedTasksIntervals;
     QPointer<PomodoroModel> pomodoroModel;
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
@@ -126,9 +120,9 @@ protected:
 };
 
 
-class ExpandedFully final : public ExpansionState {
+class Expanded final : public ExpansionState {
 public:
-    ExpandedFully(MainWindow& widget);
+    Expanded(MainWindow& widget);
     void setStateUi();
     void toggleView();
     void toggleMenu();

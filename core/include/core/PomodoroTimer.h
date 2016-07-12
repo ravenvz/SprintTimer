@@ -82,6 +82,7 @@ class PomodoroTimer {
     friend class ShortBreakState;
     friend class LongBreakState;
     friend class PomodoroState;
+    friend class ZoneState;
 
 public:
     /* Construct PomodoroTimer given callback function,
@@ -261,6 +262,52 @@ public:
     int duration() const final
     {
         return timer.applicationSettings.pomodoroDuration();
+    }
+};
+
+class ZoneState final : public PomodoroTimerState {
+public:
+    ZoneState(PomodoroTimer& timer)
+        : PomodoroTimerState{timer}
+    {
+    }
+
+    void setNextState() {}
+
+    void cancel() {}
+
+    bool isBreak() const { return false; }
+
+    int duration() const
+    {
+        return timer.applicationSettings.pomodoroDuration();
+    }
+};
+
+class FinishedState final : public PomodoroTimerState {
+public:
+    FinishedState(PomodoroTimer& timer) :
+        PomodoroTimerState{timer}
+    {
+
+    }
+
+    void setNextState() {
+
+    }
+
+    void cancel() {
+
+    }
+
+    bool isBreak() const {
+        return false;
+    }
+
+    int duration() const
+    {
+        return 0;
+
     }
 };
 

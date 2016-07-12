@@ -26,6 +26,7 @@
 #include "dialogs/settings_dialog.h"
 #include "ui_mainwindow.h"
 #include "widgets/DefaultTimer.h"
+#include "widgets/FancyTimer.h"
 #include <QtWidgets/qmenu.h>
 
 
@@ -36,14 +37,15 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     , ui(new Ui::MainWindow)
     , applicationSettings(applicationSettings)
     , pomodoroService{pomodoroService}
-    , expandedFully{std::make_unique<ExpandedFully>(*this)}
+    , expandedFully{std::make_unique<Expanded>(*this)}
     , shrinked{std::make_unique<Shrinked>(*this)}
     , expandedMenuOnly{std::make_unique<ExpandedMenuOnly>(*this)}
     , expandedWithoutMenu{std::make_unique<ExpandedWithoutMenu>(*this)}
     , expansionState{shrinked.get()}
 {
     ui->setupUi(this);
-    timerWidget = new DefaultTimer{applicationSettings, this};
+    // timerWidget = new DefaultTimer{applicationSettings, this};
+    timerWidget = new FancyTimer{applicationSettings, this};
     ui->gridLayout->addWidget(
         timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
     pomodoroModel = new PomodoroModel(pomodoroService, this);
@@ -51,6 +53,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
     taskModel = new TaskModel(pomodoroService, this);
     tagModel = new TagModel(pomodoroService, this);
+    timerWidget->setTaskModel(taskModel);
     ui->lvTaskView->setModels(taskModel, tagModel);
     ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
     adjustUndoButtonState();
@@ -63,8 +66,13 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     // Update selected task index and description of submission candidate
     connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
         selectedTaskIndex = index;
+        timerWidget->setCandidateIndex(index.row());
         setSubmissionCandidateDescription();
     });
+    connect(ui->leQuickAddTask,
+            &QLineEdit::returnPressed,
+            this,
+            &MainWindow::quickAddTask);
     connect(ui->lvTaskView,
             &QListView::doubleClicked,
             this,
@@ -124,14 +132,21 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             taskModel,
             &AsyncListModel::synchronize);
 
+    // TODO get rid of lambda to improve readability
     // Invalidate selectedTaskIndex if the row it was pointing at was removed
     connect(taskModel,
             &QAbstractListModel::rowsRemoved,
             [&](const QModelIndex& parent, int first, int last) {
-                if (selectedTaskIndex && (first <= selectedTaskIndex->row()
-                                          && selectedTaskIndex->row() <= last))
+                if (selectedTaskIndex
+                    && (first <= selectedTaskIndex->row()
+                        && selectedTaskIndex->row() <= last)) {
                     selectedTaskIndex = optional<QModelIndex>();
+                    timerWidget->setCandidateIndex(-1);
+                }
             });
+    connect(timerWidget,
+            &TimerWidgetBase::submissionCandidateChanged,
+            [&](int index) { selectedTaskIndex = taskModel->index(index, 0); });
     connect(ui->pbUndo,
             &QPushButton::clicked,
             this,
@@ -310,7 +325,7 @@ void MainWindow::launchManualAddPomodoroDialog()
 
 void MainWindow::updateDailyProgress()
 {
-    timerWidget->updateProgress(pomodoroModel->rowCount());
+    timerWidget->updateGoalProgress(pomodoroModel->rowCount());
 }
 
 void MainWindow::onUndoButtonClicked()
@@ -365,12 +380,12 @@ ExpansionState::ExpansionState(int width, int height, MainWindow& widget)
 QSize ExpansionState::sizeHint() const { return QSize(width, height); }
 
 
-ExpandedFully::ExpandedFully(MainWindow& widget)
+Expanded::Expanded(MainWindow& widget)
     : ExpansionState{812, 500, widget}
 {
 }
 
-void ExpandedFully::setStateUi()
+void Expanded::setStateUi()
 {
     widget.ui->lvTaskView->setVisible(true);
     widget.ui->lvCompletedPomodoros->setVisible(true);
@@ -386,12 +401,12 @@ void ExpandedFully::setStateUi()
     widget.ui->pbUndo->setVisible(true);
 }
 
-void ExpandedFully::toggleView()
+void Expanded::toggleView()
 {
     widget.expansionState = widget.expandedMenuOnly.get();
 }
 
-void ExpandedFully::toggleMenu()
+void Expanded::toggleMenu()
 {
     widget.expansionState = widget.expandedWithoutMenu.get();
 }

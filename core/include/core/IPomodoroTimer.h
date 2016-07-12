@@ -26,6 +26,15 @@
 
 class IPomodoroTimer {
 public:
+    enum class TimerState {
+        Idle,
+        Task,
+        Break,
+        LongBreak,
+        Zone,
+        Finished
+    };
+
     virtual ~IPomodoroTimer() = default;
 
     virtual void run() = 0;
@@ -35,6 +44,8 @@ public:
     virtual TimeSpan finish() = 0;
 
     virtual int taskDuration() = 0;
+
+    virtual TimerState timerState() = 0;
 
     virtual bool isBreak() = 0;
 
