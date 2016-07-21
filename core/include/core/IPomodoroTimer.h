@@ -19,37 +19,32 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
 #ifndef IPOMODOROTIMER_H_D3DG0N7C
 #define IPOMODOROTIMER_H_D3DG0N7C
 
 #include "core/TimeSpan.h"
+#include <vector>
 
 class IPomodoroTimer {
 public:
-    enum class TimerState {
-        Idle,
-        Task,
-        Break,
-        LongBreak,
-        Zone,
-        Finished
-    };
+    enum class State { Idle, Task, Break, LongBreak, ZoneEntered, ZoneLeft, Finished };
 
     virtual ~IPomodoroTimer() = default;
 
-    virtual void run() = 0;
+    virtual void start() = 0;
 
     virtual void cancel() = 0;
 
-    virtual TimeSpan finish() = 0;
+    virtual int taskDuration() const = 0;
 
-    virtual int taskDuration() = 0;
-
-    virtual TimerState timerState() = 0;
-
-    virtual bool isBreak() = 0;
+    virtual State state() const = 0;
 
     virtual void toggleInTheZoneMode() = 0;
+
+    virtual std::vector<TimeSpan> completedTaskIntervals() const = 0;
+
+    virtual void clearIntervalsBuffer() = 0;
 };
 
 #endif /* end of include guard: IPOMODOROTIMER_H_D3DG0N7C */

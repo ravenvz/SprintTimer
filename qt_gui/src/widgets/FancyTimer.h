@@ -30,29 +30,29 @@ namespace Ui {
 class FancyTimer;
 }
 
-enum class State { Idle, Submission, Running };
-
 class FancyTimer : public TimerWidgetBase {
 public:
     FancyTimer(const IConfig& applicationSettings, QWidget* parent);
     ~FancyTimer();
 
-    void setSubmissionCandidateDescription(const QString& description) final;
-    void setTaskModel(QAbstractItemModel* model) final;
-    void setCandidateIndex(int index) final;
-    void updateGoalProgress(Progress progress) final;
+    void setTaskModel(QAbstractItemModel* model) override;
+    void setCandidateIndex(int index) override;
+    void updateGoalProgress(Progress progress) override;
 
 private:
     Ui::FancyTimer* ui;
     CombinedIndicator* combinedIndicator;
-    int progressBarMaxValue{0};
-    State state;
+    const QColor taskStateColor {QColor{"#eb6c59"}};
+    const QColor breakStateColor {QColor{"#73c245"}};
+    const QColor zoneStateColor {Qt::darkYellow};
 
-    void setTimerValue(Second timeLeft);
-    void setIdleState() final;
-    void setRunningState() final;
-    void setSubmissionState() final;
-    void updateIndication(Second timeLeft) final;
+    void onIdleStateEntered() override;
+    void onTaskStateEntered() override;
+    void onSubmissionStateEntered() override;
+    void onBreakStateEntered() override;
+    void onZoneStateEntered() override;
+    void onZoneStateLeft() override;
+    void updateIndication(Second timeLeft) override;
 
 private slots:
     void onIndicatorClicked();

@@ -34,18 +34,17 @@
 class Timer {
 public:
     using Interval = std::chrono::milliseconds;
-    using Tick = std::chrono::milliseconds;
+    using TickPeriod = std::chrono::milliseconds;
 
-    Timer(std::function<void(void)> tickCallback,
-          std::chrono::milliseconds tickPeriod);
+    Timer(std::function<void(void)> tickCallback, TickPeriod tickPeriod);
 
     ~Timer();
 
-    Timer(Timer&&) = default;
-    Timer& operator=(Timer&&) = default;
+    Timer(Timer&&) = delete;
+    Timer& operator=(Timer&&) = delete;
 
-    Timer(const Timer&) = default;
-    Timer& operator=(const Timer&) = default;
+    Timer(const Timer&) = delete;
+    Timer& operator=(const Timer&) = delete;
 
     /* Start running the timer.
      *
@@ -57,7 +56,7 @@ public:
 
 private:
     std::function<void(void)> onTickCallback;
-    std::chrono::milliseconds tickPeriod;
+    TickPeriod tickPeriod;
     std::atomic<bool> running{false};
     std::thread tr;
 };

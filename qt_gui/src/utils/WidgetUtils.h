@@ -20,39 +20,21 @@
 **
 *********************************************************************************/
 
-#ifndef DEFAULTTIMER_H_QE49BN8Q
-#define DEFAULTTIMER_H_QE49BN8Q
+#ifndef WIDGETUTILS_H_PRISZGHM
+#define WIDGETUTILS_H_PRISZGHM
 
-#include "widgets/TimerWidgetBase.h"
 #include <QWidget>
-#include <memory>
 
-namespace Ui {
-class DefaultTimer;
+namespace WidgetUtils {
+
+void setRetainSizeWhenHidden(QWidget* widget)
+{
+    QSizePolicy policy = widget->sizePolicy();
+    policy.setRetainSizeWhenHidden(true);
+    widget->setSizePolicy(policy);
 }
 
-class DefaultTimer : public TimerWidgetBase {
+} /* WidgetUtils */
 
-    Q_OBJECT
 
-public:
-    DefaultTimer(const IConfig& applicationSettings, QWidget* parent);
-    ~DefaultTimer();
-    void setTaskModel(QAbstractItemModel* model) override;
-    void setCandidateIndex(int index) override;
-    void updateGoalProgress(Progress progress) override;
-
-private:
-    Ui::DefaultTimer* ui;
-    int progressBarMaxValue{0};
-
-    void setTimerValue(Second timeLeft);
-    void onIdleStateEntered() override;
-    void onZoneStateEntered() override;
-    void onZoneStateLeft() override;
-    void onSubmissionStateEntered() override;
-    void updateIndication(Second timeLeft) override;
-    void setRunningState();
-};
-
-#endif /* end of include guard: DEFAULTTIMER_H_QE49BN8Q */
+#endif /* end of include guard: WIDGETUTILS_H_PRISZGHM */

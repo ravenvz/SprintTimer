@@ -67,7 +67,6 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
         selectedTaskIndex = index;
         timerWidget->setCandidateIndex(index.row());
-        setSubmissionCandidateDescription();
     });
     connect(ui->leQuickAddTask,
             &QLineEdit::returnPressed,
@@ -119,10 +118,6 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &AsyncListModel::updateFinished,
             tagModel,
             &TagModel::synchronize);
-    connect(taskModel,
-            &AsyncListModel::updateFinished,
-            this,
-            &MainWindow::setSubmissionCandidateDescription);
     connect(tagModel,
             &AsyncListModel::updateFinished,
             pomodoroModel,
@@ -223,21 +218,6 @@ void MainWindow::submitPomodoro(const std::vector<TimeSpan>& intervalBuffer)
         pomodoroModel->insert(
             timeSpan, taskModel->itemAt(selectedTaskIndex->row()).uuid());
     }
-
-    timerWidget->clearBuffer();
-}
-
-void MainWindow::setSubmissionCandidateDescription()
-{
-    if (!selectedTaskIndex) {
-        timerWidget->setSubmissionCandidateDescription("");
-        return;
-    }
-    auto task = taskModel->itemAt(selectedTaskIndex->row());
-    QString description = QString("%1 %2")
-                              .arg(QString::fromStdString(task.tagsAsString()))
-                              .arg(QString::fromStdString(task.name()));
-    timerWidget->setSubmissionCandidateDescription(description);
 }
 
 void MainWindow::toggleTaskCompleted()
@@ -345,7 +325,7 @@ void MainWindow::onUndoButtonClicked()
 
 void MainWindow::adjustUndoButtonState()
 {
-    ui->pbUndo->setVisible(pomodoroService.numRevertableCommands() == 0 ? false
+    ui->pbUndo->setEnabled(pomodoroService.numRevertableCommands() == 0 ? false
                                                                         : true);
 }
 

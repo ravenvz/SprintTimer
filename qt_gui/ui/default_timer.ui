@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>808</width>
-    <height>176</height>
+    <height>207</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,19 +17,19 @@
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0" colspan="2">
-      <widget class="QLineEdit" name="leDoneTask">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-       <property name="placeholderText">
-        <string>Enter what you have just done or select TODO item</string>
+      <widget class="QComboBox" name="cbxSubmissionCandidate"/>
+     </item>
+     <item row="3" column="0" colspan="2" alignment="Qt::AlignHCenter">
+      <widget class="QLabel" name="labelDailyGoalProgress">
+       <property name="text">
+        <string>TextLabel</string>
        </property>
       </widget>
      </item>
      <item row="0" column="0" colspan="2">
       <widget class="QProgressBar" name="progressBar">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -88,6 +88,31 @@
        </property>
        <property name="text">
         <string>23:11</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" alignment="Qt::AlignRight">
+      <widget class="QPushButton" name="pbZone">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Activate In The Zone mode
+
+Timer runs without breaks,
+and all intervals are submitted in batch.</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>In The Zone!</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -294,7 +319,7 @@ color: white;
        </property>
       </widget>
      </item>
-     <item row="2" column="0" alignment="Qt::AlignLeft">
+     <item row="4" column="0" alignment="Qt::AlignLeft">
       <widget class="QPushButton" name="pbCancel">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -310,35 +335,16 @@ color: white;
        </property>
       </widget>
      </item>
-     <item row="2" column="1" alignment="Qt::AlignRight">
-      <widget class="QPushButton" name="pbZone">
+     <item row="2" column="0" colspan="2" alignment="Qt::AlignHCenter">
+      <widget class="QPushButton" name="pbSubmit">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="toolTip">
-        <string>Activate In The Zone mode
-
-Timer runs without breaks,
-and all intervals are submitted in batch.</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
        <property name="text">
-        <string>In The Zone!</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="2" alignment="Qt::AlignHCenter">
-      <widget class="QLabel" name="labelDailyGoalProgress">
-       <property name="text">
-        <string>TextLabel</string>
+        <string>Submit</string>
        </property>
       </widget>
      </item>

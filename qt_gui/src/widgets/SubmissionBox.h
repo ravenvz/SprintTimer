@@ -20,39 +20,27 @@
 **
 *********************************************************************************/
 
-#ifndef DEFAULTTIMER_H_QE49BN8Q
-#define DEFAULTTIMER_H_QE49BN8Q
+#ifndef POMODORO_SUBMISSIONBOX_H
+#define POMODORO_SUBMISSIONBOX_H
 
-#include "widgets/TimerWidgetBase.h"
-#include <QWidget>
-#include <memory>
+#include <QComboBox>
 
-namespace Ui {
-class DefaultTimer;
-}
 
-class DefaultTimer : public TimerWidgetBase {
-
-    Q_OBJECT
-
+/* Combobox, that retains it's currentIndex when hidden.
+ *
+ * QComboBox set's current index to -1 when it's hidden,
+ * so this subclass is a workaround to retain it. */
+class SubmissionBox : public QComboBox {
 public:
-    DefaultTimer(const IConfig& applicationSettings, QWidget* parent);
-    ~DefaultTimer();
-    void setTaskModel(QAbstractItemModel* model) override;
-    void setCandidateIndex(int index) override;
-    void updateGoalProgress(Progress progress) override;
+    explicit SubmissionBox(QWidget* parent);
 
 private:
-    Ui::DefaultTimer* ui;
-    int progressBarMaxValue{0};
+    int persistentIndex{-1};
 
-    void setTimerValue(Second timeLeft);
-    void onIdleStateEntered() override;
-    void onZoneStateEntered() override;
-    void onZoneStateLeft() override;
-    void onSubmissionStateEntered() override;
-    void updateIndication(Second timeLeft) override;
-    void setRunningState();
+    void hideEvent(QHideEvent* event) override;
+
+    void showEvent(QShowEvent* event) override;
 };
 
-#endif /* end of include guard: DEFAULTTIMER_H_QE49BN8Q */
+
+#endif // POMODORO_SUBMISSIONBOX_H

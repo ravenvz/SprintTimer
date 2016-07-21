@@ -20,39 +20,22 @@
 **
 *********************************************************************************/
 
-#ifndef DEFAULTTIMER_H_QE49BN8Q
-#define DEFAULTTIMER_H_QE49BN8Q
+#include "widgets/SubmissionBox.h"
 
-#include "widgets/TimerWidgetBase.h"
-#include <QWidget>
-#include <memory>
 
-namespace Ui {
-class DefaultTimer;
+SubmissionBox::SubmissionBox(QWidget* parent)
+    : QComboBox(parent)
+{
 }
 
-class DefaultTimer : public TimerWidgetBase {
+void SubmissionBox::hideEvent(QHideEvent* event)
+{
+    persistentIndex = currentIndex();
+    QComboBox::hideEvent(event);
+}
 
-    Q_OBJECT
-
-public:
-    DefaultTimer(const IConfig& applicationSettings, QWidget* parent);
-    ~DefaultTimer();
-    void setTaskModel(QAbstractItemModel* model) override;
-    void setCandidateIndex(int index) override;
-    void updateGoalProgress(Progress progress) override;
-
-private:
-    Ui::DefaultTimer* ui;
-    int progressBarMaxValue{0};
-
-    void setTimerValue(Second timeLeft);
-    void onIdleStateEntered() override;
-    void onZoneStateEntered() override;
-    void onZoneStateLeft() override;
-    void onSubmissionStateEntered() override;
-    void updateIndication(Second timeLeft) override;
-    void setRunningState();
-};
-
-#endif /* end of include guard: DEFAULTTIMER_H_QE49BN8Q */
+void SubmissionBox::showEvent(QShowEvent* event)
+{
+    QComboBox::showEvent(event);
+    setCurrentIndex(persistentIndex);
+}

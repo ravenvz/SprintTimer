@@ -10,7 +10,7 @@
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
@@ -36,21 +36,31 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
             &TimerWidgetBase::timerUpdated,
             this,
             &DefaultTimer::onTimerUpdated);
-    setIdleState();
+    onIdleStateEntered();
     connect(ui->pbZone, &QPushButton::clicked, [&]() {
-        timer.toggleInTheZoneMode();
+        timer->toggleInTheZoneMode();
+        onZoneStateEntered();
     });
-    connect(ui->leDoneTask,
-            &QLineEdit::returnPressed,
+    connect(
+        ui->cbxSubmissionCandidate,
+        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        [&](int index) { emit submissionCandidateChanged(index); });
+    connect(ui->pbSubmit,
+            &QPushButton::clicked,
             this,
             &DefaultTimer::requestSubmission);
 }
 
 DefaultTimer::~DefaultTimer() { delete ui; }
 
-void DefaultTimer::setSubmissionCandidateDescription(const QString& description)
+void DefaultTimer::setTaskModel(QAbstractItemModel* model)
 {
-    ui->leDoneTask->setText(description);
+    ui->cbxSubmissionCandidate->setModel(model);
+}
+
+void DefaultTimer::setCandidateIndex(int index)
+{
+    ui->cbxSubmissionCandidate->setCurrentIndex(index);
 }
 
 void DefaultTimer::updateGoalProgress(Progress progress)
@@ -89,33 +99,46 @@ void DefaultTimer::updateIndication(Second timeLeft)
 
 void DefaultTimer::setRunningState()
 {
-    progressBarMaxValue = timer.taskDuration() * secondsPerMinute;
+    progressBarMaxValue = timer->taskDuration() * secondsPerMinute;
     ui->progressBar->setMaximum(progressBarMaxValue);
     setTimerValue(progressBarMaxValue);
     ui->progressBar->setValue(0);
     ui->pbStart->hide();
+    ui->pbSubmit->hide();
     ui->labelTimer->show();
     ui->progressBar->show();
     ui->pbCancel->show();
+    ui->pbCancel->setEnabled(true);
     ui->pbZone->show();
 }
 
-void DefaultTimer::setIdleState()
+void DefaultTimer::onIdleStateEntered()
 {
     ui->progressBar->setValue(0);
     ui->progressBar->hide();
-    ui->leDoneTask->hide();
+    ui->cbxSubmissionCandidate->hide();
     ui->pbCancel->hide();
+    ui->pbSubmit->hide();
     ui->pbStart->show();
     ui->labelTimer->hide();
     progressBarMaxValue = 0;
     ui->pbZone->hide();
 }
 
-void DefaultTimer::setSubmissionState()
+void DefaultTimer::onSubmissionStateEntered()
 {
     ui->labelTimer->hide();
     ui->progressBar->hide();
-    ui->leDoneTask->show();
+    ui->pbSubmit->show();
+    ui->cbxSubmissionCandidate->show();
     ui->pbZone->hide();
+}
+
+void DefaultTimer::onZoneStateEntered()
+{
+    ui->pbCancel->setEnabled(false);
+}
+
+void DefaultTimer::onZoneStateLeft() {
+    ui->pbCancel->setEnabled(true);
 }

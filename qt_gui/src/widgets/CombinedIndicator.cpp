@@ -19,83 +19,113 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #include "widgets/CombinedIndicator.h"
 #include <QPainter>
+#include <cmath>
 
-#include <QDebug>
+double degreesToRadians(int degrees);
 
-CombinedIndicator::CombinedIndicator(QWidget* parent)
-    : QWidget{parent}
+CombinedIndicator::CombinedIndicator(int sideSizeHint, QWidget* parent)
+    : widthAndHeightHint{sideSizeHint}
+    , QWidget{parent}
 {
     setMouseTracking(true);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 }
 
-QSize CombinedIndicator::sizeHint() const { return QSize(150, 150); }
+QSize CombinedIndicator::sizeHint() const
+{
+    return QSize(widthAndHeightHint, widthAndHeightHint);
+}
+
+void CombinedIndicator::setMaxValue(int value) { maxValue = value; }
+
+void CombinedIndicator::setCurrentValue(int value) { currentValue = value; }
+
+void CombinedIndicator::setText(QString&& text)
+{
+    currentText = std::move(text);
+}
+
+void CombinedIndicator::setInvertedStyle(bool inverted)
+{
+    invertedDrawStyle = inverted;
+}
+
+void CombinedIndicator::setDrawArc(bool shouldDraw) { drawArc = shouldDraw; }
+
+void CombinedIndicator::setColor(const QColor& color) { this->color = color; }
 
 void CombinedIndicator::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    drawProgress(painter);
-}
-
-void CombinedIndicator::drawProgress(QPainter& painter) const
-{
-    if (timerDuration == 0)
-        return;
-    if (timeLeft != 0)
-        drawProgressBar(painter);
-    drawStatusText(painter);
-}
-
-void CombinedIndicator::drawProgressBar(QPainter& painter) const
-{
-    int margin = static_cast<int>(this->rect().width() * 0.05);
-    QRectF boundingRect
-        = this->rect().adjusted(margin, margin, -margin, -margin);
-    QPen progressPen{color};
-    progressPen.setWidthF(4.0);
-    painter.setPen(progressPen);
-    painter.drawRect(this->rect());
-    int startAngle = 90 * 16;
-    int spanAngle = (timeLeft - timerDuration) * 16 * (360 / timerDuration);
-    painter.drawArc(boundingRect, startAngle, spanAngle);
-}
-
-void CombinedIndicator::drawStatusText(QPainter& painter) const
-{
-    QFont font = painter.font();
-    font.setPixelSize(static_cast<int>(0.2 * this->rect().width()));
-    QPen blackPen{Qt::black};
-    blackPen.setWidthF(3.0);
-    painter.setPen(blackPen);
-    painter.setFont(font);
-    painter.drawText(this->rect(), Qt::AlignCenter, status);
+    drawText(painter);
+    if (drawArc)
+        drawProgressArc(painter);
 }
 
 void CombinedIndicator::mousePressEvent(QMouseEvent* event)
 {
-    qDebug() << event;
     if (event->button() == Qt::LeftButton) {
         emit indicatorClicked();
     }
 }
 
-void CombinedIndicator::updateIndication(Second timeLeft)
+void CombinedIndicator::drawProgressArc(QPainter& painter) const
 {
-    this->timeLeft = timeLeft;
+    constexpr int qtDegPrecision{16};
+    constexpr double marginRatio{0.05};
+    constexpr int startAngle{90};
+    constexpr int pointRadius{4};
+    constexpr int pointInnerRadius{3};
+    constexpr double penSize{4.0};
+
+    const int margin = static_cast<int>(rect().width() * marginRatio);
+    const QRectF boundingRect
+        = rect().adjusted(margin, margin, -margin, -margin);
+
+    // Draw arc.
+    QPen progressPen{color};
+    progressPen.setWidthF(penSize);
+    painter.setPen(progressPen);
+    double tickSize{360 / double(maxValue)};
+    double spanAngle = (maxValue - currentValue) * tickSize;
+    if (invertedDrawStyle)
+        spanAngle -= 360;
+    painter.drawArc(boundingRect,
+                    startAngle * qtDegPrecision,
+                    -static_cast<int>(qtDegPrecision * spanAngle));
+
+    // Draw leading point.
+    double radius = boundingRect.width() / 2;
+    QPointF point{radius * cos(degreesToRadians(spanAngle - startAngle)),
+                  radius * sin(degreesToRadians(spanAngle - startAngle))};
+
+    painter.translate(boundingRect.center());
+    painter.drawEllipse(point, pointRadius, pointRadius);
+    painter.setBrush(QBrush{Qt::white});
+    QPen innerEllipsePen{Qt::white};
+    painter.setPen(innerEllipsePen);
+    painter.drawEllipse(point, pointInnerRadius, pointInnerRadius);
+    painter.resetTransform();
 }
 
-void CombinedIndicator::setDuration(Second duration)
+void CombinedIndicator::drawText(QPainter& painter) const
 {
-    timerDuration = duration;
+    constexpr double textSizeRatio{0.2};
+    constexpr double penSize{3.0};
+    QFont font = painter.font();
+    font.setPixelSize(static_cast<int>(textSizeRatio * rect().width()));
+    QPen blackPen{Qt::black};
+    blackPen.setWidthF(penSize);
+    painter.setPen(blackPen);
+    painter.setFont(font);
+    painter.drawText(rect(), Qt::AlignCenter, currentText);
 }
 
-void CombinedIndicator::setStatus(QString&& status)
+double degreesToRadians(int degrees)
 {
-    this->status = std::move(status);
+    const double pi{acos(-1)};
+    return degrees * pi / 180;
 }
-
-void CombinedIndicator::setColor(const QColor& color) { this->color = color; }

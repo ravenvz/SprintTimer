@@ -89,7 +89,6 @@ private slots:
     void addTask();
     void quickAddTask();
     void submitPomodoro(const std::vector<TimeSpan>& intervalBuffer);
-    void setSubmissionCandidateDescription();
     void toggleTaskCompleted();
     void launchSettingsDialog();
     void launchHistoryView();

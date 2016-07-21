@@ -19,74 +19,53 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
 #include "core/PomodoroTimer.h"
 
-PomodoroTimer::PomodoroTimer(std::function<void(long timeLeft)> tickCallback,
-                             long tickPeriodInMillisecs,
-                             const IConfig& applicationSettings)
+PomodoroTimer::PomodoroTimer(
+    std::function<void(long timeLeft)> onTickCallback,
+    std::function<void(IPomodoroTimer::State)> onStateChangedCallback,
+    long tickPeriodInMillisecs,
+    const IConfig& applicationSettings)
     : applicationSettings{applicationSettings}
     , tickInterval{tickPeriodInMillisecs}
-    , onTickCallback{tickCallback}
+    , onTickCallback{onTickCallback}
+    , onStateChangedCallback{onStateChangedCallback}
     , mStart{DateTime::currentDateTimeLocal()}
+    , idleState{std::make_unique<IdleState>(*this)}
+    , pomodoroState{std::make_unique<TaskState>(*this)}
     , shortBreakState{std::make_unique<ShortBreakState>(*this)}
     , longBreakState{std::make_unique<LongBreakState>(*this)}
-    , pomodoroState{std::make_unique<PomodoroState>(*this)}
-    , currentState{pomodoroState.get()}
+    , zoneState{std::make_unique<ZoneState>(*this)}
+    , finishedState{std::make_unique<FinishedState>(*this)}
+    , currentState{idleState.get()}
 {
 }
 
-void PomodoroTimer::run()
+void PomodoroTimer::start()
 {
-    if (running)
-        return;
-    running = true;
-    using namespace date;
-    mStart = DateTime::currentDateTimeLocal();
-    timerPtr = std::make_unique<Timer>(
-        std::bind(&PomodoroTimer::onTimerTick, this), tickInterval);
-    timerPtr->start();
-    currentTaskDuration
-        = std::chrono::milliseconds{taskDuration() * millisecondsInMinute};
-}
-
-void PomodoroTimer::cancel()
-{
-    if (running) {
-        timerPtr->stop();
-    }
-    running = false;
-    currentState->cancel();
-}
-
-TimeSpan PomodoroTimer::finish()
-{
-    if (currentState == pomodoroState.get())
-        completedPomodoros++;
     currentState->setNextState();
-    if (running)
-        timerPtr->stop();
-    running = false;
-    return TimeSpan{mStart, DateTime::currentDateTimeLocal()};
+    resetTimer();
+    currentState->start();
 }
 
-int PomodoroTimer::taskDuration() { return currentState->duration(); }
+void PomodoroTimer::cancel() { currentState->cancel(); }
 
-bool PomodoroTimer::isBreak() const { return currentState->isBreak(); }
+int PomodoroTimer::taskDuration() const { return currentState->duration(); }
 
-bool PomodoroTimer::isRunning() const { return running; }
-
-bool PomodoroTimer::inTheZone() const { return inTheZoneMode; }
-
-void PomodoroTimer::onTimerTick()
+IPomodoroTimer::State PomodoroTimer::state() const
 {
-    currentTaskDuration -= tickInterval;
-    if (currentTaskDuration.count() == 0) {
-        timerPtr->stop();
-    }
-    onTickCallback(currentTaskDuration.count());
+    return currentState->state();
 }
 
-void PomodoroTimer::toggleInTheZoneMode() { inTheZoneMode = !inTheZoneMode; }
+void PomodoroTimer::toggleInTheZoneMode() { currentState->toggleZoneMode(); }
+
+std::vector<TimeSpan> PomodoroTimer::completedTaskIntervals() const
+{
+    return buffer;
+}
+
+void PomodoroTimer::clearIntervalsBuffer() { buffer.clear(); }
 
 void PomodoroTimer::setNumCompletedPomodoros(int num)
 {
@@ -94,3 +73,18 @@ void PomodoroTimer::setNumCompletedPomodoros(int num)
 }
 
 int PomodoroTimer::numCompletedPomodoros() const { return completedPomodoros; }
+
+void PomodoroTimer::onTimerTick()
+{
+    millisecondsLeft -= tickInterval;
+    if (millisecondsLeft.count() == 0) {
+        currentState->setNextState();
+    }
+    onTickCallback(millisecondsLeft.count());
+}
+
+void PomodoroTimer::resetTimer()
+{
+    timerPtr = std::make_unique<Timer>(
+        std::bind(&PomodoroTimer::onTimerTick, this), tickInterval);
+}

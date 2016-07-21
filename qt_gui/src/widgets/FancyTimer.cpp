@@ -22,8 +22,7 @@
 
 #include "widgets/FancyTimer.h"
 #include "ui_fancy_timer.h"
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QGridLayout>
+#include "utils/WidgetUtils.h"
 
 
 FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
@@ -31,84 +30,159 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
     , ui{new Ui::FancyTimer}
 {
     ui->setupUi(this);
-    combinedIndicator = new CombinedIndicator();
-    ui->gridLayout->addWidget(combinedIndicator, 1, 0, Qt::AlignCenter);
-    setIdleState();
+    combinedIndicator = new CombinedIndicator(150, this); // TODO magic number
+    combinedIndicator->setSizePolicy(QSizePolicy::MinimumExpanding,
+                                     QSizePolicy::MinimumExpanding);
+    ui->gridLayout->addWidget(
+        combinedIndicator, 1, 0, 1, 2, Qt::AlignHCenter | Qt::AlignTop);
+
+    WidgetUtils::setRetainSizeWhenHidden(ui->pbCancel);
+    WidgetUtils::setRetainSizeWhenHidden(ui->pbZone);
+    WidgetUtils::setRetainSizeWhenHidden(ui->cbxSubmissionCandidate);
+
     connect(combinedIndicator,
             &CombinedIndicator::indicatorClicked,
             this,
             &FancyTimer::onIndicatorClicked);
-    connect(this, &FancyTimer::timerUpdated, this, &FancyTimer::onTimerUpdated);
     connect(
         ui->cbxSubmissionCandidate,
         static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-        [&](int index) { emit submissionCandidateChanged(index); });
+        [&](int index) {
+            if (ui->cbxSubmissionCandidate->isVisible()) {
+                emit submissionCandidateChanged(index);
+            }
+        });
+    connect(ui->pbZone, &QPushButton::clicked, [&]() {
+        timer->toggleInTheZoneMode();
+    });
+    connect(ui->pbCancel, &QPushButton::clicked, this, &FancyTimer::cancelTask);
+
+    onIdleStateEntered();
 }
 
 FancyTimer::~FancyTimer() { delete ui; }
-
-void FancyTimer::setSubmissionCandidateDescription(const QString& description)
-{
-}
 
 void FancyTimer::setTaskModel(QAbstractItemModel* model)
 {
     ui->cbxSubmissionCandidate->setModel(model);
 }
 
-void FancyTimer::updateGoalProgress(Progress progress) {}
-
-void FancyTimer::setIdleState()
+void FancyTimer::setCandidateIndex(int index)
 {
-    state = State::Idle;
+    if (ui->cbxSubmissionCandidate->isVisible())
+        ui->cbxSubmissionCandidate->setCurrentIndex(index);
+}
+
+void FancyTimer::updateGoalProgress(Progress progress)
+{
+    int dailyGoal = applicationSettings.dailyPomodorosGoal();
+    if (dailyGoal == 0) {
+        ui->labelDailyGoalProgress->hide();
+        return;
+    }
+    int completedSoFar = progress;
+    ui->labelDailyGoalProgress->setText(QString("Daily goal progress: %1/%2")
+                                            .arg(completedSoFar)
+                                            .arg(dailyGoal));
+    if (completedSoFar == dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
+    }
+    else if (completedSoFar > dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: red; }");
+    }
+    else {
+        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: black; }");
+    }
+}
+
+void FancyTimer::onIdleStateEntered()
+{
     ui->cbxSubmissionCandidate->hide();
-    combinedIndicator->setColor(QColor{"#eb6c59"});
-    combinedIndicator->setStatus("Start");
-    combinedIndicator->setDuration(timer.taskDuration() * secondsPerMinute);
+    ui->pbCancel->hide();
+    ui->pbZone->hide();
+    combinedIndicator->setText("Start");
+    combinedIndicator->setInvertedStyle(false);
+    combinedIndicator->setDrawArc(false);
     combinedIndicator->repaint();
 }
 
-void FancyTimer::setRunningState()
+void FancyTimer::onTaskStateEntered()
 {
-    state = State::Running;
     ui->cbxSubmissionCandidate->hide();
-    auto duration = timer.taskDuration() * secondsPerMinute;
-    combinedIndicator->updateIndication(duration);
-    combinedIndicator->setStatus(constructTimerValue(duration));
+    ui->pbCancel->show();
+    ui->pbZone->show();
+    auto duration = timer->taskDuration() * secondsPerMinute;
+    combinedIndicator->setColor(taskStateColor);
+    combinedIndicator->setText(constructTimerValue(duration));
+    combinedIndicator->setMaxValue(duration);
+    combinedIndicator->setCurrentValue(duration);
+    combinedIndicator->setInvertedStyle(false);
+    combinedIndicator->setDrawArc(true);
     combinedIndicator->repaint();
 }
 
-void FancyTimer::setSubmissionState()
+void FancyTimer::onBreakStateEntered()
 {
-    state = State::Submission;
+    ui->cbxSubmissionCandidate->hide();
+    ui->pbCancel->show();
+    ui->pbZone->hide();
+    auto duration = timer->taskDuration() * secondsPerMinute;
+    combinedIndicator->setColor(breakStateColor);
+    combinedIndicator->setMaxValue(duration);
+    updateIndication(duration);
+    combinedIndicator->setCurrentValue(duration);
+    combinedIndicator->setText(constructTimerValue(duration));
+    combinedIndicator->setInvertedStyle(true);
+    combinedIndicator->setDrawArc(true);
+    combinedIndicator->repaint();
+}
+
+void FancyTimer::onZoneStateEntered()
+{
+    ui->pbCancel->hide();
+    combinedIndicator->setColor(zoneStateColor);
+    combinedIndicator->repaint();
+}
+
+void FancyTimer::onZoneStateLeft()
+{
+    ui->pbCancel->show();
+    combinedIndicator->setColor(taskStateColor);
+    combinedIndicator->repaint();
+}
+
+void FancyTimer::onSubmissionStateEntered()
+{
+    qDebug() << "Setting submission state";
     ui->cbxSubmissionCandidate->show();
-    combinedIndicator->setColor(QColor("#73c245"));
-    combinedIndicator->setDuration(timer.taskDuration() * secondsPerMinute);
-    combinedIndicator->setStatus("Submit");
+    ui->pbCancel->show();
+    ui->pbZone->hide();
+    combinedIndicator->setText("Submit");
+    combinedIndicator->setDrawArc(false);
+    combinedIndicator->repaint();
 }
 
 void FancyTimer::updateIndication(Second timeLeft)
 {
-    combinedIndicator->updateIndication(timeLeft);
-    combinedIndicator->setStatus(constructTimerValue(timeLeft));
+    if (timer->state() == IPomodoroTimer::State::Idle
+        || timer->state() == IPomodoroTimer::State::Finished)
+        return;
+    combinedIndicator->setCurrentValue(timeLeft);
+    combinedIndicator->setText(constructTimerValue(timeLeft));
     combinedIndicator->repaint();
 }
 
 void FancyTimer::onIndicatorClicked()
 {
-    switch (state) {
-    case State::Submission:
-        requestSubmission();
+    switch (timer->state()) {
+    case IPomodoroTimer::State::Finished:
+        if (ui->cbxSubmissionCandidate->currentIndex() != -1)
+            requestSubmission();
         break;
-    case State::Idle:
+    case IPomodoroTimer::State::Idle:
         startTask();
         break;
     default:
         break;
     }
-}
-
-void FancyTimer::setCandidateIndex(int index)
-{
-    ui->cbxSubmissionCandidate->setCurrentIndex(index);
 }
