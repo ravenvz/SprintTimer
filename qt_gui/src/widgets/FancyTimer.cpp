@@ -34,7 +34,7 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
     combinedIndicator->setSizePolicy(QSizePolicy::MinimumExpanding,
                                      QSizePolicy::MinimumExpanding);
     ui->gridLayout->addWidget(
-        combinedIndicator, 1, 0, 1, 2, Qt::AlignHCenter | Qt::AlignTop);
+        combinedIndicator, 2, 0, 1, 2, Qt::AlignHCenter | Qt::AlignTop);
 
     WidgetUtils::setRetainSizeWhenHidden(ui->pbCancel);
     WidgetUtils::setRetainSizeWhenHidden(ui->pbZone);
