@@ -76,7 +76,7 @@ public:
     /* Return task duration in minutes.
      *
      * Duration is obtained from application config. */
-    int taskDuration() const final;
+    int currentDuration() const final;
 
     /* Return current state. */
     IPomodoroTimer::State state() const final;

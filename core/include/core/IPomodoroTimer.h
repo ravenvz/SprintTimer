@@ -36,7 +36,7 @@ public:
 
     virtual void cancel() = 0;
 
-    virtual int taskDuration() const = 0;
+    virtual int currentDuration() const = 0;
 
     virtual State state() const = 0;
 

@@ -99,21 +99,6 @@ void DefaultTimer::setTimerValue(Second timeLeft)
     ui->labelTimer->setText(constructTimerValue(timeLeft));
 }
 
-void DefaultTimer::setRunningState()
-{
-    progressBarMaxValue = timer->taskDuration() * secondsPerMinute;
-    ui->progressBar->setMaximum(progressBarMaxValue);
-    setTimerValue(progressBarMaxValue);
-    ui->progressBar->setValue(0);
-    ui->pbStart->hide();
-    ui->pbSubmit->hide();
-    ui->labelTimer->show();
-    ui->progressBar->show();
-    ui->pbCancel->show();
-    ui->pbCancel->setEnabled(true);
-    ui->pbZone->show();
-}
-
 void DefaultTimer::onIdleStateEntered()
 {
     ui->progressBar->setValue(0);
@@ -127,9 +112,24 @@ void DefaultTimer::onIdleStateEntered()
     ui->pbZone->hide();
 }
 
-void DefaultTimer::onTaskStateEntered() { setRunningState(); }
+void DefaultTimer::onTaskStateEntered() { setUiToRunningState(); }
 
-void DefaultTimer::onBreakStateEntered() { setRunningState(); }
+void DefaultTimer::onBreakStateEntered() { setUiToRunningState(); }
+
+void DefaultTimer::setUiToRunningState()
+{
+    progressBarMaxValue = timer->currentDuration() * secondsPerMinute;
+    ui->progressBar->setMaximum(progressBarMaxValue);
+    setTimerValue(progressBarMaxValue);
+    ui->progressBar->setValue(0);
+    ui->pbStart->hide();
+    ui->pbSubmit->hide();
+    ui->labelTimer->show();
+    ui->progressBar->show();
+    ui->pbCancel->show();
+    ui->pbCancel->setEnabled(true);
+    ui->pbZone->show();
+}
 
 void DefaultTimer::onSubmissionStateEntered()
 {

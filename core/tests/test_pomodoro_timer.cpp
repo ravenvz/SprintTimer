@@ -140,7 +140,7 @@ TEST(PomodoroTimerStates, test_should_be_in_short_break_when_finishing_pomodoro)
     // timer.finish();
     //
     // CHECK(timer.isBreak());
-    // CHECK_EQUAL(testSettings.shortBreakDuration(), timer.taskDuration());
+    // CHECK_EQUAL(testSettings.shortBreakDuration(), timer.currentDuration());
 }
 
 TEST(PomodoroTimerStates,
@@ -155,7 +155,7 @@ TEST(PomodoroTimerStates,
     // timer.finish();
     //
     // CHECK(timer.isBreak());
-    // CHECK_EQUAL(testSettings.longBreakDuration(), timer.taskDuration());
+    // CHECK_EQUAL(testSettings.longBreakDuration(), timer.currentDuration());
 }
 
 TEST(PomodoroTimerStates, test_should_set_state_to_pomodoro_after_any_break)

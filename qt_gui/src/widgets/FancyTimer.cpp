@@ -111,7 +111,7 @@ void FancyTimer::onTaskStateEntered()
     ui->cbxSubmissionCandidate->hide();
     ui->pbCancel->show();
     ui->pbZone->show();
-    auto duration = timer->taskDuration() * secondsPerMinute;
+    auto duration = timer->currentDuration() * secondsPerMinute;
     combinedIndicator->setColor(taskStateColor);
     combinedIndicator->setText(constructTimerValue(duration));
     combinedIndicator->setMaxValue(duration);
@@ -126,7 +126,7 @@ void FancyTimer::onBreakStateEntered()
     ui->cbxSubmissionCandidate->hide();
     ui->pbCancel->show();
     ui->pbZone->hide();
-    auto duration = timer->taskDuration() * secondsPerMinute;
+    auto duration = timer->currentDuration() * secondsPerMinute;
     combinedIndicator->setColor(breakStateColor);
     combinedIndicator->setMaxValue(duration);
     updateIndication(duration);

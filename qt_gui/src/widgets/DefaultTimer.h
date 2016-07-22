@@ -49,12 +49,12 @@ private:
     void setTimerValue(Second timeLeft);
     void onIdleStateEntered() override;
     void onTaskStateEntered() override;
+    void setUiToRunningState();
     void onBreakStateEntered() override;
     void onZoneStateEntered() override;
     void onZoneStateLeft() override;
     void onSubmissionStateEntered() override;
     void updateIndication(Second timeLeft) override;
-    void setRunningState();
 };
 
 #endif /* end of include guard: DEFAULTTIMER_H_QE49BN8Q */

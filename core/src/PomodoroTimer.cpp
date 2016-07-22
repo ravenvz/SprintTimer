@@ -51,7 +51,7 @@ void PomodoroTimer::start()
 
 void PomodoroTimer::cancel() { currentState->cancel(); }
 
-int PomodoroTimer::taskDuration() const { return currentState->duration(); }
+int PomodoroTimer::currentDuration() const { return currentState->duration(); }
 
 IPomodoroTimer::State PomodoroTimer::state() const
 {

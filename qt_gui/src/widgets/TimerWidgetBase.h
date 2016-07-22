@@ -53,12 +53,12 @@ protected:
     std::unique_ptr<IPomodoroTimer> timer;
     std::unique_ptr<QMediaPlayer> player = std::make_unique<QMediaPlayer>();
 
-    virtual void onTaskStateEntered();
-    virtual void onBreakStateEntered();
-    virtual void onSubmissionStateEntered();
-    virtual void onIdleStateEntered();
-    virtual void onZoneStateEntered();
-    virtual void onZoneStateLeft();
+    virtual void onTaskStateEntered() = 0;
+    virtual void onBreakStateEntered() = 0;
+    virtual void onSubmissionStateEntered() = 0;
+    virtual void onIdleStateEntered() = 0;
+    virtual void onZoneStateEntered() = 0;
+    virtual void onZoneStateLeft() = 0;
     virtual void requestSubmission();
     virtual void updateIndication(Second timeLeft) = 0;
     virtual QString constructTimerValue(Second timeLeft);

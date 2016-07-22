@@ -85,7 +85,6 @@ void TimerWidgetBase::onStateChanged(IPomodoroTimer::State state)
         onBreakStateEntered();
         break;
     case IPomodoroTimer::State::Finished:
-        qDebug() << "On submissino state entered callback";
         onSubmissionStateEntered();
         break;
     case IPomodoroTimer::State::Idle:
@@ -153,15 +152,3 @@ QString TimerWidgetBase::constructTimerValue(Second timeLeft)
         QString::number(timeLeft / secondsPerMinute),
         QString::number(timeLeft % secondsPerMinute).rightJustified(2, '0'));
 }
-
-void TimerWidgetBase::onTaskStateEntered() { qDebug() << "Base class"; }
-
-void TimerWidgetBase::onBreakStateEntered() {}
-
-void TimerWidgetBase::onSubmissionStateEntered() {}
-
-void TimerWidgetBase::onIdleStateEntered() {}
-
-void TimerWidgetBase::onZoneStateEntered() {}
-
-void TimerWidgetBase::onZoneStateLeft() {}

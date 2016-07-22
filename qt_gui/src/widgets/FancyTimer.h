@@ -42,12 +42,13 @@ public:
 private:
     Ui::FancyTimer* ui;
     CombinedIndicator* combinedIndicator;
-    const QColor taskStateColor {QColor{"#eb6c59"}};
-    const QColor breakStateColor {QColor{"#73c245"}};
-    const QColor zoneStateColor {Qt::darkYellow};
+    const QColor taskStateColor{QColor{"#eb6c59"}};
+    const QColor breakStateColor{QColor{"#73c245"}};
+    const QColor zoneStateColor{Qt::darkYellow};
 
     void onIdleStateEntered() override;
     void onTaskStateEntered() override;
+    void setUiToRunningState();
     void onSubmissionStateEntered() override;
     void onBreakStateEntered() override;
     void onZoneStateEntered() override;
