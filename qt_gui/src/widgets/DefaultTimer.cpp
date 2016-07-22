@@ -54,10 +54,10 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
             if (ui->cbxSubmissionCandidate->isVisible())
                 emit submissionCandidateChanged(index);
         });
-    connect(ui->pbSubmit,
-            &QPushButton::clicked,
-            this,
-            &DefaultTimer::requestSubmission);
+    connect(ui->pbSubmit, &QPushButton::clicked, [&]() {
+        if (ui->cbxSubmissionCandidate->currentIndex() != -1)
+            requestSubmission();
+    });
 }
 
 DefaultTimer::~DefaultTimer() { delete ui; }
