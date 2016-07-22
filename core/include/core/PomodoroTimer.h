@@ -85,8 +85,10 @@ public:
      * breaks and scheduled one after another without breaks. */
     void toggleInTheZoneMode() final;
 
+    /* Return vector of intervals that are currently registered by timer. */
     std::vector<TimeSpan> completedTaskIntervals() const final;
 
+    /* Clear registered time intervals. */
     void clearIntervalsBuffer() final;
 
     /* Set number of pomodoros completed so far. */
@@ -96,16 +98,9 @@ public:
     int numCompletedPomodoros() const;
 
 
-private:
-    const IConfig& applicationSettings;
-    const std::chrono::milliseconds tickInterval;
-    std::function<void(long timeLeft)> onTickCallback;
-    std::function<void(IPomodoroTimer::State)> onStateChangedCallback;
-    std::unique_ptr<Timer> timerPtr;
-    DateTime mStart;
-    std::chrono::milliseconds millisecondsLeft;
+protected:
     const int millisecondsInMinute{60000};
-    int completedPomodoros{0};
+    std::chrono::milliseconds millisecondsLeft;
     std::unique_ptr<PomodoroTimerState> idleState;
     std::unique_ptr<PomodoroTimerState> pomodoroState;
     std::unique_ptr<PomodoroTimerState> shortBreakState;
@@ -113,6 +108,15 @@ private:
     std::unique_ptr<PomodoroTimerState> zoneState;
     std::unique_ptr<PomodoroTimerState> finishedState;
     PomodoroTimerState* currentState;
+
+private:
+    const IConfig& applicationSettings;
+    const std::chrono::milliseconds tickInterval;
+    std::function<void(long timeLeft)> onTickCallback;
+    std::function<void(IPomodoroTimer::State)> onStateChangedCallback;
+    std::unique_ptr<Timer> timerPtr;
+    DateTime mStart;
+    int completedPomodoros{0};
     std::vector<TimeSpan> buffer;
 
     void onTimerTick();
