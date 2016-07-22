@@ -49,6 +49,8 @@ public:
     virtual void setMonthlyPomodorosGoal(int monthlyPomodorosGoal) = 0;
     virtual std::string soundFilePath() const = 0;
     virtual void setSoundFilePath(const std::string& filePath) = 0;
+    virtual int timerFlavour() const = 0;
+    virtual void setTimerFlavour(int timerVariation) = 0;
 };
 
 

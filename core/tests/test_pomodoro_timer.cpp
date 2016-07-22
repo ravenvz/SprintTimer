@@ -94,6 +94,10 @@ TEST_GROUP(PomodoroTimerStates)
 
         void setSoundFilePath(const std::string& filePath) override {}
 
+        int timerFlavour() const override { return 0; }
+
+        void setTimerFlavour(int timerVariation) override {}
+
     private:
         int mPomodoroDuration = 30;
         int mShortBreakDuration = 10;

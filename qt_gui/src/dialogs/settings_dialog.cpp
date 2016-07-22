@@ -19,9 +19,11 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
 #include "settings_dialog.h"
 #include "ui_settings.h"
 #include <QFileDialog>
+#include <QStringListModel>
 
 
 SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
@@ -30,6 +32,8 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
     , applicationSettings(applicationSettings)
 {
     ui->setupUi(this);
+    timerModel = new QStringListModel{timers, this};
+    ui->cbxTimerVariation->setModel(timerModel);
     connect(this, SIGNAL(accepted()), this, SLOT(storeSettingsData()));
     connect(ui->chBxPlaySound,
             SIGNAL(stateChanged(int)),
@@ -43,6 +47,12 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
         applicationSettings.setSoundFilePath(
             ui->lePathToSoundFile->text().toStdString());
     });
+    connect(ui->cbxTimerVariation,
+            static_cast<void (QComboBox::*)(const QString&)>(
+                &QComboBox::currentIndexChanged),
+            [&](const QString& text) {
+                /* ... */
+            });
 }
 
 
@@ -60,6 +70,8 @@ void SettingsDialog::fillSettingsData()
     ui->lePathToSoundFile->setText(
         QString::fromStdString(applicationSettings.soundFilePath()));
     ui->hSliderVolume->setValue(applicationSettings.soundVolume());
+    auto timerFlavour = applicationSettings.timerFlavour();
+    ui->cbxTimerVariation->setCurrentIndex(timerFlavour);
 }
 
 
@@ -72,6 +84,7 @@ void SettingsDialog::storeSettingsData()
         ui->spBxLongBreakAfter->value());
     applicationSettings.setPlaySound(ui->chBxPlaySound->isChecked());
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
+    applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());
 }
 
 

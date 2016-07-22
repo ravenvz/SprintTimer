@@ -26,6 +26,9 @@
 #include "core/IConfig.h"
 #include <QDialog>
 #include <QSettings>
+#include <QStringList>
+
+class QStringListModel;
 
 namespace Ui {
 class SettingsDialog;
@@ -48,6 +51,8 @@ private slots:
 private:
     Ui::SettingsDialog* ui;
     IConfig& applicationSettings;
+    QStringList timers{"Default timer", "Fancy timer"};
+    QStringListModel* timerModel;
 };
 
 #endif // SETTINGSDIALOG_H

@@ -139,6 +139,16 @@ public:
                                   QVariant(QString::fromStdString(filePath)));
     }
 
+    int timerFlavour() const final
+    {
+        return Config::settings.value("timerFlavour").toInt();
+    }
+
+    void setTimerFlavour(int timerVariation)
+    {
+        Config::settings.setValue("timerFlavour", QVariant(timerVariation));
+    }
+
 private:
     QSettings settings;
 };

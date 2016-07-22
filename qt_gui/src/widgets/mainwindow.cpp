@@ -44,8 +44,11 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     , expansionState{shrinked.get()}
 {
     ui->setupUi(this);
-//     timerWidget = new DefaultTimer{applicationSettings, this};
-    timerWidget = new FancyTimer{applicationSettings, this};
+    auto timerFlavour = applicationSettings.timerFlavour();
+    if (timerFlavour == 0)
+        timerWidget = new DefaultTimer{applicationSettings, this};
+    else
+        timerWidget = new FancyTimer{applicationSettings, this};
     ui->gridLayout->addWidget(
         timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
     pomodoroModel = new PomodoroModel(pomodoroService, this);
