@@ -109,7 +109,7 @@ void TimerWidgetBase::cancelTask()
     QString description("This will destroy current pomodoro!");
     cancelDialog.setActionDescription(description);
     if (timer->state() == IPomodoroTimer::State::Break
-        || timer->state() == IPomodoroTimer::State::Finished
+        || timer->state() == IPomodoroTimer::State::LongBreak
         || cancelDialog.exec()) {
         timer->cancel();
     }
