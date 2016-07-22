@@ -24,13 +24,12 @@
 #define ITIMERWIDGET_H_REB4PSQX
 
 #include "core/IConfig.h"
-#include "core/PomodoroTimer.h"
-#include "core/PomodoroTimer.h"
+#include "core/IPomodoroTimer.h"
 #include "dialogs/confirmationdialog.h"
+#include <QAbstractItemModel>
 #include <QMediaPlayer>
 #include <QWidget>
-
-#include <QDebug>
+#include <memory>
 
 using Progress = int;
 using Second = int;
@@ -45,34 +44,40 @@ class TimerWidgetBase : public QWidget {
 public:
     TimerWidgetBase(const IConfig& applicationSettings, QWidget* parent);
     ~TimerWidgetBase() = default;
-    virtual void clearBuffer();
-    virtual void setSubmissionCandidateDescription(const QString& description)
-        = 0;
-    virtual void updateProgress(Progress progress) = 0;
+    virtual void setTaskModel(QAbstractItemModel* model) = 0;
+    virtual void setCandidateIndex(int index) = 0;
+    virtual void updateGoalProgress(Progress progress) = 0;
 
 protected:
     const IConfig& applicationSettings;
-    PomodoroTimer timer;
-    std::vector<TimeSpan> buffer;
+    std::unique_ptr<IPomodoroTimer> timer;
     std::unique_ptr<QMediaPlayer> player = std::make_unique<QMediaPlayer>();
 
-    virtual void setIdleState() = 0;
-    virtual void setRunningState() = 0;
-    virtual void setSubmissionState() = 0;
+    virtual void onTaskStateEntered() = 0;
+    virtual void onBreakStateEntered() = 0;
+    virtual void onSubmissionStateEntered() = 0;
+    virtual void onIdleStateEntered() = 0;
+    virtual void onZoneStateEntered() = 0;
+    virtual void onZoneStateLeft() = 0;
     virtual void requestSubmission();
-    void playSound() const;
     virtual void updateIndication(Second timeLeft) = 0;
+    virtual QString constructTimerValue(Second timeLeft);
+    void playSound() const;
 
 protected slots:
     void onTimerTick(long timeLeft);
+    void onTimerStateChanged(IPomodoroTimer::State state);
     void onTimerUpdated(long timeLeft);
+    void onStateChanged(IPomodoroTimer::State state);
     void startTask();
     void cancelTask();
     void onSoundError(QMediaPlayer::Error error);
 
 signals:
     void timerUpdated(long timeLeft);
-    void submitRequested(const std::vector<TimeSpan>& completedTaskIntervals);
+    void stateChanged(IPomodoroTimer::State state);
+    void submitRequested(std::vector<TimeSpan> completedTaskIntervals);
+    void submissionCandidateChanged(int index);
 };
 
 #endif /* end of include guard: ITIMERWIDGET_H_REB4PSQX */

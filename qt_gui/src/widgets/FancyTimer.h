@@ -20,41 +20,43 @@
 **
 *********************************************************************************/
 
-#ifndef DEFAULTTIMER_H_QE49BN8Q
-#define DEFAULTTIMER_H_QE49BN8Q
+#ifndef FANCYTIMER_H_PXO2DFJW
+#define FANCYTIMER_H_PXO2DFJW
 
+#include "widgets/CombinedIndicator.h"
 #include "widgets/TimerWidgetBase.h"
-#include <QWidget>
-#include <memory>
 
 namespace Ui {
-class DefaultTimer;
+class FancyTimer;
 }
 
-class DefaultTimer : public TimerWidgetBase {
-
-    Q_OBJECT
-
+class FancyTimer : public TimerWidgetBase {
 public:
-    DefaultTimer(const IConfig& applicationSettings, QWidget* parent);
-    ~DefaultTimer();
+    FancyTimer(const IConfig& applicationSettings, QWidget* parent);
+    ~FancyTimer();
+
     void setTaskModel(QAbstractItemModel* model) override;
     void setCandidateIndex(int index) override;
     void updateGoalProgress(Progress progress) override;
 
 private:
-    Ui::DefaultTimer* ui;
-    int progressBarMaxValue{0};
+    Ui::FancyTimer* ui;
+    CombinedIndicator* combinedIndicator;
+    const QColor taskStateColor{QColor{"#eb6c59"}};
+    const QColor breakStateColor{QColor{"#73c245"}};
+    const QColor zoneStateColor{Qt::darkYellow};
 
-    void setTimerValue(Second timeLeft);
     void onIdleStateEntered() override;
     void onTaskStateEntered() override;
     void setUiToRunningState();
+    void onSubmissionStateEntered() override;
     void onBreakStateEntered() override;
     void onZoneStateEntered() override;
     void onZoneStateLeft() override;
-    void onSubmissionStateEntered() override;
     void updateIndication(Second timeLeft) override;
+
+private slots:
+    void onIndicatorClicked();
 };
 
-#endif /* end of include guard: DEFAULTTIMER_H_QE49BN8Q */
+#endif /* end of include guard: FANCYTIMER_H_PXO2DFJW */

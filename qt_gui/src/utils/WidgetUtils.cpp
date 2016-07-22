@@ -19,40 +19,16 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SETTINGSDIALOG_H
-#define SETTINGSDIALOG_H
 
+#include "utils/WidgetUtils.h"
 
-#include "core/IConfig.h"
-#include <QDialog>
-#include <QSettings>
-#include <QStringList>
+namespace WidgetUtils {
 
-class QStringListModel;
-
-namespace Ui {
-class SettingsDialog;
+void setRetainSizeWhenHidden(QWidget* widget)
+{
+    QSizePolicy policy = widget->sizePolicy();
+    policy.setRetainSizeWhenHidden(true);
+    widget->setSizePolicy(policy);
 }
 
-class SettingsDialog : public QDialog {
-    Q_OBJECT
-
-public:
-    explicit SettingsDialog(IConfig& applicationSettings,
-                            QDialog* parent = nullptr);
-    ~SettingsDialog();
-    void fillSettingsData();
-
-private slots:
-    void storeSettingsData();
-    void toggleVolumeControlVisibility();
-    void onBrowseSoundFileButtonClicked();
-
-private:
-    Ui::SettingsDialog* ui;
-    IConfig& applicationSettings;
-    QStringList timers{"Default timer", "Fancy timer"};
-    QStringListModel* timerModel;
-};
-
-#endif // SETTINGSDIALOG_H
+} /* WidgetUtils */

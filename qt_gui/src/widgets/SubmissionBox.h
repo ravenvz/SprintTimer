@@ -19,40 +19,28 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SETTINGSDIALOG_H
-#define SETTINGSDIALOG_H
+
+#ifndef POMODORO_SUBMISSIONBOX_H
+#define POMODORO_SUBMISSIONBOX_H
+
+#include <QComboBox>
 
 
-#include "core/IConfig.h"
-#include <QDialog>
-#include <QSettings>
-#include <QStringList>
-
-class QStringListModel;
-
-namespace Ui {
-class SettingsDialog;
-}
-
-class SettingsDialog : public QDialog {
-    Q_OBJECT
-
+/* Combobox, that retains it's currentIndex when hidden.
+ *
+ * QComboBox set's current index to -1 when it's hidden,
+ * so this subclass is a workaround to retain it. */
+class SubmissionBox : public QComboBox {
 public:
-    explicit SettingsDialog(IConfig& applicationSettings,
-                            QDialog* parent = nullptr);
-    ~SettingsDialog();
-    void fillSettingsData();
-
-private slots:
-    void storeSettingsData();
-    void toggleVolumeControlVisibility();
-    void onBrowseSoundFileButtonClicked();
+    explicit SubmissionBox(QWidget* parent);
 
 private:
-    Ui::SettingsDialog* ui;
-    IConfig& applicationSettings;
-    QStringList timers{"Default timer", "Fancy timer"};
-    QStringListModel* timerModel;
+    int persistentIndex{-1};
+
+    void hideEvent(QHideEvent* event) override;
+
+    void showEvent(QShowEvent* event) override;
 };
 
-#endif // SETTINGSDIALOG_H
+
+#endif // POMODORO_SUBMISSIONBOX_H

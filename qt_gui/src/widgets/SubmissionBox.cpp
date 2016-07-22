@@ -19,40 +19,23 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SETTINGSDIALOG_H
-#define SETTINGSDIALOG_H
+
+#include "widgets/SubmissionBox.h"
 
 
-#include "core/IConfig.h"
-#include <QDialog>
-#include <QSettings>
-#include <QStringList>
-
-class QStringListModel;
-
-namespace Ui {
-class SettingsDialog;
+SubmissionBox::SubmissionBox(QWidget* parent)
+    : QComboBox(parent)
+{
 }
 
-class SettingsDialog : public QDialog {
-    Q_OBJECT
+void SubmissionBox::hideEvent(QHideEvent* event)
+{
+    persistentIndex = currentIndex();
+    QComboBox::hideEvent(event);
+}
 
-public:
-    explicit SettingsDialog(IConfig& applicationSettings,
-                            QDialog* parent = nullptr);
-    ~SettingsDialog();
-    void fillSettingsData();
-
-private slots:
-    void storeSettingsData();
-    void toggleVolumeControlVisibility();
-    void onBrowseSoundFileButtonClicked();
-
-private:
-    Ui::SettingsDialog* ui;
-    IConfig& applicationSettings;
-    QStringList timers{"Default timer", "Fancy timer"};
-    QStringListModel* timerModel;
-};
-
-#endif // SETTINGSDIALOG_H
+void SubmissionBox::showEvent(QShowEvent* event)
+{
+    QComboBox::showEvent(event);
+    setCurrentIndex(persistentIndex);
+}
