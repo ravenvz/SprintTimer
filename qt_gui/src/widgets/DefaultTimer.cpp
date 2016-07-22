@@ -22,12 +22,19 @@
 
 #include "widgets/DefaultTimer.h"
 #include "ui_default_timer.h"
+#include "utils/WidgetUtils.h"
 
 DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
     : TimerWidgetBase{applicationSettings, parent}
     , ui{new Ui::DefaultTimer}
 {
     ui->setupUi(this);
+
+    WidgetUtils::setRetainSizeWhenHidden(ui->pbCancel);
+    WidgetUtils::setRetainSizeWhenHidden(ui->pbZone);
+    WidgetUtils::setRetainSizeWhenHidden(ui->progressBar);
+    WidgetUtils::setRetainSizeWhenHidden(ui->pbStart);
+    WidgetUtils::setRetainSizeWhenHidden(ui->pbSubmit);
 
     connect(ui->pbStart, &QPushButton::clicked, this, &DefaultTimer::startTask);
     connect(
@@ -39,12 +46,14 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
     onIdleStateEntered();
     connect(ui->pbZone, &QPushButton::clicked, [&]() {
         timer->toggleInTheZoneMode();
-        onZoneStateEntered();
     });
     connect(
         ui->cbxSubmissionCandidate,
         static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-        [&](int index) { emit submissionCandidateChanged(index); });
+        [&](int index) {
+            if (ui->cbxSubmissionCandidate->isVisible())
+                emit submissionCandidateChanged(index);
+        });
     connect(ui->pbSubmit,
             &QPushButton::clicked,
             this,
@@ -90,13 +99,6 @@ void DefaultTimer::setTimerValue(Second timeLeft)
     ui->labelTimer->setText(constructTimerValue(timeLeft));
 }
 
-void DefaultTimer::updateIndication(Second timeLeft)
-{
-    ui->progressBar->setValue(progressBarMaxValue - timeLeft);
-    setTimerValue(timeLeft);
-    ui->progressBar->repaint();
-}
-
 void DefaultTimer::setRunningState()
 {
     progressBarMaxValue = timer->taskDuration() * secondsPerMinute;
@@ -125,6 +127,10 @@ void DefaultTimer::onIdleStateEntered()
     ui->pbZone->hide();
 }
 
+void DefaultTimer::onTaskStateEntered() { setRunningState(); }
+
+void DefaultTimer::onBreakStateEntered() { setRunningState(); }
+
 void DefaultTimer::onSubmissionStateEntered()
 {
     ui->labelTimer->hide();
@@ -134,11 +140,13 @@ void DefaultTimer::onSubmissionStateEntered()
     ui->pbZone->hide();
 }
 
-void DefaultTimer::onZoneStateEntered()
-{
-    ui->pbCancel->setEnabled(false);
-}
+void DefaultTimer::onZoneStateEntered() { ui->pbCancel->setEnabled(false); }
 
-void DefaultTimer::onZoneStateLeft() {
-    ui->pbCancel->setEnabled(true);
+void DefaultTimer::onZoneStateLeft() { ui->pbCancel->setEnabled(true); }
+
+void DefaultTimer::updateIndication(Second timeLeft)
+{
+    ui->progressBar->setValue(progressBarMaxValue - timeLeft);
+    setTimerValue(timeLeft);
+    ui->progressBar->repaint();
 }

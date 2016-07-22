@@ -48,6 +48,8 @@ private:
 
     void setTimerValue(Second timeLeft);
     void onIdleStateEntered() override;
+    void onTaskStateEntered() override;
+    void onBreakStateEntered() override;
     void onZoneStateEntered() override;
     void onZoneStateLeft() override;
     void onSubmissionStateEntered() override;

@@ -20,16 +20,15 @@
 **
 *********************************************************************************/
 
-#ifndef WIDGETUTILS_H_PRISZGHM
-#define WIDGETUTILS_H_PRISZGHM
-
-#include <QWidget>
+#include "utils/WidgetUtils.h"
 
 namespace WidgetUtils {
 
-void setRetainSizeWhenHidden(QWidget* widget);
+void setRetainSizeWhenHidden(QWidget* widget)
+{
+    QSizePolicy policy = widget->sizePolicy();
+    policy.setRetainSizeWhenHidden(true);
+    widget->setSizePolicy(policy);
+}
 
 } /* WidgetUtils */
-
-
-#endif /* end of include guard: WIDGETUTILS_H_PRISZGHM */

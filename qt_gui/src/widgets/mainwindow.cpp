@@ -44,7 +44,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     , expansionState{shrinked.get()}
 {
     ui->setupUi(this);
-    // timerWidget = new DefaultTimer{applicationSettings, this};
+//     timerWidget = new DefaultTimer{applicationSettings, this};
     timerWidget = new FancyTimer{applicationSettings, this};
     ui->gridLayout->addWidget(
         timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);

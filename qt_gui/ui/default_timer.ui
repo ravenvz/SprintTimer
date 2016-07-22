@@ -17,7 +17,14 @@
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0" colspan="2">
-      <widget class="QComboBox" name="cbxSubmissionCandidate"/>
+      <widget class="SubmissionBox" name="cbxSubmissionCandidate">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
      <item row="3" column="0" colspan="2" alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="labelDailyGoalProgress">
@@ -29,7 +36,7 @@
      <item row="0" column="0" colspan="2">
       <widget class="QProgressBar" name="progressBar">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -79,7 +86,7 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0" colspan="2" alignment="Qt::AlignHCenter">
+     <item row="0" column="0" colspan="2" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
       <widget class="QLabel" name="labelTimer">
        <property name="font">
         <font>
@@ -338,7 +345,7 @@ color: white;
      <item row="2" column="0" colspan="2" alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="pbSubmit">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -352,6 +359,13 @@ color: white;
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SubmissionBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets/SubmissionBox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
