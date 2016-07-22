@@ -135,10 +135,7 @@ public:
 
     virtual void setNextState(){};
 
-    virtual void notifyStateChanged(IPomodoroTimer::State state)
-    {
-        timer.onStateChangedCallback(state);
-    }
+    virtual void notifyStateChanged(IPomodoroTimer::State state);
 
     virtual void cancel(){};
 
@@ -152,203 +149,88 @@ protected:
 
 class IdleState final : public PomodoroTimerState {
 public:
-    IdleState(PomodoroTimer& timer)
-        : PomodoroTimerState{timer}
-    {
-    }
+    IdleState(PomodoroTimer& timer);
 
-    IPomodoroTimer::State state() const { return IPomodoroTimer::State::Idle; }
+    IPomodoroTimer::State state() const;
 
-    void setNextState()
-    {
-        timer.currentState = timer.pomodoroState.get();
-        notifyStateChanged(timer.currentState->state());
-    }
+    void setNextState();
 
-    int duration() const
-    {
-        return timer.applicationSettings.pomodoroDuration();
-    }
+    int duration() const;
 };
 
 class TaskState final : public PomodoroTimerState {
 public:
-    TaskState(PomodoroTimer& timer)
-        : PomodoroTimerState{timer}
-    {
-    }
+    TaskState(PomodoroTimer& timer);
 
-    IPomodoroTimer::State state() const { return IPomodoroTimer::State::Task; }
+    IPomodoroTimer::State state() const;
 
-    void start()
-    {
-        timer.mStart = DateTime::currentDateTimeLocal();
-        timer.millisecondsLeft = std::chrono::milliseconds{
-            duration() * timer.millisecondsInMinute};
-        timer.timerPtr->start();
-    }
+    void start();
 
-    void setNextState()
-    {
-        timer.timerPtr->stop();
-        ++timer.completedPomodoros;
-        timer.buffer.emplace_back(
-            TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
-        timer.currentState = timer.finishedState.get();
-        notifyStateChanged(timer.currentState->state());
-    }
+    void setNextState();
 
-    void cancel()
-    {
-        timer.timerPtr->stop();
-        timer.currentState = timer.idleState.get();
-        notifyStateChanged(timer.currentState->state());
-    }
+    void cancel();
 
-    int duration() const
-    {
-        return timer.applicationSettings.pomodoroDuration();
-    }
+    int duration() const;
 
-    void toggleZoneMode()
-    {
-        timer.currentState = timer.zoneState.get();
-        notifyStateChanged(timer.currentState->state());
-    }
+    void toggleZoneMode();
 };
 
 class ShortBreakState final : public PomodoroTimerState {
 public:
-    ShortBreakState(PomodoroTimer& timer)
-        : PomodoroTimerState{timer}
-    {
-    }
+    ShortBreakState(PomodoroTimer& timer);
 
-    IPomodoroTimer::State state() const { return IPomodoroTimer::State::Break; }
+    IPomodoroTimer::State state() const;
 
-    void start()
-    {
-        timer.millisecondsLeft = std::chrono::milliseconds{
-            duration() * timer.millisecondsInMinute};
-        timer.timerPtr->start();
-    }
+    void start();
 
-    void setNextState()
-    {
-        timer.timerPtr->stop();
-        timer.currentState = timer.idleState.get();
-        notifyStateChanged(timer.currentState->state());
-    }
+    void setNextState();
 
-    void cancel() { setNextState(); }
+    void cancel();
 
-    int duration() const
-    {
-        return timer.applicationSettings.shortBreakDuration();
-    }
+    int duration() const;
 };
 
 class LongBreakState final : public PomodoroTimerState {
 public:
-    LongBreakState(PomodoroTimer& timer)
-        : PomodoroTimerState{timer}
-    {
-    }
+    LongBreakState(PomodoroTimer& timer);
 
-    IPomodoroTimer::State state() const
-    {
-        return IPomodoroTimer::State::LongBreak;
-    }
+    IPomodoroTimer::State state() const;
 
-    void start()
-    {
-        timer.millisecondsLeft = std::chrono::milliseconds{
-            duration() * timer.millisecondsInMinute};
-        timer.timerPtr->start();
-    }
+    void start();
 
-    void setNextState()
-    {
-        timer.timerPtr->stop();
-        timer.currentState = timer.idleState.get();
-        notifyStateChanged(timer.currentState->state());
-    }
+    void setNextState();
 
-    void cancel() { setNextState(); }
+    void cancel();
 
-    int duration() const
-    {
-        return timer.applicationSettings.longBreakDuration();
-    }
+    int duration() const;
 };
 
 class ZoneState final : public PomodoroTimerState {
 public:
-    ZoneState(PomodoroTimer& timer)
-        : PomodoroTimerState{timer}
-    {
-    }
+    ZoneState(PomodoroTimer& timer);
 
-    void start() { timer.mStart = DateTime::currentDateTimeLocal(); }
+    void start();
 
-    IPomodoroTimer::State state() const
-    {
-        return IPomodoroTimer::State::ZoneEntered;
-    }
+    IPomodoroTimer::State state() const;
 
-    void setNextState()
-    {
-        timer.buffer.emplace_back(
-            TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
-        timer.mStart = DateTime::currentDateTimeLocal();
-        timer.millisecondsLeft = std::chrono::milliseconds{
-            duration() * timer.millisecondsInMinute};
-    }
+    void setNextState();
 
-    int duration() const
-    {
-        return timer.applicationSettings.pomodoroDuration();
-    }
+    int duration() const;
 
-    void toggleZoneMode()
-    {
-        timer.currentState = timer.pomodoroState.get();
-        notifyStateChanged(IPomodoroTimer::State::ZoneLeft);
-    }
+    void toggleZoneMode();
 };
 
 class FinishedState final : public PomodoroTimerState {
 public:
-    FinishedState(PomodoroTimer& timer)
-        : PomodoroTimerState{timer}
-    {
-    }
+    FinishedState(PomodoroTimer& timer);
 
-    IPomodoroTimer::State state() const
-    {
-        return IPomodoroTimer::State::Finished;
-    }
+    IPomodoroTimer::State state() const;
 
-    void setNextState()
-    {
-        if (timer.completedPomodoros
-                % timer.applicationSettings.numPomodorosBeforeBreak()
-            == 0) {
-            timer.currentState = timer.longBreakState.get();
-        }
-        else {
-            timer.currentState = timer.shortBreakState.get();
-        }
-        notifyStateChanged(timer.currentState->state());
-    }
+    void setNextState();
 
-    void cancel()
-    {
-        timer.currentState = timer.idleState.get();
-        notifyStateChanged(timer.currentState->state());
-    }
+    void cancel();
 
-    int duration() const { return 0; }
+    int duration() const;
 };
 
 #endif /* end of include guard: TASKRUNNER_H_9VSDY5UR */

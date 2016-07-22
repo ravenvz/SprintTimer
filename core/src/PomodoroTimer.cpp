@@ -88,3 +88,169 @@ void PomodoroTimer::resetTimer()
     timerPtr = std::make_unique<Timer>(
         std::bind(&PomodoroTimer::onTimerTick, this), tickInterval);
 }
+
+void PomodoroTimerState::notifyStateChanged(IPomodoroTimer::State state) {
+    timer.onStateChangedCallback(state);
+}
+
+IdleState::IdleState(PomodoroTimer& timer)
+        : PomodoroTimerState{timer}
+{
+}
+
+IPomodoroTimer::State IdleState::state() const { return IPomodoroTimer::State::Idle; }
+
+void IdleState::setNextState() {
+    timer.currentState = timer.pomodoroState.get();
+    notifyStateChanged(timer.currentState->state());
+}
+
+int IdleState::duration() const {
+    return timer.applicationSettings.pomodoroDuration();
+}
+
+TaskState::TaskState(PomodoroTimer& timer)
+        : PomodoroTimerState{timer}
+{
+}
+
+IPomodoroTimer::State TaskState::state() const { return IPomodoroTimer::State::Task; }
+
+void TaskState::start() {
+    timer.mStart = DateTime::currentDateTimeLocal();
+    timer.millisecondsLeft = std::chrono::milliseconds{
+            duration() * timer.millisecondsInMinute};
+    timer.timerPtr->start();
+}
+
+void TaskState::setNextState() {
+    timer.timerPtr->stop();
+    ++timer.completedPomodoros;
+    timer.buffer.emplace_back(
+            TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
+    timer.currentState = timer.finishedState.get();
+    notifyStateChanged(timer.currentState->state());
+}
+
+void TaskState::cancel() {
+    timer.timerPtr->stop();
+    timer.currentState = timer.idleState.get();
+    notifyStateChanged(timer.currentState->state());
+}
+
+int TaskState::duration() const {
+    return timer.applicationSettings.pomodoroDuration();
+}
+
+void TaskState::toggleZoneMode() {
+    timer.currentState = timer.zoneState.get();
+    notifyStateChanged(timer.currentState->state());
+}
+
+ShortBreakState::ShortBreakState(PomodoroTimer& timer)
+        : PomodoroTimerState{timer}
+{
+}
+
+IPomodoroTimer::State ShortBreakState::state() const { return IPomodoroTimer::State::Break; }
+
+void ShortBreakState::start() {
+    timer.millisecondsLeft = std::chrono::milliseconds{
+            duration() * timer.millisecondsInMinute};
+    timer.timerPtr->start();
+}
+
+void ShortBreakState::setNextState() {
+    timer.timerPtr->stop();
+    timer.currentState = timer.idleState.get();
+    notifyStateChanged(timer.currentState->state());
+}
+
+void ShortBreakState::cancel() { setNextState(); }
+
+int ShortBreakState::duration() const {
+    return timer.applicationSettings.shortBreakDuration();
+}
+
+LongBreakState::LongBreakState(PomodoroTimer& timer)
+        : PomodoroTimerState{timer}
+{
+}
+
+IPomodoroTimer::State LongBreakState::state() const {
+    return IPomodoroTimer::State::LongBreak;
+}
+
+void LongBreakState::start() {
+    timer.millisecondsLeft = std::chrono::milliseconds{
+            duration() * timer.millisecondsInMinute};
+    timer.timerPtr->start();
+}
+
+void LongBreakState::setNextState() {
+    timer.timerPtr->stop();
+    timer.currentState = timer.idleState.get();
+    notifyStateChanged(timer.currentState->state());
+}
+
+void LongBreakState::cancel() { setNextState(); }
+
+int LongBreakState::duration() const {
+    return timer.applicationSettings.longBreakDuration();
+}
+
+ZoneState::ZoneState(PomodoroTimer& timer)
+        : PomodoroTimerState{timer}
+{
+}
+
+void ZoneState::start() { timer.mStart = DateTime::currentDateTimeLocal(); }
+
+IPomodoroTimer::State ZoneState::state() const {
+    return IPomodoroTimer::State::ZoneEntered;
+}
+
+void ZoneState::setNextState() {
+    timer.buffer.emplace_back(
+            TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
+    timer.mStart = DateTime::currentDateTimeLocal();
+    timer.millisecondsLeft = std::chrono::milliseconds{
+            duration() * timer.millisecondsInMinute};
+}
+
+int ZoneState::duration() const {
+    return timer.applicationSettings.pomodoroDuration();
+}
+
+void ZoneState::toggleZoneMode() {
+    timer.currentState = timer.pomodoroState.get();
+    notifyStateChanged(IPomodoroTimer::State::ZoneLeft);
+}
+
+FinishedState::FinishedState(PomodoroTimer& timer)
+        : PomodoroTimerState{timer}
+{
+}
+
+IPomodoroTimer::State FinishedState::state() const {
+    return IPomodoroTimer::State::Finished;
+}
+
+void FinishedState::setNextState() {
+    if (timer.completedPomodoros
+        % timer.applicationSettings.numPomodorosBeforeBreak()
+        == 0) {
+        timer.currentState = timer.longBreakState.get();
+    }
+    else {
+        timer.currentState = timer.shortBreakState.get();
+    }
+    notifyStateChanged(timer.currentState->state());
+}
+
+void FinishedState::cancel() {
+    timer.currentState = timer.idleState.get();
+    notifyStateChanged(timer.currentState->state());
+}
+
+int FinishedState::duration() const { return 0; }
