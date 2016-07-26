@@ -25,12 +25,17 @@ set(CPPUTEST_EXTENSION  "${CPPUTEST_LOCATION}/src/CppUTest/${LIBPREFIX}CppUTestE
 ExternalProject_Get_Property(CppUTestExternal source_dir)
 set(CPPUTEST_INCLUDES "${source_dir}/include/CppUTest")
 
+# Workaround against CMake trying to use lib before downloading it, therefore
+# complains about INTERFACE_INCLUDE_DIRECTORIES pointing to non-existent directory. It will download it during the build step, so we supply
+# an empty directory to it now
+# More info here https://cmake.org/Bug/view.php?id=15052
+file(MAKE_DIRECTORY ${CPPUTEST_INCLUDES})
+
 add_library(CppUTest IMPORTED STATIC GLOBAL)
 set_target_properties(CppUTest PROPERTIES
     IMPORTED_LOCATION                 "${CPPUTEST_MAIN}"
     INTERFACE_INCLUDE_DIRECTORIES     "${CPPUTEST_INCLUDES}"
-    # IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
-    )
+)
 
 add_dependencies(CppUTest CppUTestExternal)
 

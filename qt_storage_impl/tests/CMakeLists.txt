@@ -5,12 +5,12 @@ project(${PROJECT})
 set(SOURCE_FILES
     run_all_tests.cpp
     test_pomodoro_storage.cpp
-    ../src/QtPomoDistributionReader.cpp
-    ../src/QtPomoStorageReader.cpp
-    ../src/QtPomoStorageWriter.cpp
-    ../src/QtPomoYearRangeReader.cpp
-    ../src/QtTaskStorageWriter.cpp
-    ../src/db_service.cpp
+    # ../src/QtPomoDistributionReader.cpp
+    # ../src/QtPomoStorageReader.cpp
+    # ../src/QtPomoStorageWriter.cpp
+    # ../src/QtPomoYearRangeReader.cpp
+    # ../src/QtTaskStorageWriter.cpp
+    # ../src/db_service.cpp
 )
 
 # this is required as headers and sources are in different directories
@@ -34,4 +34,4 @@ target_include_directories(${PROJECT}
     PRIVATE ../src
 )
 
-target_link_libraries(${PROJECT} CppUTest Threads::Threads Qt5::Sql pomodoro_core)
+target_link_libraries(${PROJECT} CppUTest pomodoro_qt_storage_impl Threads::Threads Qt5::Sql pomodoro_core)

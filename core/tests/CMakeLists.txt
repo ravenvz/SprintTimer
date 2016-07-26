@@ -24,12 +24,13 @@ target_compile_features(${TEST_CORE} PRIVATE cxx_return_type_deduction)
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
+add_dependencies(${TEST_CORE} CppUTest)
 target_include_directories(${TEST_CORE}
     PUBLIC ../include
     PRIVATE ../src
     PRIVATE fixtures)
 
 target_link_libraries(${TEST_CORE}
-    PRIVATE pomodoro_core
     PRIVATE CppUTest
+    PRIVATE pomodoro_core
     PRIVATE Threads::Threads)

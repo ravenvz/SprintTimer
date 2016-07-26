@@ -22,23 +22,19 @@ include(ExternalProject)
 include(CMakeLists-datelib.txt)
 
 add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
-add_library(DateLibb INTERFACE)
-target_sources(DateLibb INTERFACE
-      ${CMAKE_CURRENT_SOURCE_DIR}/lib/date/date.h
-)
 
 add_dependencies(${PROJECT} DateLib)
 
 target_include_directories(${PROJECT} PUBLIC ${Datelib_INCLUDE_DIRS} PUBLIC include PRIVATE src)
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
-target_link_libraries(${PROJECT} INTERFACE DateLibb)
+target_link_libraries(${PROJECT} INTERFACE DateLib)
 
 include(CMakeLists-cpputest.txt)
 
 add_subdirectory(tests)
 
-# target_link_libraries(test_pomodoro_core INTERFACE DateLibb)
+# target_link_libraries(test_pomodoro_core INTERFACE DateLib)
 
 # enable_testing()
 # add_test(test_pomodoro_core test_pomodoro_core)
