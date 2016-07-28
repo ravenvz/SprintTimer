@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(PROJECT pomodoro_qt_gui)
+set(PROJECT ${GUI_LIB})
 project(${PROJECT})
 
 # Tell CMake to run moc when necessary:
@@ -39,5 +39,7 @@ target_link_libraries(${PROJECT}
     PUBLIC Qt5::Sql
     PUBLIC Qt5::Multimedia
     PUBLIC Threads::Threads
-    PUBLIC pomodoro_core
+    PUBLIC ${CORE_LIB}
 )
+
+install(TARGETS ${PROJECT} LIBRARY DESTINATION lib)
