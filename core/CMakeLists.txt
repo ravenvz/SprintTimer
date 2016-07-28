@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(PROJECT pomodoro_core)
+set(PROJECT ${CORE_LIB})
 project(${PROJECT})
 set(CORE_SOURCE_FILES
     src/DateTime.cpp
@@ -19,6 +19,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 include(ExternalProject)
+set(THIRD_PARTY_LIBS_FOLDER_PREFIX third_party)
 include(CMakeLists-datelib.txt)
 
 add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
@@ -33,6 +34,8 @@ target_link_libraries(${PROJECT} INTERFACE DateLib)
 include(CMakeLists-cpputest.txt)
 
 add_subdirectory(tests)
+
+install(TARGETS ${PROJECT} LIBRARY DESTINATION lib)
 
 # target_link_libraries(test_pomodoro_core INTERFACE DateLib)
 

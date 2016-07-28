@@ -28,15 +28,17 @@ message("Thread sanitizer is " {${THREAD_SANITIZER}})
 
 set("${PROJECT}_BINARY_DIR" bin)
 set("${PROJECT}_SOURCE_DIR" src)
+set("${PROJECT}_LIB_DIR" lib)
+set("${PROJECT}_ARCHIVE_DIR" lib/static)
 
 # to change Clion build directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 
 # set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
 set (GLOBAL_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
-set (EXECUTABLE_OUTPUT_PATH ${GLOBAL_OUTPUT_PATH})
-set (LIBRARY_OUTPUT_PATH ${GLOBAL_OUTPUT_PATH})
-set (ARCHIVE_OUTPUT_PATH ${GLOBAL_OUTPUT_PATH})
+set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
+set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_LIB_DIR})
+set (ARCHIVE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_ARCHIVE_DIR})
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
 set (ERR_NO_UNIX "Cannot build on non Unix systems")
@@ -104,11 +106,23 @@ endif()
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
+set(GUI_LIB pomodoro_qt_gui)
+set(STORAGE_LIB pomodoro_qt_storage_impl)
+set(CORE_LIB pomodoro_core)
+
 target_include_directories(${PROJECT} PUBLIC src lib)
 target_link_libraries(${PROJECT}
-    PRIVATE pomodoro_qt_gui
-    PRIVATE pomodoro_qt_storage_impl
+    PRIVATE ${GUI_LIB}
+    PRIVATE ${STORAGE_LIB}
 )
+
+install(TARGETS ${PROJECT} RUNTIME DESTINATION bin)
+# install (DIRECTORY "db" DESTINATION "." DIRECTORY_PERMISSIONS
+#          OWNER_WRITE OWNER_READ OWNER_EXECUTE
+#          GROUP_WRITE GROUP_READ GROUP_EXECUTE
+#          WORLD_WRITE WORLD_READ WORLD_EXECUTE)
+
+INSTALL(CODE "FILE(MAKE_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/db)")
 
 enable_testing()
 
@@ -116,6 +130,3 @@ add_subdirectory(core)
 add_subdirectory(qt_gui)
 add_subdirectory(qt_storage_impl)
 add_subdirectory(tests)
-
-add_test(test_pomodoro_core test_pomodoro_core)
-add_test(test_qt_storage_impl test_qt_storage_impl)

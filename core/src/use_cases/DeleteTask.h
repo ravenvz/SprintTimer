@@ -47,7 +47,7 @@ public:
 
 private:
     ITaskStorageWriter& writer;
-    const Task& task;
+    const Task task;
 };
 } /* UseCases */
 
