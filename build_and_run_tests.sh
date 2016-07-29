@@ -48,6 +48,7 @@ echo "$build_type build using $cxx_compiler"
     -DMEMORY_SANITIZER=$memory_sanitizer \
     -DUB_SANITIZER=$ub_sanitizer \
     -DTHREAD_SANITIZER=$thread_sanitizer \
+    -DBUILD_TESTS=ON \
     .. && make $make_options)
 
 (cd bin &&

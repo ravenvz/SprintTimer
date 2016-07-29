@@ -42,7 +42,9 @@ target_link_libraries(${PROJECT}
     PUBLIC Qt5::Sql
     PUBLIC ${CORE_LIB})
 
-add_subdirectory(tests)
-target_link_libraries(test_qt_storage_impl)
+if (BUILD_TESTS)
+    add_subdirectory(tests)
+    # target_link_libraries(test_qt_storage_impl)
+endif()
 
-install(TARGETS ${PROJECT} LIBRARY DESTINATION lib)
+install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})

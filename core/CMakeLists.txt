@@ -31,11 +31,12 @@ target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
 target_link_libraries(${PROJECT} INTERFACE DateLib)
 
-include(CMakeLists-cpputest.txt)
+if(BUILD_TESTS)
+    include(CMakeLists-cpputest.txt)
+    add_subdirectory(tests)
+endif()
 
-add_subdirectory(tests)
-
-install(TARGETS ${PROJECT} LIBRARY DESTINATION lib)
+install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
 
 # target_link_libraries(test_pomodoro_core INTERFACE DateLib)
 

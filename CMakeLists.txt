@@ -20,6 +20,7 @@ option(ADDRESS_SANITIZER "Address sanitizer in Debug build" OFF)
 option(MEMORY_SANITIZER "Memory sanitizer in Debug build" OFF)
 option(UB_SANITIZER "Undefined behavior sanitizer in Debug build" OFF)
 option(THREAD_SANITIZER "Thread sanitizer in Debug build" OFF)
+option(BUILD_TESTS ON)
 
 message("Address sanitizer is " {${ADDRESS_SANITIZER}})
 message("Memory sanitizer is " {${MEMORY_SANITIZER}})
@@ -35,7 +36,7 @@ set("${PROJECT}_ARCHIVE_DIR" lib/static)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 
 # set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
-set (GLOBAL_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
+# set (GLOBAL_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_LIB_DIR})
 set (ARCHIVE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_ARCHIVE_DIR})
@@ -116,17 +117,22 @@ target_link_libraries(${PROJECT}
     PRIVATE ${STORAGE_LIB}
 )
 
-install(TARGETS ${PROJECT} RUNTIME DESTINATION bin)
-# install (DIRECTORY "db" DESTINATION "." DIRECTORY_PERMISSIONS
-#          OWNER_WRITE OWNER_READ OWNER_EXECUTE
-#          GROUP_WRITE GROUP_READ GROUP_EXECUTE
-#          WORLD_WRITE WORLD_READ WORLD_EXECUTE)
+set (EXECUTABLE_INSTALL_PATH_SUFFIX bin)
+set (LIBRARY_INSTALL_PATH_SUFFIX lib)
 
-INSTALL(CODE "FILE(MAKE_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/db)")
+set(CMAKE_INSTALL_PREFIX /opt/pomodoro)
 
-enable_testing()
+install(TARGETS ${PROJECT} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})
+install (DIRECTORY "db" DESTINATION "." DIRECTORY_PERMISSIONS
+         OWNER_WRITE OWNER_READ OWNER_EXECUTE)
+
+# INSTALL(CODE "FILE(MAKE_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/db)")
 
 add_subdirectory(core)
 add_subdirectory(qt_gui)
 add_subdirectory(qt_storage_impl)
-add_subdirectory(tests)
+
+if (BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
