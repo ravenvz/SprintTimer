@@ -115,6 +115,7 @@ target_include_directories(${PROJECT} PUBLIC src lib)
 target_link_libraries(${PROJECT}
     PRIVATE ${GUI_LIB}
     PRIVATE ${STORAGE_LIB}
+    PRIVATE stdc++fs
 )
 
 set (EXECUTABLE_INSTALL_PATH_SUFFIX bin)
