@@ -4,3 +4,4 @@ copyright
 .gdb_history
 lib
 core/build
+third_party/

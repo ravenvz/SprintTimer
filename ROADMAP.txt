@@ -1,3 +1,9 @@
+Version 0.3.4
+-------------
+
+Copyright issues are resolved
+
+
 Version 0.3.3
 -------------
 
@@ -5,7 +11,7 @@ Improved start button design
 
 Improved project build configuration
 
-Added basic project documentation
+Project can now be installed on Unix systems
 
 HISTORY
 ----------------------------------------------------------------

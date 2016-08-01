@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(PROJECT pomodoro_qt_storage_impl)
+set(PROJECT ${STORAGE_LIB})
 project(${PROJECT})
 
 set(QT_STORAGE_IMPL_SOURCE_FILES
@@ -37,13 +37,14 @@ add_library(${PROJECT} SHARED ${QT_STORAGE_IMPL_SOURCE_FILES} ${HEADER_FILES_FOR
 
 target_include_directories(${PROJECT} PUBLIC include PUBLIC src)
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
-target_link_libraries(${PROJECT} 
+target_link_libraries(${PROJECT}
     PUBLIC Qt5::Core
     PUBLIC Qt5::Sql
-    PUBLIC pomodoro_core)
+    PUBLIC ${CORE_LIB})
 
-add_subdirectory(tests)
-target_link_libraries(test_qt_storage_impl)
+if (BUILD_TESTS)
+    add_subdirectory(tests)
+    # target_link_libraries(test_qt_storage_impl)
+endif()
 
-# enable_testing()
-# add_test(test_pomodoro_core test_pomodoro_core)
+install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})

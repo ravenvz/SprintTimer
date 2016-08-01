@@ -1,81 +1,102 @@
+/********************************************************************************
+**
+** Copyright (C) 2016 Pavel Pavlov.
+**
+**
+** This file is part of PROG_NAME.
+**
+** PROG_NAME is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Lesser General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** PROG_NAME is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+**
+*********************************************************************************/
 #include "mainwindow.h"
 #include "dialogs/AddTaskDialog.h"
 #include "dialogs/confirmationdialog.h"
 #include "dialogs/manualaddpomodorodialog.h"
 #include "dialogs/settings_dialog.h"
 #include "ui_mainwindow.h"
-#include <QMessageBox>
+#include "widgets/DefaultTimer.h"
+#include "widgets/FancyTimer.h"
 #include <QtWidgets/qmenu.h>
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
                        IPomodoroService& pomodoroService,
                        QWidget* parent)
-    : QMainWindow(parent)
+    : QWidget(parent)
     , ui(new Ui::MainWindow)
     , applicationSettings(applicationSettings)
     , pomodoroService{pomodoroService}
-    , pomodoroTimer{
-          std::bind(&MainWindow::onTimerTick, this, std::placeholders::_1),
-          1000,
-          applicationSettings}
+    , expandedFully{std::make_unique<Expanded>(*this)}
+    , shrinked{std::make_unique<Shrinked>(*this)}
+    , expandedMenuOnly{std::make_unique<ExpandedMenuOnly>(*this)}
+    , expandedWithoutMenu{std::make_unique<ExpandedWithoutMenu>(*this)}
+    , expansionState{shrinked.get()}
 {
     ui->setupUi(this);
-    player = std::make_unique<QMediaPlayer>();
+    auto timerFlavour = applicationSettings.timerFlavour();
+    if (timerFlavour == 0)
+        timerWidget = new DefaultTimer{applicationSettings, this};
+    else
+        timerWidget = new FancyTimer{applicationSettings, this};
+    ui->gridLayout->addWidget(
+        timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
     pomodoroModel = new PomodoroModel(pomodoroService, this);
     ui->lvCompletedPomodoros->setModel(pomodoroModel);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
     taskModel = new TaskModel(pomodoroService, this);
     tagModel = new TagModel(pomodoroService, this);
+    timerWidget->setTaskModel(taskModel);
     ui->lvTaskView->setModels(taskModel, tagModel);
     ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
     adjustUndoButtonState();
-    setUiToIdleState();
 
-    connect(ui->btnAddTodo, &QPushButton::clicked, this, &MainWindow::addTask);
-    connect(ui->btnStart, &QPushButton::clicked, this, &MainWindow::startTask);
-    connect(
-        ui->btnCancel, &QPushButton::clicked, this, &MainWindow::cancelTask);
-    connect(ui->leDoneTask,
-            &QLineEdit::returnPressed,
+    connect(ui->pbAddTask, &QPushButton::clicked, this, &MainWindow::addTask);
+    connect(timerWidget,
+            &TimerWidgetBase::submitRequested,
             this,
             &MainWindow::submitPomodoro);
     // Update selected task index and description of submission candidate
     connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
         selectedTaskIndex = index;
-        setSubmissionCandidateDescription();
+        timerWidget->setCandidateIndex(index.row());
     });
+    connect(ui->leQuickAddTask,
+            &QLineEdit::returnPressed,
+            this,
+            &MainWindow::quickAddTask);
     connect(ui->lvTaskView,
             &QListView::doubleClicked,
             this,
             &MainWindow::toggleTaskCompleted);
-    connect(ui->btnZone,
-            &QPushButton::clicked,
-            this,
-            &MainWindow::onInTheZoneToggled);
-    connect(
-        ui->leTask, &QLineEdit::returnPressed, this, &MainWindow::quickAddTask);
-    connect(ui->btnSettings,
+    connect(ui->pbSettings,
             &QPushButton::clicked,
             this,
             &MainWindow::launchSettingsDialog);
-    connect(ui->btnTodoHistory,
+    connect(ui->pbHistory,
             &QPushButton::clicked,
             this,
             &MainWindow::launchHistoryView);
-    connect(ui->btnGoals,
-            &QPushButton::clicked,
-            this,
-            &MainWindow::launchGoalsView);
-    connect(ui->btnStatistics,
+    connect(
+        ui->pbGoals, &QPushButton::clicked, this, &MainWindow::launchGoalsView);
+    connect(ui->pbStatistics,
             &QPushButton::clicked,
             this,
             &MainWindow::launchStatisticsView);
-    connect(ui->btnAddPomodoroManually,
+    connect(ui->pbAddPomodoroManually,
             &QPushButton::clicked,
             this,
             &MainWindow::launchManualAddPomodoroDialog);
-    connect(this, &MainWindow::timerUpdated, this, &MainWindow::onTimerUpdated);
     connect(pomodoroModel,
             &PomodoroModel::modelReset,
             this,
@@ -100,10 +121,6 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &AsyncListModel::updateFinished,
             tagModel,
             &TagModel::synchronize);
-    connect(taskModel,
-            &AsyncListModel::updateFinished,
-            this,
-            &MainWindow::setSubmissionCandidateDescription);
     connect(tagModel,
             &AsyncListModel::updateFinished,
             pomodoroModel,
@@ -112,20 +129,22 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &AsyncListModel::updateFinished,
             taskModel,
             &AsyncListModel::synchronize);
-    connect(player.get(),
-            static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
-                &QMediaPlayer::error),
-            this,
-            &MainWindow::onSoundError);
 
+    // TODO get rid of lambda to improve readability
     // Invalidate selectedTaskIndex if the row it was pointing at was removed
     connect(taskModel,
             &QAbstractListModel::rowsRemoved,
             [&](const QModelIndex& parent, int first, int last) {
-                if (selectedTaskIndex && (first <= selectedTaskIndex->row()
-                                          && selectedTaskIndex->row() <= last))
+                if (selectedTaskIndex
+                    && (first <= selectedTaskIndex->row()
+                        && selectedTaskIndex->row() <= last)) {
                     selectedTaskIndex = optional<QModelIndex>();
+                    timerWidget->setCandidateIndex(-1);
+                }
             });
+    connect(timerWidget,
+            &TimerWidgetBase::submissionCandidateChanged,
+            [&](int index) { selectedTaskIndex = taskModel->index(index, 0); });
     connect(ui->pbUndo,
             &QPushButton::clicked,
             this,
@@ -138,6 +157,14 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &AsyncListModel::updateFinished,
             this,
             &MainWindow::adjustUndoButtonState);
+
+    // Window expansion
+    connect(
+        ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
+    connect(
+        ui->pbToggleMenu, &QPushButton::clicked, this, &MainWindow::toggleMenu);
+
+    setStateUi();
 }
 
 MainWindow::~MainWindow()
@@ -148,62 +175,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::setUiToIdleState()
-{
-    ui->progressBar->setValue(0);
-    ui->progressBar->hide();
-    ui->leDoneTask->hide();
-    ui->btnCancel->hide();
-    ui->btnStart->show();
-    ui->labelTimer->hide();
-    progressBarMaxValue = 0;
-}
-
-void MainWindow::setUiToRunningState()
-{
-    progressBarMaxValue = pomodoroTimer.taskDuration() * secondsPerMinute;
-    ui->progressBar->setMaximum(progressBarMaxValue);
-    setTimerValue(progressBarMaxValue);
-    ui->progressBar->setValue(0);
-    ui->btnStart->hide();
-    ui->labelTimer->show();
-    ui->progressBar->show();
-    ui->btnCancel->show();
-}
-
-void MainWindow::setUiToSubmissionState()
-{
-    ui->labelTimer->hide();
-    ui->progressBar->hide();
-    ui->leDoneTask->show();
-}
-
-void MainWindow::setTimerValue(Second timeLeft)
-{
-    QString timerValue = QString("%1:%2").arg(
-        QString::number(timeLeft / secondsPerMinute),
-        QString::number(timeLeft % secondsPerMinute).rightJustified(2, '0'));
-    ui->labelTimer->setText(timerValue);
-}
-
 void MainWindow::adjustAddPomodoroButtonState()
 {
-    ui->btnAddPomodoroManually->setEnabled(taskModel->rowCount() != 0);
-}
-
-void MainWindow::playSound() const
-{
-    if (ui->btnZone->isChecked() || !applicationSettings.soundIsEnabled()) {
-        return;
-    }
-
-    // TODO might not be the best way to handle this, as it requires
-    // gstreamer-ugly-plugins on my system
-    // TODO move to config
-    player->setMedia(QUrl::fromLocalFile(
-        QString::fromStdString(applicationSettings.soundFilePath())));
-    player->setVolume(applicationSettings.soundVolume());
-    player->play();
+    ui->pbAddPomodoroManually->setEnabled(taskModel->rowCount() != 0);
 }
 
 void MainWindow::bringToForeground(QWidget* widgetPtr) const
@@ -213,29 +187,7 @@ void MainWindow::bringToForeground(QWidget* widgetPtr) const
     widgetPtr->showNormal();
 }
 
-void MainWindow::onTimerTick(long timeLeft)
-{
-    emit timerUpdated(timeLeft / 1000);
-}
-
 /*********************** SLOTS *****************************/
-
-void MainWindow::startTask()
-{
-    pomodoroTimer.run();
-    setUiToRunningState();
-}
-
-void MainWindow::cancelTask()
-{
-    ConfirmationDialog cancelDialog;
-    QString description("This will destroy current pomodoro!");
-    cancelDialog.setActionDescription(description);
-    if (pomodoroTimer.isBreak() || cancelDialog.exec()) {
-        pomodoroTimer.cancel();
-        setUiToIdleState();
-    }
-}
 
 void MainWindow::addTask()
 {
@@ -248,50 +200,33 @@ void MainWindow::addTask()
 
 void MainWindow::quickAddTask()
 {
-    std::string encodedDescription = ui->leTask->text().toStdString();
-    ui->leTask->clear();
+    std::string encodedDescription = ui->leQuickAddTask->text().toStdString();
+    ui->leQuickAddTask->clear();
     if (!encodedDescription.empty()) {
         Task item{std::move(encodedDescription)};
         taskModel->insert(item);
     }
 }
 
-void MainWindow::submitPomodoro()
+void MainWindow::submitPomodoro(const std::vector<TimeSpan>& intervalBuffer)
 {
-    if (!selectedTaskIndex || ui->leDoneTask->text().isEmpty()) {
+    // TODO see if it's enough
+    // if (!selectedTaskIndex || ui->leDoneTask->text().isEmpty()) {
+    if (!selectedTaskIndex) {
         qDebug() << "No associated Task can be found";
         return;
     }
-    ui->leDoneTask->hide();
-    completedTasksIntervals.push_back(pomodoroTimer.finish());
-    for (const TimeSpan& timeSpan : completedTasksIntervals) {
+
+    for (const TimeSpan& timeSpan : intervalBuffer) {
         pomodoroModel->insert(
             timeSpan, taskModel->itemAt(selectedTaskIndex->row()).uuid());
     }
-
-    completedTasksIntervals.clear();
-    startTask();
-}
-
-void MainWindow::setSubmissionCandidateDescription()
-{
-    if (!selectedTaskIndex) {
-        ui->leDoneTask->setText("");
-        return;
-    }
-    auto task = taskModel->itemAt(selectedTaskIndex->row());
-    QString description = QString("%1 %2")
-                              .arg(QString::fromStdString(task.tagsAsString()))
-                              .arg(QString::fromStdString(task.name()));
-    ui->leDoneTask->setText(description);
 }
 
 void MainWindow::toggleTaskCompleted()
 {
     taskModel->toggleCompleted(ui->lvTaskView->currentIndex());
 }
-
-void MainWindow::onInTheZoneToggled() { pomodoroTimer.toggleInTheZoneMode(); }
 
 void MainWindow::launchSettingsDialog()
 {
@@ -371,59 +306,9 @@ void MainWindow::launchManualAddPomodoroDialog()
     dialog.exec();
 }
 
-void MainWindow::onTimerUpdated(long timeLeft)
-{
-    if (timeLeft > 0) {
-        int curVal{static_cast<int>(timeLeft)};
-        ui->progressBar->setValue(progressBarMaxValue - curVal);
-        setTimerValue(curVal);
-        ui->progressBar->repaint();
-        return;
-    }
-    playSound();
-
-    if (ui->btnZone->isChecked()) {
-        completedTasksIntervals.push_back(pomodoroTimer.finish());
-        startTask();
-    }
-    else if (pomodoroTimer.isBreak()) {
-        pomodoroTimer.finish();
-        setUiToIdleState();
-    }
-    else {
-        setUiToSubmissionState();
-    }
-}
-
 void MainWindow::updateDailyProgress()
 {
-    int dailyGoal = applicationSettings.dailyPomodorosGoal();
-    if (dailyGoal == 0) {
-        ui->labelDailyGoalProgress->hide();
-        return;
-    }
-    int completedSoFar = pomodoroModel->rowCount();
-    ui->labelDailyGoalProgress->setText(
-        QString("%1/%2").arg(completedSoFar).arg(dailyGoal));
-    if (completedSoFar == dailyGoal) {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
-    }
-    else if (completedSoFar > dailyGoal) {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: red; }");
-    }
-    else {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: black; }");
-    }
-}
-
-void MainWindow::onSoundError(QMediaPlayer::Error error)
-{
-    QMessageBox::warning(
-        this,
-        "Sound playback error",
-        QString("Error occured when trying to play sound file:\n %1\n\n%2")
-            .arg(QString::fromStdString(applicationSettings.soundFilePath()))
-            .arg(player->errorString()));
+    timerWidget->updateGoalProgress(pomodoroModel->rowCount());
 }
 
 void MainWindow::onUndoButtonClicked()
@@ -443,6 +328,164 @@ void MainWindow::onUndoButtonClicked()
 
 void MainWindow::adjustUndoButtonState()
 {
-    ui->pbUndo->setVisible(pomodoroService.numRevertableCommands() == 0 ? false
+    ui->pbUndo->setEnabled(pomodoroService.numRevertableCommands() == 0 ? false
                                                                         : true);
+}
+
+QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }
+
+void MainWindow::toggleView()
+{
+    expansionState->toggleView();
+    setStateUi();
+}
+
+void MainWindow::toggleMenu()
+{
+    expansionState->toggleMenu();
+    setStateUi();
+}
+
+void MainWindow::setStateUi()
+{
+    expansionState->setStateUi();
+    adjustSize();
+}
+
+
+ExpansionState::ExpansionState(int width, int height, MainWindow& widget)
+    : width{width}
+    , height{height}
+    , widget{widget}
+{
+}
+
+QSize ExpansionState::sizeHint() const { return QSize(width, height); }
+
+
+Expanded::Expanded(MainWindow& widget)
+    : ExpansionState{812, 500, widget}
+{
+}
+
+void Expanded::setStateUi()
+{
+    widget.ui->lvTaskView->setVisible(true);
+    widget.ui->lvCompletedPomodoros->setVisible(true);
+    widget.ui->pbAddTask->setVisible(true);
+    widget.ui->leQuickAddTask->setVisible(true);
+    widget.ui->pbAddPomodoroManually->setVisible(true);
+    widget.ui->pbStatistics->setVisible(true);
+    widget.ui->pbHistory->setVisible(true);
+    widget.ui->pbGoals->setVisible(true);
+    widget.ui->pbSettings->setVisible(true);
+    widget.ui->pbToggleView->setText("Collapse");
+    widget.ui->pbToggleMenu->setText("Hide menu");
+    widget.ui->pbUndo->setVisible(true);
+}
+
+void Expanded::toggleView()
+{
+    widget.expansionState = widget.expandedMenuOnly.get();
+}
+
+void Expanded::toggleMenu()
+{
+    widget.expansionState = widget.expandedWithoutMenu.get();
+}
+
+
+Shrinked::Shrinked(MainWindow& widget)
+    : ExpansionState{300, 250, widget}
+{
+}
+
+void Shrinked::setStateUi()
+{
+    widget.ui->lvTaskView->setVisible(false);
+    widget.ui->lvCompletedPomodoros->setVisible(false);
+    widget.ui->pbAddTask->setVisible(false);
+    widget.ui->leQuickAddTask->setVisible(false);
+    widget.ui->pbAddPomodoroManually->setVisible(false);
+    widget.ui->pbStatistics->setVisible(false);
+    widget.ui->pbHistory->setVisible(false);
+    widget.ui->pbGoals->setVisible(false);
+    widget.ui->pbSettings->setVisible(false);
+    widget.ui->pbToggleView->setText("Expand");
+    widget.ui->pbToggleMenu->setText("Show menu");
+    widget.ui->pbUndo->setVisible(false);
+}
+
+void Shrinked::toggleView()
+{
+    widget.expansionState = widget.expandedWithoutMenu.get();
+}
+
+void Shrinked::toggleMenu()
+{
+    widget.expansionState = widget.expandedMenuOnly.get();
+}
+
+
+ExpandedMenuOnly::ExpandedMenuOnly(MainWindow& widget)
+    : ExpansionState{300, 250, widget}
+{
+}
+
+void ExpandedMenuOnly::setStateUi()
+{
+    widget.ui->lvTaskView->setVisible(false);
+    widget.ui->lvCompletedPomodoros->setVisible(false);
+    widget.ui->pbAddTask->setVisible(false);
+    widget.ui->leQuickAddTask->setVisible(false);
+    widget.ui->pbAddPomodoroManually->setVisible(false);
+    widget.ui->pbStatistics->setVisible(true);
+    widget.ui->pbHistory->setVisible(true);
+    widget.ui->pbGoals->setVisible(true);
+    widget.ui->pbSettings->setVisible(true);
+    widget.ui->pbToggleView->setText("Expand");
+    widget.ui->pbToggleMenu->setText("Hide menu");
+    widget.ui->pbUndo->setVisible(false);
+}
+
+void ExpandedMenuOnly::toggleView()
+{
+    widget.expansionState = widget.expandedFully.get();
+}
+
+void ExpandedMenuOnly::toggleMenu()
+{
+    widget.expansionState = widget.shrinked.get();
+}
+
+
+ExpandedWithoutMenu::ExpandedWithoutMenu(MainWindow& widget)
+    : ExpansionState{812, 450, widget}
+{
+}
+
+void ExpandedWithoutMenu::setStateUi()
+{
+    widget.ui->lvTaskView->setVisible(true);
+    widget.ui->lvCompletedPomodoros->setVisible(true);
+    widget.ui->pbAddTask->setVisible(true);
+    widget.ui->leQuickAddTask->setVisible(true);
+    widget.ui->pbAddPomodoroManually->setVisible(true);
+    widget.ui->pbStatistics->setVisible(false);
+    widget.ui->pbHistory->setVisible(false);
+    widget.ui->pbGoals->setVisible(false);
+    widget.ui->pbSettings->setVisible(false);
+    widget.ui->pbToggleView->setText("Collapse");
+    widget.ui->pbToggleMenu->setText("Show menu");
+    widget.ui->pbUndo->setVisible(true);
+}
+
+void ExpandedWithoutMenu::toggleView()
+{
+    widget.expansionState = widget.shrinked.get();
+}
+
+void ExpandedWithoutMenu::toggleMenu()
+{
+    widget.expansionState = widget.expandedFully.get();
 }

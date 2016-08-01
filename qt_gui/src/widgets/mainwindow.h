@@ -1,3 +1,24 @@
+/********************************************************************************
+**
+** Copyright (C) 2016 Pavel Pavlov.
+**
+**
+** This file is part of PROG_NAME.
+**
+** PROG_NAME is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Lesser General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** PROG_NAME is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+**
+*********************************************************************************/
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -5,19 +26,15 @@
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
-#include "core/PomodoroTimer.h"
-#include "core/Timer.h"
 #include "goalsview.h"
 #include "historyview.h"
 #include "models/PomodoroModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
 #include "statisticswidget.h"
+#include "widgets/TimerWidgetBase.h"
 #include <QMainWindow>
-#include <QMediaPlayer>
 #include <QSettings>
-#include <QStringListModel>
-#include <QTimer>
 #include <experimental/optional>
 #include <functional>
 #include <memory>
@@ -28,30 +45,28 @@ class MainWindow;
 }
 
 
-using Second = int;
-constexpr Second secondsPerMinute = 60;
+class ExpansionState;
 
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
+class MainWindow : public QWidget {
+
+    friend class ExpansionState;
+    friend class Expanded;
+    friend class Shrinked;
+    friend class ExpandedMenuOnly;
+    friend class ExpandedWithoutMenu;
 
 public:
     MainWindow(IConfig& applicationSettings,
                IPomodoroService& pomodoroService,
                QWidget* parent = nullptr);
     ~MainWindow();
-
-signals:
-    void timerUpdated(long timeLeft);
+    QSize sizeHint() const override;
 
 private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
     IPomodoroService& pomodoroService;
-    std::unique_ptr<QMediaPlayer> player;
-    std::vector<TimeSpan> completedTasksIntervals;
-    int progressBarMaxValue{0};
-    Second timeLeft{0};
     QPointer<PomodoroModel> pomodoroModel;
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
@@ -59,36 +74,84 @@ private:
     QPointer<StatisticsWidget> statisticsView;
     QPointer<HistoryView> historyView;
     std::experimental::optional<QModelIndex> selectedTaskIndex;
-    PomodoroTimer pomodoroTimer;
+    TimerWidgetBase* timerWidget;
+    std::unique_ptr<ExpansionState> expandedFully;
+    std::unique_ptr<ExpansionState> shrinked;
+    std::unique_ptr<ExpansionState> expandedMenuOnly;
+    std::unique_ptr<ExpansionState> expandedWithoutMenu;
+    ExpansionState* expansionState;
 
-    void setUiToIdleState();
-    void setUiToRunningState();
-    void setUiToSubmissionState();
-    void setTimerValue(Second timeLeft);
     void adjustAddPomodoroButtonState();
-    void playSound() const;
     void bringToForeground(QWidget* widgetPtr) const;
-    void onTimerTick(long timeLeft);
+    void setStateUi();
 
 private slots:
-    void startTask();
-    void cancelTask();
     void addTask();
     void quickAddTask();
-    void submitPomodoro();
-    void setSubmissionCandidateDescription();
+    void submitPomodoro(const std::vector<TimeSpan>& intervalBuffer);
     void toggleTaskCompleted();
-    void onInTheZoneToggled();
     void launchSettingsDialog();
     void launchHistoryView();
     void launchGoalsView();
     void launchStatisticsView();
     void launchManualAddPomodoroDialog();
-    void onTimerUpdated(long);
     void updateDailyProgress();
-    void onSoundError(QMediaPlayer::Error error);
     void onUndoButtonClicked();
     void adjustUndoButtonState();
+    void toggleView();
+    void toggleMenu();
+};
+
+
+class ExpansionState {
+public:
+    ExpansionState(int width, int height, MainWindow& widget);
+    virtual ~ExpansionState() = default;
+    QSize sizeHint() const;
+    virtual void setStateUi() = 0;
+    virtual void toggleView() = 0;
+    virtual void toggleMenu() = 0;
+
+protected:
+    const int width;
+    const int height;
+    MainWindow& widget;
+};
+
+
+class Expanded final : public ExpansionState {
+public:
+    Expanded(MainWindow& widget);
+    void setStateUi();
+    void toggleView();
+    void toggleMenu();
+};
+
+
+class Shrinked final : public ExpansionState {
+public:
+    Shrinked(MainWindow& widget);
+    void setStateUi();
+    void toggleView();
+    void toggleMenu();
+};
+
+
+class ExpandedMenuOnly final : public ExpansionState {
+public:
+    ExpandedMenuOnly(MainWindow& widget);
+    void setStateUi();
+    void toggleView();
+    void toggleMenu();
+};
+
+
+class ExpandedWithoutMenu final : public ExpansionState {
+public:
+    ExpandedWithoutMenu(MainWindow& widget);
+    void setStateUi();
+    void toggleView();
+    void toggleMenu();
 };
 
 #endif // MAINWINDOW_H

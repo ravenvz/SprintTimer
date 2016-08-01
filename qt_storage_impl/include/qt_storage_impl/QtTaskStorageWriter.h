@@ -1,3 +1,24 @@
+/********************************************************************************
+**
+** Copyright (C) 2016 Pavel Pavlov.
+**
+**
+** This file is part of PROG_NAME.
+**
+** PROG_NAME is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Lesser General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** PROG_NAME is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+**
+*********************************************************************************/
 #ifndef QTTASKSTORAGEWRITER_H_AB4O73ZJ
 #define QTTASKSTORAGEWRITER_H_AB4O73ZJ
 
@@ -5,7 +26,6 @@
 #include "core/entities/Tag.h"
 #include "qt_storage_impl/db_service.h"
 #include <QObject>
-#include <algorithm>
 
 class QtTaskStorageWriter : public QObject, public ITaskStorageWriter {
     Q_OBJECT
@@ -48,17 +68,5 @@ private:
 
     void removeTags(const QString& taskUuid, const std::list<Tag>& tags);
 };
-
-template <class InputIt1, class InputIt2, class OutputIt1, class OutputIt2>
-void twoWayDiff(InputIt1 first1,
-                InputIt1 last1,
-                InputIt2 first2,
-                InputIt2 last2,
-                OutputIt1 out1,
-                OutputIt2 out2)
-{
-    std::set_difference(first1, last1, first2, last2, out1);
-    std::set_difference(first2, last2, first1, last1, out2);
-}
 
 #endif /* end of include guard: QTTASKSTORAGEWRITER_H_AB4O73ZJ */

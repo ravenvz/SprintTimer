@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(PROJECT pomodoro_qt_gui)
+set(PROJECT ${GUI_LIB})
 project(${PROJECT})
 
 # Tell CMake to run moc when necessary:
@@ -25,6 +25,8 @@ QT5_WRAP_UI(UI_HEADERS
         ui/manual_add_pomodoro_dialog.ui
         ui/pickperiodwidget.ui
         ui/tageditor.ui
+        ui/default_timer.ui
+        ui/fancy_timer.ui
 )
 
 add_library(${PROJECT} SHARED ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)
@@ -37,5 +39,7 @@ target_link_libraries(${PROJECT}
     PUBLIC Qt5::Sql
     PUBLIC Qt5::Multimedia
     PUBLIC Threads::Threads
-    PUBLIC pomodoro_core
+    PUBLIC ${CORE_LIB}
 )
+
+install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})

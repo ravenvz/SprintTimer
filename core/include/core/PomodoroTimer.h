@@ -1,75 +1,60 @@
+/********************************************************************************
+**
+** Copyright (C) 2016 Pavel Pavlov.
+**
+**
+** This file is part of PROG_NAME.
+**
+** PROG_NAME is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Lesser General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** PROG_NAME is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+**
+*********************************************************************************/
+
 #ifndef TASKRUNNER_H_9VSDY5UR
 #define TASKRUNNER_H_9VSDY5UR
 
-#include "../../lib/date/date.h"
+#include "core/DateTime.h"
+#include "core/IConfig.h"
+#include "core/IPomodoroTimer.h"
 #include "core/TimeSpan.h"
 #include "core/Timer.h"
-#include "core/IConfig.h"
 #include <chrono>
 #include <memory>
+#include <thread>
+#include <vector>
 
 class PomodoroTimerState;
 
-/* Responsible for running pomodoro timer.
- *
- * Pomodoro timer is just a stopwatch that can have three states, that
- * differ only in length of their initial time and a special InTheZone mode.
- *
- * These states are PomodoroState, ShortBreakState and LongBreakState.
- * Their duration and the order they should change each other is defined
- * in application settings.
- * Default values for Pomodoro Technique are:
- *      25 minutes for Pomodoro;
- *      5 minutes for ShortBreak;
- *      15 minutes for LongBreak.
- * Each Pomodoro is followed by ShortBreak. Each 4 (by default) Tasks are
- * followed by LongBreak.
- *
- * When PomodoroTimer is in the special InTheZone mode, Tasks are no longer
- * interleaved with breaks, but follow each other consecutively. This mode can
- * be toggled with toggleInTheZoneMode() method.
- *
- * When PomodoroTimer is running, it executes tickCallback(timeLeft) callback,
- * that should be provided to constructor, where timeLeft - is total time
- * left in milliseconds.
- *
- * PomodoroTimer manages it's state schedule internally and does not provide
- * public methods to alter states directly. Instead, clients of the class should
- * rely on indirect methods for changing state by calling run(), cancel() and
- * finish() methods in the following manner:
- *
- *     run() method is called and PomodoroTimer starts running. When total time
- *     runs out, internal timer is stopped and tickCallback(0) is called.
- *     The only way for client code to know that PomodoroTimer is stopped
- *     normally is to handle tickCallback(0). This is done deliberately, so that
- *     clients can decide what to do with this information - they can still
- *     cancel timer at this point or call finish() that returns TimeSpan
- *     instance.
- *     Note, that finish point of the TimeSpan instance will be recorded when
- *     finish() is called, not when timer runs out.
- *
- *     If cancel() method is called at any point between run() and finish(),
- *     current mode is considered cancelled and next state is set to
- *     PomodoroState.
- *
- *     When finish() method is called, current state is considered to be
- * finished
- *     normally and next state is set.
- */
-class PomodoroTimer {
+class PomodoroTimer : public IPomodoroTimer {
+    friend class PomodoroTimerState;
     friend class ShortBreakState;
     friend class LongBreakState;
-    friend class PomodoroState;
+    friend class TaskState;
+    friend class ZoneState;
+    friend class IdleState;
+    friend class FinishedState;
 
 public:
     /* Construct PomodoroTimer given callback function,
      * tick period and reference to application settings.
      *
-     * When task is running, callback function will be executed after
+     * When timer is running, callback function will be executed after
      * each tick period until time runs out or timer is cancelled. */
-    PomodoroTimer(std::function<void(long timeLeft)> tickCallback,
-                  long tickPeriodInMillisecs,
-                  const IConfig& applicationSettings);
+    PomodoroTimer(
+        std::function<void(long timeLeft)> tickCallback,
+        std::function<void(IPomodoroTimer::State state)> onStateChangedCallback,
+        long tickPeriodInMillisecs,
+        const IConfig& applicationSettings);
 
     ~PomodoroTimer() = default;
 
@@ -82,36 +67,29 @@ public:
     /* Start timer countdown for current state.
      *
      * tickCallback(timeLeft) function will be called each tick until time
-     * for the task runs out or cancel() or finish() methods are called. */
-    void run();
+     * for the task runs out or cancel() method is called. */
+    void start() final;
 
-    /* Cancel current mode.
-     *
-     * This action stops countdown timer. Current state is considered
-     * interrupted and next state is unconditionally set to PomodoroState. */
-    void cancel();
-
-    /* Return TimeSpan and set next mode
-     *
-     * Note that timeSpan's finish time will be recorded only after this method
-     * is called, not when timer runs out.
-     *
-     * If called when timer is still running, timer will be stopped.  */
-    TimeSpan finish();
+    /* Cancel current. */
+    void cancel() final;
 
     /* Return task duration in minutes.
      *
      * Duration is obtained from application config. */
-    int taskDuration();
+    int currentDuration() const final;
 
-    /* Return true if current task type is ShortBrake or
-     * PomodoroTimerModeScheduler
-     * and false otherwise. */
-    bool isBreak() const;
+    /* Return current state. */
+    IPomodoroTimer::State state() const final;
 
     /* Toggles the InTheZone mode when tasks are no longer interleaved with
      * breaks and scheduled one after another without breaks. */
-    void toggleInTheZoneMode();
+    void toggleInTheZoneMode() final;
+
+    /* Return vector of intervals that are currently registered by timer. */
+    std::vector<TimeSpan> completedTaskIntervals() const final;
+
+    /* Clear registered time intervals. */
+    void clearIntervalsBuffer() final;
 
     /* Set number of pomodoros completed so far. */
     void setNumCompletedPomodoros(int num);
@@ -119,23 +97,30 @@ public:
     /* Return number of pomodoros completed so far. */
     int numCompletedPomodoros() const;
 
+
+protected:
+    const int millisecondsInMinute{60000};
+    std::chrono::milliseconds millisecondsLeft;
+    std::unique_ptr<PomodoroTimerState> idleState;
+    std::unique_ptr<PomodoroTimerState> pomodoroState;
+    std::unique_ptr<PomodoroTimerState> shortBreakState;
+    std::unique_ptr<PomodoroTimerState> longBreakState;
+    std::unique_ptr<PomodoroTimerState> zoneState;
+    std::unique_ptr<PomodoroTimerState> finishedState;
+    PomodoroTimerState* currentState;
+
 private:
     const IConfig& applicationSettings;
     const std::chrono::milliseconds tickInterval;
     std::function<void(long timeLeft)> onTickCallback;
+    std::function<void(IPomodoroTimer::State)> onStateChangedCallback;
     std::unique_ptr<Timer> timerPtr;
     DateTime mStart;
-    std::chrono::milliseconds currentTaskDuration;
-    const int millisecondsInMinute{60000};
     int completedPomodoros{0};
-    bool running{false};
-    bool inTheZoneMode{false};
-    std::unique_ptr<PomodoroTimerState> shortBreakState;
-    std::unique_ptr<PomodoroTimerState> longBreakState;
-    std::unique_ptr<PomodoroTimerState> pomodoroState;
-    PomodoroTimerState* currentState;
+    std::vector<TimeSpan> buffer;
 
     void onTimerTick();
+    void resetTimer();
 };
 
 /* Base class for pomodoro timer states. */
@@ -148,11 +133,17 @@ public:
 
     virtual ~PomodoroTimerState() = default;
 
-    virtual void setNextState() = 0;
+    virtual IPomodoroTimer::State state() const = 0;
 
-    virtual void cancel() = 0;
+    virtual void start() {}
 
-    virtual bool isBreak() const = 0;
+    virtual void setNextState(){};
+
+    virtual void notifyStateChanged(IPomodoroTimer::State state);
+
+    virtual void cancel(){};
+
+    virtual void toggleZoneMode(){};
 
     virtual int duration() const = 0;
 
@@ -160,80 +151,90 @@ protected:
     PomodoroTimer& timer;
 };
 
-class ShortBreakState : public PomodoroTimerState {
+class IdleState final : public PomodoroTimerState {
 public:
-    ShortBreakState(PomodoroTimer& timer)
-        : PomodoroTimerState{timer}
-    {
-    }
+    IdleState(PomodoroTimer& timer);
 
-    void setNextState() final
-    {
-        timer.currentState = timer.pomodoroState.get();
-    }
+    IPomodoroTimer::State state() const;
 
-    void cancel() final { timer.currentState = timer.pomodoroState.get(); }
+    void setNextState();
 
-    bool isBreak() const final { return true; }
-
-    int duration() const final
-    {
-        return timer.applicationSettings.shortBreakDuration();
-    }
+    int duration() const;
 };
 
-class LongBreakState : public PomodoroTimerState {
+class TaskState final : public PomodoroTimerState {
 public:
-    LongBreakState(PomodoroTimer& timer)
-        : PomodoroTimerState{timer}
-    {
-    }
+    TaskState(PomodoroTimer& timer);
 
-    void setNextState() final
-    {
-        timer.currentState = timer.pomodoroState.get();
-    }
+    IPomodoroTimer::State state() const;
 
-    void cancel() final { timer.currentState = timer.pomodoroState.get(); }
+    void start();
 
-    bool isBreak() const final { return true; }
+    void setNextState();
 
-    int duration() const final
-    {
-        return timer.applicationSettings.longBreakDuration();
-    }
+    void cancel();
+
+    int duration() const;
+
+    void toggleZoneMode();
 };
 
-class PomodoroState : public PomodoroTimerState {
+class ShortBreakState final : public PomodoroTimerState {
 public:
-    PomodoroState(PomodoroTimer& timer)
-        : PomodoroTimerState{timer}
-    {
-    }
+    ShortBreakState(PomodoroTimer& timer);
 
-    void setNextState() final
-    {
-        if (timer.inTheZoneMode) {
-            timer.currentState = timer.pomodoroState.get();
-        }
-        else if (timer.completedPomodoros
-                     % timer.applicationSettings.numPomodorosBeforeBreak()
-                 == 0) {
-            timer.currentState = timer.longBreakState.get();
-        }
-        else {
-            timer.currentState = timer.shortBreakState.get();
-        }
-    }
+    IPomodoroTimer::State state() const;
 
-    void cancel() final { timer.currentState = timer.pomodoroState.get(); }
+    void start();
 
-    bool isBreak() const final { return false; }
+    void setNextState();
 
-    int duration() const final
-    {
-        return timer.applicationSettings.pomodoroDuration();
-    }
+    void cancel();
+
+    int duration() const;
+};
+
+class LongBreakState final : public PomodoroTimerState {
+public:
+    LongBreakState(PomodoroTimer& timer);
+
+    IPomodoroTimer::State state() const;
+
+    void start();
+
+    void setNextState();
+
+    void cancel();
+
+    int duration() const;
+};
+
+class ZoneState final : public PomodoroTimerState {
+public:
+    ZoneState(PomodoroTimer& timer);
+
+    void start();
+
+    IPomodoroTimer::State state() const;
+
+    void setNextState();
+
+    int duration() const;
+
+    void toggleZoneMode();
+};
+
+class FinishedState final : public PomodoroTimerState {
+public:
+    FinishedState(PomodoroTimer& timer);
+
+    IPomodoroTimer::State state() const;
+
+    void setNextState();
+
+    void cancel();
+
+    int duration() const;
 };
 
 #endif /* end of include guard: TASKRUNNER_H_9VSDY5UR */
