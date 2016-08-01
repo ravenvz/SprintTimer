@@ -47,6 +47,11 @@ DBService::DBService(QString filename)
     workerThread.start();
 }
 
+DBService::DBService(std::string filename)
+    : DBService(QString::fromStdString(std::move(filename)))
+{
+}
+
 
 DBService::~DBService()
 {

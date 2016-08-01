@@ -40,6 +40,7 @@ class DBService : public QObject {
 
 public:
     DBService(QString filename);
+    DBService(std::string filename);
     ~DBService();
 
     DBService(DBService&&) = default;
