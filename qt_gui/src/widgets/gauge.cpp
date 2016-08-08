@@ -23,20 +23,20 @@
 #include <QPainter>
 #include <QWidget>
 
-#include <QDebug>
+namespace GaugeColors {
+const QColor normalEmpty{Qt::gray};
+const QColor normalFilled{QColor{"#6baa15"}};
+const QColor overfilledEmpty{QColor{"#6baa15"}};
+const QColor overfilledFilled{Qt::red};
+const QColor backgroundFree{QColor{"#354a5f"}};
+const QColor backgroundHovered{Qt::white};
+};
 
-// static
-QColor Gauge::normalEmpty{Qt::gray};
-QColor Gauge::normalFilled{QColor{"#6baa15"}};
-QColor Gauge::overfilledEmpty{QColor{"#6baa15"}};
-QColor Gauge::overfilledFilled{Qt::red};
-QColor Gauge::backgroundFree{QColor{"#354a5f"}};
-QColor Gauge::backgroundHovered{Qt::white};
-
-Gauge::Gauge(int actual, int goal, QWidget* parent)
+Gauge::Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent)
     : QWidget(parent)
     , actual{actual}
     , goal{goal}
+    , gaugeRelSize{gaugeRelSize}
     , hoveredState{std::make_unique<HoverStateHovered>()}
     , unhoveredState{std::make_unique<HoverStateUnhovered>()}
     , workProgressUnderwork{std::make_unique<WorkProgressUnderwork>()}
@@ -48,6 +48,19 @@ Gauge::Gauge(int actual, int goal, QWidget* parent)
     installEventFilter(this);
     setMouseTracking(true);
 
+    updateState();
+}
+
+void Gauge::setData(int completed, int total)
+{
+    actual = completed;
+    goal = total;
+    updateState();
+    repaint();
+}
+
+void Gauge::updateState()
+{
     if (actual == 0 || goal == 0) {
         workProgressState = workProgressNone.get();
     }
@@ -66,25 +79,10 @@ void Gauge::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     setupPainter(painter);
-    drawOuterCircle(painter);
-    drawInnerCircle(painter);
-}
 
-void Gauge::setupPainter(QPainter& painter)
-{
-    if (!sizesComputed)
-        computeAdaptiveSizes();
-    painter.setRenderHint(QPainter::Antialiasing);
-    QPen pen;
-    pen.setWidthF(1.2);
-    painter.setPen(pen);
-}
-
-void Gauge::computeAdaptiveSizes()
-{
     QRectF totalSizeRect = this->rect();
-    double outerRectLength
-        = 0.8 * std::min(totalSizeRect.width(), totalSizeRect.height());
+    double outerRectLength = gaugeRelSize
+        * std::min(totalSizeRect.width(), totalSizeRect.height());
     double innerRectLength = 0.7 * outerRectLength;
     outerRect = QRectF(totalSizeRect.center().x() - outerRectLength / 2,
                        totalSizeRect.center().y() - outerRectLength / 2,
@@ -94,7 +92,17 @@ void Gauge::computeAdaptiveSizes()
                        totalSizeRect.center().y() - innerRectLength / 2,
                        innerRectLength,
                        innerRectLength);
-    sizesComputed = true;
+
+    drawOuterCircle(painter);
+    drawInnerCircle(painter);
+}
+
+void Gauge::setupPainter(QPainter& painter)
+{
+    painter.setRenderHint(QPainter::Antialiasing);
+    QPen pen;
+    pen.setWidthF(1.2);
+    painter.setPen(pen);
 }
 
 void Gauge::drawOuterCircle(QPainter& painter)
@@ -109,7 +117,7 @@ void Gauge::drawInnerCircle(QPainter& painter)
 
 bool Gauge::eventFilter(QObject* object, QEvent* event)
 {
-    if (object != this || !sizesComputed)
+    if (object != this)
         return false;
     if (event->type() == QEvent::Enter) {
         setFocus();
@@ -148,17 +156,17 @@ void HoverStateUnhovered::draw(const Gauge& gauge, QPainter& painter)
 {
     QString text = QString("%1%").arg(
         gauge.goal != 0 ? gauge.actual * 100 / gauge.goal : 0);
-    painter.setBrush(Gauge::backgroundFree);
+    painter.setBrush(GaugeColors::backgroundFree);
     painter.drawEllipse(gauge.innerRect);
-    painter.setPen(gauge.backgroundHovered);
+    painter.setPen(GaugeColors::backgroundHovered);
     HoverState::drawText(gauge, painter, text);
 }
 
 void WorkProgressState::draw(const Gauge& gauge, QPainter& painter)
 {
     setupBrushes();
-    const int fullCircle = 360 * 16;
-    const int offsetToTop = 90 * 16;
+    constexpr int fullCircle = 360 * 16;
+    constexpr int offsetToTop = 90 * 16;
     int completedAngle = static_cast<int>(
         (gauge.actual % gauge.goal) * fullCircle / float(gauge.goal));
     painter.setBrush(empty);
@@ -171,24 +179,24 @@ void WorkProgressState::setupBrushes() {}
 
 void WorkProgressUnderwork::setupBrushes()
 {
-    empty = QBrush{Gauge::normalEmpty};
-    filled = QBrush{Gauge::normalFilled};
+    empty = QBrush{GaugeColors::normalEmpty};
+    filled = QBrush{GaugeColors::normalFilled};
 }
 
 void WorkProgressOverwork::setupBrushes()
 {
-    empty = QBrush{Gauge::overfilledEmpty};
-    filled = QBrush{Gauge::overfilledFilled};
+    empty = QBrush{GaugeColors::overfilledEmpty};
+    filled = QBrush{GaugeColors::overfilledFilled};
 }
 
 void WorkProgressDone::draw(const Gauge& gauge, QPainter& painter)
 {
-    painter.setBrush(Gauge::normalFilled);
+    painter.setBrush(GaugeColors::normalFilled);
     painter.drawEllipse(gauge.outerRect);
 }
 
 void WorkProgressNone::draw(const Gauge& gauge, QPainter& painter)
 {
-    painter.setBrush(Gauge::normalEmpty);
+    painter.setBrush(GaugeColors::normalEmpty);
     painter.drawEllipse(gauge.outerRect);
 }
