@@ -19,22 +19,22 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/statisticswidget.h"
-#include "ui_statistics_widget.h"
+#include "widgets/StatisticsWindow.h"
+#include "ui_statistics_window.h"
 #include "widgets/barchart.h"
 
 
-StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,
+StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
                                    IPomodoroService& pomodoroService,
                                    QWidget* parent)
     : DataWidget(parent)
-    , ui(new Ui::StatisticsWidget)
+    , ui(new Ui::StatisticsWindow)
     , applicationSettings(applicationSettings)
     , pomodoroService{pomodoroService}
 {
     setAttribute(Qt::WA_DeleteOnClose);
     pomodoroService.pomodoroYearRange(std::bind(
-        &StatisticsWidget::onYearRangeUpdated, this, std::placeholders::_1));
+        &StatisticsWindow::onYearRangeUpdated, this, std::placeholders::_1));
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
     //    workTimeDiagram = new TimeDiagram(this);
@@ -46,9 +46,9 @@ StatisticsWidget::StatisticsWidget(IConfig& applicationSettings,
     connectSlots();
 }
 
-StatisticsWidget::~StatisticsWidget() { delete ui; }
+StatisticsWindow::~StatisticsWindow() { delete ui; }
 
-void StatisticsWidget::connectSlots()
+void StatisticsWindow::connectSlots()
 {
     connect(ui->widgetPickPeriod,
             SIGNAL(timeSpanChanged(DateInterval)),
@@ -60,20 +60,20 @@ void StatisticsWidget::connectSlots()
             SLOT(onTagSelected(size_t)));
 }
 
-void StatisticsWidget::synchronize() { fetchPomodoros(); }
+void StatisticsWindow::synchronize() { fetchPomodoros(); }
 
-void StatisticsWidget::setupGraphs() { setupWeekdayBarChart(); }
+void StatisticsWindow::setupGraphs() { setupWeekdayBarChart(); }
 
-void StatisticsWidget::fetchPomodoros()
+void StatisticsWindow::fetchPomodoros()
 {
     pomodoroService.pomodorosInTimeRange(
         currentInterval.toTimeSpan(),
-        std::bind(&StatisticsWidget::onPomodorosFetched,
+        std::bind(&StatisticsWindow::onPomodorosFetched,
                   this,
                   std::placeholders::_1));
 }
 
-void StatisticsWidget::onPomodorosFetched(
+void StatisticsWindow::onPomodorosFetched(
     const std::vector<Pomodoro>& pomodoros)
 {
     this->pomodoros = pomodoros;
@@ -85,19 +85,19 @@ void StatisticsWidget::onPomodorosFetched(
     updateTopTagsDiagram(tagTagCounts);
 }
 
-void StatisticsWidget::onYearRangeUpdated(
+void StatisticsWindow::onYearRangeUpdated(
     const std::vector<std::string>& yearRange)
 {
     ui->widgetPickPeriod->setYears(yearRange);
 }
 
-void StatisticsWidget::onDatePickerIntervalChanged(DateInterval newInterval)
+void StatisticsWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 {
     currentInterval = newInterval;
     fetchPomodoros();
 }
 
-void StatisticsWidget::drawGraphs()
+void StatisticsWindow::drawGraphs()
 {
     PomodoroStatItem statistics{
         selectedTagIndex
@@ -114,7 +114,7 @@ void StatisticsWidget::drawGraphs()
     updateWorkHoursDiagram(workTimeDistribution, statistics.pomodoros());
 }
 
-void StatisticsWidget::setupWeekdayBarChart()
+void StatisticsWindow::setupWeekdayBarChart()
 {
     QPen pen;
     pen.setWidthF(1.2);
@@ -124,7 +124,7 @@ void StatisticsWidget::setupWeekdayBarChart()
     ui->workdayBarChart->setBrush(brush);
 }
 
-void StatisticsWidget::updateWeekdayBarChart(
+void StatisticsWindow::updateWeekdayBarChart(
     const Distribution<double>& weekdayDistribution)
 {
     std::vector<double> values = weekdayDistribution.getDistributionVector();
@@ -137,7 +137,7 @@ void StatisticsWidget::updateWeekdayBarChart(
     updateWeekdayBarChartLegend(weekdayDistribution);
 }
 
-void StatisticsWidget::updateWeekdayBarChartLegend(
+void StatisticsWindow::updateWeekdayBarChartLegend(
     const Distribution<double>& weekdayDistribution)
 {
     if (weekdayDistribution.empty()) {
@@ -155,7 +155,7 @@ void StatisticsWidget::updateWeekdayBarChartLegend(
     }
 }
 
-void StatisticsWidget::updateWorkHoursDiagram(
+void StatisticsWindow::updateWorkHoursDiagram(
     const Distribution<double>& workTimeDistribution,
     const std::vector<Pomodoro>& pomodoros)
 {
@@ -180,7 +180,7 @@ void StatisticsWidget::updateWorkHoursDiagram(
     workTimeDiagram->setIntervals(timeSpans);
 }
 
-void StatisticsWidget::updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts)
+void StatisticsWindow::updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts)
 {
     if (!tagTagCounts.empty() && tagTagCounts.back().first == Tag{""})
         tagTagCounts.back().first.setName("others");
@@ -196,7 +196,7 @@ void StatisticsWidget::updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts)
     ui->topTagDiagram->setLegendTitleFont(QFont(".Helvetica Neue Desk UI", 13));
 }
 
-void StatisticsWidget::onTagSelected(size_t tagIndex)
+void StatisticsWindow::onTagSelected(size_t tagIndex)
 {
     if (!selectedTagIndex) {
         selectedTagIndex = tagIndex;

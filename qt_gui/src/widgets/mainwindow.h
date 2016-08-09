@@ -30,7 +30,7 @@
 #include "models/PomodoroModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
-#include "statisticswidget.h"
+#include "StatisticsWindow.h"
 #include "widgets/TimerWidgetBase.h"
 #include <QMainWindow>
 #include <QSettings>

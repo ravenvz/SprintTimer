@@ -36,7 +36,7 @@
 using std::experimental::optional;
 
 namespace Ui {
-class StatisticsWidget;
+class StatisticsWindow;
 }
 
 
@@ -53,14 +53,14 @@ class StatisticsWidget;
  *      Pomodoros;
  *      widget that displays distribution of worktime.
  */
-class StatisticsWidget : public DataWidget {
+class StatisticsWindow : public DataWidget {
     Q_OBJECT
 
 public:
-    StatisticsWidget(IConfig& applicationSettings,
+    StatisticsWindow(IConfig& applicationSettings,
                      IPomodoroService& pomodoroService,
                      QWidget* parent = nullptr);
-    ~StatisticsWidget();
+    ~StatisticsWindow();
 
     void synchronize() override;
 
@@ -69,8 +69,8 @@ private slots:
     void onTagSelected(size_t tagIndex);
 
 private:
-    //    Ui::StatisticsWidget* ui;
-    Ui::StatisticsWidget* ui;
+    //    Ui::StatisticsWindow* ui;
+    Ui::StatisticsWindow* ui;
     IConfig& applicationSettings;
     IPomodoroService& pomodoroService;
     std::vector<Pomodoro> pomodoros;

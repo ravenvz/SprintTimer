@@ -283,7 +283,7 @@ void MainWindow::launchStatisticsView()
         //        statisticsView = new NewStatisticsWidget(applicationSettings,
         //        pomodoroService);
         statisticsView
-            = new StatisticsWidget(applicationSettings, pomodoroService);
+            = new StatisticsWindow(applicationSettings, pomodoroService);
         connect(pomodoroModel,
                 &AsyncListModel::updateFinished,
                 statisticsView,
