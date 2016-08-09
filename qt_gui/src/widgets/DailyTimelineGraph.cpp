@@ -40,9 +40,10 @@ DailyTimelineGraph::~DailyTimelineGraph() { delete ui; }
 void DailyTimelineGraph::setupGraphs()
 {
     constexpr double penWidthF = 2.2;
-    Graph averageGraph = Graph();
-    Graph goalGraph = Graph();
-    Graph normalGraph = Graph();
+
+    Graph averageGraph;
+    Graph goalGraph;
+    Graph normalGraph;
 
     QPen averagePen;
     averagePen.setColor(Qt::blue);
@@ -62,9 +63,10 @@ void DailyTimelineGraph::setupGraphs()
     goalPen.setWidthF(penWidthF);
     goalGraph.setPen(goalPen);
 
-    ui->dailyTimeline->addGraph(averageGraph);
-    ui->dailyTimeline->addGraph(goalGraph);
-    ui->dailyTimeline->addGraph(normalGraph);
+    ui->dailyTimeline->setNumExpectedGraphs(3);
+    ui->dailyTimeline->addGraph(std::move(averageGraph));
+    ui->dailyTimeline->addGraph(std::move(goalGraph));
+    ui->dailyTimeline->addGraph(std::move(normalGraph));
 }
 
 void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,

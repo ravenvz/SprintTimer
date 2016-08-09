@@ -34,7 +34,8 @@ using GraphData = std::vector<GraphPoint>;
 
 class Graph;
 
-struct AxisRange { // Set minimum and maximum values on axis.
+struct AxisRange {
+    // Set minimum and maximum values on axis.
     // If start > end, then start is asssigned to end, and end to start.
     void setRange(double start, double end);
 
@@ -65,7 +66,7 @@ public:
     virtual ~Plot() = default;
 
     // Add Graph to plot. Multiple graphs can be added.
-    void addGraph(Graph& graph);
+    void addGraph(Graph graph);
 
     // Set data points to graph with given number.
     void setGraphData(size_t graphNum, GraphData& data);
@@ -84,6 +85,9 @@ public:
     // Set visible axis range.
     void setRangeY(double start, double end);
 
+    // Reserve space for n graphs.
+    void setNumExpectedGraphs(size_t n);
+
 protected:
     // Override to paint graphs.
     void paintEvent(QPaintEvent*) override;
@@ -91,25 +95,12 @@ protected:
     // Override to show tooltip with point data when hovering over the point.
     void mouseMoveEvent(QMouseEvent* event) override;
 
-signals:
-
-    // Signal that is emitted when size of plot graphic primitives is computed.
-    // Size of plot depends on parent widget.
-    void sizeComputed();
-
-private slots:
-
-    // Compute data required to draw points.
-    // Fired when plot graphic primitives' sizes are computed.
-    void onSizeComputed();
-
 private:
     std::vector<Graph> graphs;
     std::vector<PointBoxContainer> pointBoxes;
     AxisRange rangeX;
     AxisRange rangeY;
     QRectF availableRect;
-    bool adaptiveSizeComputed{false};
     double pointBoxSize;
     const QBrush pointBoxBrush{Qt::white};
     constexpr static int labelSkipInd{28};
@@ -118,9 +109,6 @@ private:
     constexpr static double labelOffsetRelSize{0.15};
     constexpr static double marginRelSize{0.07};
     constexpr static double pointBoxRelSize{0.025};
-
-    // Compute sizes of plot graphic primitives that depend on size of Widget.
-    void computeAdaptiveSizes();
 
     // Compute data required to draw points relative to plot size.
     void constructPointBoxes();
@@ -133,6 +121,7 @@ private:
 
     // Show tooltip with point data when hovering over a point on a plot.
     const QString getPosTooltip(const QPoint& pos) const;
+
 };
 
 struct GraphPoint {
