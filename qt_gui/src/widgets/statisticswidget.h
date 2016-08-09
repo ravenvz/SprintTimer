@@ -62,13 +62,14 @@ public:
                      QWidget* parent = nullptr);
     ~StatisticsWidget();
 
-    void synchronize();
+    void synchronize() override;
 
 private slots:
     void onDatePickerIntervalChanged(DateInterval newInterval);
     void onTagSelected(size_t tagIndex);
 
 private:
+    //    Ui::StatisticsWidget* ui;
     Ui::StatisticsWidget* ui;
     IConfig& applicationSettings;
     IPomodoroService& pomodoroService;
@@ -84,14 +85,9 @@ private:
     void fetchPomodoros();
     void drawGraphs();
     void setupWeekdayBarChart();
-    void setupDailyTimelineGraph();
     void updateWeekdayBarChart(const Distribution<double>& weekdayDistribution);
     void updateWeekdayBarChartLegend(
         const Distribution<double>& weekdayDistribution);
-    void
-    updateDailyTimelineGraph(const Distribution<double>& dailyDistribution);
-    void updateDailyTimelineGraphLegend(
-        const Distribution<double>& dailyDistribution);
     void
     updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
                            const std::vector<Pomodoro>& pomodoros);

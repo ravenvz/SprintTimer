@@ -70,8 +70,8 @@ private:
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
     QPointer<DataWidget> goalsView;
-    QPointer<StatisticsWidget> statisticsView;
-    QPointer<HistoryView> historyView;
+    QPointer<DataWidget> statisticsView;
+    QPointer<DataWidget> historyView;
     std::experimental::optional<QModelIndex> selectedTaskIndex;
     TimerWidgetBase* timerWidget;
     std::unique_ptr<ExpansionState> expandedFully;

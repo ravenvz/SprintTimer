@@ -264,7 +264,8 @@ void MainWindow::launchHistoryView()
 void MainWindow::launchGoalsView()
 {
     if (!goalsView) {
-        goalsView = new GoalProgressWidget(applicationSettings, pomodoroService);
+        goalsView
+            = new GoalProgressWidget(applicationSettings, pomodoroService);
         connect(pomodoroModel,
                 &AsyncListModel::updateFinished,
                 goalsView,
@@ -279,6 +280,8 @@ void MainWindow::launchGoalsView()
 void MainWindow::launchStatisticsView()
 {
     if (!statisticsView) {
+        //        statisticsView = new NewStatisticsWidget(applicationSettings,
+        //        pomodoroService);
         statisticsView
             = new StatisticsWidget(applicationSettings, pomodoroService);
         connect(pomodoroModel,

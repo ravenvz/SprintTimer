@@ -27,6 +27,7 @@ QT5_WRAP_UI(UI_HEADERS
         ui/default_timer.ui
         ui/fancy_timer.ui
         ui/progress_widget.ui
+        ui/daily_timeline_graph.ui
 )
 
 add_library(${PROJECT} SHARED ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)
