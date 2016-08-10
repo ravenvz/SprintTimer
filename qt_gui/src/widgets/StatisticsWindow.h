@@ -82,7 +82,7 @@ private:
     void fetchPomodoros();
     void drawGraphs();
     void updateTopTagsDiagram(
-        std::vector<TagCount>& tagTagCounts); // TODO rename it's a shame
+        std::vector<TagCount>& tagCounts);
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
     void onPomodorosFetched(const std::vector<Pomodoro>& pomodoros);
 };

@@ -45,13 +45,13 @@ StatisticsWindow::~StatisticsWindow() { delete ui; }
 void StatisticsWindow::connectSlots()
 {
     connect(ui->widgetPickPeriod,
-            SIGNAL(timeSpanChanged(DateInterval)),
+            &PickPeriodWidget::timeSpanChanged,
             this,
-            SLOT(onDatePickerIntervalChanged(DateInterval)));
+            &StatisticsWindow::onDatePickerIntervalChanged);
     connect(ui->topTagDiagram,
-            SIGNAL(chartSelectionChanged(size_t)),
+            &DistributionDiagram::chartSelectionChanged,
             this,
-            SLOT(onTagSelected(size_t)));
+            &StatisticsWindow::onTagSelected);
 }
 
 void StatisticsWindow::synchronize() { fetchPomodoros(); }
@@ -96,25 +96,22 @@ void StatisticsWindow::drawGraphs()
             ? tagDistribution.pomodorosForNthTopTag(*selectedTagIndex)
             : pomodoros,
         currentInterval.toTimeSpan()};
-    auto dailyDistribution = statistics.dailyDistribution();
-    auto weekdayDistribution = statistics.weekdayDistribution();
-    auto workTimeDistribution = statistics.worktimeDistribution();
     ui->dailyTimelineGraph->setData(statistics.dailyDistribution(),
                                     currentInterval.startDate,
                                     applicationSettings.dailyPomodorosGoal());
     ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
-    ui->bestWorktimeWidget->setData(workTimeDistribution,
+    ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
                                     statistics.pomodoros());
 }
 
 
-void StatisticsWindow::updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts)
+void StatisticsWindow::updateTopTagsDiagram(std::vector<TagCount>& tagCounts)
 {
-    if (!tagTagCounts.empty() && tagTagCounts.back().first == Tag{""})
-        tagTagCounts.back().first.setName("others");
+    if (!tagCounts.empty() && tagCounts.back().first == Tag{""})
+        tagCounts.back().first.setName("others");
     std::vector<std::pair<std::string, double>> data;
-    std::transform(tagTagCounts.cbegin(),
-                   tagTagCounts.cend(),
+    std::transform(tagCounts.cbegin(),
+                   tagCounts.cend(),
                    std::back_inserter(data),
                    [](const auto& elem) -> std::pair<std::string, double> {
                        return {elem.first.name(), elem.second};
