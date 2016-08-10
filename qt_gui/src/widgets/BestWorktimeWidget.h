@@ -20,37 +20,33 @@
 **
 *********************************************************************************/
 
-#ifndef POMODORO_DAILYDISTRIBUTIONGRAPH_H
-#define POMODORO_DAILYDISTRIBUTIONGRAPH_H
+#ifndef POMODORO_BESTWORKTIMEWIDGET_H
+#define POMODORO_BESTWORKTIMEWIDGET_H
 
-
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLabel>
-#include <core/DateTime.h>
+#include <QtWidgets/QWidget>
 #include <core/Distribution.h>
+#include <core/entities/Pomodoro.h>
 
 namespace Ui {
-class DailyTimelineGraph;
+class BestWorktimeWidget;
 }
 
-
-class DailyTimelineGraph : public QFrame {
+class BestWorktimeWidget : public QWidget {
 public:
-    explicit DailyTimelineGraph(QWidget* parent);
+    BestWorktimeWidget(QWidget* parent);
 
-    ~DailyTimelineGraph();
+    virtual ~BestWorktimeWidget();
 
-    void setData(const Distribution<double>& dailyDistribution,
-                 const QDate& startDate,
-                 int dailyGoal);
+    void setData(const Distribution<double>& workTimeDistribution,
+                 const std::vector<Pomodoro>& pomodoros);
 
 private:
-    Ui::DailyTimelineGraph* ui;
+    Ui::BestWorktimeWidget* ui;
 
-    void setupGraphs();
-
-    void updateLegend(const Distribution<double>& dailyDistribution);
+    void
+    updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
+                           const std::vector<Pomodoro>& pomodoros);
 };
 
 
-#endif // POMODORO_DAILYDISTRIBUTIONGRAPH_H
+#endif // POMODORO_BESTWORKTIMEWIDGET_H

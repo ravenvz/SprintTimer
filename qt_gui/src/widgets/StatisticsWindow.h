@@ -69,28 +69,18 @@ private slots:
     void onTagSelected(size_t tagIndex);
 
 private:
-    //    Ui::StatisticsWindow* ui;
     Ui::StatisticsWindow* ui;
     IConfig& applicationSettings;
     IPomodoroService& pomodoroService;
     std::vector<Pomodoro> pomodoros;
     TagDistribution tagDistribution;
-    TimeDiagram* workTimeDiagram;
     DateInterval currentInterval;
     const int numTopTags = 7; // TODO move to config
     optional<size_t> selectedTagIndex;
 
     void connectSlots();
-    void setupGraphs();
     void fetchPomodoros();
     void drawGraphs();
-    void setupWeekdayBarChart();
-    void updateWeekdayBarChart(const Distribution<double>& weekdayDistribution);
-    void updateWeekdayBarChartLegend(
-        const Distribution<double>& weekdayDistribution);
-    void
-    updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
-                           const std::vector<Pomodoro>& pomodoros);
     void updateTopTagsDiagram(
         std::vector<TagCount>& tagTagCounts); // TODO rename it's a shame
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);

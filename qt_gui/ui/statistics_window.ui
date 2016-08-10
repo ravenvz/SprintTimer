@@ -93,166 +93,29 @@
         <height>293</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,4,5">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,4,0">
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
+        <widget class="BestWorkdayWidget" name="bestWorkdayWidget" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
          </property>
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="font">
-            <font>
-             <family>.Helvetica Neue Desk UI</family>
-             <pointsize>11</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Best Workday</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="labelBestWorkdayName">
-           <property name="font">
-            <font>
-             <family>Lucida Sans Unicode</family>
-             <pointsize>11</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>workdayNamePlaceholder</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="labelBestWorkdayMsg">
-           <property name="font">
-            <font>
-             <family>.Helvetica Neue Desk UI</family>
-             <pointsize>11</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Average comparison message</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="BarChart" name="workdayBarChart" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>249</width>
-             <height>192</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        </widget>
        </item>
        <item>
         <widget class="DistributionDiagram" name="topTagDiagram" native="true"/>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayoutBestWorktime" stretch="0,0">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayoutBestWorktime">
-           <item>
-            <widget class="QLabel" name="label_4">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <family>.Helvetica Neue Desk UI</family>
-               <pointsize>11</pointsize>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Best Worktime</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelBestWorktimeName">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>18</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <family>.Helvetica Neue Desk UI</family>
-               <pointsize>11</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Afternoon</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelBestWorktimeHours">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <family>.Helvetica Neue Desk UI</family>
-               <pointsize>11</pointsize>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>14:00-18:00</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="TimeDiagram" name="timeDiagram" native="true"/>
-         </item>
-        </layout>
+        <widget class="BestWorktimeWidget" name="bestWorktimeWidget" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>400</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -274,21 +137,21 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>BarChart</class>
-   <extends>QWidget</extends>
-   <header>src/widgets/barchart.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>TimeDiagram</class>
-   <extends>QWidget</extends>
-   <header>widgets/timediagram.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>DailyTimelineGraph</class>
    <extends>QFrame</extends>
    <header>widgets/DailyTimelineGraph.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BestWorkdayWidget</class>
+   <extends>QWidget</extends>
+   <header>widgets/BestWorkdayWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BestWorktimeWidget</class>
+   <extends>QWidget</extends>
+   <header>widgets/BestWorktimeWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

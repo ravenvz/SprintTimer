@@ -37,12 +37,6 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
         &StatisticsWindow::onYearRangeUpdated, this, std::placeholders::_1));
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
-    //    workTimeDiagram = new TimeDiagram(this);
-    workTimeDiagram = ui->timeDiagram;
-    //    ui->horizontalLayoutBestWorktime->addWidget(workTimeDiagram);
-    //    ui->horizontalLayoutBestWorktime->setAlignment(workTimeDiagram,
-    //    Qt::AlignLeft);
-    //    ui->horizontalLayoutBestWorktime->setAlignment(Qt::AlignLeft);
     connectSlots();
 }
 
@@ -62,7 +56,6 @@ void StatisticsWindow::connectSlots()
 
 void StatisticsWindow::synchronize() { fetchPomodoros(); }
 
-void StatisticsWindow::setupGraphs() { setupWeekdayBarChart(); }
 
 void StatisticsWindow::fetchPomodoros()
 {
@@ -80,7 +73,6 @@ void StatisticsWindow::onPomodorosFetched(
     selectedTagIndex = optional<size_t>();
     tagDistribution = TagDistribution(pomodoros, numTopTags);
     std::vector<TagCount> tagTagCounts = tagDistribution.topTagsDistribution();
-    setupGraphs();
     drawGraphs();
     updateTopTagsDiagram(tagTagCounts);
 }
@@ -110,75 +102,11 @@ void StatisticsWindow::drawGraphs()
     ui->dailyTimelineGraph->setData(statistics.dailyDistribution(),
                                     currentInterval.startDate,
                                     applicationSettings.dailyPomodorosGoal());
-    updateWeekdayBarChart(weekdayDistribution);
-    updateWorkHoursDiagram(workTimeDistribution, statistics.pomodoros());
+    ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
+    ui->bestWorktimeWidget->setData(workTimeDistribution,
+                                    statistics.pomodoros());
 }
 
-void StatisticsWindow::setupWeekdayBarChart()
-{
-    QPen pen;
-    pen.setWidthF(1.2);
-    pen.setColor(Qt::red);
-    ui->workdayBarChart->setPen(pen);
-    QBrush brush = QBrush(QColor("#73c245"));
-    ui->workdayBarChart->setBrush(brush);
-}
-
-void StatisticsWindow::updateWeekdayBarChart(
-    const Distribution<double>& weekdayDistribution)
-{
-    std::vector<double> values = weekdayDistribution.getDistributionVector();
-    std::vector<QString> labels;
-    for (int i = 0; i < 7; ++i) {
-        labels.push_back(QDate::shortDayName(i + 1));
-    }
-    BarData data = BarData(values, labels);
-    ui->workdayBarChart->setData(data);
-    updateWeekdayBarChartLegend(weekdayDistribution);
-}
-
-void StatisticsWindow::updateWeekdayBarChartLegend(
-    const Distribution<double>& weekdayDistribution)
-{
-    if (weekdayDistribution.empty()) {
-        ui->labelBestWorkdayName->setText("No data");
-        ui->labelBestWorkdayMsg->setText("");
-    }
-    else {
-        double average = weekdayDistribution.getAverage();
-        int relativeComparisonInPercent
-            = int((weekdayDistribution.getMax() - average) * 100 / average);
-        ui->labelBestWorkdayName->setText(QDate::longDayName(
-            static_cast<int>(weekdayDistribution.getMaxValueBin()) + 1));
-        ui->labelBestWorkdayMsg->setText(
-            QString("%1% more than average").arg(relativeComparisonInPercent));
-    }
-}
-
-void StatisticsWindow::updateWorkHoursDiagram(
-    const Distribution<double>& workTimeDistribution,
-    const std::vector<Pomodoro>& pomodoros)
-{
-    std::vector<TimeSpan> timeSpans;
-    timeSpans.reserve(pomodoros.size());
-    std::transform(pomodoros.cbegin(),
-                   pomodoros.cend(),
-                   std::back_inserter(timeSpans),
-                   [](const auto& pomo) { return pomo.timeSpan(); });
-    if (timeSpans.empty()) {
-        ui->labelBestWorktimeName->setText("No data");
-        ui->labelBestWorktimeHours->setText("");
-    }
-    else {
-        auto maxValueBin
-            = static_cast<unsigned>(workTimeDistribution.getMaxValueBin());
-        ui->labelBestWorktimeName->setText(
-            QString::fromStdString(TimeSpan::dayPartName(maxValueBin)));
-        ui->labelBestWorktimeHours->setText(
-            QString::fromStdString(TimeSpan::dayPartHours(maxValueBin)));
-    }
-    workTimeDiagram->setIntervals(timeSpans);
-}
 
 void StatisticsWindow::updateTopTagsDiagram(std::vector<TagCount>& tagTagCounts)
 {

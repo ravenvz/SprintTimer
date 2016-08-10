@@ -20,37 +20,38 @@
 **
 *********************************************************************************/
 
-#ifndef POMODORO_DAILYDISTRIBUTIONGRAPH_H
-#define POMODORO_DAILYDISTRIBUTIONGRAPH_H
+#ifndef POMODORO_BESTWORKDAYWIDGET_H
+#define POMODORO_BESTWORKDAYWIDGET_H
 
 
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLabel>
-#include <core/DateTime.h>
+#include <QtWidgets/QWidget>
 #include <core/Distribution.h>
 
 namespace Ui {
-class DailyTimelineGraph;
+class BestWorkdayWidget;
 }
 
 
-class DailyTimelineGraph : public QFrame {
+class BestWorkdayWidget : public QWidget {
+
 public:
-    explicit DailyTimelineGraph(QWidget* parent);
+    explicit BestWorkdayWidget(QWidget* parent);
 
-    ~DailyTimelineGraph();
+    virtual ~BestWorkdayWidget();
 
-    void setData(const Distribution<double>& dailyDistribution,
-                 const QDate& startDate,
-                 int dailyGoal);
+    void setData(const Distribution<double>& weekdayDistribution);
 
 private:
-    Ui::DailyTimelineGraph* ui;
+    Ui::BestWorkdayWidget* ui;
 
-    void setupGraphs();
+    void setupWeekdayBarChart();
 
-    void updateLegend(const Distribution<double>& dailyDistribution);
+
+    void updateWeekdayBarChart(const Distribution<double>& weekdayDistribution);
+
+    void updateWeekdayBarChartLegend(
+        const Distribution<double>& weekdayDistribution);
 };
 
 
-#endif // POMODORO_DAILYDISTRIBUTIONGRAPH_H
+#endif // POMODORO_BESTWORKDAYWIDGET_H
