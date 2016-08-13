@@ -26,12 +26,11 @@
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
-#include "goalsview.h"
 #include "historyview.h"
 #include "models/PomodoroModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
-#include "statisticswidget.h"
+#include "StatisticsWindow.h"
 #include "widgets/TimerWidgetBase.h"
 #include <QMainWindow>
 #include <QSettings>
@@ -71,8 +70,8 @@ private:
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
     QPointer<DataWidget> goalsView;
-    QPointer<StatisticsWidget> statisticsView;
-    QPointer<HistoryView> historyView;
+    QPointer<DataWidget> statisticsView;
+    QPointer<DataWidget> historyView;
     std::experimental::optional<QModelIndex> selectedTaskIndex;
     TimerWidgetBase* timerWidget;
     std::unique_ptr<ExpansionState> expandedFully;

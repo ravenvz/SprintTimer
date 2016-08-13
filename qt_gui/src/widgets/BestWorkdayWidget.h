@@ -19,28 +19,39 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IDATAWIDGET_H_DMUO9TSG
-#define IDATAWIDGET_H_DMUO9TSG
 
-#include <QFrame>
+#ifndef POMODORO_BESTWORKDAYWIDGET_H
+#define POMODORO_BESTWORKDAYWIDGET_H
 
-/* Widget that displays some data (like statistics, etc) and has
- * means to access this data, but does not now when underlying data
- * has been changed.
- *
- * Extends QWidget to provide 'synchronize()' slot.
- * It's ment to be called when widget's underlying data
- * has been changed and should be requeried.*/
-class DataWidget : public QFrame {
-    Q_OBJECT
+
+#include <QtWidgets/QWidget>
+#include <core/Distribution.h>
+
+namespace Ui {
+class BestWorkdayWidget;
+}
+
+
+class BestWorkdayWidget : public QWidget {
 
 public:
-    DataWidget(QWidget* parent);
+    explicit BestWorkdayWidget(QWidget* parent);
 
-    virtual ~DataWidget() = default;
+    virtual ~BestWorkdayWidget();
 
-public slots:
-    virtual void synchronize() = 0;
+    void setData(const Distribution<double>& weekdayDistribution);
+
+private:
+    Ui::BestWorkdayWidget* ui;
+
+    void setupWeekdayBarChart();
+
+
+    void updateWeekdayBarChart(const Distribution<double>& weekdayDistribution);
+
+    void updateWeekdayBarChartLegend(
+        const Distribution<double>& weekdayDistribution);
 };
 
-#endif /* end of include guard: IDATAWIDGET_H_DMUO9TSG */
+
+#endif // POMODORO_BESTWORKDAYWIDGET_H

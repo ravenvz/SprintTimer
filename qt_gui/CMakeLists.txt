@@ -20,13 +20,16 @@ QT5_WRAP_UI(UI_HEADERS
         ui/settings.ui
         ui/history.ui
         ui/date_pick_dialog.ui
-        ui/goalsview.ui
-        ui/statistics_widget.ui
+        ui/statistics_window.ui
         ui/manual_add_pomodoro_dialog.ui
         ui/pickperiodwidget.ui
         ui/tageditor.ui
         ui/default_timer.ui
         ui/fancy_timer.ui
+        ui/progress_widget.ui
+        ui/daily_timeline_graph.ui
+        ui/best_workday_widget.ui
+        ui/best_worktime_widget.ui
 )
 
 add_library(${PROJECT} SHARED ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)

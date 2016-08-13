@@ -22,9 +22,6 @@
 #include "plot.h"
 #include <QHelpEvent>
 #include <QToolTip>
-#include <algorithm>
-
-#include <QDebug>
 
 void AxisRange::setRange(double start, double end)
 {
@@ -38,12 +35,13 @@ Plot::Plot(QWidget* parent)
     : QWidget(parent)
 {
     setMouseTracking(true);
-    connect(this, SIGNAL(sizeComputed()), this, SLOT(onSizeComputed()));
 }
 
-void Plot::addGraph(Graph& graph)
+void Plot::setNumExpectedGraphs(size_t n) { graphs.reserve(n); }
+
+void Plot::addGraph(Graph graph)
 {
-    graphs.push_back(graph);
+    graphs.push_back(std::move(graph));
     pointBoxes.push_back(PointBoxContainer{});
 }
 
@@ -53,7 +51,6 @@ void Plot::setGraphData(size_t graphNum, GraphData& data)
         return;
     }
     graphs[graphNum].setData(data);
-    adaptiveSizeComputed = false;
 }
 
 void Plot::reset()
@@ -76,8 +73,20 @@ void Plot::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    if (!adaptiveSizeComputed)
-        computeAdaptiveSizes();
+
+    QRectF totalSizeRect = this->rect();
+    const QPointF center{totalSizeRect.center()};
+    const double availableWidth{(1 - marginRelSize) * totalSizeRect.width()};
+    const double availableHeight{(1 - marginRelSize) * totalSizeRect.height()};
+    availableRect = {QRectF{center.x() - availableWidth / 2,
+                            center.y() - availableHeight / 2,
+                            availableWidth,
+                            availableHeight}};
+
+    pointBoxSize = {pointBoxRelSize * availableRect.height()};
+
+    constructPointBoxes();
+
     if (pointBoxes.empty()) {
         painter.eraseRect(availableRect);
         return;
@@ -101,26 +110,6 @@ void Plot::mouseMoveEvent(QMouseEvent* event)
         QToolTip::hideText();
         event->ignore();
     }
-}
-
-void Plot::onSizeComputed()
-{
-    constructPointBoxes();
-    adaptiveSizeComputed = true;
-}
-
-void Plot::computeAdaptiveSizes()
-{
-    QRectF totalSizeRect{QRectF(QPointF(0, 0), this->size())};
-    const QPointF center{totalSizeRect.center()};
-    const double availableWidth{(1 - marginRelSize) * totalSizeRect.width()};
-    const double availableHeight{(1 - marginRelSize) * totalSizeRect.height()};
-    availableRect = {QRectF{center.x() - availableWidth / 2,
-                            center.y() - availableHeight / 2,
-                            availableWidth,
-                            availableHeight}};
-    pointBoxSize = {pointBoxRelSize * availableRect.height()};
-    emit sizeComputed();
 }
 
 void Plot::constructPointBoxes()

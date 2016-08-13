@@ -19,7 +19,7 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "barchart.h"
+#include "BarChart.h"
 #include <QMouseEvent>
 #include <QPainter>
 
@@ -42,7 +42,15 @@ void BarChart::setBrush(QBrush& barBrush) { brush = barBrush; }
 
 void BarChart::paintEvent(QPaintEvent*)
 {
-    computeAdaptiveSizes();
+    const QRectF totalSizeRect = rect();
+    const QPointF rectCenter = totalSizeRect.center();
+    const double margin = 0.1;
+    const double availableWidth = (1 - margin) * totalSizeRect.width();
+    const double availableHeight = (1 - margin) * totalSizeRect.height();
+    availableRect = QRectF{rectCenter.x() - availableWidth / 2,
+                           rectCenter.y() - availableHeight / 2,
+                           availableWidth,
+                           availableHeight};
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     drawBars(painter);
@@ -83,25 +91,13 @@ void BarChart::drawBars(QPainter& painter)
     }
 }
 
-void BarChart::computeAdaptiveSizes()
-{
-    const QRectF totalSizeRect = QRectF(QPointF(0, 0), this->size());
-    const QPointF center = totalSizeRect.center();
-    const double margin = 0.1;
-    const double availableWidth = (1 - margin) * totalSizeRect.width();
-    const double availableHeight = (1 - margin) * totalSizeRect.height();
-    availableRect = QRectF{center.x() - availableWidth / 2,
-                           center.y() - availableHeight / 2,
-                           availableWidth,
-                           availableHeight};
-}
-
 BarData::BarData() {}
 
 BarData::BarData(const std::vector<double>& values,
                  const std::vector<QString>& labels)
 {
     size_t length = std::min(values.size(), labels.size());
+    data.reserve(length);
     for (size_t i = 0; i < length; ++i) {
         data.push_back(BarDataItem{labels[i], values[i], 0.0});
     }

@@ -63,8 +63,6 @@ protected:
 private:
     /* Rect that bounds this widget for this widget. */
     QRectF widgetRect;
-    /* Rect that bounds 'exploded' slices. */
-    QRectF expandedRect;
     /* Rect that bounds chart in non-expanded state. */
     QRectF pieRect;
     /* Distance by which expanded slice is shifted from center of the chart. */

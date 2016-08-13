@@ -19,28 +19,38 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IDATAWIDGET_H_DMUO9TSG
-#define IDATAWIDGET_H_DMUO9TSG
 
-#include <QFrame>
+#ifndef POMODORO_DAILYDISTRIBUTIONGRAPH_H
+#define POMODORO_DAILYDISTRIBUTIONGRAPH_H
 
-/* Widget that displays some data (like statistics, etc) and has
- * means to access this data, but does not now when underlying data
- * has been changed.
- *
- * Extends QWidget to provide 'synchronize()' slot.
- * It's ment to be called when widget's underlying data
- * has been changed and should be requeried.*/
-class DataWidget : public QFrame {
-    Q_OBJECT
 
+#include <QtWidgets/QFrame>
+#include <QtWidgets/QLabel>
+#include <core/DateTime.h>
+#include <core/Distribution.h>
+
+namespace Ui {
+class DailyTimelineGraph;
+}
+
+
+class DailyTimelineGraph : public QFrame {
 public:
-    DataWidget(QWidget* parent);
+    explicit DailyTimelineGraph(QWidget* parent);
 
-    virtual ~DataWidget() = default;
+    ~DailyTimelineGraph();
 
-public slots:
-    virtual void synchronize() = 0;
+    void setData(const Distribution<double>& dailyDistribution,
+                 const QDate& startDate,
+                 int dailyGoal);
+
+private:
+    Ui::DailyTimelineGraph* ui;
+
+    void setupGraphs();
+
+    void updateLegend(const Distribution<double>& dailyDistribution);
 };
 
-#endif /* end of include guard: IDATAWIDGET_H_DMUO9TSG */
+
+#endif // POMODORO_DAILYDISTRIBUTIONGRAPH_H

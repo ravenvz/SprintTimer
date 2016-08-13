@@ -45,13 +45,14 @@ class Gauge : public QWidget {
     friend class WorkProgressOverwork;
 
 public:
-    Gauge(int actual, int goal, QWidget* parent);
-    void setData(int actual, int goal);
+    Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent);
+    void setData(int completed, int total);
     ~Gauge() = default;
 
 private:
     int actual;
     int goal;
+    const double gaugeRelSize;
     std::unique_ptr<HoverState> hoveredState;
     std::unique_ptr<HoverState> unhoveredState;
     std::unique_ptr<WorkProgressState> workProgressUnderwork;
@@ -60,22 +61,16 @@ private:
     std::unique_ptr<WorkProgressState> workProgressDone;
     HoverState* hoverState;
     WorkProgressState* workProgressState;
-    bool sizesComputed = false;
     QRectF outerRect;
     QRectF innerRect;
-    static QColor normalEmpty;
-    static QColor normalFilled;
-    static QColor overfilledEmpty;
-    static QColor overfilledFilled;
-    static QColor backgroundFree;
-    static QColor backgroundHovered;
 
     void paintEvent(QPaintEvent*) override;
     bool eventFilter(QObject* object, QEvent* event) override;
-    void computeAdaptiveSizes();
     void setupPainter(QPainter& painter);
     void drawOuterCircle(QPainter& painter);
     void drawInnerCircle(QPainter& painter);
+
+    void updateState();
 };
 
 
@@ -131,17 +126,6 @@ public:
 class WorkProgressNone : public WorkProgressState {
 public:
     void draw(const Gauge& gauge, QPainter& painter) final;
-};
-
-class GaugeFactory {
-
-public:
-    GaugeFactory() {}
-
-    Gauge* create(int filled, int total, QWidget* parent)
-    {
-        return new Gauge(filled, total, parent);
-    }
 };
 
 #endif
