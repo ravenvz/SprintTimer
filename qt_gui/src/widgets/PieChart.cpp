@@ -76,20 +76,10 @@ void PieChart::paintEvent(QPaintEvent*)
 
 QPointF PieChart::computeOffsetPoint(double current, double offset)
 {
-    // TODO should really test this one.
     double angle = offset + current / 2;
     double angleRads = angle * pi / 180;
-    double x = expandedShiftLength * cos(angleRads);
-    double y = expandedShiftLength * sin(angleRads);
-    if (0 <= angle && angle <= 90)
-        y = -y;
-    else if (90 < angle && angle <= 180)
-        y = -y;
-    else if (180 < angle && angle <= 270)
-        y = -y;
-    else
-        y = -y;
-    return QPointF{x, y};
+    return QPointF{(expandedShiftLength * cos(angleRads)),
+                   (-expandedShiftLength * sin(angleRads))};
 }
 
 void PieChart::computeAdaptiveSizes()
@@ -102,10 +92,6 @@ void PieChart::computeAdaptiveSizes()
         = expandedSliceRelativeDiameter - 0.1 * expandedSliceRelativeDiameter;
     expandedShiftLength
         = (expandedSliceRelativeDiameter - diagramRelativeDiameter) / 2;
-    expandedRect = QRectF{center.x() - expandedSliceRelativeDiameter / 2,
-                          center.y() - expandedSliceRelativeDiameter / 2,
-                          expandedSliceRelativeDiameter,
-                          expandedSliceRelativeDiameter};
     pieRect = QRectF{center.x() - diagramRelativeDiameter / 2,
                      center.y() - diagramRelativeDiameter / 2,
                      diagramRelativeDiameter,
@@ -132,14 +118,6 @@ void PieChart::onLeftMouseClick(const QPoint& pos)
     }
 }
 
-// void PieChart::onSliceSelectionChanged(size_t sliceIndex)
-// {
-//     selectedSlice
-//         ? selected selectedSliceIndex.emplace(
-//               selectedSliceIndex == sliceIndex ? -1 : sliceIndex);
-//     repaint();
-// }
-
 void PieChart::togglePartActive(size_t sliceIndex)
 {
     if (activeSliceInd && (*activeSliceInd == sliceIndex))
@@ -147,5 +125,4 @@ void PieChart::togglePartActive(size_t sliceIndex)
     else
         activeSliceInd = sliceIndex;
     repaint();
-    // emit sliceSelectionChanged(sliceIndex);
 }

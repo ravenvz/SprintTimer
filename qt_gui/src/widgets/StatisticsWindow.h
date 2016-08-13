@@ -78,7 +78,6 @@ private:
     const int numTopTags = 7; // TODO move to config
     optional<size_t> selectedTagIndex;
 
-    void connectSlots();
     void fetchPomodoros();
     void drawGraphs();
     void updateTopTagsDiagram(

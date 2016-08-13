@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "widgets/StatisticsWindow.h"
 #include "ui_statistics_window.h"
-#include "widgets/barchart.h"
+#include "widgets/BarChart.h"
 
 
 StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
@@ -37,13 +37,7 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
         &StatisticsWindow::onYearRangeUpdated, this, std::placeholders::_1));
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
-    connectSlots();
-}
 
-StatisticsWindow::~StatisticsWindow() { delete ui; }
-
-void StatisticsWindow::connectSlots()
-{
     connect(ui->widgetPickPeriod,
             &PickPeriodWidget::timeSpanChanged,
             this,
@@ -53,6 +47,8 @@ void StatisticsWindow::connectSlots()
             this,
             &StatisticsWindow::onTagSelected);
 }
+
+StatisticsWindow::~StatisticsWindow() { delete ui; }
 
 void StatisticsWindow::synchronize() { fetchPomodoros(); }
 

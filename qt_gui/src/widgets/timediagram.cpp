@@ -42,7 +42,7 @@ void TimeDiagram::paintEvent(QPaintEvent*)
 
 void TimeDiagram::computeAdaptiveSizes()
 {
-    totalSizeRect = QRectF(QPointF(0, 0), this->size());
+    totalSizeRect = rect();
     double longTickRelativeLength = 0.05;
     longTickLength = longTickRelativeLength
         * std::min(totalSizeRect.width(), totalSizeRect.height());

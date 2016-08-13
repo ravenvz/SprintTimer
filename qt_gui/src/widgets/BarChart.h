@@ -40,7 +40,6 @@ public:
 
     /* Both vectors should be of equal size, otherwise data would
      * be set only for number of bars equal to shortest vector */
-    // BarData(std::vector<double>& values, std::vector<QString>& labels);
     BarData(const std::vector<double>& values,
             const std::vector<QString>& labels);
 
@@ -70,9 +69,7 @@ private:
     QPen pen;
     QBrush brush;
     QRectF availableRect;
-    std::vector<QRectF> barRectangles;
 
-    void computeAdaptiveSizes();
     void drawBars(QPainter& painter);
 };
 

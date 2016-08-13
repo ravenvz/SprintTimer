@@ -23,6 +23,7 @@
 #include "widgets/GoalProgressWidget.h"
 #include "widgets/ProgressWidget.h"
 #include <QtWidgets/QGridLayout>
+#include <thread>
 
 GoalProgressWidget::GoalProgressWidget(IConfig& applicationSettings,
                                        IPomodoroService& pomodoroService,
