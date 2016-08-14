@@ -330,10 +330,10 @@ bool PomodoroDatabase::createSchema() {
     query.exec("INSERT INTO " + CalendarTable::name + " DEFAULT VALUES");
     query.exec("INSERT INTO " + CalendarTable::name + " DEFAULT VALUES");
     query.exec("INSERT INTO " + CalendarTable::name + " SELECT NULL FROM "
-            + CalendarTable::name + "d1, "
-            + CalendarTable::name + "d2, "
-            + CalendarTable::name + "d3, "
-            + CalendarTable::name + "d4"
+            + CalendarTable::name + " d1, "
+            + CalendarTable::name + " d2, "
+            + CalendarTable::name + " d3, "
+            + CalendarTable::name + " d4"
             );
     query.exec("INSERT INTO " + CalendarTable::name + " SELECT NULL FROM "
             + CalendarTable::name + " d1, "
