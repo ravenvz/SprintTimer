@@ -140,8 +140,6 @@ private:
 
     bool activateForeignKeys();
 
-    bool execAndCheck(QSqlQuery& query, const QString& queryStr);
-
     // void migrate();
 };
 
