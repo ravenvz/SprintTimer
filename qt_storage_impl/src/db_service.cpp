@@ -25,6 +25,8 @@
 
 DBService::DBService(QString filename)
 {
+    // TODO handle exception
+    prepareDatabase(filename);
     Worker* worker = new Worker(filename);
     worker->moveToThread(&workerThread);
     qRegisterMetaType<std::vector<QSqlRecord>>("std::vector<QSqlRecord>");
@@ -58,6 +60,10 @@ DBService::~DBService()
 {
     workerThread.quit();
     workerThread.wait();
+}
+
+void DBService::prepareDatabase(const QString& filename) const {
+    auto db = PomodoroDatabase(filename);
 }
 
 
@@ -117,7 +123,7 @@ Worker::Worker(const QString& filename)
     : filename{std::move(filename)}
     , db{QSqlDatabase::addDatabase("QSQLITE")}
 {
-    if (!createDbConnection())
+    if (!openConnection())
         throw std::runtime_error("Unable to create database");
 }
 
@@ -216,152 +222,19 @@ void Worker::onCommitRequested()
 }
 
 
-bool Worker::createDatabase()
+bool Worker::openConnection()
 {
     db.setDatabaseName(filename);
-    return db.open() && createSchema();
-}
-
-
-bool Worker::createDbConnection()
-{
-    // QString filename = "db/pomodoro.db";
-    // QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    QFile databaseFile(filename);
-    if (filename == ":memory:") {
-        db.open();
-        createSchema();
-        activateForeignKeys();
-        return true;
-    }
-    // if (filename == ":memory:" || !databaseFile.exists()) {
-    if (!databaseFile.exists()) {
-        qDebug() << "Database not found. Creating...";
-        if (!createDatabase()) {
-            return false;
-        }
-    }
-    else {
-        qDebug() << "Database found. Opening...";
-        db.setDatabaseName(filename);
-    }
 
     if (!db.open()) {
-        qDebug() << "Failed to open database";
+        qCritical() << "Worker failed to open database";
         return false;
     }
-    activateForeignKeys();
+    setPragmas();
     return true;
 }
 
-namespace TaskTable {
-const QString name{"todo_item"};
-
-namespace Columns {
-    const QString id{"id"};
-    const QString name{"name"};
-    const QString estimatedPomodoros{"estimated_pomodoros"};
-    const QString spentPomodoros{"spent_pomodoros"};
-    const QString completed{"completed"};
-    const QString priority{"priority"};
-    const QString lastModified{"last_modified"};
-    const QString uuid{"uuid"};
-}
-}
-
-namespace PomodoroTable {
-const QString name{"pomodoro"};
-
-namespace Columns {
-    const QString id{"id"};
-    const QString taskUuid{"todo_uuid"};
-    const QString startTime{"start_time"};
-    const QString finishTime{"finish_time"};
-    const QString uuid{"uuid"};
-}
-}
-
-namespace TagTable {
-const QString name{"tag"};
-
-namespace Columns {
-    const QString id{"id"};
-    const QString name{"name"};
-}
-}
-
-namespace TaskTagTable {
-const QString name{"todotag"};
-
-namespace Columns {
-    const QString id{"id"};
-    const QString tagId{"tag_id"};
-    const QString taskId{"todo_id"};
-    const QString taskUuid{"todo_uuid"};
-}
-}
-
-namespace TaskTagView
-{
-    const QString name{"task_tag_view"};
-
-    namespace Aliases {
-        const QString tagName{"tagname"};
-    }
-} /* TaskTagView */
-
-namespace TaskTagInsertTrigger {
-    const QString name{"instead_task_tag_view_insert"};
-}
-
-namespace CleanOrphanedTagTrigger {
-    const QString name{"on_todo_tag_delete"};
-}
-
-namespace PomoView {
-    const QString name{"pomodoro_view"};
-
-    namespace Aliases {
-        const QString tags{"tags"};
-    }
-}
-
-namespace PomoViewDeleteTrigger {
-    const QString name{"delete_from_pomodoro_view"};
-}
-
-namespace PomoViewInsertTrigger {
-    const QString name{"instead_pomodoro_view_insert"};
-}
-
-namespace TasksView {
-    const QString name{"task_view"};
-}
-
-namespace TaskViewDeleteTrigger {
-    const QString name{"on_task_view_delete"};
-}
-
-namespace TaskViewUpdateTrigger {
-    const QString name{"on_task_view_update"};
-}
-
-namespace CalendarTable {
-    const QString name{"calendar"};
-
-    namespace Columns {
-        const QString id{"id"};
-        const QString dt{"dt"};
-    }
-}
-
-bool Worker::createSchema()
-{
-    return PomodoroDatabase::createSchema();
-}
-
-
-bool Worker::activateForeignKeys()
+bool Worker::setPragmas()
 {
     QSqlQuery query;
     return query.exec("PRAGMA foreign_keys = ON");

@@ -24,115 +24,51 @@
 
 #include <QDebug>
 #include <QSqlError>
+#include <QtCore/QFile>
 
-
-namespace TaskTable {
-    const QString name{"todo_item"};
-
-    namespace Columns {
-        const QString id{"id"};
-        const QString name{"name"};
-        const QString estimatedPomodoros{"estimated_pomodoros"};
-        const QString spentPomodoros{"spent_pomodoros"};
-        const QString completed{"completed"};
-        const QString priority{"priority"};
-        const QString lastModified{"last_modified"};
-        const QString uuid{"uuid"};
-    }
-}
-
-namespace PomodoroTable {
-    const QString name{"pomodoro"};
-
-    namespace Columns {
-        const QString id{"id"};
-        const QString taskUuid{"todo_uuid"};
-        const QString startTime{"start_time"};
-        const QString finishTime{"finish_time"};
-        const QString uuid{"uuid"};
-    }
-}
-
-namespace TagTable {
-    const QString name{"tag"};
-
-    namespace Columns {
-        const QString id{"id"};
-        const QString name{"name"};
-    }
-}
-
-namespace TaskTagTable {
-    const QString name{"todotag"};
-
-    namespace Columns {
-        const QString id{"id"};
-        const QString tagId{"tag_id"};
-        const QString taskId{"todo_id"};
-        const QString taskUuid{"todo_uuid"};
-    }
-}
-
-namespace TaskTagView
+PomodoroDatabase::PomodoroDatabase(const QString& filename)
+        : filename{filename}
 {
-    const QString name{"task_tag_view"};
+    if (!prepare())
+        throw std::runtime_error("Cannot find or create database");
+}
 
-    namespace Aliases {
-        const QString tagName{"tagname"};
+bool PomodoroDatabase::prepare()
+{
+    {
+        auto db = QSqlDatabase::addDatabase("QSQLITE", connectionName);
+        db.setDatabaseName(filename);
+        QFile databaseFile{filename};
+        if (!databaseFile.exists()) {
+            qWarning() << "Database not found. Creating...";
+            if (!create(db))
+                return false;
+        } else {
+            qWarning() << "Test database connection...";
+            if (!db.open()) {
+                QString message = QString{"Cannot open database connection\n Error: %1"}
+                        .arg(db.lastError().text());
+                qCritical() << message;
+                return false;
+            }
+            qWarning() << "Database connection established";
+        }
+
+        if (db.open())
+            db.close();
     }
-} /* TaskTagView */
 
-namespace TaskTagInsertTrigger {
-    const QString name{"instead_task_tag_view_insert"};
+    QSqlDatabase::removeDatabase(connectionName);
+    return true;
 }
 
-namespace CleanOrphanedTagTrigger {
-    const QString name{"on_todo_tag_delete"};
+bool PomodoroDatabase::create(QSqlDatabase& db) {
+    // db.setDatabaseName(filename);
+    return db.open() && createSchema(db);
 }
 
-namespace PomoView {
-    const QString name{"pomodoro_view"};
-
-    namespace Aliases {
-        const QString tags{"tags"};
-    }
-}
-
-namespace PomoViewDeleteTrigger {
-    const QString name{"delete_from_pomodoro_view"};
-}
-
-namespace PomoViewInsertTrigger {
-    const QString name{"instead_pomodoro_view_insert"};
-}
-
-namespace TasksView {
-    const QString name{"task_view"};
-
-    namespace Aliases {
-        const QString tags{"tags"};
-    }
-}
-
-namespace TaskViewDeleteTrigger {
-    const QString name{"on_task_view_delete"};
-}
-
-namespace TaskViewUpdateTrigger {
-    const QString name{"on_task_view_update"};
-}
-
-namespace CalendarTable {
-    const QString name{"calendar"};
-
-    namespace Columns {
-        const QString id{"id"};
-        const QString dt{"dt"};
-    }
-}
-
-bool PomodoroDatabase::createSchema() {
-    QSqlQuery query;
+bool PomodoroDatabase::createSchema(QSqlDatabase& db) {
+    QSqlQuery query{db};
 
     const QString createTodoItemTable{
         "CREATE TABLE " + TaskTable::name + "("
@@ -347,23 +283,19 @@ bool PomodoroDatabase::createSchema() {
         + " = date('2000-01-01', (-1 + id) ||' day')");
     query.exec("CREATE INDEX idx1 ON " + CalendarTable::name + "(" + CalendarTable::Columns::dt + ")");
 
-    qDebug() << createTaskView;
-
     return execAndCheck(query, createTodoItemTable)
-        && execAndCheck(query, createTagTable)
-        && execAndCheck(query, createPomodoroTable)
-        && execAndCheck(query, createTodoTagTable)
-        && execAndCheck(query, createTaskTagView)
-        && execAndCheck(query, createInsteadOfTaskTagInsertTrigger)
-        && execAndCheck(query, createCleanOrphanedTagTrigger)
-        // && execAndCheck(query, createIncrementSpentTrigger)
-        // && execAndCheck(query, createDecrementSpentTrigger)
-        && execAndCheck(query, createPomodoroView)
-        && execAndCheck(query, createPomodoroViewDeleteTrigger)
-        && execAndCheck(query, createPomodoroViewInsertTrigger)
-        && execAndCheck(query, createTaskView)
-        && execAndCheck(query, createTaskViewDeleteTrigger)
-        && execAndCheck(query, createTaskViewUpdateTrigger);
+               && execAndCheck(query, createTagTable)
+               && execAndCheck(query, createPomodoroTable)
+               && execAndCheck(query, createTodoTagTable)
+               && execAndCheck(query, createTaskTagView)
+               && execAndCheck(query, createInsteadOfTaskTagInsertTrigger)
+               && execAndCheck(query, createCleanOrphanedTagTrigger)
+               && execAndCheck(query, createPomodoroView)
+               && execAndCheck(query, createPomodoroViewDeleteTrigger)
+               && execAndCheck(query, createPomodoroViewInsertTrigger)
+               && execAndCheck(query, createTaskView)
+               && execAndCheck(query, createTaskViewDeleteTrigger)
+               && execAndCheck(query, createTaskViewUpdateTrigger);
 }
 
 bool PomodoroDatabase::execAndCheck(QSqlQuery& query, const QString& queryStr) {
@@ -374,20 +306,4 @@ bool PomodoroDatabase::execAndCheck(QSqlQuery& query, const QString& queryStr) {
         qDebug() << query.lastError();
     }
     return ok;
-}
-
-PomodoroDatabase::PomodoroDatabase(QString filename)
-    : filename{std::move(filename)}
-    , db{QSqlDatabase::addDatabase("QSQLITE")}
-{
-
-}
-
-PomodoroDatabase::~PomodoroDatabase() {
-
-}
-
-bool PomodoroDatabase::create() {
-    db.setDatabaseName(filename);
-    return db.open() && createSchema();
 }

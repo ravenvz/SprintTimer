@@ -40,6 +40,7 @@ void DistributionReaderBase::requestDailyDistribution(const TimeSpan& timeSpan,
     QDate now = DateTimeConverter::qDate(timeSpan.finishTime);
 
     dbService.bind(mQueryId, ":start_date", from);
+    dbService.bind(mQueryId, ":start_date", from);
     dbService.bind(mQueryId, ":end_date", now);
     dbService.executePrepared(mQueryId);
 }

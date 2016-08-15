@@ -27,23 +27,135 @@
 #include <QSqlQuery>
 #include <QString>
 
+
+namespace TaskTable {
+    const QString name{"todo_item"};
+
+    namespace Columns {
+        const QString id{"id"};
+        const QString name{"name"};
+        const QString estimatedPomodoros{"estimated_pomodoros"};
+        const QString spentPomodoros{"spent_pomodoros"};
+        const QString completed{"completed"};
+        const QString priority{"priority"};
+        const QString lastModified{"last_modified"};
+        const QString uuid{"uuid"};
+    }
+}
+
+namespace PomodoroTable {
+    const QString name{"pomodoro"};
+
+    namespace Columns {
+        const QString id{"id"};
+        const QString taskUuid{"todo_uuid"};
+        const QString startTime{"start_time"};
+        const QString finishTime{"finish_time"};
+        const QString uuid{"uuid"};
+    }
+}
+
+namespace TagTable {
+    const QString name{"tag"};
+
+    namespace Columns {
+        const QString id{"id"};
+        const QString name{"name"};
+    }
+}
+
+namespace TaskTagTable {
+    const QString name{"todotag"};
+
+    namespace Columns {
+        const QString id{"id"};
+        const QString tagId{"tag_id"};
+        const QString taskId{"todo_id"};
+        const QString taskUuid{"todo_uuid"};
+    }
+}
+
+namespace TaskTagView
+{
+    const QString name{"task_tag_view"};
+
+    namespace Aliases {
+        const QString tagName{"tagname"};
+    }
+} /* TaskTagView */
+
+namespace TaskTagInsertTrigger {
+    const QString name{"instead_task_tag_view_insert"};
+}
+
+namespace CleanOrphanedTagTrigger {
+    const QString name{"on_todo_tag_delete"};
+}
+
+namespace PomoView {
+    const QString name{"pomodoro_view"};
+
+    namespace Aliases {
+        const QString tags{"tags"};
+    }
+}
+
+namespace PomoViewDeleteTrigger {
+    const QString name{"delete_from_pomodoro_view"};
+}
+
+namespace PomoViewInsertTrigger {
+    const QString name{"instead_pomodoro_view_insert"};
+}
+
+namespace TasksView {
+    const QString name{"task_view"};
+
+    namespace Aliases {
+        const QString tags{"tags"};
+    }
+}
+
+namespace TaskViewDeleteTrigger {
+    const QString name{"on_task_view_delete"};
+}
+
+namespace TaskViewUpdateTrigger {
+    const QString name{"on_task_view_update"};
+}
+
+namespace CalendarTable {
+    const QString name{"calendar"};
+
+    namespace Columns {
+        const QString id{"id"};
+        const QString dt{"dt"};
+    }
+}
+
+
+/* Responsible for creating database and schema.
+ * If database already exists, tries to establish connection and exits on success
+ * and throws std::runtime_error when database could not be found and(or) created.
+ *
+ * TODO track database version to handle migrations
+ */
 class PomodoroDatabase {
 
 public:
-    PomodoroDatabase(QString filename);
-
-    virtual ~PomodoroDatabase();
-
-    static bool createSchema();
-
-    bool create();
+    PomodoroDatabase(const QString& filename);
 
 private:
-    static bool execAndCheck(QSqlQuery& query, const QString& queryStr);
+    const QString filename;
+    const QString connectionName{"test_connection"};
 
-    QString filename;
-    QSqlDatabase db;
+    bool prepare();
 
+    bool create(QSqlDatabase& db);
+
+    bool createSchema(QSqlDatabase& db);
+
+    bool execAndCheck(QSqlQuery& query, const QString& queryStr);
 };
 
 
