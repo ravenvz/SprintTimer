@@ -112,6 +112,7 @@ int main(int argc, char* argv[])
     const std::string dataDirectory = createDataDirectoryIfNotExist();
     QApplication app(argc, argv);
     DBService dbService{dataDirectory + "/pomodoro.db"};
+    // DBService dbService{dataDirectory + "/test_pomodoro.db"};
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader{
@@ -139,8 +140,6 @@ int main(int argc, char* argv[])
                                              *dailyDistributionReader.get(),
                                              *weeklyDistributionReader.get(),
                                              *monthlyDistributionReader.get()};
-
-    qDebug() << "Successfully connected to database";
 
     MainWindow w{applicationSettings, pomodoroService};
     w.show();

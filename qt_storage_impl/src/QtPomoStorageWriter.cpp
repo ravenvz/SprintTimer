@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtPomoStorageWriter.h"
+#include "qt_storage_impl/PomodoroDatabase.h"
 #include "utils/DateTimeConverter.h"
 
 
@@ -27,10 +28,17 @@ QtPomoStorageWriter::QtPomoStorageWriter(DBService& dbService)
     : dbService{dbService}
 {
     addQueryId = dbService.prepare(
-        "insert into pomodoro_view(todo_uuid, start_time, finish_time, uuid) "
-        "values(:todo_uuid, :startTime, :finishTime, :uuid);");
+        QString{"INSERT INTO %1(%2, %3, %4, %5) "
+                "VALUES(:todo_uuid, :startTime, :finishTime, :uuid);"}
+            .arg(PomoView::name)
+            .arg(PomodoroTable::Columns::taskUuid)
+            .arg(PomodoroTable::Columns::startTime)
+            .arg(PomodoroTable::Columns::finishTime)
+            .arg(PomodoroTable::Columns::uuid));
     removeQueryId
-        = dbService.prepare("delete from pomodoro_view where uuid = (:uuid);");
+        = dbService.prepare(QString{"DELETE FROM %1 WHERE %2 = (:uuid);"}
+                                .arg(PomoView::name)
+                                .arg(PomodoroTable::Columns::uuid));
 }
 
 void QtPomoStorageWriter::save(const Pomodoro& pomodoro)

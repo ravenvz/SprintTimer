@@ -94,6 +94,8 @@ signals:
 private:
     QThread workerThread;
     long long nextQueryId{0};
+
+    void prepareDatabase(const QString& filename) const;
 };
 
 
@@ -132,17 +134,10 @@ private:
     bool inTransaction{false};
     QHash<long long, QSqlQuery> preparedQueries;
 
-    bool createDatabase();
+    bool openConnection();
 
-    bool createSchema();
+    bool setPragmas();
 
-    bool createDbConnection();
-
-    bool activateForeignKeys();
-
-    bool execAndCheck(QSqlQuery& query, const QString& queryStr);
-
-    // void migrate();
 };
 
 #endif // DB_HELPER_H

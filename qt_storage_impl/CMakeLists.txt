@@ -11,6 +11,7 @@ set(QT_STORAGE_IMPL_SOURCE_FILES
     src/QtPomoYearRangeReader.cpp
     src/QtTaskStorageReader.cpp
     src/QtTaskStorageWriter.cpp
+    src/PomodoroDatabase.cpp
 )
 
 # Tell CMake to run moc when necessary:

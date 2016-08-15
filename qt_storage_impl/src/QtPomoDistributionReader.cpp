@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtPomoDistributionReader.h"
+#include "qt_storage_impl/PomodoroDatabase.h"
 #include "utils/DateTimeConverter.h"
 
 
@@ -39,6 +40,7 @@ void DistributionReaderBase::requestDailyDistribution(const TimeSpan& timeSpan,
     QDate from = DateTimeConverter::qDate(timeSpan.startTime);
     QDate now = DateTimeConverter::qDate(timeSpan.finishTime);
 
+    dbService.bind(mQueryId, ":start_date", from);
     dbService.bind(mQueryId, ":start_date", from);
     dbService.bind(mQueryId, ":end_date", now);
     dbService.executePrepared(mQueryId);
@@ -64,37 +66,48 @@ QtPomoDailyDistributionReader::QtPomoDailyDistributionReader(
     : DistributionReaderBase{dbService}
 {
     mQueryId = dbService.prepare(
-        "select count(pomodoro.id) "
-        "from calendar left join pomodoro "
-        "on date(start_time) = dt "
-        "where dt > date(:start_date) and dt <= date(:end_date)"
-        "group by date(dt) "
-        "order by dt");
+        QString{"SELECT COUNT(%1) "
+                "FROM %2 LEFT JOIN %3 "
+                "ON DATE(%4) = %5 "
+                "WHERE %5 > DATE(:start_date) AND %5 <= DATE(:end_date)"
+                "GROUP BY DATE(%5) "
+                "ORDER BY %5"}
+            .arg(PomodoroTable::name + "." + PomodoroTable::Columns::id)
+            .arg(CalendarTable::name)
+            .arg(PomodoroTable::name)
+            .arg(PomodoroTable::Columns::startTime)
+            .arg(CalendarTable::Columns::dt));
 }
 
 QtPomoWeeklyDistributionReader::QtPomoWeeklyDistributionReader(
     DBService& dbService)
     : DistributionReaderBase{dbService}
 {
-    mQueryId = dbService.prepare(
-        "select count(start_time) "
-        "from calendar left join pomodoro "
-        "on date(start_time) = dt "
-        "where dt > (:start_date) and dt <= (:end_date) "
-        "group by (strftime('%j', date(dt, '-3 days', 'weekday "
+    mQueryId = dbService.prepare(QString{
+        "SELECT COUNT(%1) "
+        "FROM %2 LEFT JOIN %3 "
+        "ON DATE(%1) = %4 "
+        "WHERE %4 > (:start_date) AND %4 <= (:end_date) "
+        "GROUP BY (STRFTIME('%j', DATE(%4, '-3 days', 'weekday "
         "4')) - 1) / 7 + 1 "
-        "order by dt");
+        "ORDER BY %4"}.arg(PomodoroTable::Columns::startTime)
+                                     .arg(CalendarTable::name)
+                                     .arg(PomodoroTable::name)
+                                     .arg(CalendarTable::Columns::dt));
 }
 
 QtPomoMonthlyDistributionReader::QtPomoMonthlyDistributionReader(
     DBService& dbService)
     : DistributionReaderBase{dbService}
 {
-    mQueryId
-        = dbService.prepare("select count(start_time) "
-                            "from calendar left join pomodoro "
-                            "on date(start_time) = dt "
-                            "where dt > (:start_date) and dt <= (:end_date) "
-                            "group by strftime('%m', dt) "
-                            "order by dt");
+    mQueryId = dbService.prepare(QString{
+        "SELECT COUNT(%1) "
+        "FROM %2 LEFT JOIN %3 "
+        "ON DATE(%1) = %4 "
+        "WHERE %4 > (:start_date) AND %4 <= (:end_date) "
+        "GROUP BY STRFTIME('%m', %4) "
+        "ORDER BY %4"}.arg(PomodoroTable::Columns::startTime)
+                                     .arg(CalendarTable::name)
+                                     .arg(PomodoroTable::name)
+                                     .arg(CalendarTable::Columns::dt));
 }
