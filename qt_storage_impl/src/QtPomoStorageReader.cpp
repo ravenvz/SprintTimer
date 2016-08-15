@@ -20,18 +20,26 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtPomoStorageReader.h"
+#include "qt_storage_impl/PomodoroDatabase.h"
 #include "utils/DateTimeConverter.h"
 
 
 QtPomoStorageReader::QtPomoStorageReader(DBService& dbService)
     : dbService{dbService}
 {
-    mQueryId = dbService.prepare(
-        "select id, todo_uuid, name, tags, start_time, finish_time, uuid "
-        "from pomodoro_view "
-        "where date(start_time) >= (:startTime) "
-        "and date(start_time) <= (:finishTime) "
-        "order by start_time");
+    mQueryId = dbService.prepare(QString{"SELECT %1, %2, %3, %4, %5, %6, %7 "
+                                         "FROM %8 "
+                                         "WHERE DATE(%5) >= (:startTime) "
+                                         "AND DATE(%5) <= (:finishTime) "
+                                         "ORDER BY %5"}
+                                     .arg(PomodoroTable::Columns::id)
+                                     .arg(PomodoroTable::Columns::taskUuid)
+                                     .arg(TaskTable::Columns::name)
+                                     .arg(PomoView::Aliases::tags)
+                                     .arg(PomodoroTable::Columns::startTime)
+                                     .arg(PomodoroTable::Columns::finishTime)
+                                     .arg(TaskTable::Columns::uuid)
+                                     .arg(PomoView::name));
     connect(&dbService,
             &DBService::results,
             this,

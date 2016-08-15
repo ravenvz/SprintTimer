@@ -20,27 +20,29 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtTaskStorageReader.h"
+#include "qt_storage_impl/PomodoroDatabase.h"
 #include "utils/DateTimeConverter.h"
 
 
 QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
     : dbService{dbService}
 {
-    mFinishedQueryId = dbService.prepare(
-        "SELECT "
-        "id, "
-        "name, "
-        "estimated_pomodoros, "
-        "spent_pomodoros, "
-        "priority, "
-        "completed ,"
-        "tags, "
-        "last_modified, "
-        "uuid "
-        "FROM task_view "
-        "WHERE completed = 1 AND date(last_modified) >= (:start_date) "
-        "AND date(last_modified) <= (:end_date) "
-        "ORDER BY last_modified;");
+    mFinishedQueryId
+        = dbService.prepare(QString{
+            "SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
+            "FROM %10 "
+            "WHERE %6 = 1 AND DATE(%8) >= (:start_date) "
+            "AND DATE(%8) <= (:end_date) "
+            "ORDER BY %8;"}.arg(TaskTable::Columns::id)
+                                .arg(TaskTable::Columns::name)
+                                .arg(TaskTable::Columns::estimatedPomodoros)
+                                .arg(TaskTable::Columns::spentPomodoros)
+                                .arg(TaskTable::Columns::priority)
+                                .arg(TaskTable::Columns::completed)
+                                .arg(TasksView::Aliases::tags)
+                                .arg(TaskTable::Columns::lastModified)
+                                .arg(TaskTable::Columns::uuid)
+                                .arg(TasksView::name));
     connect(&dbService,
             &DBService::results,
             this,
@@ -51,19 +53,20 @@ void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
 {
     handler_queue.push_back(handler);
     mUnfinishedQueryId = dbService.executeQuery(
-        "SELECT "
-        "id, "
-        "name, "
-        "estimated_pomodoros, "
-        "spent_pomodoros, "
-        "priority, "
-        "completed, "
-        "tags, "
-        "last_modified, "
-        "uuid "
-        "FROM task_view "
-        "WHERE completed = 0 OR last_modified > datetime('now', '-1 day') "
-        "ORDER BY priority;");
+        QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
+                "FROM %10 "
+                "WHERE %6 = 0 OR %8 > DATETIME('now', '-1 day') "
+                "ORDER BY %5;"}
+            .arg(TaskTable::Columns::id)
+            .arg(TaskTable::Columns::name)
+            .arg(TaskTable::Columns::estimatedPomodoros)
+            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::Columns::priority)
+            .arg(TaskTable::Columns::completed)
+            .arg(TasksView::Aliases::tags)
+            .arg(TaskTable::Columns::lastModified)
+            .arg(TaskTable::Columns::uuid)
+            .arg(TasksView::name));
 }
 
 void QtTaskStorageReader::requestFinishedTasks(const TimeSpan& timeSpan,
@@ -86,8 +89,11 @@ void QtTaskStorageReader::requestFinishedTasks(const TimeSpan& timeSpan,
 void QtTaskStorageReader::requestAllTags(TagHandler handler)
 {
     tag_handler_queue.push_back(handler);
-    mTagQueryId = dbService.executeQuery("select id, name from tag "
-                                         "order by name;");
+    mTagQueryId = dbService.executeQuery(QString{"SELECT %1, %2 FROM %3 "
+                                                 "ORDER BY %2;"}
+                                             .arg(TagTable::Columns::id)
+                                             .arg(TagTable::Columns::name)
+                                             .arg(TagTable::name));
 }
 
 void QtTaskStorageReader::onResultsReceived(
@@ -135,12 +141,12 @@ Task QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
         columnData(record, Column::LastModified).toDateTime()};
     DateTime lastModified = DateTimeConverter::dateTime(qLastModified);
     return Task{name,
-                    estimatedPomodoros,
-                    spentPomodoros,
-                    uuid,
-                    tags,
-                    finished,
-                    lastModified};
+                estimatedPomodoros,
+                spentPomodoros,
+                uuid,
+                tags,
+                finished,
+                lastModified};
 }
 
 std::string

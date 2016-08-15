@@ -20,8 +20,9 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtTaskStorageWriter.h"
-#include "utils/DateTimeConverter.h"
+#include "qt_storage_impl/PomodoroDatabase.h"
 #include "qt_storage_impl/utils.h"
+#include "utils/DateTimeConverter.h"
 #include <algorithm>
 
 
@@ -29,37 +30,74 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
     : dbService{dbService}
 {
     addTaskQueryId = dbService.prepare(
-        "INSERT INTO todo_item (name, estimated_pomodoros, spent_pomodoros, "
-        "completed, priority, last_modified, uuid) "
-        "VALUES (:name, :estimated_pomodoros, :spent_pomodoros, :completed, "
-        ":priority, :last_modified, :uuid); ");
+        QString{"INSERT INTO %1 (%2, %3, %4, %5, %6, %7, %8) "
+                "VALUES (:name, :estimated_pomodoros, :spent_pomodoros, "
+                ":completed, "
+                ":priority, :last_modified, :uuid); "}
+            .arg(TaskTable::name)
+            .arg(TaskTable::Columns::name)
+            .arg(TaskTable::Columns::estimatedPomodoros)
+            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::Columns::completed)
+            .arg(TaskTable::Columns::priority)
+            .arg(TaskTable::Columns::lastModified)
+            .arg(TaskTable::Columns::uuid));
     insertTagQueryId = dbService.prepare(
-        "insert into task_tag_view(tagname, uuid) values(:tag, :uuid);");
+        QString{"INSERT INTO %1(%2, %3) VALUES(:tag, :uuid);"}
+            .arg(TaskTagView::name)
+            .arg(TaskTagView::Aliases::tagName)
+            .arg(TaskTable::Columns::uuid));
     removeTagQueryId = dbService.prepare(
-        "delete from todotag where todo_uuid = :uuid "
-        "and tag_id in (select id from tag where name = :tag);");
-    removeTaskQueryId
-        = dbService.prepare("delete from todo_item where uuid = (:uuid)");
+        QString{"DELETE FROM %1 WHERE %2 = :uuid "
+                "AND %3 IN (SELECT ID FROM %4 WHERE %5 = :tag);"}
+            .arg(TaskTagTable::name)
+            .arg(TaskTagTable::Columns::taskUuid)
+            .arg(TaskTagTable::Columns::tagId)
+            .arg(TagTable::name)
+            .arg(TagTable::Columns::name));
+    removeTaskQueryId = dbService.prepare(QString{
+        "DELETE FROM %1 WHERE %2 = (:uuid)"}.arg(TaskTable::name)
+                                              .arg(TaskTable::Columns::uuid));
     editQueryId
-        = dbService.prepare("update todo_item set name = :name, "
-                            "estimated_pomodoros = :estimated_pomodoros, "
-                            "last_modified = :last_modified "
-                            "where uuid = :uuid;");
+        = dbService.prepare(QString{"UPDATE %1 SET %2 = :name, "
+                                    "%3 = :estimated_pomodoros, "
+                                    "%4 = :last_modified "
+                                    "WHERE %5 = :uuid;"}
+                                .arg(TaskTable::name)
+                                .arg(TaskTable::Columns::name)
+                                .arg(TaskTable::Columns::estimatedPomodoros)
+                                .arg(TaskTable::Columns::lastModified)
+                                .arg(TaskTable::Columns::uuid));
     incrementSpentQueryId = dbService.prepare(
-        "update todo_item set spent_pomodoros = spent_pomodoros + 1 "
-        "where todo_item.uuid = (:todo_uuid);");
+        QString{"UPDATE %1 set %2 = %2 + 1 "
+                "WHERE %3 = (:todo_uuid);"}
+            .arg(TaskTable::name)
+            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::name + "." + TaskTable::Columns::uuid));
     decrementSpentQueryId = dbService.prepare(
-        "update todo_item set spent_pomodoros = spent_pomodoros - 1 "
-        "where todo_item.uuid = (:todo_uuid);");
+        QString{"UPDATE %1 SET %2 = %2 - 1 "
+                "WHERE %3 = (:todo_uuid);"}
+            .arg(TaskTable::name)
+            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::name + "." + TaskTable::Columns::uuid));
     toggleCompletionQueryId
-        = dbService.prepare("update todo_item "
-                            "set completed = not completed, "
-                            "last_modified = :time_stamp "
-                            "where uuid = :uuid;");
-    updatePrioritiesQueryId = dbService.prepare(
-        "update todo_item set priority = :priority where uuid = :uuid;");
-    editTagQueryId = dbService.prepare(
-        "update tag set name = :new_name where name = :old_name;");
+        = dbService.prepare(QString{"UPDATE %1 "
+                                    "SET %2 = not %2, "
+                                    "%3 = :time_stamp "
+                                    "WHERE %4 = :uuid;"}
+                                .arg(TaskTable::name)
+                                .arg(TaskTable::Columns::completed)
+                                .arg(TaskTable::Columns::lastModified)
+                                .arg(TaskTable::Columns::uuid));
+    updatePrioritiesQueryId
+        = dbService.prepare(QString{"UPDATE %1 SET %2 = :priority "
+                                    "WHERE %3 = :uuid;"}
+                                .arg(TaskTable::name)
+                                .arg(TaskTable::Columns::priority)
+                                .arg(TaskTable::Columns::uuid));
+    editTagQueryId = dbService.prepare(QString{
+        "UPDATE %1 SET %2 = :new_name WHERE %2 = "
+        ":old_name;"}.arg(TagTable::name).arg(TagTable::Columns::name));
 }
 
 void QtTaskStorageWriter::save(const Task& task)
