@@ -45,9 +45,9 @@ PomodoroService::PomodoroService(
     IPomodoroYearRangeReader& pomodoroYearRangeReader,
     ITaskStorageReader& taskStorageReader,
     ITaskStorageWriter& taskStorageWriter,
-    IPomodoroDistributionReader& pomoDailyDistributionReader,
-    IPomodoroDistributionReader& pomoWeeklyDistributionReader,
-    IPomodoroDistributionReader& pomoMonthlyDistributionReader)
+    ISprintDistributionReader& pomoDailyDistributionReader,
+    ISprintDistributionReader& pomoWeeklyDistributionReader,
+    ISprintDistributionReader& pomoMonthlyDistributionReader)
     : pomodoroReader{pomodoroStorageReader}
     , pomodoroWriter{pomodoroStorageWriter}
     , pomodoroYearRangeReader{pomodoroYearRangeReader}

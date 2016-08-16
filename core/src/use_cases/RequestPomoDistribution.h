@@ -24,15 +24,15 @@
 
 
 #include "core/Command.h"
-#include "core/IPomodoroDistributionReader.h"
+#include "core/ISprintDistributionReader.h"
 
 namespace UseCases {
 
 class RequestPomoDistribution : public Command {
 public:
-    RequestPomoDistribution(IPomodoroDistributionReader& reader,
+    RequestPomoDistribution(ISprintDistributionReader& reader,
                             const TimeSpan& timeSpan,
-                            IPomodoroDistributionReader::Handler handler)
+                            ISprintDistributionReader::Handler handler)
         : reader{reader}
         , timeSpan{timeSpan}
         , handler{handler}
@@ -47,9 +47,9 @@ public:
     }
 
 private:
-    IPomodoroDistributionReader& reader;
+    ISprintDistributionReader& reader;
     const TimeSpan& timeSpan;
-    IPomodoroDistributionReader::Handler handler;
+    ISprintDistributionReader::Handler handler;
 };
 
 

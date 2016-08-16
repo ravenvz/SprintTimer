@@ -125,11 +125,11 @@ int main(int argc, char* argv[])
         factory.createTaskStorageReader()};
     std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
         factory.createTaskStorageWriter()};
-    std::unique_ptr<IPomodoroDistributionReader> dailyDistributionReader{
+    std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
         factory.createPomoDailyDistributionReader()};
-    std::unique_ptr<IPomodoroDistributionReader> weeklyDistributionReader{
+    std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
         factory.createPomoWeeklyDistributionReader()};
-    std::unique_ptr<IPomodoroDistributionReader> monthlyDistributionReader{
+    std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createPomoMonthlyDistributionReader()};
 
     CoreApi::PomodoroService pomodoroService{*pomodoroStorageReader.get(),

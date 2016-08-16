@@ -38,20 +38,12 @@
 class Sprint {
 
 public:
-    Sprint(const TimeSpan& timeSpan);
 
     Sprint(const std::string& taskName,
-             const TimeSpan& timeSpan,
-             const std::list<Tag>& tags);
-
-    Sprint(const std::string& taskName,
-             const TimeSpan& timeSpan,
-             const std::list<Tag>& tags,
-             const std::string& uuid,
-             const std::string& taskUuid);
-
-    /* Construct from associated Task and timeSpan. */
-    Sprint(const Task& task, const TimeSpan& timeSpan);
+           const TimeSpan& timeSpan,
+           const std::list<Tag>& tags,
+           const std::string& uuid,
+           const std::string& taskUuid);
 
     Sprint(const std::string& taskUuid, const TimeSpan& timeSpan);
 

@@ -24,7 +24,7 @@
 
 
 #include "core/CommandInvoker.h"
-#include "core/IPomodoroDistributionReader.h"
+#include "core/ISprintDistributionReader.h"
 #include "core/IPomodoroService.h"
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroStorageWriter.h"
@@ -43,9 +43,9 @@ public:
                     IPomodoroYearRangeReader& pomodoroYearRangeReader,
                     ITaskStorageReader& taskStorageReader,
                     ITaskStorageWriter& taskStorageWriter,
-                    IPomodoroDistributionReader& pomoDailyDistributionReader,
-                    IPomodoroDistributionReader& pomoWeeklyDistributionReader,
-                    IPomodoroDistributionReader& pomoMonthlyDistributionReader);
+                    ISprintDistributionReader& pomoDailyDistributionReader,
+                    ISprintDistributionReader& pomoWeeklyDistributionReader,
+                    ISprintDistributionReader& pomoMonthlyDistributionReader);
 
     void registerTask(const Task& task) final;
 
@@ -109,9 +109,9 @@ private:
     IPomodoroYearRangeReader& pomodoroYearRangeReader;
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
-    IPomodoroDistributionReader& pomoDailyDistributionReader;
-    IPomodoroDistributionReader& pomoWeeklyDistributionReader;
-    IPomodoroDistributionReader& pomoMonthlyDistributionReader;
+    ISprintDistributionReader& pomoDailyDistributionReader;
+    ISprintDistributionReader& pomoWeeklyDistributionReader;
+    ISprintDistributionReader& pomoMonthlyDistributionReader;
     CommandInvoker invoker;
 };
 

@@ -22,11 +22,11 @@
 #ifndef FAKEPOMODORODISTRIBUTIONREADER_H_UREC2M3T
 #define FAKEPOMODORODISTRIBUTIONREADER_H_UREC2M3T
 
-#include "core/IPomodoroDistributionReader.h"
+#include "core/ISprintDistributionReader.h"
 #include "FakeStorage.h"
 
 
-class FakePomodoroDistributionReader : public IPomodoroDistributionReader {
+class FakePomodoroDistributionReader : public ISprintDistributionReader {
 public:
     FakePomodoroDistributionReader(FakeStorage<Sprint>& storage)
         : storage{storage}

@@ -26,10 +26,10 @@
 #include "core/TimeSpan.h"
 #include <functional>
 
-class IPomodoroDistributionReader {
+class ISprintDistributionReader {
 public:
     using Handler = std::function<void(const Distribution<int>&)>;
-    virtual ~IPomodoroDistributionReader() = default;
+    virtual ~ISprintDistributionReader() = default;
     // TODO rename to requestDistribution
     virtual void requestDailyDistribution(const TimeSpan& timeSpan,
                                           Handler handler)

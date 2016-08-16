@@ -22,7 +22,7 @@
 #ifndef IPOMODOROSTORAGEFACTORY_H_PRIUAOH6
 #define IPOMODOROSTORAGEFACTORY_H_PRIUAOH6
 
-#include "core/IPomodoroDistributionReader.h"
+#include "core/ISprintDistributionReader.h"
 #include "core/IPomodoroStorageReader.h"
 #include "core/IPomodoroStorageWriter.h"
 #include "core/IPomodoroYearRangeReader.h"
@@ -43,13 +43,13 @@ public:
     virtual std::unique_ptr<IPomodoroYearRangeReader>
     createPomodoroYearRangeReader() const = 0;
 
-    virtual std::unique_ptr<IPomodoroDistributionReader>
+    virtual std::unique_ptr<ISprintDistributionReader>
     createPomoDailyDistributionReader() const = 0;
 
-    virtual std::unique_ptr<IPomodoroDistributionReader>
+    virtual std::unique_ptr<ISprintDistributionReader>
     createPomoWeeklyDistributionReader() const = 0;
 
-    virtual std::unique_ptr<IPomodoroDistributionReader>
+    virtual std::unique_ptr<ISprintDistributionReader>
     createPomoMonthlyDistributionReader() const = 0;
 
     virtual std::unique_ptr<ITaskStorageReader>

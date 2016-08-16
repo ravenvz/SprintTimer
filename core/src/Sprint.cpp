@@ -27,43 +27,16 @@
 // static
 BoostUUIDGenerator Sprint::generator;
 
-// TODO too much constructors that instantiate partial pomodoros.
-
-Sprint::Sprint(const TimeSpan& timeSpan)
-    : mInterval{timeSpan}
-    , mUuid{generator.generateUUID()}
-{
-}
-
 Sprint::Sprint(const std::string& taskName,
-                   const TimeSpan& timeSpan,
-                   const std::list<Tag>& tags)
-    : mName{taskName}
-    , mInterval{timeSpan}
-    , mUuid{generator.generateUUID()}
-    , mTags{tags}
-{
-}
-
-Sprint::Sprint(const std::string& taskName,
-                   const TimeSpan& timeSpan,
-                   const std::list<Tag>& tags,
-                   const std::string& uuid,
-                   const std::string& taskUuid)
+               const TimeSpan& timeSpan,
+               const std::list<Tag>& tags,
+               const std::string& uuid,
+               const std::string& taskUuid)
     : mName{taskName}
     , mInterval{timeSpan}
     , mUuid{uuid}
     , mTaskUuid{taskUuid}
     , mTags{tags}
-{
-}
-
-Sprint::Sprint(const Task& task, const TimeSpan& timeSpan)
-    : mName{task.name()}
-    , mInterval{timeSpan}
-    , mUuid{generator.generateUUID()}
-    , mTaskUuid{task.uuid()}
-    , mTags{task.tags()}
 {
 }
 
@@ -97,12 +70,6 @@ std::string Sprint::toString() const
                    mTags.cend(),
                    std::back_inserter(prefixedTags),
                    [](const auto& elem) { return elem.nameWithPrefix(); });
-    // std::copy(mTags.cbegin(), mTags.cend(),
-    // std::back_inserter(prefixedTags));
-    //
-    // std::for_each(prefixedTags.begin(), prefixedTags.end(), [&](auto& elem) {
-    //     elem.insert(0, Task::tagPrefix);
-    // });
 
     parts.push_back(mInterval.toTimeString());
     parts.push_back(StringUtils::join(prefixedTags, " "));

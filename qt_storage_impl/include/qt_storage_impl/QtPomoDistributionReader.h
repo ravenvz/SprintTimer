@@ -22,13 +22,13 @@
 #ifndef QTSQLITEPOMODORODAILYDISTRIBUTIONREADER_H_TS4GUJR3
 #define QTSQLITEPOMODORODAILYDISTRIBUTIONREADER_H_TS4GUJR3
 
-#include "core/IPomodoroDistributionReader.h"
+#include "core/ISprintDistributionReader.h"
 #include "qt_storage_impl/db_service.h"
 #include <QObject>
 
 
 class DistributionReaderBase : public QObject,
-                               public IPomodoroDistributionReader {
+                               public ISprintDistributionReader {
 
     Q_OBJECT
 

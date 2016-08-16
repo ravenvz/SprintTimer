@@ -92,7 +92,7 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
         for (size_t j = 0; j < i + 1; ++j) {
             DateTime pomoDateTime = start.addDays(static_cast<int>(i));
             TimeSpan pomoInterval{pomoDateTime, pomoDateTime};
-            pomodoros.push_back(Sprint{"Irrelevant", pomoInterval, {}});
+            pomodoros.push_back(Sprint{"Irrelevant", pomoInterval, {}, "", ""});
             expectedDistributionVector[i]++;
         }
     }
@@ -130,7 +130,7 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
             DateTime pomoDateTime = DateTime::fromYMD(2015, 6, i);
             TimeSpan pomoInterval{pomoDateTime, pomoDateTime};
             increasingSprints.push_back(
-                Sprint{"Whatever", pomoInterval, {}});
+                Sprint{"Whatever", pomoInterval, {}, "uuid", "taskUuid"});
         }
     }
 
@@ -160,7 +160,9 @@ TEST_GROUP(TagDistribution){
         for (int i = 0; i < n; ++i){pomodoros.push_back(Sprint{
             name,
             TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
-            tags});
+            tags,
+            "uuid",
+            "taskUuid"});
 }
 }
 }
