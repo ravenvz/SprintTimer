@@ -23,8 +23,8 @@
 #define IPOMODOROSTORAGEFACTORY_H_PRIUAOH6
 
 #include "core/ISprintDistributionReader.h"
-#include "core/IPomodoroStorageReader.h"
-#include "core/IPomodoroStorageWriter.h"
+#include "core/ISprintStorageReader.h"
+#include "core/ISprintStorageWriter.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/ITaskStorageReader.h"
 #include "core/ITaskStorageWriter.h"
@@ -34,10 +34,10 @@ class IStorageImplementersFactory {
 public:
     virtual ~IStorageImplementersFactory() = default;
 
-    virtual std::unique_ptr<IPomodoroStorageReader>
+    virtual std::unique_ptr<ISprintStorageReader>
     createPomodoroStorageReader() const = 0;
 
-    virtual std::unique_ptr<IPomodoroStorageWriter>
+    virtual std::unique_ptr<ISprintStorageWriter>
     createPomodoroStorageWriter() const = 0;
 
     virtual std::unique_ptr<IPomodoroYearRangeReader>

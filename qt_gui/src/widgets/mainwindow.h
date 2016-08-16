@@ -23,7 +23,7 @@
 #define MAINWINDOW_H
 
 #include "core/IPomodoroService.h"
-#include "core/IPomodoroStorageReader.h"
+#include "core/ISprintStorageReader.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
 #include "historyview.h"

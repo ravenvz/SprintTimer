@@ -87,9 +87,9 @@ void StatisticsWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 
 void StatisticsWindow::drawGraphs()
 {
-    PomodoroStatItem statistics{
+    SprintStatItem statistics{
         selectedTagIndex
-            ? tagDistribution.pomodorosForNthTopTag(*selectedTagIndex)
+            ? tagDistribution.sprintsForNthTopTag(*selectedTagIndex)
             : pomodoros,
         currentInterval.toTimeSpan()};
     ui->dailyTimelineGraph->setData(statistics.dailyDistribution(),
@@ -97,7 +97,7 @@ void StatisticsWindow::drawGraphs()
                                     applicationSettings.dailyPomodorosGoal());
     ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
     ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
-                                    statistics.pomodoros());
+                                    statistics.sprints());
 }
 
 

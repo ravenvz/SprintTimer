@@ -22,14 +22,14 @@
 #ifndef ADDPOMODOROTRANSACTION_H_YUMZVLHC
 #define ADDPOMODOROTRANSACTION_H_YUMZVLHC
 
-#include "core/IPomodoroStorageWriter.h"
+#include "core/ISprintStorageWriter.h"
 #include "core/RevertableCommand.h"
 
 namespace UseCases {
 
 class RegisterNewPomodoro : public RevertableCommand {
 public:
-    RegisterNewPomodoro(IPomodoroStorageWriter& writer,
+    RegisterNewPomodoro(ISprintStorageWriter& writer,
                         const Sprint& pomodoro)
         : writer{writer}
         , pomodoro{pomodoro}
@@ -46,7 +46,7 @@ public:
     }
 
 private:
-    IPomodoroStorageWriter& writer;
+    ISprintStorageWriter& writer;
     const Sprint pomodoro;
 };
 

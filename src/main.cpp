@@ -115,9 +115,9 @@ int main(int argc, char* argv[])
     // DBService dbService{dataDirectory + "/test_pomodoro.db"};
 
     QtStorageImplementersFactory factory{dbService};
-    std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader{
+    std::unique_ptr<ISprintStorageReader> pomodoroStorageReader{
         factory.createPomodoroStorageReader()};
-    std::unique_ptr<IPomodoroStorageWriter> pomodoroStorageWriter{
+    std::unique_ptr<ISprintStorageWriter> pomodoroStorageWriter{
         factory.createPomodoroStorageWriter()};
     std::unique_ptr<IPomodoroYearRangeReader> pomodoroYearRangeReader{
         factory.createPomodoroYearRangeReader()};

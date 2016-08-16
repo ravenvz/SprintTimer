@@ -22,13 +22,13 @@
 #ifndef QTSQLITEPOMODOROSTORAGEREADER_H_JXULCJ6I
 #define QTSQLITEPOMODOROSTORAGEREADER_H_JXULCJ6I
 
-#include "core/IPomodoroStorageReader.h"
+#include "core/ISprintStorageReader.h"
 #include "core/entities/Tag.h"
 #include "qt_storage_impl/db_service.h"
 #include <QObject>
 
 
-class QtPomoStorageReader : public QObject, public IPomodoroStorageReader {
+class QtPomoStorageReader : public QObject, public ISprintStorageReader {
     Q_OBJECT
 
 public:

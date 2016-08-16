@@ -23,9 +23,9 @@
 #define FAKEPOMODOROSTORAGEREADER_H_MFYC8R5A
 
 #include "FakeStorage.h"
-#include "core/IPomodoroStorageReader.h"
+#include "core/ISprintStorageReader.h"
 
-class FakePomodoroStorageReader : public IPomodoroStorageReader {
+class FakePomodoroStorageReader : public ISprintStorageReader {
 public:
     FakePomodoroStorageReader(FakeStorage<Sprint>& storage)
         : storage{storage}

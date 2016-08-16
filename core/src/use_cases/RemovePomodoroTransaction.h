@@ -22,14 +22,14 @@
 #ifndef REMOVEPOMODOROTRANSACTION_H_GAR8SZLM
 #define REMOVEPOMODOROTRANSACTION_H_GAR8SZLM
 
-#include "core/IPomodoroStorageWriter.h"
+#include "core/ISprintStorageWriter.h"
 #include "core/RevertableCommand.h"
 
 namespace UseCases {
 
 class RemovePomodoroTransaction : public RevertableCommand {
 public:
-    RemovePomodoroTransaction(IPomodoroStorageWriter& writer,
+    RemovePomodoroTransaction(ISprintStorageWriter& writer,
                               const Sprint& pomodoro)
         : writer{writer}
         , pomodoro{pomodoro}
@@ -46,7 +46,7 @@ public:
     }
 
 private:
-    IPomodoroStorageWriter& writer;
+    ISprintStorageWriter& writer;
     const Sprint pomodoro;
 };
 

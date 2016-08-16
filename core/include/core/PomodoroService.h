@@ -26,8 +26,8 @@
 #include "core/CommandInvoker.h"
 #include "core/ISprintDistributionReader.h"
 #include "core/IPomodoroService.h"
-#include "core/IPomodoroStorageReader.h"
-#include "core/IPomodoroStorageWriter.h"
+#include "core/ISprintStorageReader.h"
+#include "core/ISprintStorageWriter.h"
 #include "core/IPomodoroYearRangeReader.h"
 #include "core/ITaskStorageReader.h"
 #include "core/ITaskStorageWriter.h"
@@ -38,8 +38,8 @@ namespace CoreApi {
 
 class PomodoroService : public IPomodoroService {
 public:
-    PomodoroService(IPomodoroStorageReader& pomodoroStorageReader,
-                    IPomodoroStorageWriter& pomodoroStorageWriter,
+    PomodoroService(ISprintStorageReader& pomodoroStorageReader,
+                    ISprintStorageWriter& pomodoroStorageWriter,
                     IPomodoroYearRangeReader& pomodoroYearRangeReader,
                     ITaskStorageReader& taskStorageReader,
                     ITaskStorageWriter& taskStorageWriter,
@@ -104,8 +104,8 @@ public:
     void undoLast() final;
 
 private:
-    IPomodoroStorageReader& pomodoroReader;
-    IPomodoroStorageWriter& pomodoroWriter;
+    ISprintStorageReader& pomodoroReader;
+    ISprintStorageWriter& pomodoroWriter;
     IPomodoroYearRangeReader& pomodoroYearRangeReader;
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;

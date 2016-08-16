@@ -24,14 +24,14 @@
 
 
 #include "core/Command.h"
-#include "core/IPomodoroStorageReader.h"
+#include "core/ISprintStorageReader.h"
 
 namespace UseCases {
 
 class RequestPomodoros : public Command {
 public:
     RequestPomodoros(
-        IPomodoroStorageReader& reader,
+        ISprintStorageReader& reader,
         const TimeSpan& timeSpan,
         std::function<void(const std::vector<Sprint>&)> resultHandler)
         : reader{reader}
@@ -48,7 +48,7 @@ public:
     }
 
 private:
-    IPomodoroStorageReader& reader;
+    ISprintStorageReader& reader;
     const TimeSpan timeSpan;
     std::function<void(const std::vector<Sprint>&)> handler;
 };

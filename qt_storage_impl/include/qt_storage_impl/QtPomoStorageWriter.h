@@ -22,11 +22,11 @@
 #ifndef QTSQLITEPOMODOROSTORAGEWRITER_H_U7AAXVTC
 #define QTSQLITEPOMODOROSTORAGEWRITER_H_U7AAXVTC
 
-#include "core/IPomodoroStorageWriter.h"
+#include "core/ISprintStorageWriter.h"
 #include "qt_storage_impl/db_service.h"
 #include <QObject>
 
-class QtPomoStorageWriter : public QObject, public IPomodoroStorageWriter {
+class QtPomoStorageWriter : public QObject, public ISprintStorageWriter {
     Q_OBJECT
 
 public:

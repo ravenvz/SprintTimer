@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IPOMODORODAILYDISTRIBUTIONREADER_H_XMW7JEI6
-#define IPOMODORODAILYDISTRIBUTIONREADER_H_XMW7JEI6
+#ifndef ISPRINTDISTRIBUTIONREADER_H_XMW7JEI6
+#define ISPRINTDISTRIBUTIONREADER_H_XMW7JEI6
 
 #include "core/Distribution.h"
 #include "core/TimeSpan.h"
@@ -36,5 +36,4 @@ public:
         = 0;
 };
 
-
-#endif /* end of include guard: IPOMODORODAILYDISTRIBUTIONREADER_H_XMW7JEI6 */
+#endif /* end of include guard: ISPRINTDISTRIBUTIONREADER_H_XMW7JEI6 */

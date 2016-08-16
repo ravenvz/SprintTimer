@@ -24,7 +24,7 @@
 
 #include "core/IConfig.h"
 #include "core/IPomodoroService.h"
-#include "core/PomodoroStatistics.h"
+#include "core/SprintStatistics.h"
 #include "dialogs/datepickdialog.h"
 #include "plot.h"
 #include "timediagram.h"

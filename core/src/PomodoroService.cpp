@@ -40,8 +40,8 @@
 namespace CoreApi {
 
 PomodoroService::PomodoroService(
-    IPomodoroStorageReader& pomodoroStorageReader,
-    IPomodoroStorageWriter& pomodoroStorageWriter,
+    ISprintStorageReader& pomodoroStorageReader,
+    ISprintStorageWriter& pomodoroStorageWriter,
     IPomodoroYearRangeReader& pomodoroYearRangeReader,
     ITaskStorageReader& taskStorageReader,
     ITaskStorageWriter& taskStorageWriter,

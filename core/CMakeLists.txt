@@ -4,7 +4,7 @@ set(PROJECT ${CORE_LIB})
 project(${PROJECT})
 set(CORE_SOURCE_FILES
     src/DateTime.cpp
-    src/PomodoroStatistics.cpp
+        src/SprintStatistics.cpp
     src/PomodoroTimer.cpp
     src/Timer.cpp
     src/TimeSpan.cpp

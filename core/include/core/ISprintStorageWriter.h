@@ -19,20 +19,21 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IPOMODOROSTORAGEREADER_H_UJ8CZPXS
-#define IPOMODOROSTORAGEREADER_H_UJ8CZPXS
+#ifndef ISPRINTSTORAGEWRITER_H_PMJNRBFY
+#define ISPRINTSTORAGEWRITER_H_PMJNRBFY
 
+#include "TimeSpan.h"
 #include "core/entities/Sprint.h"
-#include <functional>
 
 
-class IPomodoroStorageReader {
+class ISprintStorageWriter {
 public:
-    using Items = std::vector<Sprint>;
-    using Handler = std::function<void(const Items&)>;
-    virtual ~IPomodoroStorageReader() = default;
-    virtual void requestItems(const TimeSpan& timeSpan, Handler handler) = 0;
+    virtual ~ISprintStorageWriter() = default;
+
+    virtual void save(const Sprint& pomodoro) = 0;
+
+    virtual void remove(const Sprint& pomodoro) = 0;
 };
 
 
-#endif /* end of include guard: IPOMODOROSTORAGEREADER_H_UJ8CZPXS */
+#endif /* end of include guard: ISPRINTSTORAGEWRITER_H_PMJNRBFY */

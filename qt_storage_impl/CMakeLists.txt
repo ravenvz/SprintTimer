@@ -30,6 +30,7 @@ set(HEADER_FILES_FOR_AUTOMOC_TO_WORK
     include/qt_storage_impl/QtPomoYearRangeReader.h
     include/qt_storage_impl/QtTaskStorageReader.h
     include/qt_storage_impl/QtTaskStorageWriter.h
+    include/qt_storage_impl/QtStorageImplementersFactory.h
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

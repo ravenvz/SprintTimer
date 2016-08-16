@@ -19,19 +19,19 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/PomodoroStatistics.h"
+#include "core/SprintStatistics.h"
 #include <TestHarness.h>
 
-TEST_GROUP(PomoStatItem)
+TEST_GROUP(SprintStatItem)
 {
     const double threshold = 0.00001;
     const long long irrelevantTodoId = 42;
 };
 
-TEST(PomoStatItem, test_empty_daily_statistics)
+TEST(SprintStatItem, test_empty_daily_statistics)
 {
-    std::vector<Sprint> pomodoros;
-    PomodoroStatItem statistics{pomodoros,
+    std::vector<Sprint> sprints;
+    SprintStatItem statistics{sprints,
                                 TimeSpan{std::chrono::system_clock::now(),
                                          std::chrono::system_clock::now()}};
     double expected_average = 0;
@@ -54,10 +54,10 @@ TEST(PomoStatItem, test_empty_daily_statistics)
     }
 }
 
-TEST(PomoStatItem, test_empty_weekday_statistics)
+TEST(SprintStatItem, test_empty_weekday_statistics)
 {
-    std::vector<Sprint> pomodoros;
-    PomodoroStatItem statistics{pomodoros,
+    std::vector<Sprint> sprints;
+    SprintStatItem statistics{sprints,
                                 TimeSpan{std::chrono::system_clock::now(),
                                          std::chrono::system_clock::now()}};
     double expected_average = 0;
@@ -77,27 +77,27 @@ TEST(PomoStatItem, test_empty_weekday_statistics)
     }
 }
 
-TEST(PomoStatItem, test_computes_daily_distribution_correctly)
+TEST(SprintStatItem, test_computes_daily_distribution_correctly)
 {
     double expected_average = 24.5;
     double expected_max = 48;
     size_t expected_max_value_bin = 47;
     double expected_total = 1176;
-    std::vector<Sprint> pomodoros;
+    std::vector<Sprint> sprints;
     DateTime start = DateTime::currentDateTime();
     DateTime end = start.addDays(47);
     TimeSpan timeSpan{start, end};
     std::vector<int> expectedDistributionVector(48, 0);
     for (size_t i = 0; i < 48; ++i) {
         for (size_t j = 0; j < i + 1; ++j) {
-            DateTime pomoDateTime = start.addDays(static_cast<int>(i));
-            TimeSpan pomoInterval{pomoDateTime, pomoDateTime};
-            pomodoros.push_back(Sprint{"Irrelevant", pomoInterval, {}, "", ""});
+            DateTime sprintDateTime = start.addDays(static_cast<int>(i));
+            TimeSpan sprintInterval{sprintDateTime, sprintDateTime};
+            sprints.push_back(Sprint{"Irrelevant", sprintInterval, {}, "", ""});
             expectedDistributionVector[i]++;
         }
     }
 
-    PomodoroStatItem statistics{pomodoros, timeSpan};
+    SprintStatItem statistics{sprints, timeSpan};
     Distribution<double> distribution = statistics.dailyDistribution();
     std::vector<double> distributionVector
         = distribution.getDistributionVector();
@@ -114,7 +114,7 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
     }
 }
 
-TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
+TEST(SprintStatItem, test_computes_weekday_distribution_correctly)
 {
     double expected_average = 7.5;
     double expected_max = 10.5;
@@ -127,16 +127,16 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
 
     for (int i = 1; i < 15; ++i) {
         for (int j = 0; j < i; ++j) {
-            DateTime pomoDateTime = DateTime::fromYMD(2015, 6, i);
-            TimeSpan pomoInterval{pomoDateTime, pomoDateTime};
+            DateTime sprintDateTime = DateTime::fromYMD(2015, 6, i);
+            TimeSpan sprintInterval{sprintDateTime, sprintDateTime};
             increasingSprints.push_back(
-                Sprint{"Whatever", pomoInterval, {}, "uuid", "taskUuid"});
+                Sprint{"Whatever", sprintInterval, {}, "uuid", "taskUuid"});
         }
     }
 
     std::vector<double> expected_distribution{
         4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
-    PomodoroStatItem statistics{increasingSprints, timeSpan};
+    SprintStatItem statistics{increasingSprints, timeSpan};
 
     Distribution<double> weekdayDistribution = statistics.weekdayDistribution();
     std::vector<double> distributionVector
@@ -153,11 +153,11 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
 
 TEST_GROUP(TagDistribution){
 
-    void pushToSprints(std::vector<Sprint> & pomodoros,
+    void pushToSprints(std::vector<Sprint>& sprints,
                          std::string name,
                          const std::list<Tag>& tags,
                          int n){
-        for (int i = 0; i < n; ++i){pomodoros.push_back(Sprint{
+        for (int i = 0; i < n; ++i){sprints.push_back(Sprint{
             name,
             TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
             tags,
@@ -170,27 +170,27 @@ TEST_GROUP(TagDistribution){
 
 TEST(TagDistribution, test_does_not_reduce_slice_vector_when_all_tags_fit)
 {
-    std::vector<Sprint> pomodoros;
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
-    TagDistribution map{pomodoros, 3};
+    std::vector<Sprint> sprints;
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}}, 49);
+    TagDistribution map{sprints, 3};
     std::vector<TagCount> expected;
     expected.push_back(std::make_pair(Tag{"Tag2"}, double(49) / 53));
     expected.push_back(std::make_pair(Tag{"Tag1"}, double(4) / 53));
 
     CHECK(expected == map.topTagsDistribution())
 
-    CHECK_EQUAL(49, map.pomodorosForNthTopTag(0).size())
-    CHECK_EQUAL(4, map.pomodorosForNthTopTag(1).size())
+    CHECK_EQUAL(49, map.sprintsForNthTopTag(0).size())
+    CHECK_EQUAL(4, map.sprintsForNthTopTag(1).size())
 }
 
 TEST(TagDistribution,
      test_does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
-    std::vector<Sprint> pomodoros;
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
-    TagDistribution map{pomodoros, 5};
+    std::vector<Sprint> sprints;
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}}, 49);
+    TagDistribution map{sprints, 5};
     std::vector<TagCount> expected;
     expected.push_back(std::make_pair(Tag{"Tag2"}, double(49) / 53));
     expected.push_back(std::make_pair(Tag{"Tag1"}, double(4) / 53));
@@ -199,21 +199,21 @@ TEST(TagDistribution,
 
     CHECK(expected == map.topTagsDistribution())
 
-    CHECK_EQUAL(49, map.pomodorosForNthTopTag(0).size())
-    CHECK_EQUAL(4, map.pomodorosForNthTopTag(1).size())
+    CHECK_EQUAL(49, map.sprintsForNthTopTag(0).size())
+    CHECK_EQUAL(4, map.sprintsForNthTopTag(1).size())
 }
 
 TEST(TagDistribution, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
 {
-    std::vector<Sprint> pomodoros;
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"C++"}, Tag{"Tag4"}}, 10);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag4"}}, 25);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag5"}}, 4);
-    pushToSprints(pomodoros, "irrelevant", {}, 100);
-    TagDistribution map{pomodoros, 5};
+    std::vector<Sprint> sprints;
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}}, 49);
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
+    pushToSprints(sprints, "irrelevant", {Tag{"C++"}, Tag{"Tag4"}}, 10);
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag4"}}, 25);
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag5"}}, 4);
+    pushToSprints(sprints, "irrelevant", {}, 100);
+    TagDistribution map{sprints, 5};
     std::vector<TagCount> expected;
     expected.push_back(std::make_pair(Tag{"Tag2"}, double(50) / 104));
     expected.push_back(std::make_pair(Tag{"Tag4"}, double(35) / 104));
@@ -229,24 +229,24 @@ TEST(TagDistribution, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
 
     CHECK(expected == map.topTagsDistribution())
 
-    CHECK_EQUAL(50, map.pomodorosForNthTopTag(0).size())
-    CHECK_EQUAL(35, map.pomodorosForNthTopTag(1).size())
-    CHECK_EQUAL(10, map.pomodorosForNthTopTag(2).size())
-    CHECK_EQUAL(5, map.pomodorosForNthTopTag(3).size())
-    CHECK_EQUAL(4, map.pomodorosForNthTopTag(4).size())
+    CHECK_EQUAL(50, map.sprintsForNthTopTag(0).size())
+    CHECK_EQUAL(35, map.sprintsForNthTopTag(1).size())
+    CHECK_EQUAL(10, map.sprintsForNthTopTag(2).size())
+    CHECK_EQUAL(5, map.sprintsForNthTopTag(3).size())
+    CHECK_EQUAL(4, map.sprintsForNthTopTag(4).size())
 }
 
 TEST(TagDistribution,
      test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
-    std::vector<Sprint> pomodoros;
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag3"}, Tag{"Tag4"}}, 10);
-    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag4"}}, 25);
-    pushToSprints(pomodoros, "irrelevant", {}, 100);
-    TagDistribution map{pomodoros, 4};
+    std::vector<Sprint> sprints;
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}}, 49);
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag3"}, Tag{"Tag4"}}, 10);
+    pushToSprints(sprints, "irrelevant", {Tag{"Tag4"}}, 25);
+    pushToSprints(sprints, "irrelevant", {}, 100);
+    TagDistribution map{sprints, 4};
     std::vector<TagCount> expected{
         std::make_pair(Tag{"Tag2"}, double(50) / 100),
         std::make_pair(Tag{"Tag4"}, double(35) / 100),
@@ -260,8 +260,8 @@ TEST(TagDistribution,
 
     CHECK(expected == map.topTagsDistribution())
 
-    CHECK_EQUAL(50, map.pomodorosForNthTopTag(0).size())
-    CHECK_EQUAL(35, map.pomodorosForNthTopTag(1).size())
-    CHECK_EQUAL(10, map.pomodorosForNthTopTag(2).size())
-    CHECK_EQUAL(5, map.pomodorosForNthTopTag(3).size())
+    CHECK_EQUAL(50, map.sprintsForNthTopTag(0).size())
+    CHECK_EQUAL(35, map.sprintsForNthTopTag(1).size())
+    CHECK_EQUAL(10, map.sprintsForNthTopTag(2).size())
+    CHECK_EQUAL(5, map.sprintsForNthTopTag(3).size())
 }
