@@ -28,7 +28,7 @@
 
 class FakePomodoroDistributionReader : public IPomodoroDistributionReader {
 public:
-    FakePomodoroDistributionReader(FakeStorage<Pomodoro>& storage)
+    FakePomodoroDistributionReader(FakeStorage<Sprint>& storage)
         : storage{storage}
     {
     }
@@ -39,7 +39,7 @@ public:
         return storage.requestDailyDistribution(timeSpan, handler);
     }
 
-    FakeStorage<Pomodoro>& storage;
+    FakeStorage<Sprint>& storage;
 };
 
 #endif /* end of include guard: FAKEPOMODORODISTRIBUTIONREADER_H_UREC2M3T */

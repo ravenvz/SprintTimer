@@ -27,7 +27,7 @@
 
 class FakePomodoroStorageReader : public IPomodoroStorageReader {
 public:
-    FakePomodoroStorageReader(FakeStorage<Pomodoro>& storage)
+    FakePomodoroStorageReader(FakeStorage<Sprint>& storage)
         : storage{storage}
     {
     }
@@ -38,7 +38,7 @@ public:
     }
 
 private:
-    FakeStorage<Pomodoro>& storage;
+    FakeStorage<Sprint>& storage;
 };
 
 #endif /* end of include guard: FAKEPOMODOROSTORAGEREADER_H_MFYC8R5A */

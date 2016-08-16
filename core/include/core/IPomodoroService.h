@@ -24,7 +24,7 @@
 
 #include "core/Distribution.h"
 #include "core/TimeSpan.h"
-#include "core/entities/Pomodoro.h"
+#include "core/entities/Sprint.h"
 #include <functional>
 #include <string>
 
@@ -33,7 +33,7 @@ class IPomodoroService {
 public:
     using TaskResultHandler = std::function<void(const std::vector<Task>&)>;
     using PomodoroResultHandler
-        = std::function<void(const std::vector<Pomodoro>&)>;
+        = std::function<void(const std::vector<Sprint>&)>;
     using TagResultHandler
         = std::function<void(const std::vector<std::string>&)>;
 
@@ -64,7 +64,7 @@ public:
                                   const std::string& taskUuid)
         = 0;
 
-    virtual void removePomodoro(const Pomodoro& pomodoro) = 0;
+    virtual void removePomodoro(const Sprint& pomodoro) = 0;
 
     virtual void
     pomodorosInTimeRange(const TimeSpan& timeSpan,

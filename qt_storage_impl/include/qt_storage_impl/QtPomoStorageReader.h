@@ -50,7 +50,7 @@ private:
     DBService& dbService;
     std::list<Handler> handler_queue;
 
-    Pomodoro pomodoroFromQSqlRecord(const QSqlRecord& record);
+    Sprint pomodoroFromQSqlRecord(const QSqlRecord& record);
 
     QVariant columnData(const QSqlRecord& record, Columns column);
 

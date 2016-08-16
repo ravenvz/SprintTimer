@@ -96,7 +96,7 @@ TEST(PomodoroModel, test_insert_and_delete)
     int estimatedPomodoros{4};
     int spentPomodoros{0};
     TodoItem item{name, estimatedPomodoros, spentPomodoros, tags, false};
-    Pomodoro expectedPomodoro{item, expectedInterval};
+    Sprint expectedPomodoro{item, expectedInterval};
 
     CHECK(taskModel.insert(item));
     auto todoId = taskModel.itemIdAt(0);

@@ -30,32 +30,32 @@
 #include <list>
 #include <string>
 
-/* Represents Pomodoro concept.
+/* Represents Sprint concept.
  *
- * Pomodoro is an n-minute time interval that is associated with
+ * Sprint is an n-minute time interval that is associated with
  * a Task. It has same name and tags it's associated Task has.
  */
-class Pomodoro {
+class Sprint {
 
 public:
-    Pomodoro(const TimeSpan& timeSpan);
+    Sprint(const TimeSpan& timeSpan);
 
-    Pomodoro(const std::string& taskName,
+    Sprint(const std::string& taskName,
              const TimeSpan& timeSpan,
              const std::list<Tag>& tags);
 
-    Pomodoro(const std::string& taskName,
+    Sprint(const std::string& taskName,
              const TimeSpan& timeSpan,
              const std::list<Tag>& tags,
              const std::string& uuid,
              const std::string& taskUuid);
 
     /* Construct from associated Task and timeSpan. */
-    Pomodoro(const Task& task, const TimeSpan& timeSpan);
+    Sprint(const Task& task, const TimeSpan& timeSpan);
 
-    Pomodoro(const std::string& taskUuid, const TimeSpan& timeSpan);
+    Sprint(const std::string& taskUuid, const TimeSpan& timeSpan);
 
-    // Return name of Pomodoro. It is identical to the associated task name.
+    // Return name of Sprint. It is identical to the associated task name.
     std::string name() const;
 
     // Return starting date and time.
@@ -64,7 +64,7 @@ public:
     // Return finishing date and time.
     DateTime finishTime() const;
 
-    // Return time interval when this Pomodoro was active.
+    // Return time interval when this Sprint was active.
     TimeSpan timeSpan() const;
 
     // Return uuid.

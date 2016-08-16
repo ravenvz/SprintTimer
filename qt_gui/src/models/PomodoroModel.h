@@ -48,11 +48,11 @@ protected:
     void requestDataUpdate() final;
 
 private:
-    std::vector<Pomodoro> storage;
+    std::vector<Sprint> storage;
     TimeSpan interval;
     IPomodoroService& pomodoroService;
 
-    void onDataChanged(const std::vector<Pomodoro>& items);
+    void onDataChanged(const std::vector<Sprint>& items);
 };
 
 #endif /* end of include guard: POMODOROMODELNEW_H_MQZ2XAPI */

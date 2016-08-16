@@ -19,23 +19,23 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Pomodoro.h"
+#include "core/entities/Sprint.h"
 #include "core/StringUtils.h"
 #include <algorithm>
 
 
 // static
-BoostUUIDGenerator Pomodoro::generator;
+BoostUUIDGenerator Sprint::generator;
 
 // TODO too much constructors that instantiate partial pomodoros.
 
-Pomodoro::Pomodoro(const TimeSpan& timeSpan)
+Sprint::Sprint(const TimeSpan& timeSpan)
     : mInterval{timeSpan}
     , mUuid{generator.generateUUID()}
 {
 }
 
-Pomodoro::Pomodoro(const std::string& taskName,
+Sprint::Sprint(const std::string& taskName,
                    const TimeSpan& timeSpan,
                    const std::list<Tag>& tags)
     : mName{taskName}
@@ -45,7 +45,7 @@ Pomodoro::Pomodoro(const std::string& taskName,
 {
 }
 
-Pomodoro::Pomodoro(const std::string& taskName,
+Sprint::Sprint(const std::string& taskName,
                    const TimeSpan& timeSpan,
                    const std::list<Tag>& tags,
                    const std::string& uuid,
@@ -58,7 +58,7 @@ Pomodoro::Pomodoro(const std::string& taskName,
 {
 }
 
-Pomodoro::Pomodoro(const Task& task, const TimeSpan& timeSpan)
+Sprint::Sprint(const Task& task, const TimeSpan& timeSpan)
     : mName{task.name()}
     , mInterval{timeSpan}
     , mUuid{generator.generateUUID()}
@@ -67,28 +67,28 @@ Pomodoro::Pomodoro(const Task& task, const TimeSpan& timeSpan)
 {
 }
 
-Pomodoro::Pomodoro(const std::string& taskUuid, const TimeSpan& timeSpan)
+Sprint::Sprint(const std::string& taskUuid, const TimeSpan& timeSpan)
     : mInterval{timeSpan}
     , mUuid{generator.generateUUID()}
     , mTaskUuid{taskUuid}
 {
 }
 
-std::string Pomodoro::name() const { return mName; }
+std::string Sprint::name() const { return mName; }
 
-DateTime Pomodoro::startTime() const { return mInterval.startTime; }
+DateTime Sprint::startTime() const { return mInterval.startTime; }
 
-DateTime Pomodoro::finishTime() const { return mInterval.finishTime; }
+DateTime Sprint::finishTime() const { return mInterval.finishTime; }
 
-TimeSpan Pomodoro::timeSpan() const { return mInterval; }
+TimeSpan Sprint::timeSpan() const { return mInterval; }
 
-std::string Pomodoro::uuid() const { return mUuid; }
+std::string Sprint::uuid() const { return mUuid; }
 
-std::string Pomodoro::taskUuid() const { return mTaskUuid; }
+std::string Sprint::taskUuid() const { return mTaskUuid; }
 
-std::list<Tag> Pomodoro::tags() const { return mTags; }
+std::list<Tag> Sprint::tags() const { return mTags; }
 
-std::string Pomodoro::toString() const
+std::string Sprint::toString() const
 {
     std::vector<std::string> prefixedTags;
     std::vector<std::string> parts;

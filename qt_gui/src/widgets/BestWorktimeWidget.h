@@ -25,7 +25,7 @@
 
 #include <QtWidgets/QWidget>
 #include <core/Distribution.h>
-#include <core/entities/Pomodoro.h>
+#include <core/entities/Sprint.h>
 
 namespace Ui {
 class BestWorktimeWidget;
@@ -38,14 +38,14 @@ public:
     virtual ~BestWorktimeWidget();
 
     void setData(const Distribution<double>& workTimeDistribution,
-                 const std::vector<Pomodoro>& pomodoros);
+                 const std::vector<Sprint>& pomodoros);
 
 private:
     Ui::BestWorktimeWidget* ui;
 
     void
     updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
-                           const std::vector<Pomodoro>& pomodoros);
+                           const std::vector<Sprint>& pomodoros);
 };
 
 

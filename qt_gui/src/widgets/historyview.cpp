@@ -171,7 +171,7 @@ void HistoryStateTask::retrieveHistory()
 }
 
 void HistoryStatePomodoro::onHistoryRetrieved(
-    const std::vector<Pomodoro>& pomodoros)
+    const std::vector<Sprint>& pomodoros)
 {
     std::vector<HistoryView::HistoryItem> pomodoroHistory;
     pomodoroHistory.reserve(pomodoros.size());

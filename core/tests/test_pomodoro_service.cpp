@@ -46,7 +46,7 @@ TEST_GROUP(TestPomodoroService)
                          false,
                          DateTime::fromYMD(2015, 11, 10)};
 
-    FakeStorage<Pomodoro> pomodoroStorage;
+    FakeStorage<Sprint> pomodoroStorage;
     FakeStorage<Task> taskStorage;
     FakePomodoroWriter pomodoroStorageWriter{pomodoroStorage};
     FakePomodoroStorageReader pomodoroStorageReader{pomodoroStorage};
@@ -81,7 +81,7 @@ TEST_GROUP(TestPomodoroService)
         tagHandlerCalled = false;
     }
 
-    void pomodoroTimeRangeHandler(const std::vector<Pomodoro>& result)
+    void pomodoroTimeRangeHandler(const std::vector<Sprint>& result)
     {
         pomodoroHandlerCalled = true;
     }
@@ -124,7 +124,7 @@ TEST(TestPomodoroService,
 {
     taskStorageWriter.save(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
-    Pomodoro pomodoro{taskUuid, defaultTimeSpan};
+    Sprint pomodoro{taskUuid, defaultTimeSpan};
     pomodoroStorageWriter.save(pomodoro);
 
     pomodoroService.removePomodoro(pomodoro);
@@ -136,7 +136,7 @@ TEST(TestPomodoroService,
 TEST(TestPomodoroService, test_request_pomodoros_in_time_range_calls_handler)
 {
     pomodoroService.pomodorosInTimeRange(
-        defaultTimeSpan, [this](const std::vector<Pomodoro>& result) {
+        defaultTimeSpan, [this](const std::vector<Sprint>& result) {
             pomodoroTimeRangeHandler(result);
         });
 

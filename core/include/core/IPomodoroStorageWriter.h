@@ -23,16 +23,16 @@
 #define IPOMODOROSTORAGEWRITER_H_PMJNRBFY
 
 #include "TimeSpan.h"
-#include "entities/Pomodoro.h"
+#include "core/entities/Sprint.h"
 
 
 class IPomodoroStorageWriter {
 public:
     virtual ~IPomodoroStorageWriter() = default;
 
-    virtual void save(const Pomodoro& pomodoro) = 0;
+    virtual void save(const Sprint& pomodoro) = 0;
 
-    virtual void remove(const Pomodoro& pomodoro) = 0;
+    virtual void remove(const Sprint& pomodoro) = 0;
 };
 
 

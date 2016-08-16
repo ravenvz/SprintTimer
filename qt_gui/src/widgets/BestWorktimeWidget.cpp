@@ -34,14 +34,14 @@ BestWorktimeWidget::~BestWorktimeWidget() { delete ui; }
 
 void BestWorktimeWidget::setData(
     const Distribution<double>& workTimeDistribution,
-    const std::vector<Pomodoro>& pomodoros)
+    const std::vector<Sprint>& pomodoros)
 {
     updateWorkHoursDiagram(workTimeDistribution, pomodoros);
 }
 
 void BestWorktimeWidget::updateWorkHoursDiagram(
     const Distribution<double>& workTimeDistribution,
-    const std::vector<Pomodoro>& pomodoros)
+    const std::vector<Sprint>& pomodoros)
 {
     std::vector<TimeSpan> timeSpans;
     timeSpans.reserve(pomodoros.size());

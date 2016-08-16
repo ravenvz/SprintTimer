@@ -22,11 +22,11 @@
 #include "core/PomodoroStatistics.h"
 
 
-TagDistribution::TagDistribution(const std::vector<Pomodoro>& pomodoros,
+TagDistribution::TagDistribution(const std::vector<Sprint>& pomodoros,
                                  int numTopTags)
     : numTopTags(static_cast<size_t>(numTopTags))
 {
-    for (const Pomodoro& pomo : pomodoros) {
+    for (const Sprint& pomo : pomodoros) {
         for (const auto& tag : pomo.tags()) {
             tagToPomodoroVec[tag].push_back(pomo);
         }
@@ -41,7 +41,7 @@ std::vector<TagCount> TagDistribution::topTagsDistribution() const
 }
 
 
-std::vector<Pomodoro> TagDistribution::pomodorosWithTag(const Tag& tag) const
+std::vector<Sprint> TagDistribution::pomodorosWithTag(const Tag& tag) const
 {
     // May throw out_of_range, but if there is no tag in map, we're screwed
     // anyway so let it crash for now
@@ -49,7 +49,7 @@ std::vector<Pomodoro> TagDistribution::pomodorosWithTag(const Tag& tag) const
 }
 
 
-std::vector<Pomodoro> TagDistribution::pomodorosForNthTopTag(size_t n) const
+std::vector<Sprint> TagDistribution::pomodorosForNthTopTag(size_t n) const
 {
     // May throw out_of_range, but if there is no keys in maps, we're screwed
     // anyway so let it crash for now
@@ -127,7 +127,7 @@ void TagDistribution::reduceTailToSum()
                         topTagsSet.end(),
                         std::back_inserter(otherTags));
 
-    tagToPomodoroVec.insert(std::make_pair(dummyTag, std::vector<Pomodoro>()));
+    tagToPomodoroVec.insert(std::make_pair(dummyTag, std::vector<Sprint>()));
     for (const auto& tag : otherTags) {
         tagToPomodoroVec[dummyTag].insert(tagToPomodoroVec[dummyTag].end(),
                                           tagToPomodoroVec[tag].begin(),
@@ -144,7 +144,7 @@ void TagDistribution::buildIndexMap()
 }
 
 
-PomodoroStatItem::PomodoroStatItem(const std::vector<Pomodoro>& pomodoros,
+PomodoroStatItem::PomodoroStatItem(const std::vector<Sprint>& pomodoros,
                                    const TimeSpan& timeInterval)
     : timeSpan(timeInterval)
     , pomos(pomodoros)
@@ -170,7 +170,7 @@ Distribution<double> PomodoroStatItem::worktimeDistribution() const
 }
 
 
-std::vector<Pomodoro> PomodoroStatItem::pomodoros() const { return pomos; }
+std::vector<Sprint> PomodoroStatItem::pomodoros() const { return pomos; }
 
 
 std::vector<double> PomodoroStatItem::computeDailyDistribution() const
@@ -178,7 +178,7 @@ std::vector<double> PomodoroStatItem::computeDailyDistribution() const
     if (pomos.empty())
         return std::vector<double>(0, 0);
     std::vector<double> distribution(timeSpan.sizeInDays(), 0);
-    for (const Pomodoro& pomo : pomos) {
+    for (const Sprint& pomo : pomos) {
         distribution[startDateAbsDiff(timeSpan, pomo.timeSpan())]++;
     }
     return distribution;
@@ -190,7 +190,7 @@ std::vector<double> PomodoroStatItem::computeWeekdayDistribution() const
     std::vector<double> distribution(7, 0);
     if (pomos.empty())
         return distribution;
-    for (const Pomodoro& pomo : pomos) {
+    for (const Sprint& pomo : pomos) {
         distribution[pomo.startTime().dayOfWeek() - 1]++;
     }
     return distribution;
@@ -200,7 +200,7 @@ std::vector<double> PomodoroStatItem::computeWeekdayDistribution() const
 std::vector<double> PomodoroStatItem::computeWorkTimeDistribution() const
 {
     std::vector<double> distribution(6, 0);
-    for (const Pomodoro& pomo : pomos) {
+    for (const Sprint& pomo : pomos) {
         distribution[static_cast<size_t>(pomo.timeSpan().getDayPart())]++;
     }
     return distribution;

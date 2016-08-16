@@ -30,7 +30,7 @@ TEST_GROUP(PomoStatItem)
 
 TEST(PomoStatItem, test_empty_daily_statistics)
 {
-    std::vector<Pomodoro> pomodoros;
+    std::vector<Sprint> pomodoros;
     PomodoroStatItem statistics{pomodoros,
                                 TimeSpan{std::chrono::system_clock::now(),
                                          std::chrono::system_clock::now()}};
@@ -56,7 +56,7 @@ TEST(PomoStatItem, test_empty_daily_statistics)
 
 TEST(PomoStatItem, test_empty_weekday_statistics)
 {
-    std::vector<Pomodoro> pomodoros;
+    std::vector<Sprint> pomodoros;
     PomodoroStatItem statistics{pomodoros,
                                 TimeSpan{std::chrono::system_clock::now(),
                                          std::chrono::system_clock::now()}};
@@ -83,7 +83,7 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
     double expected_max = 48;
     size_t expected_max_value_bin = 47;
     double expected_total = 1176;
-    std::vector<Pomodoro> pomodoros;
+    std::vector<Sprint> pomodoros;
     DateTime start = DateTime::currentDateTime();
     DateTime end = start.addDays(47);
     TimeSpan timeSpan{start, end};
@@ -92,7 +92,7 @@ TEST(PomoStatItem, test_computes_daily_distribution_correctly)
         for (size_t j = 0; j < i + 1; ++j) {
             DateTime pomoDateTime = start.addDays(static_cast<int>(i));
             TimeSpan pomoInterval{pomoDateTime, pomoDateTime};
-            pomodoros.push_back(Pomodoro{"Irrelevant", pomoInterval, {}});
+            pomodoros.push_back(Sprint{"Irrelevant", pomoInterval, {}});
             expectedDistributionVector[i]++;
         }
     }
@@ -119,7 +119,7 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
     double expected_average = 7.5;
     double expected_max = 10.5;
     size_t expected_max_value_bin = 6;
-    std::vector<Pomodoro> increasingPomodoros;
+    std::vector<Sprint> increasingSprints;
     // (2015, 6, 1) is Monday, so each weekday occures exactly twice
     // in 14-day timeSpan
     TimeSpan timeSpan{DateTime::fromYMD(2015, 6, 1),
@@ -129,14 +129,14 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
         for (int j = 0; j < i; ++j) {
             DateTime pomoDateTime = DateTime::fromYMD(2015, 6, i);
             TimeSpan pomoInterval{pomoDateTime, pomoDateTime};
-            increasingPomodoros.push_back(
-                Pomodoro{"Whatever", pomoInterval, {}});
+            increasingSprints.push_back(
+                Sprint{"Whatever", pomoInterval, {}});
         }
     }
 
     std::vector<double> expected_distribution{
         4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
-    PomodoroStatItem statistics{increasingPomodoros, timeSpan};
+    PomodoroStatItem statistics{increasingSprints, timeSpan};
 
     Distribution<double> weekdayDistribution = statistics.weekdayDistribution();
     std::vector<double> distributionVector
@@ -153,11 +153,11 @@ TEST(PomoStatItem, test_computes_weekday_distribution_correctly)
 
 TEST_GROUP(TagDistribution){
 
-    void pushToPomodoros(std::vector<Pomodoro> & pomodoros,
+    void pushToSprints(std::vector<Sprint> & pomodoros,
                          std::string name,
                          const std::list<Tag>& tags,
                          int n){
-        for (int i = 0; i < n; ++i){pomodoros.push_back(Pomodoro{
+        for (int i = 0; i < n; ++i){pomodoros.push_back(Sprint{
             name,
             TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
             tags});
@@ -168,9 +168,9 @@ TEST_GROUP(TagDistribution){
 
 TEST(TagDistribution, test_does_not_reduce_slice_vector_when_all_tags_fit)
 {
-    std::vector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
+    std::vector<Sprint> pomodoros;
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
     TagDistribution map{pomodoros, 3};
     std::vector<TagCount> expected;
     expected.push_back(std::make_pair(Tag{"Tag2"}, double(49) / 53));
@@ -185,9 +185,9 @@ TEST(TagDistribution, test_does_not_reduce_slice_vector_when_all_tags_fit)
 TEST(TagDistribution,
      test_does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
-    std::vector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
+    std::vector<Sprint> pomodoros;
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
     TagDistribution map{pomodoros, 5};
     std::vector<TagCount> expected;
     expected.push_back(std::make_pair(Tag{"Tag2"}, double(49) / 53));
@@ -203,14 +203,14 @@ TEST(TagDistribution,
 
 TEST(TagDistribution, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
 {
-    std::vector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"C++"}, Tag{"Tag4"}}, 10);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag4"}}, 25);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag5"}}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", {}, 100);
+    std::vector<Sprint> pomodoros;
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"C++"}, Tag{"Tag4"}}, 10);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag4"}}, 25);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag5"}}, 4);
+    pushToSprints(pomodoros, "irrelevant", {}, 100);
     TagDistribution map{pomodoros, 5};
     std::vector<TagCount> expected;
     expected.push_back(std::make_pair(Tag{"Tag2"}, double(50) / 104));
@@ -237,13 +237,13 @@ TEST(TagDistribution, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
 TEST(TagDistribution,
      test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
-    std::vector<Pomodoro> pomodoros;
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag3"}, Tag{"Tag4"}}, 10);
-    pushToPomodoros(pomodoros, "irrelevant", {Tag{"Tag4"}}, 25);
-    pushToPomodoros(pomodoros, "irrelevant", {}, 100);
+    std::vector<Sprint> pomodoros;
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag1"}}, 4);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}}, 49);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag3"}, Tag{"Tag4"}}, 10);
+    pushToSprints(pomodoros, "irrelevant", {Tag{"Tag4"}}, 25);
+    pushToSprints(pomodoros, "irrelevant", {}, 100);
     TagDistribution map{pomodoros, 4};
     std::vector<TagCount> expected{
         std::make_pair(Tag{"Tag2"}, double(50) / 100),

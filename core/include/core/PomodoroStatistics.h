@@ -23,7 +23,7 @@
 #define POMODORO_POMODOROSTATISTICS_H
 
 #include "Distribution.h"
-#include "entities/Pomodoro.h"
+#include "core/entities/Sprint.h"
 #include <algorithm>
 #include <iostream>
 #include <unordered_map>
@@ -37,9 +37,9 @@ using TagCount = std::pair<Tag, double>;
 /* Datastructure that stores number of completed pomodoros for each tag. */
 class TagDistribution {
 public:
-    using TagPomoMap = std::unordered_map<Tag, std::vector<Pomodoro>>;
+    using TagPomoMap = std::unordered_map<Tag, std::vector<Sprint>>;
 
-    TagDistribution(const std::vector<Pomodoro>& pomodoros, int numTopTags);
+    TagDistribution(const std::vector<Sprint>& pomodoros, int numTopTags);
 
     TagDistribution() = default;
 
@@ -53,17 +53,17 @@ public:
     std::vector<TagCount> topTagsDistribution() const;
 
     /* Return vector of pomodoros that have given tag. */
-    std::vector<Pomodoro> pomodorosWithTag(const Tag& tag) const;
+    std::vector<Sprint> pomodorosWithTag(const Tag& tag) const;
 
     /* Return vector of pomodoros for n-th top tag. */
-    std::vector<Pomodoro> pomodorosForNthTopTag(size_t n) const;
+    std::vector<Sprint> pomodorosForNthTopTag(size_t n) const;
 
     /* Return n-th top tag name. */
     std::string getNthTopTagName(size_t n) const;
 
 private:
     TagPomoMap map;
-    std::unordered_map<Tag, std::vector<Pomodoro>> tagToPomodoroVec;
+    std::unordered_map<Tag, std::vector<Sprint>> tagToPomodoroVec;
     std::vector<TagCount> sliceData;
     std::unordered_map<size_t, Tag> sliceIndexMap;
     size_t numTopTags;
@@ -78,7 +78,7 @@ private:
 class PomodoroStatItem {
 
 public:
-    PomodoroStatItem(const std::vector<Pomodoro>& pomodoros,
+    PomodoroStatItem(const std::vector<Sprint>& pomodoros,
                      const TimeSpan& timeInterval);
 
     PomodoroStatItem(const PomodoroStatItem&) = default;
@@ -91,11 +91,11 @@ public:
 
     Distribution<double> worktimeDistribution() const;
 
-    std::vector<Pomodoro> pomodoros() const;
+    std::vector<Sprint> pomodoros() const;
 
 private:
     const TimeSpan timeSpan;
-    const std::vector<Pomodoro> pomos;
+    const std::vector<Sprint> pomos;
 
     std::vector<double> computeDailyDistribution() const;
 

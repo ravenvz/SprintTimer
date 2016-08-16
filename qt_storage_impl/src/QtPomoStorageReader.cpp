@@ -79,7 +79,7 @@ void QtPomoStorageReader::onResultsReceived(
     handler_queue.pop_front();
 }
 
-Pomodoro QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
+Sprint QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
 {
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
@@ -98,7 +98,7 @@ Pomodoro QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
                    tagNames.cend(),
                    std::back_inserter(tags),
                    [](const auto& name) { return Tag{name.toStdString()}; });
-    return Pomodoro{name.toStdString(), timeSpan, tags, uuid, taskUuid};
+    return Sprint{name.toStdString(), timeSpan, tags, uuid, taskUuid};
 }
 
 QVariant QtPomoStorageReader::columnData(const QSqlRecord& record,

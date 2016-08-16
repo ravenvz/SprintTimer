@@ -22,13 +22,13 @@
 #ifndef IPOMODOROSTORAGEREADER_H_UJ8CZPXS
 #define IPOMODOROSTORAGEREADER_H_UJ8CZPXS
 
-#include "core/entities/Pomodoro.h"
+#include "core/entities/Sprint.h"
 #include <functional>
 
 
 class IPomodoroStorageReader {
 public:
-    using Items = std::vector<Pomodoro>;
+    using Items = std::vector<Sprint>;
     using Handler = std::function<void(const Items&)>;
     virtual ~IPomodoroStorageReader() = default;
     virtual void requestItems(const TimeSpan& timeSpan, Handler handler) = 0;

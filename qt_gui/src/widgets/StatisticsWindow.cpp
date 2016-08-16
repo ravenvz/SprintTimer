@@ -63,7 +63,7 @@ void StatisticsWindow::fetchPomodoros()
 }
 
 void StatisticsWindow::onPomodorosFetched(
-    const std::vector<Pomodoro>& pomodoros)
+    const std::vector<Sprint>& pomodoros)
 {
     this->pomodoros = pomodoros;
     selectedTagIndex = optional<size_t>();

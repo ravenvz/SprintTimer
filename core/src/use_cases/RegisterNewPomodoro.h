@@ -30,7 +30,7 @@ namespace UseCases {
 class RegisterNewPomodoro : public RevertableCommand {
 public:
     RegisterNewPomodoro(IPomodoroStorageWriter& writer,
-                        const Pomodoro& pomodoro)
+                        const Sprint& pomodoro)
         : writer{writer}
         , pomodoro{pomodoro}
     {
@@ -47,7 +47,7 @@ public:
 
 private:
     IPomodoroStorageWriter& writer;
-    const Pomodoro pomodoro;
+    const Sprint pomodoro;
 };
 
 } /* UseCases */

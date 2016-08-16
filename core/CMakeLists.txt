@@ -8,7 +8,7 @@ set(CORE_SOURCE_FILES
     src/PomodoroTimer.cpp
     src/Timer.cpp
     src/TimeSpan.cpp
-    src/Pomodoro.cpp
+        src/Sprint.cpp
     src/Task.cpp
     src/Tag.cpp
     src/StringUtils.cpp

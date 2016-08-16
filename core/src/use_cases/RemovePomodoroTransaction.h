@@ -30,7 +30,7 @@ namespace UseCases {
 class RemovePomodoroTransaction : public RevertableCommand {
 public:
     RemovePomodoroTransaction(IPomodoroStorageWriter& writer,
-                              const Pomodoro& pomodoro)
+                              const Sprint& pomodoro)
         : writer{writer}
         , pomodoro{pomodoro}
     {
@@ -42,12 +42,12 @@ public:
 
     std::string inspect() const final
     {
-        return "Remove Pomodoro '" + pomodoro.toString() + "'";
+        return "Remove Sprint '" + pomodoro.toString() + "'";
     }
 
 private:
     IPomodoroStorageWriter& writer;
-    const Pomodoro pomodoro;
+    const Sprint pomodoro;
 };
 
 } // namespace UseCases

@@ -111,7 +111,7 @@ public:
     void retrieveHistory() final;
 
     /* Assumes that pomodoros are sorted by start time. */
-    void onHistoryRetrieved(const std::vector<Pomodoro>& pomodoros);
+    void onHistoryRetrieved(const std::vector<Sprint>& pomodoros);
 };
 
 class HistoryStateTask : public HistoryState {

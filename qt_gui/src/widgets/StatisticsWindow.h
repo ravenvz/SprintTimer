@@ -72,7 +72,7 @@ private:
     Ui::StatisticsWindow* ui;
     IConfig& applicationSettings;
     IPomodoroService& pomodoroService;
-    std::vector<Pomodoro> pomodoros;
+    std::vector<Sprint> pomodoros;
     TagDistribution tagDistribution;
     DateInterval currentInterval;
     const int numTopTags = 7; // TODO move to config
@@ -83,7 +83,7 @@ private:
     void updateTopTagsDiagram(
         std::vector<TagCount>& tagCounts);
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
-    void onPomodorosFetched(const std::vector<Pomodoro>& pomodoros);
+    void onPomodorosFetched(const std::vector<Sprint>& pomodoros);
 };
 
 

@@ -69,10 +69,10 @@ public:
     void registerPomodoro(const TimeSpan& timeSpan,
                           const std::string& taskUuid) final;
 
-    void removePomodoro(const Pomodoro& pomodoro) final;
+    void removePomodoro(const Sprint& pomodoro) final;
 
     void pomodorosInTimeRange(const TimeSpan& timeSpan,
-                              std::function<void(const std::vector<Pomodoro>&)>
+                              std::function<void(const std::vector<Sprint>&)>
                                   onResultsReceivedCallback) final;
 
     void pomodoroYearRange(std::function<void(const std::vector<std::string>&)>

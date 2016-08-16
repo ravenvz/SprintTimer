@@ -32,9 +32,9 @@ class QtPomoStorageWriter : public QObject, public IPomodoroStorageWriter {
 public:
     explicit QtPomoStorageWriter(DBService& dbService);
 
-    void save(const Pomodoro& pomodoro) final;
+    void save(const Sprint& pomodoro) final;
 
-    void remove(const Pomodoro& pomodoro) final;
+    void remove(const Sprint& pomodoro) final;
 
 private:
     DBService& dbService;

@@ -41,7 +41,7 @@ QtPomoStorageWriter::QtPomoStorageWriter(DBService& dbService)
                                 .arg(PomodoroTable::Columns::uuid));
 }
 
-void QtPomoStorageWriter::save(const Pomodoro& pomodoro)
+void QtPomoStorageWriter::save(const Sprint& pomodoro)
 {
     QDateTime startTime
         = DateTimeConverter::qDateTime(pomodoro.timeSpan().startTime);
@@ -57,7 +57,7 @@ void QtPomoStorageWriter::save(const Pomodoro& pomodoro)
     dbService.executePrepared(addQueryId);
 }
 
-void QtPomoStorageWriter::remove(const Pomodoro& pomodoro)
+void QtPomoStorageWriter::remove(const Sprint& pomodoro)
 {
     dbService.bind(removeQueryId,
                    ":uuid",

@@ -116,7 +116,7 @@ void PomodoroService::requestUnfinishedTasks(
 
 void PomodoroService::pomodorosInTimeRange(
     const TimeSpan& timeSpan,
-    std::function<void(const std::vector<Pomodoro>&)> onResultsReceivedCallback)
+    std::function<void(const std::vector<Sprint>&)> onResultsReceivedCallback)
 {
     std::unique_ptr<Command> requestItems
         = std::make_unique<UseCases::RequestPomodoros>(
@@ -127,7 +127,7 @@ void PomodoroService::pomodorosInTimeRange(
 void PomodoroService::registerPomodoro(const TimeSpan& timeSpan,
                                        const std::string& taskUuid)
 {
-    Pomodoro pomodoro{taskUuid, timeSpan};
+    Sprint pomodoro{taskUuid, timeSpan};
     auto registerNewPomodoro = std::make_unique<UseCases::RegisterNewPomodoro>(
         pomodoroWriter, pomodoro);
     auto incrementSpentPomodoros
@@ -141,7 +141,7 @@ void PomodoroService::registerPomodoro(const TimeSpan& timeSpan,
     invoker.executeCommand(std::move(addPomodoroTransaction));
 }
 
-void PomodoroService::removePomodoro(const Pomodoro& pomodoro)
+void PomodoroService::removePomodoro(const Sprint& pomodoro)
 {
     const std::string& taskUuid = pomodoro.taskUuid();
     auto removePomodoro = std::make_unique<UseCases::RemovePomodoroTransaction>(

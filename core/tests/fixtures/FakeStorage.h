@@ -24,7 +24,7 @@
 
 #include "core/Distribution.h"
 #include "core/TimeSpan.h"
-#include "core/entities/Pomodoro.h"
+#include "core/entities/Sprint.h"
 #include <algorithm>
 #include <experimental/optional>
 #include <unordered_map>

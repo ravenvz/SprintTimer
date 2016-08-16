@@ -40,7 +40,7 @@ QVariant PomodoroModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    Pomodoro pomodoro = storage[static_cast<size_t>(index.row())];
+    Sprint pomodoro = storage[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
@@ -76,7 +76,7 @@ void PomodoroModel::requestDataUpdate()
         std::bind(&PomodoroModel::onDataChanged, this, std::placeholders::_1));
 }
 
-void PomodoroModel::onDataChanged(const std::vector<Pomodoro>& items)
+void PomodoroModel::onDataChanged(const std::vector<Sprint>& items)
 {
     beginResetModel();
     storage = items;

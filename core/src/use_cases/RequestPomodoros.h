@@ -33,7 +33,7 @@ public:
     RequestPomodoros(
         IPomodoroStorageReader& reader,
         const TimeSpan& timeSpan,
-        std::function<void(const std::vector<Pomodoro>&)> resultHandler)
+        std::function<void(const std::vector<Sprint>&)> resultHandler)
         : reader{reader}
         , timeSpan{timeSpan}
         , handler{resultHandler}
@@ -50,7 +50,7 @@ public:
 private:
     IPomodoroStorageReader& reader;
     const TimeSpan timeSpan;
-    std::function<void(const std::vector<Pomodoro>&)> handler;
+    std::function<void(const std::vector<Sprint>&)> handler;
 };
 
 } /* UseCases */
