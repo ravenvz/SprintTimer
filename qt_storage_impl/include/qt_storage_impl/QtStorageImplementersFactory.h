@@ -49,7 +49,7 @@ public:
         return std::make_unique<QtPomoStorageWriter>(dbService);
     }
 
-    std::unique_ptr<IPomodoroYearRangeReader>
+    std::unique_ptr<IYearRangeReader>
     createPomodoroYearRangeReader() const final
     {
         return std::make_unique<QtPomoYearRangeReader>(dbService);

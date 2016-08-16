@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTPOMODAILYDISTRIBUTION_H_QUUONEQF
-#define REQUESTPOMODAILYDISTRIBUTION_H_QUUONEQF
+#ifndef REQUESTSPRINTDAILYDISTRIBUTION_H_QUUONEQF
+#define REQUESTSPRINTDAILYDISTRIBUTION_H_QUUONEQF
 
 
 #include "core/Command.h"
@@ -43,7 +43,7 @@ public:
 
     std::string inspect() const final
     {
-        return "Request pomodoro distribution";
+        return "Request sprint distribution";
     }
 
 private:
@@ -56,4 +56,4 @@ private:
 } /* UseCases */
 
 
-#endif /* end of include guard: REQUESTPOMODAILYDISTRIBUTION_H_QUUONEQF */
+#endif /* end of include guard: REQUESTSPRINTDAILYDISTRIBUTION_H_QUUONEQF */

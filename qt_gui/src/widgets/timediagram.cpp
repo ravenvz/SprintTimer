@@ -105,7 +105,7 @@ void TimeDiagram::drawIntervals(QPainter& painter)
         double start
             = (timeSpan.startTime.hour() * 60 + timeSpan.startTime.minute())
             * oneMinuteInDegrees;
-        // TODO replace with stored pomodoro duration when implemented
+        // TODO replace with stored sprint duration when implemented
         double span = pomoDurationInMinutes * oneMinuteInDegrees;
         painter.drawPie(diagramRect,
                         -(int(start) - offsetInDegrees) * numSegmentsInDegree,

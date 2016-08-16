@@ -24,7 +24,7 @@
 
 PomodoroTimer::PomodoroTimer(
     std::function<void(long timeLeft)> onTickCallback,
-    std::function<void(IPomodoroTimer::State)> onStateChangedCallback,
+    std::function<void(IStatefulTimer::State)> onStateChangedCallback,
     long tickPeriodInMillisecs,
     const IConfig& applicationSettings)
     : applicationSettings{applicationSettings}
@@ -53,7 +53,7 @@ void PomodoroTimer::cancel() { currentState->cancel(); }
 
 int PomodoroTimer::currentDuration() const { return currentState->duration(); }
 
-IPomodoroTimer::State PomodoroTimer::state() const
+IStatefulTimer::State PomodoroTimer::state() const
 {
     return currentState->state();
 }
@@ -89,7 +89,7 @@ void PomodoroTimer::resetTimer()
         std::bind(&PomodoroTimer::onTimerTick, this), tickInterval);
 }
 
-void PomodoroTimerState::notifyStateChanged(IPomodoroTimer::State state)
+void PomodoroTimerState::notifyStateChanged(IStatefulTimer::State state)
 {
     timer.onStateChangedCallback(state);
 }
@@ -99,9 +99,9 @@ IdleState::IdleState(PomodoroTimer& timer)
 {
 }
 
-IPomodoroTimer::State IdleState::state() const
+IStatefulTimer::State IdleState::state() const
 {
-    return IPomodoroTimer::State::Idle;
+    return IStatefulTimer::State::Idle;
 }
 
 void IdleState::setNextState()
@@ -120,9 +120,9 @@ TaskState::TaskState(PomodoroTimer& timer)
 {
 }
 
-IPomodoroTimer::State TaskState::state() const
+IStatefulTimer::State TaskState::state() const
 {
-    return IPomodoroTimer::State::Task;
+    return IStatefulTimer::State::Task;
 }
 
 void TaskState::start()
@@ -168,9 +168,9 @@ ShortBreakState::ShortBreakState(PomodoroTimer& timer)
 {
 }
 
-IPomodoroTimer::State ShortBreakState::state() const
+IStatefulTimer::State ShortBreakState::state() const
 {
-    return IPomodoroTimer::State::Break;
+    return IStatefulTimer::State::Break;
 }
 
 void ShortBreakState::start()
@@ -200,9 +200,9 @@ LongBreakState::LongBreakState(PomodoroTimer& timer)
 {
 }
 
-IPomodoroTimer::State LongBreakState::state() const
+IStatefulTimer::State LongBreakState::state() const
 {
-    return IPomodoroTimer::State::LongBreak;
+    return IStatefulTimer::State::LongBreak;
 }
 
 void LongBreakState::start()
@@ -234,9 +234,9 @@ ZoneState::ZoneState(PomodoroTimer& timer)
 
 void ZoneState::start() { timer.mStart = DateTime::currentDateTimeLocal(); }
 
-IPomodoroTimer::State ZoneState::state() const
+IStatefulTimer::State ZoneState::state() const
 {
-    return IPomodoroTimer::State::ZoneEntered;
+    return IStatefulTimer::State::ZoneEntered;
 }
 
 void ZoneState::setNextState()
@@ -256,7 +256,7 @@ int ZoneState::duration() const
 void ZoneState::toggleZoneMode()
 {
     timer.currentState = timer.pomodoroState.get();
-    notifyStateChanged(IPomodoroTimer::State::ZoneLeft);
+    notifyStateChanged(IStatefulTimer::State::ZoneLeft);
 }
 
 FinishedState::FinishedState(PomodoroTimer& timer)
@@ -264,9 +264,9 @@ FinishedState::FinishedState(PomodoroTimer& timer)
 {
 }
 
-IPomodoroTimer::State FinishedState::state() const
+IStatefulTimer::State FinishedState::state() const
 {
-    return IPomodoroTimer::State::Finished;
+    return IStatefulTimer::State::Finished;
 }
 
 void FinishedState::setNextState()

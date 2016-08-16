@@ -19,38 +19,41 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ADDPOMODOROTRANSACTION_H_YUMZVLHC
-#define ADDPOMODOROTRANSACTION_H_YUMZVLHC
+#ifndef REQUESTSPRINTS_H_4QUSWCF0
+#define REQUESTSPRINTS_H_4QUSWCF0
 
-#include "core/ISprintStorageWriter.h"
-#include "core/RevertableCommand.h"
+
+#include "core/Command.h"
+#include "core/ISprintStorageReader.h"
 
 namespace UseCases {
 
-class RegisterNewPomodoro : public RevertableCommand {
+class RequestSprints : public Command {
 public:
-    RegisterNewPomodoro(ISprintStorageWriter& writer,
-                        const Sprint& pomodoro)
-        : writer{writer}
-        , pomodoro{pomodoro}
+    RequestSprints(
+        ISprintStorageReader& reader,
+        const TimeSpan& timeSpan,
+        std::function<void(const std::vector<Sprint>&)> resultHandler)
+        : reader{reader}
+        , timeSpan{timeSpan}
+        , handler{resultHandler}
     {
     }
 
-    void executeAction() final { writer.save(pomodoro); }
-
-    void undoAction() final { writer.remove(pomodoro); }
+    void execute() final { reader.requestItems(timeSpan, handler); }
 
     std::string inspect() const final
     {
-        return "Register new pomodoro '" + pomodoro.toString() + "'";
+        return "Request sprints in '" + timeSpan.toDateString() + "'";
     }
 
 private:
-    ISprintStorageWriter& writer;
-    const Sprint pomodoro;
+    ISprintStorageReader& reader;
+    const TimeSpan timeSpan;
+    std::function<void(const std::vector<Sprint>&)> handler;
 };
 
 } /* UseCases */
 
-
-#endif /* end of include guard: ADDPOMODOROTRANSACTION_H_YUMZVLHC */
+#endif /* end of include guard: REQUESTSPRINTS_H_4QUSWCF0  \
+          */

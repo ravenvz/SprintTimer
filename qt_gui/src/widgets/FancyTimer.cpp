@@ -164,8 +164,8 @@ void FancyTimer::onSubmissionStateEntered()
 
 void FancyTimer::updateIndication(Second timeLeft)
 {
-    if (timer->state() == IPomodoroTimer::State::Idle
-        || timer->state() == IPomodoroTimer::State::Finished)
+    if (timer->state() == IStatefulTimer::State::Idle
+        || timer->state() == IStatefulTimer::State::Finished)
         return;
     combinedIndicator->setCurrentValue(timeLeft);
     combinedIndicator->setText(constructTimerValue(timeLeft));
@@ -175,11 +175,11 @@ void FancyTimer::updateIndication(Second timeLeft)
 void FancyTimer::onIndicatorClicked()
 {
     switch (timer->state()) {
-    case IPomodoroTimer::State::Finished:
+    case IStatefulTimer::State::Finished:
         if (ui->cbxSubmissionCandidate->currentIndex() != -1)
             requestSubmission();
         break;
-    case IPomodoroTimer::State::Idle:
+    case IStatefulTimer::State::Idle:
         startTask();
         break;
     default:

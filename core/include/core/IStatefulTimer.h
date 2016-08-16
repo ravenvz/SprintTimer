@@ -19,37 +19,32 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REMOVEPOMODOROTRANSACTION_H_GAR8SZLM
-#define REMOVEPOMODOROTRANSACTION_H_GAR8SZLM
 
-#include "core/ISprintStorageWriter.h"
-#include "core/RevertableCommand.h"
+#ifndef ISTATEFULTIMER_H_D3DG0N7C
+#define ISTATEFULTIMER_H_D3DG0N7C
 
-namespace UseCases {
+#include "core/TimeSpan.h"
+#include <vector>
 
-class RemovePomodoroTransaction : public RevertableCommand {
+class IStatefulTimer {
 public:
-    RemovePomodoroTransaction(ISprintStorageWriter& writer,
-                              const Sprint& pomodoro)
-        : writer{writer}
-        , pomodoro{pomodoro}
-    {
-    }
+    enum class State { Idle, Task, Break, LongBreak, ZoneEntered, ZoneLeft, Finished };
 
-    void executeAction() final { writer.remove(pomodoro); }
+    virtual ~IStatefulTimer() = default;
 
-    void undoAction() final { writer.save(pomodoro); }
+    virtual void start() = 0;
 
-    std::string inspect() const final
-    {
-        return "Remove Sprint '" + pomodoro.toString() + "'";
-    }
+    virtual void cancel() = 0;
 
-private:
-    ISprintStorageWriter& writer;
-    const Sprint pomodoro;
+    virtual int currentDuration() const = 0;
+
+    virtual State state() const = 0;
+
+    virtual void toggleInTheZoneMode() = 0;
+
+    virtual std::vector<TimeSpan> completedTaskIntervals() const = 0;
+
+    virtual void clearIntervalsBuffer() = 0;
 };
 
-} // namespace UseCases
-
-#endif /* end of include guard: REMOVEPOMODOROTRANSACTION_H_GAR8SZLM */
+#endif /* end of include guard: ISTATEFULTIMER_H_D3DG0N7C */

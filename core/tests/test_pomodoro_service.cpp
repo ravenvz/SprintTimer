@@ -26,7 +26,7 @@
 #include "fixtures/FakePomodoroYearRangeReader.h"
 #include "fixtures/FakeTaskStorageReader.h"
 #include "fixtures/FakeTaskStorageWriter.h"
-#include "use_cases/RegisterNewPomodoro.h"
+#include "use_cases/RegisterNewSprint.h"
 #include <TestHarness.h>
 #include <algorithm>
 #include <vector>

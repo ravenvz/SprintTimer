@@ -114,7 +114,7 @@ TEST_GROUP(PomodoroTimerStates)
     public:
         PomodoroTimerTest(
             std::function<void(long)> tickCallback,
-            std::function<void(IPomodoroTimer::State)> onStateChangedCallback,
+            std::function<void(IStatefulTimer::State)> onStateChangedCallback,
             long tickPeriodInMillisecs,
             const IConfig& applicationSettings)
             : PomodoroTimer{tickCallback,
@@ -124,28 +124,28 @@ TEST_GROUP(PomodoroTimerStates)
         {
         }
 
-        void setState(IPomodoroTimer::State state)
+        void setState(IStatefulTimer::State state)
         {
             switch (state) {
-            case IPomodoroTimer::State::Idle:
+            case IStatefulTimer::State::Idle:
                 currentState = idleState.get();
                 break;
-            case IPomodoroTimer::State::Task:
+            case IStatefulTimer::State::Task:
                 currentState = pomodoroState.get();
                 break;
-            case IPomodoroTimer::State::Break:
+            case IStatefulTimer::State::Break:
                 currentState = shortBreakState.get();
                 break;
-            case IPomodoroTimer::State::LongBreak:
+            case IStatefulTimer::State::LongBreak:
                 currentState = longBreakState.get();
                 break;
-            case IPomodoroTimer::State::ZoneEntered:
+            case IStatefulTimer::State::ZoneEntered:
                 currentState = zoneState.get();
                 break;
-            case IPomodoroTimer::State::ZoneLeft:
+            case IStatefulTimer::State::ZoneLeft:
                 currentState = pomodoroState.get();
                 break;
-            case IPomodoroTimer::State::Finished:
+            case IStatefulTimer::State::Finished:
                 currentState = finishedState.get();
                 break;
             default:
@@ -160,7 +160,7 @@ TEST_GROUP(PomodoroTimerStates)
     {
         int tick{1000};
         auto onTickCallbackStub = [](long) {};
-        auto onStateChangedCallbackStub = [](IPomodoroTimer::State) {};
+        auto onStateChangedCallbackStub = [](IStatefulTimer::State) {};
         timer = std::make_unique<PomodoroTimerTest>(
             onTickCallbackStub, onStateChangedCallbackStub, tick, testSettings);
     }
@@ -171,58 +171,58 @@ TEST_GROUP(PomodoroTimerStates)
 
 TEST(PomodoroTimerStates, test_timer_should_initially_be_in_idle_state)
 {
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Idle),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Idle),
                 static_cast<int>(timer->state()));
 }
 
 TEST(PomodoroTimerStates, test_should_transition_to_task_state_from_idle_state)
 {
     timer->transitionToNext();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Task),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Task),
                 static_cast<int>(timer->state()));
 }
 
 TEST(PomodoroTimerStates, test_should_transition_to_finished_state_after_task)
 {
-    timer->setState(IPomodoroTimer::State::Task);
+    timer->setState(IStatefulTimer::State::Task);
     timer->transitionToNext();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Finished),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Finished),
                 static_cast<int>(timer->state()));
 }
 
 TEST(PomodoroTimerStates, test_should_transition_to_break_after_finished)
 {
-    timer->setState(IPomodoroTimer::State::Finished);
+    timer->setState(IStatefulTimer::State::Finished);
     timer->setNumCompletedPomodoros(1);
     timer->transitionToNext();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Break),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Break),
                 static_cast<int>(timer->state()));
 }
 
 TEST(PomodoroTimerStates,
      test_should_transition_to_long_break_after_finished_when_met_req)
 {
-    timer->setState(IPomodoroTimer::State::Finished);
+    timer->setState(IStatefulTimer::State::Finished);
     int numTaskBeforeLongBreak{4};
     timer->setNumCompletedPomodoros(numTaskBeforeLongBreak);
     timer->transitionToNext();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::LongBreak),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::LongBreak),
                 static_cast<int>(timer->state()));
 }
 
 TEST(PomodoroTimerStates, test_should_transition_to_idle_from_break)
 {
-    timer->setState(IPomodoroTimer::State::Break);
+    timer->setState(IStatefulTimer::State::Break);
     timer->transitionToNext();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Idle),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Idle),
                 static_cast<int>(timer->state()));
 }
 
 TEST(PomodoroTimerStates, test_should_transition_to_idle_from_long_break)
 {
-    timer->setState(IPomodoroTimer::State::LongBreak);
+    timer->setState(IStatefulTimer::State::LongBreak);
     timer->transitionToNext();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Idle),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Idle),
                 static_cast<int>(timer->state()));
 }
 
@@ -230,37 +230,37 @@ TEST(PomodoroTimerStates, test_zone_state_transition)
 {
     // Should be ignored in Idle state
     timer->toggleInTheZoneMode();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Idle),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Idle),
                 static_cast<int>(timer->state()));
 
     // Should be ignored in Break state
-    timer->setState(IPomodoroTimer::State::Break);
+    timer->setState(IStatefulTimer::State::Break);
     timer->toggleInTheZoneMode();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Break),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Break),
                 static_cast<int>(timer->state()));
 
     // Should be ignored in LongBreak state
-    timer->setState(IPomodoroTimer::State::LongBreak);
+    timer->setState(IStatefulTimer::State::LongBreak);
     timer->toggleInTheZoneMode();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::LongBreak),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::LongBreak),
                 static_cast<int>(timer->state()));
 
     // Should be ignored in Finished state
-    timer->setState(IPomodoroTimer::State::Finished);
+    timer->setState(IStatefulTimer::State::Finished);
     timer->toggleInTheZoneMode();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Finished),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Finished),
                 static_cast<int>(timer->state()));
 
     // Should transition to Zone if in Task state
-    timer->setState(IPomodoroTimer::State::Task);
+    timer->setState(IStatefulTimer::State::Task);
     timer->toggleInTheZoneMode();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::ZoneEntered),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::ZoneEntered),
                 static_cast<int>(timer->state()));
 
     // Should transition to Task if in Zone state
-    timer->setState(IPomodoroTimer::State::ZoneEntered);
+    timer->setState(IStatefulTimer::State::ZoneEntered);
     timer->toggleInTheZoneMode();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Task),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Task),
                 static_cast<int>(timer->state()));
 }
 
@@ -268,37 +268,37 @@ TEST(PomodoroTimerStates, test_cancelling_state)
 {
     // Should be ignored in Idle state
     timer->cancel();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Idle),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Idle),
                 static_cast<int>(timer->state()));
 
     // Should be ignored in Zone state
-    timer->setState(IPomodoroTimer::State::ZoneEntered);
+    timer->setState(IStatefulTimer::State::ZoneEntered);
     timer->cancel();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::ZoneEntered),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::ZoneEntered),
                 static_cast<int>(timer->state()));
 
     // Should transition to Idle state when cancelling Finished state
-    timer->setState(IPomodoroTimer::State::Finished);
+    timer->setState(IStatefulTimer::State::Finished);
     timer->cancel();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Idle),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Idle),
                 static_cast<int>(timer->state()));
 
     // Should transition to Idle state when cancelling Task state
-    timer->setState(IPomodoroTimer::State::Task);
+    timer->setState(IStatefulTimer::State::Task);
     // timer->start();
     timer->cancel();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Idle),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Idle),
                 static_cast<int>(timer->state()));
 
     // Should transition to Idle state when cancelling Break
-    timer->setState(IPomodoroTimer::State::Break);
+    timer->setState(IStatefulTimer::State::Break);
     timer->cancel();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Idle),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Idle),
                 static_cast<int>(timer->state()));
 
     // Should transition to Idle state when cancelling LongBreak
-    timer->setState(IPomodoroTimer::State::LongBreak);
+    timer->setState(IStatefulTimer::State::LongBreak);
     timer->cancel();
-    CHECK_EQUAL(static_cast<int>(IPomodoroTimer::State::Idle),
+    CHECK_EQUAL(static_cast<int>(IStatefulTimer::State::Idle),
                 static_cast<int>(timer->state()));
 }

@@ -28,7 +28,7 @@
 #include "core/IPomodoroService.h"
 #include "core/ISprintStorageReader.h"
 #include "core/ISprintStorageWriter.h"
-#include "core/IPomodoroYearRangeReader.h"
+#include "core/IYearRangeReader.h"
 #include "core/ITaskStorageReader.h"
 #include "core/ITaskStorageWriter.h"
 #include "core/MacroTransaction.h"
@@ -40,7 +40,7 @@ class PomodoroService : public IPomodoroService {
 public:
     PomodoroService(ISprintStorageReader& pomodoroStorageReader,
                     ISprintStorageWriter& pomodoroStorageWriter,
-                    IPomodoroYearRangeReader& pomodoroYearRangeReader,
+                    IYearRangeReader& pomodoroYearRangeReader,
                     ITaskStorageReader& taskStorageReader,
                     ITaskStorageWriter& taskStorageWriter,
                     ISprintDistributionReader& pomoDailyDistributionReader,
@@ -106,7 +106,7 @@ public:
 private:
     ISprintStorageReader& pomodoroReader;
     ISprintStorageWriter& pomodoroWriter;
-    IPomodoroYearRangeReader& pomodoroYearRangeReader;
+    IYearRangeReader& pomodoroYearRangeReader;
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
     ISprintDistributionReader& pomoDailyDistributionReader;

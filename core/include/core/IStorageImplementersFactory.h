@@ -25,7 +25,7 @@
 #include "core/ISprintDistributionReader.h"
 #include "core/ISprintStorageReader.h"
 #include "core/ISprintStorageWriter.h"
-#include "core/IPomodoroYearRangeReader.h"
+#include "core/IYearRangeReader.h"
 #include "core/ITaskStorageReader.h"
 #include "core/ITaskStorageWriter.h"
 #include <memory>
@@ -40,7 +40,7 @@ public:
     virtual std::unique_ptr<ISprintStorageWriter>
     createPomodoroStorageWriter() const = 0;
 
-    virtual std::unique_ptr<IPomodoroYearRangeReader>
+    virtual std::unique_ptr<IYearRangeReader>
     createPomodoroYearRangeReader() const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>

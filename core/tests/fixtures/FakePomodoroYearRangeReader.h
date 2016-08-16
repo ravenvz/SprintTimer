@@ -22,9 +22,9 @@
 #ifndef FAKEPOMODOROYEARRANGEREADER_H_JWLLCTWA
 #define FAKEPOMODOROYEARRANGEREADER_H_JWLLCTWA
 
-#include "core/IPomodoroYearRangeReader.h"
+#include "core/IYearRangeReader.h"
 
-class FakePomodoroYearRangeReader : public IPomodoroYearRangeReader {
+class FakePomodoroYearRangeReader : public IYearRangeReader {
 public:
     void requestYearRange(Handler handler) final
     {

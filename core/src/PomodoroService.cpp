@@ -25,14 +25,14 @@
 #include "use_cases/DeleteTask.h"
 #include "use_cases/EditTag.h"
 #include "use_cases/EditTask.h"
-#include "use_cases/IncrementSpentPomodoros.h"
-#include "use_cases/RegisterNewPomodoro.h"
-#include "use_cases/RemovePomodoroTransaction.h"
+#include "use_cases/IncrementTaskSprints.h"
+#include "use_cases/RegisterNewSprint.h"
+#include "use_cases/RemoveSprintTransaction.h"
 #include "use_cases/RequestAllTags.h"
 #include "use_cases/RequestFinishedTasks.h"
 #include "use_cases/RequestMinMaxYear.h"
 #include "use_cases/RequestPomoDistribution.h"
-#include "use_cases/RequestPomodoros.h"
+#include "use_cases/RequestSprints.h"
 #include "use_cases/RequestUnfinishedTasks.h"
 #include "use_cases/StoreUnfinishedTasksOrder.h"
 #include "use_cases/ToggleTaskCompletionStatus.h"
@@ -42,7 +42,7 @@ namespace CoreApi {
 PomodoroService::PomodoroService(
     ISprintStorageReader& pomodoroStorageReader,
     ISprintStorageWriter& pomodoroStorageWriter,
-    IPomodoroYearRangeReader& pomodoroYearRangeReader,
+    IYearRangeReader& pomodoroYearRangeReader,
     ITaskStorageReader& taskStorageReader,
     ITaskStorageWriter& taskStorageWriter,
     ISprintDistributionReader& pomoDailyDistributionReader,
@@ -119,7 +119,7 @@ void PomodoroService::pomodorosInTimeRange(
     std::function<void(const std::vector<Sprint>&)> onResultsReceivedCallback)
 {
     std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestPomodoros>(
+        = std::make_unique<UseCases::RequestSprints>(
             pomodoroReader, timeSpan, onResultsReceivedCallback);
     invoker.executeCommand(std::move(requestItems));
 }
@@ -128,10 +128,10 @@ void PomodoroService::registerPomodoro(const TimeSpan& timeSpan,
                                        const std::string& taskUuid)
 {
     Sprint pomodoro{taskUuid, timeSpan};
-    auto registerNewPomodoro = std::make_unique<UseCases::RegisterNewPomodoro>(
+    auto registerNewPomodoro = std::make_unique<UseCases::RegisterNewSprint>(
         pomodoroWriter, pomodoro);
     auto incrementSpentPomodoros
-        = std::make_unique<UseCases::IncrementSpentPomodoros>(taskWriter,
+        = std::make_unique<UseCases::IncrementTaskSprints>(taskWriter,
                                                               taskUuid);
     std::vector<std::unique_ptr<RevertableCommand>> commands;
     commands.push_back(std::move(registerNewPomodoro));
@@ -144,7 +144,7 @@ void PomodoroService::registerPomodoro(const TimeSpan& timeSpan,
 void PomodoroService::removePomodoro(const Sprint& pomodoro)
 {
     const std::string& taskUuid = pomodoro.taskUuid();
-    auto removePomodoro = std::make_unique<UseCases::RemovePomodoroTransaction>(
+    auto removePomodoro = std::make_unique<UseCases::RemoveSprintTransaction>(
         pomodoroWriter, pomodoro);
     auto decrementSpentPomodoros
         = std::make_unique<UseCases::DecrementSpentPomodoros>(taskWriter,

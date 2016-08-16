@@ -37,7 +37,7 @@ TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
         1000,
         applicationSettings);
 
-    qRegisterMetaType<IPomodoroTimer::State>("IPomodoroTimer::State");
+    qRegisterMetaType<IStatefulTimer::State>("IStatefulTimer::State");
 
     connect(player.get(),
             static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
@@ -59,7 +59,7 @@ void TimerWidgetBase::onTimerTick(long timeLeft)
     emit timerUpdated(timeLeft / 1000);
 }
 
-void TimerWidgetBase::onTimerStateChanged(IPomodoroTimer::State state)
+void TimerWidgetBase::onTimerStateChanged(IStatefulTimer::State state)
 {
     emit stateChanged(state);
 }
@@ -72,28 +72,28 @@ void TimerWidgetBase::onTimerUpdated(long timeLeft)
         playSound();
 }
 
-void TimerWidgetBase::onStateChanged(IPomodoroTimer::State state)
+void TimerWidgetBase::onStateChanged(IStatefulTimer::State state)
 {
     switch (state) {
-    case IPomodoroTimer::State::Task:
+    case IStatefulTimer::State::Task:
         onTaskStateEntered();
         break;
-    case IPomodoroTimer::State::Break:
+    case IStatefulTimer::State::Break:
         onBreakStateEntered();
         break;
-    case IPomodoroTimer::State::LongBreak:
+    case IStatefulTimer::State::LongBreak:
         onBreakStateEntered();
         break;
-    case IPomodoroTimer::State::Finished:
+    case IStatefulTimer::State::Finished:
         onSubmissionStateEntered();
         break;
-    case IPomodoroTimer::State::Idle:
+    case IStatefulTimer::State::Idle:
         onIdleStateEntered();
         break;
-    case IPomodoroTimer::State::ZoneEntered:
+    case IStatefulTimer::State::ZoneEntered:
         onZoneStateEntered();
         break;
-    case IPomodoroTimer::State::ZoneLeft:
+    case IStatefulTimer::State::ZoneLeft:
         onZoneStateLeft();
         break;
     default:
@@ -105,10 +105,10 @@ void TimerWidgetBase::startTask() { timer->start(); }
 void TimerWidgetBase::cancelTask()
 {
     ConfirmationDialog cancelDialog;
-    QString description("This will destroy current pomodoro!");
+    QString description("This will destroy current sprint!");
     cancelDialog.setActionDescription(description);
-    if (timer->state() == IPomodoroTimer::State::Break
-        || timer->state() == IPomodoroTimer::State::LongBreak
+    if (timer->state() == IStatefulTimer::State::Break
+        || timer->state() == IStatefulTimer::State::LongBreak
         || cancelDialog.exec()) {
         timer->cancel();
     }
@@ -125,7 +125,7 @@ void TimerWidgetBase::requestSubmission()
 
 void TimerWidgetBase::playSound() const
 {
-    if (timer->state() == IPomodoroTimer::State::ZoneEntered
+    if (timer->state() == IStatefulTimer::State::ZoneEntered
         || !applicationSettings.soundIsEnabled()) {
         return;
     }

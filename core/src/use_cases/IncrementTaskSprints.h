@@ -19,19 +19,37 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IPOMODOROYEARRANGEREADER_H_EIN38BSX
-#define IPOMODOROYEARRANGEREADER_H_EIN38BSX
+#ifndef INCREMENTTASKSPRINTS_H_2OKTXAHD
+#define INCREMENTTASKSPRINTS_H_2OKTXAHD
 
-#include <functional>
-#include <list>
-#include <vector>
+#include "core/ITaskStorageWriter.h"
+#include "core/RevertableCommand.h"
 
-class IPomodoroYearRangeReader {
+namespace UseCases {
+class IncrementTaskSprints : public RevertableCommand {
 public:
-    using Handler = std::function<void(const std::vector<std::string>&)>;
-    virtual ~IPomodoroYearRangeReader() = default;
-    virtual void requestYearRange(Handler handler) = 0;
+    IncrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
+                            const std::string& taskUuid)
+        : writer{taskStorageWriter}
+        , taskUuid{taskUuid}
+    {
+    }
+
+    std::string inspect() const final
+    {
+        return "Increment finished sprints for " + taskUuid;
+    }
+
+protected:
+    void executeAction() final { writer.incrementSpentPomodoros(taskUuid); }
+
+    void undoAction() final { writer.decrementSpentPomodoros(taskUuid); }
+
+private:
+    ITaskStorageWriter& writer;
+    const std::string taskUuid;
 };
 
+} /* UseCases */
 
-#endif /* end of include guard: IPOMODOROYEARRANGEREADER_H_EIN38BSX */
+#endif /* end of include guard: INCREMENTTASKSPRINTS_H_2OKTXAHD */

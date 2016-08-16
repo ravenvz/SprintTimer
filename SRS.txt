@@ -3,7 +3,7 @@ INTRODUCTION
 
 This is an informal Software Requirements Specification document.
 
-I've got an interest in pomodoro technique to help me to
+I've got an interest in sprint technique to help me to
 concentrate at task at hand, as well as to develop ability
 to estimate the time required to finish certain tasks.
 
@@ -25,27 +25,27 @@ Core features
 
     - Application should support Pomodoro technique workflow (pomodoros should be
         interleaved with short and long breaks)
-        * After submitting pomodoro, short break should be started automatically
+        * After submitting sprint, short break should be started automatically
         * After completing specified number of pomodoros in a row, long break should
           be started automatically
-        * When pomodoro or break is completed, User should be notified
+        * When sprint or break is completed, User should be notified
 
     - User should be able to configure following parameters (not sure yet if on runtime)
-        * pomodoro duration (in minutes)
+        * sprint duration (in minutes)
         * short break duration (in minutes)
         * long break duration (in minutes)
         * number of pomodoros to be completed before the long break
         * sound file to be used for notification (in mp3 format) or not use sound at all
 
     - User should be able to provide a description of task he accomplished when
-      submitting pomodoro
+      submitting sprint
 
     - User should be able to see a list submitted pomodoros
         * User should see 16 last submitted pomodoros
         * Pomodoros should be ordered by last submitted to first submitted
 
     - User should be able to select 'In The Zone' mode, where he will not be distracted
-        by any signals, and application will run pomodoro tasks in cycle, ignoring breaks.
+        by any signals, and application will run sprint tasks in cycle, ignoring breaks.
         Such mode is useful, when working, say on programming task and each distraction
         comes with a price.
 
@@ -54,8 +54,8 @@ Core features
         * Todo items can optionally contain number, prefixed with character '*'. This
           number should be treated like estimated number of pomodoros, this task could take
         * Todo items list should support filtering by tag.
-        * Selecting item from the list when submitting pomodoro should copy item description
-          to pomodoro description
+        * Selecting item from the list when submitting sprint should copy item description
+          to sprint description
         * Items in list should contain information about number of pomodoros spent and
           number of pomodoros estimated, if number of estimated pomodoros was specified
         * User should be able to edit/delete item in the list
@@ -83,7 +83,7 @@ Optional features
 
     - User should be able to import completed pomodoros from a CSV file with a specified fields
 
-    - User can configure pomodoro time, break time, long break time
+    - User can configure sprint time, break time, long break time
 
     - User can configure how many pomodoros should be completed before a long break
 

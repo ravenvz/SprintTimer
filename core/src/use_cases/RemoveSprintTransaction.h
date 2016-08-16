@@ -19,37 +19,37 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef INCREMENTSPENTPOMODOROS_H_2OKTXAHD
-#define INCREMENTSPENTPOMODOROS_H_2OKTXAHD
+#ifndef REMOVESPRINTTRANSACTION_H_GAR8SZLM
+#define REMOVESPRINTTRANSACTION_H_GAR8SZLM
 
-#include "core/ITaskStorageWriter.h"
+#include "core/ISprintStorageWriter.h"
 #include "core/RevertableCommand.h"
 
 namespace UseCases {
-class IncrementSpentPomodoros : public RevertableCommand {
+
+class RemoveSprintTransaction : public RevertableCommand {
 public:
-    IncrementSpentPomodoros(ITaskStorageWriter& taskStorageWriter,
-                            const std::string& taskUuid)
-        : writer{taskStorageWriter}
-        , taskUuid{taskUuid}
+    RemoveSprintTransaction(ISprintStorageWriter& writer,
+                              const Sprint& sprint)
+        : writer{writer}
+        , sprint{sprint}
     {
     }
+
+    void executeAction() final { writer.remove(sprint); }
+
+    void undoAction() final { writer.save(sprint); }
 
     std::string inspect() const final
     {
-        return "Increment spent pomodoros for " + taskUuid;
+        return "Remove sprint '" + sprint.toString() + "'";
     }
 
-protected:
-    void executeAction() final { writer.incrementSpentPomodoros(taskUuid); }
-
-    void undoAction() final { writer.decrementSpentPomodoros(taskUuid); }
-
 private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid;
+    ISprintStorageWriter& writer;
+    const Sprint sprint;
 };
 
-} /* UseCases */
+} // namespace UseCases
 
-#endif /* end of include guard: INCREMENTSPENTPOMODOROS_H_2OKTXAHD */
+#endif /* end of include guard: REMOVESPRINTTRANSACTION_H_GAR8SZLM */

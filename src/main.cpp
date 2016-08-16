@@ -68,7 +68,7 @@ std::string createDataDirectoryIfNotExist()
 {
     std::string prefix = getUserDataDirectory();
     std::cout << "Prefix is: " << prefix << std::endl;
-    const std::string dataDirectory{prefix + "/pomodoro"};
+    const std::string dataDirectory{prefix + "/sprint"};
     if (!exists(dataDirectory)) {
         create_directory(dataDirectory);
     }
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 
     const std::string dataDirectory = createDataDirectoryIfNotExist();
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/pomodoro.db"};
+    DBService dbService{dataDirectory + "/sprint.db"};
     // DBService dbService{dataDirectory + "/test_pomodoro.db"};
 
     QtStorageImplementersFactory factory{dbService};
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
         factory.createPomodoroStorageReader()};
     std::unique_ptr<ISprintStorageWriter> pomodoroStorageWriter{
         factory.createPomodoroStorageWriter()};
-    std::unique_ptr<IPomodoroYearRangeReader> pomodoroYearRangeReader{
+    std::unique_ptr<IYearRangeReader> pomodoroYearRangeReader{
         factory.createPomodoroYearRangeReader()};
     std::unique_ptr<ITaskStorageReader> taskStorageReader{
         factory.createTaskStorageReader()};

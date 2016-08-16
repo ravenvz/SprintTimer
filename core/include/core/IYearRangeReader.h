@@ -19,32 +19,19 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef IYEARRANGEREADER_H_EIN38BSX
+#define IYEARRANGEREADER_H_EIN38BSX
 
-#ifndef IPOMODOROTIMER_H_D3DG0N7C
-#define IPOMODOROTIMER_H_D3DG0N7C
-
-#include "core/TimeSpan.h"
+#include <functional>
+#include <list>
 #include <vector>
 
-class IPomodoroTimer {
+class IYearRangeReader {
 public:
-    enum class State { Idle, Task, Break, LongBreak, ZoneEntered, ZoneLeft, Finished };
-
-    virtual ~IPomodoroTimer() = default;
-
-    virtual void start() = 0;
-
-    virtual void cancel() = 0;
-
-    virtual int currentDuration() const = 0;
-
-    virtual State state() const = 0;
-
-    virtual void toggleInTheZoneMode() = 0;
-
-    virtual std::vector<TimeSpan> completedTaskIntervals() const = 0;
-
-    virtual void clearIntervalsBuffer() = 0;
+    using Handler = std::function<void(const std::vector<std::string>&)>;
+    virtual ~IYearRangeReader() = default;
+    virtual void requestYearRange(Handler handler) = 0;
 };
 
-#endif /* end of include guard: IPOMODOROTIMER_H_D3DG0N7C */
+
+#endif /* end of include guard: IYEARRANGEREADER_H_EIN38BSX */

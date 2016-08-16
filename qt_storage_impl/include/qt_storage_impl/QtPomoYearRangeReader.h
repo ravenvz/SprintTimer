@@ -22,12 +22,12 @@
 #ifndef QTSQLITEPOMODOROYEARRANGEREADER_H_6LK9HHEM
 #define QTSQLITEPOMODOROYEARRANGEREADER_H_6LK9HHEM
 
-#include "core/IPomodoroYearRangeReader.h"
+#include "core/IYearRangeReader.h"
 #include "qt_storage_impl/db_service.h"
 #include <QObject>
 #include <functional>
 
-class QtPomoYearRangeReader : public QObject, public IPomodoroYearRangeReader {
+class QtPomoYearRangeReader : public QObject, public IYearRangeReader {
     Q_OBJECT
 
 public:

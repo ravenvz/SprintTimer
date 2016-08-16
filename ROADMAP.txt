@@ -103,8 +103,8 @@ Version 0.1.2
 It is now possible to browse history of completed pomodoros
 and todo items
 
-    Added basic pomodoro history browser
-    Added basic pomodoro history browser
+    Added basic sprint history browser
+    Added basic sprint history browser
     History can be browsed for any valid period specified by user
 
 
@@ -121,7 +121,7 @@ Version 0.1.0
 
 Application should be usable on day-to-day basis
 
-    Added basic pomodoro list to GUI
+    Added basic sprint list to GUI
     Added basic Todo Items list to select tasks from to GUI
     Added quick-add todo item functionality
 
@@ -135,10 +135,10 @@ Version 0.0.2
 Version 0.0.1
 -------------
 
-Working pomodoro timer
+Working sprint timer
 
-    Added functionality to start and cancel pomodoro
+    Added functionality to start and cancel sprint
     Short breaks are working
-    Added sound notification when pomodoro/break ends
+    Added sound notification when sprint/break ends
     Created basic GUI
 

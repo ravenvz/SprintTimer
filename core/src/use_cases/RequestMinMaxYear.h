@@ -23,14 +23,14 @@
 #define REQUESTPOMODOROYEARRANGECOMMAND_H_0SPNHM7R
 
 #include "core/Command.h"
-#include "core/IPomodoroYearRangeReader.h"
+#include "core/IYearRangeReader.h"
 
 namespace UseCases {
 
 class RequestMinMaxYear : public Command {
 public:
-    RequestMinMaxYear(IPomodoroYearRangeReader& reader,
-                      IPomodoroYearRangeReader::Handler handler)
+    RequestMinMaxYear(IYearRangeReader& reader,
+                      IYearRangeReader::Handler handler)
         : reader{reader}
         , handler{handler}
     {
@@ -41,8 +41,8 @@ public:
     std::string inspect() const final { return "Request min max year"; }
 
 private:
-    IPomodoroYearRangeReader& reader;
-    IPomodoroYearRangeReader::Handler handler;
+    IYearRangeReader& reader;
+    IYearRangeReader::Handler handler;
 };
 
 

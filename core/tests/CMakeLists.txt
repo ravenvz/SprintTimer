@@ -5,14 +5,14 @@ project(${TEST_CORE})
 set(SOURCE_FILES
     run_all_tests.cpp
     test_datetime.cpp
-    test_pomodoro_statistics.cpp
+        test_sprint_statistics.cpp
     test_distribution.cpp
     test_string_utils.cpp
     test_time_span.cpp
     test_task.cpp
     test_pomodoro_timer.cpp
     test_pomodoro_service.cpp
-    test_increment_spent_pomodoros.cpp
+        test_increment_task_sprints.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

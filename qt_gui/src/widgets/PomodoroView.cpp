@@ -49,7 +49,7 @@ void PomodoroView::removePomodoro()
 {
     QModelIndex index = currentIndex();
     ConfirmationDialog dialog;
-    QString description{"This will remove pomodoro permanently"};
+    QString description{"This will remove sprint permanently"};
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         dynamic_cast<PomodoroModel*>(model())->remove(index.row());

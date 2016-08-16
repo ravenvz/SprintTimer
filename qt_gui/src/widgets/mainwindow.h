@@ -24,7 +24,7 @@
 
 #include "core/IPomodoroService.h"
 #include "core/ISprintStorageReader.h"
-#include "core/IPomodoroYearRangeReader.h"
+#include "core/IYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
 #include "historyview.h"
 #include "models/PomodoroModel.h"

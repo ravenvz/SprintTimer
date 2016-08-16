@@ -33,7 +33,7 @@ TEST_GROUP(PomodoroModel){
         // Memory leak checker does not play well with Qt objects at all.
         MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
 QSqlQuery query;
-query.exec("delete from pomodoro;");
+query.exec("delete from sprint;");
 query.exec("delete from todo_item");
 query.exec("delete from todotag");
 query.exec("delete from tag");

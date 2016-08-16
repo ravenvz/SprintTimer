@@ -25,7 +25,7 @@
 
 #include "core/DateTime.h"
 #include "core/IConfig.h"
-#include "core/IPomodoroTimer.h"
+#include "core/IStatefulTimer.h"
 #include "core/TimeSpan.h"
 #include "core/Timer.h"
 #include <chrono>
@@ -35,7 +35,7 @@
 
 class PomodoroTimerState;
 
-class PomodoroTimer : public IPomodoroTimer {
+class PomodoroTimer : public IStatefulTimer {
     friend class PomodoroTimerState;
     friend class ShortBreakState;
     friend class LongBreakState;
@@ -52,7 +52,7 @@ public:
      * each tick period until time runs out or timer is cancelled. */
     PomodoroTimer(
         std::function<void(long timeLeft)> tickCallback,
-        std::function<void(IPomodoroTimer::State state)> onStateChangedCallback,
+        std::function<void(IStatefulTimer::State state)> onStateChangedCallback,
         long tickPeriodInMillisecs,
         const IConfig& applicationSettings);
 
@@ -79,7 +79,7 @@ public:
     int currentDuration() const final;
 
     /* Return current state. */
-    IPomodoroTimer::State state() const final;
+    IStatefulTimer::State state() const final;
 
     /* Toggles the InTheZone mode when tasks are no longer interleaved with
      * breaks and scheduled one after another without breaks. */
@@ -113,7 +113,7 @@ private:
     const IConfig& applicationSettings;
     const std::chrono::milliseconds tickInterval;
     std::function<void(long timeLeft)> onTickCallback;
-    std::function<void(IPomodoroTimer::State)> onStateChangedCallback;
+    std::function<void(IStatefulTimer::State)> onStateChangedCallback;
     std::unique_ptr<Timer> timerPtr;
     DateTime mStart;
     int completedPomodoros{0};
@@ -123,7 +123,7 @@ private:
     void resetTimer();
 };
 
-/* Base class for pomodoro timer states. */
+/* Base class for sprint timer states. */
 class PomodoroTimerState {
 public:
     PomodoroTimerState(PomodoroTimer& pomodoroTimer)
@@ -133,13 +133,13 @@ public:
 
     virtual ~PomodoroTimerState() = default;
 
-    virtual IPomodoroTimer::State state() const = 0;
+    virtual IStatefulTimer::State state() const = 0;
 
     virtual void start() {}
 
     virtual void setNextState(){};
 
-    virtual void notifyStateChanged(IPomodoroTimer::State state);
+    virtual void notifyStateChanged(IStatefulTimer::State state);
 
     virtual void cancel(){};
 
@@ -155,7 +155,7 @@ class IdleState final : public PomodoroTimerState {
 public:
     IdleState(PomodoroTimer& timer);
 
-    IPomodoroTimer::State state() const;
+    IStatefulTimer::State state() const;
 
     void setNextState();
 
@@ -166,7 +166,7 @@ class TaskState final : public PomodoroTimerState {
 public:
     TaskState(PomodoroTimer& timer);
 
-    IPomodoroTimer::State state() const;
+    IStatefulTimer::State state() const;
 
     void start();
 
@@ -183,7 +183,7 @@ class ShortBreakState final : public PomodoroTimerState {
 public:
     ShortBreakState(PomodoroTimer& timer);
 
-    IPomodoroTimer::State state() const;
+    IStatefulTimer::State state() const;
 
     void start();
 
@@ -198,7 +198,7 @@ class LongBreakState final : public PomodoroTimerState {
 public:
     LongBreakState(PomodoroTimer& timer);
 
-    IPomodoroTimer::State state() const;
+    IStatefulTimer::State state() const;
 
     void start();
 
@@ -215,7 +215,7 @@ public:
 
     void start();
 
-    IPomodoroTimer::State state() const;
+    IStatefulTimer::State state() const;
 
     void setNextState();
 
@@ -228,7 +228,7 @@ class FinishedState final : public PomodoroTimerState {
 public:
     FinishedState(PomodoroTimer& timer);
 
-    IPomodoroTimer::State state() const;
+    IStatefulTimer::State state() const;
 
     void setNextState();
 
