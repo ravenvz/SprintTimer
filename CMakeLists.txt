@@ -61,20 +61,6 @@ include(compiler_options.cmake)
 # file(GLOB SOURCE_FILES src/*/*.cpp src/*/*/*.cpp)
 set(SOURCE_FILES src/main.cpp)
 
-# QT5_WRAP_UI(UI_HEADERS
-#         src/ui/mainwindow.ui
-#         src/ui/add_todo_dialog.ui
-#         src/ui/pom_cancel_dialog.ui
-#         src/ui/settings.ui
-#         src/ui/history.ui
-#         src/ui/date_pick_dialog.ui
-#         src/ui/goalsview.ui
-#         src/ui/statistics_widget.ui
-#         src/ui/manual_add_pomodoro_dialog.ui
-#         src/ui/pickperiodwidget.ui
-#         src/ui/tageditor.ui
-# )
-
 # add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc src/main.cpp)
 add_executable(${PROJECT} ${SOURCE_FILES})
 target_compile_features(${PROJECT} PUBLIC cxx_return_type_deduction)

@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "models/PomodoroModel.h"
 
-PomodoroModel::PomodoroModel(IPomodoroService& pomodoroService, QObject* parent)
+PomodoroModel::PomodoroModel(ICoreService& pomodoroService, QObject* parent)
     : AsyncListModel(parent)
     , interval{TimeSpan{DateTime::currentDateTime(),
                         DateTime::currentDateTime()}}
@@ -59,21 +59,21 @@ void PomodoroModel::setDateFilter(const TimeSpan& timeSpan)
 void PomodoroModel::insert(const TimeSpan& timeSpan,
                            const std::string& taskUuid)
 {
-    pomodoroService.registerPomodoro(timeSpan, taskUuid);
+    pomodoroService.registerSprint(timeSpan, taskUuid);
     requestDataUpdate();
 }
 
 void PomodoroModel::remove(int row)
 {
-    pomodoroService.removePomodoro(storage[static_cast<size_t>(row)]);
+    pomodoroService.removeSprint(storage[static_cast<size_t>(row)]);
     requestDataUpdate();
 }
 
 void PomodoroModel::requestDataUpdate()
 {
-    pomodoroService.pomodorosInTimeRange(
-        interval,
-        std::bind(&PomodoroModel::onDataChanged, this, std::placeholders::_1));
+    pomodoroService.sprintsInTimeRange(
+            interval,
+            std::bind(&PomodoroModel::onDataChanged, this, std::placeholders::_1));
 }
 
 void PomodoroModel::onDataChanged(const std::vector<Sprint>& items)

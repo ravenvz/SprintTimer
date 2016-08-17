@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef FAKEPOMODOROSTORAGE_H_K56HOST8
-#define FAKEPOMODOROSTORAGE_H_K56HOST8
+#ifndef FAKESTORAGE_H_K56HOST8
+#define FAKESTORAGE_H_K56HOST8
 
 #include "core/Distribution.h"
 #include "core/TimeSpan.h"
@@ -107,4 +107,4 @@ private:
 };
 
 
-#endif /* end of include guard: FAKEPOMODOROSTORAGE_H_K56HOST8 */
+#endif /* end of include guard: FAKESTORAGE_H_K56HOST8 */

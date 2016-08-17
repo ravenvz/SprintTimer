@@ -26,7 +26,7 @@
 #include <thread>
 
 GoalProgressWidget::GoalProgressWidget(IConfig& applicationSettings,
-                                       IPomodoroService& pomodoroService,
+                                       ICoreService& pomodoroService,
                                        QWidget* parent)
     : DataWidget(parent)
     , applicationSettings(applicationSettings)
@@ -37,7 +37,7 @@ GoalProgressWidget::GoalProgressWidget(IConfig& applicationSettings,
     layout->setContentsMargins(20, 10, 20, 10);
 
     dailyProgress = new ProgressView(
-        applicationSettings.dailyPomodorosGoal(), 3, 10, 0.7, this);
+            applicationSettings.dailyGoal(), 3, 10, 0.7, this);
     dailyProgress->setLegendTitle("Last 30 days");
     dailyProgress->setLegendTotalCaption("Total completed:");
     dailyProgress->setLegendAverageCaption("Average per day:");
@@ -45,7 +45,7 @@ GoalProgressWidget::GoalProgressWidget(IConfig& applicationSettings,
     dailyProgress->setLegendGoalCaption("Daily goal:");
 
     weeklyProgress = new ProgressView(
-        applicationSettings.weeklyPomodorosGoal(), 3, 4, 0.8, this);
+            applicationSettings.weeklyGoal(), 3, 4, 0.8, this);
     weeklyProgress->setLegendTitle("Last 12 weeks");
     weeklyProgress->setLegendTotalCaption("Total completed:");
     weeklyProgress->setLegendAverageCaption("Average per week:");
@@ -53,7 +53,7 @@ GoalProgressWidget::GoalProgressWidget(IConfig& applicationSettings,
     weeklyProgress->setLegendGoalCaption("Weekly goal:");
 
     monthlyProgress = new ProgressView(
-        applicationSettings.monthlyPomodorosGoal(), 3, 4, 0.8, this);
+            applicationSettings.monthlyGoal(), 3, 4, 0.8, this);
     monthlyProgress->setLegendTitle("Last 12 months");
     monthlyProgress->setLegendTotalCaption("Total completed:");
     monthlyProgress->setLegendAverageCaption("Average per month:");
@@ -77,21 +77,21 @@ GoalProgressWidget::GoalProgressWidget(IConfig& applicationSettings,
             &ProgressView::goalChanged,
             this,
             [this, &applicationSettings](int goal) {
-                applicationSettings.setDailyPomodorosGoal(goal);
+                applicationSettings.setDailyGoal(goal);
                 synchronizeDailyData();
             });
     connect(weeklyProgress,
             &ProgressView::goalChanged,
             this,
             [this, &applicationSettings](int goal) {
-                applicationSettings.setWeeklyPomodorosGoal(goal);
+                applicationSettings.setWeeklyGoal(goal);
                 synchronizeWeeklyData();
             });
     connect(monthlyProgress,
             &ProgressView::goalChanged,
             this,
             [this, &applicationSettings](int goal) {
-                applicationSettings.setMonthlyPomodorosGoal(goal);
+                applicationSettings.setMonthlyGoal(goal);
                 synchronizeMonthlyData();
             });
 
@@ -111,33 +111,33 @@ void GoalProgressWidget::synchronizeDailyData()
 {
     auto now = DateTime::currentDateTime();
     auto from = now.addDays(-30);
-    pomodoroService.requestPomodoroDailyDistribution(
-        TimeSpan{from, now},
-        std::bind(&GoalProgressWidget::onDailyDataReceived,
-                  this,
-                  std::placeholders::_1));
+    pomodoroService.requestSprintDailyDistribution(
+            TimeSpan{from, now},
+            std::bind(&GoalProgressWidget::onDailyDataReceived,
+                      this,
+                      std::placeholders::_1));
 }
 
 void GoalProgressWidget::synchronizeWeeklyData()
 {
     auto now = DateTime::currentDateTime();
     auto from = now.addDays(-7 * 11 - static_cast<int>(now.dayOfWeek()) + 1);
-    pomodoroService.requestPomodoroWeeklyDistribution(
-        TimeSpan{from, now},
-        std::bind(&GoalProgressWidget::onWeeklyDataReceived,
-                  this,
-                  std::placeholders::_1));
+    pomodoroService.requestSprintWeeklyDistribution(
+            TimeSpan{from, now},
+            std::bind(&GoalProgressWidget::onWeeklyDataReceived,
+                      this,
+                      std::placeholders::_1));
 }
 
 void GoalProgressWidget::synchronizeMonthlyData()
 {
     DateTime now = DateTime::currentDateTime();
     auto from = now.addMonths(-11).addDays(-static_cast<int>(now.day()));
-    pomodoroService.requestPomodoroMonthlyDistribution(
-        TimeSpan{from, now},
-        std::bind(&GoalProgressWidget::onMonthlyDataReceived,
-                  this,
-                  std::placeholders::_1));
+    pomodoroService.requestSprintMonthlyDistribution(
+            TimeSpan{from, now},
+            std::bind(&GoalProgressWidget::onMonthlyDataReceived,
+                      this,
+                      std::placeholders::_1));
 }
 
 void GoalProgressWidget::onDailyDataReceived(

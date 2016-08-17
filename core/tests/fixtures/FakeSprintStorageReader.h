@@ -19,41 +19,26 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTSPRINTDAILYDISTRIBUTION_H_QUUONEQF
-#define REQUESTSPRINTDAILYDISTRIBUTION_H_QUUONEQF
+#ifndef FAKESPRINTSTORAGEREADER_H_MFYC8R5A
+#define FAKESPRINTSTORAGEREADER_H_MFYC8R5A
 
+#include "FakeStorage.h"
+#include "core/ISprintStorageReader.h"
 
-#include "core/Command.h"
-#include "core/ISprintDistributionReader.h"
-
-namespace UseCases {
-
-class RequestPomoDistribution : public Command {
+class FakeSprintStorageReader : public ISprintStorageReader {
 public:
-    RequestPomoDistribution(ISprintDistributionReader& reader,
-                            const TimeSpan& timeSpan,
-                            ISprintDistributionReader::Handler handler)
-        : reader{reader}
-        , timeSpan{timeSpan}
-        , handler{handler}
+    FakeSprintStorageReader(FakeStorage<Sprint>& storage)
+        : storage{storage}
     {
     }
 
-    void execute() final { reader.requestDailyDistribution(timeSpan, handler); }
-
-    std::string inspect() const final
+    void requestItems(const TimeSpan& timeSpan, Handler handler) final
     {
-        return "Request sprint distribution";
+        storage.itemsInTimeRange(timeSpan, handler);
     }
 
 private:
-    ISprintDistributionReader& reader;
-    const TimeSpan& timeSpan;
-    ISprintDistributionReader::Handler handler;
+    FakeStorage<Sprint>& storage;
 };
 
-
-} /* UseCases */
-
-
-#endif /* end of include guard: REQUESTSPRINTDAILYDISTRIBUTION_H_QUUONEQF */
+#endif /* end of include guard: FAKESPRINTSTORAGEREADER_H_MFYC8R5A */

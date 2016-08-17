@@ -61,5 +61,5 @@ echo "$build_type build using $cxx_compiler and $make_tool"
 
 (cd bin &&
     ./test_pomodoro &&
-    ./test_pomodoro_core &&
+    ./test_core &&
     ./test_qt_storage_impl)

@@ -19,22 +19,17 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/PomodoroService.h"
-#include "fixtures/FakePomodoroDistributionReader.h"
-#include "fixtures/FakePomodoroStorageReader.h"
-#include "fixtures/FakePomodoroStorageWriter.h"
-#include "fixtures/FakePomodoroYearRangeReader.h"
+#include "core/CoreService.h"
+#include "fixtures/FakeSprintDistributionReader.h"
+#include "fixtures/FakeSprintStorageReader.h"
+#include "fixtures/FakeYearRangeReader.h"
 #include "fixtures/FakeTaskStorageReader.h"
 #include "fixtures/FakeTaskStorageWriter.h"
-#include "use_cases/RegisterNewSprint.h"
+#include "fixtures/FakeSprintStorageWriter.h"
 #include <TestHarness.h>
-#include <algorithm>
-#include <vector>
 
-#include <iostream>
-#include <iterator>
 
-TEST_GROUP(TestPomodoroService)
+TEST_GROUP(TestCoreService)
 {
     const TimeSpan defaultTimeSpan
         = TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()};
@@ -46,54 +41,54 @@ TEST_GROUP(TestPomodoroService)
                          false,
                          DateTime::fromYMD(2015, 11, 10)};
 
-    FakeStorage<Sprint> pomodoroStorage;
+    FakeStorage<Sprint> sprintStorage;
     FakeStorage<Task> taskStorage;
-    FakePomodoroWriter pomodoroStorageWriter{pomodoroStorage};
-    FakePomodoroStorageReader pomodoroStorageReader{pomodoroStorage};
-    FakePomodoroDistributionReader pomodoroDistributionReader{pomodoroStorage};
-    FakePomodoroYearRangeReader pomodoroYearRangeReader;
+    FakeSprintWriter sprintStorageWriter{sprintStorage};
+    FakeSprintStorageReader sprintStorageReader{sprintStorage};
+    FakeSprintDistributionReader sprintDistributionReader{sprintStorage};
+    FakeYearRangeReader yearRangeReader;
     FakeTaskStorageReader taskStorageReader{taskStorage};
     FakeTaskStorageWriter taskStorageWriter{taskStorage};
 
-    CoreApi::PomodoroService pomodoroService{pomodoroStorageReader,
-                                             pomodoroStorageWriter,
-                                             pomodoroYearRangeReader,
+    Core::CoreService coreService{sprintStorageReader,
+                                             sprintStorageWriter,
+                                             yearRangeReader,
                                              taskStorageReader,
                                              taskStorageWriter,
-                                             pomodoroDistributionReader,
-                                             pomodoroDistributionReader,
-                                             pomodoroDistributionReader};
+                                             sprintDistributionReader,
+                                             sprintDistributionReader,
+                                             sprintDistributionReader};
 
-    bool pomodoroHandlerCalled{false};
-    bool pomoDistributionHandlerCalled{false};
-    bool pomodoroYearRangeHandlerCalled{false};
+    bool sprintHandlerCalled{false};
+    bool sprintDistributionHandlerCalled{false};
+    bool yearRangeHandlerCalled{false};
     bool taskHandlerCalled{false};
     bool tagHandlerCalled{false};
 
     void setup()
     {
-        pomodoroStorage.clear();
+        sprintStorage.clear();
         taskStorage.clear();
-        pomodoroHandlerCalled = false;
-        pomoDistributionHandlerCalled = false;
-        pomodoroYearRangeHandlerCalled = false;
+        sprintHandlerCalled = false;
+        sprintDistributionHandlerCalled = false;
+        yearRangeHandlerCalled = false;
         taskHandlerCalled = false;
         tagHandlerCalled = false;
     }
 
-    void pomodoroTimeRangeHandler(const std::vector<Sprint>& result)
+    void sprintTimeRangeHandler(const std::vector<Sprint>& result)
     {
-        pomodoroHandlerCalled = true;
+        sprintHandlerCalled = true;
     }
 
-    void pomodoroYearRangeHandler(const std::vector<std::string>& result)
+    void yearRangeHandler(const std::vector<std::string>& result)
     {
-        pomodoroYearRangeHandlerCalled = true;
+        yearRangeHandlerCalled = true;
     }
 
-    void pomodoroDistributionHandler(const Distribution<int>& result)
+    void sprintDistributionHandler(const Distribution<int>& result)
     {
-        pomoDistributionHandlerCalled = true;
+        sprintDistributionHandlerCalled = true;
     }
 
     void taskHandler(const std::vector<Task>& result)
@@ -107,113 +102,113 @@ TEST_GROUP(TestPomodoroService)
     }
 };
 
-TEST(TestPomodoroService,
-     test_register_pomodoro_adds_pomodoro_and_increments_spent)
+TEST(TestCoreService,
+     test_registers_sprint_and_increments_tasks_sprints)
 {
     taskStorageWriter.save(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
 
-    pomodoroService.registerPomodoro(defaultTimeSpan, taskUuid);
+    coreService.registerSprint(defaultTimeSpan, taskUuid);
 
-    CHECK_EQUAL(1, pomodoroStorage.size());
-    CHECK_EQUAL(3, taskStorage.getItem(taskUuid).value().spentPomodoros());
+    CHECK_EQUAL(1, sprintStorage.size());
+    CHECK_EQUAL(3, taskStorage.getItem(taskUuid).value().actualCost());
 }
 
-TEST(TestPomodoroService,
-     test_remove_pomodoro_removes_pomodoro_and_decrements_spent)
+TEST(TestCoreService,
+     test_removes_sprint_and_decrements_tasks_sprint)
 {
     taskStorageWriter.save(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
-    Sprint pomodoro{taskUuid, defaultTimeSpan};
-    pomodoroStorageWriter.save(pomodoro);
+    Sprint sprint{taskUuid, defaultTimeSpan};
+    sprintStorageWriter.save(sprint);
 
-    pomodoroService.removePomodoro(pomodoro);
+    coreService.removeSprint(sprint);
 
-    CHECK_EQUAL(0, pomodoroStorage.size());
-    CHECK_EQUAL(1, taskStorage.getItem(taskUuid).value().spentPomodoros());
+    CHECK_EQUAL(0, sprintStorage.size());
+    CHECK_EQUAL(1, taskStorage.getItem(taskUuid).value().actualCost());
 }
 
-TEST(TestPomodoroService, test_request_pomodoros_in_time_range_calls_handler)
+TEST(TestCoreService, test_request_sprints_in_time_range_calls_handler)
 {
-    pomodoroService.pomodorosInTimeRange(
-        defaultTimeSpan, [this](const std::vector<Sprint>& result) {
-            pomodoroTimeRangeHandler(result);
-        });
+    coreService.sprintsInTimeRange(
+            defaultTimeSpan, [this](const std::vector<Sprint>& result) {
+                sprintTimeRangeHandler(result);
+            });
 
-    CHECK(pomodoroHandlerCalled);
+    CHECK(sprintHandlerCalled);
 }
 
-TEST(TestPomodoroService, test_request_pomodoro_year_range_calls_handler)
+TEST(TestCoreService, test_request_year_range_calls_handler)
 {
-    pomodoroService.pomodoroYearRange(
-        [this](const std::vector<std::string>& result) {
-            pomodoroYearRangeHandler(result);
-        });
+    coreService.yearRange(
+            [this](const std::vector<std::string>& result) {
+                yearRangeHandler(result);
+            });
 
-    CHECK(pomodoroYearRangeHandlerCalled);
+    CHECK(yearRangeHandlerCalled);
 }
 
-TEST(TestPomodoroService, test_request_daily_distribution_calls_handler)
+TEST(TestCoreService, test_request_daily_distribution_calls_handler)
 {
-    pomodoroService.requestPomodoroDailyDistribution(
-        defaultTimeSpan, [this](const Distribution<int>& result) {
-            pomodoroDistributionHandler(result);
-        });
-    CHECK(pomoDistributionHandlerCalled);
+    coreService.requestSprintDailyDistribution(
+            defaultTimeSpan, [this](const Distribution<int>& result) {
+                sprintDistributionHandler(result);
+            });
+    CHECK(sprintDistributionHandlerCalled);
 }
 
-TEST(TestPomodoroService, test_request_weekly_distribution_calls_handler)
+TEST(TestCoreService, test_request_weekly_distribution_calls_handler)
 {
-    pomodoroService.requestPomodoroWeeklyDistribution(
-        defaultTimeSpan, [this](const Distribution<int>& result) {
-            pomodoroDistributionHandler(result);
-        });
-    CHECK(pomoDistributionHandlerCalled);
+    coreService.requestSprintWeeklyDistribution(
+            defaultTimeSpan, [this](const Distribution<int>& result) {
+                sprintDistributionHandler(result);
+            });
+    CHECK(sprintDistributionHandlerCalled);
 }
 
-TEST(TestPomodoroService, test_request_monthly_distribution_calls_handler)
+TEST(TestCoreService, test_request_monthly_distribution_calls_handler)
 {
-    pomodoroService.requestPomodoroMonthlyDistribution(
-        defaultTimeSpan, [this](const Distribution<int>& result) {
-            pomodoroDistributionHandler(result);
-        });
-    CHECK(pomoDistributionHandlerCalled);
+    coreService.requestSprintMonthlyDistribution(
+            defaultTimeSpan, [this](const Distribution<int>& result) {
+                sprintDistributionHandler(result);
+            });
+    CHECK(sprintDistributionHandlerCalled);
 }
 
-TEST(TestPomodoroService, test_register_task)
+TEST(TestCoreService, test_register_task)
 {
-    pomodoroService.registerTask(defaultTask);
+    coreService.registerTask(defaultTask);
 
     CHECK_EQUAL(1, taskStorage.size());
 }
 
-TEST(TestPomodoroService, test_undo_functions_properly)
+TEST(TestCoreService, test_undo_functions_properly)
 {
-    pomodoroService.registerTask(defaultTask);
+    coreService.registerTask(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
-    pomodoroService.registerPomodoro(defaultTimeSpan, taskUuid);
-    pomodoroService.registerPomodoro(defaultTimeSpan, taskUuid);
-    pomodoroService.registerPomodoro(defaultTimeSpan, taskUuid);
+    coreService.registerSprint(defaultTimeSpan, taskUuid);
+    coreService.registerSprint(defaultTimeSpan, taskUuid);
+    coreService.registerSprint(defaultTimeSpan, taskUuid);
 
     CHECK_EQUAL(1, taskStorage.size());
-    CHECK_EQUAL(3, pomodoroStorage.size());
+    CHECK_EQUAL(3, sprintStorage.size());
 
-    pomodoroService.undoLast();
-    CHECK_EQUAL(2, pomodoroStorage.size());
+    coreService.undoLast();
+    CHECK_EQUAL(2, sprintStorage.size());
 
-    pomodoroService.undoLast();
-    CHECK_EQUAL(1, pomodoroStorage.size());
+    coreService.undoLast();
+    CHECK_EQUAL(1, sprintStorage.size());
 
-    pomodoroService.undoLast();
-    CHECK_EQUAL(0, pomodoroStorage.size());
+    coreService.undoLast();
+    CHECK_EQUAL(0, sprintStorage.size());
 
-    pomodoroService.undoLast();
+    coreService.undoLast();
     CHECK_EQUAL(0, taskStorage.size());
 }
 
-TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
+TEST(TestCoreService, test_edit_task_should_only_alter_allowed_parameters)
 {
-    pomodoroService.registerTask(defaultTask);
+    coreService.registerTask(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
 
     const std::string editedTaskName{"Edited"};
@@ -230,7 +225,7 @@ TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
 
     const DateTime editedTaskLastModified = editedTask.lastModified();
 
-    pomodoroService.editTask(defaultTask, editedTask);
+    coreService.editTask(defaultTask, editedTask);
     Task& actual = taskStorage.itemRef(taskUuid);
 
     // TODO write method to compare Tasks
@@ -243,68 +238,68 @@ TEST(TestPomodoroService, test_edit_task_should_only_alter_allowed_parameters)
     CHECK(editedTags == actualTags);
     CHECK(editedTaskLastModified == actual.lastModified());
 
-    // Uuid, spentPomodoros and completion status should not be editable
-    CHECK_EQUAL(editedEstimated, actual.estimatedPomodoros());
-    CHECK_EQUAL(defaultTask.spentPomodoros(), actual.spentPomodoros());
+    // Uuid, actualCost and completion status should not be editable
+    CHECK_EQUAL(editedEstimated, actual.estimatedCost());
+    CHECK_EQUAL(defaultTask.actualCost(), actual.actualCost());
     CHECK_EQUAL(defaultTask.isCompleted(), actual.isCompleted());
 
-    pomodoroService.undoLast();
+    coreService.undoLast();
 
     Task& afterUndo = taskStorage.itemRef(taskUuid);
 
     CHECK(taskUuid == afterUndo.uuid());
     CHECK(defaultTask.name() == afterUndo.name());
     CHECK(defaultTask.tags() == afterUndo.tags());
-    CHECK_EQUAL(defaultTask.estimatedPomodoros(),
-                afterUndo.estimatedPomodoros());
-    CHECK_EQUAL(defaultTask.spentPomodoros(), afterUndo.spentPomodoros());
+    CHECK_EQUAL(defaultTask.estimatedCost(),
+                afterUndo.estimatedCost());
+    CHECK_EQUAL(defaultTask.actualCost(), afterUndo.actualCost());
     CHECK_EQUAL(defaultTask.isCompleted(), afterUndo.isCompleted());
     // Timestamp of modification should not be changed when edition
     // cancelled
     CHECK(defaultTask.lastModified() == afterUndo.lastModified());
 }
 
-TEST(TestPomodoroService, test_request_finished_tasks_calls_handler)
+TEST(TestCoreService, test_request_finished_tasks_calls_handler)
 {
-    pomodoroService.requestFinishedTasks(
+    coreService.requestFinishedTasks(
         defaultTimeSpan,
         [this](const std::vector<Task>& result) { taskHandler(result); });
     CHECK(taskHandlerCalled);
 }
 
-TEST(TestPomodoroService, test_request_unfinished_tasks_calls_handler)
+TEST(TestCoreService, test_request_unfinished_tasks_calls_handler)
 {
-    pomodoroService.requestUnfinishedTasks(
+    coreService.requestUnfinishedTasks(
         [this](const std::vector<Task>& result) { taskHandler(result); });
     CHECK(taskHandlerCalled);
 }
 
-TEST(TestPomodoroService, test_toggle_task_competion_status)
+TEST(TestCoreService, test_toggle_task_competion_status)
 {
-    pomodoroService.registerTask(defaultTask);
+    coreService.registerTask(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
 
-    pomodoroService.toggleTaskCompletionStatus(defaultTask);
+    coreService.toggleTaskCompletionStatus(defaultTask);
     CHECK(taskStorage.itemRef(taskUuid).isCompleted());
     CHECK(taskStorage.itemRef(taskUuid).lastModified()
           == DateTime::currentDateTimeLocal());
 
     // Should revert time stamp of last modification when
     // undoing
-    pomodoroService.undoLast();
+    coreService.undoLast();
     CHECK(!taskStorage.itemRef(taskUuid).isCompleted());
     CHECK(taskStorage.itemRef(taskUuid).lastModified()
           == defaultTask.lastModified());
 }
 
-TEST(TestPomodoroService, test_request_all_tags_calls_handler)
+TEST(TestCoreService, test_request_all_tags_calls_handler)
 {
-    pomodoroService.requestAllTags(
+    coreService.requestAllTags(
         [this](const std::vector<std::string>& tags) { tagHandler(tags); });
     CHECK(tagHandlerCalled);
 }
 
-TEST(TestPomodoroService, test_edit_tag_should_edit_tag_for_all_items)
+TEST(TestCoreService, test_edit_tag_should_edit_tag_for_all_items)
 {
     const std::list<Tag> tags1{Tag{"Tag1"}, Tag{"Tag2"}};
     const std::list<Tag> tags2{Tag{"Tag2"}, Tag{"Tag3"}};
@@ -315,11 +310,11 @@ TEST(TestPomodoroService, test_edit_tag_should_edit_tag_for_all_items)
     const std::list<Tag> exp_tags1{Tag{"EditedTag"}, Tag{"Tag2"}};
     const std::list<Tag> exp_tags2{Tag{"Tag2"}, Tag{"Tag3"}};
     const std::list<Tag> exp_tags3{Tag{"EditedTag"}, Tag{"Tag5"}};
-    pomodoroService.registerTask(item1);
-    pomodoroService.registerTask(item2);
-    pomodoroService.registerTask(item3);
+    coreService.registerTask(item1);
+    coreService.registerTask(item2);
+    coreService.registerTask(item3);
 
-    pomodoroService.editTag("Tag1", "EditedTag");
+    coreService.editTag("Tag1", "EditedTag");
     auto item_act1 = taskStorage.itemRef(item1.uuid());
     auto item_act2 = taskStorage.itemRef(item2.uuid());
     auto item_act3 = taskStorage.itemRef(item3.uuid());
@@ -338,7 +333,7 @@ TEST(TestPomodoroService, test_edit_tag_should_edit_tag_for_all_items)
     CHECK(std::equal(exp_tags3.begin(), exp_tags3.end(), tags_act3.begin()));
 
     // Undo command should revert tag back for all items
-    pomodoroService.undoLast();
+    coreService.undoLast();
     auto item_act_un1 = taskStorage.itemRef(item1.uuid());
     auto item_act_un2 = taskStorage.itemRef(item2.uuid());
     auto item_act_un3 = taskStorage.itemRef(item3.uuid());

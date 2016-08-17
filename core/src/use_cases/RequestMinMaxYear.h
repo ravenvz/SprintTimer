@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTPOMODOROYEARRANGECOMMAND_H_0SPNHM7R
-#define REQUESTPOMODOROYEARRANGECOMMAND_H_0SPNHM7R
+#ifndef REQUESTMINMAXYEAR_H_0SPNHM7R
+#define REQUESTMINMAXYEAR_H_0SPNHM7R
 
 #include "core/Command.h"
 #include "core/IYearRangeReader.h"
@@ -48,4 +48,4 @@ private:
 
 } /* UseCases */
 
-#endif /* end of include guard: REQUESTPOMODOROYEARRANGECOMMAND_H_0SPNHM7R */
+#endif /* end of include guard: REQUESTMINMAXYEAR_H_0SPNHM7R */

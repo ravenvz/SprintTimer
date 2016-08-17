@@ -23,7 +23,7 @@
 #define STATISTICSWIDGET_H
 
 #include "core/IConfig.h"
-#include "core/IPomodoroService.h"
+#include "core/ICoreService.h"
 #include "core/SprintStatistics.h"
 #include "dialogs/datepickdialog.h"
 #include "plot.h"
@@ -58,7 +58,7 @@ class StatisticsWindow : public DataWidget {
 
 public:
     StatisticsWindow(IConfig& applicationSettings,
-                     IPomodoroService& pomodoroService,
+                     ICoreService& pomodoroService,
                      QWidget* parent = nullptr);
     ~StatisticsWindow();
 
@@ -71,7 +71,7 @@ private slots:
 private:
     Ui::StatisticsWindow* ui;
     IConfig& applicationSettings;
-    IPomodoroService& pomodoroService;
+    ICoreService& pomodoroService;
     std::vector<Sprint> pomodoros;
     TagDistribution tagDistribution;
     DateInterval currentInterval;

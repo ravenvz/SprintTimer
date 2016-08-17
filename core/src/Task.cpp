@@ -28,13 +28,13 @@
 BoostUUIDGenerator Task::generator;
 
 Task::Task(std::string name,
-                   int estimatedPomodoros,
-                   int spentPomodoros,
+                   int estimatedCost,
+                   int actualCost,
                    std::list<Tag> tags,
                    bool completed)
     : mName(name)
-    , mEstimatedPomodoros(estimatedPomodoros)
-    , mSpentPomodoros(spentPomodoros)
+    , mEstimatedCost(estimatedCost)
+    , mActualCost(actualCost)
     , mUuid{generator.generateUUID()}
     , mTags(tags)
     , mCompleted(completed)
@@ -43,15 +43,15 @@ Task::Task(std::string name,
 }
 
 Task::Task(std::string name,
-                   int estimatedPomodoros,
-                   int spentPomodoros,
+                   int estimatedCost,
+                   int actualCost,
                    const std::string& uuid,
                    std::list<Tag> tags,
                    bool completed,
                    const DateTime& lastModified)
     : mName(name)
-    , mEstimatedPomodoros(estimatedPomodoros)
-    , mSpentPomodoros(spentPomodoros)
+    , mEstimatedCost(estimatedCost)
+    , mActualCost(actualCost)
     , mUuid{uuid}
     , mTags(tags)
     , mCompleted(completed)
@@ -72,9 +72,9 @@ std::string Task::name() const { return mName; }
 
 bool Task::isCompleted() const { return mCompleted; }
 
-int Task::estimatedPomodoros() const { return mEstimatedPomodoros; }
+int Task::estimatedCost() const { return mEstimatedCost; }
 
-int Task::spentPomodoros() const { return mSpentPomodoros; }
+int Task::actualCost() const { return mActualCost; }
 
 std::string Task::uuid() const { return mUuid; }
 
@@ -86,16 +86,16 @@ void Task::setName(const std::string& name) { mName = name; }
 
 void Task::setCompleted(bool completed) { mCompleted = completed; }
 
-void Task::setEstimatedPomodoros(int estimatedPomodoros)
+void Task::setEstimatedCost(int numSprints)
 {
-    mEstimatedPomodoros = estimatedPomodoros;
+    mEstimatedCost = numSprints;
 }
 
 void Task::setTags(const std::list<Tag>& newTags) { mTags = newTags; }
 
-void Task::setSpentPomodoros(int spentPomodoros)
+void Task::setActualCost(int numSprints)
 {
-    mSpentPomodoros = spentPomodoros;
+    mActualCost = numSprints;
 }
 
 void Task::setModifiedTimeStamp(const DateTime& timeStamp)
@@ -121,7 +121,7 @@ std::string Task::toString() const
     parts.push_back(tagsAsString());
     parts.push_back(mName);
     parts.push_back(StringUtils::join(
-        {std::to_string(mSpentPomodoros), std::to_string(mEstimatedPomodoros)},
+        {std::to_string(mActualCost), std::to_string(mEstimatedCost)},
         "/"));
     return StringUtils::join(parts, " ");
 }
@@ -144,7 +144,7 @@ void Task::decodeDescription(std::string&& encodedDescription)
             mTags.push_back(word.substr(1));
         }
         else if (std::regex_match(word, estimatedRegex)) {
-            mEstimatedPomodoros = stoi(word.substr(1));
+            mEstimatedCost = stoi(word.substr(1));
         }
         else {
             nameParts.push_back(word);

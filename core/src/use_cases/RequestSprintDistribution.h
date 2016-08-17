@@ -19,37 +19,41 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DECREMENTSPENTPOMODOROS_H_GYPTACBX
-#define DECREMENTSPENTPOMODOROS_H_GYPTACBX
+#ifndef REQUESTSPRINTDISTRIBUTION_H_QUUONEQF
+#define REQUESTSPRINTDISTRIBUTION_H_QUUONEQF
 
-#include "core/ITaskStorageWriter.h"
+
+#include "core/Command.h"
+#include "core/ISprintDistributionReader.h"
 
 namespace UseCases {
 
-
-class DecrementSpentPomodoros : public RevertableCommand {
+class RequestSprintDistribution : public Command {
 public:
-    DecrementSpentPomodoros(ITaskStorageWriter& taskStorageWriter,
-                            const std::string& taskUuid)
-        : writer{taskStorageWriter}
-        , taskUuid{taskUuid}
+    RequestSprintDistribution(ISprintDistributionReader& reader,
+                            const TimeSpan& timeSpan,
+                            ISprintDistributionReader::Handler handler)
+        : reader{reader}
+        , timeSpan{timeSpan}
+        , handler{handler}
     {
     }
 
-    void executeAction() final { writer.decrementSpentPomodoros(taskUuid); }
-
-    void undoAction() final { writer.incrementSpentPomodoros(taskUuid); }
+    void execute() final { reader.requestDailyDistribution(timeSpan, handler); }
 
     std::string inspect() const final
     {
-        return "Decrement spent pomodoros for " + taskUuid;
+        return "Request sprint distribution";
     }
 
 private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid;
+    ISprintDistributionReader& reader;
+    const TimeSpan& timeSpan;
+    ISprintDistributionReader::Handler handler;
 };
+
 
 } /* UseCases */
 
-#endif /* end of include guard: DECREMENTSPENTPOMODOROS_H_GYPTACBX */
+
+#endif /* end of include guard: REQUESTSPRINTDISTRIBUTION_H_QUUONEQF */

@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IPOMODOROSERVICE_H_XVOMGAES
-#define IPOMODOROSERVICE_H_XVOMGAES
+#ifndef ICORESERVICE_H_XVOMGAES
+#define ICORESERVICE_H_XVOMGAES
 
 #include "core/Distribution.h"
 #include "core/TimeSpan.h"
@@ -29,15 +29,15 @@
 #include <string>
 
 
-class IPomodoroService {
+class ICoreService {
 public:
     using TaskResultHandler = std::function<void(const std::vector<Task>&)>;
-    using PomodoroResultHandler
+    using SprintResultHandler
         = std::function<void(const std::vector<Sprint>&)>;
     using TagResultHandler
         = std::function<void(const std::vector<std::string>&)>;
 
-    virtual ~IPomodoroService() = default;
+    virtual ~ICoreService() = default;
 
     virtual void registerTask(const Task& task) = 0;
 
@@ -60,35 +60,35 @@ public:
     requestUnfinishedTasks(TaskResultHandler onResultsReceivedCallback)
         = 0;
 
-    virtual void registerPomodoro(const TimeSpan& timeSpan,
-                                  const std::string& taskUuid)
+    virtual void registerSprint(const TimeSpan& timeSpan,
+                                const std::string& taskUuid)
         = 0;
 
-    virtual void removePomodoro(const Sprint& pomodoro) = 0;
+    virtual void removeSprint(const Sprint& sprint) = 0;
 
     virtual void
-    pomodorosInTimeRange(const TimeSpan& timeSpan,
-                         PomodoroResultHandler onResultsReceivedCallback)
+    sprintsInTimeRange(const TimeSpan& timeSpan,
+                       SprintResultHandler onResultsReceivedCallback)
         = 0;
 
     virtual void
-    pomodoroYearRange(std::function<void(const std::vector<std::string>&)>
-                          onResultsReceivedCallback)
+    yearRange(std::function<void(const std::vector<std::string>&)>
+              onResultsReceivedCallback)
         = 0;
 
-    virtual void requestPomodoroDailyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+    virtual void requestSprintDailyDistribution(
+            const TimeSpan& timeSpan,
+            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
 
-    virtual void requestPomodoroWeeklyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+    virtual void requestSprintWeeklyDistribution(
+            const TimeSpan& timeSpan,
+            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
 
-    virtual void requestPomodoroMonthlyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+    virtual void requestSprintMonthlyDistribution(
+            const TimeSpan& timeSpan,
+            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
 
     virtual void requestAllTags(TagResultHandler onResultsReceivedCallback) = 0;
@@ -98,9 +98,9 @@ public:
 
     virtual std::string lastCommandDescription() const = 0;
 
-    virtual size_t numRevertableCommands() const = 0;
+    virtual unsigned int numRevertableCommands() const = 0;
 
     virtual void undoLast() = 0;
 };
 
-#endif /* end of include guard: IPOMODOROSERVICE_H_XVOMGAES */
+#endif /* end of include guard: ICORESERVICE_H_XVOMGAES */

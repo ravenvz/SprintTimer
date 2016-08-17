@@ -28,7 +28,7 @@
 #include "widgets/DataWidget.h"
 #include <QGridLayout>
 #include <core/IConfig.h>
-#include <core/IPomodoroService.h>
+#include <core/ICoreService.h>
 
 class ProgressView;
 
@@ -36,7 +36,7 @@ class ProgressView;
 class GoalProgressWidget : public DataWidget {
 public:
     GoalProgressWidget(IConfig& applicationSettings,
-                       IPomodoroService& pomodoroService,
+                       ICoreService& pomodoroService,
                        QWidget* parent = 0);
     virtual void synchronize() override;
 
@@ -44,7 +44,7 @@ public:
 
 private:
     IConfig& applicationSettings;
-    IPomodoroService& pomodoroService;
+    ICoreService& pomodoroService;
     QGridLayout* layout;
     ProgressView* dailyProgress;
     ProgressView* weeklyProgress;

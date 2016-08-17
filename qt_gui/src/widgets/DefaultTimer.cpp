@@ -74,7 +74,7 @@ void DefaultTimer::setCandidateIndex(int index)
 
 void DefaultTimer::updateGoalProgress(Progress progress)
 {
-    int dailyGoal = applicationSettings.dailyPomodorosGoal();
+    int dailyGoal = applicationSettings.dailyGoal();
     if (dailyGoal == 0) {
         ui->labelDailyGoalProgress->hide();
         return;

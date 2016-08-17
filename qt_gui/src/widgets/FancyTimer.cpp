@@ -75,7 +75,7 @@ void FancyTimer::setCandidateIndex(int index)
 
 void FancyTimer::updateGoalProgress(Progress progress)
 {
-    int dailyGoal = applicationSettings.dailyPomodorosGoal();
+    int dailyGoal = applicationSettings.dailyGoal();
     if (dailyGoal == 0) {
         ui->labelDailyGoalProgress->hide();
         return;

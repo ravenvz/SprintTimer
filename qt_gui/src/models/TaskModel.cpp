@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <iostream>
 
-TaskModel::TaskModel(IPomodoroService& pomodoroService, QObject* parent)
+TaskModel::TaskModel(ICoreService& pomodoroService, QObject* parent)
     : AsyncListModel{parent}
     , pomodoroService{pomodoroService}
 {
@@ -78,12 +78,12 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
         return QString::fromStdString(storage[index.row()].name());
     case StatsRole:
         return QString("%1/%2")
-            .arg(storage[index.row()].spentPomodoros())
-            .arg(storage[index.row()].estimatedPomodoros());
+            .arg(storage[index.row()].actualCost())
+            .arg(storage[index.row()].estimatedCost());
     case Qt::CheckStateRole:
         return storage[index.row()].isCompleted();
     case GetSpentPomodorosRole:
-        return storage[index.row()].spentPomodoros();
+        return storage[index.row()].actualCost();
     default:
         return QVariant();
     }

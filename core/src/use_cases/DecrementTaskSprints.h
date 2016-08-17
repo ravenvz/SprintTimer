@@ -19,26 +19,37 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef FAKEPOMODOROSTORAGEREADER_H_MFYC8R5A
-#define FAKEPOMODOROSTORAGEREADER_H_MFYC8R5A
+#ifndef DECREMENTTASKSPRINTS_H_GYPTACBX
+#define DECREMENTTASKSPRINTS_H_GYPTACBX
 
-#include "FakeStorage.h"
-#include "core/ISprintStorageReader.h"
+#include "core/ITaskStorageWriter.h"
 
-class FakePomodoroStorageReader : public ISprintStorageReader {
+namespace UseCases {
+
+
+class DecrementTaskSprints : public RevertableCommand {
 public:
-    FakePomodoroStorageReader(FakeStorage<Sprint>& storage)
-        : storage{storage}
+    DecrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
+                            const std::string& taskUuid)
+        : writer{taskStorageWriter}
+        , taskUuid{taskUuid}
     {
     }
 
-    void requestItems(const TimeSpan& timeSpan, Handler handler) final
+    void executeAction() final { writer.decrementSprints(taskUuid); }
+
+    void undoAction() final { writer.incrementSprints(taskUuid); }
+
+    std::string inspect() const final
     {
-        storage.itemsInTimeRange(timeSpan, handler);
+        return "Decrement sprints for " + taskUuid;
     }
 
 private:
-    FakeStorage<Sprint>& storage;
+    ITaskStorageWriter& writer;
+    const std::string taskUuid;
 };
 
-#endif /* end of include guard: FAKEPOMODOROSTORAGEREADER_H_MFYC8R5A */
+} /* UseCases */
+
+#endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */

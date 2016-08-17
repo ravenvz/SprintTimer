@@ -32,7 +32,7 @@
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
-                       IPomodoroService& pomodoroService,
+                       ICoreService& pomodoroService,
                        QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::MainWindow)
@@ -281,7 +281,7 @@ void MainWindow::launchStatisticsView()
 {
     if (!statisticsView) {
         //        statisticsView = new NewStatisticsWidget(applicationSettings,
-        //        pomodoroService);
+        //        coreService);
         statisticsView
             = new StatisticsWindow(applicationSettings, pomodoroService);
         connect(pomodoroModel,
@@ -306,7 +306,7 @@ void MainWindow::launchStatisticsView()
 void MainWindow::launchManualAddPomodoroDialog()
 {
     PomodoroManualAddDialog dialog{
-        pomodoroModel, taskModel, applicationSettings.pomodoroDuration()};
+        pomodoroModel, taskModel, applicationSettings.sprintDuration()};
     dialog.exec();
 }
 

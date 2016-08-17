@@ -22,7 +22,7 @@
 #ifndef TASKMODEL_H_FUQ5UCBE
 #define TASKMODEL_H_FUQ5UCBE
 
-#include "core/IPomodoroService.h"
+#include "core/ICoreService.h"
 #include "core/TimeSpan.h"
 #include "core/entities/Task.h"
 #include "models/AsyncListModel.h"
@@ -31,7 +31,7 @@ class TaskModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    TaskModel(IPomodoroService& pomodoroService, QObject* parent);
+    TaskModel(ICoreService& pomodoroService, QObject* parent);
 
     // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
@@ -97,7 +97,7 @@ protected:
     void requestDataUpdate() final;
 
 private:
-    IPomodoroService& pomodoroService;
+    ICoreService& pomodoroService;
     std::vector<Task> storage;
     // Sql helper queries that are needed to maintain database invariants.
     enum class Column {

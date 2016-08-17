@@ -41,16 +41,16 @@ public:
         storage.itemRef(task.uuid()) = editedTask;
     }
 
-    void incrementSpentPomodoros(const std::string& uuid) final
+    void incrementSprints(const std::string& uuid) final
     {
         Task& item = storage.itemRef(uuid);
-        item.setSpentPomodoros(item.spentPomodoros() + 1);
+        item.setActualCost(item.actualCost() + 1);
     }
 
-    void decrementSpentPomodoros(const std::string& uuid) final
+    void decrementSprints(const std::string& uuid) final
     {
         Task& item = storage.itemRef(uuid);
-        item.setSpentPomodoros(item.spentPomodoros() - 1);
+        item.setActualCost(item.actualCost() - 1);
     }
 
     void toggleTaskCompletionStatus(const std::string& uuid,

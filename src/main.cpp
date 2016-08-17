@@ -49,7 +49,7 @@
 #endif
 
 #include "QtConfig.h"
-#include "core/PomodoroService.h"
+#include "core/CoreService.h"
 #include "qt_storage_impl/QtStorageImplementersFactory.h"
 #include "widgets/mainwindow.h"
 #include <QApplication>
@@ -111,28 +111,29 @@ int main(int argc, char* argv[])
 
     const std::string dataDirectory = createDataDirectoryIfNotExist();
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/sprint.db"};
-    // DBService dbService{dataDirectory + "/test_pomodoro.db"};
+//    DBService dbService{dataDirectory + "/sprint.db"};
+     DBService dbService{dataDirectory + "/test_pomodoro.db"};
+    std::cout << dataDirectory + "/test_pomodoro.db" << std::endl;
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> pomodoroStorageReader{
-        factory.createPomodoroStorageReader()};
+            factory.createSprintStorageReader()};
     std::unique_ptr<ISprintStorageWriter> pomodoroStorageWriter{
-        factory.createPomodoroStorageWriter()};
+            factory.createSprintStorageWriter()};
     std::unique_ptr<IYearRangeReader> pomodoroYearRangeReader{
-        factory.createPomodoroYearRangeReader()};
+            factory.createYearRangeReader()};
     std::unique_ptr<ITaskStorageReader> taskStorageReader{
         factory.createTaskStorageReader()};
     std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
         factory.createTaskStorageWriter()};
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
-        factory.createPomoDailyDistributionReader()};
+            factory.createSprintDailyDistributionReader()};
     std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
-        factory.createPomoWeeklyDistributionReader()};
+            factory.createSprintWeeklyDistributionReader()};
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
-        factory.createPomoMonthlyDistributionReader()};
+            factory.createSprintMonthlyDistributionReader()};
 
-    CoreApi::PomodoroService pomodoroService{*pomodoroStorageReader.get(),
+    Core::CoreService pomodoroService{*pomodoroStorageReader.get(),
                                              *pomodoroStorageWriter.get(),
                                              *pomodoroYearRangeReader.get(),
                                              *taskStorageReader.get(),

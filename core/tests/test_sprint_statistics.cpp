@@ -203,7 +203,7 @@ TEST(TagDistribution,
     CHECK_EQUAL(4, map.sprintsForNthTopTag(1).size())
 }
 
-TEST(TagDistribution, test_distributes_pomodoros_to_tags_ignoring_non_tagged)
+TEST(TagDistribution, test_distributes_sprints_to_tags_ignoring_non_tagged)
 {
     std::vector<Sprint> sprints;
     pushToSprints(sprints, "irrelevant", {Tag{"Tag1"}}, 4);

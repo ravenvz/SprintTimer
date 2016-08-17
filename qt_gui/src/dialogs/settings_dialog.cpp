@@ -61,11 +61,11 @@ SettingsDialog::~SettingsDialog() { delete ui; }
 
 void SettingsDialog::fillSettingsData()
 {
-    ui->spBxPomodoroDuration->setValue(applicationSettings.pomodoroDuration());
+    ui->spBxPomodoroDuration->setValue(applicationSettings.sprintDuration());
     ui->spBxShortDuration->setValue(applicationSettings.shortBreakDuration());
     ui->spBxLongDuration->setValue(applicationSettings.longBreakDuration());
     ui->spBxLongBreakAfter->setValue(
-        applicationSettings.numPomodorosBeforeBreak());
+            applicationSettings.numSprintsBeforeBreak());
     ui->chBxPlaySound->setChecked(applicationSettings.soundIsEnabled());
     ui->lePathToSoundFile->setText(
         QString::fromStdString(applicationSettings.soundFilePath()));
@@ -77,11 +77,11 @@ void SettingsDialog::fillSettingsData()
 
 void SettingsDialog::storeSettingsData()
 {
-    applicationSettings.setPomodoroDuration(ui->spBxPomodoroDuration->value());
+    applicationSettings.setSprintDuration(ui->spBxPomodoroDuration->value());
     applicationSettings.setShortBreakDuration(ui->spBxShortDuration->value());
     applicationSettings.setLongBreakDuration(ui->spBxLongDuration->value());
-    applicationSettings.setPomodorosBeforeBreak(
-        ui->spBxLongBreakAfter->value());
+    applicationSettings.setNumSprintsBeforeBreak(
+            ui->spBxLongBreakAfter->value());
     applicationSettings.setPlaySound(ui->chBxPlaySound->isChecked());
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
     applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());

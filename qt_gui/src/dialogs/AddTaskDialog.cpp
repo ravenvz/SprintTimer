@@ -82,7 +82,7 @@ void AddTaskDialog::fillItemData(const Task& item)
     QString joined_tags = QString::fromStdString(
         StringUtils::join(tagNames.cbegin(), tagNames.cend(), " "));
     ui->taskName->setText(QString::fromStdString(item.name()));
-    ui->estimatedPomodoros->setValue(item.estimatedPomodoros());
+    ui->estimatedPomodoros->setValue(item.estimatedCost());
     ui->leTags->setText(joined_tags);
 }
 

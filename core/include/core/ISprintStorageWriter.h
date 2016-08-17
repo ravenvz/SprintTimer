@@ -30,9 +30,9 @@ class ISprintStorageWriter {
 public:
     virtual ~ISprintStorageWriter() = default;
 
-    virtual void save(const Sprint& pomodoro) = 0;
+    virtual void save(const Sprint& sprint) = 0;
 
-    virtual void remove(const Sprint& pomodoro) = 0;
+    virtual void remove(const Sprint& sprint) = 0;
 };
 
 

@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IPOMODOROSTORAGEFACTORY_H_PRIUAOH6
-#define IPOMODOROSTORAGEFACTORY_H_PRIUAOH6
+#ifndef ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6
+#define ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6
 
 #include "core/ISprintDistributionReader.h"
 #include "core/ISprintStorageReader.h"
@@ -35,22 +35,22 @@ public:
     virtual ~IStorageImplementersFactory() = default;
 
     virtual std::unique_ptr<ISprintStorageReader>
-    createPomodoroStorageReader() const = 0;
+    createSprintStorageReader() const = 0;
 
     virtual std::unique_ptr<ISprintStorageWriter>
-    createPomodoroStorageWriter() const = 0;
+    createSprintStorageWriter() const = 0;
 
     virtual std::unique_ptr<IYearRangeReader>
-    createPomodoroYearRangeReader() const = 0;
+    createYearRangeReader() const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
-    createPomoDailyDistributionReader() const = 0;
+    createSprintDailyDistributionReader() const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
-    createPomoWeeklyDistributionReader() const = 0;
+    createSprintWeeklyDistributionReader() const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
-    createPomoMonthlyDistributionReader() const = 0;
+    createSprintMonthlyDistributionReader() const = 0;
 
     virtual std::unique_ptr<ITaskStorageReader>
     createTaskStorageReader() const = 0;
@@ -59,4 +59,4 @@ public:
     createTaskStorageWriter() const = 0;
 };
 
-#endif /* end of include guard: IPOMODOROSTORAGEFACTORY_H_PRIUAOH6 */
+#endif /* end of include guard: ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6 */

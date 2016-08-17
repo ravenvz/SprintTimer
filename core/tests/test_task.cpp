@@ -34,17 +34,17 @@ TEST(TestTask, test_description_all_parts_present)
 
     CHECK_TRUE(std::list<Tag>{Tag{"Test"}} == item.tags())
     CHECK_EQUAL(std::string{"All parts present"}, item.name())
-    CHECK_EQUAL(5, item.estimatedPomodoros())
+    CHECK_EQUAL(5, item.estimatedCost())
 }
 
 TEST(TestTask,
-     test_description_should_set_estimated_pomodoros_to_one_if_no_estimated)
+     test_description_should_set_estimated_cost_to_one_if_non_given)
 {
     Task item{"#Test Todo with tag"};
 
     CHECK_TRUE(std::list<Tag>{Tag{"Test"}} == item.tags())
     CHECK_EQUAL(std::string{"Todo with tag"}, item.name())
-    CHECK_EQUAL(1, item.estimatedPomodoros())
+    CHECK_EQUAL(1, item.estimatedCost())
 }
 
 TEST(TestTask, test_description_no_tags)
@@ -52,7 +52,7 @@ TEST(TestTask, test_description_no_tags)
     Task item{"Simple todo *2"};
 
     CHECK_EQUAL(std::string{"Simple todo"}, item.name())
-    CHECK_EQUAL(2, item.estimatedPomodoros())
+    CHECK_EQUAL(2, item.estimatedCost())
     CHECK_TRUE(item.tags().empty())
 }
 
@@ -67,7 +67,7 @@ TEST(TestTask, test_description_no_name)
 
     CHECK_EQUAL(expected.size(), actual.size())
     CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
-    CHECK_EQUAL(4, item.estimatedPomodoros())
+    CHECK_EQUAL(4, item.estimatedCost())
 }
 
 TEST(TestTask,
@@ -75,7 +75,7 @@ TEST(TestTask,
 {
     Task item{"Multiple estimated *4 *9"};
 
-    CHECK_EQUAL(9, item.estimatedPomodoros())
+    CHECK_EQUAL(9, item.estimatedCost())
 }
 
 TEST(TestTask, test_only_threats_words_preceeded_by_single_hash_as_tags)

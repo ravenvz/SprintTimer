@@ -34,9 +34,9 @@ public:
 
     virtual void edit(const Task& task, const Task& editedTask) = 0;
 
-    virtual void incrementSpentPomodoros(const std::string& uuid) = 0;
+    virtual void incrementSprints(const std::string& uuid) = 0;
 
-    virtual void decrementSpentPomodoros(const std::string& uuid) = 0;
+    virtual void decrementSprints(const std::string& uuid) = 0;
 
     virtual void toggleTaskCompletionStatus(const std::string& uuid,
                                             const DateTime& timeStamp)

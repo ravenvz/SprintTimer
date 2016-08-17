@@ -21,7 +21,7 @@
 *********************************************************************************/
 
 #include "widgets/TimerWidgetBase.h"
-#include "core/PomodoroTimer.h"
+#include "core/StatefulTimer.h"
 #include <QMessageBox>
 
 
@@ -30,7 +30,7 @@ TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
     : QWidget{parent}
     , applicationSettings{applicationSettings}
 {
-    timer = std::make_unique<PomodoroTimer>(
+    timer = std::make_unique<StatefulTimer>(
         std::bind(&TimerWidgetBase::onTimerTick, this, std::placeholders::_1),
         std::bind(
             &TimerWidgetBase::onTimerStateChanged, this, std::placeholders::_1),

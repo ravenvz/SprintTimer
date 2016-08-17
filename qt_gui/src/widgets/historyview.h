@@ -22,7 +22,7 @@
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H
 
-#include "core/IPomodoroService.h"
+#include "core/ICoreService.h"
 #include "pickperiodwidget.h"
 #include "widgets/DataWidget.h"
 #include <QObject>
@@ -56,7 +56,7 @@ class HistoryView : public DataWidget {
 public:
     using HistoryItem = std::pair<QDate, QString>;
 
-    explicit HistoryView(IPomodoroService& pomodoroService,
+    explicit HistoryView(ICoreService& pomodoroService,
                          QWidget* parent = nullptr);
 
     ~HistoryView();
@@ -66,7 +66,7 @@ public:
 private:
     Ui::HistoryView* ui;
     DateInterval selectedDateInterval;
-    IPomodoroService& pomodoroService;
+    ICoreService& pomodoroService;
     QPointer<QStandardItemModel> viewModel;
     std::unique_ptr<HistoryState> historyStatePomodoro;
     std::unique_ptr<HistoryState> historyStateTask;

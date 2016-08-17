@@ -38,37 +38,37 @@ public:
     }
 
     std::unique_ptr<ISprintStorageReader>
-    createPomodoroStorageReader() const final
+    createSprintStorageReader() const final
     {
         return std::make_unique<QtPomoStorageReader>(dbService);
     }
 
     std::unique_ptr<ISprintStorageWriter>
-    createPomodoroStorageWriter() const final
+    createSprintStorageWriter() const final
     {
         return std::make_unique<QtPomoStorageWriter>(dbService);
     }
 
     std::unique_ptr<IYearRangeReader>
-    createPomodoroYearRangeReader() const final
+    createYearRangeReader() const final
     {
         return std::make_unique<QtPomoYearRangeReader>(dbService);
     }
 
     std::unique_ptr<ISprintDistributionReader>
-    createPomoDailyDistributionReader() const final
+    createSprintDailyDistributionReader() const final
     {
         return std::make_unique<QtPomoDailyDistributionReader>(dbService);
     }
 
     std::unique_ptr<ISprintDistributionReader>
-    createPomoWeeklyDistributionReader() const final
+    createSprintWeeklyDistributionReader() const final
     {
         return std::make_unique<QtPomoWeeklyDistributionReader>(dbService);
     }
 
     std::unique_ptr<ISprintDistributionReader>
-    createPomoMonthlyDistributionReader() const final
+    createSprintMonthlyDistributionReader() const final
     {
         return std::make_unique<QtPomoMonthlyDistributionReader>(dbService);
     }

@@ -19,30 +19,20 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef FAKEPOMODOROWRITER_H_IHZ1QWFR
-#define FAKEPOMODOROWRITER_H_IHZ1QWFR
+#ifndef FAKEYEARRANGEREADER_H_JWLLCTWA
+#define FAKEYEARRANGEREADER_H_JWLLCTWA
 
-#include "core/ISprintStorageWriter.h"
-#include "FakeStorage.h"
+#include "core/IYearRangeReader.h"
 
-/* Fake implementation of ISprintStorageWriter that exposes
- * internal storage and allows to test execute/undo. */
-class FakePomodoroWriter : public ISprintStorageWriter {
+class FakeYearRangeReader : public IYearRangeReader {
 public:
-    FakePomodoroWriter(FakeStorage<Sprint>& storage)
-        : storage{storage}
+    void requestYearRange(Handler handler) final
     {
+        return handler(std::vector<std::string>{"2015", "2016"});
     }
 
-    void save(const Sprint& pomodoro) final { storage.store(pomodoro); }
-
-    void remove(const Sprint& pomodoro) final
-    {
-        storage.remove(pomodoro.uuid());
-    }
-
-    FakeStorage<Sprint>& storage;
+private:
+    /* data */
 };
 
-
-#endif /* end of include guard: FAKEPOMODOROWRITER_H_IHZ1QWFR */
+#endif /* end of include guard: FAKEYEARRANGEREADER_H_JWLLCTWA */

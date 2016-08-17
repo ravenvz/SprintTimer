@@ -34,7 +34,7 @@
 using TagCount = std::pair<Tag, double>;
 
 
-/* Datastructure that stores number of completed pomodoros for each tag. */
+/* Datastructure that stores number of completed sprints for each tag. */
 class TagDistribution {
 public:
     using TagSprintMap = std::unordered_map<Tag, std::vector<Sprint>>;
@@ -47,15 +47,15 @@ public:
      * Only top tags are considered (specified by numTopTags). Finished
      * sprints for all other tags are summed up, stored in empty '' tag and
      * appended to the returned vector.
-     * Returned vector is sorted in descending order of completed pomodoros,
-     * except for last item that containes number of completed pomodoros
+     * Returned vector is sorted in descending order of number of completed sprints,
+     * except for last item that contains number of completed sprints
      * for all other tags (if it is present). */
     std::vector<TagCount> topTagsDistribution() const;
 
     /* Return vector of sprints that have given tag. */
     std::vector<Sprint> sprintsWithTag(const Tag &tag) const;
 
-    /* Return vector of pomodoros for n-th top tag. */
+    /* Return prints for n-th top tag. */
     std::vector<Sprint> sprintsForNthTopTag(size_t n) const;
 
     /* Return n-th top tag name. */

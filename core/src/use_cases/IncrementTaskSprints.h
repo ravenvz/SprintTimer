@@ -41,9 +41,9 @@ public:
     }
 
 protected:
-    void executeAction() final { writer.incrementSpentPomodoros(taskUuid); }
+    void executeAction() final { writer.incrementSprints(taskUuid); }
 
-    void undoAction() final { writer.decrementSpentPomodoros(taskUuid); }
+    void undoAction() final { writer.decrementSprints(taskUuid); }
 
 private:
     ITaskStorageWriter& writer;

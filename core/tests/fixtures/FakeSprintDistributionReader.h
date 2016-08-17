@@ -19,16 +19,16 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef FAKEPOMODORODISTRIBUTIONREADER_H_UREC2M3T
-#define FAKEPOMODORODISTRIBUTIONREADER_H_UREC2M3T
+#ifndef FAKESPRINTDISTRIBUTIONREADER_H_UREC2M3T
+#define FAKESPRINTDISTRIBUTIONREADER_H_UREC2M3T
 
 #include "core/ISprintDistributionReader.h"
 #include "FakeStorage.h"
 
 
-class FakePomodoroDistributionReader : public ISprintDistributionReader {
+class FakeSprintDistributionReader : public ISprintDistributionReader {
 public:
-    FakePomodoroDistributionReader(FakeStorage<Sprint>& storage)
+    FakeSprintDistributionReader(FakeStorage<Sprint>& storage)
         : storage{storage}
     {
     }
@@ -42,4 +42,4 @@ public:
     FakeStorage<Sprint>& storage;
 };
 
-#endif /* end of include guard: FAKEPOMODORODISTRIBUTIONREADER_H_UREC2M3T */
+#endif /* end of include guard: FAKESPRINTDISTRIBUTIONREADER_H_UREC2M3T */

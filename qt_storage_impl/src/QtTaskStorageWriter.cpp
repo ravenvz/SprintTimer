@@ -106,9 +106,9 @@ void QtTaskStorageWriter::save(const Task& task)
     dbService.bindValue(
         addTaskQueryId, ":name", QString::fromStdString(task.name()));
     dbService.bindValue(
-        addTaskQueryId, ":estimated_pomodoros", task.estimatedPomodoros());
+        addTaskQueryId, ":estimated_pomodoros", task.estimatedCost());
     dbService.bindValue(
-        addTaskQueryId, ":spent_pomodoros", task.spentPomodoros());
+        addTaskQueryId, ":spent_pomodoros", task.actualCost());
     dbService.bindValue(addTaskQueryId, ":completed", task.isCompleted());
     dbService.bindValue(addTaskQueryId, ":priority", 10000);
 
@@ -162,7 +162,7 @@ void QtTaskStorageWriter::edit(const Task& task, const Task& editedTask)
     dbService.bindValue(
         editQueryId, ":name", QString::fromStdString(editedTask.name()));
     dbService.bindValue(
-        editQueryId, ":estimated_pomodoros", editedTask.estimatedPomodoros());
+        editQueryId, ":estimated_pomodoros", editedTask.estimatedCost());
     dbService.bindValue(
         editQueryId,
         ":last_modified",
@@ -192,14 +192,14 @@ void QtTaskStorageWriter::edit(const Task& task, const Task& editedTask)
     dbService.commit();
 }
 
-void QtTaskStorageWriter::incrementSpentPomodoros(const std::string& uuid)
+void QtTaskStorageWriter::incrementSprints(const std::string& uuid)
 {
     dbService.bindValue(
         incrementSpentQueryId, ":todo_uuid", QString::fromStdString(uuid));
     dbService.executePrepared(incrementSpentQueryId);
 }
 
-void QtTaskStorageWriter::decrementSpentPomodoros(const std::string& uuid)
+void QtTaskStorageWriter::decrementSprints(const std::string& uuid)
 {
     dbService.bindValue(
         decrementSpentQueryId, ":todo_uuid", QString::fromStdString(uuid));

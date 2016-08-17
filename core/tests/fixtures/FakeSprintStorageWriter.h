@@ -19,20 +19,30 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef FAKEPOMODOROYEARRANGEREADER_H_JWLLCTWA
-#define FAKEPOMODOROYEARRANGEREADER_H_JWLLCTWA
+#ifndef FAKESPRINTWRITER_H_IHZ1QWFR
+#define FAKESPRINTWRITER_H_IHZ1QWFR
 
-#include "core/IYearRangeReader.h"
+#include "core/ISprintStorageWriter.h"
+#include "FakeStorage.h"
 
-class FakePomodoroYearRangeReader : public IYearRangeReader {
+/* Fake implementation of ISprintStorageWriter that exposes
+ * internal storage and allows to test execute/undo. */
+class FakeSprintWriter : public ISprintStorageWriter {
 public:
-    void requestYearRange(Handler handler) final
+    FakeSprintWriter(FakeStorage<Sprint>& storage)
+        : storage{storage}
     {
-        return handler(std::vector<std::string>{"2015", "2016"});
     }
 
-private:
-    /* data */
+    void save(const Sprint& sprint) final { storage.store(sprint); }
+
+    void remove(const Sprint& sprint) final
+    {
+        storage.remove(sprint.uuid());
+    }
+
+    FakeStorage<Sprint>& storage;
 };
 
-#endif /* end of include guard: FAKEPOMODOROYEARRANGEREADER_H_JWLLCTWA */
+
+#endif /* end of include guard: FAKESPRINTWRITER_H_IHZ1QWFR */

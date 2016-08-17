@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef POMODORO_POMODORO_H
-#define POMODORO_POMODORO_H
+#ifndef SPRINT_H_XWNOT32M
+#define SPRINT_H_XWNOT32M
 
 
 #include "core/BoostUUIDGenerator.h"
@@ -81,4 +81,6 @@ private:
 };
 
 
-#endif // POMODORO_POMODORO_H
+#endif // SPRINT_H_XWNOT32M
+
+

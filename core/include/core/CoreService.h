@@ -19,13 +19,13 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef POMODOROSERVICE_H_JXK8PKAI
-#define POMODOROSERVICE_H_JXK8PKAI
+#ifndef CORESERVICE_H_JXK8PKAI
+#define CORESERVICE_H_JXK8PKAI
 
 
 #include "core/CommandInvoker.h"
 #include "core/ISprintDistributionReader.h"
-#include "core/IPomodoroService.h"
+#include "core/ICoreService.h"
 #include "core/ISprintStorageReader.h"
 #include "core/ISprintStorageWriter.h"
 #include "core/IYearRangeReader.h"
@@ -34,18 +34,18 @@
 #include "core/MacroTransaction.h"
 #include <memory>
 
-namespace CoreApi {
+namespace Core {
 
-class PomodoroService : public IPomodoroService {
+class CoreService : public ICoreService {
 public:
-    PomodoroService(ISprintStorageReader& pomodoroStorageReader,
-                    ISprintStorageWriter& pomodoroStorageWriter,
-                    IYearRangeReader& pomodoroYearRangeReader,
+    CoreService(ISprintStorageReader& sprintStorageReader,
+                    ISprintStorageWriter& sprintStorageWriter,
+                    IYearRangeReader& yearRangeReader,
                     ITaskStorageReader& taskStorageReader,
                     ITaskStorageWriter& taskStorageWriter,
-                    ISprintDistributionReader& pomoDailyDistributionReader,
-                    ISprintDistributionReader& pomoWeeklyDistributionReader,
-                    ISprintDistributionReader& pomoMonthlyDistributionReader);
+                    ISprintDistributionReader& sprintDailyDistributionReader,
+                    ISprintDistributionReader& sprintWeeklyDistributionReader,
+                    ISprintDistributionReader& sprintMonthlyDistributionReader);
 
     void registerTask(const Task& task) final;
 
@@ -66,31 +66,31 @@ public:
     requestUnfinishedTasks(std::function<void(const std::vector<Task>&)>
                                onResultsReceivedCallback) final;
 
-    void registerPomodoro(const TimeSpan& timeSpan,
-                          const std::string& taskUuid) final;
+    void registerSprint(const TimeSpan& timeSpan,
+                        const std::string& taskUuid) final;
 
-    void removePomodoro(const Sprint& pomodoro) final;
+    void removeSprint(const Sprint& sprint) final;
 
-    void pomodorosInTimeRange(const TimeSpan& timeSpan,
-                              std::function<void(const std::vector<Sprint>&)>
-                                  onResultsReceivedCallback) final;
+    void sprintsInTimeRange(const TimeSpan& timeSpan,
+                            std::function<void(const std::vector<Sprint>&)>
+                            onResultsReceivedCallback) final;
 
-    void pomodoroYearRange(std::function<void(const std::vector<std::string>&)>
-                               onResultsReceivedCallback) final;
+    void yearRange(std::function<void(const std::vector<std::string>&)>
+                   onResultsReceivedCallback) final;
 
-    void requestPomodoroDailyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+    void requestSprintDailyDistribution(
+            const TimeSpan& timeSpan,
+            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         final;
 
-    void requestPomodoroWeeklyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+    void requestSprintWeeklyDistribution(
+            const TimeSpan& timeSpan,
+            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         final;
 
-    void requestPomodoroMonthlyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+    void requestSprintMonthlyDistribution(
+            const TimeSpan& timeSpan,
+            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         final;
 
     void requestAllTags(TagResultHandler onResultsReceivedCallback) final;
@@ -99,23 +99,23 @@ public:
 
     virtual std::string lastCommandDescription() const final;
 
-    virtual size_t numRevertableCommands() const final;
+    virtual unsigned int numRevertableCommands() const final;
 
     void undoLast() final;
 
 private:
-    ISprintStorageReader& pomodoroReader;
-    ISprintStorageWriter& pomodoroWriter;
-    IYearRangeReader& pomodoroYearRangeReader;
+    ISprintStorageReader& sprintReader;
+    ISprintStorageWriter& sprintWriter;
+    IYearRangeReader& yearRangeReader;
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
-    ISprintDistributionReader& pomoDailyDistributionReader;
-    ISprintDistributionReader& pomoWeeklyDistributionReader;
-    ISprintDistributionReader& pomoMonthlyDistributionReader;
+    ISprintDistributionReader& sprintDailyDistributionReader;
+    ISprintDistributionReader& sprintWeeklyDistributionReader;
+    ISprintDistributionReader& sprintMonthlyDistributionReader;
     CommandInvoker invoker;
 };
 
 
-} // namespace CoreApi
+} // namespace Core
 
-#endif /* end of include guard: POMODOROSERVICE_H_JXK8PKAI */
+#endif /* end of include guard: CORESERVICE_H_JXK8PKAI */

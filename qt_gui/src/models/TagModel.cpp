@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "models/TagModel.h"
 
-TagModel::TagModel(IPomodoroService& pomodoroService, QObject* parent)
+TagModel::TagModel(ICoreService& pomodoroService, QObject* parent)
     : AsyncListModel(parent)
     , pomodoroService{pomodoroService}
 {

@@ -25,7 +25,7 @@
 
 
 StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
-                                   IPomodoroService& pomodoroService,
+                                   ICoreService& pomodoroService,
                                    QWidget* parent)
     : DataWidget(parent)
     , ui(new Ui::StatisticsWindow)
@@ -33,8 +33,8 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
     , pomodoroService{pomodoroService}
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    pomodoroService.pomodoroYearRange(std::bind(
-        &StatisticsWindow::onYearRangeUpdated, this, std::placeholders::_1));
+    pomodoroService.yearRange(std::bind(
+            &StatisticsWindow::onYearRangeUpdated, this, std::placeholders::_1));
     ui->setupUi(this);
     currentInterval = ui->widgetPickPeriod->getInterval();
 
@@ -55,11 +55,11 @@ void StatisticsWindow::synchronize() { fetchPomodoros(); }
 
 void StatisticsWindow::fetchPomodoros()
 {
-    pomodoroService.pomodorosInTimeRange(
-        currentInterval.toTimeSpan(),
-        std::bind(&StatisticsWindow::onPomodorosFetched,
-                  this,
-                  std::placeholders::_1));
+    pomodoroService.sprintsInTimeRange(
+            currentInterval.toTimeSpan(),
+            std::bind(&StatisticsWindow::onPomodorosFetched,
+                      this,
+                      std::placeholders::_1));
 }
 
 void StatisticsWindow::onPomodorosFetched(
@@ -94,7 +94,7 @@ void StatisticsWindow::drawGraphs()
         currentInterval.toTimeSpan()};
     ui->dailyTimelineGraph->setData(statistics.dailyDistribution(),
                                     currentInterval.startDate,
-                                    applicationSettings.dailyPomodorosGoal());
+                                    applicationSettings.dailyGoal());
     ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
     ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
                                     statistics.sprints());

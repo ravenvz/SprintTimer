@@ -22,7 +22,7 @@
 #ifndef POMODOROMODELNEW_H_MQZ2XAPI
 #define POMODOROMODELNEW_H_MQZ2XAPI
 
-#include "core/IPomodoroService.h"
+#include "core/ICoreService.h"
 #include "models/AsyncListModel.h"
 #include <memory>
 #include <vector>
@@ -30,7 +30,7 @@
 class PomodoroModel : public AsyncListModel {
     Q_OBJECT
 public:
-    PomodoroModel(IPomodoroService& pomodoroService,
+    PomodoroModel(ICoreService& pomodoroService,
                            QObject* parent);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const final;
@@ -50,7 +50,7 @@ protected:
 private:
     std::vector<Sprint> storage;
     TimeSpan interval;
-    IPomodoroService& pomodoroService;
+    ICoreService& pomodoroService;
 
     void onDataChanged(const std::vector<Sprint>& items);
 };

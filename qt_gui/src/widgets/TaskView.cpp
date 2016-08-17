@@ -67,7 +67,7 @@ void TaskView::editTask()
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {
         Task updatedItem = dialog.constructedTask();
-        updatedItem.setSpentPomodoros(itemToEdit.spentPomodoros());
+        updatedItem.setActualCost(itemToEdit.actualCost());
         updatedItem.setCompleted(itemToEdit.isCompleted());
         dynamic_cast<TaskModel*>(model())->replaceItemAt(index.row(),
                                                          updatedItem);
@@ -80,7 +80,7 @@ void TaskView::removeTask()
     const auto task = dynamic_cast<TaskModel*>(model())->itemAt(index.row());
     ConfirmationDialog dialog;
     QString description;
-    if (task.spentPomodoros() > 0) {
+    if (task.actualCost() > 0) {
         description
             = "WARNING! This todo item has pomodoros associated with it "
               "and they will be removed permanently along with this item.";

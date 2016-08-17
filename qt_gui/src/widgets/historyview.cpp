@@ -46,7 +46,7 @@ void HistoryViewDelegate::paint(QPainter* painter,
     }
 }
 
-HistoryView::HistoryView(IPomodoroService& pomodoroService, QWidget* parent)
+HistoryView::HistoryView(ICoreService& pomodoroService, QWidget* parent)
     : DataWidget(parent)
     , ui(new Ui::HistoryView)
     , pomodoroService{pomodoroService}
@@ -55,8 +55,8 @@ HistoryView::HistoryView(IPomodoroService& pomodoroService, QWidget* parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    pomodoroService.pomodoroYearRange(std::bind(
-        &HistoryView::onYearRangeUpdated, this, std::placeholders::_1));
+    pomodoroService.yearRange(std::bind(
+            &HistoryView::onYearRangeUpdated, this, std::placeholders::_1));
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
     viewModel = new QStandardItemModel(this);
     ui->lvTodoHistory->setHeaderHidden(true);
@@ -154,11 +154,11 @@ HistoryStateTask::HistoryStateTask(HistoryView& historyView)
 
 void HistoryStatePomodoro::retrieveHistory()
 {
-    historyView.pomodoroService.pomodorosInTimeRange(
-        historyView.selectedDateInterval.toTimeSpan(),
-        std::bind(&HistoryStatePomodoro::onHistoryRetrieved,
-                  this,
-                  std::placeholders::_1));
+    historyView.pomodoroService.sprintsInTimeRange(
+            historyView.selectedDateInterval.toTimeSpan(),
+            std::bind(&HistoryStatePomodoro::onHistoryRetrieved,
+                      this,
+                      std::placeholders::_1));
 }
 
 void HistoryStateTask::retrieveHistory()

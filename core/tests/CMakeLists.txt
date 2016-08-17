@@ -1,17 +1,17 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(TEST_CORE test_pomodoro_core)
+set(TEST_CORE test_core)
 project(${TEST_CORE})
 set(SOURCE_FILES
-    run_all_tests.cpp
-    test_datetime.cpp
+        run_all_tests.cpp
+        test_datetime.cpp
         test_sprint_statistics.cpp
-    test_distribution.cpp
-    test_string_utils.cpp
-    test_time_span.cpp
-    test_task.cpp
-    test_pomodoro_timer.cpp
-    test_pomodoro_service.cpp
+        test_distribution.cpp
+        test_string_utils.cpp
+        test_time_span.cpp
+        test_task.cpp
+        test_stateful_timer.cpp
+        test_core_service.cpp
         test_increment_task_sprints.cpp
 )
 
@@ -32,5 +32,5 @@ target_include_directories(${TEST_CORE}
 
 target_link_libraries(${TEST_CORE}
     PRIVATE CppUTest
-    PRIVATE pomodoro_core
+    PRIVATE ${CORE_LIB}
     PRIVATE Threads::Threads)

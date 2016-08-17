@@ -22,7 +22,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "core/IPomodoroService.h"
+#include "core/ICoreService.h"
 #include "core/ISprintStorageReader.h"
 #include "core/IYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
@@ -57,7 +57,7 @@ class MainWindow : public QWidget {
 
 public:
     MainWindow(IConfig& applicationSettings,
-               IPomodoroService& pomodoroService,
+               ICoreService& pomodoroService,
                QWidget* parent = nullptr);
     ~MainWindow();
     QSize sizeHint() const override;
@@ -65,7 +65,7 @@ public:
 private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
-    IPomodoroService& pomodoroService;
+    ICoreService& pomodoroService;
     QPointer<PomodoroModel> pomodoroModel;
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;

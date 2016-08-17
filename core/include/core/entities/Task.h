@@ -32,23 +32,23 @@
 #include <vector>
 
 
-/* Represent Task that may have many associated Pomodoros.
+/* Represent Task that may have many associated sprints.
  *
  * Task has name and tags and might be either in completed or
- * non-completed state. It also has a number of estimated Pomodoros
- * and a number of Pomodoros that were actually spent on this Task. */
+ * non-completed state. It also has an estimated const in sprints
+ * and a number of sprints that were actually spent on this Task. */
 class Task {
 
 public:
     Task(std::string name,
-             int estimatedPomodoros,
-             int spentPomodoros,
+             int estimatedCost,
+             int actualCost,
              std::list<Tag> tags, // TODO should be reference or moved
              bool completed);
 
     Task(std::string name,
-             int estimatedPomodoros,
-             int spentPomodoros,
+             int estimatedCost,
+             int actualCost,
              const std::string& uuid,
              std::list<Tag> tags, // TODO should be reference or moved
              bool completed,
@@ -57,23 +57,23 @@ public:
     /* Construct Task from encoded description.
      * Description is a string of text that may have some words with
      * special prefixes. That prefixes indicate tags and number of
-     * estimated Pomodoros for this task.
+     * estimated sprints for this task.
      *
      * Default values are:
      *      '#' - as a tag prefix;
-     *      '*' - as a number of estimated Pomodoros prefix.
+     *      '*' - as an estimated cost prefix.
      *
      * If description has multiple words with tag prefixes, multiple tags
      * will be assigned to the task, but additional rules apply:
      *
-     *      only words with single tag prefix are enterpreted as tags, so
-     *      ##Tag will be enterpreted as a part of the name, not as a tag;
+     *      only words with single tag prefix are interpreted as tags, so
+     *      ##Tag will be interpreted as a part of the name, not as a tag;
      *
      *      single tag prefix (with no characters after it) is also interpreted
      *      as a part of the name.
      *
-     * Description can have multiple words with estimated Pomodoros prefixes,
-     * but only last of them will be interpreted, previous will be enterpreted
+     * Description can have multiple words with estimated cost prefixes,
+     * but only last of them will be interpreted, previous will be interpreted
      * as a part of the name. */
     explicit Task(std::string encodedDescription);
 
@@ -85,11 +85,11 @@ public:
     /* Return true if Task is completed and false otherwise. */
     bool isCompleted() const;
 
-    /* Return estimated task cost in pomodoros. */
-    int estimatedPomodoros() const;
+    /* Return estimated number of sprints that are required to completed this task. */
+    int estimatedCost() const;
 
-    /* Number of Pomodoros that had been spent on this task. */
-    int spentPomodoros() const;
+    /* Number of sprints that had been spent on this task. */
+    int actualCost() const;
 
     /* Return UUID. */
     std::string uuid() const;
@@ -104,10 +104,11 @@ public:
     /* Set task status. */
     void setCompleted(bool completed);
 
-    void setEstimatedPomodoros(int estimatedPomodoros);
+    /* Set estimated number of sprints that are required to complete this task. */
+    void setEstimatedCost(int numSprints);
 
-    /* Set number of pomodoros spent on this task. */
-    void setSpentPomodoros(int spentPomodoros);
+    /* Set number of sprints spent on this task. */
+    void setActualCost(int numSprints);
 
     void setTags(const std::list<Tag>& newTags);
 
@@ -125,8 +126,8 @@ private:
     static BoostUUIDGenerator generator;
     std::string mName;
     std::string mEncodedDescription;
-    int mEstimatedPomodoros = 1;
-    int mSpentPomodoros{0};
+    int mEstimatedCost{1};
+    int mActualCost{0};
     std::string mUuid;
     std::list<Tag> mTags;
     bool mCompleted{false};
