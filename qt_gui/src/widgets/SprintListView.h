@@ -19,24 +19,24 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef POMODOROVIEW_H_TMGU1KAJ
-#define POMODOROVIEW_H_TMGU1KAJ
+#ifndef SPRINTLISTVIEW_H_TMGU1KAJ
+#define SPRINTLISTVIEW_H_TMGU1KAJ
 
 #include "dialogs/confirmationdialog.h"
 #include "models/SprintModel.h"
 #include <QListView>
 #include <QMenu>
 
-class PomodoroView : public QListView {
+class SprintListView : public QListView {
 public:
-    PomodoroView(QWidget* parent);
+    SprintListView(QWidget* parent);
     QSize sizeHint() const override;
 
 private:
-    void removePomodoro();
+    void removeItem();
 
 private slots:
     void showContextMenu(const QPoint& pos);
 };
 
-#endif /* end of include guard: POMODOROVIEW_H_TMGU1KAJ */
+#endif /* end of include guard: SPRINTLISTVIEW_H_TMGU1KAJ */

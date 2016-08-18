@@ -127,7 +127,7 @@
       </widget>
      </item>
      <item row="1" column="2">
-      <widget class="PomodoroView" name="lvCompletedPomodoros">
+      <widget class="SprintListView" name="lvFinishedSprints">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -269,10 +269,16 @@
        <item alignment="Qt::AlignHCenter">
         <widget class="QPushButton" name="pbToggleView">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>91</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="toolTip">
           <string>Toggle extended mode</string>
@@ -289,6 +295,12 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>91</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="toolTip">
           <string>Toggle menu</string>
@@ -316,9 +328,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PomodoroView</class>
+   <class>SprintListView</class>
    <extends>QListView</extends>
-   <header>widgets/PomodoroView.h</header>
+   <header>widgets/SprintListView.h</header>
   </customwidget>
   <customwidget>
    <class>TaskView</class>

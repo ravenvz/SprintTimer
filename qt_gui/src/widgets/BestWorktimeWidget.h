@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 
-#ifndef POMODORO_BESTWORKTIMEWIDGET_H
-#define POMODORO_BESTWORKTIMEWIDGET_H
+#ifndef BESTWORKTIMEWIDGET_H
+#define BESTWORKTIMEWIDGET_H
 
 #include <QtWidgets/QWidget>
 #include <core/Distribution.h>
@@ -38,15 +38,14 @@ public:
     virtual ~BestWorktimeWidget();
 
     void setData(const Distribution<double>& workTimeDistribution,
-                 const std::vector<Sprint>& pomodoros);
+                 const std::vector<Sprint>& sprints);
 
 private:
     Ui::BestWorktimeWidget* ui;
 
     void
     updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
-                           const std::vector<Sprint>& pomodoros);
+                           const std::vector<Sprint>& sprints);
 };
 
-
-#endif // POMODORO_BESTWORKTIMEWIDGET_H
+#endif // BESTWORKTIMEWIDGET_H

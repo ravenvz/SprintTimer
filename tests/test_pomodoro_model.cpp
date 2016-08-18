@@ -104,7 +104,7 @@ TEST(PomodoroModel, test_insert_and_delete)
     CHECK(pomodoroModel.insert(todoId, timeSpan));
     CHECK(pomodoro_equal(expectedPomodoro, pomodoroModel.itemAt(0)));
 
-    // Check that spent pomodoros have been incremented
+    // Check that spent sprints have been incremented
     taskModel.select();
     TodoItem insertedTodo = taskModel.itemAt(0);
     CHECK_EQUAL(spentPomodoros + 1, insertedTodo.spentPomodoros());
@@ -113,7 +113,7 @@ TEST(PomodoroModel, test_insert_and_delete)
 
     CHECK_EQUAL(0, pomodoroModel.numRecords());
 
-    // Check that spent pomodoros have been decremented
+    // Check that spent sprints have been decremented
     taskModel.select();
     insertedTodo = taskModel.itemAt(0);
     CHECK_EQUAL(spentPomodoros, insertedTodo.spentPomodoros());
@@ -140,7 +140,7 @@ TEST(PomodoroModel, test_deleting_todo_item_remove_all_associated_pomodoros)
     }
 
     CHECK_EQUAL(numInsertedPomos, pomodoroModel.numRecords());
-    // As inserting pomodoros increments todo_item spent_pomodoros, model needs
+    // As inserting sprints increments todo_item spent_pomodoros, model needs
     // to
     // be refreshed
     taskModel.select();

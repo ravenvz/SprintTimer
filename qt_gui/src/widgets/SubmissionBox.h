@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 
-#ifndef POMODORO_SUBMISSIONBOX_H
-#define POMODORO_SUBMISSIONBOX_H
+#ifndef SUBMISSIONBOX_H
+#define SUBMISSIONBOX_H
 
 #include <QComboBox>
 
@@ -43,4 +43,4 @@ private:
 };
 
 
-#endif // POMODORO_SUBMISSIONBOX_H
+#endif // SUBMISSIONBOX_H

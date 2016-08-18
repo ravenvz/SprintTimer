@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 
-#ifndef POMODORO_GOALWIDGETTEMP_H
-#define POMODORO_GOALWIDGETTEMP_H
+#ifndef GOAL_PROGRESS_WIDGET_H
+#define GOAL_PROGRESS_WIDGET_H
 
 
 #include "core/Distribution.h"
@@ -33,10 +33,10 @@
 class ProgressView;
 
 
-class GoalProgressWidget : public DataWidget {
+class GoalProgressWindow : public DataWidget {
 public:
-    GoalProgressWidget(IConfig& applicationSettings,
-                       ICoreService& pomodoroService,
+    GoalProgressWindow(IConfig& applicationSettings,
+                       ICoreService& coreService,
                        QWidget* parent = 0);
     virtual void synchronize() override;
 
@@ -44,7 +44,7 @@ public:
 
 private:
     IConfig& applicationSettings;
-    ICoreService& pomodoroService;
+    ICoreService& coreService;
     QGridLayout* layout;
     ProgressView* dailyProgress;
     ProgressView* weeklyProgress;
@@ -65,4 +65,4 @@ private:
 };
 
 
-#endif // POMODORO_GOALWIDGETTEMP_H
+#endif // GOAL_PROGRESS_WIDGET_H

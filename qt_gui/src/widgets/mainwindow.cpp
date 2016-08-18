@@ -27,17 +27,17 @@
 #include "ui_mainwindow.h"
 #include "widgets/DefaultTimer.h"
 #include "widgets/FancyTimer.h"
-#include "widgets/GoalProgressWidget.h"
+#include "widgets/GoalProgressWindow.h"
 #include <QtWidgets/qmenu.h>
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
-                       ICoreService& pomodoroService,
+                       ICoreService& coreService,
                        QWidget* parent)
     : QWidget(parent)
-    , ui(new Ui::MainWindow)
-    , applicationSettings(applicationSettings)
-    , pomodoroService{pomodoroService}
+    , ui{new Ui::MainWindow}
+    , applicationSettings{applicationSettings}
+    , coreService{coreService}
     , expandedFully{std::make_unique<Expanded>(*this)}
     , shrinked{std::make_unique<Shrinked>(*this)}
     , expandedMenuOnly{std::make_unique<ExpandedMenuOnly>(*this)}
@@ -52,11 +52,11 @@ MainWindow::MainWindow(IConfig& applicationSettings,
         timerWidget = new FancyTimer{applicationSettings, this};
     ui->gridLayout->addWidget(
         timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
-    pomodoroModel = new SprintModel(pomodoroService, this);
-    ui->lvCompletedPomodoros->setModel(pomodoroModel);
-    ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
-    taskModel = new TaskModel(pomodoroService, this);
-    tagModel = new TagModel(pomodoroService, this);
+    sprintModel = new SprintModel(coreService, this);
+    ui->lvFinishedSprints->setModel(sprintModel);
+    ui->lvFinishedSprints->setContextMenuPolicy(Qt::CustomContextMenu);
+    taskModel = new TaskModel(coreService, this);
+    tagModel = new TagModel(coreService, this);
     timerWidget->setTaskModel(taskModel);
     ui->lvTaskView->setModels(taskModel, tagModel);
     ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -66,7 +66,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     connect(timerWidget,
             &TimerWidgetBase::submitRequested,
             this,
-            &MainWindow::submitPomodoro);
+            &MainWindow::submitSprint);
     // Update selected task index and description of submission candidate
     connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
         selectedTaskIndex = index;
@@ -97,26 +97,26 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     connect(ui->pbAddSprintManually,
             &QPushButton::clicked,
             this,
-            &MainWindow::launchManualAddPomodoroDialog);
-    connect(pomodoroModel,
+            &MainWindow::launchManualAddSprintDialog);
+    connect(sprintModel,
             &SprintModel::modelReset,
             this,
             &MainWindow::updateDailyProgress);
 
-    // Disables AddPomodoro button when there are no active tasks.
+    // Disables AddSprint button when there are no active tasks.
     connect(taskModel,
             &QAbstractListModel::modelReset,
             this,
-            &MainWindow::adjustAddPomodoroButtonState);
+            &MainWindow::adjustAddSprintButtonState);
 
     // Setup data synchronization signals
-    connect(pomodoroModel,
+    connect(sprintModel,
             &AsyncListModel::updateFinished,
             taskModel,
             &AsyncListModel::synchronize);
     connect(taskModel,
             &AsyncListModel::updateFinished,
-            pomodoroModel,
+            sprintModel,
             &AsyncListModel::synchronize);
     connect(taskModel,
             &AsyncListModel::updateFinished,
@@ -124,7 +124,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &TagModel::synchronize);
     connect(tagModel,
             &AsyncListModel::updateFinished,
-            pomodoroModel,
+            sprintModel,
             &AsyncListModel::synchronize);
     connect(tagModel,
             &AsyncListModel::updateFinished,
@@ -150,7 +150,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &QPushButton::clicked,
             this,
             &MainWindow::onUndoButtonClicked);
-    connect(pomodoroModel,
+    connect(sprintModel,
             &AsyncListModel::updateFinished,
             this,
             &MainWindow::adjustUndoButtonState);
@@ -176,7 +176,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::adjustAddPomodoroButtonState()
+void MainWindow::adjustAddSprintButtonState()
 {
     ui->pbAddSprintManually->setEnabled(taskModel->rowCount() != 0);
 }
@@ -209,7 +209,7 @@ void MainWindow::quickAddTask()
     }
 }
 
-void MainWindow::submitPomodoro(const std::vector<TimeSpan>& intervalBuffer)
+void MainWindow::submitSprint(const std::vector<TimeSpan> &intervalBuffer)
 {
     // TODO see if it's enough
     // if (!selectedTaskIndex || ui->leDoneTask->text().isEmpty()) {
@@ -219,7 +219,7 @@ void MainWindow::submitPomodoro(const std::vector<TimeSpan>& intervalBuffer)
     }
 
     for (const TimeSpan& timeSpan : intervalBuffer) {
-        pomodoroModel->insert(
+        sprintModel->insert(
             timeSpan, taskModel->itemAt(selectedTaskIndex->row()).uuid());
     }
 }
@@ -241,8 +241,8 @@ void MainWindow::launchSettingsDialog()
 void MainWindow::launchHistoryView()
 {
     if (!historyView) {
-        historyView = new HistoryWindow(pomodoroService);
-        connect(pomodoroModel,
+        historyView = new HistoryWindow(coreService);
+        connect(sprintModel,
                 &AsyncListModel::updateFinished,
                 historyView,
                 &DataWidget::synchronize);
@@ -265,8 +265,8 @@ void MainWindow::launchGoalsView()
 {
     if (!goalsView) {
         goalsView
-            = new GoalProgressWidget(applicationSettings, pomodoroService);
-        connect(pomodoroModel,
+            = new GoalProgressWindow(applicationSettings, coreService);
+        connect(sprintModel,
                 &AsyncListModel::updateFinished,
                 goalsView,
                 &DataWidget::synchronize);
@@ -281,8 +281,8 @@ void MainWindow::launchStatisticsView()
 {
     if (!statisticsView) {
         statisticsView
-            = new StatisticsWindow(applicationSettings, pomodoroService);
-        connect(pomodoroModel,
+            = new StatisticsWindow(applicationSettings, coreService);
+        connect(sprintModel,
                 &AsyncListModel::updateFinished,
                 statisticsView,
                 &DataWidget::synchronize);
@@ -301,16 +301,16 @@ void MainWindow::launchStatisticsView()
     }
 }
 
-void MainWindow::launchManualAddPomodoroDialog()
+void MainWindow::launchManualAddSprintDialog()
 {
     AddSprintDialog dialog{
-        pomodoroModel, taskModel, applicationSettings.sprintDuration()};
+        sprintModel, taskModel, applicationSettings.sprintDuration()};
     dialog.exec();
 }
 
 void MainWindow::updateDailyProgress()
 {
-    timerWidget->updateGoalProgress(pomodoroModel->rowCount());
+    timerWidget->updateGoalProgress(sprintModel->rowCount());
 }
 
 void MainWindow::onUndoButtonClicked()
@@ -318,11 +318,11 @@ void MainWindow::onUndoButtonClicked()
     ConfirmationDialog dialog;
     QString description{"Revert following action:\n"};
     description.append(
-        QString::fromStdString(pomodoroService.lastCommandDescription()));
+        QString::fromStdString(coreService.lastCommandDescription()));
     dialog.setActionDescription(description);
     if (dialog.exec()) {
-        pomodoroService.undoLast();
-        pomodoroModel->synchronize();
+        coreService.undoLast();
+        sprintModel->synchronize();
         taskModel->synchronize();
         adjustUndoButtonState();
     }
@@ -330,7 +330,7 @@ void MainWindow::onUndoButtonClicked()
 
 void MainWindow::adjustUndoButtonState()
 {
-    ui->pbUndo->setEnabled(pomodoroService.numRevertableCommands() != 0);
+    ui->pbUndo->setEnabled(coreService.numRevertableCommands() != 0);
 }
 
 QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }
@@ -372,7 +372,7 @@ Expanded::Expanded(MainWindow& widget)
 void Expanded::setStateUi()
 {
     widget.ui->lvTaskView->setVisible(true);
-    widget.ui->lvCompletedPomodoros->setVisible(true);
+    widget.ui->lvFinishedSprints->setVisible(true);
     widget.ui->pbAddTask->setVisible(true);
     widget.ui->leQuickAddTask->setVisible(true);
     widget.ui->pbAddSprintManually->setVisible(true);
@@ -404,7 +404,7 @@ Shrinked::Shrinked(MainWindow& widget)
 void Shrinked::setStateUi()
 {
     widget.ui->lvTaskView->setVisible(false);
-    widget.ui->lvCompletedPomodoros->setVisible(false);
+    widget.ui->lvFinishedSprints->setVisible(false);
     widget.ui->pbAddTask->setVisible(false);
     widget.ui->leQuickAddTask->setVisible(false);
     widget.ui->pbAddSprintManually->setVisible(false);
@@ -436,7 +436,7 @@ ExpandedMenuOnly::ExpandedMenuOnly(MainWindow& widget)
 void ExpandedMenuOnly::setStateUi()
 {
     widget.ui->lvTaskView->setVisible(false);
-    widget.ui->lvCompletedPomodoros->setVisible(false);
+    widget.ui->lvFinishedSprints->setVisible(false);
     widget.ui->pbAddTask->setVisible(false);
     widget.ui->leQuickAddTask->setVisible(false);
     widget.ui->pbAddSprintManually->setVisible(false);
@@ -468,7 +468,7 @@ ExpandedWithoutMenu::ExpandedWithoutMenu(MainWindow& widget)
 void ExpandedWithoutMenu::setStateUi()
 {
     widget.ui->lvTaskView->setVisible(true);
-    widget.ui->lvCompletedPomodoros->setVisible(true);
+    widget.ui->lvFinishedSprints->setVisible(true);
     widget.ui->pbAddTask->setVisible(true);
     widget.ui->leQuickAddTask->setVisible(true);
     widget.ui->pbAddSprintManually->setVisible(true);

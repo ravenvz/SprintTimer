@@ -40,11 +40,11 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    Sprint pomodoro = storage[static_cast<size_t>(index.row())];
+    Sprint reference = storage[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
-        return QString::fromStdString(pomodoro.toString());
+        return QString::fromStdString(reference.toString());
     }
 
     return QVariant();

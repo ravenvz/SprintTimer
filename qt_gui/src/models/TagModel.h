@@ -31,7 +31,7 @@
 class TagModel : public AsyncListModel {
 
 public:
-    TagModel(ICoreService& pomodoroService, QObject* parent);
+    TagModel(ICoreService& coreService, QObject* parent);
 
     bool setData(const QModelIndex& index,
                  const QVariant& value,
@@ -55,7 +55,7 @@ protected:
 private:
     using OldNewTagPair = std::pair<std::string, std::string>;
     std::vector<std::string> storage;
-    ICoreService& pomodoroService;
+    ICoreService& coreService;
     std::vector<OldNewTagPair> buffer;
 
     void onDataArrived(const std::vector<std::string>& tags);

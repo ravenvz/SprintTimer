@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef POMOTIMEDIAGRAM_H
-#define POMOTIMEDIAGRAM_H
+#ifndef TIMEDIAGRAM_H
+#define TIMEDIAGRAM_H
 
 #include "core/TimeSpan.h"
 #include <QEvent>
@@ -43,8 +43,6 @@ class TimeDiagram : public QWidget {
 
 public:
     explicit TimeDiagram(QWidget* parent);
-
-    ~TimeDiagram();
 
     /* Set vector of time intervals to display as a diagram. */
     void setIntervals(std::vector<TimeSpan> newIntervals);
@@ -69,4 +67,4 @@ private:
     void drawIntervals(QPainter& painter);
 };
 
-#endif /* end of include guard: POMOTIMEDIAGRAM_H */
+#endif /* end of include guard: TIMEDIAGRAM_H */

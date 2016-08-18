@@ -20,17 +20,15 @@
 **
 *********************************************************************************/
 
-#include "widgets/GoalProgressWidget.h"
+#include "widgets/GoalProgressWindow.h"
 #include "widgets/ProgressWidget.h"
-#include <QtWidgets/QGridLayout>
-#include <thread>
 
-GoalProgressWidget::GoalProgressWidget(IConfig& applicationSettings,
-                                       ICoreService& pomodoroService,
+GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
+                                       ICoreService& coreService,
                                        QWidget* parent)
-    : DataWidget(parent)
-    , applicationSettings(applicationSettings)
-    , pomodoroService(pomodoroService)
+    : DataWidget{parent}
+    , applicationSettings{applicationSettings}
+    , coreService{coreService}
 {
     layout = new QGridLayout(this);
     layout->setSpacing(15);
@@ -98,61 +96,61 @@ GoalProgressWidget::GoalProgressWidget(IConfig& applicationSettings,
     synchronize();
 }
 
-QSize GoalProgressWidget::sizeHint() const { return expectedSize; }
+QSize GoalProgressWindow::sizeHint() const { return expectedSize; }
 
-void GoalProgressWidget::synchronize()
+void GoalProgressWindow::synchronize()
 {
     synchronizeDailyData();
     synchronizeWeeklyData();
     synchronizeMonthlyData();
 }
 
-void GoalProgressWidget::synchronizeDailyData()
+void GoalProgressWindow::synchronizeDailyData()
 {
     auto now = DateTime::currentDateTime();
     auto from = now.addDays(-30);
-    pomodoroService.requestSprintDailyDistribution(
+    coreService.requestSprintDailyDistribution(
             TimeSpan{from, now},
-            std::bind(&GoalProgressWidget::onDailyDataReceived,
+            std::bind(&GoalProgressWindow::onDailyDataReceived,
                       this,
                       std::placeholders::_1));
 }
 
-void GoalProgressWidget::synchronizeWeeklyData()
+void GoalProgressWindow::synchronizeWeeklyData()
 {
     auto now = DateTime::currentDateTime();
     auto from = now.addDays(-7 * 11 - static_cast<int>(now.dayOfWeek()) + 1);
-    pomodoroService.requestSprintWeeklyDistribution(
+    coreService.requestSprintWeeklyDistribution(
             TimeSpan{from, now},
-            std::bind(&GoalProgressWidget::onWeeklyDataReceived,
+            std::bind(&GoalProgressWindow::onWeeklyDataReceived,
                       this,
                       std::placeholders::_1));
 }
 
-void GoalProgressWidget::synchronizeMonthlyData()
+void GoalProgressWindow::synchronizeMonthlyData()
 {
     DateTime now = DateTime::currentDateTime();
     auto from = now.addMonths(-11).addDays(-static_cast<int>(now.day()));
-    pomodoroService.requestSprintMonthlyDistribution(
+    coreService.requestSprintMonthlyDistribution(
             TimeSpan{from, now},
-            std::bind(&GoalProgressWidget::onMonthlyDataReceived,
+            std::bind(&GoalProgressWindow::onMonthlyDataReceived,
                       this,
                       std::placeholders::_1));
 }
 
-void GoalProgressWidget::onDailyDataReceived(
+void GoalProgressWindow::onDailyDataReceived(
     const Distribution<int>& distribution)
 {
     dailyProgress->setData(distribution);
 }
 
-void GoalProgressWidget::onWeeklyDataReceived(
+void GoalProgressWindow::onWeeklyDataReceived(
     const Distribution<int>& distribution)
 {
     weeklyProgress->setData(distribution);
 }
 
-void GoalProgressWidget::onMonthlyDataReceived(
+void GoalProgressWindow::onMonthlyDataReceived(
     const Distribution<int>& distribution)
 {
     monthlyProgress->setData(distribution);

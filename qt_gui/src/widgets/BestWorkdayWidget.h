@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 
-#ifndef POMODORO_BESTWORKDAYWIDGET_H
-#define POMODORO_BESTWORKDAYWIDGET_H
+#ifndef BESTWORKDAYWIDGET_H
+#define BESTWORKDAYWIDGET_H
 
 
 #include <QtWidgets/QWidget>
@@ -46,7 +46,6 @@ private:
 
     void setupWeekdayBarChart();
 
-
     void updateWeekdayBarChart(const Distribution<double>& weekdayDistribution);
 
     void updateWeekdayBarChartLegend(
@@ -54,4 +53,4 @@ private:
 };
 
 
-#endif // POMODORO_BESTWORKDAYWIDGET_H
+#endif // BESTWORKDAYWIDGET_H

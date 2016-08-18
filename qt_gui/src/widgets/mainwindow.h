@@ -57,7 +57,7 @@ class MainWindow : public QWidget {
 
 public:
     MainWindow(IConfig& applicationSettings,
-               ICoreService& pomodoroService,
+               ICoreService& coreService,
                QWidget* parent = nullptr);
     ~MainWindow();
     QSize sizeHint() const override;
@@ -65,8 +65,8 @@ public:
 private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
-    ICoreService& pomodoroService;
-    QPointer<SprintModel> pomodoroModel;
+    ICoreService& coreService;
+    QPointer<SprintModel> sprintModel;
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
     QPointer<DataWidget> goalsView;
@@ -80,20 +80,20 @@ private:
     std::unique_ptr<ExpansionState> expandedWithoutMenu;
     ExpansionState* expansionState;
 
-    void adjustAddPomodoroButtonState();
+    void adjustAddSprintButtonState();
     void bringToForeground(QWidget* widgetPtr) const;
     void setStateUi();
 
 private slots:
     void addTask();
     void quickAddTask();
-    void submitPomodoro(const std::vector<TimeSpan>& intervalBuffer);
+    void submitSprint(const std::vector<TimeSpan> &intervalBuffer);
     void toggleTaskCompleted();
     void launchSettingsDialog();
     void launchHistoryView();
     void launchGoalsView();
     void launchStatisticsView();
-    void launchManualAddPomodoroDialog();
+    void launchManualAddSprintDialog();
     void updateDailyProgress();
     void onUndoButtonClicked();
     void adjustUndoButtonState();

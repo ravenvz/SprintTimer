@@ -19,25 +19,25 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef POMODORO_PICKPERIODWIDGET_H
-#define POMODORO_PICKPERIODWIDGET_H
+#ifndef PICKPERIODWIDGET_H
+#define PICKPERIODWIDGET_H
 
 #include "dialogs/datepickdialog.h"
 #include <QPointer>
 #include <QStringListModel>
 
 namespace Ui {
-class PickPeriodWidget;
+class DateRangePicker;
 }
 
 
-class PickPeriodWidget : public QWidget {
+class DateRangePicker : public QWidget {
 
     Q_OBJECT
 
 public:
-    explicit PickPeriodWidget(QWidget* parent);
-    ~PickPeriodWidget();
+    explicit DateRangePicker(QWidget* parent);
+    ~DateRangePicker();
     void setInterval(DateInterval&& timeSpan);
     DateInterval getInterval() const;
     void setYears(const std::vector<std::string>& years);
@@ -52,7 +52,7 @@ private slots:
     void updateSelectionHintLabel();
 
 private:
-    Ui::PickPeriodWidget* ui;
+    Ui::DateRangePicker* ui;
     DateInterval selectedInterval;
     QPointer<QStringListModel> yearsModel;
     QPointer<QStringListModel> monthsModel;
@@ -61,4 +61,4 @@ private:
 };
 
 
-#endif // POMODORO_PICKPERIODWIDGET_H
+#endif // PICKPERIODWIDGET_H

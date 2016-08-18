@@ -167,7 +167,7 @@ bool PomodoroDatabase::createSchema(QSqlDatabase& db) {
         + "END;"
     };
 
-    // View for pomodoros
+    // View for sprints
     const QString createPomodoroView{
         "CREATE VIEW " + PomoView::name + " AS "
         + "SELECT " + PomodoroTable::name + "." + PomodoroTable::Columns::id + ", "

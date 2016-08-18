@@ -57,7 +57,7 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
     ui->setupUi(this);
     coreService.yearRange(std::bind(
             &HistoryWindow::onYearRangeUpdated, this, std::placeholders::_1));
-    selectedDateInterval = ui->widgetPickPeriod->getInterval();
+    selectedDateInterval = ui->dateRangePicker->getInterval();
     viewModel = new QStandardItemModel(this);
     ui->lvTaskHistory->setHeaderHidden(true);
     ui->lvSprintHistory->setHeaderHidden(true);
@@ -68,7 +68,7 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
             &QTabWidget::currentChanged,
             this,
             &HistoryWindow::onTabSelected);
-    connect(ui->widgetPickPeriod,
+    connect(ui->dateRangePicker,
             SIGNAL(timeSpanChanged(DateInterval)),
             this,
             SLOT(onDatePickerIntervalChanged(DateInterval)));
@@ -127,7 +127,7 @@ void HistoryWindow::onTabSelected(int tabIndex)
 
 void HistoryWindow::onYearRangeUpdated(const std::vector<std::string>& yearRange)
 {
-    ui->widgetPickPeriod->setYears(yearRange);
+    ui->dateRangePicker->setYears(yearRange);
 }
 
 void HistoryWindow::setHistoryModel(QTreeView* view)

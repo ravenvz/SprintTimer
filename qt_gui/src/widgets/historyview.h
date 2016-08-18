@@ -23,7 +23,7 @@
 #define HISTORY_VIEW_H
 
 #include "core/ICoreService.h"
-#include "pickperiodwidget.h"
+#include "DateRangePicker.h"
 #include "widgets/DataWidget.h"
 #include <QObject>
 #include <QStandardItemModel>
@@ -110,7 +110,7 @@ public:
 
     void retrieveHistory() final;
 
-    /* Assumes that pomodoros are sorted by start time. */
+    /* Assumes that sprints are sorted by start time. */
     void onHistoryRetrieved(const std::vector<Sprint>& sprints);
 };
 

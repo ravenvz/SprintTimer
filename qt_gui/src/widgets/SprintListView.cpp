@@ -19,33 +19,33 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/PomodoroView.h"
+#include "widgets/SprintListView.h"
 
-PomodoroView::PomodoroView(QWidget* parent)
+SprintListView::SprintListView(QWidget* parent)
     : QListView{parent}
 {
     connect(this,
             &QListView::customContextMenuRequested,
             this,
-            &PomodoroView::showContextMenu);
+            &SprintListView::showContextMenu);
 }
 
-QSize PomodoroView::sizeHint() const { return QSize(300, 200); }
+QSize SprintListView::sizeHint() const { return QSize(300, 200); }
 
-void PomodoroView::showContextMenu(const QPoint& pos)
+void SprintListView::showContextMenu(const QPoint& pos)
 {
     QPoint globalPos = mapToGlobal(pos);
 
-    QMenu pomodoroMenu;
-    pomodoroMenu.addAction("Delete");
+    QMenu contextMenu;
+    contextMenu.addAction("Delete");
 
-    QAction* selectedItem = pomodoroMenu.exec(globalPos);
+    QAction* selectedItem = contextMenu.exec(globalPos);
 
     if (selectedItem && selectedItem->text() == "Delete")
-        removePomodoro();
+        removeItem();
 }
 
-void PomodoroView::removePomodoro()
+void SprintListView::removeItem()
 {
     QModelIndex index = currentIndex();
     ConfirmationDialog dialog;

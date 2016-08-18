@@ -19,7 +19,7 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "timediagram.h"
+#include "TimeDiagram.h"
 #include <QPainter>
 
 
@@ -28,8 +28,6 @@ TimeDiagram::TimeDiagram(QWidget* parent)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 }
-
-TimeDiagram::~TimeDiagram() {}
 
 void TimeDiagram::paintEvent(QPaintEvent*)
 {
@@ -98,7 +96,7 @@ void TimeDiagram::drawIntervals(QPainter& painter)
     painter.setPen(Qt::NoPen);
     double oneMinuteInDegrees = 0.25;
     int offsetInDegrees = 90;
-    int pomoDurationInMinutes = 25;
+    int sprintDuration = 25;
     int numSegmentsInDegree = 16;
     const auto& timeSpansRef = timeSpans;
     for (const TimeSpan& timeSpan : timeSpansRef) {
@@ -106,7 +104,7 @@ void TimeDiagram::drawIntervals(QPainter& painter)
             = (timeSpan.startTime.hour() * 60 + timeSpan.startTime.minute())
             * oneMinuteInDegrees;
         // TODO replace with stored sprint duration when implemented
-        double span = pomoDurationInMinutes * oneMinuteInDegrees;
+        double span = sprintDuration * oneMinuteInDegrees;
         painter.drawPie(diagramRect,
                         -(int(start) - offsetInDegrees) * numSegmentsInDegree,
                         -int(span) * numSegmentsInDegree);
@@ -115,6 +113,6 @@ void TimeDiagram::drawIntervals(QPainter& painter)
 
 void TimeDiagram::setIntervals(std::vector<TimeSpan> newIntervals)
 {
-    timeSpans = newIntervals;
+    timeSpans = std::move(newIntervals);
     update();
 }

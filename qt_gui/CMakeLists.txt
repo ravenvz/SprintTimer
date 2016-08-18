@@ -22,7 +22,7 @@ QT5_WRAP_UI(UI_HEADERS
         ui/date_pick_dialog.ui
         ui/statistics_window.ui
         ui/add_sprint_dialog.ui
-        ui/pickperiodwidget.ui
+        ui/date_range_picker.ui
         ui/tageditor.ui
         ui/default_timer.ui
         ui/fancy_timer.ui

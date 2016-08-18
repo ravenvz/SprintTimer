@@ -31,7 +31,7 @@ class TaskModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    TaskModel(ICoreService& pomodoroService, QObject* parent);
+    TaskModel(ICoreService& coreService, QObject* parent);
 
     // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
@@ -66,7 +66,7 @@ public:
         DescriptionRole,
         StatsRole,
         GetIdRole,
-        GetSpentPomodorosRole,
+        GetFinishedSprintsRole,
         PriorityRole
     };
 
@@ -97,14 +97,14 @@ protected:
     void requestDataUpdate() final;
 
 private:
-    ICoreService& pomodoroService;
+    ICoreService& coreService;
     std::vector<Task> storage;
     // Sql helper queries that are needed to maintain database invariants.
     enum class Column {
         Id,
         Name,
-        EstimatedPomodoros,
-        SpentPomodoros,
+        EstimatedCost,
+        ActualCost,
         Priority,
         Completed,
         Tags,

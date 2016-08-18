@@ -21,9 +21,9 @@
 *********************************************************************************/
 #include "models/TagModel.h"
 
-TagModel::TagModel(ICoreService& pomodoroService, QObject* parent)
-    : AsyncListModel(parent)
-    , pomodoroService{pomodoroService}
+TagModel::TagModel(ICoreService& coreService, QObject* parent)
+    : AsyncListModel{parent}
+    , coreService{coreService}
 {
     synchronize();
 }
@@ -75,7 +75,7 @@ bool TagModel::setData(const QModelIndex& index,
 void TagModel::submitData()
 {
     while (!buffer.empty()) {
-        pomodoroService.editTag(buffer.back().first, buffer.back().second);
+        coreService.editTag(buffer.back().first, buffer.back().second);
         buffer.pop_back();
     }
     requestDataUpdate();
@@ -89,7 +89,7 @@ void TagModel::revertData()
 
 void TagModel::requestDataUpdate()
 {
-    pomodoroService.requestAllTags(
+    coreService.requestAllTags(
         std::bind(&TagModel::onDataArrived, this, std::placeholders::_1));
 }
 

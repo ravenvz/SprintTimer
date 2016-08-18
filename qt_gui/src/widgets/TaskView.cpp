@@ -82,7 +82,7 @@ void TaskView::removeTask()
     QString description;
     if (task.actualCost() > 0) {
         description
-            = "WARNING! This todo item has pomodoros associated with it "
+            = "WARNING! This todo item has sprints associated with it "
               "and they will be removed permanently along with this item.";
     }
     else {

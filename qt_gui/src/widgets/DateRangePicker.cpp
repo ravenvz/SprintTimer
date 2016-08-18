@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "pickperiodwidget.h"
-#include "ui_pickperiodwidget.h"
+#include "DateRangePicker.h"
+#include "ui_date_range_picker.h"
 #include <QtCore/qdatetime.h>
 #include <QtCore/qstringlistmodel.h>
 #include <algorithm>
@@ -30,9 +30,9 @@
 
 #include <QDebug>
 
-PickPeriodWidget::PickPeriodWidget(QWidget* parent)
+DateRangePicker::DateRangePicker(QWidget* parent)
     : QWidget(parent)
-    , ui(new Ui::PickPeriodWidget)
+    , ui(new Ui::DateRangePicker)
     , selectedInterval(DateInterval{
           QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1),
           QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1)
@@ -52,12 +52,12 @@ PickPeriodWidget::PickPeriodWidget(QWidget* parent)
     connectSlots();
 }
 
-PickPeriodWidget::~PickPeriodWidget()
+DateRangePicker::~DateRangePicker()
 {
     delete ui;
 }
 
-void PickPeriodWidget::connectSlots()
+void DateRangePicker::connectSlots()
 {
     connect(ui->btnPickPeriod,
             SIGNAL(clicked(bool)),
@@ -71,7 +71,7 @@ void PickPeriodWidget::connectSlots()
             SLOT(updateSelectionHintLabel()));
 }
 
-void PickPeriodWidget::openDatePickDialog()
+void DateRangePicker::openDatePickDialog()
 {
     DatePickDialog dialog{selectedInterval};
     if (dialog.exec()) {
@@ -79,18 +79,18 @@ void PickPeriodWidget::openDatePickDialog()
     }
 }
 
-void PickPeriodWidget::updateSelectionHintLabel()
+void DateRangePicker::updateSelectionHintLabel()
 {
     ui->labelSelectionHint->setText(selectedInterval.toString());
 }
 
-void PickPeriodWidget::setInterval(DateInterval&& dateInterval)
+void DateRangePicker::setInterval(DateInterval&& dateInterval)
 {
     selectedInterval = std::move(dateInterval);
     emit timeSpanChanged(selectedInterval);
 }
 
-void PickPeriodWidget::updateInterval()
+void DateRangePicker::updateInterval()
 {
     QDate startDate{ui->cbxYear->currentText().toInt(),
                     ui->cbxMonth->currentIndex() + 1,
@@ -100,15 +100,15 @@ void PickPeriodWidget::updateInterval()
     emit timeSpanChanged(selectedInterval);
 }
 
-void PickPeriodWidget::updateInterval(DateInterval timeSpan)
+void DateRangePicker::updateInterval(DateInterval timeSpan)
 {
     selectedInterval = timeSpan;
     emit timeSpanChanged(selectedInterval);
 }
 
-DateInterval PickPeriodWidget::getInterval() const { return selectedInterval; }
+DateInterval DateRangePicker::getInterval() const { return selectedInterval; }
 
-void PickPeriodWidget::setYears(const std::vector<std::string>& years)
+void DateRangePicker::setYears(const std::vector<std::string>& years)
 {
     QStringList yearRange;
     std::transform(
