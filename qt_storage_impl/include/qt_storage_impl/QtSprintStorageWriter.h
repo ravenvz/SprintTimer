@@ -19,45 +19,27 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSQLITEPOMODOROSTORAGEREADER_H_JXULCJ6I
-#define QTSQLITEPOMODOROSTORAGEREADER_H_JXULCJ6I
+#ifndef QTSPRINTSTORAGEWRITER_H_U7AAXVTC
+#define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
 
-#include "core/ISprintStorageReader.h"
-#include "core/entities/Tag.h"
+#include "core/ISprintStorageWriter.h"
 #include "qt_storage_impl/db_service.h"
 #include <QObject>
 
-
-class QtPomoStorageReader : public QObject, public ISprintStorageReader {
+class QtSprintStorageWriter : public QObject, public ISprintStorageWriter {
     Q_OBJECT
 
 public:
-    explicit QtPomoStorageReader(DBService& dbService);
+    explicit QtSprintStorageWriter(DBService& dbService);
 
-    void requestItems(const TimeSpan& timeSpan, Handler handler) final;
+    void save(const Sprint& sprint) final;
+
+    void remove(const Sprint& sprint) final;
 
 private:
-    enum class Columns {
-        Id = 0,
-        TodoUuid,
-        Name,
-        Tags,
-        StartTime,
-        FinishTime,
-        Uuid,
-    };
-    long long mQueryId{-1};
     DBService& dbService;
-    std::list<Handler> handler_queue;
-
-    Sprint pomodoroFromQSqlRecord(const QSqlRecord& record);
-
-    QVariant columnData(const QSqlRecord& record, Columns column);
-
-private slots:
-    void onResultsReceived(long long queryId,
-                           const std::vector<QSqlRecord>& records);
+    long long addQueryId{-1};
+    long long removeQueryId{-1};
 };
 
-
-#endif /* end of include guard: QTSQLITEPOMODOROSTORAGEREADER_H_JXULCJ6I */
+#endif /* end of include guard: QTSPRINTSTORAGEWRITER_H_U7AAXVTC */

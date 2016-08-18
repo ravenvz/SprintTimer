@@ -19,7 +19,7 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage_impl/QtPomoDistributionReader.h"
+#include "qt_storage_impl/QtSprintDistributionReader.h"
 #include "qt_storage_impl/PomodoroDatabase.h"
 #include "utils/DateTimeConverter.h"
 
@@ -61,7 +61,7 @@ void DistributionReaderBase::onResultsReceived(
     handler_queue.pop_front();
 }
 
-QtPomoDailyDistributionReader::QtPomoDailyDistributionReader(
+QtSprintDailyDistributionReader::QtSprintDailyDistributionReader(
     DBService& dbService)
     : DistributionReaderBase{dbService}
 {
@@ -79,7 +79,7 @@ QtPomoDailyDistributionReader::QtPomoDailyDistributionReader(
             .arg(CalendarTable::Columns::dt));
 }
 
-QtPomoWeeklyDistributionReader::QtPomoWeeklyDistributionReader(
+QtSprintWeeklyDistributionReader::QtSprintWeeklyDistributionReader(
     DBService& dbService)
     : DistributionReaderBase{dbService}
 {
@@ -96,7 +96,7 @@ QtPomoWeeklyDistributionReader::QtPomoWeeklyDistributionReader(
                                      .arg(CalendarTable::Columns::dt));
 }
 
-QtPomoMonthlyDistributionReader::QtPomoMonthlyDistributionReader(
+QtSprintMonthlyDistributionReader::QtSprintMonthlyDistributionReader(
     DBService& dbService)
     : DistributionReaderBase{dbService}
 {

@@ -19,26 +19,40 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSQLITEPOMODOROYEARRANGEREADER_H_6LK9HHEM
-#define QTSQLITEPOMODOROYEARRANGEREADER_H_6LK9HHEM
+#ifndef QTSPRINTSTORAGEREADER_H_JXULCJ6I
+#define QTSPRINTSTORAGEREADER_H_JXULCJ6I
 
-#include "core/IYearRangeReader.h"
+#include "core/ISprintStorageReader.h"
+#include "core/entities/Tag.h"
 #include "qt_storage_impl/db_service.h"
 #include <QObject>
-#include <functional>
 
-class QtPomoYearRangeReader : public QObject, public IYearRangeReader {
+
+class QtSprintStorageReader : public QObject, public ISprintStorageReader {
     Q_OBJECT
 
 public:
-    QtPomoYearRangeReader(DBService& dbService);
+    explicit QtSprintStorageReader(DBService& dbService);
 
-    void requestYearRange(Handler handler) final;
+    void requestItems(const TimeSpan& timeSpan, Handler handler) final;
 
 private:
-    DBService& dbService;
-    Handler handler;
+    enum class Columns {
+        Id = 0,
+        TodoUuid,
+        Name,
+        Tags,
+        StartTime,
+        FinishTime,
+        Uuid,
+    };
     long long mQueryId{-1};
+    DBService& dbService;
+    std::list<Handler> handler_queue;
+
+    Sprint sprintFromQSqlRecord(const QSqlRecord &record);
+
+    QVariant columnData(const QSqlRecord& record, Columns column);
 
 private slots:
     void onResultsReceived(long long queryId,
@@ -46,4 +60,5 @@ private slots:
 };
 
 
-#endif /* end of include guard: QTSQLITEPOMODOROYEARRANGEREADER_H_6LK9HHEM */
+#endif /* end of include guard: QTSPRINTSTORAGEREADER_H_JXULCJ6I */
+

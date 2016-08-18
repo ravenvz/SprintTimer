@@ -19,27 +19,31 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSQLITEPOMODOROSTORAGEWRITER_H_U7AAXVTC
-#define QTSQLITEPOMODOROSTORAGEWRITER_H_U7AAXVTC
+#ifndef QTYEARRANGEREADER_H_6LK9HHEM
+#define QTYEARRANGEREADER_H_6LK9HHEM
 
-#include "core/ISprintStorageWriter.h"
+#include "core/IYearRangeReader.h"
 #include "qt_storage_impl/db_service.h"
 #include <QObject>
+#include <functional>
 
-class QtPomoStorageWriter : public QObject, public ISprintStorageWriter {
+class QtYearRangeReader : public QObject, public IYearRangeReader {
     Q_OBJECT
 
 public:
-    explicit QtPomoStorageWriter(DBService& dbService);
+    QtYearRangeReader(DBService& dbService);
 
-    void save(const Sprint& pomodoro) final;
-
-    void remove(const Sprint& pomodoro) final;
+    void requestYearRange(Handler handler) final;
 
 private:
     DBService& dbService;
-    long long addQueryId{-1};
-    long long removeQueryId{-1};
+    Handler handler;
+    long long mQueryId{-1};
+
+private slots:
+    void onResultsReceived(long long queryId,
+                           const std::vector<QSqlRecord>& records);
 };
 
-#endif /* end of include guard: QTSQLITEPOMODOROSTORAGEWRITER_H_U7AAXVTC */
+
+#endif /* end of include guard: QTYEARRANGEREADER_H_6LK9HHEM */

@@ -42,8 +42,8 @@ private:
     enum class Column {
         Id,
         Name,
-        EstimatedPomodoros,
-        SpentPomodoros,
+        EstimatedCost,
+        ActualCost,
         Priority,
         Completed,
         Tags,

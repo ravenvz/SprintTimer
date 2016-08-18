@@ -19,12 +19,12 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage_impl/QtPomoStorageReader.h"
+#include "qt_storage_impl/QtSprintStorageReader.h"
 #include "qt_storage_impl/PomodoroDatabase.h"
 #include "utils/DateTimeConverter.h"
 
 
-QtPomoStorageReader::QtPomoStorageReader(DBService& dbService)
+QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
     : dbService{dbService}
 {
     mQueryId = dbService.prepare(QString{"SELECT %1, %2, %3, %4, %5, %6, %7 "
@@ -43,10 +43,10 @@ QtPomoStorageReader::QtPomoStorageReader(DBService& dbService)
     connect(&dbService,
             &DBService::results,
             this,
-            &QtPomoStorageReader::onResultsReceived);
+            &QtSprintStorageReader::onResultsReceived);
 }
 
-void QtPomoStorageReader::requestItems(const TimeSpan& timeSpan,
+void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
                                        Handler handler)
 {
     handler_queue.push_back(handler);
@@ -63,7 +63,7 @@ void QtPomoStorageReader::requestItems(const TimeSpan& timeSpan,
     dbService.executePrepared(mQueryId);
 }
 
-void QtPomoStorageReader::onResultsReceived(
+void QtSprintStorageReader::onResultsReceived(
     long long queryId, const std::vector<QSqlRecord>& records)
 {
     if (mQueryId != queryId) {
@@ -74,12 +74,12 @@ void QtPomoStorageReader::onResultsReceived(
         records.cbegin(),
         records.cend(),
         std::back_inserter(pomodoros),
-        [&](const auto& elem) { return this->pomodoroFromQSqlRecord(elem); });
+        [&](const auto& elem) { return this->sprintFromQSqlRecord(elem); });
     handler_queue.front()(pomodoros);
     handler_queue.pop_front();
 }
 
-Sprint QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
+Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord &record)
 {
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
@@ -101,7 +101,7 @@ Sprint QtPomoStorageReader::pomodoroFromQSqlRecord(const QSqlRecord& record)
     return Sprint{name.toStdString(), timeSpan, tags, uuid, taskUuid};
 }
 
-QVariant QtPomoStorageReader::columnData(const QSqlRecord& record,
+QVariant QtSprintStorageReader::columnData(const QSqlRecord& record,
                                          Columns column)
 {
     return record.value(static_cast<int>(column));

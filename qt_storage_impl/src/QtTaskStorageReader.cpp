@@ -126,8 +126,8 @@ Task QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
     std::string name{columnData(record, Column::Name).toString().toStdString()};
     std::string uuid{columnData(record, Column::Uuid).toString().toStdString()};
     int estimatedPomodoros{
-        columnData(record, Column::EstimatedPomodoros).toInt()};
-    int spentPomodoros{columnData(record, Column::SpentPomodoros).toInt()};
+        columnData(record, Column::EstimatedCost).toInt()};
+    int spentPomodoros{columnData(record, Column::ActualCost).toInt()};
     QStringList tagNames{columnData(record, Column::Tags)
                              .toString()
                              .split(",", QString::SkipEmptyParts)};

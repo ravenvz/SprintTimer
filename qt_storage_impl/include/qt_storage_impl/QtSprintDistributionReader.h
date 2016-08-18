@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSQLITEPOMODORODAILYDISTRIBUTIONREADER_H_TS4GUJR3
-#define QTSQLITEPOMODORODAILYDISTRIBUTIONREADER_H_TS4GUJR3
+#ifndef QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3
+#define QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3
 
 #include "core/ISprintDistributionReader.h"
 #include "qt_storage_impl/db_service.h"
@@ -50,21 +50,19 @@ protected:
 };
 
 
-class QtPomoDailyDistributionReader : public DistributionReaderBase {
+class QtSprintDailyDistributionReader : public DistributionReaderBase {
 public:
-    QtPomoDailyDistributionReader(DBService& dbService);
+    QtSprintDailyDistributionReader(DBService& dbService);
 };
 
-class QtPomoWeeklyDistributionReader : public DistributionReaderBase {
+class QtSprintWeeklyDistributionReader : public DistributionReaderBase {
 public:
-    QtPomoWeeklyDistributionReader(DBService& dbService);
+    QtSprintWeeklyDistributionReader(DBService& dbService);
 };
 
-class QtPomoMonthlyDistributionReader : public DistributionReaderBase {
+class QtSprintMonthlyDistributionReader : public DistributionReaderBase {
 public:
-    QtPomoMonthlyDistributionReader(DBService& dbService);
+    QtSprintMonthlyDistributionReader(DBService& dbService);
 };
 
-
-#endif /* end of include guard:                                                \
-          QTSQLITEPOMODORODAILYDISTRIBUTIONREADER_H_TS4GUJR3 */
+#endif /* end of include guard: QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3 */

@@ -19,20 +19,20 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage_impl/QtPomoYearRangeReader.h"
+#include "qt_storage_impl/QtYearRangeReader.h"
 #include "qt_storage_impl/PomodoroDatabase.h"
 
 
-QtPomoYearRangeReader::QtPomoYearRangeReader(DBService& dbService)
+QtYearRangeReader::QtYearRangeReader(DBService& dbService)
     : dbService{dbService}
 {
     connect(&dbService,
             &DBService::results,
             this,
-            &QtPomoYearRangeReader::onResultsReceived);
+            &QtYearRangeReader::onResultsReceived);
 }
 
-void QtPomoYearRangeReader::requestYearRange(Handler handler)
+void QtYearRangeReader::requestYearRange(Handler handler)
 {
     this->handler = handler;
     mQueryId = dbService.executeQuery(QString{
@@ -41,7 +41,7 @@ void QtPomoYearRangeReader::requestYearRange(Handler handler)
                                           .arg(PomodoroTable::name));
 }
 
-void QtPomoYearRangeReader::onResultsReceived(
+void QtYearRangeReader::onResultsReceived(
     long long queryId, const std::vector<QSqlRecord>& records)
 {
     if (mQueryId != queryId) {

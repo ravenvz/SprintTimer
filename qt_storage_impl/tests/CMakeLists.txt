@@ -6,9 +6,9 @@ set(SOURCE_FILES
     run_all_tests.cpp
     test_pomodoro_storage.cpp
     # ../src/QtPomoDistributionReader.cpp
-    # ../src/QtPomoStorageReader.cpp
-    # ../src/QtPomoStorageWriter.cpp
-    # ../src/QtPomoYearRangeReader.cpp
+    # ../src/QtSprintStorageReader.cpp
+    # ../src/QtSprintStorageWriter.cpp
+    # ../src/QtYearRangeReader.cpp
     # ../src/QtTaskStorageWriter.cpp
     # ../src/db_service.cpp
 )
@@ -16,10 +16,10 @@ set(SOURCE_FILES
 # this is required as headers and sources are in different directories
 set(HEADER_FILES_FOR_AUTOMOC_TO_WORK
     ../include/qt_storage_impl/db_service.h
-    ../include/qt_storage_impl/QtPomoDistributionReader.h
-    ../include/qt_storage_impl/QtPomoStorageReader.h
-    ../include/qt_storage_impl/QtPomoStorageWriter.h
-    ../include/qt_storage_impl/QtPomoYearRangeReader.h
+        ../include/qt_storage_impl/QtSprintDistributionReader.h
+        ../include/qt_storage_impl/QtSprintStorageReader.h
+        ../include/qt_storage_impl/QtSprintStorageWriter.h
+        ../include/qt_storage_impl/QtYearRangeReader.h
     ../include/qt_storage_impl/QtTaskStorageWriter.h
 )
 

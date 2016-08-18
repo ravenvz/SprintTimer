@@ -19,12 +19,12 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage_impl/QtPomoStorageWriter.h"
+#include "qt_storage_impl/QtSprintStorageWriter.h"
 #include "qt_storage_impl/PomodoroDatabase.h"
 #include "utils/DateTimeConverter.h"
 
 
-QtPomoStorageWriter::QtPomoStorageWriter(DBService& dbService)
+QtSprintStorageWriter::QtSprintStorageWriter(DBService& dbService)
     : dbService{dbService}
 {
     addQueryId = dbService.prepare(
@@ -41,26 +41,26 @@ QtPomoStorageWriter::QtPomoStorageWriter(DBService& dbService)
                                 .arg(PomodoroTable::Columns::uuid));
 }
 
-void QtPomoStorageWriter::save(const Sprint& pomodoro)
+void QtSprintStorageWriter::save(const Sprint& sprint)
 {
     QDateTime startTime
-        = DateTimeConverter::qDateTime(pomodoro.timeSpan().startTime);
+        = DateTimeConverter::qDateTime(sprint.timeSpan().startTime);
     QDateTime finishTime
-        = DateTimeConverter::qDateTime(pomodoro.timeSpan().finishTime);
+        = DateTimeConverter::qDateTime(sprint.timeSpan().finishTime);
     dbService.bind(addQueryId,
                    ":todo_uuid",
-                   QVariant(QString::fromStdString(pomodoro.taskUuid())));
+                   QVariant(QString::fromStdString(sprint.taskUuid())));
     dbService.bind(addQueryId, ":startTime", QVariant(startTime));
     dbService.bind(addQueryId, ":finishTime", QVariant(finishTime));
     dbService.bind(
-        addQueryId, ":uuid", QVariant(QString::fromStdString(pomodoro.uuid())));
+        addQueryId, ":uuid", QVariant(QString::fromStdString(sprint.uuid())));
     dbService.executePrepared(addQueryId);
 }
 
-void QtPomoStorageWriter::remove(const Sprint& pomodoro)
+void QtSprintStorageWriter::remove(const Sprint& sprint)
 {
     dbService.bind(removeQueryId,
                    ":uuid",
-                   QVariant(QString::fromStdString(pomodoro.uuid())));
+                   QVariant(QString::fromStdString(sprint.uuid())));
     dbService.executePrepared(removeQueryId);
 }
