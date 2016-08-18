@@ -113,7 +113,7 @@ void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
 void DailyTimelineGraph::updateLegend(
     const Distribution<double>& dailyDistribution)
 {
-    ui->labelTotalPomodoros->setText(
+    ui->labelTotalSprints->setText(
         QString("%1").arg(dailyDistribution.getTotal()));
     ui->labelDailyAverage->setText(
         QString("%1").arg(dailyDistribution.getAverage(), 2, 'f', 2, '0'));

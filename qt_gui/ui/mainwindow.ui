@@ -236,9 +236,9 @@
       </layout>
      </item>
      <item row="2" column="2">
-      <widget class="QPushButton" name="pbAddPomodoroManually">
+      <widget class="QPushButton" name="pbAddSprintManually">
        <property name="text">
-        <string>Add Pomodoro manually</string>
+        <string>Add Sprint manually</string>
        </property>
       </widget>
      </item>

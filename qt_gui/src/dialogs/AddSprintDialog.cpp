@@ -19,56 +19,56 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "dialogs/manualaddpomodorodialog.h"
-#include "models/PomodoroModel.h"
+#include "dialogs/AddSprintDialog.h"
+#include "models/SprintModel.h"
 #include "utils/DateTimeConverter.h"
-#include "ui_manual_add_pomodoro_dialog.h"
+#include "ui_add_sprint_dialog.h"
 
 
-PomodoroManualAddDialog::PomodoroManualAddDialog(PomodoroModel* pomodoroModel,
+AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
                                                  TaskModel* taskModel,
-                                                 int pomodoroDuration,
+                                                 int sprintDuration,
                                                  QDialog* parent)
     : QDialog(parent)
-    , ui(new Ui::PomodoroManualAddDialog)
-    , pomodoroModel(pomodoroModel)
+    , ui(new Ui::AddSprintDialog)
+    , sprintModel(sprintModel)
     , taskModel(taskModel)
-    , pomodoroDuration(pomodoroDuration)
+    , sprintDuration(sprintDuration)
 {
     ui->setupUi(this);
     setData();
     connectSlots();
 }
 
-PomodoroManualAddDialog::~PomodoroManualAddDialog() { delete ui; }
+AddSprintDialog::~AddSprintDialog() { delete ui; }
 
-void PomodoroManualAddDialog::setData()
+void AddSprintDialog::setData()
 {
     ui->cbPickTask->setModel(taskModel);
-    ui->dateEditPomodoroDate->setDate(QDate::currentDate());
+    ui->dateEditSprintDate->setDate(QDate::currentDate());
 }
 
-void PomodoroManualAddDialog::connectSlots()
+void AddSprintDialog::connectSlots()
 {
-    connect(ui->timeEditPomodoroStartTime,
+    connect(ui->timeEditSprintStartTime,
             SIGNAL(timeChanged(QTime)),
             this,
             SLOT(autoAdjustFinishTime()));
 }
 
-void PomodoroManualAddDialog::autoAdjustFinishTime()
+void AddSprintDialog::autoAdjustFinishTime()
 {
-    QDateTime adjustedTime = ui->timeEditPomodoroStartTime->dateTime().addSecs(
-        pomodoroDuration * 60);
-    ui->timeEditPomodoroFinishTime->setDateTime(adjustedTime);
+    QDateTime adjustedTime = ui->timeEditSprintStartTime->dateTime().addSecs(
+        sprintDuration * 60);
+    ui->timeEditSprintFinishTime->setDateTime(adjustedTime);
 }
 
-void PomodoroManualAddDialog::accept()
+void AddSprintDialog::accept()
 {
     QDateTime startTime
-        = ui->timeEditPomodoroStartTime->dateTime().toTimeSpec(Qt::LocalTime);
+        = ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
     QDateTime finishTime
-        = ui->timeEditPomodoroFinishTime->dateTime().toTimeSpec(Qt::LocalTime);
+        = ui->timeEditSprintFinishTime->dateTime().toTimeSpec(Qt::LocalTime);
     if (startTime >= finishTime) {
         autoAdjustFinishTime();
     }
@@ -76,7 +76,7 @@ void PomodoroManualAddDialog::accept()
     const std::string taskUuid
         = taskModel->itemAt(ui->cbPickTask->currentIndex())
               .uuid();
-    pomodoroModel->insert(TimeSpan{DateTimeConverter::dateTime(startTime),
+    sprintModel->insert(TimeSpan{DateTimeConverter::dateTime(startTime),
                                    DateTimeConverter::dateTime(finishTime)},
                           taskUuid);
     QDialog::accept();

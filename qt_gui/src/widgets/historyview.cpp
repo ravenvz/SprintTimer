@@ -46,39 +46,39 @@ void HistoryViewDelegate::paint(QPainter* painter,
     }
 }
 
-HistoryView::HistoryView(ICoreService& pomodoroService, QWidget* parent)
+HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
     : DataWidget(parent)
-    , ui(new Ui::HistoryView)
-    , pomodoroService{pomodoroService}
-    , historyStatePomodoro{std::make_unique<HistoryStatePomodoro>(*this)}
-    , historyStateTask{std::make_unique<HistoryStateTask>(*this)}
+    , ui(new Ui::HistoryWindow)
+    , coreService{coreService}
+    , displaySprintsState{std::make_unique<DiplaySprints>(*this)}
+    , displayTasksState{std::make_unique<DisplayTasks>(*this)}
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    pomodoroService.yearRange(std::bind(
-            &HistoryView::onYearRangeUpdated, this, std::placeholders::_1));
+    coreService.yearRange(std::bind(
+            &HistoryWindow::onYearRangeUpdated, this, std::placeholders::_1));
     selectedDateInterval = ui->widgetPickPeriod->getInterval();
     viewModel = new QStandardItemModel(this);
-    ui->lvTodoHistory->setHeaderHidden(true);
-    ui->lvPomodoroHistory->setHeaderHidden(true);
-    ui->lvPomodoroHistory->setItemDelegate(new HistoryViewDelegate(this));
-    ui->lvTodoHistory->setItemDelegate(new HistoryViewDelegate(this));
-    historyState = historyStateTask.get();
+    ui->lvTaskHistory->setHeaderHidden(true);
+    ui->lvSprintHistory->setHeaderHidden(true);
+    ui->lvSprintHistory->setItemDelegate(new HistoryViewDelegate(this));
+    ui->lvTaskHistory->setItemDelegate(new HistoryViewDelegate(this));
+    historyState = displayTasksState.get();
     connect(ui->twHistoryDisplay,
             &QTabWidget::currentChanged,
             this,
-            &HistoryView::onTabSelected);
+            &HistoryWindow::onTabSelected);
     connect(ui->widgetPickPeriod,
             SIGNAL(timeSpanChanged(DateInterval)),
             this,
             SLOT(onDatePickerIntervalChanged(DateInterval)));
 }
 
-HistoryView::~HistoryView() { delete ui; }
+HistoryWindow::~HistoryWindow() { delete ui; }
 
-void HistoryView::synchronize() { historyState->retrieveHistory(); }
+void HistoryWindow::synchronize() { historyState->retrieveHistory(); }
 
-void HistoryView::fillHistoryModel(const std::vector<HistoryItem>& history)
+void HistoryWindow::fillHistoryModel(const std::vector<HistoryItem>& history)
 {
     // QStandardItemModel takes ownership of items that are added with
     // appendRow()
@@ -108,88 +108,88 @@ void HistoryView::fillHistoryModel(const std::vector<HistoryItem>& history)
     }
 }
 
-void HistoryView::onDatePickerIntervalChanged(DateInterval newInterval)
+void HistoryWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 {
     selectedDateInterval = newInterval;
     synchronize();
 }
 
-void HistoryView::onTabSelected(int tabIndex)
+void HistoryWindow::onTabSelected(int tabIndex)
 {
-    if (tabIndex == pomodoroTabIndex) {
-        historyState = historyStatePomodoro.get();
+    if (tabIndex == sprintTabIndex) {
+        historyState = displaySprintsState.get();
     }
     if (tabIndex == taskTabIndex) {
-        historyState = historyStateTask.get();
+        historyState = displayTasksState.get();
     }
     synchronize();
 }
 
-void HistoryView::onYearRangeUpdated(const std::vector<std::string>& yearRange)
+void HistoryWindow::onYearRangeUpdated(const std::vector<std::string>& yearRange)
 {
     ui->widgetPickPeriod->setYears(yearRange);
 }
 
-void HistoryView::setHistoryModel(QTreeView* view)
+void HistoryWindow::setHistoryModel(QTreeView* view)
 {
     view->setModel(viewModel);
     view->expandAll();
     view->show();
 }
 
-HistoryState::HistoryState(HistoryView& historyView)
+DisplayState::DisplayState(HistoryWindow& historyView)
     : historyView{historyView}
 {
 }
 
-HistoryStatePomodoro::HistoryStatePomodoro(HistoryView& historyView)
-    : HistoryState{historyView}
+DiplaySprints::DiplaySprints(HistoryWindow& historyView)
+    : DisplayState{historyView}
 {
 }
 
-HistoryStateTask::HistoryStateTask(HistoryView& historyView)
-    : HistoryState{historyView}
+DisplayTasks::DisplayTasks(HistoryWindow& historyView)
+    : DisplayState{historyView}
 {
 }
 
-void HistoryStatePomodoro::retrieveHistory()
+void DiplaySprints::retrieveHistory()
 {
-    historyView.pomodoroService.sprintsInTimeRange(
+    historyView.coreService.sprintsInTimeRange(
             historyView.selectedDateInterval.toTimeSpan(),
-            std::bind(&HistoryStatePomodoro::onHistoryRetrieved,
+            std::bind(&DiplaySprints::onHistoryRetrieved,
                       this,
                       std::placeholders::_1));
 }
 
-void HistoryStateTask::retrieveHistory()
+void DisplayTasks::retrieveHistory()
 {
-    historyView.pomodoroService.requestFinishedTasks(
+    historyView.coreService.requestFinishedTasks(
         historyView.selectedDateInterval.toTimeSpan(),
-        std::bind(&HistoryStateTask::onHistoryRetrieved,
+        std::bind(&DisplayTasks::onHistoryRetrieved,
                   this,
                   std::placeholders::_1));
 }
 
-void HistoryStatePomodoro::onHistoryRetrieved(
-    const std::vector<Sprint>& pomodoros)
+void DiplaySprints::onHistoryRetrieved(
+    const std::vector<Sprint>& sprints)
 {
-    std::vector<HistoryView::HistoryItem> pomodoroHistory;
-    pomodoroHistory.reserve(pomodoros.size());
-    std::transform(pomodoros.cbegin(),
-                   pomodoros.cend(),
-                   std::back_inserter(pomodoroHistory),
-                   [](const auto& pomo) {
+    std::vector<HistoryWindow::HistoryItem> sprintHistory;
+    sprintHistory.reserve(sprints.size());
+    std::transform(sprints.cbegin(),
+                   sprints.cend(),
+                   std::back_inserter(sprintHistory),
+                   [](const auto& sprint) {
                        return std::make_pair(
-                           DateTimeConverter::qDate(pomo.startTime()),
-                           QString::fromStdString(pomo.toString()));
+                           DateTimeConverter::qDate(sprint.startTime()),
+                           QString::fromStdString(sprint.toString()));
                    });
-    historyView.fillHistoryModel(pomodoroHistory);
-    historyView.setHistoryModel(historyView.ui->lvPomodoroHistory);
+    historyView.fillHistoryModel(sprintHistory);
+    historyView.setHistoryModel(historyView.ui->lvSprintHistory);
 }
 
-void HistoryStateTask::onHistoryRetrieved(const std::vector<Task>& tasks)
+void DisplayTasks::onHistoryRetrieved(const std::vector<Task>& tasks)
 {
-    std::vector<HistoryView::HistoryItem> taskHistory;
+    std::vector<HistoryWindow::HistoryItem> taskHistory;
     taskHistory.reserve(tasks.size());
     std::transform(tasks.cbegin(),
                    tasks.cend(),
@@ -201,5 +201,5 @@ void HistoryStateTask::onHistoryRetrieved(const std::vector<Task>& tasks)
                    });
 
     historyView.fillHistoryModel(taskHistory);
-    historyView.setHistoryModel(historyView.ui->lvTodoHistory);
+    historyView.setHistoryModel(historyView.ui->lvTaskHistory);
 }

@@ -23,7 +23,7 @@
 #define POMODOROVIEW_H_TMGU1KAJ
 
 #include "dialogs/confirmationdialog.h"
-#include "models/PomodoroModel.h"
+#include "models/SprintModel.h"
 #include <QListView>
 #include <QMenu>
 

@@ -32,10 +32,10 @@
 #include <QTreeView>
 
 namespace Ui {
-class HistoryView;
+class HistoryWindow;
 }
 
-class HistoryState;
+class DisplayState;
 
 class HistoryViewDelegate : public QStyledItemDelegate {
 public:
@@ -47,31 +47,31 @@ public:
                const QModelIndex& index) const override;
 };
 
-class HistoryView : public DataWidget {
+class HistoryWindow: public DataWidget {
     Q_OBJECT
 
-    friend class HistoryStatePomodoro;
-    friend class HistoryStateTask;
+    friend class DiplaySprints;
+    friend class DisplayTasks;
 
 public:
     using HistoryItem = std::pair<QDate, QString>;
 
-    explicit HistoryView(ICoreService& pomodoroService,
+    explicit HistoryWindow(ICoreService& coreService,
                          QWidget* parent = nullptr);
 
-    ~HistoryView();
+    ~HistoryWindow();
 
     void synchronize() final;
 
 private:
-    Ui::HistoryView* ui;
+    Ui::HistoryWindow* ui;
     DateInterval selectedDateInterval;
-    ICoreService& pomodoroService;
+    ICoreService& coreService;
     QPointer<QStandardItemModel> viewModel;
-    std::unique_ptr<HistoryState> historyStatePomodoro;
-    std::unique_ptr<HistoryState> historyStateTask;
-    HistoryState* historyState;
-    const int pomodoroTabIndex{0};
+    std::unique_ptr<DisplayState> displaySprintsState;
+    std::unique_ptr<DisplayState> displayTasksState;
+    DisplayState* historyState;
+    const int sprintTabIndex{0};
     const int taskTabIndex{1};
 
     // Fill history model with data.
@@ -92,31 +92,31 @@ private slots:
     void setHistoryModel(QTreeView* view);
 };
 
-class HistoryState {
+class DisplayState {
 public:
-    explicit HistoryState(HistoryView& historyView);
+    explicit DisplayState(HistoryWindow& historyView);
 
-    virtual ~HistoryState() = default;
+    virtual ~DisplayState() = default;
 
     virtual void retrieveHistory() = 0;
 
 protected:
-    HistoryView& historyView;
+    HistoryWindow& historyView;
 };
 
-class HistoryStatePomodoro : public HistoryState {
+class DiplaySprints : public DisplayState {
 public:
-    explicit HistoryStatePomodoro(HistoryView& historyView);
+    explicit DiplaySprints(HistoryWindow& historyView);
 
     void retrieveHistory() final;
 
     /* Assumes that pomodoros are sorted by start time. */
-    void onHistoryRetrieved(const std::vector<Sprint>& pomodoros);
+    void onHistoryRetrieved(const std::vector<Sprint>& sprints);
 };
 
-class HistoryStateTask : public HistoryState {
+class DisplayTasks : public DisplayState {
 public:
-    HistoryStateTask(HistoryView& historyView);
+    DisplayTasks(HistoryWindow& historyView);
 
     void retrieveHistory() final;
 

@@ -21,7 +21,7 @@ QT5_WRAP_UI(UI_HEADERS
         ui/history.ui
         ui/date_pick_dialog.ui
         ui/statistics_window.ui
-        ui/manual_add_pomodoro_dialog.ui
+        ui/add_sprint_dialog.ui
         ui/pickperiodwidget.ui
         ui/tageditor.ui
         ui/default_timer.ui

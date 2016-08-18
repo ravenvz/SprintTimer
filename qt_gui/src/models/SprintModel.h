@@ -19,18 +19,18 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef POMODOROMODELNEW_H_MQZ2XAPI
-#define POMODOROMODELNEW_H_MQZ2XAPI
+#ifndef SPRINTMODEL_H_MQZ2XAPI
+#define SPRINTMODEL_H_MQZ2XAPI
 
 #include "core/ICoreService.h"
 #include "models/AsyncListModel.h"
 #include <memory>
 #include <vector>
 
-class PomodoroModel : public AsyncListModel {
+class SprintModel : public AsyncListModel {
     Q_OBJECT
 public:
-    PomodoroModel(ICoreService& pomodoroService,
+    SprintModel(ICoreService& coreService,
                            QObject* parent);
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const final;
@@ -50,9 +50,9 @@ protected:
 private:
     std::vector<Sprint> storage;
     TimeSpan interval;
-    ICoreService& pomodoroService;
+    ICoreService& coreService;
 
     void onDataChanged(const std::vector<Sprint>& items);
 };
 
-#endif /* end of include guard: POMODOROMODELNEW_H_MQZ2XAPI */
+#endif /* end of include guard: SPRINTMODEL_H_MQZ2XAPI */

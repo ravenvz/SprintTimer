@@ -157,7 +157,6 @@
         </layout>
        </widget>
        <zorder>gridLayoutWidget_3</zorder>
-       <zorder>verticalLayoutWidget</zorder>
       </widget>
      </item>
      <item>

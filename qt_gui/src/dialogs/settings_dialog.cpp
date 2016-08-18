@@ -24,6 +24,7 @@
 #include "ui_settings.h"
 #include <QFileDialog>
 #include <QStringListModel>
+#include <QtWidgets/QGroupBox>
 
 
 SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
@@ -34,19 +35,21 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
     ui->setupUi(this);
     timerModel = new QStringListModel{timers, this};
     ui->cbxTimerVariation->setModel(timerModel);
-    connect(this, SIGNAL(accepted()), this, SLOT(storeSettingsData()));
-    connect(ui->chBxPlaySound,
-            SIGNAL(stateChanged(int)),
+    connect(this, &QDialog::accepted, this, &SettingsDialog::storeSettingsData);
+    connect(ui->gbSoundSettings,
+            &QGroupBox::toggled,
             this,
-            SLOT(toggleVolumeControlVisibility()));
+            &SettingsDialog::toggleVolumeControlVisibility);
     connect(ui->pbBrowseSoundFile,
             &QPushButton::clicked,
             this,
             &SettingsDialog::onBrowseSoundFileButtonClicked);
-    connect(ui->lePathToSoundFile, &QLineEdit::returnPressed, [&]() {
-        applicationSettings.setSoundFilePath(
-            ui->lePathToSoundFile->text().toStdString());
-    });
+    connect(ui->lePathToSoundFile,
+            &QLineEdit::returnPressed,
+            [&]() {
+                applicationSettings.setSoundFilePath(
+                ui->lePathToSoundFile->text().toStdString());
+            });
     connect(ui->cbxTimerVariation,
             static_cast<void (QComboBox::*)(const QString&)>(
                 &QComboBox::currentIndexChanged),
@@ -61,12 +64,12 @@ SettingsDialog::~SettingsDialog() { delete ui; }
 
 void SettingsDialog::fillSettingsData()
 {
-    ui->spBxPomodoroDuration->setValue(applicationSettings.sprintDuration());
+    ui->spBxSprintDuration->setValue(applicationSettings.sprintDuration());
     ui->spBxShortDuration->setValue(applicationSettings.shortBreakDuration());
     ui->spBxLongDuration->setValue(applicationSettings.longBreakDuration());
     ui->spBxLongBreakAfter->setValue(
             applicationSettings.numSprintsBeforeBreak());
-    ui->chBxPlaySound->setChecked(applicationSettings.soundIsEnabled());
+    ui->gbSoundSettings->setChecked(applicationSettings.soundIsEnabled());
     ui->lePathToSoundFile->setText(
         QString::fromStdString(applicationSettings.soundFilePath()));
     ui->hSliderVolume->setValue(applicationSettings.soundVolume());
@@ -77,12 +80,12 @@ void SettingsDialog::fillSettingsData()
 
 void SettingsDialog::storeSettingsData()
 {
-    applicationSettings.setSprintDuration(ui->spBxPomodoroDuration->value());
+    applicationSettings.setSprintDuration(ui->spBxSprintDuration->value());
     applicationSettings.setShortBreakDuration(ui->spBxShortDuration->value());
     applicationSettings.setLongBreakDuration(ui->spBxLongDuration->value());
     applicationSettings.setNumSprintsBeforeBreak(
             ui->spBxLongBreakAfter->value());
-    applicationSettings.setPlaySound(ui->chBxPlaySound->isChecked());
+    applicationSettings.setPlaySound(ui->gbSoundSettings->isChecked());
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
     applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());
 }
@@ -90,10 +93,10 @@ void SettingsDialog::storeSettingsData()
 
 void SettingsDialog::toggleVolumeControlVisibility()
 {
-    ui->lblSoundVolume->setEnabled(ui->chBxPlaySound->isChecked());
-    ui->hSliderVolume->setEnabled(ui->chBxPlaySound->isChecked());
-    ui->lePathToSoundFile->setEnabled(ui->chBxPlaySound->isChecked());
-    ui->pbBrowseSoundFile->setEnabled(ui->chBxPlaySound->isChecked());
+    ui->lblSoundVolume->setEnabled(ui->gbSoundSettings->isChecked());
+    ui->hSliderVolume->setEnabled(ui->gbSoundSettings->isChecked());
+    ui->lePathToSoundFile->setEnabled(ui->gbSoundSettings->isChecked());
+    ui->pbBrowseSoundFile->setEnabled(ui->gbSoundSettings->isChecked());
 }
 
 

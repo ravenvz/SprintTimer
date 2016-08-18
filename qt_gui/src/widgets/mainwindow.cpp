@@ -22,7 +22,7 @@
 #include "mainwindow.h"
 #include "dialogs/AddTaskDialog.h"
 #include "dialogs/confirmationdialog.h"
-#include "dialogs/manualaddpomodorodialog.h"
+#include "dialogs/AddSprintDialog.h"
 #include "dialogs/settings_dialog.h"
 #include "ui_mainwindow.h"
 #include "widgets/DefaultTimer.h"
@@ -52,7 +52,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
         timerWidget = new FancyTimer{applicationSettings, this};
     ui->gridLayout->addWidget(
         timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
-    pomodoroModel = new PomodoroModel(pomodoroService, this);
+    pomodoroModel = new SprintModel(pomodoroService, this);
     ui->lvCompletedPomodoros->setModel(pomodoroModel);
     ui->lvCompletedPomodoros->setContextMenuPolicy(Qt::CustomContextMenu);
     taskModel = new TaskModel(pomodoroService, this);
@@ -94,12 +94,12 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &QPushButton::clicked,
             this,
             &MainWindow::launchStatisticsView);
-    connect(ui->pbAddPomodoroManually,
+    connect(ui->pbAddSprintManually,
             &QPushButton::clicked,
             this,
             &MainWindow::launchManualAddPomodoroDialog);
     connect(pomodoroModel,
-            &PomodoroModel::modelReset,
+            &SprintModel::modelReset,
             this,
             &MainWindow::updateDailyProgress);
 
@@ -178,7 +178,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::adjustAddPomodoroButtonState()
 {
-    ui->pbAddPomodoroManually->setEnabled(taskModel->rowCount() != 0);
+    ui->pbAddSprintManually->setEnabled(taskModel->rowCount() != 0);
 }
 
 void MainWindow::bringToForeground(QWidget* widgetPtr) const
@@ -241,7 +241,7 @@ void MainWindow::launchSettingsDialog()
 void MainWindow::launchHistoryView()
 {
     if (!historyView) {
-        historyView = new HistoryView(pomodoroService);
+        historyView = new HistoryWindow(pomodoroService);
         connect(pomodoroModel,
                 &AsyncListModel::updateFinished,
                 historyView,
@@ -280,8 +280,6 @@ void MainWindow::launchGoalsView()
 void MainWindow::launchStatisticsView()
 {
     if (!statisticsView) {
-        //        statisticsView = new NewStatisticsWidget(applicationSettings,
-        //        coreService);
         statisticsView
             = new StatisticsWindow(applicationSettings, pomodoroService);
         connect(pomodoroModel,
@@ -305,7 +303,7 @@ void MainWindow::launchStatisticsView()
 
 void MainWindow::launchManualAddPomodoroDialog()
 {
-    PomodoroManualAddDialog dialog{
+    AddSprintDialog dialog{
         pomodoroModel, taskModel, applicationSettings.sprintDuration()};
     dialog.exec();
 }
@@ -332,8 +330,7 @@ void MainWindow::onUndoButtonClicked()
 
 void MainWindow::adjustUndoButtonState()
 {
-    ui->pbUndo->setEnabled(pomodoroService.numRevertableCommands() == 0 ? false
-                                                                        : true);
+    ui->pbUndo->setEnabled(pomodoroService.numRevertableCommands() != 0);
 }
 
 QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }
@@ -378,7 +375,7 @@ void Expanded::setStateUi()
     widget.ui->lvCompletedPomodoros->setVisible(true);
     widget.ui->pbAddTask->setVisible(true);
     widget.ui->leQuickAddTask->setVisible(true);
-    widget.ui->pbAddPomodoroManually->setVisible(true);
+    widget.ui->pbAddSprintManually->setVisible(true);
     widget.ui->pbStatistics->setVisible(true);
     widget.ui->pbHistory->setVisible(true);
     widget.ui->pbGoals->setVisible(true);
@@ -410,7 +407,7 @@ void Shrinked::setStateUi()
     widget.ui->lvCompletedPomodoros->setVisible(false);
     widget.ui->pbAddTask->setVisible(false);
     widget.ui->leQuickAddTask->setVisible(false);
-    widget.ui->pbAddPomodoroManually->setVisible(false);
+    widget.ui->pbAddSprintManually->setVisible(false);
     widget.ui->pbStatistics->setVisible(false);
     widget.ui->pbHistory->setVisible(false);
     widget.ui->pbGoals->setVisible(false);
@@ -442,7 +439,7 @@ void ExpandedMenuOnly::setStateUi()
     widget.ui->lvCompletedPomodoros->setVisible(false);
     widget.ui->pbAddTask->setVisible(false);
     widget.ui->leQuickAddTask->setVisible(false);
-    widget.ui->pbAddPomodoroManually->setVisible(false);
+    widget.ui->pbAddSprintManually->setVisible(false);
     widget.ui->pbStatistics->setVisible(true);
     widget.ui->pbHistory->setVisible(true);
     widget.ui->pbGoals->setVisible(true);
@@ -474,7 +471,7 @@ void ExpandedWithoutMenu::setStateUi()
     widget.ui->lvCompletedPomodoros->setVisible(true);
     widget.ui->pbAddTask->setVisible(true);
     widget.ui->leQuickAddTask->setVisible(true);
-    widget.ui->pbAddPomodoroManually->setVisible(true);
+    widget.ui->pbAddSprintManually->setVisible(true);
     widget.ui->pbStatistics->setVisible(false);
     widget.ui->pbHistory->setVisible(false);
     widget.ui->pbGoals->setVisible(false);

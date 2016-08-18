@@ -19,23 +19,23 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "models/PomodoroModel.h"
+#include "models/SprintModel.h"
 
-PomodoroModel::PomodoroModel(ICoreService& pomodoroService, QObject* parent)
+SprintModel::SprintModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel(parent)
     , interval{TimeSpan{DateTime::currentDateTime(),
                         DateTime::currentDateTime()}}
-    , pomodoroService{pomodoroService}
+    , coreService{coreService}
 {
     synchronize();
 }
 
-int PomodoroModel::rowCount(const QModelIndex& parent) const
+int SprintModel::rowCount(const QModelIndex& parent) const
 {
     return static_cast<int>(storage.size());
 }
 
-QVariant PomodoroModel::data(const QModelIndex& index, int role) const
+QVariant SprintModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -50,33 +50,33 @@ QVariant PomodoroModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void PomodoroModel::setDateFilter(const TimeSpan& timeSpan)
+void SprintModel::setDateFilter(const TimeSpan& timeSpan)
 {
     interval = timeSpan;
     requestDataUpdate();
 }
 
-void PomodoroModel::insert(const TimeSpan& timeSpan,
+void SprintModel::insert(const TimeSpan& timeSpan,
                            const std::string& taskUuid)
 {
-    pomodoroService.registerSprint(timeSpan, taskUuid);
+    coreService.registerSprint(timeSpan, taskUuid);
     requestDataUpdate();
 }
 
-void PomodoroModel::remove(int row)
+void SprintModel::remove(int row)
 {
-    pomodoroService.removeSprint(storage[static_cast<size_t>(row)]);
+    coreService.removeSprint(storage[static_cast<size_t>(row)]);
     requestDataUpdate();
 }
 
-void PomodoroModel::requestDataUpdate()
+void SprintModel::requestDataUpdate()
 {
-    pomodoroService.sprintsInTimeRange(
+    coreService.sprintsInTimeRange(
             interval,
-            std::bind(&PomodoroModel::onDataChanged, this, std::placeholders::_1));
+            std::bind(&SprintModel::onDataChanged, this, std::placeholders::_1));
 }
 
-void PomodoroModel::onDataChanged(const std::vector<Sprint>& items)
+void SprintModel::onDataChanged(const std::vector<Sprint>& items)
 {
     beginResetModel();
     storage = items;

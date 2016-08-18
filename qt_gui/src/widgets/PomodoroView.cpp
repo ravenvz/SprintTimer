@@ -52,6 +52,6 @@ void PomodoroView::removePomodoro()
     QString description{"This will remove sprint permanently"};
     dialog.setActionDescription(description);
     if (dialog.exec()) {
-        dynamic_cast<PomodoroModel*>(model())->remove(index.row());
+        dynamic_cast<SprintModel*>(model())->remove(index.row());
     }
 }

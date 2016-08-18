@@ -19,40 +19,40 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef MANUALADDPOMODORODIALOG_H
-#define MANUALADDPOMODORODIALOG_H
+#ifndef ADDSPRINTDIALOG_H
+#define ADDSPRINTDIALOG_H
 
-#include "models/PomodoroModel.h"
+#include "models/SprintModel.h"
 #include "src/models/TaskModel.h"
 #include <QDialog>
 #include <QPointer>
 
 namespace Ui {
-class PomodoroManualAddDialog;
+class AddSprintDialog;
 }
 
-class PomodoroManualAddDialog : public QDialog {
+class AddSprintDialog : public QDialog {
     Q_OBJECT
 
 public:
-    PomodoroManualAddDialog(PomodoroModel* pomodoroModel,
+    AddSprintDialog(SprintModel* sprintModel,
                             TaskModel* taskModel,
-                            int pomodoroDuration,
+                            int sprintDuration,
                             QDialog* parent = nullptr);
-    ~PomodoroManualAddDialog();
+    ~AddSprintDialog();
     void accept() override;
 
 private slots:
     void autoAdjustFinishTime();
 
 private:
-    Ui::PomodoroManualAddDialog* ui;
-    QPointer<PomodoroModel> pomodoroModel;
+    Ui::AddSprintDialog* ui;
+    QPointer<SprintModel> sprintModel;
     QPointer<TaskModel> taskModel;
-    int pomodoroDuration;
+    int sprintDuration;
 
     void setData();
     void connectSlots();
 };
 
-#endif // MANUALADDPOMODORODIALOG_H
+#endif // ADDSPRINTDIALOG_H

@@ -27,7 +27,7 @@
 #include "core/IYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
 #include "historyview.h"
-#include "models/PomodoroModel.h"
+#include "models/SprintModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
 #include "StatisticsWindow.h"
@@ -66,7 +66,7 @@ private:
     Ui::MainWindow* ui;
     IConfig& applicationSettings;
     ICoreService& pomodoroService;
-    QPointer<PomodoroModel> pomodoroModel;
+    QPointer<SprintModel> pomodoroModel;
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
     QPointer<DataWidget> goalsView;
