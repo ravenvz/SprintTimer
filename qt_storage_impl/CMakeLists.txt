@@ -11,7 +11,7 @@ set(QT_STORAGE_IMPL_SOURCE_FILES
         src/QtYearRangeReader.cpp
     src/QtTaskStorageReader.cpp
     src/QtTaskStorageWriter.cpp
-    src/PomodoroDatabase.cpp
+        src/Database.cpp
 )
 
 # Tell CMake to run moc when necessary:
@@ -31,7 +31,7 @@ set(HEADER_FILES_FOR_AUTOMOC_TO_WORK
         include/qt_storage_impl/QtTaskStorageReader.h
         include/qt_storage_impl/QtTaskStorageWriter.h
         include/qt_storage_impl/QtStorageImplementersFactory.h
-        include/qt_storage_impl/PomodoroDatabase.h
+        include/qt_storage_impl/Database.h
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

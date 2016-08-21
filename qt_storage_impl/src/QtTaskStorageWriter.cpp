@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtTaskStorageWriter.h"
-#include "qt_storage_impl/PomodoroDatabase.h"
+#include "qt_storage_impl/Database.h"
 #include "qt_storage_impl/utils.h"
 #include "utils/DateTimeConverter.h"
 #include <algorithm>
@@ -36,8 +36,8 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
                 ":priority, :last_modified, :uuid); "}
             .arg(TaskTable::name)
             .arg(TaskTable::Columns::name)
-            .arg(TaskTable::Columns::estimatedPomodoros)
-            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::Columns::estimatedCost)
+            .arg(TaskTable::Columns::actualCost)
             .arg(TaskTable::Columns::completed)
             .arg(TaskTable::Columns::priority)
             .arg(TaskTable::Columns::lastModified)
@@ -65,20 +65,20 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
                                     "WHERE %5 = :uuid;"}
                                 .arg(TaskTable::name)
                                 .arg(TaskTable::Columns::name)
-                                .arg(TaskTable::Columns::estimatedPomodoros)
+                                .arg(TaskTable::Columns::estimatedCost)
                                 .arg(TaskTable::Columns::lastModified)
                                 .arg(TaskTable::Columns::uuid));
     incrementSpentQueryId = dbService.prepare(
         QString{"UPDATE %1 set %2 = %2 + 1 "
                 "WHERE %3 = (:todo_uuid);"}
             .arg(TaskTable::name)
-            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::Columns::actualCost)
             .arg(TaskTable::name + "." + TaskTable::Columns::uuid));
     decrementSpentQueryId = dbService.prepare(
         QString{"UPDATE %1 SET %2 = %2 - 1 "
                 "WHERE %3 = (:todo_uuid);"}
             .arg(TaskTable::name)
-            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::Columns::actualCost)
             .arg(TaskTable::name + "." + TaskTable::Columns::uuid));
     toggleCompletionQueryId
         = dbService.prepare(QString{"UPDATE %1 "

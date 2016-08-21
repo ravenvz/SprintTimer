@@ -20,22 +20,31 @@
 **
 *********************************************************************************/
 
-#ifndef POMODORODATABASE_H_EY9GHBP5
-#define POMODORODATABASE_H_EY9GHBP5
+#ifndef DATABASE_H_EY9GHBP5
+#define DATABASE_H_EY9GHBP5
 
 
 #include <QSqlQuery>
 #include <QString>
 
-
-namespace TaskTable {
-    const QString name{"todo_item"};
+namespace InfoTable {
+    const QString name{"info"};
 
     namespace Columns {
         const QString id{"id"};
         const QString name{"name"};
-        const QString estimatedPomodoros{"estimated_pomodoros"};
-        const QString spentPomodoros{"spent_pomodoros"};
+        const QString value{"value"};
+    }
+}
+
+namespace TaskTable {
+    const QString name{"task"};
+
+    namespace Columns {
+        const QString id{"id"};
+        const QString name{"name"};
+        const QString estimatedCost{"estimated_cost"};
+        const QString actualCost{"actual_cost"};
         const QString completed{"completed"};
         const QString priority{"priority"};
         const QString lastModified{"last_modified"};
@@ -43,12 +52,12 @@ namespace TaskTable {
     }
 }
 
-namespace PomodoroTable {
-    const QString name{"pomodoro"};
+namespace SprintTable {
+    const QString name{"sprint"};
 
     namespace Columns {
         const QString id{"id"};
-        const QString taskUuid{"todo_uuid"};
+        const QString taskUuid{"task_uuid"};
         const QString startTime{"start_time"};
         const QString finishTime{"finish_time"};
         const QString uuid{"uuid"};
@@ -65,13 +74,13 @@ namespace TagTable {
 }
 
 namespace TaskTagTable {
-    const QString name{"todotag"};
+    const QString name{"tasktag"};
 
     namespace Columns {
         const QString id{"id"};
         const QString tagId{"tag_id"};
-        const QString taskId{"todo_id"};
-        const QString taskUuid{"todo_uuid"};
+        const QString taskId{"task_id"};
+        const QString taskUuid{"task_uuid"};
     }
 }
 
@@ -92,20 +101,20 @@ namespace CleanOrphanedTagTrigger {
     const QString name{"on_todo_tag_delete"};
 }
 
-namespace PomoView {
-    const QString name{"pomodoro_view"};
+namespace SprintView {
+    const QString name{"sprint_view"};
 
     namespace Aliases {
         const QString tags{"tags"};
     }
 }
 
-namespace PomoViewDeleteTrigger {
-    const QString name{"delete_from_pomodoro_view"};
+namespace SprintViewDeleteTrigger {
+    const QString name{"delete_from_sprint_view"};
 }
 
-namespace PomoViewInsertTrigger {
-    const QString name{"instead_pomodoro_view_insert"};
+namespace SprintViewInsertTrigger {
+    const QString name{"instead_sprint_view_insert"};
 }
 
 namespace TasksView {
@@ -140,10 +149,10 @@ namespace CalendarTable {
  *
  * TODO track database version to handle migrations
  */
-class PomodoroDatabase {
+class Database {
 
 public:
-    PomodoroDatabase(const QString& filename);
+    Database(const QString& filename);
 
 private:
     const QString filename;
@@ -155,9 +164,29 @@ private:
 
     bool createSchema(QSqlDatabase& db);
 
+    bool createTables(QSqlQuery& query);
+
+    bool createViews(QSqlQuery& query);
+
+    bool createTriggers(QSqlQuery& query);
+
+    bool populateInfoTable(QSqlDatabase& database) const;
+
+    bool testConnection(QSqlDatabase& database);
+
+    bool upgradeIfRequired(QSqlDatabase& database);
+
+    int getDatabaseVersion(QSqlDatabase& database);
+
+    bool runMigration(QSqlDatabase& database, int fromVersion);
+
+    bool createBackupCopy(const QString& filename);
+
+    bool restoreBackupCopy(const QString& filename);
+
+    bool updateVersion(QSqlDatabase& database) const;
+
     bool execAndCheck(QSqlQuery& query, const QString& queryStr);
 };
 
-
-
-#endif /* end of include guard: POMODORODATABASE_H_EY9GHBP5 */
+#endif /* end of include guard: DORODATABASE_H_EY9GHBP5 */

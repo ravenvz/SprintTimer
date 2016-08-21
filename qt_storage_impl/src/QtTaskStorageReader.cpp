@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtTaskStorageReader.h"
-#include "qt_storage_impl/PomodoroDatabase.h"
+#include "qt_storage_impl/Database.h"
 #include "utils/DateTimeConverter.h"
 
 
@@ -35,8 +35,8 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
             "AND DATE(%8) <= (:end_date) "
             "ORDER BY %8;"}.arg(TaskTable::Columns::id)
                                 .arg(TaskTable::Columns::name)
-                                .arg(TaskTable::Columns::estimatedPomodoros)
-                                .arg(TaskTable::Columns::spentPomodoros)
+                                .arg(TaskTable::Columns::estimatedCost)
+                                .arg(TaskTable::Columns::actualCost)
                                 .arg(TaskTable::Columns::priority)
                                 .arg(TaskTable::Columns::completed)
                                 .arg(TasksView::Aliases::tags)
@@ -59,8 +59,8 @@ void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
                 "ORDER BY %5;"}
             .arg(TaskTable::Columns::id)
             .arg(TaskTable::Columns::name)
-            .arg(TaskTable::Columns::estimatedPomodoros)
-            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::Columns::estimatedCost)
+            .arg(TaskTable::Columns::actualCost)
             .arg(TaskTable::Columns::priority)
             .arg(TaskTable::Columns::completed)
             .arg(TasksView::Aliases::tags)

@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtSprintDistributionReader.h"
-#include "qt_storage_impl/PomodoroDatabase.h"
+#include "qt_storage_impl/Database.h"
 #include "utils/DateTimeConverter.h"
 
 
@@ -72,10 +72,10 @@ QtSprintDailyDistributionReader::QtSprintDailyDistributionReader(
                 "WHERE %5 > DATE(:start_date) AND %5 <= DATE(:end_date)"
                 "GROUP BY DATE(%5) "
                 "ORDER BY %5"}
-            .arg(PomodoroTable::name + "." + PomodoroTable::Columns::id)
+            .arg(SprintTable::name + "." + SprintTable::Columns::id)
             .arg(CalendarTable::name)
-            .arg(PomodoroTable::name)
-            .arg(PomodoroTable::Columns::startTime)
+            .arg(SprintTable::name)
+            .arg(SprintTable::Columns::startTime)
             .arg(CalendarTable::Columns::dt));
 }
 
@@ -90,9 +90,9 @@ QtSprintWeeklyDistributionReader::QtSprintWeeklyDistributionReader(
         "WHERE %4 > (:start_date) AND %4 <= (:end_date) "
         "GROUP BY (STRFTIME('%j', DATE(%4, '-3 days', 'weekday "
         "4')) - 1) / 7 + 1 "
-        "ORDER BY %4"}.arg(PomodoroTable::Columns::startTime)
+        "ORDER BY %4"}.arg(SprintTable::Columns::startTime)
                                      .arg(CalendarTable::name)
-                                     .arg(PomodoroTable::name)
+                                     .arg(SprintTable::name)
                                      .arg(CalendarTable::Columns::dt));
 }
 
@@ -106,8 +106,8 @@ QtSprintMonthlyDistributionReader::QtSprintMonthlyDistributionReader(
         "ON DATE(%1) = %4 "
         "WHERE %4 > (:start_date) AND %4 <= (:end_date) "
         "GROUP BY STRFTIME('%m', %4) "
-        "ORDER BY %4"}.arg(PomodoroTable::Columns::startTime)
+        "ORDER BY %4"}.arg(SprintTable::Columns::startTime)
                                      .arg(CalendarTable::name)
-                                     .arg(PomodoroTable::name)
+                                     .arg(SprintTable::name)
                                      .arg(CalendarTable::Columns::dt));
 }

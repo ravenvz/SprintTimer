@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtSprintStorageReader.h"
-#include "qt_storage_impl/PomodoroDatabase.h"
+#include "qt_storage_impl/Database.h"
 #include "utils/DateTimeConverter.h"
 
 
@@ -32,14 +32,14 @@ QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
                                          "WHERE DATE(%5) >= (:startTime) "
                                          "AND DATE(%5) <= (:finishTime) "
                                          "ORDER BY %5"}
-                                     .arg(PomodoroTable::Columns::id)
-                                     .arg(PomodoroTable::Columns::taskUuid)
+                                     .arg(SprintTable::Columns::id)
+                                     .arg(SprintTable::Columns::taskUuid)
                                      .arg(TaskTable::Columns::name)
-                                     .arg(PomoView::Aliases::tags)
-                                     .arg(PomodoroTable::Columns::startTime)
-                                     .arg(PomodoroTable::Columns::finishTime)
+                                     .arg(SprintView::Aliases::tags)
+                                     .arg(SprintTable::Columns::startTime)
+                                     .arg(SprintTable::Columns::finishTime)
                                      .arg(TaskTable::Columns::uuid)
-                                     .arg(PomoView::name));
+                                     .arg(SprintView::name));
     connect(&dbService,
             &DBService::results,
             this,

@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtSprintStorageWriter.h"
-#include "qt_storage_impl/PomodoroDatabase.h"
+#include "qt_storage_impl/Database.h"
 #include "utils/DateTimeConverter.h"
 
 
@@ -30,15 +30,15 @@ QtSprintStorageWriter::QtSprintStorageWriter(DBService& dbService)
     addQueryId = dbService.prepare(
         QString{"INSERT INTO %1(%2, %3, %4, %5) "
                 "VALUES(:todo_uuid, :startTime, :finishTime, :uuid);"}
-            .arg(PomoView::name)
-            .arg(PomodoroTable::Columns::taskUuid)
-            .arg(PomodoroTable::Columns::startTime)
-            .arg(PomodoroTable::Columns::finishTime)
-            .arg(PomodoroTable::Columns::uuid));
+            .arg(SprintView::name)
+            .arg(SprintTable::Columns::taskUuid)
+            .arg(SprintTable::Columns::startTime)
+            .arg(SprintTable::Columns::finishTime)
+            .arg(SprintTable::Columns::uuid));
     removeQueryId
         = dbService.prepare(QString{"DELETE FROM %1 WHERE %2 = (:uuid);"}
-                                .arg(PomoView::name)
-                                .arg(PomodoroTable::Columns::uuid));
+                                .arg(SprintView::name)
+                                .arg(SprintTable::Columns::uuid));
 }
 
 void QtSprintStorageWriter::save(const Sprint& sprint)

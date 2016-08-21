@@ -19,7 +19,7 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <include/qt_storage_impl/PomodoroDatabase.h>
+#include <include/qt_storage_impl/Database.h>
 #include "qt_storage_impl/db_service.h"
 
 
@@ -63,7 +63,7 @@ DBService::~DBService()
 }
 
 void DBService::prepareDatabase(const QString& filename) const {
-    auto db = PomodoroDatabase(filename);
+    auto db = Database(filename);
 }
 
 
