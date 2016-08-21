@@ -4,13 +4,13 @@ set(PROJECT ${STORAGE_LIB})
 project(${PROJECT})
 
 set(QT_STORAGE_IMPL_SOURCE_FILES
-    src/db_service.cpp
+        src/db_service.cpp
         src/QtSprintDistributionReader.cpp
         src/QtSprintStorageReader.cpp
         src/QtSprintStorageWriter.cpp
         src/QtYearRangeReader.cpp
-    src/QtTaskStorageReader.cpp
-    src/QtTaskStorageWriter.cpp
+        src/QtTaskStorageReader.cpp
+        src/QtTaskStorageWriter.cpp
         src/Database.cpp
 )
 

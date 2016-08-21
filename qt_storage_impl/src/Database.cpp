@@ -507,7 +507,7 @@ bool Database::updateVersion(QSqlDatabase& database) const {
     .arg(InfoTable::Columns::name);
     query.prepare(queryStr);
     query.bindValue(":name", "version");
-    query.bindValue(":value", QString{currentDatabaseVersion});
+    query.bindValue(":value", QString{"%1"}.arg(currentDatabaseVersion));
     if (!query.exec()) {
         qDebug() << query.lastError().text();
         return false;

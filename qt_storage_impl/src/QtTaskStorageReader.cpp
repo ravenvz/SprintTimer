@@ -125,9 +125,9 @@ Task QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
 {
     std::string name{columnData(record, Column::Name).toString().toStdString()};
     std::string uuid{columnData(record, Column::Uuid).toString().toStdString()};
-    int estimatedPomodoros{
+    int estimatedCost{
         columnData(record, Column::EstimatedCost).toInt()};
-    int spentPomodoros{columnData(record, Column::ActualCost).toInt()};
+    int actualCost{columnData(record, Column::ActualCost).toInt()};
     QStringList tagNames{columnData(record, Column::Tags)
                              .toString()
                              .split(",", QString::SkipEmptyParts)};
@@ -141,8 +141,8 @@ Task QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
         columnData(record, Column::LastModified).toDateTime()};
     DateTime lastModified = DateTimeConverter::dateTime(qLastModified);
     return Task{name,
-                estimatedPomodoros,
-                spentPomodoros,
+                estimatedCost,
+                actualCost,
                 uuid,
                 tags,
                 finished,

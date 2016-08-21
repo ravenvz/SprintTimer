@@ -52,12 +52,12 @@ void DistributionReaderBase::onResultsReceived(
     if (mQueryId != queryId) {
         return;
     }
-    std::vector<int> pomodoroCount;
+    std::vector<int> sprintCount;
     std::transform(records.cbegin(),
                    records.cend(),
-                   std::back_inserter(pomodoroCount),
+                   std::back_inserter(sprintCount),
                    [](const auto& elem) { return elem.value(0).toInt(); });
-    handler_queue.front()(Distribution<int>{std::move(pomodoroCount)});
+    handler_queue.front()(Distribution<int>{std::move(sprintCount)});
     handler_queue.pop_front();
 }
 

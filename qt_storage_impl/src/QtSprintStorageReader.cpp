@@ -69,13 +69,13 @@ void QtSprintStorageReader::onResultsReceived(
     if (mQueryId != queryId) {
         return;
     }
-    Items pomodoros;
+    Items sprints;
     std::transform(
         records.cbegin(),
         records.cend(),
-        std::back_inserter(pomodoros),
+        std::back_inserter(sprints),
         [&](const auto& elem) { return this->sprintFromQSqlRecord(elem); });
-    handler_queue.front()(pomodoros);
+    handler_queue.front()(sprints);
     handler_queue.pop_front();
 }
 
