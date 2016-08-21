@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "dialogs/AddSprintDialog.h"
-#include "models/SprintModel.h"
 #include "utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
 
@@ -31,29 +30,45 @@ AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
                                                  QDialog* parent)
     : QDialog(parent)
     , ui(new Ui::AddSprintDialog)
+    , datePicker{new QCalendarWidget()}
     , sprintModel(sprintModel)
     , taskModel(taskModel)
     , sprintDuration(sprintDuration)
 {
     ui->setupUi(this);
     setData();
-    connectSlots();
+    datePicker->setMaximumDate(QDate::currentDate());
+    // TODO make this configurable with settings.
+    // See also DateRangePickDialog's related TODO
+    datePicker->setFirstDayOfWeek(Qt::Monday);
+    datePicker->setWindowModality(Qt::WindowModal);
+    connect(ui->timeEditSprintStartTime,
+            SIGNAL(timeChanged(QTime)),
+            this,
+            SLOT(autoAdjustFinishTime()));
+    connect(ui->pushButtonPickDate,
+            &QPushButton::clicked,
+            [this]() {
+                datePicker->show();
+            });
+    connect(datePicker,
+            &QCalendarWidget::clicked,
+            [this](const QDate& date) {
+                ui->dateEditSprintDate->setDate(date);
+                datePicker->close();
+            });
 }
 
-AddSprintDialog::~AddSprintDialog() { delete ui; }
+AddSprintDialog::~AddSprintDialog()
+{
+    delete datePicker;
+    delete ui;
+}
 
 void AddSprintDialog::setData()
 {
     ui->cbPickTask->setModel(taskModel);
     ui->dateEditSprintDate->setDate(QDate::currentDate());
-}
-
-void AddSprintDialog::connectSlots()
-{
-    connect(ui->timeEditSprintStartTime,
-            SIGNAL(timeChanged(QTime)),
-            this,
-            SLOT(autoAdjustFinishTime()));
 }
 
 void AddSprintDialog::autoAdjustFinishTime()

@@ -73,7 +73,7 @@ void DateRangePicker::connectSlots()
 
 void DateRangePicker::openDatePickDialog()
 {
-    DatePickDialog dialog{selectedInterval};
+    DateRangePickDialog dialog{selectedInterval};
     if (dialog.exec()) {
         updateInterval(dialog.getNewInterval());
     }

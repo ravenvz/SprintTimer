@@ -26,20 +26,19 @@
 #include <QDialog>
 
 namespace Ui {
-class DatePickDialog;
+class DateRangePickDialog;
 }
 
-
-class DatePickDialog : public QDialog {
+class DateRangePickDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit DatePickDialog(DateInterval initialPeriod, QWidget* parent = nullptr);
-    ~DatePickDialog();
+    explicit DateRangePickDialog(DateInterval initialPeriod, QWidget* parent = nullptr);
+    ~DateRangePickDialog();
     DateInterval getNewInterval();
 
 private:
-    Ui::DatePickDialog* ui;
+    Ui::DateRangePickDialog* ui;
 
     void configureCalendar();
     void updateCalendarDates(DateInterval& period);

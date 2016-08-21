@@ -19,23 +19,23 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "datepickdialog.h"
+#include "DateRangePickDialog.h"
 #include "ui_date_pick_dialog.h"
-#include <QtCore/qdatetime.h>
 
 
-DatePickDialog::DatePickDialog(DateInterval initialPeriod, QWidget* parent)
+DateRangePickDialog::DateRangePickDialog(DateInterval initialPeriod, QWidget* parent)
     : QDialog(parent)
-    , ui(new Ui::DatePickDialog)
+    , ui(new Ui::DateRangePickDialog)
 {
     ui->setupUi(this);
     updateCalendarDates(initialPeriod);
     configureCalendar();
+    // NOTE see ui file for used signal connections
 }
 
-DatePickDialog::~DatePickDialog() { delete ui; }
+DateRangePickDialog::~DateRangePickDialog() { delete ui; }
 
-void DatePickDialog::configureCalendar()
+void DateRangePickDialog::configureCalendar()
 {
     ui->cwStart->setMaximumDate(QDate::currentDate());
     ui->cwEnd->setMaximumDate(QDate::currentDate());
@@ -45,13 +45,13 @@ void DatePickDialog::configureCalendar()
     ui->cwEnd->setFirstDayOfWeek(Qt::Monday);
 }
 
-void DatePickDialog::updateCalendarDates(DateInterval& period)
+void DateRangePickDialog::updateCalendarDates(DateInterval& period)
 {
     ui->dePickStartDate->setDate(period.startDate);
     ui->dePickEndDate->setDate(period.endDate);
 }
 
-DateInterval DatePickDialog::getNewInterval()
+DateInterval DateRangePickDialog::getNewInterval()
 {
     return DateInterval{ui->cwStart->selectedDate(), ui->cwEnd->selectedDate()};
 }

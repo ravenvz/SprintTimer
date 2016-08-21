@@ -22,7 +22,7 @@
 #ifndef PICKPERIODWIDGET_H
 #define PICKPERIODWIDGET_H
 
-#include "dialogs/datepickdialog.h"
+#include "dialogs/DateRangePickDialog.h"
 #include <QPointer>
 #include <QStringListModel>
 

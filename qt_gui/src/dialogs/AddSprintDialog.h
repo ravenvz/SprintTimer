@@ -26,6 +26,7 @@
 #include "src/models/TaskModel.h"
 #include <QDialog>
 #include <QPointer>
+#include <QtWidgets/QCalendarWidget>
 
 namespace Ui {
 class AddSprintDialog;
@@ -39,7 +40,9 @@ public:
                             TaskModel* taskModel,
                             int sprintDuration,
                             QDialog* parent = nullptr);
+
     ~AddSprintDialog();
+
     void accept() override;
 
 private slots:
@@ -47,12 +50,12 @@ private slots:
 
 private:
     Ui::AddSprintDialog* ui;
+    QCalendarWidget* datePicker;
     QPointer<SprintModel> sprintModel;
     QPointer<TaskModel> taskModel;
     int sprintDuration;
 
     void setData();
-    void connectSlots();
 };
 
 #endif // ADDSPRINTDIALOG_H

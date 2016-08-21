@@ -25,7 +25,7 @@
 #include "core/IConfig.h"
 #include "core/ICoreService.h"
 #include "core/SprintStatistics.h"
-#include "dialogs/datepickdialog.h"
+#include "dialogs/DateRangePickDialog.h"
 #include "plot.h"
 #include "TimeDiagram.h"
 #include "widgets/DataWidget.h"
