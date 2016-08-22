@@ -23,7 +23,6 @@
 #include "ui_history.h"
 #include <QListView>
 #include <QPainter>
-
 #include "utils/DateTimeConverter.h"
 
 
