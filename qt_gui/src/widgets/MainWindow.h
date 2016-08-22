@@ -26,7 +26,7 @@
 #include "core/ISprintStorageReader.h"
 #include "core/IYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
-#include "historyview.h"
+#include "HistoryWindow.h"
 #include "models/SprintModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"

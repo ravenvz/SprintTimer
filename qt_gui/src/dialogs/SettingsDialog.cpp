@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "settings_dialog.h"
+#include "SettingsDialog.h"
 #include "ui_settings.h"
 #include <QFileDialog>
 #include <QStringListModel>

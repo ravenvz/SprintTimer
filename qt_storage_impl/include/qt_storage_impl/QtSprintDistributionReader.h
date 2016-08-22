@@ -23,7 +23,7 @@
 #define QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3
 
 #include "core/ISprintDistributionReader.h"
-#include "qt_storage_impl/db_service.h"
+#include "qt_storage_impl/DBService.h"
 #include <QObject>
 
 

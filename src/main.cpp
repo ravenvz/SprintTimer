@@ -51,7 +51,7 @@
 #include "QtConfig.h"
 #include "core/CoreService.h"
 #include "qt_storage_impl/QtStorageImplementersFactory.h"
-#include "widgets/mainwindow.h"
+#include "widgets/MainWindow.h"
 #include <QApplication>
 #include <cstdlib>
 #include <experimental/filesystem>
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 {
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QApplication::setOrganizationName("RavenStudio");
-    QApplication::setApplicationName("Pomodoro");
+    QApplication::setApplicationName("SprintTimer");
     Config applicationSettings;
 
     const std::string dataDirectory = createDataDirectoryIfNotExist();
@@ -116,16 +116,16 @@ int main(int argc, char* argv[])
     std::cout << dataDirectory + "/test_pomodoro.db" << std::endl;
 
     QtStorageImplementersFactory factory{dbService};
-    std::unique_ptr<ISprintStorageReader> pomodoroStorageReader{
+    std::unique_ptr<ISprintStorageReader> sprintStorageReader{
             factory.createSprintStorageReader()};
-    std::unique_ptr<ISprintStorageWriter> pomodoroStorageWriter{
+    std::unique_ptr<ISprintStorageWriter> sprintStorageWriter{
             factory.createSprintStorageWriter()};
-    std::unique_ptr<IYearRangeReader> pomodoroYearRangeReader{
+    std::unique_ptr<IYearRangeReader> sprintYearRangeReader{
             factory.createYearRangeReader()};
     std::unique_ptr<ITaskStorageReader> taskStorageReader{
-        factory.createTaskStorageReader()};
+            factory.createTaskStorageReader()};
     std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
-        factory.createTaskStorageWriter()};
+            factory.createTaskStorageWriter()};
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
             factory.createSprintDailyDistributionReader()};
     std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
@@ -133,16 +133,16 @@ int main(int argc, char* argv[])
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
             factory.createSprintMonthlyDistributionReader()};
 
-    Core::CoreService pomodoroService{*pomodoroStorageReader.get(),
-                                             *pomodoroStorageWriter.get(),
-                                             *pomodoroYearRangeReader.get(),
+    Core::CoreService coreService{*sprintStorageReader.get(),
+                                             *sprintStorageWriter.get(),
+                                             *sprintYearRangeReader.get(),
                                              *taskStorageReader.get(),
                                              *taskStorageWriter.get(),
                                              *dailyDistributionReader.get(),
                                              *weeklyDistributionReader.get(),
                                              *monthlyDistributionReader.get()};
 
-    MainWindow w{applicationSettings, pomodoroService};
+    MainWindow w{applicationSettings, coreService};
     w.show();
 
     return app.exec();

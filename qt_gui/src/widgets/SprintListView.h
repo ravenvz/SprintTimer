@@ -22,7 +22,7 @@
 #ifndef SPRINTLISTVIEW_H_TMGU1KAJ
 #define SPRINTLISTVIEW_H_TMGU1KAJ
 
-#include "dialogs/confirmationdialog.h"
+#include "dialogs/ConfirmationDialog.h"
 #include "models/SprintModel.h"
 #include <QListView>
 #include <QMenu>

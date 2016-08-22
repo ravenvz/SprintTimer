@@ -24,7 +24,7 @@
 
 #include "core/ITaskStorageWriter.h"
 #include "core/entities/Tag.h"
-#include "qt_storage_impl/db_service.h"
+#include "qt_storage_impl/DBService.h"
 #include <QObject>
 
 class QtTaskStorageWriter : public QObject, public ITaskStorageWriter {

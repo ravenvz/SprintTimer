@@ -23,7 +23,7 @@
 #define QTYEARRANGEREADER_H_6LK9HHEM
 
 #include "core/IYearRangeReader.h"
-#include "qt_storage_impl/db_service.h"
+#include "qt_storage_impl/DBService.h"
 #include <QObject>
 #include <functional>
 

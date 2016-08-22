@@ -19,7 +19,7 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "plot.h"
+#include "Plot.h"
 #include <QHelpEvent>
 #include <QToolTip>
 

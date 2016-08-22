@@ -19,20 +19,35 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "confirmationdialog.h"
-#include "ui_pom_cancel_dialog.h"
+#include "TagEditor.h"
+#include "ui_tageditor.h"
+#include <QMessageBox>
 
 
-ConfirmationDialog::ConfirmationDialog(QWidget* parent)
-    : QDialog(parent)
-    , ui(new Ui::ConfirmationDialog)
+TagEditorWidget::TagEditorWidget(AsyncListModel* tagModel, QWidget* parent)
+    : QWidget(parent)
+    , ui(new Ui::TagEditorWidget)
+    , model{tagModel}
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
+    ui->listViewTags->setModel(model);
+    connect(ui->buttonBoxConfirm,
+            &QDialogButtonBox::accepted,
+            this,
+            &QWidget::close);
+    connect(ui->buttonBoxConfirm,
+            &QDialogButtonBox::rejected,
+            this,
+            &QWidget::close);
+    connect(ui->buttonBoxConfirm,
+            &QDialogButtonBox::accepted,
+            model,
+            &AsyncListModel::submitData);
+    connect(ui->buttonBoxConfirm,
+            &QDialogButtonBox::rejected,
+            model,
+            &AsyncListModel::revertData);
 }
 
-ConfirmationDialog::~ConfirmationDialog() { delete ui; }
-
-void ConfirmationDialog::setActionDescription(QString& description)
-{
-    ui->lblDescribeAction->setText(description);
-}
+TagEditorWidget::~TagEditorWidget() { delete ui; }

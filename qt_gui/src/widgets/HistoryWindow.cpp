@@ -19,7 +19,7 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "historyview.h"
+#include "HistoryWindow.h"
 #include "ui_history.h"
 #include <QListView>
 #include <QPainter>

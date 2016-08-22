@@ -9,12 +9,12 @@ set(SOURCE_FILES
 
 # this is required as headers and sources are in different directories
 set(HEADER_FILES_FOR_AUTOMOC_TO_WORK
-        ../include/qt_storage_impl/db_service.h
+        ../include/qt_storage_impl/DBService.h
         ../include/qt_storage_impl/QtSprintDistributionReader.h
         ../include/qt_storage_impl/QtSprintStorageReader.h
         ../include/qt_storage_impl/QtSprintStorageWriter.h
-            ../include/qt_storage_impl/QtYearRangeReader.h
-            ../include/qt_storage_impl/QtTaskStorageWriter.h
+        ../include/qt_storage_impl/QtYearRangeReader.h
+        ../include/qt_storage_impl/QtTaskStorageWriter.h
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${HEADER_FILES_FOR_AUTOMOC_TO_WORK})
@@ -28,4 +28,4 @@ target_include_directories(${PROJECT}
     PRIVATE ../src
 )
 
-target_link_libraries(${PROJECT} CppUTest ${STORAGE_LIB} Threads::Threads Qt5::Sql pomodoro_core)
+target_link_libraries(${PROJECT} CppUTest ${STORAGE_LIB} Threads::Threads Qt5::Sql)

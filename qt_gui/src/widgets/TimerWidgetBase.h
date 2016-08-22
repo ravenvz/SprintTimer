@@ -25,7 +25,7 @@
 
 #include "core/IConfig.h"
 #include "core/IStatefulTimer.h"
-#include "dialogs/confirmationdialog.h"
+#include "dialogs/ConfirmationDialog.h"
 #include <QAbstractItemModel>
 #include <QMediaPlayer>
 #include <QWidget>

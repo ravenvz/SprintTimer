@@ -4,7 +4,7 @@ set(PROJECT ${STORAGE_LIB})
 project(${PROJECT})
 
 set(QT_STORAGE_IMPL_SOURCE_FILES
-        src/db_service.cpp
+        src/DBService.cpp
         src/QtSprintDistributionReader.cpp
         src/QtSprintStorageReader.cpp
         src/QtSprintStorageWriter.cpp
@@ -23,7 +23,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # this is required as headers and sources are in different directories
 set(HEADER_FILES_FOR_AUTOMOC_TO_WORK
-        include/qt_storage_impl/db_service.h
+        include/qt_storage_impl/DBService.h
         include/qt_storage_impl/QtSprintDistributionReader.h
         include/qt_storage_impl/QtSprintStorageReader.h
         include/qt_storage_impl/QtSprintStorageWriter.h

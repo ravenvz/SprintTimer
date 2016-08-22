@@ -114,7 +114,7 @@
   <customwidget>
    <class>Plot</class>
    <extends>QWidget</extends>
-   <header>src/widgets/plot.h</header>
+   <header>src/widgets/Plot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

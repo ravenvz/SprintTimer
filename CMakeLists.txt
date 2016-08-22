@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(PROJECT Pomodoro)
+set(PROJECT sprint_timer)
 project(${PROJECT})
 
 # # Tell CMake to run moc when necessary:
@@ -93,9 +93,9 @@ endif()
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
-set(GUI_LIB pomodoro_qt_gui)
-set(STORAGE_LIB pomodoro_qt_storage_impl)
-set(CORE_LIB pomodoro_core)
+set(GUI_LIB sprint_timer_qt_gui)
+set(STORAGE_LIB sprint_timer_qt_storage_impl)
+set(CORE_LIB sprint_timer_core)
 
 target_include_directories(${PROJECT} PUBLIC src lib)
 target_link_libraries(${PROJECT}

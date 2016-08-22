@@ -19,9 +19,9 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "gauge.h"
+#include "Gauge.h"
 #include <QPainter>
-#include <QWidget>
+
 
 namespace GaugeColors {
 const QColor normalEmpty{Qt::gray};

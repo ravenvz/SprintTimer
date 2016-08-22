@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include <include/qt_storage_impl/Database.h>
-#include "qt_storage_impl/db_service.h"
+#include "qt_storage_impl/DBService.h"
 
 
 DBService::DBService(QString filename)

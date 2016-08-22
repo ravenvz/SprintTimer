@@ -22,7 +22,7 @@
 
 #include "widgets/DailyTimelineGraph.h"
 #include "ui_daily_timeline_graph.h"
-#include "widgets/plot.h"
+#include "widgets/Plot.h"
 #include <QDate>
 #include <QtWidgets/QGridLayout>
 

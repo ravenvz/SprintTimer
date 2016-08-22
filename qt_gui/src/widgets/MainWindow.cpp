@@ -19,16 +19,14 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "dialogs/AddTaskDialog.h"
-#include "dialogs/confirmationdialog.h"
 #include "dialogs/AddSprintDialog.h"
-#include "dialogs/settings_dialog.h"
+#include "dialogs/SettingsDialog.h"
 #include "ui_mainwindow.h"
 #include "widgets/DefaultTimer.h"
 #include "widgets/FancyTimer.h"
 #include "widgets/GoalProgressWindow.h"
-#include <QtWidgets/qmenu.h>
 
 
 MainWindow::MainWindow(IConfig& applicationSettings,
@@ -211,8 +209,6 @@ void MainWindow::quickAddTask()
 
 void MainWindow::submitSprint(const std::vector<TimeSpan> &intervalBuffer)
 {
-    // TODO see if it's enough
-    // if (!selectedTaskIndex || ui->leDoneTask->text().isEmpty()) {
     if (!selectedTaskIndex) {
         qDebug() << "No associated Task can be found";
         return;

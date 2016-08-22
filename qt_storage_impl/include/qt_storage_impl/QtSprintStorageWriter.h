@@ -23,7 +23,7 @@
 #define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
 
 #include "core/ISprintStorageWriter.h"
-#include "qt_storage_impl/db_service.h"
+#include "qt_storage_impl/DBService.h"
 #include <QObject>
 
 class QtSprintStorageWriter : public QObject, public ISprintStorageWriter {
