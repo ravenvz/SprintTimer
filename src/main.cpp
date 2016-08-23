@@ -40,7 +40,7 @@
 // linux
 #include <pwd.h>
 #include <unistd.h>
-#elif defined(__unix__) // all unices not caught above
+#elif defined(__unix__) // all unixes not caught above
 // Unix
 #elif defined(_POSIX_VERSION)
 // POSIX
@@ -110,7 +110,8 @@ int main(int argc, char* argv[])
 
     const std::string dataDirectory = createDataDirectoryIfNotExist();
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/sprint.db"};
+//    DBService dbService{dataDirectory + "/sprint.db"};
+    DBService dbService{dataDirectory + "/test_sprint.db"};
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{
