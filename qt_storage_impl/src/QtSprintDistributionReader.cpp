@@ -33,8 +33,8 @@ DistributionReaderBase::DistributionReaderBase(DBService& dbService)
             &DistributionReaderBase::onResultsReceived);
 }
 
-void DistributionReaderBase::requestDailyDistribution(const TimeSpan& timeSpan,
-                                                      Handler handler)
+void DistributionReaderBase::requestDistribution(const TimeSpan& timeSpan,
+                                                 Handler handler)
 {
     handler_queue.push_back(handler);
     QDate from = DateTimeConverter::qDate(timeSpan.startTime);

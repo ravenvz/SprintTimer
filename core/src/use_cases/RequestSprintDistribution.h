@@ -39,7 +39,7 @@ public:
     {
     }
 
-    void execute() final { reader.requestDailyDistribution(timeSpan, handler); }
+    void execute() final { reader.requestDistribution(timeSpan, handler); }
 
     std::string inspect() const final
     {

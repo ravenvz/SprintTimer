@@ -35,8 +35,8 @@ class DistributionReaderBase : public QObject,
 public:
     DistributionReaderBase(DBService& dbService);
 
-    virtual void requestDailyDistribution(const TimeSpan& timeSpan,
-                                          Handler handler) final;
+    virtual void requestDistribution(const TimeSpan& timeSpan,
+                                     Handler handler) final;
 
 private slots:
 
