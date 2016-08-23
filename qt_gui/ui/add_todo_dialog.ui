@@ -6,139 +6,92 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>402</width>
-    <height>292</height>
+    <width>296</width>
+    <height>254</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Add TODO item</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>221</y>
-     <width>261</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="taskName">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>20</y>
-     <width>301</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="placeholderText">
-    <string>TODO name (required)</string>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="estimatedPomodoros">
-   <property name="geometry">
-    <rect>
-     <x>250</x>
-     <y>70</y>
-     <width>81</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="minimum">
-    <number>1</number>
-   </property>
-   <property name="maximum">
-    <number>9999</number>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>70</y>
-     <width>171</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Estimated Pomodoros</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="tags">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>170</y>
-     <width>181</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="editable">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>120</y>
-     <width>61</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Tags</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="leTags">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>120</y>
-     <width>251</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_3">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>170</y>
-     <width>111</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>11</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Quick add tag</string>
-   </property>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="3">
+    <widget class="QSpinBox" name="estimatedCost">
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>9999</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="4">
+    <widget class="QLineEdit" name="taskName">
+     <property name="placeholderText">
+      <string>TODO name (required)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2" colspan="2">
+    <widget class="QComboBox" name="tags">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="4" alignment="Qt::AlignHCenter">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" colspan="3">
+    <widget class="QLineEdit" name="leTags"/>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Estimated cost</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Tags</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Quick add tag</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <tabstops>
   <tabstop>taskName</tabstop>
-  <tabstop>estimatedPomodoros</tabstop>
+  <tabstop>estimatedCost</tabstop>
   <tabstop>leTags</tabstop>
   <tabstop>tags</tabstop>
  </tabstops>

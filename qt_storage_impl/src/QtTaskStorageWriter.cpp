@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtTaskStorageWriter.h"
-#include "qt_storage_impl/PomodoroDatabase.h"
+#include "qt_storage_impl/Database.h"
 #include "qt_storage_impl/utils.h"
 #include "utils/DateTimeConverter.h"
 #include <algorithm>
@@ -31,13 +31,13 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
 {
     addTaskQueryId = dbService.prepare(
         QString{"INSERT INTO %1 (%2, %3, %4, %5, %6, %7, %8) "
-                "VALUES (:name, :estimated_pomodoros, :spent_pomodoros, "
+                "VALUES (:name, :estimated_cost, :actual_cost, "
                 ":completed, "
                 ":priority, :last_modified, :uuid); "}
             .arg(TaskTable::name)
             .arg(TaskTable::Columns::name)
-            .arg(TaskTable::Columns::estimatedPomodoros)
-            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::Columns::estimatedCost)
+            .arg(TaskTable::Columns::actualCost)
             .arg(TaskTable::Columns::completed)
             .arg(TaskTable::Columns::priority)
             .arg(TaskTable::Columns::lastModified)
@@ -60,25 +60,25 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
                                               .arg(TaskTable::Columns::uuid));
     editQueryId
         = dbService.prepare(QString{"UPDATE %1 SET %2 = :name, "
-                                    "%3 = :estimated_pomodoros, "
+                                    "%3 = :estimated_cost, "
                                     "%4 = :last_modified "
                                     "WHERE %5 = :uuid;"}
                                 .arg(TaskTable::name)
                                 .arg(TaskTable::Columns::name)
-                                .arg(TaskTable::Columns::estimatedPomodoros)
+                                .arg(TaskTable::Columns::estimatedCost)
                                 .arg(TaskTable::Columns::lastModified)
                                 .arg(TaskTable::Columns::uuid));
     incrementSpentQueryId = dbService.prepare(
         QString{"UPDATE %1 set %2 = %2 + 1 "
                 "WHERE %3 = (:todo_uuid);"}
             .arg(TaskTable::name)
-            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::Columns::actualCost)
             .arg(TaskTable::name + "." + TaskTable::Columns::uuid));
     decrementSpentQueryId = dbService.prepare(
         QString{"UPDATE %1 SET %2 = %2 - 1 "
                 "WHERE %3 = (:todo_uuid);"}
             .arg(TaskTable::name)
-            .arg(TaskTable::Columns::spentPomodoros)
+            .arg(TaskTable::Columns::actualCost)
             .arg(TaskTable::name + "." + TaskTable::Columns::uuid));
     toggleCompletionQueryId
         = dbService.prepare(QString{"UPDATE %1 "
@@ -106,9 +106,9 @@ void QtTaskStorageWriter::save(const Task& task)
     dbService.bindValue(
         addTaskQueryId, ":name", QString::fromStdString(task.name()));
     dbService.bindValue(
-        addTaskQueryId, ":estimated_pomodoros", task.estimatedPomodoros());
+        addTaskQueryId, ":estimated_cost", task.estimatedCost());
     dbService.bindValue(
-        addTaskQueryId, ":spent_pomodoros", task.spentPomodoros());
+        addTaskQueryId, ":actual_cost", task.actualCost());
     dbService.bindValue(addTaskQueryId, ":completed", task.isCompleted());
     dbService.bindValue(addTaskQueryId, ":priority", 10000);
 
@@ -162,7 +162,7 @@ void QtTaskStorageWriter::edit(const Task& task, const Task& editedTask)
     dbService.bindValue(
         editQueryId, ":name", QString::fromStdString(editedTask.name()));
     dbService.bindValue(
-        editQueryId, ":estimated_pomodoros", editedTask.estimatedPomodoros());
+        editQueryId, ":estimated_cost", editedTask.estimatedCost());
     dbService.bindValue(
         editQueryId,
         ":last_modified",
@@ -192,14 +192,14 @@ void QtTaskStorageWriter::edit(const Task& task, const Task& editedTask)
     dbService.commit();
 }
 
-void QtTaskStorageWriter::incrementSpentPomodoros(const std::string& uuid)
+void QtTaskStorageWriter::incrementSprints(const std::string& uuid)
 {
     dbService.bindValue(
         incrementSpentQueryId, ":todo_uuid", QString::fromStdString(uuid));
     dbService.executePrepared(incrementSpentQueryId);
 }
 
-void QtTaskStorageWriter::decrementSpentPomodoros(const std::string& uuid)
+void QtTaskStorageWriter::decrementSprints(const std::string& uuid)
 {
     dbService.bindValue(
         decrementSpentQueryId, ":todo_uuid", QString::fromStdString(uuid));

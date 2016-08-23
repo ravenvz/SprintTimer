@@ -23,11 +23,11 @@
 #define STATISTICSWIDGET_H
 
 #include "core/IConfig.h"
-#include "core/IPomodoroService.h"
-#include "core/PomodoroStatistics.h"
-#include "dialogs/datepickdialog.h"
-#include "plot.h"
-#include "timediagram.h"
+#include "core/ICoreService.h"
+#include "core/SprintStatistics.h"
+#include "dialogs/DateRangePickDialog.h"
+#include "Plot.h"
+#include "TimeDiagram.h"
 #include "widgets/DataWidget.h"
 #include "widgets/DistributionDiagram.h"
 #include <memory>
@@ -40,17 +40,17 @@ class StatisticsWindow;
 }
 
 
-/* Displays statistical information on completed Pomodoros
+/* Displays statistical information on finished sprints
  * for a given timespan.
  *
  * Has following major parts:
  *      widget that allows to select timespan;
- *      widget that displays number of Pomodoros
+ *      widget that displays number of sprints
  *      for each day in a timespan;
- *      widget that displays average number of Pomodoros for each
+ *      widget that displays average number of sprints for each
  *      weekday;
  *      widget that displays distribution of tags for all completed
- *      Pomodoros;
+ *      sprints;
  *      widget that displays distribution of worktime.
  */
 class StatisticsWindow : public DataWidget {
@@ -58,7 +58,7 @@ class StatisticsWindow : public DataWidget {
 
 public:
     StatisticsWindow(IConfig& applicationSettings,
-                     IPomodoroService& pomodoroService,
+                     ICoreService& coreService,
                      QWidget* parent = nullptr);
     ~StatisticsWindow();
 
@@ -71,19 +71,19 @@ private slots:
 private:
     Ui::StatisticsWindow* ui;
     IConfig& applicationSettings;
-    IPomodoroService& pomodoroService;
-    std::vector<Pomodoro> pomodoros;
+    ICoreService& coreService;
+    std::vector<Sprint> sprints;
     TagDistribution tagDistribution;
     DateInterval currentInterval;
     const int numTopTags = 7; // TODO move to config
     optional<size_t> selectedTagIndex;
 
-    void fetchPomodoros();
+    void fetchData();
     void drawGraphs();
     void updateTopTagsDiagram(
         std::vector<TagCount>& tagCounts);
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
-    void onPomodorosFetched(const std::vector<Pomodoro>& pomodoros);
+    void onDataFetched(const std::vector<Sprint> &sprints);
 };
 
 

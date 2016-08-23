@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(PROJECT Pomodoro)
+set(PROJECT sprint_timer)
 project(${PROJECT})
 
 # # Tell CMake to run moc when necessary:
@@ -61,20 +61,6 @@ include(compiler_options.cmake)
 # file(GLOB SOURCE_FILES src/*/*.cpp src/*/*/*.cpp)
 set(SOURCE_FILES src/main.cpp)
 
-# QT5_WRAP_UI(UI_HEADERS
-#         src/ui/mainwindow.ui
-#         src/ui/add_todo_dialog.ui
-#         src/ui/pom_cancel_dialog.ui
-#         src/ui/settings.ui
-#         src/ui/history.ui
-#         src/ui/date_pick_dialog.ui
-#         src/ui/goalsview.ui
-#         src/ui/statistics_widget.ui
-#         src/ui/manual_add_pomodoro_dialog.ui
-#         src/ui/pickperiodwidget.ui
-#         src/ui/tageditor.ui
-# )
-
 # add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc src/main.cpp)
 add_executable(${PROJECT} ${SOURCE_FILES})
 target_compile_features(${PROJECT} PUBLIC cxx_return_type_deduction)
@@ -107,9 +93,9 @@ endif()
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
-set(GUI_LIB pomodoro_qt_gui)
-set(STORAGE_LIB pomodoro_qt_storage_impl)
-set(CORE_LIB pomodoro_core)
+set(GUI_LIB sprint_timer_qt_gui)
+set(STORAGE_LIB sprint_timer_qt_storage_impl)
+set(CORE_LIB sprint_timer_core)
 
 target_include_directories(${PROJECT} PUBLIC src lib)
 target_link_libraries(${PROJECT}

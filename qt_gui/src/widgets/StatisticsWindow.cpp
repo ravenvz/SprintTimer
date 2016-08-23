@@ -25,21 +25,21 @@
 
 
 StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
-                                   IPomodoroService& pomodoroService,
+                                   ICoreService& coreService,
                                    QWidget* parent)
     : DataWidget(parent)
     , ui(new Ui::StatisticsWindow)
     , applicationSettings(applicationSettings)
-    , pomodoroService{pomodoroService}
+    , coreService{coreService}
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    pomodoroService.pomodoroYearRange(std::bind(
-        &StatisticsWindow::onYearRangeUpdated, this, std::placeholders::_1));
+    coreService.yearRange(std::bind(
+            &StatisticsWindow::onYearRangeUpdated, this, std::placeholders::_1));
     ui->setupUi(this);
-    currentInterval = ui->widgetPickPeriod->getInterval();
+    currentInterval = ui->dateRangePicker->getInterval();
 
-    connect(ui->widgetPickPeriod,
-            &PickPeriodWidget::timeSpanChanged,
+    connect(ui->dateRangePicker,
+            &DateRangePicker::timeSpanChanged,
             this,
             &StatisticsWindow::onDatePickerIntervalChanged);
     connect(ui->topTagDiagram,
@@ -50,24 +50,24 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
 
 StatisticsWindow::~StatisticsWindow() { delete ui; }
 
-void StatisticsWindow::synchronize() { fetchPomodoros(); }
+void StatisticsWindow::synchronize() { fetchData(); }
 
 
-void StatisticsWindow::fetchPomodoros()
+void StatisticsWindow::fetchData()
 {
-    pomodoroService.pomodorosInTimeRange(
-        currentInterval.toTimeSpan(),
-        std::bind(&StatisticsWindow::onPomodorosFetched,
-                  this,
-                  std::placeholders::_1));
+    coreService.sprintsInTimeRange(
+            currentInterval.toTimeSpan(),
+            std::bind(&StatisticsWindow::onDataFetched,
+                      this,
+                      std::placeholders::_1));
 }
 
-void StatisticsWindow::onPomodorosFetched(
-    const std::vector<Pomodoro>& pomodoros)
+void StatisticsWindow::onDataFetched(
+        const std::vector<Sprint>& sprints)
 {
-    this->pomodoros = pomodoros;
+    this->sprints = sprints;
     selectedTagIndex = optional<size_t>();
-    tagDistribution = TagDistribution(pomodoros, numTopTags);
+    tagDistribution = TagDistribution(sprints, numTopTags);
     std::vector<TagCount> tagTagCounts = tagDistribution.topTagsDistribution();
     drawGraphs();
     updateTopTagsDiagram(tagTagCounts);
@@ -76,28 +76,28 @@ void StatisticsWindow::onPomodorosFetched(
 void StatisticsWindow::onYearRangeUpdated(
     const std::vector<std::string>& yearRange)
 {
-    ui->widgetPickPeriod->setYears(yearRange);
+    ui->dateRangePicker->setYears(yearRange);
 }
 
 void StatisticsWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 {
     currentInterval = newInterval;
-    fetchPomodoros();
+    fetchData();
 }
 
 void StatisticsWindow::drawGraphs()
 {
-    PomodoroStatItem statistics{
+    SprintStatItem statistics{
         selectedTagIndex
-            ? tagDistribution.pomodorosForNthTopTag(*selectedTagIndex)
-            : pomodoros,
+            ? tagDistribution.sprintsForNthTopTag(*selectedTagIndex)
+            : sprints,
         currentInterval.toTimeSpan()};
     ui->dailyTimelineGraph->setData(statistics.dailyDistribution(),
                                     currentInterval.startDate,
-                                    applicationSettings.dailyPomodorosGoal());
+                                    applicationSettings.dailyGoal());
     ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
     ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
-                                    statistics.pomodoros());
+                                    statistics.sprints());
 }
 
 

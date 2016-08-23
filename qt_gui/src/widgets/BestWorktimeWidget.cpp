@@ -34,21 +34,21 @@ BestWorktimeWidget::~BestWorktimeWidget() { delete ui; }
 
 void BestWorktimeWidget::setData(
     const Distribution<double>& workTimeDistribution,
-    const std::vector<Pomodoro>& pomodoros)
+    const std::vector<Sprint>& sprints)
 {
-    updateWorkHoursDiagram(workTimeDistribution, pomodoros);
+    updateWorkHoursDiagram(workTimeDistribution, sprints);
 }
 
 void BestWorktimeWidget::updateWorkHoursDiagram(
     const Distribution<double>& workTimeDistribution,
-    const std::vector<Pomodoro>& pomodoros)
+    const std::vector<Sprint>& sprints)
 {
     std::vector<TimeSpan> timeSpans;
-    timeSpans.reserve(pomodoros.size());
-    std::transform(pomodoros.cbegin(),
-                   pomodoros.cend(),
+    timeSpans.reserve(sprints.size());
+    std::transform(sprints.cbegin(),
+                   sprints.cend(),
                    std::back_inserter(timeSpans),
-                   [](const auto& pomo) { return pomo.timeSpan(); });
+                   [](const auto& sprint) { return sprint.timeSpan(); });
     if (timeSpans.empty()) {
         ui->labelBestWorktimeName->setText("No data");
         ui->labelBestWorktimeHours->setText("");
@@ -61,5 +61,5 @@ void BestWorktimeWidget::updateWorkHoursDiagram(
         ui->labelBestWorktimeHours->setText(
             QString::fromStdString(TimeSpan::dayPartHours(maxValueBin)));
     }
-    ui->timeDiagram->setIntervals(timeSpans);
+    ui->timeDiagram->setIntervals(std::move(timeSpans));
 }

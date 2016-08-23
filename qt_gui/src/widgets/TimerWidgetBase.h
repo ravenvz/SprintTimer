@@ -24,8 +24,8 @@
 #define ITIMERWIDGET_H_REB4PSQX
 
 #include "core/IConfig.h"
-#include "core/IPomodoroTimer.h"
-#include "dialogs/confirmationdialog.h"
+#include "core/IStatefulTimer.h"
+#include "dialogs/ConfirmationDialog.h"
 #include <QAbstractItemModel>
 #include <QMediaPlayer>
 #include <QWidget>
@@ -50,7 +50,7 @@ public:
 
 protected:
     const IConfig& applicationSettings;
-    std::unique_ptr<IPomodoroTimer> timer;
+    std::unique_ptr<IStatefulTimer> timer;
     std::unique_ptr<QMediaPlayer> player = std::make_unique<QMediaPlayer>();
 
     virtual void onTaskStateEntered() = 0;
@@ -66,16 +66,16 @@ protected:
 
 protected slots:
     void onTimerTick(long timeLeft);
-    void onTimerStateChanged(IPomodoroTimer::State state);
+    void onTimerStateChanged(IStatefulTimer::State state);
     void onTimerUpdated(long timeLeft);
-    void onStateChanged(IPomodoroTimer::State state);
+    void onStateChanged(IStatefulTimer::State state);
     void startTask();
     void cancelTask();
     void onSoundError(QMediaPlayer::Error error);
 
 signals:
     void timerUpdated(long timeLeft);
-    void stateChanged(IPomodoroTimer::State state);
+    void stateChanged(IStatefulTimer::State state);
     void submitRequested(std::vector<TimeSpan> completedTaskIntervals);
     void submissionCandidateChanged(int index);
 };

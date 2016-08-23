@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>HistoryView</class>
- <widget class="QWidget" name="HistoryView">
+ <class>HistoryWindow</class>
+ <widget class="QWidget" name="HistoryWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -25,11 +25,11 @@
    <property name="currentIndex">
     <number>1</number>
    </property>
-   <widget class="QWidget" name="tabPomodoroHistory">
+   <widget class="QWidget" name="tabSprintHistory">
     <attribute name="title">
-     <string>Pomodoro History</string>
+     <string>Sprint History</string>
     </attribute>
-    <widget class="QTreeView" name="lvPomodoroHistory">
+    <widget class="QTreeView" name="lvSprintHistory">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -40,11 +40,11 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="todoHistory">
+   <widget class="QWidget" name="taskHistory">
     <attribute name="title">
      <string>Todo History</string>
     </attribute>
-    <widget class="QTreeView" name="lvTodoHistory">
+    <widget class="QTreeView" name="lvTaskHistory">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -56,7 +56,7 @@
     </widget>
    </widget>
   </widget>
-  <widget class="PickPeriodWidget" name="widgetPickPeriod" native="true">
+  <widget class="DateRangePicker" name="dateRangePicker" native="true">
    <property name="geometry">
     <rect>
      <x>9</x>
@@ -69,9 +69,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PickPeriodWidget</class>
+   <class>DateRangePicker</class>
    <extends>QWidget</extends>
-   <header>src/widgets/pickperiodwidget.h</header>
+   <header>src/widgets/DateRangePicker.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

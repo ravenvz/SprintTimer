@@ -1,9 +1,9 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file>icons/config.ico</file>
-    <file>icons/pomodoro.png</file>
-    <file>icons/statistics.png</file>
-    <file>icons/control_panel.ico</file>
-    <file>icons/history.ico</file>
+    <file>icons/statistics.svg</file>
+    <file>icons/streamline_settings.png</file>
+    <file>icons/streamline_history.png</file>
+    <file>icons/progress.svg</file>
+    <file>icons/progress2.svg</file>
 </qresource>
 </RCC>

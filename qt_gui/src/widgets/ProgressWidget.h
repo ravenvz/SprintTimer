@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 
-#ifndef POMODORO_PROGRESSWIDGET_H
-#define POMODORO_PROGRESSWIDGET_H
+#ifndef PROGRESSWIDGET_H
+#define PROGRESSWIDGET_H
 
 #include "core/Distribution.h"
 #include <QtWidgets/QFrame>
@@ -77,4 +77,4 @@ QString formatDecimal(double decimal);
 double percentage(int chunk, int total);
 
 
-#endif // POMODORO_PROGRESSWIDGET_H
+#endif // PROGRESSWIDGET_H

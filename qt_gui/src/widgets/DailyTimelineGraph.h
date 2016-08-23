@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 
-#ifndef POMODORO_DAILYDISTRIBUTIONGRAPH_H
-#define POMODORO_DAILYDISTRIBUTIONGRAPH_H
+#ifndef DAILYTIMELINEGRAPH_H
+#define DAILYTIMELINEGRAPH_H
 
 
 #include <QtWidgets/QFrame>
@@ -53,4 +53,5 @@ private:
 };
 
 
-#endif // POMODORO_DAILYDISTRIBUTIONGRAPH_H
+#endif // DAILYTIMELINEGRAPH_H
+

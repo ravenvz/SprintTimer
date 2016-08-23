@@ -21,8 +21,8 @@ QT5_WRAP_UI(UI_HEADERS
         ui/history.ui
         ui/date_pick_dialog.ui
         ui/statistics_window.ui
-        ui/manual_add_pomodoro_dialog.ui
-        ui/pickperiodwidget.ui
+        ui/add_sprint_dialog.ui
+        ui/date_range_picker.ui
         ui/tageditor.ui
         ui/default_timer.ui
         ui/fancy_timer.ui
@@ -45,4 +45,9 @@ target_link_libraries(${PROJECT}
     PUBLIC ${CORE_LIB}
 )
 
-install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+if (WIN32)
+    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+else()
+    install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+endif()
+

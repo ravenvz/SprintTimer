@@ -22,7 +22,7 @@
 
 #include "widgets/DailyTimelineGraph.h"
 #include "ui_daily_timeline_graph.h"
-#include "widgets/plot.h"
+#include "widgets/Plot.h"
 #include <QDate>
 #include <QtWidgets/QGridLayout>
 
@@ -80,7 +80,7 @@ void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
     }
     else {
         double average = dailyDistribution.getAverage();
-        auto pomosByDay = dailyDistribution.getDistributionVector();
+        auto sprintsByDay = dailyDistribution.getDistributionVector();
         GraphData averageData{
             GraphPoint{0, average, ""},
             GraphPoint{static_cast<double>(dailyDistribution.getNumBins()),
@@ -92,10 +92,10 @@ void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
                        static_cast<double>(dailyGoal),
                        ""}};
         GraphData normalData;
-        for (size_t i = 0; i < pomosByDay.size(); ++i) {
+        for (size_t i = 0; i < sprintsByDay.size(); ++i) {
             normalData.push_back(
                 GraphPoint{double(i),
-                           pomosByDay[i],
+                           sprintsByDay[i],
                            QString("%1").arg(
                                startDate.addDays(static_cast<long>(i)).day())});
         }
@@ -113,7 +113,7 @@ void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
 void DailyTimelineGraph::updateLegend(
     const Distribution<double>& dailyDistribution)
 {
-    ui->labelTotalPomodoros->setText(
+    ui->labelTotalSprints->setText(
         QString("%1").arg(dailyDistribution.getTotal()));
     ui->labelDailyAverage->setText(
         QString("%1").arg(dailyDistribution.getAverage(), 2, 'f', 2, '0'));

@@ -24,7 +24,7 @@
 
 #include "core/ITaskStorageWriter.h"
 #include "core/entities/Tag.h"
-#include "qt_storage_impl/db_service.h"
+#include "qt_storage_impl/DBService.h"
 #include <QObject>
 
 class QtTaskStorageWriter : public QObject, public ITaskStorageWriter {
@@ -39,9 +39,9 @@ public:
 
     void edit(const Task& task, const Task& editedTask) final;
 
-    void incrementSpentPomodoros(const std::string& uuid) final;
+    void incrementSprints(const std::string& uuid) final;
 
-    void decrementSpentPomodoros(const std::string& uuid) final;
+    void decrementSprints(const std::string& uuid) final;
 
     void toggleTaskCompletionStatus(const std::string& uuid,
                                     const DateTime& timeStamp) final;

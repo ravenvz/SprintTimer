@@ -27,7 +27,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="PickPeriodWidget" name="widgetPickPeriod" native="true">
+    <widget class="DateRangePicker" name="dateRangePicker" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -156,9 +156,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PickPeriodWidget</class>
+   <class>DateRangePicker</class>
    <extends>QWidget</extends>
-   <header>src/widgets/pickperiodwidget.h</header>
+   <header>src/widgets/DateRangePicker.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
