@@ -67,8 +67,7 @@ std::string getUnixDataDirectory();
 std::string createDataDirectoryIfNotExist()
 {
     std::string prefix = getUserDataDirectory();
-    std::cout << "Prefix is: " << prefix << std::endl;
-    const std::string dataDirectory{prefix + "/sprint"};
+    const std::string dataDirectory{prefix + "/sprint_timer"};
     if (!exists(dataDirectory)) {
         create_directory(dataDirectory);
     }
