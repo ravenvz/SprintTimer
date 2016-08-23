@@ -19,14 +19,14 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTPOMODOROSTORAGEFACTORY_H_57Q0AHPC
-#define QTPOMODOROSTORAGEFACTORY_H_57Q0AHPC
+#ifndef QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC
+#define QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC
 
 #include "core/IStorageImplementersFactory.h"
-#include "qt_storage_impl/QtPomoDistributionReader.h"
-#include "qt_storage_impl/QtPomoStorageReader.h"
-#include "qt_storage_impl/QtPomoStorageWriter.h"
-#include "qt_storage_impl/QtPomoYearRangeReader.h"
+#include "qt_storage_impl/QtSprintDistributionReader.h"
+#include "qt_storage_impl/QtSprintStorageReader.h"
+#include "qt_storage_impl/QtSprintStorageWriter.h"
+#include "qt_storage_impl/QtYearRangeReader.h"
 #include "qt_storage_impl/QtTaskStorageReader.h"
 #include "qt_storage_impl/QtTaskStorageWriter.h"
 
@@ -37,40 +37,40 @@ public:
     {
     }
 
-    std::unique_ptr<IPomodoroStorageReader>
-    createPomodoroStorageReader() const final
+    std::unique_ptr<ISprintStorageReader>
+    createSprintStorageReader() const final
     {
-        return std::make_unique<QtPomoStorageReader>(dbService);
+        return std::make_unique<QtSprintStorageReader>(dbService);
     }
 
-    std::unique_ptr<IPomodoroStorageWriter>
-    createPomodoroStorageWriter() const final
+    std::unique_ptr<ISprintStorageWriter>
+    createSprintStorageWriter() const final
     {
-        return std::make_unique<QtPomoStorageWriter>(dbService);
+        return std::make_unique<QtSprintStorageWriter>(dbService);
     }
 
-    std::unique_ptr<IPomodoroYearRangeReader>
-    createPomodoroYearRangeReader() const final
+    std::unique_ptr<IYearRangeReader>
+    createYearRangeReader() const final
     {
-        return std::make_unique<QtPomoYearRangeReader>(dbService);
+        return std::make_unique<QtYearRangeReader>(dbService);
     }
 
-    std::unique_ptr<IPomodoroDistributionReader>
-    createPomoDailyDistributionReader() const final
+    std::unique_ptr<ISprintDistributionReader>
+    createSprintDailyDistributionReader() const final
     {
-        return std::make_unique<QtPomoDailyDistributionReader>(dbService);
+        return std::make_unique<QtSprintDailyDistributionReader>(dbService);
     }
 
-    std::unique_ptr<IPomodoroDistributionReader>
-    createPomoWeeklyDistributionReader() const final
+    std::unique_ptr<ISprintDistributionReader>
+    createSprintWeeklyDistributionReader() const final
     {
-        return std::make_unique<QtPomoWeeklyDistributionReader>(dbService);
+        return std::make_unique<QtSprintWeeklyDistributionReader>(dbService);
     }
 
-    std::unique_ptr<IPomodoroDistributionReader>
-    createPomoMonthlyDistributionReader() const final
+    std::unique_ptr<ISprintDistributionReader>
+    createSprintMonthlyDistributionReader() const final
     {
-        return std::make_unique<QtPomoMonthlyDistributionReader>(dbService);
+        return std::make_unique<QtSprintMonthlyDistributionReader>(dbService);
     }
 
     std::unique_ptr<ITaskStorageReader> createTaskStorageReader() const final
@@ -87,4 +87,4 @@ private:
     DBService& dbService;
 };
 
-#endif /* end of include guard: QTPOMODOROSTORAGEFACTORY_H_57Q0AHPC */
+#endif /* end of include guard: QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC */

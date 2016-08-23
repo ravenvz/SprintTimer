@@ -22,7 +22,7 @@
 #ifndef IDATAWIDGET_H_DMUO9TSG
 #define IDATAWIDGET_H_DMUO9TSG
 
-#include <QWidget>
+#include <QFrame>
 
 /* Widget that displays some data (like statistics, etc) and has
  * means to access this data, but does not now when underlying data
@@ -31,7 +31,7 @@
  * Extends QWidget to provide 'synchronize()' slot.
  * It's ment to be called when widget's underlying data
  * has been changed and should be requeried.*/
-class DataWidget : public QWidget {
+class DataWidget : public QFrame {
     Q_OBJECT
 
 public:

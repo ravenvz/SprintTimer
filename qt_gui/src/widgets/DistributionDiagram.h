@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef POMODORO_TAGDIAGRAM_H
-#define POMODORO_TAGDIAGRAM_H
+#ifndef DISTRIBUTIONDIAGRAM_H
+#define DISTRIBUTIONDIAGRAM_H
 
 #include "widgets/PieChart.h"
 #include "widgets/SimpleLegend.h"
@@ -80,4 +80,5 @@ private:
 };
 
 
-#endif // POMODORO_TAGDIAGRAM_H
+#endif // DISTRIBUTIONDIAGRAM_H
+

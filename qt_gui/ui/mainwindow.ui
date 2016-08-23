@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Sprint Timer</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
@@ -127,7 +127,7 @@
       </widget>
      </item>
      <item row="1" column="2">
-      <widget class="PomodoroView" name="lvCompletedPomodoros">
+      <widget class="SprintListView" name="lvFinishedSprints">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -163,7 +163,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources/resources.qrc">
-           <normaloff>:/icons/statistics.png</normaloff>:/icons/statistics.png</iconset>
+           <normaloff>:/icons/statistics.svg</normaloff>:/icons/statistics.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -183,7 +183,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources/resources.qrc">
-           <normaloff>:/icons/history.ico</normaloff>:/icons/history.ico</iconset>
+           <normaloff>:/icons/streamline_history.png</normaloff>:/icons/streamline_history.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -203,7 +203,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources/resources.qrc">
-           <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
+           <normaloff>:/icons/progress.svg</normaloff>:/icons/progress.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -223,7 +223,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources/resources.qrc">
-           <normaloff>:/icons/control_panel.ico</normaloff>:/icons/control_panel.ico</iconset>
+           <normaloff>:/icons/streamline_settings.png</normaloff>:/icons/streamline_settings.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -236,9 +236,9 @@
       </layout>
      </item>
      <item row="2" column="2">
-      <widget class="QPushButton" name="pbAddPomodoroManually">
+      <widget class="QPushButton" name="pbAddSprintManually">
        <property name="text">
-        <string>Add Pomodoro manually</string>
+        <string>Add Sprint manually</string>
        </property>
       </widget>
      </item>
@@ -269,10 +269,16 @@
        <item alignment="Qt::AlignHCenter">
         <widget class="QPushButton" name="pbToggleView">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>91</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="toolTip">
           <string>Toggle extended mode</string>
@@ -289,6 +295,12 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>91</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="toolTip">
           <string>Toggle menu</string>
@@ -316,9 +328,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PomodoroView</class>
+   <class>SprintListView</class>
    <extends>QListView</extends>
-   <header>widgets/PomodoroView.h</header>
+   <header>widgets/SprintListView.h</header>
   </customwidget>
   <customwidget>
    <class>TaskView</class>

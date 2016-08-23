@@ -4,15 +4,15 @@ set(PROJECT ${CORE_LIB})
 project(${PROJECT})
 set(CORE_SOURCE_FILES
     src/DateTime.cpp
-    src/PomodoroStatistics.cpp
-    src/PomodoroTimer.cpp
-    src/Timer.cpp
-    src/TimeSpan.cpp
-    src/Pomodoro.cpp
-    src/Task.cpp
-    src/Tag.cpp
-    src/StringUtils.cpp
-    src/PomodoroService.cpp
+        src/SprintStatistics.cpp
+        src/StatefulTimer.cpp
+        src/Timer.cpp
+        src/TimeSpan.cpp
+        src/Sprint.cpp
+        src/Task.cpp
+        src/Tag.cpp
+        src/StringUtils.cpp
+        src/CoreService.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -36,9 +36,8 @@ if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
-
-# target_link_libraries(test_pomodoro_core INTERFACE DateLib)
-
-# enable_testing()
-# add_test(test_pomodoro_core test_pomodoro_core)
+if (WIN32)
+    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+else()
+    install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+endif()

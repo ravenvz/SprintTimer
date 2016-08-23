@@ -23,7 +23,7 @@
 #define QTTASKSTORAGEREADER_H_48BDKQZ7
 
 #include "core/ITaskStorageReader.h"
-#include "qt_storage_impl/db_service.h"
+#include "qt_storage_impl/DBService.h"
 #include <QObject>
 
 class QtTaskStorageReader : public QObject, public ITaskStorageReader {
@@ -42,8 +42,8 @@ private:
     enum class Column {
         Id,
         Name,
-        EstimatedPomodoros,
-        SpentPomodoros,
+        EstimatedCost,
+        ActualCost,
         Priority,
         Completed,
         Tags,

@@ -24,16 +24,16 @@
 #include <algorithm>
 #include <iostream>
 
-TaskModel::TaskModel(IPomodoroService& pomodoroService, QObject* parent)
+TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel{parent}
-    , pomodoroService{pomodoroService}
+    , coreService{coreService}
 {
     synchronize();
 }
 
 void TaskModel::requestDataUpdate()
 {
-    pomodoroService.requestUnfinishedTasks(
+    coreService.requestUnfinishedTasks(
         std::bind(&TaskModel::onDataChanged, this, std::placeholders::_1));
 }
 
@@ -78,12 +78,12 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
         return QString::fromStdString(storage[index.row()].name());
     case StatsRole:
         return QString("%1/%2")
-            .arg(storage[index.row()].spentPomodoros())
-            .arg(storage[index.row()].estimatedPomodoros());
+            .arg(storage[index.row()].actualCost())
+            .arg(storage[index.row()].estimatedCost());
     case Qt::CheckStateRole:
         return storage[index.row()].isCompleted();
-    case GetSpentPomodorosRole:
-        return storage[index.row()].spentPomodoros();
+    case GetFinishedSprintsRole:
+        return storage[index.row()].actualCost();
     default:
         return QVariant();
     }
@@ -96,7 +96,7 @@ int TaskModel::rowCount(const QModelIndex& parent) const
 
 void TaskModel::insert(const Task& item)
 {
-    pomodoroService.registerTask(item);
+    coreService.registerTask(item);
     requestDataUpdate();
 }
 
@@ -105,7 +105,7 @@ void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 void TaskModel::remove(const int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
-    pomodoroService.removeTask(itemAt(row));
+    coreService.removeTask(itemAt(row));
     requestDataUpdate();
     endRemoveRows();
 }
@@ -114,14 +114,14 @@ Task TaskModel::itemAt(const int row) const { return storage.at(row); }
 
 void TaskModel::toggleCompleted(const QModelIndex& index)
 {
-    pomodoroService.toggleTaskCompletionStatus(itemAt(index.row()));
+    coreService.toggleTaskCompletionStatus(itemAt(index.row()));
     requestDataUpdate();
 }
 
 void TaskModel::replaceItemAt(const int row, const Task& newItem)
 {
     Task oldItem = itemAt(row);
-    pomodoroService.editTask(oldItem, newItem);
+    coreService.editTask(oldItem, newItem);
     requestDataUpdate();
 }
 
@@ -145,7 +145,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
     }
     std::swap(priorities[sourceRow].second, priorities[destinationRow].second);
 
-    pomodoroService.registerTaskPriorities(std::move(priorities));
+    coreService.registerTaskPriorities(std::move(priorities));
     requestDataUpdate();
 
     return true;

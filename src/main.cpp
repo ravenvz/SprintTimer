@@ -49,9 +49,9 @@
 #endif
 
 #include "QtConfig.h"
-#include "core/PomodoroService.h"
+#include "core/CoreService.h"
 #include "qt_storage_impl/QtStorageImplementersFactory.h"
-#include "widgets/mainwindow.h"
+#include "widgets/MainWindow.h"
 #include <QApplication>
 #include <cstdlib>
 #include <experimental/filesystem>
@@ -68,7 +68,7 @@ std::string createDataDirectoryIfNotExist()
 {
     std::string prefix = getUserDataDirectory();
     std::cout << "Prefix is: " << prefix << std::endl;
-    const std::string dataDirectory{prefix + "/pomodoro"};
+    const std::string dataDirectory{prefix + "/sprint"};
     if (!exists(dataDirectory)) {
         create_directory(dataDirectory);
     }
@@ -106,43 +106,41 @@ int main(int argc, char* argv[])
 {
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QApplication::setOrganizationName("RavenStudio");
-    QApplication::setApplicationName("Pomodoro");
+    QApplication::setApplicationName("SprintTimer");
     Config applicationSettings;
 
     const std::string dataDirectory = createDataDirectoryIfNotExist();
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/pomodoro.db"};
+    DBService dbService{dataDirectory + "/sprint.db"};
 
     QtStorageImplementersFactory factory{dbService};
-    std::unique_ptr<IPomodoroStorageReader> pomodoroStorageReader{
-        factory.createPomodoroStorageReader()};
-    std::unique_ptr<IPomodoroStorageWriter> pomodoroStorageWriter{
-        factory.createPomodoroStorageWriter()};
-    std::unique_ptr<IPomodoroYearRangeReader> pomodoroYearRangeReader{
-        factory.createPomodoroYearRangeReader()};
+    std::unique_ptr<ISprintStorageReader> sprintStorageReader{
+            factory.createSprintStorageReader()};
+    std::unique_ptr<ISprintStorageWriter> sprintStorageWriter{
+            factory.createSprintStorageWriter()};
+    std::unique_ptr<IYearRangeReader> sprintYearRangeReader{
+            factory.createYearRangeReader()};
     std::unique_ptr<ITaskStorageReader> taskStorageReader{
-        factory.createTaskStorageReader()};
+            factory.createTaskStorageReader()};
     std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
-        factory.createTaskStorageWriter()};
-    std::unique_ptr<IPomodoroDistributionReader> dailyDistributionReader{
-        factory.createPomoDailyDistributionReader()};
-    std::unique_ptr<IPomodoroDistributionReader> weeklyDistributionReader{
-        factory.createPomoWeeklyDistributionReader()};
-    std::unique_ptr<IPomodoroDistributionReader> monthlyDistributionReader{
-        factory.createPomoMonthlyDistributionReader()};
+            factory.createTaskStorageWriter()};
+    std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
+            factory.createSprintDailyDistributionReader()};
+    std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
+            factory.createSprintWeeklyDistributionReader()};
+    std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
+            factory.createSprintMonthlyDistributionReader()};
 
-    CoreApi::PomodoroService pomodoroService{*pomodoroStorageReader.get(),
-                                             *pomodoroStorageWriter.get(),
-                                             *pomodoroYearRangeReader.get(),
+    Core::CoreService coreService{*sprintStorageReader.get(),
+                                             *sprintStorageWriter.get(),
+                                             *sprintYearRangeReader.get(),
                                              *taskStorageReader.get(),
                                              *taskStorageWriter.get(),
                                              *dailyDistributionReader.get(),
                                              *weeklyDistributionReader.get(),
                                              *monthlyDistributionReader.get()};
 
-    qDebug() << "Successfully connected to database";
-
-    MainWindow w{applicationSettings, pomodoroService};
+    MainWindow w{applicationSettings, coreService};
     w.show();
 
     return app.exec();

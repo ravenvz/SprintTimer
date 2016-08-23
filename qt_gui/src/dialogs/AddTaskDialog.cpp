@@ -47,7 +47,7 @@ AddTaskDialog::~AddTaskDialog() { delete ui; }
 Task AddTaskDialog::constructedTask()
 {
     const std::string name = ui->taskName->text().toStdString();
-    const int estimatedPomodoros = ui->estimatedPomodoros->value();
+    const int estimatedCost = ui->estimatedCost->value();
     std::list<Tag> tags;
     std::list<std::string> tagNames
         = StringUtils::parseWords(ui->leTags->text().toStdString());
@@ -60,7 +60,7 @@ Task AddTaskDialog::constructedTask()
                    std::back_inserter(tags),
                    [](const auto& name) { return Tag{name}; });
 
-    return Task{name, estimatedPomodoros, 0, tags, false};
+    return Task{name, estimatedCost, 0, tags, false};
 }
 
 void AddTaskDialog::accept()
@@ -82,7 +82,7 @@ void AddTaskDialog::fillItemData(const Task& item)
     QString joined_tags = QString::fromStdString(
         StringUtils::join(tagNames.cbegin(), tagNames.cend(), " "));
     ui->taskName->setText(QString::fromStdString(item.name()));
-    ui->estimatedPomodoros->setValue(item.estimatedPomodoros());
+    ui->estimatedCost->setValue(item.estimatedCost());
     ui->leTags->setText(joined_tags);
 }
 

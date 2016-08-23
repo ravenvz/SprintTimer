@@ -31,120 +31,120 @@
 class Config : public IConfig {
 
 public:
-    int pomodoroDuration() const final
+    int sprintDuration() const override
     {
-        return settings.value("pomodoroDuration").toInt();
+        return settings.value("sprintDuration").toInt();
     }
 
-    void setPomodoroDuration(int pomodoroDuration) final
+    void setSprintDuration(int minutes) override
     {
-        Config::settings.setValue("pomodoroDuration",
-                                  QVariant(pomodoroDuration));
+        Config::settings.setValue("sprintDuration",
+                                  QVariant(minutes));
     }
 
-    int shortBreakDuration() const final
+    int shortBreakDuration() const override
     {
         return settings.value("shortBreakDuration").toInt();
     }
 
-    void setShortBreakDuration(int shortBreakDuration) final
+    void setShortBreakDuration(int minutes) override
     {
         Config::settings.setValue("shortBreakDuration",
-                                  QVariant(shortBreakDuration));
+                                  QVariant(minutes));
     }
 
-    int longBreakDuration() const final
+    int longBreakDuration() const override
     {
         return settings.value("longBreakDuration").toInt();
     }
 
-    void setLongBreakDuration(int longBreakDuration) final
+    void setLongBreakDuration(int minutes) override
     {
         Config::settings.setValue("longBreakDuration",
-                                  QVariant(longBreakDuration));
+                                  QVariant(minutes));
     }
 
-    int numPomodorosBeforeBreak() const final
+    int numSprintsBeforeBreak() const override
     {
-        return settings.value("tasksBeforeBreak").toInt();
+        return settings.value("sprintsBeforeBreak").toInt();
     }
 
-    void setPomodorosBeforeBreak(int tasksBeforeBreak) final
+    void setNumSprintsBeforeBreak(int numSprints) override
     {
-        Config::settings.setValue("tasksBeforeBreak",
-                                  QVariant(tasksBeforeBreak));
+        Config::settings.setValue("sprintsBeforeBreak",
+                                  QVariant(numSprints));
     }
 
-    bool soundIsEnabled() const final
+    bool soundIsEnabled() const override
     {
         return settings.value("playSound").toBool();
     }
 
-    void setPlaySound(bool playSound) final
+    void setPlaySound(bool playSound) override
     {
         Config::settings.setValue("playSound", QVariant(playSound));
     }
 
-    int soundVolume() const final
+    int soundVolume() const override
     {
         return settings.value("soundVolume").toInt();
     }
 
-    void setSoundVolume(int soundVolume) final
+    void setSoundVolume(int soundVolume) override
     {
         Config::settings.setValue("soundVolume", QVariant(soundVolume));
     }
 
-    int dailyPomodorosGoal() const final
+    int dailyGoal() const override
     {
-        return settings.value("dailyPomodorosGoal").toInt();
+        return settings.value("dailyGoal").toInt();
     }
 
-    void setDailyPomodorosGoal(int dailyPomodorosGoal) final
+    void setDailyGoal(int numSprints) override
     {
-        Config::settings.setValue("dailyPomodorosGoal",
-                                  QVariant(dailyPomodorosGoal));
+        Config::settings.setValue("dailyGoal",
+                                  QVariant(numSprints));
     }
 
-    int weeklyPomodorosGoal() const final
+    int weeklyGoal() const override
     {
-        return settings.value("weeklyPomodorosGoal").toInt();
+        return settings.value("weeklyGoal").toInt();
     }
 
-    void setWeeklyPomodorosGoal(int weeklyPomodorosGoal) final
+    void setWeeklyGoal(int numSprints) override
     {
-        Config::settings.setValue("weeklyPomodorosGoal",
-                                  QVariant(weeklyPomodorosGoal));
+        Config::settings.setValue("weeklyGoal",
+                                  QVariant(numSprints));
     }
 
-    int monthlyPomodorosGoal() const final
+    int monthlyGoal() const override
     {
-        return settings.value("monthlyPomodorosGoal").toInt();
+        return settings.value("monthlyGoal").toInt();
     }
 
-    void setMonthlyPomodorosGoal(int monthlyPomodorosGoal) final
+    void setMonthlyGoal(int numSprints) override
     {
-        Config::settings.setValue("monthlyPomodorosGoal",
-                                  QVariant(monthlyPomodorosGoal));
+        Config::settings.setValue("monthlyGoal",
+                                  QVariant(numSprints));
     }
 
-    std::string soundFilePath() const final
+    std::string soundFilePath() const override
     {
         return Config::settings.value("soundFilePath").toString().toStdString();
     }
 
-    void setSoundFilePath(const std::string& filePath) final
+    void setSoundFilePath(const std::string& filePath) override
     {
         Config::settings.setValue("soundFilePath",
                                   QVariant(QString::fromStdString(filePath)));
     }
 
-    int timerFlavour() const final
+    int timerFlavour() const override
     {
         return Config::settings.value("timerFlavour").toInt();
     }
 
-    void setTimerFlavour(int timerVariation)
+    void setTimerFlavour(int timerVariation) override
     {
         Config::settings.setValue("timerFlavour", QVariant(timerVariation));
     }

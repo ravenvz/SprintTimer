@@ -35,8 +35,8 @@ public:
         : writer{writer}
         , task{task}
         , editedTask{editedTask.name(),
-                     editedTask.estimatedPomodoros(),
-                     task.spentPomodoros(),
+                     editedTask.estimatedCost(),
+                     task.actualCost(),
                      task.uuid(),
                      editedTask.tags(),
                      task.isCompleted(),

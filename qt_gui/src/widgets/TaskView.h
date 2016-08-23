@@ -24,11 +24,11 @@
 
 
 #include "dialogs/AddTaskDialog.h"
-#include "dialogs/confirmationdialog.h"
+#include "dialogs/ConfirmationDialog.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
 #include "widgets/TaskViewDelegate.h"
-#include "widgets/tageditorwidget.h"
+#include "widgets/TagEditor.h"
 #include <QDropEvent>
 #include <QListView>
 #include <QMenu>
