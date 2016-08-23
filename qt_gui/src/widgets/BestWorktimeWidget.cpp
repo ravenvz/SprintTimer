@@ -22,6 +22,7 @@
 
 #include "widgets/BestWorktimeWidget.h"
 #include "ui_best_worktime_widget.h"
+#include "core/SprintStatistics.h"
 
 BestWorktimeWidget::BestWorktimeWidget(QWidget* parent)
     : QWidget{parent}
@@ -57,9 +58,10 @@ void BestWorktimeWidget::updateWorkHoursDiagram(
         auto maxValueBin
             = static_cast<unsigned>(workTimeDistribution.getMaxValueBin());
         ui->labelBestWorktimeName->setText(
-            QString::fromStdString(TimeSpan::dayPartName(maxValueBin)));
+            QString::fromStdString(DayPart::dayPartName(maxValueBin)));
         ui->labelBestWorktimeHours->setText(
-            QString::fromStdString(TimeSpan::dayPartHours(maxValueBin)));
+            QString::fromStdString(DayPart::dayPartHours(maxValueBin)));
     }
     ui->timeDiagram->setIntervals(std::move(timeSpans));
 }
+

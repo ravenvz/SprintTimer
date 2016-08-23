@@ -42,7 +42,6 @@ public:
 
 private:
     Ui::BestWorktimeWidget* ui;
-
     void
     updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
                            const std::vector<Sprint>& sprints);
