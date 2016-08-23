@@ -144,7 +144,7 @@ Task QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
                 estimatedCost,
                 actualCost,
                 uuid,
-                tags,
+                std::move(tags),
                 finished,
                 lastModified};
 }

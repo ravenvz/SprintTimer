@@ -60,7 +60,7 @@ Task AddTaskDialog::constructedTask()
                    std::back_inserter(tags),
                    [](const auto& name) { return Tag{name}; });
 
-    return Task{name, estimatedCost, 0, tags, false};
+    return Task{name, estimatedCost, 0, std::move(tags), false};
 }
 
 void AddTaskDialog::accept()

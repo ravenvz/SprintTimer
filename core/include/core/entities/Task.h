@@ -43,14 +43,14 @@ public:
     Task(std::string name,
              int estimatedCost,
              int actualCost,
-             std::list<Tag> tags, // TODO should be reference or moved
+             std::list<Tag> tags,
              bool completed);
 
     Task(std::string name,
              int estimatedCost,
              int actualCost,
              const std::string& uuid,
-             std::list<Tag> tags, // TODO should be reference or moved
+             std::list<Tag> tags,
              bool completed,
              const DateTime& lastModified);
 
