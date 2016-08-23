@@ -111,9 +111,7 @@ int main(int argc, char* argv[])
 
     const std::string dataDirectory = createDataDirectoryIfNotExist();
     QApplication app(argc, argv);
-//    DBService dbService{dataDirectory + "/sprint.db"};
-     DBService dbService{dataDirectory + "/test_pomodoro.db"};
-    std::cout << dataDirectory + "/test_pomodoro.db" << std::endl;
+    DBService dbService{dataDirectory + "/sprint.db"};
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{
