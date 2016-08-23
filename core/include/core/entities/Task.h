@@ -125,7 +125,6 @@ public:
 private:
     static BoostUUIDGenerator generator;
     std::string mName;
-    std::string mEncodedDescription;
     int mEstimatedCost{1};
     int mActualCost{0};
     std::string mUuid;
