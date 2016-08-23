@@ -1,7 +1,15 @@
+Version 0.3.5
+-------------
+
+Optimisations for smaller screens (think laptop)
+Windows build
+Application resources (icons, sounds, etc) are installed automatically
+
 Version 0.3.4
 -------------
 
 Copyright issues are resolved
+    Remove almost all namings that could violate certain trademark
 
 
 Version 0.3.3
