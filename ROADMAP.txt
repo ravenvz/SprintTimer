@@ -29,8 +29,8 @@ Bugfixes:
     Fixed bug when only one of Statistics widget or History widget
         was updated when both were opened
     Fixed ussue when Statistics widget was not updated when task that
-        has pomodoros has been deleted
-    Fixed crash when adding Pomodoro manually and there are no tasks
+        has sprints has been deleted
+    Fixed crash when adding sprint manually when there are no tasks
         present
     Fixed issue when date picker widget was not working if there is
         no data about years present
@@ -64,16 +64,16 @@ Fixed crashes when picking period in statistics view.
 Version 0.2.0
 -------------
 
-Updates in todo items' tags and name are now
-reflected in pomodoros history and statistics.
-    That means that if todo item name/tags are changed,
-    it's 'spent' pomodoros' names/tags are changed too
+Updates in tasks' tags and name are now
+reflected in sprint history and statistics.
+    That means that if task name/tags are changed,
+    it's associated sprint's names/tags are changed too
 
-Pomodoros can now be removed from main window
+Sprints can now be removed from main window
 
 Tags can now be edited globally
     If tag is edited globally, it will be changed in all
-    previously stored todo items and pomodoros
+    previously stored tasks and sprints
 
 Database schema has changed and is not compatible with previous versions.
     To alter DB schema migration script is needed.
@@ -92,7 +92,7 @@ Added goals system
 
     Added Goals View where users are able to
         to specify goals in terms of expected number
-        of completed pomodoros for a month, week, day
+        of finished sprints for a month, week, day
     Added dynamic diagrams indicating goal achievement progress
         for the last 30 days, last 12 weeks and last 12 months
 
@@ -100,8 +100,8 @@ Added goals system
 Version 0.1.2
 -------------
 
-It is now possible to browse history of completed pomodoros
-and todo items
+It is now possible to browse history of finished spints
+and tasks
 
     Added basic sprint history browser
     Added basic sprint history browser
@@ -123,13 +123,13 @@ Application should be usable on day-to-day basis
 
     Added basic sprint list to GUI
     Added basic Todo Items list to select tasks from to GUI
-    Added quick-add todo item functionality
+    Added quick-add task item functionality
 
 
 Version 0.0.2
 -------------
 
-    Completed pomodoros are stored in the db
+    Finished sprints are stored in the db
 
 
 Version 0.0.1

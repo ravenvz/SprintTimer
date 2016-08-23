@@ -163,7 +163,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources/resources.qrc">
-           <normaloff>:/icons/statistics.png</normaloff>:/icons/statistics.png</iconset>
+           <normaloff>:/icons/statistics.svg</normaloff>:/icons/statistics.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -183,7 +183,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources/resources.qrc">
-           <normaloff>:/icons/history.ico</normaloff>:/icons/history.ico</iconset>
+           <normaloff>:/icons/streamline_history.png</normaloff>:/icons/streamline_history.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -203,7 +203,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources/resources.qrc">
-           <normaloff>:/icons/pomodoro.png</normaloff>:/icons/pomodoro.png</iconset>
+           <normaloff>:/icons/progress.svg</normaloff>:/icons/progress.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -223,7 +223,7 @@
          </property>
          <property name="icon">
           <iconset resource="../resources/resources.qrc">
-           <normaloff>:/icons/control_panel.ico</normaloff>:/icons/control_panel.ico</iconset>
+           <normaloff>:/icons/streamline_settings.png</normaloff>:/icons/streamline_settings.png</iconset>
          </property>
          <property name="iconSize">
           <size>

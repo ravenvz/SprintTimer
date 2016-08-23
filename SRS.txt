@@ -23,8 +23,7 @@ USER REQUIREMENTS
 Core features
 -------------
 
-    - Application should support Pomodoro technique workflow (pomodoros should be
-        interleaved with short and long breaks)
+    - Application should support, among other things, Pomodoro technique workflow
         * After submitting sprint, short break should be started automatically
         * After completing specified number of pomodoros in a row, long break should
           be started automatically
@@ -97,7 +96,8 @@ Optional features
 CONSTRAINTS
 ------------------------------------------------
 
-- Application should work on GNU/Linux operation system
+- Application should work on GNU/Linux OS
+- Application should work on Windows OS (optional)
 
 SYSTEM REQUIREMENTS
 ------------------------------------------------
