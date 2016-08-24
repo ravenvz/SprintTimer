@@ -33,36 +33,71 @@ class DistributionReaderBase : public QObject,
     Q_OBJECT
 
 public:
-    DistributionReaderBase(DBService& dbService);
+    virtual ~DistributionReaderBase() = default;
 
     virtual void requestDistribution(const TimeSpan& timeSpan,
                                      Handler handler) final;
 
-private slots:
-
-    virtual void onResultsReceived(long long queryId,
-                                   const std::vector<QSqlRecord>& records);
-
 protected:
     DBService& dbService;
+    size_t distributionSize;
     std::list<Handler> handler_queue;
+    QDate startDate;
+    QDate endDate;
+    std::function<bool(const QDate&, const QDate&)> equalityFunc;
+    std::function<QDate(const QDate&)> incrementFunc;
     long long mQueryId{-1};
-};
+    bool invalidQueryId(long long int queryId) const;
 
+    DistributionReaderBase(
+        DBService& dbService,
+        size_t distributionSize,
+        std::function<bool(const QDate&, const QDate&)> compareFunc,
+        std::function<QDate(const QDate&)> incrementFunc);
+
+    void executeCallback(std::vector<int>&& sprintCount);
+
+    template <class EqualityCriteria, class DateIncrementer>
+    std::vector<int> fillDateGaps(const std::vector<QSqlRecord>& records,
+                                  EqualityCriteria comp,
+                                  DateIncrementer incrementer)
+    {
+
+        std::vector<int> sprintCount(distributionSize, 0);
+
+        QDate current = startDate;
+        auto it = cbegin(records);
+        for (auto& elem : sprintCount) {
+            if (it == cend(records))
+                break;
+            if (comp(current, it->value(1).toDate())) {
+                elem = it->value(0).toInt();
+                ++it;
+            }
+            current = incrementer(current);
+        }
+
+        return sprintCount;
+    }
+
+private slots:
+    virtual void onResultsReceived(long long queryId,
+                                   const std::vector<QSqlRecord>& records);
+};
 
 class QtSprintDailyDistributionReader : public DistributionReaderBase {
 public:
-    QtSprintDailyDistributionReader(DBService& dbService);
+    QtSprintDailyDistributionReader(DBService& dbService, size_t numBins);
 };
 
 class QtSprintWeeklyDistributionReader : public DistributionReaderBase {
 public:
-    QtSprintWeeklyDistributionReader(DBService& dbService);
+    QtSprintWeeklyDistributionReader(DBService& dbService, size_t numBins);
 };
 
 class QtSprintMonthlyDistributionReader : public DistributionReaderBase {
 public:
-    QtSprintMonthlyDistributionReader(DBService& dbService);
+    QtSprintMonthlyDistributionReader(DBService& dbService, size_t numBins);
 };
 
 #endif /* end of include guard: QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3 */

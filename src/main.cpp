@@ -77,11 +77,11 @@ std::string createDataDirectoryIfNotExist()
 std::string getUserDataDirectory()
 {
 #ifdef _WIN_32
-// TODO
+// TODO win32 is not yet supported
 #elif defined(__linux__)
     return getUnixDataDirectory();
 #elif defined(__APPLE__)
-// TODO
+// TODO apple is not yet supported
 #else
 #error "Unknown compiler"
 #endif
