@@ -73,15 +73,15 @@ private:
     IConfig& applicationSettings;
     ICoreService& coreService;
     std::vector<Sprint> sprints;
-    TagDistribution tagDistribution;
+    TagTop tagTop;
     DateInterval currentInterval;
-    const int numTopTags = 7; // TODO move to config
+    const size_t numTopTags{7}; // TODO move to config
     optional<size_t> selectedTagIndex;
 
     void fetchData();
     void drawGraphs();
     void updateTopTagsDiagram(
-        std::vector<TagCount>& tagCounts);
+        std::vector<TagTop::TagFrequency>& tagCounts);
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
     void onDataFetched(const std::vector<Sprint> &sprints);
 };

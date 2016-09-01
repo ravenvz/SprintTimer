@@ -20,135 +20,146 @@
 **
 *********************************************************************************/
 #include "core/SprintStatistics.h"
+#include <numeric>
 
 
-TagDistribution::TagDistribution(const std::vector<Sprint>& sprints,
-                                 int numTopTags)
-    : numTopTags(static_cast<size_t>(numTopTags))
+TagTop::TagTop(const std::vector<Sprint>& sprints, size_t topMaxSize)
+    : numTopTags{topMaxSize}
 {
-    for (const Sprint& sprint : sprints) {
-        for (const auto& tag : sprint.tags()) {
-            sprintsForTag[tag].push_back(sprint);
-        }
+    arrangeSprintsByTag(sprints);
+    computeTagFrequencies();
+    orderTagsByDecreasingFrequency();
+    mergeTagsWithLowestFrequencies();
+}
+
+
+void TagTop::arrangeSprintsByTag(const std::vector<Sprint>& sprints)
+{
+    for (const Sprint& sprint : sprints)
+        for (const auto& tag : sprint.tags())
+            sprintsByTag[tag].push_back(sprint);
+}
+
+
+void TagTop::computeTagFrequencies()
+{
+    int total = std::accumulate(
+        sprintsByTag.cbegin(),
+        sprintsByTag.cend(),
+        0,
+        [](int aux, const auto& entry) { return aux + entry.second.size(); });
+
+    for (const auto& entry : sprintsByTag) {
+        frequencies.push_back(
+            {entry.first, entry.second.size() / double(total)});
     }
-    buildDistribution();
 }
 
 
-std::vector<TagCount> TagDistribution::topTagsDistribution() const
+void TagTop::orderTagsByDecreasingFrequency()
 {
-    return sliceData;
+    std::sort(frequencies.begin(),
+              frequencies.end(),
+              [](const auto& lhs, const auto& rhs) {
+                  return lhs.second > rhs.second;
+              });
 }
 
 
-std::vector<Sprint> TagDistribution::sprintsWithTag(const Tag &tag) const
+void TagTop::mergeTagsWithLowestFrequencies()
 {
-    // TODO deal with
-    // May throw out_of_range, but if there is no tag in map, we're screwed
-    // anyway so let it crash for now
-    return sprintsForTag.at(tag);
-}
-
-
-std::vector<Sprint> TagDistribution::sprintsForNthTopTag(size_t n) const
-{
-    // TODO deal with
-    // May throw out_of_range, but if there is no keys in maps, we're screwed
-    // anyway so let it crash for now
-    return sprintsForTag.at(sliceIndexMap.at(n));
-}
-
-
-std::string TagDistribution::getNthTopTagName(size_t n) const
-{
-    // TODO deal with
-    // May throw out_of_range, but if there is no key in map, we're screwed
-    // anyway so let it crash for now
-    return sliceIndexMap.at(n).name();
-}
-
-
-void TagDistribution::buildDistribution()
-{
-    int total = 0;
-    for (const auto& entry : sprintsForTag) {
-        sliceData.push_back(std::make_pair(entry.first, entry.second.size()));
-        total += entry.second.size();
-    }
-
-    // Normalize and sort slice data
-    std::transform(sliceData.begin(),
-                   sliceData.end(),
-                   sliceData.begin(),
-                   [total](const auto& entry) {
-                       return std::make_pair(entry.first,
-                                             double(entry.second) / total);
-                   });
-    std::sort(sliceData.begin(),
-              sliceData.end(),
-              [](const auto& a, const auto& b) { return a.second > b.second; });
-    reduceTailToSum();
-    buildIndexMap();
-}
-
-
-// TODO should probably be able to find a way to simplify this method
-void TagDistribution::reduceTailToSum()
-{
-    if (sliceData.size() < numTopTags) {
+    if (frequencies.size() < numTopTags) {
         return;
     }
-    while (sliceData.size() > numTopTags) {
-        sliceData[sliceData.size() - 2].second += sliceData.back().second;
-        sliceData.pop_back();
-    }
 
-    const Tag dummyTag{""};
+    auto otherTags = mergeBottomTags();
 
-    sliceData.back().first = dummyTag;
-    std::vector<Tag> topTagsSet;
-    topTagsSet.reserve(sliceData.size());
-    std::transform(sliceData.cbegin(),
-                   sliceData.cend(),
-                   std::back_inserter(topTagsSet),
-                   [](const auto& elem) { return elem.first; });
-
-    std::vector<Tag> allTags;
-    allTags.reserve(sprintsForTag.size());
-    std::transform(sprintsForTag.cbegin(),
-                   sprintsForTag.cend(),
-                   std::back_inserter(allTags),
-                   [](const auto& entry) { return entry.first; });
-
-    std::sort(topTagsSet.begin(), topTagsSet.end());
-    std::sort(allTags.begin(), allTags.end());
-
-    std::vector<Tag> otherTags;
-    std::set_difference(allTags.begin(),
-                        allTags.end(),
-                        topTagsSet.begin(),
-                        topTagsSet.end(),
-                        std::back_inserter(otherTags));
-
-    sprintsForTag.insert(std::make_pair(dummyTag, std::vector<Sprint>()));
     for (const auto& tag : otherTags) {
-        sprintsForTag[dummyTag].insert(sprintsForTag[dummyTag].end(),
-                                          sprintsForTag[tag].begin(),
-                                          sprintsForTag[tag].end());
+        sprintsByTag[dummyTag].insert(sprintsByTag[dummyTag].end(),
+                                      sprintsByTag[tag].begin(),
+                                      sprintsByTag[tag].end());
     }
 }
 
 
-void TagDistribution::buildIndexMap()
+std::vector<Tag> TagTop::mergeBottomTags()
 {
-    for (size_t i = 0; i < sliceData.size(); ++i) {
-        sliceIndexMap[i] = sliceData[i].first;
+    while (frequencies.size() > numTopTags) {
+        frequencies[frequencies.size() - 2].second += frequencies.back().second;
+        frequencies.pop_back();
     }
+    frequencies.back().first = dummyTag;
+    sprintsByTag.insert(std::make_pair(dummyTag, std::vector<Sprint>()));
+    return findBottomTags();
+}
+
+
+std::vector<Tag> TagTop::findBottomTags() const
+{
+    std::vector<Tag> topTags = findTopTags();
+    std::vector<Tag> allTags = findAllTags();
+    std::sort(topTags.begin(), topTags.end());
+    std::sort(allTags.begin(), allTags.end());
+
+    std::vector<Tag> bottomTags;
+    std::set_difference(allTags.begin(),
+                        allTags.end(),
+                        topTags.begin(),
+                        topTags.end(),
+                        std::back_inserter(bottomTags));
+
+    return bottomTags;
+}
+
+
+std::vector<Tag> TagTop::findTopTags() const
+{
+    std::vector<Tag> topTagsSet;
+    topTagsSet.reserve(frequencies.size());
+    transform(frequencies.cbegin(),
+              frequencies.cend(),
+              back_inserter(topTagsSet),
+              [](const auto& elem) { return elem.first; });
+    return topTagsSet;
+}
+
+
+std::vector<Tag> TagTop::findAllTags() const
+{
+    std::vector<Tag> allTags;
+    allTags.reserve(sprintsByTag.size());
+
+    transform(sprintsByTag.cbegin(),
+              sprintsByTag.cend(),
+              back_inserter(allTags),
+              [](const auto& entry) { return entry.first; });
+
+    return allTags;
+}
+
+
+std::vector<TagTop::TagFrequency> TagTop::tagFrequencies() const { return frequencies; }
+
+
+std::vector<Sprint> TagTop::sprintsForTagAt(size_t position) const
+{
+    return sprintsByTag.at(tagNameAt(position));
+}
+
+
+std::string TagTop::tagNameAt(size_t position) const
+{
+    return frequencies.at(position).first.name();
+}
+
+
+size_t TagTop::topSize() const {
+    return frequencies.size();
 }
 
 
 SprintStatItem::SprintStatItem(const std::vector<Sprint>& sprints,
-                                   const TimeSpan& timeInterval)
+                               const TimeSpan& timeInterval)
     : timeSpan(timeInterval)
     , mSprints(sprints)
 {
@@ -204,7 +215,8 @@ std::vector<double> SprintStatItem::computeWorkTimeDistribution() const
 {
     std::vector<double> distribution(DayPart::numParts, 0);
     for (const Sprint& sprint : mSprints) {
-        distribution[static_cast<size_t>(DayPart::dayPart(sprint.timeSpan()))]++;
+        distribution[static_cast<size_t>(
+            DayPart::dayPart(sprint.timeSpan()))]++;
     }
     return distribution;
 }
@@ -255,18 +267,18 @@ std::string dayPartName(unsigned dayPart)
 std::string dayPartName(DayPart dayPart)
 {
     switch (dayPart) {
-        case DayPart::Midnight:
-            return "Midnight";
-        case DayPart::Night:
-            return "Night";
-        case DayPart::Morning:
-            return "Morning";
-        case DayPart::Noon:
-            return "Noon";
-        case DayPart::Afternoon:
-            return "Afternoon";
-        case DayPart::Evening:
-            return "Evening";
+    case DayPart::Midnight:
+        return "Midnight";
+    case DayPart::Night:
+        return "Night";
+    case DayPart::Morning:
+        return "Morning";
+    case DayPart::Noon:
+        return "Noon";
+    case DayPart::Afternoon:
+        return "Afternoon";
+    case DayPart::Evening:
+        return "Evening";
     }
     return "Invalid";
 }
@@ -274,18 +286,18 @@ std::string dayPartName(DayPart dayPart)
 std::string dayPartHours(DayPart dayPart)
 {
     switch (dayPart) {
-        case DayPart::Midnight:
-            return "22:00 - 2:00";
-        case DayPart::Night:
-            return "2:00 - 6:00";
-        case DayPart::Morning:
-            return "6:00 - 10:00";
-        case DayPart::Noon:
-            return "10:00 - 14:00";
-        case DayPart::Afternoon:
-            return "14:00 - 18:00";
-        case DayPart::Evening:
-            return "18:00 - 22:00";
+    case DayPart::Midnight:
+        return "22:00 - 2:00";
+    case DayPart::Night:
+        return "2:00 - 6:00";
+    case DayPart::Morning:
+        return "6:00 - 10:00";
+    case DayPart::Noon:
+        return "10:00 - 14:00";
+    case DayPart::Afternoon:
+        return "14:00 - 18:00";
+    case DayPart::Evening:
+        return "18:00 - 22:00";
     }
     return "Invalid";
 }
@@ -296,4 +308,3 @@ std::string dayPartHours(unsigned dayPart)
 }
 
 } // namespace DayPart
-

@@ -29,57 +29,85 @@
 #include <unordered_map>
 #include <vector>
 
-// TODO refactor this ugly mess
 
-using TagCount = std::pair<Tag, double>;
-
-
-/* Datastructure that stores number of completed sprints for each tag. */
-class TagDistribution {
+/* Responsible for arranging sprints by their tags in order of tag frequency.
+ *
+ * Tag that has most sprints is placed at the top position; top position is a
+ * position with index 0.
+ * Tags with lower frequencies will take positions with
+ * increasing index.
+ * Tags with lowest frequencies are merged together and are placed
+ * at the very bottom.
+ * Maximum size of the top is specified at class construction.
+ * Note, that actual size might be lower than maximum, because not all top
+ * position might be filled.
+ *
+ * In case when two or more tags have same frequency, the tie is broken
+ * arbitrarily.
+ *
+ * As an example, if we have some sprints with following tag frequencies:
+ * (Tag1, 0.1), (Tag2 0.3), (Tag3, 0.2), (Tag4, 0.3), (Tag5, 0.1) and top
+ * size is 4, the resulting top could look like:
+ *
+ * position     Tag name    Frequency
+ *    0           Tag2         0.3
+ *    1           Tag4         0.3
+ *    2           Tag3         0.2
+ *    3           others       0.1 + 0.1 = 0.2
+ *
+ *
+ * */
+class TagTop {
 public:
-    using TagSprintMap = std::unordered_map<Tag, std::vector<Sprint>>;
+    using TagFrequency = std::pair<Tag, double>;
 
-    TagDistribution(const std::vector<Sprint>& sprints, int numTopTags);
+    using TagSprints = std::unordered_map<Tag, std::vector<Sprint>>;
 
-    TagDistribution() = default;
+    TagTop(const std::vector<Sprint>& sprints, size_t topMaxSize);
 
-    /* Return vector of (tag, number of finished sprints) pairs.
-     * Only top tags are considered (specified by numTopTags). Finished
-     * sprints for all other tags are summed up, stored in empty '' tag and
-     * appended to the returned vector.
-     * Returned vector is sorted in descending order of number of completed sprints,
-     * except for last item that contains number of completed sprints
-     * for all other tags (if it is present). */
-    std::vector<TagCount> topTagsDistribution() const;
+    // TODO and what will this construct?
+    TagTop() = default;
 
-    /* Return vector of sprints that have given tag. */
-    std::vector<Sprint> sprintsWithTag(const Tag &tag) const;
+    std::vector<TagFrequency> tagFrequencies() const;
 
-    /* Return prints for n-th top tag. */
-    std::vector<Sprint> sprintsForNthTopTag(size_t n) const;
+    std::vector<Sprint> sprintsForTagAt(size_t position) const;
 
-    /* Return n-th top tag name. */
-    std::string getNthTopTagName(size_t n) const;
+    std::string tagNameAt(size_t position) const;
+
+    size_t topSize() const;
 
 private:
-    TagSprintMap tagSprintMap;
-    std::unordered_map<Tag, std::vector<Sprint>> sprintsForTag;
-    std::vector<TagCount> sliceData;
-    std::unordered_map<size_t, Tag> sliceIndexMap;
+    TagSprints sprintsByTag;
+    std::vector<TagFrequency> frequencies;
     size_t numTopTags;
+    Tag dummyTag{""};
 
-    void buildDistribution();
+    void arrangeSprintsByTag(const std::vector<Sprint>& sprints);
 
-    void reduceTailToSum();
+    void computeTagFrequencies();
+
+    void orderTagsByDecreasingFrequency();
+
+    void mergeTagsWithLowestFrequencies();
 
     void buildIndexMap();
+
+    std::vector<Tag> mergeBottomTags();
+
+    std::vector<Tag> findTopTags() const;
+
+    std::vector<Tag> findAllTags() const;
+
+    std::vector<Tag> findBottomTags() const;
+
 };
+
 
 class SprintStatItem {
 
 public:
     SprintStatItem(const std::vector<Sprint>& sprints,
-                     const TimeSpan& timeInterval);
+                   const TimeSpan& timeInterval);
 
     SprintStatItem(const SprintStatItem&) = default;
 
@@ -107,7 +135,6 @@ private:
 };
 
 
-
 namespace DayPart {
 
 constexpr size_t numParts{6};
@@ -124,17 +151,17 @@ constexpr size_t numParts{6};
  */
 enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
 
-    std::string dayPartHours(unsigned dayPart);
+std::string dayPartHours(unsigned dayPart);
 
-    DayPart dayPart(const TimeSpan& timeSpan);
+DayPart dayPart(const TimeSpan& timeSpan);
 
-    std::string dayPartName(unsigned dayPart);
+std::string dayPartName(unsigned dayPart);
 
-    std::string dayPartName(DayPart dayPart);
+std::string dayPartName(DayPart dayPart);
 
-    std::string dayPartHours(DayPart dayPart);
+std::string dayPartHours(DayPart dayPart);
 
-    std::string dayPartHours(unsigned dayPart);
+std::string dayPartHours(unsigned dayPart);
 }
 
 

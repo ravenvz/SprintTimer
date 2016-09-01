@@ -151,117 +151,132 @@ TEST(SprintStatItem, test_computes_weekday_distribution_correctly)
     }
 }
 
-TEST_GROUP(TagDistribution){
+TEST_GROUP(TagTop)
+{
+
+    const std::string irrelevantName{"irrelevant"};
 
     void pushToSprints(std::vector<Sprint>& sprints,
-                         std::string name,
-                         const std::list<Tag>& tags,
-                         int n){
-        for (int i = 0; i < n; ++i){sprints.push_back(Sprint{
-            name,
-            TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
-            tags,
-            "uuid",
-            "taskUuid"});
-}
-}
-}
-;
+                       std::string name,
+                       const std::list<Tag>& tags,
+                       int n) {
+        for (int i = 0; i < n; ++i) {
+            sprints.push_back(Sprint{
+                    name,
+                    TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
+                    tags,
+                    "uuid",
+                    "taskUuid"});
+        }
+    }
+};
 
-TEST(TagDistribution, test_does_not_reduce_slice_vector_when_all_tags_fit)
+TEST(TagTop, getting_sprints_or_tag_name_throws_exception_when_position_is_invalid) {
+    std::vector<Sprint> sprints;
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag1"}}, 4);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}}, 49);
+
+    TagTop tagTop{sprints, 3};
+
+    CHECK_THROWS(std::out_of_range, tagTop.sprintsForTagAt(tagTop.topSize() + 1));
+    CHECK_THROWS(std::out_of_range, tagTop.tagNameAt(tagTop.topSize() + 1));
+}
+
+TEST(TagTop, does_not_reduce_frequency_vector_when_all_tags_fit)
 {
     std::vector<Sprint> sprints;
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}}, 49);
-    TagDistribution map{sprints, 3};
-    std::vector<TagCount> expected;
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag1"}}, 4);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}}, 49);
+    std::vector<TagTop::TagFrequency> expected{
+            {Tag{"Tag2"}, double(49) / 53},
+            {Tag{"Tag1"}, double(4) / 53}
+    };
+
+    TagTop tagTop{sprints, 3};
+
+    CHECK(expected == tagTop.tagFrequencies())
+    CHECK_EQUAL(49, tagTop.sprintsForTagAt(0).size())
+    CHECK_EQUAL(4, tagTop.sprintsForTagAt(1).size())
+//    CHECK_EQUAL(0, tagTop.sprintsForTagAt(2).size())
+}
+
+TEST(TagTop,
+     does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
+{
+    std::vector<Sprint> sprints;
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag1"}}, 4);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}}, 49);
+    std::vector<TagTop::TagFrequency> expected;
     expected.push_back(std::make_pair(Tag{"Tag2"}, double(49) / 53));
     expected.push_back(std::make_pair(Tag{"Tag1"}, double(4) / 53));
 
-    CHECK(expected == map.topTagsDistribution())
+    TagTop map{sprints, 5};
 
-    CHECK_EQUAL(49, map.sprintsForNthTopTag(0).size())
-    CHECK_EQUAL(4, map.sprintsForNthTopTag(1).size())
+    CHECK("Tag2" == map.tagNameAt(0))
+    CHECK("Tag1" == map.tagNameAt(1))
+    CHECK(expected == map.tagFrequencies())
+    CHECK_EQUAL(49, map.sprintsForTagAt(0).size())
+    CHECK_EQUAL(4, map.sprintsForTagAt(1).size())
 }
 
-TEST(TagDistribution,
-     test_does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
+TEST(TagTop, distributes_sprints_to_tags_ignoring_non_tagged)
 {
     std::vector<Sprint> sprints;
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}}, 49);
-    TagDistribution map{sprints, 5};
-    std::vector<TagCount> expected;
-    expected.push_back(std::make_pair(Tag{"Tag2"}, double(49) / 53));
-    expected.push_back(std::make_pair(Tag{"Tag1"}, double(4) / 53));
-    CHECK("Tag2" == map.getNthTopTagName(0))
-    CHECK("Tag1" == map.getNthTopTagName(1))
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag1"}}, 4);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}}, 49);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
+    pushToSprints(sprints, irrelevantName, {Tag{"C++"}, Tag{"Tag4"}}, 10);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag4"}}, 25);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag5"}}, 4);
+    pushToSprints(sprints, irrelevantName, {}, 100);
+    std::vector<TagTop::TagFrequency> expected{
+            std::make_pair(Tag{"Tag2"}, double(50) / 104),
+            std::make_pair(Tag{"Tag4"}, double(35) / 104),
+            std::make_pair(Tag{"C++"}, double(10) / 104),
+            std::make_pair(Tag{"Tag1"}, double(5) / 104),
+            std::make_pair(Tag{""}, double(4) / 104)
+    };
 
-    CHECK(expected == map.topTagsDistribution())
+    TagTop map{sprints, 5};
 
-    CHECK_EQUAL(49, map.sprintsForNthTopTag(0).size())
-    CHECK_EQUAL(4, map.sprintsForNthTopTag(1).size())
+    CHECK("Tag2" == map.tagNameAt(0))
+    CHECK("Tag4" == map.tagNameAt(1))
+    CHECK("C++" == map.tagNameAt(2))
+    CHECK("Tag1" == map.tagNameAt(3))
+    CHECK("" == map.tagNameAt(4))
+    CHECK(expected == map.tagFrequencies())
+    CHECK_EQUAL(50, map.sprintsForTagAt(0).size())
+    CHECK_EQUAL(35, map.sprintsForTagAt(1).size())
+    CHECK_EQUAL(10, map.sprintsForTagAt(2).size())
+    CHECK_EQUAL(5, map.sprintsForTagAt(3).size())
+    CHECK_EQUAL(4, map.sprintsForTagAt(4).size())
 }
 
-TEST(TagDistribution, test_distributes_sprints_to_tags_ignoring_non_tagged)
+TEST(TagTop,
+     reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}}, 49);
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
-    pushToSprints(sprints, "irrelevant", {Tag{"C++"}, Tag{"Tag4"}}, 10);
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag4"}}, 25);
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag5"}}, 4);
-    pushToSprints(sprints, "irrelevant", {}, 100);
-    TagDistribution map{sprints, 5};
-    std::vector<TagCount> expected;
-    expected.push_back(std::make_pair(Tag{"Tag2"}, double(50) / 104));
-    expected.push_back(std::make_pair(Tag{"Tag4"}, double(35) / 104));
-    expected.push_back(std::make_pair(Tag{"C++"}, double(10) / 104));
-    expected.push_back(std::make_pair(Tag{"Tag1"}, double(5) / 104));
-    expected.push_back(std::make_pair(Tag{""}, double(4) / 104));
-
-    CHECK("Tag2" == map.getNthTopTagName(0))
-    CHECK("Tag4" == map.getNthTopTagName(1))
-    CHECK("C++" == map.getNthTopTagName(2))
-    CHECK("Tag1" == map.getNthTopTagName(3))
-    CHECK("" == map.getNthTopTagName(4))
-
-    CHECK(expected == map.topTagsDistribution())
-
-    CHECK_EQUAL(50, map.sprintsForNthTopTag(0).size())
-    CHECK_EQUAL(35, map.sprintsForNthTopTag(1).size())
-    CHECK_EQUAL(10, map.sprintsForNthTopTag(2).size())
-    CHECK_EQUAL(5, map.sprintsForNthTopTag(3).size())
-    CHECK_EQUAL(4, map.sprintsForNthTopTag(4).size())
-}
-
-TEST(TagDistribution,
-     test_reduces_slice_vector_tail_when_has_more_tags_than_allowed)
-{
-    std::vector<Sprint> sprints;
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag1"}}, 4);
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}}, 49);
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag3"}, Tag{"Tag4"}}, 10);
-    pushToSprints(sprints, "irrelevant", {Tag{"Tag4"}}, 25);
-    pushToSprints(sprints, "irrelevant", {}, 100);
-    TagDistribution map{sprints, 4};
-    std::vector<TagCount> expected{
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag1"}}, 4);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}}, 49);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag3"}, Tag{"Tag4"}}, 10);
+    pushToSprints(sprints, irrelevantName, {Tag{"Tag4"}}, 25);
+    pushToSprints(sprints, irrelevantName, {}, 100);
+    std::vector<TagTop::TagFrequency> expected{
         std::make_pair(Tag{"Tag2"}, double(50) / 100),
         std::make_pair(Tag{"Tag4"}, double(35) / 100),
         std::make_pair(Tag{"Tag3"}, double(10) / 100),
         std::make_pair(Tag{""}, double(5) / 100)};
 
-    CHECK("Tag2" == map.getNthTopTagName(0))
-    CHECK("Tag4" == map.getNthTopTagName(1))
-    CHECK("Tag3" == map.getNthTopTagName(2))
-    CHECK("" == map.getNthTopTagName(3))
+    TagTop map{sprints, 4};
 
-    CHECK(expected == map.topTagsDistribution())
-
-    CHECK_EQUAL(50, map.sprintsForNthTopTag(0).size())
-    CHECK_EQUAL(35, map.sprintsForNthTopTag(1).size())
-    CHECK_EQUAL(10, map.sprintsForNthTopTag(2).size())
-    CHECK_EQUAL(5, map.sprintsForNthTopTag(3).size())
+    CHECK("Tag2" == map.tagNameAt(0))
+    CHECK("Tag4" == map.tagNameAt(1))
+    CHECK("Tag3" == map.tagNameAt(2))
+    CHECK("" == map.tagNameAt(3))
+    CHECK(expected == map.tagFrequencies())
+    CHECK_EQUAL(50, map.sprintsForTagAt(0).size())
+    CHECK_EQUAL(35, map.sprintsForTagAt(1).size())
+    CHECK_EQUAL(10, map.sprintsForTagAt(2).size())
+    CHECK_EQUAL(5, map.sprintsForTagAt(3).size())
 }
