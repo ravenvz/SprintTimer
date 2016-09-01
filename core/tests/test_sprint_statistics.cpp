@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "core/SprintStatistics.h"
+#include "core/TagTop.h"
 #include <TestHarness.h>
 
 TEST_GROUP(SprintStatItem)

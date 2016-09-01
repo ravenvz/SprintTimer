@@ -23,7 +23,6 @@
 #include "ui_statistics_window.h"
 #include "widgets/BarChart.h"
 
-
 StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
                                    ICoreService& coreService,
                                    QWidget* parent)

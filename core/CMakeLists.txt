@@ -13,6 +13,7 @@ set(CORE_SOURCE_FILES
         src/Tag.cpp
         src/StringUtils.cpp
         src/CoreService.cpp
+        src/TagTop.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

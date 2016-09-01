@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef STATISTICSWIDGET_H
-#define STATISTICSWIDGET_H
+#ifndef STATISTICSWINDOW_H
+#define STATISTICSWINDOW_H
 
 #include "core/IConfig.h"
 #include "core/ICoreService.h"
@@ -30,8 +30,7 @@
 #include "TimeDiagram.h"
 #include "widgets/DataWidget.h"
 #include "widgets/DistributionDiagram.h"
-#include <memory>
-
+#include "core/TagTop.h"
 
 using std::experimental::optional;
 
@@ -87,4 +86,4 @@ private:
 };
 
 
-#endif /* end of include guard: STATISTICSWIDGET_H */
+#endif /* end of include guard: STATISTICSWINDOW_H */
