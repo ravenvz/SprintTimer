@@ -41,6 +41,7 @@ public:
 
 private:
     Ui::FancyTimer* ui;
+    const int indicatorSize{150};
     CombinedIndicator* combinedIndicator;
     const QColor taskStateColor{QColor{"#eb6c59"}};
     const QColor breakStateColor{QColor{"#73c245"}};
