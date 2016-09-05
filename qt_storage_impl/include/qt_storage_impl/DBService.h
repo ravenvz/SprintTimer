@@ -55,13 +55,13 @@ public:
     /* Prepare query and return it's id. */
     long long prepare(const QString& query);
 
-    // TODO what if no query with such id
-    /* Execute previously prepared query */
+    /* Execute previously prepared query.
+     * Assumes that queryId is valid. */
     void executePrepared(long long queryId);
 
-    // TODO what if no query with such id
     /* Bind value to a placeholder for a previously prepared query
-     * with given id. */
+     * with given id.
+     * Assumes that queryId is valid. */
     void bindValue(long long queryId,
                    const QString& placeholder,
                    const QVariant& value);
@@ -93,6 +93,9 @@ signals:
 
 private:
     QThread workerThread;
+    // Note that nextQueryId is not atomic or protected with locks,
+    // as only one thread accessing DBService at a time. Should the
+    // need of multi-thread access arise, this issue should be addressed.
     long long nextQueryId{0};
 
     void prepareDatabase(const QString& filename) const;
