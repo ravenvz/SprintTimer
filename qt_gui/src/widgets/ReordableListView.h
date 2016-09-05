@@ -19,32 +19,27 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef REORDABLELISTVIEW_H_KN6BYIAY
+#define REORDABLELISTVIEW_H_KN6BYIAY
 
-#ifndef BESTWORKTIMEWIDGET_H
-#define BESTWORKTIMEWIDGET_H
 
-#include <QtWidgets/QWidget>
-#include <core/Distribution.h>
-#include <core/entities/Sprint.h>
+#include "models/TaskModel.h"
+#include <QDropEvent>
+#include <QListView>
 
-namespace Ui {
-class BestWorktimeWidget;
-}
 
-class BestWorktimeWidget : public QWidget {
+/* Extension of QListView that allows items to be reordered. */
+class ReordableListView : public QListView {
+
 public:
-    BestWorktimeWidget(QWidget* parent);
+    explicit ReordableListView(QWidget* parent);
 
-    virtual ~BestWorktimeWidget();
+    // Overriding to catch dropEvent and prevent model start removing rows
+    // attempting drag and drop by calling another method instead.
+    void dropEvent(QDropEvent* event) final;
 
-    void setData(const Distribution<double>& workTimeDistribution,
-                 const std::vector<Sprint>& sprints);
 
-private:
-    Ui::BestWorktimeWidget* ui;
-    void
-    updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
-                           const std::vector<Sprint>& sprints);
 };
 
-#endif // BESTWORKTIMEWIDGET_H
+
+#endif /* end of include guard: REORDABLELISTVIEW_H_KN6BYIAY */

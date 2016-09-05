@@ -30,6 +30,7 @@
 #include "qt_storage_impl/QtTaskStorageReader.h"
 #include "qt_storage_impl/QtTaskStorageWriter.h"
 
+
 class QtStorageImplementersFactory : public IStorageImplementersFactory {
 public:
     QtStorageImplementersFactory(DBService& dbService)
@@ -58,19 +59,22 @@ public:
     std::unique_ptr<ISprintDistributionReader>
     createSprintDailyDistributionReader() const final
     {
-        return std::make_unique<QtSprintDailyDistributionReader>(dbService);
+        constexpr size_t numDays{30};
+        return std::make_unique<QtSprintDailyDistributionReader>(dbService, numDays);
     }
 
     std::unique_ptr<ISprintDistributionReader>
     createSprintWeeklyDistributionReader() const final
     {
-        return std::make_unique<QtSprintWeeklyDistributionReader>(dbService);
+        constexpr size_t numWeeks{12};
+        return std::make_unique<QtSprintWeeklyDistributionReader>(dbService, numWeeks);
     }
 
     std::unique_ptr<ISprintDistributionReader>
     createSprintMonthlyDistributionReader() const final
     {
-        return std::make_unique<QtSprintMonthlyDistributionReader>(dbService);
+        constexpr size_t numMonths{12};
+        return std::make_unique<QtSprintMonthlyDistributionReader>(dbService, numMonths);
     }
 
     std::unique_ptr<ITaskStorageReader> createTaskStorageReader() const final

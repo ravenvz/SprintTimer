@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "ProgressWidget.h"
+#include "widgets/ProgressWidget.h"
 #include "ui_progress_widget.h"
 #include "widgets/Gauge.h"
 #include <QtWidgets/QGridLayout>

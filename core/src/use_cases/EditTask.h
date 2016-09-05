@@ -38,7 +38,7 @@ public:
                      editedTask.estimatedCost(),
                      task.actualCost(),
                      task.uuid(),
-                     editedTask.tags(),
+                     std::move(editedTask.tags()),
                      task.isCompleted(),
                      DateTime::currentDateTimeLocal()}
     {

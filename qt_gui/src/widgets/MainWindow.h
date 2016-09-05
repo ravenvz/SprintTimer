@@ -26,18 +26,20 @@
 #include "core/ISprintStorageReader.h"
 #include "core/IYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
-#include "HistoryWindow.h"
 #include "models/SprintModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
-#include "StatisticsWindow.h"
 #include "widgets/TimerWidgetBase.h"
+#include "widgets/TaskOutline.h"
+#include "widgets/SprintOutline.h"
+#include "widgets/ButtonMenu.h"
 #include <QMainWindow>
-#include <QSettings>
 #include <experimental/optional>
 #include <functional>
 #include <memory>
 #include <vector>
+#include <QGridLayout>
+
 
 namespace Ui {
 class MainWindow;
@@ -69,88 +71,74 @@ private:
     QPointer<SprintModel> sprintModel;
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
-    QPointer<DataWidget> goalsView;
-    QPointer<DataWidget> statisticsView;
-    QPointer<DataWidget> historyView;
-    std::experimental::optional<QModelIndex> selectedTaskIndex;
+    QPointer<ButtonMenu> menuButtonGroup;
+    QPointer<TaskOutline> taskOutline;
+    QPointer<SprintOutline> sprintOutline;
+    std::experimental::optional<int> selectedTaskRow;
     TimerWidgetBase* timerWidget;
-    std::unique_ptr<ExpansionState> expandedFully;
-    std::unique_ptr<ExpansionState> shrinked;
-    std::unique_ptr<ExpansionState> expandedMenuOnly;
-    std::unique_ptr<ExpansionState> expandedWithoutMenu;
     ExpansionState* expansionState;
 
-    void adjustAddSprintButtonState();
-    void bringToForeground(QWidget* widgetPtr) const;
     void setStateUi();
 
 private slots:
-    void addTask();
-    void quickAddTask();
     void submitSprint(const std::vector<TimeSpan> &intervalBuffer);
-    void toggleTaskCompleted();
-    void launchSettingsDialog();
-    void launchHistoryView();
-    void launchGoalsView();
-    void launchStatisticsView();
-    void launchManualAddSprintDialog();
     void updateDailyProgress();
     void onUndoButtonClicked();
     void adjustUndoButtonState();
     void toggleView();
     void toggleMenu();
+    void onTasksRemoved(const QModelIndex&, int first, int last);
 };
 
 
 class ExpansionState {
 public:
-    ExpansionState(int width, int height, MainWindow& widget);
+    ExpansionState(int width, int height);
     virtual ~ExpansionState() = default;
     QSize sizeHint() const;
-    virtual void setStateUi() = 0;
-    virtual void toggleView() = 0;
-    virtual void toggleMenu() = 0;
+    virtual void setStateUi(MainWindow& widget) = 0;
+    virtual void toggleView(MainWindow& widget) = 0;
+    virtual void toggleMenu(MainWindow& widget) = 0;
 
 protected:
     const int width;
     const int height;
-    MainWindow& widget;
 };
 
 
 class Expanded final : public ExpansionState {
 public:
-    Expanded(MainWindow& widget);
-    void setStateUi();
-    void toggleView();
-    void toggleMenu();
+    Expanded();
+    void setStateUi(MainWindow& widget) override;
+    void toggleView(MainWindow& widget) override;
+    void toggleMenu(MainWindow& widget) override;
 };
 
 
 class Shrinked final : public ExpansionState {
 public:
-    Shrinked(MainWindow& widget);
-    void setStateUi();
-    void toggleView();
-    void toggleMenu();
+    Shrinked();
+    void setStateUi(MainWindow& widget) override;
+    void toggleView(MainWindow& widget) override;
+    void toggleMenu(MainWindow& widget) override;
 };
 
 
 class ExpandedMenuOnly final : public ExpansionState {
 public:
-    ExpandedMenuOnly(MainWindow& widget);
-    void setStateUi();
-    void toggleView();
-    void toggleMenu();
+    ExpandedMenuOnly();
+    void setStateUi(MainWindow& widget) override;
+    void toggleView(MainWindow& widget) override;
+    void toggleMenu(MainWindow& widget) override;
 };
 
 
 class ExpandedWithoutMenu final : public ExpansionState {
 public:
-    ExpandedWithoutMenu(MainWindow& widget);
-    void setStateUi();
-    void toggleView();
-    void toggleMenu();
+    ExpandedWithoutMenu();
+    void setStateUi(MainWindow& widget) override;
+    void toggleView(MainWindow& widget) override;
+    void toggleMenu(MainWindow& widget) override;
 };
 
 #endif // MAINWINDOW_H

@@ -19,32 +19,47 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef BUTTONMENU_H
+#define BUTTONMENU_H
 
-#ifndef BESTWORKTIMEWIDGET_H
-#define BESTWORKTIMEWIDGET_H
-
-#include <QtWidgets/QWidget>
-#include <core/Distribution.h>
-#include <core/entities/Sprint.h>
+#include <QWidget>
+#include <QPushButton>
+#include <QtWidgets/QHBoxLayout>
+#include <core/ICoreService.h>
+#include "core/IConfig.h"
+#include "widgets/DataWidget.h"
+#include <QPointer>
 
 namespace Ui {
-class BestWorktimeWidget;
+class ButtonMenu;
 }
 
-class BestWorktimeWidget : public QWidget {
+class ButtonMenu : public QWidget {
+
 public:
-    BestWorktimeWidget(QWidget* parent);
+    ButtonMenu(IConfig& applicationSettings,
+               ICoreService& coreService,
+               QWidget* parent);
 
-    virtual ~BestWorktimeWidget();
-
-    void setData(const Distribution<double>& workTimeDistribution,
-                 const std::vector<Sprint>& sprints);
+    ~ButtonMenu();
 
 private:
-    Ui::BestWorktimeWidget* ui;
-    void
-    updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
-                           const std::vector<Sprint>& sprints);
+    Ui::ButtonMenu* ui;
+    IConfig& settings;
+    ICoreService& coreService;
+    QPointer<DataWidget> progressWindow;
+    QPointer<DataWidget> statisticsWindow;
+    QPointer<DataWidget> historyWindow;
+
+private slots:
+    void launchSettingsDialog();
+    void launchHistoryWindow();
+    void launchProgressWindow();
+    void launchStatisticsWindow();
+    void onSprintDataChanged();
+    void onTaskDataChanged();
+    void onTagDataChanged();
 };
 
-#endif // BESTWORKTIMEWIDGET_H
+
+#endif //SPRINT_TIMER_BUTTONMENU_H

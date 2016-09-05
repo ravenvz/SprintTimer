@@ -40,7 +40,7 @@
 // linux
 #include <pwd.h>
 #include <unistd.h>
-#elif defined(__unix__) // all unices not caught above
+#elif defined(__unix__) // all unixes not caught above
 // Unix
 #elif defined(_POSIX_VERSION)
 // POSIX
@@ -77,11 +77,11 @@ std::string createDataDirectoryIfNotExist()
 std::string getUserDataDirectory()
 {
 #ifdef _WIN_32
-// TODO
+// TODO win32 is not yet supported
 #elif defined(__linux__)
     return getUnixDataDirectory();
 #elif defined(__APPLE__)
-// TODO
+// TODO apple is not yet supported
 #else
 #error "Unknown compiler"
 #endif
@@ -110,7 +110,8 @@ int main(int argc, char* argv[])
 
     const std::string dataDirectory = createDataDirectoryIfNotExist();
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/sprint.db"};
+//    DBService dbService{dataDirectory + "/sprint.db"};
+    DBService dbService{dataDirectory + "/test_sprint.db"};
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{

@@ -29,57 +29,11 @@
 #include <unordered_map>
 #include <vector>
 
-// TODO refactor this ugly mess
-
-using TagCount = std::pair<Tag, double>;
-
-
-/* Datastructure that stores number of completed sprints for each tag. */
-class TagDistribution {
-public:
-    using TagSprintMap = std::unordered_map<Tag, std::vector<Sprint>>;
-
-    TagDistribution(const std::vector<Sprint>& sprints, int numTopTags);
-
-    TagDistribution() = default;
-
-    /* Return vector of (tag, number of finished sprints) pairs.
-     * Only top tags are considered (specified by numTopTags). Finished
-     * sprints for all other tags are summed up, stored in empty '' tag and
-     * appended to the returned vector.
-     * Returned vector is sorted in descending order of number of completed sprints,
-     * except for last item that contains number of completed sprints
-     * for all other tags (if it is present). */
-    std::vector<TagCount> topTagsDistribution() const;
-
-    /* Return vector of sprints that have given tag. */
-    std::vector<Sprint> sprintsWithTag(const Tag &tag) const;
-
-    /* Return prints for n-th top tag. */
-    std::vector<Sprint> sprintsForNthTopTag(size_t n) const;
-
-    /* Return n-th top tag name. */
-    std::string getNthTopTagName(size_t n) const;
-
-private:
-    TagSprintMap tagSprintMap;
-    std::unordered_map<Tag, std::vector<Sprint>> sprintsForTag;
-    std::vector<TagCount> sliceData;
-    std::unordered_map<size_t, Tag> sliceIndexMap;
-    size_t numTopTags;
-
-    void buildDistribution();
-
-    void reduceTailToSum();
-
-    void buildIndexMap();
-};
-
 class SprintStatItem {
 
 public:
     SprintStatItem(const std::vector<Sprint>& sprints,
-                     const TimeSpan& timeInterval);
+                   const TimeSpan& timeInterval);
 
     SprintStatItem(const SprintStatItem&) = default;
 
@@ -105,5 +59,36 @@ private:
 
     std::vector<int> countWeekdays() const;
 };
+
+
+namespace DayPart {
+
+constexpr size_t numParts{6};
+
+/* Represent a day partition
+ *
+ * Day has 6 4-hour parts:
+ *      Midnight  22:00 - 2:00
+ *      Night      2:00 - 6:00
+ *      Morning    6:00 - 10:00
+ *      Noon      10:00 - 14:00
+ *      Afternoon 14:00 - 18:00
+ *      Evening   18:00 - 22:00
+ */
+enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
+
+std::string dayPartHours(unsigned dayPart);
+
+DayPart dayPart(const TimeSpan& timeSpan);
+
+std::string dayPartName(unsigned dayPart);
+
+std::string dayPartName(DayPart dayPart);
+
+std::string dayPartHours(DayPart dayPart);
+
+std::string dayPartHours(unsigned dayPart);
+}
+
 
 #endif // SPRINTSTATISTICS_H

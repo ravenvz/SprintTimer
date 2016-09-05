@@ -32,17 +32,20 @@ const QColor backgroundFree{QColor{"#354a5f"}};
 const QColor backgroundHovered{Qt::white};
 };
 
+namespace {
+auto hoveredState{std::make_unique<HoverStateHovered>()};
+auto unhoveredState{std::make_unique<HoverStateUnhovered>()};
+auto workProgressUnderwork{std::make_unique<WorkProgressUnderwork>()};
+auto workProgressOverwork{std::make_unique<WorkProgressOverwork>()};
+auto workProgressNone{std::make_unique<WorkProgressNone>()};
+auto workProgressDone{std::make_unique<WorkProgressDone>()};
+}
+
 Gauge::Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent)
     : QWidget(parent)
     , actual{actual}
     , goal{goal}
     , gaugeRelSize{gaugeRelSize}
-    , hoveredState{std::make_unique<HoverStateHovered>()}
-    , unhoveredState{std::make_unique<HoverStateUnhovered>()}
-    , workProgressUnderwork{std::make_unique<WorkProgressUnderwork>()}
-    , workProgressOverwork{std::make_unique<WorkProgressOverwork>()}
-    , workProgressNone{std::make_unique<WorkProgressNone>()}
-    , workProgressDone{std::make_unique<WorkProgressDone>()}
     , hoverState{unhoveredState.get()}
 {
     installEventFilter(this);

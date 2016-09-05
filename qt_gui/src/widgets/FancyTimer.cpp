@@ -30,7 +30,7 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
     , ui{new Ui::FancyTimer}
 {
     ui->setupUi(this);
-    combinedIndicator = new CombinedIndicator(150, this); // TODO magic number
+    combinedIndicator = new CombinedIndicator(indicatorSize, this);
     combinedIndicator->setSizePolicy(QSizePolicy::MinimumExpanding,
                                      QSizePolicy::MinimumExpanding);
     ui->gridLayout->addWidget(
@@ -185,4 +185,9 @@ void FancyTimer::onIndicatorClicked()
     default:
         break;
     }
+}
+
+void FancyTimer::setUiToRunningState()
+{
+
 }

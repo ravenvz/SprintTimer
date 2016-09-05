@@ -34,7 +34,6 @@ struct TimeSpan {
     DateTime startTime;
     DateTime finishTime;
 
-    enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
 
     /* Construct from chrono time_point. */
     TimeSpan(SystemClock start, SystemClock finish);
@@ -52,31 +51,6 @@ struct TimeSpan {
      * It doesn't matter if start point is further in time compared to
      * finish point. */
     unsigned sizeInDays() const;
-
-    // TODO Those day parts are definitely do not belong here. Move out.
-    /* Return enum representing part of the day.
-     *
-     * Day has 6 4-hour parts:
-     *      Midnight  22:00 - 2:00
-     *      Nigth      2:00 - 6:00
-     *      Morning    6:00 - 10:00
-     *      Noon      10:00 - 14:00
-     *      Afternoon 14:00 - 18:00
-     *      Evening   18:00 - 22:00
-     */
-    DayPart getDayPart() const;
-
-    /* Return name of the day part given as unsigned integer as string. */
-    static std::string dayPartName(unsigned dayPart);
-
-    /* Return name of the given DayPart as string. */
-    static std::string dayPartName(DayPart dayPart);
-
-    /* Return hours corresponding to DayPart as string. */
-    static std::string dayPartHours(unsigned dayPart);
-
-    /* Return hours corresponding to DayPart as string. */
-    static std::string dayPartHours(DayPart dayPart);
 
     /* Return time representation as string in "HH:mm - HH:mm" format. */
     std::string toTimeString() const;

@@ -19,24 +19,19 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTLISTVIEW_H_TMGU1KAJ
-#define SPRINTLISTVIEW_H_TMGU1KAJ
 
-#include "dialogs/ConfirmationDialog.h"
-#include "models/SprintModel.h"
-#include <QListView>
-#include <QMenu>
+#include "ReordableListView.h"
 
-class SprintListView : public QListView {
-public:
-    SprintListView(QWidget* parent);
-    QSize sizeHint() const override;
+ReordableListView::ReordableListView(QWidget* parent)
+    : QListView(parent)
+{
+}
 
-private:
-    void removeItem();
+void ReordableListView::dropEvent(QDropEvent* event)
+{
+    int rowMovedFrom = currentIndex().row();
+    int rowMovedTo = indexAt(event->pos()).row();
+    model()->moveRows(
+        QModelIndex(), rowMovedFrom, 1, QModelIndex(), rowMovedTo);
+}
 
-private slots:
-    void showContextMenu(const QPoint& pos);
-};
-
-#endif /* end of include guard: SPRINTLISTVIEW_H_TMGU1KAJ */

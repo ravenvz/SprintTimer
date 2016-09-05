@@ -19,8 +19,8 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef STATISTICSWIDGET_H
-#define STATISTICSWIDGET_H
+#ifndef STATISTICSWINDOW_H
+#define STATISTICSWINDOW_H
 
 #include "core/IConfig.h"
 #include "core/ICoreService.h"
@@ -30,8 +30,7 @@
 #include "TimeDiagram.h"
 #include "widgets/DataWidget.h"
 #include "widgets/DistributionDiagram.h"
-#include <memory>
-
+#include "core/TagTop.h"
 
 using std::experimental::optional;
 
@@ -73,18 +72,18 @@ private:
     IConfig& applicationSettings;
     ICoreService& coreService;
     std::vector<Sprint> sprints;
-    TagDistribution tagDistribution;
+    TagTop tagTop;
     DateInterval currentInterval;
-    const int numTopTags = 7; // TODO move to config
+    const size_t numTopTags{7}; // TODO move to config
     optional<size_t> selectedTagIndex;
 
     void fetchData();
     void drawGraphs();
     void updateTopTagsDiagram(
-        std::vector<TagCount>& tagCounts);
+        std::vector<TagTop::TagFrequency>& tagCounts);
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
     void onDataFetched(const std::vector<Sprint> &sprints);
 };
 
 
-#endif /* end of include guard: STATISTICSWIDGET_H */
+#endif /* end of include guard: STATISTICSWINDOW_H */

@@ -24,7 +24,6 @@
 
 #include <QEvent>
 #include <QWidget>
-#include <iostream>
 #include <memory>
 
 
@@ -53,12 +52,6 @@ private:
     int actual;
     int goal;
     const double gaugeRelSize;
-    std::unique_ptr<HoverState> hoveredState;
-    std::unique_ptr<HoverState> unhoveredState;
-    std::unique_ptr<WorkProgressState> workProgressUnderwork;
-    std::unique_ptr<WorkProgressState> workProgressOverwork;
-    std::unique_ptr<WorkProgressState> workProgressNone;
-    std::unique_ptr<WorkProgressState> workProgressDone;
     HoverState* hoverState;
     WorkProgressState* workProgressState;
     QRectF outerRect;
@@ -69,7 +62,6 @@ private:
     void setupPainter(QPainter& painter);
     void drawOuterCircle(QPainter& painter);
     void drawInnerCircle(QPainter& painter);
-
     void updateState();
 };
 

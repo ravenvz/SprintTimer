@@ -30,9 +30,8 @@ class ISprintDistributionReader {
 public:
     using Handler = std::function<void(const Distribution<int>&)>;
     virtual ~ISprintDistributionReader() = default;
-    // TODO rename to requestDistribution
-    virtual void requestDailyDistribution(const TimeSpan& timeSpan,
-                                          Handler handler)
+    virtual void requestDistribution(const TimeSpan& timeSpan,
+                                     Handler handler)
         = 0;
 };
 

@@ -146,8 +146,6 @@ namespace CalendarTable {
 /* Responsible for creating database and schema.
  * If database already exists, tries to establish connection and exits on success
  * and throws std::runtime_error when database could not be found and(or) created.
- *
- * TODO track database version to handle migrations
  */
 class Database {
 

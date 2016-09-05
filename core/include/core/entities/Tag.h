@@ -26,13 +26,10 @@
 
 class Tag {
 public:
-    Tag();
 
-    Tag(std::string&& name);
+    Tag() = default;
 
-    Tag(const std::string& name);
-
-    // Tag(std::string name);
+    Tag(std::string name);
 
     static std::string prefix;
 
@@ -43,7 +40,7 @@ public:
     std::string nameWithPrefix() const;
 
 private:
-    std::string mName;
+    std::string aName;
 };
 
 inline bool operator<(const Tag& lhs, const Tag& rhs)

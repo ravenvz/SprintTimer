@@ -31,4 +31,11 @@ void setRetainSizeWhenHidden(QWidget* widget)
     widget->setSizePolicy(policy);
 }
 
+void bringToForeground(QWidget* widget)
+{
+    widget->raise();
+    widget->activateWindow();
+    widget->showNormal();
+}
+
 } /* WidgetUtils */

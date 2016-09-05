@@ -33,8 +33,8 @@ public:
     {
     }
 
-    void requestDailyDistribution(const TimeSpan& timeSpan,
-                                  Handler handler) final
+    void requestDistribution(const TimeSpan& timeSpan,
+                             Handler handler) final
     {
         return storage.requestDailyDistribution(timeSpan, handler);
     }

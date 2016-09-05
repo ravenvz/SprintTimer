@@ -29,6 +29,8 @@ namespace WidgetUtils {
 
 void setRetainSizeWhenHidden(QWidget* widget);
 
+void bringToForeground(QWidget* widget);
+
 } /* WidgetUtils */
 
 

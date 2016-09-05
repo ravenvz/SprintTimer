@@ -23,7 +23,6 @@
 #include "ui_statistics_window.h"
 #include "widgets/BarChart.h"
 
-
 StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
                                    ICoreService& coreService,
                                    QWidget* parent)
@@ -67,10 +66,10 @@ void StatisticsWindow::onDataFetched(
 {
     this->sprints = sprints;
     selectedTagIndex = optional<size_t>();
-    tagDistribution = TagDistribution(sprints, numTopTags);
-    std::vector<TagCount> tagTagCounts = tagDistribution.topTagsDistribution();
+    tagTop = TagTop(sprints, numTopTags);
+    std::vector<TagTop::TagFrequency> tagFrequency = tagTop.tagFrequencies();
     drawGraphs();
-    updateTopTagsDiagram(tagTagCounts);
+    updateTopTagsDiagram(tagFrequency);
 }
 
 void StatisticsWindow::onYearRangeUpdated(
@@ -89,7 +88,7 @@ void StatisticsWindow::drawGraphs()
 {
     SprintStatItem statistics{
         selectedTagIndex
-            ? tagDistribution.sprintsForNthTopTag(*selectedTagIndex)
+            ? tagTop.sprintsForTagAt(*selectedTagIndex)
             : sprints,
         currentInterval.toTimeSpan()};
     ui->dailyTimelineGraph->setData(statistics.dailyDistribution(),
@@ -101,7 +100,7 @@ void StatisticsWindow::drawGraphs()
 }
 
 
-void StatisticsWindow::updateTopTagsDiagram(std::vector<TagCount>& tagCounts)
+void StatisticsWindow::updateTopTagsDiagram(std::vector<TagTop::TagFrequency>& tagCounts)
 {
     if (!tagCounts.empty() && tagCounts.back().first == Tag{""})
         tagCounts.back().first.setName("others");

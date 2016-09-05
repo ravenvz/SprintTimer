@@ -36,7 +36,7 @@ Task::Task(std::string name,
     , mEstimatedCost(estimatedCost)
     , mActualCost(actualCost)
     , mUuid{generator.generateUUID()}
-    , mTags(tags)
+    , mTags(std::move(tags))
     , mCompleted(completed)
     , mLastModified{DateTime::currentDateTimeLocal()}
 {
@@ -53,7 +53,7 @@ Task::Task(std::string name,
     , mEstimatedCost(estimatedCost)
     , mActualCost(actualCost)
     , mUuid{uuid}
-    , mTags(tags)
+    , mTags(std::move(tags))
     , mCompleted(completed)
     , mLastModified{lastModified}
 {
