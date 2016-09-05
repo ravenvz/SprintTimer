@@ -19,50 +19,50 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKVIEW_H_KN6BYIAY
-#define TASKVIEW_H_KN6BYIAY
 
+#ifndef SPRINT_TIMER_SPRINTOUTLINE_H
+#define SPRINT_TIMER_SPRINTOUTLINE_H
 
-#include "dialogs/AddTaskDialog.h"
-#include "dialogs/ConfirmationDialog.h"
-#include "models/TagModel.h"
+#include <QWidget>
+#include <QPushButton>
+#include "core/ICoreService.h"
+#include "core/IConfig.h"
+#include "models/SprintModel.h"
 #include "models/TaskModel.h"
-#include "widgets/TaskViewDelegate.h"
-#include "widgets/TagEditor.h"
-#include <QDropEvent>
-#include <QListView>
-#include <QMenu>
-#include <QPointer>
 
+namespace Ui {
+class SprintOutline;
+}
 
-class TaskView : public QListView {
+class SprintOutline : public QWidget {
+
+    Q_OBJECT
 
 public:
-    explicit TaskView(QWidget* parent);
+    SprintOutline(ICoreService& coreService,
+                  IConfig& applicationSettings,
+                  SprintModel* sprintModel,
+                  TaskModel* taskModel,
+                  QWidget* parent);
 
     QSize sizeHint() const override;
 
-    // Overriding to catch dropEvent and prevent model start removing rows
-    // attempting drag and drop by calling another method instead.
-    void dropEvent(QDropEvent* event) final;
-
-    void setModels(TaskModel* taskModel, TagModel* tagModel);
-
 private:
-    QPointer<TaskViewDelegate> taskViewDelegate;
-    TagModel* tagModel;
-    QPointer<TagEditorWidget> tagEditor;
+    Ui::SprintOutline* ui;
+    ICoreService& coreService;
+    IConfig& applicationSettings;
+    SprintModel* sprintModel;
+    TaskModel* taskModel;
+    const QSize desiredSize{300, 200};
 
-    void editTask();
+    void removeSprint();
 
-    void removeTask();
+private slots:
+    void launchManualAddSprintDialog();
+    void adjustAddSprintButtonState();
+    void showContextMenu(const QPoint& pos);
 
-    void launchTagEditor();
-
-public slots:
-
-    void showTaskContextMenu(const QPoint& pos);
 };
 
 
-#endif /* end of include guard: TASKVIEW_H_KN6BYIAY */
+#endif //SPRINT_TIMER_SPRINTOUTLINE_H

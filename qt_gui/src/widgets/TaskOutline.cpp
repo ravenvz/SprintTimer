@@ -1,0 +1,169 @@
+/********************************************************************************
+**
+** Copyright (C) 2016 Pavel Pavlov.
+**
+**
+** This file is part of PROG_NAME.
+**
+** PROG_NAME is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Lesser General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** PROG_NAME is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+**
+*********************************************************************************/
+
+#include "widgets/TaskOutline.h"
+#include "utils/WidgetUtils.h"
+#include "ui_task_outline.h"
+#include "dialogs/AddTaskDialog.h"
+#include "dialogs/ConfirmationDialog.h"
+#include <QMenu>
+
+TaskOutline::TaskOutline(ICoreService& coreService,
+                         TaskModel* taskModel,
+                         TagModel* tagModel,
+                         QWidget* parent)
+    : ui{new Ui::TaskOutline}
+    , coreService{coreService}
+    , taskModel{taskModel}
+    , tagModel{tagModel}
+    , taskViewDelegate{new TaskViewDelegate{this}}
+    , QWidget{parent}
+{
+    ui->setupUi(this);
+
+    taskViewDelegate = new TaskViewDelegate(this);
+    ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->lvTaskView->setModel(taskModel);
+    ui->lvTaskView->setItemDelegate(taskViewDelegate);
+
+    connect(ui->pbAddTask,
+            &QPushButton::clicked,
+            this,
+            &TaskOutline::onAddTaskButtonPushed);
+    connect(ui->leQuickAddTask,
+            &QLineEdit::returnPressed,
+            this,
+            &TaskOutline::onQuickAddTodoReturnPressed);
+    connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
+        emit taskSelected(index.row());
+    });
+    connect(ui->lvTaskView,
+            &QListView::customContextMenuRequested,
+            this,
+            &TaskOutline::showContextMenu);
+    connect(ui->lvTaskView,
+            &QListView::doubleClicked,
+            this,
+            &TaskOutline::toggleTaskCompleted);
+}
+
+TaskOutline::~TaskOutline() {
+    delete tagEditor;
+    delete taskViewDelegate;
+    delete ui;
+}
+
+void TaskOutline::onQuickAddTodoReturnPressed()
+{
+    std::string encodedDescription = ui->leQuickAddTask->text().toStdString();
+    ui->leQuickAddTask->clear();
+    if (!encodedDescription.empty()) {
+        Task item{std::move(encodedDescription)};
+        taskModel->insert(item);
+    }
+}
+
+void TaskOutline::onAddTaskButtonPushed()
+{
+    AddTaskDialog dialog{tagModel};
+    if (dialog.exec()) {
+        Task item = dialog.constructedTask();
+        taskModel->insert(item);
+    }
+}
+
+void TaskOutline::toggleTaskCompleted()
+{
+    taskModel->toggleCompleted(ui->lvTaskView->currentIndex());
+}
+
+QSize TaskOutline::sizeHint() const
+{
+    return desiredSize;
+}
+
+void TaskOutline::showContextMenu(const QPoint& pos)
+{
+    QPoint globalPos = mapToGlobal(pos);
+    QMenu contextMenu;
+    const auto editEntry = "Edit";
+    const auto deleteEntry = "Delete";
+    const auto tagEditorEntry = "Tag editor";
+    contextMenu.addAction(editEntry);
+    contextMenu.addAction(deleteEntry);
+    contextMenu.addAction(tagEditorEntry);
+
+    QAction* selectedEntry = contextMenu.exec(globalPos);
+
+    if (selectedEntry && selectedEntry->text() == editEntry)
+        launchTaskEditor();
+    if (selectedEntry && selectedEntry->text() == deleteEntry)
+        removeTask();
+    if (selectedEntry && selectedEntry->text() == tagEditorEntry)
+        launchTagEditor();
+}
+
+void TaskOutline::launchTagEditor()
+{
+    if (!tagEditor) {
+        tagEditor = new TagEditorWidget(tagModel);
+        tagEditor->show();
+    }
+    else {
+        WidgetUtils::bringToForeground(tagEditor);
+    }
+}
+
+void TaskOutline::removeTask()
+{
+    QModelIndex index = ui->lvTaskView->currentIndex();
+    const auto task = taskModel->itemAt(index.row());
+    ConfirmationDialog dialog;
+    QString description;
+    if (task.actualCost() > 0) {
+        description =
+                "WARNING! This task has sprints associated with it "
+                "and they will be removed permanently along with this item.";
+    }
+    else {
+        description = "This will delete task permanently!";
+    }
+    dialog.setActionDescription(description);
+    if (dialog.exec()) {
+        taskModel->remove(index);
+    }
+}
+
+void TaskOutline::launchTaskEditor()
+{
+    QModelIndex index = ui->lvTaskView->currentIndex();
+    const auto itemToEdit = taskModel->itemAt(index.row());
+    AddTaskDialog dialog{tagModel};
+    dialog.setWindowTitle("Edit task");
+    dialog.fillItemData(itemToEdit);
+    if (dialog.exec()) {
+        Task updatedItem = dialog.constructedTask();
+        updatedItem.setActualCost(itemToEdit.actualCost());
+        updatedItem.setCompleted(itemToEdit.isCompleted());
+        taskModel->replaceItemAt(index.row(), updatedItem);
+    }
+}

@@ -19,23 +19,27 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef REORDABLELISTVIEW_H_KN6BYIAY
+#define REORDABLELISTVIEW_H_KN6BYIAY
 
-#include "utils/WidgetUtils.h"
 
-namespace WidgetUtils {
+#include "models/TaskModel.h"
+#include <QDropEvent>
+#include <QListView>
 
-void setRetainSizeWhenHidden(QWidget* widget)
-{
-    QSizePolicy policy = widget->sizePolicy();
-    policy.setRetainSizeWhenHidden(true);
-    widget->setSizePolicy(policy);
-}
 
-void bringToForeground(QWidget* widget)
-{
-    widget->raise();
-    widget->activateWindow();
-    widget->showNormal();
-}
+/* Extension of QListView that allows items to be reordered. */
+class ReordableListView : public QListView {
 
-} /* WidgetUtils */
+public:
+    explicit ReordableListView(QWidget* parent);
+
+    // Overriding to catch dropEvent and prevent model start removing rows
+    // attempting drag and drop by calling another method instead.
+    void dropEvent(QDropEvent* event) final;
+
+
+};
+
+
+#endif /* end of include guard: REORDABLELISTVIEW_H_KN6BYIAY */

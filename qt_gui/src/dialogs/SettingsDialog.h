@@ -41,7 +41,6 @@ public:
     explicit SettingsDialog(IConfig& applicationSettings,
                             QDialog* parent = nullptr);
     ~SettingsDialog();
-    void fillSettingsData();
 
 private slots:
     void storeSettingsData();
@@ -53,6 +52,8 @@ private:
     IConfig& applicationSettings;
     QStringList timers{"Default timer", "Fancy timer"};
     QStringListModel* timerModel;
+
+    void fillSettingsData();
 };
 
 #endif // SETTINGSDIALOG_H

@@ -35,6 +35,9 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
     ui->setupUi(this);
     timerModel = new QStringListModel{timers, this};
     ui->cbxTimerVariation->setModel(timerModel);
+
+    fillSettingsData();
+
     connect(this, &QDialog::accepted, this, &SettingsDialog::storeSettingsData);
     connect(ui->gbSoundSettings,
             &QGroupBox::toggled,

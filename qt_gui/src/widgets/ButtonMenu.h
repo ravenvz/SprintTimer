@@ -19,19 +19,47 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#ifndef WIDGETUTILS_H_PRISZGHM
-#define WIDGETUTILS_H_PRISZGHM
+#ifndef BUTTONMENU_H
+#define BUTTONMENU_H
 
 #include <QWidget>
+#include <QPushButton>
+#include <QtWidgets/QHBoxLayout>
+#include <core/ICoreService.h>
+#include "core/IConfig.h"
+#include "widgets/DataWidget.h"
+#include <QPointer>
 
-namespace WidgetUtils {
+namespace Ui {
+class ButtonMenu;
+}
 
-void setRetainSizeWhenHidden(QWidget* widget);
+class ButtonMenu : public QWidget {
 
-void bringToForeground(QWidget* widget);
+public:
+    ButtonMenu(IConfig& applicationSettings,
+               ICoreService& coreService,
+               QWidget* parent);
 
-} /* WidgetUtils */
+    ~ButtonMenu();
+
+private:
+    Ui::ButtonMenu* ui;
+    IConfig& settings;
+    ICoreService& coreService;
+    QPointer<DataWidget> progressWindow;
+    QPointer<DataWidget> statisticsWindow;
+    QPointer<DataWidget> historyWindow;
+
+private slots:
+    void launchSettingsDialog();
+    void launchHistoryWindow();
+    void launchProgressWindow();
+    void launchStatisticsWindow();
+    void onSprintDataChanged();
+    void onTaskDataChanged();
+    void onTagDataChanged();
+};
 
 
-#endif /* end of include guard: WIDGETUTILS_H_PRISZGHM */
+#endif //SPRINT_TIMER_BUTTONMENU_H
