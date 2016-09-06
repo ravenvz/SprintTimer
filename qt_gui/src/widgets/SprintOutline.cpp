@@ -22,8 +22,8 @@
 
 #include "widgets/SprintOutline.h"
 #include "dialogs/AddSprintDialog.h"
-#include "ui_sprint_outline.h"
 #include "dialogs/ConfirmationDialog.h"
+#include "ui_sprint_outline.h"
 #include <QMenu>
 
 SprintOutline::SprintOutline(ICoreService& coreService,
@@ -57,10 +57,12 @@ SprintOutline::SprintOutline(ICoreService& coreService,
             &SprintOutline::showContextMenu);
 }
 
+SprintOutline::~SprintOutline() { delete ui; }
+
 void SprintOutline::launchManualAddSprintDialog()
 {
     AddSprintDialog dialog{
-            sprintModel, taskModel, applicationSettings.sprintDuration()};
+        sprintModel, taskModel, applicationSettings.sprintDuration()};
     dialog.exec();
 }
 
@@ -69,10 +71,7 @@ void SprintOutline::adjustAddSprintButtonState()
     ui->pbAddSprintManually->setEnabled(taskModel->rowCount() != 0);
 }
 
-QSize SprintOutline::sizeHint() const
-{
-    return desiredSize;
-}
+QSize SprintOutline::sizeHint() const { return desiredSize; }
 
 void SprintOutline::showContextMenu(const QPoint& pos)
 {
@@ -97,4 +96,3 @@ void SprintOutline::removeSprint()
     if (dialog.exec())
         sprintModel->remove(index.row());
 }
-
