@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.6)
 
 set(PROJECT sprint_timer)
 project(${PROJECT})
@@ -15,17 +15,11 @@ find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-# Note that options are mutually exclusive but nothing enforces this.
-option(ADDRESS_SANITIZER "Address sanitizer in Debug build" OFF)
-option(MEMORY_SANITIZER "Memory sanitizer in Debug build" OFF)
-option(UB_SANITIZER "Undefined behavior sanitizer in Debug build" OFF)
-option(THREAD_SANITIZER "Thread sanitizer in Debug build" OFF)
-option(BUILD_TESTS ON)
+find_package(ECM REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_DIR})
+include(ECMEnableSanitizers)
 
-message("Address sanitizer is " {${ADDRESS_SANITIZER}})
-message("Memory sanitizer is " {${MEMORY_SANITIZER}})
-message("Undefined behavior sanitizer is " {${UB_SANITIZER}})
-message("Thread sanitizer is " {${THREAD_SANITIZER}})
+option(BUILD_TESTS ON)
 
 set("${PROJECT}_BINARY_DIR" bin)
 set("${PROJECT}_SOURCE_DIR" src)
@@ -35,8 +29,6 @@ set("${PROJECT}_ARCHIVE_DIR" lib/static)
 # to change Clion build directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 
-# set (CMAKE_INCLUDE_PATH ${${PROJECT}_SOURCE_DIR})
-# set (GLOBAL_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_LIB_DIR})
 set (ARCHIVE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_ARCHIVE_DIR})
@@ -58,10 +50,8 @@ endif()
 
 include(compiler_options.cmake)
 
-# file(GLOB SOURCE_FILES src/*/*.cpp src/*/*/*.cpp)
 set(SOURCE_FILES src/main.cpp)
 
-# add_executable(${PROJECT} ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc src/main.cpp)
 add_executable(${PROJECT} ${SOURCE_FILES})
 target_compile_features(${PROJECT} PUBLIC cxx_return_type_deduction)
 
@@ -71,23 +61,6 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(${PROJECT} PUBLIC ${GCC_COMPILE_OPTIONS})
 else()
   message(FATAL_ERROR "Unknown compiler.")
-endif()
-
-if(ADDRESS_SANITIZER)
-    set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fstack-protector-all -fsanitize=address -fno-omit-frame-pointer)
-    set_target_properties(${PROJECT} PROPERTIES LINK_FLAGS_DEBUG -fsanitize=address)
-elseif(MEMORY_SANITIZER)
-    # set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fstack-protector-all -fsanitize=memory -fsanitize-memory-track-origins=2)
-    set(DEBUG_COMPILE_OPTIONS -O0 -fsanitize=memory -fsanitize-memory-track-origins -fno-omit-frame-pointer)
-    set_target_properties(${PROJECT} PROPERTIES LINK_FLAGS_DEBUG -fsanitize=memory)
-elseif (UB_SANITIZER)
-    set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fstack-protector-all -fsanitize=undefined)
-    set_target_properties(${PROJECT} PROPERTIES LINK_FLAGS_DEBUG -fsanitize=undefined)
-elseif (THREAD_SANITIZER)
-    set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fsanitize=thread)
-    set_target_properties(${PROJECT} PROPERTIES LINK_FLAGS_DEBUG -fsanitize=thread)
-else()
-    set(DEBUG_COMPILE_OPTIONS -O0 -fno-inline -g3 -fstack-protector-all)
 endif()
 
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")

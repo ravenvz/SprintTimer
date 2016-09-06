@@ -60,6 +60,7 @@ ButtonMenu::~ButtonMenu() {
     delete progressWindow;
     delete historyWindow;
     delete statisticsWindow;
+    delete ui;
 }
 
 void ButtonMenu::launchHistoryWindow()

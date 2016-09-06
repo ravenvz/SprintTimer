@@ -5,15 +5,13 @@ OPTIND=1
 build_type="Debug"
 c_compiler="gcc"
 cxx_compiler="g++"
-memory_sanitizer="OFF"
-address_sanitizer="OFF"
-ub_sanitizer="OFF"
-thread_sanitizer="OFF"
+sanitizers=""
 make_tool="make"
+build_tests="ON"
 make_options=-j$(nproc)
 debug_make_options="-j1 VERBOSE=1"
 
-while getopts "drcamutn" opt ; do
+while getopts "drcamutnz" opt ; do
     case "$opt" in
         d) make_options=$debug_make_options
             ;;
@@ -22,30 +20,24 @@ while getopts "drcamutn" opt ; do
         c) c_compiler="clang"
            cxx_compiler="clang++"
             ;;
-        a) address_sanitizer="ON"
+        a) sanitizers+="address;"
             ;;
-        m) memory_sanitizer="ON"
-           address_sanitizer="OFF"
+        m) sanitizers+="memory;"
             ;;
-        u) ub_sanitizer="ON"
-           memory_sanitizer="OFF"
-           address_sanitizer="OFF"
+        u) sanitizers+="undefined;"
            ;;
-       t) thread_sanitizer="ON"
-          memory_sanitizer="OFF"
-          address_sanitizer="OFF"
-          ub_sanitizer="OFF"
+        t) sanitizers+="thread;"
            ;;
-       n) make_tool="ninja"
+        n) make_tool="ninja"
+           ;;
+        z) build_tests="OFF"
+           ;;
     esac
 done
 
 cmake_options="-DCMAKE_BUILD_TYPE=$build_type \
-               -DADDRESS_SANITIZER=$address_sanitizer \
-               -DMEMORY_SANITIZER=$memory_sanitizer \
-               -DUB_SANITIZER=$ub_sanitizer \
-               -DTHREAD_SANITIZER=$thread_sanitizer \
-               -DBUILD_TESTS=ON"
+               -DECM_ENABLE_SANITIZERS=$sanitizers \
+               -DBUILD_TESTS=$build_tests"
 
 if [[ $make_tool == 'ninja' ]]
 then

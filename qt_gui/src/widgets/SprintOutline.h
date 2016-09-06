@@ -45,6 +45,8 @@ public:
                   TaskModel* taskModel,
                   QWidget* parent);
 
+    ~SprintOutline();
+
     QSize sizeHint() const override;
 
 private:
