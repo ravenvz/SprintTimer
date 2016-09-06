@@ -7,10 +7,11 @@ c_compiler="gcc"
 cxx_compiler="g++"
 sanitizers=""
 make_tool="make"
+build_tests="ON"
 make_options=-j$(nproc)
 debug_make_options="-j1 VERBOSE=1"
 
-while getopts "drcamutn" opt ; do
+while getopts "drcamutnz" opt ; do
     case "$opt" in
         d) make_options=$debug_make_options
             ;;
@@ -27,13 +28,16 @@ while getopts "drcamutn" opt ; do
            ;;
         t) sanitizers+="thread;"
            ;;
-       n) make_tool="ninja"
+        n) make_tool="ninja"
+           ;;
+        z) build_tests="OFF"
+           ;;
     esac
 done
 
 cmake_options="-DCMAKE_BUILD_TYPE=$build_type \
                -DECM_ENABLE_SANITIZERS=$sanitizers \
-               -DBUILD_TESTS=ON"
+               -DBUILD_TESTS=$build_tests"
 
 if [[ $make_tool == 'ninja' ]]
 then
