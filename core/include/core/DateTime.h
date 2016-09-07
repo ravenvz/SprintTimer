@@ -38,7 +38,7 @@ void to_time_point(const std::tm& t,
     auto ymd = year(y) / (t.tm_mon + 1) / t.tm_mday;
     if (!ymd.ok())
         throw std::runtime_error("Invalid date");
-    tp = day_point(ymd) + hours(t.tm_hour) + minutes(t.tm_min)
+    tp = sys_days(ymd) + hours(t.tm_hour) + minutes(t.tm_min)
         + seconds(t.tm_sec);
 }
 
@@ -128,7 +128,7 @@ public:
 
 private:
     std::chrono::system_clock::time_point time;
-    date::day_point daypoint;
+    date::sys_days daypoint;
     date::year_month_day ymd;
     date::time_of_day<std::chrono::system_clock::duration> tod;
 };

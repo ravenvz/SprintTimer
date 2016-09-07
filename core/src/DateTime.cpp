@@ -39,7 +39,7 @@ DateTime DateTime::fromYMD(int year, int month, int day)
     date::year_month_day dateYMD{date::year(year) / month / day};
     if (!dateYMD.ok())
         throw std::runtime_error("Invalid date");
-    std::chrono::system_clock::time_point tp = date::day_point(dateYMD);
+    std::chrono::system_clock::time_point tp = date::sys_days(dateYMD);
     return DateTime{tp};
 }
 
