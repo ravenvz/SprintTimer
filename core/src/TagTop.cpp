@@ -20,9 +20,9 @@
 **
 *********************************************************************************/
 
-#include <numeric>
-#include "core/SprintStatistics.h"
 #include "core/TagTop.h"
+#include "core/SprintStatistics.h"
+#include <numeric>
 
 TagTop::TagTop(const std::vector<Sprint>& sprints, size_t topMaxSize)
     : numTopTags{topMaxSize}
@@ -36,7 +36,6 @@ TagTop::TagTop(const std::vector<Sprint>& sprints, size_t topMaxSize)
 TagTop::TagTop()
     : numTopTags{0}
 {
-
 }
 
 void TagTop::arrangeSprintsByTag(const std::vector<Sprint>& sprints)
@@ -62,11 +61,13 @@ void TagTop::computeTagFrequencies()
 
 void TagTop::orderTagsByDecreasingFrequency()
 {
-    sort(frequencies.begin(),
-              frequencies.end(),
-              [](const auto& lhs, const auto& rhs) {
-                  return lhs.second > rhs.second;
-              });
+    std::partial_sort(frequencies.begin(),
+                      frequencies.begin()
+                          + std::min(numTopTags, frequencies.size()),
+                      frequencies.end(),
+                      [](const auto& lhs, const auto& rhs) {
+                          return lhs.second > rhs.second;
+                      });
 }
 
 void TagTop::mergeTagsWithLowestFrequencies()
@@ -104,10 +105,10 @@ std::vector<Tag> TagTop::findBottomTags() const
 
     std::vector<Tag> bottomTags;
     set_difference(allTags.begin(),
-                        allTags.end(),
-                        topTags.begin(),
-                        topTags.end(),
-                        back_inserter(bottomTags));
+                   allTags.end(),
+                   topTags.begin(),
+                   topTags.end(),
+                   back_inserter(bottomTags));
 
     return bottomTags;
 }
@@ -136,7 +137,10 @@ std::vector<Tag> TagTop::findAllTags() const
     return allTags;
 }
 
-std::vector<TagTop::TagFrequency> TagTop::tagFrequencies() const { return frequencies; }
+std::vector<TagTop::TagFrequency> TagTop::tagFrequencies() const
+{
+    return frequencies;
+}
 
 std::vector<Sprint> TagTop::sprintsForTagAt(size_t position) const
 {
@@ -148,6 +152,4 @@ std::__cxx11::string TagTop::tagNameAt(size_t position) const
     return frequencies.at(position).first.name();
 }
 
-size_t TagTop::topSize() const {
-    return frequencies.size();
-}
+size_t TagTop::topSize() const { return frequencies.size(); }
