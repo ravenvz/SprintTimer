@@ -1,6 +1,7 @@
 set(CLANG_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
                           -Weverything
                           -Werror
+                          -Wall
                           -pedantic-errors
                           -Wno-c++98-compat
                           -Wno-c++98-compat-pedantic
