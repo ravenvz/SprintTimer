@@ -46,7 +46,8 @@ public:
     void accept() override;
 
 private slots:
-    void autoAdjustFinishTime();
+    void autoAdjustFinishTime(const QDateTime& dateTime);
+    void autoAdjustStartTime(const QDateTime& dateTime);
 
 private:
     Ui::AddSprintDialog* ui;
