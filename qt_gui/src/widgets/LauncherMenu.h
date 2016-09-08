@@ -31,20 +31,23 @@
 #include <QPointer>
 
 namespace Ui {
-class ButtonMenu;
+class LauncherMenu;
 }
 
-class ButtonMenu : public QWidget {
+class LauncherMenu : public QWidget {
 
 public:
-    ButtonMenu(IConfig& applicationSettings,
+    LauncherMenu(IConfig& applicationSettings,
                ICoreService& coreService,
                QWidget* parent);
 
-    ~ButtonMenu();
+    ~LauncherMenu();
+
+public slots:
+    void onSyncRequired();
 
 private:
-    Ui::ButtonMenu* ui;
+    Ui::LauncherMenu* ui;
     IConfig& settings;
     ICoreService& coreService;
     QPointer<DataWidget> progressWindow;
@@ -56,9 +59,6 @@ private slots:
     void launchHistoryWindow();
     void launchProgressWindow();
     void launchStatisticsWindow();
-    void onSprintDataChanged();
-    void onTaskDataChanged();
-    void onTagDataChanged();
 };
 
 

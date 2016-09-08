@@ -53,13 +53,13 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     tagModel = new TagModel(coreService, this);
     timerWidget->setTaskModel(taskModel);
     taskOutline = new TaskOutline(coreService, taskModel, tagModel, this);
-    menuButtonGroup = new ButtonMenu(applicationSettings, coreService, this);
+    launcherMenu = new LauncherMenu(applicationSettings, coreService, this);
     sprintOutline = new SprintOutline(coreService, applicationSettings, sprintModel, taskModel, this);
     ui->gridLayout->addWidget(taskOutline, 0, 0, 3, 1);
     ui->gridLayout->addWidget(
             timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
     ui->gridLayout->addWidget(sprintOutline, 1, 2, 2, 1);
-    ui->gridLayout->addWidget(menuButtonGroup, 4, 1, 1, 1, Qt::AlignHCenter);
+    ui->gridLayout->addWidget(launcherMenu, 4, 1, 1, 1, Qt::AlignHCenter);
 
     adjustUndoButtonState();
 
@@ -122,6 +122,15 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &AsyncListModel::updateFinished,
             this,
             &MainWindow::adjustUndoButtonState);
+
+    connect(sprintModel,
+            &AsyncListModel::updateFinished,
+            launcherMenu,
+            &LauncherMenu::onSyncRequired);
+    connect(taskModel,
+            &AsyncListModel::updateFinished,
+            launcherMenu,
+            &LauncherMenu::onSyncRequired);
 
     connect(
         ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
@@ -222,7 +231,7 @@ void Expanded::setStateUi(MainWindow& widget)
 {
     widget.taskOutline->setVisible(true);
     widget.sprintOutline->setVisible(true);
-    widget.menuButtonGroup->setVisible(true);
+    widget.launcherMenu->setVisible(true);
     widget.ui->pbToggleView->setText("Collapse");
     widget.ui->pbToggleMenu->setText("Hide menu");
     widget.ui->pbUndo->setVisible(true);
@@ -247,7 +256,7 @@ void Shrinked::setStateUi(MainWindow& widget)
 {
     widget.taskOutline->setVisible(false);
     widget.sprintOutline->setVisible(false);
-    widget.menuButtonGroup->setVisible(false);
+    widget.launcherMenu->setVisible(false);
     widget.ui->pbToggleView->setText("Expand");
     widget.ui->pbToggleMenu->setText("Show menu");
     widget.ui->pbUndo->setVisible(false);
@@ -272,7 +281,7 @@ void ExpandedMenuOnly::setStateUi(MainWindow& widget)
 {
     widget.taskOutline->setVisible(false);
     widget.sprintOutline->setVisible(false);
-    widget.menuButtonGroup->setVisible(true);
+    widget.launcherMenu->setVisible(true);
     widget.ui->pbToggleView->setText("Expand");
     widget.ui->pbToggleMenu->setText("Hide menu");
     widget.ui->pbUndo->setVisible(false);
@@ -297,7 +306,7 @@ void ExpandedWithoutMenu::setStateUi(MainWindow& widget)
 {
     widget.sprintOutline->setVisible(true);
     widget.taskOutline->setVisible(true);
-    widget.menuButtonGroup->setVisible(false);
+    widget.launcherMenu->setVisible(false);
     widget.ui->pbToggleView->setText("Collapse");
     widget.ui->pbToggleMenu->setText("Show menu");
     widget.ui->pbUndo->setVisible(true);
