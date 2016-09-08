@@ -22,16 +22,16 @@
 
 #include "utils/WidgetUtils.h"
 #include "dialogs/SettingsDialog.h"
-#include "widgets/ButtonMenu.h"
-#include "ui_button_menu.h"
+#include "widgets/LauncherMenu.h"
+#include "ui_launcher_menu.h"
 #include "widgets/GoalProgressWindow.h"
 #include "widgets/StatisticsWindow.h"
 #include "widgets/HistoryWindow.h"
 
-ButtonMenu::ButtonMenu(IConfig& applicationSettings,
+LauncherMenu::LauncherMenu(IConfig& applicationSettings,
                        ICoreService& coreService,
                        QWidget* parent)
-    : ui{new Ui::ButtonMenu}
+    : ui{new Ui::LauncherMenu}
     , QWidget{parent}
     , settings{applicationSettings}
     , coreService{coreService}
@@ -41,29 +41,29 @@ ButtonMenu::ButtonMenu(IConfig& applicationSettings,
     connect(ui->pbSettings,
             &QPushButton::clicked,
             this,
-            &ButtonMenu::launchSettingsDialog);
+            &LauncherMenu::launchSettingsDialog);
     connect(ui->pbHistory,
             &QPushButton::clicked,
             this,
-            &ButtonMenu::launchHistoryWindow);
+            &LauncherMenu::launchHistoryWindow);
     connect(ui->pbProgress,
             &QPushButton::clicked,
             this,
-            &ButtonMenu::launchProgressWindow);
+            &LauncherMenu::launchProgressWindow);
     connect(ui->pbStatistics,
             &QPushButton::clicked,
             this,
-            &ButtonMenu::launchStatisticsWindow);
+            &LauncherMenu::launchStatisticsWindow);
 }
 
-ButtonMenu::~ButtonMenu() {
+LauncherMenu::~LauncherMenu() {
     delete progressWindow;
     delete historyWindow;
     delete statisticsWindow;
     delete ui;
 }
 
-void ButtonMenu::launchHistoryWindow()
+void LauncherMenu::launchHistoryWindow()
 {
     if (!historyWindow) {
         historyWindow = new HistoryWindow(coreService);
@@ -73,13 +73,13 @@ void ButtonMenu::launchHistoryWindow()
     }
 }
 
-void ButtonMenu::launchSettingsDialog()
+void LauncherMenu::launchSettingsDialog()
 {
     SettingsDialog settingsDialog{settings};
     settingsDialog.exec();
 }
 
-void ButtonMenu::launchProgressWindow()
+void LauncherMenu::launchProgressWindow()
 {
     if (!progressWindow) {
         progressWindow = new GoalProgressWindow(settings, coreService);
@@ -90,7 +90,7 @@ void ButtonMenu::launchProgressWindow()
 
 }
 
-void ButtonMenu::launchStatisticsWindow()
+void LauncherMenu::launchStatisticsWindow()
 {
     if (!statisticsWindow) {
         statisticsWindow = new StatisticsWindow(settings, coreService);
@@ -100,7 +100,7 @@ void ButtonMenu::launchStatisticsWindow()
     }
 }
 
-void ButtonMenu::onSprintDataChanged()
+void LauncherMenu::onSyncRequired()
 {
     if (progressWindow)
         progressWindow->synchronize();
@@ -109,20 +109,3 @@ void ButtonMenu::onSprintDataChanged()
     if (statisticsWindow)
         statisticsWindow->synchronize();
 }
-
-void ButtonMenu::onTaskDataChanged()
-{
-    if (statisticsWindow)
-        statisticsWindow->synchronize();
-    if (historyWindow)
-        historyWindow->synchronize();
-}
-
-void ButtonMenu::onTagDataChanged()
-{
-    if (statisticsWindow)
-        statisticsWindow->synchronize();
-    if (historyWindow)
-        historyWindow->synchronize();
-}
-

@@ -32,7 +32,7 @@
 #include "widgets/TimerWidgetBase.h"
 #include "widgets/TaskOutline.h"
 #include "widgets/SprintOutline.h"
-#include "widgets/ButtonMenu.h"
+#include "widgets/LauncherMenu.h"
 #include <QMainWindow>
 #include <experimental/optional>
 #include <functional>
@@ -71,7 +71,7 @@ private:
     QPointer<SprintModel> sprintModel;
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
-    QPointer<ButtonMenu> menuButtonGroup;
+    QPointer<LauncherMenu> launcherMenu;
     QPointer<TaskOutline> taskOutline;
     QPointer<SprintOutline> sprintOutline;
     std::experimental::optional<int> selectedTaskRow;
