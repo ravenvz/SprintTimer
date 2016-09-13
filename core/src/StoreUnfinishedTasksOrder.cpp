@@ -19,30 +19,28 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
 
+#include "core/use_cases/StoreUnfinishedTasksOrder.h"
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
+namespace UseCases {
+
+StoreUnfinishedTasksOrder::StoreUnfinishedTasksOrder(
+    ITaskStorageWriter& taskStorageWriter,
+    std::vector<std::pair<std::string, int>>&& priorities)
+    : writer{taskStorageWriter}
+    , priorities{std::move(priorities)}
 {
 }
 
-std::string Tag::name() const { return aName; }
-
-void Tag::setName(const std::string& name) { aName = name; }
-
-std::string Tag::nameWithPrefix() const
+void StoreUnfinishedTasksOrder::execute()
 {
-    if (name().empty())
-        return "";
-    return prefix + name();
+    writer.updatePriorities(std::move(priorities));
 }
 
-/* static */
-std::string Tag::prefix = std::string("#");
-
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
+std::string StoreUnfinishedTasksOrder::inspect() const
 {
-    os << tag.aName;
-    return os;
+    return "Store unfinished tasks order";
 }
+
+
+} /* UseCases */

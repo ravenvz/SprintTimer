@@ -28,6 +28,7 @@
 #include "core/entities/Tag.h"
 #include "core/entities/Task.h"
 #include <list>
+#include <ostream>
 #include <string>
 
 /* Represents Sprint concept.
@@ -38,7 +39,6 @@
 class Sprint {
 
 public:
-
     Sprint(const std::string& taskName,
            const TimeSpan& timeSpan,
            const std::list<Tag>& tags,
@@ -65,11 +65,12 @@ public:
     // Return associated Task uuid.
     std::string taskUuid() const;
 
-    // Return vector of tags. Tags are identical the associated task tags.
+    /* Return vector of tags. Tags are identical the associated task tags.
+     * Order of tags in the list is not specified.
+     */
     std::list<Tag> tags() const;
 
-    // Return string representation.
-    std::string toString() const;
+    friend std::ostream& operator<<(std::ostream& os, const Sprint& sprint);
 
 private:
     static BoostUUIDGenerator generator;
@@ -82,5 +83,3 @@ private:
 
 
 #endif // SPRINT_H_XWNOT32M
-
-

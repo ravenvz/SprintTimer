@@ -20,9 +20,23 @@
 **
 *********************************************************************************/
 #include "core/DateTime.h"
+#include "core/StringUtils.h"
+#include <algorithm>
 #include <array>
 #include <iomanip>
 #include <iostream>
+
+namespace {
+template <typename T>
+void pop_back_n(T& container, size_t n)
+{
+    auto limit = std::min(n, container.size());
+    for (size_t i = 0; i < limit; ++i)
+        container.pop_back();
+}
+
+std::string formatDateTime(const DateTime& dt, std::string&& format);
+}
 
 
 DateTime::DateTime(std::chrono::system_clock::time_point timepoint)
@@ -110,45 +124,102 @@ unsigned DateTime::dayOfWeek() const
     return mondayFirstTable[static_cast<unsigned>(date::weekday(ymd))];
 }
 
-std::string DateTime::toTimeString() const
+std::string DateTime::toString(std::string format) const
 {
-    using namespace date;
-    std::stringstream ss;
-    auto tp = floor<std::chrono::minutes>(time);
-    auto dp = floor<date::days>(time);
-    ss << make_time(tp - dp);
-    return ss.str();
-}
-
-// TODO consider generic method with format string as parameter
-std::string DateTime::yyyymmddString() const
-{
-    std::stringstream ss;
-    ss << year();
-    ss << "-";
-    ss << std::setfill('0') << std::setw(2);
-    ss << month();
-    ss << "-";
-    ss << std::setfill('0') << std::setw(2);
-    ss << day();
-    return ss.str();
-}
-
-std::string DateTime::ddmmyyyyString() const
-{
-    std::stringstream ss;
-    ss << std::setfill('0') << std::setw(2);
-    ss << day();
-    ss << ".";
-    ss << std::setfill('0') << std::setw(2);
-    ss << month();
-    ss << ".";
-    ss << year();
-    return ss.str();
+    return formatDateTime(*this, std::move(format));
 }
 
 std::ostream& operator<<(std::ostream& os, const DateTime& dt)
 {
-    using namespace date;
-    return os << dt.chronoTimepoint();
+    os << std::setfill('0') << std::setw(2) << dt.day() << "."
+       << std::setfill('0') << std::setw(2) << dt.month() << "." << dt.year()
+       << " " << std::setfill('0') << std::setw(2) << dt.hour() << ":"
+       << std::setfill('0') << std::setw(2) << dt.minute() << ":"
+       << std::setfill('0') << std::setw(2) << dt.second();
+    return os;
+}
+
+namespace {
+
+std::string formatDateTime(const DateTime& dt, std::string&& format)
+{
+    std::stringstream ss;
+
+    std::string f{std::move(format)};
+    std::reverse(f.begin(), f.end());
+
+    using namespace StringUtils;
+
+    while (!f.empty()) {
+        if (endsWith(f, "''")) {
+            ss << "'";
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "'")) {
+            pop_back_n(f, 1);
+            auto m = f.find_last_of("'");
+            if (m != std::string::npos) {
+                while (!endsWith(f, "'")) {
+                    ss << f.back();
+                    f.pop_back();
+                }
+                f.pop_back();
+            }
+        }
+        else if (endsWith(f, "yyyy")) {
+            ss << std::setfill('0') << std::setw(4) << dt.year();
+            pop_back_n(f, 4);
+        }
+        else if (endsWith(f, "yy")) {
+            ss << std::setfill('0') << std::setw(2) << dt.year() % 100;
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "MM")) {
+            ss << std::setfill('0') << std::setw(2) << dt.month();
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "M")) {
+            ss << dt.month();
+            pop_back_n(f, 1);
+        }
+        else if (endsWith(f, "dd")) {
+            ss << std::setfill('0') << std::setw(2) << dt.day();
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "d")) {
+            ss << dt.day();
+            pop_back_n(f, 1);
+        }
+        else if (endsWith(f, "hh")) {
+            ss << std::setfill('0') << std::setw(2) << dt.hour();
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "h")) {
+            ss << dt.hour();
+            pop_back_n(f, 1);
+        }
+        else if (endsWith(f, "mm")) {
+            ss << std::setfill('0') << std::setw(2) << dt.minute();
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "m")) {
+            ss << dt.minute();
+            pop_back_n(f, 1);
+        }
+        else if (endsWith(f, "ss")) {
+            ss << std::setfill('0') << std::setw(2) << dt.second();
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "s")) {
+            ss << dt.second();
+            pop_back_n(f, 1);
+        }
+        else {
+            ss << f.back();
+            f.pop_back();
+        }
+    }
+
+    return ss.str();
+}
 }

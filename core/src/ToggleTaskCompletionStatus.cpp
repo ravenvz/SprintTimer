@@ -19,37 +19,35 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REMOVESPRINTTRANSACTION_H_GAR8SZLM
-#define REMOVESPRINTTRANSACTION_H_GAR8SZLM
 
-#include "core/ISprintStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/use_cases/ToggleTaskCompletionStatus.h"
 
 namespace UseCases {
 
-class RemoveSprintTransaction : public RevertableCommand {
-public:
-    RemoveSprintTransaction(ISprintStorageWriter& writer,
-                              const Sprint& sprint)
-        : writer{writer}
-        , sprint{sprint}
-    {
-    }
+ToggleTaskCompletionStatus::ToggleTaskCompletionStatus(
+    ITaskStorageWriter& taskStorageWriter, const Task& task)
+    : writer{taskStorageWriter}
+    , uuid{task.uuid()}
+    , oldTimeStamp{task.lastModified()}
+{
+}
 
-    void executeAction() final { writer.remove(sprint); }
+void ToggleTaskCompletionStatus::executeAction()
+{
+    writer.toggleTaskCompletionStatus(uuid, DateTime::currentDateTimeLocal());
+}
 
-    void undoAction() final { writer.save(sprint); }
+void ToggleTaskCompletionStatus::undoAction()
+{
+    writer.toggleTaskCompletionStatus(uuid, oldTimeStamp);
+}
 
-    std::string inspect() const final
-    {
-        return "Remove sprint '" + sprint.toString() + "'";
-    }
+std::string ToggleTaskCompletionStatus::inspect() const
+{
+    std::stringstream ss;
+    ss << "Toggle task completion for " << uuid;
+    return ss.str();
+}
 
-private:
-    ISprintStorageWriter& writer;
-    const Sprint sprint;
-};
 
-} // namespace UseCases
-
-#endif /* end of include guard: REMOVESPRINTTRANSACTION_H_GAR8SZLM */
+} /* UseCases */

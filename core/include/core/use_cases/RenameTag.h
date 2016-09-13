@@ -19,30 +19,34 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
+#ifndef EDITTAG_H_6NGOS1Q2
+#define EDITTAG_H_6NGOS1Q2
 
+#include "core/ITaskStorageWriter.h"
+#include "core/RevertableCommand.h"
+#include <iostream>
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
-{
-}
+namespace UseCases {
 
-std::string Tag::name() const { return aName; }
+class RenameTag : public RevertableCommand {
+public:
+    RenameTag(ITaskStorageWriter& tagStorageWriter,
+            const std::string& oldName,
+            const std::string& newName);
 
-void Tag::setName(const std::string& name) { aName = name; }
+    std::string inspect() const final;
 
-std::string Tag::nameWithPrefix() const
-{
-    if (name().empty())
-        return "";
-    return prefix + name();
-}
+protected:
+    void executeAction() final;
 
-/* static */
-std::string Tag::prefix = std::string("#");
+    void undoAction() final;
 
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
-{
-    os << tag.aName;
-    return os;
-}
+private:
+    ITaskStorageWriter& writer;
+    const std::string oldName;
+    const std::string newName;
+};
+
+} /* UseCases */
+
+#endif /* end of include guard: EDITTAG_H_6NGOS1Q2 */

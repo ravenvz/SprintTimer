@@ -19,48 +19,29 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef EDITTASKCOMMAND_H_3FYYCQWP
-#define EDITTASKCOMMAND_H_3FYYCQWP
+#ifndef REMOVETASKTRANSACTION_H_9P4V02DM
+#define REMOVETASKTRANSACTION_H_9P4V02DM
 
 #include "core/ITaskStorageWriter.h"
 #include "core/RevertableCommand.h"
 
 namespace UseCases {
 
-class EditTask : public RevertableCommand {
+class DeleteTask : public RevertableCommand {
 public:
-    EditTask(ITaskStorageWriter& writer,
-             const Task& task,
-             const Task& editedTask)
-        : writer{writer}
-        , task{task}
-        , editedTask{editedTask.name(),
-                     editedTask.estimatedCost(),
-                     task.actualCost(),
-                     task.uuid(),
-                     std::move(editedTask.tags()),
-                     task.isCompleted(),
-                     DateTime::currentDateTimeLocal()}
-    {
-    }
+    DeleteTask(ITaskStorageWriter& taskStorageWriter, const Task& taskToRemove);
 
-    void executeAction() final { writer.edit(task, editedTask); }
+    std::string inspect() const final;
 
-    void undoAction() final { writer.edit(editedTask, task); }
+protected:
+    void executeAction() final;
 
-    std::string inspect() const final
-    {
-        return "Edit task '" + task.toString() + " -> " + editedTask.toString()
-            + "'";
-    }
-
+    void undoAction() final;
 
 private:
     ITaskStorageWriter& writer;
-    Task task;
-    Task editedTask;
+    const Task task;
 };
-
 } /* UseCases */
 
-#endif /* end of include guard: EDITTASKCOMMAND_H_3FYYCQWP */
+#endif /* end of include guard: REMOVETASKTRANSACTION_H_9P4V02DM */

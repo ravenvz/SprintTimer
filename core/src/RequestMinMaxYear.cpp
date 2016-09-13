@@ -19,32 +19,24 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y
-#define REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y
 
-#include "core/Command.h"
-#include "core/ITaskStorageWriter.h"
+#include "core/use_cases/RequestMinMaxYear.h"
 
 namespace UseCases {
 
-class StoreUnfinishedTasksOrder : public Command {
-public:
-    StoreUnfinishedTasksOrder(
-        ITaskStorageWriter& taskStorageWriter,
-        std::vector<std::pair<std::string, int>>&& priorities)
-        : writer{taskStorageWriter}
-        , priorities{std::move(priorities)}
-    {
-    }
+RequestMinMaxYear::RequestMinMaxYear(IYearRangeReader& reader,
+                                     IYearRangeReader::Handler handler)
+    : reader{reader}
+    , handler{handler}
+{
+}
 
-    void execute() { writer.updatePriorities(std::move(priorities)); }
+void RequestMinMaxYear::execute() { reader.requestYearRange(handler); }
 
-    std::string inspect() const final { return "Store unfinished tasks order"; }
+std::string RequestMinMaxYear::inspect() const
+{
+    return "Request min max year";
+}
 
-private:
-    ITaskStorageWriter& writer;
-    std::vector<std::pair<std::string, int>> priorities;
-};
+
 } /* UseCases */
-
-#endif /* end of include guard: REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y */

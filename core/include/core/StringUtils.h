@@ -75,6 +75,10 @@ std::string join(const std::vector<std::string>& vec,
  */
 std::list<std::string> parseWords(std::string text);
 
+bool startsWith(const std::string& str, const std::string& start);
+
+bool endsWith(const std::string& str, const std::string& end);
+
 } // namespace StringUtils
 
 #endif /* end of include guard: STRINGUTILS_H_Y89VODRG */

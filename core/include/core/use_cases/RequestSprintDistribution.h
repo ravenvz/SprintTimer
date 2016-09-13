@@ -19,30 +19,33 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
+#ifndef REQUESTSPRINTDISTRIBUTION_H_QUUONEQF
+#define REQUESTSPRINTDISTRIBUTION_H_QUUONEQF
 
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
-{
-}
+#include "core/Command.h"
+#include "core/ISprintDistributionReader.h"
 
-std::string Tag::name() const { return aName; }
+namespace UseCases {
 
-void Tag::setName(const std::string& name) { aName = name; }
+class RequestSprintDistribution : public Command {
+public:
+    RequestSprintDistribution(ISprintDistributionReader& reader,
+                              const TimeSpan& timeSpan,
+                              ISprintDistributionReader::Handler handler);
 
-std::string Tag::nameWithPrefix() const
-{
-    if (name().empty())
-        return "";
-    return prefix + name();
-}
+    void execute() final;
 
-/* static */
-std::string Tag::prefix = std::string("#");
+    std::string inspect() const final;
 
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
-{
-    os << tag.aName;
-    return os;
-}
+private:
+    ISprintDistributionReader& reader;
+    const TimeSpan& timeSpan;
+    ISprintDistributionReader::Handler handler;
+};
+
+
+} /* UseCases */
+
+
+#endif /* end of include guard: REQUESTSPRINTDISTRIBUTION_H_QUUONEQF */

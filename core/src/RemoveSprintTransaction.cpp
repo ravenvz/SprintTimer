@@ -19,41 +19,26 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTSPRINTS_H_4QUSWCF0
-#define REQUESTSPRINTS_H_4QUSWCF0
 
-
-#include "core/Command.h"
-#include "core/ISprintStorageReader.h"
+#include "core/use_cases/RemoveSprintTransaction.h"
 
 namespace UseCases {
 
-class RequestSprints : public Command {
-public:
-    RequestSprints(
-        ISprintStorageReader& reader,
-        const TimeSpan& timeSpan,
-        std::function<void(const std::vector<Sprint>&)> resultHandler)
-        : reader{reader}
-        , timeSpan{timeSpan}
-        , handler{resultHandler}
-    {
-    }
+RemoveSprintTransaction::RemoveSprintTransaction(ISprintStorageWriter& writer,
+                                                 const Sprint& sprint)
+    : writer{writer}
+    , sprint{sprint}
+{
+}
 
-    void execute() final { reader.requestItems(timeSpan, handler); }
+void RemoveSprintTransaction::executeAction() { writer.remove(sprint); }
 
-    std::string inspect() const final
-    {
-        return "Request sprints in '" + timeSpan.toDateString() + "'";
-    }
+void RemoveSprintTransaction::undoAction() { writer.save(sprint); }
 
-private:
-    ISprintStorageReader& reader;
-    const TimeSpan timeSpan;
-    std::function<void(const std::vector<Sprint>&)> handler;
-};
-
-} /* UseCases */
-
-#endif /* end of include guard: REQUESTSPRINTS_H_4QUSWCF0  \
-          */
+std::string RemoveSprintTransaction::inspect() const
+{
+    std::stringstream ss;
+    ss << "Remove sprint '" << sprint << "'";
+    return ss.str();
+}
+}

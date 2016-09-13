@@ -19,30 +19,28 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
+#ifndef REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK
+#define REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK
 
+#include "core/Command.h"
+#include "core/ITaskStorageReader.h"
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
-{
-}
+namespace UseCases {
 
-std::string Tag::name() const { return aName; }
+class RequestUnfinishedTasks : public Command {
+public:
+    RequestUnfinishedTasks(ITaskStorageReader& taskStorageReader,
+                           ITaskStorageReader::Handler handler);
 
-void Tag::setName(const std::string& name) { aName = name; }
+    void execute() final;
 
-std::string Tag::nameWithPrefix() const
-{
-    if (name().empty())
-        return "";
-    return prefix + name();
-}
+    std::string inspect() const final;
 
-/* static */
-std::string Tag::prefix = std::string("#");
+private:
+    ITaskStorageReader& reader;
+    ITaskStorageReader::Handler handler;
+};
 
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
-{
-    os << tag.aName;
-    return os;
-}
+} /* UseCases */
+
+#endif /* end of include guard: REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK */

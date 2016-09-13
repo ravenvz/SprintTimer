@@ -55,10 +55,10 @@ void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
 
     dbService.bind(mQueryId,
                    ":startTime",
-                   QVariant(QString::fromStdString(start.yyyymmddString())));
+                   QVariant(QString::fromStdString(start.toString("yyyy-MM-dd"))));
     dbService.bind(mQueryId,
                    ":finishTime",
-                   QVariant(QString::fromStdString(finish.yyyymmddString())));
+                   QVariant(QString::fromStdString(finish.toString("yyyy-MM-dd"))));
 
     dbService.executePrepared(mQueryId);
 }

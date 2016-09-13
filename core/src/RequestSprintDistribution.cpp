@@ -19,30 +19,31 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
+
+#include "core/use_cases/RequestSprintDistribution.h"
 
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
+namespace UseCases {
+
+RequestSprintDistribution::RequestSprintDistribution(
+    ISprintDistributionReader& reader,
+    const TimeSpan& timeSpan,
+    ISprintDistributionReader::Handler handler)
+    : reader{reader}
+    , timeSpan{timeSpan}
+    , handler{handler}
 {
 }
 
-std::string Tag::name() const { return aName; }
-
-void Tag::setName(const std::string& name) { aName = name; }
-
-std::string Tag::nameWithPrefix() const
+void RequestSprintDistribution::execute()
 {
-    if (name().empty())
-        return "";
-    return prefix + name();
+    reader.requestDistribution(timeSpan, handler);
 }
 
-/* static */
-std::string Tag::prefix = std::string("#");
-
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
+std::string RequestSprintDistribution::inspect() const
 {
-    os << tag.aName;
-    return os;
+    return "Request sprint distribution";
 }
+
+
+} /* UseCases */

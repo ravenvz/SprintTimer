@@ -19,37 +19,21 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef INCREMENTTASKSPRINTS_H_2OKTXAHD
-#define INCREMENTTASKSPRINTS_H_2OKTXAHD
 
-#include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/use_cases/RequestAllTags.h"
 
 namespace UseCases {
-class IncrementTaskSprints : public RevertableCommand {
-public:
-    IncrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                            const std::string& taskUuid)
-        : writer{taskStorageWriter}
-        , taskUuid{taskUuid}
-    {
-    }
 
-    std::string inspect() const final
-    {
-        return "Increment finished sprints for " + taskUuid;
-    }
+RequestAllTags::RequestAllTags(
+    ITaskStorageReader& taskStorageReader,
+    std::function<void(const std::vector<std::string>&)> handler)
+    : reader{taskStorageReader}
+    , handler{handler}
+{
+}
 
-protected:
-    void executeAction() final { writer.incrementSprints(taskUuid); }
+void RequestAllTags::execute() { reader.requestAllTags(handler); }
 
-    void undoAction() final { writer.decrementSprints(taskUuid); }
-
-private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid;
-};
+std::string RequestAllTags::inspect() const { return "Request all tags"; }
 
 } /* UseCases */
-
-#endif /* end of include guard: INCREMENTTASKSPRINTS_H_2OKTXAHD */

@@ -41,18 +41,18 @@ class Task {
 
 public:
     Task(std::string name,
-             int estimatedCost,
-             int actualCost,
-             std::list<Tag> tags,
-             bool completed);
+         int estimatedCost,
+         int actualCost,
+         std::list<Tag> tags,
+         bool completed);
 
     Task(std::string name,
-             int estimatedCost,
-             int actualCost,
-             const std::string& uuid,
-             std::list<Tag> tags,
-             bool completed,
-             const DateTime& lastModified);
+         int estimatedCost,
+         int actualCost,
+         const std::string& uuid,
+         std::list<Tag> tags,
+         bool completed,
+         const DateTime& lastModified);
 
     /* Construct Task from encoded description.
      * Description is a string of text that may have some words with
@@ -85,7 +85,8 @@ public:
     /* Return true if Task is completed and false otherwise. */
     bool isCompleted() const;
 
-    /* Return estimated number of sprints that are required to completed this task. */
+    /* Return estimated number of sprints that are required to completed this
+     * task. */
     int estimatedCost() const;
 
     /* Number of sprints that had been spent on this task. */
@@ -104,7 +105,8 @@ public:
     /* Set task status. */
     void setCompleted(bool completed);
 
-    /* Set estimated number of sprints that are required to complete this task. */
+    /* Set estimated number of sprints that are required to complete this task.
+     */
     void setEstimatedCost(int numSprints);
 
     /* Set number of sprints spent on this task. */
@@ -115,12 +117,7 @@ public:
     /* Set time stamp of last item modification. */
     void setModifiedTimeStamp(const DateTime& timeStamp);
 
-    /* Return string representation of tags.
-     * Tags will be concatenated with ', '. */
-    std::string tagsAsString() const;
-
-    /* Return string representation of Task. */
-    std::string toString() const;
+    friend std::ostream& operator<<(std::ostream& os, const Task& task);
 
 private:
     static BoostUUIDGenerator generator;

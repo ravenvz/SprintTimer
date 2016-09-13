@@ -24,6 +24,7 @@
 
 #include "DateTime.h"
 #include <chrono>
+#include <ostream>
 
 
 /* Represent finite interval in time with start and finish points. */
@@ -33,7 +34,6 @@ struct TimeSpan {
 
     DateTime startTime;
     DateTime finishTime;
-
 
     /* Construct from chrono time_point. */
     TimeSpan(SystemClock start, SystemClock finish);
@@ -52,11 +52,14 @@ struct TimeSpan {
      * finish point. */
     unsigned sizeInDays() const;
 
-    /* Return time representation as string in "HH:mm - HH:mm" format. */
-    std::string toTimeString() const;
+    /* Return string representation of TimeSpan. The result is determined
+     * by format string that is applied both to start and finish DateTime
+     * objects, separated by sep string.
+     */
+    std::string toString(const std::string& format,
+                         std::string sep = " - ") const;
 
-    /* Return "dd.mm.yy - dd.mm.yy" */
-    std::string toDateString() const;
+    friend std::ostream& operator<<(std::ostream& os, const TimeSpan& span);
 };
 
 /* Return absolute number of days between startTime of this TimeSpan and

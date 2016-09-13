@@ -43,3 +43,13 @@ std::list<std::string> StringUtils::parseWords(std::string text)
     }
     return res;
 }
+
+bool StringUtils::startsWith(const std::string& str, const std::string& start)
+{
+    return std::equal(start.cbegin(), start.cend(), str.cbegin());
+}
+
+bool StringUtils::endsWith(const std::string& str, const std::string& end)
+{
+    return std::equal(end.crbegin(), end.crend(), str.crbegin());
+}

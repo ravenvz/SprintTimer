@@ -50,10 +50,12 @@ public:
 
     size_t stackSize() const { return commandStack.size(); }
 
-    std::string lastCommandDescription() const {
+    std::string lastCommandDescription() const
+    {
         if (commandStack.empty())
             return "";
-        return commandStack.back()->inspect(); }
+        return commandStack.back()->inspect();
+    }
 
 private:
     std::vector<std::unique_ptr<Command>> commandStack;

@@ -19,32 +19,31 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTALLTAGS_H_CUXYESDS
-#define REQUESTALLTAGS_H_CUXYESDS
+#ifndef REGISTERNEWSPRINT_H_YUMZVLHC
+#define REGISTERNEWSPRINT_H_YUMZVLHC
 
-#include "core/Command.h"
-#include "core/ITaskStorageReader.h"
+#include "core/ISprintStorageWriter.h"
+#include "core/RevertableCommand.h"
 
 namespace UseCases {
 
-class RequestAllTags : public Command {
+class RegisterNewSprint : public RevertableCommand {
 public:
-    RequestAllTags(ITaskStorageReader& taskStorageReader,
-                   std::function<void(const std::vector<std::string>&)> handler)
-        : reader{taskStorageReader}
-        , handler{handler}
-    {
-    }
+    RegisterNewSprint(ISprintStorageWriter& writer, const Sprint& sprint);
 
-    void execute() final { reader.requestAllTags(handler); }
+    std::string inspect() const final;
 
-    std::string inspect() const final { return "Request all tags"; }
+protected:
+    void executeAction() final;
+
+    void undoAction() final;
 
 private:
-    ITaskStorageReader& reader;
-    std::function<void(const std::vector<std::string>&)> handler;
+    ISprintStorageWriter& writer;
+    const Sprint sprint;
 };
 
 } /* UseCases */
 
-#endif /* end of include guard: REQUESTALLTAGS_H_CUXYESDS */
+
+#endif /* end of include guard: REGISTERNEWSPRINT_H_YUMZVLHC */

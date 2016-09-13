@@ -19,30 +19,33 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
+#ifndef ADDTASKTRANSACTION_H_LEMDIQ17
+#define ADDTASKTRANSACTION_H_LEMDIQ17
+
+#include "core/ITaskStorageWriter.h"
+#include "core/RevertableCommand.h"
+#include "core/entities/Task.h"
+
+namespace UseCases {
+
+class AddNewTask : public RevertableCommand {
+public:
+    AddNewTask(ITaskStorageWriter& taskStorageWriter, const Task& task);
+
+    std::string inspect() const final;
+
+protected:
+    void executeAction() final;
+
+    void undoAction() final;
+
+private:
+    ITaskStorageWriter& writer;
+    const Task task;
+};
 
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
-{
-}
+} /* UseCases */
 
-std::string Tag::name() const { return aName; }
 
-void Tag::setName(const std::string& name) { aName = name; }
-
-std::string Tag::nameWithPrefix() const
-{
-    if (name().empty())
-        return "";
-    return prefix + name();
-}
-
-/* static */
-std::string Tag::prefix = std::string("#");
-
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
-{
-    os << tag.aName;
-    return os;
-}
+#endif /* end of include guard: ADDTASKTRANSACTION_H_LEMDIQ17 */

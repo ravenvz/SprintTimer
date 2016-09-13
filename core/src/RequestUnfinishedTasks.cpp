@@ -19,42 +19,27 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef EDITTAG_H_6NGOS1Q2
-#define EDITTAG_H_6NGOS1Q2
 
-#include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
-#include <iostream>
+#include "core/use_cases/RequestUnfinishedTasks.h"
 
 namespace UseCases {
 
-class EditTag : public RevertableCommand {
-public:
-    EditTag(ITaskStorageWriter& tagStorageWriter,
-            const std::string& oldName,
-            const std::string& newName)
-        : writer{tagStorageWriter}
-        , oldName{oldName}
-        , newName{newName}
-    {
-    }
+RequestUnfinishedTasks::RequestUnfinishedTasks(
+    ITaskStorageReader& taskStorageReader, ITaskStorageReader::Handler handler)
+    : reader{taskStorageReader}
+    , handler{handler}
+{
+}
 
-    std::string inspect() const final
-    {
-        return "Edit tag (" + oldName + " -> " + newName + ")";
-    }
+void RequestUnfinishedTasks::execute()
+{
+    reader.requestUnfinishedTasks(handler);
+}
 
-protected:
-    void executeAction() final { writer.editTag(oldName, newName); }
+std::string RequestUnfinishedTasks::inspect() const
+{
+    return "Request unfinished tasks";
+}
 
-    void undoAction() final { writer.editTag(newName, oldName); }
-
-private:
-    ITaskStorageWriter& writer;
-    const std::string oldName;
-    const std::string newName;
-};
 
 } /* UseCases */
-
-#endif /* end of include guard: EDITTAG_H_6NGOS1Q2 */

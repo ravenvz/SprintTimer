@@ -19,30 +19,30 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
+#ifndef REMOVESPRINTTRANSACTION_H_GAR8SZLM
+#define REMOVESPRINTTRANSACTION_H_GAR8SZLM
 
+#include "core/ISprintStorageWriter.h"
+#include "core/RevertableCommand.h"
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
-{
-}
+namespace UseCases {
 
-std::string Tag::name() const { return aName; }
+class RemoveSprintTransaction : public RevertableCommand {
+public:
+    RemoveSprintTransaction(ISprintStorageWriter& writer, const Sprint& sprint);
 
-void Tag::setName(const std::string& name) { aName = name; }
+    std::string inspect() const final;
 
-std::string Tag::nameWithPrefix() const
-{
-    if (name().empty())
-        return "";
-    return prefix + name();
-}
+protected:
+    void executeAction() final;
 
-/* static */
-std::string Tag::prefix = std::string("#");
+    void undoAction() final;
 
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
-{
-    os << tag.aName;
-    return os;
-}
+private:
+    ISprintStorageWriter& writer;
+    const Sprint sprint;
+};
+
+} // namespace UseCases
+
+#endif /* end of include guard: REMOVESPRINTTRANSACTION_H_GAR8SZLM */

@@ -72,3 +72,24 @@ TEST(TestStringUtils, test_join_on_list_of_ints)
     CHECK_EQUAL(expected.size(), actual.size())
     CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
 }
+
+TEST(TestStringUtils, test_starts_with)
+{
+    CHECK(StringUtils::startsWith("whatever", "what"));
+    CHECK(StringUtils::startsWith("what", ""));
+    CHECK(StringUtils::startsWith("", ""));
+
+    CHECK(!StringUtils::startsWith("what", "whatever"));
+    CHECK(!StringUtils::startsWith("", "what"));
+}
+
+TEST(TestStringUtils, test_ends_with)
+{
+    CHECK(StringUtils::endsWith("whatever", "ever"));
+    CHECK(StringUtils::endsWith("whatever", ""));
+    CHECK(StringUtils::endsWith("", ""));
+
+    CHECK(!StringUtils::endsWith("whatever", "everest"));
+    CHECK(!StringUtils::endsWith("", "ever"));
+    CHECK(!StringUtils::endsWith("ever", "whatever"));
+}

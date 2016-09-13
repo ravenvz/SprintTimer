@@ -19,30 +19,32 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
+#ifndef TOGGLETASKCOMPLETEDCOMMAND_H_CAT08NRT
+#define TOGGLETASKCOMPLETEDCOMMAND_H_CAT08NRT
 
+#include "core/ITaskStorageWriter.h"
+#include "core/RevertableCommand.h"
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
-{
-}
+namespace UseCases {
 
-std::string Tag::name() const { return aName; }
+class ToggleTaskCompletionStatus : public RevertableCommand {
+public:
+    ToggleTaskCompletionStatus(ITaskStorageWriter& taskStorageWriter,
+                               const Task& task);
 
-void Tag::setName(const std::string& name) { aName = name; }
+    std::string inspect() const final;
 
-std::string Tag::nameWithPrefix() const
-{
-    if (name().empty())
-        return "";
-    return prefix + name();
-}
+protected:
+    void executeAction() final;
 
-/* static */
-std::string Tag::prefix = std::string("#");
+    void undoAction() final;
 
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
-{
-    os << tag.aName;
-    return os;
-}
+private:
+    ITaskStorageWriter& writer;
+    const std::string uuid;
+    const DateTime oldTimeStamp;
+};
+
+} /* UseCases */
+
+#endif /* end of include guard: TOGGLETASKCOMPLETEDCOMMAND_H_CAT08NRT */

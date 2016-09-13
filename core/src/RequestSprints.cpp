@@ -19,30 +19,28 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
 
+#include "core/use_cases/RequestSprints.h"
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
+namespace UseCases {
+
+RequestSprints::RequestSprints(
+    ISprintStorageReader& reader,
+    const TimeSpan& timeSpan,
+    std::function<void(const std::vector<Sprint>&)> resultHandler)
+    : reader{reader}
+    , timeSpan{timeSpan}
+    , handler{resultHandler}
 {
 }
 
-std::string Tag::name() const { return aName; }
+void RequestSprints::execute() { reader.requestItems(timeSpan, handler); }
 
-void Tag::setName(const std::string& name) { aName = name; }
-
-std::string Tag::nameWithPrefix() const
+std::string RequestSprints::inspect() const
 {
-    if (name().empty())
-        return "";
-    return prefix + name();
+    std::stringstream ss;
+    ss << "Request sprints in '" << timeSpan.toString("dd.MM.yyyy");
+    return ss.str();
 }
 
-/* static */
-std::string Tag::prefix = std::string("#");
-
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
-{
-    os << tag.aName;
-    return os;
-}
+} /* UseCases */

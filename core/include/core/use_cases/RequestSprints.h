@@ -19,38 +19,32 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REGISTERNEWSPRINT_H_YUMZVLHC
-#define REGISTERNEWSPRINT_H_YUMZVLHC
+#ifndef REQUESTSPRINTS_H_4QUSWCF0
+#define REQUESTSPRINTS_H_4QUSWCF0
 
-#include "core/ISprintStorageWriter.h"
-#include "core/RevertableCommand.h"
+
+#include "core/Command.h"
+#include "core/ISprintStorageReader.h"
 
 namespace UseCases {
 
-class RegisterNewSprint : public RevertableCommand {
+class RequestSprints : public Command {
 public:
-    RegisterNewSprint(ISprintStorageWriter& writer,
-                        const Sprint& sprint)
-        : writer{writer}
-        , sprint{sprint}
-    {
-    }
+    RequestSprints(
+        ISprintStorageReader& reader,
+        const TimeSpan& timeSpan,
+        std::function<void(const std::vector<Sprint>&)> resultHandler);
 
-    void executeAction() final { writer.save(sprint); }
+    void execute() final;
 
-    void undoAction() final { writer.remove(sprint); }
-
-    std::string inspect() const final
-    {
-        return "Register new sprint '" + sprint.toString() + "'";
-    }
+    std::string inspect() const final;
 
 private:
-    ISprintStorageWriter& writer;
-    const Sprint sprint;
+    ISprintStorageReader& reader;
+    const TimeSpan timeSpan;
+    std::function<void(const std::vector<Sprint>&)> handler;
 };
 
 } /* UseCases */
 
-
-#endif /* end of include guard: REGISTERNEWSPRINT_H_YUMZVLHC */
+#endif /* end of include guard: REQUESTSPRINTS_H_4QUSWCF0 */

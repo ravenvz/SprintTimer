@@ -19,30 +19,26 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
 
+#include "core/use_cases/RegisterNewSprint.h"
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
+namespace UseCases {
+
+RegisterNewSprint::RegisterNewSprint(ISprintStorageWriter& writer,
+                                     const Sprint& sprint)
+    : writer{writer}
+    , sprint{sprint}
 {
 }
 
-std::string Tag::name() const { return aName; }
+void RegisterNewSprint::executeAction() { writer.save(sprint); }
 
-void Tag::setName(const std::string& name) { aName = name; }
+void RegisterNewSprint::undoAction() { writer.remove(sprint); }
 
-std::string Tag::nameWithPrefix() const
+std::string RegisterNewSprint::inspect() const
 {
-    if (name().empty())
-        return "";
-    return prefix + name();
+    std::stringstream ss;
+    ss << "Register new sprint '" << sprint << "'";
+    return ss.str();
 }
-
-/* static */
-std::string Tag::prefix = std::string("#");
-
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
-{
-    os << tag.aName;
-    return os;
 }

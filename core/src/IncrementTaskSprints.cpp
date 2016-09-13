@@ -19,36 +19,31 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REMOVETASKTRANSACTION_H_9P4V02DM
-#define REMOVETASKTRANSACTION_H_9P4V02DM
 
-#include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/use_cases/IncrementTaskSprints.h"
 
 namespace UseCases {
 
-class DeleteTask : public RevertableCommand {
-public:
-    DeleteTask(ITaskStorageWriter& taskStorageWriter,
-               const Task& taskToRemove)
-        : writer{taskStorageWriter}
-        , task{taskToRemove}
-    {
-    }
+IncrementTaskSprints::IncrementTaskSprints(
+    ITaskStorageWriter& taskStorageWriter, const std::string& taskUuid)
+    : writer{taskStorageWriter}
+    , taskUuid{taskUuid}
+{
+}
 
-    void executeAction() final { writer.remove(task); }
+std::string IncrementTaskSprints::inspect() const
+{
+    std::stringstream ss;
+    ss << "Increment finished sprints for " << taskUuid;
+    return ss.str();
+}
 
-    void undoAction() final { writer.save(task); }
+void IncrementTaskSprints::executeAction()
+{
+    writer.incrementSprints(taskUuid);
+}
 
-    std::string inspect() const final
-    {
-        return "Delete task '" + task.toString() + "'";
-    }
+void IncrementTaskSprints::undoAction() { writer.decrementSprints(taskUuid); }
 
-private:
-    ITaskStorageWriter& writer;
-    const Task task;
-};
+
 } /* UseCases */
-
-#endif /* end of include guard: REMOVETASKTRANSACTION_H_9P4V02DM */

@@ -19,31 +19,29 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK
-#define REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK
+#ifndef REQUESTALLTAGS_H_CUXYESDS
+#define REQUESTALLTAGS_H_CUXYESDS
 
 #include "core/Command.h"
+#include "core/ITaskStorageReader.h"
 
 namespace UseCases {
 
-class RequestUnfinishedTasks : public Command {
+class RequestAllTags : public Command {
 public:
-    RequestUnfinishedTasks(ITaskStorageReader& taskStorageReader,
-                           ITaskStorageReader::Handler handler)
-        : reader{taskStorageReader}
-        , handler{handler}
-    {
-    }
+    RequestAllTags(
+        ITaskStorageReader& taskStorageReader,
+        std::function<void(const std::vector<std::string>&)> handler);
 
-    void execute() final { reader.requestUnfinishedTasks(handler); }
+    void execute() final;
 
-    std::string inspect() const final { return "Request unfinished tasks"; }
+    std::string inspect() const final;
 
 private:
     ITaskStorageReader& reader;
-    ITaskStorageReader::Handler handler;
+    std::function<void(const std::vector<std::string>&)> handler;
 };
 
 } /* UseCases */
 
-#endif /* end of include guard: REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK */
+#endif /* end of include guard: REQUESTALLTAGS_H_CUXYESDS */

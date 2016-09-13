@@ -19,41 +19,26 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTSPRINTDISTRIBUTION_H_QUUONEQF
-#define REQUESTSPRINTDISTRIBUTION_H_QUUONEQF
 
-
-#include "core/Command.h"
-#include "core/ISprintDistributionReader.h"
+#include "core/use_cases/AddNewTask.h"
 
 namespace UseCases {
 
-class RequestSprintDistribution : public Command {
-public:
-    RequestSprintDistribution(ISprintDistributionReader& reader,
-                            const TimeSpan& timeSpan,
-                            ISprintDistributionReader::Handler handler)
-        : reader{reader}
-        , timeSpan{timeSpan}
-        , handler{handler}
-    {
-    }
+AddNewTask::AddNewTask(ITaskStorageWriter& taskStorageWriter, const Task& task)
+    : writer{taskStorageWriter}
+    , task{task}
+{
+}
 
-    void execute() final { reader.requestDistribution(timeSpan, handler); }
+void AddNewTask::executeAction() { writer.save(task); }
 
-    std::string inspect() const final
-    {
-        return "Request sprint distribution";
-    }
+void AddNewTask::undoAction() { writer.remove(task); }
 
-private:
-    ISprintDistributionReader& reader;
-    const TimeSpan& timeSpan;
-    ISprintDistributionReader::Handler handler;
-};
+std::string AddNewTask::inspect() const
+{
+    std::stringstream ss;
+    ss << "Add new task '" << task << "'";
+    return ss.str();
+}
 
-
-} /* UseCases */
-
-
-#endif /* end of include guard: REQUESTSPRINTDISTRIBUTION_H_QUUONEQF */
+} /* UseCases  */

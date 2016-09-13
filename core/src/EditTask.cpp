@@ -19,30 +19,33 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
 
+#include "core/use_cases/EditTask.h"
 
-Tag::Tag(std::string name)
-    : aName{std::move(name)}
+namespace UseCases {
+EditTask::EditTask(ITaskStorageWriter& writer,
+                   const Task& task,
+                   const Task& editedTask)
+    : writer{writer}
+    , task{task}
+    , editedTask{editedTask.name(),
+                 editedTask.estimatedCost(),
+                 task.actualCost(),
+                 task.uuid(),
+                 std::move(editedTask.tags()),
+                 task.isCompleted(),
+                 DateTime::currentDateTimeLocal()}
 {
 }
 
-std::string Tag::name() const { return aName; }
+void EditTask::executeAction() { writer.edit(task, editedTask); }
 
-void Tag::setName(const std::string& name) { aName = name; }
+void EditTask::undoAction() { writer.edit(editedTask, task); }
 
-std::string Tag::nameWithPrefix() const
+std::string EditTask::inspect() const
 {
-    if (name().empty())
-        return "";
-    return prefix + name();
+    std::stringstream ss;
+    ss << "Edit task '" << task << " -> " << editedTask << "'";
+    return ss.str();
 }
-
-/* static */
-std::string Tag::prefix = std::string("#");
-
-std::ostream& operator<<(std::ostream& os, const Tag& tag)
-{
-    os << tag.aName;
-    return os;
-}
+} /* UseCases */

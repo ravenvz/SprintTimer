@@ -19,38 +19,29 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTFINISHEDTASKSCOMMAND_H_AF6E0NUL
-#define REQUESTFINISHEDTASKSCOMMAND_H_AF6E0NUL
+#ifndef REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y
+#define REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y
 
 #include "core/Command.h"
-#include "core/ITaskStorageReader.h"
+#include "core/ITaskStorageWriter.h"
 
 namespace UseCases {
 
-class RequestFinishedTasks : public Command {
+class StoreUnfinishedTasksOrder : public Command {
 public:
-    RequestFinishedTasks(ITaskStorageReader& taskStorageReader,
-                         const TimeSpan& timeSpan,
-                         ITaskStorageReader::Handler handler)
-        : reader{taskStorageReader}
-        , timeSpan{timeSpan}
-        , handler{handler}
-    {
-    }
+    StoreUnfinishedTasksOrder(
+        ITaskStorageWriter& taskStorageWriter,
+        std::vector<std::pair<std::string, int>>&& priorities);
 
-    void execute() final { reader.requestFinishedTasks(timeSpan, handler); }
+    void execute() final;
 
-    std::string inspect() const final
-    {
-        return "Request finished tasks in '" + timeSpan.toDateString() + "'";
-    }
+    std::string inspect() const final;
 
 private:
-    ITaskStorageReader& reader;
-    const TimeSpan timeSpan;
-    ITaskStorageReader::Handler handler;
+    ITaskStorageWriter& writer;
+    std::vector<std::pair<std::string, int>> priorities;
 };
 
 } /* UseCases */
 
-#endif /* end of include guard: REQUESTFINISHEDTASKSCOMMAND_H_AF6E0NUL */
+#endif /* end of include guard: REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y */

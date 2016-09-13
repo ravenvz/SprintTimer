@@ -19,46 +19,33 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TOGGLETASKCOMPLETEDCOMMAND_H_CAT08NRT
-#define TOGGLETASKCOMPLETEDCOMMAND_H_CAT08NRT
+#ifndef EDITTASKCOMMAND_H_3FYYCQWP
+#define EDITTASKCOMMAND_H_3FYYCQWP
 
 #include "core/ITaskStorageWriter.h"
 #include "core/RevertableCommand.h"
 
 namespace UseCases {
 
-class ToggleTaskCompletionStatus : public RevertableCommand {
+class EditTask : public RevertableCommand {
 public:
-    ToggleTaskCompletionStatus(ITaskStorageWriter& taskStorageWriter,
-                               const Task& task)
-        : writer{taskStorageWriter}
-        , uuid{task.uuid()}
-        , oldTimeStamp{task.lastModified()}
-    {
-    }
+    EditTask(ITaskStorageWriter& writer,
+             const Task& task,
+             const Task& editedTask);
 
-    void executeAction() final
-    {
-        writer.toggleTaskCompletionStatus(uuid,
-                                          DateTime::currentDateTimeLocal());
-    }
+    std::string inspect() const final;
 
-    void undoAction() final
-    {
-        writer.toggleTaskCompletionStatus(uuid, oldTimeStamp);
-    }
+protected:
+    void executeAction() final;
 
-    std::string inspect() const final
-    {
-        return "Toggle task completion for " + uuid;
-    }
+    void undoAction() final;
 
 private:
     ITaskStorageWriter& writer;
-    const std::string uuid;
-    const DateTime oldTimeStamp;
+    Task task;
+    Task editedTask;
 };
 
 } /* UseCases */
 
-#endif /* end of include guard: TOGGLETASKCOMPLETEDCOMMAND_H_CAT08NRT */
+#endif /* end of include guard: EDITTASKCOMMAND_H_3FYYCQWP */

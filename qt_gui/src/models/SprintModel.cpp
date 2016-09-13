@@ -40,11 +40,15 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    Sprint reference = storage[static_cast<size_t>(index.row())];
+    const Sprint& sprintRef = storage[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
-        return QString::fromStdString(reference.toString());
+        return QString("%1 - %2 %3 %4")
+            .arg(sprintRef.startTime().toString("hh:mm").c_str())
+            .arg(sprintRef.finishTime().toString("hh:mm").c_str())
+            .arg(QString::fromStdString(prefixTags(sprintRef.tags())))
+            .arg(QString::fromStdString(sprintRef.name()));
     }
 
     return QVariant();
@@ -56,8 +60,7 @@ void SprintModel::setDateFilter(const TimeSpan& timeSpan)
     requestDataUpdate();
 }
 
-void SprintModel::insert(const TimeSpan& timeSpan,
-                           const std::string& taskUuid)
+void SprintModel::insert(const TimeSpan& timeSpan, const std::string& taskUuid)
 {
     coreService.registerSprint(timeSpan, taskUuid);
     requestDataUpdate();
@@ -72,8 +75,8 @@ void SprintModel::remove(int row)
 void SprintModel::requestDataUpdate()
 {
     coreService.sprintsInTimeRange(
-            interval,
-            std::bind(&SprintModel::onDataChanged, this, std::placeholders::_1));
+        interval,
+        std::bind(&SprintModel::onDataChanged, this, std::placeholders::_1));
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)

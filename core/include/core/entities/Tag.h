@@ -22,11 +22,14 @@
 #ifndef TAG_H_6HD0W9PY
 #define TAG_H_6HD0W9PY
 
+#include "core/StringUtils.h"
+#include <algorithm>
+#include <ostream>
 #include <string>
+#include <vector>
 
 class Tag {
 public:
-
     Tag() = default;
 
     Tag(std::string name);
@@ -38,6 +41,8 @@ public:
     void setName(const std::string& name);
 
     std::string nameWithPrefix() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const Tag& tag);
 
 private:
     std::string aName;
@@ -51,6 +56,21 @@ inline bool operator<(const Tag& lhs, const Tag& rhs)
 inline bool operator==(const Tag& lhs, const Tag& rhs)
 {
     return lhs.name() == rhs.name();
+}
+
+/* Given container with tags, return string that containes
+ * all tags with leading prefix separated by whitespace.*/
+template <typename TagContainer>
+std::string prefixTags(const TagContainer& tags)
+{
+    if (tags.empty())
+        return "";
+    std::vector<Tag> prefixedTags;
+    std::transform(tags.cbegin(),
+                   tags.cend(),
+                   std::back_inserter(prefixedTags),
+                   [](const auto& tag) { return tag.nameWithPrefix(); });
+    return StringUtils::join(prefixedTags.cbegin(), prefixedTags.cend(), " ");
 }
 
 namespace std {
