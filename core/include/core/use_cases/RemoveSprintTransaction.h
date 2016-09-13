@@ -29,21 +29,14 @@ namespace UseCases {
 
 class RemoveSprintTransaction : public RevertableCommand {
 public:
-    RemoveSprintTransaction(ISprintStorageWriter& writer,
-                              const Sprint& sprint)
-        : writer{writer}
-        , sprint{sprint}
-    {
-    }
+    RemoveSprintTransaction(ISprintStorageWriter& writer, const Sprint& sprint);
 
-    void executeAction() final { writer.remove(sprint); }
+    std::string inspect() const final;
 
-    void undoAction() final { writer.save(sprint); }
+protected:
+    void executeAction() final;
 
-    std::string inspect() const final
-    {
-        return "Remove sprint '" + sprint.toString() + "'";
-    }
+    void undoAction() final;
 
 private:
     ISprintStorageWriter& writer;

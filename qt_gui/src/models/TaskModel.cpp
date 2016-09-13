@@ -69,21 +69,22 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
     if (!index.isValid()) {
         return QVariant();
     }
+
+    const Task& taskRef = storage[index.row()];
+
     switch (role) {
-    case Qt::DisplayRole:
-        return QString::fromStdString(itemAt(index.row()).toString());
     case TagsRole:
-        return QString::fromStdString(itemAt(index.row()).tagsAsString());
+        return QString::fromStdString(prefixTags(taskRef.tags()));
     case DescriptionRole:
-        return QString::fromStdString(storage[index.row()].name());
+        return QString::fromStdString(taskRef.name());
     case StatsRole:
         return QString("%1/%2")
-            .arg(storage[index.row()].actualCost())
-            .arg(storage[index.row()].estimatedCost());
+            .arg(taskRef.actualCost())
+            .arg(taskRef.estimatedCost());
     case Qt::CheckStateRole:
-        return storage[index.row()].isCompleted();
+        return taskRef.isCompleted();
     case GetFinishedSprintsRole:
-        return storage[index.row()].actualCost();
+        return taskRef.actualCost();
     default:
         return QVariant();
     }

@@ -19,31 +19,27 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DECREMENTTASKSPRINTS_H_GYPTACBX
-#define DECREMENTTASKSPRINTS_H_GYPTACBX
 
-#include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/use_cases/DeleteTask.h"
 
 namespace UseCases {
 
-class DecrementTaskSprints : public RevertableCommand {
-public:
-    DecrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         const std::string& taskUuid);
+DeleteTask::DeleteTask(ITaskStorageWriter& taskStorageWriter,
+                       const Task& taskToRemove)
+    : writer{taskStorageWriter}
+    , task{taskToRemove}
+{
+}
 
-    std::string inspect() const final;
+void DeleteTask::executeAction() { writer.remove(task); }
 
-protected:
-    void executeAction() final;
+void DeleteTask::undoAction() { writer.save(task); }
 
-    void undoAction() final;
-
-private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid;
-};
+std::string DeleteTask::inspect() const
+{
+    std::stringstream ss;
+    ss << "Delete task '" << task << "'";
+    return ss.str();
+}
 
 } /* UseCases */
-
-#endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */

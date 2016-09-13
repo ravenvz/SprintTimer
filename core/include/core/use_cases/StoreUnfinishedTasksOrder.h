@@ -31,20 +31,17 @@ class StoreUnfinishedTasksOrder : public Command {
 public:
     StoreUnfinishedTasksOrder(
         ITaskStorageWriter& taskStorageWriter,
-        std::vector<std::pair<std::string, int>>&& priorities)
-        : writer{taskStorageWriter}
-        , priorities{std::move(priorities)}
-    {
-    }
+        std::vector<std::pair<std::string, int>>&& priorities);
 
-    void execute() { writer.updatePriorities(std::move(priorities)); }
+    void execute() final;
 
-    std::string inspect() const final { return "Store unfinished tasks order"; }
+    std::string inspect() const final;
 
 private:
     ITaskStorageWriter& writer;
     std::vector<std::pair<std::string, int>> priorities;
 };
+
 } /* UseCases */
 
 #endif /* end of include guard: REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y */

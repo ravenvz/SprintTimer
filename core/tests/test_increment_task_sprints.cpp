@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "fixtures/FakeTaskStorageWriter.h"
-#include "use_cases/IncrementTaskSprints.h"
+#include "core/use_cases/IncrementTaskSprints.h"
 #include <TestHarness.h>
 
 

@@ -37,8 +37,7 @@ TEST(TestTask, test_description_all_parts_present)
     CHECK_EQUAL(5, item.estimatedCost())
 }
 
-TEST(TestTask,
-     test_description_should_set_estimated_cost_to_one_if_non_given)
+TEST(TestTask, test_description_should_set_estimated_cost_to_one_if_non_given)
 {
     Task item{"#Test Todo with tag"};
 
@@ -70,8 +69,7 @@ TEST(TestTask, test_description_no_name)
     CHECK_EQUAL(4, item.estimatedCost())
 }
 
-TEST(TestTask,
-     test_description_only_last_num_estimated_should_be_considered)
+TEST(TestTask, test_description_only_last_num_estimated_should_be_considered)
 {
     Task item{"Multiple estimated *4 *9"};
 
@@ -87,20 +85,23 @@ TEST(TestTask, test_only_threats_words_preceeded_by_single_hash_as_tags)
                 item.name())
 }
 
-TEST(TestTask, test_to_string)
+TEST(TestTask, test_ostream_operator)
 {
-    // Task item{"I am item with no tags"};
     Task item{"I am item with no tags",
-                  4,
-                  2,
-                  "uuid",
-                  std::list<Tag>(),
-                  false,
-                  DateTime::currentDateTimeLocal()};
+              4,
+              2,
+              "uuid",
+              std::list<Tag>(),
+              false,
+              DateTime::currentDateTimeLocal()};
+    auto uuid = item.uuid();
     std::string expected{"I am item with no tags 2/4"};
+    expected += " Uuid: ";
+    expected += uuid;
 
-    std::string actual = item.toString();
+    std::stringstream ss;
+    ss << item;
+    std::string actual{ss.str()};
 
-    CHECK_EQUAL(expected.size(), actual.size())
-    CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
+    CHECK_EQUAL(expected, actual);
 }

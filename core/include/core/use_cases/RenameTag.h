@@ -19,18 +19,20 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DECREMENTTASKSPRINTS_H_GYPTACBX
-#define DECREMENTTASKSPRINTS_H_GYPTACBX
+#ifndef EDITTAG_H_6NGOS1Q2
+#define EDITTAG_H_6NGOS1Q2
 
 #include "core/ITaskStorageWriter.h"
 #include "core/RevertableCommand.h"
+#include <iostream>
 
 namespace UseCases {
 
-class DecrementTaskSprints : public RevertableCommand {
+class RenameTag : public RevertableCommand {
 public:
-    DecrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         const std::string& taskUuid);
+    RenameTag(ITaskStorageWriter& tagStorageWriter,
+            const std::string& oldName,
+            const std::string& newName);
 
     std::string inspect() const final;
 
@@ -41,9 +43,10 @@ protected:
 
 private:
     ITaskStorageWriter& writer;
-    const std::string taskUuid;
+    const std::string oldName;
+    const std::string newName;
 };
 
 } /* UseCases */
 
-#endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */
+#endif /* end of include guard: EDITTAG_H_6NGOS1Q2 */

@@ -29,21 +29,14 @@ namespace UseCases {
 
 class DeleteTask : public RevertableCommand {
 public:
-    DeleteTask(ITaskStorageWriter& taskStorageWriter,
-               const Task& taskToRemove)
-        : writer{taskStorageWriter}
-        , task{taskToRemove}
-    {
-    }
+    DeleteTask(ITaskStorageWriter& taskStorageWriter, const Task& taskToRemove);
 
-    void executeAction() final { writer.remove(task); }
+    std::string inspect() const final;
 
-    void undoAction() final { writer.save(task); }
+protected:
+    void executeAction() final;
 
-    std::string inspect() const final
-    {
-        return "Delete task '" + task.toString() + "'";
-    }
+    void undoAction() final;
 
 private:
     ITaskStorageWriter& writer;

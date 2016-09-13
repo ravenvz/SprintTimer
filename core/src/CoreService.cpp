@@ -20,22 +20,22 @@
 **
 *********************************************************************************/
 #include "core/CoreService.h"
-#include "use_cases/AddNewTask.h"
-#include "use_cases/DecrementTaskSprints.h"
-#include "use_cases/DeleteTask.h"
-#include "use_cases/EditTag.h"
-#include "use_cases/EditTask.h"
-#include "use_cases/IncrementTaskSprints.h"
-#include "use_cases/RegisterNewSprint.h"
-#include "use_cases/RemoveSprintTransaction.h"
-#include "use_cases/RequestAllTags.h"
-#include "use_cases/RequestFinishedTasks.h"
-#include "use_cases/RequestMinMaxYear.h"
-#include "use_cases/RequestSprintDistribution.h"
-#include "use_cases/RequestSprints.h"
-#include "use_cases/RequestUnfinishedTasks.h"
-#include "use_cases/StoreUnfinishedTasksOrder.h"
-#include "use_cases/ToggleTaskCompletionStatus.h"
+#include "core/use_cases/AddNewTask.h"
+#include "core/use_cases/DecrementTaskSprints.h"
+#include "core/use_cases/DeleteTask.h"
+#include "core/use_cases/RenameTag.h"
+#include "core/use_cases/EditTask.h"
+#include "core/use_cases/IncrementTaskSprints.h"
+#include "core/use_cases/RegisterNewSprint.h"
+#include "core/use_cases/RemoveSprintTransaction.h"
+#include "core/use_cases/RequestAllTags.h"
+#include "core/use_cases/RequestFinishedTasks.h"
+#include "core/use_cases/RequestMinMaxYear.h"
+#include "core/use_cases/RequestSprintDistribution.h"
+#include "core/use_cases/RequestSprints.h"
+#include "core/use_cases/RequestUnfinishedTasks.h"
+#include "core/use_cases/StoreUnfinishedTasksOrder.h"
+#include "core/use_cases/ToggleTaskCompletionStatus.h"
 
 namespace Core {
 
@@ -207,7 +207,7 @@ void CoreService::editTag(const std::string& oldName,
                               const std::string& newName)
 {
     auto editTag
-        = std::make_unique<UseCases::EditTag>(taskWriter, oldName, newName);
+        = std::make_unique<UseCases::RenameTag>(taskWriter, oldName, newName);
     editTag->execute();
     invoker.executeCommand(std::move(editTag));
 }

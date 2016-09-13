@@ -19,31 +19,35 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DECREMENTTASKSPRINTS_H_GYPTACBX
-#define DECREMENTTASKSPRINTS_H_GYPTACBX
 
-#include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/use_cases/ToggleTaskCompletionStatus.h"
 
 namespace UseCases {
 
-class DecrementTaskSprints : public RevertableCommand {
-public:
-    DecrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         const std::string& taskUuid);
+ToggleTaskCompletionStatus::ToggleTaskCompletionStatus(
+    ITaskStorageWriter& taskStorageWriter, const Task& task)
+    : writer{taskStorageWriter}
+    , uuid{task.uuid()}
+    , oldTimeStamp{task.lastModified()}
+{
+}
 
-    std::string inspect() const final;
+void ToggleTaskCompletionStatus::executeAction()
+{
+    writer.toggleTaskCompletionStatus(uuid, DateTime::currentDateTimeLocal());
+}
 
-protected:
-    void executeAction() final;
+void ToggleTaskCompletionStatus::undoAction()
+{
+    writer.toggleTaskCompletionStatus(uuid, oldTimeStamp);
+}
 
-    void undoAction() final;
+std::string ToggleTaskCompletionStatus::inspect() const
+{
+    std::stringstream ss;
+    ss << "Toggle task completion for " << uuid;
+    return ss.str();
+}
 
-private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid;
-};
 
 } /* UseCases */
-
-#endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */

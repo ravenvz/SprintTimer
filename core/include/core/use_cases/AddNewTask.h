@@ -30,20 +30,14 @@ namespace UseCases {
 
 class AddNewTask : public RevertableCommand {
 public:
-    AddNewTask(ITaskStorageWriter& taskStorageWriter, const Task& task)
-        : writer{taskStorageWriter}
-        , task{task}
-    {
-    }
+    AddNewTask(ITaskStorageWriter& taskStorageWriter, const Task& task);
 
-    void executeAction() final { writer.save(task); }
+    std::string inspect() const final;
 
-    void undoAction() final { writer.remove(task); }
+protected:
+    void executeAction() final;
 
-    std::string inspect() const final
-    {
-        return "Add new task command '" + task.toString() + "'";
-    }
+    void undoAction() final;
 
 private:
     ITaskStorageWriter& writer;

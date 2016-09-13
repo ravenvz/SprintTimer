@@ -61,19 +61,11 @@ std::string Sprint::taskUuid() const { return mTaskUuid; }
 
 std::list<Tag> Sprint::tags() const { return mTags; }
 
-std::string Sprint::toString() const
+std::ostream& operator<<(std::ostream& os, const Sprint& sprint)
 {
-    std::vector<std::string> prefixedTags;
-    std::vector<std::string> parts;
-
-    std::transform(mTags.cbegin(),
-                   mTags.cend(),
-                   std::back_inserter(prefixedTags),
-                   [](const auto& elem) { return elem.nameWithPrefix(); });
-
-    parts.push_back(mInterval.toTimeString());
-    parts.push_back(StringUtils::join(prefixedTags, " "));
-    parts.push_back(mName);
-
-    return StringUtils::join(parts, " ");
+    for (const auto& tag : sprint.mTags)
+        os << tag.nameWithPrefix();
+    os << sprint.mName << sprint.mInterval << " Uuid: " << sprint.mUuid
+       << " TaskUuid: " << sprint.mTaskUuid;
+    return os;
 }

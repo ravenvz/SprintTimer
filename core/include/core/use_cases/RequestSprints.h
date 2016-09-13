@@ -33,19 +33,11 @@ public:
     RequestSprints(
         ISprintStorageReader& reader,
         const TimeSpan& timeSpan,
-        std::function<void(const std::vector<Sprint>&)> resultHandler)
-        : reader{reader}
-        , timeSpan{timeSpan}
-        , handler{resultHandler}
-    {
-    }
+        std::function<void(const std::vector<Sprint>&)> resultHandler);
 
-    void execute() final { reader.requestItems(timeSpan, handler); }
+    void execute() final;
 
-    std::string inspect() const final
-    {
-        return "Request sprints in '" + timeSpan.toDateString() + "'";
-    }
+    std::string inspect() const final;
 
 private:
     ISprintStorageReader& reader;
@@ -55,5 +47,4 @@ private:
 
 } /* UseCases */
 
-#endif /* end of include guard: REQUESTSPRINTS_H_4QUSWCF0  \
-          */
+#endif /* end of include guard: REQUESTSPRINTS_H_4QUSWCF0 */

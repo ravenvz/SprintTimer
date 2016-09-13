@@ -26,24 +26,18 @@
 #include "core/RevertableCommand.h"
 
 namespace UseCases {
+
 class IncrementTaskSprints : public RevertableCommand {
 public:
     IncrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                            const std::string& taskUuid)
-        : writer{taskStorageWriter}
-        , taskUuid{taskUuid}
-    {
-    }
+                         const std::string& taskUuid);
 
-    std::string inspect() const final
-    {
-        return "Increment finished sprints for " + taskUuid;
-    }
+    std::string inspect() const final;
 
 protected:
-    void executeAction() final { writer.incrementSprints(taskUuid); }
+    void executeAction() final;
 
-    void undoAction() final { writer.decrementSprints(taskUuid); }
+    void undoAction() final;
 
 private:
     ITaskStorageWriter& writer;

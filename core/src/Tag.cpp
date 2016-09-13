@@ -31,8 +31,18 @@ std::string Tag::name() const { return aName; }
 
 void Tag::setName(const std::string& name) { aName = name; }
 
-std::string Tag::nameWithPrefix() const { return prefix + name(); }
+std::string Tag::nameWithPrefix() const
+{
+    if (name().empty())
+        return "";
+    return prefix + name();
+}
 
 /* static */
 std::string Tag::prefix = std::string("#");
 
+std::ostream& operator<<(std::ostream& os, const Tag& tag)
+{
+    os << tag.aName;
+    return os;
+}

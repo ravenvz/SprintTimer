@@ -29,21 +29,14 @@ namespace UseCases {
 
 class RegisterNewSprint : public RevertableCommand {
 public:
-    RegisterNewSprint(ISprintStorageWriter& writer,
-                        const Sprint& sprint)
-        : writer{writer}
-        , sprint{sprint}
-    {
-    }
+    RegisterNewSprint(ISprintStorageWriter& writer, const Sprint& sprint);
 
-    void executeAction() final { writer.save(sprint); }
+    std::string inspect() const final;
 
-    void undoAction() final { writer.remove(sprint); }
+protected:
+    void executeAction() final;
 
-    std::string inspect() const final
-    {
-        return "Register new sprint '" + sprint.toString() + "'";
-    }
+    void undoAction() final;
 
 private:
     ISprintStorageWriter& writer;

@@ -31,19 +31,11 @@ class RequestFinishedTasks : public Command {
 public:
     RequestFinishedTasks(ITaskStorageReader& taskStorageReader,
                          const TimeSpan& timeSpan,
-                         ITaskStorageReader::Handler handler)
-        : reader{taskStorageReader}
-        , timeSpan{timeSpan}
-        , handler{handler}
-    {
-    }
+                         ITaskStorageReader::Handler handler);
 
-    void execute() final { reader.requestFinishedTasks(timeSpan, handler); }
+    void execute() final;
 
-    std::string inspect() const final
-    {
-        return "Request finished tasks in '" + timeSpan.toDateString() + "'";
-    }
+    std::string inspect() const final;
 
 private:
     ITaskStorageReader& reader;

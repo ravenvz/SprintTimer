@@ -30,28 +30,14 @@ namespace UseCases {
 class ToggleTaskCompletionStatus : public RevertableCommand {
 public:
     ToggleTaskCompletionStatus(ITaskStorageWriter& taskStorageWriter,
-                               const Task& task)
-        : writer{taskStorageWriter}
-        , uuid{task.uuid()}
-        , oldTimeStamp{task.lastModified()}
-    {
-    }
+                               const Task& task);
 
-    void executeAction() final
-    {
-        writer.toggleTaskCompletionStatus(uuid,
-                                          DateTime::currentDateTimeLocal());
-    }
+    std::string inspect() const final;
 
-    void undoAction() final
-    {
-        writer.toggleTaskCompletionStatus(uuid, oldTimeStamp);
-    }
+protected:
+    void executeAction() final;
 
-    std::string inspect() const final
-    {
-        return "Toggle task completion for " + uuid;
-    }
+    void undoAction() final;
 
 private:
     ITaskStorageWriter& writer;

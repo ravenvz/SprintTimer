@@ -28,10 +28,10 @@
 BoostUUIDGenerator Task::generator;
 
 Task::Task(std::string name,
-                   int estimatedCost,
-                   int actualCost,
-                   std::list<Tag> tags,
-                   bool completed)
+           int estimatedCost,
+           int actualCost,
+           std::list<Tag> tags,
+           bool completed)
     : mName(name)
     , mEstimatedCost(estimatedCost)
     , mActualCost(actualCost)
@@ -43,12 +43,12 @@ Task::Task(std::string name,
 }
 
 Task::Task(std::string name,
-                   int estimatedCost,
-                   int actualCost,
-                   const std::string& uuid,
-                   std::list<Tag> tags,
-                   bool completed,
-                   const DateTime& lastModified)
+           int estimatedCost,
+           int actualCost,
+           const std::string& uuid,
+           std::list<Tag> tags,
+           bool completed,
+           const DateTime& lastModified)
     : mName(name)
     , mEstimatedCost(estimatedCost)
     , mActualCost(actualCost)
@@ -86,44 +86,15 @@ void Task::setName(const std::string& name) { mName = name; }
 
 void Task::setCompleted(bool completed) { mCompleted = completed; }
 
-void Task::setEstimatedCost(int numSprints)
-{
-    mEstimatedCost = numSprints;
-}
+void Task::setEstimatedCost(int numSprints) { mEstimatedCost = numSprints; }
 
 void Task::setTags(const std::list<Tag>& newTags) { mTags = newTags; }
 
-void Task::setActualCost(int numSprints)
-{
-    mActualCost = numSprints;
-}
+void Task::setActualCost(int numSprints) { mActualCost = numSprints; }
 
 void Task::setModifiedTimeStamp(const DateTime& timeStamp)
 {
     mLastModified = timeStamp;
-}
-
-std::string Task::tagsAsString() const
-{
-    std::list<std::string> prefixedTags;
-    std::transform(mTags.cbegin(),
-                   mTags.cend(),
-                   std::back_inserter(prefixedTags),
-                   [](const auto& elem) { return elem.nameWithPrefix(); });
-    return StringUtils::join(prefixedTags.begin(), prefixedTags.end(), " ");
-}
-
-
-std::string Task::toString() const
-{
-    std::vector<std::string> parts;
-    std::string result;
-    parts.push_back(tagsAsString());
-    parts.push_back(mName);
-    parts.push_back(StringUtils::join(
-        {std::to_string(mActualCost), std::to_string(mEstimatedCost)},
-        "/"));
-    return StringUtils::join(parts, " ");
 }
 
 void Task::decodeDescription(std::string&& encodedDescription)
@@ -152,4 +123,15 @@ void Task::decodeDescription(std::string&& encodedDescription)
     }
 
     mName = StringUtils::join(nameParts, " ");
+}
+
+std::ostream& operator<<(std::ostream& os, const Task& task)
+{
+    os << prefixTags(task.mTags);
+    if (!task.mTags.empty())
+        os << " ";
+    os << task.mName << " ";
+    os << task.mActualCost << "/" << task.mEstimatedCost << " ";
+    os << "Uuid: " << task.mUuid;
+    return os;
 }

@@ -4,16 +4,31 @@ set(PROJECT ${CORE_LIB})
 project(${PROJECT})
 set(CORE_SOURCE_FILES
     src/DateTime.cpp
-        src/SprintStatistics.cpp
-        src/StatefulTimer.cpp
-        src/Timer.cpp
-        src/TimeSpan.cpp
-        src/Sprint.cpp
-        src/Task.cpp
-        src/Tag.cpp
-        src/StringUtils.cpp
-        src/CoreService.cpp
-        src/TagTop.cpp
+    src/SprintStatistics.cpp
+    src/StatefulTimer.cpp
+    src/Timer.cpp
+    src/TimeSpan.cpp
+    src/Sprint.cpp
+    src/Task.cpp
+    src/Tag.cpp
+    src/StringUtils.cpp
+    src/CoreService.cpp
+    src/TagTop.cpp
+    src/RegisterNewSprint.cpp
+    src/RemoveSprintTransaction.cpp
+    src/AddNewTask.cpp
+    src/EditTask.cpp
+    src/DeleteTask.cpp
+    src/RequestFinishedTasks.cpp
+    src/RequestSprints.cpp
+    src/DecrementTaskSprints.cpp
+    src/RenameTag.cpp
+    src/IncrementTaskSprints.cpp
+    src/RequestAllTags.cpp
+    src/RequestSprintDistribution.cpp
+    src/RequestUnfinishedTasks.cpp
+    src/StoreUnfinishedTasksOrder.cpp
+    src/ToggleTaskCompletionStatus.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

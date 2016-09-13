@@ -29,16 +29,13 @@ namespace UseCases {
 
 class RequestAllTags : public Command {
 public:
-    RequestAllTags(ITaskStorageReader& taskStorageReader,
-                   std::function<void(const std::vector<std::string>&)> handler)
-        : reader{taskStorageReader}
-        , handler{handler}
-    {
-    }
+    RequestAllTags(
+        ITaskStorageReader& taskStorageReader,
+        std::function<void(const std::vector<std::string>&)> handler);
 
-    void execute() final { reader.requestAllTags(handler); }
+    void execute() final;
 
-    std::string inspect() const final { return "Request all tags"; }
+    std::string inspect() const final;
 
 private:
     ITaskStorageReader& reader;

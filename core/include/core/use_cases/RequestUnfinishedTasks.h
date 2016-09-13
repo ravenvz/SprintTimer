@@ -23,21 +23,18 @@
 #define REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK
 
 #include "core/Command.h"
+#include "core/ITaskStorageReader.h"
 
 namespace UseCases {
 
 class RequestUnfinishedTasks : public Command {
 public:
     RequestUnfinishedTasks(ITaskStorageReader& taskStorageReader,
-                           ITaskStorageReader::Handler handler)
-        : reader{taskStorageReader}
-        , handler{handler}
-    {
-    }
+                           ITaskStorageReader::Handler handler);
 
-    void execute() final { reader.requestUnfinishedTasks(handler); }
+    void execute() final;
 
-    std::string inspect() const final { return "Request unfinished tasks"; }
+    std::string inspect() const final;
 
 private:
     ITaskStorageReader& reader;

@@ -22,8 +22,8 @@
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H
 
-#include "core/ICoreService.h"
 #include "DateRangePicker.h"
+#include "core/ICoreService.h"
 #include "widgets/DataWidget.h"
 #include <QObject>
 #include <QStandardItemModel>
@@ -37,6 +37,8 @@ class HistoryWindow;
 
 class DisplayState;
 
+// TODO HistoryWindow should not know about it's delegate
+
 class HistoryViewDelegate : public QStyledItemDelegate {
 public:
     explicit HistoryViewDelegate(QObject* parent);
@@ -47,7 +49,7 @@ public:
                const QModelIndex& index) const override;
 };
 
-class HistoryWindow: public DataWidget {
+class HistoryWindow : public DataWidget {
     Q_OBJECT
 
     friend class DiplaySprints;
@@ -57,7 +59,7 @@ public:
     using HistoryItem = std::pair<QDate, QString>;
 
     explicit HistoryWindow(ICoreService& coreService,
-                         QWidget* parent = nullptr);
+                           QWidget* parent = nullptr);
 
     ~HistoryWindow();
 

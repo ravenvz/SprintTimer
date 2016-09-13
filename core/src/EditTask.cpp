@@ -19,31 +19,33 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DECREMENTTASKSPRINTS_H_GYPTACBX
-#define DECREMENTTASKSPRINTS_H_GYPTACBX
 
-#include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/use_cases/EditTask.h"
 
 namespace UseCases {
+EditTask::EditTask(ITaskStorageWriter& writer,
+                   const Task& task,
+                   const Task& editedTask)
+    : writer{writer}
+    , task{task}
+    , editedTask{editedTask.name(),
+                 editedTask.estimatedCost(),
+                 task.actualCost(),
+                 task.uuid(),
+                 std::move(editedTask.tags()),
+                 task.isCompleted(),
+                 DateTime::currentDateTimeLocal()}
+{
+}
 
-class DecrementTaskSprints : public RevertableCommand {
-public:
-    DecrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         const std::string& taskUuid);
+void EditTask::executeAction() { writer.edit(task, editedTask); }
 
-    std::string inspect() const final;
+void EditTask::undoAction() { writer.edit(editedTask, task); }
 
-protected:
-    void executeAction() final;
-
-    void undoAction() final;
-
-private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid;
-};
-
+std::string EditTask::inspect() const
+{
+    std::stringstream ss;
+    ss << "Edit task '" << task << " -> " << editedTask << "'";
+    return ss.str();
+}
 } /* UseCases */
-
-#endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */

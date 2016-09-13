@@ -19,31 +19,32 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DECREMENTTASKSPRINTS_H_GYPTACBX
-#define DECREMENTTASKSPRINTS_H_GYPTACBX
 
-#include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/use_cases/RequestFinishedTasks.h"
 
 namespace UseCases {
 
-class DecrementTaskSprints : public RevertableCommand {
-public:
-    DecrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         const std::string& taskUuid);
+RequestFinishedTasks::RequestFinishedTasks(
+    ITaskStorageReader& taskStorageReader,
+    const TimeSpan& timeSpan,
+    ITaskStorageReader::Handler handler)
+    : reader{taskStorageReader}
+    , timeSpan{timeSpan}
+    , handler{handler}
+{
+}
 
-    std::string inspect() const final;
+void RequestFinishedTasks::execute()
+{
+    reader.requestFinishedTasks(timeSpan, handler);
+}
 
-protected:
-    void executeAction() final;
+std::string RequestFinishedTasks::inspect() const
+{
+    std::stringstream ss;
+    ss << "Request finished tasks in '" << timeSpan.toString("dd.MM.yyyy");
+    return ss.str();
+}
 
-    void undoAction() final;
-
-private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid;
-};
 
 } /* UseCases */
-
-#endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */

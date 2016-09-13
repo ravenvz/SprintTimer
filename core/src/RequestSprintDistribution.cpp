@@ -19,31 +19,31 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DECREMENTTASKSPRINTS_H_GYPTACBX
-#define DECREMENTTASKSPRINTS_H_GYPTACBX
 
-#include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/use_cases/RequestSprintDistribution.h"
+
 
 namespace UseCases {
 
-class DecrementTaskSprints : public RevertableCommand {
-public:
-    DecrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         const std::string& taskUuid);
+RequestSprintDistribution::RequestSprintDistribution(
+    ISprintDistributionReader& reader,
+    const TimeSpan& timeSpan,
+    ISprintDistributionReader::Handler handler)
+    : reader{reader}
+    , timeSpan{timeSpan}
+    , handler{handler}
+{
+}
 
-    std::string inspect() const final;
+void RequestSprintDistribution::execute()
+{
+    reader.requestDistribution(timeSpan, handler);
+}
 
-protected:
-    void executeAction() final;
+std::string RequestSprintDistribution::inspect() const
+{
+    return "Request sprint distribution";
+}
 
-    void undoAction() final;
-
-private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid;
-};
 
 } /* UseCases */
-
-#endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */

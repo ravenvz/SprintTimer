@@ -31,29 +31,14 @@ class EditTask : public RevertableCommand {
 public:
     EditTask(ITaskStorageWriter& writer,
              const Task& task,
-             const Task& editedTask)
-        : writer{writer}
-        , task{task}
-        , editedTask{editedTask.name(),
-                     editedTask.estimatedCost(),
-                     task.actualCost(),
-                     task.uuid(),
-                     std::move(editedTask.tags()),
-                     task.isCompleted(),
-                     DateTime::currentDateTimeLocal()}
-    {
-    }
+             const Task& editedTask);
 
-    void executeAction() final { writer.edit(task, editedTask); }
+    std::string inspect() const final;
 
-    void undoAction() final { writer.edit(editedTask, task); }
+protected:
+    void executeAction() final;
 
-    std::string inspect() const final
-    {
-        return "Edit task '" + task.toString() + " -> " + editedTask.toString()
-            + "'";
-    }
-
+    void undoAction() final;
 
 private:
     ITaskStorageWriter& writer;

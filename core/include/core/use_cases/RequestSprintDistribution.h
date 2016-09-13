@@ -31,20 +31,12 @@ namespace UseCases {
 class RequestSprintDistribution : public Command {
 public:
     RequestSprintDistribution(ISprintDistributionReader& reader,
-                            const TimeSpan& timeSpan,
-                            ISprintDistributionReader::Handler handler)
-        : reader{reader}
-        , timeSpan{timeSpan}
-        , handler{handler}
-    {
-    }
+                              const TimeSpan& timeSpan,
+                              ISprintDistributionReader::Handler handler);
 
-    void execute() final { reader.requestDistribution(timeSpan, handler); }
+    void execute() final;
 
-    std::string inspect() const final
-    {
-        return "Request sprint distribution";
-    }
+    std::string inspect() const final;
 
 private:
     ISprintDistributionReader& reader;

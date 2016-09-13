@@ -19,31 +19,29 @@
 ** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DECREMENTTASKSPRINTS_H_GYPTACBX
-#define DECREMENTTASKSPRINTS_H_GYPTACBX
 
-#include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/use_cases/RenameTag.h"
 
 namespace UseCases {
 
-class DecrementTaskSprints : public RevertableCommand {
-public:
-    DecrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         const std::string& taskUuid);
+RenameTag::RenameTag(ITaskStorageWriter& tagStorageWriter,
+                 const std::string& oldName,
+                 const std::string& newName)
+    : writer{tagStorageWriter}
+    , oldName{oldName}
+    , newName{newName}
+{
+}
 
-    std::string inspect() const final;
+void RenameTag::executeAction() { writer.editTag(oldName, newName); }
 
-protected:
-    void executeAction() final;
+void RenameTag::undoAction() { writer.editTag(newName, oldName); }
 
-    void undoAction() final;
-
-private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid;
-};
+std::string RenameTag::inspect() const
+{
+    std::stringstream ss;
+    ss << "Edit tag (" << oldName << " -> " << newName << ")";
+    return ss.str();
+}
 
 } /* UseCases */
-
-#endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */

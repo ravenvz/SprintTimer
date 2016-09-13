@@ -52,21 +52,19 @@ unsigned TimeSpan::sizeInDays() const
     }
 }
 
-std::string TimeSpan::toTimeString() const
+std::string TimeSpan::toString(const std::string& format, std::string sep) const
 {
-    std::string res{startTime.toTimeString()};
-    res += " - ";
-    res += finishTime.toTimeString();
-    return res;
+    std::stringstream ss;
+    std::string separator{std::move(sep)};
+    ss << startTime.toString(format) << separator
+       << finishTime.toString(format);
+    return ss.str();
 }
 
-std::string TimeSpan::toDateString() const
+std::ostream& operator<<(std::ostream& os, const TimeSpan& span)
 {
-    std::string res;
-    res += startTime.ddmmyyyyString();
-    res += " - ";
-    res += finishTime.ddmmyyyyString();
-    return res;
+    os << "TimeSpan {" << span.startTime << ", " << span.finishTime << "}";
+    return os;
 }
 
 unsigned startDateAbsDiff(const TimeSpan& one, const TimeSpan& other)
