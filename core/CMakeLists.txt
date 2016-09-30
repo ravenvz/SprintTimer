@@ -34,6 +34,10 @@ set(CORE_SOURCE_FILES
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+set(BOOST_LIBRARYDIR "/usr/include/boost")
+# find_package(Boost COMPONENTS uuid REQUIRED)
+find_package(Boost REQUIRED)
+
 include(ExternalProject)
 set(THIRD_PARTY_LIBS_FOLDER_PREFIX third_party)
 include(CMakeLists-datelib.txt)
@@ -45,7 +49,7 @@ add_dependencies(${PROJECT} DateLib)
 target_include_directories(${PROJECT} PUBLIC ${Datelib_INCLUDE_DIRS} PUBLIC include PRIVATE src)
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
-target_link_libraries(${PROJECT} INTERFACE DateLib)
+target_link_libraries(${PROJECT} INTERFACE DateLib PUBLIC ${Boost_UUID_LIBRARY})
 
 if(BUILD_TESTS)
     include(CMakeLists-cpputest.txt)
