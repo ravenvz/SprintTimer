@@ -1,7 +1,7 @@
 Version 0.3.5
 -------------
 
-Optimisations for smaller screens (think laptop)
+Optimizations for smaller screen resolutions
 Windows build
 Application resources (icons, sounds, etc) are installed automatically
 
