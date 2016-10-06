@@ -10,7 +10,7 @@ node ("archlinux") {
         sh "cd build && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=On .. && make -j\$(nproc)"
     }
     stage('Run tests') {
-        sh 'cd bind && ./acceptance_tests_stub -o junit && ./test_core -o junit && ./test_qt_storage_impl -o junit'
+        sh 'cd bin && ./acceptance_tests_stub -o junit && ./test_core -o junit && ./test_qt_storage_impl -o junit'
         sh 'mkdir bin/test_results && mv bin/*.xml bin/test_results'
         junit '**/bin/test_results/*.xml'
     }
