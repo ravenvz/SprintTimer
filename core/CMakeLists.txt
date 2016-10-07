@@ -34,8 +34,6 @@ set(CORE_SOURCE_FILES
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-set(BOOST_LIBRARYDIR "/usr/include/boost")
-# find_package(Boost COMPONENTS uuid REQUIRED)
 find_package(Boost REQUIRED)
 
 include(ExternalProject)

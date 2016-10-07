@@ -34,7 +34,7 @@
 /* Represents Sprint concept.
  *
  * Sprint is an n-minute time interval that is associated with
- * a Task. It has same name and tags it's associated Task has.
+ * a Task. It has the same name and tags it's associated Task has.
  */
 class Sprint {
 

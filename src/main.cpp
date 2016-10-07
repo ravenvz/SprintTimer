@@ -21,29 +21,21 @@
 *********************************************************************************/
 
 #ifdef _WIN32
-// define something for Windows (32-bit and 64-bit, this part is common)
 #ifdef _WIN64
-// define something for Windows (64-bit only)
 #endif
 #elif defined(__APPLE__)
 #include "TargetConditionals.h"
 #if TARGET_IPHONE_SIMULATOR
-// iOS Simulator
 #elif TARGET_OS_IPHONE
-// iOS device
 #elif TARGET_OS_MAC
-// Other kinds of Mac OS
 #else
 #error "Unknown Apple platform"
 #endif
 #elif defined(__linux__)
-// linux
 #include <pwd.h>
 #include <unistd.h>
-#elif defined(__unix__) // all unixes not caught above
-// Unix
+#elif defined(__unix__)
 #elif defined(_POSIX_VERSION)
-// POSIX
 #else
 #error "Unknown compiler"
 #endif
@@ -78,10 +70,12 @@ std::string getUserDataDirectory()
 {
 #ifdef _WIN_32
 // TODO win32 is not yet supported
+#error "Windows is not yet supported"
 #elif defined(__linux__)
     return getUnixDataDirectory();
 #elif defined(__APPLE__)
 // TODO apple is not yet supported
+#error "Apple is not yet supported"
 #else
 #error "Unknown compiler"
 #endif
@@ -93,7 +87,7 @@ std::string getUnixDataDirectory()
         return xdgDataDir;
     }
     std::string suffix{"/.local/share"};
-    if (auto homeDir = std::getenv("HOMEE")) {
+    if (auto homeDir = std::getenv("HOME")) {
         return std::string{homeDir} + suffix;
     }
     else {
@@ -110,35 +104,34 @@ int main(int argc, char* argv[])
 
     const std::string dataDirectory = createDataDirectoryIfNotExist();
     QApplication app(argc, argv);
-//    DBService dbService{dataDirectory + "/sprint.db"};
-    DBService dbService{dataDirectory + "/test_sprint.db"};
+    DBService dbService{dataDirectory + "/sprint.db"};
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{
-            factory.createSprintStorageReader()};
+        factory.createSprintStorageReader()};
     std::unique_ptr<ISprintStorageWriter> sprintStorageWriter{
-            factory.createSprintStorageWriter()};
+        factory.createSprintStorageWriter()};
     std::unique_ptr<IYearRangeReader> sprintYearRangeReader{
-            factory.createYearRangeReader()};
+        factory.createYearRangeReader()};
     std::unique_ptr<ITaskStorageReader> taskStorageReader{
-            factory.createTaskStorageReader()};
+        factory.createTaskStorageReader()};
     std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
-            factory.createTaskStorageWriter()};
+        factory.createTaskStorageWriter()};
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
-            factory.createSprintDailyDistributionReader()};
+        factory.createSprintDailyDistributionReader()};
     std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
-            factory.createSprintWeeklyDistributionReader()};
+        factory.createSprintWeeklyDistributionReader()};
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
-            factory.createSprintMonthlyDistributionReader()};
+        factory.createSprintMonthlyDistributionReader()};
 
     Core::CoreService coreService{*sprintStorageReader.get(),
-                                             *sprintStorageWriter.get(),
-                                             *sprintYearRangeReader.get(),
-                                             *taskStorageReader.get(),
-                                             *taskStorageWriter.get(),
-                                             *dailyDistributionReader.get(),
-                                             *weeklyDistributionReader.get(),
-                                             *monthlyDistributionReader.get()};
+                                  *sprintStorageWriter.get(),
+                                  *sprintYearRangeReader.get(),
+                                  *taskStorageReader.get(),
+                                  *taskStorageWriter.get(),
+                                  *dailyDistributionReader.get(),
+                                  *weeklyDistributionReader.get(),
+                                  *monthlyDistributionReader.get()};
 
     MainWindow w{applicationSettings, coreService};
     w.show();
