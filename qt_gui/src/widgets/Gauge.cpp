@@ -3,20 +3,20 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #include "Gauge.h"
@@ -32,17 +32,20 @@ const QColor backgroundFree{QColor{"#354a5f"}};
 const QColor backgroundHovered{Qt::white};
 };
 
+namespace {
+auto hoveredState{std::make_unique<HoverStateHovered>()};
+auto unhoveredState{std::make_unique<HoverStateUnhovered>()};
+auto workProgressUnderwork{std::make_unique<WorkProgressUnderwork>()};
+auto workProgressOverwork{std::make_unique<WorkProgressOverwork>()};
+auto workProgressNone{std::make_unique<WorkProgressNone>()};
+auto workProgressDone{std::make_unique<WorkProgressDone>()};
+}
+
 Gauge::Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent)
     : QWidget(parent)
     , actual{actual}
     , goal{goal}
     , gaugeRelSize{gaugeRelSize}
-    , hoveredState{std::make_unique<HoverStateHovered>()}
-    , unhoveredState{std::make_unique<HoverStateUnhovered>()}
-    , workProgressUnderwork{std::make_unique<WorkProgressUnderwork>()}
-    , workProgressOverwork{std::make_unique<WorkProgressOverwork>()}
-    , workProgressNone{std::make_unique<WorkProgressNone>()}
-    , workProgressDone{std::make_unique<WorkProgressDone>()}
     , hoverState{unhoveredState.get()}
 {
     installEventFilter(this);

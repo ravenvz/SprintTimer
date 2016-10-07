@@ -3,20 +3,20 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #include "core/entities/Task.h"
@@ -28,32 +28,32 @@
 BoostUUIDGenerator Task::generator;
 
 Task::Task(std::string name,
-                   int estimatedCost,
-                   int actualCost,
-                   std::list<Tag> tags,
-                   bool completed)
+           int estimatedCost,
+           int actualCost,
+           std::list<Tag> tags,
+           bool completed)
     : mName(name)
     , mEstimatedCost(estimatedCost)
     , mActualCost(actualCost)
     , mUuid{generator.generateUUID()}
-    , mTags(tags)
+    , mTags(std::move(tags))
     , mCompleted(completed)
     , mLastModified{DateTime::currentDateTimeLocal()}
 {
 }
 
 Task::Task(std::string name,
-                   int estimatedCost,
-                   int actualCost,
-                   const std::string& uuid,
-                   std::list<Tag> tags,
-                   bool completed,
-                   const DateTime& lastModified)
+           int estimatedCost,
+           int actualCost,
+           const std::string& uuid,
+           std::list<Tag> tags,
+           bool completed,
+           const DateTime& lastModified)
     : mName(name)
     , mEstimatedCost(estimatedCost)
     , mActualCost(actualCost)
     , mUuid{uuid}
-    , mTags(tags)
+    , mTags(std::move(tags))
     , mCompleted(completed)
     , mLastModified{lastModified}
 {
@@ -86,44 +86,15 @@ void Task::setName(const std::string& name) { mName = name; }
 
 void Task::setCompleted(bool completed) { mCompleted = completed; }
 
-void Task::setEstimatedCost(int numSprints)
-{
-    mEstimatedCost = numSprints;
-}
+void Task::setEstimatedCost(int numSprints) { mEstimatedCost = numSprints; }
 
 void Task::setTags(const std::list<Tag>& newTags) { mTags = newTags; }
 
-void Task::setActualCost(int numSprints)
-{
-    mActualCost = numSprints;
-}
+void Task::setActualCost(int numSprints) { mActualCost = numSprints; }
 
 void Task::setModifiedTimeStamp(const DateTime& timeStamp)
 {
     mLastModified = timeStamp;
-}
-
-std::string Task::tagsAsString() const
-{
-    std::list<std::string> prefixedTags;
-    std::transform(mTags.cbegin(),
-                   mTags.cend(),
-                   std::back_inserter(prefixedTags),
-                   [](const auto& elem) { return elem.nameWithPrefix(); });
-    return StringUtils::join(prefixedTags.begin(), prefixedTags.end(), " ");
-}
-
-
-std::string Task::toString() const
-{
-    std::vector<std::string> parts;
-    std::string result;
-    parts.push_back(tagsAsString());
-    parts.push_back(mName);
-    parts.push_back(StringUtils::join(
-        {std::to_string(mActualCost), std::to_string(mEstimatedCost)},
-        "/"));
-    return StringUtils::join(parts, " ");
 }
 
 void Task::decodeDescription(std::string&& encodedDescription)
@@ -152,4 +123,15 @@ void Task::decodeDescription(std::string&& encodedDescription)
     }
 
     mName = StringUtils::join(nameParts, " ");
+}
+
+std::ostream& operator<<(std::ostream& os, const Task& task)
+{
+    os << prefixTags(task.mTags);
+    if (!task.mTags.empty())
+        os << " ";
+    os << task.mName << " ";
+    os << task.mActualCost << "/" << task.mEstimatedCost << " ";
+    os << "Uuid: " << task.mUuid;
+    return os;
 }

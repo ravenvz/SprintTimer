@@ -3,20 +3,20 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #ifndef QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3
@@ -33,36 +33,71 @@ class DistributionReaderBase : public QObject,
     Q_OBJECT
 
 public:
-    DistributionReaderBase(DBService& dbService);
+    virtual ~DistributionReaderBase() = default;
 
-    virtual void requestDailyDistribution(const TimeSpan& timeSpan,
-                                          Handler handler) final;
-
-private slots:
-
-    virtual void onResultsReceived(long long queryId,
-                                   const std::vector<QSqlRecord>& records);
+    virtual void requestDistribution(const TimeSpan& timeSpan,
+                                     Handler handler) final;
 
 protected:
     DBService& dbService;
+    size_t distributionSize;
     std::list<Handler> handler_queue;
+    QDate startDate;
+    QDate endDate;
+    std::function<bool(const QDate&, const QDate&)> equalityFunc;
+    std::function<QDate(const QDate&)> incrementFunc;
     long long mQueryId{-1};
-};
+    bool invalidQueryId(long long int queryId) const;
 
+    DistributionReaderBase(
+        DBService& dbService,
+        size_t distributionSize,
+        std::function<bool(const QDate&, const QDate&)> compareFunc,
+        std::function<QDate(const QDate&)> incrementFunc);
+
+    void executeCallback(std::vector<int>&& sprintCount);
+
+    template <class EqualityCriteria, class DateIncrementer>
+    std::vector<int> fillDateGaps(const std::vector<QSqlRecord>& records,
+                                  EqualityCriteria comp,
+                                  DateIncrementer incrementer)
+    {
+
+        std::vector<int> sprintCount(distributionSize, 0);
+
+        QDate current = startDate;
+        auto it = cbegin(records);
+        for (auto& elem : sprintCount) {
+            if (it == cend(records))
+                break;
+            if (comp(current, it->value(1).toDate())) {
+                elem = it->value(0).toInt();
+                ++it;
+            }
+            current = incrementer(current);
+        }
+
+        return sprintCount;
+    }
+
+private slots:
+    virtual void onResultsReceived(long long queryId,
+                                   const std::vector<QSqlRecord>& records);
+};
 
 class QtSprintDailyDistributionReader : public DistributionReaderBase {
 public:
-    QtSprintDailyDistributionReader(DBService& dbService);
+    QtSprintDailyDistributionReader(DBService& dbService, size_t numBins);
 };
 
 class QtSprintWeeklyDistributionReader : public DistributionReaderBase {
 public:
-    QtSprintWeeklyDistributionReader(DBService& dbService);
+    QtSprintWeeklyDistributionReader(DBService& dbService, size_t numBins);
 };
 
 class QtSprintMonthlyDistributionReader : public DistributionReaderBase {
 public:
-    QtSprintMonthlyDistributionReader(DBService& dbService);
+    QtSprintMonthlyDistributionReader(DBService& dbService, size_t numBins);
 };
 
 #endif /* end of include guard: QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3 */

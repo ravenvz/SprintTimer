@@ -3,31 +3,34 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #include "dialogs/AddSprintDialog.h"
-#include "utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
+#include "utils/DateTimeConverter.h"
 
+namespace {
+constexpr int secondsInMinute{60};
+}
 
 AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
-                                                 TaskModel* taskModel,
-                                                 int sprintDuration,
-                                                 QDialog* parent)
+                                 TaskModel* taskModel,
+                                 int sprintDuration,
+                                 QDialog* parent)
     : QDialog(parent)
     , ui(new Ui::AddSprintDialog)
     , datePicker{new QCalendarWidget()}
@@ -41,22 +44,21 @@ AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
     // TODO make this configurable with settings.
     // See also DateRangePickDialog's related TODO
     datePicker->setFirstDayOfWeek(Qt::Monday);
-    datePicker->setWindowModality(Qt::WindowModal);
     connect(ui->timeEditSprintStartTime,
-            SIGNAL(timeChanged(QTime)),
+            &QTimeEdit::dateTimeChanged,
             this,
-            SLOT(autoAdjustFinishTime()));
-    connect(ui->pushButtonPickDate,
-            &QPushButton::clicked,
-            [this]() {
-                datePicker->show();
-            });
-    connect(datePicker,
-            &QCalendarWidget::clicked,
-            [this](const QDate& date) {
-                ui->dateEditSprintDate->setDate(date);
-                datePicker->close();
-            });
+            &AddSprintDialog::autoAdjustFinishTime);
+    connect(ui->timeEditSprintFinishTime,
+            &QTimeEdit::dateTimeChanged,
+            this,
+            &AddSprintDialog::autoAdjustStartTime);
+    connect(ui->pushButtonPickDate, &QPushButton::clicked, [this]() {
+        datePicker->show();
+    });
+    connect(datePicker, &QCalendarWidget::clicked, [this](const QDate& date) {
+        ui->dateEditSprintDate->setDate(date);
+        datePicker->close();
+    });
 }
 
 AddSprintDialog::~AddSprintDialog()
@@ -71,11 +73,16 @@ void AddSprintDialog::setData()
     ui->dateEditSprintDate->setDate(QDate::currentDate());
 }
 
-void AddSprintDialog::autoAdjustFinishTime()
+void AddSprintDialog::autoAdjustFinishTime(const QDateTime& dateTime)
 {
-    QDateTime adjustedTime = ui->timeEditSprintStartTime->dateTime().addSecs(
-        sprintDuration * 60);
-    ui->timeEditSprintFinishTime->setDateTime(adjustedTime);
+    ui->timeEditSprintFinishTime->setDateTime(
+        dateTime.addSecs(sprintDuration * secondsInMinute));
+}
+
+void AddSprintDialog::autoAdjustStartTime(const QDateTime& dateTime)
+{
+    ui->timeEditSprintStartTime->setDateTime(
+        dateTime.addSecs(-sprintDuration * secondsInMinute));
 }
 
 void AddSprintDialog::accept()
@@ -84,15 +91,11 @@ void AddSprintDialog::accept()
         = ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
     QDateTime finishTime
         = ui->timeEditSprintFinishTime->dateTime().toTimeSpec(Qt::LocalTime);
-    if (startTime >= finishTime) {
-        autoAdjustFinishTime();
-    }
 
     const std::string taskUuid
-        = taskModel->itemAt(ui->cbPickTask->currentIndex())
-              .uuid();
+        = taskModel->itemAt(ui->cbPickTask->currentIndex()).uuid();
     sprintModel->insert(TimeSpan{DateTimeConverter::dateTime(startTime),
-                                   DateTimeConverter::dateTime(finishTime)},
-                          taskUuid);
+                                 DateTimeConverter::dateTime(finishTime)},
+                        taskUuid);
     QDialog::accept();
 }

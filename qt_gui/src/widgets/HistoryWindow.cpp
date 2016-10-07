@@ -3,27 +3,27 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #include "HistoryWindow.h"
 #include "ui_history.h"
+#include "utils/DateTimeConverter.h"
 #include <QListView>
 #include <QPainter>
-#include "utils/DateTimeConverter.h"
 
 
 HistoryViewDelegate::HistoryViewDelegate(QObject* parent)
@@ -45,6 +45,27 @@ void HistoryViewDelegate::paint(QPainter* painter,
     }
 }
 
+namespace {
+
+QString sprintToString(const Sprint& sprint)
+{
+    return QString("%1 - %2 %3 %4")
+        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
+        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+        .arg(QString::fromStdString(prefixTags(sprint.tags())))
+        .arg(QString::fromStdString(sprint.name()));
+}
+
+QString taskToString(const Task& task)
+{
+    return QString("%1 %2 %3/%4")
+        .arg(QString::fromStdString(prefixTags(task.tags())))
+        .arg(QString::fromStdString(task.name()))
+        .arg(task.actualCost())
+        .arg(task.estimatedCost());
+}
+}
+
 HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
     : DataWidget(parent)
     , ui(new Ui::HistoryWindow)
@@ -55,7 +76,7 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     coreService.yearRange(std::bind(
-            &HistoryWindow::onYearRangeUpdated, this, std::placeholders::_1));
+        &HistoryWindow::onYearRangeUpdated, this, std::placeholders::_1));
     selectedDateInterval = ui->dateRangePicker->getInterval();
     viewModel = new QStandardItemModel(this);
     ui->lvTaskHistory->setHeaderHidden(true);
@@ -124,7 +145,8 @@ void HistoryWindow::onTabSelected(int tabIndex)
     synchronize();
 }
 
-void HistoryWindow::onYearRangeUpdated(const std::vector<std::string>& yearRange)
+void HistoryWindow::onYearRangeUpdated(
+    const std::vector<std::string>& yearRange)
 {
     ui->dateRangePicker->setYears(yearRange);
 }
@@ -154,23 +176,20 @@ DisplayTasks::DisplayTasks(HistoryWindow& historyView)
 void DiplaySprints::retrieveHistory()
 {
     historyView.coreService.sprintsInTimeRange(
-            historyView.selectedDateInterval.toTimeSpan(),
-            std::bind(&DiplaySprints::onHistoryRetrieved,
-                      this,
-                      std::placeholders::_1));
+        historyView.selectedDateInterval.toTimeSpan(),
+        std::bind(
+            &DiplaySprints::onHistoryRetrieved, this, std::placeholders::_1));
 }
 
 void DisplayTasks::retrieveHistory()
 {
     historyView.coreService.requestFinishedTasks(
         historyView.selectedDateInterval.toTimeSpan(),
-        std::bind(&DisplayTasks::onHistoryRetrieved,
-                  this,
-                  std::placeholders::_1));
+        std::bind(
+            &DisplayTasks::onHistoryRetrieved, this, std::placeholders::_1));
 }
 
-void DiplaySprints::onHistoryRetrieved(
-    const std::vector<Sprint>& sprints)
+void DiplaySprints::onHistoryRetrieved(const std::vector<Sprint>& sprints)
 {
     std::vector<HistoryWindow::HistoryItem> sprintHistory;
     sprintHistory.reserve(sprints.size());
@@ -180,7 +199,7 @@ void DiplaySprints::onHistoryRetrieved(
                    [](const auto& sprint) {
                        return std::make_pair(
                            DateTimeConverter::qDate(sprint.startTime()),
-                           QString::fromStdString(sprint.toString()));
+                           sprintToString(sprint));
                    });
     historyView.fillHistoryModel(sprintHistory);
     historyView.setHistoryModel(historyView.ui->lvSprintHistory);
@@ -196,7 +215,7 @@ void DisplayTasks::onHistoryRetrieved(const std::vector<Task>& tasks)
                    [](const auto& task) {
                        return std::make_pair(
                            DateTimeConverter::qDate(task.lastModified()),
-                           QString::fromStdString(task.toString()));
+                           taskToString(task));
                    });
 
     historyView.fillHistoryModel(taskHistory);

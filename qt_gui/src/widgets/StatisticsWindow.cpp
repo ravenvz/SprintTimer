@@ -3,26 +3,25 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #include "widgets/StatisticsWindow.h"
 #include "ui_statistics_window.h"
 #include "widgets/BarChart.h"
-
 
 StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
                                    ICoreService& coreService,
@@ -67,10 +66,10 @@ void StatisticsWindow::onDataFetched(
 {
     this->sprints = sprints;
     selectedTagIndex = optional<size_t>();
-    tagDistribution = TagDistribution(sprints, numTopTags);
-    std::vector<TagCount> tagTagCounts = tagDistribution.topTagsDistribution();
+    tagTop = TagTop(sprints, numTopTags);
+    std::vector<TagTop::TagFrequency> tagFrequency = tagTop.tagFrequencies();
     drawGraphs();
-    updateTopTagsDiagram(tagTagCounts);
+    updateTopTagsDiagram(tagFrequency);
 }
 
 void StatisticsWindow::onYearRangeUpdated(
@@ -89,7 +88,7 @@ void StatisticsWindow::drawGraphs()
 {
     SprintStatItem statistics{
         selectedTagIndex
-            ? tagDistribution.sprintsForNthTopTag(*selectedTagIndex)
+            ? tagTop.sprintsForTagAt(*selectedTagIndex)
             : sprints,
         currentInterval.toTimeSpan()};
     ui->dailyTimelineGraph->setData(statistics.dailyDistribution(),
@@ -101,7 +100,7 @@ void StatisticsWindow::drawGraphs()
 }
 
 
-void StatisticsWindow::updateTopTagsDiagram(std::vector<TagCount>& tagCounts)
+void StatisticsWindow::updateTopTagsDiagram(std::vector<TagTop::TagFrequency>& tagCounts)
 {
     if (!tagCounts.empty() && tagCounts.back().first == Tag{""})
         tagCounts.back().first.setName("others");

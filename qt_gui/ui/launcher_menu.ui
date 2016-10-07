@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LauncherMenu</class>
+ <widget class="QWidget" name="LauncherMenu">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>224</width>
+    <height>65</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QPushButton" name="pbStatistics">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>47</width>
+       <height>47</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Show statistics window</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources/resources.qrc">
+       <normaloff>:/icons/statistics.svg</normaloff>:/icons/statistics.svg</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>35</width>
+       <height>35</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pbHistory">
+     <property name="maximumSize">
+      <size>
+       <width>47</width>
+       <height>47</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Show history window</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources/resources.qrc">
+       <normaloff>:/icons/streamline_history.png</normaloff>:/icons/streamline_history.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>35</width>
+       <height>35</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pbProgress">
+     <property name="maximumSize">
+      <size>
+       <width>47</width>
+       <height>47</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Show goals window</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources/resources.qrc">
+       <normaloff>:/icons/progress.svg</normaloff>:/icons/progress.svg</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>35</width>
+       <height>35</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pbSettings">
+     <property name="maximumSize">
+      <size>
+       <width>47</width>
+       <height>47</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Show settings window</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources/resources.qrc">
+       <normaloff>:/icons/streamline_settings.png</normaloff>:/icons/streamline_settings.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>35</width>
+       <height>35</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

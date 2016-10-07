@@ -3,20 +3,20 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #ifndef MAINWINDOW_H
@@ -26,18 +26,20 @@
 #include "core/ISprintStorageReader.h"
 #include "core/IYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
-#include "HistoryWindow.h"
 #include "models/SprintModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
-#include "StatisticsWindow.h"
 #include "widgets/TimerWidgetBase.h"
+#include "widgets/TaskOutline.h"
+#include "widgets/SprintOutline.h"
+#include "widgets/LauncherMenu.h"
 #include <QMainWindow>
-#include <QSettings>
 #include <experimental/optional>
 #include <functional>
 #include <memory>
 #include <vector>
+#include <QGridLayout>
+
 
 namespace Ui {
 class MainWindow;
@@ -69,88 +71,74 @@ private:
     QPointer<SprintModel> sprintModel;
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
-    QPointer<DataWidget> goalsView;
-    QPointer<DataWidget> statisticsView;
-    QPointer<DataWidget> historyView;
-    std::experimental::optional<QModelIndex> selectedTaskIndex;
+    QPointer<LauncherMenu> launcherMenu;
+    QPointer<TaskOutline> taskOutline;
+    QPointer<SprintOutline> sprintOutline;
+    std::experimental::optional<int> selectedTaskRow;
     TimerWidgetBase* timerWidget;
-    std::unique_ptr<ExpansionState> expandedFully;
-    std::unique_ptr<ExpansionState> shrinked;
-    std::unique_ptr<ExpansionState> expandedMenuOnly;
-    std::unique_ptr<ExpansionState> expandedWithoutMenu;
     ExpansionState* expansionState;
 
-    void adjustAddSprintButtonState();
-    void bringToForeground(QWidget* widgetPtr) const;
     void setStateUi();
 
 private slots:
-    void addTask();
-    void quickAddTask();
     void submitSprint(const std::vector<TimeSpan> &intervalBuffer);
-    void toggleTaskCompleted();
-    void launchSettingsDialog();
-    void launchHistoryView();
-    void launchGoalsView();
-    void launchStatisticsView();
-    void launchManualAddSprintDialog();
     void updateDailyProgress();
     void onUndoButtonClicked();
     void adjustUndoButtonState();
     void toggleView();
     void toggleMenu();
+    void onTasksRemoved(const QModelIndex&, int first, int last);
 };
 
 
 class ExpansionState {
 public:
-    ExpansionState(int width, int height, MainWindow& widget);
+    ExpansionState(int width, int height);
     virtual ~ExpansionState() = default;
     QSize sizeHint() const;
-    virtual void setStateUi() = 0;
-    virtual void toggleView() = 0;
-    virtual void toggleMenu() = 0;
+    virtual void setStateUi(MainWindow& widget) = 0;
+    virtual void toggleView(MainWindow& widget) = 0;
+    virtual void toggleMenu(MainWindow& widget) = 0;
 
 protected:
     const int width;
     const int height;
-    MainWindow& widget;
 };
 
 
 class Expanded final : public ExpansionState {
 public:
-    Expanded(MainWindow& widget);
-    void setStateUi();
-    void toggleView();
-    void toggleMenu();
+    Expanded();
+    void setStateUi(MainWindow& widget) override;
+    void toggleView(MainWindow& widget) override;
+    void toggleMenu(MainWindow& widget) override;
 };
 
 
 class Shrinked final : public ExpansionState {
 public:
-    Shrinked(MainWindow& widget);
-    void setStateUi();
-    void toggleView();
-    void toggleMenu();
+    Shrinked();
+    void setStateUi(MainWindow& widget) override;
+    void toggleView(MainWindow& widget) override;
+    void toggleMenu(MainWindow& widget) override;
 };
 
 
 class ExpandedMenuOnly final : public ExpansionState {
 public:
-    ExpandedMenuOnly(MainWindow& widget);
-    void setStateUi();
-    void toggleView();
-    void toggleMenu();
+    ExpandedMenuOnly();
+    void setStateUi(MainWindow& widget) override;
+    void toggleView(MainWindow& widget) override;
+    void toggleMenu(MainWindow& widget) override;
 };
 
 
 class ExpandedWithoutMenu final : public ExpansionState {
 public:
-    ExpandedWithoutMenu(MainWindow& widget);
-    void setStateUi();
-    void toggleView();
-    void toggleMenu();
+    ExpandedWithoutMenu();
+    void setStateUi(MainWindow& widget) override;
+    void toggleView(MainWindow& widget) override;
+    void toggleMenu(MainWindow& widget) override;
 };
 
 #endif // MAINWINDOW_H

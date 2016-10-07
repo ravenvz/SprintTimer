@@ -3,47 +3,39 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 
 #ifdef _WIN32
-// define something for Windows (32-bit and 64-bit, this part is common)
 #ifdef _WIN64
-// define something for Windows (64-bit only)
 #endif
 #elif defined(__APPLE__)
 #include "TargetConditionals.h"
 #if TARGET_IPHONE_SIMULATOR
-// iOS Simulator
 #elif TARGET_OS_IPHONE
-// iOS device
 #elif TARGET_OS_MAC
-// Other kinds of Mac OS
 #else
 #error "Unknown Apple platform"
 #endif
 #elif defined(__linux__)
-// linux
 #include <pwd.h>
 #include <unistd.h>
-#elif defined(__unix__) // all unices not caught above
-// Unix
+#elif defined(__unix__)
 #elif defined(_POSIX_VERSION)
-// POSIX
 #else
 #error "Unknown compiler"
 #endif
@@ -77,11 +69,13 @@ std::string createDataDirectoryIfNotExist()
 std::string getUserDataDirectory()
 {
 #ifdef _WIN_32
-// TODO
+// TODO win32 is not yet supported
+#error "Windows is not yet supported"
 #elif defined(__linux__)
     return getUnixDataDirectory();
 #elif defined(__APPLE__)
-// TODO
+// TODO apple is not yet supported
+#error "Apple is not yet supported"
 #else
 #error "Unknown compiler"
 #endif
@@ -93,7 +87,7 @@ std::string getUnixDataDirectory()
         return xdgDataDir;
     }
     std::string suffix{"/.local/share"};
-    if (auto homeDir = std::getenv("HOMEE")) {
+    if (auto homeDir = std::getenv("HOME")) {
         return std::string{homeDir} + suffix;
     }
     else {
@@ -114,30 +108,30 @@ int main(int argc, char* argv[])
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{
-            factory.createSprintStorageReader()};
+        factory.createSprintStorageReader()};
     std::unique_ptr<ISprintStorageWriter> sprintStorageWriter{
-            factory.createSprintStorageWriter()};
+        factory.createSprintStorageWriter()};
     std::unique_ptr<IYearRangeReader> sprintYearRangeReader{
-            factory.createYearRangeReader()};
+        factory.createYearRangeReader()};
     std::unique_ptr<ITaskStorageReader> taskStorageReader{
-            factory.createTaskStorageReader()};
+        factory.createTaskStorageReader()};
     std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
-            factory.createTaskStorageWriter()};
+        factory.createTaskStorageWriter()};
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
-            factory.createSprintDailyDistributionReader()};
+        factory.createSprintDailyDistributionReader()};
     std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
-            factory.createSprintWeeklyDistributionReader()};
+        factory.createSprintWeeklyDistributionReader()};
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
-            factory.createSprintMonthlyDistributionReader()};
+        factory.createSprintMonthlyDistributionReader()};
 
     Core::CoreService coreService{*sprintStorageReader.get(),
-                                             *sprintStorageWriter.get(),
-                                             *sprintYearRangeReader.get(),
-                                             *taskStorageReader.get(),
-                                             *taskStorageWriter.get(),
-                                             *dailyDistributionReader.get(),
-                                             *weeklyDistributionReader.get(),
-                                             *monthlyDistributionReader.get()};
+                                  *sprintStorageWriter.get(),
+                                  *sprintYearRangeReader.get(),
+                                  *taskStorageReader.get(),
+                                  *taskStorageWriter.get(),
+                                  *dailyDistributionReader.get(),
+                                  *weeklyDistributionReader.get(),
+                                  *monthlyDistributionReader.get()};
 
     MainWindow w{applicationSettings, coreService};
     w.show();

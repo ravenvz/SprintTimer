@@ -3,39 +3,39 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #include "core/CoreService.h"
-#include "use_cases/AddNewTask.h"
-#include "use_cases/DecrementTaskSprints.h"
-#include "use_cases/DeleteTask.h"
-#include "use_cases/EditTag.h"
-#include "use_cases/EditTask.h"
-#include "use_cases/IncrementTaskSprints.h"
-#include "use_cases/RegisterNewSprint.h"
-#include "use_cases/RemoveSprintTransaction.h"
-#include "use_cases/RequestAllTags.h"
-#include "use_cases/RequestFinishedTasks.h"
-#include "use_cases/RequestMinMaxYear.h"
-#include "use_cases/RequestSprintDistribution.h"
-#include "use_cases/RequestSprints.h"
-#include "use_cases/RequestUnfinishedTasks.h"
-#include "use_cases/StoreUnfinishedTasksOrder.h"
-#include "use_cases/ToggleTaskCompletionStatus.h"
+#include "core/use_cases/AddNewTask.h"
+#include "core/use_cases/DecrementTaskSprints.h"
+#include "core/use_cases/DeleteTask.h"
+#include "core/use_cases/RenameTag.h"
+#include "core/use_cases/EditTask.h"
+#include "core/use_cases/IncrementTaskSprints.h"
+#include "core/use_cases/RegisterNewSprint.h"
+#include "core/use_cases/RemoveSprintTransaction.h"
+#include "core/use_cases/RequestAllTags.h"
+#include "core/use_cases/RequestFinishedTasks.h"
+#include "core/use_cases/RequestMinMaxYear.h"
+#include "core/use_cases/RequestSprintDistribution.h"
+#include "core/use_cases/RequestSprints.h"
+#include "core/use_cases/RequestUnfinishedTasks.h"
+#include "core/use_cases/StoreUnfinishedTasksOrder.h"
+#include "core/use_cases/ToggleTaskCompletionStatus.h"
 
 namespace Core {
 
@@ -207,7 +207,7 @@ void CoreService::editTag(const std::string& oldName,
                               const std::string& newName)
 {
     auto editTag
-        = std::make_unique<UseCases::EditTag>(taskWriter, oldName, newName);
+        = std::make_unique<UseCases::RenameTag>(taskWriter, oldName, newName);
     editTag->execute();
     invoker.executeCommand(std::move(editTag));
 }

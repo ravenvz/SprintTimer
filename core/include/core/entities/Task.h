@@ -3,20 +3,20 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #ifndef TASK_H_7VXCYMOK
@@ -41,18 +41,18 @@ class Task {
 
 public:
     Task(std::string name,
-             int estimatedCost,
-             int actualCost,
-             std::list<Tag> tags, // TODO should be reference or moved
-             bool completed);
+         int estimatedCost,
+         int actualCost,
+         std::list<Tag> tags,
+         bool completed);
 
     Task(std::string name,
-             int estimatedCost,
-             int actualCost,
-             const std::string& uuid,
-             std::list<Tag> tags, // TODO should be reference or moved
-             bool completed,
-             const DateTime& lastModified);
+         int estimatedCost,
+         int actualCost,
+         const std::string& uuid,
+         std::list<Tag> tags,
+         bool completed,
+         const DateTime& lastModified);
 
     /* Construct Task from encoded description.
      * Description is a string of text that may have some words with
@@ -85,7 +85,8 @@ public:
     /* Return true if Task is completed and false otherwise. */
     bool isCompleted() const;
 
-    /* Return estimated number of sprints that are required to completed this task. */
+    /* Return estimated number of sprints that are required to completed this
+     * task. */
     int estimatedCost() const;
 
     /* Number of sprints that had been spent on this task. */
@@ -104,7 +105,8 @@ public:
     /* Set task status. */
     void setCompleted(bool completed);
 
-    /* Set estimated number of sprints that are required to complete this task. */
+    /* Set estimated number of sprints that are required to complete this task.
+     */
     void setEstimatedCost(int numSprints);
 
     /* Set number of sprints spent on this task. */
@@ -115,17 +117,11 @@ public:
     /* Set time stamp of last item modification. */
     void setModifiedTimeStamp(const DateTime& timeStamp);
 
-    /* Return string representation of tags.
-     * Tags will be concatenated with ', '. */
-    std::string tagsAsString() const;
-
-    /* Return string representation of Task. */
-    std::string toString() const;
+    friend std::ostream& operator<<(std::ostream& os, const Task& task);
 
 private:
     static BoostUUIDGenerator generator;
     std::string mName;
-    std::string mEncodedDescription;
     int mEstimatedCost{1};
     int mActualCost{0};
     std::string mUuid;

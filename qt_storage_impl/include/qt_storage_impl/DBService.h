@@ -3,20 +3,20 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #ifndef DB_HELPER_H
@@ -55,13 +55,13 @@ public:
     /* Prepare query and return it's id. */
     long long prepare(const QString& query);
 
-    // TODO what if no query with such id
-    /* Execute previously prepared query */
+    /* Execute previously prepared query.
+     * Assumes that queryId is valid. */
     void executePrepared(long long queryId);
 
-    // TODO what if no query with such id
     /* Bind value to a placeholder for a previously prepared query
-     * with given id. */
+     * with given id.
+     * Assumes that queryId is valid. */
     void bindValue(long long queryId,
                    const QString& placeholder,
                    const QVariant& value);
@@ -93,6 +93,9 @@ signals:
 
 private:
     QThread workerThread;
+    // Note that nextQueryId is not atomic or protected with locks,
+    // as only one thread accessing DBService at a time. Should the
+    // need of multi-thread access arise, this issue should be addressed.
     long long nextQueryId{0};
 
     void prepareDatabase(const QString& filename) const;

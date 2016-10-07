@@ -3,27 +3,27 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H
 
-#include "core/ICoreService.h"
 #include "DateRangePicker.h"
+#include "core/ICoreService.h"
 #include "widgets/DataWidget.h"
 #include <QObject>
 #include <QStandardItemModel>
@@ -37,6 +37,8 @@ class HistoryWindow;
 
 class DisplayState;
 
+// TODO HistoryWindow should not know about it's delegate
+
 class HistoryViewDelegate : public QStyledItemDelegate {
 public:
     explicit HistoryViewDelegate(QObject* parent);
@@ -47,7 +49,7 @@ public:
                const QModelIndex& index) const override;
 };
 
-class HistoryWindow: public DataWidget {
+class HistoryWindow : public DataWidget {
     Q_OBJECT
 
     friend class DiplaySprints;
@@ -57,7 +59,7 @@ public:
     using HistoryItem = std::pair<QDate, QString>;
 
     explicit HistoryWindow(ICoreService& coreService,
-                         QWidget* parent = nullptr);
+                           QWidget* parent = nullptr);
 
     ~HistoryWindow();
 

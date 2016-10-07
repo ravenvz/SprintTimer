@@ -3,20 +3,20 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 
@@ -27,7 +27,7 @@
 #include <QtCore/QFile>
 
 namespace {
-    unsigned currentDatabaseVersion{2};
+    unsigned currentDatabaseVersion{3};
 }
 
 Database::Database(const QString& filename)
@@ -67,31 +67,6 @@ bool Database::create(QSqlDatabase& db) {
 
 bool Database::createSchema(QSqlDatabase& db) {
     QSqlQuery query{db};
-
-    // TODO get rid of it or trim as it takes too much space
-    // Create calendar table as temporary solution for missing dates problem
-    query.exec("CREATE TABLE " + CalendarTable::name
-            + " (" + CalendarTable::Columns::id + " INTEGER PRIMARY KEY)");
-    query.exec("INSERT INTO " + CalendarTable::name + " DEFAULT VALUES");
-    query.exec("INSERT INTO " + CalendarTable::name + " DEFAULT VALUES");
-    query.exec("INSERT INTO " + CalendarTable::name + " SELECT NULL FROM "
-            + CalendarTable::name + " d1, "
-            + CalendarTable::name + " d2, "
-            + CalendarTable::name + " d3, "
-            + CalendarTable::name + " d4"
-            );
-    query.exec("INSERT INTO " + CalendarTable::name + " SELECT NULL FROM "
-            + CalendarTable::name + " d1, "
-            + CalendarTable::name + " d2, "
-            + CalendarTable::name + " d3, "
-            + CalendarTable::name + " d4 "
-            );
-    query.exec("ALTER TABLE " + CalendarTable::name + " ADD " + CalendarTable::Columns::dt + " DATETIME");
-    query.exec(
-        "UPDATE " + CalendarTable::name + " SET " + CalendarTable::Columns::dt
-        + " = date('2000-01-01', (-1 + id) ||' day')");
-    query.exec("CREATE INDEX idx1 ON " + CalendarTable::name + "(" + CalendarTable::Columns::dt + ")");
-
     return createTables(query)
             && createViews(query)
             && createTriggers(query);
@@ -197,7 +172,6 @@ bool Database::createViews(QSqlQuery& query) {
                     + " GROUP BY " + SprintTable::name + "." + SprintTable::Columns::id + ";"
     };
 
-    // View for todo items
     const QString createTaskView{
             "CREATE VIEW " + TasksView::name + " AS "
                     + "SELECT " + TaskTable::name + "." + TaskTable::Columns::id + ", "
@@ -243,8 +217,7 @@ bool Database::createTriggers(QSqlQuery& query) {
                     + "END;"
     };
 
-    // Trigger to remove orphaned tags (tags, that are not bound to any todo
-    // item)
+    // Trigger to remove orphaned tags (tags, that are not bound to any task)
     const QString createCleanOrphanedTagTrigger{
             "CREATE TRIGGER " + CleanOrphanedTagTrigger::name
                     + " AFTER DELETE ON " + TaskTagTable::name
@@ -481,6 +454,11 @@ bool Database::runMigration(QSqlDatabase& database, int fromVersion)
             return database.commit();
         }
     }
+
+    if (fromVersion == 2) {
+        return query.exec("drop table calendar;");
+    }
+
     return false;
 }
 

@@ -3,20 +3,20 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #ifndef TIMEINTERVAL_H
@@ -24,6 +24,7 @@
 
 #include "DateTime.h"
 #include <chrono>
+#include <ostream>
 
 
 /* Represent finite interval in time with start and finish points. */
@@ -33,8 +34,6 @@ struct TimeSpan {
 
     DateTime startTime;
     DateTime finishTime;
-
-    enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
 
     /* Construct from chrono time_point. */
     TimeSpan(SystemClock start, SystemClock finish);
@@ -53,36 +52,14 @@ struct TimeSpan {
      * finish point. */
     unsigned sizeInDays() const;
 
-    // TODO Those day parts are definitely do not belong here. Move out.
-    /* Return enum representing part of the day.
-     *
-     * Day has 6 4-hour parts:
-     *      Midnight  22:00 - 2:00
-     *      Nigth      2:00 - 6:00
-     *      Morning    6:00 - 10:00
-     *      Noon      10:00 - 14:00
-     *      Afternoon 14:00 - 18:00
-     *      Evening   18:00 - 22:00
+    /* Return string representation of TimeSpan. The result is determined
+     * by format string that is applied both to start and finish DateTime
+     * objects, separated by sep string.
      */
-    DayPart getDayPart() const;
+    std::string toString(const std::string& format,
+                         std::string sep = " - ") const;
 
-    /* Return name of the day part given as unsigned integer as string. */
-    static std::string dayPartName(unsigned dayPart);
-
-    /* Return name of the given DayPart as string. */
-    static std::string dayPartName(DayPart dayPart);
-
-    /* Return hours corresponding to DayPart as string. */
-    static std::string dayPartHours(unsigned dayPart);
-
-    /* Return hours corresponding to DayPart as string. */
-    static std::string dayPartHours(DayPart dayPart);
-
-    /* Return time representation as string in "HH:mm - HH:mm" format. */
-    std::string toTimeString() const;
-
-    /* Return "dd.mm.yy - dd.mm.yy" */
-    std::string toDateString() const;
+    friend std::ostream& operator<<(std::ostream& os, const TimeSpan& span);
 };
 
 /* Return absolute number of days between startTime of this TimeSpan and

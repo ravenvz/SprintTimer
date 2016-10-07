@@ -3,26 +3,40 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #include "core/DateTime.h"
+#include "core/StringUtils.h"
+#include <algorithm>
 #include <array>
 #include <iomanip>
 #include <iostream>
+
+namespace {
+template <typename T>
+void pop_back_n(T& container, size_t n)
+{
+    auto limit = std::min(n, container.size());
+    for (size_t i = 0; i < limit; ++i)
+        container.pop_back();
+}
+
+std::string formatDateTime(const DateTime& dt, std::string&& format);
+}
 
 
 DateTime::DateTime(std::chrono::system_clock::time_point timepoint)
@@ -39,7 +53,7 @@ DateTime DateTime::fromYMD(int year, int month, int day)
     date::year_month_day dateYMD{date::year(year) / month / day};
     if (!dateYMD.ok())
         throw std::runtime_error("Invalid date");
-    std::chrono::system_clock::time_point tp = date::day_point(dateYMD);
+    std::chrono::system_clock::time_point tp = date::sys_days(dateYMD);
     return DateTime{tp};
 }
 
@@ -110,45 +124,102 @@ unsigned DateTime::dayOfWeek() const
     return mondayFirstTable[static_cast<unsigned>(date::weekday(ymd))];
 }
 
-std::string DateTime::toTimeString() const
+std::string DateTime::toString(std::string format) const
 {
-    using namespace date;
-    std::stringstream ss;
-    auto tp = floor<std::chrono::minutes>(time);
-    auto dp = floor<date::days>(time);
-    ss << make_time(tp - dp);
-    return ss.str();
-}
-
-// TODO consider generic method with format string as parameter
-std::string DateTime::yyyymmddString() const
-{
-    std::stringstream ss;
-    ss << year();
-    ss << "-";
-    ss << std::setfill('0') << std::setw(2);
-    ss << month();
-    ss << "-";
-    ss << std::setfill('0') << std::setw(2);
-    ss << day();
-    return ss.str();
-}
-
-std::string DateTime::ddmmyyyyString() const
-{
-    std::stringstream ss;
-    ss << std::setfill('0') << std::setw(2);
-    ss << day();
-    ss << ".";
-    ss << std::setfill('0') << std::setw(2);
-    ss << month();
-    ss << ".";
-    ss << year();
-    return ss.str();
+    return formatDateTime(*this, std::move(format));
 }
 
 std::ostream& operator<<(std::ostream& os, const DateTime& dt)
 {
-    using namespace date;
-    return os << dt.chronoTimepoint();
+    os << std::setfill('0') << std::setw(2) << dt.day() << "."
+       << std::setfill('0') << std::setw(2) << dt.month() << "." << dt.year()
+       << " " << std::setfill('0') << std::setw(2) << dt.hour() << ":"
+       << std::setfill('0') << std::setw(2) << dt.minute() << ":"
+       << std::setfill('0') << std::setw(2) << dt.second();
+    return os;
+}
+
+namespace {
+
+std::string formatDateTime(const DateTime& dt, std::string&& format)
+{
+    std::stringstream ss;
+
+    std::string f{std::move(format)};
+    std::reverse(f.begin(), f.end());
+
+    using namespace StringUtils;
+
+    while (!f.empty()) {
+        if (endsWith(f, "''")) {
+            ss << "'";
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "'")) {
+            pop_back_n(f, 1);
+            auto m = f.find_last_of("'");
+            if (m != std::string::npos) {
+                while (!endsWith(f, "'")) {
+                    ss << f.back();
+                    f.pop_back();
+                }
+                f.pop_back();
+            }
+        }
+        else if (endsWith(f, "yyyy")) {
+            ss << std::setfill('0') << std::setw(4) << dt.year();
+            pop_back_n(f, 4);
+        }
+        else if (endsWith(f, "yy")) {
+            ss << std::setfill('0') << std::setw(2) << dt.year() % 100;
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "MM")) {
+            ss << std::setfill('0') << std::setw(2) << dt.month();
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "M")) {
+            ss << dt.month();
+            pop_back_n(f, 1);
+        }
+        else if (endsWith(f, "dd")) {
+            ss << std::setfill('0') << std::setw(2) << dt.day();
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "d")) {
+            ss << dt.day();
+            pop_back_n(f, 1);
+        }
+        else if (endsWith(f, "hh")) {
+            ss << std::setfill('0') << std::setw(2) << dt.hour();
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "h")) {
+            ss << dt.hour();
+            pop_back_n(f, 1);
+        }
+        else if (endsWith(f, "mm")) {
+            ss << std::setfill('0') << std::setw(2) << dt.minute();
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "m")) {
+            ss << dt.minute();
+            pop_back_n(f, 1);
+        }
+        else if (endsWith(f, "ss")) {
+            ss << std::setfill('0') << std::setw(2) << dt.second();
+            pop_back_n(f, 2);
+        }
+        else if (endsWith(f, "s")) {
+            ss << dt.second();
+            pop_back_n(f, 1);
+        }
+        else {
+            ss << f.back();
+            f.pop_back();
+        }
+    }
+
+    return ss.str();
+}
 }

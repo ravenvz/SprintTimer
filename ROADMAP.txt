@@ -1,15 +1,23 @@
-Version 0.3.5
+Plans for version 0.3.6
 -------------
 
-Optimisations for smaller screens (think laptop)
 Windows build
-Application resources (icons, sounds, etc) are installed automatically
+Fixed GUI elements that are displayed incorrectly
+
+HISTORY
+----------------------------------------------------------------
+
+Version 0.3.5
+-------------
+Speeded up loading time of progress view
+Small fixes
+
 
 Version 0.3.4
 -------------
 
 Copyright issues are resolved
-    Remove almost all namings that could violate certain trademark
+    Removed almost all namings that could violate certain trademark
 
 
 Version 0.3.3
@@ -20,9 +28,6 @@ Improved start button design
 Improved project build configuration
 
 Project can now be installed on Unix systems
-
-HISTORY
-----------------------------------------------------------------
 
 Version 0.3.2
 -------------
@@ -43,7 +48,7 @@ Bugfixes:
     Fixed issue when date picker widget was not working if there is
         no data about years present
     Fixed issue when timer displays old value for a second when start
-     button is clicked
+        button is clicked
 
 
 Version 0.3.0
@@ -60,6 +65,7 @@ Improve build system configuration
 Core module is now independent from Qt
 
 Database schema has changed and is not compatible with previous versions.
+
 
 Version 0.2.1
 -------------

@@ -3,43 +3,43 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 #include "MainWindow.h"
-#include "dialogs/AddTaskDialog.h"
-#include "dialogs/AddSprintDialog.h"
-#include "dialogs/SettingsDialog.h"
-#include "ui_mainwindow.h"
 #include "widgets/DefaultTimer.h"
 #include "widgets/FancyTimer.h"
-#include "widgets/GoalProgressWindow.h"
+#include "ui_mainwindow.h"
 
+namespace {
+    auto expandedFully = std::make_unique<Expanded>();
+    auto shrinked = std::make_unique<Shrinked>();
+    auto expandedMenuOnly = std::make_unique<ExpandedMenuOnly>();
+    auto expandedWithoutMenu = std::make_unique<ExpandedWithoutMenu>();
+}
+
+using std::experimental::optional;
 
 MainWindow::MainWindow(IConfig& applicationSettings,
                        ICoreService& coreService,
                        QWidget* parent)
-    : QWidget(parent)
-    , ui{new Ui::MainWindow}
+    : ui{new Ui::MainWindow}
+    , QWidget(parent)
     , applicationSettings{applicationSettings}
     , coreService{coreService}
-    , expandedFully{std::make_unique<Expanded>(*this)}
-    , shrinked{std::make_unique<Shrinked>(*this)}
-    , expandedMenuOnly{std::make_unique<ExpandedMenuOnly>(*this)}
-    , expandedWithoutMenu{std::make_unique<ExpandedWithoutMenu>(*this)}
     , expansionState{shrinked.get()}
 {
     ui->setupUi(this);
@@ -48,66 +48,40 @@ MainWindow::MainWindow(IConfig& applicationSettings,
         timerWidget = new DefaultTimer{applicationSettings, this};
     else
         timerWidget = new FancyTimer{applicationSettings, this};
-    ui->gridLayout->addWidget(
-        timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
     sprintModel = new SprintModel(coreService, this);
-    ui->lvFinishedSprints->setModel(sprintModel);
-    ui->lvFinishedSprints->setContextMenuPolicy(Qt::CustomContextMenu);
     taskModel = new TaskModel(coreService, this);
     tagModel = new TagModel(coreService, this);
     timerWidget->setTaskModel(taskModel);
-    ui->lvTaskView->setModels(taskModel, tagModel);
-    ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
+    taskOutline = new TaskOutline(coreService, taskModel, tagModel, this);
+    launcherMenu = new LauncherMenu(applicationSettings, coreService, this);
+    sprintOutline = new SprintOutline(coreService, applicationSettings, sprintModel, taskModel, this);
+    ui->gridLayout->addWidget(taskOutline, 0, 0, 3, 1);
+    ui->gridLayout->addWidget(
+            timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
+    ui->gridLayout->addWidget(sprintOutline, 1, 2, 2, 1);
+    ui->gridLayout->addWidget(launcherMenu, 4, 1, 1, 1, Qt::AlignHCenter);
+
     adjustUndoButtonState();
 
-    connect(ui->pbAddTask, &QPushButton::clicked, this, &MainWindow::addTask);
     connect(timerWidget,
             &TimerWidgetBase::submitRequested,
             this,
             &MainWindow::submitSprint);
     // Update selected task index and description of submission candidate
-    connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
-        selectedTaskIndex = index;
-        timerWidget->setCandidateIndex(index.row());
-    });
-    connect(ui->leQuickAddTask,
-            &QLineEdit::returnPressed,
-            this,
-            &MainWindow::quickAddTask);
-    connect(ui->lvTaskView,
-            &QListView::doubleClicked,
-            this,
-            &MainWindow::toggleTaskCompleted);
-    connect(ui->pbSettings,
-            &QPushButton::clicked,
-            this,
-            &MainWindow::launchSettingsDialog);
-    connect(ui->pbHistory,
-            &QPushButton::clicked,
-            this,
-            &MainWindow::launchHistoryView);
-    connect(
-        ui->pbGoals, &QPushButton::clicked, this, &MainWindow::launchGoalsView);
-    connect(ui->pbStatistics,
-            &QPushButton::clicked,
-            this,
-            &MainWindow::launchStatisticsView);
-    connect(ui->pbAddSprintManually,
-            &QPushButton::clicked,
-            this,
-            &MainWindow::launchManualAddSprintDialog);
+    connect(taskOutline,
+            &TaskOutline::taskSelected,
+            [&](const int row) {
+                selectedTaskRow = row;
+                timerWidget->setCandidateIndex(row);
+            });
     connect(sprintModel,
             &SprintModel::modelReset,
             this,
             &MainWindow::updateDailyProgress);
 
-    // Disables AddSprint button when there are no active tasks.
-    connect(taskModel,
-            &QAbstractListModel::modelReset,
-            this,
-            &MainWindow::adjustAddSprintButtonState);
-
-    // Setup data synchronization signals
+    // As models update data asynchroniously,
+    // other models that depend on that data should
+    // subscribe to updateFinished() signal
     connect(sprintModel,
             &AsyncListModel::updateFinished,
             taskModel,
@@ -129,21 +103,13 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             taskModel,
             &AsyncListModel::synchronize);
 
-    // TODO get rid of lambda to improve readability
-    // Invalidate selectedTaskIndex if the row it was pointing at was removed
     connect(taskModel,
-            &QAbstractListModel::rowsRemoved,
-            [&](const QModelIndex& parent, int first, int last) {
-                if (selectedTaskIndex
-                    && (first <= selectedTaskIndex->row()
-                        && selectedTaskIndex->row() <= last)) {
-                    selectedTaskIndex = optional<QModelIndex>();
-                    timerWidget->setCandidateIndex(-1);
-                }
-            });
+            &QAbstractItemModel::rowsRemoved,
+            this,
+            &MainWindow::onTasksRemoved);
     connect(timerWidget,
             &TimerWidgetBase::submissionCandidateChanged,
-            [&](int index) { selectedTaskIndex = taskModel->index(index, 0); });
+            [&](int index) { selectedTaskRow = taskModel->index(index, 0).row(); });
     connect(ui->pbUndo,
             &QPushButton::clicked,
             this,
@@ -157,7 +123,15 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             this,
             &MainWindow::adjustUndoButtonState);
 
-    // Window expansion
+    connect(sprintModel,
+            &AsyncListModel::updateFinished,
+            launcherMenu,
+            &LauncherMenu::onSyncRequired);
+    connect(taskModel,
+            &AsyncListModel::updateFinished,
+            launcherMenu,
+            &LauncherMenu::onSyncRequired);
+
     connect(
         ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
     connect(
@@ -168,140 +142,26 @@ MainWindow::MainWindow(IConfig& applicationSettings,
 
 MainWindow::~MainWindow()
 {
-    delete historyView;
-    delete statisticsView;
-    delete goalsView;
     delete ui;
 }
 
-void MainWindow::adjustAddSprintButtonState()
+void MainWindow::setStateUi()
 {
-    ui->pbAddSprintManually->setEnabled(taskModel->rowCount() != 0);
-}
-
-void MainWindow::bringToForeground(QWidget* widgetPtr) const
-{
-    widgetPtr->raise();
-    widgetPtr->activateWindow();
-    widgetPtr->showNormal();
-}
-
-/*********************** SLOTS *****************************/
-
-void MainWindow::addTask()
-{
-    AddTaskDialog dialog{tagModel};
-    if (dialog.exec()) {
-        Task item = dialog.constructedTask();
-        taskModel->insert(item);
-    }
-}
-
-void MainWindow::quickAddTask()
-{
-    std::string encodedDescription = ui->leQuickAddTask->text().toStdString();
-    ui->leQuickAddTask->clear();
-    if (!encodedDescription.empty()) {
-        Task item{std::move(encodedDescription)};
-        taskModel->insert(item);
-    }
+    expansionState->setStateUi(*this);
+    adjustSize();
 }
 
 void MainWindow::submitSprint(const std::vector<TimeSpan> &intervalBuffer)
 {
-    if (!selectedTaskIndex) {
+    if (!selectedTaskRow) {
         qDebug() << "No associated Task can be found";
         return;
     }
 
     for (const TimeSpan& timeSpan : intervalBuffer) {
         sprintModel->insert(
-            timeSpan, taskModel->itemAt(selectedTaskIndex->row()).uuid());
+            timeSpan, taskModel->itemAt(*selectedTaskRow).uuid());
     }
-}
-
-void MainWindow::toggleTaskCompleted()
-{
-    taskModel->toggleCompleted(ui->lvTaskView->currentIndex());
-}
-
-void MainWindow::launchSettingsDialog()
-{
-    SettingsDialog settingsDialog{applicationSettings};
-    settingsDialog.fillSettingsData();
-    if (settingsDialog.exec()) {
-        qDebug() << "Applying changes";
-    }
-}
-
-void MainWindow::launchHistoryView()
-{
-    if (!historyView) {
-        historyView = new HistoryWindow(coreService);
-        connect(sprintModel,
-                &AsyncListModel::updateFinished,
-                historyView,
-                &DataWidget::synchronize);
-        connect(taskModel,
-                &AsyncListModel::updateFinished,
-                historyView,
-                &DataWidget::synchronize);
-        connect(tagModel,
-                &AsyncListModel::updateFinished,
-                historyView,
-                &DataWidget::synchronize);
-        historyView->show();
-    }
-    else {
-        bringToForeground(historyView);
-    }
-}
-
-void MainWindow::launchGoalsView()
-{
-    if (!goalsView) {
-        goalsView
-            = new GoalProgressWindow(applicationSettings, coreService);
-        connect(sprintModel,
-                &AsyncListModel::updateFinished,
-                goalsView,
-                &DataWidget::synchronize);
-        goalsView->show();
-    }
-    else {
-        bringToForeground(goalsView);
-    }
-}
-
-void MainWindow::launchStatisticsView()
-{
-    if (!statisticsView) {
-        statisticsView
-            = new StatisticsWindow(applicationSettings, coreService);
-        connect(sprintModel,
-                &AsyncListModel::updateFinished,
-                statisticsView,
-                &DataWidget::synchronize);
-        connect(taskModel,
-                &AsyncListModel::updateFinished,
-                statisticsView,
-                &DataWidget::synchronize);
-        connect(tagModel,
-                &AsyncListModel::updateFinished,
-                statisticsView,
-                &DataWidget::synchronize);
-        statisticsView->show();
-    }
-    else {
-        bringToForeground(statisticsView);
-    }
-}
-
-void MainWindow::launchManualAddSprintDialog()
-{
-    AddSprintDialog dialog{
-        sprintModel, taskModel, applicationSettings.sprintDuration()};
-    dialog.exec();
 }
 
 void MainWindow::updateDailyProgress()
@@ -333,156 +193,131 @@ QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }
 
 void MainWindow::toggleView()
 {
-    expansionState->toggleView();
+    expansionState->toggleView(*this);
     setStateUi();
 }
 
 void MainWindow::toggleMenu()
 {
-    expansionState->toggleMenu();
+    expansionState->toggleMenu(*this);
     setStateUi();
 }
 
-void MainWindow::setStateUi()
+void MainWindow::onTasksRemoved(const QModelIndex&, int first, int last)
 {
-    expansionState->setStateUi();
-    adjustSize();
+    // If selectedTaskRow points to the row that has been removed,
+    // we need to invalidate it.
+    if (selectedTaskRow
+            && (first <= selectedTaskRow && selectedTaskRow <= last)) {
+        selectedTaskRow = optional<int>();
+        timerWidget->setCandidateIndex(-1);
+    }
 }
 
-
-ExpansionState::ExpansionState(int width, int height, MainWindow& widget)
+ExpansionState::ExpansionState(int width, int height)
     : width{width}
     , height{height}
-    , widget{widget}
 {
 }
 
 QSize ExpansionState::sizeHint() const { return QSize(width, height); }
 
-
-Expanded::Expanded(MainWindow& widget)
-    : ExpansionState{812, 500, widget}
+Expanded::Expanded()
+    : ExpansionState{812, 500}
 {
 }
 
-void Expanded::setStateUi()
+void Expanded::setStateUi(MainWindow& widget)
 {
-    widget.ui->lvTaskView->setVisible(true);
-    widget.ui->lvFinishedSprints->setVisible(true);
-    widget.ui->pbAddTask->setVisible(true);
-    widget.ui->leQuickAddTask->setVisible(true);
-    widget.ui->pbAddSprintManually->setVisible(true);
-    widget.ui->pbStatistics->setVisible(true);
-    widget.ui->pbHistory->setVisible(true);
-    widget.ui->pbGoals->setVisible(true);
-    widget.ui->pbSettings->setVisible(true);
+    widget.taskOutline->setVisible(true);
+    widget.sprintOutline->setVisible(true);
+    widget.launcherMenu->setVisible(true);
     widget.ui->pbToggleView->setText("Collapse");
     widget.ui->pbToggleMenu->setText("Hide menu");
     widget.ui->pbUndo->setVisible(true);
 }
 
-void Expanded::toggleView()
+void Expanded::toggleView(MainWindow& widget)
 {
-    widget.expansionState = widget.expandedMenuOnly.get();
+    widget.expansionState = expandedMenuOnly.get();
 }
 
-void Expanded::toggleMenu()
+void Expanded::toggleMenu(MainWindow& widget)
 {
-    widget.expansionState = widget.expandedWithoutMenu.get();
+    widget.expansionState = expandedWithoutMenu.get();
 }
 
-
-Shrinked::Shrinked(MainWindow& widget)
-    : ExpansionState{300, 250, widget}
+Shrinked::Shrinked()
+    : ExpansionState{300, 250}
 {
 }
 
-void Shrinked::setStateUi()
+void Shrinked::setStateUi(MainWindow& widget)
 {
-    widget.ui->lvTaskView->setVisible(false);
-    widget.ui->lvFinishedSprints->setVisible(false);
-    widget.ui->pbAddTask->setVisible(false);
-    widget.ui->leQuickAddTask->setVisible(false);
-    widget.ui->pbAddSprintManually->setVisible(false);
-    widget.ui->pbStatistics->setVisible(false);
-    widget.ui->pbHistory->setVisible(false);
-    widget.ui->pbGoals->setVisible(false);
-    widget.ui->pbSettings->setVisible(false);
+    widget.taskOutline->setVisible(false);
+    widget.sprintOutline->setVisible(false);
+    widget.launcherMenu->setVisible(false);
     widget.ui->pbToggleView->setText("Expand");
     widget.ui->pbToggleMenu->setText("Show menu");
     widget.ui->pbUndo->setVisible(false);
 }
 
-void Shrinked::toggleView()
+void Shrinked::toggleView(MainWindow& widget)
 {
-    widget.expansionState = widget.expandedWithoutMenu.get();
+    widget.expansionState = expandedWithoutMenu.get();
 }
 
-void Shrinked::toggleMenu()
+void Shrinked::toggleMenu(MainWindow& widget)
 {
-    widget.expansionState = widget.expandedMenuOnly.get();
+    widget.expansionState = expandedMenuOnly.get();
 }
 
-
-ExpandedMenuOnly::ExpandedMenuOnly(MainWindow& widget)
-    : ExpansionState{300, 250, widget}
+ExpandedMenuOnly::ExpandedMenuOnly()
+    : ExpansionState{300, 250}
 {
 }
 
-void ExpandedMenuOnly::setStateUi()
+void ExpandedMenuOnly::setStateUi(MainWindow& widget)
 {
-    widget.ui->lvTaskView->setVisible(false);
-    widget.ui->lvFinishedSprints->setVisible(false);
-    widget.ui->pbAddTask->setVisible(false);
-    widget.ui->leQuickAddTask->setVisible(false);
-    widget.ui->pbAddSprintManually->setVisible(false);
-    widget.ui->pbStatistics->setVisible(true);
-    widget.ui->pbHistory->setVisible(true);
-    widget.ui->pbGoals->setVisible(true);
-    widget.ui->pbSettings->setVisible(true);
+    widget.taskOutline->setVisible(false);
+    widget.sprintOutline->setVisible(false);
+    widget.launcherMenu->setVisible(true);
     widget.ui->pbToggleView->setText("Expand");
     widget.ui->pbToggleMenu->setText("Hide menu");
     widget.ui->pbUndo->setVisible(false);
 }
 
-void ExpandedMenuOnly::toggleView()
+void ExpandedMenuOnly::toggleView(MainWindow& widget)
 {
-    widget.expansionState = widget.expandedFully.get();
+    widget.expansionState = expandedFully.get();
 }
 
-void ExpandedMenuOnly::toggleMenu()
+void ExpandedMenuOnly::toggleMenu(MainWindow& widget)
 {
-    widget.expansionState = widget.shrinked.get();
+    widget.expansionState = shrinked.get();
 }
 
-
-ExpandedWithoutMenu::ExpandedWithoutMenu(MainWindow& widget)
-    : ExpansionState{812, 450, widget}
+ExpandedWithoutMenu::ExpandedWithoutMenu()
+    : ExpansionState{812, 450}
 {
 }
 
-void ExpandedWithoutMenu::setStateUi()
+void ExpandedWithoutMenu::setStateUi(MainWindow& widget)
 {
-    widget.ui->lvTaskView->setVisible(true);
-    widget.ui->lvFinishedSprints->setVisible(true);
-    widget.ui->pbAddTask->setVisible(true);
-    widget.ui->leQuickAddTask->setVisible(true);
-    widget.ui->pbAddSprintManually->setVisible(true);
-    widget.ui->pbStatistics->setVisible(false);
-    widget.ui->pbHistory->setVisible(false);
-    widget.ui->pbGoals->setVisible(false);
-    widget.ui->pbSettings->setVisible(false);
+    widget.sprintOutline->setVisible(true);
+    widget.taskOutline->setVisible(true);
+    widget.launcherMenu->setVisible(false);
     widget.ui->pbToggleView->setText("Collapse");
     widget.ui->pbToggleMenu->setText("Show menu");
     widget.ui->pbUndo->setVisible(true);
 }
 
-void ExpandedWithoutMenu::toggleView()
+void ExpandedWithoutMenu::toggleView(MainWindow& widget)
 {
-    widget.expansionState = widget.shrinked.get();
+    widget.expansionState = shrinked.get();
 }
 
-void ExpandedWithoutMenu::toggleMenu()
+void ExpandedWithoutMenu::toggleMenu(MainWindow& widget)
 {
-    widget.expansionState = widget.expandedFully.get();
+    widget.expansionState = expandedFully.get();
 }
