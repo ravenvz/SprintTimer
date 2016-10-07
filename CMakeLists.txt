@@ -30,18 +30,8 @@ set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_LIB_DIR})
 set (ARCHIVE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_ARCHIVE_DIR})
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
-set (ERR_NO_UNIX "Cannot build on non Unix systems")
-
 if (WITH_DEBUG_MODE)
     ADD_DEFINITIONS( -DMY_DEBUG_MODE=1)
-endif()
-
-find_program(MEMORYCHECK_COMMAND valgrind)
-if(MEMORYCHECK_COMMAND-NOTFOUND)
-  message("Valgrind not found")
-else()
-  message("Valgrind: ${MEMORYCHECK_COMMAND}")
-  set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
 endif()
 
 include(compiler_options.cmake)
