@@ -47,7 +47,11 @@ add_dependencies(${PROJECT} DateLib)
 target_include_directories(${PROJECT} PUBLIC ${Datelib_INCLUDE_DIRS} PUBLIC include PRIVATE src PUBLIC ${Boost_INCLUDE_DIRS})
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
-target_link_libraries(${PROJECT} INTERFACE DateLib PUBLIC ${Boost_UUID_LIBRARY})
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    target_link_libraries(${PROJECT} INTERFACE DateLib PUBLIC stdc++fs)
+elseif(WIN32)
+    target_link_libraries(${PROJECT} INTERFACE DateLib)
+endif()
 
 if(BUILD_TESTS)
     include(CMakeLists-cpputest.txt)
