@@ -21,7 +21,11 @@
 *********************************************************************************/
 
 #ifdef _WIN32
-#ifdef _WIN64
+#define NOMINMAX // min and max macros break Howard Hinnant's date lib
+#include <Windows.h>
+#include <ShlObj.h>
+#include <filesystem>
+#if defined _WIN64
 #endif
 #elif defined(__APPLE__)
 #include "TargetConditionals.h"
@@ -34,6 +38,7 @@
 #elif defined(__linux__)
 #include <pwd.h>
 #include <unistd.h>
+#include <experimental/filesystem>
 #elif defined(__unix__)
 #elif defined(_POSIX_VERSION)
 #else
@@ -46,54 +51,63 @@
 #include "widgets/MainWindow.h"
 #include <QApplication>
 #include <cstdlib>
-#include <experimental/filesystem>
 #include <iostream>
 #include <memory>
 
 using std::experimental::filesystem::exists;
 using std::experimental::filesystem::create_directory;
 
-std::string getUserDataDirectory();
-std::string getUnixDataDirectory();
+namespace {
+	std::function<std::string()> getDataDir;
+
+#ifdef _WIN32
+	std::wstring getUserDataDirectory()
+	{
+		PWSTR path;
+		if (SUCCEEDED(SHGetKnownFolderPath(
+			FOLDERID_LocalAppData,
+			KF_FLAG_CREATE,
+			NULL,
+			&path)))
+		return std::wstring{ path };
+	}
+#elif defined(__linux__)
+
+	std::string getUserDataDirectory()
+	{
+		if (auto xdgDataDir = std::getenv("XDG_DATA_DIR")) {
+			return xdgDataDir;
+		}
+		std::string suffix{ "/.local/share" };
+		if (auto homeDir = std::getenv("HOME")) {
+			return std::string{ homeDir } +suffix;
+		}
+		else {
+			return std::string{ getpwuid(getuid())->pw_dir } +suffix;
+		}
+	}
+#elif defined(__APPLE__)
+#error "Apple platforms are not yet supported"
+#else
+#error "unknown platform"
+#endif
+
+} // namespace
+
 
 std::string createDataDirectoryIfNotExist()
 {
-    std::string prefix = getUserDataDirectory();
-    const std::string dataDirectory{prefix + "/sprint_timer"};
+    const std::wstring prefix = getUserDataDirectory();
+	using convert_type = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_type, wchar_t> converter;
+	const std::string s_prefix = converter.to_bytes(prefix);
+    const std::string dataDirectory{s_prefix + "/sprint_timer"};
     if (!exists(dataDirectory)) {
         create_directory(dataDirectory);
     }
     return dataDirectory;
 }
 
-std::string getUserDataDirectory()
-{
-#ifdef _WIN_32
-// TODO win32 is not yet supported
-#error "Windows is not yet supported"
-#elif defined(__linux__)
-    return getUnixDataDirectory();
-#elif defined(__APPLE__)
-// TODO apple is not yet supported
-#error "Apple is not yet supported"
-#else
-#error "Unknown compiler"
-#endif
-}
-
-std::string getUnixDataDirectory()
-{
-    if (auto xdgDataDir = std::getenv("XDG_DATA_DIR")) {
-        return xdgDataDir;
-    }
-    std::string suffix{"/.local/share"};
-    if (auto homeDir = std::getenv("HOME")) {
-        return std::string{homeDir} + suffix;
-    }
-    else {
-        return std::string{getpwuid(getuid())->pw_dir} + suffix;
-    }
-}
 
 int main(int argc, char* argv[])
 {

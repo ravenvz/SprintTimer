@@ -44,7 +44,7 @@ add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
 
 add_dependencies(${PROJECT} DateLib)
 
-target_include_directories(${PROJECT} PUBLIC ${Datelib_INCLUDE_DIRS} PUBLIC include PRIVATE src)
+target_include_directories(${PROJECT} PUBLIC ${Datelib_INCLUDE_DIRS} PUBLIC include PRIVATE src PUBLIC ${Boost_INCLUDE_DIRS})
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
 target_link_libraries(${PROJECT} INTERFACE DateLib PUBLIC ${Boost_UUID_LIBRARY})
@@ -54,8 +54,8 @@ if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-if (WIN32)
-    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
-else()
-    install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
-endif()
+#if (WIN32)
+#    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+#else()
+#    install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+#endif()

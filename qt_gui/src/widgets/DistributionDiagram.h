@@ -28,9 +28,17 @@
 #include <QMouseEvent>
 #include <QVBoxLayout>
 #include <QWidget>
+#ifdef _MSC_VER
+#include <boost/optional/optional.hpp>
+#else
 #include <experimental/optional>
+#endif
 
+#ifdef _MSC_VER
+using boost::optional;
+#else
 using std::experimental::optional;
+#endif
 
 using DataItem = std::pair<std::string, double>;
 
