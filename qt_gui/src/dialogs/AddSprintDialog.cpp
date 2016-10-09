@@ -31,12 +31,12 @@ AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
                                  TaskModel* taskModel,
                                  int sprintDuration,
                                  QDialog* parent)
-    : QDialog(parent)
-    , ui(new Ui::AddSprintDialog)
+    : QDialog{parent}
+    , ui{new Ui::AddSprintDialog}
     , datePicker{new QCalendarWidget()}
-    , sprintModel(sprintModel)
-    , taskModel(taskModel)
-    , sprintDuration(sprintDuration)
+    , sprintModel{sprintModel}
+    , taskModel{taskModel}
+    , sprintDuration{sprintDuration}
 {
     ui->setupUi(this);
     setData();

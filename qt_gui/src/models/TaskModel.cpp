@@ -73,6 +73,12 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
     const Task& taskRef = storage[index.row()];
 
     switch (role) {
+    case Qt::DisplayRole:
+        return QString{"%1 %2 %3/%4"}
+            .arg(QString::fromStdString(prefixTags(taskRef.tags())))
+            .arg(QString::fromStdString(taskRef.name()))
+            .arg(taskRef.actualCost())
+            .arg(taskRef.estimatedCost());
     case TagsRole:
         return QString::fromStdString(prefixTags(taskRef.tags()));
     case DescriptionRole:

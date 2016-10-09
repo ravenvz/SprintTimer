@@ -37,9 +37,9 @@ class AddSprintDialog : public QDialog {
 
 public:
     AddSprintDialog(SprintModel* sprintModel,
-                            TaskModel* taskModel,
-                            int sprintDuration,
-                            QDialog* parent = nullptr);
+                    TaskModel* taskModel,
+                    int sprintDuration,
+                    QDialog* parent = nullptr);
 
     ~AddSprintDialog();
 
