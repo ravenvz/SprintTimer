@@ -3,14 +3,6 @@ cmake_minimum_required(VERSION 3.6)
 set(PROJECT sprint_timer)
 project(${PROJECT})
 
-# # Tell CMake to run moc when necessary:
-# set(CMAKE_AUTOMOC ON)
-# # As moc files are generated in the build dir, tell CMake
-# # to always look for includes there:
-# set(CMAKE_INCLUDE_CURRENT_DIR ON)
-#
-# set(CMAKE_AUTORCC ON)
-
 find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -21,12 +13,16 @@ include(ECMEnableSanitizers)
 
 option(BUILD_TESTS ON)
 
+if (ECM_ENABLE_SANITIZERS)
+    # Sanitizers do not play well with CppUTest memory leak detection plugin
+    set(BUILD_TESTS OFF)
+endif()
+
 set("${PROJECT}_BINARY_DIR" bin)
 set("${PROJECT}_SOURCE_DIR" src)
 set("${PROJECT}_LIB_DIR" lib)
 set("${PROJECT}_ARCHIVE_DIR" lib/static)
 
-# to change Clion build directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
 
 set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
@@ -34,18 +30,8 @@ set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_LIB_DIR})
 set (ARCHIVE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_ARCHIVE_DIR})
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
-set (ERR_NO_UNIX "Cannot build on non Unix systems")
-
-if ( WITH_DEBUG_MODE )
-     ADD_DEFINITIONS( -DMY_DEBUG_MODE=1)
-endif()
-
-find_program(MEMORYCHECK_COMMAND valgrind)
-if(MEMORYCHECK_COMMAND-NOTFOUND)
-  message("Valgrind not found")
-else()
-  message("Valgrind: ${MEMORYCHECK_COMMAND}")
-  set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
+if (WITH_DEBUG_MODE)
+    ADD_DEFINITIONS( -DMY_DEBUG_MODE=1)
 endif()
 
 include(compiler_options.cmake)
@@ -60,7 +46,7 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 elseif(CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(${PROJECT} PUBLIC ${GCC_COMPILE_OPTIONS})
 else()
-  message(FATAL_ERROR "Unknown compiler.")
+    message("Compiler might not be supported yet.")
 endif()
 
 target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
@@ -81,16 +67,12 @@ set (EXECUTABLE_INSTALL_PATH_SUFFIX bin)
 set (LIBRARY_INSTALL_PATH_SUFFIX lib)
 
 install(TARGETS ${PROJECT} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})
-# install (DIRECTORY "db" DESTINATION "." DIRECTORY_PERMISSIONS
-#          OWNER_WRITE OWNER_READ OWNER_EXECUTE)
-
-# INSTALL(CODE "FILE(MAKE_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/db)")
 
 add_subdirectory(core)
 add_subdirectory(qt_gui)
 add_subdirectory(qt_storage_impl)
 
 if (BUILD_TESTS)
-    enable_testing()
+    enable_testing() # TODO Ctest is not yet configured
     add_subdirectory(tests)
 endif()

@@ -1,7 +1,7 @@
 node ("archlinux") {
     stage("Checking out source code") {
         deleteDir();
-        git credentialsId: '695c1adc-c31e-4f30-b05d-53ba3a6e8a16', poll: false, url: 'https://bitbucket.org/Vizier/pomodoro'
+        git credentialsId: 'BitbucketRepoCred', poll: false, url: 'https://bitbucket.org/Vizier/pomodoro'
     }
     stage('Run static analisys') {
         sh "cppcheck --xml --xml-version=2 . 2> check.xml"
