@@ -37,8 +37,12 @@ Build instructions for develop branch.
 cmake .. -G "Visual Studio 14 Win64" -DCMAKE_PREFIX_PATH=<Path to Qt installation>\msvc2015_64 -DCMAKE_INCLUDE_PATH=<Path to Boost>\boost_1_55_0\boost_1_55_0 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE
 ```
 Note, that this step assumes that you have installed or build from source Qt for your compiler.
-5. You can now open project files with Visual Studio and build project.
-6. Assuming that you have built Release version: navigate to repo/bin/Release.
+
+
+5. You can now open project files with Visual Studio or build it with command line.
+6. Before running executable, make sure that Qt installation is added to system path.
+
+Alternatively, you can copy required dll's manually. Assuming that you have built Release version: navigate to repo/bin/Release.
 Copy following dll's from <Qt installation for your compiler>/bin folder to repo/bin/Release folder:
 Qt5Core.dll
 Qt5Gui.dll
@@ -46,12 +50,13 @@ Qt5Multimedia.dll
 Qt5Sql.dll
 Qt5Svg.dll
 Qt5Widgets.dll
-7. Copy to the same folder <Qt installation for your compiler>/plugins following plugins (creating folders as needed):
+
+Copy to the same folder <Qt installation for your compiler>/plugins following plugins (creating folders as needed):
 audio/qtaudio_windows.dll
 sqldrivers/qsqlite.dll
 
 #### Mac OS X
-Mas OS X system is not supported yet, as I do not have access to Apple machine.
+Mas OS X system is not supported yet, as no testing can be performed atm.
 
 ### Known issues
 * Some text labels might be cropped on smaller resolution screens
