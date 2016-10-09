@@ -23,7 +23,7 @@ Note that it might be required to add directory with Boost installation to CMAKE
 cd build && cmake -DBUILD_TYPE=Release .. && make
 ```
 
-#### Windows and Mac OS X
+#### Windows
 Windows support is scheduled for the next release.
 Experimental support for mscv2015_64 was added on develop branch.
 
@@ -38,12 +38,13 @@ cmake .. -G "Visual Studio 14 Win64" -DCMAKE_PREFIX_PATH=<Path to Qt installatio
 ```
 Note, that this step assumes that you have installed or build from source Qt for your compiler.
 
+You can now open project files with Visual Studio or build it with command line.
 
-5. You can now open project files with Visual Studio or build it with command line.
-6. Before running executable, make sure that Qt installation is added to system path.
+Before running executable, make sure that Qt installation is added to system path.
+Alternatively, you can copy required dll's manually.
+Assuming that you have built Release version: navigate to repo/bin/Release,
+copy following dll's from <Qt installation for your compiler>/bin folder to repo/bin/Release folder:
 
-Alternatively, you can copy required dll's manually. Assuming that you have built Release version: navigate to repo/bin/Release.
-Copy following dll's from <Qt installation for your compiler>/bin folder to repo/bin/Release folder:
 Qt5Core.dll
 Qt5Gui.dll
 Qt5Multimedia.dll
