@@ -12,9 +12,7 @@ node {
     }
     stage('Run static analysis') {
         node ("linux") {
-            stage('Run static analysis') {
-                sh "cppcheck --xml --xml-version=2 . 2> check.xml"
-            }
+            sh "cppcheck --xml --xml-version=2 . 2> check.xml"
         }
         node ("windows") {
 
@@ -25,7 +23,8 @@ node {
             sh "cd build && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=On .. && make -j\$(nproc)"
         }
         node ("windows") {
-
+            // TODO clean this up
+            bat 'cd build && cmake .. -G "Visual Studio 14 Win64" -DCMAKE_PREFIX_PATH="C:/Qt/5.7/msvc2015_64" -DCMAKE_INCLUDE_PATH="C:/Users/Pavel/Downloads/boost_1_55_0/boost_1_55_0" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE && cmake --build . --config Release'
         }
     }
     stage('Run tests') {
