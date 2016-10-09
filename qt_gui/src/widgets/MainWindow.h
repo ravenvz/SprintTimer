@@ -34,12 +34,21 @@
 #include "widgets/SprintOutline.h"
 #include "widgets/LauncherMenu.h"
 #include <QMainWindow>
+#ifdef _MSC_VER
+#include <boost/optional/optional.hpp>
+#else
 #include <experimental/optional>
+#endif
 #include <functional>
 #include <memory>
 #include <vector>
 #include <QGridLayout>
 
+#ifdef _MSC_VER
+using boost::optional;
+#else
+using std::experimental::optional;
+#endif
 
 namespace Ui {
 class MainWindow;
@@ -74,7 +83,7 @@ private:
     QPointer<LauncherMenu> launcherMenu;
     QPointer<TaskOutline> taskOutline;
     QPointer<SprintOutline> sprintOutline;
-    std::experimental::optional<int> selectedTaskRow;
+    optional<int> selectedTaskRow;
     TimerWidgetBase* timerWidget;
     ExpansionState* expansionState;
 

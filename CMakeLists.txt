@@ -7,16 +7,16 @@ find_package(Qt5 REQUIRED COMPONENTS Core Sql Widgets Multimedia)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-find_package(ECM REQUIRED NO_MODULE)
-set(CMAKE_MODULE_PATH ${ECM_MODULE_DIR})
-include(ECMEnableSanitizers)
+#find_package(ECM REQUIRED NO_MODULE)
+#set(CMAKE_MODULE_PATH ${ECM_MODULE_DIR})
+#include(ECMEnableSanitizers)
 
 option(BUILD_TESTS ON)
 
-if (ECM_ENABLE_SANITIZERS)
+#if (ECM_ENABLE_SANITIZERS)
     # Sanitizers do not play well with CppUTest memory leak detection plugin
-    set(BUILD_TESTS OFF)
-endif()
+#    set(BUILD_TESTS OFF)
+#endif()
 
 set("${PROJECT}_BINARY_DIR" bin)
 set("${PROJECT}_SOURCE_DIR" src)
@@ -60,7 +60,6 @@ target_include_directories(${PROJECT} PUBLIC src lib)
 target_link_libraries(${PROJECT}
     PRIVATE ${GUI_LIB}
     PRIVATE ${STORAGE_LIB}
-    PRIVATE stdc++fs
 )
 
 set (EXECUTABLE_INSTALL_PATH_SUFFIX bin)

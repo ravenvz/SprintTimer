@@ -147,7 +147,7 @@ std::vector<Sprint> TagTop::sprintsForTagAt(size_t position) const
     return sprintsByTag.at(tagNameAt(position));
 }
 
-std::__cxx11::string TagTop::tagNameAt(size_t position) const
+std::string TagTop::tagNameAt(size_t position) const
 {
     return frequencies.at(position).first.name();
 }

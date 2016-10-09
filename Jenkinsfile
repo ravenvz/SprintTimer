@@ -1,21 +1,50 @@
-node ("archlinux") {
+node {
     stage("Checking out source code") {
-        deleteDir();
-        git credentialsId: 'BitbucketRepoCred', poll: false, url: 'https://bitbucket.org/Vizier/pomodoro'
+        node ("linux") {
+            deleteDir();
+            git credentialsId: 'BitbucketRepoCred', poll: false, url: 'https://bitbucket.org/Vizier/pomodoro'
+        }
+        node ("windows") {
+            deleteDir();
+            git credentialsId: 'BitbucketRepoCred', poll: false, url: 'https://bitbucket.org/Vizier/pomodoro'
+        }
+
     }
-    stage('Run static analisys') {
-        sh "cppcheck --xml --xml-version=2 . 2> check.xml"
+    stage('Run static analysis') {
+        node ("linux") {
+            sh "cppcheck --xml --xml-version=2 . 2> check.xml"
+        }
+        node ("windows") {
+
+        }
     }
     stage('Build') {
-        sh "cd build && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=On .. && make -j\$(nproc)"
+        node ("linux") {
+            sh "cd build && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=On .. && make -j\$(nproc)"
+        }
+        node ("windows") {
+            // TODO clean this up
+            bat 'cd build && cmake .. -G "Visual Studio 14 Win64" -DCMAKE_PREFIX_PATH="C:/Qt/5.7/msvc2015_64" -DCMAKE_INCLUDE_PATH="C:/Users/Pavel/Downloads/boost_1_55_0/boost_1_55_0" -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE && cmake --build . --config Release'
+        }
     }
     stage('Run tests') {
-        sh 'cd bin && ./acceptance_tests_stub -o junit && ./test_core -o junit && ./test_qt_storage_impl -o junit'
-        sh 'mkdir bin/test_results && mv bin/*.xml bin/test_results'
-        junit '**/bin/test_results/*.xml'
+        node ("linux") {
+            sh 'cd bin && ./acceptance_tests_stub -o junit && ./test_core -o junit && ./test_qt_storage_impl -o junit'
+            sh 'mkdir bin/test_results && mv bin/*.xml bin/test_results'
+            junit '**/bin/test_results/*.xml'
+        }
+        node ("windows") {
+
+        }
     }
     stage('Archive binaries') {
-        archiveArtifacts '**/lib/*.so'
-        archiveArtifacts '**/bin/*'
+        node ("linux") {
+            archiveArtifacts '**/lib/*.so'
+            archiveArtifacts '**/bin/*'
+        }
+        node ("windows") {
+
+        }
     }
 }
+

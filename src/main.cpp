@@ -21,7 +21,11 @@
 *********************************************************************************/
 
 #ifdef _WIN32
-#ifdef _WIN64
+#define NOMINMAX // min and max macros break Howard Hinnant's date lib
+#include <ShlObj.h>
+#include <Windows.h>
+#include <filesystem>
+#if defined _WIN64
 #endif
 #elif defined(__APPLE__)
 #include "TargetConditionals.h"
@@ -32,6 +36,7 @@
 #error "Unknown Apple platform"
 #endif
 #elif defined(__linux__)
+#include <experimental/filesystem>
 #include <pwd.h>
 #include <unistd.h>
 #elif defined(__unix__)
@@ -46,42 +51,30 @@
 #include "widgets/MainWindow.h"
 #include <QApplication>
 #include <cstdlib>
-#include <experimental/filesystem>
 #include <iostream>
 #include <memory>
 
 using std::experimental::filesystem::exists;
 using std::experimental::filesystem::create_directory;
 
-std::string getUserDataDirectory();
-std::string getUnixDataDirectory();
+namespace {
 
-std::string createDataDirectoryIfNotExist()
-{
-    std::string prefix = getUserDataDirectory();
-    const std::string dataDirectory{prefix + "/sprint_timer"};
-    if (!exists(dataDirectory)) {
-        create_directory(dataDirectory);
-    }
-    return dataDirectory;
-}
-
+#ifdef _WIN32
 std::string getUserDataDirectory()
 {
-#ifdef _WIN_32
-// TODO win32 is not yet supported
-#error "Windows is not yet supported"
-#elif defined(__linux__)
-    return getUnixDataDirectory();
-#elif defined(__APPLE__)
-// TODO apple is not yet supported
-#error "Apple is not yet supported"
-#else
-#error "Unknown compiler"
-#endif
+    PWSTR path;
+    if (SUCCEEDED(SHGetKnownFolderPath(
+            FOLDERID_LocalAppData, KF_FLAG_CREATE, NULL, &path))) {
+        using convert_type = std::codecvt_utf8<wchar_t>;
+        const std::wstring w_path{path};
+        std::wstring_convert<convert_type, wchar_t> converter;
+        return converter.to_bytes(w_path);
+    }
+    return std::string{};
 }
+#elif defined(__linux__)
 
-std::string getUnixDataDirectory()
+std::string getUserDataDirectory()
 {
     if (auto xdgDataDir = std::getenv("XDG_DATA_DIR")) {
         return xdgDataDir;
@@ -90,10 +83,31 @@ std::string getUnixDataDirectory()
     if (auto homeDir = std::getenv("HOME")) {
         return std::string{homeDir} + suffix;
     }
+    else if (auto pwd = getpwuid(getuid())) {
+        return std::string{pwd->pw_dir} + suffix;
+    }
     else {
-        return std::string{getpwuid(getuid())->pw_dir} + suffix;
+        return std::string{};
     }
 }
+#elif defined(__APPLE__)
+#error "Apple platforms are not yet supported"
+#else
+#error "unknown platform"
+#endif
+
+std::string createDataDirectoryIfNotExist()
+{
+    const std::string prefix = getUserDataDirectory();
+    const std::string dataDirectory{prefix + "/sprint_timer"};
+    if (!exists(dataDirectory)) {
+        create_directory(dataDirectory);
+    }
+    return dataDirectory;
+}
+
+} // namespace
+
 
 int main(int argc, char* argv[])
 {
@@ -103,6 +117,11 @@ int main(int argc, char* argv[])
     Config applicationSettings;
 
     const std::string dataDirectory = createDataDirectoryIfNotExist();
+    if (dataDirectory.empty()) {
+        std::cerr << "Unable to find user data directory.";
+        return 1;
+    }
+
     QApplication app(argc, argv);
     DBService dbService{dataDirectory + "/sprint.db"};
 
