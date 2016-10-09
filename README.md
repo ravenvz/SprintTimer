@@ -34,7 +34,7 @@ Build instructions for develop branch.
 3. Open command prompt and navigate to build directory of cloned repo.
 4. Generate Visual Studio project files. In following example (with actual paths replaced with placeholders) project files for Visual Studio 2015 are generated:
 ```shell
-cmake .. -G "Visual Studio 14 Win64" -DCMAKE_PREFIX_PATH=<Path to Qt installation>\msvc2015_64 -DCMAKE_INCLUDE_PATH=<Path to Boost>\boost_1_55_0\boost_1_55_0 -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE
+cmake .. -G "Visual Studio 14 Win64" -DCMAKE_PREFIX_PATH=<Path to Qt installation>\msvc2015_64 -DCMAKE_INCLUDE_PATH=<Path to Boost> -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE
 ```
 Note, that this step assumes that you have installed or build from source Qt for your compiler.
 
@@ -43,7 +43,7 @@ You can now open project files with Visual Studio or build it with command line.
 Before running executable, make sure that Qt installation is added to system path.
 Alternatively, you can copy required dll's manually.
 Assuming that you have built Release version: navigate to repo/bin/Release,
-copy following dll's from <Qt installation for your compiler>/bin folder to repo/bin/Release folder:
+copy following dll's from Qt installation for your compiler bin folder to repo/bin/Release folder:
 
 Qt5Core.dll
 Qt5Gui.dll
@@ -52,7 +52,8 @@ Qt5Sql.dll
 Qt5Svg.dll
 Qt5Widgets.dll
 
-Copy to the same folder <Qt installation for your compiler>/plugins following plugins (creating folders as needed):
+Copy to the same folder from Qt installation plugins folder following plugins (creating folders as needed):
+
 audio/qtaudio_windows.dll
 sqldrivers/qsqlite.dll
 
