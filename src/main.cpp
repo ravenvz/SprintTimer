@@ -68,8 +68,7 @@ std::string getUserDataDirectory()
         using convert_type = std::codecvt_utf8<wchar_t>;
         const std::wstring w_path{path};
         std::wstring_convert<convert_type, wchar_t> converter;
-        const std::string s_path = converter.to_bytes(w_path);
-        return std::string{path};
+        return converter.to_bytes(w_path);
     }
     return std::string{};
 }
