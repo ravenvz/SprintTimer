@@ -31,12 +31,8 @@
 #include "widgets/DataWidget.h"
 #include "widgets/DistributionDiagram.h"
 #include "core/TagTop.h"
+#include "core/utils/OptionalPl.h"
 
-#ifdef _MSC_VER
-using boost::optional;
-#else
-using std::experimental::optional;
-#endif
 
 namespace Ui {
 class StatisticsWindow;

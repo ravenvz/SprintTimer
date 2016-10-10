@@ -34,21 +34,12 @@
 #include "widgets/SprintOutline.h"
 #include "widgets/LauncherMenu.h"
 #include <QMainWindow>
-#ifdef _MSC_VER
-#include <boost/optional/optional.hpp>
-#else
-#include <experimental/optional>
-#endif
 #include <functional>
 #include <memory>
 #include <vector>
 #include <QGridLayout>
+#include "core/utils/OptionalPl.h"
 
-#ifdef _MSC_VER
-using boost::optional;
-#else
-using std::experimental::optional;
-#endif
 
 namespace Ui {
 class MainWindow;

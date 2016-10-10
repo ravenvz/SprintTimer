@@ -40,11 +40,11 @@ TEST(IncrementTaskSprints, test_execute_and_undo)
     UseCases::IncrementTaskSprints increment{writer, uuid};
     increment.execute();
 
-    CHECK_EQUAL(3, writer.storage.getItem(uuid).value().actualCost());
+    CHECK_EQUAL(3, (*writer.storage.getItem(uuid)).actualCost());
 
     increment.undo();
 
-    CHECK_EQUAL(2, writer.storage.getItem(uuid).value().actualCost());
+    CHECK_EQUAL(2, (*writer.storage.getItem(uuid)).actualCost());
 }
 
 TEST(IncrementTaskSprints, test_should_not_undo_if_was_not_executed)
@@ -56,9 +56,9 @@ TEST(IncrementTaskSprints, test_should_not_undo_if_was_not_executed)
 
     UseCases::IncrementTaskSprints increment{writer, uuid};
 
-    CHECK_EQUAL(2, writer.storage.getItem(uuid).value().actualCost());
+    CHECK_EQUAL(2, (*writer.storage.getItem(uuid)).actualCost());
 
     increment.undo();
 
-    CHECK_EQUAL(2, writer.storage.getItem(uuid).value().actualCost());
+    CHECK_EQUAL(2, (*writer.storage.getItem(uuid)).actualCost());
 }

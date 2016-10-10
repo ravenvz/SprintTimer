@@ -111,7 +111,7 @@ TEST(TestCoreService,
     coreService.registerSprint(defaultTimeSpan, taskUuid);
 
     CHECK_EQUAL(1, sprintStorage.size());
-    CHECK_EQUAL(3, taskStorage.getItem(taskUuid).value().actualCost());
+    CHECK_EQUAL(3, (*taskStorage.getItem(taskUuid)).actualCost());
 }
 
 TEST(TestCoreService,
@@ -125,7 +125,7 @@ TEST(TestCoreService,
     coreService.removeSprint(sprint);
 
     CHECK_EQUAL(0, sprintStorage.size());
-    CHECK_EQUAL(1, taskStorage.getItem(taskUuid).value().actualCost());
+    CHECK_EQUAL(1, (*taskStorage.getItem(taskUuid)).actualCost());
 }
 
 TEST(TestCoreService, test_request_sprints_in_time_range_calls_handler)

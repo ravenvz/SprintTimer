@@ -25,18 +25,9 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include "widgets/IStatisticalChart.h"
-#ifdef _MSC_VER
-#include <boost/optional/optional.hpp>
-#else
-#include <experimental/optional>
-#endif
 #include <cmath>
+#include "core/utils/OptionalPl.h"
 
-#ifdef _MSC_VER
-using boost::optional;
-#else
-using std::experimental::optional;
-#endif
 
 /* Widget that displays data as an exploding pie chart.
  *
