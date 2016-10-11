@@ -47,11 +47,11 @@ void TagTop::arrangeSprintsByTag(const std::vector<Sprint>& sprints)
 
 void TagTop::computeTagFrequencies()
 {
-    int total = accumulate(
+    auto total = accumulate(
         sprintsByTag.cbegin(),
         sprintsByTag.cend(),
-        0,
-        [](int aux, const auto& entry) { return aux + entry.second.size(); });
+        0uLL,
+        [](auto aux, const auto& entry) { return aux + entry.second.size(); });
 
     for (const auto& entry : sprintsByTag) {
         frequencies.push_back(
