@@ -19,12 +19,16 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
+#define _CRT_SECURE_NO_WARNINGS 1
+
 #include "core/DateTime.h"
 #include "core/StringUtils.h"
 #include <algorithm>
 #include <array>
 #include <iomanip>
 #include <iostream>
+#include <ctime>
 
 namespace {
 template <typename T>
