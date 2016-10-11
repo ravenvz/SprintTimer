@@ -55,7 +55,7 @@ public:
      * When timer is running, callback function will be executed after
      * each tick period until time runs out or timer is cancelled. */
     StatefulTimer(
-        std::function<void(long timeLeft)> tickCallback,
+        std::function<void(long long timeLeft)> tickCallback,
         std::function<void(IStatefulTimer::State state)> onStateChangedCallback,
         long tickPeriodInMillisecs,
         const IConfig& applicationSettings);
@@ -115,7 +115,7 @@ protected:
 private:
     const IConfig& applicationSettings;
     const std::chrono::milliseconds tickInterval;
-    std::function<void(long timeLeft)> onTickCallback;
+    std::function<void(long long timeLeft)> onTickCallback;
     std::function<void(IStatefulTimer::State)> onStateChangedCallback;
     std::unique_ptr<Timer> timerPtr;
     DateTime mStart;

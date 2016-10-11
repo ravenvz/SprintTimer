@@ -32,7 +32,7 @@
 #include <memory>
 
 using Progress = int;
-using Second = int;
+using Second = long long;
 constexpr Second secondsPerMinute{60};
 
 
@@ -65,16 +65,16 @@ protected:
     void playSound() const;
 
 protected slots:
-    void onTimerTick(long timeLeft);
+    void onTimerTick(long long timeLeft);
     void onTimerStateChanged(IStatefulTimer::State state);
-    void onTimerUpdated(long timeLeft);
+    void onTimerUpdated(long long timeLeft);
     void onStateChanged(IStatefulTimer::State state);
     void startTask();
     void cancelTask();
     void onSoundError(QMediaPlayer::Error error);
 
 signals:
-    void timerUpdated(long timeLeft);
+    void timerUpdated(long long timeLeft);
     void stateChanged(IStatefulTimer::State state);
     void submitRequested(std::vector<TimeSpan> completedTaskIntervals);
     void submissionCandidateChanged(int index);

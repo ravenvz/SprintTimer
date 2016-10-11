@@ -100,7 +100,7 @@ public:
     long minute() const;
 
     /* Return seconds since the start of the minute. */
-    long second() const;
+    long long second() const;
 
     /* Return day of week in [0, 6].
      *

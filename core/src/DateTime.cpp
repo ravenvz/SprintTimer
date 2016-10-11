@@ -116,7 +116,7 @@ long DateTime::hour() const { return tod.hours().count(); }
 
 long DateTime::minute() const { return tod.minutes().count(); }
 
-long DateTime::second() const { return tod.seconds().count(); }
+long long DateTime::second() const { return tod.seconds().count(); }
 
 unsigned DateTime::dayOfWeek() const
 {
