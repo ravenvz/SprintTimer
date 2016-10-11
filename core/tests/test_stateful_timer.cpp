@@ -113,7 +113,7 @@ TEST_GROUP(StatefulTimerStates)
     class StatefulTimerTest : public StatefulTimer {
     public:
         StatefulTimerTest(
-            std::function<void(long)> tickCallback,
+            std::function<void(long long)> tickCallback,
             std::function<void(IStatefulTimer::State)> onStateChangedCallback,
             long tickPeriodInMillisecs,
             const IConfig& applicationSettings)
@@ -159,7 +159,7 @@ TEST_GROUP(StatefulTimerStates)
     void setup()
     {
         int tick{1000};
-        auto onTickCallbackStub = [](long) {};
+        auto onTickCallbackStub = [](long long) {};
         auto onStateChangedCallbackStub = [](IStatefulTimer::State) {};
         timer = std::make_unique<StatefulTimerTest>(
             onTickCallbackStub, onStateChangedCallbackStub, tick, testSettings);
