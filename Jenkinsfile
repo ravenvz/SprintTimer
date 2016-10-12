@@ -34,7 +34,7 @@ node {
         }
         node ("windows") {
             env.PATH = "C:/Qt/5.7/msvc2015_64:${env.PATH}"
-            bat 'cd bin && acceptance_tests_stub -o junit && test_core.exe -o junit && test_qt_storage_impl -o junit'
+            bat 'cd bin && acceptance_tests_stub.exe -o junit && test_core.exe -o junit && test_qt_storage_impl.exe -o junit'
             bat 'mkdir bin/test_results && move *.xml test_results'
             junit '**/bin/test_results/*.xml'
         }
