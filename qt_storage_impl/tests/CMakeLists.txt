@@ -29,3 +29,9 @@ target_include_directories(${PROJECT}
 )
 
 target_link_libraries(${PROJECT} CppUTest ${STORAGE_LIB} Threads::Threads Qt5::Sql)
+
+# This is a workaround 
+# For some reason, although CppUTest explicitly depends on winmm, dependency does not transition.
+if (WIN32)
+    target_link_libraries(${PROJECT} winmm.lib)
+endif()

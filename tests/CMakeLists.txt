@@ -19,3 +19,9 @@ target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE
 target_include_directories(${TEST_PROJECT} PRIVATE ../src)
 
 target_link_libraries(${TEST_PROJECT} CppUTest Qt5::Core Qt5::Sql Qt5::Widgets Threads::Threads)
+
+# This is a workaround 
+# For some reason, although CppUTest explicitly depends on winmm, dependency does not transition.
+if (WIN32)
+    target_link_libraries(${TEST_PROJECT} winmm.lib)
+endif()

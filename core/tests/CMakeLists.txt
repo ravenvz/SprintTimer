@@ -33,4 +33,11 @@ target_include_directories(${TEST_CORE}
 target_link_libraries(${TEST_CORE}
     PRIVATE CppUTest
     PRIVATE ${CORE_LIB}
-    PRIVATE Threads::Threads)
+    PRIVATE Threads::Threads
+)
+
+# This is a workaround 
+# For some reason, although CppUTest explicitly depends on winmm, dependency does not transition.
+if (WIN32)
+    target_link_libraries(${TEST_CORE} PRIVATE winmm.lib)
+endif()

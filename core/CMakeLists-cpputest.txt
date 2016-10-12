@@ -10,8 +10,8 @@ ExternalProject_Add(
     UPDATE_COMMAND ""
     PATCH_COMMAND ""
     INSTALL_COMMAND ""
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-               -DLONGLONG=ON
+    CMAKE_ARGS -DLONGLONG=ON
+               -DTESTS=OFF # atm, cpputest's own tests produce a lot of warnings
                -DC++11=ON
 
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${THIRD_PARTY_LIBS_FOLDER_PREFIX}/cpputest"
@@ -19,11 +19,24 @@ ExternalProject_Add(
 
 set(LIBPREFIX "${CMAKE_STATIC_LIBRARY_PREFIX}")
 set(LIBSUFFIX "${CMAKE_STATIC_LIBRARY_SUFFIX}")
-set(CPPUTEST_MAIN  "${CPPUTEST_LOCATION}/src/CppUTest/${LIBPREFIX}CppUTest${LIBSUFFIX}")
-set(CPPUTEST_EXTENSION  "${CPPUTEST_LOCATION}/src/CppUTest/${LIBPREFIX}CppUTestExt${LIBSUFFIX}")
+
+if (MSVC)
+    set(CPPUTEST_LOCATION
+        IMPORTED_LOCATION_RELEASE "${CPPUTEST_LOCATION}/src/CppUTest/Release/${LIBPREFIX}CppUTest${LIBSUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${CPPUTEST_LOCATION}/src/CppUTest/Debug/${LIBPREFIX}CppUTest${LIBSUFFIX}")
+    set(CPPUTEST_EXTENSION_LOCATION
+        IMPORTED_LOCATION_RELEASE "${CPPUTEST_LOCATION}/src/CppUTest/Release/${LIBPREFIX}CppUTestExt${LIBSUFFIX}"
+        IMPORTED_LOCATION_DEBUG "${CPPUTEST_LOCATION}/src/CppUTest/Debug/${LIBPREFIX}CppUTestExt${LIBSUFFIX}")
+else()
+    set(CPPUTEST_LOCATION
+        IMPORTED_LOCATION "${CPPUTEST_LOCATION}/src/CppUTest/${LIBPREFIX}CppUTest${LIBSUFFIX}")
+    set(CPPUTEST_EXTENSION_LOCATION
+        IMPORTED_LOCATION "${CPPUTEST_LOCATION}/src/CppUTest/${LIBPREFIX}CppUTestExt${LIBSUFFIX}")
+endif()
 
 ExternalProject_Get_Property(CppUTestExternal source_dir)
 set(CPPUTEST_INCLUDES "${source_dir}/include/CppUTest")
+set(CPPUTEST_EXTENSION_INCLUDES "${source_dir}/include/CppUTestExt")
 
 # Workaround against CMake trying to use lib before downloading it, therefore
 # complains about INTERFACE_INCLUDE_DIRECTORIES pointing to non-existent directory. It will download it during the build step, so we supply
@@ -33,17 +46,17 @@ file(MAKE_DIRECTORY ${CPPUTEST_INCLUDES})
 
 add_library(CppUTest IMPORTED STATIC GLOBAL)
 set_target_properties(CppUTest PROPERTIES
-    IMPORTED_LOCATION                 "${CPPUTEST_MAIN}"
     INTERFACE_INCLUDE_DIRECTORIES     "${CPPUTEST_INCLUDES}"
+    ${CPPUTEST_LOCATION}
 )
 
 add_dependencies(CppUTest CppUTestExternal)
 
-# add_library(CppUTestExt IMPORTED STATIC GLOBAL)
-# set_target_properties(CppUTestExt PROPERTIES
-#     IMPORTED_LOCATION "${CPPUTEST_EXTENSION}"
-#     IMPORTED_LINK_INTERFACE_LIBRARIES
-#     "${CPPUTEST_MAIN};${CMAKE_THREAD_LIBS_INIT}")
+# add_library(CppUTestExtension IMPORTED STATIC GLOBAL)
+# set_target_properties(CppUTestExtension PROPERTIES
+#     ${CPPUTEST_EXTENSION_LOCATION}
+#     INTERFACE_INCLUDE_DIRECTORIES "${CPPUTEST_EXTENSION_INCLUDES}"
+#     IMPORTED_LINK_INTERFACE_LIBRARIES CppUTestExternal)
 #
-# add_dependencies(CppUTestExt CppUTestExternal)
+# add_dependencies(CppUTestExtension CppUTestExternal)
 #
