@@ -174,7 +174,7 @@ private:
 
     bool upgradeIfRequired(QSqlDatabase& database);
 
-    int getDatabaseVersion(QSqlDatabase& database);
+    unsigned getDatabaseVersion(QSqlDatabase& database);
 
     bool runMigration(QSqlDatabase& database, int fromVersion);
 
