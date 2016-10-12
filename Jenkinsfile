@@ -1,18 +1,18 @@
 node {
-    stage("Checking out source code") {
-        parallel "linux checkout":{
-            node ("linux") {
-                deleteDir();
-                git poll: false, url: 'https://github.org/ravenvz/SprintTimer'
-            }
-        }, "windows checkout":{
-            node ("windows") {
-                deleteDir();
-                git poll: false, url: 'https://github.org/ravenvz/SprintTimer'
-            }
-        }
-    }
-        stage('Run static analysis') {
+    // stage("Checking out source code") {
+    //     parallel "linux checkout":{
+    //         node ("linux") {
+    //             deleteDir();
+    //             git poll: false, url: 'https://github.org/ravenvz/SprintTimer'
+    //         }
+    //     }, "windows checkout":{
+    //         node ("windows") {
+    //             deleteDir();
+    //             git poll: false, url: 'https://github.org/ravenvz/SprintTimer'
+    //         }
+    //     }
+    // }
+    stage('Run static analysis') {
         node ("linux") {
             sh "cppcheck --xml --xml-version=2 . 2> check.xml"
         }
