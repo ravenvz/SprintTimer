@@ -28,9 +28,7 @@
 #include <QMouseEvent>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <experimental/optional>
-
-using std::experimental::optional;
+#include "core/utils/OptionalPl.h"
 
 using DataItem = std::pair<std::string, double>;
 

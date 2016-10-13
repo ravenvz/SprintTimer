@@ -19,12 +19,16 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
+#define _CRT_SECURE_NO_WARNINGS 1
+
 #include "core/DateTime.h"
 #include "core/StringUtils.h"
 #include <algorithm>
 #include <array>
 #include <iomanip>
 #include <iostream>
+#include <ctime>
 
 namespace {
 template <typename T>
@@ -116,7 +120,7 @@ long DateTime::hour() const { return tod.hours().count(); }
 
 long DateTime::minute() const { return tod.minutes().count(); }
 
-long DateTime::second() const { return tod.seconds().count(); }
+long long DateTime::second() const { return tod.seconds().count(); }
 
 unsigned DateTime::dayOfWeek() const
 {

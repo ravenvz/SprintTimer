@@ -31,8 +31,8 @@
 #include "widgets/DataWidget.h"
 #include "widgets/DistributionDiagram.h"
 #include "core/TagTop.h"
+#include "core/utils/OptionalPl.h"
 
-using std::experimental::optional;
 
 namespace Ui {
 class StatisticsWindow;

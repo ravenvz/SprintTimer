@@ -34,11 +34,11 @@
 #include "widgets/SprintOutline.h"
 #include "widgets/LauncherMenu.h"
 #include <QMainWindow>
-#include <experimental/optional>
 #include <functional>
 #include <memory>
 #include <vector>
 #include <QGridLayout>
+#include "core/utils/OptionalPl.h"
 
 
 namespace Ui {
@@ -74,7 +74,7 @@ private:
     QPointer<LauncherMenu> launcherMenu;
     QPointer<TaskOutline> taskOutline;
     QPointer<SprintOutline> sprintOutline;
-    std::experimental::optional<int> selectedTaskRow;
+    optional<int> selectedTaskRow;
     TimerWidgetBase* timerWidget;
     ExpansionState* expansionState;
 

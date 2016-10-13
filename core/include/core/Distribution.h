@@ -93,7 +93,7 @@ private:
         // TODO what if there is an overflow?
         T sum = 0;
         for (size_t bin = 0; bin < distribution.size(); ++bin) {
-            double value = getBinValue(bin);
+            auto value = getBinValue(bin);
             sum += value;
             if (value > max) {
                 max = value;

@@ -99,7 +99,7 @@ public:
 
     virtual std::string lastCommandDescription() const final;
 
-    virtual unsigned int numRevertableCommands() const final;
+    virtual unsigned long long numRevertableCommands() const final;
 
     void undoLast() final;
 

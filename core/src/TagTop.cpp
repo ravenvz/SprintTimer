@@ -47,11 +47,11 @@ void TagTop::arrangeSprintsByTag(const std::vector<Sprint>& sprints)
 
 void TagTop::computeTagFrequencies()
 {
-    int total = accumulate(
+    auto total = accumulate(
         sprintsByTag.cbegin(),
         sprintsByTag.cend(),
-        0,
-        [](int aux, const auto& entry) { return aux + entry.second.size(); });
+        0uLL,
+        [](auto aux, const auto& entry) { return aux + entry.second.size(); });
 
     for (const auto& entry : sprintsByTag) {
         frequencies.push_back(
@@ -147,7 +147,7 @@ std::vector<Sprint> TagTop::sprintsForTagAt(size_t position) const
     return sprintsByTag.at(tagNameAt(position));
 }
 
-std::__cxx11::string TagTop::tagNameAt(size_t position) const
+std::string TagTop::tagNameAt(size_t position) const
 {
     return frequencies.at(position).first.name();
 }

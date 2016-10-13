@@ -346,7 +346,7 @@ bool Database::upgradeIfRequired(QSqlDatabase& database) {
     return true;
 }
 
-int Database::getDatabaseVersion(QSqlDatabase& database)
+unsigned Database::getDatabaseVersion(QSqlDatabase& database)
 {
     QSqlQuery query{database};
 

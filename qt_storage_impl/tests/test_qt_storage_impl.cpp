@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "qt_storage_impl/utils.h"
 #include <list>
+#include <iterator>
 #include <TestHarness.h>
 
 

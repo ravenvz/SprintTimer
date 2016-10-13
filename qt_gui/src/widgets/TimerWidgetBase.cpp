@@ -54,7 +54,7 @@ TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
             &TimerWidgetBase::onStateChanged);
 }
 
-void TimerWidgetBase::onTimerTick(long timeLeft)
+void TimerWidgetBase::onTimerTick(long long timeLeft)
 {
     emit timerUpdated(timeLeft / 1000);
 }
@@ -64,9 +64,9 @@ void TimerWidgetBase::onTimerStateChanged(IStatefulTimer::State state)
     emit stateChanged(state);
 }
 
-void TimerWidgetBase::onTimerUpdated(long timeLeft)
+void TimerWidgetBase::onTimerUpdated(long long timeLeft)
 {
-    int curVal{static_cast<Second>(timeLeft)};
+    auto curVal{timeLeft};
     updateIndication(curVal);
     if (timeLeft == 0)
         playSound();

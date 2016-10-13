@@ -24,6 +24,7 @@
 #include "widgets/FancyTimer.h"
 #include "ui_mainwindow.h"
 
+
 namespace {
     auto expandedFully = std::make_unique<Expanded>();
     auto shrinked = std::make_unique<Shrinked>();
@@ -31,7 +32,7 @@ namespace {
     auto expandedWithoutMenu = std::make_unique<ExpandedWithoutMenu>();
 }
 
-using std::experimental::optional;
+
 
 MainWindow::MainWindow(IConfig& applicationSettings,
                        ICoreService& coreService,

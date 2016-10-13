@@ -216,7 +216,7 @@ std::string CoreService::lastCommandDescription() const {
     return invoker.lastCommandDescription();
 }
 
-unsigned int CoreService::numRevertableCommands() const {
+unsigned long long CoreService::numRevertableCommands() const {
     return invoker.stackSize();
 }
 

@@ -26,11 +26,8 @@
 #include "core/TimeSpan.h"
 #include "core/entities/Sprint.h"
 #include <algorithm>
-#include <experimental/optional>
+#include <core/utils/OptionalPl.h>
 #include <unordered_map>
-
-using std::experimental::optional;
-using std::experimental::make_optional;
 
 template <class Entity>
 class FakeStorage {

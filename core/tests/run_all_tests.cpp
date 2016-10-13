@@ -27,6 +27,10 @@ int main(int argc, char* argv[])
     std::vector<const char*> args(argv, argv + argc);
     args.push_back("-v");
     args.push_back("-c");
+	// TODO figure out why memory leak warning plugin doesn't work properly on Windows
+#ifdef WIN32
+	MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
+#endif
     return CommandLineTestRunner::RunAllTests(argc, argv);
 }
 

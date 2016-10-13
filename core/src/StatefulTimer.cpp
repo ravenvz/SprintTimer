@@ -23,7 +23,7 @@
 #include "core/StatefulTimer.h"
 
 StatefulTimer::StatefulTimer(
-    std::function<void(long timeLeft)> onTickCallback,
+    std::function<void(long long timeLeft)> onTickCallback,
     std::function<void(IStatefulTimer::State)> onStateChangedCallback,
     long tickPeriodInMillisecs,
     const IConfig& applicationSettings)
