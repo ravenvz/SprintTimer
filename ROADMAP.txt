@@ -1,11 +1,15 @@
-Plans for version 0.3.6
--------------
-
-Windows build
-Fixed GUI elements that are displayed incorrectly
+Plans for version 0.3.7
+-----------------------
+Optimized GUI for smaller resolution displays
 
 HISTORY
 ----------------------------------------------------------------
+
+Version 0.3.6
+-------------
+Windows support
+Tweaked GUI style to fit Windows native style
+Provide default settings
 
 Version 0.3.5
 -------------
