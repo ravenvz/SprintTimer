@@ -33,7 +33,7 @@ class Config : public IConfig {
 public:
     int sprintDuration() const override
     {
-        return settings.value("sprintDuration").toInt();
+        return settings.value("sprintDuration", 25).toInt();
     }
 
     void setSprintDuration(int minutes) override
@@ -44,7 +44,7 @@ public:
 
     int shortBreakDuration() const override
     {
-        return settings.value("shortBreakDuration").toInt();
+        return settings.value("shortBreakDuration", 5).toInt();
     }
 
     void setShortBreakDuration(int minutes) override
@@ -55,7 +55,7 @@ public:
 
     int longBreakDuration() const override
     {
-        return settings.value("longBreakDuration").toInt();
+        return settings.value("longBreakDuration", 15).toInt();
     }
 
     void setLongBreakDuration(int minutes) override
@@ -66,7 +66,7 @@ public:
 
     int numSprintsBeforeBreak() const override
     {
-        return settings.value("sprintsBeforeBreak").toInt();
+        return settings.value("sprintsBeforeBreak", 4).toInt();
     }
 
     void setNumSprintsBeforeBreak(int numSprints) override
@@ -77,7 +77,7 @@ public:
 
     bool soundIsEnabled() const override
     {
-        return settings.value("playSound").toBool();
+        return settings.value("playSound", true).toBool();
     }
 
     void setPlaySound(bool playSound) override
@@ -87,7 +87,7 @@ public:
 
     int soundVolume() const override
     {
-        return settings.value("soundVolume").toInt();
+        return settings.value("soundVolume", 50).toInt();
     }
 
     void setSoundVolume(int soundVolume) override
@@ -97,7 +97,7 @@ public:
 
     int dailyGoal() const override
     {
-        return settings.value("dailyGoal").toInt();
+        return settings.value("dailyGoal", 11).toInt();
     }
 
     void setDailyGoal(int numSprints) override
@@ -108,7 +108,7 @@ public:
 
     int weeklyGoal() const override
     {
-        return settings.value("weeklyGoal").toInt();
+        return settings.value("weeklyGoal", 65).toInt();
     }
 
     void setWeeklyGoal(int numSprints) override
@@ -119,7 +119,7 @@ public:
 
     int monthlyGoal() const override
     {
-        return settings.value("monthlyGoal").toInt();
+        return settings.value("monthlyGoal", 260).toInt();
     }
 
     void setMonthlyGoal(int numSprints) override
@@ -141,7 +141,7 @@ public:
 
     int timerFlavour() const override
     {
-        return Config::settings.value("timerFlavour").toInt();
+        return Config::settings.value("timerFlavour", 1).toInt();
     }
 
     void setTimerFlavour(int timerVariation) override
