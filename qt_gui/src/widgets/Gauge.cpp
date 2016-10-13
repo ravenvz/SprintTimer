@@ -143,7 +143,8 @@ void HoverState::drawText(const Gauge& gauge,
     QFont font = painter.font();
     font.setPixelSize(static_cast<int>(0.3 * gauge.innerRect.width()));
     painter.setFont(font);
-    painter.drawText(gauge.innerRect, Qt::AlignCenter, text);
+	if (gauge.actual != 0)
+		painter.drawText(gauge.innerRect, Qt::AlignCenter, text);
 }
 
 void HoverStateHovered::draw(const Gauge& gauge, QPainter& painter)
