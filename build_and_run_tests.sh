@@ -36,7 +36,7 @@ while getopts "drcamutz" opt ; do
     esac
 done
 
-if [ -n $sanitizers ]; then
+if [ -n "$sanitizers" ]; then
     echo "Tests could not be built with sanitizers' support yet"
     build_tests="OFF"
 fi
