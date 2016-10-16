@@ -33,13 +33,13 @@ AddTaskDialog::AddTaskDialog(TagModel* tagModel, QWidget* parent)
     ui->setupUi(this);
     setTagsModel();
     connect(ui->tags,
-            SIGNAL(activated(const QString&)),
+            static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::activated),
             this,
-            SLOT(onQuickAddTagActivated(const QString&)));
+            &AddTaskDialog::onQuickAddTagActivated);
     connect(ui->taskName,
-            SIGNAL(textEdited(const QString&)),
+            &QLineEdit::textEdited,
             this,
-            SLOT(resetNameLineEditStyle()));
+            &AddTaskDialog::resetNameLineEditStyle);
 }
 
 AddTaskDialog::~AddTaskDialog() { delete ui; }
