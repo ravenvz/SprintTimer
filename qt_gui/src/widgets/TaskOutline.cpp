@@ -53,9 +53,11 @@ TaskOutline::TaskOutline(ICoreService& coreService,
             &QLineEdit::returnPressed,
             this,
             &TaskOutline::onQuickAddTodoReturnPressed);
-    connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
-        emit taskSelected(index.row());
-    });
+    connect(ui->lvTaskView,
+            &QListView::clicked,
+            [&](const QModelIndex& index) {
+                emit taskSelected(index.row());
+            });
     connect(ui->lvTaskView,
             &QListView::customContextMenuRequested,
             this,
@@ -66,7 +68,8 @@ TaskOutline::TaskOutline(ICoreService& coreService,
             &TaskOutline::toggleTaskCompleted);
 }
 
-TaskOutline::~TaskOutline() {
+TaskOutline::~TaskOutline()
+{
     delete tagEditor;
     delete taskViewDelegate;
     delete ui;
@@ -84,11 +87,19 @@ void TaskOutline::onQuickAddTodoReturnPressed()
 
 void TaskOutline::onAddTaskButtonPushed()
 {
-    AddTaskDialog dialog{tagModel};
-    if (dialog.exec()) {
-        Task item = dialog.constructedTask();
-        taskModel->insert(item);
-    }
+    addTaskDialog.reset(new AddTaskDialog{tagModel});
+    connect(&*addTaskDialog,
+            &QDialog::accepted,
+            this,
+            &TaskOutline::addNewTask);
+    addTaskDialog->setModal(true);
+    addTaskDialog->show();
+}
+
+void TaskOutline::addNewTask()
+{
+    taskModel->insert(addTaskDialog->constructedTask());
+
 }
 
 void TaskOutline::toggleTaskCompleted()

@@ -33,6 +33,8 @@
 #include <QPointer>
 #include "widgets/TagEditor.h"
 #include "widgets/TaskViewDelegate.h"
+#include <memory>
+#include "dialogs/AddTaskDialog.h"
 
 
 namespace Ui {
@@ -62,6 +64,7 @@ private:
     QPointer<TagEditorWidget> tagEditor;
     TaskModel* taskModel;
     TagModel* tagModel;
+    std::unique_ptr<AddTaskDialog> addTaskDialog;
     QPointer<TaskViewDelegate> taskViewDelegate;
     const QSize desiredSize{300, 200};
 
@@ -77,6 +80,7 @@ private slots:
     void onQuickAddTodoReturnPressed();
     void toggleTaskCompleted();
     void showContextMenu(const QPoint& pos);
+    void addNewTask();
 };
 
 #endif // TASKOUTLINE_H
