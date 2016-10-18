@@ -23,7 +23,7 @@
 #define ADDSPRINTDIALOG_H
 
 #include "models/SprintModel.h"
-#include "src/models/TaskModel.h"
+#include "models/TaskModel.h"
 #include <QDialog>
 #include <QPointer>
 #include <QtWidgets/QCalendarWidget>
