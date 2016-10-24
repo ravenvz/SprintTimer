@@ -1,71 +1,64 @@
+/********************************************************************************
+**
+** Copyright (C) 2016 Pavel Pavlov.
+**
+**
+** This file is part of PROG_NAME.
+**
+** PROG_NAME is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Lesser General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** PROG_NAME is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+**
+*********************************************************************************/
+
 #include "TestAddTask.h"
-#include <QSpinBox>
-#include <QtWidgets/QDialogButtonBox>
+#include "Utils.h"
 
-namespace {
-
-void simulateWidgetExpand(MainWindow* mainWindow)
-{
-    auto expandButton = mainWindow->findChild<QPushButton*>("pbToggleView");
-    auto addTaskButton = mainWindow->findChild<QPushButton*>("pbAddTask");
-    QTest::mouseClick(expandButton, Qt::MouseButton::LeftButton);
-    QTest::qWait(500);
-    QTest::mouseClick(addTaskButton, Qt::MouseButton::LeftButton);
-    QTest::qWait(500);
-}
-
-void simulateAddTask(QWidget* dialog,
-                     const QString& name,
-                     int cost,
-                     const QString& tags)
-{
-    auto taskName = dialog->findChild<QLineEdit*>("taskName");
-    taskName->setText(name);
-    auto estimatedCost = dialog->findChild<QSpinBox*>("estimatedCost");
-    estimatedCost->setValue(cost);
-    auto tagsInput = dialog->findChild<QLineEdit*>("leTags");
-    tagsInput->setText(tags);
-    auto okButton = dialog->findChild<QDialogButtonBox*>("buttonBox");
-    QTest::qWait(1000);
-    okButton->accepted();
-}
-
-bool taskOutlineContains(QWidget* taskOutline, const QString& taskDescription)
-{
-    auto taskList = taskOutline->findChild<ReordableListView*>("lvTaskView");
-    auto model = taskList->model();
-
-    for (int i = 0; i < model->rowCount(); ++i) {
-        if (taskDescription == model->data(model->index(i, 0)))
-            return true;
-    }
-
-    return false;
-}
-
-} // namespace
 
 TestAddTask::TestAddTask(QApplication* app, MainWindow* mainWindow)
-    : app{app}
-    , mainWindow{mainWindow}
+    : TestCase{app, mainWindow}
 {
 }
 
-void TestAddTask::cleanupTestCase()
-{
-    if (QFile::exists("sprint_test.db"))
-        QFile::remove("sprint_test.db");
-}
 
 void TestAddTask::add_task()
 {
-    simulateWidgetExpand(mainWindow);
-
-    if (auto dialog = app->activeWindow()) {
-        simulateAddTask(dialog, "Test task", 4, "Tag1 Tag2");
+    auto taskOutline = mainWindow->findChild<QWidget*>("TaskOutline");
+    if (!taskOutline) {
+        QFAIL("Can't find task outline");
+        return;
     }
+
+    Simulate::addTask(app, mainWindow, "Test task", 4, "Tag1 Tag2");
+    QTest::qWait(5000);
+
+    Assert::taskOutlineContainsText(taskOutline, "#Tag1 #Tag2 Test task 0/4");
+}
+
+void TestAddTask::manual_add_sprint()
+{
+    Simulate::expandMainWindowMenu(mainWindow);
+    auto addSprintButton
+        = mainWindow->findChild<QWidget*>("pbAddSprintManually");
+    QTest::mouseClick(addSprintButton, Qt::MouseButton::LeftButton);
+    QTest::qWait(500);
+
+    Simulate::fillAddSprintDialog(
+        app->activeWindow(), 0, QDateTime{QDate::currentDate(), QTime{12, 50}});
+    auto sprintOutline = mainWindow->findChild<QWidget*>("SprintOutline");
     auto taskOutline = mainWindow->findChild<QWidget*>("TaskOutline");
     QTest::qWait(500);
 
-    QVERIFY(taskOutlineContains(taskOutline, QString{"#Tag1 #Tag2 Test task 0/4"}));
+    Assert::taskOutlineContainsText(taskOutline, "#Tag1 #Tag2 Test task 1/4");
+    Assert::sprintOutlineContainsText(sprintOutline,
+                                      "12:50 - 13:15 #Tag1 #Tag2 Test task");
 }

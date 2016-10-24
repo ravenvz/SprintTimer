@@ -20,18 +20,26 @@
 **
 *********************************************************************************/
 
-#include "TestCase.h"
+#ifndef SPRINT_TIMER_TESTCASE_H
+#define SPRINT_TIMER_TESTCASE_H
+
 #include "widgets/MainWindow.h"
-#include <QWidget>
+#include <QObject>
 #include <QtTest/QtTest>
 
-class TestAddTask : public TestCase {
+class TestCase : public QObject {
     Q_OBJECT
 
 public:
-    TestAddTask(QApplication* app, MainWindow* mainWindow);
+    TestCase(QApplication* app, MainWindow* mainWindow);
 
 private slots:
-    void add_task();
-    void manual_add_sprint();
+    void cleanupTestCase();
+
+protected:
+    QApplication* app;
+    MainWindow* mainWindow;
 };
+
+
+#endif // SPRINT_TIMER_TESTCASE_H

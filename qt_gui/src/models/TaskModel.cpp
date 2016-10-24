@@ -21,7 +21,6 @@
 *********************************************************************************/
 #include "TaskModel.h"
 #include <QSize>
-#include <algorithm>
 #include <iostream>
 
 TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
@@ -143,14 +142,14 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
         = (destinationChild == -1) ? rowCount() - 1 : destinationChild;
 
     std::vector<std::pair<std::string, int>> priorities;
-    priorities.reserve(rowCount());
+    priorities.reserve(static_cast<unsigned>(rowCount()));
 
     // Assign priorities for tasks based on their row number,
     // then swap priorities for tasks at source and destination rows
     for (int row = 0; row < rowCount(); ++row) {
         priorities.push_back({itemAt(row).uuid(), row});
     }
-    std::swap(priorities[sourceRow].second, priorities[destinationRow].second);
+    priorities[destinationRow].second = priorities[sourceRow].second;
 
     coreService.registerTaskPriorities(std::move(priorities));
     requestDataUpdate();

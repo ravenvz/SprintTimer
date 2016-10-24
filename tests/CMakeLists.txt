@@ -8,6 +8,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(SOURCE_FILES
     TestAddTask.cpp
+    TestCase.cpp
+    Utils.cpp
     main.cpp
 )
 

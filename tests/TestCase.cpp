@@ -21,17 +21,18 @@
 *********************************************************************************/
 
 #include "TestCase.h"
-#include "widgets/MainWindow.h"
-#include <QWidget>
-#include <QtTest/QtTest>
+#include "qt_storage_impl/QtStorageImplementersFactory.h"
 
-class TestAddTask : public TestCase {
-    Q_OBJECT
 
-public:
-    TestAddTask(QApplication* app, MainWindow* mainWindow);
+TestCase::TestCase(QApplication* app, MainWindow* mainWindow)
+    : app{app}
+    , mainWindow{mainWindow}
+{
+}
 
-private slots:
-    void add_task();
-    void manual_add_sprint();
-};
+
+void TestCase::cleanupTestCase()
+{
+    if (QFile::exists("sprint_test.db"))
+        QFile::remove("sprint_test.db");
+}
