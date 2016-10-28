@@ -13,6 +13,7 @@ set(SOURCE_FILES
         test_stateful_timer.cpp
         test_core_service.cpp
         test_increment_task_sprints.cpp
+        test_csv_reader.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
