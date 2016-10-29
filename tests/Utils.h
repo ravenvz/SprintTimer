@@ -26,6 +26,7 @@
 #include "widgets/MainWindow.h"
 #include <QString>
 #include <QWidget>
+#include <QTreeView>
 
 namespace Simulate {
 
@@ -48,17 +49,47 @@ void fillAddSprintDialog(QWidget* dialog,
                          int taskIndex,
                          const QDateTime& dateTime);
 
+void openHistoryView(MainWindow* mainWindow);
+
 } // namespace Simulate
 
 namespace Query {
 
 bool listViewContains(QListView* listView, const QString& description);
 
+template <typename T>
+bool modelContains(QAbstractItemModel* model,
+        const T& text,
+        QModelIndex parent = QModelIndex())
+{
+    for (int r = 0; r < model->rowCount(parent); ++r) {
+        QModelIndex index = model->index(r, 0, parent);
+        QVariant name = model->data(index);
+        if (name == text)
+            return true;
+        if (model->hasChildren(index)) {
+            return modelContains(model, text, index);
+        }
+    }
+    return false;
+}
+
+bool treeViewContains(QTreeView* treeView, const QString& text);
+
+QWidget* findWidgetByName(QApplication* app, const QString& name);
+
 } // namespace Query
 
 namespace Assert {
+
 void taskOutlineContainsText(QWidget* taskView, const QString& text);
+
 void sprintOutlineContainsText(QWidget* taskView, const QString& text);
+
+void historyContainsSprintText(QWidget* historyView, const QString& text);
+
+void historyContainsTaskText(QWidget* historyView, const QString& text);
+
 } // namespace Assert
 
 #endif // SPRINT_TIMER_UTILS_H

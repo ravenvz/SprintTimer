@@ -21,7 +21,7 @@
 *********************************************************************************/
 
 #include "QtConfig.h"
-#include "TestAddTask.h"
+#include "TestUserScenarios.h"
 #include "TestCase.h"
 #include "qt_storage_impl/DBService.h"
 #include "qt_storage_impl/QtStorageImplementersFactory.h"
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     MainWindow mainWindow{applicationSettings, coreService};
     mainWindow.show();
 
-    TestAddTask testAddTask{&app, &mainWindow};
+    TestUserScenarios testAddTask{&app, &mainWindow};
     QTest::qExec(&testAddTask, argc, argv);
 
     return 0;

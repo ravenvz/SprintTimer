@@ -20,17 +20,17 @@
 **
 *********************************************************************************/
 
-#include "TestAddTask.h"
+#include "TestUserScenarios.h"
 #include "Utils.h"
 
 
-TestAddTask::TestAddTask(QApplication* app, MainWindow* mainWindow)
+TestUserScenarios::TestUserScenarios(QApplication* app, MainWindow* mainWindow)
     : TestCase{app, mainWindow}
 {
 }
 
 
-void TestAddTask::add_task()
+void TestUserScenarios::add_task()
 {
     auto taskOutline = mainWindow->findChild<QWidget*>("TaskOutline");
     if (!taskOutline) {
@@ -44,7 +44,7 @@ void TestAddTask::add_task()
     Assert::taskOutlineContainsText(taskOutline, "#Tag1 #Tag2 Test task 0/4");
 }
 
-void TestAddTask::manual_add_sprint()
+void TestUserScenarios::manual_add_sprint()
 {
     Simulate::expandMainWindowMenu(mainWindow);
     auto addSprintButton
@@ -60,5 +60,14 @@ void TestAddTask::manual_add_sprint()
 
     Assert::taskOutlineContainsText(taskOutline, "#Tag1 #Tag2 Test task 1/4");
     Assert::sprintOutlineContainsText(sprintOutline,
-                                      "12:50 - 13:15 #Tag1 #Tag2 Test task");
+            "12:50 - 13:15 #Tag1 #Tag2 Test task");
+    QTest::qWait(500);
+
+    Simulate::openHistoryView(mainWindow);
+    QTest::qWait(500);
+
+    auto historyView = Query::findWidgetByName(app, "HistoryWindow");
+
+    Assert::historyContainsSprintText(historyView, "12:50 - 13:15 #Tag1 #Tag2 Test task");
+    QTest::qWait(5000);
 }

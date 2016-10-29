@@ -25,11 +25,11 @@
 #include <QWidget>
 #include <QtTest/QtTest>
 
-class TestAddTask : public TestCase {
+class TestUserScenarios : public TestCase {
     Q_OBJECT
 
 public:
-    TestAddTask(QApplication* app, MainWindow* mainWindow);
+    TestUserScenarios(QApplication* app, MainWindow* mainWindow);
 
 private slots:
     void add_task();

@@ -25,6 +25,7 @@
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QTimeEdit>
+#include <QtWidgets/QTreeView>
 
 namespace Simulate {
 
@@ -82,6 +83,12 @@ void fillAddSprintDialog(QWidget* dialog,
     okButton->accepted();
 }
 
+void openHistoryView(MainWindow* mainWindow)
+{
+    auto historyViewLaunchButton = mainWindow->findChild<QPushButton*>("pbHistory");
+    historyViewLaunchButton->click();
+}
+
 } // namespace Simulate
 
 namespace Query {
@@ -96,6 +103,23 @@ bool listViewContains(QListView* listView, const QString& description)
     }
 
     return false;
+}
+
+bool treeViewContains(QTreeView* treeView, const QString& text)
+{
+    auto model = treeView->model();
+    return modelContains(model, text);
+}
+
+QWidget* findWidgetByName(QApplication* app, const QString& name)
+{
+    for (auto widget : app->allWidgets()) {
+        if (widget->objectName() == name)
+            return widget;
+    }
+    std::string err_msg{"Can't find widget with name "};
+    err_msg += name.toStdString();
+    throw std::runtime_error(err_msg);
 }
 
 } // namespace Query
@@ -114,6 +138,28 @@ void sprintOutlineContainsText(QWidget* sprintOutline, const QString& text)
 {
     auto taskList = sprintOutline->findChild<QListView*>("lvFinishedSprints");
     QVERIFY(Query::listViewContains(taskList, text));
+}
+
+void historyContainsSprintText(QWidget* historyView, const QString& text)
+{
+    auto historyTabs = historyView->findChild<QTabWidget*>("twHistoryDisplay");
+    if (!historyTabs) {
+        qDebug() << "Can't find history tabs";
+        return;
+    }
+    historyTabs->setCurrentIndex(0);
+    QTest::qWait(1000);
+    auto historyDisplay = historyTabs->findChild<QTreeView*>("lvSprintHistory");
+    if (!historyDisplay) {
+        qDebug() << "Can't find history display";
+        return;
+    }
+    QVERIFY(Query::treeViewContains(historyDisplay, text));
+}
+
+void historyContainsTaskText(QWidget* historyView, const QString& text)
+{
+
 }
 
 } // namespace Assert
