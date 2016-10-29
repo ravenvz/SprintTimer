@@ -30,6 +30,7 @@
 #include <QStringListModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
+#include "dialogs/ExportDialog.h"
 
 namespace Ui {
 class HistoryWindow;
@@ -52,7 +53,7 @@ public:
 class HistoryWindow : public DataWidget {
     Q_OBJECT
 
-    friend class DiplaySprints;
+    friend class DisplaySprints;
     friend class DisplayTasks;
 
 public:
@@ -72,6 +73,7 @@ private:
     QPointer<QStandardItemModel> viewModel;
     std::unique_ptr<DisplayState> displaySprintsState;
     std::unique_ptr<DisplayState> displayTasksState;
+    std::unique_ptr<ExportDialog> exportDialog;
     DisplayState* historyState;
     const int sprintTabIndex{0};
     const int taskTabIndex{1};
@@ -90,8 +92,14 @@ private slots:
     // Change History View state depending on tab selected.
     void onTabSelected(int tabIndex);
 
-    // Set model for currently selected view
+    // Set model for currently selected view.
     void setHistoryModel(QTreeView* view);
+
+    // Open dialog featuring data export options.
+    void onExportButtonClicked();
+
+    // Export data
+    void onDataExportConfirmed(const ExportDialog::ExportOptions& options);
 };
 
 class DisplayState {
@@ -102,16 +110,21 @@ public:
 
     virtual void retrieveHistory() = 0;
 
+    virtual void exportData(const ExportDialog::ExportOptions& options) = 0;
+
 protected:
     HistoryWindow& historyView;
 };
 
-class DiplaySprints : public DisplayState {
+class DisplaySprints : public DisplayState {
 public:
-    explicit DiplaySprints(HistoryWindow& historyView);
+    explicit DisplaySprints(HistoryWindow& historyView);
 
     void retrieveHistory() final;
 
+    void exportData(const ExportDialog::ExportOptions& options) final;
+
+private:
     /* Assumes that sprints are sorted by start time. */
     void onHistoryRetrieved(const std::vector<Sprint>& sprints);
 };
@@ -122,6 +135,9 @@ public:
 
     void retrieveHistory() final;
 
+    void exportData(const ExportDialog::ExportOptions& options) final;
+
+private:
     /* Assumes that tasks are sorted by timestamp */
     void onHistoryRetrieved(const std::vector<Task>& tasks);
 };

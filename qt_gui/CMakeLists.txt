@@ -33,6 +33,7 @@ QT5_WRAP_UI(UI_HEADERS
         ui/task_outline.ui
         ui/sprint_outline.ui
         ui/launcher_menu.ui
+        ui/export_dialog.ui
 )
 
 add_library(${PROJECT} SHARED ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)

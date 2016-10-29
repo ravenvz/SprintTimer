@@ -65,7 +65,7 @@ std::ostream& operator<<(std::ostream& os, const Sprint& sprint)
 {
     for (const auto& tag : sprint.mTags)
         os << tag.nameWithPrefix();
-    os << sprint.mName << sprint.mInterval << " Uuid: " << sprint.mUuid
+    os << " " << sprint.mName << " " << sprint.mInterval << " Uuid: " << sprint.mUuid
        << " TaskUuid: " << sprint.mTaskUuid;
     return os;
 }

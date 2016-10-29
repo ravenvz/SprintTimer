@@ -1,4 +1,4 @@
-#include "core/utils/CSVReader.h"
+#include "core/external_io/CSVReader.h"
 #include <iostream>
 #include <iterator>
 #include <memory>
@@ -140,4 +140,4 @@ void ParseQuotedValue::parseChar(CSVReader& reader, char ch)
 }
 
 
-} // namespace CSV
+} // namespace ExternalIO

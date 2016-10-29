@@ -61,10 +61,10 @@ In other words, it is client's responsibility to ensure that input
 data conforms to RFC 4180 specification, otherwise parsing is not
 guaranteed to be correct.
 
-Throws CSV::StreamReadError when input stream is invalid.
+Throws StreamReadError when input stream is invalid.
 
 When encountered a line with incorrect number of values,
-CSV::FormatError is thrown, indicating the number of this line.
+FormatError is thrown, indicating the number of this line.
 "Correct" number of values per line is deduced from the first
 line of the input data.
 
@@ -174,6 +174,6 @@ public:
     void parseChar(CSVReader& reader, char ch) override;
 };
 
-} // namespace CSV
+} // namespace ExternalIO
 
 #endif /* end of include guard: CSVREADER_H_RH5EZUKL */

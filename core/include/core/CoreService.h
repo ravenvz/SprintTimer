@@ -24,28 +24,28 @@
 
 
 #include "core/CommandInvoker.h"
-#include "core/ISprintDistributionReader.h"
 #include "core/ICoreService.h"
+#include "core/ISprintDistributionReader.h"
 #include "core/ISprintStorageReader.h"
 #include "core/ISprintStorageWriter.h"
-#include "core/IYearRangeReader.h"
 #include "core/ITaskStorageReader.h"
 #include "core/ITaskStorageWriter.h"
+#include "core/IYearRangeReader.h"
 #include "core/MacroTransaction.h"
-#include <memory>
+#include "core/external_io/Marshaller.h"
 
 namespace Core {
 
 class CoreService : public ICoreService {
 public:
     CoreService(ISprintStorageReader& sprintStorageReader,
-                    ISprintStorageWriter& sprintStorageWriter,
-                    IYearRangeReader& yearRangeReader,
-                    ITaskStorageReader& taskStorageReader,
-                    ITaskStorageWriter& taskStorageWriter,
-                    ISprintDistributionReader& sprintDailyDistributionReader,
-                    ISprintDistributionReader& sprintWeeklyDistributionReader,
-                    ISprintDistributionReader& sprintMonthlyDistributionReader);
+                ISprintStorageWriter& sprintStorageWriter,
+                IYearRangeReader& yearRangeReader,
+                ITaskStorageReader& taskStorageReader,
+                ITaskStorageWriter& taskStorageWriter,
+                ISprintDistributionReader& sprintDailyDistributionReader,
+                ISprintDistributionReader& sprintWeeklyDistributionReader,
+                ISprintDistributionReader& sprintMonthlyDistributionReader);
 
     void registerTask(const Task& task) final;
 
@@ -62,9 +62,11 @@ public:
                               std::function<void(const std::vector<Task>&)>
                                   onResultsReceivedCallback) final;
 
-    void
-    requestUnfinishedTasks(std::function<void(const std::vector<Task>&)>
-                               onResultsReceivedCallback) final;
+    void requestUnfinishedTasks(std::function<void(const std::vector<Task>&)>
+                                    onResultsReceivedCallback) final;
+
+    void exportTasks(std::shared_ptr<ExternalIO::Marshaller> marshaller,
+                     const TimeSpan& timeSpan) final;
 
     void registerSprint(const TimeSpan& timeSpan,
                         const std::string& taskUuid) final;
@@ -75,23 +77,24 @@ public:
                             std::function<void(const std::vector<Sprint>&)>
                             onResultsReceivedCallback) final;
 
+    void exportSprints(std::shared_ptr<ExternalIO::Marshaller> marshaller,
+                       const TimeSpan& timeSpan) final;
+
     void yearRange(std::function<void(const std::vector<std::string>&)>
                    onResultsReceivedCallback) final;
 
-    void requestSprintDailyDistribution(
-            const TimeSpan& timeSpan,
-            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-        final;
+    void
+    requestSprintDailyDistribution(const TimeSpan& timeSpan,
+                                   std::function<void(const Distribution<int>&)>
+                                   onResultsReceivedCallback) final;
 
     void requestSprintWeeklyDistribution(
-            const TimeSpan& timeSpan,
-            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-        final;
+        const TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)> onResultsReceivedCallback) final;
 
     void requestSprintMonthlyDistribution(
-            const TimeSpan& timeSpan,
-            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-        final;
+        const TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)> onResultsReceivedCallback) final;
 
     void requestAllTags(TagResultHandler onResultsReceivedCallback) final;
 

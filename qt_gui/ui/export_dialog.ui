@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>ExportDialog</class>
+ <widget class="QDialog" name="ExportDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="ExportDialog">
+    <widget class="QDialogButtonBox" name="dialogButtonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -25,7 +25,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QComboBox" name="comboBox">
+    <widget class="QComboBox" name="cbxDelimiterOptions">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -51,14 +51,14 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="lblDelimiterOptions">
      <property name="text">
       <string>Field delimiter:</string>
      </property>
     </widget>
    </item>
    <item row="0" column="0" colspan="2" alignment="Qt::AlignHCenter">
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="lblCaption">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -75,9 +75,9 @@
  <resources/>
  <connections>
   <connection>
-   <sender>ExportDialog</sender>
+   <sender>dialogButtonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>ExportDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -91,9 +91,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>ExportDialog</sender>
+   <sender>dialogButtonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>ExportDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

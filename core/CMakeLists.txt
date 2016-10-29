@@ -27,9 +27,11 @@ set(CORE_SOURCE_FILES
     src/RequestAllTags.cpp
     src/RequestSprintDistribution.cpp
     src/RequestUnfinishedTasks.cpp
+    src/RequestTasks.cpp
     src/StoreUnfinishedTasksOrder.cpp
     src/ToggleTaskCompletionStatus.cpp
     src/CSVReader.cpp
+    src/CSVWriter.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

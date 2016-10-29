@@ -43,6 +43,11 @@ public:
         storage.itemsInTimeRange(timeSpan, handler);
     }
 
+    void requestTasks(const TimeSpan& timeSpan, Handler handler) final
+    {
+        storage.itemsInTimeRange(timeSpan, handler);
+    }
+
     void requestAllTags(TagHandler handler)
     {
         const std::vector<std::string> emptyResult;

@@ -27,13 +27,13 @@
 #include "core/entities/Sprint.h"
 #include <functional>
 #include <string>
+#include "core/external_io/Marshaller.h"
 
 
 class ICoreService {
 public:
     using TaskResultHandler = std::function<void(const std::vector<Task>&)>;
-    using SprintResultHandler
-        = std::function<void(const std::vector<Sprint>&)>;
+    using SprintResultHandler = std::function<void(const std::vector<Sprint>&)>;
     using TagResultHandler
         = std::function<void(const std::vector<std::string>&)>;
 
@@ -60,6 +60,10 @@ public:
     requestUnfinishedTasks(TaskResultHandler onResultsReceivedCallback)
         = 0;
 
+    virtual void exportTasks(std::shared_ptr<ExternalIO::Marshaller> marshaller,
+                             const TimeSpan& timeSpan)
+        = 0;
+
     virtual void registerSprint(const TimeSpan& timeSpan,
                                 const std::string& taskUuid)
         = 0;
@@ -71,24 +75,27 @@ public:
                        SprintResultHandler onResultsReceivedCallback)
         = 0;
 
-    virtual void
-    yearRange(std::function<void(const std::vector<std::string>&)>
-              onResultsReceivedCallback)
+    virtual void exportSprints(std::shared_ptr<ExternalIO::Marshaller> marshaller,
+                               const TimeSpan& timeSpan)
+        = 0;
+
+    virtual void yearRange(std::function<void(const std::vector<std::string>&)>
+                               onResultsReceivedCallback)
         = 0;
 
     virtual void requestSprintDailyDistribution(
-            const TimeSpan& timeSpan,
-            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+        const TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
 
     virtual void requestSprintWeeklyDistribution(
-            const TimeSpan& timeSpan,
-            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+        const TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
 
     virtual void requestSprintMonthlyDistribution(
-            const TimeSpan& timeSpan,
-            std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+        const TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
 
     virtual void requestAllTags(TagResultHandler onResultsReceivedCallback) = 0;

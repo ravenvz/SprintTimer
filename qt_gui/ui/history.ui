@@ -29,31 +29,21 @@
     <attribute name="title">
      <string>Sprint History</string>
     </attribute>
-    <widget class="QTreeView" name="lvSprintHistory">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>591</width>
-       <height>311</height>
-      </rect>
-     </property>
-    </widget>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <widget class="QTreeView" name="lvSprintHistory"/>
+     </item>
+    </layout>
    </widget>
    <widget class="QWidget" name="taskHistory">
     <attribute name="title">
      <string>Todo History</string>
     </attribute>
-    <widget class="QTreeView" name="lvTaskHistory">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>591</width>
-       <height>311</height>
-      </rect>
-     </property>
-    </widget>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QTreeView" name="lvTaskHistory"/>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="DateRangePicker" name="dateRangePicker" native="true">
@@ -64,6 +54,47 @@
      <width>371</width>
      <height>71</height>
     </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbExport">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>50</y>
+     <width>141</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text">
+    <string>Export</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>20</y>
+     <width>141</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Generate report</string>
    </property>
   </widget>
  </widget>
