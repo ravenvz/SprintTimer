@@ -90,7 +90,7 @@ void TagModel::revertData()
 void TagModel::requestDataUpdate()
 {
     coreService.requestAllTags(
-        std::bind(&TagModel::onDataArrived, this, std::placeholders::_1));
+        [this](const auto& tags) { this->onDataArrived(tags); });
 }
 
 void TagModel::onDataArrived(const std::vector<std::string>& tags)

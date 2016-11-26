@@ -81,8 +81,7 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    coreService.yearRange(std::bind(
-        &HistoryWindow::onYearRangeUpdated, this, std::placeholders::_1));
+    coreService.yearRange([this](const auto& range) { this->onYearRangeUpdated(range); });
     selectedDateInterval = ui->dateRangePicker->getInterval();
     viewModel = new QStandardItemModel(this);
     ui->lvTaskHistory->setHeaderHidden(true);
@@ -217,8 +216,7 @@ void DisplaySprints::retrieveHistory()
 {
     historyView.coreService.sprintsInTimeRange(
         historyView.selectedDateInterval.toTimeSpan(),
-        std::bind(
-            &DisplaySprints::onHistoryRetrieved, this, std::placeholders::_1));
+        [this](const auto& sprints) { this->onHistoryRetrieved(sprints); });
 }
 
 
@@ -260,8 +258,7 @@ void DisplayTasks::retrieveHistory()
 {
     historyView.coreService.requestFinishedTasks(
         historyView.selectedDateInterval.toTimeSpan(),
-        std::bind(
-            &DisplayTasks::onHistoryRetrieved, this, std::placeholders::_1));
+        [this](const auto& tasks) { this->onHistoryRetrieved(tasks); });
 }
 
 

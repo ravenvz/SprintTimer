@@ -32,8 +32,8 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
     , coreService{coreService}
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    coreService.yearRange(std::bind(
-            &StatisticsWindow::onYearRangeUpdated, this, std::placeholders::_1));
+    coreService.yearRange(
+            [this](const auto& range) { this->onYearRangeUpdated(range); });
     ui->setupUi(this);
     currentInterval = ui->dateRangePicker->getInterval();
 
@@ -56,9 +56,7 @@ void StatisticsWindow::fetchData()
 {
     coreService.sprintsInTimeRange(
             currentInterval.toTimeSpan(),
-            std::bind(&StatisticsWindow::onDataFetched,
-                      this,
-                      std::placeholders::_1));
+            [this](const auto& sprints) { this->onDataFetched(sprints); });
 }
 
 void StatisticsWindow::onDataFetched(
