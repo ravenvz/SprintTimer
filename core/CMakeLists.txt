@@ -32,6 +32,8 @@ set(CORE_SOURCE_FILES
     src/ToggleTaskCompletionStatus.cpp
     src/CSVReader.cpp
     src/CSVWriter.cpp
+    src/SprintBuilder.cpp
+    src/TaskBuilder.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
