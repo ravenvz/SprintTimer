@@ -26,20 +26,22 @@
 #include "fixtures/FakeTaskStorageReader.h"
 #include "fixtures/FakeTaskStorageWriter.h"
 #include "fixtures/FakeSprintStorageWriter.h"
+#include "core/TaskBuilder.h"
+#include "core/SprintBuilder.h"
 #include <TestHarness.h>
-
 
 TEST_GROUP(TestCoreService)
 {
     const TimeSpan defaultTimeSpan
         = TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()};
+
     Task defaultTask{"Task name",
-                         4,
-                         2,
-                         "550e8400-e29b-41d4-a716-446655440000",
-                         {Tag{"Tag1"}, Tag{"Tag2"}},
-                         false,
-                         DateTime::fromYMD(2015, 11, 10)};
+                      4,
+                      2,
+                      "550e8400-e29b-41d4-a716-446655440000",
+                      {Tag{"Tag1"}, Tag{"Tag2"}},
+                      false,
+                      DateTime::fromYMD(2015, 11, 10)};
 
     FakeStorage<Sprint> sprintStorage;
     FakeStorage<Task> taskStorage;
@@ -51,34 +53,64 @@ TEST_GROUP(TestCoreService)
     FakeTaskStorageWriter taskStorageWriter{taskStorage};
 
     Core::CoreService coreService{sprintStorageReader,
-                                             sprintStorageWriter,
-                                             yearRangeReader,
-                                             taskStorageReader,
-                                             taskStorageWriter,
-                                             sprintDistributionReader,
-                                             sprintDistributionReader,
-                                             sprintDistributionReader};
+                                  sprintStorageWriter,
+                                  yearRangeReader,
+                                  taskStorageReader,
+                                  taskStorageWriter,
+                                  sprintDistributionReader,
+                                  sprintDistributionReader,
+                                  sprintDistributionReader};
 
-    bool sprintHandlerCalled{false};
     bool sprintDistributionHandlerCalled{false};
     bool yearRangeHandlerCalled{false};
-    bool taskHandlerCalled{false};
     bool tagHandlerCalled{false};
+    std::vector<Sprint> sprintBuffer;
+    std::vector<Task> taskBuffer;
 
     void setup()
     {
         sprintStorage.clear();
         taskStorage.clear();
-        sprintHandlerCalled = false;
+        sprintBuffer.clear();
+        taskBuffer.clear();
         sprintDistributionHandlerCalled = false;
         yearRangeHandlerCalled = false;
-        taskHandlerCalled = false;
         tagHandlerCalled = false;
     }
 
-    void sprintTimeRangeHandler(const std::vector<Sprint>& result)
+    void assertStorageReturnedCorrectSprints(const std::vector<Sprint>& result)
     {
-        sprintHandlerCalled = true;
+        CHECK_EQUAL(sprintBuffer.size(), result.size())
+        std::vector<Sprint> sprintOrdByDate(result.cbegin(), result.cend());
+        std::sort(sprintOrdByDate.begin(), sprintOrdByDate.end(),
+                [](const auto& lhs, const auto& rhs) {
+                    return lhs.startTime() < rhs.startTime();
+                });
+        CHECK(std::equal(sprintBuffer.cbegin(),
+                         sprintBuffer.cend(),
+                         sprintOrdByDate.cbegin(),
+                         [](const auto& lhs, const auto& rhs) {
+                             std::cout << lhs.uuid() << " == " << rhs.uuid() << std::endl;
+                             return lhs.uuid() == rhs.uuid();
+                         }));
+    }
+
+    void assertStorageReturnedCorrectTask(const std::vector<Task>& tasks)
+    {
+        CHECK_EQUAL(taskBuffer.size(), tasks.size());
+        auto sortByUuid = [](const auto& lhs, const auto& rhs) {
+            return lhs.uuid() < rhs.uuid();
+        };
+        auto taskEqualByUuid = [](const auto& lhs, const auto& rhs) {
+            return lhs.uuid() == rhs.uuid();
+        };
+        std::vector<Task> tasksByUuid(tasks.cbegin(), tasks.cend());
+        std::sort(tasksByUuid.begin(), tasksByUuid.end(), sortByUuid);
+        std::sort(taskBuffer.begin(), taskBuffer.end(), sortByUuid);
+        CHECK(std::equal(taskBuffer.cbegin(),
+                         taskBuffer.cend(),
+                         tasksByUuid.cbegin(),
+                         taskEqualByUuid));
     }
 
     void yearRangeHandler(const std::vector<std::string>& result)
@@ -89,11 +121,6 @@ TEST_GROUP(TestCoreService)
     void sprintDistributionHandler(const Distribution<int>& result)
     {
         sprintDistributionHandlerCalled = true;
-    }
-
-    void taskHandler(const std::vector<Task>& result)
-    {
-        taskHandlerCalled = true;
     }
 
     void tagHandler(const std::vector<std::string>& tags)
@@ -128,14 +155,29 @@ TEST(TestCoreService,
     CHECK_EQUAL(1, (*taskStorage.getItem(taskUuid)).actualCost());
 }
 
-TEST(TestCoreService, test_request_sprints_in_time_range_calls_handler)
+TEST(TestCoreService, test_request_sprints_in_time_range)
 {
-    coreService.sprintsInTimeRange(
-            defaultTimeSpan, [this](const std::vector<Sprint>& result) {
-                sprintTimeRangeHandler(result);
-            });
+    std::string taskUuid{"1234"};
+    SprintBuilder builder;
+    builder.withTaskUuid(taskUuid);
+    std::vector<Sprint> sprints;
+    DateTime dt = DateTime::fromYMD(2016, 5, 1);
+    for (int i = 0; i < 10; ++i) {
+        TimeSpan timeSpan{dt.addDays(i), dt.addDays(i)};
+        auto sprint = builder.withTimeSpan(timeSpan).build();
+        sprints.push_back(sprint);
+        sprintStorage.store(sprint);
+    }
+    // Expected result
+    sprintBuffer.push_back(sprints[2]);
+    sprintBuffer.push_back(sprints[3]);
+    sprintBuffer.push_back(sprints[4]);
+    TimeSpan timeRange{dt.addDays(2), dt.addDays(4)};
 
-    CHECK(sprintHandlerCalled);
+    coreService.sprintsInTimeRange(
+            timeRange, [this](const std::vector<Sprint>& result) {
+                assertStorageReturnedCorrectSprints(result);
+            });
 }
 
 TEST(TestCoreService, test_request_year_range_calls_handler)
@@ -209,35 +251,30 @@ TEST(TestCoreService, test_undo_functions_properly)
 TEST(TestCoreService, test_edit_task_should_only_alter_allowed_parameters)
 {
     coreService.registerTask(defaultTask);
-    const std::string taskUuid = defaultTask.uuid();
-
     const std::string editedTaskName{"Edited"};
     std::list<Tag> editedTags{Tag{"Tag2"}, Tag{"New Tag"}};
     const int editedEstimated{7};
     const int editedSpent{5};
     const bool editedCompletionStatus{true};
-
-    Task editedTask{editedTaskName,
-                        editedEstimated,
-                        editedSpent,
-                        editedTags,
-                        editedCompletionStatus};
-
+    Task editedTask = TaskBuilder{}
+                      .withName(editedTaskName)
+                      .withEstimatedCost(editedEstimated)
+                      .withActualCost(editedSpent)
+                      .withCompletionStatus(editedCompletionStatus)
+                      .withExplicitTags(editedTags)
+                      .build();
     const DateTime editedTaskLastModified = editedTask.lastModified();
 
     coreService.editTask(defaultTask, editedTask);
-    Task& actual = taskStorage.itemRef(taskUuid);
+    Task& actual = taskStorage.itemRef(defaultTask.uuid());
 
-    // TODO write method to compare Tasks
-
-    CHECK(taskUuid == actual.uuid());
+    CHECK(defaultTask.uuid() == actual.uuid());
     CHECK(editedTaskName == actual.name());
     editedTags.sort();
     auto actualTags = actual.tags();
     actualTags.sort();
     CHECK(editedTags == actualTags);
     CHECK(editedTaskLastModified == actual.lastModified());
-
     // Uuid, actualCost and completion status should not be editable
     CHECK_EQUAL(editedEstimated, actual.estimatedCost());
     CHECK_EQUAL(defaultTask.actualCost(), actual.actualCost());
@@ -245,9 +282,9 @@ TEST(TestCoreService, test_edit_task_should_only_alter_allowed_parameters)
 
     coreService.undoLast();
 
-    Task& afterUndo = taskStorage.itemRef(taskUuid);
+    Task& afterUndo = taskStorage.itemRef(defaultTask.uuid());
 
-    CHECK(taskUuid == afterUndo.uuid());
+    CHECK(defaultTask.uuid() == afterUndo.uuid());
     CHECK(defaultTask.name() == afterUndo.name());
     CHECK(defaultTask.tags() == afterUndo.tags());
     CHECK_EQUAL(defaultTask.estimatedCost(),
@@ -259,19 +296,44 @@ TEST(TestCoreService, test_edit_task_should_only_alter_allowed_parameters)
     CHECK(defaultTask.lastModified() == afterUndo.lastModified());
 }
 
-TEST(TestCoreService, test_request_finished_tasks_calls_handler)
+TEST(TestCoreService, test_request_finished_and_unfinished_tasks)
 {
-    coreService.requestFinishedTasks(
-        defaultTimeSpan,
-        [this](const std::vector<Task>& result) { taskHandler(result); });
-    CHECK(taskHandlerCalled);
-}
+    TaskBuilder builder;
+    DateTime dt = DateTime::fromYMD(2016, 11, 1);
+    TimeSpan timeSpan{dt.addDays(1), dt.addDays(3)};
+    std::vector<Task> expectedFinishedTasks;
+    std::vector<Task> expectedUnfinishedTasks;
+    // Create 5 finished and 5 unfinished tasks.
+    for (int i = 0; i < 5; ++i) {
+        Task finishedTask = builder
+                .withLastModificationStamp(dt.addDays(i))
+                .withCompletionStatus(true)
+                .build();
+        std::cout << dt.addDays(i) << " But get " << finishedTask.lastModified() << std::endl;
+        Task unfinishedTask = builder
+                .withLastModificationStamp(dt.addDays(i))
+                .withCompletionStatus(false)
+                .build();
+        taskStorage.store(finishedTask);
+        taskStorage.store(unfinishedTask);
+        // Push only these to expected buffer as they fit the timeSpan.
+        if (1 <= i && i <=3)
+            expectedFinishedTasks.push_back(finishedTask);
+        expectedUnfinishedTasks.push_back(unfinishedTask);
+    }
 
-TEST(TestCoreService, test_request_unfinished_tasks_calls_handler)
-{
+    taskBuffer = expectedFinishedTasks;
+    coreService.requestFinishedTasks(
+        timeSpan,
+        [this](const std::vector<Task>& result) {
+            assertStorageReturnedCorrectTask(result);
+        });
+
+    taskBuffer = expectedUnfinishedTasks;
     coreService.requestUnfinishedTasks(
-        [this](const std::vector<Task>& result) { taskHandler(result); });
-    CHECK(taskHandlerCalled);
+        [this](const std::vector<Task>& result) {
+            assertStorageReturnedCorrectTask(result);
+        });
 }
 
 TEST(TestCoreService, test_toggle_task_competion_status)
@@ -301,12 +363,13 @@ TEST(TestCoreService, test_request_all_tags_calls_handler)
 
 TEST(TestCoreService, test_edit_tag_should_edit_tag_for_all_items)
 {
+    TaskBuilder taskBuilder;
     const std::list<Tag> tags1{Tag{"Tag1"}, Tag{"Tag2"}};
     const std::list<Tag> tags2{Tag{"Tag2"}, Tag{"Tag3"}};
     const std::list<Tag> tags3{Tag{"Tag1"}, Tag{"Tag5"}};
-    Task item1{"Item 1", 4, 0, tags1, false};
-    Task item2{"Item 2", 4, 0, tags2, false};
-    Task item3{"Item 3", 4, 0, tags3, false};
+    auto item1 = taskBuilder.withExplicitTags(tags1).build();
+    auto item2 = taskBuilder.withExplicitTags(tags2).build();
+    auto item3 = taskBuilder.withExplicitTags(tags3).build();
     const std::list<Tag> exp_tags1{Tag{"EditedTag"}, Tag{"Tag2"}};
     const std::list<Tag> exp_tags2{Tag{"Tag2"}, Tag{"Tag3"}};
     const std::list<Tag> exp_tags3{Tag{"EditedTag"}, Tag{"Tag5"}};
@@ -315,12 +378,10 @@ TEST(TestCoreService, test_edit_tag_should_edit_tag_for_all_items)
     coreService.registerTask(item3);
 
     coreService.editTag("Tag1", "EditedTag");
-    auto item_act1 = taskStorage.itemRef(item1.uuid());
-    auto item_act2 = taskStorage.itemRef(item2.uuid());
-    auto item_act3 = taskStorage.itemRef(item3.uuid());
-    auto tags_act1 = item_act1.tags();
-    auto tags_act2 = item_act2.tags();
-    auto tags_act3 = item_act3.tags();
+
+    auto tags_act1 = taskStorage.itemRef(item1.uuid()).tags();
+    auto tags_act2 = taskStorage.itemRef(item2.uuid()).tags();
+    auto tags_act3 = taskStorage.itemRef(item3.uuid()).tags();
     tags_act1.sort();
     tags_act2.sort();
     tags_act3.sort();
@@ -334,12 +395,10 @@ TEST(TestCoreService, test_edit_tag_should_edit_tag_for_all_items)
 
     // Undo command should revert tag back for all items
     coreService.undoLast();
-    auto item_act_un1 = taskStorage.itemRef(item1.uuid());
-    auto item_act_un2 = taskStorage.itemRef(item2.uuid());
-    auto item_act_un3 = taskStorage.itemRef(item3.uuid());
-    auto tags_act_un1 = item_act_un1.tags();
-    auto tags_act_un2 = item_act_un2.tags();
-    auto tags_act_un3 = item_act_un3.tags();
+
+    auto tags_act_un1 = taskStorage.itemRef(item1.uuid()).tags();
+    auto tags_act_un2 = taskStorage.itemRef(item2.uuid()).tags();
+    auto tags_act_un3 = taskStorage.itemRef(item3.uuid()).tags();
     tags_act_un1.sort();
     tags_act_un2.sort();
     tags_act_un3.sort();

@@ -22,8 +22,6 @@
 #include "core/entities/Task.h"
 #include <TestHarness.h>
 
-#include <iostream>
-
 TEST_GROUP(TestTask){
 
 };
@@ -55,11 +53,9 @@ TEST(TestTask, test_description_no_tags)
     CHECK_TRUE(item.tags().empty())
 }
 
-// TODO figure out what the heck is wrong with this
 TEST(TestTask, test_description_no_name)
 {
     Task item{"#Tag #Test *4"};
-
     std::list<Tag> expected{Tag{"Tag"}, Tag{"Test"}};
 
     auto actual = item.tags();

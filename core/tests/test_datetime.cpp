@@ -283,9 +283,16 @@ TEST(DateTime, test_double_single_quotes_replaced_by_single_quote_in_output)
     CHECK_EQUAL("2016'09'21", dt.toString("yyyy''MM''dd"));
 }
 
-TEST_GROUP(Formatter){
+TEST(DateTime, test_comparison_operators) {
+    DateTime dt = DateTime::fromYMD(2016, 11, 29);
+    DateTime before = DateTime::fromYMD(2016, 11, 28);
+    DateTime after = DateTime::fromYMD(2016, 11, 30);
 
-};
-
-
-TEST(Formatter, test_name) {}
+    CHECK(dt == dt);
+    CHECK(dt <= dt);
+    CHECK(dt >= dt);
+    CHECK(before <= dt);
+    CHECK(before < dt);
+    CHECK(after >= dt);
+    CHECK(after > dt);
+}
