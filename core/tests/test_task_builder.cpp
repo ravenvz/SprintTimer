@@ -29,7 +29,7 @@ TEST_GROUP(TestTaskBuilder) {
 
 TEST(TestTaskBuilder, test_name_) {
     TaskBuilder builder;
-    DateTime expectedTimeStamp = DateTime::fromYMD(2016, 11, 28);
+    DateTime expectedTimeStamp = DateTime::fromYMD(2015, 11, 28);
     std::list<Tag> expectedTags{Tag{"Tag1"}, Tag{"Tag2"}};
 
     auto task = builder
@@ -49,6 +49,7 @@ TEST(TestTaskBuilder, test_name_) {
     CHECK_EQUAL("1234", task.uuid());
     CHECK(task.isCompleted());
     CHECK(expectedTags == task.tags());
+    CHECK(expectedTimeStamp == task.lastModified());
 }
 
 TEST(TestTaskBuilder, test_explicitly_overwrites_tags)
@@ -74,4 +75,14 @@ TEST(TestTaskBuilder, test_generates_new_uuid_when_serial_constructing)
     CHECK(!task1.uuid().empty());
     CHECK(task1.uuid() != task2.uuid());
     CHECK(task2.uuid() != task3.uuid());
+}
+
+TEST(TestTaskBuilder, test_timestamp_modification_bugfix_verification)
+{
+    TaskBuilder builder;
+    DateTime dt = DateTime::fromYMD(2013, 10, 2);
+
+    auto task1 = builder.withLastModificationStamp(dt).build();
+
+    CHECK(dt == task1.lastModified());
 }

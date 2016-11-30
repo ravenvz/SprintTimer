@@ -15,6 +15,8 @@ set(SOURCE_FILES
         test_increment_task_sprints.cpp
         test_csv_reader.cpp
         test_csv_writer.cpp
+        test_sprint_builder.cpp
+        test_task_builder.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

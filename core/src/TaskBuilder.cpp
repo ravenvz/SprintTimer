@@ -24,12 +24,13 @@
 
 Task TaskBuilder::build()
 {
-    if (!uuid)
-        return Task{name, estimatedCost, actualCost, tags, completionStatus};
     if (!lastModified)
         lastModified = make_optional(DateTime::currentDateTimeLocal());
+    if (!uuid)
+        return Task{name, estimatedCost, actualCost, tags, completionStatus, *lastModified};
     Task task{name, estimatedCost, actualCost, *uuid, tags, completionStatus, *lastModified};
     uuid = optional<std::string>{};
+    lastModified = optional<DateTime>{};
     return task;
 }
 
