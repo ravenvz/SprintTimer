@@ -31,14 +31,15 @@ Task::Task(std::string name,
            int estimatedCost,
            int actualCost,
            std::list<Tag> tags,
-           bool completed)
+           bool completed,
+           const DateTime& lastModified)
     : mName(name)
     , mEstimatedCost(estimatedCost)
     , mActualCost(actualCost)
     , mUuid{generator.generateUUID()}
     , mTags(std::move(tags))
     , mCompleted(completed)
-    , mLastModified{DateTime::currentDateTimeLocal()}
+    , mLastModified{lastModified}
 {
 }
 
