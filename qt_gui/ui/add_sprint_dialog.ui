@@ -100,7 +100,24 @@
       </font>
      </property>
      <property name="text">
-      <string>Pick task that sprint is associated with</string>
+      <string>Pick task</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QLabel" name="lblNumSprints">
+     <property name="text">
+      <string>Number of sprints:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QSpinBox" name="sbNumSpints">
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="value">
+      <number>1</number>
      </property>
     </widget>
    </item>

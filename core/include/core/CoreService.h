@@ -69,6 +69,8 @@ public:
     void registerSprint(const TimeSpan& timeSpan,
                         const std::string& taskUuid) final;
 
+    void registerSprint(const Sprint& sprint) final;
+
     void removeSprint(const Sprint& sprint) final;
 
     void sprintsInTimeRange(const TimeSpan& timeSpan,

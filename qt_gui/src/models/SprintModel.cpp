@@ -66,6 +66,19 @@ void SprintModel::insert(const TimeSpan& timeSpan, const std::string& taskUuid)
     requestDataUpdate();
 }
 
+void SprintModel::insert(const Sprint& sprint)
+{
+    coreService.registerSprint(sprint);
+    requestDataUpdate();
+}
+
+void SprintModel::insert(const std::vector<Sprint>& sprints)
+{
+    for (const auto& sprint : sprints)
+        coreService.registerSprint(sprint);
+    requestDataUpdate();
+}
+
 void SprintModel::remove(int row)
 {
     coreService.removeSprint(storage[static_cast<size_t>(row)]);
