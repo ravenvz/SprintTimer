@@ -1,9 +1,14 @@
-Plans for version 0.3.7
+Plans for version 0.3.8
 -----------------------
 Optimized GUI for smaller resolution displays
 
 HISTORY
 ----------------------------------------------------------------
+
+Version 0.3.7
+-------------
+Multiple sprints can be added for task in manual add dialog
+Add some acceptance tests
 
 Version 0.3.6
 -------------
