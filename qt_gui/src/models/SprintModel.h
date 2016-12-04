@@ -29,6 +29,7 @@
 
 class SprintModel : public AsyncListModel {
     Q_OBJECT
+
 public:
     SprintModel(ICoreService& coreService,
                            QObject* parent);
@@ -41,6 +42,10 @@ public:
     void setDateFilter(const TimeSpan& timeSpan);
 
     void insert(const TimeSpan& timeSpan, const std::string& taskUuid);
+
+    void insert(const Sprint& sprint);
+
+    void insert(const std::vector<Sprint>& sprints);
 
     void remove(int row);
 

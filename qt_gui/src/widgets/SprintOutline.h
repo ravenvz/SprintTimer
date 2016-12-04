@@ -29,6 +29,8 @@
 #include "core/IConfig.h"
 #include "models/SprintModel.h"
 #include "models/TaskModel.h"
+#include <memory>
+#include "dialogs/AddSprintDialog.h"
 
 namespace Ui {
 class SprintOutline;
@@ -56,6 +58,7 @@ private:
     SprintModel* sprintModel;
     TaskModel* taskModel;
     const QSize desiredSize{300, 200};
+    std::unique_ptr<AddSprintDialog> addSprintDialog;
 
     void removeSprint();
 

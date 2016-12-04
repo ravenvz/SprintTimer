@@ -64,6 +64,8 @@ public:
                                 const std::string& taskUuid)
         = 0;
 
+    virtual void registerSprint(const Sprint& sprint) = 0;
+
     virtual void removeSprint(const Sprint& sprint) = 0;
 
     virtual void

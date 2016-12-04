@@ -321,6 +321,10 @@ bool Database::testConnection(QSqlDatabase& database)
 
 bool Database::upgradeIfRequired(QSqlDatabase& database) {
     auto version = getDatabaseVersion(database);
+    if (version == 0) {
+        qCritical() << "Error querying for database version";
+        return false;
+    }
 
     qDebug() << "Latest database version is " << currentDatabaseVersion;
     qDebug() << "Actual database version is " << version;
@@ -357,15 +361,11 @@ unsigned Database::getDatabaseVersion(QSqlDatabase& database)
     query.prepare(getVersionQuery);
     query.bindValue(":name", "version");
 
-    if (!query.exec()) {
-        return false;
-    }
-
-    if (!query.first())
-        return false;
+    if (!query.exec() || !query.first())
+        return 0;
 
     QString versionStr{query.value(0).toString()};
-    auto version = versionStr.toInt();
+    auto version = versionStr.toUInt();
     query.finish();
 
     return version;

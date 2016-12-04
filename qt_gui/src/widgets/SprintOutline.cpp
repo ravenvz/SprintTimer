@@ -61,9 +61,9 @@ SprintOutline::~SprintOutline() { delete ui; }
 
 void SprintOutline::launchManualAddSprintDialog()
 {
-    AddSprintDialog dialog{
-        sprintModel, taskModel, applicationSettings.sprintDuration()};
-    dialog.exec();
+    addSprintDialog.reset(new AddSprintDialog{sprintModel, taskModel, applicationSettings.sprintDuration()});
+    addSprintDialog->setModal(true);
+    addSprintDialog->show();
 }
 
 void SprintOutline::adjustAddSprintButtonState()

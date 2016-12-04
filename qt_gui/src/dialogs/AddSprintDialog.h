@@ -23,7 +23,7 @@
 #define ADDSPRINTDIALOG_H
 
 #include "models/SprintModel.h"
-#include "src/models/TaskModel.h"
+#include "models/TaskModel.h"
 #include <QDialog>
 #include <QPointer>
 #include <QtWidgets/QCalendarWidget>
@@ -46,8 +46,8 @@ public:
     void accept() override;
 
 private slots:
-    void autoAdjustFinishTime(const QDateTime& dateTime);
-    void autoAdjustStartTime(const QDateTime& dateTime);
+    void autoAdjustFinishTime();
+    void autoAdjustStartTime();
 
 private:
     Ui::AddSprintDialog* ui;
@@ -57,6 +57,8 @@ private:
     int sprintDuration;
 
     void setData();
+
+    int totalSprintLength() const;
 };
 
 #endif // ADDSPRINTDIALOG_H
