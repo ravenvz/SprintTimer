@@ -23,8 +23,6 @@
 #ifndef SPRINT_TIMER_OSTREAMSINK_H_H
 #define SPRINT_TIMER_OSTREAMSINK_H_H
 
-#include "core/external_io/Marshaller.h"
-#include <boost/shared_ptr.hpp>
 #include <ostream>
 
 namespace ExternalIO {
@@ -38,8 +36,6 @@ public:
     }
 
     void send(const std::string& data) override { (*out) << data; }
-
-    void send(char ch) override { (*out) << ch; }
 
 private:
     std::shared_ptr<std::ostream> out;

@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "core/CoreService.h"
-#include "core/StringUtils.h"
 #include "core/use_cases/AddNewTask.h"
 #include "core/use_cases/DecrementTaskSprints.h"
 #include "core/use_cases/DeleteTask.h"
@@ -38,48 +37,8 @@
 #include "core/use_cases/RequestUnfinishedTasks.h"
 #include "core/use_cases/StoreUnfinishedTasksOrder.h"
 #include "core/use_cases/ToggleTaskCompletionStatus.h"
-#include "core/external_io/Marshaller.h"
 
 namespace Core {
-
-namespace {
-
-    using namespace ExternalIO;
-
-    void onTasksPreparedForExport(std::shared_ptr<Marshaller> marshaller,
-                                  const std::vector<Task>& tasks)
-    {
-        auto task_to_string = [](const Task& task) {
-            std::vector<std::string> str;
-            auto tags = task.tags();
-            str.emplace_back(StringUtils::join(cbegin(tags), cend(tags), ", "));
-            str.emplace_back(task.name());
-            str.emplace_back(task.uuid());
-            str.emplace_back(std::to_string(task.isCompleted()));
-            str.emplace_back(std::to_string(task.actualCost()));
-            str.emplace_back(std::to_string(task.estimatedCost()));
-            return str;
-        };
-        marshaller->marshall(tasks, task_to_string);
-    }
-
-    void onSprintsPreparedForExport(std::shared_ptr<Marshaller> marshaller,
-                                    const std::vector<Sprint>& sprints)
-    {
-        auto sprint_to_str = [](const Sprint& sprint) {
-            std::vector<std::string> str;
-            auto tags = sprint.tags();
-            str.emplace_back(StringUtils::join(cbegin(tags), cend(tags), ", "));
-            str.emplace_back(sprint.timeSpan().toString("hh:MM"));
-            str.emplace_back(sprint.name());
-            str.emplace_back(sprint.taskUuid());
-            str.emplace_back(sprint.uuid());
-            return str;
-        };
-        marshaller->marshall(sprints, sprint_to_str);
-    }
-
-} // namespace
 
 CoreService::CoreService(
     ISprintStorageReader& sprintStorageReader,
@@ -156,16 +115,18 @@ void CoreService::requestUnfinishedTasks(
     invoker.executeCommand(std::move(requestItems));
 }
 
-void CoreService::exportTasks(std::shared_ptr<Marshaller> marshaller,
-                              const TimeSpan& timeSpan)
+void CoreService::exportTasks(const TimeSpan& timeSpan,
+                              std::shared_ptr<ExternalIO::ISink> sink,
+                              ICoreService::TaskEncodingFunc func)
 {
     std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestTasks>(
-            taskReader, timeSpan, [marshaller](const auto& tasks) {
-                onTasksPreparedForExport(marshaller, tasks);
-            });
+            = std::make_unique<UseCases::RequestTasks>(
+                    taskReader, timeSpan, [sink, func](const auto& tasks) {
+                        sink->send(func(tasks));
+                    });
     invoker.executeCommand(std::move(requestItems));
 }
+
 
 void CoreService::sprintsInTimeRange(
     const TimeSpan& timeSpan,
@@ -210,14 +171,15 @@ void CoreService::removeSprint(const Sprint& sprint)
     invoker.executeCommand(std::move(removeSprintTransaction));
 }
 
-void CoreService::exportSprints(std::shared_ptr<Marshaller> marshaller,
-                                const TimeSpan& timeSpan)
+void CoreService::exportSprints(const TimeSpan& timeSpan,
+                                std::shared_ptr<ExternalIO::ISink> sink,
+                                ICoreService::SprintEncodingFunc func)
 {
     std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestSprints>(
-            sprintReader, timeSpan, [marshaller](const auto& sprints) {
-                onSprintsPreparedForExport(marshaller, sprints);
-            });
+            = std::make_unique<UseCases::RequestSprints>(
+                    sprintReader, timeSpan, [sink, func](const auto& sprints) {
+                        sink->send(func(sprints));
+                    });
     invoker.executeCommand(std::move(requestItems));
 }
 

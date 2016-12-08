@@ -33,7 +33,6 @@ public:
 
     virtual void send(const std::string& data) = 0;
 
-    virtual void send(char ch) = 0;
 };
 
 } // namespace ExternalIO

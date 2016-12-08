@@ -19,40 +19,48 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/external_io/CSVWriter.h"
-#include "core/external_io/OstreamSink.h"
+#include "core/utils/CSVEncoder.h"
 #include <TestHarness.h>
 
 using namespace ExternalIO;
 
-TEST_GROUP(TestCSVWriter){
+TEST_GROUP(TestCSVEncoder){
 
 };
 
-TEST(TestCSVWriter, test_encodes_trivial)
+TEST(TestCSVEncoder, test_trivial_encoding)
 {
-    std::stringstream expected;
-    std::vector<std::string> data{"One", "two", "three"};
-    expected << "One,two,three\n";
-    auto actual = std::make_shared<std::stringstream>();
-    auto sink = OstreamSink{actual};
-    CSV::CSVWriter writer;
+    std::vector<CSV::CSVEncoder::Data> data{{"One", "two", "three"}};
+    std::string expected{"One,two,three\n"};
+    CSV::CSVEncoder encoder;
 
-    writer.exportData(&sink, data);
-
-    CHECK_EQUAL(expected.str(), (*actual).str())
+    CHECK_EQUAL(expected, encoder.encode(data));
 }
 
-TEST(TestCSVWriter, test_encodes_quoted_values)
+TEST(TestCSVEncoder, test_quoted_values_encoding)
 {
-    std::stringstream expected;
-    std::vector<std::string> data{"One", "this \"value\" is quoted", "three"};
-    expected << "One,this \"\"value\"\" is quoted,three\n";
-    auto actual = std::make_shared<std::stringstream>();
-    auto sink = OstreamSink{actual};
-    CSV::CSVWriter writer;
+    std::vector<CSV::CSVEncoder::Data> data{{"One", "this \"value\" is quoted", "three"}};
+    std::string expected{"One,this \"\"value\"\" is quoted,three\n"};
+    CSV::CSVEncoder encoder;
 
-    writer.exportData(&sink, data);
+    CHECK_EQUAL(expected, encoder.encode(data));
+}
 
-    CHECK_EQUAL(expected.str(), (*actual).str());
+TEST(TestCSVEncoder, test_encode_generic_type)
+{
+    struct T {
+        std::string name;
+        int value;
+    };
+    std::vector<T> data{T{"Pressure", 42}, T{"Temperature", 22}};
+    auto vectorize = [](const T& item) {
+        std::vector<std::string> vec;
+        vec.push_back(item.name);
+        vec.push_back(std::to_string(item.value));
+        return vec;
+    };
+    CSV::CSVEncoder encoder;
+    std::string expected{"Pressure,42\nTemperature,22\n"};
+
+    CHECK_EQUAL(expected, encoder.encode(data, vectorize));
 }

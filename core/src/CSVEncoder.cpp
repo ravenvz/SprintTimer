@@ -20,34 +20,51 @@
 **
 *********************************************************************************/
 
-#ifndef SPRINT_TIMER_CSVWRITER_H
-#define SPRINT_TIMER_CSVWRITER_H
-
-#include <ostream>
-#include <string>
-#include <vector>
-#include <memory>
-#include "core/entities/Sprint.h"
-#include "core/external_io/IDataExporter.h"
+#include "core/utils/CSVEncoder.h"
 
 namespace ExternalIO {
 
 namespace CSV {
 
-class CSVWriter : public IDataExporter {
-public:
-    CSVWriter(char delimiter = ',');
+CSVEncoder::CSVEncoder(char delimiter)
+    : delimiter{delimiter}
+{
 
-    void exportData(ExternalIO::ISink* sink, const std::vector<std::string>& data) override;
+}
 
-private:
-    const char delimiter;
+void CSVEncoder::encodeRow(const std::vector<std::string>& row)
+{
+    if (row.empty())
+        return;
+    for (auto it = row.cbegin(); it != row.cend() - 1; ++it) {
+        writeValue(*it);
+        ss << delimiter;
+    }
+    writeValue(row.back());
+    ss << "\n";
+}
 
-    void writeValue(ExternalIO::ISink* sink, const std::string& value);
-};
+std::string CSVEncoder::encode(const std::vector<CSVEncoder::Data>& data)
+{
+    if (data.empty())
+        return "";
+    for (const auto& row : data) {
+        encodeRow(row);
+    }
+    std::string result = ss.str();
+    ss.str("");
+    return result;
+}
+
+void CSVEncoder::writeValue(const std::string& value)
+{
+    for (char ch : value) {
+        ss << ch;
+        if (ch == '"')
+            ss << "\"";
+    }
+}
 
 } // namespace CSV
 
 } // namespace ExternalIO
-
-#endif // SPRINT_TIMER_CSVWRITER_H

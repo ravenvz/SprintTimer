@@ -20,38 +20,50 @@
 **
 *********************************************************************************/
 
-#include "core/external_io/CSVWriter.h"
+#ifndef SPRINT_TIMER_CSVWRITER_H
+#define SPRINT_TIMER_CSVWRITER_H
+
+#include <ostream>
+#include <string>
+#include <vector>
+#include <memory>
+#include "core/entities/Sprint.h"
+#include "core/external_io/IDataExporter.h"
 
 namespace ExternalIO {
 
 namespace CSV {
 
-CSVWriter::CSVWriter(char delimiter)
-    : delimiter{delimiter}
-{
-}
+class CSVEncoder {
+public:
+    using Data = std::vector<std::string>;
+    CSVEncoder(char delimiter = ',');
 
-void CSVWriter::exportData(ExternalIO::ISink* sink, const std::vector<std::string>& data)
-{
-    if (data.empty())
-        return;
-    for (auto it = data.cbegin(); it != data.cend() - 1; ++it) {
-        writeValue(sink, *it);
-        sink->send(delimiter);
-    }
-    writeValue(sink, data.back());
-    sink->send("\n");
-}
+    std::string encode(const std::vector<Data>& data);
 
-void CSVWriter::writeValue(ExternalIO::ISink* sink, const std::string& value)
-{
-    for (char ch : value) {
-        sink->send(ch);
-        if (ch == '"')
-            sink->send("\"");
-    }
-}
+    template <typename T, typename Func>
+    std::string encode(const std::vector<T>& data, Func func)
+    {
+        if (data.empty())
+            return "";
+        for (const auto& item : data) {
+            encodeRow(func(item));
+        }
+        std::string result = ss.str();
+        ss.str("");
+        return result;
+    };
+
+private:
+    const char delimiter;
+    std::stringstream ss;
+
+    void encodeRow(const std::vector<std::string>& row);
+    void writeValue(const std::string& value);
+};
 
 } // namespace CSV
 
 } // namespace ExternalIO
+
+#endif // SPRINT_TIMER_CSVWRITER_H

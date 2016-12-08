@@ -27,7 +27,7 @@
 #include "core/entities/Sprint.h"
 #include <functional>
 #include <string>
-#include "core/external_io/Marshaller.h"
+#include "core/external_io/ISink.h"
 
 
 class ICoreService {
@@ -36,6 +36,8 @@ public:
     using SprintResultHandler = std::function<void(const std::vector<Sprint>&)>;
     using TagResultHandler
         = std::function<void(const std::vector<std::string>&)>;
+    using SprintEncodingFunc = std::function<std::string(const std::vector<Sprint>& sprints)>;
+    using TaskEncodingFunc = std::function<std::string(const std::vector<Task>& task)>;
 
     virtual ~ICoreService() = default;
 
@@ -60,9 +62,9 @@ public:
     requestUnfinishedTasks(TaskResultHandler onResultsReceivedCallback)
         = 0;
 
-    virtual void exportTasks(std::shared_ptr<ExternalIO::Marshaller> marshaller,
-                             const TimeSpan& timeSpan)
-        = 0;
+    virtual void exportTasks(const TimeSpan& timeSpan,
+                             std::shared_ptr<ExternalIO::ISink> sink,
+                             TaskEncodingFunc func) = 0;
 
     virtual void registerSprint(const TimeSpan& timeSpan,
                                 const std::string& taskUuid)
@@ -75,9 +77,9 @@ public:
                        SprintResultHandler onResultsReceivedCallback)
         = 0;
 
-    virtual void exportSprints(std::shared_ptr<ExternalIO::Marshaller> marshaller,
-                               const TimeSpan& timeSpan)
-        = 0;
+    virtual void exportSprints(const TimeSpan& timeSpan,
+                               std::shared_ptr<ExternalIO::ISink> sink,
+                               SprintEncodingFunc func) = 0;
 
     virtual void yearRange(std::function<void(const std::vector<std::string>&)>
                                onResultsReceivedCallback)

@@ -23,7 +23,7 @@
 #include "ui_history.h"
 #include <QPainter>
 #include <fstream>
-#include "core/external_io/CSVWriter.h"
+#include "core/utils/CSVEncoder.h"
 #include "core/external_io/OstreamSink.h"
 
 #include <QDebug>
@@ -230,10 +230,24 @@ void DisplaySprints::exportData(const ExportDialog::ExportOptions& options)
     auto filePath = ss.str();
     auto out = std::make_shared<std::ofstream>(filePath);
     auto sink = std::make_shared<OstreamSink>(out);
-    auto writer = std::make_shared<CSV::CSVWriter>(options.delimiter);
-    auto marshaller = std::make_shared<Marshaller>(writer, sink);
-    historyView.coreService.exportSprints(marshaller,
-                                          historyView.selectedDateInterval.toTimeSpan());
+    auto serializeSprint = [](const Sprint& sprint) {
+        std::vector<std::string> str;
+        auto tags = sprint.tags();
+        str.emplace_back(StringUtils::join(cbegin(tags), cend(tags), ", "));
+        str.emplace_back(sprint.timeSpan().toString("hh:MM"));
+        str.emplace_back(sprint.name());
+        str.emplace_back(sprint.taskUuid());
+        str.emplace_back(sprint.uuid());
+        return str;
+    };
+    auto func = [serializeSprint](const auto& sprints) {
+        CSV::CSVEncoder encoder;
+        return encoder.encode(sprints, serializeSprint);
+    };
+    historyView.coreService.exportSprints(
+            historyView.selectedDateInterval.toTimeSpan(),
+            sink,
+            func);
 }
 
 
@@ -272,11 +286,25 @@ void DisplayTasks::exportData(const ExportDialog::ExportOptions& options)
     auto filePath = ss.str();
     auto out = std::make_shared<std::ofstream>(filePath);
     auto sink = std::make_shared<OstreamSink>(out);
-    auto writer = std::make_shared<CSV::CSVWriter>();
-    auto marshaller = std::make_shared<Marshaller>(writer, sink);
+    auto serializeTask = [](const Task& task) {
+        std::vector<std::string> str;
+        auto tags = task.tags();
+        str.emplace_back(StringUtils::join(cbegin(tags), cend(tags), ", "));
+        str.emplace_back(task.name());
+        str.emplace_back(task.uuid());
+        str.emplace_back(std::to_string(task.isCompleted()));
+        str.emplace_back(std::to_string(task.actualCost()));
+        str.emplace_back(std::to_string(task.estimatedCost()));
+        return str;
+    };
+    auto func = [serializeTask](const auto& tasks) {
+        CSV::CSVEncoder encoder;
+        return encoder.encode(tasks, serializeTask);
+    };
     historyView.coreService.exportTasks(
-        marshaller,
-        historyView.selectedDateInterval.toTimeSpan());
+            historyView.selectedDateInterval.toTimeSpan(),
+            sink,
+            func);
 }
 
 

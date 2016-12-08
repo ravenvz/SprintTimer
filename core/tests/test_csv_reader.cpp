@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/external_io/CSVReader.h"
+#include "core/utils/CSVReader.h"
 #include <TestHarness.h>
 #include <iostream>
 #include <iterator>

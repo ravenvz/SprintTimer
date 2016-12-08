@@ -31,7 +31,7 @@ set(CORE_SOURCE_FILES
     src/StoreUnfinishedTasksOrder.cpp
     src/ToggleTaskCompletionStatus.cpp
     src/CSVReader.cpp
-    src/CSVWriter.cpp
+    src/CSVEncoder.cpp
     src/SprintBuilder.cpp
     src/TaskBuilder.cpp
 )

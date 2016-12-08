@@ -32,7 +32,6 @@
 #include "core/ITaskStorageWriter.h"
 #include "core/IYearRangeReader.h"
 #include "core/MacroTransaction.h"
-#include "core/external_io/Marshaller.h"
 
 namespace Core {
 
@@ -65,8 +64,9 @@ public:
     void requestUnfinishedTasks(std::function<void(const std::vector<Task>&)>
                                     onResultsReceivedCallback) final;
 
-    void exportTasks(std::shared_ptr<ExternalIO::Marshaller> marshaller,
-                     const TimeSpan& timeSpan) final;
+    void exportTasks(const TimeSpan& timeSpan,
+            std::shared_ptr<ExternalIO::ISink> sink,
+            TaskEncodingFunc func) final;
 
     void registerSprint(const TimeSpan& timeSpan,
                         const std::string& taskUuid) final;
@@ -77,8 +77,9 @@ public:
                             std::function<void(const std::vector<Sprint>&)>
                             onResultsReceivedCallback) final;
 
-    void exportSprints(std::shared_ptr<ExternalIO::Marshaller> marshaller,
-                       const TimeSpan& timeSpan) final;
+    void exportSprints(const TimeSpan& timeSpan,
+                       std::shared_ptr<ExternalIO::ISink> sink,
+                       SprintEncodingFunc func) final;
 
     void yearRange(std::function<void(const std::vector<std::string>&)>
                    onResultsReceivedCallback) final;
