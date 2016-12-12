@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>History</string>
   </property>
-  <widget class="QTabWidget" name="twHistoryDisplay">
+  <widget class="QTabWidget" name="historyTab">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -25,23 +25,23 @@
    <property name="currentIndex">
     <number>1</number>
    </property>
-   <widget class="QWidget" name="tabSprintHistory">
+   <widget class="QWidget" name="sprintHistoryTab">
     <attribute name="title">
      <string>Sprint History</string>
     </attribute>
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="0">
-      <widget class="QTreeView" name="lvSprintHistory"/>
+      <widget class="QTreeView" name="sprintHistoryView"/>
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="taskHistory">
+   <widget class="QWidget" name="taskHistoryTab">
     <attribute name="title">
      <string>Todo History</string>
     </attribute>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
-      <widget class="QTreeView" name="lvTaskHistory"/>
+      <widget class="QTreeView" name="taskHistoryView"/>
      </item>
     </layout>
    </widget>
@@ -62,7 +62,7 @@
     </sizepolicy>
    </property>
   </widget>
-  <widget class="QPushButton" name="pbExport">
+  <widget class="QPushButton" name="exportButton">
    <property name="geometry">
     <rect>
      <x>450</x>
@@ -81,9 +81,9 @@
     <string>Export</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="reportButton">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>

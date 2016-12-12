@@ -84,12 +84,12 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
     coreService.yearRange([this](const auto& range) { this->onYearRangeUpdated(range); });
     selectedDateInterval = ui->dateRangePicker->getInterval();
     viewModel = new QStandardItemModel(this);
-    ui->lvTaskHistory->setHeaderHidden(true);
-    ui->lvSprintHistory->setHeaderHidden(true);
-    ui->lvSprintHistory->setItemDelegate(new HistoryViewDelegate(this));
-    ui->lvTaskHistory->setItemDelegate(new HistoryViewDelegate(this));
+    ui->taskHistoryView->setHeaderHidden(true);
+    ui->sprintHistoryView->setHeaderHidden(true);
+    ui->sprintHistoryView->setItemDelegate(new HistoryViewDelegate(this));
+    ui->taskHistoryView->setItemDelegate(new HistoryViewDelegate(this));
     historyState = displayTasksState.get();
-    connect(ui->twHistoryDisplay,
+    connect(ui->historyTab,
             &QTabWidget::currentChanged,
             this,
             &HistoryWindow::onTabSelected);
@@ -97,7 +97,7 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
             &DateRangePicker::timeSpanChanged,
             this,
             &HistoryWindow::onDatePickerIntervalChanged);
-    connect(ui->pbExport,
+    connect(ui->exportButton,
             &QPushButton::clicked,
             this,
             &HistoryWindow::onExportButtonClicked);
@@ -264,7 +264,7 @@ void DisplaySprints::onHistoryRetrieved(const std::vector<Sprint>& sprints)
                            sprintToString(sprint));
                    });
     historyView.fillHistoryModel(sprintHistory);
-    historyView.setHistoryModel(historyView.ui->lvSprintHistory);
+    historyView.setHistoryModel(historyView.ui->sprintHistoryView);
 }
 
 
@@ -322,5 +322,5 @@ void DisplayTasks::onHistoryRetrieved(const std::vector<Task>& tasks)
                    });
 
     historyView.fillHistoryModel(taskHistory);
-    historyView.setHistoryModel(historyView.ui->lvTaskHistory);
+    historyView.setHistoryModel(historyView.ui->taskHistoryView);
 }
