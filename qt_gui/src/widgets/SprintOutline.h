@@ -69,6 +69,8 @@ private slots:
     void showContextMenu(const QPoint& pos);
     void onUndoButtonClicked();
 
+signals:
+    void actionUndone();
 };
 
 

@@ -77,6 +77,10 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &SprintModel::modelReset,
             this,
             &MainWindow::updateDailyProgress);
+    connect(sprintOutline,
+            &SprintOutline::actionUndone,
+            launcherMenu,
+            &LauncherMenu::onSyncRequired);
 
     // As models update data asynchroniously,
     // other models that depend on that data should

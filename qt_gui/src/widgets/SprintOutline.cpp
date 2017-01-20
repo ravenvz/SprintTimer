@@ -122,6 +122,7 @@ void SprintOutline::onUndoButtonClicked()
         coreService.undoLast();
         sprintModel->synchronize();
         taskModel->synchronize();
+        emit actionUndone();
         adjustUndoButtonState();
     }
 }
