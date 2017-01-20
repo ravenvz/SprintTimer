@@ -286,6 +286,7 @@ void Finished::setNextState()
 void Finished::cancel()
 {
     timer.currentState = timer.idleState.get();
+    timer.buffer.clear();
     notifyStateChanged(timer.currentState->state());
 }
 
