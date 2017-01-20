@@ -149,7 +149,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
     for (int row = 0; row < rowCount(); ++row) {
         priorities.push_back({itemAt(row).uuid(), row});
     }
-    priorities[destinationRow].second = priorities[sourceRow].second;
+    std::swap(priorities[destinationRow].second, priorities[sourceRow].second);
 
     coreService.registerTaskPriorities(std::move(priorities));
     requestDataUpdate();
