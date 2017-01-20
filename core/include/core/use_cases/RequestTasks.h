@@ -19,31 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEREADER_H_RMTKEREJ
-#define ITASKSTORAGEREADER_H_RMTKEREJ
+#ifndef SPRINT_TIMER_REQUESTTASKS_H
+#define SPRINT_TIMER_REQUESTTASKS_H
 
+#include "core/Command.h"
 #include "core/TimeSpan.h"
-#include "core/entities/Task.h"
-#include <functional>
+#include "core/ITaskStorageReader.h"
 
-class ITaskStorageReader {
+namespace UseCases {
+
+class RequestTasks : public Command {
 public:
-    using Items = std::vector<Task>;
+    RequestTasks(ITaskStorageReader& taskStorageReader,
+                 const TimeSpan& timeSpan,
+                 ITaskStorageReader::Handler handler);
 
-    using Handler = std::function<void(const Items&)>;
+    void execute() final;
 
-    using TagHandler = std::function<void(const std::vector<std::string>&)>;
+    std::string inspect() const final;
 
-    virtual ~ITaskStorageReader() = default;
-
-    virtual void requestUnfinishedTasks(Handler handler) = 0;
-
-    virtual void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler)
-        = 0;
-
-    virtual void requestTasks(const TimeSpan& timeSpan, Handler handler) = 0;
-
-    virtual void requestAllTags(TagHandler handler) = 0;
+private:
+    ITaskStorageReader& reader;
+    const TimeSpan timeSpan;
+    ITaskStorageReader::Handler handler;
 };
 
-#endif /* end of include guard: ITASKSTORAGEREADER_H_RMTKEREJ */
+} /* UseCases */
+
+#endif //SPRINT_TIMER_REQUESTTASKS_H

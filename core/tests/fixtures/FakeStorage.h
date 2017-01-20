@@ -29,6 +29,7 @@
 #include <core/utils/OptionalPl.h>
 #include <unordered_map>
 
+
 template <class Entity>
 class FakeStorage {
 public:
@@ -51,12 +52,37 @@ public:
         }
     }
 
-    void
-    itemsInTimeRange(const TimeSpan& timeSpan,
-                     std::function<void(const std::vector<Entity>&)> callback)
+    bool itemLiesInRange(const TimeSpan& timeSpan, const Sprint& item)
     {
-        std::vector<Entity> emptyResult;
-        callback(emptyResult);
+        return (timeSpan.startTime <= item.startTime() &&
+                item.startTime() <= timeSpan.finishTime);
+    }
+
+    bool itemLiesInRange(const TimeSpan& timeSpan, const Task& item)
+    {
+        return (timeSpan.startTime <= item.lastModified() &&
+                item.lastModified() <= timeSpan.finishTime);
+    }
+
+    void itemsInTimeRange(const TimeSpan& timeSpan,
+                          std::function<void(const std::vector<Entity>&)> callback)
+    {
+        std::vector<Entity> items;
+        for (const auto& item : storage) {
+            if (itemLiesInRange(timeSpan, item.second))
+                items.push_back(item.second);
+        }
+        callback(items);
+    }
+
+    void requestUnfinishedItems(std::function<void(const std::vector<Task>&)> callback)
+    {
+        std::vector<Task> unfinished;
+        for (const auto& item : storage) {
+            if (!item.second.isCompleted())
+                unfinished.push_back(item.second);
+        }
+        callback(unfinished);
     }
 
     void requestDailyDistribution(

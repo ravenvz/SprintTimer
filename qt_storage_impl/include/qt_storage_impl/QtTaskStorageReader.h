@@ -36,6 +36,8 @@ public:
 
     void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler) final;
 
+    void requestTasks(const TimeSpan& timeSpan, Handler handler) final;
+
     void requestAllTags(TagHandler handler) final;
 
 private:
@@ -55,6 +57,7 @@ private:
 
     long long mUnfinishedQueryId{-1};
     long long mFinishedQueryId{-1};
+    long long mRequestTasksQueryId{-1};
     long long mTagQueryId{-1};
     DBService& dbService;
     std::list<Handler> handler_queue;

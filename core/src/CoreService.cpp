@@ -36,6 +36,7 @@
 #include "core/use_cases/RequestUnfinishedTasks.h"
 #include "core/use_cases/StoreUnfinishedTasksOrder.h"
 #include "core/use_cases/ToggleTaskCompletionStatus.h"
+#include "core/use_cases/RequestTasks.h"
 
 namespace Core {
 
@@ -114,6 +115,18 @@ void CoreService::requestUnfinishedTasks(
     invoker.executeCommand(std::move(requestItems));
 }
 
+void CoreService::exportTasks(const TimeSpan& timeSpan,
+        std::shared_ptr<ExternalIO::ISink> sink,
+        ICoreService::TaskEncodingFunc func)
+{
+    std::unique_ptr<Command> requestItems
+            = std::make_unique<UseCases::RequestTasks>(
+                    taskReader, timeSpan, [sink, func](const auto& tasks) {
+                        sink->send(func(tasks));
+                    });
+    invoker.executeCommand(std::move(requestItems));
+}
+
 void CoreService::sprintsInTimeRange(
         const TimeSpan& timeSpan,
         std::function<void(const std::vector<Sprint>&)> onResultsReceivedCallback)
@@ -159,6 +172,18 @@ void CoreService::removeSprint(const Sprint& sprint)
     auto removeSprintTransaction
         = std::make_unique<MacroTransaction>(std::move(commands));
     invoker.executeCommand(std::move(removeSprintTransaction));
+}
+
+void CoreService::exportSprints(const TimeSpan& timeSpan,
+        std::shared_ptr<ExternalIO::ISink> sink,
+        ICoreService::SprintEncodingFunc func)
+{
+    std::unique_ptr<Command> requestItems
+            = std::make_unique<UseCases::RequestSprints>(
+                    sprintReader, timeSpan, [sink, func](const auto& sprints) {
+                        sink->send(func(sprints));
+                    });
+    invoker.executeCommand(std::move(requestItems));
 }
 
 void CoreService::yearRange(

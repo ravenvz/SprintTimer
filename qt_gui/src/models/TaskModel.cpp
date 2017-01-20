@@ -33,7 +33,7 @@ TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
 void TaskModel::requestDataUpdate()
 {
     coreService.requestUnfinishedTasks(
-        std::bind(&TaskModel::onDataChanged, this, std::placeholders::_1));
+        [this](const auto& tasks) { this->onDataChanged(tasks); });
 }
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)

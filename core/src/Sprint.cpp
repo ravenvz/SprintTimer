@@ -40,6 +40,15 @@ Sprint::Sprint(const std::string& taskName,
 {
 }
 
+Sprint::Sprint(const std::string& taskName,
+               const TimeSpan& timeSpan,
+               const std::list<Tag>& tags,
+               const std::string& taskUuid)
+    : Sprint{taskName, timeSpan, tags, generator.generateUUID(), taskUuid}
+{
+}
+
+// TODO What's up with name? What's up with tags?
 Sprint::Sprint(const std::string& taskUuid, const TimeSpan& timeSpan)
     : mInterval{timeSpan}
     , mUuid{generator.generateUUID()}
@@ -65,7 +74,8 @@ std::ostream& operator<<(std::ostream& os, const Sprint& sprint)
 {
     for (const auto& tag : sprint.mTags)
         os << tag.nameWithPrefix();
-    os << sprint.mName << sprint.mInterval << " Uuid: " << sprint.mUuid
+    os << " " << sprint.mName << " " << sprint.mInterval << " Uuid: " << sprint.mUuid
        << " TaskUuid: " << sprint.mTaskUuid;
     return os;
 }
+

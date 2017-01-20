@@ -19,31 +19,29 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEREADER_H_RMTKEREJ
-#define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "core/TimeSpan.h"
-#include "core/entities/Task.h"
-#include <functional>
+#ifndef SPRINT_TIMER_OSTREAMSINK_H_H
+#define SPRINT_TIMER_OSTREAMSINK_H_H
 
-class ITaskStorageReader {
+#include <ostream>
+
+namespace ExternalIO {
+
+class OstreamSink : public ISink {
+
 public:
-    using Items = std::vector<Task>;
+    OstreamSink(std::shared_ptr<std::ostream> out)
+        : out{out}
+    {
+    }
 
-    using Handler = std::function<void(const Items&)>;
+    void send(const std::string& data) override { (*out) << data; }
 
-    using TagHandler = std::function<void(const std::vector<std::string>&)>;
-
-    virtual ~ITaskStorageReader() = default;
-
-    virtual void requestUnfinishedTasks(Handler handler) = 0;
-
-    virtual void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler)
-        = 0;
-
-    virtual void requestTasks(const TimeSpan& timeSpan, Handler handler) = 0;
-
-    virtual void requestAllTags(TagHandler handler) = 0;
+private:
+    std::shared_ptr<std::ostream> out;
 };
 
-#endif /* end of include guard: ITASKSTORAGEREADER_H_RMTKEREJ */
+
+} // namespace ExternalIO
+
+#endif // SPRINT_TIMER_OSTREAMSINK_H_H

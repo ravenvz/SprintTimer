@@ -19,31 +19,35 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEREADER_H_RMTKEREJ
-#define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "core/TimeSpan.h"
-#include "core/entities/Task.h"
-#include <functional>
+#ifndef SPRINT_TIMER_EXPORTDIALOG_H
+#define SPRINT_TIMER_EXPORTDIALOG_H
 
-class ITaskStorageReader {
+#include <QDialog>
+
+namespace Ui {
+class ExportDialog;
+}
+
+class ExportDialog : public QDialog {
+    Q_OBJECT
+
 public:
-    using Items = std::vector<Task>;
+    struct ExportOptions {
+        const std::string path;
+        const char delimiter;
+    };
 
-    using Handler = std::function<void(const Items&)>;
+    explicit ExportDialog(QWidget* parent = nullptr);
+    ~ExportDialog();
+    void accept() override;
 
-    using TagHandler = std::function<void(const std::vector<std::string>&)>;
+private:
+    Ui::ExportDialog* ui;
 
-    virtual ~ITaskStorageReader() = default;
-
-    virtual void requestUnfinishedTasks(Handler handler) = 0;
-
-    virtual void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler)
-        = 0;
-
-    virtual void requestTasks(const TimeSpan& timeSpan, Handler handler) = 0;
-
-    virtual void requestAllTags(TagHandler handler) = 0;
+signals:
+    void exportConfirmed(const ExportOptions& options);
 };
 
-#endif /* end of include guard: ITASKSTORAGEREADER_H_RMTKEREJ */
+
+#endif //SPRINT_TIMER_EXPORTDIALOG_H

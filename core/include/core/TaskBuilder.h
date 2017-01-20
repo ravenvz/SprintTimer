@@ -19,31 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEREADER_H_RMTKEREJ
-#define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "core/TimeSpan.h"
+#ifndef TASKBUILDER_H_GSWUA7WV
+#define TASKBUILDER_H_GSWUA7WV
+
 #include "core/entities/Task.h"
-#include <functional>
+#include "core/utils/OptionalPl.h"
 
-class ITaskStorageReader {
+class TaskBuilder {
 public:
-    using Items = std::vector<Task>;
-
-    using Handler = std::function<void(const Items&)>;
-
-    using TagHandler = std::function<void(const std::vector<std::string>&)>;
-
-    virtual ~ITaskStorageReader() = default;
-
-    virtual void requestUnfinishedTasks(Handler handler) = 0;
-
-    virtual void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler)
-        = 0;
-
-    virtual void requestTasks(const TimeSpan& timeSpan, Handler handler) = 0;
-
-    virtual void requestAllTags(TagHandler handler) = 0;
+    Task build();
+    TaskBuilder& withName(std::string name);
+    TaskBuilder& withEstimatedCost(int cost);
+    TaskBuilder& withActualCost(int cost);
+    TaskBuilder& withUuid(std::string uuid);
+    TaskBuilder& withTag(std::string tag);
+    TaskBuilder& withTag(Tag tag);
+    TaskBuilder& withLastModificationStamp(DateTime timeStamp);
+    TaskBuilder& withExplicitTags(std::list<Tag> tags);
+    TaskBuilder& withCompletionStatus(bool completed);
+private:
+    std::string name;
+    int estimatedCost{1};
+    int actualCost{0};
+    optional<std::string> uuid;
+    optional<DateTime> lastModified;
+    std::list<Tag> tags;
+    bool completionStatus{false};
 };
 
-#endif /* end of include guard: ITASKSTORAGEREADER_H_RMTKEREJ */
+
+#endif /* end of include guard: TASKBUILDER_H_GSWUA7WV */

@@ -89,20 +89,67 @@ std::time_t DateTime::toTime_t() const
     return std::chrono::system_clock::to_time_t(time);
 }
 
-DateTime DateTime::addDays(int days) const
+DateTime DateTime::addSeconds(long seconds) const
+{
+    return DateTime{time + std::chrono::seconds{seconds}};
+}
+
+DateTime DateTime::addMinutes(long minutes) const
+{
+    return DateTime{time + std::chrono::minutes{minutes}};
+}
+
+DateTime DateTime::addHours(long hours) const
+{
+    return DateTime{time + std::chrono::hours{hours}};
+}
+
+DateTime DateTime::addDays(long days) const
 {
     return DateTime{time + date::days{days}};
 }
 
-DateTime DateTime::addMonths(int months) const
+DateTime DateTime::addMonths(long months) const
 {
     return DateTime{time + date::months{months}};
 }
 
-int DateTime::daysTo(const DateTime& other) const
+DateTime DateTime::addYears(long years) const
+{
+    return DateTime{time + date::months{years * 12}};
+}
+
+long DateTime::secondsTo(const DateTime& other) const
+{
+    return std::chrono::duration_cast<std::chrono::seconds>(other.time - time).count();
+}
+
+long DateTime::minutesTo(const DateTime& other) const
+{
+    return std::chrono::duration_cast<std::chrono::minutes>(other.time - time).count();
+}
+
+long DateTime::hoursTo(const DateTime& other) const
+{
+    return std::chrono::duration_cast<std::chrono::hours>(other.time - time).count();
+}
+
+long DateTime::daysTo(const DateTime& other) const
 {
     using namespace date;
     return (floor<days>(other.time) - floor<days>(this->time)).count();
+}
+
+long DateTime::monthsTo(const DateTime& other) const
+{
+    using namespace date;
+    return (floor<months>(other.time) - floor<months>(this->time)).count();
+}
+
+long DateTime::yearsTo(const DateTime& other) const
+{
+    using namespace date;
+    return (floor<years>(other.time) - floor<years>(this->time)).count();
 }
 
 std::chrono::system_clock::time_point DateTime::chronoTimepoint() const
@@ -226,4 +273,4 @@ std::string formatDateTime(const DateTime& dt, std::string&& format)
 
     return ss.str();
 }
-}
+} // namespace

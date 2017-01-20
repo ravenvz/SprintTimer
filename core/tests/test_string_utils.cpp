@@ -39,6 +39,17 @@ TEST(TestStringUtils, test_parse_words)
     CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
 }
 
+TEST(TestStringUtils, test_join_empty_container)
+{
+    std::vector<std::string> parts;
+    std::string expected{""};
+
+    std::string actual = StringUtils::join(parts, ", ");
+
+    CHECK_EQUAL(expected.size(), actual.size())
+    CHECK(std::equal(expected.cbegin(), expected.cend(), actual.cbegin()));
+}
+
 TEST(TestStringUtils, test_join_with_some_parts_empty)
 {
     std::vector<std::string> parts{"Some", "", "are", "empty"};
