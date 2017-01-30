@@ -128,11 +128,15 @@ void CoreService::registerSprint(const TimeSpan& timeSpan,
                                      const std::string& taskUuid)
 {
     Sprint sprint{taskUuid, timeSpan};
+    registerSprint(sprint);
+}
+
+void CoreService::registerSprint(const Sprint& sprint)
+{
     auto registerNewSprint = std::make_unique<UseCases::RegisterNewSprint>(
-        sprintWriter, sprint);
+            sprintWriter, sprint);
     auto incrementTaskSprints
-        = std::make_unique<UseCases::IncrementTaskSprints>(taskWriter,
-                                                              taskUuid);
+     = std::make_unique<UseCases::IncrementTaskSprints>(taskWriter, sprint.taskUuid());
     std::vector<std::unique_ptr<RevertableCommand>> commands;
     commands.push_back(std::move(registerNewSprint));
     commands.push_back(std::move(incrementTaskSprints));

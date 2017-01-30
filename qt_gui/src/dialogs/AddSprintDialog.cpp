@@ -48,6 +48,10 @@ AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
             &QTimeEdit::dateTimeChanged,
             this,
             &AddSprintDialog::autoAdjustFinishTime);
+    connect(ui->sbNumSpints,
+            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this,
+            &AddSprintDialog::autoAdjustFinishTime);
     connect(ui->timeEditSprintFinishTime,
             &QTimeEdit::dateTimeChanged,
             this,
@@ -73,29 +77,41 @@ void AddSprintDialog::setData()
     ui->dateEditSprintDate->setDate(QDate::currentDate());
 }
 
-void AddSprintDialog::autoAdjustFinishTime(const QDateTime& dateTime)
+void AddSprintDialog::autoAdjustFinishTime()
 {
     ui->timeEditSprintFinishTime->setDateTime(
-        dateTime.addSecs(sprintDuration * secondsInMinute));
+        ui->timeEditSprintStartTime->dateTime().addSecs(totalSprintLength()));
 }
 
-void AddSprintDialog::autoAdjustStartTime(const QDateTime& dateTime)
+void AddSprintDialog::autoAdjustStartTime()
 {
     ui->timeEditSprintStartTime->setDateTime(
-        dateTime.addSecs(-sprintDuration * secondsInMinute));
+        ui->timeEditSprintFinishTime->dateTime().addSecs(-totalSprintLength()));
+}
+
+int AddSprintDialog::totalSprintLength() const
+{
+    return ui->sbNumSpints->value() * sprintDuration * secondsInMinute;
 }
 
 void AddSprintDialog::accept()
 {
-    QDateTime startTime
-        = ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
-    QDateTime finishTime
-        = ui->timeEditSprintFinishTime->dateTime().toTimeSpec(Qt::LocalTime);
+    auto initialStartTime = ui->timeEditSprintStartTime->dateTime()
+            .toTimeSpec(Qt::LocalTime);
 
     const std::string taskUuid
-        = taskModel->itemAt(ui->cbPickTask->currentIndex()).uuid();
-    sprintModel->insert(TimeSpan{DateTimeConverter::dateTime(startTime),
-                                 DateTimeConverter::dateTime(finishTime)},
-                        taskUuid);
+            = taskModel->itemAt(ui->cbPickTask->currentIndex()).uuid();
+    std::vector<Sprint> sprints;
+
+    for (int i = 0; i < ui->sbNumSpints->value(); ++i) {
+        auto startTime = initialStartTime.addSecs(i * sprintDuration * secondsInMinute);
+        auto finishTime = startTime.addSecs(sprintDuration * secondsInMinute);
+        Sprint sprint{taskUuid,
+                      TimeSpan{DateTimeConverter::dateTime(startTime),
+                               DateTimeConverter::dateTime(finishTime)}};
+        sprints.push_back(sprint);
+    }
+
+    sprintModel->insert(sprints);
     QDialog::accept();
 }
