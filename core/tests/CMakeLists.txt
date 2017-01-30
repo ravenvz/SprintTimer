@@ -14,6 +14,9 @@ set(SOURCE_FILES
         test_core_service.cpp
         test_increment_task_sprints.cpp
         test_csv_reader.cpp
+        test_csv_writer.cpp
+        test_sprint_builder.cpp
+        test_task_builder.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -37,7 +40,7 @@ target_link_libraries(${TEST_CORE}
     PRIVATE Threads::Threads
 )
 
-# This is a workaround 
+# This is a workaround
 # For some reason, although CppUTest explicitly depends on winmm, dependency does not transition.
 if (WIN32)
     target_link_libraries(${TEST_CORE} PRIVATE winmm.lib)

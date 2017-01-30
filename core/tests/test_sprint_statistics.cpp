@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "core/SprintStatistics.h"
 #include "core/TagTop.h"
+#include "core/SprintBuilder.h"
 #include <TestHarness.h>
 
 TEST_GROUP(SprintStatItem)
@@ -35,9 +36,9 @@ TEST(SprintStatItem, test_empty_daily_statistics)
     SprintStatItem statistics{sprints,
                                 TimeSpan{std::chrono::system_clock::now(),
                                          std::chrono::system_clock::now()}};
-    double expected_average = 0;
-    double expected_max = 0;
-    double expected_total = 0;
+    double expected_average{0};
+    double expected_max{0};
+    double expected_total{0};
     std::vector<double> expected_distribution;
 
     Distribution<double> dailyDistribution = statistics.dailyDistribution();
@@ -61,8 +62,8 @@ TEST(SprintStatItem, test_empty_weekday_statistics)
     SprintStatItem statistics{sprints,
                                 TimeSpan{std::chrono::system_clock::now(),
                                          std::chrono::system_clock::now()}};
-    double expected_average = 0;
-    double expected_max = 0;
+    double expected_average{0};
+    double expected_max{0};
     std::vector<double> expected_distribution = std::vector<double>(7, 0);
 
     Distribution<double> weekdayDistribution = statistics.weekdayDistribution();
@@ -80,20 +81,22 @@ TEST(SprintStatItem, test_empty_weekday_statistics)
 
 TEST(SprintStatItem, test_computes_daily_distribution_correctly)
 {
-    double expected_average = 24.5;
-    double expected_max = 48;
-    size_t expected_max_value_bin = 47;
-    double expected_total = 1176;
+    double expected_average{24.5};
+    double expected_max{48};
+    size_t expected_max_value_bin{47};
+    double expected_total{1176};
     std::vector<Sprint> sprints;
     DateTime start = DateTime::currentDateTime();
     DateTime end = start.addDays(47);
     TimeSpan timeSpan{start, end};
     std::vector<int> expectedDistributionVector(48, 0);
+    SprintBuilder sprintBuilder;
+    sprintBuilder.withTaskUuid("");
     for (size_t i = 0; i < 48; ++i) {
         for (size_t j = 0; j < i + 1; ++j) {
             DateTime sprintDateTime = start.addDays(static_cast<int>(i));
             TimeSpan sprintInterval{sprintDateTime, sprintDateTime};
-            sprints.push_back(Sprint{"Irrelevant", sprintInterval, {}, "", ""});
+            sprints.push_back(sprintBuilder.withTimeSpan(sprintInterval).build());
             expectedDistributionVector[i]++;
         }
     }
@@ -121,6 +124,8 @@ TEST(SprintStatItem, test_computes_weekday_distribution_correctly)
     double expected_max = 10.5;
     size_t expected_max_value_bin = 6;
     std::vector<Sprint> increasingSprints;
+    SprintBuilder sprintBuilder;
+    sprintBuilder.withTaskUuid("irrelevant");
     // (2015, 6, 1) is Monday, so each weekday occures exactly twice
     // in 14-day timeSpan
     TimeSpan timeSpan{DateTime::fromYMD(2015, 6, 1),
@@ -131,7 +136,7 @@ TEST(SprintStatItem, test_computes_weekday_distribution_correctly)
             DateTime sprintDateTime = DateTime::fromYMD(2015, 6, i);
             TimeSpan sprintInterval{sprintDateTime, sprintDateTime};
             increasingSprints.push_back(
-                Sprint{"Whatever", sprintInterval, {}, "uuid", "taskUuid"});
+                sprintBuilder.withTimeSpan(sprintInterval).build());
         }
     }
 
@@ -154,28 +159,21 @@ TEST(SprintStatItem, test_computes_weekday_distribution_correctly)
 
 TEST_GROUP(TagTop)
 {
-
-    const std::string irrelevantName{"irrelevant"};
-
-    void pushToSprints(std::vector<Sprint>& sprints,
-                       std::string name,
-                       const std::list<Tag>& tags,
-                       int n) {
-        for (int i = 0; i < n; ++i) {
-            sprints.push_back(Sprint{
-                    name,
-                    TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()},
-                    tags,
-                    "uuid",
-                    "taskUuid"});
-        }
+    void push_n(std::vector<Sprint>& sprints,
+            const Sprint& sprint,
+            size_t n)
+    {
+        for (size_t i = 0; i < n; ++i)
+            sprints.push_back(sprint);
     }
 };
 
 TEST(TagTop, getting_sprints_or_tag_name_throws_exception_when_position_is_invalid) {
     std::vector<Sprint> sprints;
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag1"}}, 4);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}}, 49);
+    SprintBuilder sprintBuilder;
+    sprintBuilder.withTaskUuid("1234");
+    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
+    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
 
     TagTop tagTop{sprints, 3};
 
@@ -186,8 +184,10 @@ TEST(TagTop, getting_sprints_or_tag_name_throws_exception_when_position_is_inval
 TEST(TagTop, does_not_reduce_frequency_vector_when_all_tags_fit)
 {
     std::vector<Sprint> sprints;
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag1"}}, 4);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}}, 49);
+    SprintBuilder sprintBuilder;
+    sprintBuilder.withTaskUuid("1234");
+    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
+    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
     std::vector<TagTop::TagFrequency> expected{
             {Tag{"Tag2"}, double(49) / 53},
             {Tag{"Tag1"}, double(4) / 53}
@@ -198,15 +198,16 @@ TEST(TagTop, does_not_reduce_frequency_vector_when_all_tags_fit)
     CHECK(expected == tagTop.tagFrequencies())
     CHECK_EQUAL(49, tagTop.sprintsForTagAt(0).size())
     CHECK_EQUAL(4, tagTop.sprintsForTagAt(1).size())
-//    CHECK_EQUAL(0, tagTop.sprintsForTagAt(2).size())
 }
 
 TEST(TagTop,
      does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag1"}}, 4);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}}, 49);
+    SprintBuilder sprintBuilder;
+    sprintBuilder.withTaskUuid("1234");
+    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
+    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
     std::vector<TagTop::TagFrequency> expected;
     expected.push_back(std::make_pair(Tag{"Tag2"}, double(49) / 53));
     expected.push_back(std::make_pair(Tag{"Tag1"}, double(4) / 53));
@@ -223,13 +224,15 @@ TEST(TagTop,
 TEST(TagTop, distributes_sprints_to_tags_ignoring_non_tagged)
 {
     std::vector<Sprint> sprints;
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag1"}}, 4);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}}, 49);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
-    pushToSprints(sprints, irrelevantName, {Tag{"C++"}, Tag{"Tag4"}}, 10);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag4"}}, 25);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag5"}}, 4);
-    pushToSprints(sprints, irrelevantName, {}, 100);
+    SprintBuilder builder;
+    builder.withTaskUuid("1234");
+    push_n(sprints, builder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
+    push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
+    push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(), 1);
+    push_n(sprints, builder.withExplicitTags({Tag{"C++"}, Tag{"Tag4"}}).build(), 10);
+    push_n(sprints, builder.withExplicitTags({Tag{"Tag4"}}).build(), 25);
+    push_n(sprints, builder.withExplicitTags({Tag{"Tag5"}}).build(), 4);
+    push_n(sprints, builder.withExplicitTags({}).build(), 100);
     std::vector<TagTop::TagFrequency> expected{
             std::make_pair(Tag{"Tag2"}, double(50) / 104),
             std::make_pair(Tag{"Tag4"}, double(35) / 104),
@@ -257,12 +260,14 @@ TEST(TagTop,
      reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag1"}}, 4);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}}, 49);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag2"}, Tag{"Tag1"}}, 1);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag3"}, Tag{"Tag4"}}, 10);
-    pushToSprints(sprints, irrelevantName, {Tag{"Tag4"}}, 25);
-    pushToSprints(sprints, irrelevantName, {}, 100);
+    SprintBuilder builder;
+    builder.withTaskUuid("1234");
+    push_n(sprints, builder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
+    push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
+    push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(), 1);
+    push_n(sprints, builder.withExplicitTags({Tag{"Tag3"}, Tag{"Tag4"}}).build(), 10);
+    push_n(sprints, builder.withExplicitTags({Tag{"Tag4"}}).build(), 25);
+    push_n(sprints, builder.withExplicitTags({}).build(), 100);
     std::vector<TagTop::TagFrequency> expected{
         std::make_pair(Tag{"Tag2"}, double(50) / 100),
         std::make_pair(Tag{"Tag4"}, double(35) / 100),

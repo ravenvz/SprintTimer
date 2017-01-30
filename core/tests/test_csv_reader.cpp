@@ -1,3 +1,24 @@
+/********************************************************************************
+**
+** Copyright (C) 2016 Pavel Pavlov.
+**
+**
+** This file is part of SprintTimer.
+**
+** SprintTimer is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Lesser General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** SprintTimer is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
+**
+*********************************************************************************/
 #include "core/utils/CSVReader.h"
 #include <TestHarness.h>
 #include <iostream>
@@ -22,10 +43,10 @@ TEST(TestCSV, test_throws_exception_when_invalid_file_format)
     CHECK_THROWS(FormatError, (CSVReader{stream}));
 }
 
-TEST(TestCSV, test_handles_case_wnen_last_record_missing_ending_line_break) {
+TEST(TestCSV, test_handles_case_wnen_last_record_missing_ending_line_break)
+{
     std::istringstream stream{"one,two,three\none,two,three"};
-    std::vector<Row> expected{{"one", "two", "three"},
-                              {"one", "two", "three"}};
+    std::vector<Row> expected{{"one", "two", "three"}, {"one", "two", "three"}};
 
     CSVReader reader{stream};
 

@@ -83,8 +83,6 @@ private:
 private slots:
     void submitSprint(const std::vector<TimeSpan> &intervalBuffer);
     void updateDailyProgress();
-    void onUndoButtonClicked();
-    void adjustUndoButtonState();
     void toggleView();
     void toggleMenu();
     void onTasksRemoved(const QModelIndex&, int first, int last);

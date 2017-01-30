@@ -31,9 +31,8 @@ TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
     , applicationSettings{applicationSettings}
 {
     timer = std::make_unique<StatefulTimer>(
-        std::bind(&TimerWidgetBase::onTimerTick, this, std::placeholders::_1),
-        std::bind(
-            &TimerWidgetBase::onTimerStateChanged, this, std::placeholders::_1),
+        [this](auto timeLeft) { this->onTimerTick(timeLeft); },
+        [this](auto state) { this->onTimerStateChanged(state); },
         1000,
         applicationSettings);
 

@@ -55,6 +55,20 @@ SprintOutline::SprintOutline(ICoreService& coreService,
             &QListView::customContextMenuRequested,
             this,
             &SprintOutline::showContextMenu);
+    connect(sprintModel,
+            &AsyncListModel::updateFinished,
+            this,
+            &SprintOutline::adjustUndoButtonState);
+    connect(taskModel,
+            &AsyncListModel::updateFinished,
+            this,
+            &SprintOutline::adjustUndoButtonState);
+    connect(ui->pbUndo,
+            &QPushButton::clicked,
+            this,
+            &SprintOutline::onUndoButtonClicked);
+
+    adjustUndoButtonState();
 }
 
 SprintOutline::~SprintOutline() { delete ui; }
@@ -95,4 +109,25 @@ void SprintOutline::removeSprint()
     dialog.setActionDescription(description);
     if (dialog.exec())
         sprintModel->remove(index.row());
+}
+
+void SprintOutline::onUndoButtonClicked()
+{
+    ConfirmationDialog dialog;
+    QString description{"Revert following action:\n"};
+    description.append(
+            QString::fromStdString(coreService.lastCommandDescription()));
+    dialog.setActionDescription(description);
+    if (dialog.exec()) {
+        coreService.undoLast();
+        sprintModel->synchronize();
+        taskModel->synchronize();
+        emit actionUndone();
+        adjustUndoButtonState();
+    }
+}
+
+void SprintOutline::adjustUndoButtonState()
+{
+    ui->pbUndo->setEnabled(coreService.numRevertableCommands() != 0);
 }

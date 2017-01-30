@@ -19,31 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEREADER_H_RMTKEREJ
-#define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "core/TimeSpan.h"
-#include "core/entities/Task.h"
-#include <functional>
+#ifndef SPRINT_TIMER_IDATAEXPORTER_H
+#define SPRINT_TIMER_IDATAEXPORTER_H
 
-class ITaskStorageReader {
+#include "core/external_io/ISink.h"
+#include <vector>
+
+namespace ExternalIO {
+
+class IDataExporter {
 public:
-    using Items = std::vector<Task>;
+    virtual ~IDataExporter() = default;
 
-    using Handler = std::function<void(const Items&)>;
-
-    using TagHandler = std::function<void(const std::vector<std::string>&)>;
-
-    virtual ~ITaskStorageReader() = default;
-
-    virtual void requestUnfinishedTasks(Handler handler) = 0;
-
-    virtual void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler)
+    virtual void exportData(ISink* sink, const std::vector<std::string>& data)
         = 0;
-
-    virtual void requestTasks(const TimeSpan& timeSpan, Handler handler) = 0;
-
-    virtual void requestAllTags(TagHandler handler) = 0;
 };
 
-#endif /* end of include guard: ITASKSTORAGEREADER_H_RMTKEREJ */
+} // namespace ExternalIO
+#endif // SPRINT_TIMER_IDATAEXPORTER_H

@@ -111,9 +111,9 @@ void GoalProgressWindow::synchronizeDailyData()
     auto from = now.addDays(-29);
     coreService.requestSprintDailyDistribution(
             TimeSpan{from, now},
-            std::bind(&GoalProgressWindow::onDailyDataReceived,
-                      this,
-                      std::placeholders::_1));
+            [this](const auto& distribution) {
+                this->onDailyDataReceived(distribution);
+            });
 }
 
 void GoalProgressWindow::synchronizeWeeklyData()
@@ -122,9 +122,9 @@ void GoalProgressWindow::synchronizeWeeklyData()
     auto from = now.addDays(-7 * 11 - static_cast<int>(now.dayOfWeek()) + 1);
     coreService.requestSprintWeeklyDistribution(
             TimeSpan{from, now},
-            std::bind(&GoalProgressWindow::onWeeklyDataReceived,
-                      this,
-                      std::placeholders::_1));
+            [this](const auto& distribution) {
+                this->onWeeklyDataReceived(distribution);
+            });
 }
 
 void GoalProgressWindow::synchronizeMonthlyData()
@@ -133,9 +133,9 @@ void GoalProgressWindow::synchronizeMonthlyData()
     auto from = now.addMonths(-11).addDays(-static_cast<int>(now.day()) + 1);
     coreService.requestSprintMonthlyDistribution(
             TimeSpan{from, now},
-            std::bind(&GoalProgressWindow::onMonthlyDataReceived,
-                      this,
-                      std::placeholders::_1));
+            [this](const auto& distribution) {
+                this->onMonthlyDataReceived(distribution);
+            });
 }
 
 void GoalProgressWindow::onDailyDataReceived(

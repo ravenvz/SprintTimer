@@ -19,31 +19,52 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEREADER_H_RMTKEREJ
-#define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "core/TimeSpan.h"
-#include "core/entities/Task.h"
-#include <functional>
+#include "core/utils/CSVEncoder.h"
 
-class ITaskStorageReader {
-public:
-    using Items = std::vector<Task>;
+namespace ExternalIO {
 
-    using Handler = std::function<void(const Items&)>;
+namespace CSV {
 
-    using TagHandler = std::function<void(const std::vector<std::string>&)>;
+CSVEncoder::CSVEncoder(char delimiter)
+    : delimiter{delimiter}
+{
 
-    virtual ~ITaskStorageReader() = default;
+}
 
-    virtual void requestUnfinishedTasks(Handler handler) = 0;
+void CSVEncoder::encodeRow(const std::vector<std::string>& row)
+{
+    if (row.empty())
+        return;
+    for (auto it = row.cbegin(); it != row.cend() - 1; ++it) {
+        writeValue(*it);
+        ss << delimiter;
+    }
+    writeValue(row.back());
+    ss << "\n";
+}
 
-    virtual void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler)
-        = 0;
+std::string CSVEncoder::encode(const std::vector<CSVEncoder::Data>& data)
+{
+    if (data.empty())
+        return "";
+    for (const auto& row : data) {
+        encodeRow(row);
+    }
+    std::string result = ss.str();
+    ss.str("");
+    return result;
+}
 
-    virtual void requestTasks(const TimeSpan& timeSpan, Handler handler) = 0;
+void CSVEncoder::writeValue(const std::string& value)
+{
+    for (char ch : value) {
+        ss << ch;
+        if (ch == '"')
+            ss << "\"";
+    }
+}
 
-    virtual void requestAllTags(TagHandler handler) = 0;
-};
+} // namespace CSV
 
-#endif /* end of include guard: ITASKSTORAGEREADER_H_RMTKEREJ */
+} // namespace ExternalIO

@@ -44,7 +44,8 @@ public:
          int estimatedCost,
          int actualCost,
          std::list<Tag> tags,
-         bool completed);
+         bool completed,
+         const DateTime& lastModified = DateTime::currentDateTimeLocal());
 
     Task(std::string name,
          int estimatedCost,

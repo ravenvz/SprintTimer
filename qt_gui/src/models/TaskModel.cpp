@@ -33,7 +33,7 @@ TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
 void TaskModel::requestDataUpdate()
 {
     coreService.requestUnfinishedTasks(
-        std::bind(&TaskModel::onDataChanged, this, std::placeholders::_1));
+        [this](const auto& tasks) { this->onDataChanged(tasks); });
 }
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)
@@ -149,7 +149,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
     for (int row = 0; row < rowCount(); ++row) {
         priorities.push_back({itemAt(row).uuid(), row});
     }
-    priorities[destinationRow].second = priorities[sourceRow].second;
+    std::swap(priorities[destinationRow].second, priorities[sourceRow].second);
 
     coreService.registerTaskPriorities(std::move(priorities));
     requestDataUpdate();

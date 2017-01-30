@@ -45,6 +45,11 @@ public:
            const std::string& uuid,
            const std::string& taskUuid);
 
+    Sprint(const std::string& taskName,
+           const TimeSpan& timeSpan,
+           const std::list<Tag>& tag,
+           const std::string& taskUuid);
+
     Sprint(const std::string& taskUuid, const TimeSpan& timeSpan);
 
     // Return name of Sprint. It is identical to the associated task name.
@@ -80,6 +85,5 @@ private:
     std::string mTaskUuid;
     std::list<Tag> mTags;
 };
-
 
 #endif // SPRINT_H_XWNOT32M

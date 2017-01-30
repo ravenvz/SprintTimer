@@ -64,13 +64,44 @@ public:
     /* Return std::time_t representation. */
     std::time_t toTime_t() const;
 
+    /* Return DateTime object that is seconds apart from current.
+     * Seconds can be negative. */
+    DateTime addSeconds(long seconds) const;
+
+    /* Return DateTime object that is minutes apart from current.
+     * Minutes can be negative. */
+    DateTime addMinutes(long minutes) const;
+
+    /* Return DateTime object that is hours apart from current.
+     * Hours can be negative. */
+    DateTime addHours(long hours) const;
+
     /* Return DateTime object that is (positive or negative) integer number of
      * days apart from current. */
-    DateTime addDays(int days) const;
+    DateTime addDays(long days) const;
 
     /* Return DateTime object that is (positive or negative) integer number of
      * months apart from current. */
-    DateTime addMonths(int months) const;
+    DateTime addMonths(long months) const;
+
+    /* Return DateTime object that is (positive or negative) integer number of
+     * years apart from current. */
+    DateTime addYears(long years) const;
+
+    /* Return distance in seconds to other DateTime object.
+     *
+     * If other DateTime object is behind in time, result will be negative. */
+    long secondsTo(const DateTime& other) const;
+
+    /* Return distance in minutes to other DateTime object.
+     *
+     * If other DateTime object is behind in time, result will be negative. */
+    long minutesTo(const DateTime& other) const;
+
+    /* Return distance in hours to other DateTime object.
+     *
+     * If other DateTime object is behind in time, result will be negative. */
+    long hoursTo(const DateTime& other) const;
 
     /* Return distance in days to other DateTime object.
      *
@@ -79,7 +110,17 @@ public:
      * Number of days is a number of times midnight is encountered between
      * two DateTime objects. So distance between 11.04.2016 23:59 and
      * 12.04.2016 00:01 is equal to one day. */
-    int daysTo(const DateTime& other) const;
+    long daysTo(const DateTime& other) const;
+
+    /* Return distance in months to other DateTime object.
+     *
+     * If other DateTime object is behind in time, result will be negative. */
+    long monthsTo(const DateTime& other) const;
+
+    /* Return distance in months to other DateTime object.
+     *
+     * If other DateTime object is behind in time, result will be negative. */
+    long yearsTo(const DateTime& other) const;
 
     /* Return chrono time_point. */
     std::chrono::system_clock::time_point chronoTimepoint() const;

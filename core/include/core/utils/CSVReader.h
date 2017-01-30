@@ -3,20 +3,20 @@
 ** Copyright (C) 2016 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
 
@@ -61,10 +61,10 @@ In other words, it is client's responsibility to ensure that input
 data conforms to RFC 4180 specification, otherwise parsing is not
 guaranteed to be correct.
 
-Throws CSV::StreamReadError when input stream is invalid.
+Throws StreamReadError when input stream is invalid.
 
 When encountered a line with incorrect number of values,
-CSV::FormatError is thrown, indicating the number of this line.
+FormatError is thrown, indicating the number of this line.
 "Correct" number of values per line is deduced from the first
 line of the input data.
 
@@ -174,6 +174,6 @@ public:
     void parseChar(CSVReader& reader, char ch) override;
 };
 
-} // namespace CSV
+} // namespace ExternalIO
 
 #endif /* end of include guard: CSVREADER_H_RH5EZUKL */

@@ -19,31 +19,32 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEREADER_H_RMTKEREJ
-#define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "core/TimeSpan.h"
-#include "core/entities/Task.h"
-#include <functional>
+#include "ExportDialog.h"
+#include "ui_export_dialog.h"
+#include <QFileDialog>
 
-class ITaskStorageReader {
-public:
-    using Items = std::vector<Task>;
+ExportDialog::ExportDialog(QWidget* parent)
+    : QDialog{parent}
+    , ui{new Ui::ExportDialog}
+{
+    ui->setupUi(this);
+}
 
-    using Handler = std::function<void(const Items&)>;
+ExportDialog::~ExportDialog()
+{
+    delete ui;
+}
 
-    using TagHandler = std::function<void(const std::vector<std::string>&)>;
-
-    virtual ~ITaskStorageReader() = default;
-
-    virtual void requestUnfinishedTasks(Handler handler) = 0;
-
-    virtual void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler)
-        = 0;
-
-    virtual void requestTasks(const TimeSpan& timeSpan, Handler handler) = 0;
-
-    virtual void requestAllTags(TagHandler handler) = 0;
-};
-
-#endif /* end of include guard: ITASKSTORAGEREADER_H_RMTKEREJ */
+void ExportDialog::accept()
+{
+    auto path = QFileDialog::getExistingDirectory(this,
+                                                  tr("Select directory"),
+                                                  "",
+                                                  QFileDialog::ShowDirsOnly);
+    if (path.isEmpty())
+        return;
+    ExportOptions options{path.toStdString(), ui->cbxDelimiterOptions->currentText()[0].toLatin1()};
+    emit exportConfirmed(options);
+    QDialog::accept();
+}

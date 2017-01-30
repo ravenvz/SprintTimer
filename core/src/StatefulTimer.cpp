@@ -86,7 +86,8 @@ void StatefulTimer::onTimerTick()
 void StatefulTimer::resetTimer()
 {
     timerPtr = std::make_unique<Timer>(
-        std::bind(&StatefulTimer::onTimerTick, this), tickInterval);
+            [this]() { this->onTimerTick(); },
+            tickInterval);
 }
 
 void TimerState::notifyStateChanged(IStatefulTimer::State state)
@@ -285,6 +286,7 @@ void Finished::setNextState()
 void Finished::cancel()
 {
     timer.currentState = timer.idleState.get();
+    timer.buffer.clear();
     notifyStateChanged(timer.currentState->state());
 }
 
