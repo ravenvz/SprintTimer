@@ -67,7 +67,7 @@ void DistributionReaderBase::requestDistribution(const TimeSpan& timeSpan,
 {
     handler_queue.push_back(handler);
     startDate = DateTimeConverter::qDate(timeSpan.startTime);
-    endDate = DateTimeConverter::qDate(timeSpan.finishTime);
+    QDate endDate = DateTimeConverter::qDate(timeSpan.finishTime);
 
     dbService.bind(mQueryId, ":start_date", startDate);
     dbService.bind(mQueryId, ":end_date", endDate);
@@ -109,8 +109,7 @@ QtSprintDailyDistributionReader::QtSprintDailyDistributionReader(
 
 QtSprintWeeklyDistributionReader::QtSprintWeeklyDistributionReader(
     DBService& dbService, size_t numBins)
-    : DistributionReaderBase{
-          dbService, numBins, equalByWeek, incrementByWeek}
+    : DistributionReaderBase{dbService, numBins, equalByWeek, incrementByWeek}
 {
     mQueryId = dbService.prepare(QString{
         "SELECT COUNT(*), %1 "
@@ -132,4 +131,3 @@ QtSprintMonthlyDistributionReader::QtSprintMonthlyDistributionReader(
         "ORDER BY DATE(%1)"}.arg(SprintTable::Columns::startTime)
                                      .arg(SprintTable::name));
 }
-

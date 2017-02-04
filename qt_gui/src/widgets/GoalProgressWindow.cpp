@@ -34,24 +34,24 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
     layout->setSpacing(15);
     layout->setContentsMargins(20, 10, 20, 10);
 
-    dailyProgress = new ProgressView(
-            applicationSettings.dailyGoal(), 3, 10, 0.7, this);
+    dailyProgress
+        = new ProgressView(applicationSettings.dailyGoal(), 3, 10, 0.7, this);
     dailyProgress->setLegendTitle("Last 30 days");
     dailyProgress->setLegendTotalCaption("Total completed:");
     dailyProgress->setLegendAverageCaption("Average per day:");
     dailyProgress->setLegendPercentageCaption("Goal progress:");
     dailyProgress->setLegendGoalCaption("Daily goal:");
 
-    weeklyProgress = new ProgressView(
-            applicationSettings.weeklyGoal(), 3, 4, 0.8, this);
+    weeklyProgress
+        = new ProgressView(applicationSettings.weeklyGoal(), 3, 4, 0.8, this);
     weeklyProgress->setLegendTitle("Last 12 weeks");
     weeklyProgress->setLegendTotalCaption("Total completed:");
     weeklyProgress->setLegendAverageCaption("Average per week:");
     weeklyProgress->setLegendPercentageCaption("Goal progress:");
     weeklyProgress->setLegendGoalCaption("Weekly goal:");
 
-    monthlyProgress = new ProgressView(
-            applicationSettings.monthlyGoal(), 3, 4, 0.8, this);
+    monthlyProgress
+        = new ProgressView(applicationSettings.monthlyGoal(), 3, 4, 0.8, this);
     monthlyProgress->setLegendTitle("Last 12 months");
     monthlyProgress->setLegendTotalCaption("Total completed:");
     monthlyProgress->setLegendAverageCaption("Average per month:");
@@ -107,35 +107,32 @@ void GoalProgressWindow::synchronize()
 
 void GoalProgressWindow::synchronizeDailyData()
 {
-    auto now = DateTime::currentDateTime();
+    auto now = DateTime::currentDateTimeLocal();
     auto from = now.addDays(-29);
     coreService.requestSprintDailyDistribution(
-            TimeSpan{from, now},
-            [this](const auto& distribution) {
-                this->onDailyDataReceived(distribution);
-            });
+        TimeSpan{from, now}, [this](const auto& distribution) {
+            this->onDailyDataReceived(distribution);
+        });
 }
 
 void GoalProgressWindow::synchronizeWeeklyData()
 {
-    auto now = DateTime::currentDateTime();
+    auto now = DateTime::currentDateTimeLocal();
     auto from = now.addDays(-7 * 11 - static_cast<int>(now.dayOfWeek()) + 1);
     coreService.requestSprintWeeklyDistribution(
-            TimeSpan{from, now},
-            [this](const auto& distribution) {
-                this->onWeeklyDataReceived(distribution);
-            });
+        TimeSpan{from, now}, [this](const auto& distribution) {
+            this->onWeeklyDataReceived(distribution);
+        });
 }
 
 void GoalProgressWindow::synchronizeMonthlyData()
 {
-    DateTime now = DateTime::currentDateTime();
+    DateTime now = DateTime::currentDateTimeLocal();
     auto from = now.addMonths(-11).addDays(-static_cast<int>(now.day()) + 1);
     coreService.requestSprintMonthlyDistribution(
-            TimeSpan{from, now},
-            [this](const auto& distribution) {
-                this->onMonthlyDataReceived(distribution);
-            });
+        TimeSpan{from, now}, [this](const auto& distribution) {
+            this->onMonthlyDataReceived(distribution);
+        });
 }
 
 void GoalProgressWindow::onDailyDataReceived(

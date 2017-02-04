@@ -23,8 +23,8 @@
 
 SprintModel::SprintModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel(parent)
-    , interval{TimeSpan{DateTime::currentDateTime(),
-                        DateTime::currentDateTime()}}
+    , interval{TimeSpan{DateTime::currentDateTimeLocal(),
+                        DateTime::currentDateTimeLocal()}}
     , coreService{coreService}
 {
     synchronize();
