@@ -53,7 +53,9 @@ public:
 
     void setLegendGoalCaption(const QString& caption);
 
-    void setData(const Distribution<int>& distribution);
+    void addLegendRow(const QString& labelText, QWidget* field);
+
+    void setData(const Distribution<int>& distribution, int expectedTotal);
 
 private:
     Ui::ProgressView* ui;

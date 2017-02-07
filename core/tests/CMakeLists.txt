@@ -17,6 +17,7 @@ set(SOURCE_FILES
         test_csv_writer.cpp
         test_sprint_builder.cpp
         test_task_builder.cpp
+        test_weekday_selection.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

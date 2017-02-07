@@ -186,7 +186,6 @@ TEST(DateTime, test_computes_distance_forward)
     CHECK_EQUAL(0, dt.yearsTo(dt.addYears(0)));
     CHECK_EQUAL(2, dt.yearsTo(dt.addYears(2)));
     CHECK_EQUAL(-2, dt.yearsTo(dt.addYears(-2)));
-
 }
 
 TEST(DateTime, test_computes_days_backward)
@@ -196,15 +195,22 @@ TEST(DateTime, test_computes_days_backward)
     CHECK_EQUAL(-11, currentDt.daysTo(currentDt.addDays(-11)));
 }
 
-TEST(DateTime, test_returns_correct_weekday_num)
+TEST(DateTime, test_returns_correct_weekday)
 {
-    CHECK_EQUAL(1u, DateTime::fromYMD(2016, 4, 4).dayOfWeek());
-    CHECK_EQUAL(2u, DateTime::fromYMD(2016, 4, 5).dayOfWeek());
-    CHECK_EQUAL(3u, DateTime::fromYMD(2016, 4, 6).dayOfWeek());
-    CHECK_EQUAL(4u, DateTime::fromYMD(2016, 4, 7).dayOfWeek());
-    CHECK_EQUAL(5u, DateTime::fromYMD(2016, 4, 8).dayOfWeek());
-    CHECK_EQUAL(6u, DateTime::fromYMD(2016, 4, 9).dayOfWeek());
-    CHECK_EQUAL(7u, DateTime::fromYMD(2016, 4, 10).dayOfWeek());
+    CHECK(DateTime::Weekday::Monday
+          == DateTime::fromYMD(2016, 4, 4).dayOfWeek());
+    CHECK(DateTime::Weekday::Tuesday
+          == DateTime::fromYMD(2016, 4, 5).dayOfWeek());
+    CHECK(DateTime::Weekday::Wednesday
+          == DateTime::fromYMD(2016, 4, 6).dayOfWeek());
+    CHECK(DateTime::Weekday::Thursday
+          == DateTime::fromYMD(2016, 4, 7).dayOfWeek());
+    CHECK(DateTime::Weekday::Friday
+          == DateTime::fromYMD(2016, 4, 8).dayOfWeek());
+    CHECK(DateTime::Weekday::Saturday
+          == DateTime::fromYMD(2016, 4, 9).dayOfWeek());
+    CHECK(DateTime::Weekday::Sunday
+          == DateTime::fromYMD(2016, 4, 10).dayOfWeek());
 }
 
 TEST(DateTime, test_ostream_operator)
@@ -283,7 +289,8 @@ TEST(DateTime, test_double_single_quotes_replaced_by_single_quote_in_output)
     CHECK_EQUAL("2016'09'21", dt.toString("yyyy''MM''dd"));
 }
 
-TEST(DateTime, test_comparison_operators) {
+TEST(DateTime, test_comparison_operators)
+{
     DateTime dt = DateTime::fromYMD(2016, 11, 29);
     DateTime before = DateTime::fromYMD(2016, 11, 28);
     DateTime after = DateTime::fromYMD(2016, 11, 30);

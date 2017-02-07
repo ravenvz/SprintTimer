@@ -149,6 +149,14 @@ public:
         Config::settings.setValue("timerFlavour", QVariant(timerVariation));
     }
 
+    unsigned workdaysCode() const override {
+        return Config::settings.value("workdaysCode", 127).toUInt();
+    }
+
+    void setWorkdaysCode(unsigned workdays_code) override {
+        Config::settings.setValue("workdaysCode", QVariant(workdays_code));
+    }
+
 private:
     QSettings settings;
 };

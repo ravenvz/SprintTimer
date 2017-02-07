@@ -26,9 +26,9 @@
 #include "core/StringUtils.h"
 #include <algorithm>
 #include <array>
+#include <ctime>
 #include <iomanip>
 #include <iostream>
-#include <ctime>
 
 namespace {
 template <typename T>
@@ -40,6 +40,10 @@ void pop_back_n(T& container, size_t n)
 }
 
 std::string formatDateTime(const DateTime& dt, std::string&& format);
+
+
+constexpr std::array<unsigned, 7> mondayFirstTable{
+    {6u, 0u, 1u, 2u, 3u, 4u, 5u}};
 }
 
 
@@ -121,17 +125,20 @@ DateTime DateTime::addYears(long years) const
 
 long DateTime::secondsTo(const DateTime& other) const
 {
-    return std::chrono::duration_cast<std::chrono::seconds>(other.time - time).count();
+    return std::chrono::duration_cast<std::chrono::seconds>(other.time - time)
+        .count();
 }
 
 long DateTime::minutesTo(const DateTime& other) const
 {
-    return std::chrono::duration_cast<std::chrono::minutes>(other.time - time).count();
+    return std::chrono::duration_cast<std::chrono::minutes>(other.time - time)
+        .count();
 }
 
 long DateTime::hoursTo(const DateTime& other) const
 {
-    return std::chrono::duration_cast<std::chrono::hours>(other.time - time).count();
+    return std::chrono::duration_cast<std::chrono::hours>(other.time - time)
+        .count();
 }
 
 long DateTime::daysTo(const DateTime& other) const
@@ -169,10 +176,11 @@ long DateTime::minute() const { return tod.minutes().count(); }
 
 long long DateTime::second() const { return tod.seconds().count(); }
 
-unsigned DateTime::dayOfWeek() const
+DateTime::Weekday DateTime::dayOfWeek() const
 {
-    std::array<unsigned, 7> mondayFirstTable{{7u, 1u, 2u, 3u, 4u, 5u, 6u}};
-    return mondayFirstTable[static_cast<unsigned>(date::weekday(ymd))];
+    auto dayNumber
+        = mondayFirstTable[static_cast<unsigned>(date::weekday(ymd))];
+    return static_cast<DateTime::Weekday>(dayNumber);
 }
 
 std::string DateTime::toString(std::string format) const

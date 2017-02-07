@@ -25,10 +25,13 @@
 
 
 #include "core/Distribution.h"
+#include "dialogs/WorkdaysDialog.h"
 #include "widgets/DataWidget.h"
 #include <QGridLayout>
+#include <QPushButton>
 #include <core/IConfig.h>
 #include <core/ICoreService.h>
+#include <memory>
 
 class ProgressView;
 
@@ -49,6 +52,8 @@ private:
     ProgressView* dailyProgress;
     ProgressView* weeklyProgress;
     ProgressView* monthlyProgress;
+    QPushButton* configureWorkdaysButton;
+    std::unique_ptr<WorkdaysDialog> workdaysDialog;
     const QSize expectedSize{1225, 650};
 
     void synchronizeDailyData();
@@ -62,6 +67,11 @@ private:
     void onWeeklyDataReceived(const Distribution<int>& distribution);
 
     void onMonthlyDataReceived(const Distribution<int>& distribution);
+
+    int calculateNumWorkdaysBins(const TimeSpan& timeSpan) const;
+
+private slots:
+    void launchWorkdaysConfigurationDialog();
 };
 
 

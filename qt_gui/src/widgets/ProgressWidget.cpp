@@ -87,18 +87,25 @@ void ProgressView::setLegendGoalCaption(const QString& caption)
     ui->lblGoalCaption->setText(caption);
 }
 
-void ProgressView::setData(const Distribution<int>& distribution)
+void ProgressView::addLegendRow(const QString& labelText, QWidget* field)
+{
+    ui->formLayout->addRow(labelText, field);
+}
+
+void ProgressView::setData(const Distribution<int>& distribution, int numBins)
 {
     ui->lblProgress->setText(QString("%1").arg(distribution.getTotal()));
-    auto expected = goal * distribution.getNumBins();
-    auto actual = distribution.getTotal();
-    if (actual > expected) {
+    const auto expectedTotal = goal * numBins;
+    const auto numCompleted = distribution.getTotal();
+
+    if (numCompleted > expectedTotal) {
         ui->lblLeftCaption->setText("Overwork:");
-        ui->lblLeft->setText(QString{"%1"}.arg(actual - expected));
+        ui->lblLeft->setText(QString{"%1"}.arg(numCompleted - expectedTotal));
     } else {
         ui->lblLeftCaption->setText("Left to complete:");
-        ui->lblLeft->setText(QString("%1").arg(expected - actual));
+        ui->lblLeft->setText(QString("%1").arg(expectedTotal - numCompleted));
     }
+
     ui->lblAverage->setText(formatDecimal(distribution.getAverage()));
     ui->lblPercentage->setText(QString("%1%").arg(formatDecimal(
         percentage(distribution.getTotal(),

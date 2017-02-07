@@ -50,6 +50,16 @@ void to_time_point(const std::tm& t,
 class DateTime {
 
 public:
+    enum class Weekday {
+        Monday,
+        Tuesday,
+        Wednesday,
+        Thursday,
+        Friday,
+        Saturday,
+        Sunday
+    };
+
     DateTime(std::chrono::system_clock::time_point timepoint);
 
     static DateTime fromYMD(int year, int month, int day);
@@ -143,10 +153,8 @@ public:
     /* Return seconds since the start of the minute. */
     long long second() const;
 
-    /* Return day of week in [0, 6].
-     *
-     * 0 corresponds to Sunday. */
-    unsigned dayOfWeek() const;
+    /* Return day of week. */
+    Weekday dayOfWeek() const;
 
     /* Return string representation of DateTime.
      * The format parameter determines the format of the result string.
