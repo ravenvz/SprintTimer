@@ -27,9 +27,11 @@
 #include <QStyleFactory>
 
 namespace ProgressBarColors {
+
 const QColor targetGoalReached = QColor("#6baa15");
 const QColor overwork = Qt::red;
 const QColor workInProgress = Qt::gray;
+
 };
 
 ProgressView::ProgressView(int goal,
@@ -109,7 +111,7 @@ void ProgressView::setData(const Distribution<int>& distribution, int numBins)
     ui->lblAverage->setText(formatDecimal(distribution.getAverage()));
     ui->lblPercentage->setText(QString("%1%").arg(formatDecimal(
         percentage(distribution.getTotal(),
-                   static_cast<int>(goal * distribution.getNumBins())))));
+                   static_cast<int>(expectedTotal)))));
     fillGauges(distribution);
     updateProgressBar(distribution.getBinValue(distribution.getNumBins() - 1));
 }
