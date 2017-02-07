@@ -35,12 +35,12 @@ node {
     stage('Run tests') {
         parallel "linux unit tests":{
             node ("linux") {
-                sh 'cd bin && ./acceptance_tests_stub -o junit && ./test_core -o junit && ./test_qt_storage_impl -o junit && mkdir -p test_results && mv *.xml test_results'
+                sh 'cd bin && ./test_core -o junit && ./test_qt_storage_impl -o junit && mkdir -p test_results && mv *.xml test_results'
                 junit '**/bin/test_results/*.xml'
             }
         }, "windows unit tests":{
             node ("windows") {
-                bat 'cd bin/Release && acceptance_tests_stub.exe -o junit && test_core.exe -o junit && mkdir test_results && move *.xml test_results'
+                bat 'cd bin/Release && test_core.exe -o junit && mkdir test_results && move *.xml test_results'
                 junit '**/bin/Release/test_results/*.xml'
             }
         }
