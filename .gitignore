@@ -7,3 +7,4 @@ lib
 core/build
 third_party/
 build
+bin
