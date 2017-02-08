@@ -101,7 +101,7 @@ public:
     /* Return distance in seconds to other DateTime object.
      *
      * If other DateTime object is behind in time, result will be negative. */
-    long secondsTo(const DateTime& other) const;
+    long long secondsTo(const DateTime& other) const;
 
     /* Return distance in minutes to other DateTime object.
      *

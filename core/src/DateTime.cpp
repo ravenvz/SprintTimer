@@ -123,7 +123,7 @@ DateTime DateTime::addYears(long years) const
     return DateTime{time + date::months{years * 12}};
 }
 
-long DateTime::secondsTo(const DateTime& other) const
+long long DateTime::secondsTo(const DateTime& other) const
 {
     return std::chrono::duration_cast<std::chrono::seconds>(other.time - time)
         .count();
