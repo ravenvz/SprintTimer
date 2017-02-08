@@ -43,7 +43,6 @@ protected:
     size_t distributionSize;
     std::list<Handler> handler_queue;
     QDate startDate;
-    QDate endDate;
     std::function<bool(const QDate&, const QDate&)> equalityFunc;
     std::function<QDate(const QDate&)> incrementFunc;
     long long mQueryId{-1};
@@ -62,7 +61,6 @@ protected:
                                   EqualityCriteria comp,
                                   DateIncrementer incrementer)
     {
-
         std::vector<int> sprintCount(distributionSize, 0);
 
         QDate current = startDate;

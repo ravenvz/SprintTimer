@@ -21,7 +21,33 @@
 *********************************************************************************/
 
 #include "widgets/GoalProgressWindow.h"
+#include "core/utils/WeekdaySelection.h"
 #include "widgets/ProgressWidget.h"
+
+namespace {
+
+TimeSpan thirtyDaysBackTillNow()
+{
+    auto now = DateTime::currentDateTimeLocal();
+    auto from = now.addDays(-29);
+    return TimeSpan{from, now};
+}
+
+TimeSpan twelveWeeksBackTillNow()
+{
+    auto now = DateTime::currentDateTimeLocal();
+    auto from = now.addDays(-7 * 11 - static_cast<int>(now.dayOfWeek()));
+    return TimeSpan{from, now};
+}
+
+TimeSpan twelveMonthsBackTillNow()
+{
+    auto now = DateTime::currentDateTimeLocal();
+    auto from = now.addMonths(-11).addDays(-static_cast<int>(now.day()) - 1);
+    return TimeSpan{from, now};
+}
+
+} // namespace
 
 GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
                                        ICoreService& coreService,
@@ -34,24 +60,27 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
     layout->setSpacing(15);
     layout->setContentsMargins(20, 10, 20, 10);
 
-    dailyProgress = new ProgressView(
-            applicationSettings.dailyGoal(), 3, 10, 0.7, this);
+    configureWorkdaysButton = new QPushButton("Configure", this);
+
+    dailyProgress
+        = new ProgressView(applicationSettings.dailyGoal(), 3, 10, 0.7, this);
     dailyProgress->setLegendTitle("Last 30 days");
     dailyProgress->setLegendTotalCaption("Total completed:");
     dailyProgress->setLegendAverageCaption("Average per day:");
     dailyProgress->setLegendPercentageCaption("Goal progress:");
     dailyProgress->setLegendGoalCaption("Daily goal:");
+    dailyProgress->addLegendRow("Workdays:", configureWorkdaysButton);
 
-    weeklyProgress = new ProgressView(
-            applicationSettings.weeklyGoal(), 3, 4, 0.8, this);
+    weeklyProgress
+        = new ProgressView(applicationSettings.weeklyGoal(), 3, 4, 0.8, this);
     weeklyProgress->setLegendTitle("Last 12 weeks");
     weeklyProgress->setLegendTotalCaption("Total completed:");
     weeklyProgress->setLegendAverageCaption("Average per week:");
     weeklyProgress->setLegendPercentageCaption("Goal progress:");
     weeklyProgress->setLegendGoalCaption("Weekly goal:");
 
-    monthlyProgress = new ProgressView(
-            applicationSettings.monthlyGoal(), 3, 4, 0.8, this);
+    monthlyProgress
+        = new ProgressView(applicationSettings.monthlyGoal(), 3, 4, 0.8, this);
     monthlyProgress->setLegendTitle("Last 12 months");
     monthlyProgress->setLegendTotalCaption("Total completed:");
     monthlyProgress->setLegendAverageCaption("Average per month:");
@@ -92,6 +121,10 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
                 applicationSettings.setMonthlyGoal(goal);
                 synchronizeMonthlyData();
             });
+    connect(configureWorkdaysButton,
+            &QPushButton::clicked,
+            this,
+            &GoalProgressWindow::launchWorkdaysConfigurationDialog);
 
     synchronize();
 }
@@ -107,51 +140,64 @@ void GoalProgressWindow::synchronize()
 
 void GoalProgressWindow::synchronizeDailyData()
 {
-    auto now = DateTime::currentDateTime();
-    auto from = now.addDays(-29);
     coreService.requestSprintDailyDistribution(
-            TimeSpan{from, now},
-            std::bind(&GoalProgressWindow::onDailyDataReceived,
-                      this,
-                      std::placeholders::_1));
+        thirtyDaysBackTillNow(), [this](const auto& distribution) {
+            this->onDailyDataReceived(distribution);
+        });
 }
 
 void GoalProgressWindow::synchronizeWeeklyData()
 {
-    auto now = DateTime::currentDateTime();
-    auto from = now.addDays(-7 * 11 - static_cast<int>(now.dayOfWeek()) + 1);
     coreService.requestSprintWeeklyDistribution(
-            TimeSpan{from, now},
-            std::bind(&GoalProgressWindow::onWeeklyDataReceived,
-                      this,
-                      std::placeholders::_1));
+        twelveWeeksBackTillNow(), [this](const auto& distribution) {
+            this->onWeeklyDataReceived(distribution);
+        });
 }
 
 void GoalProgressWindow::synchronizeMonthlyData()
 {
-    DateTime now = DateTime::currentDateTime();
-    auto from = now.addMonths(-11).addDays(-static_cast<int>(now.day()) + 1);
     coreService.requestSprintMonthlyDistribution(
-            TimeSpan{from, now},
-            std::bind(&GoalProgressWindow::onMonthlyDataReceived,
-                      this,
-                      std::placeholders::_1));
+        twelveMonthsBackTillNow(), [this](const auto& distribution) {
+            this->onMonthlyDataReceived(distribution);
+        });
 }
 
 void GoalProgressWindow::onDailyDataReceived(
     const Distribution<int>& distribution)
 {
-    dailyProgress->setData(distribution);
+    dailyProgress->setData(distribution,
+                           calculateNumWorkdaysBins(thirtyDaysBackTillNow()));
 }
 
 void GoalProgressWindow::onWeeklyDataReceived(
     const Distribution<int>& distribution)
 {
-    weeklyProgress->setData(distribution);
+    weeklyProgress->setData(distribution, distribution.getNumBins());
 }
 
 void GoalProgressWindow::onMonthlyDataReceived(
     const Distribution<int>& distribution)
 {
-    monthlyProgress->setData(distribution);
+    monthlyProgress->setData(distribution, distribution.getNumBins());
+}
+
+void GoalProgressWindow::launchWorkdaysConfigurationDialog()
+{
+    workdaysDialog.reset(new WorkdaysDialog{applicationSettings});
+    workdaysDialog->setModal(true);
+    workdaysDialog->show();
+}
+
+int GoalProgressWindow::calculateNumWorkdaysBins(const TimeSpan& timeSpan) const
+{
+    WeekdaySelection workdays{applicationSettings.workdaysCode()};
+    int numBins{0};
+    for (auto day = timeSpan.startTime; day <= timeSpan.finishTime;
+         day = day.addDays(1)) {
+        if (workdays.isSelected(
+                static_cast<DateTime::Weekday>(day.dayOfWeek())))
+            ++numBins;
+    }
+
+    return numBins;
 }

@@ -27,9 +27,11 @@
 #include <QStyleFactory>
 
 namespace ProgressBarColors {
+
 const QColor targetGoalReached = QColor("#6baa15");
 const QColor overwork = Qt::red;
 const QColor workInProgress = Qt::gray;
+
 };
 
 ProgressView::ProgressView(int goal,
@@ -87,22 +89,29 @@ void ProgressView::setLegendGoalCaption(const QString& caption)
     ui->lblGoalCaption->setText(caption);
 }
 
-void ProgressView::setData(const Distribution<int>& distribution)
+void ProgressView::addLegendRow(const QString& labelText, QWidget* field)
+{
+    ui->formLayout->addRow(labelText, field);
+}
+
+void ProgressView::setData(const Distribution<int>& distribution, size_t numBins)
 {
     ui->lblProgress->setText(QString("%1").arg(distribution.getTotal()));
-    auto expected = goal * distribution.getNumBins();
-    auto actual = distribution.getTotal();
-    if (actual > expected) {
+    const long long expectedTotal = goal * numBins;
+    const long long numCompleted = distribution.getTotal();
+
+    if (numCompleted > expectedTotal) {
         ui->lblLeftCaption->setText("Overwork:");
-        ui->lblLeft->setText(QString{"%1"}.arg(actual - expected));
+        ui->lblLeft->setText(QString{"%1"}.arg(numCompleted - expectedTotal));
     } else {
         ui->lblLeftCaption->setText("Left to complete:");
-        ui->lblLeft->setText(QString("%1").arg(expected - actual));
+        ui->lblLeft->setText(QString("%1").arg(expectedTotal - numCompleted));
     }
+
     ui->lblAverage->setText(formatDecimal(distribution.getAverage()));
     ui->lblPercentage->setText(QString("%1%").arg(formatDecimal(
         percentage(distribution.getTotal(),
-                   static_cast<int>(goal * distribution.getNumBins())))));
+                   static_cast<int>(expectedTotal)))));
     fillGauges(distribution);
     updateProgressBar(distribution.getBinValue(distribution.getNumBins() - 1));
 }

@@ -61,12 +61,16 @@ private:
     std::unique_ptr<AddSprintDialog> addSprintDialog;
 
     void removeSprint();
+    void adjustUndoButtonState();
 
 private slots:
     void launchManualAddSprintDialog();
     void adjustAddSprintButtonState();
     void showContextMenu(const QPoint& pos);
+    void onUndoButtonClicked();
 
+signals:
+    void actionUndone();
 };
 
 

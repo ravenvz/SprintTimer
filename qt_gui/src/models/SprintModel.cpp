@@ -23,8 +23,8 @@
 
 SprintModel::SprintModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel(parent)
-    , interval{TimeSpan{DateTime::currentDateTime(),
-                        DateTime::currentDateTime()}}
+    , interval{TimeSpan{DateTime::currentDateTimeLocal(),
+                        DateTime::currentDateTimeLocal()}}
     , coreService{coreService}
 {
     synchronize();
@@ -89,7 +89,7 @@ void SprintModel::requestDataUpdate()
 {
     coreService.sprintsInTimeRange(
         interval,
-        std::bind(&SprintModel::onDataChanged, this, std::placeholders::_1));
+        [this](const auto& items) { this->onDataChanged(items); });
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)

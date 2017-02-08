@@ -69,7 +69,7 @@ std::vector<double> SprintStatItem::computeWeekdayDistribution() const
     if (mSprints.empty())
         return distribution;
     for (const Sprint& sprint : mSprints) {
-        distribution[sprint.startTime().dayOfWeek() - 1]++;
+        distribution[static_cast<size_t>(sprint.startTime().dayOfWeek())]++;
     }
     return distribution;
 }
@@ -90,8 +90,8 @@ std::vector<int> SprintStatItem::countWeekdays() const
 {
     std::vector<int> result(7, 0);
     for (size_t dayNum = 0; dayNum < timeSpan.sizeInDays(); ++dayNum) {
-        result[timeSpan.startTime.addDays(static_cast<int>(dayNum)).dayOfWeek()
-               - 1]++;
+        auto date = timeSpan.startTime.addDays(static_cast<int>(dayNum));
+        result[static_cast<unsigned>(date.dayOfWeek())]++;
     }
     return result;
 }

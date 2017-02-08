@@ -98,6 +98,10 @@ TEST_GROUP(StatefulTimerStates)
 
         void setTimerFlavour(int timerVariation) override {}
 
+        unsigned workdaysCode() const override { return 0; }
+
+        void setWorkdaysCode(unsigned workdays_code) override {}
+
     private:
         int mSprintDuration = 30;
         int mShortBreakDuration = 10;

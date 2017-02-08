@@ -26,9 +26,9 @@
 #include "core/StringUtils.h"
 #include <algorithm>
 #include <array>
+#include <ctime>
 #include <iomanip>
 #include <iostream>
-#include <ctime>
 
 namespace {
 template <typename T>
@@ -40,6 +40,10 @@ void pop_back_n(T& container, size_t n)
 }
 
 std::string formatDateTime(const DateTime& dt, std::string&& format);
+
+
+constexpr std::array<unsigned, 7> mondayFirstTable{
+    {6u, 0u, 1u, 2u, 3u, 4u, 5u}};
 }
 
 
@@ -89,20 +93,70 @@ std::time_t DateTime::toTime_t() const
     return std::chrono::system_clock::to_time_t(time);
 }
 
-DateTime DateTime::addDays(int days) const
+DateTime DateTime::addSeconds(long seconds) const
+{
+    return DateTime{time + std::chrono::seconds{seconds}};
+}
+
+DateTime DateTime::addMinutes(long minutes) const
+{
+    return DateTime{time + std::chrono::minutes{minutes}};
+}
+
+DateTime DateTime::addHours(long hours) const
+{
+    return DateTime{time + std::chrono::hours{hours}};
+}
+
+DateTime DateTime::addDays(long days) const
 {
     return DateTime{time + date::days{days}};
 }
 
-DateTime DateTime::addMonths(int months) const
+DateTime DateTime::addMonths(long months) const
 {
     return DateTime{time + date::months{months}};
 }
 
-int DateTime::daysTo(const DateTime& other) const
+DateTime DateTime::addYears(long years) const
+{
+    return DateTime{time + date::months{years * 12}};
+}
+
+long long DateTime::secondsTo(const DateTime& other) const
+{
+    return std::chrono::duration_cast<std::chrono::seconds>(other.time - time)
+        .count();
+}
+
+long DateTime::minutesTo(const DateTime& other) const
+{
+    return std::chrono::duration_cast<std::chrono::minutes>(other.time - time)
+        .count();
+}
+
+long DateTime::hoursTo(const DateTime& other) const
+{
+    return std::chrono::duration_cast<std::chrono::hours>(other.time - time)
+        .count();
+}
+
+long DateTime::daysTo(const DateTime& other) const
 {
     using namespace date;
     return (floor<days>(other.time) - floor<days>(this->time)).count();
+}
+
+long DateTime::monthsTo(const DateTime& other) const
+{
+    using namespace date;
+    return (floor<months>(other.time) - floor<months>(this->time)).count();
+}
+
+long DateTime::yearsTo(const DateTime& other) const
+{
+    using namespace date;
+    return (floor<years>(other.time) - floor<years>(this->time)).count();
 }
 
 std::chrono::system_clock::time_point DateTime::chronoTimepoint() const
@@ -122,10 +176,11 @@ long DateTime::minute() const { return tod.minutes().count(); }
 
 long long DateTime::second() const { return tod.seconds().count(); }
 
-unsigned DateTime::dayOfWeek() const
+DateTime::Weekday DateTime::dayOfWeek() const
 {
-    std::array<unsigned, 7> mondayFirstTable{{7u, 1u, 2u, 3u, 4u, 5u, 6u}};
-    return mondayFirstTable[static_cast<unsigned>(date::weekday(ymd))];
+    auto dayNumber
+        = mondayFirstTable[static_cast<unsigned>(date::weekday(ymd))];
+    return static_cast<DateTime::Weekday>(dayNumber);
 }
 
 std::string DateTime::toString(std::string format) const
@@ -226,4 +281,4 @@ std::string formatDateTime(const DateTime& dt, std::string&& format)
 
     return ss.str();
 }
-}
+} // namespace

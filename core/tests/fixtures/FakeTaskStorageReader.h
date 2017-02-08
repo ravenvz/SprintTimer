@@ -24,6 +24,7 @@
 
 #include "FakeStorage.h"
 #include "core/ITaskStorageReader.h"
+#include <algorithm>
 
 class FakeTaskStorageReader : public ITaskStorageReader {
 public:
@@ -34,11 +35,29 @@ public:
 
     void requestUnfinishedTasks(Handler handler) final
     {
-        std::vector<Task> emptyResult;
-        handler(emptyResult);
+        auto tempHandler = [handler](const std::vector<Task>& allReturned) {
+            std::vector<Task> unfinished;
+            std::copy_if(allReturned.cbegin(), allReturned.cend(),
+                         std::back_inserter(unfinished),
+                         [](const auto& task) { return !task.isCompleted(); });
+            handler(unfinished);
+        };
+        storage.requestUnfinishedItems(tempHandler);
     }
 
     void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler) final
+    {
+        auto tempHandler = [handler](const std::vector<Task>& allReturned) {
+            std::vector<Task> completed;
+            std::copy_if(allReturned.cbegin(), allReturned.cend(),
+                    std::back_inserter(completed),
+                    [](const auto& task) { return task.isCompleted(); });
+            handler(completed);
+        };
+        storage.itemsInTimeRange(timeSpan, tempHandler);
+    }
+
+    void requestTasks(const TimeSpan& timeSpan, Handler handler) final
     {
         storage.itemsInTimeRange(timeSpan, handler);
     }

@@ -41,6 +41,8 @@ public:
     virtual void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler)
         = 0;
 
+    virtual void requestTasks(const TimeSpan& timeSpan, Handler handler) = 0;
+
     virtual void requestAllTags(TagHandler handler) = 0;
 };
 

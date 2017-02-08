@@ -48,6 +48,7 @@ struct TimeSpan {
 
     /* Return time span size in days as unsigned integer.
      *
+     * TODO change to signed integer (long long) type
      * It doesn't matter if start point is further in time compared to
      * finish point. */
     unsigned sizeInDays() const;

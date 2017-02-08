@@ -59,10 +59,8 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     ui->gridLayout->addWidget(taskOutline, 0, 0, 3, 1);
     ui->gridLayout->addWidget(
             timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
-    ui->gridLayout->addWidget(sprintOutline, 1, 2, 2, 1);
+    ui->gridLayout->addWidget(sprintOutline, 0, 2, 3, 1);
     ui->gridLayout->addWidget(launcherMenu, 4, 1, 1, 1, Qt::AlignHCenter);
-
-    adjustUndoButtonState();
 
     connect(timerWidget,
             &TimerWidgetBase::submitRequested,
@@ -79,6 +77,10 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &SprintModel::modelReset,
             this,
             &MainWindow::updateDailyProgress);
+    connect(sprintOutline,
+            &SprintOutline::actionUndone,
+            launcherMenu,
+            &LauncherMenu::onSyncRequired);
 
     // As models update data asynchroniously,
     // other models that depend on that data should
@@ -111,19 +113,6 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     connect(timerWidget,
             &TimerWidgetBase::submissionCandidateChanged,
             [&](int index) { selectedTaskRow = taskModel->index(index, 0).row(); });
-    connect(ui->pbUndo,
-            &QPushButton::clicked,
-            this,
-            &MainWindow::onUndoButtonClicked);
-    connect(sprintModel,
-            &AsyncListModel::updateFinished,
-            this,
-            &MainWindow::adjustUndoButtonState);
-    connect(taskModel,
-            &AsyncListModel::updateFinished,
-            this,
-            &MainWindow::adjustUndoButtonState);
-
     connect(sprintModel,
             &AsyncListModel::updateFinished,
             launcherMenu,
@@ -168,26 +157,6 @@ void MainWindow::submitSprint(const std::vector<TimeSpan> &intervalBuffer)
 void MainWindow::updateDailyProgress()
 {
     timerWidget->updateGoalProgress(sprintModel->rowCount());
-}
-
-void MainWindow::onUndoButtonClicked()
-{
-    ConfirmationDialog dialog;
-    QString description{"Revert following action:\n"};
-    description.append(
-        QString::fromStdString(coreService.lastCommandDescription()));
-    dialog.setActionDescription(description);
-    if (dialog.exec()) {
-        coreService.undoLast();
-        sprintModel->synchronize();
-        taskModel->synchronize();
-        adjustUndoButtonState();
-    }
-}
-
-void MainWindow::adjustUndoButtonState()
-{
-    ui->pbUndo->setEnabled(coreService.numRevertableCommands() != 0);
 }
 
 QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }
@@ -235,7 +204,6 @@ void Expanded::setStateUi(MainWindow& widget)
     widget.launcherMenu->setVisible(true);
     widget.ui->pbToggleView->setText("Collapse");
     widget.ui->pbToggleMenu->setText("Hide menu");
-    widget.ui->pbUndo->setVisible(true);
 }
 
 void Expanded::toggleView(MainWindow& widget)
@@ -260,7 +228,6 @@ void Shrinked::setStateUi(MainWindow& widget)
     widget.launcherMenu->setVisible(false);
     widget.ui->pbToggleView->setText("Expand");
     widget.ui->pbToggleMenu->setText("Show menu");
-    widget.ui->pbUndo->setVisible(false);
 }
 
 void Shrinked::toggleView(MainWindow& widget)
@@ -285,7 +252,6 @@ void ExpandedMenuOnly::setStateUi(MainWindow& widget)
     widget.launcherMenu->setVisible(true);
     widget.ui->pbToggleView->setText("Expand");
     widget.ui->pbToggleMenu->setText("Hide menu");
-    widget.ui->pbUndo->setVisible(false);
 }
 
 void ExpandedMenuOnly::toggleView(MainWindow& widget)
@@ -310,7 +276,6 @@ void ExpandedWithoutMenu::setStateUi(MainWindow& widget)
     widget.launcherMenu->setVisible(false);
     widget.ui->pbToggleView->setText("Collapse");
     widget.ui->pbToggleMenu->setText("Show menu");
-    widget.ui->pbUndo->setVisible(true);
 }
 
 void ExpandedWithoutMenu::toggleView(MainWindow& widget)

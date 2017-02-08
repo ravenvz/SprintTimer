@@ -85,6 +85,70 @@ TEST(DateTime, test_add_months_forward)
     CHECK_EQUAL(17, yearForward.day());
 }
 
+TEST(DateTime, test_add_years_forward)
+{
+    DateTime dt = DateTime::fromYMD(2016, 5, 17);
+    DateTime yearForward = dt.addYears(14);
+
+    CHECK_EQUAL(2030, yearForward.year());
+    CHECK_EQUAL(5, yearForward.month());
+    CHECK_EQUAL(17, yearForward.day());
+}
+
+TEST(DateTime, test_add_years_backward)
+{
+    DateTime dt = DateTime::fromYMD(2016, 5, 17);
+    DateTime yearBackward = dt.addYears(-16);
+
+    CHECK_EQUAL(2000, yearBackward.year());
+    CHECK_EQUAL(5, yearBackward.month());
+    CHECK_EQUAL(17, yearBackward.day());
+}
+
+TEST(DateTime, test_add_minutes_forward)
+{
+    DateTime dt = DateTime::fromYMD(2016, 11, 26);
+    DateTime minutesForward = dt.addMinutes(25);
+
+    CHECK_EQUAL(2016, minutesForward.year());
+    CHECK_EQUAL(11, minutesForward.month());
+    CHECK_EQUAL(26, minutesForward.day());
+    CHECK_EQUAL(25, minutesForward.minute());
+}
+
+TEST(DateTime, test_add_minutes_backward)
+{
+    DateTime dt = DateTime::fromYMD(2016, 11, 26);
+    DateTime minutesBackward = dt.addMinutes(-25);
+
+    CHECK_EQUAL(2016, minutesBackward.year());
+    CHECK_EQUAL(11, minutesBackward.month());
+    CHECK_EQUAL(25, minutesBackward.day());
+    CHECK_EQUAL(35, minutesBackward.minute());
+}
+
+TEST(DateTime, test_add_hours_forward)
+{
+    DateTime dt = DateTime::fromYMD(2016, 11, 26);
+    DateTime hoursForward = dt.addHours(25);
+
+    CHECK_EQUAL(2016, hoursForward.year());
+    CHECK_EQUAL(11, hoursForward.month());
+    CHECK_EQUAL(27, hoursForward.day());
+    CHECK_EQUAL(1, hoursForward.hour());
+}
+
+TEST(DateTime, test_add_hours_backward)
+{
+    DateTime dt = DateTime::fromYMD(2016, 11, 26);
+    DateTime hoursBackward = dt.addHours(-25);
+
+    CHECK_EQUAL(2016, hoursBackward.year());
+    CHECK_EQUAL(11, hoursBackward.month());
+    CHECK_EQUAL(24, hoursBackward.day());
+    CHECK_EQUAL(23, hoursBackward.hour());
+}
+
 TEST(DateTime, test_add_months_backward)
 {
     DateTime dt = DateTime::fromYMD(2016, 5, 17);
@@ -95,11 +159,33 @@ TEST(DateTime, test_add_months_backward)
     CHECK_EQUAL(17, yearBack.day());
 }
 
-TEST(DateTime, test_computes_days_forward)
+TEST(DateTime, test_computes_distance_forward)
 {
-    DateTime currentDt = DateTime::currentDateTime();
+    DateTime dt = DateTime::fromYMD(2016, 11, 26);
 
-    CHECK_EQUAL(10, currentDt.daysTo(currentDt.addDays(10)));
+    CHECK_EQUAL(0, dt.secondsTo(dt.addSeconds(0)));
+    CHECK_EQUAL(75, dt.secondsTo(dt.addSeconds(75)));
+    CHECK_EQUAL(-75, dt.secondsTo(dt.addSeconds(-75)));
+
+    CHECK_EQUAL(0, dt.minutesTo(dt.addMinutes(0)));
+    CHECK_EQUAL(65, dt.minutesTo(dt.addMinutes(65)));
+    CHECK_EQUAL(-65, dt.minutesTo(dt.addMinutes(-65)));
+
+    CHECK_EQUAL(0, dt.hoursTo(dt.addHours(0)));
+    CHECK_EQUAL(1000, dt.hoursTo(dt.addHours(1000)));
+    CHECK_EQUAL(-1000, dt.hoursTo(dt.addHours(-1000)));
+
+    CHECK_EQUAL(0, dt.daysTo(dt));
+    CHECK_EQUAL(10, dt.daysTo(dt.addDays(10)));
+    CHECK_EQUAL(-10, dt.daysTo(dt.addDays(-10)));
+
+    CHECK_EQUAL(0, dt.monthsTo(dt.addMonths(0)));
+    CHECK_EQUAL(12, dt.monthsTo(dt.addMonths(12)));
+    CHECK_EQUAL(-12, dt.monthsTo(dt.addMonths(-12)));
+
+    CHECK_EQUAL(0, dt.yearsTo(dt.addYears(0)));
+    CHECK_EQUAL(2, dt.yearsTo(dt.addYears(2)));
+    CHECK_EQUAL(-2, dt.yearsTo(dt.addYears(-2)));
 }
 
 TEST(DateTime, test_computes_days_backward)
@@ -109,15 +195,22 @@ TEST(DateTime, test_computes_days_backward)
     CHECK_EQUAL(-11, currentDt.daysTo(currentDt.addDays(-11)));
 }
 
-TEST(DateTime, test_returns_correct_weekday_num)
+TEST(DateTime, test_returns_correct_weekday)
 {
-    CHECK_EQUAL(1u, DateTime::fromYMD(2016, 4, 4).dayOfWeek());
-    CHECK_EQUAL(2u, DateTime::fromYMD(2016, 4, 5).dayOfWeek());
-    CHECK_EQUAL(3u, DateTime::fromYMD(2016, 4, 6).dayOfWeek());
-    CHECK_EQUAL(4u, DateTime::fromYMD(2016, 4, 7).dayOfWeek());
-    CHECK_EQUAL(5u, DateTime::fromYMD(2016, 4, 8).dayOfWeek());
-    CHECK_EQUAL(6u, DateTime::fromYMD(2016, 4, 9).dayOfWeek());
-    CHECK_EQUAL(7u, DateTime::fromYMD(2016, 4, 10).dayOfWeek());
+    CHECK(DateTime::Weekday::Monday
+          == DateTime::fromYMD(2016, 4, 4).dayOfWeek());
+    CHECK(DateTime::Weekday::Tuesday
+          == DateTime::fromYMD(2016, 4, 5).dayOfWeek());
+    CHECK(DateTime::Weekday::Wednesday
+          == DateTime::fromYMD(2016, 4, 6).dayOfWeek());
+    CHECK(DateTime::Weekday::Thursday
+          == DateTime::fromYMD(2016, 4, 7).dayOfWeek());
+    CHECK(DateTime::Weekday::Friday
+          == DateTime::fromYMD(2016, 4, 8).dayOfWeek());
+    CHECK(DateTime::Weekday::Saturday
+          == DateTime::fromYMD(2016, 4, 9).dayOfWeek());
+    CHECK(DateTime::Weekday::Sunday
+          == DateTime::fromYMD(2016, 4, 10).dayOfWeek());
 }
 
 TEST(DateTime, test_ostream_operator)
@@ -196,9 +289,17 @@ TEST(DateTime, test_double_single_quotes_replaced_by_single_quote_in_output)
     CHECK_EQUAL("2016'09'21", dt.toString("yyyy''MM''dd"));
 }
 
-TEST_GROUP(Formatter){
+TEST(DateTime, test_comparison_operators)
+{
+    DateTime dt = DateTime::fromYMD(2016, 11, 29);
+    DateTime before = DateTime::fromYMD(2016, 11, 28);
+    DateTime after = DateTime::fromYMD(2016, 11, 30);
 
-};
-
-
-TEST(Formatter, test_name) {}
+    CHECK(dt == dt);
+    CHECK(dt <= dt);
+    CHECK(dt >= dt);
+    CHECK(before <= dt);
+    CHECK(before < dt);
+    CHECK(after >= dt);
+    CHECK(after > dt);
+}
