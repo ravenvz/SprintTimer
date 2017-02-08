@@ -94,11 +94,11 @@ void ProgressView::addLegendRow(const QString& labelText, QWidget* field)
     ui->formLayout->addRow(labelText, field);
 }
 
-void ProgressView::setData(const Distribution<int>& distribution, int numBins)
+void ProgressView::setData(const Distribution<int>& distribution, size_t numBins)
 {
     ui->lblProgress->setText(QString("%1").arg(distribution.getTotal()));
-    const auto expectedTotal = goal * numBins;
-    const auto numCompleted = distribution.getTotal();
+    const long long expectedTotal = goal * numBins;
+    const long long numCompleted = distribution.getTotal();
 
     if (numCompleted > expectedTotal) {
         ui->lblLeftCaption->setText("Overwork:");
