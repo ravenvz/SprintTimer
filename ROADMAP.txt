@@ -1,9 +1,22 @@
-Plans for version 0.3.8
+Plans for version 0.3.9
 -----------------------
+
 Optimized GUI for smaller resolution displays
 
 HISTORY
 ----------------------------------------------------------------
+
+Version 0.3.8
+-------------
+Add data export capabilities (experimental and most likely would be changed later)
+Add ability to configure workdays, that allows to track progress more accurately
+for the last 30 days view.
+Fixed issue when local time zone was not considered when displaying finished sprints.
+Fixed bug when sprint was submitted twice if cancelling sprint when timer ran out.
+Number of completed sprints is now grouped by month in the last 12 months view.
+Sprints in compled sprints view are correctly updated when undoing sprint submission.
+Fixed bug with task reordering in task view.
+Various bug fixes.
 
 Version 0.3.7
 -------------
