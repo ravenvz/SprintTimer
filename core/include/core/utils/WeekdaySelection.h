@@ -48,7 +48,7 @@ struct WeekdaySelection {
 
     bool isSelected(DateTime::Weekday weekday) const
     {
-        return mask & weekdayBits[static_cast<unsigned>(weekday)];
+        return (mask & weekdayBits[static_cast<unsigned>(weekday)]) != 0;
     }
 
 private:
