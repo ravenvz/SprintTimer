@@ -27,8 +27,15 @@
 
 using namespace CSV;
 
-TEST_GROUP(TestCSV){
+namespace {
+#ifdef _MSC_VER
+	constexpr char* rfc_4180_test_file = "../../core/tests/data/rfc_4180.csv";
+#else
+	constexpr char* rfc_4180_test_file = "../core/tests/data/rfc_4180.csv";
+#endif
+}
 
+TEST_GROUP(TestCSV){
 };
 
 TEST(TestCSV, test_trows_exception_when_file_not_found)
@@ -50,12 +57,12 @@ TEST(TestCSV, test_handles_case_wnen_last_record_missing_ending_line_break)
 
     CSVReader reader{stream};
 
-    CHECK(std::equal(expected.cbegin(), expected.cend(), reader.cbegin()));
+    CHECK(std::equal(expected.cbegin(), expected.cend(), reader.cbegin(), reader.cend()));
 }
 
 TEST(TestCSV, test_reads_RFC_4180_file)
 {
-    std::fstream file{"../core/tests/data/rfc_4180.csv"};
+    std::fstream file{rfc_4180_test_file};
     CSVReader reader{file};
     Row expected_header{"Year", "Make", "Model", "Description", "Price"};
     std::vector<Row> expected_data{
@@ -74,5 +81,5 @@ TEST(TestCSV, test_reads_RFC_4180_file)
             "4799.00"}};
 
     CHECK(std::equal(
-        expected_data.cbegin(), expected_data.cend(), reader.cbegin()));
+        expected_data.cbegin(), expected_data.cend(), reader.cbegin(), reader.cend()));
 }
