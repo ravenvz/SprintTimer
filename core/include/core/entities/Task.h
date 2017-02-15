@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 
+using dw::DateTime;
 
 /* Represent Task that may have many associated sprints.
  *

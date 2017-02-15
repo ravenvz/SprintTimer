@@ -27,6 +27,7 @@
 #include <QWidget>
 #include <vector>
 
+using dw::TimeSpan;
 
 /* Displays vector of TimeSpan as a diagram.
  *

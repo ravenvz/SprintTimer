@@ -26,6 +26,9 @@
 #include "date_wrapper/TimeSpan.h"
 #include <vector>
 
+using dw::DateTime;
+using dw::TimeSpan;
+
 class IStatefulTimer {
 public:
     enum class State { Idle, Task, Break, LongBreak, ZoneEntered, ZoneLeft, Finished };

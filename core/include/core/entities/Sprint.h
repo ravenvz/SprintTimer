@@ -31,6 +31,9 @@
 #include <ostream>
 #include <string>
 
+using dw::TimeSpan;
+using dw::DateTime;
+
 /* Represents Sprint concept.
  *
  * Sprint is an n-minute time interval that is associated with

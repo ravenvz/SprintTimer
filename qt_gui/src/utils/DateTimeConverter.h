@@ -25,6 +25,9 @@
 #include "date_wrapper/DateTime.h"
 #include <QDateTime>
 
+using dw::DateTime;
+using dw::TimeSpan;
+
 /* Simplifies convertion between QDateTime and DateTime. */
 class DateTimeConverter {
 public:

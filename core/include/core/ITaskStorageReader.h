@@ -26,6 +26,8 @@
 #include "core/entities/Task.h"
 #include <functional>
 
+using dw::TimeSpan;
+
 class ITaskStorageReader {
 public:
     using Items = std::vector<Task>;

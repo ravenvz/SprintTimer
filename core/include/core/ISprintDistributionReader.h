@@ -26,6 +26,8 @@
 #include "date_wrapper/TimeSpan.h"
 #include <functional>
 
+using dw::TimeSpan;
+
 class ISprintDistributionReader {
 public:
     using Handler = std::function<void(const Distribution<int>&)>;
