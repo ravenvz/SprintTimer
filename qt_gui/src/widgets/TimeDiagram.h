@@ -22,7 +22,7 @@
 #ifndef TIMEDIAGRAM_H
 #define TIMEDIAGRAM_H
 
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include <QEvent>
 #include <QWidget>
 #include <vector>

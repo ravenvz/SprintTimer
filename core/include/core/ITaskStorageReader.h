@@ -22,7 +22,7 @@
 #ifndef ITASKSTORAGEREADER_H_RMTKEREJ
 #define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include "core/entities/Task.h"
 #include <functional>
 

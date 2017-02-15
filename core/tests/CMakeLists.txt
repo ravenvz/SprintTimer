@@ -4,11 +4,9 @@ set(TEST_CORE test_core)
 project(${TEST_CORE})
 set(SOURCE_FILES
         run_all_tests.cpp
-        test_datetime.cpp
         test_sprint_statistics.cpp
         test_distribution.cpp
         test_string_utils.cpp
-        test_time_span.cpp
         test_task.cpp
         test_stateful_timer.cpp
         test_core_service.cpp

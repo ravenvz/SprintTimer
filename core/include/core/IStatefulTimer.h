@@ -23,7 +23,7 @@
 #ifndef ISTATEFULTIMER_H_D3DG0N7C
 #define ISTATEFULTIMER_H_D3DG0N7C
 
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include <vector>
 
 class IStatefulTimer {

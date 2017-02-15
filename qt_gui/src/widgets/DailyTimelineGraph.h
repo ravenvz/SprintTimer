@@ -26,7 +26,7 @@
 
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QLabel>
-#include <core/DateTime.h>
+#include <date_wrapper/DateTime.h>
 #include <core/Distribution.h>
 
 namespace Ui {
