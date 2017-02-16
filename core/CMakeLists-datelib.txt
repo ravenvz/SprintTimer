@@ -24,7 +24,7 @@ set(DateWrapper_LOCATION "${binary_dir}")
 set(DateWrapper_LIBRARY "${source_dir}/lib/${LIBPREFIX}date_wrapper${LIBSUFFIX}")
 
 # Workaround against Cmake not downloading lib before using it
-set(Datelib_include_dirs_cmake_bug_wround ${DateWrapper_INCLUDE_DIRS})
+file(MAKE_DIRECTORY ${DateWrapper_INCLUDE_DIRS})
 
 # TODO find more elegant way to handle this
 set(date_INCLUDE_DIRS "${source_dir}/src/date_wrapper/third_party/date")
