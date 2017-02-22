@@ -24,7 +24,6 @@
 #include "ui_progress_widget.h"
 #include "widgets/Gauge.h"
 #include <QtWidgets/QGridLayout>
-#include <QStyleFactory>
 
 namespace ProgressBarColors {
 
@@ -49,7 +48,6 @@ ProgressView::ProgressView(int goal,
     ui->setupUi(this);
 
     ui->spinBoxGoal->setValue(goal);
-	ui->progressBarGoalProgress->setStyle(QStyleFactory::create("fusion"));
 
     connect(ui->spinBoxGoal,
             static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),

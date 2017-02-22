@@ -53,6 +53,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <QStyleFactory>
 
 using std::experimental::filesystem::exists;
 using std::experimental::filesystem::create_directory;
@@ -154,6 +155,7 @@ int main(int argc, char* argv[])
 
     MainWindow w{applicationSettings, coreService};
     w.show();
+    app.setStyle(QStyleFactory::create("Fusion"));
 
     return app.exec();
 }
