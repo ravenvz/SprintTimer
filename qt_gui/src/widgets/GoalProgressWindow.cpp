@@ -43,7 +43,7 @@ TimeSpan twelveWeeksBackTillNow()
 TimeSpan twelveMonthsBackTillNow()
 {
     auto now = DateTime::currentDateTimeLocal();
-    auto from = now.addMonths(-11).addDays(-static_cast<int>(now.day()) - 1);
+    auto from = now.addMonths(-11);
     return TimeSpan{from, now};
 }
 
