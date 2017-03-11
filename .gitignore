@@ -8,3 +8,5 @@ core/build
 third_party/
 build
 bin
+.vs
+CMakeSettings.json
