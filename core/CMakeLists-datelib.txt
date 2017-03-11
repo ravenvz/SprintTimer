@@ -12,7 +12,7 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
   CMAKE_ARGS -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=True
              -DBUILD_SHARED_LIBS=True
-             -DCMAKE_BUILD_TYPE=$<CONFIG>
+             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
              -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
              -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
              -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
@@ -28,22 +28,26 @@ ExternalProject_Get_Property(DateWrapperExternal source_dir binary_dir)
 set(DateWrapper_INCLUDE_DIRS "${source_dir}/src/date_wrapper/include")
 set(DateWrapper_LOCATION "${binary_dir}")
 
-if (WIN32)
-    set(DateWrapper_LIBRARY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<CONFIG>/${LIBPREFIX}date_wrapper.lib")
-else()
-    set(DateWrapper_LIBRARY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}date_wrapper${LIBSUFFIX}")
-endif()
-
 # Workaround against Cmake not downloading lib before using it
 file(MAKE_DIRECTORY ${DateWrapper_INCLUDE_DIRS})
 
 # TODO find more elegant way to handle this
 set(date_INCLUDE_DIRS "${source_dir}/src/date_wrapper/third_party/date")
 
-add_library(DateWrapper UNKNOWN IMPORTED)
+add_library(DateWrapper SHARED IMPORTED)
 add_dependencies(DateWrapper DateWrapperExternal)
 
-set_target_properties(DateWrapper PROPERTIES
-    IMPORTED_LOCATION "${DateWrapper_LIBRARY}"
-    INTERFACE_INCLUDE_DIRECTORIES "${DateWrapper_INCLUDE_DIRS}"
-)
+if (WIN32)
+    set_target_properties(DateWrapper PROPERTIES
+        IMPORTED_IMPLIB_DEBUG "${source_dir}/lib/Debug/${LIBPREFIX}date_wrapper.lib"
+        IMPORTED_IMPLIB_RELEASE "${source_dir}/lib/Release/${LIBPREFIX}date_wrapper.lib"
+        IMPORTED_LOCATION_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug/${LIBPREFIX}date_wrapper${LIBSUFFIX}"
+        IMPORTED_LOCATION_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release/${LIBPREFIX}date_wrapper${LIBSUFFIX}"
+        INTERFACE_INCLUDE_DIRECTORIES "${DateWrapper_INCLUDE_DIRS}"
+    )
+else()
+    set_target_properties(DateWrapper PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}date_wrapper${LIBSUFFIX}"
+        INTERFACE_INCLUDE_DIRECTORIES "${DateWrapper_INCLUDE_DIRS}"
+    )
+endif()
