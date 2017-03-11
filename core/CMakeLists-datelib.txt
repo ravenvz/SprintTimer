@@ -4,13 +4,18 @@ ExternalProject_Add(
   DateWrapperExternal
 
   GIT_REPOSITORY "https://github.com/ravenvz/date_wrapper"
-  GIT_TAG "v0.1.2"
+  GIT_TAG "v0.1.3"
 
   PREFIX "${DateWrapper_PREFIX}"
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
   INSTALL_COMMAND ""
-  CMAKE_ARGS -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=True -DBUILD_SHARED_LIBS=True -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  CMAKE_ARGS -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=True
+             -DBUILD_SHARED_LIBS=True
+             -DCMAKE_BUILD_TYPE=$<CONFIG>
+             -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+             -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+             -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
 
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${THIRD_PARTY_LIBS_FOLDER_PREFIX}/date_wrapper"
 )
@@ -24,9 +29,9 @@ set(DateWrapper_INCLUDE_DIRS "${source_dir}/src/date_wrapper/include")
 set(DateWrapper_LOCATION "${binary_dir}")
 
 if (WIN32)
-	set(DateWrapper_LIBRARY "${source_dir}/lib/Release/${LIBPREFIX}date_wrapper.lib")
+    set(DateWrapper_LIBRARY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<CONFIG>/${LIBPREFIX}date_wrapper.lib")
 else()
-	set(DateWrapper_LIBRARY "${source_dir}/lib/${LIBPREFIX}date_wrapper${LIBSUFFIX}")
+    set(DateWrapper_LIBRARY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}date_wrapper${LIBSUFFIX}")
 endif()
 
 # Workaround against Cmake not downloading lib before using it
