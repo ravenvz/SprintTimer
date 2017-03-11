@@ -20,8 +20,10 @@
 **
 *********************************************************************************/
 
-#include "core/DateTime.h"
+#include "date_wrapper/DateTime.h"
 #include <array>
+
+using dw::DateTime;
 
 namespace {
 constexpr std::array<unsigned, 7> weekdayBits = {1, 2, 4, 8, 16, 32, 64};

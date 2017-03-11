@@ -29,9 +29,9 @@ using namespace CSV;
 
 namespace {
 #ifdef _MSC_VER
-	constexpr char* rfc_4180_test_file = "../../core/tests/data/rfc_4180.csv";
+	constexpr char const* rfc_4180_test_file = "../../core/tests/data/rfc_4180.csv";
 #else
-	constexpr char* rfc_4180_test_file = "../core/tests/data/rfc_4180.csv";
+	constexpr char const* rfc_4180_test_file = "../core/tests/data/rfc_4180.csv";
 #endif
 }
 
