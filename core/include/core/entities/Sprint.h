@@ -24,12 +24,15 @@
 
 
 #include "core/BoostUUIDGenerator.h"
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include "core/entities/Tag.h"
 #include "core/entities/Task.h"
 #include <list>
 #include <ostream>
 #include <string>
+
+using dw::TimeSpan;
+using dw::DateTime;
 
 /* Represents Sprint concept.
  *

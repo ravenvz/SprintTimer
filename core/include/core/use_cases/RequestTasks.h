@@ -23,7 +23,7 @@
 #define SPRINT_TIMER_REQUESTTASKS_H
 
 #include "core/Command.h"
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include "core/ITaskStorageReader.h"
 
 namespace UseCases {

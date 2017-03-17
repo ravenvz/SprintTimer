@@ -22,7 +22,7 @@
 #ifndef DATEINTERVAL_H_DO5P2YKX
 #define DATEINTERVAL_H_DO5P2YKX
 
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include "utils/DateTimeConverter.h"
 #include <QDate>
 #include <iostream>

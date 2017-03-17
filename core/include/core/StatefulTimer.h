@@ -23,10 +23,10 @@
 #ifndef TASKRUNNER_H_9VSDY5UR
 #define TASKRUNNER_H_9VSDY5UR
 
-#include "core/DateTime.h"
+#include "date_wrapper/DateTime.h"
 #include "core/IConfig.h"
 #include "core/IStatefulTimer.h"
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include "core/Timer.h"
 #include <chrono>
 #include <memory>

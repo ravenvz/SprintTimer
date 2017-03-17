@@ -3,11 +3,9 @@ cmake_minimum_required(VERSION 3.5)
 set(PROJECT ${CORE_LIB})
 project(${PROJECT})
 set(CORE_SOURCE_FILES
-    src/DateTime.cpp
     src/SprintStatistics.cpp
     src/StatefulTimer.cpp
     src/Timer.cpp
-    src/TimeSpan.cpp
     src/Sprint.cpp
     src/Task.cpp
     src/Tag.cpp
@@ -47,15 +45,23 @@ include(CMakeLists-datelib.txt)
 
 add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
 
-add_dependencies(${PROJECT} DateLib)
+add_dependencies(${PROJECT} DateWrapper)
 
-target_include_directories(${PROJECT} PUBLIC ${Datelib_INCLUDE_DIRS} PUBLIC include PRIVATE src PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(${PROJECT}
+    PUBLIC ${DateWrapper_INCLUDE_DIRS}
+    PUBLIC "${date_INCLUDE_DIRS}" # workaround
+    PUBLIC include
+    PRIVATE src
+    PUBLIC ${Boost_INCLUDE_DIRS})
 target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_link_libraries(${PROJECT} INTERFACE DateLib PUBLIC stdc++fs)
+    target_link_libraries(${PROJECT}
+        PUBLIC DateWrapper
+        PUBLIC stdc++fs
+    )
 elseif(WIN32)
-    target_link_libraries(${PROJECT} INTERFACE DateLib)
+    target_link_libraries(${PROJECT} PUBLIC DateWrapper)
 endif()
 
 if(BUILD_TESTS)
@@ -64,7 +70,7 @@ if(BUILD_TESTS)
 endif()
 
 if (WIN32)
-   install(TARGETS ${PROJECT} RUNTIME DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})
 else()
-   install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+    install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
 endif()

@@ -22,11 +22,12 @@
 #ifndef TIMEDIAGRAM_H
 #define TIMEDIAGRAM_H
 
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include <QEvent>
 #include <QWidget>
 #include <vector>
 
+using dw::TimeSpan;
 
 /* Displays vector of TimeSpan as a diagram.
  *

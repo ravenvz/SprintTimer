@@ -23,8 +23,10 @@
 #define ISPRINTDISTRIBUTIONREADER_H_XMW7JEI6
 
 #include "core/Distribution.h"
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include <functional>
+
+using dw::TimeSpan;
 
 class ISprintDistributionReader {
 public:

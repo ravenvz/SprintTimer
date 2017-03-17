@@ -22,8 +22,10 @@
 #ifndef DATETIMECONVERTER_H_Y4Z1XDHQ
 #define DATETIMECONVERTER_H_Y4Z1XDHQ
 
-#include "core/DateTime.h"
+#include "date_wrapper/DateTime.h"
 #include <QDateTime>
+
+using dw::DateTime;
 
 /* Simplifies convertion between QDateTime and DateTime. */
 class DateTimeConverter {

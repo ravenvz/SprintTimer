@@ -22,7 +22,7 @@
 #ifndef ISPRINTSTORAGEWRITER_H_PMJNRBFY
 #define ISPRINTSTORAGEWRITER_H_PMJNRBFY
 
-#include "TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include "core/entities/Sprint.h"
 
 

@@ -23,7 +23,7 @@
 #define TASKMODEL_H_FUQ5UCBE
 
 #include "core/ICoreService.h"
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include "core/entities/Task.h"
 #include "models/AsyncListModel.h"
 
