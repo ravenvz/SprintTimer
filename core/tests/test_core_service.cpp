@@ -309,7 +309,6 @@ TEST(TestCoreService, test_request_finished_and_unfinished_tasks)
                 .withLastModificationStamp(dt.addDays(i))
                 .withCompletionStatus(true)
                 .build();
-        std::cout << dt.addDays(i) << " But get " << finishedTask.lastModified() << std::endl;
         Task unfinishedTask = builder
                 .withLastModificationStamp(dt.addDays(i))
                 .withCompletionStatus(false)
