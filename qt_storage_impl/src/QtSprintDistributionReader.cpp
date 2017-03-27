@@ -104,7 +104,7 @@ QtSprintDailyDistributionReader::QtSprintDailyDistributionReader(
         "AND DATE(%1) <= DATE(:end_date) "
         "GROUP BY DATE(%1) "
         "ORDER BY DATE(%1)"}.arg(SprintTable::Columns::startTime)
-                                     .arg(SprintTable::name));
+                            .arg(SprintTable::name));
 }
 
 QtSprintWeeklyDistributionReader::QtSprintWeeklyDistributionReader(

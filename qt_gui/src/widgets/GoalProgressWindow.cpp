@@ -44,6 +44,7 @@ TimeSpan twelveMonthsBackTillNow()
 {
     auto now = DateTime::currentDateTimeLocal();
     auto from = now.addMonths(-11);
+    from = from.addDays(-std::min(from.day(), now.day()) + 1);
     return TimeSpan{from, now};
 }
 

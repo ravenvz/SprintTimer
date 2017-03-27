@@ -41,7 +41,7 @@ public:
                     int sprintDuration,
                     QDialog* parent = nullptr);
 
-    ~AddSprintDialog();
+    ~AddSprintDialog() override;
 
     void accept() override;
 
