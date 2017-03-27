@@ -39,7 +39,7 @@ class AddTaskDialog : public QDialog {
 public:
     explicit AddTaskDialog(TagModel* tagModel, QWidget* parent = nullptr);
 
-    ~AddTaskDialog();
+    ~AddTaskDialog() override;
 
     /* Overidden to accept only if required fields are not empty.
      *

@@ -26,7 +26,6 @@
 
 class RevertableCommand : public Command {
 public:
-    virtual ~RevertableCommand() = default;
 
     virtual void execute() final
     {

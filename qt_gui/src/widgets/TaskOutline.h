@@ -54,7 +54,7 @@ public:
                 TagModel* tagModel,
                 QWidget* parent);
 
-    ~TaskOutline();
+    ~TaskOutline() override;
 
     QSize sizeHint() const override;
 

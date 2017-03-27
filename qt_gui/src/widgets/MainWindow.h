@@ -61,7 +61,7 @@ public:
     MainWindow(IConfig& applicationSettings,
                ICoreService& coreService,
                QWidget* parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
     QSize sizeHint() const override;
 
 private:
