@@ -87,14 +87,14 @@ TEST(SprintStatItem, test_computes_daily_distribution_correctly)
     double expected_total{1176};
     std::vector<Sprint> sprints;
     DateTime start = DateTime::currentDateTime();
-    DateTime end = start.addDays(47);
+    DateTime end = start.add(DateTime::Days{47});
     TimeSpan timeSpan{start, end};
     std::vector<int> expectedDistributionVector(48, 0);
     SprintBuilder sprintBuilder;
     sprintBuilder.withTaskUuid("");
     for (size_t i = 0; i < 48; ++i) {
         for (size_t j = 0; j < i + 1; ++j) {
-            DateTime sprintDateTime = start.addDays(static_cast<int>(i));
+            DateTime sprintDateTime = start.add(DateTime::Days{i});
             TimeSpan sprintInterval{sprintDateTime, sprintDateTime};
             sprints.push_back(sprintBuilder.withTimeSpan(sprintInterval).build());
             expectedDistributionVector[i]++;

@@ -24,11 +24,13 @@
 
 Sprint SprintBuilder::build()
 {
+    using namespace std::chrono;
     if (!taskUuid)
         throw SprintBuilderError{"Can't build Sprint without Task uuid"};
+    // TODO remove magic constant. It should be taken from config anyway
     if (!timeSpan)
         timeSpan = make_optional(
-                TimeSpan{DateTime::currentDateTime().addMinutes(-25),
+                TimeSpan{DateTime::currentDateTime().add(minutes{-25}),
                          DateTime::currentDateTime()});
     if (!uuid)
         return Sprint{name, *timeSpan, tags, *taskUuid};

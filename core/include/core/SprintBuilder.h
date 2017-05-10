@@ -52,7 +52,7 @@ private:
     std::string name;
     optional<std::string> uuid;
     optional<std::string> taskUuid;
-    std::list<Tag> tags = std::move(std::list<Tag>{});
+    std::list<Tag> tags;
     optional<TimeSpan> timeSpan;
 };
 
