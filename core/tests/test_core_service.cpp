@@ -163,7 +163,7 @@ TEST(TestCoreService, test_request_sprints_in_time_range)
     std::vector<Sprint> sprints;
     DateTime dt = DateTime::fromYMD(2016, 5, 1);
     for (int i = 0; i < 10; ++i) {
-        TimeSpan timeSpan{dt.addDays(i), dt.addDays(i)};
+        TimeSpan timeSpan{dt.add(DateTime::Days{i}), dt.add(DateTime::Days{i})};
         auto sprint = builder.withTimeSpan(timeSpan).build();
         sprints.push_back(sprint);
         sprintStorage.store(sprint);
@@ -172,7 +172,7 @@ TEST(TestCoreService, test_request_sprints_in_time_range)
     sprintBuffer.push_back(sprints[2]);
     sprintBuffer.push_back(sprints[3]);
     sprintBuffer.push_back(sprints[4]);
-    TimeSpan timeRange{dt.addDays(2), dt.addDays(4)};
+    TimeSpan timeRange{dt.add(DateTime::Days{2}), dt.add(DateTime::Days{4})};
 
     coreService.sprintsInTimeRange(
             timeRange, [this](const std::vector<Sprint>& result) {
@@ -300,17 +300,17 @@ TEST(TestCoreService, test_request_finished_and_unfinished_tasks)
 {
     TaskBuilder builder;
     DateTime dt = DateTime::fromYMD(2016, 11, 1);
-    TimeSpan timeSpan{dt.addDays(1), dt.addDays(3)};
+    TimeSpan timeSpan{dt.add(DateTime::Days{1}), dt.add(DateTime::Days{3})};
     std::vector<Task> expectedFinishedTasks;
     std::vector<Task> expectedUnfinishedTasks;
     // Create 5 finished and 5 unfinished tasks.
     for (int i = 0; i < 5; ++i) {
         Task finishedTask = builder
-                .withLastModificationStamp(dt.addDays(i))
+                .withLastModificationStamp(dt.add(DateTime::Days{i}))
                 .withCompletionStatus(true)
                 .build();
         Task unfinishedTask = builder
-                .withLastModificationStamp(dt.addDays(i))
+                .withLastModificationStamp(dt.add(DateTime::Days{i}))
                 .withCompletionStatus(false)
                 .build();
         taskStorage.store(finishedTask);

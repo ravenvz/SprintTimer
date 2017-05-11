@@ -29,22 +29,22 @@ namespace {
 TimeSpan thirtyDaysBackTillNow()
 {
     auto now = DateTime::currentDateTimeLocal();
-    auto from = now.addDays(-29);
+    auto from = now.add(DateTime::Days{-29});
     return TimeSpan{from, now};
 }
 
 TimeSpan twelveWeeksBackTillNow()
 {
     auto now = DateTime::currentDateTimeLocal();
-    auto from = now.addDays(-7 * 11 - static_cast<int>(now.dayOfWeek()));
+    auto from = now.add(DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
     return TimeSpan{from, now};
 }
 
 TimeSpan twelveMonthsBackTillNow()
 {
     auto now = DateTime::currentDateTimeLocal();
-    auto from = now.addMonths(-11);
-    from = from.addDays(-std::min(from.day(), now.day()) + 1);
+    auto from = now.add(DateTime::Months{-11});
+    from = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
     return TimeSpan{from, now};
 }
 
@@ -194,7 +194,7 @@ int GoalProgressWindow::calculateNumWorkdaysBins(const TimeSpan& timeSpan) const
     WeekdaySelection workdays{applicationSettings.workdaysCode()};
     int numBins{0};
     for (auto day = timeSpan.startTime; day <= timeSpan.finishTime;
-         day = day.addDays(1)) {
+         day = day.add(DateTime::Days{1})) {
         if (workdays.isSelected(
                 static_cast<DateTime::Weekday>(day.dayOfWeek())))
             ++numBins;
