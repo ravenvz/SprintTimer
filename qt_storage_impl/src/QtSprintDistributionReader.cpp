@@ -66,8 +66,8 @@ void DistributionReaderBase::requestDistribution(const TimeSpan& timeSpan,
                                                  Handler handler)
 {
     handler_queue.push_back(handler);
-    startDate = DateTimeConverter::qDate(timeSpan.startTime);
-    QDate endDate = DateTimeConverter::qDate(timeSpan.finishTime);
+    startDate = DateTimeConverter::qDate(timeSpan.start());
+    QDate endDate = DateTimeConverter::qDate(timeSpan.finish());
 
     dbService.bind(mQueryId, ":start_date", startDate);
     dbService.bind(mQueryId, ":end_date", endDate);

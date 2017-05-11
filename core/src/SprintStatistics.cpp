@@ -27,7 +27,6 @@ namespace {
 constexpr int sizeInDays(const TimeSpan& timeSpan) noexcept
 {
     return timeSpan.start().discreteDaysTo(timeSpan.finish()) + 1;
-
 }
 
 int discreteDaysBetween(const TimeSpan& lhs, const TimeSpan& rhs)
@@ -106,7 +105,7 @@ std::vector<int> SprintStatItem::countWeekdays() const
 {
     std::vector<int> result(7, 0);
     for (size_t dayNum = 0; dayNum < sizeInDays(timeSpan); ++dayNum) {
-        auto date = timeSpan.startTime.add(DateTime::Days{dayNum});
+        auto date = timeSpan.start().add(DateTime::Days{dayNum});
         result[static_cast<unsigned>(date.dayOfWeek())]++;
     }
     return result;
@@ -117,7 +116,7 @@ namespace DayPart {
 
 DayPart dayPart(const TimeSpan& timeSpan)
 {
-    auto hour = timeSpan.startTime.hour();
+    auto hour = timeSpan.start().hour();
 
     if (22 < hour || hour <= 2) {
         return DayPart::Midnight;
@@ -144,6 +143,7 @@ std::string dayPartName(unsigned dayPart)
     return dayPartName(static_cast<DayPart>(dayPart));
 }
 
+// TODO OCP violation
 std::string dayPartName(DayPart dayPart)
 {
     switch (dayPart) {
@@ -163,6 +163,7 @@ std::string dayPartName(DayPart dayPart)
     return "Invalid";
 }
 
+// TODO OCP violation
 std::string dayPartHours(DayPart dayPart)
 {
     switch (dayPart) {

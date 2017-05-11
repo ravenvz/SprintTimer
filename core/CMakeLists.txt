@@ -57,11 +57,11 @@ target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT}
-        PUBLIC DateWrapper
+        INTERFACE DateWrapper
         PUBLIC stdc++fs
     )
 elseif(WIN32)
-    target_link_libraries(${PROJECT} PUBLIC DateWrapper)
+    target_link_libraries(${PROJECT} INTERFACE DateWrapper)
 endif()
 
 if(BUILD_TESTS)

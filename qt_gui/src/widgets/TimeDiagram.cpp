@@ -101,7 +101,7 @@ void TimeDiagram::drawIntervals(QPainter& painter)
     const auto& timeSpansRef = timeSpans;
     for (const TimeSpan& timeSpan : timeSpansRef) {
         double start
-            = (timeSpan.startTime.hour() * 60 + timeSpan.startTime.minute())
+            = (timeSpan.start().hour() * 60 + timeSpan.start().minute())
             * oneMinuteInDegrees;
         // TODO replace with stored sprint duration when implemented
         double span = sprintDuration * oneMinuteInDegrees;

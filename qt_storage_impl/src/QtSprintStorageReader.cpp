@@ -50,8 +50,8 @@ void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
                                        Handler handler)
 {
     handler_queue.push_back(handler);
-    DateTime start = timeSpan.startTime;
-    DateTime finish = timeSpan.finishTime;
+    DateTime start = timeSpan.start();
+    DateTime finish = timeSpan.finish();
 
     dbService.bind(mQueryId,
                    ":startTime",

@@ -34,8 +34,8 @@ struct DateInterval {
 
     static DateInterval fromTimeSpan(const TimeSpan& timeSpan)
     {
-        return DateInterval{DateTimeConverter::qDate(timeSpan.startTime),
-                            DateTimeConverter::qDate(timeSpan.finishTime)};
+        return DateInterval{DateTimeConverter::qDate(timeSpan.start()),
+                            DateTimeConverter::qDate(timeSpan.finish())};
     }
 
     QString toString() const

@@ -54,14 +54,14 @@ public:
 
     bool itemLiesInRange(const TimeSpan& timeSpan, const Sprint& item)
     {
-        return (timeSpan.startTime <= item.startTime() &&
-                item.startTime() <= timeSpan.finishTime);
+        return (timeSpan.start() <= item.startTime() &&
+                item.startTime() <= timeSpan.finish());
     }
 
     bool itemLiesInRange(const TimeSpan& timeSpan, const Task& item)
     {
-        return (timeSpan.startTime <= item.lastModified() &&
-                item.lastModified() <= timeSpan.finishTime);
+        return (timeSpan.start() <= item.lastModified() &&
+                item.lastModified() <= timeSpan.finish());
     }
 
     void itemsInTimeRange(const TimeSpan& timeSpan,

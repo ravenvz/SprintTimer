@@ -193,7 +193,7 @@ int GoalProgressWindow::calculateNumWorkdaysBins(const TimeSpan& timeSpan) const
 {
     WeekdaySelection workdays{applicationSettings.workdaysCode()};
     int numBins{0};
-    for (auto day = timeSpan.startTime; day <= timeSpan.finishTime;
+    for (auto day = timeSpan.start(); day <= timeSpan.finish();
          day = day.add(DateTime::Days{1})) {
         if (workdays.isSelected(
                 static_cast<DateTime::Weekday>(day.dayOfWeek())))

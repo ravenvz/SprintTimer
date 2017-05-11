@@ -92,11 +92,11 @@ void QtTaskStorageReader::requestFinishedTasks(const TimeSpan& timeSpan,
     dbService.bind(mFinishedQueryId,
                    ":start_date",
                    QVariant(QString::fromStdString(
-                       timeSpan.startTime.toString("yyyy-MM-dd"))));
+                       timeSpan.start().toString("yyyy-MM-dd"))));
     dbService.bind(mFinishedQueryId,
                    ":end_date",
                    QVariant(QString::fromStdString(
-                       timeSpan.finishTime.toString("yyyy-MM-dd"))));
+                       timeSpan.finish().toString("yyyy-MM-dd"))));
     dbService.executePrepared(mFinishedQueryId);
 }
 
@@ -108,11 +108,11 @@ void QtTaskStorageReader::requestTasks(const TimeSpan& timeSpan,
     dbService.bind(mRequestTasksQueryId,
                    ":start_date",
                    QVariant(QString::fromStdString(
-                       timeSpan.startTime.toString("yyyy-MM-dd"))));
+                       timeSpan.start().toString("yyyy-MM-dd"))));
     dbService.bind(mRequestTasksQueryId,
                    ":end_date",
                    QVariant(QString::fromStdString(
-                       timeSpan.finishTime.toString("yyyy-MM-dd"))));
+                       timeSpan.finish().toString("yyyy-MM-dd"))));
     dbService.executePrepared(mRequestTasksQueryId);
 }
 

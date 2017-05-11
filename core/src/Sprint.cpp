@@ -58,9 +58,9 @@ Sprint::Sprint(const std::string& taskUuid, const TimeSpan& timeSpan)
 
 std::string Sprint::name() const { return mName; }
 
-DateTime Sprint::startTime() const { return mInterval.startTime; }
+DateTime Sprint::startTime() const { return mInterval.start(); }
 
-DateTime Sprint::finishTime() const { return mInterval.finishTime; }
+DateTime Sprint::finishTime() const { return mInterval.finish(); }
 
 TimeSpan Sprint::timeSpan() const { return mInterval; }
 
