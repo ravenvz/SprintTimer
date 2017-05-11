@@ -29,9 +29,7 @@ Sprint SprintBuilder::build()
         throw SprintBuilderError{"Can't build Sprint without Task uuid"};
     // TODO remove magic constant. It should be taken from config anyway
     if (!timeSpan)
-        timeSpan = make_optional(
-                TimeSpan{DateTime::currentDateTime().add(minutes{-25}),
-                         DateTime::currentDateTime()});
+        throw SprintBuilderError{"Can't build Sprint without timespan"};
     if (!uuid)
         return Sprint{name, *timeSpan, tags, *taskUuid};
     Sprint sprint{name, *timeSpan, tags, *uuid, *taskUuid};

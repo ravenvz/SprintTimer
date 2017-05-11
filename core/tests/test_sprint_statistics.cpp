@@ -24,10 +24,14 @@
 #include "core/SprintBuilder.h"
 #include <TestHarness.h>
 
+using namespace std::chrono_literals;
+
 TEST_GROUP(SprintStatItem)
 {
     const double threshold = 0.00001;
     const long long irrelevantTodoId = 42;
+    const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
+                                   DateTime::currentDateTime()};
 };
 
 TEST(SprintStatItem, test_empty_daily_statistics)
@@ -166,12 +170,14 @@ TEST_GROUP(TagTop)
         for (size_t i = 0; i < n; ++i)
             sprints.push_back(sprint);
     }
+    const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
+                                   DateTime::currentDateTime()};
 };
 
 TEST(TagTop, getting_sprints_or_tag_name_throws_exception_when_position_is_invalid) {
     std::vector<Sprint> sprints;
     SprintBuilder sprintBuilder;
-    sprintBuilder.withTaskUuid("1234");
+    sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
     push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
 
@@ -185,7 +191,7 @@ TEST(TagTop, does_not_reduce_frequency_vector_when_all_tags_fit)
 {
     std::vector<Sprint> sprints;
     SprintBuilder sprintBuilder;
-    sprintBuilder.withTaskUuid("1234");
+    sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
     push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
     std::vector<TagTop::TagFrequency> expected{
@@ -205,7 +211,7 @@ TEST(TagTop,
 {
     std::vector<Sprint> sprints;
     SprintBuilder sprintBuilder;
-    sprintBuilder.withTaskUuid("1234");
+    sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
     push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
     std::vector<TagTop::TagFrequency> expected;
@@ -225,7 +231,7 @@ TEST(TagTop, distributes_sprints_to_tags_ignoring_non_tagged)
 {
     std::vector<Sprint> sprints;
     SprintBuilder builder;
-    builder.withTaskUuid("1234");
+    builder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(), 1);
@@ -262,6 +268,7 @@ TEST(TagTop,
     std::vector<Sprint> sprints;
     SprintBuilder builder;
     builder.withTaskUuid("1234");
+    builder.withTimeSpan(defaultTimespan);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(), 1);
