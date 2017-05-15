@@ -144,14 +144,14 @@ int main(int argc, char* argv[])
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
 
-    Core::CoreService coreService{*sprintStorageReader.get(),
-                                  *sprintStorageWriter.get(),
-                                  *sprintYearRangeReader.get(),
-                                  *taskStorageReader.get(),
-                                  *taskStorageWriter.get(),
-                                  *dailyDistributionReader.get(),
-                                  *weeklyDistributionReader.get(),
-                                  *monthlyDistributionReader.get()};
+    Core::CoreService coreService{*sprintStorageReader,
+                                  *sprintStorageWriter,
+                                  *sprintYearRangeReader,
+                                  *taskStorageReader,
+                                  *taskStorageWriter,
+                                  *dailyDistributionReader,
+                                  *weeklyDistributionReader,
+                                  *monthlyDistributionReader};
 
     MainWindow w{applicationSettings, coreService};
     w.show();
