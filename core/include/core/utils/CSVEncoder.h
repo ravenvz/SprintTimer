@@ -52,7 +52,7 @@ public:
         std::string result = ss.str();
         ss.str("");
         return result;
-    };
+    }
 
 private:
     const char delimiter;

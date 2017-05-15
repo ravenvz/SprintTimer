@@ -104,7 +104,7 @@ std::vector<double> SprintStatItem::computeWorkTimeDistribution() const
 std::vector<int> SprintStatItem::countWeekdays() const
 {
     std::vector<int> result(7, 0);
-    for (size_t dayNum = 0; dayNum < sizeInDays(timeSpan); ++dayNum) {
+    for (int dayNum = 0; dayNum < sizeInDays(timeSpan); ++dayNum) {
         auto date = timeSpan.start().add(DateTime::Days{dayNum});
         result[static_cast<unsigned>(date.dayOfWeek())]++;
     }

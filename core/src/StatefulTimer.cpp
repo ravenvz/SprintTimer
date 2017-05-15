@@ -27,18 +27,18 @@ StatefulTimer::StatefulTimer(
     std::function<void(IStatefulTimer::State)> onStateChangedCallback,
     long tickPeriodInMillisecs,
     const IConfig& applicationSettings)
-    : applicationSettings{applicationSettings}
-    , tickInterval{tickPeriodInMillisecs}
-    , onTickCallback{onTickCallback}
-    , onStateChangedCallback{onStateChangedCallback}
-    , mStart{DateTime::currentDateTimeLocal()}
-    , idleState{std::make_unique<Idle>(*this)}
+    : idleState{std::make_unique<Idle>(*this)}
     , sprintState{std::make_unique<RunningSprint>(*this)}
     , shortBreakState{std::make_unique<ShortBreak>(*this)}
     , longBreakState{std::make_unique<LongBreak>(*this)}
     , zoneState{std::make_unique<Zone>(*this)}
     , finishedState{std::make_unique<Finished>(*this)}
     , currentState{idleState.get()}
+    , applicationSettings{applicationSettings}
+    , tickInterval{tickPeriodInMillisecs}
+    , onTickCallback{onTickCallback}
+    , onStateChangedCallback{onStateChangedCallback}
+    , mStart{DateTime::currentDateTimeLocal()}
 {
 }
 
