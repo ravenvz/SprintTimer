@@ -80,24 +80,23 @@ std::string getUserDataDirectory()
     if (auto xdgDataDir = std::getenv("XDG_DATA_DIR")) {
         return xdgDataDir;
     }
-    std::string suffix{"/.local/share"};
+    const std::string suffix{"/.local/share"};
     if (auto homeDir = std::getenv("HOME")) {
         return std::string{homeDir} + suffix;
     }
-    else if (auto pwd = getpwuid(getuid())) {
+    if (auto pwd = getpwuid(getuid())) {
         return std::string{pwd->pw_dir} + suffix;
     }
-    else {
-        return std::string{};
-    }
+    return std::string{};
 }
+
 #elif defined(__APPLE__)
 #error "Apple platforms are not yet supported"
 #else
 #error "unknown platform"
 #endif
 
-std::string createDataDirectoryIfNotExist()
+std::string getOrCreateSprintTimerDataDirectory()
 {
     const std::string prefix = getUserDataDirectory();
     const std::string dataDirectory{prefix + "/sprint_timer"};
@@ -117,7 +116,7 @@ int main(int argc, char* argv[])
     QApplication::setApplicationName("SprintTimer");
     Config applicationSettings;
 
-    const std::string dataDirectory = createDataDirectoryIfNotExist();
+    const std::string dataDirectory = getOrCreateSprintTimerDataDirectory();
     if (dataDirectory.empty()) {
         std::cerr << "Unable to find user data directory.";
         return 1;
