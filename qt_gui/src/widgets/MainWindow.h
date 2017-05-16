@@ -62,6 +62,11 @@ public:
                ICoreService& coreService,
                QWidget* parent = nullptr);
     ~MainWindow() override;
+    MainWindow(const MainWindow&) = delete;
+    MainWindow& operator=(const MainWindow&) = delete;
+    MainWindow(MainWindow&&) = delete;
+    MainWindow& operator=(MainWindow&&) = delete;
+
     QSize sizeHint() const override;
 
 private:
