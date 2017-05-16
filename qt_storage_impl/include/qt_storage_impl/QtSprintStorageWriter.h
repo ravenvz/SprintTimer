@@ -38,8 +38,8 @@ public:
 
 private:
     DBService& dbService;
-    long long addQueryId{-1};
-    long long removeQueryId{-1};
+    qint64 addQueryId{-1};
+    qint64 removeQueryId{-1};
 };
 
 #endif /* end of include guard: QTSPRINTSTORAGEWRITER_H_U7AAXVTC */

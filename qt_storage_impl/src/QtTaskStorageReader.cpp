@@ -34,30 +34,30 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
             "WHERE %6 = 1 AND DATE(%8) >= (:start_date) "
             "AND DATE(%8) <= (:end_date) "
             "ORDER BY %8;"}.arg(TaskTable::Columns::id)
-                                .arg(TaskTable::Columns::name)
-                                .arg(TaskTable::Columns::estimatedCost)
-                                .arg(TaskTable::Columns::actualCost)
-                                .arg(TaskTable::Columns::priority)
-                                .arg(TaskTable::Columns::completed)
-                                .arg(TasksView::Aliases::tags)
-                                .arg(TaskTable::Columns::lastModified)
-                                .arg(TaskTable::Columns::uuid)
-                                .arg(TasksView::name));
+                           .arg(TaskTable::Columns::name)
+                           .arg(TaskTable::Columns::estimatedCost)
+                           .arg(TaskTable::Columns::actualCost)
+                           .arg(TaskTable::Columns::priority)
+                           .arg(TaskTable::Columns::completed)
+                           .arg(TasksView::Aliases::tags)
+                           .arg(TaskTable::Columns::lastModified)
+                           .arg(TaskTable::Columns::uuid)
+                           .arg(TasksView::name));
     mRequestTasksQueryId
         = dbService.prepare(QString{
             "SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
             "FROM %10 "
             "WHERE DATE(%8) >= (:start_date) AND DATE(%8) <= (:end_date) "
             "ORDER BY %8;"}.arg(TaskTable::Columns::id)
-                                .arg(TaskTable::Columns::name)
-                                .arg(TaskTable::Columns::estimatedCost)
-                                .arg(TaskTable::Columns::actualCost)
-                                .arg(TaskTable::Columns::priority)
-                                .arg(TaskTable::Columns::completed)
-                                .arg(TasksView::Aliases::tags)
-                                .arg(TaskTable::Columns::lastModified)
-                                .arg(TaskTable::Columns::uuid)
-                                .arg(TasksView::name));
+                           .arg(TaskTable::Columns::name)
+                           .arg(TaskTable::Columns::estimatedCost)
+                           .arg(TaskTable::Columns::actualCost)
+                           .arg(TaskTable::Columns::priority)
+                           .arg(TaskTable::Columns::completed)
+                           .arg(TasksView::Aliases::tags)
+                           .arg(TaskTable::Columns::lastModified)
+                           .arg(TaskTable::Columns::uuid)
+                           .arg(TasksView::name));
     connect(&dbService,
             &DBService::results,
             this,
@@ -73,15 +73,15 @@ void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
             "FROM %10 "
             "WHERE %6 = 0 OR %8 > DATETIME('now', '-1 day') "
             "ORDER BY %5;"}.arg(TaskTable::Columns::id)
-                                     .arg(TaskTable::Columns::name)
-                                     .arg(TaskTable::Columns::estimatedCost)
-                                     .arg(TaskTable::Columns::actualCost)
-                                     .arg(TaskTable::Columns::priority)
-                                     .arg(TaskTable::Columns::completed)
-                                     .arg(TasksView::Aliases::tags)
-                                     .arg(TaskTable::Columns::lastModified)
-                                     .arg(TaskTable::Columns::uuid)
-                                     .arg(TasksView::name));
+                           .arg(TaskTable::Columns::name)
+                           .arg(TaskTable::Columns::estimatedCost)
+                           .arg(TaskTable::Columns::actualCost)
+                           .arg(TaskTable::Columns::priority)
+                           .arg(TaskTable::Columns::completed)
+                           .arg(TasksView::Aliases::tags)
+                           .arg(TaskTable::Columns::lastModified)
+                           .arg(TaskTable::Columns::uuid)
+                           .arg(TasksView::name));
 }
 
 void QtTaskStorageReader::requestFinishedTasks(const TimeSpan& timeSpan,
@@ -127,7 +127,7 @@ void QtTaskStorageReader::requestAllTags(TagHandler handler)
 }
 
 void QtTaskStorageReader::onResultsReceived(
-    long long queryId, const std::vector<QSqlRecord>& records)
+    qint64 queryId, const std::vector<QSqlRecord>& records)
 {
     if (queryId == mUnfinishedQueryId || queryId == mFinishedQueryId
         || queryId == mRequestTasksQueryId) {

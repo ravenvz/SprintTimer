@@ -150,7 +150,7 @@ namespace CalendarTable {
 class Database {
 
 public:
-    Database(const QString& filename);
+    explicit Database(const QString& filename);
 
 private:
     const QString filename;

@@ -23,8 +23,6 @@
 #include "qt_storage_impl/Database.h"
 #include "qt_storage_impl/utils.h"
 #include "utils/DateTimeConverter.h"
-#include <algorithm>
-
 
 QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
     : dbService{dbService}

@@ -64,7 +64,7 @@ void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
 }
 
 void QtSprintStorageReader::onResultsReceived(
-    long long queryId, const std::vector<QSqlRecord>& records)
+    qint64 queryId, const std::vector<QSqlRecord>& records)
 {
     if (mQueryId != queryId) {
         return;
@@ -97,7 +97,7 @@ Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord &record)
     std::transform(tagNames.cbegin(),
                    tagNames.cend(),
                    std::back_inserter(tags),
-                   [](const auto& name) { return Tag{name.toStdString()}; });
+                   [](const auto& nm) { return Tag{nm.toStdString()}; });
     return Sprint{name.toStdString(), timeSpan, tags, uuid, taskUuid};
 }
 
