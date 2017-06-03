@@ -22,17 +22,17 @@
 #include "core/SprintStatistics.h"
 #include "core/TagTop.h"
 #include "core/SprintBuilder.h"
-#include <TestHarness.h>
+#include "gtest/gtest.h"
 
 using namespace std::chrono_literals;
 
-TEST_GROUP(SprintStatItem)
-{
-    const double threshold = 0.00001;
-    const long long irrelevantTodoId = 42;
+namespace {
+    // TODO clean no longer needed vars
+    constexpr double threshold{0.00001};
+    constexpr int64_t irrelevantTodoId{42};
     const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
                                    DateTime::currentDateTime()};
-};
+} // namespace
 
 TEST(SprintStatItem, test_empty_daily_statistics)
 {
@@ -40,23 +40,22 @@ TEST(SprintStatItem, test_empty_daily_statistics)
     SprintStatItem statistics{sprints,
                                 TimeSpan{std::chrono::system_clock::now(),
                                          std::chrono::system_clock::now()}};
-    double expected_average{0};
-    double expected_max{0};
-    double expected_total{0};
+    const double expected_average{0};
+    const double expected_max{0};
+    const double expected_total{0};
     std::vector<double> expected_distribution;
 
     Distribution<double> dailyDistribution = statistics.dailyDistribution();
     std::vector<double> distributionVector
         = dailyDistribution.getDistributionVector();
 
-    CHECK_EQUAL(0, dailyDistribution.getNumBins())
-    DOUBLES_EQUAL(expected_average, dailyDistribution.getAverage(), threshold)
-    DOUBLES_EQUAL(expected_max, dailyDistribution.getMax(), threshold)
-    DOUBLES_EQUAL(expected_total, dailyDistribution.getTotal(), threshold)
-    CHECK_EQUAL(expected_distribution.size(), distributionVector.size())
+    EXPECT_EQ(0, dailyDistribution.getNumBins());
+    EXPECT_DOUBLE_EQ(expected_average, dailyDistribution.getAverage());
+    EXPECT_DOUBLE_EQ(expected_max, dailyDistribution.getMax());
+    EXPECT_DOUBLE_EQ(expected_total, dailyDistribution.getTotal());
+    EXPECT_EQ(expected_distribution.size(), distributionVector.size());
     for (size_t i = 0; i < expected_distribution.size(); ++i) {
-        DOUBLES_EQUAL(
-            expected_distribution[i], distributionVector[i], threshold)
+        EXPECT_DOUBLE_EQ(expected_distribution[i], distributionVector[i]);
     }
 }
 
@@ -74,21 +73,20 @@ TEST(SprintStatItem, test_empty_weekday_statistics)
     std::vector<double> distributionVector
         = weekdayDistribution.getDistributionVector();
 
-    DOUBLES_EQUAL(expected_average, weekdayDistribution.getAverage(), threshold)
-    DOUBLES_EQUAL(expected_max, weekdayDistribution.getMax(), threshold)
-    CHECK_EQUAL(expected_distribution.size(), distributionVector.size())
+    EXPECT_DOUBLE_EQ(expected_average, weekdayDistribution.getAverage());
+    EXPECT_DOUBLE_EQ(expected_max, weekdayDistribution.getMax());
+    EXPECT_EQ(expected_distribution.size(), distributionVector.size());
     for (size_t i = 0; i < expected_distribution.size(); ++i) {
-        DOUBLES_EQUAL(
-            expected_distribution[i], distributionVector[i], threshold)
+        EXPECT_DOUBLE_EQ(expected_distribution[i], distributionVector[i]);
     }
 }
 
 TEST(SprintStatItem, test_computes_daily_distribution_correctly)
 {
-    double expected_average{24.5};
-    double expected_max{48};
-    size_t expected_max_value_bin{47};
-    double expected_total{1176};
+    const double expected_average{24.5};
+    const double expected_max{48};
+    const size_t expected_max_value_bin{47};
+    const double expected_total{1176};
     std::vector<Sprint> sprints;
     DateTime start = DateTime::currentDateTime();
     DateTime end = start.add(DateTime::Days{47});
@@ -110,23 +108,21 @@ TEST(SprintStatItem, test_computes_daily_distribution_correctly)
     std::vector<double> distributionVector
         = distribution.getDistributionVector();
 
-    CHECK_EQUAL(expectedDistributionVector.size(), distribution.getNumBins())
-    CHECK_EQUAL(expected_max_value_bin, distribution.getMaxValueBin())
-    DOUBLES_EQUAL(expected_average, distribution.getAverage(), threshold)
-    DOUBLES_EQUAL(expected_max, distribution.getMax(), threshold)
-    DOUBLES_EQUAL(expected_total, distribution.getTotal(), threshold)
-
+    EXPECT_EQ(expectedDistributionVector.size(), distribution.getNumBins());
+    EXPECT_EQ(expected_max_value_bin, distribution.getMaxValueBin());
+    EXPECT_DOUBLE_EQ(expected_average, distribution.getAverage());
+    EXPECT_DOUBLE_EQ(expected_max, distribution.getMax());
+    EXPECT_DOUBLE_EQ(expected_total, distribution.getTotal());
     for (size_t i = 0; i < expectedDistributionVector.size(); ++i) {
-        DOUBLES_EQUAL(
-            expectedDistributionVector[i], distributionVector[i], threshold)
+        EXPECT_DOUBLE_EQ(expectedDistributionVector[i], distributionVector[i]);
     }
 }
 
 TEST(SprintStatItem, test_computes_weekday_distribution_correctly)
 {
-    double expected_average = 7.5;
-    double expected_max = 10.5;
-    size_t expected_max_value_bin = 6;
+    const double expected_average = 7.5;
+    const double expected_max = 10.5;
+    const size_t expected_max_value_bin = 6;
     std::vector<Sprint> increasingSprints;
     SprintBuilder sprintBuilder;
     sprintBuilder.withTaskUuid("irrelevant");
@@ -152,17 +148,16 @@ TEST(SprintStatItem, test_computes_weekday_distribution_correctly)
     std::vector<double> distributionVector
         = weekdayDistribution.getDistributionVector();
 
-    CHECK_EQUAL(expected_max_value_bin, weekdayDistribution.getMaxValueBin())
-    DOUBLES_EQUAL(expected_average, weekdayDistribution.getAverage(), threshold)
-    DOUBLES_EQUAL(expected_max, weekdayDistribution.getMax(), threshold)
+    EXPECT_EQ(expected_max_value_bin, weekdayDistribution.getMaxValueBin());
+    EXPECT_DOUBLE_EQ(expected_average, weekdayDistribution.getAverage());
+    EXPECT_DOUBLE_EQ(expected_max, weekdayDistribution.getMax());
     for (size_t i = 0; i < expected_distribution.size(); ++i) {
-        DOUBLES_EQUAL(
-            expected_distribution[i], distributionVector[i], threshold)
+        EXPECT_DOUBLE_EQ(expected_distribution[i], distributionVector[i]);
     }
 }
 
-TEST_GROUP(TagTop)
-{
+class TagTopFixture : public ::testing::Test {
+public:
     void push_n(std::vector<Sprint>& sprints,
             const Sprint& sprint,
             size_t n)
@@ -172,9 +167,10 @@ TEST_GROUP(TagTop)
     }
     const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
                                    DateTime::currentDateTime()};
+
 };
 
-TEST(TagTop, getting_sprints_or_tag_name_throws_exception_when_position_is_invalid) {
+TEST_F(TagTopFixture, getting_sprints_or_tag_name_throws_exception_when_position_is_invalid) {
     std::vector<Sprint> sprints;
     SprintBuilder sprintBuilder;
     sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
@@ -183,11 +179,11 @@ TEST(TagTop, getting_sprints_or_tag_name_throws_exception_when_position_is_inval
 
     TagTop tagTop{sprints, 3};
 
-    CHECK_THROWS(std::out_of_range, tagTop.sprintsForTagAt(tagTop.topSize() + 1));
-    CHECK_THROWS(std::out_of_range, tagTop.tagNameAt(tagTop.topSize() + 1));
+    ASSERT_THROW((tagTop.sprintsForTagAt(tagTop.topSize() + 1)), std::out_of_range);
+    ASSERT_THROW((tagTop.tagNameAt(tagTop.topSize() + 1)), std::out_of_range);
 }
 
-TEST(TagTop, does_not_reduce_frequency_vector_when_all_tags_fit)
+TEST_F(TagTopFixture, does_not_reduce_frequency_vector_when_all_tags_fit)
 {
     std::vector<Sprint> sprints;
     SprintBuilder sprintBuilder;
@@ -201,13 +197,12 @@ TEST(TagTop, does_not_reduce_frequency_vector_when_all_tags_fit)
 
     TagTop tagTop{sprints, 3};
 
-    CHECK(expected == tagTop.tagFrequencies())
-    CHECK_EQUAL(49, tagTop.sprintsForTagAt(0).size())
-    CHECK_EQUAL(4, tagTop.sprintsForTagAt(1).size())
+    EXPECT_TRUE(expected == tagTop.tagFrequencies());
+    EXPECT_EQ(49, tagTop.sprintsForTagAt(0).size());
+    EXPECT_EQ(4, tagTop.sprintsForTagAt(1).size());
 }
 
-TEST(TagTop,
-     does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
+TEST_F(TagTopFixture, does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
     SprintBuilder sprintBuilder;
@@ -220,14 +215,14 @@ TEST(TagTop,
 
     TagTop map{sprints, 5};
 
-    CHECK("Tag2" == map.tagNameAt(0))
-    CHECK("Tag1" == map.tagNameAt(1))
-    CHECK(expected == map.tagFrequencies())
-    CHECK_EQUAL(49, map.sprintsForTagAt(0).size())
-    CHECK_EQUAL(4, map.sprintsForTagAt(1).size())
+    EXPECT_TRUE("Tag2" == map.tagNameAt(0));
+    EXPECT_TRUE("Tag1" == map.tagNameAt(1));
+    EXPECT_TRUE(expected == map.tagFrequencies());
+    EXPECT_EQ(49, map.sprintsForTagAt(0).size());
+    EXPECT_EQ(4, map.sprintsForTagAt(1).size());
 }
 
-TEST(TagTop, distributes_sprints_to_tags_ignoring_non_tagged)
+TEST_F(TagTopFixture, distributes_sprints_to_tags_ignoring_non_tagged)
 {
     std::vector<Sprint> sprints;
     SprintBuilder builder;
@@ -249,20 +244,20 @@ TEST(TagTop, distributes_sprints_to_tags_ignoring_non_tagged)
 
     TagTop map{sprints, 5};
 
-    CHECK("Tag2" == map.tagNameAt(0))
-    CHECK("Tag4" == map.tagNameAt(1))
-    CHECK("C++" == map.tagNameAt(2))
-    CHECK("Tag1" == map.tagNameAt(3))
-    CHECK("" == map.tagNameAt(4))
-    CHECK(expected == map.tagFrequencies())
-    CHECK_EQUAL(50, map.sprintsForTagAt(0).size())
-    CHECK_EQUAL(35, map.sprintsForTagAt(1).size())
-    CHECK_EQUAL(10, map.sprintsForTagAt(2).size())
-    CHECK_EQUAL(5, map.sprintsForTagAt(3).size())
-    CHECK_EQUAL(4, map.sprintsForTagAt(4).size())
+    EXPECT_TRUE("Tag2" == map.tagNameAt(0));
+    EXPECT_TRUE("Tag4" == map.tagNameAt(1));
+    EXPECT_TRUE("C++" == map.tagNameAt(2));
+    EXPECT_TRUE("Tag1" == map.tagNameAt(3));
+    EXPECT_TRUE("" == map.tagNameAt(4));
+    EXPECT_TRUE(expected == map.tagFrequencies());
+    EXPECT_EQ(50, map.sprintsForTagAt(0).size());
+    EXPECT_EQ(35, map.sprintsForTagAt(1).size());
+    EXPECT_EQ(10, map.sprintsForTagAt(2).size());
+    EXPECT_EQ(5, map.sprintsForTagAt(3).size());
+    EXPECT_EQ(4, map.sprintsForTagAt(4).size());
 }
 
-TEST(TagTop,
+TEST_F(TagTopFixture,
      reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
@@ -283,13 +278,13 @@ TEST(TagTop,
 
     TagTop map{sprints, 4};
 
-    CHECK("Tag2" == map.tagNameAt(0))
-    CHECK("Tag4" == map.tagNameAt(1))
-    CHECK("Tag3" == map.tagNameAt(2))
-    CHECK("" == map.tagNameAt(3))
-    CHECK(expected == map.tagFrequencies())
-    CHECK_EQUAL(50, map.sprintsForTagAt(0).size())
-    CHECK_EQUAL(35, map.sprintsForTagAt(1).size())
-    CHECK_EQUAL(10, map.sprintsForTagAt(2).size())
-    CHECK_EQUAL(5, map.sprintsForTagAt(3).size())
+    EXPECT_TRUE("Tag2" == map.tagNameAt(0));
+    EXPECT_TRUE("Tag4" == map.tagNameAt(1));
+    EXPECT_TRUE("Tag3" == map.tagNameAt(2));
+    EXPECT_TRUE("" == map.tagNameAt(3));
+    EXPECT_TRUE(expected == map.tagFrequencies());
+    EXPECT_EQ(50, map.sprintsForTagAt(0).size());
+    EXPECT_EQ(35, map.sprintsForTagAt(1).size());
+    EXPECT_EQ(10, map.sprintsForTagAt(2).size());
+    EXPECT_EQ(5, map.sprintsForTagAt(3).size());
 }

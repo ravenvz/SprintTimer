@@ -65,7 +65,7 @@ elseif(WIN32)
 endif()
 
 if(BUILD_TESTS)
-    include(CMakeLists-cpputest.txt)
+    include(CMakeLists-gtest.txt)
     add_subdirectory(tests)
 endif()
 

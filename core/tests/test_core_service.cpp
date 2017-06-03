@@ -28,20 +28,22 @@
 #include "fixtures/FakeSprintStorageWriter.h"
 #include "core/TaskBuilder.h"
 #include "core/SprintBuilder.h"
-#include <TestHarness.h>
+#include "gtest/gtest.h"
 
-TEST_GROUP(TestCoreService)
-{
+// TODO this mess should be cleaned
+
+class CoreServiceFixture : public ::testing::Test {
+public:
     const TimeSpan defaultTimeSpan
-        = TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()};
+            = TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()};
 
     Task defaultTask{"Task name",
-                      4,
-                      2,
-                      "550e8400-e29b-41d4-a716-446655440000",
-                      {Tag{"Tag1"}, Tag{"Tag2"}},
-                      false,
-                      DateTime::fromYMD(2015, 11, 10)};
+                     4,
+                     2,
+                     "550e8400-e29b-41d4-a716-446655440000",
+                     {Tag{"Tag1"}, Tag{"Tag2"}},
+                     false,
+                     DateTime::fromYMD(2015, 11, 10)};
 
     FakeStorage<Sprint> sprintStorage;
     FakeStorage<Task> taskStorage;
@@ -67,37 +69,26 @@ TEST_GROUP(TestCoreService)
     std::vector<Sprint> sprintBuffer;
     std::vector<Task> taskBuffer;
 
-    void setup()
-    {
-        sprintStorage.clear();
-        taskStorage.clear();
-        sprintBuffer.clear();
-        taskBuffer.clear();
-        sprintDistributionHandlerCalled = false;
-        yearRangeHandlerCalled = false;
-        tagHandlerCalled = false;
-    }
-
     void assertStorageReturnedCorrectSprints(const std::vector<Sprint>& result)
     {
-        CHECK_EQUAL(sprintBuffer.size(), result.size())
+        EXPECT_EQ(sprintBuffer.size(), result.size());
         std::vector<Sprint> sprintOrdByDate(result.cbegin(), result.cend());
         std::sort(sprintOrdByDate.begin(), sprintOrdByDate.end(),
                 [](const auto& lhs, const auto& rhs) {
                     return lhs.startTime() < rhs.startTime();
                 });
-        CHECK(std::equal(sprintBuffer.cbegin(),
-                         sprintBuffer.cend(),
-                         sprintOrdByDate.cbegin(),
-                         [](const auto& lhs, const auto& rhs) {
-                             std::cout << lhs.uuid() << " == " << rhs.uuid() << std::endl;
-                             return lhs.uuid() == rhs.uuid();
-                         }));
+        EXPECT_TRUE(std::equal(sprintBuffer.cbegin(),
+                    sprintBuffer.cend(),
+                    sprintOrdByDate.cbegin(),
+                    [](const auto& lhs, const auto& rhs) {
+                        std::cout << lhs.uuid() << " == " << rhs.uuid() << std::endl;
+                        return lhs.uuid() == rhs.uuid();
+                    }));
     }
 
     void assertStorageReturnedCorrectTask(const std::vector<Task>& tasks)
     {
-        CHECK_EQUAL(taskBuffer.size(), tasks.size());
+        EXPECT_EQ(taskBuffer.size(), tasks.size());
         auto sortByUuid = [](const auto& lhs, const auto& rhs) {
             return lhs.uuid() < rhs.uuid();
         };
@@ -107,10 +98,10 @@ TEST_GROUP(TestCoreService)
         std::vector<Task> tasksByUuid(tasks.cbegin(), tasks.cend());
         std::sort(tasksByUuid.begin(), tasksByUuid.end(), sortByUuid);
         std::sort(taskBuffer.begin(), taskBuffer.end(), sortByUuid);
-        CHECK(std::equal(taskBuffer.cbegin(),
-                         taskBuffer.cend(),
-                         tasksByUuid.cbegin(),
-                         taskEqualByUuid));
+        EXPECT_TRUE(std::equal(taskBuffer.cbegin(),
+                    taskBuffer.cend(),
+                    tasksByUuid.cbegin(),
+                    taskEqualByUuid));
     }
 
     void yearRangeHandler(const std::vector<std::string>& result)
@@ -127,22 +118,33 @@ TEST_GROUP(TestCoreService)
     {
         tagHandlerCalled = true;
     }
+protected:
+    void SetUp() override
+    {
+        sprintStorage.clear();
+        taskStorage.clear();
+        sprintBuffer.clear();
+        taskBuffer.clear();
+        sprintDistributionHandlerCalled = false;
+        yearRangeHandlerCalled = false;
+        tagHandlerCalled = false;
+    }
 };
 
-TEST(TestCoreService,
-     test_registers_sprint_and_increments_tasks_sprints)
+TEST_F(CoreServiceFixture,
+       test_registers_sprint_and_increments_tasks_sprints)
 {
     taskStorageWriter.save(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
 
     coreService.registerSprint(defaultTimeSpan, taskUuid);
 
-    CHECK_EQUAL(1, sprintStorage.size());
-    CHECK_EQUAL(3, (*taskStorage.getItem(taskUuid)).actualCost());
+    EXPECT_EQ(1, sprintStorage.size());
+    EXPECT_EQ(3, (*taskStorage.getItem(taskUuid)).actualCost());
 }
 
-TEST(TestCoreService,
-     test_removes_sprint_and_decrements_tasks_sprint)
+TEST_F(CoreServiceFixture,
+       test_removes_sprint_and_decrements_tasks_sprint)
 {
     taskStorageWriter.save(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
@@ -151,11 +153,11 @@ TEST(TestCoreService,
 
     coreService.removeSprint(sprint);
 
-    CHECK_EQUAL(0, sprintStorage.size());
-    CHECK_EQUAL(1, (*taskStorage.getItem(taskUuid)).actualCost());
+    EXPECT_EQ(0, sprintStorage.size());
+    EXPECT_EQ(1, (*taskStorage.getItem(taskUuid)).actualCost());
 }
 
-TEST(TestCoreService, test_request_sprints_in_time_range)
+TEST_F(CoreServiceFixture, test_request_sprints_in_time_range)
 {
     std::string taskUuid{"1234"};
     SprintBuilder builder;
@@ -180,51 +182,51 @@ TEST(TestCoreService, test_request_sprints_in_time_range)
             });
 }
 
-TEST(TestCoreService, test_request_year_range_calls_handler)
+TEST_F(CoreServiceFixture, test_request_year_range_calls_handler)
 {
     coreService.yearRange(
             [this](const std::vector<std::string>& result) {
                 yearRangeHandler(result);
             });
 
-    CHECK(yearRangeHandlerCalled);
+    EXPECT_TRUE(yearRangeHandlerCalled);
 }
 
-TEST(TestCoreService, test_request_daily_distribution_calls_handler)
+TEST_F(CoreServiceFixture, test_request_daily_distribution_calls_handler)
 {
     coreService.requestSprintDailyDistribution(
             defaultTimeSpan, [this](const Distribution<int>& result) {
                 sprintDistributionHandler(result);
             });
-    CHECK(sprintDistributionHandlerCalled);
+    EXPECT_TRUE(sprintDistributionHandlerCalled);
 }
 
-TEST(TestCoreService, test_request_weekly_distribution_calls_handler)
+TEST_F(CoreServiceFixture, test_request_weekly_distribution_calls_handler)
 {
     coreService.requestSprintWeeklyDistribution(
             defaultTimeSpan, [this](const Distribution<int>& result) {
                 sprintDistributionHandler(result);
             });
-    CHECK(sprintDistributionHandlerCalled);
+    EXPECT_TRUE(sprintDistributionHandlerCalled);
 }
 
-TEST(TestCoreService, test_request_monthly_distribution_calls_handler)
+TEST_F(CoreServiceFixture, test_request_monthly_distribution_calls_handler)
 {
     coreService.requestSprintMonthlyDistribution(
             defaultTimeSpan, [this](const Distribution<int>& result) {
                 sprintDistributionHandler(result);
             });
-    CHECK(sprintDistributionHandlerCalled);
+    EXPECT_TRUE(sprintDistributionHandlerCalled);
 }
 
-TEST(TestCoreService, test_register_task)
+TEST_F(CoreServiceFixture, test_register_task)
 {
     coreService.registerTask(defaultTask);
 
-    CHECK_EQUAL(1, taskStorage.size());
+    EXPECT_EQ(1, taskStorage.size());
 }
 
-TEST(TestCoreService, test_undo_functions_properly)
+TEST_F(CoreServiceFixture, test_undo_functions_properly)
 {
     coreService.registerTask(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
@@ -232,23 +234,23 @@ TEST(TestCoreService, test_undo_functions_properly)
     coreService.registerSprint(defaultTimeSpan, taskUuid);
     coreService.registerSprint(defaultTimeSpan, taskUuid);
 
-    CHECK_EQUAL(1, taskStorage.size());
-    CHECK_EQUAL(3, sprintStorage.size());
+    EXPECT_EQ(1, taskStorage.size());
+    EXPECT_EQ(3, sprintStorage.size());
 
     coreService.undoLast();
-    CHECK_EQUAL(2, sprintStorage.size());
+    EXPECT_EQ(2, sprintStorage.size());
 
     coreService.undoLast();
-    CHECK_EQUAL(1, sprintStorage.size());
+    EXPECT_EQ(1, sprintStorage.size());
 
     coreService.undoLast();
-    CHECK_EQUAL(0, sprintStorage.size());
+    EXPECT_EQ(0, sprintStorage.size());
 
     coreService.undoLast();
-    CHECK_EQUAL(0, taskStorage.size());
+    EXPECT_EQ(0, taskStorage.size());
 }
 
-TEST(TestCoreService, test_edit_task_should_only_alter_allowed_parameters)
+TEST_F(CoreServiceFixture, test_edit_task_should_only_alter_allowed_parameters)
 {
     coreService.registerTask(defaultTask);
     const std::string editedTaskName{"Edited"};
@@ -268,35 +270,35 @@ TEST(TestCoreService, test_edit_task_should_only_alter_allowed_parameters)
     coreService.editTask(defaultTask, editedTask);
     Task& actual = taskStorage.itemRef(defaultTask.uuid());
 
-    CHECK(defaultTask.uuid() == actual.uuid());
-    CHECK(editedTaskName == actual.name());
+    EXPECT_TRUE(defaultTask.uuid() == actual.uuid());
+    EXPECT_TRUE(editedTaskName == actual.name());
     editedTags.sort();
     auto actualTags = actual.tags();
     actualTags.sort();
-    CHECK(editedTags == actualTags);
-    CHECK(editedTaskLastModified == actual.lastModified());
+    EXPECT_TRUE(editedTags == actualTags);
+    EXPECT_TRUE(editedTaskLastModified == actual.lastModified());
     // Uuid, actualCost and completion status should not be editable
-    CHECK_EQUAL(editedEstimated, actual.estimatedCost());
-    CHECK_EQUAL(defaultTask.actualCost(), actual.actualCost());
-    CHECK_EQUAL(defaultTask.isCompleted(), actual.isCompleted());
+    EXPECT_EQ(editedEstimated, actual.estimatedCost());
+    EXPECT_EQ(defaultTask.actualCost(), actual.actualCost());
+    EXPECT_EQ(defaultTask.isCompleted(), actual.isCompleted());
 
     coreService.undoLast();
 
     Task& afterUndo = taskStorage.itemRef(defaultTask.uuid());
 
-    CHECK(defaultTask.uuid() == afterUndo.uuid());
-    CHECK(defaultTask.name() == afterUndo.name());
-    CHECK(defaultTask.tags() == afterUndo.tags());
-    CHECK_EQUAL(defaultTask.estimatedCost(),
+    EXPECT_TRUE(defaultTask.uuid() == afterUndo.uuid());
+    EXPECT_TRUE(defaultTask.name() == afterUndo.name());
+    EXPECT_TRUE(defaultTask.tags() == afterUndo.tags());
+    EXPECT_EQ(defaultTask.estimatedCost(),
                 afterUndo.estimatedCost());
-    CHECK_EQUAL(defaultTask.actualCost(), afterUndo.actualCost());
-    CHECK_EQUAL(defaultTask.isCompleted(), afterUndo.isCompleted());
+    EXPECT_EQ(defaultTask.actualCost(), afterUndo.actualCost());
+    EXPECT_EQ(defaultTask.isCompleted(), afterUndo.isCompleted());
     // Timestamp of modification should not be changed when edition
     // cancelled
-    CHECK(defaultTask.lastModified() == afterUndo.lastModified());
+    EXPECT_TRUE(defaultTask.lastModified() == afterUndo.lastModified());
 }
 
-TEST(TestCoreService, test_request_finished_and_unfinished_tasks)
+TEST_F(CoreServiceFixture, test_request_finished_and_unfinished_tasks)
 {
     TaskBuilder builder;
     DateTime dt = DateTime::fromYMD(2016, 11, 1);
@@ -335,32 +337,32 @@ TEST(TestCoreService, test_request_finished_and_unfinished_tasks)
         });
 }
 
-TEST(TestCoreService, test_toggle_task_competion_status)
+TEST_F(CoreServiceFixture, test_toggle_task_competion_status)
 {
     coreService.registerTask(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
 
     coreService.toggleTaskCompletionStatus(defaultTask);
-    CHECK(taskStorage.itemRef(taskUuid).isCompleted());
-    CHECK(taskStorage.itemRef(taskUuid).lastModified()
+    EXPECT_TRUE(taskStorage.itemRef(taskUuid).isCompleted());
+    EXPECT_TRUE(taskStorage.itemRef(taskUuid).lastModified()
           == DateTime::currentDateTimeLocal());
 
     // Should revert time stamp of last modification when
     // undoing
     coreService.undoLast();
-    CHECK(!taskStorage.itemRef(taskUuid).isCompleted());
-    CHECK(taskStorage.itemRef(taskUuid).lastModified()
+    EXPECT_TRUE(!taskStorage.itemRef(taskUuid).isCompleted());
+    EXPECT_TRUE(taskStorage.itemRef(taskUuid).lastModified()
           == defaultTask.lastModified());
 }
 
-TEST(TestCoreService, test_request_all_tags_calls_handler)
+TEST_F(CoreServiceFixture, test_request_all_tags_calls_handler)
 {
     coreService.requestAllTags(
         [this](const std::vector<std::string>& tags) { tagHandler(tags); });
-    CHECK(tagHandlerCalled);
+    EXPECT_TRUE(tagHandlerCalled);
 }
 
-TEST(TestCoreService, test_edit_tag_should_edit_tag_for_all_items)
+TEST_F(CoreServiceFixture, test_edit_tag_should_edit_tag_for_all_items)
 {
     TaskBuilder taskBuilder;
     const std::list<Tag> tags1{Tag{"Tag1"}, Tag{"Tag2"}};
@@ -385,12 +387,12 @@ TEST(TestCoreService, test_edit_tag_should_edit_tag_for_all_items)
     tags_act2.sort();
     tags_act3.sort();
 
-    CHECK_EQUAL(exp_tags1.size(), tags_act1.size())
-    CHECK(std::equal(exp_tags1.begin(), exp_tags1.end(), tags_act1.begin()));
-    CHECK_EQUAL(exp_tags2.size(), tags_act2.size())
-    CHECK(std::equal(exp_tags2.begin(), exp_tags2.end(), tags_act2.begin()));
-    CHECK_EQUAL(exp_tags3.size(), tags_act3.size())
-    CHECK(std::equal(exp_tags3.begin(), exp_tags3.end(), tags_act3.begin()));
+    EXPECT_EQ(exp_tags1.size(), tags_act1.size());
+    EXPECT_TRUE(std::equal(exp_tags1.begin(), exp_tags1.end(), tags_act1.begin()));
+    EXPECT_EQ(exp_tags2.size(), tags_act2.size());
+    EXPECT_TRUE(std::equal(exp_tags2.begin(), exp_tags2.end(), tags_act2.begin()));
+    EXPECT_EQ(exp_tags3.size(), tags_act3.size());
+    EXPECT_TRUE(std::equal(exp_tags3.begin(), exp_tags3.end(), tags_act3.begin()));
 
     // Undo command should revert tag back for all items
     coreService.undoLast();
@@ -402,10 +404,10 @@ TEST(TestCoreService, test_edit_tag_should_edit_tag_for_all_items)
     tags_act_un2.sort();
     tags_act_un3.sort();
 
-    CHECK_EQUAL(tags1.size(), tags_act_un1.size())
-    CHECK(std::equal(tags1.begin(), tags1.end(), tags_act_un1.begin()));
-    CHECK_EQUAL(tags2.size(), tags_act_un2.size())
-    CHECK(std::equal(tags2.begin(), tags2.end(), tags_act_un2.begin()));
-    CHECK_EQUAL(tags3.size(), tags_act_un3.size())
-    CHECK(std::equal(tags3.begin(), tags3.end(), tags_act_un3.begin()));
+    EXPECT_EQ(tags1.size(), tags_act_un1.size());
+    EXPECT_TRUE(std::equal(tags1.begin(), tags1.end(), tags_act_un1.begin()));
+    EXPECT_EQ(tags2.size(), tags_act_un2.size());
+    EXPECT_TRUE(std::equal(tags2.begin(), tags2.end(), tags_act_un2.begin()));
+    EXPECT_EQ(tags3.size(), tags_act_un3.size());
+    EXPECT_TRUE(std::equal(tags3.begin(), tags3.end(), tags_act_un3.begin()));
 }

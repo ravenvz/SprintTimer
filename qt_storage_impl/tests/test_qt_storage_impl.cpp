@@ -22,11 +22,8 @@
 #include "qt_storage_impl/utils.h"
 #include <list>
 #include <iterator>
-#include <TestHarness.h>
+#include "gtest/gtest.h"
 
-
-TEST_GROUP(TestTwoWayDiff){
-};
 
 TEST(TestTwoWayDiff, test_diff_left_and_right)
 {
@@ -44,8 +41,8 @@ TEST(TestTwoWayDiff, test_diff_left_and_right)
                std::back_inserter(tagsToRemove),
                std::back_inserter(tagsToInsert));
 
-    CHECK(expectedRemove == tagsToRemove);
-    CHECK(expectedInsert == tagsToInsert);
+    EXPECT_TRUE(expectedRemove == tagsToRemove);
+    EXPECT_TRUE(expectedInsert == tagsToInsert);
 }
 
 TEST(TestTwoWayDiff, test_diff_left_empty)
@@ -64,8 +61,8 @@ TEST(TestTwoWayDiff, test_diff_left_empty)
                std::back_inserter(tagsToRemove),
                std::back_inserter(tagsToInsert));
 
-    CHECK(expectedRemove == tagsToRemove);
-    CHECK(expectedInsert == tagsToInsert);
+    EXPECT_TRUE(expectedRemove == tagsToRemove);
+    EXPECT_TRUE(expectedInsert == tagsToInsert);
 }
 
 TEST(TestTwoWayDiff, test_diff_right_empty)
@@ -84,8 +81,8 @@ TEST(TestTwoWayDiff, test_diff_right_empty)
                std::back_inserter(tagsToRemove),
                std::back_inserter(tagsToInsert));
 
-    CHECK(expectedRemove == tagsToRemove);
-    CHECK(expectedInsert == tagsToInsert);
+    EXPECT_TRUE(expectedRemove == tagsToRemove);
+    EXPECT_TRUE(expectedInsert == tagsToInsert);
 }
 
 TEST(TestTwoWayDiff, test_all_unique)
@@ -104,6 +101,6 @@ TEST(TestTwoWayDiff, test_all_unique)
                std::back_inserter(tagsToRemove),
                std::back_inserter(tagsToInsert));
 
-    CHECK(expectedRemove == tagsToRemove);
-    CHECK(expectedInsert == tagsToInsert);
+    EXPECT_TRUE(expectedRemove == tagsToRemove);
+    EXPECT_TRUE(expectedInsert == tagsToInsert);
 }

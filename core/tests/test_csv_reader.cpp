@@ -20,14 +20,15 @@
 **
 *********************************************************************************/
 #include "core/utils/CSVReader.h"
-#include <TestHarness.h>
 #include <iostream>
 #include <iterator>
 #include <sstream>
+#include "gtest/gtest.h"
 
 using namespace CSV;
 
 namespace {
+// TODO obviously, this should be handled outside of source code
 #ifdef _MSC_VER
 	constexpr char const* rfc_4180_test_file = "../../core/tests/data/rfc_4180.csv";
 #else
@@ -35,19 +36,18 @@ namespace {
 #endif
 }
 
-TEST_GROUP(TestCSV){
-};
-
 TEST(TestCSV, test_trows_exception_when_file_not_found)
 {
     std::fstream file{"bogus_file_name.csv"};
-    CHECK_THROWS(StreamReadError, (CSVReader{file}));
+
+    ASSERT_THROW((CSVReader{file}), StreamReadError);
 }
 
 TEST(TestCSV, test_throws_exception_when_invalid_file_format)
 {
     std::istringstream stream{"One,two,three\none,two,three,four"};
-    CHECK_THROWS(FormatError, (CSVReader{stream}));
+
+    ASSERT_THROW((CSVReader{stream}), FormatError);
 }
 
 TEST(TestCSV, test_handles_case_wnen_last_record_missing_ending_line_break)
@@ -57,7 +57,7 @@ TEST(TestCSV, test_handles_case_wnen_last_record_missing_ending_line_break)
 
     CSVReader reader{stream};
 
-    CHECK(std::equal(expected.cbegin(), expected.cend(), reader.cbegin(), reader.cend()));
+    EXPECT_TRUE(std::equal(expected.cbegin(), expected.cend(), reader.cbegin(), reader.cend()));
 }
 
 TEST(TestCSV, test_reads_RFC_4180_file)
@@ -80,6 +80,6 @@ TEST(TestCSV, test_reads_RFC_4180_file)
             "MUST SELL!\nair, moon roof, loaded",
             "4799.00"}};
 
-    CHECK(std::equal(
+    EXPECT_TRUE(std::equal(
         expected_data.cbegin(), expected_data.cend(), reader.cbegin(), reader.cend()));
 }

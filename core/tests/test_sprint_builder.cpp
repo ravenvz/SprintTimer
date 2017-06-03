@@ -22,27 +22,30 @@
 
 #include "core/SprintBuilder.h"
 #include "core/entities/Task.h"
-#include <TestHarness.h>
+#include "gtest/gtest.h"
 
 using namespace std::chrono_literals;
 
-TEST_GROUP(TestSprintBuilder)
-{
-    TimeSpan defaultTimespan{DateTime::currentDateTime(),
-                             DateTime::currentDateTime().add(25min)};
-};
+namespace {
+
+const TimeSpan defaultTimespan{DateTime::currentDateTime(),
+                               DateTime::currentDateTime().add(25min)};
+
+} // namespace
 
 TEST(TestSprintBuilder, test_throws_when_not_associated_with_task)
 {
     SprintBuilder builder;
-    CHECK_THROWS(SprintBuilderError, builder.build());
+
+    ASSERT_THROW(builder.build(), SprintBuilderError);
 }
 
 TEST(TestSprintBuilder, test_throws_when_no_timespan_provided)
 {
     SprintBuilder builder;
     builder.withTaskUuid("123");
-    CHECK_THROWS(SprintBuilderError, builder.build());
+
+    ASSERT_THROW(builder.build(), SprintBuilderError);
 }
 
 TEST(TestSprintBuilder, test_builds_sprint_for_task)
@@ -58,10 +61,10 @@ TEST(TestSprintBuilder, test_builds_sprint_for_task)
 
     auto sprint = builder.forTask(task).withTimeSpan(defaultTimespan).build();
 
-    CHECK_EQUAL(task.uuid(), sprint.taskUuid());
-    CHECK_EQUAL(task.name(), sprint.name());
-    CHECK(task.tags() == sprint.tags());
-    CHECK(not sprint.uuid().empty());
+    EXPECT_EQ(task.uuid(), sprint.taskUuid());
+    EXPECT_EQ(task.name(), sprint.name());
+    EXPECT_TRUE(task.tags() == sprint.tags());
+    EXPECT_TRUE(not sprint.uuid().empty());
 }
 
 TEST(TestSprintBuilder, test_sprint_builder)
@@ -76,10 +79,10 @@ TEST(TestSprintBuilder, test_sprint_builder)
                       .withTimeSpan(defaultTimespan)
                       .build();
 
-    CHECK_EQUAL("Petty sprint", sprint.name());
-    CHECK_EQUAL("1234", sprint.taskUuid());
-    CHECK(!sprint.uuid().empty())
-    CHECK(expectedTags == sprint.tags());
+    EXPECT_EQ("Petty sprint", sprint.name());
+    EXPECT_EQ("1234", sprint.taskUuid());
+    EXPECT_FALSE(sprint.uuid().empty());
+    EXPECT_TRUE(expectedTags == sprint.tags());
 }
 
 TEST(TestSprintBuilder, test_explicitly_overwrites_tags)
@@ -91,7 +94,7 @@ TEST(TestSprintBuilder, test_explicitly_overwrites_tags)
     builder.withExplicitTags({Tag{"NewTag1"}, Tag{"NewTag2"}});
     auto sprint = builder.build();
 
-    CHECK(expectedTags == sprint.tags());
+    EXPECT_TRUE(expectedTags == sprint.tags());
 }
 
 
@@ -108,7 +111,7 @@ TEST(TestSprintBuilder,
     auto sprint2 = builder.build();
     auto sprint3 = builder.build();
 
-    CHECK(not sprint1.uuid().empty());
-    CHECK(sprint1.uuid() != sprint2.uuid());
-    CHECK(sprint2.uuid() != sprint3.uuid());
+    EXPECT_FALSE(sprint1.uuid().empty());
+    EXPECT_TRUE(sprint1.uuid() != sprint2.uuid());
+    EXPECT_TRUE(sprint2.uuid() != sprint3.uuid());
 }

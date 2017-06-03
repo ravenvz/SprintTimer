@@ -20,87 +20,83 @@
 **
 *********************************************************************************/
 #include "core/StringUtils.h"
-#include <TestHarness.h>
-
-TEST_GROUP(TestStringUtils){
-
-};
+#include "gtest/gtest.h"
 
 TEST(TestStringUtils, test_parse_words)
 {
-    std::string text{
+    const std::string text{
         "Some    text1, ?that! should?Be,parsed... in C++ ..D--  "};
-    std::list<std::string> expected{
+    const std::list<std::string> expected{
         "Some", "text1", "that", "should", "Be", "parsed", "in", "C++", "D--"};
 
-    auto actual = StringUtils::parseWords(text);
+    const auto actual = StringUtils::parseWords(text);
 
-    CHECK_EQUAL(expected.size(), actual.size())
-    CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
+    EXPECT_EQ(expected.size(), actual.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
 }
 
 TEST(TestStringUtils, test_join_empty_container)
 {
     std::vector<std::string> parts;
-    std::string expected{""};
+    const std::string expected{""};
 
-    std::string actual = StringUtils::join(parts, ", ");
+    const std::string actual = StringUtils::join(parts, ", ");
 
-    CHECK_EQUAL(expected.size(), actual.size())
-    CHECK(std::equal(expected.cbegin(), expected.cend(), actual.cbegin()));
+    EXPECT_EQ(expected.size(), actual.size());
+    EXPECT_TRUE(std::equal(expected.cbegin(), expected.cend(), actual.cbegin()));
 }
 
 TEST(TestStringUtils, test_join_with_some_parts_empty)
 {
-    std::vector<std::string> parts{"Some", "", "are", "empty"};
-    std::string expected{"Some are empty"};
+    const std::vector<std::string> parts{"Some", "", "are", "empty"};
+    const std::string expected{"Some are empty"};
 
     std::string actual = StringUtils::join(parts, " ");
 
-    CHECK_EQUAL(expected.size(), actual.size())
-    CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
+    EXPECT_EQ(expected.size(), actual.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
 }
 
 TEST(TestStringUtils, test_join_with_all_parts_empty)
 {
-    std::vector<std::string> parts{"", "", "", ""};
-    std::string expected{""};
+    const std::vector<std::string> parts{"", "", "", ""};
+    const std::string expected{""};
 
-    std::string actual = StringUtils::join(parts, " ");
+    const std::string actual = StringUtils::join(parts, " ");
 
-    CHECK_EQUAL(expected.size(), actual.size())
-    CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
+    EXPECT_EQ(expected.size(), actual.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
 }
 
 TEST(TestStringUtils, test_join_on_list_of_ints)
 {
-    std::list<int> parts{1, 2, 3, 4};
-    std::string expected{"1 -> 2 -> 3 -> 4"};
+    const std::list<int> parts{1, 2, 3, 4};
+    const std::string expected{"1 -> 2 -> 3 -> 4"};
 
-    std::string actual
+    const std::string actual
         = StringUtils::join(parts.cbegin(), parts.cend(), " -> ");
 
-    CHECK_EQUAL(expected.size(), actual.size())
-    CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
+    EXPECT_EQ(expected.size(), actual.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
 }
 
 TEST(TestStringUtils, test_starts_with)
 {
-    CHECK(StringUtils::startsWith("whatever", "what"));
-    CHECK(StringUtils::startsWith("what", ""));
-    CHECK(StringUtils::startsWith("", ""));
+    EXPECT_TRUE(StringUtils::startsWith("whatever", "what"));
+    EXPECT_TRUE(StringUtils::startsWith("what", ""));
+    EXPECT_TRUE(StringUtils::startsWith("", ""));
 
-    CHECK(!StringUtils::startsWith("what", "whatever"));
-    CHECK(!StringUtils::startsWith("", "what"));
+    EXPECT_FALSE(StringUtils::startsWith("what", "whatever"));
+    EXPECT_FALSE(StringUtils::startsWith("", "what"));
 }
 
 TEST(TestStringUtils, test_ends_with)
 {
-    CHECK(StringUtils::endsWith("whatever", "ever"));
-    CHECK(StringUtils::endsWith("whatever", ""));
-    CHECK(StringUtils::endsWith("", ""));
+    EXPECT_TRUE(StringUtils::endsWith("whatever", "ever"));
+    EXPECT_TRUE(StringUtils::endsWith("whatever", ""));
+    EXPECT_TRUE(StringUtils::endsWith("", ""));
 
-    CHECK(!StringUtils::endsWith("whatever", "everest"));
-    CHECK(!StringUtils::endsWith("", "ever"));
-    CHECK(!StringUtils::endsWith("ever", "whatever"));
+    EXPECT_FALSE(StringUtils::endsWith("whatever", "everest"));
+    EXPECT_FALSE(StringUtils::endsWith("", "ever"));
+    EXPECT_FALSE(StringUtils::endsWith("ever", "whatever"));
 }
