@@ -3,14 +3,15 @@
 
 /* Wrapper to include optional type until C++17 arrives */
 
+// TODO remove if VS 2017 support optional type
 #ifdef _MSC_VER
 #include <boost/optional/optional.hpp>
 using boost::optional;
 using boost::make_optional;
 #else
-#include <experimental/optional>
-using std::experimental::optional;
-using std::experimental::make_optional;
+#include <optional>
+using std::optional;
+using std::make_optional;
 #endif
 
 #endif /* end of include guard: OPTIONWRAPPER_H_RQGL6JUL */
