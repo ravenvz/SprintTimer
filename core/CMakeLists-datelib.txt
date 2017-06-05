@@ -2,7 +2,7 @@ ExternalProject_Add(
   DateWrapperExternal
 
   GIT_REPOSITORY "https://github.com/ravenvz/date_wrapper"
-  GIT_TAG "v0.4.3"
+  GIT_TAG "v0.4.4"
 
   PREFIX "${DateWrapper_PREFIX}"
   UPDATE_COMMAND ""
