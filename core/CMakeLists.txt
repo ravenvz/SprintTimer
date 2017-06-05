@@ -5,7 +5,7 @@ project(${PROJECT})
 set(CORE_SOURCE_FILES
     src/SprintStatistics.cpp
     src/StatefulTimer.cpp
-    src/Timer.cpp
+        src/CountdownTimer.cpp
     src/Sprint.cpp
     src/Task.cpp
     src/Tag.cpp

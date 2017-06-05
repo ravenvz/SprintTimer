@@ -173,6 +173,9 @@ protected:
         timer = std::make_unique<StatefulTimerTest>(
                 onTickCallbackStub, onStateChangedCallbackStub, tick, testSettings);
     }
+
+    TestConfig testSettings;
+    std::unique_ptr<StatefulTimerTest> timer;
 };
 
 TEST_F(StatefulTimerStates, test_timer_should_initially_be_in_idle_state)

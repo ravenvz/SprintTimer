@@ -50,9 +50,6 @@
 #include "qt_storage_impl/QtStorageImplementersFactory.h"
 #include "widgets/MainWindow.h"
 #include <QApplication>
-#include <cstdlib>
-#include <iostream>
-#include <memory>
 #include <QStyleFactory>
 
 using std::experimental::filesystem::exists;

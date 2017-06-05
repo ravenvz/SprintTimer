@@ -19,32 +19,39 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/Timer.h"
+#include "core/CountdownTimer.h"
 
-
-Timer::Timer(std::function<void(void)> tickCallback,
-             std::chrono::milliseconds tickPeriod)
+CountdownTimer::CountdownTimer(OnTickCallback tickCallback,
+                               OnTimeRunOutCallback onTimeRunOutCallback,
+                               std::chrono::milliseconds duration,
+                               CountdownTimer::TickPeriod tickPeriod)
     : onTickCallback{tickCallback}
+    , onTimeRunOutCallback{onTimeRunOutCallback}
+    , duration{duration}
     , tickPeriod{tickPeriod}
 {
+    start();
 }
 
-Timer::~Timer()
+CountdownTimer::~CountdownTimer()
 {
     stop();
     if (tr.joinable())
         tr.join();
 }
 
-void Timer::start()
+void CountdownTimer::start()
 {
     running = true;
-    tr = std::thread([&]() {
-        while (running) {
+    tr = std::thread([this]() {
+        auto remainingTime = duration;
+        while (running && (remainingTime.count() > 0)) {
             std::this_thread::sleep_for(tickPeriod);
-            onTickCallback();
+            remainingTime -= tickPeriod;
+            onTickCallback(remainingTime);
         }
+        onTimeRunOutCallback();
     });
 }
 
-void Timer::stop() { running = false; }
+void CountdownTimer::stop() { running = false; }

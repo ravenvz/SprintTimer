@@ -69,10 +69,11 @@ std::vector<double> SprintStatItem::computeDailyDistribution() const
 {
     if (mSprints.empty())
         return std::vector<double>(0, 0);
-    int spanInCalendarDays = sizeInDays(timeSpan);
+    auto spanInCalendarDays = static_cast<size_t>(sizeInDays(timeSpan));
     std::vector<double> distribution(spanInCalendarDays, 0);
     for (const Sprint& sprint : mSprints) {
-        distribution[discreteDaysBetween(timeSpan, sprint.timeSpan())]++;
+        auto dayNumber = discreteDaysBetween(timeSpan, sprint.timeSpan());
+        distribution[static_cast<size_t>(dayNumber)]++;
     }
     return distribution;
 }

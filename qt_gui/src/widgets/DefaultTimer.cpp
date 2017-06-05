@@ -24,6 +24,12 @@
 #include "ui_default_timer.h"
 #include "utils/WidgetUtils.h"
 
+namespace {
+    constexpr char const* workgoalMetStyleSheet{"QLabel { color: green; }"};
+    constexpr char const* overworkStyleSheet{"QLabel { color: red; }"};
+    constexpr char const* underworkStyleSheet{"QLabel { color: black; }"};
+} // namespace
+
 DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
     : TimerWidgetBase{applicationSettings, parent}
     , ui{new Ui::DefaultTimer}
@@ -43,7 +49,7 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
             &TimerWidgetBase::timerUpdated,
             this,
             &DefaultTimer::onTimerUpdated);
-    onIdleStateEntered();
+    onIdleStateEnteredHook();
     connect(ui->pbZone, &QPushButton::clicked, [&]() {
         timer->toggleInTheZoneMode();
     });
@@ -79,27 +85,57 @@ void DefaultTimer::updateGoalProgress(Progress progress)
         ui->labelDailyGoalProgress->hide();
         return;
     }
-    int completedSoFar = progress;
     ui->labelDailyGoalProgress->setText(QString("Daily goal progress: %1/%2")
-                                            .arg(completedSoFar)
+                                            .arg(progress)
                                             .arg(dailyGoal));
-    if (completedSoFar == dailyGoal) {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
+    if (progress== dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet(workgoalMetStyleSheet);
     }
-    else if (completedSoFar > dailyGoal) {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: red; }");
+    else if (progress> dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet(overworkStyleSheet);
     }
     else {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: black; }");
+        ui->labelDailyGoalProgress->setStyleSheet(underworkStyleSheet);
     }
 }
 
-void DefaultTimer::setTimerValue(Second timeLeft)
+void DefaultTimer::setTimerValue(std::chrono::seconds timeLeft)
 {
-    ui->labelTimer->setText(constructTimerValue(timeLeft));
+    ui->labelTimer->setText(timerValueToText(timeLeft));
 }
 
-void DefaultTimer::onIdleStateEntered()
+void DefaultTimer::onSprintStateEnteredHook() { setUiToRunningState(); }
+
+void DefaultTimer::onBreakStateEnteredHook() { setUiToRunningState(); }
+
+void DefaultTimer::setUiToRunningState()
+{
+    progressBarMaxValue = timer->currentDuration().count();
+    ui->progressBar->setMaximum(progressBarMaxValue);
+    setTimerValue(timer->currentDuration());
+    ui->progressBar->setValue(0);
+    ui->pbStart->hide();
+    ui->pbSubmit->hide();
+    ui->labelTimer->show();
+    ui->progressBar->show();
+    ui->pbCancel->show();
+    ui->pbCancel->setEnabled(true);
+    ui->pbZone->show();
+}
+
+void DefaultTimer::onSprintStateLeftHook()
+{
+    TimerWidgetBase::onSprintStateLeftHook();
+    ui->labelTimer->hide();
+    ui->pbStart->hide();
+    ui->pbCancel->show();
+    ui->progressBar->hide();
+    ui->pbSubmit->show();
+    ui->cbxSubmissionCandidate->show();
+    ui->pbZone->hide();
+}
+
+void DefaultTimer::onIdleStateEnteredHook()
 {
     ui->progressBar->setValue(0);
     ui->progressBar->hide();
@@ -112,41 +148,13 @@ void DefaultTimer::onIdleStateEntered()
     ui->pbZone->hide();
 }
 
-void DefaultTimer::onTaskStateEntered() { setUiToRunningState(); }
+void DefaultTimer::onZoneStateEnteredHook() { ui->pbCancel->setEnabled(false); }
 
-void DefaultTimer::onBreakStateEntered() { setUiToRunningState(); }
+void DefaultTimer::onZoneStateLeftHook() { ui->pbCancel->setEnabled(true); }
 
-void DefaultTimer::setUiToRunningState()
+void DefaultTimer::updateIndication(std::chrono::seconds timeLeft)
 {
-    progressBarMaxValue = timer->currentDuration() * secondsPerMinute;
-    ui->progressBar->setMaximum(progressBarMaxValue);
-    setTimerValue(progressBarMaxValue);
-    ui->progressBar->setValue(0);
-    ui->pbStart->hide();
-    ui->pbSubmit->hide();
-    ui->labelTimer->show();
-    ui->progressBar->show();
-    ui->pbCancel->show();
-    ui->pbCancel->setEnabled(true);
-    ui->pbZone->show();
-}
-
-void DefaultTimer::onSubmissionStateEntered()
-{
-    ui->labelTimer->hide();
-    ui->progressBar->hide();
-    ui->pbSubmit->show();
-    ui->cbxSubmissionCandidate->show();
-    ui->pbZone->hide();
-}
-
-void DefaultTimer::onZoneStateEntered() { ui->pbCancel->setEnabled(false); }
-
-void DefaultTimer::onZoneStateLeft() { ui->pbCancel->setEnabled(true); }
-
-void DefaultTimer::updateIndication(Second timeLeft)
-{
-    ui->progressBar->setValue(progressBarMaxValue - timeLeft);
+    ui->progressBar->setValue(progressBarMaxValue - timeLeft.count());
     setTimerValue(timeLeft);
     ui->progressBar->repaint();
 }

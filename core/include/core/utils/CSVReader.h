@@ -46,7 +46,7 @@ public:
 using Row = std::vector<std::string>;
 
 
-class State;
+class ParserState;
 
 
 /* Reads Comma-Separated Values (CSV) from input stream.
@@ -124,14 +124,14 @@ Copy from RFC 4180 definition of CSV format:
     "aaa","b""bb","ccc"
 */
 class CSVReader {
-    friend class State;
+    friend class ParserState;
     friend class ParseValue;
     friend class ParseQuotedValue;
     using row_t = std::vector<Row>;
 
 public:
     using const_iterator = row_t::const_iterator;
-    CSVReader(std::istream& stream, char separator = ',');
+    explicit CSVReader(std::istream& stream, char separator = ',');
     const_iterator begin() const;
     const_iterator end() const;
     const_iterator cbegin() const;
@@ -140,7 +140,7 @@ public:
 private:
     std::istream& file;
     const char separator;
-    State* state;
+    ParserState* state;
     std::vector<Row> rows;
     std::string valueBuffer;
     Row rowBuffer;
@@ -157,19 +157,20 @@ private:
 };
 
 
-class State {
+class ParserState {
 public:
+    virtual ~ParserState() = default;
     virtual void parseChar(CSVReader& reader, char ch) = 0;
 };
 
 
-class ParseValue : public State {
+class ParseValue : public ParserState {
 public:
     void parseChar(CSVReader& reader, char ch) override;
 };
 
 
-class ParseQuotedValue : public State {
+class ParseQuotedValue : public ParserState {
 public:
     void parseChar(CSVReader& reader, char ch) override;
 };

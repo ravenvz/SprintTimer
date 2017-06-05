@@ -37,7 +37,12 @@ class DefaultTimer : public TimerWidgetBase {
 
 public:
     DefaultTimer(const IConfig& applicationSettings, QWidget* parent);
-    ~DefaultTimer();
+    ~DefaultTimer() override;
+    DefaultTimer(const DefaultTimer&) = delete;
+    DefaultTimer(DefaultTimer&&) = delete;
+    DefaultTimer& operator=(const DefaultTimer&) = delete;
+    DefaultTimer& operator=(const DefaultTimer&&) = delete;
+
     void setTaskModel(QAbstractItemModel* model) override;
     void setCandidateIndex(int index) override;
     void updateGoalProgress(Progress progress) override;
@@ -46,15 +51,15 @@ private:
     Ui::DefaultTimer* ui;
     int progressBarMaxValue{0};
 
-    void setTimerValue(Second timeLeft);
-    void onIdleStateEntered() override;
-    void onTaskStateEntered() override;
+    void setTimerValue(std::chrono::seconds timeLeft);
+    void onSprintStateEnteredHook() override;
+    void onSprintStateLeftHook() override;
+    void onBreakStateEnteredHook() override;
+    void onIdleStateEnteredHook() override;
+    void onZoneStateEnteredHook() override;
+    void onZoneStateLeftHook() override;
     void setUiToRunningState();
-    void onBreakStateEntered() override;
-    void onZoneStateEntered() override;
-    void onZoneStateLeft() override;
-    void onSubmissionStateEntered() override;
-    void updateIndication(Second timeLeft) override;
+    void updateIndication(std::chrono::seconds timeLeft) override;
 };
 
 #endif /* end of include guard: DEFAULTTIMER_H_QE49BN8Q */

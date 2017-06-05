@@ -20,32 +20,13 @@
 **
 *********************************************************************************/
 
-#include "core/use_cases/EditTask.h"
+#ifndef SPRINT_TIMER_QUERY_H
+#define SPRINT_TIMER_QUERY_H
 
-namespace UseCases {
-EditTask::EditTask(ITaskStorageWriter& writer,
-                   const Task& task,
-                   const Task& editedTask)
-    : writer{writer}
-    , task{task}
-    , editedTask{editedTask.name(),
-                 editedTask.estimatedCost(),
-                 task.actualCost(),
-                 task.uuid(),
-                 editedTask.tags(),
-                 task.isCompleted(),
-                 DateTime::currentDateTimeLocal()}
-{
-}
+class Query {
+public:
+    virtual ~Query() = default;
+    virtual void execute() = 0;
+};
 
-void EditTask::executeAction() { writer.edit(task, editedTask); }
-
-void EditTask::undoAction() { writer.edit(editedTask, task); }
-
-std::string EditTask::inspect() const
-{
-    std::stringstream ss;
-    ss << "Edit task '" << task << " -> " << editedTask << "'";
-    return ss.str();
-}
-} /* UseCases */
+#endif //SPRINT_TIMER_QUERY_H
