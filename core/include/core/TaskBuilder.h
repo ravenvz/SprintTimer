@@ -39,14 +39,13 @@ public:
     TaskBuilder& withExplicitTags(std::list<Tag> tags);
     TaskBuilder& withCompletionStatus(bool completed);
 private:
-    std::string name;
-    int estimatedCost{1};
-    int actualCost{0};
-    optional<std::string> uuid;
-    optional<DateTime> lastModified;
-    std::list<Tag> tags;
-    bool completionStatus{false};
+    std::string mName;
+    int mEstimatedCost{1};
+    int mActualCost{0};
+    optional<std::string> mUuid;
+    optional<DateTime> mLastModified;
+    std::list<Tag> mTags;
+    bool mCompletionStatus{false};
 };
-
 
 #endif /* end of include guard: TASKBUILDER_H_GSWUA7WV */

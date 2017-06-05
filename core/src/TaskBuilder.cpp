@@ -24,66 +24,66 @@
 
 Task TaskBuilder::build()
 {
-    if (!lastModified)
-        lastModified = make_optional(DateTime::currentDateTimeLocal());
-    if (!uuid)
-        return Task{name, estimatedCost, actualCost, tags, completionStatus, *lastModified};
-    Task task{name, estimatedCost, actualCost, *uuid, tags, completionStatus, *lastModified};
-    uuid = optional<std::string>{};
-    lastModified = optional<DateTime>{};
+    if (!mLastModified)
+        mLastModified = make_optional(DateTime::currentDateTimeLocal());
+    if (!mUuid)
+        return Task{mName, mEstimatedCost, mActualCost, mTags, mCompletionStatus, *mLastModified};
+    Task task{mName, mEstimatedCost, mActualCost, *mUuid, mTags, mCompletionStatus, *mLastModified};
+    mUuid = optional<std::string>{};
+    mLastModified = optional<DateTime>{};
     return task;
 }
 
 TaskBuilder& TaskBuilder::withName(std::string name)
 {
-    this->name = std::move(name);
+    mName = std::move(name);
     return *this;
 }
 
 TaskBuilder& TaskBuilder::withEstimatedCost(int cost)
 {
-    estimatedCost = cost;
+    mEstimatedCost = cost;
     return *this;
 }
 
 TaskBuilder& TaskBuilder::withActualCost(int cost)
 {
-    actualCost = cost;
+    mActualCost = cost;
     return *this;
 }
 
 TaskBuilder& TaskBuilder::withUuid(std::string uuid)
 {
-    this->uuid = make_optional(std::move(uuid));
+    mUuid = make_optional(std::move(uuid));
     return *this;
 }
 
 TaskBuilder& TaskBuilder::withTag(std::string tag)
 {
-    tags.emplace_back(Tag{std::move(tag)});
+    mTags.emplace_back(Tag{std::move(tag)});
     return *this;
 }
 
 TaskBuilder& TaskBuilder::withTag(Tag tag)
 {
-    tags.emplace_back(std::move(tag));
+    mTags.emplace_back(std::move(tag));
     return *this;
 }
 
 TaskBuilder& TaskBuilder::withExplicitTags(std::list<Tag> tags)
 {
-    this->tags = std::move(tags);
+    mTags = std::move(tags);
     return *this;
 }
 
 TaskBuilder& TaskBuilder::withLastModificationStamp(DateTime timeStamp)
 {
-    lastModified = make_optional(std::move(timeStamp));
+    mLastModified = make_optional(std::move(timeStamp));
     return *this;
 }
 
 TaskBuilder& TaskBuilder::withCompletionStatus(bool completed)
 {
-    completionStatus = completed;
+    mCompletionStatus = completed;
     return *this;
 }
