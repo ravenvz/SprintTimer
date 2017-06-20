@@ -27,7 +27,7 @@
 #include <QtCore/QFile>
 
 namespace {
-    unsigned currentDatabaseVersion{3};
+    unsigned currentDatabaseVersion{4};
 }
 
 Database::Database(const QString& filename)
@@ -225,7 +225,7 @@ bool Database::createTriggers(QSqlQuery& query) {
                     + "DELETE FROM " + TagTable::name
                     + " WHERE " + TagTable::Columns::id + " = OLD." + TaskTagTable::Columns::tagId + " AND "
                     + "(SELECT count(*) FROM " + TaskTagTable::name
-                    + " WHERE " + TagTable::Columns::id + " = OLD." + TaskTagTable::Columns::tagId + ") = 0; "
+                    + " WHERE " + TaskTagTable::Columns::tagId + " = OLD." + TaskTagTable::Columns::tagId + ") = 0; "
                     + "END;"
     };
 
@@ -377,7 +377,7 @@ bool Database::runMigration(QSqlDatabase& database, int fromVersion)
 
     query.exec("PRAGMA FOREIGN_KEYS = OFF");
 
-    if (fromVersion == 1) {
+    if (fromVersion < 2) {
         qDebug() << "Running migration Version"
                  << fromVersion
                  << " -> Version"
@@ -455,8 +455,22 @@ bool Database::runMigration(QSqlDatabase& database, int fromVersion)
         }
     }
 
-    if (fromVersion == 2) {
+    if (fromVersion < 3) {
         return query.exec("drop table calendar;");
+    }
+
+    if (fromVersion < 4) {
+        return query.exec("drop trigger on_todo_tag_delete") &&
+            query.exec(
+                    "CREATE TRIGGER " + CleanOrphanedTagTrigger::name
+                    + " AFTER DELETE ON " + TaskTagTable::name
+                    + " BEGIN "
+                    + "DELETE FROM " + TagTable::name
+                    + " WHERE " + TagTable::Columns::id + " = OLD." + TaskTagTable::Columns::tagId + " AND "
+                    + "(SELECT count(*) FROM " + TaskTagTable::name
+                    + " WHERE " + TaskTagTable::Columns::tagId + " = OLD." + TaskTagTable::Columns::tagId + ") = 0; "
+                    + "END;"
+                    );
     }
 
     return false;

@@ -98,7 +98,7 @@ namespace TaskTagInsertTrigger {
 }
 
 namespace CleanOrphanedTagTrigger {
-    const QString name{"on_todo_tag_delete"};
+    const QString name{"clean_orhaned_tag"};
 }
 
 namespace SprintView {

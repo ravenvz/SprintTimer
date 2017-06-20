@@ -57,7 +57,7 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
             .arg(TagTable::Columns::name));
     removeTaskQueryId = dbService.prepare(QString{
         "DELETE FROM %1 WHERE %2 = (:uuid)"}.arg(TaskTable::name)
-                                              .arg(TaskTable::Columns::uuid));
+                                            .arg(TaskTable::Columns::uuid));
     editQueryId
         = dbService.prepare(QString{"UPDATE %1 SET %2 = :name, "
                                     "%3 = :estimated_cost, "

@@ -1,10 +1,14 @@
-Plans for version 0.3.9
------------------------
+Plans for version 0.3.10
+------------------------
 
 Optimized GUI for smaller resolution displays
 
 HISTORY
 ----------------------------------------------------------------
+
+Version 0.3.8
+-------------
+Fixed major bug when deleting task could delete unorphaned tag completely.
 
 Version 0.3.8
 -------------
