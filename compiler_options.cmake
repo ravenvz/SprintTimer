@@ -12,6 +12,7 @@ set(CLANG_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
                           -Wno-missing-prototypes
                           -Wno-unused-parameter
                           -Wno-undefined-reinterpret-cast # Qt's mock
+                          -Wno-zero-as-null-pointer-constant
                           )
 
 set(GCC_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
