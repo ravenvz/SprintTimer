@@ -28,7 +28,7 @@
 
 class MacroTransaction : public RevertableCommand {
 public:
-    MacroTransaction(std::vector<std::unique_ptr<RevertableCommand>>&& commands)
+    explicit MacroTransaction(std::vector<std::unique_ptr<RevertableCommand>>&& commands)
         : commands{std::move(commands)}
     {
     }
