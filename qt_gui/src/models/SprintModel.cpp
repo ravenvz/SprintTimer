@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "models/SprintModel.h"
 
+using dw::TimeSpan;
+
 SprintModel::SprintModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel(parent)
     , interval{TimeSpan{DateTime::currentDateTimeLocal(),

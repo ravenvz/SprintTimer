@@ -23,6 +23,7 @@
 #include "qt_storage_impl/Database.h"
 #include "utils/DateTimeConverter.h"
 
+using dw::TimeSpan;
 
 QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
     : dbService{dbService}

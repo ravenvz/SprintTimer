@@ -31,7 +31,7 @@ namespace UseCases {
 class RequestTasks : public Command {
 public:
     RequestTasks(ITaskStorageReader& taskStorageReader,
-                 const TimeSpan& timeSpan,
+                 const dw::TimeSpan& timeSpan,
                  ITaskStorageReader::Handler handler);
 
     void execute() final;
@@ -40,7 +40,7 @@ public:
 
 private:
     ITaskStorageReader& reader;
-    const TimeSpan timeSpan;
+    const dw::TimeSpan timeSpan;
     ITaskStorageReader::Handler handler;
 };
 

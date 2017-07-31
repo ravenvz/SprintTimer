@@ -26,7 +26,7 @@ namespace UseCases {
 
 RequestSprints::RequestSprints(
     ISprintStorageReader& reader,
-    const TimeSpan& timeSpan,
+    const dw::TimeSpan& timeSpan,
     std::function<void(const std::vector<Sprint>&)> resultHandler)
     : reader{reader}
     , timeSpan{timeSpan}

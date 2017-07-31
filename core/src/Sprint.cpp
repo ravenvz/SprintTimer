@@ -19,10 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Sprint.h"
 #include "core/StringUtils.h"
+#include "core/entities/Sprint.h"
 #include <algorithm>
 
+using dw::TimeSpan;
 
 // static
 BoostUUIDGenerator Sprint::generator;

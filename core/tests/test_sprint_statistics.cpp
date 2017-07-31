@@ -25,6 +25,7 @@
 #include "gtest/gtest.h"
 
 using namespace std::chrono_literals;
+using dw::TimeSpan;
 
 namespace {
     // TODO clean no longer needed vars

@@ -22,6 +22,8 @@
 #include "core/SprintStatistics.h"
 #include <numeric>
 
+using dw::TimeSpan;
+
 namespace {
 
 constexpr int sizeInDays(const TimeSpan& timeSpan) noexcept

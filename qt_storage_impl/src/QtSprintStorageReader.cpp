@@ -19,10 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage_impl/QtSprintStorageReader.h"
 #include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/QtSprintStorageReader.h"
 #include "utils/DateTimeConverter.h"
 
+using dw::TimeSpan;
 
 QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
     : dbService{dbService}

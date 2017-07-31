@@ -34,9 +34,9 @@ public:
 
     void requestUnfinishedTasks(Handler handler) final;
 
-    void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler) final;
+    void requestFinishedTasks(const dw::TimeSpan& timeSpan, Handler handler) final;
 
-    void requestTasks(const TimeSpan& timeSpan, Handler handler) final;
+    void requestTasks(const dw::TimeSpan& timeSpan, Handler handler) final;
 
     void requestAllTags(TagHandler handler) final;
 

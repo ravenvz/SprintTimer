@@ -67,7 +67,7 @@ SprintBuilder& SprintBuilder::withTag(const std::string& tag)
     return *this;
 }
 
-SprintBuilder& SprintBuilder::withTimeSpan(const TimeSpan& timeSpan)
+SprintBuilder& SprintBuilder::withTimeSpan(const dw::TimeSpan& timeSpan)
 {
     mTimeSpan = make_optional(timeSpan);
     return *this;

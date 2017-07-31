@@ -44,7 +44,7 @@ public:
     SprintBuilder& withTaskUuid(const std::string& uuid);
     SprintBuilder& withTag(const Tag& tag);
     SprintBuilder& withTag(const std::string& tag);
-    SprintBuilder& withTimeSpan(const TimeSpan& timeSpan);
+    SprintBuilder& withTimeSpan(const dw::TimeSpan& timeSpan);
     SprintBuilder& forTask(const Task& task);
     SprintBuilder& withExplicitTags(const std::list<Tag>& tags);
 
@@ -53,7 +53,7 @@ private:
     optional<std::string> mUuid;
     optional<std::string> mTaskUuid;
     std::list<Tag> mTags;
-    optional<TimeSpan> mTimeSpan;
+    optional<dw::TimeSpan> mTimeSpan;
 };
 
 

@@ -34,7 +34,7 @@ class QtSprintStorageReader : public QObject, public ISprintStorageReader {
 public:
     explicit QtSprintStorageReader(DBService& dbService);
 
-    void requestItems(const TimeSpan& timeSpan, Handler handler) final;
+    void requestItems(const dw::TimeSpan& timeSpan, Handler handler) final;
 
 private:
     enum class Columns {

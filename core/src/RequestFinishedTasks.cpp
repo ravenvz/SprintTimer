@@ -22,6 +22,8 @@
 
 #include "core/use_cases/RequestFinishedTasks.h"
 
+using dw::TimeSpan;
+
 namespace UseCases {
 
 RequestFinishedTasks::RequestFinishedTasks(

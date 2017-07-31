@@ -20,9 +20,11 @@
 **
 *********************************************************************************/
 
-#include "widgets/GoalProgressWindow.h"
 #include "core/utils/WeekdaySelection.h"
+#include "widgets/GoalProgressWindow.h"
 #include "widgets/ProgressWidget.h"
+
+using dw::TimeSpan;
 
 namespace {
 

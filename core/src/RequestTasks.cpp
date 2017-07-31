@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "core/use_cases/RequestTasks.h"
 
+using dw::TimeSpan;
+
 namespace UseCases {
 
 RequestTasks::RequestTasks(ITaskStorageReader& taskStorageReader,

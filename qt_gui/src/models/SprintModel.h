@@ -39,9 +39,9 @@ public:
     QVariant data(const QModelIndex& index,
                   int role = Qt::DisplayRole) const final;
 
-    void setDateFilter(const TimeSpan& timeSpan);
+    void setDateFilter(const dw::TimeSpan& timeSpan);
 
-    void insert(const TimeSpan& timeSpan, const std::string& taskUuid);
+    void insert(const dw::TimeSpan& timeSpan, const std::string& taskUuid);
 
     void insert(const Sprint& sprint);
 
@@ -54,7 +54,7 @@ protected:
 
 private:
     std::vector<Sprint> storage;
-    TimeSpan interval;
+    dw::TimeSpan interval;
     ICoreService& coreService;
 
     void onDataChanged(const std::vector<Sprint>& items);
