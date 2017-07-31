@@ -32,7 +32,7 @@
 
 namespace Ui {
 class LauncherMenu;
-}
+} // namespace Ui
 
 class LauncherMenu : public QWidget {
 

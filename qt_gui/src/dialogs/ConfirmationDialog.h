@@ -26,7 +26,7 @@
 
 namespace Ui {
 class ConfirmationDialog;
-}
+} // namespace Ui
 
 class ConfirmationDialog : public QDialog
 {

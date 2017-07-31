@@ -30,7 +30,7 @@
 
 namespace Ui {
 class AddTaskDialog;
-}
+} // namespace Ui
 
 /* Provides front end to create or edit Task. */
 class AddTaskDialog : public QDialog {

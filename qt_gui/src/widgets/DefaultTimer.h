@@ -29,7 +29,7 @@
 
 namespace Ui {
 class DefaultTimer;
-}
+} // namespace Ui
 
 class DefaultTimer : public TimerWidgetBase {
 

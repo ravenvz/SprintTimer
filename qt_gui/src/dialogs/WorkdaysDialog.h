@@ -28,7 +28,7 @@
 
 namespace Ui {
 class WorkdaysDialog;
-}
+} // namespace Ui
 
 class WorkdaysDialog : public QDialog {
     Q_OBJECT

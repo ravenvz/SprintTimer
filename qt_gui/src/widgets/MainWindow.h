@@ -43,7 +43,7 @@
 
 namespace Ui {
 class MainWindow;
-}
+} // namespace Ui
 
 
 class ExpansionState;

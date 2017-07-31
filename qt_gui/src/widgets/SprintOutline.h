@@ -34,7 +34,7 @@
 
 namespace Ui {
 class SprintOutline;
-}
+} // namespace Ui
 
 class SprintOutline : public QWidget {
 

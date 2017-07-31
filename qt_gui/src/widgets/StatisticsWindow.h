@@ -36,7 +36,7 @@
 
 namespace Ui {
 class StatisticsWindow;
-}
+} // namespace Ui
 
 
 /* Displays statistical information on finished sprints

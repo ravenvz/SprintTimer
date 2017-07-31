@@ -29,7 +29,7 @@
 
 namespace Ui {
 class BestWorkdayWidget;
-}
+} // namespace Ui
 
 
 class BestWorkdayWidget : public QWidget {

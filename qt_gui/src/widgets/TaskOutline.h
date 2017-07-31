@@ -39,7 +39,7 @@
 
 namespace Ui {
 class TaskOutline;
-}
+} // namespace Ui
 
 /* Responsible for providing user interface for interactive
  * task management, so that user could view current unfinished

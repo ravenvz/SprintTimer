@@ -27,7 +27,7 @@
 
 namespace Ui {
 class ExportDialog;
-}
+} // namespace Ui
 
 class ExportDialog : public QDialog {
     Q_OBJECT

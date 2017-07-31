@@ -27,7 +27,7 @@
 
 namespace Ui {
 class TagEditorWidget;
-}
+} // namespace Ui
 
 class TagEditorWidget : public QWidget {
 

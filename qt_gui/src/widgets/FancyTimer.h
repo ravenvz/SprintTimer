@@ -28,7 +28,7 @@
 
 namespace Ui {
 class FancyTimer;
-}
+} // namespace Ui
 
 class FancyTimer : public TimerWidgetBase {
 public:
