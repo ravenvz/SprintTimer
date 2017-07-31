@@ -23,6 +23,8 @@
 #include "core/TaskBuilder.h"
 #include "gtest/gtest.h"
 
+using dw::DateTime;
+
 TEST(TestTaskBuilder, test_name_) {
     TaskBuilder builder;
     DateTime expectedTimeStamp = DateTime::fromYMD(2015, 11, 28);

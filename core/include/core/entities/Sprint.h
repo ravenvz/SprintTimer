@@ -55,10 +55,10 @@ public:
     std::string name() const;
 
     // Return starting date and time.
-    DateTime startTime() const;
+    dw::DateTime startTime() const;
 
     // Return finishing date and time.
-    DateTime finishTime() const;
+    dw::DateTime finishTime() const;
 
     // Return time interval when this Sprint was active.
     dw::TimeSpan timeSpan() const;

@@ -22,6 +22,8 @@
 
 #include "core/use_cases/ToggleTaskCompletionStatus.h"
 
+using dw::DateTime;
+
 namespace UseCases {
 
 ToggleTaskCompletionStatus::ToggleTaskCompletionStatus(

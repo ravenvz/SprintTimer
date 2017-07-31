@@ -44,7 +44,7 @@ public:
     void decrementSprints(const std::string& uuid) final;
 
     void toggleTaskCompletionStatus(const std::string& uuid,
-                                    const DateTime& timeStamp) final;
+                                    const dw::DateTime& timeStamp) final;
 
     void updatePriorities(
         std::vector<std::pair<std::string, int>>&& priorities) final;

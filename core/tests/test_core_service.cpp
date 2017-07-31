@@ -30,6 +30,8 @@
 #include "core/SprintBuilder.h"
 #include "gtest/gtest.h"
 
+using dw::DateTime;
+
 // TODO this mess should be cleaned
 
 class CoreServiceFixture : public ::testing::Test {

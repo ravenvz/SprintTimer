@@ -22,6 +22,8 @@
 
 #include "core/TaskBuilder.h"
 
+using dw::DateTime;
+
 Task TaskBuilder::build()
 {
     if (!mLastModified)

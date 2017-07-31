@@ -35,7 +35,7 @@ public:
     TaskBuilder& withUuid(std::string uuid);
     TaskBuilder& withTag(std::string tag);
     TaskBuilder& withTag(Tag tag);
-    TaskBuilder& withLastModificationStamp(DateTime timeStamp);
+    TaskBuilder& withLastModificationStamp(dw::DateTime timeStamp);
     TaskBuilder& withExplicitTags(std::list<Tag> tags);
     TaskBuilder& withCompletionStatus(bool completed);
 private:
@@ -43,7 +43,7 @@ private:
     int mEstimatedCost{1};
     int mActualCost{0};
     optional<std::string> mUuid;
-    optional<DateTime> mLastModified;
+    optional<dw::DateTime> mLastModified;
     std::list<Tag> mTags;
     bool mCompletionStatus{false};
 };

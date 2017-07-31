@@ -24,14 +24,12 @@
 
 
 #include "core/BoostUUIDGenerator.h"
-#include "date_wrapper/DateTime.h"
 #include "core/StringUtils.h"
 #include "core/entities/Tag.h"
+#include "date_wrapper/DateTime.h"
 #include <list>
 #include <string>
 #include <vector>
-
-using dw::DateTime;
 
 /* Represent Task that may have many associated sprints.
  *
@@ -46,7 +44,7 @@ public:
          int actualCost,
          std::list<Tag> tags,
          bool completed,
-         const DateTime& lastModified = DateTime::currentDateTimeLocal());
+         const dw::DateTime& lastModified = dw::DateTime::currentDateTimeLocal());
 
     Task(std::string name,
          int estimatedCost,
@@ -54,7 +52,7 @@ public:
          const std::string& uuid,
          std::list<Tag> tags,
          bool completed,
-         const DateTime& lastModified);
+         const dw::DateTime& lastModified);
 
     /* Construct Task from encoded description.
      * Description is a string of text that may have some words with
@@ -100,7 +98,7 @@ public:
     /* Return list containing Task tags. */
     std::list<Tag> tags() const;
 
-    DateTime lastModified() const;
+    dw::DateTime lastModified() const;
 
     void setName(const std::string& name);
 
@@ -117,7 +115,7 @@ public:
     void setTags(const std::list<Tag>& newTags);
 
     /* Set time stamp of last item modification. */
-    void setModifiedTimeStamp(const DateTime& timeStamp);
+    void setModifiedTimeStamp(const dw::DateTime& timeStamp);
 
     friend std::ostream& operator<<(std::ostream& os, const Task& task);
 
@@ -129,7 +127,7 @@ private:
     std::string mUuid;
     std::list<Tag> mTags;
     bool mCompleted{false};
-    DateTime mLastModified;
+    dw::DateTime mLastModified;
 
     void decodeDescription(std::string&& encodedDescription);
 };

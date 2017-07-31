@@ -22,6 +22,8 @@
 #include "core/entities/Task.h"
 #include "gtest/gtest.h"
 
+using dw::DateTime;
+
 TEST(TestTask, constructs_task_from_string_description_where_all_parts_present)
 {
     const Task item{"#Test All parts present *5"};

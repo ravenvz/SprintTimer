@@ -24,6 +24,7 @@
 #include <algorithm>
 
 using dw::TimeSpan;
+using dw::DateTime;
 
 // static
 BoostUUIDGenerator Sprint::generator;

@@ -39,7 +39,7 @@ public:
     virtual void decrementSprints(const std::string& uuid) = 0;
 
     virtual void toggleTaskCompletionStatus(const std::string& uuid,
-                                            const DateTime& timeStamp)
+                                            const dw::DateTime& timeStamp)
         = 0;
 
     virtual void

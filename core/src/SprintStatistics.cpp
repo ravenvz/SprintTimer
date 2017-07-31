@@ -23,6 +23,7 @@
 #include <numeric>
 
 using dw::TimeSpan;
+using dw::DateTime;
 
 namespace {
 

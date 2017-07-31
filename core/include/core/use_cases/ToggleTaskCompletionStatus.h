@@ -42,7 +42,7 @@ protected:
 private:
     ITaskStorageWriter& writer;
     const std::string uuid;
-    const DateTime oldTimeStamp;
+    const dw::DateTime oldTimeStamp;
 };
 
 } /* UseCases */

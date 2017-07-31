@@ -26,6 +26,7 @@
 
 using namespace std::chrono_literals;
 using dw::TimeSpan;
+using dw::DateTime;
 
 namespace {
 

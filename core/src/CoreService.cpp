@@ -38,6 +38,9 @@
 #include "core/use_cases/ToggleTaskCompletionStatus.h"
 #include "core/use_cases/RequestTasks.h"
 
+using dw::TimeSpan;
+using dw::DateTime;
+
 namespace Core {
 
 CoreService::CoreService(
