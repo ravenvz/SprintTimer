@@ -73,7 +73,7 @@ private:
     void launchTaskEditor();
 
 signals:
-    void taskSelected(const int row);
+    void taskSelected(int row);
 
 private slots:
     void onAddTaskButtonPushed();
