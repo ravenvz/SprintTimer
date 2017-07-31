@@ -27,15 +27,15 @@
 class RevertableCommand : public Command {
 public:
 
-    virtual void execute() final
+    void execute() final
     {
         executeAction();
         wasExecuted = true;
     }
 
-    virtual bool supportUndo() const override { return true; }
+    bool supportUndo() const override { return true; }
 
-    virtual void undo() final
+    void undo() final
     {
         if (wasExecuted) {
             undoAction();
