@@ -46,9 +46,10 @@ void CountdownTimer::start()
     tr = std::thread([this]() {
         auto remainingTime = duration;
         while (running && (remainingTime.count() > 0)) {
-            std::this_thread::sleep_for(tickPeriod);
-            remainingTime -= tickPeriod;
+            auto nextTickPoint = std::chrono::steady_clock::now() + tickPeriod;
             onTickCallback(remainingTime);
+            remainingTime -= tickPeriod;
+            std::this_thread::sleep_until(nextTickPoint);
         }
         onTimeRunOutCallback();
     });
