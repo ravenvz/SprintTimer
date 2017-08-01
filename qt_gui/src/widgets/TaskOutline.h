@@ -22,19 +22,19 @@
 #ifndef TASKOUTLINE_H
 #define TASKOUTLINE_H
 
-#include <QWidget>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QVBoxLayout>
 #include "core/ICoreService.h"
-#include "models/TaskModel.h"
+#include "dialogs/AddTaskDialog.h"
 #include "models/TagModel.h"
+#include "models/TaskModel.h"
 #include "widgets/ReordableListView.h"
-#include <QPointer>
 #include "widgets/TagEditor.h"
 #include "widgets/TaskViewDelegate.h"
+#include <QPointer>
+#include <QWidget>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QVBoxLayout>
 #include <memory>
-#include "dialogs/AddTaskDialog.h"
 
 
 namespace Ui {
@@ -61,7 +61,7 @@ public:
 private:
     Ui::TaskOutline* ui;
     ICoreService& coreService;
-    QPointer<TagEditorWidget> tagEditor;
+    QPointer<TagEditor> tagEditor;
     TaskModel* taskModel;
     TagModel* tagModel;
     std::unique_ptr<AddTaskDialog> addTaskDialog;

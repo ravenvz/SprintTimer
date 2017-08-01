@@ -30,6 +30,7 @@
 #include "core/SprintBuilder.h"
 #include "gtest/gtest.h"
 
+using dw::TimeSpan;
 using dw::DateTime;
 
 // TODO this mess should be cleaned

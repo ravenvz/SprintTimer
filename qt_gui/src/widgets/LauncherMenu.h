@@ -22,13 +22,13 @@
 #ifndef BUTTONMENU_H
 #define BUTTONMENU_H
 
-#include <QWidget>
-#include <QPushButton>
-#include <QtWidgets/QHBoxLayout>
-#include <core/ICoreService.h>
 #include "core/IConfig.h"
 #include "widgets/DataWidget.h"
 #include <QPointer>
+#include <QPushButton>
+#include <QWidget>
+#include <QtWidgets/QHBoxLayout>
+#include <core/ICoreService.h>
 
 namespace Ui {
 class LauncherMenu;
@@ -41,7 +41,7 @@ public:
                ICoreService& coreService,
                QWidget* parent);
 
-    ~LauncherMenu();
+    ~LauncherMenu() override;
 
 public slots:
     void onSyncRequired();

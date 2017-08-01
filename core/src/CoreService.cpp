@@ -248,7 +248,7 @@ std::string CoreService::lastCommandDescription() const {
     return invoker.lastCommandDescription();
 }
 
-unsigned long long CoreService::numRevertableCommands() const {
+uint64_t CoreService::numRevertableCommands() const {
     return invoker.stackSize();
 }
 

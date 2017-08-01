@@ -34,7 +34,7 @@ class ConfirmationDialog : public QDialog
 
 public:
     explicit ConfirmationDialog(QWidget* parent = nullptr);
-    ~ConfirmationDialog();
+    ~ConfirmationDialog() override;
     void setActionDescription(QString& description);
 
 private:

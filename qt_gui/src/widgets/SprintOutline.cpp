@@ -82,7 +82,7 @@ void SprintOutline::launchManualAddSprintDialog()
 
 void SprintOutline::adjustAddSprintButtonState()
 {
-    ui->pbAddSprintManually->setEnabled(taskModel->rowCount() != 0);
+    ui->pbAddSprintManually->setEnabled(taskModel->rowCount(QModelIndex()) != 0);
 }
 
 QSize SprintOutline::sizeHint() const { return desiredSize; }

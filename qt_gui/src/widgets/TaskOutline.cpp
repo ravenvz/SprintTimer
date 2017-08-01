@@ -20,11 +20,11 @@
 **
 *********************************************************************************/
 
-#include "widgets/TaskOutline.h"
-#include "utils/WidgetUtils.h"
-#include "ui_task_outline.h"
 #include "dialogs/AddTaskDialog.h"
 #include "dialogs/ConfirmationDialog.h"
+#include "ui_task_outline.h"
+#include "utils/WidgetUtils.h"
+#include "widgets/TaskOutline.h"
 #include <QMenu>
 
 TaskOutline::TaskOutline(ICoreService& coreService,
@@ -136,7 +136,7 @@ void TaskOutline::showContextMenu(const QPoint& pos)
 void TaskOutline::launchTagEditor()
 {
     if (!tagEditor) {
-        tagEditor = new TagEditorWidget(tagModel);
+        tagEditor = new TagEditor(tagModel);
         tagEditor->show();
     }
     else {

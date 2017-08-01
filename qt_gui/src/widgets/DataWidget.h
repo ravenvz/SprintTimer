@@ -35,9 +35,7 @@ class DataWidget : public QFrame {
     Q_OBJECT
 
 public:
-    DataWidget(QWidget* parent);
-
-    virtual ~DataWidget() = default;
+    explicit DataWidget(QWidget* parent);
 
 public slots:
     virtual void synchronize() = 0;

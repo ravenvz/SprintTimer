@@ -31,7 +31,7 @@ namespace UseCases {
 class RequestSprintDistribution : public Command {
 public:
     RequestSprintDistribution(ISprintDistributionReader& reader,
-                              const TimeSpan& timeSpan,
+                              const dw::TimeSpan& timeSpan,
                               ISprintDistributionReader::Handler handler);
 
     void execute() final;
@@ -40,7 +40,7 @@ public:
 
 private:
     ISprintDistributionReader& reader;
-    const TimeSpan& timeSpan;
+    const dw::TimeSpan& timeSpan;
     ISprintDistributionReader::Handler handler;
 };
 

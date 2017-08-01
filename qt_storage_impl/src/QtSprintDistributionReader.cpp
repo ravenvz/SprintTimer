@@ -64,7 +64,7 @@ DistributionReaderBase::DistributionReaderBase(
             &DistributionReaderBase::onResultsReceived);
 }
 
-void DistributionReaderBase::requestDistribution(const TimeSpan& timeSpan,
+void DistributionReaderBase::requestDistribution(const dw::TimeSpan& timeSpan,
         Handler handler)
 {
     handler_queue.push_back(handler);

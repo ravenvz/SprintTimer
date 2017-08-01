@@ -34,10 +34,9 @@ public:
     SprintModel(ICoreService& coreService,
                            QObject* parent);
 
-    int rowCount(const QModelIndex& parent = QModelIndex()) const final;
+    int rowCount(const QModelIndex& parent) const final;
 
-    QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const final;
+    QVariant data(const QModelIndex& index, int role) const final;
 
     void setDateFilter(const dw::TimeSpan& timeSpan);
 

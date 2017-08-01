@@ -108,7 +108,7 @@ public:
 
     virtual std::string lastCommandDescription() const = 0;
 
-    virtual unsigned long long numRevertableCommands() const = 0;
+    virtual uint64_t numRevertableCommands() const = 0;
 
     virtual void undoLast() = 0;
 };

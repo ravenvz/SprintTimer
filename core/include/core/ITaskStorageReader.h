@@ -22,8 +22,8 @@
 #ifndef ITASKSTORAGEREADER_H_RMTKEREJ
 #define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "date_wrapper/TimeSpan.h"
 #include "core/entities/Task.h"
+#include "date_wrapper/TimeSpan.h"
 #include <functional>
 
 class ITaskStorageReader {

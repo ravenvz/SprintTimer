@@ -33,7 +33,7 @@ public:
     {
     }
 
-    void requestDistribution(const TimeSpan& timeSpan,
+    void requestDistribution(const dw::TimeSpan& timeSpan,
                              Handler handler) final
     {
         return storage.requestDailyDistribution(timeSpan, handler);

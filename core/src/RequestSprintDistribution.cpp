@@ -27,7 +27,7 @@ namespace UseCases {
 
 RequestSprintDistribution::RequestSprintDistribution(
     ISprintDistributionReader& reader,
-    const TimeSpan& timeSpan,
+    const dw::TimeSpan& timeSpan,
     ISprintDistributionReader::Handler handler)
     : reader{reader}
     , timeSpan{timeSpan}

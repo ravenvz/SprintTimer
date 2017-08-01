@@ -25,9 +25,9 @@
 #include "core/ISprintDistributionReader.h"
 #include "core/ISprintStorageReader.h"
 #include "core/ISprintStorageWriter.h"
-#include "core/IYearRangeReader.h"
 #include "core/ITaskStorageReader.h"
 #include "core/ITaskStorageWriter.h"
+#include "core/IYearRangeReader.h"
 #include <memory>
 
 class IStorageImplementersFactory {

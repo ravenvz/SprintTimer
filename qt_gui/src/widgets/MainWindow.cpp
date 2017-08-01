@@ -138,14 +138,14 @@ void MainWindow::setStateUi()
     adjustSize();
 }
 
-void MainWindow::submitSprint(const std::vector<TimeSpan> &intervalBuffer)
+void MainWindow::submitSprint(const std::vector<dw::TimeSpan> &intervalBuffer)
 {
     if (!selectedTaskRow) {
         qDebug() << "No associated Task can be found";
         return;
     }
 
-    for (const TimeSpan& timeSpan : intervalBuffer) {
+    for (const dw::TimeSpan& timeSpan : intervalBuffer) {
         sprintModel->insert(
             timeSpan, taskModel->itemAt(*selectedTaskRow).uuid());
     }
@@ -153,7 +153,7 @@ void MainWindow::submitSprint(const std::vector<TimeSpan> &intervalBuffer)
 
 void MainWindow::updateDailyProgress()
 {
-    timerWidget->updateGoalProgress(sprintModel->rowCount());
+    timerWidget->updateGoalProgress(sprintModel->rowCount(QModelIndex()));
 }
 
 QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }

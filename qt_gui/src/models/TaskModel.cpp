@@ -108,7 +108,7 @@ void TaskModel::insert(const Task& item)
 
 void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 
-void TaskModel::remove(const int row)
+void TaskModel::remove(int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
     coreService.removeTask(itemAt(row));
@@ -116,7 +116,7 @@ void TaskModel::remove(const int row)
     endRemoveRows();
 }
 
-Task TaskModel::itemAt(const int row) const { return storage.at(row); }
+Task TaskModel::itemAt(int row) const { return storage.at(row); }
 
 void TaskModel::toggleCompleted(const QModelIndex& index)
 {
@@ -124,7 +124,7 @@ void TaskModel::toggleCompleted(const QModelIndex& index)
     requestDataUpdate();
 }
 
-void TaskModel::replaceItemAt(const int row, const Task& newItem)
+void TaskModel::replaceItemAt(int row, const Task& newItem)
 {
     Task oldItem = itemAt(row);
     coreService.editTask(oldItem, newItem);
@@ -139,14 +139,14 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
 {
     // If item is dropped below all rows, destination child would be -1
     int destinationRow
-        = (destinationChild == -1) ? rowCount() - 1 : destinationChild;
+        = (destinationChild == -1) ? rowCount(QModelIndex()) - 1 : destinationChild;
 
     std::vector<std::pair<std::string, int>> priorities;
-    priorities.reserve(static_cast<unsigned>(rowCount()));
+    priorities.reserve(static_cast<unsigned>(rowCount(QModelIndex())));
 
     // Assign priorities for tasks based on their row number,
     // then swap priorities for tasks at source and destination rows
-    for (int row = 0; row < rowCount(); ++row) {
+    for (int row = 0; row < rowCount(QModelIndex()); ++row) {
         priorities.push_back({itemAt(row).uuid(), row});
     }
     std::swap(priorities[destinationRow].second, priorities[sourceRow].second);

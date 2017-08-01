@@ -33,7 +33,7 @@ class DistributionReaderBase : public QObject,
     Q_OBJECT
 
 public:
-    void requestDistribution(const TimeSpan& timeSpan,
+    void requestDistribution(const dw::TimeSpan& timeSpan,
                              Handler handler) override;
 
 protected:
