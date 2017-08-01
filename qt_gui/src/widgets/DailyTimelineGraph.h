@@ -31,7 +31,7 @@
 
 namespace Ui {
 class DailyTimelineGraph;
-}
+} // namespace Ui
 
 
 class DailyTimelineGraph : public QFrame {

@@ -24,15 +24,12 @@
 #include "widgets/FancyTimer.h"
 #include "ui_mainwindow.h"
 
-
 namespace {
     auto expandedFully = std::make_unique<Expanded>();
     auto shrinked = std::make_unique<Shrinked>();
     auto expandedMenuOnly = std::make_unique<ExpandedMenuOnly>();
     auto expandedWithoutMenu = std::make_unique<ExpandedWithoutMenu>();
 }
-
-
 
 MainWindow::MainWindow(IConfig& applicationSettings,
                        ICoreService& coreService,
@@ -141,14 +138,14 @@ void MainWindow::setStateUi()
     adjustSize();
 }
 
-void MainWindow::submitSprint(const std::vector<TimeSpan> &intervalBuffer)
+void MainWindow::submitSprint(const std::vector<dw::TimeSpan> &intervalBuffer)
 {
     if (!selectedTaskRow) {
         qDebug() << "No associated Task can be found";
         return;
     }
 
-    for (const TimeSpan& timeSpan : intervalBuffer) {
+    for (const dw::TimeSpan& timeSpan : intervalBuffer) {
         sprintModel->insert(
             timeSpan, taskModel->itemAt(*selectedTaskRow).uuid());
     }
@@ -156,7 +153,7 @@ void MainWindow::submitSprint(const std::vector<TimeSpan> &intervalBuffer)
 
 void MainWindow::updateDailyProgress()
 {
-    timerWidget->updateGoalProgress(sprintModel->rowCount());
+    timerWidget->updateGoalProgress(sprintModel->rowCount(QModelIndex()));
 }
 
 QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }

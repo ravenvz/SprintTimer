@@ -24,6 +24,14 @@
 #include "ui_fancy_timer.h"
 #include "utils/WidgetUtils.h"
 
+namespace {
+    constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
+    constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
+    constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
+    const QColor taskStateColor{"#eb6c59"};
+    const QColor breakStateColor{"#73c245"};
+    const QColor zoneStateColor{Qt::darkYellow};
+} // namespace
 
 FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
     : TimerWidgetBase{applicationSettings, parent}
@@ -48,16 +56,15 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
         ui->cbxSubmissionCandidate,
         static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
         [&](int index) {
-            if (ui->cbxSubmissionCandidate->isVisible()) {
+            if (ui->cbxSubmissionCandidate->isVisible())
                 emit submissionCandidateChanged(index);
-            }
         });
     connect(ui->pbZone, &QPushButton::clicked, [&]() {
         timer->toggleInTheZoneMode();
     });
     connect(ui->pbCancel, &QPushButton::clicked, this, &FancyTimer::cancelTask);
 
-    onIdleStateEntered();
+    onIdleStateEnteredHook();
 }
 
 FancyTimer::~FancyTimer() { delete ui; }
@@ -75,27 +82,68 @@ void FancyTimer::setCandidateIndex(int index)
 
 void FancyTimer::updateGoalProgress(Progress progress)
 {
-    int dailyGoal = applicationSettings.dailyGoal();
+    const auto dailyGoal = applicationSettings.dailyGoal();
     if (dailyGoal == 0) {
         ui->labelDailyGoalProgress->hide();
         return;
     }
-    int completedSoFar = progress;
     ui->labelDailyGoalProgress->setText(QString("Daily goal progress: %1/%2")
-                                            .arg(completedSoFar)
+                                            .arg(progress)
                                             .arg(dailyGoal));
-    if (completedSoFar == dailyGoal) {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: green; }");
+    if (progress == dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet(workgoalMetStyleSheet);
     }
-    else if (completedSoFar > dailyGoal) {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: red; }");
+    else if (progress > dailyGoal) {
+        ui->labelDailyGoalProgress->setStyleSheet(overworkStyleSheet);
     }
     else {
-        ui->labelDailyGoalProgress->setStyleSheet("QLabel { color: black; }");
+        ui->labelDailyGoalProgress->setStyleSheet(underworkStyleSheet);
     }
 }
 
-void FancyTimer::onIdleStateEntered()
+void FancyTimer::onSprintStateEnteredHook()
+{
+    ui->cbxSubmissionCandidate->hide();
+    ui->pbCancel->show();
+    ui->pbZone->show();
+    std::chrono::seconds duration = timer->currentDuration();
+    combinedIndicator->setColor(taskStateColor);
+    combinedIndicator->setText(timerValueToText(duration));
+    combinedIndicator->setMaxValue(duration.count());
+    combinedIndicator->setCurrentValue(duration.count());
+    combinedIndicator->setInvertedStyle(false);
+    combinedIndicator->setDrawArc(true);
+    combinedIndicator->repaint();
+}
+
+void FancyTimer::onSprintStateLeftHook()
+{
+    TimerWidgetBase::onSprintStateLeftHook();
+    ui->cbxSubmissionCandidate->show();
+    ui->pbCancel->show();
+    ui->pbZone->hide();
+    combinedIndicator->setText("Submit");
+    combinedIndicator->setDrawArc(false);
+    combinedIndicator->repaint();
+}
+
+void FancyTimer::onBreakStateEnteredHook()
+{
+    ui->cbxSubmissionCandidate->hide();
+    ui->pbCancel->show();
+    ui->pbZone->hide();
+    std::chrono::seconds duration = timer->currentDuration();
+    combinedIndicator->setColor(breakStateColor);
+    combinedIndicator->setMaxValue(duration.count());
+    updateIndication(duration);
+    combinedIndicator->setCurrentValue(duration.count());
+    combinedIndicator->setText(timerValueToText(duration));
+    combinedIndicator->setInvertedStyle(true);
+    combinedIndicator->setDrawArc(true);
+    combinedIndicator->repaint();
+}
+
+void FancyTimer::onIdleStateEnteredHook()
 {
     ui->cbxSubmissionCandidate->hide();
     ui->pbCancel->hide();
@@ -106,88 +154,48 @@ void FancyTimer::onIdleStateEntered()
     combinedIndicator->repaint();
 }
 
-void FancyTimer::onTaskStateEntered()
-{
-    ui->cbxSubmissionCandidate->hide();
-    ui->pbCancel->show();
-    ui->pbZone->show();
-    auto duration = timer->currentDuration() * secondsPerMinute;
-    combinedIndicator->setColor(taskStateColor);
-    combinedIndicator->setText(constructTimerValue(duration));
-    combinedIndicator->setMaxValue(duration);
-    combinedIndicator->setCurrentValue(duration);
-    combinedIndicator->setInvertedStyle(false);
-    combinedIndicator->setDrawArc(true);
-    combinedIndicator->repaint();
-}
-
-void FancyTimer::onBreakStateEntered()
-{
-    ui->cbxSubmissionCandidate->hide();
-    ui->pbCancel->show();
-    ui->pbZone->hide();
-    auto duration = timer->currentDuration() * secondsPerMinute;
-    combinedIndicator->setColor(breakStateColor);
-    combinedIndicator->setMaxValue(duration);
-    updateIndication(duration);
-    combinedIndicator->setCurrentValue(duration);
-    combinedIndicator->setText(constructTimerValue(duration));
-    combinedIndicator->setInvertedStyle(true);
-    combinedIndicator->setDrawArc(true);
-    combinedIndicator->repaint();
-}
-
-void FancyTimer::onZoneStateEntered()
+void FancyTimer::onZoneStateEnteredHook()
 {
     ui->pbCancel->hide();
     combinedIndicator->setColor(zoneStateColor);
     combinedIndicator->repaint();
 }
 
-void FancyTimer::onZoneStateLeft()
+void FancyTimer::onZoneStateLeftHook()
 {
     ui->pbCancel->show();
     combinedIndicator->setColor(taskStateColor);
     combinedIndicator->repaint();
 }
 
-void FancyTimer::onSubmissionStateEntered()
+void FancyTimer::updateIndication(std::chrono::seconds timeLeft)
 {
-    qDebug() << "Setting submission state";
-    ui->cbxSubmissionCandidate->show();
-    ui->pbCancel->show();
-    ui->pbZone->hide();
-    combinedIndicator->setText("Submit");
-    combinedIndicator->setDrawArc(false);
+    if (indicationUpdateShouldBeIgnored())
+        return;
+    combinedIndicator->setCurrentValue(timeLeft.count());
+    combinedIndicator->setText(timerValueToText(timeLeft));
     combinedIndicator->repaint();
 }
 
-void FancyTimer::updateIndication(Second timeLeft)
+bool FancyTimer::indicationUpdateShouldBeIgnored() const
 {
-    if (timer->state() == IStatefulTimer::State::Idle
-        || timer->state() == IStatefulTimer::State::Finished)
-        return;
-    combinedIndicator->setCurrentValue(timeLeft);
-    combinedIndicator->setText(constructTimerValue(timeLeft));
-    combinedIndicator->repaint();
+    using namespace SprintTimerCore;
+    return currentState == IStatefulTimer::StateId::IdleEntered ||
+            currentState == IStatefulTimer::StateId::SprintFinished;
 }
 
 void FancyTimer::onIndicatorClicked()
 {
-    switch (timer->state()) {
-    case IStatefulTimer::State::Finished:
+    using namespace SprintTimerCore;
+    switch (currentState) {
+    case IStatefulTimer::StateId::SprintFinished:
         if (ui->cbxSubmissionCandidate->currentIndex() != -1)
             requestSubmission();
         break;
-    case IStatefulTimer::State::Idle:
+    case IStatefulTimer::StateId::IdleEntered:
         startTask();
         break;
     default:
         break;
     }
-}
-
-void FancyTimer::setUiToRunningState()
-{
-
 }

@@ -22,6 +22,9 @@
 #include "core/SprintStatistics.h"
 #include <numeric>
 
+using dw::TimeSpan;
+using dw::DateTime;
+
 namespace {
 
 constexpr int sizeInDays(const TimeSpan& timeSpan) noexcept
@@ -69,10 +72,11 @@ std::vector<double> SprintStatItem::computeDailyDistribution() const
 {
     if (mSprints.empty())
         return std::vector<double>(0, 0);
-    int spanInCalendarDays = sizeInDays(timeSpan);
+    auto spanInCalendarDays = static_cast<size_t>(sizeInDays(timeSpan));
     std::vector<double> distribution(spanInCalendarDays, 0);
     for (const Sprint& sprint : mSprints) {
-        distribution[discreteDaysBetween(timeSpan, sprint.timeSpan())]++;
+        auto dayNumber = discreteDaysBetween(timeSpan, sprint.timeSpan());
+        distribution[static_cast<size_t>(dayNumber)]++;
     }
     return distribution;
 }
@@ -104,7 +108,7 @@ std::vector<double> SprintStatItem::computeWorkTimeDistribution() const
 std::vector<int> SprintStatItem::countWeekdays() const
 {
     std::vector<int> result(7, 0);
-    for (size_t dayNum = 0; dayNum < sizeInDays(timeSpan); ++dayNum) {
+    for (int dayNum = 0; dayNum < sizeInDays(timeSpan); ++dayNum) {
         auto date = timeSpan.start().add(DateTime::Days{dayNum});
         result[static_cast<unsigned>(date.dayOfWeek())]++;
     }

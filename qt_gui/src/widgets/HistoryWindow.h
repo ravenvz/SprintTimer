@@ -34,7 +34,7 @@
 
 namespace Ui {
 class HistoryWindow;
-}
+} // namespace Ui
 
 class DisplayState;
 

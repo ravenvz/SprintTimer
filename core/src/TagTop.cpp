@@ -61,9 +61,9 @@ void TagTop::computeTagFrequencies()
 
 void TagTop::orderTagsByDecreasingFrequency()
 {
+    auto limit = std::min(numTopTags, frequencies.size());
     std::partial_sort(frequencies.begin(),
-                      frequencies.begin()
-                          + std::min(numTopTags, frequencies.size()),
+                      frequencies.begin() + static_cast<long>(limit),
                       frequencies.end(),
                       [](const auto& lhs, const auto& rhs) {
                           return lhs.second > rhs.second;

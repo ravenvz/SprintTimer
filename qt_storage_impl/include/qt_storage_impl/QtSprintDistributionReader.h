@@ -33,10 +33,8 @@ class DistributionReaderBase : public QObject,
     Q_OBJECT
 
 public:
-    virtual ~DistributionReaderBase() = default;
-
-    virtual void requestDistribution(const TimeSpan& timeSpan,
-                                     Handler handler) final;
+    void requestDistribution(const dw::TimeSpan& timeSpan,
+                             Handler handler) override;
 
 protected:
     DBService& dbService;
@@ -45,8 +43,9 @@ protected:
     QDate startDate;
     std::function<bool(const QDate&, const QDate&)> equalityFunc;
     std::function<QDate(const QDate&)> incrementFunc;
-    long long mQueryId{-1};
-    bool invalidQueryId(long long int queryId) const;
+    qint64 mQueryId{-1};
+
+    bool invalidQueryId(qint64 queryId) const;
 
     DistributionReaderBase(
         DBService& dbService,
@@ -66,8 +65,9 @@ protected:
         QDate current = startDate;
         auto it = cbegin(records);
         for (auto& elem : sprintCount) {
-            if (it == cend(records))
+            if (it == cend(records)) {
                 break;
+            }
             if (comp(current, it->value(1).toDate())) {
                 elem = it->value(0).toInt();
                 ++it;
@@ -79,7 +79,7 @@ protected:
     }
 
 private slots:
-    virtual void onResultsReceived(long long queryId,
+    virtual void onResultsReceived(qint64 queryId,
                                    const std::vector<QSqlRecord>& records);
 };
 

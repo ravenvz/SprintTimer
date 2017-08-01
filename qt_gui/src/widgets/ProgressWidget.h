@@ -29,7 +29,7 @@
 
 namespace Ui {
 class ProgressView;
-}
+} // namespace Ui
 
 class ProgressView : public QFrame {
     Q_OBJECT

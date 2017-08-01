@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 
 set(PROJECT ${CORE_LIB})
 project(${PROJECT})
 set(CORE_SOURCE_FILES
     src/SprintStatistics.cpp
     src/StatefulTimer.cpp
-    src/Timer.cpp
+        src/CountdownTimer.cpp
     src/Sprint.cpp
     src/Task.cpp
     src/Tag.cpp
@@ -53,7 +53,7 @@ target_include_directories(${PROJECT}
     PUBLIC include
     PRIVATE src
     PUBLIC ${Boost_INCLUDE_DIRS})
-target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
+target_compile_features(${PROJECT} PRIVATE cxx_std_17)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT}

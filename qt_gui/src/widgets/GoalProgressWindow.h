@@ -68,7 +68,7 @@ private:
 
     void onMonthlyDataReceived(const Distribution<int>& distribution);
 
-    int calculateNumWorkdaysBins(const TimeSpan& timeSpan) const;
+    int calculateNumWorkdaysBins(const dw::TimeSpan& timeSpan) const;
 
 private slots:
     void launchWorkdaysConfigurationDialog();

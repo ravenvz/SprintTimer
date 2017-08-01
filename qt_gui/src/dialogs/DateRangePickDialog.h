@@ -27,7 +27,7 @@
 
 namespace Ui {
 class DateRangePickDialog;
-}
+} // namespace Ui
 
 class DateRangePickDialog : public QDialog {
     Q_OBJECT

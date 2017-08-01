@@ -38,6 +38,9 @@
 #include "core/use_cases/ToggleTaskCompletionStatus.h"
 #include "core/use_cases/RequestTasks.h"
 
+using dw::TimeSpan;
+using dw::DateTime;
+
 namespace Core {
 
 CoreService::CoreService(
@@ -245,7 +248,7 @@ std::string CoreService::lastCommandDescription() const {
     return invoker.lastCommandDescription();
 }
 
-unsigned long long CoreService::numRevertableCommands() const {
+uint64_t CoreService::numRevertableCommands() const {
     return invoker.stackSize();
 }
 

@@ -39,30 +39,30 @@ class DBService : public QObject {
     Q_OBJECT
 
 public:
-    DBService(QString filename);
-    DBService(std::string filename);
-    ~DBService();
+    explicit DBService(const QString& filename);
+    explicit DBService(const std::string& filename);
+    ~DBService() override;
 
-    DBService(DBService&&) = default;
-    DBService& operator=(DBService&&) = default;
+    DBService(DBService&&) = delete;
+    DBService& operator=(DBService&&) = delete;
 
-    DBService(const DBService&) = default;
-    DBService& operator=(const DBService&) = default;
+    DBService(const DBService&) = delete;
+    DBService& operator=(const DBService&) = delete;
 
     /* Execute single query and return it's id. */
-    long long executeQuery(const QString& query);
+    qint64 executeQuery(const QString& query);
 
     /* Prepare query and return it's id. */
-    long long prepare(const QString& query);
+    qint64 prepare(const QString& query);
 
     /* Execute previously prepared query.
      * Assumes that queryId is valid. */
-    void executePrepared(long long queryId);
+    void executePrepared(qint64 queryId);
 
     /* Bind value to a placeholder for a previously prepared query
      * with given id.
      * Assumes that queryId is valid. */
-    void bindValue(long long queryId,
+    void bindValue(qint64 queryId,
                    const QString& placeholder,
                    const QVariant& value);
 
@@ -74,19 +74,18 @@ public:
 
 public slots:
 
-    void handleResults(long long queryId,
+    void handleResults(qint64 queryId,
                        const std::vector<QSqlRecord>& records);
 
-    void handleError(long long queryId, const QString& errorMessage);
+    void handleError(qint64 queryId, const QString& errorMessage);
 
 signals:
-    void queue(long long queryId, const QString& query);
-    void queuePrepared(long long queryId);
-    void results(long long queryId, const std::vector<QSqlRecord>& records);
-    void error(long long queryId, const QString& errorMessage);
-    void prepareQuery(long long queryId, const QString& queryStr);
-    void
-    bind(long long queryId, const QString& placeholder, const QVariant& value);
+    void queue(qint64 queryId, const QString& query);
+    void queuePrepared(qint64 queryId);
+    void results(qint64 queryId, const std::vector<QSqlRecord>& records);
+    void error(qint64 queryId, const QString& errorMessage);
+    void prepareQuery(qint64 queryId, const QString& queryStr);
+    void bind(qint64 queryId, const QString& placeholder, const QVariant& value);
     void requestTransaction();
     void requestRollback();
     void requestCommit();
@@ -96,7 +95,7 @@ private:
     // Note that nextQueryId is not atomic or protected with locks,
     // as only one thread accessing DBService at a time. Should the
     // need of multi-thread access arise, this issue should be addressed.
-    long long nextQueryId{0};
+    qint64 nextQueryId{0};
 
     void prepareDatabase(const QString& filename) const;
 };
@@ -106,17 +105,21 @@ class Worker : public QObject {
     Q_OBJECT
 
 public:
-    Worker(const QString& filename);
-    ~Worker();
+    explicit Worker(QString filename);
+    ~Worker() override;
+    Worker(const Worker&) = delete;
+    Worker& operator=(const Worker&) = delete;
+    Worker(Worker&&) = delete;
+    Worker& operator=(Worker&&) = delete;
 
 public slots:
-    void execute(long long queryId, const QString& query);
+    void execute(qint64 queryId, const QString& query);
 
-    void executePrepared(long long queryId);
+    void executePrepared(qint64 queryId);
 
-    void prepare(long long queryId, const QString& queryStr);
+    void prepare(qint64 queryId, const QString& queryStr);
 
-    void bindValue(long long queryId,
+    void bindValue(qint64 queryId,
                    const QString& placeholder,
                    const QVariant& value);
 
@@ -127,15 +130,15 @@ public slots:
     void onCommitRequested();
 
 signals:
-    void results(long long queryId, const std::vector<QSqlRecord>& records);
+    void results(qint64 queryId, const std::vector<QSqlRecord>& records);
 
-    void error(long long queryId, const QString& errorMessage);
+    void error(qint64 queryId, const QString& errorMessage);
 
 private:
     QString filename;
     QSqlDatabase db;
     bool inTransaction{false};
-    QHash<long long, QSqlQuery> preparedQueries;
+    QHash<qint64, QSqlQuery> preparedQueries;
 
     bool openConnection();
 

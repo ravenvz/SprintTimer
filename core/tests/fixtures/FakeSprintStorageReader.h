@@ -32,7 +32,7 @@ public:
     {
     }
 
-    void requestItems(const TimeSpan& timeSpan, Handler handler) final
+    void requestItems(const dw::TimeSpan& timeSpan, Handler handler) final
     {
         storage.itemsInTimeRange(timeSpan, handler);
     }

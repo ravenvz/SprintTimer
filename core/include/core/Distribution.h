@@ -22,8 +22,8 @@
 #ifndef DISTRIBUTION_H_HG9WILUN
 #define DISTRIBUTION_H_HG9WILUN
 
-#include <vector>
 #include <cstdlib>
+#include <vector>
 
 
 template <class T>

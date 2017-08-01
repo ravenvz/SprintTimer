@@ -22,7 +22,10 @@
 
 #include "core/use_cases/EditTask.h"
 
+using dw::DateTime;
+
 namespace UseCases {
+
 EditTask::EditTask(ITaskStorageWriter& writer,
                    const Task& task,
                    const Task& editedTask)
@@ -32,7 +35,7 @@ EditTask::EditTask(ITaskStorageWriter& writer,
                  editedTask.estimatedCost(),
                  task.actualCost(),
                  task.uuid(),
-                 std::move(editedTask.tags()),
+                 editedTask.tags(),
                  task.isCompleted(),
                  DateTime::currentDateTimeLocal()}
 {
@@ -48,4 +51,4 @@ std::string EditTask::inspect() const
     ss << "Edit task '" << task << " -> " << editedTask << "'";
     return ss.str();
 }
-} /* UseCases */
+} // namespace UseCases

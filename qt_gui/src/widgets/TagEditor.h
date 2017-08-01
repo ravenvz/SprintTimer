@@ -24,18 +24,20 @@
 
 #include "models/AsyncListModel.h"
 #include <QWidget>
+#include <memory>
 
 namespace Ui {
 class TagEditorWidget;
-}
+} // namespace Ui
 
-class TagEditorWidget : public QWidget {
+class TagEditor: public QWidget {
 
     Q_OBJECT
 
 public:
-    TagEditorWidget(AsyncListModel* tagModel, QWidget* parent = nullptr);
-    ~TagEditorWidget();
+    explicit TagEditor(AsyncListModel* tagModel, QWidget* parent = nullptr);
+
+    ~TagEditor() override;
 
 private:
     Ui::TagEditorWidget* ui;

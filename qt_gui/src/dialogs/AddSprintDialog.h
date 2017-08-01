@@ -30,7 +30,7 @@
 
 namespace Ui {
 class AddSprintDialog;
-}
+} // namespace Ui
 
 class AddSprintDialog : public QDialog {
     Q_OBJECT

@@ -31,17 +31,17 @@ class QtYearRangeReader : public QObject, public IYearRangeReader {
     Q_OBJECT
 
 public:
-    QtYearRangeReader(DBService& dbService);
+    explicit QtYearRangeReader(DBService& dbService);
 
     void requestYearRange(Handler handler) final;
 
 private:
     DBService& dbService;
     Handler handler;
-    long long mQueryId{-1};
+    qint64 mQueryId{-1};
 
 private slots:
-    void onResultsReceived(long long queryId,
+    void onResultsReceived(qint64 queryId,
                            const std::vector<QSqlRecord>& records);
 };
 

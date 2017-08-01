@@ -26,13 +26,11 @@
 #include "date_wrapper/TimeSpan.h"
 #include <functional>
 
-using dw::TimeSpan;
-
 class ISprintDistributionReader {
 public:
     using Handler = std::function<void(const Distribution<int>&)>;
     virtual ~ISprintDistributionReader() = default;
-    virtual void requestDistribution(const TimeSpan& timeSpan,
+    virtual void requestDistribution(const dw::TimeSpan& timeSpan,
                                      Handler handler)
         = 0;
 };

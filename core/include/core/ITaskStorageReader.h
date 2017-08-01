@@ -22,11 +22,9 @@
 #ifndef ITASKSTORAGEREADER_H_RMTKEREJ
 #define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "date_wrapper/TimeSpan.h"
 #include "core/entities/Task.h"
+#include "date_wrapper/TimeSpan.h"
 #include <functional>
-
-using dw::TimeSpan;
 
 class ITaskStorageReader {
 public:
@@ -40,10 +38,10 @@ public:
 
     virtual void requestUnfinishedTasks(Handler handler) = 0;
 
-    virtual void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler)
+    virtual void requestFinishedTasks(const dw::TimeSpan& timeSpan, Handler handler)
         = 0;
 
-    virtual void requestTasks(const TimeSpan& timeSpan, Handler handler) = 0;
+    virtual void requestTasks(const dw::TimeSpan& timeSpan, Handler handler) = 0;
 
     virtual void requestAllTags(TagHandler handler) = 0;
 };

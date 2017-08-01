@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.8)
 
 set(PROJECT sprint_timer)
 project(${PROJECT})
@@ -38,11 +38,16 @@ include(compiler_options.cmake)
 set(SOURCE_FILES src/main.cpp)
 
 add_executable(${PROJECT} ${SOURCE_FILES})
-target_compile_features(${PROJECT} PUBLIC cxx_return_type_deduction)
+target_compile_features(${PROJECT} PUBLIC cxx_std_17)
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    set(DEBUG_COMPILE_OPTIONS ${CLANG_COMPILE_OPTIONS})
+    set(RELEASE_COMPILE_OPTIONS ${CLANG_COMPILE_OPTIONS})
     target_compile_options(${PROJECT} PUBLIC ${CLANG_COMPILE_OPTIONS})
 elseif(CMAKE_COMPILER_IS_GNUCXX)
+    set(DEBUG_COMPILE_OPTIONS ${GCC_COMPILE_OPTIONS})
+    set(RELEASE_COMPILE_OPTIONS ${GCC_COMPILE_OPTIONS})
     target_compile_options(${PROJECT} PUBLIC ${GCC_COMPILE_OPTIONS})
 else()
     message("Compiler might not be supported yet.")

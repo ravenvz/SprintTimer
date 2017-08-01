@@ -38,8 +38,6 @@ public:
      * width and height. */
     CombinedIndicator(int sideSizeHint, QWidget* parent);
 
-    ~CombinedIndicator() = default;
-
     QSize sizeHint() const override;
 
     /* Set value that corresponds to a maximum value that full arc (empty arc

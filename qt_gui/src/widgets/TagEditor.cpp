@@ -24,7 +24,7 @@
 #include <QMessageBox>
 
 
-TagEditorWidget::TagEditorWidget(AsyncListModel* tagModel, QWidget* parent)
+TagEditor::TagEditor(AsyncListModel* tagModel, QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::TagEditorWidget)
     , model{tagModel}
@@ -50,4 +50,4 @@ TagEditorWidget::TagEditorWidget(AsyncListModel* tagModel, QWidget* parent)
             &AsyncListModel::revertData);
 }
 
-TagEditorWidget::~TagEditorWidget() { delete ui; }
+TagEditor::~TagEditor() { delete ui; }

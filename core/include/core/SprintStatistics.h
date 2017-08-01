@@ -33,7 +33,7 @@ class SprintStatItem {
 
 public:
     SprintStatItem(const std::vector<Sprint>& sprints,
-                   const TimeSpan& timeInterval);
+                   const dw::TimeSpan& timeInterval);
 
     SprintStatItem(const SprintStatItem&) = default;
 
@@ -48,7 +48,7 @@ public:
     std::vector<Sprint> sprints() const;
 
 private:
-    const TimeSpan timeSpan;
+    const dw::TimeSpan timeSpan;
     const std::vector<Sprint> mSprints;
 
     std::vector<double> computeDailyDistribution() const;
@@ -79,7 +79,7 @@ enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
 
 std::string dayPartHours(unsigned dayPart);
 
-DayPart dayPart(const TimeSpan& timeSpan);
+DayPart dayPart(const dw::TimeSpan& timeSpan);
 
 std::string dayPartName(unsigned dayPart);
 
@@ -88,7 +88,8 @@ std::string dayPartName(DayPart dayPart);
 std::string dayPartHours(DayPart dayPart);
 
 std::string dayPartHours(unsigned dayPart);
-}
+
+} // namespace DatePart
 
 
 #endif // SPRINTSTATISTICS_H

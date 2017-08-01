@@ -23,18 +23,18 @@
 #ifndef SPRINT_TIMER_SPRINTOUTLINE_H
 #define SPRINT_TIMER_SPRINTOUTLINE_H
 
-#include <QWidget>
-#include <QPushButton>
-#include "core/ICoreService.h"
 #include "core/IConfig.h"
+#include "core/ICoreService.h"
+#include "dialogs/AddSprintDialog.h"
 #include "models/SprintModel.h"
 #include "models/TaskModel.h"
+#include <QPushButton>
+#include <QWidget>
 #include <memory>
-#include "dialogs/AddSprintDialog.h"
 
 namespace Ui {
 class SprintOutline;
-}
+} // namespace Ui
 
 class SprintOutline : public QWidget {
 

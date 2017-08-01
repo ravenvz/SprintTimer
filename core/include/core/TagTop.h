@@ -23,10 +23,10 @@
 #ifndef SPRINT_TIMER_TAGTOP_H
 #define SPRINT_TIMER_TAGTOP_H
 
-#include <iostream>
-#include <unordered_map>
 #include "Distribution.h"
 #include "core/entities/Sprint.h"
+#include <iostream>
+#include <unordered_map>
 
 
 /* Responsible for arranging sprints by their tags in order of tag frequency.
@@ -97,7 +97,6 @@ private:
     std::vector<Tag> findAllTags() const;
 
     std::vector<Tag> findBottomTags() const;
-
 };
 
-#endif //SPRINT_TIMER_TAGTOP_H
+#endif // SPRINT_TIMER_TAGTOP_H

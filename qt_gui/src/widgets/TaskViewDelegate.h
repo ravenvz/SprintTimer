@@ -41,8 +41,8 @@ public:
 
 private:
 
-    void paintText(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, const int alpha) const;
-    
+    void paintText(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, int alpha) const;
+
     QColor tagColor {Qt::blue};
     QColor commonColor {Qt::black};
     QColor overspentColor {Qt::red};

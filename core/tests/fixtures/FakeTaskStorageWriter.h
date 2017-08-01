@@ -54,7 +54,7 @@ public:
     }
 
     void toggleTaskCompletionStatus(const std::string& uuid,
-                                    const DateTime& timeStamp) final
+                                    const dw::DateTime& timeStamp) final
     {
         Task& taskRef = storage.itemRef(uuid);
         taskRef.setCompleted(!taskRef.isCompleted());

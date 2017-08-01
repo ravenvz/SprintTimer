@@ -26,12 +26,35 @@
 #include "date_wrapper/TimeSpan.h"
 #include <vector>
 
+namespace SprintTimerCore {
+
 using dw::DateTime;
 using dw::TimeSpan;
 
 class IStatefulTimer {
 public:
-    enum class State { Idle, Task, Break, LongBreak, ZoneEntered, ZoneLeft, Finished };
+//    enum class StateId {
+//        Idle,
+//        Sprint,
+//        Break,
+//        LongBreak,
+//        ZoneEntered,
+//        ZoneLeft,
+//        AwaitingSubmission,
+//        BreakFinished };
+    enum class StateId {
+        IdleEntered,
+        IdleLeft,
+        SprintEntered,
+        SprintLeft,
+        SprintCancelled,
+        SprintFinished,
+        BreakEntered,
+        BreakLeft,
+        BreakCancelled,
+        ZoneEntered,
+        ZoneLeft
+    };
 
     virtual ~IStatefulTimer() = default;
 
@@ -39,15 +62,15 @@ public:
 
     virtual void cancel() = 0;
 
-    virtual int currentDuration() const = 0;
-
-    virtual State state() const = 0;
+    virtual std::chrono::seconds currentDuration() const = 0;
 
     virtual void toggleInTheZoneMode() = 0;
 
-    virtual std::vector<TimeSpan> completedTaskIntervals() const = 0;
+    virtual std::vector<TimeSpan> completedSprints() const = 0;
 
-    virtual void clearIntervalsBuffer() = 0;
+    virtual void clearSprintsBuffer() = 0;
 };
+
+} // namespace SprintTimerCore
 
 #endif /* end of include guard: ISTATEFULTIMER_H_D3DG0N7C */

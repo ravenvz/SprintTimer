@@ -24,26 +24,26 @@
 
 #include "core/ICoreService.h"
 #include "core/ISprintStorageReader.h"
-#include "core/IYearRangeReader.h"
 #include "core/IStorageImplementersFactory.h"
+#include "core/IYearRangeReader.h"
+#include "core/utils/OptionalPl.h"
 #include "models/SprintModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
-#include "widgets/TimerWidgetBase.h"
-#include "widgets/TaskOutline.h"
-#include "widgets/SprintOutline.h"
 #include "widgets/LauncherMenu.h"
+#include "widgets/SprintOutline.h"
+#include "widgets/TaskOutline.h"
+#include "widgets/TimerWidgetBase.h"
+#include <QGridLayout>
 #include <QMainWindow>
 #include <functional>
 #include <memory>
 #include <vector>
-#include <QGridLayout>
-#include "core/utils/OptionalPl.h"
 
 
 namespace Ui {
 class MainWindow;
-}
+} // namespace Ui
 
 
 class ExpansionState;
@@ -62,6 +62,11 @@ public:
                ICoreService& coreService,
                QWidget* parent = nullptr);
     ~MainWindow() override;
+    MainWindow(const MainWindow&) = delete;
+    MainWindow& operator=(const MainWindow&) = delete;
+    MainWindow(MainWindow&&) = delete;
+    MainWindow& operator=(MainWindow&&) = delete;
+
     QSize sizeHint() const override;
 
 private:
@@ -81,7 +86,7 @@ private:
     void setStateUi();
 
 private slots:
-    void submitSprint(const std::vector<TimeSpan> &intervalBuffer);
+    void submitSprint(const std::vector<dw::TimeSpan> &intervalBuffer);
     void updateDailyProgress();
     void toggleView();
     void toggleMenu();

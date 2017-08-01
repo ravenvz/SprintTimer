@@ -22,12 +22,11 @@
 #include <include/qt_storage_impl/Database.h>
 #include "qt_storage_impl/DBService.h"
 
-
-DBService::DBService(QString filename)
+DBService::DBService(const QString& filename)
 {
     // TODO handle exception
     prepareDatabase(filename);
-    Worker* worker = new Worker(filename);
+    auto* worker = new Worker(filename);
     worker->moveToThread(&workerThread);
     qRegisterMetaType<std::vector<QSqlRecord>>("std::vector<QSqlRecord>");
     connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
@@ -50,11 +49,10 @@ DBService::DBService(QString filename)
     workerThread.start();
 }
 
-DBService::DBService(std::string filename)
-    : DBService(QString::fromStdString(std::move(filename)))
+DBService::DBService(const std::string& filename)
+    : DBService(QString::fromStdString(filename))
 {
 }
-
 
 DBService::~DBService()
 {
@@ -66,60 +64,50 @@ void DBService::prepareDatabase(const QString& filename) const {
     auto db = Database(filename);
 }
 
-
-long long DBService::executeQuery(const QString& query)
+qint64 DBService::executeQuery(const QString& query)
 {
     emit queue(nextQueryId, query);
     return nextQueryId++;
 }
 
-
-long long DBService::prepare(const QString& query)
+qint64 DBService::prepare(const QString& query)
 {
     emit prepareQuery(nextQueryId, query);
     return nextQueryId++;
 }
 
-
-void DBService::executePrepared(long long queryId)
+void DBService::executePrepared(qint64 queryId)
 {
     emit queuePrepared(queryId);
 }
 
-
-void DBService::handleResults(long long queryId,
+void DBService::handleResults(qint64 queryId,
                               const std::vector<QSqlRecord>& records)
 {
     emit results(queryId, records);
 }
 
-
-void DBService::handleError(long long queryId, const QString& errorMessage)
+void DBService::handleError(qint64 queryId, const QString& errorMessage)
 {
     qDebug() << queryId;
     qDebug() << errorMessage;
     emit error(queryId, errorMessage);
 }
 
-
-void DBService::bindValue(long long queryId,
+void DBService::bindValue(qint64 queryId,
                           const QString& placeholder,
                           const QVariant& value)
 {
     emit bind(queryId, placeholder, value);
 }
 
-
 void DBService::transaction() { emit requestTransaction(); }
-
 
 void DBService::rollback() { emit requestRollback(); }
 
-
 void DBService::commit() { emit requestCommit(); }
 
-
-Worker::Worker(const QString& filename)
+Worker::Worker(QString filename)
     : filename{std::move(filename)}
     , db{QSqlDatabase::addDatabase("QSQLITE")}
 {
@@ -127,15 +115,13 @@ Worker::Worker(const QString& filename)
         throw std::runtime_error("Unable to create database");
 }
 
-
 Worker::~Worker()
 {
     db.close();
     QSqlDatabase::removeDatabase("QSQLITE");
 }
 
-
-void Worker::execute(long long queryId, const QString& query)
+void Worker::execute(qint64 queryId, const QString& query)
 {
     QSqlQuery q;
     if (!q.exec(query)) {
@@ -155,7 +141,7 @@ void Worker::execute(long long queryId, const QString& query)
     }
 }
 
-void Worker::executePrepared(long long queryId)
+void Worker::executePrepared(qint64 queryId)
 {
     // TODO handle missing id case
     QSqlQuery query = preparedQueries.value(queryId);
@@ -178,22 +164,19 @@ void Worker::executePrepared(long long queryId)
     }
 }
 
-
-void Worker::prepare(long long queryId, const QString& queryStr)
+void Worker::prepare(qint64 queryId, const QString& queryStr)
 {
     QSqlQuery query;
     query.prepare(queryStr);
     preparedQueries.insert(queryId, query);
 }
 
-
-void Worker::bindValue(long long queryId,
+void Worker::bindValue(qint64 queryId,
                        const QString& placeholder,
                        const QVariant& value)
 {
     preparedQueries[queryId].bindValue(placeholder, value);
 }
-
 
 void Worker::onTransactionRequested()
 {
@@ -203,7 +186,6 @@ void Worker::onTransactionRequested()
     }
 }
 
-
 void Worker::rollbackTransaction()
 {
     if (!db.rollback()) {
@@ -212,7 +194,6 @@ void Worker::rollbackTransaction()
     inTransaction = false;
 }
 
-
 void Worker::onCommitRequested()
 {
     if (!db.commit()) {
@@ -220,7 +201,6 @@ void Worker::onCommitRequested()
     }
     inTransaction = false;
 }
-
 
 bool Worker::openConnection()
 {

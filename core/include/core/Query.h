@@ -19,26 +19,14 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IDATAWIDGET_H_DMUO9TSG
-#define IDATAWIDGET_H_DMUO9TSG
 
-#include <QFrame>
+#ifndef SPRINT_TIMER_QUERY_H
+#define SPRINT_TIMER_QUERY_H
 
-/* Widget that displays some data (like statistics, etc) and has
- * means to access this data, but does not now when underlying data
- * has been changed.
- *
- * Extends QWidget to provide 'synchronize()' slot.
- * It's ment to be called when widget's underlying data
- * has been changed and should be requeried.*/
-class DataWidget : public QFrame {
-    Q_OBJECT
-
+class Query {
 public:
-    explicit DataWidget(QWidget* parent);
-
-public slots:
-    virtual void synchronize() = 0;
+    virtual ~Query() = default;
+    virtual void execute() = 0;
 };
 
-#endif /* end of include guard: IDATAWIDGET_H_DMUO9TSG */
+#endif //SPRINT_TIMER_QUERY_H

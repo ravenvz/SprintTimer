@@ -45,7 +45,7 @@ public:
         storage.requestUnfinishedItems(tempHandler);
     }
 
-    void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler) final
+    void requestFinishedTasks(const dw::TimeSpan& timeSpan, Handler handler) final
     {
         auto tempHandler = [handler](const std::vector<Task>& allReturned) {
             std::vector<Task> completed;
@@ -57,7 +57,7 @@ public:
         storage.itemsInTimeRange(timeSpan, tempHandler);
     }
 
-    void requestTasks(const TimeSpan& timeSpan, Handler handler) final
+    void requestTasks(const dw::TimeSpan& timeSpan, Handler handler) final
     {
         storage.itemsInTimeRange(timeSpan, handler);
     }

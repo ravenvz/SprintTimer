@@ -28,7 +28,7 @@
 
 namespace Ui {
 class DateRangePicker;
-}
+} // namespace Ui
 
 
 class DateRangePicker : public QWidget {

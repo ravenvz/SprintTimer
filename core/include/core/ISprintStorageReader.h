@@ -31,7 +31,7 @@ public:
     using Items = std::vector<Sprint>;
     using Handler = std::function<void(const Items&)>;
     virtual ~ISprintStorageReader() = default;
-    virtual void requestItems(const TimeSpan& timeSpan, Handler handler) = 0;
+    virtual void requestItems(const dw::TimeSpan& timeSpan, Handler handler) = 0;
 };
 
 
