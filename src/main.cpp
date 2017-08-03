@@ -111,6 +111,7 @@ int main(int argc, char* argv[])
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QApplication::setOrganizationName("RavenStudio");
     QApplication::setApplicationName("SprintTimer");
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     Config applicationSettings;
 
     const std::string dataDirectory = getOrCreateSprintTimerDataDirectory();

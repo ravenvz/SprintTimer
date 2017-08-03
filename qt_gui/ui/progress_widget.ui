@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>579</width>
-    <height>311</height>
+    <width>638</width>
+    <height>318</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>300</width>
+         <width>270</width>
          <height>0</height>
         </size>
        </property>
@@ -50,7 +50,7 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>281</width>
+          <width>251</width>
           <height>271</height>
          </rect>
         </property>
@@ -65,7 +65,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>16</pointsize>
+             <pointsize>13</pointsize>
             </font>
            </property>
            <property name="text">
@@ -84,7 +84,7 @@
           <widget class="QLabel" name="lblProgress">
            <property name="font">
             <font>
-             <pointsize>14</pointsize>
+             <pointsize>11</pointsize>
             </font>
            </property>
            <property name="text">
@@ -165,6 +165,12 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>250</width>
+         <height>270</height>
+        </size>
        </property>
        <property name="frameShape">
         <enum>QFrame::Box</enum>
