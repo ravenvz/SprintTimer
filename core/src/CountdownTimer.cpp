@@ -36,8 +36,6 @@ CountdownTimer::CountdownTimer(OnTickCallback tickCallback,
 CountdownTimer::~CountdownTimer()
 {
     stop();
-    if (tr.joinable())
-        tr.join();
 }
 
 void CountdownTimer::start()
@@ -45,14 +43,22 @@ void CountdownTimer::start()
     running = true;
     tr = std::thread([this]() {
         auto remainingTime = duration;
-        while (running && (remainingTime.count() > 0)) {
+        while (running) {
+            if (remainingTime.count() <= 0) {
+                onTimeRunOutCallback();
+                break;
+            }
             auto nextTickPoint = std::chrono::steady_clock::now() + tickPeriod;
             onTickCallback(remainingTime);
             remainingTime -= tickPeriod;
             std::this_thread::sleep_until(nextTickPoint);
         }
-        onTimeRunOutCallback();
     });
 }
 
-void CountdownTimer::stop() { running = false; }
+void CountdownTimer::stop()
+{
+    running = false;
+    if (tr.joinable())
+        tr.join();
+}
