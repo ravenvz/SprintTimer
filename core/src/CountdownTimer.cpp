@@ -43,14 +43,21 @@ void CountdownTimer::start()
     running = true;
     tr = std::thread([this]() {
         auto remainingTime = duration;
+        // TODO think of more elegant way than counter workaround; it can potentially cause problems with some tickPeriod values
+        auto tickCheckPeriod = tickPeriod / 10;
+        size_t counter{0};
         while (running) {
-            if (remainingTime.count() <= 0) {
-                onTimeRunOutCallback();
-                break;
+            if (counter % 10 == 0) {
+                counter = 0;
+                onTickCallback(remainingTime);
+                if (remainingTime.count() <= 0) {
+                    onTimeRunOutCallback();
+                    break;
+                }
             }
-            auto nextTickPoint = std::chrono::steady_clock::now() + tickPeriod;
-            onTickCallback(remainingTime);
-            remainingTime -= tickPeriod;
+            auto nextTickPoint = std::chrono::steady_clock::now() + tickCheckPeriod;
+            remainingTime -= tickCheckPeriod;
+            ++counter;
             std::this_thread::sleep_until(nextTickPoint);
         }
     });
