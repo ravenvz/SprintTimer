@@ -213,8 +213,6 @@ void ShortBreak::cancelExit(StatefulTimer& timer)
 
 void ShortBreak::normalExit(StatefulTimer& timer) const
 {
-    if (timer.countdownTimer)
-        timer.countdownTimer->stop();
     timer.notifyStateChanged(IStatefulTimer::StateId::BreakLeft);
 }
 
@@ -248,8 +246,6 @@ void LongBreak::cancelExit(StatefulTimer& timer)
 
 void LongBreak::normalExit(StatefulTimer& timer) const
 {
-    if (timer.countdownTimer)
-        timer.countdownTimer->stop();
     timer.notifyStateChanged(IStatefulTimer::StateId::BreakLeft);
 }
 
