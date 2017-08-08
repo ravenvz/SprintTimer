@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "core/SprintBuilder.h"
+#include <core/SprintBuilder.h>
 #include "core/entities/Task.h"
 #include "gtest/gtest.h"
 
@@ -66,7 +66,7 @@ TEST(TestSprintBuilder, test_builds_sprint_for_task)
     EXPECT_EQ(task.uuid(), sprint.taskUuid());
     EXPECT_EQ(task.name(), sprint.name());
     EXPECT_TRUE(task.tags() == sprint.tags());
-    EXPECT_TRUE(not sprint.uuid().empty());
+    EXPECT_TRUE(!sprint.uuid().empty());
 }
 
 TEST(TestSprintBuilder, test_sprint_builder)
