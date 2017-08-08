@@ -11,3 +11,4 @@ bin
 .vs
 CMakeSettings.json
 *.vim
+CppProperties.json
