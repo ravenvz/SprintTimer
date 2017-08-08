@@ -10,7 +10,7 @@ ExternalProject_Add(
     UPDATE_COMMAND ""
     PATCH_COMMAND ""
     INSTALL_COMMAND ""
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -Dgtest_force_shared_crt="ON"
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${THIRD_PARTY_LIBS_FOLDER_PREFIX}/gtest"
 )
 
@@ -22,9 +22,15 @@ ExternalProject_Get_Property(GtestExternal source_dir binary_dir)
 set(GTEST_LOCATION "${binary_dir}/googlemock")
 set(GTEST_INCLUDES "${source_dir}/googletest/include")
 set(GTEST_GMOCK_INCLUDES "${source_dir}/googlemock/include")
-set(GTEST_LIBRARY  "${GTEST_LOCATION}/gtest/${LIBPREFIX}gtest${LIBSUFFIX}")
-set(GTEST_MAIN  "${GTEST_LOCATION}/gtest/${LIBPREFIX}gtest_main${LIBSUFFIX}")
-set(GTEST_GMOCK  "${GTEST_LOCATION}/${LIBPREFIX}gmock${LIBSUFFIX}")
+if (MSVC)
+	set(GTEST_LIBRARY  "${GTEST_LOCATION}/gtest/${CMAKE_CONFIGURATION_TYPES}/${LIBPREFIX}gtest${LIBSUFFIX}")
+	set(GTEST_MAIN  "${GTEST_LOCATION}/gtest/${CMAKE_CONFIGURATION_TYPES}/${LIBPREFIX}gtest_main${LIBSUFFIX}")
+	set(GTEST_GMOCK  "${GTEST_LOCATION}/${CMAKE_CONFIGURATION_TYPES}/${LIBPREFIX}gmock${LIBSUFFIX}")
+else()
+	set(GTEST_LIBRARY  "${GTEST_LOCATION}/gtest/${LIBPREFIX}gtest${LIBSUFFIX}")
+	set(GTEST_MAIN  "${GTEST_LOCATION}/gtest/${LIBPREFIX}gtest_main${LIBSUFFIX}")
+	set(GTEST_GMOCK  "${GTEST_LOCATION}/${LIBPREFIX}gmock${LIBSUFFIX}")
+endif()
 
 # Workaround against CMake trying to use lib before
 # downloading it resulting in complains about

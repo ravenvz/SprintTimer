@@ -2,7 +2,7 @@ ExternalProject_Add(
   DateWrapperExternal
 
   GIT_REPOSITORY "https://github.com/ravenvz/date_wrapper"
-  GIT_TAG "v0.4.4"
+  GIT_TAG "v0.5.0"
 
   PREFIX "${DateWrapper_PREFIX}"
   UPDATE_COMMAND ""
@@ -20,7 +20,6 @@ set(DateWrapper_INCLUDE_DIRS "${source_dir}/src/date_wrapper/include")
 set(Datewrapper_include_dirs_cmake_bug_wround ${DateWrapper_INCLUDE_DIRS})
 # TODO find more elegant way to handle this
 set(date_INCLUDE_DIRS "${source_dir}/src/date_wrapper/third_party/date")
-
 
 add_library(DateWrapper INTERFACE)
 add_dependencies(DateWrapper DateWrapperExternal)
