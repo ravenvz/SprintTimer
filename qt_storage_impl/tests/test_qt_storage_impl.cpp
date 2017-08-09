@@ -19,11 +19,15 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
+
 #include "qt_storage_impl/utils.h"
 #include <list>
 #include <iterator>
 #include "gtest/gtest.h"
-
 
 TEST(TestTwoWayDiff, test_diff_left_and_right)
 {
