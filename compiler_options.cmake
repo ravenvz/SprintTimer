@@ -12,6 +12,8 @@ set(CLANG_COMPILE_OPTIONS -Weverything
                           -Wno-exit-time-destructors
                           -Wno-global-constructors
                           -Wno-zero-as-null-pointer-constant # gtest implementation
+                          -Wno-shadow # TODO remove when migrated to next date lib release
+                          -Wno-extra-semi # TODO remove when migrated to next date lib release
                           )
 
 set(GCC_COMPILE_OPTIONS -Wall
