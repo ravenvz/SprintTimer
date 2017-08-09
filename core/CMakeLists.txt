@@ -53,7 +53,19 @@ target_include_directories(${PROJECT}
     PUBLIC include
     PRIVATE src
     PUBLIC ${Boost_INCLUDE_DIRS})
-target_compile_features(${PROJECT} PRIVATE cxx_std_17)
+
+target_compile_features(${PROJECT} PUBLIC cxx_std_17)
+
+# TODO remove when CMake 3.10 is supported by MSCV
+# Workaround until CMake would be able to pass cxx_std_17 to MSCV correctly
+if (MSVC_VERSION GREATER_EQUAL "1900")
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_latest_flag_supported)
+    if (_cpp_latest_flag_supported)
+        add_compile_options("/std:c++17")
+    endif()
+endif()
+
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT}

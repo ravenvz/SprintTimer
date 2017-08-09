@@ -23,8 +23,6 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-#include <QDebug>
-
 BarChart::BarChart(QWidget* parent)
     : QWidget(parent)
 {
@@ -58,20 +56,22 @@ void BarChart::paintEvent(QPaintEvent*)
 
 void BarChart::drawBars(QPainter& painter)
 {
-    double gapToWidthRatio = 0.4;
-    double barWidth = availableRect.width()
-        / (barData.size() * (1 + gapToWidthRatio) + gapToWidthRatio);
-    double gapWidth = gapToWidthRatio * barWidth;
+    constexpr double gapToWidthRatio = 0.4;
+    constexpr double barHeightToMaxHeightRatio = 0.8;
 
-    double barHeightToMaxHeightRatio = 0.8;
-    double legendHeightRatio = (1 - barHeightToMaxHeightRatio) / 2;
-    double maxHeight = barHeightToMaxHeightRatio * availableRect.height();
+    const double barWidth = availableRect.width()
+        / (barData.size() * (1 + gapToWidthRatio) + gapToWidthRatio);
+    const double gapWidth = gapToWidthRatio * barWidth;
+    const double legendHeightRatio = (1 - barHeightToMaxHeightRatio) / 2;
+    const double maxHeight = barHeightToMaxHeightRatio * availableRect.height();
 
     QPointF current = availableRect.bottomLeft();
     current.setY(current.y() - legendHeightRatio * availableRect.height());
     current.setX(current.x() + barWidth / 2 + gapWidth);
-    QPen labelPen;
+
+    const QPen labelPen;
     painter.setBrush(brush);
+
     for (size_t i = 0; i < barData.size(); ++i) {
         painter.setPen(labelPen);
         QPointF legendOffsetPoint = QPointF(
@@ -87,7 +87,7 @@ void BarChart::drawBars(QPainter& painter)
                          QString("%1").arg(barData[i].value, 1, 'f', 1, '0'));
         painter.setPen(pen);
         painter.drawRect(barRect);
-        current.setX(current.x() + barWidth + gapWidth);
+         current.setX(current.x() + barWidth + gapWidth);
     }
 }
 
@@ -115,7 +115,7 @@ void BarData::normalize()
     std::transform(
         data.begin(), data.end(), data.begin(), [maxValue](auto entry) {
             return BarDataItem{
-                entry.label, entry.value, entry.value / maxValue};
+                entry.label, entry.value, (maxValue > 0.0) ? entry.value / maxValue : 0.0};
         });
 }
 
