@@ -242,6 +242,7 @@ void LongBreak::cancelExit(StatefulTimer& timer)
     if (timer.countdownTimer)
         timer.countdownTimer->stop();
     timer.notifyStateChanged(IStatefulTimer::StateId::BreakCancelled);
+    timer.jumpToState(idle);
 }
 
 void LongBreak::normalExit(StatefulTimer& timer) const
