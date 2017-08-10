@@ -103,6 +103,8 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
 
     setLayout(layout);
 
+    setWindowIcon(QIcon(":icons/sprint_timer.png"));
+
     connect(dailyProgress,
             &ProgressView::goalChanged,
             this,
