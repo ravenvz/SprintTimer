@@ -29,14 +29,14 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Show statistics window</string>
+      <string>Statistics</string>
      </property>
      <property name="text">
       <string/>
      </property>
      <property name="icon">
       <iconset resource="../resources/resources.qrc">
-       <normaloff>:/icons/statistics.svg</normaloff>:/icons/statistics.svg</iconset>
+       <normaloff>:/icons/statistics2.png</normaloff>:/icons/statistics2.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -55,14 +55,14 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Show history window</string>
+      <string>History</string>
      </property>
      <property name="text">
       <string/>
      </property>
      <property name="icon">
       <iconset resource="../resources/resources.qrc">
-       <normaloff>:/icons/streamline_history.png</normaloff>:/icons/streamline_history.png</iconset>
+       <normaloff>:/icons/history2.png</normaloff>:/icons/history2.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -81,14 +81,14 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Show goals window</string>
+      <string>Progress</string>
      </property>
      <property name="text">
       <string/>
      </property>
      <property name="icon">
       <iconset resource="../resources/resources.qrc">
-       <normaloff>:/icons/progress.svg</normaloff>:/icons/progress.svg</iconset>
+       <normaloff>:/icons/progress3.png</normaloff>:/icons/progress3.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -114,7 +114,7 @@
      </property>
      <property name="icon">
       <iconset resource="../resources/resources.qrc">
-       <normaloff>:/icons/streamline_settings.png</normaloff>:/icons/streamline_settings.png</iconset>
+       <normaloff>:/icons/settings2.png</normaloff>:/icons/settings2.png</iconset>
      </property>
      <property name="iconSize">
       <size>

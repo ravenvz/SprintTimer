@@ -1,10 +1,10 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file>icons/statistics.svg</file>
-    <file>icons/streamline_settings.png</file>
-    <file>icons/streamline_history.png</file>
-    <file>icons/progress.svg</file>
-    <file>icons/progress2.svg</file>
+    <file>icons/progress3.png</file>
     <file>icons/sprint_timer.png</file>
+    <file>icons/statistics2.svg</file>
+    <file>icons/statistics2.png</file>
+    <file>icons/history2.png</file>
+    <file>icons/settings2.png</file>
 </qresource>
 </RCC>

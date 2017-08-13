@@ -24,7 +24,7 @@
      </property>
      <property name="icon">
       <iconset resource="../resources/resources.qrc">
-       <normaloff>:/icons/statistics.svg</normaloff>:/icons/statistics.svg</iconset>
+       <normaloff>:/icons/statistics2.png</normaloff>:/icons/statistics2.png</iconset>
      </property>
      <property name="iconSize">
       <size>
