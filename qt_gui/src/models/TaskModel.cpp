@@ -156,17 +156,13 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
                  storage.begin() + destinationChild);
     endResetModel();
 
-    std::vector<std::pair<std::string, int>> priorities;
-    priorities.reserve(static_cast<size_t>(rowCount(QModelIndex())));
+    std::vector<std::string> priorities;
+    priorities.reserve(storage.size());
 
-    // Assign priorities for tasks based on their row number,
-    for (int row = 0; row < rowCount(QModelIndex()); ++row) {
-        priorities.push_back({itemAt(row).uuid(), row});
-    }
-
-    for (int row = 0; row < rowCount(QModelIndex()); ++row) {
-        priorities[row].second = row;
-    }
+    std::transform(storage.cbegin(),
+                   storage.cend(),
+                   std::back_inserter(priorities),
+                   [](const auto& task) { return task.uuid(); });
 
     coreService.registerTaskPriorities(std::move(priorities));
 

@@ -26,7 +26,7 @@ namespace UseCases {
 
 StoreUnfinishedTasksOrder::StoreUnfinishedTasksOrder(
     ITaskStorageWriter& taskStorageWriter,
-    std::vector<std::pair<std::string, int>>&& priorities)
+    std::vector<std::string>&& priorities)
     : writer{taskStorageWriter}
     , priorities{std::move(priorities)}
 {

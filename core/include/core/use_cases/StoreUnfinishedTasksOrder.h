@@ -29,9 +29,8 @@ namespace UseCases {
 
 class StoreUnfinishedTasksOrder : public Command {
 public:
-    StoreUnfinishedTasksOrder(
-        ITaskStorageWriter& taskStorageWriter,
-        std::vector<std::pair<std::string, int>>&& priorities);
+    StoreUnfinishedTasksOrder(ITaskStorageWriter& taskStorageWriter,
+                              std::vector<std::string>&& priorities);
 
     void execute() final;
 
@@ -39,7 +38,7 @@ public:
 
 private:
     ITaskStorageWriter& writer;
-    std::vector<std::pair<std::string, int>> priorities;
+    std::vector<std::string> priorities;
 };
 
 } /* UseCases */

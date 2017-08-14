@@ -54,8 +54,7 @@ public:
 
     void toggleTaskCompletionStatus(const Task& task) final;
 
-    void registerTaskPriorities(
-        std::vector<std::pair<std::string, int>>&& priorities) final;
+    void registerTaskPriorities(TaskOrder&& priorities) final;
 
     void requestFinishedTasks(const dw::TimeSpan& timeSpan,
                               std::function<void(const std::vector<Task>&)>
@@ -65,8 +64,8 @@ public:
                                     onResultsReceivedCallback) final;
 
     void exportTasks(const dw::TimeSpan& timeSpan,
-            std::shared_ptr<ExternalIO::ISink> sink,
-            TaskEncodingFunc func) final;
+                     std::shared_ptr<ExternalIO::ISink> sink,
+                     TaskEncodingFunc func) final;
 
     void registerSprint(const dw::TimeSpan& timeSpan,
                         const std::string& taskUuid) final;
@@ -77,27 +76,29 @@ public:
 
     void sprintsInTimeRange(const dw::TimeSpan& timeSpan,
                             std::function<void(const std::vector<Sprint>&)>
-                            onResultsReceivedCallback) final;
+                                onResultsReceivedCallback) final;
 
     void exportSprints(const dw::TimeSpan& timeSpan,
                        std::shared_ptr<ExternalIO::ISink> sink,
                        SprintEncodingFunc func) final;
 
     void yearRange(std::function<void(const std::vector<std::string>&)>
-                   onResultsReceivedCallback) final;
+                       onResultsReceivedCallback) final;
 
     void
     requestSprintDailyDistribution(const dw::TimeSpan& timeSpan,
                                    std::function<void(const Distribution<int>&)>
-                                   onResultsReceivedCallback) final;
+                                       onResultsReceivedCallback) final;
 
     void requestSprintWeeklyDistribution(
         const dw::TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback) final;
+        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+        final;
 
     void requestSprintMonthlyDistribution(
         const dw::TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback) final;
+        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+        final;
 
     void requestAllTags(TagResultHandler onResultsReceivedCallback) final;
 
