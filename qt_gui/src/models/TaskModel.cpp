@@ -21,7 +21,10 @@
 *********************************************************************************/
 #include "TaskModel.h"
 #include <QSize>
+#include <core/utils/Algutils.h>
+
 #include <iostream>
+#include <iterator>
 
 TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel{parent}
@@ -137,22 +140,35 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
                          const QModelIndex& destinationParent,
                          int destinationChild)
 {
-    // If item is dropped below all rows, destination child would be -1
-    int destinationRow
-        = (destinationChild == -1) ? rowCount(QModelIndex()) - 1 : destinationChild;
+    // TODO Sadly this leads to ignoring dropping item below the last item,
+    // should study Qt documentation for item reordering
+    if (destinationChild == -1)
+        return false;
+
+    // This offset is needed because slide takes iterator that should point
+    // before desired location as position argument
+    if (sourceRow < destinationChild)
+        ++destinationChild;
+
+    beginResetModel();
+    utils::slide(storage.begin() + sourceRow,
+                 storage.begin() + sourceRow + 1,
+                 storage.begin() + destinationChild);
+    endResetModel();
 
     std::vector<std::pair<std::string, int>> priorities;
-    priorities.reserve(static_cast<unsigned>(rowCount(QModelIndex())));
+    priorities.reserve(static_cast<size_t>(rowCount(QModelIndex())));
 
     // Assign priorities for tasks based on their row number,
-    // then swap priorities for tasks at source and destination rows
     for (int row = 0; row < rowCount(QModelIndex()); ++row) {
         priorities.push_back({itemAt(row).uuid(), row});
     }
-    std::swap(priorities[destinationRow].second, priorities[sourceRow].second);
+
+    for (int row = 0; row < rowCount(QModelIndex()); ++row) {
+        priorities[row].second = row;
+    }
 
     coreService.registerTaskPriorities(std::move(priorities));
-    requestDataUpdate();
 
     return true;
 }
