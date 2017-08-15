@@ -53,19 +53,19 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
             .arg(TaskTagTable::Columns::tagId)
             .arg(TagTable::name)
             .arg(TagTable::Columns::name));
-    removeTaskQueryId = dbService.prepare(QString{
-        "DELETE FROM %1 WHERE %2 = (:uuid)"}.arg(TaskTable::name)
-                                            .arg(TaskTable::Columns::uuid));
-    editQueryId
-        = dbService.prepare(QString{"UPDATE %1 SET %2 = :name, "
-                                    "%3 = :estimated_cost, "
-                                    "%4 = :last_modified "
-                                    "WHERE %5 = :uuid;"}
+    removeTaskQueryId
+        = dbService.prepare(QString{"DELETE FROM %1 WHERE %2 = (:uuid)"}
                                 .arg(TaskTable::name)
-                                .arg(TaskTable::Columns::name)
-                                .arg(TaskTable::Columns::estimatedCost)
-                                .arg(TaskTable::Columns::lastModified)
                                 .arg(TaskTable::Columns::uuid));
+    editQueryId = dbService.prepare(QString{"UPDATE %1 SET %2 = :name, "
+                                            "%3 = :estimated_cost, "
+                                            "%4 = :last_modified "
+                                            "WHERE %5 = :uuid;"}
+                                        .arg(TaskTable::name)
+                                        .arg(TaskTable::Columns::name)
+                                        .arg(TaskTable::Columns::estimatedCost)
+                                        .arg(TaskTable::Columns::lastModified)
+                                        .arg(TaskTable::Columns::uuid));
     incrementSpentQueryId = dbService.prepare(
         QString{"UPDATE %1 set %2 = %2 + 1 "
                 "WHERE %3 = (:todo_uuid);"}
@@ -93,9 +93,11 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
                                 .arg(TaskTable::name)
                                 .arg(TaskTable::Columns::priority)
                                 .arg(TaskTable::Columns::uuid));
-    editTagQueryId = dbService.prepare(QString{
-        "UPDATE %1 SET %2 = :new_name WHERE %2 = "
-        ":old_name;"}.arg(TagTable::name).arg(TagTable::Columns::name));
+    editTagQueryId
+        = dbService.prepare(QString{"UPDATE %1 SET %2 = :new_name WHERE %2 = "
+                                    ":old_name;"}
+                                .arg(TagTable::name)
+                                .arg(TagTable::Columns::name));
 }
 
 void QtTaskStorageWriter::save(const Task& task)
@@ -105,8 +107,7 @@ void QtTaskStorageWriter::save(const Task& task)
         addTaskQueryId, ":name", QString::fromStdString(task.name()));
     dbService.bindValue(
         addTaskQueryId, ":estimated_cost", task.estimatedCost());
-    dbService.bindValue(
-        addTaskQueryId, ":actual_cost", task.actualCost());
+    dbService.bindValue(addTaskQueryId, ":actual_cost", task.actualCost());
     dbService.bindValue(addTaskQueryId, ":completed", task.isCompleted());
     dbService.bindValue(addTaskQueryId, ":priority", 10000);
 
@@ -216,15 +217,15 @@ void QtTaskStorageWriter::toggleTaskCompletionStatus(const std::string& uuid,
 }
 
 void QtTaskStorageWriter::updatePriorities(
-    std::vector<std::pair<std::string, int>>&& priorities)
+    std::vector<std::string>&& priorities)
 {
     dbService.requestTransaction();
 
-    for (const auto& pair : priorities) {
+    for (int i = 0; i < priorities.size(); ++i) {
         dbService.bindValue(updatePrioritiesQueryId,
                             ":uuid",
-                            QString::fromStdString(pair.first));
-        dbService.bindValue(updatePrioritiesQueryId, ":priority", pair.second);
+                            QString::fromStdString(priorities[i]));
+        dbService.bindValue(updatePrioritiesQueryId, ":priority", i);
         dbService.executePrepared(updatePrioritiesQueryId);
     }
 

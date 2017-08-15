@@ -61,9 +61,7 @@ public:
         taskRef.setModifiedTimeStamp(timeStamp);
     }
 
-    void updatePriorities(std::vector<std::pair<std::string, int>>&& priorities)
-    {
-    }
+    void updatePriorities(std::vector<std::string>&& priorities) {}
 
     void editTag(const std::string& oldName, const std::string& newName)
     {

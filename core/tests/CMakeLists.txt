@@ -15,6 +15,7 @@ set(SOURCE_FILES
         test_sprint_builder.cpp
         test_task_builder.cpp
         test_weekday_selection.cpp
+        test_algutils.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)

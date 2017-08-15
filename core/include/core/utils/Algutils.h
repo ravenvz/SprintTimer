@@ -20,27 +20,23 @@
 **
 *********************************************************************************/
 
-#include "core/use_cases/StoreUnfinishedTasksOrder.h"
+#ifndef ALGUTILS_H_VLSTK4ZL
+#define ALGUTILS_H_VLSTK4ZL
 
-namespace UseCases {
+#include <algorithm>
 
-StoreUnfinishedTasksOrder::StoreUnfinishedTasksOrder(
-    ITaskStorageWriter& taskStorageWriter,
-    std::vector<std::string>&& priorities)
-    : writer{taskStorageWriter}
-    , priorities{std::move(priorities)}
+namespace utils {
+
+template <typename T>
+auto slide(T first, T last, T position) -> std::pair<T, T>
 {
+    if (position < last)
+        return {position, std::rotate(position, first, last)};
+    if (last < position)
+        return {std::rotate(first, last, position), position};
+    return {first, last};
 }
 
-void StoreUnfinishedTasksOrder::execute()
-{
-    writer.updatePriorities(std::move(priorities));
-}
+} // namespace utils
 
-std::string StoreUnfinishedTasksOrder::inspect() const
-{
-    return "Store unfinished tasks order";
-}
-
-
-} /* UseCases */
+#endif /* end of include guard: ALGUTILS_H_VLSTK4ZL */

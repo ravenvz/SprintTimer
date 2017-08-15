@@ -35,8 +35,11 @@ public:
     using SprintResultHandler = std::function<void(const std::vector<Sprint>&)>;
     using TagResultHandler
         = std::function<void(const std::vector<std::string>&)>;
-    using SprintEncodingFunc = std::function<std::string(const std::vector<Sprint>& sprints)>;
-    using TaskEncodingFunc = std::function<std::string(const std::vector<Task>& task)>;
+    using SprintEncodingFunc
+        = std::function<std::string(const std::vector<Sprint>& sprints)>;
+    using TaskEncodingFunc
+        = std::function<std::string(const std::vector<Task>& task)>;
+    using TaskOrder = std::vector<std::string>;
 
     virtual ~ICoreService() = default;
 
@@ -48,9 +51,7 @@ public:
 
     virtual void toggleTaskCompletionStatus(const Task& task) = 0;
 
-    virtual void registerTaskPriorities(
-        std::vector<std::pair<std::string, int>>&& priorities)
-        = 0;
+    virtual void registerTaskPriorities(TaskOrder&& priorities) = 0;
 
     virtual void
     requestFinishedTasks(const dw::TimeSpan& timeSpan,
@@ -63,7 +64,8 @@ public:
 
     virtual void exportTasks(const dw::TimeSpan& timeSpan,
                              std::shared_ptr<ExternalIO::ISink> sink,
-                             TaskEncodingFunc func) = 0;
+                             TaskEncodingFunc func)
+        = 0;
 
     virtual void registerSprint(const dw::TimeSpan& timeSpan,
                                 const std::string& taskUuid)
@@ -80,7 +82,8 @@ public:
 
     virtual void exportSprints(const dw::TimeSpan& timeSpan,
                                std::shared_ptr<ExternalIO::ISink> sink,
-                               SprintEncodingFunc func) = 0;
+                               SprintEncodingFunc func)
+        = 0;
 
     virtual void yearRange(std::function<void(const std::vector<std::string>&)>
                                onResultsReceivedCallback)
