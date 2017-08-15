@@ -23,7 +23,7 @@ node {
     stage('Build') {
         parallel "linux build":{
             node ("linux") {
-                sh "cd build && cmake -DCMAKE_VERBOSE_MAKEFILE="OFF" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=On .. && make -j\$(nproc)"
+                sh "cd build && cmake -DCMAKE_VERBOSE_MAKEFILE=OFF -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=On .. && make -j\$(nproc)"
             }
         }, "windows build":{
             node ("windows") {
