@@ -29,7 +29,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Add new TODO item</string>
+      <string>Add new task</string>
      </property>
      <property name="text">
       <string>Add task</string>
