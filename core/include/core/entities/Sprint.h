@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,11 +22,10 @@
 #ifndef SPRINT_H_XWNOT32M
 #define SPRINT_H_XWNOT32M
 
-
 #include "core/BoostUUIDGenerator.h"
-#include "core/TimeSpan.h"
 #include "core/entities/Tag.h"
 #include "core/entities/Task.h"
+#include "date_wrapper/TimeSpan.h"
 #include <list>
 #include <ostream>
 #include <string>
@@ -40,29 +39,29 @@ class Sprint {
 
 public:
     Sprint(const std::string& taskName,
-           const TimeSpan& timeSpan,
+           const dw::TimeSpan& timeSpan,
            const std::list<Tag>& tags,
            const std::string& uuid,
            const std::string& taskUuid);
 
     Sprint(const std::string& taskName,
-           const TimeSpan& timeSpan,
+           const dw::TimeSpan& timeSpan,
            const std::list<Tag>& tag,
            const std::string& taskUuid);
 
-    Sprint(const std::string& taskUuid, const TimeSpan& timeSpan);
+    Sprint(const std::string& taskUuid, const dw::TimeSpan& timeSpan);
 
     // Return name of Sprint. It is identical to the associated task name.
     std::string name() const;
 
     // Return starting date and time.
-    DateTime startTime() const;
+    dw::DateTime startTime() const;
 
     // Return finishing date and time.
-    DateTime finishTime() const;
+    dw::DateTime finishTime() const;
 
     // Return time interval when this Sprint was active.
-    TimeSpan timeSpan() const;
+    dw::TimeSpan timeSpan() const;
 
     // Return uuid.
     std::string uuid() const;
@@ -80,7 +79,7 @@ public:
 private:
     static BoostUUIDGenerator generator;
     std::string mName;
-    TimeSpan mInterval;
+    dw::TimeSpan mInterval;
     std::string mUuid;
     std::string mTaskUuid;
     std::list<Tag> mTags;

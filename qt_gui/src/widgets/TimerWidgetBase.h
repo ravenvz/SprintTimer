@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -32,51 +32,51 @@
 #include <memory>
 
 using Progress = int;
-using Second = long long;
-constexpr Second secondsPerMinute{60};
 
-
-/* Provides base class for Timer widget. */
 class TimerWidgetBase : public QWidget {
 
     Q_OBJECT
 
 public:
     TimerWidgetBase(const IConfig& applicationSettings, QWidget* parent);
-    ~TimerWidgetBase() = default;
     virtual void setTaskModel(QAbstractItemModel* model) = 0;
     virtual void setCandidateIndex(int index) = 0;
     virtual void updateGoalProgress(Progress progress) = 0;
 
 protected:
     const IConfig& applicationSettings;
-    std::unique_ptr<IStatefulTimer> timer;
+    std::unique_ptr<SprintTimerCore::IStatefulTimer> timer;
     std::unique_ptr<QMediaPlayer> player = std::make_unique<QMediaPlayer>();
+    SprintTimerCore::IStatefulTimer::StateId currentState;
 
-    virtual void onTaskStateEntered() = 0;
-    virtual void onBreakStateEntered() = 0;
-    virtual void onSubmissionStateEntered() = 0;
-    virtual void onIdleStateEntered() = 0;
-    virtual void onZoneStateEntered() = 0;
-    virtual void onZoneStateLeft() = 0;
+    virtual void onSprintStateEnteredHook();
+    virtual void onSprintStateLeftHook();
+    virtual void onSprintStateCancelledHook();
+    virtual void onBreakStateEnteredHook();
+    virtual void onBreakStateFinishedHook();
+    virtual void onBreakStateCancelledHook();
+    virtual void onIdleStateEnteredHook();
+    virtual void onIdleStateLeftHook();
+    virtual void onZoneStateEnteredHook();
+    virtual void onZoneStateLeftHook();
     virtual void requestSubmission();
-    virtual void updateIndication(Second timeLeft) = 0;
-    virtual QString constructTimerValue(Second timeLeft);
+    virtual void updateIndication(std::chrono::seconds timeLeft) = 0;
+    virtual QString timerValueToText(std::chrono::seconds timeLeft);
     void playSound() const;
 
 protected slots:
-    void onTimerTick(long long timeLeft);
-    void onTimerStateChanged(IStatefulTimer::State state);
-    void onTimerUpdated(long long timeLeft);
-    void onStateChanged(IStatefulTimer::State state);
+    void onTimerTick(std::chrono::seconds timeLeft);
+    void onTimerStateChanged(SprintTimerCore::IStatefulTimer::StateId state);
+    void onTimerUpdated(std::chrono::seconds timeLeft);
+    void onStateChanged(SprintTimerCore::IStatefulTimer::StateId state);
     void startTask();
     void cancelTask();
-    void onSoundError(QMediaPlayer::Error error);
+    void onSoundPlaybackError(QMediaPlayer::Error error);
 
 signals:
-    void timerUpdated(long long timeLeft);
-    void stateChanged(IStatefulTimer::State state);
-    void submitRequested(std::vector<TimeSpan> completedTaskIntervals);
+    void timerUpdated(std::chrono::seconds timeLeft);
+    void stateChanged(SprintTimerCore::IStatefulTimer::StateId state);
+    void submitRequested(std::vector<dw::TimeSpan> completedTaskIntervals);
     void submissionCandidateChanged(int index);
 };
 

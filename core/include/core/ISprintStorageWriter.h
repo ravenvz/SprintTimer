@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,8 +22,8 @@
 #ifndef ISPRINTSTORAGEWRITER_H_PMJNRBFY
 #define ISPRINTSTORAGEWRITER_H_PMJNRBFY
 
-#include "TimeSpan.h"
 #include "core/entities/Sprint.h"
+#include "date_wrapper/TimeSpan.h"
 
 
 class ISprintStorageWriter {

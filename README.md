@@ -8,13 +8,34 @@ You can read more about technique at the [official website](http://pomodorotechn
 
 Pomodoro Technique® and Pomodoro™ are registered and filed trademarks owned by Francesco Cirillo. SprintTimer is not affiliated by, associated with nor endorsed by Francesco Cirillo.
 
+
 ### Features and description
-TODO
+SprintTimer is best suited for people that work with computers most of their time.
+It is a tool that helps to deal with time-framed tasks effectively. It encourages you to fully concentrate on task at hand for a limited ammount of time (this time interval is called *sprint* in terms of this application). It then encourages you to take a short break and, after some more sprints, a longer break; then the cycle repeats. It is a very simple and widely known technique, that can be used with any timer, paper and pen, but SprintTimer application provides the following benefits:
 
-### Building from source (quick instructions)
+* it features task list (that is deliberately made small, as it intended to contain task for 1-2 days)
+* it stores every task and sprint and is able to answer some statistical queries for any period of time;
+* you can easily see what tasks had been done in, say, August 15 of the last year;
+* it allows you to quickly observe progress for last 30 days, last 4 months and last year;
+* there are times when you are in the flow and don't want to be distracted - just click *InTheZone* button and sprints will be run without breaks and notifications and then be all stored when you finished.
 
-SprintTimer depends on Qt5 framework, Boost libraries, SQLite3 and requires compiler with C++14 support to build.
-It uses CMake build system.
+### Screenshots
+![Timer running](screenshots/Timer_running.png)
+![Settings](screenshots/Settings.png)
+![Window expanded](screenshots/Main_expanded.png)
+![Statistics](screenshots/Statistics.png)
+![Progress](screenshots/Progress.png)
+
+### Building from source
+
+#### Disclaimer
+SprintTimer is uncommercial pet project done in spare time. It is written in C++ and is guaranteed to build with compliler supporting the latest standard version (for now it's C++17). The author does not have resources to maintain backports.
+
+#### Note
+
+SprintTimer uses CMake to control compilation process. Minimum required version is 3.8.
+SprintTimer depends on Qt5 framework, Boost libraries, SQLite3 and requires compiler with C++17 support to build.
+
 Depending on your setup, it might be required to add directory with Boost or Qt installation to CMAKE_INCLUDE_PATH.
 
 #### Linux
@@ -24,23 +45,29 @@ cd build && cmake -DBUILD_TYPE=Release .. && make
 ```
 
 #### Windows
-Windows support is not thoroughly tested yet, but application would probably build with MSVC compiler on any Windows version starting from Vista.
-Some backporting might be required for older Windows versions.
+Windows build is still in experimental stage as it requires MSVC 2017 compiler supplied with Visual Studio 2017 Preview version to build (It supports CMake version 3.8 that is minimum required version).
 
-MinGw builds were not tested yet, but MinGw compiler with C++11 thread support would be required.
+##### Shell
 
-1. Make sure you have all dependencies installed (built from source).
+1. Make sure you have all dependencies installed (or built from source).
 2. Open command prompt and navigate to build directory of cloned repo.
-3. Generate Visual Studio project files. In following example (with actual paths replaced with placeholders) project files for Visual Studio 2015 are generated:
+3. Generate Visual Studio project files. In following example (with actual paths replaced with placeholders) project files for Visual Studio 2017 are generated:
 ```shell
-cmake .. -G "Visual Studio 14 Win64" -DCMAKE_PREFIX_PATH=<Path to Qt installation>\msvc2015_64 -DCMAKE_INCLUDE_PATH=<Path to Boost> -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE
+cmake .. -G "Visual Studio 15 Win64" -DCMAKE_PREFIX_PATH=<Path to Qt installation>\msvc2017_64 -DCMAKE_INCLUDE_PATH=<Path to Boost> -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE
 ```
 Note, that this step assumes that you have installed or build from source Qt for your compiler.
 
-You can now open project files with Visual Studio or build it with command line:
+4. Build project:
 ```shell
 cmake --build . --config Release
 ```
+
+##### Visual Studio
+1. Make sure that you are using Visual Studio 2017 with CMake version 3.8 support.
+2. Open folder with cloned repo. Visual Studio should locate CMakeLists.txt.
+3. Make sure to change CMake configuration (under CMake -> Change CMake settings) as in build instructions for shell build.
+4. Build project.
+
 
 Before running executable, make sure that Qt installation is added to system path.
 Alternatively, you can copy required dll's manually.
@@ -60,11 +87,13 @@ audio/qtaudio_windows.dll
 sqldrivers/qsqlite.dll
 
 #### Mac OS X
-Mas OS X system is not supported yet, as no testing can be performed atm.
+Mas OS X system is not supported yet, as author is not familiar and has no access to this platform atm.
+Adding support should be trivial though. If someone wants to help, please contact author.
+
+#### Building tests
+To build test suite option BUILD_TEST=ON should be passed to cmake.
 
 ### Known issues
 * Some text labels might be cropped and some GUI elements might be too small/large on smaller resolution screens.
 * Long break counter resets when app is closed.
-* Windows version can have many issues, as it wasn't properly tested yet.
-
-### Building from source
+* Windows version can have some issues with GUI, as it wasn't properly tested yet.

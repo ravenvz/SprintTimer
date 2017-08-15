@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -42,7 +42,7 @@ void QtYearRangeReader::requestYearRange(Handler handler)
 }
 
 void QtYearRangeReader::onResultsReceived(
-    long long queryId, const std::vector<QSqlRecord>& records)
+    qint64 queryId, const std::vector<QSqlRecord>& records)
 {
     if (mQueryId != queryId) {
         return;

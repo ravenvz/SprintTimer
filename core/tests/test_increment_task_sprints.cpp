@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,16 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
+
 #include "fixtures/FakeTaskStorageWriter.h"
 #include "core/use_cases/IncrementTaskSprints.h"
-#include <TestHarness.h>
+#include "gtest/gtest.h"
 
+namespace {
 
-TEST_GROUP(IncrementTaskSprints)
-{
-    Task defaultItem{
-        "Item name", 4, 2, {Tag{"Tag 1"}, Tag{"Tag 2"}}, false};
-};
+Task defaultItem{
+    "Item name", 4, 2, {Tag{"Tag 1"}, Tag{"Tag 2"}}, false};
+
+} // namespace
 
 TEST(IncrementTaskSprints, test_execute_and_undo)
 {
@@ -40,11 +45,11 @@ TEST(IncrementTaskSprints, test_execute_and_undo)
     UseCases::IncrementTaskSprints increment{writer, uuid};
     increment.execute();
 
-    CHECK_EQUAL(3, (*writer.storage.getItem(uuid)).actualCost());
+    EXPECT_EQ(3, (*writer.storage.getItem(uuid)).actualCost());
 
     increment.undo();
 
-    CHECK_EQUAL(2, (*writer.storage.getItem(uuid)).actualCost());
+    EXPECT_EQ(2, (*writer.storage.getItem(uuid)).actualCost());
 }
 
 TEST(IncrementTaskSprints, test_should_not_undo_if_was_not_executed)
@@ -56,9 +61,9 @@ TEST(IncrementTaskSprints, test_should_not_undo_if_was_not_executed)
 
     UseCases::IncrementTaskSprints increment{writer, uuid};
 
-    CHECK_EQUAL(2, (*writer.storage.getItem(uuid)).actualCost());
+    EXPECT_EQ(2, (*writer.storage.getItem(uuid)).actualCost());
 
     increment.undo();
 
-    CHECK_EQUAL(2, (*writer.storage.getItem(uuid)).actualCost());
+    EXPECT_EQ(2, (*writer.storage.getItem(uuid)).actualCost());
 }

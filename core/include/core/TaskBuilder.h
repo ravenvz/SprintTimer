@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -35,18 +35,17 @@ public:
     TaskBuilder& withUuid(std::string uuid);
     TaskBuilder& withTag(std::string tag);
     TaskBuilder& withTag(Tag tag);
-    TaskBuilder& withLastModificationStamp(DateTime timeStamp);
+    TaskBuilder& withLastModificationStamp(dw::DateTime timeStamp);
     TaskBuilder& withExplicitTags(std::list<Tag> tags);
     TaskBuilder& withCompletionStatus(bool completed);
 private:
-    std::string name;
-    int estimatedCost{1};
-    int actualCost{0};
-    optional<std::string> uuid;
-    optional<DateTime> lastModified;
-    std::list<Tag> tags;
-    bool completionStatus{false};
+    std::string mName;
+    int mEstimatedCost{1};
+    int mActualCost{0};
+    optional<std::string> mUuid;
+    optional<dw::DateTime> mLastModified;
+    std::list<Tag> mTags;
+    bool mCompletionStatus{false};
 };
-
 
 #endif /* end of include guard: TASKBUILDER_H_GSWUA7WV */

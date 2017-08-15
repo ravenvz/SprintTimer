@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -54,58 +54,59 @@ public:
 
     void toggleTaskCompletionStatus(const Task& task) final;
 
-    void registerTaskPriorities(
-        std::vector<std::pair<std::string, int>>&& priorities) final;
+    void registerTaskPriorities(TaskOrder&& priorities) final;
 
-    void requestFinishedTasks(const TimeSpan& timeSpan,
+    void requestFinishedTasks(const dw::TimeSpan& timeSpan,
                               std::function<void(const std::vector<Task>&)>
                                   onResultsReceivedCallback) final;
 
     void requestUnfinishedTasks(std::function<void(const std::vector<Task>&)>
                                     onResultsReceivedCallback) final;
 
-    void exportTasks(const TimeSpan& timeSpan,
-            std::shared_ptr<ExternalIO::ISink> sink,
-            TaskEncodingFunc func) final;
+    void exportTasks(const dw::TimeSpan& timeSpan,
+                     std::shared_ptr<ExternalIO::ISink> sink,
+                     TaskEncodingFunc func) final;
 
-    void registerSprint(const TimeSpan& timeSpan,
+    void registerSprint(const dw::TimeSpan& timeSpan,
                         const std::string& taskUuid) final;
 
     void registerSprint(const Sprint& sprint) final;
 
     void removeSprint(const Sprint& sprint) final;
 
-    void sprintsInTimeRange(const TimeSpan& timeSpan,
+    void sprintsInTimeRange(const dw::TimeSpan& timeSpan,
                             std::function<void(const std::vector<Sprint>&)>
-                            onResultsReceivedCallback) final;
+                                onResultsReceivedCallback) final;
 
-    void exportSprints(const TimeSpan& timeSpan,
+    void exportSprints(const dw::TimeSpan& timeSpan,
                        std::shared_ptr<ExternalIO::ISink> sink,
                        SprintEncodingFunc func) final;
 
     void yearRange(std::function<void(const std::vector<std::string>&)>
-                   onResultsReceivedCallback) final;
+                       onResultsReceivedCallback) final;
 
     void
-    requestSprintDailyDistribution(const TimeSpan& timeSpan,
+    requestSprintDailyDistribution(const dw::TimeSpan& timeSpan,
                                    std::function<void(const Distribution<int>&)>
-                                   onResultsReceivedCallback) final;
+                                       onResultsReceivedCallback) final;
 
     void requestSprintWeeklyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback) final;
+        const dw::TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+        final;
 
     void requestSprintMonthlyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback) final;
+        const dw::TimeSpan& timeSpan,
+        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+        final;
 
     void requestAllTags(TagResultHandler onResultsReceivedCallback) final;
 
     void editTag(const std::string& oldName, const std::string& newName) final;
 
-    virtual std::string lastCommandDescription() const final;
+    std::string lastCommandDescription() const final;
 
-    virtual unsigned long long numRevertableCommands() const final;
+    uint64_t numRevertableCommands() const final;
 
     void undoLast() final;
 

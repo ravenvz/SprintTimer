@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -34,7 +34,7 @@ class QtSprintStorageReader : public QObject, public ISprintStorageReader {
 public:
     explicit QtSprintStorageReader(DBService& dbService);
 
-    void requestItems(const TimeSpan& timeSpan, Handler handler) final;
+    void requestItems(const dw::TimeSpan& timeSpan, Handler handler) final;
 
 private:
     enum class Columns {
@@ -46,7 +46,7 @@ private:
         FinishTime,
         Uuid,
     };
-    long long mQueryId{-1};
+    qint64 mQueryId{-1};
     DBService& dbService;
     std::list<Handler> handler_queue;
 
@@ -55,7 +55,7 @@ private:
     QVariant columnData(const QSqlRecord& record, Columns column);
 
 private slots:
-    void onResultsReceived(long long queryId,
+    void onResultsReceived(qint64 queryId,
                            const std::vector<QSqlRecord>& records);
 };
 

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,7 +26,7 @@
 
 namespace Ui {
 class ConfirmationDialog;
-}
+} // namespace Ui
 
 class ConfirmationDialog : public QDialog
 {
@@ -34,7 +34,7 @@ class ConfirmationDialog : public QDialog
 
 public:
     explicit ConfirmationDialog(QWidget* parent = nullptr);
-    ~ConfirmationDialog();
+    ~ConfirmationDialog() override;
     void setActionDescription(QString& description);
 
 private:

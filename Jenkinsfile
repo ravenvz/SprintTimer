@@ -28,7 +28,7 @@ node {
         }, "windows build":{
             node ("windows") {
                 // TODO clean this up
-                bat 'cd build && cmake .. -G "Visual Studio 14 Win64" -DCMAKE_PREFIX_PATH="C:/Qt/5.7/msvc2015_64" -DCMAKE_INCLUDE_PATH="C:/Users/Pavel/Downloads/boost_1_62_0/boost_1_62_0" -DBUILD_TESTS=ON -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE && cmake --build . --config Release'
+                bat 'cd build && cmake .. -G "Visual Studio 15 Win64" -DCMAKE_PREFIX_PATH="J:/Qt/5.9/msvc2017_64/lib/cmake" -DCMAKE_INCLUDE_PATH="C:/Users/Pavel/Downloads/boost_1_64_0/boost_1_64_0" -DBUILD_TESTS=ON -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE && cmake --build . --config Release'
             }
         }
     }

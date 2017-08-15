@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -30,7 +30,7 @@
 
 namespace Ui {
 class AddTaskDialog;
-}
+} // namespace Ui
 
 /* Provides front end to create or edit Task. */
 class AddTaskDialog : public QDialog {
@@ -39,7 +39,7 @@ class AddTaskDialog : public QDialog {
 public:
     explicit AddTaskDialog(TagModel* tagModel, QWidget* parent = nullptr);
 
-    ~AddTaskDialog();
+    ~AddTaskDialog() override;
 
     /* Overidden to accept only if required fields are not empty.
      *

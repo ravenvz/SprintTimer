@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>History</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../resources/resources.qrc">
+    <normaloff>:/icons/sprint_timer.png</normaloff>:/icons/sprint_timer.png</iconset>
+  </property>
   <widget class="QTabWidget" name="historyTab">
    <property name="geometry">
     <rect>
@@ -106,6 +110,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

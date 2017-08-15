@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,6 +20,8 @@
 **
 *********************************************************************************/
 #include "core/use_cases/RequestTasks.h"
+
+using dw::TimeSpan;
 
 namespace UseCases {
 

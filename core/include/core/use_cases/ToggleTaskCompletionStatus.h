@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -42,7 +42,7 @@ protected:
 private:
     ITaskStorageWriter& writer;
     const std::string uuid;
-    const DateTime oldTimeStamp;
+    const dw::DateTime oldTimeStamp;
 };
 
 } /* UseCases */

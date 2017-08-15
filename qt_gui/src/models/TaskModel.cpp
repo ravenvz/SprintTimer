@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -21,7 +21,10 @@
 *********************************************************************************/
 #include "TaskModel.h"
 #include <QSize>
+#include <core/utils/Algutils.h>
+
 #include <iostream>
+#include <iterator>
 
 TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel{parent}
@@ -108,7 +111,7 @@ void TaskModel::insert(const Task& item)
 
 void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 
-void TaskModel::remove(const int row)
+void TaskModel::remove(int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
     coreService.removeTask(itemAt(row));
@@ -116,7 +119,7 @@ void TaskModel::remove(const int row)
     endRemoveRows();
 }
 
-Task TaskModel::itemAt(const int row) const { return storage.at(row); }
+Task TaskModel::itemAt(int row) const { return storage.at(row); }
 
 void TaskModel::toggleCompleted(const QModelIndex& index)
 {
@@ -124,7 +127,7 @@ void TaskModel::toggleCompleted(const QModelIndex& index)
     requestDataUpdate();
 }
 
-void TaskModel::replaceItemAt(const int row, const Task& newItem)
+void TaskModel::replaceItemAt(int row, const Task& newItem)
 {
     Task oldItem = itemAt(row);
     coreService.editTask(oldItem, newItem);
@@ -137,22 +140,31 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
                          const QModelIndex& destinationParent,
                          int destinationChild)
 {
-    // If item is dropped below all rows, destination child would be -1
-    int destinationRow
-        = (destinationChild == -1) ? rowCount() - 1 : destinationChild;
+    // TODO Sadly this leads to ignoring dropping item below the last item,
+    // should study Qt documentation for item reordering
+    if (destinationChild == -1)
+        return false;
 
-    std::vector<std::pair<std::string, int>> priorities;
-    priorities.reserve(static_cast<unsigned>(rowCount()));
+    // This offset is needed because slide takes iterator that should point
+    // before desired location as position argument
+    if (sourceRow < destinationChild)
+        ++destinationChild;
 
-    // Assign priorities for tasks based on their row number,
-    // then swap priorities for tasks at source and destination rows
-    for (int row = 0; row < rowCount(); ++row) {
-        priorities.push_back({itemAt(row).uuid(), row});
-    }
-    std::swap(priorities[destinationRow].second, priorities[sourceRow].second);
+    beginResetModel();
+    utils::slide(storage.begin() + sourceRow,
+                 storage.begin() + sourceRow + 1,
+                 storage.begin() + destinationChild);
+    endResetModel();
+
+    std::vector<std::string> priorities;
+    priorities.reserve(storage.size());
+
+    std::transform(storage.cbegin(),
+                   storage.cend(),
+                   std::back_inserter(priorities),
+                   [](const auto& task) { return task.uuid(); });
 
     coreService.registerTaskPriorities(std::move(priorities));
-    requestDataUpdate();
 
     return true;
 }

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -30,7 +30,7 @@ namespace UseCases {
 class RequestFinishedTasks : public Command {
 public:
     RequestFinishedTasks(ITaskStorageReader& taskStorageReader,
-                         const TimeSpan& timeSpan,
+                         const dw::TimeSpan& timeSpan,
                          ITaskStorageReader::Handler handler);
 
     void execute() final;
@@ -39,7 +39,7 @@ public:
 
 private:
     ITaskStorageReader& reader;
-    const TimeSpan timeSpan;
+    const dw::TimeSpan timeSpan;
     ITaskStorageReader::Handler handler;
 };
 

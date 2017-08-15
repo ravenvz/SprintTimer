@@ -43,7 +43,7 @@ CSVReader::CSVReader(std::istream& stream, char separator)
 void CSVReader::parseFile()
 {
     while (true) {
-        char ch = file.get();
+        char ch = static_cast<char>(file.get());
         if (!file) {
             // Handle case when last row might miss line break.
             if (!rowBuffer.empty())

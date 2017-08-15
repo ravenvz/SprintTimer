@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -34,14 +34,13 @@ public:
     SprintModel(ICoreService& coreService,
                            QObject* parent);
 
-    int rowCount(const QModelIndex& parent = QModelIndex()) const final;
+    int rowCount(const QModelIndex& parent) const final;
 
-    QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const final;
+    QVariant data(const QModelIndex& index, int role) const final;
 
-    void setDateFilter(const TimeSpan& timeSpan);
+    void setDateFilter(const dw::TimeSpan& timeSpan);
 
-    void insert(const TimeSpan& timeSpan, const std::string& taskUuid);
+    void insert(const dw::TimeSpan& timeSpan, const std::string& taskUuid);
 
     void insert(const Sprint& sprint);
 
@@ -54,7 +53,7 @@ protected:
 
 private:
     std::vector<Sprint> storage;
-    TimeSpan interval;
+    dw::TimeSpan interval;
     ICoreService& coreService;
 
     void onDataChanged(const std::vector<Sprint>& items);

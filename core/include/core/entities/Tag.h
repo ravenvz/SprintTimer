@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -74,6 +74,7 @@ std::string prefixTags(const TagContainer& tags)
 }
 
 namespace std {
+
 template <>
 struct hash<Tag> {
     size_t operator()(const Tag& tag) const
@@ -81,6 +82,7 @@ struct hash<Tag> {
         return std::hash<std::string>()(tag.name());
     }
 };
-}
+
+} // namespace std
 
 #endif /* end of include guard: TAG_H_6HD0W9PY */

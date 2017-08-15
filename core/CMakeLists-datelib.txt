@@ -1,29 +1,25 @@
 ExternalProject_Add(
-  DateLibExternal
+  DateWrapperExternal
 
-  GIT_REPOSITORY "https://github.com/HowardHinnant/date"
-  GIT_TAG "v2.0.0"
+  GIT_REPOSITORY "https://github.com/ravenvz/date_wrapper"
+  GIT_TAG "v0.5.1"
 
+  PREFIX "${DateWrapper_PREFIX}"
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
-  TEST_COMMAND ""
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
   INSTALL_COMMAND ""
 
-  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${THIRD_PARTY_LIBS_FOLDER_PREFIX}/date"
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${THIRD_PARTY_LIBS_FOLDER_PREFIX}/date_wrapper"
 )
 
-ExternalProject_Get_Property(DateLibExternal source_dir)
-set(Datelib_INCLUDE_DIRS "${source_dir}")
+ExternalProject_Get_Property(DateWrapperExternal source_dir)
+
+set(DateWrapper_INCLUDE_DIRS "${source_dir}/src/date_wrapper/include")
 
 # Workaround against Cmake not downloading lib before using it
-set(Datelib_inlcude_dirs_cmake_bug_wround ${Datelib_INCLUDE_DIRS})
+set(Datewrapper_include_dirs_cmake_bug_wround ${DateWrapper_INCLUDE_DIRS})
+# TODO find more elegant way to handle this
+set(date_INCLUDE_DIRS "${source_dir}/src/date_wrapper/third_party/date")
 
-add_library(DateLib INTERFACE)
-
-# target_sources(DateLib INTERFACE
-#       ${CMAKE_CURRENT_SOURCE_DIR}/lib/date/date.h
-# )
-
-add_dependencies(DateLib DateLibExternal)
+add_library(DateWrapper INTERFACE)
+add_dependencies(DateWrapper DateWrapperExternal)

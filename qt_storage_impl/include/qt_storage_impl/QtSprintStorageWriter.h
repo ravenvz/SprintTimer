@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -38,8 +38,8 @@ public:
 
 private:
     DBService& dbService;
-    long long addQueryId{-1};
-    long long removeQueryId{-1};
+    qint64 addQueryId{-1};
+    qint64 removeQueryId{-1};
 };
 
 #endif /* end of include guard: QTSPRINTSTORAGEWRITER_H_U7AAXVTC */

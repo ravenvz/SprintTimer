@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,10 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage_impl/QtSprintStorageReader.h"
 #include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/QtSprintStorageReader.h"
 #include "utils/DateTimeConverter.h"
 
+using dw::TimeSpan;
 
 QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
     : dbService{dbService}
@@ -50,8 +51,8 @@ void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
                                        Handler handler)
 {
     handler_queue.push_back(handler);
-    DateTime start = timeSpan.startTime;
-    DateTime finish = timeSpan.finishTime;
+    DateTime start = timeSpan.start();
+    DateTime finish = timeSpan.finish();
 
     dbService.bind(mQueryId,
                    ":startTime",
@@ -64,7 +65,7 @@ void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
 }
 
 void QtSprintStorageReader::onResultsReceived(
-    long long queryId, const std::vector<QSqlRecord>& records)
+    qint64 queryId, const std::vector<QSqlRecord>& records)
 {
     if (mQueryId != queryId) {
         return;
@@ -97,7 +98,7 @@ Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord &record)
     std::transform(tagNames.cbegin(),
                    tagNames.cend(),
                    std::back_inserter(tags),
-                   [](const auto& name) { return Tag{name.toStdString()}; });
+                   [](const auto& nm) { return Tag{nm.toStdString()}; });
     return Sprint{name.toStdString(), timeSpan, tags, uuid, taskUuid};
 }
 

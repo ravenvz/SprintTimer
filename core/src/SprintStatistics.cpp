@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -21,6 +21,23 @@
 *********************************************************************************/
 #include "core/SprintStatistics.h"
 #include <numeric>
+
+using dw::TimeSpan;
+using dw::DateTime;
+
+namespace {
+
+constexpr int sizeInDays(const TimeSpan& timeSpan) noexcept
+{
+    return timeSpan.start().discreteDaysTo(timeSpan.finish()) + 1;
+}
+
+int discreteDaysBetween(const TimeSpan& lhs, const TimeSpan& rhs)
+{
+    return std::abs(lhs.start().discreteDaysTo(rhs.start()));
+}
+
+} // namespace
 
 SprintStatItem::SprintStatItem(const std::vector<Sprint>& sprints,
                                const TimeSpan& timeInterval)
@@ -55,9 +72,11 @@ std::vector<double> SprintStatItem::computeDailyDistribution() const
 {
     if (mSprints.empty())
         return std::vector<double>(0, 0);
-    std::vector<double> distribution(timeSpan.sizeInDays(), 0);
+    auto spanInCalendarDays = static_cast<size_t>(sizeInDays(timeSpan));
+    std::vector<double> distribution(spanInCalendarDays, 0);
     for (const Sprint& sprint : mSprints) {
-        distribution[startDateAbsDiff(timeSpan, sprint.timeSpan())]++;
+        auto dayNumber = discreteDaysBetween(timeSpan, sprint.timeSpan());
+        distribution[static_cast<size_t>(dayNumber)]++;
     }
     return distribution;
 }
@@ -89,8 +108,8 @@ std::vector<double> SprintStatItem::computeWorkTimeDistribution() const
 std::vector<int> SprintStatItem::countWeekdays() const
 {
     std::vector<int> result(7, 0);
-    for (size_t dayNum = 0; dayNum < timeSpan.sizeInDays(); ++dayNum) {
-        auto date = timeSpan.startTime.addDays(static_cast<int>(dayNum));
+    for (int dayNum = 0; dayNum < sizeInDays(timeSpan); ++dayNum) {
+        auto date = timeSpan.start().add(DateTime::Days{dayNum});
         result[static_cast<unsigned>(date.dayOfWeek())]++;
     }
     return result;
@@ -101,7 +120,7 @@ namespace DayPart {
 
 DayPart dayPart(const TimeSpan& timeSpan)
 {
-    auto hour = timeSpan.startTime.hour();
+    auto hour = timeSpan.start().hour();
 
     if (22 < hour || hour <= 2) {
         return DayPart::Midnight;
@@ -128,6 +147,7 @@ std::string dayPartName(unsigned dayPart)
     return dayPartName(static_cast<DayPart>(dayPart));
 }
 
+// TODO OCP violation
 std::string dayPartName(DayPart dayPart)
 {
     switch (dayPart) {
@@ -147,6 +167,7 @@ std::string dayPartName(DayPart dayPart)
     return "Invalid";
 }
 
+// TODO OCP violation
 std::string dayPartHours(DayPart dayPart)
 {
     switch (dayPart) {

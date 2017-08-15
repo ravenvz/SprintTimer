@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,20 +23,23 @@
 #include "core/use_cases/AddNewTask.h"
 #include "core/use_cases/DecrementTaskSprints.h"
 #include "core/use_cases/DeleteTask.h"
-#include "core/use_cases/RenameTag.h"
 #include "core/use_cases/EditTask.h"
 #include "core/use_cases/IncrementTaskSprints.h"
 #include "core/use_cases/RegisterNewSprint.h"
 #include "core/use_cases/RemoveSprintTransaction.h"
+#include "core/use_cases/RenameTag.h"
 #include "core/use_cases/RequestAllTags.h"
 #include "core/use_cases/RequestFinishedTasks.h"
 #include "core/use_cases/RequestMinMaxYear.h"
 #include "core/use_cases/RequestSprintDistribution.h"
 #include "core/use_cases/RequestSprints.h"
+#include "core/use_cases/RequestTasks.h"
 #include "core/use_cases/RequestUnfinishedTasks.h"
 #include "core/use_cases/StoreUnfinishedTasksOrder.h"
 #include "core/use_cases/ToggleTaskCompletionStatus.h"
-#include "core/use_cases/RequestTasks.h"
+
+using dw::DateTime;
+using dw::TimeSpan;
 
 namespace Core {
 
@@ -87,8 +90,7 @@ void CoreService::toggleTaskCompletionStatus(const Task& task)
     invoker.executeCommand(std::move(toggleTaskCommand));
 }
 
-void CoreService::registerTaskPriorities(
-    std::vector<std::pair<std::string, int>>&& priorities)
+void CoreService::registerTaskPriorities(TaskOrder&& priorities)
 {
     auto registerPrioritiesCommand
         = std::make_unique<UseCases::StoreUnfinishedTasksOrder>(
@@ -116,20 +118,20 @@ void CoreService::requestUnfinishedTasks(
 }
 
 void CoreService::exportTasks(const TimeSpan& timeSpan,
-        std::shared_ptr<ExternalIO::ISink> sink,
-        ICoreService::TaskEncodingFunc func)
+                              std::shared_ptr<ExternalIO::ISink> sink,
+                              ICoreService::TaskEncodingFunc func)
 {
     std::unique_ptr<Command> requestItems
-            = std::make_unique<UseCases::RequestTasks>(
-                    taskReader, timeSpan, [sink, func](const auto& tasks) {
-                        sink->send(func(tasks));
-                    });
+        = std::make_unique<UseCases::RequestTasks>(
+            taskReader, timeSpan, [sink, func](const auto& tasks) {
+                sink->send(func(tasks));
+            });
     invoker.executeCommand(std::move(requestItems));
 }
 
 void CoreService::sprintsInTimeRange(
-        const TimeSpan& timeSpan,
-        std::function<void(const std::vector<Sprint>&)> onResultsReceivedCallback)
+    const TimeSpan& timeSpan,
+    std::function<void(const std::vector<Sprint>&)> onResultsReceivedCallback)
 {
     std::unique_ptr<Command> requestItems
         = std::make_unique<UseCases::RequestSprints>(
@@ -138,7 +140,7 @@ void CoreService::sprintsInTimeRange(
 }
 
 void CoreService::registerSprint(const TimeSpan& timeSpan,
-                                     const std::string& taskUuid)
+                                 const std::string& taskUuid)
 {
     Sprint sprint{taskUuid, timeSpan};
     registerSprint(sprint);
@@ -146,10 +148,11 @@ void CoreService::registerSprint(const TimeSpan& timeSpan,
 
 void CoreService::registerSprint(const Sprint& sprint)
 {
-    auto registerNewSprint = std::make_unique<UseCases::RegisterNewSprint>(
-            sprintWriter, sprint);
+    auto registerNewSprint
+        = std::make_unique<UseCases::RegisterNewSprint>(sprintWriter, sprint);
     auto incrementTaskSprints
-     = std::make_unique<UseCases::IncrementTaskSprints>(taskWriter, sprint.taskUuid());
+        = std::make_unique<UseCases::IncrementTaskSprints>(taskWriter,
+                                                           sprint.taskUuid());
     std::vector<std::unique_ptr<RevertableCommand>> commands;
     commands.push_back(std::move(registerNewSprint));
     commands.push_back(std::move(incrementTaskSprints));
@@ -165,7 +168,7 @@ void CoreService::removeSprint(const Sprint& sprint)
         sprintWriter, sprint);
     auto decrementTaskSprints
         = std::make_unique<UseCases::DecrementTaskSprints>(taskWriter,
-                                                              taskUuid);
+                                                           taskUuid);
     std::vector<std::unique_ptr<RevertableCommand>> commands;
     commands.push_back(std::move(removeSprint));
     commands.push_back(std::move(decrementTaskSprints));
@@ -175,20 +178,19 @@ void CoreService::removeSprint(const Sprint& sprint)
 }
 
 void CoreService::exportSprints(const TimeSpan& timeSpan,
-        std::shared_ptr<ExternalIO::ISink> sink,
-        ICoreService::SprintEncodingFunc func)
+                                std::shared_ptr<ExternalIO::ISink> sink,
+                                ICoreService::SprintEncodingFunc func)
 {
     std::unique_ptr<Command> requestItems
-            = std::make_unique<UseCases::RequestSprints>(
-                    sprintReader, timeSpan, [sink, func](const auto& sprints) {
-                        sink->send(func(sprints));
-                    });
+        = std::make_unique<UseCases::RequestSprints>(
+            sprintReader, timeSpan, [sink, func](const auto& sprints) {
+                sink->send(func(sprints));
+            });
     invoker.executeCommand(std::move(requestItems));
 }
 
-void CoreService::yearRange(
-        std::function<void(const std::vector<std::string>&)>
-        onResultsReceivedCallback)
+void CoreService::yearRange(std::function<void(const std::vector<std::string>&)>
+                                onResultsReceivedCallback)
 {
     auto requestYearRange = std::make_unique<UseCases::RequestMinMaxYear>(
         yearRangeReader, onResultsReceivedCallback);
@@ -196,8 +198,8 @@ void CoreService::yearRange(
 }
 
 void CoreService::requestSprintDailyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+    const TimeSpan& timeSpan,
+    std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
     auto requestDistribution
         = std::make_unique<UseCases::RequestSprintDistribution>(
@@ -206,22 +208,26 @@ void CoreService::requestSprintDailyDistribution(
 }
 
 void CoreService::requestSprintWeeklyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+    const TimeSpan& timeSpan,
+    std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
     auto requestDistribution
         = std::make_unique<UseCases::RequestSprintDistribution>(
-            sprintWeeklyDistributionReader, timeSpan, onResultsReceivedCallback);
+            sprintWeeklyDistributionReader,
+            timeSpan,
+            onResultsReceivedCallback);
     invoker.executeCommand(std::move(requestDistribution));
 }
 
 void CoreService::requestSprintMonthlyDistribution(
-        const TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
+    const TimeSpan& timeSpan,
+    std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
     auto requestDistribution
         = std::make_unique<UseCases::RequestSprintDistribution>(
-            sprintMonthlyDistributionReader, timeSpan, onResultsReceivedCallback);
+            sprintMonthlyDistributionReader,
+            timeSpan,
+            onResultsReceivedCallback);
     invoker.executeCommand(std::move(requestDistribution));
 }
 
@@ -233,7 +239,7 @@ void CoreService::requestAllTags(TagResultHandler onResultsReceivedCallback)
 }
 
 void CoreService::editTag(const std::string& oldName,
-                              const std::string& newName)
+                          const std::string& newName)
 {
     auto editTag
         = std::make_unique<UseCases::RenameTag>(taskWriter, oldName, newName);
@@ -241,11 +247,13 @@ void CoreService::editTag(const std::string& oldName,
     invoker.executeCommand(std::move(editTag));
 }
 
-std::string CoreService::lastCommandDescription() const {
+std::string CoreService::lastCommandDescription() const
+{
     return invoker.lastCommandDescription();
 }
 
-unsigned long long CoreService::numRevertableCommands() const {
+uint64_t CoreService::numRevertableCommands() const
+{
     return invoker.stackSize();
 }
 

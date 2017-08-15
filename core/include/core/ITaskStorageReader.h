@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,8 +22,8 @@
 #ifndef ITASKSTORAGEREADER_H_RMTKEREJ
 #define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "core/TimeSpan.h"
 #include "core/entities/Task.h"
+#include "date_wrapper/TimeSpan.h"
 #include <functional>
 
 class ITaskStorageReader {
@@ -38,10 +38,10 @@ public:
 
     virtual void requestUnfinishedTasks(Handler handler) = 0;
 
-    virtual void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler)
+    virtual void requestFinishedTasks(const dw::TimeSpan& timeSpan, Handler handler)
         = 0;
 
-    virtual void requestTasks(const TimeSpan& timeSpan, Handler handler) = 0;
+    virtual void requestTasks(const dw::TimeSpan& timeSpan, Handler handler) = 0;
 
     virtual void requestAllTags(TagHandler handler) = 0;
 };

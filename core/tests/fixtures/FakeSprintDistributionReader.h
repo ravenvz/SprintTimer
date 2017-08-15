@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -33,7 +33,7 @@ public:
     {
     }
 
-    void requestDistribution(const TimeSpan& timeSpan,
+    void requestDistribution(const dw::TimeSpan& timeSpan,
                              Handler handler) final
     {
         return storage.requestDailyDistribution(timeSpan, handler);

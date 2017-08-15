@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -98,7 +98,7 @@ namespace TaskTagInsertTrigger {
 }
 
 namespace CleanOrphanedTagTrigger {
-    const QString name{"on_todo_tag_delete"};
+    const QString name{"clean_orhaned_tag"};
 }
 
 namespace SprintView {
@@ -150,7 +150,7 @@ namespace CalendarTable {
 class Database {
 
 public:
-    Database(const QString& filename);
+    explicit Database(const QString& filename);
 
 private:
     const QString filename;

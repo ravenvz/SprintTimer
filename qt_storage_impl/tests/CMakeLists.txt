@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.8)
 
 set(PROJECT test_qt_storage_impl)
 project(${PROJECT})
 set(SOURCE_FILES
-        run_all_tests.cpp
         test_qt_storage_impl.cpp
 )
 
@@ -18,7 +17,7 @@ set(HEADER_FILES_FOR_AUTOMOC_TO_WORK
 )
 
 add_executable(${PROJECT} ${SOURCE_FILES} ${HEADER_FILES_FOR_AUTOMOC_TO_WORK})
-target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
+target_compile_features(${PROJECT} PRIVATE cxx_std_17)
 
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
@@ -28,9 +27,10 @@ target_include_directories(${PROJECT}
     PRIVATE ../src
 )
 
-target_link_libraries(${PROJECT} CppUTest ${STORAGE_LIB} Threads::Threads Qt5::Sql)
+target_link_libraries(${PROJECT} gtest gtest_main gmock ${STORAGE_LIB} Threads::Threads Qt5::Sql)
 
-# This is a workaround 
+# TODO check if this is still relevant with GTest on Win box
+# This is a workaround
 # For some reason, although CppUTest explicitly depends on winmm, dependency does not transition.
 if (WIN32)
     target_link_libraries(${PROJECT} winmm.lib)

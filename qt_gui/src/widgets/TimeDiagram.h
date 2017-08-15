@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,11 +22,12 @@
 #ifndef TIMEDIAGRAM_H
 #define TIMEDIAGRAM_H
 
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include <QEvent>
 #include <QWidget>
 #include <vector>
 
+using dw::TimeSpan;
 
 /* Displays vector of TimeSpan as a diagram.
  *

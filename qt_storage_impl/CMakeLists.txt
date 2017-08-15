@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.8)
 
 set(PROJECT ${STORAGE_LIB})
 project(${PROJECT})
@@ -39,7 +39,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 add_library(${PROJECT} SHARED ${QT_STORAGE_IMPL_SOURCE_FILES} ${HEADER_FILES_FOR_AUTOMOC_TO_WORK})
 
 target_include_directories(${PROJECT} PUBLIC include PUBLIC src)
-target_compile_features(${PROJECT} PRIVATE cxx_return_type_deduction)
+target_compile_features(${PROJECT} PRIVATE cxx_std_17)
 target_link_libraries(${PROJECT}
     PUBLIC Qt5::Core
     PUBLIC Qt5::Sql

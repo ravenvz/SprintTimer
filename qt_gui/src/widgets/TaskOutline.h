@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,24 +22,24 @@
 #ifndef TASKOUTLINE_H
 #define TASKOUTLINE_H
 
-#include <QWidget>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QVBoxLayout>
 #include "core/ICoreService.h"
-#include "models/TaskModel.h"
+#include "dialogs/AddTaskDialog.h"
 #include "models/TagModel.h"
+#include "models/TaskModel.h"
 #include "widgets/ReordableListView.h"
-#include <QPointer>
 #include "widgets/TagEditor.h"
 #include "widgets/TaskViewDelegate.h"
+#include <QPointer>
+#include <QWidget>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QVBoxLayout>
 #include <memory>
-#include "dialogs/AddTaskDialog.h"
 
 
 namespace Ui {
 class TaskOutline;
-}
+} // namespace Ui
 
 /* Responsible for providing user interface for interactive
  * task management, so that user could view current unfinished
@@ -54,14 +54,14 @@ public:
                 TagModel* tagModel,
                 QWidget* parent);
 
-    ~TaskOutline();
+    ~TaskOutline() override;
 
     QSize sizeHint() const override;
 
 private:
     Ui::TaskOutline* ui;
     ICoreService& coreService;
-    QPointer<TagEditorWidget> tagEditor;
+    QPointer<TagEditor> tagEditor;
     TaskModel* taskModel;
     TagModel* tagModel;
     std::unique_ptr<AddTaskDialog> addTaskDialog;
@@ -73,7 +73,7 @@ private:
     void launchTaskEditor();
 
 signals:
-    void taskSelected(const int row);
+    void taskSelected(int row);
 
 private slots:
     void onAddTaskButtonPushed();

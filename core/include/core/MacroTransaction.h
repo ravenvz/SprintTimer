@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -28,7 +28,7 @@
 
 class MacroTransaction : public RevertableCommand {
 public:
-    MacroTransaction(std::vector<std::unique_ptr<RevertableCommand>>&& commands)
+    explicit MacroTransaction(std::vector<std::unique_ptr<RevertableCommand>>&& commands)
         : commands{std::move(commands)}
     {
     }

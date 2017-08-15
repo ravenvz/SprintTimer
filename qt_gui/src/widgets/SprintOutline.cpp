@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -82,7 +82,7 @@ void SprintOutline::launchManualAddSprintDialog()
 
 void SprintOutline::adjustAddSprintButtonState()
 {
-    ui->pbAddSprintManually->setEnabled(taskModel->rowCount() != 0);
+    ui->pbAddSprintManually->setEnabled(taskModel->rowCount(QModelIndex()) != 0);
 }
 
 QSize SprintOutline::sizeHint() const { return desiredSize; }

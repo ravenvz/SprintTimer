@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,14 +19,15 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
+
 #include "qt_storage_impl/utils.h"
 #include <list>
 #include <iterator>
-#include <TestHarness.h>
-
-
-TEST_GROUP(TestTwoWayDiff){
-};
+#include "gtest/gtest.h"
 
 TEST(TestTwoWayDiff, test_diff_left_and_right)
 {
@@ -44,8 +45,8 @@ TEST(TestTwoWayDiff, test_diff_left_and_right)
                std::back_inserter(tagsToRemove),
                std::back_inserter(tagsToInsert));
 
-    CHECK(expectedRemove == tagsToRemove);
-    CHECK(expectedInsert == tagsToInsert);
+    EXPECT_TRUE(expectedRemove == tagsToRemove);
+    EXPECT_TRUE(expectedInsert == tagsToInsert);
 }
 
 TEST(TestTwoWayDiff, test_diff_left_empty)
@@ -64,8 +65,8 @@ TEST(TestTwoWayDiff, test_diff_left_empty)
                std::back_inserter(tagsToRemove),
                std::back_inserter(tagsToInsert));
 
-    CHECK(expectedRemove == tagsToRemove);
-    CHECK(expectedInsert == tagsToInsert);
+    EXPECT_TRUE(expectedRemove == tagsToRemove);
+    EXPECT_TRUE(expectedInsert == tagsToInsert);
 }
 
 TEST(TestTwoWayDiff, test_diff_right_empty)
@@ -84,8 +85,8 @@ TEST(TestTwoWayDiff, test_diff_right_empty)
                std::back_inserter(tagsToRemove),
                std::back_inserter(tagsToInsert));
 
-    CHECK(expectedRemove == tagsToRemove);
-    CHECK(expectedInsert == tagsToInsert);
+    EXPECT_TRUE(expectedRemove == tagsToRemove);
+    EXPECT_TRUE(expectedInsert == tagsToInsert);
 }
 
 TEST(TestTwoWayDiff, test_all_unique)
@@ -104,6 +105,6 @@ TEST(TestTwoWayDiff, test_all_unique)
                std::back_inserter(tagsToRemove),
                std::back_inserter(tagsToInsert));
 
-    CHECK(expectedRemove == tagsToRemove);
-    CHECK(expectedInsert == tagsToInsert);
+    EXPECT_TRUE(expectedRemove == tagsToRemove);
+    EXPECT_TRUE(expectedInsert == tagsToInsert);
 }

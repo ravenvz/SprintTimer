@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,20 +20,42 @@
 **
 *********************************************************************************/
 
+
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
+
+#include <core/SprintBuilder.h>
 #include "core/entities/Task.h"
-#include "core/SprintBuilder.h"
-#include <TestHarness.h>
+#include "gtest/gtest.h"
 
-TEST_GROUP(TestSprintBuilder) {
+using namespace std::chrono_literals;
+using dw::TimeSpan;
+using dw::DateTime;
 
-};
+namespace {
 
-TEST(TestSprintBuilder, test_throws_when_not_associated_with_task) {
+const TimeSpan defaultTimespan{DateTime::currentDateTime(),
+                               DateTime::currentDateTime().add(25min)};
+
+} // namespace
+
+TEST(TestSprintBuilder, test_throws_when_not_associated_with_task)
+{
     SprintBuilder builder;
-    CHECK_THROWS(SprintBuilderError, builder.build());
+
+    ASSERT_THROW(builder.build(), SprintBuilderError);
 }
 
-TEST(TestSprintBuilder, test_builds_sprint_from_task)
+TEST(TestSprintBuilder, test_throws_when_no_timespan_provided)
+{
+    SprintBuilder builder;
+    builder.withTaskUuid("123");
+
+    ASSERT_THROW(builder.build(), SprintBuilderError);
+}
+
+TEST(TestSprintBuilder, test_builds_sprint_for_task)
 {
     SprintBuilder builder;
     const Task task{"Some task",
@@ -44,12 +66,12 @@ TEST(TestSprintBuilder, test_builds_sprint_from_task)
                     false,
                     DateTime::fromYMD(2016, 11, 26)};
 
-    auto sprint = builder.forTask(task).build();
+    auto sprint = builder.forTask(task).withTimeSpan(defaultTimespan).build();
 
-    CHECK_EQUAL(task.uuid(), sprint.taskUuid());
-    CHECK_EQUAL(task.name(), sprint.name());
-    CHECK(task.tags() == sprint.tags());
-    CHECK(!sprint.uuid().empty());
+    EXPECT_EQ(task.uuid(), sprint.taskUuid());
+    EXPECT_EQ(task.name(), sprint.name());
+    EXPECT_TRUE(task.tags() == sprint.tags());
+    EXPECT_TRUE(!sprint.uuid().empty());
 }
 
 TEST(TestSprintBuilder, test_sprint_builder)
@@ -57,43 +79,46 @@ TEST(TestSprintBuilder, test_sprint_builder)
     SprintBuilder builder;
     std::list<Tag> expectedTags{Tag{"Tag1"}, Tag{"Tag2"}};
 
-    auto sprint = builder
-        .withName("Petty sprint")
-        .withTag("Tag1")
-        .withTag("Tag2")
-        .withTaskUuid("1234")
-        .build();
+    auto sprint = builder.withName("Petty sprint")
+                      .withTag("Tag1")
+                      .withTag("Tag2")
+                      .withTaskUuid("1234")
+                      .withTimeSpan(defaultTimespan)
+                      .build();
 
-    CHECK_EQUAL("Petty sprint", sprint.name());
-    CHECK_EQUAL("1234", sprint.taskUuid());
-    CHECK(!sprint.uuid().empty())
-    CHECK(expectedTags == sprint.tags());
+    EXPECT_EQ("Petty sprint", sprint.name());
+    EXPECT_EQ("1234", sprint.taskUuid());
+    EXPECT_FALSE(sprint.uuid().empty());
+    EXPECT_TRUE(expectedTags == sprint.tags());
 }
 
 TEST(TestSprintBuilder, test_explicitly_overwrites_tags)
 {
     SprintBuilder builder;
     auto expectedTags = std::list<Tag>{Tag{"NewTag1"}, Tag{"NewTag2"}};
-    builder.withTag("Tag1").withTaskUuid("1234");
+    builder.withTag("Tag1").withTaskUuid("1234").withTimeSpan(defaultTimespan);
 
     builder.withExplicitTags({Tag{"NewTag1"}, Tag{"NewTag2"}});
     auto sprint = builder.build();
 
-    CHECK(expectedTags == sprint.tags());
+    EXPECT_TRUE(expectedTags == sprint.tags());
 }
 
 
-TEST(TestSprintBuilder, test_generates_new_uuid_when_serial_constructing)
+TEST(TestSprintBuilder,
+     test_generates_new_uuid_when_constructing_multiple_instances)
 {
+    using namespace std::chrono_literals;
     SprintBuilder builder;
     std::string associatedTaskUuid{"1234"};
     builder.withTaskUuid(associatedTaskUuid);
 
-    auto sprint1 = builder.withUuid("1234").build();
+    auto sprint1
+        = builder.withUuid("1234").withTimeSpan(defaultTimespan).build();
     auto sprint2 = builder.build();
     auto sprint3 = builder.build();
 
-    CHECK(!sprint1.uuid().empty());
-    CHECK(sprint1.uuid() != sprint2.uuid());
-    CHECK(sprint2.uuid() != sprint3.uuid());
+    EXPECT_FALSE(sprint1.uuid().empty());
+    EXPECT_TRUE(sprint1.uuid() != sprint2.uuid());
+    EXPECT_TRUE(sprint2.uuid() != sprint3.uuid());
 }

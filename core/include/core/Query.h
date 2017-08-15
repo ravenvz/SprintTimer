@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,32 +19,14 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/Timer.h"
 
+#ifndef SPRINT_TIMER_QUERY_H
+#define SPRINT_TIMER_QUERY_H
 
-Timer::Timer(std::function<void(void)> tickCallback,
-             std::chrono::milliseconds tickPeriod)
-    : onTickCallback{tickCallback}
-    , tickPeriod{tickPeriod}
-{
-}
+class Query {
+public:
+    virtual ~Query() = default;
+    virtual void execute() = 0;
+};
 
-Timer::~Timer()
-{
-    stop();
-    if (tr.joinable())
-        tr.join();
-}
-
-void Timer::start()
-{
-    running = true;
-    tr = std::thread([&]() {
-        while (running) {
-            std::this_thread::sleep_for(tickPeriod);
-            onTickCallback();
-        }
-    });
-}
-
-void Timer::stop() { running = false; }
+#endif //SPRINT_TIMER_QUERY_H

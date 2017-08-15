@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,8 +23,8 @@
 #define TASKMODEL_H_FUQ5UCBE
 
 #include "core/ICoreService.h"
-#include "core/TimeSpan.h"
 #include "core/entities/Task.h"
+#include "date_wrapper/TimeSpan.h"
 #include "models/AsyncListModel.h"
 
 class TaskModel : public AsyncListModel {
@@ -45,8 +45,7 @@ public:
     // Override to provide support for custom roles as well as to customize
     // behaviour
     // of the default roles.
-    QVariant data(const QModelIndex& index,
-                  int role = Qt::DisplayRole) const override;
+    QVariant data(const QModelIndex& index, int role) const override;
 
     // Override to support drag and drop. Changes items' priorities instead of
     // // removing row and inserting it at destination position as in default
@@ -59,7 +58,7 @@ public:
                   const QModelIndex& destinationParent,
                   int destinationChild) override;
 
-    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex& parent) const override;
 
     enum customRoles {
         TagsRole = Qt::UserRole + 1,
@@ -80,18 +79,18 @@ public:
     void remove(const QModelIndex& index);
 
     // Overload that accepts row number as item identifier.
-    void remove(const int row);
+    void remove(int row);
 
     // Return item at given row. This is a convinient method that allows to get
     // item
     // without verbose calls to data().
-    Task itemAt(const int row) const;
+    Task itemAt(int row) const;
 
     // Mark item as completed if it is not completed and vice versa.
     void toggleCompleted(const QModelIndex& index);
 
     // Replace data of item at given row with data from the newItem.
-    void replaceItemAt(const int row, const Task& newItem);
+    void replaceItemAt(int row, const Task& newItem);
 
 protected:
     void requestDataUpdate() final;

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,16 +19,24 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "CommandLineTestRunner.h"
-#include <vector>
 
-int main(int argc, char* argv[])
+#ifndef ALGUTILS_H_VLSTK4ZL
+#define ALGUTILS_H_VLSTK4ZL
+
+#include <algorithm>
+
+namespace utils {
+
+template <typename T>
+auto slide(T first, T last, T position) -> std::pair<T, T>
 {
-    std::vector<const char*> args(argv, argv + argc);
-    args.push_back("-v");
-    args.push_back("-c");
-    return CommandLineTestRunner::RunAllTests(argc, argv);
+    if (position < last)
+        return {position, std::rotate(position, first, last)};
+    if (last < position)
+        return {std::rotate(first, last, position), position};
+    return {first, last};
 }
 
+} // namespace utils
 
-
+#endif /* end of include guard: ALGUTILS_H_VLSTK4ZL */

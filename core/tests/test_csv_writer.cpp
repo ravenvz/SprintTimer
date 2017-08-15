@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,14 +19,15 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
+
 #include "core/utils/CSVEncoder.h"
-#include <TestHarness.h>
+#include "gtest/gtest.h"
 
 using namespace ExternalIO;
-
-TEST_GROUP(TestCSVEncoder){
-
-};
 
 TEST(TestCSVEncoder, test_trivial_encoding)
 {
@@ -34,7 +35,7 @@ TEST(TestCSVEncoder, test_trivial_encoding)
     std::string expected{"One,two,three\n"};
     CSV::CSVEncoder encoder;
 
-    CHECK_EQUAL(expected, encoder.encode(data));
+    EXPECT_EQ(expected, encoder.encode(data));
 }
 
 TEST(TestCSVEncoder, test_quoted_values_encoding)
@@ -43,7 +44,7 @@ TEST(TestCSVEncoder, test_quoted_values_encoding)
     std::string expected{"One,this \"\"value\"\" is quoted,three\n"};
     CSV::CSVEncoder encoder;
 
-    CHECK_EQUAL(expected, encoder.encode(data));
+    EXPECT_EQ(expected, encoder.encode(data));
 }
 
 TEST(TestCSVEncoder, test_encode_generic_type)
@@ -62,5 +63,5 @@ TEST(TestCSVEncoder, test_encode_generic_type)
     CSV::CSVEncoder encoder;
     std::string expected{"Pressure,42\nTemperature,22\n"};
 
-    CHECK_EQUAL(expected, encoder.encode(data, vectorize));
+    EXPECT_EQ(expected, encoder.encode(data, vectorize));
 }

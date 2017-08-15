@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,6 +23,7 @@
 #include <iostream>
 #include <regex>
 
+using dw::DateTime;
 
 // static
 BoostUUIDGenerator Task::generator;
@@ -113,7 +114,7 @@ void Task::decodeDescription(std::string&& encodedDescription)
     for (auto it = words_begin; it != words_end; ++it) {
         std::string word{it->str()};
         if (std::regex_match(word, tagRegex)) {
-            mTags.push_back(word.substr(1));
+            mTags.push_back(Tag{word.substr(1)});
         }
         else if (std::regex_match(word, estimatedRegex)) {
             mEstimatedCost = stoi(word.substr(1));

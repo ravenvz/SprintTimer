@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,8 +23,8 @@
 #define FAKESTORAGE_H_K56HOST8
 
 #include "core/Distribution.h"
-#include "core/TimeSpan.h"
 #include "core/entities/Sprint.h"
+#include "date_wrapper/TimeSpan.h"
 #include <algorithm>
 #include <core/utils/OptionalPl.h>
 #include <unordered_map>
@@ -52,19 +52,19 @@ public:
         }
     }
 
-    bool itemLiesInRange(const TimeSpan& timeSpan, const Sprint& item)
+    bool itemLiesInRange(const dw::TimeSpan& timeSpan, const Sprint& item)
     {
-        return (timeSpan.startTime <= item.startTime() &&
-                item.startTime() <= timeSpan.finishTime);
+        return (timeSpan.start() <= item.startTime() &&
+                item.startTime() <= timeSpan.finish());
     }
 
-    bool itemLiesInRange(const TimeSpan& timeSpan, const Task& item)
+    bool itemLiesInRange(const dw::TimeSpan& timeSpan, const Task& item)
     {
-        return (timeSpan.startTime <= item.lastModified() &&
-                item.lastModified() <= timeSpan.finishTime);
+        return (timeSpan.start() <= item.lastModified() &&
+                item.lastModified() <= timeSpan.finish());
     }
 
-    void itemsInTimeRange(const TimeSpan& timeSpan,
+    void itemsInTimeRange(const dw::TimeSpan& timeSpan,
                           std::function<void(const std::vector<Entity>&)> callback)
     {
         std::vector<Entity> items;
@@ -86,7 +86,7 @@ public:
     }
 
     void requestDailyDistribution(
-        const TimeSpan& timeSpan,
+        const dw::TimeSpan& timeSpan,
         std::function<void(const Distribution<int>&)> callback)
     {
         Distribution<int> emptyDistribution{0};

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -68,7 +68,7 @@ private:
 
     void onMonthlyDataReceived(const Distribution<int>& distribution);
 
-    int calculateNumWorkdaysBins(const TimeSpan& timeSpan) const;
+    int calculateNumWorkdaysBins(const dw::TimeSpan& timeSpan) const;
 
 private slots:
     void launchWorkdaysConfigurationDialog();

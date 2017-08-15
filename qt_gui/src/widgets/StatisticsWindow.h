@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -36,7 +36,7 @@
 
 namespace Ui {
 class StatisticsWindow;
-}
+} // namespace Ui
 
 
 /* Displays statistical information on finished sprints

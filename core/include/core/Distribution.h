@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,8 +22,8 @@
 #ifndef DISTRIBUTION_H_HG9WILUN
 #define DISTRIBUTION_H_HG9WILUN
 
-#include <vector>
 #include <cstdlib>
+#include <vector>
 
 
 template <class T>

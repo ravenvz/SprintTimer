@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -44,25 +44,24 @@ public:
     void decrementSprints(const std::string& uuid) final;
 
     void toggleTaskCompletionStatus(const std::string& uuid,
-                                    const DateTime& timeStamp) final;
+                                    const dw::DateTime& timeStamp) final;
 
-    void updatePriorities(
-        std::vector<std::pair<std::string, int>>&& priorities) final;
+    void updatePriorities(std::vector<std::string>&& priorities) final;
 
     void editTag(const std::string& oldName, const std::string& newName) final;
 
 private:
     DBService& dbService;
-    long long addTaskQueryId{-1};
-    long long insertTagQueryId{-1};
-    long long removeTagQueryId{-1};
-    long long removeTaskQueryId{-1};
-    long long editQueryId{-1};
-    long long incrementSpentQueryId{-1};
-    long long decrementSpentQueryId{-1};
-    long long toggleCompletionQueryId{-1};
-    long long updatePrioritiesQueryId{-1};
-    long long editTagQueryId{-1};
+    qint64 addTaskQueryId{-1};
+    qint64 insertTagQueryId{-1};
+    qint64 removeTagQueryId{-1};
+    qint64 removeTaskQueryId{-1};
+    qint64 editQueryId{-1};
+    qint64 incrementSpentQueryId{-1};
+    qint64 decrementSpentQueryId{-1};
+    qint64 toggleCompletionQueryId{-1};
+    qint64 updatePrioritiesQueryId{-1};
+    qint64 editTagQueryId{-1};
 
     void insertTags(const QString& taskUuid, const std::list<Tag>& tagNames);
 

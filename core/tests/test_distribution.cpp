@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,27 +19,30 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/Distribution.h"
-#include <TestHarness.h>
 
-TEST_GROUP(Distribution) { const double tolerance = 0.00001; };
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
+
+#include "core/Distribution.h"
+#include "gtest/gtest.h"
 
 TEST(Distribution, test_empty_distribution_initialized_correctly)
 {
     unsigned numBins = 7;
     Distribution<double> distribution{numBins};
 
-    DOUBLES_EQUAL(0u, distribution.getAverage(), tolerance)
-    DOUBLES_EQUAL(0u, distribution.getMax(), tolerance)
-    CHECK_TRUE(distribution.isValidBin(0u))
-    CHECK_TRUE(distribution.isValidBin(6u))
-    CHECK_FALSE(distribution.isValidBin(7u))
-    CHECK_EQUAL(0u, distribution.getMaxValueBin())
+    EXPECT_DOUBLE_EQ(0, distribution.getAverage());
+    EXPECT_DOUBLE_EQ(0, distribution.getMax());
+    EXPECT_TRUE(distribution.isValidBin(0));
+    EXPECT_TRUE(distribution.isValidBin(6));
+    EXPECT_FALSE(distribution.isValidBin(7));
+    EXPECT_EQ(0, distribution.getMaxValueBin());
 
-    CHECK(distribution.empty())
+    EXPECT_TRUE(distribution.empty());
 
     for (unsigned i = 0; i < numBins; ++i) {
-        DOUBLES_EQUAL(0, distribution.getBinValue(i), tolerance)
+        EXPECT_DOUBLE_EQ(0, distribution.getBinValue(i));
     }
 }
 
@@ -48,9 +51,9 @@ TEST(Distribution, test_correctly_initializes_from_distribution_vector)
     Distribution<double> distribution{
         std::vector<double>{1, 2, 3, 4, 3, 2, 1, 0}};
 
-    CHECK_EQUAL(8, distribution.getNumBins())
-    DOUBLES_EQUAL(2, distribution.getAverage(), tolerance)
-    DOUBLES_EQUAL(4, distribution.getMax(), tolerance)
-    CHECK_EQUAL(3, distribution.getMaxValueBin())
-    DOUBLES_EQUAL(16, distribution.getTotal(), tolerance)
+    EXPECT_EQ(8, distribution.getNumBins());
+    EXPECT_DOUBLE_EQ(2, distribution.getAverage());
+    EXPECT_DOUBLE_EQ(4, distribution.getMax());
+    EXPECT_EQ(3, distribution.getMaxValueBin());
+    EXPECT_DOUBLE_EQ(16, distribution.getTotal());
 }

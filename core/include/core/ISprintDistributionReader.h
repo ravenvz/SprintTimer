@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,14 +23,14 @@
 #define ISPRINTDISTRIBUTIONREADER_H_XMW7JEI6
 
 #include "core/Distribution.h"
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include <functional>
 
 class ISprintDistributionReader {
 public:
     using Handler = std::function<void(const Distribution<int>&)>;
     virtual ~ISprintDistributionReader() = default;
-    virtual void requestDistribution(const TimeSpan& timeSpan,
+    virtual void requestDistribution(const dw::TimeSpan& timeSpan,
                                      Handler handler)
         = 0;
 };

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -54,16 +54,14 @@ public:
     }
 
     void toggleTaskCompletionStatus(const std::string& uuid,
-                                    const DateTime& timeStamp) final
+                                    const dw::DateTime& timeStamp) final
     {
         Task& taskRef = storage.itemRef(uuid);
         taskRef.setCompleted(!taskRef.isCompleted());
         taskRef.setModifiedTimeStamp(timeStamp);
     }
 
-    void updatePriorities(std::vector<std::pair<std::string, int>>&& priorities)
-    {
-    }
+    void updatePriorities(std::vector<std::string>&& priorities) {}
 
     void editTag(const std::string& oldName, const std::string& newName)
     {

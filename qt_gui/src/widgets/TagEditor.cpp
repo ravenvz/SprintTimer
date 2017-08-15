@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -24,7 +24,7 @@
 #include <QMessageBox>
 
 
-TagEditorWidget::TagEditorWidget(AsyncListModel* tagModel, QWidget* parent)
+TagEditor::TagEditor(AsyncListModel* tagModel, QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::TagEditorWidget)
     , model{tagModel}
@@ -50,4 +50,4 @@ TagEditorWidget::TagEditorWidget(AsyncListModel* tagModel, QWidget* parent)
             &AsyncListModel::revertData);
 }
 
-TagEditorWidget::~TagEditorWidget() { delete ui; }
+TagEditor::~TagEditor() { delete ui; }

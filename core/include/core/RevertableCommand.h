@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,17 +26,16 @@
 
 class RevertableCommand : public Command {
 public:
-    virtual ~RevertableCommand() = default;
 
-    virtual void execute() final
+    void execute() final
     {
         executeAction();
         wasExecuted = true;
     }
 
-    virtual bool supportUndo() const override { return true; }
+    bool supportUndo() const override { return true; }
 
-    virtual void undo() final
+    void undo() final
     {
         if (wasExecuted) {
             undoAction();

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,78 +19,80 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
+
 #include "core/entities/Task.h"
-#include <TestHarness.h>
+#include "gtest/gtest.h"
 
-TEST_GROUP(TestTask){
+using dw::DateTime;
 
-};
-
-TEST(TestTask, test_description_all_parts_present)
+TEST(TestTask, constructs_task_from_string_description_where_all_parts_present)
 {
-    Task item{"#Test All parts present *5"};
+    const Task item{"#Test All parts present *5"};
 
-    CHECK_TRUE(std::list<Tag>{Tag{"Test"}} == item.tags())
-    CHECK_EQUAL(std::string{"All parts present"}, item.name())
-    CHECK_EQUAL(5, item.estimatedCost())
+    EXPECT_TRUE(std::list<Tag>{Tag{"Test"}} == item.tags());
+    EXPECT_EQ(std::string{"All parts present"}, item.name());
+    EXPECT_EQ(5, item.estimatedCost());
 }
 
-TEST(TestTask, test_description_should_set_estimated_cost_to_one_if_non_given)
+TEST(TestTask, should_set_estimated_cost_to_one_if_non_given_when_constructing_from_description)
 {
-    Task item{"#Test Todo with tag"};
+    const Task item{"#Test Todo with tag"};
 
-    CHECK_TRUE(std::list<Tag>{Tag{"Test"}} == item.tags())
-    CHECK_EQUAL(std::string{"Todo with tag"}, item.name())
-    CHECK_EQUAL(1, item.estimatedCost())
+    EXPECT_TRUE(std::list<Tag>{Tag{"Test"}} == item.tags());
+    EXPECT_EQ(std::string{"Todo with tag"}, item.name());
+    EXPECT_EQ(1, item.estimatedCost());
 }
 
-TEST(TestTask, test_description_no_tags)
+TEST(TestTask, constructs_from_description_with_no_tags_given)
 {
-    Task item{"Simple todo *2"};
+    const Task item{"Simple todo *2"};
 
-    CHECK_EQUAL(std::string{"Simple todo"}, item.name())
-    CHECK_EQUAL(2, item.estimatedCost())
-    CHECK_TRUE(item.tags().empty())
+    EXPECT_EQ(std::string{"Simple todo"}, item.name());
+    EXPECT_EQ(2, item.estimatedCost());
+    EXPECT_TRUE(item.tags().empty());
 }
 
-TEST(TestTask, test_description_no_name)
+TEST(TestTask, construct_from_description_when_no_name_given)
 {
-    Task item{"#Tag #Test *4"};
+    const Task item{"#Tag #Test *4"};
     std::list<Tag> expected{Tag{"Tag"}, Tag{"Test"}};
 
-    auto actual = item.tags();
+    const auto actual = item.tags();
 
-    CHECK_EQUAL(expected.size(), actual.size())
-    CHECK(std::equal(expected.begin(), expected.end(), actual.begin()));
-    CHECK_EQUAL(4, item.estimatedCost())
+    EXPECT_TRUE(std::equal(expected.cbegin(), expected.cend(), actual.cbegin(), actual.cend()));
+    EXPECT_EQ(4, item.estimatedCost());
 }
 
-TEST(TestTask, test_description_only_last_num_estimated_should_be_considered)
+TEST(TestTask, should_parse_only_last_num_estimated_when_constructing_from_description)
 {
-    Task item{"Multiple estimated *4 *9"};
+    const Task item{"Multiple estimated *4 *9"};
 
-    CHECK_EQUAL(9, item.estimatedCost())
+    EXPECT_EQ(9, item.estimatedCost());
 }
 
-TEST(TestTask, test_only_threats_words_preceeded_by_single_hash_as_tags)
+TEST(TestTask, only_treats_words_preceeded_by_single_hash_as_tags)
 {
-    Task item{"##My #tag1  #   ##    beautiful,marvelous, great   content"};
+    const Task item{"##My #tag1  #   ##    beautiful,marvelous, great   content"};
 
-    CHECK_TRUE(std::list<Tag>{Tag{"tag1"}} == item.tags())
-    CHECK_EQUAL(std::string{"##My # ## beautiful,marvelous, great content"},
-                item.name())
+    EXPECT_TRUE(std::list<Tag>{Tag{"tag1"}} == item.tags());
+    EXPECT_EQ(std::string{"##My # ## beautiful,marvelous, great content"},
+                item.name());
 }
 
-TEST(TestTask, test_ostream_operator)
+TEST(TestTask, ostream_operator)
 {
-    Task item{"I am item with no tags",
-              4,
-              2,
-              "uuid",
-              std::list<Tag>(),
-              false,
-              DateTime::currentDateTimeLocal()};
-    auto uuid = item.uuid();
+    const Task item{"I am item with no tags",
+                     4,
+                     2,
+                     "uuid",
+                     std::list<Tag>(),
+                     false,
+                     DateTime::currentDateTimeLocal()};
+    const auto uuid = item.uuid();
     std::string expected{"I am item with no tags 2/4"};
     expected += " Uuid: ";
     expected += uuid;
@@ -99,5 +101,5 @@ TEST(TestTask, test_ostream_operator)
     ss << item;
     std::string actual{ss.str()};
 
-    CHECK_EQUAL(expected, actual);
+    EXPECT_EQ(expected, actual);
 }

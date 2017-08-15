@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,30 +20,33 @@
 **
 *********************************************************************************/
 
-#include "widgets/GoalProgressWindow.h"
 #include "core/utils/WeekdaySelection.h"
+#include "widgets/GoalProgressWindow.h"
 #include "widgets/ProgressWidget.h"
+
+using dw::TimeSpan;
 
 namespace {
 
 TimeSpan thirtyDaysBackTillNow()
 {
     auto now = DateTime::currentDateTimeLocal();
-    auto from = now.addDays(-29);
+    auto from = now.add(DateTime::Days{-29});
     return TimeSpan{from, now};
 }
 
 TimeSpan twelveWeeksBackTillNow()
 {
     auto now = DateTime::currentDateTimeLocal();
-    auto from = now.addDays(-7 * 11 - static_cast<int>(now.dayOfWeek()));
+    auto from = now.add(DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
     return TimeSpan{from, now};
 }
 
 TimeSpan twelveMonthsBackTillNow()
 {
     auto now = DateTime::currentDateTimeLocal();
-    auto from = now.addMonths(-11).addDays(-static_cast<int>(now.day()) - 1);
+    auto from = now.add(DateTime::Months{-11});
+    from = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
     return TimeSpan{from, now};
 }
 
@@ -99,6 +102,8 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
     layout->addWidget(monthlyProgress, 1, 1, 1, 1);
 
     setLayout(layout);
+
+    setWindowIcon(QIcon(":icons/sprint_timer.png"));
 
     connect(dailyProgress,
             &ProgressView::goalChanged,
@@ -192,8 +197,8 @@ int GoalProgressWindow::calculateNumWorkdaysBins(const TimeSpan& timeSpan) const
 {
     WeekdaySelection workdays{applicationSettings.workdaysCode()};
     int numBins{0};
-    for (auto day = timeSpan.startTime; day <= timeSpan.finishTime;
-         day = day.addDays(1)) {
+    for (auto day = timeSpan.start(); day <= timeSpan.finish();
+         day = day.add(DateTime::Days{1})) {
         if (workdays.isSelected(
                 static_cast<DateTime::Weekday>(day.dayOfWeek())))
             ++numBins;

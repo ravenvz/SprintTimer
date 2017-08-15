@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,10 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Sprint.h"
 #include "core/StringUtils.h"
+#include "core/entities/Sprint.h"
 #include <algorithm>
 
+using dw::TimeSpan;
+using dw::DateTime;
 
 // static
 BoostUUIDGenerator Sprint::generator;
@@ -58,9 +60,9 @@ Sprint::Sprint(const std::string& taskUuid, const TimeSpan& timeSpan)
 
 std::string Sprint::name() const { return mName; }
 
-DateTime Sprint::startTime() const { return mInterval.startTime; }
+DateTime Sprint::startTime() const { return mInterval.start(); }
 
-DateTime Sprint::finishTime() const { return mInterval.finishTime; }
+DateTime Sprint::finishTime() const { return mInterval.finish(); }
 
 TimeSpan Sprint::timeSpan() const { return mInterval; }
 

@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>Sprint Timer</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../resources/resources.qrc">
+    <normaloff>:/icons/sprint_timer.png</normaloff>:/icons/sprint_timer.png</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">

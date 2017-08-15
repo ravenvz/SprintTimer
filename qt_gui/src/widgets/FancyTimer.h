@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -28,12 +28,12 @@
 
 namespace Ui {
 class FancyTimer;
-}
+} // namespace Ui
 
 class FancyTimer : public TimerWidgetBase {
 public:
     FancyTimer(const IConfig& applicationSettings, QWidget* parent);
-    ~FancyTimer();
+    ~FancyTimer() override;
 
     void setTaskModel(QAbstractItemModel* model) override;
     void setCandidateIndex(int index) override;
@@ -43,18 +43,18 @@ private:
     Ui::FancyTimer* ui;
     const int indicatorSize{150};
     CombinedIndicator* combinedIndicator;
-    const QColor taskStateColor{QColor{"#eb6c59"}};
-    const QColor breakStateColor{QColor{"#73c245"}};
-    const QColor zoneStateColor{Qt::darkYellow};
+//    const QColor taskStateColor{QColor{"#eb6c59"}};
+//    const QColor breakStateColor{QColor{"#73c245"}};
+//    const QColor zoneStateColor{Qt::darkYellow};
 
-    void onIdleStateEntered() override;
-    void onTaskStateEntered() override;
-    void setUiToRunningState();
-    void onSubmissionStateEntered() override;
-    void onBreakStateEntered() override;
-    void onZoneStateEntered() override;
-    void onZoneStateLeft() override;
-    void updateIndication(Second timeLeft) override;
+    void onSprintStateEnteredHook() override;
+    void onSprintStateLeftHook() override;
+    void onBreakStateEnteredHook() override;
+    void onIdleStateEnteredHook() override;
+    void onZoneStateEnteredHook() override;
+    void onZoneStateLeftHook() override;
+    void updateIndication(std::chrono::seconds timeLeft) override;
+    bool indicationUpdateShouldBeIgnored() const;
 
 private slots:
     void onIndicatorClicked();

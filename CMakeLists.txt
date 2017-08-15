@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.8)
 
 set(PROJECT sprint_timer)
 project(${PROJECT})
@@ -24,10 +24,9 @@ set("${PROJECT}_LIB_DIR" lib)
 set("${PROJECT}_ARCHIVE_DIR" lib/static)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT}_LIB_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT}_ARCHIVE_DIR})
 
-set (EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_BINARY_DIR})
-set (LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_LIB_DIR})
-set (ARCHIVE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/${${PROJECT}_ARCHIVE_DIR})
 set (CMAKE_VERBOSE_MAKEFILE OFF)
 
 if (WITH_DEBUG_MODE)
@@ -39,11 +38,16 @@ include(compiler_options.cmake)
 set(SOURCE_FILES src/main.cpp)
 
 add_executable(${PROJECT} ${SOURCE_FILES})
-target_compile_features(${PROJECT} PUBLIC cxx_return_type_deduction)
+target_compile_features(${PROJECT} PUBLIC cxx_std_17)
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    set(DEBUG_COMPILE_OPTIONS ${CLANG_COMPILE_OPTIONS})
+    set(RELEASE_COMPILE_OPTIONS ${CLANG_COMPILE_OPTIONS})
     target_compile_options(${PROJECT} PUBLIC ${CLANG_COMPILE_OPTIONS})
 elseif(CMAKE_COMPILER_IS_GNUCXX)
+    set(DEBUG_COMPILE_OPTIONS ${GCC_COMPILE_OPTIONS})
+    set(RELEASE_COMPILE_OPTIONS ${GCC_COMPILE_OPTIONS})
     target_compile_options(${PROJECT} PUBLIC ${GCC_COMPILE_OPTIONS})
 else()
     message("Compiler might not be supported yet.")
@@ -61,6 +65,16 @@ target_link_libraries(${PROJECT}
     PRIVATE ${GUI_LIB}
     PRIVATE ${STORAGE_LIB}
 )
+
+# TODO remove when CMake 3.10 is supported by MSCV
+# Workaround until CMake would be able to pass cxx_std_17 to MSCV correctly
+if (MSVC_VERSION GREATER_EQUAL "1900")
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_latest_flag_supported)
+    if (_cpp_latest_flag_supported)
+        add_compile_options("/std:c++17")
+    endif()
+endif()
 
 set (EXECUTABLE_INSTALL_PATH_SUFFIX bin)
 set (LIBRARY_INSTALL_PATH_SUFFIX lib)

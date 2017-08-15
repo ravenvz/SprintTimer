@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,7 +22,7 @@
 #ifndef DATEINTERVAL_H_DO5P2YKX
 #define DATEINTERVAL_H_DO5P2YKX
 
-#include "core/TimeSpan.h"
+#include "date_wrapper/TimeSpan.h"
 #include "utils/DateTimeConverter.h"
 #include <QDate>
 #include <iostream>
@@ -34,8 +34,8 @@ struct DateInterval {
 
     static DateInterval fromTimeSpan(const TimeSpan& timeSpan)
     {
-        return DateInterval{DateTimeConverter::qDate(timeSpan.startTime),
-                            DateTimeConverter::qDate(timeSpan.finishTime)};
+        return DateInterval{DateTimeConverter::qDate(timeSpan.start()),
+                            DateTimeConverter::qDate(timeSpan.finish())};
     }
 
     QString toString() const

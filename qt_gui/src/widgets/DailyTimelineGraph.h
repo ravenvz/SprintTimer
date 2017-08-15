@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,12 +26,12 @@
 
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QLabel>
-#include <core/DateTime.h>
+#include <date_wrapper/DateTime.h>
 #include <core/Distribution.h>
 
 namespace Ui {
 class DailyTimelineGraph;
-}
+} // namespace Ui
 
 
 class DailyTimelineGraph : public QFrame {

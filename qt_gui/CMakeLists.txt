@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.8)
 
 set(PROJECT ${GUI_LIB})
 project(${PROJECT})
@@ -38,7 +38,17 @@ QT5_WRAP_UI(UI_HEADERS
 )
 
 add_library(${PROJECT} SHARED ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)
-target_compile_features(${PROJECT} PUBLIC cxx_return_type_deduction)
+target_compile_features(${PROJECT} PUBLIC cxx_std_17)
+
+# TODO remove when CMake 3.10 is supported by MSCV
+# Workaround until CMake would be able to pass cxx_std_17 to MSCV correctly
+if (MSVC_VERSION GREATER_EQUAL "1900")
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_latest_flag_supported)
+    if (_cpp_latest_flag_supported)
+        add_compile_options("/std:c++17")
+    endif()
+endif()
 
 target_include_directories(${PROJECT} PUBLIC src)
 target_link_libraries(${PROJECT}

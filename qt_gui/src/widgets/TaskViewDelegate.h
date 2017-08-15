@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -41,8 +41,8 @@ public:
 
 private:
 
-    void paintText(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, const int alpha) const;
-    
+    void paintText(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, int alpha) const;
+
     QColor tagColor {Qt::blue};
     QColor commonColor {Qt::black};
     QColor overspentColor {Qt::red};

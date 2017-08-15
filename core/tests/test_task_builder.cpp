@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,12 +20,15 @@
 **
 *********************************************************************************/
 
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
+
+
 #include "core/TaskBuilder.h"
-#include <TestHarness.h>
+#include "gtest/gtest.h"
 
-TEST_GROUP(TestTaskBuilder) {
-
-};
+using dw::DateTime;
 
 TEST(TestTaskBuilder, test_name_) {
     TaskBuilder builder;
@@ -43,13 +46,13 @@ TEST(TestTaskBuilder, test_name_) {
             .withLastModificationStamp(expectedTimeStamp)
             .build();
 
-    CHECK_EQUAL("Test task", task.name());
-    CHECK_EQUAL(4, task.estimatedCost());
-    CHECK_EQUAL(2, task.actualCost());
-    CHECK_EQUAL("1234", task.uuid());
-    CHECK(task.isCompleted());
-    CHECK(expectedTags == task.tags());
-    CHECK(expectedTimeStamp == task.lastModified());
+    EXPECT_EQ("Test task", task.name());
+    EXPECT_EQ(4, task.estimatedCost());
+    EXPECT_EQ(2, task.actualCost());
+    EXPECT_EQ("1234", task.uuid());
+    EXPECT_TRUE(task.isCompleted());
+    EXPECT_TRUE(expectedTags == task.tags());
+    EXPECT_TRUE(expectedTimeStamp == task.lastModified());
 }
 
 TEST(TestTaskBuilder, test_explicitly_overwrites_tags)
@@ -61,7 +64,7 @@ TEST(TestTaskBuilder, test_explicitly_overwrites_tags)
     builder.withExplicitTags(expectedTags);
     auto task = builder.build();
 
-    CHECK(expectedTags == task.tags());
+    EXPECT_TRUE(expectedTags == task.tags());
 }
 
 TEST(TestTaskBuilder, test_generates_new_uuid_when_serial_constructing)
@@ -72,9 +75,9 @@ TEST(TestTaskBuilder, test_generates_new_uuid_when_serial_constructing)
     auto task2 = builder.build();
     auto task3 = builder.build();
 
-    CHECK(!task1.uuid().empty());
-    CHECK(task1.uuid() != task2.uuid());
-    CHECK(task2.uuid() != task3.uuid());
+    EXPECT_FALSE(task1.uuid().empty());
+    EXPECT_TRUE(task1.uuid() != task2.uuid());
+    EXPECT_TRUE(task2.uuid() != task3.uuid());
 }
 
 TEST(TestTaskBuilder, test_timestamp_modification_bugfix_verification)
@@ -84,5 +87,5 @@ TEST(TestTaskBuilder, test_timestamp_modification_bugfix_verification)
 
     auto task1 = builder.withLastModificationStamp(dt).build();
 
-    CHECK(dt == task1.lastModified());
+    EXPECT_TRUE(dt == task1.lastModified());
 }

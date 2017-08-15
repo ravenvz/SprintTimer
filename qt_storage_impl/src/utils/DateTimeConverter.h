@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,8 +22,10 @@
 #ifndef DATETIMECONVERTER_H_Y4Z1XDHQ
 #define DATETIMECONVERTER_H_Y4Z1XDHQ
 
-#include "core/DateTime.h"
+#include "date_wrapper/DateTime.h"
 #include <QDateTime>
+
+using dw::DateTime;
 
 /* Simplifies convertion between QDateTime and DateTime. */
 class DateTimeConverter {

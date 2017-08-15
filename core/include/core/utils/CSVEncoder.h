@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -52,7 +52,7 @@ public:
         std::string result = ss.str();
         ss.str("");
         return result;
-    };
+    }
 
 private:
     const char delimiter;

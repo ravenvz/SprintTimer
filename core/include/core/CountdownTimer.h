@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,40 +25,40 @@
 #include <atomic>
 #include <chrono>
 #include <functional>
-#include <iostream>
 #include <thread>
-
 
 /* Countdown timer that runs in background thread
  * and executes callback function each tick. */
-class Timer {
+class CountdownTimer {
 public:
-    using Interval = std::chrono::milliseconds;
     using TickPeriod = std::chrono::milliseconds;
+    using OnTickCallback = std::function<void(TickPeriod)>;
+    using OnTimeRunOutCallback = std::function<void(void)>;
 
-    Timer(std::function<void(void)> tickCallback, TickPeriod tickPeriod);
+    CountdownTimer(OnTickCallback tickCallback,
+                   OnTimeRunOutCallback onTimeRunOutCallback,
+                   std::chrono::milliseconds duration,
+                   TickPeriod tickPeriod);
 
-    ~Timer();
+    ~CountdownTimer();
 
-    Timer(Timer&&) = delete;
-    Timer& operator=(Timer&&) = delete;
+    CountdownTimer(CountdownTimer&&) = delete;
+    CountdownTimer& operator=(CountdownTimer&&) = delete;
 
-    Timer(const Timer&) = delete;
-    Timer& operator=(const Timer&) = delete;
+    CountdownTimer(const CountdownTimer&) = delete;
+    CountdownTimer& operator=(const CountdownTimer&) = delete;
 
-    /* Start running the timer.
-     *
-     * onTickCallback function will be executed each tickPeriod. */
-    void start();
-
-    /* Stop the timer. */
     void stop();
 
 private:
-    std::function<void(void)> onTickCallback;
+    OnTickCallback onTickCallback;
+    OnTimeRunOutCallback onTimeRunOutCallback;
+    std::chrono::milliseconds duration;
     TickPeriod tickPeriod;
     std::atomic<bool> running{false};
     std::thread tr;
+
+    void start();
 };
 
 #endif

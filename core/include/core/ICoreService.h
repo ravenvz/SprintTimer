@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,12 +23,11 @@
 #define ICORESERVICE_H_XVOMGAES
 
 #include "core/Distribution.h"
-#include "core/TimeSpan.h"
 #include "core/entities/Sprint.h"
+#include "core/external_io/ISink.h"
+#include "date_wrapper/TimeSpan.h"
 #include <functional>
 #include <string>
-#include "core/external_io/ISink.h"
-
 
 class ICoreService {
 public:
@@ -36,8 +35,11 @@ public:
     using SprintResultHandler = std::function<void(const std::vector<Sprint>&)>;
     using TagResultHandler
         = std::function<void(const std::vector<std::string>&)>;
-    using SprintEncodingFunc = std::function<std::string(const std::vector<Sprint>& sprints)>;
-    using TaskEncodingFunc = std::function<std::string(const std::vector<Task>& task)>;
+    using SprintEncodingFunc
+        = std::function<std::string(const std::vector<Sprint>& sprints)>;
+    using TaskEncodingFunc
+        = std::function<std::string(const std::vector<Task>& task)>;
+    using TaskOrder = std::vector<std::string>;
 
     virtual ~ICoreService() = default;
 
@@ -49,12 +51,10 @@ public:
 
     virtual void toggleTaskCompletionStatus(const Task& task) = 0;
 
-    virtual void registerTaskPriorities(
-        std::vector<std::pair<std::string, int>>&& priorities)
-        = 0;
+    virtual void registerTaskPriorities(TaskOrder&& priorities) = 0;
 
     virtual void
-    requestFinishedTasks(const TimeSpan& timeSpan,
+    requestFinishedTasks(const dw::TimeSpan& timeSpan,
                          TaskResultHandler onResultsReceivedCallback)
         = 0;
 
@@ -62,11 +62,12 @@ public:
     requestUnfinishedTasks(TaskResultHandler onResultsReceivedCallback)
         = 0;
 
-    virtual void exportTasks(const TimeSpan& timeSpan,
+    virtual void exportTasks(const dw::TimeSpan& timeSpan,
                              std::shared_ptr<ExternalIO::ISink> sink,
-                             TaskEncodingFunc func) = 0;
+                             TaskEncodingFunc func)
+        = 0;
 
-    virtual void registerSprint(const TimeSpan& timeSpan,
+    virtual void registerSprint(const dw::TimeSpan& timeSpan,
                                 const std::string& taskUuid)
         = 0;
 
@@ -75,30 +76,31 @@ public:
     virtual void removeSprint(const Sprint& sprint) = 0;
 
     virtual void
-    sprintsInTimeRange(const TimeSpan& timeSpan,
+    sprintsInTimeRange(const dw::TimeSpan& timeSpan,
                        SprintResultHandler onResultsReceivedCallback)
         = 0;
 
-    virtual void exportSprints(const TimeSpan& timeSpan,
+    virtual void exportSprints(const dw::TimeSpan& timeSpan,
                                std::shared_ptr<ExternalIO::ISink> sink,
-                               SprintEncodingFunc func) = 0;
+                               SprintEncodingFunc func)
+        = 0;
 
     virtual void yearRange(std::function<void(const std::vector<std::string>&)>
                                onResultsReceivedCallback)
         = 0;
 
     virtual void requestSprintDailyDistribution(
-        const TimeSpan& timeSpan,
+        const dw::TimeSpan& timeSpan,
         std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
 
     virtual void requestSprintWeeklyDistribution(
-        const TimeSpan& timeSpan,
+        const dw::TimeSpan& timeSpan,
         std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
 
     virtual void requestSprintMonthlyDistribution(
-        const TimeSpan& timeSpan,
+        const dw::TimeSpan& timeSpan,
         std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
 
@@ -109,7 +111,7 @@ public:
 
     virtual std::string lastCommandDescription() const = 0;
 
-    virtual unsigned long long numRevertableCommands() const = 0;
+    virtual uint64_t numRevertableCommands() const = 0;
 
     virtual void undoLast() = 0;
 };

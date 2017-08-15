@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -34,9 +34,9 @@ public:
 
     void requestUnfinishedTasks(Handler handler) final;
 
-    void requestFinishedTasks(const TimeSpan& timeSpan, Handler handler) final;
+    void requestFinishedTasks(const dw::TimeSpan& timeSpan, Handler handler) final;
 
-    void requestTasks(const TimeSpan& timeSpan, Handler handler) final;
+    void requestTasks(const dw::TimeSpan& timeSpan, Handler handler) final;
 
     void requestAllTags(TagHandler handler) final;
 
@@ -55,10 +55,10 @@ private:
 
     enum class TagColumn { Id, Name };
 
-    long long mUnfinishedQueryId{-1};
-    long long mFinishedQueryId{-1};
-    long long mRequestTasksQueryId{-1};
-    long long mTagQueryId{-1};
+    qint64 mUnfinishedQueryId{-1};
+    qint64 mFinishedQueryId{-1};
+    qint64 mRequestTasksQueryId{-1};
+    qint64 mTagQueryId{-1};
     DBService& dbService;
     std::list<Handler> handler_queue;
     std::list<TagHandler> tag_handler_queue;
@@ -70,7 +70,7 @@ private:
     std::string tagFromSqlRecord(const QSqlRecord& record) const;
 
 private slots:
-    void onResultsReceived(long long queryId,
+    void onResultsReceived(qint64 queryId,
                            const std::vector<QSqlRecord>& records);
 };
 

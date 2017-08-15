@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -29,7 +29,7 @@
 
 namespace Ui {
 class ProgressView;
-}
+} // namespace Ui
 
 class ProgressView : public QFrame {
     Q_OBJECT

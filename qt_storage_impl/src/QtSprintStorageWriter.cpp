@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -44,9 +44,9 @@ QtSprintStorageWriter::QtSprintStorageWriter(DBService& dbService)
 void QtSprintStorageWriter::save(const Sprint& sprint)
 {
     QDateTime startTime
-        = DateTimeConverter::qDateTime(sprint.timeSpan().startTime);
+        = DateTimeConverter::qDateTime(sprint.timeSpan().start());
     QDateTime finishTime
-        = DateTimeConverter::qDateTime(sprint.timeSpan().finishTime);
+        = DateTimeConverter::qDateTime(sprint.timeSpan().finish());
     dbService.bind(addQueryId,
                    ":todo_uuid",
                    QVariant(QString::fromStdString(sprint.taskUuid())));

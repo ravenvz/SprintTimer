@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,52 +20,55 @@
 **
 *********************************************************************************/
 
+#include <utility>
 #include "core/StatefulTimer.h"
 
+namespace {
+    SprintTimerCore::Idle idle;
+    SprintTimerCore::RunningSprint runningSprint;
+    SprintTimerCore::ShortBreak shortBreak;
+    SprintTimerCore::LongBreak longBreak;
+    SprintTimerCore::Zone zone;
+    SprintTimerCore::SprintFinished sprintFinished;
+} // namespace
+
+namespace SprintTimerCore {
+
 StatefulTimer::StatefulTimer(
-    std::function<void(long long timeLeft)> onTickCallback,
-    std::function<void(IStatefulTimer::State)> onStateChangedCallback,
-    long tickPeriodInMillisecs,
-    const IConfig& applicationSettings)
-    : applicationSettings{applicationSettings}
-    , tickInterval{tickPeriodInMillisecs}
-    , onTickCallback{onTickCallback}
-    , onStateChangedCallback{onStateChangedCallback}
-    , mStart{DateTime::currentDateTimeLocal()}
-    , idleState{std::make_unique<Idle>(*this)}
-    , sprintState{std::make_unique<RunningSprint>(*this)}
-    , shortBreakState{std::make_unique<ShortBreak>(*this)}
-    , longBreakState{std::make_unique<LongBreak>(*this)}
-    , zoneState{std::make_unique<Zone>(*this)}
-    , finishedState{std::make_unique<Finished>(*this)}
-    , currentState{idleState.get()}
+        std::function<void(std::chrono::seconds timeLeft)> onTickCallback,
+        std::function<void(IStatefulTimer::StateId)> onStateChangedCallback,
+        std::chrono::seconds tickPeriod,
+        const IConfig& applicationSettings)
+        : currentState{&idle}
+        , applicationSettings{applicationSettings}
+        , tickInterval{tickPeriod}
+        , onTickCallback{std::move(onTickCallback)}
+        , onStateChangedCallback{std::move(onStateChangedCallback)}
+        , mStart{DateTime::currentDateTimeLocal()}
 {
 }
 
 void StatefulTimer::start()
 {
-    currentState->setNextState();
-    resetTimer();
-    currentState->start();
+    // TODO probably usage should be limited to Idle and Finished states
+    currentState->setNextState(*this);
 }
 
-void StatefulTimer::cancel() { currentState->cancel(); }
+void StatefulTimer::cancel() { currentState->cancelExit(*this); }
 
-int StatefulTimer::currentDuration() const { return currentState->duration(); }
-
-IStatefulTimer::State StatefulTimer::state() const
+std::chrono::seconds StatefulTimer::currentDuration() const
 {
-    return currentState->state();
+    return currentState->duration(*this);
 }
 
-void StatefulTimer::toggleInTheZoneMode() { currentState->toggleZoneMode(); }
+void StatefulTimer::toggleInTheZoneMode() { currentState->toggleZoneMode(*this); }
 
-std::vector<TimeSpan> StatefulTimer::completedTaskIntervals() const
+std::vector<TimeSpan> StatefulTimer::completedSprints() const
 {
     return buffer;
 }
 
-void StatefulTimer::clearIntervalsBuffer() { buffer.clear(); }
+void StatefulTimer::clearSprintsBuffer() { buffer.clear(); }
 
 void StatefulTimer::setNumFinishedSprints(int num)
 {
@@ -74,220 +77,252 @@ void StatefulTimer::setNumFinishedSprints(int num)
 
 int StatefulTimer::numFinishedSprints() const { return finishedSprints; }
 
-void StatefulTimer::onTimerTick()
+void StatefulTimer::jumpToState(TimerState& state)
 {
-    millisecondsLeft -= tickInterval;
-    if (millisecondsLeft.count() == 0) {
-        currentState->setNextState();
-    }
-    onTickCallback(millisecondsLeft.count());
+    currentState = &state;
+    currentState->enter(*this);
 }
 
-void StatefulTimer::resetTimer()
+void StatefulTimer::transitionToState(TimerState& state)
 {
-    timerPtr = std::make_unique<Timer>(
-            [this]() { this->onTimerTick(); },
+    currentState->normalExit(*this);
+    currentState = &state;
+    currentState->enter(*this);
+}
+
+bool StatefulTimer::longBreakConditionMet() const
+{
+    return finishedSprints%applicationSettings.numSprintsBeforeBreak()==0;
+}
+
+void StatefulTimer::onTimerRunout()
+{
+    currentState->onTimerFinished(*this);
+}
+
+void StatefulTimer::notifyStateChanged(IStatefulTimer::StateId stateId)
+{
+    onStateChangedCallback(stateId);
+}
+
+void StatefulTimer::onTimerTick(CountdownTimer::TickPeriod timeLeft)
+{
+    using namespace std::chrono;
+    onTickCallback(duration_cast<seconds>(timeLeft));
+}
+
+void StatefulTimer::startCountdown()
+{
+    countdownTimer.release();
+    countdownTimer = std::make_unique<CountdownTimer>(
+            [this](CountdownTimer::TickPeriod timeLeft) { this->onTimerTick(timeLeft); },
+            [this]() { this->onTimerRunout(); },
+            currentDuration(),
             tickInterval);
 }
 
-void TimerState::notifyStateChanged(IStatefulTimer::State state)
-{
-    timer.onStateChangedCallback(state);
-}
-
-Idle::Idle(StatefulTimer& timer)
-    : TimerState{timer}
+void TimerState::toggleZoneMode(StatefulTimer& timer)
 {
 }
 
-IStatefulTimer::State Idle::state() const
-{
-    return IStatefulTimer::State::Idle;
-}
-
-void Idle::setNextState()
-{
-    timer.currentState = timer.sprintState.get();
-    notifyStateChanged(timer.currentState->state());
-}
-
-int Idle::duration() const
-{
-    return timer.applicationSettings.sprintDuration();
-}
-
-RunningSprint::RunningSprint(StatefulTimer& timer)
-    : TimerState{timer}
+void TimerState::onTimerFinished(StatefulTimer& timer)
 {
 }
 
-IStatefulTimer::State RunningSprint::state() const
+std::chrono::seconds TimerState::duration(const StatefulTimer& timer) const
 {
-    return IStatefulTimer::State::Task;
+    return std::chrono::minutes{timer.applicationSettings.sprintDuration()};
 }
 
-void RunningSprint::start()
+void Idle::enter(StatefulTimer& timer) const
 {
+    timer.notifyStateChanged(IStatefulTimer::StateId::IdleEntered);
+}
+
+void Idle::cancelExit(StatefulTimer& timer)
+{
+}
+
+void Idle::normalExit(StatefulTimer& timer) const
+{
+    timer.notifyStateChanged(IStatefulTimer::StateId::IdleLeft);
+}
+
+void Idle::setNextState(StatefulTimer& timer)
+{
+    timer.transitionToState(runningSprint);
+}
+
+void RunningSprint::enter(StatefulTimer& timer) const
+{
+    timer.notifyStateChanged(IStatefulTimer::StateId::SprintEntered);
     timer.mStart = DateTime::currentDateTimeLocal();
-    timer.millisecondsLeft
-        = std::chrono::milliseconds{duration() * millisecondsInMinute};
-    timer.timerPtr->start();
+    timer.startCountdown();
 }
 
-void RunningSprint::setNextState()
+void RunningSprint::cancelExit(StatefulTimer& timer)
 {
-    if (timer.timerPtr)
-        timer.timerPtr->stop();
+    timer.notifyStateChanged(IStatefulTimer::StateId::SprintCancelled);
+    if (timer.countdownTimer)
+        timer.countdownTimer->stop();
+    timer.jumpToState(idle);
+}
+
+void RunningSprint::normalExit(StatefulTimer& timer) const
+{
+    timer.notifyStateChanged(IStatefulTimer::StateId::SprintLeft);
+}
+
+void RunningSprint::setNextState(StatefulTimer& timer)
+{
+    timer.transitionToState(sprintFinished);
+}
+
+std::chrono::seconds RunningSprint::duration(const StatefulTimer& timer) const
+{
+    return std::chrono::minutes{timer.applicationSettings.sprintDuration()};
+}
+
+void RunningSprint::toggleZoneMode(StatefulTimer& timer)
+{
+    timer.jumpToState(zone);
+}
+
+void RunningSprint::onTimerFinished(StatefulTimer& timer)
+{
+    // TODO what if finished state is cancelled after that?
     ++timer.finishedSprints;
     timer.buffer.emplace_back(
-        TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
-    timer.currentState = timer.finishedState.get();
-    notifyStateChanged(timer.currentState->state());
+            TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
+    setNextState(timer);
 }
 
-void RunningSprint::cancel()
+void ShortBreak::enter(StatefulTimer& timer) const
 {
-    if (timer.timerPtr)
-        timer.timerPtr->stop();
-    timer.currentState = timer.idleState.get();
-    notifyStateChanged(timer.currentState->state());
+    timer.notifyStateChanged(IStatefulTimer::StateId::BreakEntered);
+    timer.startCountdown();
 }
 
-int RunningSprint::duration() const
+void ShortBreak::cancelExit(StatefulTimer& timer)
 {
-    return timer.applicationSettings.sprintDuration();
+    if (timer.countdownTimer)
+        timer.countdownTimer->stop();
+    timer.notifyStateChanged(IStatefulTimer::StateId::BreakCancelled);
+    timer.jumpToState(idle);
 }
 
-void RunningSprint::toggleZoneMode()
+void ShortBreak::normalExit(StatefulTimer& timer) const
 {
-    timer.currentState = timer.zoneState.get();
-    notifyStateChanged(timer.currentState->state());
+    timer.notifyStateChanged(IStatefulTimer::StateId::BreakLeft);
 }
 
-ShortBreak::ShortBreak(StatefulTimer& timer)
-    : TimerState{timer}
+void ShortBreak::setNextState(StatefulTimer& timer)
 {
+    timer.transitionToState(idle);
 }
 
-IStatefulTimer::State ShortBreak::state() const
+std::chrono::seconds ShortBreak::duration(const StatefulTimer& timer) const
 {
-    return IStatefulTimer::State::Break;
+    return std::chrono::minutes{timer.applicationSettings.shortBreakDuration()};
 }
 
-void ShortBreak::start()
+void ShortBreak::onTimerFinished(StatefulTimer& timer)
 {
-    timer.millisecondsLeft
-        = std::chrono::milliseconds{duration() * millisecondsInMinute};
-    timer.timerPtr->start();
+    setNextState(timer);
 }
 
-void ShortBreak::setNextState()
+void LongBreak::enter(StatefulTimer& timer) const
 {
-    if (timer.timerPtr)
-        timer.timerPtr->stop();
-    timer.currentState = timer.idleState.get();
-    notifyStateChanged(timer.currentState->state());
+    timer.notifyStateChanged(IStatefulTimer::StateId::BreakEntered);
+    timer.startCountdown();
 }
 
-void ShortBreak::cancel() { setNextState(); }
-
-int ShortBreak::duration() const
+void LongBreak::cancelExit(StatefulTimer& timer)
 {
-    return timer.applicationSettings.shortBreakDuration();
+    if (timer.countdownTimer)
+        timer.countdownTimer->stop();
+    timer.notifyStateChanged(IStatefulTimer::StateId::BreakCancelled);
+    timer.jumpToState(idle);
 }
 
-LongBreak::LongBreak(StatefulTimer& timer)
-    : TimerState{timer}
+void LongBreak::normalExit(StatefulTimer& timer) const
 {
+    timer.notifyStateChanged(IStatefulTimer::StateId::BreakLeft);
 }
 
-IStatefulTimer::State LongBreak::state() const
+void LongBreak::setNextState(StatefulTimer& timer)
 {
-    return IStatefulTimer::State::LongBreak;
+    timer.transitionToState(idle);
 }
 
-void LongBreak::start()
+std::chrono::seconds LongBreak::duration(const StatefulTimer& timer) const
 {
-    timer.millisecondsLeft
-        = std::chrono::milliseconds{duration() * millisecondsInMinute};
-    timer.timerPtr->start();
+    return std::chrono::minutes{timer.applicationSettings.longBreakDuration()};
 }
 
-void LongBreak::setNextState()
+void LongBreak::onTimerFinished(StatefulTimer& timer)
 {
-    if (timer.timerPtr)
-        timer.timerPtr->stop();
-    timer.currentState = timer.idleState.get();
-    notifyStateChanged(timer.currentState->state());
+    setNextState(timer);
 }
 
-void LongBreak::cancel() { setNextState(); }
-
-int LongBreak::duration() const
+void Zone::enter(StatefulTimer& timer) const
 {
-    return timer.applicationSettings.longBreakDuration();
+    timer.notifyStateChanged(IStatefulTimer::StateId::ZoneEntered);
 }
 
-Zone::Zone(StatefulTimer& timer)
-    : TimerState{timer}
+void Zone::cancelExit(StatefulTimer& timer)
 {
 }
 
-void Zone::start() { timer.mStart = DateTime::currentDateTimeLocal(); }
-
-IStatefulTimer::State Zone::state() const
+void Zone::normalExit(StatefulTimer& timer) const
 {
-    return IStatefulTimer::State::ZoneEntered;
+    timer.notifyStateChanged(IStatefulTimer::StateId::ZoneLeft);
 }
 
-void Zone::setNextState()
+std::chrono::seconds Zone::duration(const StatefulTimer& timer) const
+{
+    return std::chrono::minutes{timer.applicationSettings.sprintDuration()};
+}
+
+void Zone::setNextState(StatefulTimer& timer)
+{
+}
+
+void Zone::toggleZoneMode(StatefulTimer& timer)
+{
+    // timer.changeState because we don't want to enter/exit to be called
+    timer.currentState = &runningSprint;
+    timer.notifyStateChanged(IStatefulTimer::StateId::ZoneLeft);
+}
+
+void Zone::onTimerFinished(StatefulTimer& timer)
 {
     timer.buffer.emplace_back(
-        TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
+            TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
     timer.mStart = DateTime::currentDateTimeLocal();
-    timer.millisecondsLeft
-        = std::chrono::milliseconds{duration() * millisecondsInMinute};
+    if (timer.countdownTimer)
+        timer.countdownTimer->stop();
+    timer.startCountdown();
 }
 
-int Zone::duration() const
+void SprintFinished::enter(StatefulTimer& timer) const
 {
-    return timer.applicationSettings.sprintDuration();
+    timer.notifyStateChanged(IStatefulTimer::StateId::SprintFinished);
 }
 
-void Zone::toggleZoneMode()
+void SprintFinished::cancelExit(StatefulTimer& timer)
 {
-    timer.currentState = timer.sprintState.get();
-    notifyStateChanged(IStatefulTimer::State::ZoneLeft);
+    timer.clearSprintsBuffer();
+    timer.jumpToState(idle);
 }
 
-Finished::Finished(StatefulTimer& timer)
-    : TimerState{timer}
+void SprintFinished::normalExit(StatefulTimer& timer) const
 {
 }
 
-IStatefulTimer::State Finished::state() const
+void SprintFinished::setNextState(StatefulTimer& timer)
 {
-    return IStatefulTimer::State::Finished;
+    timer.longBreakConditionMet() ? timer.transitionToState(longBreak) : timer.transitionToState(shortBreak);
 }
 
-void Finished::setNextState()
-{
-    if (timer.finishedSprints
-            % timer.applicationSettings.numSprintsBeforeBreak()
-        == 0) {
-        timer.currentState = timer.longBreakState.get();
-    }
-    else {
-        timer.currentState = timer.shortBreakState.get();
-    }
-    notifyStateChanged(timer.currentState->state());
-}
-
-void Finished::cancel()
-{
-    timer.currentState = timer.idleState.get();
-    timer.buffer.clear();
-    notifyStateChanged(timer.currentState->state());
-}
-
-int Finished::duration() const { return 0; }
+} // namespace SprintTimerCore

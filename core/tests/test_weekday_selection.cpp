@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,14 +20,12 @@
 **
 *********************************************************************************/
 
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
+
 #include "core/utils/WeekdaySelection.h"
-#include <TestHarness.h>
-#include <iostream>
-
-
-TEST_GROUP(WeekdaySelection){
-
-};
+#include "gtest/gtest.h"
 
 TEST(WeekdaySelection, test_adds_selection)
 {
@@ -35,9 +33,9 @@ TEST(WeekdaySelection, test_adds_selection)
     selection.selectDay(DateTime::Weekday::Monday);
     selection.selectDay(DateTime::Weekday::Sunday);
 
-    CHECK_EQUAL(65, selection.selectionMask());
-    CHECK(selection.isSelected(DateTime::Weekday::Monday));
-    CHECK(selection.isSelected(DateTime::Weekday::Sunday));
+    EXPECT_EQ(65, selection.selectionMask());
+    EXPECT_TRUE(selection.isSelected(DateTime::Weekday::Monday));
+    EXPECT_TRUE(selection.isSelected(DateTime::Weekday::Sunday));
 }
 
 TEST(WeekdaySelection, test_unselects_days)
@@ -47,6 +45,6 @@ TEST(WeekdaySelection, test_unselects_days)
     selection.unselectDay(DateTime::Weekday::Monday);
     selection.unselectDay(DateTime::Weekday::Sunday);
 
-    CHECK(!selection.isSelected(DateTime::Weekday::Monday));
-    CHECK(!selection.isSelected(DateTime::Weekday::Sunday));
+    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Monday));
+    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Sunday));
 }

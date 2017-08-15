@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -39,21 +39,21 @@ class SprintBuilder {
 
 public:
     Sprint build();
-    SprintBuilder& withName(std::string name);
-    SprintBuilder& withUuid(std::string uuid);
-    SprintBuilder& withTaskUuid(std::string uuid);
-    SprintBuilder& withTag(Tag tag);
-    SprintBuilder& withTag(std::string tag);
-    SprintBuilder& withTimeSpan(TimeSpan timeSpan);
+    SprintBuilder& withName(const std::string& name);
+    SprintBuilder& withUuid(const std::string& uuid);
+    SprintBuilder& withTaskUuid(const std::string& uuid);
+    SprintBuilder& withTag(const Tag& tag);
+    SprintBuilder& withTag(const std::string& tag);
+    SprintBuilder& withTimeSpan(const dw::TimeSpan& timeSpan);
     SprintBuilder& forTask(const Task& task);
-    SprintBuilder& withExplicitTags(std::list<Tag> tags);
+    SprintBuilder& withExplicitTags(const std::list<Tag>& tags);
 
 private:
-    std::string name;
-    optional<std::string> uuid;
-    optional<std::string> taskUuid;
-    std::list<Tag> tags = std::move(std::list<Tag>{});
-    optional<TimeSpan> timeSpan;
+    std::string mName;
+    optional<std::string> mUuid;
+    optional<std::string> mTaskUuid;
+    std::list<Tag> mTags;
+    optional<dw::TimeSpan> mTimeSpan;
 };
 
 

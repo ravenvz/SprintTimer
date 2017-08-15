@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -24,7 +24,7 @@
 #include "TaskViewDelegate.h"
 
 
-QRect constructBoundingRect(const QStyleOptionViewItem& option, const QString& text, const int flags);
+QRect constructBoundingRect(const QStyleOptionViewItem& option, const QString& text, int flags);
 
 void rescaleTagsRectIfMultiline(QRect& tagsRect, const QRect& statRect, const QRect& optionRect);
 
@@ -52,7 +52,7 @@ QSize TaskViewDelegate::sizeHint(const QStyleOptionViewItem& option, const QMode
     return QSize {option.rect.width(), tagsRect.height() + nameRect.height() + 3 * padding + verticalSpacing};
 }
 
-QRect constructBoundingRect(const QStyleOptionViewItem& option, const QString& text, const int flags) {
+QRect constructBoundingRect(const QStyleOptionViewItem& option, const QString& text, int flags) {
     QFontMetrics metrics {option.font};
     return QRect {metrics.boundingRect(0, 0, option.rect.width(), 0, flags, text)};
 }
@@ -75,7 +75,7 @@ void TaskViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->restore();
 }
 
-void TaskViewDelegate::paintText(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, const int alpha) const {
+void TaskViewDelegate::paintText(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, int alpha) const {
     QColor tagCol = tagColor;
     QColor commonCol = commonColor;
     QColor overspentCol = overspentColor;
@@ -107,7 +107,7 @@ void TaskViewDelegate::paintText(QPainter* painter, const QStyleOptionViewItem& 
 
     QPoint lineBegin {tagsRect.topLeft().x() + 2 * padding,
                       tagsRect.topLeft().y() - verticalSpacing / 2};
-    QPoint lineEnd {tagsRect.topLeft().x() + tagsRect.width() - 1 * padding, 
+    QPoint lineEnd {tagsRect.topLeft().x() + tagsRect.width() - 1 * padding,
                     tagsRect.topLeft().y() - verticalSpacing / 2};
     if (index.row() != 0) {
         painter->setPen(delimiterColor);
@@ -125,6 +125,6 @@ void rescaleTagsRectIfMultiline(QRect& tagsRect, const QRect& statRect, const QR
 
 bool taskOverspent(const QString& stats) {
     QStringList parts = stats.split("/");
-    return (parts[0].toInt() > parts[1].toInt()); 
+    return (parts[0].toInt() > parts[1].toInt());
 }
 

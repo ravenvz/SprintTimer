@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -37,8 +37,6 @@ public:
     /* Construct indicator. Takes sideSizeHint as a hint to indicator
      * width and height. */
     CombinedIndicator(int sideSizeHint, QWidget* parent);
-
-    ~CombinedIndicator() = default;
 
     QSize sizeHint() const override;
 

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,7 +26,7 @@ namespace UseCases {
 
 StoreUnfinishedTasksOrder::StoreUnfinishedTasksOrder(
     ITaskStorageWriter& taskStorageWriter,
-    std::vector<std::pair<std::string, int>>&& priorities)
+    std::vector<std::string>&& priorities)
     : writer{taskStorageWriter}
     , priorities{std::move(priorities)}
 {

@@ -1,8 +1,5 @@
-set(CLANG_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
-                          -Weverything
+set(CLANG_COMPILE_OPTIONS -Weverything
                           -Werror
-                          -Wall
-                          -pedantic-errors
                           -Wno-c++98-compat
                           -Wno-c++98-compat-pedantic
                           -Wno-weak-vtables
@@ -12,10 +9,14 @@ set(CLANG_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
                           -Wno-missing-prototypes
                           -Wno-unused-parameter
                           -Wno-undefined-reinterpret-cast # Qt's mock
+                          -Wno-exit-time-destructors
+                          -Wno-global-constructors
+                          -Wno-zero-as-null-pointer-constant # gtest implementation
+                          -Wno-shadow # TODO remove when migrated to next date lib release
+                          -Wno-extra-semi # TODO remove when migrated to next date lib release
                           )
 
-set(GCC_COMPILE_OPTIONS -ftemplate-backtrace-limit=0
-                        -Wall
+set(GCC_COMPILE_OPTIONS -Wall
                         -Wextra
                         -pedantic
                         -Werror

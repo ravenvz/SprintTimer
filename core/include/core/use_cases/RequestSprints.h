@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016 Pavel Pavlov.
+** Copyright (C) 2016, 2017 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -32,7 +32,7 @@ class RequestSprints : public Command {
 public:
     RequestSprints(
         ISprintStorageReader& reader,
-        const TimeSpan& timeSpan,
+        const dw::TimeSpan& timeSpan,
         std::function<void(const std::vector<Sprint>&)> resultHandler);
 
     void execute() final;
@@ -41,7 +41,7 @@ public:
 
 private:
     ISprintStorageReader& reader;
-    const TimeSpan timeSpan;
+    const dw::TimeSpan timeSpan;
     std::function<void(const std::vector<Sprint>&)> handler;
 };
 
