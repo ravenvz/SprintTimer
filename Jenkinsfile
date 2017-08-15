@@ -12,14 +12,6 @@ node {
             }
         }
     }
-    stage('Run static analysis') {
-        node ("linux") {
-            sh "cppcheck --xml --xml-version=2 . 2> check.xml"
-        }
-        node ("windows") {
-
-        }
-    }
     stage('Build') {
         parallel "linux build":{
             node ("linux") {
@@ -35,12 +27,12 @@ node {
     stage('Run tests') {
         parallel "linux unit tests":{
             node ("linux") {
-                sh 'cd bin && ./test_core -o junit && ./test_qt_storage_impl -o junit && mkdir -p test_results && mv *.xml test_results'
+                sh 'cd bin && ./test_core --gtest_output=xml:test_core_results.xml && ./test_qt_storage_impl --gtest_output=xml:test_qt_storage_impl_results.xml && mkdir -p test_results && mv *.xml test_results'
                 junit '**/bin/test_results/*.xml'
             }
         }, "windows unit tests":{
             node ("windows") {
-                bat 'cd bin/Release && test_core.exe -o junit && mkdir test_results && move *.xml test_results'
+                bat 'cd bin/Release && test_core.exe --gtest_output=xml:test_core_results.xml && test_qt_storage_impl.exe --gtest_output=xml:test_qt_storage_impl_results.xml && mkdir test_results && move *.xml test_results'
                 junit '**/bin/Release/test_results/*.xml'
             }
         }
