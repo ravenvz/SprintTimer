@@ -33,10 +33,7 @@ TagTop::TagTop(const std::vector<Sprint>& sprints, size_t topMaxSize)
     mergeTagsWithLowestFrequencies();
 }
 
-TagTop::TagTop()
-    : numTopTags{0}
-{
-}
+TagTop::TagTop() {}
 
 void TagTop::arrangeSprintsByTag(const std::vector<Sprint>& sprints)
 {
@@ -47,7 +44,7 @@ void TagTop::arrangeSprintsByTag(const std::vector<Sprint>& sprints)
 
 void TagTop::computeTagFrequencies()
 {
-    auto total = accumulate(
+    const auto total = accumulate(
         sprintsByTag.cbegin(),
         sprintsByTag.cend(),
         0uLL,
@@ -61,7 +58,7 @@ void TagTop::computeTagFrequencies()
 
 void TagTop::orderTagsByDecreasingFrequency()
 {
-    auto limit = std::min(numTopTags, frequencies.size());
+    const auto limit = std::min(numTopTags, frequencies.size());
     std::partial_sort(frequencies.begin(),
                       frequencies.begin() + static_cast<long>(limit),
                       frequencies.end(),
@@ -72,17 +69,15 @@ void TagTop::orderTagsByDecreasingFrequency()
 
 void TagTop::mergeTagsWithLowestFrequencies()
 {
-    if (frequencies.size() < numTopTags) {
+    if (frequencies.size() < numTopTags)
         return;
-    }
 
-    auto otherTags = mergeBottomTags();
+    const auto otherTags = mergeBottomTags();
 
-    for (const auto& tag : otherTags) {
+    for (const auto& tag : otherTags)
         sprintsByTag[dummyTag].insert(sprintsByTag[dummyTag].end(),
                                       sprintsByTag[tag].begin(),
                                       sprintsByTag[tag].end());
-    }
 }
 
 std::vector<Tag> TagTop::mergeBottomTags()
@@ -100,8 +95,8 @@ std::vector<Tag> TagTop::findBottomTags() const
 {
     std::vector<Tag> topTags = findTopTags();
     std::vector<Tag> allTags = findAllTags();
-    sort(topTags.begin(), topTags.end());
-    sort(allTags.begin(), allTags.end());
+    std::sort(topTags.begin(), topTags.end());
+    std::sort(allTags.begin(), allTags.end());
 
     std::vector<Tag> bottomTags;
     set_difference(allTags.begin(),
@@ -128,7 +123,6 @@ std::vector<Tag> TagTop::findAllTags() const
 {
     std::vector<Tag> allTags;
     allTags.reserve(sprintsByTag.size());
-
     transform(sprintsByTag.cbegin(),
               sprintsByTag.cend(),
               back_inserter(allTags),

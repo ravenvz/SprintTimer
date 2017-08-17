@@ -25,7 +25,6 @@
 
 #include "Distribution.h"
 #include "core/entities/Sprint.h"
-#include <iostream>
 #include <unordered_map>
 
 
@@ -77,8 +76,8 @@ public:
 private:
     TagSprints sprintsByTag;
     std::vector<TagFrequency> frequencies;
-    size_t numTopTags;
-    Tag dummyTag{""};
+    size_t numTopTags{0};
+    const Tag dummyTag{""};
 
     void arrangeSprintsByTag(const std::vector<Sprint>& sprints);
 
