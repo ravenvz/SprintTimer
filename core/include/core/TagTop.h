@@ -77,7 +77,7 @@ private:
     TagSprints sprintsByTag;
     std::vector<TagFrequency> frequencies;
     size_t numTopTags{0};
-    const Tag dummyTag{""};
+    Tag dummyTag{""};
 
     void arrangeSprintsByTag(const std::vector<Sprint>& sprints);
 
