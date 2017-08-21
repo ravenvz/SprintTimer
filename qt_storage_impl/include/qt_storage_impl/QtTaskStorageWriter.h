@@ -46,7 +46,7 @@ public:
     void toggleTaskCompletionStatus(const std::string& uuid,
                                     const dw::DateTime& timeStamp) final;
 
-    void updatePriorities(std::vector<std::string>&& priorities) final;
+    void updatePriorities(const std::vector<std::string>& priorities) final;
 
     void editTag(const std::string& oldName, const std::string& newName) final;
 

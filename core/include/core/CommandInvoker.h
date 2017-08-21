@@ -26,6 +26,42 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <stack>
+
+namespace core {
+
+class CommandInvoker {
+public:
+    void executeCommand(std::unique_ptr<Command>&& command)
+    {
+        command->execute();
+        commandStack.push(std::move(command));
+    }
+
+    void undo()
+    {
+        if (commandStack.empty())
+            return;
+        commandStack.top()->undo();
+        commandStack.pop();
+    }
+
+    std::string lastCommandDescription() const
+    {
+        return commandStack.top()->describe();
+    }
+
+    std::size_t stackSize() const
+    {
+        return commandStack.size();
+    }
+
+private:
+    std::stack<std::unique_ptr<Command>> commandStack;
+
+};
+
+} // namespace core
 
 class CommandInvoker {
 public:

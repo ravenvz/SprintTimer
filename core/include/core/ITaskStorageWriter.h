@@ -42,7 +42,8 @@ public:
                                             const dw::DateTime& timeStamp)
         = 0;
 
-    virtual void updatePriorities(std::vector<std::string>&& priorities) = 0;
+    virtual void updatePriorities(const std::vector<std::string>& priorities)
+        = 0;
 
     virtual void editTag(const std::string& oldName, const std::string& newName)
         = 0;

@@ -22,22 +22,21 @@
 #ifndef TOGGLETASKCOMPLETEDCOMMAND_H_CAT08NRT
 #define TOGGLETASKCOMPLETEDCOMMAND_H_CAT08NRT
 
+#include "core/Command.h"
 #include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class ToggleTaskCompletionStatus : public RevertableCommand {
+class ToggleTaskCompletionStatus : public Command {
 public:
     ToggleTaskCompletionStatus(ITaskStorageWriter& taskStorageWriter,
                                const Task& task);
 
-    std::string inspect() const final;
+    void execute() final;
 
-protected:
-    void executeAction() final;
+    void undo() final;
 
-    void undoAction() final;
+    std::string describe() const final;
 
 private:
     ITaskStorageWriter& writer;
@@ -45,6 +44,6 @@ private:
     const dw::DateTime oldTimeStamp;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: TOGGLETASKCOMPLETEDCOMMAND_H_CAT08NRT */

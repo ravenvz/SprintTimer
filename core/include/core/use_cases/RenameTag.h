@@ -22,31 +22,30 @@
 #ifndef EDITTAG_H_6NGOS1Q2
 #define EDITTAG_H_6NGOS1Q2
 
+#include "core/Command.h"
 #include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
 #include <iostream>
 
-namespace UseCases {
+namespace core::use_cases {
 
-class RenameTag : public RevertableCommand {
+class RenameTag : public Command {
 public:
     RenameTag(ITaskStorageWriter& tagStorageWriter,
-            const std::string& oldName,
-            const std::string& newName);
+              std::string oldName,
+              std::string newName);
 
-    std::string inspect() const final;
+    void execute() final;
 
-protected:
-    void executeAction() final;
+    void undo() final;
 
-    void undoAction() final;
+    std::string describe() const final;
 
 private:
     ITaskStorageWriter& writer;
-    const std::string oldName;
-    const std::string newName;
+    const std::string oldName_;
+    const std::string newName_;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: EDITTAG_H_6NGOS1Q2 */

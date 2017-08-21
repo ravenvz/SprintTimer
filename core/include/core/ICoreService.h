@@ -51,7 +51,9 @@ public:
 
     virtual void toggleTaskCompletionStatus(const Task& task) = 0;
 
-    virtual void registerTaskPriorities(TaskOrder&& priorities) = 0;
+    virtual void registerTaskPriorities(TaskOrder&& old_order,
+                                        TaskOrder&& new_order)
+        = 0;
 
     virtual void
     requestFinishedTasks(const dw::TimeSpan& timeSpan,

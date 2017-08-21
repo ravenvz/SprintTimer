@@ -23,29 +23,28 @@
 #define EDITTASKCOMMAND_H_3FYYCQWP
 
 #include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/Command.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class EditTask : public RevertableCommand {
+class EditTask : public Command {
 public:
     EditTask(ITaskStorageWriter& writer,
-             const Task& task,
-             const Task& editedTask);
+             Task originalTask,
+             Task editedTask);
 
-    std::string inspect() const final;
+    void execute() final;
 
-protected:
-    void executeAction() final;
+    void undo() final;
 
-    void undoAction() final;
+    std::string describe() const final;
 
 private:
     ITaskStorageWriter& writer;
-    Task task;
-    Task editedTask;
+    Task originalTask_;
+    Task editedTask_;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: EDITTASKCOMMAND_H_3FYYCQWP */

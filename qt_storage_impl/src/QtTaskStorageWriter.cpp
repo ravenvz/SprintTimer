@@ -217,7 +217,7 @@ void QtTaskStorageWriter::toggleTaskCompletionStatus(const std::string& uuid,
 }
 
 void QtTaskStorageWriter::updatePriorities(
-    std::vector<std::string>&& priorities)
+    const std::vector<std::string>& priorities)
 {
     dbService.requestTransaction();
 

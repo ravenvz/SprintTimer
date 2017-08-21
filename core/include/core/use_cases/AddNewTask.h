@@ -26,6 +26,27 @@
 #include "core/RevertableCommand.h"
 #include "core/entities/Task.h"
 
+#include <core/Command.h>
+
+namespace core::use_cases {
+
+class AddNewTask : public Command {
+public:
+    AddNewTask(ITaskStorageWriter& taskStorageWriter, Task task);
+
+    void execute() final;
+
+    void undo() final;
+
+    std::string describe() const final;
+
+private:
+    ITaskStorageWriter& writer;
+    const Task task;
+};
+
+} // namespace core::use_cases
+
 namespace UseCases {
 
 class AddNewTask : public RevertableCommand {

@@ -22,28 +22,27 @@
 
 #include "core/use_cases/DecrementTaskSprints.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
 DecrementTaskSprints::DecrementTaskSprints(
-    ITaskStorageWriter& taskStorageWriter, const std::string& taskUuid)
+    ITaskStorageWriter& taskStorageWriter, std::string taskUuid)
     : writer{taskStorageWriter}
-    , taskUuid{taskUuid}
+    , taskUuid_{std::move(taskUuid)}
 {
 }
 
-void DecrementTaskSprints::executeAction()
+void DecrementTaskSprints::execute()
 {
-    writer.decrementSprints(taskUuid);
+    writer.decrementSprints(taskUuid_);
 }
 
-void DecrementTaskSprints::undoAction() { writer.incrementSprints(taskUuid); }
+void DecrementTaskSprints::undo() { writer.incrementSprints(taskUuid_); }
 
-std::string DecrementTaskSprints::inspect() const
+std::string DecrementTaskSprints::describe() const
 {
     std::stringstream ss;
-    ss << "Decrement sprints for " << taskUuid;
+    ss << "Decrement sprints for " << taskUuid_;
     return ss.str();
 }
 
-
-} /* UseCases */
+} // namespace core::use_cases

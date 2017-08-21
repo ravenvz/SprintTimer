@@ -22,6 +22,31 @@
 
 #include "core/use_cases/AddNewTask.h"
 
+namespace core::use_cases {
+
+AddNewTask::AddNewTask(ITaskStorageWriter& taskStorageWriter, Task newTask)
+    : writer{taskStorageWriter}
+    , task{std::move(newTask)}
+{
+}
+
+void AddNewTask::execute() {
+    writer.save(task);
+}
+
+void AddNewTask::undo() {
+    writer.remove(task);
+}
+
+std::string AddNewTask::describe() const
+{
+    std::stringstream ss;
+    ss << "Add new task '" << task << "'";
+    return ss.str();
+}
+
+} // namespace core::use_cases
+
 namespace UseCases {
 
 AddNewTask::AddNewTask(ITaskStorageWriter& taskStorageWriter, const Task& task)

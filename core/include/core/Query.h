@@ -23,10 +23,15 @@
 #ifndef SPRINT_TIMER_QUERY_H
 #define SPRINT_TIMER_QUERY_H
 
+namespace core {
+
 class Query {
 public:
     virtual ~Query() = default;
+
     virtual void execute() = 0;
 };
+
+} // namespace core
 
 #endif //SPRINT_TIMER_QUERY_H
