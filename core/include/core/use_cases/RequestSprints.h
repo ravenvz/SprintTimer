@@ -23,28 +23,28 @@
 #define REQUESTSPRINTS_H_4QUSWCF0
 
 
-#include "core/Command.h"
 #include "core/ISprintStorageReader.h"
+#include "core/Query.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class RequestSprints : public Command {
+class RequestSprints : public Query {
 public:
-    RequestSprints(
-        ISprintStorageReader& reader,
-        const dw::TimeSpan& timeSpan,
-        std::function<void(const std::vector<Sprint>&)> resultHandler);
+    using QueryResultHandler = std::function<void(const std::vector<Sprint>&)>;
+    RequestSprints(ISprintStorageReader& sprint_storage_reader,
+                   dw::TimeSpan timeSpan,
+                   QueryResultHandler resultHandler);
 
     void execute() final;
 
-    std::string inspect() const final;
+    std::string describe() const final;
 
 private:
     ISprintStorageReader& reader;
-    const dw::TimeSpan timeSpan;
-    std::function<void(const std::vector<Sprint>&)> handler;
+    const dw::TimeSpan timeSpan_;
+    QueryResultHandler handler;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: REQUESTSPRINTS_H_4QUSWCF0 */

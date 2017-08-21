@@ -22,24 +22,23 @@
 
 #include "core/use_cases/RequestUnfinishedTasks.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
 RequestUnfinishedTasks::RequestUnfinishedTasks(
     ITaskStorageReader& taskStorageReader, ITaskStorageReader::Handler handler)
     : reader{taskStorageReader}
-    , handler{handler}
+    , handler_{handler}
 {
 }
 
 void RequestUnfinishedTasks::execute()
 {
-    reader.requestUnfinishedTasks(handler);
+    reader.requestUnfinishedTasks(handler_);
 }
 
-std::string RequestUnfinishedTasks::inspect() const
+std::string RequestUnfinishedTasks::describe() const
 {
     return "Request unfinished tasks";
 }
 
-
-} /* UseCases */
+} // namespace core::use_cases

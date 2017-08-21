@@ -32,6 +32,7 @@
 #include "core/ITaskStorageWriter.h"
 #include "core/IYearRangeReader.h"
 #include "core/MacroTransaction.h"
+#include "core/QueryExecutor.h"
 
 namespace Core {
 
@@ -120,10 +121,9 @@ private:
     ISprintDistributionReader& sprintDailyDistributionReader;
     ISprintDistributionReader& sprintWeeklyDistributionReader;
     ISprintDistributionReader& sprintMonthlyDistributionReader;
-    CommandInvoker query_invoker;
+    core::QueryExecutor query_invoker;
     core::CommandInvoker invoker;
 };
-
 
 } // namespace Core
 

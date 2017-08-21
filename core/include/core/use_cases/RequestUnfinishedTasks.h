@@ -22,25 +22,25 @@
 #ifndef REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK
 #define REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK
 
-#include "core/Command.h"
 #include "core/ITaskStorageReader.h"
+#include "core/Query.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class RequestUnfinishedTasks : public Command {
+class RequestUnfinishedTasks : public Query {
 public:
     RequestUnfinishedTasks(ITaskStorageReader& taskStorageReader,
                            ITaskStorageReader::Handler handler);
 
     void execute() final;
 
-    std::string inspect() const final;
+    std::string describe() const final;
 
 private:
     ITaskStorageReader& reader;
-    ITaskStorageReader::Handler handler;
+    ITaskStorageReader::Handler handler_;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK */

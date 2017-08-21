@@ -41,6 +41,7 @@
 using dw::DateTime;
 using dw::TimeSpan;
 
+using namespace core;
 using namespace core::use_cases; // TODO remove when all this is inside that
                                  // namespace
 
@@ -104,41 +105,38 @@ void CoreService::requestFinishedTasks(
     const TimeSpan& timeSpan,
     std::function<void(const std::vector<Task>&)> onResultsReceivedCallback)
 {
-    std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestFinishedTasks>(
+    std::unique_ptr<Query> requestItems
+        = std::make_unique<RequestFinishedTasks>(
             taskReader, timeSpan, onResultsReceivedCallback);
-    query_invoker.executeCommand(std::move(requestItems));
+    query_invoker.executeQuery(std::move(requestItems));
 }
 
 void CoreService::requestUnfinishedTasks(
     std::function<void(const std::vector<Task>&)> onResultsReceivedCallback)
 {
-    std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestUnfinishedTasks>(
-            taskReader, onResultsReceivedCallback);
-    query_invoker.executeCommand(std::move(requestItems));
+    auto requestItems = std::make_unique<RequestUnfinishedTasks>(
+        taskReader, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestItems));
 }
 
 void CoreService::exportTasks(const TimeSpan& timeSpan,
                               std::shared_ptr<ExternalIO::ISink> sink,
                               ICoreService::TaskEncodingFunc func)
 {
-    std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestTasks>(
-            taskReader, timeSpan, [sink, func](const auto& tasks) {
-                sink->send(func(tasks));
-            });
-    query_invoker.executeCommand(std::move(requestItems));
+    auto requestItems = std::make_unique<RequestTasks>(
+        taskReader, timeSpan, [sink, func](const auto& tasks) {
+            sink->send(func(tasks));
+        });
+    query_invoker.executeQuery(std::move(requestItems));
 }
 
 void CoreService::sprintsInTimeRange(
     const TimeSpan& timeSpan,
     std::function<void(const std::vector<Sprint>&)> onResultsReceivedCallback)
 {
-    std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestSprints>(
-            sprintReader, timeSpan, onResultsReceivedCallback);
-    query_invoker.executeCommand(std::move(requestItems));
+    auto requestItems = std::make_unique<RequestSprints>(
+        sprintReader, timeSpan, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestItems));
 }
 
 void CoreService::registerSprint(const TimeSpan& timeSpan,
@@ -150,8 +148,6 @@ void CoreService::registerSprint(const TimeSpan& timeSpan,
 
 void CoreService::registerSprint(const Sprint& sprint)
 {
-    // TODO fix namespaces
-    using namespace core::use_cases;
     auto registerNewSprint
         = std::make_unique<RegisterNewSprint>(sprintWriter, sprint);
     auto incrementTaskSprints
@@ -183,61 +179,53 @@ void CoreService::exportSprints(const TimeSpan& timeSpan,
                                 std::shared_ptr<ExternalIO::ISink> sink,
                                 ICoreService::SprintEncodingFunc func)
 {
-    std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestSprints>(
-            sprintReader, timeSpan, [sink, func](const auto& sprints) {
-                sink->send(func(sprints));
-            });
-    query_invoker.executeCommand(std::move(requestItems));
+    auto requestItems = std::make_unique<RequestSprints>(
+        sprintReader, timeSpan, [sink, func](const auto& sprints) {
+            sink->send(func(sprints));
+        });
+    query_invoker.executeQuery(std::move(requestItems));
 }
 
 void CoreService::yearRange(std::function<void(const std::vector<std::string>&)>
                                 onResultsReceivedCallback)
 {
-    auto requestYearRange = std::make_unique<UseCases::RequestMinMaxYear>(
+    auto requestYearRange = std::make_unique<RequestMinMaxYear>(
         yearRangeReader, onResultsReceivedCallback);
-    query_invoker.executeCommand(std::move(requestYearRange));
+    query_invoker.executeQuery(std::move(requestYearRange));
 }
 
 void CoreService::requestSprintDailyDistribution(
     const TimeSpan& timeSpan,
     std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
-    auto requestDistribution
-        = std::make_unique<UseCases::RequestSprintDistribution>(
-            sprintDailyDistributionReader, timeSpan, onResultsReceivedCallback);
-    query_invoker.executeCommand(std::move(requestDistribution));
+    auto requestDistribution = std::make_unique<RequestSprintDistribution>(
+        sprintDailyDistributionReader, timeSpan, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestDistribution));
 }
 
 void CoreService::requestSprintWeeklyDistribution(
     const TimeSpan& timeSpan,
     std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
-    auto requestDistribution
-        = std::make_unique<UseCases::RequestSprintDistribution>(
-            sprintWeeklyDistributionReader,
-            timeSpan,
-            onResultsReceivedCallback);
-    query_invoker.executeCommand(std::move(requestDistribution));
+    auto requestDistribution = std::make_unique<RequestSprintDistribution>(
+        sprintWeeklyDistributionReader, timeSpan, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestDistribution));
 }
 
 void CoreService::requestSprintMonthlyDistribution(
     const TimeSpan& timeSpan,
     std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
-    auto requestDistribution
-        = std::make_unique<UseCases::RequestSprintDistribution>(
-            sprintMonthlyDistributionReader,
-            timeSpan,
-            onResultsReceivedCallback);
-    query_invoker.executeCommand(std::move(requestDistribution));
+    auto requestDistribution = std::make_unique<RequestSprintDistribution>(
+        sprintMonthlyDistributionReader, timeSpan, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestDistribution));
 }
 
 void CoreService::requestAllTags(TagResultHandler onResultsReceivedCallback)
 {
-    auto requestTags = std::make_unique<UseCases::RequestAllTags>(
+    auto requestTags = std::make_unique<RequestAllTags>(
         taskReader, onResultsReceivedCallback);
-    query_invoker.executeCommand(std::move(requestTags));
+    query_invoker.executeQuery(std::move(requestTags));
 }
 
 void CoreService::editTag(const std::string& oldName,
@@ -260,4 +248,4 @@ uint64_t CoreService::numRevertableCommands() const
 
 void CoreService::undoLast() { invoker.undo(); }
 
-} /* Core */
+} // namespace Core

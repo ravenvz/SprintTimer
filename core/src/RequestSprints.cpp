@@ -22,25 +22,24 @@
 
 #include "core/use_cases/RequestSprints.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-RequestSprints::RequestSprints(
-    ISprintStorageReader& reader,
-    const dw::TimeSpan& timeSpan,
-    std::function<void(const std::vector<Sprint>&)> resultHandler)
-    : reader{reader}
-    , timeSpan{timeSpan}
+RequestSprints::RequestSprints(ISprintStorageReader& sprint_storage_reader,
+                               dw::TimeSpan timeSpan,
+                               QueryResultHandler resultHandler)
+    : reader{sprint_storage_reader}
+    , timeSpan_{timeSpan}
     , handler{resultHandler}
 {
 }
 
-void RequestSprints::execute() { reader.requestItems(timeSpan, handler); }
+void RequestSprints::execute() { reader.requestItems(timeSpan_, handler); }
 
-std::string RequestSprints::inspect() const
+std::string RequestSprints::describe() const
 {
     std::stringstream ss;
-    ss << "Request sprints in '" << timeSpan.toString("dd.MM.yyyy");
+    ss << "Request sprints in '" << timeSpan_.toString("dd.MM.yyyy");
     return ss.str();
 }
 
-} /* UseCases */
+} // namespace core::use_cases
