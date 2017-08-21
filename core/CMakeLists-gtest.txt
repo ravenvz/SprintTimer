@@ -1,5 +1,12 @@
 set(GTEST_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/gtest")
 
+set(LIBPREFIX "${CMAKE_STATIC_LIBRARY_PREFIX}")
+set(LIBSUFFIX "${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
+set(GTEST_NAME "${LIBPREFIX}gtest${LIBSUFFIX}")
+set(GTEST_MAIN_NAME "${LIBPREFIX}gtest_main${LIBSUFFIX}")
+set(GMOCK_NAME "${LIBPREFIX}gmock${LIBSUFFIX}")
+
 ExternalProject_Add(
     GtestExternal
 
@@ -10,8 +17,11 @@ ExternalProject_Add(
     UPDATE_COMMAND ""
     PATCH_COMMAND ""
     INSTALL_COMMAND ""
-    CMAKE_ARGS -Dgtest_force_shared_crt="ON"
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -Dgtest_force_shared_crt="ON"
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${THIRD_PARTY_LIBS_FOLDER_PREFIX}/gtest"
+    BUILD_BYPRODUCTS ${GTEST_PREFIX}/src/GtestExternal-build/googlemock/gtest/${GTEST_NAME}
+                     ${GTEST_PREFIX}/src/GtestExternal-build/googlemock/gtest/${GTEST_MAIN_NAME}
+                     ${GTEST_PREFIX}/src/GtestExternal-build/googlemock/${GMOCK_NAME}
 )
 
 set(LIBPREFIX "${CMAKE_STATIC_LIBRARY_PREFIX}")
@@ -23,13 +33,13 @@ set(GTEST_LOCATION "${binary_dir}/googlemock")
 set(GTEST_INCLUDES "${source_dir}/googletest/include")
 set(GTEST_GMOCK_INCLUDES "${source_dir}/googlemock/include")
 if (MSVC)
-	set(GTEST_LIBRARY  "${GTEST_LOCATION}/gtest/${CMAKE_CFG_INTDIR}/${LIBPREFIX}gtest${LIBSUFFIX}")
-	set(GTEST_MAIN  "${GTEST_LOCATION}/gtest/${CMAKE_CFG_INTDIR}/${LIBPREFIX}gtest_main${LIBSUFFIX}")
-	set(GTEST_GMOCK  "${GTEST_LOCATION}/${CMAKE_CFG_INTDIR}/${LIBPREFIX}gmock${LIBSUFFIX}")
+	set(GTEST_LIBRARY  "${GTEST_LOCATION}/gtest/${CMAKE_CFG_INTDIR}/${GTEST_NAME}")
+	set(GTEST_MAIN  "${GTEST_LOCATION}/gtest/${CMAKE_CFG_INTDIR}/${GTEST_MAIN_NAME}")
+    set(GTEST_GMOCK  "${GTEST_LOCATION}/${CMAKE_CFG_INTDIR}/${GMOCK_NAME}")
 else()
-	set(GTEST_LIBRARY  "${GTEST_LOCATION}/gtest/${LIBPREFIX}gtest${LIBSUFFIX}")
-	set(GTEST_MAIN  "${GTEST_LOCATION}/gtest/${LIBPREFIX}gtest_main${LIBSUFFIX}")
-	set(GTEST_GMOCK  "${GTEST_LOCATION}/${LIBPREFIX}gmock${LIBSUFFIX}")
+	set(GTEST_LIBRARY  "${GTEST_LOCATION}/gtest/${GTEST_NAME}")
+	set(GTEST_MAIN  "${GTEST_LOCATION}/gtest/${GTEST_MAIN_NAME}")
+    set(GTEST_GMOCK  "${GTEST_LOCATION}/${GMOCK_NAME}")
 endif()
 
 # Workaround against CMake trying to use lib before
