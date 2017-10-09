@@ -23,24 +23,24 @@
 
 using dw::TimeSpan;
 
-namespace UseCases {
+namespace core::use_cases {
 
 RequestTasks::RequestTasks(ITaskStorageReader& taskStorageReader,
-                           const TimeSpan& timeSpan,
+                           TimeSpan timeSpan,
                            ITaskStorageReader::Handler handler)
     : reader{taskStorageReader}
-    , timeSpan{timeSpan}
-    , handler{handler}
+    , timeSpan_{std::move(timeSpan)}
+    , handler_{handler}
 {
 }
 
-void RequestTasks::execute() { reader.requestTasks(timeSpan, handler); }
+void RequestTasks::execute() { reader.requestTasks(timeSpan_, handler_); }
 
-std::string RequestTasks::inspect() const
+std::string RequestTasks::describe() const
 {
     std::stringstream ss;
-    ss << "Request tasks in '" << timeSpan.toString("dd.MM.yyyy");
+    ss << "Request tasks in '" << timeSpan_.toString("dd.MM.yyyy");
     return ss.str();
 }
 
-} /* UseCases */
+} // namespace core::use_cases

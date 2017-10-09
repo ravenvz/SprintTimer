@@ -24,26 +24,26 @@
 
 #include "core/ITaskStorageWriter.h"
 #include "core/RevertableCommand.h"
+#include <core/Command.h>
 
-namespace UseCases {
+namespace core::use_cases {
 
-class IncrementTaskSprints : public RevertableCommand {
+class IncrementTaskSprints : public Command {
 public:
     IncrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         const std::string& taskUuid);
+                         std::string taskUuid);
 
-    std::string inspect() const final;
+    void execute() override;
 
-protected:
-    void executeAction() final;
+    void undo() override;
 
-    void undoAction() final;
+    std::string describe() const override;
 
 private:
     ITaskStorageWriter& writer;
-    const std::string taskUuid;
+    const std::string taskUuid_;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: INCREMENTTASKSPRINTS_H_2OKTXAHD */

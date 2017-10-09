@@ -22,26 +22,28 @@
 #ifndef REQUESTALLTAGS_H_CUXYESDS
 #define REQUESTALLTAGS_H_CUXYESDS
 
-#include "core/Command.h"
 #include "core/ITaskStorageReader.h"
+#include "core/Query.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class RequestAllTags : public Command {
+class RequestAllTags : public Query {
 public:
-    RequestAllTags(
-        ITaskStorageReader& taskStorageReader,
-        std::function<void(const std::vector<std::string>&)> handler);
+    using QueryResultHandler
+        = std::function<void(const std::vector<std::string>&)>;
+
+    RequestAllTags(ITaskStorageReader& taskStorageReader,
+                   QueryResultHandler handler);
 
     void execute() final;
 
-    std::string inspect() const final;
+    std::string describe() const final;
 
 private:
     ITaskStorageReader& reader;
-    std::function<void(const std::vector<std::string>&)> handler;
+    QueryResultHandler handler_;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: REQUESTALLTAGS_H_CUXYESDS */

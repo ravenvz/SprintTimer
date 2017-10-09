@@ -22,23 +22,24 @@
 
 #include "core/use_cases/RegisterNewSprint.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
 RegisterNewSprint::RegisterNewSprint(ISprintStorageWriter& writer,
-                                     const Sprint& sprint)
+                                     Sprint newSprint)
     : writer{writer}
-    , sprint{sprint}
+    , sprint{std::move(newSprint)}
 {
 }
 
-void RegisterNewSprint::executeAction() { writer.save(sprint); }
+void RegisterNewSprint::execute() { writer.save(sprint); }
 
-void RegisterNewSprint::undoAction() { writer.remove(sprint); }
+void RegisterNewSprint::undo() { writer.remove(sprint); }
 
-std::string RegisterNewSprint::inspect() const
+std::string RegisterNewSprint::describe() const
 {
     std::stringstream ss;
     ss << "Register new sprint '" << sprint << "'";
     return ss.str();
 }
-}
+
+} // namespace core::use_cases

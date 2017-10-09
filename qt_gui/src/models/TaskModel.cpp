@@ -22,6 +22,8 @@
 #include "TaskModel.h"
 #include <QSize>
 #include <core/utils/Algutils.h>
+#include <string>
+#include <vector>
 
 #include <iostream>
 #include <iterator>
@@ -150,21 +152,27 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
     if (sourceRow < destinationChild)
         ++destinationChild;
 
+    auto uuidsInOrder = [&st=storage]() {
+        std::vector<std::string> uuids;
+        uuids.reserve(st.size());
+        std::transform(st.cbegin(),
+                       st.cend(),
+                       std::back_inserter(uuids),
+                       [](const auto& task) { return task.uuid(); });
+        return uuids;
+    };
+
+    auto old_order = uuidsInOrder();
+
     beginResetModel();
     utils::slide(storage.begin() + sourceRow,
                  storage.begin() + sourceRow + 1,
                  storage.begin() + destinationChild);
     endResetModel();
 
-    std::vector<std::string> priorities;
-    priorities.reserve(storage.size());
+    auto new_order = uuidsInOrder();
 
-    std::transform(storage.cbegin(),
-                   storage.cend(),
-                   std::back_inserter(priorities),
-                   [](const auto& task) { return task.uuid(); });
-
-    coreService.registerTaskPriorities(std::move(priorities));
+    coreService.registerTaskPriorities(std::move(old_order), std::move(new_order));
 
     return true;
 }

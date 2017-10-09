@@ -19,30 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REGISTERNEWSPRINT_H_YUMZVLHC
-#define REGISTERNEWSPRINT_H_YUMZVLHC
+#ifndef QUERYEXECUTOR_H_AQH0UTZ1
+#define QUERYEXECUTOR_H_AQH0UTZ1
 
-#include "core/Command.h"
-#include "core/ISprintStorageWriter.h"
+#include <core/Query.h>
 
-namespace core::use_cases {
+namespace core {
 
-class RegisterNewSprint : public Command {
+class QueryExecutor {
 public:
-    RegisterNewSprint(ISprintStorageWriter& writer, Sprint newSprint);
-
-    void execute() final;
-
-    void undo() final;
-
-    std::string describe() const final;
-
-private:
-    ISprintStorageWriter& writer;
-    const Sprint sprint;
+    void executeQuery(std::unique_ptr<Query>&& query) { query->execute(); }
 };
 
-} // namespace core::use_cases
+} // namespace core
 
-
-#endif /* end of include guard: REGISTERNEWSPRINT_H_YUMZVLHC */
+#endif /* end of include guard: QUERYEXECUTOR_H_AQH0UTZ1 */

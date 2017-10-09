@@ -32,6 +32,7 @@
 #include "core/ITaskStorageWriter.h"
 #include "core/IYearRangeReader.h"
 #include "core/MacroTransaction.h"
+#include "core/QueryExecutor.h"
 
 namespace Core {
 
@@ -54,7 +55,8 @@ public:
 
     void toggleTaskCompletionStatus(const Task& task) final;
 
-    void registerTaskPriorities(TaskOrder&& priorities) final;
+    void registerTaskPriorities(TaskOrder&& old_order,
+                                TaskOrder&& new_order) final;
 
     void requestFinishedTasks(const dw::TimeSpan& timeSpan,
                               std::function<void(const std::vector<Task>&)>
@@ -119,9 +121,9 @@ private:
     ISprintDistributionReader& sprintDailyDistributionReader;
     ISprintDistributionReader& sprintWeeklyDistributionReader;
     ISprintDistributionReader& sprintMonthlyDistributionReader;
-    CommandInvoker invoker;
+    core::QueryExecutor query_invoker;
+    core::CommandInvoker invoker;
 };
-
 
 } // namespace Core
 

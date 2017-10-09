@@ -22,27 +22,27 @@
 #ifndef REQUESTFINISHEDTASKSCOMMAND_H_AF6E0NUL
 #define REQUESTFINISHEDTASKSCOMMAND_H_AF6E0NUL
 
-#include "core/Command.h"
 #include "core/ITaskStorageReader.h"
+#include "core/Query.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class RequestFinishedTasks : public Command {
+class RequestFinishedTasks : public Query {
 public:
     RequestFinishedTasks(ITaskStorageReader& taskStorageReader,
-                         const dw::TimeSpan& timeSpan,
+                         dw::TimeSpan timeSpan,
                          ITaskStorageReader::Handler handler);
 
     void execute() final;
 
-    std::string inspect() const final;
+    std::string describe() const final;
 
 private:
     ITaskStorageReader& reader;
-    const dw::TimeSpan timeSpan;
-    ITaskStorageReader::Handler handler;
+    const dw::TimeSpan timeSpan_;
+    ITaskStorageReader::Handler handler_;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: REQUESTFINISHEDTASKSCOMMAND_H_AF6E0NUL */

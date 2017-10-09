@@ -23,10 +23,17 @@
 #ifndef SPRINT_TIMER_QUERY_H
 #define SPRINT_TIMER_QUERY_H
 
+namespace core {
+
 class Query {
 public:
     virtual ~Query() = default;
+
     virtual void execute() = 0;
+
+    virtual std::string describe() const = 0;
 };
 
-#endif //SPRINT_TIMER_QUERY_H
+} // namespace core
+
+#endif // SPRINT_TIMER_QUERY_H

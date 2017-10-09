@@ -24,14 +24,13 @@
 // Workaround for C++17 as std::tr1 no longer available and Gtest uses it
 #define GTEST_LANG_CXX11 1
 
-#include "fixtures/FakeTaskStorageWriter.h"
 #include "core/use_cases/IncrementTaskSprints.h"
+#include "fixtures/FakeTaskStorageWriter.h"
 #include "gtest/gtest.h"
 
 namespace {
 
-Task defaultItem{
-    "Item name", 4, 2, {Tag{"Tag 1"}, Tag{"Tag 2"}}, false};
+Task defaultItem{"Item name", 4, 2, {Tag{"Tag 1"}, Tag{"Tag 2"}}, false};
 
 } // namespace
 
@@ -42,7 +41,7 @@ TEST(IncrementTaskSprints, test_execute_and_undo)
     writer.save(defaultItem);
     std::string uuid = defaultItem.uuid();
 
-    UseCases::IncrementTaskSprints increment{writer, uuid};
+    core::use_cases::IncrementTaskSprints increment{writer, uuid};
     increment.execute();
 
     EXPECT_EQ(3, (*writer.storage.getItem(uuid)).actualCost());
@@ -52,14 +51,20 @@ TEST(IncrementTaskSprints, test_execute_and_undo)
     EXPECT_EQ(2, (*writer.storage.getItem(uuid)).actualCost());
 }
 
-TEST(IncrementTaskSprints, test_should_not_undo_if_was_not_executed)
+// TODO enable or delete once decision on Command handling is made.
+// The issue is - if client code is responsible to create command, then
+// a command can be undone even before it was executed, which can lead to
+// some `interesting` consequences.
+// If command is executed only via invoker - which is meant to be the way
+//  - we need to find a way to enforce it
+TEST(IncrementTaskSprints, DISABLED_test_should_not_undo_if_was_not_executed)
 {
     FakeStorage<Task> storage;
     FakeTaskStorageWriter writer{storage};
     writer.save(defaultItem);
     std::string uuid = defaultItem.uuid();
 
-    UseCases::IncrementTaskSprints increment{writer, uuid};
+    core::use_cases::IncrementTaskSprints increment{writer, uuid};
 
     EXPECT_EQ(2, (*writer.storage.getItem(uuid)).actualCost());
 

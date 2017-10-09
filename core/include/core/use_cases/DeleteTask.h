@@ -23,25 +23,25 @@
 #define REMOVETASKTRANSACTION_H_9P4V02DM
 
 #include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/Command.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class DeleteTask : public RevertableCommand {
+class DeleteTask : public Command {
 public:
-    DeleteTask(ITaskStorageWriter& taskStorageWriter, const Task& taskToRemove);
+    DeleteTask(ITaskStorageWriter& taskStorageWriter, Task taskToRemove);
 
-    std::string inspect() const final;
+    void execute() final;
 
-protected:
-    void executeAction() final;
+    void undo() final;
 
-    void undoAction() final;
+    std::string describe() const final;
 
 private:
     ITaskStorageWriter& writer;
     const Task task;
 };
+
 } /* UseCases */
 
 #endif /* end of include guard: REMOVETASKTRANSACTION_H_9P4V02DM */

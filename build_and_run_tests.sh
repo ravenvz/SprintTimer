@@ -14,8 +14,9 @@ build_tool_options=-j$(nproc)
 build_tests="ON"
 debug_make_options="-j1 VERBOSE=1"
 verbose_makefile_option="OFF"
+generator="Unix Makefiles"
 
-while getopts "drcamutzv" opt ; do
+while getopts "drcamutzvn" opt ; do
     case "$opt" in
         d) build_tool_options=$debug_make_options
             ;;
@@ -36,7 +37,8 @@ while getopts "drcamutzv" opt ; do
            ;;
 		v) verbose_makefile_option="ON"
 		   ;;
-
+        n) build_tool="ninja"
+           generator="Ninja"
     esac
 done
 
@@ -52,7 +54,7 @@ cmake_options="-DCMAKE_BUILD_TYPE=$build_type \
 echo "$build_type build using $cxx_compiler and $build_tool"
 
 (cd build && \
-    CC=$c_compiler CXX=$cxx_compiler cmake $cmake_options $verbose_makefile_option .. \
+    CC=$c_compiler CXX=$cxx_compiler cmake $generator $cmake_options $verbose_makefile_option .. \
     && $build_tool $build_tool_options)
 
 if [ $build_tests == "ON" ]; then

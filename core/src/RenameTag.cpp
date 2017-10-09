@@ -22,26 +22,26 @@
 
 #include "core/use_cases/RenameTag.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
 RenameTag::RenameTag(ITaskStorageWriter& tagStorageWriter,
-                 const std::string& oldName,
-                 const std::string& newName)
+                     std::string oldName,
+                     std::string newName)
     : writer{tagStorageWriter}
-    , oldName{oldName}
-    , newName{newName}
+    , oldName_{std::move(oldName)}
+    , newName_{std::move(newName)}
 {
 }
 
-void RenameTag::executeAction() { writer.editTag(oldName, newName); }
+void RenameTag::execute() { writer.editTag(oldName_, newName_); }
 
-void RenameTag::undoAction() { writer.editTag(newName, oldName); }
+void RenameTag::undo() { writer.editTag(newName_, oldName_); }
 
-std::string RenameTag::inspect() const
+std::string RenameTag::describe() const
 {
     std::stringstream ss;
-    ss << "Edit tag (" << oldName << " -> " << newName << ")";
+    ss << "Edit tag (" << oldName_ << " -> " << newName_ << ")";
     return ss.str();
 }
 
-} /* UseCases */
+} // namespace core::use_cases

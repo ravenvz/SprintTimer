@@ -24,7 +24,7 @@
 
 using dw::DateTime;
 
-namespace UseCases {
+namespace core::use_cases {
 
 ToggleTaskCompletionStatus::ToggleTaskCompletionStatus(
     ITaskStorageWriter& taskStorageWriter, const Task& task)
@@ -34,22 +34,21 @@ ToggleTaskCompletionStatus::ToggleTaskCompletionStatus(
 {
 }
 
-void ToggleTaskCompletionStatus::executeAction()
+void ToggleTaskCompletionStatus::execute()
 {
     writer.toggleTaskCompletionStatus(uuid, DateTime::currentDateTimeLocal());
 }
 
-void ToggleTaskCompletionStatus::undoAction()
+void ToggleTaskCompletionStatus::undo()
 {
     writer.toggleTaskCompletionStatus(uuid, oldTimeStamp);
 }
 
-std::string ToggleTaskCompletionStatus::inspect() const
+std::string ToggleTaskCompletionStatus::describe() const
 {
     std::stringstream ss;
     ss << "Toggle task completion for " << uuid;
     return ss.str();
 }
 
-
-} /* UseCases */
+} // namespace core::use_cases

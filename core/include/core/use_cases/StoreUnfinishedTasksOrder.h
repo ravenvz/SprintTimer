@@ -25,22 +25,26 @@
 #include "core/Command.h"
 #include "core/ITaskStorageWriter.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
 class StoreUnfinishedTasksOrder : public Command {
 public:
     StoreUnfinishedTasksOrder(ITaskStorageWriter& taskStorageWriter,
-                              std::vector<std::string>&& priorities);
+                              std::vector<std::string>&& old_order,
+                              std::vector<std::string>&& new_order);
 
     void execute() final;
 
-    std::string inspect() const final;
+    void undo() final;
+
+    std::string describe() const final;
 
 private:
     ITaskStorageWriter& writer;
-    std::vector<std::string> priorities;
+    const std::vector<std::string> old_order_;
+    const std::vector<std::string> new_order_;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y */
