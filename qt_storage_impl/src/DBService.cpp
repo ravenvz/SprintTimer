@@ -29,6 +29,7 @@ DBService::DBService(const QString& filename)
     auto* worker = new Worker(filename);
     worker->moveToThread(&workerThread);
     qRegisterMetaType<std::vector<QSqlRecord>>("std::vector<QSqlRecord>");
+    connect(&workerThread, &QThread::started, worker, &Worker::init);
     connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
     connect(this, &DBService::queue, worker, &Worker::execute);
     connect(this, &DBService::queuePrepared, worker, &Worker::executePrepared);
@@ -109,16 +110,20 @@ void DBService::commit() { emit requestCommit(); }
 
 Worker::Worker(QString filename)
     : filename{std::move(filename)}
-    , db{QSqlDatabase::addDatabase("QSQLITE")}
 {
-    if (!openConnection())
-        throw std::runtime_error("Unable to create database");
 }
 
 Worker::~Worker()
 {
-    db.close();
+    QSqlDatabase::database().close();
     QSqlDatabase::removeDatabase("QSQLITE");
+}
+
+void Worker::init()
+{
+    QSqlDatabase::addDatabase("QSQLITE");
+    if (!openConnection())
+        throw std::runtime_error("Unable to create database");
 }
 
 void Worker::execute(qint64 queryId, const QString& query)
@@ -180,7 +185,7 @@ void Worker::bindValue(qint64 queryId,
 
 void Worker::onTransactionRequested()
 {
-    inTransaction = db.transaction();
+    inTransaction = QSqlDatabase::database().transaction();
     if (!inTransaction) {
         emit error(-1, "Transaction request failed");
     }
@@ -188,7 +193,7 @@ void Worker::onTransactionRequested()
 
 void Worker::rollbackTransaction()
 {
-    if (!db.rollback()) {
+    if (!QSqlDatabase::database().rollback()) {
         emit error(-1, "Transaction rollback failed");
     }
     inTransaction = false;
@@ -196,7 +201,7 @@ void Worker::rollbackTransaction()
 
 void Worker::onCommitRequested()
 {
-    if (!db.commit()) {
+    if (!QSqlDatabase::database().commit()) {
         emit error(-1, "Transaction commit failed");
     }
     inTransaction = false;
@@ -204,9 +209,9 @@ void Worker::onCommitRequested()
 
 bool Worker::openConnection()
 {
-    db.setDatabaseName(filename);
+    QSqlDatabase::database().setDatabaseName(filename);
 
-    if (!db.open()) {
+    if (!QSqlDatabase::database().open()) {
         qCritical() << "Worker failed to open database";
         return false;
     }
