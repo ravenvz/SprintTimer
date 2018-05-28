@@ -113,6 +113,8 @@ public:
     Worker& operator=(Worker&&) = delete;
 
 public slots:
+    void init();
+
     void execute(qint64 queryId, const QString& query);
 
     void executePrepared(qint64 queryId);
@@ -136,7 +138,6 @@ signals:
 
 private:
     QString filename;
-    QSqlDatabase db;
     bool inTransaction{false};
     QHash<qint64, QSqlQuery> preparedQueries;
 
