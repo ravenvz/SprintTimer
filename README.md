@@ -19,12 +19,8 @@ It is a tool that helps to deal with time-framed tasks effectively. It encourage
 * it allows you to quickly observe progress for last 30 days, last 4 months and last year;
 * there are times when you are in the flow and don't want to be distracted - just click *InTheZone* button and sprints will be run without breaks and notifications and then be all stored when you finished.
 
-### Screenshots
-![Timer running](screenshots/Timer_running.png)
-![Settings](screenshots/Settings.png)
-![Window expanded](screenshots/Main_expanded.png)
-![Statistics](screenshots/Statistics.png)
-![Progress](screenshots/Progress.png)
+### SprintTimer in action
+![action](screenshots/1.gif)
 
 ### Building from source
 
