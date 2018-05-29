@@ -27,6 +27,8 @@
 #include "core/utils/WeekdaySelection.h"
 #include "gtest/gtest.h"
 
+using dw::DateTime;
+
 TEST(WeekdaySelection, test_adds_selection)
 {
     WeekdaySelection selection;
@@ -47,4 +49,11 @@ TEST(WeekdaySelection, test_unselects_days)
 
     EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Monday));
     EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Sunday));
+}
+
+TEST(WeekdaySelection, test_returns_total_number_selected)
+{
+    EXPECT_EQ(0, WeekdaySelection{0}.numSelected());
+    EXPECT_EQ(7, WeekdaySelection{127}.numSelected());
+    EXPECT_EQ(5, WeekdaySelection{93}.numSelected());
 }

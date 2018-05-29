@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "widgets/StatisticsWindow.h"
+#include "core/utils/WeekdaySelection.h"
 #include "ui_statistics_window.h"
 #include "widgets/BarChart.h"
 
@@ -33,7 +34,7 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
 {
     setAttribute(Qt::WA_DeleteOnClose);
     coreService.yearRange(
-            [this](const auto& range) { this->onYearRangeUpdated(range); });
+        [this](const auto& range) { this->onYearRangeUpdated(range); });
     ui->setupUi(this);
     currentInterval = ui->dateRangePicker->getInterval();
 
@@ -51,16 +52,14 @@ StatisticsWindow::~StatisticsWindow() { delete ui; }
 
 void StatisticsWindow::synchronize() { fetchData(); }
 
-
 void StatisticsWindow::fetchData()
 {
     coreService.sprintsInTimeRange(
-            currentInterval.toTimeSpan(),
-            [this](const auto& sprints) { this->onDataFetched(sprints); });
+        currentInterval.toTimeSpan(),
+        [this](const auto& sprints) { this->onDataFetched(sprints); });
 }
 
-void StatisticsWindow::onDataFetched(
-        const std::vector<Sprint>& sprints)
+void StatisticsWindow::onDataFetched(const std::vector<Sprint>& sprints)
 {
     this->sprints = sprints;
     selectedTagIndex = optional<size_t>();
@@ -85,20 +84,21 @@ void StatisticsWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 void StatisticsWindow::drawGraphs()
 {
     SprintStatItem statistics{
-        selectedTagIndex
-            ? tagTop.sprintsForTagAt(*selectedTagIndex)
-            : sprints,
+        selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex) : sprints,
         currentInterval.toTimeSpan()};
-    ui->dailyTimelineGraph->setData(statistics.dailyDistribution(),
-                                    currentInterval.startDate,
-                                    applicationSettings.dailyGoal());
+    const WeekdaySelection workdays{applicationSettings.workdaysCode()};
+    ui->dailyTimelineGraph->setData(
+        statistics.dailyDistribution(),
+        currentInterval.startDate,
+        numWorkdays(currentInterval.toTimeSpan(), workdays),
+        applicationSettings.dailyGoal());
     ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
     ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
                                     statistics.sprints());
 }
 
-
-void StatisticsWindow::updateTopTagsDiagram(std::vector<TagTop::TagFrequency>& tagCounts)
+void StatisticsWindow::updateTopTagsDiagram(
+    std::vector<TagTop::TagFrequency>& tagCounts)
 {
     if (!tagCounts.empty() && tagCounts.back().first == Tag{""})
         tagCounts.back().first.setName("others");

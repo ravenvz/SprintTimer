@@ -20,10 +20,11 @@
 **
 *********************************************************************************/
 
-#include "core/utils/WeekdaySelection.h"
 #include "widgets/GoalProgressWindow.h"
-#include "widgets/ProgressWidget.h"
+#include "core/utils/WeekdaySelection.h"
+#include "widgets/ProgressView.h"
 
+using dw::DateTime;
 using dw::TimeSpan;
 
 namespace {
@@ -38,7 +39,8 @@ TimeSpan thirtyDaysBackTillNow()
 TimeSpan twelveWeeksBackTillNow()
 {
     auto now = DateTime::currentDateTimeLocal();
-    auto from = now.add(DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
+    auto from
+        = now.add(DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
     return TimeSpan{from, now};
 }
 
@@ -170,8 +172,9 @@ void GoalProgressWindow::synchronizeMonthlyData()
 void GoalProgressWindow::onDailyDataReceived(
     const Distribution<int>& distribution)
 {
+    const WeekdaySelection workdays{applicationSettings.workdaysCode()};
     dailyProgress->setData(distribution,
-                           calculateNumWorkdaysBins(thirtyDaysBackTillNow()));
+                           numWorkdays(thirtyDaysBackTillNow(), workdays));
 }
 
 void GoalProgressWindow::onWeeklyDataReceived(
@@ -195,18 +198,4 @@ void GoalProgressWindow::launchWorkdaysConfigurationDialog()
             &GoalProgressWindow::synchronizeDailyData);
     workdaysDialog->setModal(true);
     workdaysDialog->show();
-}
-
-int GoalProgressWindow::calculateNumWorkdaysBins(const TimeSpan& timeSpan) const
-{
-    WeekdaySelection workdays{applicationSettings.workdaysCode()};
-    int numBins{0};
-    for (auto day = timeSpan.start(); day <= timeSpan.finish();
-         day = day.add(DateTime::Days{1})) {
-        if (workdays.isSelected(
-                static_cast<DateTime::Weekday>(day.dayOfWeek())))
-            ++numBins;
-    }
-
-    return numBins;
 }

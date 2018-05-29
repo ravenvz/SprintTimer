@@ -26,8 +26,9 @@
 
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QLabel>
-#include <date_wrapper/DateTime.h>
 #include <core/Distribution.h>
+#include <core/utils/WeekdaySelection.h>
+#include <date_wrapper/DateTime.h>
 
 namespace Ui {
 class DailyTimelineGraph;
@@ -42,6 +43,7 @@ public:
 
     void setData(const Distribution<double>& dailyDistribution,
                  const QDate& startDate,
+                 int numWorkdays,
                  int dailyGoal);
 
 private:
@@ -49,9 +51,9 @@ private:
 
     void setupGraphs();
 
-    void updateLegend(const Distribution<double>& dailyDistribution);
+    void updateLegend(const Distribution<double>& dailyDistribution,
+                      double averagePerWorkday);
 };
 
 
 #endif // DAILYTIMELINEGRAPH_H
-

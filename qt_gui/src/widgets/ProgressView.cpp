@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "widgets/ProgressWidget.h"
+#include "widgets/ProgressView.h"
 #include "ui_progress_widget.h"
 #include "widgets/Gauge.h"
 #include <QtWidgets/QGridLayout>
@@ -92,24 +92,26 @@ void ProgressView::addLegendRow(const QString& labelText, QWidget* field)
     ui->formLayout->addRow(labelText, field);
 }
 
-void ProgressView::setData(const Distribution<int>& distribution, size_t numBins)
+void ProgressView::setData(const Distribution<int>& distribution,
+                           size_t numActiveBins)
 {
     ui->lblProgress->setText(QString("%1").arg(distribution.getTotal()));
-    const long long expectedTotal = goal * numBins;
+    const long long expectedTotal = goal * numActiveBins;
     const long long numCompleted = distribution.getTotal();
 
     if (numCompleted > expectedTotal) {
         ui->lblLeftCaption->setText("Overwork:");
         ui->lblLeft->setText(QString{"%1"}.arg(numCompleted - expectedTotal));
-    } else {
+    }
+    else {
         ui->lblLeftCaption->setText("Left to complete:");
         ui->lblLeft->setText(QString("%1").arg(expectedTotal - numCompleted));
     }
 
-    ui->lblAverage->setText(formatDecimal(distribution.getAverage()));
+    const double average = numCompleted / static_cast<double>(numActiveBins);
+    ui->lblAverage->setText(formatDecimal(average));
     ui->lblPercentage->setText(QString("%1%").arg(formatDecimal(
-        percentage(distribution.getTotal(),
-                   static_cast<int>(expectedTotal)))));
+        percentage(distribution.getTotal(), static_cast<int>(expectedTotal)))));
     fillGauges(distribution);
     updateProgressBar(distribution.getBinValue(distribution.getNumBins() - 1));
 }

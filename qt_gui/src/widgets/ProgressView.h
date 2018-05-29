@@ -55,7 +55,7 @@ public:
 
     void addLegendRow(const QString& labelText, QWidget* field);
 
-    void setData(const Distribution<int>& distribution, size_t expectedTotal);
+    void setData(const Distribution<int>& distribution, size_t numActiveBins);
 
 private:
     Ui::ProgressView* ui;
