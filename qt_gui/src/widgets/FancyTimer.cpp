@@ -23,6 +23,7 @@
 #include "widgets/FancyTimer.h"
 #include "ui_fancy_timer.h"
 #include "utils/WidgetUtils.h"
+#include "SubmissionItemDelegate.h"
 
 namespace {
     constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
@@ -63,6 +64,8 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
         timer->toggleInTheZoneMode();
     });
     connect(ui->pbCancel, &QPushButton::clicked, this, &FancyTimer::cancelTask);
+
+    ui->cbxSubmissionCandidate->setItemDelegate(new SubmissionItemDelegate(this));
 
     onIdleStateEnteredHook();
 }
