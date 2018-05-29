@@ -189,6 +189,10 @@ void GoalProgressWindow::onMonthlyDataReceived(
 void GoalProgressWindow::launchWorkdaysConfigurationDialog()
 {
     workdaysDialog.reset(new WorkdaysDialog{applicationSettings});
+    connect(workdaysDialog.get(),
+            &QDialog::accepted,
+            this,
+            &GoalProgressWindow::synchronizeDailyData);
     workdaysDialog->setModal(true);
     workdaysDialog->show();
 }
