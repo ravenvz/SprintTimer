@@ -49,7 +49,8 @@ fi
 
 cmake_options="-DCMAKE_BUILD_TYPE=$build_type \
                -DECM_ENABLE_SANITIZERS=$sanitizers \
-               -DBUILD_TESTS=$build_tests"
+               -DBUILD_TESTS=$build_tests \
+               -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
 
 echo "$build_type build using $cxx_compiler and $build_tool"
 
