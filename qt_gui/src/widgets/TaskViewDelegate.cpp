@@ -25,15 +25,28 @@
 
 namespace {
 
-QRect constructBoundingRect(const QStyleOptionViewItem& option,
-                            const QString& text,
-                            int flags);
+// Note that below options must match those defined in QSS.
+// Probably there is a cleaner way to do this.
+constexpr int margin{5};
+constexpr int pad{5};
+constexpr int borderWidth{1};
 
-void rescaleTagsRectIfMultiline(QRect& tagsRect,
-                                const QRect& statRect,
-                                const QRect& optionRect);
+constexpr int offset{margin + borderWidth + pad};
+
+constexpr int completedItemAlpha{100};
+constexpr int normalItemAlpha{255};
+
+std::tuple<QRect, QRect, QRect>
+textRectangles(const QStyleOptionViewItem& option, const QModelIndex& index);
+
+QRect boundingRect(const QStyleOptionViewItem& option,
+                   const QString& text,
+                   int maxWidth,
+                   int flags);
 
 bool taskOverspent(const QString& stats);
+
+int contentWidth(const QRect& rect);
 
 } // namespace
 
@@ -50,42 +63,34 @@ QSize TaskViewDelegate::sizeHint(const QStyleOptionViewItem& option,
     if (!index.isValid())
         return QSize();
 
-    QString tags = index.data(Qt::UserRole + 1).toString();
-    QString name = index.data(Qt::UserRole + 2).toString();
-    QString completionStats = index.data(Qt::UserRole + 3).toString();
-
-    QRect tagsRect{constructBoundingRect(option, tags, Qt::AlignLeft)};
-    QRect statRect{
-        constructBoundingRect(option, completionStats, Qt::AlignRight)};
-    QRect nameRect{
-        constructBoundingRect(option, name, Qt::AlignLeft | Qt::TextWordWrap)};
-
-    rescaleTagsRectIfMultiline(tagsRect, statRect, option.rect);
-
+    auto [statsRect, tagsRect, descrRect] = textRectangles(option, index);
     return QSize{option.rect.width(),
-                 tagsRect.height() + nameRect.height() * padding
-                     + verticalSpacing};
+                 tagsRect.height() + descrRect.height() + 3 * offset};
 }
 
 void TaskViewDelegate::paint(QPainter* painter,
                              const QStyleOptionViewItem& option,
                              const QModelIndex& index) const
 {
+
+    QStyleOptionViewItem opt{option};
+    initStyleOption(&opt, index);
+    QStyle* style = opt.widget ? opt.widget->style() : QApplication::style();
+
     painter->save();
-    QFont completedItemFont{option.font};
-    painter->setFont(completedItemFont);
-    if (option.state & QStyle::State_Selected) {
-        painter->fillRect(option.rect, option.palette.highlight());
-        painter->setPen(option.palette.highlightedText().color());
-    }
     if (index.data(Qt::CheckStateRole).toBool()) {
-        completedItemFont.setStrikeOut(true);
-        painter->setFont(completedItemFont);
-        paintItem(painter, option, index, completedItemAlpha);
+        QFont strikedOutFont{opt.font};
+        strikedOutFont.setStrikeOut(true);
+        painter->setFont(strikedOutFont);
+        paintItem(painter, opt, index, completedItemAlpha);
     }
     else {
-        paintItem(painter, option, index, normalItemAlpha);
+        paintItem(painter, opt, index, normalItemAlpha);
     }
+
+    opt.text = "";
+    opt.features ^= QStyleOptionViewItem::HasCheckIndicator;
+    style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, opt.widget);
     painter->restore();
 }
 
@@ -106,72 +111,77 @@ void TaskViewDelegate::paintItem(QPainter* painter,
     const QString descr = index.data(Qt::UserRole + 2).toString();
     const QString completionStats = index.data(Qt::UserRole + 3).toString();
 
-    // Stats should be drawn in the top-right corner of the line where tags
-    // are drawn So we set tagsRect width to match item width and add
-    // corrections in height.
-    QRect tagsRect{
-        constructBoundingRect(option, tags, Qt::AlignLeft | Qt::TextWordWrap)};
-    tagsRect.setWidth(option.rect.width());
-    tagsRect.adjust(option.rect.topLeft().x(),
-                    option.rect.topLeft().y() + verticalSpacing,
-                    0,
-                    option.rect.topLeft().y() + verticalSpacing);
+    auto [statsRect, tagsRect, descrRect] = textRectangles(option, index);
 
+    const auto contentRect{option.rect};
+    QStyle* style
+        = option.widget ? option.widget->style() : QApplication::style();
+
+    // Truncate rect for a very long tag, that doesn't fit into rect
+    tagsRect.setWidth(contentWidth(contentRect) - statsRect.width() - offset);
+    tagsRect.adjust(contentRect.topLeft().x() + offset,
+                    contentRect.topLeft().y() + offset,
+                    contentRect.topLeft().x() + offset,
+                    contentRect.topLeft().y() + offset);
     painter->setPen(tagCol);
-    painter->drawText(
-        tagsRect, Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, tags);
+    style->drawItemText(
+        painter, tagsRect, Qt::TextWordWrap, option.palette, true, tags);
 
-    QRect descrRect{
-        constructBoundingRect(option, descr, Qt::AlignLeft | Qt::TextWordWrap)};
-    descrRect.adjust(option.rect.bottomLeft().x(),
-                     option.rect.bottomLeft().y() - verticalSpacing,
-                     0,
-                     option.rect.bottomLeft().y() - verticalSpacing);
-
+    // Truncate rect for a very long word, that doesn't fit into rect
+    descrRect.setWidth(std::min(descrRect.width(), contentWidth(contentRect)));
+    descrRect.adjust(contentRect.bottomLeft().x() + offset,
+                     contentRect.bottomLeft().y() - offset - descrRect.height(),
+                     contentRect.bottomLeft().x() + offset,
+                     contentRect.bottomLeft().y() - offset
+                         - descrRect.height());
     painter->setPen(commonCol);
-    painter->drawText(
-        descrRect, Qt::AlignLeft | Qt::TextWordWrap | Qt::AlignBottom, descr);
+    style->drawItemText(
+        painter, descrRect, Qt::TextWordWrap, option.palette, true, descr);
 
+    statsRect.adjust(contentRect.topRight().x() - offset - statsRect.width(),
+                     contentRect.topRight().y() + offset,
+                     contentRect.topRight().x() - offset - statsRect.width(),
+                     contentRect.topRight().y() + offset);
     if (taskOverspent(completionStats)) {
         painter->setPen(overspentCol);
     }
-    painter->drawText(
-        tagsRect, Qt::AlignRight | Qt::AlignBottom, completionStats);
-
-    QPoint lineBegin{tagsRect.topLeft().x() + 2 * padding,
-                     tagsRect.topLeft().y() - verticalSpacing / 2};
-    QPoint lineEnd{tagsRect.topLeft().x() + tagsRect.width() - 1 * padding,
-                   tagsRect.topLeft().y() - verticalSpacing / 2};
-    if (index.row() != 0) {
-        painter->setPen(delimiterColor);
-        painter->drawLine(lineBegin, lineEnd);
-    }
+    style->drawItemText(painter,
+                        statsRect,
+                        Qt::AlignRight | Qt::AlignBottom,
+                        option.palette,
+                        true,
+                        completionStats);
 }
 
 
 namespace {
 
-QRect constructBoundingRect(const QStyleOptionViewItem& option,
-                            const QString& text,
-                            int flags)
+std::tuple<QRect, QRect, QRect>
+textRectangles(const QStyleOptionViewItem& option, const QModelIndex& index)
 {
-    QFontMetrics metrics{option.font};
-    return QRect{
-        metrics.boundingRect(0, 0, option.rect.width(), 0, flags, text)};
+    const QString tags = index.data(Qt::UserRole + 1).toString();
+    const QString descr = index.data(Qt::UserRole + 2).toString();
+    const QString stats = index.data(Qt::UserRole + 3).toString();
+
+    QRect statsRect{boundingRect(option, stats, contentWidth(option.rect), 0)};
+    QRect tagsRect{
+        boundingRect(option,
+                     tags,
+                     contentWidth(option.rect) - statsRect.width() - offset,
+                     Qt::TextWordWrap)};
+    QRect descrRect{boundingRect(
+        option, descr, contentWidth(option.rect), Qt::TextWordWrap)};
+
+    return {statsRect, tagsRect, descrRect};
 }
 
-void rescaleTagsRectIfMultiline(QRect& tagsRect,
-                                const QRect& statRect,
-                                const QRect& optionRect)
+QRect boundingRect(const QStyleOptionViewItem& option,
+                   const QString& text,
+                   int maxWidth,
+                   int flags)
 {
-    if (optionRect.width() > 0
-        && (tagsRect.width() + statRect.width()) > optionRect.width()) {
-
-        int scaleFactor
-            = (tagsRect.width() + statRect.width()) / optionRect.width() + 1;
-        tagsRect.setHeight(scaleFactor * tagsRect.height()
-                           + scaleFactor * TaskViewDelegate::padding);
-    }
+    QFontMetrics metrics{option.font};
+    return QRect{metrics.boundingRect(0, 0, maxWidth, 0, flags, text)};
 }
 
 bool taskOverspent(const QString& stats)
@@ -179,5 +189,7 @@ bool taskOverspent(const QString& stats)
     QStringList parts = stats.split("/");
     return parts[0].toInt() > parts[1].toInt();
 }
+
+int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
 
 } // namespace
