@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.8)
-
 set(TEST_PROJECT acceptance_tests_stub)
 project(${TEST_PROJECT})
 

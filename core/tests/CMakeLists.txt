@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.8)
-
 set(TEST_CORE test_core)
 project(${TEST_CORE})
 set(SOURCE_FILES

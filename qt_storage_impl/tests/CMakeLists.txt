@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.8)
-
 set(PROJECT test_qt_storage_impl)
 project(${PROJECT})
 set(SOURCE_FILES
