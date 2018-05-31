@@ -74,11 +74,6 @@ elseif(WIN32)
     target_link_libraries(${PROJECT} INTERFACE DateWrapper)
 endif()
 
-if(BUILD_TESTS)
-    include(CMakeLists-gtest.txt)
-    add_subdirectory(tests)
-endif()
-
 if (WIN32)
     install(TARGETS ${PROJECT} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})
 else()

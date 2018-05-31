@@ -1,30 +1,37 @@
-set(TEST_PROJECT acceptance_tests_stub)
-project(${TEST_PROJECT})
+set(PROJECT_TESTS sprint_timer_tests)
+project(${PROJECT_TESTS})
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Download and unpack googletest at configure time
+message("Downloading google test")
+configure_file(CMakeLists-gtest.txt googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif()
+message("Downloaded google test")
+message("Building google test")
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+  RESULT_VARIABLE result
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+if(result)
+  message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif()
+message("Google test built successfully")
 
-set(SOURCE_FILES
-        TestUserScenarios.cpp
-    TestCase.cpp
-    Utils.cpp
-    main.cpp
-)
+# Prevent overriding the parent project's compiler/linker
+# settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-find_package(Qt5 REQUIRED Core Sql Widgets Test)
+# Add googletest directly to our build. This defines
+# the gtest and gtest_main targets.
+add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+                ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+                 EXCLUDE_FROM_ALL)
 
-add_executable(${TEST_PROJECT} ${SOURCE_FILES})
-target_compile_features(${TEST_PROJECT} PRIVATE cxx_std_17)
+target_include_directories(gmock_main SYSTEM BEFORE INTERFACE
+    "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 
-target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
-target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
-
-target_include_directories(${TEST_PROJECT} PRIVATE ../src)
-
-target_link_libraries(${TEST_PROJECT} Qt5::Core Qt5::Sql Qt5::Widgets Qt5::Test Threads::Threads ${GUI_LIB} ${STORAGE_LIB})
-
-# This is a workaround
-# For some reason, although CppUTest explicitly depends on winmm, dependency does not transition.
-# if (WIN32)
-#     target_link_libraries(${TEST_PROJECT} winmm.lib)
-# endif()
+add_subdirectory(core_tests)
+add_subdirectory(qt_storage_impl_tests)

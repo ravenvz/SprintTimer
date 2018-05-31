@@ -25,22 +25,13 @@ target_compile_features(${TEST_CORE} PRIVATE cxx_std_17)
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
-target_include_directories(${TEST_CORE}
-    PUBLIC ../include
-    PRIVATE ../src
-    PRIVATE fixtures)
+# target_include_directories(${TEST_CORE}
+#    PUBLIC ../include
+#    PRIVATE ../src
+#    PRIVATE fixtures)
 
 target_link_libraries(${TEST_CORE}
-    PRIVATE gtest
-    PRIVATE gtest_main
-    PRIVATE gmock
+    PRIVATE gmock_main
     PRIVATE ${CORE_LIB}
     PRIVATE Threads::Threads
 )
-
-# TODO check on Win box if this is still relevant
-# This is a workaround
-# For some reason, although CppUTest explicitly depends on winmm, dependency does not transition.
-if (WIN32)
-    target_link_libraries(${TEST_CORE} PRIVATE winmm.lib)
-endif()

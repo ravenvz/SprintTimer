@@ -15,7 +15,7 @@ target_include_directories(${PROJECT}
     PRIVATE ../src
 )
 
-target_link_libraries(${PROJECT} gtest gtest_main gmock ${STORAGE_LIB} Threads::Threads)
+target_link_libraries(${PROJECT} gtest_main ${STORAGE_LIB} Threads::Threads)
 
 # TODO check if this is still relevant with GTest on Win box
 # This is a workaround

@@ -80,6 +80,7 @@ add_subdirectory(qt_gui)
 add_subdirectory(qt_storage_impl)
 
 if (BUILD_TESTS)
-    enable_testing() # TODO Ctest is not yet configured
-    add_subdirectory(tests)
+    enable_testing()
+	include(GoogleTest)
+	add_subdirectory(tests)
 endif()
