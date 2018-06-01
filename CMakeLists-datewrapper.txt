@@ -1,0 +1,43 @@
+# include(ExternalProject)
+# 
+# ExternalProject_Add(
+#   DateWrapperExternal
+# 
+#   GIT_REPOSITORY "https://github.com/ravenvz/date_wrapper"
+#   GIT_TAG "v0.6.2"
+# 
+#   PREFIX "${DateWrapper_PREFIX}"
+#   UPDATE_COMMAND ""
+#   PATCH_COMMAND ""
+#   INSTALL_COMMAND ""
+#   CMAKE_ARGS "-DBUILD_TESTS=OFF"
+# 
+#   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${THIRD_PARTY_LIBS_FOLDER_PREFIX}/date_wrapper"
+# )
+
+# ExternalProject_Get_Property(DateWrapperExternal source_dir)
+# 
+# set(DateWrapper_INCLUDE_DIRS "${source_dir}/src/date_wrapper/include")
+# 
+# # Workaround against Cmake not downloading lib before using it
+# set(Datewrapper_include_dirs_cmake_bug_wround "${source_dir}/src/date_wrapper/include")
+# # TODO find more elegant way to handle this
+# set(date_INCLUDE_DIRS "${source_dir}/src/date_wrapper/third_party/date/include")
+# 
+# add_library(DateWrapper INTERFACE)
+# add_dependencies(DateWrapper DateWrapperExternal)
+
+include(FetchContent)
+
+FetchContent_Declare(
+    date_wrapper
+
+    GIT_REPOSITORY https://github.com/ravenvz/date_wrapper.git
+    GIT_TAG        v0.6.3
+)
+
+FetchContent_GetProperties(date_wrapper)
+if(NOT date_wrapper_POPULATED)
+    FetchContent_Populate(date_wrapper)
+    add_subdirectory(${date_wrapper_SOURCE_DIR} ${date_wrapper_BINARY_DIR})
+endif()

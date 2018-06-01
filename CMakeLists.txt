@@ -27,6 +27,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT}_BINA
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT}_LIB_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${${PROJECT}_ARCHIVE_DIR})
 
+set(THIRD_PARTY_LIBS_FOLDER_PREFIX third_party)
+
 include(compiler_options.cmake)
 
 set(SOURCE_FILES src/main.cpp)
@@ -74,6 +76,9 @@ set (EXECUTABLE_INSTALL_PATH_SUFFIX bin)
 set (LIBRARY_INSTALL_PATH_SUFFIX lib)
 
 install(TARGETS ${PROJECT} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})
+
+# Download date_wrapper lib at configure time
+include(CMakeLists-datewrapper.txt)
 
 add_subdirectory(core)
 add_subdirectory(qt_gui)

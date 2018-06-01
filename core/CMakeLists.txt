@@ -1,9 +1,10 @@
 set(PROJECT ${CORE_LIB})
 project(${PROJECT})
+
 set(CORE_SOURCE_FILES
     src/SprintStatistics.cpp
     src/StatefulTimer.cpp
-        src/CountdownTimer.cpp
+	src/CountdownTimer.cpp
     src/Sprint.cpp
     src/Task.cpp
     src/Tag.cpp
@@ -37,16 +38,10 @@ find_package(Threads REQUIRED)
 
 find_package(Boost REQUIRED)
 
-include(ExternalProject)
-set(THIRD_PARTY_LIBS_FOLDER_PREFIX third_party)
-include(CMakeLists-datelib.txt)
-
 add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
 
-add_dependencies(${PROJECT} DateWrapper)
-
 target_include_directories(${PROJECT}
-    PUBLIC ${DateWrapper_INCLUDE_DIRS}
+    PUBLIC ${date_wrapper_INCLUDE_DIRS}
     PUBLIC "${date_INCLUDE_DIRS}" # workaround
     PUBLIC include
     PRIVATE src
@@ -67,11 +62,11 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT}
-        INTERFACE DateWrapper
+        INTERFACE date_wrapper
         PUBLIC stdc++fs
     )
 elseif(WIN32)
-    target_link_libraries(${PROJECT} INTERFACE DateWrapper)
+    target_link_libraries(${PROJECT} PUBLIC date_wrapper)
 endif()
 
 if (WIN32)
