@@ -1,6 +1,8 @@
 set(PROJECT ${STORAGE_LIB})
 project(${PROJECT})
 
+find_package(Qt5 REQUIRED COMPONENTS Core Sql)
+
 set(QT_STORAGE_IMPL_SOURCE_FILES
         src/DBService.cpp
         src/QtSprintDistributionReader.cpp

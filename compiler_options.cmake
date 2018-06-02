@@ -22,4 +22,3 @@ set(GCC_COMPILE_OPTIONS -Wall
                         -Werror
                         -Wno-unused-parameter
                         -pedantic-errors)
-

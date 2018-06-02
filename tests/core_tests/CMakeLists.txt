@@ -16,22 +16,13 @@ set(SOURCE_FILES
         test_algutils.cpp
 )
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
 add_executable(${TEST_CORE} ${SOURCE_FILES})
 target_compile_features(${TEST_CORE} PRIVATE cxx_std_17)
-
-target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
-target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
-
-# target_include_directories(${TEST_CORE}
-#    PUBLIC ../include
-#    PRIVATE ../src
-#    PRIVATE fixtures)
 
 target_link_libraries(${TEST_CORE}
     PRIVATE gmock_main
     PRIVATE ${CORE_LIB}
-    PRIVATE Threads::Threads
 )
+
+# gtest_add_tests(TARGET ${TEST_CORE})
+gtest_discover_tests(${TEST_CORE})
