@@ -31,7 +31,7 @@
 #include "widgets/DataWidget.h"
 #include "widgets/DistributionDiagram.h"
 #include "core/TagTop.h"
-#include "core/utils/OptionalPl.h"
+#include <optional>
 
 
 namespace Ui {
@@ -75,7 +75,7 @@ private:
     TagTop tagTop;
     DateInterval currentInterval;
     const size_t numTopTags{7}; // TODO move to config
-    optional<size_t> selectedTagIndex;
+    std::optional<size_t> selectedTagIndex;
 
     void fetchData();
     void drawGraphs();

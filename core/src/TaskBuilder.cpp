@@ -27,12 +27,12 @@ using dw::DateTime;
 Task TaskBuilder::build()
 {
     if (!mLastModified)
-        mLastModified = make_optional(DateTime::currentDateTimeLocal());
+        mLastModified = std::make_optional(DateTime::currentDateTimeLocal());
     if (!mUuid)
         return Task{mName, mEstimatedCost, mActualCost, mTags, mCompletionStatus, *mLastModified};
     Task task{mName, mEstimatedCost, mActualCost, *mUuid, mTags, mCompletionStatus, *mLastModified};
-    mUuid = optional<std::string>{};
-    mLastModified = optional<DateTime>{};
+    mUuid = std::optional<std::string>{};
+    mLastModified = std::optional<DateTime>{};
     return task;
 }
 
@@ -56,7 +56,7 @@ TaskBuilder& TaskBuilder::withActualCost(int cost)
 
 TaskBuilder& TaskBuilder::withUuid(std::string uuid)
 {
-    mUuid = make_optional(std::move(uuid));
+    mUuid = std::make_optional(std::move(uuid));
     return *this;
 }
 
@@ -80,7 +80,7 @@ TaskBuilder& TaskBuilder::withExplicitTags(std::list<Tag> tags)
 
 TaskBuilder& TaskBuilder::withLastModificationStamp(DateTime timeStamp)
 {
-    mLastModified = make_optional(std::move(timeStamp));
+    mLastModified = std::make_optional(std::move(timeStamp));
     return *this;
 }
 

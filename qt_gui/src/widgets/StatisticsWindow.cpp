@@ -62,7 +62,7 @@ void StatisticsWindow::fetchData()
 void StatisticsWindow::onDataFetched(const std::vector<Sprint>& sprints)
 {
     this->sprints = sprints;
-    selectedTagIndex = optional<size_t>();
+    selectedTagIndex = std::optional<size_t>();
     tagTop = TagTop(sprints, numTopTags);
     std::vector<TagTop::TagFrequency> tagFrequency = tagTop.tagFrequencies();
     drawGraphs();
@@ -121,7 +121,7 @@ void StatisticsWindow::onTagSelected(size_t tagIndex)
     }
     else {
         selectedTagIndex
-            = (*selectedTagIndex == tagIndex) ? optional<size_t>() : tagIndex;
+            = (*selectedTagIndex == tagIndex) ? std::optional<size_t>() : tagIndex;
     }
 
     drawGraphs();

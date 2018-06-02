@@ -26,8 +26,8 @@
 #include "core/entities/Sprint.h"
 #include "date_wrapper/TimeSpan.h"
 #include <algorithm>
-#include <core/utils/OptionalPl.h>
 #include <unordered_map>
+#include <optional>
 
 
 template <class Entity>
@@ -110,13 +110,13 @@ public:
         }
     }
 
-    optional<Entity> getItem(const std::string& uuid)
+    std::optional<Entity> getItem(const std::string& uuid)
     {
         auto found = storage.find(uuid);
         if (found != cend(storage)) {
-            return make_optional(found->second);
+            return std::make_optional(found->second);
         }
-        return optional<Entity>();
+        return std::optional<Entity>();
     }
 
     Entity& itemRef(const std::string& uuid) { return storage.at(uuid); }
