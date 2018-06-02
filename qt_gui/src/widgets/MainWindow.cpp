@@ -176,7 +176,7 @@ void MainWindow::onTasksRemoved(const QModelIndex&, int first, int last)
     // we need to invalidate it.
     if (selectedTaskRow
             && (first <= selectedTaskRow && selectedTaskRow <= last)) {
-        selectedTaskRow = optional<int>();
+        selectedTaskRow = std::optional<int>();
         timerWidget->setCandidateIndex(-1);
     }
 }

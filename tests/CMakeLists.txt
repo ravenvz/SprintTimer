@@ -1,32 +1,11 @@
-cmake_minimum_required(VERSION 3.8)
+set(PROJECT_TESTS sprint_timer_tests)
+project(${PROJECT_TESTS})
 
-set(TEST_PROJECT acceptance_tests_stub)
-project(${TEST_PROJECT})
+# Download and unpack googletest at configure time
+include(CMakeLists-gtest.txt)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# target_include_directories(gmock_main SYSTEM BEFORE INTERFACE
+# "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 
-set(SOURCE_FILES
-        TestUserScenarios.cpp
-    TestCase.cpp
-    Utils.cpp
-    main.cpp
-)
-
-find_package(Qt5 REQUIRED Core Sql Widgets Test)
-
-add_executable(${TEST_PROJECT} ${SOURCE_FILES})
-target_compile_features(${TEST_PROJECT} PRIVATE cxx_std_17)
-
-target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
-target_compile_options(${PROJECT} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
-
-target_include_directories(${TEST_PROJECT} PRIVATE ../src)
-
-target_link_libraries(${TEST_PROJECT} Qt5::Core Qt5::Sql Qt5::Widgets Qt5::Test Threads::Threads ${GUI_LIB} ${STORAGE_LIB})
-
-# This is a workaround
-# For some reason, although CppUTest explicitly depends on winmm, dependency does not transition.
-# if (WIN32)
-#     target_link_libraries(${TEST_PROJECT} winmm.lib)
-# endif()
+add_subdirectory(core_tests)
+add_subdirectory(qt_storage_impl_tests)

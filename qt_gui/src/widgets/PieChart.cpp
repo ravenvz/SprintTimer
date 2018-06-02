@@ -31,7 +31,7 @@ void PieChart::setData(
     const std::vector<IStatisticalChart::LabelValuePair>& dataToDisplay)
 {
     data = dataToDisplay;
-    activeSliceInd = optional<size_t>();
+    activeSliceInd = std::optional<size_t>();
     repaint();
 }
 
@@ -121,7 +121,7 @@ void PieChart::onLeftMouseClick(const QPoint& pos)
 void PieChart::togglePartActive(size_t sliceIndex)
 {
     if (activeSliceInd && (*activeSliceInd == sliceIndex))
-        activeSliceInd = optional<size_t>();
+        activeSliceInd = std::optional<size_t>();
     else
         activeSliceInd = sliceIndex;
     repaint();
