@@ -50,7 +50,7 @@ target_compile_features(${PROJECT} PUBLIC cxx_std_17)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT}
-        INTERFACE date_wrapper
+        PUBLIC date_wrapper
         PUBLIC stdc++fs
     )
 elseif(WIN32)
