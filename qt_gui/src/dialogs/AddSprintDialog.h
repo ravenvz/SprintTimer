@@ -51,10 +51,10 @@ private slots:
 
 private:
     Ui::AddSprintDialog* ui;
-    QCalendarWidget* datePicker;
+    QPointer<QCalendarWidget> datePicker;
     QPointer<SprintModel> sprintModel;
     QPointer<TaskModel> taskModel;
-    int sprintDuration;
+    const int sprintDuration;
 
     void setData();
 

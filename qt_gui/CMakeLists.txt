@@ -40,7 +40,7 @@ QT5_WRAP_UI(UI_HEADERS
 add_library(${PROJECT} SHARED ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)
 target_compile_features(${PROJECT} PUBLIC cxx_std_17)
 
-target_include_directories(${PROJECT} PUBLIC src)
+target_include_directories(${PROJECT} PUBLIC src PUBLIC include)
 target_link_libraries(${PROJECT}
     PUBLIC Qt5::Core
     PUBLIC Qt5::Widgets
@@ -49,7 +49,7 @@ target_link_libraries(${PROJECT}
 )
 
 if (WIN32)
-    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})
 else()
     install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
 endif()

@@ -40,10 +40,13 @@ AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
 {
     ui->setupUi(this);
     setData();
+
     datePicker->setMaximumDate(QDate::currentDate());
     // TODO make this configurable with settings.
     // See also DateRangePickDialog's related TODO
     datePicker->setFirstDayOfWeek(Qt::Monday);
+	datePicker->setWindowModality(Qt::ApplicationModal);
+
     connect(ui->timeEditSprintStartTime,
             &QTimeEdit::dateTimeChanged,
             this,
