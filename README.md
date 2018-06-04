@@ -27,12 +27,10 @@ It is a tool that helps to deal with time-framed tasks effectively. It encourage
 #### Disclaimer
 SprintTimer is uncommercial pet project done in spare time. It is written in C++ and is guaranteed to build with compliler supporting the latest standard version (for now it's C++17). The author does not have resources to maintain backports.
 
-#### Note
+#### Dependencies
 
-SprintTimer uses CMake to control compilation process. Minimum required version is 3.8.
+SprintTimer uses CMake to control compilation process. Minimum required version is 3.11
 SprintTimer depends on Qt5 framework, Boost libraries, SQLite3 and requires compiler with C++17 support to build.
-
-Depending on your setup, it might be required to add directory with Boost or Qt installation to CMAKE_INCLUDE_PATH.
 
 #### Linux
 
@@ -51,19 +49,11 @@ Windows build is still in experimental stage as it requires MSVC 2017 compiler s
 ```shell
 cmake .. -G "Visual Studio 15 Win64" -DCMAKE_PREFIX_PATH=<Path to Qt installation>\msvc2017_64 -DCMAKE_INCLUDE_PATH=<Path to Boost> -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE
 ```
-Note, that this step assumes that you have installed or build from source Qt for your compiler.
 
 4. Build project:
 ```shell
 cmake --build . --config Release
 ```
-
-##### Visual Studio
-1. Make sure that you are using Visual Studio 2017 with CMake version 3.8 support.
-2. Open folder with cloned repo. Visual Studio should locate CMakeLists.txt.
-3. Make sure to change CMake configuration (under CMake -> Change CMake settings) as in build instructions for shell build.
-4. Build project.
-
 
 Before running executable, make sure that Qt installation is added to system path.
 Alternatively, you can copy required dll's manually.
@@ -74,17 +64,16 @@ Qt5Core.dll
 Qt5Gui.dll
 Qt5Multimedia.dll
 Qt5Sql.dll
-Qt5Svg.dll
 Qt5Widgets.dll
 
-Copy to the same folder from Qt installation plugins folder following plugins (creating folders as needed):
+It might be required to copy to the same folder from Qt installation plugins folder following plugins (creating folders as needed):
 
 audio/qtaudio_windows.dll
 sqldrivers/qsqlite.dll
 
 #### Mac OS X
-Mas OS X system is not supported yet, as author is not familiar and has no access to this platform atm.
-Adding support should be trivial though. If someone wants to help, please contact author.
+Mas OS X system is not supported yet, as author is not familiar and has no access to this platform at this moment.
+Adding support should be trivial though. If someone wants to contribute, please contact author.
 
 #### Building tests
 To build test suite option BUILD_TEST=ON should be passed to cmake.
@@ -92,4 +81,3 @@ To build test suite option BUILD_TEST=ON should be passed to cmake.
 ### Known issues
 * Some text labels might be cropped and some GUI elements might be too small/large on smaller resolution screens.
 * Long break counter resets when app is closed.
-* Windows version can have some issues with GUI, as it wasn't properly tested yet.
