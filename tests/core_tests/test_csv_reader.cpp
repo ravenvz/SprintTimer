@@ -35,9 +35,9 @@ using namespace CSV;
 namespace {
 // TODO obviously, this should be handled outside of source code
 #ifdef _MSC_VER
-	constexpr char const* rfc_4180_test_file = "../../core/tests/data/rfc_4180.csv";
+	constexpr char const* rfc_4180_test_file = "../../tests/core_tests/data/rfc_4180.csv";
 #else
-	constexpr char const* rfc_4180_test_file = "../core/tests/data/rfc_4180.csv";
+	constexpr char const* rfc_4180_test_file = "../tests/core_tests/data/rfc_4180.csv";
 #endif
 }
 
