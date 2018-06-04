@@ -4,6 +4,11 @@ Plans for version 0.5.0
 HISTORY
 ----------------------------------------------------------------
 
+Version 0.4.6
+-------------
+Fixed many user interface issues.
+Improve build configuration.
+
 Version 0.4.0
 -------------
 Fixed major bug when deleting task could delete unorphaned tag completely.
