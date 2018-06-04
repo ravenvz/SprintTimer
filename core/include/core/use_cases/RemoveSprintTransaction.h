@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,20 +23,19 @@
 #define REMOVESPRINTTRANSACTION_H_GAR8SZLM
 
 #include "core/ISprintStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/Command.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class RemoveSprintTransaction : public RevertableCommand {
+class RemoveSprintTransaction : public Command {
 public:
-    RemoveSprintTransaction(ISprintStorageWriter& writer, const Sprint& sprint);
+    RemoveSprintTransaction(ISprintStorageWriter& writer, Sprint sprintToRemove);
 
-    std::string inspect() const final;
+    void execute() final;
 
-protected:
-    void executeAction() final;
+    void undo() final;
 
-    void undoAction() final;
+    std::string describe() const final;
 
 private:
     ISprintStorageWriter& writer;

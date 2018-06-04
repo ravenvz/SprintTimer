@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,21 +22,20 @@
 
 #include "core/use_cases/RequestMinMaxYear.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-RequestMinMaxYear::RequestMinMaxYear(IYearRangeReader& reader,
+RequestMinMaxYear::RequestMinMaxYear(IYearRangeReader& year_range_reader,
                                      IYearRangeReader::Handler handler)
-    : reader{reader}
-    , handler{handler}
+    : reader{year_range_reader}
+    , handler_{handler}
 {
 }
 
 void RequestMinMaxYear::execute() { reader.requestYearRange(handler); }
 
-std::string RequestMinMaxYear::inspect() const
+std::string RequestMinMaxYear::describe() const
 {
     return "Request min max year";
 }
 
-
-} /* UseCases */
+} // namespace core::use_cases

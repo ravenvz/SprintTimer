@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,7 +26,7 @@
 #include <QMouseEvent>
 #include "widgets/IStatisticalChart.h"
 #include <cmath>
-#include "core/utils/OptionalPl.h"
+#include <optional>
 
 
 /* Widget that displays data as an exploding pie chart.
@@ -68,7 +68,7 @@ private:
     double expandedShiftLength;
     /* Index of currently active slice or nothing if no slice selected.
      */
-    optional<size_t> activeSliceInd;
+    std::optional<size_t> activeSliceInd;
     /* Data that is to be displayed as a pie chart. */
     std::vector<LabelValuePair> data;
     /* Constant pi. */

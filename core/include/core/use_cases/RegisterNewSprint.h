@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,28 +22,27 @@
 #ifndef REGISTERNEWSPRINT_H_YUMZVLHC
 #define REGISTERNEWSPRINT_H_YUMZVLHC
 
+#include "core/Command.h"
 #include "core/ISprintStorageWriter.h"
-#include "core/RevertableCommand.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class RegisterNewSprint : public RevertableCommand {
+class RegisterNewSprint : public Command {
 public:
-    RegisterNewSprint(ISprintStorageWriter& writer, const Sprint& sprint);
+    RegisterNewSprint(ISprintStorageWriter& writer, Sprint newSprint);
 
-    std::string inspect() const final;
+    void execute() final;
 
-protected:
-    void executeAction() final;
+    void undo() final;
 
-    void undoAction() final;
+    std::string describe() const final;
 
 private:
     ISprintStorageWriter& writer;
     const Sprint sprint;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 
 #endif /* end of include guard: REGISTERNEWSPRINT_H_YUMZVLHC */

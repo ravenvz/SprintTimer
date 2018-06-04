@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -33,7 +33,7 @@ Sprint SprintBuilder::build()
     if (!mUuid)
         return Sprint{mName, *mTimeSpan, mTags, *mTaskUuid};
     Sprint sprint{mName, *mTimeSpan, mTags, *mUuid, *mTaskUuid};
-    mUuid = optional<std::string>{};
+    mUuid = std::nullopt;
     return sprint;
 }
 
@@ -45,13 +45,13 @@ SprintBuilder& SprintBuilder::withName(const std::string& name)
 
 SprintBuilder& SprintBuilder::withUuid(const std::string& uuid)
 {
-    mUuid = make_optional(uuid);
+    mUuid = std::make_optional(uuid);
     return *this;
 }
 
 SprintBuilder& SprintBuilder::withTaskUuid(const std::string& uuid)
 {
-    mTaskUuid = make_optional(uuid);
+    mTaskUuid = std::make_optional(uuid);
     return *this;
 }
 
@@ -69,14 +69,14 @@ SprintBuilder& SprintBuilder::withTag(const std::string& tag)
 
 SprintBuilder& SprintBuilder::withTimeSpan(const dw::TimeSpan& timeSpan)
 {
-    mTimeSpan = make_optional(timeSpan);
+    mTimeSpan = std::make_optional(timeSpan);
     return *this;
 }
 
 SprintBuilder& SprintBuilder::forTask(const Task& task)
 {
     mName = task.name();
-    mTaskUuid = make_optional(task.uuid());
+    mTaskUuid = std::make_optional(task.uuid());
     mTags = task.tags();
     return *this;
 }

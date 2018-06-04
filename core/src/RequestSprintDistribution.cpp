@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,28 +22,26 @@
 
 #include "core/use_cases/RequestSprintDistribution.h"
 
-
-namespace UseCases {
+namespace core::use_cases {
 
 RequestSprintDistribution::RequestSprintDistribution(
     ISprintDistributionReader& reader,
-    const dw::TimeSpan& timeSpan,
+    dw::TimeSpan timeSpan,
     ISprintDistributionReader::Handler handler)
     : reader{reader}
-    , timeSpan{timeSpan}
-    , handler{handler}
+    , timeSpan_{std::move(timeSpan)}
+    , handler_{handler}
 {
 }
 
 void RequestSprintDistribution::execute()
 {
-    reader.requestDistribution(timeSpan, handler);
+    reader.requestDistribution(timeSpan_, handler_);
 }
 
-std::string RequestSprintDistribution::inspect() const
+std::string RequestSprintDistribution::describe() const
 {
     return "Request sprint distribution";
 }
 
-
-} /* UseCases */
+} // namespace core::use_cases

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,27 +23,26 @@
 #define DECREMENTTASKSPRINTS_H_GYPTACBX
 
 #include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/Command.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class DecrementTaskSprints : public RevertableCommand {
+class DecrementTaskSprints : public Command {
 public:
     DecrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         const std::string& taskUuid);
+                         std::string taskUuid);
 
-    std::string inspect() const final;
+    void execute() final;
 
-protected:
-    void executeAction() final;
+    void undo() final;
 
-    void undoAction() final;
+    std::string describe() const final;
 
 private:
     ITaskStorageWriter& writer;
-    const std::string taskUuid;
+    const std::string taskUuid_;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */

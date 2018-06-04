@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,8 +25,6 @@
 #include "Distribution.h"
 #include "core/entities/Sprint.h"
 #include <algorithm>
-#include <iostream>
-#include <unordered_map>
 #include <vector>
 
 class SprintStatItem {

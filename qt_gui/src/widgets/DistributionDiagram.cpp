@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -48,7 +48,7 @@ DistributionDiagram::~DistributionDiagram() {}
 
 void DistributionDiagram::setData(const std::vector<DataItem>& data)
 {
-    selectedSliceIndex = optional<size_t>();
+    selectedSliceIndex = std::optional<size_t>();
     legend->setData(data);
     diagram->setData(data);
 }
@@ -75,7 +75,7 @@ void DistributionDiagram::onChartPartClicked(size_t partIndex)
         selectedSliceIndex = partIndex;
     }
 
-    selectedSliceIndex = (selectedSameItem) ? optional<size_t>() : partIndex;
+    selectedSliceIndex = (selectedSameItem) ? std::optional<size_t>() : partIndex;
 
     legend->toggleSelected(partIndex);
     diagram->togglePartActive(partIndex);

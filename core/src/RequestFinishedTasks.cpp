@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -24,29 +24,28 @@
 
 using dw::TimeSpan;
 
-namespace UseCases {
+namespace core::use_cases {
 
 RequestFinishedTasks::RequestFinishedTasks(
     ITaskStorageReader& taskStorageReader,
-    const TimeSpan& timeSpan,
+    TimeSpan timeSpan,
     ITaskStorageReader::Handler handler)
     : reader{taskStorageReader}
-    , timeSpan{timeSpan}
-    , handler{handler}
+    , timeSpan_{std::move(timeSpan)}
+    , handler_{handler}
 {
 }
 
 void RequestFinishedTasks::execute()
 {
-    reader.requestFinishedTasks(timeSpan, handler);
+    reader.requestFinishedTasks(timeSpan_, handler_);
 }
 
-std::string RequestFinishedTasks::inspect() const
+std::string RequestFinishedTasks::describe() const
 {
     std::stringstream ss;
-    ss << "Request finished tasks in '" << timeSpan.toString("dd.MM.yyyy");
+    ss << "Request finished tasks in '" << timeSpan_.toString("dd.MM.yyyy");
     return ss.str();
 }
 
-
-} /* UseCases */
+} // namespace core::use_cases

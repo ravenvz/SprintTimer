@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -43,6 +43,7 @@ void WorkdaysDialog::accept()
 
 void WorkdaysDialog::initializeDayBoxes()
 {
+    using dw::DateTime;
     const WeekdaySelection selection{settings.workdaysCode()};
     ui->mondayBox->setChecked(selection.isSelected(DateTime::Weekday::Monday));
     ui->tuesdayBox->setChecked(
@@ -59,6 +60,8 @@ void WorkdaysDialog::initializeDayBoxes()
 
 unsigned WorkdaysDialog::pollWorkdaysCode() const
 {
+    using dw::DateTime;
+
     WeekdaySelection selection;
 
     if (ui->mondayBox->isChecked())

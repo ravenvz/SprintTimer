@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,18 +22,17 @@
 
 #include "core/use_cases/RequestAllTags.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-RequestAllTags::RequestAllTags(
-    ITaskStorageReader& taskStorageReader,
-    std::function<void(const std::vector<std::string>&)> handler)
+RequestAllTags::RequestAllTags(ITaskStorageReader& taskStorageReader,
+                               QueryResultHandler handler)
     : reader{taskStorageReader}
-    , handler{handler}
+    , handler_{handler}
 {
 }
 
-void RequestAllTags::execute() { reader.requestAllTags(handler); }
+void RequestAllTags::execute() { reader.requestAllTags(handler_); }
 
-std::string RequestAllTags::inspect() const { return "Request all tags"; }
+std::string RequestAllTags::describe() const { return "Request all tags"; }
 
-} /* UseCases */
+} // namespace core::use_cases

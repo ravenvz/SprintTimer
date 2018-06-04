@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,24 +22,24 @@
 
 #include "core/use_cases/DeleteTask.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
 DeleteTask::DeleteTask(ITaskStorageWriter& taskStorageWriter,
-                       const Task& taskToRemove)
+                       Task taskToRemove)
     : writer{taskStorageWriter}
-    , task{taskToRemove}
+    , task{std::move(taskToRemove)}
 {
 }
 
-void DeleteTask::executeAction() { writer.remove(task); }
+void DeleteTask::execute() { writer.remove(task); }
 
-void DeleteTask::undoAction() { writer.save(task); }
+void DeleteTask::undo() { writer.save(task); }
 
-std::string DeleteTask::inspect() const
+std::string DeleteTask::describe() const
 {
     std::stringstream ss;
     ss << "Delete task '" << task << "'";
     return ss.str();
 }
 
-} /* UseCases */
+} // namespace core::use_cases

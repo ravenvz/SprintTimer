@@ -25,7 +25,7 @@
      <item row="0" column="4">
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>daily average</string>
+        <string>average per workday</string>
        </property>
       </widget>
      </item>

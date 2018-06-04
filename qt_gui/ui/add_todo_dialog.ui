@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add TODO item</string>
+   <string>Add new task</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="3">
@@ -27,7 +27,7 @@
    <item row="0" column="0" colspan="4">
     <widget class="QLineEdit" name="taskName">
      <property name="placeholderText">
-      <string>TODO name (required)</string>
+      <string>Task name (required)</string>
      </property>
     </widget>
    </item>

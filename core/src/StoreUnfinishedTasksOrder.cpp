@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,25 +22,31 @@
 
 #include "core/use_cases/StoreUnfinishedTasksOrder.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
 StoreUnfinishedTasksOrder::StoreUnfinishedTasksOrder(
     ITaskStorageWriter& taskStorageWriter,
-    std::vector<std::string>&& priorities)
+    std::vector<std::string>&& old_order,
+    std::vector<std::string>&& new_order)
     : writer{taskStorageWriter}
-    , priorities{std::move(priorities)}
+    , old_order_{std::move(old_order)}
+    , new_order_{std::move(new_order)}
 {
 }
 
 void StoreUnfinishedTasksOrder::execute()
 {
-    writer.updatePriorities(std::move(priorities));
+    writer.updatePriorities(std::move(new_order_));
 }
 
-std::string StoreUnfinishedTasksOrder::inspect() const
+void StoreUnfinishedTasksOrder::undo()
+{
+    writer.updatePriorities(std::move(old_order_));
+}
+
+std::string StoreUnfinishedTasksOrder::describe() const
 {
     return "Store unfinished tasks order";
 }
 
-
-} /* UseCases */
+} // namespace core::use_cases

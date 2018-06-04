@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,7 +25,6 @@
 
 #include "Distribution.h"
 #include "core/entities/Sprint.h"
-#include <iostream>
 #include <unordered_map>
 
 
@@ -77,7 +76,7 @@ public:
 private:
     TagSprints sprintsByTag;
     std::vector<TagFrequency> frequencies;
-    size_t numTopTags;
+    size_t numTopTags{0};
     Tag dummyTag{""};
 
     void arrangeSprintsByTag(const std::vector<Sprint>& sprints);

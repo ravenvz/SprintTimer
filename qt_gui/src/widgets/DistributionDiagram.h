@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -28,7 +28,7 @@
 #include <QMouseEvent>
 #include <QVBoxLayout>
 #include <QWidget>
-#include "core/utils/OptionalPl.h"
+#include <optional>
 
 using DataItem = std::pair<std::string, double>;
 
@@ -74,7 +74,7 @@ signals:
 private:
     IStatisticalChart* diagram;
     IStatisticalChartLegend* legend;
-    optional<size_t> selectedSliceIndex;
+    std::optional<size_t> selectedSliceIndex;
 };
 
 

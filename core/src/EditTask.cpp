@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -24,31 +24,33 @@
 
 using dw::DateTime;
 
-namespace UseCases {
+namespace core::use_cases {
 
 EditTask::EditTask(ITaskStorageWriter& writer,
-                   const Task& task,
-                   const Task& editedTask)
+                   Task originalTask,
+                   Task editedTask)
     : writer{writer}
-    , task{task}
-    , editedTask{editedTask.name(),
-                 editedTask.estimatedCost(),
-                 task.actualCost(),
-                 task.uuid(),
-                 editedTask.tags(),
-                 task.isCompleted(),
-                 DateTime::currentDateTimeLocal()}
+    , originalTask_{std::move(originalTask)}
+    // , editedTask_{std::move(editedTask)} // TODO fixit
+    , editedTask_{editedTask.name(),
+                  editedTask.estimatedCost(),
+                  originalTask_.actualCost(),
+                  originalTask_.uuid(),
+                  editedTask.tags(),
+                  originalTask_.isCompleted(),
+                  DateTime::currentDateTimeLocal()}
 {
 }
 
-void EditTask::executeAction() { writer.edit(task, editedTask); }
+void EditTask::execute() { writer.edit(originalTask_, editedTask_); }
 
-void EditTask::undoAction() { writer.edit(editedTask, task); }
+void EditTask::undo() { writer.edit(editedTask_, originalTask_); }
 
-std::string EditTask::inspect() const
+std::string EditTask::describe() const
 {
     std::stringstream ss;
-    ss << "Edit task '" << task << " -> " << editedTask << "'";
+    ss << "Edit task '" << originalTask_ << " -> " << editedTask_ << "'";
     return ss.str();
 }
-} // namespace UseCases
+
+} // namespace core::use_cases

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -46,7 +46,7 @@ public:
     void toggleTaskCompletionStatus(const std::string& uuid,
                                     const dw::DateTime& timeStamp) final;
 
-    void updatePriorities(std::vector<std::string>&& priorities) final;
+    void updatePriorities(const std::vector<std::string>& priorities) final;
 
     void editTag(const std::string& oldName, const std::string& newName) final;
 

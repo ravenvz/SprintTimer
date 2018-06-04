@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,30 +26,28 @@
 #include <QStyledItemDelegate>
 
 
-class TaskViewDelegate : public QStyledItemDelegate
-{
+class TaskViewDelegate : public QStyledItemDelegate {
     Q_OBJECT
 
 public:
     explicit TaskViewDelegate(QObject* parent);
 
-    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-    QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-
-    static constexpr int padding {1};
-    static constexpr int verticalSpacing {14};
+    void paint(QPainter* painter,
+               const QStyleOptionViewItem& option,
+               const QModelIndex& index) const override;
+    QSize sizeHint(const QStyleOptionViewItem& option,
+                   const QModelIndex& index) const override;
 
 private:
+    void paintItem(QPainter* painter,
+                   const QStyleOptionViewItem& option,
+                   const QModelIndex& index,
+                   int alpha) const;
 
-    void paintText(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, int alpha) const;
-
-    QColor tagColor {Qt::blue};
-    QColor commonColor {Qt::black};
-    QColor overspentColor {Qt::red};
-    QColor delimiterColor {Qt::gray};
-    const int completedItemAlpha {100};
-    const int normalItemAlpha {255};
-
+    QColor tagColor{Qt::blue};
+    QColor commonColor{Qt::black};
+    QColor overspentColor{Qt::red};
+    QColor delimiterColor{Qt::gray};
 };
 
 #endif /* end of include guard: TASKVIEWDELEGATE_H_Z8NDXQM6 */

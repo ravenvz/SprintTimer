@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -24,7 +24,7 @@
 #define TASKBUILDER_H_GSWUA7WV
 
 #include "core/entities/Task.h"
-#include "core/utils/OptionalPl.h"
+#include <optional>
 
 class TaskBuilder {
 public:
@@ -42,8 +42,8 @@ private:
     std::string mName;
     int mEstimatedCost{1};
     int mActualCost{0};
-    optional<std::string> mUuid;
-    optional<dw::DateTime> mLastModified;
+    std::optional<std::string> mUuid;
+    std::optional<dw::DateTime> mLastModified;
     std::list<Tag> mTags;
     bool mCompletionStatus{false};
 };

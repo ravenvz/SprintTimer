@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -42,7 +42,8 @@ public:
                                             const dw::DateTime& timeStamp)
         = 0;
 
-    virtual void updatePriorities(std::vector<std::string>&& priorities) = 0;
+    virtual void updatePriorities(const std::vector<std::string>& priorities)
+        = 0;
 
     virtual void editTag(const std::string& oldName, const std::string& newName)
         = 0;

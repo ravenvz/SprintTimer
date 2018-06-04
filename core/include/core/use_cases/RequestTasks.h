@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,28 +22,28 @@
 #ifndef SPRINT_TIMER_REQUESTTASKS_H
 #define SPRINT_TIMER_REQUESTTASKS_H
 
-#include "core/Command.h"
-#include "date_wrapper/TimeSpan.h"
 #include "core/ITaskStorageReader.h"
+#include "core/Query.h"
+#include "date_wrapper/TimeSpan.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class RequestTasks : public Command {
+class RequestTasks : public Query {
 public:
     RequestTasks(ITaskStorageReader& taskStorageReader,
-                 const dw::TimeSpan& timeSpan,
+                 dw::TimeSpan timeSpan,
                  ITaskStorageReader::Handler handler);
 
     void execute() final;
 
-    std::string inspect() const final;
+    std::string describe() const final;
 
 private:
     ITaskStorageReader& reader;
-    const dw::TimeSpan timeSpan;
-    ITaskStorageReader::Handler handler;
+    const dw::TimeSpan timeSpan_;
+    ITaskStorageReader::Handler handler_;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
-#endif //SPRINT_TIMER_REQUESTTASKS_H
+#endif // SPRINT_TIMER_REQUESTTASKS_H

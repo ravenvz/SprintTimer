@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -24,8 +24,8 @@
 #define SPRINT_TIMER_SPRINTBUILDER_H
 
 #include "core/entities/Sprint.h"
-#include "core/utils/OptionalPl.h"
 #include <stdexcept>
+#include <optional>
 
 class SprintBuilderError : public std::runtime_error {
 public:
@@ -50,10 +50,10 @@ public:
 
 private:
     std::string mName;
-    optional<std::string> mUuid;
-    optional<std::string> mTaskUuid;
+    std::optional<std::string> mUuid;
+    std::optional<std::string> mTaskUuid;
     std::list<Tag> mTags;
-    optional<dw::TimeSpan> mTimeSpan;
+    std::optional<dw::TimeSpan> mTimeSpan;
 };
 
 

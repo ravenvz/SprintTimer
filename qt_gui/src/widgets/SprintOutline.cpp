@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -76,7 +76,7 @@ SprintOutline::~SprintOutline() { delete ui; }
 void SprintOutline::launchManualAddSprintDialog()
 {
     addSprintDialog.reset(new AddSprintDialog{sprintModel, taskModel, applicationSettings.sprintDuration()});
-    addSprintDialog->setModal(true);
+	addSprintDialog->setModal(true);
     addSprintDialog->show();
 }
 

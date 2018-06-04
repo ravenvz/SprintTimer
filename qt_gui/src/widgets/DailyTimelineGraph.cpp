@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -71,20 +71,22 @@ void DailyTimelineGraph::setupGraphs()
 
 void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
                                  const QDate& startDate,
+                                 int numWorkdays,
                                  int dailyGoal)
 {
-
+    const double averagePerWorkday
+        = dailyDistribution.getTotal() / static_cast<double>(numWorkdays);
 
     if (dailyDistribution.empty()) {
         ui->dailyTimeline->reset();
+        return;
     }
     else {
-        double average = dailyDistribution.getAverage();
         auto sprintsByDay = dailyDistribution.getDistributionVector();
         GraphData averageData{
-            GraphPoint{0, average, ""},
+            GraphPoint{0, averagePerWorkday, ""},
             GraphPoint{static_cast<double>(dailyDistribution.getNumBins()),
-                       average,
+                       averagePerWorkday,
                        ""}};
         GraphData goalData{
             GraphPoint{0, static_cast<double>(dailyGoal), ""},
@@ -106,15 +108,16 @@ void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
         ui->dailyTimeline->setGraphData(1, goalData);
         ui->dailyTimeline->setGraphData(2, normalData);
     }
+
     ui->dailyTimeline->replot();
-    updateLegend(dailyDistribution);
+    updateLegend(dailyDistribution, averagePerWorkday);
 }
 
 void DailyTimelineGraph::updateLegend(
-    const Distribution<double>& dailyDistribution)
+    const Distribution<double>& dailyDistribution, double averagePerWorkday)
 {
     ui->labelTotalSprints->setText(
         QString("%1").arg(dailyDistribution.getTotal()));
     ui->labelDailyAverage->setText(
-        QString("%1").arg(dailyDistribution.getAverage(), 2, 'f', 2, '0'));
+        QString("%1").arg(averagePerWorkday, 2, 'f', 2, '0'));
 }

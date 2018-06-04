@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,6 +23,7 @@
 #include "widgets/FancyTimer.h"
 #include "ui_fancy_timer.h"
 #include "utils/WidgetUtils.h"
+#include "SubmissionItemDelegate.h"
 
 namespace {
     constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
@@ -63,6 +64,8 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
         timer->toggleInTheZoneMode();
     });
     connect(ui->pbCancel, &QPushButton::clicked, this, &FancyTimer::cancelTask);
+
+    ui->cbxSubmissionCandidate->setItemDelegate(new SubmissionItemDelegate(this));
 
     onIdleStateEnteredHook();
 }

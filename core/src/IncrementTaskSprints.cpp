@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,28 +22,24 @@
 
 #include "core/use_cases/IncrementTaskSprints.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
 IncrementTaskSprints::IncrementTaskSprints(
-    ITaskStorageWriter& taskStorageWriter, const std::string& taskUuid)
+    ITaskStorageWriter& taskStorageWriter, std::string taskUuid)
     : writer{taskStorageWriter}
-    , taskUuid{taskUuid}
+    , taskUuid_{std::move(taskUuid)}
 {
 }
 
-std::string IncrementTaskSprints::inspect() const
+void IncrementTaskSprints::execute() { writer.incrementSprints(taskUuid_); }
+
+void IncrementTaskSprints::undo() { writer.decrementSprints(taskUuid_); }
+
+std::string IncrementTaskSprints::describe() const
 {
     std::stringstream ss;
-    ss << "Increment finished sprints for " << taskUuid;
+    ss << "Increment finished sprints for " << taskUuid_;
     return ss.str();
 }
 
-void IncrementTaskSprints::executeAction()
-{
-    writer.incrementSprints(taskUuid);
-}
-
-void IncrementTaskSprints::undoAction() { writer.decrementSprints(taskUuid); }
-
-
-} /* UseCases */
+} // namespace core::use_cases

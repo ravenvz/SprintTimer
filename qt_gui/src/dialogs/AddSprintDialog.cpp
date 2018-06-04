@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -40,10 +40,13 @@ AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
 {
     ui->setupUi(this);
     setData();
+
     datePicker->setMaximumDate(QDate::currentDate());
     // TODO make this configurable with settings.
     // See also DateRangePickDialog's related TODO
     datePicker->setFirstDayOfWeek(Qt::Monday);
+	datePicker->setWindowModality(Qt::ApplicationModal);
+
     connect(ui->timeEditSprintStartTime,
             &QTimeEdit::dateTimeChanged,
             this,

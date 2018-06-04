@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,14 +20,28 @@
 **
 *********************************************************************************/
 
-#include "date_wrapper/DateTime.h"
-#include <array>
+#ifndef WEEKDAYSELECTION_H_7HAYMKBJ
+#define WEEKDAYSELECTION_H_7HAYMKBJ
 
-using dw::DateTime;
+#include <array>
+#include <date_wrapper/DateTime.h>
+#include <date_wrapper/TimeSpan.h>
 
 namespace {
+
 constexpr std::array<unsigned, 7> weekdayBits = {1, 2, 4, 8, 16, 32, 64};
+
+int countBits(unsigned mask)
+{
+    int res{0};
+    while (mask) {
+        res += mask & 1;
+        mask >>= 1;
+    }
+    return res;
 }
+
+} // namespace
 
 struct WeekdaySelection {
 
@@ -38,21 +52,43 @@ struct WeekdaySelection {
 
     unsigned selectionMask() const { return mask; }
 
-    void selectDay(DateTime::Weekday weekday)
+    void selectDay(dw::DateTime::Weekday weekday)
     {
         mask |= weekdayBits[static_cast<unsigned>(weekday)];
     }
 
-    void unselectDay(DateTime::Weekday weekday)
+    void unselectDay(dw::DateTime::Weekday weekday)
     {
         mask ^= weekdayBits[static_cast<unsigned>(weekday)];
     }
 
-    bool isSelected(DateTime::Weekday weekday) const
+    bool isSelected(dw::DateTime::Weekday weekday) const
     {
         return (mask & weekdayBits[static_cast<unsigned>(weekday)]) != 0;
     }
 
+    int numSelected() const { return countBits(mask); }
+
 private:
     unsigned mask{0};
 };
+
+
+/* Return number of workdays in given time range with
+ * respect to current selection. */
+inline int numWorkdays(const dw::TimeSpan& timeSpan,
+                       const WeekdaySelection& workdays)
+{
+    int res{0};
+
+    for (auto day = timeSpan.start(); day <= timeSpan.finish();
+         day = day.add(dw::DateTime::Days{1})) {
+        if (workdays.isSelected(
+                static_cast<dw::DateTime::Weekday>(day.dayOfWeek())))
+            ++res;
+    }
+
+    return res;
+}
+
+#endif /* end of include guard: WEEKDAYSELECTION_H_7HAYMKBJ */

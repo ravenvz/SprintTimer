@@ -29,7 +29,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Add new TODO item</string>
+      <string>Add new task</string>
      </property>
      <property name="text">
       <string>Add task</string>
@@ -57,7 +57,17 @@
       <bool>true</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true"/>
+      <string notr="true">QListView {
+    show-decoration-selected: 1; /* make the selection span the entire width of the view */
+}
+
+QListView::item {
+	margin: 5px;
+	border: 1px solid gray;
+    border-radius: 2px;
+    padding: 10px;
+}
+</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>

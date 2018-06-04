@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,23 +22,24 @@
 
 #include "core/use_cases/RemoveSprintTransaction.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
 RemoveSprintTransaction::RemoveSprintTransaction(ISprintStorageWriter& writer,
-                                                 const Sprint& sprint)
+                                                 Sprint sprintToRemove)
     : writer{writer}
-    , sprint{sprint}
+    , sprint{std::move(sprintToRemove)}
 {
 }
 
-void RemoveSprintTransaction::executeAction() { writer.remove(sprint); }
+void RemoveSprintTransaction::execute() { writer.remove(sprint); }
 
-void RemoveSprintTransaction::undoAction() { writer.save(sprint); }
+void RemoveSprintTransaction::undo() { writer.save(sprint); }
 
-std::string RemoveSprintTransaction::inspect() const
+std::string RemoveSprintTransaction::describe() const
 {
     std::stringstream ss;
     ss << "Remove sprint '" << sprint << "'";
     return ss.str();
 }
-}
+
+} // namespace core::use_cases

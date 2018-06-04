@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,49 +22,53 @@
 #ifndef IMACROTRANSACTION_H_GKJDX3V4
 #define IMACROTRANSACTION_H_GKJDX3V4
 
-#include "core/RevertableCommand.h"
+#include "core/Command.h"
 #include <memory>
 #include <vector>
 
-class MacroTransaction : public RevertableCommand {
+namespace core::use_cases {
+
+class MacroTransaction : public Command {
 public:
-    explicit MacroTransaction(std::vector<std::unique_ptr<RevertableCommand>>&& commands)
+    explicit MacroTransaction(std::vector<std::unique_ptr<Command>>&& commands)
         : commands{std::move(commands)}
     {
     }
 
-    void executeAction() final
+    void execute() final
     {
         for (const auto& command : commands) {
             command->execute();
         }
     }
 
-    void undoAction() final
+    void undo() final
     {
         for (const auto& command : commands) {
             command->undo();
         }
     }
 
-    std::string inspect() const final
+    std::string describe() const final
     {
         std::vector<std::string> descriptions{"Macro command"};
         std::transform(commands.cbegin(),
                        commands.cend(),
                        std::back_inserter(descriptions),
-                       [](const auto& command) { return command->inspect(); });
+                       [](const auto& command) { return command->describe(); });
         return StringUtils::join(
             descriptions.cbegin(), descriptions.cend(), " ");
     }
 
-    void addCommand(std::unique_ptr<RevertableCommand> command)
+    void addCommand(std::unique_ptr<Command> command)
     {
         commands.push_back(std::move(command));
     }
 
 private:
-    std::vector<std::unique_ptr<RevertableCommand>> commands;
+    std::vector<std::unique_ptr<Command>> commands;
 };
+
+} // namespace core::use_cases
 
 #endif /* end of include guard: IMACROTRANSACTION_H_GKJDX3V4 */

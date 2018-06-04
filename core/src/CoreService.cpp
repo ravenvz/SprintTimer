@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -41,6 +41,10 @@
 using dw::DateTime;
 using dw::TimeSpan;
 
+using namespace core;
+using namespace core::use_cases; // TODO remove when all this is inside that
+                                 // namespace
+
 namespace Core {
 
 CoreService::CoreService(
@@ -65,36 +69,35 @@ CoreService::CoreService(
 
 void CoreService::registerTask(const Task& task)
 {
-    auto addTask = std::make_unique<UseCases::AddNewTask>(taskWriter, task);
+    auto addTask = std::make_unique<AddNewTask>(taskWriter, task);
     invoker.executeCommand(std::move(addTask));
 }
 
 void CoreService::removeTask(const Task& task)
 {
-    auto deleteTask = std::make_unique<UseCases::DeleteTask>(taskWriter, task);
+    auto deleteTask = std::make_unique<DeleteTask>(taskWriter, task);
     invoker.executeCommand(std::move(deleteTask));
 }
 
 void CoreService::editTask(const Task& task, const Task& editedTask)
 {
-    auto editTask
-        = std::make_unique<UseCases::EditTask>(taskWriter, task, editedTask);
+    auto editTask = std::make_unique<EditTask>(taskWriter, task, editedTask);
     invoker.executeCommand(std::move(editTask));
 }
 
 void CoreService::toggleTaskCompletionStatus(const Task& task)
 {
     auto toggleTaskCommand
-        = std::make_unique<UseCases::ToggleTaskCompletionStatus>(taskWriter,
-                                                                 task);
+        = std::make_unique<ToggleTaskCompletionStatus>(taskWriter, task);
     invoker.executeCommand(std::move(toggleTaskCommand));
 }
 
-void CoreService::registerTaskPriorities(TaskOrder&& priorities)
+void CoreService::registerTaskPriorities(TaskOrder&& old_order,
+                                         TaskOrder&& new_order)
 {
     auto registerPrioritiesCommand
-        = std::make_unique<UseCases::StoreUnfinishedTasksOrder>(
-            taskWriter, std::move(priorities));
+        = std::make_unique<StoreUnfinishedTasksOrder>(
+            taskWriter, std::move(old_order), std::move(new_order));
     invoker.executeCommand(std::move(registerPrioritiesCommand));
 }
 
@@ -102,41 +105,38 @@ void CoreService::requestFinishedTasks(
     const TimeSpan& timeSpan,
     std::function<void(const std::vector<Task>&)> onResultsReceivedCallback)
 {
-    std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestFinishedTasks>(
+    std::unique_ptr<Query> requestItems
+        = std::make_unique<RequestFinishedTasks>(
             taskReader, timeSpan, onResultsReceivedCallback);
-    invoker.executeCommand(std::move(requestItems));
+    query_invoker.executeQuery(std::move(requestItems));
 }
 
 void CoreService::requestUnfinishedTasks(
     std::function<void(const std::vector<Task>&)> onResultsReceivedCallback)
 {
-    std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestUnfinishedTasks>(
-            taskReader, onResultsReceivedCallback);
-    invoker.executeCommand(std::move(requestItems));
+    auto requestItems = std::make_unique<RequestUnfinishedTasks>(
+        taskReader, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestItems));
 }
 
 void CoreService::exportTasks(const TimeSpan& timeSpan,
                               std::shared_ptr<ExternalIO::ISink> sink,
                               ICoreService::TaskEncodingFunc func)
 {
-    std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestTasks>(
-            taskReader, timeSpan, [sink, func](const auto& tasks) {
-                sink->send(func(tasks));
-            });
-    invoker.executeCommand(std::move(requestItems));
+    auto requestItems = std::make_unique<RequestTasks>(
+        taskReader, timeSpan, [sink, func](const auto& tasks) {
+            sink->send(func(tasks));
+        });
+    query_invoker.executeQuery(std::move(requestItems));
 }
 
 void CoreService::sprintsInTimeRange(
     const TimeSpan& timeSpan,
     std::function<void(const std::vector<Sprint>&)> onResultsReceivedCallback)
 {
-    std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestSprints>(
-            sprintReader, timeSpan, onResultsReceivedCallback);
-    invoker.executeCommand(std::move(requestItems));
+    auto requestItems = std::make_unique<RequestSprints>(
+        sprintReader, timeSpan, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestItems));
 }
 
 void CoreService::registerSprint(const TimeSpan& timeSpan,
@@ -149,11 +149,10 @@ void CoreService::registerSprint(const TimeSpan& timeSpan,
 void CoreService::registerSprint(const Sprint& sprint)
 {
     auto registerNewSprint
-        = std::make_unique<UseCases::RegisterNewSprint>(sprintWriter, sprint);
+        = std::make_unique<RegisterNewSprint>(sprintWriter, sprint);
     auto incrementTaskSprints
-        = std::make_unique<UseCases::IncrementTaskSprints>(taskWriter,
-                                                           sprint.taskUuid());
-    std::vector<std::unique_ptr<RevertableCommand>> commands;
+        = std::make_unique<IncrementTaskSprints>(taskWriter, sprint.taskUuid());
+    std::vector<std::unique_ptr<core::Command>> commands;
     commands.push_back(std::move(registerNewSprint));
     commands.push_back(std::move(incrementTaskSprints));
     auto addSprintTransaction
@@ -164,12 +163,11 @@ void CoreService::registerSprint(const Sprint& sprint)
 void CoreService::removeSprint(const Sprint& sprint)
 {
     const std::string& taskUuid = sprint.taskUuid();
-    auto removeSprint = std::make_unique<UseCases::RemoveSprintTransaction>(
-        sprintWriter, sprint);
+    auto removeSprint
+        = std::make_unique<RemoveSprintTransaction>(sprintWriter, sprint);
     auto decrementTaskSprints
-        = std::make_unique<UseCases::DecrementTaskSprints>(taskWriter,
-                                                           taskUuid);
-    std::vector<std::unique_ptr<RevertableCommand>> commands;
+        = std::make_unique<DecrementTaskSprints>(taskWriter, taskUuid);
+    std::vector<std::unique_ptr<core::Command>> commands;
     commands.push_back(std::move(removeSprint));
     commands.push_back(std::move(decrementTaskSprints));
     auto removeSprintTransaction
@@ -181,68 +179,59 @@ void CoreService::exportSprints(const TimeSpan& timeSpan,
                                 std::shared_ptr<ExternalIO::ISink> sink,
                                 ICoreService::SprintEncodingFunc func)
 {
-    std::unique_ptr<Command> requestItems
-        = std::make_unique<UseCases::RequestSprints>(
-            sprintReader, timeSpan, [sink, func](const auto& sprints) {
-                sink->send(func(sprints));
-            });
-    invoker.executeCommand(std::move(requestItems));
+    auto requestItems = std::make_unique<RequestSprints>(
+        sprintReader, timeSpan, [sink, func](const auto& sprints) {
+            sink->send(func(sprints));
+        });
+    query_invoker.executeQuery(std::move(requestItems));
 }
 
 void CoreService::yearRange(std::function<void(const std::vector<std::string>&)>
                                 onResultsReceivedCallback)
 {
-    auto requestYearRange = std::make_unique<UseCases::RequestMinMaxYear>(
+    auto requestYearRange = std::make_unique<RequestMinMaxYear>(
         yearRangeReader, onResultsReceivedCallback);
-    invoker.executeCommand(std::move(requestYearRange));
+    query_invoker.executeQuery(std::move(requestYearRange));
 }
 
 void CoreService::requestSprintDailyDistribution(
     const TimeSpan& timeSpan,
     std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
-    auto requestDistribution
-        = std::make_unique<UseCases::RequestSprintDistribution>(
-            sprintDailyDistributionReader, timeSpan, onResultsReceivedCallback);
-    invoker.executeCommand(std::move(requestDistribution));
+    auto requestDistribution = std::make_unique<RequestSprintDistribution>(
+        sprintDailyDistributionReader, timeSpan, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestDistribution));
 }
 
 void CoreService::requestSprintWeeklyDistribution(
     const TimeSpan& timeSpan,
     std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
-    auto requestDistribution
-        = std::make_unique<UseCases::RequestSprintDistribution>(
-            sprintWeeklyDistributionReader,
-            timeSpan,
-            onResultsReceivedCallback);
-    invoker.executeCommand(std::move(requestDistribution));
+    auto requestDistribution = std::make_unique<RequestSprintDistribution>(
+        sprintWeeklyDistributionReader, timeSpan, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestDistribution));
 }
 
 void CoreService::requestSprintMonthlyDistribution(
     const TimeSpan& timeSpan,
     std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
 {
-    auto requestDistribution
-        = std::make_unique<UseCases::RequestSprintDistribution>(
-            sprintMonthlyDistributionReader,
-            timeSpan,
-            onResultsReceivedCallback);
-    invoker.executeCommand(std::move(requestDistribution));
+    auto requestDistribution = std::make_unique<RequestSprintDistribution>(
+        sprintMonthlyDistributionReader, timeSpan, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestDistribution));
 }
 
 void CoreService::requestAllTags(TagResultHandler onResultsReceivedCallback)
 {
-    auto requestTags = std::make_unique<UseCases::RequestAllTags>(
+    auto requestTags = std::make_unique<RequestAllTags>(
         taskReader, onResultsReceivedCallback);
-    invoker.executeCommand(std::move(requestTags));
+    query_invoker.executeQuery(std::move(requestTags));
 }
 
 void CoreService::editTag(const std::string& oldName,
                           const std::string& newName)
 {
-    auto editTag
-        = std::make_unique<UseCases::RenameTag>(taskWriter, oldName, newName);
+    auto editTag = std::make_unique<RenameTag>(taskWriter, oldName, newName);
     editTag->execute();
     invoker.executeCommand(std::move(editTag));
 }
@@ -259,4 +248,4 @@ uint64_t CoreService::numRevertableCommands() const
 
 void CoreService::undoLast() { invoker.undo(); }
 
-} /* Core */
+} // namespace Core

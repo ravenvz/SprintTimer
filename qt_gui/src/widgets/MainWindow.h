@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,7 +26,6 @@
 #include "core/ISprintStorageReader.h"
 #include "core/IStorageImplementersFactory.h"
 #include "core/IYearRangeReader.h"
-#include "core/utils/OptionalPl.h"
 #include "models/SprintModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
@@ -38,6 +37,7 @@
 #include <QMainWindow>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <vector>
 
 
@@ -79,7 +79,7 @@ private:
     QPointer<LauncherMenu> launcherMenu;
     QPointer<TaskOutline> taskOutline;
     QPointer<SprintOutline> sprintOutline;
-    optional<int> selectedTaskRow;
+    std::optional<int> selectedTaskRow;
     TimerWidgetBase* timerWidget;
     ExpansionState* expansionState;
 

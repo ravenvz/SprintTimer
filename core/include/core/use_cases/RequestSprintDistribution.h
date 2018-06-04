@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016, 2017 Pavel Pavlov.
+** Copyright (C) 2016-2018 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,30 +22,27 @@
 #ifndef REQUESTSPRINTDISTRIBUTION_H_QUUONEQF
 #define REQUESTSPRINTDISTRIBUTION_H_QUUONEQF
 
-
-#include "core/Command.h"
 #include "core/ISprintDistributionReader.h"
+#include "core/Query.h"
 
-namespace UseCases {
+namespace core::use_cases {
 
-class RequestSprintDistribution : public Command {
+class RequestSprintDistribution : public Query {
 public:
     RequestSprintDistribution(ISprintDistributionReader& reader,
-                              const dw::TimeSpan& timeSpan,
+                              dw::TimeSpan timeSpan,
                               ISprintDistributionReader::Handler handler);
 
     void execute() final;
 
-    std::string inspect() const final;
+    std::string describe() const final;
 
 private:
     ISprintDistributionReader& reader;
-    const dw::TimeSpan& timeSpan;
-    ISprintDistributionReader::Handler handler;
+    const dw::TimeSpan timeSpan_;
+    ISprintDistributionReader::Handler handler_;
 };
 
-
-} /* UseCases */
-
+} // namespace core::use_cases
 
 #endif /* end of include guard: REQUESTSPRINTDISTRIBUTION_H_QUUONEQF */
