@@ -20,33 +20,11 @@
 **
 *********************************************************************************/
 #include "HistoryWindow.h"
+#include "core/external_io/OstreamSink.h"
+#include "core/utils/CSVEncoder.h"
 #include "ui_history.h"
 #include <QPainter>
 #include <fstream>
-#include "core/utils/CSVEncoder.h"
-#include "core/external_io/OstreamSink.h"
-
-#include <QDebug>
-
-HistoryViewDelegate::HistoryViewDelegate(QObject* parent)
-    : QStyledItemDelegate(parent)
-{
-}
-
-
-void HistoryViewDelegate::paint(QPainter* painter,
-                                const QStyleOptionViewItem& option,
-                                const QModelIndex& index) const
-{
-    if (!index.parent().isValid()) {
-        QStyleOptionViewItem changedOption{option};
-        changedOption.font.setWeight(QFont::Bold);
-        QStyledItemDelegate::paint(painter, changedOption, index);
-    }
-    else {
-        QStyledItemDelegate::paint(painter, option, index);
-    }
-}
 
 
 namespace {
@@ -81,13 +59,14 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    coreService.yearRange([this](const auto& range) { this->onYearRangeUpdated(range); });
+    coreService.yearRange(
+        [this](const auto& range) { this->onYearRangeUpdated(range); });
     selectedDateInterval = ui->dateRangePicker->getInterval();
     viewModel = new QStandardItemModel(this);
     ui->taskHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setHeaderHidden(true);
-    ui->sprintHistoryView->setItemDelegate(new HistoryViewDelegate(this));
-    ui->taskHistoryView->setItemDelegate(new HistoryViewDelegate(this));
+    ui->sprintHistoryView->setItemDelegate(historyItemDelegate.get());
+    ui->taskHistoryView->setItemDelegate(historyItemDelegate.get());
     historyState = displayTasksState.get();
     connect(ui->historyTab,
             &QTabWidget::currentChanged,
@@ -245,9 +224,7 @@ void DisplaySprints::exportData(const ExportDialog::ExportOptions& options)
         return encoder.encode(sprints, serializeSprint);
     };
     historyView.coreService.exportSprints(
-            historyView.selectedDateInterval.toTimeSpan(),
-            sink,
-            func);
+        historyView.selectedDateInterval.toTimeSpan(), sink, func);
 }
 
 
@@ -302,9 +279,7 @@ void DisplayTasks::exportData(const ExportDialog::ExportOptions& options)
         return encoder.encode(tasks, serializeTask);
     };
     historyView.coreService.exportTasks(
-            historyView.selectedDateInterval.toTimeSpan(),
-            sink,
-            func);
+        historyView.selectedDateInterval.toTimeSpan(), sink, func);
 }
 
 

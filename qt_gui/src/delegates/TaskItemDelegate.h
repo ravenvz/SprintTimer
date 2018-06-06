@@ -19,18 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKVIEWDELEGATE_H_Z8NDXQM6
-#define TASKVIEWDELEGATE_H_Z8NDXQM6
+#ifndef TASKITEMDELEGATE_H_Z8NDXQM6
+#define TASKITEMDELEGATE_H_Z8NDXQM6
 
 
 #include <QStyledItemDelegate>
 
 
-class TaskViewDelegate : public QStyledItemDelegate {
+class TaskItemDelegate : public QStyledItemDelegate {
     Q_OBJECT
 
 public:
-    explicit TaskViewDelegate(QObject* parent);
+    explicit TaskItemDelegate(QObject* parent = nullptr);
 
     void paint(QPainter* painter,
                const QStyleOptionViewItem& option,
@@ -50,4 +50,4 @@ private:
     QColor delimiterColor{Qt::gray};
 };
 
-#endif /* end of include guard: TASKVIEWDELEGATE_H_Z8NDXQM6 */
+#endif /* end of include guard: TASKITEMDELEGATE_H_Z8NDXQM6 */
