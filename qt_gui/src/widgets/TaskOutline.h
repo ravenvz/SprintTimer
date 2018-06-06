@@ -23,12 +23,12 @@
 #define TASKOUTLINE_H
 
 #include "core/ICoreService.h"
+#include "delegates/TaskItemDelegate.h"
 #include "dialogs/AddTaskDialog.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
 #include "widgets/ReordableListView.h"
 #include "widgets/TagEditor.h"
-#include "widgets/TaskViewDelegate.h"
 #include <QPointer>
 #include <QWidget>
 #include <QtWidgets/QLineEdit>
@@ -65,7 +65,8 @@ private:
     TaskModel* taskModel;
     TagModel* tagModel;
     std::unique_ptr<AddTaskDialog> addTaskDialog;
-    QPointer<TaskViewDelegate> taskViewDelegate;
+    std::unique_ptr<TaskItemDelegate> taskItemDelegate
+        = std::make_unique<TaskItemDelegate>();
     const QSize desiredSize{300, 200};
 
     void launchTagEditor();

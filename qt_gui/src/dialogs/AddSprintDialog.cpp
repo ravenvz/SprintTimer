@@ -77,6 +77,7 @@ AddSprintDialog::~AddSprintDialog()
 void AddSprintDialog::setData()
 {
     ui->cbPickTask->setModel(taskModel);
+    ui->cbPickTask->setItemDelegate(submissionItemDelegate.get());
     ui->dateEditSprintDate->setDate(QDate::currentDate());
 }
 

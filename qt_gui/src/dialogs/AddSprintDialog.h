@@ -22,11 +22,13 @@
 #ifndef ADDSPRINTDIALOG_H
 #define ADDSPRINTDIALOG_H
 
+#include "delegates/SubmissionItemDelegate.h"
 #include "models/SprintModel.h"
 #include "models/TaskModel.h"
 #include <QDialog>
 #include <QPointer>
 #include <QtWidgets/QCalendarWidget>
+#include <memory>
 
 namespace Ui {
 class AddSprintDialog;
@@ -55,6 +57,8 @@ private:
     QPointer<SprintModel> sprintModel;
     QPointer<TaskModel> taskModel;
     const int sprintDuration;
+    std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate
+        = std::make_unique<SubmissionItemDelegate>();
 
     void setData();
 

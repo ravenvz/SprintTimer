@@ -24,13 +24,14 @@
 
 #include "DateRangePicker.h"
 #include "core/ICoreService.h"
+#include "delegates/HistoryItemDelegate.h"
+#include "dialogs/ExportDialog.h"
 #include "widgets/DataWidget.h"
 #include <QObject>
 #include <QStandardItemModel>
 #include <QStringListModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
-#include "dialogs/ExportDialog.h"
 
 namespace Ui {
 class HistoryWindow;
@@ -38,17 +39,6 @@ class HistoryWindow;
 
 class DisplayState;
 
-// TODO HistoryWindow should not know about it's delegate
-
-class HistoryViewDelegate : public QStyledItemDelegate {
-public:
-    explicit HistoryViewDelegate(QObject* parent);
-
-    // Override to paint root items in bold font.
-    void paint(QPainter* painter,
-               const QStyleOptionViewItem& option,
-               const QModelIndex& index) const override;
-};
 
 class HistoryWindow : public DataWidget {
     Q_OBJECT
@@ -75,6 +65,9 @@ private:
     std::unique_ptr<DisplayState> displayTasksState;
     std::unique_ptr<ExportDialog> exportDialog;
     DisplayState* historyState;
+    std::unique_ptr<HistoryItemDelegate> historyItemDelegate
+        = std::make_unique<HistoryItemDelegate>();
+    ;
     const int sprintTabIndex{0};
     const int taskTabIndex{1};
 

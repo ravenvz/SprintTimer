@@ -19,3 +19,24 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "delegates/HistoryItemDelegate.h"
+
+HistoryItemDelegate::HistoryItemDelegate(QObject* parent)
+    : QStyledItemDelegate(parent)
+{
+}
+
+
+void HistoryItemDelegate::paint(QPainter* painter,
+                                const QStyleOptionViewItem& option,
+                                const QModelIndex& index) const
+{
+    if (!index.parent().isValid()) {
+        QStyleOptionViewItem changedOption{option};
+        changedOption.font.setWeight(QFont::Bold);
+        QStyledItemDelegate::paint(painter, changedOption, index);
+    }
+    else {
+        QStyledItemDelegate::paint(painter, option, index);
+    }
+}
