@@ -20,11 +20,11 @@
 **
 *********************************************************************************/
 
+#include "widgets/TaskOutline.h"
 #include "dialogs/AddTaskDialog.h"
 #include "dialogs/ConfirmationDialog.h"
 #include "ui_task_outline.h"
 #include "utils/WidgetUtils.h"
-#include "widgets/TaskOutline.h"
 #include <QMenu>
 
 TaskOutline::TaskOutline(ICoreService& coreService,
@@ -35,15 +35,13 @@ TaskOutline::TaskOutline(ICoreService& coreService,
     , coreService{coreService}
     , taskModel{taskModel}
     , tagModel{tagModel}
-    , taskViewDelegate{new TaskViewDelegate{this}}
     , QWidget{parent}
 {
     ui->setupUi(this);
 
-    taskViewDelegate = new TaskViewDelegate(this);
     ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->lvTaskView->setModel(taskModel);
-    ui->lvTaskView->setItemDelegate(taskViewDelegate);
+    ui->lvTaskView->setItemDelegate(taskItemDelegate.get());
 
     connect(ui->pbAddTask,
             &QPushButton::clicked,
@@ -53,11 +51,9 @@ TaskOutline::TaskOutline(ICoreService& coreService,
             &QLineEdit::returnPressed,
             this,
             &TaskOutline::onQuickAddTodoReturnPressed);
-    connect(ui->lvTaskView,
-            &QListView::clicked,
-            [&](const QModelIndex& index) {
-                emit taskSelected(index.row());
-            });
+    connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
+        emit taskSelected(index.row());
+    });
     connect(ui->lvTaskView,
             &QListView::customContextMenuRequested,
             this,
@@ -71,7 +67,6 @@ TaskOutline::TaskOutline(ICoreService& coreService,
 TaskOutline::~TaskOutline()
 {
     delete tagEditor;
-    delete taskViewDelegate;
     delete ui;
 }
 
@@ -88,10 +83,8 @@ void TaskOutline::onQuickAddTodoReturnPressed()
 void TaskOutline::onAddTaskButtonPushed()
 {
     addTaskDialog.reset(new AddTaskDialog{tagModel});
-    connect(&*addTaskDialog,
-            &QDialog::accepted,
-            this,
-            &TaskOutline::addNewTask);
+    connect(
+        &*addTaskDialog, &QDialog::accepted, this, &TaskOutline::addNewTask);
     addTaskDialog->setModal(true);
     addTaskDialog->show();
 }
@@ -99,7 +92,6 @@ void TaskOutline::onAddTaskButtonPushed()
 void TaskOutline::addNewTask()
 {
     taskModel->insert(addTaskDialog->constructedTask());
-
 }
 
 void TaskOutline::toggleTaskCompleted()
@@ -107,10 +99,7 @@ void TaskOutline::toggleTaskCompleted()
     taskModel->toggleCompleted(ui->lvTaskView->currentIndex());
 }
 
-QSize TaskOutline::sizeHint() const
-{
-    return desiredSize;
-}
+QSize TaskOutline::sizeHint() const { return desiredSize; }
 
 void TaskOutline::showContextMenu(const QPoint& pos)
 {
@@ -151,9 +140,9 @@ void TaskOutline::removeTask()
     ConfirmationDialog dialog;
     QString description;
     if (task.actualCost() > 0) {
-        description =
-                "WARNING! This task has sprints associated with it "
-                "and they will be removed permanently along with this item.";
+        description
+            = "WARNING! This task has sprints associated with it "
+              "and they will be removed permanently along with this item.";
     }
     else {
         description = "This will delete task permanently!";

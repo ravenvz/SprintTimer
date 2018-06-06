@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "TaskViewDelegate.h"
+#include "TaskItemDelegate.h"
 #include <QApplication>
 #include <QPainter>
 
@@ -51,13 +51,13 @@ int contentWidth(const QRect& rect);
 } // namespace
 
 
-TaskViewDelegate::TaskViewDelegate(QObject* parent)
+TaskItemDelegate::TaskItemDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
 {
     delimiterColor.setAlpha(50);
 }
 
-QSize TaskViewDelegate::sizeHint(const QStyleOptionViewItem& option,
+QSize TaskItemDelegate::sizeHint(const QStyleOptionViewItem& option,
                                  const QModelIndex& index) const
 {
     if (!index.isValid())
@@ -68,7 +68,7 @@ QSize TaskViewDelegate::sizeHint(const QStyleOptionViewItem& option,
                  tagsRect.height() + descrRect.height() + 3 * offset};
 }
 
-void TaskViewDelegate::paint(QPainter* painter,
+void TaskItemDelegate::paint(QPainter* painter,
                              const QStyleOptionViewItem& option,
                              const QModelIndex& index) const
 {
@@ -94,7 +94,7 @@ void TaskViewDelegate::paint(QPainter* painter,
     painter->restore();
 }
 
-void TaskViewDelegate::paintItem(QPainter* painter,
+void TaskItemDelegate::paintItem(QPainter* painter,
                                  const QStyleOptionViewItem& option,
                                  const QModelIndex& index,
                                  int alpha) const

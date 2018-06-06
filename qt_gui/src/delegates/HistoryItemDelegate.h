@@ -19,21 +19,19 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#ifndef SUBMISSION_ITEM_DELEGATE
-#define SUBMISSION_ITEM_DELEGATE
+#ifndef HISTORYITEMDELEGATE_H_BST0DV1J
+#define HISTORYITEMDELEGATE_H_BST0DV1J
 
 #include <QStyledItemDelegate>
 
-class SubmissionItemDelegate : public QStyledItemDelegate {
-    Q_OBJECT
-
+class HistoryItemDelegate : public QStyledItemDelegate {
 public:
-    explicit SubmissionItemDelegate(QObject* parent);
+    explicit HistoryItemDelegate(QObject* parent = nullptr);
 
+    // Override to paint root items in bold font.
     void paint(QPainter* painter,
                const QStyleOptionViewItem& option,
                const QModelIndex& index) const override;
 };
 
-#endif
+#endif /* end of include guard: HISTORYITEMDELEGATE_H_BST0DV1J */

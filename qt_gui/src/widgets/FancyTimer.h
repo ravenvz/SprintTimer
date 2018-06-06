@@ -23,8 +23,10 @@
 #ifndef FANCYTIMER_H_PXO2DFJW
 #define FANCYTIMER_H_PXO2DFJW
 
+#include "delegates/SubmissionItemDelegate.h"
 #include "widgets/CombinedIndicator.h"
 #include "widgets/TimerWidgetBase.h"
+#include <memory>
 
 namespace Ui {
 class FancyTimer;
@@ -43,9 +45,12 @@ private:
     Ui::FancyTimer* ui;
     const int indicatorSize{150};
     CombinedIndicator* combinedIndicator;
-//    const QColor taskStateColor{QColor{"#eb6c59"}};
-//    const QColor breakStateColor{QColor{"#73c245"}};
-//    const QColor zoneStateColor{Qt::darkYellow};
+    std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate
+        = std::make_unique<SubmissionItemDelegate>();
+    ;
+    //    const QColor taskStateColor{QColor{"#eb6c59"}};
+    //    const QColor breakStateColor{QColor{"#73c245"}};
+    //    const QColor zoneStateColor{Qt::darkYellow};
 
     void onSprintStateEnteredHook() override;
     void onSprintStateLeftHook() override;

@@ -19,3 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+
+#ifndef SUBMISSION_ITEM_DELEGATE
+#define SUBMISSION_ITEM_DELEGATE
+
+#include <QStyledItemDelegate>
+
+class SubmissionItemDelegate : public QStyledItemDelegate {
+    Q_OBJECT
+
+public:
+    explicit SubmissionItemDelegate(QObject* parent = nullptr);
+
+    void paint(QPainter* painter,
+               const QStyleOptionViewItem& option,
+               const QModelIndex& index) const override;
+};
+
+#endif

@@ -23,15 +23,14 @@
 #include "widgets/FancyTimer.h"
 #include "ui_fancy_timer.h"
 #include "utils/WidgetUtils.h"
-#include "SubmissionItemDelegate.h"
 
 namespace {
-    constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
-    constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
-    constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
-    const QColor taskStateColor{"#eb6c59"};
-    const QColor breakStateColor{"#73c245"};
-    const QColor zoneStateColor{Qt::darkYellow};
+constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
+constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
+constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
+const QColor taskStateColor{"#eb6c59"};
+const QColor breakStateColor{"#73c245"};
+const QColor zoneStateColor{Qt::darkYellow};
 } // namespace
 
 FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
@@ -65,7 +64,7 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
     });
     connect(ui->pbCancel, &QPushButton::clicked, this, &FancyTimer::cancelTask);
 
-    ui->cbxSubmissionCandidate->setItemDelegate(new SubmissionItemDelegate(this));
+    ui->cbxSubmissionCandidate->setItemDelegate(submissionItemDelegate.get());
 
     onIdleStateEnteredHook();
 }
@@ -90,9 +89,8 @@ void FancyTimer::updateGoalProgress(Progress progress)
         ui->labelDailyGoalProgress->hide();
         return;
     }
-    ui->labelDailyGoalProgress->setText(QString("Daily goal progress: %1/%2")
-                                            .arg(progress)
-                                            .arg(dailyGoal));
+    ui->labelDailyGoalProgress->setText(
+        QString("Daily goal progress: %1/%2").arg(progress).arg(dailyGoal));
     if (progress == dailyGoal) {
         ui->labelDailyGoalProgress->setStyleSheet(workgoalMetStyleSheet);
     }
@@ -183,8 +181,8 @@ void FancyTimer::updateIndication(std::chrono::seconds timeLeft)
 bool FancyTimer::indicationUpdateShouldBeIgnored() const
 {
     using namespace SprintTimerCore;
-    return currentState == IStatefulTimer::StateId::IdleEntered ||
-            currentState == IStatefulTimer::StateId::SprintFinished;
+    return currentState == IStatefulTimer::StateId::IdleEntered
+        || currentState == IStatefulTimer::StateId::SprintFinished;
 }
 
 void FancyTimer::onIndicatorClicked()
