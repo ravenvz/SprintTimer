@@ -25,6 +25,8 @@
 
 #include "IStatisticalChart.h"
 
+namespace qt_gui {
+
 
 class DistributionDiagramMockup : public IStatisticalChart {
     Q_OBJECT
@@ -38,6 +40,9 @@ public:
     // protected slots:
     //     void onSelectionChanged(size_t selectionIndex) override;
 };
+
+} // namespace qt_gui
+
 
 
 #endif /* end of include guard: PIEDIAGRAMMOCKUP_H_CM1PNQL0 */

@@ -27,6 +27,8 @@
 #include <QWidget>
 #include <vector>
 
+namespace qt_gui {
+
 using dw::TimeSpan;
 
 /* Displays vector of TimeSpan as a diagram.
@@ -67,5 +69,8 @@ private:
 
     void drawIntervals(QPainter& painter);
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: TIMEDIAGRAM_H */

@@ -33,11 +33,11 @@
 #include "core/TagTop.h"
 #include <optional>
 
-
 namespace Ui {
 class StatisticsWindow;
 } // namespace Ui
 
+namespace qt_gui {
 
 /* Displays statistical information on finished sprints
  * for a given timespan.
@@ -84,6 +84,9 @@ private:
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
     void onDataFetched(const std::vector<Sprint> &sprints);
 };
+
+} // namespace qt_gui
+
 
 
 #endif /* end of include guard: STATISTICSWINDOW_H */

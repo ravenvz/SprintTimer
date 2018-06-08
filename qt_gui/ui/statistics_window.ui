@@ -31,7 +31,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="DateRangePicker" name="dateRangePicker" native="true">
+    <widget class="qt_gui::DateRangePicker" name="dateRangePicker" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -53,7 +53,7 @@
     </widget>
    </item>
    <item>
-    <widget class="DailyTimelineGraph" name="dailyTimelineGraph">
+    <widget class="qt_gui::DailyTimelineGraph" name="dailyTimelineGraph">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -104,7 +104,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,2,2">
         <item>
-         <widget class="BestWorkdayWidget" name="bestWorkdayWidget" native="true">
+         <widget class="qt_gui::BestWorkdayWidget" name="bestWorkdayWidget" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -120,7 +120,7 @@
          </widget>
         </item>
         <item>
-         <widget class="DistributionDiagram" name="topTagDiagram" native="true">
+         <widget class="qt_gui::DistributionDiagram" name="topTagDiagram" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -136,7 +136,7 @@
          </widget>
         </item>
         <item>
-         <widget class="BestWorktimeWidget" name="bestWorktimeWidget" native="true">
+         <widget class="qt_gui::BestWorktimeWidget" name="bestWorktimeWidget" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -160,31 +160,31 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DateRangePicker</class>
+   <class>qt_gui::DateRangePicker</class>
    <extends>QWidget</extends>
    <header>src/widgets/DateRangePicker.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>DistributionDiagram</class>
+   <class>qt_gui::DistributionDiagram</class>
    <extends>QWidget</extends>
    <header>src/widgets/DistributionDiagram.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>DailyTimelineGraph</class>
+   <class>qt_gui::DailyTimelineGraph</class>
    <extends>QFrame</extends>
    <header>widgets/DailyTimelineGraph.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>BestWorkdayWidget</class>
+   <class>qt_gui::BestWorkdayWidget</class>
    <extends>QWidget</extends>
    <header>widgets/BestWorkdayWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>BestWorktimeWidget</class>
+   <class>qt_gui::BestWorktimeWidget</class>
    <extends>QWidget</extends>
    <header>widgets/BestWorktimeWidget.h</header>
    <container>1</container>

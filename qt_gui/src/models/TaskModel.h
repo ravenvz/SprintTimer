@@ -27,6 +27,8 @@
 #include "date_wrapper/TimeSpan.h"
 #include "models/AsyncListModel.h"
 
+namespace qt_gui {
+
 class TaskModel : public AsyncListModel {
     Q_OBJECT
 
@@ -113,5 +115,8 @@ private:
 
     void onDataChanged(const std::vector<Task>& tasks);
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: TASKMODEL_H_FUQ5UCBE */

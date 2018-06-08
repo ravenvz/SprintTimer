@@ -31,6 +31,8 @@ namespace Ui {
 class BestWorkdayWidget;
 } // namespace Ui
 
+namespace qt_gui {
+
 
 class BestWorkdayWidget : public QWidget {
 
@@ -51,6 +53,9 @@ private:
     void updateWeekdayBarChartLegend(
         const Distribution<double>& weekdayDistribution);
 };
+
+} // namespace qt_gui
+
 
 
 #endif // BESTWORKDAYWIDGET_H

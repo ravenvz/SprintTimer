@@ -23,6 +23,8 @@
 #include "SubmissionItemDelegate.h"
 #include <QPainter>
 
+namespace qt_gui {
+
 SubmissionItemDelegate::SubmissionItemDelegate(QObject* parent)
     : QStyledItemDelegate{parent}
 {
@@ -43,3 +45,6 @@ void SubmissionItemDelegate::paint(QPainter* painter,
     painter->drawText(option.rect, Qt::AlignLeft, index.data(Qt::DisplayRole).toString());
     painter->restore();
 }
+
+} // namespace qt_gui
+

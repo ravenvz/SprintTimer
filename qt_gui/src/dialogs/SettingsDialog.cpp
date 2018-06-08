@@ -26,6 +26,8 @@
 #include <QStringListModel>
 #include <QtWidgets/QGroupBox>
 
+namespace qt_gui {
+
 
 SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
     : QDialog(parent)
@@ -110,3 +112,6 @@ void SettingsDialog::onBrowseSoundFileButtonClicked()
     applicationSettings.setSoundFilePath(filename.toStdString());
     ui->lePathToSoundFile->setText(filename);
 }
+
+} // namespace qt_gui
+

@@ -21,5 +21,10 @@
 *********************************************************************************/
 #include "widgets/IStatisticalChartLegend.h"
 
+namespace qt_gui {
+
 
 IStatisticalChartLegend::~IStatisticalChartLegend() {}
+
+} // namespace qt_gui
+

@@ -23,6 +23,8 @@
 #include "ui_add_sprint_dialog.h"
 #include "utils/DateTimeConverter.h"
 
+namespace qt_gui {
+
 namespace {
 constexpr int secondsInMinute{60};
 }
@@ -119,3 +121,6 @@ void AddSprintDialog::accept()
     sprintModel->insert(sprints);
     QDialog::accept();
 }
+
+} // namespace qt_gui
+

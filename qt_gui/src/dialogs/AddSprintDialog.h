@@ -34,6 +34,8 @@ namespace Ui {
 class AddSprintDialog;
 } // namespace Ui
 
+namespace qt_gui {
+
 class AddSprintDialog : public QDialog {
     Q_OBJECT
 
@@ -64,5 +66,8 @@ private:
 
     int totalSprintLength() const;
 };
+
+} // namespace qt_gui
+
 
 #endif // ADDSPRINTDIALOG_H

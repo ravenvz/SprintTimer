@@ -25,6 +25,8 @@
 #include <QAbstractListModel>
 #include <QObject>
 
+namespace qt_gui {
+
 /* Model that updates it' s data asyncroniously.
  *
  * Async data update means that there is a unknown delay between
@@ -83,5 +85,8 @@ signals:
      * via synchronize slot. */
     void updateFinished();
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: IASYNCMODEL_H_RSKAFU9C */

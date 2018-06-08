@@ -22,6 +22,8 @@
 #include "models/AsyncListModel.h"
 #include <iostream>
 
+namespace qt_gui {
+
 AsyncListModel::AsyncListModel(QObject* parent)
     : QAbstractListModel{parent}
 {
@@ -45,3 +47,6 @@ void AsyncListModel::broadcastUpdateFinished()
 void AsyncListModel::submitData() {}
 
 void AsyncListModel::revertData() {}
+
+} // namespace qt_gui
+

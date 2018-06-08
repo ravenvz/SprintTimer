@@ -26,6 +26,8 @@
 #include <QPainter>
 #include <fstream>
 
+namespace qt_gui {
+
 
 namespace {
 
@@ -299,3 +301,6 @@ void DisplayTasks::onHistoryRetrieved(const std::vector<Task>& tasks)
     historyView.fillHistoryModel(taskHistory);
     historyView.setHistoryModel(historyView.ui->taskHistoryView);
 }
+
+} // namespace qt_gui
+

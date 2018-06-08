@@ -23,6 +23,8 @@
 #include <QHelpEvent>
 #include <QToolTip>
 
+namespace qt_gui {
+
 void AxisRange::setRange(double start, double end)
 {
     this->start = std::min(start, end);
@@ -225,3 +227,6 @@ Graph::const_iterator Graph::cbegin() const { return points.cbegin(); }
 Graph::const_iterator Graph::cend() const { return points.cend(); }
 
 size_t Graph::size() const { return points.size(); }
+
+} // namespace qt_gui
+

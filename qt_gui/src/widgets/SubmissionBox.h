@@ -25,6 +25,8 @@
 
 #include <QComboBox>
 
+namespace qt_gui {
+
 
 /* Combobox, that retains it's currentIndex when hidden.
  *
@@ -41,6 +43,9 @@ private:
 
     void showEvent(QShowEvent* event) override;
 };
+
+} // namespace qt_gui
+
 
 
 #endif // SUBMISSIONBOX_H

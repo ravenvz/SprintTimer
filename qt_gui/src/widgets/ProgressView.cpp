@@ -25,6 +25,8 @@
 #include "widgets/Gauge.h"
 #include <QtWidgets/QGridLayout>
 
+namespace qt_gui {
+
 namespace ProgressBarColors {
 
 const QColor targetGoalReached = QColor("#6baa15");
@@ -32,6 +34,20 @@ const QColor overwork = Qt::red;
 const QColor workInProgress = Qt::gray;
 
 };
+
+namespace {
+
+QString formatDecimal(double decimal)
+{
+    return QString("%1").arg(decimal, 2, 'f', 2, '0');
+}
+
+double percentage(int chunk, int total)
+{
+    return total != 0 ? static_cast<double>(chunk) * 100 / total : 0;
+}
+
+} // namespace
 
 ProgressView::ProgressView(int goal,
                            size_t numRows,
@@ -170,12 +186,6 @@ void ProgressView::updateProgressBar(int lastValue)
     bar->show();
 }
 
-QString formatDecimal(double decimal)
-{
-    return QString("%1").arg(decimal, 2, 'f', 2, '0');
-}
 
-double percentage(int chunk, int total)
-{
-    return total != 0 ? static_cast<double>(chunk) * 100 / total : 0;
-}
+} // namespace qt_gui
+

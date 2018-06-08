@@ -26,6 +26,8 @@
 #include <QWidget>
 #include <memory>
 
+namespace qt_gui {
+
 
 class HoverState;
 
@@ -119,5 +121,8 @@ class WorkProgressNone : public WorkProgressState {
 public:
     void draw(const Gauge& gauge, QPainter& painter) final;
 };
+
+} // namespace qt_gui
+
 
 #endif

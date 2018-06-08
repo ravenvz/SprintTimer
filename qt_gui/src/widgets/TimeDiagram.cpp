@@ -22,6 +22,8 @@
 #include "TimeDiagram.h"
 #include <QPainter>
 
+namespace qt_gui {
+
 
 TimeDiagram::TimeDiagram(QWidget* parent)
     : QWidget(parent)
@@ -116,3 +118,6 @@ void TimeDiagram::setIntervals(std::vector<TimeSpan> newIntervals)
     timeSpans = std::move(newIntervals);
     update();
 }
+
+} // namespace qt_gui
+

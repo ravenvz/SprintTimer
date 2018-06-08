@@ -22,6 +22,8 @@
 
 #include "utils/WidgetUtils.h"
 
+namespace qt_gui {
+
 namespace WidgetUtils {
 
 void setRetainSizeWhenHidden(QWidget* widget)
@@ -39,3 +41,6 @@ void bringToForeground(QWidget* widget)
 }
 
 } /* WidgetUtils */
+
+} // namespace qt_gui
+

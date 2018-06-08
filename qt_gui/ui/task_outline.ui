@@ -37,7 +37,7 @@
     </widget>
    </item>
    <item>
-    <widget class="ReordableListView" name="lvTaskView">
+    <widget class="qt_gui::ReordableListView" name="lvTaskView">
      <property name="maximumSize">
       <size>
        <width>300</width>
@@ -126,7 +126,7 @@ QListView::item {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ReordableListView</class>
+   <class>qt_gui::ReordableListView</class>
    <extends>QListView</extends>
    <header>widgets/ReordableListView.h</header>
   </customwidget>

@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "delegates/HistoryItemDelegate.h"
 
+namespace qt_gui {
+
 HistoryItemDelegate::HistoryItemDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
 {
@@ -40,3 +42,6 @@ void HistoryItemDelegate::paint(QPainter* painter,
         QStyledItemDelegate::paint(painter, option, index);
     }
 }
+
+} // namespace qt_gui
+

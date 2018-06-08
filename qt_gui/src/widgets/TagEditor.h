@@ -30,6 +30,8 @@ namespace Ui {
 class TagEditorWidget;
 } // namespace Ui
 
+namespace qt_gui {
+
 class TagEditor: public QWidget {
 
     Q_OBJECT
@@ -43,6 +45,9 @@ private:
     Ui::TagEditorWidget* ui;
     AsyncListModel* model;
 };
+
+} // namespace qt_gui
+
 
 
 #endif /* end of include guard: TAGEDITOR_H */

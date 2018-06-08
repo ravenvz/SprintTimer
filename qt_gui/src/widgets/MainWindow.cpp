@@ -24,6 +24,8 @@
 #include "widgets/FancyTimer.h"
 #include "ui_mainwindow.h"
 
+namespace qt_gui {
+
 namespace {
     auto expandedFully = std::make_unique<Expanded>();
     auto shrinked = std::make_unique<Shrinked>();
@@ -284,3 +286,6 @@ void ExpandedWithoutMenu::toggleMenu(MainWindow& widget)
 {
     widget.expansionState = expandedFully.get();
 }
+
+} // namespace qt_gui
+

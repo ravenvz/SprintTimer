@@ -24,6 +24,8 @@
 #include "ui_fancy_timer.h"
 #include "utils/WidgetUtils.h"
 
+namespace qt_gui {
+
 namespace {
 constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
 constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
@@ -200,3 +202,6 @@ void FancyTimer::onIndicatorClicked()
         break;
     }
 }
+
+} // namespace qt_gui
+

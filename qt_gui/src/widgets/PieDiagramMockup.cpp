@@ -22,6 +22,8 @@
 #include <iostream>
 #include "PieDiagramMockup.h"
 
+namespace qt_gui {
+
 
 DistributionDiagramMockup::DistributionDiagramMockup(QWidget* parent)
     : IStatisticalChart(parent)
@@ -46,3 +48,6 @@ void DistributionDiagramMockup::togglePartActive(size_t partIndex)
 // {
 //     std::cout << "Selection has been changed" << std::endl;
 // }
+
+} // namespace qt_gui
+

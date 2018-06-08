@@ -22,6 +22,8 @@
 #include "DateRangePickDialog.h"
 #include "ui_date_pick_dialog.h"
 
+namespace qt_gui {
+
 
 DateRangePickDialog::DateRangePickDialog(DateInterval initialPeriod, QWidget* parent)
     : QDialog(parent)
@@ -55,3 +57,6 @@ DateInterval DateRangePickDialog::getNewInterval()
 {
     return DateInterval{ui->cwStart->selectedDate(), ui->cwEnd->selectedDate()};
 }
+
+} // namespace qt_gui
+

@@ -27,6 +27,8 @@
 #include <QWidget>
 #include <vector>
 
+namespace qt_gui {
+
 struct BarDataItem {
     QString label;
     double value;
@@ -72,5 +74,8 @@ private:
 
     void drawBars(QPainter& painter);
 };
+
+} // namespace qt_gui
+
 
 #endif // BARCHART_H

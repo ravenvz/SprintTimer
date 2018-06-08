@@ -31,6 +31,8 @@ namespace Ui {
 class ProgressView;
 } // namespace Ui
 
+namespace qt_gui {
+
 class ProgressView : public QFrame {
     Q_OBJECT
 
@@ -74,9 +76,7 @@ signals:
     void goalChanged(int goal);
 };
 
-QString formatDecimal(double decimal);
-
-double percentage(int chunk, int total);
+} // namespace qt_gui
 
 
 #endif // PROGRESSWIDGET_H

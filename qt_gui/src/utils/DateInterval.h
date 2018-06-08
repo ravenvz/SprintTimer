@@ -27,6 +27,8 @@
 #include <QDate>
 #include <iostream>
 
+namespace qt_gui {
+
 struct DateInterval {
 
     QDate startDate;
@@ -75,5 +77,8 @@ struct DateInterval {
 //        << t.finishTime.month() << "." << t.finishTime.year();
 //     return os;
 // }
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: DATEINTERVAL_H_DO5P2YKX */

@@ -21,7 +21,12 @@
 *********************************************************************************/
 #include "widgets/DataWidget.h"
 
+namespace qt_gui {
+
 DataWidget::DataWidget(QWidget* parent)
     : QFrame{parent}
 {
 }
+
+} // namespace qt_gui
+

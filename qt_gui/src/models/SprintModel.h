@@ -27,6 +27,8 @@
 #include <memory>
 #include <vector>
 
+namespace qt_gui {
+
 class SprintModel : public AsyncListModel {
     Q_OBJECT
 
@@ -58,5 +60,8 @@ private:
 
     void onDataChanged(const std::vector<Sprint>& items);
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: SPRINTMODEL_H_MQZ2XAPI */

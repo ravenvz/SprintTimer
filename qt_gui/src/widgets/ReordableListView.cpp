@@ -22,6 +22,8 @@
 
 #include "ReordableListView.h"
 
+namespace qt_gui {
+
 ReordableListView::ReordableListView(QWidget* parent)
     : QListView(parent)
 {
@@ -34,4 +36,7 @@ void ReordableListView::dropEvent(QDropEvent* event)
     model()->moveRows(
         QModelIndex(), rowMovedFrom, 1, QModelIndex(), rowMovedTo);
 }
+
+} // namespace qt_gui
+
 

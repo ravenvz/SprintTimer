@@ -28,6 +28,8 @@
 #include <QVBoxLayout>
 #include "widgets/IStatisticalChartLegend.h"
 
+namespace qt_gui {
+
 // TODO implement proper legend item.
 /* Quick-and-dirty prototype for legend item. Needs some rework done.
  *
@@ -105,5 +107,8 @@ private:
     QLabel* title;
 
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: SIMPLELEGEND_H_FM2CYP6M */

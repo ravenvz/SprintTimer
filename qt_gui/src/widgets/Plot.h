@@ -28,6 +28,8 @@
 #include <QString>
 #include <QWidget>
 
+namespace qt_gui {
+
 struct GraphPoint;
 
 using GraphData = std::vector<GraphPoint>;
@@ -170,5 +172,8 @@ private:
     GraphData points;
     bool mShowPoints = false;
 };
+
+} // namespace qt_gui
+
 
 #endif // PLOT_H

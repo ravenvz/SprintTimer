@@ -30,6 +30,8 @@
 #include <QWidget>
 #include <optional>
 
+namespace qt_gui {
+
 using DataItem = std::pair<std::string, double>;
 
 class LegendLabel;
@@ -76,6 +78,9 @@ private:
     IStatisticalChartLegend* legend;
     std::optional<size_t> selectedSliceIndex;
 };
+
+} // namespace qt_gui
+
 
 
 #endif // DISTRIBUTIONDIAGRAM_H

@@ -34,6 +34,8 @@ namespace Ui {
 class DailyTimelineGraph;
 } // namespace Ui
 
+namespace qt_gui {
+
 
 class DailyTimelineGraph : public QFrame {
 public:
@@ -54,6 +56,9 @@ private:
     void updateLegend(const Distribution<double>& dailyDistribution,
                       double averagePerWorkday);
 };
+
+} // namespace qt_gui
+
 
 
 #endif // DAILYTIMELINEGRAPH_H

@@ -31,6 +31,8 @@
 #include <QWidget>
 #include <memory>
 
+namespace qt_gui {
+
 using Progress = int;
 
 class TimerWidgetBase : public QWidget {
@@ -79,5 +81,8 @@ signals:
     void submitRequested(std::vector<dw::TimeSpan> completedTaskIntervals);
     void submissionCandidateChanged(int index);
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: ITIMERWIDGET_H_REB4PSQX */

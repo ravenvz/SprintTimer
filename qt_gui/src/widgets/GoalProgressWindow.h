@@ -33,6 +33,8 @@
 #include <core/ICoreService.h>
 #include <memory>
 
+namespace qt_gui {
+
 class ProgressView;
 
 
@@ -71,6 +73,9 @@ private:
 private slots:
     void launchWorkdaysConfigurationDialog();
 };
+
+} // namespace qt_gui
+
 
 
 #endif // GOAL_PROGRESS_WIDGET_H

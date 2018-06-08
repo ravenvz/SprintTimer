@@ -28,11 +28,13 @@
 #include <QSettings>
 #include <QStringList>
 
-class QStringListModel;
-
 namespace Ui {
 class SettingsDialog;
 } // namespace Ui
+
+class QStringListModel;
+
+namespace qt_gui {
 
 class SettingsDialog : public QDialog {
     Q_OBJECT
@@ -55,5 +57,8 @@ private:
 
     void fillSettingsData();
 };
+
+} // namespace qt_gui
+
 
 #endif // SETTINGSDIALOG_H

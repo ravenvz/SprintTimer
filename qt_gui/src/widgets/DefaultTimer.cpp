@@ -24,6 +24,8 @@
 #include "ui_default_timer.h"
 #include "utils/WidgetUtils.h"
 
+namespace qt_gui {
+
 namespace {
     constexpr char const* workgoalMetStyleSheet{"QLabel { color: green; }"};
     constexpr char const* overworkStyleSheet{"QLabel { color: red; }"};
@@ -158,3 +160,6 @@ void DefaultTimer::updateIndication(std::chrono::seconds timeLeft)
     setTimerValue(timeLeft);
     ui->progressBar->repaint();
 }
+
+} // namespace qt_gui
+

@@ -36,7 +36,7 @@
     </widget>
    </item>
    <item row="0" column="1" rowspan="4">
-    <widget class="TimeDiagram" name="timeDiagram" native="true">
+    <widget class="qt_gui::TimeDiagram" name="timeDiagram" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -110,7 +110,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TimeDiagram</class>
+   <class>qt_gui::TimeDiagram</class>
    <extends>QWidget</extends>
    <header>widgets/TimeDiagram.h</header>
    <container>1</container>

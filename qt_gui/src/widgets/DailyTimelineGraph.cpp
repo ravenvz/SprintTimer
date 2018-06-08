@@ -26,6 +26,8 @@
 #include <QDate>
 #include <QtWidgets/QGridLayout>
 
+namespace qt_gui {
+
 
 DailyTimelineGraph::DailyTimelineGraph(QWidget* parent)
     : QFrame{parent}
@@ -121,3 +123,6 @@ void DailyTimelineGraph::updateLegend(
     ui->labelDailyAverage->setText(
         QString("%1").arg(averagePerWorkday, 2, 'f', 2, '0'));
 }
+
+} // namespace qt_gui
+

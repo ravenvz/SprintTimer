@@ -23,6 +23,8 @@
 #include "ui_tageditor.h"
 #include <QMessageBox>
 
+namespace qt_gui {
+
 
 TagEditor::TagEditor(AsyncListModel* tagModel, QWidget* parent)
     : QWidget(parent)
@@ -51,3 +53,6 @@ TagEditor::TagEditor(AsyncListModel* tagModel, QWidget* parent)
 }
 
 TagEditor::~TagEditor() { delete ui; }
+
+} // namespace qt_gui
+

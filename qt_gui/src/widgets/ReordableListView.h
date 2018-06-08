@@ -27,6 +27,8 @@
 #include <QDropEvent>
 #include <QListView>
 
+namespace qt_gui {
+
 
 /* Extension of QListView that allows items to be reordered. */
 class ReordableListView : public QListView {
@@ -40,6 +42,9 @@ public:
 
 
 };
+
+} // namespace qt_gui
+
 
 
 #endif /* end of include guard: REORDABLELISTVIEW_H_KN6BYIAY */

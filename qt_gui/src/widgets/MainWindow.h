@@ -40,14 +40,13 @@
 #include <optional>
 #include <vector>
 
-
 namespace Ui {
 class MainWindow;
 } // namespace Ui
 
+namespace qt_gui {
 
 class ExpansionState;
-
 
 class MainWindow : public QWidget {
 
@@ -143,5 +142,8 @@ public:
     void toggleView(MainWindow& widget) override;
     void toggleMenu(MainWindow& widget) override;
 };
+
+} // namespace qt_gui
+
 
 #endif // MAINWINDOW_H

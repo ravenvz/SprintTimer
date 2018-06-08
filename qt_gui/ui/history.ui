@@ -50,7 +50,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="DateRangePicker" name="dateRangePicker" native="true">
+  <widget class="qt_gui::DateRangePicker" name="dateRangePicker" native="true">
    <property name="geometry">
     <rect>
      <x>9</x>
@@ -104,7 +104,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DateRangePicker</class>
+   <class>qt_gui::DateRangePicker</class>
    <extends>QWidget</extends>
    <header>src/widgets/DateRangePicker.h</header>
    <container>1</container>

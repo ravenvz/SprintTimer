@@ -24,6 +24,8 @@
 
 #include <QStyledItemDelegate>
 
+namespace qt_gui {
+
 class HistoryItemDelegate : public QStyledItemDelegate {
 public:
     explicit HistoryItemDelegate(QObject* parent = nullptr);
@@ -33,5 +35,8 @@ public:
                const QStyleOptionViewItem& option,
                const QModelIndex& index) const override;
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: HISTORYITEMDELEGATE_H_BST0DV1J */

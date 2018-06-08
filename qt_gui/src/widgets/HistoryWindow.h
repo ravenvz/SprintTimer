@@ -37,6 +37,8 @@ namespace Ui {
 class HistoryWindow;
 } // namespace Ui
 
+namespace qt_gui {
+
 class DisplayState;
 
 
@@ -134,6 +136,9 @@ private:
     /* Assumes that tasks are sorted by timestamp */
     void onHistoryRetrieved(const std::vector<Task>& tasks);
 };
+
+} // namespace qt_gui
+
 
 
 #endif // HISTORY_VIEW_H
