@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "HistoryWindow.h"
+#include "widgets/HistoryWindow.h"
 #include "core/external_io/OstreamSink.h"
 #include "core/utils/CSVEncoder.h"
 #include "ui_history.h"
@@ -31,24 +31,24 @@ namespace qt_gui {
 
 namespace {
 
-QString sprintToString(const Sprint& sprint)
-{
-    return QString("%1 - %2 %3 %4")
-        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
-        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
-        .arg(QString::fromStdString(prefixTags(sprint.tags())))
-        .arg(QString::fromStdString(sprint.name()));
-}
+    QString sprintToString(const Sprint& sprint)
+    {
+        return QString("%1 - %2 %3 %4")
+            .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
+            .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+            .arg(QString::fromStdString(prefixTags(sprint.tags())))
+            .arg(QString::fromStdString(sprint.name()));
+    }
 
 
-QString taskToString(const Task& task)
-{
-    return QString("%1 %2 %3/%4")
-        .arg(QString::fromStdString(prefixTags(task.tags())))
-        .arg(QString::fromStdString(task.name()))
-        .arg(task.actualCost())
-        .arg(task.estimatedCost());
-}
+    QString taskToString(const Task& task)
+    {
+        return QString("%1 %2 %3/%4")
+            .arg(QString::fromStdString(prefixTags(task.tags())))
+            .arg(QString::fromStdString(task.name()))
+            .arg(task.actualCost())
+            .arg(task.estimatedCost());
+    }
 }
 
 
@@ -70,6 +70,7 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
     ui->sprintHistoryView->setItemDelegate(historyItemDelegate.get());
     ui->taskHistoryView->setItemDelegate(historyItemDelegate.get());
     historyState = displayTasksState.get();
+
     connect(ui->historyTab,
             &QTabWidget::currentChanged,
             this,
@@ -95,29 +96,36 @@ void HistoryWindow::fillHistoryModel(const std::vector<HistoryItem>& history)
 {
     // QStandardItemModel takes ownership of items that are added with
     // appendRow()
-    // so they will be deleted when model is deleted.
     viewModel->clear();
+
     if (history.empty()) {
         viewModel->appendRow(new QStandardItem("No data for selected period."));
         return;
     }
+
     QStandardItem* parent
         = new QStandardItem(QString("Completed %1 items.").arg(history.size()));
     viewModel->appendRow(parent);
-    int children{0};
-    QDate date = history.front().first;
-    parent = new QStandardItem(date.toString());
-    viewModel->appendRow(parent);
-    for (const auto& historyItem : history) {
-        if (historyItem.first != date) {
-            children = 0;
-            date = historyItem.first;
-            parent = new QStandardItem(date.toString());
-            viewModel->appendRow(parent);
+
+    for (auto same_date_beg = cbegin(history);
+         same_date_beg != cend(history);) {
+        auto [parent_date, parent_descr] = *same_date_beg;
+        auto same_date_end = std::find_if(
+            same_date_beg, cend(history), [&parent_date](const auto& entry) {
+                return entry.first != parent_date;
+            });
+
+        parent = new QStandardItem(
+            QString("%1 (%2 items)")
+                .arg(parent_date.toString())
+                .arg(std::distance(same_date_beg, same_date_end)));
+        viewModel->appendRow(parent);
+
+        for (int children = 0; same_date_beg != same_date_end;
+             ++same_date_beg, ++children) {
+            QStandardItem* item{new QStandardItem(same_date_beg->second)};
+            parent->setChild(children, item);
         }
-        QStandardItem* item = new QStandardItem(historyItem.second);
-        parent->setChild(children, item);
-        ++children;
     }
 }
 
@@ -131,12 +139,10 @@ void HistoryWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 
 void HistoryWindow::onTabSelected(int tabIndex)
 {
-    if (tabIndex == sprintTabIndex) {
+    if (tabIndex == sprintTabIndex)
         historyState = displaySprintsState.get();
-    }
-    if (tabIndex == taskTabIndex) {
+    else if (tabIndex == taskTabIndex)
         historyState = displayTasksState.get();
-    }
     synchronize();
 }
 
@@ -303,4 +309,3 @@ void DisplayTasks::onHistoryRetrieved(const std::vector<Task>& tasks)
 }
 
 } // namespace qt_gui
-
