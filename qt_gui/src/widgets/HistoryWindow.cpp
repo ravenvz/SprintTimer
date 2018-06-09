@@ -31,25 +31,26 @@ namespace qt_gui {
 
 namespace {
 
-    QString sprintToString(const Sprint& sprint)
-    {
-        return QString("%1 - %2 %3 %4")
-            .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
-            .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
-            .arg(QString::fromStdString(prefixTags(sprint.tags())))
-            .arg(QString::fromStdString(sprint.name()));
-    }
-
-
-    QString taskToString(const Task& task)
-    {
-        return QString("%1 %2 %3/%4")
-            .arg(QString::fromStdString(prefixTags(task.tags())))
-            .arg(QString::fromStdString(task.name()))
-            .arg(task.actualCost())
-            .arg(task.estimatedCost());
-    }
+QString sprintToString(const Sprint& sprint)
+{
+    return QString("%1 - %2 %3 %4")
+        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
+        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+        .arg(QString::fromStdString(prefixTags(sprint.tags())))
+        .arg(QString::fromStdString(sprint.name()));
 }
+
+
+QString taskToString(const Task& task)
+{
+    return QString("%1 %2 %3/%4")
+        .arg(QString::fromStdString(prefixTags(task.tags())))
+        .arg(QString::fromStdString(task.name()))
+        .arg(task.actualCost())
+        .arg(task.estimatedCost());
+}
+
+} // namespace
 
 
 HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
@@ -69,7 +70,7 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
     ui->sprintHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setItemDelegate(historyItemDelegate.get());
     ui->taskHistoryView->setItemDelegate(historyItemDelegate.get());
-    historyState = displayTasksState.get();
+    historyState = displaySprintsState.get();
 
     connect(ui->historyTab,
             &QTabWidget::currentChanged,
@@ -141,7 +142,7 @@ void HistoryWindow::onTabSelected(int tabIndex)
 {
     if (tabIndex == sprintTabIndex)
         historyState = displaySprintsState.get();
-    else if (tabIndex == taskTabIndex)
+    if (tabIndex == taskTabIndex)
         historyState = displayTasksState.get();
     synchronize();
 }
