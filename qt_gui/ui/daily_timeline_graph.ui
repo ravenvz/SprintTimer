@@ -91,7 +91,7 @@
       </widget>
      </item>
      <item row="1" column="0" colspan="6">
-      <widget class="Plot" name="dailyTimeline" native="true">
+      <widget class="qt_gui::Plot" name="dailyTimeline" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
@@ -112,7 +112,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Plot</class>
+   <class>qt_gui::Plot</class>
    <extends>QWidget</extends>
    <header>src/widgets/Plot.h</header>
    <container>1</container>

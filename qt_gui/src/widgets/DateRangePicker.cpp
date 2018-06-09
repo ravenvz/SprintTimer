@@ -30,6 +30,8 @@
 
 #include <QDebug>
 
+namespace qt_gui {
+
 DateRangePicker::DateRangePicker(QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::DateRangePicker)
@@ -128,3 +130,6 @@ void DateRangePicker::setYears(const std::vector<std::string>& years)
     ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
     updateInterval();
 }
+
+} // namespace qt_gui
+

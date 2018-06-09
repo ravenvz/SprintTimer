@@ -24,6 +24,8 @@
 #include "core/utils/WeekdaySelection.h"
 #include "widgets/ProgressView.h"
 
+namespace qt_gui {
+
 using dw::DateTime;
 using dw::TimeSpan;
 
@@ -199,3 +201,6 @@ void GoalProgressWindow::launchWorkdaysConfigurationDialog()
     workdaysDialog->setModal(true);
     workdaysDialog->show();
 }
+
+} // namespace qt_gui
+

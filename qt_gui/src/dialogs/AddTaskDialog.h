@@ -32,6 +32,8 @@ namespace Ui {
 class AddTaskDialog;
 } // namespace Ui
 
+namespace qt_gui {
+
 /* Provides front end to create or edit Task. */
 class AddTaskDialog : public QDialog {
     Q_OBJECT
@@ -67,5 +69,8 @@ private:
 
     void setTagsModel();
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: ADDTASKDIALOG_H_TBSYZEDZ */

@@ -23,6 +23,8 @@
 #include <QPainter>
 #include <cmath>
 
+namespace qt_gui {
+
 double degreesToRadians(int degrees);
 
 CombinedIndicator::CombinedIndicator(int sideSizeHint, QWidget* parent)
@@ -129,3 +131,6 @@ double degreesToRadians(int degrees)
     const double pi{acos(-1)};
     return degrees * pi / 180;
 }
+
+} // namespace qt_gui
+

@@ -31,6 +31,8 @@ namespace Ui {
 class DefaultTimer;
 } // namespace Ui
 
+namespace qt_gui {
+
 class DefaultTimer : public TimerWidgetBase {
 
     Q_OBJECT
@@ -61,5 +63,8 @@ private:
     void setUiToRunningState();
     void updateIndication(std::chrono::seconds timeLeft) override;
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: DEFAULTTIMER_H_QE49BN8Q */

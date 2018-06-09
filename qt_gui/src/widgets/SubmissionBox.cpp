@@ -22,6 +22,8 @@
 
 #include "widgets/SubmissionBox.h"
 
+namespace qt_gui {
+
 
 SubmissionBox::SubmissionBox(QWidget* parent)
     : QComboBox(parent)
@@ -39,3 +41,6 @@ void SubmissionBox::showEvent(QShowEvent* event)
     QComboBox::showEvent(event);
     setCurrentIndex(persistentIndex);
 }
+
+} // namespace qt_gui
+

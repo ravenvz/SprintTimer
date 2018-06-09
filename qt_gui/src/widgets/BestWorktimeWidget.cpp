@@ -24,6 +24,8 @@
 #include "ui_best_worktime_widget.h"
 #include "core/SprintStatistics.h"
 
+namespace qt_gui {
+
 BestWorktimeWidget::BestWorktimeWidget(QWidget* parent)
     : QWidget{parent}
     , ui{new Ui::BestWorktimeWidget}
@@ -64,4 +66,7 @@ void BestWorktimeWidget::updateWorkHoursDiagram(
     }
     ui->timeDiagram->setIntervals(std::move(timeSpans));
 }
+
+} // namespace qt_gui
+
 

@@ -32,6 +32,8 @@ namespace Ui {
 class FancyTimer;
 } // namespace Ui
 
+namespace qt_gui {
+
 class FancyTimer : public TimerWidgetBase {
 public:
     FancyTimer(const IConfig& applicationSettings, QWidget* parent);
@@ -64,5 +66,8 @@ private:
 private slots:
     void onIndicatorClicked();
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: FANCYTIMER_H_PXO2DFJW */

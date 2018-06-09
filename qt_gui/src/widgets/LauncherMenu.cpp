@@ -28,6 +28,8 @@
 #include "widgets/StatisticsWindow.h"
 #include "widgets/HistoryWindow.h"
 
+namespace qt_gui {
+
 LauncherMenu::LauncherMenu(IConfig& applicationSettings,
                        ICoreService& coreService,
                        QWidget* parent)
@@ -109,3 +111,6 @@ void LauncherMenu::onSyncRequired()
     if (statisticsWindow)
         statisticsWindow->synchronize();
 }
+
+} // namespace qt_gui
+

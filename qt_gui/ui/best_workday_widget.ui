@@ -74,7 +74,7 @@
     </widget>
    </item>
    <item>
-    <widget class="BarChart" name="workdayBarChart" native="true">
+    <widget class="qt_gui::BarChart" name="workdayBarChart" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -93,7 +93,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>BarChart</class>
+   <class>qt_gui::BarChart</class>
    <extends>QWidget</extends>
    <header>src/widgets/BarChart.h</header>
    <container>1</container>

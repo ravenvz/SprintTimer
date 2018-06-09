@@ -22,6 +22,8 @@
 #include "ConfirmationDialog.h"
 #include "ui_pom_cancel_dialog.h"
 
+namespace qt_gui {
+
 
 ConfirmationDialog::ConfirmationDialog(QWidget* parent)
     : QDialog(parent)
@@ -36,3 +38,6 @@ void ConfirmationDialog::setActionDescription(QString& description)
 {
     ui->lblDescribeAction->setText(description);
 }
+
+} // namespace qt_gui
+

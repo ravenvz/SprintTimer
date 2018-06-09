@@ -29,6 +29,8 @@ namespace Ui {
 class ExportDialog;
 } // namespace Ui
 
+namespace qt_gui {
+
 class ExportDialog : public QDialog {
     Q_OBJECT
 
@@ -48,6 +50,9 @@ private:
 signals:
     void exportConfirmed(const ExportOptions& options);
 };
+
+} // namespace qt_gui
+
 
 
 #endif //SPRINT_TIMER_EXPORTDIALOG_H

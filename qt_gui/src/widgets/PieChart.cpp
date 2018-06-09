@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "widgets/PieChart.h"
 
+namespace qt_gui {
+
 PieChart::PieChart(QWidget* parent)
     : IStatisticalChart(parent)
 {
@@ -126,3 +128,6 @@ void PieChart::togglePartActive(size_t sliceIndex)
         activeSliceInd = sliceIndex;
     repaint();
 }
+
+} // namespace qt_gui
+

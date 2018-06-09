@@ -36,10 +36,11 @@
 #include <QtWidgets/QVBoxLayout>
 #include <memory>
 
-
 namespace Ui {
 class TaskOutline;
 } // namespace Ui
+
+namespace qt_gui {
 
 /* Responsible for providing user interface for interactive
  * task management, so that user could view current unfinished
@@ -83,5 +84,8 @@ private slots:
     void showContextMenu(const QPoint& pos);
     void addNewTask();
 };
+
+} // namespace qt_gui
+
 
 #endif // TASKOUTLINE_H

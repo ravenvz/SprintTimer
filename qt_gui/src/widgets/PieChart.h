@@ -28,6 +28,8 @@
 #include <cmath>
 #include <optional>
 
+namespace qt_gui {
+
 
 /* Widget that displays data as an exploding pie chart.
  *
@@ -96,5 +98,8 @@ private:
      * index of clicked slice. */
     void onLeftMouseClick(const QPoint& pos);
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: PIECHART_H_65LSH0MP */

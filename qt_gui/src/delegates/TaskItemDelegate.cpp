@@ -23,6 +23,8 @@
 #include <QApplication>
 #include <QPainter>
 
+namespace qt_gui {
+
 namespace {
 
 // Note that below options must match those defined in QSS.
@@ -193,3 +195,6 @@ bool taskOverspent(const QString& stats)
 int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
 
 } // namespace
+
+} // namespace qt_gui
+

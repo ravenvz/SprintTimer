@@ -22,6 +22,8 @@
 #include "widgets/SimpleLegend.h"
 #include <iostream>
 
+namespace qt_gui {
+
 LegendItem::LegendItem(const QString& text, size_t itemIndex, QWidget* parent)
     : QLabel(parent)
     , itemIndex(itemIndex)
@@ -100,3 +102,6 @@ bool SimpleLegend::isSelected(size_t index) const
 void SimpleLegend::setTitleFont(QFont font) { title->setFont(font); }
 
 void SimpleLegend::onItemClicked(size_t index) { emit itemClicked(index); }
+
+} // namespace qt_gui
+

@@ -21,4 +21,9 @@
 *********************************************************************************/
 #include "IStatisticalChart.h"
 
+namespace qt_gui {
+
 IStatisticalChart::~IStatisticalChart() {}
+
+} // namespace qt_gui
+

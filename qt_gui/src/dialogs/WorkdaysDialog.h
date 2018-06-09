@@ -30,6 +30,8 @@ namespace Ui {
 class WorkdaysDialog;
 } // namespace Ui
 
+namespace qt_gui {
+
 class WorkdaysDialog : public QDialog {
     Q_OBJECT
 
@@ -45,6 +47,9 @@ private:
     void initializeDayBoxes();
     unsigned pollWorkdaysCode() const;
 };
+
+} // namespace qt_gui
+
 
 
 #endif /* end of include guard: WORKDAYSDIALOG_H_NVZH9CRG */

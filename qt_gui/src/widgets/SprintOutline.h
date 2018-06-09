@@ -36,6 +36,8 @@ namespace Ui {
 class SprintOutline;
 } // namespace Ui
 
+namespace qt_gui {
+
 class SprintOutline : public QWidget {
 
     Q_OBJECT
@@ -72,6 +74,9 @@ private slots:
 signals:
     void actionUndone();
 };
+
+} // namespace qt_gui
+
 
 
 #endif //SPRINT_TIMER_SPRINTOUTLINE_H

@@ -24,6 +24,8 @@
 #include "core/StatefulTimer.h"
 #include <QMessageBox>
 
+namespace qt_gui {
+
 TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
                                  QWidget* parent)
     : QWidget{parent}
@@ -216,3 +218,6 @@ QString TimerWidgetBase::timerValueToText(std::chrono::seconds timeLeft)
         QString::number(min.count()),
         QString::number(sec.count()).rightJustified(2, '0'));
 }
+
+} // namespace qt_gui
+

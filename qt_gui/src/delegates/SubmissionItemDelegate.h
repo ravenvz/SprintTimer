@@ -25,6 +25,8 @@
 
 #include <QStyledItemDelegate>
 
+namespace qt_gui {
+
 class SubmissionItemDelegate : public QStyledItemDelegate {
     Q_OBJECT
 
@@ -35,5 +37,8 @@ public:
                const QStyleOptionViewItem& option,
                const QModelIndex& index) const override;
 };
+
+} // namespace qt_gui
+
 
 #endif

@@ -28,6 +28,8 @@
 #include <iostream>
 #include <iterator>
 
+namespace qt_gui {
+
 TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel{parent}
     , coreService{coreService}
@@ -176,3 +178,6 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
 
     return true;
 }
+
+} // namespace qt_gui
+

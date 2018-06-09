@@ -30,6 +30,8 @@ namespace Ui {
 class DateRangePicker;
 } // namespace Ui
 
+namespace qt_gui {
+
 
 class DateRangePicker : public QWidget {
 
@@ -59,6 +61,9 @@ private:
 
     void connectSlots();
 };
+
+} // namespace qt_gui
+
 
 
 #endif // PICKPERIODWIDGET_H

@@ -31,6 +31,8 @@ namespace Ui {
 class BestWorktimeWidget;
 } // namespace Ui
 
+namespace qt_gui {
+
 class BestWorktimeWidget : public QWidget {
 public:
     BestWorktimeWidget(QWidget* parent);
@@ -46,5 +48,8 @@ private:
     updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
                            const std::vector<Sprint>& sprints);
 };
+
+} // namespace qt_gui
+
 
 #endif // BESTWORKTIMEWIDGET_H

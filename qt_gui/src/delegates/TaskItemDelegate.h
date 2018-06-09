@@ -25,6 +25,8 @@
 
 #include <QStyledItemDelegate>
 
+namespace qt_gui {
+
 
 class TaskItemDelegate : public QStyledItemDelegate {
     Q_OBJECT
@@ -49,5 +51,8 @@ private:
     QColor overspentColor{Qt::red};
     QColor delimiterColor{Qt::gray};
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: TASKITEMDELEGATE_H_Z8NDXQM6 */

@@ -28,6 +28,8 @@ namespace Ui {
 class ConfirmationDialog;
 } // namespace Ui
 
+namespace qt_gui {
+
 class ConfirmationDialog : public QDialog
 {
     Q_OBJECT
@@ -40,5 +42,8 @@ public:
 private:
     Ui::ConfirmationDialog *ui;
 };
+
+} // namespace qt_gui
+
 
 #endif // CONFIRMATIONDIALOG_H

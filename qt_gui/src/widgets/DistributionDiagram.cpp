@@ -24,6 +24,8 @@
 #include "widgets/DistributionDiagram.h"
 #include <iostream>
 
+namespace qt_gui {
+
 
 DistributionDiagram::DistributionDiagram(QWidget* parent)
     : QWidget(parent)
@@ -87,3 +89,6 @@ void DistributionDiagram::onLegendItemClicked(size_t itemIndex)
 {
     onChartPartClicked(itemIndex);
 }
+
+} // namespace qt_gui
+

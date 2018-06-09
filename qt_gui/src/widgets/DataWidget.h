@@ -24,6 +24,8 @@
 
 #include <QFrame>
 
+namespace qt_gui {
+
 /* Widget that displays some data (like statistics, etc) and has
  * means to access this data, but does not now when underlying data
  * has been changed.
@@ -40,5 +42,8 @@ public:
 public slots:
     virtual void synchronize() = 0;
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: IDATAWIDGET_H_DMUO9TSG */

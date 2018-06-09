@@ -24,6 +24,8 @@
 #include "ui_add_todo_dialog.h"
 #include <QRegularExpression>
 
+namespace qt_gui {
+
 
 AddTaskDialog::AddTaskDialog(TagModel* tagModel, QWidget* parent)
     : QDialog(parent)
@@ -108,3 +110,6 @@ void AddTaskDialog::setTagsModel()
     // tagModel->select();
     ui->tags->setCurrentText("");
 }
+
+} // namespace qt_gui
+

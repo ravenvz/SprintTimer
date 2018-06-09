@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "models/TagModel.h"
 
+namespace qt_gui {
+
 TagModel::TagModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel{parent}
     , coreService{coreService}
@@ -100,3 +102,6 @@ void TagModel::onDataArrived(const std::vector<std::string>& tags)
     endResetModel();
     broadcastUpdateFinished();
 }
+
+} // namespace qt_gui
+

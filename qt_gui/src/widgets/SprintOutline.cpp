@@ -26,6 +26,8 @@
 #include "ui_sprint_outline.h"
 #include <QMenu>
 
+namespace qt_gui {
+
 SprintOutline::SprintOutline(ICoreService& coreService,
                              IConfig& applicationSettings,
                              SprintModel* sprintModel,
@@ -131,3 +133,6 @@ void SprintOutline::adjustUndoButtonState()
 {
     ui->pbUndo->setEnabled(coreService.numRevertableCommands() != 0);
 }
+
+} // namespace qt_gui
+

@@ -24,6 +24,8 @@
 #include "ui_export_dialog.h"
 #include <QFileDialog>
 
+namespace qt_gui {
+
 ExportDialog::ExportDialog(QWidget* parent)
     : QDialog{parent}
     , ui{new Ui::ExportDialog}
@@ -48,3 +50,6 @@ void ExportDialog::accept()
     emit exportConfirmed(options);
     QDialog::accept();
 }
+
+} // namespace qt_gui
+

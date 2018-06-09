@@ -24,6 +24,8 @@
 #include "ui_best_workday_widget.h"
 #include <QDate>
 
+namespace qt_gui {
+
 BestWorkdayWidget::BestWorkdayWidget(QWidget* parent)
     : QWidget(parent)
     , ui{new Ui::BestWorkdayWidget}
@@ -79,3 +81,6 @@ void BestWorkdayWidget::updateWeekdayBarChartLegend(
             QString("%1% more than average").arg(relativeComparisonInPercent));
     }
 }
+
+} // namespace qt_gui
+

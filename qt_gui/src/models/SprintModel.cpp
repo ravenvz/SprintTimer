@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "models/SprintModel.h"
 
+namespace qt_gui {
+
 using dw::TimeSpan;
 using dw::DateTime;
 
@@ -102,3 +104,6 @@ void SprintModel::onDataChanged(const std::vector<Sprint>& items)
     endResetModel();
     broadcastUpdateFinished();
 }
+
+} // namespace qt_gui
+

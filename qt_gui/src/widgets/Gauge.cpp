@@ -22,6 +22,8 @@
 #include "Gauge.h"
 #include <QPainter>
 
+namespace qt_gui {
+
 
 namespace GaugeColors {
 const QColor normalEmpty{Qt::gray};
@@ -204,3 +206,6 @@ void WorkProgressNone::draw(const Gauge& gauge, QPainter& painter)
     painter.setBrush(GaugeColors::normalEmpty);
     painter.drawEllipse(gauge.outerRect);
 }
+
+} // namespace qt_gui
+

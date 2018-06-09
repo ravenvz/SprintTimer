@@ -22,20 +22,25 @@
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H
 
-#include "DateRangePicker.h"
 #include "core/ICoreService.h"
 #include "delegates/HistoryItemDelegate.h"
 #include "dialogs/ExportDialog.h"
 #include "widgets/DataWidget.h"
+#include "widgets/DateRangePicker.h"
 #include <QObject>
 #include <QStandardItemModel>
 #include <QStringListModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
+#include <memory>
 
 namespace Ui {
 class HistoryWindow;
 } // namespace Ui
+
+
+namespace qt_gui {
+
 
 class DisplayState;
 
@@ -63,35 +68,28 @@ private:
     QPointer<QStandardItemModel> viewModel;
     std::unique_ptr<DisplayState> displaySprintsState;
     std::unique_ptr<DisplayState> displayTasksState;
-    std::unique_ptr<ExportDialog> exportDialog;
     DisplayState* historyState;
+    std::unique_ptr<ExportDialog> exportDialog;
     std::unique_ptr<HistoryItemDelegate> historyItemDelegate
         = std::make_unique<HistoryItemDelegate>();
-    ;
-    const int sprintTabIndex{0};
-    const int taskTabIndex{1};
+    static constexpr int sprintTabIndex{0};
+    static constexpr int taskTabIndex{1};
 
-    // Fill history model with data.
+    /* Assumes that history items are ordered by date ascendantly. */
     void fillHistoryModel(const std::vector<HistoryItem>& history);
 
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
 
 private slots:
 
-    // Set timeSpan to newInterval and refresh model for currently displayed
-    // tab.
     void onDatePickerIntervalChanged(DateInterval newInterval);
 
-    // Change History View state depending on tab selected.
     void onTabSelected(int tabIndex);
 
-    // Set model for currently selected view.
     void setHistoryModel(QTreeView* view);
 
-    // Open dialog featuring data export options.
     void onExportButtonClicked();
 
-    // Export data
     void onDataExportConfirmed(const ExportDialog::ExportOptions& options);
 };
 
@@ -134,6 +132,8 @@ private:
     /* Assumes that tasks are sorted by timestamp */
     void onHistoryRetrieved(const std::vector<Task>& tasks);
 };
+
+} // namespace qt_gui
 
 
 #endif // HISTORY_VIEW_H

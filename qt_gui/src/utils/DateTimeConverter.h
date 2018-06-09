@@ -25,6 +25,8 @@
 #include "date_wrapper/DateTime.h"
 #include <QDateTime>
 
+namespace qt_gui {
+
 using dw::DateTime;
 using dw::TimeSpan;
 
@@ -44,5 +46,8 @@ public:
         return DateTime::fromTime_t(qdt.toTime_t(), qdt.offsetFromUtc());
     }
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: DATETIMECONVERTER_H_Y4Z1XDHQ */

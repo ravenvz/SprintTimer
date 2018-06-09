@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="1" column="0" colspan="2">
-      <widget class="SubmissionBox" name="cbxSubmissionCandidate">
+      <widget class="qt_gui::SubmissionBox" name="cbxSubmissionCandidate">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -62,7 +62,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>SubmissionBox</class>
+   <class>qt_gui::SubmissionBox</class>
    <extends>QComboBox</extends>
    <header>widgets/SubmissionBox.h</header>
   </customwidget>

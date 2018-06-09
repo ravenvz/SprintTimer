@@ -24,6 +24,8 @@
 #include "ui_statistics_window.h"
 #include "widgets/BarChart.h"
 
+namespace qt_gui {
+
 StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
                                    ICoreService& coreService,
                                    QWidget* parent)
@@ -126,3 +128,6 @@ void StatisticsWindow::onTagSelected(size_t tagIndex)
 
     drawGraphs();
 }
+
+} // namespace qt_gui
+

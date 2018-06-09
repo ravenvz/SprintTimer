@@ -34,6 +34,8 @@ namespace Ui {
 class LauncherMenu;
 } // namespace Ui
 
+namespace qt_gui {
+
 class LauncherMenu : public QWidget {
 
 public:
@@ -60,6 +62,9 @@ private slots:
     void launchProgressWindow();
     void launchStatisticsWindow();
 };
+
+} // namespace qt_gui
+
 
 
 #endif //SPRINT_TIMER_BUTTONMENU_H

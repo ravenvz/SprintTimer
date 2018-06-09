@@ -27,6 +27,8 @@
 #include <vector>
 #include <string>
 
+namespace qt_gui {
+
 
 /* Widget that is able to illustrate data that is divided in parts proportional
  * to the quantity it represents. */
@@ -58,6 +60,9 @@ signals:
     /* Emitted when part of the chart is clicked with left mouse button. */
     void partClicked(size_t);
 };
+
+} // namespace qt_gui
+
 
 
 #endif /* end of include guard: I_STATISTAL_CHART_H */

@@ -23,6 +23,8 @@
 #include <QMouseEvent>
 #include <QPainter>
 
+namespace qt_gui {
+
 BarChart::BarChart(QWidget* parent)
     : QWidget(parent)
 {
@@ -122,3 +124,6 @@ void BarData::normalize()
 const BarDataItem& BarData::operator[](size_t idx) const { return data[idx]; }
 
 size_t BarData::size() const { return data.size(); }
+
+} // namespace qt_gui
+

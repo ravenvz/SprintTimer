@@ -108,6 +108,7 @@ std::string getOrCreateSprintTimerDataDirectory()
 
 int main(int argc, char* argv[])
 {
+    using namespace qt_gui;
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QApplication::setOrganizationName("RavenStudio");
     QApplication::setApplicationName("SprintTimer");

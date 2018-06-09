@@ -27,6 +27,8 @@
 #include "utils/WidgetUtils.h"
 #include <QMenu>
 
+namespace qt_gui {
+
 TaskOutline::TaskOutline(ICoreService& coreService,
                          TaskModel* taskModel,
                          TagModel* tagModel,
@@ -167,3 +169,6 @@ void TaskOutline::launchTaskEditor()
         taskModel->replaceItemAt(index.row(), updatedItem);
     }
 }
+
+} // namespace qt_gui
+

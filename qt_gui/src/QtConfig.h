@@ -26,6 +26,8 @@
 #include <QSettings>
 #include <QVariant>
 
+namespace qt_gui {
+
 /* Implements IConfig application config interface using Qt framework
  * features. */
 class Config : public IConfig {
@@ -160,5 +162,8 @@ public:
 private:
     QSettings settings;
 };
+
+} // namespace qt_gui
+
 
 #endif /* end of include guard: QT_CONFIG_H_3HPQW7BI */
