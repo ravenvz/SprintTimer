@@ -113,7 +113,9 @@ void TaskOutline::showContextMenu(const QPoint& pos)
     const auto deleteEntry = "Delete";
     const auto tagEditorEntry = "Tag editor";
     contextMenu.addAction(editEntry);
+    contextMenu.addSeparator();
     contextMenu.addAction(deleteEntry);
+    contextMenu.addSeparator();
     contextMenu.addAction(tagEditorEntry);
 
     QAction* selectedEntry = contextMenu.exec(globalPos);
