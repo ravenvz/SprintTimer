@@ -24,6 +24,7 @@
 #include "dialogs/AddTaskDialog.h"
 #include "dialogs/ConfirmationDialog.h"
 #include "ui_task_outline.h"
+#include "utils/MouseRightReleaseEater.h"
 #include "utils/WidgetUtils.h"
 #include <QMenu>
 
@@ -107,11 +108,14 @@ void TaskOutline::showContextMenu(const QPoint& pos)
 {
     QPoint globalPos = mapToGlobal(pos);
     QMenu contextMenu;
+    contextMenu.installEventFilter(new MouseRightReleaseEater(&contextMenu));
     const auto editEntry = "Edit";
     const auto deleteEntry = "Delete";
     const auto tagEditorEntry = "Tag editor";
     contextMenu.addAction(editEntry);
+    contextMenu.addSeparator();
     contextMenu.addAction(deleteEntry);
+    contextMenu.addSeparator();
     contextMenu.addAction(tagEditorEntry);
 
     QAction* selectedEntry = contextMenu.exec(globalPos);
@@ -139,20 +143,19 @@ void TaskOutline::removeTask()
 {
     QModelIndex index = ui->lvTaskView->currentIndex();
     const auto task = taskModel->itemAt(index.row());
-    ConfirmationDialog dialog;
-    QString description;
-    if (task.actualCost() > 0) {
-        description
-            = "WARNING! This task has sprints associated with it "
-              "and they will be removed permanently along with this item.";
-    }
-    else {
-        description = "This will delete task permanently!";
-    }
-    dialog.setActionDescription(description);
-    if (dialog.exec()) {
+
+    if (task.actualCost() == 0) {
         taskModel->remove(index);
+        return;
     }
+
+    ConfirmationDialog dialog;
+    QString description
+        = "WARNING! This task has sprints associated with it "
+          "and they will be removed permanently along with this item.";
+    dialog.setActionDescription(description);
+    if (dialog.exec())
+        taskModel->remove(index);
 }
 
 void TaskOutline::launchTaskEditor()
@@ -171,4 +174,3 @@ void TaskOutline::launchTaskEditor()
 }
 
 } // namespace qt_gui
-
