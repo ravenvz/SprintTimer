@@ -24,6 +24,7 @@
 #include "dialogs/AddSprintDialog.h"
 #include "dialogs/ConfirmationDialog.h"
 #include "ui_sprint_outline.h"
+#include "utils/MouseRightReleaseEater.h"
 #include <QMenu>
 
 namespace qt_gui {
@@ -94,23 +95,16 @@ void SprintOutline::showContextMenu(const QPoint& pos)
     QPoint globalPos = mapToGlobal(pos);
 
     QMenu contextMenu;
+    contextMenu.installEventFilter(new MouseRightReleaseEater(&contextMenu));
     const auto deleteEntry = "Delete";
     contextMenu.addAction(deleteEntry);
 
     QAction* selectedEntry = contextMenu.exec(globalPos);
 
-    if (selectedEntry && selectedEntry->text() == deleteEntry)
-        removeSprint();
-}
-
-void SprintOutline::removeSprint()
-{
-    QModelIndex index = ui->lvFinishedSprints->currentIndex();
-    ConfirmationDialog dialog;
-    QString description{"Remove sprint?"};
-    dialog.setActionDescription(description);
-    if (dialog.exec())
+    if (selectedEntry && selectedEntry->text() == deleteEntry) {
+        QModelIndex index = ui->lvFinishedSprints->currentIndex();
         sprintModel->remove(index.row());
+    }
 }
 
 void SprintOutline::onUndoButtonClicked()

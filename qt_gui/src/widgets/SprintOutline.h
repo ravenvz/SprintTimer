@@ -62,7 +62,6 @@ private:
     const QSize desiredSize{300, 200};
     std::unique_ptr<AddSprintDialog> addSprintDialog;
 
-    void removeSprint();
     void adjustUndoButtonState();
 
 private slots:
