@@ -59,7 +59,5 @@ echo "$build_type build using $cxx_compiler and $build_tool"
     && $build_tool $build_tool_options)
 
 if [ $build_tests == "ON" ]; then
-    (cd bin &&
-        ./test_core &&
-        ./test_qt_storage_impl)
+    (cd build && ctest -j4)
 fi
