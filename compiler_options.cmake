@@ -14,6 +14,7 @@ set(CLANG_COMPILE_OPTIONS -Weverything
                           -Wno-zero-as-null-pointer-constant # gtest implementation
                           -Wno-shadow # TODO remove when migrated to next date lib release
                           -Wno-extra-semi # TODO remove when migrated to next date lib release
+                          -Wno-shift-sign-overflow # TODO source is overflow-detection template in Howard Hinnant's date lib
                           )
 
 set(GCC_COMPILE_OPTIONS -Wall
