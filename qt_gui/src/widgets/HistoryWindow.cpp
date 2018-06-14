@@ -110,9 +110,9 @@ void HistoryWindow::fillHistoryModel(const std::vector<HistoryItem>& history)
 
     for (auto same_date_beg = cbegin(history);
          same_date_beg != cend(history);) {
-        auto [parent_date, parent_descr] = *same_date_beg;
+        const auto [parent_date, parent_descr] = *same_date_beg;
         auto same_date_end = std::find_if(
-            same_date_beg, cend(history), [&parent_date](const auto& entry) {
+            same_date_beg, cend(history), [&parent_date=parent_date](const auto& entry) {
                 return entry.first != parent_date;
             });
 
