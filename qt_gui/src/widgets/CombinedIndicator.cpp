@@ -25,11 +25,11 @@
 
 namespace qt_gui {
 
-double degreesToRadians(int degrees);
+double degreesToRadians(double degrees);
 
 CombinedIndicator::CombinedIndicator(int sideSizeHint, QWidget* parent)
-    : widthAndHeightHint{sideSizeHint}
-    , QWidget{parent}
+    : QWidget{parent}
+    , widthAndHeightHint{sideSizeHint}
 {
     setMouseTracking(true);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -126,11 +126,10 @@ void CombinedIndicator::drawText(QPainter& painter) const
     painter.drawText(rect(), Qt::AlignCenter, currentText);
 }
 
-double degreesToRadians(int degrees)
+double degreesToRadians(double degrees)
 {
     const double pi{acos(-1)};
     return degrees * pi / 180;
 }
 
 } // namespace qt_gui
-

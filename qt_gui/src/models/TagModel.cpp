@@ -45,15 +45,13 @@ QVariant TagModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const std::string tag = storage[index.row()];
+    const std::string tag = storage[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
         return QString::fromStdString(tag);
-        break;
     case Qt::EditRole:
         return QString::fromStdString(tag);
-        break;
     default:
         return QVariant();
     }
@@ -68,7 +66,7 @@ bool TagModel::setData(const QModelIndex& index,
     if (role == Qt::EditRole) {
         buffer.push_back({data(index, role).toString().toStdString(),
                           value.toString().toStdString()});
-        storage[index.row()] = value.toString().toStdString();
+        storage[static_cast<size_t>(index.row())] = value.toString().toStdString();
         return true;
     }
     return false;

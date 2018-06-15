@@ -24,29 +24,26 @@
 // Workaround for C++17 as std::tr1 no longer available and Gtest uses it
 #define GTEST_LANG_CXX11 1
 
+#include "core/SprintBuilder.h"
 #include "core/SprintStatistics.h"
 #include "core/TagTop.h"
-#include "core/SprintBuilder.h"
 #include "gtest/gtest.h"
 
 using namespace std::chrono_literals;
-using dw::TimeSpan;
 using dw::DateTime;
+using dw::TimeSpan;
 
 namespace {
-    // TODO clean no longer needed vars
-    constexpr double threshold{0.00001};
-    constexpr int64_t irrelevantTodoId{42};
-    const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
-                                   DateTime::currentDateTime()};
+const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
+                               DateTime::currentDateTime()};
 } // namespace
 
 TEST(SprintStatItem, test_empty_daily_statistics)
 {
     std::vector<Sprint> sprints;
     SprintStatItem statistics{sprints,
-                                TimeSpan{std::chrono::system_clock::now(),
-                                         std::chrono::system_clock::now()}};
+                              TimeSpan{std::chrono::system_clock::now(),
+                                       std::chrono::system_clock::now()}};
     const double expected_average{0};
     const double expected_max{0};
     const double expected_total{0};
@@ -70,8 +67,8 @@ TEST(SprintStatItem, test_empty_weekday_statistics)
 {
     std::vector<Sprint> sprints;
     SprintStatItem statistics{sprints,
-                                TimeSpan{std::chrono::system_clock::now(),
-                                         std::chrono::system_clock::now()}};
+                              TimeSpan{std::chrono::system_clock::now(),
+                                       std::chrono::system_clock::now()}};
     double expected_average{0};
     double expected_max{0};
     std::vector<double> expected_distribution = std::vector<double>(7, 0);
@@ -105,7 +102,8 @@ TEST(SprintStatItem, test_computes_daily_distribution_correctly)
         for (size_t j = 0; j < i + 1; ++j) {
             DateTime sprintDateTime = start.add(DateTime::Days{i});
             TimeSpan sprintInterval{sprintDateTime, sprintDateTime};
-            sprints.push_back(sprintBuilder.withTimeSpan(sprintInterval).build());
+            sprints.push_back(
+                sprintBuilder.withTimeSpan(sprintInterval).build());
             expectedDistributionVector[i]++;
         }
     }
@@ -165,19 +163,18 @@ TEST(SprintStatItem, test_computes_weekday_distribution_correctly)
 
 class TagTopFixture : public ::testing::Test {
 public:
-    void push_n(std::vector<Sprint>& sprints,
-            const Sprint& sprint,
-            size_t n)
+    void push_n(std::vector<Sprint>& sprints, const Sprint& sprint, size_t n)
     {
         for (size_t i = 0; i < n; ++i)
             sprints.push_back(sprint);
     }
     const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
                                    DateTime::currentDateTime()};
-
 };
 
-TEST_F(TagTopFixture, getting_sprints_or_tag_name_throws_exception_when_position_is_invalid) {
+TEST_F(TagTopFixture,
+       getting_sprints_or_tag_name_throws_exception_when_position_is_invalid)
+{
     std::vector<Sprint> sprints;
     SprintBuilder sprintBuilder;
     sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
@@ -186,7 +183,8 @@ TEST_F(TagTopFixture, getting_sprints_or_tag_name_throws_exception_when_position
 
     TagTop tagTop{sprints, 3};
 
-    ASSERT_THROW((tagTop.sprintsForTagAt(tagTop.topSize() + 1)), std::out_of_range);
+    ASSERT_THROW((tagTop.sprintsForTagAt(tagTop.topSize() + 1)),
+                 std::out_of_range);
     ASSERT_THROW((tagTop.tagNameAt(tagTop.topSize() + 1)), std::out_of_range);
 }
 
@@ -197,10 +195,8 @@ TEST_F(TagTopFixture, does_not_reduce_frequency_vector_when_all_tags_fit)
     sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
     push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
-    std::vector<TagTop::TagFrequency> expected{
-            {Tag{"Tag2"}, double(49) / 53},
-            {Tag{"Tag1"}, double(4) / 53}
-    };
+    std::vector<TagTop::TagFrequency> expected{{Tag{"Tag2"}, double(49) / 53},
+                                               {Tag{"Tag1"}, double(4) / 53}};
 
     TagTop tagTop{sprints, 3};
 
@@ -209,7 +205,8 @@ TEST_F(TagTopFixture, does_not_reduce_frequency_vector_when_all_tags_fit)
     EXPECT_EQ(4, tagTop.sprintsForTagAt(1).size());
 }
 
-TEST_F(TagTopFixture, does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
+TEST_F(TagTopFixture,
+       does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
     SprintBuilder sprintBuilder;
@@ -236,18 +233,21 @@ TEST_F(TagTopFixture, distributes_sprints_to_tags_ignoring_non_tagged)
     builder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(), 1);
-    push_n(sprints, builder.withExplicitTags({Tag{"C++"}, Tag{"Tag4"}}).build(), 10);
+    push_n(sprints,
+           builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(),
+           1);
+    push_n(sprints,
+           builder.withExplicitTags({Tag{"C++"}, Tag{"Tag4"}}).build(),
+           10);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag4"}}).build(), 25);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag5"}}).build(), 4);
     push_n(sprints, builder.withExplicitTags({}).build(), 100);
     std::vector<TagTop::TagFrequency> expected{
-            std::make_pair(Tag{"Tag2"}, double(50) / 104),
-            std::make_pair(Tag{"Tag4"}, double(35) / 104),
-            std::make_pair(Tag{"C++"}, double(10) / 104),
-            std::make_pair(Tag{"Tag1"}, double(5) / 104),
-            std::make_pair(Tag{""}, double(4) / 104)
-    };
+        std::make_pair(Tag{"Tag2"}, double(50) / 104),
+        std::make_pair(Tag{"Tag4"}, double(35) / 104),
+        std::make_pair(Tag{"C++"}, double(10) / 104),
+        std::make_pair(Tag{"Tag1"}, double(5) / 104),
+        std::make_pair(Tag{""}, double(4) / 104)};
 
     TagTop map{sprints, 5};
 
@@ -264,8 +264,7 @@ TEST_F(TagTopFixture, distributes_sprints_to_tags_ignoring_non_tagged)
     EXPECT_EQ(4, map.sprintsForTagAt(4).size());
 }
 
-TEST_F(TagTopFixture,
-     reduces_slice_vector_tail_when_has_more_tags_than_allowed)
+TEST_F(TagTopFixture, reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
     SprintBuilder builder;
@@ -273,8 +272,12 @@ TEST_F(TagTopFixture,
     builder.withTimeSpan(defaultTimespan);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(), 1);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag3"}, Tag{"Tag4"}}).build(), 10);
+    push_n(sprints,
+           builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(),
+           1);
+    push_n(sprints,
+           builder.withExplicitTags({Tag{"Tag3"}, Tag{"Tag4"}}).build(),
+           10);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag4"}}).build(), 25);
     push_n(sprints, builder.withExplicitTags({}).build(), 100);
     std::vector<TagTop::TagFrequency> expected{

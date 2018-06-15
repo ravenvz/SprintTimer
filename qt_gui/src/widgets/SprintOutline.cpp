@@ -34,8 +34,8 @@ SprintOutline::SprintOutline(ICoreService& coreService,
                              SprintModel* sprintModel,
                              TaskModel* taskModel,
                              QWidget* parent)
-    : ui{new Ui::SprintOutline}
-    , QWidget{parent}
+    : QWidget{parent}
+    , ui{new Ui::SprintOutline}
     , coreService{coreService}
     , applicationSettings{applicationSettings}
     , sprintModel{sprintModel}
@@ -78,14 +78,16 @@ SprintOutline::~SprintOutline() { delete ui; }
 
 void SprintOutline::launchManualAddSprintDialog()
 {
-    addSprintDialog.reset(new AddSprintDialog{sprintModel, taskModel, applicationSettings.sprintDuration()});
-	addSprintDialog->setModal(true);
+    addSprintDialog.reset(new AddSprintDialog{
+        sprintModel, taskModel, applicationSettings.sprintDuration()});
+    addSprintDialog->setModal(true);
     addSprintDialog->show();
 }
 
 void SprintOutline::adjustAddSprintButtonState()
 {
-    ui->pbAddSprintManually->setEnabled(taskModel->rowCount(QModelIndex()) != 0);
+    ui->pbAddSprintManually->setEnabled(taskModel->rowCount(QModelIndex())
+                                        != 0);
 }
 
 QSize SprintOutline::sizeHint() const { return desiredSize; }
@@ -112,7 +114,7 @@ void SprintOutline::onUndoButtonClicked()
     ConfirmationDialog dialog;
     QString description{"Revert following action:\n"};
     description.append(
-            QString::fromStdString(coreService.lastCommandDescription()));
+        QString::fromStdString(coreService.lastCommandDescription()));
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         coreService.undoLast();
@@ -129,4 +131,3 @@ void SprintOutline::adjustUndoButtonState()
 }
 
 } // namespace qt_gui
-

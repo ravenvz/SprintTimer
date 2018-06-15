@@ -29,23 +29,23 @@ namespace qt_gui {
 
 namespace ProgressBarColors {
 
-const QColor targetGoalReached = QColor("#6baa15");
-const QColor overwork = Qt::red;
-const QColor workInProgress = Qt::gray;
+    const QColor targetGoalReached = QColor("#6baa15");
+    const QColor overwork = Qt::red;
+    const QColor workInProgress = Qt::gray;
 
 };
 
 namespace {
 
-QString formatDecimal(double decimal)
-{
-    return QString("%1").arg(decimal, 2, 'f', 2, '0');
-}
+    QString formatDecimal(double decimal)
+    {
+        return QString("%1").arg(decimal, 2, 'f', 2, '0');
+    }
 
-double percentage(int chunk, int total)
-{
-    return total != 0 ? static_cast<double>(chunk) * 100 / total : 0;
-}
+    double percentage(long long chunk, long long total)
+    {
+        return total != 0 ? static_cast<double>(chunk) * 100 / total : 0;
+    }
 
 } // namespace
 
@@ -112,8 +112,8 @@ void ProgressView::setData(const Distribution<int>& distribution,
                            size_t numActiveBins)
 {
     ui->lblProgress->setText(QString("%1").arg(distribution.getTotal()));
-    const long long expectedTotal = goal * numActiveBins;
-    const long long numCompleted = distribution.getTotal();
+    const int expectedTotal = goal * static_cast<int>(numActiveBins);
+    const int numCompleted = distribution.getTotal();
 
     if (numCompleted > expectedTotal) {
         ui->lblLeftCaption->setText("Overwork:");
@@ -126,18 +126,19 @@ void ProgressView::setData(const Distribution<int>& distribution,
 
     const double average = numCompleted / static_cast<double>(numActiveBins);
     ui->lblAverage->setText(formatDecimal(average));
-    ui->lblPercentage->setText(QString("%1%").arg(formatDecimal(
-        percentage(distribution.getTotal(), static_cast<int>(expectedTotal)))));
+    ui->lblPercentage->setText(QString("%1%").arg(
+        formatDecimal(percentage(distribution.getTotal(), expectedTotal))));
     fillGauges(distribution);
     updateProgressBar(distribution.getBinValue(distribution.getNumBins() - 1));
 }
 
 void ProgressView::setupGauges()
 {
-    for (auto row = 0; row < numRows; ++row) {
-        for (auto col = 0; col < numColumns; ++col) {
-            ui->gaugeLayout->addWidget(
-                new Gauge(0, goal, gaugeRelSize, this), row, col);
+    for (size_t row = 0; row < numRows; ++row) {
+        for (size_t col = 0; col < numColumns; ++col) {
+            ui->gaugeLayout->addWidget(new Gauge(0, goal, gaugeRelSize, this),
+                                       static_cast<int>(row),
+                                       static_cast<int>(col));
         }
     }
 }
@@ -188,4 +189,3 @@ void ProgressView::updateProgressBar(int lastValue)
 
 
 } // namespace qt_gui
-

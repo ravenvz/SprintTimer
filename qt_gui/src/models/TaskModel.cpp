@@ -76,7 +76,7 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    const Task& taskRef = storage[index.row()];
+    const Task& taskRef = storage[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
@@ -123,7 +123,10 @@ void TaskModel::remove(int row)
     endRemoveRows();
 }
 
-Task TaskModel::itemAt(int row) const { return storage.at(row); }
+Task TaskModel::itemAt(int row) const
+{
+    return storage.at(static_cast<size_t>(row));
+}
 
 void TaskModel::toggleCompleted(const QModelIndex& index)
 {
@@ -154,7 +157,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
     if (sourceRow < destinationChild)
         ++destinationChild;
 
-    auto uuidsInOrder = [&st=storage]() {
+    auto uuidsInOrder = [& st = storage]() {
         std::vector<std::string> uuids;
         uuids.reserve(st.size());
         std::transform(st.cbegin(),
@@ -174,10 +177,10 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
 
     auto new_order = uuidsInOrder();
 
-    coreService.registerTaskPriorities(std::move(old_order), std::move(new_order));
+    coreService.registerTaskPriorities(std::move(old_order),
+                                       std::move(new_order));
 
     return true;
 }
 
 } // namespace qt_gui
-

@@ -37,7 +37,7 @@ class WorkdaysDialog : public QDialog {
 
 public:
     explicit WorkdaysDialog(IConfig& applicationSettings, QDialog* parent = nullptr);
-    ~WorkdaysDialog();
+    ~WorkdaysDialog() override;
     void accept() override;
 
 private:

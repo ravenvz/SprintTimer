@@ -70,8 +70,6 @@ public:
 
 private:
     Ui::MainWindow* ui;
-    IConfig& applicationSettings;
-    ICoreService& coreService;
     QPointer<SprintModel> sprintModel;
     QPointer<TagModel> tagModel;
     QPointer<TaskModel> taskModel;
@@ -85,7 +83,7 @@ private:
     void setStateUi();
 
 private slots:
-    void submitSprint(const std::vector<dw::TimeSpan> &intervalBuffer);
+    void submitSprint(const std::vector<dw::TimeSpan>& intervalBuffer);
     void updateDailyProgress();
     void toggleView();
     void toggleMenu();

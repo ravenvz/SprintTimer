@@ -22,15 +22,15 @@
 #ifndef STATISTICSWINDOW_H
 #define STATISTICSWINDOW_H
 
+#include "Plot.h"
+#include "TimeDiagram.h"
 #include "core/IConfig.h"
 #include "core/ICoreService.h"
 #include "core/SprintStatistics.h"
+#include "core/TagTop.h"
 #include "dialogs/DateRangePickDialog.h"
-#include "Plot.h"
-#include "TimeDiagram.h"
 #include "widgets/DataWidget.h"
 #include "widgets/DistributionDiagram.h"
-#include "core/TagTop.h"
 #include <optional>
 
 namespace Ui {
@@ -59,7 +59,7 @@ public:
     StatisticsWindow(IConfig& applicationSettings,
                      ICoreService& coreService,
                      QWidget* parent = nullptr);
-    ~StatisticsWindow();
+    ~StatisticsWindow() override;
 
     void synchronize() override;
 
@@ -79,14 +79,12 @@ private:
 
     void fetchData();
     void drawGraphs();
-    void updateTopTagsDiagram(
-        std::vector<TagTop::TagFrequency>& tagCounts);
+    void updateTopTagsDiagram(std::vector<TagTop::TagFrequency>& tagCounts);
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
-    void onDataFetched(const std::vector<Sprint> &sprints);
+    void onDataFetched(const std::vector<Sprint>& sprints);
 };
 
 } // namespace qt_gui
-
 
 
 #endif /* end of include guard: STATISTICSWINDOW_H */

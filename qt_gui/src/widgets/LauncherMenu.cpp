@@ -20,21 +20,21 @@
 **
 *********************************************************************************/
 
-#include "utils/WidgetUtils.h"
-#include "dialogs/SettingsDialog.h"
 #include "widgets/LauncherMenu.h"
+#include "dialogs/SettingsDialog.h"
 #include "ui_launcher_menu.h"
+#include "utils/WidgetUtils.h"
 #include "widgets/GoalProgressWindow.h"
-#include "widgets/StatisticsWindow.h"
 #include "widgets/HistoryWindow.h"
+#include "widgets/StatisticsWindow.h"
 
 namespace qt_gui {
 
 LauncherMenu::LauncherMenu(IConfig& applicationSettings,
-                       ICoreService& coreService,
-                       QWidget* parent)
-    : ui{new Ui::LauncherMenu}
-    , QWidget{parent}
+                           ICoreService& coreService,
+                           QWidget* parent)
+    : QWidget{parent}
+    , ui{new Ui::LauncherMenu}
     , settings{applicationSettings}
     , coreService{coreService}
 {
@@ -58,7 +58,8 @@ LauncherMenu::LauncherMenu(IConfig& applicationSettings,
             &LauncherMenu::launchStatisticsWindow);
 }
 
-LauncherMenu::~LauncherMenu() {
+LauncherMenu::~LauncherMenu()
+{
     delete progressWindow;
     delete historyWindow;
     delete statisticsWindow;
@@ -70,7 +71,8 @@ void LauncherMenu::launchHistoryWindow()
     if (!historyWindow) {
         historyWindow = new HistoryWindow(coreService);
         historyWindow->show();
-    } else {
+    }
+    else {
         WidgetUtils::bringToForeground(historyWindow);
     }
 }
@@ -86,10 +88,10 @@ void LauncherMenu::launchProgressWindow()
     if (!progressWindow) {
         progressWindow = new GoalProgressWindow(settings, coreService);
         progressWindow->show();
-    } else {
+    }
+    else {
         WidgetUtils::bringToForeground(progressWindow);
     }
-
 }
 
 void LauncherMenu::launchStatisticsWindow()
@@ -97,7 +99,8 @@ void LauncherMenu::launchStatisticsWindow()
     if (!statisticsWindow) {
         statisticsWindow = new StatisticsWindow(settings, coreService);
         statisticsWindow->show();
-    } else {
+    }
+    else {
         WidgetUtils::bringToForeground(statisticsWindow);
     }
 }
@@ -113,4 +116,3 @@ void LauncherMenu::onSyncRequired()
 }
 
 } // namespace qt_gui
-

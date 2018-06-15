@@ -41,7 +41,7 @@ TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
 
     qRegisterMetaType<std::chrono::seconds>("std::chrono::seconds");
     qRegisterMetaType<SprintTimerCore::IStatefulTimer::StateId>(
-            "SprintTimerCore::IStatefulTimer::StateId");
+        "SprintTimerCore::IStatefulTimer::StateId");
 
     connect(player.get(),
             static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
@@ -63,7 +63,8 @@ void TimerWidgetBase::onTimerTick(std::chrono::seconds timeLeft)
     emit timerUpdated(timeLeft);
 }
 
-void TimerWidgetBase::onTimerStateChanged(SprintTimerCore::IStatefulTimer::StateId state)
+void TimerWidgetBase::onTimerStateChanged(
+    SprintTimerCore::IStatefulTimer::StateId state)
 {
     emit stateChanged(state);
 }
@@ -73,13 +74,16 @@ void TimerWidgetBase::onTimerUpdated(std::chrono::seconds timeLeft)
     updateIndication(timeLeft);
 }
 
-void TimerWidgetBase::onStateChanged(SprintTimerCore::IStatefulTimer::StateId state)
+void TimerWidgetBase::onStateChanged(
+    SprintTimerCore::IStatefulTimer::StateId state)
 {
     using namespace SprintTimerCore;
     currentState = state;
     switch (state) {
     case IStatefulTimer::StateId::SprintEntered:
         onSprintStateEnteredHook();
+        break;
+    case IStatefulTimer::StateId::SprintLeft:
         break;
     case IStatefulTimer::StateId::SprintFinished:
         onSprintStateLeftHook();
@@ -113,55 +117,25 @@ void TimerWidgetBase::onStateChanged(SprintTimerCore::IStatefulTimer::StateId st
     }
 }
 
-void TimerWidgetBase::onSprintStateEnteredHook()
-{
+void TimerWidgetBase::onSprintStateEnteredHook() {}
 
-}
+void TimerWidgetBase::onSprintStateLeftHook() { playSound(); }
 
-void TimerWidgetBase::onSprintStateLeftHook()
-{
-    playSound();
-}
+void TimerWidgetBase::onSprintStateCancelledHook() {}
 
-void TimerWidgetBase::onSprintStateCancelledHook()
-{
+void TimerWidgetBase::onBreakStateEnteredHook() {}
 
-}
+void TimerWidgetBase::onBreakStateFinishedHook() { playSound(); }
 
-void TimerWidgetBase::onBreakStateEnteredHook()
-{
+void TimerWidgetBase::onBreakStateCancelledHook() {}
 
-}
+void TimerWidgetBase::onIdleStateEnteredHook() {}
 
-void TimerWidgetBase::onBreakStateFinishedHook()
-{
-    playSound();
-}
+void TimerWidgetBase::onIdleStateLeftHook() {}
 
-void TimerWidgetBase::onBreakStateCancelledHook()
-{
+void TimerWidgetBase::onZoneStateEnteredHook() {}
 
-}
-
-void TimerWidgetBase::onIdleStateEnteredHook()
-{
-
-}
-
-void TimerWidgetBase::onIdleStateLeftHook()
-{
-
-}
-
-void TimerWidgetBase::onZoneStateEnteredHook()
-{
-
-}
-
-void TimerWidgetBase::onZoneStateLeftHook()
-{
-
-}
+void TimerWidgetBase::onZoneStateLeftHook() {}
 
 void TimerWidgetBase::startTask() { timer->start(); }
 
@@ -172,7 +146,7 @@ void TimerWidgetBase::cancelTask()
     QString description("This will destroy current sprint!");
     cancelDialog.setActionDescription(description);
     if (currentState == IStatefulTimer::StateId::BreakEntered
-            || cancelDialog.exec()) {
+        || cancelDialog.exec()) {
         timer->cancel();
     }
 }
@@ -220,4 +194,3 @@ QString TimerWidgetBase::timerValueToText(std::chrono::seconds timeLeft)
 }
 
 } // namespace qt_gui
-

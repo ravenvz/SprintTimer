@@ -48,7 +48,6 @@ class Gauge : public QWidget {
 public:
     Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent);
     void setData(int completed, int total);
-    ~Gauge() = default;
 
 private:
     int actual;

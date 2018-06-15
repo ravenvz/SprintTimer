@@ -92,7 +92,7 @@ void StatisticsWindow::drawGraphs()
     ui->dailyTimelineGraph->setData(
         statistics.dailyDistribution(),
         currentInterval.startDate,
-        numWorkdays(currentInterval.toTimeSpan(), workdays),
+        static_cast<int>(numWorkdays(currentInterval.toTimeSpan(), workdays)),
         applicationSettings.dailyGoal());
     ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
     ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
@@ -122,12 +122,12 @@ void StatisticsWindow::onTagSelected(size_t tagIndex)
         selectedTagIndex = tagIndex;
     }
     else {
-        selectedTagIndex
-            = (*selectedTagIndex == tagIndex) ? std::optional<size_t>() : tagIndex;
+        selectedTagIndex = (*selectedTagIndex == tagIndex)
+            ? std::optional<size_t>()
+            : tagIndex;
     }
 
     drawGraphs();
 }
 
 } // namespace qt_gui
-
