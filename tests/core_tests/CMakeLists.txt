@@ -25,4 +25,4 @@ target_link_libraries(${TEST_CORE}
 )
 
 # gtest_add_tests(TARGET ${TEST_CORE})
-gtest_discover_tests(${TEST_CORE})
+gtest_discover_tests(${TEST_CORE} WORKING_DIRECTORY ${TEST_RUN_DIR})
