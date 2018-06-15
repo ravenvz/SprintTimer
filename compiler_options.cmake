@@ -9,6 +9,7 @@ set(CLANG_COMPILE_OPTIONS -Weverything
                           -Wno-missing-prototypes
                           -Wno-unused-parameter
                           -Wno-undefined-reinterpret-cast # Qt's mock
+                          -Wno-redundant-parens # Qt'mock
                           -Wno-exit-time-destructors
                           -Wno-global-constructors
                           -Wno-zero-as-null-pointer-constant # gtest implementation
