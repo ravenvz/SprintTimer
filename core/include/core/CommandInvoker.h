@@ -22,7 +22,7 @@
 #ifndef COMMANDINVOKER_H_WGTA1XLU
 #define COMMANDINVOKER_H_WGTA1XLU
 
-#include "core/RevertableCommand.h"
+#include "core/Command.h"
 #include <iostream>
 #include <memory>
 #include <stack>

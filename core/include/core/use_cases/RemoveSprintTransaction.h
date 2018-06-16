@@ -42,6 +42,6 @@ private:
     const Sprint sprint;
 };
 
-} // namespace UseCases
+} // namespace core::use_cases
 
 #endif /* end of include guard: REMOVESPRINTTRANSACTION_H_GAR8SZLM */
