@@ -13,3 +13,4 @@ CMakeSettings.json
 *.vim
 CppProperties.json
 compile_commands.json
+Testing/
