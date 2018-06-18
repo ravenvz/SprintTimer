@@ -190,8 +190,6 @@ void RunningSprint::toggleZoneMode(StatefulTimer& timer)
 
 void RunningSprint::onTimerFinished(StatefulTimer& timer)
 {
-    // TODO what if finished state is cancelled after that?
-    ++timer.finishedSprints;
     timer.buffer.emplace_back(
             TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
     setNextState(timer);
@@ -322,6 +320,7 @@ void SprintFinished::normalExit(StatefulTimer& timer) const
 
 void SprintFinished::setNextState(StatefulTimer& timer)
 {
+    ++timer.finishedSprints;
     timer.longBreakConditionMet() ? timer.transitionToState(longBreak) : timer.transitionToState(shortBreak);
 }
 
