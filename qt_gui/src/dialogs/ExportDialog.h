@@ -41,7 +41,7 @@ public:
     };
 
     explicit ExportDialog(QWidget* parent = nullptr);
-    ~ExportDialog();
+    ~ExportDialog() override;
     void accept() override;
 
 private:

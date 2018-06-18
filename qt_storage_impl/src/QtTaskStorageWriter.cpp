@@ -221,11 +221,11 @@ void QtTaskStorageWriter::updatePriorities(
 {
     dbService.requestTransaction();
 
-    for (int i = 0; i < priorities.size(); ++i) {
+    for (size_t i = 0; i < priorities.size(); ++i) {
         dbService.bindValue(updatePrioritiesQueryId,
                             ":uuid",
                             QString::fromStdString(priorities[i]));
-        dbService.bindValue(updatePrioritiesQueryId, ":priority", i);
+        dbService.bindValue(updatePrioritiesQueryId, ":priority", static_cast<int>(i));
         dbService.executePrepared(updatePrioritiesQueryId);
     }
 

@@ -5,7 +5,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(SOURCE_FILES
-        TestUserScenarios.cpp
+    TestUserScenarios.cpp
     TestCase.cpp
     Utils.cpp
     main.cpp

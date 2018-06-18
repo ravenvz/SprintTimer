@@ -371,7 +371,7 @@ unsigned Database::getDatabaseVersion(QSqlDatabase& database)
     return version;
 }
 
-bool Database::runMigration(QSqlDatabase& database, int fromVersion)
+bool Database::runMigration(QSqlDatabase& database, unsigned fromVersion)
 {
     QSqlQuery query{database};
 

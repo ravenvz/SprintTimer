@@ -27,12 +27,14 @@
 namespace qt_gui {
 
 namespace {
+
 constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
 constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
 constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
 const QColor taskStateColor{"#eb6c59"};
 const QColor breakStateColor{"#73c245"};
 const QColor zoneStateColor{Qt::darkYellow};
+
 } // namespace
 
 FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
@@ -112,8 +114,8 @@ void FancyTimer::onSprintStateEnteredHook()
     std::chrono::seconds duration = timer->currentDuration();
     combinedIndicator->setColor(taskStateColor);
     combinedIndicator->setText(timerValueToText(duration));
-    combinedIndicator->setMaxValue(duration.count());
-    combinedIndicator->setCurrentValue(duration.count());
+    combinedIndicator->setMaxValue(static_cast<int>(duration.count()));
+    combinedIndicator->setCurrentValue(static_cast<int>(duration.count()));
     combinedIndicator->setInvertedStyle(false);
     combinedIndicator->setDrawArc(true);
     combinedIndicator->repaint();
@@ -137,9 +139,9 @@ void FancyTimer::onBreakStateEnteredHook()
     ui->pbZone->hide();
     std::chrono::seconds duration = timer->currentDuration();
     combinedIndicator->setColor(breakStateColor);
-    combinedIndicator->setMaxValue(duration.count());
+    combinedIndicator->setMaxValue(static_cast<int>(duration.count()));
     updateIndication(duration);
-    combinedIndicator->setCurrentValue(duration.count());
+    combinedIndicator->setCurrentValue(static_cast<int>(duration.count()));
     combinedIndicator->setText(timerValueToText(duration));
     combinedIndicator->setInvertedStyle(true);
     combinedIndicator->setDrawArc(true);
@@ -175,7 +177,7 @@ void FancyTimer::updateIndication(std::chrono::seconds timeLeft)
 {
     if (indicationUpdateShouldBeIgnored())
         return;
-    combinedIndicator->setCurrentValue(timeLeft.count());
+    combinedIndicator->setCurrentValue(static_cast<int>(timeLeft.count()));
     combinedIndicator->setText(timerValueToText(timeLeft));
     combinedIndicator->repaint();
 }
@@ -191,6 +193,12 @@ void FancyTimer::onIndicatorClicked()
 {
     using namespace SprintTimerCore;
     switch (currentState) {
+    case IStatefulTimer::StateId::SprintEntered:
+        break;
+    case IStatefulTimer::StateId::SprintLeft:
+        break;
+    case IStatefulTimer::StateId::SprintCancelled:
+        break;
     case IStatefulTimer::StateId::SprintFinished:
         if (ui->cbxSubmissionCandidate->currentIndex() != -1)
             requestSubmission();
@@ -198,10 +206,19 @@ void FancyTimer::onIndicatorClicked()
     case IStatefulTimer::StateId::IdleEntered:
         startTask();
         break;
-    default:
+    case IStatefulTimer::StateId::IdleLeft:
+        break;
+    case IStatefulTimer::StateId::BreakEntered:
+        break;
+    case IStatefulTimer::StateId::BreakLeft:
+        break;
+    case IStatefulTimer::StateId::BreakCancelled:
+        break;
+    case IStatefulTimer::StateId::ZoneEntered:
+        break;
+    case IStatefulTimer::StateId::ZoneLeft:
         break;
     }
 }
 
 } // namespace qt_gui
-

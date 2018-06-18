@@ -176,7 +176,7 @@ private:
 
     unsigned getDatabaseVersion(QSqlDatabase& database);
 
-    bool runMigration(QSqlDatabase& database, int fromVersion);
+    bool runMigration(QSqlDatabase& database, unsigned fromVersion);
 
     bool createBackupCopy(const QString& filename);
 

@@ -23,8 +23,7 @@
 #define INCREMENTTASKSPRINTS_H_2OKTXAHD
 
 #include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
-#include <core/Command.h>
+#include "core/Command.h"
 
 namespace core::use_cases {
 

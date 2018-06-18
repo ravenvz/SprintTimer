@@ -24,7 +24,6 @@
 
 #include "core/BoostUUIDGenerator.h"
 #include "core/entities/Tag.h"
-#include "core/entities/Task.h"
 #include "date_wrapper/TimeSpan.h"
 #include <list>
 #include <ostream>

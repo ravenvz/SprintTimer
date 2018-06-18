@@ -87,13 +87,12 @@ void DefaultTimer::updateGoalProgress(Progress progress)
         ui->labelDailyGoalProgress->hide();
         return;
     }
-    ui->labelDailyGoalProgress->setText(QString("Daily goal progress: %1/%2")
-                                            .arg(progress)
-                                            .arg(dailyGoal));
-    if (progress== dailyGoal) {
+    ui->labelDailyGoalProgress->setText(
+        QString("Daily goal progress: %1/%2").arg(progress).arg(dailyGoal));
+    if (progress == dailyGoal) {
         ui->labelDailyGoalProgress->setStyleSheet(workgoalMetStyleSheet);
     }
-    else if (progress> dailyGoal) {
+    else if (progress > dailyGoal) {
         ui->labelDailyGoalProgress->setStyleSheet(overworkStyleSheet);
     }
     else {
@@ -112,7 +111,7 @@ void DefaultTimer::onBreakStateEnteredHook() { setUiToRunningState(); }
 
 void DefaultTimer::setUiToRunningState()
 {
-    progressBarMaxValue = timer->currentDuration().count();
+    progressBarMaxValue = static_cast<int>(timer->currentDuration().count());
     ui->progressBar->setMaximum(progressBarMaxValue);
     setTimerValue(timer->currentDuration());
     ui->progressBar->setValue(0);
@@ -156,10 +155,10 @@ void DefaultTimer::onZoneStateLeftHook() { ui->pbCancel->setEnabled(true); }
 
 void DefaultTimer::updateIndication(std::chrono::seconds timeLeft)
 {
-    ui->progressBar->setValue(progressBarMaxValue - timeLeft.count());
+    ui->progressBar->setValue(progressBarMaxValue
+                              - static_cast<int>(timeLeft.count()));
     setTimerValue(timeLeft);
     ui->progressBar->repaint();
 }
 
 } // namespace qt_gui
-

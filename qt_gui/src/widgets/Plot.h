@@ -65,8 +65,6 @@ public:
 
     explicit Plot(QWidget* parent);
 
-    virtual ~Plot() = default;
-
     // Add Graph to plot. Multiple graphs can be added.
     void addGraph(Graph graph);
 
@@ -123,7 +121,6 @@ private:
 
     // Show tooltip with point data when hovering over a point on a plot.
     const QString getPosTooltip(const QPoint& pos) const;
-
 };
 
 struct GraphPoint {

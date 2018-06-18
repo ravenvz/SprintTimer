@@ -34,8 +34,6 @@ namespace {
 class TestConfig : public IConfig {
 
 public:
-    TestConfig() {}
-
     int soundVolume() const override { return mSoundVolume; }
 
     void setSoundVolume(int soundVolume) override
@@ -64,10 +62,7 @@ public:
         TestConfig::mLongBreakDuration = minutes;
     }
 
-    int numSprintsBeforeBreak() const override
-    {
-        return mTasksBeforeBreak;
-    }
+    int numSprintsBeforeBreak() const override { return mTasksBeforeBreak; }
 
     void setNumSprintsBeforeBreak(int tasksBeforeBreak) override
     {
@@ -121,10 +116,9 @@ private:
 // public:
 //     StatefulTimerTest(
 //             std::function<void(long long)> tickCallback,
-//             std::function<void(IStatefulTimer::StateId)> onStateChangedCallback,
-//             long tickPeriodInMillisecs,
-//             const IConfig& applicationSettings)
-//             : StatefulTimer{tickCallback,
+//             std::function<void(IStatefulTimer::StateId)>
+//             onStateChangedCallback, long tickPeriodInMillisecs, const
+//             IConfig& applicationSettings) : StatefulTimer{tickCallback,
 //                             onStateChangedCallback,
 //                             tickPeriodInMillisecs,
 //                             applicationSettings}
@@ -178,7 +172,8 @@ private:
 //         auto onTickCallbackStub = [](long long) {};
 //         auto onStateChangedCallbackStub = [](IStatefulTimer::StateId) {};
 //         timer = std::make_unique<StatefulTimerTest>(
-//                 onTickCallbackStub, onStateChangedCallbackStub, tick, testSettings);
+//                 onTickCallbackStub, onStateChangedCallbackStub, tick,
+//                 testSettings);
 //     }
 //
 //     TestConfig testSettings;
@@ -191,14 +186,16 @@ private:
 //                 static_cast<int>(timer->state()));
 // }
 //
-// TEST_F(StatefulTimerStates, test_should_transition_to_task_state_from_idle_state)
+// TEST_F(StatefulTimerStates,
+// test_should_transition_to_task_state_from_idle_state)
 // {
 //     timer->transitionToNext();
 //     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Task),
 //               static_cast<int>(timer->state()));
 // }
 //
-// TEST_F(StatefulTimerStates, test_should_transition_to_finished_state_after_task)
+// TEST_F(StatefulTimerStates,
+// test_should_transition_to_finished_state_after_task)
 // {
 //     timer->setState(IStatefulTimer::StateId::Task);
 //     timer->transitionToNext();

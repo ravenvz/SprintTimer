@@ -61,6 +61,7 @@ add_subdirectory(qt_gui)
 add_subdirectory(qt_storage_impl)
 
 if (BUILD_TESTS)
+    set(TEST_RUN_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
     enable_testing()
 	include(GoogleTest)
 	add_subdirectory(tests)

@@ -23,7 +23,7 @@
 #define ADDTASKTRANSACTION_H_LEMDIQ17
 
 #include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
+#include "core/Command.h"
 #include "core/entities/Task.h"
 
 #include <core/Command.h>
@@ -46,27 +46,6 @@ private:
 };
 
 } // namespace core::use_cases
-
-namespace UseCases {
-
-class AddNewTask : public RevertableCommand {
-public:
-    AddNewTask(ITaskStorageWriter& taskStorageWriter, const Task& task);
-
-    std::string inspect() const final;
-
-protected:
-    void executeAction() final;
-
-    void undoAction() final;
-
-private:
-    ITaskStorageWriter& writer;
-    const Task task;
-};
-
-
-} /* UseCases */
 
 
 #endif /* end of include guard: ADDTASKTRANSACTION_H_LEMDIQ17 */

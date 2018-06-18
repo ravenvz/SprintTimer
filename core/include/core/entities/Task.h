@@ -26,6 +26,7 @@
 #include "core/BoostUUIDGenerator.h"
 #include "core/StringUtils.h"
 #include "core/entities/Tag.h"
+#include "core/entities/Sprint.h"
 #include "date_wrapper/DateTime.h"
 #include <list>
 #include <string>
@@ -122,6 +123,7 @@ public:
 private:
     static BoostUUIDGenerator generator;
     std::string mName;
+    std::vector<Sprint> sprints;
     int mEstimatedCost{1};
     int mActualCost{0};
     std::string mUuid;

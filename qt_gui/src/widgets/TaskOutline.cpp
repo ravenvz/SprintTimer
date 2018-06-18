@@ -34,11 +34,11 @@ TaskOutline::TaskOutline(ICoreService& coreService,
                          TaskModel* taskModel,
                          TagModel* tagModel,
                          QWidget* parent)
-    : ui{new Ui::TaskOutline}
+    : QWidget{parent}
+    , ui{new Ui::TaskOutline}
     , coreService{coreService}
     , taskModel{taskModel}
     , tagModel{tagModel}
-    , QWidget{parent}
 {
     ui->setupUi(this);
 

@@ -47,6 +47,8 @@ target_include_directories(${PROJECT}
     PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_compile_features(${PROJECT} PUBLIC cxx_std_17)
+target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
+target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT}

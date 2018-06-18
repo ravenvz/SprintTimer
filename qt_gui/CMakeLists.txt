@@ -38,7 +38,10 @@ QT5_WRAP_UI(UI_HEADERS
 )
 
 add_library(${PROJECT} SHARED ${SOURCE_FILES} ${UI_HEADERS} resources/resources.qrc)
+
 target_compile_features(${PROJECT} PUBLIC cxx_std_17)
+target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
+target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
 target_include_directories(${PROJECT} PUBLIC src PUBLIC include)
 target_link_libraries(${PROJECT}

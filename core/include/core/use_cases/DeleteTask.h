@@ -42,6 +42,6 @@ private:
     const Task task;
 };
 
-} /* UseCases */
+} // namespace core::use_cases
 
 #endif /* end of include guard: REMOVETASKTRANSACTION_H_9P4V02DM */

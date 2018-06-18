@@ -46,24 +46,3 @@ std::string AddNewTask::describe() const
 }
 
 } // namespace core::use_cases
-
-namespace UseCases {
-
-AddNewTask::AddNewTask(ITaskStorageWriter& taskStorageWriter, const Task& task)
-    : writer{taskStorageWriter}
-    , task{task}
-{
-}
-
-void AddNewTask::executeAction() { writer.save(task); }
-
-void AddNewTask::undoAction() { writer.remove(task); }
-
-std::string AddNewTask::inspect() const
-{
-    std::stringstream ss;
-    ss << "Add new task '" << task << "'";
-    return ss.str();
-}
-
-} /* UseCases  */

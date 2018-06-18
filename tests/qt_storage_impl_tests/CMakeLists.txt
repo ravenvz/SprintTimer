@@ -6,6 +6,8 @@ set(SOURCE_FILES
 
 add_executable(${PROJECT} ${SOURCE_FILES})
 target_compile_features(${PROJECT} PRIVATE cxx_std_17)
+target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
+target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
 target_include_directories(${PROJECT}
     PUBLIC ../include
