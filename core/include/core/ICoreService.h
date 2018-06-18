@@ -23,7 +23,7 @@
 #define ICORESERVICE_H_XVOMGAES
 
 #include "core/Distribution.h"
-#include "core/entities/Sprint.h"
+#include "core/entities/Task.h"
 #include "core/external_io/ISink.h"
 #include "date_wrapper/TimeSpan.h"
 #include <functional>

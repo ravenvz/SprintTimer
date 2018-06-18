@@ -23,7 +23,7 @@
 #ifndef SPRINT_TIMER_SPRINTBUILDER_H
 #define SPRINT_TIMER_SPRINTBUILDER_H
 
-#include "core/entities/Sprint.h"
+#include "core/entities/Task.h"
 #include <stdexcept>
 #include <optional>
 
