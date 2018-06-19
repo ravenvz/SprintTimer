@@ -80,4 +80,4 @@ To build test suite option BUILD_TEST=ON should be passed to cmake.
 
 ### Known issues
 * Some text labels might be cropped and some GUI elements might be too small/large on smaller resolution screens.
-* Long break counter resets when app is closed.
+* Long break counter resets after midnight.
