@@ -31,6 +31,7 @@ using namespace SprintTimerCore;
 
 namespace {
 
+/* Fixed configuration for testing purposes. */
 class TestConfig : public IConfig {
 
 public:
@@ -108,215 +109,205 @@ private:
     bool mPlaySound{false};
     int mSoundVolume{0};
 };
-//
-// #<{(| Extends StatefulTimer to provide public method to set state, along with
-//  * method to transition to next state. That allows to test state transitions
-//  * without having to deal with actual counting timer. |)}>#
-// class StatefulTimerTest : public StatefulTimer {
-// public:
-//     StatefulTimerTest(
-//             std::function<void(long long)> tickCallback,
-//             std::function<void(IStatefulTimer::StateId)>
-//             onStateChangedCallback, long tickPeriodInMillisecs, const
-//             IConfig& applicationSettings) : StatefulTimer{tickCallback,
-//                             onStateChangedCallback,
-//                             tickPeriodInMillisecs,
-//                             applicationSettings}
-//     {
-//     }
-//
-//     void setState(IStatefulTimer::StateId state)
-//     {
-//         switch (state) {
-//         case IStatefulTimer::StateId::Idle:
-//             currentState = idleState.get();
-//             break;
-//         case IStatefulTimer::StateId::Task:
-//             currentState = sprintState.get();
-//             break;
-//         case IStatefulTimer::StateId::Break:
-//             currentState = shortBreakState.get();
-//             break;
-//         case IStatefulTimer::StateId::LongBreak:
-//             currentState = longBreakState.get();
-//             break;
-//         case IStatefulTimer::StateId::ZoneEntered:
-//             currentState = zoneState.get();
-//             break;
-//         case IStatefulTimer::StateId::ZoneLeft:
-//             currentState = sprintState.get();
-//             break;
-//         case IStatefulTimer::StateId::Finished:
-//             currentState = finishedState.get();
-//             break;
-//         default:
-//             return;
-//         }
-//     }
-//
-//     void transitionToNext() { currentState->setNextState(); }
-// };
+
+/* Extends StatefulTimer to provide public method to set state, along with
+ * method to transition to next state. That allows to test state transitions
+ * without having to deal with actual counting timer. */
+class StatefulTimerTest : public StatefulTimer {
+public:
+    StatefulTimerTest(
+        std::function<void(std::chrono::seconds)> tickCallback,
+        std::function<void(IStatefulTimer::StateId)> onStateChangedCallback,
+        std::chrono::seconds tickPeriod,
+        const IConfig& applicationSettings)
+        : StatefulTimer{tickCallback,
+                        onStateChangedCallback,
+                        tickPeriod,
+                        applicationSettings}
+    {
+    }
+
+    void set_state(TimerState* state) { transitionToState(*state); }
+
+    TimerState* state() { return currentState; }
+    TimerState* idle_state() { return &idle; }
+    TimerState* sprint_state() { return &runningSprint; }
+    TimerState* finished_state() { return &sprintFinished; }
+    TimerState* short_break_state() { return &shortBreak; }
+    TimerState* long_break_state() { return &longBreak; }
+    TimerState* zone_state() { return &zone; }
+
+    void transition_to_next_state() { currentState->setNextState(*this); }
+};
 
 } // namespace
 
 
-// class StatefulTimerStates : public ::testing::Test {
-// public:
-//     TestConfig testSettings;
-//     std::unique_ptr<StatefulTimerTest> timer;
-//
-// protected:
-//     virtual void SetUp()
-//     {
-//         int tick{1000};
-//         auto onTickCallbackStub = [](long long) {};
-//         auto onStateChangedCallbackStub = [](IStatefulTimer::StateId) {};
-//         timer = std::make_unique<StatefulTimerTest>(
-//                 onTickCallbackStub, onStateChangedCallbackStub, tick,
-//                 testSettings);
-//     }
-//
-//     TestConfig testSettings;
-//     std::unique_ptr<StatefulTimerTest> timer;
-// };
-//
-// TEST_F(StatefulTimerStates, test_timer_should_initially_be_in_idle_state)
-// {
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Idle),
-//                 static_cast<int>(timer->state()));
-// }
-//
-// TEST_F(StatefulTimerStates,
-// test_should_transition_to_task_state_from_idle_state)
-// {
-//     timer->transitionToNext();
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Task),
-//               static_cast<int>(timer->state()));
-// }
-//
-// TEST_F(StatefulTimerStates,
-// test_should_transition_to_finished_state_after_task)
-// {
-//     timer->setState(IStatefulTimer::StateId::Task);
-//     timer->transitionToNext();
-//
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Finished),
-//               static_cast<int>(timer->state()));
-// }
-//
-// TEST_F(StatefulTimerStates, test_should_transition_to_break_after_finished)
-// {
-//     timer->setState(IStatefulTimer::StateId::Finished);
-//     timer->setNumFinishedSprints(1);
-//     timer->transitionToNext();
-//
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Break),
-//               static_cast<int>(timer->state()));
-// }
-//
-// TEST_F(StatefulTimerStates,
-//        test_should_transition_to_long_break_after_finished_when_met_req)
-// {
-//     timer->setState(IStatefulTimer::StateId::Finished);
-//     int numTaskBeforeLongBreak{4};
-//     timer->setNumFinishedSprints(numTaskBeforeLongBreak);
-//     timer->transitionToNext();
-//
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::LongBreak),
-//                 static_cast<int>(timer->state()));
-// }
-//
-// TEST_F(StatefulTimerStates, test_should_transition_to_idle_from_break)
-// {
-//     timer->setState(IStatefulTimer::StateId::Break);
-//     timer->transitionToNext();
-//
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Idle),
-//               static_cast<int>(timer->state()));
-// }
-//
-// TEST_F(StatefulTimerStates, test_should_transition_to_idle_from_long_break)
-// {
-//     timer->setState(IStatefulTimer::StateId::LongBreak);
-//     timer->transitionToNext();
-//
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Idle),
-//                 static_cast<int>(timer->state()));
-// }
-//
-// TEST_F(StatefulTimerStates, test_zone_state_transition)
-// {
-//     // Should be ignored in Idle state
-//     timer->toggleInTheZoneMode();
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Idle),
-//                 static_cast<int>(timer->state()));
-//
-//     // Should be ignored in Break state
-//     timer->setState(IStatefulTimer::StateId::Break);
-//     timer->toggleInTheZoneMode();
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Break),
-//               static_cast<int>(timer->state()));
-//
-//     // Should be ignored in LongBreak state
-//     timer->setState(IStatefulTimer::StateId::LongBreak);
-//     timer->toggleInTheZoneMode();
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::LongBreak),
-//                 static_cast<int>(timer->state()));
-//
-//     // Should be ignored in Finished state
-//     timer->setState(IStatefulTimer::StateId::Finished);
-//     timer->toggleInTheZoneMode();
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Finished),
-//                 static_cast<int>(timer->state()));
-//
-//     // Should transition to Zone if in Task state
-//     timer->setState(IStatefulTimer::StateId::Task);
-//     timer->toggleInTheZoneMode();
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::ZoneEntered),
-//                 static_cast<int>(timer->state()));
-//
-//     // Should transition to Task if in Zone state
-//     timer->setState(IStatefulTimer::StateId::ZoneEntered);
-//     timer->toggleInTheZoneMode();
-//     EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Task),
-//               static_cast<int>(timer->state()));
-// }
-//
-// TEST_F(StatefulTimerStates, test_cancelling_state)
-// {
-// //    // Should be ignored in Idle state
-// //    timer->cancel();
-// //    EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Idle),
-// //                static_cast<int>(timer->state()));
-// //
-// //    // Should be ignored in Zone state
-// //    timer->setState(IStatefulTimer::StateId::ZoneEntered);
-// //    timer->cancel();
-// //    EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::ZoneEntered),
-// //                static_cast<int>(timer->state()));
-// //
-// //    // Should transition to Idle state when cancelling Finished state
-// //    timer->setState(IStatefulTimer::StateId::Finished);
-// //    timer->cancel();
-// //    EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Idle),
-// //                static_cast<int>(timer->state()));
-// //
-// //    // Should transition to Idle state when cancelling Task state
-// //    timer->setState(IStatefulTimer::StateId::Task);
-// //    // timer->start();
-// //    timer->cancel();
-// //    EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Idle),
-// //                static_cast<int>(timer->state()));
-// //
-// //    // Should transition to Idle state when cancelling Break
-// //    timer->setState(IStatefulTimer::StateId::Break);
-// //    timer->cancel();
-// //    EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Idle),
-// //                static_cast<int>(timer->state()));
-// //
-// //    // Should transition to Idle state when cancelling LongBreak
-// //    timer->setState(IStatefulTimer::StateId::LongBreak);
-// //    timer->cancel();
-// //    EXPECT_EQ(static_cast<int>(IStatefulTimer::StateId::Idle),
-// //                static_cast<int>(timer->state()));
-// }
+class StatefulTimerStates : public ::testing::Test {
+
+protected:
+    virtual void SetUp()
+    {
+        std::chrono::seconds tick{1};
+        auto onTickCallbackStub = [](std::chrono::seconds) {};
+        IStatefulTimer::StateId state_id;
+        auto onStateChangedCallbackStub
+            = [&state_id](IStatefulTimer::StateId state) { state_id = state; };
+        timer = std::make_unique<StatefulTimerTest>(
+            onTickCallbackStub, onStateChangedCallbackStub, tick, testSettings);
+    }
+
+    TestConfig testSettings;
+    std::unique_ptr<StatefulTimerTest> timer;
+};
+
+TEST_F(StatefulTimerStates, test_timer_should_initially_be_in_idle_state)
+{
+    EXPECT_EQ(timer->idle_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates,
+       test_should_transition_to_sprint_state_from_idle_state)
+{
+    timer->transition_to_next_state();
+    EXPECT_EQ(timer->sprint_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates, test_should_transition_to_finished_state_after_task)
+{
+    timer->set_state(timer->sprint_state());
+    timer->transition_to_next_state();
+
+    EXPECT_EQ(timer->finished_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates, test_should_transition_to_break_after_finished)
+{
+    timer->set_state(timer->finished_state());
+    timer->setNumFinishedSprints(1);
+    timer->transition_to_next_state();
+
+    EXPECT_EQ(timer->short_break_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates,
+       test_should_transition_to_long_break_after_finished_when_met_req)
+{
+    const int numTaskBeforeLongBreak{testSettings.numSprintsBeforeBreak()};
+    timer->setNumFinishedSprints(numTaskBeforeLongBreak - 1);
+    timer->set_state(timer->finished_state());
+    timer->transition_to_next_state();
+
+    EXPECT_EQ(timer->long_break_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates, test_should_transition_to_idle_from_break)
+{
+    timer->set_state(timer->short_break_state());
+    timer->transition_to_next_state();
+
+    EXPECT_EQ(timer->idle_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates, test_should_transition_to_idle_from_long_break)
+{
+    timer->set_state(timer->long_break_state());
+    timer->transition_to_next_state();
+
+    EXPECT_EQ(timer->idle_state(), timer->state());
+}
+
+/* Test zone state transitions */
+
+TEST_F(StatefulTimerStates, zone_transition_should_be_ignored_in_idle_state)
+{
+    timer->toggleInTheZoneMode();
+
+    EXPECT_EQ(timer->idle_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates,
+       zone_transition_should_be_ignored_in_short_break_state)
+{
+    timer->set_state(timer->short_break_state());
+    timer->toggleInTheZoneMode();
+    EXPECT_EQ(timer->short_break_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates,
+       zone_transition_should_be_ignored_in_long_break_state)
+{
+    timer->set_state(timer->long_break_state());
+    timer->toggleInTheZoneMode();
+    EXPECT_EQ(timer->long_break_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates, zone_transition_should_be_ignored_in_finished_state)
+{
+    timer->set_state(timer->finished_state());
+    timer->toggleInTheZoneMode();
+    EXPECT_EQ(timer->finished_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates,
+       zone_transition_should_transition_to_zone_when_in_running_sprint_state)
+{
+    timer->set_state(timer->sprint_state());
+    timer->toggleInTheZoneMode();
+    EXPECT_EQ(timer->zone_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates,
+       zone_transition_should_transition_to_task_when_in_zone_state)
+{
+    timer->set_state(timer->zone_state());
+    timer->toggleInTheZoneMode();
+    EXPECT_EQ(timer->sprint_state(), timer->state());
+}
+
+/* Test cancelling state transitions */
+
+TEST_F(StatefulTimerStates, cancelling_state_should_be_ignored_in_idle_state)
+{
+    timer->cancel();
+    EXPECT_EQ(timer->idle_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates, cancelling_state_should_be_ignored_in_zone_state)
+{
+    timer->set_state(timer->zone_state());
+    timer->cancel();
+    EXPECT_EQ(timer->zone_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates,
+       transitions_to_idle_state_when_cancelling_finished_state)
+{
+    timer->set_state(timer->finished_state());
+    timer->cancel();
+    EXPECT_EQ(timer->idle_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates,
+       transitions_to_idle_state_when_cancelling_task_state)
+{
+    timer->set_state(timer->sprint_state());
+    timer->cancel();
+    EXPECT_EQ(timer->idle_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates,
+       transitions_to_idle_state_when_cancelling_short_break)
+{
+    timer->set_state(timer->short_break_state());
+    timer->cancel();
+    EXPECT_EQ(timer->idle_state(), timer->state());
+}
+
+TEST_F(StatefulTimerStates,
+       transitions_to_idle_state_when_cancelling_long_break)
+{
+    timer->set_state(timer->long_break_state());
+    timer->cancel();
+    EXPECT_EQ(timer->idle_state(), timer->state());
+}
