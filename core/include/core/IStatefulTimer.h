@@ -28,20 +28,8 @@
 
 namespace SprintTimerCore {
 
-using dw::DateTime;
-using dw::TimeSpan;
-
 class IStatefulTimer {
 public:
-//    enum class StateId {
-//        Idle,
-//        Sprint,
-//        Break,
-//        LongBreak,
-//        ZoneEntered,
-//        ZoneLeft,
-//        AwaitingSubmission,
-//        BreakFinished };
     enum class StateId {
         IdleEntered,
         IdleLeft,
@@ -66,7 +54,9 @@ public:
 
     virtual void toggleInTheZoneMode() = 0;
 
-    virtual std::vector<TimeSpan> completedSprints() const = 0;
+    virtual std::vector<dw::TimeSpan> completedSprints() const = 0;
+
+    virtual void setNumFinishedSprints(int num) = 0;
 
     virtual void clearSprintsBuffer() = 0;
 };

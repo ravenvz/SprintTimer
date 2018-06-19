@@ -88,6 +88,7 @@ void FancyTimer::setCandidateIndex(int index)
 
 void FancyTimer::updateGoalProgress(Progress progress)
 {
+    timer->setNumFinishedSprints(progress);
     const auto dailyGoal = applicationSettings.dailyGoal();
     if (dailyGoal == 0) {
         ui->labelDailyGoalProgress->hide();
