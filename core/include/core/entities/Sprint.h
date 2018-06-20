@@ -84,4 +84,6 @@ private:
     std::list<Tag> mTags;
 };
 
+bool operator==(const Sprint& lhs, const Sprint& rhs);
+
 #endif // SPRINT_H_XWNOT32M

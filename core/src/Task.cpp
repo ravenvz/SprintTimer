@@ -34,29 +34,29 @@ Task::Task(std::string name,
            std::list<Tag> tags,
            bool completed,
            const DateTime& lastModified)
-    : mName(name)
-    , mEstimatedCost(estimatedCost)
-    , mActualCost(actualCost)
-    , mUuid{generator.generateUUID()}
-    , mTags(std::move(tags))
-    , mCompleted(completed)
-    , mLastModified{lastModified}
+    : Task{std::move(name),
+           estimatedCost,
+           actualCost,
+           generator.generateUUID(),
+           std::move(tags),
+           completed,
+           lastModified}
 {
 }
 
 Task::Task(std::string name,
            int estimatedCost,
            int actualCost,
-           const std::string& uuid,
+           std::string uuid,
            std::list<Tag> tags,
            bool completed,
            const DateTime& lastModified)
-    : mName(name)
-    , mEstimatedCost(estimatedCost)
-    , mActualCost(actualCost)
+    : mName{std::move(name)}
+    , mEstimatedCost{estimatedCost}
+    , mActualCost{actualCost}
     , mUuid{uuid}
-    , mTags(std::move(tags))
-    , mCompleted(completed)
+    , mTags{std::move(tags)}
+    , mCompleted{completed}
     , mLastModified{lastModified}
 {
 }
@@ -136,4 +136,13 @@ std::ostream& operator<<(std::ostream& os, const Task& task)
     os << task.mActualCost << "/" << task.mEstimatedCost << " ";
     os << "Uuid: " << task.mUuid;
     return os;
+}
+
+bool operator==(const Task& lhs, const Task& rhs)
+{
+    return lhs.uuid() == rhs.uuid() && lhs.name() == rhs.name()
+        && lhs.estimatedCost() == rhs.estimatedCost()
+        && lhs.actualCost() == rhs.actualCost() && lhs.tags() == rhs.tags()
+        && lhs.isCompleted() == rhs.isCompleted()
+        && lhs.lastModified() == rhs.lastModified();
 }

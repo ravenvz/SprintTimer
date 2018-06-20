@@ -232,7 +232,6 @@ void CoreService::editTag(const std::string& oldName,
                           const std::string& newName)
 {
     auto editTag = std::make_unique<RenameTag>(taskWriter, oldName, newName);
-    editTag->execute();
     invoker.executeCommand(std::move(editTag));
 }
 

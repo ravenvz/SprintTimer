@@ -25,8 +25,8 @@
 
 #include "core/BoostUUIDGenerator.h"
 #include "core/StringUtils.h"
-#include "core/entities/Tag.h"
 #include "core/entities/Sprint.h"
+#include "core/entities/Tag.h"
 #include "date_wrapper/DateTime.h"
 #include <list>
 #include <string>
@@ -45,12 +45,13 @@ public:
          int actualCost,
          std::list<Tag> tags,
          bool completed,
-         const dw::DateTime& lastModified = dw::DateTime::currentDateTimeLocal());
+         const dw::DateTime& lastModified
+         = dw::DateTime::currentDateTimeLocal());
 
     Task(std::string name,
          int estimatedCost,
          int actualCost,
-         const std::string& uuid,
+         std::string uuid,
          std::list<Tag> tags,
          bool completed,
          const dw::DateTime& lastModified);
@@ -123,7 +124,6 @@ public:
 private:
     static BoostUUIDGenerator generator;
     std::string mName;
-    std::vector<Sprint> sprints;
     int mEstimatedCost{1};
     int mActualCost{0};
     std::string mUuid;
@@ -133,5 +133,7 @@ private:
 
     void decodeDescription(std::string&& encodedDescription);
 };
+
+bool operator==(const Task& lhs, const Task& rhs);
 
 #endif /* end of include guard: TASK_H_7VXCYMOK */

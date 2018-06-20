@@ -25,25 +25,35 @@
 #define GTEST_LANG_CXX11 1
 
 #include "core/CoreService.h"
-#include "fixtures/FakeSprintDistributionReader.h"
-#include "fixtures/FakeSprintStorageReader.h"
-#include "fixtures/FakeYearRangeReader.h"
-#include "fixtures/FakeTaskStorageReader.h"
-#include "fixtures/FakeTaskStorageWriter.h"
-#include "fixtures/FakeSprintStorageWriter.h"
-#include "core/TaskBuilder.h"
 #include "core/SprintBuilder.h"
+#include "core/TaskBuilder.h"
+#include "mocks/SprintDistributionReaderMock.h"
+#include "mocks/SprintStorageReaderMock.h"
+#include "mocks/SprintStorageWriterMock.h"
+#include "mocks/TaskStorageReaderMock.h"
+#include "mocks/TaskStorageWriterMock.h"
+#include "mocks/YearRangeReaderMock.h"
 #include "gtest/gtest.h"
 
-using dw::TimeSpan;
 using dw::DateTime;
+using dw::TimeSpan;
+using ::testing::_;
 
-// TODO this mess should be cleaned
+// TODO remove when DateWrapper implements equality
+namespace dw {
+
+bool operator==(const TimeSpan& lhs, const TimeSpan& rhs)
+{
+    return lhs.start() == rhs.start() && lhs.finish() == rhs.finish();
+}
+
+} // namespace dw
 
 class CoreServiceFixture : public ::testing::Test {
 public:
     const TimeSpan defaultTimeSpan
-            = TimeSpan{DateTime::currentDateTime(), DateTime::currentDateTime()};
+        = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
+                   DateTime::currentDateTime().add(DateTime::Days(-1))};
 
     Task defaultTask{"Task name",
                      4,
@@ -53,369 +63,225 @@ public:
                      false,
                      DateTime::fromYMD(2015, 11, 10)};
 
-    FakeStorage<Sprint> sprintStorage;
-    FakeStorage<Task> taskStorage;
-    FakeSprintWriter sprintStorageWriter{sprintStorage};
-    FakeSprintStorageReader sprintStorageReader{sprintStorage};
-    FakeSprintDistributionReader sprintDistributionReader{sprintStorage};
-    FakeYearRangeReader yearRangeReader;
-    FakeTaskStorageReader taskStorageReader{taskStorage};
-    FakeTaskStorageWriter taskStorageWriter{taskStorage};
+    TaskStorageWriterMock task_storage_writer_mock;
+    TaskStorageReaderMock task_storage_reader_mock;
+    SprintStorageWriterMock sprint_storage_writer_mock;
+    SprintStorageReaderMock sprint_storage_reader_mock;
+    YearRangeReaderMock year_range_reader_mock;
+    SprintDistributionReaderMock sprint_distribution_reader_mock;
 
-    Core::CoreService coreService{sprintStorageReader,
-                                  sprintStorageWriter,
-                                  yearRangeReader,
-                                  taskStorageReader,
-                                  taskStorageWriter,
-                                  sprintDistributionReader,
-                                  sprintDistributionReader,
-                                  sprintDistributionReader};
-
-    bool sprintDistributionHandlerCalled{false};
-    bool yearRangeHandlerCalled{false};
-    bool tagHandlerCalled{false};
-    std::vector<Sprint> sprintBuffer;
-    std::vector<Task> taskBuffer;
-
-    void assertStorageReturnedCorrectSprints(const std::vector<Sprint>& result)
-    {
-        EXPECT_EQ(sprintBuffer.size(), result.size());
-        std::vector<Sprint> sprintOrdByDate(result.cbegin(), result.cend());
-        std::sort(sprintOrdByDate.begin(), sprintOrdByDate.end(),
-                [](const auto& lhs, const auto& rhs) {
-                    return lhs.startTime() < rhs.startTime();
-                });
-        EXPECT_TRUE(std::equal(sprintBuffer.cbegin(),
-                    sprintBuffer.cend(),
-                    sprintOrdByDate.cbegin(),
-                    [](const auto& lhs, const auto& rhs) {
-                        std::cout << lhs.uuid() << " == " << rhs.uuid() << std::endl;
-                        return lhs.uuid() == rhs.uuid();
-                    }));
-    }
-
-    void assertStorageReturnedCorrectTask(const std::vector<Task>& tasks)
-    {
-        EXPECT_EQ(taskBuffer.size(), tasks.size());
-        auto sortByUuid = [](const auto& lhs, const auto& rhs) {
-            return lhs.uuid() < rhs.uuid();
-        };
-        auto taskEqualByUuid = [](const auto& lhs, const auto& rhs) {
-            return lhs.uuid() == rhs.uuid();
-        };
-        std::vector<Task> tasksByUuid(tasks.cbegin(), tasks.cend());
-        std::sort(tasksByUuid.begin(), tasksByUuid.end(), sortByUuid);
-        std::sort(taskBuffer.begin(), taskBuffer.end(), sortByUuid);
-        EXPECT_TRUE(std::equal(taskBuffer.cbegin(),
-                    taskBuffer.cend(),
-                    tasksByUuid.cbegin(),
-                    taskEqualByUuid));
-    }
-
-    void yearRangeHandler(const std::vector<std::string>& result)
-    {
-        yearRangeHandlerCalled = true;
-    }
-
-    void sprintDistributionHandler(const Distribution<int>& result)
-    {
-        sprintDistributionHandlerCalled = true;
-    }
-
-    void tagHandler(const std::vector<std::string>& tags)
-    {
-        tagHandlerCalled = true;
-    }
-protected:
-    void SetUp() override
-    {
-        sprintStorage.clear();
-        taskStorage.clear();
-        sprintBuffer.clear();
-        taskBuffer.clear();
-        sprintDistributionHandlerCalled = false;
-        yearRangeHandlerCalled = false;
-        tagHandlerCalled = false;
-    }
+    Core::CoreService coreService{sprint_storage_reader_mock,
+                                  sprint_storage_writer_mock,
+                                  year_range_reader_mock,
+                                  task_storage_reader_mock,
+                                  task_storage_writer_mock,
+                                  sprint_distribution_reader_mock,
+                                  sprint_distribution_reader_mock,
+                                  sprint_distribution_reader_mock};
 };
 
-TEST_F(CoreServiceFixture,
-       test_registers_sprint_and_increments_tasks_sprints)
+TEST_F(CoreServiceFixture, registers_sprint_and_increments_tasks_sprints)
 {
-    taskStorageWriter.save(defaultTask);
-    const std::string taskUuid = defaultTask.uuid();
+    EXPECT_CALL(sprint_storage_writer_mock, save(_)).Times(1);
+    EXPECT_CALL(task_storage_writer_mock, incrementSprints(defaultTask.uuid()))
+        .Times(1);
 
-    coreService.registerSprint(defaultTimeSpan, taskUuid);
-
-    EXPECT_EQ(1, sprintStorage.size());
-    EXPECT_EQ(3, (*taskStorage.getItem(taskUuid)).actualCost());
+    coreService.registerSprint(defaultTimeSpan, defaultTask.uuid());
 }
 
-TEST_F(CoreServiceFixture,
-       test_removes_sprint_and_decrements_tasks_sprint)
+TEST_F(CoreServiceFixture, removes_sprint_and_decrements_tasks_sprint)
 {
-    taskStorageWriter.save(defaultTask);
     const std::string taskUuid = defaultTask.uuid();
-    Sprint sprint{taskUuid, defaultTimeSpan};
-    sprintStorageWriter.save(sprint);
+    const Sprint sprint{taskUuid, defaultTimeSpan};
+    EXPECT_CALL(sprint_storage_writer_mock, remove(sprint)).Times(1);
+    EXPECT_CALL(task_storage_writer_mock, decrementSprints(taskUuid)).Times(1);
 
     coreService.removeSprint(sprint);
-
-    EXPECT_EQ(0, sprintStorage.size());
-    EXPECT_EQ(1, (*taskStorage.getItem(taskUuid)).actualCost());
 }
 
-TEST_F(CoreServiceFixture, test_request_sprints_in_time_range)
+TEST_F(CoreServiceFixture, request_sprints_in_time_range)
 {
-    std::string taskUuid{"1234"};
-    SprintBuilder builder;
-    builder.withTaskUuid(taskUuid);
-    std::vector<Sprint> sprints;
-    DateTime dt = DateTime::fromYMD(2016, 5, 1);
-    for (int i = 0; i < 10; ++i) {
-        TimeSpan timeSpan{dt.add(DateTime::Days{i}), dt.add(DateTime::Days{i})};
-        auto sprint = builder.withTimeSpan(timeSpan).build();
-        sprints.push_back(sprint);
-        sprintStorage.store(sprint);
-    }
-    // Expected result
-    sprintBuffer.push_back(sprints[2]);
-    sprintBuffer.push_back(sprints[3]);
-    sprintBuffer.push_back(sprints[4]);
-    TimeSpan timeRange{dt.add(DateTime::Days{2}), dt.add(DateTime::Days{4})};
+    EXPECT_CALL(sprint_storage_reader_mock, requestItems(defaultTimeSpan, _))
+        .Times(1);
 
-    coreService.sprintsInTimeRange(
-            timeRange, [this](const std::vector<Sprint>& result) {
-                assertStorageReturnedCorrectSprints(result);
-            });
+    coreService.sprintsInTimeRange(defaultTimeSpan,
+                                   [](const std::vector<Sprint>& result) {});
 }
 
-TEST_F(CoreServiceFixture, test_request_year_range_calls_handler)
+TEST_F(CoreServiceFixture, request_year_range)
 {
-    coreService.yearRange(
-            [this](const std::vector<std::string>& result) {
-                yearRangeHandler(result);
-            });
+    EXPECT_CALL(year_range_reader_mock, requestYearRange(_));
 
-    EXPECT_TRUE(yearRangeHandlerCalled);
+    coreService.yearRange([](const std::vector<std::string>& result) {});
 }
 
-TEST_F(CoreServiceFixture, test_request_daily_distribution_calls_handler)
+TEST_F(CoreServiceFixture, request_daily_distribution)
 {
+    EXPECT_CALL(sprint_distribution_reader_mock,
+                requestDistribution(defaultTimeSpan, _));
+
     coreService.requestSprintDailyDistribution(
-            defaultTimeSpan, [this](const Distribution<int>& result) {
-                sprintDistributionHandler(result);
-            });
-    EXPECT_TRUE(sprintDistributionHandlerCalled);
+        defaultTimeSpan, [](const Distribution<int>& result) {});
 }
 
-TEST_F(CoreServiceFixture, test_request_weekly_distribution_calls_handler)
+TEST_F(CoreServiceFixture, request_weekly_distribution)
 {
+    EXPECT_CALL(sprint_distribution_reader_mock,
+                requestDistribution(defaultTimeSpan, _));
+
     coreService.requestSprintWeeklyDistribution(
-            defaultTimeSpan, [this](const Distribution<int>& result) {
-                sprintDistributionHandler(result);
-            });
-    EXPECT_TRUE(sprintDistributionHandlerCalled);
+        defaultTimeSpan, [](const Distribution<int>& result) {});
 }
 
-TEST_F(CoreServiceFixture, test_request_monthly_distribution_calls_handler)
+TEST_F(CoreServiceFixture, request_monthly_distribution)
 {
+    EXPECT_CALL(sprint_distribution_reader_mock,
+                requestDistribution(defaultTimeSpan, _));
+
     coreService.requestSprintMonthlyDistribution(
-            defaultTimeSpan, [this](const Distribution<int>& result) {
-                sprintDistributionHandler(result);
-            });
-    EXPECT_TRUE(sprintDistributionHandlerCalled);
+        defaultTimeSpan, [](const Distribution<int>& result) {});
 }
 
-TEST_F(CoreServiceFixture, test_register_task)
+TEST_F(CoreServiceFixture, register_task)
 {
-    coreService.registerTask(defaultTask);
+    EXPECT_CALL(task_storage_writer_mock, save(defaultTask)).Times(1);
 
-    EXPECT_EQ(1, taskStorage.size());
+    coreService.registerTask(defaultTask);
 }
 
-TEST_F(CoreServiceFixture, test_undo_functions_properly)
+TEST_F(CoreServiceFixture, edit_task_should_only_alter_allowed_parameters)
 {
-    coreService.registerTask(defaultTask);
-    const std::string taskUuid = defaultTask.uuid();
-    coreService.registerSprint(defaultTimeSpan, taskUuid);
-    coreService.registerSprint(defaultTimeSpan, taskUuid);
-    coreService.registerSprint(defaultTimeSpan, taskUuid);
-
-    EXPECT_EQ(1, taskStorage.size());
-    EXPECT_EQ(3, sprintStorage.size());
-
-    coreService.undoLast();
-    EXPECT_EQ(2, sprintStorage.size());
-
-    coreService.undoLast();
-    EXPECT_EQ(1, sprintStorage.size());
-
-    coreService.undoLast();
-    EXPECT_EQ(0, sprintStorage.size());
-
-    coreService.undoLast();
-    EXPECT_EQ(0, taskStorage.size());
-}
-
-TEST_F(CoreServiceFixture, test_edit_task_should_only_alter_allowed_parameters)
-{
-    coreService.registerTask(defaultTask);
-    const std::string editedTaskName{"Edited"};
-    std::list<Tag> editedTags{Tag{"Tag2"}, Tag{"New Tag"}};
-    const int editedEstimated{7};
-    const int editedSpent{5};
-    const bool editedCompletionStatus{true};
     Task editedTask = TaskBuilder{}
-                      .withName(editedTaskName)
-                      .withEstimatedCost(editedEstimated)
-                      .withActualCost(editedSpent)
-                      .withCompletionStatus(editedCompletionStatus)
-                      .withExplicitTags(editedTags)
-                      .build();
-    const DateTime editedTaskLastModified = editedTask.lastModified();
+                          .withName("Edited")
+                          .withEstimatedCost(defaultTask.estimatedCost() + 3)
+                          .withActualCost(defaultTask.actualCost() + 2)
+                          .withCompletionStatus(!defaultTask.isCompleted())
+                          .withExplicitTags({Tag{"Tag2"}, Tag{"New Tag"}})
+                          .build();
+    Task restrictedTask
+        = TaskBuilder{}
+              .withUuid(defaultTask.uuid()) // Should not be editable
+              .withActualCost(
+                  defaultTask.actualCost()) // Should not be editable
+              .withCompletionStatus(
+                  defaultTask.isCompleted()) // Should not be editable
+              .withName(editedTask.name())
+              .withEstimatedCost(editedTask.estimatedCost())
+              .withExplicitTags(editedTask.tags())
+              .build();
+    EXPECT_CALL(task_storage_writer_mock, edit(defaultTask, restrictedTask))
+        .Times(1);
 
     coreService.editTask(defaultTask, editedTask);
-    Task& actual = taskStorage.itemRef(defaultTask.uuid());
+}
 
-    EXPECT_TRUE(defaultTask.uuid() == actual.uuid());
-    EXPECT_TRUE(editedTaskName == actual.name());
-    editedTags.sort();
-    auto actualTags = actual.tags();
-    actualTags.sort();
-    EXPECT_TRUE(editedTags == actualTags);
-    EXPECT_TRUE(editedTaskLastModified == actual.lastModified());
-    // Uuid, actualCost and completion status should not be editable
-    EXPECT_EQ(editedEstimated, actual.estimatedCost());
-    EXPECT_EQ(defaultTask.actualCost(), actual.actualCost());
-    EXPECT_EQ(defaultTask.isCompleted(), actual.isCompleted());
+TEST_F(CoreServiceFixture, undo_register_sprint)
+{
+    const std::string taskUuid = defaultTask.uuid();
+    EXPECT_CALL(sprint_storage_writer_mock, save(_)).Times(1);
+    EXPECT_CALL(task_storage_writer_mock, incrementSprints(taskUuid)).Times(1);
+
+    coreService.registerSprint(defaultTimeSpan, taskUuid);
+
+    EXPECT_CALL(sprint_storage_writer_mock, remove(_)).Times(1);
+    EXPECT_CALL(task_storage_writer_mock, decrementSprints(taskUuid)).Times(1);
 
     coreService.undoLast();
-
-    Task& afterUndo = taskStorage.itemRef(defaultTask.uuid());
-
-    EXPECT_TRUE(defaultTask.uuid() == afterUndo.uuid());
-    EXPECT_TRUE(defaultTask.name() == afterUndo.name());
-    EXPECT_TRUE(defaultTask.tags() == afterUndo.tags());
-    EXPECT_EQ(defaultTask.estimatedCost(),
-                afterUndo.estimatedCost());
-    EXPECT_EQ(defaultTask.actualCost(), afterUndo.actualCost());
-    EXPECT_EQ(defaultTask.isCompleted(), afterUndo.isCompleted());
-    // Timestamp of modification should not be changed when edition
-    // cancelled
-    EXPECT_TRUE(defaultTask.lastModified() == afterUndo.lastModified());
 }
 
-TEST_F(CoreServiceFixture, test_request_finished_and_unfinished_tasks)
+TEST_F(CoreServiceFixture, undo_register_task)
 {
-    TaskBuilder builder;
-    DateTime dt = DateTime::fromYMD(2016, 11, 1);
-    TimeSpan timeSpan{dt.add(DateTime::Days{1}), dt.add(DateTime::Days{3})};
-    std::vector<Task> expectedFinishedTasks;
-    std::vector<Task> expectedUnfinishedTasks;
-    // Create 5 finished and 5 unfinished tasks.
-    for (int i = 0; i < 5; ++i) {
-        Task finishedTask = builder
-                .withLastModificationStamp(dt.add(DateTime::Days{i}))
-                .withCompletionStatus(true)
-                .build();
-        Task unfinishedTask = builder
-                .withLastModificationStamp(dt.add(DateTime::Days{i}))
-                .withCompletionStatus(false)
-                .build();
-        taskStorage.store(finishedTask);
-        taskStorage.store(unfinishedTask);
-        // Push only these to expected buffer as they fit the timeSpan.
-        if (1 <= i && i <=3)
-            expectedFinishedTasks.push_back(finishedTask);
-        expectedUnfinishedTasks.push_back(unfinishedTask);
-    }
-
-    taskBuffer = expectedFinishedTasks;
-    coreService.requestFinishedTasks(
-        timeSpan,
-        [this](const std::vector<Task>& result) {
-            assertStorageReturnedCorrectTask(result);
-        });
-
-    taskBuffer = expectedUnfinishedTasks;
-    coreService.requestUnfinishedTasks(
-        [this](const std::vector<Task>& result) {
-            assertStorageReturnedCorrectTask(result);
-        });
-}
-
-TEST_F(CoreServiceFixture, test_toggle_task_competion_status)
-{
+    EXPECT_CALL(task_storage_writer_mock, save(defaultTask)).Times(1);
     coreService.registerTask(defaultTask);
-    const std::string taskUuid = defaultTask.uuid();
+
+    EXPECT_CALL(task_storage_writer_mock, remove(defaultTask)).Times(1);
+    coreService.undoLast();
+}
+
+TEST_F(CoreServiceFixture, undo_edit_task)
+{
+    Task editedTask = TaskBuilder{}
+                          .withUuid(defaultTask.uuid())
+                          .withExplicitTags({Tag{"New tag"}})
+                          .withName("Edited")
+                          .withActualCost(defaultTask.actualCost())
+                          .withEstimatedCost(defaultTask.estimatedCost() + 2)
+                          .build();
+    EXPECT_CALL(task_storage_writer_mock, edit(defaultTask, editedTask))
+        .Times(1);
+    coreService.editTask(defaultTask, editedTask);
+
+    EXPECT_CALL(task_storage_writer_mock, edit(editedTask, defaultTask));
+    coreService.undoLast();
+}
+
+TEST_F(CoreServiceFixture, request_finished_tasks)
+{
+    EXPECT_CALL(task_storage_reader_mock,
+                requestFinishedTasks(defaultTimeSpan, _))
+        .Times(1);
+
+    coreService.requestFinishedTasks(defaultTimeSpan,
+                                     [](const std::vector<Task>&) {});
+}
+
+TEST_F(CoreServiceFixture, request_unfinished_tasks)
+{
+    EXPECT_CALL(task_storage_reader_mock, requestUnfinishedTasks(_)).Times(1);
+
+    coreService.requestUnfinishedTasks([](const std::vector<Task>&) {});
+}
+
+TEST_F(CoreServiceFixture, toggle_task_competion_status)
+{
+    EXPECT_CALL(task_storage_writer_mock,
+                toggleTaskCompletionStatus(
+                    defaultTask.uuid(), dw::DateTime::currentDateTimeLocal()))
+        .Times(1);
 
     coreService.toggleTaskCompletionStatus(defaultTask);
-    EXPECT_TRUE(taskStorage.itemRef(taskUuid).isCompleted());
-    EXPECT_TRUE(taskStorage.itemRef(taskUuid).lastModified()
-          == DateTime::currentDateTimeLocal());
-
-    // Should revert time stamp of last modification when
-    // undoing
-    coreService.undoLast();
-    EXPECT_TRUE(!taskStorage.itemRef(taskUuid).isCompleted());
-    EXPECT_TRUE(taskStorage.itemRef(taskUuid).lastModified()
-          == defaultTask.lastModified());
 }
 
-TEST_F(CoreServiceFixture, test_request_all_tags_calls_handler)
+TEST_F(CoreServiceFixture,
+       undo_toggle_task_completion_status_should_not_modify_timestamp)
 {
-    coreService.requestAllTags(
-        [this](const std::vector<std::string>& tags) { tagHandler(tags); });
-    EXPECT_TRUE(tagHandlerCalled);
+    EXPECT_CALL(task_storage_writer_mock,
+                toggleTaskCompletionStatus(
+                    defaultTask.uuid(), dw::DateTime::currentDateTimeLocal()))
+        .Times(1);
+
+    coreService.toggleTaskCompletionStatus(defaultTask);
+
+    EXPECT_CALL(task_storage_writer_mock,
+                toggleTaskCompletionStatus(defaultTask.uuid(),
+                                           defaultTask.lastModified()))
+        .Times(1);
+    coreService.undoLast();
 }
 
-TEST_F(CoreServiceFixture, test_edit_tag_should_edit_tag_for_all_items)
+TEST_F(CoreServiceFixture, request_all_tags)
 {
-    TaskBuilder taskBuilder;
-    const std::list<Tag> tags1{Tag{"Tag1"}, Tag{"Tag2"}};
-    const std::list<Tag> tags2{Tag{"Tag2"}, Tag{"Tag3"}};
-    const std::list<Tag> tags3{Tag{"Tag1"}, Tag{"Tag5"}};
-    auto item1 = taskBuilder.withExplicitTags(tags1).build();
-    auto item2 = taskBuilder.withExplicitTags(tags2).build();
-    auto item3 = taskBuilder.withExplicitTags(tags3).build();
-    const std::list<Tag> exp_tags1{Tag{"EditedTag"}, Tag{"Tag2"}};
-    const std::list<Tag> exp_tags2{Tag{"Tag2"}, Tag{"Tag3"}};
-    const std::list<Tag> exp_tags3{Tag{"EditedTag"}, Tag{"Tag5"}};
-    coreService.registerTask(item1);
-    coreService.registerTask(item2);
-    coreService.registerTask(item3);
+    EXPECT_CALL(task_storage_reader_mock, requestAllTags(_)).Times(1);
 
-    coreService.editTag("Tag1", "EditedTag");
+    coreService.requestAllTags([](const std::vector<std::string>& tags) {});
+}
 
-    auto tags_act1 = taskStorage.itemRef(item1.uuid()).tags();
-    auto tags_act2 = taskStorage.itemRef(item2.uuid()).tags();
-    auto tags_act3 = taskStorage.itemRef(item3.uuid()).tags();
-    tags_act1.sort();
-    tags_act2.sort();
-    tags_act3.sort();
+TEST_F(CoreServiceFixture, edit_tag)
+{
+    EXPECT_CALL(task_storage_writer_mock, editTag("OldName", "NewName"))
+        .Times(1);
 
-    EXPECT_EQ(exp_tags1.size(), tags_act1.size());
-    EXPECT_TRUE(std::equal(exp_tags1.begin(), exp_tags1.end(), tags_act1.begin()));
-    EXPECT_EQ(exp_tags2.size(), tags_act2.size());
-    EXPECT_TRUE(std::equal(exp_tags2.begin(), exp_tags2.end(), tags_act2.begin()));
-    EXPECT_EQ(exp_tags3.size(), tags_act3.size());
-    EXPECT_TRUE(std::equal(exp_tags3.begin(), exp_tags3.end(), tags_act3.begin()));
+    coreService.editTag("OldName", "NewName");
+}
 
-    // Undo command should revert tag back for all items
+TEST_F(CoreServiceFixture, undo_edit_tag)
+{
+    EXPECT_CALL(task_storage_writer_mock, editTag("OldName", "NewName"))
+        .Times(1);
+
+    coreService.editTag("OldName", "NewName");
+
+    EXPECT_CALL(task_storage_writer_mock, editTag("NewName", "OldName"))
+        .Times(1);
     coreService.undoLast();
-
-    auto tags_act_un1 = taskStorage.itemRef(item1.uuid()).tags();
-    auto tags_act_un2 = taskStorage.itemRef(item2.uuid()).tags();
-    auto tags_act_un3 = taskStorage.itemRef(item3.uuid()).tags();
-    tags_act_un1.sort();
-    tags_act_un2.sort();
-    tags_act_un3.sort();
-
-    EXPECT_EQ(tags1.size(), tags_act_un1.size());
-    EXPECT_TRUE(std::equal(tags1.begin(), tags1.end(), tags_act_un1.begin()));
-    EXPECT_EQ(tags2.size(), tags_act_un2.size());
-    EXPECT_TRUE(std::equal(tags2.begin(), tags2.end(), tags_act_un2.begin()));
-    EXPECT_EQ(tags3.size(), tags_act_un3.size());
-    EXPECT_TRUE(std::equal(tags3.begin(), tags3.end(), tags_act_un3.begin()));
 }

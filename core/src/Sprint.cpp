@@ -19,12 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/StringUtils.h"
 #include "core/entities/Sprint.h"
+#include "core/StringUtils.h"
 #include <algorithm>
 
-using dw::TimeSpan;
 using dw::DateTime;
+using dw::TimeSpan;
 
 // static
 BoostUUIDGenerator Sprint::generator;
@@ -76,8 +76,17 @@ std::ostream& operator<<(std::ostream& os, const Sprint& sprint)
 {
     for (const auto& tag : sprint.mTags)
         os << tag.nameWithPrefix();
-    os << " " << sprint.mName << " " << sprint.mInterval << " Uuid: " << sprint.mUuid
-       << " TaskUuid: " << sprint.mTaskUuid;
+    os << " " << sprint.mName << " " << sprint.mInterval
+       << " Uuid: " << sprint.mUuid << " TaskUuid: " << sprint.mTaskUuid;
     return os;
 }
 
+bool operator==(const Sprint& lhs, const Sprint& rhs)
+{
+    // TODO replace timespan equality when implemented in DateWrapper
+    return lhs.taskUuid() == rhs.taskUuid() && lhs.uuid() == rhs.uuid()
+        && lhs.name() == rhs.name()
+        && lhs.timeSpan().start() == rhs.timeSpan().start()
+        && lhs.timeSpan().finish() == rhs.timeSpan().finish()
+        && lhs.tags() == rhs.tags();
+}
