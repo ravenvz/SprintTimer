@@ -55,7 +55,8 @@ CoreService::CoreService(
     ITaskStorageWriter& taskStorageWriter,
     ISprintDistributionReader& sprintDailyDistributionReader,
     ISprintDistributionReader& sprintWeeklyDistributionReader,
-    ISprintDistributionReader& sprintMonthlyDistributionReader)
+    ISprintDistributionReader& sprintMonthlyDistributionReader,
+    core::CommandInvoker& invoker)
     : sprintReader{sprintStorageReader}
     , sprintWriter{sprintStorageWriter}
     , yearRangeReader{yearRangeReader}
@@ -64,6 +65,7 @@ CoreService::CoreService(
     , sprintDailyDistributionReader{sprintDailyDistributionReader}
     , sprintWeeklyDistributionReader{sprintWeeklyDistributionReader}
     , sprintMonthlyDistributionReader{sprintMonthlyDistributionReader}
+    , invoker{invoker}
 {
 }
 
@@ -246,5 +248,10 @@ uint64_t CoreService::numRevertableCommands() const
 }
 
 void CoreService::undoLast() { invoker.undo(); }
+
+void CoreService::registerUndoObserver(core::Observer& observer)
+{
+    invoker.attach(observer);
+}
 
 } // namespace Core

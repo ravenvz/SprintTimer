@@ -23,11 +23,14 @@
 #define ICORESERVICE_H_XVOMGAES
 
 #include "core/Distribution.h"
+#include "core/Observer.h"
 #include "core/entities/Task.h"
 #include "core/external_io/ISink.h"
 #include "date_wrapper/TimeSpan.h"
 #include <functional>
 #include <string>
+
+// TODO this interface should be torn apart
 
 class ICoreService {
 public:
@@ -112,6 +115,8 @@ public:
         = 0;
 
     virtual std::string lastCommandDescription() const = 0;
+
+    virtual void registerUndoObserver(core::Observer& observer) = 0;
 
     virtual uint64_t numRevertableCommands() const = 0;
 

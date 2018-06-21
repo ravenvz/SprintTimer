@@ -23,13 +23,14 @@
 #ifndef SPRINT_TIMER_SPRINTOUTLINE_H
 #define SPRINT_TIMER_SPRINTOUTLINE_H
 
-#include "core/IConfig.h"
-#include "core/ICoreService.h"
 #include "dialogs/AddSprintDialog.h"
 #include "models/SprintModel.h"
 #include "models/TaskModel.h"
 #include <QPushButton>
 #include <QWidget>
+#include <core/IConfig.h>
+#include <core/ICoreService.h>
+#include <core/Observer.h>
 #include <memory>
 
 namespace Ui {
@@ -38,7 +39,7 @@ class SprintOutline;
 
 namespace qt_gui {
 
-class SprintOutline : public QWidget {
+class SprintOutline : public QWidget, public core::Observer {
 
     Q_OBJECT
 
@@ -52,6 +53,8 @@ public:
     ~SprintOutline() override;
 
     QSize sizeHint() const override;
+
+    void update() override;
 
 private:
     Ui::SprintOutline* ui;
@@ -77,5 +80,4 @@ signals:
 } // namespace qt_gui
 
 
-
-#endif //SPRINT_TIMER_SPRINTOUTLINE_H
+#endif // SPRINT_TIMER_SPRINTOUTLINE_H

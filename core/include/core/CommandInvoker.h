@@ -23,6 +23,7 @@
 #define COMMANDINVOKER_H_WGTA1XLU
 
 #include "core/Command.h"
+#include "core/Observable.h"
 #include <iostream>
 #include <memory>
 #include <stack>
@@ -30,12 +31,13 @@
 
 namespace core {
 
-class CommandInvoker {
+class CommandInvoker : public Observable {
 public:
     void executeCommand(std::unique_ptr<Command>&& command)
     {
         command->execute();
         commandStack.push(std::move(command));
+        notify();
     }
 
     void undo()
@@ -44,6 +46,7 @@ public:
             return;
         commandStack.top()->undo();
         commandStack.pop();
+        notify();
     }
 
     std::string lastCommandDescription() const

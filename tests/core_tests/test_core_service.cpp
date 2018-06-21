@@ -24,6 +24,7 @@
 // Workaround for C++17 as std::tr1 no longer available and Gtest uses it
 #define GTEST_LANG_CXX11 1
 
+#include "core/CommandInvoker.h"
 #include "core/CoreService.h"
 #include "core/SprintBuilder.h"
 #include "core/TaskBuilder.h"
@@ -69,6 +70,7 @@ public:
     SprintStorageReaderMock sprint_storage_reader_mock;
     YearRangeReaderMock year_range_reader_mock;
     SprintDistributionReaderMock sprint_distribution_reader_mock;
+    core::CommandInvoker command_invoker;
 
     Core::CoreService coreService{sprint_storage_reader_mock,
                                   sprint_storage_writer_mock,
@@ -77,7 +79,8 @@ public:
                                   task_storage_writer_mock,
                                   sprint_distribution_reader_mock,
                                   sprint_distribution_reader_mock,
-                                  sprint_distribution_reader_mock};
+                                  sprint_distribution_reader_mock,
+                                  command_invoker};
 };
 
 TEST_F(CoreServiceFixture, registers_sprint_and_increments_tasks_sprints)
@@ -285,3 +288,8 @@ TEST_F(CoreServiceFixture, undo_edit_tag)
         .Times(1);
     coreService.undoLast();
 }
+
+// TEST_F(CoreServiceFixture, register_task_priorities) {
+//     EXPECT_CALL(task_storage_writer_mock, updatePriorities())
+//
+// }

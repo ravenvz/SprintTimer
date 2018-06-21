@@ -45,7 +45,8 @@ public:
                 ITaskStorageWriter& taskStorageWriter,
                 ISprintDistributionReader& sprintDailyDistributionReader,
                 ISprintDistributionReader& sprintWeeklyDistributionReader,
-                ISprintDistributionReader& sprintMonthlyDistributionReader);
+                ISprintDistributionReader& sprintMonthlyDistributionReader,
+                core::CommandInvoker& invoker);
 
     void registerTask(const Task& task) final;
 
@@ -112,6 +113,8 @@ public:
 
     void undoLast() final;
 
+    void registerUndoObserver(core::Observer& observer) final;
+
 private:
     ISprintStorageReader& sprintReader;
     ISprintStorageWriter& sprintWriter;
@@ -121,8 +124,8 @@ private:
     ISprintDistributionReader& sprintDailyDistributionReader;
     ISprintDistributionReader& sprintWeeklyDistributionReader;
     ISprintDistributionReader& sprintMonthlyDistributionReader;
+    core::CommandInvoker& invoker;
     core::QueryExecutor query_invoker;
-    core::CommandInvoker invoker;
 };
 
 } // namespace Core
