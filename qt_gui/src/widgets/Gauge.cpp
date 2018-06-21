@@ -22,7 +22,7 @@
 #include "Gauge.h"
 #include <QPainter>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 namespace GaugeColors {
@@ -207,5 +207,5 @@ void WorkProgressNone::draw(const Gauge& gauge, QPainter& painter)
     painter.drawEllipse(gauge.outerRect);
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

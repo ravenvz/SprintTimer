@@ -27,7 +27,7 @@
 #include <QWidget>
 #include <vector>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 using dw::TimeSpan;
 
@@ -70,7 +70,7 @@ private:
     void drawIntervals(QPainter& painter);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: TIMEDIAGRAM_H */

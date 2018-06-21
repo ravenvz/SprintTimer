@@ -27,6 +27,8 @@
 #include <functional>
 #include <thread>
 
+namespace sprint_timer {
+
 /* Countdown timer that runs in background thread
  * and executes callback function each tick. */
 class CountdownTimer {
@@ -60,5 +62,7 @@ private:
 
     void start();
 };
+
+} // namespace sprint_timer
 
 #endif

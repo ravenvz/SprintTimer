@@ -26,8 +26,9 @@
 #include <QPainter>
 #include <fstream>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
+using namespace entities;
 
 namespace {
 
@@ -214,14 +215,14 @@ void DisplaySprints::exportData(const ExportDialog::ExportOptions& options)
     ss << options.path << "/Sprints "
        << historyView.selectedDateInterval.toTimeSpan().toString("dd.MM.yyyy")
        << ".csv";
-    using namespace ExternalIO;
+    using namespace external_io;
     auto filePath = ss.str();
     auto out = std::make_shared<std::ofstream>(filePath);
     auto sink = std::make_shared<OstreamSink>(out);
     auto serializeSprint = [](const Sprint& sprint) {
         std::vector<std::string> str;
         auto tags = sprint.tags();
-        str.emplace_back(StringUtils::join(cbegin(tags), cend(tags), ", "));
+        str.emplace_back(utils::join(cbegin(tags), cend(tags), ", "));
         str.emplace_back(sprint.timeSpan().toString("hh:MM"));
         str.emplace_back(sprint.name());
         str.emplace_back(sprint.taskUuid());
@@ -229,7 +230,7 @@ void DisplaySprints::exportData(const ExportDialog::ExportOptions& options)
         return str;
     };
     auto func = [serializeSprint](const auto& sprints) {
-        CSV::CSVEncoder encoder;
+        utils::CSVEncoder encoder;
         return encoder.encode(sprints, serializeSprint);
     };
     historyView.coreService.exportSprints(
@@ -268,14 +269,14 @@ void DisplayTasks::exportData(const ExportDialog::ExportOptions& options)
     ss << options.path << "/Tasks "
        << historyView.selectedDateInterval.toTimeSpan().toString("dd.MM.yyyy")
        << ".csv";
-    using namespace ExternalIO;
+    using namespace external_io;
     auto filePath = ss.str();
     auto out = std::make_shared<std::ofstream>(filePath);
     auto sink = std::make_shared<OstreamSink>(out);
     auto serializeTask = [](const Task& task) {
         std::vector<std::string> str;
         auto tags = task.tags();
-        str.emplace_back(StringUtils::join(cbegin(tags), cend(tags), ", "));
+        str.emplace_back(utils::join(cbegin(tags), cend(tags), ", "));
         str.emplace_back(task.name());
         str.emplace_back(task.uuid());
         str.emplace_back(std::to_string(task.isCompleted()));
@@ -284,7 +285,7 @@ void DisplayTasks::exportData(const ExportDialog::ExportOptions& options)
         return str;
     };
     auto func = [serializeTask](const auto& tasks) {
-        CSV::CSVEncoder encoder;
+        utils::CSVEncoder encoder;
         return encoder.encode(tasks, serializeTask);
     };
     historyView.coreService.exportTasks(
@@ -309,4 +310,4 @@ void DisplayTasks::onHistoryRetrieved(const std::vector<Task>& tasks)
     historyView.setHistoryModel(historyView.ui->taskHistoryView);
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

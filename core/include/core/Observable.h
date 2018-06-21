@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace core {
+namespace sprint_timer {
 
 class Observable {
 public:
@@ -29,6 +29,6 @@ protected:
     std::vector<Observer*> observers;
 };
 
-} // namespace core
+} // namespace sprint_timer
 
 #endif /* end of include guard: OBSERVABLE_H_3WZLFBZN */

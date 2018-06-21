@@ -27,7 +27,7 @@
 #include "utils/MouseRightReleaseEater.h"
 #include <QMenu>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 SprintOutline::SprintOutline(ICoreService& coreService,
                              IConfig& applicationSettings,
@@ -125,4 +125,4 @@ void SprintOutline::adjustUndoButtonState()
     ui->pbUndo->setEnabled(coreService.numRevertableCommands() != 0);
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

@@ -20,8 +20,10 @@
 **
 *********************************************************************************/
 #include "core/entities/Sprint.h"
-#include "core/StringUtils.h"
+#include "core/utils/StringUtils.h"
 #include <algorithm>
+
+namespace sprint_timer::entities {
 
 using dw::DateTime;
 using dw::TimeSpan;
@@ -90,3 +92,5 @@ bool operator==(const Sprint& lhs, const Sprint& rhs)
         && lhs.timeSpan().finish() == rhs.timeSpan().finish()
         && lhs.tags() == rhs.tags();
 }
+
+} // namespace sprint_timer::entities

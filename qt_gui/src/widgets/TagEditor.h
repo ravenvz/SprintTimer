@@ -30,7 +30,7 @@ namespace Ui {
 class TagEditorWidget;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class TagEditor: public QWidget {
 
@@ -46,7 +46,7 @@ private:
     AsyncListModel* model;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

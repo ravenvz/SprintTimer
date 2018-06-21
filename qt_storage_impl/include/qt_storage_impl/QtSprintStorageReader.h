@@ -27,6 +27,7 @@
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
 
+namespace sprint_timer::storage::qt_storage_impl {
 
 class QtSprintStorageReader : public QObject, public ISprintStorageReader {
     Q_OBJECT
@@ -50,7 +51,7 @@ private:
     DBService& dbService;
     std::list<Handler> handler_queue;
 
-    Sprint sprintFromQSqlRecord(const QSqlRecord &record);
+    entities::Sprint sprintFromQSqlRecord(const QSqlRecord& record);
 
     QVariant columnData(const QSqlRecord& record, Columns column);
 
@@ -59,6 +60,6 @@ private slots:
                            const std::vector<QSqlRecord>& records);
 };
 
+} // namespace sprint_timer::storage::qt_storage_impl
 
 #endif /* end of include guard: QTSPRINTSTORAGEREADER_H_JXULCJ6I */
-

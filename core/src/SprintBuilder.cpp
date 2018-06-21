@@ -22,6 +22,10 @@
 
 #include "core/SprintBuilder.h"
 
+namespace sprint_timer {
+
+using namespace entities;
+
 Sprint SprintBuilder::build()
 {
     using namespace std::chrono;
@@ -87,3 +91,4 @@ SprintBuilder& SprintBuilder::withExplicitTags(const std::list<Tag>& tags)
     return *this;
 }
 
+} // namespace sprint_timer

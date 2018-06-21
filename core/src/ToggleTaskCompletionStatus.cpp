@@ -24,10 +24,10 @@
 
 using dw::DateTime;
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 ToggleTaskCompletionStatus::ToggleTaskCompletionStatus(
-    ITaskStorageWriter& taskStorageWriter, const Task& task)
+    ITaskStorageWriter& taskStorageWriter, const entities::Task& task)
     : writer{taskStorageWriter}
     , uuid{task.uuid()}
     , oldTimeStamp{task.lastModified()}
@@ -51,4 +51,4 @@ std::string ToggleTaskCompletionStatus::describe() const
     return ss.str();
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

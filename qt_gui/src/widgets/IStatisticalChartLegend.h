@@ -27,7 +27,7 @@
 #include <QFont>
 #include <QString>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 class IStatisticalChartLegend : public QWidget {
@@ -62,7 +62,7 @@ signals:
     void itemClicked(size_t index);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: ISTATISTICALCHARTLEGEND_H_BQJ9ZLKR */

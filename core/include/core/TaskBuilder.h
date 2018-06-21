@@ -26,26 +26,31 @@
 #include "core/entities/Task.h"
 #include <optional>
 
+namespace sprint_timer {
+
 class TaskBuilder {
 public:
-    Task build();
+    entities::Task build();
     TaskBuilder& withName(std::string name);
     TaskBuilder& withEstimatedCost(int cost);
     TaskBuilder& withActualCost(int cost);
     TaskBuilder& withUuid(std::string uuid);
     TaskBuilder& withTag(std::string tag);
-    TaskBuilder& withTag(Tag tag);
+    TaskBuilder& withTag(entities::Tag tag);
     TaskBuilder& withLastModificationStamp(dw::DateTime timeStamp);
-    TaskBuilder& withExplicitTags(std::list<Tag> tags);
+    TaskBuilder& withExplicitTags(std::list<entities::Tag> tags);
     TaskBuilder& withCompletionStatus(bool completed);
+
 private:
     std::string mName;
     int mEstimatedCost{1};
     int mActualCost{0};
     std::optional<std::string> mUuid;
     std::optional<dw::DateTime> mLastModified;
-    std::list<Tag> mTags;
+    std::list<entities::Tag> mTags;
     bool mCompletionStatus{false};
 };
+
+} // namespace sprint_timer
 
 #endif /* end of include guard: TASKBUILDER_H_GSWUA7WV */

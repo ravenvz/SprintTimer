@@ -27,6 +27,8 @@
 #include <QObject>
 #include <functional>
 
+namespace sprint_timer::storage::qt_storage_impl {
+
 class QtYearRangeReader : public QObject, public IYearRangeReader {
     Q_OBJECT
 
@@ -45,5 +47,6 @@ private slots:
                            const std::vector<QSqlRecord>& records);
 };
 
+} // namespace sprint_timer::storage::qt_storage_impl
 
 #endif /* end of include guard: QTYEARRANGEREADER_H_6LK9HHEM */

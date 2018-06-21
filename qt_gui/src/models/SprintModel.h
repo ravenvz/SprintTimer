@@ -27,7 +27,7 @@
 #include <memory>
 #include <vector>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class SprintModel : public AsyncListModel {
     Q_OBJECT
@@ -44,9 +44,9 @@ public:
 
     void insert(const dw::TimeSpan& timeSpan, const std::string& taskUuid);
 
-    void insert(const Sprint& sprint);
+    void insert(const entities::Sprint& sprint);
 
-    void insert(const std::vector<Sprint>& sprints);
+    void insert(const std::vector<entities::Sprint>& sprints);
 
     void remove(int row);
 
@@ -54,14 +54,13 @@ protected:
     void requestDataUpdate() final;
 
 private:
-    std::vector<Sprint> storage;
+    std::vector<entities::Sprint> storage;
     dw::TimeSpan interval;
     ICoreService& coreService;
 
-    void onDataChanged(const std::vector<Sprint>& items);
+    void onDataChanged(const std::vector<entities::Sprint>& items);
 };
 
-} // namespace qt_gui
-
+} // namespace sprint_timer::ui::qt_gui
 
 #endif /* end of include guard: SPRINTMODEL_H_MQZ2XAPI */

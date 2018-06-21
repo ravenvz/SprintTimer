@@ -23,7 +23,7 @@
 #include <QEvent>
 #include <QObject>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class MouseRightReleaseEater : public QObject {
 
@@ -36,4 +36,4 @@ protected:
     bool eventFilter(QObject* object, QEvent* event) override;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

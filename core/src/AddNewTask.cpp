@@ -22,21 +22,18 @@
 
 #include "core/use_cases/AddNewTask.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
-AddNewTask::AddNewTask(ITaskStorageWriter& taskStorageWriter, Task newTask)
+AddNewTask::AddNewTask(ITaskStorageWriter& taskStorageWriter,
+                       entities::Task newTask)
     : writer{taskStorageWriter}
     , task{std::move(newTask)}
 {
 }
 
-void AddNewTask::execute() {
-    writer.save(task);
-}
+void AddNewTask::execute() { writer.save(task); }
 
-void AddNewTask::undo() {
-    writer.remove(task);
-}
+void AddNewTask::undo() { writer.remove(task); }
 
 std::string AddNewTask::describe() const
 {
@@ -45,4 +42,4 @@ std::string AddNewTask::describe() const
     return ss.str();
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

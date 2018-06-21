@@ -19,11 +19,15 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage_impl/Database.h"
 #include "qt_storage_impl/QtSprintStorageReader.h"
+#include "qt_storage_impl/Database.h"
 #include "utils/DateTimeConverter.h"
 
-using dw::TimeSpan;
+namespace sprint_timer::storage::qt_storage_impl {
+
+using namespace dw;
+using namespace storage::utils;
+using namespace entities;
 
 QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
     : dbService{dbService}
@@ -48,18 +52,20 @@ QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
 }
 
 void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
-                                       Handler handler)
+                                         Handler handler)
 {
     handler_queue.push_back(handler);
     DateTime start = timeSpan.start();
     DateTime finish = timeSpan.finish();
 
-    dbService.bind(mQueryId,
-                   ":startTime",
-                   QVariant(QString::fromStdString(start.toString("yyyy-MM-dd"))));
-    dbService.bind(mQueryId,
-                   ":finishTime",
-                   QVariant(QString::fromStdString(finish.toString("yyyy-MM-dd"))));
+    dbService.bind(
+        mQueryId,
+        ":startTime",
+        QVariant(QString::fromStdString(start.toString("yyyy-MM-dd"))));
+    dbService.bind(
+        mQueryId,
+        ":finishTime",
+        QVariant(QString::fromStdString(finish.toString("yyyy-MM-dd"))));
 
     dbService.executePrepared(mQueryId);
 }
@@ -80,7 +86,7 @@ void QtSprintStorageReader::onResultsReceived(
     handler_queue.pop_front();
 }
 
-Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord &record)
+Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord& record)
 {
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
@@ -103,7 +109,9 @@ Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord &record)
 }
 
 QVariant QtSprintStorageReader::columnData(const QSqlRecord& record,
-                                         Columns column)
+                                           Columns column)
 {
     return record.value(static_cast<int>(column));
 }
+
+} // namespace sprint_timer::storage::qt_storage_impl

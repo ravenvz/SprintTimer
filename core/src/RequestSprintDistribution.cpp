@@ -22,7 +22,7 @@
 
 #include "core/use_cases/RequestSprintDistribution.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 RequestSprintDistribution::RequestSprintDistribution(
     ISprintDistributionReader& reader,
@@ -44,4 +44,4 @@ std::string RequestSprintDistribution::describe() const
     return "Request sprint distribution";
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

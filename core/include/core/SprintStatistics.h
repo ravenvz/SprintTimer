@@ -27,10 +27,12 @@
 #include <algorithm>
 #include <vector>
 
+namespace sprint_timer {
+
 class SprintStatItem {
 
 public:
-    SprintStatItem(const std::vector<Sprint>& sprints,
+    SprintStatItem(const std::vector<entities::Sprint>& sprints,
                    const dw::TimeSpan& timeInterval);
 
     SprintStatItem(const SprintStatItem&) = default;
@@ -43,11 +45,11 @@ public:
 
     Distribution<double> worktimeDistribution() const;
 
-    std::vector<Sprint> sprints() const;
+    std::vector<entities::Sprint> sprints() const;
 
 private:
     const dw::TimeSpan timeSpan;
-    const std::vector<Sprint> mSprints;
+    const std::vector<entities::Sprint> mSprints;
 
     std::vector<double> computeDailyDistribution() const;
 
@@ -89,5 +91,6 @@ std::string dayPartHours(unsigned dayPart);
 
 } // namespace DatePart
 
+} // namespace sprint_timer
 
 #endif // SPRINTSTATISTICS_H

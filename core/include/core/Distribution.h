@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <vector>
 
+namespace sprint_timer {
 
 template <class T>
 class Distribution {
@@ -112,5 +113,7 @@ private:
         }
     }
 };
+
+} // namespace sprint_timer
 
 #endif /* end of include guard: DISTRIBUTION_H_HG9WILUN */

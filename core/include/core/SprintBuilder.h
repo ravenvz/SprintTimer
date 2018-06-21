@@ -24,8 +24,10 @@
 #define SPRINT_TIMER_SPRINTBUILDER_H
 
 #include "core/entities/Task.h"
-#include <stdexcept>
 #include <optional>
+#include <stdexcept>
+
+namespace sprint_timer {
 
 class SprintBuilderError : public std::runtime_error {
 public:
@@ -38,23 +40,24 @@ public:
 class SprintBuilder {
 
 public:
-    Sprint build();
+    entities::Sprint build();
     SprintBuilder& withName(const std::string& name);
     SprintBuilder& withUuid(const std::string& uuid);
     SprintBuilder& withTaskUuid(const std::string& uuid);
-    SprintBuilder& withTag(const Tag& tag);
+    SprintBuilder& withTag(const entities::Tag& tag);
     SprintBuilder& withTag(const std::string& tag);
     SprintBuilder& withTimeSpan(const dw::TimeSpan& timeSpan);
-    SprintBuilder& forTask(const Task& task);
-    SprintBuilder& withExplicitTags(const std::list<Tag>& tags);
+    SprintBuilder& forTask(const entities::Task& task);
+    SprintBuilder& withExplicitTags(const std::list<entities::Tag>& tags);
 
 private:
     std::string mName;
     std::optional<std::string> mUuid;
     std::optional<std::string> mTaskUuid;
-    std::list<Tag> mTags;
+    std::list<entities::Tag> mTags;
     std::optional<dw::TimeSpan> mTimeSpan;
 };
 
+} // namespace sprint_timer
 
-#endif //SPRINT_TIMER_SPRINTBUILDER_H
+#endif // SPRINT_TIMER_SPRINTBUILDER_H

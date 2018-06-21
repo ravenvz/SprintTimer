@@ -22,7 +22,7 @@
 #include "TimeDiagram.h"
 #include <QPainter>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 TimeDiagram::TimeDiagram(QWidget* parent)
@@ -119,5 +119,5 @@ void TimeDiagram::setIntervals(std::vector<TimeSpan> newIntervals)
     update();
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

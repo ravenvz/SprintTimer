@@ -27,17 +27,20 @@
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
 
+namespace sprint_timer::storage::qt_storage_impl {
+
 class QtTaskStorageWriter : public QObject, public ITaskStorageWriter {
     Q_OBJECT
 
 public:
     explicit QtTaskStorageWriter(DBService& dbService);
 
-    void save(const Task& task) final;
+    void save(const entities::Task& task) final;
 
-    void remove(const Task& task) final;
+    void remove(const entities::Task& task) final;
 
-    void edit(const Task& task, const Task& editedTask) final;
+    void edit(const entities::Task& task,
+              const entities::Task& editedTask) final;
 
     void incrementSprints(const std::string& uuid) final;
 
@@ -63,9 +66,13 @@ private:
     qint64 updatePrioritiesQueryId{-1};
     qint64 editTagQueryId{-1};
 
-    void insertTags(const QString& taskUuid, const std::list<Tag>& tagNames);
+    void insertTags(const QString& taskUuid,
+                    const std::list<entities::Tag>& tagNames);
 
-    void removeTags(const QString& taskUuid, const std::list<Tag>& tags);
+    void removeTags(const QString& taskUuid,
+                    const std::list<entities::Tag>& tags);
 };
+
+} // namespace sprint_timer::storage::qt_storage_impl
 
 #endif /* end of include guard: QTTASKSTORAGEWRITER_H_AB4O73ZJ */

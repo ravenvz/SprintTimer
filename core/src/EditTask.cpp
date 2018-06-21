@@ -24,7 +24,9 @@
 
 using dw::DateTime;
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
+
+using namespace entities;
 
 EditTask::EditTask(ITaskStorageWriter& writer,
                    Task originalTask,
@@ -53,4 +55,4 @@ std::string EditTask::describe() const
     return ss.str();
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

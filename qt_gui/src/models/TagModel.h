@@ -27,7 +27,7 @@
 #include "models/AsyncListModel.h"
 #include <QStringListModel>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 class TagModel : public AsyncListModel {
@@ -63,7 +63,7 @@ private:
     void onDataArrived(const std::vector<std::string>& tags);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

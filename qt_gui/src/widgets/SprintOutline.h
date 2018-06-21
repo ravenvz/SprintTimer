@@ -37,9 +37,9 @@ namespace Ui {
 class SprintOutline;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
-class SprintOutline : public QWidget, public core::Observer {
+class SprintOutline : public QWidget, public Observer {
 
     Q_OBJECT
 
@@ -77,7 +77,7 @@ signals:
     void actionUndone();
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // SPRINT_TIMER_SPRINTOUTLINE_H

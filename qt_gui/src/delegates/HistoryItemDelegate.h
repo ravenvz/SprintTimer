@@ -24,7 +24,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class HistoryItemDelegate : public QStyledItemDelegate {
 public:
@@ -36,7 +36,7 @@ public:
                const QModelIndex& index) const override;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: HISTORYITEMDELEGATE_H_BST0DV1J */

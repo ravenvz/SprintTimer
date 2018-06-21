@@ -25,12 +25,12 @@
 #include "core/Command.h"
 #include "core/ITaskStorageWriter.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class ToggleTaskCompletionStatus : public Command {
 public:
     ToggleTaskCompletionStatus(ITaskStorageWriter& taskStorageWriter,
-                               const Task& task);
+                               const entities::Task& task);
 
     void execute() final;
 
@@ -44,6 +44,6 @@ private:
     const dw::DateTime oldTimeStamp;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: TOGGLETASKCOMPLETEDCOMMAND_H_CAT08NRT */

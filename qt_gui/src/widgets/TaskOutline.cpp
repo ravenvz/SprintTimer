@@ -28,7 +28,9 @@
 #include "utils/WidgetUtils.h"
 #include <QMenu>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
+
+using namespace entities;
 
 TaskOutline::TaskOutline(ICoreService& coreService,
                          TaskModel* taskModel,
@@ -173,4 +175,4 @@ void TaskOutline::launchTaskEditor()
     }
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

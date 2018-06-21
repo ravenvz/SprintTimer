@@ -25,7 +25,7 @@
 
 #include <algorithm>
 
-namespace utils {
+namespace sprint_timer::utils {
 
 template <typename T>
 auto slide(T first, T last, T position) -> std::pair<T, T>
@@ -37,6 +37,6 @@ auto slide(T first, T last, T position) -> std::pair<T, T>
     return {first, last};
 }
 
-} // namespace utils
+} // namespace sprint_timer::utils
 
 #endif /* end of include guard: ALGUTILS_H_VLSTK4ZL */

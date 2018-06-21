@@ -29,6 +29,8 @@
 #include <ostream>
 #include <string>
 
+namespace sprint_timer::entities {
+
 /* Represents Sprint concept.
  *
  * Sprint is an n-minute time interval that is associated with
@@ -85,5 +87,7 @@ private:
 };
 
 bool operator==(const Sprint& lhs, const Sprint& rhs);
+
+} // namespace sprint_timer::entities
 
 #endif // SPRINT_H_XWNOT32M

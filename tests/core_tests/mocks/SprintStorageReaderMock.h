@@ -4,10 +4,11 @@
 #include <core/ISprintStorageReader.h>
 #include <gmock/gmock.h>
 
-class SprintStorageReaderMock : public ISprintStorageReader {
+class SprintStorageReaderMock : public sprint_timer::ISprintStorageReader {
 public:
     MOCK_METHOD2(requestItems,
-                 void(const dw::TimeSpan&, ISprintStorageReader::Handler));
+                 void(const dw::TimeSpan&,
+                      sprint_timer::ISprintStorageReader::Handler));
 };
 
 #endif /* end of include guard: SPRINTSTORAGEREADERMOCK_H_VCWBUOSQ */

@@ -24,15 +24,14 @@
 #include "core/StatefulTimer.h"
 #include <QMessageBox>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
                                  QWidget* parent)
     : QWidget{parent}
     , applicationSettings{applicationSettings}
-    , currentState{SprintTimerCore::IStatefulTimer::StateId::IdleEntered}
+    , currentState{IStatefulTimer::StateId::IdleEntered}
 {
-    using namespace SprintTimerCore;
     timer = std::make_unique<StatefulTimer>(
         [this](auto timeLeft) { this->onTimerTick(timeLeft); },
         [this](auto state) { this->onTimerStateChanged(state); },
@@ -40,8 +39,8 @@ TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
         applicationSettings);
 
     qRegisterMetaType<std::chrono::seconds>("std::chrono::seconds");
-    qRegisterMetaType<SprintTimerCore::IStatefulTimer::StateId>(
-        "SprintTimerCore::IStatefulTimer::StateId");
+    qRegisterMetaType<IStatefulTimer::StateId>(
+        "IStatefulTimer::StateId");
 
     connect(player.get(),
             static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
@@ -64,7 +63,7 @@ void TimerWidgetBase::onTimerTick(std::chrono::seconds timeLeft)
 }
 
 void TimerWidgetBase::onTimerStateChanged(
-    SprintTimerCore::IStatefulTimer::StateId state)
+    IStatefulTimer::StateId state)
 {
     emit stateChanged(state);
 }
@@ -75,9 +74,8 @@ void TimerWidgetBase::onTimerUpdated(std::chrono::seconds timeLeft)
 }
 
 void TimerWidgetBase::onStateChanged(
-    SprintTimerCore::IStatefulTimer::StateId state)
+    IStatefulTimer::StateId state)
 {
-    using namespace SprintTimerCore;
     currentState = state;
     switch (state) {
     case IStatefulTimer::StateId::SprintEntered:
@@ -141,7 +139,6 @@ void TimerWidgetBase::startTask() { timer->start(); }
 
 void TimerWidgetBase::cancelTask()
 {
-    using namespace SprintTimerCore;
     ConfirmationDialog cancelDialog;
     QString description("This will destroy current sprint!");
     cancelDialog.setActionDescription(description);
@@ -162,7 +159,7 @@ void TimerWidgetBase::requestSubmission()
 
 void TimerWidgetBase::playSound() const
 {
-    if (currentState == SprintTimerCore::IStatefulTimer::StateId::ZoneEntered
+    if (currentState == IStatefulTimer::StateId::ZoneEntered
         || !applicationSettings.soundIsEnabled()) {
         return;
     }
@@ -193,4 +190,4 @@ QString TimerWidgetBase::timerValueToText(std::chrono::seconds timeLeft)
         QString::number(sec.count()).rightJustified(2, '0'));
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

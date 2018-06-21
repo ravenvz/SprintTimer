@@ -26,8 +26,8 @@
 #include "core/entities/Sprint.h"
 #include "date_wrapper/TimeSpan.h"
 #include <algorithm>
-#include <unordered_map>
 #include <optional>
+#include <unordered_map>
 
 
 template <class Entity>
@@ -52,20 +52,23 @@ public:
         }
     }
 
-    bool itemLiesInRange(const dw::TimeSpan& timeSpan, const Sprint& item)
+    bool itemLiesInRange(const dw::TimeSpan& timeSpan,
+                         const sprint_timer::entities::Sprint& item)
     {
-        return (timeSpan.start() <= item.startTime() &&
-                item.startTime() <= timeSpan.finish());
+        return (timeSpan.start() <= item.startTime()
+                && item.startTime() <= timeSpan.finish());
     }
 
-    bool itemLiesInRange(const dw::TimeSpan& timeSpan, const Task& item)
+    bool itemLiesInRange(const dw::TimeSpan& timeSpan,
+                         const sprint_timer::entities::Task& item)
     {
-        return (timeSpan.start() <= item.lastModified() &&
-                item.lastModified() <= timeSpan.finish());
+        return (timeSpan.start() <= item.lastModified()
+                && item.lastModified() <= timeSpan.finish());
     }
 
-    void itemsInTimeRange(const dw::TimeSpan& timeSpan,
-                          std::function<void(const std::vector<Entity>&)> callback)
+    void
+    itemsInTimeRange(const dw::TimeSpan& timeSpan,
+                     std::function<void(const std::vector<Entity>&)> callback)
     {
         std::vector<Entity> items;
         for (const auto& item : storage) {
@@ -75,9 +78,11 @@ public:
         callback(items);
     }
 
-    void requestUnfinishedItems(std::function<void(const std::vector<Task>&)> callback)
+    void requestUnfinishedItems(
+        std::function<void(const std::vector<sprint_timer::entities::Task>&)>
+            callback)
     {
-        std::vector<Task> unfinished;
+        std::vector<sprint_timer::entities::Task> unfinished;
         for (const auto& item : storage) {
             if (!item.second.isCompleted())
                 unfinished.push_back(item.second);
@@ -87,9 +92,9 @@ public:
 
     void requestDailyDistribution(
         const dw::TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> callback)
+        std::function<void(const sprint_timer::Distribution<int>&)> callback)
     {
-        Distribution<int> emptyDistribution{0};
+        sprint_timer::Distribution<int> emptyDistribution{0};
         callback(emptyDistribution);
     }
 
@@ -98,12 +103,13 @@ public:
         for (const auto& pair : storage) {
             for (const auto& tag : pair.second.tags()) {
                 if (tag.name() == oldName) {
-                    std::list<Tag> oldTags = pair.second.tags();
+                    auto oldTags = pair.second.tags();
                     oldTags.remove_if([&](const auto& elem) {
                         return elem.name() == oldName;
                     });
                     std::string newNameCopy{newName};
-                    oldTags.push_back(Tag{std::move(newNameCopy)});
+                    oldTags.push_back(
+                        sprint_timer::entities::Tag{std::move(newNameCopy)});
                     storage.at(pair.first).setTags(oldTags);
                 }
             }

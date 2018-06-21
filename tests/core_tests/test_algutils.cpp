@@ -24,9 +24,11 @@
 // Workaround for C++17 as std::tr1 no longer available and Gtest uses it
 #define GTEST_LANG_CXX11 1
 
-#include "core/StringUtils.h"
+#include "core/utils/StringUtils.h"
 #include "gtest/gtest.h"
 #include <core/utils/Algutils.h>
+
+using namespace sprint_timer::utils;
 
 class AlgutilsFixture : public ::testing::Test {
 public:
@@ -37,7 +39,7 @@ TEST_F(AlgutilsFixture, sliding_one_element_to_one_pos_to_the_right)
 {
     std::vector<int> expected{1, 3, 2, 4, 5, 6, 7, 8, 9, 10};
 
-    auto p = utils::slide(data.begin() + 1, data.begin() + 2, data.begin() + 3);
+    auto p = slide(data.begin() + 1, data.begin() + 2, data.begin() + 3);
 
     EXPECT_EQ(data.begin() + 2, p.first);
     EXPECT_EQ(data.begin() + 3, p.second);
@@ -48,7 +50,7 @@ TEST_F(AlgutilsFixture, sliding_single_element_to_the_right)
 {
     std::vector<int> expected{1, 3, 4, 2, 5, 6, 7, 8, 9, 10};
 
-    auto p = utils::slide(data.begin() + 1, data.begin() + 2, data.begin() + 4);
+    auto p = slide(data.begin() + 1, data.begin() + 2, data.begin() + 4);
 
     EXPECT_EQ(data.begin() + 3, p.first);
     EXPECT_EQ(data.begin() + 4, p.second);
@@ -59,8 +61,7 @@ TEST_F(AlgutilsFixture, sliding_last_element_to_the_right)
 {
     std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    auto p
-        = utils::slide(data.begin() + 9, data.begin() + 10, data.begin() + 10);
+    auto p = slide(data.begin() + 9, data.begin() + 10, data.begin() + 10);
 
     EXPECT_EQ(data.begin() + 9, p.first);
     EXPECT_EQ(data.begin() + 10, p.second);
@@ -71,7 +72,7 @@ TEST_F(AlgutilsFixture, sliding_single_element_to_the_left)
 {
     std::vector<int> expected{1, 9, 2, 3, 4, 5, 6, 7, 8, 10};
 
-    auto p = utils::slide(data.begin() + 8, data.begin() + 9, data.begin() + 1);
+    auto p = slide(data.begin() + 8, data.begin() + 9, data.begin() + 1);
 
     EXPECT_EQ(data.begin() + 1, p.first);
     EXPECT_EQ(data.begin() + 2, p.second);
@@ -82,7 +83,7 @@ TEST_F(AlgutilsFixture, sliding_first_element_to_the_left)
 {
     std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    auto p = utils::slide(data.begin(), data.begin() + 1, data.begin());
+    auto p = slide(data.begin(), data.begin() + 1, data.begin());
 
     EXPECT_EQ(data.begin(), p.first);
     EXPECT_EQ(data.begin() + 1, p.second);
@@ -94,7 +95,7 @@ TEST_F(AlgutilsFixture, sliding_group_of_elements_to_the_right)
     // std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     std::vector<int> expected{1, 2, 6, 7, 8, 9, 3, 4, 5, 10};
 
-    auto p = utils::slide(data.begin() + 2, data.begin() + 5, data.begin() + 9);
+    auto p = slide(data.begin() + 2, data.begin() + 5, data.begin() + 9);
 
     EXPECT_EQ(data.begin() + 6, p.first);
     EXPECT_EQ(data.begin() + 9, p.second);
@@ -106,7 +107,7 @@ TEST_F(AlgutilsFixture, sliding_group_of_elements_to_the_left)
 {
     std::vector<int> expected{1, 7, 8, 9, 2, 3, 4, 5, 6, 10};
 
-    auto p = utils::slide(data.begin() + 6, data.begin() + 9, data.begin() + 1);
+    auto p = slide(data.begin() + 6, data.begin() + 9, data.begin() + 1);
 
     EXPECT_EQ(data.begin() + 1, p.first);
     EXPECT_EQ(data.begin() + 4, p.second);
@@ -117,7 +118,7 @@ TEST_F(AlgutilsFixture, sliding_segment_inside_itself_does_nothing)
 {
     std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    auto p = utils::slide(data.begin() + 1, data.begin() + 4, data.begin() + 1);
+    auto p = slide(data.begin() + 1, data.begin() + 4, data.begin() + 1);
 
     EXPECT_EQ(data.begin() + 1, p.first);
     EXPECT_EQ(data.begin() + 4, p.second);

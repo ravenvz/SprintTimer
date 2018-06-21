@@ -39,7 +39,7 @@ class HistoryWindow;
 } // namespace Ui
 
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 class DisplayState;
@@ -117,7 +117,7 @@ public:
 
 private:
     /* Assumes that sprints are sorted by start time. */
-    void onHistoryRetrieved(const std::vector<Sprint>& sprints);
+    void onHistoryRetrieved(const std::vector<entities::Sprint>& sprints);
 };
 
 class DisplayTasks : public DisplayState {
@@ -130,10 +130,10 @@ public:
 
 private:
     /* Assumes that tasks are sorted by timestamp */
-    void onHistoryRetrieved(const std::vector<Task>& tasks);
+    void onHistoryRetrieved(const std::vector<entities::Task>& tasks);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // HISTORY_VIEW_H

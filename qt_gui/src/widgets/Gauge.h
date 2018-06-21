@@ -26,7 +26,7 @@
 #include <QWidget>
 #include <memory>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 class HoverState;
@@ -121,7 +121,7 @@ public:
     void draw(const Gauge& gauge, QPainter& painter) final;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif

@@ -22,11 +22,13 @@
 #ifndef TAG_H_6HD0W9PY
 #define TAG_H_6HD0W9PY
 
-#include "core/StringUtils.h"
+#include "core/utils/StringUtils.h"
 #include <algorithm>
 #include <ostream>
 #include <string>
 #include <vector>
+
+namespace sprint_timer::entities {
 
 class Tag {
 public:
@@ -70,14 +72,16 @@ std::string prefixTags(const TagContainer& tags)
                    tags.cend(),
                    std::back_inserter(prefixedTags),
                    [](const auto& tag) { return tag.nameWithPrefix(); });
-    return StringUtils::join(prefixedTags.cbegin(), prefixedTags.cend(), " ");
+    return utils::join(prefixedTags.cbegin(), prefixedTags.cend(), " ");
 }
+
+} // namespace sprint_timer::entities
 
 namespace std {
 
 template <>
-struct hash<Tag> {
-    size_t operator()(const Tag& tag) const
+struct hash<sprint_timer::entities::Tag> {
+    size_t operator()(const sprint_timer::entities::Tag& tag) const
     {
         return std::hash<std::string>()(tag.name());
     }

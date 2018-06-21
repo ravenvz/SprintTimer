@@ -29,7 +29,7 @@ namespace Ui {
 class DateRangePickDialog;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class DateRangePickDialog : public QDialog {
     Q_OBJECT
@@ -46,7 +46,7 @@ private:
     void updateCalendarDates(DateInterval& period);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // DATEPICKDIALOG_H

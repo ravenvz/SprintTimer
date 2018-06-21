@@ -22,7 +22,7 @@
 
 #include "core/use_cases/RequestAllTags.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 RequestAllTags::RequestAllTags(ITaskStorageReader& taskStorageReader,
                                QueryResultHandler handler)
@@ -35,4 +35,4 @@ void RequestAllTags::execute() { reader.requestAllTags(handler_); }
 
 std::string RequestAllTags::describe() const { return "Request all tags"; }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

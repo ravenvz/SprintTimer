@@ -40,7 +40,7 @@ namespace Ui {
 class TaskOutline;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 /* Responsible for providing user interface for interactive
  * task management, so that user could view current unfinished
@@ -85,7 +85,7 @@ private slots:
     void addNewTask();
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // TASKOUTLINE_H

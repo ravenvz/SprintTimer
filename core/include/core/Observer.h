@@ -1,7 +1,7 @@
 #ifndef OBSERVER_H_GTZ5CZ1I
 #define OBSERVER_H_GTZ5CZ1I
 
-namespace core {
+namespace sprint_timer {
 
 class Observer {
 public:
@@ -9,6 +9,6 @@ public:
     virtual void update() = 0;
 };
 
-} // namespace core
+} // namespace sprint_timer
 
 #endif /* end of include guard: OBSERVER_H_GTZ5CZ1I */

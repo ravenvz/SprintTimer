@@ -22,8 +22,11 @@
 #include "core/SprintStatistics.h"
 #include <numeric>
 
+namespace sprint_timer {
+
 using dw::TimeSpan;
 using dw::DateTime;
+using entities::Sprint;
 
 namespace {
 
@@ -193,3 +196,5 @@ std::string dayPartHours(unsigned dayPart)
 }
 
 } // namespace DayPart
+
+} // namespace sprint_timer

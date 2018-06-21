@@ -24,7 +24,7 @@
 #include "ui_default_timer.h"
 #include "utils/WidgetUtils.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 namespace {
     constexpr char const* workgoalMetStyleSheet{"QLabel { color: green; }"};
@@ -161,4 +161,4 @@ void DefaultTimer::updateIndication(std::chrono::seconds timeLeft)
     ui->progressBar->repaint();
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

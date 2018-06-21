@@ -24,7 +24,9 @@
 #include "ui_statistics_window.h"
 #include "widgets/BarChart.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
+
+using namespace entities;
 
 StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
                                    ICoreService& coreService,
@@ -130,4 +132,4 @@ void StatisticsWindow::onTagSelected(size_t tagIndex)
     drawGraphs();
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

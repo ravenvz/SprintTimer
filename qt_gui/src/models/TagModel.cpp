@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "models/TagModel.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 TagModel::TagModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel{parent}
@@ -101,5 +101,5 @@ void TagModel::onDataArrived(const std::vector<std::string>& tags)
     broadcastUpdateFinished();
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

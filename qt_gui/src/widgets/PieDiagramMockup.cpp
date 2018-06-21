@@ -22,7 +22,7 @@
 #include <iostream>
 #include "PieDiagramMockup.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 DistributionDiagramMockup::DistributionDiagramMockup(QWidget* parent)
@@ -49,5 +49,5 @@ void DistributionDiagramMockup::togglePartActive(size_t partIndex)
 //     std::cout << "Selection has been changed" << std::endl;
 // }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

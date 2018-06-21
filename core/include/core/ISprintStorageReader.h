@@ -25,14 +25,16 @@
 #include "core/entities/Sprint.h"
 #include <functional>
 
+namespace sprint_timer {
 
 class ISprintStorageReader {
 public:
-    using Items = std::vector<Sprint>;
+    using Items = std::vector<entities::Sprint>;
     using Handler = std::function<void(const Items&)>;
     virtual ~ISprintStorageReader() = default;
     virtual void requestItems(const dw::TimeSpan& timeSpan, Handler handler) = 0;
 };
 
+} // namespace sprint_timer
 
 #endif /* end of include guard: ISPRINTSTORAGEREADER_H_UJ8CZPXS */

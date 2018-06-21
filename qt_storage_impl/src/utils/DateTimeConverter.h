@@ -25,6 +25,9 @@
 #include "date_wrapper/DateTime.h"
 #include <QDateTime>
 
+// TODO move to include/utils
+namespace sprint_timer::storage::utils {
+
 using dw::DateTime;
 
 /* Simplifies convertion between QDateTime and DateTime. */
@@ -43,5 +46,7 @@ public:
         return DateTime::fromTime_t(qdt.toTime_t(), qdt.offsetFromUtc());
     }
 };
+
+} // namespace sprint_timer::storage::utils
 
 #endif /* end of include guard: DATETIMECONVERTER_H_Y4Z1XDHQ */

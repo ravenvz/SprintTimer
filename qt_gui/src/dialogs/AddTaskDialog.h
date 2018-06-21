@@ -32,7 +32,7 @@ namespace Ui {
 class AddTaskDialog;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 /* Provides front end to create or edit Task. */
 class AddTaskDialog : public QDialog {
@@ -50,10 +50,10 @@ public:
     void accept() override;
 
     /* Return Task constructed from data in UI elements. */
-    Task constructedTask();
+    entities::Task constructedTask();
 
     /* Corresponding UI elements are filled with data from given Task. */
-    void fillItemData(const Task& item);
+    void fillItemData(const entities::Task& item);
 
 private slots:
     /* Append tag to string of tags when selected from drop-down menu. */
@@ -70,7 +70,7 @@ private:
     void setTagsModel();
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: ADDTASKDIALOG_H_TBSYZEDZ */

@@ -24,7 +24,7 @@
 
 #include <string>
 
-namespace core {
+namespace sprint_timer {
 
 class Command {
 public:
@@ -37,7 +37,7 @@ public:
     virtual std::string describe() const = 0;
 };
 
-} // namespace core
+} // namespace sprint_timer
 
 class Command {
 public:

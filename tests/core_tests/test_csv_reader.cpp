@@ -30,7 +30,7 @@
 #include <sstream>
 #include "gtest/gtest.h"
 
-using namespace CSV;
+using namespace sprint_timer::utils;
 
 namespace {
 // TODO obviously, this should be handled outside of source code

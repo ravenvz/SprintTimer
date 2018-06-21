@@ -23,7 +23,7 @@
 
 using dw::TimeSpan;
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 RequestTasks::RequestTasks(ITaskStorageReader& taskStorageReader,
                            TimeSpan timeSpan,
@@ -43,4 +43,4 @@ std::string RequestTasks::describe() const
     return ss.str();
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

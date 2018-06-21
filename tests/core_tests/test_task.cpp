@@ -27,6 +27,7 @@
 #include "core/entities/Task.h"
 #include "gtest/gtest.h"
 
+using namespace sprint_timer::entities;
 using dw::DateTime;
 
 TEST(TestTask, constructs_task_from_string_description_where_all_parts_present)

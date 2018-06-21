@@ -39,6 +39,8 @@
 using dw::DateTime;
 using dw::TimeSpan;
 using ::testing::_;
+using namespace sprint_timer;
+using namespace sprint_timer::entities;
 
 // TODO remove when DateWrapper implements equality
 namespace dw {
@@ -70,9 +72,9 @@ public:
     SprintStorageReaderMock sprint_storage_reader_mock;
     YearRangeReaderMock year_range_reader_mock;
     SprintDistributionReaderMock sprint_distribution_reader_mock;
-    core::CommandInvoker command_invoker;
+    CommandInvoker command_invoker;
 
-    Core::CoreService coreService{sprint_storage_reader_mock,
+    CoreService coreService{sprint_storage_reader_mock,
                                   sprint_storage_writer_mock,
                                   year_range_reader_mock,
                                   task_storage_reader_mock,

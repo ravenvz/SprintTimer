@@ -22,10 +22,10 @@
 
 #include "core/use_cases/DeleteTask.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 DeleteTask::DeleteTask(ITaskStorageWriter& taskStorageWriter,
-                       Task taskToRemove)
+                       entities::Task taskToRemove)
     : writer{taskStorageWriter}
     , task{std::move(taskToRemove)}
 {
@@ -42,4 +42,4 @@ std::string DeleteTask::describe() const
     return ss.str();
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

@@ -22,7 +22,7 @@
 
 #include "core/use_cases/RenameTag.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 RenameTag::RenameTag(ITaskStorageWriter& tagStorageWriter,
                      std::string oldName,
@@ -44,4 +44,4 @@ std::string RenameTag::describe() const
     return ss.str();
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

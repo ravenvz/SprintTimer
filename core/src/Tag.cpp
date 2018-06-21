@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "core/entities/Tag.h"
 
+namespace sprint_timer::entities {
 
 Tag::Tag(std::string name)
     : aName{std::move(name)}
@@ -46,3 +47,6 @@ std::ostream& operator<<(std::ostream& os, const Tag& tag)
     os << tag.aName;
     return os;
 }
+
+} // namespace sprint_timer::entities
+

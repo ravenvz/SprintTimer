@@ -29,6 +29,8 @@
 #include "core/TagTop.h"
 #include "gtest/gtest.h"
 
+using namespace sprint_timer;
+using namespace sprint_timer::entities;
 using namespace std::chrono_literals;
 using dw::DateTime;
 using dw::TimeSpan;

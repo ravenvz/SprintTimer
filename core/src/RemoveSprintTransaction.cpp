@@ -22,10 +22,10 @@
 
 #include "core/use_cases/RemoveSprintTransaction.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
-RemoveSprintTransaction::RemoveSprintTransaction(ISprintStorageWriter& writer,
-                                                 Sprint sprintToRemove)
+RemoveSprintTransaction::RemoveSprintTransaction(
+    ISprintStorageWriter& writer, entities::Sprint sprintToRemove)
     : writer{writer}
     , sprint{std::move(sprintToRemove)}
 {
@@ -42,4 +42,4 @@ std::string RemoveSprintTransaction::describe() const
     return ss.str();
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

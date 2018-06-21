@@ -23,16 +23,14 @@
 #ifndef SPRINT_TIMER_CSVWRITER_H
 #define SPRINT_TIMER_CSVWRITER_H
 
+#include "core/entities/Sprint.h"
+#include "core/external_io/IDataExporter.h"
+#include <memory>
 #include <ostream>
 #include <string>
 #include <vector>
-#include <memory>
-#include "core/entities/Sprint.h"
-#include "core/external_io/IDataExporter.h"
 
-namespace ExternalIO {
-
-namespace CSV {
+namespace sprint_timer::utils {
 
 class CSVEncoder {
 public:
@@ -62,8 +60,6 @@ private:
     void writeValue(const std::string& value);
 };
 
-} // namespace CSV
-
-} // namespace ExternalIO
+} // namespace sprint_timer::utils
 
 #endif // SPRINT_TIMER_CSVWRITER_H

@@ -43,7 +43,7 @@
     </widget>
    </item>
    <item>
-    <widget class="qt_gui::ReordableListView" name="lvTaskView">
+    <widget class="sprint_timer::ui::qt_gui::ReordableListView" name="lvTaskView">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -156,7 +156,7 @@ QListView::item {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>qt_gui::ReordableListView</class>
+   <class>sprint_timer::ui::qt_gui::ReordableListView</class>
    <extends>QListView</extends>
    <header>widgets/ReordableListView.h</header>
   </customwidget>

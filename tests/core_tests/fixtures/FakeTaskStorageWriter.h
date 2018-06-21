@@ -25,38 +25,45 @@
 #include "FakeStorage.h"
 #include "core/ITaskStorageWriter.h"
 
-class FakeTaskStorageWriter : public ITaskStorageWriter {
+class FakeTaskStorageWriter : public sprint_timer::ITaskStorageWriter {
 public:
-    FakeTaskStorageWriter(FakeStorage<Task>& storage)
+    FakeTaskStorageWriter(FakeStorage<sprint_timer::entities::Task>& storage)
         : storage{storage}
     {
     }
 
-    void save(const Task& task) final { storage.store(task); }
+    void save(const sprint_timer::entities::Task& task) final
+    {
+        storage.store(task);
+    }
 
-    void remove(const Task& task) final { storage.remove(task.uuid()); }
+    void remove(const sprint_timer::entities::Task& task) final
+    {
+        storage.remove(task.uuid());
+    }
 
-    void edit(const Task& task, const Task& editedTask) final
+    void edit(const sprint_timer::entities::Task& task,
+              const sprint_timer::entities::Task& editedTask) final
     {
         storage.itemRef(task.uuid()) = editedTask;
     }
 
     void incrementSprints(const std::string& uuid) final
     {
-        Task& item = storage.itemRef(uuid);
+        sprint_timer::entities::Task& item = storage.itemRef(uuid);
         item.setActualCost(item.actualCost() + 1);
     }
 
     void decrementSprints(const std::string& uuid) final
     {
-        Task& item = storage.itemRef(uuid);
+        sprint_timer::entities::Task& item = storage.itemRef(uuid);
         item.setActualCost(item.actualCost() - 1);
     }
 
     void toggleTaskCompletionStatus(const std::string& uuid,
                                     const dw::DateTime& timeStamp) final
     {
-        Task& taskRef = storage.itemRef(uuid);
+        sprint_timer::entities::Task& taskRef = storage.itemRef(uuid);
         taskRef.setCompleted(!taskRef.isCompleted());
         taskRef.setModifiedTimeStamp(timeStamp);
     }
@@ -68,7 +75,7 @@ public:
         storage.editTag(oldName, newName);
     }
 
-    FakeStorage<Task>& storage;
+    FakeStorage<sprint_timer::entities::Task>& storage;
 };
 
 #endif /* end of include guard: FAKETASKSTORAGEWRITER_H_L9TXWRHX */

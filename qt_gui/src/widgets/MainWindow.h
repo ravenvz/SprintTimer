@@ -44,7 +44,7 @@ namespace Ui {
 class MainWindow;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class ExpansionState;
 
@@ -141,7 +141,7 @@ public:
     void toggleMenu(MainWindow& widget) override;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // MAINWINDOW_H

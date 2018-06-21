@@ -26,8 +26,7 @@
 #include <memory>
 #include <sstream>
 
-namespace CSV {
-
+namespace sprint_timer::utils {
 
 StreamReadError::StreamReadError(const std::string& message)
     : std::runtime_error{message}
@@ -161,5 +160,4 @@ void ParseQuotedValue::parseChar(CSVReader& reader, char ch)
     }
 }
 
-
-} // namespace ExternalIO
+} // namespace sprint_timer::utils

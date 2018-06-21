@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace StringUtils {
+namespace sprint_timer::utils {
 
 template <class ForwardIterator>
 std::string join(ForwardIterator first,
@@ -79,6 +79,6 @@ bool startsWith(const std::string& str, const std::string& start);
 
 bool endsWith(const std::string& str, const std::string& end);
 
-} // namespace StringUtils
+} // namespace sprint_timer::utils
 
 #endif /* end of include guard: STRINGUTILS_H_Y89VODRG */

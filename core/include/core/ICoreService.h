@@ -32,27 +32,29 @@
 
 // TODO this interface should be torn apart
 
+namespace sprint_timer {
+
 class ICoreService {
 public:
-    using TaskResultHandler = std::function<void(const std::vector<Task>&)>;
-    using SprintResultHandler = std::function<void(const std::vector<Sprint>&)>;
+    using TaskResultHandler = std::function<void(const std::vector<entities::Task>&)>;
+    using SprintResultHandler = std::function<void(const std::vector<entities::Sprint>&)>;
     using TagResultHandler
         = std::function<void(const std::vector<std::string>&)>;
     using SprintEncodingFunc
-        = std::function<std::string(const std::vector<Sprint>& sprints)>;
+        = std::function<std::string(const std::vector<entities::Sprint>& sprints)>;
     using TaskEncodingFunc
-        = std::function<std::string(const std::vector<Task>& task)>;
+        = std::function<std::string(const std::vector<entities::Task>& task)>;
     using TaskOrder = std::vector<std::string>;
 
     virtual ~ICoreService() = default;
 
-    virtual void registerTask(const Task& task) = 0;
+    virtual void registerTask(const entities::Task& task) = 0;
 
-    virtual void removeTask(const Task& task) = 0;
+    virtual void removeTask(const entities::Task& task) = 0;
 
-    virtual void editTask(const Task& task, const Task& editedTask) = 0;
+    virtual void editTask(const entities::Task& task, const entities::Task& editedTask) = 0;
 
-    virtual void toggleTaskCompletionStatus(const Task& task) = 0;
+    virtual void toggleTaskCompletionStatus(const entities::Task& task) = 0;
 
     virtual void registerTaskPriorities(TaskOrder&& old_order,
                                         TaskOrder&& new_order)
@@ -68,7 +70,7 @@ public:
         = 0;
 
     virtual void exportTasks(const dw::TimeSpan& timeSpan,
-                             std::shared_ptr<ExternalIO::ISink> sink,
+                             std::shared_ptr<external_io::ISink> sink,
                              TaskEncodingFunc func)
         = 0;
 
@@ -76,9 +78,9 @@ public:
                                 const std::string& taskUuid)
         = 0;
 
-    virtual void registerSprint(const Sprint& sprint) = 0;
+    virtual void registerSprint(const entities::Sprint& sprint) = 0;
 
-    virtual void removeSprint(const Sprint& sprint) = 0;
+    virtual void removeSprint(const entities::Sprint& sprint) = 0;
 
     virtual void
     sprintsInTimeRange(const dw::TimeSpan& timeSpan,
@@ -86,7 +88,7 @@ public:
         = 0;
 
     virtual void exportSprints(const dw::TimeSpan& timeSpan,
-                               std::shared_ptr<ExternalIO::ISink> sink,
+                               std::shared_ptr<external_io::ISink> sink,
                                SprintEncodingFunc func)
         = 0;
 
@@ -116,11 +118,13 @@ public:
 
     virtual std::string lastCommandDescription() const = 0;
 
-    virtual void registerUndoObserver(core::Observer& observer) = 0;
+    virtual void registerUndoObserver(Observer& observer) = 0;
 
     virtual uint64_t numRevertableCommands() const = 0;
 
     virtual void undoLast() = 0;
 };
+
+} // namespace sprint_timer
 
 #endif /* end of include guard: ICORESERVICE_H_XVOMGAES */

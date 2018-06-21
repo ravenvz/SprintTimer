@@ -26,6 +26,8 @@
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
 
+namespace sprint_timer::storage::qt_storage_impl {
+
 class QtTaskStorageReader : public QObject, public ITaskStorageReader {
     Q_OBJECT
 
@@ -34,7 +36,8 @@ public:
 
     void requestUnfinishedTasks(Handler handler) final;
 
-    void requestFinishedTasks(const dw::TimeSpan& timeSpan, Handler handler) final;
+    void requestFinishedTasks(const dw::TimeSpan& timeSpan,
+                              Handler handler) final;
 
     void requestTasks(const dw::TimeSpan& timeSpan, Handler handler) final;
 
@@ -65,7 +68,7 @@ private:
 
     QVariant columnData(const QSqlRecord& record, Column column) const;
 
-    Task taskFromQSqlRecord(const QSqlRecord& record) const;
+    entities::Task taskFromQSqlRecord(const QSqlRecord& record) const;
 
     std::string tagFromSqlRecord(const QSqlRecord& record) const;
 
@@ -73,5 +76,7 @@ private slots:
     void onResultsReceived(qint64 queryId,
                            const std::vector<QSqlRecord>& records);
 };
+
+} // namespace sprint_timer::storage::qt_storage_impl
 
 #endif /* end of include guard: QTTASKSTORAGEREADER_H_48BDKQZ7 */

@@ -22,7 +22,7 @@
 
 #include "core/use_cases/RequestSprints.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 RequestSprints::RequestSprints(ISprintStorageReader& sprint_storage_reader,
                                dw::TimeSpan timeSpan,
@@ -42,4 +42,4 @@ std::string RequestSprints::describe() const
     return ss.str();
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

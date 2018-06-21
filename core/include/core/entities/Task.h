@@ -24,13 +24,15 @@
 
 
 #include "core/BoostUUIDGenerator.h"
-#include "core/StringUtils.h"
+#include "core/utils/StringUtils.h"
 #include "core/entities/Sprint.h"
 #include "core/entities/Tag.h"
 #include "date_wrapper/DateTime.h"
 #include <list>
 #include <string>
 #include <vector>
+
+namespace sprint_timer::entities {
 
 /* Represent Task that may have many associated sprints.
  *
@@ -135,5 +137,7 @@ private:
 };
 
 bool operator==(const Task& lhs, const Task& rhs);
+
+} // namespace sprint_timer::entities
 
 #endif /* end of include guard: TASK_H_7VXCYMOK */

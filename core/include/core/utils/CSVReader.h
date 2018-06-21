@@ -28,8 +28,7 @@
 #include <string>
 #include <vector>
 
-namespace CSV {
-
+namespace sprint_timer::utils {
 
 class StreamReadError : public std::runtime_error {
 public:
@@ -175,6 +174,6 @@ public:
     void parseChar(CSVReader& reader, char ch) override;
 };
 
-} // namespace ExternalIO
+} // namespace sprint_timer::utils
 
 #endif /* end of include guard: CSVREADER_H_RH5EZUKL */

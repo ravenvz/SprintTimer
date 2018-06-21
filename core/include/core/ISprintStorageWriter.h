@@ -25,15 +25,17 @@
 #include "core/entities/Sprint.h"
 #include "date_wrapper/TimeSpan.h"
 
+namespace sprint_timer {
 
 class ISprintStorageWriter {
 public:
     virtual ~ISprintStorageWriter() = default;
 
-    virtual void save(const Sprint& sprint) = 0;
+    virtual void save(const entities::Sprint& sprint) = 0;
 
-    virtual void remove(const Sprint& sprint) = 0;
+    virtual void remove(const entities::Sprint& sprint) = 0;
 };
 
+} // namespace sprint_timer
 
 #endif /* end of include guard: ISPRINTSTORAGEWRITER_H_PMJNRBFY */

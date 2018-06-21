@@ -31,7 +31,7 @@ namespace Ui {
 class BestWorkdayWidget;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 class BestWorkdayWidget : public QWidget {
@@ -54,7 +54,7 @@ private:
         const Distribution<double>& weekdayDistribution);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

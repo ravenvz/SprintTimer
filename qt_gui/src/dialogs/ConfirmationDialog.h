@@ -28,7 +28,7 @@ namespace Ui {
 class ConfirmationDialog;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class ConfirmationDialog : public QDialog
 {
@@ -43,7 +43,7 @@ private:
     Ui::ConfirmationDialog *ui;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // CONFIRMATIONDIALOG_H

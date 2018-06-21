@@ -22,7 +22,7 @@
 
 #include "core/use_cases/StoreUnfinishedTasksOrder.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 StoreUnfinishedTasksOrder::StoreUnfinishedTasksOrder(
     ITaskStorageWriter& taskStorageWriter,
@@ -49,4 +49,4 @@ std::string StoreUnfinishedTasksOrder::describe() const
     return "Store unfinished tasks order";
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

@@ -27,22 +27,23 @@
 #include "core/utils/CSVEncoder.h"
 #include "gtest/gtest.h"
 
-using namespace ExternalIO;
+using namespace sprint_timer::external_io;
+using namespace sprint_timer::utils;
 
 TEST(TestCSVEncoder, test_trivial_encoding)
 {
-    std::vector<CSV::CSVEncoder::Data> data{{"One", "two", "three"}};
+    std::vector<CSVEncoder::Data> data{{"One", "two", "three"}};
     std::string expected{"One,two,three\n"};
-    CSV::CSVEncoder encoder;
+    CSVEncoder encoder;
 
     EXPECT_EQ(expected, encoder.encode(data));
 }
 
 TEST(TestCSVEncoder, test_quoted_values_encoding)
 {
-    std::vector<CSV::CSVEncoder::Data> data{{"One", "this \"value\" is quoted", "three"}};
+    std::vector<CSVEncoder::Data> data{{"One", "this \"value\" is quoted", "three"}};
     std::string expected{"One,this \"\"value\"\" is quoted,three\n"};
-    CSV::CSVEncoder encoder;
+    CSVEncoder encoder;
 
     EXPECT_EQ(expected, encoder.encode(data));
 }
@@ -60,7 +61,7 @@ TEST(TestCSVEncoder, test_encode_generic_type)
         vec.push_back(std::to_string(item.value));
         return vec;
     };
-    CSV::CSVEncoder encoder;
+    CSVEncoder encoder;
     std::string expected{"Pressure,42\nTemperature,22\n"};
 
     EXPECT_EQ(expected, encoder.encode(data, vectorize));

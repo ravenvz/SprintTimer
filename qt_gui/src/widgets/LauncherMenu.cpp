@@ -28,7 +28,7 @@
 #include "widgets/HistoryWindow.h"
 #include "widgets/StatisticsWindow.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 LauncherMenu::LauncherMenu(IConfig& applicationSettings,
                            ICoreService& coreService,
@@ -115,4 +115,4 @@ void LauncherMenu::onSyncRequired()
         statisticsWindow->synchronize();
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

@@ -52,8 +52,8 @@
 #include <QApplication>
 #include <QStyleFactory>
 
-using std::experimental::filesystem::exists;
 using std::experimental::filesystem::create_directory;
+using std::experimental::filesystem::exists;
 
 namespace {
 
@@ -108,7 +108,10 @@ std::string getOrCreateSprintTimerDataDirectory()
 
 int main(int argc, char* argv[])
 {
-    using namespace qt_gui;
+    using namespace sprint_timer;
+    using namespace ui::qt_gui;
+    using namespace storage::qt_storage_impl;
+
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QApplication::setOrganizationName("RavenStudio");
     QApplication::setApplicationName("SprintTimer");
@@ -142,14 +145,17 @@ int main(int argc, char* argv[])
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
 
-    Core::CoreService coreService{*sprintStorageReader,
-                                  *sprintStorageWriter,
-                                  *sprintYearRangeReader,
-                                  *taskStorageReader,
-                                  *taskStorageWriter,
-                                  *dailyDistributionReader,
-                                  *weeklyDistributionReader,
-                                  *monthlyDistributionReader};
+    CommandInvoker command_invoker;
+
+    CoreService coreService{*sprintStorageReader,
+                            *sprintStorageWriter,
+                            *sprintYearRangeReader,
+                            *taskStorageReader,
+                            *taskStorageWriter,
+                            *dailyDistributionReader,
+                            *weeklyDistributionReader,
+                            *monthlyDistributionReader,
+                            command_invoker};
 
     MainWindow w{applicationSettings, coreService};
     w.show();

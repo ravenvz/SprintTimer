@@ -25,7 +25,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 class TaskItemDelegate : public QStyledItemDelegate {
@@ -52,7 +52,7 @@ private:
     QColor delimiterColor{Qt::gray};
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: TASKITEMDELEGATE_H_Z8NDXQM6 */

@@ -24,7 +24,7 @@
 #include "ui_best_workday_widget.h"
 #include <QDate>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 BestWorkdayWidget::BestWorkdayWidget(QWidget* parent)
     : QWidget(parent)
@@ -82,5 +82,5 @@ void BestWorkdayWidget::updateWeekdayBarChartLegend(
     }
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

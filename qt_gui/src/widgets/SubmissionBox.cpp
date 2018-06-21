@@ -22,7 +22,7 @@
 
 #include "widgets/SubmissionBox.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 SubmissionBox::SubmissionBox(QWidget* parent)
@@ -42,5 +42,5 @@ void SubmissionBox::showEvent(QShowEvent* event)
     setCurrentIndex(persistentIndex);
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

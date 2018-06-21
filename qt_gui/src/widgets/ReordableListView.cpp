@@ -22,7 +22,7 @@
 
 #include "ReordableListView.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 ReordableListView::ReordableListView(QWidget* parent)
     : QListView(parent)
@@ -37,6 +37,6 @@ void ReordableListView::dropEvent(QDropEvent* event)
         QModelIndex(), rowMovedFrom, 1, QModelIndex(), rowMovedTo);
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 

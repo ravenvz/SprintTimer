@@ -25,7 +25,7 @@
 
 #include <ostream>
 
-namespace ExternalIO {
+namespace sprint_timer::external_io {
 
 class OstreamSink : public ISink {
 
@@ -42,6 +42,6 @@ private:
 };
 
 
-} // namespace ExternalIO
+} // namespace sprint_timer::external_io
 
 #endif // SPRINT_TIMER_OSTREAMSINK_H_H

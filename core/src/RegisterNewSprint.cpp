@@ -22,10 +22,10 @@
 
 #include "core/use_cases/RegisterNewSprint.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 RegisterNewSprint::RegisterNewSprint(ISprintStorageWriter& writer,
-                                     Sprint newSprint)
+                                     entities::Sprint newSprint)
     : writer{writer}
     , sprint{std::move(newSprint)}
 {
@@ -42,4 +42,4 @@ std::string RegisterNewSprint::describe() const
     return ss.str();
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

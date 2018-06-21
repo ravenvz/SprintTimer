@@ -22,7 +22,7 @@
 
 #include "core/use_cases/RequestUnfinishedTasks.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 RequestUnfinishedTasks::RequestUnfinishedTasks(
     ITaskStorageReader& taskStorageReader, ITaskStorageReader::Handler handler)
@@ -41,4 +41,4 @@ std::string RequestUnfinishedTasks::describe() const
     return "Request unfinished tasks";
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

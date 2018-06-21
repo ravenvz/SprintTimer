@@ -24,7 +24,7 @@
 #include "core/utils/WeekdaySelection.h"
 #include "ui_workdays_dialog.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 WorkdaysDialog::WorkdaysDialog(IConfig& applicationSettings, QDialog* parent)
     : QDialog{parent}
@@ -84,5 +84,5 @@ unsigned WorkdaysDialog::pollWorkdaysCode() const
     return selection.selectionMask();
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

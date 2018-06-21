@@ -23,7 +23,7 @@
 #include <QPainter>
 #include <cmath>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 double degreesToRadians(double degrees);
 
@@ -132,4 +132,4 @@ double degreesToRadians(double degrees)
     return degrees * pi / 180;
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

@@ -31,7 +31,7 @@ namespace Ui {
 class ProgressView;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class ProgressView : public QFrame {
     Q_OBJECT
@@ -76,7 +76,7 @@ signals:
     void goalChanged(int goal);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // PROGRESSWIDGET_H

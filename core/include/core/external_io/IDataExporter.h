@@ -26,7 +26,7 @@
 #include "core/external_io/ISink.h"
 #include <vector>
 
-namespace ExternalIO {
+namespace sprint_timer::external_io {
 
 class IDataExporter {
 public:
@@ -36,5 +36,6 @@ public:
         = 0;
 };
 
-} // namespace ExternalIO
+} // namespace sprint_timer::external_io
+
 #endif // SPRINT_TIMER_IDATAEXPORTER_H

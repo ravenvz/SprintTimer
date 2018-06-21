@@ -22,7 +22,7 @@
 
 #include "core/use_cases/IncrementTaskSprints.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 IncrementTaskSprints::IncrementTaskSprints(
     ITaskStorageWriter& taskStorageWriter, std::string taskUuid)
@@ -42,4 +42,4 @@ std::string IncrementTaskSprints::describe() const
     return ss.str();
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

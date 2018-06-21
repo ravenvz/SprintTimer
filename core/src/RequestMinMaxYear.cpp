@@ -22,7 +22,7 @@
 
 #include "core/use_cases/RequestMinMaxYear.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 RequestMinMaxYear::RequestMinMaxYear(IYearRangeReader& year_range_reader,
                                      IYearRangeReader::Handler handler)
@@ -38,4 +38,4 @@ std::string RequestMinMaxYear::describe() const
     return "Request min max year";
 }
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases

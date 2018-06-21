@@ -22,14 +22,11 @@
 
 #include "core/utils/CSVEncoder.h"
 
-namespace ExternalIO {
-
-namespace CSV {
+namespace sprint_timer::utils {
 
 CSVEncoder::CSVEncoder(char delimiter)
     : delimiter{delimiter}
 {
-
 }
 
 void CSVEncoder::encodeRow(const std::vector<std::string>& row)
@@ -65,6 +62,4 @@ void CSVEncoder::writeValue(const std::string& value)
     }
 }
 
-} // namespace CSV
-
-} // namespace ExternalIO
+} // namespace sprint_timer::utils

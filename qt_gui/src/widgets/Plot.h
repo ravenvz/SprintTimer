@@ -28,7 +28,7 @@
 #include <QString>
 #include <QWidget>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 struct GraphPoint;
 
@@ -170,7 +170,7 @@ private:
     bool mShowPoints = false;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // PLOT_H

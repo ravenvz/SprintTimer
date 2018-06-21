@@ -29,7 +29,7 @@
 #include <stack>
 #include <vector>
 
-namespace core {
+namespace sprint_timer {
 
 class CommandInvoker : public Observable {
 public:
@@ -60,6 +60,6 @@ private:
     std::stack<std::unique_ptr<Command>> commandStack;
 };
 
-} // namespace core
+} // namespace sprint_timer
 
 #endif /* end of include guard: COMMANDINVOKER_H_WGTA1XLU */

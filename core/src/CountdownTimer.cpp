@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "core/CountdownTimer.h"
 
+namespace sprint_timer {
+
 CountdownTimer::CountdownTimer(OnTickCallback tickCallback,
                                OnTimeRunOutCallback onTimeRunOutCallback,
                                std::chrono::milliseconds duration,
@@ -67,5 +69,8 @@ void CountdownTimer::stop()
 {
     running = false;
     if (tr.joinable())
+
         tr.join();
 }
+
+} // namespace sprint_timer

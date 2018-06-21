@@ -25,7 +25,7 @@
 #include "core/IYearRangeReader.h"
 #include "core/Query.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class RequestMinMaxYear : public Query {
 public:
@@ -45,6 +45,6 @@ private:
     IYearRangeReader::Handler handler_;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: REQUESTMINMAXYEAR_H_0SPNHM7R */

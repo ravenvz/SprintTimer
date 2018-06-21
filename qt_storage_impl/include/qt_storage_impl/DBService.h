@@ -32,6 +32,7 @@
 #include <memory>
 #include <vector>
 
+namespace sprint_timer::storage::qt_storage_impl {
 
 class Worker;
 
@@ -146,5 +147,7 @@ private:
     bool setPragmas();
 
 };
+
+} // namespace sprint_timer::storage::qt_storage_impl
 
 #endif // DB_HELPER_H

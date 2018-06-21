@@ -24,7 +24,7 @@
 #include "widgets/DefaultTimer.h"
 #include "widgets/FancyTimer.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 namespace {
     auto expandedFully = std::make_unique<Expanded>();
@@ -282,4 +282,4 @@ void ExpandedWithoutMenu::toggleMenu(MainWindow& widget)
     widget.expansionState = expandedFully.get();
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

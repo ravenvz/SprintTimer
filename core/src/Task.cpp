@@ -23,6 +23,8 @@
 #include <iostream>
 #include <regex>
 
+namespace sprint_timer::entities {
+
 using dw::DateTime;
 
 // static
@@ -124,7 +126,7 @@ void Task::decodeDescription(std::string&& encodedDescription)
         }
     }
 
-    mName = StringUtils::join(nameParts, " ");
+    mName = utils::join(nameParts, " ");
 }
 
 std::ostream& operator<<(std::ostream& os, const Task& task)
@@ -146,3 +148,5 @@ bool operator==(const Task& lhs, const Task& rhs)
         && lhs.isCompleted() == rhs.isCompleted()
         && lhs.lastModified() == rhs.lastModified();
 }
+
+} // namespace sprint_timer::entities

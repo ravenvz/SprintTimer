@@ -28,7 +28,9 @@
 #include <iostream>
 #include <iterator>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
+
+using entities::Task;
 
 TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel{parent}
@@ -183,4 +185,4 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
     return true;
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

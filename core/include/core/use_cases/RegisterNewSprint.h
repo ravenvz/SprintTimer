@@ -25,11 +25,11 @@
 #include "core/Command.h"
 #include "core/ISprintStorageWriter.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class RegisterNewSprint : public Command {
 public:
-    RegisterNewSprint(ISprintStorageWriter& writer, Sprint newSprint);
+    RegisterNewSprint(ISprintStorageWriter& writer, entities::Sprint newSprint);
 
     void execute() final;
 
@@ -39,10 +39,10 @@ public:
 
 private:
     ISprintStorageWriter& writer;
-    const Sprint sprint;
+    const entities::Sprint sprint;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 
 #endif /* end of include guard: REGISTERNEWSPRINT_H_YUMZVLHC */

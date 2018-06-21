@@ -26,7 +26,7 @@
 #include "date_wrapper/TimeSpan.h"
 #include <vector>
 
-namespace SprintTimerCore {
+namespace sprint_timer {
 
 class IStatefulTimer {
 public:
@@ -61,6 +61,6 @@ public:
     virtual void clearSprintsBuffer() = 0;
 };
 
-} // namespace SprintTimerCore
+} // namespace sprint_timer
 
 #endif /* end of include guard: ISTATEFULTIMER_H_D3DG0N7C */

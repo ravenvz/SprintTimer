@@ -27,6 +27,8 @@
 #include "core/Distribution.h"
 #include "gtest/gtest.h"
 
+using namespace sprint_timer;
+
 TEST(Distribution, test_empty_distribution_initialized_correctly)
 {
     unsigned numBins = 7;

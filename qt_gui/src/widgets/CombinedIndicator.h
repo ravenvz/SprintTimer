@@ -27,7 +27,7 @@
 #include <QMouseEvent>
 #include <QWidget>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 /* Widget that is capable of drawing an arc as an indicator of
  * some progress along with some short status text in the middle. */
@@ -91,7 +91,7 @@ private:
     void drawText(QPainter& painter) const;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: COMBINEDINDICATOR_H_4ZPMFI3J */

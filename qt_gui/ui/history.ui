@@ -21,7 +21,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="qt_gui::DateRangePicker" name="dateRangePicker" native="true">
+      <widget class="sprint_timer::ui::qt_gui::DateRangePicker" name="dateRangePicker" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -109,7 +109,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>qt_gui::DateRangePicker</class>
+   <class>sprint_timer::ui::qt_gui::DateRangePicker</class>
    <extends>QWidget</extends>
    <header>src/widgets/DateRangePicker.h</header>
    <container>1</container>

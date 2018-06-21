@@ -24,7 +24,7 @@
 #include "ui_fancy_timer.h"
 #include "utils/WidgetUtils.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 namespace {
 
@@ -185,14 +185,12 @@ void FancyTimer::updateIndication(std::chrono::seconds timeLeft)
 
 bool FancyTimer::indicationUpdateShouldBeIgnored() const
 {
-    using namespace SprintTimerCore;
     return currentState == IStatefulTimer::StateId::IdleEntered
         || currentState == IStatefulTimer::StateId::SprintFinished;
 }
 
 void FancyTimer::onIndicatorClicked()
 {
-    using namespace SprintTimerCore;
     switch (currentState) {
     case IStatefulTimer::StateId::SprintEntered:
         break;
@@ -222,4 +220,4 @@ void FancyTimer::onIndicatorClicked()
     }
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

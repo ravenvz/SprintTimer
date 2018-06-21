@@ -34,7 +34,7 @@ class SettingsDialog;
 
 class QStringListModel;
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class SettingsDialog : public QDialog {
     Q_OBJECT
@@ -58,7 +58,7 @@ private:
     void fillSettingsData();
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // SETTINGSDIALOG_H
