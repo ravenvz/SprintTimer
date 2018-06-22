@@ -51,36 +51,34 @@ public:
 
     Sprint(const std::string& taskUuid, const dw::TimeSpan& timeSpan);
 
-    // Return name of Sprint. It is identical to the associated task name.
+    // Sprint name is identical to it's associated task name.
     std::string name() const;
 
-    // Return starting date and time.
+    // Time when sprint started.
     dw::DateTime startTime() const;
 
-    // Return finishing date and time.
+    // Time when sprint finished.
     dw::DateTime finishTime() const;
 
-    // Return time interval when this Sprint was active.
+    // Sprint's time range.
     dw::TimeSpan timeSpan() const;
 
-    // Return uuid.
+    // Sprint uuid.
     std::string uuid() const;
 
-    // Return associated Task uuid.
+    // Associated task uuid.
     std::string taskUuid() const;
 
-    /* Return vector of tags. Tags are identical the associated task tags.
-     * Order of tags in the list is not specified.
-     */
+    /* Tags are identical the associated task tags.
+     * Order of tags in the list is not specified. */
     std::list<Tag> tags() const;
 
-
 private:
-    std::string mName;
-    dw::TimeSpan mInterval;
-    std::string mUuid;
-    std::string mTaskUuid;
-    std::list<Tag> mTags;
+    std::string name_;
+    dw::TimeSpan timeSpan_;
+    std::string uuid_;
+    std::string taskUuid_;
+    std::list<Tag> tags_;
 };
 
 std::ostream& operator<<(std::ostream& os, const Sprint& sprint);

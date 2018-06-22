@@ -40,11 +40,11 @@ Sprint::Sprint(const std::string& taskName,
                const std::list<Tag>& tags,
                const std::string& uuid,
                const std::string& taskUuid)
-    : mName{taskName}
-    , mInterval{timeSpan}
-    , mUuid{uuid}
-    , mTaskUuid{taskUuid}
-    , mTags{tags}
+    : name_{taskName}
+    , timeSpan_{timeSpan}
+    , uuid_{uuid}
+    , taskUuid_{taskUuid}
+    , tags_{tags}
 {
 }
 
@@ -58,25 +58,25 @@ Sprint::Sprint(const std::string& taskName,
 
 // TODO What's up with name? What's up with tags?
 Sprint::Sprint(const std::string& taskUuid, const TimeSpan& timeSpan)
-    : mInterval{timeSpan}
-    , mUuid{uuid_generator.generateUUID()}
-    , mTaskUuid{taskUuid}
+    : timeSpan_{timeSpan}
+    , uuid_{uuid_generator.generateUUID()}
+    , taskUuid_{taskUuid}
 {
 }
 
-std::string Sprint::name() const { return mName; }
+std::string Sprint::name() const { return name_; }
 
-DateTime Sprint::startTime() const { return mInterval.start(); }
+DateTime Sprint::startTime() const { return timeSpan_.start(); }
 
-DateTime Sprint::finishTime() const { return mInterval.finish(); }
+DateTime Sprint::finishTime() const { return timeSpan_.finish(); }
 
-TimeSpan Sprint::timeSpan() const { return mInterval; }
+TimeSpan Sprint::timeSpan() const { return timeSpan_; }
 
-std::string Sprint::uuid() const { return mUuid; }
+std::string Sprint::uuid() const { return uuid_; }
 
-std::string Sprint::taskUuid() const { return mTaskUuid; }
+std::string Sprint::taskUuid() const { return taskUuid_; }
 
-std::list<Tag> Sprint::tags() const { return mTags; }
+std::list<Tag> Sprint::tags() const { return tags_; }
 
 std::ostream& operator<<(std::ostream& os, const Sprint& sprint)
 {
