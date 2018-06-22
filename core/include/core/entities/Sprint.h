@@ -47,7 +47,7 @@ public:
 
     Sprint(const std::string& taskName,
            const dw::TimeSpan& timeSpan,
-           const std::list<Tag>& tag,
+           const std::list<Tag>& tags,
            const std::string& taskUuid);
 
     Sprint(const std::string& taskUuid, const dw::TimeSpan& timeSpan);
@@ -75,7 +75,6 @@ public:
      */
     std::list<Tag> tags() const;
 
-    friend std::ostream& operator<<(std::ostream& os, const Sprint& sprint);
 
 private:
     static BoostUUIDGenerator generator;
@@ -85,6 +84,8 @@ private:
     std::string mTaskUuid;
     std::list<Tag> mTags;
 };
+
+std::ostream& operator<<(std::ostream& os, const Sprint& sprint);
 
 bool operator==(const Sprint& lhs, const Sprint& rhs);
 
