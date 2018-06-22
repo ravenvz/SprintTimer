@@ -26,9 +26,9 @@
 #include "core/entities/Sprint.h"
 #include "date_wrapper/TimeSpan.h"
 #include <algorithm>
+#include <functional>
 #include <optional>
 #include <unordered_map>
-
 
 template <class Entity>
 class FakeStorage {

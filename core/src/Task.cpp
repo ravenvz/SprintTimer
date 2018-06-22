@@ -20,15 +20,19 @@
 **
 *********************************************************************************/
 #include "core/entities/Task.h"
+#include "core/BoostUUIDGenerator.h"
 #include <iostream>
 #include <regex>
+
+namespace {
+
+sprint_timer::BoostUUIDGenerator uuid_generator;
+
+} // namespace
 
 namespace sprint_timer::entities {
 
 using dw::DateTime;
-
-// static
-BoostUUIDGenerator Task::generator;
 
 Task::Task(std::string name,
            int estimatedCost,
@@ -39,7 +43,7 @@ Task::Task(std::string name,
     : Task{std::move(name),
            estimatedCost,
            actualCost,
-           generator.generateUUID(),
+           uuid_generator.generateUUID(),
            std::move(tags),
            completed,
            lastModified}
@@ -53,52 +57,52 @@ Task::Task(std::string name,
            std::list<Tag> tags,
            bool completed,
            const DateTime& lastModified)
-    : mName{std::move(name)}
-    , mEstimatedCost{estimatedCost}
-    , mActualCost{actualCost}
-    , mUuid{uuid}
-    , mTags{std::move(tags)}
-    , mCompleted{completed}
-    , mLastModified{lastModified}
+    : name_{std::move(name)}
+    , estimatedCost_{estimatedCost}
+    , actualCost_{actualCost}
+    , uuid_{uuid}
+    , tags_{std::move(tags)}
+    , completed_{completed}
+    , lastModified_{lastModified}
 {
 }
 
 Task::Task(std::string encodedDescription)
-    : mUuid{generator.generateUUID()}
-    , mLastModified{DateTime::currentDateTimeLocal()}
+    : uuid_{uuid_generator.generateUUID()}
+    , lastModified_{DateTime::currentDateTimeLocal()}
 {
     decodeDescription(std::move(encodedDescription));
 }
 
 std::string Task::estimatedPrefix = std::string{"*"};
 
-std::string Task::name() const { return mName; }
+std::string Task::name() const { return name_; }
 
-bool Task::isCompleted() const { return mCompleted; }
+bool Task::isCompleted() const { return completed_; }
 
-int Task::estimatedCost() const { return mEstimatedCost; }
+int Task::estimatedCost() const { return estimatedCost_; }
 
-int Task::actualCost() const { return mActualCost; }
+int Task::actualCost() const { return actualCost_; }
 
-std::string Task::uuid() const { return mUuid; }
+std::string Task::uuid() const { return uuid_; }
 
-std::list<Tag> Task::tags() const { return mTags; }
+std::list<Tag> Task::tags() const { return tags_; }
 
-DateTime Task::lastModified() const { return mLastModified; }
+DateTime Task::lastModified() const { return lastModified_; }
 
-void Task::setName(const std::string& name) { mName = name; }
+void Task::setName(const std::string& name) { name_ = name; }
 
-void Task::setCompleted(bool completed) { mCompleted = completed; }
+void Task::setCompleted(bool completed) { completed_ = completed; }
 
-void Task::setEstimatedCost(int numSprints) { mEstimatedCost = numSprints; }
+void Task::setEstimatedCost(int numSprints) { estimatedCost_ = numSprints; }
 
-void Task::setTags(const std::list<Tag>& newTags) { mTags = newTags; }
+void Task::setTags(const std::list<Tag>& newTags) { tags_ = newTags; }
 
-void Task::setActualCost(int numSprints) { mActualCost = numSprints; }
+void Task::setActualCost(int numSprints) { actualCost_ = numSprints; }
 
 void Task::setModifiedTimeStamp(const DateTime& timeStamp)
 {
-    mLastModified = timeStamp;
+    lastModified_ = timeStamp;
 }
 
 void Task::decodeDescription(std::string&& encodedDescription)
@@ -116,27 +120,27 @@ void Task::decodeDescription(std::string&& encodedDescription)
     for (auto it = words_begin; it != words_end; ++it) {
         std::string word{it->str()};
         if (std::regex_match(word, tagRegex)) {
-            mTags.push_back(Tag{word.substr(1)});
+            tags_.push_back(Tag{word.substr(1)});
         }
         else if (std::regex_match(word, estimatedRegex)) {
-            mEstimatedCost = stoi(word.substr(1));
+            estimatedCost_ = stoi(word.substr(1));
         }
         else {
             nameParts.push_back(word);
         }
     }
 
-    mName = utils::join(nameParts, " ");
+    name_ = utils::join(nameParts, " ");
 }
 
 std::ostream& operator<<(std::ostream& os, const Task& task)
 {
-    os << prefixTags(task.mTags);
-    if (!task.mTags.empty())
+    os << prefixTags(task.tags());
+    if (!task.tags().empty())
         os << " ";
-    os << task.mName << " ";
-    os << task.mActualCost << "/" << task.mEstimatedCost << " ";
-    os << "Uuid: " << task.mUuid;
+    os << task.name() << " ";
+    os << task.actualCost() << "/" << task.estimatedCost() << " ";
+    os << "Uuid: " << task.uuid();
     return os;
 }
 
