@@ -25,7 +25,6 @@
 #include "date_wrapper/DateTime.h"
 #include <QDateTime>
 
-// TODO move to include/utils
 namespace sprint_timer::storage::utils {
 
 using dw::DateTime;
