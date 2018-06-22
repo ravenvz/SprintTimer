@@ -49,7 +49,6 @@ private:
     CombinedIndicator* combinedIndicator;
     std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate
         = std::make_unique<SubmissionItemDelegate>();
-    ;
     //    const QColor taskStateColor{QColor{"#eb6c59"}};
     //    const QColor breakStateColor{QColor{"#73c245"}};
     //    const QColor zoneStateColor{Qt::darkYellow};
