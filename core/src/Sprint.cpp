@@ -21,15 +21,19 @@
 *********************************************************************************/
 #include "core/entities/Sprint.h"
 #include "core/utils/StringUtils.h"
+#include "core/BoostUUIDGenerator.h"
 #include <algorithm>
+
+namespace {
+
+sprint_timer::BoostUUIDGenerator uuid_generator;
+
+}
 
 namespace sprint_timer::entities {
 
 using dw::DateTime;
 using dw::TimeSpan;
-
-// static
-BoostUUIDGenerator Sprint::generator;
 
 Sprint::Sprint(const std::string& taskName,
                const TimeSpan& timeSpan,
@@ -48,14 +52,14 @@ Sprint::Sprint(const std::string& taskName,
                const TimeSpan& timeSpan,
                const std::list<Tag>& tags,
                const std::string& taskUuid)
-    : Sprint{taskName, timeSpan, tags, generator.generateUUID(), taskUuid}
+    : Sprint{taskName, timeSpan, tags, uuid_generator.generateUUID(), taskUuid}
 {
 }
 
 // TODO What's up with name? What's up with tags?
 Sprint::Sprint(const std::string& taskUuid, const TimeSpan& timeSpan)
     : mInterval{timeSpan}
-    , mUuid{generator.generateUUID()}
+    , mUuid{uuid_generator.generateUUID()}
     , mTaskUuid{taskUuid}
 {
 }

@@ -22,7 +22,6 @@
 #ifndef SPRINT_H_XWNOT32M
 #define SPRINT_H_XWNOT32M
 
-#include "core/BoostUUIDGenerator.h"
 #include "core/entities/Tag.h"
 #include "date_wrapper/TimeSpan.h"
 #include <list>
@@ -77,7 +76,6 @@ public:
 
 
 private:
-    static BoostUUIDGenerator generator;
     std::string mName;
     dw::TimeSpan mInterval;
     std::string mUuid;
