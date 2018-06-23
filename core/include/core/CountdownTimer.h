@@ -55,8 +55,8 @@ public:
 private:
     OnTickCallback onTickCallback;
     OnTimeRunOutCallback onTimeRunOutCallback;
-    std::chrono::milliseconds duration;
-    TickPeriod tickPeriod;
+    const std::chrono::milliseconds duration;
+    const TickPeriod tickPeriod;
     std::atomic<bool> running{false};
     std::thread tr;
 
