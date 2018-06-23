@@ -29,27 +29,26 @@ namespace sprint_timer {
 
 template <class T>
 class Distribution {
-
 public:
     explicit Distribution(size_t binNumber)
-        : numBins(binNumber)
-        , distribution(std::vector<T>(binNumber, 0))
-        , binFrequency(std::vector<int>(binNumber, 1))
+        : numBins{binNumber}
+        , distribution{std::vector<T>(binNumber, 0)}
+        , binFrequency{std::vector<int>(binNumber, 1)}
     {
     }
 
-    explicit Distribution(std::vector<T>&& distribution)
-        : numBins(distribution.size())
-        , distribution(std::move(distribution))
-        , binFrequency(std::vector<int>(distribution.size(), 1))
+    explicit Distribution(std::vector<T>&& distribution_)
+        : numBins{distribution_.size()}
+        , distribution{std::move(distribution_)}
+        , binFrequency{std::vector<int>(distribution.size(), 1)}
     {
         computeMaxAndAverage();
     }
 
-    Distribution(std::vector<T>&& distribution, std::vector<int>&& binFrequency)
-        : numBins(distribution.size())
-        , distribution(std::move(distribution))
-        , binFrequency(std::move(binFrequency))
+    Distribution(std::vector<T>&& distribution_, std::vector<int>&& binFrequency)
+        : numBins{distribution_.size()}
+        , distribution{std::move(distribution_)}
+        , binFrequency{std::move(binFrequency)}
     {
         normalizeByBinFrequency();
         computeMaxAndAverage();
@@ -81,7 +80,7 @@ public:
 private:
     double average{0};
     double max{0};
-    size_t numBins{0};
+    const size_t numBins{0};
     size_t maxValueBin{0};
     T total{0};
     std::vector<T> distribution;
