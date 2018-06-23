@@ -33,7 +33,6 @@ EditTask::EditTask(ITaskStorageWriter& writer,
                    Task editedTask)
     : writer{writer}
     , originalTask_{std::move(originalTask)}
-    // , editedTask_{std::move(editedTask)} // TODO fixit
     , editedTask_{editedTask.name(),
                   editedTask.estimatedCost(),
                   originalTask_.actualCost(),

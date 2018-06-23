@@ -41,8 +41,8 @@ public:
 
 private:
     ITaskStorageWriter& writer;
-    entities::Task originalTask_;
-    entities::Task editedTask_;
+    const entities::Task originalTask_;
+    const entities::Task editedTask_;
 };
 
 } // namespace sprint_timer::use_cases

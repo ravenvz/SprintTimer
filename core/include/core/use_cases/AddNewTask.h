@@ -45,5 +45,4 @@ private:
 
 } // namespace sprint_timer::use_cases
 
-
 #endif /* end of include guard: ADDTASKTRANSACTION_H_LEMDIQ17 */
