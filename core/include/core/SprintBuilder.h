@@ -41,21 +41,21 @@ class SprintBuilder {
 
 public:
     entities::Sprint build();
-    SprintBuilder& withName(const std::string& name);
-    SprintBuilder& withUuid(const std::string& uuid);
-    SprintBuilder& withTaskUuid(const std::string& uuid);
-    SprintBuilder& withTag(const entities::Tag& tag);
-    SprintBuilder& withTag(const std::string& tag);
-    SprintBuilder& withTimeSpan(const dw::TimeSpan& timeSpan);
+    SprintBuilder& withName(std::string name);
+    SprintBuilder& withUuid(std::string uuid);
+    SprintBuilder& withTaskUuid(std::string uuid);
+    SprintBuilder& withTag(entities::Tag tag);
+    SprintBuilder& withTag(std::string tag);
+    SprintBuilder& withTimeSpan(dw::TimeSpan timeSpan);
     SprintBuilder& forTask(const entities::Task& task);
-    SprintBuilder& withExplicitTags(const std::list<entities::Tag>& tags);
+    SprintBuilder& withExplicitTags(std::list<entities::Tag> tags);
 
 private:
-    std::string mName;
-    std::optional<std::string> mUuid;
-    std::optional<std::string> mTaskUuid;
-    std::list<entities::Tag> mTags;
-    std::optional<dw::TimeSpan> mTimeSpan;
+    std::string name_;
+    std::optional<std::string> uuid_;
+    std::optional<std::string> taskUuid_;
+    std::list<entities::Tag> tags_;
+    std::optional<dw::TimeSpan> timeSpan_;
 };
 
 } // namespace sprint_timer
