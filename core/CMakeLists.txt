@@ -2,35 +2,35 @@ set(PROJECT ${CORE_LIB})
 project(${PROJECT})
 
 set(CORE_SOURCE_FILES
+	src/CountdownTimer.cpp
+    src/CoreService.cpp
+    src/SprintBuilder.cpp
     src/SprintStatistics.cpp
     src/StatefulTimer.cpp
-	src/CountdownTimer.cpp
-    src/Sprint.cpp
-    src/Task.cpp
-    src/Tag.cpp
     src/StringUtils.cpp
-    src/CoreService.cpp
     src/TagTop.cpp
-    src/RegisterNewSprint.cpp
-    src/RemoveSprintTransaction.cpp
-    src/AddNewTask.cpp
-    src/EditTask.cpp
-    src/DeleteTask.cpp
-    src/RequestFinishedTasks.cpp
-    src/RequestSprints.cpp
-    src/DecrementTaskSprints.cpp
-    src/RenameTag.cpp
-    src/IncrementTaskSprints.cpp
-    src/RequestAllTags.cpp
-    src/RequestSprintDistribution.cpp
-    src/RequestUnfinishedTasks.cpp
-    src/RequestTasks.cpp
-    src/StoreUnfinishedTasksOrder.cpp
-    src/ToggleTaskCompletionStatus.cpp
-    src/CSVReader.cpp
-    src/CSVEncoder.cpp
-    src/SprintBuilder.cpp
     src/TaskBuilder.cpp
+    src/entities/Sprint.cpp
+    src/entities/Tag.cpp
+    src/entities/Task.cpp
+    src/use_cases/AddNewTask.cpp
+    src/use_cases/DecrementTaskSprints.cpp
+    src/use_cases/DeleteTask.cpp
+    src/use_cases/EditTask.cpp
+    src/use_cases/IncrementTaskSprints.cpp
+    src/use_cases/RegisterNewSprint.cpp
+    src/use_cases/RemoveSprintTransaction.cpp
+    src/use_cases/RenameTag.cpp
+    src/use_cases/RequestAllTags.cpp
+    src/use_cases/RequestFinishedTasks.cpp
+    src/use_cases/RequestSprintDistribution.cpp
+    src/use_cases/RequestSprints.cpp
+    src/use_cases/RequestTasks.cpp
+    src/use_cases/RequestUnfinishedTasks.cpp
+    src/use_cases/StoreUnfinishedTasksOrder.cpp
+    src/use_cases/ToggleTaskCompletionStatus.cpp
+    src/utils/CSVEncoder.cpp
+    src/utils/CSVReader.cpp
 )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
