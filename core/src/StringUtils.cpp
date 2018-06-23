@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "core/utils/StringUtils.h"
-#include <regex>
 
 namespace sprint_timer::utils {
 
@@ -32,10 +31,9 @@ std::string join(const std::vector<std::string>& vec,
 
 /* Given a string, return list of words in that string.
  * Word can contain letters, +, - and digits but no other symbols. */
-std::list<std::string> parseWords(std::string text)
+std::list<std::string> parseWords(std::string text, std::regex expr)
 {
-    std::regex word_regex{"[[:alnum:]+-]+"};
-    std::sregex_iterator words_begin{text.begin(), text.end(), word_regex};
+    std::sregex_iterator words_begin{text.begin(), text.end(), expr};
     std::sregex_iterator words_end;
     std::list<std::string> res;
 
