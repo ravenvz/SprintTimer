@@ -36,7 +36,7 @@ public:
 
     Tag(std::string name);
 
-    static std::string prefix;
+    static const std::string prefix;
 
     std::string name() const;
 
@@ -44,23 +44,17 @@ public:
 
     std::string nameWithPrefix() const;
 
-    friend std::ostream& operator<<(std::ostream& os, const Tag& tag);
-
 private:
-    std::string aName;
+    std::string name_;
 };
 
-inline bool operator<(const Tag& lhs, const Tag& rhs)
-{
-    return lhs.name() < rhs.name();
-}
+std::ostream& operator<<(std::ostream& os, const Tag& tag);
 
-inline bool operator==(const Tag& lhs, const Tag& rhs)
-{
-    return lhs.name() == rhs.name();
-}
+bool operator<(const Tag& lhs, const Tag& rhs);
 
-/* Given container with tags, return string that containes
+bool operator==(const Tag& lhs, const Tag& rhs);
+
+/* Given container with tags, return string that contains
  * all tags with leading prefix separated by whitespace.*/
 template <typename TagContainer>
 std::string prefixTags(const TagContainer& tags)

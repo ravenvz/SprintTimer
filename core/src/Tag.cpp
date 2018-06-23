@@ -24,13 +24,13 @@
 namespace sprint_timer::entities {
 
 Tag::Tag(std::string name)
-    : aName{std::move(name)}
+    : name_{std::move(name)}
 {
 }
 
-std::string Tag::name() const { return aName; }
+std::string Tag::name() const { return name_; }
 
-void Tag::setName(const std::string& name) { aName = name; }
+void Tag::setName(const std::string& name) { name_ = name; }
 
 std::string Tag::nameWithPrefix() const
 {
@@ -40,13 +40,22 @@ std::string Tag::nameWithPrefix() const
 }
 
 /* static */
-std::string Tag::prefix = std::string("#");
+std::string const Tag::prefix = std::string("#");
 
 std::ostream& operator<<(std::ostream& os, const Tag& tag)
 {
-    os << tag.aName;
+    os << tag.name();
     return os;
 }
 
-} // namespace sprint_timer::entities
+bool operator<(const Tag& lhs, const Tag& rhs)
+{
+    return lhs.name() < rhs.name();
+}
 
+bool operator==(const Tag& lhs, const Tag& rhs)
+{
+    return lhs.name() == rhs.name();
+}
+
+} // namespace sprint_timer::entities
