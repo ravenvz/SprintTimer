@@ -54,19 +54,14 @@ public:
     // Sprint name is identical to it's associated task name.
     std::string name() const;
 
-    // Time when sprint started.
     dw::DateTime startTime() const;
 
-    // Time when sprint finished.
     dw::DateTime finishTime() const;
 
-    // Sprint's time range.
     dw::TimeSpan timeSpan() const;
 
-    // Sprint uuid.
     std::string uuid() const;
 
-    // Associated task uuid.
     std::string taskUuid() const;
 
     /* Tags are identical the associated task tags.
