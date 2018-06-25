@@ -87,9 +87,10 @@ void StatisticsWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 
 void StatisticsWindow::drawGraphs()
 {
-    SprintStatItem statistics{
-        selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex) : sprints,
-        currentInterval.toTimeSpan()};
+    const std::vector<Sprint>& interestingSprints
+        = (selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex)
+                            : sprints);
+    SprintStatItem statistics{interestingSprints, currentInterval.toTimeSpan()};
     const WeekdaySelection workdays{applicationSettings.workdaysCode()};
     ui->dailyTimelineGraph->setData(
         statistics.dailyDistribution(),
@@ -98,7 +99,7 @@ void StatisticsWindow::drawGraphs()
         applicationSettings.dailyGoal());
     ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
     ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
-                                    statistics.sprints());
+                                    interestingSprints);
 }
 
 void StatisticsWindow::updateTopTagsDiagram(

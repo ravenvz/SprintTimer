@@ -33,63 +33,51 @@ class SprintStatItem {
 
 public:
     SprintStatItem(const std::vector<entities::Sprint>& sprints,
-                   const dw::TimeSpan& timeInterval);
+                   const dw::TimeSpan& timeSpan);
 
-    SprintStatItem(const SprintStatItem&) = default;
+    const Distribution<double>& dailyDistribution() const;
 
-    ~SprintStatItem() = default;
+    const Distribution<double>& weekdayDistribution() const;
 
-    Distribution<double> dailyDistribution() const;
-
-    Distribution<double> weekdayDistribution() const;
-
-    Distribution<double> worktimeDistribution() const;
-
-    std::vector<entities::Sprint> sprints() const;
+    const Distribution<double>& worktimeDistribution() const;
 
 private:
-    const dw::TimeSpan timeSpan;
-    const std::vector<entities::Sprint> mSprints;
-
-    std::vector<double> computeDailyDistribution() const;
-
-    std::vector<double> computeWeekdayDistribution() const;
-
-    std::vector<double> computeWorkTimeDistribution() const;
-
-    std::vector<int> countWeekdays() const;
+    Distribution<double> dailyDistribution_;
+    Distribution<double> weekdayDistribution_;
+    Distribution<double> worktimeDistribution_;
 };
 
 
 namespace DayPart {
 
-constexpr size_t numParts{6};
+    constexpr size_t numParts{6};
 
-/* Represent a day partition
- *
- * Day has 6 4-hour parts:
- *      Midnight  22:00 - 2:00
- *      Night      2:00 - 6:00
- *      Morning    6:00 - 10:00
- *      Noon      10:00 - 14:00
- *      Afternoon 14:00 - 18:00
- *      Evening   18:00 - 22:00
- */
-enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
+    /* Represent a day partition
+     *
+     * Day has 6 4-hour parts:
+     *      Midnight  22:00 - 2:00
+     *      Night      2:00 - 6:00
+     *      Morning    6:00 - 10:00
+     *      Noon      10:00 - 14:00
+     *      Afternoon 14:00 - 18:00
+     *      Evening   18:00 - 22:00
+     */
+    enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
 
-std::string dayPartHours(unsigned dayPart);
+    std::string dayPartHours(unsigned dayPart);
 
-DayPart dayPart(const dw::TimeSpan& timeSpan);
+    DayPart dayPart(const dw::TimeSpan& timeSpan);
 
-std::string dayPartName(unsigned dayPart);
+    std::string dayPartName(unsigned dayPart);
 
-std::string dayPartName(DayPart dayPart);
+    std::string dayPartName(DayPart dayPart);
 
-std::string dayPartHours(DayPart dayPart);
+    std::string dayPartHours(DayPart dayPart);
 
-std::string dayPartHours(unsigned dayPart);
+    std::string dayPartHours(unsigned dayPart);
 
 } // namespace DatePart
+
 
 } // namespace sprint_timer
 

@@ -24,102 +24,81 @@
 
 namespace sprint_timer {
 
-using dw::TimeSpan;
 using dw::DateTime;
+using dw::TimeSpan;
 using entities::Sprint;
 
 namespace {
 
-constexpr int sizeInDays(const TimeSpan& timeSpan) noexcept
+constexpr size_t daysInWeek{7};
+
+constexpr size_t sizeInDays(const TimeSpan& timeSpan) noexcept
 {
-    return timeSpan.start().discreteDaysTo(timeSpan.finish()) + 1;
+    return static_cast<size_t>(
+               timeSpan.start().discreteDaysTo(timeSpan.finish())) + 1;
 }
 
-int discreteDaysBetween(const TimeSpan& lhs, const TimeSpan& rhs)
+constexpr size_t discreteDaysBetween(const TimeSpan& lhs,
+                                     const TimeSpan& rhs) noexcept
 {
-    return std::abs(lhs.start().discreteDaysTo(rhs.start()));
+    return static_cast<size_t>(lhs.start().discreteDaysTo(rhs.start()));
+}
+
+std::vector<int> weekdayFrequency(const TimeSpan& timeSpan)
+{
+    std::vector<int> result(daysInWeek, 0);
+    for (size_t dayNum = 0; dayNum < sizeInDays(timeSpan); ++dayNum) {
+        const auto date = timeSpan.start().add(DateTime::Days{dayNum});
+        const auto weekdayNumber = static_cast<unsigned>(date.dayOfWeek());
+        ++result[weekdayNumber];
+    }
+    return result;
 }
 
 } // namespace
 
 SprintStatItem::SprintStatItem(const std::vector<Sprint>& sprints,
-                               const TimeSpan& timeInterval)
-    : timeSpan(timeInterval)
-    , mSprints(sprints)
+                               const TimeSpan& timeSpan)
 {
-}
+    std::vector<double> sprintsPerDay(sizeInDays(timeSpan), 0);
+    std::vector<double> sprintsPerWeekday(daysInWeek, 0);
+    std::vector<double> sprintsPerDayPart(DayPart::numParts, 0);
 
-
-Distribution<double> SprintStatItem::dailyDistribution() const
-{
-    return Distribution<double>{computeDailyDistribution()};
-}
-
-
-Distribution<double> SprintStatItem::weekdayDistribution() const
-{
-    return Distribution<double>{computeWeekdayDistribution(), countWeekdays()};
-}
-
-
-Distribution<double> SprintStatItem::worktimeDistribution() const
-{
-    return Distribution<double>{computeWorkTimeDistribution()};
-}
-
-
-std::vector<Sprint> SprintStatItem::sprints() const { return mSprints; }
-
-
-std::vector<double> SprintStatItem::computeDailyDistribution() const
-{
-    if (mSprints.empty())
-        return std::vector<double>(0, 0);
-    auto spanInCalendarDays = static_cast<size_t>(sizeInDays(timeSpan));
-    std::vector<double> distribution(spanInCalendarDays, 0);
-    for (const Sprint& sprint : mSprints) {
-        auto dayNumber = discreteDaysBetween(timeSpan, sprint.timeSpan());
-        distribution[static_cast<size_t>(dayNumber)]++;
+    for (const Sprint& sprint : sprints) {
+        const auto dayNumber = discreteDaysBetween(timeSpan, sprint.timeSpan());
+        ++sprintsPerDay[static_cast<size_t>(dayNumber)];
+        ++sprintsPerWeekday[static_cast<size_t>(
+            sprint.startTime().dayOfWeek())];
+        ++sprintsPerDayPart[static_cast<size_t>(
+            DayPart::dayPart(sprint.timeSpan()))];
     }
-    return distribution;
+
+    dailyDistribution_ = Distribution<double>{std::move(sprintsPerDay)};
+    weekdayDistribution_ = Distribution<double>{std::move(sprintsPerWeekday),
+                                                weekdayFrequency(timeSpan)};
+    worktimeDistribution_ = Distribution<double>{std::move(sprintsPerDayPart)};
 }
 
 
-std::vector<double> SprintStatItem::computeWeekdayDistribution() const
+const Distribution<double>& SprintStatItem::dailyDistribution() const
 {
-    std::vector<double> distribution(7, 0);
-    if (mSprints.empty())
-        return distribution;
-    for (const Sprint& sprint : mSprints) {
-        distribution[static_cast<size_t>(sprint.startTime().dayOfWeek())]++;
-    }
-    return distribution;
+    return dailyDistribution_;
 }
 
 
-std::vector<double> SprintStatItem::computeWorkTimeDistribution() const
+const Distribution<double>& SprintStatItem::weekdayDistribution() const
 {
-    std::vector<double> distribution(DayPart::numParts, 0);
-    for (const Sprint& sprint : mSprints) {
-        distribution[static_cast<size_t>(
-            DayPart::dayPart(sprint.timeSpan()))]++;
-    }
-    return distribution;
+    return weekdayDistribution_;
 }
 
 
-std::vector<int> SprintStatItem::countWeekdays() const
+const Distribution<double>& SprintStatItem::worktimeDistribution() const
 {
-    std::vector<int> result(7, 0);
-    for (int dayNum = 0; dayNum < sizeInDays(timeSpan); ++dayNum) {
-        auto date = timeSpan.start().add(DateTime::Days{dayNum});
-        result[static_cast<unsigned>(date.dayOfWeek())]++;
-    }
-    return result;
+    return worktimeDistribution_;
 }
+
 
 namespace DayPart {
-
 
 DayPart dayPart(const TimeSpan& timeSpan)
 {
@@ -150,7 +129,6 @@ std::string dayPartName(unsigned dayPart)
     return dayPartName(static_cast<DayPart>(dayPart));
 }
 
-// TODO OCP violation
 std::string dayPartName(DayPart dayPart)
 {
     switch (dayPart) {
@@ -170,7 +148,6 @@ std::string dayPartName(DayPart dayPart)
     return "Invalid";
 }
 
-// TODO OCP violation
 std::string dayPartHours(DayPart dayPart)
 {
     switch (dayPart) {

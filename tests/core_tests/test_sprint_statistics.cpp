@@ -42,7 +42,7 @@ const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
 
 TEST(SprintStatItem, creates_reasonable_defaults_for_empty_distribution)
 {
-    const std::vector<double> expectedDailyDistribution;
+    const std::vector<double> expectedDailyDistribution{0};
     const std::vector<double> expectedWeekdayDistribution
         = std::vector<double>(7, 0);
     const std::vector<double> expectedWorktimeDistribution
