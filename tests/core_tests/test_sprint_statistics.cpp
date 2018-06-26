@@ -164,6 +164,33 @@ TEST(SprintStatItem, computes_worktime_distribution_correctly)
     EXPECT_EQ(expectedMaxValueBin, distribution.getMaxValueBin());
 }
 
+TEST(SprintStatItem, ignores_sprints_outside_time_range)
+{
+    const TimeSpan timeSpan{DateTime::fromYMD(2018, 6, 26),
+                            DateTime::fromYMD(2018, 6, 28)};
+    auto sprintBuilder = SprintBuilder{}.withTaskUuid("");
+    const auto startTime = timeSpan.start().add(DateTime::Days(-1));
+    std::vector<Sprint> sprints;
+    for (int i = 0; i < 5; ++i) {
+        sprints.push_back(sprintBuilder
+                              .withTimeSpan(TimeSpan{
+                                  startTime.add(DateTime::Days(i)),
+                                  startTime.add(DateTime::Days(i)).add(25min)})
+                              .build());
+    }
+    const std::vector<double> expectedDailyDistribution{1, 1, 1};
+    const std::vector<double> expectedWeekdayDistribution{0, 1, 1, 1, 0, 0, 0};
+
+    const SprintStatItem statistics{sprints, timeSpan};
+    const auto dailyDistribution = statistics.dailyDistribution();
+    const auto weekdayDistribution = statistics.weekdayDistribution();
+
+    EXPECT_EQ(expectedDailyDistribution,
+              dailyDistribution.getDistributionVector());
+    EXPECT_EQ(expectedWeekdayDistribution,
+              weekdayDistribution.getDistributionVector());
+}
+
 class TagTopFixture : public ::testing::Test {
 public:
     void push_n(std::vector<Sprint>& sprints, const Sprint& sprint, size_t n)
