@@ -32,24 +32,9 @@ using namespace entities;
 
 namespace {
 
-QString sprintToString(const Sprint& sprint)
-{
-    return QString("%1 - %2 %3 %4")
-        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
-        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
-        .arg(QString::fromStdString(prefixTags(sprint.tags())))
-        .arg(QString::fromStdString(sprint.name()));
-}
+QString sprintToString(const Sprint& sprint);
 
-
-QString taskToString(const Task& task)
-{
-    return QString("%1 %2 %3/%4")
-        .arg(QString::fromStdString(prefixTags(task.tags())))
-        .arg(QString::fromStdString(task.name()))
-        .arg(task.actualCost())
-        .arg(task.estimatedCost());
-}
+QString taskToString(const Task& task);
 
 } // namespace
 
@@ -66,7 +51,6 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
     coreService.yearRange(
         [this](const auto& range) { this->onYearRangeUpdated(range); });
     selectedDateInterval = ui->dateRangePicker->getInterval();
-    viewModel = new QStandardItemModel(this);
     ui->taskHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setItemDelegate(historyItemDelegate.get());
@@ -94,41 +78,9 @@ HistoryWindow::~HistoryWindow() { delete ui; }
 void HistoryWindow::synchronize() { historyState->retrieveHistory(); }
 
 
-void HistoryWindow::fillHistoryModel(const std::vector<HistoryItem>& history)
+void HistoryWindow::fillHistoryModel(const HistoryModel::HistoryData& history)
 {
-    // QStandardItemModel takes ownership of items that are added with
-    // appendRow()
-    viewModel->clear();
-
-    if (history.empty()) {
-        viewModel->appendRow(new QStandardItem("No data for selected period."));
-        return;
-    }
-
-    QStandardItem* parent
-        = new QStandardItem(QString("Completed %1 items.").arg(history.size()));
-    viewModel->appendRow(parent);
-
-    for (auto same_date_beg = cbegin(history);
-         same_date_beg != cend(history);) {
-        const auto [parent_date, parent_descr] = *same_date_beg;
-        auto same_date_end = std::find_if(
-            same_date_beg, cend(history), [&parent_date=parent_date](const auto& entry) {
-                return entry.first != parent_date;
-            });
-
-        parent = new QStandardItem(
-            QString("%1 (%2 items)")
-                .arg(parent_date.toString())
-                .arg(std::distance(same_date_beg, same_date_end)));
-        viewModel->appendRow(parent);
-
-        for (int children = 0; same_date_beg != same_date_end;
-             ++same_date_beg, ++children) {
-            QStandardItem* item{new QStandardItem(same_date_beg->second)};
-            parent->setChild(children, item);
-        }
-    }
+    viewModel->fill(history);
 }
 
 
@@ -158,7 +110,7 @@ void HistoryWindow::onYearRangeUpdated(
 
 void HistoryWindow::setHistoryModel(QTreeView* view)
 {
-    view->setModel(viewModel);
+    view->setModel(viewModel.get());
     view->expandAll();
     view->show();
 }
@@ -240,7 +192,7 @@ void DisplaySprints::exportData(const ExportDialog::ExportOptions& options)
 
 void DisplaySprints::onHistoryRetrieved(const std::vector<Sprint>& sprints)
 {
-    std::vector<HistoryWindow::HistoryItem> sprintHistory;
+    HistoryModel::HistoryData sprintHistory;
     sprintHistory.reserve(sprints.size());
     std::transform(sprints.cbegin(),
                    sprints.cend(),
@@ -295,7 +247,7 @@ void DisplayTasks::exportData(const ExportDialog::ExportOptions& options)
 
 void DisplayTasks::onHistoryRetrieved(const std::vector<Task>& tasks)
 {
-    std::vector<HistoryWindow::HistoryItem> taskHistory;
+    HistoryModel::HistoryData taskHistory;
     taskHistory.reserve(tasks.size());
     std::transform(tasks.cbegin(),
                    tasks.cend(),
@@ -309,5 +261,28 @@ void DisplayTasks::onHistoryRetrieved(const std::vector<Task>& tasks)
     historyView.fillHistoryModel(taskHistory);
     historyView.setHistoryModel(historyView.ui->taskHistoryView);
 }
+
+namespace {
+
+QString sprintToString(const Sprint& sprint)
+{
+    return QString("%1 - %2 %3 %4")
+        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
+        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+        .arg(QString::fromStdString(prefixTags(sprint.tags())))
+        .arg(QString::fromStdString(sprint.name()));
+}
+
+
+QString taskToString(const Task& task)
+{
+    return QString("%1 %2 %3/%4")
+        .arg(QString::fromStdString(prefixTags(task.tags())))
+        .arg(QString::fromStdString(task.name()))
+        .arg(task.actualCost())
+        .arg(task.estimatedCost());
+}
+
+} // namespace
 
 } // namespace sprint_timer::ui::qt_gui
