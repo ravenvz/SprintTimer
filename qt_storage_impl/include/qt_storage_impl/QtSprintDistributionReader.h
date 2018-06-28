@@ -26,6 +26,7 @@
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
 
+namespace sprint_timer::storage::qt_storage_impl {
 
 class DistributionReaderBase : public QObject,
                                public ISprintDistributionReader {
@@ -97,5 +98,7 @@ class QtSprintMonthlyDistributionReader : public DistributionReaderBase {
 public:
     QtSprintMonthlyDistributionReader(DBService& dbService, size_t numBins);
 };
+
+} // namespace sprint_timer::storage::qt_storage_impl
 
 #endif /* end of include guard: QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3 */

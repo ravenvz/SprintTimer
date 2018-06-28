@@ -21,8 +21,12 @@
 *********************************************************************************/
 #include "qt_storage_impl/QtSprintStorageWriter.h"
 #include "qt_storage_impl/Database.h"
-#include "utils/DateTimeConverter.h"
+#include "qt_storage_impl/utils/DateTimeConverter.h"
 
+namespace sprint_timer::storage::qt_storage_impl {
+
+using entities::Sprint;
+using storage::utils::DateTimeConverter;
 
 QtSprintStorageWriter::QtSprintStorageWriter(DBService& dbService)
     : dbService{dbService}
@@ -64,3 +68,5 @@ void QtSprintStorageWriter::remove(const Sprint& sprint)
                    QVariant(QString::fromStdString(sprint.uuid())));
     dbService.executePrepared(removeQueryId);
 }
+
+} // namespace sprint_timer::storage::qt_storage_impl

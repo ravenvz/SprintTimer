@@ -27,7 +27,7 @@
 #include "core/StatefulTimer.h"
 #include "gtest/gtest.h"
 
-using namespace SprintTimerCore;
+using namespace sprint_timer;
 
 namespace {
 

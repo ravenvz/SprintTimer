@@ -37,7 +37,7 @@ namespace Ui {
 class StatisticsWindow;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 /* Displays statistical information on finished sprints
  * for a given timespan.
@@ -71,7 +71,7 @@ private:
     Ui::StatisticsWindow* ui;
     IConfig& applicationSettings;
     ICoreService& coreService;
-    std::vector<Sprint> sprints;
+    std::vector<entities::Sprint> sprints;
     TagTop tagTop;
     DateInterval currentInterval;
     const size_t numTopTags{7}; // TODO move to config
@@ -81,10 +81,10 @@ private:
     void drawGraphs();
     void updateTopTagsDiagram(std::vector<TagTop::TagFrequency>& tagCounts);
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
-    void onDataFetched(const std::vector<Sprint>& sprints);
+    void onDataFetched(const std::vector<entities::Sprint>& sprints);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: STATISTICSWINDOW_H */

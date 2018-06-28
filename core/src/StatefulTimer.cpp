@@ -23,10 +23,10 @@
 #include "core/StatefulTimer.h"
 #include <utility>
 
+namespace sprint_timer {
+
 using dw::DateTime;
 using dw::TimeSpan;
-
-namespace SprintTimerCore {
 
 StatefulTimer::StatefulTimer(
     std::function<void(std::chrono::seconds timeLeft)> onTickCallback,
@@ -297,4 +297,4 @@ void SprintFinished::setNextState(StatefulTimer& timer)
                                   : timer.transitionToState(timer.shortBreak);
 }
 
-} // namespace SprintTimerCore
+} // namespace sprint_timer

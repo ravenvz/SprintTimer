@@ -29,6 +29,8 @@
 #include "gtest/gtest.h"
 
 using dw::DateTime;
+using namespace sprint_timer;
+using namespace sprint_timer::entities;
 
 TEST(TestTaskBuilder, test_name_) {
     TaskBuilder builder;

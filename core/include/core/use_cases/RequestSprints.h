@@ -26,11 +26,12 @@
 #include "core/ISprintStorageReader.h"
 #include "core/Query.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class RequestSprints : public Query {
 public:
-    using QueryResultHandler = std::function<void(const std::vector<Sprint>&)>;
+    using QueryResultHandler
+        = std::function<void(const std::vector<entities::Sprint>&)>;
     RequestSprints(ISprintStorageReader& sprint_storage_reader,
                    dw::TimeSpan timeSpan,
                    QueryResultHandler resultHandler);
@@ -45,6 +46,6 @@ private:
     QueryResultHandler handler;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: REQUESTSPRINTS_H_4QUSWCF0 */

@@ -21,12 +21,12 @@
 *********************************************************************************/
 #include "widgets/DataWidget.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 DataWidget::DataWidget(QWidget* parent)
     : QFrame{parent}
 {
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

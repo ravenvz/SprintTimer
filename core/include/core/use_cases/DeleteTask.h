@@ -22,14 +22,15 @@
 #ifndef REMOVETASKTRANSACTION_H_9P4V02DM
 #define REMOVETASKTRANSACTION_H_9P4V02DM
 
-#include "core/ITaskStorageWriter.h"
 #include "core/Command.h"
+#include "core/ITaskStorageWriter.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class DeleteTask : public Command {
 public:
-    DeleteTask(ITaskStorageWriter& taskStorageWriter, Task taskToRemove);
+    DeleteTask(ITaskStorageWriter& taskStorageWriter,
+               entities::Task taskToRemove);
 
     void execute() final;
 
@@ -39,9 +40,9 @@ public:
 
 private:
     ITaskStorageWriter& writer;
-    const Task task;
+    const entities::Task task;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: REMOVETASKTRANSACTION_H_9P4V02DM */

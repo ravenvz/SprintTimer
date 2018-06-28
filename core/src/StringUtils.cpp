@@ -19,11 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/StringUtils.h"
-#include <regex>
+#include "core/utils/StringUtils.h"
 
+namespace sprint_timer::utils {
 
-std::string StringUtils::join(const std::vector<std::string>& vec,
+std::string join(const std::vector<std::string>& vec,
                               const std::string& delimeter)
 {
     return join(vec.cbegin(), vec.cend(), delimeter);
@@ -31,10 +31,9 @@ std::string StringUtils::join(const std::vector<std::string>& vec,
 
 /* Given a string, return list of words in that string.
  * Word can contain letters, +, - and digits but no other symbols. */
-std::list<std::string> StringUtils::parseWords(std::string text)
+std::list<std::string> parseWords(std::string text, std::regex expr)
 {
-    std::regex word_regex{"[[:alnum:]+-]+"};
-    std::sregex_iterator words_begin{text.begin(), text.end(), word_regex};
+    std::sregex_iterator words_begin{text.begin(), text.end(), expr};
     std::sregex_iterator words_end;
     std::list<std::string> res;
 
@@ -44,16 +43,19 @@ std::list<std::string> StringUtils::parseWords(std::string text)
     return res;
 }
 
-bool StringUtils::startsWith(const std::string& str, const std::string& start)
+bool startsWith(const std::string& str, const std::string& start)
 {
 	if (start.size() > str.size())
 		return false;
     return std::equal(start.cbegin(), start.cend(), str.cbegin());
 }
 
-bool StringUtils::endsWith(const std::string& str, const std::string& end)
+bool endsWith(const std::string& str, const std::string& end)
 {
 	if (end.size() > str.size())
 		return false;
 	return std::equal(end.crbegin(), end.crend(), str.crbegin());
 }
+
+} // namespace sprint_timer::utils
+

@@ -24,7 +24,7 @@
 
 #include <string>
 
-namespace core {
+namespace sprint_timer {
 
 class Command {
 public:
@@ -37,20 +37,6 @@ public:
     virtual std::string describe() const = 0;
 };
 
-} // namespace core
-
-class Command {
-public:
-    virtual ~Command() = default;
-
-    virtual void execute() = 0;
-
-    virtual void undo() {}
-
-    virtual bool supportUndo() const { return false; }
-
-    virtual std::string inspect() const = 0;
-};
-
+} // namespace sprint_timer
 
 #endif /* end of include guard: ICOMMAND_H_NHSUJX60 */

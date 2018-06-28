@@ -23,7 +23,7 @@
 #include <QApplication>
 #include <QPainter>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 namespace {
 
@@ -196,5 +196,5 @@ int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
 
 } // namespace
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

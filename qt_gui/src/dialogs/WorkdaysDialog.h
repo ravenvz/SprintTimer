@@ -30,7 +30,7 @@ namespace Ui {
 class WorkdaysDialog;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class WorkdaysDialog : public QDialog {
     Q_OBJECT
@@ -48,7 +48,7 @@ private:
     unsigned pollWorkdaysCode() const;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

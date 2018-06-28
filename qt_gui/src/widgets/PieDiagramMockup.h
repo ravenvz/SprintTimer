@@ -25,7 +25,7 @@
 
 #include "IStatisticalChart.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 class DistributionDiagramMockup : public IStatisticalChart {
@@ -41,7 +41,7 @@ public:
     //     void onSelectionChanged(size_t selectionIndex) override;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

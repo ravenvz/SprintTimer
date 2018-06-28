@@ -30,6 +30,8 @@
 #include "core/IYearRangeReader.h"
 #include <memory>
 
+namespace sprint_timer {
+
 class IStorageImplementersFactory {
 public:
     virtual ~IStorageImplementersFactory() = default;
@@ -58,5 +60,7 @@ public:
     virtual std::unique_ptr<ITaskStorageWriter>
     createTaskStorageWriter() const = 0;
 };
+
+} // namespace sprint_timer
 
 #endif /* end of include guard: ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6 */

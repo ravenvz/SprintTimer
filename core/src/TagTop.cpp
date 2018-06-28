@@ -24,6 +24,10 @@
 #include "core/SprintStatistics.h"
 #include <numeric>
 
+namespace sprint_timer {
+
+using namespace entities;
+
 TagTop::TagTop(const std::vector<Sprint>& sprints, size_t topMaxSize)
     : numTopTags{topMaxSize}
 {
@@ -147,3 +151,5 @@ std::string TagTop::tagNameAt(size_t position) const
 }
 
 size_t TagTop::topSize() const { return frequencies.size(); }
+
+} // namespace sprint_timer

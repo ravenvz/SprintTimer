@@ -27,6 +27,7 @@
 #include "core/entities/Sprint.h"
 #include <unordered_map>
 
+namespace sprint_timer {
 
 /* Responsible for arranging sprints by their tags in order of tag frequency.
  *
@@ -57,17 +58,17 @@
  * */
 class TagTop {
 public:
-    using TagFrequency = std::pair<Tag, double>;
+    using TagFrequency = std::pair<entities::Tag, double>;
 
-    using TagSprints = std::unordered_map<Tag, std::vector<Sprint>>;
+    using TagSprints = std::unordered_map<entities::Tag, std::vector<entities::Sprint>>;
 
-    TagTop(const std::vector<Sprint>& sprints, size_t topMaxSize);
+    TagTop(const std::vector<entities::Sprint>& sprints, size_t topMaxSize);
 
     TagTop();
 
     std::vector<TagFrequency> tagFrequencies() const;
 
-    std::vector<Sprint> sprintsForTagAt(size_t position) const;
+    std::vector<entities::Sprint> sprintsForTagAt(size_t position) const;
 
     std::string tagNameAt(size_t position) const;
 
@@ -77,9 +78,9 @@ private:
     TagSprints sprintsByTag;
     std::vector<TagFrequency> frequencies;
     size_t numTopTags{0};
-    Tag dummyTag{""};
+    entities::Tag dummyTag{""};
 
-    void arrangeSprintsByTag(const std::vector<Sprint>& sprints);
+    void arrangeSprintsByTag(const std::vector<entities::Sprint>& sprints);
 
     void computeTagFrequencies();
 
@@ -89,13 +90,15 @@ private:
 
     void buildIndexMap();
 
-    std::vector<Tag> mergeBottomTags();
+    std::vector<entities::Tag> mergeBottomTags();
 
-    std::vector<Tag> findTopTags() const;
+    std::vector<entities::Tag> findTopTags() const;
 
-    std::vector<Tag> findAllTags() const;
+    std::vector<entities::Tag> findAllTags() const;
 
-    std::vector<Tag> findBottomTags() const;
+    std::vector<entities::Tag> findBottomTags() const;
 };
+
+} // namespace sprint_timer
 
 #endif // SPRINT_TIMER_TAGTOP_H

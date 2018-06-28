@@ -29,7 +29,7 @@ namespace Ui {
 class ExportDialog;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class ExportDialog : public QDialog {
     Q_OBJECT
@@ -51,7 +51,7 @@ signals:
     void exportConfirmed(const ExportOptions& options);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

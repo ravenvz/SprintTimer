@@ -27,7 +27,7 @@
 #include <QWidget>
 #include <vector>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 struct BarDataItem {
     QString label;
@@ -75,7 +75,7 @@ private:
     void drawBars(QPainter& painter);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // BARCHART_H

@@ -21,10 +21,10 @@
 *********************************************************************************/
 #include "widgets/IStatisticalChartLegend.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 IStatisticalChartLegend::~IStatisticalChartLegend() {}
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

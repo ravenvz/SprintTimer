@@ -22,15 +22,15 @@
 #ifndef TASK_H_7VXCYMOK
 #define TASK_H_7VXCYMOK
 
-
-#include "core/BoostUUIDGenerator.h"
-#include "core/StringUtils.h"
-#include "core/entities/Tag.h"
 #include "core/entities/Sprint.h"
+#include "core/entities/Tag.h"
+#include "core/utils/StringUtils.h"
 #include "date_wrapper/DateTime.h"
 #include <list>
 #include <string>
 #include <vector>
+
+namespace sprint_timer::entities {
 
 /* Represent Task that may have many associated sprints.
  *
@@ -45,12 +45,13 @@ public:
          int actualCost,
          std::list<Tag> tags,
          bool completed,
-         const dw::DateTime& lastModified = dw::DateTime::currentDateTimeLocal());
+         const dw::DateTime& lastModified
+         = dw::DateTime::currentDateTimeLocal());
 
     Task(std::string name,
          int estimatedCost,
          int actualCost,
-         const std::string& uuid,
+         std::string uuid,
          std::list<Tag> tags,
          bool completed,
          const dw::DateTime& lastModified);
@@ -80,58 +81,48 @@ public:
 
     static std::string estimatedPrefix;
 
-    /* Return Task name. */
     std::string name() const;
 
-    /* Return true if Task is completed and false otherwise. */
     bool isCompleted() const;
 
-    /* Return estimated number of sprints that are required to completed this
-     * task. */
     int estimatedCost() const;
 
-    /* Number of sprints that had been spent on this task. */
     int actualCost() const;
 
-    /* Return UUID. */
     std::string uuid() const;
 
-    /* Return list containing Task tags. */
     std::list<Tag> tags() const;
 
     dw::DateTime lastModified() const;
 
     void setName(const std::string& name);
 
-    /* Set task status. */
     void setCompleted(bool completed);
 
-    /* Set estimated number of sprints that are required to complete this task.
-     */
     void setEstimatedCost(int numSprints);
 
-    /* Set number of sprints spent on this task. */
     void setActualCost(int numSprints);
 
     void setTags(const std::list<Tag>& newTags);
 
-    /* Set time stamp of last item modification. */
     void setModifiedTimeStamp(const dw::DateTime& timeStamp);
 
-    friend std::ostream& operator<<(std::ostream& os, const Task& task);
-
 private:
-    static BoostUUIDGenerator generator;
-    std::string mName;
-    std::vector<Sprint> sprints;
-    int mEstimatedCost{1};
-    int mActualCost{0};
-    std::string mUuid;
-    std::list<Tag> mTags;
-    bool mCompleted{false};
-    dw::DateTime mLastModified;
+    std::string name_;
+    int estimatedCost_{1};
+    int actualCost_{0};
+    std::string uuid_;
+    std::list<Tag> tags_;
+    bool completed_{false};
+    dw::DateTime lastModified_;
 
     void decodeDescription(std::string&& encodedDescription);
 };
+
+std::ostream& operator<<(std::ostream& os, const Task& task);
+
+bool operator==(const Task& lhs, const Task& rhs);
+
+} // namespace sprint_timer::entities
 
 #endif /* end of include guard: TASK_H_7VXCYMOK */

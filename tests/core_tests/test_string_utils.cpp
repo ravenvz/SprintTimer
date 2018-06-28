@@ -24,8 +24,11 @@
 // Workaround for C++17 as std::tr1 no longer available and Gtest uses it
 #define GTEST_LANG_CXX11 1
 
-#include "core/StringUtils.h"
+#include "core/utils/StringUtils.h"
 #include "gtest/gtest.h"
+
+using namespace sprint_timer;
+using namespace sprint_timer::utils;
 
 TEST(TestStringUtils, test_parse_words)
 {
@@ -34,7 +37,7 @@ TEST(TestStringUtils, test_parse_words)
     const std::list<std::string> expected{
         "Some", "text1", "that", "should", "Be", "parsed", "in", "C++", "D--"};
 
-    const auto actual = StringUtils::parseWords(text);
+    const auto actual = parseWords(text);
 
     EXPECT_EQ(expected.size(), actual.size());
     EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
@@ -45,10 +48,11 @@ TEST(TestStringUtils, test_join_empty_container)
     std::vector<std::string> parts;
     const std::string expected{""};
 
-    const std::string actual = StringUtils::join(parts, ", ");
+    const std::string actual = join(parts, ", ");
 
     EXPECT_EQ(expected.size(), actual.size());
-    EXPECT_TRUE(std::equal(expected.cbegin(), expected.cend(), actual.cbegin()));
+    EXPECT_TRUE(
+        std::equal(expected.cbegin(), expected.cend(), actual.cbegin()));
 }
 
 TEST(TestStringUtils, test_join_with_some_parts_empty)
@@ -56,7 +60,7 @@ TEST(TestStringUtils, test_join_with_some_parts_empty)
     const std::vector<std::string> parts{"Some", "", "are", "empty"};
     const std::string expected{"Some are empty"};
 
-    std::string actual = StringUtils::join(parts, " ");
+    std::string actual = join(parts, " ");
 
     EXPECT_EQ(expected.size(), actual.size());
     EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
@@ -67,7 +71,7 @@ TEST(TestStringUtils, test_join_with_all_parts_empty)
     const std::vector<std::string> parts{"", "", "", ""};
     const std::string expected{""};
 
-    const std::string actual = StringUtils::join(parts, " ");
+    const std::string actual = join(parts, " ");
 
     EXPECT_EQ(expected.size(), actual.size());
     EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
@@ -78,8 +82,7 @@ TEST(TestStringUtils, test_join_on_list_of_ints)
     const std::list<int> parts{1, 2, 3, 4};
     const std::string expected{"1 -> 2 -> 3 -> 4"};
 
-    const std::string actual
-        = StringUtils::join(parts.cbegin(), parts.cend(), " -> ");
+    const std::string actual = join(parts.cbegin(), parts.cend(), " -> ");
 
     EXPECT_EQ(expected.size(), actual.size());
     EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
@@ -87,21 +90,21 @@ TEST(TestStringUtils, test_join_on_list_of_ints)
 
 TEST(TestStringUtils, test_starts_with)
 {
-    EXPECT_TRUE(StringUtils::startsWith("whatever", "what"));
-    EXPECT_TRUE(StringUtils::startsWith("what", ""));
-    EXPECT_TRUE(StringUtils::startsWith("", ""));
+    EXPECT_TRUE(startsWith("whatever", "what"));
+    EXPECT_TRUE(startsWith("what", ""));
+    EXPECT_TRUE(startsWith("", ""));
 
-    EXPECT_FALSE(StringUtils::startsWith("what", "whatever"));
-    EXPECT_FALSE(StringUtils::startsWith("", "what"));
+    EXPECT_FALSE(startsWith("what", "whatever"));
+    EXPECT_FALSE(startsWith("", "what"));
 }
 
 TEST(TestStringUtils, test_ends_with)
 {
-    EXPECT_TRUE(StringUtils::endsWith("whatever", "ever"));
-    EXPECT_TRUE(StringUtils::endsWith("whatever", ""));
-    EXPECT_TRUE(StringUtils::endsWith("", ""));
+    EXPECT_TRUE(endsWith("whatever", "ever"));
+    EXPECT_TRUE(endsWith("whatever", ""));
+    EXPECT_TRUE(endsWith("", ""));
 
-    EXPECT_FALSE(StringUtils::endsWith("whatever", "everest"));
-    EXPECT_FALSE(StringUtils::endsWith("", "ever"));
-    EXPECT_FALSE(StringUtils::endsWith("ever", "whatever"));
+    EXPECT_FALSE(endsWith("whatever", "everest"));
+    EXPECT_FALSE(endsWith("", "ever"));
+    EXPECT_FALSE(endsWith("ever", "whatever"));
 }

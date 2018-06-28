@@ -33,7 +33,7 @@
 #include <thread>
 #include <vector>
 
-namespace SprintTimerCore {
+namespace sprint_timer {
 
 class StatefulTimer;
 
@@ -187,6 +187,6 @@ private:
     void startCountdown();
 };
 
-} // namespace SprintTimerCore
+} // namespace sprint_timer
 
 #endif /* end of include guard: TASKRUNNER_H_9VSDY5UR */

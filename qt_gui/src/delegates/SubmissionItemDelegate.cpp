@@ -23,7 +23,7 @@
 #include "SubmissionItemDelegate.h"
 #include <QPainter>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 SubmissionItemDelegate::SubmissionItemDelegate(QObject* parent)
     : QStyledItemDelegate{parent}
@@ -46,5 +46,5 @@ void SubmissionItemDelegate::paint(QPainter* painter,
     painter->restore();
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

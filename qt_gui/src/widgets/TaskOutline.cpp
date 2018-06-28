@@ -23,12 +23,29 @@
 #include "widgets/TaskOutline.h"
 #include "dialogs/AddTaskDialog.h"
 #include "dialogs/ConfirmationDialog.h"
+#include "models/HistoryModel.h"
 #include "ui_task_outline.h"
+#include "utils/DateTimeConverter.h"
 #include "utils/MouseRightReleaseEater.h"
 #include "utils/WidgetUtils.h"
 #include <QMenu>
+#include <QStandardItemModel>
 
-namespace qt_gui {
+namespace {
+
+using sprint_timer::entities::Sprint;
+using sprint_timer::ui::qt_gui::HistoryModel;
+
+HistoryModel::HistoryData
+transformToHistoryData(const std::vector<Sprint>& sprints);
+
+QString sprintToString(const Sprint&);
+
+} // namespace
+
+namespace sprint_timer::ui::qt_gui {
+
+using namespace entities;
 
 TaskOutline::TaskOutline(ICoreService& coreService,
                          TaskModel* taskModel,
@@ -70,6 +87,7 @@ TaskOutline::TaskOutline(ICoreService& coreService,
 TaskOutline::~TaskOutline()
 {
     delete tagEditor;
+    delete taskSprintsView;
     delete ui;
 }
 
@@ -112,11 +130,14 @@ void TaskOutline::showContextMenu(const QPoint& pos)
     const auto editEntry = "Edit";
     const auto deleteEntry = "Delete";
     const auto tagEditorEntry = "Tag editor";
+    const auto viewSprintsEntry = "View sprints";
     contextMenu.addAction(editEntry);
     contextMenu.addSeparator();
     contextMenu.addAction(deleteEntry);
     contextMenu.addSeparator();
     contextMenu.addAction(tagEditorEntry);
+    contextMenu.addSeparator();
+    contextMenu.addAction(viewSprintsEntry);
 
     QAction* selectedEntry = contextMenu.exec(globalPos);
 
@@ -126,11 +147,14 @@ void TaskOutline::showContextMenu(const QPoint& pos)
         removeTask();
     if (selectedEntry && selectedEntry->text() == tagEditorEntry)
         launchTagEditor();
+    if (selectedEntry && selectedEntry->text() == viewSprintsEntry)
+        showSprintsForTask();
 }
 
 void TaskOutline::launchTagEditor()
 {
     if (!tagEditor) {
+        // No memory leak here as TagEditor has Qt::WA_DeleteOnClose set
         tagEditor = new TagEditor(tagModel);
         tagEditor->show();
     }
@@ -162,6 +186,7 @@ void TaskOutline::launchTaskEditor()
 {
     QModelIndex index = ui->lvTaskView->currentIndex();
     const auto itemToEdit = taskModel->itemAt(index.row());
+
     AddTaskDialog dialog{tagModel};
     dialog.setWindowTitle("Edit task");
     dialog.fillItemData(itemToEdit);
@@ -173,4 +198,60 @@ void TaskOutline::launchTaskEditor()
     }
 }
 
-} // namespace qt_gui
+void TaskOutline::showSprintsForTask()
+{
+    QModelIndex index = ui->lvTaskView->currentIndex();
+    const auto task = taskModel->itemAt(index.row());
+
+    coreService.requestSprintsForTask(task.uuid(),
+                                      [&](const std::vector<Sprint>& sprints) {
+                                          onSprintsForTaskFetched(sprints);
+                                      });
+}
+
+void TaskOutline::onSprintsForTaskFetched(const std::vector<Sprint>& sprints)
+{
+
+    if (taskSprintsView)
+        taskSprintsView->close();
+    auto taskSprintsHistory = transformToHistoryData(sprints);
+    taskSprintsView = new TaskSprintsView;
+    taskSprintsView->setAttribute(Qt::WA_DeleteOnClose);
+    taskSprintsModel = std::make_unique<HistoryModel>();
+    taskSprintsModel->fill(taskSprintsHistory);
+    taskSprintsView->setDelegate(taskSprintViewDelegate.get());
+    taskSprintsView->setModel(taskSprintsModel.get());
+    taskSprintsView->show();
+}
+
+} // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+HistoryModel::HistoryData
+transformToHistoryData(const std::vector<Sprint>& sprints)
+{
+    using sprint_timer::ui::qt_gui::DateTimeConverter;
+    HistoryModel::HistoryData taskSprintsHistory;
+    taskSprintsHistory.reserve(sprints.size());
+    std::transform(cbegin(sprints),
+                   cend(sprints),
+                   std::back_inserter(taskSprintsHistory),
+                   [](const auto& sprint) {
+                       return std::make_pair(
+                           DateTimeConverter::qDate(sprint.startTime()),
+                           sprintToString(sprint));
+                   });
+    return taskSprintsHistory;
+}
+
+QString sprintToString(const Sprint& sprint)
+{
+    return QString("%1 - %2 %3 %4")
+        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
+        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+        .arg(QString::fromStdString(prefixTags(sprint.tags())))
+        .arg(QString::fromStdString(sprint.name()));
+}
+
+} // namespace

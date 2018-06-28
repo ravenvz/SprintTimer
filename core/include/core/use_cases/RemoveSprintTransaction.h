@@ -22,14 +22,15 @@
 #ifndef REMOVESPRINTTRANSACTION_H_GAR8SZLM
 #define REMOVESPRINTTRANSACTION_H_GAR8SZLM
 
-#include "core/ISprintStorageWriter.h"
 #include "core/Command.h"
+#include "core/ISprintStorageWriter.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class RemoveSprintTransaction : public Command {
 public:
-    RemoveSprintTransaction(ISprintStorageWriter& writer, Sprint sprintToRemove);
+    RemoveSprintTransaction(ISprintStorageWriter& writer,
+                            entities::Sprint sprintToRemove);
 
     void execute() final;
 
@@ -39,9 +40,9 @@ public:
 
 private:
     ISprintStorageWriter& writer;
-    const Sprint sprint;
+    const entities::Sprint sprint;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: REMOVESPRINTTRANSACTION_H_GAR8SZLM */

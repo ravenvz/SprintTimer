@@ -21,9 +21,9 @@
 *********************************************************************************/
 #include "IStatisticalChart.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 IStatisticalChart::~IStatisticalChart() {}
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

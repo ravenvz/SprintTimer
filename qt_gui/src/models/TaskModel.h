@@ -27,7 +27,7 @@
 #include "date_wrapper/TimeSpan.h"
 #include "models/AsyncListModel.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class TaskModel : public AsyncListModel {
     Q_OBJECT
@@ -74,7 +74,7 @@ public:
     // Insert new Task into the database.
     // Return boolean, indicating success of the operation.
     // Changes are rolled back in case of failure.
-    void insert(const Task& item);
+    void insert(const entities::Task& item);
 
     // Remove item with given index and return boolean, indicating success of
     // the operation.
@@ -86,20 +86,20 @@ public:
     // Return item at given row. This is a convinient method that allows to get
     // item
     // without verbose calls to data().
-    Task itemAt(int row) const;
+    entities::Task itemAt(int row) const;
 
     // Mark item as completed if it is not completed and vice versa.
     void toggleCompleted(const QModelIndex& index);
 
     // Replace data of item at given row with data from the newItem.
-    void replaceItemAt(int row, const Task& newItem);
+    void replaceItemAt(int row, const entities::Task& newItem);
 
 protected:
     void requestDataUpdate() final;
 
 private:
     ICoreService& coreService;
-    std::vector<Task> storage;
+    std::vector<entities::Task> storage;
     // Sql helper queries that are needed to maintain database invariants.
     enum class Column {
         Id,
@@ -113,10 +113,10 @@ private:
         Uuid
     };
 
-    void onDataChanged(const std::vector<Task>& tasks);
+    void onDataChanged(const std::vector<entities::Task>& tasks);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: TASKMODEL_H_FUQ5UCBE */

@@ -25,6 +25,7 @@
 #include "core/ICoreService.h"
 #include "delegates/HistoryItemDelegate.h"
 #include "dialogs/ExportDialog.h"
+#include "models/HistoryModel.h"
 #include "widgets/DataWidget.h"
 #include "widgets/DateRangePicker.h"
 #include <QObject>
@@ -39,7 +40,7 @@ class HistoryWindow;
 } // namespace Ui
 
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 class DisplayState;
@@ -52,8 +53,6 @@ class HistoryWindow : public DataWidget {
     friend class DisplayTasks;
 
 public:
-    using HistoryItem = std::pair<QDate, QString>;
-
     explicit HistoryWindow(ICoreService& coreService,
                            QWidget* parent = nullptr);
 
@@ -65,7 +64,7 @@ private:
     Ui::HistoryWindow* ui;
     DateInterval selectedDateInterval;
     ICoreService& coreService;
-    QPointer<QStandardItemModel> viewModel;
+    std::unique_ptr<HistoryModel> viewModel = std::make_unique<HistoryModel>(nullptr);
     std::unique_ptr<DisplayState> displaySprintsState;
     std::unique_ptr<DisplayState> displayTasksState;
     DisplayState* historyState;
@@ -76,7 +75,7 @@ private:
     static constexpr int taskTabIndex{1};
 
     /* Assumes that history items are ordered by date ascendantly. */
-    void fillHistoryModel(const std::vector<HistoryItem>& history);
+    void fillHistoryModel(const HistoryModel::HistoryData& history);
 
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
 
@@ -117,7 +116,7 @@ public:
 
 private:
     /* Assumes that sprints are sorted by start time. */
-    void onHistoryRetrieved(const std::vector<Sprint>& sprints);
+    void onHistoryRetrieved(const std::vector<entities::Sprint>& sprints);
 };
 
 class DisplayTasks : public DisplayState {
@@ -130,10 +129,10 @@ public:
 
 private:
     /* Assumes that tasks are sorted by timestamp */
-    void onHistoryRetrieved(const std::vector<Task>& tasks);
+    void onHistoryRetrieved(const std::vector<entities::Task>& tasks);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif // HISTORY_VIEW_H

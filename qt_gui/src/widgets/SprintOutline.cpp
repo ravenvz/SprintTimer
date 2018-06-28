@@ -27,7 +27,7 @@
 #include "utils/MouseRightReleaseEater.h"
 #include <QMenu>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 SprintOutline::SprintOutline(ICoreService& coreService,
                              IConfig& applicationSettings,
@@ -45,6 +45,8 @@ SprintOutline::SprintOutline(ICoreService& coreService,
     ui->lvFinishedSprints->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->lvFinishedSprints->setModel(sprintModel);
 
+    coreService.registerUndoObserver(*this);
+
     connect(ui->pbAddSprintManually,
             &QPushButton::clicked,
             this,
@@ -58,14 +60,6 @@ SprintOutline::SprintOutline(ICoreService& coreService,
             &QListView::customContextMenuRequested,
             this,
             &SprintOutline::showContextMenu);
-    connect(sprintModel,
-            &AsyncListModel::updateFinished,
-            this,
-            &SprintOutline::adjustUndoButtonState);
-    connect(taskModel,
-            &AsyncListModel::updateFinished,
-            this,
-            &SprintOutline::adjustUndoButtonState);
     connect(ui->pbUndo,
             &QPushButton::clicked,
             this,
@@ -121,13 +115,14 @@ void SprintOutline::onUndoButtonClicked()
         sprintModel->synchronize();
         taskModel->synchronize();
         emit actionUndone();
-        adjustUndoButtonState();
     }
 }
+
+void SprintOutline::update() { adjustUndoButtonState(); }
 
 void SprintOutline::adjustUndoButtonState()
 {
     ui->pbUndo->setEnabled(coreService.numRevertableCommands() != 0);
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

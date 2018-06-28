@@ -21,10 +21,11 @@
 *********************************************************************************/
 
 #include "qt_storage_impl/Database.h"
-
 #include <QDebug>
 #include <QSqlError>
 #include <QtCore/QFile>
+
+namespace sprint_timer::storage::qt_storage_impl {
 
 namespace {
     unsigned currentDatabaseVersion{4};
@@ -517,3 +518,4 @@ bool Database::execAndCheck(QSqlQuery& query, const QString& queryStr) {
     return ok;
 }
 
+} // namespace sprint_timer::storage::qt_storage_impl

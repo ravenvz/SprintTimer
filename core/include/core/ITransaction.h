@@ -1,4 +1,6 @@
 /********************************************************************************
+namespace sprint_timer {
+
 **
 ** Copyright (C) 2016-2018 Pavel Pavlov.
 **
@@ -22,6 +24,8 @@
 #ifndef ITRANSACTION_H_USZOOY0D
 #define ITRANSACTION_H_USZOOY0D
 
+namespace sprint_timer {
+
 class ITransaction {
 public:
     virtual ~ITransaction() = default;
@@ -29,5 +33,6 @@ public:
     virtual bool undo() = 0;
 };
 
+} // namespace sprint_timer
 
 #endif /* end of include guard: ITRANSACTION_H_USZOOY0D */

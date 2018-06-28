@@ -23,7 +23,7 @@
 #include "utils/MouseRightReleaseEater.h"
 #include <QMouseEvent>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 MouseRightReleaseEater::MouseRightReleaseEater(QObject* parent)
     : QObject{parent}
@@ -40,4 +40,4 @@ bool MouseRightReleaseEater::eventFilter(QObject* object, QEvent* event)
     return QObject::eventFilter(object, event);
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

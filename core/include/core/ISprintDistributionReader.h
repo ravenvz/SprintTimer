@@ -26,6 +26,8 @@
 #include "date_wrapper/TimeSpan.h"
 #include <functional>
 
+namespace sprint_timer {
+
 class ISprintDistributionReader {
 public:
     using Handler = std::function<void(const Distribution<int>&)>;
@@ -34,5 +36,7 @@ public:
                                      Handler handler)
         = 0;
 };
+
+} // namespace sprint_timer
 
 #endif /* end of include guard: ISPRINTDISTRIBUTIONREADER_H_XMW7JEI6 */

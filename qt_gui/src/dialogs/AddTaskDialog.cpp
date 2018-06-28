@@ -20,12 +20,14 @@
 **
 *********************************************************************************/
 #include "AddTaskDialog.h"
-#include "core/StringUtils.h"
+#include "core/utils/StringUtils.h"
 #include "ui_add_todo_dialog.h"
 #include <QRegularExpression>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
+using namespace entities;
+using namespace utils;
 
 AddTaskDialog::AddTaskDialog(TagModel* tagModel, QWidget* parent)
     : QDialog(parent)
@@ -34,10 +36,11 @@ AddTaskDialog::AddTaskDialog(TagModel* tagModel, QWidget* parent)
 {
     ui->setupUi(this);
     setTagsModel();
-    connect(ui->tags,
-            static_cast<void(QComboBox::*)(const QString&)>(&QComboBox::activated),
-            this,
-            &AddTaskDialog::onQuickAddTagActivated);
+    connect(
+        ui->tags,
+        static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::activated),
+        this,
+        &AddTaskDialog::onQuickAddTagActivated);
     connect(ui->taskName,
             &QLineEdit::textEdited,
             this,
@@ -52,7 +55,7 @@ Task AddTaskDialog::constructedTask()
     const int estimatedCost = ui->estimatedCost->value();
     std::list<Tag> tags;
     std::list<std::string> tagNames
-        = StringUtils::parseWords(ui->leTags->text().toStdString());
+        = parseWords(ui->leTags->text().toStdString());
     // Remove duplicate tags if any.
     tagNames.sort();
     tagNames.unique();
@@ -81,8 +84,8 @@ void AddTaskDialog::fillItemData(const Task& item)
                    std::back_inserter(tagNames),
                    [](const auto& tag) { return tag.name(); });
 
-    QString joined_tags = QString::fromStdString(
-        StringUtils::join(tagNames.cbegin(), tagNames.cend(), " "));
+    QString joined_tags
+        = QString::fromStdString(join(tagNames.cbegin(), tagNames.cend(), " "));
     ui->taskName->setText(QString::fromStdString(item.name()));
     ui->estimatedCost->setValue(item.estimatedCost());
     ui->leTags->setText(joined_tags);
@@ -106,10 +109,7 @@ void AddTaskDialog::resetNameLineEditStyle()
 void AddTaskDialog::setTagsModel()
 {
     ui->tags->setModel(tagModel);
-    // ui->tags->setModelColumn(1);
-    // tagModel->select();
     ui->tags->setCurrentText("");
 }
 
-} // namespace qt_gui
-
+} // namespace sprint_timer::ui::qt_gui

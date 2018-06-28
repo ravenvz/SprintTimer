@@ -24,7 +24,7 @@
 #include "ui_export_dialog.h"
 #include <QFileDialog>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 ExportDialog::ExportDialog(QWidget* parent)
     : QDialog{parent}
@@ -51,5 +51,5 @@ void ExportDialog::accept()
     QDialog::accept();
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

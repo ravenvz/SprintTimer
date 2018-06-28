@@ -43,7 +43,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="../resources/resources.qrc">
+      <iconset>
        <normaloff>:/icons/streamline_history.png</normaloff>:/icons/streamline_history.png</iconset>
      </property>
      <property name="iconSize">
@@ -63,7 +63,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="../resources/resources.qrc">
+      <iconset>
        <normaloff>:/icons/progress.svg</normaloff>:/icons/progress.svg</iconset>
      </property>
      <property name="iconSize">
@@ -83,7 +83,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="../resources/resources.qrc">
+      <iconset>
        <normaloff>:/icons/streamline_settings.png</normaloff>:/icons/streamline_settings.png</iconset>
      </property>
      <property name="iconSize">

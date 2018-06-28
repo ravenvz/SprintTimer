@@ -25,36 +25,36 @@
 #include <cstdlib>
 #include <vector>
 
+namespace sprint_timer {
 
 template <class T>
 class Distribution {
-
 public:
+    Distribution() = default;
+
     explicit Distribution(size_t binNumber)
-        : numBins(binNumber)
-        , distribution(std::vector<T>(binNumber, 0))
-        , binFrequency(std::vector<int>(binNumber, 1))
+        : distribution{std::vector<T>(binNumber, 0)}
+        , binFrequency{std::vector<int>(binNumber, 1)}
     {
     }
 
-    explicit Distribution(std::vector<T>&& distribution)
-        : numBins(distribution.size())
-        , distribution(std::move(distribution))
-        , binFrequency(std::vector<int>(distribution.size(), 1))
+    explicit Distribution(std::vector<T>&& distribution_)
+        : distribution{std::move(distribution_)}
+        , binFrequency{std::vector<int>(distribution.size(), 1)}
     {
         computeMaxAndAverage();
     }
 
-    Distribution(std::vector<T>&& distribution, std::vector<int>&& binFrequency)
-        : numBins(distribution.size())
-        , distribution(std::move(distribution))
-        , binFrequency(std::move(binFrequency))
+    Distribution(std::vector<T>&& distribution_,
+                 std::vector<int>&& binFrequency)
+        : distribution{std::move(distribution_)}
+        , binFrequency{std::move(binFrequency)}
     {
         normalizeByBinFrequency();
         computeMaxAndAverage();
     }
 
-    size_t getNumBins() const { return numBins; }
+    size_t getNumBins() const { return distribution.size(); }
 
     double getAverage() const { return average; }
 
@@ -69,7 +69,10 @@ public:
         return 0;
     }
 
-    bool isValidBin(size_t bin) const { return bin >= 0 && bin < numBins; }
+    bool isValidBin(size_t bin) const
+    {
+        return bin >= 0 && bin < distribution.size();
+    }
 
     std::vector<T> getDistributionVector() const { return distribution; }
 
@@ -80,7 +83,6 @@ public:
 private:
     double average{0};
     double max{0};
-    size_t numBins{0};
     size_t maxValueBin{0};
     T total{0};
     std::vector<T> distribution;
@@ -88,7 +90,7 @@ private:
 
     void computeMaxAndAverage()
     {
-        if (numBins == 0)
+        if (distribution.empty())
             return;
         // TODO what if there is an overflow?
         T sum = 0;
@@ -101,16 +103,18 @@ private:
             }
         }
         total = sum;
-        average = sum / double(numBins);
+        average = sum / double(distribution.size());
     }
 
     void normalizeByBinFrequency()
     {
-        for (size_t bin = 0; bin < numBins; ++bin) {
+        for (size_t bin = 0; bin < distribution.size(); ++bin) {
             if (binFrequency[bin] > 0)
                 distribution[bin] /= binFrequency[bin];
         }
     }
 };
+
+} // namespace sprint_timer
 
 #endif /* end of include guard: DISTRIBUTION_H_HG9WILUN */

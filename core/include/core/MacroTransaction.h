@@ -26,7 +26,7 @@
 #include <memory>
 #include <vector>
 
-namespace core::use_cases {
+namespace sprint_timer {
 
 class MacroTransaction : public Command {
 public:
@@ -56,8 +56,7 @@ public:
                        commands.cend(),
                        std::back_inserter(descriptions),
                        [](const auto& command) { return command->describe(); });
-        return StringUtils::join(
-            descriptions.cbegin(), descriptions.cend(), " ");
+        return utils::join(descriptions.cbegin(), descriptions.cend(), " ");
     }
 
     void addCommand(std::unique_ptr<Command> command)
@@ -69,6 +68,6 @@ private:
     std::vector<std::unique_ptr<Command>> commands;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer
 
 #endif /* end of include guard: IMACROTRANSACTION_H_GKJDX3V4 */

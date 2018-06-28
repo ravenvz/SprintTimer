@@ -27,7 +27,7 @@
 #include <QDate>
 #include <iostream>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 struct DateInterval {
 
@@ -78,7 +78,7 @@ struct DateInterval {
 //     return os;
 // }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: DATEINTERVAL_H_DO5P2YKX */

@@ -22,16 +22,16 @@
 #ifndef EDITTASKCOMMAND_H_3FYYCQWP
 #define EDITTASKCOMMAND_H_3FYYCQWP
 
-#include "core/ITaskStorageWriter.h"
 #include "core/Command.h"
+#include "core/ITaskStorageWriter.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class EditTask : public Command {
 public:
     EditTask(ITaskStorageWriter& writer,
-             Task originalTask,
-             Task editedTask);
+             entities::Task originalTask,
+             entities::Task editedTask);
 
     void execute() final;
 
@@ -41,10 +41,10 @@ public:
 
 private:
     ITaskStorageWriter& writer;
-    Task originalTask_;
-    Task editedTask_;
+    const entities::Task originalTask_;
+    const entities::Task editedTask_;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: EDITTASKCOMMAND_H_3FYYCQWP */

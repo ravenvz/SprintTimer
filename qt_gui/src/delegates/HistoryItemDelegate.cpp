@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "delegates/HistoryItemDelegate.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 HistoryItemDelegate::HistoryItemDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
@@ -43,5 +43,4 @@ void HistoryItemDelegate::paint(QPainter* painter,
     }
 }
 
-} // namespace qt_gui
-
+} // namespace sprint_timer::ui::qt_gui

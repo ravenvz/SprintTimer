@@ -26,7 +26,7 @@
 #include "core/ITaskStorageWriter.h"
 #include <iostream>
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class RenameTag : public Command {
 public:
@@ -46,6 +46,6 @@ private:
     const std::string newName_;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: EDITTAG_H_6NGOS1Q2 */

@@ -22,6 +22,7 @@
 #include "qt_storage_impl/QtYearRangeReader.h"
 #include "qt_storage_impl/Database.h"
 
+namespace sprint_timer::storage::qt_storage_impl {
 
 QtYearRangeReader::QtYearRangeReader(DBService& dbService)
     : dbService{dbService}
@@ -53,3 +54,5 @@ void QtYearRangeReader::onResultsReceived(
     }
     handler(range);
 }
+
+} // namespace sprint_timer::storage::qt_storage_impl

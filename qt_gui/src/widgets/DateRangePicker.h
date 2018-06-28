@@ -30,7 +30,7 @@ namespace Ui {
 class DateRangePicker;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 class DateRangePicker : public QWidget {
@@ -62,7 +62,7 @@ private:
     void connectSlots();
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

@@ -24,8 +24,10 @@
 #define SPRINT_TIMER_SPRINTBUILDER_H
 
 #include "core/entities/Task.h"
-#include <stdexcept>
 #include <optional>
+#include <stdexcept>
+
+namespace sprint_timer {
 
 class SprintBuilderError : public std::runtime_error {
 public:
@@ -38,23 +40,24 @@ public:
 class SprintBuilder {
 
 public:
-    Sprint build();
-    SprintBuilder& withName(const std::string& name);
-    SprintBuilder& withUuid(const std::string& uuid);
-    SprintBuilder& withTaskUuid(const std::string& uuid);
-    SprintBuilder& withTag(const Tag& tag);
-    SprintBuilder& withTag(const std::string& tag);
-    SprintBuilder& withTimeSpan(const dw::TimeSpan& timeSpan);
-    SprintBuilder& forTask(const Task& task);
-    SprintBuilder& withExplicitTags(const std::list<Tag>& tags);
+    entities::Sprint build();
+    SprintBuilder& withName(std::string name);
+    SprintBuilder& withUuid(std::string uuid);
+    SprintBuilder& withTaskUuid(std::string uuid);
+    SprintBuilder& withTag(entities::Tag tag);
+    SprintBuilder& withTag(std::string tag);
+    SprintBuilder& withTimeSpan(dw::TimeSpan timeSpan);
+    SprintBuilder& forTask(const entities::Task& task);
+    SprintBuilder& withExplicitTags(std::list<entities::Tag> tags);
 
 private:
-    std::string mName;
-    std::optional<std::string> mUuid;
-    std::optional<std::string> mTaskUuid;
-    std::list<Tag> mTags;
-    std::optional<dw::TimeSpan> mTimeSpan;
+    std::string name_;
+    std::optional<std::string> uuid_;
+    std::optional<std::string> taskUuid_;
+    std::list<entities::Tag> tags_;
+    std::optional<dw::TimeSpan> timeSpan_;
 };
 
+} // namespace sprint_timer
 
-#endif //SPRINT_TIMER_SPRINTBUILDER_H
+#endif // SPRINT_TIMER_SPRINTBUILDER_H

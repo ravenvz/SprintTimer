@@ -23,7 +23,7 @@
 #include <QHelpEvent>
 #include <QToolTip>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 void AxisRange::setRange(double start, double end)
 {
@@ -228,5 +228,5 @@ Graph::const_iterator Graph::cend() const { return points.cend(); }
 
 size_t Graph::size() const { return points.size(); }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

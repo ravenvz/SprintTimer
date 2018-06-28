@@ -25,7 +25,7 @@
 #include "core/ITaskStorageReader.h"
 #include "core/Query.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class RequestUnfinishedTasks : public Query {
 public:
@@ -41,6 +41,6 @@ private:
     ITaskStorageReader::Handler handler_;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: REQUESTUNFINISHEDTASKSCOMMAND_H_AGF8KFHK */

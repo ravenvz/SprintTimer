@@ -26,7 +26,7 @@
 #include <QDate>
 #include <QtWidgets/QGridLayout>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 DailyTimelineGraph::DailyTimelineGraph(QWidget* parent)
@@ -124,5 +124,5 @@ void DailyTimelineGraph::updateLegend(
         QString("%1").arg(averagePerWorkday, 2, 'f', 2, '0'));
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

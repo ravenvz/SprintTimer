@@ -26,7 +26,7 @@
 #include <QStringListModel>
 #include <QtWidgets/QGroupBox>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
@@ -113,5 +113,5 @@ void SettingsDialog::onBrowseSoundFileButtonClicked()
     ui->lePathToSoundFile->setText(filename);
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

@@ -22,6 +22,8 @@
 #include <include/qt_storage_impl/Database.h>
 #include "qt_storage_impl/DBService.h"
 
+namespace sprint_timer::storage::qt_storage_impl {
+
 DBService::DBService(const QString& filename)
 {
     // TODO handle exception
@@ -225,3 +227,4 @@ bool Worker::setPragmas()
     return query.exec("PRAGMA foreign_keys = ON");
 }
 
+} // namespace sprint_timer::storage::qt_storage_impl

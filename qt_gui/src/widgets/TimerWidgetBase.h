@@ -31,7 +31,7 @@
 #include <QWidget>
 #include <memory>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 using Progress = int;
 
@@ -47,9 +47,9 @@ public:
 
 protected:
     const IConfig& applicationSettings;
-    std::unique_ptr<SprintTimerCore::IStatefulTimer> timer;
+    std::unique_ptr<IStatefulTimer> timer;
     std::unique_ptr<QMediaPlayer> player = std::make_unique<QMediaPlayer>();
-    SprintTimerCore::IStatefulTimer::StateId currentState;
+    IStatefulTimer::StateId currentState;
 
     virtual void onSprintStateEnteredHook();
     virtual void onSprintStateLeftHook();
@@ -68,21 +68,21 @@ protected:
 
 protected slots:
     void onTimerTick(std::chrono::seconds timeLeft);
-    void onTimerStateChanged(SprintTimerCore::IStatefulTimer::StateId state);
+    void onTimerStateChanged(IStatefulTimer::StateId state);
     void onTimerUpdated(std::chrono::seconds timeLeft);
-    void onStateChanged(SprintTimerCore::IStatefulTimer::StateId state);
+    void onStateChanged(IStatefulTimer::StateId state);
     void startTask();
     void cancelTask();
     void onSoundPlaybackError(QMediaPlayer::Error error);
 
 signals:
     void timerUpdated(std::chrono::seconds timeLeft);
-    void stateChanged(SprintTimerCore::IStatefulTimer::StateId state);
+    void stateChanged(IStatefulTimer::StateId state);
     void submitRequested(std::vector<dw::TimeSpan> completedTaskIntervals);
     void submissionCandidateChanged(int index);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: ITIMERWIDGET_H_REB4PSQX */

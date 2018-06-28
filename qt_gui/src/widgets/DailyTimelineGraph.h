@@ -34,7 +34,7 @@ namespace Ui {
 class DailyTimelineGraph;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 class DailyTimelineGraph : public QFrame {
@@ -57,7 +57,7 @@ private:
                       double averagePerWorkday);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

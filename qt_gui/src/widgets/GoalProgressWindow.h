@@ -33,7 +33,7 @@
 #include <core/ICoreService.h>
 #include <memory>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class ProgressView;
 
@@ -74,7 +74,7 @@ private slots:
     void launchWorkdaysConfigurationDialog();
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

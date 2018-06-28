@@ -25,7 +25,7 @@
 #include "widgets/Gauge.h"
 #include <QtWidgets/QGridLayout>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 namespace ProgressBarColors {
 
@@ -188,4 +188,4 @@ void ProgressView::updateProgressBar(int lastValue)
 }
 
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui

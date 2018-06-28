@@ -26,7 +26,7 @@
 #include "core/Query.h"
 #include "date_wrapper/TimeSpan.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class RequestTasks : public Query {
 public:
@@ -44,6 +44,6 @@ private:
     ITaskStorageReader::Handler handler_;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif // SPRINT_TIMER_REQUESTTASKS_H

@@ -25,7 +25,7 @@
 #include "core/ISprintDistributionReader.h"
 #include "core/Query.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class RequestSprintDistribution : public Query {
 public:
@@ -43,6 +43,6 @@ private:
     ISprintDistributionReader::Handler handler_;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: REQUESTSPRINTDISTRIBUTION_H_QUUONEQF */

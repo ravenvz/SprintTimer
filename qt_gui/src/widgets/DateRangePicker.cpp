@@ -30,7 +30,7 @@
 
 #include <QDebug>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 DateRangePicker::DateRangePicker(QWidget* parent)
     : QWidget(parent)
@@ -131,5 +131,5 @@ void DateRangePicker::setYears(const std::vector<std::string>& years)
     updateInterval();
 }
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

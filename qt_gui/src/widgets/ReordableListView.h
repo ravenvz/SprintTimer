@@ -27,7 +27,7 @@
 #include <QDropEvent>
 #include <QListView>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 /* Extension of QListView that allows items to be reordered. */
@@ -43,7 +43,7 @@ public:
 
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

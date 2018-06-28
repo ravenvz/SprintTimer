@@ -26,9 +26,11 @@
 #include "date_wrapper/TimeSpan.h"
 #include <functional>
 
+namespace sprint_timer {
+
 class ITaskStorageReader {
 public:
-    using Items = std::vector<Task>;
+    using Items = std::vector<entities::Task>;
 
     using Handler = std::function<void(const Items&)>;
 
@@ -45,5 +47,7 @@ public:
 
     virtual void requestAllTags(TagHandler handler) = 0;
 };
+
+} // namespace sprint_timer
 
 #endif /* end of include guard: ITASKSTORAGEREADER_H_RMTKEREJ */

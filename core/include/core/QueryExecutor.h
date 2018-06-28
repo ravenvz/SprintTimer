@@ -24,13 +24,13 @@
 
 #include <core/Query.h>
 
-namespace core {
+namespace sprint_timer {
 
 class QueryExecutor {
 public:
     void executeQuery(std::unique_ptr<Query>&& query) { query->execute(); }
 };
 
-} // namespace core
+} // namespace sprint_timer
 
 #endif /* end of include guard: QUERYEXECUTOR_H_AQH0UTZ1 */

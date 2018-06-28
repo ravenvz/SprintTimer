@@ -26,6 +26,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+namespace sprint_timer {
+
 class BoostUUIDGenerator {
 public:
     std::string generateUUID() { return to_string(generator()); }
@@ -33,5 +35,7 @@ public:
 private:
     boost::uuids::random_generator generator;
 };
+
+} // namespace sprint_timer
 
 #endif /* end of include guard: BOOSTUUIDGENERATOR_H_OF6HXUYB */

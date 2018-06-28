@@ -30,7 +30,7 @@
 #include <QWidget>
 #include <optional>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 using DataItem = std::pair<std::string, double>;
 
@@ -79,7 +79,7 @@ private:
     std::optional<size_t> selectedSliceIndex;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

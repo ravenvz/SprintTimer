@@ -27,7 +27,7 @@
 #include <vector>
 #include <string>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 
 /* Widget that is able to illustrate data that is divided in parts proportional
@@ -61,7 +61,7 @@ signals:
     void partClicked(size_t);
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 

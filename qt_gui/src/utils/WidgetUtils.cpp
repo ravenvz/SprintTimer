@@ -22,7 +22,7 @@
 
 #include "utils/WidgetUtils.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 namespace WidgetUtils {
 
@@ -42,5 +42,5 @@ void bringToForeground(QWidget* widget)
 
 } /* WidgetUtils */
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

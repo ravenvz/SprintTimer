@@ -34,7 +34,7 @@
 #include "core/MacroTransaction.h"
 #include "core/QueryExecutor.h"
 
-namespace Core {
+namespace sprint_timer {
 
 class CoreService : public ICoreService {
 public:
@@ -45,43 +45,48 @@ public:
                 ITaskStorageWriter& taskStorageWriter,
                 ISprintDistributionReader& sprintDailyDistributionReader,
                 ISprintDistributionReader& sprintWeeklyDistributionReader,
-                ISprintDistributionReader& sprintMonthlyDistributionReader);
+                ISprintDistributionReader& sprintMonthlyDistributionReader,
+                CommandInvoker& invoker);
 
-    void registerTask(const Task& task) final;
+    void registerTask(const entities::Task& task) final;
 
-    void removeTask(const Task& task) final;
+    void removeTask(const entities::Task& task) final;
 
-    void editTask(const Task& task, const Task& editedTask) final;
+    void editTask(const entities::Task& task,
+                  const entities::Task& editedTask) final;
 
-    void toggleTaskCompletionStatus(const Task& task) final;
+    void toggleTaskCompletionStatus(const entities::Task& task) final;
 
     void registerTaskPriorities(TaskOrder&& old_order,
                                 TaskOrder&& new_order) final;
 
-    void requestFinishedTasks(const dw::TimeSpan& timeSpan,
-                              std::function<void(const std::vector<Task>&)>
-                                  onResultsReceivedCallback) final;
+    void
+    requestFinishedTasks(const dw::TimeSpan& timeSpan,
+                         std::function<void(const std::vector<entities::Task>&)>
+                             onResultsReceivedCallback) final;
 
-    void requestUnfinishedTasks(std::function<void(const std::vector<Task>&)>
-                                    onResultsReceivedCallback) final;
+    void requestUnfinishedTasks(
+        std::function<void(const std::vector<entities::Task>&)>
+            onResultsReceivedCallback) final;
 
     void exportTasks(const dw::TimeSpan& timeSpan,
-                     std::shared_ptr<ExternalIO::ISink> sink,
+                     std::shared_ptr<external_io::ISink> sink,
                      TaskEncodingFunc func) final;
 
     void registerSprint(const dw::TimeSpan& timeSpan,
                         const std::string& taskUuid) final;
 
-    void registerSprint(const Sprint& sprint) final;
+    void registerSprint(const entities::Sprint& sprint) final;
 
-    void removeSprint(const Sprint& sprint) final;
+    void removeSprint(const entities::Sprint& sprint) final;
 
-    void sprintsInTimeRange(const dw::TimeSpan& timeSpan,
-                            std::function<void(const std::vector<Sprint>&)>
-                                onResultsReceivedCallback) final;
+    void
+    sprintsInTimeRange(const dw::TimeSpan& timeSpan,
+                       std::function<void(const std::vector<entities::Sprint>&)>
+                           onResultsReceivedCallback) final;
 
     void exportSprints(const dw::TimeSpan& timeSpan,
-                       std::shared_ptr<ExternalIO::ISink> sink,
+                       std::shared_ptr<external_io::ISink> sink,
                        SprintEncodingFunc func) final;
 
     void yearRange(std::function<void(const std::vector<std::string>&)>
@@ -112,6 +117,12 @@ public:
 
     void undoLast() final;
 
+    void registerUndoObserver(Observer& observer) final;
+
+    void requestSprintsForTask(
+        const std::string& taskUuid,
+        ISprintStorageReader::Handler onResultsReceivedCallback) final;
+
 private:
     ISprintStorageReader& sprintReader;
     ISprintStorageWriter& sprintWriter;
@@ -121,10 +132,10 @@ private:
     ISprintDistributionReader& sprintDailyDistributionReader;
     ISprintDistributionReader& sprintWeeklyDistributionReader;
     ISprintDistributionReader& sprintMonthlyDistributionReader;
-    core::QueryExecutor query_invoker;
-    core::CommandInvoker invoker;
+    CommandInvoker& invoker;
+    QueryExecutor query_invoker;
 };
 
-} // namespace Core
+} // namespace sprint_timer
 
 #endif /* end of include guard: CORESERVICE_H_JXK8PKAI */

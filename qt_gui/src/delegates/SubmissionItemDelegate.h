@@ -25,7 +25,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class SubmissionItemDelegate : public QStyledItemDelegate {
     Q_OBJECT
@@ -38,7 +38,7 @@ public:
                const QModelIndex& index) const override;
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif

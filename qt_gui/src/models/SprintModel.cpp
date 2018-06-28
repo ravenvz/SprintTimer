@@ -21,10 +21,11 @@
 *********************************************************************************/
 #include "models/SprintModel.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
-using dw::TimeSpan;
 using dw::DateTime;
+using dw::TimeSpan;
+using namespace entities;
 
 SprintModel::SprintModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel(parent)
@@ -93,8 +94,7 @@ void SprintModel::remove(int row)
 void SprintModel::requestDataUpdate()
 {
     coreService.sprintsInTimeRange(
-        interval,
-        [this](const auto& items) { this->onDataChanged(items); });
+        interval, [this](const auto& items) { this->onDataChanged(items); });
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)
@@ -105,5 +105,4 @@ void SprintModel::onDataChanged(const std::vector<Sprint>& items)
     broadcastUpdateFinished();
 }
 
-} // namespace qt_gui
-
+} // namespace sprint_timer::ui::qt_gui

@@ -32,7 +32,7 @@ namespace Ui {
 class FancyTimer;
 } // namespace Ui
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 class FancyTimer : public TimerWidgetBase {
 public:
@@ -49,7 +49,6 @@ private:
     CombinedIndicator* combinedIndicator;
     std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate
         = std::make_unique<SubmissionItemDelegate>();
-    ;
     //    const QColor taskStateColor{QColor{"#eb6c59"}};
     //    const QColor breakStateColor{QColor{"#73c245"}};
     //    const QColor zoneStateColor{Qt::darkYellow};
@@ -67,7 +66,7 @@ private slots:
     void onIndicatorClicked();
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: FANCYTIMER_H_PXO2DFJW */

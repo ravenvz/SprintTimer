@@ -22,7 +22,7 @@
 #include "models/AsyncListModel.h"
 #include <iostream>
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 AsyncListModel::AsyncListModel(QObject* parent)
     : QAbstractListModel{parent}
@@ -48,5 +48,5 @@ void AsyncListModel::submitData() {}
 
 void AsyncListModel::revertData() {}
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 

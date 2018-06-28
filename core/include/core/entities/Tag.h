@@ -22,11 +22,13 @@
 #ifndef TAG_H_6HD0W9PY
 #define TAG_H_6HD0W9PY
 
-#include "core/StringUtils.h"
+#include "core/utils/StringUtils.h"
 #include <algorithm>
 #include <ostream>
 #include <string>
 #include <vector>
+
+namespace sprint_timer::entities {
 
 class Tag {
 public:
@@ -34,7 +36,7 @@ public:
 
     Tag(std::string name);
 
-    static std::string prefix;
+    static const std::string prefix;
 
     std::string name() const;
 
@@ -42,23 +44,17 @@ public:
 
     std::string nameWithPrefix() const;
 
-    friend std::ostream& operator<<(std::ostream& os, const Tag& tag);
-
 private:
-    std::string aName;
+    std::string name_;
 };
 
-inline bool operator<(const Tag& lhs, const Tag& rhs)
-{
-    return lhs.name() < rhs.name();
-}
+std::ostream& operator<<(std::ostream& os, const Tag& tag);
 
-inline bool operator==(const Tag& lhs, const Tag& rhs)
-{
-    return lhs.name() == rhs.name();
-}
+bool operator<(const Tag& lhs, const Tag& rhs);
 
-/* Given container with tags, return string that containes
+bool operator==(const Tag& lhs, const Tag& rhs);
+
+/* Given container with tags, return string that contains
  * all tags with leading prefix separated by whitespace.*/
 template <typename TagContainer>
 std::string prefixTags(const TagContainer& tags)
@@ -70,14 +66,16 @@ std::string prefixTags(const TagContainer& tags)
                    tags.cend(),
                    std::back_inserter(prefixedTags),
                    [](const auto& tag) { return tag.nameWithPrefix(); });
-    return StringUtils::join(prefixedTags.cbegin(), prefixedTags.cend(), " ");
+    return utils::join(prefixedTags.cbegin(), prefixedTags.cend(), " ");
 }
+
+} // namespace sprint_timer::entities
 
 namespace std {
 
 template <>
-struct hash<Tag> {
-    size_t operator()(const Tag& tag) const
+struct hash<sprint_timer::entities::Tag> {
+    size_t operator()(const sprint_timer::entities::Tag& tag) const
     {
         return std::hash<std::string>()(tag.name());
     }

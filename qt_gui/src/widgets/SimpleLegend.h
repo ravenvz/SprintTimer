@@ -28,7 +28,7 @@
 #include <QVBoxLayout>
 #include "widgets/IStatisticalChartLegend.h"
 
-namespace qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
 // TODO implement proper legend item.
 /* Quick-and-dirty prototype for legend item. Needs some rework done.
@@ -108,7 +108,7 @@ private:
 
 };
 
-} // namespace qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 
 #endif /* end of include guard: SIMPLELEGEND_H_FM2CYP6M */

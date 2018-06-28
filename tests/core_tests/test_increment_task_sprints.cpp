@@ -30,6 +30,9 @@
 
 namespace {
 
+using namespace sprint_timer::entities;
+using namespace sprint_timer::use_cases;
+
 Task defaultItem{"Item name", 4, 2, {Tag{"Tag 1"}, Tag{"Tag 2"}}, false};
 
 } // namespace
@@ -41,7 +44,7 @@ TEST(IncrementTaskSprints, test_execute_and_undo)
     writer.save(defaultItem);
     std::string uuid = defaultItem.uuid();
 
-    core::use_cases::IncrementTaskSprints increment{writer, uuid};
+    IncrementTaskSprints increment{writer, uuid};
     increment.execute();
 
     EXPECT_EQ(3, (*writer.storage.getItem(uuid)).actualCost());
@@ -64,7 +67,7 @@ TEST(IncrementTaskSprints, DISABLED_test_should_not_undo_if_was_not_executed)
     writer.save(defaultItem);
     std::string uuid = defaultItem.uuid();
 
-    core::use_cases::IncrementTaskSprints increment{writer, uuid};
+    IncrementTaskSprints increment{writer, uuid};
 
     EXPECT_EQ(2, (*writer.storage.getItem(uuid)).actualCost());
 

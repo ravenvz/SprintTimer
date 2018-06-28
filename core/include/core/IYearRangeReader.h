@@ -26,6 +26,8 @@
 #include <list>
 #include <vector>
 
+namespace sprint_timer {
+
 class IYearRangeReader {
 public:
     using Handler = std::function<void(const std::vector<std::string>&)>;
@@ -33,5 +35,6 @@ public:
     virtual void requestYearRange(Handler handler) = 0;
 };
 
+} // namespace sprint_timer
 
 #endif /* end of include guard: IYEARRANGEREADER_H_EIN38BSX */
