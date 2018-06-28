@@ -23,12 +23,15 @@
 #define TASKOUTLINE_H
 
 #include "core/ICoreService.h"
+#include "delegates/HistoryItemDelegate.h"
 #include "delegates/TaskItemDelegate.h"
 #include "dialogs/AddTaskDialog.h"
+#include "models/HistoryModel.h"
 #include "models/TagModel.h"
 #include "models/TaskModel.h"
 #include "widgets/ReordableListView.h"
 #include "widgets/TagEditor.h"
+#include "widgets/TaskSprintsView.h"
 #include <QPointer>
 #include <QWidget>
 #include <QtWidgets/QLineEdit>
@@ -69,11 +72,16 @@ private:
     std::unique_ptr<TaskItemDelegate> taskItemDelegate
         = std::make_unique<TaskItemDelegate>();
     const QSize desiredSize{300, 200};
+    QPointer<TaskSprintsView> taskSprintsView;
+    std::unique_ptr<HistoryModel> taskSprintsModel;
+    std::unique_ptr<HistoryItemDelegate> taskSprintViewDelegate
+        = std::make_unique<HistoryItemDelegate>();
 
     void launchTagEditor();
     void removeTask();
     void launchTaskEditor();
     void showSprintsForTask();
+    void onSprintsForTaskFetched(const std::vector<entities::Sprint>&);
 
 signals:
     void taskSelected(int row);

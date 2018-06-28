@@ -19,28 +19,37 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "delegates/HistoryItemDelegate.h"
+#ifndef TASKSPRINTSVIEW_H_HYCTEOV4
+#define TASKSPRINTSVIEW_H_HYCTEOV4
+
+#include "models/HistoryModel.h"
+#include <QStyledItemDelegate>
+#include <QWidget>
+#include <memory>
+
+namespace Ui {
+class TaskSprintsView;
+} // namespace Ui
 
 namespace sprint_timer::ui::qt_gui {
 
-HistoryItemDelegate::HistoryItemDelegate(QObject* parent)
-    : QStyledItemDelegate(parent)
-{
-}
+class TaskSprintsView : public QWidget {
 
+    Q_OBJECT
 
-void HistoryItemDelegate::paint(QPainter* painter,
-                                const QStyleOptionViewItem& option,
-                                const QModelIndex& index) const
-{
-    if (!index.parent().isValid()) {
-        QStyleOptionViewItem changedOption{option};
-        changedOption.font.setWeight(QFont::Bold);
-        QStyledItemDelegate::paint(painter, changedOption, index);
-    }
-    else {
-        QStyledItemDelegate::paint(painter, option, index);
-    }
-}
+public:
+    explicit TaskSprintsView(QWidget* parent = nullptr);
+
+    ~TaskSprintsView() override;
+
+    void setModel(QStandardItemModel* model);
+
+    void setDelegate(QStyledItemDelegate* delegate);
+
+private:
+    std::unique_ptr<Ui::TaskSprintsView> ui;
+};
 
 } // namespace sprint_timer::ui::qt_gui
+
+#endif /* end of include guard: TASKSPRINTSVIEW_H_HYCTEOV4 */

@@ -27,8 +27,6 @@
 #include <QString>
 #include <vector>
 
-#include <iostream>
-
 namespace sprint_timer::ui::qt_gui {
 
 /* Tree model that stores dates and description grouped by date. */
@@ -37,7 +35,7 @@ public:
     using HistoryItem = std::pair<QDate, QString>;
     using HistoryData = std::vector<HistoryItem>;
 
-    HistoryModel(QObject* parent);
+    HistoryModel(QObject* parent = nullptr);
 
     /* Assumes that orderedHistory is sorted by date asc. */
     void fill(const HistoryData& orderedHistory);

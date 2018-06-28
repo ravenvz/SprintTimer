@@ -19,28 +19,30 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "delegates/HistoryItemDelegate.h"
+#include "widgets/TaskSprintsView.h"
+#include "ui_sprints_for_task_view.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-HistoryItemDelegate::HistoryItemDelegate(QObject* parent)
-    : QStyledItemDelegate(parent)
+TaskSprintsView::TaskSprintsView(QWidget* parent)
+    : QWidget{parent}
+    , ui{std::make_unique<Ui::TaskSprintsView>()}
 {
+    ui->setupUi(this);
+    ui->treeView->setHeaderHidden(true);
 }
 
+TaskSprintsView::~TaskSprintsView() = default;
 
-void HistoryItemDelegate::paint(QPainter* painter,
-                                const QStyleOptionViewItem& option,
-                                const QModelIndex& index) const
+void TaskSprintsView::setModel(QStandardItemModel* model)
 {
-    if (!index.parent().isValid()) {
-        QStyleOptionViewItem changedOption{option};
-        changedOption.font.setWeight(QFont::Bold);
-        QStyledItemDelegate::paint(painter, changedOption, index);
-    }
-    else {
-        QStyledItemDelegate::paint(painter, option, index);
-    }
+    ui->treeView->setModel(model);
+    ui->treeView->expandAll();
+}
+
+void TaskSprintsView::setDelegate(QStyledItemDelegate* delegate)
+{
+    ui->treeView->setItemDelegate(delegate);
 }
 
 } // namespace sprint_timer::ui::qt_gui
