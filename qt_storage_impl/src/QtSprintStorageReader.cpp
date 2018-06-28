@@ -32,19 +32,33 @@ using namespace entities;
 QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
     : dbService{dbService}
 {
-    mQueryId = dbService.prepare(QString{"SELECT %1, %2, %3, %4, %5, %6, %7 "
-                                         "FROM %8 "
-                                         "WHERE DATE(%5) >= (:startTime) "
-                                         "AND DATE(%5) <= (:finishTime) "
-                                         "ORDER BY %5"}
-                                     .arg(SprintTable::Columns::id)
-                                     .arg(SprintTable::Columns::taskUuid)
-                                     .arg(TaskTable::Columns::name)
-                                     .arg(SprintView::Aliases::tags)
-                                     .arg(SprintTable::Columns::startTime)
-                                     .arg(SprintTable::Columns::finishTime)
-                                     .arg(TaskTable::Columns::uuid)
-                                     .arg(SprintView::name));
+    sprintsInTimeRangeQueryId
+        = dbService.prepare(QString{"SELECT %1, %2, %3, %4, %5, %6, %7 "
+                                    "FROM %8 "
+                                    "WHERE DATE(%5) >= (:startTime) "
+                                    "AND DATE(%5) <= (:finishTime) "
+                                    "ORDER BY %5"}
+                                .arg(SprintTable::Columns::id)
+                                .arg(SprintTable::Columns::taskUuid)
+                                .arg(TaskTable::Columns::name)
+                                .arg(SprintView::Aliases::tags)
+                                .arg(SprintTable::Columns::startTime)
+                                .arg(SprintTable::Columns::finishTime)
+                                .arg(TaskTable::Columns::uuid)
+                                .arg(SprintView::name));
+    sprintsForTaskQueryId
+        = dbService.prepare(QString{"SELECT %1, %2, %3, %4, %5, %6, %7 "
+                                    "FROM %8 "
+                                    "WHERE %2 = (:taskUuid) "
+                                    "ORDER by %5"}
+                                .arg(SprintTable::Columns::id)
+                                .arg(SprintTable::Columns::taskUuid)
+                                .arg(TaskTable::Columns::name)
+                                .arg(SprintView::Aliases::tags)
+                                .arg(SprintTable::Columns::startTime)
+                                .arg(SprintTable::Columns::finishTime)
+                                .arg(TaskTable::Columns::uuid)
+                                .arg(SprintView::name));
     connect(&dbService,
             &DBService::results,
             this,
@@ -59,21 +73,31 @@ void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
     DateTime finish = timeSpan.finish();
 
     dbService.bind(
-        mQueryId,
+        sprintsInTimeRangeQueryId,
         ":startTime",
         QVariant(QString::fromStdString(start.toString("yyyy-MM-dd"))));
     dbService.bind(
-        mQueryId,
+        sprintsInTimeRangeQueryId,
         ":finishTime",
         QVariant(QString::fromStdString(finish.toString("yyyy-MM-dd"))));
 
-    dbService.executePrepared(mQueryId);
+    dbService.executePrepared(sprintsInTimeRangeQueryId);
+}
+
+void QtSprintStorageReader::sprintsForTask(const std::string& taskUuid,
+                                           Handler handler)
+{
+    handler_queue.push_back(handler);
+    dbService.bind(sprintsForTaskQueryId,
+                   ":taskUuid",
+                   QVariant(QString::fromStdString(taskUuid)));
+    dbService.executePrepared(sprintsForTaskQueryId);
 }
 
 void QtSprintStorageReader::onResultsReceived(
     qint64 queryId, const std::vector<QSqlRecord>& records)
 {
-    if (mQueryId != queryId) {
+    if (!listeningToQueryId(queryId)) {
         return;
     }
     Items sprints;
@@ -112,6 +136,11 @@ QVariant QtSprintStorageReader::columnData(const QSqlRecord& record,
                                            Columns column)
 {
     return record.value(static_cast<int>(column));
+}
+
+bool QtSprintStorageReader::listeningToQueryId(qint64 queryId) const
+{
+    return sprintsInTimeRangeQueryId == queryId || sprintsForTaskQueryId == queryId;
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl

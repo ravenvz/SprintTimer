@@ -25,6 +25,7 @@ set(CORE_SOURCE_FILES
     src/use_cases/RequestFinishedTasks.cpp
     src/use_cases/RequestSprintDistribution.cpp
     src/use_cases/RequestSprints.cpp
+    src/use_cases/RequestSprintsForTask.cpp
     src/use_cases/RequestTasks.cpp
     src/use_cases/RequestUnfinishedTasks.cpp
     src/use_cases/StoreUnfinishedTasksOrder.cpp

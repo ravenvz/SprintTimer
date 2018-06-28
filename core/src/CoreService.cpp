@@ -33,6 +33,7 @@
 #include "core/use_cases/RequestMinMaxYear.h"
 #include "core/use_cases/RequestSprintDistribution.h"
 #include "core/use_cases/RequestSprints.h"
+#include "core/use_cases/RequestSprintsForTask.h"
 #include "core/use_cases/RequestTasks.h"
 #include "core/use_cases/RequestUnfinishedTasks.h"
 #include "core/use_cases/StoreUnfinishedTasksOrder.h"
@@ -250,6 +251,15 @@ void CoreService::undoLast() { invoker.undo(); }
 void CoreService::registerUndoObserver(Observer& observer)
 {
     invoker.attach(observer);
+}
+
+void CoreService::requestSprintsForTask(
+    const std::string& taskUuid,
+    ISprintStorageReader::Handler onResultsReceivedCallback)
+{
+    auto requestSprints = std::make_unique<RequestSprintsForTask>(
+        sprintReader, taskUuid, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestSprints));
 }
 
 } // namespace sprint_timer

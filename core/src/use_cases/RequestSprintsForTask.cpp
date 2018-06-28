@@ -19,25 +19,32 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ISPRINTSTORAGEREADER_H_UJ8CZPXS
-#define ISPRINTSTORAGEREADER_H_UJ8CZPXS
 
-#include "core/entities/Sprint.h"
-#include <functional>
+#include "core/use_cases/RequestSprintsForTask.h"
 
-namespace sprint_timer {
+#include <iostream>
+namespace sprint_timer::use_cases {
 
-class ISprintStorageReader {
-public:
-    using Items = std::vector<entities::Sprint>;
-    using Handler = std::function<void(const Items&)>;
-    virtual ~ISprintStorageReader() = default;
-    virtual void requestItems(const dw::TimeSpan& timeSpan, Handler handler)
-        = 0;
-    virtual void sprintsForTask(const std::string& taskUuid, Handler handler)
-        = 0;
-};
+RequestSprintsForTask::RequestSprintsForTask(
+    ISprintStorageReader& sprintStorageReader,
+    std::string taskUuid,
+    ISprintStorageReader::Handler handler)
+    : reader{sprintStorageReader}
+    , taskUuid_{std::move(taskUuid)}
+    , handler_{handler}
+{
+}
 
-} // namespace sprint_timer
+void RequestSprintsForTask::execute()
+{
+    reader.sprintsForTask(taskUuid_, handler_);
+}
 
-#endif /* end of include guard: ISPRINTSTORAGEREADER_H_UJ8CZPXS */
+std::string RequestSprintsForTask::describe() const
+{
+    std::stringstream ss;
+    ss << "Request sprints for task with uuid: '" << taskUuid_ << "'";
+    return ss.str();
+}
+
+} // namespace sprint_timer::use_cases

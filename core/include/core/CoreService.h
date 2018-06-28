@@ -119,6 +119,10 @@ public:
 
     void registerUndoObserver(Observer& observer) final;
 
+    void requestSprintsForTask(
+        const std::string& taskUuid,
+        ISprintStorageReader::Handler onResultsReceivedCallback) final;
+
 private:
     ISprintStorageReader& sprintReader;
     ISprintStorageWriter& sprintWriter;

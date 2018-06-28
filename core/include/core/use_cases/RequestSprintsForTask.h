@@ -19,25 +19,30 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ISPRINTSTORAGEREADER_H_UJ8CZPXS
-#define ISPRINTSTORAGEREADER_H_UJ8CZPXS
+#ifndef REQUESTSPRINTSFORTASK_H_FLUWXKVT
+#define REQUESTSPRINTSFORTASK_H_FLUWXKVT
 
-#include "core/entities/Sprint.h"
-#include <functional>
+#include "core/ISprintStorageReader.h"
+#include "core/Query.h"
 
-namespace sprint_timer {
+namespace sprint_timer::use_cases {
 
-class ISprintStorageReader {
+class RequestSprintsForTask : public Query {
 public:
-    using Items = std::vector<entities::Sprint>;
-    using Handler = std::function<void(const Items&)>;
-    virtual ~ISprintStorageReader() = default;
-    virtual void requestItems(const dw::TimeSpan& timeSpan, Handler handler)
-        = 0;
-    virtual void sprintsForTask(const std::string& taskUuid, Handler handler)
-        = 0;
+    RequestSprintsForTask(ISprintStorageReader& sprintStorageReader,
+                          std::string taskUuid,
+                          ISprintStorageReader::Handler handler);
+
+    void execute() final;
+
+    std::string describe() const final;
+
+private:
+    ISprintStorageReader& reader;
+    const std::string taskUuid_;
+    ISprintStorageReader::Handler handler_;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::use_cases
 
-#endif /* end of include guard: ISPRINTSTORAGEREADER_H_UJ8CZPXS */
+#endif /* end of include guard: REQUESTSPRINTSFORTASK_H_FLUWXKVT */

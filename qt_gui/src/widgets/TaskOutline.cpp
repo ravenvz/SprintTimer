@@ -27,6 +27,10 @@
 #include "utils/MouseRightReleaseEater.h"
 #include "utils/WidgetUtils.h"
 #include <QMenu>
+#include <QStandardItemModel>
+
+#include <iostream>
+#include <iterator>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -114,11 +118,14 @@ void TaskOutline::showContextMenu(const QPoint& pos)
     const auto editEntry = "Edit";
     const auto deleteEntry = "Delete";
     const auto tagEditorEntry = "Tag editor";
+    const auto viewSprintsEntry = "View sprints";
     contextMenu.addAction(editEntry);
     contextMenu.addSeparator();
     contextMenu.addAction(deleteEntry);
     contextMenu.addSeparator();
     contextMenu.addAction(tagEditorEntry);
+    contextMenu.addSeparator();
+    contextMenu.addAction(viewSprintsEntry);
 
     QAction* selectedEntry = contextMenu.exec(globalPos);
 
@@ -128,11 +135,14 @@ void TaskOutline::showContextMenu(const QPoint& pos)
         removeTask();
     if (selectedEntry && selectedEntry->text() == tagEditorEntry)
         launchTagEditor();
+    if (selectedEntry && selectedEntry->text() == viewSprintsEntry)
+        showSprintsForTask();
 }
 
 void TaskOutline::launchTagEditor()
 {
     if (!tagEditor) {
+        // No memory leak here as TagEditor has Qt::WA_DeleteOnClose set
         tagEditor = new TagEditor(tagModel);
         tagEditor->show();
     }
@@ -164,6 +174,7 @@ void TaskOutline::launchTaskEditor()
 {
     QModelIndex index = ui->lvTaskView->currentIndex();
     const auto itemToEdit = taskModel->itemAt(index.row());
+
     AddTaskDialog dialog{tagModel};
     dialog.setWindowTitle("Edit task");
     dialog.fillItemData(itemToEdit);
@@ -173,6 +184,25 @@ void TaskOutline::launchTaskEditor()
         updatedItem.setCompleted(itemToEdit.isCompleted());
         taskModel->replaceItemAt(index.row(), updatedItem);
     }
+}
+
+void TaskOutline::showSprintsForTask()
+{
+    QModelIndex index = ui->lvTaskView->currentIndex();
+    const auto task = taskModel->itemAt(index.row());
+
+    coreService.requestSprintsForTask(
+        task.uuid(), [](const std::vector<Sprint>& sprints) {
+            std::copy(sprints.cbegin(),
+                      sprints.cend(),
+                      std::ostream_iterator<Sprint>(std::cout, "\n"));
+            std::cout << std::endl;
+        });
+
+    // QStandardItemModel model;
+    // QStandardItem* parent = new QStandardItem(QString("Sprints for task"));
+    // model.appendRow(parent);
+
 }
 
 } // namespace sprint_timer::ui::qt_gui

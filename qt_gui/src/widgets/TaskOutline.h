@@ -73,6 +73,7 @@ private:
     void launchTagEditor();
     void removeTask();
     void launchTaskEditor();
+    void showSprintsForTask();
 
 signals:
     void taskSelected(int row);

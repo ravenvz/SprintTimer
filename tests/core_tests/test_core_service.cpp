@@ -75,14 +75,14 @@ public:
     CommandInvoker command_invoker;
 
     CoreService coreService{sprint_storage_reader_mock,
-                                  sprint_storage_writer_mock,
-                                  year_range_reader_mock,
-                                  task_storage_reader_mock,
-                                  task_storage_writer_mock,
-                                  sprint_distribution_reader_mock,
-                                  sprint_distribution_reader_mock,
-                                  sprint_distribution_reader_mock,
-                                  command_invoker};
+                            sprint_storage_writer_mock,
+                            year_range_reader_mock,
+                            task_storage_reader_mock,
+                            task_storage_writer_mock,
+                            sprint_distribution_reader_mock,
+                            sprint_distribution_reader_mock,
+                            sprint_distribution_reader_mock,
+                            command_invoker};
 };
 
 TEST_F(CoreServiceFixture, registers_sprint_and_increments_tasks_sprints)
@@ -291,6 +291,17 @@ TEST_F(CoreServiceFixture, undo_edit_tag)
     coreService.undoLast();
 }
 
+TEST_F(CoreServiceFixture, request_sprints_for_task)
+{
+    EXPECT_CALL(sprint_storage_reader_mock, sprintsForTask("123", _)).Times(1);
+
+    coreService.requestSprintsForTask(
+        "123", [](const std::vector<Sprint>& sprints) {});
+}
+// Test for task deletion
+//
+// Test for undo task deletion
+//
 // TEST_F(CoreServiceFixture, register_task_priorities) {
 //     EXPECT_CALL(task_storage_writer_mock, updatePriorities())
 //

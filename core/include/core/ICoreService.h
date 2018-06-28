@@ -36,12 +36,14 @@ namespace sprint_timer {
 
 class ICoreService {
 public:
-    using TaskResultHandler = std::function<void(const std::vector<entities::Task>&)>;
-    using SprintResultHandler = std::function<void(const std::vector<entities::Sprint>&)>;
+    using TaskResultHandler
+        = std::function<void(const std::vector<entities::Task>&)>;
+    using SprintResultHandler
+        = std::function<void(const std::vector<entities::Sprint>&)>;
     using TagResultHandler
         = std::function<void(const std::vector<std::string>&)>;
-    using SprintEncodingFunc
-        = std::function<std::string(const std::vector<entities::Sprint>& sprints)>;
+    using SprintEncodingFunc = std::function<std::string(
+        const std::vector<entities::Sprint>& sprints)>;
     using TaskEncodingFunc
         = std::function<std::string(const std::vector<entities::Task>& task)>;
     using TaskOrder = std::vector<std::string>;
@@ -52,7 +54,9 @@ public:
 
     virtual void removeTask(const entities::Task& task) = 0;
 
-    virtual void editTask(const entities::Task& task, const entities::Task& editedTask) = 0;
+    virtual void editTask(const entities::Task& task,
+                          const entities::Task& editedTask)
+        = 0;
 
     virtual void toggleTaskCompletionStatus(const entities::Task& task) = 0;
 
@@ -123,6 +127,12 @@ public:
     virtual uint64_t numRevertableCommands() const = 0;
 
     virtual void undoLast() = 0;
+
+    virtual void requestSprintsForTask(
+        const std::string& taskUuid,
+        std::function<void(const std::vector<entities::Sprint>&)>
+            onResultsReceivedCallback)
+        = 0;
 };
 
 } // namespace sprint_timer

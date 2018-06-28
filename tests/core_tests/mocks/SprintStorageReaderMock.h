@@ -9,6 +9,9 @@ public:
     MOCK_METHOD2(requestItems,
                  void(const dw::TimeSpan&,
                       sprint_timer::ISprintStorageReader::Handler));
+    MOCK_METHOD2(sprintsForTask,
+                 void(const std::string& taskUuid,
+                      sprint_timer::ISprintStorageReader::Handler));
 };
 
 #endif /* end of include guard: SPRINTSTORAGEREADERMOCK_H_VCWBUOSQ */
