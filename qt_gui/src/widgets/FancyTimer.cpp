@@ -28,12 +28,12 @@ namespace sprint_timer::ui::qt_gui {
 
 namespace {
 
-constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
-constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
-constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
-const QColor taskStateColor{"#eb6c59"};
-const QColor breakStateColor{"#73c245"};
-const QColor zoneStateColor{Qt::darkYellow};
+    constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
+    constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
+    constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
+    const QColor taskStateColor{"#eb6c59"};
+    const QColor breakStateColor{"#73c245"};
+    const QColor zoneStateColor{Qt::darkYellow};
 
 } // namespace
 
@@ -56,13 +56,12 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
             &CombinedIndicator::indicatorClicked,
             this,
             &FancyTimer::onIndicatorClicked);
-    connect(
-        ui->cbxSubmissionCandidate,
-        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-        [&](int index) {
-            if (ui->cbxSubmissionCandidate->isVisible())
-                emit submissionCandidateChanged(index);
-        });
+    connect(ui->cbxSubmissionCandidate,
+            qOverload<int>(&QComboBox::currentIndexChanged),
+            [&](int index) {
+                if (ui->cbxSubmissionCandidate->isVisible())
+                    emit submissionCandidateChanged(index);
+            });
     connect(ui->pbZone, &QPushButton::clicked, [&]() {
         timer->toggleInTheZoneMode();
     });

@@ -39,12 +39,10 @@ TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
         applicationSettings);
 
     qRegisterMetaType<std::chrono::seconds>("std::chrono::seconds");
-    qRegisterMetaType<IStatefulTimer::StateId>(
-        "IStatefulTimer::StateId");
+    qRegisterMetaType<IStatefulTimer::StateId>("IStatefulTimer::StateId");
 
     connect(player.get(),
-            static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
-                &QMediaPlayer::error),
+            qOverload<QMediaPlayer::Error>(&QMediaPlayer::error),
             this,
             &TimerWidgetBase::onSoundPlaybackError);
     connect(this,
@@ -62,8 +60,7 @@ void TimerWidgetBase::onTimerTick(std::chrono::seconds timeLeft)
     emit timerUpdated(timeLeft);
 }
 
-void TimerWidgetBase::onTimerStateChanged(
-    IStatefulTimer::StateId state)
+void TimerWidgetBase::onTimerStateChanged(IStatefulTimer::StateId state)
 {
     emit stateChanged(state);
 }
@@ -73,8 +70,7 @@ void TimerWidgetBase::onTimerUpdated(std::chrono::seconds timeLeft)
     updateIndication(timeLeft);
 }
 
-void TimerWidgetBase::onStateChanged(
-    IStatefulTimer::StateId state)
+void TimerWidgetBase::onStateChanged(IStatefulTimer::StateId state)
 {
     currentState = state;
     switch (state) {
