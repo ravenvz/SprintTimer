@@ -23,8 +23,8 @@
 #define PICKPERIODWIDGET_H
 
 #include "dialogs/DateRangePickDialog.h"
-#include <QPointer>
 #include <QStringListModel>
+#include <memory>
 
 namespace Ui {
 class DateRangePicker;
@@ -53,10 +53,10 @@ private slots:
     void updateSelectionHintLabel();
 
 private:
-    Ui::DateRangePicker* ui;
+    std::unique_ptr<Ui::DateRangePicker> ui;
     DateInterval selectedInterval;
-    QPointer<QStringListModel> yearsModel;
-    QPointer<QStringListModel> monthsModel;
+    std::unique_ptr<QStringListModel> yearsModel;
+    std::unique_ptr<QStringListModel> monthsModel;
 };
 
 } // namespace sprint_timer::ui::qt_gui
