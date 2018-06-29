@@ -38,7 +38,7 @@ class DateRangePicker : public QWidget {
 
 public:
     explicit DateRangePicker(QWidget* parent);
-    ~DateRangePicker();
+    ~DateRangePicker() override;
     void setInterval(DateInterval&& timeSpan);
     DateInterval getInterval() const;
     void setYears(const std::vector<std::string>& years);
