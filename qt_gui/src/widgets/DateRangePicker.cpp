@@ -27,9 +27,6 @@
 #include <iterator>
 #include <memory>
 
-
-#include <QDebug>
-
 namespace sprint_timer::ui::qt_gui {
 
 DateRangePicker::DateRangePicker(QWidget* parent)
