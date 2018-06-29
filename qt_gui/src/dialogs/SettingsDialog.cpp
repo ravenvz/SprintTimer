@@ -49,15 +49,12 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
             &QPushButton::clicked,
             this,
             &SettingsDialog::onBrowseSoundFileButtonClicked);
-    connect(ui->lePathToSoundFile,
-            &QLineEdit::returnPressed,
-            [&]() {
-                applicationSettings.setSoundFilePath(
-                ui->lePathToSoundFile->text().toStdString());
-            });
+    connect(ui->lePathToSoundFile, &QLineEdit::returnPressed, [&]() {
+        applicationSettings.setSoundFilePath(
+            ui->lePathToSoundFile->text().toStdString());
+    });
     connect(ui->cbxTimerVariation,
-            static_cast<void (QComboBox::*)(const QString&)>(
-                &QComboBox::currentIndexChanged),
+            qOverload<const QString&>(&QComboBox::currentIndexChanged),
             [&](const QString& text) {
                 /* ... */
             });
@@ -73,7 +70,7 @@ void SettingsDialog::fillSettingsData()
     ui->spBxShortDuration->setValue(applicationSettings.shortBreakDuration());
     ui->spBxLongDuration->setValue(applicationSettings.longBreakDuration());
     ui->spBxLongBreakAfter->setValue(
-            applicationSettings.numSprintsBeforeBreak());
+        applicationSettings.numSprintsBeforeBreak());
     ui->gbSoundSettings->setChecked(applicationSettings.soundIsEnabled());
     ui->lePathToSoundFile->setText(
         QString::fromStdString(applicationSettings.soundFilePath()));
@@ -89,7 +86,7 @@ void SettingsDialog::storeSettingsData()
     applicationSettings.setShortBreakDuration(ui->spBxShortDuration->value());
     applicationSettings.setLongBreakDuration(ui->spBxLongDuration->value());
     applicationSettings.setNumSprintsBeforeBreak(
-            ui->spBxLongBreakAfter->value());
+        ui->spBxLongBreakAfter->value());
     applicationSettings.setPlaySound(ui->gbSoundSettings->isChecked());
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
     applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());
@@ -114,4 +111,3 @@ void SettingsDialog::onBrowseSoundFileButtonClicked()
 }
 
 } // namespace sprint_timer::ui::qt_gui
-

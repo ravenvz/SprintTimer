@@ -32,7 +32,6 @@ class DateRangePicker;
 
 namespace sprint_timer::ui::qt_gui {
 
-
 class DateRangePicker : public QWidget {
 
     Q_OBJECT
@@ -58,12 +57,9 @@ private:
     DateInterval selectedInterval;
     QPointer<QStringListModel> yearsModel;
     QPointer<QStringListModel> monthsModel;
-
-    void connectSlots();
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 
 #endif // PICKPERIODWIDGET_H

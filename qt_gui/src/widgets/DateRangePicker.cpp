@@ -51,27 +51,26 @@ DateRangePicker::DateRangePicker(QWidget* parent)
     QString currentYear = QDate::currentDate().toString("yyyy");
     yearsModel = new QStringListModel({currentYear}, this);
     ui->cbxYear->setModel(yearsModel);
-    connectSlots();
-}
 
-DateRangePicker::~DateRangePicker()
-{
-    delete ui;
-}
-
-void DateRangePicker::connectSlots()
-{
     connect(ui->btnPickPeriod,
-            SIGNAL(clicked(bool)),
+            &QPushButton::clicked,
             this,
-            SLOT(openDatePickDialog()));
-    connect(ui->cbxYear, SIGNAL(activated(int)), this, SLOT(updateInterval()));
-    connect(ui->cbxMonth, SIGNAL(activated(int)), this, SLOT(updateInterval()));
+            &DateRangePicker::openDatePickDialog);
+    connect(ui->cbxYear,
+            qOverload<int>(&QComboBox::activated),
+            this,
+            qOverload<>(&DateRangePicker::updateInterval));
+    connect(ui->cbxMonth,
+            qOverload<int>(&QComboBox::activated),
+            this,
+            qOverload<>(&DateRangePicker::updateInterval));
     connect(this,
-            SIGNAL(timeSpanChanged(DateInterval)),
+            &DateRangePicker::timeSpanChanged,
             this,
-            SLOT(updateSelectionHintLabel()));
+            &DateRangePicker::updateSelectionHintLabel);
 }
+
+DateRangePicker::~DateRangePicker() { delete ui; }
 
 void DateRangePicker::openDatePickDialog()
 {
@@ -132,4 +131,3 @@ void DateRangePicker::setYears(const std::vector<std::string>& years)
 }
 
 } // namespace sprint_timer::ui::qt_gui
-

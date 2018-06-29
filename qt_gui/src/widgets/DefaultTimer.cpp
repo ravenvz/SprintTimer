@@ -55,13 +55,12 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
     connect(ui->pbZone, &QPushButton::clicked, [&]() {
         timer->toggleInTheZoneMode();
     });
-    connect(
-        ui->cbxSubmissionCandidate,
-        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-        [&](int index) {
-            if (ui->cbxSubmissionCandidate->isVisible())
-                emit submissionCandidateChanged(index);
-        });
+    connect(ui->cbxSubmissionCandidate,
+            qOverload<int>(&QComboBox::currentIndexChanged),
+            [&](int index) {
+                if (ui->cbxSubmissionCandidate->isVisible())
+                    emit submissionCandidateChanged(index);
+            });
     connect(ui->pbSubmit, &QPushButton::clicked, [&]() {
         if (ui->cbxSubmissionCandidate->currentIndex() != -1)
             requestSubmission();

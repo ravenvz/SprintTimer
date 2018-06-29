@@ -33,7 +33,7 @@ namespace ProgressBarColors {
     const QColor overwork = Qt::red;
     const QColor workInProgress = Qt::gray;
 
-};
+}; // namespace ProgressBarColors
 
 namespace {
 
@@ -66,7 +66,7 @@ ProgressView::ProgressView(int goal,
     ui->spinBoxGoal->setValue(goal);
 
     connect(ui->spinBoxGoal,
-            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            qOverload<int>(&QSpinBox::valueChanged),
             [&](int goal) {
                 this->goal = goal;
                 emit goalChanged(goal);

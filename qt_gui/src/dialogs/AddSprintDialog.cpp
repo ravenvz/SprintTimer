@@ -54,7 +54,7 @@ AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
             this,
             &AddSprintDialog::autoAdjustFinishTime);
     connect(ui->sbNumSpints,
-            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            qOverload<int>(&QSpinBox::valueChanged),
             this,
             &AddSprintDialog::autoAdjustFinishTime);
     connect(ui->timeEditSprintFinishTime,
