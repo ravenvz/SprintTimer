@@ -51,7 +51,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Time intervals spent</string>
+      <string>Sprints spent</string>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
