@@ -31,9 +31,9 @@ using namespace entities;
 StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
                                    ICoreService& coreService,
                                    QWidget* parent)
-    : DataWidget(parent)
-    , ui(new Ui::StatisticsWindow)
-    , applicationSettings(applicationSettings)
+    : DataWidget{parent}
+    , ui{std::make_unique<Ui::StatisticsWindow>()}
+    , applicationSettings{applicationSettings}
     , coreService{coreService}
 {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -52,7 +52,7 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
             &StatisticsWindow::onTagSelected);
 }
 
-StatisticsWindow::~StatisticsWindow() { delete ui; }
+StatisticsWindow::~StatisticsWindow() = default;
 
 void StatisticsWindow::synchronize() { fetchData(); }
 

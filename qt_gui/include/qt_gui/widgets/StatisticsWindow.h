@@ -31,6 +31,7 @@
 #include <core/ICoreService.h>
 #include <core/SprintStatistics.h>
 #include <core/TagTop.h>
+#include <memory>
 #include <optional>
 
 namespace Ui {
@@ -68,7 +69,7 @@ private slots:
     void onTagSelected(size_t tagIndex);
 
 private:
-    Ui::StatisticsWindow* ui;
+    std::unique_ptr<Ui::StatisticsWindow> ui;
     IConfig& applicationSettings;
     ICoreService& coreService;
     std::vector<entities::Sprint> sprints;
