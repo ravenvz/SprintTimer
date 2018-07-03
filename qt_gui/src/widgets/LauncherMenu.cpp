@@ -19,24 +19,23 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/LauncherMenu.h"
-#include "dialogs/SettingsDialog.h"
+#include "qt_gui/widgets/LauncherMenu.h"
+#include "qt_gui/dialogs/SettingsDialog.h"
+#include "qt_gui/utils/WidgetUtils.h"
+#include "qt_gui/widgets/GoalProgressWindow.h"
+#include "qt_gui/widgets/HistoryWindow.h"
+#include "qt_gui/widgets/StatisticsWindow.h"
 #include "ui_launcher_menu.h"
-#include "utils/WidgetUtils.h"
-#include "widgets/GoalProgressWindow.h"
-#include "widgets/HistoryWindow.h"
-#include "widgets/StatisticsWindow.h"
 
 namespace sprint_timer::ui::qt_gui {
 
 LauncherMenu::LauncherMenu(IConfig& applicationSettings,
                            ICoreService& coreService,
                            QWidget* parent)
-    : QWidget{parent}
-    , ui{new Ui::LauncherMenu}
-    , settings{applicationSettings}
-    , coreService{coreService}
+    : QWidget {parent}
+    , ui {new Ui::LauncherMenu}
+    , settings {applicationSettings}
+    , coreService {coreService}
 {
     ui->setupUi(this);
 
@@ -79,7 +78,7 @@ void LauncherMenu::launchHistoryWindow()
 
 void LauncherMenu::launchSettingsDialog()
 {
-    SettingsDialog settingsDialog{settings};
+    SettingsDialog settingsDialog {settings};
     settingsDialog.exec();
 }
 

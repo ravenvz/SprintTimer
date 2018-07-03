@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/SimpleLegend.h"
+#include "qt_gui/widgets/SimpleLegend.h"
 #include <iostream>
 
 namespace sprint_timer::ui::qt_gui {

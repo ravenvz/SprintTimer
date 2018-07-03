@@ -19,10 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "MainWindow.h"
+#include "qt_gui/widgets/MainWindow.h"
+#include "qt_gui/widgets/DefaultTimer.h"
+#include "qt_gui/widgets/FancyTimer.h"
 #include "ui_mainwindow.h"
-#include "widgets/DefaultTimer.h"
-#include "widgets/FancyTimer.h"
 
 namespace sprint_timer::ui::qt_gui {
 

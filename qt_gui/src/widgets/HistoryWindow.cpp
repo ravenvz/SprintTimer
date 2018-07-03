@@ -19,9 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/HistoryWindow.h"
-#include "core/external_io/OstreamSink.h"
-#include "core/utils/CSVEncoder.h"
+#include "qt_gui/widgets/HistoryWindow.h"
+#include <core/external_io/OstreamSink.h>
+#include <core/utils/CSVEncoder.h>
 #include "ui_history.h"
 #include <QPainter>
 #include <fstream>

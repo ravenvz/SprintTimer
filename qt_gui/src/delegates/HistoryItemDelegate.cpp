@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "delegates/HistoryItemDelegate.h"
+#include "qt_gui/delegates/HistoryItemDelegate.h"
 
 namespace sprint_timer::ui::qt_gui {
 

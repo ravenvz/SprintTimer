@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "TaskModel.h"
+#include "qt_gui/models/TaskModel.h"
 #include <QSize>
 #include <core/utils/Algutils.h>
 #include <string>

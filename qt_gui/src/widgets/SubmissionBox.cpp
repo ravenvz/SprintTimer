@@ -19,11 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/SubmissionBox.h"
+#include "qt_gui/widgets/SubmissionBox.h"
 
 namespace sprint_timer::ui::qt_gui {
-
 
 SubmissionBox::SubmissionBox(QWidget* parent)
     : QComboBox(parent)

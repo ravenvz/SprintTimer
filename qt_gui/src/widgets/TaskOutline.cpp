@@ -19,15 +19,14 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/TaskOutline.h"
-#include "dialogs/AddTaskDialog.h"
-#include "dialogs/ConfirmationDialog.h"
-#include "models/HistoryModel.h"
+#include "qt_gui/widgets/TaskOutline.h"
+#include "qt_gui/dialogs/AddTaskDialog.h"
+#include "qt_gui/dialogs/ConfirmationDialog.h"
+#include "qt_gui/models/HistoryModel.h"
+#include "qt_gui/utils/DateTimeConverter.h"
+#include "qt_gui/utils/MouseRightReleaseEater.h"
+#include "qt_gui/utils/WidgetUtils.h"
 #include "ui_task_outline.h"
-#include "utils/DateTimeConverter.h"
-#include "utils/MouseRightReleaseEater.h"
-#include "utils/WidgetUtils.h"
 #include <QMenu>
 #include <QStandardItemModel>
 
@@ -51,11 +50,11 @@ TaskOutline::TaskOutline(ICoreService& coreService,
                          TaskModel* taskModel,
                          TagModel* tagModel,
                          QWidget* parent)
-    : QWidget{parent}
-    , ui{new Ui::TaskOutline}
-    , coreService{coreService}
-    , taskModel{taskModel}
-    , tagModel{tagModel}
+    : QWidget {parent}
+    , ui {new Ui::TaskOutline}
+    , coreService {coreService}
+    , taskModel {taskModel}
+    , tagModel {tagModel}
 {
     ui->setupUi(this);
 
@@ -96,14 +95,14 @@ void TaskOutline::onQuickAddTodoReturnPressed()
     std::string encodedDescription = ui->leQuickAddTask->text().toStdString();
     ui->leQuickAddTask->clear();
     if (!encodedDescription.empty()) {
-        Task item{std::move(encodedDescription)};
+        Task item {std::move(encodedDescription)};
         taskModel->insert(item);
     }
 }
 
 void TaskOutline::onAddTaskButtonPushed()
 {
-    addTaskDialog.reset(new AddTaskDialog{tagModel});
+    addTaskDialog.reset(new AddTaskDialog {tagModel});
     connect(
         &*addTaskDialog, &QDialog::accepted, this, &TaskOutline::addNewTask);
     addTaskDialog->setModal(true);
@@ -187,7 +186,7 @@ void TaskOutline::launchTaskEditor()
     QModelIndex index = ui->lvTaskView->currentIndex();
     const auto itemToEdit = taskModel->itemAt(index.row());
 
-    AddTaskDialog dialog{tagModel};
+    AddTaskDialog dialog {tagModel};
     dialog.setWindowTitle("Edit task");
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {

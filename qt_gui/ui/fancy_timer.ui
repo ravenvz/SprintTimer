@@ -64,7 +64,7 @@
   <customwidget>
    <class>sprint_timer::ui::qt_gui::SubmissionBox</class>
    <extends>QComboBox</extends>
-   <header>widgets/SubmissionBox.h</header>
+   <header>qt_gui/widgets/SubmissionBox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

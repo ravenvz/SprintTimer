@@ -19,11 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "ConfirmationDialog.h"
+#include "qt_gui/dialogs/ConfirmationDialog.h"
 #include "ui_pom_cancel_dialog.h"
 
 namespace sprint_timer::ui::qt_gui {
-
 
 ConfirmationDialog::ConfirmationDialog(QWidget* parent)
     : QDialog(parent)

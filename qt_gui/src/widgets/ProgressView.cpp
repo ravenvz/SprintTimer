@@ -19,10 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/ProgressView.h"
+#include "qt_gui/widgets/ProgressView.h"
+#include "qt_gui/widgets/Gauge.h"
 #include "ui_progress_widget.h"
-#include "widgets/Gauge.h"
 #include <QtWidgets/QGridLayout>
 
 namespace sprint_timer::ui::qt_gui {
@@ -33,7 +32,7 @@ namespace ProgressBarColors {
     const QColor overwork = Qt::red;
     const QColor workInProgress = Qt::gray;
 
-}; // namespace ProgressBarColors
+} // namespace ProgressBarColors
 
 namespace {
 
@@ -54,12 +53,12 @@ ProgressView::ProgressView(int goal,
                            size_t numColumns,
                            double gaugeRelSize,
                            QWidget* parent)
-    : QFrame{parent}
-    , ui{new Ui::ProgressView}
-    , goal{goal}
-    , numRows{numRows}
-    , numColumns{numColumns}
-    , gaugeRelSize{gaugeRelSize}
+    : QFrame {parent}
+    , ui {new Ui::ProgressView}
+    , goal {goal}
+    , numRows {numRows}
+    , numColumns {numColumns}
+    , gaugeRelSize {gaugeRelSize}
 {
     ui->setupUi(this);
 
@@ -117,7 +116,7 @@ void ProgressView::setData(const Distribution<int>& distribution,
 
     if (numCompleted > expectedTotal) {
         ui->lblLeftCaption->setText("Overwork:");
-        ui->lblLeft->setText(QString{"%1"}.arg(numCompleted - expectedTotal));
+        ui->lblLeft->setText(QString {"%1"}.arg(numCompleted - expectedTotal));
     }
     else {
         ui->lblLeftCaption->setText("Left to complete:");

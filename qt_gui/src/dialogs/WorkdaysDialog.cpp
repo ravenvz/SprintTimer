@@ -19,9 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "WorkdaysDialog.h"
-#include "core/utils/WeekdaySelection.h"
+#include "qt_gui/dialogs/WorkdaysDialog.h"
+#include <core/utils/WeekdaySelection.h>
 #include "ui_workdays_dialog.h"
 
 namespace sprint_timer::ui::qt_gui {

@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "models/TagModel.h"
+#include "qt_gui/models/TagModel.h"
 
 namespace sprint_timer::ui::qt_gui {
 

@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "DateRangePickDialog.h"
+#include "qt_gui/dialogs/DateRangePickDialog.h"
 #include "ui_date_pick_dialog.h"
 
 namespace sprint_timer::ui::qt_gui {

@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "Plot.h"
+#include "qt_gui/widgets/Plot.h"
 #include <QHelpEvent>
 #include <QToolTip>
 

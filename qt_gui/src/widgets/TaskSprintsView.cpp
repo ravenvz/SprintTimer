@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/TaskSprintsView.h"
+#include "qt_gui/widgets/TaskSprintsView.h"
 #include "ui_sprints_for_task_view.h"
 
 namespace sprint_timer::ui::qt_gui {

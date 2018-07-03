@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_gui/widgets/PieDiagramMockup.h"
 #include <iostream>
-#include "PieDiagramMockup.h"
 
 namespace sprint_timer::ui::qt_gui {
 

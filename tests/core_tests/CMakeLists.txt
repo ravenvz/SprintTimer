@@ -18,8 +18,8 @@ set(SOURCE_FILES
 
 add_executable(${TEST_CORE} ${SOURCE_FILES})
 target_compile_features(${TEST_CORE} PRIVATE cxx_std_17)
-target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
-target_compile_options(${PROJECT} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
+target_compile_options(${TEST_CORE} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
+target_compile_options(${TEST_CORE} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
 target_link_libraries(${TEST_CORE}
     PRIVATE gmock_main

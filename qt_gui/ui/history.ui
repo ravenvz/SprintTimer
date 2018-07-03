@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>529</width>
+    <width>544</width>
     <height>623</height>
    </rect>
   </property>
@@ -120,7 +120,7 @@
   <customwidget>
    <class>sprint_timer::ui::qt_gui::DateRangePicker</class>
    <extends>QWidget</extends>
-   <header>src/widgets/DateRangePicker.h</header>
+   <header>qt_gui/widgets/DateRangePicker.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

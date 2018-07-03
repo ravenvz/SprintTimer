@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/CombinedIndicator.h"
+#include "qt_gui/widgets/CombinedIndicator.h"
 #include <QPainter>
 #include <cmath>
 

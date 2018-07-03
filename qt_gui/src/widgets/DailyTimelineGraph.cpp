@@ -19,15 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/DailyTimelineGraph.h"
+#include "qt_gui/widgets/DailyTimelineGraph.h"
+#include "qt_gui/widgets/Plot.h"
 #include "ui_daily_timeline_graph.h"
-#include "widgets/Plot.h"
 #include <QDate>
 #include <QtWidgets/QGridLayout>
 
 namespace sprint_timer::ui::qt_gui {
-
 
 DailyTimelineGraph::DailyTimelineGraph(QWidget* parent)
     : QFrame{parent}

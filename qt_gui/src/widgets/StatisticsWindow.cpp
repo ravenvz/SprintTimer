@@ -19,10 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/StatisticsWindow.h"
-#include "core/utils/WeekdaySelection.h"
+#include "qt_gui/widgets/StatisticsWindow.h"
+#include "qt_gui/widgets/BarChart.h"
+#include <core/utils/WeekdaySelection.h>
 #include "ui_statistics_window.h"
-#include "widgets/BarChart.h"
 
 namespace sprint_timer::ui::qt_gui {
 

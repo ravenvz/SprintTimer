@@ -19,10 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/IStatisticalChartLegend.h"
+#include "qt_gui/widgets/IStatisticalChartLegend.h"
 
 namespace sprint_timer::ui::qt_gui {
-
 
 IStatisticalChartLegend::~IStatisticalChartLegend() {}
 
