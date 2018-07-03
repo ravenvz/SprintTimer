@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "TagEditor.h"
+#include "qt_gui/widgets/TagEditor.h"
 #include "ui_tageditor.h"
 #include <QMessageBox>
 

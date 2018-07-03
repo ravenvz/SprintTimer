@@ -112,7 +112,7 @@
   <customwidget>
    <class>sprint_timer::ui::qt_gui::TimeDiagram</class>
    <extends>QWidget</extends>
-   <header>widgets/TimeDiagram.h</header>
+   <header>qt_gui/widgets/TimeDiagram.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/PieChart.h"
+#include "qt_gui/widgets/PieChart.h"
 
 namespace sprint_timer::ui::qt_gui {
 

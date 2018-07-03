@@ -19,10 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/GoalProgressWindow.h"
-#include "core/utils/WeekdaySelection.h"
-#include "widgets/ProgressView.h"
+#include "qt_gui/widgets/GoalProgressWindow.h"
+#include "qt_gui/widgets/ProgressView.h"
+#include <core/utils/WeekdaySelection.h>
 
 namespace sprint_timer::ui::qt_gui {
 

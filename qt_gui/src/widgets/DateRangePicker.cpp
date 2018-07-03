@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "DateRangePicker.h"
+#include "qt_gui/widgets/DateRangePicker.h"
 #include "ui_date_range_picker.h"
 #include <QtCore/qdatetime.h>
 #include <QtCore/qstringlistmodel.h>

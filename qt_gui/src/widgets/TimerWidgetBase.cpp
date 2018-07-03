@@ -19,9 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/TimerWidgetBase.h"
-#include "core/StatefulTimer.h"
+#include "qt_gui/widgets/TimerWidgetBase.h"
+#include <core/StatefulTimer.h>
 #include <QMessageBox>
 
 namespace sprint_timer::ui::qt_gui {

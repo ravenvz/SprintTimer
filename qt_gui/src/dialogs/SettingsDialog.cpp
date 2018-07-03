@@ -19,15 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "SettingsDialog.h"
+#include "qt_gui/dialogs/SettingsDialog.h"
 #include "ui_settings.h"
 #include <QFileDialog>
 #include <QStringListModel>
 #include <QtWidgets/QGroupBox>
 
 namespace sprint_timer::ui::qt_gui {
-
 
 SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
     : QDialog(parent)

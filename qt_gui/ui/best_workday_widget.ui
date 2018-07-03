@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>267</width>
+    <width>278</width>
     <height>300</height>
    </rect>
   </property>
@@ -95,7 +95,7 @@
   <customwidget>
    <class>sprint_timer::ui::qt_gui::BarChart</class>
    <extends>QWidget</extends>
-   <header>src/widgets/BarChart.h</header>
+   <header>qt_gui/widgets/BarChart.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

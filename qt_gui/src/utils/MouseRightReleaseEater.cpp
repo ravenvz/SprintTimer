@@ -19,14 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "utils/MouseRightReleaseEater.h"
+#include "qt_gui/utils/MouseRightReleaseEater.h"
 #include <QMouseEvent>
 
 namespace sprint_timer::ui::qt_gui {
 
 MouseRightReleaseEater::MouseRightReleaseEater(QObject* parent)
-    : QObject{parent}
+    : QObject {parent}
 {
 }
 

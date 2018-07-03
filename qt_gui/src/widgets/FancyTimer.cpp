@@ -19,10 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/FancyTimer.h"
+#include "qt_gui/widgets/FancyTimer.h"
+#include "qt_gui/utils/WidgetUtils.h"
 #include "ui_fancy_timer.h"
-#include "utils/WidgetUtils.h"
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -31,15 +30,15 @@ namespace {
     constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
     constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
     constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
-    const QColor taskStateColor{"#eb6c59"};
-    const QColor breakStateColor{"#73c245"};
-    const QColor zoneStateColor{Qt::darkYellow};
+    const QColor taskStateColor {"#eb6c59"};
+    const QColor breakStateColor {"#73c245"};
+    const QColor zoneStateColor {Qt::darkYellow};
 
 } // namespace
 
 FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
-    : TimerWidgetBase{applicationSettings, parent}
-    , ui{new Ui::FancyTimer}
+    : TimerWidgetBase {applicationSettings, parent}
+    , ui {new Ui::FancyTimer}
 {
     ui->setupUi(this);
     combinedIndicator = new CombinedIndicator(indicatorSize, this);

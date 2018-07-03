@@ -19,8 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "ExportDialog.h"
+#include "qt_gui/dialogs/ExportDialog.h"
 #include "ui_export_dialog.h"
 #include <QFileDialog>
 

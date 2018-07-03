@@ -19,26 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "dialogs/AddSprintDialog.h"
+#include "qt_gui/dialogs/AddSprintDialog.h"
+#include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
-#include "utils/DateTimeConverter.h"
 
 namespace sprint_timer::ui::qt_gui {
 
 namespace {
-    constexpr int secondsInMinute{60};
+    constexpr int secondsInMinute {60};
 }
 
 AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
                                  TaskModel* taskModel,
                                  int sprintDuration,
                                  QDialog* parent)
-    : QDialog{parent}
-    , ui{new Ui::AddSprintDialog}
-    , datePicker{new QCalendarWidget()}
-    , sprintModel{sprintModel}
-    , taskModel{taskModel}
-    , sprintDuration{sprintDuration}
+    : QDialog {parent}
+    , ui {new Ui::AddSprintDialog}
+    , datePicker {new QCalendarWidget()}
+    , sprintModel {sprintModel}
+    , taskModel {taskModel}
+    , sprintDuration {sprintDuration}
 {
     ui->setupUi(this);
     setData();
@@ -113,10 +113,10 @@ void AddSprintDialog::accept()
         auto startTime
             = initialStartTime.addSecs(i * sprintDuration * secondsInMinute);
         auto finishTime = startTime.addSecs(sprintDuration * secondsInMinute);
-        entities::Sprint sprint{
+        entities::Sprint sprint {
             taskUuid,
-            TimeSpan{DateTimeConverter::dateTime(startTime),
-                     DateTimeConverter::dateTime(finishTime)}};
+            TimeSpan {DateTimeConverter::dateTime(startTime),
+                      DateTimeConverter::dateTime(finishTime)}};
         sprints.push_back(sprint);
     }
 

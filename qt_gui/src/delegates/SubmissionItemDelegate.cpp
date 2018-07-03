@@ -19,8 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "SubmissionItemDelegate.h"
+#include "qt_gui/delegates/SubmissionItemDelegate.h"
 #include <QPainter>
 
 namespace sprint_timer::ui::qt_gui {

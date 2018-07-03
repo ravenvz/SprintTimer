@@ -19,28 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "utils/WidgetUtils.h"
+#include "qt_gui/utils/WidgetUtils.h"
 
 namespace sprint_timer::ui::qt_gui {
 
 namespace WidgetUtils {
 
-void setRetainSizeWhenHidden(QWidget* widget)
-{
-    QSizePolicy policy = widget->sizePolicy();
-    policy.setRetainSizeWhenHidden(true);
-    widget->setSizePolicy(policy);
-}
+    void setRetainSizeWhenHidden(QWidget* widget)
+    {
+        QSizePolicy policy = widget->sizePolicy();
+        policy.setRetainSizeWhenHidden(true);
+        widget->setSizePolicy(policy);
+    }
 
-void bringToForeground(QWidget* widget)
-{
-    widget->raise();
-    widget->activateWindow();
-    widget->showNormal();
-}
+    void bringToForeground(QWidget* widget)
+    {
+        widget->raise();
+        widget->activateWindow();
+        widget->showNormal();
+    }
 
-} /* WidgetUtils */
+} // namespace WidgetUtils
 
 } // namespace sprint_timer::ui::qt_gui
-

@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "AddTaskDialog.h"
-#include "core/utils/StringUtils.h"
+#include "qt_gui/dialogs/AddTaskDialog.h"
+#include <core/utils/StringUtils.h>
 #include "ui_add_todo_dialog.h"
 #include <QRegularExpression>
 

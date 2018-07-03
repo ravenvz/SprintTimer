@@ -19,11 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "models/HistoryModel.h"
+#include "qt_gui/models/HistoryModel.h"
 
 namespace sprint_timer::ui::qt_gui {
-
 
 HistoryModel::HistoryModel(QObject* parent)
     : QStandardItemModel{parent}

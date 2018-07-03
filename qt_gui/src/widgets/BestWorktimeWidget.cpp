@@ -19,10 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/BestWorktimeWidget.h"
+#include "qt_gui/widgets/BestWorktimeWidget.h"
 #include "ui_best_worktime_widget.h"
-#include "core/SprintStatistics.h"
+#include <core/SprintStatistics.h>
 
 namespace sprint_timer::ui::qt_gui {
 

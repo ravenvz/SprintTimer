@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "TaskItemDelegate.h"
+#include "qt_gui/delegates/TaskItemDelegate.h"
 #include <QApplication>
 #include <QPainter>
 

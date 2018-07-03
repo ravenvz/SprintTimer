@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "BarChart.h"
+#include "qt_gui/widgets/BarChart.h"
 #include <QMouseEvent>
 #include <QPainter>
 

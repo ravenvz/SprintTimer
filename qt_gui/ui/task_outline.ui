@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
+    <width>320</width>
     <height>509</height>
    </rect>
   </property>
@@ -158,7 +158,7 @@ QListView::item {
   <customwidget>
    <class>sprint_timer::ui::qt_gui::ReordableListView</class>
    <extends>QListView</extends>
-   <header>widgets/ReordableListView.h</header>
+   <header>qt_gui/widgets/ReordableListView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

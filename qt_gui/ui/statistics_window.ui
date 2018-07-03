@@ -162,31 +162,31 @@
   <customwidget>
    <class>sprint_timer::ui::qt_gui::DateRangePicker</class>
    <extends>QWidget</extends>
-   <header>src/widgets/DateRangePicker.h</header>
+   <header>qt_gui/widgets/DateRangePicker.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>sprint_timer::ui::qt_gui::DistributionDiagram</class>
    <extends>QWidget</extends>
-   <header>src/widgets/DistributionDiagram.h</header>
+   <header>qt_gui/widgets/DistributionDiagram.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>sprint_timer::ui::qt_gui::DailyTimelineGraph</class>
    <extends>QFrame</extends>
-   <header>widgets/DailyTimelineGraph.h</header>
+   <header>qt_gui/widgets/DailyTimelineGraph.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>sprint_timer::ui::qt_gui::BestWorkdayWidget</class>
    <extends>QWidget</extends>
-   <header>widgets/BestWorkdayWidget.h</header>
+   <header>qt_gui/widgets/BestWorkdayWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>sprint_timer::ui::qt_gui::BestWorktimeWidget</class>
    <extends>QWidget</extends>
-   <header>widgets/BestWorktimeWidget.h</header>
+   <header>qt_gui/widgets/BestWorktimeWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

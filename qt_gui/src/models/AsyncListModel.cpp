@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "models/AsyncListModel.h"
+#include "qt_gui/models/AsyncListModel.h"
 #include <iostream>
 
 namespace sprint_timer::ui::qt_gui {

@@ -1,6 +1,9 @@
 set(PROJECT ${CORE_LIB})
 project(${PROJECT})
 
+# Download date_wrapper lib at configure time then add as subdirectory
+include(CMakeLists-datewrapper.txt)
+
 set(CORE_SOURCE_FILES
 	src/CountdownTimer.cpp
     src/CoreService.cpp
