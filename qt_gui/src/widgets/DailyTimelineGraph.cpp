@@ -77,37 +77,34 @@ void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
     const double averagePerWorkday
         = dailyDistribution.getTotal() / static_cast<double>(numWorkdays);
 
-    if (dailyDistribution.empty()) {
+    if (dailyDistribution.empty())
         ui->dailyTimeline->reset();
-        return;
-    }
-    else {
-        auto sprintsByDay = dailyDistribution.getDistributionVector();
-        GraphData averageData{
-            GraphPoint{0, averagePerWorkday, ""},
-            GraphPoint{static_cast<double>(dailyDistribution.getNumBins()),
-                       averagePerWorkday,
-                       ""}};
-        GraphData goalData{
-            GraphPoint{0, static_cast<double>(dailyGoal), ""},
-            GraphPoint{static_cast<double>(dailyDistribution.getNumBins()),
-                       static_cast<double>(dailyGoal),
-                       ""}};
-        GraphData normalData;
-        for (size_t i = 0; i < sprintsByDay.size(); ++i) {
-            normalData.push_back(
-                GraphPoint{double(i),
-                           sprintsByDay[i],
-                           QString("%1").arg(
-                               startDate.addDays(static_cast<long>(i)).day())});
-        }
 
-        ui->dailyTimeline->setRangeX(0, dailyDistribution.getNumBins() + 1);
-        ui->dailyTimeline->setRangeY(0, dailyDistribution.getMax() + 1);
-        ui->dailyTimeline->setGraphData(0, averageData);
-        ui->dailyTimeline->setGraphData(1, goalData);
-        ui->dailyTimeline->setGraphData(2, normalData);
+    auto sprintsByDay = dailyDistribution.getDistributionVector();
+    GraphData averageData{
+        GraphPoint{0, averagePerWorkday, ""},
+        GraphPoint{static_cast<double>(dailyDistribution.getNumBins()),
+                   averagePerWorkday,
+                   ""}};
+    GraphData goalData{
+        GraphPoint{0, static_cast<double>(dailyGoal), ""},
+        GraphPoint{static_cast<double>(dailyDistribution.getNumBins()),
+                   static_cast<double>(dailyGoal),
+                   ""}};
+    GraphData normalData;
+    for (size_t i = 0; i < sprintsByDay.size(); ++i) {
+        normalData.push_back(
+            GraphPoint{double(i),
+                       sprintsByDay[i],
+                       QString("%1").arg(
+                           startDate.addDays(static_cast<long>(i)).day())});
     }
+
+    ui->dailyTimeline->setRangeX(0, dailyDistribution.getNumBins() + 1);
+    ui->dailyTimeline->setRangeY(0, dailyDistribution.getMax() + 1);
+    ui->dailyTimeline->setGraphData(0, averageData);
+    ui->dailyTimeline->setGraphData(1, goalData);
+    ui->dailyTimeline->setGraphData(2, normalData);
 
     ui->dailyTimeline->replot();
     updateLegend(dailyDistribution, averagePerWorkday);
