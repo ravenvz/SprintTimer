@@ -23,6 +23,51 @@
 #include <QHelpEvent>
 #include <QToolTip>
 
+namespace {
+
+using namespace sprint_timer::ui::qt_gui;
+
+constexpr static int labelSkipInd{28};
+constexpr static int toolTipOffset{10};
+// RelSizes' are relative to Widget's rect() height
+constexpr static double labelOffsetRelSize{0.15};
+constexpr static double marginRelSize{0.07};
+constexpr static double pointBoxRelSize{0.025};
+const QBrush pointBoxBrush{Qt::white};
+
+struct PointBoxScale {
+    PointBoxScale(const QRectF& availableRect,
+                  const AxisRange& rangeX,
+                  const AxisRange& rangeY);
+
+    const double labelOffset;
+    const double scaleX;
+    const double scaleY;
+    const QPointF referencePoint;
+};
+
+QRectF computeAvailableRectange(const QRectF& totalSizeRect);
+
+// struct point_to_point_box {
+//     point_to_point_box()
+//     {
+//
+//     }
+//
+//     PointBox operator()(const GraphPoint& p) {
+//         QPainterPath path;
+//         auto [labelOffset, scaleX, scaleY, referencePoint] = pointBoxScale;
+//         const QPointF position{p.x * scaleX + referencePoint.x(),
+//                                referencePoint.y() - p.y * scaleY -
+//                                labelOffset};
+//         path.addEllipse(QPointF{0, 0}, pointBoxSize, pointBoxSize);
+//         return PointBox{path, position, QString("%1").arg(p.y), p.label};
+//
+//     }
+// };
+
+} // namespace
+
 namespace sprint_timer::ui::qt_gui {
 
 void AxisRange::setRange(double start, double end)
@@ -34,7 +79,7 @@ void AxisRange::setRange(double start, double end)
 double AxisRange::span() const { return end - start; }
 
 Plot::Plot(QWidget* parent)
-    : QWidget(parent)
+    : QWidget{parent}
 {
     setMouseTracking(true);
 }
@@ -76,75 +121,42 @@ void Plot::paintEvent(QPaintEvent*)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    QRectF totalSizeRect = this->rect();
-    const QPointF center{totalSizeRect.center()};
-    const double availableWidth{(1 - marginRelSize) * totalSizeRect.width()};
-    const double availableHeight{(1 - marginRelSize) * totalSizeRect.height()};
-    availableRect = {QRectF{center.x() - availableWidth / 2,
-                            center.y() - availableHeight / 2,
-                            availableWidth,
-                            availableHeight}};
-
+    availableRect = computeAvailableRectange(this->rect());
     pointBoxSize = {pointBoxRelSize * availableRect.height()};
 
     constructPointBoxes();
 
-    if (pointBoxes.empty()) {
-        painter.eraseRect(availableRect);
-        return;
-    }
+    // if (pointBoxes.empty()) {
+    //     painter.eraseRect(availableRect);
+    //     return;
+    // }
 
     for (size_t graphNum = 0; graphNum < graphs.size(); ++graphNum) {
         paintGraph(graphNum, painter);
     }
 }
 
-void Plot::mouseMoveEvent(QMouseEvent* event)
-{
-    const auto& toolTip = getPosTooltip(event->pos());
-    if (toolTip.size() != 0) {
-        const QPoint toolTipPos{
-            event->globalPos()
-            - QPoint{int(pointBoxSize), toolTipOffset * int(pointBoxSize)}};
-        QToolTip::showText(toolTipPos, toolTip);
-    }
-    else {
-        QToolTip::hideText();
-        event->ignore();
-    }
-}
-
 void Plot::constructPointBoxes()
 {
-    const double labelOffset = labelOffsetRelSize * availableRect.height();
-    const double scaleX
-        = rangeX.span() > 0 ? availableRect.width() / (rangeX.span()) : 1;
-    const double scaleY = rangeY.span() > 0
-        ? (availableRect.height() - labelOffset) / (rangeY.span())
-        : 1;
+    const PointBoxScale pointBoxScale{availableRect, rangeX, rangeY};
+
+    auto point_to_point_box = [pointBoxSize = pointBoxSize,
+                               &pointBoxScale](const auto& p) {
+        QPainterPath path;
+        auto [labelOffset, scaleX, scaleY, referencePoint] = pointBoxScale;
+        const QPointF position{p.x * scaleX + referencePoint.x(),
+                               referencePoint.y() - p.y * scaleY - labelOffset};
+        path.addEllipse(QPointF{0, 0}, pointBoxSize, pointBoxSize);
+        return PointBox{path, position, QString("%1").arg(p.y), p.label};
+    };
+
     for (size_t graphNum = 0; graphNum < graphs.size(); ++graphNum) {
-        QPointF referencePoint = availableRect.bottomLeft();
         pointBoxes[graphNum].clear();
-        std::transform(
-            graphs[graphNum].cbegin(),
-            graphs[graphNum].cend(),
-            std::back_inserter(pointBoxes[graphNum]),
-            [
-              pointBoxSize = pointBoxSize,
-              scaleX,
-              scaleY,
-              referencePoint,
-              labelOffset
-            ](const auto& p) {
-                QPainterPath path;
-                QPointF position{p.x * scaleX + referencePoint.x(),
-                                 referencePoint.y() - p.y * scaleY
-                                     - labelOffset};
-                path.addEllipse(QPointF{0, 0}, pointBoxSize, pointBoxSize);
-                return PointBox{
-                    path, position, QString("%1").arg(p.y), p.label};
-            });
-    }
+        std::transform(graphs[graphNum].cbegin(),
+                       graphs[graphNum].cend(),
+                       std::back_inserter(pointBoxes[graphNum]),
+                       point_to_point_box);
+    };
 }
 
 void Plot::paintGraph(size_t graphNum, QPainter& painter) const
@@ -182,6 +194,21 @@ void Plot::paintPoints(const PointBoxContainer& boxes, QPainter& painter) const
             painter.drawText(
                 QPointF{point.position.x(), availableRect.bottomLeft().y()},
                 point.label);
+    }
+}
+
+void Plot::mouseMoveEvent(QMouseEvent* event)
+{
+    const auto& toolTip = getPosTooltip(event->pos());
+    if (toolTip.size() != 0) {
+        const QPoint toolTipPos{
+            event->globalPos()
+            - QPoint{int(pointBoxSize), toolTipOffset * int(pointBoxSize)}};
+        QToolTip::showText(toolTipPos, toolTip);
+    }
+    else {
+        QToolTip::hideText();
+        event->ignore();
     }
 }
 
@@ -230,3 +257,29 @@ size_t Graph::size() const { return points.size(); }
 
 } // namespace sprint_timer::ui::qt_gui
 
+namespace {
+
+PointBoxScale::PointBoxScale(const QRectF& availableRect,
+                             const AxisRange& rangeX,
+                             const AxisRange& rangeY)
+    : labelOffset{labelOffsetRelSize * availableRect.height()}
+    , scaleX{rangeX.span() > 0 ? availableRect.width() / rangeX.span() : 1}
+    , scaleY{rangeY.span() > 0
+                 ? (availableRect.height() - labelOffset) / rangeY.span()
+                 : 1}
+    , referencePoint{availableRect.bottomLeft()}
+{
+}
+
+QRectF computeAvailableRectange(const QRectF& totalSizeRect)
+{
+    const double availableWidth{(1 - marginRelSize) * totalSizeRect.width()};
+    const double availableHeight{(1 - marginRelSize) * totalSizeRect.height()};
+    const QPointF center{totalSizeRect.center()};
+    return QRectF{center.x() - availableWidth / 2,
+                  center.y() - availableHeight / 2,
+                  availableWidth,
+                  availableHeight};
+}
+
+} // namespace

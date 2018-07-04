@@ -102,13 +102,6 @@ private:
     AxisRange rangeY;
     QRectF availableRect;
     double pointBoxSize;
-    const QBrush pointBoxBrush{Qt::white};
-    constexpr static int labelSkipInd{28};
-    constexpr static int toolTipOffset{10};
-    // RelSizes' are relative to Widget's rect() height
-    constexpr static double labelOffsetRelSize{0.15};
-    constexpr static double marginRelSize{0.07};
-    constexpr static double pointBoxRelSize{0.025};
 
     // Compute data required to draw points relative to plot size.
     void constructPointBoxes();
