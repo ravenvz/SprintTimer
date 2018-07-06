@@ -55,7 +55,7 @@ struct point_to_point_box {
     {
     }
 
-    Graph::PointBox operator()(const GraphPoint& p)
+    Graph::PointBox operator()(const Graph::Point& p)
     {
         QPainterPath path;
         auto [labelOffset, scaleX, scaleY, referencePoint, pbSize] = scale;
@@ -91,7 +91,7 @@ void Plot::setNumExpectedGraphs(size_t n) { graphs.reserve(n); }
 
 void Plot::addGraph(Graph graph) { graphs.push_back(std::move(graph)); }
 
-void Plot::setGraphData(size_t graphNum, GraphData& data)
+void Plot::setGraphData(size_t graphNum, Graph::Data& data)
 {
     if (graphNum < graphs.size())
         graphs[graphNum].setData(data);
@@ -127,7 +127,7 @@ void Plot::mouseMoveEvent(QMouseEvent* event)
         graph.handleMouseMoveEvent(event);
 }
 
-void Graph::setData(GraphData& data)
+void Graph::setData(Data& data)
 {
     points = data;
     pointBoxes.resize(points.size());
@@ -229,7 +229,7 @@ void Graph::setPen(QPen& pen) { mPen = pen; }
 
 const QPen Graph::pen() const { return mPen; }
 
-const GraphPoint& Graph::operator[](size_t idx) const { return points[idx]; }
+const Graph::Point& Graph::operator[](size_t idx) const { return points[idx]; }
 
 void Graph::clearData()
 {

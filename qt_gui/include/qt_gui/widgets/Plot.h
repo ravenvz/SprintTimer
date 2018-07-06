@@ -30,12 +30,6 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-struct GraphPoint;
-
-using GraphData = std::vector<GraphPoint>;
-
-class Graph;
-
 struct AxisRange {
     // Set minimum and maximum values on axis.
     // If start > end, then start is asssigned to end, and end to start.
@@ -49,55 +43,13 @@ private:
     double end;
 };
 
-class Plot : public QWidget {
-    Q_OBJECT
-
-public:
-    explicit Plot(QWidget* parent);
-
-    // Add Graph to plot. Multiple graphs can be added.
-    void addGraph(Graph graph);
-
-    // Set data points to graph with given number.
-    void setGraphData(size_t graphNum, GraphData& data);
-
-    // Clear data points from all graphs in plot.
-    // Empty graphs remain attached to Plot.
-    void reset();
-
-    // Repaint plot. This method is ment to be called when graph data is
-    // changed.
-    void replot();
-
-    // Set visible axis range.
-    void setRangeX(double start, double end);
-
-    // Set visible axis range.
-    void setRangeY(double start, double end);
-
-    // Reserve space for n graphs.
-    void setNumExpectedGraphs(size_t n);
-
-private:
-    std::vector<Graph> graphs;
-    AxisRange rangeX;
-    AxisRange rangeY;
-    QRectF availableRect;
-
-    void paintEvent(QPaintEvent*) override;
-
-    void mouseMoveEvent(QMouseEvent* event) override;
-};
-
-struct GraphPoint {
-    double x;
-    double y;
-    QString label;
-};
-
 class Graph {
 public:
-    using const_iterator = GraphData::const_iterator;
+    struct Point {
+        double x;
+        double y;
+        QString label;
+    };
 
     struct PointBox {
         QPainterPath path;
@@ -113,8 +65,11 @@ public:
         bool showPoints;
     };
 
+    using Data = std::vector<Point>;
+    using const_iterator = Data::const_iterator;
+
     // Set data for this Graph.
-    void setData(GraphData& data);
+    void setData(Graph::Data& data);
 
     // Set pen for drawing graph lines.
     void setPen(QPen& pen);
@@ -123,7 +78,7 @@ public:
     const QPen pen() const;
 
     // Overload for subscript operator to get access to graph points data.
-    const GraphPoint& operator[](size_t idx) const;
+    const Point& operator[](size_t idx) const;
 
     void draw(QPainter& painter,
               const QRectF& availableRect,
@@ -153,7 +108,7 @@ public:
 
 private:
     QPen mPen;
-    GraphData points;
+    Data points;
     std::vector<PointBox> pointBoxes;
     bool mShowPoints = false;
 
@@ -168,6 +123,46 @@ private:
     void drawAxisLabels(QPainter& painter,
                         const AxisRange& rangeX,
                         double labelYPos);
+};
+
+class Plot : public QWidget {
+    Q_OBJECT
+
+public:
+    explicit Plot(QWidget* parent);
+
+    // Add Graph to plot. Multiple graphs can be added.
+    void addGraph(Graph graph);
+
+    // Set data points to graph with given number.
+    void setGraphData(size_t graphNum, Graph::Data& data);
+
+    // Clear data points from all graphs in plot.
+    // Empty graphs remain attached to Plot.
+    void reset();
+
+    // Repaint plot. This method is ment to be called when graph data is
+    // changed.
+    void replot();
+
+    // Set visible axis range.
+    void setRangeX(double start, double end);
+
+    // Set visible axis range.
+    void setRangeY(double start, double end);
+
+    // Reserve space for n graphs.
+    void setNumExpectedGraphs(size_t n);
+
+private:
+    std::vector<Graph> graphs;
+    AxisRange rangeX;
+    AxisRange rangeY;
+    QRectF availableRect;
+
+    void paintEvent(QPaintEvent*) override;
+
+    void mouseMoveEvent(QMouseEvent* event) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

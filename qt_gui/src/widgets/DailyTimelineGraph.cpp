@@ -81,23 +81,22 @@ void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
         ui->dailyTimeline->reset();
 
     auto sprintsByDay = dailyDistribution.getDistributionVector();
-    GraphData averageData{
-        GraphPoint{0, averagePerWorkday, ""},
-        GraphPoint{static_cast<double>(dailyDistribution.getNumBins()),
-                   averagePerWorkday,
-                   ""}};
-    GraphData goalData{
-        GraphPoint{0, static_cast<double>(dailyGoal), ""},
-        GraphPoint{static_cast<double>(dailyDistribution.getNumBins()),
-                   static_cast<double>(dailyGoal),
-                   ""}};
-    GraphData normalData;
+    Graph::Data averageData{
+        Graph::Point{0, averagePerWorkday, ""},
+        Graph::Point{static_cast<double>(dailyDistribution.getNumBins()),
+                     averagePerWorkday,
+                     ""}};
+    Graph::Data goalData{
+        Graph::Point{0, static_cast<double>(dailyGoal), ""},
+        Graph::Point{static_cast<double>(dailyDistribution.getNumBins()),
+                     static_cast<double>(dailyGoal),
+                     ""}};
+    Graph::Data normalData;
     for (size_t i = 0; i < sprintsByDay.size(); ++i) {
-        normalData.push_back(
-            GraphPoint{double(i),
-                       sprintsByDay[i],
-                       QString("%1").arg(
-                           startDate.addDays(static_cast<long>(i)).day())});
+        normalData.push_back(Graph::Point{
+            double(i),
+            sprintsByDay[i],
+            QString("%1").arg(startDate.addDays(static_cast<long>(i)).day())});
     }
 
     ui->dailyTimeline->setRangeX(0, dailyDistribution.getNumBins() + 1);
@@ -120,4 +119,3 @@ void DailyTimelineGraph::updateLegend(
 }
 
 } // namespace sprint_timer::ui::qt_gui
-
