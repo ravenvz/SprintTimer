@@ -27,6 +27,17 @@
 
 namespace sprint_timer::ui::qt_gui {
 
+namespace plot_params {
+
+    constexpr double penWidthF{2.2};
+    const QBrush pointBrush{Qt::white};
+    const QPen normalGraphPen{
+        QColor::fromRgb(246, 61, 13, 255), penWidthF, Qt::SolidLine};
+    const QPen averageGraphPen{Qt::blue, penWidthF, Qt::DotLine};
+    const QPen goalGraphPen{Qt::green, penWidthF, Qt::DashLine};
+
+} // namespace plot_params
+
 DailyTimelineGraph::DailyTimelineGraph(QWidget* parent)
     : QFrame{parent}
     , ui{new Ui::DailyTimelineGraph}
@@ -39,31 +50,24 @@ DailyTimelineGraph::~DailyTimelineGraph() { delete ui; }
 
 void DailyTimelineGraph::setupGraphs()
 {
-    constexpr double penWidthF = 2.2;
-
     Graph averageGraph;
-    Graph goalGraph;
     Graph normalGraph;
+    Graph goalGraph;
 
-    QPen averagePen;
-    averagePen.setColor(Qt::blue);
-    averagePen.setStyle(Qt::DotLine);
-    averagePen.setWidthF(penWidthF);
-    averageGraph.setPen(averagePen);
+    Graph::VisualOptions averageGraphOptions;
+    averageGraphOptions.linePen = plot_params::averageGraphPen;
+    averageGraph.setVisualOptions(std::move(averageGraphOptions));
 
-    QPen normalPen;
-    normalPen.setColor(QColor::fromRgb(246, 61, 13, 255));
-    normalPen.setWidthF(penWidthF);
-    normalGraph.setPen(normalPen);
-    normalGraph.setShowPoints(true);
+    Graph::VisualOptions normalGraphOptions;
+    normalGraphOptions.linePen = plot_params::normalGraphPen;
+    normalGraphOptions.showPoints = true;
+    normalGraphOptions.pointBrush = plot_params::pointBrush;
+    normalGraph.setVisualOptions(std::move(normalGraphOptions));
 
-    QPen goalPen;
-    goalPen.setColor(Qt::green);
-    goalPen.setStyle(Qt::DashLine);
-    goalPen.setWidthF(penWidthF);
-    goalGraph.setPen(goalPen);
+    Graph::VisualOptions goalGraphOptions;
+    goalGraphOptions.linePen = plot_params::goalGraphPen;
+    goalGraph.setVisualOptions(std::move(goalGraphOptions));
 
-    ui->dailyTimeline->setNumExpectedGraphs(3);
     ui->dailyTimeline->addGraph(std::move(averageGraph));
     ui->dailyTimeline->addGraph(std::move(goalGraph));
     ui->dailyTimeline->addGraph(std::move(normalGraph));
@@ -77,39 +81,32 @@ void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
     const double averagePerWorkday
         = dailyDistribution.getTotal() / static_cast<double>(numWorkdays);
 
-    if (dailyDistribution.empty()) {
-        ui->dailyTimeline->reset();
-        return;
-    }
-    else {
-        auto sprintsByDay = dailyDistribution.getDistributionVector();
-        GraphData averageData{
-            GraphPoint{0, averagePerWorkday, ""},
-            GraphPoint{static_cast<double>(dailyDistribution.getNumBins()),
-                       averagePerWorkday,
-                       ""}};
-        GraphData goalData{
-            GraphPoint{0, static_cast<double>(dailyGoal), ""},
-            GraphPoint{static_cast<double>(dailyDistribution.getNumBins()),
-                       static_cast<double>(dailyGoal),
-                       ""}};
-        GraphData normalData;
-        for (size_t i = 0; i < sprintsByDay.size(); ++i) {
-            normalData.push_back(
-                GraphPoint{double(i),
-                           sprintsByDay[i],
-                           QString("%1").arg(
-                               startDate.addDays(static_cast<long>(i)).day())});
-        }
-
-        ui->dailyTimeline->setRangeX(0, dailyDistribution.getNumBins() + 1);
-        ui->dailyTimeline->setRangeY(0, dailyDistribution.getMax() + 1);
-        ui->dailyTimeline->setGraphData(0, averageData);
-        ui->dailyTimeline->setGraphData(1, goalData);
-        ui->dailyTimeline->setGraphData(2, normalData);
+    const auto sprintsByDay = dailyDistribution.getDistributionVector();
+    Graph::Data averageData{
+        Graph::Point{0, averagePerWorkday, ""},
+        Graph::Point{static_cast<double>(dailyDistribution.getNumBins()),
+                     averagePerWorkday,
+                     ""}};
+    Graph::Data goalData{
+        Graph::Point{0, static_cast<double>(dailyGoal), ""},
+        Graph::Point{static_cast<double>(dailyDistribution.getNumBins()),
+                     static_cast<double>(dailyGoal),
+                     ""}};
+    Graph::Data normalData;
+    for (size_t i = 0; i < sprintsByDay.size(); ++i) {
+        normalData.push_back(Graph::Point{
+            double(i),
+            sprintsByDay[i],
+            QString("%1").arg(startDate.addDays(static_cast<long>(i)).day())});
     }
 
-    ui->dailyTimeline->replot();
+    ui->dailyTimeline->setRangeX(0, dailyDistribution.getNumBins() + 1);
+    ui->dailyTimeline->setRangeY(0, dailyDistribution.getMax() + 1);
+    ui->dailyTimeline->changeGraphData(0, std::move(averageData));
+    ui->dailyTimeline->changeGraphData(1, std::move(goalData));
+    ui->dailyTimeline->changeGraphData(2, std::move(normalData));
+
+    ui->dailyTimeline->repaint();
     updateLegend(dailyDistribution, averagePerWorkday);
 }
 
@@ -123,4 +120,3 @@ void DailyTimelineGraph::updateLegend(
 }
 
 } // namespace sprint_timer::ui::qt_gui
-

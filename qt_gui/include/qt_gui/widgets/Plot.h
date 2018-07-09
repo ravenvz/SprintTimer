@@ -30,12 +30,6 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-struct GraphPoint;
-
-using GraphData = std::vector<GraphPoint>;
-
-class Graph;
-
 struct AxisRange {
     // Set minimum and maximum values on axis.
     // If start > end, then start is asssigned to end, and end to start.
@@ -49,35 +43,79 @@ private:
     double end;
 };
 
-class Plot : public QWidget {
-    Q_OBJECT
 
-private:
+struct DrawingParams {
+    DrawingParams(const QRectF& availableRect,
+                  const AxisRange& rangeX,
+                  const AxisRange& rangeY);
+
+    const double labelOffset;
+    const double scaleX;
+    const double scaleY;
+    const QPointF referencePoint;
+    const double pointSize;
+};
+
+
+class Graph {
+    friend class point_to_point_box;
+
+public:
+    struct Point {
+        double x;
+        double y;
+        QString label;
+    };
+
     struct PointBox {
         QPainterPath path;
         QPointF position;
         QString toolTip;
-        QString label;
     };
 
-public:
-    using PointBoxContainer = std::vector<PointBox>;
+    struct VisualOptions {
+        QPen linePen;
+        QBrush pointBrush;
+        QPen legendPen;
+        bool showPoints{false};
+    };
 
+    using Data = std::vector<Point>;
+
+    // Set data for this Graph.
+    void setData(Graph::Data&& data);
+
+    void setVisualOptions(VisualOptions options);
+
+    void draw(QPainter& painter, const DrawingParams& drawingParams);
+
+    void handleMouseMoveEvent(QMouseEvent* event) const;
+
+private:
+    VisualOptions options;
+    Data points;
+    std::vector<PointBox> pointBoxes;
+
+    void populatePointBoxes(const DrawingParams& drawingParams);
+
+    void drawPolyline(QPainter& painter) const;
+
+    void drawPoints(QPainter& painter);
+
+    void drawAxisLabels(QPainter& painter, double labelYPos);
+};
+
+class Plot : public QWidget {
+    Q_OBJECT
+
+public:
     explicit Plot(QWidget* parent);
 
     // Add Graph to plot. Multiple graphs can be added.
     void addGraph(Graph graph);
 
     // Set data points to graph with given number.
-    void setGraphData(size_t graphNum, GraphData& data);
-
-    // Clear data points from all graphs in plot.
-    // Empty graphs remain attached to Plot.
-    void reset();
-
-    // Repaint plot. This method is ment to be called when graph data is
-    // changed.
-    void replot();
+    void changeGraphData(size_t graphNum, Graph::Data&& data);
 
     // Set visible axis range.
     void setRangeX(double start, double end);
@@ -85,89 +123,15 @@ public:
     // Set visible axis range.
     void setRangeY(double start, double end);
 
-    // Reserve space for n graphs.
-    void setNumExpectedGraphs(size_t n);
-
-protected:
-    // Override to paint graphs.
-    void paintEvent(QPaintEvent*) override;
-
-    // Override to show tooltip with point data when hovering over the point.
-    void mouseMoveEvent(QMouseEvent* event) override;
-
 private:
     std::vector<Graph> graphs;
-    std::vector<PointBoxContainer> pointBoxes;
     AxisRange rangeX;
     AxisRange rangeY;
     QRectF availableRect;
-    double pointBoxSize;
-    const QBrush pointBoxBrush{Qt::white};
-    constexpr static int labelSkipInd{28};
-    constexpr static int toolTipOffset{10};
-    // RelSizes' are relative to Widget's rect() height
-    constexpr static double labelOffsetRelSize{0.15};
-    constexpr static double marginRelSize{0.07};
-    constexpr static double pointBoxRelSize{0.025};
 
-    // Compute data required to draw points relative to plot size.
-    void constructPointBoxes();
+    void paintEvent(QPaintEvent*) override;
 
-    // Paint graph with given number.
-    void paintGraph(size_t graphNum, QPainter& painter) const;
-
-    // Paint graph points and labels.
-    void paintPoints(const PointBoxContainer& boxes, QPainter& painter) const;
-
-    // Show tooltip with point data when hovering over a point on a plot.
-    const QString getPosTooltip(const QPoint& pos) const;
-};
-
-struct GraphPoint {
-    double x;
-    double y;
-    QString label;
-};
-
-class Graph {
-public:
-    using const_iterator = GraphData::const_iterator;
-
-    // Set data for this Graph.
-    void setData(GraphData& data);
-
-    // Set pen for drawing graph lines.
-    void setPen(QPen& pen);
-
-    // Return pen that is currently used for drawing graph lines.
-    const QPen pen() const;
-
-    // Overload for subscript operator to get access to graph points data.
-    const GraphPoint& operator[](size_t idx) const;
-
-    // Clear graph points.
-    void clearData();
-
-    // Draw data points and labels on graph if showPoints is true.
-    // Draw graph only if showPoints is false.
-    void setShowPoints(bool showPoints);
-
-    // Return true if data points are supposed to be drawn and false otherwise.
-    bool showPoints() const;
-
-    // Return iterator to the beginning (first data point)
-    const_iterator cbegin() const;
-
-    // Return iterator to the end.
-    const_iterator cend() const;
-
-    // Return number of points in graph.
-    size_t size() const;
-
-private:
-    QPen mPen;
-    GraphData points;
-    bool mShowPoints = false;
+    void mouseMoveEvent(QMouseEvent* event) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
