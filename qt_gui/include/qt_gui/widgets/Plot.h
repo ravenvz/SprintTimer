@@ -43,7 +43,23 @@ private:
     double end;
 };
 
+
+struct DrawingParams {
+    DrawingParams(const QRectF& availableRect,
+                  const AxisRange& rangeX,
+                  const AxisRange& rangeY);
+
+    const double labelOffset;
+    const double scaleX;
+    const double scaleY;
+    const QPointF referencePoint;
+    const double pointSize;
+};
+
+
 class Graph {
+    friend class point_to_point_box;
+
 public:
     struct Point {
         double x;
@@ -55,74 +71,38 @@ public:
         QPainterPath path;
         QPointF position;
         QString toolTip;
-        QString label;
     };
 
     struct VisualOptions {
         QPen linePen;
-        QPen pointPen;
+        QBrush pointBrush;
         QPen legendPen;
-        bool showPoints;
+        bool showPoints{false};
     };
 
     using Data = std::vector<Point>;
-    using const_iterator = Data::const_iterator;
 
     // Set data for this Graph.
-    void setData(Graph::Data& data);
+    void setData(Graph::Data&& data);
 
-    // Set pen for drawing graph lines.
-    void setPen(QPen& pen);
+    void setVisualOptions(VisualOptions options);
 
-    // Return pen that is currently used for drawing graph lines.
-    const QPen pen() const;
-
-    // Overload for subscript operator to get access to graph points data.
-    const Point& operator[](size_t idx) const;
-
-    void draw(QPainter& painter,
-              const QRectF& availableRect,
-              const AxisRange& rangeX,
-              const AxisRange& rangeY);
-
-    // Clear graph points.
-    void clearData();
-
-    // Draw data points and labels on graph if showPoints is true.
-    // Draw graph only if showPoints is false.
-    void setShowPoints(bool showPoints);
-
-    // Return true if data points are supposed to be drawn and false otherwise.
-    bool showPoints() const;
-
-    // Return iterator to the beginning (first data point)
-    const_iterator cbegin() const;
-
-    // Return iterator to the end.
-    const_iterator cend() const;
-
-    // Return number of points in graph.
-    size_t size() const;
+    void draw(QPainter& painter, const DrawingParams& drawingParams);
 
     void handleMouseMoveEvent(QMouseEvent* event) const;
 
 private:
-    QPen mPen;
+    VisualOptions options;
     Data points;
     std::vector<PointBox> pointBoxes;
-    bool mShowPoints = false;
 
-    void populatePointBoxes(const QRectF& availableRect,
-                            const AxisRange& rangeX,
-                            const AxisRange& rangeY);
+    void populatePointBoxes(const DrawingParams& drawingParams);
 
     void drawPolyline(QPainter& painter) const;
 
     void drawPoints(QPainter& painter);
 
-    void drawAxisLabels(QPainter& painter,
-                        const AxisRange& rangeX,
-                        double labelYPos);
+    void drawAxisLabels(QPainter& painter, double labelYPos);
 };
 
 class Plot : public QWidget {
@@ -135,24 +115,13 @@ public:
     void addGraph(Graph graph);
 
     // Set data points to graph with given number.
-    void setGraphData(size_t graphNum, Graph::Data& data);
-
-    // Clear data points from all graphs in plot.
-    // Empty graphs remain attached to Plot.
-    void reset();
-
-    // Repaint plot. This method is ment to be called when graph data is
-    // changed.
-    void replot();
+    void changeGraphData(size_t graphNum, Graph::Data&& data);
 
     // Set visible axis range.
     void setRangeX(double start, double end);
 
     // Set visible axis range.
     void setRangeY(double start, double end);
-
-    // Reserve space for n graphs.
-    void setNumExpectedGraphs(size_t n);
 
 private:
     std::vector<Graph> graphs;

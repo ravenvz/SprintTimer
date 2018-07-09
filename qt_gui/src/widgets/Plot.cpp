@@ -35,22 +35,12 @@ constexpr static double marginRelSize{0.07};
 constexpr static double pointBoxRelSize{0.025};
 const QBrush pointBoxBrush{Qt::white};
 
-struct PointBoxScale {
-    PointBoxScale(const QRectF& availableRect,
-                  const AxisRange& rangeX,
-                  const AxisRange& rangeY);
-
-    const double labelOffset;
-    const double scaleX;
-    const double scaleY;
-    const QPointF referencePoint;
-    const double pbSize;
-};
 
 QRectF computeAvailableRectange(const QRectF& totalSizeRect);
 
+
 struct point_to_point_box {
-    point_to_point_box(const PointBoxScale& scale)
+    point_to_point_box(const DrawingParams& scale)
         : scale{scale}
     {
     }
@@ -58,15 +48,16 @@ struct point_to_point_box {
     Graph::PointBox operator()(const Graph::Point& p)
     {
         QPainterPath path;
-        auto [labelOffset, scaleX, scaleY, referencePoint, pbSize] = scale;
+        const auto [labelOffset, scaleX, scaleY, referencePoint, pointSize]
+            = scale;
         const QPointF position{p.x * scaleX + referencePoint.x(),
                                referencePoint.y() - p.y * scaleY - labelOffset};
-        path.addEllipse(QPointF{0, 0}, pbSize, pbSize);
-        return Graph::PointBox{path, position, QString("%1").arg(p.y), p.label};
+        path.addEllipse(QPointF{0, 0}, pointSize, pointSize);
+        return Graph::PointBox{path, position, QString("%1").arg(p.y)};
     }
 
 private:
-    const PointBoxScale& scale;
+    const DrawingParams& scale;
 };
 
 } // namespace
@@ -87,24 +78,26 @@ Plot::Plot(QWidget* parent)
     setMouseTracking(true);
 }
 
-void Plot::setNumExpectedGraphs(size_t n) { graphs.reserve(n); }
+DrawingParams::DrawingParams(const QRectF& availableRect,
+                             const AxisRange& rangeX,
+                             const AxisRange& rangeY)
+    : labelOffset{labelOffsetRelSize * availableRect.height()}
+    , scaleX{rangeX.span() > 0 ? availableRect.width() / rangeX.span() : 1}
+    , scaleY{rangeY.span() > 0
+                 ? (availableRect.height() - labelOffset) / rangeY.span()
+                 : 1}
+    , referencePoint{availableRect.bottomLeft()}
+    , pointSize{pointBoxRelSize * availableRect.height()}
+{
+}
 
 void Plot::addGraph(Graph graph) { graphs.push_back(std::move(graph)); }
 
-void Plot::setGraphData(size_t graphNum, Graph::Data& data)
+void Plot::changeGraphData(size_t graphNum, Graph::Data&& data)
 {
     if (graphNum < graphs.size())
-        graphs[graphNum].setData(data);
+        graphs[graphNum].setData(std::move(data));
 }
-
-void Plot::reset()
-{
-    for (auto& graph : graphs) {
-        graph.clearData();
-    }
-}
-
-void Plot::replot() { repaint(); }
 
 void Plot::setRangeX(double start, double end) { rangeX.setRange(start, end); }
 
@@ -116,9 +109,10 @@ void Plot::paintEvent(QPaintEvent*)
     painter.setRenderHint(QPainter::Antialiasing);
 
     availableRect = computeAvailableRectange(this->rect());
+    const DrawingParams drawingParams{availableRect, rangeX, rangeY};
 
     for (auto& graph : graphs)
-        graph.draw(painter, availableRect, rangeX, rangeY);
+        graph.draw(painter, drawingParams);
 }
 
 void Plot::mouseMoveEvent(QMouseEvent* event)
@@ -127,7 +121,7 @@ void Plot::mouseMoveEvent(QMouseEvent* event)
         graph.handleMouseMoveEvent(event);
 }
 
-void Graph::setData(Data& data)
+void Graph::setData(Data&& data)
 {
     points = data;
     pointBoxes.resize(points.size());
@@ -138,30 +132,29 @@ void Graph::setData(Data& data)
               });
 }
 
-void Graph::draw(QPainter& painter,
-                 const QRectF& availableRect,
-                 const AxisRange& rangeX,
-                 const AxisRange& rangeY)
+void Graph::setVisualOptions(VisualOptions options_)
+{
+    options = std::move(options_);
+}
+
+void Graph::draw(QPainter& painter, const DrawingParams& drawingParams)
 {
     painter.save();
 
-    populatePointBoxes(availableRect, rangeX, rangeY);
+    populatePointBoxes(drawingParams);
     drawPolyline(painter);
     drawPoints(painter);
-    drawAxisLabels(painter, rangeX, availableRect.bottomLeft().y());
+    drawAxisLabels(painter, drawingParams.referencePoint.y());
 
     painter.restore();
 }
 
-void Graph::populatePointBoxes(const QRectF& availableRect,
-                               const AxisRange& rangeX,
-                               const AxisRange& rangeY)
+void Graph::populatePointBoxes(const DrawingParams& drawingParams)
 {
-    const PointBoxScale pointBoxScale{availableRect, rangeX, rangeY};
     std::transform(points.cbegin(),
                    points.cend(),
                    pointBoxes.begin(),
-                   point_to_point_box(pointBoxScale));
+                   point_to_point_box(drawingParams));
 }
 
 void Graph::drawPolyline(QPainter& painter) const
@@ -171,15 +164,15 @@ void Graph::drawPolyline(QPainter& painter) const
                    pointBoxes.cend(),
                    std::back_inserter(centerPoints),
                    [](const auto& box) { return box.position; });
-    painter.setPen(mPen);
+    painter.setPen(options.linePen);
     painter.drawPolyline(centerPoints);
 }
 
 void Graph::drawPoints(QPainter& painter)
 {
-    if (!showPoints())
+    if (!options.showPoints)
         return;
-    painter.setBrush(pointBoxBrush);
+    painter.setBrush(options.pointBrush);
     for (const auto& point : pointBoxes) {
         painter.translate(point.position);
         painter.drawPath(point.path);
@@ -187,25 +180,23 @@ void Graph::drawPoints(QPainter& painter)
     }
 }
 
-void Graph::drawAxisLabels(QPainter& painter,
-                           const AxisRange& rangeX,
-                           double labelPosY)
+void Graph::drawAxisLabels(QPainter& painter, double labelPosY)
 {
-    if (!showPoints())
+    if (!options.showPoints)
         return;
+
     // For large spans not every label is shown to prevent overlapping.
-    const size_t skipLabels{
-        std::max(1ul, static_cast<size_t>(rangeX.span()) / labelSkipInd)};
+    const size_t skipLabels{std::max(1ul, points.size() / labelSkipInd)};
 
     for (size_t i = 0; i < pointBoxes.size(); i += skipLabels) {
-        const auto& point = pointBoxes[i];
-        painter.drawText(QPointF{point.position.x(), labelPosY}, point.label);
+        const auto& box = pointBoxes[i];
+        painter.drawText(QPointF{box.position.x(), labelPosY}, points[i].label);
     }
 }
 
 void Graph::handleMouseMoveEvent(QMouseEvent* event) const
 {
-    if (!showPoints())
+    if (!options.showPoints)
         return;
 
     // According to Qt documentation on should call event->ignore
@@ -225,44 +216,9 @@ void Graph::handleMouseMoveEvent(QMouseEvent* event) const
     event->ignore();
 }
 
-void Graph::setPen(QPen& pen) { mPen = pen; }
-
-const QPen Graph::pen() const { return mPen; }
-
-const Graph::Point& Graph::operator[](size_t idx) const { return points[idx]; }
-
-void Graph::clearData()
-{
-    points.clear();
-    pointBoxes.clear();
-}
-
-void Graph::setShowPoints(bool showPoints) { mShowPoints = showPoints; }
-
-bool Graph::showPoints() const { return mShowPoints; }
-
-Graph::const_iterator Graph::cbegin() const { return points.cbegin(); }
-
-Graph::const_iterator Graph::cend() const { return points.cend(); }
-
-size_t Graph::size() const { return points.size(); }
-
 } // namespace sprint_timer::ui::qt_gui
 
 namespace {
-
-PointBoxScale::PointBoxScale(const QRectF& availableRect,
-                             const AxisRange& rangeX,
-                             const AxisRange& rangeY)
-    : labelOffset{labelOffsetRelSize * availableRect.height()}
-    , scaleX{rangeX.span() > 0 ? availableRect.width() / rangeX.span() : 1}
-    , scaleY{rangeY.span() > 0
-                 ? (availableRect.height() - labelOffset) / rangeY.span()
-                 : 1}
-    , referencePoint{availableRect.bottomLeft()}
-    , pbSize{pointBoxRelSize * availableRect.height()}
-{
-}
 
 QRectF computeAvailableRectange(const QRectF& totalSizeRect)
 {
