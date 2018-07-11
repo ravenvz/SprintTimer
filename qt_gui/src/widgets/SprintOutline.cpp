@@ -33,12 +33,12 @@ SprintOutline::SprintOutline(ICoreService& coreService,
                              SprintModel* sprintModel,
                              TaskModel* taskModel,
                              QWidget* parent)
-    : QWidget {parent}
-    , ui {new Ui::SprintOutline}
-    , coreService {coreService}
-    , applicationSettings {applicationSettings}
-    , sprintModel {sprintModel}
-    , taskModel {taskModel}
+    : QWidget{parent}
+    , ui{new Ui::SprintOutline}
+    , coreService{coreService}
+    , applicationSettings{applicationSettings}
+    , sprintModel{sprintModel}
+    , taskModel{taskModel}
 {
     ui->setupUi(this);
     ui->lvFinishedSprints->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -71,7 +71,7 @@ SprintOutline::~SprintOutline() { delete ui; }
 
 void SprintOutline::launchManualAddSprintDialog()
 {
-    addSprintDialog.reset(new AddSprintDialog {
+    addSprintDialog.reset(new AddSprintDialog{
         sprintModel, taskModel, applicationSettings.sprintDuration()});
     addSprintDialog->setModal(true);
     addSprintDialog->show();
@@ -105,7 +105,7 @@ void SprintOutline::showContextMenu(const QPoint& pos)
 void SprintOutline::onUndoButtonClicked()
 {
     ConfirmationDialog dialog;
-    QString description {"Revert following action:\n"};
+    QString description{"Revert following action:\n"};
     description.append(
         QString::fromStdString(coreService.lastCommandDescription()));
     dialog.setActionDescription(description);

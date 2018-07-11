@@ -76,7 +76,8 @@ void CoreService::registerTask(const Task& task)
 
 void CoreService::removeTask(const Task& task)
 {
-    auto deleteTask = std::make_unique<DeleteTask>(taskWriter, task);
+    auto deleteTask = std::make_unique<DeleteTask>(
+        taskWriter, sprintReader, sprintWriter, task);
     invoker.executeCommand(std::move(deleteTask));
 }
 

@@ -22,10 +22,10 @@
 #ifndef TASKMODEL_H_FUQ5UCBE
 #define TASKMODEL_H_FUQ5UCBE
 
+#include "qt_gui/models/AsyncListModel.h"
 #include <core/ICoreService.h>
 #include <core/entities/Task.h>
 #include <date_wrapper/TimeSpan.h>
-#include "qt_gui/models/AsyncListModel.h"
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -114,6 +114,8 @@ private:
     };
 
     void onDataChanged(const std::vector<entities::Task>& tasks);
+
+    void timerEvent(QTimerEvent* event) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -25,15 +25,36 @@
 namespace sprint_timer::use_cases {
 
 DeleteTask::DeleteTask(ITaskStorageWriter& taskStorageWriter,
+                       ISprintStorageReader& sprintStorageReader,
+                       ISprintStorageWriter& sprintStorageWriter,
                        entities::Task taskToRemove)
-    : writer{taskStorageWriter}
+    : taskWriter{taskStorageWriter}
+    , sprintReader{sprintStorageReader}
+    , sprintWriter{sprintStorageWriter}
     , task{std::move(taskToRemove)}
 {
 }
 
-void DeleteTask::execute() { writer.remove(task); }
+void DeleteTask::execute()
+{
+    if (task.actualCost() == 0) {
+        taskWriter.remove(task);
+        return;
+    }
+    sprintReader.sprintsForTask(
+        task.uuid(), [this](const std::vector<entities::Sprint>& sprints) {
+            taskSprints = sprints;
+            taskWriter.remove(task);
+        });
+}
 
-void DeleteTask::undo() { writer.save(task); }
+void DeleteTask::undo()
+{
+    taskWriter.save(task);
+    for (const auto& sprint : taskSprints) {
+        sprintWriter.save(sprint);
+    }
+}
 
 std::string DeleteTask::describe() const
 {

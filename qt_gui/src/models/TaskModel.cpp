@@ -25,9 +25,6 @@
 #include <string>
 #include <vector>
 
-#include <iostream>
-#include <iterator>
-
 namespace sprint_timer::ui::qt_gui {
 
 using entities::Task;
@@ -121,7 +118,14 @@ void TaskModel::remove(int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
     coreService.removeTask(itemAt(row));
-    requestDataUpdate();
+    storage.erase(storage.begin() + row);
+    // TODO
+    // As a workaround, data update is delayed, because delete operation
+    // takes quite a long time (time is needed to collect sprints) and
+    // in current implementation we have no way to know if command is
+    // completed or not. This should be replaced when more flexible
+    // approach is introduced.
+    startTimer(std::chrono::seconds{1});
     endRemoveRows();
 }
 
@@ -184,5 +188,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
 
     return true;
 }
+
+void TaskModel::timerEvent(QTimerEvent* event) { requestDataUpdate(); }
 
 } // namespace sprint_timer::ui::qt_gui

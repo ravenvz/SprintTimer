@@ -50,11 +50,11 @@ TaskOutline::TaskOutline(ICoreService& coreService,
                          TaskModel* taskModel,
                          TagModel* tagModel,
                          QWidget* parent)
-    : QWidget {parent}
-    , ui {new Ui::TaskOutline}
-    , coreService {coreService}
-    , taskModel {taskModel}
-    , tagModel {tagModel}
+    : QWidget{parent}
+    , ui{new Ui::TaskOutline}
+    , coreService{coreService}
+    , taskModel{taskModel}
+    , tagModel{tagModel}
 {
     ui->setupUi(this);
 
@@ -95,14 +95,14 @@ void TaskOutline::onQuickAddTodoReturnPressed()
     std::string encodedDescription = ui->leQuickAddTask->text().toStdString();
     ui->leQuickAddTask->clear();
     if (!encodedDescription.empty()) {
-        Task item {std::move(encodedDescription)};
+        Task item{std::move(encodedDescription)};
         taskModel->insert(item);
     }
 }
 
 void TaskOutline::onAddTaskButtonPushed()
 {
-    addTaskDialog.reset(new AddTaskDialog {tagModel});
+    addTaskDialog.reset(new AddTaskDialog{tagModel});
     connect(
         &*addTaskDialog, &QDialog::accepted, this, &TaskOutline::addNewTask);
     addTaskDialog->setModal(true);
@@ -164,21 +164,8 @@ void TaskOutline::launchTagEditor()
 
 void TaskOutline::removeTask()
 {
-    QModelIndex index = ui->lvTaskView->currentIndex();
-    const auto task = taskModel->itemAt(index.row());
-
-    if (task.actualCost() == 0) {
-        taskModel->remove(index);
-        return;
-    }
-
-    ConfirmationDialog dialog;
-    QString description
-        = "WARNING! This task has sprints associated with it "
-          "and they will be removed permanently along with this item.";
-    dialog.setActionDescription(description);
-    if (dialog.exec())
-        taskModel->remove(index);
+    const QModelIndex index = ui->lvTaskView->currentIndex();
+    taskModel->remove(index);
 }
 
 void TaskOutline::launchTaskEditor()
@@ -186,7 +173,7 @@ void TaskOutline::launchTaskEditor()
     QModelIndex index = ui->lvTaskView->currentIndex();
     const auto itemToEdit = taskModel->itemAt(index.row());
 
-    AddTaskDialog dialog {tagModel};
+    AddTaskDialog dialog{tagModel};
     dialog.setWindowTitle("Edit task");
     dialog.fillItemData(itemToEdit);
     if (dialog.exec()) {
