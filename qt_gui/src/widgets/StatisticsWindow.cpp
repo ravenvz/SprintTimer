@@ -21,8 +21,8 @@
 *********************************************************************************/
 #include "qt_gui/widgets/StatisticsWindow.h"
 #include "qt_gui/widgets/BarChart.h"
-#include <core/utils/WeekdaySelection.h>
 #include "ui_statistics_window.h"
+#include <core/utils/WeekdaySelection.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -116,7 +116,8 @@ void StatisticsWindow::updateTopTagsDiagram(
                    });
     ui->topTagDiagram->setData(data);
     ui->topTagDiagram->setLegendTitle("Top tags");
-    ui->topTagDiagram->setLegendTitleFont(QFont(".Helvetica Neue Desk UI", 13));
+    // ui->topTagDiagram->setLegendTitleFont(QFont(".Helvetica Neue Desk UI",
+    // 13));
 }
 
 void StatisticsWindow::onTagSelected(size_t tagIndex)
