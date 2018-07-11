@@ -56,7 +56,7 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
             this,
             &FancyTimer::onIndicatorClicked);
     connect(ui->cbxSubmissionCandidate,
-            qOverload<int>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             [&](int index) {
                 if (ui->cbxSubmissionCandidate->isVisible())
                     emit submissionCandidateChanged(index);

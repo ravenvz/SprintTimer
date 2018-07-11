@@ -41,7 +41,7 @@ TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
     qRegisterMetaType<IStatefulTimer::StateId>("IStatefulTimer::StateId");
 
     connect(player.get(),
-            qOverload<QMediaPlayer::Error>(&QMediaPlayer::error),
+            QOverload<QMediaPlayer::Error>::of(&QMediaPlayer::error),
             this,
             &TimerWidgetBase::onSoundPlaybackError);
     connect(this,

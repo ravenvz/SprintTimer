@@ -34,11 +34,11 @@ AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
                                  int sprintDuration,
                                  QDialog* parent)
     : QDialog {parent}
-    , ui {new Ui::AddSprintDialog}
-    , datePicker {new QCalendarWidget()}
-    , sprintModel {sprintModel}
-    , taskModel {taskModel}
-    , sprintDuration {sprintDuration}
+    , ui{new Ui::AddSprintDialog}
+    , datePicker{new QCalendarWidget()}
+    , sprintModel{sprintModel}
+    , taskModel{taskModel}
+    , sprintDuration{sprintDuration}
 {
     ui->setupUi(this);
     setData();
@@ -54,7 +54,7 @@ AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
             this,
             &AddSprintDialog::autoAdjustFinishTime);
     connect(ui->sbNumSpints,
-            qOverload<int>(&QSpinBox::valueChanged),
+            QOverload<int>::of(&QSpinBox::valueChanged),
             this,
             &AddSprintDialog::autoAdjustFinishTime);
     connect(ui->timeEditSprintFinishTime,

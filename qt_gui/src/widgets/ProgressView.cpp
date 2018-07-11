@@ -65,7 +65,7 @@ ProgressView::ProgressView(int goal,
     ui->spinBoxGoal->setValue(goal);
 
     connect(ui->spinBoxGoal,
-            qOverload<int>(&QSpinBox::valueChanged),
+            QOverload<int>::of(&QSpinBox::valueChanged),
             [&](int goal) {
                 this->goal = goal;
                 emit goalChanged(goal);
