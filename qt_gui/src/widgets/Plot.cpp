@@ -41,7 +41,7 @@ QRectF computeAvailableRectange(const QRectF& totalSizeRect);
 
 
 struct point_to_point_box {
-    point_to_point_box(const DrawingParams& drawingparams)
+    point_to_point_box(const DrawingParams& drawingParams)
         : drawingParams{drawingParams}
     {
     }
@@ -196,7 +196,7 @@ void Graph::drawAxisLabels(QPainter& painter, double labelPosY)
         return;
 
     // For large spans not every label is shown to prevent overlapping.
-    const size_t skipLabels{std::max(1ull, points.size() / labelSkipInd)};
+    const size_t skipLabels{std::max(size_t{1}, points.size() / labelSkipInd)};
 
     for (size_t i = 0; i < pointBoxes.size(); i += skipLabels) {
         const auto& box = pointBoxes[i];
