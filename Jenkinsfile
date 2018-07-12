@@ -27,12 +27,12 @@ node {
     stage('Run tests') {
         parallel "linux unit tests":{
             node ("linux") {
-                sh './bin/test_core --gtest_output=xml:test_core_results.xml && ./bin/test_qt_storage_impl --gtest_output=xml:test_qt_storage_impl_results.xml && mkdir -p test_results && mv ./bin/*.xml test_results'
+                sh './bin/test_core --gtest_output=xml:test_core_results.xml && ./bin/test_qt_storage_impl --gtest_output=xml:test_qt_storage_impl_results.xml && mkdir -p test_results && mv *.xml test_results'
                 junit 'test_results/*.xml'
             }
         }, "windows unit tests":{
             node ("windows") {
-                bat 'bin/Release/test_core.exe --gtest_output=xml:test_core_results.xml && bin/Release/test_qt_storage_impl.exe --gtest_output=xml:test_qt_storage_impl_results.xml && mkdir test_results && move bin/Release/*.xml test_results'
+                bat './bin/Release/test_core.exe --gtest_output=xml:test_core_results.xml && ./bin/Release/test_qt_storage_impl.exe --gtest_output=xml:test_qt_storage_impl_results.xml && mkdir test_results && move *.xml test_results'
                 junit 'test_results/*.xml'
             }
         }
