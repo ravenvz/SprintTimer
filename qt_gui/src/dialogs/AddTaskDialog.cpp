@@ -37,7 +37,7 @@ AddTaskDialog::AddTaskDialog(TagModel* tagModel, QWidget* parent)
     ui->setupUi(this);
     setTagsModel();
     connect(ui->tags,
-            qOverload<const QString&>(&QComboBox::activated),
+            QOverload<const QString&>::of(&QComboBox::activated),
             this,
             &AddTaskDialog::onQuickAddTagActivated);
     connect(ui->taskName,

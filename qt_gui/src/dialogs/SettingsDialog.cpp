@@ -52,7 +52,7 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
             ui->lePathToSoundFile->text().toStdString());
     });
     connect(ui->cbxTimerVariation,
-            qOverload<const QString&>(&QComboBox::currentIndexChanged),
+            QOverload<const QString&>::of(&QComboBox::currentIndexChanged),
             [&](const QString& text) {
                 /* ... */
             });

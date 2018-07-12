@@ -22,6 +22,7 @@
 #include "qt_gui/widgets/Plot.h"
 #include <QHelpEvent>
 #include <QToolTip>
+#include <algorithm>
 
 namespace {
 
@@ -40,16 +41,25 @@ QRectF computeAvailableRectange(const QRectF& totalSizeRect);
 
 
 struct point_to_point_box {
-    point_to_point_box(const DrawingParams& scale)
-        : scale{scale}
+    point_to_point_box(const DrawingParams& drawingparams)
+        : drawingParams{drawingParams}
     {
     }
 
     Graph::PointBox operator()(const Graph::Point& p)
     {
         QPainterPath path;
-        const auto [labelOffset, scaleX, scaleY, referencePoint, pointSize]
-            = scale;
+		// TODO figure out why MSVC doesn't like this structured binging
+#ifdef WIN32
+		auto labelOffset = drawingParams.labelOffset;
+		const auto scaleX = drawingParams.scaleX;
+		const auto scaleY = drawingParams.scaleY;
+		const auto referencePoint = drawingParams.referencePoint;
+		const auto pointSize = drawingParams.pointSize;
+#else
+         const auto [labelOffset, scaleX, scaleY, referencePoint, pointSize]
+            = drawingParams;
+#endif
         const QPointF position{p.x * scaleX + referencePoint.x(),
                                referencePoint.y() - p.y * scaleY - labelOffset};
         path.addEllipse(QPointF{0, 0}, pointSize, pointSize);
@@ -57,7 +67,7 @@ struct point_to_point_box {
     }
 
 private:
-    const DrawingParams& scale;
+    const DrawingParams& drawingParams;
 };
 
 } // namespace
@@ -154,7 +164,7 @@ void Graph::populatePointBoxes(const DrawingParams& drawingParams)
     std::transform(points.cbegin(),
                    points.cend(),
                    pointBoxes.begin(),
-                   point_to_point_box(drawingParams));
+                   ::point_to_point_box(drawingParams));
 }
 
 void Graph::drawPolyline(QPainter& painter) const
@@ -186,7 +196,7 @@ void Graph::drawAxisLabels(QPainter& painter, double labelPosY)
         return;
 
     // For large spans not every label is shown to prevent overlapping.
-    const size_t skipLabels{std::max(1ul, points.size() / labelSkipInd)};
+    const size_t skipLabels{std::max(1ull, points.size() / labelSkipInd)};
 
     for (size_t i = 0; i < pointBoxes.size(); i += skipLabels) {
         const auto& box = pointBoxes[i];

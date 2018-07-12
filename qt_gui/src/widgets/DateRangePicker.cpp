@@ -54,13 +54,13 @@ DateRangePicker::DateRangePicker(QWidget* parent)
             this,
             &DateRangePicker::openDatePickDialog);
     connect(ui->cbxYear,
-            qOverload<int>(&QComboBox::activated),
+            QOverload<int>::of(&QComboBox::activated),
             this,
-            qOverload<>(&DateRangePicker::updateInterval));
+            QOverload<>::of(&DateRangePicker::updateInterval));
     connect(ui->cbxMonth,
-            qOverload<int>(&QComboBox::activated),
+            QOverload<int>::of(&QComboBox::activated),
             this,
-            qOverload<>(&DateRangePicker::updateInterval));
+            QOverload<>::of(&DateRangePicker::updateInterval));
     connect(this,
             &DateRangePicker::timeSpanChanged,
             this,

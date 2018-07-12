@@ -55,7 +55,7 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
         timer->toggleInTheZoneMode();
     });
     connect(ui->cbxSubmissionCandidate,
-            qOverload<int>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             [&](int index) {
                 if (ui->cbxSubmissionCandidate->isVisible())
                     emit submissionCandidateChanged(index);
