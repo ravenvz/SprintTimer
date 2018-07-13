@@ -32,7 +32,7 @@ node {
             }
         }, "windows unit tests":{
             node ("windows") {
-                bat './bin/Release/test_core.exe --gtest_output=xml:test_core_results.xml && ./bin/Release/test_qt_storage_impl.exe --gtest_output=xml:test_qt_storage_impl_results.xml && mkdir test_results && move *.xml test_results'
+                bat '"./bin/Release/test_core.exe" --gtest_output=xml:test_core_results.xml && "./bin/Release/test_qt_storage_impl.exe" --gtest_output=xml:test_qt_storage_impl_results.xml && mkdir test_results && move *.xml test_results'
                 junit 'test_results/*.xml'
             }
         }
