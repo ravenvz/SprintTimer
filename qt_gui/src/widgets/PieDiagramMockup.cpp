@@ -19,8 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_gui/widgets/PieDiagramMockup.h"
 #include <iostream>
-#include "PieDiagramMockup.h"
+
+namespace sprint_timer::ui::qt_gui {
 
 
 DistributionDiagramMockup::DistributionDiagramMockup(QWidget* parent)
@@ -46,3 +48,6 @@ void DistributionDiagramMockup::togglePartActive(size_t partIndex)
 // {
 //     std::cout << "Selection has been changed" << std::endl;
 // }
+
+} // namespace sprint_timer::ui::qt_gui
+

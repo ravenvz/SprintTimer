@@ -19,10 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/BestWorkdayWidget.h"
+#include "qt_gui/widgets/BestWorkdayWidget.h"
 #include "ui_best_workday_widget.h"
 #include <QDate>
+
+namespace sprint_timer::ui::qt_gui {
 
 BestWorkdayWidget::BestWorkdayWidget(QWidget* parent)
     : QWidget(parent)
@@ -79,3 +80,6 @@ void BestWorkdayWidget::updateWeekdayBarChartLegend(
             QString("%1% more than average").arg(relativeComparisonInPercent));
     }
 }
+
+} // namespace sprint_timer::ui::qt_gui
+

@@ -19,19 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "dialogs/AddSprintDialog.h"
+#include "qt_gui/dialogs/AddSprintDialog.h"
+#include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
-#include "utils/DateTimeConverter.h"
+
+namespace sprint_timer::ui::qt_gui {
 
 namespace {
-constexpr int secondsInMinute{60};
+    constexpr int secondsInMinute {60};
 }
 
 AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
                                  TaskModel* taskModel,
                                  int sprintDuration,
                                  QDialog* parent)
-    : QDialog{parent}
+    : QDialog {parent}
     , ui{new Ui::AddSprintDialog}
     , datePicker{new QCalendarWidget()}
     , sprintModel{sprintModel}
@@ -45,14 +47,14 @@ AddSprintDialog::AddSprintDialog(SprintModel* sprintModel,
     // TODO make this configurable with settings.
     // See also DateRangePickDialog's related TODO
     datePicker->setFirstDayOfWeek(Qt::Monday);
-	datePicker->setWindowModality(Qt::ApplicationModal);
+    datePicker->setWindowModality(Qt::ApplicationModal);
 
     connect(ui->timeEditSprintStartTime,
             &QTimeEdit::dateTimeChanged,
             this,
             &AddSprintDialog::autoAdjustFinishTime);
     connect(ui->sbNumSpints,
-            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            QOverload<int>::of(&QSpinBox::valueChanged),
             this,
             &AddSprintDialog::autoAdjustFinishTime);
     connect(ui->timeEditSprintFinishTime,
@@ -100,22 +102,26 @@ int AddSprintDialog::totalSprintLength() const
 
 void AddSprintDialog::accept()
 {
-    auto initialStartTime = ui->timeEditSprintStartTime->dateTime()
-            .toTimeSpec(Qt::LocalTime);
+    auto initialStartTime
+        = ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
 
     const std::string taskUuid
-            = taskModel->itemAt(ui->cbPickTask->currentIndex()).uuid();
-    std::vector<Sprint> sprints;
+        = taskModel->itemAt(ui->cbPickTask->currentIndex()).uuid();
+    std::vector<entities::Sprint> sprints;
 
     for (int i = 0; i < ui->sbNumSpints->value(); ++i) {
-        auto startTime = initialStartTime.addSecs(i * sprintDuration * secondsInMinute);
+        auto startTime
+            = initialStartTime.addSecs(i * sprintDuration * secondsInMinute);
         auto finishTime = startTime.addSecs(sprintDuration * secondsInMinute);
-        Sprint sprint{taskUuid,
-                      TimeSpan{DateTimeConverter::dateTime(startTime),
-                               DateTimeConverter::dateTime(finishTime)}};
+        entities::Sprint sprint {
+            taskUuid,
+            TimeSpan {DateTimeConverter::dateTime(startTime),
+                      DateTimeConverter::dateTime(finishTime)}};
         sprints.push_back(sprint);
     }
 
     sprintModel->insert(sprints);
     QDialog::accept();
 }
+
+} // namespace sprint_timer::ui::qt_gui

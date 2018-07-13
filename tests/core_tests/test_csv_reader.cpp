@@ -30,15 +30,13 @@
 #include <sstream>
 #include "gtest/gtest.h"
 
-using namespace CSV;
+using namespace sprint_timer::utils;
 
 namespace {
-// TODO obviously, this should be handled outside of source code
-#ifdef _MSC_VER
-	constexpr char const* rfc_4180_test_file = "../../tests/core_tests/data/rfc_4180.csv";
-#else
-	constexpr char const* rfc_4180_test_file = "../tests/core_tests/data/rfc_4180.csv";
-#endif
+
+// TODO that makes test run depend on working directory
+constexpr char const* rfc_4180_test_file = "tests/core_tests/data/rfc_4180.csv";
+
 }
 
 TEST(TestCSV, test_trows_exception_when_file_not_found)

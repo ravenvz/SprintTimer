@@ -25,7 +25,7 @@
 #include "core/Command.h"
 #include "core/ITaskStorageWriter.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class StoreUnfinishedTasksOrder : public Command {
 public:
@@ -45,6 +45,6 @@ private:
     const std::vector<std::string> new_order_;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: REGISTERTASKPRIORITIESCOMMAND_H_AGQJD71Y */

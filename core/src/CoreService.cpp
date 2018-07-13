@@ -33,19 +33,18 @@
 #include "core/use_cases/RequestMinMaxYear.h"
 #include "core/use_cases/RequestSprintDistribution.h"
 #include "core/use_cases/RequestSprints.h"
+#include "core/use_cases/RequestSprintsForTask.h"
 #include "core/use_cases/RequestTasks.h"
 #include "core/use_cases/RequestUnfinishedTasks.h"
 #include "core/use_cases/StoreUnfinishedTasksOrder.h"
 #include "core/use_cases/ToggleTaskCompletionStatus.h"
 
+namespace sprint_timer {
+
 using dw::DateTime;
 using dw::TimeSpan;
-
-using namespace core;
-using namespace core::use_cases; // TODO remove when all this is inside that
-                                 // namespace
-
-namespace Core {
+using namespace use_cases;
+using namespace entities;
 
 CoreService::CoreService(
     ISprintStorageReader& sprintStorageReader,
@@ -55,7 +54,8 @@ CoreService::CoreService(
     ITaskStorageWriter& taskStorageWriter,
     ISprintDistributionReader& sprintDailyDistributionReader,
     ISprintDistributionReader& sprintWeeklyDistributionReader,
-    ISprintDistributionReader& sprintMonthlyDistributionReader)
+    ISprintDistributionReader& sprintMonthlyDistributionReader,
+    CommandInvoker& invoker)
     : sprintReader{sprintStorageReader}
     , sprintWriter{sprintStorageWriter}
     , yearRangeReader{yearRangeReader}
@@ -64,6 +64,7 @@ CoreService::CoreService(
     , sprintDailyDistributionReader{sprintDailyDistributionReader}
     , sprintWeeklyDistributionReader{sprintWeeklyDistributionReader}
     , sprintMonthlyDistributionReader{sprintMonthlyDistributionReader}
+    , invoker{invoker}
 {
 }
 
@@ -75,7 +76,8 @@ void CoreService::registerTask(const Task& task)
 
 void CoreService::removeTask(const Task& task)
 {
-    auto deleteTask = std::make_unique<DeleteTask>(taskWriter, task);
+    auto deleteTask = std::make_unique<DeleteTask>(
+        taskWriter, sprintReader, sprintWriter, task);
     invoker.executeCommand(std::move(deleteTask));
 }
 
@@ -120,7 +122,7 @@ void CoreService::requestUnfinishedTasks(
 }
 
 void CoreService::exportTasks(const TimeSpan& timeSpan,
-                              std::shared_ptr<ExternalIO::ISink> sink,
+                              std::shared_ptr<external_io::ISink> sink,
                               ICoreService::TaskEncodingFunc func)
 {
     auto requestItems = std::make_unique<RequestTasks>(
@@ -152,7 +154,7 @@ void CoreService::registerSprint(const Sprint& sprint)
         = std::make_unique<RegisterNewSprint>(sprintWriter, sprint);
     auto incrementTaskSprints
         = std::make_unique<IncrementTaskSprints>(taskWriter, sprint.taskUuid());
-    std::vector<std::unique_ptr<core::Command>> commands;
+    std::vector<std::unique_ptr<Command>> commands;
     commands.push_back(std::move(registerNewSprint));
     commands.push_back(std::move(incrementTaskSprints));
     auto addSprintTransaction
@@ -167,7 +169,7 @@ void CoreService::removeSprint(const Sprint& sprint)
         = std::make_unique<RemoveSprintTransaction>(sprintWriter, sprint);
     auto decrementTaskSprints
         = std::make_unique<DecrementTaskSprints>(taskWriter, taskUuid);
-    std::vector<std::unique_ptr<core::Command>> commands;
+    std::vector<std::unique_ptr<Command>> commands;
     commands.push_back(std::move(removeSprint));
     commands.push_back(std::move(decrementTaskSprints));
     auto removeSprintTransaction
@@ -176,7 +178,7 @@ void CoreService::removeSprint(const Sprint& sprint)
 }
 
 void CoreService::exportSprints(const TimeSpan& timeSpan,
-                                std::shared_ptr<ExternalIO::ISink> sink,
+                                std::shared_ptr<external_io::ISink> sink,
                                 ICoreService::SprintEncodingFunc func)
 {
     auto requestItems = std::make_unique<RequestSprints>(
@@ -232,7 +234,6 @@ void CoreService::editTag(const std::string& oldName,
                           const std::string& newName)
 {
     auto editTag = std::make_unique<RenameTag>(taskWriter, oldName, newName);
-    editTag->execute();
     invoker.executeCommand(std::move(editTag));
 }
 
@@ -248,4 +249,18 @@ uint64_t CoreService::numRevertableCommands() const
 
 void CoreService::undoLast() { invoker.undo(); }
 
-} // namespace Core
+void CoreService::registerUndoObserver(Observer& observer)
+{
+    invoker.attach(observer);
+}
+
+void CoreService::requestSprintsForTask(
+    const std::string& taskUuid,
+    ISprintStorageReader::Handler onResultsReceivedCallback)
+{
+    auto requestSprints = std::make_unique<RequestSprintsForTask>(
+        sprintReader, taskUuid, onResultsReceivedCallback);
+    query_invoker.executeQuery(std::move(requestSprints));
+}
+
+} // namespace sprint_timer

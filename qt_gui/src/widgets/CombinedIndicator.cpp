@@ -19,15 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/CombinedIndicator.h"
+#include "qt_gui/widgets/CombinedIndicator.h"
 #include <QPainter>
 #include <cmath>
 
-double degreesToRadians(int degrees);
+namespace sprint_timer::ui::qt_gui {
+
+double degreesToRadians(double degrees);
 
 CombinedIndicator::CombinedIndicator(int sideSizeHint, QWidget* parent)
-    : widthAndHeightHint{sideSizeHint}
-    , QWidget{parent}
+    : QWidget{parent}
+    , widthAndHeightHint{sideSizeHint}
 {
     setMouseTracking(true);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -124,8 +126,10 @@ void CombinedIndicator::drawText(QPainter& painter) const
     painter.drawText(rect(), Qt::AlignCenter, currentText);
 }
 
-double degreesToRadians(int degrees)
+double degreesToRadians(double degrees)
 {
     const double pi{acos(-1)};
     return degrees * pi / 180;
 }
+
+} // namespace sprint_timer::ui::qt_gui

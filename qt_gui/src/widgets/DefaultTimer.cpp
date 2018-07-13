@@ -19,20 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/DefaultTimer.h"
+#include "qt_gui/widgets/DefaultTimer.h"
+#include "qt_gui/utils/WidgetUtils.h"
 #include "ui_default_timer.h"
-#include "utils/WidgetUtils.h"
+
+namespace sprint_timer::ui::qt_gui {
 
 namespace {
-    constexpr char const* workgoalMetStyleSheet{"QLabel { color: green; }"};
-    constexpr char const* overworkStyleSheet{"QLabel { color: red; }"};
-    constexpr char const* underworkStyleSheet{"QLabel { color: black; }"};
+    constexpr char const* workgoalMetStyleSheet {"QLabel { color: green; }"};
+    constexpr char const* overworkStyleSheet {"QLabel { color: red; }"};
+    constexpr char const* underworkStyleSheet {"QLabel { color: black; }"};
 } // namespace
 
 DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
-    : TimerWidgetBase{applicationSettings, parent}
-    , ui{new Ui::DefaultTimer}
+    : TimerWidgetBase {applicationSettings, parent}
+    , ui {new Ui::DefaultTimer}
 {
     ui->setupUi(this);
 
@@ -53,13 +54,12 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
     connect(ui->pbZone, &QPushButton::clicked, [&]() {
         timer->toggleInTheZoneMode();
     });
-    connect(
-        ui->cbxSubmissionCandidate,
-        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-        [&](int index) {
-            if (ui->cbxSubmissionCandidate->isVisible())
-                emit submissionCandidateChanged(index);
-        });
+    connect(ui->cbxSubmissionCandidate,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [&](int index) {
+                if (ui->cbxSubmissionCandidate->isVisible())
+                    emit submissionCandidateChanged(index);
+            });
     connect(ui->pbSubmit, &QPushButton::clicked, [&]() {
         if (ui->cbxSubmissionCandidate->currentIndex() != -1)
             requestSubmission();
@@ -85,13 +85,12 @@ void DefaultTimer::updateGoalProgress(Progress progress)
         ui->labelDailyGoalProgress->hide();
         return;
     }
-    ui->labelDailyGoalProgress->setText(QString("Daily goal progress: %1/%2")
-                                            .arg(progress)
-                                            .arg(dailyGoal));
-    if (progress== dailyGoal) {
+    ui->labelDailyGoalProgress->setText(
+        QString("Daily goal progress: %1/%2").arg(progress).arg(dailyGoal));
+    if (progress == dailyGoal) {
         ui->labelDailyGoalProgress->setStyleSheet(workgoalMetStyleSheet);
     }
-    else if (progress> dailyGoal) {
+    else if (progress > dailyGoal) {
         ui->labelDailyGoalProgress->setStyleSheet(overworkStyleSheet);
     }
     else {
@@ -110,7 +109,7 @@ void DefaultTimer::onBreakStateEnteredHook() { setUiToRunningState(); }
 
 void DefaultTimer::setUiToRunningState()
 {
-    progressBarMaxValue = timer->currentDuration().count();
+    progressBarMaxValue = static_cast<int>(timer->currentDuration().count());
     ui->progressBar->setMaximum(progressBarMaxValue);
     setTimerValue(timer->currentDuration());
     ui->progressBar->setValue(0);
@@ -154,7 +153,10 @@ void DefaultTimer::onZoneStateLeftHook() { ui->pbCancel->setEnabled(true); }
 
 void DefaultTimer::updateIndication(std::chrono::seconds timeLeft)
 {
-    ui->progressBar->setValue(progressBarMaxValue - timeLeft.count());
+    ui->progressBar->setValue(progressBarMaxValue
+                              - static_cast<int>(timeLeft.count()));
     setTimerValue(timeLeft);
     ui->progressBar->repaint();
 }
+
+} // namespace sprint_timer::ui::qt_gui

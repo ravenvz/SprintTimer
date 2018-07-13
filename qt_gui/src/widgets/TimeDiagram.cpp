@@ -19,9 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "TimeDiagram.h"
+#include "qt_gui/widgets/TimeDiagram.h"
 #include <QPainter>
 
+namespace sprint_timer::ui::qt_gui {
 
 TimeDiagram::TimeDiagram(QWidget* parent)
     : QWidget(parent)
@@ -116,3 +117,6 @@ void TimeDiagram::setIntervals(std::vector<TimeSpan> newIntervals)
     timeSpans = std::move(newIntervals);
     update();
 }
+
+} // namespace sprint_timer::ui::qt_gui
+

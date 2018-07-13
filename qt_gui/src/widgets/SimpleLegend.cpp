@@ -19,8 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/SimpleLegend.h"
+#include "qt_gui/widgets/SimpleLegend.h"
 #include <iostream>
+
+namespace sprint_timer::ui::qt_gui {
 
 LegendItem::LegendItem(const QString& text, size_t itemIndex, QWidget* parent)
     : QLabel(parent)
@@ -100,3 +102,6 @@ bool SimpleLegend::isSelected(size_t index) const
 void SimpleLegend::setTitleFont(QFont font) { title->setFont(font); }
 
 void SimpleLegend::onItemClicked(size_t index) { emit itemClicked(index); }
+
+} // namespace sprint_timer::ui::qt_gui
+

@@ -19,6 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "IStatisticalChart.h"
+#include "qt_gui/widgets/IStatisticalChart.h"
+
+namespace sprint_timer::ui::qt_gui {
 
 IStatisticalChart::~IStatisticalChart() {}
+
+} // namespace sprint_timer::ui::qt_gui
+

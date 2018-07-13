@@ -19,7 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/PieChart.h"
+#include "qt_gui/widgets/PieChart.h"
+
+namespace sprint_timer::ui::qt_gui {
 
 PieChart::PieChart(QWidget* parent)
     : IStatisticalChart(parent)
@@ -126,3 +128,6 @@ void PieChart::togglePartActive(size_t sliceIndex)
         activeSliceInd = sliceIndex;
     repaint();
 }
+
+} // namespace sprint_timer::ui::qt_gui
+

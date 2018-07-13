@@ -22,14 +22,19 @@
 #ifndef REMOVETASKTRANSACTION_H_9P4V02DM
 #define REMOVETASKTRANSACTION_H_9P4V02DM
 
-#include "core/ITaskStorageWriter.h"
 #include "core/Command.h"
+#include "core/ISprintStorageReader.h"
+#include "core/ISprintStorageWriter.h"
+#include "core/ITaskStorageWriter.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class DeleteTask : public Command {
 public:
-    DeleteTask(ITaskStorageWriter& taskStorageWriter, Task taskToRemove);
+    DeleteTask(ITaskStorageWriter& taskStorageWriter,
+               ISprintStorageReader& sprintStorageReader,
+               ISprintStorageWriter& sprintStorageWriter,
+               entities::Task taskToRemove);
 
     void execute() final;
 
@@ -38,10 +43,13 @@ public:
     std::string describe() const final;
 
 private:
-    ITaskStorageWriter& writer;
-    const Task task;
+    ITaskStorageWriter& taskWriter;
+    ISprintStorageReader& sprintReader;
+    ISprintStorageWriter& sprintWriter;
+    const entities::Task task;
+    std::vector<entities::Sprint> taskSprints;
 };
 
-} /* UseCases */
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: REMOVETASKTRANSACTION_H_9P4V02DM */

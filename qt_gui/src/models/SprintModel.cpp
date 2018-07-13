@@ -19,10 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "models/SprintModel.h"
+#include "qt_gui/models/SprintModel.h"
 
-using dw::TimeSpan;
+namespace sprint_timer::ui::qt_gui {
+
 using dw::DateTime;
+using dw::TimeSpan;
+using namespace entities;
 
 SprintModel::SprintModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel(parent)
@@ -91,8 +94,7 @@ void SprintModel::remove(int row)
 void SprintModel::requestDataUpdate()
 {
     coreService.sprintsInTimeRange(
-        interval,
-        [this](const auto& items) { this->onDataChanged(items); });
+        interval, [this](const auto& items) { this->onDataChanged(items); });
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)
@@ -102,3 +104,5 @@ void SprintModel::onDataChanged(const std::vector<Sprint>& items)
     endResetModel();
     broadcastUpdateFinished();
 }
+
+} // namespace sprint_timer::ui::qt_gui

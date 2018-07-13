@@ -19,9 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_gui/widgets/SubmissionBox.h"
 
-#include "widgets/SubmissionBox.h"
-
+namespace sprint_timer::ui::qt_gui {
 
 SubmissionBox::SubmissionBox(QWidget* parent)
     : QComboBox(parent)
@@ -39,3 +39,6 @@ void SubmissionBox::showEvent(QShowEvent* event)
     QComboBox::showEvent(event);
     setCurrentIndex(persistentIndex);
 }
+
+} // namespace sprint_timer::ui::qt_gui
+

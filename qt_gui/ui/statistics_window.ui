@@ -31,7 +31,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="DateRangePicker" name="dateRangePicker" native="true">
+    <widget class="sprint_timer::ui::qt_gui::DateRangePicker" name="dateRangePicker" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -53,7 +53,7 @@
     </widget>
    </item>
    <item>
-    <widget class="DailyTimelineGraph" name="dailyTimelineGraph">
+    <widget class="sprint_timer::ui::qt_gui::DailyTimelineGraph" name="dailyTimelineGraph">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -104,7 +104,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,2,2">
         <item>
-         <widget class="BestWorkdayWidget" name="bestWorkdayWidget" native="true">
+         <widget class="sprint_timer::ui::qt_gui::BestWorkdayWidget" name="bestWorkdayWidget" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -113,14 +113,14 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>100</width>
+            <width>240</width>
             <height>0</height>
            </size>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="DistributionDiagram" name="topTagDiagram" native="true">
+         <widget class="sprint_timer::ui::qt_gui::DistributionDiagram" name="topTagDiagram" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -129,14 +129,14 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>200</width>
+            <width>0</width>
             <height>0</height>
            </size>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="BestWorktimeWidget" name="bestWorktimeWidget" native="true">
+         <widget class="sprint_timer::ui::qt_gui::BestWorktimeWidget" name="bestWorktimeWidget" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -160,33 +160,33 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DateRangePicker</class>
+   <class>sprint_timer::ui::qt_gui::DateRangePicker</class>
    <extends>QWidget</extends>
-   <header>src/widgets/DateRangePicker.h</header>
+   <header>qt_gui/widgets/DateRangePicker.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>DistributionDiagram</class>
+   <class>sprint_timer::ui::qt_gui::DistributionDiagram</class>
    <extends>QWidget</extends>
-   <header>src/widgets/DistributionDiagram.h</header>
+   <header>qt_gui/widgets/DistributionDiagram.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>DailyTimelineGraph</class>
+   <class>sprint_timer::ui::qt_gui::DailyTimelineGraph</class>
    <extends>QFrame</extends>
-   <header>widgets/DailyTimelineGraph.h</header>
+   <header>qt_gui/widgets/DailyTimelineGraph.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>BestWorkdayWidget</class>
+   <class>sprint_timer::ui::qt_gui::BestWorkdayWidget</class>
    <extends>QWidget</extends>
-   <header>widgets/BestWorkdayWidget.h</header>
+   <header>qt_gui/widgets/BestWorkdayWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>BestWorktimeWidget</class>
+   <class>sprint_timer::ui::qt_gui::BestWorktimeWidget</class>
    <extends>QWidget</extends>
-   <header>widgets/BestWorktimeWidget.h</header>
+   <header>qt_gui/widgets/BestWorktimeWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -24,6 +24,8 @@
 
 #include <string>
 
+namespace sprint_timer {
+
 class IConfig {
 
 public:
@@ -55,5 +57,6 @@ public:
     virtual void setWorkdaysCode(unsigned workdays_code) = 0;
 };
 
+} // namespace sprint_timer
 
 #endif // ICONFIG_H

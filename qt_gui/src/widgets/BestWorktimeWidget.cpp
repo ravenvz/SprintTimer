@@ -19,10 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/BestWorktimeWidget.h"
+#include "qt_gui/widgets/BestWorktimeWidget.h"
 #include "ui_best_worktime_widget.h"
-#include "core/SprintStatistics.h"
+#include <core/SprintStatistics.h>
+
+namespace sprint_timer::ui::qt_gui {
+
+using namespace entities;
 
 BestWorktimeWidget::BestWorktimeWidget(QWidget* parent)
     : QWidget{parent}
@@ -64,4 +67,7 @@ void BestWorktimeWidget::updateWorkHoursDiagram(
     }
     ui->timeDiagram->setIntervals(std::move(timeSpans));
 }
+
+} // namespace sprint_timer::ui::qt_gui
+
 

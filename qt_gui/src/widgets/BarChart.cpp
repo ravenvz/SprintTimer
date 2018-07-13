@@ -19,9 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "BarChart.h"
+#include "qt_gui/widgets/BarChart.h"
 #include <QMouseEvent>
 #include <QPainter>
+
+namespace sprint_timer::ui::qt_gui {
 
 BarChart::BarChart(QWidget* parent)
     : QWidget(parent)
@@ -122,3 +124,6 @@ void BarData::normalize()
 const BarDataItem& BarData::operator[](size_t idx) const { return data[idx]; }
 
 size_t BarData::size() const { return data.size(); }
+
+} // namespace sprint_timer::ui::qt_gui
+

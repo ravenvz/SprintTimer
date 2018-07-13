@@ -22,17 +22,15 @@
 #ifndef ADDTASKTRANSACTION_H_LEMDIQ17
 #define ADDTASKTRANSACTION_H_LEMDIQ17
 
+#include "core/Command.h"
 #include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
 #include "core/entities/Task.h"
 
-#include <core/Command.h>
-
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class AddNewTask : public Command {
 public:
-    AddNewTask(ITaskStorageWriter& taskStorageWriter, Task task);
+    AddNewTask(ITaskStorageWriter& taskStorageWriter, entities::Task task);
 
     void execute() final;
 
@@ -42,31 +40,9 @@ public:
 
 private:
     ITaskStorageWriter& writer;
-    const Task task;
+    const entities::Task task;
 };
 
-} // namespace core::use_cases
-
-namespace UseCases {
-
-class AddNewTask : public RevertableCommand {
-public:
-    AddNewTask(ITaskStorageWriter& taskStorageWriter, const Task& task);
-
-    std::string inspect() const final;
-
-protected:
-    void executeAction() final;
-
-    void undoAction() final;
-
-private:
-    ITaskStorageWriter& writer;
-    const Task task;
-};
-
-
-} /* UseCases */
-
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: ADDTASKTRANSACTION_H_LEMDIQ17 */

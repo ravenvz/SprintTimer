@@ -19,14 +19,15 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "TaskModel.h"
+#include "qt_gui/models/TaskModel.h"
 #include <QSize>
 #include <core/utils/Algutils.h>
 #include <string>
 #include <vector>
 
-#include <iostream>
-#include <iterator>
+namespace sprint_timer::ui::qt_gui {
+
+using entities::Task;
 
 TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel{parent}
@@ -74,7 +75,7 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    const Task& taskRef = storage[index.row()];
+    const Task& taskRef = storage[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
@@ -117,11 +118,21 @@ void TaskModel::remove(int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
     coreService.removeTask(itemAt(row));
-    requestDataUpdate();
+    storage.erase(storage.begin() + row);
+    // TODO
+    // As a workaround, data update is delayed, because delete operation
+    // takes quite a long time (time is needed to collect sprints) and
+    // in current implementation we have no way to know if command is
+    // completed or not. This should be replaced when more flexible
+    // approach is introduced.
+    startTimer(std::chrono::seconds{1});
     endRemoveRows();
 }
 
-Task TaskModel::itemAt(int row) const { return storage.at(row); }
+Task TaskModel::itemAt(int row) const
+{
+    return storage.at(static_cast<size_t>(row));
+}
 
 void TaskModel::toggleCompleted(const QModelIndex& index)
 {
@@ -152,7 +163,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
     if (sourceRow < destinationChild)
         ++destinationChild;
 
-    auto uuidsInOrder = [&st=storage]() {
+    auto uuidsInOrder = [& st = storage]() {
         std::vector<std::string> uuids;
         uuids.reserve(st.size());
         std::transform(st.cbegin(),
@@ -172,7 +183,12 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
 
     auto new_order = uuidsInOrder();
 
-    coreService.registerTaskPriorities(std::move(old_order), std::move(new_order));
+    coreService.registerTaskPriorities(std::move(old_order),
+                                       std::move(new_order));
 
     return true;
 }
+
+void TaskModel::timerEvent(QTimerEvent* event) { requestDataUpdate(); }
+
+} // namespace sprint_timer::ui::qt_gui

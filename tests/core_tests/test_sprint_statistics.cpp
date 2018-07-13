@@ -24,160 +24,187 @@
 // Workaround for C++17 as std::tr1 no longer available and Gtest uses it
 #define GTEST_LANG_CXX11 1
 
+#include "core/SprintBuilder.h"
 #include "core/SprintStatistics.h"
 #include "core/TagTop.h"
-#include "core/SprintBuilder.h"
 #include "gtest/gtest.h"
 
+using namespace sprint_timer;
+using namespace sprint_timer::entities;
 using namespace std::chrono_literals;
-using dw::TimeSpan;
 using dw::DateTime;
+using dw::TimeSpan;
 
 namespace {
-    // TODO clean no longer needed vars
-    constexpr double threshold{0.00001};
-    constexpr int64_t irrelevantTodoId{42};
-    const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
-                                   DateTime::currentDateTime()};
+const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
+                               DateTime::currentDateTime()};
 } // namespace
 
-TEST(SprintStatItem, test_empty_daily_statistics)
+TEST(SprintStatItem, creates_reasonable_defaults_for_empty_distribution)
 {
-    std::vector<Sprint> sprints;
-    SprintStatItem statistics{sprints,
-                                TimeSpan{std::chrono::system_clock::now(),
-                                         std::chrono::system_clock::now()}};
-    const double expected_average{0};
-    const double expected_max{0};
-    const double expected_total{0};
-    std::vector<double> expected_distribution;
+    const std::vector<double> expectedDailyDistribution{0};
+    const std::vector<double> expectedWeekdayDistribution
+        = std::vector<double>(7, 0);
+    const std::vector<double> expectedWorktimeDistribution
+        = std::vector<double>(DayPart::numParts, 0);
 
-    Distribution<double> dailyDistribution = statistics.dailyDistribution();
-    std::vector<double> distributionVector
-        = dailyDistribution.getDistributionVector();
+    const SprintStatItem statistics{std::vector<Sprint>{}, defaultTimespan};
+    const auto dailyDistribution = statistics.dailyDistribution();
+    const auto weekdayDistribution = statistics.weekdayDistribution();
+    const auto worktimeDistribution = statistics.worktimeDistribution();
 
-    EXPECT_EQ(0, dailyDistribution.getNumBins());
-    EXPECT_DOUBLE_EQ(expected_average, dailyDistribution.getAverage());
-    EXPECT_DOUBLE_EQ(expected_max, dailyDistribution.getMax());
-    EXPECT_DOUBLE_EQ(expected_total, dailyDistribution.getTotal());
-    EXPECT_EQ(expected_distribution.size(), distributionVector.size());
-    for (size_t i = 0; i < expected_distribution.size(); ++i) {
-        EXPECT_DOUBLE_EQ(expected_distribution[i], distributionVector[i]);
-    }
+    EXPECT_EQ(expectedDailyDistribution,
+              dailyDistribution.getDistributionVector());
+    EXPECT_DOUBLE_EQ(0, dailyDistribution.getAverage());
+    EXPECT_DOUBLE_EQ(0, dailyDistribution.getMax());
+    EXPECT_DOUBLE_EQ(0, dailyDistribution.getTotal());
+    EXPECT_EQ(expectedWeekdayDistribution,
+              weekdayDistribution.getDistributionVector());
+    EXPECT_DOUBLE_EQ(0, weekdayDistribution.getAverage());
+    EXPECT_DOUBLE_EQ(0, weekdayDistribution.getMax());
+    EXPECT_DOUBLE_EQ(0, weekdayDistribution.getTotal());
+    EXPECT_EQ(expectedWorktimeDistribution,
+              worktimeDistribution.getDistributionVector());
+    EXPECT_DOUBLE_EQ(0, worktimeDistribution.getAverage());
+    EXPECT_DOUBLE_EQ(0, worktimeDistribution.getMax());
+    EXPECT_DOUBLE_EQ(0, worktimeDistribution.getTotal());
 }
 
-TEST(SprintStatItem, test_empty_weekday_statistics)
+TEST(SprintStatItem, computes_daily_distribution_correctly)
 {
+    const DateTime start = DateTime::currentDateTime();
+    const DateTime end = start.add(DateTime::Days{47});
+    const TimeSpan timeSpan{start, end};
     std::vector<Sprint> sprints;
-    SprintStatItem statistics{sprints,
-                                TimeSpan{std::chrono::system_clock::now(),
-                                         std::chrono::system_clock::now()}};
-    double expected_average{0};
-    double expected_max{0};
-    std::vector<double> expected_distribution = std::vector<double>(7, 0);
-
-    Distribution<double> weekdayDistribution = statistics.weekdayDistribution();
-    std::vector<double> distributionVector
-        = weekdayDistribution.getDistributionVector();
-
-    EXPECT_DOUBLE_EQ(expected_average, weekdayDistribution.getAverage());
-    EXPECT_DOUBLE_EQ(expected_max, weekdayDistribution.getMax());
-    EXPECT_EQ(expected_distribution.size(), distributionVector.size());
-    for (size_t i = 0; i < expected_distribution.size(); ++i) {
-        EXPECT_DOUBLE_EQ(expected_distribution[i], distributionVector[i]);
-    }
-}
-
-TEST(SprintStatItem, test_computes_daily_distribution_correctly)
-{
-    const double expected_average{24.5};
-    const double expected_max{48};
-    const size_t expected_max_value_bin{47};
-    const double expected_total{1176};
-    std::vector<Sprint> sprints;
-    DateTime start = DateTime::currentDateTime();
-    DateTime end = start.add(DateTime::Days{47});
-    TimeSpan timeSpan{start, end};
-    std::vector<int> expectedDistributionVector(48, 0);
+    std::vector<double> expectedDistributionVector(48, 0);
     SprintBuilder sprintBuilder;
     sprintBuilder.withTaskUuid("");
     for (size_t i = 0; i < 48; ++i) {
         for (size_t j = 0; j < i + 1; ++j) {
-            DateTime sprintDateTime = start.add(DateTime::Days{i});
-            TimeSpan sprintInterval{sprintDateTime, sprintDateTime};
-            sprints.push_back(sprintBuilder.withTimeSpan(sprintInterval).build());
+            const DateTime sprintDateTime = start.add(DateTime::Days{i});
+            const TimeSpan sprintInterval{sprintDateTime, sprintDateTime};
+            sprints.push_back(
+                sprintBuilder.withTimeSpan(sprintInterval).build());
             expectedDistributionVector[i]++;
         }
     }
+    const double expected_average{24.5};
+    const double expected_max{48};
+    const size_t expected_max_value_bin{47};
+    const double expected_total{1176};
 
-    SprintStatItem statistics{sprints, timeSpan};
-    Distribution<double> distribution = statistics.dailyDistribution();
-    std::vector<double> distributionVector
-        = distribution.getDistributionVector();
+    const SprintStatItem statistics{sprints, timeSpan};
 
-    EXPECT_EQ(expectedDistributionVector.size(), distribution.getNumBins());
+    const Distribution<double> distribution = statistics.dailyDistribution();
+
     EXPECT_EQ(expected_max_value_bin, distribution.getMaxValueBin());
     EXPECT_DOUBLE_EQ(expected_average, distribution.getAverage());
     EXPECT_DOUBLE_EQ(expected_max, distribution.getMax());
     EXPECT_DOUBLE_EQ(expected_total, distribution.getTotal());
-    for (size_t i = 0; i < expectedDistributionVector.size(); ++i) {
-        EXPECT_DOUBLE_EQ(expectedDistributionVector[i], distributionVector[i]);
-    }
+    EXPECT_EQ(expectedDistributionVector, distribution.getDistributionVector());
 }
 
-TEST(SprintStatItem, test_computes_weekday_distribution_correctly)
+TEST(SprintStatItem, computes_weekday_distribution_correctly)
 {
-    const double expected_average = 7.5;
-    const double expected_max = 10.5;
-    const size_t expected_max_value_bin = 6;
     std::vector<Sprint> increasingSprints;
-    SprintBuilder sprintBuilder;
-    sprintBuilder.withTaskUuid("irrelevant");
+    SprintBuilder sprintBuilder = SprintBuilder{}.withTaskUuid("irrelevant");
     // (2015, 6, 1) is Monday, so each weekday occures exactly twice
     // in 14-day timeSpan
     TimeSpan timeSpan{DateTime::fromYMD(2015, 6, 1),
                       DateTime::fromYMD(2015, 6, 14)};
-
     for (int i = 1; i < 15; ++i) {
         for (int j = 0; j < i; ++j) {
             DateTime sprintDateTime = DateTime::fromYMD(2015, 6, i);
-            TimeSpan sprintInterval{sprintDateTime, sprintDateTime};
             increasingSprints.push_back(
-                sprintBuilder.withTimeSpan(sprintInterval).build());
+                sprintBuilder
+                    .withTimeSpan(TimeSpan{sprintDateTime, sprintDateTime})
+                    .build());
         }
     }
-
-    std::vector<double> expected_distribution{
+    const double expected_average = 7.5;
+    const double expected_max = 10.5;
+    const size_t expected_max_value_bin = 6;
+    const std::vector<double> expectedDistribution{
         4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
-    SprintStatItem statistics{increasingSprints, timeSpan};
 
-    Distribution<double> weekdayDistribution = statistics.weekdayDistribution();
-    std::vector<double> distributionVector
-        = weekdayDistribution.getDistributionVector();
+    const SprintStatItem statistics{increasingSprints, timeSpan};
+    const Distribution<double> weekdayDistribution
+        = statistics.weekdayDistribution();
 
+    EXPECT_EQ(expectedDistribution,
+              weekdayDistribution.getDistributionVector());
     EXPECT_EQ(expected_max_value_bin, weekdayDistribution.getMaxValueBin());
     EXPECT_DOUBLE_EQ(expected_average, weekdayDistribution.getAverage());
     EXPECT_DOUBLE_EQ(expected_max, weekdayDistribution.getMax());
-    for (size_t i = 0; i < expected_distribution.size(); ++i) {
-        EXPECT_DOUBLE_EQ(expected_distribution[i], distributionVector[i]);
+}
+
+TEST(SprintStatItem, computes_worktime_distribution_correctly)
+{
+    TimeSpan timeSpan{DateTime::fromYMD(2015, 6, 2),
+                      DateTime::fromYMD(2015, 6, 2).add(DateTime::Days(1))};
+    std::vector<Sprint> sprints;
+    SprintBuilder builder = SprintBuilder{}.withTaskUuid("");
+    for (int i = 0; i < 30; ++i) {
+        TimeSpan sprintTimespan{
+            timeSpan.start().add(std::chrono::hours(i)),
+            timeSpan.start().add(std::chrono::minutes(i * 60 + 25))};
+        sprints.push_back(builder.withTimeSpan(sprintTimespan).build());
     }
+    const std::vector<double> expectedDistribution{7, 7, 4, 4, 4, 4};
+    const double expectedAverage{5.0};
+    const double expectedMax{7};
+    const size_t expectedMaxValueBin{0};
+
+    const SprintStatItem statistics{sprints, timeSpan};
+    const auto distribution = statistics.worktimeDistribution();
+
+    EXPECT_EQ(expectedDistribution, distribution.getDistributionVector());
+    EXPECT_DOUBLE_EQ(expectedAverage, distribution.getAverage());
+    EXPECT_DOUBLE_EQ(expectedMax, distribution.getMax());
+    EXPECT_EQ(expectedMaxValueBin, distribution.getMaxValueBin());
+}
+
+TEST(SprintStatItem, ignores_sprints_outside_time_range)
+{
+    const TimeSpan timeSpan{DateTime::fromYMD(2018, 6, 26),
+                            DateTime::fromYMD(2018, 6, 28)};
+    auto sprintBuilder = SprintBuilder{}.withTaskUuid("");
+    const auto startTime = timeSpan.start().add(DateTime::Days(-1));
+    std::vector<Sprint> sprints;
+    for (int i = 0; i < 5; ++i) {
+        sprints.push_back(sprintBuilder
+                              .withTimeSpan(TimeSpan{
+                                  startTime.add(DateTime::Days(i)),
+                                  startTime.add(DateTime::Days(i)).add(25min)})
+                              .build());
+    }
+    const std::vector<double> expectedDailyDistribution{1, 1, 1};
+    const std::vector<double> expectedWeekdayDistribution{0, 1, 1, 1, 0, 0, 0};
+
+    const SprintStatItem statistics{sprints, timeSpan};
+    const auto dailyDistribution = statistics.dailyDistribution();
+    const auto weekdayDistribution = statistics.weekdayDistribution();
+
+    EXPECT_EQ(expectedDailyDistribution,
+              dailyDistribution.getDistributionVector());
+    EXPECT_EQ(expectedWeekdayDistribution,
+              weekdayDistribution.getDistributionVector());
 }
 
 class TagTopFixture : public ::testing::Test {
 public:
-    void push_n(std::vector<Sprint>& sprints,
-            const Sprint& sprint,
-            size_t n)
+    void push_n(std::vector<Sprint>& sprints, const Sprint& sprint, size_t n)
     {
         for (size_t i = 0; i < n; ++i)
             sprints.push_back(sprint);
     }
     const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
                                    DateTime::currentDateTime()};
-
 };
 
-TEST_F(TagTopFixture, getting_sprints_or_tag_name_throws_exception_when_position_is_invalid) {
+TEST_F(TagTopFixture,
+       getting_sprints_or_tag_name_throws_exception_when_position_is_invalid)
+{
     std::vector<Sprint> sprints;
     SprintBuilder sprintBuilder;
     sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
@@ -186,7 +213,8 @@ TEST_F(TagTopFixture, getting_sprints_or_tag_name_throws_exception_when_position
 
     TagTop tagTop{sprints, 3};
 
-    ASSERT_THROW((tagTop.sprintsForTagAt(tagTop.topSize() + 1)), std::out_of_range);
+    ASSERT_THROW((tagTop.sprintsForTagAt(tagTop.topSize() + 1)),
+                 std::out_of_range);
     ASSERT_THROW((tagTop.tagNameAt(tagTop.topSize() + 1)), std::out_of_range);
 }
 
@@ -197,10 +225,8 @@ TEST_F(TagTopFixture, does_not_reduce_frequency_vector_when_all_tags_fit)
     sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
     push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
-    std::vector<TagTop::TagFrequency> expected{
-            {Tag{"Tag2"}, double(49) / 53},
-            {Tag{"Tag1"}, double(4) / 53}
-    };
+    std::vector<TagTop::TagFrequency> expected{{Tag{"Tag2"}, double(49) / 53},
+                                               {Tag{"Tag1"}, double(4) / 53}};
 
     TagTop tagTop{sprints, 3};
 
@@ -209,7 +235,8 @@ TEST_F(TagTopFixture, does_not_reduce_frequency_vector_when_all_tags_fit)
     EXPECT_EQ(4, tagTop.sprintsForTagAt(1).size());
 }
 
-TEST_F(TagTopFixture, does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
+TEST_F(TagTopFixture,
+       does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
     SprintBuilder sprintBuilder;
@@ -236,18 +263,21 @@ TEST_F(TagTopFixture, distributes_sprints_to_tags_ignoring_non_tagged)
     builder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(), 1);
-    push_n(sprints, builder.withExplicitTags({Tag{"C++"}, Tag{"Tag4"}}).build(), 10);
+    push_n(sprints,
+           builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(),
+           1);
+    push_n(sprints,
+           builder.withExplicitTags({Tag{"C++"}, Tag{"Tag4"}}).build(),
+           10);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag4"}}).build(), 25);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag5"}}).build(), 4);
     push_n(sprints, builder.withExplicitTags({}).build(), 100);
     std::vector<TagTop::TagFrequency> expected{
-            std::make_pair(Tag{"Tag2"}, double(50) / 104),
-            std::make_pair(Tag{"Tag4"}, double(35) / 104),
-            std::make_pair(Tag{"C++"}, double(10) / 104),
-            std::make_pair(Tag{"Tag1"}, double(5) / 104),
-            std::make_pair(Tag{""}, double(4) / 104)
-    };
+        std::make_pair(Tag{"Tag2"}, double(50) / 104),
+        std::make_pair(Tag{"Tag4"}, double(35) / 104),
+        std::make_pair(Tag{"C++"}, double(10) / 104),
+        std::make_pair(Tag{"Tag1"}, double(5) / 104),
+        std::make_pair(Tag{""}, double(4) / 104)};
 
     TagTop map{sprints, 5};
 
@@ -264,8 +294,7 @@ TEST_F(TagTopFixture, distributes_sprints_to_tags_ignoring_non_tagged)
     EXPECT_EQ(4, map.sprintsForTagAt(4).size());
 }
 
-TEST_F(TagTopFixture,
-     reduces_slice_vector_tail_when_has_more_tags_than_allowed)
+TEST_F(TagTopFixture, reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
     SprintBuilder builder;
@@ -273,8 +302,12 @@ TEST_F(TagTopFixture,
     builder.withTimeSpan(defaultTimespan);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(), 1);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag3"}, Tag{"Tag4"}}).build(), 10);
+    push_n(sprints,
+           builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(),
+           1);
+    push_n(sprints,
+           builder.withExplicitTags({Tag{"Tag3"}, Tag{"Tag4"}}).build(),
+           10);
     push_n(sprints, builder.withExplicitTags({Tag{"Tag4"}}).build(), 25);
     push_n(sprints, builder.withExplicitTags({}).build(), 100);
     std::vector<TagTop::TagFrequency> expected{

@@ -19,8 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "models/AsyncListModel.h"
+#include "qt_gui/models/AsyncListModel.h"
 #include <iostream>
+
+namespace sprint_timer::ui::qt_gui {
 
 AsyncListModel::AsyncListModel(QObject* parent)
     : QAbstractListModel{parent}
@@ -45,3 +47,6 @@ void AsyncListModel::broadcastUpdateFinished()
 void AsyncListModel::submitData() {}
 
 void AsyncListModel::revertData() {}
+
+} // namespace sprint_timer::ui::qt_gui
+

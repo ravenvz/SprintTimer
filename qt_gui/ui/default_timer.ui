@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>808</width>
-    <height>207</height>
+    <height>218</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0" colspan="2">
-      <widget class="SubmissionBox" name="cbxSubmissionCandidate">
+      <widget class="sprint_timer::ui::qt_gui::SubmissionBox" name="cbxSubmissionCandidate">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -361,9 +361,9 @@ color: white;
  </widget>
  <customwidgets>
   <customwidget>
-   <class>SubmissionBox</class>
+   <class>sprint_timer::ui::qt_gui::SubmissionBox</class>
    <extends>QComboBox</extends>
-   <header>widgets/SubmissionBox.h</header>
+   <header>qt_gui/widgets/SubmissionBox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

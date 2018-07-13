@@ -26,20 +26,24 @@
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
 
+namespace sprint_timer::storage::qt_storage_impl {
+
 class QtSprintStorageWriter : public QObject, public ISprintStorageWriter {
     Q_OBJECT
 
 public:
     explicit QtSprintStorageWriter(DBService& dbService);
 
-    void save(const Sprint& sprint) final;
+    void save(const entities::Sprint& sprint) final;
 
-    void remove(const Sprint& sprint) final;
+    void remove(const entities::Sprint& sprint) final;
 
 private:
     DBService& dbService;
     qint64 addQueryId{-1};
     qint64 removeQueryId{-1};
 };
+
+} // namespace sprint_timer::storage::qt_storage_impl
 
 #endif /* end of include guard: QTSPRINTSTORAGEWRITER_H_U7AAXVTC */

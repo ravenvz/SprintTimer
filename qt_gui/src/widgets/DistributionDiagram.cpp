@@ -19,10 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_gui/widgets/DistributionDiagram.h"
 #include <QtGui/qpainter.h>
 #include <QHBoxLayout>
-#include "widgets/DistributionDiagram.h"
 #include <iostream>
+
+namespace sprint_timer::ui::qt_gui {
 
 
 DistributionDiagram::DistributionDiagram(QWidget* parent)
@@ -87,3 +89,6 @@ void DistributionDiagram::onLegendItemClicked(size_t itemIndex)
 {
     onChartPartClicked(itemIndex);
 }
+
+} // namespace sprint_timer::ui::qt_gui
+

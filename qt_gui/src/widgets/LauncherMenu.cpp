@@ -19,22 +19,23 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "utils/WidgetUtils.h"
-#include "dialogs/SettingsDialog.h"
-#include "widgets/LauncherMenu.h"
+#include "qt_gui/widgets/LauncherMenu.h"
+#include "qt_gui/dialogs/SettingsDialog.h"
+#include "qt_gui/utils/WidgetUtils.h"
+#include "qt_gui/widgets/GoalProgressWindow.h"
+#include "qt_gui/widgets/HistoryWindow.h"
+#include "qt_gui/widgets/StatisticsWindow.h"
 #include "ui_launcher_menu.h"
-#include "widgets/GoalProgressWindow.h"
-#include "widgets/StatisticsWindow.h"
-#include "widgets/HistoryWindow.h"
+
+namespace sprint_timer::ui::qt_gui {
 
 LauncherMenu::LauncherMenu(IConfig& applicationSettings,
-                       ICoreService& coreService,
-                       QWidget* parent)
-    : ui{new Ui::LauncherMenu}
-    , QWidget{parent}
-    , settings{applicationSettings}
-    , coreService{coreService}
+                           ICoreService& coreService,
+                           QWidget* parent)
+    : QWidget {parent}
+    , ui {new Ui::LauncherMenu}
+    , settings {applicationSettings}
+    , coreService {coreService}
 {
     ui->setupUi(this);
 
@@ -56,7 +57,8 @@ LauncherMenu::LauncherMenu(IConfig& applicationSettings,
             &LauncherMenu::launchStatisticsWindow);
 }
 
-LauncherMenu::~LauncherMenu() {
+LauncherMenu::~LauncherMenu()
+{
     delete progressWindow;
     delete historyWindow;
     delete statisticsWindow;
@@ -68,14 +70,15 @@ void LauncherMenu::launchHistoryWindow()
     if (!historyWindow) {
         historyWindow = new HistoryWindow(coreService);
         historyWindow->show();
-    } else {
+    }
+    else {
         WidgetUtils::bringToForeground(historyWindow);
     }
 }
 
 void LauncherMenu::launchSettingsDialog()
 {
-    SettingsDialog settingsDialog{settings};
+    SettingsDialog settingsDialog {settings};
     settingsDialog.exec();
 }
 
@@ -84,10 +87,10 @@ void LauncherMenu::launchProgressWindow()
     if (!progressWindow) {
         progressWindow = new GoalProgressWindow(settings, coreService);
         progressWindow->show();
-    } else {
+    }
+    else {
         WidgetUtils::bringToForeground(progressWindow);
     }
-
 }
 
 void LauncherMenu::launchStatisticsWindow()
@@ -95,7 +98,8 @@ void LauncherMenu::launchStatisticsWindow()
     if (!statisticsWindow) {
         statisticsWindow = new StatisticsWindow(settings, coreService);
         statisticsWindow->show();
-    } else {
+    }
+    else {
         WidgetUtils::bringToForeground(statisticsWindow);
     }
 }
@@ -109,3 +113,5 @@ void LauncherMenu::onSyncRequired()
     if (statisticsWindow)
         statisticsWindow->synchronize();
 }
+
+} // namespace sprint_timer::ui::qt_gui

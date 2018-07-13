@@ -19,9 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "SubmissionItemDelegate.h"
+#include "qt_gui/delegates/SubmissionItemDelegate.h"
 #include <QPainter>
+
+namespace sprint_timer::ui::qt_gui {
 
 SubmissionItemDelegate::SubmissionItemDelegate(QObject* parent)
     : QStyledItemDelegate{parent}
@@ -43,3 +44,6 @@ void SubmissionItemDelegate::paint(QPainter* painter,
     painter->drawText(option.rect, Qt::AlignLeft, index.data(Qt::DisplayRole).toString());
     painter->restore();
 }
+
+} // namespace sprint_timer::ui::qt_gui
+

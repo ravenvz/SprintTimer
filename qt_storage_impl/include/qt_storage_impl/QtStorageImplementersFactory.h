@@ -30,6 +30,8 @@
 #include "qt_storage_impl/QtTaskStorageWriter.h"
 #include "qt_storage_impl/QtYearRangeReader.h"
 
+namespace sprint_timer::storage::qt_storage_impl {
+
 class QtStorageImplementersFactory : public IStorageImplementersFactory {
 public:
     explicit QtStorageImplementersFactory(DBService& dbService)
@@ -89,5 +91,7 @@ public:
 private:
     DBService& dbService;
 };
+
+} // namespace sprint_timer::storage::qt_storage_impl
 
 #endif /* end of include guard: QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC */

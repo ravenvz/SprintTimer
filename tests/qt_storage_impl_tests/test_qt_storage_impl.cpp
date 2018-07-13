@@ -29,6 +29,8 @@
 #include <iterator>
 #include "gtest/gtest.h"
 
+using namespace sprint_timer::storage::utils;
+
 TEST(TestTwoWayDiff, test_diff_left_and_right)
 {
     std::list<std::string> oldTags{"Tag1", "Tag2", "Tag3"};

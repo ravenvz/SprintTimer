@@ -25,7 +25,7 @@
      <property name="font">
       <font>
        <family>.Helvetica Neue Desk UI</family>
-       <pointsize>11</pointsize>
+       <pointsize>9</pointsize>
        <weight>50</weight>
        <bold>false</bold>
       </font>
@@ -36,7 +36,7 @@
     </widget>
    </item>
    <item row="0" column="1" rowspan="4">
-    <widget class="TimeDiagram" name="timeDiagram" native="true">
+    <widget class="sprint_timer::ui::qt_gui::TimeDiagram" name="timeDiagram" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -62,7 +62,7 @@
      <property name="font">
       <font>
        <family>.Helvetica Neue Desk UI</family>
-       <pointsize>11</pointsize>
+       <pointsize>9</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -83,7 +83,7 @@
      <property name="font">
       <font>
        <family>.Helvetica Neue Desk UI</family>
-       <pointsize>11</pointsize>
+       <pointsize>9</pointsize>
        <weight>50</weight>
        <bold>false</bold>
       </font>
@@ -110,9 +110,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>TimeDiagram</class>
+   <class>sprint_timer::ui::qt_gui::TimeDiagram</class>
    <extends>QWidget</extends>
-   <header>widgets/TimeDiagram.h</header>
+   <header>qt_gui/widgets/TimeDiagram.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

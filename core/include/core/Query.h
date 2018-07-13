@@ -23,7 +23,7 @@
 #ifndef SPRINT_TIMER_QUERY_H
 #define SPRINT_TIMER_QUERY_H
 
-namespace core {
+namespace sprint_timer {
 
 class Query {
 public:
@@ -34,6 +34,6 @@ public:
     virtual std::string describe() const = 0;
 };
 
-} // namespace core
+} // namespace sprint_timer
 
 #endif // SPRINT_TIMER_QUERY_H

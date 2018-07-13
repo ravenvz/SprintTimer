@@ -19,20 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/SprintOutline.h"
-#include "dialogs/AddSprintDialog.h"
-#include "dialogs/ConfirmationDialog.h"
+#include "qt_gui/widgets/SprintOutline.h"
+#include "qt_gui/dialogs/AddSprintDialog.h"
+#include "qt_gui/dialogs/ConfirmationDialog.h"
+#include "qt_gui/utils/MouseRightReleaseEater.h"
 #include "ui_sprint_outline.h"
 #include <QMenu>
+
+namespace sprint_timer::ui::qt_gui {
 
 SprintOutline::SprintOutline(ICoreService& coreService,
                              IConfig& applicationSettings,
                              SprintModel* sprintModel,
                              TaskModel* taskModel,
                              QWidget* parent)
-    : ui{new Ui::SprintOutline}
-    , QWidget{parent}
+    : QWidget{parent}
+    , ui{new Ui::SprintOutline}
     , coreService{coreService}
     , applicationSettings{applicationSettings}
     , sprintModel{sprintModel}
@@ -41,6 +43,8 @@ SprintOutline::SprintOutline(ICoreService& coreService,
     ui->setupUi(this);
     ui->lvFinishedSprints->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->lvFinishedSprints->setModel(sprintModel);
+
+    coreService.registerUndoObserver(*this);
 
     connect(ui->pbAddSprintManually,
             &QPushButton::clicked,
@@ -55,14 +59,6 @@ SprintOutline::SprintOutline(ICoreService& coreService,
             &QListView::customContextMenuRequested,
             this,
             &SprintOutline::showContextMenu);
-    connect(sprintModel,
-            &AsyncListModel::updateFinished,
-            this,
-            &SprintOutline::adjustUndoButtonState);
-    connect(taskModel,
-            &AsyncListModel::updateFinished,
-            this,
-            &SprintOutline::adjustUndoButtonState);
     connect(ui->pbUndo,
             &QPushButton::clicked,
             this,
@@ -75,14 +71,16 @@ SprintOutline::~SprintOutline() { delete ui; }
 
 void SprintOutline::launchManualAddSprintDialog()
 {
-    addSprintDialog.reset(new AddSprintDialog{sprintModel, taskModel, applicationSettings.sprintDuration()});
-	addSprintDialog->setModal(true);
+    addSprintDialog.reset(new AddSprintDialog{
+        sprintModel, taskModel, applicationSettings.sprintDuration()});
+    addSprintDialog->setModal(true);
     addSprintDialog->show();
 }
 
 void SprintOutline::adjustAddSprintButtonState()
 {
-    ui->pbAddSprintManually->setEnabled(taskModel->rowCount(QModelIndex()) != 0);
+    ui->pbAddSprintManually->setEnabled(taskModel->rowCount(QModelIndex())
+                                        != 0);
 }
 
 QSize SprintOutline::sizeHint() const { return desiredSize; }
@@ -92,23 +90,16 @@ void SprintOutline::showContextMenu(const QPoint& pos)
     QPoint globalPos = mapToGlobal(pos);
 
     QMenu contextMenu;
+    contextMenu.installEventFilter(new MouseRightReleaseEater(&contextMenu));
     const auto deleteEntry = "Delete";
     contextMenu.addAction(deleteEntry);
 
     QAction* selectedEntry = contextMenu.exec(globalPos);
 
-    if (selectedEntry && selectedEntry->text() == deleteEntry)
-        removeSprint();
-}
-
-void SprintOutline::removeSprint()
-{
-    QModelIndex index = ui->lvFinishedSprints->currentIndex();
-    ConfirmationDialog dialog;
-    QString description{"Remove sprint?"};
-    dialog.setActionDescription(description);
-    if (dialog.exec())
+    if (selectedEntry && selectedEntry->text() == deleteEntry) {
+        QModelIndex index = ui->lvFinishedSprints->currentIndex();
         sprintModel->remove(index.row());
+    }
 }
 
 void SprintOutline::onUndoButtonClicked()
@@ -116,18 +107,21 @@ void SprintOutline::onUndoButtonClicked()
     ConfirmationDialog dialog;
     QString description{"Revert following action:\n"};
     description.append(
-            QString::fromStdString(coreService.lastCommandDescription()));
+        QString::fromStdString(coreService.lastCommandDescription()));
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         coreService.undoLast();
         sprintModel->synchronize();
         taskModel->synchronize();
         emit actionUndone();
-        adjustUndoButtonState();
     }
 }
+
+void SprintOutline::update() { adjustUndoButtonState(); }
 
 void SprintOutline::adjustUndoButtonState()
 {
     ui->pbUndo->setEnabled(coreService.numRevertableCommands() != 0);
 }
+
+} // namespace sprint_timer::ui::qt_gui

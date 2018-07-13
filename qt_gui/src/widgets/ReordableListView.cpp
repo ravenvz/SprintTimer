@@ -19,8 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_gui/widgets/ReordableListView.h"
 
-#include "ReordableListView.h"
+namespace sprint_timer::ui::qt_gui {
 
 ReordableListView::ReordableListView(QWidget* parent)
     : QListView(parent)
@@ -34,4 +35,7 @@ void ReordableListView::dropEvent(QDropEvent* event)
     model()->moveRows(
         QModelIndex(), rowMovedFrom, 1, QModelIndex(), rowMovedTo);
 }
+
+} // namespace sprint_timer::ui::qt_gui
+
 

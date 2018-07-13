@@ -76,10 +76,10 @@ private:
 
 /* Return number of workdays in given time range with
  * respect to current selection. */
-inline int numWorkdays(const dw::TimeSpan& timeSpan,
-                       const WeekdaySelection& workdays)
+inline unsigned numWorkdays(const dw::TimeSpan& timeSpan,
+                            const WeekdaySelection& workdays)
 {
-    int res{0};
+    unsigned res{0};
 
     for (auto day = timeSpan.start(); day <= timeSpan.finish();
          day = day.add(dw::DateTime::Days{1})) {

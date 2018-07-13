@@ -22,15 +22,29 @@
 
 #include "core/TaskBuilder.h"
 
+namespace sprint_timer {
+
 using dw::DateTime;
+using namespace entities;
 
 Task TaskBuilder::build()
 {
     if (!mLastModified)
         mLastModified = std::make_optional(DateTime::currentDateTimeLocal());
     if (!mUuid)
-        return Task{mName, mEstimatedCost, mActualCost, mTags, mCompletionStatus, *mLastModified};
-    Task task{mName, mEstimatedCost, mActualCost, *mUuid, mTags, mCompletionStatus, *mLastModified};
+        return Task{mName,
+                    mEstimatedCost,
+                    mActualCost,
+                    mTags,
+                    mCompletionStatus,
+                    *mLastModified};
+    Task task{mName,
+              mEstimatedCost,
+              mActualCost,
+              *mUuid,
+              mTags,
+              mCompletionStatus,
+              *mLastModified};
     mUuid = std::optional<std::string>{};
     mLastModified = std::optional<DateTime>{};
     return task;
@@ -89,3 +103,5 @@ TaskBuilder& TaskBuilder::withCompletionStatus(bool completed)
     mCompletionStatus = completed;
     return *this;
 }
+
+} // namespace sprint_timer

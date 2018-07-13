@@ -23,19 +23,96 @@
 #ifndef TASKRUNNER_H_9VSDY5UR
 #define TASKRUNNER_H_9VSDY5UR
 
-#include "date_wrapper/DateTime.h"
+#include "core/CountdownTimer.h"
 #include "core/IConfig.h"
 #include "core/IStatefulTimer.h"
+#include "date_wrapper/DateTime.h"
 #include "date_wrapper/TimeSpan.h"
-#include "core/CountdownTimer.h"
 #include <chrono>
 #include <memory>
 #include <thread>
 #include <vector>
 
-namespace SprintTimerCore {
+namespace sprint_timer {
 
-class TimerState;
+class StatefulTimer;
+
+class TimerState {
+public:
+    virtual ~TimerState() = default;
+    virtual void enter(StatefulTimer& timer) const = 0;
+    virtual void cancelExit(StatefulTimer& timer) = 0;
+    virtual void normalExit(StatefulTimer& timer) const = 0;
+    virtual void setNextState(StatefulTimer& timer) = 0;
+    virtual void toggleZoneMode(StatefulTimer& timer);
+    virtual std::chrono::seconds duration(const StatefulTimer& timer) const;
+    virtual void onTimerFinished(StatefulTimer& timer);
+};
+
+
+class Idle final : public TimerState {
+public:
+    void enter(StatefulTimer& timer) const override;
+    void cancelExit(StatefulTimer& timer) override;
+    void normalExit(StatefulTimer& timer) const override;
+    void setNextState(StatefulTimer& timer) override;
+};
+
+
+class RunningSprint final : public TimerState {
+public:
+    void enter(StatefulTimer& timer) const override;
+    void cancelExit(StatefulTimer& timer) override;
+    void normalExit(StatefulTimer& timer) const override;
+    void setNextState(StatefulTimer& timer) override;
+    std::chrono::seconds duration(const StatefulTimer& timer) const override;
+    void toggleZoneMode(StatefulTimer& timer) override;
+    void onTimerFinished(StatefulTimer& timer) override;
+};
+
+
+class ShortBreak final : public TimerState {
+public:
+    void enter(StatefulTimer& timer) const override;
+    void cancelExit(StatefulTimer& timer) override;
+    void normalExit(StatefulTimer& timer) const override;
+    void setNextState(StatefulTimer& timer) override;
+    std::chrono::seconds duration(const StatefulTimer& timer) const override;
+    void onTimerFinished(StatefulTimer& timer) override;
+};
+
+
+class LongBreak final : public TimerState {
+public:
+    void enter(StatefulTimer& timer) const override;
+    void cancelExit(StatefulTimer& timer) override;
+    void normalExit(StatefulTimer& timer) const override;
+    void setNextState(StatefulTimer& timer) override;
+    std::chrono::seconds duration(const StatefulTimer& timer) const override;
+    void onTimerFinished(StatefulTimer& timer) override;
+};
+
+
+class Zone final : public TimerState {
+public:
+    void enter(StatefulTimer& timer) const override;
+    void cancelExit(StatefulTimer& timer) override;
+    void normalExit(StatefulTimer& timer) const override;
+    void setNextState(StatefulTimer& timer) override;
+    std::chrono::seconds duration(const StatefulTimer& timer) const override;
+    void toggleZoneMode(StatefulTimer& timer) override;
+    void onTimerFinished(StatefulTimer& timer) override;
+};
+
+
+class SprintFinished final : public TimerState {
+public:
+    void enter(StatefulTimer& timer) const override;
+    void cancelExit(StatefulTimer& timer) override;
+    void normalExit(StatefulTimer& timer) const override;
+    void setNextState(StatefulTimer& timer) override;
+};
+
 
 class StatefulTimer : public IStatefulTimer {
     friend class TimerState;
@@ -49,7 +126,8 @@ class StatefulTimer : public IStatefulTimer {
 public:
     StatefulTimer(
         std::function<void(std::chrono::seconds timeLeft)> tickCallback,
-        std::function<void(IStatefulTimer::StateId state)> onStateChangedCallback,
+        std::function<void(IStatefulTimer::StateId state)>
+            onStateChangedCallback,
         std::chrono::seconds tickPeriod,
         const IConfig& applicationSettings);
 
@@ -69,19 +147,25 @@ public:
 
     void toggleInTheZoneMode() override;
 
-    std::vector<TimeSpan> completedSprints() const override;
+    std::vector<dw::TimeSpan> completedSprints() const override;
 
     void clearSprintsBuffer() override;
 
-    void setNumFinishedSprints(int num);
+    void setNumFinishedSprints(int num) override;
 
     int numFinishedSprints() const;
 
 protected:
+    Idle idle;
+    RunningSprint runningSprint;
+    ShortBreak shortBreak;
+    LongBreak longBreak;
+    Zone zone;
+    SprintFinished sprintFinished;
     TimerState* currentState;
 
-    virtual /* Transition to another state while exiting current state properly. */
-    void transitionToState(TimerState& state);
+    /* Transition to another state while exiting current state properly. */
+    virtual void transitionToState(TimerState& state);
 
 private:
     const IConfig& applicationSettings;
@@ -89,11 +173,12 @@ private:
     std::function<void(std::chrono::seconds timeLeft)> onTickCallback;
     std::function<void(IStatefulTimer::StateId)> onStateChangedCallback;
     std::unique_ptr<CountdownTimer> countdownTimer;
-    DateTime mStart;
+    dw::DateTime mStart;
     int finishedSprints{0};
-    std::vector<TimeSpan> buffer;
+    std::vector<dw::TimeSpan> buffer;
 
-    /* Jump to another state immediately ignoring proper exit from current state */
+    /* Jump to another state immediately ignoring proper exit from current state
+     */
     void jumpToState(TimerState& state);
     bool longBreakConditionMet() const;
     void onTimerRunout();
@@ -102,76 +187,6 @@ private:
     void startCountdown();
 };
 
-class TimerState {
-public:
-    virtual ~TimerState() = default;
-    virtual void enter(StatefulTimer& timer) const = 0;
-    virtual void cancelExit(StatefulTimer& timer) = 0;
-    virtual void normalExit(StatefulTimer& timer) const = 0;
-    virtual void setNextState(StatefulTimer& timer) = 0;
-    virtual void toggleZoneMode(StatefulTimer& timer);
-    virtual std::chrono::seconds duration(const StatefulTimer& timer) const;
-    virtual void onTimerFinished(StatefulTimer& timer);
-};
-
-class Idle final : public TimerState {
-public:
-    void enter(StatefulTimer& timer) const override;
-    void cancelExit(StatefulTimer& timer) override;
-    void normalExit(StatefulTimer& timer) const override;
-    void setNextState(StatefulTimer& timer) override;
-};
-
-class RunningSprint final : public TimerState {
-public:
-    void enter(StatefulTimer& timer) const override;
-    void cancelExit(StatefulTimer& timer) override;
-    void normalExit(StatefulTimer& timer) const override;
-    void setNextState(StatefulTimer& timer) override;
-    std::chrono::seconds duration(const StatefulTimer& timer) const override;
-    void toggleZoneMode(StatefulTimer& timer) override;
-    void onTimerFinished(StatefulTimer& timer) override;
-};
-
-class ShortBreak final : public TimerState {
-public:
-    void enter(StatefulTimer& timer) const override;
-    void cancelExit(StatefulTimer& timer) override;
-    void normalExit(StatefulTimer& timer) const override;
-    void setNextState(StatefulTimer& timer) override;
-    std::chrono::seconds duration(const StatefulTimer& timer) const override;
-    void onTimerFinished(StatefulTimer& timer) override;
-};
-
-class LongBreak final : public TimerState {
-public:
-    void enter(StatefulTimer& timer) const override;
-    void cancelExit(StatefulTimer& timer) override;
-    void normalExit(StatefulTimer& timer) const override;
-    void setNextState(StatefulTimer& timer) override;
-    std::chrono::seconds duration(const StatefulTimer& timer) const override;
-    void onTimerFinished(StatefulTimer& timer) override;
-};
-
-class Zone final : public TimerState {
-public:
-    void enter(StatefulTimer& timer) const override;
-    void cancelExit(StatefulTimer& timer) override;
-    void normalExit(StatefulTimer& timer) const override;
-    void setNextState(StatefulTimer& timer) override;
-    std::chrono::seconds duration(const StatefulTimer& timer) const override;
-    void toggleZoneMode(StatefulTimer& timer) override;
-    void onTimerFinished(StatefulTimer& timer) override;
-};
-
-class SprintFinished final : public TimerState {
-public:
-    void enter(StatefulTimer& timer) const override;
-    void cancelExit(StatefulTimer& timer) override;
-    void normalExit(StatefulTimer& timer) const override;
-    void setNextState(StatefulTimer& timer) override;
-};
-
-} // namespace SprintTimerCore
+} // namespace sprint_timer
 
 #endif /* end of include guard: TASKRUNNER_H_9VSDY5UR */

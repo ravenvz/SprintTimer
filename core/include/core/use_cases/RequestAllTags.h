@@ -25,7 +25,7 @@
 #include "core/ITaskStorageReader.h"
 #include "core/Query.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class RequestAllTags : public Query {
 public:
@@ -44,6 +44,6 @@ private:
     QueryResultHandler handler_;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: REQUESTALLTAGS_H_CUXYESDS */

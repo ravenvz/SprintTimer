@@ -19,7 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "delegates/HistoryItemDelegate.h"
+#include "qt_gui/delegates/HistoryItemDelegate.h"
+
+namespace sprint_timer::ui::qt_gui {
 
 HistoryItemDelegate::HistoryItemDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
@@ -40,3 +42,5 @@ void HistoryItemDelegate::paint(QPainter* painter,
         QStyledItemDelegate::paint(painter, option, index);
     }
 }
+
+} // namespace sprint_timer::ui::qt_gui

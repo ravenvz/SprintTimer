@@ -23,9 +23,10 @@
 #ifndef DATABASE_H_EY9GHBP5
 #define DATABASE_H_EY9GHBP5
 
-
 #include <QSqlQuery>
 #include <QString>
+
+namespace sprint_timer::storage::qt_storage_impl {
 
 namespace InfoTable {
     const QString name{"info"};
@@ -176,7 +177,7 @@ private:
 
     unsigned getDatabaseVersion(QSqlDatabase& database);
 
-    bool runMigration(QSqlDatabase& database, int fromVersion);
+    bool runMigration(QSqlDatabase& database, unsigned fromVersion);
 
     bool createBackupCopy(const QString& filename);
 
@@ -186,5 +187,7 @@ private:
 
     bool execAndCheck(QSqlQuery& query, const QString& queryStr);
 };
+
+} // namespace sprint_timer::storage::qt_storage_impl
 
 #endif /* end of include guard: DORODATABASE_H_EY9GHBP5 */

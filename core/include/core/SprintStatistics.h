@@ -27,35 +27,29 @@
 #include <algorithm>
 #include <vector>
 
+namespace sprint_timer {
+
+/* This auxilary datastructure holds distributions of statistical data
+ * for Sprints within given time range. */
 class SprintStatItem {
 
 public:
-    SprintStatItem(const std::vector<Sprint>& sprints,
-                   const dw::TimeSpan& timeInterval);
+    /* Sprints that have start time dates that are not within timeSpan
+     * dates will be ignored.
+     */
+    SprintStatItem(const std::vector<entities::Sprint>& sprints,
+                   const dw::TimeSpan& timeSpan);
 
-    SprintStatItem(const SprintStatItem&) = default;
+    const Distribution<double>& dailyDistribution() const;
 
-    ~SprintStatItem() = default;
+    const Distribution<double>& weekdayDistribution() const;
 
-    Distribution<double> dailyDistribution() const;
-
-    Distribution<double> weekdayDistribution() const;
-
-    Distribution<double> worktimeDistribution() const;
-
-    std::vector<Sprint> sprints() const;
+    const Distribution<double>& worktimeDistribution() const;
 
 private:
-    const dw::TimeSpan timeSpan;
-    const std::vector<Sprint> mSprints;
-
-    std::vector<double> computeDailyDistribution() const;
-
-    std::vector<double> computeWeekdayDistribution() const;
-
-    std::vector<double> computeWorkTimeDistribution() const;
-
-    std::vector<int> countWeekdays() const;
+    Distribution<double> dailyDistribution_;
+    Distribution<double> weekdayDistribution_;
+    Distribution<double> worktimeDistribution_;
 };
 
 
@@ -89,5 +83,7 @@ std::string dayPartHours(unsigned dayPart);
 
 } // namespace DatePart
 
+
+} // namespace sprint_timer
 
 #endif // SPRINTSTATISTICS_H

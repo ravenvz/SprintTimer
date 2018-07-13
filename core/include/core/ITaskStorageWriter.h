@@ -24,15 +24,19 @@
 
 #include "core/entities/Task.h"
 
+namespace sprint_timer {
+
 class ITaskStorageWriter {
 public:
     virtual ~ITaskStorageWriter() = default;
 
-    virtual void save(const Task& task) = 0;
+    virtual void save(const entities::Task& task) = 0;
 
-    virtual void remove(const Task& task) = 0;
+    virtual void remove(const entities::Task& task) = 0;
 
-    virtual void edit(const Task& task, const Task& editedTask) = 0;
+    virtual void edit(const entities::Task& task,
+                      const entities::Task& editedTask)
+        = 0;
 
     virtual void incrementSprints(const std::string& uuid) = 0;
 
@@ -48,5 +52,7 @@ public:
     virtual void editTag(const std::string& oldName, const std::string& newName)
         = 0;
 };
+
+} // namespace sprint_timer
 
 #endif /* end of include guard: ITASKSTORAGEWRITER_H_PVAMCJ6G */

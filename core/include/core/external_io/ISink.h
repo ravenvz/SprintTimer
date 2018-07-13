@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace ExternalIO {
+namespace sprint_timer::external_io {
 
 class ISink {
 public:
@@ -35,6 +35,6 @@ public:
 
 };
 
-} // namespace ExternalIO
+} // namespace sprint_timer::external_io
 
 #endif // SPRINT_TIMER_ISINK_H

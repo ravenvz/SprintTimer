@@ -19,9 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "TaskItemDelegate.h"
+#include "qt_gui/delegates/TaskItemDelegate.h"
 #include <QApplication>
 #include <QPainter>
+
+namespace sprint_timer::ui::qt_gui {
 
 namespace {
 
@@ -193,3 +195,6 @@ bool taskOverspent(const QString& stats)
 int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
 
 } // namespace
+
+} // namespace sprint_timer::ui::qt_gui
+

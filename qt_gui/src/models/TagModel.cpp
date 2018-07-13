@@ -19,7 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "models/TagModel.h"
+#include "qt_gui/models/TagModel.h"
+
+namespace sprint_timer::ui::qt_gui {
 
 TagModel::TagModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel{parent}
@@ -43,15 +45,13 @@ QVariant TagModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const std::string tag = storage[index.row()];
+    const std::string tag = storage[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
         return QString::fromStdString(tag);
-        break;
     case Qt::EditRole:
         return QString::fromStdString(tag);
-        break;
     default:
         return QVariant();
     }
@@ -66,7 +66,7 @@ bool TagModel::setData(const QModelIndex& index,
     if (role == Qt::EditRole) {
         buffer.push_back({data(index, role).toString().toStdString(),
                           value.toString().toStdString()});
-        storage[index.row()] = value.toString().toStdString();
+        storage[static_cast<size_t>(index.row())] = value.toString().toStdString();
         return true;
     }
     return false;
@@ -100,3 +100,6 @@ void TagModel::onDataArrived(const std::vector<std::string>& tags)
     endResetModel();
     broadcastUpdateFinished();
 }
+
+} // namespace sprint_timer::ui::qt_gui
+

@@ -19,10 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "ExportDialog.h"
+#include "qt_gui/dialogs/ExportDialog.h"
 #include "ui_export_dialog.h"
 #include <QFileDialog>
+
+namespace sprint_timer::ui::qt_gui {
 
 ExportDialog::ExportDialog(QWidget* parent)
     : QDialog{parent}
@@ -48,3 +49,6 @@ void ExportDialog::accept()
     emit exportConfirmed(options);
     QDialog::accept();
 }
+
+} // namespace sprint_timer::ui::qt_gui
+

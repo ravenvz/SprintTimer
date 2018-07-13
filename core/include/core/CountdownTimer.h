@@ -27,6 +27,8 @@
 #include <functional>
 #include <thread>
 
+namespace sprint_timer {
+
 /* Countdown timer that runs in background thread
  * and executes callback function each tick. */
 class CountdownTimer {
@@ -53,12 +55,14 @@ public:
 private:
     OnTickCallback onTickCallback;
     OnTimeRunOutCallback onTimeRunOutCallback;
-    std::chrono::milliseconds duration;
-    TickPeriod tickPeriod;
+    const std::chrono::milliseconds duration;
+    const TickPeriod tickPeriod;
     std::atomic<bool> running{false};
     std::thread tr;
 
     void start();
 };
+
+} // namespace sprint_timer
 
 #endif

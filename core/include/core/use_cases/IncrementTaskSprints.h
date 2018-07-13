@@ -23,10 +23,9 @@
 #define INCREMENTTASKSPRINTS_H_2OKTXAHD
 
 #include "core/ITaskStorageWriter.h"
-#include "core/RevertableCommand.h"
-#include <core/Command.h>
+#include "core/Command.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class IncrementTaskSprints : public Command {
 public:
@@ -44,6 +43,6 @@ private:
     const std::string taskUuid_;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: INCREMENTTASKSPRINTS_H_2OKTXAHD */

@@ -22,68 +22,73 @@
 
 #include "core/SprintBuilder.h"
 
+namespace sprint_timer {
+
+using namespace entities;
+
 Sprint SprintBuilder::build()
 {
     using namespace std::chrono;
-    if (!mTaskUuid)
+    if (!taskUuid_)
         throw SprintBuilderError{"Can't build Sprint without Task uuid"};
-    // TODO remove magic constant. It should be taken from config anyway
-    if (!mTimeSpan)
+    if (!timeSpan_)
         throw SprintBuilderError{"Can't build Sprint without timespan"};
-    if (!mUuid)
-        return Sprint{mName, *mTimeSpan, mTags, *mTaskUuid};
-    Sprint sprint{mName, *mTimeSpan, mTags, *mUuid, *mTaskUuid};
-    mUuid = std::nullopt;
+    if (!uuid_)
+        return Sprint{name_, *timeSpan_, tags_, *taskUuid_};
+    Sprint sprint{name_, *timeSpan_, tags_, *uuid_, *taskUuid_};
+    // Clean uuid, so that a new one can be generated for next built sprint
+    uuid_ = std::nullopt;
     return sprint;
 }
 
-SprintBuilder& SprintBuilder::withName(const std::string& name)
+SprintBuilder& SprintBuilder::withName(std::string name)
 {
-    mName = name;
+    name_ = std::move(name);
     return *this;
 }
 
-SprintBuilder& SprintBuilder::withUuid(const std::string& uuid)
+SprintBuilder& SprintBuilder::withUuid(std::string uuid)
 {
-    mUuid = std::make_optional(uuid);
+    uuid_ = std::make_optional(std::move(uuid));
     return *this;
 }
 
-SprintBuilder& SprintBuilder::withTaskUuid(const std::string& uuid)
+SprintBuilder& SprintBuilder::withTaskUuid(std::string uuid)
 {
-    mTaskUuid = std::make_optional(uuid);
+    taskUuid_ = std::make_optional(std::move(uuid));
     return *this;
 }
 
-SprintBuilder& SprintBuilder::withTag(const Tag& tag)
+SprintBuilder& SprintBuilder::withTag(Tag tag)
 {
-    mTags.emplace_back(tag);
+    tags_.emplace_back(std::move(tag));
     return *this;
 }
 
-SprintBuilder& SprintBuilder::withTag(const std::string& tag)
+SprintBuilder& SprintBuilder::withTag(std::string tag)
 {
-    mTags.emplace_back(Tag{tag});
+    tags_.emplace_back(Tag{std::move(tag)});
     return *this;
 }
 
-SprintBuilder& SprintBuilder::withTimeSpan(const dw::TimeSpan& timeSpan)
+SprintBuilder& SprintBuilder::withTimeSpan(dw::TimeSpan timeSpan)
 {
-    mTimeSpan = std::make_optional(timeSpan);
+    timeSpan_ = std::make_optional(std::move(timeSpan));
     return *this;
 }
 
 SprintBuilder& SprintBuilder::forTask(const Task& task)
 {
-    mName = task.name();
-    mTaskUuid = std::make_optional(task.uuid());
-    mTags = task.tags();
+    name_ = task.name();
+    taskUuid_ = std::make_optional(task.uuid());
+    tags_ = task.tags();
     return *this;
 }
 
-SprintBuilder& SprintBuilder::withExplicitTags(const std::list<Tag>& tags)
+SprintBuilder& SprintBuilder::withExplicitTags(std::list<Tag> tags)
 {
-    mTags = tags;
+    tags_ = std::move(tags);
     return *this;
 }
 
+} // namespace sprint_timer

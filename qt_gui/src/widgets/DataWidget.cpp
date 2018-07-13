@@ -19,9 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/DataWidget.h"
+#include "qt_gui/widgets/DataWidget.h"
+
+namespace sprint_timer::ui::qt_gui {
 
 DataWidget::DataWidget(QWidget* parent)
     : QFrame{parent}
 {
 }
+
+} // namespace sprint_timer::ui::qt_gui

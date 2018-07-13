@@ -19,10 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_gui/widgets/GoalProgressWindow.h"
+#include "qt_gui/widgets/ProgressView.h"
+#include <core/utils/WeekdaySelection.h>
 
-#include "widgets/GoalProgressWindow.h"
-#include "core/utils/WeekdaySelection.h"
-#include "widgets/ProgressView.h"
+namespace sprint_timer::ui::qt_gui {
 
 using dw::DateTime;
 using dw::TimeSpan;
@@ -199,3 +200,6 @@ void GoalProgressWindow::launchWorkdaysConfigurationDialog()
     workdaysDialog->setModal(true);
     workdaysDialog->show();
 }
+
+} // namespace sprint_timer::ui::qt_gui
+

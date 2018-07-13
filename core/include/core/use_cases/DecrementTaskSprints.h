@@ -25,7 +25,7 @@
 #include "core/ITaskStorageWriter.h"
 #include "core/Command.h"
 
-namespace core::use_cases {
+namespace sprint_timer::use_cases {
 
 class DecrementTaskSprints : public Command {
 public:
@@ -43,6 +43,6 @@ private:
     const std::string taskUuid_;
 };
 
-} // namespace core::use_cases
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */

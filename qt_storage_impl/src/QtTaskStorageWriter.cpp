@@ -22,7 +22,12 @@
 #include "qt_storage_impl/QtTaskStorageWriter.h"
 #include "qt_storage_impl/Database.h"
 #include "qt_storage_impl/utils.h"
-#include "utils/DateTimeConverter.h"
+#include "qt_storage_impl/utils/DateTimeConverter.h"
+
+namespace sprint_timer::storage::qt_storage_impl {
+
+using namespace entities;
+using namespace dw;
 
 QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
     : dbService{dbService}
@@ -111,9 +116,10 @@ void QtTaskStorageWriter::save(const Task& task)
     dbService.bindValue(addTaskQueryId, ":completed", task.isCompleted());
     dbService.bindValue(addTaskQueryId, ":priority", 10000);
 
-    dbService.bindValue(addTaskQueryId,
-                        ":last_modified",
-                        DateTimeConverter::qDateTime(task.lastModified()));
+    dbService.bindValue(
+        addTaskQueryId,
+        ":last_modified",
+        utils::DateTimeConverter::qDateTime(task.lastModified()));
     dbService.bindValue(addTaskQueryId, ":uuid", uuid);
 
     dbService.transaction();
@@ -156,6 +162,8 @@ void QtTaskStorageWriter::remove(const Task& task)
 
 void QtTaskStorageWriter::edit(const Task& task, const Task& editedTask)
 {
+    using namespace utils;
+
     const QString taskUuid = QString::fromStdString(task.uuid());
 
     dbService.bindValue(
@@ -212,7 +220,7 @@ void QtTaskStorageWriter::toggleTaskCompletionStatus(const std::string& uuid,
         toggleCompletionQueryId, ":uuid", QString::fromStdString(uuid));
     dbService.bindValue(toggleCompletionQueryId,
                         ":time_stamp",
-                        DateTimeConverter::qDateTime(timeStamp));
+                        utils::DateTimeConverter::qDateTime(timeStamp));
     dbService.executePrepared(toggleCompletionQueryId);
 }
 
@@ -221,11 +229,12 @@ void QtTaskStorageWriter::updatePriorities(
 {
     dbService.requestTransaction();
 
-    for (int i = 0; i < priorities.size(); ++i) {
+    for (size_t i = 0; i < priorities.size(); ++i) {
         dbService.bindValue(updatePrioritiesQueryId,
                             ":uuid",
                             QString::fromStdString(priorities[i]));
-        dbService.bindValue(updatePrioritiesQueryId, ":priority", i);
+        dbService.bindValue(
+            updatePrioritiesQueryId, ":priority", static_cast<int>(i));
         dbService.executePrepared(updatePrioritiesQueryId);
     }
 
@@ -241,3 +250,5 @@ void QtTaskStorageWriter::editTag(const std::string& oldName,
         editTagQueryId, ":new_name", QString::fromStdString(newName));
     dbService.executePrepared(editTagQueryId);
 }
+
+} // namespace sprint_timer::storage::qt_storage_impl

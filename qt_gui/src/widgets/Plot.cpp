@@ -19,9 +19,60 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "Plot.h"
+#include "qt_gui/widgets/Plot.h"
 #include <QHelpEvent>
 #include <QToolTip>
+#include <algorithm>
+
+namespace {
+
+using namespace sprint_timer::ui::qt_gui;
+
+constexpr static int labelSkipInd{28};
+constexpr static int toolTipOffset{50};
+// RelSizes' are relative to Widget's rect() height
+constexpr static double labelOffsetRelSize{0.15};
+constexpr static double marginRelSize{0.07};
+constexpr static double pointBoxRelSize{0.025};
+const QBrush pointBoxBrush{Qt::white};
+
+
+QRectF computeAvailableRectange(const QRectF& totalSizeRect);
+
+
+struct point_to_point_box {
+    point_to_point_box(const DrawingParams& drawingParams)
+        : drawingParams{drawingParams}
+    {
+    }
+
+    Graph::PointBox operator()(const Graph::Point& p)
+    {
+        QPainterPath path;
+		// TODO figure out why MSVC doesn't like this structured binging
+#ifdef WIN32
+		auto labelOffset = drawingParams.labelOffset;
+		const auto scaleX = drawingParams.scaleX;
+		const auto scaleY = drawingParams.scaleY;
+		const auto referencePoint = drawingParams.referencePoint;
+		const auto pointSize = drawingParams.pointSize;
+#else
+         const auto [labelOffset, scaleX, scaleY, referencePoint, pointSize]
+            = drawingParams;
+#endif
+        const QPointF position{p.x * scaleX + referencePoint.x(),
+                               referencePoint.y() - p.y * scaleY - labelOffset};
+        path.addEllipse(QPointF{0, 0}, pointSize, pointSize);
+        return Graph::PointBox{path, position, QString("%1").arg(p.y)};
+    }
+
+private:
+    const DrawingParams& drawingParams;
+};
+
+} // namespace
+
+namespace sprint_timer::ui::qt_gui {
 
 void AxisRange::setRange(double start, double end)
 {
@@ -32,38 +83,31 @@ void AxisRange::setRange(double start, double end)
 double AxisRange::span() const { return end - start; }
 
 Plot::Plot(QWidget* parent)
-    : QWidget(parent)
+    : QWidget{parent}
 {
     setMouseTracking(true);
 }
 
-void Plot::setNumExpectedGraphs(size_t n) { graphs.reserve(n); }
-
-void Plot::addGraph(Graph graph)
+DrawingParams::DrawingParams(const QRectF& availableRect,
+                             const AxisRange& rangeX,
+                             const AxisRange& rangeY)
+    : labelOffset{labelOffsetRelSize * availableRect.height()}
+    , scaleX{rangeX.span() > 0 ? availableRect.width() / rangeX.span() : 1}
+    , scaleY{rangeY.span() > 0
+                 ? (availableRect.height() - labelOffset) / rangeY.span()
+                 : 1}
+    , referencePoint{availableRect.bottomLeft()}
+    , pointSize{pointBoxRelSize * availableRect.height()}
 {
-    graphs.push_back(std::move(graph));
-    pointBoxes.push_back(PointBoxContainer{});
 }
 
-void Plot::setGraphData(size_t graphNum, GraphData& data)
-{
-    if (graphNum >= graphs.size()) {
-        return;
-    }
-    graphs[graphNum].setData(data);
-}
+void Plot::addGraph(Graph graph) { graphs.push_back(std::move(graph)); }
 
-void Plot::reset()
+void Plot::changeGraphData(size_t graphNum, Graph::Data&& data)
 {
-    for (auto& points : pointBoxes) {
-        points.clear();
-    }
-    for (auto& graph : graphs) {
-        graph.clearData();
-    }
+    if (graphNum < graphs.size())
+        graphs[graphNum].setData(std::move(data));
 }
-
-void Plot::replot() { repaint(); }
 
 void Plot::setRangeX(double start, double end) { rangeX.setRange(start, end); }
 
@@ -74,133 +118,23 @@ void Plot::paintEvent(QPaintEvent*)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    QRectF totalSizeRect = this->rect();
-    const QPointF center{totalSizeRect.center()};
-    const double availableWidth{(1 - marginRelSize) * totalSizeRect.width()};
-    const double availableHeight{(1 - marginRelSize) * totalSizeRect.height()};
-    availableRect = {QRectF{center.x() - availableWidth / 2,
-                            center.y() - availableHeight / 2,
-                            availableWidth,
-                            availableHeight}};
+    availableRect = computeAvailableRectange(this->rect());
+    const DrawingParams drawingParams{availableRect, rangeX, rangeY};
 
-    pointBoxSize = {pointBoxRelSize * availableRect.height()};
-
-    constructPointBoxes();
-
-    if (pointBoxes.empty()) {
-        painter.eraseRect(availableRect);
-        return;
-    }
-
-    for (size_t graphNum = 0; graphNum < graphs.size(); ++graphNum) {
-        paintGraph(graphNum, painter);
-    }
+    for (auto& graph : graphs)
+        graph.draw(painter, drawingParams);
 }
 
 void Plot::mouseMoveEvent(QMouseEvent* event)
 {
-    const auto& toolTip = getPosTooltip(event->pos());
-    if (toolTip.size() != 0) {
-        const QPoint toolTipPos{
-            event->globalPos()
-            - QPoint{int(pointBoxSize), toolTipOffset * int(pointBoxSize)}};
-        QToolTip::showText(toolTipPos, toolTip);
-    }
-    else {
-        QToolTip::hideText();
-        event->ignore();
-    }
+    for (const auto& graph : graphs)
+        graph.handleMouseMoveEvent(event);
 }
 
-void Plot::constructPointBoxes()
-{
-    const double labelOffset = labelOffsetRelSize * availableRect.height();
-    const double scaleX
-        = rangeX.span() > 0 ? availableRect.width() / (rangeX.span()) : 1;
-    const double scaleY = rangeY.span() > 0
-        ? (availableRect.height() - labelOffset) / (rangeY.span())
-        : 1;
-    for (size_t graphNum = 0; graphNum < graphs.size(); ++graphNum) {
-        QPointF referencePoint = availableRect.bottomLeft();
-        pointBoxes[graphNum].clear();
-        std::transform(
-            graphs[graphNum].cbegin(),
-            graphs[graphNum].cend(),
-            std::back_inserter(pointBoxes[graphNum]),
-            [
-              pointBoxSize = pointBoxSize,
-              scaleX,
-              scaleY,
-              referencePoint,
-              labelOffset
-            ](const auto& p) {
-                QPainterPath path;
-                QPointF position{p.x * scaleX + referencePoint.x(),
-                                 referencePoint.y() - p.y * scaleY
-                                     - labelOffset};
-                path.addEllipse(QPointF{0, 0}, pointBoxSize, pointBoxSize);
-                return PointBox{
-                    path, position, QString("%1").arg(p.y), p.label};
-            });
-    }
-}
-
-void Plot::paintGraph(size_t graphNum, QPainter& painter) const
-{
-    const auto& graph = graphs[graphNum];
-    const auto& boxes = pointBoxes[graphNum];
-    QPolygonF centerPoints;
-    std::transform(boxes.cbegin(),
-                   boxes.cend(),
-                   std::back_inserter(centerPoints),
-                   [](const auto& box) { return box.position; });
-
-    painter.setPen(graph.pen());
-    painter.drawPolyline(centerPoints);
-    if (graph.showPoints()) {
-        paintPoints(boxes, painter);
-    }
-}
-
-void Plot::paintPoints(const PointBoxContainer& boxes, QPainter& painter) const
-{
-    // Only labelSkip-th labels will be shown, so that labels are not cluttered
-    // with large span.
-    size_t labelSkip{static_cast<size_t>(rangeX.span()) / labelSkipInd};
-    if (labelSkip < 1)
-        labelSkip = 1;
-
-    for (size_t i = 0; i < boxes.size(); ++i) {
-        const auto& point = boxes[i];
-        painter.setBrush(pointBoxBrush);
-        painter.translate(point.position);
-        painter.drawPath(point.path);
-        painter.translate(-point.position);
-        if (i % labelSkip == 0)
-            painter.drawText(
-                QPointF{point.position.x(), availableRect.bottomLeft().y()},
-                point.label);
-    }
-}
-
-const QString Plot::getPosTooltip(const QPoint& pos) const
-{
-    for (size_t graphNum = 0; graphNum < graphs.size(); ++graphNum) {
-        if (!graphs[graphNum].showPoints())
-            continue;
-        const auto& pointBoxesGraphRef = pointBoxes[graphNum];
-        for (const auto& box : pointBoxesGraphRef) {
-            if (box.path.contains(pos - box.position)) {
-                return box.toolTip;
-            }
-        }
-    }
-    return {""};
-}
-
-void Graph::setData(GraphData& data)
+void Graph::setData(Data&& data)
 {
     points = data;
+    pointBoxes.resize(points.size());
     std::sort(points.begin(),
               points.end(),
               [](const auto& point1, const auto& point2) {
@@ -208,20 +142,103 @@ void Graph::setData(GraphData& data)
               });
 }
 
-void Graph::setPen(QPen& pen) { mPen = pen; }
+void Graph::setVisualOptions(VisualOptions options_)
+{
+    options = std::move(options_);
+}
 
-const QPen Graph::pen() const { return mPen; }
+void Graph::draw(QPainter& painter, const DrawingParams& drawingParams)
+{
+    painter.save();
 
-const GraphPoint& Graph::operator[](size_t idx) const { return points[idx]; }
+    populatePointBoxes(drawingParams);
+    drawPolyline(painter);
+    drawPoints(painter);
+    drawAxisLabels(painter, drawingParams.referencePoint.y());
 
-void Graph::clearData() { points.clear(); }
+    painter.restore();
+}
 
-void Graph::setShowPoints(bool showPoints) { mShowPoints = showPoints; }
+void Graph::populatePointBoxes(const DrawingParams& drawingParams)
+{
+    std::transform(points.cbegin(),
+                   points.cend(),
+                   pointBoxes.begin(),
+                   ::point_to_point_box(drawingParams));
+}
 
-bool Graph::showPoints() const { return mShowPoints; }
+void Graph::drawPolyline(QPainter& painter) const
+{
+    QPolygonF centerPoints;
+    std::transform(pointBoxes.cbegin(),
+                   pointBoxes.cend(),
+                   std::back_inserter(centerPoints),
+                   [](const auto& box) { return box.position; });
+    painter.setPen(options.linePen);
+    painter.drawPolyline(centerPoints);
+}
 
-Graph::const_iterator Graph::cbegin() const { return points.cbegin(); }
+void Graph::drawPoints(QPainter& painter)
+{
+    if (!options.showPoints)
+        return;
+    painter.setBrush(options.pointBrush);
+    for (const auto& point : pointBoxes) {
+        painter.translate(point.position);
+        painter.drawPath(point.path);
+        painter.translate(-point.position);
+    }
+}
 
-Graph::const_iterator Graph::cend() const { return points.cend(); }
+void Graph::drawAxisLabels(QPainter& painter, double labelPosY)
+{
+    if (!options.showPoints)
+        return;
 
-size_t Graph::size() const { return points.size(); }
+    // For large spans not every label is shown to prevent overlapping.
+    const size_t skipLabels{std::max(size_t{1}, points.size() / labelSkipInd)};
+
+    for (size_t i = 0; i < pointBoxes.size(); i += skipLabels) {
+        const auto& box = pointBoxes[i];
+        painter.drawText(QPointF{box.position.x(), labelPosY}, points[i].label);
+    }
+}
+
+void Graph::handleMouseMoveEvent(QMouseEvent* event) const
+{
+    if (!options.showPoints)
+        return;
+
+    // According to Qt documentation on should call event->ignore
+    // if QToolTip::hideText called or QToolTip::showText is called
+    // with empty string
+    for (const auto& box : pointBoxes) {
+        if (!box.path.contains(event->pos() - box.position))
+            continue;
+        const QPoint toolTipPos{event->globalPos().x(),
+                                event->globalPos().y() - toolTipOffset};
+        if (box.toolTip.isEmpty())
+            event->ignore();
+        QToolTip::showText(toolTipPos, box.toolTip);
+        return;
+    }
+    QToolTip::hideText();
+    event->ignore();
+}
+
+} // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+QRectF computeAvailableRectange(const QRectF& totalSizeRect)
+{
+    const double availableWidth{(1 - marginRelSize) * totalSizeRect.width()};
+    const double availableHeight{(1 - marginRelSize) * totalSizeRect.height()};
+    const QPointF center{totalSizeRect.center()};
+    return QRectF{center.x() - availableWidth / 2,
+                  center.y() - availableHeight / 2,
+                  availableWidth,
+                  availableHeight};
+}
+
+} // namespace

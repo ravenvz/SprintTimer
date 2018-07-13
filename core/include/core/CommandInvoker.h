@@ -22,20 +22,22 @@
 #ifndef COMMANDINVOKER_H_WGTA1XLU
 #define COMMANDINVOKER_H_WGTA1XLU
 
-#include "core/RevertableCommand.h"
+#include "core/Command.h"
+#include "core/Observable.h"
 #include <iostream>
 #include <memory>
 #include <stack>
 #include <vector>
 
-namespace core {
+namespace sprint_timer {
 
-class CommandInvoker {
+class CommandInvoker : public Observable {
 public:
     void executeCommand(std::unique_ptr<Command>&& command)
     {
         command->execute();
         commandStack.push(std::move(command));
+        notify();
     }
 
     void undo()
@@ -44,6 +46,7 @@ public:
             return;
         commandStack.top()->undo();
         commandStack.pop();
+        notify();
     }
 
     std::string lastCommandDescription() const
@@ -57,6 +60,6 @@ private:
     std::stack<std::unique_ptr<Command>> commandStack;
 };
 
-} // namespace core
+} // namespace sprint_timer
 
 #endif /* end of include guard: COMMANDINVOKER_H_WGTA1XLU */

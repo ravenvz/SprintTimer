@@ -1,64 +1,70 @@
-set(PROJECT ${CORE_LIB})
-project(${PROJECT})
+project(${CORE_LIB})
 
-set(CORE_SOURCE_FILES
-    src/SprintStatistics.cpp
-    src/StatefulTimer.cpp
-	src/CountdownTimer.cpp
-    src/Sprint.cpp
-    src/Task.cpp
-    src/Tag.cpp
-    src/StringUtils.cpp
-    src/CoreService.cpp
-    src/TagTop.cpp
-    src/RegisterNewSprint.cpp
-    src/RemoveSprintTransaction.cpp
-    src/AddNewTask.cpp
-    src/EditTask.cpp
-    src/DeleteTask.cpp
-    src/RequestFinishedTasks.cpp
-    src/RequestSprints.cpp
-    src/DecrementTaskSprints.cpp
-    src/RenameTag.cpp
-    src/IncrementTaskSprints.cpp
-    src/RequestAllTags.cpp
-    src/RequestSprintDistribution.cpp
-    src/RequestUnfinishedTasks.cpp
-    src/RequestTasks.cpp
-    src/StoreUnfinishedTasksOrder.cpp
-    src/ToggleTaskCompletionStatus.cpp
-    src/CSVReader.cpp
-    src/CSVEncoder.cpp
-    src/SprintBuilder.cpp
-    src/TaskBuilder.cpp
-)
+# Download date_wrapper lib at configure time then add as subdirectory
+include(CMakeLists-datewrapper.txt)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 find_package(Boost REQUIRED)
 
-add_library(${PROJECT} SHARED ${CORE_SOURCE_FILES})
+add_library(${CORE_LIB} SHARED)
 
-target_include_directories(${PROJECT}
+target_sources(${CORE_LIB}
+    PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/src/CountdownTimer.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CoreService.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/SprintBuilder.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/SprintStatistics.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/StatefulTimer.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/StringUtils.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/TagTop.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/TaskBuilder.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/entities/Sprint.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/entities/Tag.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/entities/Task.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/AddNewTask.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/DecrementTaskSprints.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/DeleteTask.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/EditTask.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/IncrementTaskSprints.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RegisterNewSprint.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RemoveSprintTransaction.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RenameTag.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RequestAllTags.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RequestFinishedTasks.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RequestSprintDistribution.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RequestSprints.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RequestSprintsForTask.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RequestTasks.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RequestUnfinishedTasks.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/StoreUnfinishedTasksOrder.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/ToggleTaskCompletionStatus.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/utils/CSVEncoder.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/utils/CSVReader.cpp"
+)
+
+target_include_directories(${CORE_LIB}
     PUBLIC ${date_wrapper_INCLUDE_DIRS}
     PUBLIC include
     PRIVATE src
     PUBLIC ${Boost_INCLUDE_DIRS})
 
-target_compile_features(${PROJECT} PUBLIC cxx_std_17)
+target_compile_features(${CORE_LIB} PUBLIC cxx_std_17)
+target_compile_options(${CORE_LIB} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
+target_compile_options(${CORE_LIB} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_link_libraries(${PROJECT}
+    target_link_libraries(${CORE_LIB}
         PUBLIC date_wrapper
         PUBLIC stdc++fs
     )
 elseif(WIN32)
-    target_link_libraries(${PROJECT} PUBLIC date_wrapper)
+    target_link_libraries(${CORE_LIB} PUBLIC date_wrapper)
 endif()
 
 if (WIN32)
-    install(TARGETS ${PROJECT} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})
+    install(TARGETS ${CORE_LIB} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})
 else()
-    install(TARGETS ${PROJECT} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+    install(TARGETS ${CORE_LIB} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
 endif()

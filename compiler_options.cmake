@@ -9,11 +9,13 @@ set(CLANG_COMPILE_OPTIONS -Weverything
                           -Wno-missing-prototypes
                           -Wno-unused-parameter
                           -Wno-undefined-reinterpret-cast # Qt's mock
+                          -Wno-redundant-parens # Qt'mock
                           -Wno-exit-time-destructors
                           -Wno-global-constructors
                           -Wno-zero-as-null-pointer-constant # gtest implementation
-                          -Wno-shadow # TODO remove when migrated to next date lib release
-                          -Wno-extra-semi # TODO remove when migrated to next date lib release
+                          -Wno-shadow
+                          -Wno-used-but-marked-unused # some Qt's static definitions can trigger this
+                          -Wno-shift-sign-overflow # TODO source is overflow-detection template in Howard Hinnant's date lib
                           )
 
 set(GCC_COMPILE_OPTIONS -Wall

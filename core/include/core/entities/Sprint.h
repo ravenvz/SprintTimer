@@ -22,13 +22,13 @@
 #ifndef SPRINT_H_XWNOT32M
 #define SPRINT_H_XWNOT32M
 
-#include "core/BoostUUIDGenerator.h"
 #include "core/entities/Tag.h"
-#include "core/entities/Task.h"
 #include "date_wrapper/TimeSpan.h"
 #include <list>
 #include <ostream>
 #include <string>
+
+namespace sprint_timer::entities {
 
 /* Represents Sprint concept.
  *
@@ -46,43 +46,40 @@ public:
 
     Sprint(const std::string& taskName,
            const dw::TimeSpan& timeSpan,
-           const std::list<Tag>& tag,
+           const std::list<Tag>& tags,
            const std::string& taskUuid);
 
     Sprint(const std::string& taskUuid, const dw::TimeSpan& timeSpan);
 
-    // Return name of Sprint. It is identical to the associated task name.
+    // Sprint name is identical to it's associated task name.
     std::string name() const;
 
-    // Return starting date and time.
     dw::DateTime startTime() const;
 
-    // Return finishing date and time.
     dw::DateTime finishTime() const;
 
-    // Return time interval when this Sprint was active.
     dw::TimeSpan timeSpan() const;
 
-    // Return uuid.
     std::string uuid() const;
 
-    // Return associated Task uuid.
     std::string taskUuid() const;
 
-    /* Return vector of tags. Tags are identical the associated task tags.
-     * Order of tags in the list is not specified.
-     */
+    /* Tags are identical the associated task tags.
+     * Order of tags in the list is not specified. */
     std::list<Tag> tags() const;
 
-    friend std::ostream& operator<<(std::ostream& os, const Sprint& sprint);
-
 private:
-    static BoostUUIDGenerator generator;
-    std::string mName;
-    dw::TimeSpan mInterval;
-    std::string mUuid;
-    std::string mTaskUuid;
-    std::list<Tag> mTags;
+    std::string name_;
+    dw::TimeSpan timeSpan_;
+    std::string uuid_;
+    std::string taskUuid_;
+    std::list<Tag> tags_;
 };
+
+std::ostream& operator<<(std::ostream& os, const Sprint& sprint);
+
+bool operator==(const Sprint& lhs, const Sprint& rhs);
+
+} // namespace sprint_timer::entities
 
 #endif // SPRINT_H_XWNOT32M

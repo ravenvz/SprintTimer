@@ -19,23 +19,42 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/TaskOutline.h"
-#include "dialogs/AddTaskDialog.h"
-#include "dialogs/ConfirmationDialog.h"
+#include "qt_gui/widgets/TaskOutline.h"
+#include "qt_gui/dialogs/AddTaskDialog.h"
+#include "qt_gui/dialogs/ConfirmationDialog.h"
+#include "qt_gui/models/HistoryModel.h"
+#include "qt_gui/utils/DateTimeConverter.h"
+#include "qt_gui/utils/MouseRightReleaseEater.h"
+#include "qt_gui/utils/WidgetUtils.h"
 #include "ui_task_outline.h"
-#include "utils/WidgetUtils.h"
 #include <QMenu>
+#include <QStandardItemModel>
+
+namespace {
+
+using sprint_timer::entities::Sprint;
+using sprint_timer::ui::qt_gui::HistoryModel;
+
+HistoryModel::HistoryData
+transformToHistoryData(const std::vector<Sprint>& sprints);
+
+QString sprintToString(const Sprint&);
+
+} // namespace
+
+namespace sprint_timer::ui::qt_gui {
+
+using namespace entities;
 
 TaskOutline::TaskOutline(ICoreService& coreService,
                          TaskModel* taskModel,
                          TagModel* tagModel,
                          QWidget* parent)
-    : ui{new Ui::TaskOutline}
+    : QWidget{parent}
+    , ui{new Ui::TaskOutline}
     , coreService{coreService}
     , taskModel{taskModel}
     , tagModel{tagModel}
-    , QWidget{parent}
 {
     ui->setupUi(this);
 
@@ -67,6 +86,7 @@ TaskOutline::TaskOutline(ICoreService& coreService,
 TaskOutline::~TaskOutline()
 {
     delete tagEditor;
+    delete taskSprintsView;
     delete ui;
 }
 
@@ -105,12 +125,18 @@ void TaskOutline::showContextMenu(const QPoint& pos)
 {
     QPoint globalPos = mapToGlobal(pos);
     QMenu contextMenu;
+    contextMenu.installEventFilter(new MouseRightReleaseEater(&contextMenu));
     const auto editEntry = "Edit";
     const auto deleteEntry = "Delete";
     const auto tagEditorEntry = "Tag editor";
+    const auto viewSprintsEntry = "View sprints";
     contextMenu.addAction(editEntry);
+    contextMenu.addSeparator();
     contextMenu.addAction(deleteEntry);
+    contextMenu.addSeparator();
     contextMenu.addAction(tagEditorEntry);
+    contextMenu.addSeparator();
+    contextMenu.addAction(viewSprintsEntry);
 
     QAction* selectedEntry = contextMenu.exec(globalPos);
 
@@ -120,11 +146,14 @@ void TaskOutline::showContextMenu(const QPoint& pos)
         removeTask();
     if (selectedEntry && selectedEntry->text() == tagEditorEntry)
         launchTagEditor();
+    if (selectedEntry && selectedEntry->text() == viewSprintsEntry)
+        showSprintsForTask();
 }
 
 void TaskOutline::launchTagEditor()
 {
     if (!tagEditor) {
+        // No memory leak here as TagEditor has Qt::WA_DeleteOnClose set
         tagEditor = new TagEditor(tagModel);
         tagEditor->show();
     }
@@ -135,28 +164,15 @@ void TaskOutline::launchTagEditor()
 
 void TaskOutline::removeTask()
 {
-    QModelIndex index = ui->lvTaskView->currentIndex();
-    const auto task = taskModel->itemAt(index.row());
-    ConfirmationDialog dialog;
-    QString description;
-    if (task.actualCost() > 0) {
-        description
-            = "WARNING! This task has sprints associated with it "
-              "and they will be removed permanently along with this item.";
-    }
-    else {
-        description = "This will delete task permanently!";
-    }
-    dialog.setActionDescription(description);
-    if (dialog.exec()) {
-        taskModel->remove(index);
-    }
+    const QModelIndex index = ui->lvTaskView->currentIndex();
+    taskModel->remove(index);
 }
 
 void TaskOutline::launchTaskEditor()
 {
     QModelIndex index = ui->lvTaskView->currentIndex();
     const auto itemToEdit = taskModel->itemAt(index.row());
+
     AddTaskDialog dialog{tagModel};
     dialog.setWindowTitle("Edit task");
     dialog.fillItemData(itemToEdit);
@@ -167,3 +183,61 @@ void TaskOutline::launchTaskEditor()
         taskModel->replaceItemAt(index.row(), updatedItem);
     }
 }
+
+void TaskOutline::showSprintsForTask()
+{
+    QModelIndex index = ui->lvTaskView->currentIndex();
+    const auto task = taskModel->itemAt(index.row());
+
+    coreService.requestSprintsForTask(task.uuid(),
+                                      [&](const std::vector<Sprint>& sprints) {
+                                          onSprintsForTaskFetched(sprints);
+                                      });
+}
+
+void TaskOutline::onSprintsForTaskFetched(const std::vector<Sprint>& sprints)
+{
+
+    if (taskSprintsView)
+        taskSprintsView->close();
+    auto taskSprintsHistory = transformToHistoryData(sprints);
+    taskSprintsView = new TaskSprintsView;
+    taskSprintsView->setAttribute(Qt::WA_DeleteOnClose);
+    taskSprintsModel = std::make_unique<HistoryModel>();
+    taskSprintsModel->fill(taskSprintsHistory);
+    taskSprintsView->setDelegate(taskSprintViewDelegate.get());
+    taskSprintsView->setModel(taskSprintsModel.get());
+    taskSprintsView->show();
+}
+
+} // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+HistoryModel::HistoryData
+transformToHistoryData(const std::vector<Sprint>& sprints)
+{
+    using sprint_timer::ui::qt_gui::DateTimeConverter;
+    HistoryModel::HistoryData taskSprintsHistory;
+    taskSprintsHistory.reserve(sprints.size());
+    std::transform(cbegin(sprints),
+                   cend(sprints),
+                   std::back_inserter(taskSprintsHistory),
+                   [](const auto& sprint) {
+                       return std::make_pair(
+                           DateTimeConverter::qDate(sprint.startTime()),
+                           sprintToString(sprint));
+                   });
+    return taskSprintsHistory;
+}
+
+QString sprintToString(const Sprint& sprint)
+{
+    return QString("%1 - %2 %3 %4")
+        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
+        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+        .arg(QString::fromStdString(prefixTags(sprint.tags())))
+        .arg(QString::fromStdString(sprint.name()));
+}
+
+} // namespace

@@ -19,10 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "MainWindow.h"
-#include "widgets/DefaultTimer.h"
-#include "widgets/FancyTimer.h"
+#include "qt_gui/widgets/MainWindow.h"
+#include "qt_gui/widgets/DefaultTimer.h"
+#include "qt_gui/widgets/FancyTimer.h"
 #include "ui_mainwindow.h"
+
+namespace sprint_timer::ui::qt_gui {
 
 namespace {
     auto expandedFully = std::make_unique<Expanded>();
@@ -34,10 +36,8 @@ namespace {
 MainWindow::MainWindow(IConfig& applicationSettings,
                        ICoreService& coreService,
                        QWidget* parent)
-    : ui{new Ui::MainWindow}
-    , QWidget(parent)
-    , applicationSettings{applicationSettings}
-    , coreService{coreService}
+    : QWidget(parent)
+    , ui{new Ui::MainWindow}
     , expansionState{shrinked.get()}
 {
     ui->setupUi(this);
@@ -52,10 +52,11 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     timerWidget->setTaskModel(taskModel);
     taskOutline = new TaskOutline(coreService, taskModel, tagModel, this);
     launcherMenu = new LauncherMenu(applicationSettings, coreService, this);
-    sprintOutline = new SprintOutline(coreService, applicationSettings, sprintModel, taskModel, this);
+    sprintOutline = new SprintOutline(
+        coreService, applicationSettings, sprintModel, taskModel, this);
     ui->gridLayout->addWidget(taskOutline, 0, 0, 3, 1);
     ui->gridLayout->addWidget(
-            timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
+        timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
     ui->gridLayout->addWidget(sprintOutline, 0, 2, 3, 1);
     ui->gridLayout->addWidget(launcherMenu, 4, 1, 1, 1, Qt::AlignHCenter);
 
@@ -64,12 +65,10 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             this,
             &MainWindow::submitSprint);
     // Update selected task index and description of submission candidate
-    connect(taskOutline,
-            &TaskOutline::taskSelected,
-            [&](const int row) {
-                selectedTaskRow = row;
-                timerWidget->setCandidateIndex(row);
-            });
+    connect(taskOutline, &TaskOutline::taskSelected, [&](const int row) {
+        selectedTaskRow = row;
+        timerWidget->setCandidateIndex(row);
+    });
     connect(sprintModel,
             &SprintModel::modelReset,
             this,
@@ -107,9 +106,10 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             &QAbstractItemModel::rowsRemoved,
             this,
             &MainWindow::onTasksRemoved);
-    connect(timerWidget,
-            &TimerWidgetBase::submissionCandidateChanged,
-            [&](int index) { selectedTaskRow = taskModel->index(index, 0).row(); });
+    connect(
+        timerWidget,
+        &TimerWidgetBase::submissionCandidateChanged,
+        [&](int index) { selectedTaskRow = taskModel->index(index, 0).row(); });
     connect(sprintModel,
             &AsyncListModel::updateFinished,
             launcherMenu,
@@ -127,10 +127,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     setStateUi();
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::setStateUi()
 {
@@ -138,7 +135,7 @@ void MainWindow::setStateUi()
     adjustSize();
 }
 
-void MainWindow::submitSprint(const std::vector<dw::TimeSpan> &intervalBuffer)
+void MainWindow::submitSprint(const std::vector<dw::TimeSpan>& intervalBuffer)
 {
     if (!selectedTaskRow) {
         qDebug() << "No associated Task can be found";
@@ -146,8 +143,8 @@ void MainWindow::submitSprint(const std::vector<dw::TimeSpan> &intervalBuffer)
     }
 
     for (const dw::TimeSpan& timeSpan : intervalBuffer) {
-        sprintModel->insert(
-            timeSpan, taskModel->itemAt(*selectedTaskRow).uuid());
+        sprintModel->insert(timeSpan,
+                            taskModel->itemAt(*selectedTaskRow).uuid());
     }
 }
 
@@ -175,7 +172,7 @@ void MainWindow::onTasksRemoved(const QModelIndex&, int first, int last)
     // If selectedTaskRow points to the row that has been removed,
     // we need to invalidate it.
     if (selectedTaskRow
-            && (first <= selectedTaskRow && selectedTaskRow <= last)) {
+        && (first <= selectedTaskRow && selectedTaskRow <= last)) {
         selectedTaskRow = std::optional<int>();
         timerWidget->setCandidateIndex(-1);
     }
@@ -284,3 +281,5 @@ void ExpandedWithoutMenu::toggleMenu(MainWindow& widget)
 {
     widget.expansionState = expandedFully.get();
 }
+
+} // namespace sprint_timer::ui::qt_gui

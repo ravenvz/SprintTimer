@@ -19,38 +19,53 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "widgets/ProgressView.h"
+#include "qt_gui/widgets/ProgressView.h"
+#include "qt_gui/widgets/Gauge.h"
 #include "ui_progress_widget.h"
-#include "widgets/Gauge.h"
 #include <QtWidgets/QGridLayout>
+
+namespace sprint_timer::ui::qt_gui {
 
 namespace ProgressBarColors {
 
-const QColor targetGoalReached = QColor("#6baa15");
-const QColor overwork = Qt::red;
-const QColor workInProgress = Qt::gray;
+    const QColor targetGoalReached = QColor("#6baa15");
+    const QColor overwork = Qt::red;
+    const QColor workInProgress = Qt::gray;
 
-};
+} // namespace ProgressBarColors
+
+namespace {
+
+    QString formatDecimal(double decimal)
+    {
+        return QString("%1").arg(decimal, 2, 'f', 2, '0');
+    }
+
+    double percentage(long long chunk, long long total)
+    {
+        return total != 0 ? static_cast<double>(chunk) * 100 / total : 0;
+    }
+
+} // namespace
 
 ProgressView::ProgressView(int goal,
                            size_t numRows,
                            size_t numColumns,
                            double gaugeRelSize,
                            QWidget* parent)
-    : QFrame{parent}
-    , ui{new Ui::ProgressView}
-    , goal{goal}
-    , numRows{numRows}
-    , numColumns{numColumns}
-    , gaugeRelSize{gaugeRelSize}
+    : QFrame {parent}
+    , ui {new Ui::ProgressView}
+    , goal {goal}
+    , numRows {numRows}
+    , numColumns {numColumns}
+    , gaugeRelSize {gaugeRelSize}
 {
     ui->setupUi(this);
 
     ui->spinBoxGoal->setValue(goal);
 
     connect(ui->spinBoxGoal,
-            static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            QOverload<int>::of(&QSpinBox::valueChanged),
             [&](int goal) {
                 this->goal = goal;
                 emit goalChanged(goal);
@@ -96,12 +111,12 @@ void ProgressView::setData(const Distribution<int>& distribution,
                            size_t numActiveBins)
 {
     ui->lblProgress->setText(QString("%1").arg(distribution.getTotal()));
-    const long long expectedTotal = goal * numActiveBins;
-    const long long numCompleted = distribution.getTotal();
+    const int expectedTotal = goal * static_cast<int>(numActiveBins);
+    const int numCompleted = distribution.getTotal();
 
     if (numCompleted > expectedTotal) {
         ui->lblLeftCaption->setText("Overwork:");
-        ui->lblLeft->setText(QString{"%1"}.arg(numCompleted - expectedTotal));
+        ui->lblLeft->setText(QString {"%1"}.arg(numCompleted - expectedTotal));
     }
     else {
         ui->lblLeftCaption->setText("Left to complete:");
@@ -110,18 +125,19 @@ void ProgressView::setData(const Distribution<int>& distribution,
 
     const double average = numCompleted / static_cast<double>(numActiveBins);
     ui->lblAverage->setText(formatDecimal(average));
-    ui->lblPercentage->setText(QString("%1%").arg(formatDecimal(
-        percentage(distribution.getTotal(), static_cast<int>(expectedTotal)))));
+    ui->lblPercentage->setText(QString("%1%").arg(
+        formatDecimal(percentage(distribution.getTotal(), expectedTotal))));
     fillGauges(distribution);
     updateProgressBar(distribution.getBinValue(distribution.getNumBins() - 1));
 }
 
 void ProgressView::setupGauges()
 {
-    for (auto row = 0; row < numRows; ++row) {
-        for (auto col = 0; col < numColumns; ++col) {
-            ui->gaugeLayout->addWidget(
-                new Gauge(0, goal, gaugeRelSize, this), row, col);
+    for (size_t row = 0; row < numRows; ++row) {
+        for (size_t col = 0; col < numColumns; ++col) {
+            ui->gaugeLayout->addWidget(new Gauge(0, goal, gaugeRelSize, this),
+                                       static_cast<int>(row),
+                                       static_cast<int>(col));
         }
     }
 }
@@ -170,12 +186,5 @@ void ProgressView::updateProgressBar(int lastValue)
     bar->show();
 }
 
-QString formatDecimal(double decimal)
-{
-    return QString("%1").arg(decimal, 2, 'f', 2, '0');
-}
 
-double percentage(int chunk, int total)
-{
-    return total != 0 ? static_cast<double>(chunk) * 100 / total : 0;
-}
+} // namespace sprint_timer::ui::qt_gui

@@ -19,17 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "widgets/StatisticsWindow.h"
-#include "core/utils/WeekdaySelection.h"
+#include "qt_gui/widgets/StatisticsWindow.h"
+#include "qt_gui/widgets/BarChart.h"
 #include "ui_statistics_window.h"
-#include "widgets/BarChart.h"
+#include <core/utils/WeekdaySelection.h>
+
+namespace sprint_timer::ui::qt_gui {
+
+using namespace entities;
 
 StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
                                    ICoreService& coreService,
                                    QWidget* parent)
-    : DataWidget(parent)
-    , ui(new Ui::StatisticsWindow)
-    , applicationSettings(applicationSettings)
+    : DataWidget{parent}
+    , ui{std::make_unique<Ui::StatisticsWindow>()}
+    , applicationSettings{applicationSettings}
     , coreService{coreService}
 {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -48,7 +52,7 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
             &StatisticsWindow::onTagSelected);
 }
 
-StatisticsWindow::~StatisticsWindow() { delete ui; }
+StatisticsWindow::~StatisticsWindow() = default;
 
 void StatisticsWindow::synchronize() { fetchData(); }
 
@@ -83,18 +87,19 @@ void StatisticsWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 
 void StatisticsWindow::drawGraphs()
 {
-    SprintStatItem statistics{
-        selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex) : sprints,
-        currentInterval.toTimeSpan()};
+    const std::vector<Sprint>& interestingSprints
+        = (selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex)
+                            : sprints);
+    SprintStatItem statistics{interestingSprints, currentInterval.toTimeSpan()};
     const WeekdaySelection workdays{applicationSettings.workdaysCode()};
     ui->dailyTimelineGraph->setData(
         statistics.dailyDistribution(),
         currentInterval.startDate,
-        numWorkdays(currentInterval.toTimeSpan(), workdays),
+        static_cast<int>(numWorkdays(currentInterval.toTimeSpan(), workdays)),
         applicationSettings.dailyGoal());
     ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
     ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
-                                    statistics.sprints());
+                                    interestingSprints);
 }
 
 void StatisticsWindow::updateTopTagsDiagram(
@@ -111,7 +116,8 @@ void StatisticsWindow::updateTopTagsDiagram(
                    });
     ui->topTagDiagram->setData(data);
     ui->topTagDiagram->setLegendTitle("Top tags");
-    ui->topTagDiagram->setLegendTitleFont(QFont(".Helvetica Neue Desk UI", 13));
+    // ui->topTagDiagram->setLegendTitleFont(QFont(".Helvetica Neue Desk UI",
+    // 13));
 }
 
 void StatisticsWindow::onTagSelected(size_t tagIndex)
@@ -120,9 +126,12 @@ void StatisticsWindow::onTagSelected(size_t tagIndex)
         selectedTagIndex = tagIndex;
     }
     else {
-        selectedTagIndex
-            = (*selectedTagIndex == tagIndex) ? std::optional<size_t>() : tagIndex;
+        selectedTagIndex = (*selectedTagIndex == tagIndex)
+            ? std::optional<size_t>()
+            : tagIndex;
     }
 
     drawGraphs();
 }
+
+} // namespace sprint_timer::ui::qt_gui
