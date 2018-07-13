@@ -4,6 +4,17 @@ Plans for version 0.5.0
 HISTORY
 ----------------------------------------------------------------
 
+Version 0.4.8
+-------------
+Undoable actions no longer require confirmation.
+All sprints for given task can be viewed.
+Long break counter no longer resets when app is restarted.
+Fixed bug with long break counter when cancelling finished sprint.
+Improve HistoryWindow behaviour when it is resized.
+Fixed bug when selected time interval was not shown in HistoryWindow.
+Fixed bug when old data was shown in Statistics window graph when selecting
+period that has no data.
+
 Version 0.4.6
 -------------
 Fixed many user interface issues.
