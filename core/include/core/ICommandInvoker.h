@@ -19,33 +19,19 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef COMMANDINVOKER_H_WGTA1XLU
-#define COMMANDINVOKER_H_WGTA1XLU
-
 #include "core/Command.h"
-#include "core/ICommandInvoker.h"
-#include "core/Observable.h"
-#include <iostream>
 #include <memory>
-#include <stack>
-#include <vector>
+#include <string>
 
 namespace sprint_timer {
 
-class CommandInvoker : public ICommandInvoker, public Observable {
+class ICommandInvoker {
 public:
-    void executeCommand(std::unique_ptr<Command>&& command) override;
-
-    void undo() override;
-
-    std::string lastCommandDescription() const override;
-
-    std::size_t stackSize() const override;
-
-private:
-    std::stack<std::unique_ptr<Command>> commandStack;
+    virtual ~ICommandInvoker() = default;
+    virtual void executeCommand(std::unique_ptr<Command>&& command) = 0;
+    virtual void undo() = 0;
+    virtual std::string lastCommandDescription() const = 0;
+    virtual std::size_t stackSize() const = 0;
 };
 
 } // namespace sprint_timer
-
-#endif /* end of include guard: COMMANDINVOKER_H_WGTA1XLU */
