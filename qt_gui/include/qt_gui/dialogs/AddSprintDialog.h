@@ -55,7 +55,7 @@ private slots:
 
 private:
     std::unique_ptr<Ui::AddSprintDialog> ui;
-    QPointer<QCalendarWidget> datePicker;
+    std::unique_ptr<QCalendarWidget> datePicker;
     SprintModel& sprintModel;
     TaskModel& taskModel;
     const int sprintDuration;

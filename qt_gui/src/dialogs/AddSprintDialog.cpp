@@ -35,7 +35,7 @@ AddSprintDialog::AddSprintDialog(SprintModel& sprintModel,
                                  QDialog* parent)
     : QDialog{parent}
     , ui{std::make_unique<Ui::AddSprintDialog>()}
-    , datePicker{new QCalendarWidget()}
+    , datePicker{std::make_unique<QCalendarWidget>()}
     , sprintModel{sprintModel}
     , taskModel{taskModel}
     , sprintDuration{sprintDuration}
@@ -64,13 +64,13 @@ AddSprintDialog::AddSprintDialog(SprintModel& sprintModel,
     connect(ui->pushButtonPickDate, &QPushButton::clicked, [this]() {
         datePicker->show();
     });
-    connect(datePicker, &QCalendarWidget::clicked, [this](const QDate& date) {
+    connect(datePicker.get(), &QCalendarWidget::clicked, [this](const QDate& date) {
         ui->dateEditSprintDate->setDate(date);
         datePicker->close();
     });
 }
 
-AddSprintDialog::~AddSprintDialog() { delete datePicker; }
+AddSprintDialog::~AddSprintDialog() = default;
 
 void AddSprintDialog::setData()
 {
