@@ -45,8 +45,8 @@ class SprintOutline : public QWidget, public Observer {
 public:
     SprintOutline(ICoreService& coreService,
                   IConfig& applicationSettings,
-                  SprintModel* sprintModel,
-                  TaskModel* taskModel,
+                  SprintModel& sprintModel,
+                  TaskModel& taskModel,
                   QWidget* parent);
 
     ~SprintOutline() override;
@@ -59,8 +59,8 @@ private:
     Ui::SprintOutline* ui;
     ICoreService& coreService;
     IConfig& applicationSettings;
-    SprintModel* sprintModel;
-    TaskModel* taskModel;
+    SprintModel& sprintModel;
+    TaskModel& taskModel;
     const QSize desiredSize{300, 200};
     std::unique_ptr<AddSprintDialog> addSprintDialog;
 

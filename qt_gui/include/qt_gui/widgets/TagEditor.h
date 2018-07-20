@@ -37,13 +37,12 @@ class TagEditor: public QWidget {
     Q_OBJECT
 
 public:
-    explicit TagEditor(AsyncListModel* tagModel, QWidget* parent = nullptr);
+    explicit TagEditor(AsyncListModel& tagModel, QWidget* parent = nullptr);
 
     ~TagEditor() override;
 
 private:
     Ui::TagEditorWidget* ui;
-    AsyncListModel* model;
 };
 
 } // namespace sprint_timer::ui::qt_gui

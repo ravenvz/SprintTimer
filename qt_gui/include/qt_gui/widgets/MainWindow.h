@@ -29,12 +29,12 @@
 #include "qt_gui/widgets/SprintOutline.h"
 #include "qt_gui/widgets/TaskOutline.h"
 #include "qt_gui/widgets/TimerWidgetBase.h"
+#include <QGridLayout>
+#include <QMainWindow>
 #include <core/ICoreService.h>
 #include <core/ISprintStorageReader.h>
 #include <core/IStorageImplementersFactory.h>
 #include <core/IYearRangeReader.h>
-#include <QGridLayout>
-#include <QMainWindow>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -59,6 +59,9 @@ class MainWindow : public QWidget {
 public:
     MainWindow(IConfig& applicationSettings,
                ICoreService& coreService,
+               TaskModel& taskModel,
+               SprintModel& sprintModel,
+               TagModel& tagModel,
                QWidget* parent = nullptr);
     ~MainWindow() override;
     MainWindow(const MainWindow&) = delete;
@@ -70,9 +73,8 @@ public:
 
 private:
     Ui::MainWindow* ui;
-    QPointer<SprintModel> sprintModel;
-    QPointer<TagModel> tagModel;
-    QPointer<TaskModel> taskModel;
+    TaskModel& taskModel;
+    SprintModel& sprintModel;
     QPointer<LauncherMenu> launcherMenu;
     QPointer<TaskOutline> taskOutline;
     QPointer<SprintOutline> sprintOutline;

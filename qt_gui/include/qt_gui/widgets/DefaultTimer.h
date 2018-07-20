@@ -23,6 +23,7 @@
 #define DEFAULTTIMER_H_QE49BN8Q
 
 #include "qt_gui/widgets/TimerWidgetBase.h"
+#include <QAbstractItemModel>
 #include <QWidget>
 #include <memory>
 
@@ -37,14 +38,15 @@ class DefaultTimer : public TimerWidgetBase {
     Q_OBJECT
 
 public:
-    DefaultTimer(const IConfig& applicationSettings, QWidget* parent);
+    DefaultTimer(const IConfig& applicationSettings,
+                 QAbstractItemModel& taskModel,
+                 QWidget* parent);
     ~DefaultTimer() override;
     DefaultTimer(const DefaultTimer&) = delete;
     DefaultTimer(DefaultTimer&&) = delete;
     DefaultTimer& operator=(const DefaultTimer&) = delete;
     DefaultTimer& operator=(const DefaultTimer&&) = delete;
 
-    void setTaskModel(QAbstractItemModel* model) override;
     void setCandidateIndex(int index) override;
     void updateGoalProgress(Progress progress) override;
 

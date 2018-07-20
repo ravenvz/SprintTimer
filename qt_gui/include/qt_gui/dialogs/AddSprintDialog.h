@@ -40,8 +40,8 @@ class AddSprintDialog : public QDialog {
     Q_OBJECT
 
 public:
-    AddSprintDialog(SprintModel* sprintModel,
-                    TaskModel* taskModel,
+    AddSprintDialog(SprintModel& sprintModel,
+                    TaskModel& taskModel,
                     int sprintDuration,
                     QDialog* parent = nullptr);
 
@@ -56,8 +56,8 @@ private slots:
 private:
     Ui::AddSprintDialog* ui;
     QPointer<QCalendarWidget> datePicker;
-    QPointer<SprintModel> sprintModel;
-    QPointer<TaskModel> taskModel;
+    SprintModel& sprintModel;
+    TaskModel& taskModel;
     const int sprintDuration;
     std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate
         = std::make_unique<SubmissionItemDelegate>();

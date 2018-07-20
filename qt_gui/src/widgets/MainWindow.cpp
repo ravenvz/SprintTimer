@@ -31,25 +31,26 @@ namespace {
     auto shrinked = std::make_unique<Shrinked>();
     auto expandedMenuOnly = std::make_unique<ExpandedMenuOnly>();
     auto expandedWithoutMenu = std::make_unique<ExpandedWithoutMenu>();
-}
+} // namespace
 
 MainWindow::MainWindow(IConfig& applicationSettings,
                        ICoreService& coreService,
+                       TaskModel& taskModel,
+                       SprintModel& sprintModel,
+                       TagModel& tagModel,
                        QWidget* parent)
     : QWidget(parent)
     , ui{new Ui::MainWindow}
+    , taskModel{taskModel}
+    , sprintModel{sprintModel}
     , expansionState{shrinked.get()}
 {
     ui->setupUi(this);
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
-        timerWidget = new DefaultTimer{applicationSettings, this};
+        timerWidget = new DefaultTimer{applicationSettings, taskModel, this};
     else
-        timerWidget = new FancyTimer{applicationSettings, this};
-    sprintModel = new SprintModel(coreService, this);
-    taskModel = new TaskModel(coreService, this);
-    tagModel = new TagModel(coreService, this);
-    timerWidget->setTaskModel(taskModel);
+        timerWidget = new FancyTimer{applicationSettings, taskModel, this};
     taskOutline = new TaskOutline(coreService, taskModel, tagModel, this);
     launcherMenu = new LauncherMenu(applicationSettings, coreService, this);
     sprintOutline = new SprintOutline(
@@ -69,7 +70,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
         selectedTaskRow = row;
         timerWidget->setCandidateIndex(row);
     });
-    connect(sprintModel,
+    connect(&sprintModel,
             &SprintModel::modelReset,
             this,
             &MainWindow::updateDailyProgress);
@@ -81,40 +82,40 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     // As models update data asynchroniously,
     // other models that depend on that data should
     // subscribe to updateFinished() signal
-    connect(sprintModel,
+    connect(&sprintModel,
             &AsyncListModel::updateFinished,
-            taskModel,
+            &taskModel,
             &AsyncListModel::synchronize);
-    connect(taskModel,
+    connect(&taskModel,
             &AsyncListModel::updateFinished,
-            sprintModel,
+            &sprintModel,
             &AsyncListModel::synchronize);
-    connect(taskModel,
+    connect(&taskModel,
             &AsyncListModel::updateFinished,
-            tagModel,
+            &tagModel,
             &TagModel::synchronize);
-    connect(tagModel,
+    connect(&tagModel,
             &AsyncListModel::updateFinished,
-            sprintModel,
+            &sprintModel,
             &AsyncListModel::synchronize);
-    connect(tagModel,
+    connect(&tagModel,
             &AsyncListModel::updateFinished,
-            taskModel,
+            &taskModel,
             &AsyncListModel::synchronize);
 
-    connect(taskModel,
+    connect(&taskModel,
             &QAbstractItemModel::rowsRemoved,
             this,
             &MainWindow::onTasksRemoved);
     connect(
         timerWidget,
         &TimerWidgetBase::submissionCandidateChanged,
-        [&](int index) { selectedTaskRow = taskModel->index(index, 0).row(); });
-    connect(sprintModel,
+        [&](int index) { selectedTaskRow = taskModel.index(index, 0).row(); });
+    connect(&sprintModel,
             &AsyncListModel::updateFinished,
             launcherMenu,
             &LauncherMenu::onSyncRequired);
-    connect(taskModel,
+    connect(&taskModel,
             &AsyncListModel::updateFinished,
             launcherMenu,
             &LauncherMenu::onSyncRequired);
@@ -143,14 +144,13 @@ void MainWindow::submitSprint(const std::vector<dw::TimeSpan>& intervalBuffer)
     }
 
     for (const dw::TimeSpan& timeSpan : intervalBuffer) {
-        sprintModel->insert(timeSpan,
-                            taskModel->itemAt(*selectedTaskRow).uuid());
+        sprintModel.insert(timeSpan, taskModel.itemAt(*selectedTaskRow).uuid());
     }
 }
 
 void MainWindow::updateDailyProgress()
 {
-    timerWidget->updateGoalProgress(sprintModel->rowCount(QModelIndex()));
+    timerWidget->updateGoalProgress(sprintModel.rowCount(QModelIndex()));
 }
 
 QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }
