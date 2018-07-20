@@ -30,20 +30,23 @@ namespace {
     constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
     constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
     constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
-    const QColor taskStateColor {"#eb6c59"};
-    const QColor breakStateColor {"#73c245"};
-    const QColor zoneStateColor {Qt::darkYellow};
+    const QColor taskStateColor{"#eb6c59"};
+    const QColor breakStateColor{"#73c245"};
+    const QColor zoneStateColor{Qt::darkYellow};
 
 } // namespace
 
-FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
-    : TimerWidgetBase {applicationSettings, parent}
-    , ui {new Ui::FancyTimer}
+FancyTimer::FancyTimer(const IConfig& applicationSettings,
+                       QAbstractItemModel& taskModel,
+                       QWidget* parent)
+    : TimerWidgetBase{applicationSettings, parent}
+    , ui{new Ui::FancyTimer}
 {
     ui->setupUi(this);
     combinedIndicator = new CombinedIndicator(indicatorSize, this);
     combinedIndicator->setSizePolicy(QSizePolicy::MinimumExpanding,
                                      QSizePolicy::MinimumExpanding);
+    ui->cbxSubmissionCandidate->setModel(&taskModel);
     ui->gridLayout->addWidget(
         combinedIndicator, 2, 0, 1, 2, Qt::AlignHCenter | Qt::AlignTop);
 
@@ -72,11 +75,6 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings, QWidget* parent)
 }
 
 FancyTimer::~FancyTimer() { delete ui; }
-
-void FancyTimer::setTaskModel(QAbstractItemModel* model)
-{
-    ui->cbxSubmissionCandidate->setModel(model);
-}
 
 void FancyTimer::setCandidateIndex(int index)
 {

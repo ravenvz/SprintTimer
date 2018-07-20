@@ -30,8 +30,8 @@ namespace sprint_timer::ui::qt_gui {
 
 SprintOutline::SprintOutline(ICoreService& coreService,
                              IConfig& applicationSettings,
-                             SprintModel* sprintModel,
-                             TaskModel* taskModel,
+                             SprintModel& sprintModel,
+                             TaskModel& taskModel,
                              QWidget* parent)
     : QWidget{parent}
     , ui{new Ui::SprintOutline}
@@ -42,7 +42,7 @@ SprintOutline::SprintOutline(ICoreService& coreService,
 {
     ui->setupUi(this);
     ui->lvFinishedSprints->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->lvFinishedSprints->setModel(sprintModel);
+    ui->lvFinishedSprints->setModel(&sprintModel);
 
     coreService.registerUndoObserver(*this);
 
@@ -51,7 +51,7 @@ SprintOutline::SprintOutline(ICoreService& coreService,
             this,
             &SprintOutline::launchManualAddSprintDialog);
     // Disables AddSprint button when there are no active tasks.
-    connect(taskModel,
+    connect(&taskModel,
             &QAbstractListModel::modelReset,
             this,
             &SprintOutline::adjustAddSprintButtonState);
@@ -79,8 +79,7 @@ void SprintOutline::launchManualAddSprintDialog()
 
 void SprintOutline::adjustAddSprintButtonState()
 {
-    ui->pbAddSprintManually->setEnabled(taskModel->rowCount(QModelIndex())
-                                        != 0);
+    ui->pbAddSprintManually->setEnabled(taskModel.rowCount(QModelIndex()) != 0);
 }
 
 QSize SprintOutline::sizeHint() const { return desiredSize; }
@@ -98,7 +97,7 @@ void SprintOutline::showContextMenu(const QPoint& pos)
 
     if (selectedEntry && selectedEntry->text() == deleteEntry) {
         QModelIndex index = ui->lvFinishedSprints->currentIndex();
-        sprintModel->remove(index.row());
+        sprintModel.remove(index.row());
     }
 }
 
@@ -111,8 +110,8 @@ void SprintOutline::onUndoButtonClicked()
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         coreService.undoLast();
-        sprintModel->synchronize();
-        taskModel->synchronize();
+        sprintModel.synchronize();
+        taskModel.synchronize();
         emit actionUndone();
     }
 }

@@ -23,11 +23,10 @@
 #define ITIMERWIDGET_H_REB4PSQX
 
 #include "qt_gui/dialogs/ConfirmationDialog.h"
-#include <core/IConfig.h>
-#include <core/IStatefulTimer.h>
-#include <QAbstractItemModel>
 #include <QMediaPlayer>
 #include <QWidget>
+#include <core/IConfig.h>
+#include <core/IStatefulTimer.h>
 #include <memory>
 
 namespace sprint_timer::ui::qt_gui {
@@ -40,7 +39,6 @@ class TimerWidgetBase : public QWidget {
 
 public:
     TimerWidgetBase(const IConfig& applicationSettings, QWidget* parent);
-    virtual void setTaskModel(QAbstractItemModel* model) = 0;
     virtual void setCandidateIndex(int index) = 0;
     virtual void updateGoalProgress(Progress progress) = 0;
 

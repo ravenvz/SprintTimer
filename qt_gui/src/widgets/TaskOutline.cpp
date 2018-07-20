@@ -47,8 +47,8 @@ namespace sprint_timer::ui::qt_gui {
 using namespace entities;
 
 TaskOutline::TaskOutline(ICoreService& coreService,
-                         TaskModel* taskModel,
-                         TagModel* tagModel,
+                         TaskModel& taskModel,
+                         TagModel& tagModel,
                          QWidget* parent)
     : QWidget{parent}
     , ui{new Ui::TaskOutline}
@@ -59,7 +59,7 @@ TaskOutline::TaskOutline(ICoreService& coreService,
     ui->setupUi(this);
 
     ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->lvTaskView->setModel(taskModel);
+    ui->lvTaskView->setModel(&taskModel);
     ui->lvTaskView->setItemDelegate(taskItemDelegate.get());
 
     connect(ui->pbAddTask,
@@ -96,7 +96,7 @@ void TaskOutline::onQuickAddTodoReturnPressed()
     ui->leQuickAddTask->clear();
     if (!encodedDescription.empty()) {
         Task item{std::move(encodedDescription)};
-        taskModel->insert(item);
+        taskModel.insert(item);
     }
 }
 
@@ -111,12 +111,12 @@ void TaskOutline::onAddTaskButtonPushed()
 
 void TaskOutline::addNewTask()
 {
-    taskModel->insert(addTaskDialog->constructedTask());
+    taskModel.insert(addTaskDialog->constructedTask());
 }
 
 void TaskOutline::toggleTaskCompleted()
 {
-    taskModel->toggleCompleted(ui->lvTaskView->currentIndex());
+    taskModel.toggleCompleted(ui->lvTaskView->currentIndex());
 }
 
 QSize TaskOutline::sizeHint() const { return desiredSize; }
@@ -154,7 +154,7 @@ void TaskOutline::launchTagEditor()
 {
     if (!tagEditor) {
         // No memory leak here as TagEditor has Qt::WA_DeleteOnClose set
-        tagEditor = new TagEditor(tagModel);
+        tagEditor = new TagEditor{tagModel};
         tagEditor->show();
     }
     else {
@@ -165,13 +165,13 @@ void TaskOutline::launchTagEditor()
 void TaskOutline::removeTask()
 {
     const QModelIndex index = ui->lvTaskView->currentIndex();
-    taskModel->remove(index);
+    taskModel.remove(index);
 }
 
 void TaskOutline::launchTaskEditor()
 {
     QModelIndex index = ui->lvTaskView->currentIndex();
-    const auto itemToEdit = taskModel->itemAt(index.row());
+    const auto itemToEdit = taskModel.itemAt(index.row());
 
     AddTaskDialog dialog{tagModel};
     dialog.setWindowTitle("Edit task");
@@ -180,14 +180,14 @@ void TaskOutline::launchTaskEditor()
         Task updatedItem = dialog.constructedTask();
         updatedItem.setActualCost(itemToEdit.actualCost());
         updatedItem.setCompleted(itemToEdit.isCompleted());
-        taskModel->replaceItemAt(index.row(), updatedItem);
+        taskModel.replaceItemAt(index.row(), updatedItem);
     }
 }
 
 void TaskOutline::showSprintsForTask()
 {
     QModelIndex index = ui->lvTaskView->currentIndex();
-    const auto task = taskModel->itemAt(index.row());
+    const auto task = taskModel.itemAt(index.row());
 
     coreService.requestSprintsForTask(task.uuid(),
                                       [&](const std::vector<Sprint>& sprints) {

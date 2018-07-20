@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TimerWidgetBase.h"
-#include <core/StatefulTimer.h>
 #include <QMessageBox>
+#include <core/StatefulTimer.h>
 
 namespace sprint_timer::ui::qt_gui {
 

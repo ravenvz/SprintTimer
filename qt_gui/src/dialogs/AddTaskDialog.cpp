@@ -29,13 +29,15 @@ namespace sprint_timer::ui::qt_gui {
 using namespace entities;
 using namespace utils;
 
-AddTaskDialog::AddTaskDialog(TagModel* tagModel, QWidget* parent)
-    : QDialog(parent)
-    , ui(new Ui::AddTaskDialog)
-    , tagModel(tagModel)
+AddTaskDialog::AddTaskDialog(QAbstractItemModel& tagModel, QWidget* parent)
+    : QDialog{parent}
+    , ui{new Ui::AddTaskDialog}
 {
     ui->setupUi(this);
-    setTagsModel();
+
+    ui->tags->setModel(&tagModel);
+    ui->tags->setCurrentText("");
+
     connect(ui->tags,
             QOverload<const QString&>::of(&QComboBox::activated),
             this,
@@ -103,12 +105,6 @@ void AddTaskDialog::onQuickAddTagActivated(const QString& tag)
 void AddTaskDialog::resetNameLineEditStyle()
 {
     ui->taskName->setStyleSheet("");
-}
-
-void AddTaskDialog::setTagsModel()
-{
-    ui->tags->setModel(tagModel);
-    ui->tags->setCurrentText("");
 }
 
 } // namespace sprint_timer::ui::qt_gui

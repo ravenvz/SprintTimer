@@ -44,12 +44,12 @@
 #error "Unknown compiler"
 #endif
 
-#include <core/CoreService.h>
-#include <qt_storage_impl/QtStorageImplementersFactory.h>
-#include <qt_gui/QtConfig.h>
-#include <qt_gui/widgets/MainWindow.h>
 #include <QApplication>
 #include <QStyleFactory>
+#include <core/CoreService.h>
+#include <qt_gui/QtConfig.h>
+#include <qt_gui/widgets/MainWindow.h>
+#include <qt_storage_impl/QtStorageImplementersFactory.h>
 
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
@@ -156,7 +156,11 @@ int main(int argc, char* argv[])
                             *monthlyDistributionReader,
                             command_invoker};
 
-    sprint_timer::ui::qt_gui::MainWindow w{applicationSettings, coreService};
+    TaskModel taskModel{coreService, nullptr};
+    SprintModel sprintModel{coreService, nullptr};
+    TagModel tagModel{coreService, nullptr};
+    sprint_timer::ui::qt_gui::MainWindow w{
+        applicationSettings, coreService, taskModel, sprintModel, tagModel};
     w.show();
     app.setStyle(QStyleFactory::create("Fusion"));
 

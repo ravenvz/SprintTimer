@@ -31,12 +31,12 @@
 #include "qt_gui/widgets/ReordableListView.h"
 #include "qt_gui/widgets/TagEditor.h"
 #include "qt_gui/widgets/TaskSprintsView.h"
-#include <core/ICoreService.h>
 #include <QPointer>
 #include <QWidget>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
+#include <core/ICoreService.h>
 #include <memory>
 
 namespace Ui {
@@ -54,8 +54,8 @@ class TaskOutline : public QWidget {
 
 public:
     TaskOutline(ICoreService& coreService,
-                TaskModel* taskModel,
-                TagModel* tagModel,
+                TaskModel& taskModel,
+                TagModel& tagModel,
                 QWidget* parent);
 
     ~TaskOutline() override;
@@ -66,8 +66,8 @@ private:
     Ui::TaskOutline* ui;
     ICoreService& coreService;
     QPointer<TagEditor> tagEditor;
-    TaskModel* taskModel;
-    TagModel* tagModel;
+    TaskModel& taskModel;
+    TagModel& tagModel;
     std::unique_ptr<AddTaskDialog> addTaskDialog;
     std::unique_ptr<TaskItemDelegate> taskItemDelegate
         = std::make_unique<TaskItemDelegate>();
