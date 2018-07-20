@@ -28,9 +28,9 @@
 namespace sprint_timer::ui::qt_gui {
 
 SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
-    : QDialog(parent)
-    , ui(new Ui::SettingsDialog)
-    , applicationSettings(applicationSettings)
+    : QDialog{parent}
+    , ui{std::make_unique<Ui::SettingsDialog>()}
+    , applicationSettings{applicationSettings}
 {
     ui->setupUi(this);
     timerModel = new QStringListModel{timers, this};
@@ -59,7 +59,7 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
 }
 
 
-SettingsDialog::~SettingsDialog() { delete ui; }
+SettingsDialog::~SettingsDialog() = default;
 
 
 void SettingsDialog::fillSettingsData()

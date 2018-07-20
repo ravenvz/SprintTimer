@@ -35,7 +35,7 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings,
                            QAbstractItemModel& taskModel,
                            QWidget* parent)
     : TimerWidgetBase{applicationSettings, parent}
-    , ui{new Ui::DefaultTimer}
+    , ui{std::make_unique<Ui::DefaultTimer>()}
 {
     ui->setupUi(this);
 
@@ -70,7 +70,7 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings,
     });
 }
 
-DefaultTimer::~DefaultTimer() { delete ui; }
+DefaultTimer::~DefaultTimer() = default;
 
 void DefaultTimer::setCandidateIndex(int index)
 {

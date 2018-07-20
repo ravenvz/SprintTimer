@@ -32,7 +32,7 @@ class TagEditorWidget;
 
 namespace sprint_timer::ui::qt_gui {
 
-class TagEditor: public QWidget {
+class TagEditor : public QWidget {
 
     Q_OBJECT
 
@@ -42,11 +42,10 @@ public:
     ~TagEditor() override;
 
 private:
-    Ui::TagEditorWidget* ui;
+    std::unique_ptr<Ui::TagEditorWidget> ui;
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 
 #endif /* end of include guard: TAGEDITOR_H */

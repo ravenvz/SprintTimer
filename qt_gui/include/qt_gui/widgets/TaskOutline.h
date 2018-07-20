@@ -63,7 +63,7 @@ public:
     QSize sizeHint() const override;
 
 private:
-    Ui::TaskOutline* ui;
+    std::unique_ptr<Ui::TaskOutline> ui;
     ICoreService& coreService;
     QPointer<TagEditor> tagEditor;
     TaskModel& taskModel;

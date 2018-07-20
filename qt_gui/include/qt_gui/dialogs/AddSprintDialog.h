@@ -54,7 +54,7 @@ private slots:
     void autoAdjustStartTime();
 
 private:
-    Ui::AddSprintDialog* ui;
+    std::unique_ptr<Ui::AddSprintDialog> ui;
     QPointer<QCalendarWidget> datePicker;
     SprintModel& sprintModel;
     TaskModel& taskModel;

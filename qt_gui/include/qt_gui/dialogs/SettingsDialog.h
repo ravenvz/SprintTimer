@@ -27,6 +27,7 @@
 #include <QDialog>
 #include <QSettings>
 #include <QStringList>
+#include <memory>
 
 namespace Ui {
 class SettingsDialog;
@@ -50,7 +51,7 @@ private slots:
     void onBrowseSoundFileButtonClicked();
 
 private:
-    Ui::SettingsDialog* ui;
+    std::unique_ptr<Ui::SettingsDialog> ui;
     IConfig& applicationSettings;
     QStringList timers{"Default timer", "Fancy timer"};
     QStringListModel* timerModel;

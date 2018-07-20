@@ -20,10 +20,10 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/HistoryWindow.h"
-#include <core/external_io/OstreamSink.h>
-#include <core/utils/CSVEncoder.h>
 #include "ui_history.h"
 #include <QPainter>
+#include <core/external_io/OstreamSink.h>
+#include <core/utils/CSVEncoder.h>
 #include <fstream>
 
 namespace sprint_timer::ui::qt_gui {
@@ -32,16 +32,16 @@ using namespace entities;
 
 namespace {
 
-QString sprintToString(const Sprint& sprint);
+    QString sprintToString(const Sprint& sprint);
 
-QString taskToString(const Task& task);
+    QString taskToString(const Task& task);
 
 } // namespace
 
 
 HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
-    : DataWidget(parent)
-    , ui(new Ui::HistoryWindow)
+    : DataWidget{parent}
+    , ui{std::make_unique<Ui::HistoryWindow>()}
     , coreService{coreService}
     , displaySprintsState{std::make_unique<DisplaySprints>(*this)}
     , displayTasksState{std::make_unique<DisplayTasks>(*this)}
@@ -72,7 +72,7 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
 }
 
 
-HistoryWindow::~HistoryWindow() { delete ui; }
+HistoryWindow::~HistoryWindow() = default;
 
 
 void HistoryWindow::synchronize() { historyState->retrieveHistory(); }
@@ -264,24 +264,24 @@ void DisplayTasks::onHistoryRetrieved(const std::vector<Task>& tasks)
 
 namespace {
 
-QString sprintToString(const Sprint& sprint)
-{
-    return QString("%1 - %2 %3 %4")
-        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
-        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
-        .arg(QString::fromStdString(prefixTags(sprint.tags())))
-        .arg(QString::fromStdString(sprint.name()));
-}
+    QString sprintToString(const Sprint& sprint)
+    {
+        return QString("%1 - %2 %3 %4")
+            .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
+            .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+            .arg(QString::fromStdString(prefixTags(sprint.tags())))
+            .arg(QString::fromStdString(sprint.name()));
+    }
 
 
-QString taskToString(const Task& task)
-{
-    return QString("%1 %2 %3/%4")
-        .arg(QString::fromStdString(prefixTags(task.tags())))
-        .arg(QString::fromStdString(task.name()))
-        .arg(task.actualCost())
-        .arg(task.estimatedCost());
-}
+    QString taskToString(const Task& task)
+    {
+        return QString("%1 %2 %3/%4")
+            .arg(QString::fromStdString(prefixTags(task.tags())))
+            .arg(QString::fromStdString(task.name()))
+            .arg(task.actualCost())
+            .arg(task.estimatedCost());
+    }
 
 } // namespace
 

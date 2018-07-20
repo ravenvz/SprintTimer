@@ -23,8 +23,9 @@
 #ifndef WORKDAYSDIALOG_H_NVZH9CRG
 #define WORKDAYSDIALOG_H_NVZH9CRG
 
-#include <QDialog>
 #include "core/IConfig.h"
+#include <QDialog>
+#include <memory>
 
 namespace Ui {
 class WorkdaysDialog;
@@ -36,12 +37,13 @@ class WorkdaysDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit WorkdaysDialog(IConfig& applicationSettings, QDialog* parent = nullptr);
+    explicit WorkdaysDialog(IConfig& applicationSettings,
+                            QDialog* parent = nullptr);
     ~WorkdaysDialog() override;
     void accept() override;
 
 private:
-    Ui::WorkdaysDialog* ui;
+    std::unique_ptr<Ui::WorkdaysDialog> ui;
     IConfig& settings;
 
     void initializeDayBoxes();
@@ -49,7 +51,6 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 
 #endif /* end of include guard: WORKDAYSDIALOG_H_NVZH9CRG */

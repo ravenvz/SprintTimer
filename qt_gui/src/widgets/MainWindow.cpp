@@ -40,7 +40,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
                        TagModel& tagModel,
                        QWidget* parent)
     : QWidget(parent)
-    , ui{new Ui::MainWindow}
+    , ui{std::make_unique<Ui::MainWindow>()}
     , taskModel{taskModel}
     , sprintModel{sprintModel}
     , expansionState{shrinked.get()}
@@ -128,7 +128,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     setStateUi();
 }
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow() = default;
 
 void MainWindow::setStateUi()
 {

@@ -38,7 +38,8 @@ class AddTaskDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit AddTaskDialog(QAbstractItemModel& tagModel, QWidget* parent = nullptr);
+    explicit AddTaskDialog(QAbstractItemModel& tagModel,
+                           QWidget* parent = nullptr);
 
     ~AddTaskDialog() override;
 
@@ -62,8 +63,9 @@ private slots:
     void resetNameLineEditStyle();
 
 private:
-    Ui::AddTaskDialog* ui;
-    const QString requiredFieldEmptyStyle{"QLineEdit { border: 2px solid red; }"};
+    std::unique_ptr<Ui::AddTaskDialog> ui;
+    const QString requiredFieldEmptyStyle{
+        "QLineEdit { border: 2px solid red; }"};
 };
 
 } // namespace sprint_timer::ui::qt_gui

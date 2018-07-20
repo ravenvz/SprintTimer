@@ -40,7 +40,7 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings,
                        QAbstractItemModel& taskModel,
                        QWidget* parent)
     : TimerWidgetBase{applicationSettings, parent}
-    , ui{new Ui::FancyTimer}
+    , ui{std::make_unique<Ui::FancyTimer>()}
 {
     ui->setupUi(this);
     combinedIndicator = new CombinedIndicator(indicatorSize, this);
@@ -74,7 +74,7 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings,
     onIdleStateEnteredHook();
 }
 
-FancyTimer::~FancyTimer() { delete ui; }
+FancyTimer::~FancyTimer() = default;
 
 void FancyTimer::setCandidateIndex(int index)
 {

@@ -20,21 +20,21 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/WorkdaysDialog.h"
-#include <core/utils/WeekdaySelection.h>
 #include "ui_workdays_dialog.h"
+#include <core/utils/WeekdaySelection.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 WorkdaysDialog::WorkdaysDialog(IConfig& applicationSettings, QDialog* parent)
     : QDialog{parent}
-    , ui{new Ui::WorkdaysDialog}
+    , ui{std::make_unique<Ui::WorkdaysDialog>()}
     , settings{applicationSettings}
 {
     ui->setupUi(this);
     initializeDayBoxes();
 }
 
-WorkdaysDialog::~WorkdaysDialog() { delete ui; }
+WorkdaysDialog::~WorkdaysDialog() = default;
 
 void WorkdaysDialog::accept()
 {
@@ -84,4 +84,3 @@ unsigned WorkdaysDialog::pollWorkdaysCode() const
 }
 
 } // namespace sprint_timer::ui::qt_gui
-

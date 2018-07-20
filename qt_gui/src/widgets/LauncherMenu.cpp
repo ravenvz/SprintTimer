@@ -32,10 +32,10 @@ namespace sprint_timer::ui::qt_gui {
 LauncherMenu::LauncherMenu(IConfig& applicationSettings,
                            ICoreService& coreService,
                            QWidget* parent)
-    : QWidget {parent}
-    , ui {new Ui::LauncherMenu}
-    , settings {applicationSettings}
-    , coreService {coreService}
+    : QWidget{parent}
+    , ui{std::make_unique<Ui::LauncherMenu>()}
+    , settings{applicationSettings}
+    , coreService{coreService}
 {
     ui->setupUi(this);
 
@@ -62,7 +62,6 @@ LauncherMenu::~LauncherMenu()
     delete progressWindow;
     delete historyWindow;
     delete statisticsWindow;
-    delete ui;
 }
 
 void LauncherMenu::launchHistoryWindow()
@@ -78,7 +77,7 @@ void LauncherMenu::launchHistoryWindow()
 
 void LauncherMenu::launchSettingsDialog()
 {
-    SettingsDialog settingsDialog {settings};
+    SettingsDialog settingsDialog{settings};
     settingsDialog.exec();
 }
 

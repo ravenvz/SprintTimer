@@ -51,7 +51,7 @@ public:
     void updateGoalProgress(Progress progress) override;
 
 private:
-    Ui::DefaultTimer* ui;
+    std::unique_ptr<Ui::DefaultTimer> ui;
     int progressBarMaxValue{0};
 
     void setTimerValue(std::chrono::seconds timeLeft);

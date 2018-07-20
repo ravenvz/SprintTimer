@@ -22,7 +22,6 @@
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H
 
-#include <core/ICoreService.h>
 #include "qt_gui/delegates/HistoryItemDelegate.h"
 #include "qt_gui/dialogs/ExportDialog.h"
 #include "qt_gui/models/HistoryModel.h"
@@ -33,6 +32,7 @@
 #include <QStringListModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
+#include <core/ICoreService.h>
 #include <memory>
 
 namespace Ui {
@@ -61,10 +61,11 @@ public:
     void synchronize() final;
 
 private:
-    Ui::HistoryWindow* ui;
+    std::unique_ptr<Ui::HistoryWindow> ui;
     DateInterval selectedDateInterval;
     ICoreService& coreService;
-    std::unique_ptr<HistoryModel> viewModel = std::make_unique<HistoryModel>(nullptr);
+    std::unique_ptr<HistoryModel> viewModel
+        = std::make_unique<HistoryModel>(nullptr);
     std::unique_ptr<DisplayState> displaySprintsState;
     std::unique_ptr<DisplayState> displayTasksState;
     DisplayState* historyState;
