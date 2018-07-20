@@ -72,7 +72,7 @@ public:
     QSize sizeHint() const override;
 
 private:
-    Ui::MainWindow* ui;
+    std::unique_ptr<Ui::MainWindow> ui;
     TaskModel& taskModel;
     SprintModel& sprintModel;
     QPointer<LauncherMenu> launcherMenu;

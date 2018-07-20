@@ -34,7 +34,7 @@ AddSprintDialog::AddSprintDialog(SprintModel& sprintModel,
                                  int sprintDuration,
                                  QDialog* parent)
     : QDialog{parent}
-    , ui{new Ui::AddSprintDialog}
+    , ui{std::make_unique<Ui::AddSprintDialog>()}
     , datePicker{new QCalendarWidget()}
     , sprintModel{sprintModel}
     , taskModel{taskModel}
@@ -70,11 +70,7 @@ AddSprintDialog::AddSprintDialog(SprintModel& sprintModel,
     });
 }
 
-AddSprintDialog::~AddSprintDialog()
-{
-    delete datePicker;
-    delete ui;
-}
+AddSprintDialog::~AddSprintDialog() { delete datePicker; }
 
 void AddSprintDialog::setData()
 {

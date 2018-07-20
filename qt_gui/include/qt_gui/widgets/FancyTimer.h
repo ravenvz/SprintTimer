@@ -45,7 +45,7 @@ public:
     void updateGoalProgress(Progress progress) override;
 
 private:
-    Ui::FancyTimer* ui;
+    std::unique_ptr<Ui::FancyTimer> ui;
     const int indicatorSize{150};
     CombinedIndicator* combinedIndicator;
     std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate

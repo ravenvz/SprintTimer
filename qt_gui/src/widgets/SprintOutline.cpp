@@ -34,7 +34,7 @@ SprintOutline::SprintOutline(ICoreService& coreService,
                              TaskModel& taskModel,
                              QWidget* parent)
     : QWidget{parent}
-    , ui{new Ui::SprintOutline}
+    , ui{std::make_unique<Ui::SprintOutline>()}
     , coreService{coreService}
     , applicationSettings{applicationSettings}
     , sprintModel{sprintModel}
@@ -67,7 +67,7 @@ SprintOutline::SprintOutline(ICoreService& coreService,
     adjustUndoButtonState();
 }
 
-SprintOutline::~SprintOutline() { delete ui; }
+SprintOutline::~SprintOutline() = default;
 
 void SprintOutline::launchManualAddSprintDialog()
 {

@@ -22,8 +22,9 @@
 #ifndef PROGRESSWIDGET_H
 #define PROGRESSWIDGET_H
 
-#include <core/Distribution.h>
 #include <QtWidgets/QFrame>
+#include <core/Distribution.h>
+#include <memory>
 #include <ui_progress_widget.h>
 
 namespace Ui {
@@ -59,7 +60,7 @@ public:
     void setData(const Distribution<int>& distribution, size_t numActiveBins);
 
 private:
-    Ui::ProgressView* ui;
+    std::unique_ptr<Ui::ProgressView> ui;
     int goal;
     size_t numRows;
     size_t numColumns;

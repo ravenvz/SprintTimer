@@ -27,8 +27,8 @@ namespace sprint_timer::ui::qt_gui {
 
 
 TagEditor::TagEditor(AsyncListModel& tagModel, QWidget* parent)
-    : QWidget(parent)
-    , ui(new Ui::TagEditorWidget)
+    : QWidget{parent}
+    , ui{std::make_unique<Ui::TagEditorWidget>()}
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
@@ -51,7 +51,6 @@ TagEditor::TagEditor(AsyncListModel& tagModel, QWidget* parent)
             &AsyncListModel::revertData);
 }
 
-TagEditor::~TagEditor() { delete ui; }
+TagEditor::~TagEditor() = default;
 
 } // namespace sprint_timer::ui::qt_gui
-

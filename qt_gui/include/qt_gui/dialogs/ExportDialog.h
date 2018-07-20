@@ -24,6 +24,7 @@
 #define SPRINT_TIMER_EXPORTDIALOG_H
 
 #include <QDialog>
+#include <memory>
 
 namespace Ui {
 class ExportDialog;
@@ -45,7 +46,7 @@ public:
     void accept() override;
 
 private:
-    Ui::ExportDialog* ui;
+    std::unique_ptr<Ui::ExportDialog> ui;
 
 signals:
     void exportConfirmed(const ExportOptions& options);
@@ -54,5 +55,4 @@ signals:
 } // namespace sprint_timer::ui::qt_gui
 
 
-
-#endif //SPRINT_TIMER_EXPORTDIALOG_H
+#endif // SPRINT_TIMER_EXPORTDIALOG_H

@@ -51,7 +51,7 @@ TaskOutline::TaskOutline(ICoreService& coreService,
                          TagModel& tagModel,
                          QWidget* parent)
     : QWidget{parent}
-    , ui{new Ui::TaskOutline}
+    , ui{std::make_unique<Ui::TaskOutline>()}
     , coreService{coreService}
     , taskModel{taskModel}
     , tagModel{tagModel}
@@ -87,7 +87,6 @@ TaskOutline::~TaskOutline()
 {
     delete tagEditor;
     delete taskSprintsView;
-    delete ui;
 }
 
 void TaskOutline::onQuickAddTodoReturnPressed()

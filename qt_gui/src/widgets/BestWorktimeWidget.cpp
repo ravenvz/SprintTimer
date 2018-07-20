@@ -29,12 +29,12 @@ using namespace entities;
 
 BestWorktimeWidget::BestWorktimeWidget(QWidget* parent)
     : QWidget{parent}
-    , ui{new Ui::BestWorktimeWidget}
+    , ui{std::make_unique<Ui::BestWorktimeWidget>()}
 {
     ui->setupUi(this);
 }
 
-BestWorktimeWidget::~BestWorktimeWidget() { delete ui; }
+BestWorktimeWidget::~BestWorktimeWidget() = default;
 
 void BestWorktimeWidget::setData(
     const Distribution<double>& workTimeDistribution,
@@ -69,5 +69,3 @@ void BestWorktimeWidget::updateWorkHoursDiagram(
 }
 
 } // namespace sprint_timer::ui::qt_gui
-
-

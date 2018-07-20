@@ -27,28 +27,23 @@ namespace sprint_timer::ui::qt_gui {
 
 ExportDialog::ExportDialog(QWidget* parent)
     : QDialog{parent}
-    , ui{new Ui::ExportDialog}
+    , ui{std::make_unique<Ui::ExportDialog>()}
 {
     ui->setupUi(this);
 }
 
-ExportDialog::~ExportDialog()
-{
-    delete ui;
-}
+ExportDialog::~ExportDialog() = default;
 
 void ExportDialog::accept()
 {
-    auto path = QFileDialog::getExistingDirectory(this,
-                                                  tr("Select directory"),
-                                                  "",
-                                                  QFileDialog::ShowDirsOnly);
+    auto path = QFileDialog::getExistingDirectory(
+        this, tr("Select directory"), "", QFileDialog::ShowDirsOnly);
     if (path.isEmpty())
         return;
-    ExportOptions options{path.toStdString(), ui->cbxDelimiterOptions->currentText()[0].toLatin1()};
+    ExportOptions options{path.toStdString(),
+                          ui->cbxDelimiterOptions->currentText()[0].toLatin1()};
     emit exportConfirmed(options);
     QDialog::accept();
 }
 
 } // namespace sprint_timer::ui::qt_gui
-

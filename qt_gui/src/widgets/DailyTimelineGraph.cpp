@@ -40,13 +40,13 @@ namespace plot_params {
 
 DailyTimelineGraph::DailyTimelineGraph(QWidget* parent)
     : QFrame{parent}
-    , ui{new Ui::DailyTimelineGraph}
+    , ui{std::make_unique<Ui::DailyTimelineGraph>()}
 {
     ui->setupUi(this);
     setupGraphs();
 }
 
-DailyTimelineGraph::~DailyTimelineGraph() { delete ui; }
+DailyTimelineGraph::~DailyTimelineGraph() = default;
 
 void DailyTimelineGraph::setupGraphs()
 {

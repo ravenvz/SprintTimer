@@ -20,9 +20,9 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/AddTaskDialog.h"
-#include <core/utils/StringUtils.h>
 #include "ui_add_todo_dialog.h"
 #include <QRegularExpression>
+#include <core/utils/StringUtils.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -31,7 +31,7 @@ using namespace utils;
 
 AddTaskDialog::AddTaskDialog(QAbstractItemModel& tagModel, QWidget* parent)
     : QDialog{parent}
-    , ui{new Ui::AddTaskDialog}
+    , ui{std::make_unique<Ui::AddTaskDialog>()}
 {
     ui->setupUi(this);
 
@@ -48,7 +48,7 @@ AddTaskDialog::AddTaskDialog(QAbstractItemModel& tagModel, QWidget* parent)
             &AddTaskDialog::resetNameLineEditStyle);
 }
 
-AddTaskDialog::~AddTaskDialog() { delete ui; }
+AddTaskDialog::~AddTaskDialog() = default;
 
 Task AddTaskDialog::constructedTask()
 {

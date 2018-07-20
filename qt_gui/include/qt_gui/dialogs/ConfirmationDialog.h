@@ -23,6 +23,7 @@
 #define CONFIRMATIONDIALOG_H
 
 #include <QDialog>
+#include <memory>
 
 namespace Ui {
 class ConfirmationDialog;
@@ -30,8 +31,7 @@ class ConfirmationDialog;
 
 namespace sprint_timer::ui::qt_gui {
 
-class ConfirmationDialog : public QDialog
-{
+class ConfirmationDialog : public QDialog {
     Q_OBJECT
 
 public:
@@ -40,7 +40,7 @@ public:
     void setActionDescription(QString& description);
 
 private:
-    Ui::ConfirmationDialog *ui;
+    std::unique_ptr<Ui::ConfirmationDialog> ui;
 };
 
 } // namespace sprint_timer::ui::qt_gui

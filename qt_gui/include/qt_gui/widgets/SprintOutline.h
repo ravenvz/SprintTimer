@@ -56,7 +56,7 @@ public:
     void update() override;
 
 private:
-    Ui::SprintOutline* ui;
+    std::unique_ptr<Ui::SprintOutline> ui;
     ICoreService& coreService;
     IConfig& applicationSettings;
     SprintModel& sprintModel;
