@@ -29,8 +29,6 @@ using namespace entities;
 
 SprintModel::SprintModel(ICoreService& coreService, QObject* parent)
     : AsyncListModel(parent)
-    , interval{TimeSpan{DateTime::currentDateTimeLocal(),
-                        DateTime::currentDateTimeLocal()}}
     , coreService{coreService}
 {
     synchronize();
@@ -58,12 +56,6 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     }
 
     return QVariant();
-}
-
-void SprintModel::setDateFilter(const TimeSpan& timeSpan)
-{
-    interval = timeSpan;
-    requestDataUpdate();
 }
 
 void SprintModel::insert(const TimeSpan& timeSpan, const std::string& taskUuid)
@@ -94,7 +86,9 @@ void SprintModel::remove(int row)
 void SprintModel::requestDataUpdate()
 {
     coreService.sprintsInTimeRange(
-        interval, [this](const auto& items) { this->onDataChanged(items); });
+        dw::TimeSpan{dw::DateTime::currentDateTimeLocal(),
+                     dw::DateTime::currentDateTimeLocal()},
+        [this](const auto& items) { this->onDataChanged(items); });
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)
