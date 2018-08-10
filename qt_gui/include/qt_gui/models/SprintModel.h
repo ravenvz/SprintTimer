@@ -39,8 +39,6 @@ public:
 
     QVariant data(const QModelIndex& index, int role) const final;
 
-    void setDateFilter(const dw::TimeSpan& timeSpan);
-
     void insert(const dw::TimeSpan& timeSpan, const std::string& taskUuid);
 
     void insert(const entities::Sprint& sprint);

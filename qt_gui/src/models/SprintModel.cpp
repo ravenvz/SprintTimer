@@ -60,12 +60,6 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void SprintModel::setDateFilter(const TimeSpan& timeSpan)
-{
-    interval = timeSpan;
-    requestDataUpdate();
-}
-
 void SprintModel::insert(const TimeSpan& timeSpan, const std::string& taskUuid)
 {
     coreService.registerSprint(timeSpan, taskUuid);
