@@ -22,8 +22,8 @@
 #ifndef SPRINTMODEL_H_MQZ2XAPI
 #define SPRINTMODEL_H_MQZ2XAPI
 
-#include <core/ICoreService.h>
 #include "qt_gui/models/AsyncListModel.h"
+#include <core/ICoreService.h>
 #include <memory>
 #include <vector>
 
@@ -33,8 +33,7 @@ class SprintModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    SprintModel(ICoreService& coreService,
-                           QObject* parent);
+    SprintModel(ICoreService& coreService, QObject* parent);
 
     int rowCount(const QModelIndex& parent) const final;
 
