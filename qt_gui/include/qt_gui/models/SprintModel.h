@@ -24,7 +24,6 @@
 
 #include "qt_gui/models/AsyncListModel.h"
 #include <core/ICoreService.h>
-#include <memory>
 #include <vector>
 
 namespace sprint_timer::ui::qt_gui {
@@ -52,7 +51,6 @@ protected:
 
 private:
     std::vector<entities::Sprint> storage;
-    dw::TimeSpan interval;
     ICoreService& coreService;
 
     void onDataChanged(const std::vector<entities::Sprint>& items);
