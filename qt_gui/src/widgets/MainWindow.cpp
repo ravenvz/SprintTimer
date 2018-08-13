@@ -41,13 +41,12 @@ MainWindow::MainWindow(IConfig& applicationSettings,
                        ICoreService& coreService,
                        TaskModel& taskModel,
                        SprintModel& sprintModel,
-                       TagModel& tagModel,
                        SprintOutline* sprintOutline,
                        TaskOutline* taskOutline,
                        TimerWidgetBase* timerWidget,
                        LauncherMenu* launcherMenu,
                        QWidget* parent)
-    : QWidget(parent)
+    : QWidget{parent}
     , ui{std::make_unique<Ui::MainWindow>()}
     , taskModel{taskModel}
     , sprintModel{sprintModel}
@@ -69,64 +68,27 @@ MainWindow::MainWindow(IConfig& applicationSettings,
             this,
             &MainWindow::submitSprint);
     // Update selected task index and description of submission candidate
-    connect(taskOutline, &TaskOutline::taskSelected, [&](const int row) {
-        selectedTaskRow = row;
-        timerWidget->setCandidateIndex(row);
-    });
     connect(&sprintModel,
             &SprintModel::modelReset,
             this,
             &MainWindow::updateDailyProgress);
-    connect(sprintOutline,
-            &SprintOutline::actionUndone,
-            launcherMenu,
-            &LauncherMenu::onSyncRequired);
-
-    // As models update data asynchroniously,
-    // other models that depend on that data should
-    // subscribe to updateFinished() signal
-    connect(&sprintModel,
-            &AsyncListModel::updateFinished,
-            &taskModel,
-            &AsyncListModel::synchronize);
-    connect(&taskModel,
-            &AsyncListModel::updateFinished,
-            &sprintModel,
-            &AsyncListModel::synchronize);
-    connect(&taskModel,
-            &AsyncListModel::updateFinished,
-            &tagModel,
-            &TagModel::synchronize);
-    connect(&tagModel,
-            &AsyncListModel::updateFinished,
-            &sprintModel,
-            &AsyncListModel::synchronize);
-    connect(&tagModel,
-            &AsyncListModel::updateFinished,
-            &taskModel,
-            &AsyncListModel::synchronize);
-
     connect(&taskModel,
             &QAbstractItemModel::rowsRemoved,
             this,
             &MainWindow::onTasksRemoved);
     connect(
-        timerWidget,
-        &TimerWidgetBase::submissionCandidateChanged,
-        [&](int index) { selectedTaskRow = taskModel.index(index, 0).row(); });
-    connect(&sprintModel,
-            &AsyncListModel::updateFinished,
-            launcherMenu,
-            &LauncherMenu::onSyncRequired);
-    connect(&taskModel,
-            &AsyncListModel::updateFinished,
-            launcherMenu,
-            &LauncherMenu::onSyncRequired);
-
-    connect(
         ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
     connect(
         ui->pbToggleMenu, &QPushButton::clicked, this, &MainWindow::toggleMenu);
+
+    QObject::connect(taskOutline, &TaskOutline::taskSelected, [&](const int row) {
+        selectedTaskRow = row;
+        timerWidget->setCandidateIndex(row);
+    });
+    QObject::connect(
+        timerWidget,
+        &TimerWidgetBase::submissionCandidateChanged,
+        [&](int index) { selectedTaskRow = taskModel.index(index, 0).row(); });
 
     setStateUi();
 }

@@ -23,7 +23,6 @@
 #define MAINWINDOW_H
 
 #include "qt_gui/models/SprintModel.h"
-#include "qt_gui/models/TagModel.h"
 #include "qt_gui/models/TaskModel.h"
 #include <QGridLayout>
 #include <QMainWindow>
@@ -62,7 +61,6 @@ public:
                ICoreService& coreService,
                TaskModel& taskModel,
                SprintModel& sprintModel,
-               TagModel& tagModel,
                SprintOutline* sprintOutline,
                TaskOutline* taskOutline,
                TimerWidgetBase* timerWidget,

@@ -57,6 +57,7 @@
 #include <qt_gui/widgets/DefaultTimer.h>
 #include <qt_gui/widgets/FancyTimer.h>
 #include <core/IConfig.h>
+#include <QObject>
 
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
@@ -180,11 +181,48 @@ int main(int argc, char* argv[])
     else
         timerWidget = new sprint_timer::ui::qt_gui::FancyTimer{applicationSettings, taskModel, nullptr};
 
+    QObject::connect(sprintOutline,
+            &SprintOutline::actionUndone,
+            launcherMenu,
+            &LauncherMenu::onSyncRequired);
+
+    // As models update data asynchroniously,
+    // other models that depend on that data should
+    // subscribe to updateFinished() signal
+    QObject::connect(&sprintModel,
+            &AsyncListModel::updateFinished,
+            &taskModel,
+            &AsyncListModel::synchronize);
+    QObject::connect(&taskModel,
+            &AsyncListModel::updateFinished,
+            &sprintModel,
+            &AsyncListModel::synchronize);
+    QObject::connect(&taskModel,
+            &AsyncListModel::updateFinished,
+            &tagModel,
+            &TagModel::synchronize);
+    QObject::connect(&tagModel,
+            &AsyncListModel::updateFinished,
+            &sprintModel,
+            &AsyncListModel::synchronize);
+    QObject::connect(&tagModel,
+            &AsyncListModel::updateFinished,
+            &taskModel,
+            &AsyncListModel::synchronize);
+
+    QObject::connect(&sprintModel,
+            &AsyncListModel::updateFinished,
+            launcherMenu,
+            &LauncherMenu::onSyncRequired);
+    QObject::connect(&taskModel,
+            &AsyncListModel::updateFinished,
+            launcherMenu,
+            &LauncherMenu::onSyncRequired);
+
     sprint_timer::ui::qt_gui::MainWindow w{applicationSettings,
                                            coreService,
                                            taskModel,
                                            sprintModel,
-                                           tagModel,
                                            sprintOutline,
                                            taskOutline,
                                            timerWidget,
