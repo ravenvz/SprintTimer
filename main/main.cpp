@@ -51,13 +51,13 @@
 #include <qt_gui/widgets/MainWindow.h>
 #include <qt_storage_impl/QtStorageImplementersFactory.h>
 
+#include <QObject>
+#include <core/IConfig.h>
+#include <qt_gui/widgets/DefaultTimer.h>
+#include <qt_gui/widgets/FancyTimer.h>
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/TaskOutline.h>
-#include <qt_gui/widgets/DefaultTimer.h>
-#include <qt_gui/widgets/FancyTimer.h>
-#include <core/IConfig.h>
-#include <QObject>
 
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
     }
 
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/sprint.db"};
+    DBService dbService{dataDirectory + "/test_sprint.db"};
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{
@@ -170,54 +170,69 @@ int main(int argc, char* argv[])
     Config applicationSettings;
     auto* sprintOutline = new SprintOutline{
         coreService, applicationSettings, sprintModel, taskModel, nullptr};
-    auto* launcherMenu = new LauncherMenu(
-        applicationSettings, coreService, nullptr);
+    auto* launcherMenu
+        = new LauncherMenu(applicationSettings, coreService, nullptr);
     auto* taskOutline
-        = new TaskOutline(coreService, taskModel, tagModel, nullptr);
+        = new TaskOutline(coreService, taskModel, tagModel, sprintModel, nullptr);
     TimerWidgetBase* timerWidget = nullptr;
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
-        timerWidget = new sprint_timer::ui::qt_gui::DefaultTimer{applicationSettings, taskModel, nullptr};
+        timerWidget = new sprint_timer::ui::qt_gui::DefaultTimer{
+            applicationSettings, taskModel, nullptr};
     else
-        timerWidget = new sprint_timer::ui::qt_gui::FancyTimer{applicationSettings, taskModel, nullptr};
+        timerWidget = new sprint_timer::ui::qt_gui::FancyTimer{
+            applicationSettings, taskModel, nullptr};
 
     QObject::connect(sprintOutline,
-            &SprintOutline::actionUndone,
-            launcherMenu,
-            &LauncherMenu::onSyncRequired);
+                     &SprintOutline::actionUndone,
+                     launcherMenu,
+                     &LauncherMenu::onSyncRequired);
 
     // As models update data asynchroniously,
     // other models that depend on that data should
     // subscribe to updateFinished() signal
     QObject::connect(&sprintModel,
-            &AsyncListModel::updateFinished,
-            &taskModel,
-            &AsyncListModel::synchronize);
+                     &AsyncListModel::updateFinished,
+                     &taskModel,
+                     &AsyncListModel::synchronize);
     QObject::connect(&taskModel,
-            &AsyncListModel::updateFinished,
-            &sprintModel,
-            &AsyncListModel::synchronize);
+                     &AsyncListModel::updateFinished,
+                     &sprintModel,
+                     &AsyncListModel::synchronize);
     QObject::connect(&taskModel,
-            &AsyncListModel::updateFinished,
-            &tagModel,
-            &TagModel::synchronize);
+                     &AsyncListModel::updateFinished,
+                     &tagModel,
+                     &TagModel::synchronize);
     QObject::connect(&tagModel,
-            &AsyncListModel::updateFinished,
-            &sprintModel,
-            &AsyncListModel::synchronize);
+                     &AsyncListModel::updateFinished,
+                     &sprintModel,
+                     &AsyncListModel::synchronize);
     QObject::connect(&tagModel,
-            &AsyncListModel::updateFinished,
-            &taskModel,
-            &AsyncListModel::synchronize);
+                     &AsyncListModel::updateFinished,
+                     &taskModel,
+                     &AsyncListModel::synchronize);
 
     QObject::connect(&sprintModel,
-            &AsyncListModel::updateFinished,
-            launcherMenu,
-            &LauncherMenu::onSyncRequired);
+                     &AsyncListModel::updateFinished,
+                     launcherMenu,
+                     &LauncherMenu::onSyncRequired);
     QObject::connect(&taskModel,
-            &AsyncListModel::updateFinished,
-            launcherMenu,
-            &LauncherMenu::onSyncRequired);
+                     &AsyncListModel::updateFinished,
+                     launcherMenu,
+                     &LauncherMenu::onSyncRequired);
+    QObject::connect(timerWidget,
+                     &TimerWidgetBase::submissionCandidateChanged,
+                     taskOutline,
+                     &TaskOutline::onTaskSelectionChanged);
+    QObject::connect(timerWidget,
+                     &TimerWidgetBase::submitRequested,
+                     taskOutline,
+                     &TaskOutline::onSprintSubmissionRequested);
+    // TODO see if we can connect it differently
+    QObject::connect(
+        taskOutline, &TaskOutline::taskSelected, [&](const int row) {
+            timerWidget->setCandidateIndex(row);
+        });
 
     sprint_timer::ui::qt_gui::MainWindow w{applicationSettings,
                                            coreService,

@@ -63,32 +63,14 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     ui->gridLayout->addWidget(sprintOutline, 0, 2, 3, 1);
     ui->gridLayout->addWidget(launcherMenu, 4, 1, 1, 1, Qt::AlignHCenter);
 
-    connect(timerWidget,
-            &TimerWidgetBase::submitRequested,
-            this,
-            &MainWindow::submitSprint);
-    // Update selected task index and description of submission candidate
     connect(&sprintModel,
             &SprintModel::modelReset,
             this,
             &MainWindow::updateDailyProgress);
-    connect(&taskModel,
-            &QAbstractItemModel::rowsRemoved,
-            this,
-            &MainWindow::onTasksRemoved);
     connect(
         ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
     connect(
         ui->pbToggleMenu, &QPushButton::clicked, this, &MainWindow::toggleMenu);
-
-    QObject::connect(taskOutline, &TaskOutline::taskSelected, [&](const int row) {
-        selectedTaskRow = row;
-        timerWidget->setCandidateIndex(row);
-    });
-    QObject::connect(
-        timerWidget,
-        &TimerWidgetBase::submissionCandidateChanged,
-        [&](int index) { selectedTaskRow = taskModel.index(index, 0).row(); });
 
     setStateUi();
 }
@@ -99,18 +81,6 @@ void MainWindow::setStateUi()
 {
     expansionState->setStateUi(*this);
     adjustSize();
-}
-
-void MainWindow::submitSprint(const std::vector<dw::TimeSpan>& intervalBuffer)
-{
-    if (!selectedTaskRow) {
-        qDebug() << "No associated Task can be found";
-        return;
-    }
-
-    for (const dw::TimeSpan& timeSpan : intervalBuffer) {
-        sprintModel.insert(timeSpan, taskModel.itemAt(*selectedTaskRow).uuid());
-    }
 }
 
 void MainWindow::updateDailyProgress()
@@ -130,17 +100,6 @@ void MainWindow::toggleMenu()
 {
     expansionState->toggleMenu(*this);
     setStateUi();
-}
-
-void MainWindow::onTasksRemoved(const QModelIndex&, int first, int last)
-{
-    // If selectedTaskRow points to the row that has been removed,
-    // we need to invalidate it.
-    if (selectedTaskRow
-        && (first <= selectedTaskRow && selectedTaskRow <= last)) {
-        selectedTaskRow = std::optional<int>();
-        timerWidget->setCandidateIndex(-1);
-    }
 }
 
 ExpansionState::ExpansionState(int width, int height)

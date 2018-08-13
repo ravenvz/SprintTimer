@@ -49,12 +49,14 @@ using namespace entities;
 TaskOutline::TaskOutline(ICoreService& coreService,
                          TaskModel& taskModel,
                          TagModel& tagModel,
+                         SprintModel& sprintModel,
                          QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::TaskOutline>()}
     , coreService{coreService}
     , taskModel{taskModel}
     , tagModel{tagModel}
+    , sprintModel{sprintModel}
 {
     ui->setupUi(this);
 
@@ -71,7 +73,8 @@ TaskOutline::TaskOutline(ICoreService& coreService,
             this,
             &TaskOutline::onQuickAddTodoReturnPressed);
     connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
-        emit taskSelected(index.row());
+        selectedTaskRow = index.row();
+        emit taskSelected(*selectedTaskRow);
     });
     connect(ui->lvTaskView,
             &QListView::customContextMenuRequested,
@@ -81,6 +84,10 @@ TaskOutline::TaskOutline(ICoreService& coreService,
             &QListView::doubleClicked,
             this,
             &TaskOutline::toggleTaskCompleted);
+    connect(&taskModel,
+            &QAbstractItemModel::rowsRemoved,
+            this,
+            &TaskOutline::onTaskRemoved);
 }
 
 TaskOutline::~TaskOutline()
@@ -207,6 +214,30 @@ void TaskOutline::onSprintsForTaskFetched(const std::vector<Sprint>& sprints)
     taskSprintsView->setDelegate(taskSprintViewDelegate.get());
     taskSprintsView->setModel(taskSprintsModel.get());
     taskSprintsView->show();
+}
+
+void TaskOutline::onTaskSelectionChanged(int row)
+{
+    selectedTaskRow = taskModel.index(row, 0).row();
+}
+
+void TaskOutline::onSprintSubmissionRequested(
+    const std::vector<dw::TimeSpan>& intervals)
+{
+    if (!selectedTaskRow)
+        return;
+    for (const auto& timeSpan : intervals) {
+        sprintModel.insert(timeSpan, taskModel.itemAt(*selectedTaskRow).uuid());
+    }
+}
+
+void TaskOutline::onTaskRemoved(const QModelIndex&, int first, int last)
+{
+    if (selectedTaskRow
+        && (first <= selectedTaskRow && selectedTaskRow <= last)) {
+        selectedTaskRow = std::nullopt;
+        emit taskSelected(-1);
+    }
 }
 
 } // namespace sprint_timer::ui::qt_gui

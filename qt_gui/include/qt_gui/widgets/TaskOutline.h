@@ -26,6 +26,7 @@
 #include "qt_gui/delegates/TaskItemDelegate.h"
 #include "qt_gui/dialogs/AddTaskDialog.h"
 #include "qt_gui/models/HistoryModel.h"
+#include "qt_gui/models/SprintModel.h"
 #include "qt_gui/models/TagModel.h"
 #include "qt_gui/models/TaskModel.h"
 #include "qt_gui/widgets/ReordableListView.h"
@@ -38,6 +39,7 @@
 #include <QtWidgets/QVBoxLayout>
 #include <core/ICoreService.h>
 #include <memory>
+#include <optional>
 
 namespace Ui {
 class TaskOutline;
@@ -56,6 +58,7 @@ public:
     TaskOutline(ICoreService& coreService,
                 TaskModel& taskModel,
                 TagModel& tagModel,
+                SprintModel& sprintModel,
                 QWidget* parent);
 
     ~TaskOutline() override;
@@ -68,6 +71,7 @@ private:
     QPointer<TagEditor> tagEditor;
     TaskModel& taskModel;
     TagModel& tagModel;
+    SprintModel& sprintModel;
     std::unique_ptr<AddTaskDialog> addTaskDialog;
     std::unique_ptr<TaskItemDelegate> taskItemDelegate
         = std::make_unique<TaskItemDelegate>();
@@ -76,6 +80,7 @@ private:
     std::unique_ptr<HistoryModel> taskSprintsModel;
     std::unique_ptr<HistoryItemDelegate> taskSprintViewDelegate
         = std::make_unique<HistoryItemDelegate>();
+    std::optional<int> selectedTaskRow;
 
     void launchTagEditor();
     void removeTask();
@@ -86,12 +91,18 @@ private:
 signals:
     void taskSelected(int row);
 
+public slots:
+    void onTaskSelectionChanged(int taskRow);
+    void
+    onSprintSubmissionRequested(const std::vector<dw::TimeSpan>& intervals);
+
 private slots:
     void onAddTaskButtonPushed();
     void onQuickAddTodoReturnPressed();
     void toggleTaskCompleted();
     void showContextMenu(const QPoint& pos);
     void addNewTask();
+    void onTaskRemoved(const QModelIndex&, int first, int last);
 };
 
 } // namespace sprint_timer::ui::qt_gui

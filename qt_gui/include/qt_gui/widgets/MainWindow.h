@@ -33,7 +33,6 @@
 #include <core/IConfig.h>
 #include <functional>
 #include <memory>
-#include <optional>
 #include <vector>
 
 namespace Ui {
@@ -82,7 +81,6 @@ private:
     TaskOutline* taskOutline;
     TimerWidgetBase* timerWidget;
     LauncherMenu* launcherMenu;
-    std::optional<int> selectedTaskRow;
     ExpansionState* expansionState;
 
     void setStateUi();
@@ -92,7 +90,7 @@ private slots:
     void updateDailyProgress();
     void toggleView();
     void toggleMenu();
-    void onTasksRemoved(const QModelIndex&, int first, int last);
+    // void onTasksRemoved(const QModelIndex&, int first, int last);
 };
 
 
