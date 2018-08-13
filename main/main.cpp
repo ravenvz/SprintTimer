@@ -51,6 +51,8 @@
 #include <qt_gui/widgets/MainWindow.h>
 #include <qt_storage_impl/QtStorageImplementersFactory.h>
 
+#include <qt_gui/widgets/SprintOutline.h>
+
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
 
@@ -159,8 +161,16 @@ int main(int argc, char* argv[])
     TaskModel taskModel{coreService, nullptr};
     SprintModel sprintModel{coreService, nullptr};
     TagModel tagModel{coreService, nullptr};
-    sprint_timer::ui::qt_gui::MainWindow w{
-        applicationSettings, coreService, taskModel, sprintModel, tagModel};
+
+    auto* sprintOutline = new sprint_timer::ui::qt_gui::SprintOutline{
+        coreService, applicationSettings, sprintModel, taskModel, nullptr};
+
+    sprint_timer::ui::qt_gui::MainWindow w{applicationSettings,
+                                           coreService,
+                                           taskModel,
+                                           sprintModel,
+                                           tagModel,
+                                           sprintOutline};
     w.show();
     app.setStyle(QStyleFactory::create("Fusion"));
 

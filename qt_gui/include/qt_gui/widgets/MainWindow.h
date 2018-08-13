@@ -62,6 +62,7 @@ public:
                TaskModel& taskModel,
                SprintModel& sprintModel,
                TagModel& tagModel,
+               SprintOutline* sprintOutline,
                QWidget* parent = nullptr);
     ~MainWindow() override;
     MainWindow(const MainWindow&) = delete;
@@ -77,7 +78,7 @@ private:
     SprintModel& sprintModel;
     QPointer<LauncherMenu> launcherMenu;
     QPointer<TaskOutline> taskOutline;
-    QPointer<SprintOutline> sprintOutline;
+    SprintOutline* sprintOutline;
     std::optional<int> selectedTaskRow;
     TimerWidgetBase* timerWidget;
     ExpansionState* expansionState;

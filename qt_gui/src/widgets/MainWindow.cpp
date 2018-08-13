@@ -38,11 +38,13 @@ MainWindow::MainWindow(IConfig& applicationSettings,
                        TaskModel& taskModel,
                        SprintModel& sprintModel,
                        TagModel& tagModel,
+                       SprintOutline* sprintOutline,
                        QWidget* parent)
     : QWidget(parent)
     , ui{std::make_unique<Ui::MainWindow>()}
     , taskModel{taskModel}
     , sprintModel{sprintModel}
+    , sprintOutline{sprintOutline}
     , expansionState{shrinked.get()}
 {
     ui->setupUi(this);
@@ -53,8 +55,8 @@ MainWindow::MainWindow(IConfig& applicationSettings,
         timerWidget = new FancyTimer{applicationSettings, taskModel, this};
     taskOutline = new TaskOutline(coreService, taskModel, tagModel, this);
     launcherMenu = new LauncherMenu(applicationSettings, coreService, this);
-    sprintOutline = new SprintOutline(
-        coreService, applicationSettings, sprintModel, taskModel, this);
+    // sprintOutline = new SprintOutline(
+    //     coreService, applicationSettings, sprintModel, taskModel, this);
     ui->gridLayout->addWidget(taskOutline, 0, 0, 3, 1);
     ui->gridLayout->addWidget(
         timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
