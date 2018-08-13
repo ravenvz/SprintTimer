@@ -22,6 +22,8 @@
 #include "qt_gui/widgets/MainWindow.h"
 #include "qt_gui/widgets/DefaultTimer.h"
 #include "qt_gui/widgets/FancyTimer.h"
+#include "qt_gui/widgets/LauncherMenu.h"
+#include "qt_gui/widgets/SprintOutline.h"
 #include "ui_mainwindow.h"
 
 namespace sprint_timer::ui::qt_gui {
@@ -39,12 +41,14 @@ MainWindow::MainWindow(IConfig& applicationSettings,
                        SprintModel& sprintModel,
                        TagModel& tagModel,
                        SprintOutline* sprintOutline,
+                       LauncherMenu* launcherMenu,
                        QWidget* parent)
     : QWidget(parent)
     , ui{std::make_unique<Ui::MainWindow>()}
     , taskModel{taskModel}
     , sprintModel{sprintModel}
     , sprintOutline{sprintOutline}
+    , launcherMenu{launcherMenu}
     , expansionState{shrinked.get()}
 {
     ui->setupUi(this);
@@ -54,7 +58,7 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     else
         timerWidget = new FancyTimer{applicationSettings, taskModel, this};
     taskOutline = new TaskOutline(coreService, taskModel, tagModel, this);
-    launcherMenu = new LauncherMenu(applicationSettings, coreService, this);
+    // launcherMenu = new LauncherMenu(applicationSettings, coreService, this);
     // sprintOutline = new SprintOutline(
     //     coreService, applicationSettings, sprintModel, taskModel, this);
     ui->gridLayout->addWidget(taskOutline, 0, 0, 3, 1);

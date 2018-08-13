@@ -25,8 +25,6 @@
 #include "qt_gui/models/SprintModel.h"
 #include "qt_gui/models/TagModel.h"
 #include "qt_gui/models/TaskModel.h"
-#include "qt_gui/widgets/LauncherMenu.h"
-#include "qt_gui/widgets/SprintOutline.h"
 #include "qt_gui/widgets/TaskOutline.h"
 #include "qt_gui/widgets/TimerWidgetBase.h"
 #include <QGridLayout>
@@ -46,6 +44,8 @@ class MainWindow;
 
 namespace sprint_timer::ui::qt_gui {
 
+class SprintOutline;
+class LauncherMenu;
 class ExpansionState;
 
 class MainWindow : public QWidget {
@@ -63,6 +63,7 @@ public:
                SprintModel& sprintModel,
                TagModel& tagModel,
                SprintOutline* sprintOutline,
+               LauncherMenu* launcherMenu,
                QWidget* parent = nullptr);
     ~MainWindow() override;
     MainWindow(const MainWindow&) = delete;
@@ -76,9 +77,9 @@ private:
     std::unique_ptr<Ui::MainWindow> ui;
     TaskModel& taskModel;
     SprintModel& sprintModel;
-    QPointer<LauncherMenu> launcherMenu;
     QPointer<TaskOutline> taskOutline;
     SprintOutline* sprintOutline;
+    LauncherMenu* launcherMenu;
     std::optional<int> selectedTaskRow;
     TimerWidgetBase* timerWidget;
     ExpansionState* expansionState;
