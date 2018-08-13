@@ -19,9 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include <QGridLayout>
 #include "qt_gui/widgets/MainWindow.h"
-#include "qt_gui/widgets/DefaultTimer.h"
-#include "qt_gui/widgets/FancyTimer.h"
 #include "qt_gui/widgets/LauncherMenu.h"
 #include "qt_gui/widgets/SprintOutline.h"
 #include "qt_gui/widgets/TaskOutline.h"
@@ -37,22 +36,15 @@ namespace {
     auto expandedWithoutMenu = std::make_unique<ExpandedWithoutMenu>();
 } // namespace
 
-MainWindow::MainWindow(IConfig& applicationSettings,
-                       ICoreService& coreService,
-                       TaskModel& taskModel,
-                       SprintModel& sprintModel,
-                       SprintOutline* sprintOutline,
+MainWindow::MainWindow(SprintOutline* sprintOutline,
                        TaskOutline* taskOutline,
                        TimerWidgetBase* timerWidget,
                        LauncherMenu* launcherMenu,
                        QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::MainWindow>()}
-    , taskModel{taskModel}
-    , sprintModel{sprintModel}
     , sprintOutline{sprintOutline}
     , taskOutline{taskOutline}
-    , timerWidget{timerWidget}
     , launcherMenu{launcherMenu}
     , expansionState{shrinked.get()}
 {
@@ -63,10 +55,6 @@ MainWindow::MainWindow(IConfig& applicationSettings,
     ui->gridLayout->addWidget(sprintOutline, 0, 2, 3, 1);
     ui->gridLayout->addWidget(launcherMenu, 4, 1, 1, 1, Qt::AlignHCenter);
 
-    connect(&sprintModel,
-            &SprintModel::modelReset,
-            this,
-            &MainWindow::updateDailyProgress);
     connect(
         ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
     connect(
@@ -81,11 +69,6 @@ void MainWindow::setStateUi()
 {
     expansionState->setStateUi(*this);
     adjustSize();
-}
-
-void MainWindow::updateDailyProgress()
-{
-    timerWidget->updateGoalProgress(sprintModel.rowCount(QModelIndex()));
 }
 
 QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }

@@ -22,16 +22,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "qt_gui/models/SprintModel.h"
-#include "qt_gui/models/TaskModel.h"
-#include <QGridLayout>
-#include <QMainWindow>
-#include <core/ICoreService.h>
-#include <core/ISprintStorageReader.h>
-#include <core/IStorageImplementersFactory.h>
-#include <core/IYearRangeReader.h>
-#include <core/IConfig.h>
-#include <functional>
+#include <QWidget>
 #include <memory>
 #include <vector>
 
@@ -56,11 +47,7 @@ class MainWindow : public QWidget {
     friend class ExpandedWithoutMenu;
 
 public:
-    MainWindow(IConfig& applicationSettings,
-               ICoreService& coreService,
-               TaskModel& taskModel,
-               SprintModel& sprintModel,
-               SprintOutline* sprintOutline,
+    MainWindow(SprintOutline* sprintOutline,
                TaskOutline* taskOutline,
                TimerWidgetBase* timerWidget,
                LauncherMenu* launcherMenu,
@@ -75,22 +62,16 @@ public:
 
 private:
     std::unique_ptr<Ui::MainWindow> ui;
-    TaskModel& taskModel;
-    SprintModel& sprintModel;
     SprintOutline* sprintOutline;
     TaskOutline* taskOutline;
-    TimerWidgetBase* timerWidget;
     LauncherMenu* launcherMenu;
     ExpansionState* expansionState;
 
     void setStateUi();
 
 private slots:
-    void submitSprint(const std::vector<dw::TimeSpan>& intervalBuffer);
-    void updateDailyProgress();
     void toggleView();
     void toggleMenu();
-    // void onTasksRemoved(const QModelIndex&, int first, int last);
 };
 
 

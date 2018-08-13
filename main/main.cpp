@@ -172,8 +172,8 @@ int main(int argc, char* argv[])
         coreService, applicationSettings, sprintModel, taskModel, nullptr};
     auto* launcherMenu
         = new LauncherMenu(applicationSettings, coreService, nullptr);
-    auto* taskOutline
-        = new TaskOutline(coreService, taskModel, tagModel, sprintModel, nullptr);
+    auto* taskOutline = new TaskOutline(
+        coreService, taskModel, tagModel, sprintModel, nullptr);
     TimerWidgetBase* timerWidget = nullptr;
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
@@ -233,12 +233,14 @@ int main(int argc, char* argv[])
         taskOutline, &TaskOutline::taskSelected, [&](const int row) {
             timerWidget->setCandidateIndex(row);
         });
+    // TODO see if we can connect it differently
+    QObject::connect(
+        &sprintModel, &SprintModel::modelReset, [timerWidget, &sprintModel]() {
+            timerWidget->updateGoalProgress(
+                sprintModel.rowCount(QModelIndex()));
+        });
 
-    sprint_timer::ui::qt_gui::MainWindow w{applicationSettings,
-                                           coreService,
-                                           taskModel,
-                                           sprintModel,
-                                           sprintOutline,
+    sprint_timer::ui::qt_gui::MainWindow w{sprintOutline,
                                            taskOutline,
                                            timerWidget,
                                            launcherMenu};
