@@ -54,6 +54,9 @@
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/TaskOutline.h>
+#include <qt_gui/widgets/DefaultTimer.h>
+#include <qt_gui/widgets/FancyTimer.h>
+#include <core/IConfig.h>
 
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
@@ -119,7 +122,6 @@ int main(int argc, char* argv[])
     QApplication::setOrganizationName("RavenStudio");
     QApplication::setApplicationName("SprintTimer");
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    Config applicationSettings;
 
     const std::string dataDirectory = getOrCreateSprintTimerDataDirectory();
     if (dataDirectory.empty()) {
@@ -164,12 +166,19 @@ int main(int argc, char* argv[])
     SprintModel sprintModel{coreService, nullptr};
     TagModel tagModel{coreService, nullptr};
 
-    auto* sprintOutline = new sprint_timer::ui::qt_gui::SprintOutline{
+    Config applicationSettings;
+    auto* sprintOutline = new SprintOutline{
         coreService, applicationSettings, sprintModel, taskModel, nullptr};
-    auto* launcherMenu = new sprint_timer::ui::qt_gui::LauncherMenu(
+    auto* launcherMenu = new LauncherMenu(
         applicationSettings, coreService, nullptr);
     auto* taskOutline
         = new TaskOutline(coreService, taskModel, tagModel, nullptr);
+    TimerWidgetBase* timerWidget = nullptr;
+    auto timerFlavour = applicationSettings.timerFlavour();
+    if (timerFlavour == 0)
+        timerWidget = new sprint_timer::ui::qt_gui::DefaultTimer{applicationSettings, taskModel, nullptr};
+    else
+        timerWidget = new sprint_timer::ui::qt_gui::FancyTimer{applicationSettings, taskModel, nullptr};
 
     sprint_timer::ui::qt_gui::MainWindow w{applicationSettings,
                                            coreService,
@@ -178,6 +187,7 @@ int main(int argc, char* argv[])
                                            tagModel,
                                            sprintOutline,
                                            taskOutline,
+                                           timerWidget,
                                            launcherMenu};
     w.show();
     app.setStyle(QStyleFactory::create("Fusion"));
