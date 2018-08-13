@@ -53,6 +53,7 @@
 
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/SprintOutline.h>
+#include <qt_gui/widgets/TaskOutline.h>
 
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
@@ -167,6 +168,8 @@ int main(int argc, char* argv[])
         coreService, applicationSettings, sprintModel, taskModel, nullptr};
     auto* launcherMenu = new sprint_timer::ui::qt_gui::LauncherMenu(
         applicationSettings, coreService, nullptr);
+    auto* taskOutline
+        = new TaskOutline(coreService, taskModel, tagModel, nullptr);
 
     sprint_timer::ui::qt_gui::MainWindow w{applicationSettings,
                                            coreService,
@@ -174,6 +177,7 @@ int main(int argc, char* argv[])
                                            sprintModel,
                                            tagModel,
                                            sprintOutline,
+                                           taskOutline,
                                            launcherMenu};
     w.show();
     app.setStyle(QStyleFactory::create("Fusion"));
