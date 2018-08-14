@@ -23,12 +23,8 @@
 #define BUTTONMENU_H
 
 #include "qt_gui/widgets/DataWidget.h"
-#include <QPointer>
-#include <QPushButton>
-#include <QWidget>
-#include <QtWidgets/QHBoxLayout>
+#include <QDialog>
 #include <core/IConfig.h>
-#include <core/ICoreService.h>
 #include <memory>
 
 namespace Ui {
@@ -40,28 +36,14 @@ namespace sprint_timer::ui::qt_gui {
 class LauncherMenu : public QWidget {
 
 public:
-    LauncherMenu(IConfig& applicationSettings,
-                 ICoreService& coreService,
-                 QWidget* parent);
-
-    ~LauncherMenu() override;
-
-public slots:
-    void onSyncRequired();
+    LauncherMenu(DataWidget& progressWindow,
+                 DataWidget& statisticsWindow,
+                 DataWidget& historyWindow,
+                 QDialog& settingsDialog,
+                 QWidget* parent = nullptr);
 
 private:
     std::unique_ptr<Ui::LauncherMenu> ui;
-    IConfig& settings;
-    ICoreService& coreService;
-    QPointer<DataWidget> progressWindow;
-    QPointer<DataWidget> statisticsWindow;
-    QPointer<DataWidget> historyWindow;
-
-private slots:
-    void launchSettingsDialog();
-    void launchHistoryWindow();
-    void launchProgressWindow();
-    void launchStatisticsWindow();
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -81,7 +81,6 @@ private:
     void fetchData();
     void drawGraphs();
     void updateTopTagsDiagram(std::vector<TagTop::TagFrequency>& tagCounts);
-    void onYearRangeUpdated(const std::vector<std::string>& yearRange);
     void onDataFetched(const std::vector<entities::Sprint>& sprints);
 };
 

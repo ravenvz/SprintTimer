@@ -36,11 +36,7 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
     , applicationSettings{applicationSettings}
     , coreService{coreService}
 {
-    setAttribute(Qt::WA_DeleteOnClose);
-    coreService.yearRange(
-        [this](const auto& range) { this->onYearRangeUpdated(range); });
     ui->setupUi(this);
-    currentInterval = ui->dateRangePicker->getInterval();
 
     connect(ui->dateRangePicker,
             &DateRangePicker::timeSpanChanged,
@@ -50,6 +46,9 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
             &DistributionDiagram::chartSelectionChanged,
             this,
             &StatisticsWindow::onTagSelected);
+    coreService.yearRange(
+        [this](const auto& range) { ui->dateRangePicker->setYears(range); });
+    currentInterval = ui->dateRangePicker->getInterval();
 }
 
 StatisticsWindow::~StatisticsWindow() = default;
@@ -71,12 +70,6 @@ void StatisticsWindow::onDataFetched(const std::vector<Sprint>& sprints)
     std::vector<TagTop::TagFrequency> tagFrequency = tagTop.tagFrequencies();
     drawGraphs();
     updateTopTagsDiagram(tagFrequency);
-}
-
-void StatisticsWindow::onYearRangeUpdated(
-    const std::vector<std::string>& yearRange)
-{
-    ui->dateRangePicker->setYears(yearRange);
 }
 
 void StatisticsWindow::onDatePickerIntervalChanged(DateInterval newInterval)

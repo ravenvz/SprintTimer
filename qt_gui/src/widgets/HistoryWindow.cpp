@@ -46,7 +46,6 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
     , displaySprintsState{std::make_unique<DisplaySprints>(*this)}
     , displayTasksState{std::make_unique<DisplayTasks>(*this)}
 {
-    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     coreService.yearRange(
         [this](const auto& range) { this->onYearRangeUpdated(range); });

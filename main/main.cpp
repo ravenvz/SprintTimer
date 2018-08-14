@@ -53,15 +53,19 @@
 
 #include <QObject>
 #include <core/IConfig.h>
-#include <qt_gui/widgets/DefaultTimer.h>
-#include <qt_gui/widgets/FancyTimer.h>
-#include <qt_gui/widgets/LauncherMenu.h>
-#include <qt_gui/widgets/SprintOutline.h>
-#include <qt_gui/widgets/TaskOutline.h>
-#include <qt_gui/widgets/TaskSprintsView.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
+#include <qt_gui/dialogs/SettingsDialog.h>
 #include <qt_gui/models/HistoryModel.h>
+#include <qt_gui/widgets/DefaultTimer.h>
+#include <qt_gui/widgets/FancyTimer.h>
+#include <qt_gui/widgets/GoalProgressWindow.h>
+#include <qt_gui/widgets/HistoryWindow.h>
+#include <qt_gui/widgets/LauncherMenu.h>
+#include <qt_gui/widgets/SprintOutline.h>
+#include <qt_gui/widgets/StatisticsWindow.h>
+#include <qt_gui/widgets/TaskOutline.h>
+#include <qt_gui/widgets/TaskSprintsView.h>
 
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
@@ -174,13 +178,24 @@ int main(int argc, char* argv[])
     Config applicationSettings;
     auto* sprintOutline = new SprintOutline{
         coreService, applicationSettings, sprintModel, taskModel, nullptr};
-    auto* launcherMenu
-        = new LauncherMenu(applicationSettings, coreService, nullptr);
+    StatisticsWindow statisticsWindow{applicationSettings, coreService};
+    GoalProgressWindow progressWindow{applicationSettings, coreService};
+    HistoryWindow historyWindow{coreService};
+    SettingsDialog settingsDialog{applicationSettings};
+    auto* launcherMenu = new LauncherMenu(progressWindow,
+                                          statisticsWindow,
+                                          historyWindow,
+                                          settingsDialog,
+                                          nullptr);
     HistoryModel taskSprintsModel;
     HistoryItemDelegate taskSprintViewDelegate;
     TaskSprintsView taskSprintsView{taskSprintsModel, taskSprintViewDelegate};
-    auto* taskOutline = new TaskOutline(
-        coreService, taskModel, tagModel, sprintModel, taskSprintsView, nullptr);
+    auto* taskOutline = new TaskOutline(coreService,
+                                        taskModel,
+                                        tagModel,
+                                        sprintModel,
+                                        taskSprintsView,
+                                        nullptr);
     TimerWidgetBase* timerWidget = nullptr;
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
@@ -190,10 +205,43 @@ int main(int argc, char* argv[])
         timerWidget = new sprint_timer::ui::qt_gui::FancyTimer{
             applicationSettings, taskModel, nullptr};
 
+    // TODO might be worth it to replace with some kind of combo-signal
     QObject::connect(sprintOutline,
                      &SprintOutline::actionUndone,
-                     launcherMenu,
-                     &LauncherMenu::onSyncRequired);
+                     &statisticsWindow,
+                     &DataWidget::synchronize);
+    QObject::connect(sprintOutline,
+                     &SprintOutline::actionUndone,
+                     &historyWindow,
+                     &DataWidget::synchronize);
+    QObject::connect(sprintOutline,
+                     &SprintOutline::actionUndone,
+                     &progressWindow,
+                     &DataWidget::synchronize);
+    QObject::connect(&sprintModel,
+                     &AsyncListModel::updateFinished,
+                     &historyWindow,
+                     &DataWidget::synchronize);
+    QObject::connect(&sprintModel,
+                     &AsyncListModel::updateFinished,
+                     &statisticsWindow,
+                     &DataWidget::synchronize);
+    QObject::connect(&sprintModel,
+                     &AsyncListModel::updateFinished,
+                     &progressWindow,
+                     &DataWidget::synchronize);
+    QObject::connect(&taskModel,
+                     &AsyncListModel::updateFinished,
+                     &historyWindow,
+                     &DataWidget::synchronize);
+    QObject::connect(&taskModel,
+                     &AsyncListModel::updateFinished,
+                     &statisticsWindow,
+                     &DataWidget::synchronize);
+    QObject::connect(&taskModel,
+                     &AsyncListModel::updateFinished,
+                     &progressWindow,
+                     &DataWidget::synchronize);
 
     // As models update data asynchroniously,
     // other models that depend on that data should
@@ -219,14 +267,6 @@ int main(int argc, char* argv[])
                      &taskModel,
                      &AsyncListModel::synchronize);
 
-    QObject::connect(&sprintModel,
-                     &AsyncListModel::updateFinished,
-                     launcherMenu,
-                     &LauncherMenu::onSyncRequired);
-    QObject::connect(&taskModel,
-                     &AsyncListModel::updateFinished,
-                     launcherMenu,
-                     &LauncherMenu::onSyncRequired);
     QObject::connect(timerWidget,
                      &TimerWidgetBase::submissionCandidateChanged,
                      taskOutline,
@@ -247,10 +287,8 @@ int main(int argc, char* argv[])
                 sprintModel.rowCount(QModelIndex()));
         });
 
-    sprint_timer::ui::qt_gui::MainWindow w{sprintOutline,
-                                           taskOutline,
-                                           timerWidget,
-                                           launcherMenu};
+    sprint_timer::ui::qt_gui::MainWindow w{
+        sprintOutline, taskOutline, timerWidget, launcherMenu};
     w.show();
     app.setStyle(QStyleFactory::create("Fusion"));
 

@@ -24,11 +24,17 @@
 
 #include <core/Query.h>
 
+#include <iostream>
+
 namespace sprint_timer {
 
 class QueryExecutor {
 public:
-    void executeQuery(std::unique_ptr<Query>&& query) { query->execute(); }
+    void executeQuery(std::unique_ptr<Query>&& query)
+    {
+        std::cout << query->describe() << std::endl;
+        query->execute();
+    }
 };
 
 } // namespace sprint_timer
