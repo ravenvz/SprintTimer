@@ -49,7 +49,6 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
     ui->setupUi(this);
     coreService.yearRange(
         [this](const auto& range) { this->onYearRangeUpdated(range); });
-    selectedDateInterval = ui->dateRangePicker->getInterval();
     ui->taskHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setItemDelegate(historyItemDelegate.get());
@@ -85,7 +84,6 @@ void HistoryWindow::fillHistoryModel(const HistoryModel::HistoryData& history)
 
 void HistoryWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 {
-    selectedDateInterval = newInterval;
     synchronize();
 }
 
@@ -127,6 +125,12 @@ void HistoryWindow::onExportButtonClicked()
 }
 
 
+TimeSpan HistoryWindow::selectedDateInterval() const
+{
+    return ui->dateRangePicker->getInterval().toTimeSpan();
+}
+
+
 void HistoryWindow::onDataExportConfirmed(
     const ExportDialog::ExportOptions& options)
 {
@@ -155,7 +159,7 @@ DisplayTasks::DisplayTasks(HistoryWindow& historyView)
 void DisplaySprints::retrieveHistory()
 {
     historyView.coreService.sprintsInTimeRange(
-        historyView.selectedDateInterval.toTimeSpan(),
+        historyView.selectedDateInterval(),
         [this](const auto& sprints) { this->onHistoryRetrieved(sprints); });
 }
 
@@ -164,7 +168,7 @@ void DisplaySprints::exportData(const ExportDialog::ExportOptions& options)
 {
     std::stringstream ss;
     ss << options.path << "/Sprints "
-       << historyView.selectedDateInterval.toTimeSpan().toString("dd.MM.yyyy")
+       << historyView.selectedDateInterval().toString("dd.MM.yyyy")
        << ".csv";
     using namespace external_io;
     auto filePath = ss.str();
@@ -185,7 +189,7 @@ void DisplaySprints::exportData(const ExportDialog::ExportOptions& options)
         return encoder.encode(sprints, serializeSprint);
     };
     historyView.coreService.exportSprints(
-        historyView.selectedDateInterval.toTimeSpan(), sink, func);
+        historyView.selectedDateInterval(), sink, func);
 }
 
 
@@ -209,7 +213,7 @@ void DisplaySprints::onHistoryRetrieved(const std::vector<Sprint>& sprints)
 void DisplayTasks::retrieveHistory()
 {
     historyView.coreService.requestFinishedTasks(
-        historyView.selectedDateInterval.toTimeSpan(),
+        historyView.selectedDateInterval(),
         [this](const auto& tasks) { this->onHistoryRetrieved(tasks); });
 }
 
@@ -218,7 +222,7 @@ void DisplayTasks::exportData(const ExportDialog::ExportOptions& options)
 {
     std::stringstream ss;
     ss << options.path << "/Tasks "
-       << historyView.selectedDateInterval.toTimeSpan().toString("dd.MM.yyyy")
+       << historyView.selectedDateInterval().toString("dd.MM.yyyy")
        << ".csv";
     using namespace external_io;
     auto filePath = ss.str();
@@ -240,7 +244,7 @@ void DisplayTasks::exportData(const ExportDialog::ExportOptions& options)
         return encoder.encode(tasks, serializeTask);
     };
     historyView.coreService.exportTasks(
-        historyView.selectedDateInterval.toTimeSpan(), sink, func);
+        historyView.selectedDateInterval(), sink, func);
 }
 
 

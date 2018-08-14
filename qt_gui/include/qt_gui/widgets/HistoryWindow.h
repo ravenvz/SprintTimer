@@ -62,7 +62,6 @@ public:
 
 private:
     std::unique_ptr<Ui::HistoryWindow> ui;
-    DateInterval selectedDateInterval;
     ICoreService& coreService;
     std::unique_ptr<HistoryModel> viewModel
         = std::make_unique<HistoryModel>(nullptr);
@@ -79,6 +78,8 @@ private:
     void fillHistoryModel(const HistoryModel::HistoryData& history);
 
     void onYearRangeUpdated(const std::vector<std::string>& yearRange);
+
+    dw::TimeSpan selectedDateInterval() const;
 
 private slots:
 
