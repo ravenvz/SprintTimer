@@ -43,7 +43,9 @@ namespace {
 } // namespace
 
 
-HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
+HistoryWindow::HistoryWindow(ICoreService& coreService,
+                             QStyledItemDelegate& historyItemDelegate,
+                             QWidget* parent)
     : DataWidget{parent}
     , ui{std::make_unique<Ui::HistoryWindow>()}
     , coreService{coreService}
@@ -55,8 +57,8 @@ HistoryWindow::HistoryWindow(ICoreService& coreService, QWidget* parent)
         [this](const auto& range) { this->onYearRangeUpdated(range); });
     ui->taskHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setHeaderHidden(true);
-    ui->sprintHistoryView->setItemDelegate(historyItemDelegate.get());
-    ui->taskHistoryView->setItemDelegate(historyItemDelegate.get());
+    ui->sprintHistoryView->setItemDelegate(&historyItemDelegate);
+    ui->taskHistoryView->setItemDelegate(&historyItemDelegate);
     historyState = displaySprintsState.get();
 
     connect(ui->historyTab,

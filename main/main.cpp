@@ -180,7 +180,8 @@ int main(int argc, char* argv[])
         coreService, applicationSettings, sprintModel, taskModel, nullptr};
     StatisticsWindow statisticsWindow{applicationSettings, coreService};
     GoalProgressWindow progressWindow{applicationSettings, coreService};
-    HistoryWindow historyWindow{coreService};
+    HistoryItemDelegate historyItemDelegate;
+    HistoryWindow historyWindow{coreService, historyItemDelegate};
     SettingsDialog settingsDialog{applicationSettings};
     auto* launcherMenu = new LauncherMenu(progressWindow,
                                           statisticsWindow,
@@ -188,8 +189,7 @@ int main(int argc, char* argv[])
                                           settingsDialog,
                                           nullptr);
     HistoryModel taskSprintsModel;
-    HistoryItemDelegate taskSprintViewDelegate;
-    TaskSprintsView taskSprintsView{taskSprintsModel, taskSprintViewDelegate};
+    TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
     auto* taskOutline = new TaskOutline(coreService,
                                         taskModel,
                                         tagModel,

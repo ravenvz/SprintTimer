@@ -54,6 +54,7 @@ class HistoryWindow : public DataWidget {
 
 public:
     explicit HistoryWindow(ICoreService& coreService,
+                           QStyledItemDelegate& historyItemDelegate,
                            QWidget* parent = nullptr);
 
     ~HistoryWindow();
@@ -69,8 +70,6 @@ private:
     std::unique_ptr<DisplayState> displayTasksState;
     DisplayState* historyState;
     std::unique_ptr<ExportDialog> exportDialog;
-    std::unique_ptr<HistoryItemDelegate> historyItemDelegate
-        = std::make_unique<HistoryItemDelegate>();
 
     /* Assumes that history items are ordered by date ascendantly. */
     void fillHistoryModel(const HistoryModel::HistoryData& history);
