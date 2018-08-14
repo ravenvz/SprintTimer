@@ -57,7 +57,7 @@ class StatisticsWindow : public DataWidget {
     Q_OBJECT
 
 public:
-    StatisticsWindow(IConfig& applicationSettings,
+    StatisticsWindow(const IConfig& applicationSettings,
                      ICoreService& coreService,
                      QWidget* parent = nullptr);
     ~StatisticsWindow() override;
@@ -70,7 +70,7 @@ private slots:
 
 private:
     std::unique_ptr<Ui::StatisticsWindow> ui;
-    IConfig& applicationSettings;
+    const IConfig& applicationSettings;
     ICoreService& coreService;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;

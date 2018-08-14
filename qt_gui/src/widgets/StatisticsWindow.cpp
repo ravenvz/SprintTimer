@@ -28,7 +28,7 @@ namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
 
-StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
+StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
                                    ICoreService& coreService,
                                    QWidget* parent)
     : DataWidget{parent}
