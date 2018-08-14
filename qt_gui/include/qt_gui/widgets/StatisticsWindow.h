@@ -22,11 +22,8 @@
 #ifndef STATISTICSWINDOW_H
 #define STATISTICSWINDOW_H
 
-#include "qt_gui/dialogs/DateRangePickDialog.h"
+#include "qt_gui/utils/DateInterval.h"
 #include "qt_gui/widgets/DataWidget.h"
-#include "qt_gui/widgets/DistributionDiagram.h"
-#include "qt_gui/widgets/Plot.h"
-#include "qt_gui/widgets/TimeDiagram.h"
 #include <core/IConfig.h>
 #include <core/ICoreService.h>
 #include <core/SprintStatistics.h>
@@ -74,7 +71,6 @@ private:
     ICoreService& coreService;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;
-    DateInterval currentInterval;
     const size_t numTopTags{7}; // TODO move to config
     std::optional<size_t> selectedTagIndex;
 
@@ -82,6 +78,7 @@ private:
     void drawGraphs();
     void updateTopTagsDiagram(std::vector<TagTop::TagFrequency>& tagCounts);
     void onDataFetched(const std::vector<entities::Sprint>& sprints);
+    DateInterval currentInterval() const;
 };
 
 } // namespace sprint_timer::ui::qt_gui
