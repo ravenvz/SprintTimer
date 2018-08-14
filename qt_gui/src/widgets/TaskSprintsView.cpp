@@ -20,29 +20,74 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TaskSprintsView.h"
+#include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_sprints_for_task_view.h"
+
+namespace {
+
+using sprint_timer::entities::Sprint;
+using sprint_timer::ui::qt_gui::HistoryModel;
+
+HistoryModel::HistoryData
+transformToHistoryData(const std::vector<Sprint>& sprints);
+
+QString sprintToString(const Sprint&);
+
+} // namespace
+
 
 namespace sprint_timer::ui::qt_gui {
 
-TaskSprintsView::TaskSprintsView(QWidget* parent)
+TaskSprintsView::TaskSprintsView(HistoryModel& model,
+                                 QStyledItemDelegate& delegate,
+                                 QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::TaskSprintsView>()}
+    , model{model}
 {
     ui->setupUi(this);
     ui->treeView->setHeaderHidden(true);
+    ui->treeView->setModel(&model);
+    ui->treeView->setItemDelegate(&delegate);
 }
 
 TaskSprintsView::~TaskSprintsView() = default;
 
-void TaskSprintsView::setModel(QStandardItemModel* model)
+void TaskSprintsView::setData(const std::vector<entities::Sprint>& sprints)
 {
-    ui->treeView->setModel(model);
+    model.fill(transformToHistoryData(sprints));
     ui->treeView->expandAll();
 }
 
-void TaskSprintsView::setDelegate(QStyledItemDelegate* delegate)
+} // namespace sprint_timer::ui::qt_gui
+
+
+namespace {
+
+HistoryModel::HistoryData
+transformToHistoryData(const std::vector<Sprint>& sprints)
 {
-    ui->treeView->setItemDelegate(delegate);
+    using sprint_timer::ui::qt_gui::DateTimeConverter;
+    HistoryModel::HistoryData taskSprintsHistory;
+    taskSprintsHistory.reserve(sprints.size());
+    std::transform(cbegin(sprints),
+                   cend(sprints),
+                   std::back_inserter(taskSprintsHistory),
+                   [](const auto& sprint) {
+                       return std::make_pair(
+                           DateTimeConverter::qDate(sprint.startTime()),
+                           sprintToString(sprint));
+                   });
+    return taskSprintsHistory;
 }
 
-} // namespace sprint_timer::ui::qt_gui
+QString sprintToString(const Sprint& sprint)
+{
+    return QString("%1 - %2 %3 %4")
+        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
+        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+        .arg(QString::fromStdString(prefixTags(sprint.tags())))
+        .arg(QString::fromStdString(sprint.name()));
+}
+
+} // namespace

@@ -22,21 +22,12 @@
 #ifndef TASKOUTLINE_H
 #define TASKOUTLINE_H
 
-#include "qt_gui/delegates/HistoryItemDelegate.h"
-#include "qt_gui/delegates/TaskItemDelegate.h"
-#include "qt_gui/dialogs/AddTaskDialog.h"
-#include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/models/SprintModel.h"
 #include "qt_gui/models/TagModel.h"
 #include "qt_gui/models/TaskModel.h"
-#include "qt_gui/widgets/ReordableListView.h"
 #include "qt_gui/widgets/TagEditor.h"
-#include "qt_gui/widgets/TaskSprintsView.h"
 #include <QPointer>
 #include <QWidget>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QVBoxLayout>
 #include <core/ICoreService.h>
 #include <memory>
 #include <optional>
@@ -46,6 +37,8 @@ class TaskOutline;
 } // namespace Ui
 
 namespace sprint_timer::ui::qt_gui {
+
+class TaskSprintsView;
 
 /* Responsible for providing user interface for interactive
  * task management, so that user could view current unfinished
@@ -59,11 +52,10 @@ public:
                 TaskModel& taskModel,
                 TagModel& tagModel,
                 SprintModel& sprintModel,
+                TaskSprintsView& taskSprintsView,
                 QWidget* parent);
 
     ~TaskOutline() override;
-
-    QSize sizeHint() const override;
 
 private:
     std::unique_ptr<Ui::TaskOutline> ui;
@@ -72,14 +64,7 @@ private:
     TaskModel& taskModel;
     TagModel& tagModel;
     SprintModel& sprintModel;
-    std::unique_ptr<AddTaskDialog> addTaskDialog;
-    std::unique_ptr<TaskItemDelegate> taskItemDelegate
-        = std::make_unique<TaskItemDelegate>();
-    const QSize desiredSize{300, 200};
-    QPointer<TaskSprintsView> taskSprintsView;
-    std::unique_ptr<HistoryModel> taskSprintsModel;
-    std::unique_ptr<HistoryItemDelegate> taskSprintViewDelegate
-        = std::make_unique<HistoryItemDelegate>();
+    TaskSprintsView& taskSprintsView;
     std::optional<int> selectedTaskRow;
 
     void launchTagEditor();
@@ -101,7 +86,6 @@ private slots:
     void onQuickAddTodoReturnPressed();
     void toggleTaskCompleted();
     void showContextMenu(const QPoint& pos);
-    void addNewTask();
     void onTaskRemoved(const QModelIndex&, int first, int last);
 };
 

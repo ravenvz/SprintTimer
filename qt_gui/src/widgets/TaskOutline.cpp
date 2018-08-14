@@ -20,27 +20,19 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TaskOutline.h"
+#include "qt_gui/delegates/TaskItemDelegate.h"
 #include "qt_gui/dialogs/AddTaskDialog.h"
 #include "qt_gui/dialogs/ConfirmationDialog.h"
-#include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "qt_gui/utils/MouseRightReleaseEater.h"
 #include "qt_gui/utils/WidgetUtils.h"
+#include "qt_gui/widgets/TaskSprintsView.h"
 #include "ui_task_outline.h"
 #include <QMenu>
 #include <QStandardItemModel>
-
-namespace {
-
-using sprint_timer::entities::Sprint;
-using sprint_timer::ui::qt_gui::HistoryModel;
-
-HistoryModel::HistoryData
-transformToHistoryData(const std::vector<Sprint>& sprints);
-
-QString sprintToString(const Sprint&);
-
-} // namespace
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QVBoxLayout>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -50,6 +42,7 @@ TaskOutline::TaskOutline(ICoreService& coreService,
                          TaskModel& taskModel,
                          TagModel& tagModel,
                          SprintModel& sprintModel,
+                         TaskSprintsView& taskSprintsView,
                          QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::TaskOutline>()}
@@ -57,12 +50,13 @@ TaskOutline::TaskOutline(ICoreService& coreService,
     , taskModel{taskModel}
     , tagModel{tagModel}
     , sprintModel{sprintModel}
+    , taskSprintsView{taskSprintsView}
 {
     ui->setupUi(this);
 
     ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->lvTaskView->setModel(&taskModel);
-    ui->lvTaskView->setItemDelegate(taskItemDelegate.get());
+    ui->lvTaskView->setItemDelegate(new TaskItemDelegate{this});
 
     connect(ui->pbAddTask,
             &QPushButton::clicked,
@@ -90,11 +84,7 @@ TaskOutline::TaskOutline(ICoreService& coreService,
             &TaskOutline::onTaskRemoved);
 }
 
-TaskOutline::~TaskOutline()
-{
-    delete tagEditor;
-    delete taskSprintsView;
-}
+TaskOutline::~TaskOutline() { delete tagEditor; }
 
 void TaskOutline::onQuickAddTodoReturnPressed()
 {
@@ -108,24 +98,17 @@ void TaskOutline::onQuickAddTodoReturnPressed()
 
 void TaskOutline::onAddTaskButtonPushed()
 {
-    addTaskDialog.reset(new AddTaskDialog{tagModel});
-    connect(
-        &*addTaskDialog, &QDialog::accepted, this, &TaskOutline::addNewTask);
-    addTaskDialog->setModal(true);
-    addTaskDialog->show();
-}
-
-void TaskOutline::addNewTask()
-{
-    taskModel.insert(addTaskDialog->constructedTask());
+    AddTaskDialog addTaskDialog{tagModel};
+    connect(&addTaskDialog, &QDialog::accepted, [&]() {
+        taskModel.insert(addTaskDialog.constructedTask());
+    });
+    addTaskDialog.exec();
 }
 
 void TaskOutline::toggleTaskCompleted()
 {
     taskModel.toggleCompleted(ui->lvTaskView->currentIndex());
 }
-
-QSize TaskOutline::sizeHint() const { return desiredSize; }
 
 void TaskOutline::showContextMenu(const QPoint& pos)
 {
@@ -203,17 +186,8 @@ void TaskOutline::showSprintsForTask()
 
 void TaskOutline::onSprintsForTaskFetched(const std::vector<Sprint>& sprints)
 {
-
-    if (taskSprintsView)
-        taskSprintsView->close();
-    auto taskSprintsHistory = transformToHistoryData(sprints);
-    taskSprintsView = new TaskSprintsView;
-    taskSprintsView->setAttribute(Qt::WA_DeleteOnClose);
-    taskSprintsModel = std::make_unique<HistoryModel>();
-    taskSprintsModel->fill(taskSprintsHistory);
-    taskSprintsView->setDelegate(taskSprintViewDelegate.get());
-    taskSprintsView->setModel(taskSprintsModel.get());
-    taskSprintsView->show();
+    taskSprintsView.setData(sprints);
+    taskSprintsView.show();
 }
 
 void TaskOutline::onTaskSelectionChanged(int row)
@@ -241,33 +215,3 @@ void TaskOutline::onTaskRemoved(const QModelIndex&, int first, int last)
 }
 
 } // namespace sprint_timer::ui::qt_gui
-
-namespace {
-
-HistoryModel::HistoryData
-transformToHistoryData(const std::vector<Sprint>& sprints)
-{
-    using sprint_timer::ui::qt_gui::DateTimeConverter;
-    HistoryModel::HistoryData taskSprintsHistory;
-    taskSprintsHistory.reserve(sprints.size());
-    std::transform(cbegin(sprints),
-                   cend(sprints),
-                   std::back_inserter(taskSprintsHistory),
-                   [](const auto& sprint) {
-                       return std::make_pair(
-                           DateTimeConverter::qDate(sprint.startTime()),
-                           sprintToString(sprint));
-                   });
-    return taskSprintsHistory;
-}
-
-QString sprintToString(const Sprint& sprint)
-{
-    return QString("%1 - %2 %3 %4")
-        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
-        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
-        .arg(QString::fromStdString(prefixTags(sprint.tags())))
-        .arg(QString::fromStdString(sprint.name()));
-}
-
-} // namespace

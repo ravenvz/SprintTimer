@@ -58,6 +58,10 @@
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/TaskOutline.h>
+#include <qt_gui/widgets/TaskSprintsView.h>
+#include <qt_gui/delegates/HistoryItemDelegate.h>
+#include <qt_gui/delegates/TaskItemDelegate.h>
+#include <qt_gui/models/HistoryModel.h>
 
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
@@ -172,8 +176,11 @@ int main(int argc, char* argv[])
         coreService, applicationSettings, sprintModel, taskModel, nullptr};
     auto* launcherMenu
         = new LauncherMenu(applicationSettings, coreService, nullptr);
+    HistoryModel taskSprintsModel;
+    HistoryItemDelegate taskSprintViewDelegate;
+    TaskSprintsView taskSprintsView{taskSprintsModel, taskSprintViewDelegate};
     auto* taskOutline = new TaskOutline(
-        coreService, taskModel, tagModel, sprintModel, nullptr);
+        coreService, taskModel, tagModel, sprintModel, taskSprintsView, nullptr);
     TimerWidgetBase* timerWidget = nullptr;
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
