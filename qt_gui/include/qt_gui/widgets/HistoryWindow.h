@@ -71,8 +71,6 @@ private:
     std::unique_ptr<ExportDialog> exportDialog;
     std::unique_ptr<HistoryItemDelegate> historyItemDelegate
         = std::make_unique<HistoryItemDelegate>();
-    static constexpr int sprintTabIndex{0};
-    static constexpr int taskTabIndex{1};
 
     /* Assumes that history items are ordered by date ascendantly. */
     void fillHistoryModel(const HistoryModel::HistoryData& history);

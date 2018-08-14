@@ -36,6 +36,10 @@ namespace {
 
     QString taskToString(const Task& task);
 
+    constexpr int sprintTabIndex{0};
+
+    constexpr int taskTabIndex{1};
+
 } // namespace
 
 
@@ -168,8 +172,7 @@ void DisplaySprints::exportData(const ExportDialog::ExportOptions& options)
 {
     std::stringstream ss;
     ss << options.path << "/Sprints "
-       << historyView.selectedDateInterval().toString("dd.MM.yyyy")
-       << ".csv";
+       << historyView.selectedDateInterval().toString("dd.MM.yyyy") << ".csv";
     using namespace external_io;
     auto filePath = ss.str();
     auto out = std::make_shared<std::ofstream>(filePath);
@@ -222,8 +225,7 @@ void DisplayTasks::exportData(const ExportDialog::ExportOptions& options)
 {
     std::stringstream ss;
     ss << options.path << "/Tasks "
-       << historyView.selectedDateInterval().toString("dd.MM.yyyy")
-       << ".csv";
+       << historyView.selectedDateInterval().toString("dd.MM.yyyy") << ".csv";
     using namespace external_io;
     auto filePath = ss.str();
     auto out = std::make_shared<std::ofstream>(filePath);
