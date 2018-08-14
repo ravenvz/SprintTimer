@@ -181,7 +181,8 @@ int main(int argc, char* argv[])
     StatisticsWindow statisticsWindow{applicationSettings, coreService};
     GoalProgressWindow progressWindow{applicationSettings, coreService};
     HistoryItemDelegate historyItemDelegate;
-    HistoryWindow historyWindow{coreService, historyItemDelegate};
+    HistoryModel historyModel;
+    HistoryWindow historyWindow{coreService, historyModel, historyItemDelegate};
     SettingsDialog settingsDialog{applicationSettings};
     auto* launcherMenu = new LauncherMenu(progressWindow,
                                           statisticsWindow,

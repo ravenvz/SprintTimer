@@ -54,6 +54,7 @@ class HistoryWindow : public DataWidget {
 
 public:
     explicit HistoryWindow(ICoreService& coreService,
+                           HistoryModel& historyModel,
                            QStyledItemDelegate& historyItemDelegate,
                            QWidget* parent = nullptr);
 
@@ -64,8 +65,7 @@ public:
 private:
     std::unique_ptr<Ui::HistoryWindow> ui;
     ICoreService& coreService;
-    std::unique_ptr<HistoryModel> viewModel
-        = std::make_unique<HistoryModel>(nullptr);
+    HistoryModel& historyModel;
     std::unique_ptr<DisplayState> displaySprintsState;
     std::unique_ptr<DisplayState> displayTasksState;
     DisplayState* historyState;

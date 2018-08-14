@@ -44,11 +44,13 @@ namespace {
 
 
 HistoryWindow::HistoryWindow(ICoreService& coreService,
+                             HistoryModel& historyModel,
                              QStyledItemDelegate& historyItemDelegate,
                              QWidget* parent)
     : DataWidget{parent}
     , ui{std::make_unique<Ui::HistoryWindow>()}
     , coreService{coreService}
+    , historyModel{historyModel}
     , displaySprintsState{std::make_unique<DisplaySprints>(*this)}
     , displayTasksState{std::make_unique<DisplayTasks>(*this)}
 {
@@ -84,7 +86,7 @@ void HistoryWindow::synchronize() { historyState->retrieveHistory(); }
 
 void HistoryWindow::fillHistoryModel(const HistoryModel::HistoryData& history)
 {
-    viewModel->fill(history);
+    historyModel.fill(history);
 }
 
 
@@ -113,7 +115,7 @@ void HistoryWindow::onYearRangeUpdated(
 
 void HistoryWindow::setHistoryModel(QTreeView* view)
 {
-    view->setModel(viewModel.get());
+    view->setModel(&historyModel);
     view->expandAll();
     view->show();
 }
