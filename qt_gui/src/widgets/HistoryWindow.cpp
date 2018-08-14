@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/HistoryWindow.h"
+#include "qt_gui/widgets/DateRangePicker.h"
 #include "ui_history.h"
 #include <QPainter>
 #include <core/external_io/OstreamSink.h>
@@ -55,8 +56,9 @@ HistoryWindow::HistoryWindow(ICoreService& coreService,
     , displayTasksState{std::make_unique<DisplayTasks>(*this)}
 {
     ui->setupUi(this);
-    coreService.yearRange(
-        [this](const auto& range) { this->onYearRangeUpdated(range); });
+    coreService.yearRange([this](const auto& yearRange) {
+        ui->dateRangePicker->setYears(yearRange);
+    });
     ui->taskHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setItemDelegate(&historyItemDelegate);
@@ -106,13 +108,6 @@ void HistoryWindow::onTabSelected(int tabIndex)
 }
 
 
-void HistoryWindow::onYearRangeUpdated(
-    const std::vector<std::string>& yearRange)
-{
-    ui->dateRangePicker->setYears(yearRange);
-}
-
-
 void HistoryWindow::setHistoryModel(QTreeView* view)
 {
     view->setModel(&historyModel);
@@ -123,13 +118,12 @@ void HistoryWindow::setHistoryModel(QTreeView* view)
 
 void HistoryWindow::onExportButtonClicked()
 {
-    exportDialog = std::make_unique<ExportDialog>();
-    exportDialog->setModal(true);
-    connect(exportDialog.get(),
+    ExportDialog exportDialog;
+    connect(&exportDialog,
             &ExportDialog::exportConfirmed,
             this,
             &HistoryWindow::onDataExportConfirmed);
-    exportDialog->show();
+    exportDialog.exec();
 }
 
 

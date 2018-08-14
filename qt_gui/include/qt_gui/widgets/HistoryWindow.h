@@ -22,14 +22,10 @@
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H
 
-#include "qt_gui/delegates/HistoryItemDelegate.h"
 #include "qt_gui/dialogs/ExportDialog.h"
 #include "qt_gui/models/HistoryModel.h"
+#include "qt_gui/utils/DateInterval.h"
 #include "qt_gui/widgets/DataWidget.h"
-#include "qt_gui/widgets/DateRangePicker.h"
-#include <QObject>
-#include <QStandardItemModel>
-#include <QStringListModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <core/ICoreService.h>
@@ -69,12 +65,9 @@ private:
     std::unique_ptr<DisplayState> displaySprintsState;
     std::unique_ptr<DisplayState> displayTasksState;
     DisplayState* historyState;
-    std::unique_ptr<ExportDialog> exportDialog;
 
     /* Assumes that history items are ordered by date ascendantly. */
     void fillHistoryModel(const HistoryModel::HistoryData& history);
-
-    void onYearRangeUpdated(const std::vector<std::string>& yearRange);
 
     dw::TimeSpan selectedDateInterval() const;
 
@@ -91,6 +84,7 @@ private slots:
     void onDataExportConfirmed(const ExportDialog::ExportOptions& options);
 };
 
+
 class DisplayState {
 public:
     explicit DisplayState(HistoryWindow& historyView);
@@ -105,6 +99,7 @@ protected:
     HistoryWindow& historyView;
 };
 
+
 class DisplaySprints : public DisplayState {
 public:
     explicit DisplaySprints(HistoryWindow& historyView);
@@ -117,6 +112,7 @@ private:
     /* Assumes that sprints are sorted by start time. */
     void onHistoryRetrieved(const std::vector<entities::Sprint>& sprints);
 };
+
 
 class DisplayTasks : public DisplayState {
 public:
