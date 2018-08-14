@@ -26,6 +26,7 @@
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
 #include <functional>
+#include <unordered_map>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -39,8 +40,7 @@ public:
 
 private:
     DBService& dbService;
-    Handler handler;
-    qint64 mQueryId{-1};
+    std::unordered_map<qint64, Handler> handlers;
 
 private slots:
     void onResultsReceived(qint64 queryId,
