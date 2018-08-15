@@ -42,50 +42,23 @@ namespace {
 
 GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
                                        ICoreService& coreService,
+                                       ProgressView* dailyProgress,
+                                       ProgressView* weeklyProgress,
+                                       ProgressView* monthlyProgress,
                                        QWidget* parent)
     : DataWidget{parent}
     , applicationSettings{applicationSettings}
     , coreService{coreService}
+    , dailyProgress{dailyProgress}
+    , weeklyProgress{weeklyProgress}
+    , monthlyProgress{monthlyProgress}
 {
     QGridLayout* layout = new QGridLayout(this);
     layout->setSpacing(15);
     layout->setContentsMargins(20, 10, 20, 10);
 
     configureWorkdaysButton = new QPushButton("Configure", this);
-
-    dailyProgress = new ProgressView(applicationSettings.dailyGoal(),
-                                     ProgressView::Rows{3},
-                                     ProgressView::Columns{10},
-                                     ProgressView::GaugeSize{0.7},
-                                     this);
-    dailyProgress->setLegendTitle("Last 30 days");
-    dailyProgress->setLegendTotalCaption("Total completed:");
-    dailyProgress->setLegendAverageCaption("Average per day:");
-    dailyProgress->setLegendPercentageCaption("Goal progress:");
-    dailyProgress->setLegendGoalCaption("Daily goal:");
     dailyProgress->addLegendRow("Workdays:", configureWorkdaysButton);
-
-    weeklyProgress = new ProgressView(applicationSettings.weeklyGoal(),
-                                      ProgressView::Rows{3},
-                                      ProgressView::Columns{4},
-                                      ProgressView::GaugeSize{0.8},
-                                      this);
-    weeklyProgress->setLegendTitle("Last 12 weeks");
-    weeklyProgress->setLegendTotalCaption("Total completed:");
-    weeklyProgress->setLegendAverageCaption("Average per week:");
-    weeklyProgress->setLegendPercentageCaption("Goal progress:");
-    weeklyProgress->setLegendGoalCaption("Weekly goal:");
-
-    monthlyProgress = new ProgressView(applicationSettings.monthlyGoal(),
-                                       ProgressView::Rows{3},
-                                       ProgressView::Columns{4},
-                                       ProgressView::GaugeSize{0.8},
-                                       this);
-    monthlyProgress->setLegendTitle("Last 12 months");
-    monthlyProgress->setLegendTotalCaption("Total completed:");
-    monthlyProgress->setLegendAverageCaption("Average per month:");
-    monthlyProgress->setLegendPercentageCaption("Goal progress:");
-    monthlyProgress->setLegendGoalCaption("Monthly goal:");
 
     dailyProgress->setSizePolicy(QSizePolicy::Expanding,
                                  QSizePolicy::MinimumExpanding);

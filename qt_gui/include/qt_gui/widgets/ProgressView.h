@@ -25,7 +25,6 @@
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
 #include <memory>
-#include <ui_progress_widget.h>
 
 namespace Ui {
 class ProgressView;
@@ -46,7 +45,7 @@ public:
                  Rows numRows,
                  Columns numColumns,
                  GaugeSize gaugeRelSize,
-                 QWidget* parent);
+                 QWidget* parent = nullptr);
 
     ~ProgressView();
 

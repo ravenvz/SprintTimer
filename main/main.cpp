@@ -62,6 +62,7 @@
 #include <qt_gui/widgets/GoalProgressWindow.h>
 #include <qt_gui/widgets/HistoryWindow.h>
 #include <qt_gui/widgets/LauncherMenu.h>
+#include <qt_gui/widgets/ProgressView.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
 #include <qt_gui/widgets/TaskOutline.h>
@@ -179,7 +180,40 @@ int main(int argc, char* argv[])
     auto* sprintOutline = new SprintOutline{
         coreService, applicationSettings, sprintModel, taskModel, nullptr};
     StatisticsWindow statisticsWindow{applicationSettings, coreService};
-    GoalProgressWindow progressWindow{applicationSettings, coreService};
+
+    auto* dailyProgress = new ProgressView(applicationSettings.dailyGoal(),
+                                           ProgressView::Rows{3},
+                                           ProgressView::Columns{10},
+                                           ProgressView::GaugeSize{0.7});
+    dailyProgress->setLegendTitle("Last 30 days");
+    dailyProgress->setLegendTotalCaption("Total completed:");
+    dailyProgress->setLegendAverageCaption("Average per day:");
+    dailyProgress->setLegendPercentageCaption("Goal progress:");
+    dailyProgress->setLegendGoalCaption("Daily goal:");
+    auto* weeklyProgress = new ProgressView(applicationSettings.weeklyGoal(),
+                                            ProgressView::Rows{3},
+                                            ProgressView::Columns{4},
+                                            ProgressView::GaugeSize{0.8});
+    weeklyProgress->setLegendTitle("Last 12 weeks");
+    weeklyProgress->setLegendTotalCaption("Total completed:");
+    weeklyProgress->setLegendAverageCaption("Average per week:");
+    weeklyProgress->setLegendPercentageCaption("Goal progress:");
+    weeklyProgress->setLegendGoalCaption("Weekly goal:");
+    auto* monthlyProgress = new ProgressView(applicationSettings.monthlyGoal(),
+                                             ProgressView::Rows{3},
+                                             ProgressView::Columns{4},
+                                             ProgressView::GaugeSize{0.8});
+    monthlyProgress->setLegendTitle("Last 12 months");
+    monthlyProgress->setLegendTotalCaption("Total completed:");
+    monthlyProgress->setLegendAverageCaption("Average per month:");
+    monthlyProgress->setLegendPercentageCaption("Goal progress:");
+    monthlyProgress->setLegendGoalCaption("Monthly goal:");
+    GoalProgressWindow progressWindow{applicationSettings,
+                                      coreService,
+                                      dailyProgress,
+                                      weeklyProgress,
+                                      monthlyProgress};
+
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
     HistoryWindow historyWindow{coreService, historyModel, historyItemDelegate};

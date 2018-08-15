@@ -38,6 +38,9 @@ class GoalProgressWindow : public DataWidget {
 public:
     GoalProgressWindow(IConfig& applicationSettings,
                        ICoreService& coreService,
+                       ProgressView* dailyProgress,
+                       ProgressView* weeklyProgress,
+                       ProgressView* monthlyProgress,
                        QWidget* parent = 0);
     virtual void synchronize() override;
 
@@ -69,7 +72,6 @@ private slots:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 
 #endif // GOAL_PROGRESS_WIDGET_H
