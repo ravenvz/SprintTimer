@@ -102,7 +102,7 @@ MainWindow::Shrinked::Shrinked(MainWindow& widget)
     widget.launcherMenu->setVisible(false);
     widget.ui->pbToggleView->setText(expand);
     widget.ui->pbToggleMenu->setText(showMenu);
-    widget.size = QSize{300, 250};
+    widget.size = QSize{300, 450};
 }
 
 MainWindow::Expanded::Expanded(MainWindow& widget)

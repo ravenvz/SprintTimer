@@ -108,7 +108,7 @@ private:
     TaskOutline* taskOutline;
     LauncherMenu* launcherMenu;
     State state_;
-    QSize size{300, 250};
+    QSize size{300, 450};
 
 private slots:
     void toggleView();
