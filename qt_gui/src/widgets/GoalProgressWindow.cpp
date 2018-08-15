@@ -45,6 +45,7 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
                                        ProgressView* dailyProgress,
                                        ProgressView* weeklyProgress,
                                        ProgressView* monthlyProgress,
+                                       WorkdaysDialog& workdaysDialog,
                                        QWidget* parent)
     : DataWidget{parent}
     , applicationSettings{applicationSettings}
@@ -52,6 +53,7 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
     , dailyProgress{dailyProgress}
     , weeklyProgress{weeklyProgress}
     , monthlyProgress{monthlyProgress}
+    , workdaysDialog{workdaysDialog}
 {
     QGridLayout* layout = new QGridLayout(this);
     layout->setSpacing(15);
@@ -97,6 +99,10 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
             &QPushButton::clicked,
             this,
             &GoalProgressWindow::launchWorkdaysConfigurationDialog);
+    connect(&workdaysDialog,
+            &QDialog::accepted,
+            this,
+            &GoalProgressWindow::synchronizeDailyData);
 
     synchronize();
 }
@@ -156,13 +162,7 @@ void GoalProgressWindow::onMonthlyDataReceived(
 
 void GoalProgressWindow::launchWorkdaysConfigurationDialog()
 {
-    workdaysDialog.reset(new WorkdaysDialog{applicationSettings});
-    connect(workdaysDialog.get(),
-            &QDialog::accepted,
-            this,
-            &GoalProgressWindow::synchronizeDailyData);
-    workdaysDialog->setModal(true);
-    workdaysDialog->show();
+    workdaysDialog.exec();
 }
 
 namespace {

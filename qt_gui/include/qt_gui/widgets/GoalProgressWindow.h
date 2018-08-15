@@ -33,7 +33,6 @@ namespace sprint_timer::ui::qt_gui {
 
 class ProgressView;
 
-
 class GoalProgressWindow : public DataWidget {
 public:
     GoalProgressWindow(IConfig& applicationSettings,
@@ -41,6 +40,7 @@ public:
                        ProgressView* dailyProgress,
                        ProgressView* weeklyProgress,
                        ProgressView* monthlyProgress,
+                       WorkdaysDialog& workdaysDialog,
                        QWidget* parent = 0);
     virtual void synchronize() override;
 
@@ -52,8 +52,8 @@ private:
     ProgressView* dailyProgress;
     ProgressView* weeklyProgress;
     ProgressView* monthlyProgress;
+    WorkdaysDialog& workdaysDialog;
     QPushButton* configureWorkdaysButton;
-    std::unique_ptr<WorkdaysDialog> workdaysDialog;
 
     void synchronizeDailyData();
 

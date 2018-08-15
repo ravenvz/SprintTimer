@@ -56,6 +56,7 @@
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
+#include <qt_gui/dialogs/WorkdaysDialog.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/widgets/DefaultTimer.h>
 #include <qt_gui/widgets/FancyTimer.h>
@@ -208,11 +209,13 @@ int main(int argc, char* argv[])
     monthlyProgress->setLegendAverageCaption("Average per month:");
     monthlyProgress->setLegendPercentageCaption("Goal progress:");
     monthlyProgress->setLegendGoalCaption("Monthly goal:");
+    WorkdaysDialog workdaysDialog{applicationSettings};
     GoalProgressWindow progressWindow{applicationSettings,
                                       coreService,
                                       dailyProgress,
                                       weeklyProgress,
-                                      monthlyProgress};
+                                      monthlyProgress,
+                                      workdaysDialog};
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
