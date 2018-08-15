@@ -48,10 +48,10 @@ namespace {
 
 } // namespace
 
-ProgressView::ProgressView(int goal,
-                           size_t numRows,
-                           size_t numColumns,
-                           double gaugeRelSize,
+ProgressView::ProgressView(GoalValue goal,
+                           Rows numRows,
+                           Columns numColumns,
+                           GaugeSize gaugeRelSize,
                            QWidget* parent)
     : QFrame{parent}
     , ui{std::make_unique<Ui::ProgressView>()}

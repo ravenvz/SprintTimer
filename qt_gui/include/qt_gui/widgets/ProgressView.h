@@ -37,10 +37,15 @@ class ProgressView : public QFrame {
     Q_OBJECT
 
 public:
-    ProgressView(int goal,
-                 size_t numRows,
-                 size_t numColumns,
-                 double gaugeRelSize,
+    using GoalValue = int;
+    using Rows = size_t;
+    using Columns = size_t;
+    using GaugeSize = double;
+
+    ProgressView(GoalValue goal,
+                 Rows numRows,
+                 Columns numColumns,
+                 GaugeSize gaugeRelSize,
                  QWidget* parent);
 
     ~ProgressView();
@@ -61,10 +66,10 @@ public:
 
 private:
     std::unique_ptr<Ui::ProgressView> ui;
-    int goal;
-    size_t numRows;
-    size_t numColumns;
-    const double gaugeRelSize;
+    GoalValue goal;
+    const Rows numRows;
+    const Columns numColumns;
+    const GaugeSize gaugeRelSize;
 
     void setupGauges();
 

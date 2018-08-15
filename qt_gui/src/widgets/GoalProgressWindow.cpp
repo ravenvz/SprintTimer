@@ -30,28 +30,28 @@ using dw::TimeSpan;
 
 namespace {
 
-TimeSpan thirtyDaysBackTillNow()
-{
-    auto now = DateTime::currentDateTimeLocal();
-    auto from = now.add(DateTime::Days{-29});
-    return TimeSpan{from, now};
-}
+    TimeSpan thirtyDaysBackTillNow()
+    {
+        auto now = DateTime::currentDateTimeLocal();
+        auto from = now.add(DateTime::Days{-29});
+        return TimeSpan{from, now};
+    }
 
-TimeSpan twelveWeeksBackTillNow()
-{
-    auto now = DateTime::currentDateTimeLocal();
-    auto from
-        = now.add(DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
-    return TimeSpan{from, now};
-}
+    TimeSpan twelveWeeksBackTillNow()
+    {
+        auto now = DateTime::currentDateTimeLocal();
+        auto from = now.add(
+            DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
+        return TimeSpan{from, now};
+    }
 
-TimeSpan twelveMonthsBackTillNow()
-{
-    auto now = DateTime::currentDateTimeLocal();
-    auto from = now.add(DateTime::Months{-11});
-    from = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
-    return TimeSpan{from, now};
-}
+    TimeSpan twelveMonthsBackTillNow()
+    {
+        auto now = DateTime::currentDateTimeLocal();
+        auto from = now.add(DateTime::Months{-11});
+        from = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
+        return TimeSpan{from, now};
+    }
 
 } // namespace
 
@@ -68,8 +68,11 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
 
     configureWorkdaysButton = new QPushButton("Configure", this);
 
-    dailyProgress
-        = new ProgressView(applicationSettings.dailyGoal(), 3, 10, 0.7, this);
+    dailyProgress = new ProgressView(applicationSettings.dailyGoal(),
+                                     ProgressView::Rows{3},
+                                     ProgressView::Columns{10},
+                                     ProgressView::GaugeSize{0.7},
+                                     this);
     dailyProgress->setLegendTitle("Last 30 days");
     dailyProgress->setLegendTotalCaption("Total completed:");
     dailyProgress->setLegendAverageCaption("Average per day:");
@@ -77,16 +80,22 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
     dailyProgress->setLegendGoalCaption("Daily goal:");
     dailyProgress->addLegendRow("Workdays:", configureWorkdaysButton);
 
-    weeklyProgress
-        = new ProgressView(applicationSettings.weeklyGoal(), 3, 4, 0.8, this);
+    weeklyProgress = new ProgressView(applicationSettings.weeklyGoal(),
+                                      ProgressView::Rows{3},
+                                      ProgressView::Columns{4},
+                                      ProgressView::GaugeSize{0.8},
+                                      this);
     weeklyProgress->setLegendTitle("Last 12 weeks");
     weeklyProgress->setLegendTotalCaption("Total completed:");
     weeklyProgress->setLegendAverageCaption("Average per week:");
     weeklyProgress->setLegendPercentageCaption("Goal progress:");
     weeklyProgress->setLegendGoalCaption("Weekly goal:");
 
-    monthlyProgress
-        = new ProgressView(applicationSettings.monthlyGoal(), 3, 4, 0.8, this);
+    monthlyProgress = new ProgressView(applicationSettings.monthlyGoal(),
+                                       ProgressView::Rows{3},
+                                       ProgressView::Columns{4},
+                                       ProgressView::GaugeSize{0.8},
+                                       this);
     monthlyProgress->setLegendTitle("Last 12 months");
     monthlyProgress->setLegendTotalCaption("Total completed:");
     monthlyProgress->setLegendAverageCaption("Average per month:");
@@ -202,4 +211,3 @@ void GoalProgressWindow::launchWorkdaysConfigurationDialog()
 }
 
 } // namespace sprint_timer::ui::qt_gui
-
