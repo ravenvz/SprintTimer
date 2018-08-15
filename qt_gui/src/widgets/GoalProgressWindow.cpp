@@ -32,28 +32,11 @@ using dw::TimeSpan;
 
 namespace {
 
-    TimeSpan thirtyDaysBackTillNow()
-    {
-        auto now = DateTime::currentDateTimeLocal();
-        auto from = now.add(DateTime::Days{-29});
-        return TimeSpan{from, now};
-    }
+    TimeSpan thirtyDaysBackTillNow();
 
-    TimeSpan twelveWeeksBackTillNow()
-    {
-        auto now = DateTime::currentDateTimeLocal();
-        auto from = now.add(
-            DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
-        return TimeSpan{from, now};
-    }
+    TimeSpan twelveWeeksBackTillNow();
 
-    TimeSpan twelveMonthsBackTillNow()
-    {
-        auto now = DateTime::currentDateTimeLocal();
-        auto from = now.add(DateTime::Months{-11});
-        from = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
-        return TimeSpan{from, now};
-    }
+    TimeSpan twelveMonthsBackTillNow();
 
 } // namespace
 
@@ -115,27 +98,24 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
     layout->addWidget(weeklyProgress, 1, 0, 1, 1);
     layout->addWidget(monthlyProgress, 1, 1, 1, 1);
 
-    setLayout(layout);
+    setLayout(layout); // reparents
 
     setWindowIcon(QIcon(":icons/sprint_timer.png"));
 
     connect(dailyProgress,
             &ProgressView::goalChanged,
-            this,
             [this, &applicationSettings](int goal) {
                 applicationSettings.setDailyGoal(goal);
                 synchronizeDailyData();
             });
     connect(weeklyProgress,
             &ProgressView::goalChanged,
-            this,
             [this, &applicationSettings](int goal) {
                 applicationSettings.setWeeklyGoal(goal);
                 synchronizeWeeklyData();
             });
     connect(monthlyProgress,
             &ProgressView::goalChanged,
-            this,
             [this, &applicationSettings](int goal) {
                 applicationSettings.setMonthlyGoal(goal);
                 synchronizeMonthlyData();
@@ -211,5 +191,32 @@ void GoalProgressWindow::launchWorkdaysConfigurationDialog()
     workdaysDialog->setModal(true);
     workdaysDialog->show();
 }
+
+namespace {
+
+    TimeSpan thirtyDaysBackTillNow()
+    {
+        auto now = DateTime::currentDateTimeLocal();
+        auto from = now.add(DateTime::Days{-29});
+        return TimeSpan{from, now};
+    }
+
+    TimeSpan twelveWeeksBackTillNow()
+    {
+        auto now = DateTime::currentDateTimeLocal();
+        auto from = now.add(
+            DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
+        return TimeSpan{from, now};
+    }
+
+    TimeSpan twelveMonthsBackTillNow()
+    {
+        auto now = DateTime::currentDateTimeLocal();
+        auto from = now.add(DateTime::Months{-11});
+        from = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
+        return TimeSpan{from, now};
+    }
+
+} // namespace
 
 } // namespace sprint_timer::ui::qt_gui
