@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "qt_gui/widgets/GoalProgressWindow.h"
 #include "qt_gui/widgets/ProgressView.h"
+#include <QGridLayout>
+#include <QPushButton>
 #include <core/utils/WeekdaySelection.h>
 
 namespace sprint_timer::ui::qt_gui {
@@ -62,7 +64,7 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
     , applicationSettings{applicationSettings}
     , coreService{coreService}
 {
-    layout = new QGridLayout(this);
+    QGridLayout* layout = new QGridLayout(this);
     layout->setSpacing(15);
     layout->setContentsMargins(20, 10, 20, 10);
 
@@ -146,7 +148,7 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
     synchronize();
 }
 
-QSize GoalProgressWindow::sizeHint() const { return expectedSize; }
+QSize GoalProgressWindow::sizeHint() const { return QSize{1225, 650}; }
 
 void GoalProgressWindow::synchronize()
 {

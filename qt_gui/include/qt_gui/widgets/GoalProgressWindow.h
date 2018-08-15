@@ -27,8 +27,6 @@
 #include <core/Distribution.h>
 #include <core/IConfig.h>
 #include <core/ICoreService.h>
-#include <QGridLayout>
-#include <QPushButton>
 #include <memory>
 
 namespace sprint_timer::ui::qt_gui {
@@ -48,13 +46,11 @@ public:
 private:
     IConfig& applicationSettings;
     ICoreService& coreService;
-    QGridLayout* layout;
     ProgressView* dailyProgress;
     ProgressView* weeklyProgress;
     ProgressView* monthlyProgress;
     QPushButton* configureWorkdaysButton;
     std::unique_ptr<WorkdaysDialog> workdaysDialog;
-    const QSize expectedSize{1225, 650};
 
     void synchronizeDailyData();
 
