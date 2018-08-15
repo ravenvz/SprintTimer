@@ -42,6 +42,7 @@ public:
                        ProgressView* monthlyProgress,
                        WorkdaysDialog& workdaysDialog,
                        QWidget* parent = 0);
+
     virtual void synchronize() override;
 
     virtual QSize sizeHint() const override;
@@ -59,12 +60,6 @@ private:
     void synchronizeWeeklyData();
 
     void synchronizeMonthlyData();
-
-    void onDailyDataReceived(const Distribution<int>& distribution);
-
-    void onWeeklyDataReceived(const Distribution<int>& distribution);
-
-    void onMonthlyDataReceived(const Distribution<int>& distribution);
 
 private slots:
     void launchWorkdaysConfigurationDialog();

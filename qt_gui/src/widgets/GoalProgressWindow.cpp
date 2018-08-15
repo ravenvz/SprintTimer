@@ -38,6 +38,10 @@ namespace {
 
     TimeSpan twelveMonthsBackTillNow();
 
+    void setProgressData(ProgressView* progressView,
+                         const Distribution<int>& distribution,
+                         size_t numBins);
+
 } // namespace
 
 GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
@@ -116,11 +120,17 @@ void GoalProgressWindow::synchronize()
     synchronizeMonthlyData();
 }
 
+// TODO might be worth it to make ProgressView a hierarhy and put those
+// synchronize methods inside
+
 void GoalProgressWindow::synchronizeDailyData()
 {
     coreService.requestSprintDailyDistribution(
         thirtyDaysBackTillNow(), [this](const auto& distribution) {
-            this->onDailyDataReceived(distribution);
+            const WeekdaySelection workdays{applicationSettings.workdaysCode()};
+            setProgressData(dailyProgress,
+                            distribution,
+                            numWorkdays(thirtyDaysBackTillNow(), workdays));
         });
 }
 
@@ -128,7 +138,8 @@ void GoalProgressWindow::synchronizeWeeklyData()
 {
     coreService.requestSprintWeeklyDistribution(
         twelveWeeksBackTillNow(), [this](const auto& distribution) {
-            this->onWeeklyDataReceived(distribution);
+            setProgressData(
+                weeklyProgress, distribution, distribution.getNumBins());
         });
 }
 
@@ -136,28 +147,9 @@ void GoalProgressWindow::synchronizeMonthlyData()
 {
     coreService.requestSprintMonthlyDistribution(
         twelveMonthsBackTillNow(), [this](const auto& distribution) {
-            this->onMonthlyDataReceived(distribution);
+            setProgressData(
+                monthlyProgress, distribution, distribution.getNumBins());
         });
-}
-
-void GoalProgressWindow::onDailyDataReceived(
-    const Distribution<int>& distribution)
-{
-    const WeekdaySelection workdays{applicationSettings.workdaysCode()};
-    dailyProgress->setData(distribution,
-                           numWorkdays(thirtyDaysBackTillNow(), workdays));
-}
-
-void GoalProgressWindow::onWeeklyDataReceived(
-    const Distribution<int>& distribution)
-{
-    weeklyProgress->setData(distribution, distribution.getNumBins());
-}
-
-void GoalProgressWindow::onMonthlyDataReceived(
-    const Distribution<int>& distribution)
-{
-    monthlyProgress->setData(distribution, distribution.getNumBins());
 }
 
 void GoalProgressWindow::launchWorkdaysConfigurationDialog()
@@ -188,6 +180,13 @@ namespace {
         auto from = now.add(DateTime::Months{-11});
         from = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
         return TimeSpan{from, now};
+    }
+
+    void setProgressData(ProgressView* progressView,
+                         const Distribution<int>& distribution,
+                         size_t numBins)
+    {
+        progressView->setData(distribution, numBins);
     }
 
 } // namespace
