@@ -27,6 +27,15 @@
 #include "ui_mainwindow.h"
 #include <QGridLayout>
 
+namespace {
+
+const QString expand{"E&xpand"};
+const QString collapse{"Co&llapse"};
+const QString showMenu{"S&how menu"};
+const QString hideMenu{"H&ide menu"};
+
+} // namespace
+
 namespace sprint_timer::ui::qt_gui {
 
 MainWindow::MainWindow(SprintOutline* sprintOutline,
@@ -55,8 +64,8 @@ MainWindow::MainWindow(SprintOutline* sprintOutline,
     sprintOutline->setVisible(false);
     taskOutline->setVisible(false);
     launcherMenu->setVisible(false);
-    ui->pbToggleView->setText("Expand");
-    ui->pbToggleMenu->setText("Show menu");
+    ui->pbToggleView->setText(expand);
+    ui->pbToggleMenu->setText(showMenu);
     adjustSize();
 }
 
@@ -81,8 +90,8 @@ MainWindow::ExpandedOutlines::ExpandedOutlines(MainWindow& widget)
     widget.sprintOutline->setVisible(true);
     widget.taskOutline->setVisible(true);
     widget.launcherMenu->setVisible(false);
-    widget.ui->pbToggleView->setText("Collapse");
-    widget.ui->pbToggleMenu->setText("Show menu");
+    widget.ui->pbToggleView->setText(collapse);
+    widget.ui->pbToggleMenu->setText(showMenu);
     widget.size = QSize{812, 450};
 }
 
@@ -91,28 +100,28 @@ MainWindow::Shrinked::Shrinked(MainWindow& widget)
     widget.sprintOutline->setVisible(false);
     widget.taskOutline->setVisible(false);
     widget.launcherMenu->setVisible(false);
-    widget.ui->pbToggleView->setText("Expand");
-    widget.ui->pbToggleMenu->setText("Show menu");
+    widget.ui->pbToggleView->setText(expand);
+    widget.ui->pbToggleMenu->setText(showMenu);
     widget.size = QSize{300, 250};
 }
 
 MainWindow::Expanded::Expanded(MainWindow& widget)
 {
-    widget.taskOutline->setVisible(true);
     widget.sprintOutline->setVisible(true);
+    widget.taskOutline->setVisible(true);
     widget.launcherMenu->setVisible(true);
-    widget.ui->pbToggleView->setText("Collapse");
-    widget.ui->pbToggleMenu->setText("Hide menu");
+    widget.ui->pbToggleView->setText(collapse);
+    widget.ui->pbToggleMenu->setText(hideMenu);
     widget.size = QSize{812, 500};
 }
 
 MainWindow::ExpandedMenu::ExpandedMenu(MainWindow& widget)
 {
-    widget.taskOutline->setVisible(false);
     widget.sprintOutline->setVisible(false);
+    widget.taskOutline->setVisible(false);
     widget.launcherMenu->setVisible(true);
-    widget.ui->pbToggleView->setText("Expand");
-    widget.ui->pbToggleMenu->setText("Hide menu");
+    widget.ui->pbToggleView->setText(expand);
+    widget.ui->pbToggleMenu->setText(hideMenu);
     widget.size = QSize{300, 500};
 }
 
