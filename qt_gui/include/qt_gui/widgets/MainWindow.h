@@ -24,6 +24,7 @@
 
 #include <QWidget>
 #include <memory>
+#include <variant>
 #include <vector>
 
 namespace Ui {
@@ -36,15 +37,8 @@ class SprintOutline;
 class TaskOutline;
 class LauncherMenu;
 class TimerWidgetBase;
-class ExpansionState;
 
 class MainWindow : public QWidget {
-
-    friend class ExpansionState;
-    friend class Expanded;
-    friend class Shrinked;
-    friend class ExpandedMenuOnly;
-    friend class ExpandedWithoutMenu;
 
 public:
     MainWindow(SprintOutline* sprintOutline,
@@ -52,77 +46,73 @@ public:
                TimerWidgetBase* timerWidget,
                LauncherMenu* launcherMenu,
                QWidget* parent = nullptr);
+
     ~MainWindow() override;
+
     MainWindow(const MainWindow&) = delete;
+
     MainWindow& operator=(const MainWindow&) = delete;
+
     MainWindow(MainWindow&&) = delete;
+
     MainWindow& operator=(MainWindow&&) = delete;
 
     QSize sizeHint() const override;
 
 private:
+    struct ExpandedOutlines {
+        explicit ExpandedOutlines(MainWindow& widget);
+    };
+    struct Shrinked {
+        explicit Shrinked(MainWindow& widget);
+    };
+    struct ExpandedMenu {
+        explicit ExpandedMenu(MainWindow& widget);
+    };
+    struct Expanded {
+        explicit Expanded(MainWindow& widget);
+    };
+
+    using State = std::variant<std::monostate,
+                               ExpandedOutlines,
+                               ExpandedMenu,
+                               Expanded,
+                               Shrinked>;
+
+    struct ViewToggledEvent {
+        MainWindow& widget;
+
+        explicit ViewToggledEvent(MainWindow& widget);
+
+        State operator()(std::monostate);
+        State operator()(const ExpandedOutlines&);
+        State operator()(const Shrinked&);
+        State operator()(const ExpandedMenu&);
+        State operator()(const Expanded&);
+    };
+
+    struct MenuToggledEvent {
+        MainWindow& widget;
+
+        explicit MenuToggledEvent(MainWindow& widget);
+
+        State operator()(std::monostate);
+        State operator()(const ExpandedOutlines&);
+        State operator()(const Shrinked&);
+        State operator()(const ExpandedMenu&);
+        State operator()(const Expanded&);
+    };
+
     std::unique_ptr<Ui::MainWindow> ui;
     SprintOutline* sprintOutline;
     TaskOutline* taskOutline;
     LauncherMenu* launcherMenu;
-    ExpansionState* expansionState;
-
-    void setStateUi();
+    State state_;
+    QSize size{300, 250};
 
 private slots:
     void toggleView();
     void toggleMenu();
-};
-
-
-class ExpansionState {
-public:
-    ExpansionState(int width, int height);
-    virtual ~ExpansionState() = default;
-    QSize sizeHint() const;
-    virtual void setStateUi(MainWindow& widget) = 0;
-    virtual void toggleView(MainWindow& widget) = 0;
-    virtual void toggleMenu(MainWindow& widget) = 0;
-
-protected:
-    const int width;
-    const int height;
-};
-
-
-class Expanded final : public ExpansionState {
-public:
-    Expanded();
-    void setStateUi(MainWindow& widget) override;
-    void toggleView(MainWindow& widget) override;
-    void toggleMenu(MainWindow& widget) override;
-};
-
-
-class Shrinked final : public ExpansionState {
-public:
-    Shrinked();
-    void setStateUi(MainWindow& widget) override;
-    void toggleView(MainWindow& widget) override;
-    void toggleMenu(MainWindow& widget) override;
-};
-
-
-class ExpandedMenuOnly final : public ExpansionState {
-public:
-    ExpandedMenuOnly();
-    void setStateUi(MainWindow& widget) override;
-    void toggleView(MainWindow& widget) override;
-    void toggleMenu(MainWindow& widget) override;
-};
-
-
-class ExpandedWithoutMenu final : public ExpansionState {
-public:
-    ExpandedWithoutMenu();
-    void setStateUi(MainWindow& widget) override;
-    void toggleView(MainWindow& widget) override;
-    void toggleMenu(MainWindow& widget) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
