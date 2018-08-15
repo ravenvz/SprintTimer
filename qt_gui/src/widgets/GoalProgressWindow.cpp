@@ -59,7 +59,7 @@ GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
     layout->setSpacing(15);
     layout->setContentsMargins(20, 10, 20, 10);
 
-    configureWorkdaysButton = new QPushButton("Configure", this);
+    auto* configureWorkdaysButton = new QPushButton("Configure", this);
     dailyProgress->addLegendRow("Workdays:", configureWorkdaysButton);
 
     dailyProgress->setSizePolicy(QSizePolicy::Expanding,

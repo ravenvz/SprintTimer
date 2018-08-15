@@ -53,7 +53,6 @@ private:
     ProgressView* weeklyProgress;
     ProgressView* monthlyProgress;
     WorkdaysDialog& workdaysDialog;
-    QPushButton* configureWorkdaysButton;
 
     void synchronizeDailyData();
 
