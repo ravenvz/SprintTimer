@@ -216,33 +216,6 @@ TEST_F(CoreServiceFixture, request_finished_tasks)
                                      [](const std::vector<Task>&) {});
 }
 
-TEST_F(CoreServiceFixture, toggle_task_competion_status)
-{
-    EXPECT_CALL(task_storage_writer_mock,
-                toggleTaskCompletionStatus(
-                    defaultTask.uuid(), dw::DateTime::currentDateTimeLocal()))
-        .Times(1);
-
-    coreService.toggleTaskCompletionStatus(defaultTask);
-}
-
-TEST_F(CoreServiceFixture,
-       undo_toggle_task_completion_status_should_not_modify_timestamp)
-{
-    EXPECT_CALL(task_storage_writer_mock,
-                toggleTaskCompletionStatus(
-                    defaultTask.uuid(), dw::DateTime::currentDateTimeLocal()))
-        .Times(1);
-
-    coreService.toggleTaskCompletionStatus(defaultTask);
-
-    EXPECT_CALL(task_storage_writer_mock,
-                toggleTaskCompletionStatus(defaultTask.uuid(),
-                                           defaultTask.lastModified()))
-        .Times(1);
-    coreService.undoLast();
-}
-
 TEST_F(CoreServiceFixture, request_all_tags)
 {
     EXPECT_CALL(task_storage_reader_mock, requestAllTags(_)).Times(1);

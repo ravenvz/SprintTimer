@@ -20,6 +20,7 @@ target_sources(${TEST_CORE}
     "${CMAKE_CURRENT_LIST_DIR}/test_string_utils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task_builder.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_toggle_task_completion_status.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_weekday_selection.cpp"
 )
 

@@ -54,8 +54,6 @@ public:
                           const entities::Task& editedTask)
         = 0;
 
-    virtual void toggleTaskCompletionStatus(const entities::Task& task) = 0;
-
     virtual void registerTaskPriorities(TaskOrder&& old_order,
                                         TaskOrder&& new_order)
         = 0;

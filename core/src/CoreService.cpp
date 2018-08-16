@@ -76,13 +76,6 @@ void CoreService::editTask(const Task& task, const Task& editedTask)
     invoker.executeCommand(std::move(editTask));
 }
 
-void CoreService::toggleTaskCompletionStatus(const Task& task)
-{
-    auto toggleTaskCommand
-        = std::make_unique<ToggleTaskCompletionStatus>(taskWriter, task);
-    invoker.executeCommand(std::move(toggleTaskCommand));
-}
-
 void CoreService::registerTaskPriorities(TaskOrder&& old_order,
                                          TaskOrder&& new_order)
 {

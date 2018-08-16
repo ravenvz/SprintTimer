@@ -24,6 +24,7 @@
 #include <core/use_cases/AddNewTask.h>
 #include <core/use_cases/DeleteTask.h>
 #include <core/use_cases/RequestUnfinishedTasks.h>
+#include <core/use_cases/ToggleTaskCompletionStatus.h>
 #include <core/utils/Algutils.h>
 #include <string>
 #include <vector>
@@ -155,7 +156,8 @@ Task TaskModel::itemAt(int row) const
 
 void TaskModel::toggleCompleted(const QModelIndex& index)
 {
-    coreService.toggleTaskCompletionStatus(itemAt(index.row()));
+    commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
+        taskWriter, itemAt(index.row())));
     requestDataUpdate();
 }
 
