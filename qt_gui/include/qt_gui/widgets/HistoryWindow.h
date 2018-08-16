@@ -30,6 +30,7 @@
 #include <QTreeView>
 #include <core/ICoreService.h>
 #include <memory>
+#include <variant>
 
 namespace Ui {
 class HistoryWindow;
@@ -38,15 +39,8 @@ class HistoryWindow;
 
 namespace sprint_timer::ui::qt_gui {
 
-
-class DisplayState;
-
-
 class HistoryWindow : public DataWidget {
     Q_OBJECT
-
-    friend class DisplaySprints;
-    friend class DisplayTasks;
 
 public:
     explicit HistoryWindow(ICoreService& coreService,
@@ -59,12 +53,63 @@ public:
     void synchronize() final;
 
 private:
+    struct ShowingSprints {
+        explicit ShowingSprints(HistoryWindow& widget) noexcept;
+
+        void retrieveHistory(HistoryWindow& widget) const;
+
+        void
+        onHistoryRetrieved(HistoryWindow& widget,
+                           const std::vector<entities::Sprint>& sprints) const;
+
+        void exportData(HistoryWindow& widget,
+                        const ExportDialog::ExportOptions& options) const;
+    };
+    struct ShowingTasks {
+        explicit ShowingTasks(HistoryWindow& widget) noexcept;
+
+        void retrieveHistory(HistoryWindow& widget) const;
+
+        void onHistoryRetrieved(HistoryWindow& widget,
+                                const std::vector<entities::Task>& tasks) const;
+
+        void exportData(HistoryWindow& widget,
+                        const ExportDialog::ExportOptions& options) const;
+    };
+    using State = std::variant<std::monostate, ShowingSprints, ShowingTasks>;
+
+    struct HistoryRequestedEvent {
+
+        HistoryWindow& widget;
+
+        explicit HistoryRequestedEvent(HistoryWindow& widget) noexcept;
+
+        void operator()(std::monostate);
+
+        void operator()(const ShowingSprints&);
+
+        void operator()(const ShowingTasks&);
+    };
+
+    struct ExportRequestedEvent {
+
+        HistoryWindow& widget;
+        const ExportDialog::ExportOptions& options;
+
+        ExportRequestedEvent(HistoryWindow& widget,
+                             const ExportDialog::ExportOptions& options);
+
+        void operator()(std::monostate);
+
+        void operator()(const ShowingSprints&);
+
+        void operator()(const ShowingTasks&);
+    };
+
     std::unique_ptr<Ui::HistoryWindow> ui;
     ICoreService& coreService;
     HistoryModel& historyModel;
-    std::unique_ptr<DisplayState> displaySprintsState;
-    std::unique_ptr<DisplayState> displayTasksState;
-    DisplayState* historyState;
+    State state;
 
     /* Assumes that history items are ordered by date ascendantly. */
     void fillHistoryModel(const HistoryModel::HistoryData& history);
@@ -84,50 +129,6 @@ private slots:
     void onDataExportConfirmed(const ExportDialog::ExportOptions& options);
 };
 
-
-class DisplayState {
-public:
-    explicit DisplayState(HistoryWindow& historyView);
-
-    virtual ~DisplayState() = default;
-
-    virtual void retrieveHistory() = 0;
-
-    virtual void exportData(const ExportDialog::ExportOptions& options) = 0;
-
-protected:
-    HistoryWindow& historyView;
-};
-
-
-class DisplaySprints : public DisplayState {
-public:
-    explicit DisplaySprints(HistoryWindow& historyView);
-
-    void retrieveHistory() final;
-
-    void exportData(const ExportDialog::ExportOptions& options) final;
-
-private:
-    /* Assumes that sprints are sorted by start time. */
-    void onHistoryRetrieved(const std::vector<entities::Sprint>& sprints);
-};
-
-
-class DisplayTasks : public DisplayState {
-public:
-    DisplayTasks(HistoryWindow& historyView);
-
-    void retrieveHistory() final;
-
-    void exportData(const ExportDialog::ExportOptions& options) final;
-
-private:
-    /* Assumes that tasks are sorted by timestamp */
-    void onHistoryRetrieved(const std::vector<entities::Task>& tasks);
-};
-
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // HISTORY_VIEW_H

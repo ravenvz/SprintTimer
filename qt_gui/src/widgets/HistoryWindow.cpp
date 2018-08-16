@@ -39,8 +39,6 @@ namespace {
 
     constexpr int sprintTabIndex{0};
 
-    constexpr int taskTabIndex{1};
-
 } // namespace
 
 
@@ -52,8 +50,6 @@ HistoryWindow::HistoryWindow(ICoreService& coreService,
     , ui{std::make_unique<Ui::HistoryWindow>()}
     , coreService{coreService}
     , historyModel{historyModel}
-    , displaySprintsState{std::make_unique<DisplaySprints>(*this)}
-    , displayTasksState{std::make_unique<DisplayTasks>(*this)}
 {
     ui->setupUi(this);
     coreService.yearRange([this](const auto& yearRange) {
@@ -63,7 +59,7 @@ HistoryWindow::HistoryWindow(ICoreService& coreService,
     ui->sprintHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setItemDelegate(&historyItemDelegate);
     ui->taskHistoryView->setItemDelegate(&historyItemDelegate);
-    historyState = displaySprintsState.get();
+    state = ShowingSprints{*this};
 
     connect(ui->historyTab,
             &QTabWidget::currentChanged,
@@ -83,7 +79,10 @@ HistoryWindow::HistoryWindow(ICoreService& coreService,
 HistoryWindow::~HistoryWindow() = default;
 
 
-void HistoryWindow::synchronize() { historyState->retrieveHistory(); }
+void HistoryWindow::synchronize()
+{
+    std::visit(HistoryRequestedEvent{*this}, state);
+}
 
 
 void HistoryWindow::fillHistoryModel(const HistoryModel::HistoryData& history)
@@ -101,9 +100,9 @@ void HistoryWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 void HistoryWindow::onTabSelected(int tabIndex)
 {
     if (tabIndex == sprintTabIndex)
-        historyState = displaySprintsState.get();
-    if (tabIndex == taskTabIndex)
-        historyState = displayTasksState.get();
+        state = ShowingSprints{*this};
+    else
+        state = ShowingTasks{*this};
     synchronize();
 }
 
@@ -136,41 +135,46 @@ TimeSpan HistoryWindow::selectedDateInterval() const
 void HistoryWindow::onDataExportConfirmed(
     const ExportDialog::ExportOptions& options)
 {
-    historyState->exportData(options);
+    std::visit(ExportRequestedEvent{*this, options}, state);
 }
 
 
-DisplayState::DisplayState(HistoryWindow& historyView)
-    : historyView{historyView}
+void HistoryWindow::ShowingSprints::retrieveHistory(HistoryWindow& widget) const
 {
+    widget.coreService.sprintsInTimeRange(
+        widget.selectedDateInterval(), [this, &widget](const auto& sprints) {
+            this->onHistoryRetrieved(widget, sprints);
+        });
 }
 
 
-DisplaySprints::DisplaySprints(HistoryWindow& historyView)
-    : DisplayState{historyView}
+HistoryWindow::ShowingSprints::ShowingSprints(HistoryWindow& widget) noexcept {}
+
+
+void HistoryWindow::ShowingSprints::onHistoryRetrieved(
+    HistoryWindow& widget, const std::vector<Sprint>& sprints) const
 {
+    HistoryModel::HistoryData sprintHistory;
+    sprintHistory.reserve(sprints.size());
+    std::transform(sprints.cbegin(),
+                   sprints.cend(),
+                   std::back_inserter(sprintHistory),
+                   [](const auto& sprint) {
+                       return std::make_pair(
+                           DateTimeConverter::qDate(sprint.startTime()),
+                           sprintToString(sprint));
+                   });
+    widget.fillHistoryModel(sprintHistory);
+    widget.setHistoryModel(widget.ui->sprintHistoryView);
 }
 
 
-DisplayTasks::DisplayTasks(HistoryWindow& historyView)
-    : DisplayState{historyView}
-{
-}
-
-
-void DisplaySprints::retrieveHistory()
-{
-    historyView.coreService.sprintsInTimeRange(
-        historyView.selectedDateInterval(),
-        [this](const auto& sprints) { this->onHistoryRetrieved(sprints); });
-}
-
-
-void DisplaySprints::exportData(const ExportDialog::ExportOptions& options)
+void HistoryWindow::ShowingSprints::exportData(
+    HistoryWindow& widget, const ExportDialog::ExportOptions& options) const
 {
     std::stringstream ss;
     ss << options.path << "/Sprints "
-       << historyView.selectedDateInterval().toString("dd.MM.yyyy") << ".csv";
+       << widget.selectedDateInterval().toString("dd.MM.yyyy") << ".csv";
     using namespace external_io;
     auto filePath = ss.str();
     auto out = std::make_shared<std::ofstream>(filePath);
@@ -189,41 +193,47 @@ void DisplaySprints::exportData(const ExportDialog::ExportOptions& options)
         utils::CSVEncoder encoder;
         return encoder.encode(sprints, serializeSprint);
     };
-    historyView.coreService.exportSprints(
-        historyView.selectedDateInterval(), sink, func);
+    widget.coreService.exportSprints(widget.selectedDateInterval(), sink, func);
 }
 
 
-void DisplaySprints::onHistoryRetrieved(const std::vector<Sprint>& sprints)
+HistoryWindow::ShowingTasks::ShowingTasks(HistoryWindow& widget) noexcept {}
+
+
+void HistoryWindow::ShowingTasks::retrieveHistory(HistoryWindow& widget) const
 {
-    HistoryModel::HistoryData sprintHistory;
-    sprintHistory.reserve(sprints.size());
-    std::transform(sprints.cbegin(),
-                   sprints.cend(),
-                   std::back_inserter(sprintHistory),
-                   [](const auto& sprint) {
+    widget.coreService.requestFinishedTasks(
+        widget.selectedDateInterval(), [this, &widget](const auto& tasks) {
+            this->onHistoryRetrieved(widget, tasks);
+        });
+}
+
+
+void HistoryWindow::ShowingTasks::onHistoryRetrieved(
+    HistoryWindow& widget, const std::vector<Task>& tasks) const
+{
+    HistoryModel::HistoryData taskHistory;
+    taskHistory.reserve(tasks.size());
+    std::transform(tasks.cbegin(),
+                   tasks.cend(),
+                   std::back_inserter(taskHistory),
+                   [](const auto& task) {
                        return std::make_pair(
-                           DateTimeConverter::qDate(sprint.startTime()),
-                           sprintToString(sprint));
+                           DateTimeConverter::qDate(task.lastModified()),
+                           taskToString(task));
                    });
-    historyView.fillHistoryModel(sprintHistory);
-    historyView.setHistoryModel(historyView.ui->sprintHistoryView);
+
+    widget.fillHistoryModel(taskHistory);
+    widget.setHistoryModel(widget.ui->taskHistoryView);
 }
 
 
-void DisplayTasks::retrieveHistory()
-{
-    historyView.coreService.requestFinishedTasks(
-        historyView.selectedDateInterval(),
-        [this](const auto& tasks) { this->onHistoryRetrieved(tasks); });
-}
-
-
-void DisplayTasks::exportData(const ExportDialog::ExportOptions& options)
+void HistoryWindow::ShowingTasks::exportData(
+    HistoryWindow& widget, const ExportDialog::ExportOptions& options) const
 {
     std::stringstream ss;
     ss << options.path << "/Tasks "
-       << historyView.selectedDateInterval().toString("dd.MM.yyyy") << ".csv";
+       << widget.selectedDateInterval().toString("dd.MM.yyyy") << ".csv";
     using namespace external_io;
     auto filePath = ss.str();
     auto out = std::make_shared<std::ofstream>(filePath);
@@ -243,27 +253,56 @@ void DisplayTasks::exportData(const ExportDialog::ExportOptions& options)
         utils::CSVEncoder encoder;
         return encoder.encode(tasks, serializeTask);
     };
-    historyView.coreService.exportTasks(
-        historyView.selectedDateInterval(), sink, func);
+    widget.coreService.exportTasks(widget.selectedDateInterval(), sink, func);
 }
 
 
-void DisplayTasks::onHistoryRetrieved(const std::vector<Task>& tasks)
+HistoryWindow::HistoryRequestedEvent::HistoryRequestedEvent(
+    HistoryWindow& widget) noexcept
+    : widget{widget}
 {
-    HistoryModel::HistoryData taskHistory;
-    taskHistory.reserve(tasks.size());
-    std::transform(tasks.cbegin(),
-                   tasks.cend(),
-                   std::back_inserter(taskHistory),
-                   [](const auto& task) {
-                       return std::make_pair(
-                           DateTimeConverter::qDate(task.lastModified()),
-                           taskToString(task));
-                   });
-
-    historyView.fillHistoryModel(taskHistory);
-    historyView.setHistoryModel(historyView.ui->taskHistoryView);
 }
+
+
+void HistoryWindow::HistoryRequestedEvent::operator()(std::monostate) {}
+
+
+void HistoryWindow::HistoryRequestedEvent::
+operator()(const ShowingSprints& state)
+{
+    state.retrieveHistory(widget);
+}
+
+
+void HistoryWindow::HistoryRequestedEvent::operator()(const ShowingTasks& state)
+{
+    state.retrieveHistory(widget);
+}
+
+
+HistoryWindow::ExportRequestedEvent::ExportRequestedEvent(
+    HistoryWindow& widget, const ExportDialog::ExportOptions& options)
+    : widget{widget}
+    , options{options}
+{
+}
+
+
+void HistoryWindow::ExportRequestedEvent::operator()(std::monostate) {}
+
+
+void HistoryWindow::ExportRequestedEvent::
+operator()(const ShowingSprints& state)
+{
+    state.exportData(widget, options);
+}
+
+
+void HistoryWindow::ExportRequestedEvent::operator()(const ShowingTasks& state)
+{
+    state.exportData(widget, options);
+}
+
 
 namespace {
 
