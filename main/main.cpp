@@ -224,8 +224,13 @@ int main(int argc, char* argv[])
                             defaultCommandInvoker,
                             defaultQueryExecutor};
 
-    TaskModel taskModel{
-        coreService, *taskStorageReader, queryExecutor, nullptr};
+    TaskModel taskModel{coreService,
+                        *taskStorageReader,
+                        *taskStorageWriter,
+                        *sprintStorageReader,
+                        *sprintStorageWriter,
+                        commandInvoker,
+                        queryExecutor};
     SprintModel sprintModel{coreService, nullptr};
     TagModel tagModel{coreService, nullptr};
 

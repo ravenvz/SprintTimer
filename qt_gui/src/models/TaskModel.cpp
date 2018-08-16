@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/models/TaskModel.h"
 #include <QSize>
+#include <core/use_cases/DeleteTask.h>
 #include <core/use_cases/RequestUnfinishedTasks.h>
 #include <core/utils/Algutils.h>
 #include <string>
@@ -32,12 +33,20 @@ using entities::Task;
 using namespace use_cases;
 
 TaskModel::TaskModel(ICoreService& coreService,
-                     ITaskStorageReader& taskStorageReader,
+                     ITaskStorageReader& taskReader,
+                     ITaskStorageWriter& taskWriter,
+                     ISprintStorageReader& sprintReader,
+                     ISprintStorageWriter& sprintWriter,
+                     CommandInvoker& commandInvoker,
                      QueryExecutor& queryExecutor,
                      QObject* parent)
     : AsyncListModel{parent}
     , coreService{coreService}
-    , taskStorageReader{taskStorageReader}
+    , taskReader{taskReader}
+    , taskWriter{taskWriter}
+    , sprintReader{sprintReader}
+    , sprintWriter{sprintWriter}
+    , commandInvoker{commandInvoker}
     , queryExecutor{queryExecutor}
 {
     synchronize();
@@ -45,12 +54,8 @@ TaskModel::TaskModel(ICoreService& coreService,
 
 void TaskModel::requestDataUpdate()
 {
-
     queryExecutor.executeQuery(std::make_unique<RequestUnfinishedTasks>(
-        taskStorageReader,
-        [this](const auto& tasks) { onDataChanged(tasks); }));
-    // coreService.requestUnfinishedTasks(
-    //     [this](const auto& tasks) { this->onDataChanged(tasks); });
+        taskReader, [this](const auto& tasks) { onDataChanged(tasks); }));
 }
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)
@@ -128,7 +133,8 @@ void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 void TaskModel::remove(int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
-    coreService.removeTask(itemAt(row));
+    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
+        taskWriter, sprintReader, sprintWriter, itemAt(row)));
     storage.erase(storage.begin() + row);
     // TODO
     // As a workaround, data update is delayed, because delete operation

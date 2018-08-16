@@ -52,8 +52,6 @@ public:
 
     virtual void registerTask(const entities::Task& task) = 0;
 
-    virtual void removeTask(const entities::Task& task) = 0;
-
     virtual void editTask(const entities::Task& task,
                           const entities::Task& editedTask)
         = 0;

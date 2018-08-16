@@ -51,8 +51,6 @@ public:
 
     void registerTask(const entities::Task& task) final;
 
-    void removeTask(const entities::Task& task) final;
-
     void editTask(const entities::Task& task,
                   const entities::Task& editedTask) final;
 

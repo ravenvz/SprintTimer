@@ -294,37 +294,3 @@ TEST_F(CoreServiceFixture, request_sprints_for_task)
         "123", [](const std::vector<Sprint>& sprints) {});
 }
 
-TEST_F(CoreServiceFixture, remove_task_with_no_sprints)
-{
-    defaultTask.setActualCost(0);
-    EXPECT_CALL(task_storage_writer_mock, remove(defaultTask)).Times(1);
-
-    coreService.removeTask(defaultTask);
-}
-
-TEST_F(CoreServiceFixture, undo_removing_task_with_no_sprints)
-{
-    defaultTask.setActualCost(0);
-    EXPECT_CALL(task_storage_writer_mock, remove(defaultTask)).Times(1);
-
-    coreService.removeTask(defaultTask);
-
-    EXPECT_CALL(task_storage_writer_mock, save(defaultTask)).Times(1);
-
-    coreService.undoLast();
-}
-
-// TEST_F(CoreServiceFixture, remove_task_with_sprints)
-// {
-//     EXPECT_CALL(sprint_storage_reader_mock,
-//                 sprintsForTask(defaultTask.uuid(), _))
-//         .Times(1);
-//     EXPECT_CALL(task_storage_writer_mock, remove(defaultTask)).Times(1);
-//
-//     coreService.removeTask(defaultTask);
-// }
-
-// TEST_F(CoreServiceFixture, register_task_priorities) {
-//     EXPECT_CALL(task_storage_writer_mock, updatePriorities())
-//
-// }
