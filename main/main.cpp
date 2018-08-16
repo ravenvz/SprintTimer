@@ -224,8 +224,7 @@ int main(int argc, char* argv[])
                             defaultCommandInvoker,
                             defaultQueryExecutor};
 
-    TaskModel taskModel{coreService,
-                        *taskStorageReader,
+    TaskModel taskModel{*taskStorageReader,
                         *taskStorageWriter,
                         *sprintStorageReader,
                         *sprintStorageWriter,

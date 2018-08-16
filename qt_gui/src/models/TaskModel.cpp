@@ -36,8 +36,7 @@ namespace sprint_timer::ui::qt_gui {
 using entities::Task;
 using namespace use_cases;
 
-TaskModel::TaskModel(ICoreService& coreService,
-                     ITaskStorageReader& taskReader,
+TaskModel::TaskModel(ITaskStorageReader& taskReader,
                      ITaskStorageWriter& taskWriter,
                      ISprintStorageReader& sprintReader,
                      ISprintStorageWriter& sprintWriter,
@@ -45,7 +44,6 @@ TaskModel::TaskModel(ICoreService& coreService,
                      QueryExecutor& queryExecutor,
                      QObject* parent)
     : AsyncListModel{parent}
-    , coreService{coreService}
     , taskReader{taskReader}
     , taskWriter{taskWriter}
     , sprintReader{sprintReader}

@@ -24,7 +24,6 @@
 
 #include "qt_gui/models/AsyncListModel.h"
 #include <core/CommandInvoker.h>
-#include <core/ICoreService.h>
 #include <core/ISprintStorageReader.h>
 #include <core/ISprintStorageWriter.h>
 #include <core/ITaskStorageReader.h>
@@ -39,8 +38,7 @@ class TaskModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    TaskModel(ICoreService& coreService,
-              ITaskStorageReader& taskReader,
+    TaskModel(ITaskStorageReader& taskReader,
               ITaskStorageWriter& taskWriter,
               ISprintStorageReader& sprintReader,
               ISprintStorageWriter& sprintWriter,
@@ -111,7 +109,6 @@ protected:
     void requestDataUpdate() final;
 
 private:
-    ICoreService& coreService;
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
     ISprintStorageReader& sprintReader;
