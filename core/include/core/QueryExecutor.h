@@ -30,9 +30,10 @@ namespace sprint_timer {
 
 class QueryExecutor {
 public:
-    void executeQuery(std::unique_ptr<Query>&& query)
+    virtual ~QueryExecutor() = default;
+
+    virtual void executeQuery(std::unique_ptr<Query> query)
     {
-        std::cout << query->describe() << std::endl;
         query->execute();
     }
 };

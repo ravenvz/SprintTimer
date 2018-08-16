@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/models/TaskModel.h"
 #include <QSize>
+#include <core/use_cases/RequestUnfinishedTasks.h>
 #include <core/utils/Algutils.h>
 #include <string>
 #include <vector>
@@ -28,18 +29,28 @@
 namespace sprint_timer::ui::qt_gui {
 
 using entities::Task;
+using namespace use_cases;
 
-TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
+TaskModel::TaskModel(ICoreService& coreService,
+                     ITaskStorageReader& taskStorageReader,
+                     QueryExecutor& queryExecutor,
+                     QObject* parent)
     : AsyncListModel{parent}
     , coreService{coreService}
+    , taskStorageReader{taskStorageReader}
+    , queryExecutor{queryExecutor}
 {
     synchronize();
 }
 
 void TaskModel::requestDataUpdate()
 {
-    coreService.requestUnfinishedTasks(
-        [this](const auto& tasks) { this->onDataChanged(tasks); });
+
+    queryExecutor.executeQuery(std::make_unique<RequestUnfinishedTasks>(
+        taskStorageReader,
+        [this](const auto& tasks) { onDataChanged(tasks); }));
+    // coreService.requestUnfinishedTasks(
+    //     [this](const auto& tasks) { this->onDataChanged(tasks); });
 }
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)

@@ -73,6 +73,7 @@ public:
     YearRangeReaderMock year_range_reader_mock;
     SprintDistributionReaderMock sprint_distribution_reader_mock;
     CommandInvoker command_invoker;
+    QueryExecutor query_executor;
 
     CoreService coreService{sprint_storage_reader_mock,
                             sprint_storage_writer_mock,
@@ -82,7 +83,8 @@ public:
                             sprint_distribution_reader_mock,
                             sprint_distribution_reader_mock,
                             sprint_distribution_reader_mock,
-                            command_invoker};
+                            command_invoker,
+                            query_executor};
 };
 
 TEST_F(CoreServiceFixture, registers_sprint_and_increments_tasks_sprints)
@@ -228,13 +230,6 @@ TEST_F(CoreServiceFixture, request_finished_tasks)
 
     coreService.requestFinishedTasks(defaultTimeSpan,
                                      [](const std::vector<Task>&) {});
-}
-
-TEST_F(CoreServiceFixture, request_unfinished_tasks)
-{
-    EXPECT_CALL(task_storage_reader_mock, requestUnfinishedTasks(_)).Times(1);
-
-    coreService.requestUnfinishedTasks([](const std::vector<Task>&) {});
 }
 
 TEST_F(CoreServiceFixture, toggle_task_competion_status)

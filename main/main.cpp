@@ -52,7 +52,10 @@
 #include <qt_storage_impl/QtStorageImplementersFactory.h>
 
 #include <QObject>
+#include <core/ICommandInvoker.h>
 #include <core/IConfig.h>
+#include <core/ITaskStorageReader.h>
+#include <core/QueryExecutor.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
@@ -123,6 +126,50 @@ std::string getOrCreateSprintTimerDataDirectory()
 } // namespace
 
 
+class VerboseQueryExecutor : public sprint_timer::QueryExecutor {
+public:
+    VerboseQueryExecutor(sprint_timer::QueryExecutor& wrapped)
+        : wrapped{wrapped}
+    {
+    }
+
+    void executeQuery(std::unique_ptr<sprint_timer::Query> query)
+    {
+        std::cout << query->describe() << std::endl;
+        wrapped.executeQuery(std::move(query));
+    }
+
+private:
+    sprint_timer::QueryExecutor& wrapped;
+};
+
+
+class VerboseCommandInvoker : public sprint_timer::CommandInvoker {
+public:
+    VerboseCommandInvoker(sprint_timer::ICommandInvoker& wrapped)
+        : wrapped{wrapped}
+    {
+    }
+
+    void executeCommand(std::unique_ptr<sprint_timer::Command> command) override
+    {
+        std::cout << command->describe() << std::endl;
+        wrapped.executeCommand(std::move(command));
+    }
+
+    void undo() override { wrapped.undo(); }
+
+    std::string lastCommandDescription() const override
+    {
+        return wrapped.lastCommandDescription();
+    }
+
+    std::size_t stackSize() const override { return wrapped.stackSize(); }
+
+private:
+    sprint_timer::ICommandInvoker& wrapped;
+};
+
 int main(int argc, char* argv[])
 {
     using namespace sprint_timer;
@@ -161,7 +208,10 @@ int main(int argc, char* argv[])
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
 
-    CommandInvoker command_invoker;
+    CommandInvoker defaultCommandInvoker;
+    VerboseCommandInvoker commandInvoker{defaultCommandInvoker};
+    QueryExecutor defaultQueryExecutor;
+    VerboseQueryExecutor queryExecutor{defaultQueryExecutor};
 
     CoreService coreService{*sprintStorageReader,
                             *sprintStorageWriter,
@@ -171,9 +221,11 @@ int main(int argc, char* argv[])
                             *dailyDistributionReader,
                             *weeklyDistributionReader,
                             *monthlyDistributionReader,
-                            command_invoker};
+                            defaultCommandInvoker,
+                            defaultQueryExecutor};
 
-    TaskModel taskModel{coreService, nullptr};
+    TaskModel taskModel{
+        coreService, *taskStorageReader, queryExecutor, nullptr};
     SprintModel sprintModel{coreService, nullptr};
     TagModel tagModel{coreService, nullptr};
 

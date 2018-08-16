@@ -46,7 +46,8 @@ public:
                 ISprintDistributionReader& sprintDailyDistributionReader,
                 ISprintDistributionReader& sprintWeeklyDistributionReader,
                 ISprintDistributionReader& sprintMonthlyDistributionReader,
-                CommandInvoker& invoker);
+                CommandInvoker& invoker,
+                QueryExecutor& queryExecutor);
 
     void registerTask(const entities::Task& task) final;
 
@@ -64,10 +65,6 @@ public:
     requestFinishedTasks(const dw::TimeSpan& timeSpan,
                          std::function<void(const std::vector<entities::Task>&)>
                              onResultsReceivedCallback) final;
-
-    void requestUnfinishedTasks(
-        std::function<void(const std::vector<entities::Task>&)>
-            onResultsReceivedCallback) final;
 
     void exportTasks(const dw::TimeSpan& timeSpan,
                      std::shared_ptr<external_io::ISink> sink,
@@ -133,7 +130,7 @@ private:
     ISprintDistributionReader& sprintWeeklyDistributionReader;
     ISprintDistributionReader& sprintMonthlyDistributionReader;
     CommandInvoker& invoker;
-    QueryExecutor query_invoker;
+    QueryExecutor& query_invoker;
 };
 
 } // namespace sprint_timer

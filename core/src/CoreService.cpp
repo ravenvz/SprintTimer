@@ -55,7 +55,8 @@ CoreService::CoreService(
     ISprintDistributionReader& sprintDailyDistributionReader,
     ISprintDistributionReader& sprintWeeklyDistributionReader,
     ISprintDistributionReader& sprintMonthlyDistributionReader,
-    CommandInvoker& invoker)
+    CommandInvoker& invoker,
+    QueryExecutor& queryExecutor)
     : sprintReader{sprintStorageReader}
     , sprintWriter{sprintStorageWriter}
     , yearRangeReader{yearRangeReader}
@@ -65,6 +66,7 @@ CoreService::CoreService(
     , sprintWeeklyDistributionReader{sprintWeeklyDistributionReader}
     , sprintMonthlyDistributionReader{sprintMonthlyDistributionReader}
     , invoker{invoker}
+    , query_invoker{queryExecutor}
 {
 }
 
@@ -110,14 +112,6 @@ void CoreService::requestFinishedTasks(
     std::unique_ptr<Query> requestItems
         = std::make_unique<RequestFinishedTasks>(
             taskReader, timeSpan, onResultsReceivedCallback);
-    query_invoker.executeQuery(std::move(requestItems));
-}
-
-void CoreService::requestUnfinishedTasks(
-    std::function<void(const std::vector<Task>&)> onResultsReceivedCallback)
-{
-    auto requestItems = std::make_unique<RequestUnfinishedTasks>(
-        taskReader, onResultsReceivedCallback);
     query_invoker.executeQuery(std::move(requestItems));
 }
 

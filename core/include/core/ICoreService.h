@@ -69,10 +69,6 @@ public:
                          TaskResultHandler onResultsReceivedCallback)
         = 0;
 
-    virtual void
-    requestUnfinishedTasks(TaskResultHandler onResultsReceivedCallback)
-        = 0;
-
     virtual void exportTasks(const dw::TimeSpan& timeSpan,
                              std::shared_ptr<external_io::ISink> sink,
                              TaskEncodingFunc func)

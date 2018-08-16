@@ -1,22 +1,26 @@
 set(TEST_CORE test_core)
 project(${TEST_CORE})
-set(SOURCE_FILES
-        test_sprint_statistics.cpp
-        test_distribution.cpp
-        test_string_utils.cpp
-        test_task.cpp
-        test_stateful_timer.cpp
-        test_core_service.cpp
-        test_increment_task_sprints.cpp
-        test_csv_reader.cpp
-        test_csv_writer.cpp
-        test_sprint_builder.cpp
-        test_task_builder.cpp
-        test_weekday_selection.cpp
-        test_algutils.cpp
+
+add_executable(${TEST_CORE})
+
+target_sources(${TEST_CORE}
+    PRIVATE
+    "${CMAKE_CURRENT_LIST_DIR}/test_algutils.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_core_service.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_csv_reader.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_csv_writer.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_distribution.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_increment_task_sprints.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_request_unfinished_tasks.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_sprint_builder.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_sprint_statistics.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_stateful_timer.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_string_utils.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_task.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_task_builder.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_weekday_selection.cpp"
 )
 
-add_executable(${TEST_CORE} ${SOURCE_FILES})
 target_compile_features(${TEST_CORE} PRIVATE cxx_std_17)
 target_compile_options(${TEST_CORE} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${TEST_CORE} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
