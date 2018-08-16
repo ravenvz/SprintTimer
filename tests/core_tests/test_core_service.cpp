@@ -149,13 +149,6 @@ TEST_F(CoreServiceFixture, request_monthly_distribution)
         defaultTimeSpan, [](const Distribution<int>& result) {});
 }
 
-TEST_F(CoreServiceFixture, register_task)
-{
-    EXPECT_CALL(task_storage_writer_mock, save(defaultTask)).Times(1);
-
-    coreService.registerTask(defaultTask);
-}
-
 TEST_F(CoreServiceFixture, edit_task_should_only_alter_allowed_parameters)
 {
     Task editedTask = TaskBuilder{}
@@ -193,15 +186,6 @@ TEST_F(CoreServiceFixture, undo_register_sprint)
     EXPECT_CALL(sprint_storage_writer_mock, remove(_)).Times(1);
     EXPECT_CALL(task_storage_writer_mock, decrementSprints(taskUuid)).Times(1);
 
-    coreService.undoLast();
-}
-
-TEST_F(CoreServiceFixture, undo_register_task)
-{
-    EXPECT_CALL(task_storage_writer_mock, save(defaultTask)).Times(1);
-    coreService.registerTask(defaultTask);
-
-    EXPECT_CALL(task_storage_writer_mock, remove(defaultTask)).Times(1);
     coreService.undoLast();
 }
 
@@ -293,4 +277,3 @@ TEST_F(CoreServiceFixture, request_sprints_for_task)
     coreService.requestSprintsForTask(
         "123", [](const std::vector<Sprint>& sprints) {});
 }
-

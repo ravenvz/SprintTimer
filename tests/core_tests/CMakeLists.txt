@@ -5,6 +5,7 @@ add_executable(${TEST_CORE})
 
 target_sources(${TEST_CORE}
     PRIVATE
+    "${CMAKE_CURRENT_LIST_DIR}/test_add_new_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_algutils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_core_service.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_csv_reader.cpp"

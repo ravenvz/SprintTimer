@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/models/TaskModel.h"
 #include <QSize>
+#include <core/use_cases/AddNewTask.h>
 #include <core/use_cases/DeleteTask.h>
 #include <core/use_cases/RequestUnfinishedTasks.h>
 #include <core/utils/Algutils.h>
@@ -124,7 +125,8 @@ int TaskModel::rowCount(const QModelIndex& parent) const
 
 void TaskModel::insert(const Task& item)
 {
-    coreService.registerTask(item);
+    commandInvoker.executeCommand(
+        std::make_unique<AddNewTask>(taskWriter, item));
     requestDataUpdate();
 }
 

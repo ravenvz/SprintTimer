@@ -70,12 +70,6 @@ CoreService::CoreService(
 {
 }
 
-void CoreService::registerTask(const Task& task)
-{
-    auto addTask = std::make_unique<AddNewTask>(taskWriter, task);
-    invoker.executeCommand(std::move(addTask));
-}
-
 void CoreService::editTask(const Task& task, const Task& editedTask)
 {
     auto editTask = std::make_unique<EditTask>(taskWriter, task, editedTask);
