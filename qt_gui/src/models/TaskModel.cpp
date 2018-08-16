@@ -23,6 +23,7 @@
 #include <QSize>
 #include <core/use_cases/AddNewTask.h>
 #include <core/use_cases/DeleteTask.h>
+#include <core/use_cases/EditTask.h>
 #include <core/use_cases/RequestUnfinishedTasks.h>
 #include <core/use_cases/ToggleTaskCompletionStatus.h>
 #include <core/utils/Algutils.h>
@@ -164,7 +165,8 @@ void TaskModel::toggleCompleted(const QModelIndex& index)
 void TaskModel::replaceItemAt(int row, const Task& newItem)
 {
     Task oldItem = itemAt(row);
-    coreService.editTask(oldItem, newItem);
+    commandInvoker.executeCommand(
+        std::make_unique<EditTask>(taskWriter, oldItem, newItem));
     requestDataUpdate();
 }
 

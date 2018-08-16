@@ -49,9 +49,6 @@ public:
                 CommandInvoker& invoker,
                 QueryExecutor& queryExecutor);
 
-    void editTask(const entities::Task& task,
-                  const entities::Task& editedTask) final;
-
     void registerTaskPriorities(TaskOrder&& old_order,
                                 TaskOrder&& new_order) final;
 

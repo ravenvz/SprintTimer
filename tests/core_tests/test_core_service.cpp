@@ -149,32 +149,6 @@ TEST_F(CoreServiceFixture, request_monthly_distribution)
         defaultTimeSpan, [](const Distribution<int>& result) {});
 }
 
-TEST_F(CoreServiceFixture, edit_task_should_only_alter_allowed_parameters)
-{
-    Task editedTask = TaskBuilder{}
-                          .withName("Edited")
-                          .withEstimatedCost(defaultTask.estimatedCost() + 3)
-                          .withActualCost(defaultTask.actualCost() + 2)
-                          .withCompletionStatus(!defaultTask.isCompleted())
-                          .withExplicitTags({Tag{"Tag2"}, Tag{"New Tag"}})
-                          .build();
-    Task restrictedTask
-        = TaskBuilder{}
-              .withUuid(defaultTask.uuid()) // Should not be editable
-              .withActualCost(
-                  defaultTask.actualCost()) // Should not be editable
-              .withCompletionStatus(
-                  defaultTask.isCompleted()) // Should not be editable
-              .withName(editedTask.name())
-              .withEstimatedCost(editedTask.estimatedCost())
-              .withExplicitTags(editedTask.tags())
-              .build();
-    EXPECT_CALL(task_storage_writer_mock, edit(defaultTask, restrictedTask))
-        .Times(1);
-
-    coreService.editTask(defaultTask, editedTask);
-}
-
 TEST_F(CoreServiceFixture, undo_register_sprint)
 {
     const std::string taskUuid = defaultTask.uuid();
@@ -186,23 +160,6 @@ TEST_F(CoreServiceFixture, undo_register_sprint)
     EXPECT_CALL(sprint_storage_writer_mock, remove(_)).Times(1);
     EXPECT_CALL(task_storage_writer_mock, decrementSprints(taskUuid)).Times(1);
 
-    coreService.undoLast();
-}
-
-TEST_F(CoreServiceFixture, undo_edit_task)
-{
-    Task editedTask = TaskBuilder{}
-                          .withUuid(defaultTask.uuid())
-                          .withExplicitTags({Tag{"New tag"}})
-                          .withName("Edited")
-                          .withActualCost(defaultTask.actualCost())
-                          .withEstimatedCost(defaultTask.estimatedCost() + 2)
-                          .build();
-    EXPECT_CALL(task_storage_writer_mock, edit(defaultTask, editedTask))
-        .Times(1);
-    coreService.editTask(defaultTask, editedTask);
-
-    EXPECT_CALL(task_storage_writer_mock, edit(editedTask, defaultTask));
     coreService.undoLast();
 }
 
