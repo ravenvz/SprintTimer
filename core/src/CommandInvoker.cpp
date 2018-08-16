@@ -23,7 +23,7 @@
 
 namespace sprint_timer {
 
-void CommandInvoker::executeCommand(std::unique_ptr<Command>&& command)
+void CommandInvoker::executeCommand(std::unique_ptr<Command> command)
 {
     command->execute();
     commandStack.push(std::move(command));

@@ -34,7 +34,7 @@ namespace sprint_timer {
 
 class CommandInvoker : public ICommandInvoker, public Observable {
 public:
-    void executeCommand(std::unique_ptr<Command>&& command) override;
+    void executeCommand(std::unique_ptr<Command> command) override;
 
     void undo() override;
 
