@@ -18,6 +18,7 @@ target_sources(${TEST_CORE}
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint_builder.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint_statistics.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_stateful_timer.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_store_unfinished_tasks_order.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_string_utils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task_builder.cpp"

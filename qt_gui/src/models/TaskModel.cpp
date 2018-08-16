@@ -25,6 +25,7 @@
 #include <core/use_cases/DeleteTask.h>
 #include <core/use_cases/EditTask.h>
 #include <core/use_cases/RequestUnfinishedTasks.h>
+#include <core/use_cases/StoreUnfinishedTasksOrder.h>
 #include <core/use_cases/ToggleTaskCompletionStatus.h>
 #include <core/utils/Algutils.h>
 #include <string>
@@ -176,7 +177,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
                          const QModelIndex& destinationParent,
                          int destinationChild)
 {
-    // TODO Sadly this leads to ignoring dropping item below the last item,
+    // TODO This leads to ignoring dropping item below the last item,
     // should study Qt documentation for item reordering
     if (destinationChild == -1)
         return false;
@@ -206,8 +207,8 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
 
     auto new_order = uuidsInOrder();
 
-    coreService.registerTaskPriorities(std::move(old_order),
-                                       std::move(new_order));
+    commandInvoker.executeCommand(std::make_unique<StoreUnfinishedTasksOrder>(
+        taskWriter, std::move(old_order), std::move(new_order)));
 
     return true;
 }

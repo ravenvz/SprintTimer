@@ -49,9 +49,6 @@ public:
                 CommandInvoker& invoker,
                 QueryExecutor& queryExecutor);
 
-    void registerTaskPriorities(TaskOrder&& old_order,
-                                TaskOrder&& new_order) final;
-
     void
     requestFinishedTasks(const dw::TimeSpan& timeSpan,
                          std::function<void(const std::vector<entities::Task>&)>

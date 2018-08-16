@@ -50,10 +50,6 @@ public:
 
     virtual ~ICoreService() = default;
 
-    virtual void registerTaskPriorities(TaskOrder&& old_order,
-                                        TaskOrder&& new_order)
-        = 0;
-
     virtual void
     requestFinishedTasks(const dw::TimeSpan& timeSpan,
                          TaskResultHandler onResultsReceivedCallback)

@@ -70,15 +70,6 @@ CoreService::CoreService(
 {
 }
 
-void CoreService::registerTaskPriorities(TaskOrder&& old_order,
-                                         TaskOrder&& new_order)
-{
-    auto registerPrioritiesCommand
-        = std::make_unique<StoreUnfinishedTasksOrder>(
-            taskWriter, std::move(old_order), std::move(new_order));
-    invoker.executeCommand(std::move(registerPrioritiesCommand));
-}
-
 void CoreService::requestFinishedTasks(
     const TimeSpan& timeSpan,
     std::function<void(const std::vector<Task>&)> onResultsReceivedCallback)
