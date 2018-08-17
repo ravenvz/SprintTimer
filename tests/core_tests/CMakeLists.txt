@@ -19,6 +19,7 @@ target_sources(${TEST_CORE}
     "${CMAKE_CURRENT_LIST_DIR}/test_request_finished_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_sprint_distribution.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_sprints.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_request_sprints_for_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_unfinished_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_min_max_year.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint_builder.cpp"

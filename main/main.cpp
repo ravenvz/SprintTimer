@@ -298,12 +298,12 @@ int main(int argc, char* argv[])
                                           nullptr);
     HistoryModel taskSprintsModel;
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
-    auto* taskOutline = new TaskOutline(coreService,
+    auto* taskOutline = new TaskOutline(*sprintStorageReader,
+                                        queryExecutor,
                                         taskModel,
                                         tagModel,
                                         sprintModel,
-                                        taskSprintsView,
-                                        nullptr);
+                                        taskSprintsView);
     TimerWidgetBase* timerWidget = nullptr;
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)

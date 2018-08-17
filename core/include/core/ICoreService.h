@@ -75,12 +75,6 @@ public:
     virtual uint64_t numRevertableCommands() const = 0;
 
     virtual void undoLast() = 0;
-
-    virtual void requestSprintsForTask(
-        const std::string& taskUuid,
-        std::function<void(const std::vector<entities::Sprint>&)>
-            onResultsReceivedCallback)
-        = 0;
 };
 
 } // namespace sprint_timer

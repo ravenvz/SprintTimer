@@ -136,13 +136,4 @@ void CoreService::registerUndoObserver(Observer& observer)
     invoker.attach(observer);
 }
 
-void CoreService::requestSprintsForTask(
-    const std::string& taskUuid,
-    ISprintStorageReader::Handler onResultsReceivedCallback)
-{
-    auto requestSprints = std::make_unique<RequestSprintsForTask>(
-        sprintReader, taskUuid, onResultsReceivedCallback);
-    query_invoker.executeQuery(std::move(requestSprints));
-}
-
 } // namespace sprint_timer

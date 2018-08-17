@@ -28,7 +28,8 @@
 #include "qt_gui/widgets/TagEditor.h"
 #include <QPointer>
 #include <QWidget>
-#include <core/ICoreService.h>
+#include <core/ISprintStorageReader.h>
+#include <core/QueryExecutor.h>
 #include <memory>
 #include <optional>
 
@@ -48,18 +49,20 @@ class TaskOutline : public QWidget {
     Q_OBJECT
 
 public:
-    TaskOutline(ICoreService& coreService,
+    TaskOutline(ISprintStorageReader& sprintReader,
+                QueryExecutor& queryExecutor,
                 TaskModel& taskModel,
                 TagModel& tagModel,
                 SprintModel& sprintModel,
                 TaskSprintsView& taskSprintsView,
-                QWidget* parent);
+                QWidget* parent = nullptr);
 
     ~TaskOutline() override;
 
 private:
     std::unique_ptr<Ui::TaskOutline> ui;
-    ICoreService& coreService;
+    ISprintStorageReader& sprintReader;
+    QueryExecutor& queryExecutor;
     QPointer<TagEditor> tagEditor;
     TaskModel& taskModel;
     TagModel& tagModel;

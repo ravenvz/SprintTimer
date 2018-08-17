@@ -33,12 +33,15 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
+#include <core/use_cases/RequestSprintsForTask.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
+using use_cases::RequestSprintsForTask;
 
-TaskOutline::TaskOutline(ICoreService& coreService,
+TaskOutline::TaskOutline(ISprintStorageReader& sprintReader,
+                         QueryExecutor& queryExecutor,
                          TaskModel& taskModel,
                          TagModel& tagModel,
                          SprintModel& sprintModel,
@@ -46,7 +49,8 @@ TaskOutline::TaskOutline(ICoreService& coreService,
                          QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::TaskOutline>()}
-    , coreService{coreService}
+    , sprintReader{sprintReader}
+    , queryExecutor{queryExecutor}
     , taskModel{taskModel}
     , tagModel{tagModel}
     , sprintModel{sprintModel}
@@ -178,10 +182,10 @@ void TaskOutline::showSprintsForTask()
     QModelIndex index = ui->lvTaskView->currentIndex();
     const auto task = taskModel.itemAt(index.row());
 
-    coreService.requestSprintsForTask(task.uuid(),
-                                      [&](const std::vector<Sprint>& sprints) {
-                                          onSprintsForTaskFetched(sprints);
-                                      });
+    queryExecutor.executeQuery(std::make_unique<RequestSprintsForTask>(
+        sprintReader, task.uuid(), [&](const std::vector<Sprint>& sprints) {
+            onSprintsForTaskFetched(sprints);
+        }));
 }
 
 void TaskOutline::onSprintsForTaskFetched(const std::vector<Sprint>& sprints)
