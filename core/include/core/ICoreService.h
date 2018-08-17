@@ -77,21 +77,6 @@ public:
                                onResultsReceivedCallback)
         = 0;
 
-    virtual void requestSprintDailyDistribution(
-        const dw::TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-        = 0;
-
-    virtual void requestSprintWeeklyDistribution(
-        const dw::TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-        = 0;
-
-    virtual void requestSprintMonthlyDistribution(
-        const dw::TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-        = 0;
-
     virtual std::string lastCommandDescription() const = 0;
 
     virtual void registerUndoObserver(Observer& observer) = 0;

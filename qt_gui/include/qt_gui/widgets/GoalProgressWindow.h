@@ -26,8 +26,10 @@
 #include "qt_gui/widgets/DataWidget.h"
 #include <core/Distribution.h>
 #include <core/IConfig.h>
-#include <core/ICoreService.h>
 #include <memory>
+
+#include <core/ISprintDistributionReader.h>
+#include <core/QueryExecutor.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -36,11 +38,14 @@ class ProgressView;
 class GoalProgressWindow : public DataWidget {
 public:
     GoalProgressWindow(IConfig& applicationSettings,
-                       ICoreService& coreService,
                        ProgressView* dailyProgress,
                        ProgressView* weeklyProgress,
                        ProgressView* monthlyProgress,
                        WorkdaysDialog& workdaysDialog,
+                       ISprintDistributionReader& dailyDistributionReader,
+                       ISprintDistributionReader& weeklyDistributionReader,
+                       ISprintDistributionReader& monthlyDistributionReader,
+                       QueryExecutor& queryExecutor,
                        QWidget* parent = 0);
 
     virtual void synchronize() override;
@@ -49,11 +54,14 @@ public:
 
 private:
     IConfig& applicationSettings;
-    ICoreService& coreService;
     ProgressView* dailyProgress;
     ProgressView* weeklyProgress;
     ProgressView* monthlyProgress;
     WorkdaysDialog& workdaysDialog;
+    ISprintDistributionReader& dailyDistributionReader;
+    ISprintDistributionReader& weeklyDistributionReader;
+    ISprintDistributionReader& monthlyDistributionReader;
+    QueryExecutor& queryExecutor;
 
     void synchronizeDailyData();
 

@@ -71,7 +71,6 @@ public:
     SprintStorageWriterMock sprint_storage_writer_mock;
     SprintStorageReaderMock sprint_storage_reader_mock;
     YearRangeReaderMock year_range_reader_mock;
-    SprintDistributionReaderMock sprint_distribution_reader_mock;
     CommandInvoker command_invoker;
     QueryExecutor query_executor;
 
@@ -80,9 +79,6 @@ public:
                             year_range_reader_mock,
                             task_storage_reader_mock,
                             task_storage_writer_mock,
-                            sprint_distribution_reader_mock,
-                            sprint_distribution_reader_mock,
-                            sprint_distribution_reader_mock,
                             command_invoker,
                             query_executor};
 };
@@ -111,33 +107,6 @@ TEST_F(CoreServiceFixture, request_year_range)
     EXPECT_CALL(year_range_reader_mock, requestYearRange(_));
 
     coreService.yearRange([](const std::vector<std::string>& result) {});
-}
-
-TEST_F(CoreServiceFixture, request_daily_distribution)
-{
-    EXPECT_CALL(sprint_distribution_reader_mock,
-                requestDistribution(defaultTimeSpan, _));
-
-    coreService.requestSprintDailyDistribution(
-        defaultTimeSpan, [](const Distribution<int>& result) {});
-}
-
-TEST_F(CoreServiceFixture, request_weekly_distribution)
-{
-    EXPECT_CALL(sprint_distribution_reader_mock,
-                requestDistribution(defaultTimeSpan, _));
-
-    coreService.requestSprintWeeklyDistribution(
-        defaultTimeSpan, [](const Distribution<int>& result) {});
-}
-
-TEST_F(CoreServiceFixture, request_monthly_distribution)
-{
-    EXPECT_CALL(sprint_distribution_reader_mock,
-                requestDistribution(defaultTimeSpan, _));
-
-    coreService.requestSprintMonthlyDistribution(
-        defaultTimeSpan, [](const Distribution<int>& result) {});
 }
 
 TEST_F(CoreServiceFixture, undo_register_sprint)

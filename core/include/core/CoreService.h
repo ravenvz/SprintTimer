@@ -43,9 +43,6 @@ public:
                 IYearRangeReader& yearRangeReader,
                 ITaskStorageReader& taskStorageReader,
                 ITaskStorageWriter& taskStorageWriter,
-                ISprintDistributionReader& sprintDailyDistributionReader,
-                ISprintDistributionReader& sprintWeeklyDistributionReader,
-                ISprintDistributionReader& sprintMonthlyDistributionReader,
                 CommandInvoker& invoker,
                 QueryExecutor& queryExecutor);
 
@@ -72,21 +69,6 @@ public:
     void yearRange(std::function<void(const std::vector<std::string>&)>
                        onResultsReceivedCallback) final;
 
-    void
-    requestSprintDailyDistribution(const dw::TimeSpan& timeSpan,
-                                   std::function<void(const Distribution<int>&)>
-                                       onResultsReceivedCallback) final;
-
-    void requestSprintWeeklyDistribution(
-        const dw::TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-        final;
-
-    void requestSprintMonthlyDistribution(
-        const dw::TimeSpan& timeSpan,
-        std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-        final;
-
     std::string lastCommandDescription() const final;
 
     uint64_t numRevertableCommands() const final;
@@ -105,9 +87,6 @@ private:
     IYearRangeReader& yearRangeReader;
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
-    ISprintDistributionReader& sprintDailyDistributionReader;
-    ISprintDistributionReader& sprintWeeklyDistributionReader;
-    ISprintDistributionReader& sprintMonthlyDistributionReader;
     CommandInvoker& invoker;
     QueryExecutor& query_invoker;
 };

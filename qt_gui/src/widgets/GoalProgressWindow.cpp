@@ -25,10 +25,13 @@
 #include <QPushButton>
 #include <core/utils/WeekdaySelection.h>
 
+#include <core/use_cases/RequestSprintDistribution.h>
+
 namespace sprint_timer::ui::qt_gui {
 
 using dw::DateTime;
 using dw::TimeSpan;
+using use_cases::RequestSprintDistribution;
 
 namespace {
 
@@ -44,20 +47,27 @@ namespace {
 
 } // namespace
 
-GoalProgressWindow::GoalProgressWindow(IConfig& applicationSettings,
-                                       ICoreService& coreService,
-                                       ProgressView* dailyProgress,
-                                       ProgressView* weeklyProgress,
-                                       ProgressView* monthlyProgress,
-                                       WorkdaysDialog& workdaysDialog,
-                                       QWidget* parent)
+GoalProgressWindow::GoalProgressWindow(
+    IConfig& applicationSettings,
+    ProgressView* dailyProgress,
+    ProgressView* weeklyProgress,
+    ProgressView* monthlyProgress,
+    WorkdaysDialog& workdaysDialog,
+    ISprintDistributionReader& dailyDistributionReader,
+    ISprintDistributionReader& weeklyDistributionReader,
+    ISprintDistributionReader& monthlyDistributionReader,
+    QueryExecutor& queryExecutor,
+    QWidget* parent)
     : DataWidget{parent}
     , applicationSettings{applicationSettings}
-    , coreService{coreService}
     , dailyProgress{dailyProgress}
     , weeklyProgress{weeklyProgress}
     , monthlyProgress{monthlyProgress}
     , workdaysDialog{workdaysDialog}
+    , dailyDistributionReader{dailyDistributionReader}
+    , weeklyDistributionReader{weeklyDistributionReader}
+    , monthlyDistributionReader{monthlyDistributionReader}
+    , queryExecutor{queryExecutor}
 {
     QGridLayout* layout = new QGridLayout(this);
     layout->setSpacing(15);
@@ -125,31 +135,37 @@ void GoalProgressWindow::synchronize()
 
 void GoalProgressWindow::synchronizeDailyData()
 {
-    coreService.requestSprintDailyDistribution(
-        thirtyDaysBackTillNow(), [this](const auto& distribution) {
+    queryExecutor.executeQuery(std::make_unique<RequestSprintDistribution>(
+        dailyDistributionReader,
+        thirtyDaysBackTillNow(),
+        [this](const auto& distribution) {
             const WeekdaySelection workdays{applicationSettings.workdaysCode()};
             setProgressData(dailyProgress,
                             distribution,
                             numWorkdays(thirtyDaysBackTillNow(), workdays));
-        });
+        }));
 }
 
 void GoalProgressWindow::synchronizeWeeklyData()
 {
-    coreService.requestSprintWeeklyDistribution(
-        twelveWeeksBackTillNow(), [this](const auto& distribution) {
+    queryExecutor.executeQuery(std::make_unique<RequestSprintDistribution>(
+        weeklyDistributionReader,
+        twelveWeeksBackTillNow(),
+        [this](const auto& distribution) {
             setProgressData(
                 weeklyProgress, distribution, distribution.getNumBins());
-        });
+        }));
 }
 
 void GoalProgressWindow::synchronizeMonthlyData()
 {
-    coreService.requestSprintMonthlyDistribution(
-        twelveMonthsBackTillNow(), [this](const auto& distribution) {
+    queryExecutor.executeQuery(std::make_unique<RequestSprintDistribution>(
+        monthlyDistributionReader,
+        twelveMonthsBackTillNow(),
+        [this](const auto& distribution) {
             setProgressData(
                 monthlyProgress, distribution, distribution.getNumBins());
-        });
+        }));
 }
 
 void GoalProgressWindow::launchWorkdaysConfigurationDialog()

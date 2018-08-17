@@ -218,9 +218,6 @@ int main(int argc, char* argv[])
                             *sprintYearRangeReader,
                             *taskStorageReader,
                             *taskStorageWriter,
-                            *dailyDistributionReader,
-                            *weeklyDistributionReader,
-                            *monthlyDistributionReader,
                             defaultCommandInvoker,
                             defaultQueryExecutor};
 
@@ -274,11 +271,14 @@ int main(int argc, char* argv[])
     monthlyProgress->setLegendGoalCaption("Monthly goal:");
     WorkdaysDialog workdaysDialog{applicationSettings};
     GoalProgressWindow progressWindow{applicationSettings,
-                                      coreService,
                                       dailyProgress,
                                       weeklyProgress,
                                       monthlyProgress,
-                                      workdaysDialog};
+                                      workdaysDialog,
+                                      *dailyDistributionReader,
+                                      *weeklyDistributionReader,
+                                      *monthlyDistributionReader,
+                                      queryExecutor};
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;

@@ -46,25 +46,18 @@ using dw::TimeSpan;
 using namespace use_cases;
 using namespace entities;
 
-CoreService::CoreService(
-    ISprintStorageReader& sprintStorageReader,
-    ISprintStorageWriter& sprintStorageWriter,
-    IYearRangeReader& yearRangeReader,
-    ITaskStorageReader& taskStorageReader,
-    ITaskStorageWriter& taskStorageWriter,
-    ISprintDistributionReader& sprintDailyDistributionReader,
-    ISprintDistributionReader& sprintWeeklyDistributionReader,
-    ISprintDistributionReader& sprintMonthlyDistributionReader,
-    CommandInvoker& invoker,
-    QueryExecutor& queryExecutor)
+CoreService::CoreService(ISprintStorageReader& sprintStorageReader,
+                         ISprintStorageWriter& sprintStorageWriter,
+                         IYearRangeReader& yearRangeReader,
+                         ITaskStorageReader& taskStorageReader,
+                         ITaskStorageWriter& taskStorageWriter,
+                         CommandInvoker& invoker,
+                         QueryExecutor& queryExecutor)
     : sprintReader{sprintStorageReader}
     , sprintWriter{sprintStorageWriter}
     , yearRangeReader{yearRangeReader}
     , taskReader{taskStorageReader}
     , taskWriter{taskStorageWriter}
-    , sprintDailyDistributionReader{sprintDailyDistributionReader}
-    , sprintWeeklyDistributionReader{sprintWeeklyDistributionReader}
-    , sprintMonthlyDistributionReader{sprintMonthlyDistributionReader}
     , invoker{invoker}
     , query_invoker{queryExecutor}
 {
@@ -144,33 +137,6 @@ void CoreService::yearRange(std::function<void(const std::vector<std::string>&)>
     auto requestYearRange = std::make_unique<RequestMinMaxYear>(
         yearRangeReader, onResultsReceivedCallback);
     query_invoker.executeQuery(std::move(requestYearRange));
-}
-
-void CoreService::requestSprintDailyDistribution(
-    const TimeSpan& timeSpan,
-    std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-{
-    auto requestDistribution = std::make_unique<RequestSprintDistribution>(
-        sprintDailyDistributionReader, timeSpan, onResultsReceivedCallback);
-    query_invoker.executeQuery(std::move(requestDistribution));
-}
-
-void CoreService::requestSprintWeeklyDistribution(
-    const TimeSpan& timeSpan,
-    std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-{
-    auto requestDistribution = std::make_unique<RequestSprintDistribution>(
-        sprintWeeklyDistributionReader, timeSpan, onResultsReceivedCallback);
-    query_invoker.executeQuery(std::move(requestDistribution));
-}
-
-void CoreService::requestSprintMonthlyDistribution(
-    const TimeSpan& timeSpan,
-    std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
-{
-    auto requestDistribution = std::make_unique<RequestSprintDistribution>(
-        sprintMonthlyDistributionReader, timeSpan, onResultsReceivedCallback);
-    query_invoker.executeQuery(std::move(requestDistribution));
 }
 
 std::string CoreService::lastCommandDescription() const
