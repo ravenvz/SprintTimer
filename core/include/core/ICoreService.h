@@ -92,11 +92,6 @@ public:
         std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         = 0;
 
-    virtual void requestAllTags(TagResultHandler onResultsReceivedCallback) = 0;
-
-    virtual void editTag(const std::string& oldName, const std::string& newName)
-        = 0;
-
     virtual std::string lastCommandDescription() const = 0;
 
     virtual void registerUndoObserver(Observer& observer) = 0;

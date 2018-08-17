@@ -236,7 +236,8 @@ int main(int argc, char* argv[])
                             *sprintStorageReader,
                             *sprintStorageWriter,
                             *taskStorageWriter};
-    TagModel tagModel{coreService, nullptr};
+    TagModel tagModel{
+        *taskStorageReader, *taskStorageWriter, commandInvoker, queryExecutor};
 
     Config applicationSettings;
     auto* sprintOutline = new SprintOutline{

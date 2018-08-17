@@ -173,20 +173,6 @@ void CoreService::requestSprintMonthlyDistribution(
     query_invoker.executeQuery(std::move(requestDistribution));
 }
 
-void CoreService::requestAllTags(TagResultHandler onResultsReceivedCallback)
-{
-    auto requestTags = std::make_unique<RequestAllTags>(
-        taskReader, onResultsReceivedCallback);
-    query_invoker.executeQuery(std::move(requestTags));
-}
-
-void CoreService::editTag(const std::string& oldName,
-                          const std::string& newName)
-{
-    auto editTag = std::make_unique<RenameTag>(taskWriter, oldName, newName);
-    invoker.executeCommand(std::move(editTag));
-}
-
 std::string CoreService::lastCommandDescription() const
 {
     return invoker.lastCommandDescription();

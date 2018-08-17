@@ -164,33 +164,6 @@ TEST_F(CoreServiceFixture, request_finished_tasks)
                                      [](const std::vector<Task>&) {});
 }
 
-TEST_F(CoreServiceFixture, request_all_tags)
-{
-    EXPECT_CALL(task_storage_reader_mock, requestAllTags(_)).Times(1);
-
-    coreService.requestAllTags([](const std::vector<std::string>& tags) {});
-}
-
-TEST_F(CoreServiceFixture, edit_tag)
-{
-    EXPECT_CALL(task_storage_writer_mock, editTag("OldName", "NewName"))
-        .Times(1);
-
-    coreService.editTag("OldName", "NewName");
-}
-
-TEST_F(CoreServiceFixture, undo_edit_tag)
-{
-    EXPECT_CALL(task_storage_writer_mock, editTag("OldName", "NewName"))
-        .Times(1);
-
-    coreService.editTag("OldName", "NewName");
-
-    EXPECT_CALL(task_storage_writer_mock, editTag("NewName", "OldName"))
-        .Times(1);
-    coreService.undoLast();
-}
-
 TEST_F(CoreServiceFixture, request_sprints_for_task)
 {
     EXPECT_CALL(sprint_storage_reader_mock, sprintsForTask("123", _)).Times(1);

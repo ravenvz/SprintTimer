@@ -87,10 +87,6 @@ public:
         std::function<void(const Distribution<int>&)> onResultsReceivedCallback)
         final;
 
-    void requestAllTags(TagResultHandler onResultsReceivedCallback) final;
-
-    void editTag(const std::string& oldName, const std::string& newName) final;
-
     std::string lastCommandDescription() const final;
 
     uint64_t numRevertableCommands() const final;
