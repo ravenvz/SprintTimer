@@ -25,8 +25,8 @@
 #include "qt_gui/utils/DateInterval.h"
 #include "qt_gui/widgets/DataWidget.h"
 #include <core/IConfig.h>
-#include <core/ICoreService.h>
 #include <core/ISprintStorageReader.h>
+#include <core/IYearRangeReader.h>
 #include <core/QueryExecutor.h>
 #include <core/SprintStatistics.h>
 #include <core/TagTop.h>
@@ -57,8 +57,8 @@ class StatisticsWindow : public DataWidget {
 
 public:
     StatisticsWindow(const IConfig& applicationSettings,
-                     ICoreService& coreService,
                      ISprintStorageReader& sprintReader,
+                     IYearRangeReader& sprintYearRangeReader,
                      QueryExecutor& queryExecutor,
                      QWidget* parent = nullptr);
     ~StatisticsWindow() override;
@@ -72,8 +72,8 @@ private slots:
 private:
     std::unique_ptr<Ui::StatisticsWindow> ui;
     const IConfig& applicationSettings;
-    ICoreService& coreService;
     ISprintStorageReader& sprintReader;
+    IYearRangeReader& sprintYearRangeReader;
     QueryExecutor& queryExecutor;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;

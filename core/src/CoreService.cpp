@@ -48,14 +48,12 @@ using namespace entities;
 
 CoreService::CoreService(ISprintStorageReader& sprintStorageReader,
                          ISprintStorageWriter& sprintStorageWriter,
-                         IYearRangeReader& yearRangeReader,
                          ITaskStorageReader& taskStorageReader,
                          ITaskStorageWriter& taskStorageWriter,
                          CommandInvoker& invoker,
                          QueryExecutor& queryExecutor)
     : sprintReader{sprintStorageReader}
     , sprintWriter{sprintStorageWriter}
-    , yearRangeReader{yearRangeReader}
     , taskReader{taskStorageReader}
     , taskWriter{taskStorageWriter}
     , invoker{invoker}
@@ -129,14 +127,6 @@ void CoreService::exportSprints(const TimeSpan& timeSpan,
             sink->send(func(sprints));
         });
     query_invoker.executeQuery(std::move(requestItems));
-}
-
-void CoreService::yearRange(std::function<void(const std::vector<std::string>&)>
-                                onResultsReceivedCallback)
-{
-    auto requestYearRange = std::make_unique<RequestMinMaxYear>(
-        yearRangeReader, onResultsReceivedCallback);
-    query_invoker.executeQuery(std::move(requestYearRange));
 }
 
 std::string CoreService::lastCommandDescription() const

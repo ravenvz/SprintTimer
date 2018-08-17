@@ -70,13 +70,11 @@ public:
     TaskStorageReaderMock task_storage_reader_mock;
     SprintStorageWriterMock sprint_storage_writer_mock;
     SprintStorageReaderMock sprint_storage_reader_mock;
-    YearRangeReaderMock year_range_reader_mock;
     CommandInvoker command_invoker;
     QueryExecutor query_executor;
 
     CoreService coreService{sprint_storage_reader_mock,
                             sprint_storage_writer_mock,
-                            year_range_reader_mock,
                             task_storage_reader_mock,
                             task_storage_writer_mock,
                             command_invoker,
@@ -100,13 +98,6 @@ TEST_F(CoreServiceFixture, removes_sprint_and_decrements_tasks_sprint)
     EXPECT_CALL(task_storage_writer_mock, decrementSprints(taskUuid)).Times(1);
 
     coreService.removeSprint(sprint);
-}
-
-TEST_F(CoreServiceFixture, request_year_range)
-{
-    EXPECT_CALL(year_range_reader_mock, requestYearRange(_));
-
-    coreService.yearRange([](const std::vector<std::string>& result) {});
 }
 
 TEST_F(CoreServiceFixture, undo_register_sprint)

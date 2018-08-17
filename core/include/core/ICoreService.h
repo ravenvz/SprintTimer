@@ -73,10 +73,6 @@ public:
                                SprintEncodingFunc func)
         = 0;
 
-    virtual void yearRange(std::function<void(const std::vector<std::string>&)>
-                               onResultsReceivedCallback)
-        = 0;
-
     virtual std::string lastCommandDescription() const = 0;
 
     virtual void registerUndoObserver(Observer& observer) = 0;

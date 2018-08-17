@@ -25,24 +25,26 @@
 #include "qt_gui/widgets/Plot.h"
 #include "qt_gui/widgets/TimeDiagram.h"
 #include "ui_statistics_window.h"
+#include <core/use_cases/RequestMinMaxYear.h>
 #include <core/use_cases/RequestSprints.h>
 #include <core/utils/WeekdaySelection.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
+using use_cases::RequestMinMaxYear;
 using use_cases::RequestSprints;
 
 StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
-                                   ICoreService& coreService,
                                    ISprintStorageReader& sprintReader,
+                                   IYearRangeReader& sprintYearRangeReader,
                                    QueryExecutor& queryExecutor,
                                    QWidget* parent)
     : DataWidget{parent}
     , ui{std::make_unique<Ui::StatisticsWindow>()}
     , applicationSettings{applicationSettings}
-    , coreService{coreService}
     , sprintReader{sprintReader}
+    , sprintYearRangeReader{sprintYearRangeReader}
     , queryExecutor{queryExecutor}
 {
     ui->setupUi(this);
@@ -55,8 +57,10 @@ StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
             &DistributionDiagram::chartSelectionChanged,
             this,
             &StatisticsWindow::onTagSelected);
-    coreService.yearRange(
-        [this](const auto& range) { ui->dateRangePicker->setYears(range); });
+
+    queryExecutor.executeQuery(std::make_unique<RequestMinMaxYear>(
+        sprintYearRangeReader,
+        [this](const auto& range) { ui->dateRangePicker->setYears(range); }));
 }
 
 StatisticsWindow::~StatisticsWindow() = default;

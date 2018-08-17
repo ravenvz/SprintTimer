@@ -215,7 +215,6 @@ int main(int argc, char* argv[])
 
     CoreService coreService{*sprintStorageReader,
                             *sprintStorageWriter,
-                            *sprintYearRangeReader,
                             *taskStorageReader,
                             *taskStorageWriter,
                             defaultCommandInvoker,
@@ -239,8 +238,10 @@ int main(int argc, char* argv[])
     Config applicationSettings;
     auto* sprintOutline = new SprintOutline{
         coreService, applicationSettings, sprintModel, taskModel, nullptr};
-    StatisticsWindow statisticsWindow{
-        applicationSettings, coreService, *sprintStorageReader, queryExecutor};
+    StatisticsWindow statisticsWindow{applicationSettings,
+                                      *sprintStorageReader,
+                                      *sprintYearRangeReader,
+                                      queryExecutor};
 
     auto* dailyProgress = new ProgressView(applicationSettings.dailyGoal(),
                                            ProgressView::Rows{3},
@@ -284,6 +285,7 @@ int main(int argc, char* argv[])
     HistoryModel historyModel;
     HistoryWindow historyWindow{coreService,
                                 *sprintStorageReader,
+                                *sprintYearRangeReader,
                                 historyModel,
                                 historyItemDelegate,
                                 queryExecutor};

@@ -40,7 +40,6 @@ class CoreService : public ICoreService {
 public:
     CoreService(ISprintStorageReader& sprintStorageReader,
                 ISprintStorageWriter& sprintStorageWriter,
-                IYearRangeReader& yearRangeReader,
                 ITaskStorageReader& taskStorageReader,
                 ITaskStorageWriter& taskStorageWriter,
                 CommandInvoker& invoker,
@@ -66,9 +65,6 @@ public:
                        std::shared_ptr<external_io::ISink> sink,
                        SprintEncodingFunc func) final;
 
-    void yearRange(std::function<void(const std::vector<std::string>&)>
-                       onResultsReceivedCallback) final;
-
     std::string lastCommandDescription() const final;
 
     uint64_t numRevertableCommands() const final;
@@ -84,7 +80,6 @@ public:
 private:
     ISprintStorageReader& sprintReader;
     ISprintStorageWriter& sprintWriter;
-    IYearRangeReader& yearRangeReader;
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
     CommandInvoker& invoker;

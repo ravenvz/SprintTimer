@@ -24,6 +24,7 @@
 #include "ui_history.h"
 #include <QPainter>
 #include <core/external_io/OstreamSink.h>
+#include <core/use_cases/RequestMinMaxYear.h>
 #include <core/use_cases/RequestSprints.h>
 #include <core/utils/CSVEncoder.h>
 #include <fstream>
@@ -31,6 +32,7 @@
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
+using use_cases::RequestMinMaxYear;
 using use_cases::RequestSprints;
 
 namespace {
@@ -46,6 +48,7 @@ namespace {
 
 HistoryWindow::HistoryWindow(ICoreService& coreService,
                              ISprintStorageReader& sprintReader,
+                             IYearRangeReader& sprintYearRangeReader,
                              HistoryModel& historyModel,
                              QStyledItemDelegate& historyItemDelegate,
                              QueryExecutor& queryExecutor,
@@ -54,13 +57,15 @@ HistoryWindow::HistoryWindow(ICoreService& coreService,
     , ui{std::make_unique<Ui::HistoryWindow>()}
     , coreService{coreService}
     , sprintReader{sprintReader}
+    , sprintYearRangeReader{sprintYearRangeReader}
     , historyModel{historyModel}
     , queryExecutor{queryExecutor}
 {
     ui->setupUi(this);
-    coreService.yearRange([this](const auto& yearRange) {
-        ui->dateRangePicker->setYears(yearRange);
-    });
+    queryExecutor.executeQuery(std::make_unique<RequestMinMaxYear>(
+        sprintYearRangeReader, [this](const auto& yearRange) {
+            ui->dateRangePicker->setYears(yearRange);
+        }));
     ui->taskHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setItemDelegate(&historyItemDelegate);
