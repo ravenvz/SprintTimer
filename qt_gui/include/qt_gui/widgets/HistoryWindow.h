@@ -29,6 +29,8 @@
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <core/ICoreService.h>
+#include <core/ISprintStorageReader.h>
+#include <core/QueryExecutor.h>
 #include <memory>
 #include <variant>
 
@@ -44,8 +46,10 @@ class HistoryWindow : public DataWidget {
 
 public:
     explicit HistoryWindow(ICoreService& coreService,
+                           ISprintStorageReader& sprintReader,
                            HistoryModel& historyModel,
                            QStyledItemDelegate& historyItemDelegate,
+                           QueryExecutor& queryExecutor,
                            QWidget* parent = nullptr);
 
     ~HistoryWindow();
@@ -108,7 +112,9 @@ private:
 
     std::unique_ptr<Ui::HistoryWindow> ui;
     ICoreService& coreService;
+    ISprintStorageReader& sprintReader;
     HistoryModel& historyModel;
+    QueryExecutor& queryExecutor;
     State state;
 
     /* Assumes that history items are ordered by date ascendantly. */

@@ -25,19 +25,25 @@
 #include "qt_gui/widgets/Plot.h"
 #include "qt_gui/widgets/TimeDiagram.h"
 #include "ui_statistics_window.h"
+#include <core/use_cases/RequestSprints.h>
 #include <core/utils/WeekdaySelection.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
+using use_cases::RequestSprints;
 
 StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
                                    ICoreService& coreService,
+                                   ISprintStorageReader& sprintReader,
+                                   QueryExecutor& queryExecutor,
                                    QWidget* parent)
     : DataWidget{parent}
     , ui{std::make_unique<Ui::StatisticsWindow>()}
     , applicationSettings{applicationSettings}
     , coreService{coreService}
+    , sprintReader{sprintReader}
+    , queryExecutor{queryExecutor}
 {
     ui->setupUi(this);
 
@@ -59,9 +65,10 @@ void StatisticsWindow::synchronize() { fetchData(); }
 
 void StatisticsWindow::fetchData()
 {
-    coreService.sprintsInTimeRange(
+    queryExecutor.executeQuery(std::make_unique<RequestSprints>(
+        sprintReader,
         ui->dateRangePicker->getInterval().toTimeSpan(),
-        [this](const auto& sprints) { this->onDataFetched(sprints); });
+        [this](const auto& sprints) { this->onDataFetched(sprints); }));
 }
 
 void StatisticsWindow::onDataFetched(const std::vector<Sprint>& sprints)

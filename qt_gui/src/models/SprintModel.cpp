@@ -20,16 +20,31 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
+#include <core/use_cases/IncrementTaskSprints.h>
+#include <core/use_cases/RemoveSprintTransaction.h>
+#include <core/use_cases/RequestSprints.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 using dw::DateTime;
 using dw::TimeSpan;
 using namespace entities;
+using namespace sprint_timer::use_cases;
 
-SprintModel::SprintModel(ICoreService& coreService, QObject* parent)
+SprintModel::SprintModel(ICoreService& coreService,
+                         CommandInvoker& commandInvoker,
+                         QueryExecutor& queryExecutor,
+                         ISprintStorageReader& sprintReader,
+                         ISprintStorageWriter& sprintWriter,
+                         ITaskStorageWriter& taskWriter,
+                         QObject* parent)
     : AsyncListModel(parent)
     , coreService{coreService}
+    , commandInvoker{commandInvoker}
+    , queryExecutor{queryExecutor}
+    , sprintReader{sprintReader}
+    , sprintWriter{sprintWriter}
+    , taskWriter{taskWriter}
 {
     synchronize();
 }
@@ -85,10 +100,11 @@ void SprintModel::remove(int row)
 
 void SprintModel::requestDataUpdate()
 {
-    coreService.sprintsInTimeRange(
+    queryExecutor.executeQuery(std::make_unique<RequestSprints>(
+        sprintReader,
         dw::TimeSpan{dw::DateTime::currentDateTimeLocal(),
                      dw::DateTime::currentDateTimeLocal()},
-        [this](const auto& items) { this->onDataChanged(items); });
+        [this](const auto& items) { this->onDataChanged(items); }));
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)

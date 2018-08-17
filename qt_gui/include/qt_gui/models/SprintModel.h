@@ -23,7 +23,12 @@
 #define SPRINTMODEL_H_MQZ2XAPI
 
 #include "qt_gui/models/AsyncListModel.h"
+#include <core/CommandInvoker.h>
 #include <core/ICoreService.h>
+#include <core/ISprintStorageReader.h>
+#include <core/ISprintStorageWriter.h>
+#include <core/ITaskStorageWriter.h>
+#include <core/QueryExecutor.h>
 #include <vector>
 
 namespace sprint_timer::ui::qt_gui {
@@ -32,7 +37,13 @@ class SprintModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    SprintModel(ICoreService& coreService, QObject* parent);
+    SprintModel(ICoreService& coreService,
+                CommandInvoker& commandInvoker,
+                QueryExecutor& queryExecutor,
+                ISprintStorageReader& sprintReader,
+                ISprintStorageWriter& sprintWriter,
+                ITaskStorageWriter& taskWriter,
+                QObject* parent = nullptr);
 
     int rowCount(const QModelIndex& parent) const final;
 
@@ -52,6 +63,11 @@ protected:
 private:
     std::vector<entities::Sprint> storage;
     ICoreService& coreService;
+    CommandInvoker& commandInvoker;
+    QueryExecutor& queryExecutor;
+    ISprintStorageReader& sprintReader;
+    ISprintStorageWriter& sprintWriter;
+    ITaskStorageWriter& taskWriter;
 
     void onDataChanged(const std::vector<entities::Sprint>& items);
 };

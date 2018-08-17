@@ -45,7 +45,7 @@ using namespace sprint_timer::entities;
 // TODO remove when DateWrapper implements equality
 namespace dw {
 
-bool operator==(const TimeSpan& lhs, const TimeSpan& rhs)
+inline bool operator==(const TimeSpan& lhs, const TimeSpan& rhs)
 {
     return lhs.start() == rhs.start() && lhs.finish() == rhs.finish();
 }
@@ -104,15 +104,6 @@ TEST_F(CoreServiceFixture, removes_sprint_and_decrements_tasks_sprint)
     EXPECT_CALL(task_storage_writer_mock, decrementSprints(taskUuid)).Times(1);
 
     coreService.removeSprint(sprint);
-}
-
-TEST_F(CoreServiceFixture, request_sprints_in_time_range)
-{
-    EXPECT_CALL(sprint_storage_reader_mock, requestItems(defaultTimeSpan, _))
-        .Times(1);
-
-    coreService.sprintsInTimeRange(defaultTimeSpan,
-                                   [](const std::vector<Sprint>& result) {});
 }
 
 TEST_F(CoreServiceFixture, request_year_range)

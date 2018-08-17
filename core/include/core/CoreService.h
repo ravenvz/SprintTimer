@@ -65,11 +65,6 @@ public:
 
     void removeSprint(const entities::Sprint& sprint) final;
 
-    void
-    sprintsInTimeRange(const dw::TimeSpan& timeSpan,
-                       std::function<void(const std::vector<entities::Sprint>&)>
-                           onResultsReceivedCallback) final;
-
     void exportSprints(const dw::TimeSpan& timeSpan,
                        std::shared_ptr<external_io::ISink> sink,
                        SprintEncodingFunc func) final;

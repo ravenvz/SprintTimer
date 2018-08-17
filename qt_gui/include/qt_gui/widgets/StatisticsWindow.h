@@ -26,6 +26,8 @@
 #include "qt_gui/widgets/DataWidget.h"
 #include <core/IConfig.h>
 #include <core/ICoreService.h>
+#include <core/ISprintStorageReader.h>
+#include <core/QueryExecutor.h>
 #include <core/SprintStatistics.h>
 #include <core/TagTop.h>
 #include <memory>
@@ -56,6 +58,8 @@ class StatisticsWindow : public DataWidget {
 public:
     StatisticsWindow(const IConfig& applicationSettings,
                      ICoreService& coreService,
+                     ISprintStorageReader& sprintReader,
+                     QueryExecutor& queryExecutor,
                      QWidget* parent = nullptr);
     ~StatisticsWindow() override;
 
@@ -69,6 +73,8 @@ private:
     std::unique_ptr<Ui::StatisticsWindow> ui;
     const IConfig& applicationSettings;
     ICoreService& coreService;
+    ISprintStorageReader& sprintReader;
+    QueryExecutor& queryExecutor;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;
     const size_t numTopTags{7}; // TODO move to config

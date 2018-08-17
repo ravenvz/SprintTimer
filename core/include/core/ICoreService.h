@@ -68,11 +68,6 @@ public:
 
     virtual void removeSprint(const entities::Sprint& sprint) = 0;
 
-    virtual void
-    sprintsInTimeRange(const dw::TimeSpan& timeSpan,
-                       SprintResultHandler onResultsReceivedCallback)
-        = 0;
-
     virtual void exportSprints(const dw::TimeSpan& timeSpan,
                                std::shared_ptr<external_io::ISink> sink,
                                SprintEncodingFunc func)

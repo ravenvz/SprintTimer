@@ -230,13 +230,19 @@ int main(int argc, char* argv[])
                         *sprintStorageWriter,
                         commandInvoker,
                         queryExecutor};
-    SprintModel sprintModel{coreService, nullptr};
+    SprintModel sprintModel{coreService,
+                            commandInvoker,
+                            queryExecutor,
+                            *sprintStorageReader,
+                            *sprintStorageWriter,
+                            *taskStorageWriter};
     TagModel tagModel{coreService, nullptr};
 
     Config applicationSettings;
     auto* sprintOutline = new SprintOutline{
         coreService, applicationSettings, sprintModel, taskModel, nullptr};
-    StatisticsWindow statisticsWindow{applicationSettings, coreService};
+    StatisticsWindow statisticsWindow{
+        applicationSettings, coreService, *sprintStorageReader, queryExecutor};
 
     auto* dailyProgress = new ProgressView(applicationSettings.dailyGoal(),
                                            ProgressView::Rows{3},
@@ -275,7 +281,11 @@ int main(int argc, char* argv[])
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
-    HistoryWindow historyWindow{coreService, historyModel, historyItemDelegate};
+    HistoryWindow historyWindow{coreService,
+                                *sprintStorageReader,
+                                historyModel,
+                                historyItemDelegate,
+                                queryExecutor};
     SettingsDialog settingsDialog{applicationSettings};
     auto* launcherMenu = new LauncherMenu(progressWindow,
                                           statisticsWindow,

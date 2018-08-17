@@ -24,12 +24,14 @@
 #include "ui_history.h"
 #include <QPainter>
 #include <core/external_io/OstreamSink.h>
+#include <core/use_cases/RequestSprints.h>
 #include <core/utils/CSVEncoder.h>
 #include <fstream>
 
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
+using use_cases::RequestSprints;
 
 namespace {
 
@@ -43,13 +45,17 @@ namespace {
 
 
 HistoryWindow::HistoryWindow(ICoreService& coreService,
+                             ISprintStorageReader& sprintReader,
                              HistoryModel& historyModel,
                              QStyledItemDelegate& historyItemDelegate,
+                             QueryExecutor& queryExecutor,
                              QWidget* parent)
     : DataWidget{parent}
     , ui{std::make_unique<Ui::HistoryWindow>()}
     , coreService{coreService}
+    , sprintReader{sprintReader}
     , historyModel{historyModel}
+    , queryExecutor{queryExecutor}
 {
     ui->setupUi(this);
     coreService.yearRange([this](const auto& yearRange) {
@@ -141,10 +147,12 @@ void HistoryWindow::onDataExportConfirmed(
 
 void HistoryWindow::ShowingSprints::retrieveHistory(HistoryWindow& widget) const
 {
-    widget.coreService.sprintsInTimeRange(
-        widget.selectedDateInterval(), [this, &widget](const auto& sprints) {
+    widget.queryExecutor.executeQuery(std::make_unique<RequestSprints>(
+        widget.sprintReader,
+        widget.selectedDateInterval(),
+        [this, &widget](const auto& sprints) {
             this->onHistoryRetrieved(widget, sprints);
-        });
+        }));
 }
 
 

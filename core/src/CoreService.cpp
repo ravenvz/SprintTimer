@@ -91,15 +91,6 @@ void CoreService::exportTasks(const TimeSpan& timeSpan,
     query_invoker.executeQuery(std::move(requestItems));
 }
 
-void CoreService::sprintsInTimeRange(
-    const TimeSpan& timeSpan,
-    std::function<void(const std::vector<Sprint>&)> onResultsReceivedCallback)
-{
-    auto requestItems = std::make_unique<RequestSprints>(
-        sprintReader, timeSpan, onResultsReceivedCallback);
-    query_invoker.executeQuery(std::move(requestItems));
-}
-
 void CoreService::registerSprint(const TimeSpan& timeSpan,
                                  const std::string& taskUuid)
 {
