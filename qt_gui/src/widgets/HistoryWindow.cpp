@@ -24,6 +24,7 @@
 #include "ui_history.h"
 #include <QPainter>
 #include <core/external_io/OstreamSink.h>
+#include <core/use_cases/RequestFinishedTasks.h>
 #include <core/use_cases/RequestMinMaxYear.h>
 #include <core/use_cases/RequestSprints.h>
 #include <core/utils/CSVEncoder.h>
@@ -32,6 +33,7 @@
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
+using use_cases::RequestFinishedTasks;
 using use_cases::RequestMinMaxYear;
 using use_cases::RequestSprints;
 
@@ -48,6 +50,7 @@ namespace {
 
 HistoryWindow::HistoryWindow(ICoreService& coreService,
                              ISprintStorageReader& sprintReader,
+                             ITaskStorageReader& taskReader,
                              IYearRangeReader& sprintYearRangeReader,
                              HistoryModel& historyModel,
                              QStyledItemDelegate& historyItemDelegate,
@@ -57,6 +60,7 @@ HistoryWindow::HistoryWindow(ICoreService& coreService,
     , ui{std::make_unique<Ui::HistoryWindow>()}
     , coreService{coreService}
     , sprintReader{sprintReader}
+    , taskReader{taskReader}
     , sprintYearRangeReader{sprintYearRangeReader}
     , historyModel{historyModel}
     , queryExecutor{queryExecutor}
@@ -215,10 +219,12 @@ HistoryWindow::ShowingTasks::ShowingTasks(HistoryWindow& widget) noexcept {}
 
 void HistoryWindow::ShowingTasks::retrieveHistory(HistoryWindow& widget) const
 {
-    widget.coreService.requestFinishedTasks(
-        widget.selectedDateInterval(), [this, &widget](const auto& tasks) {
+    widget.queryExecutor.executeQuery(std::make_unique<RequestFinishedTasks>(
+        widget.taskReader,
+        widget.selectedDateInterval(),
+        [this, &widget](const auto& tasks) {
             this->onHistoryRetrieved(widget, tasks);
-        });
+        }));
 }
 
 

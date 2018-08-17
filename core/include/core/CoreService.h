@@ -45,11 +45,6 @@ public:
                 CommandInvoker& invoker,
                 QueryExecutor& queryExecutor);
 
-    void
-    requestFinishedTasks(const dw::TimeSpan& timeSpan,
-                         std::function<void(const std::vector<entities::Task>&)>
-                             onResultsReceivedCallback) final;
-
     void exportTasks(const dw::TimeSpan& timeSpan,
                      std::shared_ptr<external_io::ISink> sink,
                      TaskEncodingFunc func) final;

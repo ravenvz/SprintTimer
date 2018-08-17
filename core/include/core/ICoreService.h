@@ -50,11 +50,6 @@ public:
 
     virtual ~ICoreService() = default;
 
-    virtual void
-    requestFinishedTasks(const dw::TimeSpan& timeSpan,
-                         TaskResultHandler onResultsReceivedCallback)
-        = 0;
-
     virtual void exportTasks(const dw::TimeSpan& timeSpan,
                              std::shared_ptr<external_io::ISink> sink,
                              TaskEncodingFunc func)

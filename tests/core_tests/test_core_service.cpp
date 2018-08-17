@@ -114,16 +114,6 @@ TEST_F(CoreServiceFixture, undo_register_sprint)
     coreService.undoLast();
 }
 
-TEST_F(CoreServiceFixture, request_finished_tasks)
-{
-    EXPECT_CALL(task_storage_reader_mock,
-                requestFinishedTasks(defaultTimeSpan, _))
-        .Times(1);
-
-    coreService.requestFinishedTasks(defaultTimeSpan,
-                                     [](const std::vector<Task>&) {});
-}
-
 TEST_F(CoreServiceFixture, request_sprints_for_task)
 {
     EXPECT_CALL(sprint_storage_reader_mock, sprintsForTask("123", _)).Times(1);

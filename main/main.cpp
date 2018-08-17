@@ -285,6 +285,7 @@ int main(int argc, char* argv[])
     HistoryModel historyModel;
     HistoryWindow historyWindow{coreService,
                                 *sprintStorageReader,
+                                *taskStorageReader,
                                 *sprintYearRangeReader,
                                 historyModel,
                                 historyItemDelegate,

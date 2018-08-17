@@ -61,16 +61,6 @@ CoreService::CoreService(ISprintStorageReader& sprintStorageReader,
 {
 }
 
-void CoreService::requestFinishedTasks(
-    const TimeSpan& timeSpan,
-    std::function<void(const std::vector<Task>&)> onResultsReceivedCallback)
-{
-    std::unique_ptr<Query> requestItems
-        = std::make_unique<RequestFinishedTasks>(
-            taskReader, timeSpan, onResultsReceivedCallback);
-    query_invoker.executeQuery(std::move(requestItems));
-}
-
 void CoreService::exportTasks(const TimeSpan& timeSpan,
                               std::shared_ptr<external_io::ISink> sink,
                               ICoreService::TaskEncodingFunc func)

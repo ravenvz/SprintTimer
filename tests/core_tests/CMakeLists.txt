@@ -16,6 +16,7 @@ target_sources(${TEST_CORE}
     "${CMAKE_CURRENT_LIST_DIR}/test_increment_task_sprints.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_rename_tag.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_all_tags.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_request_finished_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_sprint_distribution.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_sprints.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_unfinished_tasks.cpp"

@@ -30,6 +30,7 @@
 #include <QTreeView>
 #include <core/ICoreService.h>
 #include <core/ISprintStorageReader.h>
+#include <core/ITaskStorageReader.h>
 #include <core/IYearRangeReader.h>
 #include <core/QueryExecutor.h>
 #include <memory>
@@ -48,6 +49,7 @@ class HistoryWindow : public DataWidget {
 public:
     explicit HistoryWindow(ICoreService& coreService,
                            ISprintStorageReader& sprintReader,
+                           ITaskStorageReader& taskReader,
                            IYearRangeReader& sprintYearRangeReader,
                            HistoryModel& historyModel,
                            QStyledItemDelegate& historyItemDelegate,
@@ -115,6 +117,7 @@ private:
     std::unique_ptr<Ui::HistoryWindow> ui;
     ICoreService& coreService;
     ISprintStorageReader& sprintReader;
+    ITaskStorageReader& taskReader;
     IYearRangeReader& sprintYearRangeReader;
     HistoryModel& historyModel;
     QueryExecutor& queryExecutor;
