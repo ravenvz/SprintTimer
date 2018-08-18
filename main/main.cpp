@@ -213,10 +213,8 @@ int main(int argc, char* argv[])
     QueryExecutor defaultQueryExecutor;
     VerboseQueryExecutor queryExecutor{defaultQueryExecutor};
 
-    CoreService coreService{*sprintStorageReader,
-                            *taskStorageReader,
-                            defaultCommandInvoker,
-                            defaultQueryExecutor};
+    CoreService coreService{
+        *taskStorageReader, defaultCommandInvoker, defaultQueryExecutor};
 
     TaskModel taskModel{*taskStorageReader,
                         *taskStorageWriter,

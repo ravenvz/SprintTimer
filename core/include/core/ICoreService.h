@@ -55,11 +55,6 @@ public:
                              TaskEncodingFunc func)
         = 0;
 
-    virtual void exportSprints(const dw::TimeSpan& timeSpan,
-                               std::shared_ptr<external_io::ISink> sink,
-                               SprintEncodingFunc func)
-        = 0;
-
     virtual std::string lastCommandDescription() const = 0;
 
     virtual void registerUndoObserver(Observer& observer) = 0;

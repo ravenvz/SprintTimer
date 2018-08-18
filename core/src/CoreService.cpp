@@ -44,12 +44,10 @@ using dw::TimeSpan;
 using namespace use_cases;
 using namespace entities;
 
-CoreService::CoreService(ISprintStorageReader& sprintStorageReader,
-                         ITaskStorageReader& taskStorageReader,
+CoreService::CoreService(ITaskStorageReader& taskStorageReader,
                          CommandInvoker& invoker,
                          QueryExecutor& queryExecutor)
-    : sprintReader{sprintStorageReader}
-    , taskReader{taskStorageReader}
+    : taskReader{taskStorageReader}
     , invoker{invoker}
     , query_invoker{queryExecutor}
 {
@@ -62,17 +60,6 @@ void CoreService::exportTasks(const TimeSpan& timeSpan,
     auto requestItems = std::make_unique<RequestTasks>(
         taskReader, timeSpan, [sink, func](const auto& tasks) {
             sink->send(func(tasks));
-        });
-    query_invoker.executeQuery(std::move(requestItems));
-}
-
-void CoreService::exportSprints(const TimeSpan& timeSpan,
-                                std::shared_ptr<external_io::ISink> sink,
-                                ICoreService::SprintEncodingFunc func)
-{
-    auto requestItems = std::make_unique<RequestSprints>(
-        sprintReader, timeSpan, [sink, func](const auto& sprints) {
-            sink->send(func(sprints));
         });
     query_invoker.executeQuery(std::move(requestItems));
 }

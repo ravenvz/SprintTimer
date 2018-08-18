@@ -189,6 +189,7 @@ void HistoryWindow::ShowingSprints::onHistoryRetrieved(
 void HistoryWindow::ShowingSprints::exportData(
     HistoryWindow& widget, const ExportDialog::ExportOptions& options) const
 {
+    // TODO this deserves to be cleaned up as part of data export refactoring
     std::stringstream ss;
     ss << options.path << "/Sprints "
        << widget.selectedDateInterval().toString("dd.MM.yyyy") << ".csv";
@@ -210,7 +211,10 @@ void HistoryWindow::ShowingSprints::exportData(
         utils::CSVEncoder encoder;
         return encoder.encode(sprints, serializeSprint);
     };
-    widget.coreService.exportSprints(widget.selectedDateInterval(), sink, func);
+    widget.queryExecutor.executeQuery(std::make_unique<RequestSprints>(
+        widget.sprintReader,
+        widget.selectedDateInterval(),
+        [sink, func](const auto& sprints) { sink->send(func(sprints)); }));
 }
 
 

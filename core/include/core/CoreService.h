@@ -25,31 +25,20 @@
 
 #include "core/CommandInvoker.h"
 #include "core/ICoreService.h"
-#include "core/ISprintDistributionReader.h"
-#include "core/ISprintStorageReader.h"
-#include "core/ISprintStorageWriter.h"
 #include "core/ITaskStorageReader.h"
-#include "core/ITaskStorageWriter.h"
-#include "core/IYearRangeReader.h"
-#include "core/MacroTransaction.h"
 #include "core/QueryExecutor.h"
 
 namespace sprint_timer {
 
 class CoreService : public ICoreService {
 public:
-    CoreService(ISprintStorageReader& sprintStorageReader,
-                ITaskStorageReader& taskStorageReader,
+    CoreService(ITaskStorageReader& taskStorageReader,
                 CommandInvoker& invoker,
                 QueryExecutor& queryExecutor);
 
     void exportTasks(const dw::TimeSpan& timeSpan,
                      std::shared_ptr<external_io::ISink> sink,
                      TaskEncodingFunc func) final;
-
-    void exportSprints(const dw::TimeSpan& timeSpan,
-                       std::shared_ptr<external_io::ISink> sink,
-                       SprintEncodingFunc func) final;
 
     std::string lastCommandDescription() const final;
 
@@ -60,7 +49,6 @@ public:
     void registerUndoObserver(Observer& observer) final;
 
 private:
-    ISprintStorageReader& sprintReader;
     ITaskStorageReader& taskReader;
     CommandInvoker& invoker;
     QueryExecutor& query_invoker;
