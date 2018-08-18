@@ -44,6 +44,9 @@ std::string CommandInvoker::lastCommandDescription() const
     return commandStack.top()->describe();
 }
 
-std::size_t CommandInvoker::stackSize() const { return commandStack.size(); }
+bool CommandInvoker::hasUndoableCommands() const
+{
+    return !commandStack.empty();
+}
 
 } // namespace sprint_timer

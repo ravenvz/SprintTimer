@@ -22,7 +22,8 @@ public:
     virtual void notify()
     {
         for (auto& observer : observers)
-            observer->update();
+            if (observer)
+                observer->update();
     }
 
 protected:

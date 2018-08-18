@@ -25,7 +25,6 @@
 #include "qt_gui/models/AsyncListModel.h"
 #include <QStringListModel>
 #include <core/CommandInvoker.h>
-#include <core/ICoreService.h>
 #include <core/ITaskStorageReader.h>
 #include <core/ITaskStorageWriter.h>
 #include <core/QueryInvoker.h>

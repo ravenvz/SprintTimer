@@ -40,7 +40,7 @@ public:
 
     std::string lastCommandDescription() const override;
 
-    std::size_t stackSize() const override;
+    bool hasUndoableCommands() const override;
 
 private:
     std::stack<std::unique_ptr<Command>> commandStack;

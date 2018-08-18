@@ -27,8 +27,8 @@
 #include "qt_gui/models/TaskModel.h"
 #include <QPushButton>
 #include <QWidget>
+#include <core/CommandInvoker.h>
 #include <core/IConfig.h>
-#include <core/ICoreService.h>
 #include <core/Observer.h>
 #include <memory>
 
@@ -43,11 +43,11 @@ class SprintOutline : public QWidget, public Observer {
     Q_OBJECT
 
 public:
-    SprintOutline(ICoreService& coreService,
-                  IConfig& applicationSettings,
+    SprintOutline(IConfig& applicationSettings,
                   SprintModel& sprintModel,
                   TaskModel& taskModel,
-                  QWidget* parent);
+                  CommandInvoker& commandInvoker,
+                  QWidget* parent = nullptr);
 
     ~SprintOutline() override;
 
@@ -57,10 +57,10 @@ public:
 
 private:
     std::unique_ptr<Ui::SprintOutline> ui;
-    ICoreService& coreService;
     IConfig& applicationSettings;
     SprintModel& sprintModel;
     TaskModel& taskModel;
+    CommandInvoker& commandInvoker;
     const QSize desiredSize{300, 200};
     std::unique_ptr<AddSprintDialog> addSprintDialog;
 

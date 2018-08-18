@@ -28,23 +28,23 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-SprintOutline::SprintOutline(ICoreService& coreService,
-                             IConfig& applicationSettings,
+SprintOutline::SprintOutline(IConfig& applicationSettings,
                              SprintModel& sprintModel,
                              TaskModel& taskModel,
+                             CommandInvoker& commandInvoker,
                              QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::SprintOutline>()}
-    , coreService{coreService}
     , applicationSettings{applicationSettings}
     , sprintModel{sprintModel}
     , taskModel{taskModel}
+    , commandInvoker{commandInvoker}
 {
     ui->setupUi(this);
     ui->lvFinishedSprints->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->lvFinishedSprints->setModel(&sprintModel);
 
-    coreService.registerUndoObserver(*this);
+    commandInvoker.attach(*this);
 
     connect(ui->pbAddSprintManually,
             &QPushButton::clicked,
@@ -106,10 +106,10 @@ void SprintOutline::onUndoButtonClicked()
     ConfirmationDialog dialog;
     QString description{"Revert following action:\n"};
     description.append(
-        QString::fromStdString(coreService.lastCommandDescription()));
+        QString::fromStdString(commandInvoker.lastCommandDescription()));
     dialog.setActionDescription(description);
     if (dialog.exec()) {
-        coreService.undoLast();
+        commandInvoker.undo();
         sprintModel.synchronize();
         taskModel.synchronize();
         emit actionUndone();
@@ -120,7 +120,7 @@ void SprintOutline::update() { adjustUndoButtonState(); }
 
 void SprintOutline::adjustUndoButtonState()
 {
-    ui->pbUndo->setEnabled(coreService.numRevertableCommands() != 0);
+    ui->pbUndo->setEnabled(commandInvoker.hasUndoableCommands());
 }
 
 } // namespace sprint_timer::ui::qt_gui

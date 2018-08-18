@@ -46,7 +46,6 @@
 
 #include <QApplication>
 #include <QStyleFactory>
-#include <core/CoreService.h>
 #include <qt_gui/QtConfig.h>
 #include <qt_gui/widgets/MainWindow.h>
 #include <qt_storage_impl/QtStorageImplementersFactory.h>
@@ -146,7 +145,7 @@ private:
 
 class VerboseCommandInvoker : public sprint_timer::CommandInvoker {
 public:
-    VerboseCommandInvoker(sprint_timer::ICommandInvoker& wrapped)
+    VerboseCommandInvoker(sprint_timer::CommandInvoker& wrapped)
         : wrapped{wrapped}
     {
     }
@@ -164,10 +163,25 @@ public:
         return wrapped.lastCommandDescription();
     }
 
-    std::size_t stackSize() const override { return wrapped.stackSize(); }
+    bool hasUndoableCommands() const override
+    {
+        return wrapped.hasUndoableCommands();
+    }
+
+    void attach(sprint_timer::Observer& observer) override
+    {
+        wrapped.attach(observer);
+    }
+
+    void detach(sprint_timer::Observer& observer) override
+    {
+        wrapped.detach(observer);
+    }
+
+    void notify() override { wrapped.notify(); }
 
 private:
-    sprint_timer::ICommandInvoker& wrapped;
+    sprint_timer::CommandInvoker& wrapped;
 };
 
 int main(int argc, char* argv[])
@@ -213,8 +227,6 @@ int main(int argc, char* argv[])
     QueryInvoker defaultQueryInvoker;
     VerboseQueryInvoker queryInvoker{defaultQueryInvoker};
 
-    CoreService coreService{defaultCommandInvoker};
-
     TaskModel taskModel{*taskStorageReader,
                         *taskStorageWriter,
                         *sprintStorageReader,
@@ -231,7 +243,7 @@ int main(int argc, char* argv[])
 
     Config applicationSettings;
     auto* sprintOutline = new SprintOutline{
-        coreService, applicationSettings, sprintModel, taskModel, nullptr};
+        applicationSettings, sprintModel, taskModel, commandInvoker};
     StatisticsWindow statisticsWindow{applicationSettings,
                                       *sprintStorageReader,
                                       *sprintYearRangeReader,

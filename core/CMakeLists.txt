@@ -13,7 +13,6 @@ add_library(${CORE_LIB} SHARED)
 target_sources(${CORE_LIB}
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/src/CommandInvoker.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/CoreService.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/CountdownTimer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QueryInvoker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/SprintBuilder.cpp"

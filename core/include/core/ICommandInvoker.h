@@ -31,10 +31,14 @@ namespace sprint_timer {
 class ICommandInvoker {
 public:
     virtual ~ICommandInvoker() = default;
+
     virtual void executeCommand(std::unique_ptr<Command> command) = 0;
+
     virtual void undo() = 0;
+
     virtual std::string lastCommandDescription() const = 0;
-    virtual std::size_t stackSize() const = 0;
+
+    virtual bool hasUndoableCommands() const = 0;
 };
 
 } // namespace sprint_timer
