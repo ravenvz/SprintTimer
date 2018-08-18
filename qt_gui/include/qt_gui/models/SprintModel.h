@@ -27,7 +27,7 @@
 #include <core/ISprintStorageReader.h>
 #include <core/ISprintStorageWriter.h>
 #include <core/ITaskStorageWriter.h>
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <vector>
 
 namespace sprint_timer::ui::qt_gui {
@@ -37,7 +37,7 @@ class SprintModel : public AsyncListModel {
 
 public:
     SprintModel(CommandInvoker& commandInvoker,
-                QueryExecutor& queryExecutor,
+                QueryInvoker& queryInvoker,
                 ISprintStorageReader& sprintReader,
                 ISprintStorageWriter& sprintWriter,
                 ITaskStorageWriter& taskWriter,
@@ -61,7 +61,7 @@ protected:
 private:
     std::vector<entities::Sprint> storage;
     CommandInvoker& commandInvoker;
-    QueryExecutor& queryExecutor;
+    QueryInvoker& queryInvoker;
     ISprintStorageReader& sprintReader;
     ISprintStorageWriter& sprintWriter;
     ITaskStorageWriter& taskWriter;

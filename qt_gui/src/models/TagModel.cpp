@@ -31,13 +31,13 @@ using use_cases::RequestAllTags;
 TagModel::TagModel(ITaskStorageReader& taskReader,
                    ITaskStorageWriter& taskWriter,
                    CommandInvoker& commandInvoker,
-                   QueryExecutor& queryExecutor,
+                   QueryInvoker& queryInvoker,
                    QObject* parent)
     : AsyncListModel{parent}
     , taskReader{taskReader}
     , taskWriter{taskWriter}
     , commandInvoker{commandInvoker}
-    , queryExecutor{queryExecutor}
+    , queryInvoker{queryInvoker}
 {
     synchronize();
 }
@@ -103,7 +103,7 @@ void TagModel::revertData()
 
 void TagModel::requestDataUpdate()
 {
-    queryExecutor.executeQuery(std::make_unique<RequestAllTags>(
+    queryInvoker.execute(std::make_unique<RequestAllTags>(
         taskReader, [this](const auto& tags) { this->onDataArrived(tags); }));
 }
 

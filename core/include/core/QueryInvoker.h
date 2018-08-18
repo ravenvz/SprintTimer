@@ -19,25 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QUERYEXECUTOR_H_AQH0UTZ1
-#define QUERYEXECUTOR_H_AQH0UTZ1
+#ifndef QUERYINVOKER_H_AQH0UTZ1
+#define QUERYINVOKER_H_AQH0UTZ1
 
 #include <core/Query.h>
-
-#include <iostream>
+#include <memory>
 
 namespace sprint_timer {
 
-class QueryExecutor {
+class QueryInvoker {
 public:
-    virtual ~QueryExecutor() = default;
+    virtual ~QueryInvoker() = default;
 
-    virtual void executeQuery(std::unique_ptr<Query> query)
-    {
-        query->execute();
-    }
+    virtual void execute(std::unique_ptr<Query> query) const;
 };
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: QUERYEXECUTOR_H_AQH0UTZ1 */
+#endif /* end of include guard: QUERYINVOKER_H_AQH0UTZ1 */

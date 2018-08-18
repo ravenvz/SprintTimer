@@ -26,16 +26,16 @@
 
 #include "mocks/TaskStorageReaderMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <core/use_cases/RequestAllTags.h>
 
-using sprint_timer::QueryExecutor;
+using sprint_timer::QueryInvoker;
 using sprint_timer::use_cases::RequestAllTags;
 using ::testing::_;
 
 class RequestAllTagsFixture : public ::testing::Test {
 public:
-    QueryExecutor queryExecutor;
+    QueryInvoker queryInvoker;
     TaskStorageReaderMock task_writer_mock;
 };
 
@@ -43,6 +43,6 @@ TEST_F(RequestAllTagsFixture, execute)
 {
     EXPECT_CALL(task_writer_mock, requestAllTags(_)).Times(1);
 
-    queryExecutor.executeQuery(std::make_unique<RequestAllTags>(
+    queryInvoker.execute(std::make_unique<RequestAllTags>(
         task_writer_mock, [](const auto& result) {}));
 }

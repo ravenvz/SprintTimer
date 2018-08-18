@@ -67,7 +67,7 @@ void DBService::prepareDatabase(const QString& filename) const {
     auto db = Database(filename);
 }
 
-qint64 DBService::executeQuery(const QString& query)
+qint64 DBService::execute(const QString& query)
 {
     emit queue(nextQueryId, query);
     return nextQueryId++;

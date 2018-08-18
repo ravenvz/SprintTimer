@@ -29,7 +29,7 @@
 #include <memory>
 
 #include <core/ISprintDistributionReader.h>
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -45,7 +45,7 @@ public:
                        ISprintDistributionReader& dailyDistributionReader,
                        ISprintDistributionReader& weeklyDistributionReader,
                        ISprintDistributionReader& monthlyDistributionReader,
-                       QueryExecutor& queryExecutor,
+                       QueryInvoker& queryInvoker,
                        QWidget* parent = 0);
 
     virtual void synchronize() override;
@@ -61,7 +61,7 @@ private:
     ISprintDistributionReader& dailyDistributionReader;
     ISprintDistributionReader& weeklyDistributionReader;
     ISprintDistributionReader& monthlyDistributionReader;
-    QueryExecutor& queryExecutor;
+    QueryInvoker& queryInvoker;
 
     void synchronizeDailyData();
 

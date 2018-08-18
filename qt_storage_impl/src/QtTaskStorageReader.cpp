@@ -71,7 +71,7 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
 void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
 {
     handler_queue.push_back(handler);
-    mUnfinishedQueryId = dbService.executeQuery(
+    mUnfinishedQueryId = dbService.execute(
         QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
                 "FROM %10 "
                 "WHERE %6 = 0 OR %8 > DATETIME('now', '-1 day') "
@@ -123,7 +123,7 @@ void QtTaskStorageReader::requestTasks(const TimeSpan& timeSpan,
 void QtTaskStorageReader::requestAllTags(TagHandler handler)
 {
     tag_handler_queue.push_back(handler);
-    mTagQueryId = dbService.executeQuery(QString{"SELECT %1, %2 FROM %3 "
+    mTagQueryId = dbService.execute(QString{"SELECT %1, %2 FROM %3 "
                                                  "ORDER BY %2;"}
                                              .arg(TagTable::Columns::id)
                                              .arg(TagTable::Columns::name)

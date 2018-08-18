@@ -12,9 +12,10 @@ add_library(${CORE_LIB} SHARED)
 
 target_sources(${CORE_LIB}
     PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/src/CountdownTimer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/CommandInvoker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/CoreService.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CountdownTimer.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/QueryInvoker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/SprintBuilder.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/SprintStatistics.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/StatefulTimer.cpp"
@@ -46,7 +47,6 @@ target_sources(${CORE_LIB}
 target_include_directories(${CORE_LIB}
     PUBLIC ${date_wrapper_INCLUDE_DIRS}
     PUBLIC include
-    PRIVATE src
     PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_compile_features(${CORE_LIB} PUBLIC cxx_std_17)

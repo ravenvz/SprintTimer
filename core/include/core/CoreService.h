@@ -25,7 +25,7 @@
 
 #include "core/CommandInvoker.h"
 #include "core/ICoreService.h"
-#include "core/QueryExecutor.h"
+#include "core/QueryInvoker.h"
 
 namespace sprint_timer {
 

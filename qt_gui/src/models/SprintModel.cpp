@@ -32,14 +32,14 @@ using namespace entities;
 using namespace sprint_timer::use_cases;
 
 SprintModel::SprintModel(CommandInvoker& commandInvoker,
-                         QueryExecutor& queryExecutor,
+                         QueryInvoker& queryInvoker,
                          ISprintStorageReader& sprintReader,
                          ISprintStorageWriter& sprintWriter,
                          ITaskStorageWriter& taskWriter,
                          QObject* parent)
     : AsyncListModel(parent)
     , commandInvoker{commandInvoker}
-    , queryExecutor{queryExecutor}
+    , queryInvoker{queryInvoker}
     , sprintReader{sprintReader}
     , sprintWriter{sprintWriter}
     , taskWriter{taskWriter}
@@ -106,7 +106,7 @@ void SprintModel::remove(int row)
 
 void SprintModel::requestDataUpdate()
 {
-    queryExecutor.executeQuery(std::make_unique<RequestSprints>(
+    queryInvoker.execute(std::make_unique<RequestSprints>(
         sprintReader,
         dw::TimeSpan{dw::DateTime::currentDateTimeLocal(),
                      dw::DateTime::currentDateTimeLocal()},

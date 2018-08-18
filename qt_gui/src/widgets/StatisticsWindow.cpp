@@ -38,14 +38,14 @@ using use_cases::RequestSprints;
 StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
                                    ISprintStorageReader& sprintReader,
                                    IYearRangeReader& sprintYearRangeReader,
-                                   QueryExecutor& queryExecutor,
+                                   QueryInvoker& queryInvoker,
                                    QWidget* parent)
     : DataWidget{parent}
     , ui{std::make_unique<Ui::StatisticsWindow>()}
     , applicationSettings{applicationSettings}
     , sprintReader{sprintReader}
     , sprintYearRangeReader{sprintYearRangeReader}
-    , queryExecutor{queryExecutor}
+    , queryInvoker{queryInvoker}
 {
     ui->setupUi(this);
 
@@ -58,7 +58,7 @@ StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
             this,
             &StatisticsWindow::onTagSelected);
 
-    queryExecutor.executeQuery(std::make_unique<RequestMinMaxYear>(
+    queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
         sprintYearRangeReader,
         [this](const auto& range) { ui->dateRangePicker->setYears(range); }));
 }
@@ -69,7 +69,7 @@ void StatisticsWindow::synchronize() { fetchData(); }
 
 void StatisticsWindow::fetchData()
 {
-    queryExecutor.executeQuery(std::make_unique<RequestSprints>(
+    queryInvoker.execute(std::make_unique<RequestSprints>(
         sprintReader,
         ui->dateRangePicker->getInterval().toTimeSpan(),
         [this](const auto& sprints) { this->onDataFetched(sprints); }));

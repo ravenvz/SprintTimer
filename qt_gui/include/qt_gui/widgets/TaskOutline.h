@@ -29,7 +29,7 @@
 #include <QPointer>
 #include <QWidget>
 #include <core/ISprintStorageReader.h>
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <memory>
 #include <optional>
 
@@ -50,7 +50,7 @@ class TaskOutline : public QWidget {
 
 public:
     TaskOutline(ISprintStorageReader& sprintReader,
-                QueryExecutor& queryExecutor,
+                QueryInvoker& queryInvoker,
                 TaskModel& taskModel,
                 TagModel& tagModel,
                 SprintModel& sprintModel,
@@ -62,7 +62,7 @@ public:
 private:
     std::unique_ptr<Ui::TaskOutline> ui;
     ISprintStorageReader& sprintReader;
-    QueryExecutor& queryExecutor;
+    QueryInvoker& queryInvoker;
     QPointer<TagEditor> tagEditor;
     TaskModel& taskModel;
     TagModel& tagModel;

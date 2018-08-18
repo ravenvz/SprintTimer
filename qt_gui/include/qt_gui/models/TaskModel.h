@@ -28,7 +28,7 @@
 #include <core/ISprintStorageWriter.h>
 #include <core/ITaskStorageReader.h>
 #include <core/ITaskStorageWriter.h>
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <core/entities/Task.h>
 #include <date_wrapper/TimeSpan.h>
 
@@ -43,7 +43,7 @@ public:
               ISprintStorageReader& sprintReader,
               ISprintStorageWriter& sprintWriter,
               CommandInvoker& commandInvoker,
-              QueryExecutor& queryExecutor,
+              QueryInvoker& queryInvoker,
               QObject* parent = nullptr);
 
     // Override to support drag and drop.
@@ -114,7 +114,7 @@ private:
     ISprintStorageReader& sprintReader;
     ISprintStorageWriter& sprintWriter;
     CommandInvoker& commandInvoker;
-    QueryExecutor& queryExecutor;
+    QueryInvoker& queryInvoker;
     std::vector<entities::Task> storage;
     // Sql helper queries that are needed to maintain database invariants.
     enum class Column {

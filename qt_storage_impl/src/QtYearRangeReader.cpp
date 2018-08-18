@@ -35,7 +35,7 @@ QtYearRangeReader::QtYearRangeReader(DBService& dbService)
 
 void QtYearRangeReader::requestYearRange(Handler handler)
 {
-    qint64 queryId = dbService.executeQuery(QString{
+    qint64 queryId = dbService.execute(QString{
         "SELECT DISTINCT STRFTIME('%Y', %1) "
         "FROM %2 ORDER BY %1;"}.arg(SprintTable::Columns::startTime)
                                           .arg(SprintTable::name));

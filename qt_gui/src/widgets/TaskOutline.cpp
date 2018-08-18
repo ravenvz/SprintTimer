@@ -41,7 +41,7 @@ using namespace entities;
 using use_cases::RequestSprintsForTask;
 
 TaskOutline::TaskOutline(ISprintStorageReader& sprintReader,
-                         QueryExecutor& queryExecutor,
+                         QueryInvoker& queryInvoker,
                          TaskModel& taskModel,
                          TagModel& tagModel,
                          SprintModel& sprintModel,
@@ -50,7 +50,7 @@ TaskOutline::TaskOutline(ISprintStorageReader& sprintReader,
     : QWidget{parent}
     , ui{std::make_unique<Ui::TaskOutline>()}
     , sprintReader{sprintReader}
-    , queryExecutor{queryExecutor}
+    , queryInvoker{queryInvoker}
     , taskModel{taskModel}
     , tagModel{tagModel}
     , sprintModel{sprintModel}
@@ -182,7 +182,7 @@ void TaskOutline::showSprintsForTask()
     QModelIndex index = ui->lvTaskView->currentIndex();
     const auto task = taskModel.itemAt(index.row());
 
-    queryExecutor.executeQuery(std::make_unique<RequestSprintsForTask>(
+    queryInvoker.execute(std::make_unique<RequestSprintsForTask>(
         sprintReader, task.uuid(), [&](const std::vector<Sprint>& sprints) {
             onSprintsForTaskFetched(sprints);
         }));

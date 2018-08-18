@@ -31,7 +31,7 @@
 #include <core/ISprintStorageReader.h>
 #include <core/ITaskStorageReader.h>
 #include <core/IYearRangeReader.h>
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <memory>
 #include <variant>
 
@@ -51,7 +51,7 @@ public:
                            IYearRangeReader& sprintYearRangeReader,
                            HistoryModel& historyModel,
                            QStyledItemDelegate& historyItemDelegate,
-                           QueryExecutor& queryExecutor,
+                           QueryInvoker& queryInvoker,
                            QWidget* parent = nullptr);
 
     ~HistoryWindow();
@@ -117,7 +117,7 @@ private:
     ITaskStorageReader& taskReader;
     IYearRangeReader& sprintYearRangeReader;
     HistoryModel& historyModel;
-    QueryExecutor& queryExecutor;
+    QueryInvoker& queryInvoker;
     State state;
 
     /* Assumes that history items are ordered by date ascendantly. */

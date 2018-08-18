@@ -28,7 +28,7 @@
 #include <core/ICoreService.h>
 #include <core/ITaskStorageReader.h>
 #include <core/ITaskStorageWriter.h>
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -39,7 +39,7 @@ public:
     TagModel(ITaskStorageReader& taskReader,
              ITaskStorageWriter& taskWriter,
              CommandInvoker& commandInvoker,
-             QueryExecutor& queryExecutor,
+             QueryInvoker& queryInvoker,
              QObject* parent = nullptr);
 
     bool
@@ -63,7 +63,7 @@ private:
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
     CommandInvoker& commandInvoker;
-    QueryExecutor& queryExecutor;
+    QueryInvoker& queryInvoker;
     using OldNewTagPair = std::pair<std::string, std::string>;
     std::vector<std::string> storage;
     std::vector<OldNewTagPair> buffer;

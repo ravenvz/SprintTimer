@@ -26,7 +26,7 @@
 
 #include "mocks/YearRangeReaderMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <core/use_cases/RequestMinMaxYear.h>
 
 using sprint_timer::use_cases::RequestMinMaxYear;
@@ -34,7 +34,7 @@ using ::testing::_;
 
 class RequestMinMaxYearFixture : public ::testing::Test {
 public:
-    sprint_timer::QueryExecutor queryExecutor;
+    sprint_timer::QueryInvoker queryInvoker;
     YearRangeReaderMock year_range_reader_mock;
 };
 
@@ -42,6 +42,6 @@ TEST_F(RequestMinMaxYearFixture, execute)
 {
     EXPECT_CALL(year_range_reader_mock, requestYearRange(_)).Times(1);
 
-    queryExecutor.executeQuery(std::make_unique<RequestMinMaxYear>(
+    queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
         year_range_reader_mock, [](const auto& result) {}));
 }

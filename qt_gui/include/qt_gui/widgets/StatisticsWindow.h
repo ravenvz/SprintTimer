@@ -27,7 +27,7 @@
 #include <core/IConfig.h>
 #include <core/ISprintStorageReader.h>
 #include <core/IYearRangeReader.h>
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <core/SprintStatistics.h>
 #include <core/TagTop.h>
 #include <memory>
@@ -59,7 +59,7 @@ public:
     StatisticsWindow(const IConfig& applicationSettings,
                      ISprintStorageReader& sprintReader,
                      IYearRangeReader& sprintYearRangeReader,
-                     QueryExecutor& queryExecutor,
+                     QueryInvoker& queryInvoker,
                      QWidget* parent = nullptr);
     ~StatisticsWindow() override;
 
@@ -74,7 +74,7 @@ private:
     const IConfig& applicationSettings;
     ISprintStorageReader& sprintReader;
     IYearRangeReader& sprintYearRangeReader;
-    QueryExecutor& queryExecutor;
+    QueryInvoker& queryInvoker;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;
     const size_t numTopTags{7}; // TODO move to config

@@ -56,7 +56,7 @@ GoalProgressWindow::GoalProgressWindow(
     ISprintDistributionReader& dailyDistributionReader,
     ISprintDistributionReader& weeklyDistributionReader,
     ISprintDistributionReader& monthlyDistributionReader,
-    QueryExecutor& queryExecutor,
+    QueryInvoker& queryInvoker,
     QWidget* parent)
     : DataWidget{parent}
     , applicationSettings{applicationSettings}
@@ -67,7 +67,7 @@ GoalProgressWindow::GoalProgressWindow(
     , dailyDistributionReader{dailyDistributionReader}
     , weeklyDistributionReader{weeklyDistributionReader}
     , monthlyDistributionReader{monthlyDistributionReader}
-    , queryExecutor{queryExecutor}
+    , queryInvoker{queryInvoker}
 {
     QGridLayout* layout = new QGridLayout(this);
     layout->setSpacing(15);
@@ -135,7 +135,7 @@ void GoalProgressWindow::synchronize()
 
 void GoalProgressWindow::synchronizeDailyData()
 {
-    queryExecutor.executeQuery(std::make_unique<RequestSprintDistribution>(
+    queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         dailyDistributionReader,
         thirtyDaysBackTillNow(),
         [this](const auto& distribution) {
@@ -148,7 +148,7 @@ void GoalProgressWindow::synchronizeDailyData()
 
 void GoalProgressWindow::synchronizeWeeklyData()
 {
-    queryExecutor.executeQuery(std::make_unique<RequestSprintDistribution>(
+    queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         weeklyDistributionReader,
         twelveWeeksBackTillNow(),
         [this](const auto& distribution) {
@@ -159,7 +159,7 @@ void GoalProgressWindow::synchronizeWeeklyData()
 
 void GoalProgressWindow::synchronizeMonthlyData()
 {
-    queryExecutor.executeQuery(std::make_unique<RequestSprintDistribution>(
+    queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         monthlyDistributionReader,
         twelveMonthsBackTillNow(),
         [this](const auto& distribution) {

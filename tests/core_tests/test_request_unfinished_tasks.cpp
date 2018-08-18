@@ -26,7 +26,7 @@
 
 #include "mocks/TaskStorageReaderMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <core/use_cases/RequestUnfinishedTasks.h>
 
 using ::testing::_;
@@ -34,7 +34,7 @@ using ::testing::_;
 class RequestUnfinishedTasksFixture : public ::testing::Test {
 public:
     TaskStorageReaderMock task_storage_reader_mock;
-    sprint_timer::QueryExecutor queryExecutor;
+    sprint_timer::QueryInvoker queryInvoker;
 };
 
 TEST_F(RequestUnfinishedTasksFixture, execute)
@@ -43,6 +43,6 @@ TEST_F(RequestUnfinishedTasksFixture, execute)
     using namespace sprint_timer::entities;
     EXPECT_CALL(task_storage_reader_mock, requestUnfinishedTasks(_)).Times(1);
 
-    queryExecutor.executeQuery(std::make_unique<RequestUnfinishedTasks>(
+    queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
         task_storage_reader_mock, [](const std::vector<Task>&) {}));
 }

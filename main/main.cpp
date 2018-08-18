@@ -55,7 +55,7 @@
 #include <core/ICommandInvoker.h>
 #include <core/IConfig.h>
 #include <core/ITaskStorageReader.h>
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
@@ -126,21 +126,21 @@ std::string getOrCreateSprintTimerDataDirectory()
 } // namespace
 
 
-class VerboseQueryExecutor : public sprint_timer::QueryExecutor {
+class VerboseQueryInvoker : public sprint_timer::QueryInvoker {
 public:
-    VerboseQueryExecutor(sprint_timer::QueryExecutor& wrapped)
+    VerboseQueryInvoker(sprint_timer::QueryInvoker& wrapped)
         : wrapped{wrapped}
     {
     }
 
-    void executeQuery(std::unique_ptr<sprint_timer::Query> query)
+    void execute(std::unique_ptr<sprint_timer::Query> query) const override
     {
         std::cout << query->describe() << std::endl;
-        wrapped.executeQuery(std::move(query));
+        wrapped.execute(std::move(query));
     }
 
 private:
-    sprint_timer::QueryExecutor& wrapped;
+    sprint_timer::QueryInvoker& wrapped;
 };
 
 
@@ -210,8 +210,8 @@ int main(int argc, char* argv[])
 
     CommandInvoker defaultCommandInvoker;
     VerboseCommandInvoker commandInvoker{defaultCommandInvoker};
-    QueryExecutor defaultQueryExecutor;
-    VerboseQueryExecutor queryExecutor{defaultQueryExecutor};
+    QueryInvoker defaultQueryInvoker;
+    VerboseQueryInvoker queryInvoker{defaultQueryInvoker};
 
     CoreService coreService{defaultCommandInvoker};
 
@@ -220,14 +220,14 @@ int main(int argc, char* argv[])
                         *sprintStorageReader,
                         *sprintStorageWriter,
                         commandInvoker,
-                        queryExecutor};
+                        queryInvoker};
     SprintModel sprintModel{commandInvoker,
-                            queryExecutor,
+                            queryInvoker,
                             *sprintStorageReader,
                             *sprintStorageWriter,
                             *taskStorageWriter};
     TagModel tagModel{
-        *taskStorageReader, *taskStorageWriter, commandInvoker, queryExecutor};
+        *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
 
     Config applicationSettings;
     auto* sprintOutline = new SprintOutline{
@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
     StatisticsWindow statisticsWindow{applicationSettings,
                                       *sprintStorageReader,
                                       *sprintYearRangeReader,
-                                      queryExecutor};
+                                      queryInvoker};
 
     auto* dailyProgress = new ProgressView(applicationSettings.dailyGoal(),
                                            ProgressView::Rows{3},
@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
                                       *dailyDistributionReader,
                                       *weeklyDistributionReader,
                                       *monthlyDistributionReader,
-                                      queryExecutor};
+                                      queryInvoker};
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
@@ -282,7 +282,7 @@ int main(int argc, char* argv[])
                                 *sprintYearRangeReader,
                                 historyModel,
                                 historyItemDelegate,
-                                queryExecutor};
+                                queryInvoker};
     SettingsDialog settingsDialog{applicationSettings};
     auto* launcherMenu = new LauncherMenu(progressWindow,
                                           statisticsWindow,
@@ -292,7 +292,7 @@ int main(int argc, char* argv[])
     HistoryModel taskSprintsModel;
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
     auto* taskOutline = new TaskOutline(*sprintStorageReader,
-                                        queryExecutor,
+                                        queryInvoker,
                                         taskModel,
                                         tagModel,
                                         sprintModel,

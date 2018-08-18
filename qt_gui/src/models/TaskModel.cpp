@@ -41,7 +41,7 @@ TaskModel::TaskModel(ITaskStorageReader& taskReader,
                      ISprintStorageReader& sprintReader,
                      ISprintStorageWriter& sprintWriter,
                      CommandInvoker& commandInvoker,
-                     QueryExecutor& queryExecutor,
+                     QueryInvoker& queryInvoker,
                      QObject* parent)
     : AsyncListModel{parent}
     , taskReader{taskReader}
@@ -49,14 +49,14 @@ TaskModel::TaskModel(ITaskStorageReader& taskReader,
     , sprintReader{sprintReader}
     , sprintWriter{sprintWriter}
     , commandInvoker{commandInvoker}
-    , queryExecutor{queryExecutor}
+    , queryInvoker{queryInvoker}
 {
     synchronize();
 }
 
 void TaskModel::requestDataUpdate()
 {
-    queryExecutor.executeQuery(std::make_unique<RequestUnfinishedTasks>(
+    queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
         taskReader, [this](const auto& tasks) { onDataChanged(tasks); }));
 }
 

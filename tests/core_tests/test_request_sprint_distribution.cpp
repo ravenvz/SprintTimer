@@ -26,7 +26,7 @@
 
 #include "mocks/SprintDistributionReaderMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <core/use_cases/RequestSprintDistribution.h>
 
 using sprint_timer::use_cases::RequestSprintDistribution;
@@ -48,7 +48,7 @@ public:
     const TimeSpan someTimeSpan
         = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
                    DateTime::currentDateTime().add(DateTime::Days(-1))};
-    sprint_timer::QueryExecutor queryExecutor;
+    sprint_timer::QueryInvoker queryInvoker;
     SprintDistributionReaderMock sprint_distribution_reader_mock;
 };
 
@@ -58,7 +58,7 @@ TEST_F(RequestSprintDistributionFixture, execute)
                 requestDistribution(someTimeSpan, _))
         .Times(1);
 
-    queryExecutor.executeQuery(std::make_unique<RequestSprintDistribution>(
+    queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         sprint_distribution_reader_mock, someTimeSpan, [](const auto& result) {
         }));
 }

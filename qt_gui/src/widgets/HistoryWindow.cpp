@@ -55,7 +55,7 @@ HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader,
                              IYearRangeReader& sprintYearRangeReader,
                              HistoryModel& historyModel,
                              QStyledItemDelegate& historyItemDelegate,
-                             QueryExecutor& queryExecutor,
+                             QueryInvoker& queryInvoker,
                              QWidget* parent)
     : DataWidget{parent}
     , ui{std::make_unique<Ui::HistoryWindow>()}
@@ -63,10 +63,10 @@ HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader,
     , taskReader{taskReader}
     , sprintYearRangeReader{sprintYearRangeReader}
     , historyModel{historyModel}
-    , queryExecutor{queryExecutor}
+    , queryInvoker{queryInvoker}
 {
     ui->setupUi(this);
-    queryExecutor.executeQuery(std::make_unique<RequestMinMaxYear>(
+    queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
         sprintYearRangeReader, [this](const auto& yearRange) {
             ui->dateRangePicker->setYears(yearRange);
         }));
@@ -156,7 +156,7 @@ void HistoryWindow::onDataExportConfirmed(
 
 void HistoryWindow::ShowingSprints::retrieveHistory(HistoryWindow& widget) const
 {
-    widget.queryExecutor.executeQuery(std::make_unique<RequestSprints>(
+    widget.queryInvoker.execute(std::make_unique<RequestSprints>(
         widget.sprintReader,
         widget.selectedDateInterval(),
         [this, &widget](const auto& sprints) {
@@ -211,7 +211,7 @@ void HistoryWindow::ShowingSprints::exportData(
         utils::CSVEncoder encoder;
         return encoder.encode(sprints, serializeSprint);
     };
-    widget.queryExecutor.executeQuery(std::make_unique<RequestSprints>(
+    widget.queryInvoker.execute(std::make_unique<RequestSprints>(
         widget.sprintReader,
         widget.selectedDateInterval(),
         [sink, func](const auto& sprints) { sink->send(func(sprints)); }));
@@ -223,7 +223,7 @@ HistoryWindow::ShowingTasks::ShowingTasks(HistoryWindow& widget) noexcept {}
 
 void HistoryWindow::ShowingTasks::retrieveHistory(HistoryWindow& widget) const
 {
-    widget.queryExecutor.executeQuery(std::make_unique<RequestFinishedTasks>(
+    widget.queryInvoker.execute(std::make_unique<RequestFinishedTasks>(
         widget.taskReader,
         widget.selectedDateInterval(),
         [this, &widget](const auto& tasks) {
@@ -276,7 +276,7 @@ void HistoryWindow::ShowingTasks::exportData(
         utils::CSVEncoder encoder;
         return encoder.encode(tasks, serializeTask);
     };
-    widget.queryExecutor.executeQuery(std::make_unique<RequestTasks>(
+    widget.queryInvoker.execute(std::make_unique<RequestTasks>(
         widget.taskReader,
         widget.selectedDateInterval(),
         [sink, func](const auto& tasks) { sink->send(func(tasks)); }));

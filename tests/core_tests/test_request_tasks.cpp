@@ -26,7 +26,7 @@
 
 #include "mocks/TaskStorageReaderMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <core/use_cases/RequestTasks.h>
 
 using namespace dw;
@@ -46,7 +46,7 @@ inline bool operator==(const TimeSpan& lhs, const TimeSpan& rhs)
 class RequestTasksFixture : public ::testing::Test {
 public:
     TaskStorageReaderMock task_reader_mock;
-    sprint_timer::QueryExecutor queryExecutor;
+    sprint_timer::QueryInvoker queryInvoker;
     const TimeSpan someTimeSpan
         = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
                    DateTime::currentDateTime().add(DateTime::Days(-1))};
@@ -56,6 +56,6 @@ TEST_F(RequestTasksFixture, execute)
 {
     EXPECT_CALL(task_reader_mock, requestTasks(someTimeSpan, _)).Times(1);
 
-    queryExecutor.executeQuery(std::make_unique<RequestTasks>(
+    queryInvoker.execute(std::make_unique<RequestTasks>(
         task_reader_mock, someTimeSpan, [](const auto& result) {}));
 }

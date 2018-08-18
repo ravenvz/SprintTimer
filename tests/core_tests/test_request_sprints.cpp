@@ -26,11 +26,11 @@
 
 #include "mocks/SprintStorageReaderMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryExecutor.h>
+#include <core/QueryInvoker.h>
 #include <core/use_cases/RequestSprints.h>
 
 using namespace dw;
-using sprint_timer::QueryExecutor;
+using sprint_timer::QueryInvoker;
 using sprint_timer::entities::Sprint;
 using sprint_timer::use_cases::RequestSprints;
 using ::testing::_;
@@ -48,7 +48,7 @@ inline bool operator==(const TimeSpan& lhs, const TimeSpan& rhs)
 class RequestSprintsFixture : public ::testing::Test {
 public:
     SprintStorageReaderMock sprint_reader_mock;
-    QueryExecutor query_executor;
+    QueryInvoker query_executor;
 
     const TimeSpan someTimeSpan
         = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
@@ -59,6 +59,6 @@ TEST_F(RequestSprintsFixture, execute)
 {
     EXPECT_CALL(sprint_reader_mock, requestItems(someTimeSpan, _));
 
-    query_executor.executeQuery(std::make_unique<RequestSprints>(
+    query_executor.execute(std::make_unique<RequestSprints>(
         sprint_reader_mock, someTimeSpan, [](const auto& result) {}));
 }

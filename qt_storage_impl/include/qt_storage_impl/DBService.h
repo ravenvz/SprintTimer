@@ -51,7 +51,7 @@ public:
     DBService& operator=(const DBService&) = delete;
 
     /* Execute single query and return it's id. */
-    qint64 executeQuery(const QString& query);
+    qint64 execute(const QString& query);
 
     /* Prepare query and return it's id. */
     qint64 prepare(const QString& query);
