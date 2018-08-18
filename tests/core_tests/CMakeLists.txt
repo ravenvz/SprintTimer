@@ -20,6 +20,7 @@ target_sources(${TEST_CORE}
     "${CMAKE_CURRENT_LIST_DIR}/test_request_sprints_for_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_unfinished_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_min_max_year.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_request_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint_builder.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint_statistics.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_stateful_timer.cpp"

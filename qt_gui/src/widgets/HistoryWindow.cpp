@@ -27,6 +27,7 @@
 #include <core/use_cases/RequestFinishedTasks.h>
 #include <core/use_cases/RequestMinMaxYear.h>
 #include <core/use_cases/RequestSprints.h>
+#include <core/use_cases/RequestTasks.h>
 #include <core/utils/CSVEncoder.h>
 #include <fstream>
 
@@ -36,6 +37,7 @@ using namespace entities;
 using use_cases::RequestFinishedTasks;
 using use_cases::RequestMinMaxYear;
 using use_cases::RequestSprints;
+using use_cases::RequestTasks;
 
 namespace {
 
@@ -48,8 +50,7 @@ namespace {
 } // namespace
 
 
-HistoryWindow::HistoryWindow(ICoreService& coreService,
-                             ISprintStorageReader& sprintReader,
+HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader,
                              ITaskStorageReader& taskReader,
                              IYearRangeReader& sprintYearRangeReader,
                              HistoryModel& historyModel,
@@ -58,7 +59,6 @@ HistoryWindow::HistoryWindow(ICoreService& coreService,
                              QWidget* parent)
     : DataWidget{parent}
     , ui{std::make_unique<Ui::HistoryWindow>()}
-    , coreService{coreService}
     , sprintReader{sprintReader}
     , taskReader{taskReader}
     , sprintYearRangeReader{sprintYearRangeReader}
@@ -276,7 +276,10 @@ void HistoryWindow::ShowingTasks::exportData(
         utils::CSVEncoder encoder;
         return encoder.encode(tasks, serializeTask);
     };
-    widget.coreService.exportTasks(widget.selectedDateInterval(), sink, func);
+    widget.queryExecutor.executeQuery(std::make_unique<RequestTasks>(
+        widget.taskReader,
+        widget.selectedDateInterval(),
+        [sink, func](const auto& tasks) { sink->send(func(tasks)); }));
 }
 
 

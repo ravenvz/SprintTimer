@@ -44,24 +44,9 @@ using dw::TimeSpan;
 using namespace use_cases;
 using namespace entities;
 
-CoreService::CoreService(ITaskStorageReader& taskStorageReader,
-                         CommandInvoker& invoker,
-                         QueryExecutor& queryExecutor)
-    : taskReader{taskStorageReader}
-    , invoker{invoker}
-    , query_invoker{queryExecutor}
+CoreService::CoreService(CommandInvoker& invoker)
+    : invoker{invoker}
 {
-}
-
-void CoreService::exportTasks(const TimeSpan& timeSpan,
-                              std::shared_ptr<external_io::ISink> sink,
-                              ICoreService::TaskEncodingFunc func)
-{
-    auto requestItems = std::make_unique<RequestTasks>(
-        taskReader, timeSpan, [sink, func](const auto& tasks) {
-            sink->send(func(tasks));
-        });
-    query_invoker.executeQuery(std::move(requestItems));
 }
 
 std::string CoreService::lastCommandDescription() const

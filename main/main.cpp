@@ -213,8 +213,7 @@ int main(int argc, char* argv[])
     QueryExecutor defaultQueryExecutor;
     VerboseQueryExecutor queryExecutor{defaultQueryExecutor};
 
-    CoreService coreService{
-        *taskStorageReader, defaultCommandInvoker, defaultQueryExecutor};
+    CoreService coreService{defaultCommandInvoker};
 
     TaskModel taskModel{*taskStorageReader,
                         *taskStorageWriter,
@@ -278,8 +277,7 @@ int main(int argc, char* argv[])
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
-    HistoryWindow historyWindow{coreService,
-                                *sprintStorageReader,
+    HistoryWindow historyWindow{*sprintStorageReader,
                                 *taskStorageReader,
                                 *sprintYearRangeReader,
                                 historyModel,

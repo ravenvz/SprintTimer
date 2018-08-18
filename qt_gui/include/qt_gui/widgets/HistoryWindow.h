@@ -28,7 +28,6 @@
 #include "qt_gui/widgets/DataWidget.h"
 #include <QStyledItemDelegate>
 #include <QTreeView>
-#include <core/ICoreService.h>
 #include <core/ISprintStorageReader.h>
 #include <core/ITaskStorageReader.h>
 #include <core/IYearRangeReader.h>
@@ -47,8 +46,7 @@ class HistoryWindow : public DataWidget {
     Q_OBJECT
 
 public:
-    explicit HistoryWindow(ICoreService& coreService,
-                           ISprintStorageReader& sprintReader,
+    explicit HistoryWindow(ISprintStorageReader& sprintReader,
                            ITaskStorageReader& taskReader,
                            IYearRangeReader& sprintYearRangeReader,
                            HistoryModel& historyModel,
@@ -115,7 +113,6 @@ private:
     };
 
     std::unique_ptr<Ui::HistoryWindow> ui;
-    ICoreService& coreService;
     ISprintStorageReader& sprintReader;
     ITaskStorageReader& taskReader;
     IYearRangeReader& sprintYearRangeReader;

@@ -50,11 +50,6 @@ public:
 
     virtual ~ICoreService() = default;
 
-    virtual void exportTasks(const dw::TimeSpan& timeSpan,
-                             std::shared_ptr<external_io::ISink> sink,
-                             TaskEncodingFunc func)
-        = 0;
-
     virtual std::string lastCommandDescription() const = 0;
 
     virtual void registerUndoObserver(Observer& observer) = 0;
