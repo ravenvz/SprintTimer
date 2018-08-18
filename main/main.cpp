@@ -214,9 +214,7 @@ int main(int argc, char* argv[])
     VerboseQueryExecutor queryExecutor{defaultQueryExecutor};
 
     CoreService coreService{*sprintStorageReader,
-                            *sprintStorageWriter,
                             *taskStorageReader,
-                            *taskStorageWriter,
                             defaultCommandInvoker,
                             defaultQueryExecutor};
 
@@ -226,8 +224,7 @@ int main(int argc, char* argv[])
                         *sprintStorageWriter,
                         commandInvoker,
                         queryExecutor};
-    SprintModel sprintModel{coreService,
-                            commandInvoker,
+    SprintModel sprintModel{commandInvoker,
                             queryExecutor,
                             *sprintStorageReader,
                             *sprintStorageWriter,

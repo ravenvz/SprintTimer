@@ -24,44 +24,49 @@
 // Workaround for C++17 as std::tr1 no longer available and Gtest uses it
 #define GTEST_LANG_CXX11 1
 
-#include "mocks/TaskStorageWriterMock.h"
+#include "mocks/SprintStorageWriterMock.h"
 #include "gtest/gtest.h"
 #include <core/CommandInvoker.h>
-#include <core/use_cases/AddNewTask.h>
+#include <core/use_cases/RegisterNewSprint.h>
 
 using namespace sprint_timer;
-using namespace sprint_timer::entities;
 using namespace sprint_timer::use_cases;
+using namespace sprint_timer::entities;
+using namespace dw;
 
-class RegisterTaskFixture : public ::testing::Test {
+using ::testing::_;
+
+class RegisterNewSprintFixture : public ::testing::Test {
 public:
-    Task someTask{"Task name",
-                  4,
-                  2,
-                  "550e8400-e29b-41d4-a716-446655440000",
-                  {Tag{"Tag1"}, Tag{"Tag2"}},
-                  false,
-                  dw::DateTime::fromYMD(2015, 11, 10)};
-    TaskStorageWriterMock task_writer_mock;
     CommandInvoker commandInvoker;
+    SprintStorageWriterMock sprint_writer_mock;
+
+    const TimeSpan someTimeSpan
+        = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
+                   DateTime::currentDateTime().add(DateTime::Days(-1))};
+    const Sprint someSprint{"Task name",
+                            someTimeSpan,
+                            {Tag{"Tag1"}, Tag{"Tag2"}},
+                            "550e8400-e29b-41d4-a716-446655440000",
+                            "722e8400"};
 };
 
-TEST_F(RegisterTaskFixture, registers_task)
+TEST_F(RegisterNewSprintFixture, register_new_sprint)
 {
-    EXPECT_CALL(task_writer_mock, save(someTask)).Times(1);
+    EXPECT_CALL(sprint_writer_mock, save(someSprint)).Times(1);
 
     commandInvoker.executeCommand(
-        std::make_unique<AddNewTask>(task_writer_mock, someTask));
+        std::make_unique<RegisterNewSprint>(sprint_writer_mock, someSprint));
 }
 
-TEST_F(RegisterTaskFixture, undo_adding_new_task)
+TEST_F(RegisterNewSprintFixture, undo_registering_new_sprint)
 {
-    EXPECT_CALL(task_writer_mock, save(someTask)).Times(1);
+    EXPECT_CALL(sprint_writer_mock, save(someSprint)).Times(1);
 
     commandInvoker.executeCommand(
-        std::make_unique<AddNewTask>(task_writer_mock, someTask));
+        std::make_unique<RegisterNewSprint>(sprint_writer_mock, someSprint));
 
-    EXPECT_CALL(task_writer_mock, remove(someTask)).Times(1);
+    EXPECT_CALL(sprint_writer_mock, remove(someSprint)).Times(1);
 
     commandInvoker.undo();
 }

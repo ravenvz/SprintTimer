@@ -55,14 +55,6 @@ public:
                              TaskEncodingFunc func)
         = 0;
 
-    virtual void registerSprint(const dw::TimeSpan& timeSpan,
-                                const std::string& taskUuid)
-        = 0;
-
-    virtual void registerSprint(const entities::Sprint& sprint) = 0;
-
-    virtual void removeSprint(const entities::Sprint& sprint) = 0;
-
     virtual void exportSprints(const dw::TimeSpan& timeSpan,
                                std::shared_ptr<external_io::ISink> sink,
                                SprintEncodingFunc func)

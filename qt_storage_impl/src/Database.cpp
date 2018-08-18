@@ -25,10 +25,12 @@
 #include <QSqlError>
 #include <QtCore/QFile>
 
+// TODO this mess of an implementation should be cleaned up before it's too late
+
 namespace sprint_timer::storage::qt_storage_impl {
 
 namespace {
-    unsigned currentDatabaseVersion{4};
+    unsigned currentDatabaseVersion{5};
 }
 
 Database::Database(const QString& filename)
@@ -231,15 +233,20 @@ bool Database::createTriggers(QSqlQuery& query) {
     };
 
     // Trigger to remove from sprint as views are read-only in Sqlite3
+    // Also increments Task's num completed sprints
     const QString createSprintViewDeleteTrigger{
             "CREATE TRIGGER " + SprintViewDeleteTrigger::name
                     + " INSTEAD OF DELETE ON " + SprintView::name
                     + " BEGIN "
                     + "DELETE FROM " + SprintTable::name
                     + " WHERE " + SprintTable::Columns::uuid + " = OLD." + SprintTable::Columns::uuid + "; "
+                    + "UPDATE " + TaskTable::name
+                    + " SET " + TaskTable::Columns::actualCost + " = " + TaskTable::Columns::actualCost + " - 1"
+                    + " WHERE " + TaskTable::Columns::uuid + " = OLD." + SprintTable::Columns::taskUuid + "; "
                     + " END;"
     };
 
+    // Also decrements Task's num completed sprints
     const QString createSprintViewInsertTrigger{
             "CREATE TRIGGER " + SprintViewInsertTrigger::name
                     + " INSTEAD OF INSERT ON " + SprintView::name
@@ -254,6 +261,9 @@ bool Database::createTriggers(QSqlQuery& query) {
                     + ", NEW." + SprintTable::Columns::startTime
                     + ", NEW." + SprintTable::Columns::finishTime
                     + ", NEW." + SprintTable::Columns::uuid + "; "
+                    + "UPDATE " + TaskTable::name
+                    + " SET " + TaskTable::Columns::actualCost + " = " + TaskTable::Columns::actualCost + " + 1"
+                    + " WHERE " + TaskTable::Columns::uuid + " = NEW." + SprintTable::Columns::taskUuid + "; "
                     + "END;"
     };
 
@@ -451,18 +461,23 @@ bool Database::runMigration(QSqlDatabase& database, unsigned fromVersion)
 
         query.finish();
 
-        if (ok) {
-            return database.commit();
+        if (!ok) {
+            database.rollback();
+            return false;
         }
+
+        if (!database.commit())
+            return false;
     }
 
     if (fromVersion < 3) {
-        return query.exec("drop table calendar;");
+        if (!execAndCheck(query, QString{"drop table calendar;"}))
+            return false;
     }
 
     if (fromVersion < 4) {
-        return query.exec("drop trigger on_todo_tag_delete") &&
-            query.exec(
+        bool ok = execAndCheck(query, "drop trigger on_todo_tag_delete") &&
+            execAndCheck(query,
                     "CREATE TRIGGER " + CleanOrphanedTagTrigger::name
                     + " AFTER DELETE ON " + TaskTagTable::name
                     + " BEGIN "
@@ -472,9 +487,44 @@ bool Database::runMigration(QSqlDatabase& database, unsigned fromVersion)
                     + " WHERE " + TaskTagTable::Columns::tagId + " = OLD." + TaskTagTable::Columns::tagId + ") = 0; "
                     + "END;"
                     );
+        if (!ok)
+            return false;
+    }
+    if (fromVersion < 5) {
+       bool ok = execAndCheck(query, "drop trigger " + SprintViewInsertTrigger::name) &&
+           execAndCheck(query, "drop trigger " + SprintViewDeleteTrigger::name) &&
+           execAndCheck(query, "CREATE TRIGGER " + SprintViewDeleteTrigger::name
+                       + " INSTEAD OF DELETE ON " + SprintView::name
+                       + " BEGIN "
+                       + "DELETE FROM " + SprintTable::name
+                       + " WHERE " + SprintTable::Columns::uuid + " = OLD." + SprintTable::Columns::uuid + "; "
+                       + "UPDATE " + TaskTable::name
+                       + " SET " + TaskTable::Columns::actualCost + " = " + TaskTable::Columns::actualCost + " - 1"
+                       + " WHERE " + TaskTable::Columns::uuid + " = OLD." + SprintTable::Columns::taskUuid + "; "
+                       + " END;"
+               ) &&
+           execAndCheck(query, "CREATE TRIGGER " + SprintViewInsertTrigger::name
+                       + " INSTEAD OF INSERT ON " + SprintView::name
+                       + " BEGIN "
+                       + "INSERT INTO " + SprintTable::name + "("
+                       + SprintTable::Columns::taskUuid + ", "
+                       + SprintTable::Columns::startTime + ", "
+                       + SprintTable::Columns::finishTime + ", "
+                       + SprintTable::Columns::uuid + ") "
+                       + "SELECT"
+                       + " NEW." + SprintTable::Columns::taskUuid
+                       + ", NEW." + SprintTable::Columns::startTime
+                       + ", NEW." + SprintTable::Columns::finishTime
+                       + ", NEW." + SprintTable::Columns::uuid + "; "
+                       + "UPDATE " + TaskTable::name
+                       + " SET " + TaskTable::Columns::actualCost + " = " + TaskTable::Columns::actualCost + " + 1"
+                       + " WHERE " + TaskTable::Columns::uuid + " = NEW." + SprintTable::Columns::taskUuid + "; "
+                       + "END;");
+        if (!ok)
+            return false;
     }
 
-    return false;
+    return true;
 }
 
 bool Database::createBackupCopy(const QString& filename)

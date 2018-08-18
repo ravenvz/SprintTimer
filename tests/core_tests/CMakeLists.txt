@@ -7,13 +7,11 @@ target_sources(${TEST_CORE}
     PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/test_add_new_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_algutils.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/test_core_service.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_csv_reader.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_csv_writer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_delete_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_distribution.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_edit_task.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/test_increment_task_sprints.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_rename_tag.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_all_tags.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_finished_tasks.cpp"

@@ -39,22 +39,13 @@ namespace sprint_timer {
 class CoreService : public ICoreService {
 public:
     CoreService(ISprintStorageReader& sprintStorageReader,
-                ISprintStorageWriter& sprintStorageWriter,
                 ITaskStorageReader& taskStorageReader,
-                ITaskStorageWriter& taskStorageWriter,
                 CommandInvoker& invoker,
                 QueryExecutor& queryExecutor);
 
     void exportTasks(const dw::TimeSpan& timeSpan,
                      std::shared_ptr<external_io::ISink> sink,
                      TaskEncodingFunc func) final;
-
-    void registerSprint(const dw::TimeSpan& timeSpan,
-                        const std::string& taskUuid) final;
-
-    void registerSprint(const entities::Sprint& sprint) final;
-
-    void removeSprint(const entities::Sprint& sprint) final;
 
     void exportSprints(const dw::TimeSpan& timeSpan,
                        std::shared_ptr<external_io::ISink> sink,
@@ -70,9 +61,7 @@ public:
 
 private:
     ISprintStorageReader& sprintReader;
-    ISprintStorageWriter& sprintWriter;
     ITaskStorageReader& taskReader;
-    ITaskStorageWriter& taskWriter;
     CommandInvoker& invoker;
     QueryExecutor& query_invoker;
 };

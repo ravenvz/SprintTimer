@@ -24,7 +24,6 @@
 
 #include "qt_gui/models/AsyncListModel.h"
 #include <core/CommandInvoker.h>
-#include <core/ICoreService.h>
 #include <core/ISprintStorageReader.h>
 #include <core/ISprintStorageWriter.h>
 #include <core/ITaskStorageWriter.h>
@@ -37,8 +36,7 @@ class SprintModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    SprintModel(ICoreService& coreService,
-                CommandInvoker& commandInvoker,
+    SprintModel(CommandInvoker& commandInvoker,
                 QueryExecutor& queryExecutor,
                 ISprintStorageReader& sprintReader,
                 ISprintStorageWriter& sprintWriter,
@@ -62,7 +60,6 @@ protected:
 
 private:
     std::vector<entities::Sprint> storage;
-    ICoreService& coreService;
     CommandInvoker& commandInvoker;
     QueryExecutor& queryExecutor;
     ISprintStorageReader& sprintReader;
@@ -70,6 +67,8 @@ private:
     ITaskStorageWriter& taskWriter;
 
     void onDataChanged(const std::vector<entities::Sprint>& items);
+
+    void registerSprint(const entities::Sprint& sprint);
 };
 
 } // namespace sprint_timer::ui::qt_gui

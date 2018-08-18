@@ -21,10 +21,8 @@
 *********************************************************************************/
 #include "core/CoreService.h"
 #include "core/use_cases/AddNewTask.h"
-#include "core/use_cases/DecrementTaskSprints.h"
 #include "core/use_cases/DeleteTask.h"
 #include "core/use_cases/EditTask.h"
-#include "core/use_cases/IncrementTaskSprints.h"
 #include "core/use_cases/RegisterNewSprint.h"
 #include "core/use_cases/RemoveSprintTransaction.h"
 #include "core/use_cases/RenameTag.h"
@@ -47,15 +45,11 @@ using namespace use_cases;
 using namespace entities;
 
 CoreService::CoreService(ISprintStorageReader& sprintStorageReader,
-                         ISprintStorageWriter& sprintStorageWriter,
                          ITaskStorageReader& taskStorageReader,
-                         ITaskStorageWriter& taskStorageWriter,
                          CommandInvoker& invoker,
                          QueryExecutor& queryExecutor)
     : sprintReader{sprintStorageReader}
-    , sprintWriter{sprintStorageWriter}
     , taskReader{taskStorageReader}
-    , taskWriter{taskStorageWriter}
     , invoker{invoker}
     , query_invoker{queryExecutor}
 {
@@ -70,42 +64,6 @@ void CoreService::exportTasks(const TimeSpan& timeSpan,
             sink->send(func(tasks));
         });
     query_invoker.executeQuery(std::move(requestItems));
-}
-
-void CoreService::registerSprint(const TimeSpan& timeSpan,
-                                 const std::string& taskUuid)
-{
-    Sprint sprint{taskUuid, timeSpan};
-    registerSprint(sprint);
-}
-
-void CoreService::registerSprint(const Sprint& sprint)
-{
-    auto registerNewSprint
-        = std::make_unique<RegisterNewSprint>(sprintWriter, sprint);
-    auto incrementTaskSprints
-        = std::make_unique<IncrementTaskSprints>(taskWriter, sprint.taskUuid());
-    std::vector<std::unique_ptr<Command>> commands;
-    commands.push_back(std::move(registerNewSprint));
-    commands.push_back(std::move(incrementTaskSprints));
-    auto addSprintTransaction
-        = std::make_unique<MacroTransaction>(std::move(commands));
-    invoker.executeCommand(std::move(addSprintTransaction));
-}
-
-void CoreService::removeSprint(const Sprint& sprint)
-{
-    const std::string& taskUuid = sprint.taskUuid();
-    auto removeSprint
-        = std::make_unique<RemoveSprintTransaction>(sprintWriter, sprint);
-    auto decrementTaskSprints
-        = std::make_unique<DecrementTaskSprints>(taskWriter, taskUuid);
-    std::vector<std::unique_ptr<Command>> commands;
-    commands.push_back(std::move(removeSprint));
-    commands.push_back(std::move(decrementTaskSprints));
-    auto removeSprintTransaction
-        = std::make_unique<MacroTransaction>(std::move(commands));
-    invoker.executeCommand(std::move(removeSprintTransaction));
 }
 
 void CoreService::exportSprints(const TimeSpan& timeSpan,
