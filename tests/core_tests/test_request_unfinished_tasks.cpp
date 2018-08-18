@@ -37,7 +37,7 @@ public:
     sprint_timer::QueryExecutor queryExecutor;
 };
 
-TEST_F(RequestUnfinishedTasksFixture, wires_request_to_storage)
+TEST_F(RequestUnfinishedTasksFixture, execute)
 {
     using namespace sprint_timer::use_cases;
     using namespace sprint_timer::entities;

@@ -29,9 +29,9 @@
 #include <core/CommandInvoker.h>
 #include <core/use_cases/AddNewTask.h>
 
-using namespace sprint_timer;
-using namespace sprint_timer::entities;
-using namespace sprint_timer::use_cases;
+using sprint_timer::entities::Tag;
+using sprint_timer::entities::Task;
+using sprint_timer::use_cases::AddNewTask;
 
 class RegisterTaskFixture : public ::testing::Test {
 public:
@@ -43,18 +43,10 @@ public:
                   false,
                   dw::DateTime::fromYMD(2015, 11, 10)};
     TaskStorageWriterMock task_writer_mock;
-    CommandInvoker commandInvoker;
+    sprint_timer::CommandInvoker commandInvoker;
 };
 
-TEST_F(RegisterTaskFixture, registers_task)
-{
-    EXPECT_CALL(task_writer_mock, save(someTask)).Times(1);
-
-    commandInvoker.executeCommand(
-        std::make_unique<AddNewTask>(task_writer_mock, someTask));
-}
-
-TEST_F(RegisterTaskFixture, undo_adding_new_task)
+TEST_F(RegisterTaskFixture, execute_and_undo)
 {
     EXPECT_CALL(task_writer_mock, save(someTask)).Times(1);
 

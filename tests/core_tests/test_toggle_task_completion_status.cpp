@@ -29,9 +29,9 @@
 #include <core/CommandInvoker.h>
 #include <core/use_cases/ToggleTaskCompletionStatus.h>
 
-using namespace sprint_timer;
-using namespace sprint_timer::entities;
-using namespace sprint_timer::use_cases;
+using sprint_timer::entities::Tag;
+using sprint_timer::entities::Task;
+using sprint_timer::use_cases::ToggleTaskCompletionStatus;
 
 class ToggleTaskCompletionFixture : public ::testing::Test {
 public:
@@ -43,11 +43,11 @@ public:
                   false,
                   dw::DateTime::fromYMD(2015, 11, 10)};
 
-    CommandInvoker commandInvoker;
+    sprint_timer::CommandInvoker commandInvoker;
     TaskStorageWriterMock task_writer_mock;
 };
 
-TEST_F(ToggleTaskCompletionFixture, toggle_task_completion)
+TEST_F(ToggleTaskCompletionFixture, execute)
 {
     EXPECT_CALL(task_writer_mock,
                 toggleTaskCompletionStatus(
@@ -58,8 +58,7 @@ TEST_F(ToggleTaskCompletionFixture, toggle_task_completion)
         task_writer_mock, someTask));
 }
 
-TEST_F(ToggleTaskCompletionFixture,
-       undo_toggle_task_completion_status_should_not_modify_timestamp)
+TEST_F(ToggleTaskCompletionFixture, undo_should_not_modify_timestamp)
 {
     EXPECT_CALL(task_writer_mock,
                 toggleTaskCompletionStatus(

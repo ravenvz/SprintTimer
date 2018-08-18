@@ -33,8 +33,9 @@
 
 using ::testing::_;
 
-using namespace sprint_timer::use_cases;
-using namespace sprint_timer::entities;
+using sprint_timer::entities::Tag;
+using sprint_timer::entities::Task;
+using sprint_timer::use_cases::DeleteTask;
 
 class DeleteTaskFixture : public ::testing::Test {
 public:
@@ -72,6 +73,7 @@ TEST_F(DeleteTaskFixture, delete_task_with_no_sprints)
 
 TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_no_sprints)
 {
+    // TODO what about lastModified timestamp when undoing task deletion? Check
     EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints)).Times(1);
 
     commandInvoker.executeCommand(

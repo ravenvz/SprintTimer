@@ -29,16 +29,16 @@
 #include <core/CommandInvoker.h>
 #include <core/use_cases/RemoveSprintTransaction.h>
 
-using namespace sprint_timer;
-using namespace sprint_timer::use_cases;
-using namespace sprint_timer::entities;
+using sprint_timer::entities::Sprint;
+using sprint_timer::entities::Tag;
+using sprint_timer::use_cases::RemoveSprintTransaction;
 using namespace dw;
 
 using ::testing::_;
 
 class DeleteSprintFixture : public ::testing::Test {
 public:
-    CommandInvoker commandInvoker;
+    sprint_timer::CommandInvoker commandInvoker;
     SprintStorageWriterMock sprint_writer_mock;
 
     const TimeSpan someTimeSpan
@@ -51,15 +51,7 @@ public:
                             "722e8400"};
 };
 
-TEST_F(DeleteSprintFixture, test_execute)
-{
-    EXPECT_CALL(sprint_writer_mock, remove(someSprint)).Times(1);
-
-    commandInvoker.executeCommand(std::make_unique<RemoveSprintTransaction>(
-        sprint_writer_mock, someSprint));
-}
-
-TEST_F(DeleteSprintFixture, test_undo)
+TEST_F(DeleteSprintFixture, execute_and_undo)
 {
     EXPECT_CALL(sprint_writer_mock, remove(someSprint)).Times(1);
 

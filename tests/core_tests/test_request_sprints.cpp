@@ -30,8 +30,6 @@
 #include <core/use_cases/RequestSprints.h>
 
 using namespace dw;
-// using dw::DateTime;
-// using dw::TimeSpan;
 using sprint_timer::QueryExecutor;
 using sprint_timer::entities::Sprint;
 using sprint_timer::use_cases::RequestSprints;
@@ -57,7 +55,7 @@ public:
                    DateTime::currentDateTime().add(DateTime::Days(-1))};
 };
 
-TEST_F(RequestSprintsFixture, test_name)
+TEST_F(RequestSprintsFixture, execute)
 {
     EXPECT_CALL(sprint_reader_mock, requestItems(someTimeSpan, _));
 

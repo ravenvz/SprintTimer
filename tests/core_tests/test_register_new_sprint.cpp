@@ -29,16 +29,15 @@
 #include <core/CommandInvoker.h>
 #include <core/use_cases/RegisterNewSprint.h>
 
-using namespace sprint_timer;
-using namespace sprint_timer::use_cases;
-using namespace sprint_timer::entities;
+using sprint_timer::entities::Sprint;
+using sprint_timer::use_cases::RegisterNewSprint;
 using namespace dw;
 
 using ::testing::_;
 
 class RegisterNewSprintFixture : public ::testing::Test {
 public:
-    CommandInvoker commandInvoker;
+    sprint_timer::CommandInvoker commandInvoker;
     SprintStorageWriterMock sprint_writer_mock;
 
     const TimeSpan someTimeSpan
@@ -51,15 +50,7 @@ public:
                             "722e8400"};
 };
 
-TEST_F(RegisterNewSprintFixture, register_new_sprint)
-{
-    EXPECT_CALL(sprint_writer_mock, save(someSprint)).Times(1);
-
-    commandInvoker.executeCommand(
-        std::make_unique<RegisterNewSprint>(sprint_writer_mock, someSprint));
-}
-
-TEST_F(RegisterNewSprintFixture, undo_registering_new_sprint)
+TEST_F(RegisterNewSprintFixture, execute_and_undo)
 {
     EXPECT_CALL(sprint_writer_mock, save(someSprint)).Times(1);
 

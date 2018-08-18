@@ -30,9 +30,10 @@
 #include <core/TaskBuilder.h>
 #include <core/use_cases/EditTask.h>
 
-using namespace sprint_timer;
-using namespace sprint_timer::use_cases;
-using namespace sprint_timer::entities;
+using sprint_timer::TaskBuilder;
+using sprint_timer::entities::Tag;
+using sprint_timer::entities::Task;
+using sprint_timer::use_cases::EditTask;
 
 class EditTaskFixture : public ::testing::Test {
 public:
@@ -45,10 +46,10 @@ public:
                   dw::DateTime::fromYMD(2015, 11, 10)};
 
     TaskStorageWriterMock task_writer_mock;
-    CommandInvoker commandInvoker;
+    sprint_timer::CommandInvoker commandInvoker;
 };
 
-TEST_F(EditTaskFixture, edit_task_should_only_alter_allowed_parameters)
+TEST_F(EditTaskFixture, should_only_alter_allowed_parameters)
 {
     Task editedTask = TaskBuilder{}
                           .withName("Edited")
@@ -73,7 +74,7 @@ TEST_F(EditTaskFixture, edit_task_should_only_alter_allowed_parameters)
         std::make_unique<EditTask>(task_writer_mock, someTask, editedTask));
 }
 
-TEST_F(EditTaskFixture, undo_edit_task)
+TEST_F(EditTaskFixture, undo)
 {
     Task editedTask = TaskBuilder{}
                           .withUuid(someTask.uuid())
