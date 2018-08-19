@@ -331,6 +331,14 @@ int main(int argc, char* argv[])
                      &SprintOutline::actionUndone,
                      &progressWindow,
                      &DataWidget::synchronize);
+    QObject::connect(sprintOutline,
+                     &SprintOutline::actionUndone,
+                     &sprintModel,
+                     &AsyncListModel::synchronize);
+    QObject::connect(sprintOutline,
+                     &SprintOutline::actionUndone,
+                     &taskModel,
+                     &AsyncListModel::synchronize);
     QObject::connect(&sprintModel,
                      &AsyncListModel::updateFinished,
                      &historyWindow,

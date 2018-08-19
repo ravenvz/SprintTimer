@@ -110,8 +110,6 @@ void SprintOutline::onUndoButtonClicked()
     dialog.setActionDescription(description);
     if (dialog.exec()) {
         commandInvoker.undo();
-        sprintModel.synchronize();
-        taskModel.synchronize();
         emit actionUndone();
     }
 }
