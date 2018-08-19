@@ -24,6 +24,12 @@
 #include <QRegularExpression>
 #include <core/utils/StringUtils.h>
 
+namespace {
+
+const QString requiredFieldEmptyStyle{"QLineEdit { border: 2px solid red; }"};
+
+} // namespace
+
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;

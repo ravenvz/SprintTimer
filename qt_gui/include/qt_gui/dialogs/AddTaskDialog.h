@@ -64,8 +64,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::AddTaskDialog> ui;
-    const QString requiredFieldEmptyStyle{
-        "QLineEdit { border: 2px solid red; }"};
 };
 
 } // namespace sprint_timer::ui::qt_gui
