@@ -69,6 +69,7 @@
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/ProgressView.h>
 #include <qt_gui/widgets/SprintOutline.h>
+#include <qt_gui/widgets/SprintView.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
@@ -260,11 +261,13 @@ int main(int argc, char* argv[])
                          btn->setEnabled(taskModel.rowCount(QModelIndex{})
                                          != 0);
                      });
+    auto sprintView = std::make_unique<SprintView>(sprintModel);
     auto* sprintOutline = new SprintOutline{sprintModel,
                                             addSprintDialog,
                                             undoDialog,
                                             std::move(undoButton),
-                                            std::move(addNewSprintButton)};
+                                            std::move(addNewSprintButton),
+                                            std::move(sprintView)};
     StatisticsWindow statisticsWindow{applicationSettings,
                                       *sprintStorageReader,
                                       *sprintYearRangeReader,

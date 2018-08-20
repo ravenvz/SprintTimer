@@ -19,35 +19,19 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINT_TIMER_SPRINTOUTLINE_H
-#define SPRINT_TIMER_SPRINTOUTLINE_H
+#ifndef SPRINTVIEW_H_QBNZSNM9
+#define SPRINTVIEW_H_QBNZSNM9
 
+#include "qt_gui/models/SprintModel.h"
 #include <QListView>
-#include <QPushButton>
-#include <QWidget>
-#include <memory>
 
 namespace sprint_timer::ui::qt_gui {
 
-class SprintModel;
-class AddSprintDialog;
-class UndoDialog;
-class SprintView;
-
-class SprintOutline : public QWidget {
-
-    Q_OBJECT
-
+class SprintView : public QListView {
 public:
-    SprintOutline(SprintModel& sprintModel,
-                  AddSprintDialog& addSprintDialog,
-                  UndoDialog& undoDialog,
-                  std::unique_ptr<QPushButton> undoButton,
-                  std::unique_ptr<QPushButton> addNewSprintButton,
-                  std::unique_ptr<QListView> sprintView,
-                  QWidget* parent = nullptr);
+    SprintView(SprintModel& sprintModel, QWidget* parent = nullptr);
 
-    ~SprintOutline() override;
+    void showContextMenu(const QPoint& pos);
 
 private:
     SprintModel& sprintModel;
@@ -55,5 +39,4 @@ private:
 
 } // namespace sprint_timer::ui::qt_gui
 
-
-#endif // SPRINT_TIMER_SPRINTOUTLINE_H
+#endif /* end of include guard: SPRINTVIEW_H_QBNZSNM9 */

@@ -34,6 +34,7 @@ SprintOutline::SprintOutline(SprintModel& sprintModel,
                              UndoDialog& undoDialog,
                              std::unique_ptr<QPushButton> undoButton,
                              std::unique_ptr<QPushButton> addNewSprintButton,
+                             std::unique_ptr<QListView> sprintView,
                              QWidget* parent)
     : QWidget{parent}
     , sprintModel{sprintModel}
@@ -45,14 +46,7 @@ SprintOutline::SprintOutline(SprintModel& sprintModel,
     });
     layout->addWidget(undoButton.release());
 
-    finishedSprintsView = new QListView;
-    finishedSprintsView->setContextMenuPolicy(Qt::CustomContextMenu);
-    finishedSprintsView->setModel(&sprintModel);
-    connect(finishedSprintsView,
-            &QListView::customContextMenuRequested,
-            this,
-            &SprintOutline::showContextMenu);
-    layout->addWidget(finishedSprintsView);
+    layout->addWidget(sprintView.release());
 
     connect(addNewSprintButton.get(),
             &QPushButton::clicked,
@@ -63,22 +57,5 @@ SprintOutline::SprintOutline(SprintModel& sprintModel,
 }
 
 SprintOutline::~SprintOutline() = default;
-
-void SprintOutline::showContextMenu(const QPoint& pos)
-{
-    QPoint globalPos = mapToGlobal(pos);
-
-    QMenu contextMenu;
-    contextMenu.installEventFilter(new MouseRightReleaseEater(&contextMenu));
-    const auto deleteEntry = "Delete";
-    contextMenu.addAction(deleteEntry);
-
-    QAction* selectedEntry = contextMenu.exec(globalPos);
-
-    if (selectedEntry && selectedEntry->text() == deleteEntry) {
-        QModelIndex index = finishedSprintsView->currentIndex();
-        sprintModel.remove(index.row());
-    }
-}
 
 } // namespace sprint_timer::ui::qt_gui

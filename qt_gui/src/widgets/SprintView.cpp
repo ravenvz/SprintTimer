@@ -19,41 +19,40 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINT_TIMER_SPRINTOUTLINE_H
-#define SPRINT_TIMER_SPRINTOUTLINE_H
 
-#include <QListView>
-#include <QPushButton>
-#include <QWidget>
-#include <memory>
+#include "qt_gui/widgets/SprintView.h"
+#include <QMenu>
+#include <qt_gui/utils/MouseRightReleaseEater.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class SprintModel;
-class AddSprintDialog;
-class UndoDialog;
-class SprintView;
+SprintView::SprintView(SprintModel& sprintModel, QWidget* parent)
+    : QListView{parent}
+    , sprintModel{sprintModel}
+{
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    setModel(&sprintModel);
+    connect(this,
+            &QListView::customContextMenuRequested,
+            this,
+            &SprintView::showContextMenu);
+}
 
-class SprintOutline : public QWidget {
+void SprintView::showContextMenu(const QPoint& pos)
+{
+    QPoint globalPos = mapToGlobal(pos);
 
-    Q_OBJECT
+    QMenu contextMenu;
+    contextMenu.installEventFilter(new MouseRightReleaseEater(&contextMenu));
+    const auto deleteEntry = "Delete";
+    contextMenu.addAction(deleteEntry);
 
-public:
-    SprintOutline(SprintModel& sprintModel,
-                  AddSprintDialog& addSprintDialog,
-                  UndoDialog& undoDialog,
-                  std::unique_ptr<QPushButton> undoButton,
-                  std::unique_ptr<QPushButton> addNewSprintButton,
-                  std::unique_ptr<QListView> sprintView,
-                  QWidget* parent = nullptr);
+    QAction* selectedEntry = contextMenu.exec(globalPos);
 
-    ~SprintOutline() override;
-
-private:
-    SprintModel& sprintModel;
-};
+    if (selectedEntry && selectedEntry->text() == deleteEntry) {
+        QModelIndex index = currentIndex();
+        sprintModel.remove(index.row());
+    }
+}
 
 } // namespace sprint_timer::ui::qt_gui
-
-
-#endif // SPRINT_TIMER_SPRINTOUTLINE_H
