@@ -57,7 +57,9 @@
 #include <core/QueryInvoker.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
+#include <qt_gui/dialogs/AddSprintDialog.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
+#include <qt_gui/dialogs/UndoDialog.h>
 #include <qt_gui/dialogs/WorkdaysDialog.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/widgets/DefaultTimer.h>
@@ -70,6 +72,7 @@
 #include <qt_gui/widgets/StatisticsWindow.h>
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
+#include <qt_gui/widgets/UndoButton.h>
 
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
@@ -184,6 +187,7 @@ private:
     sprint_timer::CommandInvoker& wrapped;
 };
 
+
 int main(int argc, char* argv[])
 {
     using namespace sprint_timer;
@@ -242,8 +246,25 @@ int main(int argc, char* argv[])
         *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
 
     Config applicationSettings;
-    auto* sprintOutline = new SprintOutline{
-        applicationSettings, sprintModel, taskModel, commandInvoker};
+
+    AddSprintDialog addSprintDialog{
+        applicationSettings, sprintModel, taskModel};
+    UndoDialog undoDialog{commandInvoker};
+    auto undoButton = std::make_unique<UndoButton>(commandInvoker);
+    auto addNewSprintButton
+        = std::make_unique<QPushButton>("Add Sprint Manually");
+    addNewSprintButton->setEnabled(false);
+    QObject::connect(&taskModel,
+                     &QAbstractListModel::modelReset,
+                     [btn = addNewSprintButton.get(), &taskModel]() {
+                         btn->setEnabled(taskModel.rowCount(QModelIndex{})
+                                         != 0);
+                     });
+    auto* sprintOutline = new SprintOutline{sprintModel,
+                                            addSprintDialog,
+                                            undoDialog,
+                                            std::move(undoButton),
+                                            std::move(addNewSprintButton)};
     StatisticsWindow statisticsWindow{applicationSettings,
                                       *sprintStorageReader,
                                       *sprintYearRangeReader,
@@ -319,24 +340,12 @@ int main(int argc, char* argv[])
             applicationSettings, taskModel, nullptr};
 
     // TODO might be worth it to replace with some kind of combo-signal
-    QObject::connect(sprintOutline,
-                     &SprintOutline::actionUndone,
-                     &statisticsWindow,
-                     &DataWidget::synchronize);
-    QObject::connect(sprintOutline,
-                     &SprintOutline::actionUndone,
-                     &historyWindow,
-                     &DataWidget::synchronize);
-    QObject::connect(sprintOutline,
-                     &SprintOutline::actionUndone,
-                     &progressWindow,
-                     &DataWidget::synchronize);
-    QObject::connect(sprintOutline,
-                     &SprintOutline::actionUndone,
+    QObject::connect(&undoDialog,
+                     &QDialog::accepted,
                      &sprintModel,
                      &AsyncListModel::synchronize);
-    QObject::connect(sprintOutline,
-                     &SprintOutline::actionUndone,
+    QObject::connect(&undoDialog,
+                     &QDialog::accepted,
                      &taskModel,
                      &AsyncListModel::synchronize);
     QObject::connect(&sprintModel,

@@ -28,6 +28,7 @@
 #include <QDialog>
 #include <QPointer>
 #include <QtWidgets/QCalendarWidget>
+#include <core/IConfig.h>
 #include <memory>
 
 namespace Ui {
@@ -40,9 +41,9 @@ class AddSprintDialog : public QDialog {
     Q_OBJECT
 
 public:
-    AddSprintDialog(SprintModel& sprintModel,
+    AddSprintDialog(IConfig& applicationSettings,
+                    SprintModel& sprintModel,
                     TaskModel& taskModel,
-                    int sprintDuration,
                     QDialog* parent = nullptr);
 
     ~AddSprintDialog() override;
@@ -56,13 +57,11 @@ private slots:
 private:
     std::unique_ptr<Ui::AddSprintDialog> ui;
     std::unique_ptr<QCalendarWidget> datePicker;
+    IConfig& applicationSettings;
     SprintModel& sprintModel;
     TaskModel& taskModel;
-    const int sprintDuration;
     std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate
         = std::make_unique<SubmissionItemDelegate>();
-
-    void setData();
 
     int totalSprintLength() const;
 };

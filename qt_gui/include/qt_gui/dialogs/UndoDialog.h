@@ -19,34 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/CommandInvoker.h"
+#ifndef UNDODIALOG_H_WPYAGORZ
+#define UNDODIALOG_H_WPYAGORZ
 
-namespace sprint_timer {
+#include "qt_gui/dialogs/ConfirmationDialog.h"
+#include <core/CommandInvoker.h>
 
-void CommandInvoker::executeCommand(std::unique_ptr<Command> command)
-{
-    command->execute();
-    commandStack.push(std::move(command));
-    notify();
-}
+namespace sprint_timer::ui::qt_gui {
 
-void CommandInvoker::undo()
-{
-    if (commandStack.empty())
-        return;
-    commandStack.top()->undo();
-    commandStack.pop();
-    notify();
-}
+class UndoDialog : public ConfirmationDialog {
+public:
+    explicit UndoDialog(CommandInvoker& commandInvoker,
+                        QWidget* parent = nullptr);
 
-std::string CommandInvoker::lastCommandDescription() const
-{
-    return commandStack.empty() ? "" : commandStack.top()->describe();
-}
+    int exec() override;
 
-bool CommandInvoker::hasUndoableCommands() const
-{
-    return !commandStack.empty();
-}
+    void accept() override;
 
-} // namespace sprint_timer
+private:
+    CommandInvoker& commandInvoker;
+};
+
+} // namespace sprint_timer::ui::qt_gui
+
+#endif /* end of include guard: UNDODIALOG_H_WPYAGORZ */

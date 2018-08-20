@@ -22,58 +22,37 @@
 #ifndef SPRINT_TIMER_SPRINTOUTLINE_H
 #define SPRINT_TIMER_SPRINTOUTLINE_H
 
-#include "qt_gui/dialogs/AddSprintDialog.h"
-#include "qt_gui/models/SprintModel.h"
-#include "qt_gui/models/TaskModel.h"
+#include <QListView>
 #include <QPushButton>
 #include <QWidget>
-#include <core/CommandInvoker.h>
-#include <core/IConfig.h>
-#include <core/Observer.h>
 #include <memory>
-
-namespace Ui {
-class SprintOutline;
-} // namespace Ui
 
 namespace sprint_timer::ui::qt_gui {
 
-class SprintOutline : public QWidget, public Observer {
+class SprintModel;
+class AddSprintDialog;
+class UndoDialog;
+
+class SprintOutline : public QWidget {
 
     Q_OBJECT
 
 public:
-    SprintOutline(IConfig& applicationSettings,
-                  SprintModel& sprintModel,
-                  TaskModel& taskModel,
-                  CommandInvoker& commandInvoker,
+    SprintOutline(SprintModel& sprintModel,
+                  AddSprintDialog& addSprintDialog,
+                  UndoDialog& undoDialog,
+                  std::unique_ptr<QPushButton> undoButton,
+                  std::unique_ptr<QPushButton> addNewSprintButton,
                   QWidget* parent = nullptr);
 
     ~SprintOutline() override;
 
-    QSize sizeHint() const override;
-
-    void update() override;
-
 private:
-    std::unique_ptr<Ui::SprintOutline> ui;
-    IConfig& applicationSettings;
     SprintModel& sprintModel;
-    TaskModel& taskModel;
-    CommandInvoker& commandInvoker;
-    const QSize desiredSize{300, 200};
-    std::unique_ptr<AddSprintDialog> addSprintDialog;
-
-    void adjustUndoButtonState();
+    QListView* finishedSprintsView;
 
 private slots:
-    void launchManualAddSprintDialog();
-    void adjustAddSprintButtonState();
     void showContextMenu(const QPoint& pos);
-    void onUndoButtonClicked();
-
-signals:
-    void actionUndone();
 };
 
 } // namespace sprint_timer::ui::qt_gui

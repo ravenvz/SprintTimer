@@ -26,8 +26,8 @@
 
 namespace sprint_timer {
 
+// TODO consider returning durations in std::chrono types
 class IConfig {
-
 public:
     virtual ~IConfig() = default;
     virtual int sprintDuration() const = 0;

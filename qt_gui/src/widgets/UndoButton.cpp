@@ -19,34 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/CommandInvoker.h"
 
-namespace sprint_timer {
+#include "qt_gui/widgets/UndoButton.h"
 
-void CommandInvoker::executeCommand(std::unique_ptr<Command> command)
+namespace sprint_timer::ui::qt_gui {
+
+UndoButton::UndoButton(CommandInvoker& commandInvoker, QWidget* parent)
+    : QPushButton{parent}
+    , commandInvoker{commandInvoker}
 {
-    command->execute();
-    commandStack.push(std::move(command));
-    notify();
+    setText("Undo");
+    setEnabled(false);
+    commandInvoker.attach(*this);
 }
 
-void CommandInvoker::undo()
-{
-    if (commandStack.empty())
-        return;
-    commandStack.top()->undo();
-    commandStack.pop();
-    notify();
-}
+void UndoButton::update() { setEnabled(commandInvoker.hasUndoableCommands()); }
 
-std::string CommandInvoker::lastCommandDescription() const
-{
-    return commandStack.empty() ? "" : commandStack.top()->describe();
-}
-
-bool CommandInvoker::hasUndoableCommands() const
-{
-    return !commandStack.empty();
-}
-
-} // namespace sprint_timer
+} // namespace sprint_timer::ui::qt_gui

@@ -19,34 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/CommandInvoker.h"
+#ifndef UNDOBUTTON_H_TO9TXCVM
+#define UNDOBUTTON_H_TO9TXCVM
 
-namespace sprint_timer {
+#include <QPushButton>
+#include <core/CommandInvoker.h>
 
-void CommandInvoker::executeCommand(std::unique_ptr<Command> command)
-{
-    command->execute();
-    commandStack.push(std::move(command));
-    notify();
-}
+namespace sprint_timer::ui::qt_gui {
 
-void CommandInvoker::undo()
-{
-    if (commandStack.empty())
-        return;
-    commandStack.top()->undo();
-    commandStack.pop();
-    notify();
-}
+/* Modified QPushButton that enables automatically when
+ * there are commands that can be undone and disables when there are no
+ * such commands. */
+class UndoButton : public QPushButton, public Observer {
+public:
+    explicit UndoButton(CommandInvoker& commandInvoker,
+                        QWidget* parent = nullptr);
 
-std::string CommandInvoker::lastCommandDescription() const
-{
-    return commandStack.empty() ? "" : commandStack.top()->describe();
-}
+    void update() override;
 
-bool CommandInvoker::hasUndoableCommands() const
-{
-    return !commandStack.empty();
-}
+private:
+    CommandInvoker& commandInvoker;
+};
 
-} // namespace sprint_timer
+} // namespace sprint_timer::ui::qt_gui
+
+#endif /* end of include guard: UNDOBUTTON_H_TO9TXCVM */

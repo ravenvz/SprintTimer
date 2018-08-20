@@ -36,6 +36,27 @@ const QString hideMenu{"H&ide menu"};
 
 } // namespace
 
+// Single place to control MainWindow's widget sizes to simplify
+// shrink-expand size configuration
+namespace widget_size {
+
+constexpr int outlineWidth{320};
+constexpr int outlineHeight{200};
+const QSize sprintOutline{outlineWidth, outlineHeight};
+const QSize taskOutline{outlineWidth, outlineHeight};
+const QSize launcherMenu{50, 100};
+const QSize timer{100, 300};
+constexpr int buttonsHeight{50};
+const QSize expandedMenu{
+    timer.width(), timer.height() + buttonsHeight + launcherMenu.height()};
+const QSize expandedOutlines{2 * outlineWidth + timer.width(),
+                             taskOutline.height()};
+const QSize shrinked{timer.width(), timer.height() + buttonsHeight};
+const QSize expanded{2 * outlineWidth + timer.width(),
+                     timer.height() + launcherMenu.height() + buttonsHeight};
+
+} // namespace widget_size
+
 namespace sprint_timer::ui::qt_gui {
 
 MainWindow::MainWindow(SprintOutline* sprintOutline,
@@ -55,6 +76,12 @@ MainWindow::MainWindow(SprintOutline* sprintOutline,
         timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
     ui->gridLayout->addWidget(sprintOutline, 0, 2, 3, 1);
     ui->gridLayout->addWidget(launcherMenu, 4, 1, 1, 1, Qt::AlignHCenter);
+
+    size = widget_size::shrinked;
+    sprintOutline->setMinimumSize(widget_size::sprintOutline);
+    taskOutline->setMinimumSize(widget_size::taskOutline);
+    timerWidget->setMinimumSize(widget_size::timer);
+    launcherMenu->setMinimumSize(widget_size::launcherMenu);
 
     connect(
         ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
@@ -92,7 +119,7 @@ MainWindow::ExpandedOutlines::ExpandedOutlines(MainWindow& widget)
     widget.launcherMenu->setVisible(false);
     widget.ui->pbToggleView->setText(collapse);
     widget.ui->pbToggleMenu->setText(showMenu);
-    widget.size = QSize{812, 450};
+    widget.size = widget_size::expandedOutlines;
 }
 
 MainWindow::Shrinked::Shrinked(MainWindow& widget)
@@ -102,7 +129,7 @@ MainWindow::Shrinked::Shrinked(MainWindow& widget)
     widget.launcherMenu->setVisible(false);
     widget.ui->pbToggleView->setText(expand);
     widget.ui->pbToggleMenu->setText(showMenu);
-    widget.size = QSize{300, 450};
+    widget.size = widget_size::shrinked;
 }
 
 MainWindow::Expanded::Expanded(MainWindow& widget)
@@ -112,7 +139,7 @@ MainWindow::Expanded::Expanded(MainWindow& widget)
     widget.launcherMenu->setVisible(true);
     widget.ui->pbToggleView->setText(collapse);
     widget.ui->pbToggleMenu->setText(hideMenu);
-    widget.size = QSize{812, 500};
+    widget.size = widget_size::expanded;
 }
 
 MainWindow::ExpandedMenu::ExpandedMenu(MainWindow& widget)
@@ -122,7 +149,7 @@ MainWindow::ExpandedMenu::ExpandedMenu(MainWindow& widget)
     widget.launcherMenu->setVisible(true);
     widget.ui->pbToggleView->setText(expand);
     widget.ui->pbToggleMenu->setText(hideMenu);
-    widget.size = QSize{300, 500};
+    widget.size = widget_size::expandedMenu;
 }
 
 MainWindow::ViewToggledEvent::ViewToggledEvent(MainWindow& widget)

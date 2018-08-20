@@ -10,109 +10,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTORCC ON)
 
-# set(SOURCE_FILES "")
-# list(APPEND SOURCE_FILES "src/delegates/HistoryItemDelegate.cpp")
-# list(APPEND SOURCE_FILES "src/delegates/SubmissionItemDelegate.cpp")
-# list(APPEND SOURCE_FILES "src/delegates/TaskItemDelegate.cpp")
-# list(APPEND SOURCE_FILES "src/dialogs/AddSprintDialog.cpp")
-# list(APPEND SOURCE_FILES "src/dialogs/AddTaskDialog.cpp")
-# list(APPEND SOURCE_FILES "src/dialogs/ConfirmationDialog.cpp")
-# list(APPEND SOURCE_FILES "src/dialogs/DateRangePickDialog.cpp")
-# list(APPEND SOURCE_FILES "src/dialogs/ExportDialog.cpp")
-# list(APPEND SOURCE_FILES "src/dialogs/SettingsDialog.cpp")
-# list(APPEND SOURCE_FILES "src/dialogs/WorkdaysDialog.cpp")
-# list(APPEND SOURCE_FILES "src/models/AsyncListModel.cpp")
-# list(APPEND SOURCE_FILES "src/models/HistoryModel.cpp")
-# list(APPEND SOURCE_FILES "src/models/SprintModel.cpp")
-# list(APPEND SOURCE_FILES "src/models/TagModel.cpp")
-# list(APPEND SOURCE_FILES "src/models/TaskModel.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/BarChart.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/BestWorkdayWidget.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/BestWorktimeWidget.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/CombinedIndicator.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/DailyTimelineGraph.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/DataWidget.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/DateRangePicker.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/DefaultTimer.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/DistributionDiagram.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/FancyTimer.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/Gauge.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/GoalProgressWindow.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/HistoryWindow.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/IStatisticalChart.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/IStatisticalChartLegend.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/LauncherMenu.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/MainWindow.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/PieChart.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/PieDiagramMockup.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/Plot.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/ProgressView.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/ReordableListView.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/SimpleLegend.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/SprintOutline.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/StatisticsWindow.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/SubmissionBox.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/TagEditor.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/TaskOutline.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/TaskSprintsView.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/TimeDiagram.cpp")
-# list(APPEND SOURCE_FILES "src/widgets/TimerWidgetBase.cpp")
-# list(APPEND SOURCE_FILES "src/utils/MouseRightReleaseEater.cpp")
-# list(APPEND SOURCE_FILES "src/utils/WidgetUtils.cpp")
-
-# set(HEADER_FILES "")
-# list(APPEND HEADER_FILES "include/qt_gui/delegates/HistoryItemDelegate.h")
-# list(APPEND HEADER_FILES "include/qt_gui/delegates/SubmissionItemDelegate.h")
-# list(APPEND HEADER_FILES "include/qt_gui/delegates/TaskItemDelegate.h")
-# list(APPEND HEADER_FILES "include/qt_gui/dialogs/AddSprintDialog.h")
-# list(APPEND HEADER_FILES "include/qt_gui/dialogs/AddTaskDialog.h")
-# list(APPEND HEADER_FILES "include/qt_gui/dialogs/ConfirmationDialog.h")
-# list(APPEND HEADER_FILES "include/qt_gui/dialogs/DateRangePickDialog.h")
-# list(APPEND HEADER_FILES "include/qt_gui/dialogs/ExportDialog.h")
-# list(APPEND HEADER_FILES "include/qt_gui/dialogs/SettingsDialog.h")
-# list(APPEND HEADER_FILES "include/qt_gui/dialogs/WorkdaysDialog.h")
-# list(APPEND HEADER_FILES "include/qt_gui/models/AsyncListModel.h")
-# list(APPEND HEADER_FILES "include/qt_gui/models/HistoryModel.h")
-# list(APPEND HEADER_FILES "include/qt_gui/models/SprintModel.h")
-# list(APPEND HEADER_FILES "include/qt_gui/models/TagModel.h")
-# list(APPEND HEADER_FILES "include/qt_gui/models/TaskModel.h")
-# list(APPEND HEADER_FILES "include/qt_gui/QtConfig.h")
-# list(APPEND HEADER_FILES "include/qt_gui/utils/DateInterval.h")
-# list(APPEND HEADER_FILES "include/qt_gui/utils/DateTimeConverter.h")
-# list(APPEND HEADER_FILES "include/qt_gui/utils/MouseRightReleaseEater.h")
-# list(APPEND HEADER_FILES "include/qt_gui/utils/WidgetUtils.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/BarChart.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/BestWorkdayWidget.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/BestWorktimeWidget.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/CombinedIndicator.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/DailyTimelineGraph.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/DataWidget.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/DateRangePicker.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/DefaultTimer.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/DistributionDiagram.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/FancyTimer.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/Gauge.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/GoalProgressWindow.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/HistoryWindow.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/IStatisticalChart.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/IStatisticalChartLegend.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/LauncherMenu.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/MainWindow.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/PieChart.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/PieDiagramMockup.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/Plot.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/ProgressView.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/ReordableListView.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/SimpleLegend.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/SprintOutline.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/StatisticsWindow.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/SubmissionBox.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/TagEditor.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/TaskOutline.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/TaskSprintsView.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/TimeDiagram.h")
-# list(APPEND HEADER_FILES "include/qt_gui/widgets/TimerWidgetBase.h")
-
 QT5_WRAP_UI(UI_HEADERS
         ui/mainwindow.ui
         ui/add_todo_dialog.ui
@@ -131,7 +28,6 @@ QT5_WRAP_UI(UI_HEADERS
         ui/best_workday_widget.ui
         ui/best_worktime_widget.ui
         ui/task_outline.ui
-        ui/sprint_outline.ui
         ui/launcher_menu.ui
         ui/export_dialog.ui
         ui/workdays_dialog.ui
@@ -139,11 +35,10 @@ QT5_WRAP_UI(UI_HEADERS
 )
 
 add_library(${GUI_LIB} SHARED)
-# add_library(${GUI_LIB} SHARED ${UI_HEADERS} resources/resources.qrc)
-# add_library(${GUI_LIB} SHARED ${SOURCE_FILES} ${HEADER_FILES} ${UI_HEADERS} resources/resources.qrc)
 
 target_sources(${GUI_LIB}
     PUBLIC
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtConfig.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/HistoryItemDelegate.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/SubmissionItemDelegate.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/TaskItemDelegate.h"
@@ -153,13 +48,13 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/DateRangePickDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/ExportDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/SettingsDialog.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/UndoDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/WorkdaysDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/AsyncListModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/HistoryModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/SprintModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/TagModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/TaskModel.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtConfig.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/utils/DateInterval.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/utils/DateTimeConverter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/utils/MouseRightReleaseEater.h"
@@ -195,7 +90,9 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TaskSprintsView.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TimeDiagram.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TimerWidgetBase.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/UndoButton.h"
     PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/resources/resources.qrc"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/HistoryItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/SubmissionItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/TaskItemDelegate.cpp"
@@ -205,12 +102,15 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/DateRangePickDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/ExportDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/SettingsDialog.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/UndoDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/WorkdaysDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/AsyncListModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/HistoryModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/SprintModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/TagModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/TaskModel.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/utils/MouseRightReleaseEater.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/utils/WidgetUtils.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/BarChart.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/BestWorkdayWidget.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/BestWorktimeWidget.cpp"
@@ -242,9 +142,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TaskSprintsView.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TimeDiagram.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TimerWidgetBase.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/utils/MouseRightReleaseEater.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/utils/WidgetUtils.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/resources/resources.qrc"
+        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/UndoButton.cpp"
         "${UI_HEADERS}"
 )
 
