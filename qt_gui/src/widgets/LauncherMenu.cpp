@@ -61,4 +61,6 @@ LauncherMenu::LauncherMenu(DataWidget& progressWindow,
     });
 }
 
+LauncherMenu::~LauncherMenu() = default;
+
 } // namespace sprint_timer::ui::qt_gui

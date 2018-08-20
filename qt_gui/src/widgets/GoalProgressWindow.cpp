@@ -49,9 +49,9 @@ namespace {
 
 GoalProgressWindow::GoalProgressWindow(
     IConfig& applicationSettings,
-    ProgressView* dailyProgress,
-    ProgressView* weeklyProgress,
-    ProgressView* monthlyProgress,
+    std::unique_ptr<ProgressView> dailyProgress,
+    std::unique_ptr<ProgressView> weeklyProgress,
+    std::unique_ptr<ProgressView> monthlyProgress,
     WorkdaysDialog& workdaysDialog,
     ISprintDistributionReader& dailyDistributionReader,
     ISprintDistributionReader& weeklyDistributionReader,
@@ -60,9 +60,9 @@ GoalProgressWindow::GoalProgressWindow(
     QWidget* parent)
     : DataWidget{parent}
     , applicationSettings{applicationSettings}
-    , dailyProgress{dailyProgress}
-    , weeklyProgress{weeklyProgress}
-    , monthlyProgress{monthlyProgress}
+    , dailyView{dailyProgress.release()}
+    , weeklyView{weeklyProgress.release()}
+    , monthlyView{monthlyProgress.release()}
     , workdaysDialog{workdaysDialog}
     , dailyDistributionReader{dailyDistributionReader}
     , weeklyDistributionReader{weeklyDistributionReader}
@@ -74,36 +74,36 @@ GoalProgressWindow::GoalProgressWindow(
     layout->setContentsMargins(20, 10, 20, 10);
 
     auto* configureWorkdaysButton = new QPushButton("Configure", this);
-    dailyProgress->addLegendRow("Workdays:", configureWorkdaysButton);
+    dailyView->addLegendRow("Workdays:", configureWorkdaysButton);
 
-    dailyProgress->setSizePolicy(QSizePolicy::Expanding,
-                                 QSizePolicy::MinimumExpanding);
-    weeklyProgress->setSizePolicy(QSizePolicy::Preferred,
-                                  QSizePolicy::MinimumExpanding);
-    monthlyProgress->setSizePolicy(QSizePolicy::Preferred,
-                                   QSizePolicy::MinimumExpanding);
+    dailyView->setSizePolicy(QSizePolicy::Expanding,
+                             QSizePolicy::MinimumExpanding);
+    weeklyView->setSizePolicy(QSizePolicy::Preferred,
+                              QSizePolicy::MinimumExpanding);
+    monthlyView->setSizePolicy(QSizePolicy::Preferred,
+                               QSizePolicy::MinimumExpanding);
 
-    layout->addWidget(dailyProgress, 0, 0, 1, 2);
-    layout->addWidget(weeklyProgress, 1, 0, 1, 1);
-    layout->addWidget(monthlyProgress, 1, 1, 1, 1);
+    layout->addWidget(dailyView, 0, 0, 1, 2);
+    layout->addWidget(weeklyView, 1, 0, 1, 1);
+    layout->addWidget(monthlyView, 1, 1, 1, 1);
 
     setLayout(layout); // reparents
 
     setWindowIcon(QIcon(":icons/sprint_timer.png"));
 
-    connect(dailyProgress,
+    connect(dailyView,
             &ProgressView::goalChanged,
             [this, &applicationSettings](int goal) {
                 applicationSettings.setDailyGoal(goal);
                 synchronizeDailyData();
             });
-    connect(weeklyProgress,
+    connect(weeklyView,
             &ProgressView::goalChanged,
             [this, &applicationSettings](int goal) {
                 applicationSettings.setWeeklyGoal(goal);
                 synchronizeWeeklyData();
             });
-    connect(monthlyProgress,
+    connect(monthlyView,
             &ProgressView::goalChanged,
             [this, &applicationSettings](int goal) {
                 applicationSettings.setMonthlyGoal(goal);
@@ -140,7 +140,7 @@ void GoalProgressWindow::synchronizeDailyData()
         thirtyDaysBackTillNow(),
         [this](const auto& distribution) {
             const WeekdaySelection workdays{applicationSettings.workdaysCode()};
-            setProgressData(dailyProgress,
+            setProgressData(dailyView,
                             distribution,
                             numWorkdays(thirtyDaysBackTillNow(), workdays));
         }));
@@ -153,7 +153,7 @@ void GoalProgressWindow::synchronizeWeeklyData()
         twelveWeeksBackTillNow(),
         [this](const auto& distribution) {
             setProgressData(
-                weeklyProgress, distribution, distribution.getNumBins());
+                weeklyView, distribution, distribution.getNumBins());
         }));
 }
 
@@ -164,7 +164,7 @@ void GoalProgressWindow::synchronizeMonthlyData()
         twelveMonthsBackTillNow(),
         [this](const auto& distribution) {
             setProgressData(
-                monthlyProgress, distribution, distribution.getNumBins());
+                monthlyView, distribution, distribution.getNumBins());
         }));
 }
 

@@ -20,10 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/MainWindow.h"
-#include "qt_gui/widgets/LauncherMenu.h"
-#include "qt_gui/widgets/SprintOutline.h"
-#include "qt_gui/widgets/TaskOutline.h"
-#include "qt_gui/widgets/TimerWidgetBase.h"
 #include "ui_mainwindow.h"
 #include <QGridLayout>
 
@@ -42,55 +38,61 @@ namespace widget_size {
 
 constexpr int outlineWidth{320};
 constexpr int outlineHeight{200};
-const QSize sprintOutline{outlineWidth, outlineHeight};
-const QSize taskOutline{outlineWidth, outlineHeight};
-const QSize launcherMenu{50, 100};
-const QSize timer{100, 300};
+const QSize leftWidget{outlineWidth, outlineHeight};
+const QSize rightWidget{outlineWidth, outlineHeight};
+const QSize menuWidget{50, 100};
+const QSize timerWidget{100, 300};
 constexpr int buttonsHeight{50};
-const QSize expandedMenu{
-    timer.width(), timer.height() + buttonsHeight + launcherMenu.height()};
-const QSize expandedOutlines{2 * outlineWidth + timer.width(),
-                             taskOutline.height()};
-const QSize shrinked{timer.width(), timer.height() + buttonsHeight};
-const QSize expanded{2 * outlineWidth + timer.width(),
-                     timer.height() + launcherMenu.height() + buttonsHeight};
+const QSize expandedMenu{timerWidget.width(),
+                         timerWidget.height() + buttonsHeight
+                             + menuWidget.height()};
+const QSize expandedOutlines{2 * outlineWidth + timerWidget.width(),
+                             outlineHeight};
+const QSize shrinked{timerWidget.width(), timerWidget.height() + buttonsHeight};
+const QSize expanded{2 * outlineWidth + timerWidget.width(),
+                     timerWidget.height() + menuWidget.height()
+                         + buttonsHeight};
 
 } // namespace widget_size
 
 namespace sprint_timer::ui::qt_gui {
 
-MainWindow::MainWindow(SprintOutline* sprintOutline,
-                       TaskOutline* taskOutline,
-                       TimerWidgetBase* timerWidget,
-                       LauncherMenu* launcherMenu,
+MainWindow::MainWindow(std::unique_ptr<QWidget> sprintOutline,
+                       std::unique_ptr<QWidget> taskOutline,
+                       std::unique_ptr<QWidget> timerWidget,
+                       std::unique_ptr<QWidget> launcherMenu,
                        QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::MainWindow>()}
-    , sprintOutline{sprintOutline}
-    , taskOutline{taskOutline}
-    , launcherMenu{launcherMenu}
+    , sprintsWidget{sprintOutline.release()}
+    , tasksWidget{taskOutline.release()}
+    , menuWidget{launcherMenu.release()}
 {
     ui->setupUi(this);
-    ui->gridLayout->addWidget(taskOutline, 0, 0, 3, 1);
+
+    sprintsWidget->setMinimumSize(widget_size::leftWidget);
+    sprintsWidget->setVisible(false);
+    ui->gridLayout->addWidget(sprintsWidget, 0, 2, 3, 1);
+
+    tasksWidget->setMinimumSize(widget_size::rightWidget);
+    tasksWidget->setVisible(false);
+    ui->gridLayout->addWidget(tasksWidget, 0, 0, 3, 1);
+
+    timerWidget->setMinimumSize(widget_size::timerWidget);
     ui->gridLayout->addWidget(
-        timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
-    ui->gridLayout->addWidget(sprintOutline, 0, 2, 3, 1);
-    ui->gridLayout->addWidget(launcherMenu, 4, 1, 1, 1, Qt::AlignHCenter);
+        timerWidget.release(), 1, 1, Qt::AlignHCenter | Qt::AlignTop);
+
+    menuWidget->setMinimumSize(widget_size::menuWidget);
+    menuWidget->setVisible(false);
+    ui->gridLayout->addWidget(menuWidget, 4, 1, 1, 1, Qt::AlignHCenter);
 
     size = widget_size::shrinked;
-    sprintOutline->setMinimumSize(widget_size::sprintOutline);
-    taskOutline->setMinimumSize(widget_size::taskOutline);
-    timerWidget->setMinimumSize(widget_size::timer);
-    launcherMenu->setMinimumSize(widget_size::launcherMenu);
 
     connect(
         ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
     connect(
         ui->pbToggleMenu, &QPushButton::clicked, this, &MainWindow::toggleMenu);
 
-    sprintOutline->setVisible(false);
-    taskOutline->setVisible(false);
-    launcherMenu->setVisible(false);
     ui->pbToggleView->setText(expand);
     ui->pbToggleMenu->setText(showMenu);
     adjustSize();
@@ -114,9 +116,9 @@ void MainWindow::toggleMenu()
 
 MainWindow::ExpandedOutlines::ExpandedOutlines(MainWindow& widget)
 {
-    widget.sprintOutline->setVisible(true);
-    widget.taskOutline->setVisible(true);
-    widget.launcherMenu->setVisible(false);
+    widget.sprintsWidget->setVisible(true);
+    widget.tasksWidget->setVisible(true);
+    widget.menuWidget->setVisible(false);
     widget.ui->pbToggleView->setText(collapse);
     widget.ui->pbToggleMenu->setText(showMenu);
     widget.size = widget_size::expandedOutlines;
@@ -124,9 +126,9 @@ MainWindow::ExpandedOutlines::ExpandedOutlines(MainWindow& widget)
 
 MainWindow::Shrinked::Shrinked(MainWindow& widget)
 {
-    widget.sprintOutline->setVisible(false);
-    widget.taskOutline->setVisible(false);
-    widget.launcherMenu->setVisible(false);
+    widget.sprintsWidget->setVisible(false);
+    widget.tasksWidget->setVisible(false);
+    widget.menuWidget->setVisible(false);
     widget.ui->pbToggleView->setText(expand);
     widget.ui->pbToggleMenu->setText(showMenu);
     widget.size = widget_size::shrinked;
@@ -134,9 +136,9 @@ MainWindow::Shrinked::Shrinked(MainWindow& widget)
 
 MainWindow::Expanded::Expanded(MainWindow& widget)
 {
-    widget.sprintOutline->setVisible(true);
-    widget.taskOutline->setVisible(true);
-    widget.launcherMenu->setVisible(true);
+    widget.sprintsWidget->setVisible(true);
+    widget.tasksWidget->setVisible(true);
+    widget.menuWidget->setVisible(true);
     widget.ui->pbToggleView->setText(collapse);
     widget.ui->pbToggleMenu->setText(hideMenu);
     widget.size = widget_size::expanded;
@@ -144,9 +146,9 @@ MainWindow::Expanded::Expanded(MainWindow& widget)
 
 MainWindow::ExpandedMenu::ExpandedMenu(MainWindow& widget)
 {
-    widget.sprintOutline->setVisible(false);
-    widget.taskOutline->setVisible(false);
-    widget.launcherMenu->setVisible(true);
+    widget.sprintsWidget->setVisible(false);
+    widget.tasksWidget->setVisible(false);
+    widget.menuWidget->setVisible(true);
     widget.ui->pbToggleView->setText(expand);
     widget.ui->pbToggleMenu->setText(hideMenu);
     widget.size = widget_size::expandedMenu;

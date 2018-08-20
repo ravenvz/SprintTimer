@@ -188,6 +188,48 @@ private:
     sprint_timer::CommandInvoker& wrapped;
 };
 
+// std::unique_ptr<QWidget>
+// createSprintOutline(sprint_timer::IConfig& applicationSettings,
+//                     sprint_timer::CommandInvoker& commandInvoker,
+//                     sprint_timer::ui::qt_gui::SprintModel& sprintModel,
+//                     sprint_timer::ui::qt_gui::TaskModel& taskModel)
+// {
+//     using namespace sprint_timer::ui::qt_gui;
+//
+//     AddSprintDialog addSprintDialog{
+//         applicationSettings, sprintModel, taskModel};
+//
+//     UndoDialog undoDialog{commandInvoker};
+//     QObject::connect(&undoDialog,
+//                      &QDialog::accepted,
+//                      &sprintModel,
+//                      &AsyncListModel::synchronize);
+//     QObject::connect(&undoDialog,
+//                      &QDialog::accepted,
+//                      &taskModel,
+//                      &AsyncListModel::synchronize);
+//
+//     auto undoButton = std::make_unique<UndoButton>(commandInvoker);
+//
+//     auto addNewSprintButton
+//         = std::make_unique<QPushButton>("Add Sprint Manually");
+//     addNewSprintButton->setEnabled(false);
+//     QObject::connect(&taskModel,
+//                      &QAbstractListModel::modelReset,
+//                      [btn = addNewSprintButton.get(), &taskModel]() {
+//                          btn->setEnabled(taskModel.rowCount(QModelIndex{})
+//                                          != 0);
+//                      });
+//
+//     auto sprintView = std::make_unique<SprintView>(sprintModel);
+//
+//     return std::make_unique<SprintOutline>(sprintModel,
+//                                            addSprintDialog,
+//                                            undoDialog,
+//                                            std::move(undoButton),
+//                                            std::move(addNewSprintButton),
+//                                            std::move(sprintView));
+// }
 
 int main(int argc, char* argv[])
 {
@@ -248,10 +290,23 @@ int main(int argc, char* argv[])
 
     Config applicationSettings;
 
+    // auto sprintOutline = createSprintOutline(
+    //     applicationSettings, commandInvoker, sprintModel, taskModel);
     AddSprintDialog addSprintDialog{
         applicationSettings, sprintModel, taskModel};
+
     UndoDialog undoDialog{commandInvoker};
+    QObject::connect(&undoDialog,
+                     &QDialog::accepted,
+                     &sprintModel,
+                     &AsyncListModel::synchronize);
+    QObject::connect(&undoDialog,
+                     &QDialog::accepted,
+                     &taskModel,
+                     &AsyncListModel::synchronize);
+
     auto undoButton = std::make_unique<UndoButton>(commandInvoker);
+
     auto addNewSprintButton
         = std::make_unique<QPushButton>("Add Sprint Manually");
     addNewSprintButton->setEnabled(false);
@@ -261,40 +316,47 @@ int main(int argc, char* argv[])
                          btn->setEnabled(taskModel.rowCount(QModelIndex{})
                                          != 0);
                      });
+
     auto sprintView = std::make_unique<SprintView>(sprintModel);
-    auto* sprintOutline = new SprintOutline{sprintModel,
-                                            addSprintDialog,
-                                            undoDialog,
-                                            std::move(undoButton),
-                                            std::move(addNewSprintButton),
-                                            std::move(sprintView)};
+
+    auto sprintOutline
+        = std::make_unique<SprintOutline>(sprintModel,
+                                          addSprintDialog,
+                                          undoDialog,
+                                          std::move(undoButton),
+                                          std::move(addNewSprintButton),
+                                          std::move(sprintView));
+
     StatisticsWindow statisticsWindow{applicationSettings,
                                       *sprintStorageReader,
                                       *sprintYearRangeReader,
                                       queryInvoker};
 
-    auto* dailyProgress = new ProgressView(applicationSettings.dailyGoal(),
-                                           ProgressView::Rows{3},
-                                           ProgressView::Columns{10},
-                                           ProgressView::GaugeSize{0.7});
+    auto dailyProgress
+        = std::make_unique<ProgressView>(applicationSettings.dailyGoal(),
+                                         ProgressView::Rows{3},
+                                         ProgressView::Columns{10},
+                                         ProgressView::GaugeSize{0.7});
     dailyProgress->setLegendTitle("Last 30 days");
     dailyProgress->setLegendTotalCaption("Total completed:");
     dailyProgress->setLegendAverageCaption("Average per day:");
     dailyProgress->setLegendPercentageCaption("Goal progress:");
     dailyProgress->setLegendGoalCaption("Daily goal:");
-    auto* weeklyProgress = new ProgressView(applicationSettings.weeklyGoal(),
-                                            ProgressView::Rows{3},
-                                            ProgressView::Columns{4},
-                                            ProgressView::GaugeSize{0.8});
+    auto weeklyProgress
+        = std::make_unique<ProgressView>(applicationSettings.weeklyGoal(),
+                                         ProgressView::Rows{3},
+                                         ProgressView::Columns{4},
+                                         ProgressView::GaugeSize{0.8});
     weeklyProgress->setLegendTitle("Last 12 weeks");
     weeklyProgress->setLegendTotalCaption("Total completed:");
     weeklyProgress->setLegendAverageCaption("Average per week:");
     weeklyProgress->setLegendPercentageCaption("Goal progress:");
     weeklyProgress->setLegendGoalCaption("Weekly goal:");
-    auto* monthlyProgress = new ProgressView(applicationSettings.monthlyGoal(),
-                                             ProgressView::Rows{3},
-                                             ProgressView::Columns{4},
-                                             ProgressView::GaugeSize{0.8});
+    auto monthlyProgress
+        = std::make_unique<ProgressView>(applicationSettings.monthlyGoal(),
+                                         ProgressView::Rows{3},
+                                         ProgressView::Columns{4},
+                                         ProgressView::GaugeSize{0.8});
     monthlyProgress->setLegendTitle("Last 12 months");
     monthlyProgress->setLegendTotalCaption("Total completed:");
     monthlyProgress->setLegendAverageCaption("Average per month:");
@@ -302,9 +364,9 @@ int main(int argc, char* argv[])
     monthlyProgress->setLegendGoalCaption("Monthly goal:");
     WorkdaysDialog workdaysDialog{applicationSettings};
     GoalProgressWindow progressWindow{applicationSettings,
-                                      dailyProgress,
-                                      weeklyProgress,
-                                      monthlyProgress,
+                                      std::move(dailyProgress),
+                                      std::move(weeklyProgress),
+                                      std::move(monthlyProgress),
                                       workdaysDialog,
                                       *dailyDistributionReader,
                                       *weeklyDistributionReader,
@@ -320,37 +382,26 @@ int main(int argc, char* argv[])
                                 historyItemDelegate,
                                 queryInvoker};
     SettingsDialog settingsDialog{applicationSettings};
-    auto* launcherMenu = new LauncherMenu(progressWindow,
-                                          statisticsWindow,
-                                          historyWindow,
-                                          settingsDialog,
-                                          nullptr);
+    auto launcherMenu = std::make_unique<LauncherMenu>(
+        progressWindow, statisticsWindow, historyWindow, settingsDialog);
     HistoryModel taskSprintsModel;
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
-    auto* taskOutline = new TaskOutline(*sprintStorageReader,
-                                        queryInvoker,
-                                        taskModel,
-                                        tagModel,
-                                        sprintModel,
-                                        taskSprintsView);
-    TimerWidgetBase* timerWidget = nullptr;
+    auto taskOutline = std::make_unique<TaskOutline>(*sprintStorageReader,
+                                                     queryInvoker,
+                                                     taskModel,
+                                                     tagModel,
+                                                     sprintModel,
+                                                     taskSprintsView);
+    std::unique_ptr<TimerWidgetBase> timerWidget;
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
-        timerWidget = new sprint_timer::ui::qt_gui::DefaultTimer{
-            applicationSettings, taskModel, nullptr};
+        timerWidget = std::make_unique<DefaultTimer>(
+            applicationSettings, taskModel, nullptr);
     else
-        timerWidget = new sprint_timer::ui::qt_gui::FancyTimer{
-            applicationSettings, taskModel, nullptr};
+        timerWidget = std::make_unique<FancyTimer>(
+            applicationSettings, taskModel, nullptr);
 
     // TODO might be worth it to replace with some kind of combo-signal
-    QObject::connect(&undoDialog,
-                     &QDialog::accepted,
-                     &sprintModel,
-                     &AsyncListModel::synchronize);
-    QObject::connect(&undoDialog,
-                     &QDialog::accepted,
-                     &taskModel,
-                     &AsyncListModel::synchronize);
     QObject::connect(&sprintModel,
                      &AsyncListModel::updateFinished,
                      &historyWindow,
@@ -400,28 +451,32 @@ int main(int argc, char* argv[])
                      &taskModel,
                      &AsyncListModel::synchronize);
 
-    QObject::connect(timerWidget,
+    QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submissionCandidateChanged,
-                     taskOutline,
+                     taskOutline.get(),
                      &TaskOutline::onTaskSelectionChanged);
-    QObject::connect(timerWidget,
+    QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submitRequested,
-                     taskOutline,
+                     taskOutline.get(),
                      &TaskOutline::onSprintSubmissionRequested);
     // TODO see if we can connect it differently
-    QObject::connect(
-        taskOutline, &TaskOutline::taskSelected, [&](const int row) {
-            timerWidget->setCandidateIndex(row);
-        });
+    QObject::connect(taskOutline.get(),
+                     &TaskOutline::taskSelected,
+                     [timer = timerWidget.get()](const int row) {
+                         timer->setCandidateIndex(row);
+                     });
     // TODO see if we can connect it differently
-    QObject::connect(
-        &sprintModel, &SprintModel::modelReset, [timerWidget, &sprintModel]() {
-            timerWidget->updateGoalProgress(
-                sprintModel.rowCount(QModelIndex()));
-        });
+    QObject::connect(&sprintModel,
+                     &SprintModel::modelReset,
+                     [timer = timerWidget.get(), &sprintModel]() {
+                         timer->updateGoalProgress(
+                             sprintModel.rowCount(QModelIndex()));
+                     });
 
-    sprint_timer::ui::qt_gui::MainWindow w{
-        sprintOutline, taskOutline, timerWidget, launcherMenu};
+    sprint_timer::ui::qt_gui::MainWindow w{std::move(sprintOutline),
+                                           std::move(taskOutline),
+                                           std::move(timerWidget),
+                                           std::move(launcherMenu)};
     w.show();
     app.setStyle(QStyleFactory::create("Fusion"));
 

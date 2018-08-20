@@ -42,6 +42,8 @@ public:
                  QDialog& settingsDialog,
                  QWidget* parent = nullptr);
 
+    ~LauncherMenu() override;
+
 private:
     std::unique_ptr<Ui::LauncherMenu> ui;
 };

@@ -33,18 +33,13 @@ class MainWindow;
 
 namespace sprint_timer::ui::qt_gui {
 
-class SprintOutline;
-class TaskOutline;
-class LauncherMenu;
-class TimerWidgetBase;
-
 class MainWindow : public QWidget {
 
 public:
-    MainWindow(SprintOutline* sprintOutline,
-               TaskOutline* taskOutline,
-               TimerWidgetBase* timerWidget,
-               LauncherMenu* launcherMenu,
+    MainWindow(std::unique_ptr<QWidget> sprintOutline,
+               std::unique_ptr<QWidget> taskOutline,
+               std::unique_ptr<QWidget> timerWidget,
+               std::unique_ptr<QWidget> launcherMenu,
                QWidget* parent = nullptr);
 
     ~MainWindow() override;
@@ -104,9 +99,9 @@ private:
     };
 
     std::unique_ptr<Ui::MainWindow> ui;
-    SprintOutline* sprintOutline;
-    TaskOutline* taskOutline;
-    LauncherMenu* launcherMenu;
+    QWidget* sprintsWidget;
+    QWidget* tasksWidget;
+    QWidget* menuWidget;
     State state_;
     QSize size;
 

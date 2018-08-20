@@ -38,9 +38,9 @@ class ProgressView;
 class GoalProgressWindow : public DataWidget {
 public:
     GoalProgressWindow(IConfig& applicationSettings,
-                       ProgressView* dailyProgress,
-                       ProgressView* weeklyProgress,
-                       ProgressView* monthlyProgress,
+                       std::unique_ptr<ProgressView> dailyProgress,
+                       std::unique_ptr<ProgressView> weeklyProgress,
+                       std::unique_ptr<ProgressView> monthlyProgress,
                        WorkdaysDialog& workdaysDialog,
                        ISprintDistributionReader& dailyDistributionReader,
                        ISprintDistributionReader& weeklyDistributionReader,
@@ -54,9 +54,9 @@ public:
 
 private:
     IConfig& applicationSettings;
-    ProgressView* dailyProgress;
-    ProgressView* weeklyProgress;
-    ProgressView* monthlyProgress;
+    ProgressView* dailyView;
+    ProgressView* weeklyView;
+    ProgressView* monthlyView;
     WorkdaysDialog& workdaysDialog;
     ISprintDistributionReader& dailyDistributionReader;
     ISprintDistributionReader& weeklyDistributionReader;
