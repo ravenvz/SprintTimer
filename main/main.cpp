@@ -58,10 +58,12 @@
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
 #include <qt_gui/dialogs/AddSprintDialog.h>
+#include <qt_gui/dialogs/AddTaskDialog.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
 #include <qt_gui/dialogs/UndoDialog.h>
 #include <qt_gui/dialogs/WorkdaysDialog.h>
 #include <qt_gui/models/HistoryModel.h>
+#include <qt_gui/models/TagModel.h>
 #include <qt_gui/widgets/DefaultTimer.h>
 #include <qt_gui/widgets/FancyTimer.h>
 #include <qt_gui/widgets/GoalProgressWindow.h>
@@ -71,6 +73,7 @@
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/SprintView.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
+#include <qt_gui/widgets/TagEditor.h>
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
 #include <qt_gui/widgets/UndoButton.h>
@@ -306,7 +309,6 @@ int main(int argc, char* argv[])
                      &AsyncListModel::synchronize);
 
     auto undoButton = std::make_unique<UndoButton>(commandInvoker);
-
     auto addNewSprintButton
         = std::make_unique<QPushButton>("Add Sprint Manually");
     addNewSprintButton->setEnabled(false);
@@ -316,9 +318,7 @@ int main(int argc, char* argv[])
                          btn->setEnabled(taskModel.rowCount(QModelIndex{})
                                          != 0);
                      });
-
     auto sprintView = std::make_unique<SprintView>(sprintModel);
-
     auto sprintOutline
         = std::make_unique<SprintOutline>(sprintModel,
                                           addSprintDialog,
@@ -384,14 +384,7 @@ int main(int argc, char* argv[])
     SettingsDialog settingsDialog{applicationSettings};
     auto launcherMenu = std::make_unique<LauncherMenu>(
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
-    HistoryModel taskSprintsModel;
-    TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
-    auto taskOutline = std::make_unique<TaskOutline>(*sprintStorageReader,
-                                                     queryInvoker,
-                                                     taskModel,
-                                                     tagModel,
-                                                     sprintModel,
-                                                     taskSprintsView);
+
     std::unique_ptr<TimerWidgetBase> timerWidget;
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
@@ -400,6 +393,39 @@ int main(int argc, char* argv[])
     else
         timerWidget = std::make_unique<FancyTimer>(
             applicationSettings, taskModel, nullptr);
+
+    HistoryModel taskSprintsModel;
+    TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
+    AddTaskDialog addTaskDialog{tagModel};
+    TaskItemDelegate taskItemDelegate;
+    auto taskView
+        = std::make_unique<TaskView>(taskModel,
+                                     *sprintStorageReader,
+                                     queryInvoker,
+                                     taskSprintsView,
+                                     addTaskDialog,
+                                     std::make_unique<TagEditor>(tagModel),
+                                     taskItemDelegate);
+    taskView->setStyleSheet(QLatin1String{"QListView {\n"
+                 "  show-decoration-selected: 1;\n"
+                 "}\n"
+                 "QListView::item {\n"
+                 "  margin: 5px;\n"
+                 "  border: 1px solid gray;\n"
+                 "  border-radius: 2px; padding: 10px;\n"
+                 "}\n"});
+    QObject::connect(timerWidget.get(),
+                     &TimerWidgetBase::submissionCandidateChanged,
+                     taskView.get(),
+                     &TaskView::onTaskSelectionChanged);
+    // TODO see if we can connect it differently
+    QObject::connect(taskView.get(),
+                     &TaskView::taskSelected,
+                     [timer = timerWidget.get()](const int row) {
+                         timer->setCandidateIndex(row);
+                     });
+    auto taskOutline = std::make_unique<TaskOutline>(
+        taskModel, sprintModel, std::move(taskView), addTaskDialog);
 
     // TODO might be worth it to replace with some kind of combo-signal
     QObject::connect(&sprintModel,
@@ -452,19 +478,9 @@ int main(int argc, char* argv[])
                      &AsyncListModel::synchronize);
 
     QObject::connect(timerWidget.get(),
-                     &TimerWidgetBase::submissionCandidateChanged,
-                     taskOutline.get(),
-                     &TaskOutline::onTaskSelectionChanged);
-    QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submitRequested,
                      taskOutline.get(),
                      &TaskOutline::onSprintSubmissionRequested);
-    // TODO see if we can connect it differently
-    QObject::connect(taskOutline.get(),
-                     &TaskOutline::taskSelected,
-                     [timer = timerWidget.get()](const int row) {
-                         timer->setCandidateIndex(row);
-                     });
     // TODO see if we can connect it differently
     QObject::connect(&sprintModel,
                      &SprintModel::modelReset,
@@ -478,6 +494,14 @@ int main(int argc, char* argv[])
                                            std::move(timerWidget),
                                            std::move(launcherMenu)};
     w.show();
+    // app.setStyleSheet("sprint_timer--ui--gt_gui--TaskView { "
+    //              "  show-decoration-selected: 1; #<{(| "
+    //              "}"
+    //              "sprint_timer--ui--gt_gui--TaskView::item {"
+    //              "  margin: 5px;"
+    //              "  border: 1px solid gray;"
+    //              "  border-radius: 2px; padding: 10px;"
+    //              "}");
     app.setStyle(QStyleFactory::create("Fusion"));
 
     return app.exec();

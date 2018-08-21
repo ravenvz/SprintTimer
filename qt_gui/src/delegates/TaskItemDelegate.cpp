@@ -23,8 +23,6 @@
 #include <QApplication>
 #include <QPainter>
 
-namespace sprint_timer::ui::qt_gui {
-
 namespace {
 
 // Note that below options must match those defined in QSS.
@@ -52,6 +50,8 @@ int contentWidth(const QRect& rect);
 
 } // namespace
 
+
+namespace sprint_timer::ui::qt_gui {
 
 TaskItemDelegate::TaskItemDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
@@ -155,46 +155,45 @@ void TaskItemDelegate::paintItem(QPainter* painter,
                         completionStats);
 }
 
+} // namespace sprint_timer::ui::qt_gui
 
 namespace {
 
-std::tuple<QRect, QRect, QRect>
-textRectangles(const QStyleOptionViewItem& option, const QModelIndex& index)
-{
-    const QString tags = index.data(Qt::UserRole + 1).toString();
-    const QString descr = index.data(Qt::UserRole + 2).toString();
-    const QString stats = index.data(Qt::UserRole + 3).toString();
+    std::tuple<QRect, QRect, QRect>
+    textRectangles(const QStyleOptionViewItem& option, const QModelIndex& index)
+    {
+        const QString tags = index.data(Qt::UserRole + 1).toString();
+        const QString descr = index.data(Qt::UserRole + 2).toString();
+        const QString stats = index.data(Qt::UserRole + 3).toString();
 
-    QRect statsRect{boundingRect(option, stats, contentWidth(option.rect), 0)};
-    QRect tagsRect{
-        boundingRect(option,
-                     tags,
-                     contentWidth(option.rect) - statsRect.width() - offset,
-                     Qt::TextWordWrap)};
-    QRect descrRect{boundingRect(
-        option, descr, contentWidth(option.rect), Qt::TextWordWrap)};
+        QRect statsRect{
+            boundingRect(option, stats, contentWidth(option.rect), 0)};
+        QRect tagsRect{
+            boundingRect(option,
+                         tags,
+                         contentWidth(option.rect) - statsRect.width() - offset,
+                         Qt::TextWordWrap)};
+        QRect descrRect{boundingRect(
+            option, descr, contentWidth(option.rect), Qt::TextWordWrap)};
 
-    return {statsRect, tagsRect, descrRect};
-}
+        return {statsRect, tagsRect, descrRect};
+    }
 
-QRect boundingRect(const QStyleOptionViewItem& option,
-                   const QString& text,
-                   int maxWidth,
-                   int flags)
-{
-    QFontMetrics metrics{option.font};
-    return QRect{metrics.boundingRect(0, 0, maxWidth, 0, flags, text)};
-}
+    QRect boundingRect(const QStyleOptionViewItem& option,
+                       const QString& text,
+                       int maxWidth,
+                       int flags)
+    {
+        QFontMetrics metrics{option.font};
+        return QRect{metrics.boundingRect(0, 0, maxWidth, 0, flags, text)};
+    }
 
-bool taskOverspent(const QString& stats)
-{
-    QStringList parts = stats.split("/");
-    return parts[0].toInt() > parts[1].toInt();
-}
+    bool taskOverspent(const QString& stats)
+    {
+        QStringList parts = stats.split("/");
+        return parts[0].toInt() > parts[1].toInt();
+    }
 
-int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
+    int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
 
 } // namespace
-
-} // namespace sprint_timer::ui::qt_gui
-

@@ -23,73 +23,46 @@
 #define TASKOUTLINE_H
 
 #include "qt_gui/models/SprintModel.h"
-#include "qt_gui/models/TagModel.h"
 #include "qt_gui/models/TaskModel.h"
-#include "qt_gui/widgets/TagEditor.h"
-#include <QPointer>
+#include "qt_gui/widgets/TaskView.h"
+#include <QLineEdit>
 #include <QWidget>
 #include <core/ISprintStorageReader.h>
 #include <core/QueryInvoker.h>
 #include <memory>
-#include <optional>
 
-namespace Ui {
-class TaskOutline;
-} // namespace Ui
+#include "qt_gui/dialogs/AddTaskDialog.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-class TaskSprintsView;
+class AddTaskDialog;
 
 /* Responsible for providing user interface for interactive
  * task management, so that user could view current unfinished
  * tasks, add/edit and remove task and tags. */
 class TaskOutline : public QWidget {
-
-    Q_OBJECT
-
 public:
-    TaskOutline(ISprintStorageReader& sprintReader,
-                QueryInvoker& queryInvoker,
-                TaskModel& taskModel,
-                TagModel& tagModel,
+    TaskOutline(TaskModel& taskModel,
                 SprintModel& sprintModel,
-                TaskSprintsView& taskSprintsView,
+                std::unique_ptr<TaskView> taskView,
+                AddTaskDialog& addTaskDialog,
                 QWidget* parent = nullptr);
 
-    ~TaskOutline() override;
-
 private:
-    std::unique_ptr<Ui::TaskOutline> ui;
-    ISprintStorageReader& sprintReader;
-    QueryInvoker& queryInvoker;
     QPointer<TagEditor> tagEditor;
     TaskModel& taskModel;
-    TagModel& tagModel;
     SprintModel& sprintModel;
-    TaskSprintsView& taskSprintsView;
-    std::optional<int> selectedTaskRow;
-
-    void launchTagEditor();
-    void removeTask();
-    void launchTaskEditor();
-    void showSprintsForTask();
-    void onSprintsForTaskFetched(const std::vector<entities::Sprint>&);
-
-signals:
-    void taskSelected(int row);
+    TaskView* taskView;
+    AddTaskDialog& addTaskDialog;
+    QLineEdit* quickAddTask;
 
 public slots:
-    void onTaskSelectionChanged(int taskRow);
     void
     onSprintSubmissionRequested(const std::vector<dw::TimeSpan>& intervals);
 
 private slots:
     void onAddTaskButtonPushed();
     void onQuickAddTodoReturnPressed();
-    void toggleTaskCompleted();
-    void showContextMenu(const QPoint& pos);
-    void onTaskRemoved(const QModelIndex&, int first, int last);
 };
 
 } // namespace sprint_timer::ui::qt_gui

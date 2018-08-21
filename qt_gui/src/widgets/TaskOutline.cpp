@@ -20,80 +20,62 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TaskOutline.h"
-#include "qt_gui/delegates/TaskItemDelegate.h"
 #include "qt_gui/dialogs/AddTaskDialog.h"
-#include "qt_gui/dialogs/ConfirmationDialog.h"
-#include "qt_gui/utils/DateTimeConverter.h"
-#include "qt_gui/utils/MouseRightReleaseEater.h"
-#include "qt_gui/utils/WidgetUtils.h"
-#include "qt_gui/widgets/TaskSprintsView.h"
-#include "ui_task_outline.h"
+#include "qt_gui/widgets/TaskView.h"
 #include <QMenu>
-#include <QStandardItemModel>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QVBoxLayout>
+#include <QPushButton>
+#include <QVBoxLayout>
 #include <core/use_cases/RequestSprintsForTask.h>
+
+namespace {
+
+const QString addTaskDialogTitle{"Add new task"};
+
+} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
 using use_cases::RequestSprintsForTask;
 
-TaskOutline::TaskOutline(ISprintStorageReader& sprintReader,
-                         QueryInvoker& queryInvoker,
-                         TaskModel& taskModel,
-                         TagModel& tagModel,
+TaskOutline::TaskOutline(TaskModel& taskModel,
                          SprintModel& sprintModel,
-                         TaskSprintsView& taskSprintsView,
+                         std::unique_ptr<TaskView> taskView_,
+                         AddTaskDialog& addTaskDialog,
                          QWidget* parent)
     : QWidget{parent}
-    , ui{std::make_unique<Ui::TaskOutline>()}
-    , sprintReader{sprintReader}
-    , queryInvoker{queryInvoker}
     , taskModel{taskModel}
-    , tagModel{tagModel}
     , sprintModel{sprintModel}
-    , taskSprintsView{taskSprintsView}
+    , taskView{taskView_.release()}
+    , addTaskDialog{addTaskDialog}
 {
-    ui->setupUi(this);
+    auto layout = std::make_unique<QVBoxLayout>(this);
 
-    ui->lvTaskView->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->lvTaskView->setModel(&taskModel);
-    ui->lvTaskView->setItemDelegate(new TaskItemDelegate{this});
-
-    connect(ui->pbAddTask,
+    auto addTaskButton = std::make_unique<QPushButton>("Add task");
+    connect(addTaskButton.get(),
             &QPushButton::clicked,
             this,
             &TaskOutline::onAddTaskButtonPushed);
-    connect(ui->leQuickAddTask,
+    layout->addWidget(addTaskButton.release());
+
+    layout->addWidget(taskView);
+
+    auto quickAddTask_ = std::make_unique<QLineEdit>();
+    quickAddTask_->setPlaceholderText("QuickAdd task");
+    quickAddTask = quickAddTask_.release();
+    connect(quickAddTask,
             &QLineEdit::returnPressed,
             this,
             &TaskOutline::onQuickAddTodoReturnPressed);
-    connect(ui->lvTaskView, &QListView::clicked, [&](const QModelIndex& index) {
-        selectedTaskRow = index.row();
-        emit taskSelected(*selectedTaskRow);
-    });
-    connect(ui->lvTaskView,
-            &QListView::customContextMenuRequested,
-            this,
-            &TaskOutline::showContextMenu);
-    connect(ui->lvTaskView,
-            &QListView::doubleClicked,
-            this,
-            &TaskOutline::toggleTaskCompleted);
-    connect(&taskModel,
-            &QAbstractItemModel::rowsRemoved,
-            this,
-            &TaskOutline::onTaskRemoved);
-}
+    layout->addWidget(quickAddTask);
 
-TaskOutline::~TaskOutline() { delete tagEditor; }
+    setLayout(layout.release());
+}
 
 void TaskOutline::onQuickAddTodoReturnPressed()
 {
-    std::string encodedDescription = ui->leQuickAddTask->text().toStdString();
-    ui->leQuickAddTask->clear();
+    std::string encodedDescription = quickAddTask->text().toStdString();
+    quickAddTask->clear();
     if (!encodedDescription.empty()) {
         Task item{std::move(encodedDescription)};
         taskModel.insert(item);
@@ -102,119 +84,23 @@ void TaskOutline::onQuickAddTodoReturnPressed()
 
 void TaskOutline::onAddTaskButtonPushed()
 {
-    AddTaskDialog addTaskDialog{tagModel};
     connect(&addTaskDialog, &QDialog::accepted, [&]() {
         taskModel.insert(addTaskDialog.constructedTask());
     });
+    addTaskDialog.setWindowTitle(addTaskDialogTitle);
     addTaskDialog.exec();
-}
-
-void TaskOutline::toggleTaskCompleted()
-{
-    taskModel.toggleCompleted(ui->lvTaskView->currentIndex());
-}
-
-void TaskOutline::showContextMenu(const QPoint& pos)
-{
-    QPoint globalPos = mapToGlobal(pos);
-    QMenu contextMenu;
-    contextMenu.installEventFilter(new MouseRightReleaseEater(&contextMenu));
-    const auto editEntry = "Edit";
-    const auto deleteEntry = "Delete";
-    const auto tagEditorEntry = "Tag editor";
-    const auto viewSprintsEntry = "View sprints";
-    contextMenu.addAction(editEntry);
-    contextMenu.addSeparator();
-    contextMenu.addAction(deleteEntry);
-    contextMenu.addSeparator();
-    contextMenu.addAction(tagEditorEntry);
-    contextMenu.addSeparator();
-    contextMenu.addAction(viewSprintsEntry);
-
-    QAction* selectedEntry = contextMenu.exec(globalPos);
-
-    if (selectedEntry && selectedEntry->text() == editEntry)
-        launchTaskEditor();
-    if (selectedEntry && selectedEntry->text() == deleteEntry)
-        removeTask();
-    if (selectedEntry && selectedEntry->text() == tagEditorEntry)
-        launchTagEditor();
-    if (selectedEntry && selectedEntry->text() == viewSprintsEntry)
-        showSprintsForTask();
-}
-
-void TaskOutline::launchTagEditor()
-{
-    if (!tagEditor) {
-        // No memory leak here as TagEditor has Qt::WA_DeleteOnClose set
-        tagEditor = new TagEditor{tagModel};
-        tagEditor->show();
-    }
-    else {
-        WidgetUtils::bringToForeground(tagEditor);
-    }
-}
-
-void TaskOutline::removeTask()
-{
-    const QModelIndex index = ui->lvTaskView->currentIndex();
-    taskModel.remove(index);
-}
-
-void TaskOutline::launchTaskEditor()
-{
-    QModelIndex index = ui->lvTaskView->currentIndex();
-    const auto itemToEdit = taskModel.itemAt(index.row());
-
-    AddTaskDialog dialog{tagModel};
-    dialog.setWindowTitle("Edit task");
-    dialog.fillItemData(itemToEdit);
-    if (dialog.exec()) {
-        Task updatedItem = dialog.constructedTask();
-        updatedItem.setActualCost(itemToEdit.actualCost());
-        updatedItem.setCompleted(itemToEdit.isCompleted());
-        taskModel.replaceItemAt(index.row(), updatedItem);
-    }
-}
-
-void TaskOutline::showSprintsForTask()
-{
-    QModelIndex index = ui->lvTaskView->currentIndex();
-    const auto task = taskModel.itemAt(index.row());
-
-    queryInvoker.execute(std::make_unique<RequestSprintsForTask>(
-        sprintReader, task.uuid(), [&](const std::vector<Sprint>& sprints) {
-            onSprintsForTaskFetched(sprints);
-        }));
-}
-
-void TaskOutline::onSprintsForTaskFetched(const std::vector<Sprint>& sprints)
-{
-    taskSprintsView.setData(sprints);
-    taskSprintsView.show();
-}
-
-void TaskOutline::onTaskSelectionChanged(int row)
-{
-    selectedTaskRow = taskModel.index(row, 0).row();
+    addTaskDialog.disconnect();
 }
 
 void TaskOutline::onSprintSubmissionRequested(
     const std::vector<dw::TimeSpan>& intervals)
 {
-    if (!selectedTaskRow)
+    if (!taskView->currentlySelectedRow())
         return;
     for (const auto& timeSpan : intervals) {
-        sprintModel.insert(timeSpan, taskModel.itemAt(*selectedTaskRow).uuid());
-    }
-}
-
-void TaskOutline::onTaskRemoved(const QModelIndex&, int first, int last)
-{
-    if (selectedTaskRow
-        && (first <= selectedTaskRow && selectedTaskRow <= last)) {
-        selectedTaskRow = std::nullopt;
-        emit taskSelected(-1);
+        sprintModel.insert(
+            timeSpan,
+            taskModel.itemAt(*taskView->currentlySelectedRow()).uuid());
     }
 }
 
