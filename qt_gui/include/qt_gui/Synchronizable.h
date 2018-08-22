@@ -19,35 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BUTTONMENU_H
-#define BUTTONMENU_H
-
-#include <QDialog>
-#include <core/IConfig.h>
-#include <memory>
-
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+#ifndef SYNCHRONIZABLE_H_7N6Q5P8D
+#define SYNCHRONIZABLE_H_7N6Q5P8D
 
 namespace sprint_timer::ui::qt_gui {
 
-class LauncherMenu : public QWidget {
-
+class Synchronizable {
 public:
-    LauncherMenu(QWidget& progressWindow,
-                 QWidget& statisticsWindow,
-                 QWidget& historyWindow,
-                 QDialog& settingsDialog,
-                 QWidget* parent = nullptr);
+    virtual ~Synchronizable() = default;
 
-    ~LauncherMenu() override;
-
-private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
+    virtual void synchronize() = 0;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-
-#endif // SPRINT_TIMER_BUTTONMENU_H
+#endif /* end of include guard: SYNCHRONIZABLE_H_7N6Q5P8D */

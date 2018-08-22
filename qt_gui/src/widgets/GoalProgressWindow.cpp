@@ -20,191 +20,35 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/GoalProgressWindow.h"
-#include "qt_gui/widgets/ProgressView.h"
 #include <QGridLayout>
-#include <QPushButton>
-#include <core/utils/WeekdaySelection.h>
-
-#include <core/use_cases/RequestSprintDistribution.h>
+#include <QIcon>
 
 namespace sprint_timer::ui::qt_gui {
 
-using dw::DateTime;
-using dw::TimeSpan;
-using use_cases::RequestSprintDistribution;
-
-namespace {
-
-    TimeSpan thirtyDaysBackTillNow();
-
-    TimeSpan twelveWeeksBackTillNow();
-
-    TimeSpan twelveMonthsBackTillNow();
-
-    void setProgressData(ProgressView* progressView,
-                         const Distribution<int>& distribution,
-                         size_t numBins);
-
-} // namespace
-
-GoalProgressWindow::GoalProgressWindow(
-    IConfig& applicationSettings,
-    std::unique_ptr<ProgressView> dailyProgress,
-    std::unique_ptr<ProgressView> weeklyProgress,
-    std::unique_ptr<ProgressView> monthlyProgress,
-    WorkdaysDialog& workdaysDialog,
-    ISprintDistributionReader& dailyDistributionReader,
-    ISprintDistributionReader& weeklyDistributionReader,
-    ISprintDistributionReader& monthlyDistributionReader,
-    QueryInvoker& queryInvoker,
-    QWidget* parent)
-    : DataWidget{parent}
-    , applicationSettings{applicationSettings}
-    , dailyView{dailyProgress.release()}
-    , weeklyView{weeklyProgress.release()}
-    , monthlyView{monthlyProgress.release()}
-    , workdaysDialog{workdaysDialog}
-    , dailyDistributionReader{dailyDistributionReader}
-    , weeklyDistributionReader{weeklyDistributionReader}
-    , monthlyDistributionReader{monthlyDistributionReader}
-    , queryInvoker{queryInvoker}
+GoalProgressWindow::GoalProgressWindow(std::unique_ptr<QWidget> dailyProgress,
+                                       std::unique_ptr<QWidget> weeklyProgress,
+                                       std::unique_ptr<QWidget> monthlyProgress,
+                                       QWidget* parent)
+    : QWidget{parent}
 {
-    QGridLayout* layout = new QGridLayout(this);
+    dailyProgress->setSizePolicy(QSizePolicy::Expanding,
+                                 QSizePolicy::MinimumExpanding);
+    weeklyProgress->setSizePolicy(QSizePolicy::Preferred,
+                                  QSizePolicy::MinimumExpanding);
+    monthlyProgress->setSizePolicy(QSizePolicy::Preferred,
+                                   QSizePolicy::MinimumExpanding);
+
+    auto layout = std::make_unique<QGridLayout>(this);
     layout->setSpacing(15);
     layout->setContentsMargins(20, 10, 20, 10);
-
-    auto* configureWorkdaysButton = new QPushButton("Configure", this);
-    dailyView->addLegendRow("Workdays:", configureWorkdaysButton);
-
-    dailyView->setSizePolicy(QSizePolicy::Expanding,
-                             QSizePolicy::MinimumExpanding);
-    weeklyView->setSizePolicy(QSizePolicy::Preferred,
-                              QSizePolicy::MinimumExpanding);
-    monthlyView->setSizePolicy(QSizePolicy::Preferred,
-                               QSizePolicy::MinimumExpanding);
-
-    layout->addWidget(dailyView, 0, 0, 1, 2);
-    layout->addWidget(weeklyView, 1, 0, 1, 1);
-    layout->addWidget(monthlyView, 1, 1, 1, 1);
-
-    setLayout(layout); // reparents
+    layout->addWidget(dailyProgress.release(), 0, 0, 1, 2);
+    layout->addWidget(weeklyProgress.release(), 1, 0, 1, 1);
+    layout->addWidget(monthlyProgress.release(), 1, 1, 1, 1);
+    setLayout(layout.release());
 
     setWindowIcon(QIcon(":icons/sprint_timer.png"));
-
-    connect(dailyView,
-            &ProgressView::goalChanged,
-            [this, &applicationSettings](int goal) {
-                applicationSettings.setDailyGoal(goal);
-                synchronizeDailyData();
-            });
-    connect(weeklyView,
-            &ProgressView::goalChanged,
-            [this, &applicationSettings](int goal) {
-                applicationSettings.setWeeklyGoal(goal);
-                synchronizeWeeklyData();
-            });
-    connect(monthlyView,
-            &ProgressView::goalChanged,
-            [this, &applicationSettings](int goal) {
-                applicationSettings.setMonthlyGoal(goal);
-                synchronizeMonthlyData();
-            });
-    connect(configureWorkdaysButton,
-            &QPushButton::clicked,
-            this,
-            &GoalProgressWindow::launchWorkdaysConfigurationDialog);
-    connect(&workdaysDialog,
-            &QDialog::accepted,
-            this,
-            &GoalProgressWindow::synchronizeDailyData);
-
-    synchronize();
 }
 
 QSize GoalProgressWindow::sizeHint() const { return QSize{1225, 650}; }
-
-void GoalProgressWindow::synchronize()
-{
-    synchronizeDailyData();
-    synchronizeWeeklyData();
-    synchronizeMonthlyData();
-}
-
-// TODO might be worth it to make ProgressView a hierarhy and put those
-// synchronize methods inside
-
-void GoalProgressWindow::synchronizeDailyData()
-{
-    queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
-        dailyDistributionReader,
-        thirtyDaysBackTillNow(),
-        [this](const auto& distribution) {
-            const WeekdaySelection workdays{applicationSettings.workdaysCode()};
-            setProgressData(dailyView,
-                            distribution,
-                            numWorkdays(thirtyDaysBackTillNow(), workdays));
-        }));
-}
-
-void GoalProgressWindow::synchronizeWeeklyData()
-{
-    queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
-        weeklyDistributionReader,
-        twelveWeeksBackTillNow(),
-        [this](const auto& distribution) {
-            setProgressData(
-                weeklyView, distribution, distribution.getNumBins());
-        }));
-}
-
-void GoalProgressWindow::synchronizeMonthlyData()
-{
-    queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
-        monthlyDistributionReader,
-        twelveMonthsBackTillNow(),
-        [this](const auto& distribution) {
-            setProgressData(
-                monthlyView, distribution, distribution.getNumBins());
-        }));
-}
-
-void GoalProgressWindow::launchWorkdaysConfigurationDialog()
-{
-    workdaysDialog.exec();
-}
-
-namespace {
-
-    TimeSpan thirtyDaysBackTillNow()
-    {
-        auto now = DateTime::currentDateTimeLocal();
-        auto from = now.add(DateTime::Days{-29});
-        return TimeSpan{from, now};
-    }
-
-    TimeSpan twelveWeeksBackTillNow()
-    {
-        auto now = DateTime::currentDateTimeLocal();
-        auto from = now.add(
-            DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
-        return TimeSpan{from, now};
-    }
-
-    TimeSpan twelveMonthsBackTillNow()
-    {
-        auto now = DateTime::currentDateTimeLocal();
-        auto from = now.add(DateTime::Months{-11});
-        from = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
-        return TimeSpan{from, now};
-    }
-
-    void setProgressData(ProgressView* progressView,
-                         const Distribution<int>& distribution,
-                         size_t numBins)
-    {
-        progressView->setData(distribution, numBins);
-    }
-
-} // namespace
 
 } // namespace sprint_timer::ui::qt_gui

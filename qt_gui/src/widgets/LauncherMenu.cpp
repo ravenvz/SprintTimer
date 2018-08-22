@@ -20,9 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/LauncherMenu.h"
-#include "qt_gui/dialogs/SettingsDialog.h"
 #include "qt_gui/utils/WidgetUtils.h"
-#include "qt_gui/widgets/DataWidget.h"
 #include "ui_launcher_menu.h"
 
 namespace {
@@ -37,9 +35,9 @@ void showOrBringToForeground(QWidget& widget)
 
 namespace sprint_timer::ui::qt_gui {
 
-LauncherMenu::LauncherMenu(DataWidget& progressWindow,
-                           DataWidget& statisticsWindow,
-                           DataWidget& historyWindow,
+LauncherMenu::LauncherMenu(QWidget& progressWindow,
+                           QWidget& statisticsWindow,
+                           QWidget& historyWindow,
                            QDialog& settingsDialog,
                            QWidget* parent)
     : QWidget{parent}

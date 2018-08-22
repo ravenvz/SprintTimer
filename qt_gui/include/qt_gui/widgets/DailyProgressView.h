@@ -19,35 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BUTTONMENU_H
-#define BUTTONMENU_H
+#ifndef DAILYPROGRESSVIEW_H_L5NOCTJP
+#define DAILYPROGRESSVIEW_H_L5NOCTJP
 
-#include <QDialog>
+#include "qt_gui/widgets/ProgressView.h"
 #include <core/IConfig.h>
-#include <memory>
-
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+#include <core/ISprintDistributionReader.h>
+#include <core/QueryInvoker.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class LauncherMenu : public QWidget {
+class WorkdaysDialog;
 
+class DailyProgressView : public ProgressView {
 public:
-    LauncherMenu(QWidget& progressWindow,
-                 QWidget& statisticsWindow,
-                 QWidget& historyWindow,
-                 QDialog& settingsDialog,
-                 QWidget* parent = nullptr);
+    DailyProgressView(IConfig& applicationSettings_,
+                      ISprintDistributionReader& dailyDistributionReader_,
+                      QueryInvoker& queryInvoker_,
+                      WorkdaysDialog& workdaysDialog_,
+                      QWidget* parent = nullptr);
 
-    ~LauncherMenu() override;
+    void synchronize() override;
 
 private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
+    IConfig& applicationSettings;
+    ISprintDistributionReader& distributionReader;
+    QueryInvoker& queryInvoker;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-
-#endif // SPRINT_TIMER_BUTTONMENU_H
+#endif /* end of include guard: DAILYPROGRESSVIEW_H_L5NOCTJP */

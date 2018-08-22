@@ -19,35 +19,30 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BUTTONMENU_H
-#define BUTTONMENU_H
+#ifndef MONTHLYPROGRESSVIEW_H_YF3WRWRH
+#define MONTHLYPROGRESSVIEW_H_YF3WRWRH
 
-#include <QDialog>
+#include "qt_gui/widgets/ProgressView.h"
 #include <core/IConfig.h>
-#include <memory>
-
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+#include <core/ISprintDistributionReader.h>
+#include <core/QueryInvoker.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class LauncherMenu : public QWidget {
-
+class MonthlyProgressView : public ProgressView {
 public:
-    LauncherMenu(QWidget& progressWindow,
-                 QWidget& statisticsWindow,
-                 QWidget& historyWindow,
-                 QDialog& settingsDialog,
-                 QWidget* parent = nullptr);
+    MonthlyProgressView(IConfig& applicationSettings,
+                        QueryInvoker& queryInvoker,
+                        ISprintDistributionReader& monthlyDistributionReader,
+                        QWidget* parent = nullptr);
 
-    ~LauncherMenu() override;
+    void synchronize() override;
 
 private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
+    QueryInvoker& queryInvoker;
+    ISprintDistributionReader& distributionReader;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-
-#endif // SPRINT_TIMER_BUTTONMENU_H
+#endif /* end of include guard: MONTHLYPROGRESSVIEW_H_YF3WRWRH */

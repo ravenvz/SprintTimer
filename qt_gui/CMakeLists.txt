@@ -63,6 +63,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/BestWorkdayWidget.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/BestWorktimeWidget.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/CombinedIndicator.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DailyProgressView.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DailyTimelineGraph.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DataWidget.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DateRangePicker.h"
@@ -76,6 +77,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/IStatisticalChartLegend.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/LauncherMenu.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/MainWindow.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/MonthlyProgressView.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/PieChart.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/PieDiagramMockup.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/Plot.h"
@@ -93,6 +95,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TimeDiagram.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TimerWidgetBase.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/UndoButton.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/WeeklyProgressView.h"
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/resources/resources.qrc"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/HistoryItemDelegate.cpp"
@@ -117,6 +120,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/BestWorkdayWidget.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/BestWorktimeWidget.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/CombinedIndicator.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DailyProgressView.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DailyTimelineGraph.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DataWidget.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DateRangePicker.cpp"
@@ -130,6 +134,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/IStatisticalChartLegend.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/LauncherMenu.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/MainWindow.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/MonthlyProgressView.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/PieChart.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/PieDiagramMockup.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/Plot.cpp"
@@ -147,6 +152,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TimeDiagram.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TimerWidgetBase.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/UndoButton.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/WeeklyProgressView.cpp"
         "${UI_HEADERS}"
 )
 

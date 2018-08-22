@@ -70,6 +70,9 @@
 #include <qt_gui/widgets/HistoryWindow.h>
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/ProgressView.h>
+#include <qt_gui/widgets/DailyProgressView.h>
+#include <qt_gui/widgets/WeeklyProgressView.h>
+#include <qt_gui/widgets/MonthlyProgressView.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/SprintView.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
@@ -332,46 +335,34 @@ int main(int argc, char* argv[])
                                       *sprintYearRangeReader,
                                       queryInvoker};
 
-    auto dailyProgress
-        = std::make_unique<ProgressView>(applicationSettings.dailyGoal(),
-                                         ProgressView::Rows{3},
-                                         ProgressView::Columns{10},
-                                         ProgressView::GaugeSize{0.7});
-    dailyProgress->setLegendTitle("Last 30 days");
-    dailyProgress->setLegendTotalCaption("Total completed:");
-    dailyProgress->setLegendAverageCaption("Average per day:");
-    dailyProgress->setLegendPercentageCaption("Goal progress:");
-    dailyProgress->setLegendGoalCaption("Daily goal:");
-    auto weeklyProgress
-        = std::make_unique<ProgressView>(applicationSettings.weeklyGoal(),
-                                         ProgressView::Rows{3},
-                                         ProgressView::Columns{4},
-                                         ProgressView::GaugeSize{0.8});
-    weeklyProgress->setLegendTitle("Last 12 weeks");
-    weeklyProgress->setLegendTotalCaption("Total completed:");
-    weeklyProgress->setLegendAverageCaption("Average per week:");
-    weeklyProgress->setLegendPercentageCaption("Goal progress:");
-    weeklyProgress->setLegendGoalCaption("Weekly goal:");
-    auto monthlyProgress
-        = std::make_unique<ProgressView>(applicationSettings.monthlyGoal(),
-                                         ProgressView::Rows{3},
-                                         ProgressView::Columns{4},
-                                         ProgressView::GaugeSize{0.8});
-    monthlyProgress->setLegendTitle("Last 12 months");
-    monthlyProgress->setLegendTotalCaption("Total completed:");
-    monthlyProgress->setLegendAverageCaption("Average per month:");
-    monthlyProgress->setLegendPercentageCaption("Goal progress:");
-    monthlyProgress->setLegendGoalCaption("Monthly goal:");
     WorkdaysDialog workdaysDialog{applicationSettings};
-    GoalProgressWindow progressWindow{applicationSettings,
-                                      std::move(dailyProgress),
-                                      std::move(weeklyProgress),
-                                      std::move(monthlyProgress),
-                                      workdaysDialog,
-                                      *dailyDistributionReader,
-                                      *weeklyDistributionReader,
-                                      *monthlyDistributionReader,
-                                      queryInvoker};
+    auto dailyProgress
+        = std::make_unique<DailyProgressView>(applicationSettings,
+                                              *dailyDistributionReader,
+                                              queryInvoker,
+                                              workdaysDialog);
+    QObject::connect(&sprintModel,
+                     &QAbstractListModel::modelReset,
+                     [p = dailyProgress.get()]() { p->synchronize(); });
+    // TODO do we really need connection to TaskModel and why?
+    // QObject::connect(&taskModel,
+    //                  &QAbstractListModel::modelReset,
+    //                  [p = dailyProgress.get()]() { p->synchronize(); });
+    auto weeklyProgress = std::make_unique<WeeklyProgressView>(
+        applicationSettings, queryInvoker, *weeklyDistributionReader);
+    QObject::connect(&sprintModel,
+                     &QAbstractListModel::modelReset,
+                     [p = weeklyProgress.get()]() { p->synchronize(); });
+    auto monthlyProgress = std::make_unique<MonthlyProgressView>(
+        applicationSettings, queryInvoker, *monthlyDistributionReader);
+    QObject::connect(&sprintModel,
+                     &QAbstractListModel::modelReset,
+                     [p = monthlyProgress.get()]() { p->synchronize(); });
+    GoalProgressWindow progressWindow{
+        std::move(dailyProgress),
+        std::move(weeklyProgress),
+        std::move(monthlyProgress),
+    };
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
@@ -406,14 +397,15 @@ int main(int argc, char* argv[])
                                      addTaskDialog,
                                      std::make_unique<TagEditor>(tagModel),
                                      taskItemDelegate);
-    taskView->setStyleSheet(QLatin1String{"QListView {\n"
-                 "  show-decoration-selected: 1;\n"
-                 "}\n"
-                 "QListView::item {\n"
-                 "  margin: 5px;\n"
-                 "  border: 1px solid gray;\n"
-                 "  border-radius: 2px; padding: 10px;\n"
-                 "}\n"});
+    taskView->setStyleSheet(
+        QLatin1String{"QListView {\n"
+                      "  show-decoration-selected: 1;\n"
+                      "}\n"
+                      "QListView::item {\n"
+                      "  margin: 5px;\n"
+                      "  border: 1px solid gray;\n"
+                      "  border-radius: 2px; padding: 10px;\n"
+                      "}\n"});
     QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submissionCandidateChanged,
                      taskView.get(),
@@ -436,10 +428,6 @@ int main(int argc, char* argv[])
                      &AsyncListModel::updateFinished,
                      &statisticsWindow,
                      &DataWidget::synchronize);
-    QObject::connect(&sprintModel,
-                     &AsyncListModel::updateFinished,
-                     &progressWindow,
-                     &DataWidget::synchronize);
     QObject::connect(&taskModel,
                      &AsyncListModel::updateFinished,
                      &historyWindow,
@@ -447,10 +435,6 @@ int main(int argc, char* argv[])
     QObject::connect(&taskModel,
                      &AsyncListModel::updateFinished,
                      &statisticsWindow,
-                     &DataWidget::synchronize);
-    QObject::connect(&taskModel,
-                     &AsyncListModel::updateFinished,
-                     &progressWindow,
                      &DataWidget::synchronize);
 
     // As models update data asynchroniously,

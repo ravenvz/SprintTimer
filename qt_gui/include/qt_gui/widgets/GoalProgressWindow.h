@@ -22,55 +22,21 @@
 #ifndef GOAL_PROGRESS_WIDGET_H
 #define GOAL_PROGRESS_WIDGET_H
 
-#include "qt_gui/dialogs/WorkdaysDialog.h"
-#include "qt_gui/widgets/DataWidget.h"
-#include <core/Distribution.h>
-#include <core/IConfig.h>
+#include <QWidget>
 #include <memory>
-
-#include <core/ISprintDistributionReader.h>
-#include <core/QueryInvoker.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 class ProgressView;
 
-class GoalProgressWindow : public DataWidget {
+class GoalProgressWindow : public QWidget {
 public:
-    GoalProgressWindow(IConfig& applicationSettings,
-                       std::unique_ptr<ProgressView> dailyProgress,
-                       std::unique_ptr<ProgressView> weeklyProgress,
-                       std::unique_ptr<ProgressView> monthlyProgress,
-                       WorkdaysDialog& workdaysDialog,
-                       ISprintDistributionReader& dailyDistributionReader,
-                       ISprintDistributionReader& weeklyDistributionReader,
-                       ISprintDistributionReader& monthlyDistributionReader,
-                       QueryInvoker& queryInvoker,
+    GoalProgressWindow(std::unique_ptr<QWidget> dailyProgress,
+                       std::unique_ptr<QWidget> weeklyProgress,
+                       std::unique_ptr<QWidget> monthlyProgress,
                        QWidget* parent = 0);
 
-    virtual void synchronize() override;
-
     virtual QSize sizeHint() const override;
-
-private:
-    IConfig& applicationSettings;
-    ProgressView* dailyView;
-    ProgressView* weeklyView;
-    ProgressView* monthlyView;
-    WorkdaysDialog& workdaysDialog;
-    ISprintDistributionReader& dailyDistributionReader;
-    ISprintDistributionReader& weeklyDistributionReader;
-    ISprintDistributionReader& monthlyDistributionReader;
-    QueryInvoker& queryInvoker;
-
-    void synchronizeDailyData();
-
-    void synchronizeWeeklyData();
-
-    void synchronizeMonthlyData();
-
-private slots:
-    void launchWorkdaysConfigurationDialog();
 };
 
 } // namespace sprint_timer::ui::qt_gui

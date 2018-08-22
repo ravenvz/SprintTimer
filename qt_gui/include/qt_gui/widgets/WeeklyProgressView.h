@@ -19,35 +19,40 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BUTTONMENU_H
-#define BUTTONMENU_H
+#ifndef WEEKLYPROGRESSVIEW_H_BF6U7N1X
+#define WEEKLYPROGRESSVIEW_H_BF6U7N1X
 
-#include <QDialog>
+#include "qt_gui/widgets/ProgressView.h"
 #include <core/IConfig.h>
-#include <memory>
-
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+#include <core/ISprintDistributionReader.h>
+#include <core/QueryInvoker.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class LauncherMenu : public QWidget {
-
+class WeeklyProgressView : public ProgressView {
 public:
-    LauncherMenu(QWidget& progressWindow,
-                 QWidget& statisticsWindow,
-                 QWidget& historyWindow,
-                 QDialog& settingsDialog,
-                 QWidget* parent = nullptr);
+    WeeklyProgressView(IConfig& applicationSettings,
+                       QueryInvoker& queryInvoker,
+                       ISprintDistributionReader& weeklyDistributionReader,
+                       QWidget* parent = nullptr);
 
-    ~LauncherMenu() override;
+    void synchronize() override;
 
 private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
+    QueryInvoker& queryInvoker;
+    ISprintDistributionReader& distributionReader;
+
+    dw::TimeSpan twelveWeeksBackTillNow()
+    {
+        using dw::DateTime;
+        using dw::TimeSpan;
+        auto now = DateTime::currentDateTimeLocal();
+        auto from = now.add(
+            DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
+        return TimeSpan{from, now};
+    }
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-
-#endif // SPRINT_TIMER_BUTTONMENU_H
+#endif /* end of include guard: WEEKLYPROGRESSVIEW_H_BF6U7N1X */
