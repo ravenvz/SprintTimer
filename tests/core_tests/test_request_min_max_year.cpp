@@ -19,31 +19,29 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IDATAWIDGET_H_DMUO9TSG
-#define IDATAWIDGET_H_DMUO9TSG
 
-#include <QFrame>
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
 
-namespace sprint_timer::ui::qt_gui {
+#include "mocks/YearRangeReaderMock.h"
+#include "gtest/gtest.h"
+#include <core/QueryInvoker.h>
+#include <core/use_cases/RequestMinMaxYear.h>
 
-/* Widget that displays some data (like statistics, etc) and has
- * means to access this data, but does not now when underlying data
- * has been changed.
- *
- * Extends QWidget to provide 'synchronize()' slot.
- * It's ment to be called when widget's underlying data
- * has been changed and should be requeried.*/
-class DataWidget : public QFrame {
-    Q_OBJECT
+using sprint_timer::use_cases::RequestMinMaxYear;
+using ::testing::_;
 
+class RequestMinMaxYearFixture : public ::testing::Test {
 public:
-    explicit DataWidget(QWidget* parent);
-
-public slots:
-    virtual void synchronize() = 0;
+    sprint_timer::QueryInvoker queryInvoker;
+    YearRangeReaderMock year_range_reader_mock;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+TEST_F(RequestMinMaxYearFixture, execute)
+{
+    EXPECT_CALL(year_range_reader_mock, requestYearRange(_)).Times(1);
 
-
-#endif /* end of include guard: IDATAWIDGET_H_DMUO9TSG */
+    queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
+        year_range_reader_mock, [](const auto& result) {}));
+}

@@ -22,58 +22,24 @@
 #ifndef GOAL_PROGRESS_WIDGET_H
 #define GOAL_PROGRESS_WIDGET_H
 
-#include "qt_gui/dialogs/WorkdaysDialog.h"
-#include "qt_gui/widgets/DataWidget.h"
-#include <core/Distribution.h>
-#include <core/IConfig.h>
-#include <core/ICoreService.h>
-#include <QGridLayout>
-#include <QPushButton>
+#include <QWidget>
 #include <memory>
 
 namespace sprint_timer::ui::qt_gui {
 
 class ProgressView;
 
-
-class GoalProgressWindow : public DataWidget {
+class GoalProgressWindow : public QWidget {
 public:
-    GoalProgressWindow(IConfig& applicationSettings,
-                       ICoreService& coreService,
+    GoalProgressWindow(std::unique_ptr<QWidget> dailyProgress,
+                       std::unique_ptr<QWidget> weeklyProgress,
+                       std::unique_ptr<QWidget> monthlyProgress,
                        QWidget* parent = 0);
-    virtual void synchronize() override;
 
     virtual QSize sizeHint() const override;
-
-private:
-    IConfig& applicationSettings;
-    ICoreService& coreService;
-    QGridLayout* layout;
-    ProgressView* dailyProgress;
-    ProgressView* weeklyProgress;
-    ProgressView* monthlyProgress;
-    QPushButton* configureWorkdaysButton;
-    std::unique_ptr<WorkdaysDialog> workdaysDialog;
-    const QSize expectedSize{1225, 650};
-
-    void synchronizeDailyData();
-
-    void synchronizeWeeklyData();
-
-    void synchronizeMonthlyData();
-
-    void onDailyDataReceived(const Distribution<int>& distribution);
-
-    void onWeeklyDataReceived(const Distribution<int>& distribution);
-
-    void onMonthlyDataReceived(const Distribution<int>& distribution);
-
-private slots:
-    void launchWorkdaysConfigurationDialog();
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 
 #endif // GOAL_PROGRESS_WIDGET_H

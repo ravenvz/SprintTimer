@@ -23,7 +23,7 @@
 #define ADDTASKDIALOG_H_TBSYZEDZ
 
 #include "core/entities/Task.h"
-#include "qt_gui/models/TagModel.h"
+#include <QAbstractItemModel>
 #include <QDialog>
 #include <QPointer>
 
@@ -38,7 +38,8 @@ class AddTaskDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit AddTaskDialog(TagModel* tagModel, QWidget* parent = nullptr);
+    explicit AddTaskDialog(QAbstractItemModel& tagModel,
+                           QWidget* parent = nullptr);
 
     ~AddTaskDialog() override;
 
@@ -62,11 +63,7 @@ private slots:
     void resetNameLineEditStyle();
 
 private:
-    Ui::AddTaskDialog* ui;
-    QPointer<TagModel> tagModel;
-    QString requiredFieldEmptyStyle{"QLineEdit { border: 2px solid red; }"};
-
-    void setTagsModel();
+    std::unique_ptr<Ui::AddTaskDialog> ui;
 };
 
 } // namespace sprint_timer::ui::qt_gui

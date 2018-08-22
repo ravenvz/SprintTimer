@@ -25,6 +25,7 @@
 #include "qt_gui/models/HistoryModel.h"
 #include <QStyledItemDelegate>
 #include <QWidget>
+#include <core/entities/Sprint.h>
 #include <memory>
 
 namespace Ui {
@@ -38,16 +39,19 @@ class TaskSprintsView : public QWidget {
     Q_OBJECT
 
 public:
+    TaskSprintsView(HistoryModel& model,
+                    QStyledItemDelegate& delegate,
+                    QWidget* parent = nullptr);
+
     explicit TaskSprintsView(QWidget* parent = nullptr);
 
     ~TaskSprintsView() override;
 
-    void setModel(QStandardItemModel* model);
-
-    void setDelegate(QStyledItemDelegate* delegate);
+    void setData(const std::vector<entities::Sprint>& sprints);
 
 private:
     std::unique_ptr<Ui::TaskSprintsView> ui;
+    HistoryModel& model;
 };
 
 } // namespace sprint_timer::ui::qt_gui

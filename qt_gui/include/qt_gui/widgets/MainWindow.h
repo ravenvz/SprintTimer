@@ -22,22 +22,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "qt_gui/models/SprintModel.h"
-#include "qt_gui/models/TagModel.h"
-#include "qt_gui/models/TaskModel.h"
-#include "qt_gui/widgets/LauncherMenu.h"
-#include "qt_gui/widgets/SprintOutline.h"
-#include "qt_gui/widgets/TaskOutline.h"
-#include "qt_gui/widgets/TimerWidgetBase.h"
-#include <core/ICoreService.h>
-#include <core/ISprintStorageReader.h>
-#include <core/IStorageImplementersFactory.h>
-#include <core/IYearRangeReader.h>
-#include <QGridLayout>
-#include <QMainWindow>
-#include <functional>
+#include <QWidget>
 #include <memory>
-#include <optional>
+#include <variant>
 #include <vector>
 
 namespace Ui {
@@ -46,99 +33,81 @@ class MainWindow;
 
 namespace sprint_timer::ui::qt_gui {
 
-class ExpansionState;
-
 class MainWindow : public QWidget {
 
-    friend class ExpansionState;
-    friend class Expanded;
-    friend class Shrinked;
-    friend class ExpandedMenuOnly;
-    friend class ExpandedWithoutMenu;
-
 public:
-    MainWindow(IConfig& applicationSettings,
-               ICoreService& coreService,
+    MainWindow(std::unique_ptr<QWidget> sprintOutline,
+               std::unique_ptr<QWidget> taskOutline,
+               std::unique_ptr<QWidget> timerWidget,
+               std::unique_ptr<QWidget> launcherMenu,
                QWidget* parent = nullptr);
+
     ~MainWindow() override;
+
     MainWindow(const MainWindow&) = delete;
+
     MainWindow& operator=(const MainWindow&) = delete;
+
     MainWindow(MainWindow&&) = delete;
+
     MainWindow& operator=(MainWindow&&) = delete;
 
     QSize sizeHint() const override;
 
 private:
-    Ui::MainWindow* ui;
-    QPointer<SprintModel> sprintModel;
-    QPointer<TagModel> tagModel;
-    QPointer<TaskModel> taskModel;
-    QPointer<LauncherMenu> launcherMenu;
-    QPointer<TaskOutline> taskOutline;
-    QPointer<SprintOutline> sprintOutline;
-    std::optional<int> selectedTaskRow;
-    TimerWidgetBase* timerWidget;
-    ExpansionState* expansionState;
+    struct ExpandedOutlines {
+        explicit ExpandedOutlines(MainWindow& widget);
+    };
+    struct Shrinked {
+        explicit Shrinked(MainWindow& widget);
+    };
+    struct ExpandedMenu {
+        explicit ExpandedMenu(MainWindow& widget);
+    };
+    struct Expanded {
+        explicit Expanded(MainWindow& widget);
+    };
 
-    void setStateUi();
+    using State = std::variant<std::monostate,
+                               ExpandedOutlines,
+                               ExpandedMenu,
+                               Expanded,
+                               Shrinked>;
+
+    struct ViewToggledEvent {
+        MainWindow& widget;
+
+        explicit ViewToggledEvent(MainWindow& widget);
+
+        State operator()(std::monostate);
+        State operator()(const ExpandedOutlines&);
+        State operator()(const Shrinked&);
+        State operator()(const ExpandedMenu&);
+        State operator()(const Expanded&);
+    };
+
+    struct MenuToggledEvent {
+        MainWindow& widget;
+
+        explicit MenuToggledEvent(MainWindow& widget);
+
+        State operator()(std::monostate);
+        State operator()(const ExpandedOutlines&);
+        State operator()(const Shrinked&);
+        State operator()(const ExpandedMenu&);
+        State operator()(const Expanded&);
+    };
+
+    std::unique_ptr<Ui::MainWindow> ui;
+    QWidget* sprintsWidget;
+    QWidget* tasksWidget;
+    QWidget* menuWidget;
+    State state_;
+    QSize size;
 
 private slots:
-    void submitSprint(const std::vector<dw::TimeSpan>& intervalBuffer);
-    void updateDailyProgress();
     void toggleView();
     void toggleMenu();
-    void onTasksRemoved(const QModelIndex&, int first, int last);
-};
-
-
-class ExpansionState {
-public:
-    ExpansionState(int width, int height);
-    virtual ~ExpansionState() = default;
-    QSize sizeHint() const;
-    virtual void setStateUi(MainWindow& widget) = 0;
-    virtual void toggleView(MainWindow& widget) = 0;
-    virtual void toggleMenu(MainWindow& widget) = 0;
-
-protected:
-    const int width;
-    const int height;
-};
-
-
-class Expanded final : public ExpansionState {
-public:
-    Expanded();
-    void setStateUi(MainWindow& widget) override;
-    void toggleView(MainWindow& widget) override;
-    void toggleMenu(MainWindow& widget) override;
-};
-
-
-class Shrinked final : public ExpansionState {
-public:
-    Shrinked();
-    void setStateUi(MainWindow& widget) override;
-    void toggleView(MainWindow& widget) override;
-    void toggleMenu(MainWindow& widget) override;
-};
-
-
-class ExpandedMenuOnly final : public ExpansionState {
-public:
-    ExpandedMenuOnly();
-    void setStateUi(MainWindow& widget) override;
-    void toggleView(MainWindow& widget) override;
-    void toggleMenu(MainWindow& widget) override;
-};
-
-
-class ExpandedWithoutMenu final : public ExpansionState {
-public:
-    ExpandedWithoutMenu();
-    void setStateUi(MainWindow& widget) override;
-    void toggleView(MainWindow& widget) override;
-    void toggleMenu(MainWindow& widget) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

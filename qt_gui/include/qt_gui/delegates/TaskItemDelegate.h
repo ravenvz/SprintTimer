@@ -22,7 +22,6 @@
 #ifndef TASKITEMDELEGATE_H_Z8NDXQM6
 #define TASKITEMDELEGATE_H_Z8NDXQM6
 
-
 #include <QStyledItemDelegate>
 
 namespace sprint_timer::ui::qt_gui {

@@ -20,266 +20,200 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/MainWindow.h"
-#include "qt_gui/widgets/DefaultTimer.h"
-#include "qt_gui/widgets/FancyTimer.h"
 #include "ui_mainwindow.h"
+#include <QGridLayout>
+
+namespace {
+
+const QString expand{"E&xpand"};
+const QString collapse{"Co&llapse"};
+const QString showMenu{"S&how menu"};
+const QString hideMenu{"H&ide menu"};
+
+} // namespace
+
+// Single place to control MainWindow's widget sizes to simplify
+// shrink-expand size configuration
+namespace widget_size {
+
+constexpr int outlineWidth{320};
+constexpr int outlineHeight{200};
+const QSize leftWidget{outlineWidth, outlineHeight};
+const QSize rightWidget{outlineWidth, outlineHeight};
+const QSize menuWidget{50, 100};
+const QSize timerWidget{100, 300};
+constexpr int buttonsHeight{50};
+const QSize expandedMenu{timerWidget.width(),
+                         timerWidget.height() + buttonsHeight
+                             + menuWidget.height()};
+const QSize expandedOutlines{2 * outlineWidth + timerWidget.width(),
+                             outlineHeight};
+const QSize shrinked{timerWidget.width(), timerWidget.height() + buttonsHeight};
+const QSize expanded{2 * outlineWidth + timerWidget.width(),
+                     timerWidget.height() + menuWidget.height()
+                         + buttonsHeight};
+
+} // namespace widget_size
 
 namespace sprint_timer::ui::qt_gui {
 
-namespace {
-    auto expandedFully = std::make_unique<Expanded>();
-    auto shrinked = std::make_unique<Shrinked>();
-    auto expandedMenuOnly = std::make_unique<ExpandedMenuOnly>();
-    auto expandedWithoutMenu = std::make_unique<ExpandedWithoutMenu>();
-}
-
-MainWindow::MainWindow(IConfig& applicationSettings,
-                       ICoreService& coreService,
+MainWindow::MainWindow(std::unique_ptr<QWidget> sprintOutline,
+                       std::unique_ptr<QWidget> taskOutline,
+                       std::unique_ptr<QWidget> timerWidget,
+                       std::unique_ptr<QWidget> launcherMenu,
                        QWidget* parent)
-    : QWidget(parent)
-    , ui{new Ui::MainWindow}
-    , expansionState{shrinked.get()}
+    : QWidget{parent}
+    , ui{std::make_unique<Ui::MainWindow>()}
+    , sprintsWidget{sprintOutline.release()}
+    , tasksWidget{taskOutline.release()}
+    , menuWidget{launcherMenu.release()}
 {
     ui->setupUi(this);
-    auto timerFlavour = applicationSettings.timerFlavour();
-    if (timerFlavour == 0)
-        timerWidget = new DefaultTimer{applicationSettings, this};
-    else
-        timerWidget = new FancyTimer{applicationSettings, this};
-    sprintModel = new SprintModel(coreService, this);
-    taskModel = new TaskModel(coreService, this);
-    tagModel = new TagModel(coreService, this);
-    timerWidget->setTaskModel(taskModel);
-    taskOutline = new TaskOutline(coreService, taskModel, tagModel, this);
-    launcherMenu = new LauncherMenu(applicationSettings, coreService, this);
-    sprintOutline = new SprintOutline(
-        coreService, applicationSettings, sprintModel, taskModel, this);
-    ui->gridLayout->addWidget(taskOutline, 0, 0, 3, 1);
+
+    sprintsWidget->setMinimumSize(widget_size::leftWidget);
+    sprintsWidget->setVisible(false);
+    ui->gridLayout->addWidget(sprintsWidget, 0, 2, 3, 1);
+
+    tasksWidget->setMinimumSize(widget_size::rightWidget);
+    tasksWidget->setVisible(false);
+    ui->gridLayout->addWidget(tasksWidget, 0, 0, 3, 1);
+
+    timerWidget->setMinimumSize(widget_size::timerWidget);
     ui->gridLayout->addWidget(
-        timerWidget, 1, 1, Qt::AlignHCenter | Qt::AlignTop);
-    ui->gridLayout->addWidget(sprintOutline, 0, 2, 3, 1);
-    ui->gridLayout->addWidget(launcherMenu, 4, 1, 1, 1, Qt::AlignHCenter);
+        timerWidget.release(), 1, 1, Qt::AlignHCenter | Qt::AlignTop);
 
-    connect(timerWidget,
-            &TimerWidgetBase::submitRequested,
-            this,
-            &MainWindow::submitSprint);
-    // Update selected task index and description of submission candidate
-    connect(taskOutline, &TaskOutline::taskSelected, [&](const int row) {
-        selectedTaskRow = row;
-        timerWidget->setCandidateIndex(row);
-    });
-    connect(sprintModel,
-            &SprintModel::modelReset,
-            this,
-            &MainWindow::updateDailyProgress);
-    connect(sprintOutline,
-            &SprintOutline::actionUndone,
-            launcherMenu,
-            &LauncherMenu::onSyncRequired);
+    menuWidget->setMinimumSize(widget_size::menuWidget);
+    menuWidget->setVisible(false);
+    ui->gridLayout->addWidget(menuWidget, 4, 1, 1, 1, Qt::AlignHCenter);
 
-    // As models update data asynchroniously,
-    // other models that depend on that data should
-    // subscribe to updateFinished() signal
-    connect(sprintModel,
-            &AsyncListModel::updateFinished,
-            taskModel,
-            &AsyncListModel::synchronize);
-    connect(taskModel,
-            &AsyncListModel::updateFinished,
-            sprintModel,
-            &AsyncListModel::synchronize);
-    connect(taskModel,
-            &AsyncListModel::updateFinished,
-            tagModel,
-            &TagModel::synchronize);
-    connect(tagModel,
-            &AsyncListModel::updateFinished,
-            sprintModel,
-            &AsyncListModel::synchronize);
-    connect(tagModel,
-            &AsyncListModel::updateFinished,
-            taskModel,
-            &AsyncListModel::synchronize);
-
-    connect(taskModel,
-            &QAbstractItemModel::rowsRemoved,
-            this,
-            &MainWindow::onTasksRemoved);
-    connect(
-        timerWidget,
-        &TimerWidgetBase::submissionCandidateChanged,
-        [&](int index) { selectedTaskRow = taskModel->index(index, 0).row(); });
-    connect(sprintModel,
-            &AsyncListModel::updateFinished,
-            launcherMenu,
-            &LauncherMenu::onSyncRequired);
-    connect(taskModel,
-            &AsyncListModel::updateFinished,
-            launcherMenu,
-            &LauncherMenu::onSyncRequired);
+    size = widget_size::shrinked;
 
     connect(
         ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
     connect(
         ui->pbToggleMenu, &QPushButton::clicked, this, &MainWindow::toggleMenu);
 
-    setStateUi();
-}
-
-MainWindow::~MainWindow() { delete ui; }
-
-void MainWindow::setStateUi()
-{
-    expansionState->setStateUi(*this);
+    ui->pbToggleView->setText(expand);
+    ui->pbToggleMenu->setText(showMenu);
     adjustSize();
 }
 
-void MainWindow::submitSprint(const std::vector<dw::TimeSpan>& intervalBuffer)
-{
-    if (!selectedTaskRow) {
-        qDebug() << "No associated Task can be found";
-        return;
-    }
+MainWindow::~MainWindow() = default;
 
-    for (const dw::TimeSpan& timeSpan : intervalBuffer) {
-        sprintModel->insert(timeSpan,
-                            taskModel->itemAt(*selectedTaskRow).uuid());
-    }
-}
-
-void MainWindow::updateDailyProgress()
-{
-    timerWidget->updateGoalProgress(sprintModel->rowCount(QModelIndex()));
-}
-
-QSize MainWindow::sizeHint() const { return expansionState->sizeHint(); }
+QSize MainWindow::sizeHint() const { return size; }
 
 void MainWindow::toggleView()
 {
-    expansionState->toggleView(*this);
-    setStateUi();
+    state_ = std::visit(ViewToggledEvent{*this}, state_);
+    adjustSize();
 }
 
 void MainWindow::toggleMenu()
 {
-    expansionState->toggleMenu(*this);
-    setStateUi();
+    state_ = std::visit(MenuToggledEvent{*this}, state_);
+    adjustSize();
 }
 
-void MainWindow::onTasksRemoved(const QModelIndex&, int first, int last)
+MainWindow::ExpandedOutlines::ExpandedOutlines(MainWindow& widget)
 {
-    // If selectedTaskRow points to the row that has been removed,
-    // we need to invalidate it.
-    if (selectedTaskRow
-        && (first <= selectedTaskRow && selectedTaskRow <= last)) {
-        selectedTaskRow = std::optional<int>();
-        timerWidget->setCandidateIndex(-1);
-    }
+    widget.sprintsWidget->setVisible(true);
+    widget.tasksWidget->setVisible(true);
+    widget.menuWidget->setVisible(false);
+    widget.ui->pbToggleView->setText(collapse);
+    widget.ui->pbToggleMenu->setText(showMenu);
+    widget.size = widget_size::expandedOutlines;
 }
 
-ExpansionState::ExpansionState(int width, int height)
-    : width{width}
-    , height{height}
+MainWindow::Shrinked::Shrinked(MainWindow& widget)
 {
+    widget.sprintsWidget->setVisible(false);
+    widget.tasksWidget->setVisible(false);
+    widget.menuWidget->setVisible(false);
+    widget.ui->pbToggleView->setText(expand);
+    widget.ui->pbToggleMenu->setText(showMenu);
+    widget.size = widget_size::shrinked;
 }
 
-QSize ExpansionState::sizeHint() const { return QSize(width, height); }
-
-Expanded::Expanded()
-    : ExpansionState{812, 500}
+MainWindow::Expanded::Expanded(MainWindow& widget)
 {
+    widget.sprintsWidget->setVisible(true);
+    widget.tasksWidget->setVisible(true);
+    widget.menuWidget->setVisible(true);
+    widget.ui->pbToggleView->setText(collapse);
+    widget.ui->pbToggleMenu->setText(hideMenu);
+    widget.size = widget_size::expanded;
 }
 
-void Expanded::setStateUi(MainWindow& widget)
+MainWindow::ExpandedMenu::ExpandedMenu(MainWindow& widget)
 {
-    widget.taskOutline->setVisible(true);
-    widget.sprintOutline->setVisible(true);
-    widget.launcherMenu->setVisible(true);
-    widget.ui->pbToggleView->setText("Collapse");
-    widget.ui->pbToggleMenu->setText("Hide menu");
+    widget.sprintsWidget->setVisible(false);
+    widget.tasksWidget->setVisible(false);
+    widget.menuWidget->setVisible(true);
+    widget.ui->pbToggleView->setText(expand);
+    widget.ui->pbToggleMenu->setText(hideMenu);
+    widget.size = widget_size::expandedMenu;
 }
 
-void Expanded::toggleView(MainWindow& widget)
-{
-    widget.expansionState = expandedMenuOnly.get();
-}
-
-void Expanded::toggleMenu(MainWindow& widget)
-{
-    widget.expansionState = expandedWithoutMenu.get();
-}
-
-Shrinked::Shrinked()
-    : ExpansionState{300, 250}
+MainWindow::ViewToggledEvent::ViewToggledEvent(MainWindow& widget)
+    : widget{widget}
 {
 }
 
-void Shrinked::setStateUi(MainWindow& widget)
+MainWindow::State MainWindow::ViewToggledEvent::operator()(std::monostate)
 {
-    widget.taskOutline->setVisible(false);
-    widget.sprintOutline->setVisible(false);
-    widget.launcherMenu->setVisible(false);
-    widget.ui->pbToggleView->setText("Expand");
-    widget.ui->pbToggleMenu->setText("Show menu");
+    return ExpandedOutlines{widget};
 }
 
-void Shrinked::toggleView(MainWindow& widget)
+MainWindow::State MainWindow::ViewToggledEvent::
+operator()(const ExpandedOutlines&)
 {
-    widget.expansionState = expandedWithoutMenu.get();
+    return Shrinked{widget};
 }
 
-void Shrinked::toggleMenu(MainWindow& widget)
+MainWindow::State MainWindow::ViewToggledEvent::operator()(const Shrinked&)
 {
-    widget.expansionState = expandedMenuOnly.get();
+    return ExpandedOutlines{widget};
 }
 
-ExpandedMenuOnly::ExpandedMenuOnly()
-    : ExpansionState{300, 250}
+MainWindow::State MainWindow::ViewToggledEvent::operator()(const ExpandedMenu&)
 {
+    return Expanded{widget};
 }
 
-void ExpandedMenuOnly::setStateUi(MainWindow& widget)
+MainWindow::State MainWindow::ViewToggledEvent::operator()(const Expanded&)
 {
-    widget.taskOutline->setVisible(false);
-    widget.sprintOutline->setVisible(false);
-    widget.launcherMenu->setVisible(true);
-    widget.ui->pbToggleView->setText("Expand");
-    widget.ui->pbToggleMenu->setText("Hide menu");
+    return ExpandedMenu{widget};
 }
 
-void ExpandedMenuOnly::toggleView(MainWindow& widget)
-{
-    widget.expansionState = expandedFully.get();
-}
-
-void ExpandedMenuOnly::toggleMenu(MainWindow& widget)
-{
-    widget.expansionState = shrinked.get();
-}
-
-ExpandedWithoutMenu::ExpandedWithoutMenu()
-    : ExpansionState{812, 450}
+MainWindow::MenuToggledEvent::MenuToggledEvent(MainWindow& widget)
+    : widget{widget}
 {
 }
 
-void ExpandedWithoutMenu::setStateUi(MainWindow& widget)
+MainWindow::State MainWindow::MenuToggledEvent::operator()(std::monostate)
 {
-    widget.sprintOutline->setVisible(true);
-    widget.taskOutline->setVisible(true);
-    widget.launcherMenu->setVisible(false);
-    widget.ui->pbToggleView->setText("Collapse");
-    widget.ui->pbToggleMenu->setText("Show menu");
+    return ExpandedMenu{widget};
 }
 
-void ExpandedWithoutMenu::toggleView(MainWindow& widget)
+MainWindow::State MainWindow::MenuToggledEvent::
+operator()(const ExpandedOutlines&)
 {
-    widget.expansionState = shrinked.get();
+    return Expanded{widget};
 }
 
-void ExpandedWithoutMenu::toggleMenu(MainWindow& widget)
+MainWindow::State MainWindow::MenuToggledEvent::operator()(const Shrinked&)
 {
-    widget.expansionState = expandedFully.get();
+    return ExpandedMenu{widget};
+}
+
+MainWindow::State MainWindow::MenuToggledEvent::operator()(const ExpandedMenu&)
+{
+    return Shrinked{widget};
+}
+
+MainWindow::State MainWindow::MenuToggledEvent::operator()(const Expanded&)
+{
+    return ExpandedOutlines{widget};
 }
 
 } // namespace sprint_timer::ui::qt_gui

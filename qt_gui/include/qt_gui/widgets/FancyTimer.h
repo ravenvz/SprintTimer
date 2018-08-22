@@ -25,6 +25,7 @@
 #include "qt_gui/delegates/SubmissionItemDelegate.h"
 #include "qt_gui/widgets/CombinedIndicator.h"
 #include "qt_gui/widgets/TimerWidgetBase.h"
+#include <QAbstractItemModel>
 #include <memory>
 
 namespace Ui {
@@ -35,15 +36,16 @@ namespace sprint_timer::ui::qt_gui {
 
 class FancyTimer : public TimerWidgetBase {
 public:
-    FancyTimer(const IConfig& applicationSettings, QWidget* parent);
+    FancyTimer(const IConfig& applicationSettings,
+               QAbstractItemModel& taskModel,
+               QWidget* parent);
     ~FancyTimer() override;
 
-    void setTaskModel(QAbstractItemModel* model) override;
     void setCandidateIndex(int index) override;
     void updateGoalProgress(Progress progress) override;
 
 private:
-    Ui::FancyTimer* ui;
+    std::unique_ptr<Ui::FancyTimer> ui;
     const int indicatorSize{150};
     CombinedIndicator* combinedIndicator;
     std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate

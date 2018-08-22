@@ -19,13 +19,30 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/widgets/DataWidget.h"
 
-namespace sprint_timer::ui::qt_gui {
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
 
-DataWidget::DataWidget(QWidget* parent)
-    : QFrame{parent}
+#include "mocks/TaskStorageReaderMock.h"
+#include "gtest/gtest.h"
+#include <core/QueryInvoker.h>
+#include <core/use_cases/RequestAllTags.h>
+
+using sprint_timer::QueryInvoker;
+using sprint_timer::use_cases::RequestAllTags;
+using ::testing::_;
+
+class RequestAllTagsFixture : public ::testing::Test {
+public:
+    QueryInvoker queryInvoker;
+    TaskStorageReaderMock task_writer_mock;
+};
+
+TEST_F(RequestAllTagsFixture, execute)
 {
-}
+    EXPECT_CALL(task_writer_mock, requestAllTags(_)).Times(1);
 
-} // namespace sprint_timer::ui::qt_gui
+    queryInvoker.execute(std::make_unique<RequestAllTags>(
+        task_writer_mock, [](const auto& result) {}));
+}

@@ -22,13 +22,13 @@
 #ifndef STATISTICSWINDOW_H
 #define STATISTICSWINDOW_H
 
-#include "qt_gui/dialogs/DateRangePickDialog.h"
-#include "qt_gui/widgets/DataWidget.h"
-#include "qt_gui/widgets/DistributionDiagram.h"
-#include "qt_gui/widgets/Plot.h"
-#include "qt_gui/widgets/TimeDiagram.h"
+#include "qt_gui/Synchronizable.h"
+#include "qt_gui/utils/DateInterval.h"
+#include <QFrame>
 #include <core/IConfig.h>
-#include <core/ICoreService.h>
+#include <core/ISprintStorageReader.h>
+#include <core/IYearRangeReader.h>
+#include <core/QueryInvoker.h>
 #include <core/SprintStatistics.h>
 #include <core/TagTop.h>
 #include <memory>
@@ -53,12 +53,14 @@ namespace sprint_timer::ui::qt_gui {
  *      sprints;
  *      widget that displays distribution of worktime.
  */
-class StatisticsWindow : public DataWidget {
+class StatisticsWindow : public QFrame, public Synchronizable {
     Q_OBJECT
 
 public:
-    StatisticsWindow(IConfig& applicationSettings,
-                     ICoreService& coreService,
+    StatisticsWindow(const IConfig& applicationSettings,
+                     ISprintStorageReader& sprintReader,
+                     IYearRangeReader& sprintYearRangeReader,
+                     QueryInvoker& queryInvoker,
                      QWidget* parent = nullptr);
     ~StatisticsWindow() override;
 
@@ -70,19 +72,20 @@ private slots:
 
 private:
     std::unique_ptr<Ui::StatisticsWindow> ui;
-    IConfig& applicationSettings;
-    ICoreService& coreService;
+    const IConfig& applicationSettings;
+    ISprintStorageReader& sprintReader;
+    IYearRangeReader& sprintYearRangeReader;
+    QueryInvoker& queryInvoker;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;
-    DateInterval currentInterval;
     const size_t numTopTags{7}; // TODO move to config
     std::optional<size_t> selectedTagIndex;
 
     void fetchData();
     void drawGraphs();
     void updateTopTagsDiagram(std::vector<TagTop::TagFrequency>& tagCounts);
-    void onYearRangeUpdated(const std::vector<std::string>& yearRange);
     void onDataFetched(const std::vector<entities::Sprint>& sprints);
+    DateInterval currentInterval() const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

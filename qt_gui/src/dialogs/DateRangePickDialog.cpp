@@ -25,9 +25,10 @@
 namespace sprint_timer::ui::qt_gui {
 
 
-DateRangePickDialog::DateRangePickDialog(DateInterval initialPeriod, QWidget* parent)
-    : QDialog(parent)
-    , ui(new Ui::DateRangePickDialog)
+DateRangePickDialog::DateRangePickDialog(DateInterval initialPeriod,
+                                         QWidget* parent)
+    : QDialog{parent}
+    , ui{std::make_unique<Ui::DateRangePickDialog>()}
 {
     ui->setupUi(this);
     updateCalendarDates(initialPeriod);
@@ -35,7 +36,7 @@ DateRangePickDialog::DateRangePickDialog(DateInterval initialPeriod, QWidget* pa
     // NOTE see ui file for used signal connections
 }
 
-DateRangePickDialog::~DateRangePickDialog() { delete ui; }
+DateRangePickDialog::~DateRangePickDialog() = default;
 
 void DateRangePickDialog::configureCalendar()
 {
@@ -59,4 +60,3 @@ DateInterval DateRangePickDialog::getNewInterval()
 }
 
 } // namespace sprint_timer::ui::qt_gui
-

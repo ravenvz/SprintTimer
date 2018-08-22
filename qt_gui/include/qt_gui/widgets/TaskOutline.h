@@ -22,76 +22,47 @@
 #ifndef TASKOUTLINE_H
 #define TASKOUTLINE_H
 
-#include "qt_gui/delegates/HistoryItemDelegate.h"
-#include "qt_gui/delegates/TaskItemDelegate.h"
-#include "qt_gui/dialogs/AddTaskDialog.h"
-#include "qt_gui/models/HistoryModel.h"
-#include "qt_gui/models/TagModel.h"
+#include "qt_gui/models/SprintModel.h"
 #include "qt_gui/models/TaskModel.h"
-#include "qt_gui/widgets/ReordableListView.h"
-#include "qt_gui/widgets/TagEditor.h"
-#include "qt_gui/widgets/TaskSprintsView.h"
-#include <core/ICoreService.h>
-#include <QPointer>
+#include "qt_gui/widgets/TaskView.h"
+#include <QLineEdit>
 #include <QWidget>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QVBoxLayout>
+#include <core/ISprintStorageReader.h>
+#include <core/QueryInvoker.h>
 #include <memory>
 
-namespace Ui {
-class TaskOutline;
-} // namespace Ui
+#include "qt_gui/dialogs/AddTaskDialog.h"
 
 namespace sprint_timer::ui::qt_gui {
+
+class AddTaskDialog;
 
 /* Responsible for providing user interface for interactive
  * task management, so that user could view current unfinished
  * tasks, add/edit and remove task and tags. */
 class TaskOutline : public QWidget {
-
-    Q_OBJECT
-
 public:
-    TaskOutline(ICoreService& coreService,
-                TaskModel* taskModel,
-                TagModel* tagModel,
-                QWidget* parent);
-
-    ~TaskOutline() override;
-
-    QSize sizeHint() const override;
+    TaskOutline(TaskModel& taskModel,
+                SprintModel& sprintModel,
+                std::unique_ptr<TaskView> taskView,
+                AddTaskDialog& addTaskDialog,
+                QWidget* parent = nullptr);
 
 private:
-    Ui::TaskOutline* ui;
-    ICoreService& coreService;
     QPointer<TagEditor> tagEditor;
-    TaskModel* taskModel;
-    TagModel* tagModel;
-    std::unique_ptr<AddTaskDialog> addTaskDialog;
-    std::unique_ptr<TaskItemDelegate> taskItemDelegate
-        = std::make_unique<TaskItemDelegate>();
-    const QSize desiredSize{300, 200};
-    QPointer<TaskSprintsView> taskSprintsView;
-    std::unique_ptr<HistoryModel> taskSprintsModel;
-    std::unique_ptr<HistoryItemDelegate> taskSprintViewDelegate
-        = std::make_unique<HistoryItemDelegate>();
+    TaskModel& taskModel;
+    SprintModel& sprintModel;
+    TaskView* taskView;
+    AddTaskDialog& addTaskDialog;
+    QLineEdit* quickAddTask;
 
-    void launchTagEditor();
-    void removeTask();
-    void launchTaskEditor();
-    void showSprintsForTask();
-    void onSprintsForTaskFetched(const std::vector<entities::Sprint>&);
-
-signals:
-    void taskSelected(int row);
+public slots:
+    void
+    onSprintSubmissionRequested(const std::vector<dw::TimeSpan>& intervals);
 
 private slots:
     void onAddTaskButtonPushed();
     void onQuickAddTodoReturnPressed();
-    void toggleTaskCompleted();
-    void showContextMenu(const QPoint& pos);
-    void addNewTask();
 };
 
 } // namespace sprint_timer::ui::qt_gui

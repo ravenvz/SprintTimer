@@ -25,6 +25,7 @@
 #include <QtWidgets/QWidget>
 #include <core/Distribution.h>
 #include <core/entities/Sprint.h>
+#include <memory>
 
 namespace Ui {
 class BestWorktimeWidget;
@@ -42,7 +43,7 @@ public:
                  const std::vector<entities::Sprint>& sprints);
 
 private:
-    Ui::BestWorktimeWidget* ui;
+    std::unique_ptr<Ui::BestWorktimeWidget> ui;
     void
     updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
                            const std::vector<entities::Sprint>& sprints);

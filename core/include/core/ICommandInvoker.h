@@ -19,30 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DECREMENTTASKSPRINTS_H_GYPTACBX
-#define DECREMENTTASKSPRINTS_H_GYPTACBX
+#ifndef ICOMMANDINVOKER_H_EQKZS68F
+#define ICOMMANDINVOKER_H_EQKZS68F
 
-#include "core/ITaskStorageWriter.h"
 #include "core/Command.h"
+#include <memory>
+#include <string>
 
-namespace sprint_timer::use_cases {
+namespace sprint_timer {
 
-class DecrementTaskSprints : public Command {
+class ICommandInvoker {
 public:
-    DecrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         std::string taskUuid);
+    virtual ~ICommandInvoker() = default;
 
-    void execute() final;
+    virtual void executeCommand(std::unique_ptr<Command> command) = 0;
 
-    void undo() final;
+    virtual void undo() = 0;
 
-    std::string describe() const final;
+    virtual std::string lastCommandDescription() const = 0;
 
-private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid_;
+    virtual bool hasUndoableCommands() const = 0;
 };
 
-} // namespace sprint_timer::use_cases
+} // namespace sprint_timer
 
-#endif /* end of include guard: DECREMENTSPENTSPRINTS_H_GYPTACBX */
+#endif /* end of include guard: ICOMMANDINVOKER_H_EQKZS68F */

@@ -20,26 +20,31 @@
 **
 *********************************************************************************/
 
-#include "core/use_cases/IncrementTaskSprints.h"
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
 
-namespace sprint_timer::use_cases {
+#include "mocks/TaskStorageWriterMock.h"
+#include "gtest/gtest.h"
+#include <core/CommandInvoker.h>
+#include <core/use_cases/RenameTag.h>
 
-IncrementTaskSprints::IncrementTaskSprints(
-    ITaskStorageWriter& taskStorageWriter, std::string taskUuid)
-    : writer{taskStorageWriter}
-    , taskUuid_{std::move(taskUuid)}
+using sprint_timer::use_cases::RenameTag;
+
+class RenameTagFixture : public ::testing::Test {
+public:
+    sprint_timer::CommandInvoker commandInvoker;
+    TaskStorageWriterMock task_writer_mock;
+};
+
+TEST_F(RenameTagFixture, execute_and_undo)
 {
+    EXPECT_CALL(task_writer_mock, editTag("oldName", "newName")).Times(1);
+
+    commandInvoker.executeCommand(
+        std::make_unique<RenameTag>(task_writer_mock, "oldName", "newName"));
+
+    EXPECT_CALL(task_writer_mock, editTag("newName", "oldName")).Times(1);
+
+    commandInvoker.undo();
 }
-
-void IncrementTaskSprints::execute() { writer.incrementSprints(taskUuid_); }
-
-void IncrementTaskSprints::undo() { writer.decrementSprints(taskUuid_); }
-
-std::string IncrementTaskSprints::describe() const
-{
-    std::stringstream ss;
-    ss << "Increment finished sprints for " << taskUuid_;
-    return ss.str();
-}
-
-} // namespace sprint_timer::use_cases

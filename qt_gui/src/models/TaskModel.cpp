@@ -21,6 +21,12 @@
 *********************************************************************************/
 #include "qt_gui/models/TaskModel.h"
 #include <QSize>
+#include <core/use_cases/AddNewTask.h>
+#include <core/use_cases/DeleteTask.h>
+#include <core/use_cases/EditTask.h>
+#include <core/use_cases/RequestUnfinishedTasks.h>
+#include <core/use_cases/StoreUnfinishedTasksOrder.h>
+#include <core/use_cases/ToggleTaskCompletionStatus.h>
 #include <core/utils/Algutils.h>
 #include <string>
 #include <vector>
@@ -28,18 +34,30 @@
 namespace sprint_timer::ui::qt_gui {
 
 using entities::Task;
+using namespace use_cases;
 
-TaskModel::TaskModel(ICoreService& coreService, QObject* parent)
+TaskModel::TaskModel(ITaskStorageReader& taskReader,
+                     ITaskStorageWriter& taskWriter,
+                     ISprintStorageReader& sprintReader,
+                     ISprintStorageWriter& sprintWriter,
+                     CommandInvoker& commandInvoker,
+                     QueryInvoker& queryInvoker,
+                     QObject* parent)
     : AsyncListModel{parent}
-    , coreService{coreService}
+    , taskReader{taskReader}
+    , taskWriter{taskWriter}
+    , sprintReader{sprintReader}
+    , sprintWriter{sprintWriter}
+    , commandInvoker{commandInvoker}
+    , queryInvoker{queryInvoker}
 {
     synchronize();
 }
 
 void TaskModel::requestDataUpdate()
 {
-    coreService.requestUnfinishedTasks(
-        [this](const auto& tasks) { this->onDataChanged(tasks); });
+    queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
+        taskReader, [this](const auto& tasks) { onDataChanged(tasks); }));
 }
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)
@@ -108,7 +126,8 @@ int TaskModel::rowCount(const QModelIndex& parent) const
 
 void TaskModel::insert(const Task& item)
 {
-    coreService.registerTask(item);
+    commandInvoker.executeCommand(
+        std::make_unique<AddNewTask>(taskWriter, item));
     requestDataUpdate();
 }
 
@@ -117,7 +136,8 @@ void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 void TaskModel::remove(int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
-    coreService.removeTask(itemAt(row));
+    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
+        taskWriter, sprintReader, sprintWriter, itemAt(row)));
     storage.erase(storage.begin() + row);
     // TODO
     // As a workaround, data update is delayed, because delete operation
@@ -136,14 +156,16 @@ Task TaskModel::itemAt(int row) const
 
 void TaskModel::toggleCompleted(const QModelIndex& index)
 {
-    coreService.toggleTaskCompletionStatus(itemAt(index.row()));
+    commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
+        taskWriter, itemAt(index.row())));
     requestDataUpdate();
 }
 
 void TaskModel::replaceItemAt(int row, const Task& newItem)
 {
     Task oldItem = itemAt(row);
-    coreService.editTask(oldItem, newItem);
+    commandInvoker.executeCommand(
+        std::make_unique<EditTask>(taskWriter, oldItem, newItem));
     requestDataUpdate();
 }
 
@@ -153,7 +175,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
                          const QModelIndex& destinationParent,
                          int destinationChild)
 {
-    // TODO Sadly this leads to ignoring dropping item below the last item,
+    // TODO This leads to ignoring dropping item below the last item,
     // should study Qt documentation for item reordering
     if (destinationChild == -1)
         return false;
@@ -183,8 +205,8 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
 
     auto new_order = uuidsInOrder();
 
-    coreService.registerTaskPriorities(std::move(old_order),
-                                       std::move(new_order));
+    commandInvoker.executeCommand(std::make_unique<StoreUnfinishedTasksOrder>(
+        taskWriter, std::move(old_order), std::move(new_order)));
 
     return true;
 }

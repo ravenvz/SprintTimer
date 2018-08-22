@@ -19,30 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef INCREMENTTASKSPRINTS_H_2OKTXAHD
-#define INCREMENTTASKSPRINTS_H_2OKTXAHD
+#include "core/CommandInvoker.h"
 
-#include "core/ITaskStorageWriter.h"
-#include "core/Command.h"
+namespace sprint_timer {
 
-namespace sprint_timer::use_cases {
+void CommandInvoker::executeCommand(std::unique_ptr<Command> command)
+{
+    command->execute();
+    commandStack.push(std::move(command));
+    notify();
+}
 
-class IncrementTaskSprints : public Command {
-public:
-    IncrementTaskSprints(ITaskStorageWriter& taskStorageWriter,
-                         std::string taskUuid);
+void CommandInvoker::undo()
+{
+    if (commandStack.empty())
+        return;
+    commandStack.top()->undo();
+    commandStack.pop();
+    notify();
+}
 
-    void execute() override;
+std::string CommandInvoker::lastCommandDescription() const
+{
+    return commandStack.empty() ? "" : commandStack.top()->describe();
+}
 
-    void undo() override;
+bool CommandInvoker::hasUndoableCommands() const
+{
+    return !commandStack.empty();
+}
 
-    std::string describe() const override;
-
-private:
-    ITaskStorageWriter& writer;
-    const std::string taskUuid_;
-};
-
-} // namespace sprint_timer::use_cases
-
-#endif /* end of include guard: INCREMENTTASKSPRINTS_H_2OKTXAHD */
+} // namespace sprint_timer

@@ -23,7 +23,12 @@
 #define TASKMODEL_H_FUQ5UCBE
 
 #include "qt_gui/models/AsyncListModel.h"
-#include <core/ICoreService.h>
+#include <core/CommandInvoker.h>
+#include <core/ISprintStorageReader.h>
+#include <core/ISprintStorageWriter.h>
+#include <core/ITaskStorageReader.h>
+#include <core/ITaskStorageWriter.h>
+#include <core/QueryInvoker.h>
 #include <core/entities/Task.h>
 #include <date_wrapper/TimeSpan.h>
 
@@ -33,7 +38,13 @@ class TaskModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    TaskModel(ICoreService& coreService, QObject* parent);
+    TaskModel(ITaskStorageReader& taskReader,
+              ITaskStorageWriter& taskWriter,
+              ISprintStorageReader& sprintReader,
+              ISprintStorageWriter& sprintWriter,
+              CommandInvoker& commandInvoker,
+              QueryInvoker& queryInvoker,
+              QObject* parent = nullptr);
 
     // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
@@ -98,7 +109,12 @@ protected:
     void requestDataUpdate() final;
 
 private:
-    ICoreService& coreService;
+    ITaskStorageReader& taskReader;
+    ITaskStorageWriter& taskWriter;
+    ISprintStorageReader& sprintReader;
+    ISprintStorageWriter& sprintWriter;
+    CommandInvoker& commandInvoker;
+    QueryInvoker& queryInvoker;
     std::vector<entities::Task> storage;
     // Sql helper queries that are needed to maintain database invariants.
     enum class Column {

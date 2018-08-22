@@ -22,9 +22,12 @@
 #ifndef TAGMODEL_H
 #define TAGMODEL_H
 
-#include <core/ICoreService.h>
 #include "qt_gui/models/AsyncListModel.h"
 #include <QStringListModel>
+#include <core/CommandInvoker.h>
+#include <core/ITaskStorageReader.h>
+#include <core/ITaskStorageWriter.h>
+#include <core/QueryInvoker.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -32,18 +35,20 @@ namespace sprint_timer::ui::qt_gui {
 class TagModel : public AsyncListModel {
 
 public:
-    TagModel(ICoreService& coreService, QObject* parent);
+    TagModel(ITaskStorageReader& taskReader,
+             ITaskStorageWriter& taskWriter,
+             CommandInvoker& commandInvoker,
+             QueryInvoker& queryInvoker,
+             QObject* parent = nullptr);
 
-    bool setData(const QModelIndex& index,
-                 const QVariant& value,
-                 int role) final;
+    bool
+    setData(const QModelIndex& index, const QVariant& value, int role) final;
 
     Qt::ItemFlags flags(const QModelIndex& index) const final;
 
     int rowCount(const QModelIndex& parent) const final;
 
-    QVariant data(const QModelIndex& index,
-                  int role) const final;
+    QVariant data(const QModelIndex& index, int role) const final;
 
 public slots:
     void submitData() final;
@@ -54,16 +59,18 @@ protected:
     void requestDataUpdate() final;
 
 private:
+    ITaskStorageReader& taskReader;
+    ITaskStorageWriter& taskWriter;
+    CommandInvoker& commandInvoker;
+    QueryInvoker& queryInvoker;
     using OldNewTagPair = std::pair<std::string, std::string>;
     std::vector<std::string> storage;
-    ICoreService& coreService;
     std::vector<OldNewTagPair> buffer;
 
     void onDataArrived(const std::vector<std::string>& tags);
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 
 #endif /* end of include guard: TAGMODEL_H */

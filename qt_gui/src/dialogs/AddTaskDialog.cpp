@@ -20,22 +20,30 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/AddTaskDialog.h"
-#include <core/utils/StringUtils.h>
 #include "ui_add_todo_dialog.h"
 #include <QRegularExpression>
+#include <core/utils/StringUtils.h>
+
+namespace {
+
+const QString requiredFieldEmptyStyle{"QLineEdit { border: 2px solid red; }"};
+
+} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
 using namespace utils;
 
-AddTaskDialog::AddTaskDialog(TagModel* tagModel, QWidget* parent)
-    : QDialog(parent)
-    , ui(new Ui::AddTaskDialog)
-    , tagModel(tagModel)
+AddTaskDialog::AddTaskDialog(QAbstractItemModel& tagModel, QWidget* parent)
+    : QDialog{parent}
+    , ui{std::make_unique<Ui::AddTaskDialog>()}
 {
     ui->setupUi(this);
-    setTagsModel();
+
+    ui->tags->setModel(&tagModel);
+    ui->tags->setCurrentText("");
+
     connect(ui->tags,
             QOverload<const QString&>::of(&QComboBox::activated),
             this,
@@ -46,7 +54,7 @@ AddTaskDialog::AddTaskDialog(TagModel* tagModel, QWidget* parent)
             &AddTaskDialog::resetNameLineEditStyle);
 }
 
-AddTaskDialog::~AddTaskDialog() { delete ui; }
+AddTaskDialog::~AddTaskDialog() = default;
 
 Task AddTaskDialog::constructedTask()
 {
@@ -103,12 +111,6 @@ void AddTaskDialog::onQuickAddTagActivated(const QString& tag)
 void AddTaskDialog::resetNameLineEditStyle()
 {
     ui->taskName->setStyleSheet("");
-}
-
-void AddTaskDialog::setTagsModel()
-{
-    ui->tags->setModel(tagModel);
-    ui->tags->setCurrentText("");
 }
 
 } // namespace sprint_timer::ui::qt_gui

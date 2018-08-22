@@ -19,30 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef QUERYINVOKER_H_AQH0UTZ1
+#define QUERYINVOKER_H_AQH0UTZ1
 
-#include "core/use_cases/DecrementTaskSprints.h"
+#include <core/Query.h>
+#include <memory>
 
-namespace sprint_timer::use_cases {
+namespace sprint_timer {
 
-DecrementTaskSprints::DecrementTaskSprints(
-    ITaskStorageWriter& taskStorageWriter, std::string taskUuid)
-    : writer{taskStorageWriter}
-    , taskUuid_{std::move(taskUuid)}
-{
-}
+class QueryInvoker {
+public:
+    virtual ~QueryInvoker() = default;
 
-void DecrementTaskSprints::execute()
-{
-    writer.decrementSprints(taskUuid_);
-}
+    virtual void execute(std::unique_ptr<Query> query) const;
+};
 
-void DecrementTaskSprints::undo() { writer.incrementSprints(taskUuid_); }
+} // namespace sprint_timer
 
-std::string DecrementTaskSprints::describe() const
-{
-    std::stringstream ss;
-    ss << "Decrement sprints for " << taskUuid_;
-    return ss.str();
-}
-
-} // namespace sprint_timer::use_cases
+#endif /* end of include guard: QUERYINVOKER_H_AQH0UTZ1 */

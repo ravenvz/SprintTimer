@@ -19,18 +19,29 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QUERYEXECUTOR_H_AQH0UTZ1
-#define QUERYEXECUTOR_H_AQH0UTZ1
 
-#include <core/Query.h>
+// TODO remove when Gtest drops std::tr1
+// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
+#define GTEST_LANG_CXX11 1
 
-namespace sprint_timer {
+#include "mocks/SprintStorageReaderMock.h"
+#include "gtest/gtest.h"
+#include <core/QueryInvoker.h>
+#include <core/use_cases/RequestSprintsForTask.h>
 
-class QueryExecutor {
+using sprint_timer::use_cases::RequestSprintsForTask;
+using ::testing::_;
+
+class RequestSprintsForTaskFixture : public ::testing::Test {
 public:
-    void executeQuery(std::unique_ptr<Query>&& query) { query->execute(); }
+    SprintStorageReaderMock sprint_reader_mock;
+    sprint_timer::QueryInvoker queryInvoker;
 };
 
-} // namespace sprint_timer
+TEST_F(RequestSprintsForTaskFixture, execute)
+{
+    EXPECT_CALL(sprint_reader_mock, sprintsForTask("123", _)).Times(1);
 
-#endif /* end of include guard: QUERYEXECUTOR_H_AQH0UTZ1 */
+    queryInvoker.execute(std::make_unique<RequestSprintsForTask>(
+        sprint_reader_mock, "123", [](const auto& result) {}));
+}

@@ -23,6 +23,7 @@
 #ifndef SPRINT_TIMER_OSTREAMSINK_H_H
 #define SPRINT_TIMER_OSTREAMSINK_H_H
 
+#include <core/external_io/ISink.h>
 #include <ostream>
 
 namespace sprint_timer::external_io {
