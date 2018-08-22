@@ -130,8 +130,6 @@ private:
     };
 
     void onDataChanged(const std::vector<entities::Task>& tasks);
-
-    void timerEvent(QTimerEvent* event) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

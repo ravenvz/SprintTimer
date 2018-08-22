@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/models/TaskModel.h"
 #include <QSize>
+#include <QTimer>
 #include <core/use_cases/AddNewTask.h>
 #include <core/use_cases/DeleteTask.h>
 #include <core/use_cases/EditTask.h>
@@ -139,14 +140,15 @@ void TaskModel::remove(int row)
     commandInvoker.executeCommand(std::make_unique<DeleteTask>(
         taskWriter, sprintReader, sprintWriter, itemAt(row)));
     storage.erase(storage.begin() + row);
+    endRemoveRows();
     // TODO
     // As a workaround, data update is delayed, because delete operation
     // takes quite a long time (time is needed to collect sprints) and
     // in current implementation we have no way to know if command is
     // completed or not. This should be replaced when more flexible
     // approach is introduced.
-    startTimer(std::chrono::seconds{1});
-    endRemoveRows();
+    QTimer::singleShot(std::chrono::seconds{1},
+                       [this]() { requestDataUpdate(); });
 }
 
 Task TaskModel::itemAt(int row) const
@@ -210,7 +212,5 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
 
     return true;
 }
-
-void TaskModel::timerEvent(QTimerEvent* event) { requestDataUpdate(); }
 
 } // namespace sprint_timer::ui::qt_gui
