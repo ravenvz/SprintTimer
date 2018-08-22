@@ -64,15 +64,14 @@
 #include <qt_gui/dialogs/WorkdaysDialog.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/TagModel.h>
+#include <qt_gui/widgets/DailyProgressView.h>
 #include <qt_gui/widgets/DefaultTimer.h>
 #include <qt_gui/widgets/FancyTimer.h>
 #include <qt_gui/widgets/GoalProgressWindow.h>
 #include <qt_gui/widgets/HistoryWindow.h>
 #include <qt_gui/widgets/LauncherMenu.h>
-#include <qt_gui/widgets/ProgressView.h>
-#include <qt_gui/widgets/DailyProgressView.h>
-#include <qt_gui/widgets/WeeklyProgressView.h>
 #include <qt_gui/widgets/MonthlyProgressView.h>
+#include <qt_gui/widgets/ProgressView.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/SprintView.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
@@ -80,6 +79,7 @@
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
 #include <qt_gui/widgets/UndoButton.h>
+#include <qt_gui/widgets/WeeklyProgressView.h>
 
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
@@ -334,6 +334,12 @@ int main(int argc, char* argv[])
                                       *sprintStorageReader,
                                       *sprintYearRangeReader,
                                       queryInvoker};
+    QObject::connect(&sprintModel,
+                     &QAbstractListModel::modelReset,
+                     [&statisticsWindow]() { statisticsWindow.synchronize(); });
+    QObject::connect(&taskModel,
+                     &QAbstractListModel::modelReset,
+                     [&statisticsWindow]() { statisticsWindow.synchronize(); });
 
     WorkdaysDialog workdaysDialog{applicationSettings};
     auto dailyProgress
@@ -372,6 +378,13 @@ int main(int argc, char* argv[])
                                 historyModel,
                                 historyItemDelegate,
                                 queryInvoker};
+    QObject::connect(&sprintModel,
+                     &QAbstractListModel::modelReset,
+                     [&historyWindow]() { historyWindow.synchronize(); });
+    QObject::connect(&taskModel,
+                     &QAbstractListModel::modelReset,
+                     [&historyWindow]() { historyWindow.synchronize(); });
+
     SettingsDialog settingsDialog{applicationSettings};
     auto launcherMenu = std::make_unique<LauncherMenu>(
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
@@ -418,24 +431,6 @@ int main(int argc, char* argv[])
                      });
     auto taskOutline = std::make_unique<TaskOutline>(
         taskModel, sprintModel, std::move(taskView), addTaskDialog);
-
-    // TODO might be worth it to replace with some kind of combo-signal
-    QObject::connect(&sprintModel,
-                     &AsyncListModel::updateFinished,
-                     &historyWindow,
-                     &DataWidget::synchronize);
-    QObject::connect(&sprintModel,
-                     &AsyncListModel::updateFinished,
-                     &statisticsWindow,
-                     &DataWidget::synchronize);
-    QObject::connect(&taskModel,
-                     &AsyncListModel::updateFinished,
-                     &historyWindow,
-                     &DataWidget::synchronize);
-    QObject::connect(&taskModel,
-                     &AsyncListModel::updateFinished,
-                     &statisticsWindow,
-                     &DataWidget::synchronize);
 
     // As models update data asynchroniously,
     // other models that depend on that data should

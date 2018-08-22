@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BUTTONMENU_H
-#define BUTTONMENU_H
+#ifndef LAUNCHERMENU_H_31QL4GCR
+#define LAUNCHERMENU_H_31QL4GCR
 
 #include <QDialog>
 #include <core/IConfig.h>
@@ -49,5 +49,4 @@ private:
 
 } // namespace sprint_timer::ui::qt_gui
 
-
-#endif // SPRINT_TIMER_BUTTONMENU_H
+#endif /* end of include guard: LAUNCHERMENU_H_31QL4GCR */

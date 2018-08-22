@@ -22,12 +22,13 @@
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H
 
+#include "qt_gui/Synchronizable.h"
 #include "qt_gui/dialogs/ExportDialog.h"
 #include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/utils/DateInterval.h"
-#include "qt_gui/widgets/DataWidget.h"
 #include <QStyledItemDelegate>
 #include <QTreeView>
+#include <QWidget>
 #include <core/ISprintStorageReader.h>
 #include <core/ITaskStorageReader.h>
 #include <core/IYearRangeReader.h>
@@ -42,7 +43,7 @@ class HistoryWindow;
 
 namespace sprint_timer::ui::qt_gui {
 
-class HistoryWindow : public DataWidget {
+class HistoryWindow : public QWidget, public Synchronizable {
     Q_OBJECT
 
 public:

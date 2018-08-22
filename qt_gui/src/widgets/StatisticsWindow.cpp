@@ -40,7 +40,7 @@ StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
                                    IYearRangeReader& sprintYearRangeReader,
                                    QueryInvoker& queryInvoker,
                                    QWidget* parent)
-    : DataWidget{parent}
+    : QFrame{parent}
     , ui{std::make_unique<Ui::StatisticsWindow>()}
     , applicationSettings{applicationSettings}
     , sprintReader{sprintReader}

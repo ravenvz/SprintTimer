@@ -57,7 +57,7 @@ HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader,
                              QStyledItemDelegate& historyItemDelegate,
                              QueryInvoker& queryInvoker,
                              QWidget* parent)
-    : DataWidget{parent}
+    : QWidget{parent}
     , ui{std::make_unique<Ui::HistoryWindow>()}
     , sprintReader{sprintReader}
     , taskReader{taskReader}

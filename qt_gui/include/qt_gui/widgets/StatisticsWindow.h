@@ -22,8 +22,9 @@
 #ifndef STATISTICSWINDOW_H
 #define STATISTICSWINDOW_H
 
+#include "qt_gui/Synchronizable.h"
 #include "qt_gui/utils/DateInterval.h"
-#include "qt_gui/widgets/DataWidget.h"
+#include <QFrame>
 #include <core/IConfig.h>
 #include <core/ISprintStorageReader.h>
 #include <core/IYearRangeReader.h>
@@ -52,7 +53,7 @@ namespace sprint_timer::ui::qt_gui {
  *      sprints;
  *      widget that displays distribution of worktime.
  */
-class StatisticsWindow : public DataWidget {
+class StatisticsWindow : public QFrame, public Synchronizable {
     Q_OBJECT
 
 public:
