@@ -35,16 +35,6 @@ using sprint_timer::entities::Sprint;
 using sprint_timer::use_cases::RequestSprints;
 using ::testing::_;
 
-// TODO remove when DateWrapper implements equality
-namespace dw {
-
-inline bool operator==(const TimeSpan& lhs, const TimeSpan& rhs)
-{
-    return lhs.start() == rhs.start() && lhs.finish() == rhs.finish();
-}
-
-} // namespace dw
-
 class RequestSprintsFixture : public ::testing::Test {
 public:
     SprintStorageReaderMock sprint_reader_mock;

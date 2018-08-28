@@ -41,16 +41,6 @@ public:
 private:
     QueryInvoker& queryInvoker;
     ISprintDistributionReader& distributionReader;
-
-    dw::TimeSpan twelveWeeksBackTillNow()
-    {
-        using dw::DateTime;
-        using dw::TimeSpan;
-        auto now = DateTime::currentDateTimeLocal();
-        auto from = now.add(
-            DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
-        return TimeSpan{from, now};
-    }
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -33,16 +33,6 @@ using sprint_timer::use_cases::RequestSprintDistribution;
 using namespace dw;
 using ::testing::_;
 
-// TODO remove when DateWrapper implements equality
-namespace dw {
-
-inline bool operator==(const TimeSpan& lhs, const TimeSpan& rhs)
-{
-    return lhs.start() == rhs.start() && lhs.finish() == rhs.finish();
-}
-
-} // namespace dw
-
 class RequestSprintDistributionFixture : public ::testing::Test {
 public:
     const TimeSpan someTimeSpan

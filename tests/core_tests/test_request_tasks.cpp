@@ -33,16 +33,6 @@ using namespace dw;
 using sprint_timer::use_cases::RequestTasks;
 using ::testing::_;
 
-// TODO remove when DateWrapper implements equality
-namespace dw {
-
-inline bool operator==(const TimeSpan& lhs, const TimeSpan& rhs)
-{
-    return lhs.start() == rhs.start() && lhs.finish() == rhs.finish();
-}
-
-} // namespace dw
-
 class RequestTasksFixture : public ::testing::Test {
 public:
     TaskStorageReaderMock task_reader_mock;
