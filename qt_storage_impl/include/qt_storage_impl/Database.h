@@ -35,8 +35,8 @@ namespace InfoTable {
         const QString id{"id"};
         const QString name{"name"};
         const QString value{"value"};
-    }
-}
+    } // namespace Columns
+} // namespace InfoTable
 
 namespace TaskTable {
     const QString name{"task"};
@@ -50,8 +50,8 @@ namespace TaskTable {
         const QString priority{"priority"};
         const QString lastModified{"last_modified"};
         const QString uuid{"uuid"};
-    }
-}
+    } // namespace Columns
+} // namespace TaskTable
 
 namespace SprintTable {
     const QString name{"sprint"};
@@ -62,8 +62,8 @@ namespace SprintTable {
         const QString startTime{"start_time"};
         const QString finishTime{"finish_time"};
         const QString uuid{"uuid"};
-    }
-}
+    } // namespace Columns
+} // namespace SprintTable
 
 namespace TagTable {
     const QString name{"tag"};
@@ -71,8 +71,8 @@ namespace TagTable {
     namespace Columns {
         const QString id{"id"};
         const QString name{"name"};
-    }
-}
+    } // namespace Columns
+} // namespace TagTable
 
 namespace TaskTagTable {
     const QString name{"tasktag"};
@@ -82,17 +82,16 @@ namespace TaskTagTable {
         const QString tagId{"tag_id"};
         const QString taskId{"task_id"};
         const QString taskUuid{"task_uuid"};
-    }
-}
+    } // namespace Columns
+} // namespace TaskTagTable
 
-namespace TaskTagView
-{
+namespace TaskTagView {
     const QString name{"task_tag_view"};
 
     namespace Aliases {
         const QString tagName{"tagname"};
     }
-} /* TaskTagView */
+} // namespace TaskTagView
 
 namespace TaskTagInsertTrigger {
     const QString name{"instead_task_tag_view_insert"};
@@ -108,7 +107,7 @@ namespace SprintView {
     namespace Aliases {
         const QString tags{"tags"};
     }
-}
+} // namespace SprintView
 
 namespace SprintViewDeleteTrigger {
     const QString name{"delete_from_sprint_view"};
@@ -124,7 +123,7 @@ namespace TasksView {
     namespace Aliases {
         const QString tags{"tags"};
     }
-}
+} // namespace TasksView
 
 namespace TaskViewDeleteTrigger {
     const QString name{"on_task_view_delete"};
@@ -140,13 +139,14 @@ namespace CalendarTable {
     namespace Columns {
         const QString id{"id"};
         const QString dt{"dt"};
-    }
-}
+    } // namespace Columns
+} // namespace CalendarTable
 
 
 /* Responsible for creating database and schema.
- * If database already exists, tries to establish connection and exits on success
- * and throws std::runtime_error when database could not be found and(or) created.
+ * If database already exists, tries to establish connection and exits on
+ * success and throws std::runtime_error when database could not be found
+ * and(or) created.
  */
 class Database {
 
@@ -156,36 +156,6 @@ public:
 private:
     const QString filename;
     const QString connectionName{"test_connection"};
-
-    bool prepare();
-
-    bool create(QSqlDatabase& db);
-
-    bool createSchema(QSqlDatabase& db);
-
-    bool createTables(QSqlQuery& query);
-
-    bool createViews(QSqlQuery& query);
-
-    bool createTriggers(QSqlQuery& query);
-
-    bool populateInfoTable(QSqlDatabase& database) const;
-
-    bool testConnection(QSqlDatabase& database);
-
-    bool upgradeIfRequired(QSqlDatabase& database);
-
-    unsigned getDatabaseVersion(QSqlDatabase& database);
-
-    bool runMigration(QSqlDatabase& database, unsigned fromVersion);
-
-    bool createBackupCopy(const QString& filename);
-
-    bool restoreBackupCopy(const QString& filename);
-
-    bool updateVersion(QSqlDatabase& database) const;
-
-    bool execAndCheck(QSqlQuery& query, const QString& queryStr);
 };
 
 } // namespace sprint_timer::storage::qt_storage_impl
