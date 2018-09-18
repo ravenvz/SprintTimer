@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "qt_storage_impl/QtYearRangeReader.h"
 #include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/DatabaseDescription.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -35,10 +36,11 @@ QtYearRangeReader::QtYearRangeReader(DBService& dbService)
 
 void QtYearRangeReader::requestYearRange(Handler handler)
 {
-    qint64 queryId = dbService.execute(QString{
-        "SELECT DISTINCT STRFTIME('%Y', %1) "
-        "FROM %2 ORDER BY %1;"}.arg(SprintTable::Columns::startTime)
-                                          .arg(SprintTable::name));
+    qint64 queryId
+        = dbService.execute(QString{"SELECT DISTINCT STRFTIME('%Y', %1) "
+                                    "FROM %2 ORDER BY %1;"}
+                                .arg(SprintTable::Columns::startTime)
+                                .arg(SprintTable::name));
     handlers.insert(std::make_pair(queryId, handler));
 }
 

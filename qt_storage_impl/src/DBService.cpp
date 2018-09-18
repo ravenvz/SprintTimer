@@ -19,15 +19,37 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <include/qt_storage_impl/Database.h>
 #include "qt_storage_impl/DBService.h"
+#include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/DatabaseError.h"
+#include "qt_storage_impl/QueryError.h"
+
+#include <iostream>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
 DBService::DBService(const QString& filename)
 {
-    // TODO handle exception
-    prepareDatabase(filename);
+    // TODO exception should be presented to the user in better way, and,
+    // probably, not here
+    try {
+        prepareDatabase(filename);
+    }
+    catch (const QueryError& err) {
+        std::cerr << "Attempt to query database resulted in exception: "
+                  << err.what() << '\n'
+                  << "Query: \n"
+                  << err.queryText() << '\n'
+                  << "Error: \n"
+                  << err.queryError() << '\n';
+        throw;
+    }
+    catch (const DatabaseError& err) {
+        std::cerr << "Database error: " << err.what() << '\n'
+                  << "Error:\n"
+                  << err.error() << '\n';
+        throw;
+    }
     auto* worker = new Worker(filename);
     worker->moveToThread(&workerThread);
     qRegisterMetaType<std::vector<QSqlRecord>>("std::vector<QSqlRecord>");
@@ -63,8 +85,9 @@ DBService::~DBService()
     workerThread.wait();
 }
 
-void DBService::prepareDatabase(const QString& filename) const {
-    auto db = Database(filename);
+void DBService::prepareDatabase(const QString& filename) const
+{
+    Database{filename};
 }
 
 qint64 DBService::execute(const QString& query)
@@ -79,10 +102,7 @@ qint64 DBService::prepare(const QString& query)
     return nextQueryId++;
 }
 
-void DBService::executePrepared(qint64 queryId)
-{
-    emit queuePrepared(queryId);
-}
+void DBService::executePrepared(qint64 queryId) { emit queuePrepared(queryId); }
 
 void DBService::handleResults(qint64 queryId,
                               const std::vector<QSqlRecord>& records)
