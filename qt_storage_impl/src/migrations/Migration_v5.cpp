@@ -7,7 +7,7 @@ void Migration_v5::run(QSqlDatabase& database) const
 {
     QSqlQuery query{database};
     tryExecute(query, "DROP TRIGGER instead_sprint_view_insert");
-    tryExecute(query, "drop trigger delete_from_sprint_view");
+    tryExecute(query, "DROP TRIGGER delete_from_sprint_view");
     tryExecute(query,
                "CREATE TRIGGER delete_from_sprint_view"
                " INSTEAD OF DELETE ON sprint_view"
