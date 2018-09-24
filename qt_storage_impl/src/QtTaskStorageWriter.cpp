@@ -74,16 +74,18 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
                                         .arg(TaskTable::Columns::uuid));
     incrementSpentQueryId = dbService.prepare(
         QString{"UPDATE %1 set %2 = %2 + 1 "
-                "WHERE %3 = (:todo_uuid);"}
+                "WHERE %3.%4 = (:todo_uuid);"}
             .arg(TaskTable::name)
             .arg(TaskTable::Columns::actualCost)
-            .arg(TaskTable::name + "." + TaskTable::Columns::uuid));
+            .arg(TaskTable::name)
+            .arg(TaskTable::Columns::uuid));
     decrementSpentQueryId = dbService.prepare(
         QString{"UPDATE %1 SET %2 = %2 - 1 "
-                "WHERE %3 = (:todo_uuid);"}
+                "WHERE %3.%4 = (:todo_uuid);"}
             .arg(TaskTable::name)
             .arg(TaskTable::Columns::actualCost)
-            .arg(TaskTable::name + "." + TaskTable::Columns::uuid));
+            .arg(TaskTable::name)
+            .arg(TaskTable::Columns::uuid));
     toggleCompletionQueryId
         = dbService.prepare(QString{"UPDATE %1 "
                                     "SET %2 = not %2, "

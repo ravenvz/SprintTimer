@@ -2,127 +2,131 @@
 #define DATABASEDESCRIPTION_H_035DMAOX
 
 #include <QString>
+#include <QStringView>
+#include <string_view>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
 namespace InfoTable {
-    inline const QString name{QStringLiteral("info")};
+    // constexpr char const* name{"info"};
+    constexpr std::string_view n_name{"info"};
+    inline const QStringView name{QStringLiteral("info")};
 
     namespace Columns {
-        inline const QString id{QStringLiteral("id")};
-        inline const QString name{QStringLiteral("name")};
-        inline const QString value{QStringLiteral("value")};
+        inline const QStringView id{QStringLiteral("id")};
+        inline const QStringView name{QStringLiteral("name")};
+        inline const QStringView value{QStringLiteral("value")};
     } // namespace Columns
 
 } // namespace InfoTable
 
 namespace TaskTable {
-    const QString name{"task"};
+    const QStringView name{QStringLiteral("task")};
 
     namespace Columns {
-        inline const QString id{QStringLiteral("id")};
-        inline const QString name{QStringLiteral("name")};
-        inline const QString estimatedCost{QStringLiteral("estimated_cost")};
-        inline const QString actualCost{QStringLiteral("actual_cost")};
-        inline const QString completed{QStringLiteral("completed")};
-        inline const QString priority{QStringLiteral("priority")};
-        inline const QString lastModified{QStringLiteral("last_modified")};
-        inline const QString uuid{QStringLiteral("uuid")};
+        inline const QStringView id{QStringLiteral("id")};
+        inline const QStringView name{QStringLiteral("name")};
+        inline const QStringView estimatedCost{QStringLiteral("estimated_cost")};
+        inline const QStringView actualCost{QStringLiteral("actual_cost")};
+        inline const QStringView completed{QStringLiteral("completed")};
+        inline const QStringView priority{QStringLiteral("priority")};
+        inline const QStringView lastModified{QStringLiteral("last_modified")};
+        inline const QStringView uuid{QStringLiteral("uuid")};
     } // namespace Columns
 
 } // namespace TaskTable
 
 namespace SprintTable {
-    inline const QString name{QStringLiteral("sprint")};
+    inline const QStringView name{QStringLiteral("sprint")};
 
     namespace Columns {
-        inline const QString id{QStringLiteral("id")};
-        inline const QString taskUuid{QStringLiteral("task_uuid")};
-        inline const QString startTime{QStringLiteral("start_time")};
-        inline const QString finishTime{QStringLiteral("finish_time")};
-        inline const QString uuid{QStringLiteral("uuid")};
+        inline const QStringView id{QStringLiteral("id")};
+        inline const QStringView taskUuid{QStringLiteral("task_uuid")};
+        inline const QStringView startTime{QStringLiteral("start_time")};
+        inline const QStringView finishTime{QStringLiteral("finish_time")};
+        inline const QStringView uuid{QStringLiteral("uuid")};
     } // namespace Columns
 
 } // namespace SprintTable
 
 namespace TagTable {
-    inline const QString name{QStringLiteral("tag")};
+    inline const QStringView name{QStringLiteral("tag")};
 
     namespace Columns {
-        inline const QString id{QStringLiteral("id")};
-        inline const QString name{QStringLiteral("name")};
+        inline const QStringView id{QStringLiteral("id")};
+        inline const QStringView name{QStringLiteral("name")};
     } // namespace Columns
 } // namespace TagTable
 
 namespace TaskTagTable {
-    inline const QString name{QStringLiteral("tasktag")};
+    inline const QStringView name{QStringLiteral("tasktag")};
 
     namespace Columns {
-        inline const QString id{QStringLiteral("id")};
-        inline const QString tagId{QStringLiteral("tag_id")};
-        inline const QString taskId{QStringLiteral("task_id")};
-        inline const QString taskUuid{QStringLiteral("task_uuid")};
+        inline const QStringView id{QStringLiteral("id")};
+        inline const QStringView tagId{QStringLiteral("tag_id")};
+        inline const QStringView taskId{QStringLiteral("task_id")};
+        inline const QStringView taskUuid{QStringLiteral("task_uuid")};
     } // namespace Columns
 
 } // namespace TaskTagTable
 
 namespace TaskTagView {
-    inline const QString name{QStringLiteral("task_tag_view")};
+    inline const QStringView name{QStringLiteral("task_tag_view")};
 
     namespace Aliases {
-        inline const QString tagName{QStringLiteral("tagname")};
+        inline const QStringView tagName{QStringLiteral("tagname")};
     } // namespace Aliases
 
 } // namespace TaskTagView
 
 namespace TaskTagInsertTrigger {
-    inline const QString name{QStringLiteral("instead_task_tag_view_insert")};
+    inline const QStringView name{QStringLiteral("instead_task_tag_view_insert")};
 } // namespace TaskTagInsertTrigger
 
 namespace CleanOrphanedTagTrigger {
-    inline const QString name{QStringLiteral("clean_orhaned_tag")};
+    inline const QStringView name{QStringLiteral("clean_orhaned_tag")};
 } // namespace CleanOrphanedTagTrigger
 
 namespace SprintView {
-    inline const QString name{QStringLiteral("sprint_view")};
+    inline const QStringView name{QStringLiteral("sprint_view")};
 
     namespace Aliases {
-        inline const QString tags{QStringLiteral("tags")};
+        inline const QStringView tags{QStringLiteral("tags")};
     }
 
 } // namespace SprintView
 
 namespace SprintViewDeleteTrigger {
-    inline const QString name{QStringLiteral("delete_from_sprint_view")};
+    inline const QStringView name{QStringLiteral("delete_from_sprint_view")};
 } // namespace SprintViewDeleteTrigger
 
 namespace SprintViewInsertTrigger {
-    inline const QString name{QStringLiteral("instead_sprint_view_insert")};
+    inline const QStringView name{QStringLiteral("instead_sprint_view_insert")};
 } // namespace SprintViewInsertTrigger
 
 namespace TasksView {
-    inline const QString name{QStringLiteral("task_view")};
+    inline const QStringView name{QStringLiteral("task_view")};
 
     namespace Aliases {
-        inline const QString tags{QStringLiteral("tags")};
+        inline const QStringView tags{QStringLiteral("tags")};
     } // namespace Aliases
 
 } // namespace TasksView
 
 namespace TaskViewDeleteTrigger {
-    inline const QString name{QStringLiteral("on_task_view_delete")};
+    inline const QStringView name{QStringLiteral("on_task_view_delete")};
 } // namespace TaskViewDeleteTrigger
 
 namespace TaskViewUpdateTrigger {
-    inline const QString name{QStringLiteral("on_task_view_update")};
+    inline const QStringView name{QStringLiteral("on_task_view_update")};
 } // namespace TaskViewUpdateTrigger
 
 namespace CalendarTable {
-    inline const QString name{QStringLiteral("calendar")};
+    inline const QStringView name{QStringLiteral("calendar")};
 
     namespace Columns {
-        inline const QString id{QStringLiteral("id")};
-        inline const QString dt{QStringLiteral("dt")};
+        inline const QStringView id{QStringLiteral("id")};
+        inline const QStringView dt{QStringLiteral("dt")};
     } // namespace Columns
 
 } // namespace CalendarTable

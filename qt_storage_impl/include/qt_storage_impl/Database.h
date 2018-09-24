@@ -34,7 +34,6 @@ public:
 
 private:
     const QString filename;
-    const QString connectionName{"test_connection"};
 };
 
 } // namespace sprint_timer::storage::qt_storage_impl
