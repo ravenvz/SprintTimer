@@ -9,7 +9,7 @@ void Migration_v4::run(QSqlDatabase& database) const
     tryExecute(query, "DROP TRIGGER on_todo_tag_delete");
     tryExecute(query,
                "CREATE TRIGGER clean_orphaned_tag"
-               " AFTER DELETE ON task"
+               " AFTER DELETE ON tasktag"
                " BEGIN DELETE FROM tag"
                " WHERE id = OLD.tag_id AND"
                "(SELECT count(*) FROM tasktag"

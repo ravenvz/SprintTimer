@@ -8,8 +8,6 @@
 namespace sprint_timer::storage::qt_storage_impl {
 
 namespace InfoTable {
-    // constexpr char const* name{"info"};
-    constexpr std::string_view n_name{"info"};
     inline const QStringView name{QStringLiteral("info")};
 
     namespace Columns {
@@ -26,7 +24,8 @@ namespace TaskTable {
     namespace Columns {
         inline const QStringView id{QStringLiteral("id")};
         inline const QStringView name{QStringLiteral("name")};
-        inline const QStringView estimatedCost{QStringLiteral("estimated_cost")};
+        inline const QStringView estimatedCost{
+            QStringLiteral("estimated_cost")};
         inline const QStringView actualCost{QStringLiteral("actual_cost")};
         inline const QStringView completed{QStringLiteral("completed")};
         inline const QStringView priority{QStringLiteral("priority")};
@@ -80,7 +79,8 @@ namespace TaskTagView {
 } // namespace TaskTagView
 
 namespace TaskTagInsertTrigger {
-    inline const QStringView name{QStringLiteral("instead_task_tag_view_insert")};
+    inline const QStringView name{
+        QStringLiteral("instead_task_tag_view_insert")};
 } // namespace TaskTagInsertTrigger
 
 namespace CleanOrphanedTagTrigger {
