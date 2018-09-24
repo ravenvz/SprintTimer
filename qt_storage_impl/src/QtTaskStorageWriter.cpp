@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtTaskStorageWriter.h"
-#include "qt_storage_impl/Database.h"
 #include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/utils.h"
 #include "qt_storage_impl/utils/DateTimeConverter.h"

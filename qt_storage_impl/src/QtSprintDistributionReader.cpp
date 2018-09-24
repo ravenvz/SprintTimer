@@ -19,9 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <utility>
-
-#include "qt_storage_impl/Database.h"
 #include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/QtSprintDistributionReader.h"
 #include "qt_storage_impl/utils/DateTimeConverter.h"

@@ -14,7 +14,7 @@ target_sources(${STORAGE_LIB}
     PUBLIC
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/ConnectionGuard.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/DBService.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/Database.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/DatabaseInitializer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/DatabaseError.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/QtSprintDistributionReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/QtSprintStorageReader.h"
@@ -34,7 +34,7 @@ target_sources(${STORAGE_LIB}
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/src/ConnectionGuard.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/DBService.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/Database.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/DatabaseInitializer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/DatabaseError.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtSprintDistributionReader.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtSprintStorageReader.cpp"

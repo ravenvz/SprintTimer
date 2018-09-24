@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/DatabaseInitializer.h"
 #include "qt_storage_impl/ConnectionGuard.h"
 #include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/DatabaseError.h"
@@ -68,7 +68,7 @@ MigrationManager prepareMigrationManager(QSqlDatabase& database);
 namespace sprint_timer::storage::qt_storage_impl {
 
 
-Database::Database(const QString& filename)
+DatabaseInitializer::DatabaseInitializer(const QString& filename)
     : filename{filename}
 {
     const QString connectionName{"SprintTimerDesktop"};
@@ -182,7 +182,6 @@ void createViews(QSqlQuery& query)
         % TagTable::Columns::id % " ORDER BY " % TaskTable::name % "."
         % TaskTable::Columns::priority % ";"};
 
-    // View for sprints
     const QString createSprintView{
         "CREATE VIEW " % SprintView::name % " AS " % "SELECT "
         % SprintTable::name % "." % SprintTable::Columns::id % ", "

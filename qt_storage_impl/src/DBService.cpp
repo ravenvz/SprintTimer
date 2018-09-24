@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/DBService.h"
-#include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/DatabaseInitializer.h"
 #include "qt_storage_impl/DatabaseError.h"
 #include "qt_storage_impl/QueryError.h"
 
@@ -87,7 +87,7 @@ DBService::~DBService()
 
 void DBService::prepareDatabase(const QString& filename) const
 {
-    Database{filename};
+    DatabaseInitializer{filename};
 }
 
 qint64 DBService::execute(const QString& query)

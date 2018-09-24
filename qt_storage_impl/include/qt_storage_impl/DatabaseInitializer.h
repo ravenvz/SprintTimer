@@ -19,18 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#ifndef DATABASE_H_EY9GHBP5
-#define DATABASE_H_EY9GHBP5
+#ifndef DATABASEINITIALIZER_H_0M6DCEGH
+#define DATABASEINITIALIZER_H_0M6DCEGH
 
 #include <QString>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
-class Database {
+class DatabaseInitializer {
 
 public:
-    explicit Database(const QString& filename);
+    explicit DatabaseInitializer(const QString& filename);
 
 private:
     const QString filename;
@@ -38,4 +37,4 @@ private:
 
 } // namespace sprint_timer::storage::qt_storage_impl
 
-#endif /* end of include guard: DATABASE_H_EY9GHBP5 */
+#endif /* end of include guard: DATABASEINITIALIZER_H_0M6DCEGH */

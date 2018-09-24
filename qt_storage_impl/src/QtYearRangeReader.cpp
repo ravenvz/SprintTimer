@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtYearRangeReader.h"
-#include "qt_storage_impl/Database.h"
 #include "qt_storage_impl/DatabaseDescription.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
