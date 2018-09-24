@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtSprintStorageReader.h"
-#include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/utils/DateTimeConverter.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
@@ -140,7 +140,8 @@ QVariant QtSprintStorageReader::columnData(const QSqlRecord& record,
 
 bool QtSprintStorageReader::listeningToQueryId(qint64 queryId) const
 {
-    return sprintsInTimeRangeQueryId == queryId || sprintsForTaskQueryId == queryId;
+    return sprintsInTimeRangeQueryId == queryId
+        || sprintsForTaskQueryId == queryId;
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl

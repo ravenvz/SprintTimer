@@ -22,6 +22,7 @@
 #ifndef DB_HELPER_H
 #define DB_HELPER_H
 
+#include "qt_storage_impl/ConnectionGuard.h"
 #include <QDebug>
 #include <QHash>
 #include <QObject>
@@ -75,8 +76,7 @@ public:
 
 public slots:
 
-    void handleResults(qint64 queryId,
-                       const std::vector<QSqlRecord>& records);
+    void handleResults(qint64 queryId, const std::vector<QSqlRecord>& records);
 
     void handleError(qint64 queryId, const QString& errorMessage);
 
@@ -86,7 +86,8 @@ signals:
     void results(qint64 queryId, const std::vector<QSqlRecord>& records);
     void error(qint64 queryId, const QString& errorMessage);
     void prepareQuery(qint64 queryId, const QString& queryStr);
-    void bind(qint64 queryId, const QString& placeholder, const QVariant& value);
+    void
+    bind(qint64 queryId, const QString& placeholder, const QVariant& value);
     void requestTransaction();
     void requestRollback();
     void requestCommit();
@@ -107,7 +108,6 @@ class Worker : public QObject {
 
 public:
     explicit Worker(QString filename);
-    ~Worker() override;
     Worker(const Worker&) = delete;
     Worker& operator=(const Worker&) = delete;
     Worker(Worker&&) = delete;
@@ -138,14 +138,15 @@ signals:
     void error(qint64 queryId, const QString& errorMessage);
 
 private:
-    QString filename;
+    const QString filename;
+    const QString connectionName{"Worker connection"};
     bool inTransaction{false};
+    std::unique_ptr<ConnectionGuard> connection{nullptr};
     QHash<qint64, QSqlQuery> preparedQueries;
 
     bool openConnection();
 
     bool setPragmas();
-
 };
 
 } // namespace sprint_timer::storage::qt_storage_impl

@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtTaskStorageReader.h"
-#include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/utils/DateTimeConverter.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
@@ -124,10 +124,10 @@ void QtTaskStorageReader::requestAllTags(TagHandler handler)
 {
     tag_handler_queue.push_back(handler);
     mTagQueryId = dbService.execute(QString{"SELECT %1, %2 FROM %3 "
-                                                 "ORDER BY %2;"}
-                                             .arg(TagTable::Columns::id)
-                                             .arg(TagTable::Columns::name)
-                                             .arg(TagTable::name));
+                                            "ORDER BY %2;"}
+                                        .arg(TagTable::Columns::id)
+                                        .arg(TagTable::Columns::name)
+                                        .arg(TagTable::name));
 }
 
 void QtTaskStorageReader::onResultsReceived(

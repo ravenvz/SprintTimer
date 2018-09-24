@@ -19,15 +19,37 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <include/qt_storage_impl/Database.h>
 #include "qt_storage_impl/DBService.h"
+#include "qt_storage_impl/DatabaseError.h"
+#include "qt_storage_impl/DatabaseInitializer.h"
+#include "qt_storage_impl/QueryError.h"
+
+#include <iostream>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
 DBService::DBService(const QString& filename)
 {
-    // TODO handle exception
-    prepareDatabase(filename);
+    // TODO exception should be presented to the user in better way, and,
+    // probably, not here
+    try {
+        prepareDatabase(filename);
+    }
+    catch (const QueryError& err) {
+        std::cerr << "Attempt to query database resulted in exception: "
+                  << err.what() << '\n'
+                  << "Query: \n"
+                  << err.queryText() << '\n'
+                  << "Error: \n"
+                  << err.queryError() << '\n';
+        throw;
+    }
+    catch (const DatabaseError& err) {
+        std::cerr << "Database error: " << err.what() << '\n'
+                  << "Error:\n"
+                  << err.error() << '\n';
+        throw;
+    }
     auto* worker = new Worker(filename);
     worker->moveToThread(&workerThread);
     qRegisterMetaType<std::vector<QSqlRecord>>("std::vector<QSqlRecord>");
@@ -63,8 +85,9 @@ DBService::~DBService()
     workerThread.wait();
 }
 
-void DBService::prepareDatabase(const QString& filename) const {
-    auto db = Database(filename);
+void DBService::prepareDatabase(const QString& filename) const
+{
+    DatabaseInitializer{filename};
 }
 
 qint64 DBService::execute(const QString& query)
@@ -79,10 +102,7 @@ qint64 DBService::prepare(const QString& query)
     return nextQueryId++;
 }
 
-void DBService::executePrepared(qint64 queryId)
-{
-    emit queuePrepared(queryId);
-}
+void DBService::executePrepared(qint64 queryId) { emit queuePrepared(queryId); }
 
 void DBService::handleResults(qint64 queryId,
                               const std::vector<QSqlRecord>& records)
@@ -115,22 +135,16 @@ Worker::Worker(QString filename)
 {
 }
 
-Worker::~Worker()
-{
-    QSqlDatabase::database().close();
-    QSqlDatabase::removeDatabase("QSQLITE");
-}
-
 void Worker::init()
 {
-    QSqlDatabase::addDatabase("QSQLITE");
+    connection = std::make_unique<ConnectionGuard>(filename, connectionName);
     if (!openConnection())
         throw std::runtime_error("Unable to create database");
 }
 
 void Worker::execute(qint64 queryId, const QString& query)
 {
-    QSqlQuery q;
+    QSqlQuery q{QSqlDatabase::database(connectionName)};
     if (!q.exec(query)) {
         QString errormsg
             = QString("%1 %2").arg(q.lastQuery()).arg(q.lastError().text());
@@ -150,16 +164,20 @@ void Worker::execute(qint64 queryId, const QString& query)
 
 void Worker::executePrepared(qint64 queryId)
 {
-    // TODO handle missing id case
-    QSqlQuery query = preparedQueries.value(queryId);
+    auto found = preparedQueries.find(queryId);
+    if (found == preparedQueries.end()) {
+        emit error(queryId, "Cannot find query with id");
+        return;
+    }
+    QSqlQuery query = found.value();
     if (!query.exec()) {
         QString errormsg = QString("%1 %2")
                                .arg(query.lastQuery())
                                .arg(query.lastError().text());
-        emit error(queryId, errormsg);
         if (inTransaction) {
             rollbackTransaction();
         }
+        emit error(queryId, errormsg);
     }
     else {
         // qDebug() << query.lastQuery();
@@ -173,7 +191,7 @@ void Worker::executePrepared(qint64 queryId)
 
 void Worker::prepare(qint64 queryId, const QString& queryStr)
 {
-    QSqlQuery query;
+    QSqlQuery query{QSqlDatabase::database(connectionName)};
     query.prepare(queryStr);
     preparedQueries.insert(queryId, query);
 }
@@ -182,12 +200,17 @@ void Worker::bindValue(qint64 queryId,
                        const QString& placeholder,
                        const QVariant& value)
 {
-    preparedQueries[queryId].bindValue(placeholder, value);
+    if (auto found = preparedQueries.find(queryId);
+        found != preparedQueries.end())
+        found.value().bindValue(placeholder, value);
+    else
+        emit error(queryId,
+                   "Attempting to bind value to query that was not prepared");
 }
 
 void Worker::onTransactionRequested()
 {
-    inTransaction = QSqlDatabase::database().transaction();
+    inTransaction = QSqlDatabase::database(connectionName).transaction();
     if (!inTransaction) {
         emit error(-1, "Transaction request failed");
     }
@@ -195,7 +218,7 @@ void Worker::onTransactionRequested()
 
 void Worker::rollbackTransaction()
 {
-    if (!QSqlDatabase::database().rollback()) {
+    if (!QSqlDatabase::database(connectionName).rollback()) {
         emit error(-1, "Transaction rollback failed");
     }
     inTransaction = false;
@@ -203,7 +226,7 @@ void Worker::rollbackTransaction()
 
 void Worker::onCommitRequested()
 {
-    if (!QSqlDatabase::database().commit()) {
+    if (!QSqlDatabase::database(connectionName).commit()) {
         emit error(-1, "Transaction commit failed");
     }
     inTransaction = false;
@@ -211,19 +234,16 @@ void Worker::onCommitRequested()
 
 bool Worker::openConnection()
 {
-    QSqlDatabase::database().setDatabaseName(filename);
-
-    if (!QSqlDatabase::database().open()) {
+    if (!QSqlDatabase::database(connectionName).open()) {
         qCritical() << "Worker failed to open database";
         return false;
     }
-    setPragmas();
-    return true;
+    return setPragmas();
 }
 
 bool Worker::setPragmas()
 {
-    QSqlQuery query;
+    QSqlQuery query{QSqlDatabase::database(connectionName)};
     return query.exec("PRAGMA foreign_keys = ON");
 }
 
