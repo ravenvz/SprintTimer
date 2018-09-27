@@ -74,11 +74,14 @@ DatabaseInitializer::DatabaseInitializer(const QString& filename)
     const QString connectionName{"SprintTimerDesktop"};
     ConnectionGuard connectionGuard{filename, connectionName};
 
+	bool newDatabase = databaseFileNotFound(filename);
     auto db = QSqlDatabase::database(connectionName);
 
-    if (databaseFileNotFound(filename))
-        create(db);
-    checkConnection(db);
+	if (newDatabase)
+		create(db);
+	else
+		checkConnection(db);
+
     const auto migrationManager = prepareMigrationManager(db);
     migrationManager.runMigrations(db);
 }
@@ -93,6 +96,10 @@ using namespace sprint_timer::storage::qt_storage_impl;
 bool databaseFileNotFound(const QString& filePath)
 {
     const QFile databaseFile{filePath};
+	if (databaseFile.exists())
+		qDebug() << "Found database file";
+	else
+		qDebug() << "Not on earth db file found";
     return !databaseFile.exists();
 }
 
