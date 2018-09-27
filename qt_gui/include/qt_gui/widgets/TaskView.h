@@ -26,13 +26,17 @@
 #include <QStyledItemDelegate>
 #include <optional>
 
+#ifdef _MSC_VER
+#include "qt_gui/WinExport.h"
+#endif // _MSC_VER
+
 namespace sprint_timer::ui::qt_gui {
 
 class TaskSprintsView;
 class AddTaskDialog;
 class TagEditor;
 
-class TaskView : public ReordableListView {
+class GLIB_EXPORT TaskView : public ReordableListView {
 
     Q_OBJECT
 

@@ -95,6 +95,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TimerWidgetBase.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/UndoButton.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/WeeklyProgressView.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/WinExport.h"
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/resources/resources.qrc"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/HistoryItemDelegate.cpp"
@@ -165,6 +166,10 @@ target_link_libraries(${GUI_LIB}
     PUBLIC Qt5::Multimedia
     PUBLIC ${CORE_LIB}
 )
+
+if (MSVC)
+	add_definitions(-DWIN_EXPORT_WORKAROUND)
+endif()
 
 if (WIN32)
     install(TARGETS ${GUI_LIB} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})

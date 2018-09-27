@@ -25,6 +25,11 @@
 #include <QAbstractListModel>
 #include <QObject>
 
+#ifdef _MSC_VER
+#include "qt_gui/WinExport.h"
+#endif // _MSC_VER
+
+
 namespace sprint_timer::ui::qt_gui {
 
 /* Model that updates it' s data asyncroniously.
@@ -39,7 +44,7 @@ namespace sprint_timer::ui::qt_gui {
  * model requests it's data, but does not emit 'updateFinished()'
  * signal to avoid chained update requests for it's subscribers
  * in case when they do operate on mutually dependent datasets. */
-class AsyncListModel : public QAbstractListModel {
+class GLIB_EXPORT AsyncListModel : public QAbstractListModel {
     Q_OBJECT
 
 public:

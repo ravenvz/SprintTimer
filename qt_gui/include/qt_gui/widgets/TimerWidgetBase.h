@@ -29,12 +29,15 @@
 #include <core/IStatefulTimer.h>
 #include <memory>
 
+#ifdef _MSC_VER
+#include "qt_gui/WinExport.h"
+#endif // _MSC_VER
+
 namespace sprint_timer::ui::qt_gui {
 
 using Progress = int;
 
-class TimerWidgetBase : public QWidget {
-
+class GLIB_EXPORT TimerWidgetBase : public QWidget {
     Q_OBJECT
 
 public:
