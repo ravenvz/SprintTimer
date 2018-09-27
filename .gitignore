@@ -15,3 +15,5 @@ CMakeSettings.json
 CppProperties.json
 compile_commands.json
 Testing/
+cmake-build-*/
+.idea/
