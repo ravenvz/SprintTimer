@@ -37,7 +37,11 @@ namespace sprint_timer::ui::qt_gui {
 
 using Progress = int;
 
+#ifdef _MSC_VER
 class GLIB_EXPORT TimerWidgetBase : public QWidget {
+#else
+class TimerWidgetBase : public QWidget {
+#endif // _MSV_VER
     Q_OBJECT
 
 public:

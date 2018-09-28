@@ -44,7 +44,11 @@ namespace sprint_timer::ui::qt_gui {
  * model requests it's data, but does not emit 'updateFinished()'
  * signal to avoid chained update requests for it's subscribers
  * in case when they do operate on mutually dependent datasets. */
+#ifdef _MSC_VER
 class GLIB_EXPORT AsyncListModel : public QAbstractListModel {
+#else
+class AsyncListModel : public QAbstractListModel {
+#endif // _MSV_VER
     Q_OBJECT
 
 public:

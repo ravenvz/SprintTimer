@@ -36,8 +36,11 @@ class TaskSprintsView;
 class AddTaskDialog;
 class TagEditor;
 
+#ifdef _MSC_VER
 class GLIB_EXPORT TaskView : public ReordableListView {
-
+#else
+class TaskView : public ReordableListView {
+#endif // _MSC_VER
     Q_OBJECT
 
 public:
