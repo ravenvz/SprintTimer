@@ -43,6 +43,7 @@ MonthlyProgressView::MonthlyProgressView(
     , queryInvoker{queryInvoker}
     , distributionReader{monthlyDistributionReader}
 {
+    setLegendTitle("Last 12 months");
     connect(this,
             &ProgressView::goalChanged,
             [this, &applicationSettings](int goal) {
