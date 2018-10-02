@@ -31,6 +31,7 @@
 #if TARGET_IPHONE_SIMULATOR
 #elif TARGET_OS_IPHONE
 #elif TARGET_OS_MAC
+#include <experimental/filesystem>
 #else
 #error "Unknown Apple platform"
 #endif
@@ -81,8 +82,14 @@
 #include <qt_gui/widgets/UndoButton.h>
 #include <qt_gui/widgets/WeeklyProgressView.h>
 
+// TODO at least linux version should have std::filesystem by now, so consider replacing
+#if defined(_WIN32) || defined(__linux__)
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
+#else
+using std::filesystem::create_directory;
+using std::filesystem::exists;
+#endif
 
 namespace {
 
@@ -116,8 +123,12 @@ std::string getUserDataDirectory()
     return std::string{};
 }
 
-#elif defined(__APPLE__)
-#error "Apple platforms are not yet supported"
+#elif defined(__APPLE__) && TARGET_OS_MAC
+
+std::string getUserDataDirectory()
+{
+    return std::string{"/Users/"} + std::string{getenv("USER")} + std::string{"/Library"};
+}
 #else
 #error "unknown platform"
 #endif
