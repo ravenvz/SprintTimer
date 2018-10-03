@@ -12,6 +12,8 @@ bin
 .vs
 CMakeSettings.json
 *.vim
+*.swp
+.DS_Store
 CppProperties.json
 compile_commands.json
 Testing/

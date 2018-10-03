@@ -1,9 +1,12 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.12)
+
+cmake_policy(SET CMP0042 NEW)
+set(CMAKE_MACOSX_RPATH 0)
 
 set(PROJECT sprint_timer_app)
-project(${PROJECT})
+project(${PROJECT} VERSION 0.4.8)
 
-if (NOT WIN32)
+if (UNIX AND NOT APPLE)
     find_package(ECM REQUIRED NO_MODULE)
     set(CMAKE_MODULE_PATH ${ECM_MODULE_DIR})
     include(ECMEnableSanitizers)

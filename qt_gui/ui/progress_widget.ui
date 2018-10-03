@@ -66,6 +66,8 @@
            <property name="font">
             <font>
              <pointsize>13</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
             </font>
            </property>
            <property name="text">
@@ -84,7 +86,7 @@
           <widget class="QLabel" name="lblProgress">
            <property name="font">
             <font>
-             <pointsize>11</pointsize>
+             <pointsize>13</pointsize>
             </font>
            </property>
            <property name="text">

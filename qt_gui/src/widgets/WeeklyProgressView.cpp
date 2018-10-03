@@ -43,6 +43,7 @@ WeeklyProgressView::WeeklyProgressView(
     , queryInvoker{queryInvoker}
     , distributionReader{weeklyDistributionReader}
 {
+    setLegendTitle("Last 12 weeks");
     connect(this,
             &ProgressView::goalChanged,
             [this, &applicationSettings](int goal) {
