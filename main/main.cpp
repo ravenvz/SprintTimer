@@ -266,7 +266,7 @@ int main(int argc, char* argv[])
     }
 
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/test_sprint.db"};
+    DBService dbService{dataDirectory + "/sprint.db"};
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{

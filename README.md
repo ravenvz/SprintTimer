@@ -86,11 +86,19 @@ One way to overcome this is to install latest llvm with homebrew:
 brew install --with-toolchain llvm
 ```
 
-Project can then be built with (Qt 5.11.2 path is used, obviously it should be replaced if different version is used):
+Note that depending on your Qt installation type, you might need to change LDFLAGS and/or CPPFLAGS and adjust path to Qt, refer to Qt documentation.
+For example, if Qt 5.11.2 is installed with homebrew, project can be built with:
 
 ```shell
-(cd build && LDFLAGS="-L/usr/local/opt/llvm/lib" CPPFLAGS="-I/usr/local/opt/llvm/include" CC="$(brew --prefix llvm)/bin/clang" CXX="$(brew --prefix llvm)/bin/clang++" cmake -DQt5_DIR=/Users/$(whoami)/Qt/5.11.2/clang_64/lib/cmake/Qt5 .. && cmake --build . --config Release)
+(cd build && LDFLAGS="-L/usr/local/opt/llvm/lib" CPPFLAGS="-I/usr/local/opt/llvm/include" CC="$(brew --prefix llvm)/bin/clang" CXX="$(brew --prefix llvm)/bin/clang++" cmake -DQt5_DIR="$(brew --cellar qt5)/5.11.2/lib/cmake/Qt5" .. && cmake --build . --config Release)
 ```
+
+If you want to create installer:
+```shell
+(cd build && make package)
+```
+
+Then find sprint_timer_app.dmg inside build directory.
 
 #### Building tests
 To build test suite option BUILD_TEST=ON should be passed to cmake.
