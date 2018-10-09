@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TIMER_H_Z8WLMNH0
-#define TIMER_H_Z8WLMNH0
+#ifndef PERIODICBACKGROUNDRUNNER_H_PWNGBFXL
+#define PERIODICBACKGROUNDRUNNER_H_PWNGBFXL
 
 #include <atomic>
 #include <chrono>
@@ -29,40 +29,37 @@
 
 namespace sprint_timer {
 
-/* Countdown timer that runs in background thread
- * and executes callback function each tick. */
-class CountdownTimer {
+/* Periodically executes user-supplied function in the background thread.
+ *
+ * Executes function periodically each tickPeriod.
+ * Executes (another) function when time runs out. */
+class PeriodicBackgroundRunner {
 public:
     using TickPeriod = std::chrono::milliseconds;
-    using OnTickCallback = std::function<void(TickPeriod)>;
-    using OnTimeRunOutCallback = std::function<void(void)>;
+    using OnTickFunction = std::function<void(TickPeriod)>;
+    using OnTimeRunOutFunction = std::function<void(void)>;
 
-    CountdownTimer(OnTickCallback tickCallback,
-                   OnTimeRunOutCallback onTimeRunOutCallback,
-                   std::chrono::milliseconds duration,
-                   TickPeriod tickPeriod);
+    PeriodicBackgroundRunner(OnTickFunction onTick,
+                             OnTimeRunOutFunction onTimeRunOut,
+                             std::chrono::milliseconds runnerDuration,
+                             TickPeriod tickPeriod);
 
-    ~CountdownTimer();
+    ~PeriodicBackgroundRunner();
 
-    CountdownTimer(CountdownTimer&&) = delete;
-    CountdownTimer& operator=(CountdownTimer&&) = delete;
+    PeriodicBackgroundRunner(PeriodicBackgroundRunner&&) = delete;
+    PeriodicBackgroundRunner& operator=(PeriodicBackgroundRunner&&) = delete;
 
-    CountdownTimer(const CountdownTimer&) = delete;
-    CountdownTimer& operator=(const CountdownTimer&) = delete;
+    PeriodicBackgroundRunner(const PeriodicBackgroundRunner&) = delete;
+    PeriodicBackgroundRunner& operator=(const PeriodicBackgroundRunner&) = delete;
 
     void stop();
 
 private:
-    OnTickCallback onTickCallback;
-    OnTimeRunOutCallback onTimeRunOutCallback;
-    const std::chrono::milliseconds duration;
-    const TickPeriod tickPeriod;
-    std::atomic<bool> running{false};
+    std::atomic<bool> running{true};
     std::thread tr;
-
-    void start();
 };
 
 } // namespace sprint_timer
 
-#endif
+#endif /* end of include guard: PERIODICBACKGROUNDRUNNER_H_PWNGBFXL */
+
