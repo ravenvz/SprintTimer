@@ -26,6 +26,7 @@ namespace {
 
 using sprint_timer::PeriodicBackgroundRunner;
 
+[[maybe_unused]]
 void frequentPolling(const std::atomic<bool>& running,
                      std::chrono::milliseconds remainingTime,
                      PeriodicBackgroundRunner::TickPeriod tickPeriod,
@@ -59,7 +60,7 @@ void frequentPolling(const std::atomic<bool>& running,
     }
 }
 
-
+[[maybe_unused]]
 void normalPolling(const std::atomic<bool>& running,
                    std::chrono::milliseconds remainingTime,
                    PeriodicBackgroundRunner::TickPeriod tickPeriod,
@@ -74,7 +75,6 @@ void normalPolling(const std::atomic<bool>& running,
 
     while (running) {
         const auto timeNow = steady_clock::now();
-        std::cout << duration_cast<milliseconds>(timeNow - lastCallbackTime).count() << std::endl;
         lastCallbackTime = timeNow;
         remainingTime -= tickPeriod;
         onTick(remainingTime);
@@ -96,7 +96,7 @@ PeriodicBackgroundRunner::PeriodicBackgroundRunner(
                                std::chrono::milliseconds runnerDuration,
                                PeriodicBackgroundRunner::TickPeriod tickPeriod)
 {
-    tr = std::thread([&]() {
+    tr = std::thread([this, onTick, onTimeRunOut, runnerDuration, tickPeriod]() {
             frequentPolling(running, runnerDuration, tickPeriod, onTick, onTimeRunOut);
     });
 }
@@ -104,14 +104,13 @@ PeriodicBackgroundRunner::PeriodicBackgroundRunner(
 PeriodicBackgroundRunner::~PeriodicBackgroundRunner()
 {
     stop();
-    if (tr.joinable())
-        tr.join();
-    std::cout << "Timer destroyed" << std::endl;
 }
 
 void PeriodicBackgroundRunner::stop()
 {
     running = false;
+    if (tr.joinable())
+        tr.join();
 }
 
 } // namespace sprint_timer
