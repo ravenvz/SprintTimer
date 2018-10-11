@@ -26,20 +26,16 @@ namespace {
 
 using sprint_timer::PeriodicBackgroundRunner;
 
-[[maybe_unused]]
-void frequentPolling(const std::atomic<bool>& running,
-                     std::chrono::milliseconds remainingTime,
-                     PeriodicBackgroundRunner::TickPeriod tickPeriod,
-                     PeriodicBackgroundRunner::OnTickFunction onTick,
-                     PeriodicBackgroundRunner::OnTimeRunOutFunction onTimeRunOut)
+
+template <int FrequencyScale>
+void runTimer(const std::atomic<bool>& running,
+              std::chrono::milliseconds remainingTime,
+              PeriodicBackgroundRunner::TickPeriod tickPeriod,
+              PeriodicBackgroundRunner::OnTickFunction onTick,
+              PeriodicBackgroundRunner::OnTimeRunOutFunction onTimeRunOut)
 {
     using namespace std::chrono;
-
-    // TODO When cancelling timer that has tick period of 1 second, there is a human-noticable lag
-    // between issuing a command and reaction. To mitigate this issue time is polled more frequently
-    // than tick period. Unfortunately, while this approach fixes specific use case, it has issues
-    // of its own (what if tickPeriod is short enough already?). This prevents this function from being reused.
-    using TimePollPeriod = duration<long long, std::ratio<1, 10>>;
+    using TimePollPeriod = duration<int, std::ratio<1, FrequencyScale>>;
 
     const auto startTime = steady_clock::now();
     auto lastCallbackTime = startTime;
@@ -56,33 +52,8 @@ void frequentPolling(const std::atomic<bool>& running,
                 break;
             }
         }
-        std::this_thread::sleep_until(startTime + TimePollPeriod{++iterationNumber});
-    }
-}
-
-[[maybe_unused]]
-void normalPolling(const std::atomic<bool>& running,
-                   std::chrono::milliseconds remainingTime,
-                   PeriodicBackgroundRunner::TickPeriod tickPeriod,
-                   PeriodicBackgroundRunner::OnTickFunction onTick,
-                   PeriodicBackgroundRunner::OnTimeRunOutFunction onTimeRunOut)
-{
-    using namespace std::chrono;
-
-    const auto startTime = steady_clock::now();
-    auto lastCallbackTime = startTime;
-    int iterationNumber{0};
-
-    while (running) {
-        const auto timeNow = steady_clock::now();
-        lastCallbackTime = timeNow;
-        remainingTime -= tickPeriod;
-        onTick(remainingTime);
-        if (remainingTime < tickPeriod) {
-            onTimeRunOut();
-            break;
-        }
-        std::this_thread::sleep_until(startTime + ++iterationNumber * tickPeriod);
+        std::this_thread::sleep_until(startTime
+                                      + TimePollPeriod{++iterationNumber});
     }
 }
 
@@ -91,20 +62,20 @@ void normalPolling(const std::atomic<bool>& running,
 namespace sprint_timer {
 
 PeriodicBackgroundRunner::PeriodicBackgroundRunner(
-                               OnTickFunction onTick,
-                               OnTimeRunOutFunction onTimeRunOut,
-                               std::chrono::milliseconds runnerDuration,
-                               PeriodicBackgroundRunner::TickPeriod tickPeriod)
+    OnTickFunction onTick,
+    OnTimeRunOutFunction onTimeRunOut,
+    std::chrono::milliseconds runnerDuration,
+    PeriodicBackgroundRunner::TickPeriod tickPeriod)
 {
-    tr = std::thread([this, onTick, onTimeRunOut, runnerDuration, tickPeriod]() {
-            frequentPolling(running, runnerDuration, tickPeriod, onTick, onTimeRunOut);
-    });
+    tr = std::thread(
+        [this, onTick, onTimeRunOut, runnerDuration, tickPeriod]() {
+            constexpr int frequencyScale{5};
+            runTimer<frequencyScale>(
+                running, runnerDuration, tickPeriod, onTick, onTimeRunOut);
+        });
 }
 
-PeriodicBackgroundRunner::~PeriodicBackgroundRunner()
-{
-    stop();
-}
+PeriodicBackgroundRunner::~PeriodicBackgroundRunner() { stop(); }
 
 void PeriodicBackgroundRunner::stop()
 {

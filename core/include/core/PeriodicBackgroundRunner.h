@@ -50,7 +50,8 @@ public:
     PeriodicBackgroundRunner& operator=(PeriodicBackgroundRunner&&) = delete;
 
     PeriodicBackgroundRunner(const PeriodicBackgroundRunner&) = delete;
-    PeriodicBackgroundRunner& operator=(const PeriodicBackgroundRunner&) = delete;
+    PeriodicBackgroundRunner& operator=(const PeriodicBackgroundRunner&)
+        = delete;
 
     void stop();
 
@@ -62,4 +63,3 @@ private:
 } // namespace sprint_timer
 
 #endif /* end of include guard: PERIODICBACKGROUNDRUNNER_H_PWNGBFXL */
-
