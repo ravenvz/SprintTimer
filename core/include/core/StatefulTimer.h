@@ -23,9 +23,9 @@
 #ifndef TASKRUNNER_H_9VSDY5UR
 #define TASKRUNNER_H_9VSDY5UR
 
-#include "core/CountdownTimer.h"
 #include "core/IConfig.h"
 #include "core/IStatefulTimer.h"
+#include "core/PeriodicBackgroundRunner.h"
 #include "date_wrapper/DateTime.h"
 #include "date_wrapper/TimeSpan.h"
 #include <chrono>
@@ -172,7 +172,7 @@ private:
     const std::chrono::seconds tickInterval;
     std::function<void(std::chrono::seconds timeLeft)> onTickCallback;
     std::function<void(IStatefulTimer::StateId)> onStateChangedCallback;
-    std::unique_ptr<CountdownTimer> countdownTimer;
+    std::unique_ptr<PeriodicBackgroundRunner> periodicBackgroundRunner;
     dw::DateTime mStart;
     int finishedSprints{0};
     std::vector<dw::TimeSpan> buffer;
@@ -183,7 +183,7 @@ private:
     bool longBreakConditionMet() const;
     void onTimerRunout();
     void notifyStateChanged(IStatefulTimer::StateId stateId);
-    void onTimerTick(CountdownTimer::TickPeriod timeLeft);
+    void onTimerTick(PeriodicBackgroundRunner::TickPeriod timeLeft);
     void startCountdown();
 };
 
