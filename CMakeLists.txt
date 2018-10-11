@@ -6,7 +6,7 @@ set(CMAKE_MACOSX_RPATH 0)
 set(PROJECT sprint_timer_app)
 project(${PROJECT} VERSION 0.4.8)
 
-if (UNIX AND NOT APPLE)
+if (ECM_ENABLE_SANITIZERS AND UNIX AND NOT APPLE)
     find_package(ECM REQUIRED NO_MODULE)
     set(CMAKE_MODULE_PATH ${ECM_MODULE_DIR})
     include(ECMEnableSanitizers)
