@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "core/PeriodicBackgroundRunner.h"
-#include <iostream>
 
 namespace {
 
@@ -42,9 +41,10 @@ void runTimer(const std::atomic<bool>& running,
     int iterationNumber{0};
 
     while (running) {
+        std::this_thread::sleep_until(startTime
+                                      + TimePollPeriod{++iterationNumber});
         const auto timeNow = steady_clock::now();
-        if (timeNow - lastCallbackTime >= tickPeriod) {
-            lastCallbackTime = timeNow;
+        if (iterationNumber % FrequencyScale == 0) {
             remainingTime -= tickPeriod;
             onTick(remainingTime);
             if (remainingTime < TimePollPeriod{1}) {
@@ -52,8 +52,6 @@ void runTimer(const std::atomic<bool>& running,
                 break;
             }
         }
-        std::this_thread::sleep_until(startTime
-                                      + TimePollPeriod{++iterationNumber});
     }
 }
 
