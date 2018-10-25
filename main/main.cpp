@@ -248,6 +248,16 @@ private:
 //                                            std::move(sprintView));
 // }
 
+void applyStyleSheet(QApplication& app)
+{
+    QFile styleFile(":app.qss");
+    if (!styleFile.open(QFile::ReadOnly))
+        qDebug() << "WARNING error loading styleSheet";
+    app.setStyleSheet(QString::fromLatin1(styleFile.readAll()));
+    styleFile.close();
+}
+
+
 int main(int argc, char* argv[])
 {
     using namespace sprint_timer;
@@ -421,15 +431,15 @@ int main(int argc, char* argv[])
                                      addTaskDialog,
                                      std::make_unique<TagEditor>(tagModel),
                                      taskItemDelegate);
-    taskView->setStyleSheet(
-        QLatin1String{"QListView {\n"
-                      "  show-decoration-selected: 1;\n"
-                      "}\n"
-                      "QListView::item {\n"
-                      "  margin: 5px;\n"
-                      "  border: 1px solid gray;\n"
-                      "  border-radius: 2px; padding: 10px;\n"
-                      "}\n"});
+    // taskView->setStyleSheet(
+    //     QLatin1String{"QListView {\n"
+    //                   "  show-decoration-selected: 1;\n"
+    //                   "}\n"
+    //                   "QListView::item {\n"
+    //                   "  margin: 5px;\n"
+    //                   "  border: 1px solid gray;\n"
+    //                   "  border-radius: 2px; padding: 10px;\n"
+    //                   "}\n"});
     QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submissionCandidateChanged,
                      taskView.get(),
@@ -483,16 +493,15 @@ int main(int argc, char* argv[])
                                            std::move(taskOutline),
                                            std::move(timerWidget),
                                            std::move(launcherMenu)};
-    w.show();
-    // app.setStyleSheet("sprint_timer--ui--gt_gui--TaskView { "
-    //              "  show-decoration-selected: 1; #<{(| "
-    //              "}"
-    //              "sprint_timer--ui--gt_gui--TaskView::item {"
-    //              "  margin: 5px;"
-    //              "  border: 1px solid gray;"
-    //              "  border-radius: 2px; padding: 10px;"
-    //              "}");
+    applyStyleSheet(app);
     app.setStyle(QStyleFactory::create("Fusion"));
+    w.show();
+    // app.setStyleSheet(
+    //     QLatin1String{
+    //     });
+                      // "sprint_timer--ui--qt_gui--SprintView::item {\n"
+                      // " font: 13pt 'Courier';\n"
+                      // "}\n"
 
     return app.exec();
 }

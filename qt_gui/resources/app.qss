@@ -1,0 +1,33 @@
+sprint_timer--ui--qt_gui--SprintView {
+    font: 13pt 'Courier';
+}
+
+sprint_timer--ui--qt_gui--SprintView::item {
+    margin: 2px;
+}
+
+sprint_timer--ui--qt_gui--TaskView {
+    show-decoration-selected: 1;
+}
+
+sprint_timer--ui--qt_gui--TaskView::item {
+    margin: 5px;
+    border: 1px solid gray;
+    border-radius: 2px; padding: 10px;
+}
+
+/* sprint_timer--ui--qt_gui--TaskView::item:selected { */
+/*     border: 1px solid red; */
+/* } */
+
+sprint_timer--ui--qt_gui--TaskView::item:selected:!active {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ABAFE5, stop: 1 #8588B2);
+}
+
+sprint_timer--ui--qt_gui--TaskView::item:selected:active {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6a6ea9, stop: 1 #888dd9);
+}
+
+sprint_timer--ui--qt_gui--TaskView::item:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FAFBFE, stop: 1 #DCDEF1);
+}
