@@ -13,21 +13,18 @@ sprint_timer--ui--qt_gui--TaskView {
 sprint_timer--ui--qt_gui--TaskView::item {
     margin: 5px;
     border: 1px solid gray;
-    border-radius: 2px; padding: 10px;
+    border-radius: 2px;
 }
 
-/* sprint_timer--ui--qt_gui--TaskView::item:selected { */
-/*     border: 1px solid red; */
-/* } */
-
 sprint_timer--ui--qt_gui--TaskView::item:selected:!active {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ABAFE5, stop: 1 #8588B2);
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgba(171, 175, 229, 50), stop: 1 rgba(133, 136, 178, 50));
 }
 
 sprint_timer--ui--qt_gui--TaskView::item:selected:active {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6a6ea9, stop: 1 #888dd9);
+    border: 0px;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgba(106, 110, 169, 100), stop: 1 rgba(136, 141, 217, 100));
 }
 
 sprint_timer--ui--qt_gui--TaskView::item:hover {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FAFBFE, stop: 1 #DCDEF1);
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgba(171, 175, 229, 50), stop: 1 rgba(133, 136, 178, 50));
 }
