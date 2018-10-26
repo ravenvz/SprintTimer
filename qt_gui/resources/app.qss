@@ -1,5 +1,5 @@
 sprint_timer--ui--qt_gui--SprintView {
-    font: 13pt 'Courier';
+    font: 9pt 'Sans Serif';
 }
 
 sprint_timer--ui--qt_gui--SprintView::item {
