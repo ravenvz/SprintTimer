@@ -250,7 +250,11 @@ private:
 
 void applyStyleSheet(QApplication& app)
 {
+#if defined(__APPLE__) && TARGET_OS_MAC
+    QFile styleFile(":mac.qss");
+#else
     QFile styleFile(":app.qss");
+#endif
     if (!styleFile.open(QFile::ReadOnly))
         qDebug() << "WARNING error loading styleSheet";
     app.setStyleSheet(QString::fromLatin1(styleFile.readAll()));
@@ -496,12 +500,6 @@ int main(int argc, char* argv[])
     applyStyleSheet(app);
     app.setStyle(QStyleFactory::create("Fusion"));
     w.show();
-    // app.setStyleSheet(
-    //     QLatin1String{
-    //     });
-                      // "sprint_timer--ui--qt_gui--SprintView::item {\n"
-                      // " font: 13pt 'Courier';\n"
-                      // "}\n"
 
     return app.exec();
 }

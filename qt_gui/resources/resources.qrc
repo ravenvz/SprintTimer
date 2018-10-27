@@ -7,5 +7,6 @@
     <file>icons/history2.png</file>
     <file>icons/settings2.png</file>
     <file>app.qss</file>
+    <file>mac.qss</file>
 </qresource>
 </RCC>
