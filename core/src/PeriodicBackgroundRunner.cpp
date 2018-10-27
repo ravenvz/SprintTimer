@@ -37,13 +37,11 @@ void runTimer(const std::atomic<bool>& running,
     using TimePollPeriod = duration<int, std::ratio<1, FrequencyScale>>;
 
     const auto startTime = steady_clock::now();
-    auto lastCallbackTime = startTime;
     int iterationNumber{0};
 
     while (running) {
         std::this_thread::sleep_until(startTime
                                       + TimePollPeriod{++iterationNumber});
-        const auto timeNow = steady_clock::now();
         if (iterationNumber % FrequencyScale == 0) {
             remainingTime -= tickPeriod;
             onTick(remainingTime);
