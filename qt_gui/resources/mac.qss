@@ -3,7 +3,7 @@ QWidget {
 }
 
 sprint_timer--ui--qt_gui--SprintView {
-    font: 9pt 'Sans Serif';
+    font: 13pt 'Sans Serif';
 }
 
 sprint_timer--ui--qt_gui--SprintView::item {
