@@ -18,9 +18,9 @@ configuration:
     - Debug
     - Release
 
-environment:
-    matrix:
-        - TOOLCHAIN: msvc15
+# environment:
+#     matrix:
+#         - TOOLCHAIN: msvc15
 
 install:
     - call ci\appveyor\set-env.bat %TOOLCHAIN% %PLATFORM%
