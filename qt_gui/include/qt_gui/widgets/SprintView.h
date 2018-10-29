@@ -28,6 +28,9 @@
 namespace sprint_timer::ui::qt_gui {
 
 class SprintView : public QListView {
+
+    Q_OBJECT
+
 public:
     SprintView(SprintModel& sprintModel, QWidget* parent = nullptr);
 
