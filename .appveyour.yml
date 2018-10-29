@@ -25,6 +25,8 @@ environment:
 install:
     - call ci\appveyor\set-env.bat %TOOLCHAIN% %PLATFORM%
 
+build: off
+
 build_script:
     - mkdir build
     - cd build
