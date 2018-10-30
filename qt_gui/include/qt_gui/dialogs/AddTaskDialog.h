@@ -64,6 +64,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::AddTaskDialog> ui;
+
+    void resetDataFields();
 };
 
 } // namespace sprint_timer::ui::qt_gui
