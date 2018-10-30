@@ -29,7 +29,7 @@ namespace {
     constexpr int secondsInMinute{60};
 }
 
-AddSprintDialog::AddSprintDialog(IConfig& applicationSettings,
+AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings,
                                  SprintModel& sprintModel,
                                  TaskModel& taskModel,
                                  QDialog* parent)
@@ -55,15 +55,15 @@ AddSprintDialog::AddSprintDialog(IConfig& applicationSettings,
     connect(ui->timeEditSprintStartTime,
             &QTimeEdit::dateTimeChanged,
             this,
-            &AddSprintDialog::autoAdjustFinishTime);
+            &AddSprintDialog::adjustFinishTime);
     connect(ui->sbNumSpints,
             QOverload<int>::of(&QSpinBox::valueChanged),
             this,
-            &AddSprintDialog::autoAdjustFinishTime);
+            &AddSprintDialog::adjustFinishTime);
     connect(ui->timeEditSprintFinishTime,
             &QTimeEdit::dateTimeChanged,
             this,
-            &AddSprintDialog::autoAdjustStartTime);
+            &AddSprintDialog::adjustStartTime);
     connect(ui->pushButtonPickDate, &QPushButton::clicked, [this]() {
         datePicker->show();
     });
@@ -72,17 +72,18 @@ AddSprintDialog::AddSprintDialog(IConfig& applicationSettings,
             ui->dateEditSprintDate->setDate(date);
             datePicker->close();
         });
+    adjustFinishTime();
 }
 
 AddSprintDialog::~AddSprintDialog() = default;
 
-void AddSprintDialog::autoAdjustFinishTime()
+void AddSprintDialog::adjustFinishTime()
 {
     ui->timeEditSprintFinishTime->setDateTime(
         ui->timeEditSprintStartTime->dateTime().addSecs(totalSprintLength()));
 }
 
-void AddSprintDialog::autoAdjustStartTime()
+void AddSprintDialog::adjustStartTime()
 {
     ui->timeEditSprintStartTime->setDateTime(
         ui->timeEditSprintFinishTime->dateTime().addSecs(-totalSprintLength()));
@@ -99,7 +100,7 @@ void AddSprintDialog::accept()
     if (ui->cbPickTask->currentIndex() == -1)
         return;
 
-    auto initialStartTime
+    const auto initialStartTime
         = ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
 
     const std::string taskUuid
@@ -109,9 +110,10 @@ void AddSprintDialog::accept()
     const auto sprintDuration = applicationSettings.sprintDuration();
 
     for (int i = 0; i < ui->sbNumSpints->value(); ++i) {
-        auto startTime
+        const auto startTime
             = initialStartTime.addSecs(i * sprintDuration * secondsInMinute);
-        auto finishTime = startTime.addSecs(sprintDuration * secondsInMinute);
+        const auto finishTime
+            = startTime.addSecs(sprintDuration * secondsInMinute);
         entities::Sprint sprint{
             taskUuid,
             TimeSpan{DateTimeConverter::dateTime(startTime),
