@@ -63,7 +63,7 @@ private:
     std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate
         = std::make_unique<SubmissionItemDelegate>();
 
-    int totalSprintLength() const;
+    std::chrono::seconds totalSprintLength() const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

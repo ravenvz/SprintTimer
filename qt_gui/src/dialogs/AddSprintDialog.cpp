@@ -23,11 +23,12 @@
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
 
-namespace sprint_timer::ui::qt_gui {
-
 namespace {
-    constexpr int secondsInMinute{60};
+
+
 }
+
+namespace sprint_timer::ui::qt_gui {
 
 AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings,
                                  SprintModel& sprintModel,
@@ -80,23 +81,27 @@ AddSprintDialog::~AddSprintDialog() = default;
 void AddSprintDialog::adjustFinishTime()
 {
     ui->timeEditSprintFinishTime->setDateTime(
-        ui->timeEditSprintStartTime->dateTime().addSecs(totalSprintLength()));
+        ui->timeEditSprintStartTime->dateTime().addSecs(
+            totalSprintLength().count()));
 }
 
 void AddSprintDialog::adjustStartTime()
 {
     ui->timeEditSprintStartTime->setDateTime(
-        ui->timeEditSprintFinishTime->dateTime().addSecs(-totalSprintLength()));
+        ui->timeEditSprintFinishTime->dateTime().addSecs(
+            -totalSprintLength().count()));
 }
 
-int AddSprintDialog::totalSprintLength() const
+std::chrono::seconds AddSprintDialog::totalSprintLength() const
 {
-    return ui->sbNumSpints->value() * applicationSettings.sprintDuration()
-        * secondsInMinute;
+    using namespace std::chrono;
+    return ui->sbNumSpints->value()
+        * duration_cast<seconds>(applicationSettings.sprintDuration());
 }
 
 void AddSprintDialog::accept()
 {
+    using namespace std::chrono;
     if (ui->cbPickTask->currentIndex() == -1)
         return;
 
@@ -110,10 +115,10 @@ void AddSprintDialog::accept()
     const auto sprintDuration = applicationSettings.sprintDuration();
 
     for (int i = 0; i < ui->sbNumSpints->value(); ++i) {
-        const auto startTime
-            = initialStartTime.addSecs(i * sprintDuration * secondsInMinute);
+        const auto startTime = initialStartTime.addSecs(
+            i * duration_cast<seconds>(sprintDuration).count());
         const auto finishTime
-            = startTime.addSecs(sprintDuration * secondsInMinute);
+            = startTime.addSecs(duration_cast<seconds>(sprintDuration).count());
         entities::Sprint sprint{
             taskUuid,
             TimeSpan{DateTimeConverter::dateTime(startTime),
