@@ -64,6 +64,8 @@ private:
         = std::make_unique<SubmissionItemDelegate>();
 
     std::chrono::seconds totalSprintLength() const;
+
+    void resetDataFields();
 };
 
 } // namespace sprint_timer::ui::qt_gui

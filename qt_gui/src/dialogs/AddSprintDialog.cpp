@@ -25,8 +25,13 @@
 
 namespace {
 
+std::vector<sprint_timer::entities::Sprint>
+generateConsecutiveSprints(const QDateTime& initialStartTime,
+                           std::chrono::minutes sprintDuration,
+                           const std::string& taskUuid,
+                           int numSprints);
 
-}
+} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -45,7 +50,6 @@ AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings,
 
     ui->cbPickTask->setModel(&taskModel);
     ui->cbPickTask->setItemDelegate(submissionItemDelegate.get());
-    ui->dateEditSprintDate->setDate(QDate::currentDate());
 
     datePicker->setMaximumDate(QDate::currentDate());
     // TODO make this configurable with settings.
@@ -73,7 +77,7 @@ AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings,
             ui->dateEditSprintDate->setDate(date);
             datePicker->close();
         });
-    adjustFinishTime();
+    resetDataFields();
 }
 
 AddSprintDialog::~AddSprintDialog() = default;
@@ -101,33 +105,57 @@ std::chrono::seconds AddSprintDialog::totalSprintLength() const
 
 void AddSprintDialog::accept()
 {
-    using namespace std::chrono;
     if (ui->cbPickTask->currentIndex() == -1)
         return;
 
     const auto initialStartTime
         = ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
-
     const std::string taskUuid
         = taskModel.itemAt(ui->cbPickTask->currentIndex()).uuid();
-    std::vector<entities::Sprint> sprints;
-
     const auto sprintDuration = applicationSettings.sprintDuration();
 
-    for (int i = 0; i < ui->sbNumSpints->value(); ++i) {
+    auto sprints = generateConsecutiveSprints(
+        initialStartTime, sprintDuration, taskUuid, ui->sbNumSpints->value());
+
+    sprintModel.insert(sprints);
+    resetDataFields();
+    QDialog::accept();
+}
+
+void AddSprintDialog::resetDataFields()
+{
+    ui->dateEditSprintDate->setDate(QDate::currentDate());
+    adjustFinishTime();
+    ui->sbNumSpints->setValue(1);
+}
+
+} // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+std::vector<sprint_timer::entities::Sprint>
+generateConsecutiveSprints(const QDateTime& initialStartTime,
+                           std::chrono::minutes sprintDuration,
+                           const std::string& taskUuid,
+                           int numSprints)
+{
+    using namespace std::chrono;
+    using sprint_timer::entities::Sprint;
+    using sprint_timer::ui::qt_gui::DateTimeConverter;
+
+    std::vector<Sprint> sprints;
+    for (int i = 0; i < numSprints; ++i) {
         const auto startTime = initialStartTime.addSecs(
             i * duration_cast<seconds>(sprintDuration).count());
         const auto finishTime
             = startTime.addSecs(duration_cast<seconds>(sprintDuration).count());
-        entities::Sprint sprint{
-            taskUuid,
-            TimeSpan{DateTimeConverter::dateTime(startTime),
-                     DateTimeConverter::dateTime(finishTime)}};
-        sprints.push_back(sprint);
+        sprints.push_back(
+            Sprint{taskUuid,
+                   dw::TimeSpan{DateTimeConverter::dateTime(startTime),
+                                DateTimeConverter::dateTime(finishTime)}});
     }
 
-    sprintModel.insert(sprints);
-    QDialog::accept();
+    return sprints;
 }
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace
