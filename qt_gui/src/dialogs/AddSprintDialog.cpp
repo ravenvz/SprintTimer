@@ -61,7 +61,7 @@ AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings,
             &QTimeEdit::dateTimeChanged,
             this,
             &AddSprintDialog::adjustFinishTime);
-    connect(ui->sbNumSpints,
+    connect(ui->sbNumSprints,
             QOverload<int>::of(&QSpinBox::valueChanged),
             this,
             &AddSprintDialog::adjustFinishTime);
@@ -99,7 +99,7 @@ void AddSprintDialog::adjustStartTime()
 std::chrono::seconds AddSprintDialog::totalSprintLength() const
 {
     using namespace std::chrono;
-    return ui->sbNumSpints->value()
+    return ui->sbNumSprints->value()
         * duration_cast<seconds>(applicationSettings.sprintDuration());
 }
 
@@ -115,7 +115,7 @@ void AddSprintDialog::accept()
     const auto sprintDuration = applicationSettings.sprintDuration();
 
     auto sprints = generateConsecutiveSprints(
-        initialStartTime, sprintDuration, taskUuid, ui->sbNumSpints->value());
+        initialStartTime, sprintDuration, taskUuid, ui->sbNumSprints->value());
 
     sprintModel.insert(sprints);
     resetDataFields();
@@ -126,7 +126,7 @@ void AddSprintDialog::resetDataFields()
 {
     ui->dateEditSprintDate->setDate(QDate::currentDate());
     adjustFinishTime();
-    ui->sbNumSpints->setValue(1);
+    ui->sbNumSprints->setValue(1);
 }
 
 } // namespace sprint_timer::ui::qt_gui

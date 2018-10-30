@@ -162,7 +162,7 @@
     </widget>
    </item>
    <item row="4" column="2">
-    <widget class="QSpinBox" name="sbNumSpints">
+    <widget class="QSpinBox" name="sbNumSprints">
      <property name="font">
       <font>
        <pointsize>9</pointsize>
