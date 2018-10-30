@@ -64,9 +64,12 @@ SettingsDialog::~SettingsDialog() = default;
 
 void SettingsDialog::fillSettingsData()
 {
-    ui->spBxSprintDuration->setValue(applicationSettings.sprintDuration());
-    ui->spBxShortDuration->setValue(applicationSettings.shortBreakDuration());
-    ui->spBxLongDuration->setValue(applicationSettings.longBreakDuration());
+    ui->spBxSprintDuration->setValue(
+        static_cast<int>(applicationSettings.sprintDuration().count()));
+    ui->spBxShortDuration->setValue(
+        static_cast<int>(applicationSettings.shortBreakDuration().count()));
+    ui->spBxLongDuration->setValue(
+        static_cast<int>(applicationSettings.longBreakDuration().count()));
     ui->spBxLongBreakAfter->setValue(
         applicationSettings.numSprintsBeforeBreak());
     ui->gbSoundSettings->setChecked(applicationSettings.soundIsEnabled());
@@ -80,9 +83,13 @@ void SettingsDialog::fillSettingsData()
 
 void SettingsDialog::storeSettingsData()
 {
-    applicationSettings.setSprintDuration(ui->spBxSprintDuration->value());
-    applicationSettings.setShortBreakDuration(ui->spBxShortDuration->value());
-    applicationSettings.setLongBreakDuration(ui->spBxLongDuration->value());
+    using namespace std::chrono;
+    applicationSettings.setSprintDuration(
+        minutes{ui->spBxSprintDuration->value()});
+    applicationSettings.setShortBreakDuration(
+        minutes{ui->spBxShortDuration->value()});
+    applicationSettings.setLongBreakDuration(
+        minutes{ui->spBxLongDuration->value()});
     applicationSettings.setNumSprintsBeforeBreak(
         ui->spBxLongBreakAfter->value());
     applicationSettings.setPlaySound(ui->gbSoundSettings->isChecked());

@@ -98,6 +98,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/WinExport.h"
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/resources/resources.qrc"
+        "${CMAKE_CURRENT_LIST_DIR}/src/QtConfig.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/HistoryItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/SubmissionItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/TaskItemDelegate.cpp"

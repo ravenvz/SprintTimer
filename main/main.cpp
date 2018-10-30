@@ -82,7 +82,8 @@
 #include <qt_gui/widgets/UndoButton.h>
 #include <qt_gui/widgets/WeeklyProgressView.h>
 
-// TODO at least linux version should have std::filesystem by now, so consider replacing
+// TODO at least linux version should have std::filesystem by now, so consider
+// replacing
 #if defined(_WIN32) || defined(__linux__)
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
@@ -127,7 +128,8 @@ std::string getUserDataDirectory()
 
 std::string getUserDataDirectory()
 {
-    return std::string{"/Users/"} + std::string{getenv("USER")} + std::string{"/Library"};
+    return std::string{"/Users/"} + std::string{getenv("USER")}
+    + std::string{"/Library"};
 }
 #else
 #error "unknown platform"

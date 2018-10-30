@@ -41,7 +41,7 @@ class AddSprintDialog : public QDialog {
     Q_OBJECT
 
 public:
-    AddSprintDialog(IConfig& applicationSettings,
+    AddSprintDialog(const IConfig& applicationSettings,
                     SprintModel& sprintModel,
                     TaskModel& taskModel,
                     QDialog* parent = nullptr);
@@ -51,19 +51,21 @@ public:
     void accept() override;
 
 private slots:
-    void autoAdjustFinishTime();
-    void autoAdjustStartTime();
+    void adjustFinishTime();
+    void adjustStartTime();
 
 private:
     std::unique_ptr<Ui::AddSprintDialog> ui;
     std::unique_ptr<QCalendarWidget> datePicker;
-    IConfig& applicationSettings;
+    const IConfig& applicationSettings;
     SprintModel& sprintModel;
     TaskModel& taskModel;
     std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate
         = std::make_unique<SubmissionItemDelegate>();
 
-    int totalSprintLength() const;
+    std::chrono::seconds totalSprintLength() const;
+
+    void resetDataFields();
 };
 
 } // namespace sprint_timer::ui::qt_gui

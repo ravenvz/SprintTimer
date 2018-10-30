@@ -78,8 +78,12 @@ Task AddTaskDialog::constructedTask()
 void AddTaskDialog::accept()
 {
     QString name = ui->taskName->text();
-    name.isEmpty() ? ui->taskName->setStyleSheet(requiredFieldEmptyStyle)
-                   : QDialog::accept();
+    if (name.isEmpty())
+        ui->taskName->setStyleSheet(requiredFieldEmptyStyle);
+    else {
+        QDialog::accept();
+    }
+    resetDataFields();
 }
 
 void AddTaskDialog::fillItemData(const Task& item)
@@ -111,6 +115,14 @@ void AddTaskDialog::onQuickAddTagActivated(const QString& tag)
 void AddTaskDialog::resetNameLineEditStyle()
 {
     ui->taskName->setStyleSheet("");
+}
+
+void AddTaskDialog::resetDataFields()
+{
+    ui->taskName->clear();
+    ui->leTags->clear();
+    ui->tags->setCurrentIndex(-1);
+    ui->estimatedCost->setValue(1);
 }
 
 } // namespace sprint_timer::ui::qt_gui
