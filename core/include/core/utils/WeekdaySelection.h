@@ -27,49 +27,21 @@
 #include <date_wrapper/DateTime.h>
 #include <date_wrapper/TimeSpan.h>
 
-namespace {
-
-constexpr std::array<unsigned, 7> weekdayBits = {1, 2, 4, 8, 16, 32, 64};
-
-int countBits(unsigned mask)
-{
-    int res{0};
-    while (mask) {
-        res += mask & 1;
-        mask >>= 1;
-    }
-    return res;
-}
-
-} // namespace
-
 namespace sprint_timer::utils {
 
 struct WeekdaySelection {
 
-    WeekdaySelection(unsigned mask = 0)
-        : mask{mask}
-    {
-    }
+    explicit WeekdaySelection(unsigned mask = 0);
 
-    unsigned selectionMask() const { return mask; }
+    unsigned selectionMask() const;
 
-    void selectDay(dw::DateTime::Weekday weekday)
-    {
-        mask |= weekdayBits[static_cast<unsigned>(weekday)];
-    }
+    void selectDay(dw::DateTime::Weekday weekday);
 
-    void unselectDay(dw::DateTime::Weekday weekday)
-    {
-        mask ^= weekdayBits[static_cast<unsigned>(weekday)];
-    }
+    void unselectDay(dw::DateTime::Weekday weekday);
 
-    bool isSelected(dw::DateTime::Weekday weekday) const
-    {
-        return (mask & weekdayBits[static_cast<unsigned>(weekday)]) != 0;
-    }
+    bool isSelected(dw::DateTime::Weekday weekday) const;
 
-    int numSelected() const { return countBits(mask); }
+    int numSelected() const;
 
 private:
     unsigned mask{0};
@@ -78,21 +50,9 @@ private:
 
 /* Return number of workdays in given time range with
  * respect to current selection. */
-inline unsigned numWorkdays(const dw::TimeSpan& timeSpan,
-                            const WeekdaySelection& workdays)
-{
-    unsigned res{0};
+unsigned numWorkdays(const dw::TimeSpan& timeSpan,
+                     const WeekdaySelection& workdays);
 
-    for (auto day = timeSpan.start(); day <= timeSpan.finish();
-         day = day.add(dw::DateTime::Days{1})) {
-        if (workdays.isSelected(
-                static_cast<dw::DateTime::Weekday>(day.dayOfWeek())))
-            ++res;
-    }
-
-    return res;
-}
-
-} // namespace sprint_timer::core::utils
+} // namespace sprint_timer::utils
 
 #endif /* end of include guard: WEEKDAYSELECTION_H_7HAYMKBJ */
