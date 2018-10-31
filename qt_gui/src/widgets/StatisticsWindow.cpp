@@ -98,7 +98,7 @@ void StatisticsWindow::drawGraphs()
         = (selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex)
                             : sprints);
     SprintStatItem statistics{interestingSprints, timeSpan};
-    const WeekdaySelection workdays{applicationSettings.workdaysCode()};
+    const utils::WeekdaySelection workdays{applicationSettings.workdaysCode()};
     ui->dailyTimelineGraph->setData(
         statistics.dailyDistribution(),
         interval.startDate,

@@ -45,7 +45,7 @@ void WorkdaysDialog::accept()
 void WorkdaysDialog::initializeDayBoxes()
 {
     using dw::DateTime;
-    const WeekdaySelection selection{settings.workdaysCode()};
+    const utils::WeekdaySelection selection{settings.workdaysCode()};
     ui->mondayBox->setChecked(selection.isSelected(DateTime::Weekday::Monday));
     ui->tuesdayBox->setChecked(
         selection.isSelected(DateTime::Weekday::Tuesday));
@@ -63,7 +63,7 @@ unsigned WorkdaysDialog::pollWorkdaysCode() const
 {
     using dw::DateTime;
 
-    WeekdaySelection selection;
+    utils::WeekdaySelection selection;
 
     if (ui->mondayBox->isChecked())
         selection.selectDay(DateTime::Weekday::Monday);

@@ -28,6 +28,7 @@
 #include "gtest/gtest.h"
 
 using dw::DateTime;
+using sprint_timer::utils::WeekdaySelection;
 
 TEST(WeekdaySelection, test_adds_selection)
 {

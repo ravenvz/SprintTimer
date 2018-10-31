@@ -43,6 +43,8 @@ int countBits(unsigned mask)
 
 } // namespace
 
+namespace sprint_timer::utils {
+
 struct WeekdaySelection {
 
     WeekdaySelection(unsigned mask = 0)
@@ -90,5 +92,7 @@ inline unsigned numWorkdays(const dw::TimeSpan& timeSpan,
 
     return res;
 }
+
+} // namespace sprint_timer::core::utils
 
 #endif /* end of include guard: WEEKDAYSELECTION_H_7HAYMKBJ */
