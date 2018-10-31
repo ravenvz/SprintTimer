@@ -22,6 +22,7 @@
 #ifndef ICONFIG_H
 #define ICONFIG_H
 
+#include "core/utils/WeekdaySelection.h"
 #include <chrono>
 #include <string>
 
@@ -53,8 +54,8 @@ public:
     virtual void setSoundFilePath(const std::string& filePath) = 0;
     virtual int timerFlavour() const = 0;
     virtual void setTimerFlavour(int timerVariation) = 0;
-    virtual unsigned workdaysCode() const = 0;
-    virtual void setWorkdaysCode(unsigned workdays_code) = 0;
+    virtual utils::WeekdaySelection workdays() const = 0;
+    virtual void setWorkdays(const utils::WeekdaySelection& workdays) = 0;
 };
 
 } // namespace sprint_timer

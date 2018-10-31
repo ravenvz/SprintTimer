@@ -139,14 +139,16 @@ void Config::setTimerFlavour(int timerVariation)
     Config::settings.setValue("timerFlavour", QVariant(timerVariation));
 }
 
-unsigned Config::workdaysCode() const
+utils::WeekdaySelection Config::workdays() const
 {
-    return Config::settings.value("workdaysCode", 127).toUInt();
+    return utils::WeekdaySelection{
+        Config::settings.value("workdaysCode", 127).toUInt()};
 }
 
-void Config::setWorkdaysCode(unsigned workdays_code)
+void Config::setWorkdays(const utils::WeekdaySelection& workdays)
 {
-    Config::settings.setValue("workdaysCode", QVariant(workdays_code));
+    Config::settings.setValue("workdaysCode",
+                              QVariant(workdays.selectionMask()));
 }
 
 } // namespace sprint_timer::ui::qt_gui
