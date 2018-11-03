@@ -100,9 +100,12 @@ If you want to create installer:
 
 Then find sprint_timer_app.dmg inside build directory.
 
+Note: for correct timer count App Nap feature should be manually disabled for SprintTimer app.
+
 #### Building tests
 To build test suite option BUILD_TEST=ON should be passed to cmake.
 
 ### Known issues
 * Some text labels might be cropped and some GUI elements might be too small/large on smaller resolution screens.
 * Long break counter resets after midnight.
+* On Mac OS user is required to disable App Nap feature manually.
