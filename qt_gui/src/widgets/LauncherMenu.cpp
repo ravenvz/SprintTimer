@@ -20,98 +20,45 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/LauncherMenu.h"
-#include "qt_gui/dialogs/SettingsDialog.h"
 #include "qt_gui/utils/WidgetUtils.h"
-#include "qt_gui/widgets/GoalProgressWindow.h"
-#include "qt_gui/widgets/HistoryWindow.h"
-#include "qt_gui/widgets/StatisticsWindow.h"
 #include "ui_launcher_menu.h"
+
+namespace {
+
+void showOrBringToForeground(QWidget& widget)
+{
+    using namespace sprint_timer::ui::qt_gui::WidgetUtils;
+    widget.isVisible() ? bringToForeground(&widget) : widget.show();
+}
+
+} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
-LauncherMenu::LauncherMenu(IConfig& applicationSettings,
-                           ICoreService& coreService,
+LauncherMenu::LauncherMenu(QWidget& progressWindow,
+                           QWidget& statisticsWindow,
+                           QWidget& historyWindow,
+                           QDialog& settingsDialog,
                            QWidget* parent)
-    : QWidget {parent}
-    , ui {new Ui::LauncherMenu}
-    , settings {applicationSettings}
-    , coreService {coreService}
+    : QWidget{parent}
+    , ui{std::make_unique<Ui::LauncherMenu>()}
 {
     ui->setupUi(this);
 
-    connect(ui->pbSettings,
-            &QPushButton::clicked,
-            this,
-            &LauncherMenu::launchSettingsDialog);
-    connect(ui->pbHistory,
-            &QPushButton::clicked,
-            this,
-            &LauncherMenu::launchHistoryWindow);
-    connect(ui->pbProgress,
-            &QPushButton::clicked,
-            this,
-            &LauncherMenu::launchProgressWindow);
-    connect(ui->pbStatistics,
-            &QPushButton::clicked,
-            this,
-            &LauncherMenu::launchStatisticsWindow);
+    connect(ui->pbHistory, &QPushButton::clicked, [&historyWindow]() {
+        showOrBringToForeground(historyWindow);
+    });
+    connect(ui->pbProgress, &QPushButton::clicked, [&progressWindow]() {
+        showOrBringToForeground(progressWindow);
+    });
+    connect(ui->pbStatistics, &QPushButton::clicked, [&statisticsWindow]() {
+        showOrBringToForeground(statisticsWindow);
+    });
+    connect(ui->pbSettings, &QPushButton::clicked, [&settingsDialog]() {
+        settingsDialog.exec();
+    });
 }
 
-LauncherMenu::~LauncherMenu()
-{
-    delete progressWindow;
-    delete historyWindow;
-    delete statisticsWindow;
-    delete ui;
-}
-
-void LauncherMenu::launchHistoryWindow()
-{
-    if (!historyWindow) {
-        historyWindow = new HistoryWindow(coreService);
-        historyWindow->show();
-    }
-    else {
-        WidgetUtils::bringToForeground(historyWindow);
-    }
-}
-
-void LauncherMenu::launchSettingsDialog()
-{
-    SettingsDialog settingsDialog {settings};
-    settingsDialog.exec();
-}
-
-void LauncherMenu::launchProgressWindow()
-{
-    if (!progressWindow) {
-        progressWindow = new GoalProgressWindow(settings, coreService);
-        progressWindow->show();
-    }
-    else {
-        WidgetUtils::bringToForeground(progressWindow);
-    }
-}
-
-void LauncherMenu::launchStatisticsWindow()
-{
-    if (!statisticsWindow) {
-        statisticsWindow = new StatisticsWindow(settings, coreService);
-        statisticsWindow->show();
-    }
-    else {
-        WidgetUtils::bringToForeground(statisticsWindow);
-    }
-}
-
-void LauncherMenu::onSyncRequired()
-{
-    if (progressWindow)
-        progressWindow->synchronize();
-    if (historyWindow)
-        historyWindow->synchronize();
-    if (statisticsWindow)
-        statisticsWindow->synchronize();
-}
+LauncherMenu::~LauncherMenu() = default;
 
 } // namespace sprint_timer::ui::qt_gui

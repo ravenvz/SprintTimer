@@ -94,7 +94,7 @@ void StatefulTimer::notifyStateChanged(IStatefulTimer::StateId stateId)
     onStateChangedCallback(stateId);
 }
 
-void StatefulTimer::onTimerTick(CountdownTimer::TickPeriod timeLeft)
+void StatefulTimer::onTimerTick(PeriodicBackgroundRunner::TickPeriod timeLeft)
 {
     using namespace std::chrono;
     onTickCallback(duration_cast<seconds>(timeLeft));
@@ -102,9 +102,9 @@ void StatefulTimer::onTimerTick(CountdownTimer::TickPeriod timeLeft)
 
 void StatefulTimer::startCountdown()
 {
-    countdownTimer.release();
-    countdownTimer = std::make_unique<CountdownTimer>(
-        [this](CountdownTimer::TickPeriod timeLeft) {
+    periodicBackgroundRunner.reset(nullptr);
+    periodicBackgroundRunner = std::make_unique<PeriodicBackgroundRunner>(
+        [this](PeriodicBackgroundRunner::TickPeriod timeLeft) {
             this->onTimerTick(timeLeft);
         },
         [this]() { this->onTimerRunout(); },
@@ -148,8 +148,8 @@ void RunningSprint::enter(StatefulTimer& timer) const
 void RunningSprint::cancelExit(StatefulTimer& timer)
 {
     timer.notifyStateChanged(IStatefulTimer::StateId::SprintCancelled);
-    if (timer.countdownTimer)
-        timer.countdownTimer->stop();
+    if (timer.periodicBackgroundRunner)
+        timer.periodicBackgroundRunner->stop();
     timer.jumpToState(timer.idle);
 }
 
@@ -188,8 +188,8 @@ void ShortBreak::enter(StatefulTimer& timer) const
 
 void ShortBreak::cancelExit(StatefulTimer& timer)
 {
-    if (timer.countdownTimer)
-        timer.countdownTimer->stop();
+    if (timer.periodicBackgroundRunner)
+        timer.periodicBackgroundRunner->stop();
     timer.notifyStateChanged(IStatefulTimer::StateId::BreakCancelled);
     timer.jumpToState(timer.idle);
 }
@@ -219,8 +219,8 @@ void LongBreak::enter(StatefulTimer& timer) const
 
 void LongBreak::cancelExit(StatefulTimer& timer)
 {
-    if (timer.countdownTimer)
-        timer.countdownTimer->stop();
+    if (timer.periodicBackgroundRunner)
+        timer.periodicBackgroundRunner->stop();
     timer.notifyStateChanged(IStatefulTimer::StateId::BreakCancelled);
     timer.jumpToState(timer.idle);
 }
@@ -263,7 +263,7 @@ void Zone::setNextState(StatefulTimer& timer) {}
 
 void Zone::toggleZoneMode(StatefulTimer& timer)
 {
-    // timer.changeState because we don't want to enter/exit to be called
+    // Changing state directly because we don't want to enter/exit to be called
     timer.currentState = &timer.runningSprint;
     timer.notifyStateChanged(IStatefulTimer::StateId::ZoneLeft);
 }
@@ -273,8 +273,8 @@ void Zone::onTimerFinished(StatefulTimer& timer)
     timer.buffer.emplace_back(
         TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
     timer.mStart = DateTime::currentDateTimeLocal();
-    if (timer.countdownTimer)
-        timer.countdownTimer->stop();
+    if (timer.periodicBackgroundRunner)
+        timer.periodicBackgroundRunner->stop();
     timer.startCountdown();
 }
 

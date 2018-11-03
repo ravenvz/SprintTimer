@@ -21,26 +21,33 @@
 *********************************************************************************/
 #include "qt_gui/widgets/StatisticsWindow.h"
 #include "qt_gui/widgets/BarChart.h"
+#include "qt_gui/widgets/DistributionDiagram.h"
+#include "qt_gui/widgets/Plot.h"
+#include "qt_gui/widgets/TimeDiagram.h"
 #include "ui_statistics_window.h"
+#include <core/use_cases/RequestMinMaxYear.h>
+#include <core/use_cases/RequestSprints.h>
 #include <core/utils/WeekdaySelection.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
+using use_cases::RequestMinMaxYear;
+using use_cases::RequestSprints;
 
-StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
-                                   ICoreService& coreService,
+StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
+                                   ISprintStorageReader& sprintReader,
+                                   IYearRangeReader& sprintYearRangeReader,
+                                   QueryInvoker& queryInvoker,
                                    QWidget* parent)
-    : DataWidget{parent}
+    : QFrame{parent}
     , ui{std::make_unique<Ui::StatisticsWindow>()}
     , applicationSettings{applicationSettings}
-    , coreService{coreService}
+    , sprintReader{sprintReader}
+    , sprintYearRangeReader{sprintYearRangeReader}
+    , queryInvoker{queryInvoker}
 {
-    setAttribute(Qt::WA_DeleteOnClose);
-    coreService.yearRange(
-        [this](const auto& range) { this->onYearRangeUpdated(range); });
     ui->setupUi(this);
-    currentInterval = ui->dateRangePicker->getInterval();
 
     connect(ui->dateRangePicker,
             &DateRangePicker::timeSpanChanged,
@@ -50,6 +57,10 @@ StatisticsWindow::StatisticsWindow(IConfig& applicationSettings,
             &DistributionDiagram::chartSelectionChanged,
             this,
             &StatisticsWindow::onTagSelected);
+
+    queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
+        sprintYearRangeReader,
+        [this](const auto& range) { ui->dateRangePicker->setYears(range); }));
 }
 
 StatisticsWindow::~StatisticsWindow() = default;
@@ -58,9 +69,10 @@ void StatisticsWindow::synchronize() { fetchData(); }
 
 void StatisticsWindow::fetchData()
 {
-    coreService.sprintsInTimeRange(
-        currentInterval.toTimeSpan(),
-        [this](const auto& sprints) { this->onDataFetched(sprints); });
+    queryInvoker.execute(std::make_unique<RequestSprints>(
+        sprintReader,
+        ui->dateRangePicker->getInterval().toTimeSpan(),
+        [this](const auto& sprints) { this->onDataFetched(sprints); }));
 }
 
 void StatisticsWindow::onDataFetched(const std::vector<Sprint>& sprints)
@@ -73,29 +85,24 @@ void StatisticsWindow::onDataFetched(const std::vector<Sprint>& sprints)
     updateTopTagsDiagram(tagFrequency);
 }
 
-void StatisticsWindow::onYearRangeUpdated(
-    const std::vector<std::string>& yearRange)
-{
-    ui->dateRangePicker->setYears(yearRange);
-}
-
 void StatisticsWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 {
-    currentInterval = newInterval;
     fetchData();
 }
 
 void StatisticsWindow::drawGraphs()
 {
+    const auto interval = currentInterval();
+    const auto timeSpan = interval.toTimeSpan();
     const std::vector<Sprint>& interestingSprints
         = (selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex)
                             : sprints);
-    SprintStatItem statistics{interestingSprints, currentInterval.toTimeSpan()};
+    SprintStatItem statistics{interestingSprints, timeSpan};
     const WeekdaySelection workdays{applicationSettings.workdaysCode()};
     ui->dailyTimelineGraph->setData(
         statistics.dailyDistribution(),
-        currentInterval.startDate,
-        static_cast<int>(numWorkdays(currentInterval.toTimeSpan(), workdays)),
+        interval.startDate,
+        static_cast<int>(numWorkdays(timeSpan, workdays)),
         applicationSettings.dailyGoal());
     ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
     ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
@@ -116,8 +123,6 @@ void StatisticsWindow::updateTopTagsDiagram(
                    });
     ui->topTagDiagram->setData(data);
     ui->topTagDiagram->setLegendTitle("Top tags");
-    // ui->topTagDiagram->setLegendTitleFont(QFont(".Helvetica Neue Desk UI",
-    // 13));
 }
 
 void StatisticsWindow::onTagSelected(size_t tagIndex)
@@ -132,6 +137,11 @@ void StatisticsWindow::onTagSelected(size_t tagIndex)
     }
 
     drawGraphs();
+}
+
+DateInterval StatisticsWindow::currentInterval() const
+{
+    return ui->dateRangePicker->getInterval();
 }
 
 } // namespace sprint_timer::ui::qt_gui

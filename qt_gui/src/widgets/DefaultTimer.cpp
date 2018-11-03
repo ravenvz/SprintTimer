@@ -26,14 +26,16 @@
 namespace sprint_timer::ui::qt_gui {
 
 namespace {
-    constexpr char const* workgoalMetStyleSheet {"QLabel { color: green; }"};
-    constexpr char const* overworkStyleSheet {"QLabel { color: red; }"};
-    constexpr char const* underworkStyleSheet {"QLabel { color: black; }"};
+    constexpr char const* workgoalMetStyleSheet{"QLabel { color: green; }"};
+    constexpr char const* overworkStyleSheet{"QLabel { color: red; }"};
+    constexpr char const* underworkStyleSheet{"QLabel { color: black; }"};
 } // namespace
 
-DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
-    : TimerWidgetBase {applicationSettings, parent}
-    , ui {new Ui::DefaultTimer}
+DefaultTimer::DefaultTimer(const IConfig& applicationSettings,
+                           QAbstractItemModel& taskModel,
+                           QWidget* parent)
+    : TimerWidgetBase{applicationSettings, parent}
+    , ui{std::make_unique<Ui::DefaultTimer>()}
 {
     ui->setupUi(this);
 
@@ -42,6 +44,8 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
     WidgetUtils::setRetainSizeWhenHidden(ui->progressBar);
     WidgetUtils::setRetainSizeWhenHidden(ui->pbStart);
     WidgetUtils::setRetainSizeWhenHidden(ui->pbSubmit);
+
+    ui->cbxSubmissionCandidate->setModel(&taskModel);
 
     connect(ui->pbStart, &QPushButton::clicked, this, &DefaultTimer::startTask);
     connect(
@@ -66,12 +70,7 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings, QWidget* parent)
     });
 }
 
-DefaultTimer::~DefaultTimer() { delete ui; }
-
-void DefaultTimer::setTaskModel(QAbstractItemModel* model)
-{
-    ui->cbxSubmissionCandidate->setModel(model);
-}
+DefaultTimer::~DefaultTimer() = default;
 
 void DefaultTimer::setCandidateIndex(int index)
 {

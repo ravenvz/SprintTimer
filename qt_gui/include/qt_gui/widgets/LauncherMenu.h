@@ -19,16 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BUTTONMENU_H
-#define BUTTONMENU_H
+#ifndef LAUNCHERMENU_H_31QL4GCR
+#define LAUNCHERMENU_H_31QL4GCR
 
-#include "qt_gui/widgets/DataWidget.h"
-#include <core/ICoreService.h>
+#include <QDialog>
 #include <core/IConfig.h>
-#include <QPointer>
-#include <QPushButton>
-#include <QWidget>
-#include <QtWidgets/QHBoxLayout>
+#include <memory>
 
 namespace Ui {
 class LauncherMenu;
@@ -39,32 +35,18 @@ namespace sprint_timer::ui::qt_gui {
 class LauncherMenu : public QWidget {
 
 public:
-    LauncherMenu(IConfig& applicationSettings,
-               ICoreService& coreService,
-               QWidget* parent);
+    LauncherMenu(QWidget& progressWindow,
+                 QWidget& statisticsWindow,
+                 QWidget& historyWindow,
+                 QDialog& settingsDialog,
+                 QWidget* parent = nullptr);
 
     ~LauncherMenu() override;
 
-public slots:
-    void onSyncRequired();
-
 private:
-    Ui::LauncherMenu* ui;
-    IConfig& settings;
-    ICoreService& coreService;
-    QPointer<DataWidget> progressWindow;
-    QPointer<DataWidget> statisticsWindow;
-    QPointer<DataWidget> historyWindow;
-
-private slots:
-    void launchSettingsDialog();
-    void launchHistoryWindow();
-    void launchProgressWindow();
-    void launchStatisticsWindow();
+    std::unique_ptr<Ui::LauncherMenu> ui;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-
-
-#endif //SPRINT_TIMER_BUTTONMENU_H
+#endif /* end of include guard: LAUNCHERMENU_H_31QL4GCR */

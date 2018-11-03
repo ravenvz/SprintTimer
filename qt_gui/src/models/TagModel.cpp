@@ -20,12 +20,24 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/TagModel.h"
+#include <core/use_cases/RenameTag.h>
+#include <core/use_cases/RequestAllTags.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-TagModel::TagModel(ICoreService& coreService, QObject* parent)
+using use_cases::RenameTag;
+using use_cases::RequestAllTags;
+
+TagModel::TagModel(ITaskStorageReader& taskReader,
+                   ITaskStorageWriter& taskWriter,
+                   CommandInvoker& commandInvoker,
+                   QueryInvoker& queryInvoker,
+                   QObject* parent)
     : AsyncListModel{parent}
-    , coreService{coreService}
+    , taskReader{taskReader}
+    , taskWriter{taskWriter}
+    , commandInvoker{commandInvoker}
+    , queryInvoker{queryInvoker}
 {
     synchronize();
 }
@@ -66,7 +78,8 @@ bool TagModel::setData(const QModelIndex& index,
     if (role == Qt::EditRole) {
         buffer.push_back({data(index, role).toString().toStdString(),
                           value.toString().toStdString()});
-        storage[static_cast<size_t>(index.row())] = value.toString().toStdString();
+        storage[static_cast<size_t>(index.row())]
+            = value.toString().toStdString();
         return true;
     }
     return false;
@@ -75,7 +88,8 @@ bool TagModel::setData(const QModelIndex& index,
 void TagModel::submitData()
 {
     while (!buffer.empty()) {
-        coreService.editTag(buffer.back().first, buffer.back().second);
+        commandInvoker.executeCommand(std::make_unique<RenameTag>(
+            taskWriter, buffer.back().first, buffer.back().second));
         buffer.pop_back();
     }
     requestDataUpdate();
@@ -89,8 +103,8 @@ void TagModel::revertData()
 
 void TagModel::requestDataUpdate()
 {
-    coreService.requestAllTags(
-        [this](const auto& tags) { this->onDataArrived(tags); });
+    queryInvoker.execute(std::make_unique<RequestAllTags>(
+        taskReader, [this](const auto& tags) { this->onDataArrived(tags); }));
 }
 
 void TagModel::onDataArrived(const std::vector<std::string>& tags)
@@ -102,4 +116,3 @@ void TagModel::onDataArrived(const std::vector<std::string>& tags)
 }
 
 } // namespace sprint_timer::ui::qt_gui
-

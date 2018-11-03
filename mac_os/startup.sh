@@ -1,0 +1,13 @@
+#!/bin/sh
+
+SPRINT_TIMER_BUNDLE="`echo "$0" | sed -e 's/\/Contents\/MacOS\/SprintTimer//'`"
+SPRINT_TIMER_RESOURCES="$SPRINT_TIMER_BUNDLE/Contents/Resources"
+
+echo "running $0"
+echo "SPRINT_TIMER_BUNDLE: $SPRINT_TIMER_BUNDLE"
+echo "SPRINT_TIMER_RESOURCES: $SPRINT_TIMER_RESOURCES"
+
+export "DYLD_LIBRARY_PATH=$SPRINT_TIMER_RESOURCES/lib"
+export "PATH=$SPRINT_TIMER_RESOURCES/bin:$PATH"
+
+exec "$SPRINT_TIMER_RESOURCES/bin/sprint_timer"

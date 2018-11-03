@@ -42,25 +42,34 @@ public:
         TestConfig::mSoundVolume = soundVolume;
     }
 
-    int sprintDuration() const override { return mSprintDuration; }
+    std::chrono::minutes sprintDuration() const override
+    {
+        return mSprintDuration;
+    }
 
-    void setSprintDuration(int minutes) override
+    void setSprintDuration(std::chrono::minutes minutes) override
     {
         TestConfig::mSprintDuration = minutes;
     }
 
-    int shortBreakDuration() const override { return mShortBreakDuration; }
-
-    void setShortBreakDuration(int minutes) override
+    std::chrono::minutes shortBreakDuration() const override
     {
-        TestConfig::mShortBreakDuration = minutes;
+        return mShortBreakDuration;
     }
 
-    int longBreakDuration() const override { return mLongBreakDuration; }
-
-    void setLongBreakDuration(int minutes) override
+    void setShortBreakDuration(std::chrono::minutes duration) override
     {
-        TestConfig::mLongBreakDuration = minutes;
+        TestConfig::mShortBreakDuration = duration;
+    }
+
+    std::chrono::minutes longBreakDuration() const override
+    {
+        return mLongBreakDuration;
+    }
+
+    void setLongBreakDuration(std::chrono::minutes duration) override
+    {
+        TestConfig::mLongBreakDuration = duration;
     }
 
     int numSprintsBeforeBreak() const override { return mTasksBeforeBreak; }
@@ -102,10 +111,10 @@ public:
     void setWorkdaysCode(unsigned workdays_code) override {}
 
 private:
-    int mSprintDuration = 30;
-    int mShortBreakDuration = 10;
-    int mLongBreakDuration = 20;
-    int mTasksBeforeBreak = 4;
+    std::chrono::minutes mSprintDuration{30};
+    std::chrono::minutes mShortBreakDuration{10};
+    std::chrono::minutes mLongBreakDuration{20};
+    int mTasksBeforeBreak{4};
     bool mPlaySound{false};
     int mSoundVolume{0};
 };

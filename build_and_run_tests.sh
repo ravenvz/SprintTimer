@@ -59,5 +59,5 @@ echo "$build_type build using $cxx_compiler and $build_tool"
     && $build_tool $build_tool_options)
 
 if [ $build_tests == "ON" ]; then
-    (cd build && ctest -j4)
+    (cd build && ctest --output-on-failure -j4)
 fi

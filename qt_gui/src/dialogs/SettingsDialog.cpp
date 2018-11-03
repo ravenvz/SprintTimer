@@ -28,9 +28,9 @@
 namespace sprint_timer::ui::qt_gui {
 
 SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
-    : QDialog(parent)
-    , ui(new Ui::SettingsDialog)
-    , applicationSettings(applicationSettings)
+    : QDialog{parent}
+    , ui{std::make_unique<Ui::SettingsDialog>()}
+    , applicationSettings{applicationSettings}
 {
     ui->setupUi(this);
     timerModel = new QStringListModel{timers, this};
@@ -59,14 +59,17 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
 }
 
 
-SettingsDialog::~SettingsDialog() { delete ui; }
+SettingsDialog::~SettingsDialog() = default;
 
 
 void SettingsDialog::fillSettingsData()
 {
-    ui->spBxSprintDuration->setValue(applicationSettings.sprintDuration());
-    ui->spBxShortDuration->setValue(applicationSettings.shortBreakDuration());
-    ui->spBxLongDuration->setValue(applicationSettings.longBreakDuration());
+    ui->spBxSprintDuration->setValue(
+        static_cast<int>(applicationSettings.sprintDuration().count()));
+    ui->spBxShortDuration->setValue(
+        static_cast<int>(applicationSettings.shortBreakDuration().count()));
+    ui->spBxLongDuration->setValue(
+        static_cast<int>(applicationSettings.longBreakDuration().count()));
     ui->spBxLongBreakAfter->setValue(
         applicationSettings.numSprintsBeforeBreak());
     ui->gbSoundSettings->setChecked(applicationSettings.soundIsEnabled());
@@ -80,9 +83,13 @@ void SettingsDialog::fillSettingsData()
 
 void SettingsDialog::storeSettingsData()
 {
-    applicationSettings.setSprintDuration(ui->spBxSprintDuration->value());
-    applicationSettings.setShortBreakDuration(ui->spBxShortDuration->value());
-    applicationSettings.setLongBreakDuration(ui->spBxLongDuration->value());
+    using namespace std::chrono;
+    applicationSettings.setSprintDuration(
+        minutes{ui->spBxSprintDuration->value()});
+    applicationSettings.setShortBreakDuration(
+        minutes{ui->spBxShortDuration->value()});
+    applicationSettings.setLongBreakDuration(
+        minutes{ui->spBxLongDuration->value()});
     applicationSettings.setNumSprintsBeforeBreak(
         ui->spBxLongBreakAfter->value());
     applicationSettings.setPlaySound(ui->gbSoundSettings->isChecked());

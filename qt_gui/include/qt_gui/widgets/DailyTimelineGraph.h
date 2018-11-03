@@ -27,6 +27,7 @@
 #include <core/Distribution.h>
 #include <core/utils/WeekdaySelection.h>
 #include <date_wrapper/DateTime.h>
+#include <memory>
 
 namespace Ui {
 class DailyTimelineGraph;
@@ -47,7 +48,7 @@ public:
                  int dailyGoal);
 
 private:
-    Ui::DailyTimelineGraph* ui;
+    std::unique_ptr<Ui::DailyTimelineGraph> ui;
 
     void setupGraphs();
 
@@ -56,7 +57,6 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 
 #endif // DAILYTIMELINEGRAPH_H

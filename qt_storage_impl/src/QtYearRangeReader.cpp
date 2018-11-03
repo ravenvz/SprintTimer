@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtYearRangeReader.h"
-#include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/DatabaseDescription.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -35,24 +35,25 @@ QtYearRangeReader::QtYearRangeReader(DBService& dbService)
 
 void QtYearRangeReader::requestYearRange(Handler handler)
 {
-    this->handler = handler;
-    mQueryId = dbService.executeQuery(QString{
-        "SELECT DISTINCT STRFTIME('%Y', %1) "
-        "FROM %2 ORDER BY %1;"}.arg(SprintTable::Columns::startTime)
-                                          .arg(SprintTable::name));
+    qint64 queryId
+        = dbService.execute(QString{"SELECT DISTINCT STRFTIME('%Y', %1) "
+                                    "FROM %2 ORDER BY %1;"}
+                                .arg(SprintTable::Columns::startTime)
+                                .arg(SprintTable::name));
+    handlers.insert(std::make_pair(queryId, handler));
 }
 
 void QtYearRangeReader::onResultsReceived(
     qint64 queryId, const std::vector<QSqlRecord>& records)
 {
-    if (mQueryId != queryId) {
-        return;
+    if (auto it = handlers.find(queryId); it != handlers.end()) {
+        std::vector<std::string> range;
+        for (const auto& record : records) {
+            range.push_back(record.value(0).toString().toStdString());
+        }
+        it->second(range);
+        handlers.erase(queryId);
     }
-    std::vector<std::string> range;
-    for (const auto& record : records) {
-        range.push_back(record.value(0).toString().toStdString());
-    }
-    handler(range);
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl

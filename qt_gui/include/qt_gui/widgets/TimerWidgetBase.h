@@ -23,24 +23,29 @@
 #define ITIMERWIDGET_H_REB4PSQX
 
 #include "qt_gui/dialogs/ConfirmationDialog.h"
-#include <core/IConfig.h>
-#include <core/IStatefulTimer.h>
-#include <QAbstractItemModel>
 #include <QMediaPlayer>
 #include <QWidget>
+#include <core/IConfig.h>
+#include <core/IStatefulTimer.h>
 #include <memory>
+
+#ifdef _MSC_VER
+#include "qt_gui/WinExport.h"
+#endif // _MSC_VER
 
 namespace sprint_timer::ui::qt_gui {
 
 using Progress = int;
 
+#ifdef _MSC_VER
+class GLIB_EXPORT TimerWidgetBase : public QWidget {
+#else
 class TimerWidgetBase : public QWidget {
-
+#endif // _MSV_VER
     Q_OBJECT
 
 public:
     TimerWidgetBase(const IConfig& applicationSettings, QWidget* parent);
-    virtual void setTaskModel(QAbstractItemModel* model) = 0;
     virtual void setCandidateIndex(int index) = 0;
     virtual void updateGoalProgress(Progress progress) = 0;
 

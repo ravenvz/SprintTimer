@@ -25,13 +25,13 @@
 namespace sprint_timer::ui::qt_gui {
 
 ConfirmationDialog::ConfirmationDialog(QWidget* parent)
-    : QDialog(parent)
-    , ui(new Ui::ConfirmationDialog)
+    : QDialog{parent}
+    , ui{std::make_unique<Ui::ConfirmationDialog>()}
 {
     ui->setupUi(this);
 }
 
-ConfirmationDialog::~ConfirmationDialog() { delete ui; }
+ConfirmationDialog::~ConfirmationDialog() = default;
 
 void ConfirmationDialog::setActionDescription(QString& description)
 {
@@ -39,4 +39,3 @@ void ConfirmationDialog::setActionDescription(QString& description)
 }
 
 } // namespace sprint_timer::ui::qt_gui
-

@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtTaskStorageReader.h"
-#include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/utils/DateTimeConverter.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
@@ -71,7 +71,7 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
 void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
 {
     handler_queue.push_back(handler);
-    mUnfinishedQueryId = dbService.executeQuery(
+    mUnfinishedQueryId = dbService.execute(
         QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
                 "FROM %10 "
                 "WHERE %6 = 0 OR %8 > DATETIME('now', '-1 day') "
@@ -123,11 +123,11 @@ void QtTaskStorageReader::requestTasks(const TimeSpan& timeSpan,
 void QtTaskStorageReader::requestAllTags(TagHandler handler)
 {
     tag_handler_queue.push_back(handler);
-    mTagQueryId = dbService.executeQuery(QString{"SELECT %1, %2 FROM %3 "
-                                                 "ORDER BY %2;"}
-                                             .arg(TagTable::Columns::id)
-                                             .arg(TagTable::Columns::name)
-                                             .arg(TagTable::name));
+    mTagQueryId = dbService.execute(QString{"SELECT %1, %2 FROM %3 "
+                                            "ORDER BY %2;"}
+                                        .arg(TagTable::Columns::id)
+                                        .arg(TagTable::Columns::name)
+                                        .arg(TagTable::name));
 }
 
 void QtTaskStorageReader::onResultsReceived(

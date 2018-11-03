@@ -24,6 +24,7 @@
 
 #include "qt_gui/utils/DateInterval.h"
 #include <QDialog>
+#include <memory>
 
 namespace Ui {
 class DateRangePickDialog;
@@ -41,7 +42,7 @@ public:
     DateInterval getNewInterval();
 
 private:
-    Ui::DateRangePickDialog* ui;
+    std::unique_ptr<Ui::DateRangePickDialog> ui;
 
     void configureCalendar();
     void updateCalendarDates(DateInterval& period);

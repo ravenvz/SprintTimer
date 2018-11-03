@@ -22,20 +22,20 @@
 #ifndef ICONFIG_H
 #define ICONFIG_H
 
+#include <chrono>
 #include <string>
 
 namespace sprint_timer {
 
 class IConfig {
-
 public:
     virtual ~IConfig() = default;
-    virtual int sprintDuration() const = 0;
-    virtual void setSprintDuration(int minutes) = 0;
-    virtual int shortBreakDuration() const = 0;
-    virtual void setShortBreakDuration(int minutes) = 0;
-    virtual int longBreakDuration() const = 0;
-    virtual void setLongBreakDuration(int minutes) = 0;
+    virtual std::chrono::minutes sprintDuration() const = 0;
+    virtual void setSprintDuration(std::chrono::minutes duration) = 0;
+    virtual std::chrono::minutes shortBreakDuration() const = 0;
+    virtual void setShortBreakDuration(std::chrono::minutes duration) = 0;
+    virtual std::chrono::minutes longBreakDuration() const = 0;
+    virtual void setLongBreakDuration(std::chrono::minutes duration) = 0;
     virtual int numSprintsBeforeBreak() const = 0;
     virtual void setNumSprintsBeforeBreak(int tasksBeforeBreak) = 0;
     virtual bool soundIsEnabled() const = 0;

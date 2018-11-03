@@ -20,18 +20,29 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
+#include <core/use_cases/RegisterNewSprint.h>
+#include <core/use_cases/RemoveSprintTransaction.h>
+#include <core/use_cases/RequestSprints.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 using dw::DateTime;
 using dw::TimeSpan;
 using namespace entities;
+using namespace sprint_timer::use_cases;
 
-SprintModel::SprintModel(ICoreService& coreService, QObject* parent)
+SprintModel::SprintModel(CommandInvoker& commandInvoker,
+                         QueryInvoker& queryInvoker,
+                         ISprintStorageReader& sprintReader,
+                         ISprintStorageWriter& sprintWriter,
+                         ITaskStorageWriter& taskWriter,
+                         QObject* parent)
     : AsyncListModel(parent)
-    , interval{TimeSpan{DateTime::currentDateTimeLocal(),
-                        DateTime::currentDateTimeLocal()}}
-    , coreService{coreService}
+    , commandInvoker{commandInvoker}
+    , queryInvoker{queryInvoker}
+    , sprintReader{sprintReader}
+    , sprintWriter{sprintWriter}
+    , taskWriter{taskWriter}
 {
     synchronize();
 }
@@ -60,41 +71,46 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void SprintModel::setDateFilter(const TimeSpan& timeSpan)
-{
-    interval = timeSpan;
-    requestDataUpdate();
-}
-
 void SprintModel::insert(const TimeSpan& timeSpan, const std::string& taskUuid)
 {
-    coreService.registerSprint(timeSpan, taskUuid);
-    requestDataUpdate();
+    Sprint sprint{taskUuid, timeSpan};
+    insert(sprint);
 }
 
 void SprintModel::insert(const Sprint& sprint)
 {
-    coreService.registerSprint(sprint);
+    registerSprint(sprint);
     requestDataUpdate();
 }
 
 void SprintModel::insert(const std::vector<Sprint>& sprints)
 {
+    // TODO consider bulk-insert
     for (const auto& sprint : sprints)
-        coreService.registerSprint(sprint);
+        registerSprint(sprint);
     requestDataUpdate();
+}
+
+void SprintModel::registerSprint(const Sprint& sprint)
+{
+    commandInvoker.executeCommand(
+        std::make_unique<RegisterNewSprint>(sprintWriter, sprint));
 }
 
 void SprintModel::remove(int row)
 {
-    coreService.removeSprint(storage[static_cast<size_t>(row)]);
+    commandInvoker.executeCommand(std::make_unique<RemoveSprintTransaction>(
+        sprintWriter, storage[static_cast<size_t>(row)]));
     requestDataUpdate();
 }
 
 void SprintModel::requestDataUpdate()
 {
-    coreService.sprintsInTimeRange(
-        interval, [this](const auto& items) { this->onDataChanged(items); });
+    queryInvoker.execute(std::make_unique<RequestSprints>(
+        sprintReader,
+        dw::TimeSpan{dw::DateTime::currentDateTimeLocal(),
+                     dw::DateTime::currentDateTimeLocal()},
+        [this](const auto& items) { this->onDataChanged(items); }));
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)

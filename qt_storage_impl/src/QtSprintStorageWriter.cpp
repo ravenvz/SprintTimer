@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtSprintStorageWriter.h"
-#include "qt_storage_impl/Database.h"
+#include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/utils/DateTimeConverter.h"
 
 namespace sprint_timer::storage::qt_storage_impl {

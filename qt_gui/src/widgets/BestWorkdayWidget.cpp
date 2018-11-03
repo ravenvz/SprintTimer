@@ -27,13 +27,13 @@ namespace sprint_timer::ui::qt_gui {
 
 BestWorkdayWidget::BestWorkdayWidget(QWidget* parent)
     : QWidget(parent)
-    , ui{new Ui::BestWorkdayWidget}
+    , ui{std::make_unique<Ui::BestWorkdayWidget>()}
 {
     ui->setupUi(this);
     setupWeekdayBarChart();
 }
 
-BestWorkdayWidget::~BestWorkdayWidget() { delete ui; }
+BestWorkdayWidget::~BestWorkdayWidget() = default;
 
 void BestWorkdayWidget::setupWeekdayBarChart()
 {
@@ -82,4 +82,3 @@ void BestWorkdayWidget::updateWeekdayBarChartLegend(
 }
 
 } // namespace sprint_timer::ui::qt_gui
-

@@ -12,8 +12,9 @@ add_library(${CORE_LIB} SHARED)
 
 target_sources(${CORE_LIB}
     PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/src/CountdownTimer.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/CoreService.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CommandInvoker.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/PeriodicBackgroundRunner.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/QueryInvoker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/SprintBuilder.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/SprintStatistics.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/StatefulTimer.cpp"
@@ -24,10 +25,8 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/entities/Tag.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/entities/Task.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/AddNewTask.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/DecrementTaskSprints.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/DeleteTask.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/EditTask.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/IncrementTaskSprints.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RegisterNewSprint.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RemoveSprintTransaction.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/RenameTag.cpp"
@@ -47,7 +46,6 @@ target_sources(${CORE_LIB}
 target_include_directories(${CORE_LIB}
     PUBLIC ${date_wrapper_INCLUDE_DIRS}
     PUBLIC include
-    PRIVATE src
     PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_compile_features(${CORE_LIB} PUBLIC cxx_std_17)
@@ -61,6 +59,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 elseif(WIN32)
     target_link_libraries(${CORE_LIB} PUBLIC date_wrapper)
+elseif(APPLE)
+    target_link_libraries(${CORE_LIB}
+        PUBLIC date_wrapper
+        PUBLIC -lc++fs
+    )
 endif()
 
 if (WIN32)

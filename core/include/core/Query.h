@@ -23,6 +23,8 @@
 #ifndef SPRINT_TIMER_QUERY_H
 #define SPRINT_TIMER_QUERY_H
 
+#include <string>
+
 namespace sprint_timer {
 
 class Query {

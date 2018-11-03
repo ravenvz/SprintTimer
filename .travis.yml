@@ -1,0 +1,58 @@
+sudo: required
+language: cpp
+
+matrix:
+  include:
+  - os: osx
+    compiler: clang
+    env: BUILD_TYPE=Debug COMPILER=clang++
+  - os: osx
+    compiler: clang
+    env: BUILD_TYPE=Release COMPILER=clang++
+  - os: linux
+    compiler: gcc
+    env: BUILD_TYPE=Debug COMPILER=g++
+  - os: linux
+    compiler: gcc
+    env: BUILD_TYPE=Release COMPILER=g++
+  - os: linux
+    compiler: clang
+    env: BUILD_TYPE=Debug COMPILER=clang++
+  - os: linux
+    compiler: clang
+    env: BUILD_TYPE=Release COMPILER=clang++
+
+install:
+- |
+  if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+    brew install cmake || brew upgrade cmake
+    brew install qt
+    brew install llvm
+    brew install boost
+  fi
+- cmake --version
+
+before_script:
+- cd "${TRAVIS_BUILD_DIR}"
+- |
+  if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      QT_VERSION=$(cut -d' ' -f2 <<< $(brew list --versions qt));
+      (mkdir build && cd build && LDFLAGS="-L/usr/local/opt/llvm/lib" CPPFLAGS="-I/usr/local/opt/llvm/include" CC="$(brew --prefix llvm)/bin/clang" CXX="$(brew --prefix llvm)/bin/clang++" cmake -DBUILD_TESTS=ON -DQt5_DIR="$(brew --cellar qt5)/$QT_VERSION/lib/cmake/Qt5" ..);
+  else
+      echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
+      docker pull $DOCKER_USERNAME/sprint_dev;
+      docker images;
+      docker run -v $TRAVIS_BUILD_DIR:/project ${DOCKER_USERNAME}/sprint_dev /bin/bash -c "(cd project && mkdir build && cd build && CXX=$COMPILER cmake -DBUILD_TESTS=ON ..)";
+  fi;
+
+script:
+  if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      (cd build && cmake --build . --config ${BUILD_TYPE} -- -j2); (cd build && ctest);
+  else
+      docker run -v $TRAVIS_BUILD_DIR:/project ${DOCKER_USERNAME}/sprint_dev /bin/bash -c "(cd project/build && cmake --build . --config $BUILD_TYPE -- -j2 && ctest)";
+  fi;
+
+env:
+  global:
+  - secure: k+ec7cCy3w+wNTYJyFhb3A8CUvCEeFsd5ku5CcVDx3kGO1aFuv7b/OmE4c/8ml50c6AWvvKgerCDDguJuwj2HJ5ENH50oDW0YI/iS80qVZgCV9RUdeF/LFeOKSNhStM1yFj9Wy25N8Y7+/HmwXjzMEGUookm4z0toNCPODiSQ0Ye1HguRGle6o5RewVhRAhdlWrdwZWwzShe+raSw9I41D3w0M4Wxm2+J4Y1f04hdcAxFKT09sg1iNlCiiMv1HwNrX4Cwdwr5QBhIBkA0cEze5WS+/aQIvGv56HEv3V9bXRfu2nlG1PFLLGCgKLjY8AS70QnPgKjyOtEjE6MUO2v4OxsFU0p6lzFyjZekOA+e5ge3GfG1vtOeGUAFofcJ4KA4q0nZq7ZnJkD9uCN36GY4M7cpJWhVIICpqIR+5OR5dLcOLmpvonsFLErkDgzWZtgXBttWyPB7KEJPQHUzV3zeH21BE6UN3Sy9Pye7bXVt9OIdLlTfN8z1MAkF9IDKD0Y9zLbL2H4paRn4UqMK7P3HBps/UjaEKKg0OJbCbx3NhLW7GmDgiSZITgmJhLqm6WYY7C/hE2l/EIKODBrcKThTIDO4MI1BNhp3hiFgLPl7LvsMxI77EtXryW27bbKlS4CHZokDL96MgvlK32Zh1BColfD5T4IV8Mc1YdG2sYRVXE=
+  - secure: jUhTpagwAjaXKcA8Oo5uXrlhuv1miQTgEaUvziVQYorrFw89BlvMYJHTtH3YB+WVFoQTfEFSa2BW27fSfOudXpE82zTgeU8LChC6d3pQOM3JpPsrNQUAbySPVth4JGBvIliguNbPQgrYlthTrpdhXsCCu1xpLpGrWnQkdgGlOpru6VM7nCKALBSj37fEX0OZ/pNwd+PtAg2g4gb5L7jzQr5elys0o8gUcrLBplT1DVFNgGTtcCSXYMOqLcX+ePWCDpyB9JTV/GjHwyFVQ2hLHyrgLFA37Q12oVSTZ+xOHIvLdHe4xwaveBcAUo6aVlDNCJKVIQiO6lvQpH0oo2ozQ4UwcUZYtFUl1mp/iuq1iXNwBfDbtFrc0pYt4ZbqIre8SKkOsKImS1hCcUDLit/oljS2vOpB42zw27Np6lDN53M8qeB0qmjZieaLkNWSQq5UjInZOv3Jo5YGX6T6HcOXYRdST7ls/jow/UXqTXlZVwjPRAutVzS2sGYBm/M7g2gF+C01lBQk++VRiK425iWUwYiVK9C26VfZWd5KxNxGJZUUu3lde93Aoq4RC3NCuv/XoTxlcHRl4Rnw2osJh2GLZDfX00xLoh8CYnWGtP3PeFWMZ4NvG0bfzJuud3Z3EsD3QLDTXkoLJPFC4zim3ByQkXmprxSeYfo5buCZ4bEgxwM=

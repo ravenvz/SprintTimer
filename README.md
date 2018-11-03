@@ -22,15 +22,20 @@ It is a tool that helps to deal with time-framed tasks effectively. It encourage
 ### SprintTimer in action
 ![action](screenshots/1.gif)
 
+### Dependencies
+
+C++ compiler with C++17 support and std::filesystem library (experimental will do)
+CMake version 3.12
+Qt framework, version 5.x; last tested build on 5.11.2
+SQLite3 any revision
+Boost libraries 1.60+ (probably dependency will be removed later)
+
 ### Building from source
 
-#### Disclaimer
-SprintTimer is uncommercial pet project done in spare time. It is written in C++ and is guaranteed to build with compliler supporting the latest standard version (for now it's C++17). The author does not have resources to maintain backports.
+Note that develop branch is unstable and is not guaranteed to build on all platforms.
 
-#### Dependencies
-
-SprintTimer uses CMake to control compilation process. Minimum required version is 3.11
-SprintTimer depends on Qt5 framework, Boost libraries, SQLite3 and requires compiler with C++17 support to build.
+Cmake can be used to generate project files for different build systems.
+Below are some examples, alternatively you can use build system that siuts you.
 
 #### Linux
 
@@ -55,7 +60,7 @@ cmake .. -G "Visual Studio 15 Win64" -DCMAKE_PREFIX_PATH=<Path to Qt installatio
 cmake --build . --config Release
 ```
 
-Before running executable, make sure that Qt installation is added to system path.
+Before running executable, make sure that path to Qt installation is added to system path.
 Alternatively, you can copy required dll's manually.
 Assuming that you have built Release version: navigate to repo/bin/Release,
 copy following dll's from Qt installation for your compiler bin folder to repo/bin/Release folder:
@@ -63,6 +68,7 @@ copy following dll's from Qt installation for your compiler bin folder to repo/b
 Qt5Core.dll
 Qt5Gui.dll
 Qt5Multimedia.dll
+Qt5Network.dll
 Qt5Sql.dll
 Qt5Widgets.dll
 
@@ -72,8 +78,29 @@ audio/qtaudio_windows.dll
 sqldrivers/qsqlite.dll
 
 #### Mac OS X
-Mas OS X system is not supported yet, as author is not familiar and has no access to this platform at this moment.
-Adding support should be trivial though. If someone wants to contribute, please contact author.
+Install dependencies and Xcode.
+As C++17 complient compiler is required, Apple clang compiler that is shipped with the system might not be sufficient.
+One way to overcome this is to install latest llvm with homebrew:
+
+```shell
+brew install --with-toolchain llvm
+```
+
+Note that depending on your Qt installation type, you might need to change LDFLAGS and/or CPPFLAGS and adjust path to Qt, refer to Qt documentation.
+For example, if Qt 5.11.2 is installed with homebrew, project can be built with:
+
+```shell
+(cd build && LDFLAGS="-L/usr/local/opt/llvm/lib" CPPFLAGS="-I/usr/local/opt/llvm/include" CC="$(brew --prefix llvm)/bin/clang" CXX="$(brew --prefix llvm)/bin/clang++" cmake -DQt5_DIR="$(brew --cellar qt5)/5.11.2/lib/cmake/Qt5" .. && cmake --build . --config Release)
+```
+
+If you want to create installer:
+```shell
+(cd build && make package)
+```
+
+Then find sprint_timer_app.dmg inside build directory.
+
+Note: for correct timer count App Nap feature should be manually disabled for SprintTimer app.
 
 #### Building tests
 To build test suite option BUILD_TEST=ON should be passed to cmake.
@@ -81,3 +108,4 @@ To build test suite option BUILD_TEST=ON should be passed to cmake.
 ### Known issues
 * Some text labels might be cropped and some GUI elements might be too small/large on smaller resolution screens.
 * Long break counter resets after midnight.
+* On Mac OS user is required to disable App Nap feature manually.

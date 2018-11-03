@@ -24,6 +24,7 @@
 
 #include <QtWidgets/QWidget>
 #include <core/Distribution.h>
+#include <memory>
 
 namespace Ui {
 class BestWorkdayWidget;
@@ -42,7 +43,7 @@ public:
     void setData(const Distribution<double>& weekdayDistribution);
 
 private:
-    Ui::BestWorkdayWidget* ui;
+    std::unique_ptr<Ui::BestWorkdayWidget> ui;
 
     void setupWeekdayBarChart();
 
@@ -53,7 +54,6 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 
 #endif // BESTWORKDAYWIDGET_H

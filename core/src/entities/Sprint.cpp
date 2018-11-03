@@ -89,11 +89,9 @@ std::ostream& operator<<(std::ostream& os, const Sprint& sprint)
 
 bool operator==(const Sprint& lhs, const Sprint& rhs)
 {
-    // TODO replace timespan equality when implemented in DateWrapper
     return lhs.taskUuid() == rhs.taskUuid() && lhs.uuid() == rhs.uuid()
         && lhs.name() == rhs.name()
-        && lhs.timeSpan().start() == rhs.timeSpan().start()
-        && lhs.timeSpan().finish() == rhs.timeSpan().finish()
+        && lhs.timeSpan() == rhs.timeSpan()
         && lhs.tags() == rhs.tags();
 }
 

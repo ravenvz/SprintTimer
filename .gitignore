@@ -1,4 +1,5 @@
 db/*.db
+TODO
 tags
 build
 copyright
@@ -11,6 +12,10 @@ bin
 .vs
 CMakeSettings.json
 *.vim
+*.swp
+.DS_Store
 CppProperties.json
 compile_commands.json
 Testing/
+cmake-build-*/
+.idea/

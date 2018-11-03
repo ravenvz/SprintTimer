@@ -19,12 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef PROGRESSWIDGET_H
-#define PROGRESSWIDGET_H
+#ifndef PROGRESSVIEW_H_2OXRIURM
+#define PROGRESSVIEW_H_2OXRIURM
 
-#include <core/Distribution.h>
 #include <QtWidgets/QFrame>
-#include <ui_progress_widget.h>
+#include <core/Distribution.h>
+#include <memory>
+
+#include "qt_gui/Synchronizable.h"
+#include "qt_gui/dialogs/WorkdaysDialog.h"
+#include <QPushButton>
+#include <core/IConfig.h>
+#include <core/ISprintDistributionReader.h>
+#include <core/QueryInvoker.h>
+#include <core/use_cases/RequestSprintDistribution.h>
+#include <core/utils/WeekdaySelection.h>
 
 namespace Ui {
 class ProgressView;
@@ -32,17 +41,11 @@ class ProgressView;
 
 namespace sprint_timer::ui::qt_gui {
 
-class ProgressView : public QFrame {
+class ProgressView : public QFrame, public Synchronizable {
     Q_OBJECT
 
 public:
-    ProgressView(int goal,
-                 size_t numRows,
-                 size_t numColumns,
-                 double gaugeRelSize,
-                 QWidget* parent);
-
-    ~ProgressView();
+    virtual ~ProgressView();
 
     void setLegendTitle(const QString& title);
 
@@ -58,12 +61,24 @@ public:
 
     void setData(const Distribution<int>& distribution, size_t numActiveBins);
 
+protected:
+    using GoalValue = int;
+    using Rows = size_t;
+    using Columns = size_t;
+    using GaugeSize = double;
+
+    ProgressView(GoalValue goal,
+                 Rows numRows,
+                 Columns numColumns,
+                 GaugeSize gaugeRelSize,
+                 QWidget* parent = nullptr);
+
 private:
-    Ui::ProgressView* ui;
-    int goal;
-    size_t numRows;
-    size_t numColumns;
-    const double gaugeRelSize;
+    std::unique_ptr<Ui::ProgressView> ui;
+    GoalValue goal;
+    const Rows numRows;
+    const Columns numColumns;
+    const GaugeSize gaugeRelSize;
 
     void setupGauges();
 
@@ -77,5 +92,5 @@ signals:
 
 } // namespace sprint_timer::ui::qt_gui
 
+#endif /* end of include guard: PROGRESSVIEW_H_2OXRIURM */
 
-#endif // PROGRESSWIDGET_H

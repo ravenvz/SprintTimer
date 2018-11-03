@@ -48,17 +48,17 @@ namespace {
 
 } // namespace
 
-ProgressView::ProgressView(int goal,
-                           size_t numRows,
-                           size_t numColumns,
-                           double gaugeRelSize,
+ProgressView::ProgressView(GoalValue goal,
+                           Rows numRows,
+                           Columns numColumns,
+                           GaugeSize gaugeRelSize,
                            QWidget* parent)
-    : QFrame {parent}
-    , ui {new Ui::ProgressView}
-    , goal {goal}
-    , numRows {numRows}
-    , numColumns {numColumns}
-    , gaugeRelSize {gaugeRelSize}
+    : QFrame{parent}
+    , ui{std::make_unique<Ui::ProgressView>()}
+    , goal{goal}
+    , numRows{numRows}
+    , numColumns{numColumns}
+    , gaugeRelSize{gaugeRelSize}
 {
     ui->setupUi(this);
 
@@ -75,7 +75,7 @@ ProgressView::ProgressView(int goal,
     updateProgressBar(0);
 }
 
-ProgressView::~ProgressView() { delete ui; }
+ProgressView::~ProgressView() = default;
 
 void ProgressView::setLegendTitle(const QString& title)
 {
@@ -116,7 +116,7 @@ void ProgressView::setData(const Distribution<int>& distribution,
 
     if (numCompleted > expectedTotal) {
         ui->lblLeftCaption->setText("Overwork:");
-        ui->lblLeft->setText(QString {"%1"}.arg(numCompleted - expectedTotal));
+        ui->lblLeft->setText(QString{"%1"}.arg(numCompleted - expectedTotal));
     }
     else {
         ui->lblLeftCaption->setText("Left to complete:");

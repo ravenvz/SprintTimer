@@ -31,6 +31,7 @@
 #if TARGET_IPHONE_SIMULATOR
 #elif TARGET_OS_IPHONE
 #elif TARGET_OS_MAC
+#include <experimental/filesystem>
 #else
 #error "Unknown Apple platform"
 #endif
@@ -44,15 +45,52 @@
 #error "Unknown compiler"
 #endif
 
-#include <core/CoreService.h>
-#include <qt_storage_impl/QtStorageImplementersFactory.h>
-#include <qt_gui/QtConfig.h>
-#include <qt_gui/widgets/MainWindow.h>
 #include <QApplication>
 #include <QStyleFactory>
+#include <qt_gui/QtConfig.h>
+#include <qt_gui/widgets/MainWindow.h>
+#include <qt_storage_impl/QtStorageImplementersFactory.h>
 
+#include <QObject>
+#include <core/ICommandInvoker.h>
+#include <core/IConfig.h>
+#include <core/ITaskStorageReader.h>
+#include <core/QueryInvoker.h>
+#include <qt_gui/delegates/HistoryItemDelegate.h>
+#include <qt_gui/delegates/TaskItemDelegate.h>
+#include <qt_gui/dialogs/AddSprintDialog.h>
+#include <qt_gui/dialogs/AddTaskDialog.h>
+#include <qt_gui/dialogs/SettingsDialog.h>
+#include <qt_gui/dialogs/UndoDialog.h>
+#include <qt_gui/dialogs/WorkdaysDialog.h>
+#include <qt_gui/models/HistoryModel.h>
+#include <qt_gui/models/TagModel.h>
+#include <qt_gui/widgets/DailyProgressView.h>
+#include <qt_gui/widgets/DefaultTimer.h>
+#include <qt_gui/widgets/FancyTimer.h>
+#include <qt_gui/widgets/GoalProgressWindow.h>
+#include <qt_gui/widgets/HistoryWindow.h>
+#include <qt_gui/widgets/LauncherMenu.h>
+#include <qt_gui/widgets/MonthlyProgressView.h>
+#include <qt_gui/widgets/ProgressView.h>
+#include <qt_gui/widgets/SprintOutline.h>
+#include <qt_gui/widgets/SprintView.h>
+#include <qt_gui/widgets/StatisticsWindow.h>
+#include <qt_gui/widgets/TagEditor.h>
+#include <qt_gui/widgets/TaskOutline.h>
+#include <qt_gui/widgets/TaskSprintsView.h>
+#include <qt_gui/widgets/UndoButton.h>
+#include <qt_gui/widgets/WeeklyProgressView.h>
+
+// TODO at least linux version should have std::filesystem by now, so consider
+// replacing
+#if defined(_WIN32) || defined(__linux__)
 using std::experimental::filesystem::create_directory;
 using std::experimental::filesystem::exists;
+#else
+using std::filesystem::create_directory;
+using std::filesystem::exists;
+#endif
 
 namespace {
 
@@ -86,8 +124,13 @@ std::string getUserDataDirectory()
     return std::string{};
 }
 
-#elif defined(__APPLE__)
-#error "Apple platforms are not yet supported"
+#elif defined(__APPLE__) && TARGET_OS_MAC
+
+std::string getUserDataDirectory()
+{
+    return std::string{"/Users/"} + std::string{getenv("USER")}
+    + std::string{"/Library"};
+}
 #else
 #error "unknown platform"
 #endif
@@ -105,6 +148,122 @@ std::string getOrCreateSprintTimerDataDirectory()
 } // namespace
 
 
+class VerboseQueryInvoker : public sprint_timer::QueryInvoker {
+public:
+    VerboseQueryInvoker(sprint_timer::QueryInvoker& wrapped)
+        : wrapped{wrapped}
+    {
+    }
+
+    void execute(std::unique_ptr<sprint_timer::Query> query) const override
+    {
+        std::cout << query->describe() << std::endl;
+        wrapped.execute(std::move(query));
+    }
+
+private:
+    sprint_timer::QueryInvoker& wrapped;
+};
+
+
+class VerboseCommandInvoker : public sprint_timer::CommandInvoker {
+public:
+    VerboseCommandInvoker(sprint_timer::CommandInvoker& wrapped)
+        : wrapped{wrapped}
+    {
+    }
+
+    void executeCommand(std::unique_ptr<sprint_timer::Command> command) override
+    {
+        std::cout << command->describe() << std::endl;
+        wrapped.executeCommand(std::move(command));
+    }
+
+    void undo() override { wrapped.undo(); }
+
+    std::string lastCommandDescription() const override
+    {
+        return wrapped.lastCommandDescription();
+    }
+
+    bool hasUndoableCommands() const override
+    {
+        return wrapped.hasUndoableCommands();
+    }
+
+    void attach(sprint_timer::Observer& observer) override
+    {
+        wrapped.attach(observer);
+    }
+
+    void detach(sprint_timer::Observer& observer) override
+    {
+        wrapped.detach(observer);
+    }
+
+    void notify() override { wrapped.notify(); }
+
+private:
+    sprint_timer::CommandInvoker& wrapped;
+};
+
+// std::unique_ptr<QWidget>
+// createSprintOutline(sprint_timer::IConfig& applicationSettings,
+//                     sprint_timer::CommandInvoker& commandInvoker,
+//                     sprint_timer::ui::qt_gui::SprintModel& sprintModel,
+//                     sprint_timer::ui::qt_gui::TaskModel& taskModel)
+// {
+//     using namespace sprint_timer::ui::qt_gui;
+//
+//     AddSprintDialog addSprintDialog{
+//         applicationSettings, sprintModel, taskModel};
+//
+//     UndoDialog undoDialog{commandInvoker};
+//     QObject::connect(&undoDialog,
+//                      &QDialog::accepted,
+//                      &sprintModel,
+//                      &AsyncListModel::synchronize);
+//     QObject::connect(&undoDialog,
+//                      &QDialog::accepted,
+//                      &taskModel,
+//                      &AsyncListModel::synchronize);
+//
+//     auto undoButton = std::make_unique<UndoButton>(commandInvoker);
+//
+//     auto addNewSprintButton
+//         = std::make_unique<QPushButton>("Add Sprint Manually");
+//     addNewSprintButton->setEnabled(false);
+//     QObject::connect(&taskModel,
+//                      &QAbstractListModel::modelReset,
+//                      [btn = addNewSprintButton.get(), &taskModel]() {
+//                          btn->setEnabled(taskModel.rowCount(QModelIndex{})
+//                                          != 0);
+//                      });
+//
+//     auto sprintView = std::make_unique<SprintView>(sprintModel);
+//
+//     return std::make_unique<SprintOutline>(sprintModel,
+//                                            addSprintDialog,
+//                                            undoDialog,
+//                                            std::move(undoButton),
+//                                            std::move(addNewSprintButton),
+//                                            std::move(sprintView));
+// }
+
+void applyStyleSheet(QApplication& app)
+{
+#if defined(__APPLE__) && TARGET_OS_MAC
+    QFile styleFile(":mac.qss");
+#else
+    QFile styleFile(":app.qss");
+#endif
+    if (!styleFile.open(QFile::ReadOnly))
+        qDebug() << "WARNING error loading styleSheet";
+    app.setStyleSheet(QString::fromLatin1(styleFile.readAll()));
+    styleFile.close();
+}
+
+
 int main(int argc, char* argv[])
 {
     using namespace sprint_timer;
@@ -115,7 +274,6 @@ int main(int argc, char* argv[])
     QApplication::setOrganizationName("RavenStudio");
     QApplication::setApplicationName("SprintTimer");
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    Config applicationSettings;
 
     const std::string dataDirectory = getOrCreateSprintTimerDataDirectory();
     if (dataDirectory.empty()) {
@@ -144,21 +302,206 @@ int main(int argc, char* argv[])
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
 
-    CommandInvoker command_invoker;
+    CommandInvoker defaultCommandInvoker;
+    VerboseCommandInvoker commandInvoker{defaultCommandInvoker};
+    QueryInvoker defaultQueryInvoker;
+    VerboseQueryInvoker queryInvoker{defaultQueryInvoker};
 
-    CoreService coreService{*sprintStorageReader,
+    TaskModel taskModel{*taskStorageReader,
+                        *taskStorageWriter,
+                        *sprintStorageReader,
+                        *sprintStorageWriter,
+                        commandInvoker,
+                        queryInvoker};
+    SprintModel sprintModel{commandInvoker,
+                            queryInvoker,
+                            *sprintStorageReader,
                             *sprintStorageWriter,
-                            *sprintYearRangeReader,
-                            *taskStorageReader,
-                            *taskStorageWriter,
-                            *dailyDistributionReader,
-                            *weeklyDistributionReader,
-                            *monthlyDistributionReader,
-                            command_invoker};
+                            *taskStorageWriter};
+    TagModel tagModel{
+        *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
 
-    sprint_timer::ui::qt_gui::MainWindow w{applicationSettings, coreService};
-    w.show();
+    Config applicationSettings;
+
+    // auto sprintOutline = createSprintOutline(
+    //     applicationSettings, commandInvoker, sprintModel, taskModel);
+    AddSprintDialog addSprintDialog{
+        applicationSettings, sprintModel, taskModel};
+
+    UndoDialog undoDialog{commandInvoker};
+    QObject::connect(&undoDialog,
+                     &QDialog::accepted,
+                     &sprintModel,
+                     &AsyncListModel::synchronize);
+    QObject::connect(&undoDialog,
+                     &QDialog::accepted,
+                     &taskModel,
+                     &AsyncListModel::synchronize);
+
+    auto undoButton = std::make_unique<UndoButton>(commandInvoker);
+    auto addNewSprintButton
+        = std::make_unique<QPushButton>("Add Sprint Manually");
+    addNewSprintButton->setEnabled(false);
+    QObject::connect(&taskModel,
+                     &QAbstractListModel::modelReset,
+                     [btn = addNewSprintButton.get(), &taskModel]() {
+                         btn->setEnabled(taskModel.rowCount(QModelIndex{})
+                                         != 0);
+                     });
+    auto sprintView = std::make_unique<SprintView>(sprintModel);
+    auto sprintOutline
+        = std::make_unique<SprintOutline>(sprintModel,
+                                          addSprintDialog,
+                                          undoDialog,
+                                          std::move(undoButton),
+                                          std::move(addNewSprintButton),
+                                          std::move(sprintView));
+
+    StatisticsWindow statisticsWindow{applicationSettings,
+                                      *sprintStorageReader,
+                                      *sprintYearRangeReader,
+                                      queryInvoker};
+    QObject::connect(&sprintModel,
+                     &QAbstractListModel::modelReset,
+                     [&statisticsWindow]() { statisticsWindow.synchronize(); });
+    QObject::connect(&taskModel,
+                     &QAbstractListModel::modelReset,
+                     [&statisticsWindow]() { statisticsWindow.synchronize(); });
+
+    WorkdaysDialog workdaysDialog{applicationSettings};
+    auto dailyProgress
+        = std::make_unique<DailyProgressView>(applicationSettings,
+                                              *dailyDistributionReader,
+                                              queryInvoker,
+                                              workdaysDialog);
+    QObject::connect(&sprintModel,
+                     &QAbstractListModel::modelReset,
+                     [p = dailyProgress.get()]() { p->synchronize(); });
+    // TODO do we really need connection to TaskModel and why?
+    // QObject::connect(&taskModel,
+    //                  &QAbstractListModel::modelReset,
+    //                  [p = dailyProgress.get()]() { p->synchronize(); });
+    auto weeklyProgress = std::make_unique<WeeklyProgressView>(
+        applicationSettings, queryInvoker, *weeklyDistributionReader);
+    QObject::connect(&sprintModel,
+                     &QAbstractListModel::modelReset,
+                     [p = weeklyProgress.get()]() { p->synchronize(); });
+    auto monthlyProgress = std::make_unique<MonthlyProgressView>(
+        applicationSettings, queryInvoker, *monthlyDistributionReader);
+    QObject::connect(&sprintModel,
+                     &QAbstractListModel::modelReset,
+                     [p = monthlyProgress.get()]() { p->synchronize(); });
+    GoalProgressWindow progressWindow{
+        std::move(dailyProgress),
+        std::move(weeklyProgress),
+        std::move(monthlyProgress),
+    };
+
+    HistoryItemDelegate historyItemDelegate;
+    HistoryModel historyModel;
+    HistoryWindow historyWindow{*sprintStorageReader,
+                                *taskStorageReader,
+                                *sprintYearRangeReader,
+                                historyModel,
+                                historyItemDelegate,
+                                queryInvoker};
+    QObject::connect(&sprintModel,
+                     &QAbstractListModel::modelReset,
+                     [&historyWindow]() { historyWindow.synchronize(); });
+    QObject::connect(&taskModel,
+                     &QAbstractListModel::modelReset,
+                     [&historyWindow]() { historyWindow.synchronize(); });
+
+    SettingsDialog settingsDialog{applicationSettings};
+    auto launcherMenu = std::make_unique<LauncherMenu>(
+        progressWindow, statisticsWindow, historyWindow, settingsDialog);
+
+    std::unique_ptr<TimerWidgetBase> timerWidget;
+    auto timerFlavour = applicationSettings.timerFlavour();
+    if (timerFlavour == 0)
+        timerWidget = std::make_unique<DefaultTimer>(
+            applicationSettings, taskModel, nullptr);
+    else
+        timerWidget = std::make_unique<FancyTimer>(
+            applicationSettings, taskModel, nullptr);
+
+    HistoryModel taskSprintsModel;
+    TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
+    AddTaskDialog addTaskDialog{tagModel};
+    TaskItemDelegate taskItemDelegate;
+    auto taskView
+        = std::make_unique<TaskView>(taskModel,
+                                     *sprintStorageReader,
+                                     queryInvoker,
+                                     taskSprintsView,
+                                     addTaskDialog,
+                                     std::make_unique<TagEditor>(tagModel),
+                                     taskItemDelegate);
+    // taskView->setStyleSheet(
+    //     QLatin1String{"QListView {\n"
+    //                   "  show-decoration-selected: 1;\n"
+    //                   "}\n"
+    //                   "QListView::item {\n"
+    //                   "  margin: 5px;\n"
+    //                   "  border: 1px solid gray;\n"
+    //                   "  border-radius: 2px; padding: 10px;\n"
+    //                   "}\n"});
+    QObject::connect(timerWidget.get(),
+                     &TimerWidgetBase::submissionCandidateChanged,
+                     taskView.get(),
+                     &TaskView::onTaskSelectionChanged);
+    // TODO see if we can connect it differently
+    QObject::connect(taskView.get(),
+                     &TaskView::taskSelected,
+                     [timer = timerWidget.get()](const int row) {
+                         timer->setCandidateIndex(row);
+                     });
+    auto taskOutline = std::make_unique<TaskOutline>(
+        taskModel, sprintModel, std::move(taskView), addTaskDialog);
+
+    // As models update data asynchroniously,
+    // other models that depend on that data should
+    // subscribe to updateFinished() signal
+    QObject::connect(&sprintModel,
+                     &AsyncListModel::updateFinished,
+                     &taskModel,
+                     &AsyncListModel::synchronize);
+    QObject::connect(&taskModel,
+                     &AsyncListModel::updateFinished,
+                     &sprintModel,
+                     &AsyncListModel::synchronize);
+    QObject::connect(&taskModel,
+                     &AsyncListModel::updateFinished,
+                     &tagModel,
+                     &TagModel::synchronize);
+    QObject::connect(&tagModel,
+                     &AsyncListModel::updateFinished,
+                     &sprintModel,
+                     &AsyncListModel::synchronize);
+    QObject::connect(&tagModel,
+                     &AsyncListModel::updateFinished,
+                     &taskModel,
+                     &AsyncListModel::synchronize);
+
+    QObject::connect(timerWidget.get(),
+                     &TimerWidgetBase::submitRequested,
+                     taskOutline.get(),
+                     &TaskOutline::onSprintSubmissionRequested);
+    // TODO see if we can connect it differently
+    QObject::connect(&sprintModel,
+                     &SprintModel::modelReset,
+                     [timer = timerWidget.get(), &sprintModel]() {
+                         timer->updateGoalProgress(
+                             sprintModel.rowCount(QModelIndex()));
+                     });
+
+    sprint_timer::ui::qt_gui::MainWindow w{std::move(sprintOutline),
+                                           std::move(taskOutline),
+                                           std::move(timerWidget),
+                                           std::move(launcherMenu)};
+    applyStyleSheet(app);
     app.setStyle(QStyleFactory::create("Fusion"));
+    w.show();
 
     return app.exec();
 }

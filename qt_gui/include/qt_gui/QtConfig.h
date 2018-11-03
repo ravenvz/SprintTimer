@@ -22,9 +22,9 @@
 #ifndef QT_CONFIG_H_3HPQW7BI
 #define QT_CONFIG_H_3HPQW7BI
 
-#include <core/IConfig.h>
 #include <QSettings>
 #include <QVariant>
+#include <core/IConfig.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -33,131 +33,53 @@ namespace sprint_timer::ui::qt_gui {
 class Config : public IConfig {
 
 public:
-    int sprintDuration() const override
-    {
-        return settings.value("sprintDuration", 25).toInt();
-    }
+    std::chrono::minutes sprintDuration() const override;
 
-    void setSprintDuration(int minutes) override
-    {
-        Config::settings.setValue("sprintDuration",
-                                  QVariant(minutes));
-    }
+    void setSprintDuration(std::chrono::minutes duration) override;
 
-    int shortBreakDuration() const override
-    {
-        return settings.value("shortBreakDuration", 5).toInt();
-    }
+    std::chrono::minutes shortBreakDuration() const override;
 
-    void setShortBreakDuration(int minutes) override
-    {
-        Config::settings.setValue("shortBreakDuration",
-                                  QVariant(minutes));
-    }
+    void setShortBreakDuration(std::chrono::minutes duration) override;
 
-    int longBreakDuration() const override
-    {
-        return settings.value("longBreakDuration", 15).toInt();
-    }
+    std::chrono::minutes longBreakDuration() const override;
 
-    void setLongBreakDuration(int minutes) override
-    {
-        Config::settings.setValue("longBreakDuration",
-                                  QVariant(minutes));
-    }
+    void setLongBreakDuration(std::chrono::minutes duration) override;
 
-    int numSprintsBeforeBreak() const override
-    {
-        return settings.value("sprintsBeforeBreak", 4).toInt();
-    }
+    int numSprintsBeforeBreak() const override;
 
-    void setNumSprintsBeforeBreak(int numSprints) override
-    {
-        Config::settings.setValue("sprintsBeforeBreak",
-                                  QVariant(numSprints));
-    }
+    void setNumSprintsBeforeBreak(int numSprints) override;
 
-    bool soundIsEnabled() const override
-    {
-        return settings.value("playSound", true).toBool();
-    }
+    bool soundIsEnabled() const override;
 
-    void setPlaySound(bool playSound) override
-    {
-        Config::settings.setValue("playSound", QVariant(playSound));
-    }
+    void setPlaySound(bool playSound) override;
 
-    int soundVolume() const override
-    {
-        return settings.value("soundVolume", 50).toInt();
-    }
+    int soundVolume() const override;
 
-    void setSoundVolume(int soundVolume) override
-    {
-        Config::settings.setValue("soundVolume", QVariant(soundVolume));
-    }
+    void setSoundVolume(int soundVolume) override;
 
-    int dailyGoal() const override
-    {
-        return settings.value("dailyGoal", 11).toInt();
-    }
+    int dailyGoal() const override;
 
-    void setDailyGoal(int numSprints) override
-    {
-        Config::settings.setValue("dailyGoal",
-                                  QVariant(numSprints));
-    }
+    void setDailyGoal(int numSprints) override;
 
-    int weeklyGoal() const override
-    {
-        return settings.value("weeklyGoal", 65).toInt();
-    }
+    int weeklyGoal() const override;
 
-    void setWeeklyGoal(int numSprints) override
-    {
-        Config::settings.setValue("weeklyGoal",
-                                  QVariant(numSprints));
-    }
+    void setWeeklyGoal(int numSprints) override;
 
-    int monthlyGoal() const override
-    {
-        return settings.value("monthlyGoal", 260).toInt();
-    }
+    int monthlyGoal() const override;
 
-    void setMonthlyGoal(int numSprints) override
-    {
-        Config::settings.setValue("monthlyGoal",
-                                  QVariant(numSprints));
-    }
+    void setMonthlyGoal(int numSprints) override;
 
-    std::string soundFilePath() const override
-    {
-        return Config::settings.value("soundFilePath").toString().toStdString();
-    }
+    std::string soundFilePath() const override;
 
-    void setSoundFilePath(const std::string& filePath) override
-    {
-        Config::settings.setValue("soundFilePath",
-                                  QVariant(QString::fromStdString(filePath)));
-    }
+    void setSoundFilePath(const std::string& filePath) override;
 
-    int timerFlavour() const override
-    {
-        return Config::settings.value("timerFlavour", 1).toInt();
-    }
+    int timerFlavour() const override;
 
-    void setTimerFlavour(int timerVariation) override
-    {
-        Config::settings.setValue("timerFlavour", QVariant(timerVariation));
-    }
+    void setTimerFlavour(int timerVariation) override;
 
-    unsigned workdaysCode() const override {
-        return Config::settings.value("workdaysCode", 127).toUInt();
-    }
+    unsigned workdaysCode() const override;
 
-    void setWorkdaysCode(unsigned workdays_code) override {
-        Config::settings.setValue("workdaysCode", QVariant(workdays_code));
-    }
+    void setWorkdaysCode(unsigned workdays_code) override;
 
 private:
     QSettings settings;
