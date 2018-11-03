@@ -1,8 +1,14 @@
-Plans for version 0.5.0
+Plans for version 0.5.1
 ------------------------
 
 HISTORY
 ----------------------------------------------------------------
+Version 0.5.0
+-------------
+Add Mac OS support.
+Fixed bug when task deletion triggered data update every second.
+Use Travis and AppVeyor for CI instead of Jenkins.
+Use consistent fonts across operating systems.
 
 Version 0.4.8
 -------------
