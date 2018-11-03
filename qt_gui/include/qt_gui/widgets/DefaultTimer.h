@@ -38,7 +38,7 @@ class DefaultTimer : public TimerWidgetBase {
     Q_OBJECT
 
 public:
-    DefaultTimer(const IConfig& applicationSettings,
+    DefaultTimer(const IConfig& applicationSettings_,
                  QAbstractItemModel& taskModel,
                  QWidget* parent);
     ~DefaultTimer() override;

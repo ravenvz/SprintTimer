@@ -24,6 +24,7 @@
 
 #include "qt_gui/utils/DateInterval.h"
 #include <QDialog>
+#include <core/IConfig.h>
 #include <memory>
 
 namespace Ui {
@@ -36,15 +37,16 @@ class DateRangePickDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit DateRangePickDialog(DateInterval initialPeriod,
-                                 QWidget* parent = nullptr);
+    DateRangePickDialog(DateInterval initialPeriod,
+                        FirstDayOfWeek firstDayOfWeek,
+                        QWidget* parent = nullptr);
     ~DateRangePickDialog();
     DateInterval getNewInterval();
 
 private:
     std::unique_ptr<Ui::DateRangePickDialog> ui;
 
-    void configureCalendar();
+    void configureCalendar(FirstDayOfWeek firstDayOfWeek);
     void updateCalendarDates(DateInterval& period);
 };
 

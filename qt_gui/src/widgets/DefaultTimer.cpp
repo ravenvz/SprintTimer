@@ -31,10 +31,10 @@ namespace {
     constexpr char const* underworkStyleSheet{"QLabel { color: black; }"};
 } // namespace
 
-DefaultTimer::DefaultTimer(const IConfig& applicationSettings,
+DefaultTimer::DefaultTimer(const IConfig& applicationSettings_,
                            QAbstractItemModel& taskModel,
                            QWidget* parent)
-    : TimerWidgetBase{applicationSettings, parent}
+    : TimerWidgetBase{applicationSettings_, parent}
     , ui{std::make_unique<Ui::DefaultTimer>()}
 {
     ui->setupUi(this);

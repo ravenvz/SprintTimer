@@ -49,6 +49,9 @@ StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
 {
     ui->setupUi(this);
 
+    ui->dateRangePicker->setFirstDayOfWeek(
+        applicationSettings.firstDayOfWeek());
+
     connect(ui->dateRangePicker,
             &DateRangePicker::timeSpanChanged,
             this,

@@ -22,6 +22,7 @@
 #ifndef ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6
 #define ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6
 
+#include "core/IConfig.h"
 #include "core/ISprintDistributionReader.h"
 #include "core/ISprintStorageReader.h"
 #include "core/ISprintStorageWriter.h"
@@ -49,7 +50,7 @@ public:
     createSprintDailyDistributionReader() const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
-    createSprintWeeklyDistributionReader() const = 0;
+    createSprintWeeklyDistributionReader(const IConfig& applicationSettings) const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
     createSprintMonthlyDistributionReader() const = 0;

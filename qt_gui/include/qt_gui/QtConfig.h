@@ -81,6 +81,10 @@ public:
 
     void setWorkdays(const utils::WeekdaySelection& workdays) override;
 
+    FirstDayOfWeek firstDayOfWeek() const override;
+
+    void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek) override;
+
 private:
     QSettings settings;
 };

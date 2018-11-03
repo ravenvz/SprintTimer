@@ -71,7 +71,7 @@ DateRangePicker::~DateRangePicker() = default;
 
 void DateRangePicker::openDatePickDialog()
 {
-    DateRangePickDialog dialog{selectedInterval};
+    DateRangePickDialog dialog{selectedInterval, firstDayOfWeek};
     if (dialog.exec()) {
         updateInterval(dialog.getNewInterval());
     }
@@ -125,6 +125,11 @@ void DateRangePicker::setYears(const std::vector<std::string>& years)
                   QString("%1").arg(QDate::currentDate().year())))));
     ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
     updateInterval();
+}
+
+void DateRangePicker::setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek_)
+{
+    firstDayOfWeek = firstDayOfWeek_;
 }
 
 } // namespace sprint_timer::ui::qt_gui

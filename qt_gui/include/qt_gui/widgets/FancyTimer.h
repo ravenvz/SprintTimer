@@ -36,7 +36,7 @@ namespace sprint_timer::ui::qt_gui {
 
 class FancyTimer : public TimerWidgetBase {
 public:
-    FancyTimer(const IConfig& applicationSettings,
+    FancyTimer(const IConfig& applicationSettings_,
                QAbstractItemModel& taskModel,
                QWidget* parent);
     ~FancyTimer() override;

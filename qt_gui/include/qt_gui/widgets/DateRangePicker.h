@@ -24,6 +24,7 @@
 
 #include "qt_gui/dialogs/DateRangePickDialog.h"
 #include <QStringListModel>
+#include <core/IConfig.h>
 #include <memory>
 
 namespace Ui {
@@ -42,6 +43,7 @@ public:
     void setInterval(DateInterval&& timeSpan);
     DateInterval getInterval() const;
     void setYears(const std::vector<std::string>& years);
+    void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek_);
 
 signals:
     void timeSpanChanged(DateInterval newInterval);
@@ -54,6 +56,7 @@ private slots:
 
 private:
     std::unique_ptr<Ui::DateRangePicker> ui;
+    FirstDayOfWeek firstDayOfWeek;
     DateInterval selectedInterval;
     std::unique_ptr<QStringListModel> yearsModel;
     std::unique_ptr<QStringListModel> monthsModel;

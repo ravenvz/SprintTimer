@@ -113,6 +113,13 @@ public:
 
     void setWorkdays(const utils::WeekdaySelection& workdays) override {}
 
+    FirstDayOfWeek firstDayOfWeek() const override
+    {
+        return FirstDayOfWeek::Monday;
+    }
+
+    void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek) override {}
+
 private:
     std::chrono::minutes mSprintDuration{30};
     std::chrono::minutes mShortBreakDuration{10};

@@ -28,6 +28,8 @@
 
 namespace sprint_timer {
 
+enum class FirstDayOfWeek { Monday, Sunday };
+
 class IConfig {
 public:
     virtual ~IConfig() = default;
@@ -56,6 +58,8 @@ public:
     virtual void setTimerFlavour(int timerVariation) = 0;
     virtual utils::WeekdaySelection workdays() const = 0;
     virtual void setWorkdays(const utils::WeekdaySelection& workdays) = 0;
+    virtual FirstDayOfWeek firstDayOfWeek() const = 0;
+    virtual void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek) = 0;
 };
 
 } // namespace sprint_timer

@@ -151,4 +151,16 @@ void Config::setWorkdays(const utils::WeekdaySelection& workdays)
                               QVariant(workdays.selectionMask()));
 }
 
+FirstDayOfWeek Config::firstDayOfWeek() const
+{
+    return static_cast<FirstDayOfWeek>(
+        Config::settings.value("firstDayOfWeek", 0).toInt());
+}
+
+void Config::setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek)
+{
+    Config::settings.setValue("firstDayOfWeek",
+                              QVariant(static_cast<int>(firstDayOfWeek)));
+}
+
 } // namespace sprint_timer::ui::qt_gui
