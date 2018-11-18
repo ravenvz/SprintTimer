@@ -26,9 +26,9 @@ install:
 - |
   if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
     brew install cmake || brew upgrade cmake
-    brew install qt
-    brew install llvm
-    brew install boost
+    brew install qt || brew update qt
+    brew install llvm || brew update llvm
+    brew install boost || brew update boost
   fi
 - cmake --version
 
