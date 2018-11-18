@@ -281,6 +281,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    Config applicationSettings;
+
     QApplication app(argc, argv);
     DBService dbService{dataDirectory + "/sprint.db"};
 
@@ -298,7 +300,7 @@ int main(int argc, char* argv[])
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
         factory.createSprintDailyDistributionReader()};
     std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
-        factory.createSprintWeeklyDistributionReader()};
+        factory.createSprintWeeklyDistributionReader(applicationSettings)};
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
 
@@ -320,8 +322,6 @@ int main(int argc, char* argv[])
                             *taskStorageWriter};
     TagModel tagModel{
         *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
-
-    Config applicationSettings;
 
     // auto sprintOutline = createSprintOutline(
     //     applicationSettings, commandInvoker, sprintModel, taskModel);
@@ -404,7 +404,8 @@ int main(int argc, char* argv[])
                                 *sprintYearRangeReader,
                                 historyModel,
                                 historyItemDelegate,
-                                queryInvoker};
+                                queryInvoker,
+                                applicationSettings.firstDayOfWeek()};
     QObject::connect(&sprintModel,
                      &QAbstractListModel::modelReset,
                      [&historyWindow]() { historyWindow.synchronize(); });
