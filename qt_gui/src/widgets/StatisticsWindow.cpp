@@ -49,6 +49,9 @@ StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
 {
     ui->setupUi(this);
 
+    ui->dateRangePicker->setFirstDayOfWeek(
+        applicationSettings.firstDayOfWeek());
+
     connect(ui->dateRangePicker,
             &DateRangePicker::timeSpanChanged,
             this,
@@ -98,7 +101,7 @@ void StatisticsWindow::drawGraphs()
         = (selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex)
                             : sprints);
     SprintStatItem statistics{interestingSprints, timeSpan};
-    const WeekdaySelection workdays{applicationSettings.workdaysCode()};
+    const utils::WeekdaySelection workdays{applicationSettings.workdays()};
     ui->dailyTimelineGraph->setData(
         statistics.dailyDistribution(),
         interval.startDate,

@@ -79,7 +79,8 @@ void DailyProgressView::synchronize()
         distributionReader,
         thirtyDaysBackTillNow(),
         [this](const auto& distribution) {
-            const WeekdaySelection workdays{applicationSettings.workdaysCode()};
+            const utils::WeekdaySelection workdays{
+                applicationSettings.workdays()};
             setData(distribution,
                     numWorkdays(thirtyDaysBackTillNow(), workdays));
         }));

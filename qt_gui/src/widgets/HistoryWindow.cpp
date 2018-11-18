@@ -56,6 +56,7 @@ HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader,
                              HistoryModel& historyModel,
                              QStyledItemDelegate& historyItemDelegate,
                              QueryInvoker& queryInvoker,
+                             FirstDayOfWeek firstDayOfWeek,
                              QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::HistoryWindow>()}
@@ -66,6 +67,7 @@ HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader,
     , queryInvoker{queryInvoker}
 {
     ui->setupUi(this);
+    ui->dateRangePicker->setFirstDayOfWeek(firstDayOfWeek);
     queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
         sprintYearRangeReader, [this](const auto& yearRange) {
             ui->dateRangePicker->setYears(yearRange);

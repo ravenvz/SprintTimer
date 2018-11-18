@@ -77,9 +77,13 @@ public:
 
     void setTimerFlavour(int timerVariation) override;
 
-    unsigned workdaysCode() const override;
+    utils::WeekdaySelection workdays() const override;
 
-    void setWorkdaysCode(unsigned workdays_code) override;
+    void setWorkdays(const utils::WeekdaySelection& workdays) override;
+
+    FirstDayOfWeek firstDayOfWeek() const override;
+
+    void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek) override;
 
 private:
     QSettings settings;

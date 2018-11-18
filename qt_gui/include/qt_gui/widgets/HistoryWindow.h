@@ -29,6 +29,7 @@
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <QWidget>
+#include <core/IConfig.h>
 #include <core/ISprintStorageReader.h>
 #include <core/ITaskStorageReader.h>
 #include <core/IYearRangeReader.h>
@@ -53,6 +54,7 @@ public:
                            HistoryModel& historyModel,
                            QStyledItemDelegate& historyItemDelegate,
                            QueryInvoker& queryInvoker,
+                           FirstDayOfWeek firstDayOfWeek,
                            QWidget* parent = nullptr);
 
     ~HistoryWindow();

@@ -106,9 +106,19 @@ public:
 
     void setTimerFlavour(int timerVariation) override {}
 
-    unsigned workdaysCode() const override { return 0; }
+    utils::WeekdaySelection workdays() const override
+    {
+        return utils::WeekdaySelection{0};
+    }
 
-    void setWorkdaysCode(unsigned workdays_code) override {}
+    void setWorkdays(const utils::WeekdaySelection& workdays) override {}
+
+    FirstDayOfWeek firstDayOfWeek() const override
+    {
+        return FirstDayOfWeek::Monday;
+    }
+
+    void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek) override {}
 
 private:
     std::chrono::minutes mSprintDuration{30};

@@ -25,6 +25,8 @@
 #include "core/ISprintDistributionReader.h"
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
+#include <core/IConfig.h>
+#include <variant>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -42,42 +44,23 @@ protected:
     size_t distributionSize;
     std::list<Handler> handler_queue;
     QDate startDate;
-    std::function<bool(const QDate&, const QDate&)> equalityFunc;
-    std::function<QDate(const QDate&)> incrementFunc;
     qint64 mQueryId{-1};
 
     bool invalidQueryId(qint64 queryId) const;
 
-    DistributionReaderBase(
-        DBService& dbService,
-        size_t distributionSize,
-        std::function<bool(const QDate&, const QDate&)> compareFunc,
-        std::function<QDate(const QDate&)> incrementFunc);
+    DistributionReaderBase(DBService& dbService, size_t distributionSize);
 
     void executeCallback(std::vector<int>&& sprintCount);
 
-    template <class EqualityCriteria, class DateIncrementer>
-    std::vector<int> fillDateGaps(const std::vector<QSqlRecord>& records,
-                                  EqualityCriteria comp,
-                                  DateIncrementer incrementer)
-    {
-        std::vector<int> sprintCount(distributionSize, 0);
+    virtual QDate nextExpectedDate(const QDate& referenceDate) const = 0;
 
-        QDate current = startDate;
-        auto it = cbegin(records);
-        for (auto& elem : sprintCount) {
-            if (it == cend(records)) {
-                break;
-            }
-            if (comp(current, it->value(1).toDate())) {
-                elem = it->value(0).toInt();
-                ++it;
-            }
-            current = incrementer(current);
-        }
+    virtual QDate normalizeDate(const QDate& date) const;
 
-        return sprintCount;
-    }
+    virtual bool compareDate(const QDate& expected,
+                             const QDate& probeDate) const;
+
+private:
+    std::vector<int> fillDateGaps(const std::vector<QSqlRecord>& records) const;
 
 private slots:
     virtual void onResultsReceived(qint64 queryId,
@@ -86,17 +69,50 @@ private slots:
 
 class QtSprintDailyDistributionReader : public DistributionReaderBase {
 public:
-    QtSprintDailyDistributionReader(DBService& dbService, size_t numBins);
+    QtSprintDailyDistributionReader(DBService& dbService_, size_t numBins);
+
+private:
+    QDate nextExpectedDate(const QDate& referenceDate) const override;
 };
 
-class QtSprintWeeklyDistributionReader : public DistributionReaderBase {
+
+class QtSprintDistReaderMondayFirst : public DistributionReaderBase {
 public:
-    QtSprintWeeklyDistributionReader(DBService& dbService, size_t numBins);
+    QtSprintDistReaderMondayFirst(DBService& dbService_,
+                                          size_t numBins);
+
+private:
+    QDate nextExpectedDate(const QDate& referenceDate) const override;
+
+    QDate normalizeDate(const QDate& date) const override;
+
+    bool compareDate(const QDate& expected,
+                     const QDate& probeDate) const override;
+};
+
+class QtSprintDistReaderSundayFirst : public DistributionReaderBase {
+public:
+    QtSprintDistReaderSundayFirst(DBService& dbService_,
+                                          size_t numBins);
+
+private:
+    QDate nextExpectedDate(const QDate& referenceDate) const override;
+
+    QDate normalizeDate(const QDate& date) const override;
+
+    bool compareDate(const QDate& expected,
+                     const QDate& probeDate) const override;
 };
 
 class QtSprintMonthlyDistributionReader : public DistributionReaderBase {
 public:
-    QtSprintMonthlyDistributionReader(DBService& dbService, size_t numBins);
+    QtSprintMonthlyDistributionReader(DBService& dbService_, size_t numBins);
+
+private:
+    QDate nextExpectedDate(const QDate& referenceDate) const override;
+
+    bool compareDate(const QDate& expected,
+                     const QDate& probeDate) const override;
 };
 
 } // namespace sprint_timer::storage::qt_storage_impl

@@ -39,6 +39,8 @@ public:
     void synchronize() override;
 
 private:
+    IConfig& applicationSettings;
+    const FirstDayOfWeek firstDayOfWeek{applicationSettings.firstDayOfWeek()};
     QueryInvoker& queryInvoker;
     ISprintDistributionReader& distributionReader;
 };
