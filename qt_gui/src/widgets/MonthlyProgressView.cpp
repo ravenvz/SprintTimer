@@ -44,6 +44,8 @@ MonthlyProgressView::MonthlyProgressView(
     , distributionReader{monthlyDistributionReader}
 {
     setLegendTitle("Last 12 months");
+    setLegendAverageCaption("Average per month:");
+    setLegendGoalCaption("Monthly goal:");
     connect(this,
             &ProgressView::goalChanged,
             [this, &applicationSettings](int goal) {

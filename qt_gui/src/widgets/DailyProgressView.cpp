@@ -49,9 +49,7 @@ DailyProgressView::DailyProgressView(
     , queryInvoker{queryInvoker_}
 {
     setLegendTitle("Last 30 days");
-    setLegendGoalCaption("Total completed:");
     setLegendAverageCaption("Average per day:");
-    setLegendPercentageCaption("Goal progress:");
     setLegendGoalCaption("Daily goal:");
 
     auto configureWorkdaysButton = std::make_unique<QPushButton>("Configure");
