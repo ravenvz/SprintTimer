@@ -19,35 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSPRINTSTORAGEWRITER_H_U7AAXVTC
-#define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
-
+#include "core/Command.h"
 #include "core/ISprintStorageWriter.h"
-#include "qt_storage_impl/DBService.h"
-#include <QObject>
 
-namespace sprint_timer::storage::qt_storage_impl {
+namespace sprint_timer::use_cases {
 
-class QtSprintStorageWriter : public QObject, public ISprintStorageWriter {
-    Q_OBJECT
-
+class RegisterNewSprintBulk : public Command {
 public:
-    explicit QtSprintStorageWriter(DBService& dbService);
+    RegisterNewSprintBulk(ISprintStorageWriter& writer_,
+                          std::vector<entities::Sprint> sprints_);
 
-    void save(const entities::Sprint& sprint) final;
+    void execute() override;
 
-    void save(const std::vector<entities::Sprint>& sprints) final;
+    void undo() override;
 
-    void remove(const entities::Sprint& sprint) final;
-
-    void remove(const std::vector<entities::Sprint>& sprints) final;
+    std::string describe() const override;
 
 private:
-    DBService& dbService;
-    qint64 addQueryId{-1};
-    qint64 removeQueryId{-1};
+    ISprintStorageWriter& writer;
+    const std::vector<entities::Sprint> sprints;
 };
 
-} // namespace sprint_timer::storage::qt_storage_impl
-
-#endif /* end of include guard: QTSPRINTSTORAGEWRITER_H_U7AAXVTC */
+} // namespace sprint_timer::use_cases

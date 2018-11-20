@@ -61,6 +61,8 @@ void QtSprintStorageWriter::save(const Sprint& sprint)
     dbService.executePrepared(addQueryId);
 }
 
+void QtSprintStorageWriter::save(const std::vector<Sprint>& sprints) {}
+
 void QtSprintStorageWriter::remove(const Sprint& sprint)
 {
     dbService.bind(removeQueryId,
@@ -68,5 +70,7 @@ void QtSprintStorageWriter::remove(const Sprint& sprint)
                    QVariant(QString::fromStdString(sprint.uuid())));
     dbService.executePrepared(removeQueryId);
 }
+
+void QtSprintStorageWriter::remove(const std::vector<Sprint>& sprints) {}
 
 } // namespace sprint_timer::storage::qt_storage_impl
