@@ -19,23 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IYEARRANGEREADER_H_EIN38BSX
-#define IYEARRANGEREADER_H_EIN38BSX
+#include "gtest/gtest.h"
+#include <QCoreApplication>
+#include <QTimer>
 
-#include <functional>
-#include <list>
-#include <vector>
-
-namespace sprint_timer {
-
-class IYearRangeReader {
-public:
-    // TODO Maybe just return TimeSpan?
-    using Handler = std::function<void(const std::vector<std::string>&)>;
-    virtual ~IYearRangeReader() = default;
-    virtual void requestYearRange(Handler handler) = 0;
-};
-
-} // namespace sprint_timer
-
-#endif /* end of include guard: IYEARRANGEREADER_H_EIN38BSX */
+int main(int argc, char** argv)
+{
+    // QCoreApplication app{argc, argv};
+    ::testing::InitGoogleTest(&argc, argv);
+    int ret = RUN_ALL_TESTS();
+    // QTimer exitTimer;
+    // QObject::connect(
+    //     &exitTimer, &QTimer::timeout, &app, QCoreApplication::quit);
+    // exitTimer.start(std::chrono::seconds{5});
+    // exitTimer.start();
+    // app.exec();
+    return ret;
+}

@@ -139,7 +139,7 @@ void Worker::init()
 {
     connection = std::make_unique<ConnectionGuard>(filename, connectionName);
     if (!openConnection())
-        throw std::runtime_error("Unable to create database");
+        throw std::runtime_error("Unable to connect with database");
 }
 
 void Worker::execute(qint64 queryId, const QString& query)
@@ -148,6 +148,7 @@ void Worker::execute(qint64 queryId, const QString& query)
     if (!q.exec(query)) {
         QString errormsg
             = QString("%1 %2").arg(q.lastQuery()).arg(q.lastError().text());
+        qDebug() << errormsg;
         emit error(queryId, errormsg);
         if (inTransaction) {
             rollbackTransaction();

@@ -19,23 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IYEARRANGEREADER_H_EIN38BSX
-#define IYEARRANGEREADER_H_EIN38BSX
+#ifndef FILEDELETER_H_RT3RA6QD
+#define FILEDELETER_H_RT3RA6QD
 
-#include <functional>
-#include <list>
-#include <vector>
+#include <QFile>
+#include <QString>
 
-namespace sprint_timer {
-
-class IYearRangeReader {
+class FileDeleter {
 public:
-    // TODO Maybe just return TimeSpan?
-    using Handler = std::function<void(const std::vector<std::string>&)>;
-    virtual ~IYearRangeReader() = default;
-    virtual void requestYearRange(Handler handler) = 0;
+    FileDeleter(const QString& name);
+    ~FileDeleter();
+
+private:
+    const QString& name;
+    QFile file;
 };
 
-} // namespace sprint_timer
-
-#endif /* end of include guard: IYEARRANGEREADER_H_EIN38BSX */
+#endif /* end of include guard: FILEDELETER_H_RT3RA6QD */
