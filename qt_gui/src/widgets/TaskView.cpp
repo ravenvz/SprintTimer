@@ -136,12 +136,14 @@ void TaskView::launchTaskEditor() const
 
     editTaskDialog.setWindowTitle(editTaskDialogTitle);
     editTaskDialog.fillItemData(itemToEdit);
-    if (editTaskDialog.exec()) {
-        Task updatedItem = editTaskDialog.constructedTask();
-        updatedItem.setActualCost(itemToEdit.actualCost());
-        updatedItem.setCompleted(itemToEdit.isCompleted());
-        taskModel.replaceItemAt(index.row(), updatedItem);
-    }
+    connect(&editTaskDialog, &QDialog::accepted, [&]() {
+            Task updatedItem = editTaskDialog.constructedTask();
+            updatedItem.setActualCost(itemToEdit.actualCost());
+            updatedItem.setCompleted(itemToEdit.isCompleted());
+            taskModel.replaceItemAt(index.row(), updatedItem);
+            });
+    editTaskDialog.exec();
+    editTaskDialog.disconnect();
 }
 
 void TaskView::launchTagEditor() const
