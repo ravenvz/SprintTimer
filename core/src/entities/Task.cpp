@@ -150,7 +150,8 @@ bool operator==(const Task& lhs, const Task& rhs)
         && lhs.estimatedCost() == rhs.estimatedCost()
         && lhs.actualCost() == rhs.actualCost() && lhs.tags() == rhs.tags()
         && lhs.isCompleted() == rhs.isCompleted()
-        && lhs.lastModified() == rhs.lastModified();
+        && lhs.lastModified().timestamp<std::chrono::seconds>()
+        == rhs.lastModified().timestamp<std::chrono::seconds>();
 }
 
 } // namespace sprint_timer::entities
