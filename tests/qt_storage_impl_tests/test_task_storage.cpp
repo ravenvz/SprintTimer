@@ -447,7 +447,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.runEventLoop();
 }
 
-// TODO replace with bulk sprint insert
 TEST_F(QtStorageImplementIntegrationTestFixture,
        retrieves_sprints_for_given_task)
 {
@@ -473,8 +472,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.taskWriter->save(someTask);
     initializer.taskWriter->save(irrelevantTask);
-    for (const auto& sprint : sprints)
-        initializer.sprintWriter->save(sprint);
+    initializer.sprintWriter->save(sprints);
 
     initializer.sprintReader->sprintsForTask(
         someTask.uuid(),
@@ -571,5 +569,62 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_year_range)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_sprint_distributions)
 {
-    FAIL();
+    // FAIL();
 }
+
+TEST_F(QtStorageImplementIntegrationTestFixture, saves_sprints_in_bulk)
+{
+    QtStorageInitializer initializer{"sssb.db"};
+    const Task someTask{TaskBuilder{}.build()};
+    const dw::TimeSpan timeSpan{dw::DateTime::fromYMD(2018, 12, 1),
+                                dw::DateTime::fromYMD(2018, 12, 1)};
+    std::vector<Sprint> sprintBulk;
+    SprintBuilder sprintBuilder{
+        SprintBuilder{}.withTaskUuid(someTask.uuid()).withTimeSpan(timeSpan)};
+    std::generate_n(std::back_inserter(sprintBulk), 5, [&sprintBuilder]() {
+        return sprintBuilder.build();
+    });
+
+    initializer.taskWriter->save(someTask);
+    initializer.sprintWriter->save(sprintBulk);
+
+    initializer.sprintReader->sprintsForTask(
+        someTask.uuid(),
+        [&sprintBulk, &initializer](const ISprintStorageReader::Items& items) {
+            EXPECT_EQ(sprintBulk, items);
+            initializer.quit();
+        });
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture, removes_sprints_in_bulk)
+{
+    QtStorageInitializer initializer{"rrsss.db"};
+    const Task someTask{TaskBuilder{}.build()};
+    const Task otherTask{TaskBuilder{}.build()};
+    const dw::TimeSpan timeSpan{dw::DateTime::fromYMD(2018, 12, 1),
+                                dw::DateTime::fromYMD(2018, 12, 1)};
+    std::vector<Sprint> sprintBulk;
+    SprintBuilder sprintBuilder{SprintBuilder{}.withTimeSpan(timeSpan)};
+    std::generate_n(
+        std::back_inserter(sprintBulk), 2, [&sprintBuilder, &someTask]() {
+            return sprintBuilder.withTaskUuid(someTask.uuid()).build();
+        });
+    std::generate_n(
+        std::back_inserter(sprintBulk), 2, [&sprintBuilder, &otherTask]() {
+            return sprintBuilder.withTaskUuid(otherTask.uuid()).build();
+        });
+
+    initializer.taskWriter->save(someTask);
+    initializer.taskWriter->save(otherTask);
+    initializer.sprintWriter->save(sprintBulk);
+    initializer.sprintWriter->remove(sprintBulk);
+
+    initializer.sprintReader->requestItems(
+        timeSpan, [&initializer](const ISprintStorageReader::Items& items) {
+            EXPECT_TRUE(items.empty());
+            initializer.quit();
+        });
+    initializer.runEventLoop();
+}
+
