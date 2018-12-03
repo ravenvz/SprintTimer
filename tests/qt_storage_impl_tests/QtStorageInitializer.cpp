@@ -19,23 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IYEARRANGEREADER_H_EIN38BSX
-#define IYEARRANGEREADER_H_EIN38BSX
+#include "QtStorageInitializer.h"
 
-#include <functional>
-#include <list>
-#include <vector>
+namespace {
 
-namespace sprint_timer {
+int dummyArgc = 0;
+char* dummyArgv = 0;
 
-class IYearRangeReader {
-public:
-    // TODO Maybe just return TimeSpan?
-    using Handler = std::function<void(const std::vector<std::string>&)>;
-    virtual ~IYearRangeReader() = default;
-    virtual void requestYearRange(Handler handler) = 0;
-};
+} // namespace
 
-} // namespace sprint_timer
+QtStorageInitializer::QtStorageInitializer(QString&& name_)
+    : name{std::move(name_)}
+    , app{QCoreApplication{dummyArgc, &dummyArgv}}
+{
+}
 
-#endif /* end of include guard: IYEARRANGEREADER_H_EIN38BSX */
+void QtStorageInitializer::runEventLoop() { app.exec(); }
+
+void QtStorageInitializer::quit() { app.quit(); }

@@ -19,23 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IYEARRANGEREADER_H_EIN38BSX
-#define IYEARRANGEREADER_H_EIN38BSX
+#include "gtest/gtest.h"
+#include <qt_storage_impl/DBService.h>
+#include <qt_storage_impl/QtStorageImplementersFactory.h>
 
-#include <functional>
-#include <list>
-#include <vector>
+using namespace sprint_timer::storage::qt_storage_impl;
 
-namespace sprint_timer {
-
-class IYearRangeReader {
+class SprintStorageWriterFixture : public ::testing::Test {
 public:
-    // TODO Maybe just return TimeSpan?
-    using Handler = std::function<void(const std::vector<std::string>&)>;
-    virtual ~IYearRangeReader() = default;
-    virtual void requestYearRange(Handler handler) = 0;
+    // DBService dbService{QString{":memory:"}};
+    // QtStorageImplementersFactory factory{dbService};
+    // std::unique_ptr<sprint_timer::ISprintStorageWriter> sprintStorageWriter
+    //     = factory.createSprintStorageWriter();
 };
 
-} // namespace sprint_timer
-
-#endif /* end of include guard: IYEARRANGEREADER_H_EIN38BSX */
+TEST_F(SprintStorageWriterFixture, save_sprint) {}
