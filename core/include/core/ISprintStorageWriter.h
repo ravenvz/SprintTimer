@@ -33,7 +33,11 @@ public:
 
     virtual void save(const entities::Sprint& sprint) = 0;
 
+    virtual void save(const std::vector<entities::Sprint>& sprints) = 0;
+
     virtual void remove(const entities::Sprint& sprint) = 0;
+
+    virtual void remove(const std::vector<entities::Sprint>& sprints) = 0;
 };
 
 } // namespace sprint_timer

@@ -46,7 +46,19 @@ struct QtStorageInitializer {
         = factory.createSprintStorageWriter();
     std::unique_ptr<sprint_timer::IYearRangeReader> yearRangeReader
         = factory.createYearRangeReader();
-
+    std::unique_ptr<sprint_timer::ISprintDistributionReader>
+        dailyDistributionReader = factory.createSprintDailyDistributionReader();
+    std::unique_ptr<sprint_timer::ISprintDistributionReader>
+        monthlyDistributionReader
+        = factory.createSprintMonthlyDistributionReader();
+    std::unique_ptr<sprint_timer::ISprintDistributionReader>
+        mondayFirstWeeklyDistributionReader
+        = factory.createSprintWeeklyDistributionReader(
+            sprint_timer::FirstDayOfWeek::Monday);
+    std::unique_ptr<sprint_timer::ISprintDistributionReader>
+        sundayFirstWeeklyDistributionReader
+        = factory.createSprintWeeklyDistributionReader(
+            sprint_timer::FirstDayOfWeek::Sunday);
     void runEventLoop();
 
     void quit();

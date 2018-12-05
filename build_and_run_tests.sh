@@ -2,6 +2,7 @@
 
 # NOTE this is quick and dirty build script
 # that is NOT intended to be used in automatic builds
+set -e
 
 OPTIND=1
 

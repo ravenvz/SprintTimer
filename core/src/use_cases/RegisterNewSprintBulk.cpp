@@ -19,35 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSPRINTSTORAGEWRITER_H_U7AAXVTC
-#define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
+#include "core/use_cases/RegisterNewSprintBulk.h"
 
-#include "core/ISprintStorageWriter.h"
-#include "qt_storage_impl/DBService.h"
-#include <QObject>
+namespace sprint_timer::use_cases {
 
-namespace sprint_timer::storage::qt_storage_impl {
+using entities::Sprint;
 
-class QtSprintStorageWriter : public QObject, public ISprintStorageWriter {
-    Q_OBJECT
+RegisterNewSprintBulk::RegisterNewSprintBulk(ISprintStorageWriter& writer_,
+                                             std::vector<Sprint> sprints_)
+    : writer{writer_}
+    , sprints{std::move(sprints_)}
+{
+}
 
-public:
-    explicit QtSprintStorageWriter(DBService& dbService);
+void RegisterNewSprintBulk::execute() {
+    writer.save(sprints);
+}
 
-    void save(const entities::Sprint& sprint) final;
+void RegisterNewSprintBulk::undo() {
+    writer.remove(sprints);
+}
 
-    void save(const std::vector<entities::Sprint>& sprints) final;
+std::string RegisterNewSprintBulk::describe() const {
+    std::stringstream ss;
+    ss << "Register new sprint bulk:\n";
+    std::copy(sprints.cbegin(), sprints.cend(), std::ostream_iterator<Sprint>(ss, "\n   "));
+    ss << '\n';
+    return ss.str();
+}
 
-    void remove(const entities::Sprint& sprint) final;
+} // namespace sprint_timer::use_cases
 
-    void remove(const std::vector<entities::Sprint>& sprints) final;
-
-private:
-    DBService& dbService;
-    qint64 addQueryId{-1};
-    qint64 removeQueryId{-1};
-};
-
-} // namespace sprint_timer::storage::qt_storage_impl
-
-#endif /* end of include guard: QTSPRINTSTORAGEWRITER_H_U7AAXVTC */
