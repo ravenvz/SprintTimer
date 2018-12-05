@@ -291,7 +291,8 @@ int main(int argc, char* argv[])
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
         factory.createSprintDailyDistributionReader()};
     std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
-        factory.createSprintWeeklyDistributionReader(applicationSettings)};
+        factory.createSprintWeeklyDistributionReader(
+            applicationSettings.firstDayOfWeek())};
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
 

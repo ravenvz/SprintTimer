@@ -43,14 +43,14 @@ public:
     virtual std::unique_ptr<ISprintStorageWriter>
     createSprintStorageWriter() const = 0;
 
-    virtual std::unique_ptr<IYearRangeReader>
-    createYearRangeReader() const = 0;
+    virtual std::unique_ptr<IYearRangeReader> createYearRangeReader() const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
     createSprintDailyDistributionReader() const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
-    createSprintWeeklyDistributionReader(const IConfig& applicationSettings) const = 0;
+    createSprintWeeklyDistributionReader(
+        FirstDayOfWeek firstDayOfWeek) const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
     createSprintMonthlyDistributionReader() const = 0;

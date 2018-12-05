@@ -69,10 +69,10 @@ public:
 
     std::unique_ptr<ISprintDistributionReader>
     createSprintWeeklyDistributionReader(
-        const IConfig& applicationSettings) const override
+        FirstDayOfWeek firstDayOfWeek) const override
     {
         constexpr size_t numWeeks{12};
-        if (applicationSettings.firstDayOfWeek() == FirstDayOfWeek::Monday)
+        if (firstDayOfWeek == FirstDayOfWeek::Monday)
             return std::make_unique<QtSprintDistReaderMondayFirst>(
             dbService, numWeeks);
         return std::make_unique<QtSprintDistReaderSundayFirst>(dbService, numWeeks);
