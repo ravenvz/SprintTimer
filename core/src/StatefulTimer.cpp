@@ -102,7 +102,9 @@ void StatefulTimer::onTimerTick(PeriodicBackgroundRunner::TickPeriod timeLeft)
 
 void StatefulTimer::startCountdown()
 {
-    periodicBackgroundRunner.reset(nullptr);
+    // if (periodicBackgroundRunner)
+    //     periodicBackgroundRunner->stop();
+    // periodicBackgroundRunner.reset(nullptr);
     periodicBackgroundRunner = std::make_unique<PeriodicBackgroundRunner>(
         [this](PeriodicBackgroundRunner::TickPeriod timeLeft) {
             this->onTimerTick(timeLeft);
@@ -244,15 +246,16 @@ void LongBreak::onTimerFinished(StatefulTimer& timer) { setNextState(timer); }
 
 void Zone::enter(StatefulTimer& timer) const
 {
+    // this check is required due to lame test structure that switches states
+    // directly without initializing periodicBackgroundRunner
+    if (timer.periodicBackgroundRunner)
+        timer.periodicBackgroundRunner->setCyclic(true);
     timer.notifyStateChanged(IStatefulTimer::StateId::ZoneEntered);
 }
 
 void Zone::cancelExit(StatefulTimer& timer) {}
 
-void Zone::normalExit(StatefulTimer& timer) const
-{
-    timer.notifyStateChanged(IStatefulTimer::StateId::ZoneLeft);
-}
+void Zone::normalExit(StatefulTimer& timer) const {}
 
 std::chrono::seconds Zone::duration(const StatefulTimer& timer) const
 {
@@ -263,6 +266,10 @@ void Zone::setNextState(StatefulTimer& timer) {}
 
 void Zone::toggleZoneMode(StatefulTimer& timer)
 {
+    // this check is required due to lame test structure that switches states
+    // directly without initializing periodicBackgroundRunner
+    if (timer.periodicBackgroundRunner)
+        timer.periodicBackgroundRunner->setCyclic(false);
     // Changing state directly because we don't want to enter/exit to be called
     timer.currentState = &timer.runningSprint;
     timer.notifyStateChanged(IStatefulTimer::StateId::ZoneLeft);
@@ -273,9 +280,6 @@ void Zone::onTimerFinished(StatefulTimer& timer)
     timer.buffer.emplace_back(
         TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
     timer.mStart = DateTime::currentDateTimeLocal();
-    if (timer.periodicBackgroundRunner)
-        timer.periodicBackgroundRunner->stop();
-    timer.startCountdown();
 }
 
 void SprintFinished::enter(StatefulTimer& timer) const
