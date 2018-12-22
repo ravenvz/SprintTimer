@@ -32,19 +32,19 @@ RegisterNewSprintBulk::RegisterNewSprintBulk(ISprintStorageWriter& writer_,
 {
 }
 
-void RegisterNewSprintBulk::execute() {
-    writer.save(sprints);
-}
+void RegisterNewSprintBulk::execute() { writer.save(sprints); }
 
-void RegisterNewSprintBulk::undo() {
-    writer.remove(sprints);
-}
+void RegisterNewSprintBulk::undo() { writer.remove(sprints); }
 
-std::string RegisterNewSprintBulk::describe() const {
+std::string RegisterNewSprintBulk::describe() const
+{
     std::stringstream ss;
     ss << "Register new sprint bulk:\n";
-    std::copy(sprints.cbegin(), sprints.cend(), std::ostream_iterator<Sprint>(ss, "\n   "));
-    ss << '\n';
+    std::copy(sprints.cbegin(),
+              sprints.cend(),
+              std::ostream_iterator<Sprint>(ss, "\n"));
+    std::string res{ss.str()};
+    res.pop_back();
     return ss.str();
 }
 
