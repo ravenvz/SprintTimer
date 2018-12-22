@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 
 cmake_policy(SET CMP0042 NEW)
+cmake_policy(SET CMP0076 NEW)
+
 set(CMAKE_MACOSX_RPATH 0)
 
 set(PROJECT sprint_timer_app)
