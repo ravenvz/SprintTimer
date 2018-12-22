@@ -21,40 +21,6 @@
 *********************************************************************************/
 #include "core/PeriodicBackgroundRunner.h"
 
-namespace {
-
-using sprint_timer::PeriodicBackgroundRunner;
-
-
-template <int FrequencyScale>
-void runTimer(const std::atomic<bool>& running,
-              std::chrono::milliseconds remainingTime,
-              PeriodicBackgroundRunner::TickPeriod tickPeriod,
-              PeriodicBackgroundRunner::OnTickFunction onTick,
-              PeriodicBackgroundRunner::OnTimeRunOutFunction onTimeRunOut)
-{
-    using namespace std::chrono;
-    using TimePollPeriod = duration<int, std::ratio<1, FrequencyScale>>;
-
-    const auto startTime = steady_clock::now();
-    int iterationNumber{0};
-
-    while (running) {
-        std::this_thread::sleep_until(startTime
-                                      + TimePollPeriod{++iterationNumber});
-        if (iterationNumber % FrequencyScale == 0) {
-            remainingTime -= tickPeriod;
-            onTick(remainingTime);
-            if (remainingTime < TimePollPeriod{1}) {
-                onTimeRunOut();
-                break;
-            }
-        }
-    }
-}
-
-} // namespace
-
 namespace sprint_timer {
 
 PeriodicBackgroundRunner::PeriodicBackgroundRunner(
@@ -65,9 +31,7 @@ PeriodicBackgroundRunner::PeriodicBackgroundRunner(
 {
     tr = std::thread(
         [this, onTick, onTimeRunOut, runnerDuration, tickPeriod]() {
-            constexpr int frequencyScale{5};
-            runTimer<frequencyScale>(
-                running, runnerDuration, tickPeriod, onTick, onTimeRunOut);
+            runTimer(runnerDuration, tickPeriod, onTick, onTimeRunOut);
         });
 }
 
@@ -75,9 +39,48 @@ PeriodicBackgroundRunner::~PeriodicBackgroundRunner() { stop(); }
 
 void PeriodicBackgroundRunner::stop()
 {
-    running = false;
+    {
+        std::unique_lock<std::mutex> lock{mtx};
+        interruptRequested = true;
+    }
+    interruptCv.notify_all();
     if (tr.joinable())
         tr.join();
+}
+
+void PeriodicBackgroundRunner::setCyclic(bool cyclic) { cycle = cyclic; }
+
+void PeriodicBackgroundRunner::runTimer(std::chrono::milliseconds remainingTime,
+                                        TickPeriod tickPeriod,
+                                        OnTickFunction onTick,
+                                        OnTimeRunOutFunction onTimeRunOut)
+{
+    using namespace std::chrono;
+
+    auto timeLeft = remainingTime;
+    const auto startTime = steady_clock::now();
+    int iterationNumber{0};
+
+    while (true) {
+        {
+            const auto timeOut = startTime + ++iterationNumber * tickPeriod;
+            std::unique_lock<std::mutex> lock{mtx};
+            if (interruptCv.wait_until(
+                    lock, timeOut, [this]() { return interruptRequested; })) {
+                break;
+            }
+        }
+
+        timeLeft -= tickPeriod;
+        onTick(timeLeft);
+        if (timeLeft < tickPeriod) {
+            onTimeRunOut();
+            if (cycle)
+                timeLeft = remainingTime;
+            else
+                break;
+        }
+    }
 }
 
 } // namespace sprint_timer

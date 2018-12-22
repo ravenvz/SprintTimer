@@ -97,11 +97,17 @@ void TaskOutline::onSprintSubmissionRequested(
 {
     if (!taskView->currentlySelectedRow())
         return;
-    for (const auto& timeSpan : intervals) {
-        sprintModel.insert(
-            timeSpan,
-            taskModel.itemAt(*taskView->currentlySelectedRow()).uuid());
-    }
+    std::vector<Sprint> sprints;
+    sprints.reserve(intervals.size());
+    const auto taskUuid
+        = taskModel.itemAt(*taskView->currentlySelectedRow()).uuid();
+    std::transform(intervals.cbegin(),
+                   intervals.cend(),
+                   std::back_inserter(sprints),
+                   [&taskUuid](const auto& interval) {
+                       return Sprint{taskUuid, interval};
+                   });
+    sprintModel.insert(sprints);
 }
 
 } // namespace sprint_timer::ui::qt_gui

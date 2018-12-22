@@ -24,6 +24,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <functional>
 #include <thread>
 
@@ -55,9 +56,19 @@ public:
 
     void stop();
 
+    void setCyclic(bool cyclic);
+
 private:
-    std::atomic<bool> running{true};
+    bool interruptRequested{false};
+    std::atomic<bool> cycle{false};
+    std::condition_variable interruptCv;
+    std::mutex mtx;
     std::thread tr;
+
+    void runTimer(std::chrono::milliseconds remainingTime,
+                  TickPeriod tickPeriod,
+                  OnTickFunction onTick,
+                  OnTimeRunOutFunction onTimeRunOut);
 };
 
 } // namespace sprint_timer

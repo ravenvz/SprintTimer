@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # NOTE this is quick and dirty build script
-# that is NOT intended to be used in automatic builds
+# that is NOT intended to be used in automatic builds.
+# In fact, it is intended to be used only on specific dev machine
 set -e
 
 OPTIND=1
@@ -60,5 +61,5 @@ echo "$build_type build using $cxx_compiler and $build_tool"
     && $build_tool $build_tool_options)
 
 if [ $build_tests == "ON" ]; then
-    (cd build && ctest --output-on-failure -j4)
+    (cd build && ctest --output-on-failure -j12)
 fi
