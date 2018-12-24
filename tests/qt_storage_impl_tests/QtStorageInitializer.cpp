@@ -21,16 +21,8 @@
 *********************************************************************************/
 #include "QtStorageInitializer.h"
 
-namespace {
-
-int dummyArgc = 0;
-char* dummyArgv = 0;
-
-} // namespace
-
 QtStorageInitializer::QtStorageInitializer(QString&& name_)
     : name{std::move(name_)}
-    , app{QCoreApplication{dummyArgc, &dummyArgv}}
 {
 }
 

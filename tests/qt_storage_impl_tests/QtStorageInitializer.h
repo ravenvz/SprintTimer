@@ -31,7 +31,7 @@ struct QtStorageInitializer {
     QtStorageInitializer(QString&& name_);
 
     const QString name;
-    QCoreApplication app;
+    QCoreApplication app{dummyArgc, &dummyArgv};
     sprint_timer::storage::qt_storage_impl::DBService dbService{name};
     FileDeleter fileDeleter{name};
     sprint_timer::storage::qt_storage_impl::QtStorageImplementersFactory
@@ -62,6 +62,10 @@ struct QtStorageInitializer {
     void runEventLoop();
 
     void quit();
+
+private:
+    int dummyArgc{0};
+    char* dummyArgv{nullptr};
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */
