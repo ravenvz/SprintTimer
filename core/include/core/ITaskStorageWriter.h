@@ -39,12 +39,6 @@ public:
                       const entities::Task& editedTask)
         = 0;
 
-    [[ deprecated ]]
-    virtual void incrementSprints(const std::string& uuid) = 0;
-
-    [[ deprecated ]]
-    virtual void decrementSprints(const std::string& uuid) = 0;
-
     virtual void toggleTaskCompletionStatus(const std::string& uuid,
                                             const dw::DateTime& timeStamp)
         = 0;

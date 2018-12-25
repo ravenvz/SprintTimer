@@ -42,10 +42,6 @@ public:
     void edit(const entities::Task& task,
               const entities::Task& editedTask) final;
 
-    void incrementSprints(const std::string& uuid) final;
-
-    void decrementSprints(const std::string& uuid) final;
-
     void toggleTaskCompletionStatus(const std::string& uuid,
                                     const dw::DateTime& timeStamp) final;
 
@@ -60,8 +56,6 @@ private:
     qint64 removeTagQueryId{-1};
     qint64 removeTaskQueryId{-1};
     qint64 editQueryId{-1};
-    qint64 incrementSpentQueryId{-1};
-    qint64 decrementSpentQueryId{-1};
     qint64 toggleCompletionQueryId{-1};
     qint64 updatePrioritiesQueryId{-1};
     qint64 editTagQueryId{-1};
