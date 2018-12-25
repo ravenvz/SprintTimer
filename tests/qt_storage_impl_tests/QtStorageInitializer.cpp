@@ -21,9 +21,8 @@
 *********************************************************************************/
 #include "QtStorageInitializer.h"
 
-QtStorageInitializer::QtStorageInitializer(QString&& name_)
-    : name{std::move(name_)}
-{
+QtStorageInitializer::QtStorageInitializer() {
+	QSqlDatabase::database("Keep alive conn").open();
 }
 
 void QtStorageInitializer::runEventLoop() { app.exec(); }

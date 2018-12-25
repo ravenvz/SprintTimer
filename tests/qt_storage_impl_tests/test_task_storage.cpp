@@ -34,18 +34,18 @@ using sprint_timer::entities::Task;
 
 class QtStorageImplementIntegrationTestFixture : public ::testing::Test {
 public:
+	QtStorageInitializer initializer;
 };
 
 TEST_F(QtStorageImplementIntegrationTestFixture, saves_task)
 {
-    QtStorageInitializer initializer{"ssr.db"};
     const Task someTask = TaskBuilder{}.withName("Some name").build();
 
     initializer.taskWriter->save(someTask);
 
     initializer.taskReader->requestUnfinishedTasks(
-        [& expected = someTask,
-         &initializer](const ITaskStorageReader::Items& items) {
+        [&expected = someTask,
+         this](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_EQ(expected, items.front());
             initializer.quit();
@@ -55,14 +55,13 @@ TEST_F(QtStorageImplementIntegrationTestFixture, saves_task)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, remove_task_with_no_sprints)
 {
-    QtStorageInitializer initializer{"rtwns.db"};
     const Task someTask = TaskBuilder{}.withUuid("123").build();
 
     initializer.taskWriter->save(someTask);
     initializer.taskWriter->remove(someTask);
 
     initializer.taskReader->requestUnfinishedTasks(
-        [&initializer](const ITaskStorageReader::Items& items) {
+        [this](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(0, items.size());
             initializer.quit();
         });
@@ -71,7 +70,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, remove_task_with_no_sprints)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, toggles_task_completion_status)
 {
-    QtStorageInitializer initializer{"ttcs.db"};
     const Task someTask
         = TaskBuilder{}
               .withUuid("123")
@@ -84,7 +82,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, toggles_task_completion_status)
                                                        someTask.lastModified());
 
     initializer.taskReader->requestUnfinishedTasks(
-        [&initializer, &someTask](const ITaskStorageReader::Items& items) {
+        [this, &someTask](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_FALSE(someTask.isCompleted() == items.front().isCompleted());
             initializer.quit();
@@ -94,7 +92,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, toggles_task_completion_status)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_unfinished_tasks)
 {
-    QtStorageInitializer initializer{"rut.db"};
     ITaskStorageReader::Items unfinishedTasks;
     ITaskStorageReader::Items finishedTasks;
     TaskBuilder builder;
@@ -118,7 +115,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_unfinished_tasks)
 
     initializer.taskReader->requestUnfinishedTasks(
         [&unfinishedTasks,
-         &initializer](const ITaskStorageReader::Items& items) {
+         this](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(unfinishedTasks, items);
             initializer.quit();
         });
@@ -128,7 +125,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_unfinished_tasks)
 TEST_F(QtStorageImplementIntegrationTestFixture,
        considers_recently_completed_tasks_as_unfinished)
 {
-    QtStorageInitializer initializer{"crctu.db"};
     ITaskStorageReader::Items unfinishedTasks;
     ITaskStorageReader::Items finishedTasks;
     TaskBuilder builder;
@@ -155,7 +151,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
         initializer.taskWriter->save(task);
 
     initializer.taskReader->requestUnfinishedTasks(
-        [&recentTasks, &initializer](const ITaskStorageReader::Items& items) {
+        [&recentTasks, this](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(recentTasks, items);
             initializer.quit();
         });
@@ -164,7 +160,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
 TEST_F(QtStorageImplementIntegrationTestFixture, edits_task)
 {
-    QtStorageInitializer initializer{"et.db"};
     const Task someTask
         = TaskBuilder{}
               .withName("Edit me")
@@ -190,7 +185,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, edits_task)
     initializer.taskWriter->edit(someTask, expectedEditedTask);
 
     initializer.taskReader->requestUnfinishedTasks(
-        [&initializer,
+        [this,
          &expectedEditedTask](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_EQ(expectedEditedTask, items.front());
@@ -201,7 +196,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, edits_task)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, edits_tag)
 {
-    QtStorageInitializer initializer{"etg.db"};
     const std::string tagToEdit{"TagToEdit"};
     const std::string editedTag{"EditedTag"};
     const Task someTask = TaskBuilder{}.withTag(tagToEdit).build();
@@ -210,7 +204,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, edits_tag)
     initializer.taskWriter->editTag(tagToEdit, editedTag);
 
     initializer.taskReader->requestAllTags(
-        [&initializer, &editedTag](const std::vector<std::string>& tags) {
+        [this, &editedTag](const std::vector<std::string>& tags) {
             EXPECT_EQ(1, tags.size());
             EXPECT_EQ(editedTag, tags.front());
             initializer.quit();
@@ -220,7 +214,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, edits_tag)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, updates_priorities)
 {
-    QtStorageInitializer initializer{"utp.db"};
     TaskBuilder builder;
     ITaskStorageReader::Items tasks;
     const std::vector<std::string> priorities{"3", "2", "1"};
@@ -232,7 +225,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, updates_priorities)
     initializer.taskWriter->updatePriorities(priorities);
 
     initializer.taskReader->requestUnfinishedTasks(
-        [&initializer, &priorities](const ITaskStorageReader::Items& items) {
+        [this, &priorities](const ITaskStorageReader::Items& items) {
             EXPECT_TRUE(std::equal(cbegin(priorities),
                                    cend(priorities),
                                    cbegin(items),
@@ -248,7 +241,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, updates_priorities)
 TEST_F(QtStorageImplementIntegrationTestFixture,
        remove_task_with_sprints_should_delete_sprints)
 {
-    QtStorageInitializer initializer{"rtwssds.db"};
     const Task someTask = TaskBuilder{}.build();
     SprintBuilder sprintBuilder;
     const dw::TimeSpan timeSpan{dw::DateTime::currentDateTime(),
@@ -262,7 +254,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.sprintReader->sprintsForTask(
         someTask.uuid(),
-        [&initializer](const ISprintStorageReader::Items& items) {
+        [this](const ISprintStorageReader::Items& items) {
             EXPECT_TRUE(items.empty());
             initializer.quit();
         });
@@ -272,7 +264,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 TEST_F(QtStorageImplementIntegrationTestFixture,
        requests_tasks_in_given_time_span)
 {
-    QtStorageInitializer initializer{"rtigts.db"};
     TaskBuilder builder;
     const dw::TimeSpan targetRange{dw::DateTime::fromYMD(2018, 10, 10),
                                    dw::DateTime::fromYMD(2018, 10, 15)};
@@ -314,7 +305,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.taskReader->requestTasks(
         targetRange,
-        [&initializer, &expected](const ITaskStorageReader::Items& items) {
+        [this, &expected](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(expected.size(), items.size());
             EXPECT_EQ(expected, items);
             initializer.quit();
@@ -325,7 +316,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 TEST_F(QtStorageImplementIntegrationTestFixture,
        inserting_sprint_increments_associated_task_actual_count)
 {
-    QtStorageInitializer initializer{"isiatac.db"};
     const Task someTask = TaskBuilder{}.build();
     const Task expectedTask
         = TaskBuilder{}
@@ -344,7 +334,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
         builder.forTask(someTask).withTimeSpan(timeSpan).build());
 
     initializer.taskReader->requestUnfinishedTasks(
-        [&initializer, &expectedTask](const ITaskStorageReader::Items& items) {
+        [this, &expectedTask](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_EQ(expectedTask, items.front());
             initializer.quit();
@@ -355,7 +345,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 TEST_F(QtStorageImplementIntegrationTestFixture,
        removing_sprint_decrements_associated_task_actual_count)
 {
-    QtStorageInitializer initializer{"rsdatac.db"};
     const Task someTask = TaskBuilder{}.build();
     const Task expectedTask
         = TaskBuilder{}
@@ -376,7 +365,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.sprintWriter->remove(sprint);
 
     initializer.taskReader->requestUnfinishedTasks(
-        [&initializer, &expectedTask](const ITaskStorageReader::Items& items) {
+        [this, &expectedTask](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_EQ(expectedTask, items.front());
             initializer.quit();
@@ -387,7 +376,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_tags)
 {
     using sprint_timer::entities::Tag;
-    QtStorageInitializer initializer{"rett.db"};
     TaskBuilder builder;
 
     initializer.taskWriter->save(
@@ -397,7 +385,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_tags)
     const std::vector<std::string> expected{"Tag1", "Tag2", "Tag3", "Tag4"};
 
     initializer.taskReader->requestAllTags(
-        [&initializer, &expected](const std::vector<std::string>& tags) {
+        [this, &expected](const std::vector<std::string>& tags) {
             auto sortedTags = tags;
             std::sort(begin(sortedTags), end(sortedTags));
             EXPECT_EQ(expected, sortedTags);
@@ -409,7 +397,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_tags)
 TEST_F(QtStorageImplementIntegrationTestFixture,
        removing_task_does_not_remove_tag_if_some_other_task_has_it)
 {
-    QtStorageInitializer initializer{"rtdnrtisothi.db"};
     TaskBuilder builder;
     const std::string someTag{"Tag"};
     const Task someTask = builder.withTag(someTag).build();
@@ -420,7 +407,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.taskWriter->remove(someTask);
 
     initializer.taskReader->requestAllTags(
-        [&initializer, &someTag](const std::vector<std::string>& tags) {
+        [this, &someTag](const std::vector<std::string>& tags) {
             EXPECT_EQ(1, tags.size());
             EXPECT_EQ(someTag, tags.front());
             initializer.quit();
@@ -432,7 +419,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
        removes_orphaned_tags_when_deleting_task)
 {
     using sprint_timer::entities::Tag;
-    QtStorageInitializer initializer{"rotwdt.db"};
     const Task someTask
         = TaskBuilder{}.withExplicitTags({Tag{"Tag1"}, Tag{"Tag2"}}).build();
 
@@ -440,7 +426,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.taskWriter->remove(someTask);
 
     initializer.taskReader->requestAllTags(
-        [&initializer](const std::vector<std::string>& tags) {
+        [this](const std::vector<std::string>& tags) {
             EXPECT_TRUE(tags.empty());
             initializer.quit();
         });
@@ -450,7 +436,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 TEST_F(QtStorageImplementIntegrationTestFixture,
        retrieves_sprints_for_given_task)
 {
-    QtStorageInitializer initializer{"rsfgt.db"};
     const Task someTask{TaskBuilder{}.build()};
     const Task irrelevantTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder;
@@ -476,7 +461,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.sprintReader->sprintsForTask(
         someTask.uuid(),
-        [&initializer,
+        [this,
          &expectedSprints](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(2, items.size());
             EXPECT_EQ(expectedSprints, items);
@@ -490,7 +475,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 {
     using dw::DateTime;
     using dw::TimeSpan;
-    QtStorageInitializer initializer{"rsigt.db"};
     SprintBuilder sprintBuilder;
     const dw::DateTime timestamp{dw::DateTime::currentDateTime()};
     const Task someTask = TaskBuilder{}.build();
@@ -529,7 +513,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.sprintReader->requestItems(
         range,
-        [&initializer, &expected](const ISprintStorageReader::Items& items) {
+        [this, &expected](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(3, items.size());
             EXPECT_EQ(expected, items);
             initializer.quit();
@@ -539,7 +523,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
 TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_year_range)
 {
-    QtStorageInitializer initializer{"ryyr.db"};
     const Task someTask{TaskBuilder{}.build()};
     const dw::DateTime timestamp{dw::DateTime::fromYMD(2018, 12, 1)};
     const Sprint left{SprintBuilder{}
@@ -559,7 +542,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_year_range)
     initializer.sprintWriter->save(right);
 
     initializer.yearRangeReader->requestYearRange(
-        [&initializer, &expected](const std::vector<std::string>& yearRange) {
+        [this, &expected](const std::vector<std::string>& yearRange) {
             EXPECT_EQ(2, yearRange.size());
             EXPECT_EQ(expected, yearRange);
             initializer.quit();
@@ -574,7 +557,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_sprint_distributions)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, saves_sprints_in_bulk)
 {
-    QtStorageInitializer initializer{"sssb.db"};
     const Task someTask{TaskBuilder{}.build()};
     const dw::TimeSpan timeSpan{dw::DateTime::fromYMD(2018, 12, 1),
                                 dw::DateTime::fromYMD(2018, 12, 1)};
@@ -590,7 +572,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, saves_sprints_in_bulk)
 
     initializer.sprintReader->sprintsForTask(
         someTask.uuid(),
-        [&sprintBulk, &initializer](const ISprintStorageReader::Items& items) {
+        [&sprintBulk, this](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(sprintBulk, items);
             initializer.quit();
         });
@@ -599,7 +581,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, saves_sprints_in_bulk)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, removes_sprints_in_bulk)
 {
-    QtStorageInitializer initializer{"rrsss.db"};
     const Task someTask{TaskBuilder{}.build()};
     const Task otherTask{TaskBuilder{}.build()};
     const dw::TimeSpan timeSpan{dw::DateTime::fromYMD(2018, 12, 1),
@@ -621,7 +602,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, removes_sprints_in_bulk)
     initializer.sprintWriter->remove(sprintBulk);
 
     initializer.sprintReader->requestItems(
-        timeSpan, [&initializer](const ISprintStorageReader::Items& items) {
+        timeSpan, [this](const ISprintStorageReader::Items& items) {
             EXPECT_TRUE(items.empty());
             initializer.quit();
         });
@@ -631,7 +612,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, removes_sprints_in_bulk)
 TEST_F(QtStorageImplementIntegrationTestFixture,
        reads_sprint_daily_distribution)
 {
-    QtStorageInitializer initializer{"rsddis.db"};
     const Task someTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
     const dw::DateTime someDate{dw::DateTime::fromYMD(2018, 12, 2)};
@@ -689,7 +669,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.dailyDistributionReader->requestDistribution(
         range,
         [&expected,
-         &initializer](const sprint_timer::Distribution<int>& distribution) {
+         this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();
         });
@@ -698,13 +678,12 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
 TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
 {
-    QtStorageInitializer initializer{"rmmdis.db"};
     const Task someTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
     const dw::DateTime someDate{dw::DateTime::fromYMD(2018, 12, 2)};
     dw::DateTime lowerDate{someDate.add(dw::DateTime::Months(-11))};
     lowerDate = lowerDate.add(
-        dw::DateTime::Days{-std::min(lowerDate.day(), someDate.day()) + 1});
+        dw::DateTime::Days{-static_cast<int>(std::min(lowerDate.day(), someDate.day())) + 1});
     const dw::TimeSpan range{lowerDate, someDate};
     const std::vector<int> expected{3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 5};
     std::vector<Sprint> sprints;
@@ -713,7 +692,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
         std::back_inserter(sprints), 2, [&sprintBuilder, &someDate]() {
             dw::DateTime timestamp{someDate.add(dw::DateTime::Months(-11))};
             timestamp = timestamp.add(
-                dw::DateTime::Days(-std::min(timestamp.day(), someDate.day())));
+                dw::DateTime::Days(-static_cast<int>(std::min(timestamp.day(), someDate.day()))));
             return sprintBuilder
                 .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
                 .build();
@@ -723,7 +702,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
         std::back_inserter(sprints), 3, [&sprintBuilder, &someDate]() {
             dw::DateTime timestamp{someDate.add(dw::DateTime::Months(-11))};
             timestamp = timestamp.add(dw::DateTime::Days(
-                -std::min(timestamp.day(), someDate.day()) + 1));
+                -static_cast<int>(std::min(timestamp.day(), someDate.day())) + 1));
             return sprintBuilder
                 .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
                 .build();
@@ -748,7 +727,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
         std::back_inserter(sprints), 6, [&sprintBuilder, &someDate]() {
             dw::DateTime timestamp{someDate.add(dw::DateTime::Months(1))};
             timestamp = timestamp.add(dw::DateTime::Days(
-                -std::min(timestamp.day(), someDate.day()) + 1));
+                -static_cast<int>(std::min(timestamp.day(), someDate.day())) + 1));
             return sprintBuilder
                 .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
                 .build();
@@ -760,7 +739,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
     initializer.monthlyDistributionReader->requestDistribution(
         range,
         [&expected,
-         &initializer](const sprint_timer::Distribution<int>& distribution) {
+         this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();
         });
@@ -770,7 +749,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
 TEST_F(QtStorageImplementIntegrationTestFixture,
        retrieves_sprint_weekly_distribution_with_monday_first_setting)
 {
-    QtStorageInitializer initializer{"rswwwmfdr.db"};
     const Task someTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
     const dw::DateTime upperDate{dw::DateTime::fromYMD(2016, 2, 12)};
@@ -833,7 +811,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.mondayFirstWeeklyDistributionReader->requestDistribution(
         range,
         [&expected,
-         &initializer](const sprint_timer::Distribution<int>& distribution) {
+         this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();
         });
@@ -843,7 +821,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 TEST_F(QtStorageImplementIntegrationTestFixture,
        retrieves_sprint_weekly_distribution_with_sunday_first_setting)
 {
-    QtStorageInitializer initializer{"rswwwsfdr.db"};
     const Task someTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
     const dw::DateTime upperDate{dw::DateTime::fromYMD(2016, 2, 12)};
@@ -906,7 +883,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.sundayFirstWeeklyDistributionReader->requestDistribution(
         range,
         [&expected,
-         &initializer](const sprint_timer::Distribution<int>& distribution) {
+         this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();
         });

@@ -31,8 +31,6 @@ class DatabaseInitializer {
 public:
     explicit DatabaseInitializer(const QString& filename);
 
-private:
-    const QString filename;
 };
 
 } // namespace sprint_timer::storage::qt_storage_impl

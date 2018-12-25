@@ -22,18 +22,18 @@
 #ifndef QTSTORAGEINITIALIZER_H_WR5MUUAC
 #define QTSTORAGEINITIALIZER_H_WR5MUUAC
 
-#include "FileDeleter.h"
 #include <QCoreApplication>
 #include <qt_storage_impl/DBService.h>
 #include <qt_storage_impl/QtStorageImplementersFactory.h>
 
 struct QtStorageInitializer {
-    QtStorageInitializer(QString&& name_);
 
-    const QString name;
+	QtStorageInitializer();
+
+	const QString name{":memory:"};
     QCoreApplication app{dummyArgc, &dummyArgv};
+	sprint_timer::storage::qt_storage_impl::ConnectionGuard connectionGuard{name, "Keep alive conn"};
     sprint_timer::storage::qt_storage_impl::DBService dbService{name};
-    FileDeleter fileDeleter{name};
     sprint_timer::storage::qt_storage_impl::QtStorageImplementersFactory
         factory{dbService};
     std::unique_ptr<sprint_timer::ITaskStorageReader> taskReader
@@ -59,6 +59,7 @@ struct QtStorageInitializer {
         sundayFirstWeeklyDistributionReader
         = factory.createSprintWeeklyDistributionReader(
             sprint_timer::FirstDayOfWeek::Sunday);
+
     void runEventLoop();
 
     void quit();

@@ -7,9 +7,10 @@ target_sources(${TEST_QT_STORAGE}
 PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/test_qt_storage_impl.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task_storage.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/FileDeleter.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/QtStorageInitializer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
+	"${CMAKE_CURRENT_LIST_DIR}/QtStorageInitializer.cpp"
+PUBLIC
+	"${CMAKE_CURRENT_LIST_DIR}/QtStorageInitializer.h"
 )
 
 target_compile_features(${TEST_QT_STORAGE} PRIVATE cxx_std_17)
