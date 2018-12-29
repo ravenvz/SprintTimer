@@ -93,7 +93,7 @@ using namespace sprint_timer::storage::qt_storage_impl;
 
 bool databaseFileNotFound(const QString& filePath)
 {
-	if (filePath == ":memory:")
+	if (filePath == ":memory:" || filePath == "file::memory:?cache=shared")
 		return true;
     const QFile databaseFile{filePath};
     return !databaseFile.exists();

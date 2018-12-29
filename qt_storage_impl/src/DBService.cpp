@@ -144,6 +144,21 @@ void Worker::init()
         throw std::runtime_error("Unable to connect with database");
 }
 
+bool Worker::openConnection()
+{
+    // if (!QSqlDatabase::database(connectionName).open()) {
+    //     qCritical() << "Worker failed to open database";
+    //     return false;
+    // }
+    return setPragmas();
+}
+
+bool Worker::setPragmas()
+{
+    QSqlQuery query{QSqlDatabase::database(connectionName)};
+    return query.exec("PRAGMA foreign_keys = ON");
+}
+
 void Worker::execute(qint64 queryId, const QString& query)
 {
     QSqlQuery q{QSqlDatabase::database(connectionName)};
@@ -233,21 +248,6 @@ void Worker::onCommitRequested()
         emit error(-1, "Transaction commit failed");
     }
     inTransaction = false;
-}
-
-bool Worker::openConnection()
-{
-    if (!QSqlDatabase::database(connectionName).open()) {
-        qCritical() << "Worker failed to open database";
-        return false;
-    }
-    return setPragmas();
-}
-
-bool Worker::setPragmas()
-{
-    QSqlQuery query{QSqlDatabase::database(connectionName)};
-    return query.exec("PRAGMA foreign_keys = ON");
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl

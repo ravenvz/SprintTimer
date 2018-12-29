@@ -28,11 +28,13 @@
 
 struct QtStorageInitializer {
 
-	QtStorageInitializer();
+    QtStorageInitializer();
 
-	const QString name{":memory:"};
-    QCoreApplication app{dummyArgc, &dummyArgv};
-	sprint_timer::storage::qt_storage_impl::ConnectionGuard connectionGuard{name, "Keep alive conn"};
+    const QString name{"file::memory:?cache=shared"};
+    QCoreApplication app;
+    // QCoreApplication app{dummyArgc, &dummyArgv};
+    sprint_timer::storage::qt_storage_impl::ConnectionGuard connectionGuard{
+        name, "Keep alive conn"};
     sprint_timer::storage::qt_storage_impl::DBService dbService{name};
     sprint_timer::storage::qt_storage_impl::QtStorageImplementersFactory
         factory{dbService};
@@ -63,10 +65,6 @@ struct QtStorageInitializer {
     void runEventLoop();
 
     void quit();
-
-private:
-    int dummyArgc{0};
-    char* dummyArgv{nullptr};
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */

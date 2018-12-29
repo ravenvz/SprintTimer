@@ -21,8 +21,17 @@
 *********************************************************************************/
 #include "QtStorageInitializer.h"
 
-QtStorageInitializer::QtStorageInitializer() {
-	QSqlDatabase::database("Keep alive conn").open();
+namespace {
+
+int dummyArgc{1};
+char argv[] = "dummy";
+char* dummyArgv[] = {argv};
+
+} // namespace
+
+QtStorageInitializer::QtStorageInitializer()
+    : app{dummyArgc, dummyArgv}
+{
 }
 
 void QtStorageInitializer::runEventLoop() { app.exec(); }

@@ -34,7 +34,7 @@ using sprint_timer::entities::Task;
 
 class QtStorageImplementIntegrationTestFixture : public ::testing::Test {
 public:
-	QtStorageInitializer initializer;
+    QtStorageInitializer initializer;
 };
 
 TEST_F(QtStorageImplementIntegrationTestFixture, saves_task)
@@ -44,8 +44,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, saves_task)
     initializer.taskWriter->save(someTask);
 
     initializer.taskReader->requestUnfinishedTasks(
-        [&expected = someTask,
-         this](const ITaskStorageReader::Items& items) {
+        [& expected = someTask, this](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_EQ(expected, items.front());
             initializer.quit();
@@ -114,8 +113,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_unfinished_tasks)
         initializer.taskWriter->save(task);
 
     initializer.taskReader->requestUnfinishedTasks(
-        [&unfinishedTasks,
-         this](const ITaskStorageReader::Items& items) {
+        [&unfinishedTasks, this](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(unfinishedTasks, items);
             initializer.quit();
         });
@@ -185,8 +183,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, edits_task)
     initializer.taskWriter->edit(someTask, expectedEditedTask);
 
     initializer.taskReader->requestUnfinishedTasks(
-        [this,
-         &expectedEditedTask](const ITaskStorageReader::Items& items) {
+        [this, &expectedEditedTask](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_EQ(expectedEditedTask, items.front());
             initializer.quit();
@@ -253,8 +250,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.taskWriter->remove(someTask);
 
     initializer.sprintReader->sprintsForTask(
-        someTask.uuid(),
-        [this](const ISprintStorageReader::Items& items) {
+        someTask.uuid(), [this](const ISprintStorageReader::Items& items) {
             EXPECT_TRUE(items.empty());
             initializer.quit();
         });
@@ -304,8 +300,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.taskWriter->save(taskOutOfRangeRight);
 
     initializer.taskReader->requestTasks(
-        targetRange,
-        [this, &expected](const ITaskStorageReader::Items& items) {
+        targetRange, [this, &expected](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(expected.size(), items.size());
             EXPECT_EQ(expected, items);
             initializer.quit();
@@ -461,8 +456,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.sprintReader->sprintsForTask(
         someTask.uuid(),
-        [this,
-         &expectedSprints](const ISprintStorageReader::Items& items) {
+        [this, &expectedSprints](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(2, items.size());
             EXPECT_EQ(expectedSprints, items);
             initializer.quit();
@@ -512,8 +506,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.sprintWriter->save(outOfRangeRight);
 
     initializer.sprintReader->requestItems(
-        range,
-        [this, &expected](const ISprintStorageReader::Items& items) {
+        range, [this, &expected](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(3, items.size());
             EXPECT_EQ(expected, items);
             initializer.quit();
@@ -668,8 +661,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.dailyDistributionReader->requestDistribution(
         range,
-        [&expected,
-         this](const sprint_timer::Distribution<int>& distribution) {
+        [&expected, this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();
         });
@@ -682,8 +674,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
     const dw::DateTime someDate{dw::DateTime::fromYMD(2018, 12, 2)};
     dw::DateTime lowerDate{someDate.add(dw::DateTime::Months(-11))};
-    lowerDate = lowerDate.add(
-        dw::DateTime::Days{-static_cast<int>(std::min(lowerDate.day(), someDate.day())) + 1});
+    lowerDate = lowerDate.add(dw::DateTime::Days{
+        -static_cast<int>(std::min(lowerDate.day(), someDate.day())) + 1});
     const dw::TimeSpan range{lowerDate, someDate};
     const std::vector<int> expected{3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 5};
     std::vector<Sprint> sprints;
@@ -691,8 +683,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
     std::generate_n(
         std::back_inserter(sprints), 2, [&sprintBuilder, &someDate]() {
             dw::DateTime timestamp{someDate.add(dw::DateTime::Months(-11))};
-            timestamp = timestamp.add(
-                dw::DateTime::Days(-static_cast<int>(std::min(timestamp.day(), someDate.day()))));
+            timestamp = timestamp.add(dw::DateTime::Days(
+                -static_cast<int>(std::min(timestamp.day(), someDate.day()))));
             return sprintBuilder
                 .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
                 .build();
@@ -702,7 +694,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
         std::back_inserter(sprints), 3, [&sprintBuilder, &someDate]() {
             dw::DateTime timestamp{someDate.add(dw::DateTime::Months(-11))};
             timestamp = timestamp.add(dw::DateTime::Days(
-                -static_cast<int>(std::min(timestamp.day(), someDate.day())) + 1));
+                -static_cast<int>(std::min(timestamp.day(), someDate.day()))
+                + 1));
             return sprintBuilder
                 .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
                 .build();
@@ -727,7 +720,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
         std::back_inserter(sprints), 6, [&sprintBuilder, &someDate]() {
             dw::DateTime timestamp{someDate.add(dw::DateTime::Months(1))};
             timestamp = timestamp.add(dw::DateTime::Days(
-                -static_cast<int>(std::min(timestamp.day(), someDate.day())) + 1));
+                -static_cast<int>(std::min(timestamp.day(), someDate.day()))
+                + 1));
             return sprintBuilder
                 .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
                 .build();
@@ -738,8 +732,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
 
     initializer.monthlyDistributionReader->requestDistribution(
         range,
-        [&expected,
-         this](const sprint_timer::Distribution<int>& distribution) {
+        [&expected, this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();
         });
@@ -810,8 +803,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.mondayFirstWeeklyDistributionReader->requestDistribution(
         range,
-        [&expected,
-         this](const sprint_timer::Distribution<int>& distribution) {
+        [&expected, this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();
         });
@@ -882,8 +874,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.sundayFirstWeeklyDistributionReader->requestDistribution(
         range,
-        [&expected,
-         this](const sprint_timer::Distribution<int>& distribution) {
+        [&expected, this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();
         });
