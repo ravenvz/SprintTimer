@@ -34,6 +34,7 @@ build_script:
     - cmake --build . --config %configuration%
 
 test_script:
+	- set PATH=%PATH%;C:\Qt\5.11.2\msvc2017_64\bin
     - ctest
 
 # artifacts:
