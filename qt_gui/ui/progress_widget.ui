@@ -125,7 +125,7 @@
          <item row="5" column="0">
           <widget class="QLabel" name="lblGoalCaption">
            <property name="text">
-            <string>Weekly Goal</string>
+            <string>Weekly goal</string>
            </property>
           </widget>
          </item>

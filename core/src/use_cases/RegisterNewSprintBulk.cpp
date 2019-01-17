@@ -19,38 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DATEPICKDIALOG_H
-#define DATEPICKDIALOG_H
+#include "core/use_cases/RegisterNewSprintBulk.h"
 
-#include "qt_gui/utils/DateInterval.h"
-#include <QDialog>
-#include <core/IConfig.h>
-#include <memory>
+namespace sprint_timer::use_cases {
 
-namespace Ui {
-class DateRangePickDialog;
-} // namespace Ui
+using entities::Sprint;
 
-namespace sprint_timer::ui::qt_gui {
+RegisterNewSprintBulk::RegisterNewSprintBulk(ISprintStorageWriter& writer_,
+                                             std::vector<Sprint> sprints_)
+    : writer{writer_}
+    , sprints{std::move(sprints_)}
+{
+}
 
-class DateRangePickDialog : public QDialog {
-    Q_OBJECT
+void RegisterNewSprintBulk::execute() { writer.save(sprints); }
 
-public:
-    DateRangePickDialog(DateInterval initialPeriod,
-                        FirstDayOfWeek firstDayOfWeek,
-                        QWidget* parent = nullptr);
-    ~DateRangePickDialog();
-    DateInterval getNewInterval();
+void RegisterNewSprintBulk::undo() { writer.remove(sprints); }
 
-private:
-    std::unique_ptr<Ui::DateRangePickDialog> ui;
+std::string RegisterNewSprintBulk::describe() const
+{
+    std::stringstream ss;
+    ss << "Register new sprint bulk:\n";
+    std::copy(sprints.cbegin(),
+              sprints.cend(),
+              std::ostream_iterator<Sprint>(ss, "\n"));
+    std::string res{ss.str()};
+    res.pop_back();
+    return ss.str();
+}
 
-    void configureCalendar(FirstDayOfWeek firstDayOfWeek);
-    void updateCalendarDates(DateInterval& period);
-};
+} // namespace sprint_timer::use_cases
 
-} // namespace sprint_timer::ui::qt_gui
-
-
-#endif // DATEPICKDIALOG_H

@@ -23,7 +23,6 @@
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
 #include <ShlObj.h>
 #include <Windows.h>
-#include <filesystem>
 #if defined _WIN64
 #endif
 #elif defined(__APPLE__)
@@ -31,12 +30,10 @@
 #if TARGET_IPHONE_SIMULATOR
 #elif TARGET_OS_IPHONE
 #elif TARGET_OS_MAC
-#include <experimental/filesystem>
 #else
 #error "Unknown Apple platform"
 #endif
 #elif defined(__linux__)
-#include <experimental/filesystem>
 #include <pwd.h>
 #include <unistd.h>
 #elif defined(__unix__)
@@ -56,6 +53,7 @@
 #include <core/IConfig.h>
 #include <core/ITaskStorageReader.h>
 #include <core/QueryInvoker.h>
+#include <filesystem>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
 #include <qt_gui/dialogs/AddSprintDialog.h>
@@ -82,15 +80,8 @@
 #include <qt_gui/widgets/UndoButton.h>
 #include <qt_gui/widgets/WeeklyProgressView.h>
 
-// TODO at least linux version should have std::filesystem by now, so consider
-// replacing
-#if defined(_WIN32) || defined(__linux__)
-using std::experimental::filesystem::create_directory;
-using std::experimental::filesystem::exists;
-#else
 using std::filesystem::create_directory;
 using std::filesystem::exists;
-#endif
 
 namespace {
 
@@ -281,6 +272,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    Config applicationSettings;
+
     QApplication app(argc, argv);
     DBService dbService{dataDirectory + "/sprint.db"};
 
@@ -298,7 +291,8 @@ int main(int argc, char* argv[])
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
         factory.createSprintDailyDistributionReader()};
     std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
-        factory.createSprintWeeklyDistributionReader()};
+        factory.createSprintWeeklyDistributionReader(
+            applicationSettings.firstDayOfWeek())};
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
 
@@ -320,8 +314,6 @@ int main(int argc, char* argv[])
                             *taskStorageWriter};
     TagModel tagModel{
         *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
-
-    Config applicationSettings;
 
     // auto sprintOutline = createSprintOutline(
     //     applicationSettings, commandInvoker, sprintModel, taskModel);
@@ -404,7 +396,8 @@ int main(int argc, char* argv[])
                                 *sprintYearRangeReader,
                                 historyModel,
                                 historyItemDelegate,
-                                queryInvoker};
+                                queryInvoker,
+                                applicationSettings.firstDayOfWeek()};
     QObject::connect(&sprintModel,
                      &QAbstractListModel::modelReset,
                      [&historyWindow]() { historyWindow.synchronize(); });

@@ -71,20 +71,6 @@ QtTaskStorageWriter::QtTaskStorageWriter(DBService& dbService)
                                         .arg(TaskTable::Columns::estimatedCost)
                                         .arg(TaskTable::Columns::lastModified)
                                         .arg(TaskTable::Columns::uuid));
-    incrementSpentQueryId
-        = dbService.prepare(QString{"UPDATE %1 set %2 = %2 + 1 "
-                                    "WHERE %3.%4 = (:todo_uuid);"}
-                                .arg(TaskTable::name)
-                                .arg(TaskTable::Columns::actualCost)
-                                .arg(TaskTable::name)
-                                .arg(TaskTable::Columns::uuid));
-    decrementSpentQueryId
-        = dbService.prepare(QString{"UPDATE %1 SET %2 = %2 - 1 "
-                                    "WHERE %3.%4 = (:todo_uuid);"}
-                                .arg(TaskTable::name)
-                                .arg(TaskTable::Columns::actualCost)
-                                .arg(TaskTable::name)
-                                .arg(TaskTable::Columns::uuid));
     toggleCompletionQueryId
         = dbService.prepare(QString{"UPDATE %1 "
                                     "SET %2 = not %2, "
@@ -199,20 +185,6 @@ void QtTaskStorageWriter::edit(const Task& task, const Task& editedTask)
     insertTags(taskUuid, tagsToInsert);
 
     dbService.commit();
-}
-
-void QtTaskStorageWriter::incrementSprints(const std::string& uuid)
-{
-    dbService.bindValue(
-        incrementSpentQueryId, ":todo_uuid", QString::fromStdString(uuid));
-    dbService.executePrepared(incrementSpentQueryId);
-}
-
-void QtTaskStorageWriter::decrementSprints(const std::string& uuid)
-{
-    dbService.bindValue(
-        decrementSpentQueryId, ":todo_uuid", QString::fromStdString(uuid));
-    dbService.executePrepared(decrementSpentQueryId);
 }
 
 void QtTaskStorageWriter::toggleTaskCompletionStatus(const std::string& uuid,

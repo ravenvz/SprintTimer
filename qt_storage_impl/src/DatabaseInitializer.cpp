@@ -35,7 +35,6 @@
 #include <QSqlError>
 #include <QStringBuilder>
 #include <QtCore/QFile>
-#include <memory>
 
 // TODO this mess of an implementation should be cleaned up before it's too late
 
@@ -69,18 +68,17 @@ namespace sprint_timer::storage::qt_storage_impl {
 
 
 DatabaseInitializer::DatabaseInitializer(const QString& filename)
-    : filename{filename}
 {
     const QString connectionName{"SprintTimerDesktop"};
     ConnectionGuard connectionGuard{filename, connectionName};
 
-	bool newDatabase = databaseFileNotFound(filename);
+    const bool dbIsNew = databaseFileNotFound(filename);
     auto db = QSqlDatabase::database(connectionName);
 
-	if (newDatabase)
-		create(db);
-	else
-		checkConnection(db);
+    if (dbIsNew)
+        create(db);
+    else
+        checkConnection(db);
 
     const auto migrationManager = prepareMigrationManager(db);
     migrationManager.runMigrations(db);
@@ -95,11 +93,9 @@ using namespace sprint_timer::storage::qt_storage_impl;
 
 bool databaseFileNotFound(const QString& filePath)
 {
+	if (filePath == ":memory:" || filePath == "file::memory:?cache=shared")
+		return true;
     const QFile databaseFile{filePath};
-	if (databaseFile.exists())
-		qDebug() << "Found database file";
-	else
-		qDebug() << "Not on earth db file found";
     return !databaseFile.exists();
 }
 
@@ -116,6 +112,7 @@ void createSchema(QSqlDatabase& db)
     createTables(query);
     createViews(query);
     createTriggers(query);
+    tryExecute(query, "PRAGMA table_info(task_view)");
 }
 
 void createTables(QSqlQuery& query)

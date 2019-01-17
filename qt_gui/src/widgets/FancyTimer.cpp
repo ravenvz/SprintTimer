@@ -36,10 +36,10 @@ namespace {
 
 } // namespace
 
-FancyTimer::FancyTimer(const IConfig& applicationSettings,
+FancyTimer::FancyTimer(const IConfig& applicationSettings_,
                        QAbstractItemModel& taskModel,
                        QWidget* parent)
-    : TimerWidgetBase{applicationSettings, parent}
+    : TimerWidgetBase{applicationSettings_, parent}
     , ui{std::make_unique<Ui::FancyTimer>()}
 {
     ui->setupUi(this);

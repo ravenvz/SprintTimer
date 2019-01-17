@@ -19,38 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DATEPICKDIALOG_H
-#define DATEPICKDIALOG_H
+#include "gtest/gtest.h"
+#include <QCoreApplication>
+#include <QTimer>
 
-#include "qt_gui/utils/DateInterval.h"
-#include <QDialog>
-#include <core/IConfig.h>
-#include <memory>
-
-namespace Ui {
-class DateRangePickDialog;
-} // namespace Ui
-
-namespace sprint_timer::ui::qt_gui {
-
-class DateRangePickDialog : public QDialog {
-    Q_OBJECT
-
-public:
-    DateRangePickDialog(DateInterval initialPeriod,
-                        FirstDayOfWeek firstDayOfWeek,
-                        QWidget* parent = nullptr);
-    ~DateRangePickDialog();
-    DateInterval getNewInterval();
-
-private:
-    std::unique_ptr<Ui::DateRangePickDialog> ui;
-
-    void configureCalendar(FirstDayOfWeek firstDayOfWeek);
-    void updateCalendarDates(DateInterval& period);
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-
-#endif // DATEPICKDIALOG_H
+int main(int argc, char** argv)
+{
+    // QCoreApplication app{argc, argv};
+    ::testing::InitGoogleTest(&argc, argv);
+    int ret = RUN_ALL_TESTS();
+    // QTimer exitTimer;
+    // QObject::connect(
+    //     &exitTimer, &QTimer::timeout, &app, QCoreApplication::quit);
+    // exitTimer.start(std::chrono::seconds{5});
+    // exitTimer.start();
+    // app.exec();
+    return ret;
+}

@@ -43,7 +43,9 @@ void SprintView::showContextMenu(const QPoint& pos)
     QPoint globalPos = mapToGlobal(pos);
 
     QMenu contextMenu;
-    contextMenu.installEventFilter(new MouseRightReleaseEater(&contextMenu));
+    auto mouseRightReleaseEater
+        = std::make_unique<MouseRightReleaseEater>(&contextMenu);
+    contextMenu.installEventFilter(mouseRightReleaseEater.release());
     const auto deleteEntry = "Delete";
     contextMenu.addAction(deleteEntry);
 

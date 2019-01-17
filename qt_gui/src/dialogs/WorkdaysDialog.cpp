@@ -38,14 +38,14 @@ WorkdaysDialog::~WorkdaysDialog() = default;
 
 void WorkdaysDialog::accept()
 {
-    settings.setWorkdaysCode(pollWorkdaysCode());
+    settings.setWorkdays(pollWorkdaysCode());
     QDialog::accept();
 }
 
 void WorkdaysDialog::initializeDayBoxes()
 {
     using dw::DateTime;
-    const WeekdaySelection selection{settings.workdaysCode()};
+    const utils::WeekdaySelection selection{settings.workdays()};
     ui->mondayBox->setChecked(selection.isSelected(DateTime::Weekday::Monday));
     ui->tuesdayBox->setChecked(
         selection.isSelected(DateTime::Weekday::Tuesday));
@@ -59,11 +59,11 @@ void WorkdaysDialog::initializeDayBoxes()
     ui->sundayBox->setChecked(selection.isSelected(DateTime::Weekday::Sunday));
 }
 
-unsigned WorkdaysDialog::pollWorkdaysCode() const
+utils::WeekdaySelection WorkdaysDialog::pollWorkdaysCode() const
 {
     using dw::DateTime;
 
-    WeekdaySelection selection;
+    utils::WeekdaySelection selection;
 
     if (ui->mondayBox->isChecked())
         selection.selectDay(DateTime::Weekday::Monday);
@@ -80,7 +80,7 @@ unsigned WorkdaysDialog::pollWorkdaysCode() const
     if (ui->sundayBox->isChecked())
         selection.selectDay(DateTime::Weekday::Sunday);
 
-    return selection.selectionMask();
+    return selection;
 }
 
 } // namespace sprint_timer::ui::qt_gui

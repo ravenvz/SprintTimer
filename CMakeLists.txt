@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.12)
 
-cmake_policy(SET CMP0042 NEW)
+if (POLICY CMP0042)
+    cmake_policy(SET CMP0042 NEW)
+endif()
+if (POLICY CMP0076)
+    cmake_policy(SET CMP0076 NEW)
+endif()
+
 set(CMAKE_MACOSX_RPATH 0)
 
 set(PROJECT sprint_timer_app)
-project(${PROJECT} VERSION 0.5.0)
+project(${PROJECT} VERSION 0.5.2)
 
 if (ECM_ENABLE_SANITIZERS AND UNIX AND NOT APPLE)
     find_package(ECM REQUIRED NO_MODULE)

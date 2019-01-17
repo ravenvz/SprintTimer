@@ -19,38 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DATEPICKDIALOG_H
-#define DATEPICKDIALOG_H
+#include "QtStorageInitializer.h"
 
-#include "qt_gui/utils/DateInterval.h"
-#include <QDialog>
-#include <core/IConfig.h>
-#include <memory>
+namespace {
 
-namespace Ui {
-class DateRangePickDialog;
-} // namespace Ui
+int dummyArgc{1};
+char argv[] = "dummy";
+char* dummyArgv[] = {argv};
 
-namespace sprint_timer::ui::qt_gui {
+} // namespace
 
-class DateRangePickDialog : public QDialog {
-    Q_OBJECT
+QtStorageInitializer::QtStorageInitializer()
+    : app{dummyArgc, dummyArgv}
+{
+}
 
-public:
-    DateRangePickDialog(DateInterval initialPeriod,
-                        FirstDayOfWeek firstDayOfWeek,
-                        QWidget* parent = nullptr);
-    ~DateRangePickDialog();
-    DateInterval getNewInterval();
+void QtStorageInitializer::runEventLoop() { app.exec(); }
 
-private:
-    std::unique_ptr<Ui::DateRangePickDialog> ui;
-
-    void configureCalendar(FirstDayOfWeek firstDayOfWeek);
-    void updateCalendarDates(DateInterval& period);
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-
-#endif // DATEPICKDIALOG_H
+void QtStorageInitializer::quit() { app.quit(); }

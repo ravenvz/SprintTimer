@@ -19,38 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DATEPICKDIALOG_H
-#define DATEPICKDIALOG_H
+#include "core/Command.h"
+#include "core/ISprintStorageWriter.h"
 
-#include "qt_gui/utils/DateInterval.h"
-#include <QDialog>
-#include <core/IConfig.h>
-#include <memory>
+namespace sprint_timer::use_cases {
 
-namespace Ui {
-class DateRangePickDialog;
-} // namespace Ui
-
-namespace sprint_timer::ui::qt_gui {
-
-class DateRangePickDialog : public QDialog {
-    Q_OBJECT
-
+class RegisterNewSprintBulk : public Command {
 public:
-    DateRangePickDialog(DateInterval initialPeriod,
-                        FirstDayOfWeek firstDayOfWeek,
-                        QWidget* parent = nullptr);
-    ~DateRangePickDialog();
-    DateInterval getNewInterval();
+    RegisterNewSprintBulk(ISprintStorageWriter& writer_,
+                          std::vector<entities::Sprint> sprints_);
+
+    void execute() override;
+
+    void undo() override;
+
+    std::string describe() const override;
 
 private:
-    std::unique_ptr<Ui::DateRangePickDialog> ui;
-
-    void configureCalendar(FirstDayOfWeek firstDayOfWeek);
-    void updateCalendarDates(DateInterval& period);
+    ISprintStorageWriter& writer;
+    const std::vector<entities::Sprint> sprints;
 };
 
-} // namespace sprint_timer::ui::qt_gui
-
-
-#endif // DATEPICKDIALOG_H
+} // namespace sprint_timer::use_cases

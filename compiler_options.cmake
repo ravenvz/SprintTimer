@@ -15,6 +15,7 @@ set(CLANG_COMPILE_OPTIONS -Weverything
                           -Wno-zero-as-null-pointer-constant # gtest implementation
                           -Wno-shadow
                           -Wno-used-but-marked-unused # some Qt's static definitions can trigger this
+                          -Wno-extra-semi-stmt # Qt mock
                           -Wno-shift-sign-overflow # TODO source is overflow-detection template in Howard Hinnant's date lib
                           )
 

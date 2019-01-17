@@ -23,9 +23,12 @@
 #include <core/use_cases/RequestSprintDistribution.h>
 #include <core/utils/WeekdaySelection.h>
 
+#include <iostream>
+
 namespace {
 
-dw::TimeSpan twelveWeeksBackTillNow();
+dw::TimeSpan
+twelveWeeksBackTillNow(sprint_timer::FirstDayOfWeek firstDayOfWeek);
 
 } // namespace
 
@@ -40,6 +43,7 @@ WeeklyProgressView::WeeklyProgressView(
                    Rows{3},
                    Columns{4},
                    GaugeSize{0.8}}
+    , applicationSettings{applicationSettings}
     , queryInvoker{queryInvoker}
     , distributionReader{weeklyDistributionReader}
 {
@@ -58,7 +62,7 @@ void WeeklyProgressView::synchronize()
     using use_cases::RequestSprintDistribution;
     queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         distributionReader,
-        twelveWeeksBackTillNow(),
+        twelveWeeksBackTillNow(firstDayOfWeek),
         [this](const auto& distribution) {
             setData(distribution, distribution.getNumBins());
         }));
@@ -68,13 +72,15 @@ void WeeklyProgressView::synchronize()
 
 namespace {
 
-dw::TimeSpan twelveWeeksBackTillNow()
+dw::TimeSpan twelveWeeksBackTillNow(sprint_timer::FirstDayOfWeek firstDayOfWeek)
 {
     using dw::DateTime;
     using dw::TimeSpan;
-    auto now = DateTime::currentDateTimeLocal();
-    auto from
-        = now.add(DateTime::Days{-7 * 11 - static_cast<int>(now.dayOfWeek())});
+    const int firstDayOffset{static_cast<int>(firstDayOfWeek)};
+    const auto now = DateTime::currentDateTimeLocal();
+    const auto from = now.add(DateTime::Days{
+        -7 * 11 - static_cast<int>(now.dayOfWeek()) - firstDayOffset});
+    std::cout << from << " -> " << now << std::endl;
     return TimeSpan{from, now};
 }
 

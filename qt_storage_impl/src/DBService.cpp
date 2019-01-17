@@ -30,6 +30,8 @@ namespace sprint_timer::storage::qt_storage_impl {
 
 DBService::DBService(const QString& filename)
 {
+    qRegisterMetaType<std::vector<QSqlRecord>>("std::vector<QSqlRecord>");
+
     // TODO exception should be presented to the user in better way, and,
     // probably, not here
     try {
@@ -50,27 +52,27 @@ DBService::DBService(const QString& filename)
                   << err.error() << '\n';
         throw;
     }
-    auto* worker = new Worker(filename);
-    worker->moveToThread(&workerThread);
-    qRegisterMetaType<std::vector<QSqlRecord>>("std::vector<QSqlRecord>");
-    connect(&workerThread, &QThread::started, worker, &Worker::init);
-    connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
-    connect(this, &DBService::queue, worker, &Worker::execute);
-    connect(this, &DBService::queuePrepared, worker, &Worker::executePrepared);
-    connect(worker, &Worker::results, this, &DBService::handleResults);
-    connect(worker, &Worker::error, this, &DBService::handleError);
-    connect(this, &DBService::prepareQuery, worker, &Worker::prepare);
-    connect(this, &DBService::bind, worker, &Worker::bindValue);
+    auto workerPtr = std::make_unique<Worker>(filename);
+    connect(&workerThread, &QThread::started, workerPtr.get(), &Worker::init);
+    connect(&workerThread, &QThread::finished, workerPtr.get(), &QObject::deleteLater);
+    connect(this, &DBService::queue, workerPtr.get(), &Worker::execute);
+    connect(this, &DBService::queuePrepared, workerPtr.get(), &Worker::executePrepared);
+    connect(workerPtr.get(), &Worker::results, this, &DBService::handleResults);
+    connect(workerPtr.get(), &Worker::error, this, &DBService::handleError);
+    connect(this, &DBService::prepareQuery, workerPtr.get(), &Worker::prepare);
+    connect(this, &DBService::bind, workerPtr.get(), &Worker::bindValue);
     connect(this,
             &DBService::requestTransaction,
-            worker,
+            workerPtr.get(),
             &Worker::onTransactionRequested);
     connect(this,
             &DBService::requestRollback,
-            worker,
+            workerPtr.get(),
             &Worker::rollbackTransaction);
     connect(
-        this, &DBService::requestCommit, worker, &Worker::onCommitRequested);
+        this, &DBService::requestCommit, workerPtr.get(), &Worker::onCommitRequested);
+	auto* worker = workerPtr.release();
+    worker->moveToThread(&workerThread);
     workerThread.start();
 }
 
@@ -139,7 +141,22 @@ void Worker::init()
 {
     connection = std::make_unique<ConnectionGuard>(filename, connectionName);
     if (!openConnection())
-        throw std::runtime_error("Unable to create database");
+        throw std::runtime_error("Unable to connect with database");
+}
+
+bool Worker::openConnection()
+{
+    // if (!QSqlDatabase::database(connectionName).open()) {
+    //     qCritical() << "Worker failed to open database";
+    //     return false;
+    // }
+    return setPragmas();
+}
+
+bool Worker::setPragmas()
+{
+    QSqlQuery query{QSqlDatabase::database(connectionName)};
+    return query.exec("PRAGMA foreign_keys = ON");
 }
 
 void Worker::execute(qint64 queryId, const QString& query)
@@ -148,6 +165,7 @@ void Worker::execute(qint64 queryId, const QString& query)
     if (!q.exec(query)) {
         QString errormsg
             = QString("%1 %2").arg(q.lastQuery()).arg(q.lastError().text());
+        qDebug() << errormsg;
         emit error(queryId, errormsg);
         if (inTransaction) {
             rollbackTransaction();
@@ -230,21 +248,6 @@ void Worker::onCommitRequested()
         emit error(-1, "Transaction commit failed");
     }
     inTransaction = false;
-}
-
-bool Worker::openConnection()
-{
-    if (!QSqlDatabase::database(connectionName).open()) {
-        qCritical() << "Worker failed to open database";
-        return false;
-    }
-    return setPragmas();
-}
-
-bool Worker::setPragmas()
-{
-    QSqlQuery query{QSqlDatabase::database(connectionName)};
-    return query.exec("PRAGMA foreign_keys = ON");
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl

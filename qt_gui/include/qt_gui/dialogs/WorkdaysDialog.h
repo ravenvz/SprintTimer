@@ -47,7 +47,7 @@ private:
     IConfig& settings;
 
     void initializeDayBoxes();
-    unsigned pollWorkdaysCode() const;
+    utils::WeekdaySelection pollWorkdaysCode() const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

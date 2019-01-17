@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
 #include <core/use_cases/RegisterNewSprint.h>
+#include <core/use_cases/RegisterNewSprintBulk.h>
 #include <core/use_cases/RemoveSprintTransaction.h>
 #include <core/use_cases/RequestSprints.h>
 
@@ -85,9 +86,8 @@ void SprintModel::insert(const Sprint& sprint)
 
 void SprintModel::insert(const std::vector<Sprint>& sprints)
 {
-    // TODO consider bulk-insert
-    for (const auto& sprint : sprints)
-        registerSprint(sprint);
+    commandInvoker.executeCommand(
+        std::make_unique<RegisterNewSprintBulk>(sprintWriter, sprints));
     requestDataUpdate();
 }
 

@@ -106,9 +106,19 @@ public:
 
     void setTimerFlavour(int timerVariation) override {}
 
-    unsigned workdaysCode() const override { return 0; }
+    utils::WeekdaySelection workdays() const override
+    {
+        return utils::WeekdaySelection{0};
+    }
 
-    void setWorkdaysCode(unsigned workdays_code) override {}
+    void setWorkdays(const utils::WeekdaySelection& workdays) override {}
+
+    FirstDayOfWeek firstDayOfWeek() const override
+    {
+        return FirstDayOfWeek::Monday;
+    }
+
+    void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek) override {}
 
 private:
     std::chrono::minutes mSprintDuration{30};
@@ -170,57 +180,62 @@ protected:
     std::unique_ptr<StatefulTimerTest> timer;
 };
 
-TEST_F(StatefulTimerStates, test_timer_should_initially_be_in_idle_state)
+TEST_F(StatefulTimerStates, should_initially_be_in_idle_state)
 {
     EXPECT_EQ(timer->idle_state(), timer->state());
 }
 
-TEST_F(StatefulTimerStates,
-       test_should_transition_to_sprint_state_from_idle_state)
+TEST_F(StatefulTimerStates, should_transition_to_sprint_state_from_idle_state)
 {
     timer->transition_to_next_state();
+
     EXPECT_EQ(timer->sprint_state(), timer->state());
 }
 
-TEST_F(StatefulTimerStates, test_should_transition_to_finished_state_after_task)
+TEST_F(StatefulTimerStates, should_transition_to_finished_state_after_task)
 {
     timer->set_state(timer->sprint_state());
+
     timer->transition_to_next_state();
 
     EXPECT_EQ(timer->finished_state(), timer->state());
 }
 
-TEST_F(StatefulTimerStates, test_should_transition_to_break_after_finished)
+TEST_F(StatefulTimerStates, should_transition_to_break_after_finished)
 {
     timer->set_state(timer->finished_state());
     timer->setNumFinishedSprints(1);
+
     timer->transition_to_next_state();
 
     EXPECT_EQ(timer->short_break_state(), timer->state());
 }
 
 TEST_F(StatefulTimerStates,
-       test_should_transition_to_long_break_after_finished_when_met_req)
+       should_transition_to_long_break_after_finished_when_met_req)
 {
     const int numTaskBeforeLongBreak{testSettings.numSprintsBeforeBreak()};
     timer->setNumFinishedSprints(numTaskBeforeLongBreak - 1);
     timer->set_state(timer->finished_state());
+
     timer->transition_to_next_state();
 
     EXPECT_EQ(timer->long_break_state(), timer->state());
 }
 
-TEST_F(StatefulTimerStates, test_should_transition_to_idle_from_break)
+TEST_F(StatefulTimerStates, should_transition_to_idle_from_break)
 {
     timer->set_state(timer->short_break_state());
+
     timer->transition_to_next_state();
 
     EXPECT_EQ(timer->idle_state(), timer->state());
 }
 
-TEST_F(StatefulTimerStates, test_should_transition_to_idle_from_long_break)
+TEST_F(StatefulTimerStates, should_transition_to_idle_from_long_break)
 {
     timer->set_state(timer->long_break_state());
+
     timer->transition_to_next_state();
 
     EXPECT_EQ(timer->idle_state(), timer->state());
@@ -239,7 +254,9 @@ TEST_F(StatefulTimerStates,
        zone_transition_should_be_ignored_in_short_break_state)
 {
     timer->set_state(timer->short_break_state());
+
     timer->toggleInTheZoneMode();
+
     EXPECT_EQ(timer->short_break_state(), timer->state());
 }
 
@@ -247,14 +264,18 @@ TEST_F(StatefulTimerStates,
        zone_transition_should_be_ignored_in_long_break_state)
 {
     timer->set_state(timer->long_break_state());
+
     timer->toggleInTheZoneMode();
+
     EXPECT_EQ(timer->long_break_state(), timer->state());
 }
 
 TEST_F(StatefulTimerStates, zone_transition_should_be_ignored_in_finished_state)
 {
     timer->set_state(timer->finished_state());
+
     timer->toggleInTheZoneMode();
+
     EXPECT_EQ(timer->finished_state(), timer->state());
 }
 
@@ -262,15 +283,19 @@ TEST_F(StatefulTimerStates,
        zone_transition_should_transition_to_zone_when_in_running_sprint_state)
 {
     timer->set_state(timer->sprint_state());
+
     timer->toggleInTheZoneMode();
+
     EXPECT_EQ(timer->zone_state(), timer->state());
 }
 
 TEST_F(StatefulTimerStates,
-       zone_transition_should_transition_to_task_when_in_zone_state)
+       zone_transition_should_transition_to_running_sprint_when_in_zone_state)
 {
     timer->set_state(timer->zone_state());
+
     timer->toggleInTheZoneMode();
+
     EXPECT_EQ(timer->sprint_state(), timer->state());
 }
 
@@ -279,13 +304,16 @@ TEST_F(StatefulTimerStates,
 TEST_F(StatefulTimerStates, cancelling_state_should_be_ignored_in_idle_state)
 {
     timer->cancel();
+
     EXPECT_EQ(timer->idle_state(), timer->state());
 }
 
 TEST_F(StatefulTimerStates, cancelling_state_should_be_ignored_in_zone_state)
 {
     timer->set_state(timer->zone_state());
+
     timer->cancel();
+
     EXPECT_EQ(timer->zone_state(), timer->state());
 }
 
@@ -293,7 +321,9 @@ TEST_F(StatefulTimerStates,
        transitions_to_idle_state_when_cancelling_finished_state)
 {
     timer->set_state(timer->finished_state());
+
     timer->cancel();
+
     EXPECT_EQ(timer->idle_state(), timer->state());
 }
 
@@ -301,7 +331,9 @@ TEST_F(StatefulTimerStates,
        transitions_to_idle_state_when_cancelling_task_state)
 {
     timer->set_state(timer->sprint_state());
+
     timer->cancel();
+
     EXPECT_EQ(timer->idle_state(), timer->state());
 }
 
@@ -309,7 +341,9 @@ TEST_F(StatefulTimerStates,
        transitions_to_idle_state_when_cancelling_short_break)
 {
     timer->set_state(timer->short_break_state());
+
     timer->cancel();
+
     EXPECT_EQ(timer->idle_state(), timer->state());
 }
 
@@ -317,6 +351,8 @@ TEST_F(StatefulTimerStates,
        transitions_to_idle_state_when_cancelling_long_break)
 {
     timer->set_state(timer->long_break_state());
+
     timer->cancel();
+
     EXPECT_EQ(timer->idle_state(), timer->state());
 }

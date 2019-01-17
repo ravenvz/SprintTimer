@@ -1,3 +1,4 @@
+dist: xenial
 sudo: required
 language: cpp
 
@@ -26,9 +27,14 @@ install:
 - |
   if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
     brew install cmake || brew upgrade cmake
-    brew install qt
-    brew install llvm
-    brew install boost
+    brew install qt || brew upgrade qt
+    brew install llvm || brew upgrade llvm
+    brew install boost || brew upgrade boost
+  else
+    wget http://archive.ubuntu.com/ubuntu/pool/main/libs/libseccomp/libseccomp2_2.3.3-3ubuntu1_amd64.deb
+    ls
+    sudo apt install -y ./libseccomp2_2.3.3-3ubuntu1_amd64.deb
+    aptitude show libseccomp2
   fi
 - cmake --version
 
@@ -42,6 +48,7 @@ before_script:
       echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
       docker pull $DOCKER_USERNAME/sprint_dev;
       docker images;
+      docker --version;
       docker run -v $TRAVIS_BUILD_DIR:/project ${DOCKER_USERNAME}/sprint_dev /bin/bash -c "(cd project && mkdir build && cd build && CXX=$COMPILER cmake -DBUILD_TESTS=ON ..)";
   fi;
 

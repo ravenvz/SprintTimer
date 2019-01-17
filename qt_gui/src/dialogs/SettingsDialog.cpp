@@ -78,6 +78,8 @@ void SettingsDialog::fillSettingsData()
     ui->hSliderVolume->setValue(applicationSettings.soundVolume());
     auto timerFlavour = applicationSettings.timerFlavour();
     ui->cbxTimerVariation->setCurrentIndex(timerFlavour);
+    ui->cbxFirstWeekday->setCurrentIndex(
+        static_cast<int>(applicationSettings.firstDayOfWeek()));
 }
 
 
@@ -95,6 +97,8 @@ void SettingsDialog::storeSettingsData()
     applicationSettings.setPlaySound(ui->gbSoundSettings->isChecked());
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
     applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());
+    applicationSettings.setFirstDayOfWeek(
+        static_cast<FirstDayOfWeek>(ui->cbxFirstWeekday->currentIndex()));
 }
 
 

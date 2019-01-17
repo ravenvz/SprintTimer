@@ -30,6 +30,7 @@
 #include <core/use_cases/RegisterNewSprint.h>
 
 using sprint_timer::entities::Sprint;
+using sprint_timer::entities::Tag;
 using sprint_timer::use_cases::RegisterNewSprint;
 using namespace dw;
 

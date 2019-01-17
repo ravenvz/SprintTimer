@@ -52,9 +52,8 @@ AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings,
     ui->cbPickTask->setItemDelegate(submissionItemDelegate.get());
 
     datePicker->setMaximumDate(QDate::currentDate());
-    // TODO make this configurable with settings.
-    // See also DateRangePickDialog's related TODO
-    datePicker->setFirstDayOfWeek(Qt::Monday);
+    if (applicationSettings.firstDayOfWeek() == FirstDayOfWeek::Monday)
+        datePicker->setFirstDayOfWeek(Qt::Monday);
     datePicker->setWindowModality(Qt::ApplicationModal);
 
     connect(ui->timeEditSprintStartTime,

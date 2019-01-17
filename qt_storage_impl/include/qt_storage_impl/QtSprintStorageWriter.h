@@ -36,7 +36,11 @@ public:
 
     void save(const entities::Sprint& sprint) final;
 
+    void save(const std::vector<entities::Sprint>& sprints) final;
+
     void remove(const entities::Sprint& sprint) final;
+
+    void remove(const std::vector<entities::Sprint>& sprints) final;
 
 private:
     DBService& dbService;

@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "core/entities/Sprint.h"
-#include "core/utils/StringUtils.h"
 #include "core/BoostUUIDGenerator.h"
+#include "core/utils/StringUtils.h"
 #include <algorithm>
 
 namespace {
@@ -91,7 +91,10 @@ bool operator==(const Sprint& lhs, const Sprint& rhs)
 {
     return lhs.taskUuid() == rhs.taskUuid() && lhs.uuid() == rhs.uuid()
         && lhs.name() == rhs.name()
-        && lhs.timeSpan() == rhs.timeSpan()
+        && lhs.timeSpan().start().timestamp<std::chrono::seconds>()
+        == rhs.timeSpan().start().timestamp<std::chrono::seconds>()
+        && lhs.timeSpan().finish().timestamp<std::chrono::seconds>()
+        == rhs.timeSpan().finish().timestamp<std::chrono::seconds>()
         && lhs.tags() == rhs.tags();
 }
 

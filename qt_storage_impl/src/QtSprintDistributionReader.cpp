@@ -19,42 +19,43 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/QtSprintDistributionReader.h"
+#include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/utils/DateTimeConverter.h"
-
-namespace sprint_timer::storage::qt_storage_impl {
 
 namespace {
 
-    auto equalByDay = [](const QDate& referenceDate, const QDate& date) {
-        return referenceDate == date;
-    };
+constexpr int daysInWeek{7};
 
-    auto incrementByDay = [](const QDate& date) { return date.addDays(1); };
+// bool equalByDay(const QDate& referenceDate, const QDate& date)
+// {
+//     return referenceDate == date;
+// }
+//
+// QDate incrementByDay(const QDate& date) { return date.addDays(1); }
+//
+// bool equalByWeek(const QDate& referenceDate, const QDate& date)
+// {
+//     return referenceDate.weekNumber() == date.weekNumber();
+// }
+//
+// QDate incrementByWeek(const QDate& date) { return date.addDays(7); }
+//
+// bool equalByMonth(const QDate& referenceDate, const QDate& date)
+// {
+//     return referenceDate.month() == date.month();
+// }
+//
+// QDate incrementByMonth(const QDate& date) { return date.addMonths(1); }
 
-    auto equalByWeek = [](const QDate& referenceDate, const QDate& date) {
-        return referenceDate.weekNumber() == date.weekNumber();
-    };
-
-    auto incrementByWeek = [](const QDate& date) { return date.addDays(7); };
-
-    auto equalByMonth = [](const QDate& referenceDate, const QDate& date) {
-        return referenceDate.month() == date.month();
-    };
-
-    auto incrementByMonth = [](const QDate& date) { return date.addMonths(1); };
 } // namespace
 
-DistributionReaderBase::DistributionReaderBase(
-    DBService& dbService,
-    size_t distributionSize,
-    std::function<bool(const QDate&, const QDate&)> compareFunc,
-    std::function<QDate(const QDate&)> incrementFunc)
+namespace sprint_timer::storage::qt_storage_impl {
+
+DistributionReaderBase::DistributionReaderBase(DBService& dbService,
+                                               size_t distributionSize)
     : dbService{dbService}
     , distributionSize{distributionSize}
-    , equalityFunc{std::move(compareFunc)}
-    , incrementFunc{std::move(incrementFunc)}
 
 {
     connect(&dbService,
@@ -92,13 +93,48 @@ void DistributionReaderBase::onResultsReceived(
 {
     if (invalidQueryId(queryId))
         return;
-    auto distribution = fillDateGaps(records, equalityFunc, incrementFunc);
+    auto distribution = fillDateGaps(records);
     executeCallback(std::move(distribution));
 }
 
+std::vector<int> DistributionReaderBase::fillDateGaps(
+    const std::vector<QSqlRecord>& records) const
+{
+    std::vector<int> sprintCount(distributionSize, 0);
+
+    QDate expected = normalizeDate(startDate);
+    auto recordIter = cbegin(records);
+    // auto sprintCountIter = begin(sprintCount);
+    for (auto& elem : sprintCount) {
+        if (recordIter == cend(records))
+            break;
+        const QDate date = recordIter->value(1).toDate();
+        const int value = recordIter->value(0).toInt();
+        if (compareDate(expected, date)) {
+            elem = value;
+            ++recordIter;
+        }
+        expected = nextExpectedDate(expected);
+    }
+
+    return sprintCount;
+}
+
+QDate DistributionReaderBase::normalizeDate(const QDate& date) const
+{
+    return date;
+}
+
+bool DistributionReaderBase::compareDate(const QDate& expected,
+                                         const QDate& probeDate) const
+{
+    return expected == probeDate;
+}
+
+
 QtSprintDailyDistributionReader::QtSprintDailyDistributionReader(
-    DBService& dbService, size_t numBins)
-    : DistributionReaderBase{dbService, numBins, equalByDay, incrementByDay}
+    DBService& dbService_, size_t numBins)
+    : DistributionReaderBase{dbService_, numBins}
 {
     mQueryId = dbService.prepare(
         QString{"SELECT COUNT(*), DATE(%1) "
@@ -110,12 +146,19 @@ QtSprintDailyDistributionReader::QtSprintDailyDistributionReader(
             .arg(SprintTable::name));
 }
 
-QtSprintWeeklyDistributionReader::QtSprintWeeklyDistributionReader(
-    DBService& dbService, size_t numBins)
-    : DistributionReaderBase{dbService, numBins, equalByWeek, incrementByWeek}
+QDate QtSprintDailyDistributionReader::nextExpectedDate(
+    const QDate& referenceDate) const
+{
+    return referenceDate.addDays(1);
+}
+
+
+QtSprintDistReaderMondayFirst::QtSprintDistReaderMondayFirst(
+    DBService& dbService_, size_t numBins)
+    : DistributionReaderBase{dbService_, numBins}
 {
     mQueryId = dbService.prepare(QString{
-        "SELECT COUNT(*), %1 "
+        "SELECT COUNT(*), start_time "
         "FROM %2 WHERE DATE(%1) >= (:start_date) AND DATE(%1) <= (:end_date) "
         "GROUP BY (STRFTIME('%j', DATE(%1, '-3 days', 'weekday 4')) - 1) / 7 + "
         "1 "
@@ -124,17 +167,82 @@ QtSprintWeeklyDistributionReader::QtSprintWeeklyDistributionReader(
                                      .arg(SprintTable::name));
 }
 
-QtSprintMonthlyDistributionReader::QtSprintMonthlyDistributionReader(
-    DBService& dbService, size_t numBins)
-    : DistributionReaderBase{dbService, numBins, equalByMonth, incrementByMonth}
+QDate QtSprintDistReaderMondayFirst::nextExpectedDate(
+    const QDate& referenceDate) const
+{
+    return referenceDate.addDays(daysInWeek);
+}
+
+QDate QtSprintDistReaderMondayFirst::normalizeDate(
+    const QDate& date) const
+{
+    return date;
+}
+
+bool QtSprintDistReaderMondayFirst::compareDate(
+    const QDate& expected, const QDate& probeDate) const
+{
+    return expected.weekNumber() == probeDate.weekNumber();
+}
+
+
+QtSprintDistReaderSundayFirst::QtSprintDistReaderSundayFirst(
+    DBService& dbService_, size_t numBins)
+    : DistributionReaderBase{dbService_, numBins}
 {
     mQueryId = dbService.prepare(QString{
-        "SELECT COUNT(*), %1 "
+        "SELECT COUNT(*), DATE(%1, 'weekday 6') AS saturday "
+        "FROM %2 WHERE DATE(%1) >= (:start_date) AND date(%1) <= (:end_date) "
+        "GROUP BY saturday "
+        "ORDER BY DATE(%1)"}
+                                     .arg(SprintTable::Columns::startTime)
+                                     .arg(SprintTable::name));
+}
+
+QDate QtSprintDistReaderSundayFirst::nextExpectedDate(
+    const QDate& referenceDate) const
+{
+    return referenceDate.addDays(daysInWeek);
+}
+
+QDate QtSprintDistReaderSundayFirst::normalizeDate(
+    const QDate& date) const
+{
+    if (date.dayOfWeek() == Qt::DayOfWeek::Sunday)
+        return date.addDays(6);
+    return date.addDays(Qt::DayOfWeek::Saturday - date.dayOfWeek());
+}
+
+bool QtSprintDistReaderSundayFirst::compareDate(
+    const QDate& expected, const QDate& probeDate) const
+{
+    return expected == probeDate;
+}
+
+
+QtSprintMonthlyDistributionReader::QtSprintMonthlyDistributionReader(
+    DBService& dbService_, size_t numBins)
+    : DistributionReaderBase{dbService_, numBins}
+{
+    mQueryId = dbService.prepare(QString{
+        "SELECT COUNT(*), start_time "
         "FROM %2 WHERE DATE(%1) >= (:start_date) AND DATE(%1) <= (:end_date) "
         "GROUP BY STRFTIME('%m', DATE(%1)) "
         "ORDER BY DATE(%1)"}
                                      .arg(SprintTable::Columns::startTime)
                                      .arg(SprintTable::name));
+}
+
+QDate QtSprintMonthlyDistributionReader::nextExpectedDate(
+    const QDate& referenceDate) const
+{
+    return referenceDate.addMonths(1);
+}
+
+bool QtSprintMonthlyDistributionReader::compareDate(
+    const QDate& expected, const QDate& probeDate) const
+{
+    return expected.month() == probeDate.month();
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl

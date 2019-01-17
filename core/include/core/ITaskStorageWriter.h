@@ -32,15 +32,12 @@ public:
 
     virtual void save(const entities::Task& task) = 0;
 
+    // TODO probably uuid would be enough, no need to have ref to whole Task
     virtual void remove(const entities::Task& task) = 0;
 
     virtual void edit(const entities::Task& task,
                       const entities::Task& editedTask)
         = 0;
-
-    virtual void incrementSprints(const std::string& uuid) = 0;
-
-    virtual void decrementSprints(const std::string& uuid) = 0;
 
     virtual void toggleTaskCompletionStatus(const std::string& uuid,
                                             const dw::DateTime& timeStamp)

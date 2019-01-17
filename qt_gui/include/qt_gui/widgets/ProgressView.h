@@ -22,18 +22,10 @@
 #ifndef PROGRESSVIEW_H_2OXRIURM
 #define PROGRESSVIEW_H_2OXRIURM
 
+#include "qt_gui/Synchronizable.h"
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
 #include <memory>
-
-#include "qt_gui/Synchronizable.h"
-#include "qt_gui/dialogs/WorkdaysDialog.h"
-#include <QPushButton>
-#include <core/IConfig.h>
-#include <core/ISprintDistributionReader.h>
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestSprintDistribution.h>
-#include <core/utils/WeekdaySelection.h>
 
 namespace Ui {
 class ProgressView;
