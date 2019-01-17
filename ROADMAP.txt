@@ -1,8 +1,13 @@
-Plans for version 0.5.1
+Plans for version 0.6.0
 ------------------------
 
 HISTORY
 ----------------------------------------------------------------
+Version 0.5.2
+-------------
+Optimize adding sprints in bulk
+Fixed issue when task has been reset to default state after edit
+
 Version 0.5.0
 -------------
 Add Mac OS support.
