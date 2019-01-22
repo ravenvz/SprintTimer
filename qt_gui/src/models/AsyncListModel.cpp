@@ -29,21 +29,6 @@ AsyncListModel::AsyncListModel(QObject* parent)
 {
 }
 
-void AsyncListModel::synchronize()
-{
-    silent = true;
-    requestDataUpdate();
-}
-
-void AsyncListModel::broadcastUpdateFinished()
-{
-    if (silent) {
-        silent = false;
-        return;
-    }
-    emit updateFinished();
-}
-
 void AsyncListModel::submitData() {}
 
 void AsyncListModel::revertData() {}

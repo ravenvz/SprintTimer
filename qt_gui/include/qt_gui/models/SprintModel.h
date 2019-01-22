@@ -55,8 +55,9 @@ public:
 
     void remove(int row);
 
-protected:
     void requestDataUpdate() final;
+
+    void requestSilentDataUpdate() final;
 
 private:
     std::vector<entities::Sprint> storage;

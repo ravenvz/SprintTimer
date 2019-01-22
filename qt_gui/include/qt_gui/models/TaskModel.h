@@ -108,6 +108,8 @@ public:
 protected:
     void requestDataUpdate() final;
 
+    void requestSilentDataUpdate() final;
+
 private:
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;

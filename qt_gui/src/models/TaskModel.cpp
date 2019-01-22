@@ -52,10 +52,19 @@ TaskModel::TaskModel(ITaskStorageReader& taskReader,
     , commandInvoker{commandInvoker}
     , queryInvoker{queryInvoker}
 {
-    synchronize();
+    requestSilentDataUpdate();
 }
 
 void TaskModel::requestDataUpdate()
+{
+    queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
+        taskReader, [this](const auto& tasks) {
+            onDataChanged(tasks);
+            emit updateFinished();
+        }));
+}
+
+void TaskModel::requestSilentDataUpdate()
 {
     queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
         taskReader, [this](const auto& tasks) { onDataChanged(tasks); }));
@@ -66,7 +75,6 @@ void TaskModel::onDataChanged(const std::vector<Task>& tasks)
     beginResetModel();
     storage = tasks;
     endResetModel();
-    broadcastUpdateFinished();
 }
 
 Qt::DropActions TaskModel::supportedDropActions() const

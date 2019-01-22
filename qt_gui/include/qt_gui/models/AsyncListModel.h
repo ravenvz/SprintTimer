@@ -32,9 +32,9 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-/* Model that updates it' s data asyncroniously.
+/* Model that updates it's data asyncroniously.
  *
- * Async data update means that there is a unknown delay between
+ * Async data update implies a delay between
  * request for data update and data arrival. When data has arrived
  * and set, model emits 'updateFinished()' signal.
  *
@@ -55,10 +55,6 @@ public:
     explicit AsyncListModel(QObject* parent);
 
 public slots:
-    /* Request to update model data, but do not broadcast updateFinished
-     * signal when data is received. */
-    virtual void synchronize();
-
     /* Tells model to submit cached data to permanent storage.
      *
      * It has the same intent as QAbstractItemModel::submit(),
@@ -74,19 +70,16 @@ public slots:
      * It has the same intent as QAbstractItemModel::revert(),
      * but provided as an alternative to simplify behaviour
      * customization (as one can be sure that none of Qt objects
-     * will trigger this slot.
+     * will trigger this slot).
      *
      * Default implementation does nothing.*/
     virtual void revertData();
 
-protected:
-    bool silent{false};
-
-    /* Request async data update. */
+    /* Request async data update. Upon receiving data  */
     virtual void requestDataUpdate() = 0;
 
-    /* Emit updateFinished signal when silent flag is false. */
-    virtual void broadcastUpdateFinished();
+    /* Request async data update but do not emit signal upon receiving data. */
+    virtual void requestSilentDataUpdate() = 0;
 
 signals:
     /* Emitted when model data is received.

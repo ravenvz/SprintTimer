@@ -50,13 +50,14 @@ public:
 
     QVariant data(const QModelIndex& index, int role) const final;
 
+    void requestDataUpdate() final;
+
+    void requestSilentDataUpdate() final;
+
 public slots:
     void submitData() final;
 
     void revertData() final;
-
-protected:
-    void requestDataUpdate() final;
 
 private:
     ITaskStorageReader& taskReader;

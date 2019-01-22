@@ -39,7 +39,7 @@ TagModel::TagModel(ITaskStorageReader& taskReader,
     , commandInvoker{commandInvoker}
     , queryInvoker{queryInvoker}
 {
-    synchronize();
+    requestSilentDataUpdate();
 }
 
 Qt::ItemFlags TagModel::flags(const QModelIndex& index) const
@@ -103,6 +103,15 @@ void TagModel::revertData()
 
 void TagModel::requestDataUpdate()
 {
+    queryInvoker.execute(
+        std::make_unique<RequestAllTags>(taskReader, [this](const auto& tags) {
+            this->onDataArrived(tags);
+            emit updateFinished();
+        }));
+}
+
+void TagModel::requestSilentDataUpdate()
+{
     queryInvoker.execute(std::make_unique<RequestAllTags>(
         taskReader, [this](const auto& tags) { this->onDataArrived(tags); }));
 }
@@ -112,7 +121,6 @@ void TagModel::onDataArrived(const std::vector<std::string>& tags)
     beginResetModel();
     storage = tags;
     endResetModel();
-    broadcastUpdateFinished();
 }
 
 } // namespace sprint_timer::ui::qt_gui

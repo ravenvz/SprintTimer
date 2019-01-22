@@ -275,7 +275,7 @@ int main(int argc, char* argv[])
     Config applicationSettings;
 
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/sprint.db"};
+    DBService dbService{dataDirectory + "/test_sprint.db"};
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{
@@ -324,11 +324,11 @@ int main(int argc, char* argv[])
     QObject::connect(&undoDialog,
                      &QDialog::accepted,
                      &sprintModel,
-                     &AsyncListModel::synchronize);
+                     &AsyncListModel::requestSilentDataUpdate);
     QObject::connect(&undoDialog,
                      &QDialog::accepted,
                      &taskModel,
-                     &AsyncListModel::synchronize);
+                     &AsyncListModel::requestSilentDataUpdate);
 
     auto undoButton = std::make_unique<UndoButton>(commandInvoker);
     auto addNewSprintButton
@@ -342,8 +342,7 @@ int main(int argc, char* argv[])
                      });
     auto sprintView = std::make_unique<SprintView>(sprintModel);
     auto sprintOutline
-        = std::make_unique<SprintOutline>(sprintModel,
-                                          addSprintDialog,
+        = std::make_unique<SprintOutline>(addSprintDialog,
                                           undoDialog,
                                           std::move(undoButton),
                                           std::move(addNewSprintButton),
@@ -458,23 +457,23 @@ int main(int argc, char* argv[])
     QObject::connect(&sprintModel,
                      &AsyncListModel::updateFinished,
                      &taskModel,
-                     &AsyncListModel::synchronize);
+                     &AsyncListModel::requestSilentDataUpdate);
     QObject::connect(&taskModel,
                      &AsyncListModel::updateFinished,
                      &sprintModel,
-                     &AsyncListModel::synchronize);
+                     &AsyncListModel::requestSilentDataUpdate);
     QObject::connect(&taskModel,
                      &AsyncListModel::updateFinished,
                      &tagModel,
-                     &TagModel::synchronize);
+                     &TagModel::requestDataUpdate);
     QObject::connect(&tagModel,
                      &AsyncListModel::updateFinished,
                      &sprintModel,
-                     &AsyncListModel::synchronize);
+                     &AsyncListModel::requestSilentDataUpdate);
     QObject::connect(&tagModel,
                      &AsyncListModel::updateFinished,
                      &taskModel,
-                     &AsyncListModel::synchronize);
+                     &AsyncListModel::requestSilentDataUpdate);
 
     QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submitRequested,

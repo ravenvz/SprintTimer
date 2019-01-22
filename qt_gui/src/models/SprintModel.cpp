@@ -45,7 +45,7 @@ SprintModel::SprintModel(CommandInvoker& commandInvoker,
     , sprintWriter{sprintWriter}
     , taskWriter{taskWriter}
 {
-    synchronize();
+    requestSilentDataUpdate();
 }
 
 int SprintModel::rowCount(const QModelIndex& parent) const
@@ -110,7 +110,19 @@ void SprintModel::requestDataUpdate()
         sprintReader,
         dw::TimeSpan{dw::DateTime::currentDateTimeLocal(),
                      dw::DateTime::currentDateTimeLocal()},
-        [this](const auto& items) { this->onDataChanged(items); }));
+        [this](const auto& items) {
+            onDataChanged(items);
+            emit updateFinished();
+        }));
+}
+
+void SprintModel::requestSilentDataUpdate()
+{
+    queryInvoker.execute(std::make_unique<RequestSprints>(
+        sprintReader,
+        dw::TimeSpan{dw::DateTime::currentDateTimeLocal(),
+                     dw::DateTime::currentDateTimeLocal()},
+        [this](const auto& items) { onDataChanged(items); }));
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)
@@ -118,7 +130,6 @@ void SprintModel::onDataChanged(const std::vector<Sprint>& items)
     beginResetModel();
     storage = items;
     endResetModel();
-    broadcastUpdateFinished();
 }
 
 } // namespace sprint_timer::ui::qt_gui
