@@ -22,22 +22,19 @@
 #include "qt_gui/widgets/SprintOutline.h"
 #include "qt_gui/dialogs/AddSprintDialog.h"
 #include "qt_gui/dialogs/UndoDialog.h"
-#include "qt_gui/models/SprintModel.h"
 #include "qt_gui/utils/MouseRightReleaseEater.h"
 #include <QMenu>
 #include <QVBoxLayout>
 
 namespace sprint_timer::ui::qt_gui {
 
-SprintOutline::SprintOutline(SprintModel& sprintModel,
-                             AddSprintDialog& addSprintDialog,
+SprintOutline::SprintOutline(AddSprintDialog& addSprintDialog,
                              UndoDialog& undoDialog,
                              std::unique_ptr<QPushButton> undoButton,
                              std::unique_ptr<QPushButton> addNewSprintButton,
                              std::unique_ptr<QListView> sprintView,
                              QWidget* parent)
     : QWidget{parent}
-    , sprintModel{sprintModel}
 {
     QVBoxLayout* layout = new QVBoxLayout{this};
 
