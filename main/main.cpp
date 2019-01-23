@@ -198,49 +198,6 @@ private:
     sprint_timer::CommandInvoker& wrapped;
 };
 
-// std::unique_ptr<QWidget>
-// createSprintOutline(sprint_timer::IConfig& applicationSettings,
-//                     sprint_timer::CommandInvoker& commandInvoker,
-//                     sprint_timer::ui::qt_gui::SprintModel& sprintModel,
-//                     sprint_timer::ui::qt_gui::TaskModel& taskModel)
-// {
-//     using namespace sprint_timer::ui::qt_gui;
-//
-//     AddSprintDialog addSprintDialog{
-//         applicationSettings, sprintModel, taskModel};
-//
-//     UndoDialog undoDialog{commandInvoker};
-//     QObject::connect(&undoDialog,
-//                      &QDialog::accepted,
-//                      &sprintModel,
-//                      &AsyncListModel::synchronize);
-//     QObject::connect(&undoDialog,
-//                      &QDialog::accepted,
-//                      &taskModel,
-//                      &AsyncListModel::synchronize);
-//
-//     auto undoButton = std::make_unique<UndoButton>(commandInvoker);
-//
-//     auto addNewSprintButton
-//         = std::make_unique<QPushButton>("Add Sprint Manually");
-//     addNewSprintButton->setEnabled(false);
-//     QObject::connect(&taskModel,
-//                      &QAbstractListModel::modelReset,
-//                      [btn = addNewSprintButton.get(), &taskModel]() {
-//                          btn->setEnabled(taskModel.rowCount(QModelIndex{})
-//                                          != 0);
-//                      });
-//
-//     auto sprintView = std::make_unique<SprintView>(sprintModel);
-//
-//     return std::make_unique<SprintOutline>(sprintModel,
-//                                            addSprintDialog,
-//                                            undoDialog,
-//                                            std::move(undoButton),
-//                                            std::move(addNewSprintButton),
-//                                            std::move(sprintView));
-// }
-
 void applyStyleSheet(QApplication& app)
 {
 #if defined(__APPLE__) && TARGET_OS_MAC
@@ -275,7 +232,7 @@ int main(int argc, char* argv[])
     Config applicationSettings;
 
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/test_sprint.db"};
+    DBService dbService{dataDirectory + "/sprint.db"};
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{
@@ -324,7 +281,7 @@ int main(int argc, char* argv[])
     QObject::connect(&undoDialog,
                      &QDialog::accepted,
                      &sprintModel,
-                     &AsyncListModel::requestSilentDataUpdate);
+                     &AsyncListModel::requestDataUpdate);
     QObject::connect(&undoDialog,
                      &QDialog::accepted,
                      &taskModel,
@@ -352,11 +309,12 @@ int main(int argc, char* argv[])
                                       *sprintStorageReader,
                                       *sprintYearRangeReader,
                                       queryInvoker};
+    // TODO keep an eye: modified
     QObject::connect(&sprintModel,
-                     &QAbstractListModel::modelReset,
+                     &AsyncListModel::updateFinished,
                      [&statisticsWindow]() { statisticsWindow.synchronize(); });
     QObject::connect(&taskModel,
-                     &QAbstractListModel::modelReset,
+                     &AsyncListModel::updateFinished,
                      [&statisticsWindow]() { statisticsWindow.synchronize(); });
 
     WorkdaysDialog workdaysDialog{applicationSettings};
@@ -366,7 +324,7 @@ int main(int argc, char* argv[])
                                               queryInvoker,
                                               workdaysDialog);
     QObject::connect(&sprintModel,
-                     &QAbstractListModel::modelReset,
+                     &AsyncListModel::updateFinished,
                      [p = dailyProgress.get()]() { p->synchronize(); });
     // TODO do we really need connection to TaskModel and why?
     // QObject::connect(&taskModel,
@@ -375,12 +333,12 @@ int main(int argc, char* argv[])
     auto weeklyProgress = std::make_unique<WeeklyProgressView>(
         applicationSettings, queryInvoker, *weeklyDistributionReader);
     QObject::connect(&sprintModel,
-                     &QAbstractListModel::modelReset,
+                     &AsyncListModel::updateFinished,
                      [p = weeklyProgress.get()]() { p->synchronize(); });
     auto monthlyProgress = std::make_unique<MonthlyProgressView>(
         applicationSettings, queryInvoker, *monthlyDistributionReader);
     QObject::connect(&sprintModel,
-                     &QAbstractListModel::modelReset,
+                     &AsyncListModel::updateFinished,
                      [p = monthlyProgress.get()]() { p->synchronize(); });
     GoalProgressWindow progressWindow{
         std::move(dailyProgress),
@@ -398,10 +356,10 @@ int main(int argc, char* argv[])
                                 queryInvoker,
                                 applicationSettings.firstDayOfWeek()};
     QObject::connect(&sprintModel,
-                     &QAbstractListModel::modelReset,
+                     &AsyncListModel::updateFinished,
                      [&historyWindow]() { historyWindow.synchronize(); });
     QObject::connect(&taskModel,
-                     &QAbstractListModel::modelReset,
+                     &AsyncListModel::updateFinished,
                      [&historyWindow]() { historyWindow.synchronize(); });
 
     SettingsDialog settingsDialog{applicationSettings};

@@ -105,11 +105,6 @@ public:
     // Replace data of item at given row with data from the newItem.
     void replaceItemAt(int row, const entities::Task& newItem);
 
-protected:
-    void requestDataUpdate() final;
-
-    void requestSilentDataUpdate() final;
-
 private:
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
@@ -130,6 +125,8 @@ private:
         LastModified,
         Uuid
     };
+
+    void requestUpdate() final;
 
     void onDataChanged(const std::vector<entities::Task>& tasks);
 };

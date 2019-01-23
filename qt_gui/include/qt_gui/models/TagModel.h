@@ -50,10 +50,6 @@ public:
 
     QVariant data(const QModelIndex& index, int role) const final;
 
-    void requestDataUpdate() final;
-
-    void requestSilentDataUpdate() final;
-
 public slots:
     void submitData() final;
 
@@ -67,6 +63,8 @@ private:
     using OldNewTagPair = std::pair<std::string, std::string>;
     std::vector<std::string> storage;
     std::vector<OldNewTagPair> buffer;
+
+    void requestUpdate() final;
 
     void onDataArrived(const std::vector<std::string>& tags);
 };

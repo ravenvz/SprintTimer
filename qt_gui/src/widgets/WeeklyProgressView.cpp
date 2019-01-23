@@ -59,6 +59,7 @@ WeeklyProgressView::WeeklyProgressView(
 
 void WeeklyProgressView::synchronize()
 {
+    std::cout << "   Weekly progress sync requested" << std::endl;
     using use_cases::RequestSprintDistribution;
     queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         distributionReader,

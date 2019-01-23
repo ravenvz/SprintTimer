@@ -35,15 +35,21 @@ namespace sprint_timer::ui::qt_gui {
 /* Model that updates it's data asyncroniously.
  *
  * Async data update implies a delay between
- * request for data update and data arrival. When data has arrived
- * and set, model emits 'updateFinished()' signal.
+ * request for data update and data arrival.
  *
  * Due to async nature, model has no means to know when it's
  * underlying data has been changed externally. To mitigate
- * this issue, 'synchronize()' slot is provided. When it's called,
- * model requests it's data, but does not emit 'updateFinished()'
- * signal to avoid chained update requests for it's subscribers
- * in case when they do operate on mutually dependent datasets. */
+ * this issue, two slots are provided to sync data manually:
+ *
+ * requestDataUpdate() - to request data and emit updateFinished signal upon
+ *                       data arrival
+ *
+ * requestSilentDataUpdate() - to request data but do not emit signal upon
+ *                             data arrival - handy when you do not want to
+ *                             notify updateFinished signal listener, i.e. to
+ *                             prevent chained data updates
+ *
+ */
 #ifdef _MSC_VER
 class GLIB_EXPORT AsyncListModel : public QAbstractListModel {
 #else
@@ -75,16 +81,19 @@ public slots:
      * Default implementation does nothing.*/
     virtual void revertData();
 
-    /* Request async data update. Upon receiving data  */
-    virtual void requestDataUpdate() = 0;
+    /* Request async data update. Upon receiving data updateFinished() signal
+     * is emitted. */
+    void requestDataUpdate();
 
     /* Request async data update but do not emit signal upon receiving data. */
-    virtual void requestSilentDataUpdate() = 0;
+    void requestSilentDataUpdate();
+
+protected:
+    /* Subclasses supposed to implement this method to query storage for data. */
+    virtual void requestUpdate() = 0;
 
 signals:
-    /* Emitted when model data is received.
-     * It is not emitted when request for data update requested
-     * via synchronize slot. */
+    /* Signals that previously requested data is arrived. */
     void updateFinished();
 };
 

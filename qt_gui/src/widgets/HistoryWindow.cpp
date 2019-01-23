@@ -31,6 +31,8 @@
 #include <core/utils/CSVEncoder.h>
 #include <fstream>
 
+#include <iostream>
+
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
@@ -98,6 +100,7 @@ HistoryWindow::~HistoryWindow() = default;
 
 void HistoryWindow::synchronize()
 {
+    std::cout << "   History window sync requested" << std::endl;
     std::visit(HistoryRequestedEvent{*this}, state);
 }
 

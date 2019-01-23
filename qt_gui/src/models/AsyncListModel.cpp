@@ -33,5 +33,13 @@ void AsyncListModel::submitData() {}
 
 void AsyncListModel::revertData() {}
 
+void AsyncListModel::requestDataUpdate()
+{
+    requestUpdate();
+    emit updateFinished();
+}
+
+void AsyncListModel::requestSilentDataUpdate() { requestUpdate(); }
+
 } // namespace sprint_timer::ui::qt_gui
 

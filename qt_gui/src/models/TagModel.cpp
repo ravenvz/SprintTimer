@@ -101,19 +101,12 @@ void TagModel::revertData()
     requestDataUpdate();
 }
 
-void TagModel::requestDataUpdate()
+void TagModel::requestUpdate()
 {
     queryInvoker.execute(
         std::make_unique<RequestAllTags>(taskReader, [this](const auto& tags) {
             this->onDataArrived(tags);
-            emit updateFinished();
         }));
-}
-
-void TagModel::requestSilentDataUpdate()
-{
-    queryInvoker.execute(std::make_unique<RequestAllTags>(
-        taskReader, [this](const auto& tags) { this->onDataArrived(tags); }));
 }
 
 void TagModel::onDataArrived(const std::vector<std::string>& tags)

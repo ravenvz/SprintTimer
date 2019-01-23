@@ -55,19 +55,12 @@ TaskModel::TaskModel(ITaskStorageReader& taskReader,
     requestSilentDataUpdate();
 }
 
-void TaskModel::requestDataUpdate()
+void TaskModel::requestUpdate()
 {
     queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
         taskReader, [this](const auto& tasks) {
             onDataChanged(tasks);
-            emit updateFinished();
         }));
-}
-
-void TaskModel::requestSilentDataUpdate()
-{
-    queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
-        taskReader, [this](const auto& tasks) { onDataChanged(tasks); }));
 }
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)

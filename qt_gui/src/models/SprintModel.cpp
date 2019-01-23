@@ -104,7 +104,7 @@ void SprintModel::remove(int row)
     requestDataUpdate();
 }
 
-void SprintModel::requestDataUpdate()
+void SprintModel::requestUpdate()
 {
     queryInvoker.execute(std::make_unique<RequestSprints>(
         sprintReader,
@@ -112,17 +112,7 @@ void SprintModel::requestDataUpdate()
                      dw::DateTime::currentDateTimeLocal()},
         [this](const auto& items) {
             onDataChanged(items);
-            emit updateFinished();
         }));
-}
-
-void SprintModel::requestSilentDataUpdate()
-{
-    queryInvoker.execute(std::make_unique<RequestSprints>(
-        sprintReader,
-        dw::TimeSpan{dw::DateTime::currentDateTimeLocal(),
-                     dw::DateTime::currentDateTimeLocal()},
-        [this](const auto& items) { onDataChanged(items); }));
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)
