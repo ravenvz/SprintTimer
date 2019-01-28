@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/AsyncListModel.h"
-#include <iostream>
 
 namespace sprint_timer::ui::qt_gui {
 

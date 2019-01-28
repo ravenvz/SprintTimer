@@ -29,8 +29,6 @@
 #include <core/use_cases/RequestSprints.h>
 #include <core/utils/WeekdaySelection.h>
 
-#include <iostream>
-
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
@@ -74,7 +72,6 @@ StatisticsWindow::~StatisticsWindow() = default;
 
 void StatisticsWindow::synchronize()
 {
-    std::cout << "   Statistics window sync requested" << std::endl;
     fetchData();
 }
 

@@ -22,7 +22,6 @@
 #include "qt_gui/widgets/DistributionDiagram.h"
 #include <QtGui/qpainter.h>
 #include <QHBoxLayout>
-#include <iostream>
 
 namespace sprint_timer::ui::qt_gui {
 

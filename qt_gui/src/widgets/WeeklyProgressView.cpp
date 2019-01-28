@@ -23,8 +23,6 @@
 #include <core/use_cases/RequestSprintDistribution.h>
 #include <core/utils/WeekdaySelection.h>
 
-#include <iostream>
-
 namespace {
 
 dw::TimeSpan
@@ -59,7 +57,6 @@ WeeklyProgressView::WeeklyProgressView(
 
 void WeeklyProgressView::synchronize()
 {
-    std::cout << "   Weekly progress sync requested" << std::endl;
     using use_cases::RequestSprintDistribution;
     queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         distributionReader,
@@ -81,7 +78,6 @@ dw::TimeSpan twelveWeeksBackTillNow(sprint_timer::FirstDayOfWeek firstDayOfWeek)
     const auto now = DateTime::currentDateTimeLocal();
     const auto from = now.add(DateTime::Days{
         -7 * 11 - static_cast<int>(now.dayOfWeek()) - firstDayOffset});
-    std::cout << from << " -> " << now << std::endl;
     return TimeSpan{from, now};
 }
 
