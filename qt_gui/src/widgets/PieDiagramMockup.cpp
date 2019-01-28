@@ -22,6 +22,8 @@
 #include "qt_gui/widgets/PieDiagramMockup.h"
 #include <iostream>
 
+// TODO I think it's time for this mockup to go?
+
 namespace sprint_timer::ui::qt_gui {
 
 

@@ -46,8 +46,6 @@ constexpr unsigned currentDatabaseVersion{5};
 
 bool databaseFileNotFound(const QString& filePath);
 
-void checkConnection(QSqlDatabase& database);
-
 void create(QSqlDatabase& db);
 
 void createSchema(QSqlDatabase& db);
@@ -70,15 +68,14 @@ namespace sprint_timer::storage::qt_storage_impl {
 DatabaseInitializer::DatabaseInitializer(const QString& filename)
 {
     const QString connectionName{"SprintTimerDesktop"};
+    const bool dbIsNew = databaseFileNotFound(filename);
+
     ConnectionGuard connectionGuard{filename, connectionName};
 
-    const bool dbIsNew = databaseFileNotFound(filename);
     auto db = QSqlDatabase::database(connectionName);
 
     if (dbIsNew)
         create(db);
-    else
-        checkConnection(db);
 
     const auto migrationManager = prepareMigrationManager(db);
     migrationManager.runMigrations(db);
@@ -95,8 +92,7 @@ bool databaseFileNotFound(const QString& filePath)
 {
 	if (filePath == ":memory:" || filePath == "file::memory:?cache=shared")
 		return true;
-    const QFile databaseFile{filePath};
-    return !databaseFile.exists();
+    return !QFile::exists(filePath);
 }
 
 void create(QSqlDatabase& db)
@@ -112,7 +108,6 @@ void createSchema(QSqlDatabase& db)
     createTables(query);
     createViews(query);
     createTriggers(query);
-    tryExecute(query, "PRAGMA table_info(task_view)");
 }
 
 void createTables(QSqlQuery& query)
@@ -331,14 +326,6 @@ void populateInfoTable(QSqlDatabase& database)
     if (!query.exec()) {
         throw QueryError{"Error updating database version", query};
     }
-}
-
-
-void checkConnection(QSqlDatabase& database)
-{
-    if (!database.open() || database.isOpenError())
-        throw DatabaseError{"Unable to open connection to the database",
-                            database};
 }
 
 MigrationManager prepareMigrationManager(QSqlDatabase& database)

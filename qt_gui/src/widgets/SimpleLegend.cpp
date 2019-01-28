@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/SimpleLegend.h"
-#include <iostream>
 
 namespace sprint_timer::ui::qt_gui {
 
