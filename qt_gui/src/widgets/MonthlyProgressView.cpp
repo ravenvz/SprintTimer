@@ -23,6 +23,8 @@
 #include <core/use_cases/RequestSprintDistribution.h>
 #include <core/utils/WeekdaySelection.h>
 
+#include <iostream>
+
 namespace {
 
 dw::TimeSpan twelveMonthsBackTillNow();
@@ -57,6 +59,7 @@ MonthlyProgressView::MonthlyProgressView(
 
 void MonthlyProgressView::synchronize()
 {
+    std::cout << "   Monthly progress sync requested" << std::endl;
     using use_cases::RequestSprintDistribution;
     queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         distributionReader,

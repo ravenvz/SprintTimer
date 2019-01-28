@@ -25,6 +25,8 @@
 #include <core/use_cases/RequestSprintDistribution.h>
 #include <core/utils/WeekdaySelection.h>
 
+#include <iostream>
+
 namespace {
 
 dw::TimeSpan thirtyDaysBackTillNow();
@@ -72,6 +74,7 @@ DailyProgressView::DailyProgressView(
 
 void DailyProgressView::synchronize()
 {
+    std::cout << "   Daily progress sync requested" << std::endl;
     using use_cases::RequestSprintDistribution;
     queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         distributionReader,

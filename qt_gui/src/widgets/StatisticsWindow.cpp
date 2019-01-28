@@ -29,6 +29,8 @@
 #include <core/use_cases/RequestSprints.h>
 #include <core/utils/WeekdaySelection.h>
 
+#include <iostream>
+
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
@@ -64,11 +66,17 @@ StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
     queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
         sprintYearRangeReader,
         [this](const auto& range) { ui->dateRangePicker->setYears(range); }));
+
+    synchronize();
 }
 
 StatisticsWindow::~StatisticsWindow() = default;
 
-void StatisticsWindow::synchronize() { fetchData(); }
+void StatisticsWindow::synchronize()
+{
+    std::cout << "   Statistics window sync requested" << std::endl;
+    fetchData();
+}
 
 void StatisticsWindow::fetchData()
 {

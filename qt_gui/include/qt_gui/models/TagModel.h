@@ -55,9 +55,6 @@ public slots:
 
     void revertData() final;
 
-protected:
-    void requestDataUpdate() final;
-
 private:
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
@@ -66,6 +63,8 @@ private:
     using OldNewTagPair = std::pair<std::string, std::string>;
     std::vector<std::string> storage;
     std::vector<OldNewTagPair> buffer;
+
+    void requestUpdate() final;
 
     void onDataArrived(const std::vector<std::string>& tags);
 };
