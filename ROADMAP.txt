@@ -3,6 +3,11 @@ Plans for version 0.6.0
 
 HISTORY
 ----------------------------------------------------------------
+Version 0.5.3
+-------------
+Fixed bug when database could not be created on first startup
+Fixed bug when unnecessary queries were issued to storage
+
 Version 0.5.2
 -------------
 Optimize adding sprints in bulk
