@@ -39,8 +39,7 @@ class SprintOutline : public QWidget {
     Q_OBJECT
 
 public:
-    SprintOutline(SprintModel& sprintModel,
-                  AddSprintDialog& addSprintDialog,
+    SprintOutline(AddSprintDialog& addSprintDialog,
                   UndoDialog& undoDialog,
                   std::unique_ptr<QPushButton> undoButton,
                   std::unique_ptr<QPushButton> addNewSprintButton,
@@ -48,9 +47,6 @@ public:
                   QWidget* parent = nullptr);
 
     ~SprintOutline() override;
-
-private:
-    SprintModel& sprintModel;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -55,9 +55,6 @@ public:
 
     void remove(int row);
 
-protected:
-    void requestDataUpdate() final;
-
 private:
     std::vector<entities::Sprint> storage;
     CommandInvoker& commandInvoker;
@@ -65,6 +62,8 @@ private:
     ISprintStorageReader& sprintReader;
     ISprintStorageWriter& sprintWriter;
     ITaskStorageWriter& taskWriter;
+
+    void requestUpdate() final;
 
     void onDataChanged(const std::vector<entities::Sprint>& items);
 

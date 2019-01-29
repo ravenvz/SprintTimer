@@ -64,11 +64,16 @@ StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
     queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
         sprintYearRangeReader,
         [this](const auto& range) { ui->dateRangePicker->setYears(range); }));
+
+    synchronize();
 }
 
 StatisticsWindow::~StatisticsWindow() = default;
 
-void StatisticsWindow::synchronize() { fetchData(); }
+void StatisticsWindow::synchronize()
+{
+    fetchData();
+}
 
 void StatisticsWindow::fetchData()
 {
