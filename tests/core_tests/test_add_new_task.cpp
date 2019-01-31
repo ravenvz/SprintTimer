@@ -53,7 +53,7 @@ TEST_F(RegisterTaskFixture, execute_and_undo)
     commandInvoker.executeCommand(
         std::make_unique<AddNewTask>(task_writer_mock, someTask));
 
-    EXPECT_CALL(task_writer_mock, remove(someTask)).Times(1);
+    EXPECT_CALL(task_writer_mock, remove(someTask.uuid())).Times(1);
 
     commandInvoker.undo();
 }

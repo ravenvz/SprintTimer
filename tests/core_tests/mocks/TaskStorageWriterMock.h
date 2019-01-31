@@ -7,7 +7,7 @@
 class TaskStorageWriterMock : public sprint_timer::ITaskStorageWriter {
 public:
     MOCK_METHOD1(save, void(const sprint_timer::entities::Task&));
-    MOCK_METHOD1(remove, void(const sprint_timer::entities::Task&));
+    MOCK_METHOD1(remove, void(const std::string&));
     MOCK_METHOD2(edit,
                  void(const sprint_timer::entities::Task&,
                       const sprint_timer::entities::Task&));

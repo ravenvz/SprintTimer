@@ -57,7 +57,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, remove_task_with_no_sprints)
     const Task someTask = TaskBuilder{}.withUuid("123").build();
 
     initializer.taskWriter->save(someTask);
-    initializer.taskWriter->remove(someTask);
+    initializer.taskWriter->remove(someTask.uuid());
 
     initializer.taskReader->requestUnfinishedTasks(
         [this](const ITaskStorageReader::Items& items) {
@@ -247,7 +247,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.sprintWriter->save(sprintBuilder.withTaskUuid(someTask.uuid())
                                        .withTimeSpan(timeSpan)
                                        .build());
-    initializer.taskWriter->remove(someTask);
+    initializer.taskWriter->remove(someTask.uuid());
 
     initializer.sprintReader->sprintsForTask(
         someTask.uuid(), [this](const ISprintStorageReader::Items& items) {
@@ -399,7 +399,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.taskWriter->save(someTask);
     initializer.taskWriter->save(someOtherTask);
-    initializer.taskWriter->remove(someTask);
+    initializer.taskWriter->remove(someTask.uuid());
 
     initializer.taskReader->requestAllTags(
         [this, &someTag](const std::vector<std::string>& tags) {
@@ -418,7 +418,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
         = TaskBuilder{}.withExplicitTags({Tag{"Tag1"}, Tag{"Tag2"}}).build();
 
     initializer.taskWriter->save(someTask);
-    initializer.taskWriter->remove(someTask);
+    initializer.taskWriter->remove(someTask.uuid());
 
     initializer.taskReader->requestAllTags(
         [this](const std::vector<std::string>& tags) {

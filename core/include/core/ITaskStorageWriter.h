@@ -32,8 +32,7 @@ public:
 
     virtual void save(const entities::Task& task) = 0;
 
-    // TODO probably uuid would be enough, no need to have ref to whole Task
-    virtual void remove(const entities::Task& task) = 0;
+    virtual void remove(const std::string &uuid) = 0;
 
     virtual void edit(const entities::Task& task,
                       const entities::Task& editedTask)

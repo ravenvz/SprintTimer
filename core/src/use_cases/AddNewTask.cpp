@@ -33,7 +33,7 @@ AddNewTask::AddNewTask(ITaskStorageWriter& taskStorageWriter,
 
 void AddNewTask::execute() { writer.save(task); }
 
-void AddNewTask::undo() { writer.remove(task); }
+void AddNewTask::undo() { writer.remove(task.uuid()); }
 
 std::string AddNewTask::describe() const
 {

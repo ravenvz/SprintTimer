@@ -38,13 +38,13 @@ DeleteTask::DeleteTask(ITaskStorageWriter& taskStorageWriter,
 void DeleteTask::execute()
 {
     if (task.actualCost() == 0) {
-        taskWriter.remove(task);
+        taskWriter.remove(task.uuid());
         return;
     }
     sprintReader.sprintsForTask(
         task.uuid(), [this](const std::vector<entities::Sprint>& sprints) {
             taskSprints = sprints;
-            taskWriter.remove(task);
+            taskWriter.remove(task.uuid());
         });
 }
 

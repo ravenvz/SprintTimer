@@ -62,7 +62,7 @@ public:
 
 TEST_F(DeleteTaskFixture, delete_task_with_no_sprints)
 {
-    EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints)).Times(1);
+    EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints.uuid())).Times(1);
 
     commandInvoker.executeCommand(
         std::make_unique<DeleteTask>(task_writer_mock,
@@ -74,7 +74,7 @@ TEST_F(DeleteTaskFixture, delete_task_with_no_sprints)
 TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_no_sprints)
 {
     // TODO what about lastModified timestamp when undoing task deletion? Check
-    EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints)).Times(1);
+    EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints.uuid())).Times(1);
 
     commandInvoker.executeCommand(
         std::make_unique<DeleteTask>(task_writer_mock,
@@ -93,7 +93,7 @@ TEST_F(DeleteTaskFixture, DISABLED_delete_task_with_sprints)
 {
     EXPECT_CALL(sprint_reader_mock, sprintsForTask(taskWithSprints.uuid(), _))
         .Times(1);
-    EXPECT_CALL(task_writer_mock, remove(taskWithSprints)).Times(1);
+    EXPECT_CALL(task_writer_mock, remove(taskWithSprints.uuid())).Times(1);
 
     commandInvoker.executeCommand(
         std::make_unique<DeleteTask>(task_writer_mock,
