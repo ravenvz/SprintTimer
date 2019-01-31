@@ -36,8 +36,6 @@
 #include <QStringBuilder>
 #include <QtCore/QFile>
 
-// TODO this mess of an implementation should be cleaned up before it's too late
-
 namespace {
 
 using namespace sprint_timer::storage::qt_storage_impl;
