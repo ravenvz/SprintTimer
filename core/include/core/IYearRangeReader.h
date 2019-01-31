@@ -30,7 +30,6 @@ namespace sprint_timer {
 
 class IYearRangeReader {
 public:
-    // TODO Maybe just return TimeSpan?
     using Handler = std::function<void(const std::vector<std::string>&)>;
     virtual ~IYearRangeReader() = default;
     virtual void requestYearRange(Handler handler) = 0;
