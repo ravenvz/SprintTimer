@@ -19,28 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef PIEDIAGRAMMOCKUP_H_CM1PNQL0
-#define PIEDIAGRAMMOCKUP_H_CM1PNQL0
 
-#include "qt_gui/widgets/IStatisticalChart.h"
+#include "core/GroupByDay.h"
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer {
 
-class DistributionDiagramMockup : public IStatisticalChart {
-    Q_OBJECT
-public:
-    explicit DistributionDiagramMockup(QWidget* parent);
+std::vector<GoalProgress>
+GroupByDay::computeProgress(const dw::TimeSpan& period,
+                            const std::vector<int>& actualProgress,
+                            utils::WeekdaySelection workdays,
+                            int workdayGoal) const
+{
+    auto labour = workday_outline(period, workdays);
+    std::vector<GoalProgress> progress(actualProgress.size());
+    std::transform(actualProgress.cbegin(),
+                   actualProgress.cend(),
+                   labour.cbegin(),
+                   progress.begin(),
+                   [workdayGoal](auto actualVal, auto isWorkday) {
+                       return GoalProgress{workdayGoal * isWorkday, actualVal};
+                   });
+    return progress;
+}
 
-    void setData(const std::vector<LabelValuePair>& data) override;
-
-    void togglePartActive(size_t selectionIndex) override;
-
-    // protected slots:
-    //     void onSelectionChanged(size_t selectionIndex) override;
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-
-
-#endif /* end of include guard: PIEDIAGRAMMOCKUP_H_CM1PNQL0 */
+} // namespace sprint_timer

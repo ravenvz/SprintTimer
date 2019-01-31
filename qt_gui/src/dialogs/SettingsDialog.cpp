@@ -33,8 +33,8 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
     , applicationSettings{applicationSettings}
 {
     ui->setupUi(this);
-    timerModel = new QStringListModel{timers, this};
-    ui->cbxTimerVariation->setModel(timerModel);
+    auto timerModel = std::make_unique<QStringListModel>(timers, this);
+    ui->cbxTimerVariation->setModel(timerModel.release());
 
     fillSettingsData();
 

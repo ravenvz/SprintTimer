@@ -81,7 +81,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Progress</string>
+      <string>GoalProgress</string>
      </property>
      <property name="text">
       <string/>

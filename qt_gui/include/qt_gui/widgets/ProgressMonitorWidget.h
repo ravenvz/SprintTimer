@@ -19,36 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEWRITER_H_PVAMCJ6G
-#define ITASKSTORAGEWRITER_H_PVAMCJ6G
+#ifndef GOAL_PROGRESS_WIDGET_H
+#define GOAL_PROGRESS_WIDGET_H
 
-#include "core/entities/Task.h"
+#include <QWidget>
+#include <memory>
 
-namespace sprint_timer {
+namespace sprint_timer::ui::qt_gui {
 
-class ITaskStorageWriter {
+class ProgressView;
+
+class ProgressMonitorWidget : public QWidget {
 public:
-    virtual ~ITaskStorageWriter() = default;
+    ProgressMonitorWidget(std::unique_ptr<QWidget> dailyProgress,
+                          std::unique_ptr<QWidget> weeklyProgress,
+                          std::unique_ptr<QWidget> monthlyProgress,
+                          QWidget* parent = 0);
 
-    virtual void save(const entities::Task& task) = 0;
-
-    virtual void remove(const std::string &uuid) = 0;
-
-    virtual void edit(const entities::Task& task,
-                      const entities::Task& editedTask)
-        = 0;
-
-    virtual void toggleTaskCompletionStatus(const std::string& uuid,
-                                            const dw::DateTime& timeStamp)
-        = 0;
-
-    virtual void updatePriorities(const std::vector<std::string>& priorities)
-        = 0;
-
-    virtual void editTag(const std::string& oldName, const std::string& newName)
-        = 0;
+    QSize sizeHint() const override;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: ITASKSTORAGEWRITER_H_PVAMCJ6G */
+
+#endif // GOAL_PROGRESS_WIDGET_H

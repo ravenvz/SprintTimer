@@ -39,6 +39,7 @@ public:
     void synchronize() override;
 
 private:
+    IConfig& applicationSettings;
     QueryInvoker& queryInvoker;
     ISprintDistributionReader& distributionReader;
 };

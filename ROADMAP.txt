@@ -39,7 +39,7 @@ Improve build configuration.
 Version 0.4.0
 -------------
 Fixed major bug when deleting task could delete unorphaned tag completely.
-Progress window should look better by default on smaller resolution screens.
+GoalProgress window should look better by default on smaller resolution screens.
 Replaced icon set.
 Task reordering now uses correct algoritm.
 Fixed bugs related to timer states.

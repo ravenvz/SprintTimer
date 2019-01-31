@@ -19,36 +19,44 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEWRITER_H_PVAMCJ6G
-#define ITASKSTORAGEWRITER_H_PVAMCJ6G
-
-#include "core/entities/Task.h"
+#include "core/GoalProgress.h"
+#include "core/ProgressProto.h"
 
 namespace sprint_timer {
 
-class ITaskStorageWriter {
-public:
-    virtual ~ITaskStorageWriter() = default;
+GoalProgress::GoalProgress()
+    : expected_{0}
+    , actual_{0}
+{
+}
 
-    virtual void save(const entities::Task& task) = 0;
+GoalProgress::GoalProgress(int expected, int actual)
+    : expected_{expected}
+    , actual_{actual}
+{
+}
 
-    virtual void remove(const std::string &uuid) = 0;
+int GoalProgress::actual() const { return actual_; }
 
-    virtual void edit(const entities::Task& task,
-                      const entities::Task& editedTask)
-        = 0;
+int GoalProgress::estimated() const { return expected_; }
 
-    virtual void toggleTaskCompletionStatus(const std::string& uuid,
-                                            const dw::DateTime& timeStamp)
-        = 0;
+std::optional<double> GoalProgress::percentage() const
+{
+    return expected_ == 0 ? std::optional<double>{}
+                          : static_cast<double>(actual_) * 100 / expected_;
+}
 
-    virtual void updatePriorities(const std::vector<std::string>& priorities)
-        = 0;
+bool operator==(const GoalProgress& lhs, const GoalProgress& rhs)
+{
+    return lhs.estimated() == rhs.estimated() && lhs.actual() == rhs.actual();
+}
 
-    virtual void editTag(const std::string& oldName, const std::string& newName)
-        = 0;
-};
+std::ostream& operator<<(std::ostream& os, const GoalProgress& progress)
+{
+    os << "{" << progress.estimated() << ", " << progress.actual() << "}"
+       << '\n';
+    return os;
+}
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: ITASKSTORAGEWRITER_H_PVAMCJ6G */

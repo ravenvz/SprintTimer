@@ -19,36 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEWRITER_H_PVAMCJ6G
-#define ITASKSTORAGEWRITER_H_PVAMCJ6G
+#ifndef GROUPBYWEEK_H_UY9VBON4
+#define GROUPBYWEEK_H_UY9VBON4
 
-#include "core/entities/Task.h"
+#include "core/GroupingStrategy.h"
 
 namespace sprint_timer {
 
-class ITaskStorageWriter {
+class GroupByWeek : public GroupingStrategy {
 public:
-    virtual ~ITaskStorageWriter() = default;
+    GroupByWeek(dw::DateTime::Weekday firstDayOfWeek);
 
-    virtual void save(const entities::Task& task) = 0;
+    std::vector<GoalProgress>
+    computeProgress(const dw::TimeSpan& period,
+                    const std::vector<int>& actualProgress,
+                    utils::WeekdaySelection workdays,
+                    int workdayGoal) const override;
 
-    virtual void remove(const std::string &uuid) = 0;
-
-    virtual void edit(const entities::Task& task,
-                      const entities::Task& editedTask)
-        = 0;
-
-    virtual void toggleTaskCompletionStatus(const std::string& uuid,
-                                            const dw::DateTime& timeStamp)
-        = 0;
-
-    virtual void updatePriorities(const std::vector<std::string>& priorities)
-        = 0;
-
-    virtual void editTag(const std::string& oldName, const std::string& newName)
-        = 0;
+private:
+    const dw::DateTime::Weekday firstDay;
 };
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: ITASKSTORAGEWRITER_H_PVAMCJ6G */
+
+#endif /* end of include guard: GROUPBYWEEK_H_UY9VBON4 */

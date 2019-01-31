@@ -19,36 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEWRITER_H_PVAMCJ6G
-#define ITASKSTORAGEWRITER_H_PVAMCJ6G
-
-#include "core/entities/Task.h"
+#include "core/GroupByMonth.h"
 
 namespace sprint_timer {
 
-class ITaskStorageWriter {
-public:
-    virtual ~ITaskStorageWriter() = default;
-
-    virtual void save(const entities::Task& task) = 0;
-
-    virtual void remove(const std::string &uuid) = 0;
-
-    virtual void edit(const entities::Task& task,
-                      const entities::Task& editedTask)
-        = 0;
-
-    virtual void toggleTaskCompletionStatus(const std::string& uuid,
-                                            const dw::DateTime& timeStamp)
-        = 0;
-
-    virtual void updatePriorities(const std::vector<std::string>& priorities)
-        = 0;
-
-    virtual void editTag(const std::string& oldName, const std::string& newName)
-        = 0;
-};
-
 } // namespace sprint_timer
-
-#endif /* end of include guard: ITASKSTORAGEWRITER_H_PVAMCJ6G */

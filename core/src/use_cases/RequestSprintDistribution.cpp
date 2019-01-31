@@ -41,7 +41,9 @@ void RequestSprintDistribution::execute()
 
 std::string RequestSprintDistribution::describe() const
 {
-    return "Request sprint distribution";
+    std::stringstream ss;
+    ss << "Request sprint distribution for: " << timeSpan_;
+    return ss.str();
 }
 
 } // namespace sprint_timer::use_cases

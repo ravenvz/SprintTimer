@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/SimpleLegend.h"
+#include <memory>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -47,8 +48,8 @@ void LegendItem::mousePressEvent(QMouseEvent* event)
 SimpleLegend::SimpleLegend(QWidget* parent)
     : IStatisticalChartLegend(parent)
 {
-    layout = new QVBoxLayout();
-    title = new QLabel();
+    layout = std::make_unique<QVBoxLayout>().release();
+    title = std::make_unique<QLabel>().release();
     layout->addWidget(title);
     layout->addStretch(1);
     setLayout(layout);
@@ -73,8 +74,9 @@ void SimpleLegend::setData(const std::vector<std::string>& labels)
     }
     items.clear();
     for (size_t i = 0; i < labels.size(); ++i) {
-        LegendItem* item = new LegendItem(
-            QString::fromStdString(labels[i]), i, this);
+        LegendItem* item = std::make_unique<LegendItem>(
+                               QString::fromStdString(labels[i]), i, this)
+                               .release();
         layout->addWidget(item);
         item->setVisible(true);
         connect(

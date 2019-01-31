@@ -22,6 +22,8 @@
 #include "qt_gui/widgets/DailyProgressView.h"
 #include "qt_gui/dialogs/WorkdaysDialog.h"
 #include <QPushButton>
+#include <QSpinBox>
+#include <core/GroupByDay.h>
 #include <core/use_cases/RequestSprintDistribution.h>
 #include <core/utils/WeekdaySelection.h>
 
@@ -39,34 +41,36 @@ DailyProgressView::DailyProgressView(
     QueryInvoker& queryInvoker_,
     WorkdaysDialog& workdaysDialog_,
     QWidget* parent)
-    : ProgressView{GoalValue{applicationSettings_.dailyGoal()},
-                   Rows{3},
-                   Columns{10},
-                   GaugeSize{0.7},
-                   parent}
+    : ProgressView{Rows{3}, Columns{10}, GaugeSize{0.7}, parent}
     , applicationSettings{applicationSettings_}
     , distributionReader{dailyDistributionReader_}
     , queryInvoker{queryInvoker_}
 {
     setLegendTitle("Last 30 days");
     setLegendAverageCaption("Average per day:");
-    setLegendGoalCaption("Daily goal:");
 
     auto configureWorkdaysButton = std::make_unique<QPushButton>("Configure");
     connect(configureWorkdaysButton.get(),
             &QPushButton::clicked,
             [&workdaysDialog_]() { workdaysDialog_.exec(); });
+    auto spinBoxGoal = std::make_unique<QSpinBox>(this);
+    spinBoxGoal->setValue(applicationSettings.dailyGoal());
+    connect(spinBoxGoal.get(),
+            QOverload<int>::of(&QSpinBox::valueChanged),
+            [&](int goal) { emit goalChanged(goal); });
+    DailyProgressView::addLegendRow("Workday goal:", spinBoxGoal.release());
     DailyProgressView::addLegendRow("Workdays",
                                     configureWorkdaysButton.release());
 
+    // TODO should set goal directly in spinbox singal handler
     connect(this, &ProgressView::goalChanged, [this](int goal) {
         applicationSettings.setDailyGoal(goal);
         synchronize();
     });
-    connect(&workdaysDialog_,
-            &QDialog::accepted,
-            this,
-            &DailyProgressView::synchronize);
+    connect(&workdaysDialog_, &QDialog::accepted, [this]() {
+        synchronize();
+        emit workdaysChange();
+    });
     synchronize();
 }
 
@@ -77,10 +81,12 @@ void DailyProgressView::synchronize()
         distributionReader,
         thirtyDaysBackTillNow(),
         [this](const auto& distribution) {
-            const utils::WeekdaySelection workdays{
-                applicationSettings.workdays()};
-            setData(distribution,
-                    numWorkdays(thirtyDaysBackTillNow(), workdays));
+            GroupByDay groupByDayStrategy;
+            setData(ProgressOverPeriod{thirtyDaysBackTillNow(),
+                                       distribution,
+                                       applicationSettings.workdays(),
+                                       groupByDayStrategy,
+                                       applicationSettings.dailyGoal()});
         }));
 }
 

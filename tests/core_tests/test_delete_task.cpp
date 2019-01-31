@@ -20,10 +20,6 @@
 **
 *********************************************************************************/
 
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
-
 #include "mocks/SprintStorageReaderMock.h"
 #include "mocks/SprintStorageWriterMock.h"
 #include "mocks/TaskStorageWriterMock.h"
@@ -31,7 +27,10 @@
 #include <core/CommandInvoker.h>
 #include <core/use_cases/DeleteTask.h>
 
+#include <thread>
+
 using ::testing::_;
+using ::testing::InvokeArgument;
 
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
@@ -62,7 +61,7 @@ public:
 
 TEST_F(DeleteTaskFixture, delete_task_with_no_sprints)
 {
-    EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints)).Times(1);
+    EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints.uuid())).Times(1);
 
     commandInvoker.executeCommand(
         std::make_unique<DeleteTask>(task_writer_mock,
@@ -74,7 +73,7 @@ TEST_F(DeleteTaskFixture, delete_task_with_no_sprints)
 TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_no_sprints)
 {
     // TODO what about lastModified timestamp when undoing task deletion? Check
-    EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints)).Times(1);
+    EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints.uuid())).Times(1);
 
     commandInvoker.executeCommand(
         std::make_unique<DeleteTask>(task_writer_mock,
@@ -87,13 +86,12 @@ TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_no_sprints)
     commandInvoker.undo();
 }
 
-// TODO figure out how to test it when
-// PM-135-deletion-of-task-triggers-infinite-loop is fixed
-TEST_F(DeleteTaskFixture, DISABLED_delete_task_with_sprints)
+TEST_F(DeleteTaskFixture, delete_task_with_sprints)
 {
     EXPECT_CALL(sprint_reader_mock, sprintsForTask(taskWithSprints.uuid(), _))
-        .Times(1);
-    EXPECT_CALL(task_writer_mock, remove(taskWithSprints)).Times(1);
+        .WillOnce(
+            InvokeArgument<1>(std::vector<sprint_timer::entities::Sprint>{}));
+    EXPECT_CALL(task_writer_mock, remove(taskWithSprints.uuid())).Times(1);
 
     commandInvoker.executeCommand(
         std::make_unique<DeleteTask>(task_writer_mock,
@@ -102,4 +100,28 @@ TEST_F(DeleteTaskFixture, DISABLED_delete_task_with_sprints)
                                      taskWithSprints));
 }
 
-TEST_F(DeleteTaskFixture, DISABLED_undo_deletion_of_task_with_sprints) {}
+TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_sprints)
+{
+    EXPECT_CALL(sprint_reader_mock, sprintsForTask(taskWithSprints.uuid(), _))
+        .WillOnce(
+            InvokeArgument<1>(std::vector<sprint_timer::entities::Sprint>{}));
+    EXPECT_CALL(task_writer_mock, remove(taskWithSprints.uuid())).Times(1);
+
+    commandInvoker.executeCommand(
+        std::make_unique<DeleteTask>(task_writer_mock,
+                                     sprint_reader_mock,
+                                     sprint_writer_mock,
+                                     taskWithSprints));
+
+    // In case of Task with sprints, we must make sure that task is restored
+    // with zeroed-out actualCost, because when restoring sprints, actualCost
+    // will be also modified.
+    Task taskWithZeroedActualCost = taskWithSprints;
+    taskWithZeroedActualCost.setActualCost(0);
+    EXPECT_CALL(task_writer_mock, save(taskWithZeroedActualCost)).Times(1);
+    EXPECT_CALL(sprint_writer_mock,
+                save(std::vector<sprint_timer::entities::Sprint>{}))
+        .Times(1);
+
+    commandInvoker.undo();
+}

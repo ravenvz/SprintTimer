@@ -37,7 +37,7 @@ public:
 
     void save(const entities::Task& task) final;
 
-    void remove(const entities::Task& task) final;
+    void remove(const std::string &uuid) final;
 
     void edit(const entities::Task& task,
               const entities::Task& editedTask) final;

@@ -19,36 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGEWRITER_H_PVAMCJ6G
-#define ITASKSTORAGEWRITER_H_PVAMCJ6G
+#ifndef SPRINT_TIMER_APP_GOALPROGRESS_H
+#define SPRINT_TIMER_APP_GOALPROGRESS_H
 
-#include "core/entities/Task.h"
+#include <optional>
 
 namespace sprint_timer {
 
-class ITaskStorageWriter {
+class GoalProgress {
 public:
-    virtual ~ITaskStorageWriter() = default;
+    GoalProgress();
 
-    virtual void save(const entities::Task& task) = 0;
+    GoalProgress(int expected, int actual);
 
-    virtual void remove(const std::string &uuid) = 0;
+    int estimated() const;
 
-    virtual void edit(const entities::Task& task,
-                      const entities::Task& editedTask)
-        = 0;
+    int actual() const;
 
-    virtual void toggleTaskCompletionStatus(const std::string& uuid,
-                                            const dw::DateTime& timeStamp)
-        = 0;
+    std::optional<double> percentage() const;
 
-    virtual void updatePriorities(const std::vector<std::string>& priorities)
-        = 0;
-
-    virtual void editTag(const std::string& oldName, const std::string& newName)
-        = 0;
+private:
+    int expected_{0};
+    int actual_{0};
 };
+
+bool operator==(const GoalProgress& lhs, const GoalProgress& rhs);
+
+std::ostream& operator<<(std::ostream& os, const GoalProgress& progress);
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: ITASKSTORAGEWRITER_H_PVAMCJ6G */
+#endif // SPRINT_TIMER_APP_GOALPROGRESS_H

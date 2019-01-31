@@ -19,13 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/widgets/GoalProgressWindow.h"
+#include "qt_gui/widgets/ProgressMonitorWidget.h"
 #include <QGridLayout>
 #include <QIcon>
 
 namespace sprint_timer::ui::qt_gui {
 
-GoalProgressWindow::GoalProgressWindow(std::unique_ptr<QWidget> dailyProgress,
+ProgressMonitorWidget::ProgressMonitorWidget(std::unique_ptr<QWidget> dailyProgress,
                                        std::unique_ptr<QWidget> weeklyProgress,
                                        std::unique_ptr<QWidget> monthlyProgress,
                                        QWidget* parent)
@@ -49,6 +49,6 @@ GoalProgressWindow::GoalProgressWindow(std::unique_ptr<QWidget> dailyProgress,
     setWindowIcon(QIcon(":icons/sprint_timer.png"));
 }
 
-QSize GoalProgressWindow::sizeHint() const { return QSize{1225, 650}; }
+QSize ProgressMonitorWidget::sizeHint() const { return QSize{1225, 650}; }
 
 } // namespace sprint_timer::ui::qt_gui

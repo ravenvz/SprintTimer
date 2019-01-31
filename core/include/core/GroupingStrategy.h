@@ -19,37 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/widgets/PieDiagramMockup.h"
-#include <iostream>
+#ifndef SPRINT_TIMER_APP_GROUPINGSTRATEGY_H
+#define SPRINT_TIMER_APP_GROUPINGSTRATEGY_H
 
-// TODO I think it's time for this mockup to go?
+#include "core/GoalProgress.h"
+#include "core/utils/WeekdaySelection.h"
+#include <date_wrapper/TimeSpan.h>
+#include <vector>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer {
 
+class GroupingStrategy {
+public:
+    virtual ~GroupingStrategy() = default;
 
-DistributionDiagramMockup::DistributionDiagramMockup(QWidget* parent)
-    : IStatisticalChart(parent)
-{
-}
+    virtual std::vector<GoalProgress>
+    computeProgress(const dw::TimeSpan& period,
+                    const std::vector<int>& actualProgress,
+                    sprint_timer::utils::WeekdaySelection workdays,
+                    int workdayGoal) const = 0;
+};
 
-void DistributionDiagramMockup::setData(const std::vector<LabelValuePair>& data)
-{
-    std::cout << "Setting data" << std::endl;
-}
+} // namespace sprint_timer
 
-void DistributionDiagramMockup::togglePartActive(size_t partIndex)
-{
-    std::cout << "Commanded to change selection to " << partIndex << std::endl;
-    // emit partClicked(partIndex);
-}
-
-// void DistributionDiagramMockup::onSelectionChanged(size_t selectionIndex)
-// {
-//     std::cout << "Selection has been changed" << std::endl;
-// }
-// {
-//     std::cout << "Selection has been changed" << std::endl;
-// }
-
-} // namespace sprint_timer::ui::qt_gui
+#endif // SPRINT_TIMER_APP_GROUPINGSTRATEGY_H
 

@@ -43,7 +43,8 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings_,
     , ui{std::make_unique<Ui::FancyTimer>()}
 {
     ui->setupUi(this);
-    combinedIndicator = new CombinedIndicator(indicatorSize, this);
+    combinedIndicator
+        = std::make_unique<CombinedIndicator>(indicatorSize, this).release();
     combinedIndicator->setSizePolicy(QSizePolicy::MinimumExpanding,
                                      QSizePolicy::MinimumExpanding);
     ui->cbxSubmissionCandidate->setModel(&taskModel);

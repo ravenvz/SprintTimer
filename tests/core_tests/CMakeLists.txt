@@ -12,6 +12,7 @@ target_sources(${TEST_CORE}
     "${CMAKE_CURRENT_LIST_DIR}/test_delete_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_distribution.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_edit_task.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_progress.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_register_new_sprint.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_register_new_sprint_bulk.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_rename_tag.cpp"

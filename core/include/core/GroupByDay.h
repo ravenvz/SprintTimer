@@ -19,27 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef GOAL_PROGRESS_WIDGET_H
-#define GOAL_PROGRESS_WIDGET_H
+#ifndef GROUPBYDAY_H_6EWBVYZU
+#define GROUPBYDAY_H_6EWBVYZU
 
-#include <QWidget>
-#include <memory>
+#include "core/GoalProgress.h"
+#include "core/GroupByDay.h"
+#include "core/GroupingStrategy.h"
+#include "core/utils/WeekdaySelection.h"
+#include <date_wrapper/TimeSpan.h>
+#include <vector>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer {
 
-class ProgressView;
-
-class GoalProgressWindow : public QWidget {
+class GroupByDay : public GroupingStrategy {
 public:
-    GoalProgressWindow(std::unique_ptr<QWidget> dailyProgress,
-                       std::unique_ptr<QWidget> weeklyProgress,
-                       std::unique_ptr<QWidget> monthlyProgress,
-                       QWidget* parent = 0);
-
-    virtual QSize sizeHint() const override;
+    std::vector<GoalProgress>
+    computeProgress(const dw::TimeSpan& period,
+                    const std::vector<int>& actualProgress,
+                    utils::WeekdaySelection workdays,
+                    int workdayGoal) const override;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer
 
-
-#endif // GOAL_PROGRESS_WIDGET_H
+#endif /* end of include guard: GROUPBYDAY_H_6EWBVYZU */

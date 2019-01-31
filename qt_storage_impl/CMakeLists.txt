@@ -39,6 +39,7 @@ target_sources(${STORAGE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/QtSprintDistributionReader.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtSprintStorageReader.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtSprintStorageWriter.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/QtStorageImplementersFactory.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtTaskStorageReader.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtTaskStorageWriter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtYearRangeReader.cpp"
