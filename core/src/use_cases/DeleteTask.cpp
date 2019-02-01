@@ -50,10 +50,20 @@ void DeleteTask::execute()
 
 void DeleteTask::undo()
 {
-    taskWriter.save(task);
-    for (const auto& sprint : taskSprints) {
-        sprintWriter.save(sprint);
+    // This prevents doubling actual cost in case when deletion
+    // of Task that has sprints will be undone - otherwise actual cost
+    // will be restored and when sprints are added afterwards, actual cost
+    // effectively doubles.
+    if (task.actualCost() != 0) {
+        entities::Task nullifiedCostTask = task;
+        nullifiedCostTask.setActualCost(0);
+        taskWriter.save(nullifiedCostTask);
     }
+    else {
+        taskWriter.save(task);
+    }
+
+    sprintWriter.save(taskSprints);
 }
 
 std::string DeleteTask::describe() const
