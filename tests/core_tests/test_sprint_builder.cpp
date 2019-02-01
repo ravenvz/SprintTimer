@@ -20,11 +20,6 @@
 **
 *********************************************************************************/
 
-
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
-
 #include <core/SprintBuilder.h>
 #include "core/entities/Task.h"
 #include "gtest/gtest.h"
