@@ -90,10 +90,10 @@ void DateRangePicker::setInterval(DateInterval&& dateInterval)
 
 void DateRangePicker::updateInterval()
 {
-    QDate startDate{ui->cbxYear->currentText().toInt(),
-                    ui->cbxMonth->currentIndex() + 1,
-                    1};
-    QDate endDate = startDate.addDays(startDate.daysInMonth() - 1);
+    const QDate startDate{ui->cbxYear->currentText().toInt(),
+                          ui->cbxMonth->currentIndex() + 1,
+                          1};
+    const QDate endDate = startDate.addDays(startDate.daysInMonth() - 1);
     selectedInterval = DateInterval{startDate, endDate};
     emit timeSpanChanged(selectedInterval);
 }

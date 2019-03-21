@@ -31,8 +31,6 @@
 #include <core/utils/CSVEncoder.h>
 #include <fstream>
 
-#include <iostream>
-
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
@@ -146,7 +144,7 @@ void HistoryWindow::onExportButtonClicked()
 }
 
 
-TimeSpan HistoryWindow::selectedDateInterval() const
+dw::DateTimeRange HistoryWindow::selectedDateInterval() const
 {
     return ui->dateRangePicker->getInterval().toTimeSpan();
 }
@@ -197,7 +195,7 @@ void HistoryWindow::ShowingSprints::exportData(
     // TODO this deserves to be cleaned up as part of data export refactoring
     std::stringstream ss;
     ss << options.path << "/Sprints "
-       << widget.selectedDateInterval().toString("dd.MM.yyyy") << ".csv";
+       << dw::to_string(widget.selectedDateInterval(), "dd.MM.yyyy") << ".csv";
     using namespace external_io;
     auto filePath = ss.str();
     auto out = std::make_shared<std::ofstream>(filePath);
@@ -206,7 +204,7 @@ void HistoryWindow::ShowingSprints::exportData(
         std::vector<std::string> str;
         auto tags = sprint.tags();
         str.emplace_back(utils::join(cbegin(tags), cend(tags), ", "));
-        str.emplace_back(sprint.timeSpan().toString("hh:MM"));
+        str.emplace_back(dw::to_string(sprint.timeSpan(), "hh:MM"));
         str.emplace_back(sprint.name());
         str.emplace_back(sprint.taskUuid());
         str.emplace_back(sprint.uuid());
@@ -261,7 +259,7 @@ void HistoryWindow::ShowingTasks::exportData(
 {
     std::stringstream ss;
     ss << options.path << "/Tasks "
-       << widget.selectedDateInterval().toString("dd.MM.yyyy") << ".csv";
+       << dw::to_string(widget.selectedDateInterval(), "dd.MM.yyyy") << ".csv";
     using namespace external_io;
     auto filePath = ss.str();
     auto out = std::make_shared<std::ofstream>(filePath);
@@ -340,8 +338,10 @@ namespace {
     QString sprintToString(const Sprint& sprint)
     {
         return QString("%1 - %2 %3 %4")
-            .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
-            .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+            .arg(QString::fromStdString(
+                dw::to_string(sprint.startTime(), "hh:mm")))
+            .arg(QString::fromStdString(
+                dw::to_string(sprint.finishTime(), "hh:mm")))
             .arg(QString::fromStdString(prefixTags(sprint.tags())))
             .arg(QString::fromStdString(sprint.name()));
     }

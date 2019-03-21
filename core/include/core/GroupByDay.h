@@ -26,7 +26,7 @@
 #include "core/GroupByDay.h"
 #include "core/GroupingStrategy.h"
 #include "core/utils/WeekdaySelection.h"
-#include <date_wrapper/TimeSpan.h>
+#include <date_wrapper/date_wrapper.h>
 #include <vector>
 
 namespace sprint_timer {
@@ -34,7 +34,7 @@ namespace sprint_timer {
 class GroupByDay : public GroupingStrategy {
 public:
     std::vector<GoalProgress>
-    computeProgress(const dw::TimeSpan& period,
+    computeProgress(const dw::DateTimeRange& period,
                     const std::vector<int>& actualProgress,
                     utils::WeekdaySelection workdays,
                     int workdayGoal) const override;

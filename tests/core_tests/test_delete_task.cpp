@@ -36,6 +36,8 @@ using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
 using sprint_timer::use_cases::DeleteTask;
 
+using namespace dw;
+
 class DeleteTaskFixture : public ::testing::Test {
 public:
     TaskStorageWriterMock task_writer_mock;
@@ -49,14 +51,14 @@ public:
                          "550e8400-e29b-41d4-a716-446655440000",
                          {Tag{"Tag1"}, Tag{"Tag2"}},
                          false,
-                         dw::DateTime::fromYMD(2015, 11, 10)};
+                         DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
     Task taskWithNoSprints{"Task name",
                            4,
                            0,
                            "550e8400-e29b-41d4-a716-446655440000",
                            {Tag{"Tag1"}, Tag{"Tag2"}},
                            false,
-                           dw::DateTime::fromYMD(2015, 11, 10)};
+                           dw::DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
 };
 
 TEST_F(DeleteTaskFixture, delete_task_with_no_sprints)

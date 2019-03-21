@@ -23,7 +23,7 @@
 #define ISPRINTDISTRIBUTIONREADER_H_XMW7JEI6
 
 #include "core/Distribution.h"
-#include "date_wrapper/TimeSpan.h"
+#include "date_wrapper/date_wrapper.h"
 #include <functional>
 
 namespace sprint_timer {
@@ -32,7 +32,7 @@ class ISprintDistributionReader {
 public:
     using Handler = std::function<void(const Distribution<int>&)>;
     virtual ~ISprintDistributionReader() = default;
-    virtual void requestDistribution(const dw::TimeSpan& timeSpan,
+    virtual void requestDistribution(const dw::DateTimeRange& timeSpan,
                                      Handler handler)
         = 0;
 };

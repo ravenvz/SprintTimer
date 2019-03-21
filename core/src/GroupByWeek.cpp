@@ -23,13 +23,13 @@
 
 namespace sprint_timer {
 
-GroupByWeek::GroupByWeek(dw::DateTime::Weekday firstDayOfWeek)
+GroupByWeek::GroupByWeek(dw::Weekday firstDayOfWeek)
     : firstDay{firstDayOfWeek}
 {
 }
 
 std::vector<GoalProgress>
-GroupByWeek::computeProgress(const dw::TimeSpan& period,
+GroupByWeek::computeProgress(const dw::DateTimeRange& period,
                              const std::vector<int>& actualProgress,
                              utils::WeekdaySelection workdays,
                              int workdayGoal) const
@@ -41,22 +41,22 @@ GroupByWeek::computeProgress(const dw::TimeSpan& period,
     int numWorkdays{0};
 
     for (auto day = period.start(); day <= period.finish();
-         day = day.add(dw::DateTime::Days{1})) {
+         day = day + dw::Days{1}) {
         if (day == period.finish()) {
-            if (workdays.isSelected(day.dayOfWeek()))
+            if (workdays.isSelected(day.weekday()))
                 ++numWorkdays;
             progress.emplace_back(numWorkdays * workdayGoal, *actualIt);
             break;
         }
-        if ((day.dayOfWeek() == firstDay && day != period.start())) {
+        if ((day.weekday() == firstDay && day != period.start())) {
             progress.emplace_back(numWorkdays * workdayGoal, *actualIt);
             ++actualIt;
             numWorkdays = 0;
         }
-        if (workdays.isSelected(day.dayOfWeek()))
+        if (workdays.isSelected(day.weekday()))
             ++numWorkdays;
     }
 
     return progress;
-}
+} // namespace sprint_timer
 } // namespace sprint_timer

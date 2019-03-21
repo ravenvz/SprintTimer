@@ -23,7 +23,7 @@
 #define ITASKSTORAGEREADER_H_RMTKEREJ
 
 #include "core/entities/Task.h"
-#include "date_wrapper/TimeSpan.h"
+#include "date_wrapper/date_wrapper.h"
 #include <functional>
 
 namespace sprint_timer {
@@ -40,10 +40,13 @@ public:
 
     virtual void requestUnfinishedTasks(Handler handler) = 0;
 
-    virtual void requestFinishedTasks(const dw::TimeSpan& timeSpan, Handler handler)
+    virtual void requestFinishedTasks(const dw::DateTimeRange& timeSpan,
+                                      Handler handler)
         = 0;
 
-    virtual void requestTasks(const dw::TimeSpan& timeSpan, Handler handler) = 0;
+    virtual void requestTasks(const dw::DateTimeRange& timeSpan,
+                              Handler handler)
+        = 0;
 
     virtual void requestAllTags(TagHandler handler) = 0;
 };

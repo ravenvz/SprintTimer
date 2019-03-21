@@ -84,8 +84,9 @@ transformToHistoryData(const std::vector<Sprint>& sprints)
 QString sprintToString(const Sprint& sprint)
 {
     return QString("%1 - %2 %3 %4")
-        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
-        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+        .arg(QString::fromStdString(dw::to_string(sprint.startTime(), "hh:mm")))
+        .arg(
+            QString::fromStdString(dw::to_string(sprint.finishTime(), "hh:mm")))
         .arg(QString::fromStdString(prefixTags(sprint.tags())))
         .arg(QString::fromStdString(sprint.name()));
 }

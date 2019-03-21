@@ -47,7 +47,7 @@ void BestWorktimeWidget::updateWorkHoursDiagram(
     const Distribution<double>& workTimeDistribution,
     const std::vector<Sprint>& sprints)
 {
-    std::vector<TimeSpan> timeSpans;
+    std::vector<dw::DateTimeRange> timeSpans;
     timeSpans.reserve(sprints.size());
     std::transform(sprints.cbegin(),
                    sprints.cend(),

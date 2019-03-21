@@ -30,7 +30,7 @@ using namespace entities;
 Task TaskBuilder::build()
 {
     if (!mLastModified)
-        mLastModified = std::make_optional(DateTime::currentDateTimeLocal());
+        mLastModified = std::make_optional(dw::current_date_time_local());
     if (!mUuid)
         return Task{mName,
                     mEstimatedCost,

@@ -29,11 +29,13 @@ using namespace sprint_timer;
 using namespace sprint_timer::entities;
 using namespace std::chrono_literals;
 using dw::DateTime;
-using dw::TimeSpan;
+using dw::DateTimeRange;
 
 namespace {
-const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
-                               DateTime::currentDateTime()};
+
+const DateTimeRange defaultTimespan{dw::current_date_time() - 25min,
+                                    dw::current_date_time()};
+
 } // namespace
 
 TEST(SprintStatItem, creates_reasonable_defaults_for_empty_distribution)
@@ -68,17 +70,17 @@ TEST(SprintStatItem, creates_reasonable_defaults_for_empty_distribution)
 
 TEST(SprintStatItem, computes_daily_distribution_correctly)
 {
-    const DateTime start = DateTime::currentDateTime();
-    const DateTime end = start.add(DateTime::Days{47});
-    const TimeSpan timeSpan{start, end};
+    const DateTime start = dw::current_date_time();
+    const DateTime end = start + dw::Days{47};
+    const DateTimeRange timeSpan{start, end};
     std::vector<Sprint> sprints;
     std::vector<double> expectedDistributionVector(48, 0);
     SprintBuilder sprintBuilder;
     sprintBuilder.withTaskUuid("");
     for (size_t i = 0; i < 48; ++i) {
         for (size_t j = 0; j < i + 1; ++j) {
-            const DateTime sprintDateTime = start.add(DateTime::Days{i});
-            const TimeSpan sprintInterval{sprintDateTime, sprintDateTime};
+            const DateTime sprintDateTime = start + dw::Days{i};
+            const DateTimeRange sprintInterval{sprintDateTime, sprintDateTime};
             sprints.push_back(
                 sprintBuilder.withTimeSpan(sprintInterval).build());
             expectedDistributionVector[i]++;
@@ -102,18 +104,20 @@ TEST(SprintStatItem, computes_daily_distribution_correctly)
 
 TEST(SprintStatItem, computes_weekday_distribution_correctly)
 {
+    using namespace dw;
     std::vector<Sprint> increasingSprints;
     SprintBuilder sprintBuilder = SprintBuilder{}.withTaskUuid("irrelevant");
     // (2015, 6, 1) is Monday, so each weekday occures exactly twice
     // in 14-day timeSpan
-    TimeSpan timeSpan{DateTime::fromYMD(2015, 6, 1),
-                      DateTime::fromYMD(2015, 6, 14)};
-    for (int i = 1; i < 15; ++i) {
-        for (int j = 0; j < i; ++j) {
-            DateTime sprintDateTime = DateTime::fromYMD(2015, 6, i);
+    DateTimeRange timeSpan{DateTime{Date{Year{2015}, Month{6}, Day{1}}},
+                           DateTime{Date{Year{2015}, Month{6}, Day{14}}}};
+    for (unsigned i = 1; i < 15; ++i) {
+        for (unsigned j = 0; j < i; ++j) {
+            DateTime sprintDateTime
+                = DateTime{Date{Year{2015}, Month{6}, Day{i}}};
             increasingSprints.push_back(
                 sprintBuilder
-                    .withTimeSpan(TimeSpan{sprintDateTime, sprintDateTime})
+                    .withTimeSpan(DateTimeRange{sprintDateTime, sprintDateTime})
                     .build());
         }
     }
@@ -136,14 +140,16 @@ TEST(SprintStatItem, computes_weekday_distribution_correctly)
 
 TEST(SprintStatItem, computes_worktime_distribution_correctly)
 {
-    TimeSpan timeSpan{DateTime::fromYMD(2015, 6, 2),
-                      DateTime::fromYMD(2015, 6, 2).add(DateTime::Days(1))};
+    using namespace dw;
+    DateTimeRange timeSpan{DateTime{Date{Year{2015}, Month{6}, Day{2}}},
+                           DateTime{Date{Year{2015}, Month{6}, Day{2}}}
+                               + Days{1}};
     std::vector<Sprint> sprints;
     SprintBuilder builder = SprintBuilder{}.withTaskUuid("");
     for (int i = 0; i < 30; ++i) {
-        TimeSpan sprintTimespan{
-            timeSpan.start().add(std::chrono::hours(i)),
-            timeSpan.start().add(std::chrono::minutes(i * 60 + 25))};
+        DateTimeRange sprintTimespan{timeSpan.start() + std::chrono::hours{i},
+                                     timeSpan.start()
+                                         + std::chrono::minutes(i * 60 + 25)};
         sprints.push_back(builder.withTimeSpan(sprintTimespan).build());
     }
     const std::vector<double> expectedDistribution{7, 7, 4, 4, 4, 4};
@@ -162,17 +168,18 @@ TEST(SprintStatItem, computes_worktime_distribution_correctly)
 
 TEST(SprintStatItem, ignores_sprints_outside_time_range)
 {
-    const TimeSpan timeSpan{DateTime::fromYMD(2018, 6, 26),
-                            DateTime::fromYMD(2018, 6, 28)};
+    using namespace dw;
+    const DateTimeRange timeSpan{DateTime{Date{Year{2018}, Month{6}, Day{26}}},
+                                 DateTime{Date{Year{2018}, Month{6}, Day{28}}}};
     auto sprintBuilder = SprintBuilder{}.withTaskUuid("");
-    const auto startTime = timeSpan.start().add(DateTime::Days(-1));
+    const auto startTime = timeSpan.start() + Days{-1};
     std::vector<Sprint> sprints;
     for (int i = 0; i < 5; ++i) {
-        sprints.push_back(sprintBuilder
-                              .withTimeSpan(TimeSpan{
-                                  startTime.add(DateTime::Days(i)),
-                                  startTime.add(DateTime::Days(i)).add(25min)})
-                              .build());
+        sprints.push_back(
+            sprintBuilder
+                .withTimeSpan(DateTimeRange{startTime + dw::Days{i},
+                                            startTime + dw::Days{i} + 25min})
+                .build());
     }
     const std::vector<double> expectedDailyDistribution{1, 1, 1};
     const std::vector<double> expectedWeekdayDistribution{0, 1, 1, 1, 0, 0, 0};
@@ -194,8 +201,8 @@ public:
         for (size_t i = 0; i < n; ++i)
             sprints.push_back(sprint);
     }
-    const TimeSpan defaultTimespan{DateTime::currentDateTime().add(-25min),
-                                   DateTime::currentDateTime()};
+    const DateTimeRange defaultTimespan{dw::current_date_time() - 25min,
+                                        dw::current_date_time()};
 };
 
 TEST_F(TagTopFixture,

@@ -93,7 +93,7 @@ void TaskOutline::onAddTaskButtonPushed()
 }
 
 void TaskOutline::onSprintSubmissionRequested(
-    const std::vector<dw::TimeSpan>& intervals)
+    const std::vector<dw::DateTimeRange>& intervals)
 {
     if (!taskView->currentlySelectedRow())
         return;

@@ -24,8 +24,8 @@
 #define WEEKDAYSELECTION_H_7HAYMKBJ
 
 #include <array>
-#include <date_wrapper/DateTime.h>
-#include <date_wrapper/TimeSpan.h>
+#include <date_wrapper/date_wrapper.h>
+#include <date_wrapper/date_wrapper.h>
 #include <vector>
 
 namespace sprint_timer::utils {
@@ -36,11 +36,11 @@ struct WeekdaySelection {
 
     unsigned selectionMask() const;
 
-    void selectDay(dw::DateTime::Weekday weekday);
+    void selectDay(dw::Weekday weekday);
 
-    void unselectDay(dw::DateTime::Weekday weekday);
+    void unselectDay(dw::Weekday weekday);
 
-    bool isSelected(dw::DateTime::Weekday weekday) const;
+    bool isSelected(dw::Weekday weekday) const;
 
     int numSelected() const;
 
@@ -51,12 +51,12 @@ private:
 
 /* Return number of workdays in given time range with
  * respect to current selection. */
-unsigned numWorkdays(const dw::TimeSpan& timeSpan,
+unsigned numWorkdays(const dw::DateTimeRange& timeSpan,
                      const WeekdaySelection& workdays);
 
 /* Return vector of integers. Elements with value 1 represent workday, elements
  * with value 0 represent non-working day. */
-std::vector<int> workday_outline(const dw::TimeSpan& timeSpan,
+std::vector<int> workday_outline(const dw::DateTimeRange& timeSpan,
                                  const WeekdaySelection& workdays);
 } // namespace sprint_timer::utils
 

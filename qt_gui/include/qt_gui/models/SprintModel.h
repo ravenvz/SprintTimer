@@ -47,7 +47,7 @@ public:
 
     QVariant data(const QModelIndex& index, int role) const final;
 
-    void insert(const dw::TimeSpan& timeSpan, const std::string& taskUuid);
+    void insert(const dw::DateTimeRange& timeSpan, const std::string& taskUuid);
 
     void insert(const entities::Sprint& sprint);
 

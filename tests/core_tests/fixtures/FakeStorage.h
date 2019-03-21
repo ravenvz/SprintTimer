@@ -24,7 +24,7 @@
 
 #include "core/Distribution.h"
 #include "core/entities/Sprint.h"
-#include "date_wrapper/TimeSpan.h"
+#include "date_wrapper/date_wrapper.h"
 #include <algorithm>
 #include <functional>
 #include <optional>

@@ -73,7 +73,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, toggles_task_completion_status)
         = TaskBuilder{}
               .withUuid("123")
               .withCompletionStatus(true)
-              .withLastModificationStamp(dw::DateTime::currentDateTime())
+              .withLastModificationStamp(dw::current_date_time())
               .build();
 
     initializer.taskWriter->save(someTask);
@@ -98,13 +98,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_unfinished_tasks)
     unfinishedTasks.push_back(builder.withCompletionStatus(false).build());
     finishedTasks.push_back(
         builder.withCompletionStatus(true)
-            .withLastModificationStamp(
-                dw::DateTime::currentDateTime().add(dw::DateTime::Days(-2)))
+            .withLastModificationStamp(dw::current_date_time() - dw::Days{2})
             .build());
     finishedTasks.push_back(
         builder.withCompletionStatus(true)
-            .withLastModificationStamp(
-                dw::DateTime::currentDateTime().add(dw::DateTime::Days(-2)))
+            .withLastModificationStamp(dw::current_date_time() - dw::Days{2})
             .build());
 
     for (const auto& task : unfinishedTasks)
@@ -130,13 +128,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     unfinishedTasks.push_back(builder.withCompletionStatus(false).build());
     finishedTasks.push_back(
         builder.withCompletionStatus(true)
-            .withLastModificationStamp(
-                dw::DateTime::currentDateTime().add(dw::DateTime::Days(-1)))
+            .withLastModificationStamp(dw::current_date_time() - dw::Days{1})
             .build());
     finishedTasks.push_back(
         builder.withCompletionStatus(true)
-            .withLastModificationStamp(
-                dw::DateTime::currentDateTime().add(dw::DateTime::Days(-1)))
+            .withLastModificationStamp(dw::current_date_time() - dw::Days{1})
             .build());
     ITaskStorageReader::Items recentTasks = unfinishedTasks;
     std::copy(cbegin(finishedTasks),
@@ -164,8 +160,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, edits_task)
               .withTag("Tag")
               .withEstimatedCost(4)
               .withActualCost(2)
-              .withLastModificationStamp(
-                  dw::DateTime::currentDateTime().add(dw::DateTime::Days(-3)))
+              .withLastModificationStamp(dw::current_date_time() - dw::Days{3})
               .withCompletionStatus(true)
               .build();
     const Task expectedEditedTask
@@ -175,7 +170,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, edits_task)
               .withTag("EditedTag")
               .withEstimatedCost(42)
               .withActualCost(someTask.actualCost())
-              .withLastModificationStamp(dw::DateTime::currentDateTime())
+              .withLastModificationStamp(dw::current_date_time())
               .withCompletionStatus(someTask.isCompleted())
               .build();
 
@@ -240,8 +235,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 {
     const Task someTask = TaskBuilder{}.build();
     SprintBuilder sprintBuilder;
-    const dw::TimeSpan timeSpan{dw::DateTime::currentDateTime(),
-                                dw::DateTime::currentDateTime()};
+    const dw::DateTimeRange timeSpan{dw::current_date_time(),
+                                     dw::current_date_time()};
 
     initializer.taskWriter->save(someTask);
     initializer.sprintWriter->save(sprintBuilder.withTaskUuid(someTask.uuid())
@@ -260,32 +255,26 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 TEST_F(QtStorageImplementIntegrationTestFixture,
        requests_tasks_in_given_time_span)
 {
+    using namespace dw;
     TaskBuilder builder;
-    const dw::TimeSpan targetRange{dw::DateTime::fromYMD(2018, 10, 10),
-                                   dw::DateTime::fromYMD(2018, 10, 15)};
+    const DateTimeRange targetRange{
+        DateTime{Date{Year{2018}, Month{10}, Day{10}}},
+        DateTime{Date{Year{2018}, Month{10}, Day{15}}}};
     const Task taskOutOfRangeLeft
-        = builder
-              .withLastModificationStamp(
-                  targetRange.start().add(dw::DateTime::Days(-1)))
+        = builder.withLastModificationStamp(targetRange.start() - dw::Days{1})
               .build();
     const Task taskLeftRangeBorder
         = builder.withLastModificationStamp(targetRange.start()).build();
     const Task insideRangeTask1
-        = builder
-              .withLastModificationStamp(
-                  targetRange.start().add(dw::DateTime::Days(1)))
+        = builder.withLastModificationStamp(targetRange.start() + dw::Days{1})
               .build();
     const Task insideRangeTask2
-        = builder
-              .withLastModificationStamp(
-                  targetRange.finish().add(dw::DateTime::Days(-1)))
+        = builder.withLastModificationStamp(targetRange.finish() - dw::Days{1})
               .build();
     const Task taskRightRangeBorder
         = builder.withLastModificationStamp(targetRange.finish()).build();
     const Task taskOutOfRangeRight
-        = builder
-              .withLastModificationStamp(
-                  targetRange.finish().add(dw::DateTime::Days(1)))
+        = builder.withLastModificationStamp(targetRange.finish() + dw::Days{1})
               .build();
     const ITaskStorageReader::Items expected{taskLeftRangeBorder,
                                              insideRangeTask1,
@@ -318,8 +307,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
               .withActualCost(2)
               .withLastModificationStamp(someTask.lastModified())
               .build();
-    const dw::TimeSpan timeSpan{dw::DateTime::currentDateTime(),
-                                dw::DateTime::currentDateTime()};
+    const dw::DateTimeRange timeSpan{dw::current_date_time(),
+                                     dw::current_date_time()};
     SprintBuilder builder;
 
     initializer.taskWriter->save(someTask);
@@ -347,8 +336,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
               .withActualCost(1)
               .withLastModificationStamp(someTask.lastModified())
               .build();
-    const dw::TimeSpan timeSpan{dw::DateTime::currentDateTime(),
-                                dw::DateTime::currentDateTime()};
+    const dw::DateTimeRange timeSpan{dw::current_date_time(),
+                                     dw::current_date_time()};
     SprintBuilder builder;
     const Sprint sprint
         = builder.forTask(someTask).withTimeSpan(timeSpan).build();
@@ -434,8 +423,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     const Task someTask{TaskBuilder{}.build()};
     const Task irrelevantTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder;
-    const dw::TimeSpan timeSpan{dw::DateTime::currentDateTime(),
-                                dw::DateTime::currentDateTime()};
+    const dw::DateTimeRange timeSpan{dw::current_date_time(),
+                                     dw::current_date_time()};
     const std::vector<Sprint> sprints{
         sprintBuilder.forTask(someTask).withTimeSpan(timeSpan).build(),
         sprintBuilder.forTask(irrelevantTask).withTimeSpan(timeSpan).build(),
@@ -467,34 +456,31 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 TEST_F(QtStorageImplementIntegrationTestFixture,
        retrieves_sprints_in_given_timespan)
 {
-    using dw::DateTime;
-    using dw::TimeSpan;
+    using namespace dw;
     SprintBuilder sprintBuilder;
-    const dw::DateTime timestamp{dw::DateTime::currentDateTime()};
+    const DateTime timestamp{current_date_time()};
     const Task someTask = TaskBuilder{}.build();
-    const dw::TimeSpan range{timestamp.add(dw::DateTime::Days(-5)),
-                             timestamp.add(dw::DateTime::Days(5))};
+    const DateTimeRange range{timestamp - Days{5}, timestamp + Days{5}};
     const Sprint outOfRangeLeft{
         sprintBuilder.withTaskUuid(someTask.uuid())
-            .withTimeSpan(dw::TimeSpan{timestamp.add(dw::DateTime::Days(-20)),
-                                       timestamp.add(dw::DateTime::Days(-20))})
+            .withTimeSpan(
+                add_offset(DateTimeRange{timestamp, timestamp}, -Days{20}))
             .build()};
     const Sprint onLeftBorder{
         sprintBuilder.withTaskUuid(someTask.uuid())
-            .withTimeSpan(dw::TimeSpan{range.start(), range.start()})
+            .withTimeSpan(DateTimeRange{range.start(), range.start()})
             .build()};
     const Sprint inRange{sprintBuilder.withTaskUuid(someTask.uuid())
-                             .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                             .withTimeSpan(DateTimeRange{timestamp, timestamp})
                              .build()};
     const Sprint onRightBorder{
         sprintBuilder.withTaskUuid(someTask.uuid())
-            .withTimeSpan(dw::TimeSpan{range.finish(), range.finish()})
+            .withTimeSpan(DateTimeRange{range.finish(), range.finish()})
             .build()};
     const Sprint outOfRangeRight{
         sprintBuilder.withTaskUuid(someTask.uuid())
-            .withTimeSpan(
-                dw::TimeSpan{range.finish().add(dw::DateTime::Days(1)),
-                             range.finish().add(dw::DateTime::Days(1))})
+            .withTimeSpan(add_offset(
+                DateTimeRange{range.finish(), range.finish()}, Days{1}))
             .build()};
     const std::vector<Sprint> expected{onLeftBorder, inRange, onRightBorder};
 
@@ -516,18 +502,19 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
 TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_year_range)
 {
+    using namespace dw;
     const Task someTask{TaskBuilder{}.build()};
-    const dw::DateTime timestamp{dw::DateTime::fromYMD(2018, 12, 1)};
+    const dw::DateTime timestamp{
+        dw::DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
     const Sprint left{SprintBuilder{}
                           .withTaskUuid(someTask.uuid())
-                          .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                          .withTimeSpan(DateTimeRange{timestamp, timestamp})
                           .build()};
-    const Sprint right{
-        SprintBuilder{}
-            .withTaskUuid(someTask.uuid())
-            .withTimeSpan(dw::TimeSpan{timestamp.add(dw::DateTime::Years(-4)),
-                                       timestamp.add(dw::DateTime::Years(-4))})
-            .build()};
+    const Sprint right{SprintBuilder{}
+                           .withTaskUuid(someTask.uuid())
+                           .withTimeSpan(add_offset(
+                               DateTimeRange{timestamp, timestamp}, -Years{4}))
+                           .build()};
     const std::vector<std::string> expected{"2014", "2018"};
 
     initializer.taskWriter->save(someTask);
@@ -550,9 +537,10 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_sprint_distributions)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, saves_sprints_in_bulk)
 {
+    using namespace dw;
     const Task someTask{TaskBuilder{}.build()};
-    const dw::TimeSpan timeSpan{dw::DateTime::fromYMD(2018, 12, 1),
-                                dw::DateTime::fromYMD(2018, 12, 1)};
+    const DateTimeRange timeSpan{DateTime{Date{Year{2018}, Month{12}, Day{1}}},
+                                 DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
     std::vector<Sprint> sprintBulk;
     SprintBuilder sprintBuilder{
         SprintBuilder{}.withTaskUuid(someTask.uuid()).withTimeSpan(timeSpan)};
@@ -574,10 +562,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture, saves_sprints_in_bulk)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, removes_sprints_in_bulk)
 {
+    using namespace dw;
     const Task someTask{TaskBuilder{}.build()};
     const Task otherTask{TaskBuilder{}.build()};
-    const dw::TimeSpan timeSpan{dw::DateTime::fromYMD(2018, 12, 1),
-                                dw::DateTime::fromYMD(2018, 12, 1)};
+    const DateTimeRange timeSpan{DateTime{Date{Year{2018}, Month{12}, Day{1}}},
+                                 DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
     std::vector<Sprint> sprintBulk;
     SprintBuilder sprintBuilder{SprintBuilder{}.withTimeSpan(timeSpan)};
     std::generate_n(
@@ -605,10 +594,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture, removes_sprints_in_bulk)
 TEST_F(QtStorageImplementIntegrationTestFixture,
        reads_sprint_daily_distribution)
 {
+    using namespace dw;
     const Task someTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
-    const dw::DateTime someDate{dw::DateTime::fromYMD(2018, 12, 2)};
-    const dw::TimeSpan range{someDate.add(dw::DateTime::Days(-29)), someDate};
+    const DateTime someDate{Date{Year{2018}, Month{12}, Day{2}}};
+    const DateTimeRange range{someDate - Days{29}, someDate};
     std::vector<Sprint> sprints;
     std::vector<int> expected{4, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2};
@@ -616,43 +606,43 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     // Out of range
     std::generate_n(
         std::back_inserter(sprints), 2, [&sprintBuilder, &someDate]() {
-            const dw::DateTime timestamp{someDate.add(dw::DateTime::Days(-30))};
+            const dw::DateTime timestamp{someDate - Days{30}};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     std::generate_n(
         std::back_inserter(sprints), 4, [&sprintBuilder, &someDate]() {
-            const dw::DateTime timestamp{someDate.add(dw::DateTime::Days(-29))};
+            const dw::DateTime timestamp{someDate - Days{29}};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     std::generate_n(
         std::back_inserter(sprints), 3, [&sprintBuilder, &someDate]() {
-            const dw::DateTime timestamp{someDate.add(dw::DateTime::Days(-20))};
+            const dw::DateTime timestamp{someDate - Days{20}};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     std::generate_n(
         std::back_inserter(sprints), 7, [&sprintBuilder, &someDate]() {
-            const dw::DateTime timestamp{someDate.add(dw::DateTime::Days(-10))};
+            const dw::DateTime timestamp{someDate - Days{10}};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     std::generate_n(
         std::back_inserter(sprints), 2, [&sprintBuilder, &someDate]() {
-            return sprintBuilder.withTimeSpan(dw::TimeSpan{someDate, someDate})
+            return sprintBuilder.withTimeSpan(DateTimeRange{someDate, someDate})
                 .build();
         });
     // Out of range
     std::generate_n(
         std::back_inserter(sprints), 3, [&sprintBuilder, &someDate]() {
-            const dw::DateTime timestamp{someDate.add(dw::DateTime::Days(1))};
+            const dw::DateTime timestamp{someDate + Days{1}};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
 
@@ -670,62 +660,62 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
 TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
 {
+    using namespace dw;
+    auto first_day_of_month = [](const Date& date) {
+        return Date{date.year(), date.month(), Day{1}};
+    };
     const Task someTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
-    const dw::DateTime someDate{dw::DateTime::fromYMD(2018, 12, 2)};
-    dw::DateTime lowerDate{someDate.add(dw::DateTime::Months(-11))};
-    lowerDate = lowerDate.add(dw::DateTime::Days{
-        -static_cast<int>(std::min(lowerDate.day(), someDate.day())) + 1});
-    const dw::TimeSpan range{lowerDate, someDate};
+    const Date someDate{Year{2018}, Month{12}, Day{2}};
+    Date lowerDate{first_day_of_month(someDate - Months{11})};
+    const DateTimeRange range{DateTime{lowerDate}, DateTime{someDate}};
     const std::vector<int> expected{3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 5};
     std::vector<Sprint> sprints;
     // Out of range
     std::generate_n(
         std::back_inserter(sprints), 2, [&sprintBuilder, &someDate]() {
-            dw::DateTime timestamp{someDate.add(dw::DateTime::Months(-11))};
-            timestamp = timestamp.add(dw::DateTime::Days(
-                -static_cast<int>(std::min(timestamp.day(), someDate.day()))));
+            const dw::DateTime timestamp{
+                last_day_of_month(someDate - Months(12))};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     // On border
-    std::generate_n(
-        std::back_inserter(sprints), 3, [&sprintBuilder, &someDate]() {
-            dw::DateTime timestamp{someDate.add(dw::DateTime::Months(-11))};
-            timestamp = timestamp.add(dw::DateTime::Days(
-                -static_cast<int>(std::min(timestamp.day(), someDate.day()))
-                + 1));
-            return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
-                .build();
-        });
+    std::generate_n(std::back_inserter(sprints),
+                    3,
+                    [&sprintBuilder, &someDate, &first_day_of_month]() {
+                        const dw::DateTime timestamp{
+                            first_day_of_month(someDate - Months{11})};
+                        return sprintBuilder
+                            .withTimeSpan(DateTimeRange{timestamp, timestamp})
+                            .build();
+                    });
     // Somewhere in the middle
     std::generate_n(
         std::back_inserter(sprints), 4, [&sprintBuilder, &someDate]() {
-            const dw::DateTime timestamp{
-                someDate.add(dw::DateTime::Months(-5))};
+            const dw::DateTime timestamp{someDate - Months{5}};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     // On border
     std::generate_n(
         std::back_inserter(sprints), 5, [&sprintBuilder, &someDate]() {
-            return sprintBuilder.withTimeSpan(dw::TimeSpan{someDate, someDate})
+            return sprintBuilder
+                .withTimeSpan(
+                    DateTimeRange{DateTime{someDate}, DateTime{someDate}})
                 .build();
         });
     // Out of range
-    std::generate_n(
-        std::back_inserter(sprints), 6, [&sprintBuilder, &someDate]() {
-            dw::DateTime timestamp{someDate.add(dw::DateTime::Months(1))};
-            timestamp = timestamp.add(dw::DateTime::Days(
-                -static_cast<int>(std::min(timestamp.day(), someDate.day()))
-                + 1));
-            return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
-                .build();
-        });
+    std::generate_n(std::back_inserter(sprints),
+                    6,
+                    [&sprintBuilder, &someDate, &first_day_of_month]() {
+                        const dw::DateTime timestamp{
+                            first_day_of_month(someDate + Months{1})};
+                        return sprintBuilder
+                            .withTimeSpan(DateTimeRange{timestamp, timestamp})
+                            .build();
+                    });
 
     initializer.taskWriter->save(someTask);
     initializer.sprintWriter->save(sprints);
@@ -742,59 +732,60 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
 TEST_F(QtStorageImplementIntegrationTestFixture,
        retrieves_sprint_weekly_distribution_with_monday_first_setting)
 {
+    using namespace dw;
     const Task someTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
-    const dw::DateTime upperDate{dw::DateTime::fromYMD(2016, 2, 12)};
-    const dw::DateTime lowerDate{upperDate.add(dw::DateTime::Days(-11 * 7))};
-    const dw::TimeSpan range{lowerDate, upperDate};
+    const dw::DateTime upperDate{Date{Year{2016}, Month{2}, Day{12}}};
+    const dw::DateTime lowerDate{upperDate - Weeks(11)};
+    const DateTimeRange range{lowerDate, upperDate};
     const std::vector<int> expected{3, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 6};
     std::vector<Sprint> sprints;
     // Out of range
     std::generate_n(
         std::back_inserter(sprints), 2, [&sprintBuilder, &lowerDate]() {
-            const dw::DateTime timestamp{lowerDate.add(dw::DateTime::Days(-1))};
+            const dw::DateTime timestamp{lowerDate - Days{1}};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     // On lower border
     std::generate_n(
         std::back_inserter(sprints), 3, [&sprintBuilder, &lowerDate]() {
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{lowerDate, lowerDate})
+                .withTimeSpan(DateTimeRange{lowerDate, lowerDate})
                 .build();
         });
     // Week 53 in 2015
     std::generate_n(
         std::back_inserter(sprints), 4, [&sprintBuilder, &upperDate]() {
-            const dw::DateTime timestamp{
-                upperDate.add(dw::DateTime::Days(-6 * 7 - 4))}; // Monday
+            const dw::DateTime timestamp{upperDate
+                                         + Days(-6 * 7 - 4)}; // Monday
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     // Week 53 in 2016
     std::generate_n(
         std::back_inserter(sprints), 5, [&sprintBuilder, &upperDate]() {
-            const dw::DateTime timestamp{
-                upperDate.add(dw::DateTime::Days(-6 * 7 + 2))}; // Sunday
+            const dw::DateTime timestamp{upperDate
+                                         + Days(-6 * 7 + 2)}; // Sunday
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     // On upper border
     std::generate_n(
         std::back_inserter(sprints), 6, [&sprintBuilder, &upperDate]() {
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{upperDate, upperDate})
+                .withTimeSpan(DateTimeRange{upperDate, upperDate})
                 .build();
         });
     // Out of range
     std::generate_n(
         std::back_inserter(sprints), 7, [&sprintBuilder, &upperDate]() {
-            const dw::DateTime timestamp{upperDate.add(dw::DateTime::Days(1))};
+            const dw::DateTime timestamp{upperDate + Days(1)};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
 
@@ -813,59 +804,60 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 TEST_F(QtStorageImplementIntegrationTestFixture,
        retrieves_sprint_weekly_distribution_with_sunday_first_setting)
 {
+    using namespace dw;
     const Task someTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
-    const dw::DateTime upperDate{dw::DateTime::fromYMD(2016, 2, 12)};
-    const dw::DateTime lowerDate{upperDate.add(dw::DateTime::Days(-11 * 7))};
-    const dw::TimeSpan range{lowerDate, upperDate};
+    const dw::DateTime upperDate{Date{Year{2016}, Month{2}, Day{12}}};
+    const dw::DateTime lowerDate{upperDate - Weeks(11)};
+    const DateTimeRange range{lowerDate, upperDate};
     const std::vector<int> expected{3, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 6};
     std::vector<Sprint> sprints;
     // Out of range
     std::generate_n(
         std::back_inserter(sprints), 2, [&sprintBuilder, &lowerDate]() {
-            const dw::DateTime timestamp{lowerDate.add(dw::DateTime::Days(-1))};
+            const dw::DateTime timestamp{lowerDate - Days(1)};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     // On lower border
     std::generate_n(
         std::back_inserter(sprints), 3, [&sprintBuilder, &lowerDate]() {
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{lowerDate, lowerDate})
+                .withTimeSpan(DateTimeRange{lowerDate, lowerDate})
                 .build();
         });
     // Week in 2015
     std::generate_n(
         std::back_inserter(sprints), 4, [&sprintBuilder, &upperDate]() {
-            const dw::DateTime timestamp{
-                upperDate.add(dw::DateTime::Days(-6 * 7 - 5))}; // Sunday
+            const dw::DateTime timestamp{upperDate
+                                         + Days(-6 * 7 - 5)}; // Sunday
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     // Week in 2016
     std::generate_n(
         std::back_inserter(sprints), 5, [&sprintBuilder, &upperDate]() {
-            const dw::DateTime timestamp{
-                upperDate.add(dw::DateTime::Days(-6 * 7 + 1))}; // Saturday
+            const dw::DateTime timestamp{upperDate
+                                         + Days(-6 * 7 + 1)}; // Saturday
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
     // On upper border
     std::generate_n(
         std::back_inserter(sprints), 6, [&sprintBuilder, &upperDate]() {
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{upperDate, upperDate})
+                .withTimeSpan(DateTimeRange{upperDate, upperDate})
                 .build();
         });
     // Out of range
     std::generate_n(
         std::back_inserter(sprints), 7, [&sprintBuilder, &upperDate]() {
-            const dw::DateTime timestamp{upperDate.add(dw::DateTime::Days(1))};
+            const dw::DateTime timestamp{upperDate + Days(1)};
             return sprintBuilder
-                .withTimeSpan(dw::TimeSpan{timestamp, timestamp})
+                .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
         });
 

@@ -24,14 +24,14 @@
 
 #include "core/ITaskStorageReader.h"
 #include "core/Query.h"
-#include "date_wrapper/TimeSpan.h"
+#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::use_cases {
 
 class RequestTasks : public Query {
 public:
     RequestTasks(ITaskStorageReader& taskStorageReader,
-                 dw::TimeSpan timeSpan,
+                 dw::DateTimeRange timeSpan,
                  ITaskStorageReader::Handler handler);
 
     void execute() final;
@@ -40,7 +40,7 @@ public:
 
 private:
     ITaskStorageReader& reader;
-    const dw::TimeSpan timeSpan_;
+    const dw::DateTimeRange timeSpan_;
     ITaskStorageReader::Handler handler_;
 };
 

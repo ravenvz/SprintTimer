@@ -30,7 +30,7 @@
 #include <core/ITaskStorageWriter.h>
 #include <core/QueryInvoker.h>
 #include <core/entities/Task.h>
-#include <date_wrapper/TimeSpan.h>
+#include <date_wrapper/date_wrapper.h>
 
 namespace sprint_timer::ui::qt_gui {
 

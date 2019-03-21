@@ -28,7 +28,7 @@
 namespace sprint_timer::ui::qt_gui {
 
 using dw::DateTime;
-using dw::TimeSpan;
+using dw::DateTimeRange;
 using namespace entities;
 using namespace sprint_timer::use_cases;
 
@@ -63,8 +63,8 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         return QString("%1 - %2 %3 %4")
-            .arg(sprintRef.startTime().toString("hh:mm").c_str())
-            .arg(sprintRef.finishTime().toString("hh:mm").c_str())
+            .arg(dw::to_string(sprintRef.startTime(), "hh:mm").c_str())
+            .arg(dw::to_string(sprintRef.finishTime(), "hh:mm").c_str())
             .arg(QString::fromStdString(prefixTags(sprintRef.tags())))
             .arg(QString::fromStdString(sprintRef.name()));
     }
@@ -72,7 +72,8 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void SprintModel::insert(const TimeSpan& timeSpan, const std::string& taskUuid)
+void SprintModel::insert(const DateTimeRange& timeSpan,
+                         const std::string& taskUuid)
 {
     Sprint sprint{taskUuid, timeSpan};
     insert(sprint);
@@ -108,11 +109,9 @@ void SprintModel::requestUpdate()
 {
     queryInvoker.execute(std::make_unique<RequestSprints>(
         sprintReader,
-        dw::TimeSpan{dw::DateTime::currentDateTimeLocal(),
-                     dw::DateTime::currentDateTimeLocal()},
-        [this](const auto& items) {
-            onDataChanged(items);
-        }));
+        dw::DateTimeRange{dw::current_date_time_local(),
+                          dw::current_date_time_local()},
+        [this](const auto& items) { onDataChanged(items); }));
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)

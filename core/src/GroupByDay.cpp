@@ -25,7 +25,7 @@
 namespace sprint_timer {
 
 std::vector<GoalProgress>
-GroupByDay::computeProgress(const dw::TimeSpan& period,
+GroupByDay::computeProgress(const dw::DateTimeRange& period,
                             const std::vector<int>& actualProgress,
                             utils::WeekdaySelection workdays,
                             int workdayGoal) const

@@ -36,9 +36,8 @@ public:
     SprintStorageReaderMock sprint_reader_mock;
     QueryInvoker query_executor;
 
-    const TimeSpan someTimeSpan
-        = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
-                   DateTime::currentDateTime().add(DateTime::Days(-1))};
+    const DateTimeRange someTimeSpan{add_offset(
+        DateTimeRange{current_date_time(), current_date_time()}, Days{-1})};
 };
 
 TEST_F(RequestSprintsFixture, execute)

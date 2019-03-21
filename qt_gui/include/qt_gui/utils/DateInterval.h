@@ -24,7 +24,7 @@
 
 #include "qt_gui/utils/DateTimeConverter.h"
 #include <QDate>
-#include <date_wrapper/TimeSpan.h>
+#include <date_wrapper/date_wrapper.h>
 #include <iostream>
 
 namespace sprint_timer::ui::qt_gui {
@@ -34,10 +34,10 @@ struct DateInterval {
     QDate startDate;
     QDate endDate;
 
-    static DateInterval fromTimeSpan(const TimeSpan& timeSpan)
+    static DateInterval fromTimeSpan(const dw::DateTimeRange& timeSpan)
     {
-        return DateInterval {DateTimeConverter::qDate(timeSpan.start()),
-                             DateTimeConverter::qDate(timeSpan.finish())};
+        return DateInterval{DateTimeConverter::qDate(timeSpan.start()),
+                            DateTimeConverter::qDate(timeSpan.finish())};
     }
 
     QString toString() const
@@ -57,15 +57,11 @@ struct DateInterval {
         }
     }
 
-    TimeSpan toTimeSpan() const
+    dw::DateTimeRange toTimeSpan() const
     {
-        /* When QDateTime constructs from QDate, it sets time to 00:00,
-         * which is treated like a previous day by chrono (or date lib,
-         * it's hard to say...). That is why another day is added.
-         * It might be better to make DateInterval dependent on date lib
-         * instead of QDate TODO */
-        return TimeSpan {QDateTime {startDate}.addDays(1).toTime_t(),
-                         QDateTime {endDate}.addDays(1).toTime_t()};
+        return dw::DateTimeRange{
+            DateTimeConverter::dateTime(QDateTime{startDate}),
+            DateTimeConverter::dateTime(QDateTime{endDate})};
     }
 };
 

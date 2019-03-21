@@ -25,32 +25,32 @@
 namespace sprint_timer {
 
 using dw::DateTime;
-using dw::TimeSpan;
+using dw::DateTimeRange;
 using entities::Sprint;
 
 namespace {
 
     constexpr size_t daysInWeek{7};
 
-    constexpr size_t sizeInDays(const TimeSpan& timeSpan) noexcept
+    constexpr size_t sizeInDays(const DateTimeRange& timeSpan) noexcept
     {
-        return static_cast<size_t>(
-                   timeSpan.start().discreteDaysTo(timeSpan.finish()))
-            + 1;
+        return static_cast<size_t>(timeSpan.duration<dw::Days>().count()) + 1;
     }
 
-    constexpr size_t discreteDaysBetween(const TimeSpan& lhs,
-                                         const TimeSpan& rhs) noexcept
+    constexpr size_t discreteDaysBetween(const DateTimeRange& lhs,
+                                         const DateTimeRange& rhs) noexcept
     {
-        return static_cast<size_t>(lhs.start().discreteDaysTo(rhs.start()));
+        return static_cast<size_t>(DateTimeRange{lhs.start(), rhs.start()}
+                                       .duration<dw::Days>()
+                                       .count());
     }
 
-    std::vector<int> weekdayFrequency(const TimeSpan& timeSpan)
+    std::vector<int> weekdayFrequency(const DateTimeRange& timeSpan)
     {
         std::vector<int> result(daysInWeek, 0);
         for (size_t dayNum = 0; dayNum < sizeInDays(timeSpan); ++dayNum) {
-            const auto date = timeSpan.start().add(DateTime::Days{dayNum});
-            const auto weekdayNumber = static_cast<unsigned>(date.dayOfWeek());
+            const auto date = timeSpan.start() + dw::Days{dayNum};
+            const auto weekdayNumber = static_cast<unsigned>(date.weekday());
             ++result[weekdayNumber];
         }
         return result;
@@ -62,7 +62,7 @@ namespace {
             && lhs.day() == rhs.day();
     }
 
-    constexpr bool containsDate(const TimeSpan& timeSpan,
+    constexpr bool containsDate(const DateTimeRange& timeSpan,
                                 const DateTime& dateTime) noexcept
     {
         return sameDate(timeSpan.start(), dateTime)
@@ -73,7 +73,7 @@ namespace {
 } // namespace
 
 SprintStatItem::SprintStatItem(const std::vector<Sprint>& sprints,
-                               const TimeSpan& timeSpan)
+                               const DateTimeRange& timeSpan)
 {
     std::vector<double> sprintsPerDay(sizeInDays(timeSpan), 0);
     std::vector<double> sprintsPerWeekday(daysInWeek, 0);
@@ -84,8 +84,7 @@ SprintStatItem::SprintStatItem(const std::vector<Sprint>& sprints,
             continue;
         const auto dayNumber = discreteDaysBetween(timeSpan, sprint.timeSpan());
         ++sprintsPerDay[static_cast<size_t>(dayNumber)];
-        ++sprintsPerWeekday[static_cast<size_t>(
-            sprint.startTime().dayOfWeek())];
+        ++sprintsPerWeekday[static_cast<size_t>(sprint.startTime().weekday())];
         ++sprintsPerDayPart[static_cast<size_t>(
             DayPart::dayPart(sprint.timeSpan()))];
     }
@@ -117,9 +116,9 @@ const Distribution<double>& SprintStatItem::worktimeDistribution() const
 
 namespace DayPart {
 
-    DayPart dayPart(const TimeSpan& timeSpan)
+    DayPart dayPart(const DateTimeRange& timeSpan)
     {
-        auto hour = timeSpan.start().hour();
+        const auto hour = timeSpan.start().hour().count();
 
         if (22 < hour || hour <= 2) {
             return DayPart::Midnight;

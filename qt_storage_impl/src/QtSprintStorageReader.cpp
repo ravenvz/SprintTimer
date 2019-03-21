@@ -65,7 +65,7 @@ QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
             &QtSprintStorageReader::onResultsReceived);
 }
 
-void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
+void QtSprintStorageReader::requestItems(const DateTimeRange& timeSpan,
                                          Handler handler)
 {
     handler_queue.push_back(handler);
@@ -75,11 +75,11 @@ void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
     dbService.bind(
         sprintsInTimeRangeQueryId,
         ":startTime",
-        QVariant(QString::fromStdString(start.toString("yyyy-MM-dd"))));
+        QVariant(QString::fromStdString(dw::to_string(start, "yyyy-MM-dd"))));
     dbService.bind(
         sprintsInTimeRangeQueryId,
         ":finishTime",
-        QVariant(QString::fromStdString(finish.toString("yyyy-MM-dd"))));
+        QVariant(QString::fromStdString(dw::to_string(finish, "yyyy-MM-dd"))));
 
     dbService.executePrepared(sprintsInTimeRangeQueryId);
 }
@@ -115,8 +115,8 @@ Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord& record)
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
     QDateTime finish = columnData(record, Columns::FinishTime).toDateTime();
-    TimeSpan timeSpan{DateTimeConverter::dateTime(start),
-                      DateTimeConverter::dateTime(finish)};
+    const dw::DateTimeRange timeSpan{DateTimeConverter::dateTime(start),
+                                     DateTimeConverter::dateTime(finish)};
     std::string uuid
         = columnData(record, Columns::Uuid).toString().toStdString();
     QStringList tagNames{columnData(record, Columns::Tags)

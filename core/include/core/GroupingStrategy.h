@@ -24,7 +24,7 @@
 
 #include "core/GoalProgress.h"
 #include "core/utils/WeekdaySelection.h"
-#include <date_wrapper/TimeSpan.h>
+#include <date_wrapper/date_wrapper.h>
 #include <vector>
 
 namespace sprint_timer {
@@ -34,7 +34,7 @@ public:
     virtual ~GroupingStrategy() = default;
 
     virtual std::vector<GoalProgress>
-    computeProgress(const dw::TimeSpan& period,
+    computeProgress(const dw::DateTimeRange& period,
                     const std::vector<int>& actualProgress,
                     sprint_timer::utils::WeekdaySelection workdays,
                     int workdayGoal) const = 0;

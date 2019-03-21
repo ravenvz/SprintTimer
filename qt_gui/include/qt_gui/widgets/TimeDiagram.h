@@ -22,14 +22,14 @@
 #ifndef TIMEDIAGRAM_H
 #define TIMEDIAGRAM_H
 
-#include <date_wrapper/TimeSpan.h>
 #include <QEvent>
 #include <QWidget>
+#include <date_wrapper/date_wrapper.h>
 #include <vector>
 
 namespace sprint_timer::ui::qt_gui {
 
-using dw::TimeSpan;
+using dw::DateTimeRange;
 
 /* Displays vector of TimeSpan as a diagram.
  *
@@ -48,14 +48,14 @@ public:
     explicit TimeDiagram(QWidget* parent);
 
     /* Set vector of time intervals to display as a diagram. */
-    void setIntervals(std::vector<TimeSpan> newIntervals);
+    void setIntervals(std::vector<DateTimeRange> newIntervals);
 
 protected:
     void paintEvent(QPaintEvent*) override;
 
 private:
     const QColor timeSpanColor = QColor::fromRgb(246, 61, 13, 20);
-    std::vector<TimeSpan> timeSpans;
+    std::vector<DateTimeRange> timeSpans;
     QRectF totalSizeRect;
     QRectF diagramRect;
     double diagramRadius{0};

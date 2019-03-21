@@ -95,24 +95,24 @@ void TimeDiagram::drawIntervals(QPainter& painter)
     QBrush arcBrush = QBrush(timeSpanColor);
     painter.setBrush(arcBrush);
     painter.setPen(Qt::NoPen);
-    double oneMinuteInDegrees = 0.25;
-    int offsetInDegrees = 90;
-    int sprintDuration = 25;
-    int numSegmentsInDegree = 16;
+    const double oneMinuteInDegrees = 0.25;
+    const int offsetInDegrees = 90;
+    const int sprintDuration = 25;
+    const int numSegmentsInDegree = 16;
     const auto& timeSpansRef = timeSpans;
-    for (const TimeSpan& timeSpan : timeSpansRef) {
-        double start
-            = (timeSpan.start().hour() * 60 + timeSpan.start().minute())
+    for (const auto& timeSpan : timeSpansRef) {
+        double start = (timeSpan.start().hour().count() * 60
+                        + timeSpan.start().minute().count())
             * oneMinuteInDegrees;
         // TODO replace with stored sprint duration when implemented
-        double span = sprintDuration * oneMinuteInDegrees;
+        const double span = sprintDuration * oneMinuteInDegrees;
         painter.drawPie(diagramRect,
                         -(int(start) - offsetInDegrees) * numSegmentsInDegree,
                         -int(span) * numSegmentsInDegree);
     }
 }
 
-void TimeDiagram::setIntervals(std::vector<TimeSpan> newIntervals)
+void TimeDiagram::setIntervals(std::vector<dw::DateTimeRange> newIntervals)
 {
     timeSpans = std::move(newIntervals);
     update();

@@ -26,7 +26,7 @@
 
 namespace {
 
-dw::TimeSpan twelveMonthsBackTillNow();
+dw::DateTimeRange twelveMonthsBackTillNow();
 
 } // namespace
 
@@ -66,19 +66,22 @@ void MonthlyProgressView::synchronize()
 
 namespace {
 
-dw::TimeSpan twelveMonthsBackTillNow()
+dw::DateTimeRange twelveMonthsBackTillNow()
 {
-    using dw::DateTime;
-    using dw::TimeSpan;
-    const auto now = DateTime::currentDateTimeLocal();
-    const auto from = now.add(DateTime::Months{-11});
-    const auto monthLater = now.add(DateTime::Months{1});
-    const auto lastDayLastMonth
-        = DateTime::fromYMD(monthLater.year(), static_cast<int>(monthLater.month()), 1)
-              .add(DateTime::Days{-1});
-    const auto firstDayFirstMonth
-        = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
-    return TimeSpan{firstDayFirstMonth, lastDayLastMonth};
+    using namespace dw;
+
+    // const auto now = current_date_local();
+    // const auto elevenMonthsBack = now - Months{11};
+    // const auto from = Date{elevenMonthsBack.year(), elevenMonthsBack.month(),
+    // Day{1}}; const auto to = last_day_of_month(now); return DateRange{from,
+    // to};
+
+
+    const auto now = current_date_local();
+    const auto months_back = now - Months{11};
+    const auto to = DateTime{last_day_of_month(now)};
+    const auto from = Date{months_back.year(), months_back.month(), Day{1}};
+    return DateTimeRange{DateTime{from}, DateTime{to}};
 }
 
 } // namespace

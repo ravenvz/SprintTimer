@@ -29,35 +29,35 @@ using sprint_timer::utils::WeekdaySelection;
 TEST(WeekdaySelection, adds_selection)
 {
     WeekdaySelection selection;
-    selection.selectDay(DateTime::Weekday::Monday);
-    selection.selectDay(DateTime::Weekday::Sunday);
+    selection.selectDay(dw::Weekday::Monday);
+    selection.selectDay(dw::Weekday::Sunday);
 
     EXPECT_EQ(65, selection.selectionMask());
 
-    EXPECT_TRUE(selection.isSelected(DateTime::Weekday::Monday));
-    EXPECT_TRUE(selection.isSelected(DateTime::Weekday::Sunday));
+    EXPECT_TRUE(selection.isSelected(dw::Weekday::Monday));
+    EXPECT_TRUE(selection.isSelected(dw::Weekday::Sunday));
 
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Tuesday));
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Wednesday));
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Thursday));
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Friday));
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Saturday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Tuesday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Wednesday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Thursday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Friday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Saturday));
 }
 
 TEST(WeekdaySelection, unselects_days)
 {
     WeekdaySelection selection{65};
 
-    selection.unselectDay(DateTime::Weekday::Monday);
-    selection.unselectDay(DateTime::Weekday::Sunday);
+    selection.unselectDay(dw::Weekday::Monday);
+    selection.unselectDay(dw::Weekday::Sunday);
 
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Monday));
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Sunday));
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Tuesday));
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Wednesday));
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Thursday));
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Friday));
-    EXPECT_FALSE(selection.isSelected(DateTime::Weekday::Saturday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Monday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Sunday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Tuesday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Wednesday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Thursday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Friday));
+    EXPECT_FALSE(selection.isSelected(dw::Weekday::Saturday));
 }
 
 TEST(WeekdaySelection, returns_total_number_selected)
@@ -69,18 +69,20 @@ TEST(WeekdaySelection, returns_total_number_selected)
 
 TEST(WeekdaySelection, returns_number_of_workdays_in_given_timespan)
 {
+    using namespace dw;
     WeekdaySelection selection{31}; // Monday - Friday selected
-    const dw::TimeSpan timeSpan{dw::DateTime::fromYMD(2019, 1, 26),
-                                dw::DateTime::fromYMD(2019, 2, 7)};
+    const DateTimeRange timeSpan{DateTime{Date{Year{2019}, Month{1}, Day{26}}},
+                                 DateTime{Date{Year{2019}, Month{2}, Day{7}}}};
 
     EXPECT_EQ(9, numWorkdays(timeSpan, selection));
 }
 
 TEST(WeekdaySelection, returns_workday_outline)
 {
+    using namespace dw;
     WeekdaySelection selection{31}; // Monday - Friday selected
-    const dw::TimeSpan timeSpan{dw::DateTime::fromYMD(2019, 1, 26),
-                                dw::DateTime::fromYMD(2019, 2, 7)};
+    const DateTimeRange timeSpan{DateTime{Date{Year{2019}, Month{1}, Day{26}}},
+                                 DateTime{Date{Year{2019}, Month{2}, Day{7}}}};
     const std::vector<int> expected{0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1};
 
     EXPECT_EQ(expected, workday_outline(timeSpan, selection));

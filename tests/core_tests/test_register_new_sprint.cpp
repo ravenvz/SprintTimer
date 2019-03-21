@@ -37,9 +37,8 @@ public:
     sprint_timer::CommandInvoker commandInvoker;
     SprintStorageWriterMock sprint_writer_mock;
 
-    const TimeSpan someTimeSpan
-        = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
-                   DateTime::currentDateTime().add(DateTime::Days(-1))};
+    const DateTimeRange someTimeSpan{add_offset(
+        DateTimeRange{current_date_time(), current_date_time()}, Days{-1})};
     const Sprint someSprint{"Task name",
                             someTimeSpan,
                             {Tag{"Tag1"}, Tag{"Tag2"}},

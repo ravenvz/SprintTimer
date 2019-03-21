@@ -39,7 +39,7 @@ EditTask::EditTask(ITaskStorageWriter& writer,
                   originalTask_.uuid(),
                   editedTask.tags(),
                   originalTask_.isCompleted(),
-                  DateTime::currentDateTimeLocal()}
+                  dw::current_date_time_local()}
 {
 }
 

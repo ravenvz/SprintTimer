@@ -29,7 +29,7 @@ namespace sprint_timer {
 class GroupByMonth : public GroupingStrategy {
 public:
     std::vector<GoalProgress>
-    computeProgress(const dw::TimeSpan& period,
+    computeProgress(const dw::DateTimeRange& period,
                     const std::vector<int>& actualProgress,
                     utils::WeekdaySelection workdays,
                     int workdayGoal) const override
@@ -40,18 +40,17 @@ public:
         auto actualIt = cbegin(actualProgress);
 
         int numWorkdays{0};
-        unsigned currentMonth{period.start().month()};
+        auto currentMonth = period.start().month();
 
-        const dw::DateTime stop = period.finish().add(dw::DateTime::Days{1});
-        for (auto day = period.start(); day < stop;
-             day = day.add(dw::DateTime::Days{1})) {
+        const dw::DateTime stop = period.finish() + dw::Days{1};
+        for (auto day = period.start(); day < stop; day = day + dw::Days{1}) {
             if (day.month() != currentMonth) {
                 currentMonth = day.month();
                 progress.emplace_back(workdayGoal * numWorkdays, *actualIt);
                 ++actualIt;
                 numWorkdays = 0;
             }
-            if (workdays.isSelected(day.dayOfWeek()))
+            if (workdays.isSelected(day.weekday()))
                 ++numWorkdays;
         }
         progress.emplace_back(workdayGoal * numWorkdays, *actualIt);

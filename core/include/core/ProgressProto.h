@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "core/Distribution.h"
 #include "core/utils/WeekdaySelection.h"
-#include <date_wrapper/TimeSpan.h>
+#include <date_wrapper/date_wrapper.h>
 #include <numeric>
 #include <optional>
 
@@ -36,7 +36,7 @@ namespace sprint_timer {
 
 class ProgressOverPeriod {
 public:
-    ProgressOverPeriod(dw::TimeSpan period,
+    ProgressOverPeriod(dw::DateTimeRange period,
                        const Distribution<int>& actualProgress,
                        utils::WeekdaySelection workdays,
                        const GroupingStrategy& groupingStrategy,
@@ -59,7 +59,7 @@ public:
     int difference() const;
 
 private:
-    const dw::TimeSpan period_;
+    const dw::DateTimeRange period_;
     const utils::WeekdaySelection workdays_;
     const int actual_;
     std::vector<GoalProgress> progress_;

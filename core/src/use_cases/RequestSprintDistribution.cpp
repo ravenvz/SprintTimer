@@ -26,7 +26,7 @@ namespace sprint_timer::use_cases {
 
 RequestSprintDistribution::RequestSprintDistribution(
     ISprintDistributionReader& reader,
-    dw::TimeSpan timeSpan,
+    dw::DateTimeRange timeSpan,
     ISprintDistributionReader::Handler handler)
     : reader{reader}
     , timeSpan_{std::move(timeSpan)}

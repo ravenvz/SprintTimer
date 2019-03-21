@@ -69,7 +69,7 @@ Task::Task(std::string name,
 
 Task::Task(std::string encodedDescription)
     : uuid_{uuid_generator.generateUUID()}
-    , lastModified_{DateTime::currentDateTimeLocal()}
+    , lastModified_{dw::current_date_time_local()}
 {
     decodeDescription(std::move(encodedDescription));
 }
@@ -150,8 +150,11 @@ bool operator==(const Task& lhs, const Task& rhs)
         && lhs.estimatedCost() == rhs.estimatedCost()
         && lhs.actualCost() == rhs.actualCost() && lhs.tags() == rhs.tags()
         && lhs.isCompleted() == rhs.isCompleted()
-        && lhs.lastModified().timestamp<std::chrono::seconds>()
-        == rhs.lastModified().timestamp<std::chrono::seconds>();
+        // There is a reason to compare them by seconds, as last modified
+        // timestamp can come from different sources with different precision
+        // TODO need to control the sources as this can end up badly
+        && dw::to_time_point<std::chrono::seconds>(lhs.lastModified())
+        == dw::to_time_point<std::chrono::seconds>(rhs.lastModified());
 }
 
 } // namespace sprint_timer::entities

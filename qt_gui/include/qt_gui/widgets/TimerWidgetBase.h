@@ -82,7 +82,7 @@ protected slots:
 signals:
     void timerUpdated(std::chrono::seconds timeLeft);
     void stateChanged(IStatefulTimer::StateId state);
-    void submitRequested(std::vector<dw::TimeSpan> completedTaskIntervals);
+    void submitRequested(std::vector<dw::DateTimeRange> completedTaskIntervals);
     void submissionCandidateChanged(int index);
 };
 

@@ -23,7 +23,7 @@
 #define ISPRINTSTORAGEWRITER_H_PMJNRBFY
 
 #include "core/entities/Sprint.h"
-#include "date_wrapper/TimeSpan.h"
+#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer {
 

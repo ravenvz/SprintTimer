@@ -47,48 +47,46 @@ WeekdaySelection::WeekdaySelection(unsigned mask)
 
 unsigned WeekdaySelection::selectionMask() const { return mask; }
 
-void WeekdaySelection::selectDay(dw::DateTime::Weekday weekday)
+void WeekdaySelection::selectDay(dw::Weekday weekday)
 {
     mask |= weekdayBits[static_cast<unsigned>(weekday)];
 }
 
-void WeekdaySelection::unselectDay(dw::DateTime::Weekday weekday)
+void WeekdaySelection::unselectDay(dw::Weekday weekday)
 {
     mask ^= weekdayBits[static_cast<unsigned>(weekday)];
 }
 
-bool WeekdaySelection::isSelected(dw::DateTime::Weekday weekday) const
+bool WeekdaySelection::isSelected(dw::Weekday weekday) const
 {
     return (mask & weekdayBits[static_cast<unsigned>(weekday)]) != 0;
 }
 
 int WeekdaySelection::numSelected() const { return countBits(mask); }
 
-unsigned numWorkdays(const dw::TimeSpan& timeSpan,
+unsigned numWorkdays(const dw::DateTimeRange& timeSpan,
                      const WeekdaySelection& workdays)
 {
     unsigned res{0};
 
     for (auto day = timeSpan.start(); day <= timeSpan.finish();
-         day = day.add(dw::DateTime::Days{1})) {
-        if (workdays.isSelected(
-                static_cast<dw::DateTime::Weekday>(day.dayOfWeek())))
+         day = day + dw::Days{1}) {
+        if (workdays.isSelected(static_cast<dw::Weekday>(day.weekday())))
             ++res;
     }
 
     return res;
 }
 
-std::vector<int> workday_outline(const dw::TimeSpan& timeSpan,
+std::vector<int> workday_outline(const dw::DateTimeRange& timeSpan,
                                  const WeekdaySelection& workdays)
 {
     std::vector<int> outline;
-    outline.reserve(static_cast<size_t>(timeSpan.duration<dw::DateTime::Days>().count()));
+    outline.reserve(static_cast<size_t>(timeSpan.duration<dw::Days>().count()));
 
     for (auto day = timeSpan.start(); day <= timeSpan.finish();
-         day = day.add(dw::DateTime::Days{1})) {
-        if (workdays.isSelected(
-                static_cast<dw::DateTime::Weekday>(day.dayOfWeek())))
+         day = day + dw::Days{1}) {
+        if (workdays.isSelected(static_cast<dw::Weekday>(day.weekday())))
             outline.push_back(1);
         else
             outline.push_back(0);

@@ -30,7 +30,7 @@ namespace sprint_timer::use_cases {
 class RequestSprintDistribution : public Query {
 public:
     RequestSprintDistribution(ISprintDistributionReader& reader,
-                              dw::TimeSpan timeSpan,
+                              dw::DateTimeRange timeSpan,
                               ISprintDistributionReader::Handler handler);
 
     void execute() final;
@@ -39,7 +39,7 @@ public:
 
 private:
     ISprintDistributionReader& reader;
-    const dw::TimeSpan timeSpan_;
+    const dw::DateTimeRange timeSpan_;
     ISprintDistributionReader::Handler handler_;
 };
 

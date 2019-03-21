@@ -22,13 +22,13 @@
 
 #include "core/use_cases/RequestFinishedTasks.h"
 
-using dw::TimeSpan;
+using dw::DateTimeRange;
 
 namespace sprint_timer::use_cases {
 
 RequestFinishedTasks::RequestFinishedTasks(
     ITaskStorageReader& taskStorageReader,
-    TimeSpan timeSpan,
+    DateTimeRange timeSpan,
     ITaskStorageReader::Handler handler)
     : reader{taskStorageReader}
     , timeSpan_{std::move(timeSpan)}
@@ -44,7 +44,8 @@ void RequestFinishedTasks::execute()
 std::string RequestFinishedTasks::describe() const
 {
     std::stringstream ss;
-    ss << "Request finished tasks in '" << timeSpan_.toString("dd.MM.yyyy");
+    ss << "Request finished tasks in '"
+       << dw::to_string(timeSpan_, "dd.MM.yyyy");
     return ss.str();
 }
 

@@ -32,7 +32,8 @@ public:
     using Items = std::vector<entities::Sprint>;
     using Handler = std::function<void(const Items&)>;
     virtual ~ISprintStorageReader() = default;
-    virtual void requestItems(const dw::TimeSpan& timeSpan, Handler handler)
+    virtual void requestItems(const dw::DateTimeRange& timeSpan,
+                              Handler handler)
         = 0;
     virtual void sprintsForTask(const std::string& taskUuid, Handler handler)
         = 0;

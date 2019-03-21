@@ -71,7 +71,7 @@ SprintBuilder& SprintBuilder::withTag(std::string tag)
     return *this;
 }
 
-SprintBuilder& SprintBuilder::withTimeSpan(dw::TimeSpan timeSpan)
+SprintBuilder& SprintBuilder::withTimeSpan(dw::DateTimeRange timeSpan)
 {
     timeSpan_ = std::make_optional(std::move(timeSpan));
     return *this;

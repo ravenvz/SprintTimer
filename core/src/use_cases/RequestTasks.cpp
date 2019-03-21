@@ -21,12 +21,12 @@
 *********************************************************************************/
 #include "core/use_cases/RequestTasks.h"
 
-using dw::TimeSpan;
+using dw::DateTimeRange;
 
 namespace sprint_timer::use_cases {
 
 RequestTasks::RequestTasks(ITaskStorageReader& taskStorageReader,
-                           TimeSpan timeSpan,
+                           DateTimeRange timeSpan,
                            ITaskStorageReader::Handler handler)
     : reader{taskStorageReader}
     , timeSpan_{std::move(timeSpan)}
@@ -39,7 +39,7 @@ void RequestTasks::execute() { reader.requestTasks(timeSpan_, handler_); }
 std::string RequestTasks::describe() const
 {
     std::stringstream ss;
-    ss << "Request tasks in '" << timeSpan_.toString("dd.MM.yyyy");
+    ss << "Request tasks in '" << dw::to_string(timeSpan_, "dd.MM.yyyy");
     return ss.str();
 }
 

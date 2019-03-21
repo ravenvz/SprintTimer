@@ -46,7 +46,7 @@ public:
     SprintBuilder& withTaskUuid(std::string uuid);
     SprintBuilder& withTag(entities::Tag tag);
     SprintBuilder& withTag(std::string tag);
-    SprintBuilder& withTimeSpan(dw::TimeSpan timeSpan);
+    SprintBuilder& withTimeSpan(dw::DateTimeRange timeSpan);
     SprintBuilder& forTask(const entities::Task& task);
     SprintBuilder& withExplicitTags(std::list<entities::Tag> tags);
 
@@ -55,7 +55,7 @@ private:
     std::optional<std::string> uuid_;
     std::optional<std::string> taskUuid_;
     std::list<entities::Tag> tags_;
-    std::optional<dw::TimeSpan> timeSpan_;
+    std::optional<dw::DateTimeRange> timeSpan_;
 };
 
 } // namespace sprint_timer

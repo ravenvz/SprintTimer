@@ -33,9 +33,8 @@ class RequestFinishedTasksFixture : public ::testing::Test {
 public:
     TaskStorageReaderMock task_reader_mock;
     sprint_timer::QueryInvoker queryInvoker;
-    const TimeSpan someTimeSpan
-        = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
-                   DateTime::currentDateTime().add(DateTime::Days(-1))};
+    const DateTimeRange someTimeSpan{add_offset(
+        DateTimeRange{current_date_time(), current_date_time()}, Days{-1})};
 };
 
 TEST_F(RequestFinishedTasksFixture, execute)

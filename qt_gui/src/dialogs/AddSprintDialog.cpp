@@ -150,8 +150,8 @@ generateConsecutiveSprints(const QDateTime& initialStartTime,
             = startTime.addSecs(duration_cast<seconds>(sprintDuration).count());
         sprints.push_back(
             Sprint{taskUuid,
-                   dw::TimeSpan{DateTimeConverter::dateTime(startTime),
-                                DateTimeConverter::dateTime(finishTime)}});
+                   dw::DateTimeRange{DateTimeConverter::dateTime(startTime),
+                                     DateTimeConverter::dateTime(finishTime)}});
     }
 
     return sprints;

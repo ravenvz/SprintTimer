@@ -64,13 +64,13 @@ DistributionReaderBase::DistributionReaderBase(DBService& dbService,
             &DistributionReaderBase::onResultsReceived);
 }
 
-void DistributionReaderBase::requestDistribution(const dw::TimeSpan& timeSpan,
-                                                 Handler handler)
+void DistributionReaderBase::requestDistribution(
+    const dw::DateTimeRange& timeSpan, Handler handler)
 {
     using namespace storage::utils;
     handler_queue.push_back(handler);
     startDate = DateTimeConverter::qDate(timeSpan.start());
-    QDate endDate = DateTimeConverter::qDate(timeSpan.finish());
+    const QDate endDate = DateTimeConverter::qDate(timeSpan.finish());
 
     dbService.bind(mQueryId, ":start_date", startDate);
     dbService.bind(mQueryId, ":end_date", endDate);
@@ -173,14 +173,13 @@ QDate QtSprintDistReaderMondayFirst::nextExpectedDate(
     return referenceDate.addDays(daysInWeek);
 }
 
-QDate QtSprintDistReaderMondayFirst::normalizeDate(
-    const QDate& date) const
+QDate QtSprintDistReaderMondayFirst::normalizeDate(const QDate& date) const
 {
     return date;
 }
 
-bool QtSprintDistReaderMondayFirst::compareDate(
-    const QDate& expected, const QDate& probeDate) const
+bool QtSprintDistReaderMondayFirst::compareDate(const QDate& expected,
+                                                const QDate& probeDate) const
 {
     return expected.weekNumber() == probeDate.weekNumber();
 }
@@ -205,16 +204,15 @@ QDate QtSprintDistReaderSundayFirst::nextExpectedDate(
     return referenceDate.addDays(daysInWeek);
 }
 
-QDate QtSprintDistReaderSundayFirst::normalizeDate(
-    const QDate& date) const
+QDate QtSprintDistReaderSundayFirst::normalizeDate(const QDate& date) const
 {
     if (date.dayOfWeek() == Qt::DayOfWeek::Sunday)
         return date.addDays(6);
     return date.addDays(Qt::DayOfWeek::Saturday - date.dayOfWeek());
 }
 
-bool QtSprintDistReaderSundayFirst::compareDate(
-    const QDate& expected, const QDate& probeDate) const
+bool QtSprintDistReaderSundayFirst::compareDate(const QDate& expected,
+                                                const QDate& probeDate) const
 {
     return expected == probeDate;
 }

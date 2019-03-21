@@ -57,8 +57,8 @@ private:
     QLineEdit* quickAddTask;
 
 public slots:
-    void
-    onSprintSubmissionRequested(const std::vector<dw::TimeSpan>& intervals);
+    void onSprintSubmissionRequested(
+        const std::vector<dw::DateTimeRange>& intervals);
 
 private slots:
     void onAddTaskButtonPushed();

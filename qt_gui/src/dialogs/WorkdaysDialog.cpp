@@ -46,17 +46,13 @@ void WorkdaysDialog::initializeDayBoxes()
 {
     using dw::DateTime;
     const utils::WeekdaySelection selection{settings.workdays()};
-    ui->mondayBox->setChecked(selection.isSelected(DateTime::Weekday::Monday));
-    ui->tuesdayBox->setChecked(
-        selection.isSelected(DateTime::Weekday::Tuesday));
-    ui->wednesdayBox->setChecked(
-        selection.isSelected(DateTime::Weekday::Wednesday));
-    ui->thursdayBox->setChecked(
-        selection.isSelected(DateTime::Weekday::Thursday));
-    ui->fridayBox->setChecked(selection.isSelected(DateTime::Weekday::Friday));
-    ui->saturdayBox->setChecked(
-        selection.isSelected(DateTime::Weekday::Saturday));
-    ui->sundayBox->setChecked(selection.isSelected(DateTime::Weekday::Sunday));
+    ui->mondayBox->setChecked(selection.isSelected(dw::Weekday::Monday));
+    ui->tuesdayBox->setChecked(selection.isSelected(dw::Weekday::Tuesday));
+    ui->wednesdayBox->setChecked(selection.isSelected(dw::Weekday::Wednesday));
+    ui->thursdayBox->setChecked(selection.isSelected(dw::Weekday::Thursday));
+    ui->fridayBox->setChecked(selection.isSelected(dw::Weekday::Friday));
+    ui->saturdayBox->setChecked(selection.isSelected(dw::Weekday::Saturday));
+    ui->sundayBox->setChecked(selection.isSelected(dw::Weekday::Sunday));
 }
 
 utils::WeekdaySelection WorkdaysDialog::pollWorkdaysCode() const
@@ -66,19 +62,19 @@ utils::WeekdaySelection WorkdaysDialog::pollWorkdaysCode() const
     utils::WeekdaySelection selection;
 
     if (ui->mondayBox->isChecked())
-        selection.selectDay(DateTime::Weekday::Monday);
+        selection.selectDay(dw::Weekday::Monday);
     if (ui->tuesdayBox->isChecked())
-        selection.selectDay(DateTime::Weekday::Tuesday);
+        selection.selectDay(dw::Weekday::Tuesday);
     if (ui->wednesdayBox->isChecked())
-        selection.selectDay(DateTime::Weekday::Wednesday);
+        selection.selectDay(dw::Weekday::Wednesday);
     if (ui->thursdayBox->isChecked())
-        selection.selectDay(DateTime::Weekday::Thursday);
+        selection.selectDay(dw::Weekday::Thursday);
     if (ui->fridayBox->isChecked())
-        selection.selectDay(DateTime::Weekday::Friday);
+        selection.selectDay(dw::Weekday::Friday);
     if (ui->saturdayBox->isChecked())
-        selection.selectDay(DateTime::Weekday::Saturday);
+        selection.selectDay(dw::Weekday::Saturday);
     if (ui->sundayBox->isChecked())
-        selection.selectDay(DateTime::Weekday::Sunday);
+        selection.selectDay(dw::Weekday::Sunday);
 
     return selection;
 }

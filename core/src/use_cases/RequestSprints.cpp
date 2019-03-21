@@ -25,7 +25,7 @@
 namespace sprint_timer::use_cases {
 
 RequestSprints::RequestSprints(ISprintStorageReader& sprint_storage_reader,
-                               dw::TimeSpan timeSpan,
+                               dw::DateTimeRange timeSpan,
                                QueryResultHandler resultHandler)
     : reader{sprint_storage_reader}
     , timeSpan_{timeSpan}
@@ -38,7 +38,7 @@ void RequestSprints::execute() { reader.requestItems(timeSpan_, handler); }
 std::string RequestSprints::describe() const
 {
     std::stringstream ss;
-    ss << "Request sprints in '" << timeSpan_.toString("dd.MM.yyyy");
+    ss << "Request sprints in '" << dw::to_string(timeSpan_, "dd.MM.yyyy");
     return ss.str();
 }
 

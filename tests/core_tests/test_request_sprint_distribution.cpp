@@ -31,9 +31,9 @@ using ::testing::_;
 
 class RequestSprintDistributionFixture : public ::testing::Test {
 public:
-    const TimeSpan someTimeSpan
-        = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
-                   DateTime::currentDateTime().add(DateTime::Days(-1))};
+    const DateTimeRange someTimeSpan = add_offset(
+        DateTimeRange{dw::current_date_time(), dw::current_date_time()},
+        dw::Days{-1});
     sprint_timer::QueryInvoker queryInvoker;
     SprintDistributionReaderMock sprint_distribution_reader_mock;
 };

@@ -26,7 +26,7 @@
 
 namespace {
 
-dw::TimeSpan
+dw::DateTimeRange
 twelveWeeksBackTillNow(sprint_timer::FirstDayOfWeek firstDayOfWeek);
 
 } // namespace
@@ -56,19 +56,19 @@ void WeeklyProgressView::synchronize()
         [this](const auto& distribution) {
             // TODO perhaps make config return dw::DateTime::Weekday?
             if (applicationSettings.firstDayOfWeek() == FirstDayOfWeek::Monday)
-                setData(ProgressOverPeriod{
-                    twelveWeeksBackTillNow(firstDayOfWeek),
-                    distribution,
-                    applicationSettings.workdays(),
-                    GroupByWeek{dw::DateTime::Weekday::Monday},
-                    applicationSettings.dailyGoal()});
+                setData(
+                    ProgressOverPeriod{twelveWeeksBackTillNow(firstDayOfWeek),
+                                       distribution,
+                                       applicationSettings.workdays(),
+                                       GroupByWeek{dw::Weekday::Monday},
+                                       applicationSettings.dailyGoal()});
             else
-                setData(ProgressOverPeriod{
-                    twelveWeeksBackTillNow(firstDayOfWeek),
-                    distribution,
-                    applicationSettings.workdays(),
-                    GroupByWeek{dw::DateTime::Weekday::Sunday},
-                    applicationSettings.dailyGoal()});
+                setData(
+                    ProgressOverPeriod{twelveWeeksBackTillNow(firstDayOfWeek),
+                                       distribution,
+                                       applicationSettings.workdays(),
+                                       GroupByWeek{dw::Weekday::Sunday},
+                                       applicationSettings.dailyGoal()});
         }));
 }
 
@@ -76,25 +76,33 @@ void WeeklyProgressView::synchronize()
 
 namespace {
 
-dw::TimeSpan twelveWeeksBackTillNow(sprint_timer::FirstDayOfWeek firstDayOfWeek)
+dw::DateTimeRange
+twelveWeeksBackTillNow(sprint_timer::FirstDayOfWeek firstDayOfWeek)
 {
-    using dw::DateTime;
-    using dw::TimeSpan;
-    const int firstDayOffset{static_cast<int>(firstDayOfWeek)};
-    auto now = DateTime::currentDateTimeLocal();
-    const auto from = now.add(DateTime::Days{
-        -7 * 11 - static_cast<int>(now.dayOfWeek()) - firstDayOffset});
-    const dw::DateTime::Weekday firstDay{
-        firstDayOfWeek == sprint_timer::FirstDayOfWeek::Monday
-            ? dw::DateTime::Weekday::Monday
-            : dw::DateTime::Weekday::Sunday};
-    while (true) {
-        auto nextDay = now.add(dw::DateTime::Days(1));
-        if (nextDay.dayOfWeek() == firstDay)
-            break;
-        now = nextDay;
-    }
-    return TimeSpan{from, now};
+    using namespace dw;
+    // const int firstDayOffset{static_cast<int>(firstDayOfWeek)};
+    auto now = current_date_local();
+    const auto from = prev_weekday(now - Weeks{11},
+                                   static_cast<dw::Weekday>(firstDayOfWeek));
+    const auto to
+        = next_weekday(now,
+                       (firstDayOfWeek == sprint_timer::FirstDayOfWeek::Monday
+                            ? dw::Weekday::Sunday
+                            : dw::Weekday::Saturday));
+    // const auto from = now
+    //     + Days{-7 * 11 - static_cast<int>(now.weekday()) - firstDayOffset};
+    // const dw::Weekday firstDay{firstDayOfWeek
+    //                                    ==
+    //                                    sprint_timer::FirstDayOfWeek::Monday
+    //                                ? dw::Weekday::Monday
+    //                                : dw::Weekday::Sunday};
+    // while (true) {
+    //     auto nextDay = now + Days{1};
+    //     if (nextDay.weekday() == firstDay)
+    //         break;
+    //     now = nextDay;
+    // }
+    return DateTimeRange{DateTime{from}, DateTime{to}};
 }
 
 } // namespace

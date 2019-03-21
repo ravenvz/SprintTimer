@@ -30,6 +30,7 @@ using sprint_timer::TaskBuilder;
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
 using sprint_timer::use_cases::EditTask;
+using namespace dw;
 
 class EditTaskFixture : public ::testing::Test {
 public:
@@ -39,7 +40,7 @@ public:
                   "550e8400-e29b-41d4-a716-446655440000",
                   {Tag{"Tag1"}, Tag{"Tag2"}},
                   false,
-                  dw::DateTime::fromYMD(2015, 11, 10)};
+                  DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
 
     TaskStorageWriterMock task_writer_mock;
     sprint_timer::CommandInvoker commandInvoker;

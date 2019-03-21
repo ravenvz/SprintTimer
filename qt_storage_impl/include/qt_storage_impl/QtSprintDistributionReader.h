@@ -36,7 +36,7 @@ class DistributionReaderBase : public QObject,
     Q_OBJECT
 
 public:
-    void requestDistribution(const dw::TimeSpan& timeSpan,
+    void requestDistribution(const dw::DateTimeRange& timeSpan,
                              Handler handler) override;
 
 protected:
@@ -78,8 +78,7 @@ private:
 
 class QtSprintDistReaderMondayFirst : public DistributionReaderBase {
 public:
-    QtSprintDistReaderMondayFirst(DBService& dbService_,
-                                          size_t numBins);
+    QtSprintDistReaderMondayFirst(DBService& dbService_, size_t numBins);
 
 private:
     QDate nextExpectedDate(const QDate& referenceDate) const override;
@@ -92,8 +91,7 @@ private:
 
 class QtSprintDistReaderSundayFirst : public DistributionReaderBase {
 public:
-    QtSprintDistReaderSundayFirst(DBService& dbService_,
-                                          size_t numBins);
+    QtSprintDistReaderSundayFirst(DBService& dbService_, size_t numBins);
 
 private:
     QDate nextExpectedDate(const QDate& referenceDate) const override;

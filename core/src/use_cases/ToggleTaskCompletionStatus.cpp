@@ -36,7 +36,7 @@ ToggleTaskCompletionStatus::ToggleTaskCompletionStatus(
 
 void ToggleTaskCompletionStatus::execute()
 {
-    writer.toggleTaskCompletionStatus(uuid, DateTime::currentDateTimeLocal());
+    writer.toggleTaskCompletionStatus(uuid, dw::current_date_time_local());
 }
 
 void ToggleTaskCompletionStatus::undo()

@@ -7,7 +7,7 @@
 class SprintStorageReaderMock : public sprint_timer::ISprintStorageReader {
 public:
     MOCK_METHOD2(requestItems,
-                 void(const dw::TimeSpan&,
+                 void(const dw::DateTimeRange&,
                       sprint_timer::ISprintStorageReader::Handler));
     MOCK_METHOD2(sprintsForTask,
                  void(const std::string& taskUuid,

@@ -22,27 +22,38 @@
 #ifndef DATETIMECONVERTER_H_Y4Z1XDHQ
 #define DATETIMECONVERTER_H_Y4Z1XDHQ
 
-#include "date_wrapper/DateTime.h"
+#include "date_wrapper/date_wrapper.h"
 #include <QDateTime>
 
 namespace sprint_timer::storage::utils {
 
 using dw::DateTime;
+using dw::DateTimeRange;
+
+// TODO no real need to have a class here
 
 /* Simplifies convertion between QDateTime and DateTime. */
 class DateTimeConverter {
 public:
     static QDateTime qDateTime(const DateTime& dt)
     {
-        return QDateTime::fromTime_t(static_cast<unsigned>(dt.toTime_t()),
-                                     Qt::OffsetFromUTC);
+        return QDateTime::fromMSecsSinceEpoch(
+            dw::to_time_point<std::chrono::milliseconds>(dt)
+                .time_since_epoch()
+                .count(),
+            Qt::OffsetFromUTC);
+        // return QDateTime::fromTime_t(static_cast<unsigned>(dt.toTime_t()),
+        // Qt::OffsetFromUTC);
     }
 
     static QDate qDate(const DateTime& dt) { return qDateTime(dt).date(); }
 
     static DateTime dateTime(const QDateTime& qdt)
     {
-        return DateTime::fromTime_t(qdt.toTime_t(), qdt.offsetFromUtc());
+        return DateTime{std::chrono::system_clock::time_point{
+                   std::chrono::milliseconds{qdt.toMSecsSinceEpoch()}}}
+        + std::chrono::seconds{qdt.offsetFromUtc()};
+        // return DateTime::fromTime_t(qdt.toTime_t(), qdt.offsetFromUtc());
     }
 };
 
