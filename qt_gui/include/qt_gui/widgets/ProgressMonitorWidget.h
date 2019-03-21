@@ -19,31 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef GOAL_PROGRESS_WIDGET_H
+#define GOAL_PROGRESS_WIDGET_H
 
-#include "core/use_cases/RequestSprintDistribution.h"
+#include <QWidget>
+#include <memory>
 
-namespace sprint_timer::use_cases {
+namespace sprint_timer::ui::qt_gui {
 
-RequestSprintDistribution::RequestSprintDistribution(
-    ISprintDistributionReader& reader,
-    dw::TimeSpan timeSpan,
-    ISprintDistributionReader::Handler handler)
-    : reader{reader}
-    , timeSpan_{std::move(timeSpan)}
-    , handler_{handler}
-{
-}
+class ProgressView;
 
-void RequestSprintDistribution::execute()
-{
-    reader.requestDistribution(timeSpan_, handler_);
-}
+class ProgressMonitorWidget : public QWidget {
+public:
+    ProgressMonitorWidget(std::unique_ptr<QWidget> dailyProgress,
+                          std::unique_ptr<QWidget> weeklyProgress,
+                          std::unique_ptr<QWidget> monthlyProgress,
+                          QWidget* parent = 0);
 
-std::string RequestSprintDistribution::describe() const
-{
-    std::stringstream ss;
-    ss << "Request sprint distribution for: " << timeSpan_;
-    return ss.str();
-}
+    QSize sizeHint() const override;
+};
 
-} // namespace sprint_timer::use_cases
+} // namespace sprint_timer::ui::qt_gui
+
+
+#endif // GOAL_PROGRESS_WIDGET_H

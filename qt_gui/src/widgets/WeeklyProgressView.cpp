@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/WeeklyProgressView.h"
+#include <core/GroupByWeek.h>
 #include <core/use_cases/RequestSprintDistribution.h>
 #include <core/utils/WeekdaySelection.h>
 
@@ -37,21 +38,12 @@ WeeklyProgressView::WeeklyProgressView(
     QueryInvoker& queryInvoker,
     ISprintDistributionReader& weeklyDistributionReader,
     QWidget* parent)
-    : ProgressView{GoalValue{applicationSettings.weeklyGoal()},
-                   Rows{3},
-                   Columns{4},
-                   GaugeSize{0.8}}
+    : ProgressView{Rows{3}, Columns{4}, GaugeSize{0.8}}
     , applicationSettings{applicationSettings}
     , queryInvoker{queryInvoker}
     , distributionReader{weeklyDistributionReader}
 {
     setLegendTitle("Last 12 weeks");
-    connect(this,
-            &ProgressView::goalChanged,
-            [this, &applicationSettings](int goal) {
-                applicationSettings.setWeeklyGoal(goal);
-                synchronize();
-            });
     synchronize();
 }
 
@@ -62,7 +54,21 @@ void WeeklyProgressView::synchronize()
         distributionReader,
         twelveWeeksBackTillNow(firstDayOfWeek),
         [this](const auto& distribution) {
-            setData(distribution, distribution.getNumBins());
+            // TODO perhaps make config return dw::DateTime::Weekday?
+            if (applicationSettings.firstDayOfWeek() == FirstDayOfWeek::Monday)
+                setData(ProgressOverPeriod{
+                    twelveWeeksBackTillNow(firstDayOfWeek),
+                    distribution,
+                    applicationSettings.workdays(),
+                    GroupByWeek{dw::DateTime::Weekday::Monday},
+                    applicationSettings.dailyGoal()});
+            else
+                setData(ProgressOverPeriod{
+                    twelveWeeksBackTillNow(firstDayOfWeek),
+                    distribution,
+                    applicationSettings.workdays(),
+                    GroupByWeek{dw::DateTime::Weekday::Sunday},
+                    applicationSettings.dailyGoal()});
         }));
 }
 
@@ -75,9 +81,19 @@ dw::TimeSpan twelveWeeksBackTillNow(sprint_timer::FirstDayOfWeek firstDayOfWeek)
     using dw::DateTime;
     using dw::TimeSpan;
     const int firstDayOffset{static_cast<int>(firstDayOfWeek)};
-    const auto now = DateTime::currentDateTimeLocal();
+    auto now = DateTime::currentDateTimeLocal();
     const auto from = now.add(DateTime::Days{
         -7 * 11 - static_cast<int>(now.dayOfWeek()) - firstDayOffset});
+    const dw::DateTime::Weekday firstDay{
+        firstDayOfWeek == sprint_timer::FirstDayOfWeek::Monday
+            ? dw::DateTime::Weekday::Monday
+            : dw::DateTime::Weekday::Sunday};
+    while (true) {
+        auto nextDay = now.add(dw::DateTime::Days(1));
+        if (nextDay.dayOfWeek() == firstDay)
+            break;
+        now = nextDay;
+    }
     return TimeSpan{from, now};
 }
 

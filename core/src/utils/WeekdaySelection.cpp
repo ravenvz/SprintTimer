@@ -30,8 +30,8 @@ int countBits(unsigned mask)
 {
     int res{0};
     while (mask) {
-        res += mask & 1;
-        mask >>= 1;
+        res += mask & 1u;
+        mask >>= 1u;
     }
     return res;
 }
@@ -78,4 +78,23 @@ unsigned numWorkdays(const dw::TimeSpan& timeSpan,
 
     return res;
 }
+
+std::vector<int> workday_outline(const dw::TimeSpan& timeSpan,
+                                 const WeekdaySelection& workdays)
+{
+    std::vector<int> outline;
+    outline.reserve(static_cast<size_t>(timeSpan.duration<dw::DateTime::Days>().count()));
+
+    for (auto day = timeSpan.start(); day <= timeSpan.finish();
+         day = day.add(dw::DateTime::Days{1})) {
+        if (workdays.isSelected(
+                static_cast<dw::DateTime::Weekday>(day.dayOfWeek())))
+            outline.push_back(1);
+        else
+            outline.push_back(0);
+    }
+
+    return outline;
+}
+
 } // namespace sprint_timer::utils

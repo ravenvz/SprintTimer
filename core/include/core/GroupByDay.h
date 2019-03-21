@@ -19,31 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef GROUPBYDAY_H_6EWBVYZU
+#define GROUPBYDAY_H_6EWBVYZU
 
-#include "core/use_cases/RequestSprintDistribution.h"
+#include "core/GoalProgress.h"
+#include "core/GroupByDay.h"
+#include "core/GroupingStrategy.h"
+#include "core/utils/WeekdaySelection.h"
+#include <date_wrapper/TimeSpan.h>
+#include <vector>
 
-namespace sprint_timer::use_cases {
+namespace sprint_timer {
 
-RequestSprintDistribution::RequestSprintDistribution(
-    ISprintDistributionReader& reader,
-    dw::TimeSpan timeSpan,
-    ISprintDistributionReader::Handler handler)
-    : reader{reader}
-    , timeSpan_{std::move(timeSpan)}
-    , handler_{handler}
-{
-}
+class GroupByDay : public GroupingStrategy {
+public:
+    std::vector<GoalProgress>
+    computeProgress(const dw::TimeSpan& period,
+                    const std::vector<int>& actualProgress,
+                    utils::WeekdaySelection workdays,
+                    int workdayGoal) const override;
+};
 
-void RequestSprintDistribution::execute()
-{
-    reader.requestDistribution(timeSpan_, handler_);
-}
+} // namespace sprint_timer
 
-std::string RequestSprintDistribution::describe() const
-{
-    std::stringstream ss;
-    ss << "Request sprint distribution for: " << timeSpan_;
-    return ss.str();
-}
-
-} // namespace sprint_timer::use_cases
+#endif /* end of include guard: GROUPBYDAY_H_6EWBVYZU */

@@ -22,9 +22,11 @@
 #ifndef PROGRESSVIEW_H_2OXRIURM
 #define PROGRESSVIEW_H_2OXRIURM
 
+#include "core/GoalProgress.h"
 #include "qt_gui/Synchronizable.h"
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
+#include <core/ProgressProto.h>
 #include <memory>
 
 namespace Ui {
@@ -47,11 +49,9 @@ public:
 
     void setLegendPercentageCaption(const QString& caption);
 
-    void setLegendGoalCaption(const QString& caption);
-
     void addLegendRow(const QString& labelText, QWidget* field);
 
-    void setData(const Distribution<int>& distribution, size_t numActiveBins);
+    void setData(const ProgressOverPeriod& progress);
 
 protected:
     using GoalValue = int;
@@ -59,27 +59,28 @@ protected:
     using Columns = size_t;
     using GaugeSize = double;
 
-    ProgressView(GoalValue goal,
-                 Rows numRows,
+    ProgressView(Rows numRows,
                  Columns numColumns,
                  GaugeSize gaugeRelSize,
                  QWidget* parent = nullptr);
 
 private:
     std::unique_ptr<Ui::ProgressView> ui;
-    GoalValue goal;
     const Rows numRows;
     const Columns numColumns;
     const GaugeSize gaugeRelSize;
 
     void setupGauges();
 
-    void fillGauges(const Distribution<int>& distribution);
+    void updateGauges(const ProgressOverPeriod& progress);
 
-    void updateProgressBar(int lastValue);
+    void updateProgressBar(const GoalProgress& lastBin);
+
+    void updateLegend(const ProgressOverPeriod& progress) const;
 
 signals:
     void goalChanged(int goal);
+    void workdaysChange();
 };
 
 } // namespace sprint_timer::ui::qt_gui

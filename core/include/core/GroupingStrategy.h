@@ -19,31 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef SPRINT_TIMER_APP_GROUPINGSTRATEGY_H
+#define SPRINT_TIMER_APP_GROUPINGSTRATEGY_H
 
-#include "core/use_cases/RequestSprintDistribution.h"
+#include "core/GoalProgress.h"
+#include "core/utils/WeekdaySelection.h"
+#include <date_wrapper/TimeSpan.h>
+#include <vector>
 
-namespace sprint_timer::use_cases {
+namespace sprint_timer {
 
-RequestSprintDistribution::RequestSprintDistribution(
-    ISprintDistributionReader& reader,
-    dw::TimeSpan timeSpan,
-    ISprintDistributionReader::Handler handler)
-    : reader{reader}
-    , timeSpan_{std::move(timeSpan)}
-    , handler_{handler}
-{
-}
+class GroupingStrategy {
+public:
+    virtual ~GroupingStrategy() = default;
 
-void RequestSprintDistribution::execute()
-{
-    reader.requestDistribution(timeSpan_, handler_);
-}
+    virtual std::vector<GoalProgress>
+    computeProgress(const dw::TimeSpan& period,
+                    const std::vector<int>& actualProgress,
+                    sprint_timer::utils::WeekdaySelection workdays,
+                    int workdayGoal) const = 0;
+};
 
-std::string RequestSprintDistribution::describe() const
-{
-    std::stringstream ss;
-    ss << "Request sprint distribution for: " << timeSpan_;
-    return ss.str();
-}
+} // namespace sprint_timer
 
-} // namespace sprint_timer::use_cases
+#endif // SPRINT_TIMER_APP_GROUPINGSTRATEGY_H
+

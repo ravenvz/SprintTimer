@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/MonthlyProgressView.h"
+#include <core/GroupByMonth.h>
 #include <core/use_cases/RequestSprintDistribution.h>
 #include <core/utils/WeekdaySelection.h>
 
@@ -36,22 +37,13 @@ MonthlyProgressView::MonthlyProgressView(
     QueryInvoker& queryInvoker,
     ISprintDistributionReader& monthlyDistributionReader,
     QWidget* parent)
-    : ProgressView{GoalValue{applicationSettings.monthlyGoal()},
-                   Rows{3},
-                   Columns{4},
-                   GaugeSize{0.8}}
+    : ProgressView{Rows{3}, Columns{4}, GaugeSize{0.8}}
+    , applicationSettings{applicationSettings}
     , queryInvoker{queryInvoker}
     , distributionReader{monthlyDistributionReader}
 {
     setLegendTitle("Last 12 months");
     setLegendAverageCaption("Average per month:");
-    setLegendGoalCaption("Monthly goal:");
-    connect(this,
-            &ProgressView::goalChanged,
-            [this, &applicationSettings](int goal) {
-                applicationSettings.setMonthlyGoal(goal);
-                synchronize();
-            });
     synchronize();
 }
 
@@ -62,7 +54,11 @@ void MonthlyProgressView::synchronize()
         distributionReader,
         twelveMonthsBackTillNow(),
         [this](const auto& distribution) {
-            setData(distribution, distribution.getNumBins());
+            setData(ProgressOverPeriod{twelveMonthsBackTillNow(),
+                                       distribution,
+                                       applicationSettings.workdays(),
+                                       GroupByMonth{},
+                                       applicationSettings.dailyGoal()});
         }));
 }
 
@@ -74,10 +70,15 @@ dw::TimeSpan twelveMonthsBackTillNow()
 {
     using dw::DateTime;
     using dw::TimeSpan;
-    auto now = DateTime::currentDateTimeLocal();
-    auto from = now.add(DateTime::Months{-11});
-    from = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
-    return TimeSpan{from, now};
+    const auto now = DateTime::currentDateTimeLocal();
+    const auto from = now.add(DateTime::Months{-11});
+    const auto monthLater = now.add(DateTime::Months{1});
+    const auto lastDayLastMonth
+        = DateTime::fromYMD(monthLater.year(), static_cast<int>(monthLater.month()), 1)
+              .add(DateTime::Days{-1});
+    const auto firstDayFirstMonth
+        = from.add(DateTime::Days{-std::min(from.day(), now.day()) + 1});
+    return TimeSpan{firstDayFirstMonth, lastDayLastMonth};
 }
 
 } // namespace

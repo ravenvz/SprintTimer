@@ -19,31 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/GroupByMonth.h"
 
-#include "core/use_cases/RequestSprintDistribution.h"
+namespace sprint_timer {
 
-namespace sprint_timer::use_cases {
-
-RequestSprintDistribution::RequestSprintDistribution(
-    ISprintDistributionReader& reader,
-    dw::TimeSpan timeSpan,
-    ISprintDistributionReader::Handler handler)
-    : reader{reader}
-    , timeSpan_{std::move(timeSpan)}
-    , handler_{handler}
-{
-}
-
-void RequestSprintDistribution::execute()
-{
-    reader.requestDistribution(timeSpan_, handler_);
-}
-
-std::string RequestSprintDistribution::describe() const
-{
-    std::stringstream ss;
-    ss << "Request sprint distribution for: " << timeSpan_;
-    return ss.str();
-}
-
-} // namespace sprint_timer::use_cases
+} // namespace sprint_timer

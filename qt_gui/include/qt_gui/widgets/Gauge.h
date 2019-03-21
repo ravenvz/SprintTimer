@@ -24,6 +24,8 @@
 
 #include <QEvent>
 #include <QWidget>
+#include <core/GoalProgress.h>
+#include <core/ProgressProto.h>
 #include <memory>
 
 namespace sprint_timer::ui::qt_gui {
@@ -43,14 +45,16 @@ class Gauge : public QWidget {
     friend class WorkProgressDone;
     friend class WorkProgressUnderwork;
     friend class WorkProgressOverwork;
+    friend class WorkProgressRest;
 
 public:
     Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent);
+    Gauge(GoalProgress progress, double gaugeRelSize, QWidget* parent);
     void setData(int completed, int total);
+    void setData(const GoalProgress& progress);
 
 private:
-    int actual;
-    int goal;
+    GoalProgress progress;
     const double gaugeRelSize;
     HoverState* hoverState;
     WorkProgressState* workProgressState;
@@ -118,6 +122,14 @@ public:
 class WorkProgressNone : public WorkProgressState {
 public:
     void draw(const Gauge& gauge, QPainter& painter) final;
+};
+
+class WorkProgressRest : public WorkProgressState {
+public:
+    void draw(const Gauge& gauge, QPainter& painter) override;
+
+protected:
+    void setupBrushes() override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -54,7 +54,6 @@ private:
     std::unique_ptr<Ui::SettingsDialog> ui;
     IConfig& applicationSettings;
     QStringList timers{"Default timer", "Fancy timer"};
-    QStringListModel* timerModel;
 
     void fillSettingsData();
 };

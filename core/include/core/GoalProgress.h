@@ -19,31 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef SPRINT_TIMER_APP_GOALPROGRESS_H
+#define SPRINT_TIMER_APP_GOALPROGRESS_H
 
-#include "core/use_cases/RequestSprintDistribution.h"
+#include <optional>
 
-namespace sprint_timer::use_cases {
+namespace sprint_timer {
 
-RequestSprintDistribution::RequestSprintDistribution(
-    ISprintDistributionReader& reader,
-    dw::TimeSpan timeSpan,
-    ISprintDistributionReader::Handler handler)
-    : reader{reader}
-    , timeSpan_{std::move(timeSpan)}
-    , handler_{handler}
-{
-}
+class GoalProgress {
+public:
+    GoalProgress();
 
-void RequestSprintDistribution::execute()
-{
-    reader.requestDistribution(timeSpan_, handler_);
-}
+    GoalProgress(int expected, int actual);
 
-std::string RequestSprintDistribution::describe() const
-{
-    std::stringstream ss;
-    ss << "Request sprint distribution for: " << timeSpan_;
-    return ss.str();
-}
+    int estimated() const;
 
-} // namespace sprint_timer::use_cases
+    int actual() const;
+
+    std::optional<double> percentage() const;
+
+private:
+    int expected_{0};
+    int actual_{0};
+};
+
+bool operator==(const GoalProgress& lhs, const GoalProgress& rhs);
+
+std::ostream& operator<<(std::ostream& os, const GoalProgress& progress);
+
+} // namespace sprint_timer
+
+#endif // SPRINT_TIMER_APP_GOALPROGRESS_H

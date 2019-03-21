@@ -19,31 +19,44 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/GoalProgress.h"
+#include "core/ProgressProto.h"
 
-#include "core/use_cases/RequestSprintDistribution.h"
+namespace sprint_timer {
 
-namespace sprint_timer::use_cases {
-
-RequestSprintDistribution::RequestSprintDistribution(
-    ISprintDistributionReader& reader,
-    dw::TimeSpan timeSpan,
-    ISprintDistributionReader::Handler handler)
-    : reader{reader}
-    , timeSpan_{std::move(timeSpan)}
-    , handler_{handler}
+GoalProgress::GoalProgress()
+    : expected_{0}
+    , actual_{0}
 {
 }
 
-void RequestSprintDistribution::execute()
+GoalProgress::GoalProgress(int expected, int actual)
+    : expected_{expected}
+    , actual_{actual}
 {
-    reader.requestDistribution(timeSpan_, handler_);
 }
 
-std::string RequestSprintDistribution::describe() const
+int GoalProgress::actual() const { return actual_; }
+
+int GoalProgress::estimated() const { return expected_; }
+
+std::optional<double> GoalProgress::percentage() const
 {
-    std::stringstream ss;
-    ss << "Request sprint distribution for: " << timeSpan_;
-    return ss.str();
+    return expected_ == 0 ? std::optional<double>{}
+                          : static_cast<double>(actual_) * 100 / expected_;
 }
 
-} // namespace sprint_timer::use_cases
+bool operator==(const GoalProgress& lhs, const GoalProgress& rhs)
+{
+    return lhs.estimated() == rhs.estimated() && lhs.actual() == rhs.actual();
+}
+
+std::ostream& operator<<(std::ostream& os, const GoalProgress& progress)
+{
+    os << "{" << progress.estimated() << ", " << progress.actual() << "}"
+       << '\n';
+    return os;
+}
+
+} // namespace sprint_timer
+

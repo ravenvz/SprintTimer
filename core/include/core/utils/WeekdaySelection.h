@@ -26,6 +26,7 @@
 #include <array>
 #include <date_wrapper/DateTime.h>
 #include <date_wrapper/TimeSpan.h>
+#include <vector>
 
 namespace sprint_timer::utils {
 
@@ -53,6 +54,10 @@ private:
 unsigned numWorkdays(const dw::TimeSpan& timeSpan,
                      const WeekdaySelection& workdays);
 
+/* Return vector of integers. Elements with value 1 represent workday, elements
+ * with value 0 represent non-working day. */
+std::vector<int> workday_outline(const dw::TimeSpan& timeSpan,
+                                 const WeekdaySelection& workdays);
 } // namespace sprint_timer::utils
 
 #endif /* end of include guard: WEEKDAYSELECTION_H_7HAYMKBJ */

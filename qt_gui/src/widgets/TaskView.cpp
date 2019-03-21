@@ -104,7 +104,8 @@ void TaskView::showContextMenu(const QPoint& pos) const
 {
     QPoint globalPos = mapToGlobal(pos);
     QMenu contextMenu;
-    contextMenu.installEventFilter(new MouseRightReleaseEater(&contextMenu));
+    contextMenu.installEventFilter(
+        std::make_unique<MouseRightReleaseEater>(&contextMenu).release());
     const auto editEntry = "Edit";
     const auto deleteEntry = "Delete";
     const auto tagEditorEntry = "Tag editor";
@@ -137,11 +138,11 @@ void TaskView::launchTaskEditor() const
     editTaskDialog.setWindowTitle(editTaskDialogTitle);
     editTaskDialog.fillItemData(itemToEdit);
     connect(&editTaskDialog, &QDialog::accepted, [&]() {
-            Task updatedItem = editTaskDialog.constructedTask();
-            updatedItem.setActualCost(itemToEdit.actualCost());
-            updatedItem.setCompleted(itemToEdit.isCompleted());
-            taskModel.replaceItemAt(index.row(), updatedItem);
-            });
+        Task updatedItem = editTaskDialog.constructedTask();
+        updatedItem.setActualCost(itemToEdit.actualCost());
+        updatedItem.setCompleted(itemToEdit.isCompleted());
+        taskModel.replaceItemAt(index.row(), updatedItem);
+    });
     editTaskDialog.exec();
     editTaskDialog.disconnect();
 }

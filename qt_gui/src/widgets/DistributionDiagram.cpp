@@ -20,21 +20,22 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/DistributionDiagram.h"
-#include <QtGui/qpainter.h>
 #include <QHBoxLayout>
+#include <QtGui/qpainter.h>
+#include <memory>
 
 namespace sprint_timer::ui::qt_gui {
 
 
 DistributionDiagram::DistributionDiagram(QWidget* parent)
-    : QWidget(parent)
+    : QWidget{parent}
 {
-    QHBoxLayout* layout = new QHBoxLayout();
-    diagram = new PieChart(this);
-    legend = new SimpleLegend(this);
+    auto layout = std::make_unique<QHBoxLayout>();
+    diagram = std::make_unique<PieChart>(this).release();
+    legend = std::make_unique<SimpleLegend>(this).release();
     layout->addWidget(legend);
     layout->addWidget(diagram);
-    setLayout(layout); // QWidget takes ownership of layout
+    setLayout(layout.release()); // QWidget takes ownership of layout
     connect(diagram,
             SIGNAL(partClicked(size_t)),
             this,
@@ -76,7 +77,8 @@ void DistributionDiagram::onChartPartClicked(size_t partIndex)
         selectedSliceIndex = partIndex;
     }
 
-    selectedSliceIndex = (selectedSameItem) ? std::optional<size_t>() : partIndex;
+    selectedSliceIndex
+        = (selectedSameItem) ? std::optional<size_t>() : partIndex;
 
     legend->toggleSelected(partIndex);
     diagram->togglePartActive(partIndex);

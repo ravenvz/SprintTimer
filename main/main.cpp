@@ -66,7 +66,7 @@
 #include <qt_gui/widgets/DailyProgressView.h>
 #include <qt_gui/widgets/DefaultTimer.h>
 #include <qt_gui/widgets/FancyTimer.h>
-#include <qt_gui/widgets/GoalProgressWindow.h>
+#include <qt_gui/widgets/ProgressMonitorWidget.h>
 #include <qt_gui/widgets/HistoryWindow.h>
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/MonthlyProgressView.h>
@@ -340,7 +340,25 @@ int main(int argc, char* argv[])
     QObject::connect(&sprintModel,
                      &AsyncListModel::updateFinished,
                      [p = monthlyProgress.get()]() { p->synchronize(); });
-    GoalProgressWindow progressWindow{
+    // TODO call to synchronize should be replaced, because data queries are
+    // too expensive for simple goal change and it can be recalculated for
+    // existing datastructures in place
+    QObject::connect(dailyProgress.get(),
+                     &ProgressView::goalChanged,
+                     [p = weeklyProgress.get()]() { p->synchronize(); });
+    QObject::connect(dailyProgress.get(),
+                     &ProgressView::goalChanged,
+                     [p = monthlyProgress.get()]() { p->synchronize(); });
+    // TODO call to synchronize should be replaced, because data queries are
+    // too expensive for simple workdays' change and it can be recalculated for
+    // existing datastructures in place
+    QObject::connect(dailyProgress.get(),
+                     &ProgressView::workdaysChange,
+                     [p = weeklyProgress.get()]() { p->synchronize(); });
+    QObject::connect(dailyProgress.get(),
+                     &ProgressView::workdaysChange,
+                     [p = monthlyProgress.get()]() { p->synchronize(); });
+    ProgressMonitorWidget progressWindow{
         std::move(dailyProgress),
         std::move(weeklyProgress),
         std::move(monthlyProgress),
