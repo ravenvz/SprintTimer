@@ -25,12 +25,15 @@
 namespace sprint_timer {
 
 std::vector<GoalProgress>
-GroupByDay::computeProgress(const dw::DateTimeRange& period,
+GroupByDay::computeProgress(const dw::DateRange& period,
                             const std::vector<int>& actualProgress,
                             utils::WeekdaySelection workdays,
                             int workdayGoal) const
 {
-    auto labour = workday_outline(period, workdays);
+    using namespace dw;
+    auto labour = workday_outline(
+        DateTimeRange{DateTime{period.start()}, DateTime{period.finish()}},
+        workdays);
     std::vector<GoalProgress> progress(actualProgress.size());
     std::transform(actualProgress.cbegin(),
                    actualProgress.cend(),

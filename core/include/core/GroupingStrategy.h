@@ -34,7 +34,7 @@ public:
     virtual ~GroupingStrategy() = default;
 
     virtual std::vector<GoalProgress>
-    computeProgress(const dw::DateTimeRange& period,
+    computeProgress(const dw::DateRange& period,
                     const std::vector<int>& actualProgress,
                     sprint_timer::utils::WeekdaySelection workdays,
                     int workdayGoal) const = 0;

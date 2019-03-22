@@ -26,7 +26,7 @@
 
 namespace {
 
-dw::DateTimeRange twelveMonthsBackTillNow();
+dw::DateRange twelveMonthsBackTillNow();
 
 } // namespace
 
@@ -66,22 +66,14 @@ void MonthlyProgressView::synchronize()
 
 namespace {
 
-dw::DateTimeRange twelveMonthsBackTillNow()
+dw::DateRange twelveMonthsBackTillNow()
 {
     using namespace dw;
-
-    // const auto now = current_date_local();
-    // const auto elevenMonthsBack = now - Months{11};
-    // const auto from = Date{elevenMonthsBack.year(), elevenMonthsBack.month(),
-    // Day{1}}; const auto to = last_day_of_month(now); return DateRange{from,
-    // to};
-
-
     const auto now = current_date_local();
     const auto months_back = now - Months{11};
-    const auto to = DateTime{last_day_of_month(now)};
+    const auto to = last_day_of_month(now);
     const auto from = Date{months_back.year(), months_back.month(), Day{1}};
-    return DateTimeRange{DateTime{from}, DateTime{to}};
+    return DateRange{from, to};
 }
 
 } // namespace

@@ -29,7 +29,7 @@
 
 namespace {
 
-dw::DateTimeRange thirtyDaysBackTillNow();
+dw::DateRange thirtyDaysBackTillNow();
 
 } // namespace
 
@@ -94,12 +94,12 @@ void DailyProgressView::synchronize()
 
 namespace {
 
-dw::DateTimeRange thirtyDaysBackTillNow()
+dw::DateRange thirtyDaysBackTillNow()
 {
     using namespace dw;
-    auto now = current_date_time_local();
+    auto now = current_date_local();
     auto from = now - Days{29};
-    return DateTimeRange{from, now};
+    return {from, now};
 }
 
 } // namespace

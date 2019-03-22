@@ -34,7 +34,7 @@ namespace sprint_timer {
 class GroupByDay : public GroupingStrategy {
 public:
     std::vector<GoalProgress>
-    computeProgress(const dw::DateTimeRange& period,
+    computeProgress(const dw::DateRange& period,
                     const std::vector<int>& actualProgress,
                     utils::WeekdaySelection workdays,
                     int workdayGoal) const override;

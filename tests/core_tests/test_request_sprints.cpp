@@ -36,14 +36,14 @@ public:
     SprintStorageReaderMock sprint_reader_mock;
     QueryInvoker query_executor;
 
-    const DateTimeRange someTimeSpan{add_offset(
-        DateTimeRange{current_date_time(), current_date_time()}, Days{-1})};
+    const DateRange someDateRange{
+        dw::add_offset({current_date_local(), current_date_local()}, Days{-1})};
 };
 
 TEST_F(RequestSprintsFixture, execute)
 {
-    EXPECT_CALL(sprint_reader_mock, requestItems(someTimeSpan, _));
+    EXPECT_CALL(sprint_reader_mock, requestItems(someDateRange, _));
 
     query_executor.execute(std::make_unique<RequestSprints>(
-        sprint_reader_mock, someTimeSpan, [](const auto& result) {}));
+        sprint_reader_mock, someDateRange, [](const auto& result) {}));
 }

@@ -25,20 +25,20 @@
 namespace sprint_timer::use_cases {
 
 RequestSprints::RequestSprints(ISprintStorageReader& sprint_storage_reader,
-                               dw::DateTimeRange timeSpan,
+                               dw::DateRange dateRange,
                                QueryResultHandler resultHandler)
     : reader{sprint_storage_reader}
-    , timeSpan_{timeSpan}
+    , dateRange_{dateRange}
     , handler{resultHandler}
 {
 }
 
-void RequestSprints::execute() { reader.requestItems(timeSpan_, handler); }
+void RequestSprints::execute() { reader.requestItems(dateRange_, handler); }
 
 std::string RequestSprints::describe() const
 {
     std::stringstream ss;
-    ss << "Request sprints in '" << dw::to_string(timeSpan_, "dd.MM.yyyy");
+    ss << "Request sprints in '" << dw::to_string(dateRange_, "dd.MM.yyyy");
     return ss.str();
 }
 

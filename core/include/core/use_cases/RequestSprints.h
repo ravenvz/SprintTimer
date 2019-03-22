@@ -33,7 +33,7 @@ public:
     using QueryResultHandler
         = std::function<void(const std::vector<entities::Sprint>&)>;
     RequestSprints(ISprintStorageReader& sprint_storage_reader,
-                   dw::DateTimeRange timeSpan,
+                   dw::DateRange dateRange,
                    QueryResultHandler resultHandler);
 
     void execute() final;
@@ -42,7 +42,7 @@ public:
 
 private:
     ISprintStorageReader& reader;
-    const dw::DateTimeRange timeSpan_;
+    const dw::DateRange dateRange_;
     QueryResultHandler handler;
 };
 

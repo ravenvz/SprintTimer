@@ -65,12 +65,12 @@ QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
             &QtSprintStorageReader::onResultsReceived);
 }
 
-void QtSprintStorageReader::requestItems(const DateTimeRange& timeSpan,
+void QtSprintStorageReader::requestItems(const DateRange& dateRange,
                                          Handler handler)
 {
     handler_queue.push_back(handler);
-    DateTime start = timeSpan.start();
-    DateTime finish = timeSpan.finish();
+    Date start = dateRange.start();
+    Date finish = dateRange.finish();
 
     dbService.bind(
         sprintsInTimeRangeQueryId,

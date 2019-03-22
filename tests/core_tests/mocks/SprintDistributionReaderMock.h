@@ -8,7 +8,7 @@ class SprintDistributionReaderMock
     : public sprint_timer::ISprintDistributionReader {
 public:
     MOCK_METHOD2(requestDistribution,
-                 void(const dw::DateTimeRange&,
+                 void(const dw::DateRange&,
                       sprint_timer::ISprintDistributionReader::Handler));
 };
 

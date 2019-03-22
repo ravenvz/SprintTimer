@@ -48,6 +48,12 @@ public:
 
     static QDate qDate(const DateTime& dt) { return qDateTime(dt).date(); }
 
+    static QDate qDate(const dw::Date& date) {
+        return QDate{static_cast<int>(date.year()),
+                     static_cast<int>(static_cast<unsigned>(date.month())),
+                     static_cast<int>(static_cast<unsigned>(date.day()))};
+    }
+
     static DateTime dateTime(const QDateTime& qdt)
     {
         return DateTime{std::chrono::system_clock::time_point{

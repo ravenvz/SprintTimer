@@ -32,7 +32,7 @@ class ISprintDistributionReader {
 public:
     using Handler = std::function<void(const Distribution<int>&)>;
     virtual ~ISprintDistributionReader() = default;
-    virtual void requestDistribution(const dw::DateTimeRange& timeSpan,
+    virtual void requestDistribution(const dw::DateRange& dateRange,
                                      Handler handler)
         = 0;
 };

@@ -36,10 +36,10 @@ public:
 
     void requestUnfinishedTasks(Handler handler) final;
 
-    void requestFinishedTasks(const dw::DateTimeRange& timeSpan,
+    void requestFinishedTasks(const dw::DateRange& dateRange,
                               Handler handler) final;
 
-    void requestTasks(const dw::DateTimeRange& timeSpan, Handler handler) final;
+    void requestTasks(const dw::DateRange& dateRange, Handler handler) final;
 
     void requestAllTags(TagHandler handler) final;
 

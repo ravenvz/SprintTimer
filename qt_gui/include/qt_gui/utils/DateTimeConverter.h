@@ -55,6 +55,14 @@ public:
         + std::chrono::seconds{qdt.offsetFromUtc()};
         // return DateTime::fromTime_t(qdt.toTime_t(), qdt.offsetFromUtc());
     }
+
+    static dw::Date date(const QDate& qdate)
+    {
+        using namespace dw;
+        return Date{Year{qdate.year()},
+                    Month{static_cast<unsigned>(qdate.month())},
+                    Day{static_cast<unsigned>(qdate.day())}};
+    }
 };
 
 } // namespace sprint_timer::ui::qt_gui

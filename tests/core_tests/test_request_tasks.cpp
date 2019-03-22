@@ -33,14 +33,14 @@ class RequestTasksFixture : public ::testing::Test {
 public:
     TaskStorageReaderMock task_reader_mock;
     sprint_timer::QueryInvoker queryInvoker;
-    const DateTimeRange someTimeSpan{add_offset(
-        DateTimeRange{current_date_time(), current_date_time()}, Days{-1})};
+    const DateRange someDateRange{
+        add_offset({current_date(), current_date()}, Days{-1})};
 };
 
 TEST_F(RequestTasksFixture, execute)
 {
-    EXPECT_CALL(task_reader_mock, requestTasks(someTimeSpan, _)).Times(1);
+    EXPECT_CALL(task_reader_mock, requestTasks(someDateRange, _)).Times(1);
 
     queryInvoker.execute(std::make_unique<RequestTasks>(
-        task_reader_mock, someTimeSpan, [](const auto& result) {}));
+        task_reader_mock, someDateRange, [](const auto& result) {}));
 }

@@ -126,7 +126,7 @@ private:
     /* Assumes that history items are ordered by date ascendantly. */
     void fillHistoryModel(const HistoryModel::HistoryData& history);
 
-    dw::DateTimeRange selectedDateInterval() const;
+    dw::DateRange selectedDateInterval() const;
 
 private slots:
 

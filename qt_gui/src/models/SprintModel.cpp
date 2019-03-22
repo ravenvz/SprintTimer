@@ -109,8 +109,8 @@ void SprintModel::requestUpdate()
 {
     queryInvoker.execute(std::make_unique<RequestSprints>(
         sprintReader,
-        dw::DateTimeRange{dw::current_date_time_local(),
-                          dw::current_date_time_local()},
+        dw::DateRange{dw::current_date_local(),
+                      dw::current_date_local()},
         [this](const auto& items) { onDataChanged(items); }));
 }
 

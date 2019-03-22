@@ -24,7 +24,7 @@
 
 namespace sprint_timer {
 
-ProgressOverPeriod::ProgressOverPeriod(dw::DateTimeRange period,
+ProgressOverPeriod::ProgressOverPeriod(const dw::DateRange& period,
                                        const Distribution<int>& actualProgress,
                                        utils::WeekdaySelection workdays,
                                        const GroupingStrategy& groupingStrategy,

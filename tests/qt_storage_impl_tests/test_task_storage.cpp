@@ -253,28 +253,27 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 }
 
 TEST_F(QtStorageImplementIntegrationTestFixture,
-       requests_tasks_in_given_time_span)
+       requests_tasks_in_given_date_range)
 {
     using namespace dw;
+    const DateRange targetDateRange{Date{Year{2018}, Month{10}, Day{10}},
+                                    Date{Year{2018}, Month{10}, Day{15}}};
+    const DateTime leftmostDateTime{DateTime{targetDateRange.start()}};
+    const DateTime rightmostDateTime{DateTime{targetDateRange.finish()}};
     TaskBuilder builder;
-    const DateTimeRange targetRange{
-        DateTime{Date{Year{2018}, Month{10}, Day{10}}},
-        DateTime{Date{Year{2018}, Month{10}, Day{15}}}};
     const Task taskOutOfRangeLeft
-        = builder.withLastModificationStamp(targetRange.start() - dw::Days{1})
-              .build();
+        = builder.withLastModificationStamp(leftmostDateTime - Days{1}).build();
     const Task taskLeftRangeBorder
-        = builder.withLastModificationStamp(targetRange.start()).build();
+        = builder.withLastModificationStamp(leftmostDateTime).build();
     const Task insideRangeTask1
-        = builder.withLastModificationStamp(targetRange.start() + dw::Days{1})
-              .build();
+        = builder.withLastModificationStamp(leftmostDateTime + Days{1}).build();
     const Task insideRangeTask2
-        = builder.withLastModificationStamp(targetRange.finish() - dw::Days{1})
+        = builder.withLastModificationStamp(rightmostDateTime - Days{1})
               .build();
     const Task taskRightRangeBorder
-        = builder.withLastModificationStamp(targetRange.finish()).build();
+        = builder.withLastModificationStamp(rightmostDateTime).build();
     const Task taskOutOfRangeRight
-        = builder.withLastModificationStamp(targetRange.finish() + dw::Days{1})
+        = builder.withLastModificationStamp(rightmostDateTime + Days{1})
               .build();
     const ITaskStorageReader::Items expected{taskLeftRangeBorder,
                                              insideRangeTask1,
@@ -289,7 +288,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.taskWriter->save(taskOutOfRangeRight);
 
     initializer.taskReader->requestTasks(
-        targetRange, [this, &expected](const ITaskStorageReader::Items& items) {
+        targetDateRange,
+        [this, &expected](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(expected.size(), items.size());
             EXPECT_EQ(expected, items);
             initializer.quit();
@@ -460,27 +460,27 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     SprintBuilder sprintBuilder;
     const DateTime timestamp{current_date_time()};
     const Task someTask = TaskBuilder{}.build();
-    const DateTimeRange range{timestamp - Days{5}, timestamp + Days{5}};
+    const DateRange range{(timestamp - Days{5}).date(),
+                          (timestamp + Days{5}).date()};
     const Sprint outOfRangeLeft{
         sprintBuilder.withTaskUuid(someTask.uuid())
-            .withTimeSpan(
-                add_offset(DateTimeRange{timestamp, timestamp}, -Days{20}))
+            .withTimeSpan(add_offset({timestamp, timestamp}, -Days{20}))
             .build()};
     const Sprint onLeftBorder{
         sprintBuilder.withTaskUuid(someTask.uuid())
-            .withTimeSpan(DateTimeRange{range.start(), range.start()})
+            .withTimeSpan({DateTime{range.start()}, DateTime{range.start()}})
             .build()};
     const Sprint inRange{sprintBuilder.withTaskUuid(someTask.uuid())
                              .withTimeSpan(DateTimeRange{timestamp, timestamp})
                              .build()};
     const Sprint onRightBorder{
         sprintBuilder.withTaskUuid(someTask.uuid())
-            .withTimeSpan(DateTimeRange{range.finish(), range.finish()})
+            .withTimeSpan({DateTime{range.finish()}, DateTime{range.finish()}})
             .build()};
     const Sprint outOfRangeRight{
         sprintBuilder.withTaskUuid(someTask.uuid())
             .withTimeSpan(add_offset(
-                DateTimeRange{range.finish(), range.finish()}, Days{1}))
+                {DateTime{range.finish()}, DateTime{range.finish()}}, Days{1}))
             .build()};
     const std::vector<Sprint> expected{onLeftBorder, inRange, onRightBorder};
 
@@ -565,10 +565,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture, removes_sprints_in_bulk)
     using namespace dw;
     const Task someTask{TaskBuilder{}.build()};
     const Task otherTask{TaskBuilder{}.build()};
-    const DateTimeRange timeSpan{DateTime{Date{Year{2018}, Month{12}, Day{1}}},
-                                 DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
+    const DateRange dateRange{Date{Year{2018}, Month{12}, Day{1}},
+                              Date{Year{2018}, Month{12}, Day{1}}};
     std::vector<Sprint> sprintBulk;
-    SprintBuilder sprintBuilder{SprintBuilder{}.withTimeSpan(timeSpan)};
+    SprintBuilder sprintBuilder{SprintBuilder{}.withTimeSpan(DateTimeRange{
+        DateTime{dateRange.start()}, DateTime{dateRange.finish()}})};
     std::generate_n(
         std::back_inserter(sprintBulk), 2, [&sprintBuilder, &someTask]() {
             return sprintBuilder.withTaskUuid(someTask.uuid()).build();
@@ -584,7 +585,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, removes_sprints_in_bulk)
     initializer.sprintWriter->remove(sprintBulk);
 
     initializer.sprintReader->requestItems(
-        timeSpan, [this](const ISprintStorageReader::Items& items) {
+        dateRange, [this](const ISprintStorageReader::Items& items) {
             EXPECT_TRUE(items.empty());
             initializer.quit();
         });
@@ -598,7 +599,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     const Task someTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
     const DateTime someDate{Date{Year{2018}, Month{12}, Day{2}}};
-    const DateTimeRange range{someDate - Days{29}, someDate};
+    const DateRange range{(someDate - Days{29}).date(), someDate.date()};
     std::vector<Sprint> sprints;
     std::vector<int> expected{4, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0,
                               0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2};
@@ -668,7 +669,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
     const Date someDate{Year{2018}, Month{12}, Day{2}};
     Date lowerDate{first_day_of_month(someDate - Months{11})};
-    const DateTimeRange range{DateTime{lowerDate}, DateTime{someDate}};
     const std::vector<int> expected{3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 5};
     std::vector<Sprint> sprints;
     // Out of range
@@ -721,7 +721,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
     initializer.sprintWriter->save(sprints);
 
     initializer.monthlyDistributionReader->requestDistribution(
-        range,
+        DateRange{lowerDate, someDate},
         [&expected, this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();
@@ -737,7 +737,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
     const dw::DateTime upperDate{Date{Year{2016}, Month{2}, Day{12}}};
     const dw::DateTime lowerDate{upperDate - Weeks(11)};
-    const DateTimeRange range{lowerDate, upperDate};
     const std::vector<int> expected{3, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 6};
     std::vector<Sprint> sprints;
     // Out of range
@@ -793,7 +792,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.sprintWriter->save(sprints);
 
     initializer.mondayFirstWeeklyDistributionReader->requestDistribution(
-        range,
+        DateRange{lowerDate.date(), upperDate.date()},
         [&expected, this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();
@@ -809,7 +808,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};
     const dw::DateTime upperDate{Date{Year{2016}, Month{2}, Day{12}}};
     const dw::DateTime lowerDate{upperDate - Weeks(11)};
-    const DateTimeRange range{lowerDate, upperDate};
     const std::vector<int> expected{3, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 6};
     std::vector<Sprint> sprints;
     // Out of range
@@ -865,7 +863,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.sprintWriter->save(sprints);
 
     initializer.sundayFirstWeeklyDistributionReader->requestDistribution(
-        range,
+        DateRange{lowerDate.date(), upperDate.date()},
         [&expected, this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
             initializer.quit();

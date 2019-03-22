@@ -79,7 +79,7 @@ void StatisticsWindow::fetchData()
 {
     queryInvoker.execute(std::make_unique<RequestSprints>(
         sprintReader,
-        ui->dateRangePicker->getInterval().toTimeSpan(),
+        ui->dateRangePicker->getInterval().toDateRange(),
         [this](const auto& sprints) { this->onDataFetched(sprints); }));
 }
 

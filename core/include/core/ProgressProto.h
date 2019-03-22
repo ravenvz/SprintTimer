@@ -36,7 +36,7 @@ namespace sprint_timer {
 
 class ProgressOverPeriod {
 public:
-    ProgressOverPeriod(dw::DateTimeRange period,
+    ProgressOverPeriod(const dw::DateRange& period,
                        const Distribution<int>& actualProgress,
                        utils::WeekdaySelection workdays,
                        const GroupingStrategy& groupingStrategy,
@@ -59,7 +59,7 @@ public:
     int difference() const;
 
 private:
-    const dw::DateTimeRange period_;
+    const dw::DateRange period_;
     const utils::WeekdaySelection workdays_;
     const int actual_;
     std::vector<GoalProgress> progress_;

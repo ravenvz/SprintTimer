@@ -31,9 +31,8 @@ using ::testing::_;
 
 class RequestSprintDistributionFixture : public ::testing::Test {
 public:
-    const DateTimeRange someTimeSpan = add_offset(
-        DateTimeRange{dw::current_date_time(), dw::current_date_time()},
-        dw::Days{-1});
+    const DateRange someDateRange{
+        add_offset({current_date(), current_date()}, Days{-1})};
     sprint_timer::QueryInvoker queryInvoker;
     SprintDistributionReaderMock sprint_distribution_reader_mock;
 };
@@ -41,10 +40,10 @@ public:
 TEST_F(RequestSprintDistributionFixture, execute)
 {
     EXPECT_CALL(sprint_distribution_reader_mock,
-                requestDistribution(someTimeSpan, _))
+                requestDistribution(someDateRange, _))
         .Times(1);
 
     queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
-        sprint_distribution_reader_mock, someTimeSpan, [](const auto& result) {
+        sprint_distribution_reader_mock, someDateRange, [](const auto& result) {
         }));
 }

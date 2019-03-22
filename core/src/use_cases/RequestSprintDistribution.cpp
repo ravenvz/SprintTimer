@@ -26,23 +26,23 @@ namespace sprint_timer::use_cases {
 
 RequestSprintDistribution::RequestSprintDistribution(
     ISprintDistributionReader& reader,
-    dw::DateTimeRange timeSpan,
+    const dw::DateRange& dateRange,
     ISprintDistributionReader::Handler handler)
     : reader{reader}
-    , timeSpan_{std::move(timeSpan)}
+    , dateRange_{dateRange}
     , handler_{handler}
 {
 }
 
 void RequestSprintDistribution::execute()
 {
-    reader.requestDistribution(timeSpan_, handler_);
+    reader.requestDistribution(dateRange_, handler_);
 }
 
 std::string RequestSprintDistribution::describe() const
 {
     std::stringstream ss;
-    ss << "Request sprint distribution for: " << timeSpan_;
+    ss << "Request sprint distribution for: " << dateRange_;
     return ss.str();
 }
 

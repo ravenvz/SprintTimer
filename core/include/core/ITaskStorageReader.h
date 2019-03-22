@@ -40,11 +40,11 @@ public:
 
     virtual void requestUnfinishedTasks(Handler handler) = 0;
 
-    virtual void requestFinishedTasks(const dw::DateTimeRange& timeSpan,
+    virtual void requestFinishedTasks(const dw::DateRange& dateRange,
                                       Handler handler)
         = 0;
 
-    virtual void requestTasks(const dw::DateTimeRange& timeSpan,
+    virtual void requestTasks(const dw::DateRange& timeSpan,
                               Handler handler)
         = 0;
 

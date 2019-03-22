@@ -36,7 +36,7 @@ class DistributionReaderBase : public QObject,
     Q_OBJECT
 
 public:
-    void requestDistribution(const dw::DateTimeRange& timeSpan,
+    void requestDistribution(const dw::DateRange& dateRange,
                              Handler handler) override;
 
 protected:

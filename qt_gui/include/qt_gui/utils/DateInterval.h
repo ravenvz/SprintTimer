@@ -63,6 +63,13 @@ struct DateInterval {
             DateTimeConverter::dateTime(QDateTime{startDate}),
             DateTimeConverter::dateTime(QDateTime{endDate})};
     }
+
+    dw::DateRange toDateRange() const
+    {
+        using namespace dw;
+        return DateRange{DateTimeConverter::date(startDate),
+                         DateTimeConverter::date(endDate)};
+    }
 };
 
 // std::ostream& operator<<(std::ostream& os, const DateInterval& timeSpan)

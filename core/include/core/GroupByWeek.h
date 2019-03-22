@@ -31,7 +31,7 @@ public:
     GroupByWeek(dw::Weekday firstDayOfWeek);
 
     std::vector<GoalProgress>
-    computeProgress(const dw::DateTimeRange& period,
+    computeProgress(const dw::DateRange& period,
                     const std::vector<int>& actualProgress,
                     utils::WeekdaySelection workdays,
                     int workdayGoal) const override;

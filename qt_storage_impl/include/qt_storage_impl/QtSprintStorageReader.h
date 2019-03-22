@@ -35,7 +35,7 @@ class QtSprintStorageReader : public QObject, public ISprintStorageReader {
 public:
     explicit QtSprintStorageReader(DBService& dbService);
 
-    void requestItems(const dw::DateTimeRange& timeSpan, Handler handler) final;
+    void requestItems(const dw::DateRange& dateRange, Handler handler) final;
 
     void sprintsForTask(const std::string& taskUuid, Handler handler) final;
 

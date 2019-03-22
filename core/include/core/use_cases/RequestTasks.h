@@ -31,7 +31,7 @@ namespace sprint_timer::use_cases {
 class RequestTasks : public Query {
 public:
     RequestTasks(ITaskStorageReader& taskStorageReader,
-                 dw::DateTimeRange timeSpan,
+                 const dw::DateRange& dateRange,
                  ITaskStorageReader::Handler handler);
 
     void execute() final;
@@ -40,7 +40,7 @@ public:
 
 private:
     ITaskStorageReader& reader;
-    const dw::DateTimeRange timeSpan_;
+    const dw::DateRange dateRange_;
     ITaskStorageReader::Handler handler_;
 };
 

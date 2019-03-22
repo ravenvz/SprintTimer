@@ -144,9 +144,9 @@ void HistoryWindow::onExportButtonClicked()
 }
 
 
-dw::DateTimeRange HistoryWindow::selectedDateInterval() const
+dw::DateRange HistoryWindow::selectedDateInterval() const
 {
-    return ui->dateRangePicker->getInterval().toTimeSpan();
+    return ui->dateRangePicker->getInterval().toDateRange();
 }
 
 

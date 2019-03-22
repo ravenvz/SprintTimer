@@ -37,8 +37,8 @@ using namespace dw;
 class GroupByDayProgressFixture : public ::testing::Test {
 public:
     sprint_timer::utils::WeekdaySelection workdays{31}; // Mon - Fri
-    const DateTimeRange period{DateTime{Date{Year{2019}, Month{1}, Day{30}}},
-                               DateTime{Date{Year{2019}, Month{2}, Day{4}}}};
+    const DateRange period{Date{Year{2019}, Month{1}, Day{30}},
+                           Date{Year{2019}, Month{2}, Day{4}}};
     const int workdayGoal{13};
     sprint_timer::GroupByDay groupByDayStrategy;
 };
@@ -46,8 +46,8 @@ public:
 class GroupByWeekFixture : public ::testing::Test {
 public:
     sprint_timer::utils::WeekdaySelection workdays{31}; // Mon - Fri
-    const DateTimeRange period{DateTime{Date{Year{2019}, Month{1}, Day{9}}},
-                               DateTime{Date{Year{2019}, Month{2}, Day{14}}}};
+    const DateRange period{Date{Year{2019}, Month{1}, Day{9}},
+                           Date{Year{2019}, Month{2}, Day{14}}};
     const int workdayGoal{13};
     sprint_timer::GroupByWeek groupByWeekStrategy{dw::Weekday::Monday};
 };
@@ -55,16 +55,16 @@ public:
 class GroupByMonthFixture : public ::testing::Test {
 public:
     sprint_timer::utils::WeekdaySelection workdays{31}; // Mon - Fri
-    const DateTimeRange period{DateTime{Date{Year{2018}, Month{4}, Day{10}}},
-                               DateTime{Date{Year{2018}, Month{8}, Day{25}}}};
+    const DateRange period{Date{Year{2018}, Month{4}, Day{10}},
+                           Date{Year{2018}, Month{8}, Day{25}}};
     const int workdayGoal{10};
     ::sprint_timer::GroupByMonth groupByMonthStrategy;
 };
 
 TEST_F(GroupByDayProgressFixture, underwork_progress)
 {
-    const DateTimeRange period{DateTime{Date{Year{2019}, Month{1}, Day{30}}},
-                               DateTime{Date{Year{2019}, Month{2}, Day{4}}}};
+    const DateRange period{Date{Year{2019}, Month{1}, Day{30}},
+                           Date{Year{2019}, Month{2}, Day{4}}};
     const Distribution<int> actualProgress{{13, 12, 11, 0, 0, 10}};
     const std::vector<GoalProgress> expected{
         {13, 13}, {13, 12}, {13, 11}, {0, 0}, {0, 0}, {13, 10}};
@@ -86,8 +86,8 @@ TEST_F(GroupByDayProgressFixture, underwork_progress)
 
 TEST_F(GroupByDayProgressFixture, overwork_progress)
 {
-    const DateTimeRange period{DateTime{Date{Year{2019}, Month{1}, Day{30}}},
-                               DateTime{Date{Year{2019}, Month{2}, Day{4}}}};
+    const DateRange period{Date{Year{2019}, Month{1}, Day{30}},
+                           Date{Year{2019}, Month{2}, Day{4}}};
     const Distribution<int> actualProgress{{15, 13, 14, 0, 10, 12}};
     const std::vector<GoalProgress> expected{
         {13, 15}, {13, 13}, {13, 14}, {0, 0}, {0, 10}, {13, 12}};
@@ -109,8 +109,8 @@ TEST_F(GroupByDayProgressFixture, overwork_progress)
 
 TEST_F(GroupByDayProgressFixture, work_during_vacation)
 {
-    const DateTimeRange period{DateTime{Date{Year{2019}, Month{1}, Day{30}}},
-                               DateTime{Date{Year{2019}, Month{2}, Day{4}}}};
+    const DateRange period{Date{Year{2019}, Month{1}, Day{30}},
+                           Date{Year{2019}, Month{2}, Day{4}}};
     const sprint_timer::utils::WeekdaySelection noWorkdays; // All are rest days
     const Distribution<int> actualProgress{{15, 13, 14, 0, 10, 12}};
     const std::vector<GoalProgress> expected{
@@ -199,8 +199,8 @@ TEST_F(GroupByWeekFixture, handles_corner_case_when_starting_from_grouping_day)
 {
     const Distribution<int> actualProgress{{30, 65}};
     const std::vector<GoalProgress> expected{{65, 30}, {13, 65}};
-    const DateTimeRange a_period{DateTime{Date{Year{2019}, Month{1}, Day{13}}},
-                                 DateTime{Date{Year{2019}, Month{1}, Day{21}}}};
+    const DateRange a_period{Date{Year{2019}, Month{1}, Day{13}},
+                             Date{Year{2019}, Month{1}, Day{21}}};
     const sprint_timer::GroupByWeek strategy{dw::Weekday::Sunday};
     const ProgressOverPeriod progress{
         a_period, actualProgress, workdays, strategy, workdayGoal};
@@ -221,8 +221,8 @@ TEST_F(GroupByWeekFixture, handles_corner_case_when_ending_by_grouping_day)
 {
     const Distribution<int> actualProgress{{30, 65}};
     const std::vector<GoalProgress> expected{{52, 30}, {65, 65}};
-    const DateTimeRange a_period{DateTime{Date{Year{2019}, Month{1}, Day{8}}},
-                                 DateTime{Date{Year{2019}, Month{1}, Day{19}}}};
+    const DateRange a_period{Date{Year{2019}, Month{1}, Day{8}},
+                             Date{Year{2019}, Month{1}, Day{19}}};
     const sprint_timer::GroupByWeek strategy{dw::Weekday::Sunday};
     const ProgressOverPeriod progress{
         a_period, actualProgress, workdays, strategy, workdayGoal};
@@ -306,8 +306,8 @@ TEST_F(GroupByMonthFixture, work_during_vacation)
 TEST_F(GroupByMonthFixture,
        handles_corner_case_when_starting_from_first_day_of_month)
 {
-    const DateTimeRange a_period{DateTime{Date{Year{2018}, Month{6}, Day{1}}},
-                                 DateTime{Date{Year{2018}, Month{7}, Day{16}}}};
+    const DateRange a_period{Date{Year{2018}, Month{6}, Day{1}},
+                             Date{Year{2018}, Month{7}, Day{16}}};
     const Distribution<int> actualProgress{{200, 75}};
     const std::vector<GoalProgress> expected{{210, 200}, {110, 75}};
 
@@ -329,8 +329,8 @@ TEST_F(GroupByMonthFixture,
 TEST_F(GroupByMonthFixture,
        handles_corner_case_when_ending_on_the_last_day_of_month)
 {
-    const DateTimeRange a_period{DateTime{Date{Year{2018}, Month{6}, Day{1}}},
-                                 DateTime{Date{Year{2018}, Month{7}, Day{31}}}};
+    const DateRange a_period{Date{Year{2018}, Month{6}, Day{1}},
+                             Date{Year{2018}, Month{7}, Day{31}}};
     const Distribution<int> actualProgress{{200, 75}};
     const std::vector<GoalProgress> expected{{210, 200}, {220, 75}};
 

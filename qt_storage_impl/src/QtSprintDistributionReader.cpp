@@ -64,13 +64,13 @@ DistributionReaderBase::DistributionReaderBase(DBService& dbService,
             &DistributionReaderBase::onResultsReceived);
 }
 
-void DistributionReaderBase::requestDistribution(
-    const dw::DateTimeRange& timeSpan, Handler handler)
+void DistributionReaderBase::requestDistribution(const dw::DateRange& dateRange,
+                                                 Handler handler)
 {
     using namespace storage::utils;
     handler_queue.push_back(handler);
-    startDate = DateTimeConverter::qDate(timeSpan.start());
-    const QDate endDate = DateTimeConverter::qDate(timeSpan.finish());
+    startDate = DateTimeConverter::qDate(dateRange.start());
+    const QDate endDate = DateTimeConverter::qDate(dateRange.finish());
 
     dbService.bind(mQueryId, ":start_date", startDate);
     dbService.bind(mQueryId, ":end_date", endDate);
