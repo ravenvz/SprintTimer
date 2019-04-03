@@ -22,6 +22,8 @@ target_sources(${STORAGE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/QtStorageImplementersFactory.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/QtTaskStorageReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/QtTaskStorageWriter.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/QtWorkingDaysReader.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/QtWorkingDaysWriter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/QtYearRangeReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/QueryError.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/migrations/Migration.h"
@@ -29,6 +31,7 @@ target_sources(${STORAGE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/migrations/Migration_v3.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/migrations/Migration_v4.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/migrations/Migration_v5.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/migrations/Migration_v6.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/utils/DateTimeConverter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage_impl/utils/QueryUtils.h"
     PRIVATE
@@ -43,11 +46,14 @@ target_sources(${STORAGE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/QtTaskStorageReader.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtTaskStorageWriter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtYearRangeReader.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/QtWorkingDaysReader.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/QtWorkingDaysWriter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QueryError.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/migrations/MigrationManager.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/migrations/Migration_v3.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/migrations/Migration_v4.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/migrations/Migration_v5.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/migrations/Migration_v6.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/utils/QueryUtils.cpp"
 )
 

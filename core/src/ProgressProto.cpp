@@ -26,16 +26,15 @@ namespace sprint_timer {
 
 ProgressOverPeriod::ProgressOverPeriod(const dw::DateRange& period,
                                        const Distribution<int>& actualProgress,
-                                       utils::WeekdaySelection workdays,
+                                       const WorkdayTracker& workdayTracker,
                                        const GroupingStrategy& groupingStrategy,
                                        int workdayGoal)
     : period_{period}
-    , workdays_{workdays}
     , actual_{actualProgress.getTotal()}
 {
     const std::vector<int> dist = actualProgress.getDistributionVector();
-    progress_
-        = groupingStrategy.computeProgress(period, dist, workdays, workdayGoal);
+    progress_ = groupingStrategy.computeProgress(
+        period, dist, workdayTracker, workdayGoal);
     numWorkBins_ = std::accumulate(progress_.cbegin(),
                                    progress_.cend(),
                                    0,

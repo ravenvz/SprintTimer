@@ -33,7 +33,7 @@ public:
     std::vector<GoalProgress>
     computeProgress(const dw::DateRange& period,
                     const std::vector<int>& actualProgress,
-                    utils::WeekdaySelection workdays,
+                    const WorkdayTracker& tracker,
                     int workdayGoal) const override;
 
 private:

@@ -44,7 +44,6 @@ WeeklyProgressView::WeeklyProgressView(
     , distributionReader{weeklyDistributionReader}
 {
     setLegendTitle("Last 12 weeks");
-    synchronize();
 }
 
 void WeeklyProgressView::synchronize()
@@ -59,14 +58,14 @@ void WeeklyProgressView::synchronize()
                 setData(
                     ProgressOverPeriod{twelveWeeksBackTillNow(firstDayOfWeek),
                                        distribution,
-                                       applicationSettings.workdays(),
+                                       workdayTracker,
                                        GroupByWeek{dw::Weekday::Monday},
                                        applicationSettings.dailyGoal()});
             else
                 setData(
                     ProgressOverPeriod{twelveWeeksBackTillNow(firstDayOfWeek),
                                        distribution,
-                                       applicationSettings.workdays(),
+                                       workdayTracker,
                                        GroupByWeek{dw::Weekday::Sunday},
                                        applicationSettings.dailyGoal()});
         }));

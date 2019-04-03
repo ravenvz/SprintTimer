@@ -22,6 +22,7 @@
 #ifndef TASKVIEW_H_AC0ZCTZN
 #define TASKVIEW_H_AC0ZCTZN
 
+#include "qt_gui/models/TaskModel.h"
 #include "qt_gui/widgets/ReordableListView.h"
 #include <QStyledItemDelegate>
 #include <optional>

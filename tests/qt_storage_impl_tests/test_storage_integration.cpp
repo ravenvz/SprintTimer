@@ -23,6 +23,7 @@
 #include "gtest/gtest.h"
 #include <core/SprintBuilder.h>
 #include <core/TaskBuilder.h>
+#include <core/WorkdayTracker.h>
 
 using namespace sprint_timer::storage::qt_storage_impl;
 using sprint_timer::ISprintStorageReader;
@@ -530,11 +531,6 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_year_range)
     initializer.runEventLoop();
 }
 
-TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_sprint_distributions)
-{
-    // FAIL();
-}
-
 TEST_F(QtStorageImplementIntegrationTestFixture, saves_sprints_in_bulk)
 {
     using namespace dw;
@@ -866,6 +862,91 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
         DateRange{lowerDate.date(), upperDate.date()},
         [&expected, this](const sprint_timer::Distribution<int>& distribution) {
             EXPECT_EQ(expected, distribution.getDistributionVector());
+            initializer.quit();
+        });
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture,
+       extra_day_data_store_and_retrieve)
+{
+    using namespace dw;
+    using namespace sprint_timer;
+    using sprint_timer::utils::WeekdaySelection;
+    WorkdayTracker expected{WeekdaySelection{31}};
+    const std::vector<Date> extraHolidays{Date{Year{2019}, Month{5}, Day{1}},
+                                          Date{Year{2019}, Month{5}, Day{2}},
+                                          Date{Year{2019}, Month{5}, Day{3}}};
+    const std::vector<Date> extraWorkdays{Date{Year{2019}, Month{5}, Day{4}},
+                                          Date{Year{2019}, Month{5}, Day{4}}};
+    for (const auto& day : extraHolidays)
+        expected.addExtraHoliday(day);
+    for (const auto& day : extraWorkdays)
+        expected.addExtraWorkday(day);
+
+    initializer.extraDaysWriter->addExtraHolidays(extraHolidays);
+    initializer.extraDaysWriter->addExtraWorkdays(extraWorkdays);
+
+    initializer.extraDaysReader->requestData(
+        [&expected, this](const WorkdayTracker& actual) {
+            EXPECT_EQ(expected, actual);
+            initializer.quit();
+        });
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture,
+       replaces_day_on_conflict_so_same_day_cannot_be_both_workday_and_holiday)
+{
+    using namespace dw;
+    using namespace sprint_timer;
+    using sprint_timer::utils::WeekdaySelection;
+    WorkdayTracker expected{WeekdaySelection{31}};
+    expected.addExtraHoliday(Date{Year{2019}, Month{5}, Day{1}});
+    expected.addExtraWorkday(
+        Date{Year{2019}, Month{5}, Day{2}}); // conflicting date
+
+    initializer.extraDaysWriter->addExtraHolidays(
+        {Date{Year{2019}, Month{5}, Day{1}},
+         Date{Year{2019}, Month{5}, Day{1}}, // duplicate date
+         Date{Year{2019}, Month{5}, Day{2}}});
+    initializer.extraDaysWriter->addExtraWorkdays(
+        {Date{Year{2019}, Month{5}, Day{2}}});
+
+    initializer.extraDaysReader->requestData(
+        [&expected, this](const WorkdayTracker& actual) {
+            EXPECT_EQ(expected, actual);
+            initializer.quit();
+        });
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture, extra_day_add_and_remove)
+{
+    using namespace dw;
+    using namespace sprint_timer;
+    using sprint_timer::utils::WeekdaySelection;
+    WorkdayTracker expected{WeekdaySelection{31}};
+    expected.addExtraHoliday(Date{Year{2019}, Month{5}, Day{2}});
+    expected.addExtraWorkday(Date{Year{2019}, Month{3}, Day{9}});
+    initializer.extraDaysWriter->addExtraHolidays({
+        Date{Year{2019}, Month{5}, Day{1}},
+        Date{Year{2019}, Month{5}, Day{2}},
+        Date{Year{2019}, Month{5}, Day{3}},
+    });
+    initializer.extraDaysWriter->addExtraWorkdays(
+        {Date{Year{2019}, Month{3}, Day{9}},
+         Date{Year{2019}, Month{3}, Day{10}}});
+
+    initializer.extraDaysWriter->removeExtraHolidays(
+        {Date{Year{2019}, Month{5}, Day{1}},
+         Date{Year{2019}, Month{5}, Day{3}}});
+    initializer.extraDaysWriter->removeExtraWorkdays(
+        {Date{Year{2019}, Month{3}, Day{10}}});
+
+    initializer.extraDaysReader->requestData(
+        [&expected, this](const WorkdayTracker& actual) {
+            EXPECT_EQ(expected, actual);
             initializer.quit();
         });
     initializer.runEventLoop();

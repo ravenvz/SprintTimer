@@ -125,7 +125,7 @@
          <item row="4" column="0">
           <widget class="QLabel" name="lblProgressPercentageCaption">
            <property name="text">
-            <string>Goal progress</string>
+            <string>Goal progress:</string>
            </property>
           </widget>
          </item>

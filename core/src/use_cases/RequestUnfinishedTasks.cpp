@@ -1,3 +1,5 @@
+#include <utility>
+
 /********************************************************************************
 **
 ** Copyright (C) 2016-2018 Pavel Pavlov.
@@ -27,7 +29,7 @@ namespace sprint_timer::use_cases {
 RequestUnfinishedTasks::RequestUnfinishedTasks(
     ITaskStorageReader& taskStorageReader, ITaskStorageReader::Handler handler)
     : reader{taskStorageReader}
-    , handler_{handler}
+    , handler_{std::move(handler)}
 {
 }
 

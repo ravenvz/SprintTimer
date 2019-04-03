@@ -12,6 +12,7 @@ set(CMAKE_AUTORCC ON)
 
 QT5_WRAP_UI(UI_HEADERS
         ui/mainwindow.ui
+        ui/add_exceptional_day_dialog.ui
         ui/add_todo_dialog.ui
         ui/pom_cancel_dialog.ui
         ui/settings.ui
@@ -42,6 +43,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/HistoryItemDelegate.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/SubmissionItemDelegate.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/TaskItemDelegate.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/AddExceptionalDayDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/AddSprintDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/AddTaskDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/ConfirmationDialog.h"
@@ -51,6 +53,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/UndoDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/dialogs/WorkdaysDialog.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/AsyncListModel.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/ExtraDayModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/HistoryModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/SprintModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/TagModel.h"
@@ -68,6 +71,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DateRangePicker.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DefaultTimer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DistributionDiagram.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/ExtraDayListView.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/FancyTimer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/Gauge.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/ProgressMonitorWidget.h"
@@ -101,6 +105,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/HistoryItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/SubmissionItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/TaskItemDelegate.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/AddExceptionalDayDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/AddSprintDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/AddTaskDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/ConfirmationDialog.cpp"
@@ -110,6 +115,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/UndoDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dialogs/WorkdaysDialog.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/AsyncListModel.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/models/ExtraDayModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/HistoryModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/SprintModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/TagModel.cpp"
@@ -125,6 +131,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DateRangePicker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DefaultTimer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DistributionDiagram.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/ExtraDayListView.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/FancyTimer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/Gauge.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/ProgressMonitorWidget.cpp"

@@ -6,52 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>296</height>
+    <width>789</width>
+    <height>392</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Select workdays:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="mondayBox">
-     <property name="text">
-      <string>Monday</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="tuesdayBox">
-     <property name="text">
-      <string>Tuesday</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="wednesdayBox">
-     <property name="text">
-      <string>Wednesday</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="5" column="0">
     <widget class="QCheckBox" name="thursdayBox">
      <property name="text">
       <string>Thursday</string>
@@ -61,27 +24,20 @@
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QCheckBox" name="fridayBox">
-     <property name="text">
-      <string>Friday</string>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="checked">
-      <bool>true</bool>
+     <property name="text">
+      <string>Select workdays:</string>
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QCheckBox" name="saturdayBox">
-     <property name="text">
-      <string>Saturday</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
+   <item row="8" column="0">
     <widget class="QCheckBox" name="sundayBox">
      <property name="text">
       <string>Sunday</string>
@@ -91,8 +47,104 @@
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="mondayBox">
+     <property name="text">
+      <string>Monday</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="wednesdayBox">
+     <property name="text">
+      <string>Wednesday</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" rowspan="8">
+    <widget class="sprint_timer::ui::qt_gui::ExtraDayListView" name="lvHolidays"/>
+   </item>
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="fridayBox">
+     <property name="text">
+      <string>Friday</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QPushButton" name="btnAddHolidays">
+     <property name="text">
+      <string>Add additional holidays</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="tuesdayBox">
+     <property name="text">
+      <string>Tuesday</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QCheckBox" name="saturdayBox">
+     <property name="text">
+      <string>Saturday</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2" rowspan="8">
+    <widget class="sprint_timer::ui::qt_gui::ExtraDayListView" name="lvWorkdays"/>
+   </item>
+   <item row="9" column="2">
+    <widget class="QPushButton" name="btnAddWorkdays">
+     <property name="text">
+      <string>Add additional workdays</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Holidays</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Workdays</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="2">
+    <widget class="QDialogButtonBox" name="btnOkCancel">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -103,10 +155,17 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>sprint_timer::ui::qt_gui::ExtraDayListView</class>
+   <extends>QListView</extends>
+   <header>qt_gui/widgets/ExtraDayListView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>btnOkCancel</sender>
    <signal>accepted()</signal>
    <receiver>WorkdaysDialog</receiver>
    <slot>accept()</slot>
@@ -122,7 +181,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>btnOkCancel</sender>
    <signal>rejected()</signal>
    <receiver>WorkdaysDialog</receiver>
    <slot>reject()</slot>

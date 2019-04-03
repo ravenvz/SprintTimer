@@ -31,7 +31,7 @@ GroupByWeek::GroupByWeek(dw::Weekday firstDayOfWeek)
 std::vector<GoalProgress>
 GroupByWeek::computeProgress(const dw::DateRange& period,
                              const std::vector<int>& actualProgress,
-                             utils::WeekdaySelection workdays,
+                             const WorkdayTracker& workdayTracker,
                              int workdayGoal) const
 {
     std::vector<GoalProgress> progress;
@@ -43,7 +43,7 @@ GroupByWeek::computeProgress(const dw::DateRange& period,
     for (auto day = period.start(); day <= period.finish();
          day = day + dw::Days{1}) {
         if (day == period.finish()) {
-            if (workdays.isSelected(weekday(day)))
+            if (workdayTracker.isWorkday(day))
                 ++numWorkdays;
             progress.emplace_back(numWorkdays * workdayGoal, *actualIt);
             break;
@@ -53,7 +53,7 @@ GroupByWeek::computeProgress(const dw::DateRange& period,
             ++actualIt;
             numWorkdays = 0;
         }
-        if (workdays.isSelected(weekday(day)))
+        if (workdayTracker.isWorkday(day))
             ++numWorkdays;
     }
 

@@ -23,8 +23,117 @@
 #define QTSTORAGEINITIALIZER_H_WR5MUUAC
 
 #include <QCoreApplication>
+#include <core/IConfig.h>
 #include <qt_storage_impl/DBService.h>
 #include <qt_storage_impl/QtStorageImplementersFactory.h>
+
+namespace {
+
+/* Fixed configuration for testing purposes. */
+class TestConfig : public sprint_timer::IConfig {
+
+public:
+    int soundVolume() const override { return mSoundVolume; }
+
+    void setSoundVolume(int soundVolume) override
+    {
+        TestConfig::mSoundVolume = soundVolume;
+    }
+
+    std::chrono::minutes sprintDuration() const override
+    {
+        return mSprintDuration;
+    }
+
+    void setSprintDuration(std::chrono::minutes minutes) override
+    {
+        TestConfig::mSprintDuration = minutes;
+    }
+
+    std::chrono::minutes shortBreakDuration() const override
+    {
+        return mShortBreakDuration;
+    }
+
+    void setShortBreakDuration(std::chrono::minutes duration) override
+    {
+        TestConfig::mShortBreakDuration = duration;
+    }
+
+    std::chrono::minutes longBreakDuration() const override
+    {
+        return mLongBreakDuration;
+    }
+
+    void setLongBreakDuration(std::chrono::minutes duration) override
+    {
+        TestConfig::mLongBreakDuration = duration;
+    }
+
+    int numSprintsBeforeBreak() const override { return mTasksBeforeBreak; }
+
+    void setNumSprintsBeforeBreak(int tasksBeforeBreak) override
+    {
+        TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
+    }
+
+    bool soundIsEnabled() const override { return mPlaySound; }
+
+    void setPlaySound(bool playSound) override
+    {
+        TestConfig::mPlaySound = playSound;
+    }
+
+    int dailyGoal() const override { return 0; }
+
+    void setDailyGoal(int numSprints) override {}
+
+    int weeklyGoal() const override { return 0; }
+
+    void setWeeklyGoal(int numSprints) override {}
+
+    int monthlyGoal() const override { return 0; }
+
+    void setMonthlyGoal(int numSprints) override {}
+
+    std::string soundFilePath() const override { return ""; }
+
+    void setSoundFilePath(const std::string& filePath) override {}
+
+    int timerFlavour() const override { return 0; }
+
+    void setTimerFlavour(int timerVariation) override {}
+
+    sprint_timer::utils::WeekdaySelection workdays() const override
+    {
+        return sprint_timer::utils::WeekdaySelection{31};
+    }
+
+    void
+    setWorkdays(const sprint_timer::utils::WeekdaySelection& workdays) override
+    {
+    }
+
+    sprint_timer::FirstDayOfWeek firstDayOfWeek() const override
+    {
+        return sprint_timer::FirstDayOfWeek::Monday;
+    }
+
+    void setFirstDayOfWeek(sprint_timer::FirstDayOfWeek firstDayOfWeek) override
+    {
+    }
+
+private:
+    std::chrono::minutes mSprintDuration{30};
+    std::chrono::minutes mShortBreakDuration{10};
+    std::chrono::minutes mLongBreakDuration{20};
+    int mTasksBeforeBreak{4};
+    bool mPlaySound{false};
+    int mSoundVolume{0};
+};
+
+} // namespace
+
 
 struct QtStorageInitializer {
 
@@ -36,8 +145,9 @@ struct QtStorageInitializer {
     sprint_timer::storage::qt_storage_impl::ConnectionGuard connectionGuard{
         name, "Keep alive conn"};
     sprint_timer::storage::qt_storage_impl::DBService dbService{name};
+    TestConfig fakeSettings;
     sprint_timer::storage::qt_storage_impl::QtStorageImplementersFactory
-        factory{dbService};
+        factory{dbService, fakeSettings};
     std::unique_ptr<sprint_timer::ITaskStorageReader> taskReader
         = factory.createTaskStorageReader();
     std::unique_ptr<sprint_timer::ITaskStorageWriter> taskWriter
@@ -61,6 +171,10 @@ struct QtStorageInitializer {
         sundayFirstWeeklyDistributionReader
         = factory.createSprintWeeklyDistributionReader(
             sprint_timer::FirstDayOfWeek::Sunday);
+    std::unique_ptr<sprint_timer::IWorkingDaysWriter> extraDaysWriter
+        = factory.createWorkingDaysWriter();
+    std::unique_ptr<sprint_timer::IWorkingDaysReader> extraDaysReader
+        = factory.createWorkingDaysReader();
 
     void runEventLoop();
 

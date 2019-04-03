@@ -22,20 +22,15 @@
 #ifndef QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC
 #define QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC
 
-#include "core/IConfig.h"
-#include "core/IStorageImplementersFactory.h"
-#include "qt_storage_impl/QtSprintDistributionReader.h"
-#include "qt_storage_impl/QtSprintStorageReader.h"
-#include "qt_storage_impl/QtSprintStorageWriter.h"
-#include "qt_storage_impl/QtTaskStorageReader.h"
-#include "qt_storage_impl/QtTaskStorageWriter.h"
-#include "qt_storage_impl/QtYearRangeReader.h"
+#include "qt_storage_impl/DBService.h"
+#include <core/IConfig.h>
+#include <core/IStorageImplementersFactory.h>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
 class QtStorageImplementersFactory : public IStorageImplementersFactory {
 public:
-    explicit QtStorageImplementersFactory(DBService& dbService);
+    QtStorageImplementersFactory(DBService& dbService, const IConfig& settings);
 
     std::unique_ptr<ISprintStorageReader>
     createSprintStorageReader() const override;
@@ -61,8 +56,15 @@ public:
     std::unique_ptr<ITaskStorageWriter>
     createTaskStorageWriter() const override;
 
+    std::unique_ptr<IWorkingDaysReader>
+    createWorkingDaysReader() const override;
+
+    std::unique_ptr<IWorkingDaysWriter>
+    createWorkingDaysWriter() const override;
+
 private:
     DBService& dbService;
+    const IConfig& settings;
 };
 
 } // namespace sprint_timer::storage::qt_storage_impl

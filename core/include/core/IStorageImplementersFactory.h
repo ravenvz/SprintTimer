@@ -28,6 +28,8 @@
 #include "core/ISprintStorageWriter.h"
 #include "core/ITaskStorageReader.h"
 #include "core/ITaskStorageWriter.h"
+#include "core/IWorkingDaysReader.h"
+#include "core/IWorkingDaysWriter.h"
 #include "core/IYearRangeReader.h"
 #include <memory>
 
@@ -60,6 +62,12 @@ public:
 
     virtual std::unique_ptr<ITaskStorageWriter>
     createTaskStorageWriter() const = 0;
+
+    virtual std::unique_ptr<IWorkingDaysReader>
+    createWorkingDaysReader() const = 0;
+
+    virtual std::unique_ptr<IWorkingDaysWriter>
+    createWorkingDaysWriter() const = 0;
 };
 
 } // namespace sprint_timer

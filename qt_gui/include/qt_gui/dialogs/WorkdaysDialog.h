@@ -23,13 +23,24 @@
 #ifndef WORKDAYSDIALOG_H_NVZH9CRG
 #define WORKDAYSDIALOG_H_NVZH9CRG
 
-#include "core/IConfig.h"
+#include "qt_gui/dialogs/AddExceptionalDayDialog.h"
+#include "qt_gui/models/ExtraDayModel.h"
 #include <QDialog>
+#include <core/CommandInvoker.h>
+#include <core/IConfig.h>
+#include <core/IWorkingDaysWriter.h>
+#include <core/WorkdayTracker.h>
 #include <memory>
 
 namespace Ui {
 class WorkdaysDialog;
 } // namespace Ui
+
+namespace {
+
+class State;
+
+} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -37,17 +48,43 @@ class WorkdaysDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit WorkdaysDialog(IConfig& applicationSettings,
+    explicit WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog,
+                            CommandInvoker& commandInvoker,
+                            IWorkingDaysWriter& workingDaysWriter,
+                            ExtraDayModel& holidayModel,
+                            ExtraDayModel& workdayModel,
                             QDialog* parent = nullptr);
+
     ~WorkdaysDialog() override;
+
     void accept() override;
+
+    void setWorkdayTracker(const WorkdayTracker& workdayTracker);
+
+    WorkdayTracker workdayTracker() const;
 
 private:
     std::unique_ptr<Ui::WorkdaysDialog> ui;
-    IConfig& settings;
+    AddExceptionalDayDialog& pickDateDialog;
+    CommandInvoker& commandInvoker;
+    IWorkingDaysWriter& workingDaysWriter;
+    ExtraDayModel& holidayModel;
+    ExtraDayModel& workdayModel;
+    WorkdayTracker tracker;
 
     void initializeDayBoxes();
+
     utils::WeekdaySelection pollWorkdaysCode() const;
+
+    void addHolidays();
+
+    void addWorkdays();
+
+    void
+    onHolidayRemoveRequested(const QModelIndex& parent, int row, int count);
+
+    void
+    onWorkdayRemoveRequested(const QModelIndex& parent, int row, int count);
 };
 
 } // namespace sprint_timer::ui::qt_gui

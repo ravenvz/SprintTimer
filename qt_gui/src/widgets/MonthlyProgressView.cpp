@@ -44,7 +44,6 @@ MonthlyProgressView::MonthlyProgressView(
 {
     setLegendTitle("Last 12 months");
     setLegendAverageCaption("Average per month:");
-    synchronize();
 }
 
 void MonthlyProgressView::synchronize()
@@ -56,7 +55,7 @@ void MonthlyProgressView::synchronize()
         [this](const auto& distribution) {
             setData(ProgressOverPeriod{twelveMonthsBackTillNow(),
                                        distribution,
-                                       applicationSettings.workdays(),
+                                       workdayTracker,
                                        GroupByMonth{},
                                        applicationSettings.dailyGoal()});
         }));

@@ -22,14 +22,20 @@
 #include "qt_gui/widgets/ProgressMonitorWidget.h"
 #include <QGridLayout>
 #include <QIcon>
+#include <core/use_cases/RequestWorkingDays.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-ProgressMonitorWidget::ProgressMonitorWidget(std::unique_ptr<QWidget> dailyProgress,
-                                       std::unique_ptr<QWidget> weeklyProgress,
-                                       std::unique_ptr<QWidget> monthlyProgress,
-                                       QWidget* parent)
+ProgressMonitorWidget::ProgressMonitorWidget(
+    std::unique_ptr<ProgressView> dailyProgress,
+    std::unique_ptr<ProgressView> weeklyProgress,
+    std::unique_ptr<ProgressView> monthlyProgress,
+    QueryInvoker& queryInvoker,
+    IWorkingDaysReader& workingDaysReader,
+    QWidget* parent)
     : QWidget{parent}
+    , queryInvoker{queryInvoker}
+    , workingDaysReader{workingDaysReader}
 {
     dailyProgress->setSizePolicy(QSizePolicy::Expanding,
                                  QSizePolicy::MinimumExpanding);
@@ -37,6 +43,10 @@ ProgressMonitorWidget::ProgressMonitorWidget(std::unique_ptr<QWidget> dailyProgr
                                   QSizePolicy::MinimumExpanding);
     monthlyProgress->setSizePolicy(QSizePolicy::Preferred,
                                    QSizePolicy::MinimumExpanding);
+
+    progressViews.push_back(dailyProgress.get());
+    progressViews.push_back(weeklyProgress.get());
+    progressViews.push_back(monthlyProgress.get());
 
     auto layout = std::make_unique<QGridLayout>(this);
     layout->setSpacing(15);
@@ -47,8 +57,27 @@ ProgressMonitorWidget::ProgressMonitorWidget(std::unique_ptr<QWidget> dailyProgr
     setLayout(layout.release());
 
     setWindowIcon(QIcon(":icons/sprint_timer.png"));
+
+    requestWorkingDays();
 }
 
 QSize ProgressMonitorWidget::sizeHint() const { return QSize{1225, 650}; }
+
+void ProgressMonitorWidget::requestWorkingDays() const
+{
+    using sprint_timer::use_cases::RequestWorkingDays;
+    queryInvoker.execute(std::make_unique<RequestWorkingDays>(
+        workingDaysReader,
+        [this](const WorkdayTracker& tracker) { onWorkingDaysRead(tracker); }));
+}
+
+void ProgressMonitorWidget::onWorkingDaysRead(
+    const WorkdayTracker& tracker) const
+{
+    for (auto* view : progressViews) {
+        view->setWorkingDays(tracker);
+        view->synchronize();
+    }
+}
 
 } // namespace sprint_timer::ui::qt_gui

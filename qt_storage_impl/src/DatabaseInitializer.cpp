@@ -29,6 +29,7 @@
 #include "qt_storage_impl/migrations/Migration_v3.h"
 #include "qt_storage_impl/migrations/Migration_v4.h"
 #include "qt_storage_impl/migrations/Migration_v5.h"
+#include "qt_storage_impl/migrations/Migration_v6.h"
 #include "qt_storage_impl/utils/QueryUtils.h"
 #include <QDebug>
 #include <QSqlDriver>
@@ -40,7 +41,7 @@ namespace {
 
 using namespace sprint_timer::storage::qt_storage_impl;
 
-constexpr unsigned currentDatabaseVersion{5};
+constexpr unsigned currentDatabaseVersion{6};
 
 bool databaseFileNotFound(const QString& filePath);
 
@@ -88,8 +89,8 @@ using namespace sprint_timer::storage::qt_storage_impl;
 
 bool databaseFileNotFound(const QString& filePath)
 {
-	if (filePath == ":memory:" || filePath == "file::memory:?cache=shared")
-		return true;
+    if (filePath == ":memory:" || filePath == "file::memory:?cache=shared")
+        return true;
     return !QFile::exists(filePath);
 }
 
@@ -153,11 +154,18 @@ void createTables(QSqlQuery& query)
         % "(" % TaskTable::Columns::id % ")"
         % " ON DELETE CASCADE ON UPDATE CASCADE)"};
 
+    const QString createExtraDaysTable{
+        "CREATE TABLE " % ExtraDaysTable::name % "("
+        % ExtraDaysTable::Columns::id % " INTEGER PRIMARY KEY AUTOINCREMENT, "
+        % ExtraDaysTable::Columns::day % " DATE UNIQUE, "
+        % ExtraDaysTable::Columns::workday % " BOOL);"};
+
     tryExecute(query, createInfoTable);
     tryExecute(query, createTaskTable);
     tryExecute(query, createTagTable);
     tryExecute(query, createSprintTable);
     tryExecute(query, createTaskTagTable);
+    tryExecute(query, createExtraDaysTable);
 }
 
 void createViews(QSqlQuery& query)
@@ -332,6 +340,7 @@ MigrationManager prepareMigrationManager(QSqlDatabase& database)
     migrationManager.addMigration(2, std::make_unique<Migration_v3>());
     migrationManager.addMigration(3, std::make_unique<Migration_v4>());
     migrationManager.addMigration(4, std::make_unique<Migration_v5>());
+    migrationManager.addMigration(5, std::make_unique<Migration_v6>());
     return migrationManager;
 }
 

@@ -23,4 +23,36 @@
 
 namespace sprint_timer {
 
+std::vector<GoalProgress>
+GroupByMonth::computeProgress(const dw::DateRange& period,
+                              const std::vector<int>& actualProgress,
+                              const WorkdayTracker& workdayTracker,
+                              int workdayGoal) const
+{
+    using namespace dw;
+    std::vector<int> labour;
+    std::vector<GoalProgress> progress;
+    progress.reserve(actualProgress.size());
+    auto actualIt = cbegin(actualProgress);
+
+    int numWorkdays{0};
+    auto currentMonth = period.start().month();
+
+    const Date stop = period.finish() + Days{1};
+    for (auto day = period.start(); day < stop; day = day + Days{1}) {
+        if (day.month() != currentMonth) {
+            currentMonth = day.month();
+            progress.emplace_back(workdayGoal * numWorkdays, *actualIt);
+            ++actualIt;
+            numWorkdays = 0;
+        }
+        if (workdayTracker.isWorkday(day))
+            ++numWorkdays;
+    }
+    progress.emplace_back(workdayGoal * numWorkdays, *actualIt);
+
+    return progress;
+}
+
+
 } // namespace sprint_timer

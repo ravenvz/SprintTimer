@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "core/Distribution.h"
-#include "core/utils/WeekdaySelection.h"
+#include "core/WorkdayTracker.h"
 #include <date_wrapper/date_wrapper.h>
 #include <numeric>
 #include <optional>
@@ -38,7 +38,7 @@ class ProgressOverPeriod {
 public:
     ProgressOverPeriod(const dw::DateRange& period,
                        const Distribution<int>& actualProgress,
-                       utils::WeekdaySelection workdays,
+                       const WorkdayTracker& workdayTracker,
                        const GroupingStrategy& groupingStrategy,
                        int workdayGoal);
 
@@ -60,7 +60,6 @@ public:
 
 private:
     const dw::DateRange period_;
-    const utils::WeekdaySelection workdays_;
     const int actual_;
     std::vector<GoalProgress> progress_;
     int numWorkBins_;

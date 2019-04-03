@@ -27,21 +27,20 @@ namespace sprint_timer {
 std::vector<GoalProgress>
 GroupByDay::computeProgress(const dw::DateRange& period,
                             const std::vector<int>& actualProgress,
-                            utils::WeekdaySelection workdays,
+                            const WorkdayTracker& workdayTracker,
                             int workdayGoal) const
 {
     using namespace dw;
-    auto labour = workday_outline(
-        DateTimeRange{DateTime{period.start()}, DateTime{period.finish()}},
-        workdays);
-    std::vector<GoalProgress> progress(actualProgress.size());
-    std::transform(actualProgress.cbegin(),
-                   actualProgress.cend(),
-                   labour.cbegin(),
-                   progress.begin(),
-                   [workdayGoal](auto actualVal, auto isWorkday) {
-                       return GoalProgress{workdayGoal * isWorkday, actualVal};
-                   });
+    std::vector<GoalProgress> progress;
+    progress.reserve(actualProgress.size());
+    auto actualIt = cbegin(actualProgress);
+
+    for (auto day = period.start(); day <= period.finish();
+         day = day + Days{1}, ++actualIt) {
+        const bool isWorkday{workdayTracker.isWorkday(day)};
+        progress.emplace_back(workdayGoal * isWorkday, *actualIt);
+    }
+
     return progress;
 }
 

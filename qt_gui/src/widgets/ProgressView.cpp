@@ -96,6 +96,11 @@ void ProgressView::addLegendRow(const QString& labelText, QWidget* field)
     ui->formLayout->addRow(labelText, field);
 }
 
+void ProgressView::addLegendRow(QWidget* field)
+{
+    ui->formLayout->addRow(field);
+}
+
 void ProgressView::setData(const ProgressOverPeriod& progress)
 {
     updateLegend(progress);
@@ -103,12 +108,17 @@ void ProgressView::setData(const ProgressOverPeriod& progress)
     updateProgressBar(progress.getValue(progress.size() - 1));
 }
 
+void ProgressView::setWorkingDays(const WorkdayTracker& tracker)
+{
+    workdayTracker = tracker;
+}
+
 void ProgressView::updateLegend(const ProgressOverPeriod& progress) const
 {
     ui->lblProgress->setText(
         QString("%1/%2").arg(progress.actual()).arg(progress.estimated()));
     ui->lblLeftCaption->setText(progress.isOverwork() ? "Overwork:"
-                                                      : "Left to complete");
+                                                      : "Left to complete:");
     ui->lblLeft->setText(QString{"%1"}.arg(abs(progress.difference())));
     if (auto average = progress.averagePerGroupPeriod(); average)
         ui->lblAverage->setText(formatDecimal(*average));

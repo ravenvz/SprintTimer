@@ -22,7 +22,9 @@
 #ifndef GOAL_PROGRESS_WIDGET_H
 #define GOAL_PROGRESS_WIDGET_H
 
-#include <QWidget>
+#include "qt_gui/widgets/ProgressView.h"
+#include <core/IWorkingDaysReader.h>
+#include <core/QueryInvoker.h>
 #include <memory>
 
 namespace sprint_timer::ui::qt_gui {
@@ -31,12 +33,23 @@ class ProgressView;
 
 class ProgressMonitorWidget : public QWidget {
 public:
-    ProgressMonitorWidget(std::unique_ptr<QWidget> dailyProgress,
-                          std::unique_ptr<QWidget> weeklyProgress,
-                          std::unique_ptr<QWidget> monthlyProgress,
+    ProgressMonitorWidget(std::unique_ptr<ProgressView> dailyProgress,
+                          std::unique_ptr<ProgressView> weeklyProgress,
+                          std::unique_ptr<ProgressView> monthlyProgress,
+                          QueryInvoker& queryInvoker,
+                          IWorkingDaysReader& workingDaysReader,
                           QWidget* parent = 0);
 
     QSize sizeHint() const override;
+
+    void requestWorkingDays() const;
+
+private:
+    QueryInvoker& queryInvoker;
+    IWorkingDaysReader& workingDaysReader;
+    std::vector<ProgressView*> progressViews;
+
+    void onWorkingDaysRead(const WorkdayTracker& tracker) const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

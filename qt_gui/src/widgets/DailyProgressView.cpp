@@ -45,11 +45,13 @@ DailyProgressView::DailyProgressView(
     , applicationSettings{applicationSettings_}
     , distributionReader{dailyDistributionReader_}
     , queryInvoker{queryInvoker_}
+    , workdaysDialog{workdaysDialog_}
 {
     setLegendTitle("Last 30 days");
     setLegendAverageCaption("Average per day:");
 
-    auto configureWorkdaysButton = std::make_unique<QPushButton>("Configure");
+    auto configureWorkdaysButton
+        = std::make_unique<QPushButton>("Configure workdays");
     connect(configureWorkdaysButton.get(),
             &QPushButton::clicked,
             [&workdaysDialog_]() { workdaysDialog_.exec(); });
@@ -59,24 +61,23 @@ DailyProgressView::DailyProgressView(
             QOverload<int>::of(&QSpinBox::valueChanged),
             [&](int goal) { emit goalChanged(goal); });
     DailyProgressView::addLegendRow("Workday goal:", spinBoxGoal.release());
-    DailyProgressView::addLegendRow("Workdays",
-                                    configureWorkdaysButton.release());
+    DailyProgressView::addLegendRow(configureWorkdaysButton.release());
 
-    // TODO should set goal directly in spinbox singal handler
+    // TODO should set goal directly in spinbox signal handler
     connect(this, &ProgressView::goalChanged, [this](int goal) {
         applicationSettings.setDailyGoal(goal);
         synchronize();
     });
     connect(&workdaysDialog_, &QDialog::accepted, [this]() {
-        synchronize();
+        // TODO maybe first check if they really change before emitting?
         emit workdaysChange();
     });
-    synchronize();
 }
 
 void DailyProgressView::synchronize()
 {
     using use_cases::RequestSprintDistribution;
+    workdaysDialog.setWorkdayTracker(workdayTracker);
     queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         distributionReader,
         thirtyDaysBackTillNow(),
@@ -84,7 +85,7 @@ void DailyProgressView::synchronize()
             GroupByDay groupByDayStrategy;
             setData(ProgressOverPeriod{thirtyDaysBackTillNow(),
                                        distribution,
-                                       applicationSettings.workdays(),
+                                       workdayTracker,
                                        groupByDayStrategy,
                                        applicationSettings.dailyGoal()});
         }));

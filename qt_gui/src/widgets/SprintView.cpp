@@ -21,8 +21,8 @@
 *********************************************************************************/
 
 #include "qt_gui/widgets/SprintView.h"
+#include "qt_gui/utils/MouseRightReleaseEater.h"
 #include <QMenu>
-#include <qt_gui/utils/MouseRightReleaseEater.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -30,7 +30,7 @@ SprintView::SprintView(SprintModel& sprintModel, QWidget* parent)
     : QListView{parent}
     , sprintModel{sprintModel}
 {
-    setContextMenuPolicy(Qt::CustomContextMenu);
+    setContextMenuPolicy(Qt::ActionsContextMenu);
     setModel(&sprintModel);
     connect(this,
             &QListView::customContextMenuRequested,

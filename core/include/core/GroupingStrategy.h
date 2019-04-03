@@ -23,7 +23,7 @@
 #define SPRINT_TIMER_APP_GROUPINGSTRATEGY_H
 
 #include "core/GoalProgress.h"
-#include "core/utils/WeekdaySelection.h"
+#include "core/WorkdayTracker.h"
 #include <date_wrapper/date_wrapper.h>
 #include <vector>
 
@@ -36,7 +36,7 @@ public:
     virtual std::vector<GoalProgress>
     computeProgress(const dw::DateRange& period,
                     const std::vector<int>& actualProgress,
-                    sprint_timer::utils::WeekdaySelection workdays,
+                    const WorkdayTracker& workdayTracker,
                     int workdayGoal) const = 0;
 };
 

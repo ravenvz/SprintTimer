@@ -22,9 +22,9 @@
 #ifndef QTSPRINTSTORAGEWRITER_H_U7AAXVTC
 #define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
 
-#include "core/ISprintStorageWriter.h"
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
+#include <core/ISprintStorageWriter.h>
 
 namespace sprint_timer::storage::qt_storage_impl {
 

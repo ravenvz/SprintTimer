@@ -27,6 +27,7 @@
 
 namespace sprint_timer::ui::qt_gui {
 
+using dw::Date;
 using dw::DateTime;
 using dw::DateTimeRange;
 
@@ -47,6 +48,13 @@ public:
     }
 
     static QDate qDate(const DateTime& dt) { return qDateTime(dt).date(); }
+
+    static QDate qDate(const Date& date)
+    {
+        return QDate(static_cast<int>(date.year()),
+                     static_cast<unsigned>(date.month()),
+                     static_cast<unsigned>(date.day()));
+    }
 
     static DateTime dateTime(const QDateTime& qdt)
     {

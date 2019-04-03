@@ -45,6 +45,7 @@ private:
     IConfig& applicationSettings;
     ISprintDistributionReader& distributionReader;
     QueryInvoker& queryInvoker;
+    WorkdaysDialog& workdaysDialog;
 };
 
 } // namespace sprint_timer::ui::qt_gui

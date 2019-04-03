@@ -22,12 +22,7 @@
 #ifndef GROUPBYDAY_H_6EWBVYZU
 #define GROUPBYDAY_H_6EWBVYZU
 
-#include "core/GoalProgress.h"
-#include "core/GroupByDay.h"
 #include "core/GroupingStrategy.h"
-#include "core/utils/WeekdaySelection.h"
-#include <date_wrapper/date_wrapper.h>
-#include <vector>
 
 namespace sprint_timer {
 
@@ -36,7 +31,7 @@ public:
     std::vector<GoalProgress>
     computeProgress(const dw::DateRange& period,
                     const std::vector<int>& actualProgress,
-                    utils::WeekdaySelection workdays,
+                    const WorkdayTracker& workdayTracker,
                     int workdayGoal) const override;
 };
 

@@ -56,20 +56,22 @@
 #include <filesystem>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
+#include <qt_gui/dialogs/AddExceptionalDayDialog.h>
 #include <qt_gui/dialogs/AddSprintDialog.h>
 #include <qt_gui/dialogs/AddTaskDialog.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
 #include <qt_gui/dialogs/UndoDialog.h>
 #include <qt_gui/dialogs/WorkdaysDialog.h>
+#include <qt_gui/models/ExtraDayModel.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/TagModel.h>
 #include <qt_gui/widgets/DailyProgressView.h>
 #include <qt_gui/widgets/DefaultTimer.h>
 #include <qt_gui/widgets/FancyTimer.h>
-#include <qt_gui/widgets/ProgressMonitorWidget.h>
 #include <qt_gui/widgets/HistoryWindow.h>
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/MonthlyProgressView.h>
+#include <qt_gui/widgets/ProgressMonitorWidget.h>
 #include <qt_gui/widgets/ProgressView.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/SprintView.h>
@@ -232,9 +234,9 @@ int main(int argc, char* argv[])
     Config applicationSettings;
 
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/sprint.db"};
+    DBService dbService{dataDirectory + "/test_sprint.db"};
 
-    QtStorageImplementersFactory factory{dbService};
+    QtStorageImplementersFactory factory{dbService, applicationSettings};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{
         factory.createSprintStorageReader()};
     std::unique_ptr<ISprintStorageWriter> sprintStorageWriter{
@@ -252,6 +254,10 @@ int main(int argc, char* argv[])
             applicationSettings.firstDayOfWeek())};
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
+    std::unique_ptr<IWorkingDaysReader> workingDaysReader{
+        factory.createWorkingDaysReader()};
+    std::unique_ptr<IWorkingDaysWriter> workingDaysWriter{
+        factory.createWorkingDaysWriter()};
 
     CommandInvoker defaultCommandInvoker;
     VerboseCommandInvoker commandInvoker{defaultCommandInvoker};
@@ -309,7 +315,6 @@ int main(int argc, char* argv[])
                                       *sprintStorageReader,
                                       *sprintYearRangeReader,
                                       queryInvoker};
-    // TODO keep an eye: modified
     QObject::connect(&sprintModel,
                      &AsyncListModel::updateFinished,
                      [&statisticsWindow]() { statisticsWindow.synchronize(); });
@@ -317,7 +322,14 @@ int main(int argc, char* argv[])
                      &AsyncListModel::updateFinished,
                      [&statisticsWindow]() { statisticsWindow.synchronize(); });
 
-    WorkdaysDialog workdaysDialog{applicationSettings};
+    AddExceptionalDayDialog exceptionalDayDialog;
+    ExtraDayModel holidayModel;
+    ExtraDayModel workdayModel;
+    WorkdaysDialog workdaysDialog{exceptionalDayDialog,
+                                  commandInvoker,
+                                  *workingDaysWriter,
+                                  holidayModel,
+                                  workdayModel};
     auto dailyProgress
         = std::make_unique<DailyProgressView>(applicationSettings,
                                               *dailyDistributionReader,
@@ -326,10 +338,6 @@ int main(int argc, char* argv[])
     QObject::connect(&sprintModel,
                      &AsyncListModel::updateFinished,
                      [p = dailyProgress.get()]() { p->synchronize(); });
-    // TODO do we really need connection to TaskModel and why?
-    // QObject::connect(&taskModel,
-    //                  &QAbstractListModel::modelReset,
-    //                  [p = dailyProgress.get()]() { p->synchronize(); });
     auto weeklyProgress = std::make_unique<WeeklyProgressView>(
         applicationSettings, queryInvoker, *weeklyDistributionReader);
     QObject::connect(&sprintModel,
@@ -358,11 +366,15 @@ int main(int argc, char* argv[])
     QObject::connect(dailyProgress.get(),
                      &ProgressView::workdaysChange,
                      [p = monthlyProgress.get()]() { p->synchronize(); });
-    ProgressMonitorWidget progressWindow{
-        std::move(dailyProgress),
-        std::move(weeklyProgress),
-        std::move(monthlyProgress),
-    };
+    ProgressMonitorWidget progressWindow{std::move(dailyProgress),
+                                         std::move(weeklyProgress),
+                                         std::move(monthlyProgress),
+                                         queryInvoker,
+                                         *workingDaysReader};
+    QObject::connect(&workdaysDialog,
+                     &QDialog::accepted,
+                     &progressWindow,
+                     &ProgressMonitorWidget::requestWorkingDays);
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;

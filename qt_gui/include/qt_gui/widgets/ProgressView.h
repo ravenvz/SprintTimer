@@ -22,11 +22,12 @@
 #ifndef PROGRESSVIEW_H_2OXRIURM
 #define PROGRESSVIEW_H_2OXRIURM
 
-#include "core/GoalProgress.h"
 #include "qt_gui/Synchronizable.h"
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
+#include <core/GoalProgress.h>
 #include <core/ProgressProto.h>
+#include <core/WorkdayTracker.h>
 #include <memory>
 
 namespace Ui {
@@ -51,7 +52,11 @@ public:
 
     void addLegendRow(const QString& labelText, QWidget* field);
 
+    void addLegendRow(QWidget* field);
+
     void setData(const ProgressOverPeriod& progress);
+
+    void setWorkingDays(const WorkdayTracker& workdayTracker);
 
 protected:
     using GoalValue = int;
@@ -63,6 +68,8 @@ protected:
                  Columns numColumns,
                  GaugeSize gaugeRelSize,
                  QWidget* parent = nullptr);
+
+    WorkdayTracker workdayTracker{utils::WeekdaySelection{0}};
 
 private:
     std::unique_ptr<Ui::ProgressView> ui;
