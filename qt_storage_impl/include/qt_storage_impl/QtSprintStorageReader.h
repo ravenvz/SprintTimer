@@ -26,6 +26,7 @@
 #include "core/entities/Tag.h"
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
+#include <queue>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -52,7 +53,7 @@ private:
     qint64 sprintsInTimeRangeQueryId{-1};
     qint64 sprintsForTaskQueryId{-1};
     DBService& dbService;
-    std::list<Handler> handler_queue;
+    std::queue<Handler> handlerQueue;
 
     entities::Sprint sprintFromQSqlRecord(const QSqlRecord& record);
 

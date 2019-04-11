@@ -26,7 +26,7 @@
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
 #include <core/IConfig.h>
-#include <variant>
+#include <queue>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -40,10 +40,13 @@ public:
                              Handler handler) override;
 
 protected:
+    struct Context {
+        Handler handler;
+        QDate startDate;
+    };
     DBService& dbService;
     size_t distributionSize;
-    std::list<Handler> handler_queue;
-    QDate startDate;
+    std::queue<Context> contextQueue;
     qint64 mQueryId{-1};
 
     bool invalidQueryId(qint64 queryId) const;

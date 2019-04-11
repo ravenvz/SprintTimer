@@ -25,6 +25,7 @@
 #include "core/ITaskStorageReader.h"
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
+#include <queue>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -63,8 +64,8 @@ private:
     qint64 mRequestTasksQueryId{-1};
     qint64 mTagQueryId{-1};
     DBService& dbService;
-    std::list<Handler> handler_queue;
-    std::list<TagHandler> tag_handler_queue;
+    std::queue<Handler> handlerQueue;
+    std::queue<TagHandler> tagHandlerQueue;
 
     QVariant columnData(const QSqlRecord& record, Column column) const;
 
