@@ -45,7 +45,7 @@ public:
 
     std::unique_ptr<ISprintDistributionReader>
     createSprintWeeklyDistributionReader(
-        FirstDayOfWeek firstDayOfWeek) const override;
+        dw::Weekday firstDayOfWeek) const override;
 
     std::unique_ptr<ISprintDistributionReader>
     createSprintMonthlyDistributionReader() const override;

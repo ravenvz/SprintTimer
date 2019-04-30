@@ -26,7 +26,7 @@ namespace sprint_timer::ui::qt_gui {
 
 
 DateRangePickDialog::DateRangePickDialog(DateInterval initialPeriod,
-                                         FirstDayOfWeek firstDayOfWeek,
+                                         dw::Weekday firstDayOfWeek,
                                          QWidget* parent)
     : QDialog{parent}
     , ui{std::make_unique<Ui::DateRangePickDialog>()}
@@ -39,12 +39,12 @@ DateRangePickDialog::DateRangePickDialog(DateInterval initialPeriod,
 
 DateRangePickDialog::~DateRangePickDialog() = default;
 
-void DateRangePickDialog::configureCalendar(FirstDayOfWeek firstDayOfWeek)
+void DateRangePickDialog::configureCalendar(dw::Weekday firstDayOfWeek)
 {
     ui->cwStart->setMaximumDate(QDate::currentDate());
     ui->cwEnd->setMaximumDate(QDate::currentDate());
 
-    if (firstDayOfWeek == FirstDayOfWeek::Monday) {
+    if (firstDayOfWeek == dw::Weekday::Monday) {
         ui->cwStart->setFirstDayOfWeek(Qt::Monday);
         ui->cwEnd->setFirstDayOfWeek(Qt::Monday);
     }

@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "qt_storage_impl/migrations/Migration_v6.h"
 #include "qt_storage_impl/utils/QueryUtils.h"
+#include <QDate>
+#include <QString>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -28,8 +30,20 @@ void Migration_v6::run(QSqlDatabase& database) const
 {
     QSqlQuery query{database};
     tryExecute(query,
-               "CREATE TABLE extra_days (id INTEGER PRIMARY KEY AUTOINCREMENT, "
-               "day DATE UNIQUE, workday BOOL);");
+               "CREATE TABLE exceptional_day (id INTEGER PRIMARY KEY "
+               "AUTOINCREMENT, date DATE UNIQUE, goal INTEGER);");
+    tryExecute(query,
+               "CREATE TABLE schedule (id INTEGER PRIMARY KEY AUTOINCREMENT, "
+               "applied_since DATE UNIQUE, mon_goal INTEGER, tue_goal INTEGER, "
+               "wed_goal INTEGER, thu_goal INTEGER, fri_goal INTEGER, sat_goal "
+               "INTEGER, sun_goal INTEGER);");
+    const int goal{13};
+    tryExecute(query,
+               QString{"INSERT INTO schedule (applied_since, mon_goal, "
+                       "tue_goal, wed_goal, thu_goal, fri_goal, sat_goal, "
+                       "sun_goal) VALUES ((SELECT date(min(start_time)) FROM "
+                       "sprint), %2, %2, %2, %2, %2, 0, 0);"}
+                   .arg(goal));
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl

@@ -22,30 +22,46 @@
 #ifndef WORKDAYTRACKER_H_DPJU1VL0
 #define WORKDAYTRACKER_H_DPJU1VL0
 
+#include "core/WeekSchedule.h"
 #include "core/utils/WeekdaySelection.h"
 #include <iostream>
-#include <unordered_set>
+#include <map>
+#include <unordered_map>
 
 namespace sprint_timer {
 
-
 class WorkdayTracker {
 public:
+    using ScheduleData = std::pair<dw::Date, WeekSchedule>;
+    using ScheduleRoaster = std::vector<ScheduleData>;
+    using DayData = std::pair<dw::Date, int>;
+
     WorkdayTracker() = default;
 
-    explicit WorkdayTracker(utils::WeekdaySelection workdays);
+    void addWeekSchedule(const dw::Date& sinceDate,
+                         const WeekSchedule& schedule);
 
     bool isWorkday(const dw::Date& date) const;
 
-    bool isWorkday(const dw::Weekday& weekday) const;
+    int goal(const dw::Date& date) const;
 
-    void addExtraWorkday(const dw::Date& date);
+    void addExceptionalDay(const dw::Date& date, int goal);
+
+    void addExtraWorkday(const dw::Date& date, int goal);
 
     void addExtraHoliday(const dw::Date& date);
+
+    WeekSchedule scheduleFor(const dw::Date& date) const;
+
+    WeekSchedule currentSchedule() const;
+
+    ScheduleRoaster scheduleRoaster() const;
 
     std::vector<dw::Date> extraWorkdays() const;
 
     std::vector<dw::Date> extraHolidays() const;
+
+    std::vector<DayData> exceptionalDays() const;
 
     friend bool operator==(const WorkdayTracker& lhs,
                            const WorkdayTracker& rhs);
@@ -55,42 +71,34 @@ private:
         size_t operator()(const dw::Date& date) const;
     };
 
-    utils::WeekdaySelection workdays_{0};
-    std::unordered_set<dw::Date, DateHash> extraHolidays_;
-    std::unordered_set<dw::Date, DateHash> extraWorkdays_;
+    std::unordered_map<dw::Date, int, DateHash> extraDays;
+    std::map<dw::Date, WeekSchedule> schedules;
 
     bool isExtraWorkday(const dw::Date& date) const;
 
     bool isExtraHoliday(const dw::Date& date) const;
+
+    // TODO this operator overload was added for debugging purposes; it is
+    // rather expensive to call - best hide it in tests or remove
+    template <class CharT, class Traits>
+    friend std::basic_ostream<CharT, Traits>&
+    operator<<(std::basic_ostream<CharT, Traits>& os,
+               const WorkdayTracker& tracker);
 };
 
 
 int numWorkdays(const WorkdayTracker& workdayTracker,
                 const dw::DateRange& dateSpan);
 
-// TODO this operator overload was added for debugging purposes; it is rather
-// expensive to call - best hide it in tests or remove
 template <class CharT, class Traits>
-inline
-std::basic_ostream<CharT, Traits>&
+inline std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const WorkdayTracker& tracker)
 {
     os << "WorkdayTracker {\n";
-    os << "\tworking days: ";
-    if (tracker.isWorkday(dw::Weekday::Monday))
-        os << "Monday ";
-    if (tracker.isWorkday(dw::Weekday::Tuesday))
-        os << "Tuesday ";
-    if (tracker.isWorkday(dw::Weekday::Wednesday))
-        os << "Wednesday ";
-    if (tracker.isWorkday(dw::Weekday::Thursday))
-        os << "Thursday ";
-    if (tracker.isWorkday(dw::Weekday::Friday))
-        os << "Friday ";
-    if (tracker.isWorkday(dw::Weekday::Saturday))
-        os << "Saturday ";
-    if (tracker.isWorkday(dw::Weekday::Sunday))
-        os << "Sunday ";
+    os << "Schedules: \n";
+    for (const auto& entry : tracker.schedules) {
+        os << '\t' << entry.first << " " << entry.second << "\n";
+    }
     os << "\n\tExtra holidays: ";
     for (const auto& day : tracker.extraHolidays())
         os << dw::to_string(day, "dd.MM.yyyy") << " ";

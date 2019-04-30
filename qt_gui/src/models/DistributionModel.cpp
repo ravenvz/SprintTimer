@@ -19,51 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <QDate>
-#include <QDialog>
-#include <memory>
-
-#ifndef ADDEXCEPTIONALDAYDIALOG_H_4KBYLJOJ
-#define ADDEXCEPTIONALDAYDIALOG_H_4KBYLJOJ
-
-namespace Ui {
-
-class AddExceptionalDayDialog;
-
-} // namespace Ui
+#include "qt_gui/models/DistributionModel.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-class AddExceptionalDayDialog : public QDialog {
-    Q_OBJECT
+DistributionModel::DistributionModel(
+    ISprintDistributionReader& reader_,
+    QueryInvoker& queryInvoker_,
+    const GroupingStrategy& distributionRequestStrategy_,
+    QObject* parent)
+    : reader{reader_}
+    , queryInvoker{queryInvoker_}
+    , distributionRequestStrategy{distributionRequestStrategy_}
+{
+    synchronize();
+}
 
-public:
-    explicit AddExceptionalDayDialog(QDialog* parent = nullptr);
+const std::vector<int>& DistributionModel::distribution() const { return data; }
 
-    ~AddExceptionalDayDialog() override;
-
-    void accept() override;
-
-    QDate startDate() const;
-
-    int numDays() const;
-
-    int targetGoal() const;
-
-    void setStartDate(const QDate& date);
-
-    void setNumDays(int numDays);
-
-signals:
-    void onDateSelected(const QDate& date, bool recurrent);
-
-private:
-    std::unique_ptr<Ui::AddExceptionalDayDialog> ui;
-    QDate startDate_;
-    int numDays_{1};
-};
+void DistributionModel::synchronize()
+{
+    using sprint_timer::use_cases::RequestSprintDistribution;
+    queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
+        reader,
+        distributionRequestStrategy.dateRange(),
+        [this](const Distribution<int>& distribution) {
+            data = distribution.getDistributionVector();
+            emit distributionChanged(data);
+        }));
+}
 
 } // namespace sprint_timer::ui::qt_gui
-
-#endif /* end of include guard: ADDEXCEPTIONALDAYDIALOG_H_4KBYLJOJ */
-

@@ -90,17 +90,33 @@ namespace TaskTagTable {
 
 } // namespace TaskTagTable
 
-namespace ExtraDaysTable {
-    inline const QStringView name{QStringLiteral("extra_days")};
+namespace ExceptionalDayTable {
+    inline const QStringView name{QStringLiteral("exceptional_day")};
 
     namespace Columns {
         inline const QStringView id{QStringLiteral("id")};
-        inline const QStringView day{QStringLiteral("day")};
-        inline const QStringView workday{QStringLiteral("workday")};
-
+        inline const QStringView date{QStringLiteral("date")};
+        inline const QStringView goal{QStringLiteral("goal")};
     } // namespace Columns
 
-} // namespace ExtraDaysTable
+} // namespace ExceptionalDayTable
+
+namespace ScheduleTable {
+    inline const QStringView name{QStringLiteral("schedule")};
+
+    namespace Columns {
+        inline const QStringView id{QStringLiteral("id")};
+        inline const QStringView applied_since{QStringLiteral("applied_since")};
+        inline const QStringView monday_goal{QStringLiteral("mon_goal")};
+        inline const QStringView tuesday_goal{QStringLiteral("tue_goal")};
+        inline const QStringView wednesday_goal{QStringLiteral("wed_goal")};
+        inline const QStringView thursday_goal{QStringLiteral("thu_goal")};
+        inline const QStringView friday_goal{QStringLiteral("fri_goal")};
+        inline const QStringView saturday_goal{QStringLiteral("sat_goal")};
+        inline const QStringView sunday_goal{QStringLiteral("sun_goal")};
+    } // namespace Columns
+
+} // namespace ScheduleTable
 
 namespace TaskTagView {
     inline const QStringView name{QStringLiteral("task_tag_view")};

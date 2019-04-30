@@ -56,7 +56,7 @@ HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader,
                              HistoryModel& historyModel,
                              QStyledItemDelegate& historyItemDelegate,
                              QueryInvoker& queryInvoker,
-                             FirstDayOfWeek firstDayOfWeek,
+                             dw::Weekday firstDayOfWeek,
                              QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::HistoryWindow>()}
@@ -98,7 +98,6 @@ HistoryWindow::~HistoryWindow() = default;
 
 void HistoryWindow::synchronize()
 {
-    std::cout << "   History window sync requested" << std::endl;
     std::visit(HistoryRequestedEvent{*this}, state);
 }
 

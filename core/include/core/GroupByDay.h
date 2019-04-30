@@ -28,11 +28,16 @@ namespace sprint_timer {
 
 class GroupByDay : public GroupingStrategy {
 public:
+    GroupByDay(int numDays);
+
     std::vector<GoalProgress>
-    computeProgress(const dw::DateRange& period,
-                    const std::vector<int>& actualProgress,
-                    const WorkdayTracker& workdayTracker,
-                    int workdayGoal) const override;
+    computeProgress(const std::vector<int>& actualProgress,
+                    const WorkdayTracker& workdayTracker) const override;
+
+    dw::DateRange dateRange() const override;
+
+private:
+    dw::DateRange period;
 };
 
 } // namespace sprint_timer

@@ -19,22 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef WORKINGDAYSWRITERMOCK_H_Y2JLALNQ
-#define WORKINGDAYSWRITERMOCK_H_Y2JLALNQ
+#ifndef WORKDAYSCHANGELISTENER_H_G23DLI68
+#define WORKDAYSCHANGELISTENER_H_G23DLI68
 
-#include <core/IWorkingDaysWriter.h>
-#include <gmock/gmock.h>
+#include <core/WorkdayTracker.h>
 
-class WorkingDaysWriterMock : public sprint_timer::IWorkingDaysWriter {
+namespace sprint_timer::ui::qt_gui {
+
+class WorkdaysChangeListener {
 public:
-    MOCK_METHOD1(changeWorkingDays, void(const sprint_timer::WorkdayTracker&));
+    virtual ~WorkdaysChangeListener() = default;
 
-    MOCK_METHOD1(addExtraHolidays, void(const std::vector<dw::Date>&));
-
-    MOCK_METHOD1(addExtraWorkdays, void(const std::vector<dw::Date>&));
-
-    MOCK_METHOD1(removeExtraHolidays, void(const std::vector<dw::Date>&));
-    MOCK_METHOD1(removeExtraWorkdays, void(const std::vector<dw::Date>&));
+    virtual void onWorkdayTrackerChanged(const WorkdayTracker& tracker) = 0;
 };
 
-#endif /* end of include guard: WORKINGDAYSWRITERMOCK_H_Y2JLALNQ */
+} // namespace sprint_timer::ui::qt_gui
+
+#endif /* end of include guard: WORKDAYSCHANGELISTENER_H_G23DLI68 */

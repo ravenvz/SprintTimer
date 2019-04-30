@@ -22,13 +22,22 @@
 
 #include "core/GroupByDay.h"
 
+namespace {
+
+dw::DateRange nDaysBackTillNow(int numDays);
+
+} // namespace
+
 namespace sprint_timer {
 
+GroupByDay::GroupByDay(int numDays)
+    : period{nDaysBackTillNow(numDays)}
+{
+}
+
 std::vector<GoalProgress>
-GroupByDay::computeProgress(const dw::DateRange& period,
-                            const std::vector<int>& actualProgress,
-                            const WorkdayTracker& workdayTracker,
-                            int workdayGoal) const
+GroupByDay::computeProgress(const std::vector<int>& actualProgress,
+                            const WorkdayTracker& workdayTracker) const
 {
     using namespace dw;
     std::vector<GoalProgress> progress;
@@ -37,11 +46,24 @@ GroupByDay::computeProgress(const dw::DateRange& period,
 
     for (auto day = period.start(); day <= period.finish();
          day = day + Days{1}, ++actualIt) {
-        const bool isWorkday{workdayTracker.isWorkday(day)};
-        progress.emplace_back(workdayGoal * isWorkday, *actualIt);
+        progress.emplace_back(workdayTracker.goal(day), *actualIt);
     }
 
     return progress;
 }
 
+dw::DateRange GroupByDay::dateRange() const { return period; }
+
 } // namespace sprint_timer
+
+namespace {
+
+dw::DateRange nDaysBackTillNow(int numDays)
+{
+    using namespace dw;
+    auto now = current_date_local();
+    auto from = now - Days{numDays - 1};
+    return {from, now};
+}
+
+} // namespace

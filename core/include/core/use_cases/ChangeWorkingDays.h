@@ -19,32 +19,32 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef WEEKLYPROGRESSVIEW_H_BF6U7N1X
-#define WEEKLYPROGRESSVIEW_H_BF6U7N1X
+#ifndef CHANGEWORKINGDAYS_H_SDICNVMO
+#define CHANGEWORKINGDAYS_H_SDICNVMO
 
-#include "qt_gui/widgets/ProgressView.h"
-#include <core/IConfig.h>
-#include <core/ISprintDistributionReader.h>
-#include <core/QueryInvoker.h>
+#include <core/Command.h>
+#include <core/IWorkingDaysWriter.h>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer::use_cases {
 
-class WeeklyProgressView : public ProgressView {
+class ChangeWorkingDays : public Command {
 public:
-    WeeklyProgressView(IConfig& applicationSettings,
-                       QueryInvoker& queryInvoker,
-                       ISprintDistributionReader& weeklyDistributionReader,
-                       QWidget* parent = nullptr);
+    ChangeWorkingDays(IWorkingDaysWriter& writer,
+                      const WorkdayTracker& oldTracker,
+                      const WorkdayTracker& newTracker);
 
-    void synchronize() override;
+    void execute() final;
+
+    void undo() final;
+
+    std::string describe() const final;
 
 private:
-    IConfig& applicationSettings;
-    const FirstDayOfWeek firstDayOfWeek{applicationSettings.firstDayOfWeek()};
-    QueryInvoker& queryInvoker;
-    ISprintDistributionReader& distributionReader;
+    IWorkingDaysWriter& writer;
+    const WorkdayTracker oldTracker;
+    const WorkdayTracker newTracker;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer::use_cases
 
-#endif /* end of include guard: WEEKLYPROGRESSVIEW_H_BF6U7N1X */
+#endif /* end of include guard: CHANGEWORKINGDAYS_H_SDICNVMO */

@@ -127,7 +127,7 @@ void DateRangePicker::setYears(const std::vector<std::string>& years)
     updateInterval();
 }
 
-void DateRangePicker::setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek_)
+void DateRangePicker::setFirstDayOfWeek(dw::Weekday firstDayOfWeek_)
 {
     firstDayOfWeek = firstDayOfWeek_;
 }

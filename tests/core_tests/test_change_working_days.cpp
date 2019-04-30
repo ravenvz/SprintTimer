@@ -19,31 +19,32 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef MONTHLYPROGRESSVIEW_H_YF3WRWRH
-#define MONTHLYPROGRESSVIEW_H_YF3WRWRH
+#include "mocks/WorkingDaysStorageMock.h"
+#include "gtest/gtest.h"
+#include <core/CommandInvoker.h>
+#include <core/use_cases/ChangeWorkingDays.h>
 
-#include "qt_gui/widgets/ProgressView.h"
-#include <core/IConfig.h>
-#include <core/ISprintDistributionReader.h>
-#include <core/QueryInvoker.h>
+using namespace sprint_timer;
 
-namespace sprint_timer::ui::qt_gui {
-
-class MonthlyProgressView : public ProgressView {
+class ChangeWorkingDaysFixture : public ::testing::Test {
 public:
-    MonthlyProgressView(IConfig& applicationSettings,
-                        QueryInvoker& queryInvoker,
-                        ISprintDistributionReader& monthlyDistributionReader,
-                        QWidget* parent = nullptr);
-
-    void synchronize() override;
-
-private:
-    IConfig& applicationSettings;
-    QueryInvoker& queryInvoker;
-    ISprintDistributionReader& distributionReader;
+    WorkingDaysStorageMock storage;
+    CommandInvoker command_invoker;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+TEST_F(ChangeWorkingDaysFixture, execute_and_undo)
+{
+    using sprint_timer::use_cases::ChangeWorkingDays;
+    using namespace dw;
+    const WorkdayTracker oldTracker;
+    WorkdayTracker newTracker;
+    newTracker.addExtraHoliday(Date{Year{2019}, Month{1}, Day{1}});
+    EXPECT_CALL(storage, changeWorkingDays(newTracker)).Times(1);
 
-#endif /* end of include guard: MONTHLYPROGRESSVIEW_H_YF3WRWRH */
+    command_invoker.executeCommand(
+        std::make_unique<ChangeWorkingDays>(storage, oldTracker, newTracker));
+
+    EXPECT_CALL(storage, changeWorkingDays(oldTracker));
+
+    command_invoker.undo();
+}

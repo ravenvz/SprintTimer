@@ -70,13 +70,13 @@ StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
 
 StatisticsWindow::~StatisticsWindow() = default;
 
-void StatisticsWindow::synchronize()
-{
-    fetchData();
-}
+void StatisticsWindow::synchronize() { fetchData(); }
 
 void StatisticsWindow::fetchData()
 {
+    ui->dateRangePicker->setFirstDayOfWeek(
+        applicationSettings.firstDayOfWeek());
+
     queryInvoker.execute(std::make_unique<RequestSprints>(
         sprintReader,
         ui->dateRangePicker->getInterval().toDateRange(),
@@ -106,12 +106,11 @@ void StatisticsWindow::drawGraphs()
         = (selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex)
                             : sprints);
     SprintStatItem statistics{interestingSprints, timeSpan};
-    const utils::WeekdaySelection workdays{applicationSettings.workdays()};
+    // TODO replace stub for daily goal and numWorkdays
     ui->dailyTimelineGraph->setData(
-        statistics.dailyDistribution(),
-        interval.startDate,
-        static_cast<int>(numWorkdays(timeSpan, workdays)),
-        applicationSettings.dailyGoal());
+        statistics.dailyDistribution(), interval.startDate, 2500, 77);
+    // static_cast<int>(numWorkdays(timeSpan, workdays)),
+    // applicationSettings.dailyGoal());
     ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
     ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
                                     interestingSprints);

@@ -19,16 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef WORKINGDAYSREADERMOCK_H_CIKN0LFO
-#define WORKINGDAYSREADERMOCK_H_CIKN0LFO
+#include "core/WeekSchedule.h"
 
-#include <core/IWorkingDaysReader.h>
-#include <gmock/gmock.h>
+namespace sprint_timer {
 
-class WorkingDaysReaderMock : public sprint_timer::IWorkingDaysReader {
-public:
-    MOCK_METHOD1(requestData,
-                 void(sprint_timer::IWorkingDaysReader::ResultHandler));
-};
+int WeekSchedule::targetGoal(const dw::Weekday& weekday) const
+{
+    return goals_[static_cast<size_t>(weekday)];
+}
 
-#endif /* end of include guard: WORKINGDAYSREADERMOCK_H_CIKN0LFO */
+void WeekSchedule::setTargetGoal(const dw::Weekday& weekday, int goal)
+{
+    goals_[static_cast<size_t>(weekday)] = goal;
+}
+
+bool WeekSchedule::isWorkday(const dw::Weekday& weekday) const
+{
+    return goals_[static_cast<size_t>(weekday)] > 0;
+}
+
+bool operator==(const WeekSchedule& lhs, const WeekSchedule& rhs)
+{
+    for (size_t i = 0; i < 7; ++i) {
+        if (lhs.targetGoal(static_cast<dw::Weekday>(i))
+            != rhs.targetGoal(static_cast<dw::Weekday>(i)))
+            return false;
+    }
+    return true;
+}
+
+} // namespace sprint_timer
+

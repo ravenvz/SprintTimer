@@ -20,21 +20,18 @@
 **
 *********************************************************************************/
 
-#include "core/ProgressProto.h"
+#include "core/ProgressOverPeriod.h"
 
 namespace sprint_timer {
 
-ProgressOverPeriod::ProgressOverPeriod(const dw::DateRange& period,
-                                       const Distribution<int>& actualProgress,
+ProgressOverPeriod::ProgressOverPeriod(const std::vector<int>& actualProgress,
                                        const WorkdayTracker& workdayTracker,
-                                       const GroupingStrategy& groupingStrategy,
-                                       int workdayGoal)
-    : period_{period}
-    , actual_{actualProgress.getTotal()}
+                                       const GroupingStrategy& groupingStrategy)
+    : actual_{
+        std::accumulate(actualProgress.cbegin(), actualProgress.cend(), 0)}
 {
-    const std::vector<int> dist = actualProgress.getDistributionVector();
-    progress_ = groupingStrategy.computeProgress(
-        period, dist, workdayTracker, workdayGoal);
+    progress_
+        = groupingStrategy.computeProgress(actualProgress, workdayTracker);
     numWorkBins_ = std::accumulate(progress_.cbegin(),
                                    progress_.cend(),
                                    0,

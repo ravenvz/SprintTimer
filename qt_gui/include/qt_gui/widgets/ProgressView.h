@@ -22,11 +22,13 @@
 #ifndef PROGRESSVIEW_H_2OXRIURM
 #define PROGRESSVIEW_H_2OXRIURM
 
-#include "qt_gui/Synchronizable.h"
+#include "qt_gui/models/DistributionModel.h"
+#include "qt_gui/models/WorkdayTrackerModel.h"
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
 #include <core/GoalProgress.h>
-#include <core/ProgressProto.h>
+#include <core/GroupingStrategy.h>
+#include <core/ProgressOverPeriod.h>
 #include <core/WorkdayTracker.h>
 #include <memory>
 
@@ -36,10 +38,23 @@ class ProgressView;
 
 namespace sprint_timer::ui::qt_gui {
 
-class ProgressView : public QFrame, public Synchronizable {
+class ProgressView : public QFrame {
     Q_OBJECT
 
 public:
+    using GoalValue = int;
+    using Rows = size_t;
+    using Columns = size_t;
+    using GaugeSize = double;
+
+    ProgressView(const DistributionModel& progressModel,
+                 const WorkdayTrackerModel& workdaysModel,
+                 const GroupingStrategy& groupingStrategy,
+                 Rows numRows,
+                 Columns numColumns,
+                 GaugeSize gaugeRelSize,
+                 QWidget* parent = nullptr);
+
     virtual ~ProgressView();
 
     void setLegendTitle(const QString& title);
@@ -56,21 +71,6 @@ public:
 
     void setData(const ProgressOverPeriod& progress);
 
-    void setWorkingDays(const WorkdayTracker& workdayTracker);
-
-protected:
-    using GoalValue = int;
-    using Rows = size_t;
-    using Columns = size_t;
-    using GaugeSize = double;
-
-    ProgressView(Rows numRows,
-                 Columns numColumns,
-                 GaugeSize gaugeRelSize,
-                 QWidget* parent = nullptr);
-
-    WorkdayTracker workdayTracker{utils::WeekdaySelection{0}};
-
 private:
     std::unique_ptr<Ui::ProgressView> ui;
     const Rows numRows;
@@ -84,10 +84,6 @@ private:
     void updateProgressBar(const GoalProgress& lastBin);
 
     void updateLegend(const ProgressOverPeriod& progress) const;
-
-signals:
-    void goalChanged(int goal);
-    void workdaysChange();
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -25,6 +25,7 @@
 #include "qt_storage_impl/DBService.h"
 #include <core/IConfig.h>
 #include <core/IWorkingDaysReader.h>
+#include <queue>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -37,13 +38,18 @@ public:
     void requestData(IWorkingDaysReader::ResultHandler resultHandler) override;
 
 private:
-    enum class Column { Day, Workday };
+    struct Context {
+        IWorkingDaysReader::ResultHandler handler;
+        WorkdayTracker tracker;
+    };
 
     DBService& dbService;
     const IConfig& settings;
-    QString requestExtraDaysQuery;
-    IWorkingDaysReader::ResultHandler handler;
-    qint64 requestExtraDaysQueryId{-1};
+    QString requestSchedulesQuery;
+    QString requestExceptionalDaysQuery;
+    qint64 requestSchedulesQueryId{-1};
+    qint64 requestExceptionalDaysQueryId{-1};
+    std::queue<Context> contexts;
 
     void onResultReceived(qint64 queryId,
                           const std::vector<QSqlRecord>& records);

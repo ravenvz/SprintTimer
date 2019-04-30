@@ -24,6 +24,8 @@
 #include "ui_progress_widget.h"
 #include <QtWidgets/QGridLayout>
 
+#include <iostream>
+
 namespace ProgressBarColors {
 
 const QColor targetGoalReached = QColor("#6baa15");
@@ -43,19 +45,38 @@ QString formatDecimal(double decimal)
 
 namespace sprint_timer::ui::qt_gui {
 
-ProgressView::ProgressView(Rows numRows,
-                           Columns numColumns,
-                           GaugeSize gaugeRelSize,
+ProgressView::ProgressView(const DistributionModel& progressModel_,
+                           const WorkdayTrackerModel& workdaysModel_,
+                           const GroupingStrategy& groupingStrategy_,
+                           Rows numRows_,
+                           Columns numColumns_,
+                           GaugeSize gaugeRelSize_,
                            QWidget* parent)
     : QFrame{parent}
     , ui{std::make_unique<Ui::ProgressView>()}
-    , numRows{numRows}
-    , numColumns{numColumns}
-    , gaugeRelSize{gaugeRelSize}
+    , numRows{numRows_}
+    , numColumns{numColumns_}
+    , gaugeRelSize{gaugeRelSize_}
 {
     ui->setupUi(this);
     setupGauges();
     updateProgressBar(GoalProgress{0, 0});
+    connect(&progressModel_,
+            &DistributionModel::distributionChanged,
+            [&](const std::vector<int>& updatedDistribution) {
+                ProgressOverPeriod progress{updatedDistribution,
+                                            workdaysModel_.workdayTracker(),
+                                            groupingStrategy_};
+                setData(progress);
+            });
+    connect(&workdaysModel_,
+            &WorkdayTrackerModel::workdaysChanged,
+            [&](const WorkdayTracker& updatedTracker) {
+                ProgressOverPeriod progress{progressModel_.distribution(),
+                                            updatedTracker,
+                                            groupingStrategy_};
+                setData(progress);
+            });
 }
 
 void ProgressView::setupGauges()
@@ -106,11 +127,6 @@ void ProgressView::setData(const ProgressOverPeriod& progress)
     updateLegend(progress);
     updateGauges(progress);
     updateProgressBar(progress.getValue(progress.size() - 1));
-}
-
-void ProgressView::setWorkingDays(const WorkdayTracker& tracker)
-{
-    workdayTracker = tracker;
 }
 
 void ProgressView::updateLegend(const ProgressOverPeriod& progress) const

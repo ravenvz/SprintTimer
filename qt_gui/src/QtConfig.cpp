@@ -88,36 +88,6 @@ void Config::setSoundVolume(int soundVolume)
     Config::settings.setValue("soundVolume", QVariant(soundVolume));
 }
 
-int Config::dailyGoal() const
-{
-    return settings.value("dailyGoal", 11).toInt();
-}
-
-void Config::setDailyGoal(int numSprints)
-{
-    Config::settings.setValue("dailyGoal", QVariant(numSprints));
-}
-
-int Config::weeklyGoal() const
-{
-    return settings.value("weeklyGoal", 65).toInt();
-}
-
-void Config::setWeeklyGoal(int numSprints)
-{
-    Config::settings.setValue("weeklyGoal", QVariant(numSprints));
-}
-
-int Config::monthlyGoal() const
-{
-    return settings.value("monthlyGoal", 260).toInt();
-}
-
-void Config::setMonthlyGoal(int numSprints)
-{
-    Config::settings.setValue("monthlyGoal", QVariant(numSprints));
-}
-
 std::string Config::soundFilePath() const
 {
     return Config::settings.value("soundFilePath").toString().toStdString();
@@ -151,13 +121,13 @@ void Config::setWorkdays(const utils::WeekdaySelection& workdays)
                               QVariant(workdays.selectionMask()));
 }
 
-FirstDayOfWeek Config::firstDayOfWeek() const
+dw::Weekday Config::firstDayOfWeek() const
 {
-    return static_cast<FirstDayOfWeek>(
+    return static_cast<dw::Weekday>(
         Config::settings.value("firstDayOfWeek", 0).toInt());
 }
 
-void Config::setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek)
+void Config::setFirstDayOfWeek(dw::Weekday firstDayOfWeek)
 {
     Config::settings.setValue("firstDayOfWeek",
                               QVariant(static_cast<int>(firstDayOfWeek)));

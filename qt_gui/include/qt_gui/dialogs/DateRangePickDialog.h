@@ -38,7 +38,7 @@ class DateRangePickDialog : public QDialog {
 
 public:
     DateRangePickDialog(DateInterval initialPeriod,
-                        FirstDayOfWeek firstDayOfWeek,
+                        dw::Weekday firstDayOfWeek,
                         QWidget* parent = nullptr);
     ~DateRangePickDialog();
     DateInterval getNewInterval();
@@ -46,7 +46,7 @@ public:
 private:
     std::unique_ptr<Ui::DateRangePickDialog> ui;
 
-    void configureCalendar(FirstDayOfWeek firstDayOfWeek);
+    void configureCalendar(dw::Weekday firstDayOfWeek);
     void updateCalendarDates(DateInterval& period);
 };
 

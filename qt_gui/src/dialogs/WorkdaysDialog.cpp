@@ -22,178 +22,149 @@
 #include "qt_gui/dialogs/WorkdaysDialog.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_workdays_dialog.h"
-#include <core/use_cases/AddExtraHolidays.h>
-#include <core/use_cases/AddExtraWorkdays.h>
-#include <core/use_cases/RemoveExtraHolidays.h>
-#include <core/use_cases/RemoveExtraWorkdays.h>
-#include <core/utils/WeekdaySelection.h>
-
-#include <iostream>
+#include <core/use_cases/ChangeWorkingDays.h>
 
 namespace {
 
-std::vector<dw::Date> expand(const dw::Date& startDate, int numDays)
-{
-    std::vector<dw::Date> days;
-    days.reserve(numDays);
-    auto consecutive_dates
-        = [n = 0, &date = startDate]() mutable { return date + dw::Days{n++}; };
-    std::generate_n(std::back_inserter(days), numDays, consecutive_dates);
-    return days;
-}
+void addExtraDays(
+    QAbstractItemModel& model,
+    const sprint_timer::ui::qt_gui::AddExceptionalDayDialog& pickDateDialog);
+
+std::vector<QDate> expand(const QDate& startDate, int numDays);
 
 } // namespace
+
 
 namespace sprint_timer::ui::qt_gui {
 
 WorkdaysDialog::WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog_,
-                               CommandInvoker& commandInvoker_,
-                               IWorkingDaysWriter& workingDaysWriter_,
-                               ExtraDayModel& holidayModel_,
-                               ExtraDayModel& workdayModel_,
+                               QAbstractItemModel& exceptionalDaysModel_,
+                               WorkdayTrackerModel& workdaysModel_,
                                QDialog* parent_)
     : QDialog{parent_}
     , ui{std::make_unique<Ui::WorkdaysDialog>()}
     , pickDateDialog{addExcDayDialog_}
-    , commandInvoker{commandInvoker_}
-    , workingDaysWriter{workingDaysWriter_}
-    , holidayModel{holidayModel_}
-    , workdayModel{workdayModel_}
+    , exceptionalDaysModel{exceptionalDaysModel_}
+    , workdaysModel{workdaysModel_}
 {
     ui->setupUi(this);
-    ui->lvHolidays->setModel(&holidayModel);
-    ui->lvWorkdays->setModel(&workdayModel);
-    connect(ui->btnAddHolidays, &QPushButton::clicked, [&]() {
-        connect(&pickDateDialog,
-                &QDialog::accepted,
-                this,
-                &WorkdaysDialog::addHolidays);
+    ui->listViewExceptionalDays->setModel(&exceptionalDaysModel);
+
+    connect(&workdaysModel,
+            &WorkdayTrackerModel::workdaysChanged,
+            [this](const WorkdayTracker& updatedTracker) {
+                onWorkdayTrackerChanged(updatedTracker);
+            });
+    connect(ui->btnAddExceptionalDay, &QPushButton::clicked, [&]() {
         pickDateDialog.exec();
-        disconnect(&pickDateDialog,
-                   &QDialog::accepted,
-                   this,
-                   &WorkdaysDialog::addHolidays);
     });
-    connect(ui->btnAddWorkdays, &QPushButton::clicked, [&]() {
-        connect(&pickDateDialog,
-                &QDialog::accepted,
-                this,
-                &WorkdaysDialog::addWorkdays);
-        pickDateDialog.exec();
-        disconnect(&pickDateDialog,
-                   &QDialog::accepted,
-                   this,
-                   &WorkdaysDialog::addWorkdays);
-    });
-    connect(&holidayModel,
-            &QAbstractListModel::rowsAboutToBeRemoved,
+    connect(&pickDateDialog,
+            &QDialog::accepted,
             this,
-            &WorkdaysDialog::onHolidayRemoveRequested);
-    connect(&workdayModel,
-            &QAbstractListModel::rowsAboutToBeRemoved,
-            this,
-            &WorkdaysDialog::onWorkdayRemoveRequested);
-    initializeDayBoxes();
+            &WorkdaysDialog::addExceptionalDay);
 }
 
 WorkdaysDialog::~WorkdaysDialog() = default;
 
 void WorkdaysDialog::accept()
 {
-    // tracker = WorkdayTracker{pollWorkdaysCode()};
+    std::vector<WorkdayTracker::DayData> exceptionalDays;
+    exceptionalDays.reserve(exceptionalDaysModel.rowCount());
+
+    for (int row = 0; row < exceptionalDaysModel.rowCount(QModelIndex{});
+         ++row) {
+        const auto index = exceptionalDaysModel.index(row, 0);
+        const auto& [date, goal]
+            = exceptionalDaysModel.data(index, Qt::EditRole)
+                  .value<QPair<QDate, int>>();
+        exceptionalDays.push_back({DateTimeConverter::date(date), goal});
+    }
+
+    workdaysModel.changeWorkdayData(pollSchedule(), exceptionalDays);
     QDialog::accept();
 }
 
-void WorkdaysDialog::setWorkdayTracker(const WorkdayTracker& workdayTracker)
-{
-    tracker = workdayTracker;
-    holidayModel.setExtraDayData(tracker.extraHolidays());
-    workdayModel.setExtraDayData(tracker.extraWorkdays());
-    initializeDayBoxes();
-}
-
-WorkdayTracker WorkdaysDialog::workdayTracker() const { return tracker; }
-
-void WorkdaysDialog::initializeDayBoxes()
-{
-    using dw::DateTime;
-    ui->mondayBox->setChecked(tracker.isWorkday(dw::Weekday::Monday));
-    ui->tuesdayBox->setChecked(tracker.isWorkday(dw::Weekday::Tuesday));
-    ui->wednesdayBox->setChecked(tracker.isWorkday(dw::Weekday::Wednesday));
-    ui->thursdayBox->setChecked(tracker.isWorkday(dw::Weekday::Thursday));
-    ui->fridayBox->setChecked(tracker.isWorkday(dw::Weekday::Friday));
-    ui->saturdayBox->setChecked(tracker.isWorkday(dw::Weekday::Saturday));
-    ui->sundayBox->setChecked(tracker.isWorkday(dw::Weekday::Sunday));
-}
-
-utils::WeekdaySelection WorkdaysDialog::pollWorkdaysCode() const
-{
-    using dw::DateTime;
-
-    utils::WeekdaySelection selection;
-
-    if (ui->mondayBox->isChecked())
-        selection.selectDay(dw::Weekday::Monday);
-    if (ui->tuesdayBox->isChecked())
-        selection.selectDay(dw::Weekday::Tuesday);
-    if (ui->wednesdayBox->isChecked())
-        selection.selectDay(dw::Weekday::Wednesday);
-    if (ui->thursdayBox->isChecked())
-        selection.selectDay(dw::Weekday::Thursday);
-    if (ui->fridayBox->isChecked())
-        selection.selectDay(dw::Weekday::Friday);
-    if (ui->saturdayBox->isChecked())
-        selection.selectDay(dw::Weekday::Saturday);
-    if (ui->sundayBox->isChecked())
-        selection.selectDay(dw::Weekday::Sunday);
-
-    return selection;
-}
-
-void WorkdaysDialog::addHolidays()
+void WorkdaysDialog::onWorkdayTrackerChanged(
+    const WorkdayTracker& updatedTracker)
 {
     using sprint_timer::ui::qt_gui::DateTimeConverter;
-    using sprint_timer::use_cases::AddExtraHolidays;
-    const dw::Date date{DateTimeConverter::date(pickDateDialog.startDate())};
-    const std::vector<dw::Date> days{expand(date, pickDateDialog.numDays())};
-    commandInvoker.executeCommand(
-        std::make_unique<AddExtraHolidays>(workingDaysWriter, days));
-    for (const auto& day : days)
-        holidayModel.insert(day);
+    const auto days = updatedTracker.exceptionalDays();
+    exceptionalDaysModel.removeRows(0, exceptionalDaysModel.rowCount());
+    exceptionalDaysModel.insertRows(0, days.size());
+    for (size_t row = 0; row < days.size(); ++row) {
+        const auto& [date, goal] = days[row];
+        QVariant entry;
+        entry.setValue(QPair{DateTimeConverter::qDate(date), goal});
+        exceptionalDaysModel.setData(exceptionalDaysModel.index(row, 0), entry);
+    }
+    exceptionalDaysModel.sort(0, Qt::AscendingOrder);
+    initializeDayBoxes(updatedTracker.currentSchedule());
 }
 
-void WorkdaysDialog::addWorkdays()
+void WorkdaysDialog::initializeDayBoxes(const WeekSchedule& schedule)
 {
-    using sprint_timer::ui::qt_gui::DateTimeConverter;
-    using sprint_timer::use_cases::AddExtraWorkdays;
-    const dw::Date date{DateTimeConverter::date(pickDateDialog.startDate())};
-    const std::vector<dw::Date> days{expand(date, pickDateDialog.numDays())};
-    commandInvoker.executeCommand(
-        std::make_unique<AddExtraWorkdays>(workingDaysWriter, days));
-    for (const auto& day : days)
-        workdayModel.insert(day);
+    using namespace dw;
+    ui->mondayBox->setValue(schedule.targetGoal(Weekday::Monday));
+    ui->tuesdayBox->setValue(schedule.targetGoal(Weekday::Tuesday));
+    ui->wednesdayBox->setValue(schedule.targetGoal(Weekday::Wednesday));
+    ui->thursdayBox->setValue(schedule.targetGoal(Weekday::Thursday));
+    ui->fridayBox->setValue(schedule.targetGoal(Weekday::Friday));
+    ui->saturdayBox->setValue(schedule.targetGoal(Weekday::Saturday));
+    ui->sundayBox->setValue(schedule.targetGoal(Weekday::Sunday));
 }
 
-void WorkdaysDialog::onHolidayRemoveRequested(const QModelIndex& parent,
-                                              int row,
-                                              int count)
+WeekSchedule WorkdaysDialog::pollSchedule() const
 {
-    using sprint_timer::use_cases::RemoveExtraHolidays;
-    // TODO now it is not used, but probably should handle all rows mentioned by
-    // the signal
-    commandInvoker.executeCommand(std::make_unique<RemoveExtraHolidays>(
-        workingDaysWriter, std::vector<dw::Date>{holidayModel.dateAt(row)}));
+    using namespace dw;
+
+    WeekSchedule schedule;
+
+    schedule.setTargetGoal(Weekday::Monday, ui->mondayBox->value());
+    schedule.setTargetGoal(Weekday::Tuesday, ui->tuesdayBox->value());
+    schedule.setTargetGoal(Weekday::Wednesday, ui->wednesdayBox->value());
+    schedule.setTargetGoal(Weekday::Thursday, ui->thursdayBox->value());
+    schedule.setTargetGoal(Weekday::Friday, ui->fridayBox->value());
+    schedule.setTargetGoal(Weekday::Saturday, ui->saturdayBox->value());
+    schedule.setTargetGoal(Weekday::Sunday, ui->sundayBox->value());
+
+    return schedule;
 }
 
-void WorkdaysDialog::onWorkdayRemoveRequested(const QModelIndex& parent,
-                                              int row,
-                                              int count)
+void WorkdaysDialog::addExceptionalDay()
 {
-    // TODO now it is not used, but probably should handle all rows mentioned by
-    // the signal
-    using sprint_timer::use_cases::RemoveExtraWorkdays;
-    commandInvoker.executeCommand(std::make_unique<RemoveExtraWorkdays>(
-        workingDaysWriter, std::vector<dw::Date>{workdayModel.dateAt(row)}));
+    addExtraDays(exceptionalDaysModel, pickDateDialog);
 }
 
 } // namespace sprint_timer::ui::qt_gui
+
+
+namespace {
+
+void addExtraDays(
+    QAbstractItemModel& model,
+    const sprint_timer::ui::qt_gui::AddExceptionalDayDialog& pickDateDialog)
+{
+    const std::vector days{
+        expand(pickDateDialog.startDate(), pickDateDialog.numDays())};
+    const int goal{pickDateDialog.targetGoal()};
+    int startingRow = model.rowCount(QModelIndex{});
+    model.insertRows(startingRow, days.size(), QModelIndex{});
+    for (size_t i = 0; i < days.size(); ++i) {
+        QPair<QDate, int> entry{days[i], goal};
+        QVariant ventry;
+        ventry.setValue(entry);
+        model.setData(model.index(startingRow + i, 0), ventry, Qt::EditRole);
+    }
+}
+
+std::vector<QDate> expand(const QDate& startDate, int numDays)
+{
+    std::vector<QDate> days;
+    days.reserve(numDays);
+    auto consecutive_dates
+        = [n = 0, &date = startDate]() mutable { return date.addDays(n++); };
+    std::generate_n(std::back_inserter(days), numDays, consecutive_dates);
+    return days;
+}
+
+} // namespace

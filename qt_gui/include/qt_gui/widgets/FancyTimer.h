@@ -42,7 +42,7 @@ public:
     ~FancyTimer() override;
 
     void setCandidateIndex(int index) override;
-    void updateGoalProgress(Progress progress) override;
+    void updateGoalProgress(const GoalProgress& progress) override;
 
 private:
     std::unique_ptr<Ui::FancyTimer> ui;

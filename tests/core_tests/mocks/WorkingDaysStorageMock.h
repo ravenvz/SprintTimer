@@ -19,27 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINT_TIMER_APP_GROUPBYMONTH_H
-#define SPRINT_TIMER_APP_GROUPBYMONTH_H
+#ifndef WORKINGDAYSSTORAGEMOCK_H_XPILNRIE
+#define WORKINGDAYSSTORAGEMOCK_H_XPILNRIE
 
-#include "core/GroupingStrategy.h"
+#include <core/IWorkingDaysStorage.h>
+#include <gmock/gmock.h>
 
-namespace sprint_timer {
-
-class GroupByMonth : public GroupingStrategy {
+class WorkingDaysStorageMock : public sprint_timer::IWorkingDaysStorage {
 public:
-    explicit GroupByMonth(int numMonths);
+    MOCK_METHOD1(requestData,
+                 void(sprint_timer::IWorkingDaysReader::ResultHandler));
 
-    std::vector<GoalProgress>
-    computeProgress(const std::vector<int>& actualProgress,
-                    const WorkdayTracker& workdayTracker) const override;
+    MOCK_METHOD1(changeWorkingDays, void(const sprint_timer::WorkdayTracker&));
 
-    dw::DateRange dateRange() const override;
+    MOCK_METHOD1(addExtraHolidays, void(const std::vector<dw::Date>&));
 
-private:
-    dw::DateRange period;
+    MOCK_METHOD1(addExtraWorkdays, void(const std::vector<dw::Date>&));
+
+    MOCK_METHOD1(removeExtraHolidays, void(const std::vector<dw::Date>&));
+
+    MOCK_METHOD1(removeExtraWorkdays, void(const std::vector<dw::Date>&));
 };
 
-} // namespace sprint_timer
-
-#endif // SPRINT_TIMER_APP_GROUPBYMONTH_H
+#endif /* end of include guard: WORKINGDAYSSTORAGEMOCK_H_XPILNRIE */

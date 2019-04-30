@@ -19,27 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINT_TIMER_APP_GROUPBYMONTH_H
-#define SPRINT_TIMER_APP_GROUPBYMONTH_H
+#ifndef IWORKINGDAYSSTORAGE_H_EGNQRQKY
+#define IWORKINGDAYSSTORAGE_H_EGNQRQKY
 
-#include "core/GroupingStrategy.h"
+#include "core/IWorkingDaysReader.h"
+#include "core/IWorkingDaysWriter.h"
 
 namespace sprint_timer {
 
-class GroupByMonth : public GroupingStrategy {
-public:
-    explicit GroupByMonth(int numMonths);
-
-    std::vector<GoalProgress>
-    computeProgress(const std::vector<int>& actualProgress,
-                    const WorkdayTracker& workdayTracker) const override;
-
-    dw::DateRange dateRange() const override;
-
-private:
-    dw::DateRange period;
+class IWorkingDaysStorage : public IWorkingDaysReader,
+                            public IWorkingDaysWriter {
 };
 
 } // namespace sprint_timer
 
-#endif // SPRINT_TIMER_APP_GROUPBYMONTH_H
+#endif /* end of include guard: IWORKINGDAYSSTORAGE_H_EGNQRQKY */

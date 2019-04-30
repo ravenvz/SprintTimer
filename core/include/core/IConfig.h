@@ -28,8 +28,6 @@
 
 namespace sprint_timer {
 
-enum class FirstDayOfWeek { Monday, Sunday };
-
 class IConfig {
 public:
     virtual ~IConfig() = default;
@@ -46,20 +44,17 @@ public:
     virtual int soundVolume() const = 0;
     // TODO split into separate group
     virtual void setSoundVolume(int soundVolume) = 0;
-    virtual int dailyGoal() const = 0;
-    virtual void setDailyGoal(int numSprints) = 0;
-    virtual int weeklyGoal() const = 0;
-    virtual void setWeeklyGoal(int numSprints) = 0;
-    virtual int monthlyGoal() const = 0;
-    virtual void setMonthlyGoal(int numSprints) = 0;
     virtual std::string soundFilePath() const = 0;
     virtual void setSoundFilePath(const std::string& filePath) = 0;
     virtual int timerFlavour() const = 0;
     virtual void setTimerFlavour(int timerVariation) = 0;
+
+    // TODO remove
     virtual utils::WeekdaySelection workdays() const = 0;
+
     virtual void setWorkdays(const utils::WeekdaySelection& workdays) = 0;
-    virtual FirstDayOfWeek firstDayOfWeek() const = 0;
-    virtual void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek) = 0;
+    virtual dw::Weekday firstDayOfWeek() const = 0;
+    virtual void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) = 0;
 };
 
 } // namespace sprint_timer

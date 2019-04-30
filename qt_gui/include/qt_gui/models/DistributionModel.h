@@ -19,35 +19,42 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DAILYPROGRESSVIEW_H_L5NOCTJP
-#define DAILYPROGRESSVIEW_H_L5NOCTJP
+#ifndef DISTRIBUTIONMODEL_H_EGAN03FZ
+#define DISTRIBUTIONMODEL_H_EGAN03FZ
 
-#include "qt_gui/widgets/ProgressView.h"
-#include <core/IConfig.h>
+#include "qt_gui/Synchronizable.h"
+#include <QObject>
+#include <core/GroupingStrategy.h>
 #include <core/ISprintDistributionReader.h>
 #include <core/QueryInvoker.h>
+#include <core/use_cases/RequestSprintDistribution.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class WorkdaysDialog;
+class DistributionModel : public QObject, public Synchronizable {
 
-class DailyProgressView : public ProgressView {
+    Q_OBJECT
+
 public:
-    DailyProgressView(IConfig& applicationSettings_,
-                      ISprintDistributionReader& dailyDistributionReader_,
+    DistributionModel(ISprintDistributionReader& reader_,
                       QueryInvoker& queryInvoker_,
-                      WorkdaysDialog& workdaysDialog_,
-                      QWidget* parent = nullptr);
+                      const GroupingStrategy& distributionRequestStrategy_,
+                      QObject* parent = nullptr);
+
+    const std::vector<int>& distribution() const;
 
     void synchronize() override;
 
+signals:
+    void distributionChanged(const std::vector<int>&);
+
 private:
-    IConfig& applicationSettings;
-    ISprintDistributionReader& distributionReader;
+    ISprintDistributionReader& reader;
     QueryInvoker& queryInvoker;
-    WorkdaysDialog& workdaysDialog;
+    const GroupingStrategy& distributionRequestStrategy;
+    std::vector<int> data;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: DAILYPROGRESSVIEW_H_L5NOCTJP */
+#endif /* end of include guard: DISTRIBUTIONMODEL_H_EGAN03FZ */

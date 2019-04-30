@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "core/GoalProgress.h"
-#include "core/ProgressProto.h"
+#include "core/ProgressOverPeriod.h"
 
 namespace sprint_timer {
 

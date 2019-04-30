@@ -54,7 +54,7 @@ public:
                            HistoryModel& historyModel,
                            QStyledItemDelegate& historyItemDelegate,
                            QueryInvoker& queryInvoker,
-                           FirstDayOfWeek firstDayOfWeek,
+                           dw::Weekday firstDayOfWeek,
                            QWidget* parent = nullptr);
 
     ~HistoryWindow();

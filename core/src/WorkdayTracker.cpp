@@ -23,16 +23,24 @@
 
 namespace {
 
-template <typename T, typename H>
-std::vector<T> fromSet(const std::unordered_set<T, H>& set);
+template <typename In, typename Out, typename UnaryOp, typename Pred>
+void transform_if(In first, In last, Out out, UnaryOp unary_op, Pred predicate);
 
 } // namespace
 
 namespace sprint_timer {
 
-WorkdayTracker::WorkdayTracker(utils::WeekdaySelection workdays)
-    : workdays_{workdays}
+// TODO word this properly
+/* Add new week schedule that is active since sinceDate including.
+ * When new week schedule is same as previous date schedule, insertion is
+ * ignored. When sinceDate is same as previous date, previous date schedule is
+ * ovewritten with new schedule. */
+void WorkdayTracker::addWeekSchedule(const dw::Date& sinceDate,
+                                     const WeekSchedule& schedule)
 {
+    if (!schedules.empty() && currentSchedule() == schedule)
+        return;
+    schedules.insert_or_assign(sinceDate, schedule);
 }
 
 bool WorkdayTracker::isWorkday(const dw::Date& date) const
@@ -41,42 +49,104 @@ bool WorkdayTracker::isWorkday(const dw::Date& date) const
         return false;
     if (isExtraWorkday(date))
         return true;
-    return isWorkday(weekday(date));
+    return scheduleFor(date).isWorkday(weekday(date));
 }
 
-bool WorkdayTracker::isWorkday(const dw::Weekday& weekday) const
+int WorkdayTracker::goal(const dw::Date& date) const
 {
-    return workdays_.isSelected(weekday);
+    if (auto it = extraDays.find(date); it != extraDays.cend())
+        return it->second;
+    return scheduleFor(date).targetGoal(dw::weekday(date));
 }
 
-void WorkdayTracker::addExtraWorkday(const dw::Date& date)
+// bool WorkdayTracker::isWorkday(const dw::Weekday& weekday) const
+// {
+//     return workdays_.isSelected(weekday);
+// }
+
+void WorkdayTracker::addExtraWorkday(const dw::Date& date, int goal)
 {
-    extraWorkdays_.insert(date);
+    addExceptionalDay(date, goal);
 }
 
 void WorkdayTracker::addExtraHoliday(const dw::Date& date)
 {
-    extraHolidays_.insert(date);
+    addExceptionalDay(date, 0);
 }
+
+void WorkdayTracker::addExceptionalDay(const dw::Date& date, int goal)
+{
+    extraDays.insert_or_assign(date, goal);
+}
+
+WeekSchedule WorkdayTracker::scheduleFor(const dw::Date& date) const
+{
+    auto it = schedules.lower_bound(date);
+    if (it == schedules.cbegin() && !schedules.empty())
+        return (date == it->first) ? it->second : WeekSchedule{};
+    if (!schedules.empty())
+        return (date == it->first) ? it->second : (--it)->second;
+    return WeekSchedule{};
+}
+
+WeekSchedule WorkdayTracker::currentSchedule() const
+{
+    return scheduleFor(dw::current_date_local());
+}
+
+WorkdayTracker::ScheduleRoaster WorkdayTracker::scheduleRoaster() const
+{
+    ScheduleRoaster output;
+    output.reserve(schedules.size());
+    std::copy(schedules.cbegin(), schedules.cend(), std::back_inserter(output));
+    return output;
+}
+
+// utils::WeekdaySelection WorkdayTracker::workdays() const { return workdays_;
+// }
 
 std::vector<dw::Date> WorkdayTracker::extraWorkdays() const
 {
-    return fromSet(extraWorkdays_);
+    std::vector<dw::Date> result;
+    transform_if(
+        extraDays.cbegin(),
+        extraDays.cend(),
+        std::back_inserter(result),
+        [](const auto& entry) { return entry.first; },
+        [](const auto& entry) { return entry.second > 0; });
+    return result;
 }
 
 std::vector<dw::Date> WorkdayTracker::extraHolidays() const
 {
-    return fromSet(extraHolidays_);
+    std::vector<dw::Date> result;
+    transform_if(
+        extraDays.cbegin(),
+        extraDays.cend(),
+        std::back_inserter(result),
+        [](const auto& entry) { return entry.first; },
+        [](const auto& entry) { return entry.second == 0; });
+    return result;
+}
+
+std::vector<WorkdayTracker::DayData> WorkdayTracker::exceptionalDays() const
+{
+    return std::vector<WorkdayTracker::DayData>(extraDays.cbegin(),
+                                                extraDays.cend());
 }
 
 bool WorkdayTracker::isExtraWorkday(const dw::Date& date) const
 {
-    return extraWorkdays_.find(date) != extraWorkdays_.cend();
+    if (auto found = extraDays.find(date); found != extraDays.cend())
+        return found->second > 0;
+    return false;
 }
 
 bool WorkdayTracker::isExtraHoliday(const dw::Date& date) const
 {
-    return extraHolidays_.find(date) != extraHolidays_.cend();
+    if (auto found = extraDays.find(date); found != extraDays.cend())
+        return found->second == 0;
+    return false;
 }
 
 size_t WorkdayTracker::DateHash::operator()(const dw::Date& date) const
@@ -100,22 +170,23 @@ int numWorkdays(const WorkdayTracker& workdayTracker,
 
 bool operator==(const WorkdayTracker& lhs, const WorkdayTracker& rhs)
 {
-    return lhs.workdays_.selectionMask() == rhs.workdays_.selectionMask()
-        && lhs.extraHolidays_ == rhs.extraHolidays_
-        && lhs.extraWorkdays_ == rhs.extraWorkdays_;
+    return lhs.schedules == rhs.schedules && lhs.extraDays == rhs.extraDays;
 }
 
 } // namespace sprint_timer
 
 namespace {
 
-template <typename T, typename H>
-std::vector<T> fromSet(const std::unordered_set<T, H>& set)
+template <typename In, typename Out, typename UnaryOp, typename Pred>
+void transform_if(In first, In last, Out out, UnaryOp unary_op, Pred predicate)
 {
-    std::vector<T> result;
-    result.reserve(set.size());
-    std::copy(cbegin(set), cend(set), std::back_inserter(result));
-    return result;
+    while (first != last) {
+        if (predicate(*first)) {
+            *out = unary_op(*first);
+            ++out;
+        }
+        ++first;
+    }
 }
 
 } // namespace

@@ -27,8 +27,6 @@
 #include <qt_storage_impl/DBService.h>
 #include <qt_storage_impl/QtStorageImplementersFactory.h>
 
-namespace {
-
 /* Fixed configuration for testing purposes. */
 class TestConfig : public sprint_timer::IConfig {
 
@@ -84,18 +82,6 @@ public:
         TestConfig::mPlaySound = playSound;
     }
 
-    int dailyGoal() const override { return 0; }
-
-    void setDailyGoal(int numSprints) override {}
-
-    int weeklyGoal() const override { return 0; }
-
-    void setWeeklyGoal(int numSprints) override {}
-
-    int monthlyGoal() const override { return 0; }
-
-    void setMonthlyGoal(int numSprints) override {}
-
     std::string soundFilePath() const override { return ""; }
 
     void setSoundFilePath(const std::string& filePath) override {}
@@ -114,14 +100,9 @@ public:
     {
     }
 
-    sprint_timer::FirstDayOfWeek firstDayOfWeek() const override
-    {
-        return sprint_timer::FirstDayOfWeek::Monday;
-    }
+    dw::Weekday firstDayOfWeek() const override { return dw::Weekday::Monday; }
 
-    void setFirstDayOfWeek(sprint_timer::FirstDayOfWeek firstDayOfWeek) override
-    {
-    }
+    void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) override {}
 
 private:
     std::chrono::minutes mSprintDuration{30};
@@ -131,8 +112,6 @@ private:
     bool mPlaySound{false};
     int mSoundVolume{0};
 };
-
-} // namespace
 
 
 struct QtStorageInitializer {
@@ -165,15 +144,13 @@ struct QtStorageInitializer {
         = factory.createSprintMonthlyDistributionReader();
     std::unique_ptr<sprint_timer::ISprintDistributionReader>
         mondayFirstWeeklyDistributionReader
-        = factory.createSprintWeeklyDistributionReader(
-            sprint_timer::FirstDayOfWeek::Monday);
+        = factory.createSprintWeeklyDistributionReader(dw::Weekday::Monday);
     std::unique_ptr<sprint_timer::ISprintDistributionReader>
         sundayFirstWeeklyDistributionReader
-        = factory.createSprintWeeklyDistributionReader(
-            sprint_timer::FirstDayOfWeek::Sunday);
-    std::unique_ptr<sprint_timer::IWorkingDaysWriter> extraDaysWriter
+        = factory.createSprintWeeklyDistributionReader(dw::Weekday::Sunday);
+    std::unique_ptr<sprint_timer::IWorkingDaysWriter> workingDaysWriter
         = factory.createWorkingDaysWriter();
-    std::unique_ptr<sprint_timer::IWorkingDaysReader> extraDaysReader
+    std::unique_ptr<sprint_timer::IWorkingDaysReader> workingDaysReader
         = factory.createWorkingDaysReader();
 
     void runEventLoop();

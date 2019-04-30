@@ -20,44 +20,74 @@
 **
 *********************************************************************************/
 #include "core/GroupByWeek.h"
+#include <core/IConfig.h>
+#include <core/utils/WeekdaySelection.h>
+
+namespace {
+
+dw::DateRange nWeeksBackTillNow(int numWeeks, dw::Weekday firstDayOfWeek);
+
+} // namespace
 
 namespace sprint_timer {
 
-GroupByWeek::GroupByWeek(dw::Weekday firstDayOfWeek)
-    : firstDay{firstDayOfWeek}
+GroupByWeek::GroupByWeek(int numWeeks_, const IConfig& applicationSettings_)
+    : applicationSettings{applicationSettings_}
+    , numWeeks{numWeeks_}
 {
 }
 
 std::vector<GoalProgress>
-GroupByWeek::computeProgress(const dw::DateRange& period,
-                             const std::vector<int>& actualProgress,
-                             const WorkdayTracker& workdayTracker,
-                             int workdayGoal) const
+GroupByWeek::computeProgress(const std::vector<int>& actualProgress,
+                             const WorkdayTracker& workdayTracker) const
 {
     std::vector<GoalProgress> progress;
     progress.reserve(actualProgress.size());
     auto actualIt = actualProgress.cbegin();
 
-    int numWorkdays{0};
+    int goalForCurrentWeek{0};
+
+    const auto period = dateRange();
+    const dw::Weekday firstDay{applicationSettings.firstDayOfWeek()};
 
     for (auto day = period.start(); day <= period.finish();
          day = day + dw::Days{1}) {
         if (day == period.finish()) {
-            if (workdayTracker.isWorkday(day))
-                ++numWorkdays;
-            progress.emplace_back(numWorkdays * workdayGoal, *actualIt);
+            goalForCurrentWeek += workdayTracker.goal(day);
+            progress.emplace_back(goalForCurrentWeek, *actualIt);
             break;
         }
         if ((weekday(day) == firstDay && day != period.start())) {
-            progress.emplace_back(numWorkdays * workdayGoal, *actualIt);
+            progress.emplace_back(goalForCurrentWeek, *actualIt);
             ++actualIt;
-            numWorkdays = 0;
+            goalForCurrentWeek = 0;
         }
-        if (workdayTracker.isWorkday(day))
-            ++numWorkdays;
+        goalForCurrentWeek += workdayTracker.goal(day);
     }
 
     return progress;
 }
 
+dw::DateRange GroupByWeek::dateRange() const
+{
+    return nWeeksBackTillNow(numWeeks, applicationSettings.firstDayOfWeek());
+}
+
 } // namespace sprint_timer
+
+namespace {
+
+dw::DateRange nWeeksBackTillNow(int numWeeks, dw::Weekday firstDayOfWeek)
+{
+    using namespace dw;
+    auto now = current_date_local();
+    const auto from = prev_weekday(now - Weeks{numWeeks - 1},
+                                   static_cast<dw::Weekday>(firstDayOfWeek));
+    const auto lastDayOfWeek{firstDayOfWeek == dw::Weekday::Monday
+                                 ? dw::Weekday::Sunday
+                                 : dw::Weekday::Saturday};
+    const auto to = next_weekday(now, lastDayOfWeek);
+    return {from, to};
+}
+
+} // namespace

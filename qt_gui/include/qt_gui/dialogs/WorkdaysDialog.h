@@ -23,68 +23,47 @@
 #ifndef WORKDAYSDIALOG_H_NVZH9CRG
 #define WORKDAYSDIALOG_H_NVZH9CRG
 
+#include "qt_gui/WorkdaysChangeListener.h"
 #include "qt_gui/dialogs/AddExceptionalDayDialog.h"
-#include "qt_gui/models/ExtraDayModel.h"
+#include "qt_gui/models/WorkdayTrackerModel.h"
+#include <QAbstractListModel>
 #include <QDialog>
-#include <core/CommandInvoker.h>
-#include <core/IConfig.h>
-#include <core/IWorkingDaysWriter.h>
-#include <core/WorkdayTracker.h>
 #include <memory>
 
 namespace Ui {
 class WorkdaysDialog;
 } // namespace Ui
 
-namespace {
-
-class State;
-
-} // namespace
-
 namespace sprint_timer::ui::qt_gui {
 
-class WorkdaysDialog : public QDialog {
+class WorkdaysDialog : public QDialog, public WorkdaysChangeListener {
     Q_OBJECT
 
 public:
     explicit WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog,
-                            CommandInvoker& commandInvoker,
-                            IWorkingDaysWriter& workingDaysWriter,
-                            ExtraDayModel& holidayModel,
-                            ExtraDayModel& workdayModel,
+                            QAbstractItemModel& exceptionalDaysModel,
+                            WorkdayTrackerModel& workdaysModel,
                             QDialog* parent = nullptr);
 
     ~WorkdaysDialog() override;
 
     void accept() override;
 
-    void setWorkdayTracker(const WorkdayTracker& workdayTracker);
-
-    WorkdayTracker workdayTracker() const;
-
 private:
     std::unique_ptr<Ui::WorkdaysDialog> ui;
     AddExceptionalDayDialog& pickDateDialog;
-    CommandInvoker& commandInvoker;
-    IWorkingDaysWriter& workingDaysWriter;
-    ExtraDayModel& holidayModel;
-    ExtraDayModel& workdayModel;
-    WorkdayTracker tracker;
+    QAbstractItemModel& exceptionalDaysModel;
+    WorkdayTrackerModel& workdaysModel;
 
-    void initializeDayBoxes();
+    void onWorkdayTrackerChanged(const WorkdayTracker& updatedTracker) override;
 
-    utils::WeekdaySelection pollWorkdaysCode() const;
+    void initializeDayBoxes(const WeekSchedule& schedule);
 
-    void addHolidays();
+    WeekSchedule pollSchedule() const;
+
+    void addExceptionalDay();
 
     void addWorkdays();
-
-    void
-    onHolidayRemoveRequested(const QModelIndex& parent, int row, int count);
-
-    void
-    onWorkdayRemoveRequested(const QModelIndex& parent, int row, int count);
 };
 
 } // namespace sprint_timer::ui::qt_gui

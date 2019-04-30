@@ -98,7 +98,7 @@ void SettingsDialog::storeSettingsData()
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
     applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());
     applicationSettings.setFirstDayOfWeek(
-        static_cast<FirstDayOfWeek>(ui->cbxFirstWeekday->currentIndex()));
+        static_cast<dw::Weekday>(ui->cbxFirstWeekday->currentIndex()));
 }
 
 

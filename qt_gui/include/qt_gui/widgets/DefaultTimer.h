@@ -48,7 +48,7 @@ public:
     DefaultTimer& operator=(const DefaultTimer&&) = delete;
 
     void setCandidateIndex(int index) override;
-    void updateGoalProgress(Progress progress) override;
+    void updateGoalProgress(const GoalProgress& progress) override;
 
 private:
     std::unique_ptr<Ui::DefaultTimer> ui;

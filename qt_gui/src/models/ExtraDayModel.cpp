@@ -28,22 +28,22 @@ ExtraDayModel::ExtraDayModel(QObject* parent)
 {
 }
 
-void ExtraDayModel::setExtraDayData(const std::vector<dw::Date>& days)
-{
-    beginResetModel();
-    data_ = days;
-    std::sort(data_.begin(), data_.end());
-    endResetModel();
-}
-
 int ExtraDayModel::rowCount(const QModelIndex& parent) const
 {
     return static_cast<int>(data_.size());
 }
 
+bool ExtraDayModel::insertRows(int row, int count, const QModelIndex& index)
+{
+    beginInsertRows(index, row, row + count - 1);
+    data_.insert(data_.begin() + row, count, {QDate(), 0});
+    endInsertRows();
+    return true;
+}
+
 bool ExtraDayModel::removeRows(int row, int count, const QModelIndex& index)
 {
-    beginRemoveRows(QModelIndex(), row, row + count);
+    beginRemoveRows(QModelIndex(), row, row + count - 1);
     data_.erase(data_.begin() + row, data_.begin() + row + count);
     endRemoveRows();
     return true;
@@ -54,23 +54,47 @@ QVariant ExtraDayModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const auto& date = data_[static_cast<size_t>(index.row())];
+    const auto& [date, goal] = data_[static_cast<size_t>(index.row())];
+    const auto& entry = data_[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
-        return QString::fromStdString(dw::to_string(date, "dd.MM.yyyy"));
+        return QString{"%1 %2"}.arg(date.toString("dd.MM.yyyy")).arg(goal);
+    case Qt::EditRole: {
+        QVariant ventry;
+        ventry.setValue(entry);
+        return ventry;
+    }
     default:
         return QVariant();
     }
 }
 
-void ExtraDayModel::insert(const dw::Date& date)
+bool ExtraDayModel::setData(const QModelIndex& index,
+                            const QVariant& data,
+                            int role)
 {
-    beginInsertRows(QModelIndex(), rowCount(), 1);
-    data_.push_back(date);
-    endInsertRows();
+    if (!index.isValid() || role != Qt::EditRole)
+        return false;
+    auto row = index.row();
+    data_[row] = data.value<QPair<QDate, int>>();
+    QVector<int> roles;
+    roles << role;
+    emit dataChanged(index, index, roles);
+    return true;
 }
 
-dw::Date ExtraDayModel::dateAt(int row) { return data_[row]; }
+void ExtraDayModel::sort(int column, Qt::SortOrder order)
+{
+    emit layoutAboutToBeChanged();
+    if (order == Qt::AscendingOrder)
+        std::sort(data_.begin(), data_.end());
+    else
+        std::sort(
+            data_.begin(), data_.end(), [](const auto& lhs, const auto& rhs) {
+                return lhs.first < rhs.first;
+            });
+    emit layoutChanged();
+}
 
 } // namespace sprint_timer::ui::qt_gui

@@ -19,27 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINT_TIMER_APP_GROUPBYMONTH_H
-#define SPRINT_TIMER_APP_GROUPBYMONTH_H
+#include "core/use_cases/ChangeWorkingDays.h"
 
-#include "core/GroupingStrategy.h"
+namespace sprint_timer::use_cases {
 
-namespace sprint_timer {
+ChangeWorkingDays::ChangeWorkingDays(IWorkingDaysWriter& writer_,
+                                     const WorkdayTracker& oldTracker_,
+                                     const WorkdayTracker& newTracker_)
+    : writer{writer_}
+    , oldTracker{oldTracker_}
+    , newTracker{newTracker_}
+{
+}
 
-class GroupByMonth : public GroupingStrategy {
-public:
-    explicit GroupByMonth(int numMonths);
+void ChangeWorkingDays::execute() { writer.changeWorkingDays(newTracker); }
 
-    std::vector<GoalProgress>
-    computeProgress(const std::vector<int>& actualProgress,
-                    const WorkdayTracker& workdayTracker) const override;
+void ChangeWorkingDays::undo() { writer.changeWorkingDays(oldTracker); }
 
-    dw::DateRange dateRange() const override;
+std::string ChangeWorkingDays::describe() const
+{
+    std::stringstream ss;
+    ss << "Change workdays \nfrom:\n";
+    ss << oldTracker;
+    ss << "\nto:\n";
+    ss << newTracker << "\n";
+    return ss.str();
+}
 
-private:
-    dw::DateRange period;
-};
-
-} // namespace sprint_timer
-
-#endif // SPRINT_TIMER_APP_GROUPBYMONTH_H
+} // namespace sprint_timer::use_cases

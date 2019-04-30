@@ -19,14 +19,14 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/WorkingDaysWriterMock.h"
+#include "mocks/WorkingDaysStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/CommandInvoker.h>
 #include <core/use_cases/RemoveExtraWorkdays.h>
 
 class RemoveExtraWorkdayFixture : public ::testing::Test {
 public:
-    WorkingDaysWriterMock writer_mock;
+    WorkingDaysStorageMock writer_mock;
     sprint_timer::CommandInvoker command_invoker;
 };
 

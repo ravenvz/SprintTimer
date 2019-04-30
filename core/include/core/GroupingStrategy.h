@@ -34,10 +34,10 @@ public:
     virtual ~GroupingStrategy() = default;
 
     virtual std::vector<GoalProgress>
-    computeProgress(const dw::DateRange& period,
-                    const std::vector<int>& actualProgress,
-                    const WorkdayTracker& workdayTracker,
-                    int workdayGoal) const = 0;
+    computeProgress(const std::vector<int>& actualProgress,
+                    const WorkdayTracker& workdayTracker) const = 0;
+
+    virtual dw::DateRange dateRange() const = 0;
 };
 
 } // namespace sprint_timer

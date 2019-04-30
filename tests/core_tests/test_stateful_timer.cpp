@@ -82,18 +82,6 @@ public:
         TestConfig::mPlaySound = playSound;
     }
 
-    int dailyGoal() const override { return 0; }
-
-    void setDailyGoal(int numSprints) override {}
-
-    int weeklyGoal() const override { return 0; }
-
-    void setWeeklyGoal(int numSprints) override {}
-
-    int monthlyGoal() const override { return 0; }
-
-    void setMonthlyGoal(int numSprints) override {}
-
     std::string soundFilePath() const override { return ""; }
 
     void setSoundFilePath(const std::string& filePath) override {}
@@ -109,12 +97,9 @@ public:
 
     void setWorkdays(const utils::WeekdaySelection& workdays) override {}
 
-    FirstDayOfWeek firstDayOfWeek() const override
-    {
-        return FirstDayOfWeek::Monday;
-    }
+    dw::Weekday firstDayOfWeek() const override { return dw::Weekday::Monday; }
 
-    void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek) override {}
+    void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) override {}
 
 private:
     std::chrono::minutes mSprintDuration{30};

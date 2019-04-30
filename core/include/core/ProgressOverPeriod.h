@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/Distribution.h"
 #include "core/WorkdayTracker.h"
 #include <date_wrapper/date_wrapper.h>
 #include <numeric>
@@ -36,11 +35,9 @@ namespace sprint_timer {
 
 class ProgressOverPeriod {
 public:
-    ProgressOverPeriod(const dw::DateRange& period,
-                       const Distribution<int>& actualProgress,
+    ProgressOverPeriod(const std::vector<int>& actualProgress,
                        const WorkdayTracker& workdayTracker,
-                       const GroupingStrategy& groupingStrategy,
-                       int workdayGoal);
+                       const GroupingStrategy& groupingStrategy);
 
     std::optional<double> percentage() const;
 
@@ -59,7 +56,6 @@ public:
     int difference() const;
 
 private:
-    const dw::DateRange period_;
     const int actual_;
     std::vector<GoalProgress> progress_;
     int numWorkBins_;

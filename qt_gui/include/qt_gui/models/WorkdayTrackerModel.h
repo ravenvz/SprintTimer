@@ -19,42 +19,53 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef EXTRADAYMODEL_H_CC87JAHL
-#define EXTRADAYMODEL_H_CC87JAHL
+#ifndef WORKDAYTRACKERMODEL_H_4DZKR8HV
+#define WORKDAYTRACKERMODEL_H_4DZKR8HV
 
-#include "qt_gui/utils/DateTimeConverter.h"
-#include <QAbstractListModel>
-#include <QDate>
-#include <algorithm>
 #include <core/CommandInvoker.h>
 #include <core/IWorkingDaysReader.h>
 #include <core/IWorkingDaysWriter.h>
 #include <core/QueryInvoker.h>
 #include <core/WorkdayTracker.h>
+#include <core/use_cases/RequestWorkingDays.h>
+#include <qt/QtCore/QObject>
 
 namespace sprint_timer::ui::qt_gui {
 
-class ExtraDayModel : public QAbstractListModel {
+class WorkdayTrackerModel : public QObject {
+
+    Q_OBJECT
+
 public:
-    explicit ExtraDayModel(QObject* parent = nullptr);
+    WorkdayTrackerModel(IWorkingDaysWriter& workingDaysWriter_,
+                        IWorkingDaysReader& workingDaysReader_,
+                        CommandInvoker& commandInvoker_,
+                        QueryInvoker& queryInvoker_,
+                        QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex& parent) const final;
+    void requestDataUpdate();
 
-    bool insertRows(int row, int count, const QModelIndex& index) final;
+    /* Adds updated schedule keeping previous ones and replaces exceptional days
+     * with the given ones.
+     */
+    void changeWorkdayData(
+        const WeekSchedule& updatedSchedule,
+        const std::vector<WorkdayTracker::DayData>& exceptionalDays);
 
-    bool removeRows(int row, int count, const QModelIndex& index) final;
+    const WorkdayTracker& workdayTracker() const;
 
-    QVariant data(const QModelIndex& index, int role) const final;
+signals:
+    void workdaysChanged(const WorkdayTracker&);
 
-    bool
-    setData(const QModelIndex& index, const QVariant& data, int role) final;
-
-    void sort(int column, Qt::SortOrder order) final;
-
-protected:
-    std::vector<QPair<QDate, int>> data_;
+private:
+    IWorkingDaysWriter& workingDaysWriter;
+    IWorkingDaysReader& workingDaysReader;
+    CommandInvoker& commandInvoker;
+    QueryInvoker& queryInvoker;
+    WorkdayTracker tracker;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: EXTRADAYMODEL_H_CC87JAHL */
+#endif /* end of include guard: WORKDAYTRACKERMODEL_H_4DZKR8HV */
+

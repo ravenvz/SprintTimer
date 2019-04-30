@@ -30,6 +30,8 @@ class IWorkingDaysWriter {
 public:
     virtual ~IWorkingDaysWriter() = default;
 
+    virtual void changeWorkingDays(const WorkdayTracker& tracker) = 0;
+
     virtual void addExtraHolidays(const std::vector<dw::Date>& days) = 0;
 
     virtual void addExtraWorkdays(const std::vector<dw::Date>& days) = 0;

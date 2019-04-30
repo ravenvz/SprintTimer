@@ -23,6 +23,23 @@
 #include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/utils/DateTimeConverter.h"
 
+namespace {
+
+enum class ExceptionalDaysColumn { Date, Goal };
+
+enum class ScheduleColumns {
+    AppliedSince,
+    MondayGoal,
+    TuesdayGoal,
+    WednesdayGoal,
+    ThursdayGoal,
+    FridayGoal,
+    SaturdayGoal,
+    SundayGoal
+};
+
+} // namespace
+
 namespace sprint_timer::storage::qt_storage_impl {
 
 QtWorkingDaysReader::QtWorkingDaysReader(DBService& dbService_,
@@ -30,10 +47,22 @@ QtWorkingDaysReader::QtWorkingDaysReader(DBService& dbService_,
     : dbService{dbService_}
     , settings{settings_}
 {
-    requestExtraDaysQuery = QString("SELECT %1, %2 FROM %3;")
-                                .arg(ExtraDaysTable::Columns::day)
-                                .arg(ExtraDaysTable::Columns::workday)
-                                .arg(ExtraDaysTable::name);
+    requestSchedulesQuery
+        = QString("SELECT %1, %2, %3, %4, %5, %6, %7, %8 FROM %9;")
+              .arg(ScheduleTable::Columns::applied_since)
+              .arg(ScheduleTable::Columns::monday_goal)
+              .arg(ScheduleTable::Columns::tuesday_goal)
+              .arg(ScheduleTable::Columns::wednesday_goal)
+              .arg(ScheduleTable::Columns::thursday_goal)
+              .arg(ScheduleTable::Columns::friday_goal)
+              .arg(ScheduleTable::Columns::saturday_goal)
+              .arg(ScheduleTable::Columns::sunday_goal)
+              .arg(ScheduleTable::name);
+    requestExceptionalDaysQuery = QString("SELECT %1, %2 FROM %3;")
+                                      .arg(ExceptionalDayTable::Columns::date)
+                                      .arg(ExceptionalDayTable::Columns::goal)
+                                      .arg(ExceptionalDayTable::name);
+
     connect(&dbService,
             &DBService::results,
             this,
@@ -43,38 +72,69 @@ QtWorkingDaysReader::QtWorkingDaysReader(DBService& dbService_,
 void QtWorkingDaysReader::requestData(
     IWorkingDaysReader::ResultHandler resultHandler)
 {
-    handler = resultHandler;
-    requestExtraDaysQueryId = dbService.execute(requestExtraDaysQuery);
-    // using namespace dw;
-    // std::cout << "QtWorkingDaysReader stub requsting data" << std::endl;
-    // WorkdayTracker tracker{utils::WeekdaySelection{31}};
-    // tracker.addExtraHoliday(dw::Date{Year{2019}, Month{3}, Day{8}});
-    // tracker.addExtraHoliday(dw::Date{Year{2019}, Month{1}, Day{1}});
-    // tracker.addExtraHoliday(dw::Date{Year{2019}, Month{1}, Day{2}});
-    // tracker.addExtraHoliday(dw::Date{Year{2019}, Month{1}, Day{3}});
-    // tracker.addExtraHoliday(dw::Date{Year{2019}, Month{1}, Day{4}});
-    // tracker.addExtraHoliday(dw::Date{Year{2019}, Month{1}, Day{7}});
-    // tracker.addExtraHoliday(dw::Date{Year{2019}, Month{1}, Day{8}});
-    //
-    // resultHandler(tracker);
+    contexts.push({resultHandler, WorkdayTracker{}});
+    requestSchedulesQueryId = dbService.execute(requestSchedulesQuery);
 }
 
 void QtWorkingDaysReader::onResultReceived(
     qint64 queryId, const std::vector<QSqlRecord>& records)
 {
-    if (queryId != requestExtraDaysQueryId)
-        return;
+    if (queryId == requestSchedulesQueryId) {
+        for (const auto& rec : records) {
+            const auto appliedSince = utils::DateTimeConverter::date(
+                rec.value(static_cast<int>(ScheduleColumns::AppliedSince))
+                    .toDate());
+            const auto mon_goal
+                = rec.value(static_cast<int>(ScheduleColumns::MondayGoal))
+                      .toInt();
+            const auto tue_goal
+                = rec.value(static_cast<int>(ScheduleColumns::TuesdayGoal))
+                      .toInt();
+            const auto wed_goal
+                = rec.value(static_cast<int>(ScheduleColumns::WednesdayGoal))
+                      .toInt();
+            const auto thu_goal
+                = rec.value(static_cast<int>(ScheduleColumns::TuesdayGoal))
+                      .toInt();
+            const auto fri_goal
+                = rec.value(static_cast<int>(ScheduleColumns::FridayGoal))
+                      .toInt();
+            const auto sat_goal
+                = rec.value(static_cast<int>(ScheduleColumns::SaturdayGoal))
+                      .toInt();
+            const auto sun_goal
+                = rec.value(static_cast<int>(ScheduleColumns::SundayGoal))
+                      .toInt();
+            WeekSchedule schedule;
+            schedule.setTargetGoal(dw::Weekday::Monday, mon_goal);
+            schedule.setTargetGoal(dw::Weekday::Tuesday, tue_goal);
+            schedule.setTargetGoal(dw::Weekday::Wednesday, wed_goal);
+            schedule.setTargetGoal(dw::Weekday::Thursday, thu_goal);
+            schedule.setTargetGoal(dw::Weekday::Friday, fri_goal);
+            schedule.setTargetGoal(dw::Weekday::Saturday, sat_goal);
+            schedule.setTargetGoal(dw::Weekday::Sunday, sun_goal);
+            contexts.front().tracker.addWeekSchedule(appliedSince, schedule);
 
-    WorkdayTracker tracker{settings.workdays()};
-    for (const auto& rec : records) {
-        const auto isWorkday
-            = rec.value(static_cast<int>(Column::Workday)).toBool();
-        const auto date = utils::DateTimeConverter::date(
-            rec.value(static_cast<int>(Column::Day)).toDate());
-        isWorkday ? tracker.addExtraWorkday(date)
-                  : tracker.addExtraHoliday(date);
+            requestExceptionalDaysQueryId
+                = dbService.execute(requestExceptionalDaysQuery);
+        }
     }
-    handler(tracker);
+
+    if (queryId == requestExceptionalDaysQueryId) {
+        for (const auto& rec : records) {
+            const auto goal
+                = rec.value(static_cast<int>(ExceptionalDaysColumn::Goal))
+                      .toInt();
+            const auto date = utils::DateTimeConverter::date(
+                rec.value(static_cast<int>(ExceptionalDaysColumn::Date))
+                    .toDate());
+            contexts.front().tracker.addExceptionalDay(date, goal);
+        }
+        auto [handler, tracker] = contexts.front();
+        handler(std::move(tracker));
+        // contexts.front().handler(contexts.front().tracker);
+        contexts.pop();
+    }
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl

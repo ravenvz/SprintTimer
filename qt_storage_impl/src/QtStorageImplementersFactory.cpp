@@ -66,10 +66,10 @@ QtStorageImplementersFactory::createSprintDailyDistributionReader() const
 
 std::unique_ptr<ISprintDistributionReader>
 QtStorageImplementersFactory::createSprintWeeklyDistributionReader(
-    FirstDayOfWeek firstDayOfWeek) const
+    dw::Weekday firstDayOfWeek) const
 {
     constexpr size_t numWeeks{12};
-    if (firstDayOfWeek == FirstDayOfWeek::Monday)
+    if (firstDayOfWeek == dw::Weekday::Monday)
         return std::make_unique<QtSprintDistReaderMondayFirst>(dbService,
                                                                numWeeks);
     return std::make_unique<QtSprintDistReaderSundayFirst>(dbService, numWeeks);

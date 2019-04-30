@@ -33,10 +33,22 @@ using sprint_timer::TaskBuilder;
 using sprint_timer::entities::Sprint;
 using sprint_timer::entities::Task;
 
+
+sprint_timer::WeekSchedule buildSchedule(const std::array<int, 7>& raw_schedule)
+{
+    sprint_timer::WeekSchedule schedule;
+    for (size_t i = 0; i < raw_schedule.size(); ++i)
+        schedule.setTargetGoal(static_cast<dw::Weekday>(i), raw_schedule[i]);
+    return schedule;
+}
+
+
 class QtStorageImplementIntegrationTestFixture : public ::testing::Test {
 public:
     QtStorageInitializer initializer;
 };
+
+// TODO split into tests for specific readers/writers
 
 TEST_F(QtStorageImplementIntegrationTestFixture, saves_task)
 {
@@ -867,86 +879,66 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.runEventLoop();
 }
 
+// TEST_F(QtStorageImplementIntegrationTestFixture,
+//        extra_day_data_store_and_retrieve)
+// {
+//     using namespace dw;
+//     using namespace sprint_timer;
+//     using sprint_timer::utils::WeekdaySelection;
+//     WorkdayTracker expected{WeekdaySelection{15}}; // Mon - Thu
+//     const std::vector<Date> extraHolidays{Date{Year{2019}, Month{5}, Day{1}},
+//                                           Date{Year{2019}, Month{5}, Day{2}},
+//                                           Date{Year{2019}, Month{5},
+//                                           Day{3}}};
+//     const std::vector<Date> extraWorkdays{Date{Year{2019}, Month{5}, Day{4}},
+//                                           Date{Year{2019}, Month{5},
+//                                           Day{4}}};
+//     for (const auto& day : extraHolidays)
+//         expected.addExtraHoliday(day);
+//     for (const auto& day : extraWorkdays)
+//         expected.addExtraWorkday(day);
+//
+//     initializer.extraDaysWriter->changeWorkingDays(expected);
+//
+//     initializer.extraDaysReader->requestData(
+//         [&expected, this](const WorkdayTracker& actual) {
+//             EXPECT_EQ(expected, actual);
+//             initializer.quit();
+//         });
+//     initializer.runEventLoop();
+// }
+
 TEST_F(QtStorageImplementIntegrationTestFixture,
-       extra_day_data_store_and_retrieve)
+       change_working_days_store_and_retrieve)
 {
     using namespace dw;
-    using namespace sprint_timer;
-    using sprint_timer::utils::WeekdaySelection;
-    WorkdayTracker expected{WeekdaySelection{31}};
-    const std::vector<Date> extraHolidays{Date{Year{2019}, Month{5}, Day{1}},
-                                          Date{Year{2019}, Month{5}, Day{2}},
-                                          Date{Year{2019}, Month{5}, Day{3}}};
-    const std::vector<Date> extraWorkdays{Date{Year{2019}, Month{5}, Day{4}},
-                                          Date{Year{2019}, Month{5}, Day{4}}};
-    for (const auto& day : extraHolidays)
-        expected.addExtraHoliday(day);
-    for (const auto& day : extraWorkdays)
-        expected.addExtraWorkday(day);
+    using sprint_timer::WorkdayTracker;
+    WorkdayTracker expected;
+    expected.addWeekSchedule(Date{Year{2012}, Month{3}, Day{1}},
+                             buildSchedule({1, 1, 1, 1, 1, 0, 0}));
+    expected.addWeekSchedule(Date{Year{2014}, Month{1}, Day{7}},
+                             buildSchedule({2, 2, 2, 2, 2, 0, 0}));
+    expected.addWeekSchedule(Date{Year{2015}, Month{7}, Day{17}},
+                             buildSchedule({3, 3, 4, 3, 1, 7, 9}));
+    expected.addWeekSchedule(Date{Year{2017}, Month{6}, Day{27}},
+                             buildSchedule({12, 12, 12, 12, 12, 0, 0}));
+    expected.addWeekSchedule(Date{Year{2017}, Month{2}, Day{4}},
+                             buildSchedule({13, 13, 13, 13, 13, 0, 0}));
+    expected.addWeekSchedule(Date{Year{2017}, Month{11}, Day{22}},
+                             buildSchedule({11, 11, 11, 11, 11, 11, 0}));
+    expected.addWeekSchedule(Date{Year{2018}, Month{12}, Day{12}},
+                             buildSchedule({12, 12, 12, 12, 12, 0, 5}));
+    expected.addExtraHoliday(Date{Year{2018}, Month{1}, Day{1}});
+    expected.addExtraHoliday(Date{Year{2019}, Month{1}, Day{1}});
+    expected.addExtraWorkday(Date{Year{2017}, Month{2}, Day{23}}, 12);
+    expected.addExtraWorkday(Date{Year{2014}, Month{12}, Day{30}}, 12);
 
-    initializer.extraDaysWriter->addExtraHolidays(extraHolidays);
-    initializer.extraDaysWriter->addExtraWorkdays(extraWorkdays);
+    initializer.workingDaysWriter->changeWorkingDays(expected);
 
-    initializer.extraDaysReader->requestData(
+    initializer.workingDaysReader->requestData(
         [&expected, this](const WorkdayTracker& actual) {
             EXPECT_EQ(expected, actual);
-            initializer.quit();
-        });
-    initializer.runEventLoop();
-}
-
-TEST_F(QtStorageImplementIntegrationTestFixture,
-       replaces_day_on_conflict_so_same_day_cannot_be_both_workday_and_holiday)
-{
-    using namespace dw;
-    using namespace sprint_timer;
-    using sprint_timer::utils::WeekdaySelection;
-    WorkdayTracker expected{WeekdaySelection{31}};
-    expected.addExtraHoliday(Date{Year{2019}, Month{5}, Day{1}});
-    expected.addExtraWorkday(
-        Date{Year{2019}, Month{5}, Day{2}}); // conflicting date
-
-    initializer.extraDaysWriter->addExtraHolidays(
-        {Date{Year{2019}, Month{5}, Day{1}},
-         Date{Year{2019}, Month{5}, Day{1}}, // duplicate date
-         Date{Year{2019}, Month{5}, Day{2}}});
-    initializer.extraDaysWriter->addExtraWorkdays(
-        {Date{Year{2019}, Month{5}, Day{2}}});
-
-    initializer.extraDaysReader->requestData(
-        [&expected, this](const WorkdayTracker& actual) {
-            EXPECT_EQ(expected, actual);
-            initializer.quit();
-        });
-    initializer.runEventLoop();
-}
-
-TEST_F(QtStorageImplementIntegrationTestFixture, extra_day_add_and_remove)
-{
-    using namespace dw;
-    using namespace sprint_timer;
-    using sprint_timer::utils::WeekdaySelection;
-    WorkdayTracker expected{WeekdaySelection{31}};
-    expected.addExtraHoliday(Date{Year{2019}, Month{5}, Day{2}});
-    expected.addExtraWorkday(Date{Year{2019}, Month{3}, Day{9}});
-    initializer.extraDaysWriter->addExtraHolidays({
-        Date{Year{2019}, Month{5}, Day{1}},
-        Date{Year{2019}, Month{5}, Day{2}},
-        Date{Year{2019}, Month{5}, Day{3}},
-    });
-    initializer.extraDaysWriter->addExtraWorkdays(
-        {Date{Year{2019}, Month{3}, Day{9}},
-         Date{Year{2019}, Month{3}, Day{10}}});
-
-    initializer.extraDaysWriter->removeExtraHolidays(
-        {Date{Year{2019}, Month{5}, Day{1}},
-         Date{Year{2019}, Month{5}, Day{3}}});
-    initializer.extraDaysWriter->removeExtraWorkdays(
-        {Date{Year{2019}, Month{3}, Day{10}}});
-
-    initializer.extraDaysReader->requestData(
-        [&expected, this](const WorkdayTracker& actual) {
-            EXPECT_EQ(expected, actual);
+            // std::this_thread::sleep_for(std::chrono::seconds{4});
             initializer.quit();
         });
     initializer.runEventLoop();

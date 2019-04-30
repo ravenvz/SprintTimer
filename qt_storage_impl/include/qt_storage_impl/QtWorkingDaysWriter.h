@@ -31,6 +31,8 @@ class QtWorkingDaysWriter : public IWorkingDaysWriter {
 public:
     explicit QtWorkingDaysWriter(DBService& dbService);
 
+    void changeWorkingDays(const WorkdayTracker& tracker) override;
+
     void addExtraHolidays(const std::vector<dw::Date>& days) override;
 
     void addExtraWorkdays(const std::vector<dw::Date>& days) override;
@@ -41,8 +43,8 @@ public:
 
 private:
     DBService& dbService;
-    qint64 addExtraDaysQueryId{-1};
-    qint64 removeExtraDaysQueryId{-1};
+    qint64 storeSchedulesQueryId{-1};
+    qint64 storeExceptionalDaysQuery{-1};
 
     void removeExtraDays(const std::vector<dw::Date>& days);
 };

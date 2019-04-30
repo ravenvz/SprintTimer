@@ -23,21 +23,23 @@
 #define GROUPBYWEEK_H_UY9VBON4
 
 #include "core/GroupingStrategy.h"
+#include "core/IConfig.h"
 
 namespace sprint_timer {
 
 class GroupByWeek : public GroupingStrategy {
 public:
-    GroupByWeek(dw::Weekday firstDayOfWeek);
+    GroupByWeek(int numWeeks, const IConfig& applicationSettings);
 
     std::vector<GoalProgress>
-    computeProgress(const dw::DateRange& period,
-                    const std::vector<int>& actualProgress,
-                    const WorkdayTracker& tracker,
-                    int workdayGoal) const override;
+    computeProgress(const std::vector<int>& actualProgress,
+                    const WorkdayTracker& tracker) const override;
+
+    dw::DateRange dateRange() const override;
 
 private:
-    const dw::Weekday firstDay;
+    const IConfig& applicationSettings;
+    int numWeeks;
 };
 
 } // namespace sprint_timer

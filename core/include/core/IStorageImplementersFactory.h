@@ -51,8 +51,7 @@ public:
     createSprintDailyDistributionReader() const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
-    createSprintWeeklyDistributionReader(
-        FirstDayOfWeek firstDayOfWeek) const = 0;
+    createSprintWeeklyDistributionReader(dw::Weekday firstDayOfWeek) const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
     createSprintMonthlyDistributionReader() const = 0;

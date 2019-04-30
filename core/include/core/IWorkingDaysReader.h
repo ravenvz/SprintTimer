@@ -29,7 +29,7 @@ namespace sprint_timer {
 
 class IWorkingDaysReader {
 public:
-    using ResultHandler = std::function<void(const WorkdayTracker&)>;
+    using ResultHandler = std::function<void(WorkdayTracker&&)>;
 
     virtual ~IWorkingDaysReader() = default;
 

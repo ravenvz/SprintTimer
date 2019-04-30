@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/WorkingDaysReaderMock.h"
+#include "mocks/WorkingDaysStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/QueryInvoker.h>
 #include <core/use_cases/RequestWorkingDays.h>
@@ -29,7 +29,7 @@ using ::testing::_;
 
 class RequestWorkingDaysFixture : public ::testing::Test {
 public:
-    WorkingDaysReaderMock working_days_reader_mock;
+    WorkingDaysStorageMock working_days_storage_mock;
     sprint_timer::QueryInvoker queryInvoker;
 };
 
@@ -37,8 +37,9 @@ TEST_F(RequestWorkingDaysFixture, execute)
 {
     using sprint_timer::WorkdayTracker;
     using sprint_timer::use_cases::RequestWorkingDays;
-    EXPECT_CALL(working_days_reader_mock, requestData(_)).Times(1);
+    EXPECT_CALL(working_days_storage_mock, requestData(_)).Times(1);
 
     queryInvoker.execute(std::make_unique<RequestWorkingDays>(
-        working_days_reader_mock, [](const WorkdayTracker& workdayTracker) {}));
+        working_days_storage_mock,
+        [](const WorkdayTracker& workdayTracker) {}));
 }

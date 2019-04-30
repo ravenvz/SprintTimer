@@ -52,7 +52,7 @@ AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings,
     ui->cbPickTask->setItemDelegate(submissionItemDelegate.get());
 
     datePicker->setMaximumDate(QDate::currentDate());
-    if (applicationSettings.firstDayOfWeek() == FirstDayOfWeek::Monday)
+    if (applicationSettings.firstDayOfWeek() == dw::Weekday::Monday)
         datePicker->setFirstDayOfWeek(Qt::Monday);
     datePicker->setWindowModality(Qt::ApplicationModal);
 

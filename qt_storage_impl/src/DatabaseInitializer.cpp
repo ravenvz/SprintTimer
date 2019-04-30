@@ -154,18 +154,32 @@ void createTables(QSqlQuery& query)
         % "(" % TaskTable::Columns::id % ")"
         % " ON DELETE CASCADE ON UPDATE CASCADE)"};
 
-    const QString createExtraDaysTable{
-        "CREATE TABLE " % ExtraDaysTable::name % "("
-        % ExtraDaysTable::Columns::id % " INTEGER PRIMARY KEY AUTOINCREMENT, "
-        % ExtraDaysTable::Columns::day % " DATE UNIQUE, "
-        % ExtraDaysTable::Columns::workday % " BOOL);"};
+    const QString createExceptionalDayTable{
+        "CREATE TABLE " % ExceptionalDayTable::name % "("
+        % ExceptionalDayTable::Columns::id
+        % " INTEGER PRIMARY KEY AUTOINCREMENT, "
+        % ExceptionalDayTable::Columns::date % " DATE UNIQUE, "
+        % ExceptionalDayTable::Columns::goal % " INTEGER);"};
+
+    const QString createScheduleTable{
+        "CREATE TABLE " % ScheduleTable::name % "(" % ScheduleTable::Columns::id
+        % " INTEGER PRIMARY KEY AUTOINCREMENT, "
+        % ScheduleTable::Columns::applied_since % " DATE UNIQUE, "
+        % ScheduleTable::Columns::monday_goal % " INTEGER, "
+        % ScheduleTable::Columns::tuesday_goal % " INTEGER, "
+        % ScheduleTable::Columns::wednesday_goal % " INTEGER, "
+        % ScheduleTable::Columns::thursday_goal % " INTEGER, "
+        % ScheduleTable::Columns::friday_goal % " INTEGER, "
+        % ScheduleTable::Columns::saturday_goal % " INTEGER, "
+        % ScheduleTable::Columns::sunday_goal % " INTEGER);"};
 
     tryExecute(query, createInfoTable);
     tryExecute(query, createTaskTable);
     tryExecute(query, createTagTable);
     tryExecute(query, createSprintTable);
     tryExecute(query, createTaskTagTable);
-    tryExecute(query, createExtraDaysTable);
+    tryExecute(query, createExceptionalDayTable);
+    tryExecute(query, createScheduleTable);
 }
 
 void createViews(QSqlQuery& query)

@@ -53,6 +53,8 @@ QDate AddExceptionalDayDialog::startDate() const { return startDate_; }
 
 int AddExceptionalDayDialog::numDays() const { return numDays_; }
 
+int AddExceptionalDayDialog::targetGoal() const { return ui->spbNumSprints->value(); }
+
 void AddExceptionalDayDialog::setStartDate(const QDate& date)
 {
     startDate_ = date;

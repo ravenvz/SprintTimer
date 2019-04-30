@@ -21,13 +21,22 @@
 *********************************************************************************/
 #include "core/GroupByMonth.h"
 
+namespace {
+
+dw::DateRange nMonthsBackTillNow(int numMonths);
+
+} // namespace
+
 namespace sprint_timer {
 
+GroupByMonth::GroupByMonth(int numMonths)
+    : period{nMonthsBackTillNow(numMonths)}
+{
+}
+
 std::vector<GoalProgress>
-GroupByMonth::computeProgress(const dw::DateRange& period,
-                              const std::vector<int>& actualProgress,
-                              const WorkdayTracker& workdayTracker,
-                              int workdayGoal) const
+GroupByMonth::computeProgress(const std::vector<int>& actualProgress,
+                              const WorkdayTracker& workdayTracker) const
 {
     using namespace dw;
     std::vector<int> labour;
@@ -35,24 +44,38 @@ GroupByMonth::computeProgress(const dw::DateRange& period,
     progress.reserve(actualProgress.size());
     auto actualIt = cbegin(actualProgress);
 
-    int numWorkdays{0};
+    int goalForCurrentMonth{0};
     auto currentMonth = period.start().month();
 
     const Date stop = period.finish() + Days{1};
     for (auto day = period.start(); day < stop; day = day + Days{1}) {
         if (day.month() != currentMonth) {
             currentMonth = day.month();
-            progress.emplace_back(workdayGoal * numWorkdays, *actualIt);
+            progress.emplace_back(goalForCurrentMonth, *actualIt);
             ++actualIt;
-            numWorkdays = 0;
+            goalForCurrentMonth = 0;
         }
-        if (workdayTracker.isWorkday(day))
-            ++numWorkdays;
+        goalForCurrentMonth += workdayTracker.goal(day);
     }
-    progress.emplace_back(workdayGoal * numWorkdays, *actualIt);
+    progress.emplace_back(goalForCurrentMonth, *actualIt);
 
     return progress;
 }
 
+dw::DateRange GroupByMonth::dateRange() const { return period; }
 
 } // namespace sprint_timer
+
+namespace {
+
+dw::DateRange nMonthsBackTillNow(int numMonths)
+{
+    using namespace dw;
+    const auto now = current_date_local();
+    const auto months_back = now - Months{numMonths - 1};
+    const auto to = last_day_of_month(now);
+    const auto from = Date{months_back.year(), months_back.month(), Day{1}};
+    return DateRange{from, to};
+}
+
+} // namespace

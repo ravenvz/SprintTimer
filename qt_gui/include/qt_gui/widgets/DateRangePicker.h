@@ -43,7 +43,7 @@ public:
     void setInterval(DateInterval&& timeSpan);
     DateInterval getInterval() const;
     void setYears(const std::vector<std::string>& years);
-    void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek_);
+    void setFirstDayOfWeek(dw::Weekday firstDayOfWeek_);
 
 signals:
     void timeSpanChanged(DateInterval newInterval);
@@ -56,7 +56,7 @@ private slots:
 
 private:
     std::unique_ptr<Ui::DateRangePicker> ui;
-    FirstDayOfWeek firstDayOfWeek;
+    dw::Weekday firstDayOfWeek;
     DateInterval selectedInterval;
     std::unique_ptr<QStringListModel> yearsModel;
     std::unique_ptr<QStringListModel> monthsModel;
