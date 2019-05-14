@@ -23,10 +23,10 @@
 #define WORKDAYTRACKER_H_DPJU1VL0
 
 #include "core/WeekSchedule.h"
-#include "core/utils/WeekdaySelection.h"
 #include <iostream>
 #include <map>
 #include <unordered_map>
+#include <vector>
 
 namespace sprint_timer {
 

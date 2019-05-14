@@ -66,10 +66,6 @@ public:
 
     void setTimerFlavour(int timerVariation) override;
 
-    utils::WeekdaySelection workdays() const override;
-
-    void setWorkdays(const utils::WeekdaySelection& workdays) override;
-
     dw::Weekday firstDayOfWeek() const override;
 
     void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) override;

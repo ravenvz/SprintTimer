@@ -81,7 +81,6 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/CSVEncoder.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/CSVReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/StringUtils.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/WeekdaySelection.h"
 
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/src/CommandInvoker.cpp"
@@ -127,7 +126,6 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/ToggleTaskCompletionStatus.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/utils/CSVEncoder.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/utils/CSVReader.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/utils/WeekdaySelection.cpp"
 )
 
 target_include_directories(${CORE_LIB}

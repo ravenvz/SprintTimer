@@ -22,8 +22,8 @@
 #ifndef ICONFIG_H
 #define ICONFIG_H
 
-#include "core/utils/WeekdaySelection.h"
 #include <chrono>
+#include <date_wrapper/date_wrapper.h>
 #include <string>
 
 namespace sprint_timer {
@@ -64,12 +64,6 @@ public:
     virtual int timerFlavour() const = 0;
 
     virtual void setTimerFlavour(int timerVariation) = 0;
-
-    // TODO remove
-    virtual utils::WeekdaySelection workdays() const = 0;
-
-    // TODO remove
-    virtual void setWorkdays(const utils::WeekdaySelection& workdays) = 0;
 
     virtual dw::Weekday firstDayOfWeek() const = 0;
 

@@ -29,7 +29,6 @@ using sprint_timer::GoalProgress;
 using sprint_timer::ProgressOverPeriod;
 using sprint_timer::WeekSchedule;
 using sprint_timer::WorkdayTracker;
-using sprint_timer::utils::WeekdaySelection;
 using ::testing::Return;
 
 using namespace dw;

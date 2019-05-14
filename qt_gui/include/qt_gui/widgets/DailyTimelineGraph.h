@@ -25,7 +25,6 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QLabel>
 #include <core/Distribution.h>
-#include <core/utils/WeekdaySelection.h>
 #include <date_wrapper/date_wrapper.h>
 #include <memory>
 

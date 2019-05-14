@@ -109,18 +109,6 @@ void Config::setTimerFlavour(int timerVariation)
     Config::settings.setValue("timerFlavour", QVariant(timerVariation));
 }
 
-utils::WeekdaySelection Config::workdays() const
-{
-    return utils::WeekdaySelection{
-        Config::settings.value("workdaysCode", 127).toUInt()};
-}
-
-void Config::setWorkdays(const utils::WeekdaySelection& workdays)
-{
-    Config::settings.setValue("workdaysCode",
-                              QVariant(workdays.selectionMask()));
-}
-
 dw::Weekday Config::firstDayOfWeek() const
 {
     return static_cast<dw::Weekday>(

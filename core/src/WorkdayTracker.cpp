@@ -175,7 +175,6 @@ int goalFor(const WorkdayTracker& workdayTracker,
 
     for (auto day = dateRange.start(); day <= dateRange.finish();
          day = day + dw::Days{1}) {
-        std::cout << day << " - > " << workdayTracker.goal(day) << std::endl;
         goal += workdayTracker.goal(day);
     }
 

@@ -90,16 +90,6 @@ public:
 
     void setTimerFlavour(int timerVariation) override {}
 
-    sprint_timer::utils::WeekdaySelection workdays() const override
-    {
-        return sprint_timer::utils::WeekdaySelection{31};
-    }
-
-    void
-    setWorkdays(const sprint_timer::utils::WeekdaySelection& workdays) override
-    {
-    }
-
     dw::Weekday firstDayOfWeek() const override { return dw::Weekday::Monday; }
 
     void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) override {}

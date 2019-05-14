@@ -3,7 +3,6 @@
 
 using namespace dw;
 using namespace sprint_timer;
-using namespace sprint_timer::utils;
 
 WeekSchedule buildSchedule(const std::array<int, 7>& raw_schedule)
 {
@@ -92,7 +91,6 @@ TEST_F(WorkdayTrackerFixture, returns_schedule_that_is_active_now)
     tracker.addWeekSchedule(some_date, some_schedule);
     tracker.addWeekSchedule(some_date - Years{1}, old_schedule);
 
-    std::cout << tracker << std::endl;
     EXPECT_EQ(expected, tracker.currentSchedule());
 }
 

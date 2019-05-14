@@ -43,12 +43,6 @@ public:
     MOCK_METHOD1(setSoundFilePath, void(const std::string&));
     MOCK_CONST_METHOD0(timerFlavour, int());
     MOCK_METHOD1(setTimerFlavour, void(int));
-
-    // TODO remove when interface changed
-    MOCK_CONST_METHOD0(workdays, sprint_timer::utils::WeekdaySelection());
-    MOCK_METHOD1(setWorkdays,
-                 void(const sprint_timer::utils::WeekdaySelection&));
-
     MOCK_CONST_METHOD0(firstDayOfWeek, dw::Weekday());
     MOCK_METHOD1(setFirstDayOfWeek, void(dw::Weekday));
 };

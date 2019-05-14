@@ -21,7 +21,6 @@
 *********************************************************************************/
 #include "core/GroupByWeek.h"
 #include <core/IConfig.h>
-#include <core/utils/WeekdaySelection.h>
 
 namespace {
 

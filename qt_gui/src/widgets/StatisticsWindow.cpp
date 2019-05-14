@@ -27,7 +27,6 @@
 #include "ui_statistics_window.h"
 #include <core/use_cases/RequestMinMaxYear.h>
 #include <core/use_cases/RequestSprints.h>
-#include <core/utils/WeekdaySelection.h>
 
 namespace sprint_timer::ui::qt_gui {
 
