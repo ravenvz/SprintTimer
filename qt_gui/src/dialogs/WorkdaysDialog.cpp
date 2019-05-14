@@ -62,6 +62,9 @@ WorkdaysDialog::WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog_,
             &QDialog::accepted,
             this,
             &WorkdaysDialog::addExceptionalDay);
+    connect(this, &QDialog::rejected, [this]() {
+        onWorkdayTrackerChanged(workdaysModel.workdayTracker());
+    });
 }
 
 WorkdaysDialog::~WorkdaysDialog() = default;

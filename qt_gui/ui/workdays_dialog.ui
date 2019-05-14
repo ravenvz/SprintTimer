@@ -98,11 +98,11 @@
      <item>
       <widget class="QGroupBox" name="ExceptionalDaysGroupBox">
        <property name="title">
-        <string>GroupBox</string>
+        <string>Exceptional days:</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QListView" name="listViewExceptionalDays">
+         <widget class="sprint_timer::ui::qt_gui::ExtraDayListView" name="listViewExceptionalDays">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -138,6 +138,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>sprint_timer::ui::qt_gui::ExtraDayListView</class>
+   <extends>QListView</extends>
+   <header>qt_gui/widgets/ExtraDayListView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

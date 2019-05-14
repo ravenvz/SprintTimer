@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #ifndef WORKDAYSDIALOG_H_NVZH9CRG
 #define WORKDAYSDIALOG_H_NVZH9CRG
 
