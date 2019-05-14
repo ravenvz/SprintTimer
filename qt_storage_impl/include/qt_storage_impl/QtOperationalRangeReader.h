@@ -19,32 +19,36 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTMINMAXYEAR_H_0SPNHM7R
-#define REQUESTMINMAXYEAR_H_0SPNHM7R
+#ifndef QTOPERATIONALRANGEREADER_H_MNEJCZ5Y
+#define QTOPERATIONALRANGEREADER_H_MNEJCZ5Y
 
-#include "core/IYearRangeReader.h"
-#include "core/Query.h"
+#include "core/IOperationalRangeReader.h"
+#include "qt_storage_impl/DBService.h"
+#include <QObject>
+#include <functional>
+#include <unordered_map>
 
-namespace sprint_timer::use_cases {
+namespace sprint_timer::storage::qt_storage_impl {
 
-class RequestMinMaxYear : public Query {
+class QtOperationalRangeReader : public QObject,
+                                 public IOperationalRangeReader {
+    Q_OBJECT
+
 public:
-    RequestMinMaxYear(IYearRangeReader& year_range_reader,
-                      IYearRangeReader::Handler handler)
-        : reader{year_range_reader}
-        , handler_{handler}
-    {
-    }
+    explicit QtOperationalRangeReader(DBService& dbService);
 
-    void execute() final { reader.requestYearRange(handler_); }
-
-    std::string describe() const final { return "Request min max year"; }
+    void requestOperationalRange(Handler handler) final;
 
 private:
-    IYearRangeReader& reader;
-    IYearRangeReader::Handler handler_;
+    DBService& dbService;
+    std::unordered_map<qint64, Handler> handlers;
+
+private slots:
+    void onResultsReceived(qint64 queryId,
+                           const std::vector<QSqlRecord>& records);
 };
 
-} // namespace sprint_timer::use_cases
+} // namespace sprint_timer::storage::qt_storage_impl
 
-#endif /* end of include guard: REQUESTMINMAXYEAR_H_0SPNHM7R */
+#endif /* end of include guard: QTOPERATIONALRANGEREADER_H_MNEJCZ5Y */
+

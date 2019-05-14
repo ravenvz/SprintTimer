@@ -23,6 +23,8 @@
 #include "ui_best_workday_widget.h"
 #include <QDate>
 
+#include <iostream>
+
 namespace sprint_timer::ui::qt_gui {
 
 BestWorkdayWidget::BestWorkdayWidget(QWidget* parent)
@@ -45,10 +47,12 @@ void BestWorkdayWidget::setupWeekdayBarChart()
     ui->workdayBarChart->setBrush(brush);
 }
 
-void BestWorkdayWidget::setData(const Distribution<double>& weekdayDistribution)
+void BestWorkdayWidget::setData(const std::vector<entities::Sprint>& sprints,
+                                const dw::DateRange& dateRange)
 {
-    updateWeekdayBarChart(weekdayDistribution);
-    updateWeekdayBarChartLegend(weekdayDistribution);
+    const auto distribution = weekdayStatistics(sprints, dateRange);
+    updateWeekdayBarChart(distribution);
+    updateWeekdayBarChartLegend(distribution);
 }
 
 void BestWorkdayWidget::updateWeekdayBarChart(

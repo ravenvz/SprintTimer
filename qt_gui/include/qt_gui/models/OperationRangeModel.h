@@ -19,22 +19,37 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef IYEARRANGEREADER_H_EIN38BSX
-#define IYEARRANGEREADER_H_EIN38BSX
+#ifndef OPERATIONRANGEMODEL_H_EZACWVF7
+#define OPERATIONRANGEMODEL_H_EZACWVF7
 
-#include <functional>
-#include <list>
-#include <vector>
+#include <QObject>
+#include <core/IOperationalRangeReader.h>
+#include <core/QueryInvoker.h>
 
-namespace sprint_timer {
+namespace sprint_timer::ui::qt_gui {
 
-class IYearRangeReader {
+class OperationRangeModel : public QObject {
+
+    Q_OBJECT
+
 public:
-    using Handler = std::function<void(const std::vector<std::string>&)>;
-    virtual ~IYearRangeReader() = default;
-    virtual void requestYearRange(Handler handler) = 0;
+    OperationRangeModel(IOperationalRangeReader& yearRangeReader,
+                        QueryInvoker& queryInvoker);
+
+    dw::DateRange operationRange() const;
+
+    void requestDataUpdate();
+
+signals:
+    void operationRangeUpdated(const dw::DateRange&);
+
+private:
+    IOperationalRangeReader& reader;
+    QueryInvoker& queryInvoker;
+    dw::DateRange min_max_date{dw::current_date(), dw::current_date()};
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: IYEARRANGEREADER_H_EIN38BSX */
+#endif /* end of include guard: OPERATIONRANGEMODEL_H_EZACWVF7 */
+

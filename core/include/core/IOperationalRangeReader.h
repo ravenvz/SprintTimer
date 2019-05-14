@@ -19,43 +19,23 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DAILYTIMELINEGRAPH_H
-#define DAILYTIMELINEGRAPH_H
+#ifndef IOPERATIONRANGEREADER_H_DWGIKQTF
+#define IOPERATIONRANGEREADER_H_DWGIKQTF
 
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLabel>
-#include <core/Distribution.h>
 #include <date_wrapper/date_wrapper.h>
-#include <memory>
+#include <functional>
 
-namespace Ui {
-class DailyTimelineGraph;
-} // namespace Ui
+namespace sprint_timer {
 
-namespace sprint_timer::ui::qt_gui {
-
-
-class DailyTimelineGraph : public QFrame {
+class IOperationalRangeReader {
 public:
-    explicit DailyTimelineGraph(QWidget* parent);
+    using Handler = std::function<void(const dw::DateRange&)>;
 
-    ~DailyTimelineGraph();
+    virtual ~IOperationalRangeReader() = default;
 
-    void setData(const Distribution<double>& dailyDistribution,
-                 const dw::DateRange& dateRange,
-                 int numWorkdays,
-                 int goalForPeriod);
-
-private:
-    std::unique_ptr<Ui::DailyTimelineGraph> ui;
-
-    void setupGraphs();
-
-    void updateLegend(const Distribution<double>& dailyDistribution,
-                      double averagePerWorkday);
+    virtual void requestOperationalRange(Handler handler) = 0;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer
 
-
-#endif // DAILYTIMELINEGRAPH_H
+#endif /* end of include guard: IOPERATIONRANGEREADER_H_DWGIKQTF */

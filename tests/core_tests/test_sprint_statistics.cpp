@@ -36,84 +36,36 @@ namespace {
 const DateTimeRange defaultTimespan{dw::current_date_time() - 25min,
                                     dw::current_date_time()};
 
+const dw::DateRange someDateRange{dw::current_date(),
+                                  dw::current_date() + dw::Days{1}};
+
 } // namespace
 
-TEST(SprintStatItem, creates_reasonable_defaults_for_empty_distribution)
+TEST(WeekdayStatistics, creates_reasonable_defaults_for_empty_distribution)
 {
-    const std::vector<double> expectedDailyDistribution{0};
-    const std::vector<double> expectedWeekdayDistribution
-        = std::vector<double>(7, 0);
-    const std::vector<double> expectedWorktimeDistribution
-        = std::vector<double>(DayPart::numParts, 0);
+    const std::vector<double> expected = std::vector<double>(7, 0.0);
 
-    const SprintStatItem statistics{std::vector<Sprint>{}, defaultTimespan};
-    const auto dailyDistribution = statistics.dailyDistribution();
-    const auto weekdayDistribution = statistics.weekdayDistribution();
-    const auto worktimeDistribution = statistics.worktimeDistribution();
+    const auto actual = weekdayStatistics(std::vector<Sprint>{}, someDateRange);
 
-    EXPECT_EQ(expectedDailyDistribution,
-              dailyDistribution.getDistributionVector());
-    EXPECT_DOUBLE_EQ(0, dailyDistribution.getAverage());
-    EXPECT_DOUBLE_EQ(0, dailyDistribution.getMax());
-    EXPECT_DOUBLE_EQ(0, dailyDistribution.getTotal());
-    EXPECT_EQ(expectedWeekdayDistribution,
-              weekdayDistribution.getDistributionVector());
-    EXPECT_DOUBLE_EQ(0, weekdayDistribution.getAverage());
-    EXPECT_DOUBLE_EQ(0, weekdayDistribution.getMax());
-    EXPECT_DOUBLE_EQ(0, weekdayDistribution.getTotal());
-    EXPECT_EQ(expectedWorktimeDistribution,
-              worktimeDistribution.getDistributionVector());
-    EXPECT_DOUBLE_EQ(0, worktimeDistribution.getAverage());
-    EXPECT_DOUBLE_EQ(0, worktimeDistribution.getMax());
-    EXPECT_DOUBLE_EQ(0, worktimeDistribution.getTotal());
+    EXPECT_EQ(expected, actual.getDistributionVector());
+    EXPECT_DOUBLE_EQ(0, actual.getAverage());
+    EXPECT_DOUBLE_EQ(0, actual.getMax());
+    EXPECT_DOUBLE_EQ(0, actual.getTotal());
 }
 
-TEST(SprintStatItem, computes_daily_distribution_correctly)
-{
-    const DateTime start = dw::current_date_time();
-    const DateTime end = start + dw::Days{47};
-    const DateTimeRange timeSpan{start, end};
-    std::vector<Sprint> sprints;
-    std::vector<double> expectedDistributionVector(48, 0);
-    SprintBuilder sprintBuilder;
-    sprintBuilder.withTaskUuid("");
-    for (size_t i = 0; i < 48; ++i) {
-        for (size_t j = 0; j < i + 1; ++j) {
-            const DateTime sprintDateTime = start + dw::Days{i};
-            const DateTimeRange sprintInterval{sprintDateTime, sprintDateTime};
-            sprints.push_back(
-                sprintBuilder.withTimeSpan(sprintInterval).build());
-            expectedDistributionVector[i]++;
-        }
-    }
-    const double expected_average{24.5};
-    const double expected_max{48};
-    const size_t expected_max_value_bin{47};
-    const double expected_total{1176};
 
-    const SprintStatItem statistics{sprints, timeSpan};
-
-    const Distribution<double> distribution = statistics.dailyDistribution();
-
-    EXPECT_EQ(expected_max_value_bin, distribution.getMaxValueBin());
-    EXPECT_DOUBLE_EQ(expected_average, distribution.getAverage());
-    EXPECT_DOUBLE_EQ(expected_max, distribution.getMax());
-    EXPECT_DOUBLE_EQ(expected_total, distribution.getTotal());
-    EXPECT_EQ(expectedDistributionVector, distribution.getDistributionVector());
-}
-
-TEST(SprintStatItem, computes_weekday_distribution_correctly)
+TEST(WeekdayStatistics, returns_distribution)
 {
     using namespace dw;
     std::vector<Sprint> increasingSprints;
     SprintBuilder sprintBuilder = SprintBuilder{}.withTaskUuid("irrelevant");
     // (2015, 6, 1) is Monday, so each weekday occures exactly twice
     // in 14-day timeSpan
-    DateTimeRange timeSpan{DateTime{Date{Year{2015}, Month{6}, Day{1}}},
-                           DateTime{Date{Year{2015}, Month{6}, Day{14}}}};
+    const DateRange dateRange{Date{Year{2015}, Month{6}, Day{1}},
+                              Date{Year{2015}, Month{6}, Day{14}}};
     for (unsigned i = 1; i < 15; ++i) {
         for (unsigned j = 0; j < i; ++j) {
-            DateTime sprintDateTime
+            const DateTime sprintDateTime
                 = DateTime{Date{Year{2015}, Month{6}, Day{i}}};
             increasingSprints.push_back(
                 sprintBuilder
@@ -127,29 +79,38 @@ TEST(SprintStatItem, computes_weekday_distribution_correctly)
     const std::vector<double> expectedDistribution{
         4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
 
-    const SprintStatItem statistics{increasingSprints, timeSpan};
-    const Distribution<double> weekdayDistribution
-        = statistics.weekdayDistribution();
+    const auto distribution = weekdayStatistics(increasingSprints, dateRange);
 
-    EXPECT_EQ(expectedDistribution,
-              weekdayDistribution.getDistributionVector());
-    EXPECT_EQ(expected_max_value_bin, weekdayDistribution.getMaxValueBin());
-    EXPECT_DOUBLE_EQ(expected_average, weekdayDistribution.getAverage());
-    EXPECT_DOUBLE_EQ(expected_max, weekdayDistribution.getMax());
+    EXPECT_EQ(expectedDistribution, distribution.getDistributionVector());
+    EXPECT_EQ(expected_max_value_bin, distribution.getMaxValueBin());
+    EXPECT_DOUBLE_EQ(expected_average, distribution.getAverage());
+    EXPECT_DOUBLE_EQ(expected_max, distribution.getMax());
 }
 
-TEST(SprintStatItem, computes_worktime_distribution_correctly)
+
+TEST(WorkingHoursStatistics, creates_reasonable_defaults_for_empty_distribution)
+{
+    const std::vector<double> expected
+        = std::vector<double>(DayPart::numParts, 0);
+
+    const auto actual = workingHoursStatistics(std::vector<Sprint>{});
+
+    EXPECT_EQ(expected, actual.getDistributionVector());
+    EXPECT_DOUBLE_EQ(0, actual.getAverage());
+    EXPECT_DOUBLE_EQ(0, actual.getMax());
+    EXPECT_DOUBLE_EQ(0, actual.getTotal());
+}
+
+
+TEST(WorkingHoursStatistics, returns_distribution)
 {
     using namespace dw;
-    DateTimeRange timeSpan{DateTime{Date{Year{2015}, Month{6}, Day{2}}},
-                           DateTime{Date{Year{2015}, Month{6}, Day{2}}}
-                               + Days{1}};
+    const DateTime start{DateTime{Date{Year{2015}, Month{6}, Day{2}}}};
     std::vector<Sprint> sprints;
     SprintBuilder builder = SprintBuilder{}.withTaskUuid("");
     for (int i = 0; i < 30; ++i) {
-        DateTimeRange sprintTimespan{timeSpan.start() + std::chrono::hours{i},
-                                     timeSpan.start()
-                                         + std::chrono::minutes(i * 60 + 25)};
+        DateTimeRange sprintTimespan{start + std::chrono::hours{i},
+                                     start + std::chrono::minutes(i * 60 + 25)};
         sprints.push_back(builder.withTimeSpan(sprintTimespan).build());
     }
     const std::vector<double> expectedDistribution{7, 7, 4, 4, 4, 4};
@@ -157,8 +118,7 @@ TEST(SprintStatItem, computes_worktime_distribution_correctly)
     const double expectedMax{7};
     const size_t expectedMaxValueBin{0};
 
-    const SprintStatItem statistics{sprints, timeSpan};
-    const auto distribution = statistics.worktimeDistribution();
+    const auto distribution = workingHoursStatistics(sprints);
 
     EXPECT_EQ(expectedDistribution, distribution.getDistributionVector());
     EXPECT_DOUBLE_EQ(expectedAverage, distribution.getAverage());
@@ -166,13 +126,64 @@ TEST(SprintStatItem, computes_worktime_distribution_correctly)
     EXPECT_EQ(expectedMaxValueBin, distribution.getMaxValueBin());
 }
 
-TEST(SprintStatItem, ignores_sprints_outside_time_range)
+
+TEST(DailyStatistics, creates_reasonable_defaults_for_empty_distribution)
 {
     using namespace dw;
-    const DateTimeRange timeSpan{DateTime{Date{Year{2018}, Month{6}, Day{26}}},
-                                 DateTime{Date{Year{2018}, Month{6}, Day{28}}}};
+    const std::vector<double> expected{0};
+
+    const auto actual = dailyStatistics(
+        std::vector<Sprint>{}, DateRange{current_date(), current_date()});
+
+    EXPECT_EQ(expected, actual.getDistributionVector());
+    EXPECT_DOUBLE_EQ(0, actual.getAverage());
+    EXPECT_DOUBLE_EQ(0, actual.getMax());
+    EXPECT_DOUBLE_EQ(0, actual.getTotal());
+}
+
+TEST(DailyStatistics, returns_distribution)
+{
+    using namespace dw;
+    const Date start = current_date();
+    const Date end = start + Days{47};
+    const DateRange dateRange{start, end};
+    std::vector<Sprint> sprints;
+    std::vector<double> expected(48, 0);
+    const DateTime sprintStart = current_date_time();
+    SprintBuilder sprintBuilder;
+    sprintBuilder.withTaskUuid("");
+    for (size_t i = 0; i < 48; ++i) {
+        for (size_t j = 0; j < i + 1; ++j) {
+            const DateTime sprintDateTime = sprintStart + dw::Days{i};
+            const DateTimeRange sprintTimeSpan{sprintDateTime, sprintDateTime};
+            sprints.push_back(
+                sprintBuilder.withTimeSpan(sprintTimeSpan).build());
+            expected[i]++;
+        }
+    }
+    const double expected_average{24.5};
+    const double expected_max{48};
+    const size_t expected_max_value_bin{47};
+    const double expected_total{1176};
+
+    const auto distribution = dailyStatistics(sprints, dateRange);
+
+    EXPECT_EQ(expected_max_value_bin, distribution.getMaxValueBin());
+    EXPECT_DOUBLE_EQ(expected_average, distribution.getAverage());
+    EXPECT_DOUBLE_EQ(expected_max, distribution.getMax());
+    EXPECT_DOUBLE_EQ(expected_total, distribution.getTotal());
+    EXPECT_EQ(expected, distribution.getDistributionVector());
+}
+
+
+TEST(DailyStatistics, ignores_sprints_outside_time_range)
+{
+    using namespace dw;
+    const DateRange dateRange{Date{Year{2018}, Month{6}, Day{26}},
+                              Date{Year{2018}, Month{6}, Day{28}}};
+    const DateTime start{DateTime{dateRange.start()}};
     auto sprintBuilder = SprintBuilder{}.withTaskUuid("");
-    const auto startTime = timeSpan.start() + Days{-1};
+    const auto startTime = start - Days{1};
     std::vector<Sprint> sprints;
     for (int i = 0; i < 5; ++i) {
         sprints.push_back(
@@ -182,17 +193,37 @@ TEST(SprintStatItem, ignores_sprints_outside_time_range)
                 .build());
     }
     const std::vector<double> expectedDailyDistribution{1, 1, 1};
+
+    const auto distribution = dailyStatistics(sprints, dateRange);
+
+    EXPECT_EQ(expectedDailyDistribution, distribution.getDistributionVector());
+}
+
+
+TEST(WeekdayStatistics, ignores_sprints_outside_time_range)
+{
+    using namespace dw;
+    const DateRange dateRange{Date{Year{2018}, Month{6}, Day{26}},
+                              Date{Year{2018}, Month{6}, Day{28}}};
+    const DateTime start{DateTime{dateRange.start()}};
+    auto sprintBuilder = SprintBuilder{}.withTaskUuid("");
+    const auto startTime = start - Days{1};
+    std::vector<Sprint> sprints;
+    for (int i = 0; i < 5; ++i) {
+        sprints.push_back(
+            sprintBuilder
+                .withTimeSpan(DateTimeRange{startTime + dw::Days{i},
+                                            startTime + dw::Days{i} + 25min})
+                .build());
+    }
     const std::vector<double> expectedWeekdayDistribution{0, 1, 1, 1, 0, 0, 0};
 
-    const SprintStatItem statistics{sprints, timeSpan};
-    const auto dailyDistribution = statistics.dailyDistribution();
-    const auto weekdayDistribution = statistics.weekdayDistribution();
+    const auto distribution = weekdayStatistics(sprints, dateRange);
 
-    EXPECT_EQ(expectedDailyDistribution,
-              dailyDistribution.getDistributionVector());
     EXPECT_EQ(expectedWeekdayDistribution,
-              weekdayDistribution.getDistributionVector());
+              distribution.getDistributionVector());
 }
+
 
 class TagTopFixture : public ::testing::Test {
 public:

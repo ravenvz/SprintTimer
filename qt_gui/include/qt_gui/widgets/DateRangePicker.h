@@ -23,6 +23,7 @@
 #define PICKPERIODWIDGET_H
 
 #include "qt_gui/dialogs/DateRangePickDialog.h"
+#include "qt_gui/models/OperationRangeModel.h"
 #include <QStringListModel>
 #include <core/IConfig.h>
 #include <memory>
@@ -38,28 +39,36 @@ class DateRangePicker : public QWidget {
     Q_OBJECT
 
 public:
-    explicit DateRangePicker(QWidget* parent);
+    DateRangePicker(std::unique_ptr<DateRangePickDialog> dateRangePickDialog,
+                    const OperationRangeModel& operationRangeModel,
+                    QWidget* parent = nullptr);
+
     ~DateRangePicker() override;
-    void setInterval(DateInterval&& timeSpan);
-    DateInterval getInterval() const;
-    void setYears(const std::vector<std::string>& years);
-    void setFirstDayOfWeek(dw::Weekday firstDayOfWeek_);
+
+    dw::DateRange selectionRange() const;
 
 signals:
-    void timeSpanChanged(DateInterval newInterval);
-
-private slots:
-    void openDatePickDialog();
-    void updateInterval();
-    void updateInterval(DateInterval timeSpan);
-    void updateSelectionHintLabel();
+    void selectedDateRangeChanged(const dw::DateRange&);
 
 private:
     std::unique_ptr<Ui::DateRangePicker> ui;
-    dw::Weekday firstDayOfWeek;
-    DateInterval selectedInterval;
-    std::unique_ptr<QStringListModel> yearsModel;
-    std::unique_ptr<QStringListModel> monthsModel;
+    std::unique_ptr<DateRangePickDialog> dateRangePickDialog;
+    const OperationRangeModel& operationRangeModel;
+    dw::DateRange selectedDateRange;
+    QStringListModel monthsModel;
+    QStringListModel yearsModel;
+
+    void openDatePickDialog();
+
+    void onRangeChanged();
+
+    void onRangeChanged(const dw::DateRange& dateRange);
+
+    void updateSelectionHintLabel();
+
+    void setOperationalRange(const dw::DateRange& operationalRange);
+
+    void selectCurrentYearMonth(const QStringList& yearRange);
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -29,29 +29,23 @@
 
 namespace sprint_timer {
 
-/* This auxilary datastructure holds distributions of statistical data
- * for Sprints within given time range. */
-class SprintStatItem {
+/* Returns distribution of finished sprints per weekday. It is up to caller to
+ * ensure that sprints fit into the dateRange. */
+Distribution<double>
+weekdayStatistics(const std::vector<entities::Sprint>& sprints,
+                  const dw::DateRange& dateRange);
 
-public:
-    /* Sprints that have start time dates that are not within timeSpan
-     * dates will be ignored.
-     */
-    SprintStatItem(const std::vector<entities::Sprint>& sprints,
-                   const dw::DateTimeRange& timeSpan);
 
-    const Distribution<double>& dailyDistribution() const;
+/* Returns distribution of sprint times per day hours. */
+Distribution<double>
+workingHoursStatistics(const std::vector<entities::Sprint>& sprints);
 
-    const Distribution<double>& weekdayDistribution() const;
 
-    const Distribution<double>& worktimeDistribution() const;
-
-private:
-    Distribution<double> dailyDistribution_;
-    Distribution<double> weekdayDistribution_;
-    Distribution<double> worktimeDistribution_;
-};
-
+/* Returns number of completed sprints per day. It is up to caller to ensure
+ * that sprints fit into the dateRange. */
+Distribution<double>
+dailyStatistics(const std::vector<entities::Sprint>& sprints,
+                const dw::DateRange& dateRange);
 
 namespace DayPart {
 

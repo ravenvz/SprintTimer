@@ -19,41 +19,45 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage_impl/QtYearRangeReader.h"
+#include "qt_storage_impl/QtOperationalRangeReader.h"
 #include "qt_storage_impl/DatabaseDescription.h"
+#include "qt_storage_impl/utils/DateTimeConverter.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
 
-QtYearRangeReader::QtYearRangeReader(DBService& dbService)
+QtOperationalRangeReader::QtOperationalRangeReader(DBService& dbService)
     : dbService{dbService}
 {
     connect(&dbService,
             &DBService::results,
             this,
-            &QtYearRangeReader::onResultsReceived);
+            &QtOperationalRangeReader::onResultsReceived);
 }
 
-void QtYearRangeReader::requestYearRange(Handler handler)
+void QtOperationalRangeReader::requestOperationalRange(Handler handler)
 {
-    qint64 queryId
-        = dbService.execute(QString{"SELECT DISTINCT STRFTIME('%Y', %1) "
-                                    "FROM %2 ORDER BY %1;"}
-                                .arg(SprintTable::Columns::startTime)
-                                .arg(SprintTable::name));
+    qint64 queryId = dbService.execute(
+        QString{"SELECT date(min(%1)), date(max(%1)) FROM %2;"}
+            .arg(SprintTable::Columns::startTime)
+            .arg(SprintTable::name));
     handlers.insert(std::make_pair(queryId, handler));
 }
 
-void QtYearRangeReader::onResultsReceived(
+void QtOperationalRangeReader::onResultsReceived(
     qint64 queryId, const std::vector<QSqlRecord>& records)
 {
     if (auto it = handlers.find(queryId); it != handlers.end()) {
-        std::vector<std::string> range;
-        for (const auto& record : records) {
-            range.push_back(record.value(0).toString().toStdString());
-        }
+        // TODO should signal error
+        if (records.empty())
+            return;
+        const auto& record = records.front();
+        const dw::DateRange range{
+            utils::DateTimeConverter::date(record.value(0).toDate()),
+            utils::DateTimeConverter::date(record.value(1).toDate())};
         it->second(range);
         handlers.erase(queryId);
     }
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl
+

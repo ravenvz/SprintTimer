@@ -19,43 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DAILYTIMELINEGRAPH_H
-#define DAILYTIMELINEGRAPH_H
+#ifndef OPERATIONALRANGEREADERMOCK_H_APJ2MZW1
+#define OPERATIONALRANGEREADERMOCK_H_APJ2MZW1
 
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLabel>
-#include <core/Distribution.h>
-#include <date_wrapper/date_wrapper.h>
-#include <memory>
+#include "gmock/gmock.h"
+#include <core/IOperationalRangeReader.h>
 
-namespace Ui {
-class DailyTimelineGraph;
-} // namespace Ui
-
-namespace sprint_timer::ui::qt_gui {
-
-
-class DailyTimelineGraph : public QFrame {
+class OperationalRangeReaderMock
+    : public sprint_timer::IOperationalRangeReader {
 public:
-    explicit DailyTimelineGraph(QWidget* parent);
-
-    ~DailyTimelineGraph();
-
-    void setData(const Distribution<double>& dailyDistribution,
-                 const dw::DateRange& dateRange,
-                 int numWorkdays,
-                 int goalForPeriod);
-
-private:
-    std::unique_ptr<Ui::DailyTimelineGraph> ui;
-
-    void setupGraphs();
-
-    void updateLegend(const Distribution<double>& dailyDistribution,
-                      double averagePerWorkday);
+    MOCK_METHOD1(requestOperationalRange,
+                 void(IOperationalRangeReader::Handler));
 };
 
-} // namespace sprint_timer::ui::qt_gui
-
-
-#endif // DAILYTIMELINEGRAPH_H
+#endif /* end of include guard: OPERATIONALRANGEREADERMOCK_H_APJ2MZW1 */

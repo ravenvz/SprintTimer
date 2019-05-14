@@ -65,14 +65,18 @@
 #include <qt_gui/dialogs/AddExceptionalDayDialog.h>
 #include <qt_gui/dialogs/AddSprintDialog.h>
 #include <qt_gui/dialogs/AddTaskDialog.h>
+#include <qt_gui/dialogs/DateRangePickDialog.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
 #include <qt_gui/dialogs/UndoDialog.h>
 #include <qt_gui/dialogs/WorkdaysDialog.h>
 #include <qt_gui/models/DistributionModel.h>
 #include <qt_gui/models/ExtraDayModel.h>
 #include <qt_gui/models/HistoryModel.h>
+#include <qt_gui/models/OperationRangeModel.h>
 #include <qt_gui/models/TagModel.h>
 #include <qt_gui/models/WorkdayTrackerModel.h>
+#include <qt_gui/widgets/DailyTimelineGraph.h>
+#include <qt_gui/widgets/DateRangePicker.h>
 #include <qt_gui/widgets/DefaultTimer.h>
 #include <qt_gui/widgets/FancyTimer.h>
 #include <qt_gui/widgets/HistoryWindow.h>
@@ -81,6 +85,7 @@
 #include <qt_gui/widgets/ProgressView.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/SprintView.h>
+#include <qt_gui/widgets/StatisticsDiagramWidget.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
 #include <qt_gui/widgets/TagEditor.h>
 #include <qt_gui/widgets/TaskOutline.h>
@@ -246,14 +251,14 @@ int main(int argc, char* argv[])
         factory.createSprintStorageReader()};
     std::unique_ptr<ISprintStorageWriter> sprintStorageWriter{
         factory.createSprintStorageWriter()};
-    std::unique_ptr<IYearRangeReader> sprintYearRangeReader{
-        factory.createYearRangeReader()};
     std::unique_ptr<ITaskStorageReader> taskStorageReader{
         factory.createTaskStorageReader()};
     std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
         factory.createTaskStorageWriter()};
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
         factory.createSprintDailyDistributionReader()};
+    std::unique_ptr<IOperationalRangeReader> operationRangeReader{
+        factory.createOperationalRangeReader()};
     std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
         factory.createSprintWeeklyDistributionReader(
             applicationSettings.firstDayOfWeek())};
@@ -278,8 +283,7 @@ int main(int argc, char* argv[])
     SprintModel sprintModel{commandInvoker,
                             queryInvoker,
                             *sprintStorageReader,
-                            *sprintStorageWriter,
-                            *taskStorageWriter};
+                            *sprintStorageWriter};
     TagModel tagModel{
         *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
 
@@ -317,10 +321,39 @@ int main(int argc, char* argv[])
                                           std::move(addNewSprintButton),
                                           std::move(sprintView));
 
-    StatisticsWindow statisticsWindow{applicationSettings,
+    OperationRangeModel operationRangeModel{*operationRangeReader,
+                                            queryInvoker};
+
+    SprintModel statisticsSprintModel{commandInvoker,
+                                      queryInvoker,
                                       *sprintStorageReader,
-                                      *sprintYearRangeReader,
-                                      queryInvoker};
+                                      *sprintStorageWriter};
+    QObject::connect(&sprintModel,
+                     &AsyncListModel::updateFinished,
+                     &statisticsSprintModel,
+                     &SprintModel::requestSilentDataUpdate);
+    auto statisticsWindowDateRangePicker = std::make_unique<DateRangePicker>(
+        std::make_unique<DateRangePickDialog>(applicationSettings),
+        operationRangeModel);
+    QObject::connect(statisticsWindowDateRangePicker.get(),
+                     &DateRangePicker::selectedDateRangeChanged,
+                     [&statisticsSprintModel](const auto& dateRange) {
+                         statisticsSprintModel.requestUpdate(dateRange);
+                     });
+    auto dailyTimelineGraph = std::make_unique<DailyTimelineGraph>(nullptr);
+    auto statisticsDiagramWidget = std::make_unique<StatisticsDiagramWidget>(
+        std::make_unique<BestWorkdayWidget>(nullptr),
+        std::make_unique<DistributionDiagram>(nullptr),
+        std::make_unique<BestWorktimeWidget>(nullptr),
+        nullptr);
+    StatisticsWindow statisticsWindow{
+        *sprintStorageReader,
+        std::move(statisticsWindowDateRangePicker),
+        std::move(dailyTimelineGraph),
+        std::move(statisticsDiagramWidget),
+        workdayTrackerModel,
+        statisticsSprintModel,
+        queryInvoker};
     QObject::connect(&sprintModel,
                      &AsyncListModel::updateFinished,
                      [&statisticsWindow]() { statisticsWindow.synchronize(); });
@@ -421,15 +454,26 @@ int main(int argc, char* argv[])
                                          std::move(weeklyProgress),
                                          std::move(monthlyProgress)};
 
+    auto historyWindowDateRangePicker = std::make_unique<DateRangePicker>(
+        std::make_unique<DateRangePickDialog>(applicationSettings),
+        operationRangeModel);
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
-    HistoryWindow historyWindow{*sprintStorageReader,
+    SprintModel historySprintModel{commandInvoker,
+                                   queryInvoker,
+                                   *sprintStorageReader,
+                                   *sprintStorageWriter};
+    // QObject::connect(historyWindowDateRangePicker.get(),
+    //                  &DateRangePicker::selectedDateRangeChanged,
+    //                  [&historySprintModel](const auto& dateRange) {
+    //                      historySprintModel.requestUpdate(dateRange);
+    //                  });
+    HistoryWindow historyWindow{historySprintModel,
                                 *taskStorageReader,
-                                *sprintYearRangeReader,
                                 historyModel,
                                 historyItemDelegate,
                                 queryInvoker,
-                                applicationSettings.firstDayOfWeek()};
+                                std::move(historyWindowDateRangePicker)};
     QObject::connect(&sprintModel,
                      &AsyncListModel::updateFinished,
                      [&historyWindow]() { historyWindow.synchronize(); });

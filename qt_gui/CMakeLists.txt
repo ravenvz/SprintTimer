@@ -18,7 +18,6 @@ QT5_WRAP_UI(UI_HEADERS
         ui/settings.ui
         ui/history.ui
         ui/date_pick_dialog.ui
-        ui/statistics_window.ui
         ui/add_sprint_dialog.ui
         ui/date_range_picker.ui
         ui/tageditor.ui
@@ -60,6 +59,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/DistributionModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/ExtraDayModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/HistoryModel.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/OperationRangeModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/SprintModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/TagModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/TaskModel.h"
@@ -91,6 +91,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/SimpleLegend.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/SprintOutline.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/SprintView.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/StatisticsDiagramWidget.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/StatisticsWindow.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/SubmissionBox.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TagEditor.h"
@@ -125,10 +126,12 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/models/DistributionModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/ExtraDayModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/HistoryModel.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/models/OperationRangeModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/SprintModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/TagModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/TaskModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/WorkdayTrackerModel.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/utils/DateTimeConverter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/utils/MouseRightReleaseEater.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/utils/WidgetUtils.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/BarChart.cpp"
@@ -155,6 +158,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/SimpleLegend.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/SprintOutline.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/SprintView.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/StatisticsDiagramWidget.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/StatisticsWindow.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/SubmissionBox.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TagEditor.cpp"

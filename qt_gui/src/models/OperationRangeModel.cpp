@@ -19,43 +19,32 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DAILYTIMELINEGRAPH_H
-#define DAILYTIMELINEGRAPH_H
-
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLabel>
-#include <core/Distribution.h>
-#include <date_wrapper/date_wrapper.h>
-#include <memory>
-
-namespace Ui {
-class DailyTimelineGraph;
-} // namespace Ui
+#include "qt_gui/models/OperationRangeModel.h"
+#include <core/use_cases/RequestOperationalRange.h>
 
 namespace sprint_timer::ui::qt_gui {
 
+OperationRangeModel::OperationRangeModel(IOperationalRangeReader& reader_,
+                                         QueryInvoker& queryInvoker_)
+    : reader{reader_}
+    , queryInvoker{queryInvoker_}
+{
+    requestDataUpdate();
+}
 
-class DailyTimelineGraph : public QFrame {
-public:
-    explicit DailyTimelineGraph(QWidget* parent);
+dw::DateRange OperationRangeModel::operationRange() const
+{
+    return min_max_date;
+}
 
-    ~DailyTimelineGraph();
-
-    void setData(const Distribution<double>& dailyDistribution,
-                 const dw::DateRange& dateRange,
-                 int numWorkdays,
-                 int goalForPeriod);
-
-private:
-    std::unique_ptr<Ui::DailyTimelineGraph> ui;
-
-    void setupGraphs();
-
-    void updateLegend(const Distribution<double>& dailyDistribution,
-                      double averagePerWorkday);
-};
+void OperationRangeModel::requestDataUpdate()
+{
+    using use_cases::RequestOperationalRange;
+    queryInvoker.execute(std::make_unique<RequestOperationalRange>(
+        reader, [this](const auto& updatedRange) {
+            min_max_date = updatedRange;
+            emit operationRangeUpdated(min_max_date);
+        }));
+}
 
 } // namespace sprint_timer::ui::qt_gui
-
-
-#endif // DAILYTIMELINEGRAPH_H

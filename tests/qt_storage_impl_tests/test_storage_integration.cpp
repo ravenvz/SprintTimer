@@ -513,7 +513,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.runEventLoop();
 }
 
-TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_year_range)
+TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_operational_range)
 {
     using namespace dw;
     const Task someTask{TaskBuilder{}.build()};
@@ -528,16 +528,16 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_year_range)
                            .withTimeSpan(add_offset(
                                DateTimeRange{timestamp, timestamp}, -Years{4}))
                            .build()};
-    const std::vector<std::string> expected{"2014", "2018"};
+    const DateRange expected{Date{Year{2014}, Month{12}, Day{1}},
+                             Date{Year{2018}, Month{12}, Day{1}}};
 
     initializer.taskWriter->save(someTask);
     initializer.sprintWriter->save(left);
     initializer.sprintWriter->save(right);
 
-    initializer.yearRangeReader->requestYearRange(
-        [this, &expected](const std::vector<std::string>& yearRange) {
-            EXPECT_EQ(2, yearRange.size());
-            EXPECT_EQ(expected, yearRange);
+    initializer.operationalRangeReader->requestOperationalRange(
+        [this, &expected](const auto& operationalRange) {
+            EXPECT_EQ(expected, operationalRange);
             initializer.quit();
         });
     initializer.runEventLoop();

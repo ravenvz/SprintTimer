@@ -35,18 +35,15 @@ namespace sprint_timer::ui::qt_gui {
 
 class BestWorktimeWidget : public QWidget {
 public:
-    BestWorktimeWidget(QWidget* parent);
+    explicit BestWorktimeWidget(QWidget* parent);
 
     virtual ~BestWorktimeWidget();
 
-    void setData(const Distribution<double>& workTimeDistribution,
-                 const std::vector<entities::Sprint>& sprints);
+    void setData(const std::vector<entities::Sprint>& sprints);
 
 private:
     std::unique_ptr<Ui::BestWorktimeWidget> ui;
-    void
-    updateWorkHoursDiagram(const Distribution<double>& workTimeDistribution,
-                           const std::vector<entities::Sprint>& sprints);
+    void updateWorkHoursDiagram(const std::vector<entities::Sprint>& sprints);
 };
 
 } // namespace sprint_timer::ui::qt_gui

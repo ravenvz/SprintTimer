@@ -37,17 +37,20 @@ class DateRangePickDialog : public QDialog {
     Q_OBJECT
 
 public:
-    DateRangePickDialog(DateInterval initialPeriod,
-                        dw::Weekday firstDayOfWeek,
+    DateRangePickDialog(const IConfig& applicationSettings,
                         QWidget* parent = nullptr);
-    ~DateRangePickDialog();
-    DateInterval getNewInterval();
+
+    ~DateRangePickDialog() override;
+
+    dw::DateRange selectedRange();
+
+    void setSelectionRange(const dw::DateRange& dateRange);
 
 private:
     std::unique_ptr<Ui::DateRangePickDialog> ui;
+    const IConfig& applicationSettings;
 
-    void configureCalendar(dw::Weekday firstDayOfWeek);
-    void updateCalendarDates(DateInterval& period);
+    void showEvent(QShowEvent*) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

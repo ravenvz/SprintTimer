@@ -19,34 +19,24 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTYEARRANGEREADER_H_6LK9HHEM
-#define QTYEARRANGEREADER_H_6LK9HHEM
+#include "mocks/IOperationalRangeReader.h"
+#include "gtest/gtest.h"
+#include <core/QueryInvoker.h>
+#include <core/use_cases/RequestOperationalRange.h>
 
-#include "core/IYearRangeReader.h"
-#include "qt_storage_impl/DBService.h"
-#include <QObject>
-#include <functional>
-#include <unordered_map>
+using sprint_timer::use_cases::RequestOperationalRange;
+using ::testing::_;
 
-namespace sprint_timer::storage::qt_storage_impl {
-
-class QtYearRangeReader : public QObject, public IYearRangeReader {
-    Q_OBJECT
-
+class RequestOperationalRangeFixture : public ::testing::Test {
 public:
-    explicit QtYearRangeReader(DBService& dbService);
-
-    void requestYearRange(Handler handler) final;
-
-private:
-    DBService& dbService;
-    std::unordered_map<qint64, Handler> handlers;
-
-private slots:
-    void onResultsReceived(qint64 queryId,
-                           const std::vector<QSqlRecord>& records);
+    sprint_timer::QueryInvoker queryInvoker;
+    YearRangeReaderMock year_range_reader_mock;
 };
 
-} // namespace sprint_timer::storage::qt_storage_impl
+TEST_F(RequestMinMaxYearFixture, execute)
+{
+    EXPECT_CALL(year_range_reader_mock, requestYearRange(_)).Times(1);
 
-#endif /* end of include guard: QTYEARRANGEREADER_H_6LK9HHEM */
+    queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
+        year_range_reader_mock, [](const auto& result) {}));
+}

@@ -19,43 +19,42 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BESTWORKDAYWIDGET_H
-#define BESTWORKDAYWIDGET_H
+#ifndef STATISTICSDIAGRAMWIDGET_H_NQA0OVEZ
+#define STATISTICSDIAGRAMWIDGET_H_NQA0OVEZ
 
-#include <QtWidgets/QWidget>
-#include <core/Distribution.h>
-#include <core/SprintStatistics.h>
-#include <memory>
-
-namespace Ui {
-class BestWorkdayWidget;
-} // namespace Ui
+#include "qt_gui/widgets/BestWorkdayWidget.h"
+#include "qt_gui/widgets/BestWorktimeWidget.h"
+#include "qt_gui/widgets/DistributionDiagram.h"
+#include <QFrame>
+#include <core/TagTop.h>
 
 namespace sprint_timer::ui::qt_gui {
 
+class StatisticsDiagramWidget : public QFrame {
 
-class BestWorkdayWidget : public QWidget {
+    Q_OBJECT
 
 public:
-    explicit BestWorkdayWidget(QWidget* parent);
+    StatisticsDiagramWidget(
+        std::unique_ptr<BestWorkdayWidget> bestWorkdayWidget,
+        std::unique_ptr<DistributionDiagram> tagDiagram,
+        std::unique_ptr<BestWorktimeWidget> bestWorktimeWidget,
+        QFrame* parent);
 
-    virtual ~BestWorkdayWidget();
+    void setData(const std::vector<entities::Sprint>& sprints,
+                 const dw::DateRange& dateRange);
 
-    void setData(const std::vector<entities::Sprint>& weekdayDistribution,
-                 const dw::DateRange& timeSpan);
+    void setTagFrequencies(std::vector<TagTop::TagFrequency>&& tagFrequency);
+
+signals:
+    void tagSelectionChanged(size_t);
 
 private:
-    std::unique_ptr<Ui::BestWorkdayWidget> ui;
-
-    void setupWeekdayBarChart();
-
-    void updateWeekdayBarChart(const Distribution<double>& weekdayDistribution);
-
-    void updateWeekdayBarChartLegend(
-        const Distribution<double>& weekdayDistribution);
+    BestWorkdayWidget* bestWorkdayWidget;
+    DistributionDiagram* tagDiagram;
+    BestWorktimeWidget* bestWorktimeWidget;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-
-#endif // BESTWORKDAYWIDGET_H
+#endif /* end of include guard: STATISTICSDIAGRAMWIDGET_H_NQA0OVEZ */

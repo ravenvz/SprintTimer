@@ -19,23 +19,29 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef REQUESTOPERATIONALRANGE_H_ZAWDQMNL
+#define REQUESTOPERATIONALRANGE_H_ZAWDQMNL
 
-#include "core/use_cases/RequestMinMaxYear.h"
+#include "core/IOperationalRangeReader.h"
+#include "core/Query.h"
+
 
 namespace sprint_timer::use_cases {
 
-RequestMinMaxYear::RequestMinMaxYear(IYearRangeReader& year_range_reader,
-                                     IYearRangeReader::Handler handler)
-    : reader{year_range_reader}
-    , handler_{handler}
-{
-}
+class RequestOperationalRange : public Query {
+public:
+    RequestOperationalRange(IOperationalRangeReader& reader,
+                            IOperationalRangeReader::Handler handler);
 
-void RequestMinMaxYear::execute() { reader.requestYearRange(handler); }
+    void execute() override;
 
-std::string RequestMinMaxYear::describe() const
-{
-    return "Request min max year";
-}
+    std::string describe() const override;
+
+private:
+    IOperationalRangeReader& reader;
+    IOperationalRangeReader::Handler handler;
+};
 
 } // namespace sprint_timer::use_cases
+
+#endif /* end of include guard: REQUESTOPERATIONALRANGE_H_ZAWDQMNL */

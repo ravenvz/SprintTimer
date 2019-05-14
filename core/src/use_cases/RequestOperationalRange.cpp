@@ -19,43 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DAILYTIMELINEGRAPH_H
-#define DAILYTIMELINEGRAPH_H
+#include "core/use_cases/RequestOperationalRange.h"
 
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLabel>
-#include <core/Distribution.h>
-#include <date_wrapper/date_wrapper.h>
-#include <memory>
+namespace sprint_timer::use_cases {
 
-namespace Ui {
-class DailyTimelineGraph;
-} // namespace Ui
+RequestOperationalRange::RequestOperationalRange(
+    IOperationalRangeReader& reader_, IOperationalRangeReader::Handler handler_)
+    : reader{reader_}
+    , handler{std::move(handler_)}
+{
+}
 
-namespace sprint_timer::ui::qt_gui {
+void RequestOperationalRange::execute()
+{
+    reader.requestOperationalRange(handler);
+}
 
+std::string RequestOperationalRange::describe() const
+{
+    return "Requesting operational range";
+}
 
-class DailyTimelineGraph : public QFrame {
-public:
-    explicit DailyTimelineGraph(QWidget* parent);
-
-    ~DailyTimelineGraph();
-
-    void setData(const Distribution<double>& dailyDistribution,
-                 const dw::DateRange& dateRange,
-                 int numWorkdays,
-                 int goalForPeriod);
-
-private:
-    std::unique_ptr<Ui::DailyTimelineGraph> ui;
-
-    void setupGraphs();
-
-    void updateLegend(const Distribution<double>& dailyDistribution,
-                      double averagePerWorkday);
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-
-#endif // DAILYTIMELINEGRAPH_H
+} // namespace sprint_timer::use_cases

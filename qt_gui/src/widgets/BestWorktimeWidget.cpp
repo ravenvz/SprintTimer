@@ -36,19 +36,18 @@ BestWorktimeWidget::BestWorktimeWidget(QWidget* parent)
 
 BestWorktimeWidget::~BestWorktimeWidget() = default;
 
-void BestWorktimeWidget::setData(
-    const Distribution<double>& workTimeDistribution,
-    const std::vector<Sprint>& sprints)
+void BestWorktimeWidget::setData(const std::vector<Sprint>& sprints)
 {
-    updateWorkHoursDiagram(workTimeDistribution, sprints);
+    updateWorkHoursDiagram(sprints);
 }
 
 void BestWorktimeWidget::updateWorkHoursDiagram(
-    const Distribution<double>& workTimeDistribution,
     const std::vector<Sprint>& sprints)
 {
+    const auto workTimeDistribution = workingHoursStatistics(sprints);
     std::vector<dw::DateTimeRange> timeSpans;
     timeSpans.reserve(sprints.size());
+    // TODO levels of abstraction are messed up here
     std::transform(sprints.cbegin(),
                    sprints.cend(),
                    std::back_inserter(timeSpans),

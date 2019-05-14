@@ -40,7 +40,6 @@ public:
                 QueryInvoker& queryInvoker,
                 ISprintStorageReader& sprintReader,
                 ISprintStorageWriter& sprintWriter,
-                ITaskStorageWriter& taskWriter,
                 QObject* parent = nullptr);
 
     int rowCount(const QModelIndex& parent) const final;
@@ -55,13 +54,17 @@ public:
 
     void remove(int row);
 
+    void requestUpdate(const dw::DateRange& dateRange);
+
+    const entities::Sprint& itemAt(int row) const;
+
 private:
     std::vector<entities::Sprint> storage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
     ISprintStorageReader& sprintReader;
     ISprintStorageWriter& sprintWriter;
-    ITaskStorageWriter& taskWriter;
+    dw::DateRange sprintDateRange{dw::current_date(), dw::current_date()};
 
     void requestUpdate() final;
 
@@ -69,6 +72,10 @@ private:
 
     void registerSprint(const entities::Sprint& sprint);
 };
+
+/* Conviniece function that retrieves all sprints that are currently in model
+ * via public interfaces. */
+std::vector<entities::Sprint> allSprints(const SprintModel& sprintModel);
 
 } // namespace sprint_timer::ui::qt_gui
 

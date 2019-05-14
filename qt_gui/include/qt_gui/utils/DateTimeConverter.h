@@ -73,7 +73,21 @@ public:
     }
 };
 
+
 } // namespace sprint_timer::ui::qt_gui
 
+namespace sprint_timer::ui::qt_gui::utils {
+
+QDateTime toQDateTime(const dw::DateTime& dt);
+
+QDate toQDate(const dw::DateTime& dt);
+
+QDate toQDate(const dw::Date& date);
+
+dw::DateTime toDateTime(const QDateTime& qdt);
+
+dw::Date toDate(const QDate& date);
+
+} // namespace sprint_timer::ui::qt_gui::utils
 
 #endif /* end of include guard: DATETIMECONVERTER_H_Y4Z1XDHQ */

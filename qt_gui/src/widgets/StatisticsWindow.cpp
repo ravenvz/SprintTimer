@@ -24,72 +24,84 @@
 #include "qt_gui/widgets/DistributionDiagram.h"
 #include "qt_gui/widgets/Plot.h"
 #include "qt_gui/widgets/TimeDiagram.h"
-#include "ui_statistics_window.h"
-#include <core/use_cases/RequestMinMaxYear.h>
+#include <QVBoxLayout>
 #include <core/use_cases/RequestSprints.h>
+
+#include <iostream>
 
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
-using use_cases::RequestMinMaxYear;
 using use_cases::RequestSprints;
 
-StatisticsWindow::StatisticsWindow(const IConfig& applicationSettings,
-                                   ISprintStorageReader& sprintReader,
-                                   IYearRangeReader& sprintYearRangeReader,
-                                   QueryInvoker& queryInvoker,
-                                   QWidget* parent)
-    : QFrame{parent}
-    , ui{std::make_unique<Ui::StatisticsWindow>()}
-    , applicationSettings{applicationSettings}
-    , sprintReader{sprintReader}
-    , sprintYearRangeReader{sprintYearRangeReader}
-    , queryInvoker{queryInvoker}
+StatisticsWindow::StatisticsWindow(
+    ISprintStorageReader& sprintReader_,
+    std::unique_ptr<DateRangePicker> dateRangePicker_,
+    std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph_,
+    std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget_,
+    const WorkdayTrackerModel& workdayTrackerModel_,
+    const SprintModel& sprintModel_,
+    QueryInvoker& queryInvoker_,
+    QWidget* parent_)
+    : QFrame{parent_}
+    , sprintReader{sprintReader_}
+    , dateRangePicker{dateRangePicker_.get()}
+    , dailyTimelineGraph{dailyTimelineGraph_.get()}
+    , statisticsDiagramWidget{statisticsDiagramWidget_.get()}
+    , workdayTrackerModel{workdayTrackerModel_}
+    , queryInvoker{queryInvoker_}
 {
-    ui->setupUi(this);
+    auto layout = std::make_unique<QVBoxLayout>(nullptr);
+    layout->addWidget(dateRangePicker_.release(), 1);
+    layout->addWidget(dailyTimelineGraph_.release(), 3);
+    layout->addWidget(statisticsDiagramWidget_.release(), 4);
+    setLayout(layout.release());
 
-    ui->dateRangePicker->setFirstDayOfWeek(
-        applicationSettings.firstDayOfWeek());
-
-    connect(ui->dateRangePicker,
-            &DateRangePicker::timeSpanChanged,
-            this,
-            &StatisticsWindow::onDatePickerIntervalChanged);
-    connect(ui->topTagDiagram,
-            &DistributionDiagram::chartSelectionChanged,
+    // connect(dateRangePicker,
+    //         &DateRangePicker::timeSpanChanged,
+    //         this,
+    //         &StatisticsWindow::onDatePickerIntervalChanged);
+    connect(statisticsDiagramWidget,
+            &StatisticsDiagramWidget::tagSelectionChanged,
             this,
             &StatisticsWindow::onTagSelected);
+    connect(&workdayTrackerModel,
+            &WorkdayTrackerModel::workdaysChanged,
+            [this](const WorkdayTracker&) { drawGraphs(); });
+    connect(&sprintModel_,
+            &QAbstractListModel::modelReset,
+            [this, &sprintModel_]() {
+                const auto updatedSprints = allSprints(sprintModel_);
+                onDataFetched(updatedSprints);
+            });
 
-    queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
-        sprintYearRangeReader,
-        [this](const auto& range) { ui->dateRangePicker->setYears(range); }));
-
-    synchronize();
+    // synchronize();
 }
 
 StatisticsWindow::~StatisticsWindow() = default;
 
-void StatisticsWindow::synchronize() { fetchData(); }
+void StatisticsWindow::synchronize()
+{
+    // fetchData();
+}
+
+QSize StatisticsWindow::sizeHint() const { return QSize{1100, 730}; }
 
 void StatisticsWindow::fetchData()
 {
-    ui->dateRangePicker->setFirstDayOfWeek(
-        applicationSettings.firstDayOfWeek());
-
     queryInvoker.execute(std::make_unique<RequestSprints>(
         sprintReader,
-        ui->dateRangePicker->getInterval().toDateRange(),
+        dateRangePicker->selectionRange(),
         [this](const auto& sprints) { this->onDataFetched(sprints); }));
 }
 
-void StatisticsWindow::onDataFetched(const std::vector<Sprint>& sprints)
+void StatisticsWindow::onDataFetched(const std::vector<Sprint>& updatedSprints)
 {
-    this->sprints = sprints;
+    sprints = updatedSprints;
     selectedTagIndex = std::optional<size_t>();
     tagTop = TagTop(sprints, numTopTags);
-    std::vector<TagTop::TagFrequency> tagFrequency = tagTop.tagFrequencies();
     drawGraphs();
-    updateTopTagsDiagram(tagFrequency);
+    statisticsDiagramWidget->setTagFrequencies(tagTop.tagFrequencies());
 }
 
 void StatisticsWindow::onDatePickerIntervalChanged(DateInterval newInterval)
@@ -99,36 +111,21 @@ void StatisticsWindow::onDatePickerIntervalChanged(DateInterval newInterval)
 
 void StatisticsWindow::drawGraphs()
 {
-    const auto interval = currentInterval();
-    const auto timeSpan = interval.toTimeSpan();
+    const auto dateRange = dateRangePicker->selectionRange();
     const std::vector<Sprint>& interestingSprints
         = (selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex)
                             : sprints);
-    SprintStatItem statistics{interestingSprints, timeSpan};
     // TODO replace stub for daily goal and numWorkdays
-    ui->dailyTimelineGraph->setData(
-        statistics.dailyDistribution(), interval.startDate, 2500, 77);
-    // static_cast<int>(numWorkdays(timeSpan, workdays)),
-    // applicationSettings.dailyGoal());
-    ui->bestWorkdayWidget->setData(statistics.weekdayDistribution());
-    ui->bestWorktimeWidget->setData(statistics.worktimeDistribution(),
-                                    interestingSprints);
-}
-
-void StatisticsWindow::updateTopTagsDiagram(
-    std::vector<TagTop::TagFrequency>& tagCounts)
-{
-    if (!tagCounts.empty() && tagCounts.back().first == Tag{""})
-        tagCounts.back().first.setName("others");
-    std::vector<std::pair<std::string, double>> data;
-    std::transform(tagCounts.cbegin(),
-                   tagCounts.cend(),
-                   std::back_inserter(data),
-                   [](const auto& elem) -> std::pair<std::string, double> {
-                       return {elem.first.name(), elem.second};
-                   });
-    ui->topTagDiagram->setData(data);
-    ui->topTagDiagram->setLegendTitle("Top tags");
+    const auto dailyDistribution
+        = dailyStatistics(interestingSprints, dateRange);
+    const int workdays
+        = numWorkdays(workdayTrackerModel.workdayTracker(), dateRange);
+    const int goal = goalFor(workdayTrackerModel.workdayTracker(), dateRange);
+    dailyTimelineGraph->setData(dailyStatistics(interestingSprints, dateRange),
+                                dateRange,
+                                workdays,
+                                goal);
+    statisticsDiagramWidget->setData(interestingSprints, dateRange);
 }
 
 void StatisticsWindow::onTagSelected(size_t tagIndex)
@@ -143,11 +140,6 @@ void StatisticsWindow::onTagSelected(size_t tagIndex)
     }
 
     drawGraphs();
-}
-
-DateInterval StatisticsWindow::currentInterval() const
-{
-    return ui->dateRangePicker->getInterval();
 }
 
 } // namespace sprint_timer::ui::qt_gui

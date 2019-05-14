@@ -28,6 +28,8 @@
 #include <QMouseEvent>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <core/SprintStatistics.h>
+#include <core/TagTop.h>
 #include <optional>
 
 namespace sprint_timer::ui::qt_gui {
@@ -53,8 +55,8 @@ public:
     explicit DistributionDiagram(QWidget* parent);
     ~DistributionDiagram();
 
-    /* Set data to be displayed. */
-    void setData(const std::vector<DataItem>& data);
+    /* Set tag frequencies to be displayed as pie chart. */
+    void setData(std::vector<TagTop::TagFrequency>&& tagFrequencies);
 
     /* Set title that is displayed above the legend items. */
     void setLegendTitle(const QString& title);
@@ -80,7 +82,6 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 
 #endif // DISTRIBUTIONDIAGRAM_H

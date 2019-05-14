@@ -38,7 +38,8 @@ public:
     std::unique_ptr<ISprintStorageWriter>
     createSprintStorageWriter() const override;
 
-    std::unique_ptr<IYearRangeReader> createYearRangeReader() const override;
+    std::unique_ptr<IOperationalRangeReader>
+    createOperationalRangeReader() const override;
 
     std::unique_ptr<ISprintDistributionReader>
     createSprintDailyDistributionReader() const override;

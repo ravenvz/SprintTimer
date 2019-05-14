@@ -23,6 +23,7 @@
 #define ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6
 
 #include "core/IConfig.h"
+#include "core/IOperationalRangeReader.h"
 #include "core/ISprintDistributionReader.h"
 #include "core/ISprintStorageReader.h"
 #include "core/ISprintStorageWriter.h"
@@ -30,7 +31,6 @@
 #include "core/ITaskStorageWriter.h"
 #include "core/IWorkingDaysReader.h"
 #include "core/IWorkingDaysWriter.h"
-#include "core/IYearRangeReader.h"
 #include <memory>
 
 namespace sprint_timer {
@@ -45,7 +45,8 @@ public:
     virtual std::unique_ptr<ISprintStorageWriter>
     createSprintStorageWriter() const = 0;
 
-    virtual std::unique_ptr<IYearRangeReader> createYearRangeReader() const = 0;
+    virtual std::unique_ptr<IOperationalRangeReader>
+    createOperationalRangeReader() const = 0;
 
     virtual std::unique_ptr<ISprintDistributionReader>
     createSprintDailyDistributionReader() const = 0;

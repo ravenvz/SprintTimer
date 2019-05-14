@@ -125,8 +125,8 @@ struct QtStorageInitializer {
         = factory.createSprintStorageReader();
     std::unique_ptr<sprint_timer::ISprintStorageWriter> sprintWriter
         = factory.createSprintStorageWriter();
-    std::unique_ptr<sprint_timer::IYearRangeReader> yearRangeReader
-        = factory.createYearRangeReader();
+    std::unique_ptr<sprint_timer::IOperationalRangeReader>
+        operationalRangeReader = factory.createOperationalRangeReader();
     std::unique_ptr<sprint_timer::ISprintDistributionReader>
         dailyDistributionReader = factory.createSprintDailyDistributionReader();
     std::unique_ptr<sprint_timer::ISprintDistributionReader>

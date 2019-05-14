@@ -74,12 +74,13 @@ void DailyTimelineGraph::setupGraphs()
 }
 
 void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
-                                 const QDate& startDate,
+                                 const dw::DateRange& dateRange,
                                  int numWorkdays,
-                                 int dailyGoal)
+                                 int goalForPeriod)
 {
-    const double averagePerWorkday
-        = dailyDistribution.getTotal() / static_cast<double>(numWorkdays);
+    const double averagePerWorkday = (numWorkdays == 0)
+        ? 0.0
+        : dailyDistribution.getTotal() / static_cast<double>(numWorkdays);
 
     const auto sprintsByDay = dailyDistribution.getDistributionVector();
     Graph::Data averageData{
@@ -87,18 +88,26 @@ void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
         Graph::Point{static_cast<double>(dailyDistribution.getNumBins()),
                      averagePerWorkday,
                      ""}};
+    const double averagedGoal
+        = (numWorkdays == 0) ? 0 : goalForPeriod / numWorkdays;
     Graph::Data goalData{
-        Graph::Point{0, static_cast<double>(dailyGoal), ""},
+        Graph::Point{0, static_cast<double>(averagedGoal), ""},
         Graph::Point{static_cast<double>(dailyDistribution.getNumBins()),
-                     static_cast<double>(dailyGoal),
+                     static_cast<double>(averagedGoal),
                      ""}};
     Graph::Data normalData;
-    for (size_t i = 0; i < sprintsByDay.size(); ++i) {
-        normalData.push_back(Graph::Point{
-            double(i),
-            sprintsByDay[i],
-            QString("%1").arg(startDate.addDays(static_cast<long>(i)).day())});
-    }
+    normalData.reserve(sprintsByDay.size());
+    int position{0};
+    std::transform(
+        sprintsByDay.cbegin(),
+        sprintsByDay.cend(),
+        std::back_inserter(normalData),
+        [&](double value) {
+            const dw::Date date{dateRange.start() + dw::Days{position}};
+            const auto dayNumber = static_cast<unsigned>(date.day());
+            return Graph::Point{
+                double(position++), value, QString{"%1"}.arg(dayNumber)};
+        });
 
     ui->dailyTimeline->setRangeX(0, dailyDistribution.getNumBins() + 1);
     ui->dailyTimeline->setRangeY(0, dailyDistribution.getMax() + 1);

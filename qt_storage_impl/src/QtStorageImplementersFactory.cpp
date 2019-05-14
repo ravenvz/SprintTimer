@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_storage_impl/QtStorageImplementersFactory.h"
+#include "qt_storage_impl/QtOperationalRangeReader.h"
 #include "qt_storage_impl/QtSprintDistributionReader.h"
 #include "qt_storage_impl/QtSprintStorageReader.h"
 #include "qt_storage_impl/QtSprintStorageWriter.h"
@@ -27,7 +28,6 @@
 #include "qt_storage_impl/QtTaskStorageWriter.h"
 #include "qt_storage_impl/QtWorkingDaysReader.h"
 #include "qt_storage_impl/QtWorkingDaysWriter.h"
-#include "qt_storage_impl/QtYearRangeReader.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -50,10 +50,10 @@ QtStorageImplementersFactory::createSprintStorageWriter() const
     return std::make_unique<QtSprintStorageWriter>(dbService);
 }
 
-std::unique_ptr<IYearRangeReader>
-QtStorageImplementersFactory::createYearRangeReader() const
+std::unique_ptr<IOperationalRangeReader>
+QtStorageImplementersFactory::createOperationalRangeReader() const
 {
-    return std::make_unique<QtYearRangeReader>(dbService);
+    return std::make_unique<QtOperationalRangeReader>(dbService);
 }
 
 std::unique_ptr<ISprintDistributionReader>
