@@ -659,9 +659,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.sprintWriter->save(sprints);
 
     initializer.dailyDistributionReader->requestDistribution(
-        range,
-        [&expected, this](const sprint_timer::Distribution<int>& distribution) {
-            EXPECT_EQ(expected, distribution.getDistributionVector());
+        range, [&expected, this](const std::vector<int>& distribution) {
+            EXPECT_EQ(expected, distribution);
             initializer.quit();
         });
     initializer.runEventLoop();
@@ -730,8 +729,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
 
     initializer.monthlyDistributionReader->requestDistribution(
         DateRange{lowerDate, someDate},
-        [&expected, this](const sprint_timer::Distribution<int>& distribution) {
-            EXPECT_EQ(expected, distribution.getDistributionVector());
+        [&expected, this](const std::vector<int>& distribution) {
+            EXPECT_EQ(expected, distribution);
             initializer.quit();
         });
     initializer.runEventLoop();
@@ -801,8 +800,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.mondayFirstWeeklyDistributionReader->requestDistribution(
         DateRange{lowerDate.date(), upperDate.date()},
-        [&expected, this](const sprint_timer::Distribution<int>& distribution) {
-            EXPECT_EQ(expected, distribution.getDistributionVector());
+        [&expected, this](const std::vector<int>& distribution) {
+            EXPECT_EQ(expected, distribution);
             initializer.quit();
         });
     initializer.runEventLoop();
@@ -872,8 +871,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.sundayFirstWeeklyDistributionReader->requestDistribution(
         DateRange{lowerDate.date(), upperDate.date()},
-        [&expected, this](const sprint_timer::Distribution<int>& distribution) {
-            EXPECT_EQ(expected, distribution.getDistributionVector());
+        [&expected, this](const std::vector<int>& distribution) {
+            EXPECT_EQ(expected, distribution);
             initializer.quit();
         });
     initializer.runEventLoop();

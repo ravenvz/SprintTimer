@@ -53,7 +53,7 @@ protected:
 
     DistributionReaderBase(DBService& dbService, size_t distributionSize);
 
-    void executeCallback(std::vector<int>&& sprintCount);
+    void executeCallback(const std::vector<int>& sprintCount);
 
     virtual QDate nextExpectedDate(const QDate& referenceDate) const = 0;
 

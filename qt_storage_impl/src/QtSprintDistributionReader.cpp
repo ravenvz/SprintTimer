@@ -56,9 +56,10 @@ void DistributionReaderBase::requestDistribution(const dw::DateRange& dateRange,
     dbService.executePrepared(mQueryId);
 }
 
-void DistributionReaderBase::executeCallback(std::vector<int>&& sprintCount)
+void DistributionReaderBase::executeCallback(
+    const std::vector<int>& sprintCount)
 {
-    contextQueue.front().handler(Distribution<int>{std::move(sprintCount)});
+    contextQueue.front().handler(sprintCount);
     contextQueue.pop();
 }
 
@@ -73,7 +74,7 @@ void DistributionReaderBase::onResultsReceived(
     if (invalidQueryId(queryId))
         return;
     auto distribution = fillDateGaps(records);
-    executeCallback(std::move(distribution));
+    executeCallback(distribution);
 }
 
 std::vector<int> DistributionReaderBase::fillDateGaps(

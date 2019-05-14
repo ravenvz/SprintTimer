@@ -43,10 +43,8 @@ void DistributionModel::synchronize()
 {
     using sprint_timer::use_cases::RequestSprintDistribution;
     queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
-        reader,
-        requestStrategy.dateRange(),
-        [this](const Distribution<int>& distribution) {
-            data = distribution.getDistributionVector();
+        reader, requestStrategy.dateRange(), [this](const auto& distribution) {
+            data = distribution;
             emit distributionChanged(data);
         }));
 }
