@@ -134,21 +134,49 @@ TEST_F(WorkdayTrackerFixture,
     EXPECT_EQ(expected, tracker.scheduleRoaster());
 }
 
-TEST_F(WorkdayTrackerFixture, schedule_benchmark) {
+TEST_F(WorkdayTrackerFixture, returns_estimated_goal_for_given_period)
+{
+    const WeekSchedule schedule{buildSchedule({13, 13, 13, 13, 13, 0, 0})};
+    tracker.addWeekSchedule(Date{Year{2019}, Month{5}, Day{1}}, schedule);
+    tracker.addExceptionalDay(Date{Year{2019}, Month{5}, Day{1}}, 0);
+    tracker.addExceptionalDay(Date{Year{2019}, Month{5}, Day{2}}, 0);
+    tracker.addExceptionalDay(Date{Year{2019}, Month{5}, Day{3}}, 0);
+    tracker.addExceptionalDay(Date{Year{2019}, Month{5}, Day{9}}, 0);
+    tracker.addExceptionalDay(Date{Year{2019}, Month{5}, Day{10}}, 0);
+    const int expected{234};
+    const DateRange range{Date{Year{2019}, Month{5}, Day{1}},
+                          Date{Year{2019}, Month{5}, Day{31}}};
+
+    const int actual = goalFor(tracker, range);
+
+    EXPECT_EQ(expected, actual);
+}
+
+TEST_F(WorkdayTrackerFixture, schedule_benchmark)
+{
     tracker.addWeekSchedule(some_date, buildSchedule({1, 1, 1, 1, 1, 1, 1}));
-    tracker.addWeekSchedule(Date{Year{1997}, Month{1}, Day{1}}, buildSchedule({2, 2, 2, 2, 2, 2, 2}));
-    tracker.addWeekSchedule(Date{Year{1998}, Month{1}, Day{1}}, buildSchedule({3, 3, 3, 3, 3, 3, 3}));
-    tracker.addWeekSchedule(Date{Year{1999}, Month{1}, Day{1}}, buildSchedule({4, 4, 4, 4, 4, 4, 4}));
-    tracker.addWeekSchedule(Date{Year{2000}, Month{1}, Day{1}}, buildSchedule({5, 5, 5, 5, 5, 5, 5}));
-    tracker.addWeekSchedule(Date{Year{2001}, Month{1}, Day{1}}, buildSchedule({6, 6, 6, 6, 6, 6, 6}));
-    tracker.addWeekSchedule(Date{Year{2002}, Month{1}, Day{1}}, buildSchedule({7, 7, 7, 7, 7, 7, 7}));
-    tracker.addWeekSchedule(Date{Year{2004}, Month{1}, Day{1}}, buildSchedule({8, 8, 8, 8, 8, 8, 8}));
-    tracker.addWeekSchedule(Date{Year{2005}, Month{1}, Day{1}}, buildSchedule({9, 9, 9, 9, 9, 9, 9}));
-    tracker.addWeekSchedule(Date{Year{2006}, Month{1}, Day{1}}, buildSchedule({10, 10, 10, 10, 10, 10, 10}));
+    tracker.addWeekSchedule(Date{Year{1997}, Month{1}, Day{1}},
+                            buildSchedule({2, 2, 2, 2, 2, 2, 2}));
+    tracker.addWeekSchedule(Date{Year{1998}, Month{1}, Day{1}},
+                            buildSchedule({3, 3, 3, 3, 3, 3, 3}));
+    tracker.addWeekSchedule(Date{Year{1999}, Month{1}, Day{1}},
+                            buildSchedule({4, 4, 4, 4, 4, 4, 4}));
+    tracker.addWeekSchedule(Date{Year{2000}, Month{1}, Day{1}},
+                            buildSchedule({5, 5, 5, 5, 5, 5, 5}));
+    tracker.addWeekSchedule(Date{Year{2001}, Month{1}, Day{1}},
+                            buildSchedule({6, 6, 6, 6, 6, 6, 6}));
+    tracker.addWeekSchedule(Date{Year{2002}, Month{1}, Day{1}},
+                            buildSchedule({7, 7, 7, 7, 7, 7, 7}));
+    tracker.addWeekSchedule(Date{Year{2004}, Month{1}, Day{1}},
+                            buildSchedule({8, 8, 8, 8, 8, 8, 8}));
+    tracker.addWeekSchedule(Date{Year{2005}, Month{1}, Day{1}},
+                            buildSchedule({9, 9, 9, 9, 9, 9, 9}));
+    tracker.addWeekSchedule(Date{Year{2006}, Month{1}, Day{1}},
+                            buildSchedule({10, 10, 10, 10, 10, 10, 10}));
 
     const dw::Date stop_date{some_date + dw::Years{200}};
-    for (dw::Date date = some_date; date < stop_date; date = date + dw::Days{1}) {
+    for (dw::Date date = some_date; date < stop_date;
+         date = date + dw::Days{1}) {
         EXPECT_TRUE(tracker.isWorkday(date));
     }
-
 }

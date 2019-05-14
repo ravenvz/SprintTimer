@@ -19,28 +19,39 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINT_TIMER_APP_GROUPINGSTRATEGY_H
-#define SPRINT_TIMER_APP_GROUPINGSTRATEGY_H
+#include "qt_gui/RequestForDaysBack.h"
 
-#include "core/GoalProgress.h"
-#include "core/WorkdayTracker.h"
-#include <date_wrapper/date_wrapper.h>
-#include <vector>
 
-namespace sprint_timer {
+namespace {
 
-class GroupingStrategy {
-public:
-    virtual ~GroupingStrategy() = default;
+dw::DateRange nDaysBackTillNow(int numDays);
 
-    virtual std::vector<GoalProgress>
-    computeProgress(const std::vector<int>& actualProgress,
-                    const WorkdayTracker& workdayTracker) const = 0;
+} // namespace
 
-    virtual dw::DateRange dateRange() const = 0;
-};
 
-} // namespace sprint_timer
+namespace sprint_timer::ui::qt_gui {
 
-#endif // SPRINT_TIMER_APP_GROUPINGSTRATEGY_H
+RequestForDaysBack::RequestForDaysBack(int numDays_)
+    : numDays{numDays_}
+{
+}
 
+dw::DateRange RequestForDaysBack::dateRange() const
+{
+    return nDaysBackTillNow(numDays);
+}
+
+} // namespace sprint_timer::ui::qt_gui
+
+
+namespace {
+
+dw::DateRange nDaysBackTillNow(int numDays)
+{
+    using namespace dw;
+    auto now = current_date_local();
+    auto from = now - Days{numDays - 1};
+    return {from, now};
+}
+
+} // namespace

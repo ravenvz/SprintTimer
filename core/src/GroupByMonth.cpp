@@ -21,21 +21,11 @@
 *********************************************************************************/
 #include "core/GroupByMonth.h"
 
-namespace {
-
-dw::DateRange nMonthsBackTillNow(int numMonths);
-
-} // namespace
-
 namespace sprint_timer {
 
-GroupByMonth::GroupByMonth(int numMonths)
-    : period{nMonthsBackTillNow(numMonths)}
-{
-}
-
 std::vector<GoalProgress>
-GroupByMonth::computeProgress(const std::vector<int>& actualProgress,
+GroupByMonth::computeProgress(const dw::DateRange& dateRange,
+                              const std::vector<int>& actualProgress,
                               const WorkdayTracker& workdayTracker) const
 {
     using namespace dw;
@@ -44,38 +34,21 @@ GroupByMonth::computeProgress(const std::vector<int>& actualProgress,
     progress.reserve(actualProgress.size());
     auto actualIt = cbegin(actualProgress);
 
-    int goalForCurrentMonth{0};
-    auto currentMonth = period.start().month();
+    // To compute goal we break dateRange into months, taking in account that
+    // it can start and end with random day of month.
+    auto start = dateRange.start();
+    const auto lastDay = dateRange.finish();
+    auto next_finish = [&start, lastDay]() {
+        return std::min(last_day_of_month(start), lastDay);
+    };
 
-    const Date stop = period.finish() + Days{1};
-    for (auto day = period.start(); day < stop; day = day + Days{1}) {
-        if (day.month() != currentMonth) {
-            currentMonth = day.month();
-            progress.emplace_back(goalForCurrentMonth, *actualIt);
-            ++actualIt;
-            goalForCurrentMonth = 0;
-        }
-        goalForCurrentMonth += workdayTracker.goal(day);
+    for (auto finish = next_finish(); start < lastDay;
+         start = finish + Days{1}, finish = next_finish(), ++actualIt) {
+        const DateRange monthChunk{start, finish};
+        progress.emplace_back(goalFor(workdayTracker, monthChunk), *actualIt);
     }
-    progress.emplace_back(goalForCurrentMonth, *actualIt);
 
     return progress;
 }
 
-dw::DateRange GroupByMonth::dateRange() const { return period; }
-
 } // namespace sprint_timer
-
-namespace {
-
-dw::DateRange nMonthsBackTillNow(int numMonths)
-{
-    using namespace dw;
-    const auto now = current_date_local();
-    const auto months_back = now - Months{numMonths - 1};
-    const auto to = last_day_of_month(now);
-    const auto from = Date{months_back.year(), months_back.month(), Day{1}};
-    return DateRange{from, to};
-}
-
-} // namespace

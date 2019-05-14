@@ -26,11 +26,13 @@ namespace sprint_timer::ui::qt_gui {
 DistributionModel::DistributionModel(
     ISprintDistributionReader& reader_,
     QueryInvoker& queryInvoker_,
-    const GroupingStrategy& distributionRequestStrategy_,
+    const ProgressGroupingStrategy& distributionRequestStrategy_,
+    const ProgressRangeRequestStrategy& requestStrategy_,
     QObject* parent)
     : reader{reader_}
     , queryInvoker{queryInvoker_}
     , distributionRequestStrategy{distributionRequestStrategy_}
+    , requestStrategy{requestStrategy_}
 {
     synchronize();
 }
@@ -42,7 +44,7 @@ void DistributionModel::synchronize()
     using sprint_timer::use_cases::RequestSprintDistribution;
     queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
         reader,
-        distributionRequestStrategy.dateRange(),
+        requestStrategy.dateRange(),
         [this](const Distribution<int>& distribution) {
             data = distribution.getDistributionVector();
             emit distributionChanged(data);

@@ -19,18 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
-#define SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
+#ifndef REQUESTFORWEEKSBACK_H_YLQJ5OFZ
+#define REQUESTFORWEEKSBACK_H_YLQJ5OFZ
 
-#include <core/ISprintDistributionReader.h>
-#include <gmock/gmock.h>
+#include "qt_gui/ProgressRangeRequestStrategy.h"
+#include <core/IConfig.h>
 
-class SprintDistributionReaderMock
-    : public sprint_timer::ISprintDistributionReader {
+
+namespace sprint_timer::ui::qt_gui {
+
+class RequestForWeeksBack : public ProgressRangeRequestStrategy {
 public:
-    MOCK_METHOD2(requestDistribution,
-                 void(const dw::DateRange&,
-                      sprint_timer::ISprintDistributionReader::Handler));
+    RequestForWeeksBack(int numWeeks, const IConfig& applicationSettings);
+
+    dw::DateRange dateRange() const override;
+
+private:
+    int numWeeks;
+    const IConfig& applicationSettings;
 };
 
-#endif /* end of include guard: SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR */
+} // namespace sprint_timer::ui::qt_gui
+
+
+#endif /* end of include guard: REQUESTFORWEEKSBACK_H_YLQJ5OFZ */
+

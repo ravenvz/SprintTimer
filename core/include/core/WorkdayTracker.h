@@ -90,6 +90,9 @@ private:
 int numWorkdays(const WorkdayTracker& workdayTracker,
                 const dw::DateRange& dateSpan);
 
+int goalFor(const WorkdayTracker& workdayTracker,
+            const dw::DateRange& dateRange);
+
 template <class CharT, class Traits>
 inline std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const WorkdayTracker& tracker)

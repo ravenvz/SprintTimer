@@ -57,6 +57,9 @@
 #include <core/ITaskStorageReader.h>
 #include <core/QueryInvoker.h>
 #include <filesystem>
+#include <qt_gui/RequestForDaysBack.h>
+#include <qt_gui/RequestForMonthsBack.h>
+#include <qt_gui/RequestForWeeksBack.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
 #include <qt_gui/dialogs/AddExceptionalDayDialog.h>
@@ -280,8 +283,6 @@ int main(int argc, char* argv[])
     TagModel tagModel{
         *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
 
-    // auto sprintOutline = createSprintOutline(
-    //     applicationSettings, commandInvoker, sprintModel, taskModel);
     AddSprintDialog addSprintDialog{
         applicationSettings, sprintModel, taskModel};
 
@@ -334,9 +335,12 @@ int main(int argc, char* argv[])
         exceptionalDayDialog, exceptionalDaysModel, workdayTrackerModel};
 
     const int distributionDays{30};
-    GroupByDay requestDailyDistStrategy{distributionDays};
-    DistributionModel dailyDistributionModel{
-        *dailyDistributionReader, queryInvoker, requestDailyDistStrategy};
+    RequestForDaysBack requestDaysBackStrategy{distributionDays};
+    GroupByDay groupByDayStrategy;
+    DistributionModel dailyDistributionModel{*dailyDistributionReader,
+                                             queryInvoker,
+                                             groupByDayStrategy,
+                                             requestDaysBackStrategy};
     QObject::connect(
         &sprintModel,
         &AsyncListModel::updateFinished,
@@ -344,13 +348,13 @@ int main(int argc, char* argv[])
     const ProgressView::Rows dailyRows{3};
     const ProgressView::Columns dailyCols{10};
     const ProgressView::GaugeSize dailyGaugeRelSize{0.7};
-    auto dailyProgress
-        = std::make_unique<ProgressView>(dailyDistributionModel,
-                                         workdayTrackerModel,
-                                         requestDailyDistStrategy,
-                                         dailyRows,
-                                         dailyCols,
-                                         dailyGaugeRelSize);
+    auto dailyProgress = std::make_unique<ProgressView>(dailyDistributionModel,
+                                                        workdayTrackerModel,
+                                                        groupByDayStrategy,
+                                                        requestDaysBackStrategy,
+                                                        dailyRows,
+                                                        dailyCols,
+                                                        dailyGaugeRelSize);
     dailyProgress->setLegendTitle("Last 30 days");
     dailyProgress->setLegendAverageCaption("Average per day:");
 
@@ -359,14 +363,15 @@ int main(int argc, char* argv[])
                      &QPushButton::clicked,
                      [&workdaysDialog]() { workdaysDialog.exec(); });
     dailyProgress->addLegendRow("Workdays", configureWorkdaysButton.release());
-    // auto dailyProgress = std::make_unique<DailyProgressView>(
-    //     *dailyDistributionReader, queryInvoker, workdaysDialog);
 
     const int distributionWeeks{12};
-    GroupByWeek requestWeeklyDistStrategy{distributionWeeks,
-                                          applicationSettings};
-    DistributionModel weeklyDistributionModel{
-        *weeklyDistributionReader, queryInvoker, requestWeeklyDistStrategy};
+    RequestForWeeksBack requestWeeksBackStrategy{distributionWeeks,
+                                                 applicationSettings};
+    GroupByWeek groupByWeekStrategy{applicationSettings};
+    DistributionModel weeklyDistributionModel{*weeklyDistributionReader,
+                                              queryInvoker,
+                                              groupByWeekStrategy,
+                                              requestWeeksBackStrategy};
     QObject::connect(&sprintModel,
                      &AsyncListModel::updateFinished,
                      [&weeklyDistributionModel]() {
@@ -378,7 +383,8 @@ int main(int argc, char* argv[])
     auto weeklyProgress
         = std::make_unique<ProgressView>(weeklyDistributionModel,
                                          workdayTrackerModel,
-                                         requestWeeklyDistStrategy,
+                                         groupByWeekStrategy,
+                                         requestWeeksBackStrategy,
                                          weeklyRows,
                                          weeklyCols,
                                          weeklyGaugeRelSize);
@@ -386,9 +392,12 @@ int main(int argc, char* argv[])
     weeklyProgress->setLegendAverageCaption("Average per week:");
 
     const int distributionMonths{12};
-    GroupByMonth requestMonthlyDistStrategy{distributionMonths};
-    DistributionModel monthlyDistributionModel{
-        *monthlyDistributionReader, queryInvoker, requestMonthlyDistStrategy};
+    RequestForMonthsBack requestMonthsBackStrategy{distributionMonths};
+    GroupByMonth groupByMonthStrategy;
+    DistributionModel monthlyDistributionModel{*monthlyDistributionReader,
+                                               queryInvoker,
+                                               groupByMonthStrategy,
+                                               requestMonthsBackStrategy};
     QObject::connect(&sprintModel,
                      &AsyncListModel::updateFinished,
                      [&monthlyDistributionModel]() {
@@ -400,60 +409,17 @@ int main(int argc, char* argv[])
     auto monthlyProgress
         = std::make_unique<ProgressView>(monthlyDistributionModel,
                                          workdayTrackerModel,
-                                         requestMonthlyDistStrategy,
+                                         groupByMonthStrategy,
+                                         requestMonthsBackStrategy,
                                          monthlyRows,
                                          monthlyCols,
                                          monthlyGaugeRelSize);
     monthlyProgress->setLegendTitle("Last 12 months");
     monthlyProgress->setLegendAverageCaption("Average per month:");
 
-    // auto weeklyProgress = std::make_unique<WeeklyProgressView>(
-    //     applicationSettings, queryInvoker, *weeklyDistributionReader);
-    // auto monthlyProgress = std::make_unique<MonthlyProgressView>(
-    //     queryInvoker, *monthlyDistributionReader);
-    // QObject::connect(&sprintModel,
-    //                  &AsyncListModel::updateFinished,
-    //                  [p = monthlyProgress.get()]() { p->synchronize(); });
-
-    // QObject::connect(
-    //     &workdayTrackerModel,
-    //     &WorkdayTrackerModel::dataChanged,
-    //     [p = dailyProgress.get()](const WorkdayTracker& newTracker) {
-    //         p->onWorkdayScheduleChanged(newTracker);
-    //         p->synchronize();
-    //     });
-    // QObject::connect(&workdayTrackerModel,
-    //                  &WorkdayTrackerModel::dataChanged,
-    //                  [p = weeklyProgress.get()] { p->synchronize(); });
-    // QObject::connect(&workdayTrackerModel,
-    //                  &WorkdayTrackerModel::dataChanged,
-    //                  [p = monthlyProgress.get()] { p->synchronize(); });
-
-    // TODO call to synchronize should be replaced, because data queries are
-    // too expensive for simple goal change and it can be recalculated for
-    // existing datastructures in place
-    // QObject::connect(dailyProgress.get(),
-    //                  &ProgressView::goalChanged,
-    //                  [p = weeklyProgress.get()]() { p->synchronize(); });
-    // QObject::connect(dailyProgress.get(),
-    //                  &ProgressView::goalChanged,
-    //                  [p = monthlyProgress.get()]() { p->synchronize(); });
-    // TODO call to synchronize should be replaced, because data queries are
-    // too expensive for simple workdays' change and it can be recalculated for
-    // existing datastructures in place
-    // QObject::connect(dailyProgress.get(),
-    //                  &ProgressView::workdaysChange,
-    //                  [p = weeklyProgress.get()]() { p->synchronize(); });
-    // QObject::connect(dailyProgress.get(),
-    //                  &ProgressView::workdaysChange,
-    //                  [p = monthlyProgress.get()]() { p->synchronize(); });
     ProgressMonitorWidget progressWindow{std::move(dailyProgress),
                                          std::move(weeklyProgress),
                                          std::move(monthlyProgress)};
-    // QObject::connect(&workdayTrackerModel,
-    //                  &WorkdayTrackerModel::dataChanged,
-    //                  &progressWindow,
-    //                  &ProgressMonitorWidget::onWorkdayScheduleChanged);
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
@@ -496,16 +462,6 @@ int main(int argc, char* argv[])
                                      addTaskDialog,
                                      std::make_unique<TagEditor>(tagModel),
                                      taskItemDelegate);
-    // taskView->setStyleSheet(
-    //     QLatin1String{"QListView {\n"
-    //                   "  show-decoration-selected: 1;\n"
-    //                   "}\n"
-    //                   "QListView::item {\n"
-    //                   "  margin: 5px;\n"
-    //                   "  border: 1px solid gray;\n"
-    //                   "  border-radius: 2px; padding:
-    //                   10px;\n"
-    //                   "}\n"});
     QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submissionCandidateChanged,
                      taskView.get(),

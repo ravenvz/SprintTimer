@@ -22,10 +22,11 @@
 #ifndef DISTRIBUTIONMODEL_H_EGAN03FZ
 #define DISTRIBUTIONMODEL_H_EGAN03FZ
 
+#include "qt_gui/ProgressRangeRequestStrategy.h"
 #include "qt_gui/Synchronizable.h"
 #include <QObject>
-#include <core/GroupingStrategy.h>
 #include <core/ISprintDistributionReader.h>
+#include <core/ProgressGroupingStrategy.h>
 #include <core/QueryInvoker.h>
 #include <core/use_cases/RequestSprintDistribution.h>
 
@@ -36,10 +37,12 @@ class DistributionModel : public QObject, public Synchronizable {
     Q_OBJECT
 
 public:
-    DistributionModel(ISprintDistributionReader& reader_,
-                      QueryInvoker& queryInvoker_,
-                      const GroupingStrategy& distributionRequestStrategy_,
-                      QObject* parent = nullptr);
+    DistributionModel(
+        ISprintDistributionReader& reader,
+        QueryInvoker& queryInvoker,
+        const ProgressGroupingStrategy& distributionRequestStrategy,
+        const ProgressRangeRequestStrategy& requestStrategy,
+        QObject* parent = nullptr);
 
     const std::vector<int>& distribution() const;
 
@@ -51,7 +54,8 @@ signals:
 private:
     ISprintDistributionReader& reader;
     QueryInvoker& queryInvoker;
-    const GroupingStrategy& distributionRequestStrategy;
+    const ProgressGroupingStrategy& distributionRequestStrategy;
+    const ProgressRangeRequestStrategy& requestStrategy;
     std::vector<int> data;
 };
 

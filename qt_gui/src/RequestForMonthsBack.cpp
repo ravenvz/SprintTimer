@@ -19,18 +19,41 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
-#define SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
+#include "qt_gui/RequestForMonthsBack.h"
 
-#include <core/ISprintDistributionReader.h>
-#include <gmock/gmock.h>
 
-class SprintDistributionReaderMock
-    : public sprint_timer::ISprintDistributionReader {
-public:
-    MOCK_METHOD2(requestDistribution,
-                 void(const dw::DateRange&,
-                      sprint_timer::ISprintDistributionReader::Handler));
-};
+namespace {
 
-#endif /* end of include guard: SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR */
+dw::DateRange nMonthsBackTillNow(int numMonths);
+
+} // namespace
+
+
+namespace sprint_timer::ui::qt_gui {
+
+RequestForMonthsBack::RequestForMonthsBack(int numMonths_)
+    : numMonths{numMonths_}
+{
+}
+
+dw::DateRange RequestForMonthsBack::dateRange() const
+{
+    return nMonthsBackTillNow(numMonths);
+}
+
+} // namespace sprint_timer::ui::qt_gui
+
+
+namespace {
+
+dw::DateRange nMonthsBackTillNow(int numMonths)
+{
+    using namespace dw;
+    const auto now = current_date_local();
+    const auto months_back = now - Months{numMonths - 1};
+    const auto to = last_day_of_month(now);
+    const auto from = Date{months_back.year(), months_back.month(), Day{1}};
+    return DateRange{from, to};
+}
+
+} // namespace

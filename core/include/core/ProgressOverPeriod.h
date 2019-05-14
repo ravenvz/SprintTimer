@@ -25,7 +25,7 @@
 #include <optional>
 
 #include "core/GoalProgress.h"
-#include "core/GroupingStrategy.h"
+#include "core/ProgressGroupingStrategy.h"
 #include <iostream>
 
 #ifndef PROGRESS_H_LE0ZZW37
@@ -35,9 +35,10 @@ namespace sprint_timer {
 
 class ProgressOverPeriod {
 public:
-    ProgressOverPeriod(const std::vector<int>& actualProgress,
+    ProgressOverPeriod(const dw::DateRange& period,
+                       const std::vector<int>& actualProgress,
                        const WorkdayTracker& workdayTracker,
-                       const GroupingStrategy& groupingStrategy);
+                       const ProgressGroupingStrategy& groupingStrategy);
 
     std::optional<double> percentage() const;
 

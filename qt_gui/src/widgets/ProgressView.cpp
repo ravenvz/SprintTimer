@@ -45,13 +45,15 @@ QString formatDecimal(double decimal)
 
 namespace sprint_timer::ui::qt_gui {
 
-ProgressView::ProgressView(const DistributionModel& progressModel_,
-                           const WorkdayTrackerModel& workdaysModel_,
-                           const GroupingStrategy& groupingStrategy_,
-                           Rows numRows_,
-                           Columns numColumns_,
-                           GaugeSize gaugeRelSize_,
-                           QWidget* parent)
+ProgressView::ProgressView(
+    const DistributionModel& progressModel_,
+    const WorkdayTrackerModel& workdaysModel_,
+    const ProgressGroupingStrategy& groupingStrategy_,
+    const ProgressRangeRequestStrategy& requestRangeStrategy_,
+    Rows numRows_,
+    Columns numColumns_,
+    GaugeSize gaugeRelSize_,
+    QWidget* parent)
     : QFrame{parent}
     , ui{std::make_unique<Ui::ProgressView>()}
     , numRows{numRows_}
@@ -64,15 +66,18 @@ ProgressView::ProgressView(const DistributionModel& progressModel_,
     connect(&progressModel_,
             &DistributionModel::distributionChanged,
             [&](const std::vector<int>& updatedDistribution) {
-                ProgressOverPeriod progress{updatedDistribution,
-                                            workdaysModel_.workdayTracker(),
-                                            groupingStrategy_};
+                const ProgressOverPeriod progress{
+                    requestRangeStrategy_.dateRange(),
+                    updatedDistribution,
+                    workdaysModel_.workdayTracker(),
+                    groupingStrategy_};
                 setData(progress);
             });
     connect(&workdaysModel_,
             &WorkdayTrackerModel::workdaysChanged,
             [&](const WorkdayTracker& updatedTracker) {
-                ProgressOverPeriod progress{progressModel_.distribution(),
+                ProgressOverPeriod progress{requestRangeStrategy_.dateRange(),
+                                            progressModel_.distribution(),
                                             updatedTracker,
                                             groupingStrategy_};
                 setData(progress);

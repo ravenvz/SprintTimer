@@ -168,6 +168,20 @@ int numWorkdays(const WorkdayTracker& workdayTracker,
     return counter;
 }
 
+int goalFor(const WorkdayTracker& workdayTracker,
+            const dw::DateRange& dateRange)
+{
+    int goal{0};
+
+    for (auto day = dateRange.start(); day <= dateRange.finish();
+         day = day + dw::Days{1}) {
+        std::cout << day << " - > " << workdayTracker.goal(day) << std::endl;
+        goal += workdayTracker.goal(day);
+    }
+
+    return goal;
+}
+
 bool operator==(const WorkdayTracker& lhs, const WorkdayTracker& rhs)
 {
     return lhs.schedules == rhs.schedules && lhs.extraDays == rhs.extraDays;

@@ -22,24 +22,22 @@
 #ifndef GROUPBYWEEK_H_UY9VBON4
 #define GROUPBYWEEK_H_UY9VBON4
 
-#include "core/GroupingStrategy.h"
 #include "core/IConfig.h"
+#include "core/ProgressGroupingStrategy.h"
 
 namespace sprint_timer {
 
-class GroupByWeek : public GroupingStrategy {
+class GroupByWeek : public ProgressGroupingStrategy {
 public:
-    GroupByWeek(int numWeeks, const IConfig& applicationSettings);
+    explicit GroupByWeek(const IConfig& applicationSettings);
 
     std::vector<GoalProgress>
-    computeProgress(const std::vector<int>& actualProgress,
+    computeProgress(const dw::DateRange& dateRange,
+                    const std::vector<int>& actualProgress,
                     const WorkdayTracker& tracker) const override;
-
-    dw::DateRange dateRange() const override;
 
 private:
     const IConfig& applicationSettings;
-    int numWeeks;
 };
 
 } // namespace sprint_timer

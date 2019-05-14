@@ -25,69 +25,56 @@
 
 namespace {
 
-dw::DateRange nWeeksBackTillNow(int numWeeks, dw::Weekday firstDayOfWeek);
+dw::Weekday weekday_before(dw::Weekday);
 
 } // namespace
 
 namespace sprint_timer {
 
-GroupByWeek::GroupByWeek(int numWeeks_, const IConfig& applicationSettings_)
+GroupByWeek::GroupByWeek(const IConfig& applicationSettings_)
     : applicationSettings{applicationSettings_}
-    , numWeeks{numWeeks_}
 {
 }
 
 std::vector<GoalProgress>
-GroupByWeek::computeProgress(const std::vector<int>& actualProgress,
+GroupByWeek::computeProgress(const dw::DateRange& dateRange,
+                             const std::vector<int>& actualProgress,
                              const WorkdayTracker& workdayTracker) const
 {
+    using namespace dw;
     std::vector<GoalProgress> progress;
     progress.reserve(actualProgress.size());
     auto actualIt = actualProgress.cbegin();
 
-    int goalForCurrentWeek{0};
+    const dw::Weekday firstDayOfWeek{applicationSettings.firstDayOfWeek()};
+    const dw::Weekday lastDayOfWeek{weekday_before(firstDayOfWeek)};
 
-    const auto period = dateRange();
-    const dw::Weekday firstDay{applicationSettings.firstDayOfWeek()};
+    // To compute goal we are breaking period into intervals of weeks, taking in
+    // account that period can start and end with random weekday
+    auto start = dateRange.start();
+    const auto lastDay = dateRange.finish();
+    auto next_finish = [&start, lastDay, lastDayOfWeek]() {
+        return std::min(dw::next_weekday(start, lastDayOfWeek), lastDay);
+    };
 
-    for (auto day = period.start(); day <= period.finish();
-         day = day + dw::Days{1}) {
-        if (day == period.finish()) {
-            goalForCurrentWeek += workdayTracker.goal(day);
-            progress.emplace_back(goalForCurrentWeek, *actualIt);
-            break;
-        }
-        if ((weekday(day) == firstDay && day != period.start())) {
-            progress.emplace_back(goalForCurrentWeek, *actualIt);
-            ++actualIt;
-            goalForCurrentWeek = 0;
-        }
-        goalForCurrentWeek += workdayTracker.goal(day);
+    for (auto finish = next_finish(); start <= lastDay;
+         start = finish + Days{1}, finish = next_finish(), ++actualIt) {
+        const DateRange weekChunk{start, finish};
+        progress.emplace_back(goalFor(workdayTracker, weekChunk), *actualIt);
     }
 
     return progress;
-}
-
-dw::DateRange GroupByWeek::dateRange() const
-{
-    return nWeeksBackTillNow(numWeeks, applicationSettings.firstDayOfWeek());
 }
 
 } // namespace sprint_timer
 
 namespace {
 
-dw::DateRange nWeeksBackTillNow(int numWeeks, dw::Weekday firstDayOfWeek)
+dw::Weekday weekday_before(dw::Weekday weekday)
 {
-    using namespace dw;
-    auto now = current_date_local();
-    const auto from = prev_weekday(now - Weeks{numWeeks - 1},
-                                   static_cast<dw::Weekday>(firstDayOfWeek));
-    const auto lastDayOfWeek{firstDayOfWeek == dw::Weekday::Monday
-                                 ? dw::Weekday::Sunday
-                                 : dw::Weekday::Saturday};
-    const auto to = next_weekday(now, lastDayOfWeek);
-    return {from, to};
+    if (weekday == dw::Weekday::Monday)
+        return dw::Weekday::Sunday;
+    return static_cast<dw::Weekday>(static_cast<int>(weekday) - 1);
 }
 
 } // namespace

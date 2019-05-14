@@ -22,12 +22,13 @@
 #ifndef PROGRESSVIEW_H_2OXRIURM
 #define PROGRESSVIEW_H_2OXRIURM
 
+#include "qt_gui/ProgressRangeRequestStrategy.h"
 #include "qt_gui/models/DistributionModel.h"
 #include "qt_gui/models/WorkdayTrackerModel.h"
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
 #include <core/GoalProgress.h>
-#include <core/GroupingStrategy.h>
+#include <core/ProgressGroupingStrategy.h>
 #include <core/ProgressOverPeriod.h>
 #include <core/WorkdayTracker.h>
 #include <memory>
@@ -39,7 +40,6 @@ class ProgressView;
 namespace sprint_timer::ui::qt_gui {
 
 class ProgressView : public QFrame {
-    Q_OBJECT
 
 public:
     using GoalValue = int;
@@ -49,7 +49,8 @@ public:
 
     ProgressView(const DistributionModel& progressModel,
                  const WorkdayTrackerModel& workdaysModel,
-                 const GroupingStrategy& groupingStrategy,
+                 const ProgressGroupingStrategy& groupingStrategy,
+                 const ProgressRangeRequestStrategy& requestRangeStrategy,
                  Rows numRows,
                  Columns numColumns,
                  GaugeSize gaugeRelSize,

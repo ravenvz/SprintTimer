@@ -22,22 +22,16 @@
 #ifndef GROUPBYDAY_H_6EWBVYZU
 #define GROUPBYDAY_H_6EWBVYZU
 
-#include "core/GroupingStrategy.h"
+#include "core/ProgressGroupingStrategy.h"
 
 namespace sprint_timer {
 
-class GroupByDay : public GroupingStrategy {
+class GroupByDay : public ProgressGroupingStrategy {
 public:
-    GroupByDay(int numDays);
-
     std::vector<GoalProgress>
-    computeProgress(const std::vector<int>& actualProgress,
+    computeProgress(const dw::DateRange& dateRange,
+                    const std::vector<int>& actualProgress,
                     const WorkdayTracker& workdayTracker) const override;
-
-    dw::DateRange dateRange() const override;
-
-private:
-    dw::DateRange period;
 };
 
 } // namespace sprint_timer

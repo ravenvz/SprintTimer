@@ -22,22 +22,16 @@
 #ifndef SPRINT_TIMER_APP_GROUPBYMONTH_H
 #define SPRINT_TIMER_APP_GROUPBYMONTH_H
 
-#include "core/GroupingStrategy.h"
+#include "core/ProgressGroupingStrategy.h"
 
 namespace sprint_timer {
 
-class GroupByMonth : public GroupingStrategy {
+class GroupByMonth : public ProgressGroupingStrategy {
 public:
-    explicit GroupByMonth(int numMonths);
-
     std::vector<GoalProgress>
-    computeProgress(const std::vector<int>& actualProgress,
+    computeProgress(const dw::DateRange& dateRange,
+                    const std::vector<int>& actualProgress,
                     const WorkdayTracker& workdayTracker) const override;
-
-    dw::DateRange dateRange() const override;
-
-private:
-    dw::DateRange period;
 };
 
 } // namespace sprint_timer

@@ -39,7 +39,11 @@ add_library(${GUI_LIB} SHARED)
 
 target_sources(${GUI_LIB}
     PUBLIC
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/ProgressRangeRequestStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtConfig.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/RequestForDaysBack.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/RequestForMonthsBack.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/RequestForWeeksBack.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/HistoryItemDelegate.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/SubmissionItemDelegate.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/TaskItemDelegate.h"
@@ -102,6 +106,9 @@ target_sources(${GUI_LIB}
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/resources/resources.qrc"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtConfig.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/RequestForDaysBack.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/RequestForMonthsBack.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/RequestForWeeksBack.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/HistoryItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/SubmissionItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/TaskItemDelegate.cpp"

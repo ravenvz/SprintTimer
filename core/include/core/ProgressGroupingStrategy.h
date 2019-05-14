@@ -19,18 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
-#define SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
+#ifndef PROGRESSGROUPINGSTRATEGY_H_S4KWH7CM
+#define PROGRESSGROUPINGSTRATEGY_H_S4KWH7CM
 
-#include <core/ISprintDistributionReader.h>
-#include <gmock/gmock.h>
+#include "core/GoalProgress.h"
+#include "core/WorkdayTracker.h"
+#include <date_wrapper/date_wrapper.h>
+#include <vector>
 
-class SprintDistributionReaderMock
-    : public sprint_timer::ISprintDistributionReader {
+namespace sprint_timer {
+
+class ProgressGroupingStrategy {
 public:
-    MOCK_METHOD2(requestDistribution,
-                 void(const dw::DateRange&,
-                      sprint_timer::ISprintDistributionReader::Handler));
+    virtual ~ProgressGroupingStrategy() = default;
+
+    virtual std::vector<GoalProgress>
+    computeProgress(const dw::DateRange& dateRange,
+                    const std::vector<int>& actualProgress,
+                    const WorkdayTracker& workdayTracker) const = 0;
 };
 
-#endif /* end of include guard: SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR */
+} // namespace sprint_timer
+
+#endif /* end of include guard: PROGRESSGROUPINGSTRATEGY_H_S4KWH7CM */
+

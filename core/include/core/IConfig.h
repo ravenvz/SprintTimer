@@ -31,29 +31,48 @@ namespace sprint_timer {
 class IConfig {
 public:
     virtual ~IConfig() = default;
+
     virtual std::chrono::minutes sprintDuration() const = 0;
+
     virtual void setSprintDuration(std::chrono::minutes duration) = 0;
+
     virtual std::chrono::minutes shortBreakDuration() const = 0;
+
     virtual void setShortBreakDuration(std::chrono::minutes duration) = 0;
+
     virtual std::chrono::minutes longBreakDuration() const = 0;
+
     virtual void setLongBreakDuration(std::chrono::minutes duration) = 0;
+
     virtual int numSprintsBeforeBreak() const = 0;
+
     virtual void setNumSprintsBeforeBreak(int tasksBeforeBreak) = 0;
+
     virtual bool soundIsEnabled() const = 0;
+
     virtual void setPlaySound(bool playSound) = 0;
+
     virtual int soundVolume() const = 0;
+
     // TODO split into separate group
     virtual void setSoundVolume(int soundVolume) = 0;
+
     virtual std::string soundFilePath() const = 0;
+
     virtual void setSoundFilePath(const std::string& filePath) = 0;
+
     virtual int timerFlavour() const = 0;
+
     virtual void setTimerFlavour(int timerVariation) = 0;
 
     // TODO remove
     virtual utils::WeekdaySelection workdays() const = 0;
 
+    // TODO remove
     virtual void setWorkdays(const utils::WeekdaySelection& workdays) = 0;
+
     virtual dw::Weekday firstDayOfWeek() const = 0;
+
     virtual void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) = 0;
 };
 
