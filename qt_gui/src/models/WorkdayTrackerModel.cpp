@@ -48,6 +48,7 @@ void WorkdayTrackerModel::requestDataUpdate()
         }));
 }
 
+// TODO do we still need this overload at all?
 void WorkdayTrackerModel::changeWorkdayData(
     const WeekSchedule& updatedSchedule,
     const std::vector<WorkdayTracker::DayData>& exceptionalDays)
@@ -57,6 +58,16 @@ void WorkdayTrackerModel::changeWorkdayData(
     updatedTracker.addWeekSchedule(dw::current_date_local(), updatedSchedule);
     for (const auto& [date, goal] : exceptionalDays)
         updatedTracker.addExceptionalDay(date, goal);
+    commandInvoker.executeCommand(std::make_unique<ChangeWorkingDays>(
+        workingDaysWriter, tracker, updatedTracker));
+    tracker = updatedTracker;
+    emit workdaysChanged(tracker);
+}
+
+void WorkdayTrackerModel::changeWorkdayData(
+    const WorkdayTracker& updatedTracker)
+{
+    using sprint_timer::use_cases::ChangeWorkingDays;
     commandInvoker.executeCommand(std::make_unique<ChangeWorkingDays>(
         workingDaysWriter, tracker, updatedTracker));
     tracker = updatedTracker;

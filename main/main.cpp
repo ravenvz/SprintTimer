@@ -73,8 +73,10 @@
 #include <qt_gui/models/ExtraDayModel.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/OperationRangeModel.h>
+#include <qt_gui/models/ScheduleModel.h>
 #include <qt_gui/models/TagModel.h>
 #include <qt_gui/models/WorkdayTrackerModel.h>
+#include <qt_gui/widgets/ContextMenuListView.h>
 #include <qt_gui/widgets/DailyTimelineGraph.h>
 #include <qt_gui/widgets/DateRangePicker.h>
 #include <qt_gui/widgets/DefaultTimer.h>
@@ -84,7 +86,6 @@
 #include <qt_gui/widgets/ProgressMonitorWidget.h>
 #include <qt_gui/widgets/ProgressView.h>
 #include <qt_gui/widgets/SprintOutline.h>
-#include <qt_gui/widgets/SprintView.h>
 #include <qt_gui/widgets/StatisticsDiagramWidget.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
 #include <qt_gui/widgets/TagEditor.h>
@@ -313,7 +314,8 @@ int main(int argc, char* argv[])
                          btn->setEnabled(taskModel.rowCount(QModelIndex{})
                                          != 0);
                      });
-    auto sprintView = std::make_unique<SprintView>(sprintModel);
+    auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
+    sprintView->setModel(&sprintModel);
     auto sprintOutline
         = std::make_unique<SprintOutline>(addSprintDialog,
                                           undoDialog,
@@ -363,9 +365,12 @@ int main(int argc, char* argv[])
 
     AddExceptionalDayDialog exceptionalDayDialog;
     ExtraDayModel exceptionalDaysModel;
+    ScheduleModel scheduleModel{applicationSettings};
 
-    WorkdaysDialog workdaysDialog{
-        exceptionalDayDialog, exceptionalDaysModel, workdayTrackerModel};
+    WorkdaysDialog workdaysDialog{exceptionalDayDialog,
+                                  exceptionalDaysModel,
+                                  workdayTrackerModel,
+                                  scheduleModel};
 
     const int distributionDays{30};
     RequestForDaysBack requestDaysBackStrategy{distributionDays};

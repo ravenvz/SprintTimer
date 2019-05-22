@@ -52,6 +52,10 @@ public:
 
     void insert(const std::vector<entities::Sprint>& sprints);
 
+    bool removeRows(int row,
+                    int count,
+                    const QModelIndex& parent = QModelIndex{}) override;
+
     void remove(int row);
 
     void requestUpdate(const dw::DateRange& dateRange);

@@ -57,6 +57,8 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const WeekSchedule& schedule)
 
 bool operator==(const WeekSchedule& lhs, const WeekSchedule& rhs);
 
+bool operator!=(const WeekSchedule& lhs, const WeekSchedule& rhs);
+
 } // namespace sprint_timer
 
 #endif /* end of include guard: WEEKSCHEDULE_H_NTSVHHA0 */

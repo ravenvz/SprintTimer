@@ -19,29 +19,55 @@ public:
     WorkdayTracker tracker;
 };
 
-TEST_F(WorkdayTrackerFixture, trivial_test)
+TEST_F(WorkdayTrackerFixture, adding_and_removing_exceptional_days)
 {
     const DateRange range{Date{Year{2018}, Month{6}, Day{1}},
                           Date{Year{2018}, Month{6}, Day{17}}};
     const int some_goal{22};
+    const Date holiday_1{Date{Year{2018}, Month{6}, Day{11}}};
+    const Date holiday_2{Date{Year{2018}, Month{6}, Day{12}}};
+    const Date extra_workday_1{Date{Year{2018}, Month{6}, Day{9}}};
     WorkdayTracker tracker;
     tracker.addWeekSchedule(some_date, some_schedule);
-    tracker.addExtraHoliday(Date{Year{2018}, Month{6}, Day{11}});
-    tracker.addExtraHoliday(Date{Year{2018}, Month{6}, Day{12}});
-    tracker.addExtraWorkday(Date{Year{2018}, Month{6}, Day{9}}, some_goal);
+    tracker.addExtraHoliday(holiday_1);
+    tracker.addExtraHoliday(holiday_2);
+    tracker.addExtraWorkday(extra_workday_1, some_goal);
 
     // extra workdays
-    EXPECT_TRUE(tracker.isWorkday(Date{Year{2018}, Month{6}, Day{9}}));
+    EXPECT_TRUE(tracker.isWorkday(extra_workday_1));
 
     // extra holidays
-    EXPECT_FALSE(tracker.isWorkday(Date{Year{2018}, Month{6}, Day{11}}));
-    EXPECT_FALSE(tracker.isWorkday(Date{Year{2018}, Month{6}, Day{12}}));
+    EXPECT_FALSE(tracker.isWorkday(holiday_1));
+    EXPECT_FALSE(tracker.isWorkday(holiday_2));
 
     EXPECT_TRUE(tracker.isWorkday(Date{Year{2018}, Month{6}, Day{1}}));
     EXPECT_TRUE(tracker.isWorkday(Date{Year{2018}, Month{6}, Day{15}}));
     EXPECT_FALSE(tracker.isWorkday(Date{Year{2018}, Month{6}, Day{10}}));
     EXPECT_FALSE(tracker.isWorkday(Date{Year{2018}, Month{6}, Day{17}}));
     EXPECT_EQ(10, numWorkdays(tracker, range));
+
+    // Attempting to remove day that is not exceptional does nothing.
+    tracker.removeExceptionalDay(Date{Year{2018}, Month{5}, Day{2}});
+    EXPECT_EQ(10, numWorkdays(tracker, range));
+
+    tracker.removeExceptionalDay(holiday_1);
+    EXPECT_TRUE(tracker.isWorkday(holiday_1));
+
+    tracker.removeExceptionalDay(extra_workday_1);
+    EXPECT_FALSE(tracker.isWorkday(extra_workday_1));
+}
+
+TEST_F(WorkdayTrackerFixture, removing_exceptional_day)
+{
+    WorkdayTracker tracker;
+    tracker.addWeekSchedule(some_date, some_schedule);
+    const dw::Date date_1{Date{Year{2019}, Month{5}, Day{9}}};
+    const dw::Date date_2{Date{Year{2019}, Month{5}, Day{22}}};
+    tracker.addExceptionalDay(date_1, 0);
+    tracker.addExceptionalDay(date_2, 10);
+
+    tracker.removeExceptionalDay(date_1);
+    tracker.removeExceptionalDay(date_2);
 }
 
 TEST_F(WorkdayTrackerFixture,
@@ -100,34 +126,161 @@ TEST_F(WorkdayTrackerFixture, returns_schedule_for_specified_date)
     const WeekSchedule first_schedule{buildSchedule({1, 1, 1, 1, 1, 1, 1})};
     const WeekSchedule second_schedule{buildSchedule({2, 2, 2, 2, 2, 2, 2})};
     const WeekSchedule third_schedule{buildSchedule({3, 3, 3, 3, 3, 3, 3})};
+    const auto date_1 = some_date;
+    const auto date_2 = some_date + Years{1};
+    const auto date_3 = some_date + Years{2};
 
-    tracker.addWeekSchedule(some_date, first_schedule);
-    tracker.addWeekSchedule(some_date + Years{1}, second_schedule);
-    tracker.addWeekSchedule(some_date + Years{2}, third_schedule);
+    tracker.addWeekSchedule(date_1, first_schedule);
+    tracker.addWeekSchedule(date_2, second_schedule);
+    tracker.addWeekSchedule(date_3, third_schedule);
 
-    EXPECT_EQ(empty_schedule, tracker.scheduleFor(some_date - Days{1}));
-    EXPECT_EQ(first_schedule, tracker.scheduleFor(some_date));
-    EXPECT_EQ(first_schedule, tracker.scheduleFor(some_date + Days{1}));
-    EXPECT_EQ(first_schedule,
-              tracker.scheduleFor(some_date + Years{1} - Days{1}));
-    EXPECT_EQ(second_schedule, tracker.scheduleFor(some_date + Years{1}));
-    EXPECT_EQ(second_schedule,
-              tracker.scheduleFor(some_date + Years{1} + Days{1}));
-    EXPECT_EQ(second_schedule,
-              tracker.scheduleFor(some_date + Years{2} - Days{1}));
-    EXPECT_EQ(third_schedule, tracker.scheduleFor(some_date + Years{2}));
-    EXPECT_EQ(third_schedule,
-              tracker.scheduleFor(some_date + Years{2} + Days{1}));
+    EXPECT_EQ(empty_schedule, tracker.scheduleFor(date_1 - Days{1}));
+    EXPECT_EQ(first_schedule, tracker.scheduleFor(date_1));
+    EXPECT_EQ(first_schedule, tracker.scheduleFor(date_1 + Days{1}));
+    EXPECT_EQ(first_schedule, tracker.scheduleFor(date_2 - Days{1}));
+    EXPECT_EQ(second_schedule, tracker.scheduleFor(date_2));
+    EXPECT_EQ(second_schedule, tracker.scheduleFor(date_2 + Days{1}));
+    EXPECT_EQ(second_schedule, tracker.scheduleFor(date_3 - Days{1}));
+    EXPECT_EQ(third_schedule, tracker.scheduleFor(date_3));
+    EXPECT_EQ(third_schedule, tracker.scheduleFor(date_3 + Days{1}));
 }
 
 TEST_F(WorkdayTrackerFixture,
        ignores_schedule_insertion_when_current_insertion_has_same_schedule)
 {
     const WeekSchedule schedule{buildSchedule({5, 5, 5, 5, 5, 5, 5})};
-    WorkdayTracker::ScheduleRoaster expected{{some_date, schedule}};
+    const auto date_1 = some_date;
+    const auto date_2 = date_1 + Years{1};
+    WorkdayTracker::ScheduleRoaster expected{{date_1, schedule}};
 
-    tracker.addWeekSchedule(some_date, schedule);
-    tracker.addWeekSchedule(some_date + Years{1}, schedule);
+    tracker.addWeekSchedule(date_1, schedule);
+    tracker.addWeekSchedule(date_2, schedule);
+
+    EXPECT_EQ(expected, tracker.scheduleRoaster());
+}
+
+TEST_F(WorkdayTrackerFixture,
+       ignores_schedule_insertion_when_it_is_same_as_schedule_for_previous_date)
+{
+    const WeekSchedule schedule_1{buildSchedule({1, 1, 1, 1, 1, 1, 1})};
+    const WeekSchedule schedule_2{buildSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const auto date_1 = some_date;
+    const auto date_2 = date_1 + Years{1};
+    const auto date_between = date_1 + Months{4};
+    const auto date_ahead = date_1 + Years{2};
+    tracker.addWeekSchedule(date_1, schedule_1);
+    tracker.addWeekSchedule(date_2, schedule_2);
+    WorkdayTracker::ScheduleRoaster expected{{date_1, schedule_1},
+                                             {date_2, schedule_2}};
+
+    tracker.addWeekSchedule(date_between, schedule_1);
+    tracker.addWeekSchedule(date_ahead, schedule_2);
+
+    EXPECT_EQ(expected, tracker.scheduleRoaster());
+}
+
+TEST_F(
+    WorkdayTrackerFixture,
+    merges_schedules_when_schedule_for_first_date_that_is_greater_than_inserted_is_same)
+{
+    const WeekSchedule schedule_1{buildSchedule({1, 1, 1, 1, 1, 1, 1})};
+    const WeekSchedule schedule_2{buildSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const auto date_1 = some_date;
+    const auto date_2 = date_1 + Years{1};
+    const auto date_between = date_1 + Months{4};
+    tracker.addWeekSchedule(date_1, schedule_1);
+    tracker.addWeekSchedule(date_2, schedule_2);
+    WorkdayTracker::ScheduleRoaster expected{{date_1, schedule_1},
+                                             {date_between, schedule_2}};
+
+    tracker.addWeekSchedule(date_between, schedule_2);
+
+    EXPECT_EQ(expected, tracker.scheduleRoaster());
+}
+
+TEST_F(
+    WorkdayTrackerFixture,
+    removing_schedule_for_specific_date_is_ignored_when_there_is_no_schedule_for_that_date)
+{
+    const WeekSchedule schedule_1{buildSchedule({1, 1, 1, 1, 1, 1, 1})};
+    const WeekSchedule schedule_2{buildSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const auto date_1 = some_date;
+    const auto date_2 = date_1 + Years{1};
+    const auto date_between = date_1 + Months{4};
+    tracker.addWeekSchedule(date_1, schedule_1);
+    tracker.addWeekSchedule(date_2, schedule_2);
+    WorkdayTracker::ScheduleRoaster expected{{date_1, schedule_1},
+                                             {date_2, schedule_2}};
+
+    tracker.removeWeekSchedule(date_between);
+
+    EXPECT_EQ(expected, tracker.scheduleRoaster());
+}
+
+TEST_F(WorkdayTrackerFixture, removing_schedule_that_is_earliest_one)
+{
+    const WeekSchedule schedule_1{buildSchedule({1, 1, 1, 1, 1, 1, 1})};
+    const WeekSchedule schedule_2{buildSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const auto date_1 = some_date;
+    const auto date_2 = date_1 + Years{1};
+    tracker.addWeekSchedule(date_1, schedule_1);
+    tracker.addWeekSchedule(date_2, schedule_2);
+    WorkdayTracker::ScheduleRoaster expected{{date_2, schedule_2}};
+
+    tracker.removeWeekSchedule(some_date);
+
+    EXPECT_EQ(expected, tracker.scheduleRoaster());
+}
+
+TEST_F(WorkdayTrackerFixture, removing_schedule_that_is_latest_one)
+{
+    const WeekSchedule schedule_1{buildSchedule({1, 1, 1, 1, 1, 1, 1})};
+    const WeekSchedule schedule_2{buildSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const auto date_1 = some_date;
+    const auto date_2 = date_1 + Years{1};
+    tracker.addWeekSchedule(date_1, schedule_1);
+    tracker.addWeekSchedule(date_2, schedule_2);
+    WorkdayTracker::ScheduleRoaster expected{{date_1, schedule_1}};
+
+    tracker.removeWeekSchedule(date_2);
+
+    EXPECT_EQ(expected, tracker.scheduleRoaster());
+}
+
+TEST_F(WorkdayTrackerFixture, removing_schedule_in_the_middle)
+{
+    const WeekSchedule schedule_1{buildSchedule({1, 1, 1, 1, 1, 1, 1})};
+    const WeekSchedule schedule_2{buildSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const WeekSchedule schedule_3{buildSchedule({3, 3, 3, 3, 3, 3, 3})};
+    const auto date_1 = some_date;
+    const auto date_2 = date_1 + Years{1};
+    const auto date_3 = date_1 + Years{2};
+    tracker.addWeekSchedule(date_1, schedule_1);
+    tracker.addWeekSchedule(date_2, schedule_2);
+    tracker.addWeekSchedule(date_3, schedule_3);
+    WorkdayTracker::ScheduleRoaster expected{{date_1, schedule_1},
+                                             {date_3, schedule_3}};
+
+    tracker.removeWeekSchedule(date_2);
+
+    EXPECT_EQ(expected, tracker.scheduleRoaster());
+}
+
+TEST_F(WorkdayTrackerFixture,
+       removing_schedule_in_the_middle_merges_adjacent_if_they_are_same)
+{
+    const WeekSchedule schedule_1{buildSchedule({1, 1, 1, 1, 1, 1, 1})};
+    const WeekSchedule schedule_2{buildSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const WeekSchedule schedule_3{buildSchedule({1, 1, 1, 1, 1, 1, 1})};
+    const auto date_1 = some_date;
+    const auto date_2 = date_1 + Years{1};
+    const auto date_3 = date_1 + Years{2};
+    tracker.addWeekSchedule(date_1, schedule_1);
+    tracker.addWeekSchedule(date_2, schedule_2);
+    tracker.addWeekSchedule(date_3, schedule_3);
+    WorkdayTracker::ScheduleRoaster expected{{date_1, schedule_1}};
+
+    tracker.removeWeekSchedule(date_2);
 
     EXPECT_EQ(expected, tracker.scheduleRoaster());
 }

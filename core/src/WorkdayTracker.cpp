@@ -26,6 +26,10 @@ namespace {
 template <typename In, typename Out, typename UnaryOp, typename Pred>
 void transform_if(In first, In last, Out out, UnaryOp unary_op, Pred predicate);
 
+template <typename Map>
+typename Map::const_iterator greatest_less(Map const& m,
+                                           typename Map::key_type const& k);
+
 } // namespace
 
 namespace sprint_timer {
@@ -38,9 +42,38 @@ namespace sprint_timer {
 void WorkdayTracker::addWeekSchedule(const dw::Date& sinceDate,
                                      const WeekSchedule& schedule)
 {
-    if (!schedules.empty() && currentSchedule() == schedule)
+    // Ignore schedule insertion when it has same date or schedule for
+    // previous date is the same
+    if (const auto it = greatest_less(schedules, sinceDate);
+        it != schedules.cend() && it->second == schedule) {
         return;
+    }
+    // Merge schedules when the schedule for next date is same as inserted
+    // schedule
+    if (auto it = schedules.lower_bound(sinceDate);
+        it != schedules.end() && it->second == schedule) {
+        schedules.erase(it->first);
+    }
     schedules.insert_or_assign(sinceDate, schedule);
+}
+
+void WorkdayTracker::removeWeekSchedule(const dw::Date& date)
+{
+    if (auto it = schedules.cbegin(); it == schedules.cend())
+        return;
+
+    auto have_same_schedule = [this](auto before, auto after) {
+        return before != schedules.cend() && after != schedules.cend()
+            && before->second == after->second;
+    };
+
+    auto date_before_it = greatest_less(schedules, date);
+    auto date_after_it = schedules.upper_bound(date);
+
+    if (have_same_schedule(date_before_it, date_after_it))
+        schedules.erase(date_after_it->first);
+
+    schedules.erase(date);
 }
 
 bool WorkdayTracker::isWorkday(const dw::Date& date) const
@@ -77,6 +110,13 @@ void WorkdayTracker::addExtraHoliday(const dw::Date& date)
 void WorkdayTracker::addExceptionalDay(const dw::Date& date, int goal)
 {
     extraDays.insert_or_assign(date, goal);
+}
+
+void WorkdayTracker::removeExceptionalDay(const dw::Date& date)
+{
+    if (auto it = extraDays.find(date); it == extraDays.cend())
+        return;
+    extraDays.erase(date);
 }
 
 WeekSchedule WorkdayTracker::scheduleFor(const dw::Date& date) const
@@ -200,6 +240,17 @@ void transform_if(In first, In last, Out out, UnaryOp unary_op, Pred predicate)
         }
         ++first;
     }
+}
+
+template <typename Map>
+typename Map::const_iterator greatest_less(Map const& m,
+                                           typename Map::key_type const& k)
+{
+    typename Map::const_iterator it = m.lower_bound(k);
+    if (it != m.begin()) {
+        return --it;
+    }
+    return m.end();
 }
 
 } // namespace

@@ -43,7 +43,7 @@ bool ExtraDayModel::insertRows(int row, int count, const QModelIndex& index)
 
 bool ExtraDayModel::removeRows(int row, int count, const QModelIndex& index)
 {
-    beginRemoveRows(QModelIndex(), row, row + count - 1);
+    beginRemoveRows(index, row, row + count - 1);
     data_.erase(data_.begin() + row, data_.begin() + row + count);
     endRemoveRows();
     return true;
@@ -92,7 +92,7 @@ void ExtraDayModel::sort(int column, Qt::SortOrder order)
     else
         std::sort(
             data_.begin(), data_.end(), [](const auto& lhs, const auto& rhs) {
-                return lhs.first < rhs.first;
+                return lhs.first > rhs.first;
             });
     emit layoutChanged();
 }

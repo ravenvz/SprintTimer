@@ -19,39 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/WeekSchedule.h"
+#ifndef CONTEXTMENULISTVIEW_H_1FLWACVR
+#define CONTEXTMENULISTVIEW_H_1FLWACVR
 
-namespace sprint_timer {
+#include <QListView>
 
-int WeekSchedule::targetGoal(const dw::Weekday& weekday) const
-{
-    return goals_[static_cast<size_t>(weekday)];
-}
+namespace sprint_timer::ui::qt_gui {
 
-void WeekSchedule::setTargetGoal(const dw::Weekday& weekday, int goal)
-{
-    goals_[static_cast<size_t>(weekday)] = goal;
-}
+class ContextMenuListView : public QListView {
+public:
+    explicit ContextMenuListView(QWidget* parent);
 
-bool WeekSchedule::isWorkday(const dw::Weekday& weekday) const
-{
-    return goals_[static_cast<size_t>(weekday)] > 0;
-}
+    virtual void showContextMenu(const QPoint& pos);
+};
 
-bool operator==(const WeekSchedule& lhs, const WeekSchedule& rhs)
-{
-    for (size_t i = 0; i < 7; ++i) {
-        if (lhs.targetGoal(static_cast<dw::Weekday>(i))
-            != rhs.targetGoal(static_cast<dw::Weekday>(i)))
-            return false;
-    }
-    return true;
-}
+} // namespace sprint_timer::ui::qt_gui
 
-bool operator!=(const WeekSchedule& lhs, const WeekSchedule& rhs)
-{
-    return !(lhs == rhs);
-}
-
-} // namespace sprint_timer
-
+#endif /* end of include guard: CONTEXTMENULISTVIEW_H_1FLWACVR */

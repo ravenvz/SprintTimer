@@ -96,6 +96,14 @@ void SprintModel::registerSprint(const Sprint& sprint)
         std::make_unique<RegisterNewSprint>(sprintWriter, sprint));
 }
 
+bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
+{
+    beginRemoveRows(index, row, row + count - 1);
+    remove(row);
+    endRemoveRows();
+    return true;
+}
+
 void SprintModel::remove(int row)
 {
     commandInvoker.executeCommand(std::make_unique<RemoveSprintTransaction>(

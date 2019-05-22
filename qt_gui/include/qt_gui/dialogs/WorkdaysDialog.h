@@ -42,19 +42,26 @@ public:
     explicit WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog,
                             QAbstractItemModel& exceptionalDaysModel,
                             WorkdayTrackerModel& workdaysModel,
+                            QAbstractItemModel& scheduleModel,
                             QDialog* parent = nullptr);
 
     ~WorkdaysDialog() override;
 
     void accept() override;
 
+    void reject() override;
+
 private:
     std::unique_ptr<Ui::WorkdaysDialog> ui;
     AddExceptionalDayDialog& pickDateDialog;
-    QAbstractItemModel& exceptionalDaysModel;
     WorkdayTrackerModel& workdaysModel;
+    WorkdayTracker candidateTracker;
 
     void onWorkdayTrackerChanged(const WorkdayTracker& updatedTracker) override;
+
+    void updateWorkdaysView(const WorkdayTracker& updatedTracker);
+
+    void updateSchedulesView(const WorkdayTracker& updatedTracker);
 
     void initializeDayBoxes(const WeekSchedule& schedule);
 
@@ -62,7 +69,11 @@ private:
 
     void addExceptionalDay();
 
-    void addWorkdays();
+    void addSchedule();
+
+    void onExceptionalDayRemovedFromModel(const QModelIndex&, int first, int);
+
+    void onScheduleRemovedFromModel(const QModelIndex&, int first, int);
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -41,6 +41,8 @@ public:
     void addWeekSchedule(const dw::Date& sinceDate,
                          const WeekSchedule& schedule);
 
+    void removeWeekSchedule(const dw::Date& date);
+
     bool isWorkday(const dw::Date& date) const;
 
     int goal(const dw::Date& date) const;
@@ -50,6 +52,8 @@ public:
     void addExtraWorkday(const dw::Date& date, int goal);
 
     void addExtraHoliday(const dw::Date& date);
+
+    void removeExceptionalDay(const dw::Date& date);
 
     WeekSchedule scheduleFor(const dw::Date& date) const;
 

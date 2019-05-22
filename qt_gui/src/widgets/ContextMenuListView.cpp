@@ -19,20 +19,41 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef EXTRADAYLISTVIEW_H_MY283Y5C
-#define EXTRADAYLISTVIEW_H_MY283Y5C
-
-#include <QListView>
+#include "qt_gui/utils/MouseRightReleaseEater.h"
+#include "qt_gui/widgets/ContextMenuListView.h"
+#include <QMenu>
+#include <memory>
 
 namespace sprint_timer::ui::qt_gui {
 
-class ExtraDayListView : public QListView {
-public:
-    explicit ExtraDayListView(QWidget* parent);
+ContextMenuListView::ContextMenuListView(QWidget* parent)
+    : QListView{parent}
+{
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this,
+            &QListView::customContextMenuRequested,
+            this,
+            &ContextMenuListView::showContextMenu);
+}
 
-    void showContextMenu(const QPoint& pos);
-};
+void ContextMenuListView::showContextMenu(const QPoint& pos)
+{
+    QPoint globalPos = mapToGlobal(pos);
+
+    QMenu contextMenu;
+    auto mouseRightReleaseEater
+        = std::make_unique<MouseRightReleaseEater>(&contextMenu);
+    contextMenu.installEventFilter(mouseRightReleaseEater.release());
+    const auto deleteEntry = "Delete";
+    contextMenu.addAction(deleteEntry);
+
+    QAction* selectedEntry = contextMenu.exec(globalPos);
+
+    if (selectedEntry && selectedEntry->text() == deleteEntry) {
+        QModelIndex index = currentIndex();
+        model()->removeRow(index.row());
+    }
+}
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: EXTRADAYLISTVIEW_H_MY283Y5C */

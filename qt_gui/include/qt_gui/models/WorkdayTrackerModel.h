@@ -46,11 +46,12 @@ public:
     void requestDataUpdate();
 
     /* Adds updated schedule keeping previous ones and replaces exceptional days
-     * with the given ones.
-     */
+     * with the given ones. */
     void changeWorkdayData(
         const WeekSchedule& updatedSchedule,
         const std::vector<WorkdayTracker::DayData>& exceptionalDays);
+
+    void changeWorkdayData(const WorkdayTracker& updatedTracker);
 
     const WorkdayTracker& workdayTracker() const;
 

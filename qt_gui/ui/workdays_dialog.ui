@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>434</width>
-    <height>483</height>
+    <width>872</width>
+    <height>484</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,6 +18,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QGroupBox" name="weekScheduleGroupBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title">
         <string>Week schedule:</string>
        </property>
@@ -30,7 +36,14 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSpinBox" name="mondayBox"/>
+         <widget class="QSpinBox" name="mondayBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="labelTuesday">
@@ -40,7 +53,14 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSpinBox" name="tuesdayBox"/>
+         <widget class="QSpinBox" name="tuesdayBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="labelWednesday">
@@ -50,7 +70,14 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSpinBox" name="wednesdayBox"/>
+         <widget class="QSpinBox" name="wednesdayBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="labelThursday">
@@ -60,7 +87,14 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QSpinBox" name="thursdayBox"/>
+         <widget class="QSpinBox" name="thursdayBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item row="4" column="0">
          <widget class="QLabel" name="labelFriday">
@@ -70,7 +104,14 @@
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QSpinBox" name="fridayBox"/>
+         <widget class="QSpinBox" name="fridayBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item row="5" column="0">
          <widget class="QLabel" name="labelSaturday">
@@ -80,7 +121,14 @@
          </widget>
         </item>
         <item row="5" column="1">
-         <widget class="QSpinBox" name="saturdayBox"/>
+         <widget class="QSpinBox" name="saturdayBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item row="6" column="0">
          <widget class="QLabel" name="labelSunday">
@@ -90,19 +138,74 @@
          </widget>
         </item>
         <item row="6" column="1">
-         <widget class="QSpinBox" name="sundayBox"/>
+         <widget class="QSpinBox" name="sundayBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QCheckBox" name="checkBoxOverrideDate">
+          <property name="text">
+           <string>Override date</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
+         <widget class="QDateEdit" name="dateEditScheduleDate"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="SchedulesGroupBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Schedules:</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="sprint_timer::ui::qt_gui::ContextMenuListView" name="listViewSchedules">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButtonAddSchedule">
+          <property name="text">
+           <string>Add new schedule</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
      </item>
      <item>
       <widget class="QGroupBox" name="ExceptionalDaysGroupBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title">
         <string>Exceptional days:</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="sprint_timer::ui::qt_gui::ExtraDayListView" name="listViewExceptionalDays">
+         <widget class="sprint_timer::ui::qt_gui::ContextMenuListView" name="listViewExceptionalDays">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -140,9 +243,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>sprint_timer::ui::qt_gui::ExtraDayListView</class>
+   <class>sprint_timer::ui::qt_gui::ContextMenuListView</class>
    <extends>QListView</extends>
-   <header>qt_gui/widgets/ExtraDayListView.h</header>
+   <header>qt_gui/widgets/ContextMenuListView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
