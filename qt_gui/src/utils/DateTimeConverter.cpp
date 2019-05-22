@@ -46,7 +46,7 @@ QDate toQDate(const dw::Date& date)
 
 dw::DateTime toDateTime(const QDateTime& qdt)
 {
-    return DateTime{std::chrono::system_clock::time_point{
+    return dw::DateTime{std::chrono::system_clock::time_point{
                std::chrono::milliseconds{qdt.toMSecsSinceEpoch()}}}
     + std::chrono::seconds{qdt.offsetFromUtc()};
 }

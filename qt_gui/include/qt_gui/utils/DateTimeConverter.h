@@ -25,57 +25,6 @@
 #include <QDateTime>
 #include <date_wrapper/date_wrapper.h>
 
-namespace sprint_timer::ui::qt_gui {
-
-using dw::Date;
-using dw::DateTime;
-using dw::DateTimeRange;
-
-// TODO no real need to have a class here
-
-/* Simplifies convertion between QDateTime and DateTime. */
-class DateTimeConverter {
-public:
-    static QDateTime qDateTime(const DateTime& dt)
-    {
-        return QDateTime::fromMSecsSinceEpoch(
-            dw::to_time_point<std::chrono::milliseconds>(dt)
-                .time_since_epoch()
-                .count(),
-            Qt::OffsetFromUTC);
-        // return QDateTime::fromTime_t(static_cast<unsigned>(dt.toTime_t()),
-        // Qt::OffsetFromUTC);
-    }
-
-    static QDate qDate(const DateTime& dt) { return qDateTime(dt).date(); }
-
-    static QDate qDate(const Date& date)
-    {
-        return QDate(static_cast<int>(date.year()),
-                     static_cast<unsigned>(date.month()),
-                     static_cast<unsigned>(date.day()));
-    }
-
-    static DateTime dateTime(const QDateTime& qdt)
-    {
-        return DateTime{std::chrono::system_clock::time_point{
-                   std::chrono::milliseconds{qdt.toMSecsSinceEpoch()}}}
-        + std::chrono::seconds{qdt.offsetFromUtc()};
-        // return DateTime::fromTime_t(qdt.toTime_t(), qdt.offsetFromUtc());
-    }
-
-    static dw::Date date(const QDate& qdate)
-    {
-        using namespace dw;
-        return Date{Year{qdate.year()},
-                    Month{static_cast<unsigned>(qdate.month())},
-                    Day{static_cast<unsigned>(qdate.day())}};
-    }
-};
-
-
-} // namespace sprint_timer::ui::qt_gui
-
 namespace sprint_timer::ui::qt_gui::utils {
 
 QDateTime toQDateTime(const dw::DateTime& dt);

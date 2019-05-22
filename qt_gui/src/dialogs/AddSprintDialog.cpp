@@ -140,7 +140,7 @@ generateConsecutiveSprints(const QDateTime& initialStartTime,
 {
     using namespace std::chrono;
     using sprint_timer::entities::Sprint;
-    using sprint_timer::ui::qt_gui::DateTimeConverter;
+    using sprint_timer::ui::qt_gui::utils::toDateTime;
 
     std::vector<Sprint> sprints;
     for (int i = 0; i < numSprints; ++i) {
@@ -148,10 +148,9 @@ generateConsecutiveSprints(const QDateTime& initialStartTime,
             i * duration_cast<seconds>(sprintDuration).count());
         const auto finishTime
             = startTime.addSecs(duration_cast<seconds>(sprintDuration).count());
-        sprints.push_back(
-            Sprint{taskUuid,
-                   dw::DateTimeRange{DateTimeConverter::dateTime(startTime),
-                                     DateTimeConverter::dateTime(finishTime)}});
+        sprints.push_back(Sprint{
+            taskUuid,
+            dw::DateTimeRange{toDateTime(startTime), toDateTime(finishTime)}});
     }
 
     return sprints;

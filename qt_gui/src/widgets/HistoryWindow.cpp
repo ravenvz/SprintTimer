@@ -177,9 +177,8 @@ void HistoryWindow::ShowingSprints::onHistoryRetrieved(
                    sprints.cend(),
                    std::back_inserter(sprintHistory),
                    [](const auto& sprint) {
-                       return std::make_pair(
-                           DateTimeConverter::qDate(sprint.startTime()),
-                           sprintToString(sprint));
+                       return std::make_pair(utils::toQDate(sprint.startTime()),
+                                             sprintToString(sprint));
                    });
     widget.fillHistoryModel(sprintHistory);
     widget.setHistoryModel(widget.ui->sprintHistoryView);
@@ -244,7 +243,7 @@ void HistoryWindow::ShowingTasks::onHistoryRetrieved(
                    std::back_inserter(taskHistory),
                    [](const auto& task) {
                        return std::make_pair(
-                           DateTimeConverter::qDate(task.lastModified()),
+                           utils::toQDate(task.lastModified()),
                            taskToString(task));
                    });
 

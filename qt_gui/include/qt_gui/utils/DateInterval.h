@@ -36,8 +36,8 @@ struct DateInterval {
 
     static DateInterval fromTimeSpan(const dw::DateTimeRange& timeSpan)
     {
-        return DateInterval{DateTimeConverter::qDate(timeSpan.start()),
-                            DateTimeConverter::qDate(timeSpan.finish())};
+        return DateInterval{utils::toQDate(timeSpan.start()),
+                            utils::toQDate(timeSpan.finish())};
     }
 
     QString toString() const
@@ -59,16 +59,14 @@ struct DateInterval {
 
     dw::DateTimeRange toTimeSpan() const
     {
-        return dw::DateTimeRange{
-            DateTimeConverter::dateTime(QDateTime{startDate}),
-            DateTimeConverter::dateTime(QDateTime{endDate})};
+        return dw::DateTimeRange{utils::toDateTime(QDateTime{startDate}),
+                                 utils::toDateTime(QDateTime{endDate})};
     }
 
     dw::DateRange toDateRange() const
     {
         using namespace dw;
-        return DateRange{DateTimeConverter::date(startDate),
-                         DateTimeConverter::date(endDate)};
+        return DateRange{utils::toDate(startDate), utils::toDate(endDate)};
     }
 };
 
