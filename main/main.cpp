@@ -275,21 +275,21 @@ int main(int argc, char* argv[])
     QueryInvoker defaultQueryInvoker;
     VerboseQueryInvoker queryInvoker{defaultQueryInvoker};
 
-    TaskModel taskModel{*taskStorageReader,
-                        *taskStorageWriter,
-                        *sprintStorageReader,
-                        *sprintStorageWriter,
-                        commandInvoker,
-                        queryInvoker};
-    SprintModel sprintModel{commandInvoker,
-                            queryInvoker,
-                            *sprintStorageReader,
-                            *sprintStorageWriter};
+    TaskModel unfinishedTasksModel{*taskStorageReader,
+                                   *taskStorageWriter,
+                                   *sprintStorageReader,
+                                   *sprintStorageWriter,
+                                   commandInvoker,
+                                   queryInvoker};
+    SprintModel todaySprintsModel{commandInvoker,
+                                  queryInvoker,
+                                  *sprintStorageReader,
+                                  *sprintStorageWriter};
     TagModel tagModel{
         *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
 
     AddSprintDialog addSprintDialog{
-        applicationSettings, sprintModel, taskModel};
+        applicationSettings, todaySprintsModel, unfinishedTasksModel};
 
     WorkdayTrackerModel workdayTrackerModel{
         *workingDaysWriter, *workingDaysReader, commandInvoker, queryInvoker};
@@ -297,25 +297,25 @@ int main(int argc, char* argv[])
     UndoDialog undoDialog{commandInvoker};
     QObject::connect(&undoDialog,
                      &QDialog::accepted,
-                     &sprintModel,
+                     &todaySprintsModel,
                      &AsyncListModel::requestDataUpdate);
     QObject::connect(&undoDialog,
                      &QDialog::accepted,
-                     &taskModel,
+                     &unfinishedTasksModel,
                      &AsyncListModel::requestSilentDataUpdate);
 
     auto undoButton = std::make_unique<UndoButton>(commandInvoker);
     auto addNewSprintButton
         = std::make_unique<QPushButton>("Add Sprint Manually");
     addNewSprintButton->setEnabled(false);
-    QObject::connect(&taskModel,
+    QObject::connect(&unfinishedTasksModel,
                      &QAbstractListModel::modelReset,
-                     [btn = addNewSprintButton.get(), &taskModel]() {
-                         btn->setEnabled(taskModel.rowCount(QModelIndex{})
-                                         != 0);
+                     [btn = addNewSprintButton.get(), &unfinishedTasksModel]() {
+                         btn->setEnabled(
+                             unfinishedTasksModel.rowCount(QModelIndex{}) != 0);
                      });
     auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
-    sprintView->setModel(&sprintModel);
+    sprintView->setModel(&todaySprintsModel);
     auto sprintOutline
         = std::make_unique<SprintOutline>(addSprintDialog,
                                           undoDialog,
@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
                                       queryInvoker,
                                       *sprintStorageReader,
                                       *sprintStorageWriter};
-    QObject::connect(&sprintModel,
+    QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
                      &statisticsSprintModel,
                      &SprintModel::requestSilentDataUpdate);
@@ -356,10 +356,10 @@ int main(int argc, char* argv[])
         workdayTrackerModel,
         statisticsSprintModel,
         queryInvoker};
-    QObject::connect(&sprintModel,
+    QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
                      [&statisticsWindow]() { statisticsWindow.synchronize(); });
-    QObject::connect(&taskModel,
+    QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
                      [&statisticsWindow]() { statisticsWindow.synchronize(); });
 
@@ -380,7 +380,7 @@ int main(int argc, char* argv[])
                                              groupByDayStrategy,
                                              requestDaysBackStrategy};
     QObject::connect(
-        &sprintModel,
+        &todaySprintsModel,
         &AsyncListModel::updateFinished,
         [&dailyDistributionModel]() { dailyDistributionModel.synchronize(); });
     const ProgressView::Rows dailyRows{3};
@@ -410,7 +410,7 @@ int main(int argc, char* argv[])
                                               queryInvoker,
                                               groupByWeekStrategy,
                                               requestWeeksBackStrategy};
-    QObject::connect(&sprintModel,
+    QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
                      [&weeklyDistributionModel]() {
                          weeklyDistributionModel.synchronize();
@@ -436,7 +436,7 @@ int main(int argc, char* argv[])
                                                queryInvoker,
                                                groupByMonthStrategy,
                                                requestMonthsBackStrategy};
-    QObject::connect(&sprintModel,
+    QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
                      [&monthlyDistributionModel]() {
                          monthlyDistributionModel.synchronize();
@@ -479,10 +479,10 @@ int main(int argc, char* argv[])
                                 historyItemDelegate,
                                 queryInvoker,
                                 std::move(historyWindowDateRangePicker)};
-    QObject::connect(&sprintModel,
+    QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
                      [&historyWindow]() { historyWindow.synchronize(); });
-    QObject::connect(&taskModel,
+    QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
                      [&historyWindow]() { historyWindow.synchronize(); });
 
@@ -494,17 +494,17 @@ int main(int argc, char* argv[])
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
         timerWidget = std::make_unique<DefaultTimer>(
-            applicationSettings, taskModel, nullptr);
+            applicationSettings, unfinishedTasksModel, nullptr);
     else
         timerWidget = std::make_unique<FancyTimer>(
-            applicationSettings, taskModel, nullptr);
+            applicationSettings, unfinishedTasksModel, nullptr);
 
     HistoryModel taskSprintsModel;
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
     AddTaskDialog addTaskDialog{tagModel};
     TaskItemDelegate taskItemDelegate;
     auto taskView
-        = std::make_unique<TaskView>(taskModel,
+        = std::make_unique<TaskView>(unfinishedTasksModel,
                                      *sprintStorageReader,
                                      queryInvoker,
                                      taskSprintsView,
@@ -521,31 +521,33 @@ int main(int argc, char* argv[])
                      [timer = timerWidget.get()](const int row) {
                          timer->setCandidateIndex(row);
                      });
-    auto taskOutline = std::make_unique<TaskOutline>(
-        taskModel, sprintModel, std::move(taskView), addTaskDialog);
+    auto taskOutline = std::make_unique<TaskOutline>(unfinishedTasksModel,
+                                                     todaySprintsModel,
+                                                     std::move(taskView),
+                                                     addTaskDialog);
 
     // As models update data asynchroniously,
     // other models that depend on that data should
     // subscribe to updateFinished() signal
-    QObject::connect(&sprintModel,
+    QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
-                     &taskModel,
+                     &unfinishedTasksModel,
                      &AsyncListModel::requestSilentDataUpdate);
-    QObject::connect(&taskModel,
+    QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
-                     &sprintModel,
+                     &todaySprintsModel,
                      &AsyncListModel::requestSilentDataUpdate);
-    QObject::connect(&taskModel,
+    QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
                      &tagModel,
                      &TagModel::requestDataUpdate);
     QObject::connect(&tagModel,
                      &AsyncListModel::updateFinished,
-                     &sprintModel,
+                     &todaySprintsModel,
                      &AsyncListModel::requestSilentDataUpdate);
     QObject::connect(&tagModel,
                      &AsyncListModel::updateFinished,
-                     &taskModel,
+                     &unfinishedTasksModel,
                      &AsyncListModel::requestSilentDataUpdate);
 
     QObject::connect(timerWidget.get(),
@@ -553,22 +555,23 @@ int main(int argc, char* argv[])
                      taskOutline.get(),
                      &TaskOutline::onSprintSubmissionRequested);
     // TODO see if we can connect it differently
-    QObject::connect(
-        &sprintModel,
-        &SprintModel::modelReset,
-        [timer = timerWidget.get(), &sprintModel, &workdayTrackerModel]() {
-            timer->updateGoalProgress(
-                GoalProgress{workdayTrackerModel.workdayTracker().goal(
+    QObject::connect(&todaySprintsModel,
+                     &SprintModel::modelReset,
+                     [timer = timerWidget.get(),
+                      &todaySprintsModel,
+                      &workdayTrackerModel]() {
+                         timer->updateGoalProgress(GoalProgress{
+                             workdayTrackerModel.workdayTracker().goal(
                                  dw::current_date_local()),
-                             sprintModel.rowCount(QModelIndex())});
-        });
+                             todaySprintsModel.rowCount(QModelIndex())});
+                     });
     QObject::connect(&workdayTrackerModel,
                      &WorkdayTrackerModel::workdaysChanged,
                      [timer = timerWidget.get(),
-                      &sprintModel](const WorkdayTracker& tracker) {
+                      &todaySprintsModel](const WorkdayTracker& tracker) {
                          timer->updateGoalProgress(GoalProgress{
                              tracker.goal(dw::current_date_local()),
-                             sprintModel.rowCount(QModelIndex())});
+                             todaySprintsModel.rowCount(QModelIndex())});
                      });
 
     // TODO could be called in the constructor, but will it be able to
