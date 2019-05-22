@@ -49,8 +49,11 @@ class Gauge : public QWidget {
 
 public:
     Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent);
+
     Gauge(GoalProgress progress, double gaugeRelSize, QWidget* parent);
+
     void setData(int completed, int total);
+
     void setData(const GoalProgress& progress);
 
 private:
@@ -62,11 +65,18 @@ private:
     QRectF innerRect;
 
     void paintEvent(QPaintEvent*) override;
+
     bool eventFilter(QObject* object, QEvent* event) override;
+
     void setupPainter(QPainter& painter);
+
     void drawOuterCircle(QPainter& painter);
+
     void drawInnerCircle(QPainter& painter);
+
     void updateState();
+
+    void mouseMoveEvent(QMouseEvent* event) override;
 };
 
 

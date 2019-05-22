@@ -20,7 +20,9 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/Gauge.h"
+#include <QMouseEvent>
 #include <QPainter>
+#include <QToolTip>
 #include <cmath>
 
 namespace {
@@ -64,9 +66,7 @@ Gauge::Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent)
     updateState();
 }
 
-Gauge::Gauge(GoalProgress progress,
-             double gaugeRelSize,
-             QWidget* parent)
+Gauge::Gauge(GoalProgress progress, double gaugeRelSize, QWidget* parent)
     : QWidget{parent}
     , progress{progress}
     , gaugeRelSize{gaugeRelSize}
@@ -167,6 +167,15 @@ bool Gauge::eventFilter(QObject* object, QEvent* event)
         return true;
     }
     return false;
+}
+
+void Gauge::mouseMoveEvent(QMouseEvent* event)
+{
+    const QPoint toolTipPos{event->globalPos().x(), event->globalPos().y()};
+    const QString toolTipText = QString{"%1 completed \n%2 estimated"}
+                                    .arg(progress.actual())
+                                    .arg(progress.estimated());
+    QToolTip::showText(toolTipPos, toolTipText);
 }
 
 void HoverState::drawText(const Gauge& gauge,
