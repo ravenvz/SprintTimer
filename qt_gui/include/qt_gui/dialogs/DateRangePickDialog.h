@@ -22,7 +22,6 @@
 #ifndef DATEPICKDIALOG_H
 #define DATEPICKDIALOG_H
 
-#include "qt_gui/utils/DateInterval.h"
 #include <QDialog>
 #include <core/IConfig.h>
 #include <memory>

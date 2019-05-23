@@ -65,7 +65,6 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/TagModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/TaskModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/WorkdayTrackerModel.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/utils/DateInterval.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/utils/DateTimeConverter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/utils/MouseRightReleaseEater.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/utils/WidgetUtils.h"

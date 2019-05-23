@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/HistoryWindow.h"
+#include "qt_gui/utils/DateTimeConverter.h"
 #include "qt_gui/widgets/DateRangePicker.h"
 #include "ui_history.h"
 #include <QPainter>
