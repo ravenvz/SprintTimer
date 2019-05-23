@@ -44,6 +44,9 @@ public:
 private:
     std::unique_ptr<Ui::BestWorktimeWidget> ui;
     void updateWorkHoursDiagram(const std::vector<entities::Sprint>& sprints);
+
+    void updateLegend(const Distribution<double>& workTimeDistribution,
+                      size_t numSprints);
 };
 
 } // namespace sprint_timer::ui::qt_gui

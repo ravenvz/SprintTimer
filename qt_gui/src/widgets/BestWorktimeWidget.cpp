@@ -23,6 +23,13 @@
 #include "ui_best_worktime_widget.h"
 #include <core/SprintStatistics.h>
 
+namespace {
+
+std::vector<dw::DateTimeRange>
+sprintRanges(const std::vector<sprint_timer::entities::Sprint>& sprints);
+
+} // namespace
+
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
@@ -45,14 +52,15 @@ void BestWorktimeWidget::updateWorkHoursDiagram(
     const std::vector<Sprint>& sprints)
 {
     const auto workTimeDistribution = workingHoursStatistics(sprints);
-    std::vector<dw::DateTimeRange> timeSpans;
-    timeSpans.reserve(sprints.size());
-    // TODO levels of abstraction are messed up here
-    std::transform(sprints.cbegin(),
-                   sprints.cend(),
-                   std::back_inserter(timeSpans),
-                   [](const auto& sprint) { return sprint.timeSpan(); });
-    if (timeSpans.empty()) {
+    auto timeRanges = sprintRanges(sprints);
+    updateLegend(workTimeDistribution, timeRanges.size());
+    ui->timeDiagram->setIntervals(std::move(timeRanges));
+}
+
+void BestWorktimeWidget::updateLegend(
+    const Distribution<double>& workTimeDistribution, size_t numSprints)
+{
+    if (numSprints == 0) {
         ui->labelBestWorktimeName->setText("No data");
         ui->labelBestWorktimeHours->setText("");
     }
@@ -64,7 +72,22 @@ void BestWorktimeWidget::updateWorkHoursDiagram(
         ui->labelBestWorktimeHours->setText(
             QString::fromStdString(DayPart::dayPartHours(maxValueBin)));
     }
-    ui->timeDiagram->setIntervals(std::move(timeSpans));
 }
 
 } // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+std::vector<dw::DateTimeRange>
+sprintRanges(const std::vector<sprint_timer::entities::Sprint>& sprints)
+{
+    std::vector<dw::DateTimeRange> sprintRanges;
+    sprintRanges.reserve(sprints.size());
+    std::transform(sprints.cbegin(),
+                   sprints.cend(),
+                   std::back_inserter(sprintRanges),
+                   [](const auto& sprint) { return sprint.timeSpan(); });
+    return sprintRanges;
+}
+
+} // namespace
