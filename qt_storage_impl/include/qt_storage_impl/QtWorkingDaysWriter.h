@@ -33,14 +33,6 @@ public:
 
     void changeWorkingDays(const WorkdayTracker& tracker) override;
 
-    void addExtraHolidays(const std::vector<dw::Date>& days) override;
-
-    void addExtraWorkdays(const std::vector<dw::Date>& days) override;
-
-    void removeExtraHolidays(const std::vector<dw::Date>& days) override;
-
-    void removeExtraWorkdays(const std::vector<dw::Date>& days) override;
-
 private:
     DBService& dbService;
     qint64 storeSchedulesQueryId{-1};

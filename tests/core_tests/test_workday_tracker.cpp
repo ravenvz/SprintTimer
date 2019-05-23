@@ -29,9 +29,9 @@ TEST_F(WorkdayTrackerFixture, adding_and_removing_exceptional_days)
     const Date extra_workday_1{Date{Year{2018}, Month{6}, Day{9}}};
     WorkdayTracker tracker;
     tracker.addWeekSchedule(some_date, some_schedule);
-    tracker.addExtraHoliday(holiday_1);
-    tracker.addExtraHoliday(holiday_2);
-    tracker.addExtraWorkday(extra_workday_1, some_goal);
+    tracker.addExceptionalDay(holiday_1, 0);
+    tracker.addExceptionalDay(holiday_2, 0);
+    tracker.addExceptionalDay(extra_workday_1, some_goal);
 
     // extra workdays
     EXPECT_TRUE(tracker.isWorkday(extra_workday_1));
@@ -77,11 +77,11 @@ TEST_F(WorkdayTrackerFixture,
     tracker.addWeekSchedule(some_date, some_schedule);
     const int some_goal{22};
 
-    tracker.addExtraHoliday(Date{Year{2019}, Month{3}, Day{8}});
-    tracker.addExtraWorkday(Date{Year{2019}, Month{3}, Day{8}}, some_goal);
+    tracker.addExceptionalDay(Date{Year{2019}, Month{3}, Day{8}}, 0);
+    tracker.addExceptionalDay(Date{Year{2019}, Month{3}, Day{8}}, some_goal);
 
-    tracker.addExtraWorkday(Date{Year{2019}, Month{5}, Day{9}}, some_goal);
-    tracker.addExtraHoliday(Date{Year{2019}, Month{5}, Day{9}});
+    tracker.addExceptionalDay(Date{Year{2019}, Month{5}, Day{9}}, some_goal);
+    tracker.addExceptionalDay(Date{Year{2019}, Month{5}, Day{9}}, 0);
 
     // Last inserted day overrides previously inserted on conflict
 

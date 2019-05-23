@@ -24,8 +24,6 @@
 #include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/utils/DateTimeConverter.h"
 
-#include <iostream>
-
 namespace sprint_timer::storage::qt_storage_impl {
 
 QtWorkingDaysWriter::QtWorkingDaysWriter(DBService& dbService_)
@@ -87,80 +85,17 @@ void QtWorkingDaysWriter::changeWorkingDays(const WorkdayTracker& tracker)
         dbService.executePrepared(storeSchedulesQueryId);
     }
 
-    const auto holidays = tracker.extraHolidays();
-    const auto workdays = tracker.extraWorkdays();
-    for (const auto& day : holidays) {
+    const auto exceptionalDays = tracker.exceptionalDays();
+    for (const auto& [day, goal] : exceptionalDays) {
         dbService.bind(
             storeExceptionalDaysQuery,
             ":date",
             QString::fromStdString(dw::to_string(day, "yyyy-MM-dd")));
-        dbService.bind(storeExceptionalDaysQuery, ":goal", 0);
-        dbService.executePrepared(storeExceptionalDaysQuery);
-    }
-    for (const auto& day : workdays) {
-        dbService.bind(
-            storeExceptionalDaysQuery,
-            ":date",
-            QString::fromStdString(dw::to_string(day, "yyyy-MM-dd")));
-        dbService.bind(storeExceptionalDaysQuery, ":goal", tracker.goal(day));
+        dbService.bind(storeExceptionalDaysQuery, ":goal", goal);
         dbService.executePrepared(storeExceptionalDaysQuery);
     }
 
     dbService.commit();
-}
-
-void QtWorkingDaysWriter::addExtraHolidays(const std::vector<dw::Date>& days)
-{
-    // dbService.transaction();
-    // for (const auto& day : days) {
-    //     dbService.bind(
-    //         addExtraDaysQueryId,
-    //         ":day",
-    //         QVariant(QString::fromStdString(dw::to_string(day,
-    //         "yyyy-MM-dd"))));
-    //     dbService.bind(addExtraDaysQueryId, ":is_workday", QVariant(false));
-    //     dbService.executePrepared(addExtraDaysQueryId);
-    // }
-    // dbService.commit();
-}
-
-void QtWorkingDaysWriter::addExtraWorkdays(const std::vector<dw::Date>& days)
-{
-    // dbService.transaction();
-    // for (const auto& day : days) {
-    //     dbService.bind(
-    //         addExtraDaysQueryId,
-    //         ":day",
-    //         QVariant(QString::fromStdString(dw::to_string(day,
-    //         "yyyy-MM-dd"))));
-    //     dbService.bind(addExtraDaysQueryId, ":is_workday", QVariant(true));
-    //     dbService.executePrepared(addExtraDaysQueryId);
-    // }
-    // dbService.commit();
-}
-
-void QtWorkingDaysWriter::removeExtraHolidays(const std::vector<dw::Date>& days)
-{
-    // removeExtraDays(days);
-}
-
-void QtWorkingDaysWriter::removeExtraWorkdays(const std::vector<dw::Date>& days)
-{
-    // removeExtraDays(days);
-}
-
-void QtWorkingDaysWriter::removeExtraDays(const std::vector<dw::Date>& days)
-{
-    // dbService.transaction();
-    // for (const auto& day : days) {
-    //     dbService.bind(
-    //         removeExtraDaysQueryId,
-    //         ":day",
-    //         QVariant{QString::fromStdString(dw::to_string(day,
-    //         "yyyy-MM-dd"))});
-    //     dbService.executePrepared(removeExtraDaysQueryId);
-    // }
-    // dbService.commit();
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl

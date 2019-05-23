@@ -38,7 +38,7 @@ TEST_F(ChangeWorkingDaysFixture, execute_and_undo)
     using namespace dw;
     const WorkdayTracker oldTracker;
     WorkdayTracker newTracker;
-    newTracker.addExtraHoliday(Date{Year{2019}, Month{1}, Day{1}});
+    newTracker.addExceptionalDay(Date{Year{2019}, Month{1}, Day{1}}, 0);
     EXPECT_CALL(storage, changeWorkingDays(newTracker)).Times(1);
 
     command_invoker.executeCommand(

@@ -23,9 +23,6 @@
 
 namespace {
 
-template <typename In, typename Out, typename UnaryOp, typename Pred>
-void transform_if(In first, In last, Out out, UnaryOp unary_op, Pred predicate);
-
 template <typename Map>
 typename Map::const_iterator greatest_less(Map const& m,
                                            typename Map::key_type const& k);
@@ -92,21 +89,6 @@ int WorkdayTracker::goal(const dw::Date& date) const
     return scheduleFor(date).targetGoal(dw::weekday(date));
 }
 
-// bool WorkdayTracker::isWorkday(const dw::Weekday& weekday) const
-// {
-//     return workdays_.isSelected(weekday);
-// }
-
-void WorkdayTracker::addExtraWorkday(const dw::Date& date, int goal)
-{
-    addExceptionalDay(date, goal);
-}
-
-void WorkdayTracker::addExtraHoliday(const dw::Date& date)
-{
-    addExceptionalDay(date, 0);
-}
-
 void WorkdayTracker::addExceptionalDay(const dw::Date& date, int goal)
 {
     extraDays.insert_or_assign(date, goal);
@@ -140,33 +122,6 @@ WorkdayTracker::ScheduleRoaster WorkdayTracker::scheduleRoaster() const
     output.reserve(schedules.size());
     std::copy(schedules.cbegin(), schedules.cend(), std::back_inserter(output));
     return output;
-}
-
-// utils::WeekdaySelection WorkdayTracker::workdays() const { return workdays_;
-// }
-
-std::vector<dw::Date> WorkdayTracker::extraWorkdays() const
-{
-    std::vector<dw::Date> result;
-    transform_if(
-        extraDays.cbegin(),
-        extraDays.cend(),
-        std::back_inserter(result),
-        [](const auto& entry) { return entry.first; },
-        [](const auto& entry) { return entry.second > 0; });
-    return result;
-}
-
-std::vector<dw::Date> WorkdayTracker::extraHolidays() const
-{
-    std::vector<dw::Date> result;
-    transform_if(
-        extraDays.cbegin(),
-        extraDays.cend(),
-        std::back_inserter(result),
-        [](const auto& entry) { return entry.first; },
-        [](const auto& entry) { return entry.second == 0; });
-    return result;
 }
 
 std::vector<WorkdayTracker::DayData> WorkdayTracker::exceptionalDays() const
@@ -229,18 +184,6 @@ bool operator==(const WorkdayTracker& lhs, const WorkdayTracker& rhs)
 } // namespace sprint_timer
 
 namespace {
-
-template <typename In, typename Out, typename UnaryOp, typename Pred>
-void transform_if(In first, In last, Out out, UnaryOp unary_op, Pred predicate)
-{
-    while (first != last) {
-        if (predicate(*first)) {
-            *out = unary_op(*first);
-            ++out;
-        }
-        ++first;
-    }
-}
 
 template <typename Map>
 typename Map::const_iterator greatest_less(Map const& m,

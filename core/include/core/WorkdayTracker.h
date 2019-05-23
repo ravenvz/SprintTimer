@@ -49,10 +49,6 @@ public:
 
     void addExceptionalDay(const dw::Date& date, int goal);
 
-    void addExtraWorkday(const dw::Date& date, int goal);
-
-    void addExtraHoliday(const dw::Date& date);
-
     void removeExceptionalDay(const dw::Date& date);
 
     WeekSchedule scheduleFor(const dw::Date& date) const;
@@ -60,10 +56,6 @@ public:
     WeekSchedule currentSchedule() const;
 
     ScheduleRoaster scheduleRoaster() const;
-
-    std::vector<dw::Date> extraWorkdays() const;
-
-    std::vector<dw::Date> extraHolidays() const;
 
     std::vector<DayData> exceptionalDays() const;
 
@@ -81,13 +73,6 @@ private:
     bool isExtraWorkday(const dw::Date& date) const;
 
     bool isExtraHoliday(const dw::Date& date) const;
-
-    // TODO this operator overload was added for debugging purposes; it is
-    // rather expensive to call - best hide it in tests or remove
-    template <class CharT, class Traits>
-    friend std::basic_ostream<CharT, Traits>&
-    operator<<(std::basic_ostream<CharT, Traits>& os,
-               const WorkdayTracker& tracker);
 };
 
 
@@ -97,23 +82,27 @@ int numWorkdays(const WorkdayTracker& workdayTracker,
 int goalFor(const WorkdayTracker& workdayTracker,
             const dw::DateRange& dateRange);
 
+// TODO this operator overload was added for debugging purposes; it is
+// rather expensive to call - best hide it in tests or remove
+template <class CharT, class Traits>
+inline std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os,
+           const WorkdayTracker& tracker);
+
 template <class CharT, class Traits>
 inline std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const WorkdayTracker& tracker)
 {
     os << "WorkdayTracker {\n";
     os << "Schedules: \n";
-    for (const auto& entry : tracker.schedules) {
+    for (const auto& entry : tracker.scheduleRoaster()) {
         os << '\t' << entry.first << " " << entry.second << "\n";
     }
-    os << "\n\tExtra holidays: ";
-    for (const auto& day : tracker.extraHolidays())
-        os << dw::to_string(day, "dd.MM.yyyy") << " ";
+    os << "\n\tExceptionalDays: ";
+    for (const auto& [day, goal] : tracker.exceptionalDays()) {
+        os << "[" << dw::to_string(day, "dd.MM.yyyy") << ": " << goal << "]";
+    }
     os << "\n";
-    os << "\n\tExtra workdays: ";
-    for (const auto& day : tracker.extraWorkdays())
-        os << dw::to_string(day, "dd.MM.yyyy") << " ";
-    os << "\n}";
 
     return os;
 }

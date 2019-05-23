@@ -157,13 +157,6 @@ void HistoryWindow::ShowingSprints::retrieveHistory(HistoryWindow& widget) const
 {
     const auto sprints = allSprints(widget.sprintModel);
     onHistoryRetrieved(widget, sprints);
-
-    // widget.queryInvoker.execute(std::make_unique<RequestSprints>(
-    //     widget.sprintReader,
-    //     widget.selectedDateInterval(),
-    //     [this, &widget](const auto& sprints) {
-    //         this->onHistoryRetrieved(widget, sprints);
-    //     }));
 }
 
 

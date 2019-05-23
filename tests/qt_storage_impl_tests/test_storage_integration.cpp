@@ -898,10 +898,10 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
                              buildSchedule({11, 11, 11, 11, 11, 11, 0}));
     expected.addWeekSchedule(Date{Year{2018}, Month{12}, Day{12}},
                              buildSchedule({12, 12, 12, 12, 12, 0, 5}));
-    expected.addExtraHoliday(Date{Year{2018}, Month{1}, Day{1}});
-    expected.addExtraHoliday(Date{Year{2019}, Month{1}, Day{1}});
-    expected.addExtraWorkday(Date{Year{2017}, Month{2}, Day{23}}, 12);
-    expected.addExtraWorkday(Date{Year{2014}, Month{12}, Day{30}}, 12);
+    expected.addExceptionalDay(Date{Year{2018}, Month{1}, Day{1}}, 0);
+    expected.addExceptionalDay(Date{Year{2019}, Month{1}, Day{1}}, 0);
+    expected.addExceptionalDay(Date{Year{2017}, Month{2}, Day{23}}, 12);
+    expected.addExceptionalDay(Date{Year{2014}, Month{12}, Day{30}}, 12);
 
     initializer.workingDaysWriter->changeWorkingDays(expected);
 
