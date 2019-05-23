@@ -46,6 +46,7 @@ public:
 
 private:
     std::unique_ptr<Ui::BestWorkdayWidget> ui;
+    std::vector<QString> labels;
 
     void setupWeekdayBarChart();
 
