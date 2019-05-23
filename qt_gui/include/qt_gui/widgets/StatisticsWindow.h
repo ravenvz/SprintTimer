@@ -22,79 +22,50 @@
 #ifndef STATISTICSWINDOW_H
 #define STATISTICSWINDOW_H
 
-#include "qt_gui/Synchronizable.h"
 #include "qt_gui/models/SprintModel.h"
 #include "qt_gui/models/WorkdayTrackerModel.h"
-#include "qt_gui/utils/DateInterval.h"
 #include "qt_gui/widgets/DailyTimelineGraph.h"
 #include "qt_gui/widgets/DateRangePicker.h"
 #include "qt_gui/widgets/StatisticsDiagramWidget.h"
 #include <QFrame>
-#include <core/IConfig.h>
-#include <core/ISprintStorageReader.h>
-#include <core/QueryInvoker.h>
 #include <core/SprintStatistics.h>
 #include <core/TagTop.h>
 #include <memory>
 #include <optional>
 
-// namespace Ui {
-// class StatisticsWindow;
-// } // namespace Ui
-
 namespace sprint_timer::ui::qt_gui {
 
-/* Displays statistical information on finished sprints
- * for a given timespan.
- *
- * Has following major parts:
- *      widget that allows to select timespan;
- *      widget that displays number of sprints
- *      for each day in a timespan;
- *      widget that displays average number of sprints for each
- *      weekday;
- *      widget that displays distribution of tags for all completed
- *      sprints;
- *      widget that displays distribution of worktime.
- */
-class StatisticsWindow : public QFrame, public Synchronizable {
+class StatisticsWindow : public QFrame {
     Q_OBJECT
 
 public:
     StatisticsWindow(
-        ISprintStorageReader& sprintReader,
         std::unique_ptr<DateRangePicker> dateRangePicker,
         std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph,
         std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget,
         const WorkdayTrackerModel& workdayTrackerModel,
         const SprintModel& sprintModel,
-        QueryInvoker& queryInvoker,
         QWidget* parent = nullptr);
 
     ~StatisticsWindow() override;
-
-    void synchronize() override;
 
     QSize sizeHint() const override;
 
     void onTagSelected(size_t tagIndex);
 
 private:
-    ISprintStorageReader& sprintReader;
     DateRangePicker* dateRangePicker;
     DailyTimelineGraph* dailyTimelineGraph;
     StatisticsDiagramWidget* statisticsDiagramWidget;
     const WorkdayTrackerModel& workdayTrackerModel;
-    QueryInvoker& queryInvoker;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;
     const size_t numTopTags{7}; // TODO move to config
     std::optional<size_t> selectedTagIndex;
 
-    void fetchData();
-    void drawGraphs();
-    void onDataFetched(const std::vector<entities::Sprint>& sprints);
-    void onDatePickerIntervalChanged(DateInterval newInterval);
+    void updateViews();
+
+    void onSprintsUpdated(const std::vector<entities::Sprint>& sprints);
 };
 
 } // namespace sprint_timer::ui::qt_gui

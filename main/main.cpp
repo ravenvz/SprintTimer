@@ -349,19 +349,16 @@ int main(int argc, char* argv[])
         std::make_unique<BestWorktimeWidget>(nullptr),
         nullptr);
     StatisticsWindow statisticsWindow{
-        *sprintStorageReader,
         std::move(statisticsWindowDateRangePicker),
         std::move(dailyTimelineGraph),
         std::move(statisticsDiagramWidget),
         workdayTrackerModel,
-        statisticsSprintModel,
-        queryInvoker};
-    QObject::connect(&todaySprintsModel,
-                     &AsyncListModel::updateFinished,
-                     [&statisticsWindow]() { statisticsWindow.synchronize(); });
+        statisticsSprintModel};
     QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
-                     [&statisticsWindow]() { statisticsWindow.synchronize(); });
+                     [&statisticsSprintModel]() {
+                         statisticsSprintModel.requestDataUpdate();
+                     });
 
     AddExceptionalDayDialog exceptionalDayDialog;
     ExtraDayModel exceptionalDaysModel;
