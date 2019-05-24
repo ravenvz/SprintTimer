@@ -28,7 +28,7 @@
 #include <core/QueryInvoker.h>
 #include <core/WorkdayTracker.h>
 #include <core/use_cases/RequestWorkingDays.h>
-#include <qt/QtCore/QObject>
+#include <QObject>
 
 namespace sprint_timer::ui::qt_gui {
 
