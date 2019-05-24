@@ -175,7 +175,7 @@ void Gauge::mouseMoveEvent(QMouseEvent* event)
     const QString toolTipText = QString{"%1 completed \n%2 estimated"}
                                     .arg(progress.actual())
                                     .arg(progress.estimated());
-    QToolTip::showText(toolTipPos, toolTipText);
+    setToolTip(toolTipText);
 }
 
 void HoverState::drawText(const Gauge& gauge,
