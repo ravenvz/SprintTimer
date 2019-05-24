@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,22 +22,22 @@
 #ifndef GROUPBYWEEK_H_UY9VBON4
 #define GROUPBYWEEK_H_UY9VBON4
 
-#include "core/GroupingStrategy.h"
+#include "core/IConfig.h"
+#include "core/ProgressGroupingStrategy.h"
 
 namespace sprint_timer {
 
-class GroupByWeek : public GroupingStrategy {
+class GroupByWeek : public ProgressGroupingStrategy {
 public:
-    GroupByWeek(dw::Weekday firstDayOfWeek);
+    explicit GroupByWeek(const IConfig& applicationSettings);
 
     std::vector<GoalProgress>
-    computeProgress(const dw::DateRange& period,
+    computeProgress(const dw::DateRange& dateRange,
                     const std::vector<int>& actualProgress,
-                    utils::WeekdaySelection workdays,
-                    int workdayGoal) const override;
+                    const WorkdayTracker& tracker) const override;
 
 private:
-    const dw::Weekday firstDay;
+    const IConfig& applicationSettings;
 };
 
 } // namespace sprint_timer

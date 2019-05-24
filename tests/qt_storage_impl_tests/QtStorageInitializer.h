@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,8 +23,86 @@
 #define QTSTORAGEINITIALIZER_H_WR5MUUAC
 
 #include <QCoreApplication>
+#include <core/IConfig.h>
 #include <qt_storage_impl/DBService.h>
 #include <qt_storage_impl/QtStorageImplementersFactory.h>
+
+/* Fixed configuration for testing purposes. */
+class TestConfig : public sprint_timer::IConfig {
+
+public:
+    int soundVolume() const override { return mSoundVolume; }
+
+    void setSoundVolume(int soundVolume) override
+    {
+        TestConfig::mSoundVolume = soundVolume;
+    }
+
+    std::chrono::minutes sprintDuration() const override
+    {
+        return mSprintDuration;
+    }
+
+    void setSprintDuration(std::chrono::minutes minutes) override
+    {
+        TestConfig::mSprintDuration = minutes;
+    }
+
+    std::chrono::minutes shortBreakDuration() const override
+    {
+        return mShortBreakDuration;
+    }
+
+    void setShortBreakDuration(std::chrono::minutes duration) override
+    {
+        TestConfig::mShortBreakDuration = duration;
+    }
+
+    std::chrono::minutes longBreakDuration() const override
+    {
+        return mLongBreakDuration;
+    }
+
+    void setLongBreakDuration(std::chrono::minutes duration) override
+    {
+        TestConfig::mLongBreakDuration = duration;
+    }
+
+    int numSprintsBeforeBreak() const override { return mTasksBeforeBreak; }
+
+    void setNumSprintsBeforeBreak(int tasksBeforeBreak) override
+    {
+        TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
+    }
+
+    bool soundIsEnabled() const override { return mPlaySound; }
+
+    void setPlaySound(bool playSound) override
+    {
+        TestConfig::mPlaySound = playSound;
+    }
+
+    std::string soundFilePath() const override { return ""; }
+
+    void setSoundFilePath(const std::string& filePath) override {}
+
+    int timerFlavour() const override { return 0; }
+
+    void setTimerFlavour(int timerVariation) override {}
+
+    dw::Weekday firstDayOfWeek() const override { return dw::Weekday::Monday; }
+
+    void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) override {}
+
+private:
+    std::chrono::minutes mSprintDuration{30};
+    std::chrono::minutes mShortBreakDuration{10};
+    std::chrono::minutes mLongBreakDuration{20};
+    int mTasksBeforeBreak{4};
+    bool mPlaySound{false};
+    int mSoundVolume{0};
+};
+
 
 struct QtStorageInitializer {
 
@@ -36,8 +114,9 @@ struct QtStorageInitializer {
     sprint_timer::storage::qt_storage_impl::ConnectionGuard connectionGuard{
         name, "Keep alive conn"};
     sprint_timer::storage::qt_storage_impl::DBService dbService{name};
+    TestConfig fakeSettings;
     sprint_timer::storage::qt_storage_impl::QtStorageImplementersFactory
-        factory{dbService};
+        factory{dbService, fakeSettings};
     std::unique_ptr<sprint_timer::ITaskStorageReader> taskReader
         = factory.createTaskStorageReader();
     std::unique_ptr<sprint_timer::ITaskStorageWriter> taskWriter
@@ -46,8 +125,8 @@ struct QtStorageInitializer {
         = factory.createSprintStorageReader();
     std::unique_ptr<sprint_timer::ISprintStorageWriter> sprintWriter
         = factory.createSprintStorageWriter();
-    std::unique_ptr<sprint_timer::IYearRangeReader> yearRangeReader
-        = factory.createYearRangeReader();
+    std::unique_ptr<sprint_timer::IOperationalRangeReader>
+        operationalRangeReader = factory.createOperationalRangeReader();
     std::unique_ptr<sprint_timer::ISprintDistributionReader>
         dailyDistributionReader = factory.createSprintDailyDistributionReader();
     std::unique_ptr<sprint_timer::ISprintDistributionReader>
@@ -55,12 +134,14 @@ struct QtStorageInitializer {
         = factory.createSprintMonthlyDistributionReader();
     std::unique_ptr<sprint_timer::ISprintDistributionReader>
         mondayFirstWeeklyDistributionReader
-        = factory.createSprintWeeklyDistributionReader(
-            sprint_timer::FirstDayOfWeek::Monday);
+        = factory.createSprintWeeklyDistributionReader(dw::Weekday::Monday);
     std::unique_ptr<sprint_timer::ISprintDistributionReader>
         sundayFirstWeeklyDistributionReader
-        = factory.createSprintWeeklyDistributionReader(
-            sprint_timer::FirstDayOfWeek::Sunday);
+        = factory.createSprintWeeklyDistributionReader(dw::Weekday::Sunday);
+    std::unique_ptr<sprint_timer::IWorkingDaysWriter> workingDaysWriter
+        = factory.createWorkingDaysWriter();
+    std::unique_ptr<sprint_timer::IWorkingDaysReader> workingDaysReader
+        = factory.createWorkingDaysReader();
 
     void runEventLoop();
 

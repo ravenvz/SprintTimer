@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -40,7 +40,6 @@ public:
                 QueryInvoker& queryInvoker,
                 ISprintStorageReader& sprintReader,
                 ISprintStorageWriter& sprintWriter,
-                ITaskStorageWriter& taskWriter,
                 QObject* parent = nullptr);
 
     int rowCount(const QModelIndex& parent) const final;
@@ -53,7 +52,15 @@ public:
 
     void insert(const std::vector<entities::Sprint>& sprints);
 
+    bool removeRows(int row,
+                    int count,
+                    const QModelIndex& parent = QModelIndex{}) override;
+
     void remove(int row);
+
+    void requestUpdate(const dw::DateRange& dateRange);
+
+    const entities::Sprint& itemAt(int row) const;
 
 private:
     std::vector<entities::Sprint> storage;
@@ -61,7 +68,7 @@ private:
     QueryInvoker& queryInvoker;
     ISprintStorageReader& sprintReader;
     ISprintStorageWriter& sprintWriter;
-    ITaskStorageWriter& taskWriter;
+    dw::DateRange sprintDateRange{dw::current_date(), dw::current_date()};
 
     void requestUpdate() final;
 
@@ -69,6 +76,10 @@ private:
 
     void registerSprint(const entities::Sprint& sprint);
 };
+
+/* Conviniece function that retrieves all sprints that are currently in model
+ * via public interfaces. */
+std::vector<entities::Sprint> allSprints(const SprintModel& sprintModel);
 
 } // namespace sprint_timer::ui::qt_gui
 

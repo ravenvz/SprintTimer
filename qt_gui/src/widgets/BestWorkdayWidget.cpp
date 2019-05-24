@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -30,6 +30,9 @@ BestWorkdayWidget::BestWorkdayWidget(QWidget* parent)
     , ui{std::make_unique<Ui::BestWorkdayWidget>()}
 {
     ui->setupUi(this);
+    for (int i = 0; i < 7; ++i) {
+        labels.push_back(QDate::shortDayName(i + 1));
+    }
     setupWeekdayBarChart();
 }
 
@@ -45,21 +48,19 @@ void BestWorkdayWidget::setupWeekdayBarChart()
     ui->workdayBarChart->setBrush(brush);
 }
 
-void BestWorkdayWidget::setData(const Distribution<double>& weekdayDistribution)
+void BestWorkdayWidget::setData(const std::vector<entities::Sprint>& sprints,
+                                const dw::DateRange& dateRange)
 {
-    updateWeekdayBarChart(weekdayDistribution);
-    updateWeekdayBarChartLegend(weekdayDistribution);
+    const auto distribution = weekdayStatistics(sprints, dateRange);
+    updateWeekdayBarChart(distribution);
+    updateWeekdayBarChartLegend(distribution);
 }
 
 void BestWorkdayWidget::updateWeekdayBarChart(
     const Distribution<double>& weekdayDistribution)
 {
     std::vector<double> values = weekdayDistribution.getDistributionVector();
-    std::vector<QString> labels;
-    for (int i = 0; i < 7; ++i) {
-        labels.push_back(QDate::shortDayName(i + 1));
-    }
-    BarData data = BarData(values, labels);
+    const BarData data = BarData(values, labels);
     ui->workdayBarChart->setData(data);
 }
 
@@ -69,16 +70,16 @@ void BestWorkdayWidget::updateWeekdayBarChartLegend(
     if (weekdayDistribution.empty()) {
         ui->labelBestWorkdayName->setText("No data");
         ui->labelBestWorkdayMsg->setText("");
+        return;
     }
-    else {
-        double average = weekdayDistribution.getAverage();
-        int relativeComparisonInPercent
-            = int((weekdayDistribution.getMax() - average) * 100 / average);
-        ui->labelBestWorkdayName->setText(QDate::longDayName(
-            static_cast<int>(weekdayDistribution.getMaxValueBin()) + 1));
-        ui->labelBestWorkdayMsg->setText(
-            QString("%1% more than average").arg(relativeComparisonInPercent));
-    }
+
+    const double average = weekdayDistribution.getAverage();
+    const int relativeComparisonInPercent
+        = int((weekdayDistribution.getMax() - average) * 100 / average);
+    ui->labelBestWorkdayName->setText(QDate::longDayName(
+        static_cast<int>(weekdayDistribution.getMaxValueBin()) + 1));
+    ui->labelBestWorkdayMsg->setText(
+        QString("%1% more than average").arg(relativeComparisonInPercent));
 }
 
 } // namespace sprint_timer::ui::qt_gui

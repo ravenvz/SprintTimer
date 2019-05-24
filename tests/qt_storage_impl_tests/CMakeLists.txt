@@ -6,7 +6,7 @@ add_executable(${TEST_QT_STORAGE})
 target_sources(${TEST_QT_STORAGE}
 PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/test_qt_storage_impl.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/test_task_storage.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_storage_integration.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
 	"${CMAKE_CURRENT_LIST_DIR}/QtStorageInitializer.cpp"
 PUBLIC

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -27,6 +27,7 @@
 
 namespace sprint_timer::storage::utils {
 
+using dw::Date;
 using dw::DateTime;
 using dw::DateTimeRange;
 
@@ -48,10 +49,11 @@ public:
 
     static QDate qDate(const DateTime& dt) { return qDateTime(dt).date(); }
 
-    static QDate qDate(const dw::Date& date) {
-        return QDate{static_cast<int>(date.year()),
-                     static_cast<int>(static_cast<unsigned>(date.month())),
-                     static_cast<int>(static_cast<unsigned>(date.day()))};
+    static QDate qDate(const Date& date)
+    {
+        return QDate(static_cast<int>(date.year()),
+                     static_cast<unsigned>(date.month()),
+                     static_cast<unsigned>(date.day()));
     }
 
     static DateTime dateTime(const QDateTime& qdt)
@@ -60,6 +62,14 @@ public:
                    std::chrono::milliseconds{qdt.toMSecsSinceEpoch()}}}
         + std::chrono::seconds{qdt.offsetFromUtc()};
         // return DateTime::fromTime_t(qdt.toTime_t(), qdt.offsetFromUtc());
+    }
+
+    static dw::Date date(const QDate& qdate)
+    {
+        using namespace dw;
+        return Date{Year{qdate.year()},
+                    Month{static_cast<unsigned>(qdate.month())},
+                    Day{static_cast<unsigned>(qdate.day())}};
     }
 };
 

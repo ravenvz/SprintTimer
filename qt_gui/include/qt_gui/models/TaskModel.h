@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -82,8 +82,7 @@ public:
         PriorityRole
     };
 
-    // Insert new Task into the database.
-    // Return boolean, indicating success of the operation.
+    // Insert new Task into the storage.
     // Changes are rolled back in case of failure.
     void insert(const entities::Task& item);
 
@@ -95,8 +94,7 @@ public:
     void remove(int row);
 
     // Return item at given row. This is a convinient method that allows to get
-    // item
-    // without verbose calls to data().
+    // item without verbose calls to data().
     entities::Task itemAt(int row) const;
 
     // Mark item as completed if it is not completed and vice versa.

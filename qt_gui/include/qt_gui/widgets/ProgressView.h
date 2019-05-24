@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,11 +22,15 @@
 #ifndef PROGRESSVIEW_H_2OXRIURM
 #define PROGRESSVIEW_H_2OXRIURM
 
-#include "core/GoalProgress.h"
-#include "qt_gui/Synchronizable.h"
+#include "qt_gui/ProgressRangeRequestStrategy.h"
+#include "qt_gui/models/DistributionModel.h"
+#include "qt_gui/models/WorkdayTrackerModel.h"
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
-#include <core/ProgressProto.h>
+#include <core/GoalProgress.h>
+#include <core/ProgressGroupingStrategy.h>
+#include <core/ProgressOverPeriod.h>
+#include <core/WorkdayTracker.h>
 #include <memory>
 
 namespace Ui {
@@ -35,10 +39,23 @@ class ProgressView;
 
 namespace sprint_timer::ui::qt_gui {
 
-class ProgressView : public QFrame, public Synchronizable {
-    Q_OBJECT
+class ProgressView : public QFrame {
 
 public:
+    using GoalValue = int;
+    using Rows = size_t;
+    using Columns = size_t;
+    using GaugeSize = double;
+
+    ProgressView(const DistributionModel& progressModel,
+                 const WorkdayTrackerModel& workdaysModel,
+                 const ProgressGroupingStrategy& groupingStrategy,
+                 const ProgressRangeRequestStrategy& requestRangeStrategy,
+                 Rows numRows,
+                 Columns numColumns,
+                 GaugeSize gaugeRelSize,
+                 QWidget* parent = nullptr);
+
     virtual ~ProgressView();
 
     void setLegendTitle(const QString& title);
@@ -51,18 +68,9 @@ public:
 
     void addLegendRow(const QString& labelText, QWidget* field);
 
+    void addLegendRow(QWidget* field);
+
     void setData(const ProgressOverPeriod& progress);
-
-protected:
-    using GoalValue = int;
-    using Rows = size_t;
-    using Columns = size_t;
-    using GaugeSize = double;
-
-    ProgressView(Rows numRows,
-                 Columns numColumns,
-                 GaugeSize gaugeRelSize,
-                 QWidget* parent = nullptr);
 
 private:
     std::unique_ptr<Ui::ProgressView> ui;
@@ -77,10 +85,6 @@ private:
     void updateProgressBar(const GoalProgress& lastBin);
 
     void updateLegend(const ProgressOverPeriod& progress) const;
-
-signals:
-    void goalChanged(int goal);
-    void workdaysChange();
 };
 
 } // namespace sprint_timer::ui::qt_gui

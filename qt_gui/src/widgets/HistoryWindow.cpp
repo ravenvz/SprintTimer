@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,12 +20,12 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/HistoryWindow.h"
+#include "qt_gui/utils/DateTimeConverter.h"
 #include "qt_gui/widgets/DateRangePicker.h"
 #include "ui_history.h"
 #include <QPainter>
 #include <core/external_io/OstreamSink.h>
 #include <core/use_cases/RequestFinishedTasks.h>
-#include <core/use_cases/RequestMinMaxYear.h>
 #include <core/use_cases/RequestSprints.h>
 #include <core/use_cases/RequestTasks.h>
 #include <core/utils/CSVEncoder.h>
@@ -35,7 +35,6 @@ namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
 using use_cases::RequestFinishedTasks;
-using use_cases::RequestMinMaxYear;
 using use_cases::RequestSprints;
 using use_cases::RequestTasks;
 
@@ -50,46 +49,50 @@ namespace {
 } // namespace
 
 
-HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader,
-                             ITaskStorageReader& taskReader,
-                             IYearRangeReader& sprintYearRangeReader,
-                             HistoryModel& historyModel,
-                             QStyledItemDelegate& historyItemDelegate,
-                             QueryInvoker& queryInvoker,
-                             FirstDayOfWeek firstDayOfWeek,
-                             QWidget* parent)
-    : QWidget{parent}
+HistoryWindow::HistoryWindow(SprintModel& sprintModel_,
+                             ITaskStorageReader& taskReader_,
+                             HistoryModel& historyModel_,
+                             QStyledItemDelegate& historyItemDelegate_,
+                             QueryInvoker& queryInvoker_,
+                             std::unique_ptr<DateRangePicker> dateRangePicker_,
+                             QWidget* parent_)
+    : QWidget{parent_}
     , ui{std::make_unique<Ui::HistoryWindow>()}
-    , sprintReader{sprintReader}
-    , taskReader{taskReader}
-    , sprintYearRangeReader{sprintYearRangeReader}
-    , historyModel{historyModel}
-    , queryInvoker{queryInvoker}
+    , sprintModel{sprintModel_}
+    , taskReader{taskReader_}
+    , historyModel{historyModel_}
+    , queryInvoker{queryInvoker_}
+    , dateRangePicker{dateRangePicker_.get()}
 {
     ui->setupUi(this);
-    ui->dateRangePicker->setFirstDayOfWeek(firstDayOfWeek);
-    queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
-        sprintYearRangeReader, [this](const auto& yearRange) {
-            ui->dateRangePicker->setYears(yearRange);
-        }));
+    dateRangePicker_->setMinimumSize(QSize{400, 80});
+    ui->horizontalLayout->insertWidget(0, dateRangePicker_.release(), 4);
     ui->taskHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setHeaderHidden(true);
-    ui->sprintHistoryView->setItemDelegate(&historyItemDelegate);
-    ui->taskHistoryView->setItemDelegate(&historyItemDelegate);
+    ui->sprintHistoryView->setItemDelegate(&historyItemDelegate_);
+    ui->taskHistoryView->setItemDelegate(&historyItemDelegate_);
     state = ShowingSprints{*this};
 
     connect(ui->historyTab,
             &QTabWidget::currentChanged,
             this,
             &HistoryWindow::onTabSelected);
-    connect(ui->dateRangePicker,
-            &DateRangePicker::timeSpanChanged,
-            this,
-            &HistoryWindow::onDatePickerIntervalChanged);
+    connect(dateRangePicker,
+            &DateRangePicker::selectedDateRangeChanged,
+            [this](const dw::DateRange&) { synchronize(); });
     connect(ui->exportButton,
             &QPushButton::clicked,
             this,
             &HistoryWindow::onExportButtonClicked);
+    QObject::connect(dateRangePicker,
+                     &DateRangePicker::selectedDateRangeChanged,
+                     [&sprintModel_](const auto& dateRange) {
+                         sprintModel_.requestUpdate(dateRange);
+                     });
+    connect(&sprintModel_, &QAbstractListModel::modelReset, [this]() {
+        if (ui->historyTab->currentIndex() == sprintTabIndex)
+            synchronize();
+    });
 }
 
 
@@ -98,7 +101,6 @@ HistoryWindow::~HistoryWindow() = default;
 
 void HistoryWindow::synchronize()
 {
-    std::cout << "   History window sync requested" << std::endl;
     std::visit(HistoryRequestedEvent{*this}, state);
 }
 
@@ -106,12 +108,6 @@ void HistoryWindow::synchronize()
 void HistoryWindow::fillHistoryModel(const HistoryModel::HistoryData& history)
 {
     historyModel.fill(history);
-}
-
-
-void HistoryWindow::onDatePickerIntervalChanged(DateInterval newInterval)
-{
-    synchronize();
 }
 
 
@@ -146,7 +142,7 @@ void HistoryWindow::onExportButtonClicked()
 
 dw::DateRange HistoryWindow::selectedDateInterval() const
 {
-    return ui->dateRangePicker->getInterval().toDateRange();
+    return dateRangePicker->selectionRange();
 }
 
 
@@ -159,17 +155,12 @@ void HistoryWindow::onDataExportConfirmed(
 
 void HistoryWindow::ShowingSprints::retrieveHistory(HistoryWindow& widget) const
 {
-    widget.queryInvoker.execute(std::make_unique<RequestSprints>(
-        widget.sprintReader,
-        widget.selectedDateInterval(),
-        [this, &widget](const auto& sprints) {
-            this->onHistoryRetrieved(widget, sprints);
-        }));
+    const auto sprints = allSprints(widget.sprintModel);
+    onHistoryRetrieved(widget, sprints);
 }
 
 
 HistoryWindow::ShowingSprints::ShowingSprints(HistoryWindow& widget) noexcept {}
-
 
 void HistoryWindow::ShowingSprints::onHistoryRetrieved(
     HistoryWindow& widget, const std::vector<Sprint>& sprints) const
@@ -180,9 +171,8 @@ void HistoryWindow::ShowingSprints::onHistoryRetrieved(
                    sprints.cend(),
                    std::back_inserter(sprintHistory),
                    [](const auto& sprint) {
-                       return std::make_pair(
-                           DateTimeConverter::qDate(sprint.startTime()),
-                           sprintToString(sprint));
+                       return std::make_pair(utils::toQDate(sprint.startTime()),
+                                             sprintToString(sprint));
                    });
     widget.fillHistoryModel(sprintHistory);
     widget.setHistoryModel(widget.ui->sprintHistoryView);
@@ -203,7 +193,8 @@ void HistoryWindow::ShowingSprints::exportData(
     auto serializeSprint = [](const Sprint& sprint) {
         std::vector<std::string> str;
         auto tags = sprint.tags();
-        str.emplace_back(utils::join(cbegin(tags), cend(tags), ", "));
+        str.emplace_back(
+            sprint_timer::utils::join(cbegin(tags), cend(tags), ", "));
         str.emplace_back(dw::to_string(sprint.timeSpan(), "hh:MM"));
         str.emplace_back(sprint.name());
         str.emplace_back(sprint.taskUuid());
@@ -211,13 +202,14 @@ void HistoryWindow::ShowingSprints::exportData(
         return str;
     };
     auto func = [serializeSprint](const auto& sprints) {
-        utils::CSVEncoder encoder;
+        sprint_timer::utils::CSVEncoder encoder;
         return encoder.encode(sprints, serializeSprint);
     };
-    widget.queryInvoker.execute(std::make_unique<RequestSprints>(
-        widget.sprintReader,
-        widget.selectedDateInterval(),
-        [sink, func](const auto& sprints) { sink->send(func(sprints)); }));
+    sink->send(func(allSprints(widget.sprintModel)));
+    // widget.queryInvoker.execute(std::make_unique<RequestSprints>(
+    //     widget.sprintReader,
+    //     widget.selectedDateInterval(),
+    //     [sink, func](const auto& sprints) { sink->send(func(sprints)); }));
 }
 
 
@@ -245,7 +237,7 @@ void HistoryWindow::ShowingTasks::onHistoryRetrieved(
                    std::back_inserter(taskHistory),
                    [](const auto& task) {
                        return std::make_pair(
-                           DateTimeConverter::qDate(task.lastModified()),
+                           utils::toQDate(task.lastModified()),
                            taskToString(task));
                    });
 
@@ -267,7 +259,8 @@ void HistoryWindow::ShowingTasks::exportData(
     auto serializeTask = [](const Task& task) {
         std::vector<std::string> str;
         auto tags = task.tags();
-        str.emplace_back(utils::join(cbegin(tags), cend(tags), ", "));
+        str.emplace_back(
+            sprint_timer::utils::join(cbegin(tags), cend(tags), ", "));
         str.emplace_back(task.name());
         str.emplace_back(task.uuid());
         str.emplace_back(std::to_string(task.isCompleted()));
@@ -276,7 +269,7 @@ void HistoryWindow::ShowingTasks::exportData(
         return str;
     };
     auto func = [serializeTask](const auto& tasks) {
-        utils::CSVEncoder encoder;
+        sprint_timer::utils::CSVEncoder encoder;
         return encoder.encode(tasks, serializeTask);
     };
     widget.queryInvoker.execute(std::make_unique<RequestTasks>(

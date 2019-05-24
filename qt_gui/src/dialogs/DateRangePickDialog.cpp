@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,45 +20,49 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/DateRangePickDialog.h"
+#include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_date_pick_dialog.h"
 
 namespace sprint_timer::ui::qt_gui {
 
 
-DateRangePickDialog::DateRangePickDialog(DateInterval initialPeriod,
-                                         FirstDayOfWeek firstDayOfWeek,
-                                         QWidget* parent)
-    : QDialog{parent}
+DateRangePickDialog::DateRangePickDialog(const IConfig& applicationSettings_,
+                                         QWidget* parent_)
+    : QDialog{parent_}
     , ui{std::make_unique<Ui::DateRangePickDialog>()}
+    , applicationSettings{applicationSettings_}
 {
     ui->setupUi(this);
-    updateCalendarDates(initialPeriod);
-    configureCalendar(firstDayOfWeek);
+    ui->cwStart->setMaximumDate(QDate::currentDate());
+    ui->cwEnd->setMaximumDate(QDate::currentDate());
     // NOTE see ui file for used signal connections
 }
 
 DateRangePickDialog::~DateRangePickDialog() = default;
 
-void DateRangePickDialog::configureCalendar(FirstDayOfWeek firstDayOfWeek)
+dw::DateRange DateRangePickDialog::selectedRange()
 {
-    ui->cwStart->setMaximumDate(QDate::currentDate());
-    ui->cwEnd->setMaximumDate(QDate::currentDate());
+    return dw::DateRange{utils::toDate(ui->cwStart->selectedDate()),
+                         utils::toDate(ui->cwEnd->selectedDate())};
+}
 
-    if (firstDayOfWeek == FirstDayOfWeek::Monday) {
+void DateRangePickDialog::setSelectionRange(const dw::DateRange& dateRange)
+{
+    ui->dePickStartDate->setDate(utils::toQDate(dateRange.start()));
+    ui->dePickEndDate->setDate(utils::toQDate(dateRange.finish()));
+}
+
+void DateRangePickDialog::showEvent(QShowEvent* event)
+{
+    if (applicationSettings.firstDayOfWeek() == dw::Weekday::Monday) {
         ui->cwStart->setFirstDayOfWeek(Qt::Monday);
         ui->cwEnd->setFirstDayOfWeek(Qt::Monday);
     }
-}
-
-void DateRangePickDialog::updateCalendarDates(DateInterval& period)
-{
-    ui->dePickStartDate->setDate(period.startDate);
-    ui->dePickEndDate->setDate(period.endDate);
-}
-
-DateInterval DateRangePickDialog::getNewInterval()
-{
-    return DateInterval{ui->cwStart->selectedDate(), ui->cwEnd->selectedDate()};
+    else {
+        ui->cwStart->setFirstDayOfWeek(Qt::Sunday);
+        ui->cwEnd->setFirstDayOfWeek(Qt::Sunday);
+    }
+    QDialog::showEvent(event);
 }
 
 } // namespace sprint_timer::ui::qt_gui

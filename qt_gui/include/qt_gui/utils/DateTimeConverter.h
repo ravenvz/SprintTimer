@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,47 +25,18 @@
 #include <QDateTime>
 #include <date_wrapper/date_wrapper.h>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer::ui::qt_gui::utils {
 
-using dw::DateTime;
-using dw::DateTimeRange;
+QDateTime toQDateTime(const dw::DateTime& dt);
 
-// TODO no real need to have a class here
+QDate toQDate(const dw::DateTime& dt);
 
-/* Simplifies convertion between QDateTime and DateTime. */
-class DateTimeConverter {
-public:
-    static QDateTime qDateTime(const DateTime& dt)
-    {
-        return QDateTime::fromMSecsSinceEpoch(
-            dw::to_time_point<std::chrono::milliseconds>(dt)
-                .time_since_epoch()
-                .count(),
-            Qt::OffsetFromUTC);
-        // return QDateTime::fromTime_t(static_cast<unsigned>(dt.toTime_t()),
-        // Qt::OffsetFromUTC);
-    }
+QDate toQDate(const dw::Date& date);
 
-    static QDate qDate(const DateTime& dt) { return qDateTime(dt).date(); }
+dw::DateTime toDateTime(const QDateTime& qdt);
 
-    static DateTime dateTime(const QDateTime& qdt)
-    {
-        return DateTime{std::chrono::system_clock::time_point{
-                   std::chrono::milliseconds{qdt.toMSecsSinceEpoch()}}}
-        + std::chrono::seconds{qdt.offsetFromUtc()};
-        // return DateTime::fromTime_t(qdt.toTime_t(), qdt.offsetFromUtc());
-    }
+dw::Date toDate(const QDate& date);
 
-    static dw::Date date(const QDate& qdate)
-    {
-        using namespace dw;
-        return Date{Year{qdate.year()},
-                    Month{static_cast<unsigned>(qdate.month())},
-                    Day{static_cast<unsigned>(qdate.day())}};
-    }
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
+} // namespace sprint_timer::ui::qt_gui::utils
 
 #endif /* end of include guard: DATETIMECONVERTER_H_Y4Z1XDHQ */

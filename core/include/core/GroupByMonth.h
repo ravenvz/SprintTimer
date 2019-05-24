@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,42 +22,16 @@
 #ifndef SPRINT_TIMER_APP_GROUPBYMONTH_H
 #define SPRINT_TIMER_APP_GROUPBYMONTH_H
 
-#include "ProgressProto.h"
+#include "core/ProgressGroupingStrategy.h"
 
 namespace sprint_timer {
 
-class GroupByMonth : public GroupingStrategy {
+class GroupByMonth : public ProgressGroupingStrategy {
 public:
     std::vector<GoalProgress>
-    computeProgress(const dw::DateRange& period,
+    computeProgress(const dw::DateRange& dateRange,
                     const std::vector<int>& actualProgress,
-                    utils::WeekdaySelection workdays,
-                    int workdayGoal) const override
-    {
-        using namespace dw;
-        std::vector<int> labour;
-        std::vector<GoalProgress> progress;
-        progress.reserve(actualProgress.size());
-        auto actualIt = cbegin(actualProgress);
-
-        int numWorkdays{0};
-        auto currentMonth = period.start().month();
-
-        const Date stop = period.finish() + Days{1};
-        for (auto day = period.start(); day < stop; day = day + Days{1}) {
-            if (day.month() != currentMonth) {
-                currentMonth = day.month();
-                progress.emplace_back(workdayGoal * numWorkdays, *actualIt);
-                ++actualIt;
-                numWorkdays = 0;
-            }
-            if (workdays.isSelected(weekday(day)))
-                ++numWorkdays;
-        }
-        progress.emplace_back(workdayGoal * numWorkdays, *actualIt);
-
-        return progress;
-    }
+                    const WorkdayTracker& workdayTracker) const override;
 };
 
 } // namespace sprint_timer

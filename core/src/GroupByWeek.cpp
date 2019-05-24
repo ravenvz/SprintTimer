@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,44 +20,60 @@
 **
 *********************************************************************************/
 #include "core/GroupByWeek.h"
+#include <core/IConfig.h>
+
+namespace {
+
+dw::Weekday weekday_before(dw::Weekday);
+
+} // namespace
 
 namespace sprint_timer {
 
-GroupByWeek::GroupByWeek(dw::Weekday firstDayOfWeek)
-    : firstDay{firstDayOfWeek}
+GroupByWeek::GroupByWeek(const IConfig& applicationSettings_)
+    : applicationSettings{applicationSettings_}
 {
 }
 
 std::vector<GoalProgress>
-GroupByWeek::computeProgress(const dw::DateRange& period,
+GroupByWeek::computeProgress(const dw::DateRange& dateRange,
                              const std::vector<int>& actualProgress,
-                             utils::WeekdaySelection workdays,
-                             int workdayGoal) const
+                             const WorkdayTracker& workdayTracker) const
 {
+    using namespace dw;
     std::vector<GoalProgress> progress;
     progress.reserve(actualProgress.size());
     auto actualIt = actualProgress.cbegin();
 
-    int numWorkdays{0};
+    const dw::Weekday firstDayOfWeek{applicationSettings.firstDayOfWeek()};
+    const dw::Weekday lastDayOfWeek{weekday_before(firstDayOfWeek)};
 
-    for (auto day = period.start(); day <= period.finish();
-         day = day + dw::Days{1}) {
-        if (day == period.finish()) {
-            if (workdays.isSelected(weekday(day)))
-                ++numWorkdays;
-            progress.emplace_back(numWorkdays * workdayGoal, *actualIt);
-            break;
-        }
-        if ((weekday(day) == firstDay && day != period.start())) {
-            progress.emplace_back(numWorkdays * workdayGoal, *actualIt);
-            ++actualIt;
-            numWorkdays = 0;
-        }
-        if (workdays.isSelected(weekday(day)))
-            ++numWorkdays;
+    // To compute goal we are breaking period into intervals of weeks, taking in
+    // account that period can start and end with random weekday
+    auto start = dateRange.start();
+    const auto lastDay = dateRange.finish();
+    auto next_finish = [&start, lastDay, lastDayOfWeek]() {
+        return std::min(dw::next_weekday(start, lastDayOfWeek), lastDay);
+    };
+
+    for (auto finish = next_finish(); start <= lastDay;
+         start = finish + Days{1}, finish = next_finish(), ++actualIt) {
+        const DateRange weekChunk{start, finish};
+        progress.emplace_back(goalFor(workdayTracker, weekChunk), *actualIt);
     }
 
     return progress;
 }
 
 } // namespace sprint_timer
+
+namespace {
+
+dw::Weekday weekday_before(dw::Weekday weekday)
+{
+    if (weekday == dw::Weekday::Monday)
+        return dw::Weekday::Sunday;
+    return static_cast<dw::Weekday>(static_cast<int>(weekday) - 1);
+}
+
+} // namespace

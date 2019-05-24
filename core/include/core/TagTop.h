@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -60,7 +60,8 @@ class TagTop {
 public:
     using TagFrequency = std::pair<entities::Tag, double>;
 
-    using TagSprints = std::unordered_map<entities::Tag, std::vector<entities::Sprint>>;
+    using TagSprints
+        = std::unordered_map<entities::Tag, std::vector<entities::Sprint>>;
 
     TagTop(const std::vector<entities::Sprint>& sprints, size_t topMaxSize);
 

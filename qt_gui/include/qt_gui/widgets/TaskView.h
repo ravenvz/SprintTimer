@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,6 +22,7 @@
 #ifndef TASKVIEW_H_AC0ZCTZN
 #define TASKVIEW_H_AC0ZCTZN
 
+#include "qt_gui/models/TaskModel.h"
 #include "qt_gui/widgets/ReordableListView.h"
 #include <QStyledItemDelegate>
 #include <optional>

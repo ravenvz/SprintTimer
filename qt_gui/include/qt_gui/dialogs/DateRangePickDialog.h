@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,7 +22,6 @@
 #ifndef DATEPICKDIALOG_H
 #define DATEPICKDIALOG_H
 
-#include "qt_gui/utils/DateInterval.h"
 #include <QDialog>
 #include <core/IConfig.h>
 #include <memory>
@@ -37,17 +36,20 @@ class DateRangePickDialog : public QDialog {
     Q_OBJECT
 
 public:
-    DateRangePickDialog(DateInterval initialPeriod,
-                        FirstDayOfWeek firstDayOfWeek,
+    DateRangePickDialog(const IConfig& applicationSettings,
                         QWidget* parent = nullptr);
-    ~DateRangePickDialog();
-    DateInterval getNewInterval();
+
+    ~DateRangePickDialog() override;
+
+    dw::DateRange selectedRange();
+
+    void setSelectionRange(const dw::DateRange& dateRange);
 
 private:
     std::unique_ptr<Ui::DateRangePickDialog> ui;
+    const IConfig& applicationSettings;
 
-    void configureCalendar(FirstDayOfWeek firstDayOfWeek);
-    void updateCalendarDates(DateInterval& period);
+    void showEvent(QShowEvent*) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

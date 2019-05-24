@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,10 +22,20 @@
 #include "qt_gui/widgets/DistributionDiagram.h"
 #include <QHBoxLayout>
 #include <QtGui/qpainter.h>
+#include <core/entities/Tag.h>
 #include <memory>
 
-namespace sprint_timer::ui::qt_gui {
+namespace {
 
+void nameMergedTags(
+    std::vector<sprint_timer::TagTop::TagFrequency>& tagFrequencies);
+
+std::vector<sprint_timer::ui::qt_gui::DataItem> toDataItems(
+    const std::vector<sprint_timer::TagTop::TagFrequency>& tagFrequencies);
+
+} // namespace
+
+namespace sprint_timer::ui::qt_gui {
 
 DistributionDiagram::DistributionDiagram(QWidget* parent)
     : QWidget{parent}
@@ -37,20 +47,23 @@ DistributionDiagram::DistributionDiagram(QWidget* parent)
     layout->addWidget(diagram);
     setLayout(layout.release()); // QWidget takes ownership of layout
     connect(diagram,
-            SIGNAL(partClicked(size_t)),
+            &PieChart::partClicked,
             this,
-            SLOT(onChartPartClicked(size_t)));
+            &DistributionDiagram::onChartPartClicked);
     connect(legend,
-            SIGNAL(itemClicked(size_t)),
+            &IStatisticalChartLegend::itemClicked,
             this,
-            SLOT(onLegendItemClicked(size_t)));
+            &DistributionDiagram::onLegendItemClicked);
 }
 
-DistributionDiagram::~DistributionDiagram() {}
+DistributionDiagram::~DistributionDiagram() = default;
 
-void DistributionDiagram::setData(const std::vector<DataItem>& data)
+void DistributionDiagram::setData(
+    std::vector<TagTop::TagFrequency>&& tagFrequencies)
 {
     selectedSliceIndex = std::optional<size_t>();
+    nameMergedTags(tagFrequencies);
+    const auto data = toDataItems(tagFrequencies);
     legend->setData(data);
     diagram->setData(data);
 }
@@ -93,3 +106,29 @@ void DistributionDiagram::onLegendItemClicked(size_t itemIndex)
 
 } // namespace sprint_timer::ui::qt_gui
 
+
+namespace {
+
+void nameMergedTags(
+    std::vector<sprint_timer::TagTop::TagFrequency>& tagFrequencies)
+{
+    if (!tagFrequencies.empty()
+        && tagFrequencies.back().first == sprint_timer::entities::Tag{""})
+        tagFrequencies.back().first.setName("others");
+}
+
+std::vector<sprint_timer::ui::qt_gui::DataItem> toDataItems(
+    const std::vector<sprint_timer::TagTop::TagFrequency>& tagFrequencies)
+{
+    std::vector<std::pair<std::string, double>> data;
+    data.reserve(tagFrequencies.size());
+    std::transform(tagFrequencies.cbegin(),
+                   tagFrequencies.cend(),
+                   std::back_inserter(data),
+                   [](const auto& elem) -> std::pair<std::string, double> {
+                       return {elem.first.name(), elem.second};
+                   });
+    return data;
+}
+
+} // namespace

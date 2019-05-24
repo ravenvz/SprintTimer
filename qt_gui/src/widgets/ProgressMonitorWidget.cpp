@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,13 +22,15 @@
 #include "qt_gui/widgets/ProgressMonitorWidget.h"
 #include <QGridLayout>
 #include <QIcon>
+#include <core/use_cases/RequestWorkingDays.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-ProgressMonitorWidget::ProgressMonitorWidget(std::unique_ptr<QWidget> dailyProgress,
-                                       std::unique_ptr<QWidget> weeklyProgress,
-                                       std::unique_ptr<QWidget> monthlyProgress,
-                                       QWidget* parent)
+ProgressMonitorWidget::ProgressMonitorWidget(
+    std::unique_ptr<QWidget> dailyProgress,
+    std::unique_ptr<QWidget> weeklyProgress,
+    std::unique_ptr<QWidget> monthlyProgress,
+    QWidget* parent)
     : QWidget{parent}
 {
     dailyProgress->setSizePolicy(QSizePolicy::Expanding,

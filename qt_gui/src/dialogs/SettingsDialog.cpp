@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -98,7 +98,7 @@ void SettingsDialog::storeSettingsData()
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
     applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());
     applicationSettings.setFirstDayOfWeek(
-        static_cast<FirstDayOfWeek>(ui->cbxFirstWeekday->currentIndex()));
+        static_cast<dw::Weekday>(ui->cbxFirstWeekday->currentIndex()));
 }
 
 

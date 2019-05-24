@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,5 +22,33 @@
 #include "core/GroupByMonth.h"
 
 namespace sprint_timer {
+
+std::vector<GoalProgress>
+GroupByMonth::computeProgress(const dw::DateRange& dateRange,
+                              const std::vector<int>& actualProgress,
+                              const WorkdayTracker& workdayTracker) const
+{
+    using namespace dw;
+    std::vector<int> labour;
+    std::vector<GoalProgress> progress;
+    progress.reserve(actualProgress.size());
+    auto actualIt = cbegin(actualProgress);
+
+    // To compute goal we break dateRange into months, taking in account that
+    // it can start and end with random day of month.
+    auto start = dateRange.start();
+    const auto lastDay = dateRange.finish();
+    auto next_finish = [&start, lastDay]() {
+        return std::min(last_day_of_month(start), lastDay);
+    };
+
+    for (auto finish = next_finish(); start < lastDay;
+         start = finish + Days{1}, finish = next_finish(), ++actualIt) {
+        const DateRange monthChunk{start, finish};
+        progress.emplace_back(goalFor(workdayTracker, monthChunk), *actualIt);
+    }
+
+    return progress;
+}
 
 } // namespace sprint_timer

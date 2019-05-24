@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -24,6 +24,7 @@
 
 #include <QtWidgets/QWidget>
 #include <core/Distribution.h>
+#include <core/SprintStatistics.h>
 #include <memory>
 
 namespace Ui {
@@ -40,10 +41,12 @@ public:
 
     virtual ~BestWorkdayWidget();
 
-    void setData(const Distribution<double>& weekdayDistribution);
+    void setData(const std::vector<entities::Sprint>& weekdayDistribution,
+                 const dw::DateRange& timeSpan);
 
 private:
     std::unique_ptr<Ui::BestWorkdayWidget> ui;
+    std::vector<QString> labels;
 
     void setupWeekdayBarChart();
 

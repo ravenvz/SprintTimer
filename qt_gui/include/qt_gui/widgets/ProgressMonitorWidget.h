@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,7 +22,7 @@
 #ifndef GOAL_PROGRESS_WIDGET_H
 #define GOAL_PROGRESS_WIDGET_H
 
-#include <QWidget>
+#include "qt_gui/widgets/ProgressView.h"
 #include <memory>
 
 namespace sprint_timer::ui::qt_gui {

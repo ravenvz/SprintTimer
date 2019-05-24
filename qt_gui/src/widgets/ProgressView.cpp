@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -24,6 +24,8 @@
 #include "ui_progress_widget.h"
 #include <QtWidgets/QGridLayout>
 
+#include <iostream>
+
 namespace ProgressBarColors {
 
 const QColor targetGoalReached = QColor("#6baa15");
@@ -43,19 +45,43 @@ QString formatDecimal(double decimal)
 
 namespace sprint_timer::ui::qt_gui {
 
-ProgressView::ProgressView(Rows numRows,
-                           Columns numColumns,
-                           GaugeSize gaugeRelSize,
-                           QWidget* parent)
+ProgressView::ProgressView(
+    const DistributionModel& progressModel_,
+    const WorkdayTrackerModel& workdaysModel_,
+    const ProgressGroupingStrategy& groupingStrategy_,
+    const ProgressRangeRequestStrategy& requestRangeStrategy_,
+    Rows numRows_,
+    Columns numColumns_,
+    GaugeSize gaugeRelSize_,
+    QWidget* parent)
     : QFrame{parent}
     , ui{std::make_unique<Ui::ProgressView>()}
-    , numRows{numRows}
-    , numColumns{numColumns}
-    , gaugeRelSize{gaugeRelSize}
+    , numRows{numRows_}
+    , numColumns{numColumns_}
+    , gaugeRelSize{gaugeRelSize_}
 {
     ui->setupUi(this);
     setupGauges();
     updateProgressBar(GoalProgress{0, 0});
+    connect(&progressModel_,
+            &DistributionModel::distributionChanged,
+            [&](const std::vector<int>& updatedDistribution) {
+                const ProgressOverPeriod progress{
+                    requestRangeStrategy_.dateRange(),
+                    updatedDistribution,
+                    workdaysModel_.workdayTracker(),
+                    groupingStrategy_};
+                setData(progress);
+            });
+    connect(&workdaysModel_,
+            &WorkdayTrackerModel::workdaysChanged,
+            [&](const WorkdayTracker& updatedTracker) {
+                ProgressOverPeriod progress{requestRangeStrategy_.dateRange(),
+                                            progressModel_.distribution(),
+                                            updatedTracker,
+                                            groupingStrategy_};
+                setData(progress);
+            });
 }
 
 void ProgressView::setupGauges()
@@ -96,6 +122,11 @@ void ProgressView::addLegendRow(const QString& labelText, QWidget* field)
     ui->formLayout->addRow(labelText, field);
 }
 
+void ProgressView::addLegendRow(QWidget* field)
+{
+    ui->formLayout->addRow(field);
+}
+
 void ProgressView::setData(const ProgressOverPeriod& progress)
 {
     updateLegend(progress);
@@ -108,7 +139,7 @@ void ProgressView::updateLegend(const ProgressOverPeriod& progress) const
     ui->lblProgress->setText(
         QString("%1/%2").arg(progress.actual()).arg(progress.estimated()));
     ui->lblLeftCaption->setText(progress.isOverwork() ? "Overwork:"
-                                                      : "Left to complete");
+                                                      : "Left to complete:");
     ui->lblLeft->setText(QString{"%1"}.arg(abs(progress.difference())));
     if (auto average = progress.averagePerGroupPeriod(); average)
         ui->lblAverage->setText(formatDecimal(*average));

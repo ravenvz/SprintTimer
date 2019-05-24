@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,23 +25,20 @@
 namespace sprint_timer {
 
 std::vector<GoalProgress>
-GroupByDay::computeProgress(const dw::DateRange& period,
+GroupByDay::computeProgress(const dw::DateRange& dateRange,
                             const std::vector<int>& actualProgress,
-                            utils::WeekdaySelection workdays,
-                            int workdayGoal) const
+                            const WorkdayTracker& workdayTracker) const
 {
     using namespace dw;
-    auto labour = workday_outline(
-        DateTimeRange{DateTime{period.start()}, DateTime{period.finish()}},
-        workdays);
-    std::vector<GoalProgress> progress(actualProgress.size());
-    std::transform(actualProgress.cbegin(),
-                   actualProgress.cend(),
-                   labour.cbegin(),
-                   progress.begin(),
-                   [workdayGoal](auto actualVal, auto isWorkday) {
-                       return GoalProgress{workdayGoal * isWorkday, actualVal};
-                   });
+    std::vector<GoalProgress> progress;
+    progress.reserve(actualProgress.size());
+    auto actualIt = cbegin(actualProgress);
+
+    for (auto day = dateRange.start(); day <= dateRange.finish();
+         day = day + Days{1}, ++actualIt) {
+        progress.emplace_back(workdayTracker.goal(day), *actualIt);
+    }
+
     return progress;
 }
 

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -36,14 +36,12 @@ SprintModel::SprintModel(CommandInvoker& commandInvoker,
                          QueryInvoker& queryInvoker,
                          ISprintStorageReader& sprintReader,
                          ISprintStorageWriter& sprintWriter,
-                         ITaskStorageWriter& taskWriter,
                          QObject* parent)
     : AsyncListModel(parent)
     , commandInvoker{commandInvoker}
     , queryInvoker{queryInvoker}
     , sprintReader{sprintReader}
     , sprintWriter{sprintWriter}
-    , taskWriter{taskWriter}
 {
     requestSilentDataUpdate();
 }
@@ -98,6 +96,14 @@ void SprintModel::registerSprint(const Sprint& sprint)
         std::make_unique<RegisterNewSprint>(sprintWriter, sprint));
 }
 
+bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
+{
+    beginRemoveRows(index, row, row + count - 1);
+    remove(row);
+    endRemoveRows();
+    return true;
+}
+
 void SprintModel::remove(int row)
 {
     commandInvoker.executeCommand(std::make_unique<RemoveSprintTransaction>(
@@ -105,13 +111,20 @@ void SprintModel::remove(int row)
     requestDataUpdate();
 }
 
+const Sprint& SprintModel::itemAt(int row) const { return storage[row]; }
+
+void SprintModel::requestUpdate(const dw::DateRange& dateRange)
+{
+    sprintDateRange = dateRange;
+    requestUpdate();
+}
+
 void SprintModel::requestUpdate()
 {
     queryInvoker.execute(std::make_unique<RequestSprints>(
-        sprintReader,
-        dw::DateRange{dw::current_date_local(),
-                      dw::current_date_local()},
-        [this](const auto& items) { onDataChanged(items); }));
+        sprintReader, sprintDateRange, [this](const auto& items) {
+            onDataChanged(items);
+        }));
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)
@@ -119,6 +132,16 @@ void SprintModel::onDataChanged(const std::vector<Sprint>& items)
     beginResetModel();
     storage = items;
     endResetModel();
+}
+
+std::vector<Sprint> allSprints(const SprintModel& sprintModel)
+{
+    std::vector<Sprint> sprints;
+    const int numRows{sprintModel.rowCount(QModelIndex{})};
+    sprints.reserve(numRows);
+    for (int row = 0; row < numRows; ++row)
+        sprints.push_back(sprintModel.itemAt(row));
+    return sprints;
 }
 
 } // namespace sprint_timer::ui::qt_gui

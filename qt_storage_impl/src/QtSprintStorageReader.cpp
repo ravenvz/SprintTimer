@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -68,7 +68,7 @@ QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
 void QtSprintStorageReader::requestItems(const DateRange& dateRange,
                                          Handler handler)
 {
-    handler_queue.push_back(handler);
+    handlerQueue.push(handler);
     Date start = dateRange.start();
     Date finish = dateRange.finish();
 
@@ -87,7 +87,7 @@ void QtSprintStorageReader::requestItems(const DateRange& dateRange,
 void QtSprintStorageReader::sprintsForTask(const std::string& taskUuid,
                                            Handler handler)
 {
-    handler_queue.push_back(handler);
+    handlerQueue.push(handler);
     dbService.bind(sprintsForTaskQueryId,
                    ":taskUuid",
                    QVariant(QString::fromStdString(taskUuid)));
@@ -106,8 +106,8 @@ void QtSprintStorageReader::onResultsReceived(
         records.cend(),
         std::back_inserter(sprints),
         [&](const auto& elem) { return this->sprintFromQSqlRecord(elem); });
-    handler_queue.front()(sprints);
-    handler_queue.pop_front();
+    handlerQueue.front()(sprints);
+    handlerQueue.pop();
 }
 
 Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord& record)

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -27,27 +27,6 @@ namespace {
 
 constexpr int daysInWeek{7};
 
-// bool equalByDay(const QDate& referenceDate, const QDate& date)
-// {
-//     return referenceDate == date;
-// }
-//
-// QDate incrementByDay(const QDate& date) { return date.addDays(1); }
-//
-// bool equalByWeek(const QDate& referenceDate, const QDate& date)
-// {
-//     return referenceDate.weekNumber() == date.weekNumber();
-// }
-//
-// QDate incrementByWeek(const QDate& date) { return date.addDays(7); }
-//
-// bool equalByMonth(const QDate& referenceDate, const QDate& date)
-// {
-//     return referenceDate.month() == date.month();
-// }
-//
-// QDate incrementByMonth(const QDate& date) { return date.addMonths(1); }
-
 } // namespace
 
 namespace sprint_timer::storage::qt_storage_impl {
@@ -68,8 +47,8 @@ void DistributionReaderBase::requestDistribution(const dw::DateRange& dateRange,
                                                  Handler handler)
 {
     using namespace storage::utils;
-    handler_queue.push_back(handler);
-    startDate = DateTimeConverter::qDate(dateRange.start());
+    const QDate startDate = DateTimeConverter::qDate(dateRange.start());
+    contextQueue.push({handler, startDate});
     const QDate endDate = DateTimeConverter::qDate(dateRange.finish());
 
     dbService.bind(mQueryId, ":start_date", startDate);
@@ -77,10 +56,11 @@ void DistributionReaderBase::requestDistribution(const dw::DateRange& dateRange,
     dbService.executePrepared(mQueryId);
 }
 
-void DistributionReaderBase::executeCallback(std::vector<int>&& sprintCount)
+void DistributionReaderBase::executeCallback(
+    const std::vector<int>& sprintCount)
 {
-    handler_queue.front()(Distribution<int>{std::move(sprintCount)});
-    handler_queue.pop_front();
+    contextQueue.front().handler(sprintCount);
+    contextQueue.pop();
 }
 
 bool DistributionReaderBase::invalidQueryId(qint64 queryId) const
@@ -94,7 +74,7 @@ void DistributionReaderBase::onResultsReceived(
     if (invalidQueryId(queryId))
         return;
     auto distribution = fillDateGaps(records);
-    executeCallback(std::move(distribution));
+    executeCallback(distribution);
 }
 
 std::vector<int> DistributionReaderBase::fillDateGaps(
@@ -102,7 +82,7 @@ std::vector<int> DistributionReaderBase::fillDateGaps(
 {
     std::vector<int> sprintCount(distributionSize, 0);
 
-    QDate expected = normalizeDate(startDate);
+    QDate expected = normalizeDate(contextQueue.front().startDate);
     auto recordIter = cbegin(records);
     // auto sprintCountIter = begin(sprintCount);
     for (auto& elem : sprintCount) {

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -77,19 +77,20 @@ void DefaultTimer::setCandidateIndex(int index)
     ui->cbxSubmissionCandidate->setCurrentIndex(index);
 }
 
-void DefaultTimer::updateGoalProgress(Progress progress)
+void DefaultTimer::updateGoalProgress(const GoalProgress& progress)
 {
-    int dailyGoal = applicationSettings.dailyGoal();
-    if (dailyGoal == 0) {
+    const int estimated{progress.estimated()};
+    const int actual{progress.actual()};
+    if (estimated == 0) {
         ui->labelDailyGoalProgress->hide();
         return;
     }
     ui->labelDailyGoalProgress->setText(
-        QString("Daily goal progress: %1/%2").arg(progress).arg(dailyGoal));
-    if (progress == dailyGoal) {
+        QString("Daily goal progress: %1/%2").arg(actual).arg(estimated));
+    if (actual == estimated) {
         ui->labelDailyGoalProgress->setStyleSheet(workgoalMetStyleSheet);
     }
-    else if (progress > dailyGoal) {
+    else if (actual > estimated) {
         ui->labelDailyGoalProgress->setStyleSheet(overworkStyleSheet);
     }
     else {

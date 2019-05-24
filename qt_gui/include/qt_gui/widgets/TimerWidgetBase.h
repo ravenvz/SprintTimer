@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,6 +25,7 @@
 #include "qt_gui/dialogs/ConfirmationDialog.h"
 #include <QMediaPlayer>
 #include <QWidget>
+#include <core/GoalProgress.h>
 #include <core/IConfig.h>
 #include <core/IStatefulTimer.h>
 #include <memory>
@@ -47,7 +48,7 @@ class TimerWidgetBase : public QWidget {
 public:
     TimerWidgetBase(const IConfig& applicationSettings, QWidget* parent);
     virtual void setCandidateIndex(int index) = 0;
-    virtual void updateGoalProgress(Progress progress) = 0;
+    virtual void updateGoalProgress(const GoalProgress& progress) = 0;
 
 protected:
     const IConfig& applicationSettings;
