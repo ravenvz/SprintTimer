@@ -59,6 +59,8 @@ bool ScheduleModel::insertRows(int row, int count, const QModelIndex& index)
 
 bool ScheduleModel::removeRows(int row, int count, const QModelIndex& index)
 {
+	if (count <= 0 || row < 0 || (row + count) > rowCount(index))
+		return false;
     beginRemoveRows(index, row, row + count - 1);
     data_.erase(data_.begin() + row, data_.begin() + row + count);
     endRemoveRows();

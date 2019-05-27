@@ -35,6 +35,8 @@ int ExtraDayModel::rowCount(const QModelIndex& parent) const
 
 bool ExtraDayModel::insertRows(int row, int count, const QModelIndex& index)
 {
+	if (count <= 0 || row < 0 || (row + count) > rowCount(index))
+		return false;
     beginInsertRows(index, row, row + count - 1);
     data_.insert(data_.begin() + row, count, {QDate(), 0});
     endInsertRows();
@@ -43,6 +45,8 @@ bool ExtraDayModel::insertRows(int row, int count, const QModelIndex& index)
 
 bool ExtraDayModel::removeRows(int row, int count, const QModelIndex& index)
 {
+	if (count <= 0 || row < 0 || (row + count) > rowCount(index))
+		return false;
     beginRemoveRows(index, row, row + count - 1);
     data_.erase(data_.begin() + row, data_.begin() + row + count);
     endRemoveRows();

@@ -110,6 +110,13 @@ TEST_F(WorkdayTrackerFixture,
     EXPECT_EQ(expected, tracker.scheduleRoaster());
 }
 
+TEST_F(WorkdayTrackerFixture, returns_empty_schedule_as_active_schedule_when_there_is_no_schedule)
+{
+	const WeekSchedule expected;
+
+	EXPECT_EQ(expected, tracker.currentSchedule());
+}
+
 TEST_F(WorkdayTrackerFixture, returns_schedule_that_is_active_now)
 {
     const WeekSchedule expected{some_schedule};
