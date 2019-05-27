@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -38,15 +38,16 @@ generateSomeSprints(size_t numSprints)
 {
     using namespace sprint_timer;
     using namespace std::chrono;
+    using namespace std::chrono_literals;
     std::vector<entities::Sprint> sprints;
     SprintBuilder builder;
-    const dw::DateTime start{dw::DateTime::currentDateTime()};
+    const dw::DateTime start{current_date_time()};
     int i{0};
     auto gen = [&start, &i, &builder]() {
-        const dw::DateTime st = start.add(hours{i});
-        const dw::DateTime fn = st.add(minutes{25});
+        const DateTimeRange time_range{
+            add_offset(DateTimeRange{start, start + 25min}, hours{i})};
         return builder.withTaskUuid(std::to_string(i++))
-            .withTimeSpan(dw::TimeSpan{st, fn})
+            .withTimeSpan(time_range)
             .build();
     };
     std::generate_n(std::back_inserter(sprints), numSprints, gen);

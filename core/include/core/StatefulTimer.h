@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,8 +26,7 @@
 #include "core/IConfig.h"
 #include "core/IStatefulTimer.h"
 #include "core/PeriodicBackgroundRunner.h"
-#include "date_wrapper/DateTime.h"
-#include "date_wrapper/TimeSpan.h"
+#include "date_wrapper/date_wrapper.h"
 #include <chrono>
 #include <memory>
 #include <thread>
@@ -147,7 +146,7 @@ public:
 
     void toggleInTheZoneMode() override;
 
-    std::vector<dw::TimeSpan> completedSprints() const override;
+    std::vector<dw::DateTimeRange> completedSprints() const override;
 
     void clearSprintsBuffer() override;
 
@@ -175,7 +174,7 @@ private:
     std::unique_ptr<PeriodicBackgroundRunner> periodicBackgroundRunner;
     dw::DateTime mStart;
     int finishedSprints{0};
-    std::vector<dw::TimeSpan> buffer;
+    std::vector<dw::DateTimeRange> buffer;
 
     /* Jump to another state immediately ignoring proper exit from current state
      */

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -67,16 +67,15 @@ namespace {
 HistoryModel::HistoryData
 transformToHistoryData(const std::vector<Sprint>& sprints)
 {
-    using sprint_timer::ui::qt_gui::DateTimeConverter;
+    using sprint_timer::ui::qt_gui::utils::toQDate;
     HistoryModel::HistoryData taskSprintsHistory;
     taskSprintsHistory.reserve(sprints.size());
     std::transform(cbegin(sprints),
                    cend(sprints),
                    std::back_inserter(taskSprintsHistory),
                    [](const auto& sprint) {
-                       return std::make_pair(
-                           DateTimeConverter::qDate(sprint.startTime()),
-                           sprintToString(sprint));
+                       return std::make_pair(toQDate(sprint.startTime()),
+                                             sprintToString(sprint));
                    });
     return taskSprintsHistory;
 }
@@ -84,8 +83,9 @@ transformToHistoryData(const std::vector<Sprint>& sprints)
 QString sprintToString(const Sprint& sprint)
 {
     return QString("%1 - %2 %3 %4")
-        .arg(QString::fromStdString(sprint.startTime().toString("hh:mm")))
-        .arg(QString::fromStdString(sprint.finishTime().toString("hh:mm")))
+        .arg(QString::fromStdString(dw::to_string(sprint.startTime(), "hh:mm")))
+        .arg(
+            QString::fromStdString(dw::to_string(sprint.finishTime(), "hh:mm")))
         .arg(QString::fromStdString(prefixTags(sprint.tags())))
         .arg(QString::fromStdString(sprint.name()));
 }

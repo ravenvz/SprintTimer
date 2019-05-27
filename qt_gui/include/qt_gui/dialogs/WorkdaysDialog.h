@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,11 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #ifndef WORKDAYSDIALOG_H_NVZH9CRG
 #define WORKDAYSDIALOG_H_NVZH9CRG
 
-#include "core/IConfig.h"
+#include "qt_gui/WorkdaysChangeListener.h"
+#include "qt_gui/dialogs/AddExceptionalDayDialog.h"
+#include "qt_gui/models/WorkdayTrackerModel.h"
+#include <QAbstractListModel>
 #include <QDialog>
 #include <memory>
 
@@ -33,21 +35,45 @@ class WorkdaysDialog;
 
 namespace sprint_timer::ui::qt_gui {
 
-class WorkdaysDialog : public QDialog {
+class WorkdaysDialog : public QDialog, public WorkdaysChangeListener {
     Q_OBJECT
 
 public:
-    explicit WorkdaysDialog(IConfig& applicationSettings,
+    explicit WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog,
+                            QAbstractItemModel& exceptionalDaysModel,
+                            WorkdayTrackerModel& workdaysModel,
+                            QAbstractItemModel& scheduleModel,
                             QDialog* parent = nullptr);
+
     ~WorkdaysDialog() override;
+
     void accept() override;
+
+    void reject() override;
 
 private:
     std::unique_ptr<Ui::WorkdaysDialog> ui;
-    IConfig& settings;
+    AddExceptionalDayDialog& pickDateDialog;
+    WorkdayTrackerModel& workdaysModel;
+    WorkdayTracker candidateTracker;
 
-    void initializeDayBoxes();
-    utils::WeekdaySelection pollWorkdaysCode() const;
+    void onWorkdayTrackerChanged(const WorkdayTracker& updatedTracker) override;
+
+    void updateWorkdaysView(const WorkdayTracker& updatedTracker);
+
+    void updateSchedulesView(const WorkdayTracker& updatedTracker);
+
+    void initializeDayBoxes(const WeekSchedule& schedule);
+
+    WeekSchedule pollSchedule() const;
+
+    void addExceptionalDay();
+
+    void addSchedule();
+
+    void onExceptionalDayRemovedFromModel(const QModelIndex&, int first, int);
+
+    void onScheduleRemovedFromModel(const QModelIndex&, int first, int);
 };
 
 } // namespace sprint_timer::ui::qt_gui

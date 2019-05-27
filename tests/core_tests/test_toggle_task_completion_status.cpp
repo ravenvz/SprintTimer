@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,10 +20,6 @@
 **
 *********************************************************************************/
 
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
-
 #include "mocks/TaskStorageWriterMock.h"
 #include "gtest/gtest.h"
 #include <core/CommandInvoker.h>
@@ -32,6 +28,7 @@
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
 using sprint_timer::use_cases::ToggleTaskCompletionStatus;
+using namespace dw;
 
 class ToggleTaskCompletionFixture : public ::testing::Test {
 public:
@@ -41,7 +38,7 @@ public:
                   "550e8400-e29b-41d4-a716-446655440000",
                   {Tag{"Tag1"}, Tag{"Tag2"}},
                   false,
-                  dw::DateTime::fromYMD(2015, 11, 10)};
+                  dw::DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
 
     sprint_timer::CommandInvoker commandInvoker;
     TaskStorageWriterMock task_writer_mock;
@@ -50,8 +47,8 @@ public:
 TEST_F(ToggleTaskCompletionFixture, execute)
 {
     EXPECT_CALL(task_writer_mock,
-                toggleTaskCompletionStatus(
-                    someTask.uuid(), dw::DateTime::currentDateTimeLocal()))
+                toggleTaskCompletionStatus(someTask.uuid(),
+                                           dw::current_date_time_local()))
         .Times(1);
 
     commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
@@ -61,8 +58,8 @@ TEST_F(ToggleTaskCompletionFixture, execute)
 TEST_F(ToggleTaskCompletionFixture, undo_should_not_modify_timestamp)
 {
     EXPECT_CALL(task_writer_mock,
-                toggleTaskCompletionStatus(
-                    someTask.uuid(), dw::DateTime::currentDateTimeLocal()))
+                toggleTaskCompletionStatus(someTask.uuid(),
+                                           dw::current_date_time_local()))
         .Times(1);
 
     commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -33,10 +33,10 @@ sprint_timer::BoostUUIDGenerator uuid_generator;
 namespace sprint_timer::entities {
 
 using dw::DateTime;
-using dw::TimeSpan;
+using dw::DateTimeRange;
 
 Sprint::Sprint(const std::string& taskName,
-               const TimeSpan& timeSpan,
+               const DateTimeRange& timeSpan,
                const std::list<Tag>& tags,
                const std::string& uuid,
                const std::string& taskUuid)
@@ -49,7 +49,7 @@ Sprint::Sprint(const std::string& taskName,
 }
 
 Sprint::Sprint(const std::string& taskName,
-               const TimeSpan& timeSpan,
+               const DateTimeRange& timeSpan,
                const std::list<Tag>& tags,
                const std::string& taskUuid)
     : Sprint{taskName, timeSpan, tags, uuid_generator.generateUUID(), taskUuid}
@@ -57,7 +57,7 @@ Sprint::Sprint(const std::string& taskName,
 }
 
 // TODO What's up with name? What's up with tags?
-Sprint::Sprint(const std::string& taskUuid, const TimeSpan& timeSpan)
+Sprint::Sprint(const std::string& taskUuid, const DateTimeRange& timeSpan)
     : timeSpan_{timeSpan}
     , uuid_{uuid_generator.generateUUID()}
     , taskUuid_{taskUuid}
@@ -70,7 +70,7 @@ DateTime Sprint::startTime() const { return timeSpan_.start(); }
 
 DateTime Sprint::finishTime() const { return timeSpan_.finish(); }
 
-TimeSpan Sprint::timeSpan() const { return timeSpan_; }
+DateTimeRange Sprint::timeSpan() const { return timeSpan_; }
 
 std::string Sprint::uuid() const { return uuid_; }
 
@@ -91,10 +91,12 @@ bool operator==(const Sprint& lhs, const Sprint& rhs)
 {
     return lhs.taskUuid() == rhs.taskUuid() && lhs.uuid() == rhs.uuid()
         && lhs.name() == rhs.name()
-        && lhs.timeSpan().start().timestamp<std::chrono::seconds>()
-        == rhs.timeSpan().start().timestamp<std::chrono::seconds>()
-        && lhs.timeSpan().finish().timestamp<std::chrono::seconds>()
-        == rhs.timeSpan().finish().timestamp<std::chrono::seconds>()
+        // There is a reason to compare DateTimeRanges by seconds
+        // TODO need to control the sources, see also todo at Task
+        && dw::to_time_point<std::chrono::seconds>(lhs.timeSpan().start())
+        == dw::to_time_point<std::chrono::seconds>(rhs.timeSpan().start())
+        && dw::to_time_point<std::chrono::seconds>(lhs.timeSpan().finish())
+        == dw::to_time_point<std::chrono::seconds>(rhs.timeSpan().finish())
         && lhs.tags() == rhs.tags();
 }
 

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -65,21 +65,21 @@ QtSprintStorageReader::QtSprintStorageReader(DBService& dbService)
             &QtSprintStorageReader::onResultsReceived);
 }
 
-void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
+void QtSprintStorageReader::requestItems(const DateRange& dateRange,
                                          Handler handler)
 {
-    handler_queue.push_back(handler);
-    DateTime start = timeSpan.start();
-    DateTime finish = timeSpan.finish();
+    handlerQueue.push(handler);
+    Date start = dateRange.start();
+    Date finish = dateRange.finish();
 
     dbService.bind(
         sprintsInTimeRangeQueryId,
         ":startTime",
-        QVariant(QString::fromStdString(start.toString("yyyy-MM-dd"))));
+        QVariant(QString::fromStdString(dw::to_string(start, "yyyy-MM-dd"))));
     dbService.bind(
         sprintsInTimeRangeQueryId,
         ":finishTime",
-        QVariant(QString::fromStdString(finish.toString("yyyy-MM-dd"))));
+        QVariant(QString::fromStdString(dw::to_string(finish, "yyyy-MM-dd"))));
 
     dbService.executePrepared(sprintsInTimeRangeQueryId);
 }
@@ -87,7 +87,7 @@ void QtSprintStorageReader::requestItems(const TimeSpan& timeSpan,
 void QtSprintStorageReader::sprintsForTask(const std::string& taskUuid,
                                            Handler handler)
 {
-    handler_queue.push_back(handler);
+    handlerQueue.push(handler);
     dbService.bind(sprintsForTaskQueryId,
                    ":taskUuid",
                    QVariant(QString::fromStdString(taskUuid)));
@@ -106,8 +106,8 @@ void QtSprintStorageReader::onResultsReceived(
         records.cend(),
         std::back_inserter(sprints),
         [&](const auto& elem) { return this->sprintFromQSqlRecord(elem); });
-    handler_queue.front()(sprints);
-    handler_queue.pop_front();
+    handlerQueue.front()(sprints);
+    handlerQueue.pop();
 }
 
 Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord& record)
@@ -115,8 +115,8 @@ Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord& record)
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
     QDateTime finish = columnData(record, Columns::FinishTime).toDateTime();
-    TimeSpan timeSpan{DateTimeConverter::dateTime(start),
-                      DateTimeConverter::dateTime(finish)};
+    const dw::DateTimeRange timeSpan{DateTimeConverter::dateTime(start),
+                                     DateTimeConverter::dateTime(finish)};
     std::string uuid
         = columnData(record, Columns::Uuid).toString().toStdString();
     QStringList tagNames{columnData(record, Columns::Tags)

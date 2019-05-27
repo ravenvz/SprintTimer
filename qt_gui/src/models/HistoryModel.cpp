@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/HistoryModel.h"
+#include <memory>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -36,12 +37,15 @@ void HistoryModel::fill(const HistoryData& orderedHistory)
     clear();
 
     if (orderedHistory.empty()) {
-        appendRow(new QStandardItem("No data."));
+        auto item = std::make_unique<QStandardItem>("No data.");
+        appendRow(item.release());
         return;
     }
 
-    QStandardItem* parent = new QStandardItem(
-        QString("%1 items in total.").arg(orderedHistory.size()));
+    QStandardItem* parent
+        = std::make_unique<QStandardItem>(
+              QString("%1 items in total.").arg(orderedHistory.size()))
+              .release();
     appendRow(parent);
 
     for (auto same_date_beg = cbegin(orderedHistory);
@@ -54,16 +58,17 @@ void HistoryModel::fill(const HistoryData& orderedHistory)
                                return entry.first != parent_date;
                            });
 
-        parent = new QStandardItem(
-            QString("%1 (%2 items)")
-                .arg(parent_date.toString())
-                .arg(std::distance(same_date_beg, same_date_end)));
+        parent = std::make_unique<QStandardItem>(
+                     QString("%1 (%2 items)")
+                         .arg(parent_date.toString())
+                         .arg(std::distance(same_date_beg, same_date_end)))
+                     .release();
         appendRow(parent);
 
         for (int children = 0; same_date_beg != same_date_end;
              ++same_date_beg, ++children) {
-            QStandardItem* item{new QStandardItem(same_date_beg->second)};
-            parent->setChild(children, item);
+            auto item = std::make_unique<QStandardItem>(same_date_beg->second);
+            parent->setChild(children, item.release());
         }
     }
 }

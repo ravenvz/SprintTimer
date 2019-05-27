@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,8 +25,7 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QLabel>
 #include <core/Distribution.h>
-#include <core/utils/WeekdaySelection.h>
-#include <date_wrapper/DateTime.h>
+#include <date_wrapper/date_wrapper.h>
 #include <memory>
 
 namespace Ui {
@@ -43,9 +42,9 @@ public:
     ~DailyTimelineGraph();
 
     void setData(const Distribution<double>& dailyDistribution,
-                 const QDate& startDate,
+                 const dw::DateRange& dateRange,
                  int numWorkdays,
-                 int dailyGoal);
+                 int goalForPeriod);
 
 private:
     std::unique_ptr<Ui::DailyTimelineGraph> ui;

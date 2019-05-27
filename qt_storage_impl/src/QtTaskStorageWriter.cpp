@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -140,11 +140,11 @@ void QtTaskStorageWriter::removeTags(const QString& taskUuid,
     }
 }
 
-void QtTaskStorageWriter::remove(const Task& task)
+void QtTaskStorageWriter::remove(const std::string &uuid)
 {
     // Note that tags are removed by trigger
     dbService.bindValue(
-        removeTaskQueryId, ":uuid", QString::fromStdString(task.uuid()));
+        removeTaskQueryId, ":uuid", QString::fromStdString(uuid));
     dbService.executePrepared(removeTaskQueryId);
 }
 

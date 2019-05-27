@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,7 +23,7 @@
 #define ISPRINTSTORAGEWRITER_H_PMJNRBFY
 
 #include "core/entities/Sprint.h"
-#include "date_wrapper/TimeSpan.h"
+#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer {
 

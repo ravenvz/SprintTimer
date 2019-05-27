@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -37,7 +37,7 @@ public:
 
     void save(const entities::Task& task) final;
 
-    void remove(const entities::Task& task) final;
+    void remove(const std::string &uuid) final;
 
     void edit(const entities::Task& task,
               const entities::Task& editedTask) final;

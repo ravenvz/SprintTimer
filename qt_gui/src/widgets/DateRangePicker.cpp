@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -27,27 +27,35 @@
 #include <iterator>
 #include <memory>
 
+#include "qt_gui/utils/DateTimeConverter.h"
+
+namespace {
+
+QStringList toDateStrings(const dw::DateRange& dateRange);
+
+dw::DateRange currentMonth();
+
+QStringList monthNames();
+
+} // namespace
+
 namespace sprint_timer::ui::qt_gui {
 
-DateRangePicker::DateRangePicker(QWidget* parent)
-    : QWidget{parent}
+DateRangePicker::DateRangePicker(
+    std::unique_ptr<DateRangePickDialog> dateRangePickDialog_,
+    const OperationRangeModel& operationRangeModel_,
+    QWidget* parent_)
+    : QWidget{parent_}
     , ui{std::make_unique<Ui::DateRangePicker>()}
-    , selectedInterval{DateInterval{
-          QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1),
-          QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1)
-              .addMonths(1)
-              .addDays(-1)}}
+    , dateRangePickDialog{std::move(dateRangePickDialog_)}
+    , operationRangeModel{operationRangeModel_}
+    , selectedDateRange{currentMonth()}
+    , monthsModel{monthNames()}
+    , yearsModel{QStringList{QDate::currentDate().toString("yyyy")}}
 {
     ui->setupUi(this);
-    QStringList months;
-    for (int monthNumber = 1; monthNumber <= 12; ++monthNumber) {
-        months.append(QDate::longMonthName(monthNumber));
-    }
-    monthsModel = std::make_unique<QStringListModel>(months);
-    ui->cbxMonth->setModel(monthsModel.get());
-    QString currentYear = QDate::currentDate().toString("yyyy");
-    yearsModel = std::make_unique<QStringListModel>(QStringList{currentYear});
-    ui->cbxYear->setModel(yearsModel.get());
+    ui->cbxMonth->setModel(&monthsModel);
+    ui->cbxYear->setModel(&yearsModel);
 
     connect(ui->btnPickPeriod,
             &QPushButton::clicked,
@@ -56,80 +64,112 @@ DateRangePicker::DateRangePicker(QWidget* parent)
     connect(ui->cbxYear,
             QOverload<int>::of(&QComboBox::activated),
             this,
-            QOverload<>::of(&DateRangePicker::updateInterval));
+            QOverload<>::of(&DateRangePicker::onRangeChanged));
     connect(ui->cbxMonth,
             QOverload<int>::of(&QComboBox::activated),
             this,
-            QOverload<>::of(&DateRangePicker::updateInterval));
+            QOverload<>::of(&DateRangePicker::onRangeChanged));
     connect(this,
-            &DateRangePicker::timeSpanChanged,
+            &DateRangePicker::selectedDateRangeChanged,
             this,
             &DateRangePicker::updateSelectionHintLabel);
+    connect(&operationRangeModel,
+            &OperationRangeModel::operationRangeUpdated,
+            this,
+            &DateRangePicker::setOperationalRange);
+    connect(dateRangePickDialog.get(), &QDialog::accepted, [this]() {
+        onRangeChanged(dateRangePickDialog->selectedRange());
+    });
 }
 
 DateRangePicker::~DateRangePicker() = default;
 
 void DateRangePicker::openDatePickDialog()
 {
-    DateRangePickDialog dialog{selectedInterval, firstDayOfWeek};
-    if (dialog.exec()) {
-        updateInterval(dialog.getNewInterval());
-    }
+    dateRangePickDialog->setSelectionRange(selectedDateRange);
+    dateRangePickDialog->show();
 }
 
 void DateRangePicker::updateSelectionHintLabel()
 {
-    ui->labelSelectionHint->setText(selectedInterval.toString());
+    ui->labelSelectionHint->setText(
+        QString{"%1 - %2"}
+            .arg(utils::toQDate(selectedDateRange.start()).toString())
+            .arg(utils::toQDate(selectedDateRange.finish()).toString()));
 }
 
-void DateRangePicker::setInterval(DateInterval&& dateInterval)
+void DateRangePicker::onRangeChanged()
 {
-    selectedInterval = std::move(dateInterval);
-    emit timeSpanChanged(selectedInterval);
+    using namespace dw;
+    const dw::Date start{
+        Year{ui->cbxYear->currentText().toInt()},
+        Month{static_cast<unsigned>(ui->cbxMonth->currentIndex() + 1)},
+        Day{1}};
+    const dw::Date finish = dw::last_day_of_month(start);
+    selectedDateRange = DateRange{start, finish};
+
+    emit selectedDateRangeChanged(selectedDateRange);
 }
 
-void DateRangePicker::updateInterval()
+void DateRangePicker::onRangeChanged(const dw::DateRange& dateRange)
 {
-    QDate startDate{ui->cbxYear->currentText().toInt(),
-                    ui->cbxMonth->currentIndex() + 1,
-                    1};
-    QDate endDate = startDate.addDays(startDate.daysInMonth() - 1);
-    selectedInterval = DateInterval{startDate, endDate};
-    emit timeSpanChanged(selectedInterval);
+    selectedDateRange = dateRange;
+    emit selectedDateRangeChanged(selectedDateRange);
 }
 
-void DateRangePicker::updateInterval(DateInterval timeSpan)
+dw::DateRange DateRangePicker::selectionRange() const
 {
-    selectedInterval = timeSpan;
-    emit timeSpanChanged(selectedInterval);
+    return selectedDateRange;
 }
 
-DateInterval DateRangePicker::getInterval() const { return selectedInterval; }
-
-void DateRangePicker::setYears(const std::vector<std::string>& years)
+void DateRangePicker::setOperationalRange(const dw::DateRange& operationalRange)
 {
-    QStringList yearRange;
-    std::transform(
-        years.cbegin(),
-        years.cend(),
-        std::back_inserter(yearRange),
-        [](const auto& elem) { return QString::fromStdString(elem); });
+    QStringList yearRange{toDateStrings(operationalRange)};
+    yearsModel.setStringList(yearRange);
+    selectCurrentYearMonth(yearRange);
+    onRangeChanged();
+}
 
-    if (!years.empty())
-        yearsModel->setStringList(yearRange);
-
+void DateRangePicker::selectCurrentYearMonth(const QStringList& yearRange)
+{
     ui->cbxYear->setCurrentIndex(static_cast<int>(std::distance(
         yearRange.begin(),
         std::find(yearRange.begin(),
                   yearRange.end(),
                   QString("%1").arg(QDate::currentDate().year())))));
     ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
-    updateInterval();
-}
-
-void DateRangePicker::setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek_)
-{
-    firstDayOfWeek = firstDayOfWeek_;
 }
 
 } // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+QStringList toDateStrings(const dw::DateRange& dateRange)
+{
+    QStringList dates;
+    int startYear{static_cast<int>(dateRange.start().year())};
+    const int endYear{static_cast<int>(dateRange.finish().year())};
+    for (int current = startYear; current <= endYear; ++current) {
+        dates.push_back(QString{"%1"}.arg(current));
+    }
+    return dates;
+}
+
+dw::DateRange currentMonth()
+{
+    const auto today = dw::current_date();
+    const dw::Date start{today.year(), today.month(), dw::Day{1}};
+    const dw::Date finish{dw::last_day_of_month(today)};
+    return dw::DateRange{start, finish};
+}
+
+QStringList monthNames()
+{
+    QStringList months;
+    for (int monthNumber = 1; monthNumber <= 12; ++monthNumber) {
+        months.append(QDate::longMonthName(monthNumber));
+    }
+    return months;
+}
+
+} // namespace

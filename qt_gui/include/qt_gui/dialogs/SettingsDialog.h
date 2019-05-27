@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -54,7 +54,6 @@ private:
     std::unique_ptr<Ui::SettingsDialog> ui;
     IConfig& applicationSettings;
     QStringList timers{"Default timer", "Fancy timer"};
-    QStringListModel* timerModel;
 
     void fillSettingsData();
 };

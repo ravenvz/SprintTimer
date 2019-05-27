@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,32 +23,20 @@
 #define DATETIMECONVERTER_H_Y4Z1XDHQ
 
 #include <QDateTime>
-#include <date_wrapper/DateTime.h>
-#include <date_wrapper/TimeSpan.h>
+#include <date_wrapper/date_wrapper.h>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer::ui::qt_gui::utils {
 
-using dw::DateTime;
-using dw::TimeSpan;
+QDateTime toQDateTime(const dw::DateTime& dt);
 
-/* Simplifies convertion between QDateTime and DateTime. */
-class DateTimeConverter {
-public:
-    static QDateTime qDateTime(const DateTime& dt)
-    {
-        return QDateTime::fromTime_t(static_cast<unsigned>(dt.toTime_t()),
-                                     Qt::OffsetFromUTC);
-    }
+QDate toQDate(const dw::DateTime& dt);
 
-    static QDate qDate(const DateTime& dt) { return qDateTime(dt).date(); }
+QDate toQDate(const dw::Date& date);
 
-    static DateTime dateTime(const QDateTime& qdt)
-    {
-        return DateTime::fromTime_t(qdt.toTime_t(), qdt.offsetFromUtc());
-    }
-};
+dw::DateTime toDateTime(const QDateTime& qdt);
 
-} // namespace sprint_timer::ui::qt_gui
+dw::Date toDate(const QDate& date);
 
+} // namespace sprint_timer::ui::qt_gui::utils
 
 #endif /* end of include guard: DATETIMECONVERTER_H_Y4Z1XDHQ */

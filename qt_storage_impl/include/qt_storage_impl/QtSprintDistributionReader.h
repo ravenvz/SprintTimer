@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,7 +26,7 @@
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
 #include <core/IConfig.h>
-#include <variant>
+#include <queue>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -36,21 +36,24 @@ class DistributionReaderBase : public QObject,
     Q_OBJECT
 
 public:
-    void requestDistribution(const dw::TimeSpan& timeSpan,
+    void requestDistribution(const dw::DateRange& dateRange,
                              Handler handler) override;
 
 protected:
+    struct Context {
+        Handler handler;
+        QDate startDate;
+    };
     DBService& dbService;
     size_t distributionSize;
-    std::list<Handler> handler_queue;
-    QDate startDate;
+    std::queue<Context> contextQueue;
     qint64 mQueryId{-1};
 
     bool invalidQueryId(qint64 queryId) const;
 
     DistributionReaderBase(DBService& dbService, size_t distributionSize);
 
-    void executeCallback(std::vector<int>&& sprintCount);
+    void executeCallback(const std::vector<int>& sprintCount);
 
     virtual QDate nextExpectedDate(const QDate& referenceDate) const = 0;
 
@@ -78,8 +81,7 @@ private:
 
 class QtSprintDistReaderMondayFirst : public DistributionReaderBase {
 public:
-    QtSprintDistReaderMondayFirst(DBService& dbService_,
-                                          size_t numBins);
+    QtSprintDistReaderMondayFirst(DBService& dbService_, size_t numBins);
 
 private:
     QDate nextExpectedDate(const QDate& referenceDate) const override;
@@ -92,8 +94,7 @@ private:
 
 class QtSprintDistReaderSundayFirst : public DistributionReaderBase {
 public:
-    QtSprintDistReaderSundayFirst(DBService& dbService_,
-                                          size_t numBins);
+    QtSprintDistReaderSundayFirst(DBService& dbService_, size_t numBins);
 
 private:
     QDate nextExpectedDate(const QDate& referenceDate) const override;

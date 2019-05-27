@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,10 +20,6 @@
 **
 *********************************************************************************/
 
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
-
 #include "mocks/SprintStorageWriterMock.h"
 #include "gtest/gtest.h"
 #include <core/CommandInvoker.h>
@@ -41,9 +37,8 @@ public:
     sprint_timer::CommandInvoker commandInvoker;
     SprintStorageWriterMock sprint_writer_mock;
 
-    const TimeSpan someTimeSpan
-        = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
-                   DateTime::currentDateTime().add(DateTime::Days(-1))};
+    const DateTimeRange someTimeSpan{add_offset(
+        DateTimeRange{current_date_time(), current_date_time()}, Days{-1})};
     const Sprint someSprint{"Task name",
                             someTimeSpan,
                             {Tag{"Tag1"}, Tag{"Tag2"}},

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -32,7 +32,7 @@ public:
     using Items = std::vector<entities::Sprint>;
     using Handler = std::function<void(const Items&)>;
     virtual ~ISprintStorageReader() = default;
-    virtual void requestItems(const dw::TimeSpan& timeSpan, Handler handler)
+    virtual void requestItems(const dw::DateRange& dateRange, Handler handler)
         = 0;
     virtual void sprintsForTask(const std::string& taskUuid, Handler handler)
         = 0;

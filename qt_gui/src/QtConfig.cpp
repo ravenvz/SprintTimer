@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -88,36 +88,6 @@ void Config::setSoundVolume(int soundVolume)
     Config::settings.setValue("soundVolume", QVariant(soundVolume));
 }
 
-int Config::dailyGoal() const
-{
-    return settings.value("dailyGoal", 11).toInt();
-}
-
-void Config::setDailyGoal(int numSprints)
-{
-    Config::settings.setValue("dailyGoal", QVariant(numSprints));
-}
-
-int Config::weeklyGoal() const
-{
-    return settings.value("weeklyGoal", 65).toInt();
-}
-
-void Config::setWeeklyGoal(int numSprints)
-{
-    Config::settings.setValue("weeklyGoal", QVariant(numSprints));
-}
-
-int Config::monthlyGoal() const
-{
-    return settings.value("monthlyGoal", 260).toInt();
-}
-
-void Config::setMonthlyGoal(int numSprints)
-{
-    Config::settings.setValue("monthlyGoal", QVariant(numSprints));
-}
-
 std::string Config::soundFilePath() const
 {
     return Config::settings.value("soundFilePath").toString().toStdString();
@@ -139,25 +109,13 @@ void Config::setTimerFlavour(int timerVariation)
     Config::settings.setValue("timerFlavour", QVariant(timerVariation));
 }
 
-utils::WeekdaySelection Config::workdays() const
+dw::Weekday Config::firstDayOfWeek() const
 {
-    return utils::WeekdaySelection{
-        Config::settings.value("workdaysCode", 127).toUInt()};
-}
-
-void Config::setWorkdays(const utils::WeekdaySelection& workdays)
-{
-    Config::settings.setValue("workdaysCode",
-                              QVariant(workdays.selectionMask()));
-}
-
-FirstDayOfWeek Config::firstDayOfWeek() const
-{
-    return static_cast<FirstDayOfWeek>(
+    return static_cast<dw::Weekday>(
         Config::settings.value("firstDayOfWeek", 0).toInt());
 }
 
-void Config::setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek)
+void Config::setFirstDayOfWeek(dw::Weekday firstDayOfWeek)
 {
     Config::settings.setValue("firstDayOfWeek",
                               QVariant(static_cast<int>(firstDayOfWeek)));

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,7 +25,7 @@
 #include "core/entities/Sprint.h"
 #include "core/entities/Tag.h"
 #include "core/utils/StringUtils.h"
-#include "date_wrapper/DateTime.h"
+#include "date_wrapper/date_wrapper.h"
 #include <list>
 #include <string>
 #include <vector>
@@ -45,8 +45,7 @@ public:
          int actualCost,
          std::list<Tag> tags,
          bool completed,
-         const dw::DateTime& lastModified
-         = dw::DateTime::currentDateTimeLocal());
+         const dw::DateTime& lastModified = dw::current_date_time_local());
 
     Task(std::string name,
          int estimatedCost,

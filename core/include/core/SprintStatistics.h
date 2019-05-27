@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -29,59 +29,53 @@
 
 namespace sprint_timer {
 
-/* This auxilary datastructure holds distributions of statistical data
- * for Sprints within given time range. */
-class SprintStatItem {
+/* Returns distribution of finished sprints per weekday. It is up to caller to
+ * ensure that sprints fit into the dateRange. */
+Distribution<double>
+weekdayStatistics(const std::vector<entities::Sprint>& sprints,
+                  const dw::DateRange& dateRange);
 
-public:
-    /* Sprints that have start time dates that are not within timeSpan
-     * dates will be ignored.
-     */
-    SprintStatItem(const std::vector<entities::Sprint>& sprints,
-                   const dw::TimeSpan& timeSpan);
 
-    const Distribution<double>& dailyDistribution() const;
+/* Returns distribution of sprint times per day hours. */
+Distribution<double>
+workingHoursStatistics(const std::vector<entities::Sprint>& sprints);
 
-    const Distribution<double>& weekdayDistribution() const;
 
-    const Distribution<double>& worktimeDistribution() const;
-
-private:
-    Distribution<double> dailyDistribution_;
-    Distribution<double> weekdayDistribution_;
-    Distribution<double> worktimeDistribution_;
-};
-
+/* Returns number of completed sprints per day. It is up to caller to ensure
+ * that sprints fit into the dateRange. */
+Distribution<double>
+dailyStatistics(const std::vector<entities::Sprint>& sprints,
+                const dw::DateRange& dateRange);
 
 namespace DayPart {
 
-constexpr size_t numParts{6};
+    constexpr size_t numParts{6};
 
-/* Represent a day partition
- *
- * Day has 6 4-hour parts:
- *      Midnight  22:00 - 2:00
- *      Night      2:00 - 6:00
- *      Morning    6:00 - 10:00
- *      Noon      10:00 - 14:00
- *      Afternoon 14:00 - 18:00
- *      Evening   18:00 - 22:00
- */
-enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
+    /* Represent a day partition
+     *
+     * Day has 6 4-hour parts:
+     *      Midnight  22:00 - 2:00
+     *      Night      2:00 - 6:00
+     *      Morning    6:00 - 10:00
+     *      Noon      10:00 - 14:00
+     *      Afternoon 14:00 - 18:00
+     *      Evening   18:00 - 22:00
+     */
+    enum class DayPart { Midnight, Night, Morning, Noon, Afternoon, Evening };
 
-std::string dayPartHours(unsigned dayPart);
+    std::string dayPartHours(unsigned dayPart);
 
-DayPart dayPart(const dw::TimeSpan& timeSpan);
+    DayPart dayPart(const dw::DateTimeRange& timeSpan);
 
-std::string dayPartName(unsigned dayPart);
+    std::string dayPartName(unsigned dayPart);
 
-std::string dayPartName(DayPart dayPart);
+    std::string dayPartName(DayPart dayPart);
 
-std::string dayPartHours(DayPart dayPart);
+    std::string dayPartHours(DayPart dayPart);
 
-std::string dayPartHours(unsigned dayPart);
+    std::string dayPartHours(unsigned dayPart);
 
-} // namespace DatePart
+} // namespace DayPart
 
 
 } // namespace sprint_timer

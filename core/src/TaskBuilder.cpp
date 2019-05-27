@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -30,7 +30,7 @@ using namespace entities;
 Task TaskBuilder::build()
 {
     if (!mLastModified)
-        mLastModified = std::make_optional(DateTime::currentDateTimeLocal());
+        mLastModified = std::make_optional(dw::current_date_time_local());
     if (!mUuid)
         return Task{mName,
                     mEstimatedCost,

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -24,55 +24,75 @@
 #include "ui_progress_widget.h"
 #include <QtWidgets/QGridLayout>
 
-namespace sprint_timer::ui::qt_gui {
+#include <iostream>
 
 namespace ProgressBarColors {
 
-    const QColor targetGoalReached = QColor("#6baa15");
-    const QColor overwork = Qt::red;
-    const QColor workInProgress = Qt::gray;
+const QColor targetGoalReached = QColor("#6baa15");
+const QColor overwork = Qt::red;
+const QColor workInProgress = Qt::gray;
 
 } // namespace ProgressBarColors
 
 namespace {
 
-    QString formatDecimal(double decimal)
-    {
-        return QString("%1").arg(decimal, 2, 'f', 2, '0');
-    }
-
-    double percentage(long long chunk, long long total)
-    {
-        return total != 0 ? static_cast<double>(chunk) * 100 / total : 0;
-    }
+QString formatDecimal(double decimal)
+{
+    return QString("%1").arg(decimal, 2, 'f', 2, '0');
+}
 
 } // namespace
 
-ProgressView::ProgressView(GoalValue goal,
-                           Rows numRows,
-                           Columns numColumns,
-                           GaugeSize gaugeRelSize,
-                           QWidget* parent)
+namespace sprint_timer::ui::qt_gui {
+
+ProgressView::ProgressView(
+    const DistributionModel& progressModel_,
+    const WorkdayTrackerModel& workdaysModel_,
+    const ProgressGroupingStrategy& groupingStrategy_,
+    const ProgressRangeRequestStrategy& requestRangeStrategy_,
+    Rows numRows_,
+    Columns numColumns_,
+    GaugeSize gaugeRelSize_,
+    QWidget* parent)
     : QFrame{parent}
     , ui{std::make_unique<Ui::ProgressView>()}
-    , goal{goal}
-    , numRows{numRows}
-    , numColumns{numColumns}
-    , gaugeRelSize{gaugeRelSize}
+    , numRows{numRows_}
+    , numColumns{numColumns_}
+    , gaugeRelSize{gaugeRelSize_}
 {
     ui->setupUi(this);
-
-    ui->spinBoxGoal->setValue(goal);
-
-    connect(ui->spinBoxGoal,
-            QOverload<int>::of(&QSpinBox::valueChanged),
-            [&](int goal) {
-                this->goal = goal;
-                emit goalChanged(goal);
-            });
-
     setupGauges();
-    updateProgressBar(0);
+    updateProgressBar(GoalProgress{0, 0});
+    connect(&progressModel_,
+            &DistributionModel::distributionChanged,
+            [&](const std::vector<int>& updatedDistribution) {
+                const ProgressOverPeriod progress{
+                    requestRangeStrategy_.dateRange(),
+                    updatedDistribution,
+                    workdaysModel_.workdayTracker(),
+                    groupingStrategy_};
+                setData(progress);
+            });
+    connect(&workdaysModel_,
+            &WorkdayTrackerModel::workdaysChanged,
+            [&](const WorkdayTracker& updatedTracker) {
+                ProgressOverPeriod progress{requestRangeStrategy_.dateRange(),
+                                            progressModel_.distribution(),
+                                            updatedTracker,
+                                            groupingStrategy_};
+                setData(progress);
+            });
+}
+
+void ProgressView::setupGauges()
+{
+    for (size_t row = 0; row < numRows; ++row) {
+        for (size_t col = 0; col < numColumns; ++col) {
+            auto gauge = std::make_unique<Gauge>(0, 0, gaugeRelSize, this);
+            ui->gaugeLayout->addWidget(
+                gauge.release(), static_cast<int>(row), static_cast<int>(col));
+        }
+    }
 }
 
 ProgressView::~ProgressView() = default;
@@ -97,92 +117,83 @@ void ProgressView::setLegendPercentageCaption(const QString& caption)
     ui->lblProgressPercentageCaption->setText(caption);
 }
 
-void ProgressView::setLegendGoalCaption(const QString& caption)
-{
-    ui->lblGoalCaption->setText(caption);
-}
-
 void ProgressView::addLegendRow(const QString& labelText, QWidget* field)
 {
     ui->formLayout->addRow(labelText, field);
 }
 
-void ProgressView::setData(const Distribution<int>& distribution,
-                           size_t numActiveBins)
+void ProgressView::addLegendRow(QWidget* field)
 {
-    ui->lblProgress->setText(QString("%1").arg(distribution.getTotal()));
-    const int expectedTotal = goal * static_cast<int>(numActiveBins);
-    const int numCompleted = distribution.getTotal();
-
-    if (numCompleted > expectedTotal) {
-        ui->lblLeftCaption->setText("Overwork:");
-        ui->lblLeft->setText(QString{"%1"}.arg(numCompleted - expectedTotal));
-    }
-    else {
-        ui->lblLeftCaption->setText("Left to complete:");
-        ui->lblLeft->setText(QString("%1").arg(expectedTotal - numCompleted));
-    }
-
-    const double average = numCompleted / static_cast<double>(numActiveBins);
-    ui->lblAverage->setText(formatDecimal(average));
-    ui->lblPercentage->setText(QString("%1%").arg(
-        formatDecimal(percentage(distribution.getTotal(), expectedTotal))));
-    fillGauges(distribution);
-    updateProgressBar(distribution.getBinValue(distribution.getNumBins() - 1));
+    ui->formLayout->addRow(field);
 }
 
-void ProgressView::setupGauges()
+void ProgressView::setData(const ProgressOverPeriod& progress)
 {
-    for (size_t row = 0; row < numRows; ++row) {
-        for (size_t col = 0; col < numColumns; ++col) {
-            ui->gaugeLayout->addWidget(new Gauge(0, goal, gaugeRelSize, this),
-                                       static_cast<int>(row),
-                                       static_cast<int>(col));
-        }
-    }
+    updateLegend(progress);
+    updateGauges(progress);
+    updateProgressBar(progress.getValue(progress.size() - 1));
 }
 
-void ProgressView::fillGauges(const Distribution<int>& distribution)
+void ProgressView::updateLegend(const ProgressOverPeriod& progress) const
 {
-    QLayoutItem* item;
+    ui->lblProgress->setText(
+        QString("%1/%2").arg(progress.actual()).arg(progress.estimated()));
+    ui->lblLeftCaption->setText(progress.isOverwork() ? "Overwork:"
+                                                      : "Left to complete:");
+    ui->lblLeft->setText(QString{"%1"}.arg(abs(progress.difference())));
+    if (auto average = progress.averagePerGroupPeriod(); average)
+        ui->lblAverage->setText(formatDecimal(*average));
+    else
+        ui->lblAverage->setText("n/a");
+    if (auto percentage = progress.percentage(); percentage)
+        ui->lblPercentage->setText(
+            QString{"%1%"}.arg(formatDecimal(*progress.percentage())));
+    else
+        ui->lblPercentage->setText(QString{"n/a"});
+}
+
+void ProgressView::updateGauges(const ProgressOverPeriod& progress)
+{
     for (size_t row = 0, ind = 0; row < numRows; ++row) {
         for (size_t col = 0; col < numColumns; ++col, ++ind) {
-            item = ui->gaugeLayout->itemAtPosition(static_cast<int>(row),
-                                                   static_cast<int>(col));
-            if (item) {
+            QLayoutItem* item = ui->gaugeLayout->itemAtPosition(
+                static_cast<int>(row), static_cast<int>(col));
+            if (item)
                 dynamic_cast<Gauge*>(item->widget())
-                    ->setData(distribution.getBinValue(ind), goal);
-            }
+                    ->setData(progress.getValue(ind));
         }
     }
 }
 
-void ProgressView::updateProgressBar(int lastValue)
+void ProgressView::updateProgressBar(const GoalProgress& lastBin)
 {
     auto bar = ui->progressBarGoalProgress;
-    bar->setMaximum(goal);
+    bar->setMaximum(lastBin.estimated());
     bar->setFormat("%v/%m");
     bar->hide();
-    if (goal == 0) {
+    if (lastBin.estimated() == 0) {
         return;
     }
     QPalette p = bar->palette();
-    if (lastValue == goal) {
+    // TODO maybe it's time to define it's own type for progress bar?
+    int actual = lastBin.actual();
+    // TODO replace with lastBin.isOverwork() etc.
+    if (lastBin.actual() == lastBin.estimated()) {
         p.setColor(QPalette::Highlight, ProgressBarColors::targetGoalReached);
         p.setColor(QPalette::Base, ProgressBarColors::targetGoalReached);
     }
-    else if (lastValue > goal) {
+    else if (lastBin.actual() > lastBin.estimated()) {
         p.setColor(QPalette::Highlight, ProgressBarColors::overwork);
         p.setColor(QPalette::Base, ProgressBarColors::targetGoalReached);
-        bar->setFormat(QString("%1").arg(lastValue) + QString("/%m"));
-        lastValue %= goal;
+        bar->setFormat(QString("%1").arg(actual) + QString("/%m"));
+        actual %= lastBin.estimated();
     }
     else {
         p.setColor(QPalette::Highlight, ProgressBarColors::workInProgress);
         p.setColor(QPalette::Base, Qt::white);
     }
     bar->setPalette(p);
-    bar->setValue(lastValue);
+    bar->setValue(actual);
     bar->show();
 }
 

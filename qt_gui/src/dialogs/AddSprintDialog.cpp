@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -52,7 +52,7 @@ AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings,
     ui->cbPickTask->setItemDelegate(submissionItemDelegate.get());
 
     datePicker->setMaximumDate(QDate::currentDate());
-    if (applicationSettings.firstDayOfWeek() == FirstDayOfWeek::Monday)
+    if (applicationSettings.firstDayOfWeek() == dw::Weekday::Monday)
         datePicker->setFirstDayOfWeek(Qt::Monday);
     datePicker->setWindowModality(Qt::ApplicationModal);
 
@@ -140,7 +140,7 @@ generateConsecutiveSprints(const QDateTime& initialStartTime,
 {
     using namespace std::chrono;
     using sprint_timer::entities::Sprint;
-    using sprint_timer::ui::qt_gui::DateTimeConverter;
+    using sprint_timer::ui::qt_gui::utils::toDateTime;
 
     std::vector<Sprint> sprints;
     for (int i = 0; i < numSprints; ++i) {
@@ -148,10 +148,9 @@ generateConsecutiveSprints(const QDateTime& initialStartTime,
             i * duration_cast<seconds>(sprintDuration).count());
         const auto finishTime
             = startTime.addSecs(duration_cast<seconds>(sprintDuration).count());
-        sprints.push_back(
-            Sprint{taskUuid,
-                   dw::TimeSpan{DateTimeConverter::dateTime(startTime),
-                                DateTimeConverter::dateTime(finishTime)}});
+        sprints.push_back(Sprint{
+            taskUuid,
+            dw::DateTimeRange{toDateTime(startTime), toDateTime(finishTime)}});
     }
 
     return sprints;

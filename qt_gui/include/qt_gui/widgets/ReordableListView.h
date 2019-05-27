@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,7 +22,6 @@
 #ifndef REORDABLELISTVIEW_H_KN6BYIAY
 #define REORDABLELISTVIEW_H_KN6BYIAY
 
-#include "qt_gui/models/TaskModel.h"
 #include <QDropEvent>
 #include <QListView>
 
@@ -37,12 +36,9 @@ public:
     // Overriding to catch dropEvent and prevent model start removing rows
     // attempting drag and drop by calling another method instead.
     void dropEvent(QDropEvent* event) final;
-
-
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 
 #endif /* end of include guard: REORDABLELISTVIEW_H_KN6BYIAY */

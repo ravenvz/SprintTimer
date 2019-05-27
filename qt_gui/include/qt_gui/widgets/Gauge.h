@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -24,6 +24,8 @@
 
 #include <QEvent>
 #include <QWidget>
+#include <core/GoalProgress.h>
+#include <core/ProgressOverPeriod.h>
 #include <memory>
 
 namespace sprint_timer::ui::qt_gui {
@@ -43,14 +45,19 @@ class Gauge : public QWidget {
     friend class WorkProgressDone;
     friend class WorkProgressUnderwork;
     friend class WorkProgressOverwork;
+    friend class WorkProgressRest;
 
 public:
     Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent);
+
+    Gauge(GoalProgress progress, double gaugeRelSize, QWidget* parent);
+
     void setData(int completed, int total);
 
+    void setData(const GoalProgress& progress);
+
 private:
-    int actual;
-    int goal;
+    GoalProgress progress;
     const double gaugeRelSize;
     HoverState* hoverState;
     WorkProgressState* workProgressState;
@@ -58,11 +65,18 @@ private:
     QRectF innerRect;
 
     void paintEvent(QPaintEvent*) override;
+
     bool eventFilter(QObject* object, QEvent* event) override;
+
     void setupPainter(QPainter& painter);
+
     void drawOuterCircle(QPainter& painter);
+
     void drawInnerCircle(QPainter& painter);
+
     void updateState();
+
+    void mouseMoveEvent(QMouseEvent* event) override;
 };
 
 
@@ -118,6 +132,14 @@ public:
 class WorkProgressNone : public WorkProgressState {
 public:
     void draw(const Gauge& gauge, QPainter& painter) final;
+};
+
+class WorkProgressRest : public WorkProgressState {
+public:
+    void draw(const Gauge& gauge, QPainter& painter) override;
+
+protected:
+    void setupBrushes() override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,10 +20,6 @@
 **
 *********************************************************************************/
 
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
-
 #include "mocks/TaskStorageReaderMock.h"
 #include "gtest/gtest.h"
 #include <core/QueryInvoker.h>
@@ -37,15 +33,14 @@ class RequestTasksFixture : public ::testing::Test {
 public:
     TaskStorageReaderMock task_reader_mock;
     sprint_timer::QueryInvoker queryInvoker;
-    const TimeSpan someTimeSpan
-        = TimeSpan{DateTime::currentDateTime().add(DateTime::Days(-1)),
-                   DateTime::currentDateTime().add(DateTime::Days(-1))};
+    const DateRange someDateRange{
+        add_offset({current_date(), current_date()}, Days{-1})};
 };
 
 TEST_F(RequestTasksFixture, execute)
 {
-    EXPECT_CALL(task_reader_mock, requestTasks(someTimeSpan, _)).Times(1);
+    EXPECT_CALL(task_reader_mock, requestTasks(someDateRange, _)).Times(1);
 
     queryInvoker.execute(std::make_unique<RequestTasks>(
-        task_reader_mock, someTimeSpan, [](const auto& result) {}));
+        task_reader_mock, someDateRange, [](const auto& result) {}));
 }

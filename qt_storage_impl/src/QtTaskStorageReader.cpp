@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,7 +25,6 @@
 
 namespace sprint_timer::storage::qt_storage_impl {
 
-using dw::TimeSpan;
 using namespace entities;
 
 QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
@@ -70,7 +69,7 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
 
 void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
 {
-    handler_queue.push_back(handler);
+    handlerQueue.push(handler);
     mUnfinishedQueryId = dbService.execute(
         QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
                 "FROM %10 "
@@ -88,41 +87,41 @@ void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
             .arg(TasksView::name));
 }
 
-void QtTaskStorageReader::requestFinishedTasks(const TimeSpan& timeSpan,
+void QtTaskStorageReader::requestFinishedTasks(const dw::DateRange& dateRange,
                                                Handler handler)
 {
-    handler_queue.push_back(handler);
+    handlerQueue.push(handler);
 
     dbService.bind(mFinishedQueryId,
                    ":start_date",
                    QVariant(QString::fromStdString(
-                       timeSpan.start().toString("yyyy-MM-dd"))));
+                       dw::to_string(dateRange.start(), "yyyy-MM-dd"))));
     dbService.bind(mFinishedQueryId,
                    ":end_date",
                    QVariant(QString::fromStdString(
-                       timeSpan.finish().toString("yyyy-MM-dd"))));
+                       dw::to_string(dateRange.finish(), "yyyy-MM-dd"))));
     dbService.executePrepared(mFinishedQueryId);
 }
 
-void QtTaskStorageReader::requestTasks(const TimeSpan& timeSpan,
+void QtTaskStorageReader::requestTasks(const dw::DateRange& dateRange,
                                        Handler handler)
 {
-    handler_queue.push_back(handler);
+    handlerQueue.push(handler);
 
     dbService.bind(mRequestTasksQueryId,
                    ":start_date",
                    QVariant(QString::fromStdString(
-                       timeSpan.start().toString("yyyy-MM-dd"))));
+                       dw::to_string(dateRange.start(), "yyyy-MM-dd"))));
     dbService.bind(mRequestTasksQueryId,
                    ":end_date",
                    QVariant(QString::fromStdString(
-                       timeSpan.finish().toString("yyyy-MM-dd"))));
+                       dw::to_string(dateRange.finish(), "yyyy-MM-dd"))));
     dbService.executePrepared(mRequestTasksQueryId);
 }
 
 void QtTaskStorageReader::requestAllTags(TagHandler handler)
 {
-    tag_handler_queue.push_back(handler);
+    tagHandlerQueue.push(handler);
     mTagQueryId = dbService.execute(QString{"SELECT %1, %2 FROM %3 "
                                             "ORDER BY %2;"}
                                         .arg(TagTable::Columns::id)
@@ -141,8 +140,8 @@ void QtTaskStorageReader::onResultsReceived(
             records.cend(),
             std::back_inserter(tasks),
             [&](const auto& elem) { return this->taskFromQSqlRecord(elem); });
-        handler_queue.front()(tasks);
-        handler_queue.pop_front();
+        handlerQueue.front()(tasks);
+        handlerQueue.pop();
     }
     if (queryId == mTagQueryId) {
         std::vector<std::string> tags;
@@ -151,8 +150,8 @@ void QtTaskStorageReader::onResultsReceived(
             records.cend(),
             std::back_inserter(tags),
             [&](const auto& elem) { return this->tagFromSqlRecord(elem); });
-        tag_handler_queue.front()(tags);
-        tag_handler_queue.pop_front();
+        tagHandlerQueue.front()(tags);
+        tagHandlerQueue.pop();
     }
 }
 

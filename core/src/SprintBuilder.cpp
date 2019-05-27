@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -71,7 +71,7 @@ SprintBuilder& SprintBuilder::withTag(std::string tag)
     return *this;
 }
 
-SprintBuilder& SprintBuilder::withTimeSpan(dw::TimeSpan timeSpan)
+SprintBuilder& SprintBuilder::withTimeSpan(dw::DateTimeRange timeSpan)
 {
     timeSpan_ = std::make_optional(std::move(timeSpan));
     return *this;

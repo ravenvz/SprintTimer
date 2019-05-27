@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,7 +23,7 @@
 #ifndef ISTATEFULTIMER_H_D3DG0N7C
 #define ISTATEFULTIMER_H_D3DG0N7C
 
-#include "date_wrapper/TimeSpan.h"
+#include "date_wrapper/date_wrapper.h"
 #include <vector>
 
 namespace sprint_timer {
@@ -54,7 +54,7 @@ public:
 
     virtual void toggleInTheZoneMode() = 0;
 
-    virtual std::vector<dw::TimeSpan> completedSprints() const = 0;
+    virtual std::vector<dw::DateTimeRange> completedSprints() const = 0;
 
     virtual void setNumFinishedSprints(int num) = 0;
 

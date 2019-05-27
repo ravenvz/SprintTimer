@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,6 +25,7 @@
 #include <QSettings>
 #include <QVariant>
 #include <core/IConfig.h>
+#include <date_wrapper/date_wrapper.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -57,18 +58,6 @@ public:
 
     void setSoundVolume(int soundVolume) override;
 
-    int dailyGoal() const override;
-
-    void setDailyGoal(int numSprints) override;
-
-    int weeklyGoal() const override;
-
-    void setWeeklyGoal(int numSprints) override;
-
-    int monthlyGoal() const override;
-
-    void setMonthlyGoal(int numSprints) override;
-
     std::string soundFilePath() const override;
 
     void setSoundFilePath(const std::string& filePath) override;
@@ -77,13 +66,9 @@ public:
 
     void setTimerFlavour(int timerVariation) override;
 
-    utils::WeekdaySelection workdays() const override;
+    dw::Weekday firstDayOfWeek() const override;
 
-    void setWorkdays(const utils::WeekdaySelection& workdays) override;
-
-    FirstDayOfWeek firstDayOfWeek() const override;
-
-    void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek) override;
+    void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) override;
 
 private:
     QSettings settings;

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -36,7 +36,7 @@ ToggleTaskCompletionStatus::ToggleTaskCompletionStatus(
 
 void ToggleTaskCompletionStatus::execute()
 {
-    writer.toggleTaskCompletionStatus(uuid, DateTime::currentDateTimeLocal());
+    writer.toggleTaskCompletionStatus(uuid, dw::current_date_time_local());
 }
 
 void ToggleTaskCompletionStatus::undo()

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -57,8 +57,8 @@ private:
     QLineEdit* quickAddTask;
 
 public slots:
-    void
-    onSprintSubmissionRequested(const std::vector<dw::TimeSpan>& intervals);
+    void onSprintSubmissionRequested(
+        const std::vector<dw::DateTimeRange>& intervals);
 
 private slots:
     void onAddTaskButtonPushed();

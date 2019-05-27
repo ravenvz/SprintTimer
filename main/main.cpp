@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -49,36 +49,49 @@
 #include <qt_storage_impl/QtStorageImplementersFactory.h>
 
 #include <QObject>
+#include <core/GroupByDay.h>
+#include <core/GroupByMonth.h>
+#include <core/GroupByWeek.h>
 #include <core/ICommandInvoker.h>
 #include <core/IConfig.h>
 #include <core/ITaskStorageReader.h>
 #include <core/QueryInvoker.h>
 #include <filesystem>
+#include <qt_gui/RequestForDaysBack.h>
+#include <qt_gui/RequestForMonthsBack.h>
+#include <qt_gui/RequestForWeeksBack.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
+#include <qt_gui/dialogs/AddExceptionalDayDialog.h>
 #include <qt_gui/dialogs/AddSprintDialog.h>
 #include <qt_gui/dialogs/AddTaskDialog.h>
+#include <qt_gui/dialogs/DateRangePickDialog.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
 #include <qt_gui/dialogs/UndoDialog.h>
 #include <qt_gui/dialogs/WorkdaysDialog.h>
+#include <qt_gui/models/DistributionModel.h>
+#include <qt_gui/models/ExtraDayModel.h>
 #include <qt_gui/models/HistoryModel.h>
+#include <qt_gui/models/OperationRangeModel.h>
+#include <qt_gui/models/ScheduleModel.h>
 #include <qt_gui/models/TagModel.h>
-#include <qt_gui/widgets/DailyProgressView.h>
+#include <qt_gui/models/WorkdayTrackerModel.h>
+#include <qt_gui/widgets/ContextMenuListView.h>
+#include <qt_gui/widgets/DailyTimelineGraph.h>
+#include <qt_gui/widgets/DateRangePicker.h>
 #include <qt_gui/widgets/DefaultTimer.h>
 #include <qt_gui/widgets/FancyTimer.h>
-#include <qt_gui/widgets/GoalProgressWindow.h>
 #include <qt_gui/widgets/HistoryWindow.h>
 #include <qt_gui/widgets/LauncherMenu.h>
-#include <qt_gui/widgets/MonthlyProgressView.h>
+#include <qt_gui/widgets/ProgressMonitorWidget.h>
 #include <qt_gui/widgets/ProgressView.h>
 #include <qt_gui/widgets/SprintOutline.h>
-#include <qt_gui/widgets/SprintView.h>
+#include <qt_gui/widgets/StatisticsDiagramWidget.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
 #include <qt_gui/widgets/TagEditor.h>
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
 #include <qt_gui/widgets/UndoButton.h>
-#include <qt_gui/widgets/WeeklyProgressView.h>
 
 using std::filesystem::create_directory;
 using std::filesystem::exists;
@@ -232,72 +245,77 @@ int main(int argc, char* argv[])
     Config applicationSettings;
 
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/sprint.db"};
+    DBService dbService{dataDirectory + "/test_sprint.db"};
 
-    QtStorageImplementersFactory factory{dbService};
+    QtStorageImplementersFactory factory{dbService, applicationSettings};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{
         factory.createSprintStorageReader()};
     std::unique_ptr<ISprintStorageWriter> sprintStorageWriter{
         factory.createSprintStorageWriter()};
-    std::unique_ptr<IYearRangeReader> sprintYearRangeReader{
-        factory.createYearRangeReader()};
     std::unique_ptr<ITaskStorageReader> taskStorageReader{
         factory.createTaskStorageReader()};
     std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
         factory.createTaskStorageWriter()};
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
         factory.createSprintDailyDistributionReader()};
+    std::unique_ptr<IOperationalRangeReader> operationRangeReader{
+        factory.createOperationalRangeReader()};
     std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
         factory.createSprintWeeklyDistributionReader(
             applicationSettings.firstDayOfWeek())};
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
+    std::unique_ptr<IWorkingDaysReader> workingDaysReader{
+        factory.createWorkingDaysReader()};
+    std::unique_ptr<IWorkingDaysWriter> workingDaysWriter{
+        factory.createWorkingDaysWriter()};
 
     CommandInvoker defaultCommandInvoker;
     VerboseCommandInvoker commandInvoker{defaultCommandInvoker};
     QueryInvoker defaultQueryInvoker;
     VerboseQueryInvoker queryInvoker{defaultQueryInvoker};
 
-    TaskModel taskModel{*taskStorageReader,
-                        *taskStorageWriter,
-                        *sprintStorageReader,
-                        *sprintStorageWriter,
-                        commandInvoker,
-                        queryInvoker};
-    SprintModel sprintModel{commandInvoker,
-                            queryInvoker,
-                            *sprintStorageReader,
-                            *sprintStorageWriter,
-                            *taskStorageWriter};
+    TaskModel unfinishedTasksModel{*taskStorageReader,
+                                   *taskStorageWriter,
+                                   *sprintStorageReader,
+                                   *sprintStorageWriter,
+                                   commandInvoker,
+                                   queryInvoker};
+    SprintModel todaySprintsModel{commandInvoker,
+                                  queryInvoker,
+                                  *sprintStorageReader,
+                                  *sprintStorageWriter};
     TagModel tagModel{
         *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
 
-    // auto sprintOutline = createSprintOutline(
-    //     applicationSettings, commandInvoker, sprintModel, taskModel);
     AddSprintDialog addSprintDialog{
-        applicationSettings, sprintModel, taskModel};
+        applicationSettings, todaySprintsModel, unfinishedTasksModel};
+
+    WorkdayTrackerModel workdayTrackerModel{
+        *workingDaysWriter, *workingDaysReader, commandInvoker, queryInvoker};
 
     UndoDialog undoDialog{commandInvoker};
     QObject::connect(&undoDialog,
                      &QDialog::accepted,
-                     &sprintModel,
+                     &todaySprintsModel,
                      &AsyncListModel::requestDataUpdate);
     QObject::connect(&undoDialog,
                      &QDialog::accepted,
-                     &taskModel,
+                     &unfinishedTasksModel,
                      &AsyncListModel::requestSilentDataUpdate);
 
     auto undoButton = std::make_unique<UndoButton>(commandInvoker);
     auto addNewSprintButton
         = std::make_unique<QPushButton>("Add Sprint Manually");
     addNewSprintButton->setEnabled(false);
-    QObject::connect(&taskModel,
+    QObject::connect(&unfinishedTasksModel,
                      &QAbstractListModel::modelReset,
-                     [btn = addNewSprintButton.get(), &taskModel]() {
-                         btn->setEnabled(taskModel.rowCount(QModelIndex{})
-                                         != 0);
+                     [btn = addNewSprintButton.get(), &unfinishedTasksModel]() {
+                         btn->setEnabled(
+                             unfinishedTasksModel.rowCount(QModelIndex{}) != 0);
                      });
-    auto sprintView = std::make_unique<SprintView>(sprintModel);
+    auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
+    sprintView->setModel(&todaySprintsModel);
     auto sprintOutline
         = std::make_unique<SprintOutline>(addSprintDialog,
                                           undoDialog,
@@ -305,60 +323,163 @@ int main(int argc, char* argv[])
                                           std::move(addNewSprintButton),
                                           std::move(sprintView));
 
-    StatisticsWindow statisticsWindow{applicationSettings,
+    OperationRangeModel operationRangeModel{*operationRangeReader,
+                                            queryInvoker};
+
+    SprintModel statisticsSprintModel{commandInvoker,
+                                      queryInvoker,
                                       *sprintStorageReader,
-                                      *sprintYearRangeReader,
-                                      queryInvoker};
-    // TODO keep an eye: modified
-    QObject::connect(&sprintModel,
+                                      *sprintStorageWriter};
+    QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
-                     [&statisticsWindow]() { statisticsWindow.synchronize(); });
-    QObject::connect(&taskModel,
+                     &statisticsSprintModel,
+                     &SprintModel::requestSilentDataUpdate);
+    auto statisticsWindowDateRangePicker = std::make_unique<DateRangePicker>(
+        std::make_unique<DateRangePickDialog>(applicationSettings),
+        operationRangeModel);
+    QObject::connect(statisticsWindowDateRangePicker.get(),
+                     &DateRangePicker::selectedDateRangeChanged,
+                     [&statisticsSprintModel](const auto& dateRange) {
+                         statisticsSprintModel.requestUpdate(dateRange);
+                     });
+    auto dailyTimelineGraph = std::make_unique<DailyTimelineGraph>(nullptr);
+    auto statisticsDiagramWidget = std::make_unique<StatisticsDiagramWidget>(
+        std::make_unique<BestWorkdayWidget>(nullptr),
+        std::make_unique<DistributionDiagram>(nullptr),
+        std::make_unique<BestWorktimeWidget>(nullptr),
+        nullptr);
+    StatisticsWindow statisticsWindow{
+        std::move(statisticsWindowDateRangePicker),
+        std::move(dailyTimelineGraph),
+        std::move(statisticsDiagramWidget),
+        workdayTrackerModel,
+        statisticsSprintModel};
+    QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
-                     [&statisticsWindow]() { statisticsWindow.synchronize(); });
+                     [&statisticsSprintModel]() {
+                         statisticsSprintModel.requestDataUpdate();
+                     });
 
-    WorkdaysDialog workdaysDialog{applicationSettings};
-    auto dailyProgress
-        = std::make_unique<DailyProgressView>(applicationSettings,
-                                              *dailyDistributionReader,
+    AddExceptionalDayDialog exceptionalDayDialog;
+    ExtraDayModel exceptionalDaysModel;
+    ScheduleModel scheduleModel{applicationSettings};
+
+    WorkdaysDialog workdaysDialog{exceptionalDayDialog,
+                                  exceptionalDaysModel,
+                                  workdayTrackerModel,
+                                  scheduleModel};
+
+    const int distributionDays{30};
+    RequestForDaysBack requestDaysBackStrategy{distributionDays};
+    GroupByDay groupByDayStrategy;
+    DistributionModel dailyDistributionModel{*dailyDistributionReader,
+                                             queryInvoker,
+                                             groupByDayStrategy,
+                                             requestDaysBackStrategy};
+    QObject::connect(
+        &todaySprintsModel,
+        &AsyncListModel::updateFinished,
+        [&dailyDistributionModel]() { dailyDistributionModel.synchronize(); });
+    const ProgressView::Rows dailyRows{3};
+    const ProgressView::Columns dailyCols{10};
+    const ProgressView::GaugeSize dailyGaugeRelSize{0.7};
+    auto dailyProgress = std::make_unique<ProgressView>(dailyDistributionModel,
+                                                        workdayTrackerModel,
+                                                        groupByDayStrategy,
+                                                        requestDaysBackStrategy,
+                                                        dailyRows,
+                                                        dailyCols,
+                                                        dailyGaugeRelSize);
+    dailyProgress->setLegendTitle("Last 30 days");
+    dailyProgress->setLegendAverageCaption("Average per day:");
+
+    auto configureWorkdaysButton = std::make_unique<QPushButton>("Configure");
+    QObject::connect(configureWorkdaysButton.get(),
+                     &QPushButton::clicked,
+                     [&workdaysDialog]() { workdaysDialog.exec(); });
+    dailyProgress->addLegendRow("Workdays", configureWorkdaysButton.release());
+
+    const int distributionWeeks{12};
+    RequestForWeeksBack requestWeeksBackStrategy{distributionWeeks,
+                                                 applicationSettings};
+    GroupByWeek groupByWeekStrategy{applicationSettings};
+    DistributionModel weeklyDistributionModel{*weeklyDistributionReader,
                                               queryInvoker,
-                                              workdaysDialog);
-    QObject::connect(&sprintModel,
+                                              groupByWeekStrategy,
+                                              requestWeeksBackStrategy};
+    QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
-                     [p = dailyProgress.get()]() { p->synchronize(); });
-    // TODO do we really need connection to TaskModel and why?
-    // QObject::connect(&taskModel,
-    //                  &QAbstractListModel::modelReset,
-    //                  [p = dailyProgress.get()]() { p->synchronize(); });
-    auto weeklyProgress = std::make_unique<WeeklyProgressView>(
-        applicationSettings, queryInvoker, *weeklyDistributionReader);
-    QObject::connect(&sprintModel,
-                     &AsyncListModel::updateFinished,
-                     [p = weeklyProgress.get()]() { p->synchronize(); });
-    auto monthlyProgress = std::make_unique<MonthlyProgressView>(
-        applicationSettings, queryInvoker, *monthlyDistributionReader);
-    QObject::connect(&sprintModel,
-                     &AsyncListModel::updateFinished,
-                     [p = monthlyProgress.get()]() { p->synchronize(); });
-    GoalProgressWindow progressWindow{
-        std::move(dailyProgress),
-        std::move(weeklyProgress),
-        std::move(monthlyProgress),
-    };
+                     [&weeklyDistributionModel]() {
+                         weeklyDistributionModel.synchronize();
+                     });
+    const ProgressView::Rows weeklyRows{3};
+    const ProgressView::Columns weeklyCols{4};
+    const ProgressView::GaugeSize weeklyGaugeRelSize{0.8};
+    auto weeklyProgress
+        = std::make_unique<ProgressView>(weeklyDistributionModel,
+                                         workdayTrackerModel,
+                                         groupByWeekStrategy,
+                                         requestWeeksBackStrategy,
+                                         weeklyRows,
+                                         weeklyCols,
+                                         weeklyGaugeRelSize);
+    weeklyProgress->setLegendTitle("Last 12 weeks");
+    weeklyProgress->setLegendAverageCaption("Average per week:");
 
+    const int distributionMonths{12};
+    RequestForMonthsBack requestMonthsBackStrategy{distributionMonths};
+    GroupByMonth groupByMonthStrategy;
+    DistributionModel monthlyDistributionModel{*monthlyDistributionReader,
+                                               queryInvoker,
+                                               groupByMonthStrategy,
+                                               requestMonthsBackStrategy};
+    QObject::connect(&todaySprintsModel,
+                     &AsyncListModel::updateFinished,
+                     [&monthlyDistributionModel]() {
+                         monthlyDistributionModel.synchronize();
+                     });
+    const ProgressView::Rows monthlyRows{3};
+    const ProgressView::Columns monthlyCols{4};
+    const ProgressView::GaugeSize monthlyGaugeRelSize{0.8};
+    auto monthlyProgress
+        = std::make_unique<ProgressView>(monthlyDistributionModel,
+                                         workdayTrackerModel,
+                                         groupByMonthStrategy,
+                                         requestMonthsBackStrategy,
+                                         monthlyRows,
+                                         monthlyCols,
+                                         monthlyGaugeRelSize);
+    monthlyProgress->setLegendTitle("Last 12 months");
+    monthlyProgress->setLegendAverageCaption("Average per month:");
+
+    ProgressMonitorWidget progressWindow{std::move(dailyProgress),
+                                         std::move(weeklyProgress),
+                                         std::move(monthlyProgress)};
+
+    auto historyWindowDateRangePicker = std::make_unique<DateRangePicker>(
+        std::make_unique<DateRangePickDialog>(applicationSettings),
+        operationRangeModel);
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
-    HistoryWindow historyWindow{*sprintStorageReader,
+    SprintModel historySprintModel{commandInvoker,
+                                   queryInvoker,
+                                   *sprintStorageReader,
+                                   *sprintStorageWriter};
+    // QObject::connect(historyWindowDateRangePicker.get(),
+    //                  &DateRangePicker::selectedDateRangeChanged,
+    //                  [&historySprintModel](const auto& dateRange) {
+    //                      historySprintModel.requestUpdate(dateRange);
+    //                  });
+    HistoryWindow historyWindow{historySprintModel,
                                 *taskStorageReader,
-                                *sprintYearRangeReader,
                                 historyModel,
                                 historyItemDelegate,
                                 queryInvoker,
-                                applicationSettings.firstDayOfWeek()};
-    QObject::connect(&sprintModel,
+                                std::move(historyWindowDateRangePicker)};
+    QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
                      [&historyWindow]() { historyWindow.synchronize(); });
-    QObject::connect(&taskModel,
+    QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
                      [&historyWindow]() { historyWindow.synchronize(); });
 
@@ -370,32 +491,23 @@ int main(int argc, char* argv[])
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
         timerWidget = std::make_unique<DefaultTimer>(
-            applicationSettings, taskModel, nullptr);
+            applicationSettings, unfinishedTasksModel, nullptr);
     else
         timerWidget = std::make_unique<FancyTimer>(
-            applicationSettings, taskModel, nullptr);
+            applicationSettings, unfinishedTasksModel, nullptr);
 
     HistoryModel taskSprintsModel;
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
     AddTaskDialog addTaskDialog{tagModel};
     TaskItemDelegate taskItemDelegate;
     auto taskView
-        = std::make_unique<TaskView>(taskModel,
+        = std::make_unique<TaskView>(unfinishedTasksModel,
                                      *sprintStorageReader,
                                      queryInvoker,
                                      taskSprintsView,
                                      addTaskDialog,
                                      std::make_unique<TagEditor>(tagModel),
                                      taskItemDelegate);
-    // taskView->setStyleSheet(
-    //     QLatin1String{"QListView {\n"
-    //                   "  show-decoration-selected: 1;\n"
-    //                   "}\n"
-    //                   "QListView::item {\n"
-    //                   "  margin: 5px;\n"
-    //                   "  border: 1px solid gray;\n"
-    //                   "  border-radius: 2px; padding: 10px;\n"
-    //                   "}\n"});
     QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submissionCandidateChanged,
                      taskView.get(),
@@ -406,31 +518,33 @@ int main(int argc, char* argv[])
                      [timer = timerWidget.get()](const int row) {
                          timer->setCandidateIndex(row);
                      });
-    auto taskOutline = std::make_unique<TaskOutline>(
-        taskModel, sprintModel, std::move(taskView), addTaskDialog);
+    auto taskOutline = std::make_unique<TaskOutline>(unfinishedTasksModel,
+                                                     todaySprintsModel,
+                                                     std::move(taskView),
+                                                     addTaskDialog);
 
     // As models update data asynchroniously,
     // other models that depend on that data should
     // subscribe to updateFinished() signal
-    QObject::connect(&sprintModel,
+    QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
-                     &taskModel,
+                     &unfinishedTasksModel,
                      &AsyncListModel::requestSilentDataUpdate);
-    QObject::connect(&taskModel,
+    QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
-                     &sprintModel,
+                     &todaySprintsModel,
                      &AsyncListModel::requestSilentDataUpdate);
-    QObject::connect(&taskModel,
+    QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
                      &tagModel,
                      &TagModel::requestDataUpdate);
     QObject::connect(&tagModel,
                      &AsyncListModel::updateFinished,
-                     &sprintModel,
+                     &todaySprintsModel,
                      &AsyncListModel::requestSilentDataUpdate);
     QObject::connect(&tagModel,
                      &AsyncListModel::updateFinished,
-                     &taskModel,
+                     &unfinishedTasksModel,
                      &AsyncListModel::requestSilentDataUpdate);
 
     QObject::connect(timerWidget.get(),
@@ -438,12 +552,28 @@ int main(int argc, char* argv[])
                      taskOutline.get(),
                      &TaskOutline::onSprintSubmissionRequested);
     // TODO see if we can connect it differently
-    QObject::connect(&sprintModel,
+    QObject::connect(&todaySprintsModel,
                      &SprintModel::modelReset,
-                     [timer = timerWidget.get(), &sprintModel]() {
-                         timer->updateGoalProgress(
-                             sprintModel.rowCount(QModelIndex()));
+                     [timer = timerWidget.get(),
+                      &todaySprintsModel,
+                      &workdayTrackerModel]() {
+                         timer->updateGoalProgress(GoalProgress{
+                             workdayTrackerModel.workdayTracker().goal(
+                                 dw::current_date_local()),
+                             todaySprintsModel.rowCount(QModelIndex())});
                      });
+    QObject::connect(&workdayTrackerModel,
+                     &WorkdayTrackerModel::workdaysChanged,
+                     [timer = timerWidget.get(),
+                      &todaySprintsModel](const WorkdayTracker& tracker) {
+                         timer->updateGoalProgress(GoalProgress{
+                             tracker.goal(dw::current_date_local()),
+                             todaySprintsModel.rowCount(QModelIndex())});
+                     });
+
+    // TODO could be called in the constructor, but will it be able to
+    // finish? for now, this manual request is left is a workaround
+    workdayTrackerModel.requestDataUpdate();
 
     sprint_timer::ui::qt_gui::MainWindow w{std::move(sprintOutline),
                                            std::move(taskOutline),

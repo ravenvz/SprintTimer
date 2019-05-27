@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,29 +22,30 @@
 
 #include "core/use_cases/RequestFinishedTasks.h"
 
-using dw::TimeSpan;
+using dw::DateRange;
 
 namespace sprint_timer::use_cases {
 
 RequestFinishedTasks::RequestFinishedTasks(
     ITaskStorageReader& taskStorageReader,
-    TimeSpan timeSpan,
+    const DateRange& dateRange,
     ITaskStorageReader::Handler handler)
     : reader{taskStorageReader}
-    , timeSpan_{std::move(timeSpan)}
+    , dateRange_{dateRange}
     , handler_{handler}
 {
 }
 
 void RequestFinishedTasks::execute()
 {
-    reader.requestFinishedTasks(timeSpan_, handler_);
+    reader.requestFinishedTasks(dateRange_, handler_);
 }
 
 std::string RequestFinishedTasks::describe() const
 {
     std::stringstream ss;
-    ss << "Request finished tasks in '" << timeSpan_.toString("dd.MM.yyyy");
+    ss << "Request finished tasks in '"
+       << dw::to_string(dateRange_, "dd.MM.yyyy");
     return ss.str();
 }
 

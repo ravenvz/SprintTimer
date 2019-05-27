@@ -1,3 +1,24 @@
+/********************************************************************************
+**
+** Copyright (C) 2016-2019 Pavel Pavlov.
+**
+**
+** This file is part of SprintTimer.
+**
+** SprintTimer is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Lesser General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** SprintTimer is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
+**
+*********************************************************************************/
 #ifndef DATABASEDESCRIPTION_H_035DMAOX
 #define DATABASEDESCRIPTION_H_035DMAOX
 
@@ -68,6 +89,34 @@ namespace TaskTagTable {
     } // namespace Columns
 
 } // namespace TaskTagTable
+
+namespace ExceptionalDayTable {
+    inline const QStringView name{QStringLiteral("exceptional_day")};
+
+    namespace Columns {
+        inline const QStringView id{QStringLiteral("id")};
+        inline const QStringView date{QStringLiteral("date")};
+        inline const QStringView goal{QStringLiteral("goal")};
+    } // namespace Columns
+
+} // namespace ExceptionalDayTable
+
+namespace ScheduleTable {
+    inline const QStringView name{QStringLiteral("schedule")};
+
+    namespace Columns {
+        inline const QStringView id{QStringLiteral("id")};
+        inline const QStringView applied_since{QStringLiteral("applied_since")};
+        inline const QStringView monday_goal{QStringLiteral("mon_goal")};
+        inline const QStringView tuesday_goal{QStringLiteral("tue_goal")};
+        inline const QStringView wednesday_goal{QStringLiteral("wed_goal")};
+        inline const QStringView thursday_goal{QStringLiteral("thu_goal")};
+        inline const QStringView friday_goal{QStringLiteral("fri_goal")};
+        inline const QStringView saturday_goal{QStringLiteral("sat_goal")};
+        inline const QStringView sunday_goal{QStringLiteral("sun_goal")};
+    } // namespace Columns
+
+} // namespace ScheduleTable
 
 namespace TaskTagView {
     inline const QStringView name{QStringLiteral("task_tag_view")};

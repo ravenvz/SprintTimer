@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,9 +22,9 @@
 #ifndef QTSPRINTSTORAGEWRITER_H_U7AAXVTC
 #define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
 
-#include "core/ISprintStorageWriter.h"
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
+#include <core/ISprintStorageWriter.h>
 
 namespace sprint_timer::storage::qt_storage_impl {
 

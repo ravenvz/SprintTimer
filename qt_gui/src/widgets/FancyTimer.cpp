@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,18 +23,18 @@
 #include "qt_gui/utils/WidgetUtils.h"
 #include "ui_fancy_timer.h"
 
-namespace sprint_timer::ui::qt_gui {
-
 namespace {
 
-    constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
-    constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
-    constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
-    const QColor taskStateColor{"#eb6c59"};
-    const QColor breakStateColor{"#73c245"};
-    const QColor zoneStateColor{Qt::darkYellow};
+constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
+constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
+constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
+const QColor taskStateColor{"#eb6c59"};
+const QColor breakStateColor{"#73c245"};
+const QColor zoneStateColor{Qt::darkYellow};
 
 } // namespace
+
+namespace sprint_timer::ui::qt_gui {
 
 FancyTimer::FancyTimer(const IConfig& applicationSettings_,
                        QAbstractItemModel& taskModel,
@@ -43,7 +43,8 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings_,
     , ui{std::make_unique<Ui::FancyTimer>()}
 {
     ui->setupUi(this);
-    combinedIndicator = new CombinedIndicator(indicatorSize, this);
+    combinedIndicator
+        = std::make_unique<CombinedIndicator>(indicatorSize, this).release();
     combinedIndicator->setSizePolicy(QSizePolicy::MinimumExpanding,
                                      QSizePolicy::MinimumExpanding);
     ui->cbxSubmissionCandidate->setModel(&taskModel);
@@ -82,20 +83,23 @@ void FancyTimer::setCandidateIndex(int index)
         ui->cbxSubmissionCandidate->setCurrentIndex(index);
 }
 
-void FancyTimer::updateGoalProgress(Progress progress)
+void FancyTimer::updateGoalProgress(const GoalProgress& progress)
 {
-    timer->setNumFinishedSprints(progress);
-    const auto dailyGoal = applicationSettings.dailyGoal();
-    if (dailyGoal == 0) {
+    const int estimated{progress.estimated()};
+    const int actual{progress.actual()};
+    timer->setNumFinishedSprints(actual);
+    if (estimated == 0) {
         ui->labelDailyGoalProgress->hide();
         return;
     }
-    ui->labelDailyGoalProgress->setText(
-        QString("Daily goal progress: %1/%2").arg(progress).arg(dailyGoal));
-    if (progress == dailyGoal) {
+    ui->labelDailyGoalProgress->show();
+    ui->labelDailyGoalProgress->setText(QString("Daily goal progress: %1/%2")
+                                            .arg(progress.actual())
+                                            .arg(progress.estimated()));
+    if (actual == estimated) {
         ui->labelDailyGoalProgress->setStyleSheet(workgoalMetStyleSheet);
     }
-    else if (progress > dailyGoal) {
+    else if (actual > estimated) {
         ui->labelDailyGoalProgress->setStyleSheet(overworkStyleSheet);
     }
     else {

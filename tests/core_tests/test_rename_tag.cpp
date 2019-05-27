@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,10 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
 
 #include "mocks/TaskStorageWriterMock.h"
 #include "gtest/gtest.h"

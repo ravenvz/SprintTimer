@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -33,7 +33,7 @@ public:
     using QueryResultHandler
         = std::function<void(const std::vector<entities::Sprint>&)>;
     RequestSprints(ISprintStorageReader& sprint_storage_reader,
-                   dw::TimeSpan timeSpan,
+                   dw::DateRange dateRange,
                    QueryResultHandler resultHandler);
 
     void execute() final;
@@ -42,7 +42,7 @@ public:
 
 private:
     ISprintStorageReader& reader;
-    const dw::TimeSpan timeSpan_;
+    const dw::DateRange dateRange_;
     QueryResultHandler handler;
 };
 

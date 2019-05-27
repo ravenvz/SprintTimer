@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -38,22 +38,32 @@ DeleteTask::DeleteTask(ITaskStorageWriter& taskStorageWriter,
 void DeleteTask::execute()
 {
     if (task.actualCost() == 0) {
-        taskWriter.remove(task);
+        taskWriter.remove(task.uuid());
         return;
     }
     sprintReader.sprintsForTask(
         task.uuid(), [this](const std::vector<entities::Sprint>& sprints) {
             taskSprints = sprints;
-            taskWriter.remove(task);
+            taskWriter.remove(task.uuid());
         });
 }
 
 void DeleteTask::undo()
 {
-    taskWriter.save(task);
-    for (const auto& sprint : taskSprints) {
-        sprintWriter.save(sprint);
+    // This prevents doubling actual cost in case when deletion
+    // of Task that has sprints will be undone - otherwise actual cost
+    // will be restored and when sprints are added afterwards, actual cost
+    // effectively doubles.
+    if (task.actualCost() != 0) {
+        entities::Task nullifiedCostTask = task;
+        nullifiedCostTask.setActualCost(0);
+        taskWriter.save(nullifiedCostTask);
     }
+    else {
+        taskWriter.save(task);
+    }
+
+    sprintWriter.save(taskSprints);
 }
 
 std::string DeleteTask::describe() const

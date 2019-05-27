@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,82 +22,50 @@
 #ifndef QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC
 #define QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC
 
-#include "core/IConfig.h"
-#include "core/IStorageImplementersFactory.h"
-#include "qt_storage_impl/QtSprintDistributionReader.h"
-#include "qt_storage_impl/QtSprintStorageReader.h"
-#include "qt_storage_impl/QtSprintStorageWriter.h"
-#include "qt_storage_impl/QtTaskStorageReader.h"
-#include "qt_storage_impl/QtTaskStorageWriter.h"
-#include "qt_storage_impl/QtYearRangeReader.h"
+#include "qt_storage_impl/DBService.h"
+#include <core/IConfig.h>
+#include <core/IStorageImplementersFactory.h>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
-// TODO split to header/implementation
-
 class QtStorageImplementersFactory : public IStorageImplementersFactory {
 public:
-    explicit QtStorageImplementersFactory(DBService& dbService)
-        : dbService{dbService}
-    {
-    }
+    QtStorageImplementersFactory(DBService& dbService, const IConfig& settings);
 
     std::unique_ptr<ISprintStorageReader>
-    createSprintStorageReader() const override
-    {
-        return std::make_unique<QtSprintStorageReader>(dbService);
-    }
+    createSprintStorageReader() const override;
 
     std::unique_ptr<ISprintStorageWriter>
-    createSprintStorageWriter() const override
-    {
-        return std::make_unique<QtSprintStorageWriter>(dbService);
-    }
+    createSprintStorageWriter() const override;
 
-    std::unique_ptr<IYearRangeReader> createYearRangeReader() const override
-    {
-        return std::make_unique<QtYearRangeReader>(dbService);
-    }
+    std::unique_ptr<IOperationalRangeReader>
+    createOperationalRangeReader() const override;
 
     std::unique_ptr<ISprintDistributionReader>
-    createSprintDailyDistributionReader() const override
-    {
-        constexpr size_t numDays{30};
-        return std::make_unique<QtSprintDailyDistributionReader>(dbService,
-                                                                 numDays);
-    }
+    createSprintDailyDistributionReader() const override;
 
     std::unique_ptr<ISprintDistributionReader>
     createSprintWeeklyDistributionReader(
-        FirstDayOfWeek firstDayOfWeek) const override
-    {
-        constexpr size_t numWeeks{12};
-        if (firstDayOfWeek == FirstDayOfWeek::Monday)
-            return std::make_unique<QtSprintDistReaderMondayFirst>(
-            dbService, numWeeks);
-        return std::make_unique<QtSprintDistReaderSundayFirst>(dbService, numWeeks);
-    }
+        dw::Weekday firstDayOfWeek) const override;
 
     std::unique_ptr<ISprintDistributionReader>
-    createSprintMonthlyDistributionReader() const override
-    {
-        constexpr size_t numMonths{12};
-        return std::make_unique<QtSprintMonthlyDistributionReader>(dbService,
-                                                                   numMonths);
-    }
+    createSprintMonthlyDistributionReader() const override;
 
-    std::unique_ptr<ITaskStorageReader> createTaskStorageReader() const override
-    {
-        return std::make_unique<QtTaskStorageReader>(dbService);
-    }
+    std::unique_ptr<ITaskStorageReader>
+    createTaskStorageReader() const override;
 
-    std::unique_ptr<ITaskStorageWriter> createTaskStorageWriter() const override
-    {
-        return std::make_unique<QtTaskStorageWriter>(dbService);
-    }
+    std::unique_ptr<ITaskStorageWriter>
+    createTaskStorageWriter() const override;
+
+    std::unique_ptr<IWorkingDaysReader>
+    createWorkingDaysReader() const override;
+
+    std::unique_ptr<IWorkingDaysWriter>
+    createWorkingDaysWriter() const override;
 
 private:
     DBService& dbService;
+    const IConfig& settings;
 };
 
 } // namespace sprint_timer::storage::qt_storage_impl

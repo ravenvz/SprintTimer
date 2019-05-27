@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,28 +20,24 @@
 **
 *********************************************************************************/
 
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
-
-#include "mocks/YearRangeReaderMock.h"
+#include "mocks/OperationalRangeReaderMock.h"
 #include "gtest/gtest.h"
 #include <core/QueryInvoker.h>
-#include <core/use_cases/RequestMinMaxYear.h>
+#include <core/use_cases/RequestOperationalRange.h>
 
-using sprint_timer::use_cases::RequestMinMaxYear;
+using sprint_timer::use_cases::RequestOperationalRange;
 using ::testing::_;
 
 class RequestMinMaxYearFixture : public ::testing::Test {
 public:
     sprint_timer::QueryInvoker queryInvoker;
-    YearRangeReaderMock year_range_reader_mock;
+    OperationalRangeReaderMock readerMock;
 };
 
 TEST_F(RequestMinMaxYearFixture, execute)
 {
-    EXPECT_CALL(year_range_reader_mock, requestYearRange(_)).Times(1);
+    EXPECT_CALL(readerMock, requestOperationalRange(_)).Times(1);
 
-    queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
-        year_range_reader_mock, [](const auto& result) {}));
+    queryInvoker.execute(std::make_unique<RequestOperationalRange>(
+        readerMock, [](const auto& result) {}));
 }

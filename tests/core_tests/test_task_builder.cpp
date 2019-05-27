@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,33 +20,28 @@
 **
 *********************************************************************************/
 
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
-
-
 #include "core/TaskBuilder.h"
 #include "gtest/gtest.h"
 
-using dw::DateTime;
+using namespace dw;
 using namespace sprint_timer;
 using namespace sprint_timer::entities;
 
-TEST(TestTaskBuilder, test_name_) {
+TEST(TestTaskBuilder, test_name_)
+{
     TaskBuilder builder;
-    DateTime expectedTimeStamp = DateTime::fromYMD(2015, 11, 28);
+    DateTime expectedTimeStamp = DateTime{Date{Year{2015}, Month{11}, Day{28}}};
     std::list<Tag> expectedTags{Tag{"Tag1"}, Tag{"Tag2"}};
 
-    auto task = builder
-            .withName("Test task")
-            .withEstimatedCost(4)
-            .withActualCost(2)
-            .withUuid("1234")
-            .withTag("Tag1")
-            .withTag("Tag2")
-            .withCompletionStatus(true)
-            .withLastModificationStamp(expectedTimeStamp)
-            .build();
+    auto task = builder.withName("Test task")
+                    .withEstimatedCost(4)
+                    .withActualCost(2)
+                    .withUuid("1234")
+                    .withTag("Tag1")
+                    .withTag("Tag2")
+                    .withCompletionStatus(true)
+                    .withLastModificationStamp(expectedTimeStamp)
+                    .build();
 
     EXPECT_EQ("Test task", task.name());
     EXPECT_EQ(4, task.estimatedCost());
@@ -85,7 +80,7 @@ TEST(TestTaskBuilder, test_generates_new_uuid_when_serial_constructing)
 TEST(TestTaskBuilder, test_timestamp_modification_bugfix_verification)
 {
     TaskBuilder builder;
-    DateTime dt = DateTime::fromYMD(2013, 10, 2);
+    const DateTime dt = DateTime{Date{Year{2013}, Month{10}, Day{2}}};
 
     auto task1 = builder.withLastModificationStamp(dt).build();
 

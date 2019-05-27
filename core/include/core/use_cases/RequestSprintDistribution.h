@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -30,7 +30,7 @@ namespace sprint_timer::use_cases {
 class RequestSprintDistribution : public Query {
 public:
     RequestSprintDistribution(ISprintDistributionReader& reader,
-                              dw::TimeSpan timeSpan,
+                              const dw::DateRange& dateRange,
                               ISprintDistributionReader::Handler handler);
 
     void execute() final;
@@ -39,7 +39,7 @@ public:
 
 private:
     ISprintDistributionReader& reader;
-    const dw::TimeSpan timeSpan_;
+    const dw::DateRange dateRange_;
     ISprintDistributionReader::Handler handler_;
 };
 

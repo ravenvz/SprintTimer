@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,25 +20,19 @@
 **
 *********************************************************************************/
 
-
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
-
-#include <core/SprintBuilder.h>
 #include "core/entities/Task.h"
 #include "gtest/gtest.h"
+#include <core/SprintBuilder.h>
 
 using namespace std::chrono_literals;
-using dw::TimeSpan;
-using dw::DateTime;
 using namespace sprint_timer;
 using namespace sprint_timer::entities;
+using namespace dw;
 
 namespace {
 
-const TimeSpan defaultTimespan{DateTime::currentDateTime(),
-                               DateTime::currentDateTime().add(25min)};
+const DateTimeRange defaultTimespan{current_date_time(),
+                                    current_date_time() + 25min};
 
 } // namespace
 
@@ -66,7 +60,7 @@ TEST(TestSprintBuilder, test_builds_sprint_for_task)
                     "1234",
                     {Tag{"Tag1"}, Tag{"Tag2"}},
                     false,
-                    DateTime::fromYMD(2016, 11, 26)};
+                    DateTime{Date{Year{2016}, Month{11}, Day{26}}}};
 
     auto sprint = builder.forTask(task).withTimeSpan(defaultTimespan).build();
 

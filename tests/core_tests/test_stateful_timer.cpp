@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,114 +20,97 @@
 **
 *********************************************************************************/
 
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
-
-#include "core/StatefulTimer.h"
+#include "mocks/ConfigMock.h"
 #include "gtest/gtest.h"
+#include <core/StatefulTimer.h>
 
 using namespace sprint_timer;
 
 namespace {
 
-/* Fixed configuration for testing purposes. */
-class TestConfig : public IConfig {
-
-public:
-    int soundVolume() const override { return mSoundVolume; }
-
-    void setSoundVolume(int soundVolume) override
-    {
-        TestConfig::mSoundVolume = soundVolume;
-    }
-
-    std::chrono::minutes sprintDuration() const override
-    {
-        return mSprintDuration;
-    }
-
-    void setSprintDuration(std::chrono::minutes minutes) override
-    {
-        TestConfig::mSprintDuration = minutes;
-    }
-
-    std::chrono::minutes shortBreakDuration() const override
-    {
-        return mShortBreakDuration;
-    }
-
-    void setShortBreakDuration(std::chrono::minutes duration) override
-    {
-        TestConfig::mShortBreakDuration = duration;
-    }
-
-    std::chrono::minutes longBreakDuration() const override
-    {
-        return mLongBreakDuration;
-    }
-
-    void setLongBreakDuration(std::chrono::minutes duration) override
-    {
-        TestConfig::mLongBreakDuration = duration;
-    }
-
-    int numSprintsBeforeBreak() const override { return mTasksBeforeBreak; }
-
-    void setNumSprintsBeforeBreak(int tasksBeforeBreak) override
-    {
-        TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
-    }
-
-    bool soundIsEnabled() const override { return mPlaySound; }
-
-    void setPlaySound(bool playSound) override
-    {
-        TestConfig::mPlaySound = playSound;
-    }
-
-    int dailyGoal() const override { return 0; }
-
-    void setDailyGoal(int numSprints) override {}
-
-    int weeklyGoal() const override { return 0; }
-
-    void setWeeklyGoal(int numSprints) override {}
-
-    int monthlyGoal() const override { return 0; }
-
-    void setMonthlyGoal(int numSprints) override {}
-
-    std::string soundFilePath() const override { return ""; }
-
-    void setSoundFilePath(const std::string& filePath) override {}
-
-    int timerFlavour() const override { return 0; }
-
-    void setTimerFlavour(int timerVariation) override {}
-
-    utils::WeekdaySelection workdays() const override
-    {
-        return utils::WeekdaySelection{0};
-    }
-
-    void setWorkdays(const utils::WeekdaySelection& workdays) override {}
-
-    FirstDayOfWeek firstDayOfWeek() const override
-    {
-        return FirstDayOfWeek::Monday;
-    }
-
-    void setFirstDayOfWeek(FirstDayOfWeek firstDayOfWeek) override {}
-
-private:
-    std::chrono::minutes mSprintDuration{30};
-    std::chrono::minutes mShortBreakDuration{10};
-    std::chrono::minutes mLongBreakDuration{20};
-    int mTasksBeforeBreak{4};
-    bool mPlaySound{false};
-    int mSoundVolume{0};
-};
+// #<{(| Fixed configuration for testing purposes. |)}>#
+// class TestConfig : public IConfig {
+//
+// public:
+//     int soundVolume() const override { return mSoundVolume; }
+//
+//     void setSoundVolume(int soundVolume) override
+//     {
+//         TestConfig::mSoundVolume = soundVolume;
+//     }
+//
+//     std::chrono::minutes sprintDuration() const override
+//     {
+//         return mSprintDuration;
+//     }
+//
+//     void setSprintDuration(std::chrono::minutes minutes) override
+//     {
+//         TestConfig::mSprintDuration = minutes;
+//     }
+//
+//     std::chrono::minutes shortBreakDuration() const override
+//     {
+//         return mShortBreakDuration;
+//     }
+//
+//     void setShortBreakDuration(std::chrono::minutes duration) override
+//     {
+//         TestConfig::mShortBreakDuration = duration;
+//     }
+//
+//     std::chrono::minutes longBreakDuration() const override
+//     {
+//         return mLongBreakDuration;
+//     }
+//
+//     void setLongBreakDuration(std::chrono::minutes duration) override
+//     {
+//         TestConfig::mLongBreakDuration = duration;
+//     }
+//
+//     int numSprintsBeforeBreak() const override { return mTasksBeforeBreak; }
+//
+//     void setNumSprintsBeforeBreak(int tasksBeforeBreak) override
+//     {
+//         TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
+//     }
+//
+//     bool soundIsEnabled() const override { return mPlaySound; }
+//
+//     void setPlaySound(bool playSound) override
+//     {
+//         TestConfig::mPlaySound = playSound;
+//     }
+//
+//     std::string soundFilePath() const override { return ""; }
+//
+//     void setSoundFilePath(const std::string& filePath) override {}
+//
+//     int timerFlavour() const override { return 0; }
+//
+//     void setTimerFlavour(int timerVariation) override {}
+//
+//     utils::WeekdaySelection workdays() const override
+//     {
+//         return utils::WeekdaySelection{0};
+//     }
+//
+//     void setWorkdays(const utils::WeekdaySelection& workdays) override {}
+//
+//     dw::Weekday firstDayOfWeek() const override { return dw::Weekday::Monday;
+//     }
+//
+//     void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) override {}
+//
+// private:
+//     std::chrono::minutes mSprintDuration{30};
+//     std::chrono::minutes mShortBreakDuration{10};
+//     std::chrono::minutes mLongBreakDuration{20};
+//     int mTasksBeforeBreak{4};
+//     bool mPlaySound{false};
+//     int mSoundVolume{0};
+// };
 
 /* Extends StatefulTimer to provide public method to set state, along with
  * method to transition to next state. That allows to test state transitions
@@ -173,10 +156,10 @@ protected:
         auto onStateChangedCallbackStub
             = [&state_id](IStatefulTimer::StateId state) { state_id = state; };
         timer = std::make_unique<StatefulTimerTest>(
-            onTickCallbackStub, onStateChangedCallbackStub, tick, testSettings);
+            onTickCallbackStub, onStateChangedCallbackStub, tick, configMock);
     }
 
-    TestConfig testSettings;
+    ConfigMock configMock;
     std::unique_ptr<StatefulTimerTest> timer;
 };
 
@@ -203,6 +186,9 @@ TEST_F(StatefulTimerStates, should_transition_to_finished_state_after_task)
 
 TEST_F(StatefulTimerStates, should_transition_to_break_after_finished)
 {
+    const int numSprintsBeforeLongBreak{4};
+    ON_CALL(configMock, numSprintsBeforeBreak)
+        .WillByDefault(::testing::Return(numSprintsBeforeLongBreak));
     timer->set_state(timer->finished_state());
     timer->setNumFinishedSprints(1);
 
@@ -214,8 +200,10 @@ TEST_F(StatefulTimerStates, should_transition_to_break_after_finished)
 TEST_F(StatefulTimerStates,
        should_transition_to_long_break_after_finished_when_met_req)
 {
-    const int numTaskBeforeLongBreak{testSettings.numSprintsBeforeBreak()};
-    timer->setNumFinishedSprints(numTaskBeforeLongBreak - 1);
+    const int numSprintsBeforeLongBreak{4};
+    ON_CALL(configMock, numSprintsBeforeBreak)
+        .WillByDefault(::testing::Return(numSprintsBeforeLongBreak));
+    timer->setNumFinishedSprints(numSprintsBeforeLongBreak - 1);
     timer->set_state(timer->finished_state());
 
     timer->transition_to_next_state();

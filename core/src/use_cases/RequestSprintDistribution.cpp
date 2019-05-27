@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,22 +26,24 @@ namespace sprint_timer::use_cases {
 
 RequestSprintDistribution::RequestSprintDistribution(
     ISprintDistributionReader& reader,
-    dw::TimeSpan timeSpan,
+    const dw::DateRange& dateRange,
     ISprintDistributionReader::Handler handler)
     : reader{reader}
-    , timeSpan_{std::move(timeSpan)}
+    , dateRange_{dateRange}
     , handler_{handler}
 {
 }
 
 void RequestSprintDistribution::execute()
 {
-    reader.requestDistribution(timeSpan_, handler_);
+    reader.requestDistribution(dateRange_, handler_);
 }
 
 std::string RequestSprintDistribution::describe() const
 {
-    return "Request sprint distribution";
+    std::stringstream ss;
+    ss << "Request sprint distribution for: " << dateRange_;
+    return ss.str();
 }
 
 } // namespace sprint_timer::use_cases

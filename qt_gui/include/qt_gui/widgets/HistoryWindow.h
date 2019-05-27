@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,14 +25,14 @@
 #include "qt_gui/Synchronizable.h"
 #include "qt_gui/dialogs/ExportDialog.h"
 #include "qt_gui/models/HistoryModel.h"
-#include "qt_gui/utils/DateInterval.h"
+#include "qt_gui/models/SprintModel.h"
+#include "qt_gui/widgets/DateRangePicker.h"
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <QWidget>
 #include <core/IConfig.h>
 #include <core/ISprintStorageReader.h>
 #include <core/ITaskStorageReader.h>
-#include <core/IYearRangeReader.h>
 #include <core/QueryInvoker.h>
 #include <memory>
 #include <variant>
@@ -48,13 +48,12 @@ class HistoryWindow : public QWidget, public Synchronizable {
     Q_OBJECT
 
 public:
-    explicit HistoryWindow(ISprintStorageReader& sprintReader,
+    explicit HistoryWindow(SprintModel& sprintModel,
                            ITaskStorageReader& taskReader,
-                           IYearRangeReader& sprintYearRangeReader,
                            HistoryModel& historyModel,
                            QStyledItemDelegate& historyItemDelegate,
                            QueryInvoker& queryInvoker,
-                           FirstDayOfWeek firstDayOfWeek,
+                           std::unique_ptr<DateRangePicker> dateRangePicker,
                            QWidget* parent = nullptr);
 
     ~HistoryWindow();
@@ -116,21 +115,19 @@ private:
     };
 
     std::unique_ptr<Ui::HistoryWindow> ui;
-    ISprintStorageReader& sprintReader;
+    SprintModel& sprintModel;
     ITaskStorageReader& taskReader;
-    IYearRangeReader& sprintYearRangeReader;
     HistoryModel& historyModel;
     QueryInvoker& queryInvoker;
+    DateRangePicker* dateRangePicker;
     State state;
 
     /* Assumes that history items are ordered by date ascendantly. */
     void fillHistoryModel(const HistoryModel::HistoryData& history);
 
-    dw::TimeSpan selectedDateInterval() const;
+    dw::DateRange selectedDateInterval() const;
 
 private slots:
-
-    void onDatePickerIntervalChanged(DateInterval newInterval);
 
     void onTabSelected(int tabIndex);
 

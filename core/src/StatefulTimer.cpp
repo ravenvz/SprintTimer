@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,7 +26,7 @@
 namespace sprint_timer {
 
 using dw::DateTime;
-using dw::TimeSpan;
+using dw::DateTimeRange;
 
 StatefulTimer::StatefulTimer(
     std::function<void(std::chrono::seconds timeLeft)> onTickCallback,
@@ -38,7 +38,7 @@ StatefulTimer::StatefulTimer(
     , tickInterval{tickPeriod}
     , onTickCallback{std::move(onTickCallback)}
     , onStateChangedCallback{std::move(onStateChangedCallback)}
-    , mStart{DateTime::currentDateTimeLocal()}
+    , mStart{dw::current_date_time_local()}
 {
 }
 
@@ -60,7 +60,10 @@ void StatefulTimer::toggleInTheZoneMode()
     currentState->toggleZoneMode(*this);
 }
 
-std::vector<TimeSpan> StatefulTimer::completedSprints() const { return buffer; }
+std::vector<DateTimeRange> StatefulTimer::completedSprints() const
+{
+    return buffer;
+}
 
 void StatefulTimer::clearSprintsBuffer() { buffer.clear(); }
 
@@ -143,7 +146,7 @@ void Idle::setNextState(StatefulTimer& timer)
 void RunningSprint::enter(StatefulTimer& timer) const
 {
     timer.notifyStateChanged(IStatefulTimer::StateId::SprintEntered);
-    timer.mStart = DateTime::currentDateTimeLocal();
+    timer.mStart = dw::current_date_time_local();
     timer.startCountdown();
 }
 
@@ -178,7 +181,7 @@ void RunningSprint::toggleZoneMode(StatefulTimer& timer)
 void RunningSprint::onTimerFinished(StatefulTimer& timer)
 {
     timer.buffer.emplace_back(
-        TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
+        DateTimeRange{timer.mStart, dw::current_date_time_local()});
     setNextState(timer);
 }
 
@@ -278,8 +281,8 @@ void Zone::toggleZoneMode(StatefulTimer& timer)
 void Zone::onTimerFinished(StatefulTimer& timer)
 {
     timer.buffer.emplace_back(
-        TimeSpan{timer.mStart, DateTime::currentDateTimeLocal()});
-    timer.mStart = DateTime::currentDateTimeLocal();
+        DateTimeRange{timer.mStart, dw::current_date_time_local()});
+    timer.mStart = dw::current_date_time_local();
 }
 
 void SprintFinished::enter(StatefulTimer& timer) const

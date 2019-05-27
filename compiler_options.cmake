@@ -17,6 +17,8 @@ set(CLANG_COMPILE_OPTIONS -Weverything
                           -Wno-used-but-marked-unused # some Qt's static definitions can trigger this
                           -Wno-extra-semi-stmt # Qt mock
                           -Wno-shift-sign-overflow # TODO source is overflow-detection template in Howard Hinnant's date lib
+                          -Wno-conversion # TODO source is old release of Howard Hinnant's date lib
+                          -Wno-old-style-cast # TODO source is old release of Howard Hinnant's date lib
                           )
 
 set(GCC_COMPILE_OPTIONS -Wall

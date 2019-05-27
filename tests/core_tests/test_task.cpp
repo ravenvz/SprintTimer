@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,10 +20,6 @@
 **
 *********************************************************************************/
 
-// TODO remove when Gtest drops std::tr1
-// Workaround for C++17 as std::tr1 no longer available and Gtest uses it
-#define GTEST_LANG_CXX11 1
-
 #include "core/entities/Task.h"
 #include "gtest/gtest.h"
 
@@ -39,7 +35,9 @@ TEST(TestTask, constructs_task_from_string_description_where_all_parts_present)
     EXPECT_EQ(5, item.estimatedCost());
 }
 
-TEST(TestTask, should_set_estimated_cost_to_one_if_non_given_when_constructing_from_description)
+TEST(
+    TestTask,
+    should_set_estimated_cost_to_one_if_non_given_when_constructing_from_description)
 {
     const Task item{"#Test Todo with tag"};
 
@@ -64,11 +62,13 @@ TEST(TestTask, construct_from_description_when_no_name_given)
 
     const auto actual = item.tags();
 
-    EXPECT_TRUE(std::equal(expected.cbegin(), expected.cend(), actual.cbegin(), actual.cend()));
+    EXPECT_TRUE(std::equal(
+        expected.cbegin(), expected.cend(), actual.cbegin(), actual.cend()));
     EXPECT_EQ(4, item.estimatedCost());
 }
 
-TEST(TestTask, should_parse_only_last_num_estimated_when_constructing_from_description)
+TEST(TestTask,
+     should_parse_only_last_num_estimated_when_constructing_from_description)
 {
     const Task item{"Multiple estimated *4 *9"};
 
@@ -77,22 +77,23 @@ TEST(TestTask, should_parse_only_last_num_estimated_when_constructing_from_descr
 
 TEST(TestTask, only_treats_words_preceeded_by_single_hash_as_tags)
 {
-    const Task item{"##My #tag1  #   ##    beautiful,marvelous, great   content"};
+    const Task item{
+        "##My #tag1  #   ##    beautiful,marvelous, great   content"};
 
     EXPECT_TRUE(std::list<Tag>{Tag{"tag1"}} == item.tags());
     EXPECT_EQ(std::string{"##My # ## beautiful,marvelous, great content"},
-                item.name());
+              item.name());
 }
 
 TEST(TestTask, ostream_operator)
 {
     const Task item{"I am item with no tags",
-                     4,
-                     2,
-                     "uuid",
-                     std::list<Tag>(),
-                     false,
-                     DateTime::currentDateTimeLocal()};
+                    4,
+                    2,
+                    "uuid",
+                    std::list<Tag>(),
+                    false,
+                    dw::current_date_time_local()};
     const auto uuid = item.uuid();
     std::string expected{"I am item with no tags 2/4"};
     expected += " Uuid: ";

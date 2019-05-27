@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,9 +22,15 @@
 #ifndef PROGRESSVIEW_H_2OXRIURM
 #define PROGRESSVIEW_H_2OXRIURM
 
-#include "qt_gui/Synchronizable.h"
+#include "qt_gui/ProgressRangeRequestStrategy.h"
+#include "qt_gui/models/DistributionModel.h"
+#include "qt_gui/models/WorkdayTrackerModel.h"
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
+#include <core/GoalProgress.h>
+#include <core/ProgressGroupingStrategy.h>
+#include <core/ProgressOverPeriod.h>
+#include <core/WorkdayTracker.h>
 #include <memory>
 
 namespace Ui {
@@ -33,10 +39,23 @@ class ProgressView;
 
 namespace sprint_timer::ui::qt_gui {
 
-class ProgressView : public QFrame, public Synchronizable {
-    Q_OBJECT
+class ProgressView : public QFrame {
 
 public:
+    using GoalValue = int;
+    using Rows = size_t;
+    using Columns = size_t;
+    using GaugeSize = double;
+
+    ProgressView(const DistributionModel& progressModel,
+                 const WorkdayTrackerModel& workdaysModel,
+                 const ProgressGroupingStrategy& groupingStrategy,
+                 const ProgressRangeRequestStrategy& requestRangeStrategy,
+                 Rows numRows,
+                 Columns numColumns,
+                 GaugeSize gaugeRelSize,
+                 QWidget* parent = nullptr);
+
     virtual ~ProgressView();
 
     void setLegendTitle(const QString& title);
@@ -47,39 +66,25 @@ public:
 
     void setLegendPercentageCaption(const QString& caption);
 
-    void setLegendGoalCaption(const QString& caption);
-
     void addLegendRow(const QString& labelText, QWidget* field);
 
-    void setData(const Distribution<int>& distribution, size_t numActiveBins);
+    void addLegendRow(QWidget* field);
 
-protected:
-    using GoalValue = int;
-    using Rows = size_t;
-    using Columns = size_t;
-    using GaugeSize = double;
-
-    ProgressView(GoalValue goal,
-                 Rows numRows,
-                 Columns numColumns,
-                 GaugeSize gaugeRelSize,
-                 QWidget* parent = nullptr);
+    void setData(const ProgressOverPeriod& progress);
 
 private:
     std::unique_ptr<Ui::ProgressView> ui;
-    GoalValue goal;
     const Rows numRows;
     const Columns numColumns;
     const GaugeSize gaugeRelSize;
 
     void setupGauges();
 
-    void fillGauges(const Distribution<int>& distribution);
+    void updateGauges(const ProgressOverPeriod& progress);
 
-    void updateProgressBar(int lastValue);
+    void updateProgressBar(const GoalProgress& lastBin);
 
-signals:
-    void goalChanged(int goal);
+    void updateLegend(const ProgressOverPeriod& progress) const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

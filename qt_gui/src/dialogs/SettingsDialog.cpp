@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -33,8 +33,8 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
     , applicationSettings{applicationSettings}
 {
     ui->setupUi(this);
-    timerModel = new QStringListModel{timers, this};
-    ui->cbxTimerVariation->setModel(timerModel);
+    auto timerModel = std::make_unique<QStringListModel>(timers, this);
+    ui->cbxTimerVariation->setModel(timerModel.release());
 
     fillSettingsData();
 
@@ -98,7 +98,7 @@ void SettingsDialog::storeSettingsData()
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
     applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());
     applicationSettings.setFirstDayOfWeek(
-        static_cast<FirstDayOfWeek>(ui->cbxFirstWeekday->currentIndex()));
+        static_cast<dw::Weekday>(ui->cbxFirstWeekday->currentIndex()));
 }
 
 

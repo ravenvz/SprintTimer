@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -28,7 +28,7 @@
 namespace sprint_timer::ui::qt_gui {
 
 using dw::DateTime;
-using dw::TimeSpan;
+using dw::DateTimeRange;
 using namespace entities;
 using namespace sprint_timer::use_cases;
 
@@ -36,14 +36,12 @@ SprintModel::SprintModel(CommandInvoker& commandInvoker,
                          QueryInvoker& queryInvoker,
                          ISprintStorageReader& sprintReader,
                          ISprintStorageWriter& sprintWriter,
-                         ITaskStorageWriter& taskWriter,
                          QObject* parent)
     : AsyncListModel(parent)
     , commandInvoker{commandInvoker}
     , queryInvoker{queryInvoker}
     , sprintReader{sprintReader}
     , sprintWriter{sprintWriter}
-    , taskWriter{taskWriter}
 {
     requestSilentDataUpdate();
 }
@@ -63,8 +61,8 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         return QString("%1 - %2 %3 %4")
-            .arg(sprintRef.startTime().toString("hh:mm").c_str())
-            .arg(sprintRef.finishTime().toString("hh:mm").c_str())
+            .arg(dw::to_string(sprintRef.startTime(), "hh:mm").c_str())
+            .arg(dw::to_string(sprintRef.finishTime(), "hh:mm").c_str())
             .arg(QString::fromStdString(prefixTags(sprintRef.tags())))
             .arg(QString::fromStdString(sprintRef.name()));
     }
@@ -72,7 +70,8 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void SprintModel::insert(const TimeSpan& timeSpan, const std::string& taskUuid)
+void SprintModel::insert(const DateTimeRange& timeSpan,
+                         const std::string& taskUuid)
 {
     Sprint sprint{taskUuid, timeSpan};
     insert(sprint);
@@ -97,6 +96,14 @@ void SprintModel::registerSprint(const Sprint& sprint)
         std::make_unique<RegisterNewSprint>(sprintWriter, sprint));
 }
 
+bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
+{
+    beginRemoveRows(index, row, row + count - 1);
+    remove(row);
+    endRemoveRows();
+    return true;
+}
+
 void SprintModel::remove(int row)
 {
     commandInvoker.executeCommand(std::make_unique<RemoveSprintTransaction>(
@@ -104,13 +111,18 @@ void SprintModel::remove(int row)
     requestDataUpdate();
 }
 
+const Sprint& SprintModel::itemAt(int row) const { return storage[row]; }
+
+void SprintModel::requestUpdate(const dw::DateRange& dateRange)
+{
+    sprintDateRange = dateRange;
+    requestUpdate();
+}
+
 void SprintModel::requestUpdate()
 {
     queryInvoker.execute(std::make_unique<RequestSprints>(
-        sprintReader,
-        dw::TimeSpan{dw::DateTime::currentDateTimeLocal(),
-                     dw::DateTime::currentDateTimeLocal()},
-        [this](const auto& items) {
+        sprintReader, sprintDateRange, [this](const auto& items) {
             onDataChanged(items);
         }));
 }
@@ -120,6 +132,16 @@ void SprintModel::onDataChanged(const std::vector<Sprint>& items)
     beginResetModel();
     storage = items;
     endResetModel();
+}
+
+std::vector<Sprint> allSprints(const SprintModel& sprintModel)
+{
+    std::vector<Sprint> sprints;
+    const int numRows{sprintModel.rowCount(QModelIndex{})};
+    sprints.reserve(numRows);
+    for (int row = 0; row < numRows; ++row)
+        sprints.push_back(sprintModel.itemAt(row));
+    return sprints;
 }
 
 } // namespace sprint_timer::ui::qt_gui

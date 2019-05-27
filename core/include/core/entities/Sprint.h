@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,7 +23,7 @@
 #define SPRINT_H_XWNOT32M
 
 #include "core/entities/Tag.h"
-#include "date_wrapper/TimeSpan.h"
+#include "date_wrapper/date_wrapper.h"
 #include <list>
 #include <ostream>
 #include <string>
@@ -39,17 +39,17 @@ class Sprint {
 
 public:
     Sprint(const std::string& taskName,
-           const dw::TimeSpan& timeSpan,
+           const dw::DateTimeRange& timeSpan,
            const std::list<Tag>& tags,
            const std::string& uuid,
            const std::string& taskUuid);
 
     Sprint(const std::string& taskName,
-           const dw::TimeSpan& timeSpan,
+           const dw::DateTimeRange& timeSpan,
            const std::list<Tag>& tags,
            const std::string& taskUuid);
 
-    Sprint(const std::string& taskUuid, const dw::TimeSpan& timeSpan);
+    Sprint(const std::string& taskUuid, const dw::DateTimeRange& timeSpan);
 
     // Sprint name is identical to it's associated task name.
     std::string name() const;
@@ -58,7 +58,7 @@ public:
 
     dw::DateTime finishTime() const;
 
-    dw::TimeSpan timeSpan() const;
+    dw::DateTimeRange timeSpan() const;
 
     std::string uuid() const;
 
@@ -70,7 +70,7 @@ public:
 
 private:
     std::string name_;
-    dw::TimeSpan timeSpan_;
+    dw::DateTimeRange timeSpan_;
     std::string uuid_;
     std::string taskUuid_;
     std::list<Tag> tags_;

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -42,7 +42,7 @@ public:
     ~FancyTimer() override;
 
     void setCandidateIndex(int index) override;
-    void updateGoalProgress(Progress progress) override;
+    void updateGoalProgress(const GoalProgress& progress) override;
 
 private:
     std::unique_ptr<Ui::FancyTimer> ui;

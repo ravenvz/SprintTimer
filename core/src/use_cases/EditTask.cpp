@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -39,7 +39,7 @@ EditTask::EditTask(ITaskStorageWriter& writer,
                   originalTask_.uuid(),
                   editedTask.tags(),
                   originalTask_.isCompleted(),
-                  DateTime::currentDateTimeLocal()}
+                  dw::current_date_time_local()}
 {
 }
 

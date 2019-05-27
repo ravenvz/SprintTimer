@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -25,6 +25,7 @@
 #include "core/ITaskStorageReader.h"
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
+#include <queue>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
@@ -36,10 +37,10 @@ public:
 
     void requestUnfinishedTasks(Handler handler) final;
 
-    void requestFinishedTasks(const dw::TimeSpan& timeSpan,
+    void requestFinishedTasks(const dw::DateRange& dateRange,
                               Handler handler) final;
 
-    void requestTasks(const dw::TimeSpan& timeSpan, Handler handler) final;
+    void requestTasks(const dw::DateRange& dateRange, Handler handler) final;
 
     void requestAllTags(TagHandler handler) final;
 
@@ -63,8 +64,8 @@ private:
     qint64 mRequestTasksQueryId{-1};
     qint64 mTagQueryId{-1};
     DBService& dbService;
-    std::list<Handler> handler_queue;
-    std::list<TagHandler> tag_handler_queue;
+    std::queue<Handler> handlerQueue;
+    std::queue<TagHandler> tagHandlerQueue;
 
     QVariant columnData(const QSqlRecord& record, Column column) const;
 

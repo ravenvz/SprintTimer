@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2018 Pavel Pavlov.
+** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -33,7 +33,7 @@ AddNewTask::AddNewTask(ITaskStorageWriter& taskStorageWriter,
 
 void AddNewTask::execute() { writer.save(task); }
 
-void AddNewTask::undo() { writer.remove(task); }
+void AddNewTask::undo() { writer.remove(task.uuid()); }
 
 std::string AddNewTask::describe() const
 {
