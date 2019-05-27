@@ -26,7 +26,12 @@
 #include "qt_gui/models/OperationRangeModel.h"
 #include <QStringListModel>
 #include <core/IConfig.h>
+#include <QWidget>
 #include <memory>
+
+#ifdef _MSC_VER
+#include "qt_gui/WinExport.h"
+#endif // _MSC_VER
 
 namespace Ui {
 class DateRangePicker;
@@ -34,7 +39,11 @@ class DateRangePicker;
 
 namespace sprint_timer::ui::qt_gui {
 
+#ifdef _MSC_VER
+class GLIB_EXPORT DateRangePicker : public QWidget {
+#else
 class DateRangePicker : public QWidget {
+#endif // _MSC_VER
 
     Q_OBJECT
 

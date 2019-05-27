@@ -4,9 +4,9 @@
 #include <QtCore/QtGlobal>
 
 #if defined(WIN_EXPORT_WORKAROUND)
-#  define GLIB_EXPORT Q_DECL_EXPORT
+#define GLIB_EXPORT Q_DECL_EXPORT
 #else
-#  define GLIB_EXPORT Q_DECL_IMPORT
+#define GLIB_EXPORT Q_DECL_IMPORT
 #endif
 
 #endif // WINEXPORT_H

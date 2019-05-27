@@ -30,9 +30,17 @@
 #include <core/use_cases/RequestWorkingDays.h>
 #include <QObject>
 
+#ifdef _MSC_VER
+#include "qt_gui/WinExport.h"
+#endif // _MSC_VER
+
 namespace sprint_timer::ui::qt_gui {
 
+#ifdef _MSC_VER
+class GLIB_EXPORT WorkdayTrackerModel : public QObject {
+#else
 class WorkdayTrackerModel : public QObject {
+#endif // _MSC_VER
 
     Q_OBJECT
 
