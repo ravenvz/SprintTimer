@@ -50,9 +50,8 @@ DateRangePicker::DateRangePicker(
     , dateRangePickDialog{std::move(dateRangePickDialog_)}
     , operationRangeModel{operationRangeModel_}
     , selectedDateRange{currentMonth()}
-    , monthsModel{QStringListModel{monthNames()}}
-    , yearsModel{
-          QStringListModel{QStringList{QDate::currentDate().toString("yyyy")}}}
+    , monthsModel{monthNames()}
+    , yearsModel{QStringList{QDate::currentDate().toString("yyyy")}}
 {
     ui->setupUi(this);
     ui->cbxMonth->setModel(&monthsModel);
