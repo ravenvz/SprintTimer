@@ -103,11 +103,14 @@ void WorkdayTracker::removeExceptionalDay(const dw::Date& date)
 
 WeekSchedule WorkdayTracker::scheduleFor(const dw::Date& date) const
 {
-    auto it = schedules.lower_bound(date);
-    if (it == schedules.cbegin() && !schedules.empty())
-        return (date == it->first) ? it->second : WeekSchedule{};
-    if (!schedules.empty())
-        return (date == it->first) ? it->second : (--it)->second;
+	// there exists schedule that is active since specified date
+	if (auto it = schedules.lower_bound(date);
+		it != schedules.cend() && it->first == date)
+		return it->second;
+	// there exists schedule for date before specified date
+    if (auto it = greatest_less(schedules, date); it != schedules.cend())
+        return it->second;
+	// there is no schedule for date before specified date
     return WeekSchedule{};
 }
 
