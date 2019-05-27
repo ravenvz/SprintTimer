@@ -1,8 +1,21 @@
-Plans for version 0.6.0
-------------------------
+Plans for version 0.7.0
+-----------------------
+Changes for this version will be focused on reducing technical debt
+and fixing bugs rather than new features.
 
 HISTORY
 ----------------------------------------------------------------
+Version 0.6.0
+-------------
+Number of estimated sprints can now be specified for each weekday
+individually via work schedules.
+Vacations can now be modelled by changing work schedules.
+Exceptional holidays and workdays can now be specified for
+modelling state holidays.
+New users can now benefit from progress monitoring system right
+from the start, collecting statistics for a whole year to show
+correct progress numbers is no longer required.
+
 Version 0.5.3
 -------------
 Fixed bug when database could not be created on first startup
