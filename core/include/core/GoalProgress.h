@@ -23,6 +23,7 @@
 #define SPRINT_TIMER_APP_GOALPROGRESS_H
 
 #include <optional>
+#include <iostream>
 
 namespace sprint_timer {
 
