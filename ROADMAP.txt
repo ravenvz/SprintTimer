@@ -5,7 +5,7 @@ and fixing bugs rather than new features.
 
 HISTORY
 ----------------------------------------------------------------
-Version 0.6.0
+Version 0.6.3
 -------------
 Number of estimated sprints can now be specified for each weekday
 individually via work schedules.
