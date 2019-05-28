@@ -50,7 +50,8 @@ int ScheduleModel::rowCount(const QModelIndex& parent) const
 
 bool ScheduleModel::insertRows(int row, int count, const QModelIndex& index)
 {
-    using namespace dw;
+    if (count <= 0 || row < 0)
+        return false;
     beginInsertRows(index, row, row + count - 1);
     data_.insert(data_.begin() + row, count, {QDate{}, WeekSchedule{}});
     endInsertRows();

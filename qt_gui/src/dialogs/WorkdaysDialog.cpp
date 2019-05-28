@@ -23,6 +23,9 @@
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_workdays_dialog.h"
 #include <core/use_cases/ChangeWorkingDays.h>
+#include <QAbstractItemModel>
+
+#include <iostream>
 
 Q_DECLARE_METATYPE(sprint_timer::WeekSchedule)
 
@@ -123,14 +126,16 @@ void WorkdaysDialog::onWorkdayTrackerChanged(
 void WorkdaysDialog::updateWorkdaysView(const WorkdayTracker& updatedTracker)
 {
     auto* model = ui->listViewExceptionalDays->model();
-    const auto days = candidateTracker.exceptionalDays();
+    if (!model)
+        return;
     disconnect(model,
-               &QAbstractItemModel::rowsAboutToBeMoved,
+               &QAbstractItemModel::rowsAboutToBeRemoved,
                this,
                &WorkdaysDialog::onExceptionalDayRemovedFromModel);
+    const auto days = candidateTracker.exceptionalDays();
     replaceModelContent(*model, days);
     connect(model,
-            &QAbstractItemModel::rowsAboutToBeMoved,
+            &QAbstractItemModel::rowsAboutToBeRemoved,
             this,
             &WorkdaysDialog::onExceptionalDayRemovedFromModel);
 }
@@ -138,11 +143,13 @@ void WorkdaysDialog::updateWorkdaysView(const WorkdayTracker& updatedTracker)
 void WorkdaysDialog::updateSchedulesView(const WorkdayTracker& updatedTracker)
 {
     auto* model = ui->listViewSchedules->model();
-    const auto schedules = candidateTracker.scheduleRoaster();
+    if (!model)
+        return;
     disconnect(model,
                &QAbstractItemModel::rowsAboutToBeRemoved,
                this,
                &WorkdaysDialog::onScheduleRemovedFromModel);
+    const auto schedules = candidateTracker.scheduleRoaster();
     replaceModelContent(*model, schedules);
     connect(model,
             &QAbstractItemModel::rowsAboutToBeRemoved,
@@ -168,6 +175,8 @@ void WorkdaysDialog::addSchedule()
     const auto schedule = pollSchedule();
     candidateTracker.addWeekSchedule(date, schedule);
     auto* model = ui->listViewSchedules->model();
+    if (!model)
+        return;
     disconnect(model,
                &QAbstractItemModel::rowsAboutToBeRemoved,
                this,
@@ -222,6 +231,8 @@ void WorkdaysDialog::onExceptionalDayRemovedFromModel(const QModelIndex&,
                                                       int)
 {
     auto* model = ui->listViewExceptionalDays->model();
+    if (!model)
+        return;
     const auto entry = model->data(model->index(first, 0), Qt::EditRole)
                            .value<QPair<QDate, int>>();
     candidateTracker.removeExceptionalDay(utils::toDate(entry.first));
