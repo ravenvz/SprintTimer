@@ -247,7 +247,7 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
     DBService dbService{dataDirectory + "/sprint.db"};
 
-    QtStorageImplementersFactory factory{dbService, applicationSettings};
+    QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorageReader> sprintStorageReader{
         factory.createSprintStorageReader()};
     std::unique_ptr<ISprintStorageWriter> sprintStorageWriter{
@@ -265,10 +265,8 @@ int main(int argc, char* argv[])
             applicationSettings.firstDayOfWeek())};
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
-    std::unique_ptr<IWorkingDaysReader> workingDaysReader{
-        factory.createWorkingDaysReader()};
-    std::unique_ptr<IWorkingDaysWriter> workingDaysWriter{
-        factory.createWorkingDaysWriter()};
+    std::unique_ptr<IWorkingDaysStorage> workingDaysStorage{
+        factory.createWorkingDaysStorage()};
 
     CommandInvoker defaultCommandInvoker;
     VerboseCommandInvoker commandInvoker{defaultCommandInvoker};
@@ -292,7 +290,7 @@ int main(int argc, char* argv[])
         applicationSettings, todaySprintsModel, unfinishedTasksModel};
 
     WorkdayTrackerModel workdayTrackerModel{
-        *workingDaysWriter, *workingDaysReader, commandInvoker, queryInvoker};
+        *workingDaysStorage, commandInvoker, queryInvoker};
 
     UndoDialog undoDialog{commandInvoker};
     QObject::connect(&undoDialog,

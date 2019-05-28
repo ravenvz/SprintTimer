@@ -24,14 +24,13 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-WorkdayTrackerModel::WorkdayTrackerModel(IWorkingDaysWriter& workingDaysWriter_,
-                                         IWorkingDaysReader& workingDaysReader_,
-                                         CommandInvoker& commandInvoker_,
-                                         QueryInvoker& queryInvoker_,
-                                         QObject* parent)
+WorkdayTrackerModel::WorkdayTrackerModel(
+    IWorkingDaysStorage& workingDaysStorage_,
+    CommandInvoker& commandInvoker_,
+    QueryInvoker& queryInvoker_,
+    QObject* parent)
     : QObject{parent}
-    , workingDaysWriter{workingDaysWriter_}
-    , workingDaysReader{workingDaysReader_}
+    , workingDaysStorage{workingDaysStorage_}
     , commandInvoker{commandInvoker_}
     , queryInvoker{queryInvoker_}
 {
@@ -42,7 +41,7 @@ void WorkdayTrackerModel::requestDataUpdate()
 {
     using use_cases::RequestWorkingDays;
     queryInvoker.execute(std::make_unique<RequestWorkingDays>(
-        workingDaysReader, [this](WorkdayTracker&& newTracker) {
+        workingDaysStorage, [this](WorkdayTracker&& newTracker) {
             tracker = std::move(newTracker);
             emit workdaysChanged(tracker);
         }));
@@ -59,7 +58,7 @@ void WorkdayTrackerModel::changeWorkdayData(
     for (const auto& [date, goal] : exceptionalDays)
         updatedTracker.addExceptionalDay(date, goal);
     commandInvoker.executeCommand(std::make_unique<ChangeWorkingDays>(
-        workingDaysWriter, tracker, updatedTracker));
+        workingDaysStorage, tracker, updatedTracker));
     tracker = updatedTracker;
     emit workdaysChanged(tracker);
 }
@@ -69,7 +68,7 @@ void WorkdayTrackerModel::changeWorkdayData(
 {
     using sprint_timer::use_cases::ChangeWorkingDays;
     commandInvoker.executeCommand(std::make_unique<ChangeWorkingDays>(
-        workingDaysWriter, tracker, updatedTracker));
+        workingDaysStorage, tracker, updatedTracker));
     tracker = updatedTracker;
     emit workdaysChanged(tracker);
 }

@@ -23,8 +23,7 @@
 #define WORKDAYTRACKERMODEL_H_4DZKR8HV
 
 #include <core/CommandInvoker.h>
-#include <core/IWorkingDaysReader.h>
-#include <core/IWorkingDaysWriter.h>
+#include <core/IWorkingDaysStorage.h>
 #include <core/QueryInvoker.h>
 #include <core/WorkdayTracker.h>
 #include <core/use_cases/RequestWorkingDays.h>
@@ -45,8 +44,7 @@ class WorkdayTrackerModel : public QObject {
     Q_OBJECT
 
 public:
-    WorkdayTrackerModel(IWorkingDaysWriter& workingDaysWriter_,
-                        IWorkingDaysReader& workingDaysReader_,
+    WorkdayTrackerModel(IWorkingDaysStorage& workingDaysStorage_,
                         CommandInvoker& commandInvoker_,
                         QueryInvoker& queryInvoker_,
                         QObject* parent = nullptr);
@@ -67,8 +65,7 @@ signals:
     void workdaysChanged(const WorkdayTracker&);
 
 private:
-    IWorkingDaysWriter& workingDaysWriter;
-    IWorkingDaysReader& workingDaysReader;
+    IWorkingDaysStorage& workingDaysStorage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
     WorkdayTracker tracker;

@@ -903,9 +903,9 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     expected.addExceptionalDay(Date{Year{2017}, Month{2}, Day{23}}, 12);
     expected.addExceptionalDay(Date{Year{2014}, Month{12}, Day{30}}, 12);
 
-    initializer.workingDaysWriter->changeWorkingDays(expected);
+    initializer.workingDaysStorage->changeWorkingDays(expected);
 
-    initializer.workingDaysReader->requestData(
+    initializer.workingDaysStorage->requestData(
         [&expected, this](const WorkdayTracker& actual) {
             EXPECT_EQ(expected, actual);
             initializer.quit();
