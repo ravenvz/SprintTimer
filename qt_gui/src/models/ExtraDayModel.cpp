@@ -35,7 +35,7 @@ int ExtraDayModel::rowCount(const QModelIndex& parent) const
 
 bool ExtraDayModel::insertRows(int row, int count, const QModelIndex& index)
 {
-	if (count <= 0 || row < 0 || (row + count) > rowCount(index))
+	if (count <= 0 || row < 0)
 		return false;
     beginInsertRows(index, row, row + count - 1);
     data_.insert(data_.begin() + row, count, {QDate(), 0});
