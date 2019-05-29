@@ -19,33 +19,47 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSPRINTSTORAGEWRITER_H_U7AAXVTC
-#define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
-
-#include "qt_storage_impl/DBService.h"
-#include <QObject>
-#include <core/ISprintStorageWriter.h>
+#include "qt_storage_impl/QtSprintStorage.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
 
-class QtSprintStorageWriter : public QObject, public ISprintStorageWriter {
-public:
-    explicit QtSprintStorageWriter(DBService& dbService);
+QtSprintStorage::QtSprintStorage(std::unique_ptr<ISprintStorageReader> reader_,
+                                 std::unique_ptr<ISprintStorageWriter> writer_)
+    : reader{std::move(reader_)}
+    , writer{std::move(writer_)}
+{
+}
 
-    void save(const entities::Sprint& sprint) final;
+void QtSprintStorage::requestItems(const dw::DateRange& dateRange,
+                                   Handler handler)
+{
+    reader->requestItems(dateRange, handler);
+}
 
-    void save(const std::vector<entities::Sprint>& sprints) final;
+void QtSprintStorage::sprintsForTask(const std::string& taskUuid,
+                                     Handler handler)
+{
+    reader->sprintsForTask(taskUuid, handler);
+}
 
-    void remove(const entities::Sprint& sprint) final;
+void QtSprintStorage::save(const entities::Sprint& sprint)
+{
+    writer->save(sprint);
+}
 
-    void remove(const std::vector<entities::Sprint>& sprints) final;
+void QtSprintStorage::save(const std::vector<entities::Sprint>& sprints)
+{
+    writer->save(sprints);
+}
 
-private:
-    DBService& dbService;
-    qint64 addQueryId{-1};
-    qint64 removeQueryId{-1};
-};
+void QtSprintStorage::remove(const entities::Sprint& sprint)
+{
+    writer->remove(sprint);
+}
+
+void QtSprintStorage::remove(const std::vector<entities::Sprint>& sprints)
+{
+    writer->remove(sprints);
+}
 
 } // namespace sprint_timer::storage::qt_storage_impl
-
-#endif /* end of include guard: QTSPRINTSTORAGEWRITER_H_U7AAXVTC */

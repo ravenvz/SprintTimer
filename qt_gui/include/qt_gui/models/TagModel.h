@@ -25,8 +25,7 @@
 #include "qt_gui/models/AsyncListModel.h"
 #include <QStringListModel>
 #include <core/CommandInvoker.h>
-#include <core/ITaskStorageReader.h>
-#include <core/ITaskStorageWriter.h>
+#include <core/ITaskStorage.h>
 #include <core/QueryInvoker.h>
 
 namespace sprint_timer::ui::qt_gui {
@@ -35,8 +34,7 @@ namespace sprint_timer::ui::qt_gui {
 class TagModel : public AsyncListModel {
 
 public:
-    TagModel(ITaskStorageReader& taskReader,
-             ITaskStorageWriter& taskWriter,
+    TagModel(ITaskStorage& taskStorage,
              CommandInvoker& commandInvoker,
              QueryInvoker& queryInvoker,
              QObject* parent = nullptr);
@@ -56,8 +54,7 @@ public slots:
     void revertData() final;
 
 private:
-    ITaskStorageReader& taskReader;
-    ITaskStorageWriter& taskWriter;
+    ITaskStorage& taskStorage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
     using OldNewTagPair = std::pair<std::string, std::string>;

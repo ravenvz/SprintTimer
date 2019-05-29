@@ -19,14 +19,24 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKSTORAGEWRITERMOCK_H_K4RA0LHC
-#define TASKSTORAGEWRITERMOCK_H_K4RA0LHC
+#ifndef TASKSTORAGEMOCK_H_EQEDPXT6
+#define TASKSTORAGEMOCK_H_EQEDPXT6
 
-#include <core/ITaskStorageWriter.h>
+#include <core/ITaskStorage.h>
 #include <gmock/gmock.h>
 
-class TaskStorageWriterMock : public sprint_timer::ITaskStorageWriter {
+class TaskStorageMock : public sprint_timer::ITaskStorage {
 public:
+    MOCK_METHOD1(requestUnfinishedTasks,
+                 void(sprint_timer::ITaskStorageReader::Handler));
+    MOCK_METHOD2(requestFinishedTasks,
+                 void(const dw::DateRange&,
+                      sprint_timer::ITaskStorageReader::Handler));
+    MOCK_METHOD2(requestTasks,
+                 void(const dw::DateRange&,
+                      sprint_timer::ITaskStorageReader::Handler));
+    MOCK_METHOD1(requestAllTags,
+                 void(sprint_timer::ITaskStorageReader::TagHandler));
     MOCK_METHOD1(save, void(const sprint_timer::entities::Task&));
     MOCK_METHOD1(remove, void(const std::string&));
     MOCK_METHOD2(edit,
@@ -40,4 +50,4 @@ public:
     MOCK_METHOD2(editTag, void(const std::string&, const std::string&));
 };
 
-#endif /* end of include guard: TASKSTORAGEWRITERMOCK_H_K4RA0LHC */
+#endif /* end of include guard: TASKSTORAGEMOCK_H_EQEDPXT6 */

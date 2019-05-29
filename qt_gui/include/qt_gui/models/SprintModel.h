@@ -24,8 +24,7 @@
 
 #include "qt_gui/models/AsyncListModel.h"
 #include <core/CommandInvoker.h>
-#include <core/ISprintStorageReader.h>
-#include <core/ISprintStorageWriter.h>
+#include <core/ISprintStorage.h>
 #include <core/ITaskStorageWriter.h>
 #include <core/QueryInvoker.h>
 #include <vector>
@@ -38,8 +37,7 @@ class SprintModel : public AsyncListModel {
 public:
     SprintModel(CommandInvoker& commandInvoker,
                 QueryInvoker& queryInvoker,
-                ISprintStorageReader& sprintReader,
-                ISprintStorageWriter& sprintWriter,
+                ISprintStorage& sprintStorage,
                 QObject* parent = nullptr);
 
     int rowCount(const QModelIndex& parent) const final;
@@ -66,8 +64,7 @@ private:
     std::vector<entities::Sprint> storage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
-    ISprintStorageReader& sprintReader;
-    ISprintStorageWriter& sprintWriter;
+    ISprintStorage& sprintStorage;
     dw::DateRange sprintDateRange{dw::current_date(), dw::current_date()};
 
     void requestUpdate() final;

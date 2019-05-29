@@ -247,15 +247,10 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
     DBService dbService{dataDirectory + "/sprint.db"};
 
-    QtStorageImplementersFactory factory{dbService, applicationSettings};
-    std::unique_ptr<ISprintStorageReader> sprintStorageReader{
-        factory.createSprintStorageReader()};
-    std::unique_ptr<ISprintStorageWriter> sprintStorageWriter{
-        factory.createSprintStorageWriter()};
-    std::unique_ptr<ITaskStorageReader> taskStorageReader{
-        factory.createTaskStorageReader()};
-    std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
-        factory.createTaskStorageWriter()};
+    QtStorageImplementersFactory factory{dbService};
+    std::unique_ptr<ISprintStorage> sprintStorage{
+        factory.createSprintStorage()};
+    std::unique_ptr<ITaskStorage> taskStorage{factory.createTaskStorage()};
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
         factory.createSprintDailyDistributionReader()};
     std::unique_ptr<IOperationalRangeReader> operationRangeReader{
@@ -265,34 +260,24 @@ int main(int argc, char* argv[])
             applicationSettings.firstDayOfWeek())};
     std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
-    std::unique_ptr<IWorkingDaysReader> workingDaysReader{
-        factory.createWorkingDaysReader()};
-    std::unique_ptr<IWorkingDaysWriter> workingDaysWriter{
-        factory.createWorkingDaysWriter()};
+    std::unique_ptr<IWorkingDaysStorage> workingDaysStorage{
+        factory.createWorkingDaysStorage()};
 
     CommandInvoker defaultCommandInvoker;
     VerboseCommandInvoker commandInvoker{defaultCommandInvoker};
     QueryInvoker defaultQueryInvoker;
     VerboseQueryInvoker queryInvoker{defaultQueryInvoker};
 
-    TaskModel unfinishedTasksModel{*taskStorageReader,
-                                   *taskStorageWriter,
-                                   *sprintStorageReader,
-                                   *sprintStorageWriter,
-                                   commandInvoker,
-                                   queryInvoker};
-    SprintModel todaySprintsModel{commandInvoker,
-                                  queryInvoker,
-                                  *sprintStorageReader,
-                                  *sprintStorageWriter};
-    TagModel tagModel{
-        *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
+    TaskModel unfinishedTasksModel{
+        *taskStorage, *sprintStorage, commandInvoker, queryInvoker};
+    SprintModel todaySprintsModel{commandInvoker, queryInvoker, *sprintStorage};
+    TagModel tagModel{*taskStorage, commandInvoker, queryInvoker};
 
     AddSprintDialog addSprintDialog{
         applicationSettings, todaySprintsModel, unfinishedTasksModel};
 
     WorkdayTrackerModel workdayTrackerModel{
-        *workingDaysWriter, *workingDaysReader, commandInvoker, queryInvoker};
+        *workingDaysStorage, commandInvoker, queryInvoker};
 
     UndoDialog undoDialog{commandInvoker};
     QObject::connect(&undoDialog,
@@ -326,10 +311,8 @@ int main(int argc, char* argv[])
     OperationRangeModel operationRangeModel{*operationRangeReader,
                                             queryInvoker};
 
-    SprintModel statisticsSprintModel{commandInvoker,
-                                      queryInvoker,
-                                      *sprintStorageReader,
-                                      *sprintStorageWriter};
+    SprintModel statisticsSprintModel{
+        commandInvoker, queryInvoker, *sprintStorage};
     QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
                      &statisticsSprintModel,
@@ -461,17 +444,15 @@ int main(int argc, char* argv[])
         operationRangeModel);
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
-    SprintModel historySprintModel{commandInvoker,
-                                   queryInvoker,
-                                   *sprintStorageReader,
-                                   *sprintStorageWriter};
+    SprintModel historySprintModel{
+        commandInvoker, queryInvoker, *sprintStorage};
     // QObject::connect(historyWindowDateRangePicker.get(),
     //                  &DateRangePicker::selectedDateRangeChanged,
     //                  [&historySprintModel](const auto& dateRange) {
     //                      historySprintModel.requestUpdate(dateRange);
     //                  });
     HistoryWindow historyWindow{historySprintModel,
-                                *taskStorageReader,
+                                *taskStorage,
                                 historyModel,
                                 historyItemDelegate,
                                 queryInvoker,
@@ -502,7 +483,7 @@ int main(int argc, char* argv[])
     TaskItemDelegate taskItemDelegate;
     auto taskView
         = std::make_unique<TaskView>(unfinishedTasksModel,
-                                     *sprintStorageReader,
+                                     *sprintStorage,
                                      queryInvoker,
                                      taskSprintsView,
                                      addTaskDialog,

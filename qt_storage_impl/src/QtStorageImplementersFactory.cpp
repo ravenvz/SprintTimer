@@ -22,32 +22,23 @@
 #include "qt_storage_impl/QtStorageImplementersFactory.h"
 #include "qt_storage_impl/QtOperationalRangeReader.h"
 #include "qt_storage_impl/QtSprintDistributionReader.h"
-#include "qt_storage_impl/QtSprintStorageReader.h"
-#include "qt_storage_impl/QtSprintStorageWriter.h"
-#include "qt_storage_impl/QtTaskStorageReader.h"
-#include "qt_storage_impl/QtTaskStorageWriter.h"
-#include "qt_storage_impl/QtWorkingDaysReader.h"
-#include "qt_storage_impl/QtWorkingDaysWriter.h"
+#include "qt_storage_impl/QtSprintStorage.h"
+#include "qt_storage_impl/QtTaskStorage.h"
+#include "qt_storage_impl/QtWorkingDaysStorage.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
 
-QtStorageImplementersFactory::QtStorageImplementersFactory(
-    DBService& dbService, const IConfig& settings)
+QtStorageImplementersFactory::QtStorageImplementersFactory(DBService& dbService)
     : dbService{dbService}
-    , settings{settings}
 {
 }
 
-std::unique_ptr<ISprintStorageReader>
-QtStorageImplementersFactory::createSprintStorageReader() const
+std::unique_ptr<ISprintStorage>
+QtStorageImplementersFactory::createSprintStorage() const
 {
-    return std::make_unique<QtSprintStorageReader>(dbService);
-}
-
-std::unique_ptr<ISprintStorageWriter>
-QtStorageImplementersFactory::createSprintStorageWriter() const
-{
-    return std::make_unique<QtSprintStorageWriter>(dbService);
+    return std::make_unique<QtSprintStorage>(
+        std::make_unique<QtSprintStorageReader>(dbService),
+        std::make_unique<QtSprintStorageWriter>(dbService));
 }
 
 std::unique_ptr<IOperationalRangeReader>
@@ -83,28 +74,18 @@ QtStorageImplementersFactory::createSprintMonthlyDistributionReader() const
                                                                numMonths);
 }
 
-std::unique_ptr<ITaskStorageReader>
-QtStorageImplementersFactory::createTaskStorageReader() const
+std::unique_ptr<ITaskStorage>
+QtStorageImplementersFactory::createTaskStorage() const
 {
-    return std::make_unique<QtTaskStorageReader>(dbService);
+    return std::make_unique<QtTaskStorage>(
+        std::make_unique<QtTaskStorageReader>(dbService),
+        std::make_unique<QtTaskStorageWriter>(dbService));
 }
 
-std::unique_ptr<ITaskStorageWriter>
-QtStorageImplementersFactory::createTaskStorageWriter() const
+std::unique_ptr<IWorkingDaysStorage>
+QtStorageImplementersFactory::createWorkingDaysStorage() const
 {
-    return std::make_unique<QtTaskStorageWriter>(dbService);
-}
-
-std::unique_ptr<IWorkingDaysReader>
-QtStorageImplementersFactory::createWorkingDaysReader() const
-{
-    return std::make_unique<QtWorkingDaysReader>(dbService, settings);
-}
-
-std::unique_ptr<IWorkingDaysWriter>
-QtStorageImplementersFactory::createWorkingDaysWriter() const
-{
-    return std::make_unique<QtWorkingDaysWriter>(dbService);
+    return std::make_unique<QtWorkingDaysStorage>(dbService);
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl

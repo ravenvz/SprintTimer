@@ -32,16 +32,14 @@ using dw::DateTimeRange;
 using namespace entities;
 using namespace sprint_timer::use_cases;
 
-SprintModel::SprintModel(CommandInvoker& commandInvoker,
-                         QueryInvoker& queryInvoker,
-                         ISprintStorageReader& sprintReader,
-                         ISprintStorageWriter& sprintWriter,
-                         QObject* parent)
-    : AsyncListModel(parent)
-    , commandInvoker{commandInvoker}
-    , queryInvoker{queryInvoker}
-    , sprintReader{sprintReader}
-    , sprintWriter{sprintWriter}
+SprintModel::SprintModel(CommandInvoker& commandInvoker_,
+                         QueryInvoker& queryInvoker_,
+                         ISprintStorage& sprintStorage_,
+                         QObject* parent_)
+    : AsyncListModel(parent_)
+    , commandInvoker{commandInvoker_}
+    , queryInvoker{queryInvoker_}
+    , sprintStorage{sprintStorage_}
 {
     requestSilentDataUpdate();
 }
@@ -86,14 +84,14 @@ void SprintModel::insert(const Sprint& sprint)
 void SprintModel::insert(const std::vector<Sprint>& sprints)
 {
     commandInvoker.executeCommand(
-        std::make_unique<RegisterNewSprintBulk>(sprintWriter, sprints));
+        std::make_unique<RegisterNewSprintBulk>(sprintStorage, sprints));
     requestDataUpdate();
 }
 
 void SprintModel::registerSprint(const Sprint& sprint)
 {
     commandInvoker.executeCommand(
-        std::make_unique<RegisterNewSprint>(sprintWriter, sprint));
+        std::make_unique<RegisterNewSprint>(sprintStorage, sprint));
 }
 
 bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
@@ -107,7 +105,7 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
 void SprintModel::remove(int row)
 {
     commandInvoker.executeCommand(std::make_unique<RemoveSprintTransaction>(
-        sprintWriter, storage[static_cast<size_t>(row)]));
+        sprintStorage, storage[static_cast<size_t>(row)]));
     requestDataUpdate();
 }
 
@@ -122,7 +120,7 @@ void SprintModel::requestUpdate(const dw::DateRange& dateRange)
 void SprintModel::requestUpdate()
 {
     queryInvoker.execute(std::make_unique<RequestSprints>(
-        sprintReader, sprintDateRange, [this](const auto& items) {
+        sprintStorage, sprintDateRange, [this](const auto& items) {
             onDataChanged(items);
         }));
 }

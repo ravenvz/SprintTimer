@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/TaskStorageReaderMock.h"
+#include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/QueryInvoker.h>
 #include <core/use_cases/RequestAllTags.h>
@@ -32,13 +32,13 @@ using ::testing::_;
 class RequestAllTagsFixture : public ::testing::Test {
 public:
     QueryInvoker queryInvoker;
-    TaskStorageReaderMock task_writer_mock;
+    TaskStorageMock task_storage_mock;
 };
 
 TEST_F(RequestAllTagsFixture, execute)
 {
-    EXPECT_CALL(task_writer_mock, requestAllTags(_)).Times(1);
+    EXPECT_CALL(task_storage_mock, requestAllTags(_)).Times(1);
 
     queryInvoker.execute(std::make_unique<RequestAllTags>(
-        task_writer_mock, [](const auto& result) {}));
+        task_storage_mock, [](const auto& result) {}));
 }

@@ -27,6 +27,7 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ISprintStorageWriter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/IStatefulTimer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/IStorageImplementersFactory.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/ITaskStorage.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ITaskStorageReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ITaskStorageWriter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ITransaction.h"

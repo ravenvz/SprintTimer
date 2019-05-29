@@ -54,9 +54,9 @@ TEST_F(QtStorageImplementIntegrationTestFixture, saves_task)
 {
     const Task someTask = TaskBuilder{}.withName("Some name").build();
 
-    initializer.taskWriter->save(someTask);
+    initializer.taskStorage->save(someTask);
 
-    initializer.taskReader->requestUnfinishedTasks(
+    initializer.taskStorage->requestUnfinishedTasks(
         [& expected = someTask, this](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_EQ(expected, items.front());
@@ -69,10 +69,10 @@ TEST_F(QtStorageImplementIntegrationTestFixture, remove_task_with_no_sprints)
 {
     const Task someTask = TaskBuilder{}.withUuid("123").build();
 
-    initializer.taskWriter->save(someTask);
-    initializer.taskWriter->remove(someTask.uuid());
+    initializer.taskStorage->save(someTask);
+    initializer.taskStorage->remove(someTask.uuid());
 
-    initializer.taskReader->requestUnfinishedTasks(
+    initializer.taskStorage->requestUnfinishedTasks(
         [this](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(0, items.size());
             initializer.quit();
@@ -89,11 +89,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture, toggles_task_completion_status)
               .withLastModificationStamp(dw::current_date_time())
               .build();
 
-    initializer.taskWriter->save(someTask);
-    initializer.taskWriter->toggleTaskCompletionStatus(someTask.uuid(),
-                                                       someTask.lastModified());
+    initializer.taskStorage->save(someTask);
+    initializer.taskStorage->toggleTaskCompletionStatus(
+        someTask.uuid(), someTask.lastModified());
 
-    initializer.taskReader->requestUnfinishedTasks(
+    initializer.taskStorage->requestUnfinishedTasks(
         [this, &someTask](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_FALSE(someTask.isCompleted() == items.front().isCompleted());
@@ -119,11 +119,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_unfinished_tasks)
             .build());
 
     for (const auto& task : unfinishedTasks)
-        initializer.taskWriter->save(task);
+        initializer.taskStorage->save(task);
     for (const auto& task : finishedTasks)
-        initializer.taskWriter->save(task);
+        initializer.taskStorage->save(task);
 
-    initializer.taskReader->requestUnfinishedTasks(
+    initializer.taskStorage->requestUnfinishedTasks(
         [&unfinishedTasks, this](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(unfinishedTasks, items);
             initializer.quit();
@@ -153,11 +153,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
               std::back_inserter(recentTasks));
 
     for (const auto& task : unfinishedTasks)
-        initializer.taskWriter->save(task);
+        initializer.taskStorage->save(task);
     for (const auto& task : finishedTasks)
-        initializer.taskWriter->save(task);
+        initializer.taskStorage->save(task);
 
-    initializer.taskReader->requestUnfinishedTasks(
+    initializer.taskStorage->requestUnfinishedTasks(
         [&recentTasks, this](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(recentTasks, items);
             initializer.quit();
@@ -187,10 +187,10 @@ TEST_F(QtStorageImplementIntegrationTestFixture, edits_task)
               .withCompletionStatus(someTask.isCompleted())
               .build();
 
-    initializer.taskWriter->save(someTask);
-    initializer.taskWriter->edit(someTask, expectedEditedTask);
+    initializer.taskStorage->save(someTask);
+    initializer.taskStorage->edit(someTask, expectedEditedTask);
 
-    initializer.taskReader->requestUnfinishedTasks(
+    initializer.taskStorage->requestUnfinishedTasks(
         [this, &expectedEditedTask](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_EQ(expectedEditedTask, items.front());
@@ -205,10 +205,10 @@ TEST_F(QtStorageImplementIntegrationTestFixture, edits_tag)
     const std::string editedTag{"EditedTag"};
     const Task someTask = TaskBuilder{}.withTag(tagToEdit).build();
 
-    initializer.taskWriter->save(someTask);
-    initializer.taskWriter->editTag(tagToEdit, editedTag);
+    initializer.taskStorage->save(someTask);
+    initializer.taskStorage->editTag(tagToEdit, editedTag);
 
-    initializer.taskReader->requestAllTags(
+    initializer.taskStorage->requestAllTags(
         [this, &editedTag](const std::vector<std::string>& tags) {
             EXPECT_EQ(1, tags.size());
             EXPECT_EQ(editedTag, tags.front());
@@ -225,11 +225,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture, updates_priorities)
 
     for (int i = 0; i < 3; ++i) {
         tasks.push_back(builder.withUuid(std::to_string(i + 1)).build());
-        initializer.taskWriter->save(tasks.back());
+        initializer.taskStorage->save(tasks.back());
     }
-    initializer.taskWriter->updatePriorities(priorities);
+    initializer.taskStorage->updatePriorities(priorities);
 
-    initializer.taskReader->requestUnfinishedTasks(
+    initializer.taskStorage->requestUnfinishedTasks(
         [this, &priorities](const ITaskStorageReader::Items& items) {
             EXPECT_TRUE(std::equal(cbegin(priorities),
                                    cend(priorities),
@@ -251,13 +251,13 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     const dw::DateTimeRange timeSpan{dw::current_date_time(),
                                      dw::current_date_time()};
 
-    initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprintBuilder.withTaskUuid(someTask.uuid())
-                                       .withTimeSpan(timeSpan)
-                                       .build());
-    initializer.taskWriter->remove(someTask.uuid());
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(sprintBuilder.withTaskUuid(someTask.uuid())
+                                        .withTimeSpan(timeSpan)
+                                        .build());
+    initializer.taskStorage->remove(someTask.uuid());
 
-    initializer.sprintReader->sprintsForTask(
+    initializer.sprintStorage->sprintsForTask(
         someTask.uuid(), [this](const ISprintStorageReader::Items& items) {
             EXPECT_TRUE(items.empty());
             initializer.quit();
@@ -293,14 +293,14 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
                                              insideRangeTask2,
                                              taskRightRangeBorder};
 
-    initializer.taskWriter->save(taskOutOfRangeLeft);
-    initializer.taskWriter->save(taskLeftRangeBorder);
-    initializer.taskWriter->save(insideRangeTask1);
-    initializer.taskWriter->save(insideRangeTask2);
-    initializer.taskWriter->save(taskRightRangeBorder);
-    initializer.taskWriter->save(taskOutOfRangeRight);
+    initializer.taskStorage->save(taskOutOfRangeLeft);
+    initializer.taskStorage->save(taskLeftRangeBorder);
+    initializer.taskStorage->save(insideRangeTask1);
+    initializer.taskStorage->save(insideRangeTask2);
+    initializer.taskStorage->save(taskRightRangeBorder);
+    initializer.taskStorage->save(taskOutOfRangeRight);
 
-    initializer.taskReader->requestTasks(
+    initializer.taskStorage->requestTasks(
         targetDateRange,
         [this, &expected](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(expected.size(), items.size());
@@ -324,13 +324,13 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
                                      dw::current_date_time()};
     SprintBuilder builder;
 
-    initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(
         builder.forTask(someTask).withTimeSpan(timeSpan).build());
-    initializer.sprintWriter->save(
+    initializer.sprintStorage->save(
         builder.forTask(someTask).withTimeSpan(timeSpan).build());
 
-    initializer.taskReader->requestUnfinishedTasks(
+    initializer.taskStorage->requestUnfinishedTasks(
         [this, &expectedTask](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_EQ(expectedTask, items.front());
@@ -355,13 +355,13 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     const Sprint sprint
         = builder.forTask(someTask).withTimeSpan(timeSpan).build();
 
-    initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprint);
-    initializer.sprintWriter->save(
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(sprint);
+    initializer.sprintStorage->save(
         builder.forTask(someTask).withTimeSpan(timeSpan).build());
-    initializer.sprintWriter->remove(sprint);
+    initializer.sprintStorage->remove(sprint);
 
-    initializer.taskReader->requestUnfinishedTasks(
+    initializer.taskStorage->requestUnfinishedTasks(
         [this, &expectedTask](const ITaskStorageReader::Items& items) {
             EXPECT_EQ(1, items.size());
             EXPECT_EQ(expectedTask, items.front());
@@ -375,13 +375,13 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_tags)
     using sprint_timer::entities::Tag;
     TaskBuilder builder;
 
-    initializer.taskWriter->save(
+    initializer.taskStorage->save(
         builder.withExplicitTags({Tag{"Tag1"}, Tag{"Tag2"}}).build());
-    initializer.taskWriter->save(
+    initializer.taskStorage->save(
         builder.withExplicitTags({Tag{"Tag3"}, Tag{"Tag4"}}).build());
     const std::vector<std::string> expected{"Tag1", "Tag2", "Tag3", "Tag4"};
 
-    initializer.taskReader->requestAllTags(
+    initializer.taskStorage->requestAllTags(
         [this, &expected](const std::vector<std::string>& tags) {
             auto sortedTags = tags;
             std::sort(begin(sortedTags), end(sortedTags));
@@ -399,11 +399,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     const Task someTask = builder.withTag(someTag).build();
     const Task someOtherTask = builder.withTag(someTag).build();
 
-    initializer.taskWriter->save(someTask);
-    initializer.taskWriter->save(someOtherTask);
-    initializer.taskWriter->remove(someTask.uuid());
+    initializer.taskStorage->save(someTask);
+    initializer.taskStorage->save(someOtherTask);
+    initializer.taskStorage->remove(someTask.uuid());
 
-    initializer.taskReader->requestAllTags(
+    initializer.taskStorage->requestAllTags(
         [this, &someTag](const std::vector<std::string>& tags) {
             EXPECT_EQ(1, tags.size());
             EXPECT_EQ(someTag, tags.front());
@@ -419,10 +419,10 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     const Task someTask
         = TaskBuilder{}.withExplicitTags({Tag{"Tag1"}, Tag{"Tag2"}}).build();
 
-    initializer.taskWriter->save(someTask);
-    initializer.taskWriter->remove(someTask.uuid());
+    initializer.taskStorage->save(someTask);
+    initializer.taskStorage->remove(someTask.uuid());
 
-    initializer.taskReader->requestAllTags(
+    initializer.taskStorage->requestAllTags(
         [this](const std::vector<std::string>& tags) {
             EXPECT_TRUE(tags.empty());
             initializer.quit();
@@ -452,11 +452,11 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
                      return sprint.taskUuid() == someTask.uuid();
                  });
 
-    initializer.taskWriter->save(someTask);
-    initializer.taskWriter->save(irrelevantTask);
-    initializer.sprintWriter->save(sprints);
+    initializer.taskStorage->save(someTask);
+    initializer.taskStorage->save(irrelevantTask);
+    initializer.sprintStorage->save(sprints);
 
-    initializer.sprintReader->sprintsForTask(
+    initializer.sprintStorage->sprintsForTask(
         someTask.uuid(),
         [this, &expectedSprints](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(2, items.size());
@@ -497,14 +497,14 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
             .build()};
     const std::vector<Sprint> expected{onLeftBorder, inRange, onRightBorder};
 
-    initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(outOfRangeLeft);
-    initializer.sprintWriter->save(onLeftBorder);
-    initializer.sprintWriter->save(inRange);
-    initializer.sprintWriter->save(onRightBorder);
-    initializer.sprintWriter->save(outOfRangeRight);
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(outOfRangeLeft);
+    initializer.sprintStorage->save(onLeftBorder);
+    initializer.sprintStorage->save(inRange);
+    initializer.sprintStorage->save(onRightBorder);
+    initializer.sprintStorage->save(outOfRangeRight);
 
-    initializer.sprintReader->requestItems(
+    initializer.sprintStorage->requestItems(
         range, [this, &expected](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(3, items.size());
             EXPECT_EQ(expected, items);
@@ -531,9 +531,9 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_operational_range)
     const DateRange expected{Date{Year{2014}, Month{12}, Day{1}},
                              Date{Year{2018}, Month{12}, Day{1}}};
 
-    initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(left);
-    initializer.sprintWriter->save(right);
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(left);
+    initializer.sprintStorage->save(right);
 
     initializer.operationalRangeReader->requestOperationalRange(
         [this, &expected](const auto& operationalRange) {
@@ -556,10 +556,10 @@ TEST_F(QtStorageImplementIntegrationTestFixture, saves_sprints_in_bulk)
         return sprintBuilder.build();
     });
 
-    initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprintBulk);
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(sprintBulk);
 
-    initializer.sprintReader->sprintsForTask(
+    initializer.sprintStorage->sprintsForTask(
         someTask.uuid(),
         [&sprintBulk, this](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(sprintBulk, items);
@@ -587,12 +587,12 @@ TEST_F(QtStorageImplementIntegrationTestFixture, removes_sprints_in_bulk)
             return sprintBuilder.withTaskUuid(otherTask.uuid()).build();
         });
 
-    initializer.taskWriter->save(someTask);
-    initializer.taskWriter->save(otherTask);
-    initializer.sprintWriter->save(sprintBulk);
-    initializer.sprintWriter->remove(sprintBulk);
+    initializer.taskStorage->save(someTask);
+    initializer.taskStorage->save(otherTask);
+    initializer.sprintStorage->save(sprintBulk);
+    initializer.sprintStorage->remove(sprintBulk);
 
-    initializer.sprintReader->requestItems(
+    initializer.sprintStorage->requestItems(
         dateRange, [this](const ISprintStorageReader::Items& items) {
             EXPECT_TRUE(items.empty());
             initializer.quit();
@@ -655,8 +655,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
                 .build();
         });
 
-    initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprints);
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(sprints);
 
     initializer.dailyDistributionReader->requestDistribution(
         range, [&expected, this](const std::vector<int>& distribution) {
@@ -724,8 +724,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
                             .build();
                     });
 
-    initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprints);
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(sprints);
 
     initializer.monthlyDistributionReader->requestDistribution(
         DateRange{lowerDate, someDate},
@@ -795,8 +795,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
                 .build();
         });
 
-    initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprints);
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(sprints);
 
     initializer.mondayFirstWeeklyDistributionReader->requestDistribution(
         DateRange{lowerDate.date(), upperDate.date()},
@@ -866,8 +866,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
                 .build();
         });
 
-    initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprints);
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(sprints);
 
     initializer.sundayFirstWeeklyDistributionReader->requestDistribution(
         DateRange{lowerDate.date(), upperDate.date()},
@@ -903,9 +903,9 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     expected.addExceptionalDay(Date{Year{2017}, Month{2}, Day{23}}, 12);
     expected.addExceptionalDay(Date{Year{2014}, Month{12}, Day{30}}, 12);
 
-    initializer.workingDaysWriter->changeWorkingDays(expected);
+    initializer.workingDaysStorage->changeWorkingDays(expected);
 
-    initializer.workingDaysReader->requestData(
+    initializer.workingDaysStorage->requestData(
         [&expected, this](const WorkdayTracker& actual) {
             EXPECT_EQ(expected, actual);
             initializer.quit();

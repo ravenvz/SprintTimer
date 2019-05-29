@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/TaskStorageWriterMock.h"
+#include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/CommandInvoker.h>
 #include <core/use_cases/RenameTag.h>
@@ -30,17 +30,17 @@ using sprint_timer::use_cases::RenameTag;
 class RenameTagFixture : public ::testing::Test {
 public:
     sprint_timer::CommandInvoker commandInvoker;
-    TaskStorageWriterMock task_writer_mock;
+    TaskStorageMock task_storage_mock;
 };
 
 TEST_F(RenameTagFixture, execute_and_undo)
 {
-    EXPECT_CALL(task_writer_mock, editTag("oldName", "newName")).Times(1);
+    EXPECT_CALL(task_storage_mock, editTag("oldName", "newName")).Times(1);
 
     commandInvoker.executeCommand(
-        std::make_unique<RenameTag>(task_writer_mock, "oldName", "newName"));
+        std::make_unique<RenameTag>(task_storage_mock, "oldName", "newName"));
 
-    EXPECT_CALL(task_writer_mock, editTag("newName", "oldName")).Times(1);
+    EXPECT_CALL(task_storage_mock, editTag("newName", "oldName")).Times(1);
 
     commandInvoker.undo();
 }

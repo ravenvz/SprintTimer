@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/TaskStorageWriterMock.h"
+#include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/CommandInvoker.h>
 #include <core/use_cases/ToggleTaskCompletionStatus.h>
@@ -41,32 +41,32 @@ public:
                   dw::DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
 
     sprint_timer::CommandInvoker commandInvoker;
-    TaskStorageWriterMock task_writer_mock;
+    TaskStorageMock task_storage_mock;
 };
 
 TEST_F(ToggleTaskCompletionFixture, execute)
 {
-    EXPECT_CALL(task_writer_mock,
+    EXPECT_CALL(task_storage_mock,
                 toggleTaskCompletionStatus(someTask.uuid(),
                                            dw::current_date_time_local()))
         .Times(1);
 
     commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
-        task_writer_mock, someTask));
+        task_storage_mock, someTask));
 }
 
 TEST_F(ToggleTaskCompletionFixture, undo_should_not_modify_timestamp)
 {
-    EXPECT_CALL(task_writer_mock,
+    EXPECT_CALL(task_storage_mock,
                 toggleTaskCompletionStatus(someTask.uuid(),
                                            dw::current_date_time_local()))
         .Times(1);
 
     commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
-        task_writer_mock, someTask));
+        task_storage_mock, someTask));
 
     EXPECT_CALL(
-        task_writer_mock,
+        task_storage_mock,
         toggleTaskCompletionStatus(someTask.uuid(), someTask.lastModified()))
         .Times(1);
 

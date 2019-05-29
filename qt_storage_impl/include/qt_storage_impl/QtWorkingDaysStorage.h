@@ -19,33 +19,45 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSPRINTSTORAGEWRITER_H_U7AAXVTC
-#define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
+#ifndef QTWORKINGDAYSSTORAGE_H_EXLIBP9M
+#define QTWORKINGDAYSSTORAGE_H_EXLIBP9M
 
 #include "qt_storage_impl/DBService.h"
 #include <QObject>
-#include <core/ISprintStorageWriter.h>
+#include <core/IWorkingDaysStorage.h>
+#include <queue>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
-class QtSprintStorageWriter : public QObject, public ISprintStorageWriter {
+class QtWorkingDaysStorage : public QObject, public IWorkingDaysStorage {
 public:
-    explicit QtSprintStorageWriter(DBService& dbService);
+    QtWorkingDaysStorage(DBService& dbService, QObject* parent = nullptr);
 
-    void save(const entities::Sprint& sprint) final;
+    void changeWorkingDays(const WorkdayTracker& tracker) override;
 
-    void save(const std::vector<entities::Sprint>& sprints) final;
-
-    void remove(const entities::Sprint& sprint) final;
-
-    void remove(const std::vector<entities::Sprint>& sprints) final;
+    void requestData(IWorkingDaysReader::ResultHandler resultHandler) override;
 
 private:
+    struct Context {
+        IWorkingDaysReader::ResultHandler handler;
+        WorkdayTracker tracker;
+    };
+
     DBService& dbService;
-    qint64 addQueryId{-1};
-    qint64 removeQueryId{-1};
+    qint64 storeSchedulesQueryId{-1};
+    qint64 storeExceptionalDaysQuery{-1};
+    QString requestSchedulesQuery;
+    QString requestExceptionalDaysQuery;
+    qint64 requestSchedulesQueryId{-1};
+    qint64 requestExceptionalDaysQueryId{-1};
+    std::queue<Context> contexts;
+
+    void removeExtraDays(const std::vector<dw::Date>& days);
+
+    void onResultReceived(qint64 queryId,
+                          const std::vector<QSqlRecord>& records);
 };
 
 } // namespace sprint_timer::storage::qt_storage_impl
 
-#endif /* end of include guard: QTSPRINTSTORAGEWRITER_H_U7AAXVTC */
+#endif /* end of include guard: QTWORKINGDAYSSTORAGE_H_EXLIBP9M */

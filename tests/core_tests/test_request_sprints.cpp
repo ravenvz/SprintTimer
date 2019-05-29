@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/SprintStorageReaderMock.h"
+#include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/QueryInvoker.h>
 #include <core/use_cases/RequestSprints.h>
@@ -33,7 +33,7 @@ using ::testing::_;
 
 class RequestSprintsFixture : public ::testing::Test {
 public:
-    SprintStorageReaderMock sprint_reader_mock;
+    SprintStorageMock sprint_storage_mock;
     QueryInvoker query_executor;
 
     const DateRange someDateRange{
@@ -42,8 +42,8 @@ public:
 
 TEST_F(RequestSprintsFixture, execute)
 {
-    EXPECT_CALL(sprint_reader_mock, requestItems(someDateRange, _));
+    EXPECT_CALL(sprint_storage_mock, requestItems(someDateRange, _));
 
     query_executor.execute(std::make_unique<RequestSprints>(
-        sprint_reader_mock, someDateRange, [](const auto& result) {}));
+        sprint_storage_mock, someDateRange, [](const auto& result) {}));
 }

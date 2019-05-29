@@ -24,10 +24,8 @@
 
 #include "qt_gui/models/AsyncListModel.h"
 #include <core/CommandInvoker.h>
-#include <core/ISprintStorageReader.h>
-#include <core/ISprintStorageWriter.h>
-#include <core/ITaskStorageReader.h>
-#include <core/ITaskStorageWriter.h>
+#include <core/ISprintStorage.h>
+#include <core/ITaskStorage.h>
 #include <core/QueryInvoker.h>
 #include <core/entities/Task.h>
 #include <date_wrapper/date_wrapper.h>
@@ -38,10 +36,8 @@ class TaskModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    TaskModel(ITaskStorageReader& taskReader,
-              ITaskStorageWriter& taskWriter,
-              ISprintStorageReader& sprintReader,
-              ISprintStorageWriter& sprintWriter,
+    TaskModel(ITaskStorage& taskStorage,
+              ISprintStorage& sprint,
               CommandInvoker& commandInvoker,
               QueryInvoker& queryInvoker,
               QObject* parent = nullptr);
@@ -104,10 +100,8 @@ public:
     void replaceItemAt(int row, const entities::Task& newItem);
 
 private:
-    ITaskStorageReader& taskReader;
-    ITaskStorageWriter& taskWriter;
-    ISprintStorageReader& sprintReader;
-    ISprintStorageWriter& sprintWriter;
+    ITaskStorage& taskStorage;
+    ISprintStorage& sprintStorage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
     std::vector<entities::Task> storage;

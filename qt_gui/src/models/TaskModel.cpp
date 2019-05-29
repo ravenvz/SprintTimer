@@ -37,20 +37,16 @@ namespace sprint_timer::ui::qt_gui {
 using entities::Task;
 using namespace use_cases;
 
-TaskModel::TaskModel(ITaskStorageReader& taskReader,
-                     ITaskStorageWriter& taskWriter,
-                     ISprintStorageReader& sprintReader,
-                     ISprintStorageWriter& sprintWriter,
-                     CommandInvoker& commandInvoker,
-                     QueryInvoker& queryInvoker,
-                     QObject* parent)
-    : AsyncListModel{parent}
-    , taskReader{taskReader}
-    , taskWriter{taskWriter}
-    , sprintReader{sprintReader}
-    , sprintWriter{sprintWriter}
-    , commandInvoker{commandInvoker}
-    , queryInvoker{queryInvoker}
+TaskModel::TaskModel(ITaskStorage& taskStorage_,
+                     ISprintStorage& sprintStorage_,
+                     CommandInvoker& commandInvoker_,
+                     QueryInvoker& queryInvoker_,
+                     QObject* parent_)
+    : AsyncListModel{parent_}
+    , taskStorage{taskStorage_}
+    , sprintStorage{sprintStorage_}
+    , commandInvoker{commandInvoker_}
+    , queryInvoker{queryInvoker_}
 {
     requestSilentDataUpdate();
 }
@@ -58,9 +54,7 @@ TaskModel::TaskModel(ITaskStorageReader& taskReader,
 void TaskModel::requestUpdate()
 {
     queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
-        taskReader, [this](const auto& tasks) {
-            onDataChanged(tasks);
-        }));
+        taskStorage, [this](const auto& tasks) { onDataChanged(tasks); }));
 }
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)
@@ -129,7 +123,7 @@ int TaskModel::rowCount(const QModelIndex& parent) const
 void TaskModel::insert(const Task& item)
 {
     commandInvoker.executeCommand(
-        std::make_unique<AddNewTask>(taskWriter, item));
+        std::make_unique<AddNewTask>(taskStorage, item));
     requestDataUpdate();
 }
 
@@ -138,8 +132,8 @@ void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 void TaskModel::remove(int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
-    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
-        taskWriter, sprintReader, sprintWriter, itemAt(row)));
+    commandInvoker.executeCommand(
+        std::make_unique<DeleteTask>(taskStorage, sprintStorage, itemAt(row)));
     storage.erase(storage.begin() + row);
     endRemoveRows();
     // TODO
@@ -160,7 +154,7 @@ Task TaskModel::itemAt(int row) const
 void TaskModel::toggleCompleted(const QModelIndex& index)
 {
     commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
-        taskWriter, itemAt(index.row())));
+        taskStorage, itemAt(index.row())));
     requestDataUpdate();
 }
 
@@ -168,7 +162,7 @@ void TaskModel::replaceItemAt(int row, const Task& newItem)
 {
     Task oldItem = itemAt(row);
     commandInvoker.executeCommand(
-        std::make_unique<EditTask>(taskWriter, oldItem, newItem));
+        std::make_unique<EditTask>(taskStorage, oldItem, newItem));
     requestDataUpdate();
 }
 
@@ -209,7 +203,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
     auto new_order = uuidsInOrder();
 
     commandInvoker.executeCommand(std::make_unique<StoreUnfinishedTasksOrder>(
-        taskWriter, std::move(old_order), std::move(new_order)));
+        taskStorage, std::move(old_order), std::move(new_order)));
 
     return true;
 }

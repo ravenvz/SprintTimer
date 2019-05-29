@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/TaskStorageReaderMock.h"
+#include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/QueryInvoker.h>
 #include <core/use_cases/RequestTasks.h>
@@ -31,7 +31,7 @@ using ::testing::_;
 
 class RequestTasksFixture : public ::testing::Test {
 public:
-    TaskStorageReaderMock task_reader_mock;
+    TaskStorageMock task_storage_mock;
     sprint_timer::QueryInvoker queryInvoker;
     const DateRange someDateRange{
         add_offset({current_date(), current_date()}, Days{-1})};
@@ -39,8 +39,8 @@ public:
 
 TEST_F(RequestTasksFixture, execute)
 {
-    EXPECT_CALL(task_reader_mock, requestTasks(someDateRange, _)).Times(1);
+    EXPECT_CALL(task_storage_mock, requestTasks(someDateRange, _)).Times(1);
 
     queryInvoker.execute(std::make_unique<RequestTasks>(
-        task_reader_mock, someDateRange, [](const auto& result) {}));
+        task_storage_mock, someDateRange, [](const auto& result) {}));
 }

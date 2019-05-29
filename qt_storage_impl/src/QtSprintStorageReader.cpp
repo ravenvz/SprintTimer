@@ -23,6 +23,24 @@
 #include "qt_storage_impl/DatabaseDescription.h"
 #include "qt_storage_impl/utils/DateTimeConverter.h"
 
+namespace {
+
+enum class Columns {
+    Id = 0,
+    TodoUuid,
+    Name,
+    Tags,
+    StartTime,
+    FinishTime,
+    Uuid,
+};
+
+QVariant columnData(const QSqlRecord& record, Columns column);
+
+sprint_timer::entities::Sprint sprintFromQSqlRecord(const QSqlRecord& record);
+
+} // namespace
+
 namespace sprint_timer::storage::qt_storage_impl {
 
 using namespace dw;
@@ -105,13 +123,26 @@ void QtSprintStorageReader::onResultsReceived(
         records.cbegin(),
         records.cend(),
         std::back_inserter(sprints),
-        [&](const auto& elem) { return this->sprintFromQSqlRecord(elem); });
+        [&](const auto& elem) { return sprintFromQSqlRecord(elem); });
     handlerQueue.front()(sprints);
     handlerQueue.pop();
 }
 
-Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord& record)
+bool QtSprintStorageReader::listeningToQueryId(qint64 queryId) const
 {
+    return sprintsInTimeRangeQueryId == queryId
+        || sprintsForTaskQueryId == queryId;
+}
+
+} // namespace sprint_timer::storage::qt_storage_impl
+
+namespace {
+
+sprint_timer::entities::Sprint sprintFromQSqlRecord(const QSqlRecord& record)
+{
+    using sprint_timer::entities::Sprint;
+    using sprint_timer::entities::Tag;
+    using sprint_timer::storage::utils::DateTimeConverter;
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
     QDateTime finish = columnData(record, Columns::FinishTime).toDateTime();
@@ -132,16 +163,9 @@ Sprint QtSprintStorageReader::sprintFromQSqlRecord(const QSqlRecord& record)
     return Sprint{name.toStdString(), timeSpan, tags, uuid, taskUuid};
 }
 
-QVariant QtSprintStorageReader::columnData(const QSqlRecord& record,
-                                           Columns column)
+QVariant columnData(const QSqlRecord& record, Columns column)
 {
     return record.value(static_cast<int>(column));
 }
 
-bool QtSprintStorageReader::listeningToQueryId(qint64 queryId) const
-{
-    return sprintsInTimeRangeQueryId == queryId
-        || sprintsForTaskQueryId == queryId;
-}
-
-} // namespace sprint_timer::storage::qt_storage_impl
+} // namespace

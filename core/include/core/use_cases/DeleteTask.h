@@ -23,8 +23,7 @@
 #define REMOVETASKTRANSACTION_H_9P4V02DM
 
 #include "core/Command.h"
-#include "core/ISprintStorageReader.h"
-#include "core/ISprintStorageWriter.h"
+#include "core/ISprintStorage.h"
 #include "core/ITaskStorageWriter.h"
 
 namespace sprint_timer::use_cases {
@@ -32,8 +31,7 @@ namespace sprint_timer::use_cases {
 class DeleteTask : public Command {
 public:
     DeleteTask(ITaskStorageWriter& taskStorageWriter,
-               ISprintStorageReader& sprintStorageReader,
-               ISprintStorageWriter& sprintStorageWriter,
+               ISprintStorage& sprintStorage,
                entities::Task taskToRemove);
 
     void execute() final;
@@ -44,8 +42,7 @@ public:
 
 private:
     ITaskStorageWriter& taskWriter;
-    ISprintStorageReader& sprintReader;
-    ISprintStorageWriter& sprintWriter;
+    ISprintStorage& sprintStorage;
     const entities::Task task;
     std::vector<entities::Sprint> taskSprints;
 };
