@@ -19,20 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTSTORAGEREADERMOCK_H_VCWBUOSQ
-#define SPRINTSTORAGEREADERMOCK_H_VCWBUOSQ
+#ifndef ISPRINTSTORAGE_H_7Q24BCNX
+#define ISPRINTSTORAGE_H_7Q24BCNX
 
-#include <core/ISprintStorageReader.h>
-#include <gmock/gmock.h>
+#include "core/ISprintStorageReader.h"
+#include "core/ISprintStorageWriter.h"
 
-class SprintStorageReaderMock : public sprint_timer::ISprintStorageReader {
-public:
-    MOCK_METHOD2(requestItems,
-                 void(const dw::DateRange&,
-                      sprint_timer::ISprintStorageReader::Handler));
-    MOCK_METHOD2(sprintsForTask,
-                 void(const std::string& taskUuid,
-                      sprint_timer::ISprintStorageReader::Handler));
+
+namespace sprint_timer {
+
+class ISprintStorage : public ISprintStorageReader,
+                       public ISprintStorageWriter {
 };
 
-#endif /* end of include guard: SPRINTSTORAGEREADERMOCK_H_VCWBUOSQ */
+} // namespace sprint_timer
+
+
+#endif /* end of include guard: ISPRINTSTORAGE_H_7Q24BCNX */

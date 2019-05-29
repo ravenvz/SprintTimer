@@ -252,12 +252,12 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
                                      dw::current_date_time()};
 
     initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprintBuilder.withTaskUuid(someTask.uuid())
-                                       .withTimeSpan(timeSpan)
-                                       .build());
+    initializer.sprintStorage->save(sprintBuilder.withTaskUuid(someTask.uuid())
+                                        .withTimeSpan(timeSpan)
+                                        .build());
     initializer.taskWriter->remove(someTask.uuid());
 
-    initializer.sprintReader->sprintsForTask(
+    initializer.sprintStorage->sprintsForTask(
         someTask.uuid(), [this](const ISprintStorageReader::Items& items) {
             EXPECT_TRUE(items.empty());
             initializer.quit();
@@ -325,9 +325,9 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     SprintBuilder builder;
 
     initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(
+    initializer.sprintStorage->save(
         builder.forTask(someTask).withTimeSpan(timeSpan).build());
-    initializer.sprintWriter->save(
+    initializer.sprintStorage->save(
         builder.forTask(someTask).withTimeSpan(timeSpan).build());
 
     initializer.taskReader->requestUnfinishedTasks(
@@ -356,10 +356,10 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
         = builder.forTask(someTask).withTimeSpan(timeSpan).build();
 
     initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprint);
-    initializer.sprintWriter->save(
+    initializer.sprintStorage->save(sprint);
+    initializer.sprintStorage->save(
         builder.forTask(someTask).withTimeSpan(timeSpan).build());
-    initializer.sprintWriter->remove(sprint);
+    initializer.sprintStorage->remove(sprint);
 
     initializer.taskReader->requestUnfinishedTasks(
         [this, &expectedTask](const ITaskStorageReader::Items& items) {
@@ -454,9 +454,9 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     initializer.taskWriter->save(someTask);
     initializer.taskWriter->save(irrelevantTask);
-    initializer.sprintWriter->save(sprints);
+    initializer.sprintStorage->save(sprints);
 
-    initializer.sprintReader->sprintsForTask(
+    initializer.sprintStorage->sprintsForTask(
         someTask.uuid(),
         [this, &expectedSprints](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(2, items.size());
@@ -498,13 +498,13 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     const std::vector<Sprint> expected{onLeftBorder, inRange, onRightBorder};
 
     initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(outOfRangeLeft);
-    initializer.sprintWriter->save(onLeftBorder);
-    initializer.sprintWriter->save(inRange);
-    initializer.sprintWriter->save(onRightBorder);
-    initializer.sprintWriter->save(outOfRangeRight);
+    initializer.sprintStorage->save(outOfRangeLeft);
+    initializer.sprintStorage->save(onLeftBorder);
+    initializer.sprintStorage->save(inRange);
+    initializer.sprintStorage->save(onRightBorder);
+    initializer.sprintStorage->save(outOfRangeRight);
 
-    initializer.sprintReader->requestItems(
+    initializer.sprintStorage->requestItems(
         range, [this, &expected](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(3, items.size());
             EXPECT_EQ(expected, items);
@@ -532,8 +532,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_operational_range)
                              Date{Year{2018}, Month{12}, Day{1}}};
 
     initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(left);
-    initializer.sprintWriter->save(right);
+    initializer.sprintStorage->save(left);
+    initializer.sprintStorage->save(right);
 
     initializer.operationalRangeReader->requestOperationalRange(
         [this, &expected](const auto& operationalRange) {
@@ -557,9 +557,9 @@ TEST_F(QtStorageImplementIntegrationTestFixture, saves_sprints_in_bulk)
     });
 
     initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprintBulk);
+    initializer.sprintStorage->save(sprintBulk);
 
-    initializer.sprintReader->sprintsForTask(
+    initializer.sprintStorage->sprintsForTask(
         someTask.uuid(),
         [&sprintBulk, this](const ISprintStorageReader::Items& items) {
             EXPECT_EQ(sprintBulk, items);
@@ -589,10 +589,10 @@ TEST_F(QtStorageImplementIntegrationTestFixture, removes_sprints_in_bulk)
 
     initializer.taskWriter->save(someTask);
     initializer.taskWriter->save(otherTask);
-    initializer.sprintWriter->save(sprintBulk);
-    initializer.sprintWriter->remove(sprintBulk);
+    initializer.sprintStorage->save(sprintBulk);
+    initializer.sprintStorage->remove(sprintBulk);
 
-    initializer.sprintReader->requestItems(
+    initializer.sprintStorage->requestItems(
         dateRange, [this](const ISprintStorageReader::Items& items) {
             EXPECT_TRUE(items.empty());
             initializer.quit();
@@ -656,7 +656,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
         });
 
     initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprints);
+    initializer.sprintStorage->save(sprints);
 
     initializer.dailyDistributionReader->requestDistribution(
         range, [&expected, this](const std::vector<int>& distribution) {
@@ -725,7 +725,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_monthly_distribution)
                     });
 
     initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprints);
+    initializer.sprintStorage->save(sprints);
 
     initializer.monthlyDistributionReader->requestDistribution(
         DateRange{lowerDate, someDate},
@@ -796,7 +796,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
         });
 
     initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprints);
+    initializer.sprintStorage->save(sprints);
 
     initializer.mondayFirstWeeklyDistributionReader->requestDistribution(
         DateRange{lowerDate.date(), upperDate.date()},
@@ -867,7 +867,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
         });
 
     initializer.taskWriter->save(someTask);
-    initializer.sprintWriter->save(sprints);
+    initializer.sprintStorage->save(sprints);
 
     initializer.sundayFirstWeeklyDistributionReader->requestDistribution(
         DateRange{lowerDate.date(), upperDate.date()},

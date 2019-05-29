@@ -19,18 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSPRINTSTORAGEWRITER_H_U7AAXVTC
-#define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
-
 #include "qt_storage_impl/DBService.h"
-#include <QObject>
-#include <core/ISprintStorageWriter.h>
+#include "qt_storage_impl/QtSprintStorageReader.h"
+#include "qt_storage_impl/QtSprintStorageWriter.h"
+#include <core/ISprintStorage.h>
+#include <queue>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
-class QtSprintStorageWriter : public QObject, public ISprintStorageWriter {
+class QtSprintStorage : public ISprintStorage {
 public:
-    explicit QtSprintStorageWriter(DBService& dbService);
+    QtSprintStorage(std::unique_ptr<ISprintStorageReader> reader,
+                    std::unique_ptr<ISprintStorageWriter> writer);
+
+    void requestItems(const dw::DateRange& dateRange, Handler handler) final;
+
+    void sprintsForTask(const std::string& taskUuid, Handler handler) final;
 
     void save(const entities::Sprint& sprint) final;
 
@@ -41,11 +45,8 @@ public:
     void remove(const std::vector<entities::Sprint>& sprints) final;
 
 private:
-    DBService& dbService;
-    qint64 addQueryId{-1};
-    qint64 removeQueryId{-1};
+    std::unique_ptr<ISprintStorageReader> reader;
+    std::unique_ptr<ISprintStorageWriter> writer;
 };
 
 } // namespace sprint_timer::storage::qt_storage_impl
-
-#endif /* end of include guard: QTSPRINTSTORAGEWRITER_H_U7AAXVTC */

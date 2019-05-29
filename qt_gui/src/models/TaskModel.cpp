@@ -37,20 +37,18 @@ namespace sprint_timer::ui::qt_gui {
 using entities::Task;
 using namespace use_cases;
 
-TaskModel::TaskModel(ITaskStorageReader& taskReader,
-                     ITaskStorageWriter& taskWriter,
-                     ISprintStorageReader& sprintReader,
-                     ISprintStorageWriter& sprintWriter,
-                     CommandInvoker& commandInvoker,
-                     QueryInvoker& queryInvoker,
-                     QObject* parent)
-    : AsyncListModel{parent}
-    , taskReader{taskReader}
-    , taskWriter{taskWriter}
-    , sprintReader{sprintReader}
-    , sprintWriter{sprintWriter}
-    , commandInvoker{commandInvoker}
-    , queryInvoker{queryInvoker}
+TaskModel::TaskModel(ITaskStorageReader& taskReader_,
+                     ITaskStorageWriter& taskWriter_,
+                     ISprintStorage& sprintStorage_,
+                     CommandInvoker& commandInvoker_,
+                     QueryInvoker& queryInvoker_,
+                     QObject* parent_)
+    : AsyncListModel{parent_}
+    , taskReader{taskReader_}
+    , taskWriter{taskWriter_}
+    , sprintStorage{sprintStorage_}
+    , commandInvoker{commandInvoker_}
+    , queryInvoker{queryInvoker_}
 {
     requestSilentDataUpdate();
 }
@@ -58,9 +56,7 @@ TaskModel::TaskModel(ITaskStorageReader& taskReader,
 void TaskModel::requestUpdate()
 {
     queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
-        taskReader, [this](const auto& tasks) {
-            onDataChanged(tasks);
-        }));
+        taskReader, [this](const auto& tasks) { onDataChanged(tasks); }));
 }
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)
@@ -138,8 +134,8 @@ void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 void TaskModel::remove(int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
-    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
-        taskWriter, sprintReader, sprintWriter, itemAt(row)));
+    commandInvoker.executeCommand(
+        std::make_unique<DeleteTask>(taskWriter, sprintStorage, itemAt(row)));
     storage.erase(storage.begin() + row);
     endRemoveRows();
     // TODO

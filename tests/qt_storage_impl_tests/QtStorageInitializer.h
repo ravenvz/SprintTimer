@@ -42,10 +42,8 @@ struct QtStorageInitializer {
         = factory.createTaskStorageReader();
     std::unique_ptr<sprint_timer::ITaskStorageWriter> taskWriter
         = factory.createTaskStorageWriter();
-    std::unique_ptr<sprint_timer::ISprintStorageReader> sprintReader
-        = factory.createSprintStorageReader();
-    std::unique_ptr<sprint_timer::ISprintStorageWriter> sprintWriter
-        = factory.createSprintStorageWriter();
+    std::unique_ptr<sprint_timer::ISprintStorage> sprintStorage
+        = factory.createSprintStorage();
     std::unique_ptr<sprint_timer::IOperationalRangeReader>
         operationalRangeReader = factory.createOperationalRangeReader();
     std::unique_ptr<sprint_timer::ISprintDistributionReader>

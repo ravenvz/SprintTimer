@@ -31,11 +31,7 @@ class QtStorageImplementersFactory : public IStorageImplementersFactory {
 public:
     explicit QtStorageImplementersFactory(DBService& dbService);
 
-    std::unique_ptr<ISprintStorageReader>
-    createSprintStorageReader() const override;
-
-    std::unique_ptr<ISprintStorageWriter>
-    createSprintStorageWriter() const override;
+    std::unique_ptr<ISprintStorage> createSprintStorage() const override;
 
     std::unique_ptr<IOperationalRangeReader>
     createOperationalRangeReader() const override;

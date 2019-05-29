@@ -24,8 +24,7 @@
 
 #include "qt_gui/models/AsyncListModel.h"
 #include <core/CommandInvoker.h>
-#include <core/ISprintStorageReader.h>
-#include <core/ISprintStorageWriter.h>
+#include <core/ISprintStorage.h>
 #include <core/ITaskStorageReader.h>
 #include <core/ITaskStorageWriter.h>
 #include <core/QueryInvoker.h>
@@ -40,8 +39,7 @@ class TaskModel : public AsyncListModel {
 public:
     TaskModel(ITaskStorageReader& taskReader,
               ITaskStorageWriter& taskWriter,
-              ISprintStorageReader& sprintReader,
-              ISprintStorageWriter& sprintWriter,
+              ISprintStorage& sprint,
               CommandInvoker& commandInvoker,
               QueryInvoker& queryInvoker,
               QObject* parent = nullptr);
@@ -106,8 +104,7 @@ public:
 private:
     ITaskStorageReader& taskReader;
     ITaskStorageWriter& taskWriter;
-    ISprintStorageReader& sprintReader;
-    ISprintStorageWriter& sprintWriter;
+    ISprintStorage& sprintStorage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
     std::vector<entities::Task> storage;

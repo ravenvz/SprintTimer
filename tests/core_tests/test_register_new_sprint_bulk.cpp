@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/SprintStorageWriterMock.h"
+#include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
 #include <algorithm>
 #include <core/CommandInvoker.h>
@@ -59,18 +59,18 @@ generateSomeSprints(size_t numSprints)
 class RegisterNewSprintBulkFixture : public ::testing::Test {
 public:
     sprint_timer::CommandInvoker commandInvoker;
-    SprintStorageWriterMock sprint_writer_mock;
+    SprintStorageMock sprint_storage_mock;
     const std::vector<Sprint> sprintBulk = generateSomeSprints(5);
 };
 
 TEST_F(RegisterNewSprintBulkFixture, execute_and_undo)
 {
-    EXPECT_CALL(sprint_writer_mock, save(sprintBulk)).Times(1);
+    EXPECT_CALL(sprint_storage_mock, save(sprintBulk)).Times(1);
 
     commandInvoker.executeCommand(std::make_unique<RegisterNewSprintBulk>(
-        sprint_writer_mock, sprintBulk));
+        sprint_storage_mock, sprintBulk));
 
-    EXPECT_CALL(sprint_writer_mock, remove(sprintBulk)).Times(1);
+    EXPECT_CALL(sprint_storage_mock, remove(sprintBulk)).Times(1);
 
     commandInvoker.undo();
 }

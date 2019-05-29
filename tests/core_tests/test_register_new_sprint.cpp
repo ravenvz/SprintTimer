@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/SprintStorageWriterMock.h"
+#include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/CommandInvoker.h>
 #include <core/use_cases/RegisterNewSprint.h>
@@ -35,7 +35,7 @@ using ::testing::_;
 class RegisterNewSprintFixture : public ::testing::Test {
 public:
     sprint_timer::CommandInvoker commandInvoker;
-    SprintStorageWriterMock sprint_writer_mock;
+    SprintStorageMock sprint_storage_mock;
 
     const DateTimeRange someTimeSpan{add_offset(
         DateTimeRange{current_date_time(), current_date_time()}, Days{-1})};
@@ -48,12 +48,12 @@ public:
 
 TEST_F(RegisterNewSprintFixture, execute_and_undo)
 {
-    EXPECT_CALL(sprint_writer_mock, save(someSprint)).Times(1);
+    EXPECT_CALL(sprint_storage_mock, save(someSprint)).Times(1);
 
     commandInvoker.executeCommand(
-        std::make_unique<RegisterNewSprint>(sprint_writer_mock, someSprint));
+        std::make_unique<RegisterNewSprint>(sprint_storage_mock, someSprint));
 
-    EXPECT_CALL(sprint_writer_mock, remove(someSprint)).Times(1);
+    EXPECT_CALL(sprint_storage_mock, remove(someSprint)).Times(1);
 
     commandInvoker.undo();
 }

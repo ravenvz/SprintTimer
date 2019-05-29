@@ -25,8 +25,7 @@
 #include "core/IConfig.h"
 #include "core/IOperationalRangeReader.h"
 #include "core/ISprintDistributionReader.h"
-#include "core/ISprintStorageReader.h"
-#include "core/ISprintStorageWriter.h"
+#include "core/ISprintStorage.h"
 #include "core/ITaskStorageReader.h"
 #include "core/ITaskStorageWriter.h"
 #include "core/IWorkingDaysStorage.h"
@@ -38,11 +37,7 @@ class IStorageImplementersFactory {
 public:
     virtual ~IStorageImplementersFactory() = default;
 
-    virtual std::unique_ptr<ISprintStorageReader>
-    createSprintStorageReader() const = 0;
-
-    virtual std::unique_ptr<ISprintStorageWriter>
-    createSprintStorageWriter() const = 0;
+    virtual std::unique_ptr<ISprintStorage> createSprintStorage() const = 0;
 
     virtual std::unique_ptr<IOperationalRangeReader>
     createOperationalRangeReader() const = 0;

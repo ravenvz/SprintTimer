@@ -20,8 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/SprintStorageReaderMock.h"
-#include "mocks/SprintStorageWriterMock.h"
+#include "mocks/SprintStorageMock.h"
 #include "mocks/TaskStorageWriterMock.h"
 #include "gtest/gtest.h"
 #include <core/CommandInvoker.h>
@@ -41,8 +40,8 @@ using namespace dw;
 class DeleteTaskFixture : public ::testing::Test {
 public:
     TaskStorageWriterMock task_writer_mock;
-    SprintStorageWriterMock sprint_writer_mock;
-    SprintStorageReaderMock sprint_reader_mock;
+    SprintStorageMock sprint_storage_mock;
+    SprintStorageMock sprintStorage;
     sprint_timer::CommandInvoker commandInvoker;
 
     Task taskWithSprints{"Task name",
@@ -65,11 +64,8 @@ TEST_F(DeleteTaskFixture, delete_task_with_no_sprints)
 {
     EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints.uuid())).Times(1);
 
-    commandInvoker.executeCommand(
-        std::make_unique<DeleteTask>(task_writer_mock,
-                                     sprint_reader_mock,
-                                     sprint_writer_mock,
-                                     taskWithNoSprints));
+    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
+        task_writer_mock, sprint_storage_mock, taskWithNoSprints));
 }
 
 TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_no_sprints)
@@ -77,11 +73,8 @@ TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_no_sprints)
     // TODO what about lastModified timestamp when undoing task deletion? Check
     EXPECT_CALL(task_writer_mock, remove(taskWithNoSprints.uuid())).Times(1);
 
-    commandInvoker.executeCommand(
-        std::make_unique<DeleteTask>(task_writer_mock,
-                                     sprint_reader_mock,
-                                     sprint_writer_mock,
-                                     taskWithNoSprints));
+    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
+        task_writer_mock, sprint_storage_mock, taskWithNoSprints));
 
     EXPECT_CALL(task_writer_mock, save(taskWithNoSprints)).Times(1);
 
@@ -90,30 +83,24 @@ TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_no_sprints)
 
 TEST_F(DeleteTaskFixture, delete_task_with_sprints)
 {
-    EXPECT_CALL(sprint_reader_mock, sprintsForTask(taskWithSprints.uuid(), _))
+    EXPECT_CALL(sprint_storage_mock, sprintsForTask(taskWithSprints.uuid(), _))
         .WillOnce(
             InvokeArgument<1>(std::vector<sprint_timer::entities::Sprint>{}));
     EXPECT_CALL(task_writer_mock, remove(taskWithSprints.uuid())).Times(1);
 
-    commandInvoker.executeCommand(
-        std::make_unique<DeleteTask>(task_writer_mock,
-                                     sprint_reader_mock,
-                                     sprint_writer_mock,
-                                     taskWithSprints));
+    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
+        task_writer_mock, sprint_storage_mock, taskWithSprints));
 }
 
 TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_sprints)
 {
-    EXPECT_CALL(sprint_reader_mock, sprintsForTask(taskWithSprints.uuid(), _))
+    EXPECT_CALL(sprint_storage_mock, sprintsForTask(taskWithSprints.uuid(), _))
         .WillOnce(
             InvokeArgument<1>(std::vector<sprint_timer::entities::Sprint>{}));
     EXPECT_CALL(task_writer_mock, remove(taskWithSprints.uuid())).Times(1);
 
-    commandInvoker.executeCommand(
-        std::make_unique<DeleteTask>(task_writer_mock,
-                                     sprint_reader_mock,
-                                     sprint_writer_mock,
-                                     taskWithSprints));
+    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
+        task_writer_mock, sprint_storage_mock, taskWithSprints));
 
     // In case of Task with sprints, we must make sure that task is restored
     // with zeroed-out actualCost, because when restoring sprints, actualCost
@@ -121,7 +108,7 @@ TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_sprints)
     Task taskWithZeroedActualCost = taskWithSprints;
     taskWithZeroedActualCost.setActualCost(0);
     EXPECT_CALL(task_writer_mock, save(taskWithZeroedActualCost)).Times(1);
-    EXPECT_CALL(sprint_writer_mock,
+    EXPECT_CALL(sprint_storage_mock,
                 save(std::vector<sprint_timer::entities::Sprint>{}))
         .Times(1);
 

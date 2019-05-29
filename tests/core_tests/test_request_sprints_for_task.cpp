@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/SprintStorageReaderMock.h"
+#include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/QueryInvoker.h>
 #include <core/use_cases/RequestSprintsForTask.h>
@@ -30,14 +30,14 @@ using ::testing::_;
 
 class RequestSprintsForTaskFixture : public ::testing::Test {
 public:
-    SprintStorageReaderMock sprint_reader_mock;
+    SprintStorageMock sprint_storage_mock;
     sprint_timer::QueryInvoker queryInvoker;
 };
 
 TEST_F(RequestSprintsForTaskFixture, execute)
 {
-    EXPECT_CALL(sprint_reader_mock, sprintsForTask("123", _)).Times(1);
+    EXPECT_CALL(sprint_storage_mock, sprintsForTask("123", _)).Times(1);
 
     queryInvoker.execute(std::make_unique<RequestSprintsForTask>(
-        sprint_reader_mock, "123", [](const auto& result) {}));
+        sprint_storage_mock, "123", [](const auto& result) {}));
 }

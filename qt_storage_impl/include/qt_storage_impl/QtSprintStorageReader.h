@@ -31,8 +31,6 @@
 namespace sprint_timer::storage::qt_storage_impl {
 
 class QtSprintStorageReader : public QObject, public ISprintStorageReader {
-    Q_OBJECT
-
 public:
     explicit QtSprintStorageReader(DBService& dbService);
 
@@ -41,23 +39,10 @@ public:
     void sprintsForTask(const std::string& taskUuid, Handler handler) final;
 
 private:
-    enum class Columns {
-        Id = 0,
-        TodoUuid,
-        Name,
-        Tags,
-        StartTime,
-        FinishTime,
-        Uuid,
-    };
     qint64 sprintsInTimeRangeQueryId{-1};
     qint64 sprintsForTaskQueryId{-1};
     DBService& dbService;
     std::queue<Handler> handlerQueue;
-
-    entities::Sprint sprintFromQSqlRecord(const QSqlRecord& record);
-
-    QVariant columnData(const QSqlRecord& record, Columns column);
 
     bool listeningToQueryId(qint64 queryId) const;
 

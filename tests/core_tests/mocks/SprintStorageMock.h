@@ -19,13 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTSTORAGEWRITERMOCK_H_DRJBQM7G
-#define SPRINTSTORAGEWRITERMOCK_H_DRJBQM7G
+#ifndef SPRINTSTORAGEMOCK_H_FQK62RLC
+#define SPRINTSTORAGEMOCK_H_FQK62RLC
 
-#include <core/ISprintStorageWriter.h>
+#include <core/ISprintStorage.h>
 #include <gmock/gmock.h>
 
-class SprintStorageWriterMock : public sprint_timer::ISprintStorageWriter {
+class SprintStorageMock : public sprint_timer::ISprintStorage {
 public:
     MOCK_METHOD1(save, void(const sprint_timer::entities::Sprint&));
     MOCK_METHOD1(save,
@@ -33,6 +33,12 @@ public:
     MOCK_METHOD1(remove, void(const sprint_timer::entities::Sprint&));
     MOCK_METHOD1(remove,
                  void(const std::vector<sprint_timer::entities::Sprint>&));
+    MOCK_METHOD2(requestItems,
+                 void(const dw::DateRange&,
+                      sprint_timer::ISprintStorageReader::Handler));
+    MOCK_METHOD2(sprintsForTask,
+                 void(const std::string& taskUuid,
+                      sprint_timer::ISprintStorageReader::Handler));
 };
 
-#endif /* end of include guard: SPRINTSTORAGEWRITERMOCK_H_DRJBQM7G */
+#endif /* end of include guard: SPRINTSTORAGEMOCK_H_FQK62RLC */
