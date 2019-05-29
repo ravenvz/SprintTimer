@@ -23,8 +23,7 @@
 #include "qt_storage_impl/QtOperationalRangeReader.h"
 #include "qt_storage_impl/QtSprintDistributionReader.h"
 #include "qt_storage_impl/QtSprintStorage.h"
-#include "qt_storage_impl/QtTaskStorageReader.h"
-#include "qt_storage_impl/QtTaskStorageWriter.h"
+#include "qt_storage_impl/QtTaskStorage.h"
 #include "qt_storage_impl/QtWorkingDaysStorage.h"
 
 namespace sprint_timer::storage::qt_storage_impl {
@@ -75,16 +74,12 @@ QtStorageImplementersFactory::createSprintMonthlyDistributionReader() const
                                                                numMonths);
 }
 
-std::unique_ptr<ITaskStorageReader>
-QtStorageImplementersFactory::createTaskStorageReader() const
+std::unique_ptr<ITaskStorage>
+QtStorageImplementersFactory::createTaskStorage() const
 {
-    return std::make_unique<QtTaskStorageReader>(dbService);
-}
-
-std::unique_ptr<ITaskStorageWriter>
-QtStorageImplementersFactory::createTaskStorageWriter() const
-{
-    return std::make_unique<QtTaskStorageWriter>(dbService);
+    return std::make_unique<QtTaskStorage>(
+        std::make_unique<QtTaskStorageReader>(dbService),
+        std::make_unique<QtTaskStorageWriter>(dbService));
 }
 
 std::unique_ptr<IWorkingDaysStorage>

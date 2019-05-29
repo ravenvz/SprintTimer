@@ -250,10 +250,7 @@ int main(int argc, char* argv[])
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorage> sprintStorage{
         factory.createSprintStorage()};
-    std::unique_ptr<ITaskStorageReader> taskStorageReader{
-        factory.createTaskStorageReader()};
-    std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
-        factory.createTaskStorageWriter()};
+    std::unique_ptr<ITaskStorage> taskStorage{factory.createTaskStorage()};
     std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
         factory.createSprintDailyDistributionReader()};
     std::unique_ptr<IOperationalRangeReader> operationRangeReader{
@@ -271,14 +268,10 @@ int main(int argc, char* argv[])
     QueryInvoker defaultQueryInvoker;
     VerboseQueryInvoker queryInvoker{defaultQueryInvoker};
 
-    TaskModel unfinishedTasksModel{*taskStorageReader,
-                                   *taskStorageWriter,
-                                   *sprintStorage,
-                                   commandInvoker,
-                                   queryInvoker};
+    TaskModel unfinishedTasksModel{
+        *taskStorage, *sprintStorage, commandInvoker, queryInvoker};
     SprintModel todaySprintsModel{commandInvoker, queryInvoker, *sprintStorage};
-    TagModel tagModel{
-        *taskStorageReader, *taskStorageWriter, commandInvoker, queryInvoker};
+    TagModel tagModel{*taskStorage, commandInvoker, queryInvoker};
 
     AddSprintDialog addSprintDialog{
         applicationSettings, todaySprintsModel, unfinishedTasksModel};
@@ -459,7 +452,7 @@ int main(int argc, char* argv[])
     //                      historySprintModel.requestUpdate(dateRange);
     //                  });
     HistoryWindow historyWindow{historySprintModel,
-                                *taskStorageReader,
+                                *taskStorage,
                                 historyModel,
                                 historyItemDelegate,
                                 queryInvoker,

@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/TaskStorageWriterMock.h"
+#include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/CommandInvoker.h>
 #include <core/TaskBuilder.h>
@@ -42,7 +42,7 @@ public:
                   false,
                   DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
 
-    TaskStorageWriterMock task_writer_mock;
+    TaskStorageMock task_storage_mock;
     sprint_timer::CommandInvoker commandInvoker;
 };
 
@@ -65,10 +65,10 @@ TEST_F(EditTaskFixture, should_only_alter_allowed_parameters)
               .withEstimatedCost(editedTask.estimatedCost())
               .withExplicitTags(editedTask.tags())
               .build();
-    EXPECT_CALL(task_writer_mock, edit(someTask, restrictedTask)).Times(1);
+    EXPECT_CALL(task_storage_mock, edit(someTask, restrictedTask)).Times(1);
 
     commandInvoker.executeCommand(
-        std::make_unique<EditTask>(task_writer_mock, someTask, editedTask));
+        std::make_unique<EditTask>(task_storage_mock, someTask, editedTask));
 }
 
 TEST_F(EditTaskFixture, undo)
@@ -80,12 +80,12 @@ TEST_F(EditTaskFixture, undo)
                           .withActualCost(someTask.actualCost())
                           .withEstimatedCost(someTask.estimatedCost() + 2)
                           .build();
-    EXPECT_CALL(task_writer_mock, edit(someTask, editedTask)).Times(1);
+    EXPECT_CALL(task_storage_mock, edit(someTask, editedTask)).Times(1);
 
     commandInvoker.executeCommand(
-        std::make_unique<EditTask>(task_writer_mock, someTask, editedTask));
+        std::make_unique<EditTask>(task_storage_mock, someTask, editedTask));
 
-    EXPECT_CALL(task_writer_mock, edit(editedTask, someTask));
+    EXPECT_CALL(task_storage_mock, edit(editedTask, someTask));
 
     commandInvoker.undo();
 }

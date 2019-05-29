@@ -19,24 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKSTORAGEREADERMOCK_H_P93DAESG
-#define TASKSTORAGEREADERMOCK_H_P93DAESG
+#ifndef ITASKSTORAGE_H_8CEZB2YU
+#define ITASKSTORAGE_H_8CEZB2YU
 
-#include <core/ITaskStorageReader.h>
-#include <gmock/gmock.h>
+#include "core/ITaskStorageReader.h"
+#include "core/ITaskStorageWriter.h"
 
-class TaskStorageReaderMock : public sprint_timer::ITaskStorageReader {
-public:
-    MOCK_METHOD1(requestUnfinishedTasks,
-                 void(sprint_timer::ITaskStorageReader::Handler));
-    MOCK_METHOD2(requestFinishedTasks,
-                 void(const dw::DateRange&,
-                      sprint_timer::ITaskStorageReader::Handler));
-    MOCK_METHOD2(requestTasks,
-                 void(const dw::DateRange&,
-                      sprint_timer::ITaskStorageReader::Handler));
-    MOCK_METHOD1(requestAllTags,
-                 void(sprint_timer::ITaskStorageReader::TagHandler));
+namespace sprint_timer {
+
+class ITaskStorage : public ITaskStorageReader, public ITaskStorageWriter {
 };
 
-#endif /* end of include guard: TASKSTORAGEREADERMOCK_H_P93DAESG */
+} // namespace sprint_timer
+
+#endif /* end of include guard: ITASKSTORAGE_H_8CEZB2YU */

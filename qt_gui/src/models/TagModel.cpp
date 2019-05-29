@@ -28,16 +28,14 @@ namespace sprint_timer::ui::qt_gui {
 using use_cases::RenameTag;
 using use_cases::RequestAllTags;
 
-TagModel::TagModel(ITaskStorageReader& taskReader,
-                   ITaskStorageWriter& taskWriter,
-                   CommandInvoker& commandInvoker,
-                   QueryInvoker& queryInvoker,
-                   QObject* parent)
-    : AsyncListModel{parent}
-    , taskReader{taskReader}
-    , taskWriter{taskWriter}
-    , commandInvoker{commandInvoker}
-    , queryInvoker{queryInvoker}
+TagModel::TagModel(ITaskStorage& taskStorage_,
+                   CommandInvoker& commandInvoker_,
+                   QueryInvoker& queryInvoker_,
+                   QObject* parent_)
+    : AsyncListModel{parent_}
+    , taskStorage{taskStorage_}
+    , commandInvoker{commandInvoker_}
+    , queryInvoker{queryInvoker_}
 {
     requestSilentDataUpdate();
 }
@@ -89,7 +87,7 @@ void TagModel::submitData()
 {
     while (!buffer.empty()) {
         commandInvoker.executeCommand(std::make_unique<RenameTag>(
-            taskWriter, buffer.back().first, buffer.back().second));
+            taskStorage, buffer.back().first, buffer.back().second));
         buffer.pop_back();
     }
     requestDataUpdate();
@@ -103,10 +101,8 @@ void TagModel::revertData()
 
 void TagModel::requestUpdate()
 {
-    queryInvoker.execute(
-        std::make_unique<RequestAllTags>(taskReader, [this](const auto& tags) {
-            this->onDataArrived(tags);
-        }));
+    queryInvoker.execute(std::make_unique<RequestAllTags>(
+        taskStorage, [this](const auto& tags) { this->onDataArrived(tags); }));
 }
 
 void TagModel::onDataArrived(const std::vector<std::string>& tags)

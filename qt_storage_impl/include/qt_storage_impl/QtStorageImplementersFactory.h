@@ -46,11 +46,7 @@ public:
     std::unique_ptr<ISprintDistributionReader>
     createSprintMonthlyDistributionReader() const override;
 
-    std::unique_ptr<ITaskStorageReader>
-    createTaskStorageReader() const override;
-
-    std::unique_ptr<ITaskStorageWriter>
-    createTaskStorageWriter() const override;
+    std::unique_ptr<ITaskStorage> createTaskStorage() const override;
 
     std::unique_ptr<IWorkingDaysStorage>
     createWorkingDaysStorage() const override;

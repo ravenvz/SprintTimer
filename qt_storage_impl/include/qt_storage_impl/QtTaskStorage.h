@@ -19,19 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTTASKSTORAGEWRITER_H_AB4O73ZJ
-#define QTTASKSTORAGEWRITER_H_AB4O73ZJ
+#ifndef QTTASKSTORAGE_H_C1DPFISW
+#define QTTASKSTORAGE_H_C1DPFISW
 
-#include "core/ITaskStorageWriter.h"
-#include "core/entities/Tag.h"
-#include "qt_storage_impl/DBService.h"
-#include <QObject>
+#include "qt_storage_impl/QtTaskStorageReader.h"
+#include "qt_storage_impl/QtTaskStorageWriter.h"
+#include <core/ITaskStorage.h>
 
 namespace sprint_timer::storage::qt_storage_impl {
 
-class QtTaskStorageWriter : public QObject, public ITaskStorageWriter {
+class QtTaskStorage : public ITaskStorage {
 public:
-    explicit QtTaskStorageWriter(DBService& dbService);
+    QtTaskStorage(std::unique_ptr<QtTaskStorageReader> reader,
+                  std::unique_ptr<QtTaskStorageWriter> writer);
+
+    void requestUnfinishedTasks(Handler handler) final;
+
+    void requestFinishedTasks(const dw::DateRange& dateRange,
+                              Handler handler) final;
+
+    void requestTasks(const dw::DateRange& dateRange, Handler handler) final;
+
+    void requestAllTags(TagHandler handler) final;
 
     void save(const entities::Task& task) final;
 
@@ -48,23 +57,10 @@ public:
     void editTag(const std::string& oldName, const std::string& newName) final;
 
 private:
-    DBService& dbService;
-    qint64 addTaskQueryId{-1};
-    qint64 insertTagQueryId{-1};
-    qint64 removeTagQueryId{-1};
-    qint64 removeTaskQueryId{-1};
-    qint64 editQueryId{-1};
-    qint64 toggleCompletionQueryId{-1};
-    qint64 updatePrioritiesQueryId{-1};
-    qint64 editTagQueryId{-1};
-
-    void insertTags(const QString& taskUuid,
-                    const std::list<entities::Tag>& tagNames);
-
-    void removeTags(const QString& taskUuid,
-                    const std::list<entities::Tag>& tags);
+    std::unique_ptr<QtTaskStorageReader> reader;
+    std::unique_ptr<QtTaskStorageWriter> writer;
 };
 
 } // namespace sprint_timer::storage::qt_storage_impl
 
-#endif /* end of include guard: QTTASKSTORAGEWRITER_H_AB4O73ZJ */
+#endif /* end of include guard: QTTASKSTORAGE_H_C1DPFISW */

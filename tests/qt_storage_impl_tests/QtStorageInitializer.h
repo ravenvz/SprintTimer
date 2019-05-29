@@ -38,10 +38,8 @@ struct QtStorageInitializer {
     sprint_timer::storage::qt_storage_impl::DBService dbService{name};
     sprint_timer::storage::qt_storage_impl::QtStorageImplementersFactory
         factory{dbService};
-    std::unique_ptr<sprint_timer::ITaskStorageReader> taskReader
-        = factory.createTaskStorageReader();
-    std::unique_ptr<sprint_timer::ITaskStorageWriter> taskWriter
-        = factory.createTaskStorageWriter();
+    std::unique_ptr<sprint_timer::ITaskStorage> taskStorage
+        = factory.createTaskStorage();
     std::unique_ptr<sprint_timer::ISprintStorage> sprintStorage
         = factory.createSprintStorage();
     std::unique_ptr<sprint_timer::IOperationalRangeReader>

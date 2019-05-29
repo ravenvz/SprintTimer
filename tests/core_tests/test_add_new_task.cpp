@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "mocks/TaskStorageWriterMock.h"
+#include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
 #include <core/CommandInvoker.h>
 #include <core/use_cases/AddNewTask.h>
@@ -39,18 +39,18 @@ public:
                   {Tag{"Tag1"}, Tag{"Tag2"}},
                   false,
                   DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
-    TaskStorageWriterMock task_writer_mock;
+    TaskStorageMock task_storage_mock;
     sprint_timer::CommandInvoker commandInvoker;
 };
 
 TEST_F(RegisterTaskFixture, execute_and_undo)
 {
-    EXPECT_CALL(task_writer_mock, save(someTask)).Times(1);
+    EXPECT_CALL(task_storage_mock, save(someTask)).Times(1);
 
     commandInvoker.executeCommand(
-        std::make_unique<AddNewTask>(task_writer_mock, someTask));
+        std::make_unique<AddNewTask>(task_storage_mock, someTask));
 
-    EXPECT_CALL(task_writer_mock, remove(someTask.uuid())).Times(1);
+    EXPECT_CALL(task_storage_mock, remove(someTask.uuid())).Times(1);
 
     commandInvoker.undo();
 }

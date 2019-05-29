@@ -26,8 +26,7 @@
 #include "core/IOperationalRangeReader.h"
 #include "core/ISprintDistributionReader.h"
 #include "core/ISprintStorage.h"
-#include "core/ITaskStorageReader.h"
-#include "core/ITaskStorageWriter.h"
+#include "core/ITaskStorage.h"
 #include "core/IWorkingDaysStorage.h"
 #include <memory>
 
@@ -51,11 +50,7 @@ public:
     virtual std::unique_ptr<ISprintDistributionReader>
     createSprintMonthlyDistributionReader() const = 0;
 
-    virtual std::unique_ptr<ITaskStorageReader>
-    createTaskStorageReader() const = 0;
-
-    virtual std::unique_ptr<ITaskStorageWriter>
-    createTaskStorageWriter() const = 0;
+    virtual std::unique_ptr<ITaskStorage> createTaskStorage() const = 0;
 
     virtual std::unique_ptr<IWorkingDaysStorage>
     createWorkingDaysStorage() const = 0;
