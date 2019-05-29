@@ -80,6 +80,9 @@ HistoryWindow::HistoryWindow(SprintModel& sprintModel_,
     connect(dateRangePicker,
             &DateRangePicker::selectedDateRangeChanged,
             [this](const dw::DateRange&) { synchronize(); });
+    connect(&sprintModel, &AsyncListModel::updateFinished, [this]() {
+        synchronize();
+    });
     connect(ui->exportButton,
             &QPushButton::clicked,
             this,

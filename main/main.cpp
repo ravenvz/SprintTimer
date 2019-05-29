@@ -446,20 +446,19 @@ int main(int argc, char* argv[])
     HistoryModel historyModel;
     SprintModel historySprintModel{
         commandInvoker, queryInvoker, *sprintStorage};
-    // QObject::connect(historyWindowDateRangePicker.get(),
-    //                  &DateRangePicker::selectedDateRangeChanged,
-    //                  [&historySprintModel](const auto& dateRange) {
-    //                      historySprintModel.requestUpdate(dateRange);
-    //                  });
     HistoryWindow historyWindow{historySprintModel,
                                 *taskStorage,
                                 historyModel,
                                 historyItemDelegate,
                                 queryInvoker,
                                 std::move(historyWindowDateRangePicker)};
+    // QObject::connect(&todaySprintsModel,
+    //                  &AsyncListModel::updateFinished,
+    //                  [&historyWindow]() { historyWindow.synchronize(); });
     QObject::connect(&todaySprintsModel,
                      &AsyncListModel::updateFinished,
-                     [&historyWindow]() { historyWindow.synchronize(); });
+                     &historySprintModel,
+                     &AsyncListModel::requestDataUpdate);
     QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
                      [&historyWindow]() { historyWindow.synchronize(); });
