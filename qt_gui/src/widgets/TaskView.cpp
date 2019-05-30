@@ -42,32 +42,32 @@ using entities::Sprint;
 using entities::Task;
 using use_cases::RequestSprintsForTask;
 
-TaskView::TaskView(TaskModel& taskModel,
-                   ISprintStorageReader& sprintReader,
-                   QueryInvoker& queryInvoker,
-                   TaskSprintsView& sprintsForTaskView,
-                   AddTaskDialog& editTaskDialog,
-                   std::unique_ptr<TagEditor> tagEditor,
-                   QStyledItemDelegate& delegate,
-                   QWidget* parent)
-    : ReordableListView{parent}
-    , taskModel{taskModel}
-    , sprintReader{sprintReader}
-    , queryInvoker{queryInvoker}
-    , sprintsForTaskView{sprintsForTaskView}
-    , editTaskDialog{editTaskDialog}
-    , tagEditor{tagEditor.release()}
+TaskView::TaskView(TaskModel& taskModel_,
+                   ISprintStorageReader& sprintReader_,
+                   QueryInvoker& queryInvoker_,
+                   TaskSprintsView& sprintsForTaskView_,
+                   AddTaskDialog& editTaskDialog_,
+                   std::unique_ptr<TagEditor> tagEditor_,
+                   QStyledItemDelegate& delegate_,
+                   QWidget* parent_)
+    : ReordableListView{parent_}
+    , taskModel{taskModel_}
+    , sprintReader{sprintReader_}
+    , queryInvoker{queryInvoker_}
+    , sprintsForTaskView{sprintsForTaskView_}
+    , editTaskDialog{editTaskDialog_}
+    , tagEditor{std::move(tagEditor_)}
 {
     setModel(&taskModel);
     setContextMenuPolicy(Qt::CustomContextMenu);
-    setItemDelegate(&delegate);
+    setItemDelegate(&delegate_);
 
     connect(this,
             &QListView::customContextMenuRequested,
             this,
             &TaskView::showContextMenu);
-    connect(this, &QListView::doubleClicked, [this, &taskModel]() {
-        taskModel.toggleCompleted(currentIndex());
+    connect(this, &QListView::doubleClicked, [this, &taskModel_]() {
+        taskModel_.toggleCompleted(currentIndex());
     });
     connect(&taskModel,
             &QAbstractItemModel::rowsRemoved,
@@ -149,8 +149,10 @@ void TaskView::launchTaskEditor() const
 
 void TaskView::launchTagEditor() const
 {
+    if (!tagEditor)
+        return;
     if (tagEditor->isVisible())
-        WidgetUtils::bringToForeground(tagEditor);
+        WidgetUtils::bringToForeground(tagEditor.get());
     else
         tagEditor->show();
 }

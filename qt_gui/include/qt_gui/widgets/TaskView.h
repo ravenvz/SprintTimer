@@ -68,7 +68,7 @@ private:
     QueryInvoker& queryInvoker;
     TaskSprintsView& sprintsForTaskView;
     AddTaskDialog& editTaskDialog;
-    TagEditor* tagEditor;
+    std::unique_ptr<TagEditor> tagEditor;
     std::optional<int> selectedRow;
 
     void showSprintsForTask() const;

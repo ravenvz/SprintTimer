@@ -30,7 +30,6 @@ TagEditor::TagEditor(AsyncListModel& tagModel, QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::TagEditorWidget>()}
 {
-    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
     ui->listViewTags->setModel(&tagModel);
     connect(ui->buttonBoxConfirm,
