@@ -132,6 +132,40 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_unfinished_tasks)
 }
 
 TEST_F(QtStorageImplementIntegrationTestFixture,
+       handles_sequential_requests_for_retrieving_unfinished_tasks)
+{
+    ITaskStorageReader::Items unfinishedTasks;
+    ITaskStorageReader::Items finishedTasks;
+    TaskBuilder builder;
+    unfinishedTasks.push_back(builder.withCompletionStatus(false).build());
+    unfinishedTasks.push_back(builder.withCompletionStatus(false).build());
+    finishedTasks.push_back(
+        builder.withCompletionStatus(true)
+            .withLastModificationStamp(dw::current_date_time() - dw::Days{2})
+            .build());
+    finishedTasks.push_back(
+        builder.withCompletionStatus(true)
+            .withLastModificationStamp(dw::current_date_time() - dw::Days{2})
+            .build());
+
+    for (const auto& task : unfinishedTasks)
+        initializer.taskStorage->save(task);
+    for (const auto& task : finishedTasks)
+        initializer.taskStorage->save(task);
+
+    for (int i = 0; i < 10; ++i) {
+        initializer.taskStorage->requestUnfinishedTasks(
+            [&unfinishedTasks, this, &i](
+                const ITaskStorageReader::Items& items) {
+                EXPECT_EQ(unfinishedTasks, items);
+                if (i == 10)
+                    initializer.quit();
+            });
+    }
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture,
        considers_recently_completed_tasks_as_unfinished)
 {
     ITaskStorageReader::Items unfinishedTasks;
@@ -307,6 +341,54 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
             EXPECT_EQ(expected, items);
             initializer.quit();
         });
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture,
+       handles_sequential_request_for_retrieving_tasks_in_given_date_range)
+{
+    using namespace dw;
+    const DateRange targetDateRange{Date{Year{2018}, Month{10}, Day{10}},
+                                    Date{Year{2018}, Month{10}, Day{15}}};
+    const DateTime leftmostDateTime{DateTime{targetDateRange.start()}};
+    const DateTime rightmostDateTime{DateTime{targetDateRange.finish()}};
+    TaskBuilder builder;
+    const Task taskOutOfRangeLeft
+        = builder.withLastModificationStamp(leftmostDateTime - Days{1}).build();
+    const Task taskLeftRangeBorder
+        = builder.withLastModificationStamp(leftmostDateTime).build();
+    const Task insideRangeTask1
+        = builder.withLastModificationStamp(leftmostDateTime + Days{1}).build();
+    const Task insideRangeTask2
+        = builder.withLastModificationStamp(rightmostDateTime - Days{1})
+              .build();
+    const Task taskRightRangeBorder
+        = builder.withLastModificationStamp(rightmostDateTime).build();
+    const Task taskOutOfRangeRight
+        = builder.withLastModificationStamp(rightmostDateTime + Days{1})
+              .build();
+    const ITaskStorageReader::Items expected{taskLeftRangeBorder,
+                                             insideRangeTask1,
+                                             insideRangeTask2,
+                                             taskRightRangeBorder};
+
+    initializer.taskStorage->save(taskOutOfRangeLeft);
+    initializer.taskStorage->save(taskLeftRangeBorder);
+    initializer.taskStorage->save(insideRangeTask1);
+    initializer.taskStorage->save(insideRangeTask2);
+    initializer.taskStorage->save(taskRightRangeBorder);
+    initializer.taskStorage->save(taskOutOfRangeRight);
+
+    for (int i = 0; i < 10; ++i) {
+        initializer.taskStorage->requestTasks(
+            targetDateRange,
+            [this, &expected, &i](const ITaskStorageReader::Items& items) {
+                EXPECT_EQ(expected.size(), items.size());
+                EXPECT_EQ(expected, items);
+                if (i == 10)
+                    initializer.quit();
+            });
+    }
     initializer.runEventLoop();
 }
 

@@ -59,11 +59,11 @@ private:
 
     enum class TagColumn { Id, Name };
 
-    qint64 mUnfinishedQueryId{-1};
-    qint64 mFinishedQueryId{-1};
-    qint64 mRequestTasksQueryId{-1};
-    qint64 mTagQueryId{-1};
+    qint64 finishedQueryId{-1};
+    qint64 requestTasksQueryId{-1};
+    qint64 tagQueryId{-1};
     DBService& dbService;
+    std::queue<qint64> unfinishedQueryQueue;
     std::queue<Handler> handlerQueue;
     std::queue<TagHandler> tagHandlerQueue;
 
@@ -72,6 +72,10 @@ private:
     entities::Task taskFromQSqlRecord(const QSqlRecord& record) const;
 
     std::string tagFromSqlRecord(const QSqlRecord& record) const;
+
+    bool validTaskQueryId(qint64 queryId) const;
+
+    bool validTagQueryId(qint64 queryId) const;
 
 private slots:
     void onResultsReceived(qint64 queryId,
