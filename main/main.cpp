@@ -517,7 +517,7 @@ int main(int argc, char* argv[])
     QObject::connect(&unfinishedTasksModel,
                      &AsyncListModel::updateFinished,
                      &tagModel,
-                     &TagModel::requestDataUpdate);
+                     &TagModel::requestSilentDataUpdate);
     QObject::connect(&tagModel,
                      &AsyncListModel::updateFinished,
                      &todaySprintsModel,

@@ -132,6 +132,40 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_unfinished_tasks)
 }
 
 TEST_F(QtStorageImplementIntegrationTestFixture,
+       handles_sequential_requests_for_retrieving_unfinished_tasks)
+{
+    ITaskStorageReader::Items unfinishedTasks;
+    ITaskStorageReader::Items finishedTasks;
+    TaskBuilder builder;
+    unfinishedTasks.push_back(builder.withCompletionStatus(false).build());
+    unfinishedTasks.push_back(builder.withCompletionStatus(false).build());
+    finishedTasks.push_back(
+        builder.withCompletionStatus(true)
+            .withLastModificationStamp(dw::current_date_time() - dw::Days{2})
+            .build());
+    finishedTasks.push_back(
+        builder.withCompletionStatus(true)
+            .withLastModificationStamp(dw::current_date_time() - dw::Days{2})
+            .build());
+
+    for (const auto& task : unfinishedTasks)
+        initializer.taskStorage->save(task);
+    for (const auto& task : finishedTasks)
+        initializer.taskStorage->save(task);
+
+    for (int i = 0; i < 10; ++i) {
+        initializer.taskStorage->requestUnfinishedTasks(
+            [&unfinishedTasks, this, &i](
+                const ITaskStorageReader::Items& items) {
+                EXPECT_EQ(unfinishedTasks, items);
+                if (i == 10)
+                    initializer.quit();
+            });
+    }
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture,
        considers_recently_completed_tasks_as_unfinished)
 {
     ITaskStorageReader::Items unfinishedTasks;
@@ -311,6 +345,54 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 }
 
 TEST_F(QtStorageImplementIntegrationTestFixture,
+       handles_sequential_request_for_retrieving_tasks_in_given_date_range)
+{
+    using namespace dw;
+    const DateRange targetDateRange{Date{Year{2018}, Month{10}, Day{10}},
+                                    Date{Year{2018}, Month{10}, Day{15}}};
+    const DateTime leftmostDateTime{DateTime{targetDateRange.start()}};
+    const DateTime rightmostDateTime{DateTime{targetDateRange.finish()}};
+    TaskBuilder builder;
+    const Task taskOutOfRangeLeft
+        = builder.withLastModificationStamp(leftmostDateTime - Days{1}).build();
+    const Task taskLeftRangeBorder
+        = builder.withLastModificationStamp(leftmostDateTime).build();
+    const Task insideRangeTask1
+        = builder.withLastModificationStamp(leftmostDateTime + Days{1}).build();
+    const Task insideRangeTask2
+        = builder.withLastModificationStamp(rightmostDateTime - Days{1})
+              .build();
+    const Task taskRightRangeBorder
+        = builder.withLastModificationStamp(rightmostDateTime).build();
+    const Task taskOutOfRangeRight
+        = builder.withLastModificationStamp(rightmostDateTime + Days{1})
+              .build();
+    const ITaskStorageReader::Items expected{taskLeftRangeBorder,
+                                             insideRangeTask1,
+                                             insideRangeTask2,
+                                             taskRightRangeBorder};
+
+    initializer.taskStorage->save(taskOutOfRangeLeft);
+    initializer.taskStorage->save(taskLeftRangeBorder);
+    initializer.taskStorage->save(insideRangeTask1);
+    initializer.taskStorage->save(insideRangeTask2);
+    initializer.taskStorage->save(taskRightRangeBorder);
+    initializer.taskStorage->save(taskOutOfRangeRight);
+
+    for (int i = 0; i < 10; ++i) {
+        initializer.taskStorage->requestTasks(
+            targetDateRange,
+            [this, &expected, &i](const ITaskStorageReader::Items& items) {
+                EXPECT_EQ(expected.size(), items.size());
+                EXPECT_EQ(expected, items);
+                if (i == 10)
+                    initializer.quit();
+            });
+    }
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture,
        inserting_sprint_increments_associated_task_actual_count)
 {
     const Task someTask = TaskBuilder{}.build();
@@ -467,7 +549,47 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 }
 
 TEST_F(QtStorageImplementIntegrationTestFixture,
-       retrieves_sprints_in_given_timespan)
+       handles_sequential_requests_for_retrieving_sprints_for_given_task)
+{
+    const Task someTask{TaskBuilder{}.build()};
+    const Task irrelevantTask{TaskBuilder{}.build()};
+    SprintBuilder sprintBuilder;
+    const dw::DateTimeRange timeSpan{dw::current_date_time(),
+                                     dw::current_date_time()};
+    const std::vector<Sprint> sprints{
+        sprintBuilder.forTask(someTask).withTimeSpan(timeSpan).build(),
+        sprintBuilder.forTask(irrelevantTask).withTimeSpan(timeSpan).build(),
+        sprintBuilder.forTask(someTask).withTimeSpan(timeSpan).build(),
+        sprintBuilder.forTask(irrelevantTask).withTimeSpan(timeSpan).build(),
+    };
+    std::vector<Sprint> expectedSprints;
+    std::copy_if(cbegin(sprints),
+                 cend(sprints),
+                 std::back_inserter(expectedSprints),
+                 [&someTask](const auto& sprint) {
+                     return sprint.taskUuid() == someTask.uuid();
+                 });
+
+    initializer.taskStorage->save(someTask);
+    initializer.taskStorage->save(irrelevantTask);
+    initializer.sprintStorage->save(sprints);
+
+    for (int i = 0; i < 10; ++i) {
+        initializer.sprintStorage->sprintsForTask(
+            someTask.uuid(),
+            [this, &expectedSprints, &i](
+                const ISprintStorageReader::Items& items) {
+                EXPECT_EQ(2, items.size());
+                EXPECT_EQ(expectedSprints, items);
+                if (i == 10)
+                    initializer.quit();
+            });
+    }
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture,
+       retrieves_sprints_in_given_date_range)
 {
     using namespace dw;
     SprintBuilder sprintBuilder;
@@ -513,6 +635,57 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.runEventLoop();
 }
 
+TEST_F(QtStorageImplementIntegrationTestFixture,
+       handles_sequential_requests_for_retrieving_sprints_in_given_date_range)
+{
+    using namespace dw;
+    SprintBuilder sprintBuilder;
+    const DateTime timestamp{current_date_time()};
+    const Task someTask = TaskBuilder{}.build();
+    const DateRange range{(timestamp - Days{5}).date(),
+                          (timestamp + Days{5}).date()};
+    const Sprint outOfRangeLeft{
+        sprintBuilder.withTaskUuid(someTask.uuid())
+            .withTimeSpan(add_offset({timestamp, timestamp}, -Days{20}))
+            .build()};
+    const Sprint onLeftBorder{
+        sprintBuilder.withTaskUuid(someTask.uuid())
+            .withTimeSpan({DateTime{range.start()}, DateTime{range.start()}})
+            .build()};
+    const Sprint inRange{sprintBuilder.withTaskUuid(someTask.uuid())
+                             .withTimeSpan(DateTimeRange{timestamp, timestamp})
+                             .build()};
+    const Sprint onRightBorder{
+        sprintBuilder.withTaskUuid(someTask.uuid())
+            .withTimeSpan({DateTime{range.finish()}, DateTime{range.finish()}})
+            .build()};
+    const Sprint outOfRangeRight{
+        sprintBuilder.withTaskUuid(someTask.uuid())
+            .withTimeSpan(add_offset(
+                {DateTime{range.finish()}, DateTime{range.finish()}}, Days{1}))
+            .build()};
+    const std::vector<Sprint> expected{onLeftBorder, inRange, onRightBorder};
+
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(outOfRangeLeft);
+    initializer.sprintStorage->save(onLeftBorder);
+    initializer.sprintStorage->save(inRange);
+    initializer.sprintStorage->save(onRightBorder);
+    initializer.sprintStorage->save(outOfRangeRight);
+
+    for (int i = 0; i < 10; ++i) {
+        initializer.sprintStorage->requestItems(
+            range,
+            [this, &expected, &i](const ISprintStorageReader::Items& items) {
+                EXPECT_EQ(3, items.size());
+                EXPECT_EQ(expected, items);
+                if (i == 10)
+                    initializer.quit();
+            });
+    }
+    initializer.runEventLoop();
+}
+
 TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_operational_range)
 {
     using namespace dw;
@@ -540,6 +713,40 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_operational_range)
             EXPECT_EQ(expected, operationalRange);
             initializer.quit();
         });
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture,
+       handles_sequential_request_for_retrieving_operational_range)
+{
+    using namespace dw;
+    const Task someTask{TaskBuilder{}.build()};
+    const dw::DateTime timestamp{
+        dw::DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
+    const Sprint left{SprintBuilder{}
+                          .withTaskUuid(someTask.uuid())
+                          .withTimeSpan(DateTimeRange{timestamp, timestamp})
+                          .build()};
+    const Sprint right{SprintBuilder{}
+                           .withTaskUuid(someTask.uuid())
+                           .withTimeSpan(add_offset(
+                               DateTimeRange{timestamp, timestamp}, -Years{4}))
+                           .build()};
+    const DateRange expected{Date{Year{2014}, Month{12}, Day{1}},
+                             Date{Year{2018}, Month{12}, Day{1}}};
+
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(left);
+    initializer.sprintStorage->save(right);
+
+    for (int i = 0; i < 10; ++i) {
+        initializer.operationalRangeReader->requestOperationalRange(
+            [this, &expected, &i](const auto& operationalRange) {
+                EXPECT_EQ(expected, operationalRange);
+                if (i == 10)
+                    initializer.quit();
+            });
+    }
     initializer.runEventLoop();
 }
 
@@ -910,5 +1117,43 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
             EXPECT_EQ(expected, actual);
             initializer.quit();
         });
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture,
+       handles_sequential_requests_for_retrieving_working_days)
+{
+    using namespace dw;
+    using sprint_timer::WorkdayTracker;
+    WorkdayTracker expected;
+    expected.addWeekSchedule(Date{Year{2012}, Month{3}, Day{1}},
+                             buildSchedule({1, 1, 1, 1, 1, 0, 0}));
+    expected.addWeekSchedule(Date{Year{2014}, Month{1}, Day{7}},
+                             buildSchedule({2, 2, 2, 2, 2, 0, 0}));
+    expected.addWeekSchedule(Date{Year{2015}, Month{7}, Day{17}},
+                             buildSchedule({3, 3, 4, 3, 1, 7, 9}));
+    expected.addWeekSchedule(Date{Year{2017}, Month{6}, Day{27}},
+                             buildSchedule({12, 12, 12, 12, 12, 0, 0}));
+    expected.addWeekSchedule(Date{Year{2017}, Month{2}, Day{4}},
+                             buildSchedule({13, 13, 13, 13, 13, 0, 0}));
+    expected.addWeekSchedule(Date{Year{2017}, Month{11}, Day{22}},
+                             buildSchedule({11, 11, 11, 11, 11, 11, 0}));
+    expected.addWeekSchedule(Date{Year{2018}, Month{12}, Day{12}},
+                             buildSchedule({12, 12, 12, 12, 12, 0, 5}));
+    expected.addExceptionalDay(Date{Year{2018}, Month{1}, Day{1}}, 0);
+    expected.addExceptionalDay(Date{Year{2019}, Month{1}, Day{1}}, 0);
+    expected.addExceptionalDay(Date{Year{2017}, Month{2}, Day{23}}, 12);
+    expected.addExceptionalDay(Date{Year{2014}, Month{12}, Day{30}}, 12);
+
+    initializer.workingDaysStorage->changeWorkingDays(expected);
+
+    for (int i = 0; i < 10; ++i) {
+        initializer.workingDaysStorage->requestData(
+            [&expected, this, &i](const WorkdayTracker& actual) {
+                EXPECT_EQ(expected, actual);
+                if (i == 10)
+                    initializer.quit();
+            });
+    }
     initializer.runEventLoop();
 }

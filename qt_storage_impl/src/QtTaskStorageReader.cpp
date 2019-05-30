@@ -30,7 +30,7 @@ using namespace entities;
 QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
     : dbService{dbService}
 {
-    mFinishedQueryId = dbService.prepare(
+    finishedQueryId = dbService.prepare(
         QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
                 "FROM %10 "
                 "WHERE %6 = 1 AND DATE(%8) >= (:start_date) "
@@ -46,7 +46,7 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
             .arg(TaskTable::Columns::lastModified)
             .arg(TaskTable::Columns::uuid)
             .arg(TasksView::name));
-    mRequestTasksQueryId = dbService.prepare(
+    requestTasksQueryId = dbService.prepare(
         QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
                 "FROM %10 "
                 "WHERE DATE(%8) >= (:start_date) AND DATE(%8) <= (:end_date) "
@@ -70,7 +70,7 @@ QtTaskStorageReader::QtTaskStorageReader(DBService& dbService)
 void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
 {
     handlerQueue.push(handler);
-    mUnfinishedQueryId = dbService.execute(
+    unfinishedQueryQueue.push(dbService.execute(
         QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
                 "FROM %10 "
                 "WHERE %6 = 0 OR %8 > DATETIME('now', '-1 day') "
@@ -84,7 +84,7 @@ void QtTaskStorageReader::requestUnfinishedTasks(Handler handler)
             .arg(TasksView::Aliases::tags)
             .arg(TaskTable::Columns::lastModified)
             .arg(TaskTable::Columns::uuid)
-            .arg(TasksView::name));
+            .arg(TasksView::name)));
 }
 
 void QtTaskStorageReader::requestFinishedTasks(const dw::DateRange& dateRange,
@@ -92,15 +92,15 @@ void QtTaskStorageReader::requestFinishedTasks(const dw::DateRange& dateRange,
 {
     handlerQueue.push(handler);
 
-    dbService.bind(mFinishedQueryId,
+    dbService.bind(finishedQueryId,
                    ":start_date",
                    QVariant(QString::fromStdString(
                        dw::to_string(dateRange.start(), "yyyy-MM-dd"))));
-    dbService.bind(mFinishedQueryId,
+    dbService.bind(finishedQueryId,
                    ":end_date",
                    QVariant(QString::fromStdString(
                        dw::to_string(dateRange.finish(), "yyyy-MM-dd"))));
-    dbService.executePrepared(mFinishedQueryId);
+    dbService.executePrepared(finishedQueryId);
 }
 
 void QtTaskStorageReader::requestTasks(const dw::DateRange& dateRange,
@@ -108,32 +108,31 @@ void QtTaskStorageReader::requestTasks(const dw::DateRange& dateRange,
 {
     handlerQueue.push(handler);
 
-    dbService.bind(mRequestTasksQueryId,
+    dbService.bind(requestTasksQueryId,
                    ":start_date",
                    QVariant(QString::fromStdString(
                        dw::to_string(dateRange.start(), "yyyy-MM-dd"))));
-    dbService.bind(mRequestTasksQueryId,
+    dbService.bind(requestTasksQueryId,
                    ":end_date",
                    QVariant(QString::fromStdString(
                        dw::to_string(dateRange.finish(), "yyyy-MM-dd"))));
-    dbService.executePrepared(mRequestTasksQueryId);
+    dbService.executePrepared(requestTasksQueryId);
 }
 
 void QtTaskStorageReader::requestAllTags(TagHandler handler)
 {
     tagHandlerQueue.push(handler);
-    mTagQueryId = dbService.execute(QString{"SELECT %1, %2 FROM %3 "
-                                            "ORDER BY %2;"}
-                                        .arg(TagTable::Columns::id)
-                                        .arg(TagTable::Columns::name)
-                                        .arg(TagTable::name));
+    tagQueryId = dbService.execute(QString{"SELECT %1, %2 FROM %3 "
+                                           "ORDER BY %2;"}
+                                       .arg(TagTable::Columns::id)
+                                       .arg(TagTable::Columns::name)
+                                       .arg(TagTable::name));
 }
 
 void QtTaskStorageReader::onResultsReceived(
     qint64 queryId, const std::vector<QSqlRecord>& records)
 {
-    if (queryId == mUnfinishedQueryId || queryId == mFinishedQueryId
-        || queryId == mRequestTasksQueryId) {
+    if (validTaskQueryId(queryId)) {
         Items tasks;
         std::transform(
             records.cbegin(),
@@ -142,8 +141,11 @@ void QtTaskStorageReader::onResultsReceived(
             [&](const auto& elem) { return this->taskFromQSqlRecord(elem); });
         handlerQueue.front()(tasks);
         handlerQueue.pop();
+        if (!unfinishedQueryQueue.empty()
+            && queryId == unfinishedQueryQueue.front())
+            unfinishedQueryQueue.pop();
     }
-    if (queryId == mTagQueryId) {
+    if (validTagQueryId(queryId)) {
         std::vector<std::string> tags;
         std::transform(
             records.cbegin(),
@@ -153,6 +155,18 @@ void QtTaskStorageReader::onResultsReceived(
         tagHandlerQueue.front()(tags);
         tagHandlerQueue.pop();
     }
+}
+
+bool QtTaskStorageReader::validTaskQueryId(qint64 queryId) const
+{
+    return (!unfinishedQueryQueue.empty()
+            && queryId == unfinishedQueryQueue.front())
+        || queryId == finishedQueryId || queryId == requestTasksQueryId;
+}
+
+bool QtTaskStorageReader::validTagQueryId(qint64 queryId) const
+{
+    return queryId == tagQueryId;
 }
 
 Task QtTaskStorageReader::taskFromQSqlRecord(const QSqlRecord& record) const
