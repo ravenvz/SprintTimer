@@ -135,13 +135,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         PUBLIC date_wrapper
         PUBLIC stdc++fs
     )
-elseif(WIN32)
+else()
     target_link_libraries(${CORE_LIB} PUBLIC date_wrapper)
-elseif(APPLE)
-    target_link_libraries(${CORE_LIB}
-        PUBLIC date_wrapper
-        PUBLIC -lc++fs
-    )
 endif()
 
 if (WIN32)
