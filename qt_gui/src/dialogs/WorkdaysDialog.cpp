@@ -39,8 +39,8 @@ std::vector<QDate> expand(const QDate& startDate, int numDays);
  * as models used in WorkdaysDialog do have same structure. In particular, it
  * expects that template parameter has structure T = QPair<QDate, A> where A is
  * any type registered withing Qt metatype system. */
-template <typename T>
-void replaceModelContent(QAbstractItemModel& model, const std::vector<T>& data);
+template <typename First, typename Second>
+void replaceModelContent(QAbstractItemModel& model, const std::vector<std::pair<First, Second>>& data);
 
 } // namespace
 
@@ -253,8 +253,8 @@ void WorkdaysDialog::onScheduleRemovedFromModel(const QModelIndex&,
 
 namespace {
 
-template <typename T>
-void replaceModelContent(QAbstractItemModel& model, const std::vector<T>& data)
+template <typename First, typename Second>
+void replaceModelContent(QAbstractItemModel& model, const std::vector<std::pair<First, Second>>& data)
 {
     using sprint_timer::ui::qt_gui::utils::toQDate;
     model.removeRows(0, model.rowCount());
@@ -262,7 +262,7 @@ void replaceModelContent(QAbstractItemModel& model, const std::vector<T>& data)
     for (size_t row = 0; row < data.size(); ++row) {
         const auto& [date, payload] = data[row];
         QVariant entry;
-        entry.setValue(QPair{toQDate(date), payload});
+        entry.setValue(QPair<QDate, Second>{toQDate(date), payload});
         model.setData(model.index(row, 0), entry);
     }
     model.sort(0, Qt::AscendingOrder);
