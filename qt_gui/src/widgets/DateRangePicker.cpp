@@ -166,8 +166,10 @@ dw::DateRange currentMonth()
 QStringList monthNames()
 {
     QStringList months;
+    const QLocale defaultLocale;
     for (int monthNumber = 1; monthNumber <= 12; ++monthNumber) {
-        months.append(QDate::longMonthName(monthNumber));
+        months.append(defaultLocale.monthName(monthNumber,
+                                              QLocale::FormatType::LongFormat));
     }
     return months;
 }
