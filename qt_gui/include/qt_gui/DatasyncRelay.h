@@ -19,26 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef DATASYNCRELAY_H_DYNEFKW5
+#define DATASYNCRELAY_H_DYNEFKW5
+
 #include "qt_gui/models/AsyncListModel.h"
+#include <QObject>
 
 namespace sprint_timer::ui::qt_gui {
 
-AsyncListModel::AsyncListModel(QObject* parent_)
-    : QAbstractListModel{parent_}
-{
-}
+class DatasyncRelay : public QObject {
 
-void AsyncListModel::submitData() {}
+    Q_OBJECT
 
-void AsyncListModel::revertData() {}
+public slots:
+    void onDataChanged() { emit dataUpdateRequiered(); }
 
-void AsyncListModel::requestDataUpdate()
-{
-    requestUpdate();
-    emit updateFinished();
-}
-
-void AsyncListModel::requestSilentDataUpdate() { requestUpdate(); }
+signals:
+    void dataUpdateRequiered();
+};
 
 } // namespace sprint_timer::ui::qt_gui
 
+#endif /* end of include guard: DATASYNCRELAY_H_DYNEFKW5 */

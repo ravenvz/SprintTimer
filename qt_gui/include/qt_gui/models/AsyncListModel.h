@@ -29,7 +29,6 @@
 #include "qt_gui/WinExport.h"
 #endif // _MSC_VER
 
-
 namespace sprint_timer::ui::qt_gui {
 
 /* Model that updates it's data asyncroniously.
@@ -89,7 +88,8 @@ public slots:
     void requestSilentDataUpdate();
 
 protected:
-    /* Subclasses supposed to implement this method to query storage for data. */
+    /* Subclasses supposed to implement this method to query storage for data.
+     */
     virtual void requestUpdate() = 0;
 
 signals:
@@ -98,6 +98,5 @@ signals:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: IASYNCMODEL_H_RSKAFU9C */

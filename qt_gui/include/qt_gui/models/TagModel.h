@@ -22,6 +22,7 @@
 #ifndef TAGMODEL_H
 #define TAGMODEL_H
 
+#include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/models/AsyncListModel.h"
 #include <QStringListModel>
 #include <core/CommandInvoker.h>
@@ -30,13 +31,13 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-
 class TagModel : public AsyncListModel {
 
 public:
     TagModel(ITaskStorage& taskStorage,
              CommandInvoker& commandInvoker,
              QueryInvoker& queryInvoker,
+             DatasyncRelay& datasyncRelay_,
              QObject* parent = nullptr);
 
     bool
@@ -67,6 +68,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: TAGMODEL_H */

@@ -31,12 +31,17 @@ using use_cases::RequestAllTags;
 TagModel::TagModel(ITaskStorage& taskStorage_,
                    CommandInvoker& commandInvoker_,
                    QueryInvoker& queryInvoker_,
+                   DatasyncRelay& datasyncRelay_,
                    QObject* parent_)
     : AsyncListModel{parent_}
     , taskStorage{taskStorage_}
     , commandInvoker{commandInvoker_}
     , queryInvoker{queryInvoker_}
 {
+    connect(&datasyncRelay_,
+            &DatasyncRelay::dataUpdateRequiered,
+            this,
+            &AsyncListModel::requestSilentDataUpdate);
     requestSilentDataUpdate();
 }
 
@@ -76,8 +81,8 @@ bool TagModel::setData(const QModelIndex& index,
     if (role == Qt::EditRole) {
         buffer.push_back({data(index, role).toString().toStdString(),
                           value.toString().toStdString()});
-        storage[static_cast<size_t>(index.row())]
-            = value.toString().toStdString();
+        storage[static_cast<size_t>(index.row())] =
+            value.toString().toStdString();
         return true;
     }
     return false;

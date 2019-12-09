@@ -35,12 +35,17 @@ using namespace sprint_timer::use_cases;
 SprintModel::SprintModel(CommandInvoker& commandInvoker_,
                          QueryInvoker& queryInvoker_,
                          ISprintStorage& sprintStorage_,
+                         DatasyncRelay& datasyncRelay_,
                          QObject* parent_)
     : AsyncListModel(parent_)
     , commandInvoker{commandInvoker_}
     , queryInvoker{queryInvoker_}
     , sprintStorage{sprintStorage_}
 {
+    connect(&datasyncRelay_,
+            &DatasyncRelay::dataUpdateRequiered,
+            this,
+            &AsyncListModel::requestSilentDataUpdate);
     requestSilentDataUpdate();
 }
 

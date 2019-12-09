@@ -41,6 +41,7 @@ TaskModel::TaskModel(ITaskStorage& taskStorage_,
                      ISprintStorage& sprintStorage_,
                      CommandInvoker& commandInvoker_,
                      QueryInvoker& queryInvoker_,
+                     DatasyncRelay& datasyncRelay_,
                      QObject* parent_)
     : AsyncListModel{parent_}
     , taskStorage{taskStorage_}
@@ -48,6 +49,10 @@ TaskModel::TaskModel(ITaskStorage& taskStorage_,
     , commandInvoker{commandInvoker_}
     , queryInvoker{queryInvoker_}
 {
+    connect(&datasyncRelay_,
+            &DatasyncRelay::dataUpdateRequiered,
+            this,
+            &AsyncListModel::requestSilentDataUpdate);
     requestSilentDataUpdate();
 }
 
@@ -79,8 +84,8 @@ Qt::ItemFlags TaskModel::flags(const QModelIndex& index) const
     if (!index.isValid() || index.model() != this) {
         return Qt::ItemIsDropEnabled;
     }
-    return QAbstractListModel::flags(index) | Qt::ItemIsUserCheckable
-        | Qt::ItemIsDragEnabled;
+    return QAbstractListModel::flags(index) | Qt::ItemIsUserCheckable |
+           Qt::ItemIsDragEnabled;
 }
 
 QVariant TaskModel::data(const QModelIndex& index, int role) const

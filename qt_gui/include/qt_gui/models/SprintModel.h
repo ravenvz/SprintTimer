@@ -22,6 +22,7 @@
 #ifndef SPRINTMODEL_H_MQZ2XAPI
 #define SPRINTMODEL_H_MQZ2XAPI
 
+#include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/models/AsyncListModel.h"
 #include <core/CommandInvoker.h>
 #include <core/ISprintStorage.h>
@@ -38,6 +39,7 @@ public:
     SprintModel(CommandInvoker& commandInvoker,
                 QueryInvoker& queryInvoker,
                 ISprintStorage& sprintStorage,
+                DatasyncRelay& datasyncRelay,
                 QObject* parent = nullptr);
 
     int rowCount(const QModelIndex& parent) const final;

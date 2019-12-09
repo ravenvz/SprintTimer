@@ -40,6 +40,7 @@ target_sources(${GUI_LIB}
     PUBLIC
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/ProgressRangeRequestStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtConfig.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/DatasyncRelay.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/RequestForDaysBack.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/RequestForMonthsBack.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/RequestForWeeksBack.h"

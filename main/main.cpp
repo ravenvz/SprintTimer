@@ -57,6 +57,7 @@
 #include <core/ITaskStorageReader.h>
 #include <core/QueryInvoker.h>
 #include <filesystem>
+#include <qt_gui/DatasyncRelay.h>
 #include <qt_gui/RequestForDaysBack.h>
 #include <qt_gui/RequestForMonthsBack.h>
 #include <qt_gui/RequestForWeeksBack.h>
@@ -132,8 +133,8 @@ std::string getUserDataDirectory()
 
 std::string getUserDataDirectory()
 {
-    return std::string{"/Users/"} + std::string{getenv("USER")}
-    + std::string{"/Library"};
+    return std::string{"/Users/"} + std::string{getenv("USER")} +
+           std::string{"/Library"};
 }
 #else
 #error "unknown platform"
@@ -150,7 +151,6 @@ std::string getOrCreateSprintTimerDataDirectory()
 }
 
 } // namespace
-
 
 class VerboseQueryInvoker : public sprint_timer::QueryInvoker {
 public:
@@ -169,6 +169,54 @@ private:
     sprint_timer::QueryInvoker& wrapped;
 };
 
+class SyncronizingCommandInvoker : public sprint_timer::CommandInvoker {
+public:
+    SyncronizingCommandInvoker(
+        sprint_timer::CommandInvoker& wrapped,
+        sprint_timer::ui::qt_gui::DatasyncRelay& datasyncRelay)
+        : wrapped{wrapped}
+        , datasyncRelay{datasyncRelay}
+    {
+    }
+
+    void executeCommand(std::unique_ptr<sprint_timer::Command> command) override
+    {
+        wrapped.executeCommand(std::move(command));
+        datasyncRelay.onDataChanged();
+    }
+
+    void undo() override
+    {
+        wrapped.undo();
+        datasyncRelay.onDataChanged();
+    }
+
+    std::string lastCommandDescription() const override
+    {
+        return wrapped.lastCommandDescription();
+    }
+
+    bool hasUndoableCommands() const override
+    {
+        return wrapped.hasUndoableCommands();
+    }
+
+    void attach(sprint_timer::Observer& observer) override
+    {
+        wrapped.attach(observer);
+    }
+
+    void detach(sprint_timer::Observer& observer) override
+    {
+        wrapped.detach(observer);
+    }
+
+    void notify() override { wrapped.notify(); }
+
+private:
+    sprint_timer::CommandInvoker& wrapped;
+    sprint_timer::ui::qt_gui::DatasyncRelay& datasyncRelay;
+};
 
 class VerboseCommandInvoker : public sprint_timer::CommandInvoker {
 public:
@@ -183,7 +231,11 @@ public:
         wrapped.executeCommand(std::move(command));
     }
 
-    void undo() override { wrapped.undo(); }
+    void undo() override
+    {
+        std::cout << "Undoing last command" << std::endl;
+        wrapped.undo();
+    }
 
     std::string lastCommandDescription() const override
     {
@@ -224,7 +276,6 @@ void applyStyleSheet(QApplication& app)
     styleFile.close();
 }
 
-
 int main(int argc, char* argv[])
 {
     using namespace sprint_timer;
@@ -263,15 +314,23 @@ int main(int argc, char* argv[])
     std::unique_ptr<IWorkingDaysStorage> workingDaysStorage{
         factory.createWorkingDaysStorage()};
 
+    DatasyncRelay datasyncRelay;
     CommandInvoker defaultCommandInvoker;
-    VerboseCommandInvoker commandInvoker{defaultCommandInvoker};
+    VerboseCommandInvoker verboseCommandInvoker{defaultCommandInvoker};
+    SyncronizingCommandInvoker commandInvoker{verboseCommandInvoker,
+                                              datasyncRelay};
     QueryInvoker defaultQueryInvoker;
     VerboseQueryInvoker queryInvoker{defaultQueryInvoker};
 
-    TaskModel unfinishedTasksModel{
-        *taskStorage, *sprintStorage, commandInvoker, queryInvoker};
-    SprintModel todaySprintsModel{commandInvoker, queryInvoker, *sprintStorage};
-    TagModel tagModel{*taskStorage, commandInvoker, queryInvoker};
+    TaskModel unfinishedTasksModel{*taskStorage,
+                                   *sprintStorage,
+                                   commandInvoker,
+                                   queryInvoker,
+                                   datasyncRelay};
+    SprintModel todaySprintsModel{
+        commandInvoker, queryInvoker, *sprintStorage, datasyncRelay};
+    TagModel tagModel{
+        *taskStorage, commandInvoker, queryInvoker, datasyncRelay};
 
     AddSprintDialog addSprintDialog{
         applicationSettings, todaySprintsModel, unfinishedTasksModel};
@@ -280,18 +339,10 @@ int main(int argc, char* argv[])
         *workingDaysStorage, commandInvoker, queryInvoker};
 
     UndoDialog undoDialog{commandInvoker};
-    QObject::connect(&undoDialog,
-                     &QDialog::accepted,
-                     &todaySprintsModel,
-                     &AsyncListModel::requestDataUpdate);
-    QObject::connect(&undoDialog,
-                     &QDialog::accepted,
-                     &unfinishedTasksModel,
-                     &AsyncListModel::requestSilentDataUpdate);
 
     auto undoButton = std::make_unique<UndoButton>(commandInvoker);
-    auto addNewSprintButton
-        = std::make_unique<QPushButton>("Add Sprint Manually");
+    auto addNewSprintButton =
+        std::make_unique<QPushButton>("Add Sprint Manually");
     addNewSprintButton->setEnabled(false);
     QObject::connect(&unfinishedTasksModel,
                      &QAbstractListModel::modelReset,
@@ -301,22 +352,18 @@ int main(int argc, char* argv[])
                      });
     auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
     sprintView->setModel(&todaySprintsModel);
-    auto sprintOutline
-        = std::make_unique<SprintOutline>(addSprintDialog,
-                                          undoDialog,
-                                          std::move(undoButton),
-                                          std::move(addNewSprintButton),
-                                          std::move(sprintView));
+    auto sprintOutline =
+        std::make_unique<SprintOutline>(addSprintDialog,
+                                        undoDialog,
+                                        std::move(undoButton),
+                                        std::move(addNewSprintButton),
+                                        std::move(sprintView));
 
     OperationRangeModel operationRangeModel{*operationRangeReader,
                                             queryInvoker};
 
     SprintModel statisticsSprintModel{
-        commandInvoker, queryInvoker, *sprintStorage};
-    QObject::connect(&todaySprintsModel,
-                     &AsyncListModel::updateFinished,
-                     &statisticsSprintModel,
-                     &SprintModel::requestSilentDataUpdate);
+        commandInvoker, queryInvoker, *sprintStorage, datasyncRelay};
     auto statisticsWindowDateRangePicker = std::make_unique<DateRangePicker>(
         std::make_unique<DateRangePickDialog>(applicationSettings),
         operationRangeModel);
@@ -337,11 +384,6 @@ int main(int argc, char* argv[])
         std::move(statisticsDiagramWidget),
         workdayTrackerModel,
         statisticsSprintModel};
-    QObject::connect(&unfinishedTasksModel,
-                     &AsyncListModel::updateFinished,
-                     [&statisticsSprintModel]() {
-                         statisticsSprintModel.requestDataUpdate();
-                     });
 
     AddExceptionalDayDialog exceptionalDayDialog;
     ExtraDayModel exceptionalDaysModel;
@@ -360,8 +402,8 @@ int main(int argc, char* argv[])
                                              groupByDayStrategy,
                                              requestDaysBackStrategy};
     QObject::connect(
-        &todaySprintsModel,
-        &AsyncListModel::updateFinished,
+        &datasyncRelay,
+        &DatasyncRelay::dataUpdateRequiered,
         [&dailyDistributionModel]() { dailyDistributionModel.synchronize(); });
     const ProgressView::Rows dailyRows{3};
     const ProgressView::Columns dailyCols{10};
@@ -390,22 +432,22 @@ int main(int argc, char* argv[])
                                               queryInvoker,
                                               groupByWeekStrategy,
                                               requestWeeksBackStrategy};
-    QObject::connect(&todaySprintsModel,
-                     &AsyncListModel::updateFinished,
+    QObject::connect(&datasyncRelay,
+                     &DatasyncRelay::dataUpdateRequiered,
                      [&weeklyDistributionModel]() {
                          weeklyDistributionModel.synchronize();
                      });
     const ProgressView::Rows weeklyRows{3};
     const ProgressView::Columns weeklyCols{4};
     const ProgressView::GaugeSize weeklyGaugeRelSize{0.8};
-    auto weeklyProgress
-        = std::make_unique<ProgressView>(weeklyDistributionModel,
-                                         workdayTrackerModel,
-                                         groupByWeekStrategy,
-                                         requestWeeksBackStrategy,
-                                         weeklyRows,
-                                         weeklyCols,
-                                         weeklyGaugeRelSize);
+    auto weeklyProgress =
+        std::make_unique<ProgressView>(weeklyDistributionModel,
+                                       workdayTrackerModel,
+                                       groupByWeekStrategy,
+                                       requestWeeksBackStrategy,
+                                       weeklyRows,
+                                       weeklyCols,
+                                       weeklyGaugeRelSize);
     weeklyProgress->setLegendTitle("Last 12 weeks");
     weeklyProgress->setLegendAverageCaption("Average per week:");
 
@@ -416,22 +458,22 @@ int main(int argc, char* argv[])
                                                queryInvoker,
                                                groupByMonthStrategy,
                                                requestMonthsBackStrategy};
-    QObject::connect(&todaySprintsModel,
-                     &AsyncListModel::updateFinished,
+    QObject::connect(&datasyncRelay,
+                     &DatasyncRelay::dataUpdateRequiered,
                      [&monthlyDistributionModel]() {
                          monthlyDistributionModel.synchronize();
                      });
     const ProgressView::Rows monthlyRows{3};
     const ProgressView::Columns monthlyCols{4};
     const ProgressView::GaugeSize monthlyGaugeRelSize{0.8};
-    auto monthlyProgress
-        = std::make_unique<ProgressView>(monthlyDistributionModel,
-                                         workdayTrackerModel,
-                                         groupByMonthStrategy,
-                                         requestMonthsBackStrategy,
-                                         monthlyRows,
-                                         monthlyCols,
-                                         monthlyGaugeRelSize);
+    auto monthlyProgress =
+        std::make_unique<ProgressView>(monthlyDistributionModel,
+                                       workdayTrackerModel,
+                                       groupByMonthStrategy,
+                                       requestMonthsBackStrategy,
+                                       monthlyRows,
+                                       monthlyCols,
+                                       monthlyGaugeRelSize);
     monthlyProgress->setLegendTitle("Last 12 months");
     monthlyProgress->setLegendAverageCaption("Average per month:");
 
@@ -445,22 +487,17 @@ int main(int argc, char* argv[])
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
     SprintModel historySprintModel{
-        commandInvoker, queryInvoker, *sprintStorage};
+        commandInvoker, queryInvoker, *sprintStorage, datasyncRelay};
     HistoryWindow historyWindow{historySprintModel,
                                 *taskStorage,
                                 historyModel,
                                 historyItemDelegate,
                                 queryInvoker,
                                 std::move(historyWindowDateRangePicker)};
-    // QObject::connect(&todaySprintsModel,
-    //                  &AsyncListModel::updateFinished,
-    //                  [&historyWindow]() { historyWindow.synchronize(); });
-    QObject::connect(&todaySprintsModel,
-                     &AsyncListModel::updateFinished,
-                     &historySprintModel,
-                     &AsyncListModel::requestDataUpdate);
-    QObject::connect(&unfinishedTasksModel,
-                     &AsyncListModel::updateFinished,
+    // TODO History model might request sprints two times, due to
+    // historySprintModel
+    QObject::connect(&datasyncRelay,
+                     &DatasyncRelay::dataUpdateRequiered,
                      [&historyWindow]() { historyWindow.synchronize(); });
 
     SettingsDialog settingsDialog{applicationSettings};
@@ -480,14 +517,14 @@ int main(int argc, char* argv[])
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
     AddTaskDialog addTaskDialog{tagModel};
     TaskItemDelegate taskItemDelegate;
-    auto taskView
-        = std::make_unique<TaskView>(unfinishedTasksModel,
-                                     *sprintStorage,
-                                     queryInvoker,
-                                     taskSprintsView,
-                                     addTaskDialog,
-                                     std::make_unique<TagEditor>(tagModel),
-                                     taskItemDelegate);
+    auto taskView =
+        std::make_unique<TaskView>(unfinishedTasksModel,
+                                   *sprintStorage,
+                                   queryInvoker,
+                                   taskSprintsView,
+                                   addTaskDialog,
+                                   std::make_unique<TagEditor>(tagModel),
+                                   taskItemDelegate);
     QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submissionCandidateChanged,
                      taskView.get(),
@@ -502,30 +539,6 @@ int main(int argc, char* argv[])
                                                      todaySprintsModel,
                                                      std::move(taskView),
                                                      addTaskDialog);
-
-    // As models update data asynchroniously,
-    // other models that depend on that data should
-    // subscribe to updateFinished() signal
-    QObject::connect(&todaySprintsModel,
-                     &AsyncListModel::updateFinished,
-                     &unfinishedTasksModel,
-                     &AsyncListModel::requestSilentDataUpdate);
-    QObject::connect(&unfinishedTasksModel,
-                     &AsyncListModel::updateFinished,
-                     &todaySprintsModel,
-                     &AsyncListModel::requestSilentDataUpdate);
-    QObject::connect(&unfinishedTasksModel,
-                     &AsyncListModel::updateFinished,
-                     &tagModel,
-                     &TagModel::requestSilentDataUpdate);
-    QObject::connect(&tagModel,
-                     &AsyncListModel::updateFinished,
-                     &todaySprintsModel,
-                     &AsyncListModel::requestSilentDataUpdate);
-    QObject::connect(&tagModel,
-                     &AsyncListModel::updateFinished,
-                     &unfinishedTasksModel,
-                     &AsyncListModel::requestSilentDataUpdate);
 
     QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submitRequested,

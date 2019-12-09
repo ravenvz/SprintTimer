@@ -22,6 +22,7 @@
 #ifndef TASKMODEL_H_FUQ5UCBE
 #define TASKMODEL_H_FUQ5UCBE
 
+#include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/models/AsyncListModel.h"
 #include <core/CommandInvoker.h>
 #include <core/ISprintStorage.h>
@@ -40,6 +41,7 @@ public:
               ISprintStorage& sprint,
               CommandInvoker& commandInvoker,
               QueryInvoker& queryInvoker,
+              DatasyncRelay& datasyncRelay,
               QObject* parent = nullptr);
 
     // Override to support drag and drop.
@@ -124,6 +126,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: TASKMODEL_H_FUQ5UCBE */
