@@ -59,6 +59,29 @@ public:
     sprint_timer::GroupByDay groupByDayStrategy;
 };
 
+TEST_F(ProgressByDayFixture, handles_empty_actual_progress)
+{
+    const DateRange period{Date{Year{2019}, Month{1}, Day{30}},
+                           Date{Year{2019}, Month{2}, Day{4}}};
+    const std::vector<int> actualProgress;
+    const std::vector<GoalProgress> expected{
+        {13, 0}, {13, 0}, {13, 0}, {0, 0}, {0, 0}, {13, 0}};
+
+    const ProgressOverPeriod progress{
+        period, actualProgress, workdayTracker, groupByDayStrategy};
+
+    EXPECT_EQ(0, progress.actual());
+    EXPECT_DOUBLE_EQ(0, *progress.averagePerGroupPeriod());
+    EXPECT_FALSE(progress.isOverwork());
+    EXPECT_NEAR(0, *progress.percentage(), 0.1);
+    EXPECT_EQ(52, progress.difference());
+    EXPECT_EQ(52, progress.estimated());
+    EXPECT_EQ(6, progress.size());
+
+    for (size_t i = 0; i < expected.size(); ++i)
+        EXPECT_EQ(expected[i], progress.getValue(i));
+}
+
 TEST_F(ProgressByDayFixture, underwork)
 {
     const DateRange period{Date{Year{2019}, Month{1}, Day{30}},

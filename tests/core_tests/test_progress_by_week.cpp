@@ -61,6 +61,27 @@ public:
     sprint_timer::GroupByWeek groupByWeekStrategy{configMock};
 };
 
+TEST_F(ProgressByWeekFixture, handles_empty_actual_progress)
+{
+    const std::vector<int> actualProgress;
+    const std::vector<GoalProgress> expected{
+        {39, 0}, {65, 0}, {65, 0}, {65, 0}, {65, 0}, {52, 0}};
+
+    const ProgressOverPeriod progress{
+        period, actualProgress, workdayTracker, groupByWeekStrategy};
+
+    EXPECT_EQ(0, progress.actual());
+    EXPECT_EQ(351, progress.estimated());
+    EXPECT_NEAR(0, *progress.percentage(), 0.1);
+    EXPECT_EQ(351, progress.difference());
+    EXPECT_FALSE(progress.isOverwork());
+    EXPECT_NEAR(0, *progress.averagePerGroupPeriod(), 0.1);
+    EXPECT_EQ(6, progress.size());
+
+    for (size_t i = 0; i < expected.size(); ++i)
+        EXPECT_EQ(expected[i], progress.getValue(i));
+}
+
 TEST_F(ProgressByWeekFixture, underwork)
 {
     const std::vector<int> actualProgress{15, 13, 14, 0, 10, 12};

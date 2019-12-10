@@ -59,6 +59,27 @@ public:
     sprint_timer::GroupByMonth groupByMonthStrategy;
 };
 
+TEST_F(ProgressByMonthFixture, handles_empty_actual_progress)
+{
+    const std::vector<int> actualProgress;
+    const std::vector<GoalProgress> expected{
+        {150, 0}, {230, 0}, {210, 0}, {220, 0}, {180, 0}};
+
+    const ProgressOverPeriod progress{
+        period, actualProgress, workdayTracker, groupByMonthStrategy};
+
+    EXPECT_EQ(0, progress.actual());
+    EXPECT_EQ(990, progress.estimated());
+    EXPECT_NEAR(0, *progress.percentage(), 0.1);
+    EXPECT_EQ(990, progress.difference());
+    EXPECT_FALSE(progress.isOverwork());
+    EXPECT_NEAR(0, *progress.averagePerGroupPeriod(), 0.1);
+    EXPECT_EQ(5, progress.size());
+
+    for (size_t i = 0; i < expected.size(); ++i)
+        EXPECT_EQ(expected[i], progress.getValue(i));
+}
+
 TEST_F(ProgressByMonthFixture, underwork)
 {
     const std::vector<int> actualProgress{180, 200, 150, 170, 150};

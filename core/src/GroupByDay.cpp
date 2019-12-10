@@ -31,12 +31,17 @@ GroupByDay::computeProgress(const dw::DateRange& dateRange,
 {
     using namespace dw;
     std::vector<GoalProgress> progress;
-    progress.reserve(actualProgress.size());
+    progress.reserve(dateRange.duration().count());
     auto actualIt = cbegin(actualProgress);
 
     for (auto day = dateRange.start(); day <= dateRange.finish();
-         day = day + Days{1}, ++actualIt) {
-        progress.emplace_back(workdayTracker.goal(day), *actualIt);
+         day = day + Days{1}) {
+        if (actualIt != cend(actualProgress)) {
+            progress.emplace_back(workdayTracker.goal(day), *actualIt);
+            ++actualIt;
+        }
+        else
+            progress.emplace_back(workdayTracker.goal(day), 0);
     }
 
     return progress;
