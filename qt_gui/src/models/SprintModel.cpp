@@ -46,7 +46,7 @@ SprintModel::SprintModel(CommandInvoker& commandInvoker_,
             &DatasyncRelay::dataUpdateRequiered,
             this,
             &AsyncListModel::requestSilentDataUpdate);
-    requestSilentDataUpdate();
+    // requestSilentDataUpdate();
 }
 
 int SprintModel::rowCount(const QModelIndex& parent) const
@@ -118,14 +118,18 @@ const Sprint& SprintModel::itemAt(int row) const { return storage[row]; }
 
 void SprintModel::requestUpdate(const dw::DateRange& dateRange)
 {
-    sprintDateRange = dateRange;
-    requestUpdate();
+    queryInvoker.execute(std::make_unique<RequestSprints>(
+        sprintStorage, dateRange, [this](const auto& items) {
+            onDataChanged(items);
+        }));
 }
 
 void SprintModel::requestUpdate()
 {
+    const dw::Date today{dw::current_date_local()};
+    const dw::DateRange dateRange{today, today};
     queryInvoker.execute(std::make_unique<RequestSprints>(
-        sprintStorage, sprintDateRange, [this](const auto& items) {
+        sprintStorage, dateRange, [this](const auto& items) {
             onDataChanged(items);
         }));
 }

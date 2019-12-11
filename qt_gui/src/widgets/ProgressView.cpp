@@ -76,10 +76,11 @@ ProgressView::ProgressView(
     connect(&workdaysModel_,
             &WorkdayTrackerModel::workdaysChanged,
             [&](const WorkdayTracker& updatedTracker) {
-                ProgressOverPeriod progress{requestRangeStrategy_.dateRange(),
-                                            progressModel_.distribution(),
-                                            updatedTracker,
-                                            groupingStrategy_};
+                const ProgressOverPeriod progress{
+                    requestRangeStrategy_.dateRange(),
+                    progressModel_.distribution(),
+                    updatedTracker,
+                    groupingStrategy_};
                 setData(progress);
             });
 }
@@ -196,6 +197,5 @@ void ProgressView::updateProgressBar(const GoalProgress& lastBin)
     bar->setValue(actual);
     bar->show();
 }
-
 
 } // namespace sprint_timer::ui::qt_gui

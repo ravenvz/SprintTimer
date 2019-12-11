@@ -48,12 +48,13 @@ TaskModel::TaskModel(ITaskStorage& taskStorage_,
     , sprintStorage{sprintStorage_}
     , commandInvoker{commandInvoker_}
     , queryInvoker{queryInvoker_}
+    , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
             this,
             &AsyncListModel::requestSilentDataUpdate);
-    requestSilentDataUpdate();
+    // requestSilentDataUpdate();
 }
 
 void TaskModel::requestUpdate()

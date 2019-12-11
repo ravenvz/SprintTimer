@@ -38,7 +38,7 @@ void RequestSprints::execute() { reader.requestItems(dateRange_, handler); }
 std::string RequestSprints::describe() const
 {
     std::stringstream ss;
-    ss << "Request sprints in '" << dw::to_string(dateRange_, "dd.MM.yyyy");
+    ss << "Request sprints in " << dateRange_;
     return ss.str();
 }
 

@@ -22,6 +22,7 @@
 #ifndef DISTRIBUTIONMODEL_H_EGAN03FZ
 #define DISTRIBUTIONMODEL_H_EGAN03FZ
 
+#include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/ProgressRangeRequestStrategy.h"
 #include "qt_gui/Synchronizable.h"
 #include <QObject>
@@ -42,6 +43,7 @@ public:
         QueryInvoker& queryInvoker,
         const ProgressGroupingStrategy& distributionRequestStrategy,
         const ProgressRangeRequestStrategy& requestStrategy,
+        DatasyncRelay& datasyncRelay,
         QObject* parent = nullptr);
 
     const std::vector<int>& distribution() const;

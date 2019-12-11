@@ -42,7 +42,7 @@ TagModel::TagModel(ITaskStorage& taskStorage_,
             &DatasyncRelay::dataUpdateRequiered,
             this,
             &AsyncListModel::requestSilentDataUpdate);
-    requestSilentDataUpdate();
+    // requestSilentDataUpdate();
 }
 
 Qt::ItemFlags TagModel::flags(const QModelIndex& index) const

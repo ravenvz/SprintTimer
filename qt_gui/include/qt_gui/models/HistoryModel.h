@@ -35,7 +35,7 @@ public:
     using HistoryItem = std::pair<QDate, QString>;
     using HistoryData = std::vector<HistoryItem>;
 
-    HistoryModel(QObject* parent = nullptr);
+    explicit HistoryModel(QObject* parent = nullptr);
 
     /* Assumes that orderedHistory is sorted by date asc. */
     void fill(const HistoryData& orderedHistory);

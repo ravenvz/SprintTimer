@@ -106,6 +106,7 @@ private:
     ISprintStorage& sprintStorage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
+    DatasyncRelay& datasyncRelay;
     std::vector<entities::Task> storage;
     // Sql helper queries that are needed to maintain database invariants.
     enum class Column {

@@ -344,6 +344,8 @@ int main(int argc, char* argv[])
     auto addNewSprintButton =
         std::make_unique<QPushButton>("Add Sprint Manually");
     addNewSprintButton->setEnabled(false);
+    // TODO if we want to remove connect from here, we have to wrap this into
+    // object
     QObject::connect(&unfinishedTasksModel,
                      &QAbstractListModel::modelReset,
                      [btn = addNewSprintButton.get(), &unfinishedTasksModel]() {
@@ -361,17 +363,9 @@ int main(int argc, char* argv[])
 
     OperationRangeModel operationRangeModel{*operationRangeReader,
                                             queryInvoker};
-
-    SprintModel statisticsSprintModel{
-        commandInvoker, queryInvoker, *sprintStorage, datasyncRelay};
     auto statisticsWindowDateRangePicker = std::make_unique<DateRangePicker>(
         std::make_unique<DateRangePickDialog>(applicationSettings),
         operationRangeModel);
-    QObject::connect(statisticsWindowDateRangePicker.get(),
-                     &DateRangePicker::selectedDateRangeChanged,
-                     [&statisticsSprintModel](const auto& dateRange) {
-                         statisticsSprintModel.requestUpdate(dateRange);
-                     });
     auto dailyTimelineGraph = std::make_unique<DailyTimelineGraph>(nullptr);
     auto statisticsDiagramWidget = std::make_unique<StatisticsDiagramWidget>(
         std::make_unique<BestWorkdayWidget>(nullptr),
@@ -383,7 +377,9 @@ int main(int argc, char* argv[])
         std::move(dailyTimelineGraph),
         std::move(statisticsDiagramWidget),
         workdayTrackerModel,
-        statisticsSprintModel};
+        *sprintStorage,
+        queryInvoker,
+        datasyncRelay};
 
     AddExceptionalDayDialog exceptionalDayDialog;
     ExtraDayModel exceptionalDaysModel;
@@ -400,11 +396,8 @@ int main(int argc, char* argv[])
     DistributionModel dailyDistributionModel{*dailyDistributionReader,
                                              queryInvoker,
                                              groupByDayStrategy,
-                                             requestDaysBackStrategy};
-    QObject::connect(
-        &datasyncRelay,
-        &DatasyncRelay::dataUpdateRequiered,
-        [&dailyDistributionModel]() { dailyDistributionModel.synchronize(); });
+                                             requestDaysBackStrategy,
+                                             datasyncRelay};
     const ProgressView::Rows dailyRows{3};
     const ProgressView::Columns dailyCols{10};
     const ProgressView::GaugeSize dailyGaugeRelSize{0.7};
@@ -431,12 +424,8 @@ int main(int argc, char* argv[])
     DistributionModel weeklyDistributionModel{*weeklyDistributionReader,
                                               queryInvoker,
                                               groupByWeekStrategy,
-                                              requestWeeksBackStrategy};
-    QObject::connect(&datasyncRelay,
-                     &DatasyncRelay::dataUpdateRequiered,
-                     [&weeklyDistributionModel]() {
-                         weeklyDistributionModel.synchronize();
-                     });
+                                              requestWeeksBackStrategy,
+                                              datasyncRelay};
     const ProgressView::Rows weeklyRows{3};
     const ProgressView::Columns weeklyCols{4};
     const ProgressView::GaugeSize weeklyGaugeRelSize{0.8};
@@ -457,12 +446,8 @@ int main(int argc, char* argv[])
     DistributionModel monthlyDistributionModel{*monthlyDistributionReader,
                                                queryInvoker,
                                                groupByMonthStrategy,
-                                               requestMonthsBackStrategy};
-    QObject::connect(&datasyncRelay,
-                     &DatasyncRelay::dataUpdateRequiered,
-                     [&monthlyDistributionModel]() {
-                         monthlyDistributionModel.synchronize();
-                     });
+                                               requestMonthsBackStrategy,
+                                               datasyncRelay};
     const ProgressView::Rows monthlyRows{3};
     const ProgressView::Columns monthlyCols{4};
     const ProgressView::GaugeSize monthlyGaugeRelSize{0.8};
@@ -486,19 +471,13 @@ int main(int argc, char* argv[])
         operationRangeModel);
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
-    SprintModel historySprintModel{
-        commandInvoker, queryInvoker, *sprintStorage, datasyncRelay};
-    HistoryWindow historyWindow{historySprintModel,
+    HistoryWindow historyWindow{*sprintStorage,
                                 *taskStorage,
                                 historyModel,
                                 historyItemDelegate,
                                 queryInvoker,
-                                std::move(historyWindowDateRangePicker)};
-    // TODO History model might request sprints two times, due to
-    // historySprintModel
-    QObject::connect(&datasyncRelay,
-                     &DatasyncRelay::dataUpdateRequiered,
-                     [&historyWindow]() { historyWindow.synchronize(); });
+                                std::move(historyWindowDateRangePicker),
+                                datasyncRelay};
 
     SettingsDialog settingsDialog{applicationSettings};
     auto launcherMenu = std::make_unique<LauncherMenu>(
@@ -555,6 +534,8 @@ int main(int argc, char* argv[])
                                  dw::current_date_local()),
                              todaySprintsModel.rowCount(QModelIndex())});
                      });
+    // TODO this is bizzarre. Why do we need to update progress on workday
+    // tracker model like this? Investigate Progress View
     QObject::connect(&workdayTrackerModel,
                      &WorkdayTrackerModel::workdaysChanged,
                      [timer = timerWidget.get(),
@@ -567,6 +548,9 @@ int main(int argc, char* argv[])
     // TODO could be called in the constructor, but will it be able to
     // finish? for now, this manual request is left is a workaround
     workdayTrackerModel.requestDataUpdate();
+
+    // Triggers initial signal to request all data from storage
+    datasyncRelay.onDataChanged();
 
     sprint_timer::ui::qt_gui::MainWindow w{std::move(sprintOutline),
                                            std::move(taskOutline),

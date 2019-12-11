@@ -67,7 +67,6 @@ private:
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
     ISprintStorage& sprintStorage;
-    dw::DateRange sprintDateRange{dw::current_date(), dw::current_date()};
 
     void requestUpdate() final;
 

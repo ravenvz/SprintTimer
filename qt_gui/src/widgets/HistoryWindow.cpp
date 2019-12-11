@@ -31,6 +31,8 @@
 #include <core/utils/CSVEncoder.h>
 #include <fstream>
 
+#include <QDebug>
+
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
@@ -40,25 +42,35 @@ using use_cases::RequestTasks;
 
 namespace {
 
-    QString sprintToString(const Sprint& sprint);
+QString sprintToString(const Sprint& sprint);
 
-    QString taskToString(const Task& task);
+QString taskToString(const Task& task);
 
-    constexpr int sprintTabIndex{0};
+constexpr int sprintTabIndex{0};
+
+HistoryModel::HistoryItem
+sprintDataExtractor(const sprint_timer::entities::Sprint& sprint);
+
+HistoryModel::HistoryItem
+taskDataExtractor(const sprint_timer::entities::Task& task);
+
+template <typename ItemContainer, typename ExtractFn>
+HistoryModel::HistoryData extractHistoryData(const ItemContainer& itemContainer,
+                                             ExtractFn extractingFunction);
 
 } // namespace
 
-
-HistoryWindow::HistoryWindow(SprintModel& sprintModel_,
+HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader_,
                              ITaskStorageReader& taskReader_,
                              HistoryModel& historyModel_,
                              QStyledItemDelegate& historyItemDelegate_,
                              QueryInvoker& queryInvoker_,
                              std::unique_ptr<DateRangePicker> dateRangePicker_,
+                             DatasyncRelay& datasyncRelay_,
                              QWidget* parent_)
     : QWidget{parent_}
     , ui{std::make_unique<Ui::HistoryWindow>()}
-    , sprintModel{sprintModel_}
+    , sprintReader{sprintReader_}
     , taskReader{taskReader_}
     , historyModel{historyModel_}
     , queryInvoker{queryInvoker_}
@@ -71,6 +83,7 @@ HistoryWindow::HistoryWindow(SprintModel& sprintModel_,
     ui->sprintHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setItemDelegate(&historyItemDelegate_);
     ui->taskHistoryView->setItemDelegate(&historyItemDelegate_);
+
     state = ShowingSprints{*this};
 
     connect(ui->historyTab,
@@ -79,40 +92,32 @@ HistoryWindow::HistoryWindow(SprintModel& sprintModel_,
             &HistoryWindow::onTabSelected);
     connect(dateRangePicker,
             &DateRangePicker::selectedDateRangeChanged,
-            [this](const dw::DateRange&) { synchronize(); });
-    connect(&sprintModel, &AsyncListModel::updateFinished, [this]() {
-        synchronize();
-    });
+            [this](const dw::DateRange&) {
+                qDebug() << "HistoryWindow date range changed";
+                synchronize();
+            });
     connect(ui->exportButton,
             &QPushButton::clicked,
             this,
             &HistoryWindow::onExportButtonClicked);
-    QObject::connect(dateRangePicker,
-                     &DateRangePicker::selectedDateRangeChanged,
-                     [&sprintModel_](const auto& dateRange) {
-                         sprintModel_.requestUpdate(dateRange);
-                     });
-    connect(&sprintModel_, &QAbstractListModel::modelReset, [this]() {
-        if (ui->historyTab->currentIndex() == sprintTabIndex)
-            synchronize();
-    });
+    connect(&datasyncRelay_,
+            &DatasyncRelay::dataUpdateRequiered,
+            this,
+            &HistoryWindow::synchronize);
 }
-
 
 HistoryWindow::~HistoryWindow() = default;
 
-
 void HistoryWindow::synchronize()
 {
+    qDebug() << "HistoryWindow requesting sprints";
     std::visit(HistoryRequestedEvent{*this}, state);
 }
-
 
 void HistoryWindow::fillHistoryModel(const HistoryModel::HistoryData& history)
 {
     historyModel.fill(history);
 }
-
 
 void HistoryWindow::onTabSelected(int tabIndex)
 {
@@ -123,14 +128,12 @@ void HistoryWindow::onTabSelected(int tabIndex)
     synchronize();
 }
 
-
 void HistoryWindow::setHistoryModel(QTreeView* view)
 {
     view->setModel(&historyModel);
     view->expandAll();
     view->show();
 }
-
 
 void HistoryWindow::onExportButtonClicked()
 {
@@ -142,12 +145,10 @@ void HistoryWindow::onExportButtonClicked()
     exportDialog.exec();
 }
 
-
 dw::DateRange HistoryWindow::selectedDateInterval() const
 {
     return dateRangePicker->selectionRange();
 }
-
 
 void HistoryWindow::onDataExportConfirmed(
     const ExportDialog::ExportOptions& options)
@@ -155,32 +156,26 @@ void HistoryWindow::onDataExportConfirmed(
     std::visit(ExportRequestedEvent{*this, options}, state);
 }
 
-
 void HistoryWindow::ShowingSprints::retrieveHistory(HistoryWindow& widget) const
 {
-    const auto sprints = allSprints(widget.sprintModel);
-    onHistoryRetrieved(widget, sprints);
+    widget.queryInvoker.execute(std::make_unique<RequestSprints>(
+        widget.sprintReader,
+        widget.selectedDateInterval(),
+        [this, &widget](const auto& sprints) {
+            this->onHistoryRetrieved(widget, sprints);
+        }));
 }
-
 
 HistoryWindow::ShowingSprints::ShowingSprints(HistoryWindow& widget) noexcept {}
 
 void HistoryWindow::ShowingSprints::onHistoryRetrieved(
     HistoryWindow& widget, const std::vector<Sprint>& sprints) const
 {
-    HistoryModel::HistoryData sprintHistory;
-    sprintHistory.reserve(sprints.size());
-    std::transform(sprints.cbegin(),
-                   sprints.cend(),
-                   std::back_inserter(sprintHistory),
-                   [](const auto& sprint) {
-                       return std::make_pair(utils::toQDate(sprint.startTime()),
-                                             sprintToString(sprint));
-                   });
+    const HistoryModel::HistoryData sprintHistory{
+        extractHistoryData(sprints, sprintDataExtractor)};
     widget.fillHistoryModel(sprintHistory);
     widget.setHistoryModel(widget.ui->sprintHistoryView);
 }
-
 
 void HistoryWindow::ShowingSprints::exportData(
     HistoryWindow& widget, const ExportDialog::ExportOptions& options) const
@@ -208,16 +203,13 @@ void HistoryWindow::ShowingSprints::exportData(
         sprint_timer::utils::CSVEncoder encoder;
         return encoder.encode(sprints, serializeSprint);
     };
-    sink->send(func(allSprints(widget.sprintModel)));
-    // widget.queryInvoker.execute(std::make_unique<RequestSprints>(
-    //     widget.sprintReader,
-    //     widget.selectedDateInterval(),
-    //     [sink, func](const auto& sprints) { sink->send(func(sprints)); }));
+    widget.queryInvoker.execute(std::make_unique<RequestSprints>(
+        widget.sprintReader,
+        widget.selectedDateInterval(),
+        [sink, func](const auto& sprints) { sink->send(func(sprints)); }));
 }
 
-
 HistoryWindow::ShowingTasks::ShowingTasks(HistoryWindow& widget) noexcept {}
-
 
 void HistoryWindow::ShowingTasks::retrieveHistory(HistoryWindow& widget) const
 {
@@ -229,25 +221,14 @@ void HistoryWindow::ShowingTasks::retrieveHistory(HistoryWindow& widget) const
         }));
 }
 
-
 void HistoryWindow::ShowingTasks::onHistoryRetrieved(
     HistoryWindow& widget, const std::vector<Task>& tasks) const
 {
-    HistoryModel::HistoryData taskHistory;
-    taskHistory.reserve(tasks.size());
-    std::transform(tasks.cbegin(),
-                   tasks.cend(),
-                   std::back_inserter(taskHistory),
-                   [](const auto& task) {
-                       return std::make_pair(
-                           utils::toQDate(task.lastModified()),
-                           taskToString(task));
-                   });
-
+    const HistoryModel::HistoryData taskHistory{
+        extractHistoryData(tasks, taskDataExtractor)};
     widget.fillHistoryModel(taskHistory);
     widget.setHistoryModel(widget.ui->taskHistoryView);
 }
-
 
 void HistoryWindow::ShowingTasks::exportData(
     HistoryWindow& widget, const ExportDialog::ExportOptions& options) const
@@ -281,29 +262,24 @@ void HistoryWindow::ShowingTasks::exportData(
         [sink, func](const auto& tasks) { sink->send(func(tasks)); }));
 }
 
-
 HistoryWindow::HistoryRequestedEvent::HistoryRequestedEvent(
     HistoryWindow& widget) noexcept
     : widget{widget}
 {
 }
 
-
 void HistoryWindow::HistoryRequestedEvent::operator()(std::monostate) {}
 
-
-void HistoryWindow::HistoryRequestedEvent::
-operator()(const ShowingSprints& state)
+void HistoryWindow::HistoryRequestedEvent::operator()(
+    const ShowingSprints& state)
 {
     state.retrieveHistory(widget);
 }
-
 
 void HistoryWindow::HistoryRequestedEvent::operator()(const ShowingTasks& state)
 {
     state.retrieveHistory(widget);
 }
-
 
 HistoryWindow::ExportRequestedEvent::ExportRequestedEvent(
     HistoryWindow& widget, const ExportDialog::ExportOptions& options)
@@ -312,46 +288,68 @@ HistoryWindow::ExportRequestedEvent::ExportRequestedEvent(
 {
 }
 
-
 void HistoryWindow::ExportRequestedEvent::operator()(std::monostate) {}
 
-
-void HistoryWindow::ExportRequestedEvent::
-operator()(const ShowingSprints& state)
+void HistoryWindow::ExportRequestedEvent::operator()(
+    const ShowingSprints& state)
 {
     state.exportData(widget, options);
 }
-
 
 void HistoryWindow::ExportRequestedEvent::operator()(const ShowingTasks& state)
 {
     state.exportData(widget, options);
 }
 
-
 namespace {
 
-    QString sprintToString(const Sprint& sprint)
-    {
-        return QString("%1 - %2 %3 %4")
-            .arg(QString::fromStdString(
-                dw::to_string(sprint.startTime(), "hh:mm")))
-            .arg(QString::fromStdString(
-                dw::to_string(sprint.finishTime(), "hh:mm")))
-            .arg(QString::fromStdString(prefixTags(sprint.tags())))
-            .arg(QString::fromStdString(sprint.name()));
-    }
+QString sprintToString(const Sprint& sprint)
+{
+    return QString("%1 - %2 %3 %4")
+        .arg(QString::fromStdString(dw::to_string(sprint.startTime(), "hh:mm")))
+        .arg(
+            QString::fromStdString(dw::to_string(sprint.finishTime(), "hh:mm")))
+        .arg(QString::fromStdString(prefixTags(sprint.tags())))
+        .arg(QString::fromStdString(sprint.name()));
+}
 
+QString taskToString(const Task& task)
+{
+    return QString("%1 %2 %3/%4")
+        .arg(QString::fromStdString(prefixTags(task.tags())))
+        .arg(QString::fromStdString(task.name()))
+        .arg(task.actualCost())
+        .arg(task.estimatedCost());
+}
 
-    QString taskToString(const Task& task)
-    {
-        return QString("%1 %2 %3/%4")
-            .arg(QString::fromStdString(prefixTags(task.tags())))
-            .arg(QString::fromStdString(task.name()))
-            .arg(task.actualCost())
-            .arg(task.estimatedCost());
-    }
+HistoryModel::HistoryItem
+sprintDataExtractor(const sprint_timer::entities::Sprint& sprint)
+{
+    return std::make_pair(utils::toQDate(sprint.startTime()),
+                          sprintToString(sprint));
+}
 
+HistoryModel::HistoryItem
+taskDataExtractor(const sprint_timer::entities::Task& task)
+{
+    return std::make_pair(utils::toQDate(task.lastModified()),
+                          taskToString(task));
+};
+
+template <typename ItemContainer, typename ExtractFn>
+HistoryModel::HistoryData extractHistoryData(const ItemContainer& itemContainer,
+                                             ExtractFn extractingFunction)
+// auto extractHistoryData = [](const auto& itemContainer,
+//                              auto extractingFunction) {
+{
+    HistoryModel::HistoryData history;
+    history.reserve(itemContainer.size());
+    std::transform(cbegin(itemContainer),
+                   cend(itemContainer),
+                   std::back_inserter(history),
+                   extractingFunction);
+    return history;
+};
 } // namespace
 
 } // namespace sprint_timer::ui::qt_gui
