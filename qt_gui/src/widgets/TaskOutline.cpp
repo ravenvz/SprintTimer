@@ -38,16 +38,16 @@ namespace sprint_timer::ui::qt_gui {
 using namespace entities;
 using use_cases::RequestSprintsForTask;
 
-TaskOutline::TaskOutline(TaskModel& taskModel,
-                         SprintModel& sprintModel,
+TaskOutline::TaskOutline(TaskModel& taskModel_,
+                         SprintModel& sprintModel_,
                          std::unique_ptr<TaskView> taskView_,
-                         AddTaskDialog& addTaskDialog,
-                         QWidget* parent)
-    : QWidget{parent}
-    , taskModel{taskModel}
-    , sprintModel{sprintModel}
+                         AddTaskDialog& addTaskDialog_,
+                         QWidget* parent_)
+    : QWidget{parent_}
+    , taskModel{taskModel_}
+    , sprintModel{sprintModel_}
     , taskView{taskView_.release()}
-    , addTaskDialog{addTaskDialog}
+    , addTaskDialog{addTaskDialog_}
 {
     auto layout = std::make_unique<QVBoxLayout>(this);
 

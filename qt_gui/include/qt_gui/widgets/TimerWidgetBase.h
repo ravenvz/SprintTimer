@@ -48,7 +48,6 @@ class TimerWidgetBase : public QWidget {
 public:
     TimerWidgetBase(const IConfig& applicationSettings, QWidget* parent);
     virtual void setCandidateIndex(int index) = 0;
-    virtual void updateGoalProgress(const GoalProgress& progress) = 0;
 
 protected:
     const IConfig& applicationSettings;

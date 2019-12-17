@@ -62,7 +62,8 @@ ProgressView::ProgressView(
 {
     ui->setupUi(this);
     setupGauges();
-    updateProgressBar(GoalProgress{0, 0});
+    updateProgressBar(
+        GoalProgress{GoalProgress::Estimated{0}, GoalProgress::Actual{0}});
     connect(&progressModel_,
             &DistributionModel::distributionChanged,
             [&](const std::vector<int>& updatedDistribution) {

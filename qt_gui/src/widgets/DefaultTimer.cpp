@@ -25,19 +25,15 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-namespace {
-    constexpr char const* workgoalMetStyleSheet{"QLabel { color: green; }"};
-    constexpr char const* overworkStyleSheet{"QLabel { color: red; }"};
-    constexpr char const* underworkStyleSheet{"QLabel { color: black; }"};
-} // namespace
-
 DefaultTimer::DefaultTimer(const IConfig& applicationSettings_,
-                           QAbstractItemModel& taskModel,
-                           QWidget* parent)
-    : TimerWidgetBase{applicationSettings_, parent}
+                           QAbstractItemModel& taskModel_,
+                           QWidget* parent_)
+    : TimerWidgetBase{applicationSettings_, parent_}
     , ui{std::make_unique<Ui::DefaultTimer>()}
 {
     ui->setupUi(this);
+
+    ui->labelTimer->raise();
 
     WidgetUtils::setRetainSizeWhenHidden(ui->pbCancel);
     WidgetUtils::setRetainSizeWhenHidden(ui->pbZone);
@@ -45,7 +41,7 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings_,
     WidgetUtils::setRetainSizeWhenHidden(ui->pbStart);
     WidgetUtils::setRetainSizeWhenHidden(ui->pbSubmit);
 
-    ui->cbxSubmissionCandidate->setModel(&taskModel);
+    ui->cbxSubmissionCandidate->setModel(&taskModel_);
 
     connect(ui->pbStart, &QPushButton::clicked, this, &DefaultTimer::startTask);
     connect(
@@ -75,27 +71,6 @@ DefaultTimer::~DefaultTimer() = default;
 void DefaultTimer::setCandidateIndex(int index)
 {
     ui->cbxSubmissionCandidate->setCurrentIndex(index);
-}
-
-void DefaultTimer::updateGoalProgress(const GoalProgress& progress)
-{
-    const int estimated{progress.estimated()};
-    const int actual{progress.actual()};
-    if (estimated == 0) {
-        ui->labelDailyGoalProgress->hide();
-        return;
-    }
-    ui->labelDailyGoalProgress->setText(
-        QString("Daily goal progress: %1/%2").arg(actual).arg(estimated));
-    if (actual == estimated) {
-        ui->labelDailyGoalProgress->setStyleSheet(workgoalMetStyleSheet);
-    }
-    else if (actual > estimated) {
-        ui->labelDailyGoalProgress->setStyleSheet(overworkStyleSheet);
-    }
-    else {
-        ui->labelDailyGoalProgress->setStyleSheet(underworkStyleSheet);
-    }
 }
 
 void DefaultTimer::setTimerValue(std::chrono::seconds timeLeft)
@@ -153,8 +128,8 @@ void DefaultTimer::onZoneStateLeftHook() { ui->pbCancel->setEnabled(true); }
 
 void DefaultTimer::updateIndication(std::chrono::seconds timeLeft)
 {
-    ui->progressBar->setValue(progressBarMaxValue
-                              - static_cast<int>(timeLeft.count()));
+    ui->progressBar->setValue(progressBarMaxValue -
+                              static_cast<int>(timeLeft.count()));
     setTimerValue(timeLeft);
     ui->progressBar->repaint();
 }

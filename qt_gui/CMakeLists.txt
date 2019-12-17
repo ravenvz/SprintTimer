@@ -100,6 +100,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TaskView.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TimeDiagram.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TimerWidgetBase.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TodayProgressIndicator.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/UndoButton.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/Synchronizable.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/WinExport.h"
@@ -167,6 +168,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TaskView.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TimeDiagram.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TimerWidgetBase.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TodayProgressIndicator.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/UndoButton.cpp"
         "${UI_HEADERS}"
 )

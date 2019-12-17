@@ -92,6 +92,7 @@
 #include <qt_gui/widgets/TagEditor.h>
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
+#include <qt_gui/widgets/TodayProgressIndicator.h>
 #include <qt_gui/widgets/UndoButton.h>
 
 using std::filesystem::create_directory;
@@ -398,9 +399,9 @@ int main(int argc, char* argv[])
                                              groupByDayStrategy,
                                              requestDaysBackStrategy,
                                              datasyncRelay};
-    const ProgressView::Rows dailyRows{3};
-    const ProgressView::Columns dailyCols{10};
-    const ProgressView::GaugeSize dailyGaugeRelSize{0.7};
+    constexpr ProgressView::Rows dailyRows{3};
+    constexpr ProgressView::Columns dailyCols{10};
+    constexpr ProgressView::GaugeSize dailyGaugeRelSize{0.7};
     auto dailyProgress = std::make_unique<ProgressView>(dailyDistributionModel,
                                                         workdayTrackerModel,
                                                         groupByDayStrategy,
@@ -523,27 +524,6 @@ int main(int argc, char* argv[])
                      &TimerWidgetBase::submitRequested,
                      taskOutline.get(),
                      &TaskOutline::onSprintSubmissionRequested);
-    // TODO see if we can connect it differently
-    // QObject::connect(&todaySprintsModel,
-    //                  &SprintModel::modelReset,
-    //                  [timer = timerWidget.get(),
-    //                   &todaySprintsModel,
-    //                   &workdayTrackerModel]() {
-    //                      timer->updateGoalProgress(GoalProgress{
-    //                          workdayTrackerModel.workdayTracker().goal(
-    //                              dw::current_date_local()),
-    //                          todaySprintsModel.rowCount(QModelIndex())});
-    //                  });
-    // TODO this is bizzarre. Why do we need to update progress on workday
-    // tracker model like this? Investigate Progress View
-    // QObject::connect(&workdayTrackerModel,
-    //                  &WorkdayTrackerModel::workdaysChanged,
-    //                  [timer = timerWidget.get(),
-    //                   &todaySprintsModel](const WorkdayTracker& tracker) {
-    //                      timer->updateGoalProgress(GoalProgress{
-    //                          tracker.goal(dw::current_date_local()),
-    //                          todaySprintsModel.rowCount(QModelIndex())});
-    //                  });
 
     // TODO could be called in the constructor, but will it be able to
     // finish? for now, this manual request is left is a workaround
@@ -552,10 +532,13 @@ int main(int argc, char* argv[])
     // Triggers initial signal to request all data from storage
     datasyncRelay.onDataChanged();
 
-    sprint_timer::ui::qt_gui::MainWindow w{std::move(sprintOutline),
-                                           std::move(taskOutline),
-                                           std::move(timerWidget),
-                                           std::move(launcherMenu)};
+    sprint_timer::ui::qt_gui::MainWindow w{
+        std::move(sprintOutline),
+        std::move(taskOutline),
+        std::make_unique<TodayProgressIndicator>(todaySprintsModel,
+                                                 workdayTrackerModel),
+        std::move(timerWidget),
+        std::move(launcherMenu)};
     applyStyleSheet(app);
     app.setStyle(QStyleFactory::create("Fusion"));
     w.show();
