@@ -65,7 +65,12 @@ TEST_F(ProgressByWeekFixture, handles_empty_actual_progress)
 {
     const std::vector<int> actualProgress;
     const std::vector<GoalProgress> expected{
-        {39, 0}, {65, 0}, {65, 0}, {65, 0}, {65, 0}, {52, 0}};
+        {GoalProgress::Estimated{39}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{52}, GoalProgress::Actual{0}}};
 
     const ProgressOverPeriod progress{
         period, actualProgress, workdayTracker, groupByWeekStrategy};
@@ -86,7 +91,12 @@ TEST_F(ProgressByWeekFixture, underwork)
 {
     const std::vector<int> actualProgress{15, 13, 14, 0, 10, 12};
     const std::vector<GoalProgress> expected{
-        {39, 15}, {65, 13}, {65, 14}, {65, 0}, {65, 10}, {52, 12}};
+        {GoalProgress::Estimated{39}, GoalProgress::Actual{15}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{13}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{14}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{10}},
+        {GoalProgress::Estimated{52}, GoalProgress::Actual{12}}};
 
     const ProgressOverPeriod progress{
         period, actualProgress, workdayTracker, groupByWeekStrategy};
@@ -107,7 +117,12 @@ TEST_F(ProgressByWeekFixture, overwork)
 {
     const std::vector<int> actualProgress{40, 79, 67, 63, 64, 89};
     const std::vector<GoalProgress> expected{
-        {39, 40}, {65, 79}, {65, 67}, {65, 63}, {65, 64}, {52, 89}};
+        {GoalProgress::Estimated{39}, GoalProgress::Actual{40}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{79}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{67}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{63}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{64}},
+        {GoalProgress::Estimated{52}, GoalProgress::Actual{89}}};
 
     const ProgressOverPeriod progress{
         period, actualProgress, workdayTracker, groupByWeekStrategy};
@@ -141,7 +156,12 @@ TEST_F(ProgressByWeekFixture, work_during_vacation)
     vacationTracker.addWeekSchedule(start, vacationSchedule);
     const std::vector<int> actualProgress{30, 65, 65, 50, 64, 60};
     const std::vector<GoalProgress> expected{
-        {0, 30}, {0, 65}, {0, 65}, {0, 50}, {0, 64}, {0, 60}};
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{30}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{65}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{65}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{50}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{64}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{60}}};
 
     const ProgressOverPeriod progress{
         period, actualProgress, vacationTracker, groupByWeekStrategy};
@@ -162,7 +182,9 @@ TEST_F(ProgressByWeekFixture,
        handles_corner_case_when_starting_from_grouping_day)
 {
     const std::vector<int> actualProgress{30, 65};
-    const std::vector<GoalProgress> expected{{65, 30}, {13, 65}};
+    const std::vector<GoalProgress> expected{
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{30}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{65}}};
     const DateRange a_period{Date{Year{2019}, Month{1}, Day{13}},
                              Date{Year{2019}, Month{1}, Day{21}}};
     const sprint_timer::GroupByWeek strategy{configMock};
@@ -187,7 +209,9 @@ TEST_F(ProgressByWeekFixture,
 TEST_F(ProgressByWeekFixture, handles_corner_case_when_ending_by_grouping_day)
 {
     const std::vector<int> actualProgress{30, 65};
-    const std::vector<GoalProgress> expected{{52, 30}, {65, 65}};
+    const std::vector<GoalProgress> expected{
+        {GoalProgress::Estimated{52}, GoalProgress::Actual{30}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{65}}};
     const DateRange a_period{Date{Year{2019}, Month{1}, Day{8}},
                              Date{Year{2019}, Month{1}, Day{19}}};
     const sprint_timer::GroupByWeek strategy{configMock};

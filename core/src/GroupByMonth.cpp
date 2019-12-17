@@ -46,12 +46,15 @@ GroupByMonth::computeProgress(const dw::DateRange& dateRange,
          start = finish + Days{1}, finish = next_finish()) {
         const DateRange monthChunk{start, finish};
         if (actualIt != cend(actualProgress)) {
-            progress.emplace_back(goalFor(workdayTracker, monthChunk),
-                                  *actualIt);
+            progress.emplace_back(
+                GoalProgress::Estimated{goalFor(workdayTracker, monthChunk)},
+                GoalProgress::Actual{*actualIt});
             ++actualIt;
         }
         else {
-            progress.emplace_back(goalFor(workdayTracker, monthChunk), 0);
+            progress.emplace_back(
+                GoalProgress::Estimated{goalFor(workdayTracker, monthChunk)},
+                GoalProgress::Actual{0});
         }
     }
 

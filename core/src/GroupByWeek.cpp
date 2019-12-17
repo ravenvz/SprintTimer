@@ -60,12 +60,15 @@ GroupByWeek::computeProgress(const dw::DateRange& dateRange,
          start = finish + Days{1}, finish = next_finish()) {
         const DateRange weekChunk{start, finish};
         if (actualIt != cend(actualProgress)) {
-            progress.emplace_back(goalFor(workdayTracker, weekChunk),
-                                  *actualIt);
+            progress.emplace_back(
+                GoalProgress::Estimated{goalFor(workdayTracker, weekChunk)},
+                GoalProgress::Actual{*actualIt});
             ++actualIt;
         }
         else
-            progress.emplace_back(goalFor(workdayTracker, weekChunk), 0);
+            progress.emplace_back(
+                GoalProgress::Estimated{goalFor(workdayTracker, weekChunk)},
+                GoalProgress::Actual{0});
     }
 
     return progress;

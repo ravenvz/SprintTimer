@@ -524,26 +524,26 @@ int main(int argc, char* argv[])
                      taskOutline.get(),
                      &TaskOutline::onSprintSubmissionRequested);
     // TODO see if we can connect it differently
-    QObject::connect(&todaySprintsModel,
-                     &SprintModel::modelReset,
-                     [timer = timerWidget.get(),
-                      &todaySprintsModel,
-                      &workdayTrackerModel]() {
-                         timer->updateGoalProgress(GoalProgress{
-                             workdayTrackerModel.workdayTracker().goal(
-                                 dw::current_date_local()),
-                             todaySprintsModel.rowCount(QModelIndex())});
-                     });
+    // QObject::connect(&todaySprintsModel,
+    //                  &SprintModel::modelReset,
+    //                  [timer = timerWidget.get(),
+    //                   &todaySprintsModel,
+    //                   &workdayTrackerModel]() {
+    //                      timer->updateGoalProgress(GoalProgress{
+    //                          workdayTrackerModel.workdayTracker().goal(
+    //                              dw::current_date_local()),
+    //                          todaySprintsModel.rowCount(QModelIndex())});
+    //                  });
     // TODO this is bizzarre. Why do we need to update progress on workday
     // tracker model like this? Investigate Progress View
-    QObject::connect(&workdayTrackerModel,
-                     &WorkdayTrackerModel::workdaysChanged,
-                     [timer = timerWidget.get(),
-                      &todaySprintsModel](const WorkdayTracker& tracker) {
-                         timer->updateGoalProgress(GoalProgress{
-                             tracker.goal(dw::current_date_local()),
-                             todaySprintsModel.rowCount(QModelIndex())});
-                     });
+    // QObject::connect(&workdayTrackerModel,
+    //                  &WorkdayTrackerModel::workdaysChanged,
+    //                  [timer = timerWidget.get(),
+    //                   &todaySprintsModel](const WorkdayTracker& tracker) {
+    //                      timer->updateGoalProgress(GoalProgress{
+    //                          tracker.goal(dw::current_date_local()),
+    //                          todaySprintsModel.rowCount(QModelIndex())});
+    //                  });
 
     // TODO could be called in the constructor, but will it be able to
     // finish? for now, this manual request is left is a workaround

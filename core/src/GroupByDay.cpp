@@ -37,11 +37,15 @@ GroupByDay::computeProgress(const dw::DateRange& dateRange,
     for (auto day = dateRange.start(); day <= dateRange.finish();
          day = day + Days{1}) {
         if (actualIt != cend(actualProgress)) {
-            progress.emplace_back(workdayTracker.goal(day), *actualIt);
+            progress.emplace_back(
+                GoalProgress::Estimated{workdayTracker.goal(day)},
+                GoalProgress::Actual{*actualIt});
             ++actualIt;
         }
         else
-            progress.emplace_back(workdayTracker.goal(day), 0);
+            progress.emplace_back(
+                GoalProgress::Estimated{workdayTracker.goal(day)},
+                GoalProgress::Actual{0});
     }
 
     return progress;

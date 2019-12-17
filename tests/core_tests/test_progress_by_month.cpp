@@ -63,7 +63,11 @@ TEST_F(ProgressByMonthFixture, handles_empty_actual_progress)
 {
     const std::vector<int> actualProgress;
     const std::vector<GoalProgress> expected{
-        {150, 0}, {230, 0}, {210, 0}, {220, 0}, {180, 0}};
+        {GoalProgress::Estimated{150}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{230}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{210}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{220}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{180}, GoalProgress::Actual{0}}};
 
     const ProgressOverPeriod progress{
         period, actualProgress, workdayTracker, groupByMonthStrategy};
@@ -84,7 +88,11 @@ TEST_F(ProgressByMonthFixture, underwork)
 {
     const std::vector<int> actualProgress{180, 200, 150, 170, 150};
     const std::vector<GoalProgress> expected{
-        {150, 180}, {230, 200}, {210, 150}, {220, 170}, {180, 150}};
+        {GoalProgress::Estimated{150}, GoalProgress::Actual{180}},
+        {GoalProgress::Estimated{230}, GoalProgress::Actual{200}},
+        {GoalProgress::Estimated{210}, GoalProgress::Actual{150}},
+        {GoalProgress::Estimated{220}, GoalProgress::Actual{170}},
+        {GoalProgress::Estimated{180}, GoalProgress::Actual{150}}};
 
     const ProgressOverPeriod progress{
         period, actualProgress, workdayTracker, groupByMonthStrategy};
@@ -105,7 +113,11 @@ TEST_F(ProgressByMonthFixture, overwork)
 {
     const std::vector<int> actualProgress{180, 250, 230, 200, 190};
     const std::vector<GoalProgress> expected{
-        {150, 180}, {230, 250}, {210, 230}, {220, 200}, {180, 190}};
+        {GoalProgress::Estimated{150}, GoalProgress::Actual{180}},
+        {GoalProgress::Estimated{230}, GoalProgress::Actual{250}},
+        {GoalProgress::Estimated{210}, GoalProgress::Actual{230}},
+        {GoalProgress::Estimated{220}, GoalProgress::Actual{200}},
+        {GoalProgress::Estimated{180}, GoalProgress::Actual{190}}};
 
     const ProgressOverPeriod progress{
         period, actualProgress, workdayTracker, groupByMonthStrategy};
@@ -136,7 +148,11 @@ TEST_F(ProgressByMonthFixture, work_during_vacation)
     vacationTracker.addWeekSchedule(period.start(), vacationSchedule);
     const std::vector<int> actualProgress{180, 250, 230, 200, 190};
     const std::vector<GoalProgress> expected{
-        {0, 180}, {0, 250}, {0, 230}, {0, 200}, {0, 190}};
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{180}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{250}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{230}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{200}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{190}}};
 
     const ProgressOverPeriod progress{
         period, actualProgress, vacationTracker, groupByMonthStrategy};
@@ -159,7 +175,9 @@ TEST_F(ProgressByMonthFixture,
     const DateRange a_period{Date{Year{2018}, Month{6}, Day{1}},
                              Date{Year{2018}, Month{7}, Day{16}}};
     const std::vector<int> actualProgress{200, 75};
-    const std::vector<GoalProgress> expected{{210, 200}, {110, 75}};
+    const std::vector<GoalProgress> expected{
+        {GoalProgress::Estimated{210}, GoalProgress::Actual{200}},
+        {GoalProgress::Estimated{110}, GoalProgress::Actual{75}}};
 
     const ProgressOverPeriod progress{
         a_period, actualProgress, workdayTracker, groupByMonthStrategy};
@@ -182,7 +200,9 @@ TEST_F(ProgressByMonthFixture,
     const DateRange a_period{Date{Year{2018}, Month{6}, Day{1}},
                              Date{Year{2018}, Month{7}, Day{31}}};
     const std::vector<int> actualProgress{200, 75};
-    const std::vector<GoalProgress> expected{{210, 200}, {220, 75}};
+    const std::vector<GoalProgress> expected{
+        {GoalProgress::Estimated{210}, GoalProgress::Actual{200}},
+        {GoalProgress::Estimated{220}, GoalProgress::Actual{75}}};
 
     const ProgressOverPeriod progress{
         a_period, actualProgress, workdayTracker, groupByMonthStrategy};
