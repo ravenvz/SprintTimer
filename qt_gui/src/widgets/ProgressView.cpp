@@ -47,7 +47,7 @@ namespace sprint_timer::ui::qt_gui {
 
 ProgressView::ProgressView(
     const DistributionModel& progressModel_,
-    const WorkdayTrackerModel& workdaysModel_,
+    const WorkScheduleModel& workdaysModel_,
     const ProgressGroupingStrategy& groupingStrategy_,
     const ProgressRangeRequestStrategy& requestRangeStrategy_,
     Rows numRows_,
@@ -70,17 +70,17 @@ ProgressView::ProgressView(
                 const ProgressOverPeriod progress{
                     requestRangeStrategy_.dateRange(),
                     updatedDistribution,
-                    workdaysModel_.workdayTracker(),
+                    workdaysModel_.workSchedule(),
                     groupingStrategy_};
                 setData(progress);
             });
     connect(&workdaysModel_,
-            &WorkdayTrackerModel::workdaysChanged,
-            [&](const WorkdayTracker& updatedTracker) {
+            &WorkScheduleModel::workScheduleChanged,
+            [&](const WorkSchedule& updatedWorkSchedule) {
                 const ProgressOverPeriod progress{
                     requestRangeStrategy_.dateRange(),
                     progressModel_.distribution(),
-                    updatedTracker,
+                    updatedWorkSchedule,
                     groupingStrategy_};
                 setData(progress);
             });

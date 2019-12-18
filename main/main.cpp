@@ -74,9 +74,9 @@
 #include <qt_gui/models/ExtraDayModel.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/OperationRangeModel.h>
-#include <qt_gui/models/ScheduleModel.h>
 #include <qt_gui/models/TagModel.h>
-#include <qt_gui/models/WorkdayTrackerModel.h>
+#include <qt_gui/models/WeekScheduleModel.h>
+#include <qt_gui/models/WorkScheduleModel.h>
 #include <qt_gui/widgets/ContextMenuListView.h>
 #include <qt_gui/widgets/DailyTimelineGraph.h>
 #include <qt_gui/widgets/DateRangePicker.h>
@@ -336,8 +336,8 @@ int main(int argc, char* argv[])
     AddSprintDialog addSprintDialog{
         applicationSettings, todaySprintsModel, unfinishedTasksModel};
 
-    WorkdayTrackerModel workdayTrackerModel{
-        *workingDaysStorage, commandInvoker, queryInvoker};
+    WorkScheduleModel workScheduleModel{
+        *workingDaysStorage, commandInvoker, queryInvoker, datasyncRelay};
 
     UndoDialog undoDialog{commandInvoker};
 
@@ -377,18 +377,18 @@ int main(int argc, char* argv[])
         std::move(statisticsWindowDateRangePicker),
         std::move(dailyTimelineGraph),
         std::move(statisticsDiagramWidget),
-        workdayTrackerModel,
+        workScheduleModel,
         *sprintStorage,
         queryInvoker,
         datasyncRelay};
 
     AddExceptionalDayDialog exceptionalDayDialog;
     ExtraDayModel exceptionalDaysModel;
-    ScheduleModel scheduleModel{applicationSettings};
+    WeekScheduleModel scheduleModel{applicationSettings};
 
     WorkdaysDialog workdaysDialog{exceptionalDayDialog,
                                   exceptionalDaysModel,
-                                  workdayTrackerModel,
+                                  workScheduleModel,
                                   scheduleModel};
 
     const int distributionDays{30};
@@ -403,7 +403,7 @@ int main(int argc, char* argv[])
     constexpr ProgressView::Columns dailyCols{10};
     constexpr ProgressView::GaugeSize dailyGaugeRelSize{0.7};
     auto dailyProgress = std::make_unique<ProgressView>(dailyDistributionModel,
-                                                        workdayTrackerModel,
+                                                        workScheduleModel,
                                                         groupByDayStrategy,
                                                         requestDaysBackStrategy,
                                                         dailyRows,
@@ -432,7 +432,7 @@ int main(int argc, char* argv[])
     const ProgressView::GaugeSize weeklyGaugeRelSize{0.8};
     auto weeklyProgress =
         std::make_unique<ProgressView>(weeklyDistributionModel,
-                                       workdayTrackerModel,
+                                       workScheduleModel,
                                        groupByWeekStrategy,
                                        requestWeeksBackStrategy,
                                        weeklyRows,
@@ -454,7 +454,7 @@ int main(int argc, char* argv[])
     const ProgressView::GaugeSize monthlyGaugeRelSize{0.8};
     auto monthlyProgress =
         std::make_unique<ProgressView>(monthlyDistributionModel,
-                                       workdayTrackerModel,
+                                       workScheduleModel,
                                        groupByMonthStrategy,
                                        requestMonthsBackStrategy,
                                        monthlyRows,
@@ -525,18 +525,14 @@ int main(int argc, char* argv[])
                      taskOutline.get(),
                      &TaskOutline::onSprintSubmissionRequested);
 
-    // TODO could be called in the constructor, but will it be able to
-    // finish? for now, this manual request is left is a workaround
-    workdayTrackerModel.requestDataUpdate();
-
-    // Triggers initial signal to request all data from storage
+    // Emits initial signal to trigger update requests for all subsribers
     datasyncRelay.onDataChanged();
 
     sprint_timer::ui::qt_gui::MainWindow w{
         std::move(sprintOutline),
         std::move(taskOutline),
         std::make_unique<TodayProgressIndicator>(todaySprintsModel,
-                                                 workdayTrackerModel),
+                                                 workScheduleModel),
         std::move(timerWidget),
         std::move(launcherMenu)};
     applyStyleSheet(app);

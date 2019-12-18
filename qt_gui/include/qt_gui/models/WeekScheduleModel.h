@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SCHEDULEMODEL_H_XC3JPGN7
-#define SCHEDULEMODEL_H_XC3JPGN7
+#ifndef WEEKSCHEDULEMODEL_H_9DMF07C4
+#define WEEKSCHEDULEMODEL_H_9DMF07C4
 
 #include <QAbstractItemModel>
 #include <QDate>
@@ -29,10 +29,10 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-class ScheduleModel : public QAbstractListModel {
+class WeekScheduleModel : public QAbstractListModel {
 public:
-    ScheduleModel(const IConfig& applicationSettings,
-                  QObject* parent = nullptr);
+    WeekScheduleModel(const IConfig& applicationSettings,
+                      QObject* parent = nullptr);
 
     int rowCount(const QModelIndex& parent) const final;
 
@@ -54,4 +54,4 @@ private:
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: SCHEDULEMODEL_H_XC3JPGN7 */
+#endif /* end of include guard: WEEKSCHEDULEMODEL_H_9DMF07C4 */

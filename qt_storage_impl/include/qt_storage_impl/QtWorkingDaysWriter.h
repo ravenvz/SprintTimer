@@ -31,7 +31,7 @@ class QtWorkingDaysWriter : public IWorkingDaysWriter {
 public:
     explicit QtWorkingDaysWriter(DBService& dbService);
 
-    void changeWorkingDays(const WorkdayTracker& tracker) override;
+    void changeWorkingDays(const WorkSchedule& workSchedule) override;
 
 private:
     DBService& dbService;

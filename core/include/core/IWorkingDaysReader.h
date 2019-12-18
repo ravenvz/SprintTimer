@@ -22,14 +22,14 @@
 #ifndef IWORKINGDAYREADER_H_G8IYQC0N
 #define IWORKINGDAYREADER_H_G8IYQC0N
 
-#include <core/WorkdayTracker.h>
+#include <core/WorkSchedule.h>
 #include <functional>
 
 namespace sprint_timer {
 
 class IWorkingDaysReader {
 public:
-    using ResultHandler = std::function<void(WorkdayTracker&&)>;
+    using ResultHandler = std::function<void(WorkSchedule&&)>;
 
     virtual ~IWorkingDaysReader() = default;
 

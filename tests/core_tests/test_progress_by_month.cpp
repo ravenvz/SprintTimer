@@ -28,7 +28,7 @@
 using sprint_timer::GoalProgress;
 using sprint_timer::ProgressOverPeriod;
 using sprint_timer::WeekSchedule;
-using sprint_timer::WorkdayTracker;
+using sprint_timer::WorkSchedule;
 
 using namespace dw;
 
@@ -36,23 +36,23 @@ using namespace dw;
  * These tests focus on testing ProgressOverPeriod features together with
  * GroupByDay strategy. They do not test odd combinations of WeekSchedules or
  * addition of exceptional days trusting that these things are tested in
- * WorkdayTracker tests.
+ * WorkSchedule tests.
  */
 
 class ProgressByMonthFixture : public ::testing::Test {
 public:
     ProgressByMonthFixture()
     {
-        schedule.setTargetGoal(dw::Weekday::Monday, 10);
-        schedule.setTargetGoal(dw::Weekday::Tuesday, 10);
-        schedule.setTargetGoal(dw::Weekday::Wednesday, 10);
-        schedule.setTargetGoal(dw::Weekday::Thursday, 10);
-        schedule.setTargetGoal(dw::Weekday::Friday, 10);
-        workdayTracker.addWeekSchedule(period.start(), schedule);
+        weekSchedule.setTargetGoal(dw::Weekday::Monday, 10);
+        weekSchedule.setTargetGoal(dw::Weekday::Tuesday, 10);
+        weekSchedule.setTargetGoal(dw::Weekday::Wednesday, 10);
+        weekSchedule.setTargetGoal(dw::Weekday::Thursday, 10);
+        weekSchedule.setTargetGoal(dw::Weekday::Friday, 10);
+        workSchedule.addWeekSchedule(period.start(), weekSchedule);
     }
 
-    WeekSchedule schedule;
-    WorkdayTracker workdayTracker;
+    WeekSchedule weekSchedule;
+    WorkSchedule workSchedule;
 
     const DateRange period{Date{Year{2018}, Month{4}, Day{10}},
                            Date{Year{2018}, Month{8}, Day{25}}};
@@ -70,7 +70,7 @@ TEST_F(ProgressByMonthFixture, handles_empty_actual_progress)
         {GoalProgress::Estimated{180}, GoalProgress::Actual{0}}};
 
     const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByMonthStrategy};
+        period, actualProgress, workSchedule, groupByMonthStrategy};
 
     EXPECT_EQ(0, progress.actual());
     EXPECT_EQ(990, progress.estimated());
@@ -95,7 +95,7 @@ TEST_F(ProgressByMonthFixture, underwork)
         {GoalProgress::Estimated{180}, GoalProgress::Actual{150}}};
 
     const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByMonthStrategy};
+        period, actualProgress, workSchedule, groupByMonthStrategy};
 
     EXPECT_EQ(850, progress.actual());
     EXPECT_EQ(990, progress.estimated());
@@ -120,7 +120,7 @@ TEST_F(ProgressByMonthFixture, overwork)
         {GoalProgress::Estimated{180}, GoalProgress::Actual{190}}};
 
     const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByMonthStrategy};
+        period, actualProgress, workSchedule, groupByMonthStrategy};
 
     EXPECT_EQ(1050, progress.actual());
     EXPECT_EQ(990, progress.estimated());
@@ -144,7 +144,7 @@ TEST_F(ProgressByMonthFixture, work_during_vacation)
     vacationSchedule.setTargetGoal(dw::Weekday::Friday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Saturday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Sunday, 0);
-    WorkdayTracker vacationTracker;
+    WorkSchedule vacationTracker;
     vacationTracker.addWeekSchedule(period.start(), vacationSchedule);
     const std::vector<int> actualProgress{180, 250, 230, 200, 190};
     const std::vector<GoalProgress> expected{
@@ -180,7 +180,7 @@ TEST_F(ProgressByMonthFixture,
         {GoalProgress::Estimated{110}, GoalProgress::Actual{75}}};
 
     const ProgressOverPeriod progress{
-        a_period, actualProgress, workdayTracker, groupByMonthStrategy};
+        a_period, actualProgress, workSchedule, groupByMonthStrategy};
 
     EXPECT_EQ(275, progress.actual());
     EXPECT_EQ(320, progress.estimated());
@@ -205,7 +205,7 @@ TEST_F(ProgressByMonthFixture,
         {GoalProgress::Estimated{220}, GoalProgress::Actual{75}}};
 
     const ProgressOverPeriod progress{
-        a_period, actualProgress, workdayTracker, groupByMonthStrategy};
+        a_period, actualProgress, workSchedule, groupByMonthStrategy};
 
     EXPECT_EQ(275, progress.actual());
     EXPECT_EQ(430, progress.estimated());

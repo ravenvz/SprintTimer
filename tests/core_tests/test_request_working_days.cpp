@@ -35,11 +35,10 @@ public:
 
 TEST_F(RequestWorkingDaysFixture, execute)
 {
-    using sprint_timer::WorkdayTracker;
+    using sprint_timer::WorkSchedule;
     using sprint_timer::use_cases::RequestWorkingDays;
     EXPECT_CALL(working_days_storage_mock, requestData(_)).Times(1);
 
     queryInvoker.execute(std::make_unique<RequestWorkingDays>(
-        working_days_storage_mock,
-        [](const WorkdayTracker& workdayTracker) {}));
+        working_days_storage_mock, [](const WorkSchedule& workSchedule) {}));
 }

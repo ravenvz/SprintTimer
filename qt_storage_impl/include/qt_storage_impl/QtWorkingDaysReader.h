@@ -40,7 +40,7 @@ public:
 private:
     struct Context {
         IWorkingDaysReader::ResultHandler handler;
-        WorkdayTracker tracker;
+        WorkSchedule workSchedule;
     };
 
     DBService& dbService;

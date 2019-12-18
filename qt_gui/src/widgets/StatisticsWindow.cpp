@@ -35,7 +35,7 @@ StatisticsWindow::StatisticsWindow(
     std::unique_ptr<DateRangePicker> dateRangePicker_,
     std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph_,
     std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget_,
-    const WorkdayTrackerModel& workdayTrackerModel_,
+    const WorkScheduleModel& workScheduleModel_,
     ISprintStorageReader& sprintReader_,
     QueryInvoker& queryInvoker_,
     DatasyncRelay& datasyncRelay_,
@@ -44,7 +44,7 @@ StatisticsWindow::StatisticsWindow(
     , dateRangePicker{dateRangePicker_.get()}
     , dailyTimelineGraph{dailyTimelineGraph_.get()}
     , statisticsDiagramWidget{statisticsDiagramWidget_.get()}
-    , workdayTrackerModel{workdayTrackerModel_}
+    , workScheduleModel{workScheduleModel_}
     , sprintReader{sprintReader_}
     , queryInvoker{queryInvoker_}
 {
@@ -62,9 +62,9 @@ StatisticsWindow::StatisticsWindow(
             &StatisticsDiagramWidget::tagSelectionChanged,
             this,
             &StatisticsWindow::onTagSelected);
-    connect(&workdayTrackerModel,
-            &WorkdayTrackerModel::workdaysChanged,
-            [this](const WorkdayTracker&) { updateViews(); });
+    connect(&workScheduleModel,
+            &WorkScheduleModel::workScheduleChanged,
+            [this](const WorkSchedule&) { updateViews(); });
     connect(dateRangePicker,
             &DateRangePicker::selectedDateRangeChanged,
             this,
@@ -102,8 +102,8 @@ void StatisticsWindow::updateViews()
     const auto dailyDistribution =
         dailyStatistics(interestingSprints, dateRange);
     const int workdays =
-        numWorkdays(workdayTrackerModel.workdayTracker(), dateRange);
-    const int goal = goalFor(workdayTrackerModel.workdayTracker(), dateRange);
+        numWorkdays(workScheduleModel.workSchedule(), dateRange);
+    const int goal = goalFor(workScheduleModel.workSchedule(), dateRange);
     dailyTimelineGraph->setData(dailyStatistics(interestingSprints, dateRange),
                                 dateRange,
                                 workdays,

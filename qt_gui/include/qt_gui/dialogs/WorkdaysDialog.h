@@ -24,7 +24,7 @@
 
 #include "qt_gui/WorkdaysChangeListener.h"
 #include "qt_gui/dialogs/AddExceptionalDayDialog.h"
-#include "qt_gui/models/WorkdayTrackerModel.h"
+#include "qt_gui/models/WorkScheduleModel.h"
 #include <QAbstractListModel>
 #include <QDialog>
 #include <memory>
@@ -41,8 +41,8 @@ class WorkdaysDialog : public QDialog, public WorkdaysChangeListener {
 public:
     explicit WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog,
                             QAbstractItemModel& exceptionalDaysModel,
-                            WorkdayTrackerModel& workdaysModel,
-                            QAbstractItemModel& scheduleModel,
+                            WorkScheduleModel& workScheduleModel,
+                            QAbstractItemModel& weekScheduleModel,
                             QDialog* parent = nullptr);
 
     ~WorkdaysDialog() override;
@@ -54,16 +54,17 @@ public:
 private:
     std::unique_ptr<Ui::WorkdaysDialog> ui;
     AddExceptionalDayDialog& pickDateDialog;
-    WorkdayTrackerModel& workdaysModel;
-    WorkdayTracker candidateTracker;
+    WorkScheduleModel& workScheduleModel;
+    WorkSchedule candidateSchedule;
 
-    void onWorkdayTrackerChanged(const WorkdayTracker& updatedTracker) override;
+    void
+    onWorkScheduleChanged(const WorkSchedule& updatedWorkSchedule) override;
 
-    void updateWorkdaysView(const WorkdayTracker& updatedTracker);
+    void updateWorkdaysView(const WorkSchedule& updatedWorkSchedule);
 
-    void updateSchedulesView(const WorkdayTracker& updatedTracker);
+    void updateSchedulesView(const WorkSchedule& updatedWorkSchedule);
 
-    void initializeDayBoxes(const WeekSchedule& schedule);
+    void initializeDayBoxes(const WeekSchedule& weekSchedule);
 
     WeekSchedule pollSchedule() const;
 
@@ -77,6 +78,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: WORKDAYSDIALOG_H_NVZH9CRG */

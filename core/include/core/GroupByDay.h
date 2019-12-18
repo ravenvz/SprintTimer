@@ -31,7 +31,7 @@ public:
     std::vector<GoalProgress>
     computeProgress(const dw::DateRange& dateRange,
                     const std::vector<int>& actualProgress,
-                    const WorkdayTracker& workdayTracker) const override;
+                    const WorkSchedule& workSchedule) const override;
 };
 
 } // namespace sprint_timer

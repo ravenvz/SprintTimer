@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/models/ScheduleModel.h"
+#include "qt_gui/models/WeekScheduleModel.h"
 #include <QMetaType>
 #include <QString>
 
@@ -30,25 +30,23 @@ namespace {
 QString describeSchedule(const sprint_timer::WeekSchedule& schedule,
                          dw::Weekday firstDayOfWeek);
 
-
-
 } // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
-ScheduleModel::ScheduleModel(const IConfig& applicationSettings_,
-                             QObject* parent_)
+WeekScheduleModel::WeekScheduleModel(const IConfig& applicationSettings_,
+                                     QObject* parent_)
     : QAbstractListModel{parent_}
     , applicationSettings{applicationSettings_}
 {
 }
 
-int ScheduleModel::rowCount(const QModelIndex& parent) const
+int WeekScheduleModel::rowCount(const QModelIndex& parent) const
 {
     return static_cast<int>(data_.size());
 }
 
-bool ScheduleModel::insertRows(int row, int count, const QModelIndex& index)
+bool WeekScheduleModel::insertRows(int row, int count, const QModelIndex& index)
 {
     if (count <= 0 || row < 0)
         return false;
@@ -58,17 +56,17 @@ bool ScheduleModel::insertRows(int row, int count, const QModelIndex& index)
     return true;
 }
 
-bool ScheduleModel::removeRows(int row, int count, const QModelIndex& index)
+bool WeekScheduleModel::removeRows(int row, int count, const QModelIndex& index)
 {
-	if (count <= 0 || row < 0 || (row + count) > rowCount(index))
-		return false;
+    if (count <= 0 || row < 0 || (row + count) > rowCount(index))
+        return false;
     beginRemoveRows(index, row, row + count - 1);
     data_.erase(data_.begin() + row, data_.begin() + row + count);
     endRemoveRows();
     return true;
 }
 
-QVariant ScheduleModel::data(const QModelIndex& index, int role) const
+QVariant WeekScheduleModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -94,9 +92,9 @@ QVariant ScheduleModel::data(const QModelIndex& index, int role) const
     }
 }
 
-bool ScheduleModel::setData(const QModelIndex& index,
-                            const QVariant& data,
-                            int role)
+bool WeekScheduleModel::setData(const QModelIndex& index,
+                                const QVariant& data,
+                                int role)
 {
     if (!index.isValid() || role != Qt::EditRole)
         return false;
@@ -108,7 +106,7 @@ bool ScheduleModel::setData(const QModelIndex& index,
     return true;
 }
 
-void ScheduleModel::sort(int column, Qt::SortOrder order)
+void WeekScheduleModel::sort(int column, Qt::SortOrder order)
 {
     emit layoutAboutToBeChanged();
     if (order == Qt::AscendingOrder)

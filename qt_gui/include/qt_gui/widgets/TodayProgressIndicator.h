@@ -22,7 +22,7 @@
 #ifndef TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
 #define TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
 
-#include "qt_gui/models/WorkdayTrackerModel.h"
+#include "qt_gui/models/WorkScheduleModel.h"
 #include <QAbstractItemModel>
 #include <QLabel>
 #include <QWidget>
@@ -33,7 +33,7 @@ namespace sprint_timer::ui::qt_gui {
 class TodayProgressIndicator : public QLabel {
 public:
     TodayProgressIndicator(const QAbstractItemModel& todaySprintsModel,
-                           const WorkdayTrackerModel& workdayTrackerModel,
+                           const WorkScheduleModel& workScheduleModel,
                            QWidget* parent = nullptr);
 
 private:

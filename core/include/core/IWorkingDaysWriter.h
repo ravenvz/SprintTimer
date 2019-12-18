@@ -22,7 +22,7 @@
 #ifndef IWORKINGDAYWRITER_H_MX1NQTVU
 #define IWORKINGDAYWRITER_H_MX1NQTVU
 
-#include "core/WorkdayTracker.h"
+#include "core/WorkSchedule.h"
 
 namespace sprint_timer {
 
@@ -30,7 +30,7 @@ class IWorkingDaysWriter {
 public:
     virtual ~IWorkingDaysWriter() = default;
 
-    virtual void changeWorkingDays(const WorkdayTracker& tracker) = 0;
+    virtual void changeWorkingDays(const WorkSchedule& workSchedule) = 0;
 };
 
 } // namespace sprint_timer

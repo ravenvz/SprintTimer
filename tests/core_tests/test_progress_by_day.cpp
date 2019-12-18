@@ -28,7 +28,7 @@
 using sprint_timer::GoalProgress;
 using sprint_timer::ProgressOverPeriod;
 using sprint_timer::WeekSchedule;
-using sprint_timer::WorkdayTracker;
+using sprint_timer::WorkSchedule;
 
 using namespace dw;
 
@@ -36,23 +36,23 @@ using namespace dw;
  * These tests focus on testing ProgressOverPeriod features together with
  * GroupByDay strategy. They do not test odd combinations of WeekSchedules or
  * addition of exceptional days trusting that these things are tested in
- * WorkdayTracker tests.
+ * WorkSchedule tests.
  */
 
 class ProgressByDayFixture : public ::testing::Test {
 public:
     ProgressByDayFixture()
     {
-        schedule.setTargetGoal(dw::Weekday::Monday, 13);
-        schedule.setTargetGoal(dw::Weekday::Tuesday, 13);
-        schedule.setTargetGoal(dw::Weekday::Wednesday, 13);
-        schedule.setTargetGoal(dw::Weekday::Thursday, 13);
-        schedule.setTargetGoal(dw::Weekday::Friday, 13);
-        workdayTracker.addWeekSchedule(period.start(), schedule);
+        weekSchedule.setTargetGoal(dw::Weekday::Monday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Tuesday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Wednesday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Thursday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Friday, 13);
+        workSchedule.addWeekSchedule(period.start(), weekSchedule);
     }
 
-    WeekSchedule schedule;
-    WorkdayTracker workdayTracker;
+    WeekSchedule weekSchedule;
+    WorkSchedule workSchedule;
 
     const DateRange period{Date{Year{2019}, Month{1}, Day{30}},
                            Date{Year{2019}, Month{2}, Day{4}}};
@@ -73,7 +73,7 @@ TEST_F(ProgressByDayFixture, handles_empty_actual_progress)
         {GoalProgress::Estimated{13}, GoalProgress::Actual{0}}};
 
     const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByDayStrategy};
+        period, actualProgress, workSchedule, groupByDayStrategy};
 
     EXPECT_EQ(0, progress.actual());
     EXPECT_DOUBLE_EQ(0, *progress.averagePerGroupPeriod());
@@ -101,7 +101,7 @@ TEST_F(ProgressByDayFixture, underwork)
         {GoalProgress::Estimated{13}, GoalProgress::Actual{10}}};
 
     const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByDayStrategy};
+        period, actualProgress, workSchedule, groupByDayStrategy};
 
     EXPECT_EQ(46, progress.actual());
     EXPECT_DOUBLE_EQ(11.5, *progress.averagePerGroupPeriod());
@@ -129,7 +129,7 @@ TEST_F(ProgressByDayFixture, overwork)
         {GoalProgress::Estimated{13}, GoalProgress::Actual{12}}};
 
     const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByDayStrategy};
+        period, actualProgress, workSchedule, groupByDayStrategy};
 
     EXPECT_EQ(64, progress.actual());
     EXPECT_DOUBLE_EQ(16, *progress.averagePerGroupPeriod());
@@ -156,7 +156,7 @@ TEST_F(ProgressByDayFixture, work_during_vacation)
     vacationSchedule.setTargetGoal(dw::Weekday::Friday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Saturday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Sunday, 0);
-    WorkdayTracker vacationTracker;
+    WorkSchedule vacationTracker;
     vacationTracker.addWeekSchedule(start, vacationSchedule);
     const std::vector<int> actualProgress{15, 13, 14, 0, 10, 12};
     const std::vector<GoalProgress> expected{

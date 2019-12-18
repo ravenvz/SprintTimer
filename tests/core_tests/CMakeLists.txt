@@ -37,7 +37,7 @@ target_sources(${TEST_CORE}
     "${CMAKE_CURRENT_LIST_DIR}/test_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task_builder.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_toggle_task_completion_status.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/test_workday_tracker.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_work_schedule.cpp"
 )
 
 target_compile_features(${TEST_CORE} PRIVATE cxx_std_17)

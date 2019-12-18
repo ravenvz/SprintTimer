@@ -24,7 +24,7 @@
 
 #include "qt_gui/Synchronizable.h"
 #include "qt_gui/WorkdaysChangeListener.h"
-#include "qt_gui/models/WorkdayTrackerModel.h"
+#include "qt_gui/models/WorkScheduleModel.h"
 #include <QObject>
 #include <core/ISprintDistributionReader.h>
 #include <core/ProgressOverPeriod.h>
@@ -43,7 +43,7 @@ public:
     ProgressModel(const GroupingStrategy& groupingStrategy,
                   QueryInvoker& queryInvoker,
                   ISprintDistributionReader& distributionReader,
-                  const WorkdayTrackerModel& workdaysModel,
+                  const WorkScheduleModel& workdaysModel,
                   QObject* parent = nullptr)
         : groupingStrategy{groupingStrategy}
         , queryInvoker{queryInvoker}
@@ -64,17 +64,17 @@ public:
             }));
     }
 
-    void onWorkdayTrackerChanged(const WorkdayTracker& newTracker) override
+    void onWorkScheduleChanged(const WorkSchedule& newWorkSchedule) override
     {
         progressData = std::make_unique<ProgressOverPeriod>(
-            distribution, workdaysModel.workdayTracker(), groupingStrategy);
+            distribution, workdaysModel.workSchedule(), groupingStrategy);
     }
 
 private:
     const GroupingStrategy& groupingStrategy;
     QueryInvoker& queryInvoker;
     ISprintDistributionReader& reader;
-    const WorkdayTrackerModel& workdaysModel;
+    const WorkScheduleModel& workdaysModel;
     std::unique_ptr<ProgressOverPeriod> progressData;
     Distribution<int> distribution;
 
@@ -82,7 +82,7 @@ private:
     {
         distribution = updatedDistribution;
         progressData = std::make_unique<ProgressOverPeriod>(
-            distribution, workdaysModel.workdayTracker(), groupingStrategy);
+            distribution, workdaysModel.workSchedule(), groupingStrategy);
     }
 };
 

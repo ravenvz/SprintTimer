@@ -30,7 +30,7 @@ public:
     MOCK_METHOD1(requestData,
                  void(sprint_timer::IWorkingDaysReader::ResultHandler));
 
-    MOCK_METHOD1(changeWorkingDays, void(const sprint_timer::WorkdayTracker&));
+    MOCK_METHOD1(changeWorkingDays, void(const sprint_timer::WorkSchedule&));
 
     MOCK_METHOD1(addExtraHolidays, void(const std::vector<dw::Date>&));
 

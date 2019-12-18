@@ -24,7 +24,7 @@
 
 #include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/Synchronizable.h"
-#include "qt_gui/models/WorkdayTrackerModel.h"
+#include "qt_gui/models/WorkScheduleModel.h"
 #include "qt_gui/widgets/DailyTimelineGraph.h"
 #include "qt_gui/widgets/DateRangePicker.h"
 #include "qt_gui/widgets/StatisticsDiagramWidget.h"
@@ -45,7 +45,7 @@ public:
         std::unique_ptr<DateRangePicker> dateRangePicker,
         std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph,
         std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget,
-        const WorkdayTrackerModel& workdayTrackerModel,
+        const WorkScheduleModel& workScheduleModel,
         ISprintStorageReader& sprintReader,
         QueryInvoker& queryInvoker,
         DatasyncRelay& datasyncRelay,
@@ -59,7 +59,7 @@ private:
     DateRangePicker* dateRangePicker;
     DailyTimelineGraph* dailyTimelineGraph;
     StatisticsDiagramWidget* statisticsDiagramWidget;
-    const WorkdayTrackerModel& workdayTrackerModel;
+    const WorkScheduleModel& workScheduleModel;
     ISprintStorageReader& sprintReader;
     QueryInvoker& queryInvoker;
     std::vector<entities::Sprint> sprints;
