@@ -47,7 +47,7 @@ TaskView::TaskView(TaskModel& taskModel_,
                    QueryInvoker& queryInvoker_,
                    TaskSprintsView& sprintsForTaskView_,
                    AddTaskDialog& editTaskDialog_,
-                   std::unique_ptr<TagEditor> tagEditor_,
+                   std::unique_ptr<QWidget> tagEditor_,
                    QStyledItemDelegate& delegate_,
                    QWidget* parent_)
     : ReordableListView{parent_}

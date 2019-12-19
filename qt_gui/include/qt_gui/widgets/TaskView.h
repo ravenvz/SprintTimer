@@ -50,7 +50,7 @@ public:
              QueryInvoker& queryInvoker,
              TaskSprintsView& sprintsForTaskView,
              AddTaskDialog& editTaskDialog,
-             std::unique_ptr<TagEditor> tagEditor,
+             std::unique_ptr<QWidget> tagEditor,
              QStyledItemDelegate& delegate,
              QWidget* parent = nullptr);
 
@@ -68,7 +68,7 @@ private:
     QueryInvoker& queryInvoker;
     TaskSprintsView& sprintsForTaskView;
     AddTaskDialog& editTaskDialog;
-    std::unique_ptr<TagEditor> tagEditor;
+    std::unique_ptr<QWidget> tagEditor;
     std::optional<int> selectedRow;
 
     void showSprintsForTask() const;
