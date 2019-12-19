@@ -77,6 +77,7 @@
 #include <qt_gui/models/TagModel.h>
 #include <qt_gui/models/WeekScheduleModel.h>
 #include <qt_gui/models/WorkScheduleModel.h>
+#include <qt_gui/widgets/AutodisablingButton.h>
 #include <qt_gui/widgets/ContextMenuListView.h>
 #include <qt_gui/widgets/DailyTimelineGraph.h>
 #include <qt_gui/widgets/DateRangePicker.h>
@@ -342,17 +343,9 @@ int main(int argc, char* argv[])
     UndoDialog undoDialog{commandInvoker};
 
     auto undoButton = std::make_unique<UndoButton>(commandInvoker);
-    auto addNewSprintButton =
-        std::make_unique<QPushButton>("Add Sprint Manually");
+    auto addNewSprintButton = std::make_unique<AutodisablingButton>(
+        unfinishedTasksModel, "Add Sprint Manually");
     addNewSprintButton->setEnabled(false);
-    // TODO if we want to remove connect from here, we have to wrap this into
-    // object
-    QObject::connect(&unfinishedTasksModel,
-                     &QAbstractListModel::modelReset,
-                     [btn = addNewSprintButton.get(), &unfinishedTasksModel]() {
-                         btn->setEnabled(
-                             unfinishedTasksModel.rowCount(QModelIndex{}) != 0);
-                     });
     auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
     sprintView->setModel(&todaySprintsModel);
     auto sprintOutline =
