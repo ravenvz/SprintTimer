@@ -31,8 +31,6 @@
 #include <core/utils/CSVEncoder.h>
 #include <fstream>
 
-#include <QDebug>
-
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
@@ -92,10 +90,7 @@ HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader_,
             &HistoryWindow::onTabSelected);
     connect(dateRangePicker,
             &DateRangePicker::selectedDateRangeChanged,
-            [this](const dw::DateRange&) {
-                qDebug() << "HistoryWindow date range changed";
-                synchronize();
-            });
+            [this](const dw::DateRange&) { synchronize(); });
     connect(ui->exportButton,
             &QPushButton::clicked,
             this,
@@ -110,7 +105,6 @@ HistoryWindow::~HistoryWindow() = default;
 
 void HistoryWindow::synchronize()
 {
-    qDebug() << "HistoryWindow requesting sprints";
     std::visit(HistoryRequestedEvent{*this}, state);
 }
 

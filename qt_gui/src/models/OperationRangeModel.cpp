@@ -22,29 +22,76 @@
 #include "qt_gui/models/OperationRangeModel.h"
 #include <core/use_cases/RequestOperationalRange.h>
 
+namespace {
+
+QStringList toDateStrings(const dw::DateRange& dateRange);
+
+} // namespace
+
 namespace sprint_timer::ui::qt_gui {
 
 OperationRangeModel::OperationRangeModel(IOperationalRangeReader& reader_,
-                                         QueryInvoker& queryInvoker_)
-    : reader{reader_}
+                                         QueryInvoker& queryInvoker_,
+                                         DatasyncRelay& datasyncRelay_,
+                                         QObject* parent_)
+    : AsyncListModel{parent_}
+    , reader{reader_}
     , queryInvoker{queryInvoker_}
 {
-    requestDataUpdate();
+    connect(&datasyncRelay_,
+            &DatasyncRelay::dataUpdateRequiered,
+            this,
+            &AsyncListModel::requestSilentDataUpdate);
 }
 
-dw::DateRange OperationRangeModel::operationRange() const
+int OperationRangeModel::rowCount(const QModelIndex& parent) const
 {
-    return min_max_date;
+    return storage.size();
 }
 
-void OperationRangeModel::requestDataUpdate()
+QVariant OperationRangeModel::data(const QModelIndex& index, int role) const
+{
+    if (!index.isValid())
+        return QVariant{};
+    if (role != Qt::DisplayRole)
+        return QVariant{};
+
+    return storage[index.row()];
+}
+
+void OperationRangeModel::requestUpdate()
 {
     using use_cases::RequestOperationalRange;
     queryInvoker.execute(std::make_unique<RequestOperationalRange>(
         reader, [this](const auto& updatedRange) {
-            min_max_date = updatedRange;
-            emit operationRangeUpdated(min_max_date);
+            const int firstYear{static_cast<int>(updatedRange.start().year())};
+            const int lastYear{static_cast<int>(updatedRange.finish().year())};
+            // If number of years is not changed, no need to do anything as
+            // storage would be up to date.
+            // In practice, model would be reset when it is first
+            // populated (at program start), or when someone works around new
+            // year or submits Sprint for the next year.
+            if (storage.size() == lastYear - firstYear + 1)
+                return;
+            beginResetModel();
+            storage = toDateStrings(updatedRange);
+            endResetModel();
         }));
 }
 
 } // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+QStringList toDateStrings(const dw::DateRange& dateRange)
+{
+    QStringList dates;
+    int startYear{static_cast<int>(dateRange.start().year())};
+    const int endYear{static_cast<int>(dateRange.finish().year())};
+    for (int current = startYear; current <= endYear; ++current) {
+        dates.push_back(QString{"%1"}.arg(current));
+    }
+    return dates;
+}
+
+} // namespace

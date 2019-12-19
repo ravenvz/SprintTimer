@@ -22,31 +22,33 @@
 #ifndef OPERATIONRANGEMODEL_H_EZACWVF7
 #define OPERATIONRANGEMODEL_H_EZACWVF7
 
-#include <QObject>
+#include "qt_gui/DatasyncRelay.h"
+#include "qt_gui/models/AsyncListModel.h"
 #include <core/IOperationalRangeReader.h>
 #include <core/QueryInvoker.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class OperationRangeModel : public QObject {
+class OperationRangeModel : public AsyncListModel {
 
     Q_OBJECT
 
 public:
     OperationRangeModel(IOperationalRangeReader& yearRangeReader,
-                        QueryInvoker& queryInvoker);
+                        QueryInvoker& queryInvoker,
+                        DatasyncRelay& datasyncRelay,
+                        QObject* parent = nullptr);
 
-    dw::DateRange operationRange() const;
+    int rowCount(const QModelIndex& parent) const final;
 
-    void requestDataUpdate();
-
-signals:
-    void operationRangeUpdated(const dw::DateRange&);
+    QVariant data(const QModelIndex& index, int role) const final;
 
 private:
     IOperationalRangeReader& reader;
     QueryInvoker& queryInvoker;
-    dw::DateRange min_max_date{dw::current_date(), dw::current_date()};
+    QStringList storage;
+
+    void requestUpdate() override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

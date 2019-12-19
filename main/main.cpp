@@ -362,8 +362,8 @@ int main(int argc, char* argv[])
                                         std::move(addNewSprintButton),
                                         std::move(sprintView));
 
-    OperationRangeModel operationRangeModel{*operationRangeReader,
-                                            queryInvoker};
+    OperationRangeModel operationRangeModel{
+        *operationRangeReader, queryInvoker, datasyncRelay};
     auto statisticsWindowDateRangePicker = std::make_unique<DateRangePicker>(
         std::make_unique<DateRangePickDialog>(applicationSettings),
         operationRangeModel);
