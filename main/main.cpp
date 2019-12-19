@@ -82,6 +82,7 @@
 #include <qt_gui/widgets/DailyTimelineGraph.h>
 #include <qt_gui/widgets/DateRangePicker.h>
 #include <qt_gui/widgets/DefaultTimer.h>
+#include <qt_gui/widgets/DialogLaunchButton.h>
 #include <qt_gui/widgets/FancyTimer.h>
 #include <qt_gui/widgets/HistoryWindow.h>
 #include <qt_gui/widgets/LauncherMenu.h>
@@ -405,10 +406,8 @@ int main(int argc, char* argv[])
     dailyProgress->setLegendTitle("Last 30 days");
     dailyProgress->setLegendAverageCaption("Average per day:");
 
-    auto configureWorkdaysButton = std::make_unique<QPushButton>("Configure");
-    QObject::connect(configureWorkdaysButton.get(),
-                     &QPushButton::clicked,
-                     [&workdaysDialog]() { workdaysDialog.exec(); });
+    auto configureWorkdaysButton =
+        std::make_unique<DialogLaunchButton>(workdaysDialog, "Configure");
     dailyProgress->addLegendRow("Workdays", configureWorkdaysButton.release());
 
     const int distributionWeeks{12};
