@@ -75,6 +75,7 @@
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/OperationRangeModel.h>
 #include <qt_gui/models/TagModel.h>
+#include <qt_gui/models/TaskModel.h>
 #include <qt_gui/models/WeekScheduleModel.h>
 #include <qt_gui/models/WorkScheduleModel.h>
 #include <qt_gui/widgets/AutodisablingButton.h>

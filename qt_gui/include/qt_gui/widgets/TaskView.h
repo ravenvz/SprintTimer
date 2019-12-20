@@ -22,9 +22,11 @@
 #ifndef TASKVIEW_H_AC0ZCTZN
 #define TASKVIEW_H_AC0ZCTZN
 
-#include "qt_gui/models/TaskModel.h"
 #include "qt_gui/widgets/ReordableListView.h"
+#include <QAbstractItemModel>
 #include <QStyledItemDelegate>
+#include <core/ISprintStorageReader.h>
+#include <core/QueryInvoker.h>
 #include <optional>
 
 #ifdef _MSC_VER
@@ -45,7 +47,7 @@ class TaskView : public ReordableListView {
     Q_OBJECT
 
 public:
-    TaskView(TaskModel& taskModel,
+    TaskView(QAbstractItemModel& taskModel,
              ISprintStorageReader& sprintReader,
              QueryInvoker& queryInvoker,
              TaskSprintsView& sprintsForTaskView,
@@ -63,7 +65,6 @@ signals:
     void taskSelected(int taskRow);
 
 private:
-    TaskModel& taskModel;
     ISprintStorageReader& sprintReader;
     QueryInvoker& queryInvoker;
     TaskSprintsView& sprintsForTaskView;

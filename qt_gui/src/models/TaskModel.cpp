@@ -20,6 +20,8 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/TaskModel.h"
+#include "qt_gui/metatypes/TaskMetaType.h"
+#include "qt_gui/models/TaskModelRoles.h"
 #include <QSize>
 #include <QTimer>
 #include <core/use_cases/AddNewTask.h>
@@ -54,7 +56,6 @@ TaskModel::TaskModel(ITaskStorage& taskStorage_,
             &DatasyncRelay::dataUpdateRequiered,
             this,
             &AsyncListModel::requestSilentDataUpdate);
-    // requestSilentDataUpdate();
 }
 
 void TaskModel::requestUpdate()
@@ -104,72 +105,68 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
             .arg(QString::fromStdString(taskRef.name()))
             .arg(taskRef.actualCost())
             .arg(taskRef.estimatedCost());
-    case TagsRole:
+
+    case static_cast<int>(TaskModelRoles::GetTags):
         return QString::fromStdString(prefixTags(taskRef.tags()));
-    case DescriptionRole:
+
+    case static_cast<int>(TaskModelRoles::GetName):
         return QString::fromStdString(taskRef.name());
-    case StatsRole:
+
+    case static_cast<int>(TaskModelRoles::GetIdRole):
+        // TODO analyze usages, as casting back and forth to QString might not
+        // be neccessary
+        return QString::fromStdString(taskRef.uuid());
+
+    case static_cast<int>(TaskModelRoles::GetStats):
         return QString("%1/%2")
             .arg(taskRef.actualCost())
             .arg(taskRef.estimatedCost());
+
     case Qt::CheckStateRole:
         return taskRef.isCompleted();
-    case GetFinishedSprintsRole:
-        return taskRef.actualCost();
+
+    case static_cast<int>(TaskModelRoles::GetItem): {
+        QVariant var;
+        var.setValue(taskRef);
+        return var;
+    }
+
     default:
         return QVariant();
     }
 }
 
-int TaskModel::rowCount(const QModelIndex& parent) const
+bool TaskModel::setData(const QModelIndex& index,
+                        const QVariant& value,
+                        int role)
 {
-    return static_cast<int>(storage.size());
-}
+    if (!index.isValid())
+        return false;
 
-void TaskModel::insert(const Task& item)
-{
-    commandInvoker.executeCommand(
-        std::make_unique<AddNewTask>(taskStorage, item));
-    requestDataUpdate();
-}
+    switch (role) {
 
-void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
+    case static_cast<int>(TaskModelRoles::Insert): {
+        if (index.row() != static_cast<int>(storage.size()) - 1)
+            return false;
+        insert(value.value<Task>());
+        return true;
+    }
 
-void TaskModel::remove(int row)
-{
-    beginRemoveRows(QModelIndex(), row, row);
-    commandInvoker.executeCommand(
-        std::make_unique<DeleteTask>(taskStorage, sprintStorage, itemAt(row)));
-    storage.erase(storage.begin() + row);
-    endRemoveRows();
-    // TODO
-    // As a workaround, data update is delayed, because delete operation
-    // takes quite a long time (time is needed to collect sprints) and
-    // in current implementation we have no way to know if command is
-    // completed or not. This should be replaced when more flexible
-    // approach is introduced.
-    QTimer::singleShot(std::chrono::seconds{1},
-                       [this]() { requestDataUpdate(); });
-}
+    case static_cast<int>(TaskModelRoles::Replace): {
+        if (index.row() < 0 || index.row() >= static_cast<int>(storage.size()))
+            return false;
 
-Task TaskModel::itemAt(int row) const
-{
-    return storage.at(static_cast<size_t>(row));
-}
+        replaceItemAt(index.row(), value.value<Task>());
+        return true;
+    }
 
-void TaskModel::toggleCompleted(const QModelIndex& index)
-{
-    commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
-        taskStorage, itemAt(index.row())));
-    requestDataUpdate();
-}
+    case static_cast<int>(TaskModelRoles::ToggleCompletion):
+        toggleCompleted(index);
+        return true;
 
-void TaskModel::replaceItemAt(int row, const Task& newItem)
-{
-    Task oldItem = itemAt(row);
-    commandInvoker.executeCommand(
-        std::make_unique<EditTask>(taskStorage, oldItem, newItem));
-    requestDataUpdate();
+    default:
+        return false;
+    }
 }
 
 bool TaskModel::moveRows(const QModelIndex& sourceParent,
@@ -212,6 +209,88 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
         taskStorage, std::move(old_order), std::move(new_order)));
 
     return true;
+}
+
+bool TaskModel::removeRows(int row, int count, const QModelIndex& parent)
+{
+    // Removing multiple rows is unsupported for now
+    if (count != 1)
+        return false;
+
+    if (row < 0 || row >= static_cast<int>(storage.size()))
+        return false;
+
+    // Calling beginRemoveRows and endRemoveRows might not have much sense now,
+    // as all model data will be replaced asynchroniously
+    beginRemoveRows(parent, row, row + count - 1);
+    remove(row);
+    endRemoveRows();
+    return true;
+}
+
+bool TaskModel::insertRows(int row, int count, const QModelIndex& parent)
+{
+    // Only support inserting one item after the last row
+    if (row != static_cast<int>(storage.size()) || count != 1)
+        return false;
+
+    beginInsertRows(parent, rowCount(parent), rowCount(parent));
+    storage.push_back(Task{});
+    endInsertRows();
+    return true;
+}
+
+int TaskModel::rowCount(const QModelIndex& parent) const
+{
+    return static_cast<int>(storage.size());
+}
+
+void TaskModel::insert(const Task& item)
+{
+    commandInvoker.executeCommand(
+        std::make_unique<AddNewTask>(taskStorage, item));
+    requestDataUpdate();
+}
+
+void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
+
+void TaskModel::remove(int row)
+{
+    beginRemoveRows(QModelIndex(), row, row);
+    commandInvoker.executeCommand(
+        std::make_unique<DeleteTask>(taskStorage, sprintStorage, itemAt(row)));
+    storage.erase(storage.begin() + row);
+    endRemoveRows();
+    // TODO
+    // As a workaround, data update is delayed, because delete operation
+    // takes quite a long time (time is needed to collect sprints) and
+    // in current implementation we have no way to know if command is
+    // completed or not. This should be replaced when more flexible
+    // approach is introduced.
+    QTimer::singleShot(std::chrono::seconds{1},
+                       [this]() { requestDataUpdate(); });
+}
+
+Task TaskModel::itemAt(int row) const
+{
+    return storage.at(static_cast<size_t>(row));
+}
+
+void TaskModel::toggleCompleted(const QModelIndex& index)
+{
+    if (!index.isValid())
+        return;
+    commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
+        taskStorage, itemAt(index.row())));
+    requestDataUpdate();
+}
+
+void TaskModel::replaceItemAt(int row, const Task& newItem)
+{
+    Task oldItem = itemAt(row);
+    commandInvoker.executeCommand(
+        std::make_unique<EditTask>(taskStorage, oldItem, newItem));
+    requestDataUpdate();
 }
 
 } // namespace sprint_timer::ui::qt_gui

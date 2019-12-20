@@ -44,62 +44,33 @@ public:
               DatasyncRelay& datasyncRelay,
               QObject* parent = nullptr);
 
-    // Override to support drag and drop.
     Qt::DropActions supportedDropActions() const override;
 
-    // Override to support drag and drop.
     Qt::DropActions supportedDragActions() const override;
 
-    // Override to support drag and drop.
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-    // Override to provide support for custom roles as well as to customize
-    // behaviour
-    // of the default roles.
     QVariant data(const QModelIndex& index, int role) const override;
 
-    // Override to support drag and drop. Changes items' priorities instead of
-    // // removing row and inserting it at destination position as in default
-    // behavour for drag and drop. That default behaviour would not work here,
-    // as sqlite view is set to this model, and removing row from it would have
-    // undesired consequences.
+    bool setData(const QModelIndex& index,
+                 const QVariant& value,
+                 int role = Qt::EditRole) override;
+
     bool moveRows(const QModelIndex& sourceParent,
                   int sourceRow,
                   int count,
                   const QModelIndex& destinationParent,
                   int destinationChild) override;
 
+    bool removeRows(int row,
+                    int count,
+                    const QModelIndex& parent = QModelIndex{}) override;
+
+    bool insertRows(int row,
+                    int count,
+                    const QModelIndex& parent = QModelIndex{}) override;
+
     int rowCount(const QModelIndex& parent) const override;
-
-    enum customRoles {
-        TagsRole = Qt::UserRole + 1,
-        DescriptionRole,
-        StatsRole,
-        GetIdRole,
-        GetFinishedSprintsRole,
-        PriorityRole
-    };
-
-    // Insert new Task into the storage.
-    // Changes are rolled back in case of failure.
-    void insert(const entities::Task& item);
-
-    // Remove item with given index and return boolean, indicating success of
-    // the operation.
-    void remove(const QModelIndex& index);
-
-    // Overload that accepts row number as item identifier.
-    void remove(int row);
-
-    // Return item at given row. This is a convinient method that allows to get
-    // item without verbose calls to data().
-    entities::Task itemAt(int row) const;
-
-    // Mark item as completed if it is not completed and vice versa.
-    void toggleCompleted(const QModelIndex& index);
-
-    // Replace data of item at given row with data from the newItem.
-    void replaceItemAt(int row, const entities::Task& newItem);
 
 private:
     ITaskStorage& taskStorage;
@@ -108,22 +79,22 @@ private:
     QueryInvoker& queryInvoker;
     DatasyncRelay& datasyncRelay;
     std::vector<entities::Task> storage;
-    // Sql helper queries that are needed to maintain database invariants.
-    enum class Column {
-        Id,
-        Name,
-        EstimatedCost,
-        ActualCost,
-        Priority,
-        Completed,
-        Tags,
-        LastModified,
-        Uuid
-    };
 
     void requestUpdate() final;
 
     void onDataChanged(const std::vector<entities::Task>& tasks);
+
+    void insert(const entities::Task& item);
+
+    void remove(const QModelIndex& index);
+
+    void remove(int row);
+
+    entities::Task itemAt(int row) const;
+
+    void toggleCompleted(const QModelIndex& index);
+
+    void replaceItemAt(int row, const entities::Task& newItem);
 };
 
 } // namespace sprint_timer::ui::qt_gui
