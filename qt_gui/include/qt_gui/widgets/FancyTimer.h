@@ -38,6 +38,7 @@ class FancyTimer : public TimerWidgetBase {
 public:
     FancyTimer(const IConfig& applicationSettings,
                QAbstractItemModel& taskModel,
+               QAbstractItemModel& sprintModel,
                QWidget* parent);
     ~FancyTimer() override;
 

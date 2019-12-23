@@ -27,8 +27,9 @@ namespace sprint_timer::ui::qt_gui {
 
 DefaultTimer::DefaultTimer(const IConfig& applicationSettings_,
                            QAbstractItemModel& taskModel_,
+                           QAbstractItemModel& sprintModel_,
                            QWidget* parent_)
-    : TimerWidgetBase{applicationSettings_, parent_}
+    : TimerWidgetBase{applicationSettings_, sprintModel_, parent_}
     , ui{std::make_unique<Ui::DefaultTimer>()}
 {
     ui->setupUi(this);

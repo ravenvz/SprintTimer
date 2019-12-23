@@ -480,11 +480,15 @@ int main(int argc, char* argv[])
     std::unique_ptr<TimerWidgetBase> timerWidget;
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
-        timerWidget = std::make_unique<DefaultTimer>(
-            applicationSettings, unfinishedTasksModel, nullptr);
+        timerWidget = std::make_unique<DefaultTimer>(applicationSettings,
+                                                     unfinishedTasksModel,
+                                                     todaySprintsModel,
+                                                     nullptr);
     else
-        timerWidget = std::make_unique<FancyTimer>(
-            applicationSettings, unfinishedTasksModel, nullptr);
+        timerWidget = std::make_unique<FancyTimer>(applicationSettings,
+                                                   unfinishedTasksModel,
+                                                   todaySprintsModel,
+                                                   nullptr);
 
     HistoryModel taskSprintsModel;
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};

@@ -40,6 +40,7 @@ class DefaultTimer : public TimerWidgetBase {
 public:
     DefaultTimer(const IConfig& applicationSettings,
                  QAbstractItemModel& taskModel,
+                 QAbstractItemModel& sprintModel,
                  QWidget* parent);
     ~DefaultTimer() override;
     DefaultTimer(const DefaultTimer&) = delete;
