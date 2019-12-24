@@ -19,10 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #include "qt_gui/widgets/TaskView.h"
 #include "qt_gui/dialogs/AddTaskDialog.h"
-#include "qt_gui/models/TaskModel.h"
+#include "qt_gui/metatypes/TaskMetaType.h"
+#include "qt_gui/models/TaskModelRoles.h"
 #include "qt_gui/utils/MouseRightReleaseEater.h"
 #include "qt_gui/utils/WidgetUtils.h"
 #include "qt_gui/widgets/TagEditor.h"
@@ -42,23 +42,22 @@ using entities::Sprint;
 using entities::Task;
 using use_cases::RequestSprintsForTask;
 
-TaskView::TaskView(TaskModel& taskModel_,
+TaskView::TaskView(QAbstractItemModel& taskModel_,
                    ISprintStorageReader& sprintReader_,
                    QueryInvoker& queryInvoker_,
                    TaskSprintsView& sprintsForTaskView_,
                    AddTaskDialog& editTaskDialog_,
-                   std::unique_ptr<TagEditor> tagEditor_,
+                   std::unique_ptr<QWidget> tagEditor_,
                    QStyledItemDelegate& delegate_,
                    QWidget* parent_)
     : ReordableListView{parent_}
-    , taskModel{taskModel_}
     , sprintReader{sprintReader_}
     , queryInvoker{queryInvoker_}
     , sprintsForTaskView{sprintsForTaskView_}
     , editTaskDialog{editTaskDialog_}
     , tagEditor{std::move(tagEditor_)}
 {
-    setModel(&taskModel);
+    setModel(&taskModel_);
     setContextMenuPolicy(Qt::CustomContextMenu);
     setItemDelegate(&delegate_);
 
@@ -67,9 +66,11 @@ TaskView::TaskView(TaskModel& taskModel_,
             this,
             &TaskView::showContextMenu);
     connect(this, &QListView::doubleClicked, [this, &taskModel_]() {
-        taskModel_.toggleCompleted(currentIndex());
+        taskModel_.setData(currentIndex(),
+                           QVariant{},
+                           static_cast<int>(TaskModelRoles::ToggleCompletion));
     });
-    connect(&taskModel,
+    connect(&taskModel_,
             &QAbstractItemModel::rowsRemoved,
             this,
             &TaskView::onTaskRemoved);
@@ -86,15 +87,18 @@ std::optional<int> TaskView::currentlySelectedRow() const
 
 void TaskView::onTaskSelectionChanged(int taskRow)
 {
-    selectedRow = taskModel.index(taskRow, 0).row();
+    selectedRow = model()->index(taskRow, 0).row();
 }
 
 void TaskView::showSprintsForTask() const
 {
-    const auto task = taskModel.itemAt(currentIndex().row());
+    const auto taskUUID = currentIndex()
+                              .data(static_cast<int>(TaskModelRoles::GetIdRole))
+                              .toString()
+                              .toStdString();
 
     queryInvoker.execute(std::make_unique<RequestSprintsForTask>(
-        sprintReader, task.uuid(), [&](const std::vector<Sprint>& sprints) {
+        sprintReader, taskUUID, [&](const std::vector<Sprint>& sprints) {
             sprintsForTaskView.setData(sprints);
             sprintsForTaskView.show();
         }));
@@ -132,8 +136,10 @@ void TaskView::showContextMenu(const QPoint& pos) const
 
 void TaskView::launchTaskEditor() const
 {
-    QModelIndex index = currentIndex();
-    const auto itemToEdit = taskModel.itemAt(index.row());
+    const QModelIndex index = currentIndex();
+    const auto itemToEdit = currentIndex()
+                                .data(static_cast<int>(TaskModelRoles::GetItem))
+                                .value<Task>();
 
     editTaskDialog.setWindowTitle(editTaskDialogTitle);
     editTaskDialog.fillItemData(itemToEdit);
@@ -141,7 +147,9 @@ void TaskView::launchTaskEditor() const
         Task updatedItem = editTaskDialog.constructedTask();
         updatedItem.setActualCost(itemToEdit.actualCost());
         updatedItem.setCompleted(itemToEdit.isCompleted());
-        taskModel.replaceItemAt(index.row(), updatedItem);
+        QVariant var;
+        var.setValue(updatedItem);
+        model()->setData(index, var, static_cast<int>(TaskModelRoles::Replace));
     });
     editTaskDialog.exec();
     editTaskDialog.disconnect();
@@ -157,7 +165,10 @@ void TaskView::launchTagEditor() const
         tagEditor->show();
 }
 
-void TaskView::deleteSelectedTask() const { taskModel.remove(currentIndex()); }
+void TaskView::deleteSelectedTask() const
+{
+    model()->removeRow(currentIndex().row());
+}
 
 void TaskView::onTaskRemoved(const QModelIndex&, int first, int last)
 {

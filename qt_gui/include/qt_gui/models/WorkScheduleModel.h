@@ -19,15 +19,16 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef WORKDAYTRACKERMODEL_H_4DZKR8HV
-#define WORKDAYTRACKERMODEL_H_4DZKR8HV
+#ifndef WORKDAYworkScheduleMODEL_H_4DZKR8HV
+#define WORKDAYworkScheduleMODEL_H_4DZKR8HV
 
+#include "qt_gui/DatasyncRelay.h"
+#include <QObject>
 #include <core/CommandInvoker.h>
 #include <core/IWorkingDaysStorage.h>
 #include <core/QueryInvoker.h>
-#include <core/WorkdayTracker.h>
+#include <core/WorkSchedule.h>
 #include <core/use_cases/RequestWorkingDays.h>
-#include <QObject>
 
 #ifdef _MSC_VER
 #include "qt_gui/WinExport.h"
@@ -36,42 +37,37 @@
 namespace sprint_timer::ui::qt_gui {
 
 #ifdef _MSC_VER
-class GLIB_EXPORT WorkdayTrackerModel : public QObject {
+class GLIB_EXPORT WorkScheduleModel : public QObject {
 #else
-class WorkdayTrackerModel : public QObject {
+class WorkScheduleModel : public QObject {
 #endif // _MSC_VER
 
     Q_OBJECT
 
 public:
-    WorkdayTrackerModel(IWorkingDaysStorage& workingDaysStorage_,
-                        CommandInvoker& commandInvoker_,
-                        QueryInvoker& queryInvoker_,
-                        QObject* parent = nullptr);
+    WorkScheduleModel(IWorkingDaysStorage& workingDaysStorage,
+                      CommandInvoker& commandInvoker,
+                      QueryInvoker& queryInvoker,
+                      DatasyncRelay& datasyncRelay,
+                      QObject* parent = nullptr);
 
     void requestDataUpdate();
 
-    /* Adds updated schedule keeping previous ones and replaces exceptional days
-     * with the given ones. */
-    void changeWorkdayData(
-        const WeekSchedule& updatedSchedule,
-        const std::vector<WorkdayTracker::DayData>& exceptionalDays);
+    void changeSchedule(const WorkSchedule& updatedWorkSchedule);
 
-    void changeWorkdayData(const WorkdayTracker& updatedTracker);
-
-    const WorkdayTracker& workdayTracker() const;
+    const WorkSchedule& workSchedule() const;
 
 signals:
-    void workdaysChanged(const WorkdayTracker&);
+    void workScheduleChanged(const WorkSchedule&);
 
 private:
     IWorkingDaysStorage& workingDaysStorage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
-    WorkdayTracker tracker;
+    WorkSchedule schedule;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: WORKDAYTRACKERMODEL_H_4DZKR8HV */
+#endif /* end of include guard: WORKDAYworkScheduleMODEL_H_4DZKR8HV */
 

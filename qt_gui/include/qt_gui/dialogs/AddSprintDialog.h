@@ -24,9 +24,8 @@
 
 #include "qt_gui/delegates/SubmissionItemDelegate.h"
 #include "qt_gui/models/SprintModel.h"
-#include "qt_gui/models/TaskModel.h"
+#include <QAbstractItemModel>
 #include <QDialog>
-#include <QPointer>
 #include <QtWidgets/QCalendarWidget>
 #include <core/IConfig.h>
 #include <memory>
@@ -43,7 +42,7 @@ class AddSprintDialog : public QDialog {
 public:
     AddSprintDialog(const IConfig& applicationSettings,
                     SprintModel& sprintModel,
-                    TaskModel& taskModel,
+                    QAbstractItemModel& taskModel,
                     QDialog* parent = nullptr);
 
     ~AddSprintDialog() override;
@@ -59,9 +58,8 @@ private:
     std::unique_ptr<QCalendarWidget> datePicker;
     const IConfig& applicationSettings;
     SprintModel& sprintModel;
-    TaskModel& taskModel;
-    std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate
-        = std::make_unique<SubmissionItemDelegate>();
+    std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate =
+        std::make_unique<SubmissionItemDelegate>();
 
     std::chrono::seconds totalSprintLength() const;
 
@@ -69,6 +67,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // ADDSPRINTDIALOG_H

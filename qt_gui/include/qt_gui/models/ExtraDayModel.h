@@ -30,7 +30,7 @@
 #include <core/IWorkingDaysReader.h>
 #include <core/IWorkingDaysWriter.h>
 #include <core/QueryInvoker.h>
-#include <core/WorkdayTracker.h>
+#include <core/WorkSchedule.h>
 
 namespace sprint_timer::ui::qt_gui {
 

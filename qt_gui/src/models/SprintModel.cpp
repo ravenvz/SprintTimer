@@ -35,13 +35,18 @@ using namespace sprint_timer::use_cases;
 SprintModel::SprintModel(CommandInvoker& commandInvoker_,
                          QueryInvoker& queryInvoker_,
                          ISprintStorage& sprintStorage_,
+                         DatasyncRelay& datasyncRelay_,
                          QObject* parent_)
     : AsyncListModel(parent_)
     , commandInvoker{commandInvoker_}
     , queryInvoker{queryInvoker_}
     , sprintStorage{sprintStorage_}
 {
-    requestSilentDataUpdate();
+    connect(&datasyncRelay_,
+            &DatasyncRelay::dataUpdateRequiered,
+            this,
+            &AsyncListModel::requestSilentDataUpdate);
+    // requestSilentDataUpdate();
 }
 
 int SprintModel::rowCount(const QModelIndex& parent) const
@@ -113,14 +118,18 @@ const Sprint& SprintModel::itemAt(int row) const { return storage[row]; }
 
 void SprintModel::requestUpdate(const dw::DateRange& dateRange)
 {
-    sprintDateRange = dateRange;
-    requestUpdate();
+    queryInvoker.execute(std::make_unique<RequestSprints>(
+        sprintStorage, dateRange, [this](const auto& items) {
+            onDataChanged(items);
+        }));
 }
 
 void SprintModel::requestUpdate()
 {
+    const dw::Date today{dw::current_date_local()};
+    const dw::DateRange dateRange{today, today};
     queryInvoker.execute(std::make_unique<RequestSprints>(
-        sprintStorage, sprintDateRange, [this](const auto& items) {
+        sprintStorage, dateRange, [this](const auto& items) {
             onDataChanged(items);
         }));
 }

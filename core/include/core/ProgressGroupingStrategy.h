@@ -23,7 +23,7 @@
 #define PROGRESSGROUPINGSTRATEGY_H_S4KWH7CM
 
 #include "core/GoalProgress.h"
-#include "core/WorkdayTracker.h"
+#include "core/WorkSchedule.h"
 #include <date_wrapper/date_wrapper.h>
 #include <vector>
 
@@ -36,7 +36,7 @@ public:
     virtual std::vector<GoalProgress>
     computeProgress(const dw::DateRange& dateRange,
                     const std::vector<int>& actualProgress,
-                    const WorkdayTracker& workdayTracker) const = 0;
+                    const WorkSchedule& workSchedule) const = 0;
 };
 
 } // namespace sprint_timer

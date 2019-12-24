@@ -28,13 +28,17 @@ DistributionModel::DistributionModel(
     QueryInvoker& queryInvoker_,
     const ProgressGroupingStrategy& distributionRequestStrategy_,
     const ProgressRangeRequestStrategy& requestStrategy_,
+    DatasyncRelay& datasyncRelay_,
     QObject* parent)
     : reader{reader_}
     , queryInvoker{queryInvoker_}
     , distributionRequestStrategy{distributionRequestStrategy_}
     , requestStrategy{requestStrategy_}
 {
-    synchronize();
+    connect(&datasyncRelay_,
+            &DatasyncRelay::dataUpdateRequiered,
+            this,
+            &DistributionModel::synchronize);
 }
 
 const std::vector<int>& DistributionModel::distribution() const { return data; }

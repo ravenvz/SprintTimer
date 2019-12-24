@@ -22,12 +22,15 @@
 #ifndef STATISTICSWINDOW_H
 #define STATISTICSWINDOW_H
 
-#include "qt_gui/models/SprintModel.h"
-#include "qt_gui/models/WorkdayTrackerModel.h"
+#include "qt_gui/DatasyncRelay.h"
+#include "qt_gui/Synchronizable.h"
+#include "qt_gui/models/WorkScheduleModel.h"
 #include "qt_gui/widgets/DailyTimelineGraph.h"
 #include "qt_gui/widgets/DateRangePicker.h"
 #include "qt_gui/widgets/StatisticsDiagramWidget.h"
 #include <QFrame>
+#include <core/ISprintStorageReader.h>
+#include <core/QueryInvoker.h>
 #include <core/SprintStatistics.h>
 #include <core/TagTop.h>
 #include <memory>
@@ -35,40 +38,44 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-class StatisticsWindow : public QFrame {
-    Q_OBJECT
+class StatisticsWindow : public QFrame, public Synchronizable {
 
 public:
     StatisticsWindow(
         std::unique_ptr<DateRangePicker> dateRangePicker,
         std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph,
         std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget,
-        const WorkdayTrackerModel& workdayTrackerModel,
-        const SprintModel& sprintModel,
+        const WorkScheduleModel& workScheduleModel,
+        ISprintStorageReader& sprintReader,
+        QueryInvoker& queryInvoker,
+        DatasyncRelay& datasyncRelay,
         QWidget* parent = nullptr);
 
     ~StatisticsWindow() override;
 
     QSize sizeHint() const override;
 
-    void onTagSelected(size_t tagIndex);
-
 private:
     DateRangePicker* dateRangePicker;
     DailyTimelineGraph* dailyTimelineGraph;
     StatisticsDiagramWidget* statisticsDiagramWidget;
-    const WorkdayTrackerModel& workdayTrackerModel;
+    const WorkScheduleModel& workScheduleModel;
+    ISprintStorageReader& sprintReader;
+    QueryInvoker& queryInvoker;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;
     const size_t numTopTags{7}; // TODO move to config
     std::optional<size_t> selectedTagIndex;
 
+    void synchronize() override;
+
     void updateViews();
 
     void onSprintsUpdated(const std::vector<entities::Sprint>& sprints);
+
+    void onTagSelected(size_t tagIndex);
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: STATISTICSWINDOW_H */

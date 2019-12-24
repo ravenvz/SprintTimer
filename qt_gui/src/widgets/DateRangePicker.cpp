@@ -29,9 +29,9 @@
 
 #include "qt_gui/utils/DateTimeConverter.h"
 
-namespace {
+#include <QDebug>
 
-QStringList toDateStrings(const dw::DateRange& dateRange);
+namespace {
 
 dw::DateRange currentMonth();
 
@@ -43,19 +43,19 @@ namespace sprint_timer::ui::qt_gui {
 
 DateRangePicker::DateRangePicker(
     std::unique_ptr<DateRangePickDialog> dateRangePickDialog_,
-    const OperationRangeModel& operationRangeModel_,
+    QAbstractItemModel& yearsModel_,
     QWidget* parent_)
     : QWidget{parent_}
     , ui{std::make_unique<Ui::DateRangePicker>()}
     , dateRangePickDialog{std::move(dateRangePickDialog_)}
-    , operationRangeModel{operationRangeModel_}
     , selectedDateRange{currentMonth()}
     , monthsModel{monthNames()}
-    , yearsModel{QStringList{QDate::currentDate().toString("yyyy")}}
 {
     ui->setupUi(this);
     ui->cbxMonth->setModel(&monthsModel);
-    ui->cbxYear->setModel(&yearsModel);
+    ui->cbxYear->setModel(&yearsModel_);
+
+    updateSelectionHintLabel();
 
     connect(ui->btnPickPeriod,
             &QPushButton::clicked,
@@ -73,10 +73,10 @@ DateRangePicker::DateRangePicker(
             &DateRangePicker::selectedDateRangeChanged,
             this,
             &DateRangePicker::updateSelectionHintLabel);
-    connect(&operationRangeModel,
-            &OperationRangeModel::operationRangeUpdated,
+    connect(&yearsModel_,
+            &QAbstractItemModel::modelReset,
             this,
-            &DateRangePicker::setOperationalRange);
+            &DateRangePicker::preselectCurrentYearMonth);
     connect(dateRangePickDialog.get(), &QDialog::accepted, [this]() {
         onRangeChanged(dateRangePickDialog->selectedRange());
     });
@@ -92,6 +92,8 @@ void DateRangePicker::openDatePickDialog()
 
 void DateRangePicker::updateSelectionHintLabel()
 {
+    // using QDate instead of dw::date here when converting to string
+    // provides date localization
     ui->labelSelectionHint->setText(
         QString{"%1 - %2"}
             .arg(utils::toQDate(selectedDateRange.start()).toString())
@@ -122,21 +124,14 @@ dw::DateRange DateRangePicker::selectionRange() const
     return selectedDateRange;
 }
 
-void DateRangePicker::setOperationalRange(const dw::DateRange& operationalRange)
+void DateRangePicker::preselectCurrentYearMonth()
 {
-    QStringList yearRange{toDateStrings(operationalRange)};
-    yearsModel.setStringList(yearRange);
-    selectCurrentYearMonth(yearRange);
-    onRangeChanged();
-}
+    const int firstYear{
+        ui->cbxYear->itemData(0, Qt::DisplayRole).toString().toInt()};
+    const int currentYear{dw::current_date_local().year()};
+    const int offset{currentYear - firstYear};
+    ui->cbxYear->setCurrentIndex(offset);
 
-void DateRangePicker::selectCurrentYearMonth(const QStringList& yearRange)
-{
-    ui->cbxYear->setCurrentIndex(static_cast<int>(std::distance(
-        yearRange.begin(),
-        std::find(yearRange.begin(),
-                  yearRange.end(),
-                  QString("%1").arg(QDate::currentDate().year())))));
     ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
 }
 
@@ -144,30 +139,21 @@ void DateRangePicker::selectCurrentYearMonth(const QStringList& yearRange)
 
 namespace {
 
-QStringList toDateStrings(const dw::DateRange& dateRange)
-{
-    QStringList dates;
-    int startYear{static_cast<int>(dateRange.start().year())};
-    const int endYear{static_cast<int>(dateRange.finish().year())};
-    for (int current = startYear; current <= endYear; ++current) {
-        dates.push_back(QString{"%1"}.arg(current));
-    }
-    return dates;
-}
-
 dw::DateRange currentMonth()
 {
-    const auto today = dw::current_date();
-    const dw::Date start{today.year(), today.month(), dw::Day{1}};
-    const dw::Date finish{dw::last_day_of_month(today)};
-    return dw::DateRange{start, finish};
+    const auto today = dw::current_date_local();
+    const dw::Date firstDayOfMonth{today.year(), today.month(), dw::Day{1}};
+    const dw::Date lastDayOfMonth{dw::last_day_of_month(today)};
+    return dw::DateRange{firstDayOfMonth, lastDayOfMonth};
 }
 
 QStringList monthNames()
 {
     QStringList months;
+    const QLocale defaultLocale;
     for (int monthNumber = 1; monthNumber <= 12; ++monthNumber) {
-        months.append(QDate::longMonthName(monthNumber));
+        months.append(defaultLocale.monthName(monthNumber,
+                                              QLocale::FormatType::LongFormat));
     }
     return months;
 }

@@ -36,23 +36,20 @@ namespace sprint_timer::ui::qt_gui {
 
 class FancyTimer : public TimerWidgetBase {
 public:
-    FancyTimer(const IConfig& applicationSettings_,
+    FancyTimer(const IConfig& applicationSettings,
                QAbstractItemModel& taskModel,
+               QAbstractItemModel& sprintModel,
                QWidget* parent);
     ~FancyTimer() override;
 
     void setCandidateIndex(int index) override;
-    void updateGoalProgress(const GoalProgress& progress) override;
 
 private:
     std::unique_ptr<Ui::FancyTimer> ui;
     const int indicatorSize{150};
     CombinedIndicator* combinedIndicator;
-    std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate
-        = std::make_unique<SubmissionItemDelegate>();
-    //    const QColor taskStateColor{QColor{"#eb6c59"}};
-    //    const QColor breakStateColor{QColor{"#73c245"}};
-    //    const QColor zoneStateColor{Qt::darkYellow};
+    std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate =
+        std::make_unique<SubmissionItemDelegate>();
 
     void onSprintStateEnteredHook() override;
     void onSprintStateLeftHook() override;
@@ -68,6 +65,5 @@ private slots:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: FANCYTIMER_H_PXO2DFJW */

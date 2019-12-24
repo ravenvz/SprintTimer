@@ -28,7 +28,7 @@
 using sprint_timer::GoalProgress;
 using sprint_timer::ProgressOverPeriod;
 using sprint_timer::WeekSchedule;
-using sprint_timer::WorkdayTracker;
+using sprint_timer::WorkSchedule;
 
 using namespace dw;
 
@@ -36,37 +36,66 @@ using namespace dw;
  * These tests focus on testing ProgressOverPeriod features together with
  * GroupByDay strategy. They do not test odd combinations of WeekSchedules or
  * addition of exceptional days trusting that these things are tested in
- * WorkdayTracker tests.
+ * WorkSchedule tests.
  */
 
 class ProgressByMonthFixture : public ::testing::Test {
 public:
     ProgressByMonthFixture()
     {
-        schedule.setTargetGoal(dw::Weekday::Monday, 10);
-        schedule.setTargetGoal(dw::Weekday::Tuesday, 10);
-        schedule.setTargetGoal(dw::Weekday::Wednesday, 10);
-        schedule.setTargetGoal(dw::Weekday::Thursday, 10);
-        schedule.setTargetGoal(dw::Weekday::Friday, 10);
-        workdayTracker.addWeekSchedule(period.start(), schedule);
+        weekSchedule.setTargetGoal(dw::Weekday::Monday, 10);
+        weekSchedule.setTargetGoal(dw::Weekday::Tuesday, 10);
+        weekSchedule.setTargetGoal(dw::Weekday::Wednesday, 10);
+        weekSchedule.setTargetGoal(dw::Weekday::Thursday, 10);
+        weekSchedule.setTargetGoal(dw::Weekday::Friday, 10);
+        workSchedule.addWeekSchedule(period.start(), weekSchedule);
     }
 
-    WeekSchedule schedule;
-    WorkdayTracker workdayTracker;
+    WeekSchedule weekSchedule;
+    WorkSchedule workSchedule;
 
     const DateRange period{Date{Year{2018}, Month{4}, Day{10}},
                            Date{Year{2018}, Month{8}, Day{25}}};
     sprint_timer::GroupByMonth groupByMonthStrategy;
 };
 
+TEST_F(ProgressByMonthFixture, handles_empty_actual_progress)
+{
+    const std::vector<int> actualProgress;
+    const std::vector<GoalProgress> expected{
+        {GoalProgress::Estimated{150}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{230}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{210}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{220}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{180}, GoalProgress::Actual{0}}};
+
+    const ProgressOverPeriod progress{
+        period, actualProgress, workSchedule, groupByMonthStrategy};
+
+    EXPECT_EQ(0, progress.actual());
+    EXPECT_EQ(990, progress.estimated());
+    EXPECT_NEAR(0, *progress.percentage(), 0.1);
+    EXPECT_EQ(990, progress.difference());
+    EXPECT_FALSE(progress.isOverwork());
+    EXPECT_NEAR(0, *progress.averagePerGroupPeriod(), 0.1);
+    EXPECT_EQ(5, progress.size());
+
+    for (size_t i = 0; i < expected.size(); ++i)
+        EXPECT_EQ(expected[i], progress.getValue(i));
+}
+
 TEST_F(ProgressByMonthFixture, underwork)
 {
     const std::vector<int> actualProgress{180, 200, 150, 170, 150};
     const std::vector<GoalProgress> expected{
-        {150, 180}, {230, 200}, {210, 150}, {220, 170}, {180, 150}};
+        {GoalProgress::Estimated{150}, GoalProgress::Actual{180}},
+        {GoalProgress::Estimated{230}, GoalProgress::Actual{200}},
+        {GoalProgress::Estimated{210}, GoalProgress::Actual{150}},
+        {GoalProgress::Estimated{220}, GoalProgress::Actual{170}},
+        {GoalProgress::Estimated{180}, GoalProgress::Actual{150}}};
 
     const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByMonthStrategy};
+        period, actualProgress, workSchedule, groupByMonthStrategy};
 
     EXPECT_EQ(850, progress.actual());
     EXPECT_EQ(990, progress.estimated());
@@ -84,10 +113,14 @@ TEST_F(ProgressByMonthFixture, overwork)
 {
     const std::vector<int> actualProgress{180, 250, 230, 200, 190};
     const std::vector<GoalProgress> expected{
-        {150, 180}, {230, 250}, {210, 230}, {220, 200}, {180, 190}};
+        {GoalProgress::Estimated{150}, GoalProgress::Actual{180}},
+        {GoalProgress::Estimated{230}, GoalProgress::Actual{250}},
+        {GoalProgress::Estimated{210}, GoalProgress::Actual{230}},
+        {GoalProgress::Estimated{220}, GoalProgress::Actual{200}},
+        {GoalProgress::Estimated{180}, GoalProgress::Actual{190}}};
 
     const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByMonthStrategy};
+        period, actualProgress, workSchedule, groupByMonthStrategy};
 
     EXPECT_EQ(1050, progress.actual());
     EXPECT_EQ(990, progress.estimated());
@@ -111,11 +144,15 @@ TEST_F(ProgressByMonthFixture, work_during_vacation)
     vacationSchedule.setTargetGoal(dw::Weekday::Friday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Saturday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Sunday, 0);
-    WorkdayTracker vacationTracker;
+    WorkSchedule vacationTracker;
     vacationTracker.addWeekSchedule(period.start(), vacationSchedule);
     const std::vector<int> actualProgress{180, 250, 230, 200, 190};
     const std::vector<GoalProgress> expected{
-        {0, 180}, {0, 250}, {0, 230}, {0, 200}, {0, 190}};
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{180}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{250}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{230}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{200}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{190}}};
 
     const ProgressOverPeriod progress{
         period, actualProgress, vacationTracker, groupByMonthStrategy};
@@ -138,10 +175,12 @@ TEST_F(ProgressByMonthFixture,
     const DateRange a_period{Date{Year{2018}, Month{6}, Day{1}},
                              Date{Year{2018}, Month{7}, Day{16}}};
     const std::vector<int> actualProgress{200, 75};
-    const std::vector<GoalProgress> expected{{210, 200}, {110, 75}};
+    const std::vector<GoalProgress> expected{
+        {GoalProgress::Estimated{210}, GoalProgress::Actual{200}},
+        {GoalProgress::Estimated{110}, GoalProgress::Actual{75}}};
 
     const ProgressOverPeriod progress{
-        a_period, actualProgress, workdayTracker, groupByMonthStrategy};
+        a_period, actualProgress, workSchedule, groupByMonthStrategy};
 
     EXPECT_EQ(275, progress.actual());
     EXPECT_EQ(320, progress.estimated());
@@ -161,10 +200,12 @@ TEST_F(ProgressByMonthFixture,
     const DateRange a_period{Date{Year{2018}, Month{6}, Day{1}},
                              Date{Year{2018}, Month{7}, Day{31}}};
     const std::vector<int> actualProgress{200, 75};
-    const std::vector<GoalProgress> expected{{210, 200}, {220, 75}};
+    const std::vector<GoalProgress> expected{
+        {GoalProgress::Estimated{210}, GoalProgress::Actual{200}},
+        {GoalProgress::Estimated{220}, GoalProgress::Actual{75}}};
 
     const ProgressOverPeriod progress{
-        a_period, actualProgress, workdayTracker, groupByMonthStrategy};
+        a_period, actualProgress, workSchedule, groupByMonthStrategy};
 
     EXPECT_EQ(275, progress.actual());
     EXPECT_EQ(430, progress.estimated());

@@ -30,8 +30,10 @@ BestWorkdayWidget::BestWorkdayWidget(QWidget* parent)
     , ui{std::make_unique<Ui::BestWorkdayWidget>()}
 {
     ui->setupUi(this);
+    const QLocale defaultLocale;
     for (int i = 0; i < 7; ++i) {
-        labels.push_back(QDate::shortDayName(i + 1));
+        labels.push_back(
+            defaultLocale.dayName(i + 1, QLocale::FormatType::ShortFormat));
     }
     setupWeekdayBarChart();
 }
@@ -74,10 +76,12 @@ void BestWorkdayWidget::updateWeekdayBarChartLegend(
     }
 
     const double average = weekdayDistribution.getAverage();
-    const int relativeComparisonInPercent
-        = int((weekdayDistribution.getMax() - average) * 100 / average);
-    ui->labelBestWorkdayName->setText(QDate::longDayName(
-        static_cast<int>(weekdayDistribution.getMaxValueBin()) + 1));
+    const int relativeComparisonInPercent =
+        int((weekdayDistribution.getMax() - average) * 100 / average);
+    const QLocale defaultLocale;
+    ui->labelBestWorkdayName->setText(defaultLocale.dayName(
+        static_cast<int>(weekdayDistribution.getMaxValueBin()) + 1,
+        QLocale::FormatType::LongFormat));
     ui->labelBestWorkdayMsg->setText(
         QString("%1% more than average").arg(relativeComparisonInPercent));
 }

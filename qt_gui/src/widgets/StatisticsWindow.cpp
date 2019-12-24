@@ -23,6 +23,9 @@
 #include "qt_gui/widgets/DistributionDiagram.h"
 #include "qt_gui/widgets/TimeDiagram.h"
 #include <QVBoxLayout>
+#include <core/use_cases/RequestSprints.h>
+
+#include <QDebug>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -32,14 +35,18 @@ StatisticsWindow::StatisticsWindow(
     std::unique_ptr<DateRangePicker> dateRangePicker_,
     std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph_,
     std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget_,
-    const WorkdayTrackerModel& workdayTrackerModel_,
-    const SprintModel& sprintModel_,
+    const WorkScheduleModel& workScheduleModel_,
+    ISprintStorageReader& sprintReader_,
+    QueryInvoker& queryInvoker_,
+    DatasyncRelay& datasyncRelay_,
     QWidget* parent_)
     : QFrame{parent_}
     , dateRangePicker{dateRangePicker_.get()}
     , dailyTimelineGraph{dailyTimelineGraph_.get()}
     , statisticsDiagramWidget{statisticsDiagramWidget_.get()}
-    , workdayTrackerModel{workdayTrackerModel_}
+    , workScheduleModel{workScheduleModel_}
+    , sprintReader{sprintReader_}
+    , queryInvoker{queryInvoker_}
 {
     auto layout = std::make_unique<QVBoxLayout>(nullptr);
     layout->addWidget(dateRangePicker_.release(), 1);
@@ -47,24 +54,34 @@ StatisticsWindow::StatisticsWindow(
     layout->addWidget(statisticsDiagramWidget_.release(), 4);
     setLayout(layout.release());
 
+    connect(&datasyncRelay_,
+            &DatasyncRelay::dataUpdateRequiered,
+            this,
+            &StatisticsWindow::synchronize);
     connect(statisticsDiagramWidget,
             &StatisticsDiagramWidget::tagSelectionChanged,
             this,
             &StatisticsWindow::onTagSelected);
-    connect(&workdayTrackerModel,
-            &WorkdayTrackerModel::workdaysChanged,
-            [this](const WorkdayTracker&) { updateViews(); });
-    connect(&sprintModel_,
-            &QAbstractListModel::modelReset,
-            [this, &sprintModel_]() {
-                const auto updatedSprints = allSprints(sprintModel_);
-                onSprintsUpdated(updatedSprints);
-            });
+    connect(&workScheduleModel,
+            &WorkScheduleModel::workScheduleChanged,
+            [this](const WorkSchedule&) { updateViews(); });
+    connect(dateRangePicker,
+            &DateRangePicker::selectedDateRangeChanged,
+            this,
+            &StatisticsWindow::synchronize);
 }
 
 StatisticsWindow::~StatisticsWindow() = default;
 
 QSize StatisticsWindow::sizeHint() const { return QSize{1100, 730}; }
+
+void StatisticsWindow::synchronize()
+{
+    queryInvoker.execute(std::make_unique<use_cases::RequestSprints>(
+        sprintReader,
+        dateRangePicker->selectionRange(),
+        [this](const auto& sprints) { onSprintsUpdated(sprints); }));
+}
 
 void StatisticsWindow::onSprintsUpdated(
     const std::vector<Sprint>& updatedSprints)
@@ -79,14 +96,14 @@ void StatisticsWindow::onSprintsUpdated(
 void StatisticsWindow::updateViews()
 {
     const auto dateRange = dateRangePicker->selectionRange();
-    const std::vector<Sprint>& interestingSprints
-        = (selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex)
-                            : sprints);
-    const auto dailyDistribution
-        = dailyStatistics(interestingSprints, dateRange);
-    const int workdays
-        = numWorkdays(workdayTrackerModel.workdayTracker(), dateRange);
-    const int goal = goalFor(workdayTrackerModel.workdayTracker(), dateRange);
+    const std::vector<Sprint>& interestingSprints =
+        (selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex)
+                          : sprints);
+    const auto dailyDistribution =
+        dailyStatistics(interestingSprints, dateRange);
+    const int workdays =
+        numWorkdays(workScheduleModel.workSchedule(), dateRange);
+    const int goal = goalFor(workScheduleModel.workSchedule(), dateRange);
     dailyTimelineGraph->setData(dailyStatistics(interestingSprints, dateRange),
                                 dateRange,
                                 workdays,
@@ -101,8 +118,8 @@ void StatisticsWindow::onTagSelected(size_t tagIndex)
     }
     else {
         selectedTagIndex = (*selectedTagIndex == tagIndex)
-            ? std::optional<size_t>()
-            : tagIndex;
+                               ? std::optional<size_t>()
+                               : tagIndex;
     }
 
     updateViews();

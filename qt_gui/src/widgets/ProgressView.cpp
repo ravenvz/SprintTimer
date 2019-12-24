@@ -47,7 +47,7 @@ namespace sprint_timer::ui::qt_gui {
 
 ProgressView::ProgressView(
     const DistributionModel& progressModel_,
-    const WorkdayTrackerModel& workdaysModel_,
+    const WorkScheduleModel& workdaysModel_,
     const ProgressGroupingStrategy& groupingStrategy_,
     const ProgressRangeRequestStrategy& requestRangeStrategy_,
     Rows numRows_,
@@ -62,24 +62,26 @@ ProgressView::ProgressView(
 {
     ui->setupUi(this);
     setupGauges();
-    updateProgressBar(GoalProgress{0, 0});
+    updateProgressBar(
+        GoalProgress{GoalProgress::Estimated{0}, GoalProgress::Actual{0}});
     connect(&progressModel_,
             &DistributionModel::distributionChanged,
             [&](const std::vector<int>& updatedDistribution) {
                 const ProgressOverPeriod progress{
                     requestRangeStrategy_.dateRange(),
                     updatedDistribution,
-                    workdaysModel_.workdayTracker(),
+                    workdaysModel_.workSchedule(),
                     groupingStrategy_};
                 setData(progress);
             });
     connect(&workdaysModel_,
-            &WorkdayTrackerModel::workdaysChanged,
-            [&](const WorkdayTracker& updatedTracker) {
-                ProgressOverPeriod progress{requestRangeStrategy_.dateRange(),
-                                            progressModel_.distribution(),
-                                            updatedTracker,
-                                            groupingStrategy_};
+            &WorkScheduleModel::workScheduleChanged,
+            [&](const WorkSchedule& updatedWorkSchedule) {
+                const ProgressOverPeriod progress{
+                    requestRangeStrategy_.dateRange(),
+                    progressModel_.distribution(),
+                    updatedWorkSchedule,
+                    groupingStrategy_};
                 setData(progress);
             });
 }
@@ -196,6 +198,5 @@ void ProgressView::updateProgressBar(const GoalProgress& lastBin)
     bar->setValue(actual);
     bar->show();
 }
-
 
 } // namespace sprint_timer::ui::qt_gui

@@ -22,16 +22,24 @@
 #ifndef SPRINT_TIMER_APP_GOALPROGRESS_H
 #define SPRINT_TIMER_APP_GOALPROGRESS_H
 
-#include <optional>
 #include <iostream>
+#include <optional>
 
 namespace sprint_timer {
 
 class GoalProgress {
 public:
+    struct Estimated {
+        int value;
+    };
+
+    struct Actual {
+        int value;
+    };
+
     GoalProgress();
 
-    GoalProgress(int expected, int actual);
+    GoalProgress(Estimated expected, Actual actual);
 
     int estimated() const;
 

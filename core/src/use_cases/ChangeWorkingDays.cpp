@@ -24,25 +24,25 @@
 namespace sprint_timer::use_cases {
 
 ChangeWorkingDays::ChangeWorkingDays(IWorkingDaysWriter& writer_,
-                                     const WorkdayTracker& oldTracker_,
-                                     const WorkdayTracker& newTracker_)
+                                     const WorkSchedule& oldWorkSchedule_,
+                                     const WorkSchedule& newWorkSchedule_)
     : writer{writer_}
-    , oldTracker{oldTracker_}
-    , newTracker{newTracker_}
+    , oldWorkSchedule{oldWorkSchedule_}
+    , newWorkSchedule{newWorkSchedule_}
 {
 }
 
-void ChangeWorkingDays::execute() { writer.changeWorkingDays(newTracker); }
+void ChangeWorkingDays::execute() { writer.changeWorkingDays(newWorkSchedule); }
 
-void ChangeWorkingDays::undo() { writer.changeWorkingDays(oldTracker); }
+void ChangeWorkingDays::undo() { writer.changeWorkingDays(oldWorkSchedule); }
 
 std::string ChangeWorkingDays::describe() const
 {
     std::stringstream ss;
     ss << "Change workdays \nfrom:\n";
-    ss << oldTracker;
+    ss << oldWorkSchedule;
     ss << "\nto:\n";
-    ss << newTracker << "\n";
+    ss << newWorkSchedule << "\n";
     return ss.str();
 }
 

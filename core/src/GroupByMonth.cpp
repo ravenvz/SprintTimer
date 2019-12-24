@@ -26,7 +26,7 @@ namespace sprint_timer {
 std::vector<GoalProgress>
 GroupByMonth::computeProgress(const dw::DateRange& dateRange,
                               const std::vector<int>& actualProgress,
-                              const WorkdayTracker& workdayTracker) const
+                              const WorkSchedule& workSchedule) const
 {
     using namespace dw;
     std::vector<int> labour;
@@ -43,9 +43,19 @@ GroupByMonth::computeProgress(const dw::DateRange& dateRange,
     };
 
     for (auto finish = next_finish(); start < lastDay;
-         start = finish + Days{1}, finish = next_finish(), ++actualIt) {
+         start = finish + Days{1}, finish = next_finish()) {
         const DateRange monthChunk{start, finish};
-        progress.emplace_back(goalFor(workdayTracker, monthChunk), *actualIt);
+        if (actualIt != cend(actualProgress)) {
+            progress.emplace_back(
+                GoalProgress::Estimated{goalFor(workSchedule, monthChunk)},
+                GoalProgress::Actual{*actualIt});
+            ++actualIt;
+        }
+        else {
+            progress.emplace_back(
+                GoalProgress::Estimated{goalFor(workSchedule, monthChunk)},
+                GoalProgress::Actual{0});
+        }
     }
 
     return progress;

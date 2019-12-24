@@ -22,6 +22,7 @@
 #ifndef HISTORY_VIEW_H
 #define HISTORY_VIEW_H
 
+#include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/Synchronizable.h"
 #include "qt_gui/dialogs/ExportDialog.h"
 #include "qt_gui/models/HistoryModel.h"
@@ -41,19 +42,19 @@ namespace Ui {
 class HistoryWindow;
 } // namespace Ui
 
-
 namespace sprint_timer::ui::qt_gui {
 
 class HistoryWindow : public QWidget, public Synchronizable {
     Q_OBJECT
 
 public:
-    explicit HistoryWindow(SprintModel& sprintModel,
+    explicit HistoryWindow(ISprintStorageReader& sprintReader,
                            ITaskStorageReader& taskReader,
                            HistoryModel& historyModel,
                            QStyledItemDelegate& historyItemDelegate,
                            QueryInvoker& queryInvoker,
                            std::unique_ptr<DateRangePicker> dateRangePicker,
+                           DatasyncRelay& datasyncRelay,
                            QWidget* parent = nullptr);
 
     ~HistoryWindow();
@@ -115,7 +116,7 @@ private:
     };
 
     std::unique_ptr<Ui::HistoryWindow> ui;
-    SprintModel& sprintModel;
+    ISprintStorageReader& sprintReader;
     ITaskStorageReader& taskReader;
     HistoryModel& historyModel;
     QueryInvoker& queryInvoker;

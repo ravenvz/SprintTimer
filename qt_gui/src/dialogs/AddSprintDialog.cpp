@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/AddSprintDialog.h"
+#include "qt_gui/models/TaskModelRoles.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
 
@@ -35,20 +36,19 @@ generateConsecutiveSprints(const QDateTime& initialStartTime,
 
 namespace sprint_timer::ui::qt_gui {
 
-AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings,
-                                 SprintModel& sprintModel,
-                                 TaskModel& taskModel,
-                                 QDialog* parent)
-    : QDialog{parent}
+AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings_,
+                                 SprintModel& sprintModel_,
+                                 QAbstractItemModel& taskModel_,
+                                 QDialog* parent_)
+    : QDialog{parent_}
     , ui{std::make_unique<Ui::AddSprintDialog>()}
     , datePicker{std::make_unique<QCalendarWidget>()}
-    , applicationSettings{applicationSettings}
-    , sprintModel{sprintModel}
-    , taskModel{taskModel}
+    , applicationSettings{applicationSettings_}
+    , sprintModel{sprintModel_}
 {
     ui->setupUi(this);
 
-    ui->cbPickTask->setModel(&taskModel);
+    ui->cbPickTask->setModel(&taskModel_);
     ui->cbPickTask->setItemDelegate(submissionItemDelegate.get());
 
     datePicker->setMaximumDate(QDate::currentDate());
@@ -98,8 +98,8 @@ void AddSprintDialog::adjustStartTime()
 std::chrono::seconds AddSprintDialog::totalSprintLength() const
 {
     using namespace std::chrono;
-    return ui->sbNumSprints->value()
-        * duration_cast<seconds>(applicationSettings.sprintDuration());
+    return ui->sbNumSprints->value() *
+           duration_cast<seconds>(applicationSettings.sprintDuration());
 }
 
 void AddSprintDialog::accept()
@@ -107,10 +107,12 @@ void AddSprintDialog::accept()
     if (ui->cbPickTask->currentIndex() == -1)
         return;
 
-    const auto initialStartTime
-        = ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
-    const std::string taskUuid
-        = taskModel.itemAt(ui->cbPickTask->currentIndex()).uuid();
+    const auto initialStartTime =
+        ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
+    const std::string taskUuid{
+        ui->cbPickTask->currentData(static_cast<int>(TaskModelRoles::GetIdRole))
+            .toString()
+            .toStdString()};
     const auto sprintDuration = applicationSettings.sprintDuration();
 
     auto sprints = generateConsecutiveSprints(
@@ -146,8 +148,8 @@ generateConsecutiveSprints(const QDateTime& initialStartTime,
     for (int i = 0; i < numSprints; ++i) {
         const auto startTime = initialStartTime.addSecs(
             i * duration_cast<seconds>(sprintDuration).count());
-        const auto finishTime
-            = startTime.addSecs(duration_cast<seconds>(sprintDuration).count());
+        const auto finishTime =
+            startTime.addSecs(duration_cast<seconds>(sprintDuration).count());
         sprints.push_back(Sprint{
             taskUuid,
             dw::DateTimeRange{toDateTime(startTime), toDateTime(finishTime)}});

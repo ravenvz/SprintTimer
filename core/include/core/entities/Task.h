@@ -55,6 +55,8 @@ public:
          bool completed,
          const dw::DateTime& lastModified);
 
+    Task() = default;
+
     /* Construct Task from encoded description.
      * Description is a string of text that may have some words with
      * special prefixes. That prefixes indicate tags and number of
@@ -113,7 +115,7 @@ private:
     std::string uuid_;
     std::list<Tag> tags_;
     bool completed_{false};
-    dw::DateTime lastModified_;
+    dw::DateTime lastModified_{dw::current_date_time_local()};
 
     void decodeDescription(std::string&& encodedDescription);
 };

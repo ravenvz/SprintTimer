@@ -23,7 +23,7 @@
 #include "gtest/gtest.h"
 #include <core/SprintBuilder.h>
 #include <core/TaskBuilder.h>
-#include <core/WorkdayTracker.h>
+#include <core/WorkSchedule.h>
 
 using namespace sprint_timer::storage::qt_storage_impl;
 using sprint_timer::ISprintStorageReader;
@@ -33,15 +33,14 @@ using sprint_timer::TaskBuilder;
 using sprint_timer::entities::Sprint;
 using sprint_timer::entities::Task;
 
-
-sprint_timer::WeekSchedule buildSchedule(const std::array<int, 7>& raw_schedule)
+sprint_timer::WeekSchedule
+buildWeekSchedule(const std::array<int, 7>& raw_schedule)
 {
     sprint_timer::WeekSchedule schedule;
     for (size_t i = 0; i < raw_schedule.size(); ++i)
         schedule.setTargetGoal(static_cast<dw::Weekday>(i), raw_schedule[i]);
     return schedule;
 }
-
 
 class QtStorageImplementIntegrationTestFixture : public ::testing::Test {
 public:
@@ -82,12 +81,12 @@ TEST_F(QtStorageImplementIntegrationTestFixture, remove_task_with_no_sprints)
 
 TEST_F(QtStorageImplementIntegrationTestFixture, toggles_task_completion_status)
 {
-    const Task someTask
-        = TaskBuilder{}
-              .withUuid("123")
-              .withCompletionStatus(true)
-              .withLastModificationStamp(dw::current_date_time())
-              .build();
+    const Task someTask =
+        TaskBuilder{}
+            .withUuid("123")
+            .withCompletionStatus(true)
+            .withLastModificationStamp(dw::current_date_time())
+            .build();
 
     initializer.taskStorage->save(someTask);
     initializer.taskStorage->toggleTaskCompletionStatus(
@@ -201,25 +200,25 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
 TEST_F(QtStorageImplementIntegrationTestFixture, edits_task)
 {
-    const Task someTask
-        = TaskBuilder{}
-              .withName("Edit me")
-              .withTag("Tag")
-              .withEstimatedCost(4)
-              .withActualCost(2)
-              .withLastModificationStamp(dw::current_date_time() - dw::Days{3})
-              .withCompletionStatus(true)
-              .build();
-    const Task expectedEditedTask
-        = TaskBuilder{}
-              .withUuid(someTask.uuid())
-              .withName("I'm edited")
-              .withTag("EditedTag")
-              .withEstimatedCost(42)
-              .withActualCost(someTask.actualCost())
-              .withLastModificationStamp(dw::current_date_time())
-              .withCompletionStatus(someTask.isCompleted())
-              .build();
+    const Task someTask =
+        TaskBuilder{}
+            .withName("Edit me")
+            .withTag("Tag")
+            .withEstimatedCost(4)
+            .withActualCost(2)
+            .withLastModificationStamp(dw::current_date_time() - dw::Days{3})
+            .withCompletionStatus(true)
+            .build();
+    const Task expectedEditedTask =
+        TaskBuilder{}
+            .withUuid(someTask.uuid())
+            .withName("I'm edited")
+            .withTag("EditedTag")
+            .withEstimatedCost(42)
+            .withActualCost(someTask.actualCost())
+            .withLastModificationStamp(dw::current_date_time())
+            .withCompletionStatus(someTask.isCompleted())
+            .build();
 
     initializer.taskStorage->save(someTask);
     initializer.taskStorage->edit(someTask, expectedEditedTask);
@@ -308,20 +307,18 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     const DateTime leftmostDateTime{DateTime{targetDateRange.start()}};
     const DateTime rightmostDateTime{DateTime{targetDateRange.finish()}};
     TaskBuilder builder;
-    const Task taskOutOfRangeLeft
-        = builder.withLastModificationStamp(leftmostDateTime - Days{1}).build();
-    const Task taskLeftRangeBorder
-        = builder.withLastModificationStamp(leftmostDateTime).build();
-    const Task insideRangeTask1
-        = builder.withLastModificationStamp(leftmostDateTime + Days{1}).build();
-    const Task insideRangeTask2
-        = builder.withLastModificationStamp(rightmostDateTime - Days{1})
-              .build();
-    const Task taskRightRangeBorder
-        = builder.withLastModificationStamp(rightmostDateTime).build();
-    const Task taskOutOfRangeRight
-        = builder.withLastModificationStamp(rightmostDateTime + Days{1})
-              .build();
+    const Task taskOutOfRangeLeft =
+        builder.withLastModificationStamp(leftmostDateTime - Days{1}).build();
+    const Task taskLeftRangeBorder =
+        builder.withLastModificationStamp(leftmostDateTime).build();
+    const Task insideRangeTask1 =
+        builder.withLastModificationStamp(leftmostDateTime + Days{1}).build();
+    const Task insideRangeTask2 =
+        builder.withLastModificationStamp(rightmostDateTime - Days{1}).build();
+    const Task taskRightRangeBorder =
+        builder.withLastModificationStamp(rightmostDateTime).build();
+    const Task taskOutOfRangeRight =
+        builder.withLastModificationStamp(rightmostDateTime + Days{1}).build();
     const ITaskStorageReader::Items expected{taskLeftRangeBorder,
                                              insideRangeTask1,
                                              insideRangeTask2,
@@ -353,20 +350,18 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     const DateTime leftmostDateTime{DateTime{targetDateRange.start()}};
     const DateTime rightmostDateTime{DateTime{targetDateRange.finish()}};
     TaskBuilder builder;
-    const Task taskOutOfRangeLeft
-        = builder.withLastModificationStamp(leftmostDateTime - Days{1}).build();
-    const Task taskLeftRangeBorder
-        = builder.withLastModificationStamp(leftmostDateTime).build();
-    const Task insideRangeTask1
-        = builder.withLastModificationStamp(leftmostDateTime + Days{1}).build();
-    const Task insideRangeTask2
-        = builder.withLastModificationStamp(rightmostDateTime - Days{1})
-              .build();
-    const Task taskRightRangeBorder
-        = builder.withLastModificationStamp(rightmostDateTime).build();
-    const Task taskOutOfRangeRight
-        = builder.withLastModificationStamp(rightmostDateTime + Days{1})
-              .build();
+    const Task taskOutOfRangeLeft =
+        builder.withLastModificationStamp(leftmostDateTime - Days{1}).build();
+    const Task taskLeftRangeBorder =
+        builder.withLastModificationStamp(leftmostDateTime).build();
+    const Task insideRangeTask1 =
+        builder.withLastModificationStamp(leftmostDateTime + Days{1}).build();
+    const Task insideRangeTask2 =
+        builder.withLastModificationStamp(rightmostDateTime - Days{1}).build();
+    const Task taskRightRangeBorder =
+        builder.withLastModificationStamp(rightmostDateTime).build();
+    const Task taskOutOfRangeRight =
+        builder.withLastModificationStamp(rightmostDateTime + Days{1}).build();
     const ITaskStorageReader::Items expected{taskLeftRangeBorder,
                                              insideRangeTask1,
                                              insideRangeTask2,
@@ -396,12 +391,12 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
        inserting_sprint_increments_associated_task_actual_count)
 {
     const Task someTask = TaskBuilder{}.build();
-    const Task expectedTask
-        = TaskBuilder{}
-              .withUuid(someTask.uuid())
-              .withActualCost(2)
-              .withLastModificationStamp(someTask.lastModified())
-              .build();
+    const Task expectedTask =
+        TaskBuilder{}
+            .withUuid(someTask.uuid())
+            .withActualCost(2)
+            .withLastModificationStamp(someTask.lastModified())
+            .build();
     const dw::DateTimeRange timeSpan{dw::current_date_time(),
                                      dw::current_date_time()};
     SprintBuilder builder;
@@ -425,17 +420,17 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
        removing_sprint_decrements_associated_task_actual_count)
 {
     const Task someTask = TaskBuilder{}.build();
-    const Task expectedTask
-        = TaskBuilder{}
-              .withUuid(someTask.uuid())
-              .withActualCost(1)
-              .withLastModificationStamp(someTask.lastModified())
-              .build();
+    const Task expectedTask =
+        TaskBuilder{}
+            .withUuid(someTask.uuid())
+            .withActualCost(1)
+            .withLastModificationStamp(someTask.lastModified())
+            .build();
     const dw::DateTimeRange timeSpan{dw::current_date_time(),
                                      dw::current_date_time()};
     SprintBuilder builder;
-    const Sprint sprint
-        = builder.forTask(someTask).withTimeSpan(timeSpan).build();
+    const Sprint sprint =
+        builder.forTask(someTask).withTimeSpan(timeSpan).build();
 
     initializer.taskStorage->save(someTask);
     initializer.sprintStorage->save(sprint);
@@ -498,8 +493,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
        removes_orphaned_tags_when_deleting_task)
 {
     using sprint_timer::entities::Tag;
-    const Task someTask
-        = TaskBuilder{}.withExplicitTags({Tag{"Tag1"}, Tag{"Tag2"}}).build();
+    const Task someTask =
+        TaskBuilder{}.withExplicitTags({Tag{"Tag1"}, Tag{"Tag2"}}).build();
 
     initializer.taskStorage->save(someTask);
     initializer.taskStorage->remove(someTask.uuid());
@@ -971,8 +966,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     // Week 53 in 2015
     std::generate_n(
         std::back_inserter(sprints), 4, [&sprintBuilder, &upperDate]() {
-            const dw::DateTime timestamp{upperDate
-                                         + Days(-6 * 7 - 4)}; // Monday
+            const dw::DateTime timestamp{upperDate +
+                                         Days(-6 * 7 - 4)}; // Monday
             return sprintBuilder
                 .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
@@ -980,8 +975,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     // Week 53 in 2016
     std::generate_n(
         std::back_inserter(sprints), 5, [&sprintBuilder, &upperDate]() {
-            const dw::DateTime timestamp{upperDate
-                                         + Days(-6 * 7 + 2)}; // Sunday
+            const dw::DateTime timestamp{upperDate +
+                                         Days(-6 * 7 + 2)}; // Sunday
             return sprintBuilder
                 .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
@@ -1042,8 +1037,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     // Week in 2015
     std::generate_n(
         std::back_inserter(sprints), 4, [&sprintBuilder, &upperDate]() {
-            const dw::DateTime timestamp{upperDate
-                                         + Days(-6 * 7 - 5)}; // Sunday
+            const dw::DateTime timestamp{upperDate +
+                                         Days(-6 * 7 - 5)}; // Sunday
             return sprintBuilder
                 .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
@@ -1051,8 +1046,8 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     // Week in 2016
     std::generate_n(
         std::back_inserter(sprints), 5, [&sprintBuilder, &upperDate]() {
-            const dw::DateTime timestamp{upperDate
-                                         + Days(-6 * 7 + 1)}; // Saturday
+            const dw::DateTime timestamp{upperDate +
+                                         Days(-6 * 7 + 1)}; // Saturday
             return sprintBuilder
                 .withTimeSpan(DateTimeRange{timestamp, timestamp})
                 .build();
@@ -1089,22 +1084,22 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
        change_working_days_store_and_retrieve)
 {
     using namespace dw;
-    using sprint_timer::WorkdayTracker;
-    WorkdayTracker expected;
+    using sprint_timer::WorkSchedule;
+    WorkSchedule expected;
     expected.addWeekSchedule(Date{Year{2012}, Month{3}, Day{1}},
-                             buildSchedule({1, 1, 1, 1, 1, 0, 0}));
+                             buildWeekSchedule({1, 1, 1, 1, 1, 0, 0}));
     expected.addWeekSchedule(Date{Year{2014}, Month{1}, Day{7}},
-                             buildSchedule({2, 2, 2, 2, 2, 0, 0}));
+                             buildWeekSchedule({2, 2, 2, 2, 2, 0, 0}));
     expected.addWeekSchedule(Date{Year{2015}, Month{7}, Day{17}},
-                             buildSchedule({3, 3, 4, 3, 1, 7, 9}));
+                             buildWeekSchedule({3, 3, 4, 3, 1, 7, 9}));
     expected.addWeekSchedule(Date{Year{2017}, Month{6}, Day{27}},
-                             buildSchedule({12, 12, 12, 12, 12, 0, 0}));
+                             buildWeekSchedule({12, 12, 12, 12, 12, 0, 0}));
     expected.addWeekSchedule(Date{Year{2017}, Month{2}, Day{4}},
-                             buildSchedule({13, 13, 13, 13, 13, 0, 0}));
+                             buildWeekSchedule({13, 13, 13, 13, 13, 0, 0}));
     expected.addWeekSchedule(Date{Year{2017}, Month{11}, Day{22}},
-                             buildSchedule({11, 11, 11, 11, 11, 11, 0}));
+                             buildWeekSchedule({11, 11, 11, 11, 11, 11, 0}));
     expected.addWeekSchedule(Date{Year{2018}, Month{12}, Day{12}},
-                             buildSchedule({12, 12, 12, 12, 12, 0, 5}));
+                             buildWeekSchedule({12, 12, 12, 12, 12, 0, 5}));
     expected.addExceptionalDay(Date{Year{2018}, Month{1}, Day{1}}, 0);
     expected.addExceptionalDay(Date{Year{2019}, Month{1}, Day{1}}, 0);
     expected.addExceptionalDay(Date{Year{2017}, Month{2}, Day{23}}, 12);
@@ -1113,7 +1108,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.workingDaysStorage->changeWorkingDays(expected);
 
     initializer.workingDaysStorage->requestData(
-        [&expected, this](const WorkdayTracker& actual) {
+        [&expected, this](const WorkSchedule& actual) {
             EXPECT_EQ(expected, actual);
             initializer.quit();
         });
@@ -1124,22 +1119,22 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
        handles_sequential_requests_for_retrieving_working_days)
 {
     using namespace dw;
-    using sprint_timer::WorkdayTracker;
-    WorkdayTracker expected;
+    using sprint_timer::WorkSchedule;
+    WorkSchedule expected;
     expected.addWeekSchedule(Date{Year{2012}, Month{3}, Day{1}},
-                             buildSchedule({1, 1, 1, 1, 1, 0, 0}));
+                             buildWeekSchedule({1, 1, 1, 1, 1, 0, 0}));
     expected.addWeekSchedule(Date{Year{2014}, Month{1}, Day{7}},
-                             buildSchedule({2, 2, 2, 2, 2, 0, 0}));
+                             buildWeekSchedule({2, 2, 2, 2, 2, 0, 0}));
     expected.addWeekSchedule(Date{Year{2015}, Month{7}, Day{17}},
-                             buildSchedule({3, 3, 4, 3, 1, 7, 9}));
+                             buildWeekSchedule({3, 3, 4, 3, 1, 7, 9}));
     expected.addWeekSchedule(Date{Year{2017}, Month{6}, Day{27}},
-                             buildSchedule({12, 12, 12, 12, 12, 0, 0}));
+                             buildWeekSchedule({12, 12, 12, 12, 12, 0, 0}));
     expected.addWeekSchedule(Date{Year{2017}, Month{2}, Day{4}},
-                             buildSchedule({13, 13, 13, 13, 13, 0, 0}));
+                             buildWeekSchedule({13, 13, 13, 13, 13, 0, 0}));
     expected.addWeekSchedule(Date{Year{2017}, Month{11}, Day{22}},
-                             buildSchedule({11, 11, 11, 11, 11, 11, 0}));
+                             buildWeekSchedule({11, 11, 11, 11, 11, 11, 0}));
     expected.addWeekSchedule(Date{Year{2018}, Month{12}, Day{12}},
-                             buildSchedule({12, 12, 12, 12, 12, 0, 5}));
+                             buildWeekSchedule({12, 12, 12, 12, 12, 0, 5}));
     expected.addExceptionalDay(Date{Year{2018}, Month{1}, Day{1}}, 0);
     expected.addExceptionalDay(Date{Year{2019}, Month{1}, Day{1}}, 0);
     expected.addExceptionalDay(Date{Year{2017}, Month{2}, Day{23}}, 12);
@@ -1149,7 +1144,7 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
 
     for (int i = 0; i < 10; ++i) {
         initializer.workingDaysStorage->requestData(
-            [&expected, this, &i](const WorkdayTracker& actual) {
+            [&expected, this, &i](const WorkSchedule& actual) {
                 EXPECT_EQ(expected, actual);
                 if (i == 10)
                     initializer.quit();

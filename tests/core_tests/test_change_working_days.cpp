@@ -36,15 +36,15 @@ TEST_F(ChangeWorkingDaysFixture, execute_and_undo)
 {
     using sprint_timer::use_cases::ChangeWorkingDays;
     using namespace dw;
-    const WorkdayTracker oldTracker;
-    WorkdayTracker newTracker;
-    newTracker.addExceptionalDay(Date{Year{2019}, Month{1}, Day{1}}, 0);
-    EXPECT_CALL(storage, changeWorkingDays(newTracker)).Times(1);
+    const WorkSchedule oldWorkSchedule;
+    WorkSchedule newWorkSchedule;
+    newWorkSchedule.addExceptionalDay(Date{Year{2019}, Month{1}, Day{1}}, 0);
+    EXPECT_CALL(storage, changeWorkingDays(newWorkSchedule)).Times(1);
 
-    command_invoker.executeCommand(
-        std::make_unique<ChangeWorkingDays>(storage, oldTracker, newTracker));
+    command_invoker.executeCommand(std::make_unique<ChangeWorkingDays>(
+        storage, oldWorkSchedule, newWorkSchedule));
 
-    EXPECT_CALL(storage, changeWorkingDays(oldTracker));
+    EXPECT_CALL(storage, changeWorkingDays(oldWorkSchedule));
 
     command_invoker.undo();
 }

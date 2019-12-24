@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/delegates/TaskItemDelegate.h"
+#include "qt_gui/models/TaskModelRoles.h"
 #include <QApplication>
 #include <QPainter>
 
@@ -49,7 +50,6 @@ bool taskOverspent(const QString& stats);
 int contentWidth(const QRect& rect);
 
 } // namespace
-
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -109,15 +109,19 @@ void TaskItemDelegate::paintItem(QPainter* painter,
     commonCol.setAlpha(alpha);
     overspentCol.setAlpha(alpha);
 
-    const QString tags = index.data(Qt::UserRole + 1).toString();
-    const QString descr = index.data(Qt::UserRole + 2).toString();
-    const QString completionStats = index.data(Qt::UserRole + 3).toString();
+    const QString tags =
+        index.data(static_cast<int>(TaskModelRoles::GetTags)).toString();
+    const QString descr =
+        index.data(static_cast<int>(TaskModelRoles::GetName))
+            .toString();
+    const QString completionStats =
+        index.data(static_cast<int>(TaskModelRoles::GetStats)).toString();
 
     auto [statsRect, tagsRect, descrRect] = textRectangles(option, index);
 
     const auto contentRect{option.rect};
-    QStyle* style
-        = option.widget ? option.widget->style() : QApplication::style();
+    QStyle* style =
+        option.widget ? option.widget->style() : QApplication::style();
 
     // Truncate rect for a very long tag, that doesn't fit into rect
     tagsRect.setWidth(contentWidth(contentRect) - statsRect.width() - offset);
@@ -134,8 +138,8 @@ void TaskItemDelegate::paintItem(QPainter* painter,
     descrRect.adjust(contentRect.bottomLeft().x() + offset,
                      contentRect.bottomLeft().y() - offset - descrRect.height(),
                      contentRect.bottomLeft().x() + offset,
-                     contentRect.bottomLeft().y() - offset
-                         - descrRect.height());
+                     contentRect.bottomLeft().y() - offset -
+                         descrRect.height());
     painter->setPen(commonCol);
     style->drawItemText(
         painter, descrRect, Qt::TextWordWrap, option.palette, true, descr);
@@ -159,41 +163,45 @@ void TaskItemDelegate::paintItem(QPainter* painter,
 
 namespace {
 
-    std::tuple<QRect, QRect, QRect>
-    textRectangles(const QStyleOptionViewItem& option, const QModelIndex& index)
-    {
-        const QString tags = index.data(Qt::UserRole + 1).toString();
-        const QString descr = index.data(Qt::UserRole + 2).toString();
-        const QString stats = index.data(Qt::UserRole + 3).toString();
+std::tuple<QRect, QRect, QRect>
+textRectangles(const QStyleOptionViewItem& option, const QModelIndex& index)
+{
+    using sprint_timer::ui::qt_gui::TaskModelRoles;
+    const QString tags =
+        index.data(static_cast<int>(TaskModelRoles::GetTags)).toString();
+    const QString descr =
+        index.data(static_cast<int>(TaskModelRoles::GetName))
+            .toString();
+    const QString stats =
+        index.data(static_cast<int>(TaskModelRoles::GetStats)).toString();
 
-        QRect statsRect{
-            boundingRect(option, stats, contentWidth(option.rect), 0)};
-        QRect tagsRect{
-            boundingRect(option,
-                         tags,
-                         contentWidth(option.rect) - statsRect.width() - offset,
-                         Qt::TextWordWrap)};
-        QRect descrRect{boundingRect(
-            option, descr, contentWidth(option.rect), Qt::TextWordWrap)};
+    QRect statsRect{boundingRect(option, stats, contentWidth(option.rect), 0)};
+    QRect tagsRect{
+        boundingRect(option,
+                     tags,
+                     contentWidth(option.rect) - statsRect.width() - offset,
+                     Qt::TextWordWrap)};
+    QRect descrRect{boundingRect(
+        option, descr, contentWidth(option.rect), Qt::TextWordWrap)};
 
-        return {statsRect, tagsRect, descrRect};
-    }
+    return {statsRect, tagsRect, descrRect};
+}
 
-    QRect boundingRect(const QStyleOptionViewItem& option,
-                       const QString& text,
-                       int maxWidth,
-                       int flags)
-    {
-        QFontMetrics metrics{option.font};
-        return QRect{metrics.boundingRect(0, 0, maxWidth, 0, flags, text)};
-    }
+QRect boundingRect(const QStyleOptionViewItem& option,
+                   const QString& text,
+                   int maxWidth,
+                   int flags)
+{
+    QFontMetrics metrics{option.font};
+    return QRect{metrics.boundingRect(0, 0, maxWidth, 0, flags, text)};
+}
 
-    bool taskOverspent(const QString& stats)
-    {
-        QStringList parts = stats.split("/");
-        return parts[0].toInt() > parts[1].toInt();
-    }
+bool taskOverspent(const QString& stats)
+{
+    QStringList parts = stats.split("/");
+    return parts[0].toInt() > parts[1].toInt();
+}
 
-    int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
+int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
 
 } // namespace

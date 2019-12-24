@@ -38,16 +38,17 @@ enum class ScheduleColumns {
     SundayGoal
 };
 
-std::pair<dw::Date, sprint_timer::WeekSchedule> recordToSchedule(const QSqlRecord& record);
+std::pair<dw::Date, sprint_timer::WeekSchedule>
+recordToSchedule(const QSqlRecord& record);
 
 std::pair<dw::Date, int> recordToExceptionalDay(const QSqlRecord& record);
 
 } // namespace
 
-
 namespace sprint_timer::storage::qt_storage_impl {
 
-QtWorkingDaysStorage::QtWorkingDaysStorage(DBService& dbService_, QObject* parent_)
+QtWorkingDaysStorage::QtWorkingDaysStorage(DBService& dbService_,
+                                           QObject* parent_)
     : QObject{parent_}
     , dbService{dbService_}
 {
@@ -70,17 +71,17 @@ QtWorkingDaysStorage::QtWorkingDaysStorage(DBService& dbService_, QObject* paren
             .arg(ExceptionalDayTable::Columns::date)
             .arg(ExceptionalDayTable::Columns::goal));
 
-    requestSchedulesQuery
-        = QString("SELECT %1, %2, %3, %4, %5, %6, %7, %8 FROM %9;")
-              .arg(ScheduleTable::Columns::applied_since)
-              .arg(ScheduleTable::Columns::monday_goal)
-              .arg(ScheduleTable::Columns::tuesday_goal)
-              .arg(ScheduleTable::Columns::wednesday_goal)
-              .arg(ScheduleTable::Columns::thursday_goal)
-              .arg(ScheduleTable::Columns::friday_goal)
-              .arg(ScheduleTable::Columns::saturday_goal)
-              .arg(ScheduleTable::Columns::sunday_goal)
-              .arg(ScheduleTable::name);
+    requestSchedulesQuery =
+        QString("SELECT %1, %2, %3, %4, %5, %6, %7, %8 FROM %9;")
+            .arg(ScheduleTable::Columns::applied_since)
+            .arg(ScheduleTable::Columns::monday_goal)
+            .arg(ScheduleTable::Columns::tuesday_goal)
+            .arg(ScheduleTable::Columns::wednesday_goal)
+            .arg(ScheduleTable::Columns::thursday_goal)
+            .arg(ScheduleTable::Columns::friday_goal)
+            .arg(ScheduleTable::Columns::saturday_goal)
+            .arg(ScheduleTable::Columns::sunday_goal)
+            .arg(ScheduleTable::name);
 
     requestExceptionalDaysQuery = QString("SELECT %1, %2 FROM %3;")
                                       .arg(ExceptionalDayTable::Columns::date)
@@ -93,7 +94,7 @@ QtWorkingDaysStorage::QtWorkingDaysStorage(DBService& dbService_, QObject* paren
             &QtWorkingDaysStorage::onResultReceived);
 }
 
-void QtWorkingDaysStorage::changeWorkingDays(const WorkdayTracker& tracker)
+void QtWorkingDaysStorage::changeWorkingDays(const WorkSchedule& workSchedule)
 {
     dbService.transaction();
 
@@ -101,7 +102,7 @@ void QtWorkingDaysStorage::changeWorkingDays(const WorkdayTracker& tracker)
         QString{"DELETE FROM %1;"}.arg(ExceptionalDayTable::name));
     dbService.execute(QString{"DELETE FROM %1;"}.arg(ScheduleTable::name));
 
-    for (const auto& [date, schedule] : tracker.scheduleRoaster()) {
+    for (const auto& [date, schedule] : workSchedule.roaster()) {
         dbService.bind(
             storeSchedulesQueryId,
             ":applied_since",
@@ -130,7 +131,7 @@ void QtWorkingDaysStorage::changeWorkingDays(const WorkdayTracker& tracker)
         dbService.executePrepared(storeSchedulesQueryId);
     }
 
-    const auto exceptionalDays = tracker.exceptionalDays();
+    const auto exceptionalDays = workSchedule.exceptionalDays();
     for (const auto& [day, goal] : exceptionalDays) {
         dbService.bind(
             storeExceptionalDaysQuery,
@@ -146,7 +147,7 @@ void QtWorkingDaysStorage::changeWorkingDays(const WorkdayTracker& tracker)
 void QtWorkingDaysStorage::requestData(
     IWorkingDaysReader::ResultHandler resultHandler)
 {
-    contexts.push({resultHandler, WorkdayTracker{}});
+    contexts.push({resultHandler, WorkSchedule{}});
     requestSchedulesQueryId = dbService.execute(requestSchedulesQuery);
 }
 
@@ -157,55 +158,49 @@ void QtWorkingDaysStorage::onResultReceived(
 
         for (const auto& rec : records) {
             const auto& [appliedSince, schedule] = recordToSchedule(rec);
-            contexts.front().tracker.addWeekSchedule(appliedSince, schedule);
+            contexts.front().workSchedule.addWeekSchedule(appliedSince,
+                                                          schedule);
         }
 
-        requestExceptionalDaysQueryId
-            = dbService.execute(requestExceptionalDaysQuery);
+        requestExceptionalDaysQueryId =
+            dbService.execute(requestExceptionalDaysQuery);
     }
 
     if (queryId == requestExceptionalDaysQueryId) {
         for (const auto& rec : records) {
             const auto& [date, goal] = recordToExceptionalDay(rec);
-            contexts.front().tracker.addExceptionalDay(date, goal);
+            contexts.front().workSchedule.addExceptionalDay(date, goal);
         }
-        auto [handler, tracker] = contexts.front();
-        handler(std::move(tracker));
+        auto [handler, workSchedule] = contexts.front();
+        handler(std::move(workSchedule));
         contexts.pop();
     }
 }
 
 } // namespace sprint_timer::storage::qt_storage_impl
 
-namespace  {
+namespace {
 
-std::pair<dw::Date, sprint_timer::WeekSchedule> recordToSchedule(const QSqlRecord& record)
+std::pair<dw::Date, sprint_timer::WeekSchedule>
+recordToSchedule(const QSqlRecord& record)
 {
     using sprint_timer::storage::utils::DateTimeConverter;
     const auto appliedSince = DateTimeConverter::date(
-            record.value(static_cast<int>(ScheduleColumns::AppliedSince))
-                    .toDate());
-    const auto mon_goal
-            = record.value(static_cast<int>(ScheduleColumns::MondayGoal))
-                    .toInt();
-    const auto tue_goal
-            = record.value(static_cast<int>(ScheduleColumns::TuesdayGoal))
-                    .toInt();
-    const auto wed_goal
-            = record.value(static_cast<int>(ScheduleColumns::WednesdayGoal))
-                    .toInt();
-    const auto thu_goal
-            = record.value(static_cast<int>(ScheduleColumns::TuesdayGoal))
-                    .toInt();
-    const auto fri_goal
-            = record.value(static_cast<int>(ScheduleColumns::FridayGoal))
-                    .toInt();
-    const auto sat_goal
-            = record.value(static_cast<int>(ScheduleColumns::SaturdayGoal))
-                    .toInt();
-    const auto sun_goal
-            = record.value(static_cast<int>(ScheduleColumns::SundayGoal))
-                    .toInt();
+        record.value(static_cast<int>(ScheduleColumns::AppliedSince)).toDate());
+    const auto mon_goal =
+        record.value(static_cast<int>(ScheduleColumns::MondayGoal)).toInt();
+    const auto tue_goal =
+        record.value(static_cast<int>(ScheduleColumns::TuesdayGoal)).toInt();
+    const auto wed_goal =
+        record.value(static_cast<int>(ScheduleColumns::WednesdayGoal)).toInt();
+    const auto thu_goal =
+        record.value(static_cast<int>(ScheduleColumns::TuesdayGoal)).toInt();
+    const auto fri_goal =
+        record.value(static_cast<int>(ScheduleColumns::FridayGoal)).toInt();
+    const auto sat_goal =
+        record.value(static_cast<int>(ScheduleColumns::SaturdayGoal)).toInt();
+    const auto sun_goal =
+        record.value(static_cast<int>(ScheduleColumns::SundayGoal)).toInt();
     sprint_timer::WeekSchedule schedule;
     schedule.setTargetGoal(dw::Weekday::Monday, mon_goal);
     schedule.setTargetGoal(dw::Weekday::Tuesday, tue_goal);
@@ -221,12 +216,10 @@ std::pair<dw::Date, sprint_timer::WeekSchedule> recordToSchedule(const QSqlRecor
 std::pair<dw::Date, int> recordToExceptionalDay(const QSqlRecord& record)
 {
     using sprint_timer::storage::utils::DateTimeConverter;
-    const auto goal
-        = record.value(static_cast<int>(ExceptionalDaysColumn::Goal))
-              .toInt();
+    const auto goal =
+        record.value(static_cast<int>(ExceptionalDaysColumn::Goal)).toInt();
     const auto date = DateTimeConverter::date(
-        record.value(static_cast<int>(ExceptionalDaysColumn::Date))
-            .toDate());
+        record.value(static_cast<int>(ExceptionalDaysColumn::Date)).toDate());
 
     return {date, goal};
 }

@@ -38,8 +38,9 @@ class DefaultTimer : public TimerWidgetBase {
     Q_OBJECT
 
 public:
-    DefaultTimer(const IConfig& applicationSettings_,
+    DefaultTimer(const IConfig& applicationSettings,
                  QAbstractItemModel& taskModel,
+                 QAbstractItemModel& sprintModel,
                  QWidget* parent);
     ~DefaultTimer() override;
     DefaultTimer(const DefaultTimer&) = delete;
@@ -48,7 +49,6 @@ public:
     DefaultTimer& operator=(const DefaultTimer&&) = delete;
 
     void setCandidateIndex(int index) override;
-    void updateGoalProgress(const GoalProgress& progress) override;
 
 private:
     std::unique_ptr<Ui::DefaultTimer> ui;
@@ -66,6 +66,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: DEFAULTTIMER_H_QE49BN8Q */

@@ -35,28 +35,29 @@ constexpr int offsetToTop{90 * 16};
 namespace sprint_timer::ui::qt_gui {
 
 namespace GaugeColors {
-    const QColor normalEmpty{Qt::gray};
-    const QColor normalFilled{QColor{"#6baa15"}};
-    const QColor overfilledEmpty{QColor{"#6baa15"}};
-    const QColor overfilledFilled{Qt::red};
-    const QColor backgroundFree{QColor{"#354a5f"}};
-    const QColor backgroundHovered{Qt::white};
-    const QColor restDayEmpty{QColor{"#ffa500"}};
+const QColor normalEmpty{Qt::gray};
+const QColor normalFilled{QColor{"#6baa15"}};
+const QColor overfilledEmpty{QColor{"#6baa15"}};
+const QColor overfilledFilled{Qt::red};
+const QColor backgroundFree{QColor{"#354a5f"}};
+const QColor backgroundHovered{Qt::white};
+const QColor restDayEmpty{QColor{"#ffa500"}};
 } // namespace GaugeColors
 
 namespace {
-    auto hoveredState = std::make_unique<HoverStateHovered>();
-    auto unhoveredState = std::make_unique<HoverStateUnhovered>();
-    auto workProgressUnderwork = std::make_unique<WorkProgressUnderwork>();
-    auto workProgressOverwork = std::make_unique<WorkProgressOverwork>();
-    auto workProgressNone = std::make_unique<WorkProgressNone>();
-    auto workProgressDone = std::make_unique<WorkProgressDone>();
-    auto workProgressRest = std::make_unique<WorkProgressRest>();
+auto hoveredState = std::make_unique<HoverStateHovered>();
+auto unhoveredState = std::make_unique<HoverStateUnhovered>();
+auto workProgressUnderwork = std::make_unique<WorkProgressUnderwork>();
+auto workProgressOverwork = std::make_unique<WorkProgressOverwork>();
+auto workProgressNone = std::make_unique<WorkProgressNone>();
+auto workProgressDone = std::make_unique<WorkProgressDone>();
+auto workProgressRest = std::make_unique<WorkProgressRest>();
 } // namespace
 
 Gauge::Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent)
     : QWidget{parent}
-    , progress{GoalProgress{goal, actual}}
+    , progress{GoalProgress{GoalProgress::Estimated{goal},
+                            GoalProgress::Actual{actual}}}
     , gaugeRelSize{gaugeRelSize}
     , hoverState{unhoveredState.get()}
 {
@@ -80,7 +81,8 @@ Gauge::Gauge(GoalProgress progress, double gaugeRelSize, QWidget* parent)
 
 void Gauge::setData(int completed, int total)
 {
-    progress = GoalProgress{total, completed};
+    progress = GoalProgress{GoalProgress::Estimated{total},
+                            GoalProgress::Actual{completed}};
     updateState();
     repaint();
 }
@@ -117,8 +119,8 @@ void Gauge::paintEvent(QPaintEvent*)
     setupPainter(painter);
 
     QRectF totalSizeRect = this->rect();
-    double outerRectLength = gaugeRelSize
-        * std::min(totalSizeRect.width(), totalSizeRect.height());
+    double outerRectLength =
+        gaugeRelSize * std::min(totalSizeRect.width(), totalSizeRect.height());
     double innerRectLength = 0.7 * outerRectLength;
     outerRect = QRectF(totalSizeRect.center().x() - outerRectLength / 2,
                        totalSizeRect.center().y() - outerRectLength / 2,
@@ -214,8 +216,8 @@ void WorkProgressState::draw(const Gauge& gauge, QPainter& painter)
 {
     setupBrushes();
     int completedAngle = static_cast<int>(
-        (gauge.progress.actual() % gauge.progress.estimated()) * fullCircle
-        / float(gauge.progress.estimated()));
+        (gauge.progress.actual() % gauge.progress.estimated()) * fullCircle /
+        float(gauge.progress.estimated()));
     painter.setBrush(empty);
     painter.drawEllipse(gauge.outerRect);
     painter.setBrush(filled);

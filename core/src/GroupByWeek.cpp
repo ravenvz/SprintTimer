@@ -38,12 +38,12 @@ GroupByWeek::GroupByWeek(const IConfig& applicationSettings_)
 std::vector<GoalProgress>
 GroupByWeek::computeProgress(const dw::DateRange& dateRange,
                              const std::vector<int>& actualProgress,
-                             const WorkdayTracker& workdayTracker) const
+                             const WorkSchedule& workSchedule) const
 {
     using namespace dw;
     std::vector<GoalProgress> progress;
     progress.reserve(actualProgress.size());
-    auto actualIt = actualProgress.cbegin();
+    auto actualIt = cbegin(actualProgress);
 
     const dw::Weekday firstDayOfWeek{applicationSettings.firstDayOfWeek()};
     const dw::Weekday lastDayOfWeek{weekday_before(firstDayOfWeek)};
@@ -57,9 +57,18 @@ GroupByWeek::computeProgress(const dw::DateRange& dateRange,
     };
 
     for (auto finish = next_finish(); start <= lastDay;
-         start = finish + Days{1}, finish = next_finish(), ++actualIt) {
+         start = finish + Days{1}, finish = next_finish()) {
         const DateRange weekChunk{start, finish};
-        progress.emplace_back(goalFor(workdayTracker, weekChunk), *actualIt);
+        if (actualIt != cend(actualProgress)) {
+            progress.emplace_back(
+                GoalProgress::Estimated{goalFor(workSchedule, weekChunk)},
+                GoalProgress::Actual{*actualIt});
+            ++actualIt;
+        }
+        else
+            progress.emplace_back(
+                GoalProgress::Estimated{goalFor(workSchedule, weekChunk)},
+                GoalProgress::Actual{0});
     }
 
     return progress;

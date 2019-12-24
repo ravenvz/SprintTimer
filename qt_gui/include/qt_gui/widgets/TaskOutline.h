@@ -23,8 +23,8 @@
 #define TASKOUTLINE_H
 
 #include "qt_gui/models/SprintModel.h"
-#include "qt_gui/models/TaskModel.h"
 #include "qt_gui/widgets/TaskView.h"
+#include <QAbstractItemModel>
 #include <QLineEdit>
 #include <QWidget>
 #include <core/ISprintStorageReader.h>
@@ -42,30 +42,30 @@ class AddTaskDialog;
  * tasks, add/edit and remove task and tags. */
 class TaskOutline : public QWidget {
 public:
-    TaskOutline(TaskModel& taskModel,
+    TaskOutline(QAbstractItemModel& taskModel,
                 SprintModel& sprintModel,
                 std::unique_ptr<TaskView> taskView,
                 AddTaskDialog& addTaskDialog,
                 QWidget* parent = nullptr);
 
+    void onSprintSubmissionRequested(
+        const std::vector<dw::DateTimeRange>& intervals);
+
 private:
     QPointer<TagEditor> tagEditor;
-    TaskModel& taskModel;
+    QAbstractItemModel& taskModel;
     SprintModel& sprintModel;
     TaskView* taskView;
     AddTaskDialog& addTaskDialog;
     QLineEdit* quickAddTask;
 
-public slots:
-    void onSprintSubmissionRequested(
-        const std::vector<dw::DateTimeRange>& intervals);
-
-private slots:
     void onAddTaskButtonPushed();
+
     void onQuickAddTodoReturnPressed();
+
+    void insertTask(const entities::Task& task);
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // TASKOUTLINE_H

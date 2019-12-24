@@ -30,8 +30,8 @@ namespace sprint_timer::use_cases {
 class ChangeWorkingDays : public Command {
 public:
     ChangeWorkingDays(IWorkingDaysWriter& writer,
-                      const WorkdayTracker& oldTracker,
-                      const WorkdayTracker& newTracker);
+                      const WorkSchedule& oldWorkSchedule,
+                      const WorkSchedule& newWorkSchedule);
 
     void execute() final;
 
@@ -41,8 +41,8 @@ public:
 
 private:
     IWorkingDaysWriter& writer;
-    const WorkdayTracker oldTracker;
-    const WorkdayTracker newTracker;
+    const WorkSchedule oldWorkSchedule;
+    const WorkSchedule newWorkSchedule;
 };
 
 } // namespace sprint_timer::use_cases

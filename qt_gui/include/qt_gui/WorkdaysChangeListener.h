@@ -22,7 +22,7 @@
 #ifndef WORKDAYSCHANGELISTENER_H_G23DLI68
 #define WORKDAYSCHANGELISTENER_H_G23DLI68
 
-#include <core/WorkdayTracker.h>
+#include <core/WorkSchedule.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -30,7 +30,7 @@ class WorkdaysChangeListener {
 public:
     virtual ~WorkdaysChangeListener() = default;
 
-    virtual void onWorkdayTrackerChanged(const WorkdayTracker& tracker) = 0;
+    virtual void onWorkScheduleChanged(const WorkSchedule& workSchedule) = 0;
 };
 
 } // namespace sprint_timer::ui::qt_gui

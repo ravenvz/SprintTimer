@@ -25,9 +25,6 @@
 
 namespace {
 
-constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
-constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
-constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
 const QColor taskStateColor{"#eb6c59"};
 const QColor breakStateColor{"#73c245"};
 const QColor zoneStateColor{Qt::darkYellow};
@@ -37,19 +34,20 @@ const QColor zoneStateColor{Qt::darkYellow};
 namespace sprint_timer::ui::qt_gui {
 
 FancyTimer::FancyTimer(const IConfig& applicationSettings_,
-                       QAbstractItemModel& taskModel,
-                       QWidget* parent)
-    : TimerWidgetBase{applicationSettings_, parent}
+                       QAbstractItemModel& taskModel_,
+                       QAbstractItemModel& sprintModel_,
+                       QWidget* parent_)
+    : TimerWidgetBase{applicationSettings_, sprintModel_, parent_}
     , ui{std::make_unique<Ui::FancyTimer>()}
 {
     ui->setupUi(this);
-    combinedIndicator
-        = std::make_unique<CombinedIndicator>(indicatorSize, this).release();
+    combinedIndicator =
+        std::make_unique<CombinedIndicator>(indicatorSize, this).release();
     combinedIndicator->setSizePolicy(QSizePolicy::MinimumExpanding,
                                      QSizePolicy::MinimumExpanding);
-    ui->cbxSubmissionCandidate->setModel(&taskModel);
+    ui->cbxSubmissionCandidate->setModel(&taskModel_);
     ui->gridLayout->addWidget(
-        combinedIndicator, 2, 0, 1, 2, Qt::AlignHCenter | Qt::AlignTop);
+        combinedIndicator, 2, 0, 1, 2, Qt::AlignHCenter | Qt::AlignVCenter);
 
     WidgetUtils::setRetainSizeWhenHidden(ui->pbCancel);
     WidgetUtils::setRetainSizeWhenHidden(ui->pbZone);
@@ -81,30 +79,6 @@ void FancyTimer::setCandidateIndex(int index)
 {
     if (ui->cbxSubmissionCandidate->isVisible())
         ui->cbxSubmissionCandidate->setCurrentIndex(index);
-}
-
-void FancyTimer::updateGoalProgress(const GoalProgress& progress)
-{
-    const int estimated{progress.estimated()};
-    const int actual{progress.actual()};
-    timer->setNumFinishedSprints(actual);
-    if (estimated == 0) {
-        ui->labelDailyGoalProgress->hide();
-        return;
-    }
-    ui->labelDailyGoalProgress->show();
-    ui->labelDailyGoalProgress->setText(QString("Daily goal progress: %1/%2")
-                                            .arg(progress.actual())
-                                            .arg(progress.estimated()));
-    if (actual == estimated) {
-        ui->labelDailyGoalProgress->setStyleSheet(workgoalMetStyleSheet);
-    }
-    else if (actual > estimated) {
-        ui->labelDailyGoalProgress->setStyleSheet(overworkStyleSheet);
-    }
-    else {
-        ui->labelDailyGoalProgress->setStyleSheet(underworkStyleSheet);
-    }
 }
 
 void FancyTimer::onSprintStateEnteredHook()
@@ -185,8 +159,8 @@ void FancyTimer::updateIndication(std::chrono::seconds timeLeft)
 
 bool FancyTimer::indicationUpdateShouldBeIgnored() const
 {
-    return currentState == IStatefulTimer::StateId::IdleEntered
-        || currentState == IStatefulTimer::StateId::SprintFinished;
+    return currentState == IStatefulTimer::StateId::IdleEntered ||
+           currentState == IStatefulTimer::StateId::SprintFinished;
 }
 
 void FancyTimer::onIndicatorClicked()

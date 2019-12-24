@@ -28,7 +28,7 @@
 using sprint_timer::GoalProgress;
 using sprint_timer::ProgressOverPeriod;
 using sprint_timer::WeekSchedule;
-using sprint_timer::WorkdayTracker;
+using sprint_timer::WorkSchedule;
 
 using namespace dw;
 
@@ -36,28 +36,56 @@ using namespace dw;
  * These tests focus on testing ProgressOverPeriod features together with
  * GroupByDay strategy. They do not test odd combinations of WeekSchedules or
  * addition of exceptional days trusting that these things are tested in
- * WorkdayTracker tests.
+ * WorkSchedule tests.
  */
 
 class ProgressByDayFixture : public ::testing::Test {
 public:
     ProgressByDayFixture()
     {
-        schedule.setTargetGoal(dw::Weekday::Monday, 13);
-        schedule.setTargetGoal(dw::Weekday::Tuesday, 13);
-        schedule.setTargetGoal(dw::Weekday::Wednesday, 13);
-        schedule.setTargetGoal(dw::Weekday::Thursday, 13);
-        schedule.setTargetGoal(dw::Weekday::Friday, 13);
-        workdayTracker.addWeekSchedule(period.start(), schedule);
+        weekSchedule.setTargetGoal(dw::Weekday::Monday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Tuesday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Wednesday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Thursday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Friday, 13);
+        workSchedule.addWeekSchedule(period.start(), weekSchedule);
     }
 
-    WeekSchedule schedule;
-    WorkdayTracker workdayTracker;
+    WeekSchedule weekSchedule;
+    WorkSchedule workSchedule;
 
     const DateRange period{Date{Year{2019}, Month{1}, Day{30}},
                            Date{Year{2019}, Month{2}, Day{4}}};
     sprint_timer::GroupByDay groupByDayStrategy;
 };
+
+TEST_F(ProgressByDayFixture, handles_empty_actual_progress)
+{
+    const DateRange period{Date{Year{2019}, Month{1}, Day{30}},
+                           Date{Year{2019}, Month{2}, Day{4}}};
+    const std::vector<int> actualProgress;
+    const std::vector<GoalProgress> expected{
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{0}}};
+
+    const ProgressOverPeriod progress{
+        period, actualProgress, workSchedule, groupByDayStrategy};
+
+    EXPECT_EQ(0, progress.actual());
+    EXPECT_DOUBLE_EQ(0, *progress.averagePerGroupPeriod());
+    EXPECT_FALSE(progress.isOverwork());
+    EXPECT_NEAR(0, *progress.percentage(), 0.1);
+    EXPECT_EQ(52, progress.difference());
+    EXPECT_EQ(52, progress.estimated());
+    EXPECT_EQ(6, progress.size());
+
+    for (size_t i = 0; i < expected.size(); ++i)
+        EXPECT_EQ(expected[i], progress.getValue(i));
+}
 
 TEST_F(ProgressByDayFixture, underwork)
 {
@@ -65,10 +93,15 @@ TEST_F(ProgressByDayFixture, underwork)
                            Date{Year{2019}, Month{2}, Day{4}}};
     const std::vector<int> actualProgress{13, 12, 11, 0, 0, 10};
     const std::vector<GoalProgress> expected{
-        {13, 13}, {13, 12}, {13, 11}, {0, 0}, {0, 0}, {13, 10}};
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{13}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{12}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{11}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{10}}};
 
     const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByDayStrategy};
+        period, actualProgress, workSchedule, groupByDayStrategy};
 
     EXPECT_EQ(46, progress.actual());
     EXPECT_DOUBLE_EQ(11.5, *progress.averagePerGroupPeriod());
@@ -88,10 +121,15 @@ TEST_F(ProgressByDayFixture, overwork)
                            Date{Year{2019}, Month{2}, Day{4}}};
     const std::vector<int> actualProgress{15, 13, 14, 0, 10, 12};
     const std::vector<GoalProgress> expected{
-        {13, 15}, {13, 13}, {13, 14}, {0, 0}, {0, 10}, {13, 12}};
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{15}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{13}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{14}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{10}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{12}}};
 
     const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByDayStrategy};
+        period, actualProgress, workSchedule, groupByDayStrategy};
 
     EXPECT_EQ(64, progress.actual());
     EXPECT_DOUBLE_EQ(16, *progress.averagePerGroupPeriod());
@@ -118,11 +156,16 @@ TEST_F(ProgressByDayFixture, work_during_vacation)
     vacationSchedule.setTargetGoal(dw::Weekday::Friday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Saturday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Sunday, 0);
-    WorkdayTracker vacationTracker;
+    WorkSchedule vacationTracker;
     vacationTracker.addWeekSchedule(start, vacationSchedule);
     const std::vector<int> actualProgress{15, 13, 14, 0, 10, 12};
     const std::vector<GoalProgress> expected{
-        {0, 15}, {0, 13}, {0, 14}, {0, 0}, {0, 10}, {0, 12}};
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{15}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{13}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{14}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{10}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{12}}};
 
     const ProgressOverPeriod progress{
         period, actualProgress, vacationTracker, groupByDayStrategy};

@@ -19,39 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SCHEDULEMODEL_H_XC3JPGN7
-#define SCHEDULEMODEL_H_XC3JPGN7
-
-#include <QAbstractItemModel>
-#include <QDate>
-#include <core/IConfig.h>
-#include <core/WeekSchedule.h>
+#include "qt_gui/widgets/AutodisablingButton.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-class ScheduleModel : public QAbstractListModel {
-public:
-    ScheduleModel(const IConfig& applicationSettings,
-                  QObject* parent = nullptr);
-
-    int rowCount(const QModelIndex& parent) const final;
-
-    bool insertRows(int row, int count, const QModelIndex& index) final;
-
-    bool removeRows(int row, int count, const QModelIndex& index) final;
-
-    QVariant data(const QModelIndex& index, int role) const final;
-
-    bool
-    setData(const QModelIndex& index, const QVariant& data, int role) final;
-
-    void sort(int column, Qt::SortOrder order) final;
-
-private:
-    const IConfig& applicationSettings;
-    std::vector<QPair<QDate, WeekSchedule>> data_;
-};
+AutodisablingButton::AutodisablingButton(QAbstractItemModel& model_,
+                                         const QString& text,
+                                         QWidget* parent_)
+    : QPushButton{text, parent_}
+{
+    connect(&model_, &QAbstractItemModel::modelReset, [this, &model_]() {
+        setEnabled(model_.rowCount() != 0);
+    });
+}
 
 } // namespace sprint_timer::ui::qt_gui
-
-#endif /* end of include guard: SCHEDULEMODEL_H_XC3JPGN7 */

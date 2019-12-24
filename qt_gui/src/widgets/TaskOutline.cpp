@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "qt_gui/widgets/TaskOutline.h"
 #include "qt_gui/dialogs/AddTaskDialog.h"
+#include "qt_gui/metatypes/TaskMetaType.h"
+#include "qt_gui/models/TaskModelRoles.h"
 #include "qt_gui/widgets/TaskView.h"
 #include <QMenu>
 #include <QPushButton>
@@ -38,16 +40,16 @@ namespace sprint_timer::ui::qt_gui {
 using namespace entities;
 using use_cases::RequestSprintsForTask;
 
-TaskOutline::TaskOutline(TaskModel& taskModel,
-                         SprintModel& sprintModel,
+TaskOutline::TaskOutline(QAbstractItemModel& taskModel_,
+                         SprintModel& sprintModel_,
                          std::unique_ptr<TaskView> taskView_,
-                         AddTaskDialog& addTaskDialog,
-                         QWidget* parent)
-    : QWidget{parent}
-    , taskModel{taskModel}
-    , sprintModel{sprintModel}
+                         AddTaskDialog& addTaskDialog_,
+                         QWidget* parent_)
+    : QWidget{parent_}
+    , taskModel{taskModel_}
+    , sprintModel{sprintModel_}
     , taskView{taskView_.release()}
-    , addTaskDialog{addTaskDialog}
+    , addTaskDialog{addTaskDialog_}
 {
     auto layout = std::make_unique<QVBoxLayout>(this);
 
@@ -61,7 +63,7 @@ TaskOutline::TaskOutline(TaskModel& taskModel,
     layout->addWidget(taskView);
 
     auto quickAddTask_ = std::make_unique<QLineEdit>();
-    quickAddTask_->setPlaceholderText("QuickAdd task");
+    quickAddTask_->setPlaceholderText("QuickAdd task #tag *estimate");
     quickAddTask = quickAddTask_.release();
     connect(quickAddTask,
             &QLineEdit::returnPressed,
@@ -77,15 +79,15 @@ void TaskOutline::onQuickAddTodoReturnPressed()
     std::string encodedDescription = quickAddTask->text().toStdString();
     quickAddTask->clear();
     if (!encodedDescription.empty()) {
-        Task item{std::move(encodedDescription)};
-        taskModel.insert(item);
+        const Task item{std::move(encodedDescription)};
+        insertTask(item);
     }
 }
 
 void TaskOutline::onAddTaskButtonPushed()
 {
     connect(&addTaskDialog, &QDialog::accepted, [&]() {
-        taskModel.insert(addTaskDialog.constructedTask());
+        insertTask(addTaskDialog.constructedTask());
     });
     addTaskDialog.setWindowTitle(addTaskDialogTitle);
     addTaskDialog.exec();
@@ -99,8 +101,11 @@ void TaskOutline::onSprintSubmissionRequested(
         return;
     std::vector<Sprint> sprints;
     sprints.reserve(intervals.size());
-    const auto taskUuid
-        = taskModel.itemAt(*taskView->currentlySelectedRow()).uuid();
+
+    const auto taskUuid = taskModel.index(*taskView->currentlySelectedRow(), 0)
+                              .data(static_cast<int>(TaskModelRoles::GetIdRole))
+                              .toString()
+                              .toStdString();
     std::transform(intervals.cbegin(),
                    intervals.cend(),
                    std::back_inserter(sprints),
@@ -108,6 +113,16 @@ void TaskOutline::onSprintSubmissionRequested(
                        return Sprint{taskUuid, interval};
                    });
     sprintModel.insert(sprints);
+}
+
+void TaskOutline::insertTask(const Task& task)
+{
+    QVariant var;
+    var.setValue(task);
+    taskModel.insertRow(taskModel.rowCount());
+    taskModel.setData(taskModel.index(taskModel.rowCount() - 1, 0),
+                      var,
+                      static_cast<int>(TaskModelRoles::Insert));
 }
 
 } // namespace sprint_timer::ui::qt_gui

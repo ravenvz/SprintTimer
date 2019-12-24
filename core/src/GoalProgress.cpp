@@ -30,9 +30,9 @@ GoalProgress::GoalProgress()
 {
 }
 
-GoalProgress::GoalProgress(int expected, int actual)
-    : expected_{expected}
-    , actual_{actual}
+GoalProgress::GoalProgress(Estimated expected, Actual actual)
+    : expected_{expected.value}
+    , actual_{actual.value}
 {
 }
 

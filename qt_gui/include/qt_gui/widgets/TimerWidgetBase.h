@@ -23,6 +23,7 @@
 #define ITIMERWIDGET_H_REB4PSQX
 
 #include "qt_gui/dialogs/ConfirmationDialog.h"
+#include <QAbstractItemModel>
 #include <QMediaPlayer>
 #include <QWidget>
 #include <core/GoalProgress.h>
@@ -46,9 +47,13 @@ class TimerWidgetBase : public QWidget {
     Q_OBJECT
 
 public:
-    TimerWidgetBase(const IConfig& applicationSettings, QWidget* parent);
+    TimerWidgetBase(
+        const IConfig& applicationSettings,
+        QAbstractItemModel& sprintModel, // TODO Workaround to preserve long
+                                         // break counter after restart. Remove
+                                         // when refactored StatefulTimer
+        QWidget* parent);
     virtual void setCandidateIndex(int index) = 0;
-    virtual void updateGoalProgress(const GoalProgress& progress) = 0;
 
 protected:
     const IConfig& applicationSettings;
@@ -88,6 +93,5 @@ signals:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: ITIMERWIDGET_H_REB4PSQX */

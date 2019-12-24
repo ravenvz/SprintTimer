@@ -57,7 +57,7 @@ cmake_options="-DCMAKE_BUILD_TYPE=$build_type \
 echo "$build_type build using $cxx_compiler and $build_tool"
 
 (cd build && \
-    CC=$c_compiler CXX=$cxx_compiler cmake $generator $cmake_options $verbose_makefile_option .. \
+    CC=$c_compiler CXX=$cxx_compiler cmake -G$generator $cmake_options $verbose_makefile_option .. \
     && $build_tool $build_tool_options)
 
 if [ $build_tests == "ON" ]; then

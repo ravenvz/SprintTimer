@@ -33,14 +33,14 @@ class QtWorkingDaysStorage : public QObject, public IWorkingDaysStorage {
 public:
     QtWorkingDaysStorage(DBService& dbService, QObject* parent = nullptr);
 
-    void changeWorkingDays(const WorkdayTracker& tracker) override;
+    void changeWorkingDays(const WorkSchedule& workSchedule) override;
 
     void requestData(IWorkingDaysReader::ResultHandler resultHandler) override;
 
 private:
     struct Context {
         IWorkingDaysReader::ResultHandler handler;
-        WorkdayTracker tracker;
+        WorkSchedule workSchedule;
     };
 
     DBService& dbService;

@@ -23,10 +23,9 @@
 #define PICKPERIODWIDGET_H
 
 #include "qt_gui/dialogs/DateRangePickDialog.h"
-#include "qt_gui/models/OperationRangeModel.h"
 #include <QStringListModel>
-#include <core/IConfig.h>
 #include <QWidget>
+#include <core/IConfig.h>
 #include <memory>
 
 #ifdef _MSC_VER
@@ -49,7 +48,7 @@ class DateRangePicker : public QWidget {
 
 public:
     DateRangePicker(std::unique_ptr<DateRangePickDialog> dateRangePickDialog,
-                    const OperationRangeModel& operationRangeModel,
+                    QAbstractItemModel& yearsModel,
                     QWidget* parent = nullptr);
 
     ~DateRangePicker() override;
@@ -62,10 +61,8 @@ signals:
 private:
     std::unique_ptr<Ui::DateRangePicker> ui;
     std::unique_ptr<DateRangePickDialog> dateRangePickDialog;
-    const OperationRangeModel& operationRangeModel;
     dw::DateRange selectedDateRange;
     QStringListModel monthsModel;
-    QStringListModel yearsModel;
 
     void openDatePickDialog();
 
@@ -75,12 +72,9 @@ private:
 
     void updateSelectionHintLabel();
 
-    void setOperationalRange(const dw::DateRange& operationalRange);
-
-    void selectCurrentYearMonth(const QStringList& yearRange);
+    void preselectCurrentYearMonth();
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // PICKPERIODWIDGET_H

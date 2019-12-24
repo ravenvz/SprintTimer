@@ -23,8 +23,8 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-AsyncListModel::AsyncListModel(QObject* parent)
-    : QAbstractListModel{parent}
+AsyncListModel::AsyncListModel(QObject* parent_)
+    : QAbstractListModel{parent_}
 {
 }
 

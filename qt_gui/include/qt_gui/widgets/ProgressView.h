@@ -24,13 +24,13 @@
 
 #include "qt_gui/ProgressRangeRequestStrategy.h"
 #include "qt_gui/models/DistributionModel.h"
-#include "qt_gui/models/WorkdayTrackerModel.h"
+#include "qt_gui/models/WorkScheduleModel.h"
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
 #include <core/GoalProgress.h>
 #include <core/ProgressGroupingStrategy.h>
 #include <core/ProgressOverPeriod.h>
-#include <core/WorkdayTracker.h>
+#include <core/WorkSchedule.h>
 #include <memory>
 
 namespace Ui {
@@ -48,7 +48,7 @@ public:
     using GaugeSize = double;
 
     ProgressView(const DistributionModel& progressModel,
-                 const WorkdayTrackerModel& workdaysModel,
+                 const WorkScheduleModel& workdaysModel,
                  const ProgressGroupingStrategy& groupingStrategy,
                  const ProgressRangeRequestStrategy& requestRangeStrategy,
                  Rows numRows,

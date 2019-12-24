@@ -16,7 +16,7 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="0" colspan="2">
+     <item row="0" column="0" colspan="2">
       <widget class="sprint_timer::ui::qt_gui::SubmissionBox" name="cbxSubmissionCandidate">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
@@ -26,7 +26,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="0" alignment="Qt::AlignBottom">
+     <item row="3" column="0" alignment="Qt::AlignBottom">
       <widget class="QPushButton" name="pbCancel">
        <property name="text">
         <string>Cancel</string>
@@ -36,7 +36,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1" alignment="Qt::AlignBottom">
+     <item row="3" column="1" alignment="Qt::AlignBottom">
       <widget class="QPushButton" name="pbZone">
        <property name="text">
         <string>InTheZone</string>
@@ -46,13 +46,6 @@
        </property>
        <property name="flat">
         <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" colspan="2" alignment="Qt::AlignHCenter">
-      <widget class="QLabel" name="labelDailyGoalProgress">
-       <property name="text">
-        <string>TextLabel</string>
        </property>
       </widget>
      </item>

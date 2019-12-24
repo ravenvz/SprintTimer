@@ -27,13 +27,13 @@ namespace sprint_timer {
 ProgressOverPeriod::ProgressOverPeriod(
     const dw::DateRange& period,
     const std::vector<int>& actualProgress,
-    const WorkdayTracker& workdayTracker,
+    const WorkSchedule& workSchedule,
     const ProgressGroupingStrategy& groupingStrategy)
     : actual_{
-        std::accumulate(actualProgress.cbegin(), actualProgress.cend(), 0)}
+          std::accumulate(actualProgress.cbegin(), actualProgress.cend(), 0)}
 {
-    progress_ = groupingStrategy.computeProgress(
-        period, actualProgress, workdayTracker);
+    progress_ =
+        groupingStrategy.computeProgress(period, actualProgress, workSchedule);
     numWorkBins_ = std::accumulate(progress_.cbegin(),
                                    progress_.cend(),
                                    0,
@@ -50,8 +50,8 @@ ProgressOverPeriod::ProgressOverPeriod(
 std::optional<double> ProgressOverPeriod::percentage() const
 {
     return numWorkBins_ == 0
-        ? std::optional<double>{}
-        : static_cast<double>(actual()) * 100 / estimated();
+               ? std::optional<double>{}
+               : static_cast<double>(actual()) * 100 / estimated();
 }
 
 int ProgressOverPeriod::estimated() const { return estimated_; }

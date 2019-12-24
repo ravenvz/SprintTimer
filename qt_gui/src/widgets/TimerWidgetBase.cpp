@@ -26,6 +26,7 @@
 namespace sprint_timer::ui::qt_gui {
 
 TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
+                                 QAbstractItemModel& sprintModel,
                                  QWidget* parent)
     : QWidget{parent}
     , applicationSettings{applicationSettings}
@@ -39,6 +40,11 @@ TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
 
     qRegisterMetaType<std::chrono::seconds>("std::chrono::seconds");
     qRegisterMetaType<IStatefulTimer::StateId>("IStatefulTimer::StateId");
+
+    connect(
+        &sprintModel, &QAbstractItemModel::modelReset, [this, &sprintModel] {
+            timer->setNumFinishedSprints(sprintModel.rowCount());
+        });
 
     connect(player.get(),
             QOverload<QMediaPlayer::Error>::of(&QMediaPlayer::error),
@@ -137,8 +143,8 @@ void TimerWidgetBase::cancelTask()
     ConfirmationDialog cancelDialog;
     QString description("This will destroy current sprint!");
     cancelDialog.setActionDescription(description);
-    if (currentState == IStatefulTimer::StateId::BreakEntered
-        || cancelDialog.exec()) {
+    if (currentState == IStatefulTimer::StateId::BreakEntered ||
+        cancelDialog.exec()) {
         timer->cancel();
     }
 }
@@ -154,8 +160,8 @@ void TimerWidgetBase::requestSubmission()
 
 void TimerWidgetBase::playSound() const
 {
-    if (currentState == IStatefulTimer::StateId::ZoneEntered
-        || !applicationSettings.soundIsEnabled()) {
+    if (currentState == IStatefulTimer::StateId::ZoneEntered ||
+        !applicationSettings.soundIsEnabled()) {
         return;
     }
     player->setMedia(QUrl::fromLocalFile(
@@ -173,7 +179,6 @@ void TimerWidgetBase::onSoundPlaybackError(QMediaPlayer::Error error)
             .arg(QString::fromStdString(applicationSettings.soundFilePath()))
             .arg(player->errorString()));
 }
-
 
 QString TimerWidgetBase::timerValueToText(std::chrono::seconds timeLeft)
 {

@@ -44,29 +44,30 @@ const QSize menuWidget{50, 100};
 const QSize timerWidget{100, 300};
 constexpr int buttonsHeight{50};
 const QSize expandedMenu{timerWidget.width(),
-                         timerWidget.height() + buttonsHeight
-                             + menuWidget.height()};
+                         timerWidget.height() + buttonsHeight +
+                             menuWidget.height()};
 const QSize expandedOutlines{2 * outlineWidth + timerWidget.width(),
                              outlineHeight};
 const QSize shrinked{timerWidget.width(), timerWidget.height() + buttonsHeight};
 const QSize expanded{2 * outlineWidth + timerWidget.width(),
-                     timerWidget.height() + menuWidget.height()
-                         + buttonsHeight};
+                     timerWidget.height() + menuWidget.height() +
+                         buttonsHeight};
 
 } // namespace widget_size
 
 namespace sprint_timer::ui::qt_gui {
 
-MainWindow::MainWindow(std::unique_ptr<QWidget> sprintOutline,
-                       std::unique_ptr<QWidget> taskOutline,
-                       std::unique_ptr<QWidget> timerWidget,
-                       std::unique_ptr<QWidget> launcherMenu,
+MainWindow::MainWindow(std::unique_ptr<QWidget> sprintOutline_,
+                       std::unique_ptr<QWidget> taskOutline_,
+                       std::unique_ptr<QWidget> todayProgressIndicator_,
+                       std::unique_ptr<QWidget> timerWidget_,
+                       std::unique_ptr<QWidget> launcherMenu_,
                        QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::MainWindow>()}
-    , sprintsWidget{sprintOutline.release()}
-    , tasksWidget{taskOutline.release()}
-    , menuWidget{launcherMenu.release()}
+    , sprintsWidget{sprintOutline_.release()}
+    , tasksWidget{taskOutline_.release()}
+    , menuWidget{launcherMenu_.release()}
 {
     ui->setupUi(this);
 
@@ -78,9 +79,13 @@ MainWindow::MainWindow(std::unique_ptr<QWidget> sprintOutline,
     tasksWidget->setVisible(false);
     ui->gridLayout->addWidget(tasksWidget, 0, 0, 3, 1);
 
-    timerWidget->setMinimumSize(widget_size::timerWidget);
+    ui->gridLayout->addWidget(todayProgressIndicator_.release(),
+                              1,
+                              1,
+                              Qt::AlignHCenter | Qt::AlignBottom);
+    timerWidget_->setMinimumSize(widget_size::timerWidget);
     ui->gridLayout->addWidget(
-        timerWidget.release(), 1, 1, Qt::AlignHCenter | Qt::AlignTop);
+        timerWidget_.release(), 2, 1, Qt::AlignHCenter | Qt::AlignVCenter);
 
     menuWidget->setMinimumSize(widget_size::menuWidget);
     menuWidget->setVisible(false);
@@ -164,8 +169,8 @@ MainWindow::State MainWindow::ViewToggledEvent::operator()(std::monostate)
     return ExpandedOutlines{widget};
 }
 
-MainWindow::State MainWindow::ViewToggledEvent::
-operator()(const ExpandedOutlines&)
+MainWindow::State
+MainWindow::ViewToggledEvent::operator()(const ExpandedOutlines&)
 {
     return Shrinked{widget};
 }
@@ -195,8 +200,8 @@ MainWindow::State MainWindow::MenuToggledEvent::operator()(std::monostate)
     return ExpandedMenu{widget};
 }
 
-MainWindow::State MainWindow::MenuToggledEvent::
-operator()(const ExpandedOutlines&)
+MainWindow::State
+MainWindow::MenuToggledEvent::operator()(const ExpandedOutlines&)
 {
     return Expanded{widget};
 }

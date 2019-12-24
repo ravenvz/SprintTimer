@@ -38,6 +38,7 @@ class MainWindow : public QWidget {
 public:
     MainWindow(std::unique_ptr<QWidget> sprintOutline,
                std::unique_ptr<QWidget> taskOutline,
+               std::unique_ptr<QWidget> todayProgressIndicator,
                std::unique_ptr<QWidget> timerWidget,
                std::unique_ptr<QWidget> launcherMenu,
                QWidget* parent = nullptr);
