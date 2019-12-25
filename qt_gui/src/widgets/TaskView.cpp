@@ -70,24 +70,11 @@ TaskView::TaskView(QAbstractItemModel& taskModel_,
                            QVariant{},
                            static_cast<int>(TaskModelRoles::ToggleCompletion));
     });
-    connect(&taskModel_,
-            &QAbstractItemModel::rowsRemoved,
-            this,
-            &TaskView::onTaskRemoved);
-    connect(this, &QListView::clicked, [&](const QModelIndex& index) {
-        selectedRow = index.row();
-        emit taskSelected(*selectedRow);
-    });
-}
-
-std::optional<int> TaskView::currentlySelectedRow() const
-{
-    return selectedRow;
 }
 
 void TaskView::onTaskSelectionChanged(int taskRow)
 {
-    selectedRow = model()->index(taskRow, 0).row();
+    setCurrentIndex(model()->index(taskRow, 0));
 }
 
 void TaskView::showSprintsForTask() const
@@ -168,17 +155,6 @@ void TaskView::launchTagEditor() const
 void TaskView::deleteSelectedTask() const
 {
     model()->removeRow(currentIndex().row());
-}
-
-void TaskView::onTaskRemoved(const QModelIndex&, int first, int last)
-{
-    auto deletedRowWasSelected = [&](const std::optional<int>& row) {
-        return row && (first <= row && row <= last);
-    };
-    if (deletedRowWasSelected(selectedRow)) {
-        selectedRow = std::nullopt;
-        emit taskSelected(-1);
-    }
 }
 
 } // namespace sprint_timer::ui::qt_gui

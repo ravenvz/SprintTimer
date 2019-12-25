@@ -46,21 +46,7 @@ public:
 
     QVariant data(const QModelIndex& index, int role) const final;
 
-    void insert(const dw::DateTimeRange& timeSpan, const std::string& taskUuid);
-
-    void insert(const entities::Sprint& sprint);
-
-    void insert(const std::vector<entities::Sprint>& sprints);
-
-    bool removeRows(int row,
-                    int count,
-                    const QModelIndex& parent = QModelIndex{}) override;
-
-    void remove(int row);
-
-    void requestUpdate(const dw::DateRange& dateRange);
-
-    const entities::Sprint& itemAt(int row) const;
+    bool removeRows(int row, int count, const QModelIndex& index) final;
 
 private:
     std::vector<entities::Sprint> storage;
@@ -72,12 +58,8 @@ private:
 
     void onDataChanged(const std::vector<entities::Sprint>& items);
 
-    void registerSprint(const entities::Sprint& sprint);
+    void remove(int row);
 };
-
-/* Conviniece function that retrieves all sprints that are currently in model
- * via public interfaces. */
-std::vector<entities::Sprint> allSprints(const SprintModel& sprintModel);
 
 } // namespace sprint_timer::ui::qt_gui
 

@@ -74,6 +74,7 @@
 #include <qt_gui/models/ExtraDayModel.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/OperationRangeModel.h>
+#include <qt_gui/models/SprintModel.h>
 #include <qt_gui/models/TagModel.h>
 #include <qt_gui/models/TaskModel.h>
 #include <qt_gui/models/WeekScheduleModel.h>
@@ -95,6 +96,7 @@
 #include <qt_gui/widgets/TagEditor.h>
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
+#include <qt_gui/widgets/TaskView.h>
 #include <qt_gui/widgets/TodayProgressIndicator.h>
 #include <qt_gui/widgets/UndoButton.h>
 
@@ -336,8 +338,10 @@ int main(int argc, char* argv[])
     TagModel tagModel{
         *taskStorage, commandInvoker, queryInvoker, datasyncRelay};
 
-    AddSprintDialog addSprintDialog{
-        applicationSettings, todaySprintsModel, unfinishedTasksModel};
+    AddSprintDialog addSprintDialog{applicationSettings,
+                                    *sprintStorage,
+                                    commandInvoker,
+                                    unfinishedTasksModel};
 
     WorkScheduleModel workScheduleModel{
         *workingDaysStorage, commandInvoker, queryInvoker, datasyncRelay};
@@ -507,15 +511,18 @@ int main(int argc, char* argv[])
                      taskView.get(),
                      &TaskView::onTaskSelectionChanged);
     // TODO see if we can connect it differently
-    QObject::connect(taskView.get(),
-                     &TaskView::taskSelected,
-                     [timer = timerWidget.get()](const int row) {
-                         timer->setCandidateIndex(row);
-                     });
-    auto taskOutline = std::make_unique<TaskOutline>(unfinishedTasksModel,
-                                                     todaySprintsModel,
-                                                     std::move(taskView),
-                                                     addTaskDialog);
+    QObject::connect(
+        taskView->selectionModel(),
+        &QItemSelectionModel::selectionChanged,
+        [timer = timerWidget.get()](const QItemSelection& newSelection,
+                                    const QItemSelection& previousSelection) {
+            if (newSelection.isEmpty())
+                return;
+            const auto row = newSelection.indexes().first().row();
+            timer->setCandidateIndex(row);
+        });
+    auto taskOutline = std::make_unique<TaskOutline>(
+        *sprintStorage, commandInvoker, std::move(taskView), addTaskDialog);
 
     QObject::connect(timerWidget.get(),
                      &TimerWidgetBase::submitRequested,

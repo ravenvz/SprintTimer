@@ -56,13 +56,8 @@ public:
              QStyledItemDelegate& delegate,
              QWidget* parent = nullptr);
 
-    std::optional<int> currentlySelectedRow() const;
-
 public slots:
     void onTaskSelectionChanged(int taskRow);
-
-signals:
-    void taskSelected(int taskRow);
 
 private:
     ISprintStorageReader& sprintReader;
@@ -70,7 +65,6 @@ private:
     TaskSprintsView& sprintsForTaskView;
     AddTaskDialog& editTaskDialog;
     std::unique_ptr<QWidget> tagEditor;
-    std::optional<int> selectedRow;
 
     void showSprintsForTask() const;
 
@@ -81,8 +75,6 @@ private:
     void launchTagEditor() const;
 
     void deleteSelectedTask() const;
-
-    void onTaskRemoved(const QModelIndex&, int first, int last);
 };
 
 } // namespace sprint_timer::ui::qt_gui

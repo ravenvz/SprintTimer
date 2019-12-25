@@ -26,7 +26,6 @@
 #include "qt_gui/Synchronizable.h"
 #include "qt_gui/dialogs/ExportDialog.h"
 #include "qt_gui/models/HistoryModel.h"
-#include "qt_gui/models/SprintModel.h"
 #include "qt_gui/widgets/DateRangePicker.h"
 #include <QStyledItemDelegate>
 #include <QTreeView>

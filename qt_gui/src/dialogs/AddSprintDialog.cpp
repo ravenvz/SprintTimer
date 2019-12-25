@@ -23,6 +23,7 @@
 #include "qt_gui/models/TaskModelRoles.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
+#include <core/use_cases/RegisterNewSprintBulk.h>
 
 namespace {
 
@@ -37,14 +38,16 @@ generateConsecutiveSprints(const QDateTime& initialStartTime,
 namespace sprint_timer::ui::qt_gui {
 
 AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings_,
-                                 SprintModel& sprintModel_,
+                                 ISprintStorageWriter& sprintWriter_,
+                                 CommandInvoker& commandInvoker_,
                                  QAbstractItemModel& taskModel_,
                                  QDialog* parent_)
     : QDialog{parent_}
     , ui{std::make_unique<Ui::AddSprintDialog>()}
     , datePicker{std::make_unique<QCalendarWidget>()}
     , applicationSettings{applicationSettings_}
-    , sprintModel{sprintModel_}
+    , sprintWriter{sprintWriter_}
+    , commandInvoker{commandInvoker_}
 {
     ui->setupUi(this);
 
@@ -115,10 +118,12 @@ void AddSprintDialog::accept()
             .toStdString()};
     const auto sprintDuration = applicationSettings.sprintDuration();
 
-    auto sprints = generateConsecutiveSprints(
+    const auto sprints = generateConsecutiveSprints(
         initialStartTime, sprintDuration, taskUuid, ui->sbNumSprints->value());
 
-    sprintModel.insert(sprints);
+    commandInvoker.executeCommand(
+        std::make_unique<use_cases::RegisterNewSprintBulk>(sprintWriter,
+                                                           sprints));
     resetDataFields();
     QDialog::accept();
 }
