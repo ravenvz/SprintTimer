@@ -22,7 +22,6 @@ QT5_WRAP_UI(UI_HEADERS
         ui/date_range_picker.ui
         ui/tageditor.ui
         ui/default_timer.ui
-        ui/fancy_timer.ui
         ui/progress_widget.ui
         ui/daily_timeline_graph.ui
         ui/best_workday_widget.ui
@@ -41,9 +40,11 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/ProgressRangeRequestStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtConfig.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/DatasyncRelay.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/IndexChangedReemitter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/RequestForDaysBack.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/RequestForMonthsBack.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/RequestForWeeksBack.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/SprintRegistrator.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/HistoryItemDelegate.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/SubmissionItemDelegate.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/TaskItemDelegate.h"
@@ -112,10 +113,12 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/WorkdaysChangeListener.h"
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/resources/resources.qrc"
+        "${CMAKE_CURRENT_LIST_DIR}/src/IndexChangedReemitter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtConfig.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/RequestForDaysBack.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/RequestForMonthsBack.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/RequestForWeeksBack.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/SprintRegistrator.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/HistoryItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/SubmissionItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/TaskItemDelegate.cpp"

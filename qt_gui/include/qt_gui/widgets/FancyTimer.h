@@ -22,34 +22,30 @@
 #ifndef FANCYTIMER_H_PXO2DFJW
 #define FANCYTIMER_H_PXO2DFJW
 
-#include "qt_gui/delegates/SubmissionItemDelegate.h"
+#include "qt_gui/SprintRegistrator.h"
 #include "qt_gui/widgets/CombinedIndicator.h"
 #include "qt_gui/widgets/TimerWidgetBase.h"
 #include <QAbstractItemModel>
+#include <QComboBox>
 #include <memory>
-
-namespace Ui {
-class FancyTimer;
-} // namespace Ui
 
 namespace sprint_timer::ui::qt_gui {
 
 class FancyTimer : public TimerWidgetBase {
 public:
     FancyTimer(const IConfig& applicationSettings,
-               QAbstractItemModel& taskModel,
                QAbstractItemModel& sprintModel,
+               std::unique_ptr<QComboBox> submissionBox,
+               std::unique_ptr<CombinedIndicator> combinedIndicator,
+               SprintRegistrator& sprintRegistrator,
                QWidget* parent);
     ~FancyTimer() override;
 
-    void setCandidateIndex(int index) override;
-
 private:
-    std::unique_ptr<Ui::FancyTimer> ui;
-    const int indicatorSize{150};
+    QComboBox* submissionBox;
     CombinedIndicator* combinedIndicator;
-    std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate =
-        std::make_unique<SubmissionItemDelegate>();
+    QPushButton* pbCancel;
+    QPushButton* pbZone;
 
     void onSprintStateEnteredHook() override;
     void onSprintStateLeftHook() override;

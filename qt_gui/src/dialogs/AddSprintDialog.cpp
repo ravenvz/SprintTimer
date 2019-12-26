@@ -40,7 +40,7 @@ namespace sprint_timer::ui::qt_gui {
 AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings_,
                                  ISprintStorageWriter& sprintWriter_,
                                  CommandInvoker& commandInvoker_,
-                                 QAbstractItemModel& taskModel_,
+                                 std::unique_ptr<QComboBox> taskSelector_,
                                  QDialog* parent_)
     : QDialog{parent_}
     , ui{std::make_unique<Ui::AddSprintDialog>()}
@@ -48,11 +48,11 @@ AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings_,
     , applicationSettings{applicationSettings_}
     , sprintWriter{sprintWriter_}
     , commandInvoker{commandInvoker_}
+    , taskSelector{taskSelector_.get()}
 {
     ui->setupUi(this);
 
-    ui->cbPickTask->setModel(&taskModel_);
-    ui->cbPickTask->setItemDelegate(submissionItemDelegate.get());
+    ui->gridLayout->addWidget(taskSelector_.release(), 1, 0, 1, 3);
 
     datePicker->setMaximumDate(QDate::currentDate());
     if (applicationSettings.firstDayOfWeek() == dw::Weekday::Monday)
@@ -107,13 +107,13 @@ std::chrono::seconds AddSprintDialog::totalSprintLength() const
 
 void AddSprintDialog::accept()
 {
-    if (ui->cbPickTask->currentIndex() == -1)
+    if (taskSelector->currentIndex() == -1)
         return;
 
     const auto initialStartTime =
         ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
     const std::string taskUuid{
-        ui->cbPickTask->currentData(static_cast<int>(TaskModelRoles::GetIdRole))
+        taskSelector->currentData(static_cast<int>(TaskModelRoles::GetIdRole))
             .toString()
             .toStdString()};
     const auto sprintDuration = applicationSettings.sprintDuration();

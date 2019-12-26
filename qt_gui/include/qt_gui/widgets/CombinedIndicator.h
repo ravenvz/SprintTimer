@@ -37,7 +37,7 @@ class CombinedIndicator : public QWidget {
 public:
     /* Construct indicator. Takes sideSizeHint as a hint to indicator
      * width and height. */
-    CombinedIndicator(int sideSizeHint, QWidget* parent);
+    CombinedIndicator(int sideSizeHint, QWidget* parent = nullptr);
 
     QSize sizeHint() const override;
 
@@ -85,12 +85,14 @@ private:
     QColor color;
 
     void paintEvent(QPaintEvent*) override;
+
     void mousePressEvent(QMouseEvent* event) override;
+
     void drawProgressArc(QPainter& painter) const;
+
     void drawText(QPainter& painter) const;
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: COMBINEDINDICATOR_H_4ZPMFI3J */

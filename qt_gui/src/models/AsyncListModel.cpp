@@ -28,10 +28,6 @@ AsyncListModel::AsyncListModel(QObject* parent_)
 {
 }
 
-void AsyncListModel::submitData() {}
-
-void AsyncListModel::revertData() {}
-
 void AsyncListModel::requestDataUpdate()
 {
     requestUpdate();

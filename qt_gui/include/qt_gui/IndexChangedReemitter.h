@@ -19,31 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SUBMISSIONBOX_H
-#define SUBMISSIONBOX_H
+#ifndef INDEXCHANGEDREEMITTER_H_KMC2NG1E
+#define INDEXCHANGEDREEMITTER_H_KMC2NG1E
 
-#include "qt_gui/SprintRegistrator.h"
-#include <QComboBox>
+#include <QObject>
 
 namespace sprint_timer::ui::qt_gui {
 
-/* Combobox, that retains it's currentIndex when hidden.
- *
- * QComboBox set's current index to -1 when it's hidden,
- * so this subclass is a workaround to retain it. */
-class SubmissionBox : public QComboBox {
+/* This class helps keeping the same selection of the single
+ * row/element denoted by row number for views that do share the same model, but
+ * unable to share the same selection model (like QListView and QComboBox).
+ * Obviously, it is only suited for linear models. */
+class IndexChangedReemitter : public QObject {
+
+    Q_OBJECT
+
 public:
-    SubmissionBox(IndexChangedReemitter& selectedTaskRowReemitter,
-                  QWidget* parent = nullptr);
+    void onRowChanged(int rowNumber);
 
-private:
-    int persistentIndex{-1};
-
-    void hideEvent(QHideEvent* event) override;
-
-    void showEvent(QShowEvent* event) override;
+signals:
+    void currentRowChanged(int rowNumber);
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif // SUBMISSIONBOX_H
+#endif /* end of include guard: INDEXCHANGEDREEMITTER_H_KMC2NG1E */

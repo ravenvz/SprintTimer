@@ -22,7 +22,7 @@
 #ifndef TAGEDITOR_H
 #define TAGEDITOR_H
 
-#include "qt_gui/models/AsyncListModel.h"
+#include <QAbstractItemModel>
 #include <QWidget>
 #include <memory>
 
@@ -37,7 +37,7 @@ class TagEditor : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TagEditor(AsyncListModel& tagModel, QWidget* parent = nullptr);
+    explicit TagEditor(QAbstractItemModel& tagModel, QWidget* parent = nullptr);
 
     ~TagEditor() override;
 
@@ -46,6 +46,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: TAGEDITOR_H */

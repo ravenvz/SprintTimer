@@ -59,27 +59,6 @@ class AsyncListModel : public QAbstractListModel {
 public:
     explicit AsyncListModel(QObject* parent);
 
-public slots:
-    /* Tells model to submit cached data to permanent storage.
-     *
-     * It has the same intent as QAbstractItemModel::submit(),
-     * but a lot of Qt widgets call the latter as they see fit, and
-     * debugging might be quite to find the caller to customize
-     * behaviour. Hence this alternative.
-     *
-     * Default implementation does nothing.*/
-    virtual void submitData();
-
-    /* Tells model to discard cached information.
-     *
-     * It has the same intent as QAbstractItemModel::revert(),
-     * but provided as an alternative to simplify behaviour
-     * customization (as one can be sure that none of Qt objects
-     * will trigger this slot).
-     *
-     * Default implementation does nothing.*/
-    virtual void revertData();
-
     /* Request async data update. Upon receiving data updateFinished() signal
      * is emitted. */
     void requestDataUpdate();

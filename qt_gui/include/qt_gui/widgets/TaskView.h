@@ -22,9 +22,8 @@
 #ifndef TASKVIEW_H_AC0ZCTZN
 #define TASKVIEW_H_AC0ZCTZN
 
+#include "qt_gui/IndexChangedReemitter.h"
 #include "qt_gui/widgets/ReordableListView.h"
-#include <QAbstractItemModel>
-#include <QStyledItemDelegate>
 #include <core/ISprintStorageReader.h>
 #include <core/QueryInvoker.h>
 #include <optional>
@@ -47,13 +46,12 @@ class TaskView : public ReordableListView {
     Q_OBJECT
 
 public:
-    TaskView(QAbstractItemModel& taskModel,
-             ISprintStorageReader& sprintReader,
+    TaskView(ISprintStorageReader& sprintReader,
              QueryInvoker& queryInvoker,
              TaskSprintsView& sprintsForTaskView,
              AddTaskDialog& editTaskDialog,
              std::unique_ptr<QWidget> tagEditor,
-             QStyledItemDelegate& delegate,
+             IndexChangedReemitter& selectedTaskRowReemitter,
              QWidget* parent = nullptr);
 
 public slots:

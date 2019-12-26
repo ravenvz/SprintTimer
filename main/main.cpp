@@ -62,6 +62,7 @@
 #include <qt_gui/RequestForMonthsBack.h>
 #include <qt_gui/RequestForWeeksBack.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
+#include <qt_gui/delegates/SubmissionItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
 #include <qt_gui/dialogs/AddExceptionalDayDialog.h>
 #include <qt_gui/dialogs/AddSprintDialog.h>
@@ -93,6 +94,7 @@
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/StatisticsDiagramWidget.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
+#include <qt_gui/widgets/SubmissionBox.h>
 #include <qt_gui/widgets/TagEditor.h>
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
@@ -338,10 +340,13 @@ int main(int argc, char* argv[])
     TagModel tagModel{
         *taskStorage, commandInvoker, queryInvoker, datasyncRelay};
 
+    auto taskSelector = std::make_unique<QComboBox>();
+    taskSelector->setModel(&unfinishedTasksModel);
+    taskSelector->setItemDelegate(std::make_unique<SubmissionItemDelegate>().release());
     AddSprintDialog addSprintDialog{applicationSettings,
                                     *sprintStorage,
                                     commandInvoker,
-                                    unfinishedTasksModel};
+                                    std::move(taskSelector)};
 
     WorkScheduleModel workScheduleModel{
         *workingDaysStorage, commandInvoker, queryInvoker, datasyncRelay};
@@ -481,53 +486,52 @@ int main(int argc, char* argv[])
     auto launcherMenu = std::make_unique<LauncherMenu>(
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
 
+    IndexChangedReemitter selectedTaskRowReemitter;
+    SprintRegistrator sprintRegistrator{unfinishedTasksModel,
+                                        *sprintStorage,
+                                        commandInvoker,
+                                        selectedTaskRowReemitter};
     std::unique_ptr<TimerWidgetBase> timerWidget;
+    auto submissionBox =
+        std::make_unique<SubmissionBox>(selectedTaskRowReemitter);
+    submissionBox->setModel(&unfinishedTasksModel);
+    auto submissionItemDelegate = std::make_unique<SubmissionItemDelegate>();
+    submissionBox->setItemDelegate(submissionItemDelegate.release());
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
         timerWidget = std::make_unique<DefaultTimer>(applicationSettings,
-                                                     unfinishedTasksModel,
                                                      todaySprintsModel,
+                                                     std::move(submissionBox),
+                                                     sprintRegistrator,
                                                      nullptr);
-    else
-        timerWidget = std::make_unique<FancyTimer>(applicationSettings,
-                                                   unfinishedTasksModel,
-                                                   todaySprintsModel,
-                                                   nullptr);
+    else {
+        constexpr int indicatorSize{150};
+        timerWidget = std::make_unique<FancyTimer>(
+            applicationSettings,
+            todaySprintsModel,
+            std::move(submissionBox),
+            std::make_unique<CombinedIndicator>(indicatorSize, nullptr),
+            sprintRegistrator,
+            nullptr);
+    }
 
     HistoryModel taskSprintsModel;
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
     AddTaskDialog addTaskDialog{tagModel};
-    TaskItemDelegate taskItemDelegate;
+    auto taskItemDelegate = std::make_unique<TaskItemDelegate>();
     auto taskView =
-        std::make_unique<TaskView>(unfinishedTasksModel,
-                                   *sprintStorage,
+        std::make_unique<TaskView>(*sprintStorage,
                                    queryInvoker,
                                    taskSprintsView,
                                    addTaskDialog,
                                    std::make_unique<TagEditor>(tagModel),
-                                   taskItemDelegate);
-    QObject::connect(timerWidget.get(),
-                     &TimerWidgetBase::submissionCandidateChanged,
-                     taskView.get(),
-                     &TaskView::onTaskSelectionChanged);
-    // TODO see if we can connect it differently
-    QObject::connect(
-        taskView->selectionModel(),
-        &QItemSelectionModel::selectionChanged,
-        [timer = timerWidget.get()](const QItemSelection& newSelection,
-                                    const QItemSelection& previousSelection) {
-            if (newSelection.isEmpty())
-                return;
-            const auto row = newSelection.indexes().first().row();
-            timer->setCandidateIndex(row);
-        });
+                                   selectedTaskRowReemitter);
+    taskView->setModel(&unfinishedTasksModel);
+    taskView->setContextMenuPolicy(Qt::CustomContextMenu);
+    taskView->setItemDelegate(taskItemDelegate.release());
+
     auto taskOutline = std::make_unique<TaskOutline>(
         *sprintStorage, commandInvoker, std::move(taskView), addTaskDialog);
-
-    QObject::connect(timerWidget.get(),
-                     &TimerWidgetBase::submitRequested,
-                     taskOutline.get(),
-                     &TaskOutline::onSprintSubmissionRequested);
 
     // Emits initial signal to trigger update requests for all subsribers
     datasyncRelay.onDataChanged();

@@ -23,9 +23,23 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-SubmissionBox::SubmissionBox(QWidget* parent)
-    : QComboBox(parent)
+SubmissionBox::SubmissionBox(IndexChangedReemitter& selectedTaskRowReemitter_,
+                             QWidget* parent_)
+    : QComboBox{parent_}
 {
+    connect(&selectedTaskRowReemitter_,
+            &IndexChangedReemitter::currentRowChanged,
+            [this](int row) {
+                // Prevents signal emission when row hasn't changed
+                if (currentIndex() != row)
+                    setCurrentIndex(row);
+            });
+    connect(this,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [this, &selectedTaskRowReemitter_](int index) {
+                if (isVisible())
+                    selectedTaskRowReemitter_.onRowChanged(index);
+            });
 }
 
 void SubmissionBox::hideEvent(QHideEvent* event)

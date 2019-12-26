@@ -26,11 +26,13 @@
 namespace sprint_timer::ui::qt_gui {
 
 DefaultTimer::DefaultTimer(const IConfig& applicationSettings_,
-                           QAbstractItemModel& taskModel_,
                            QAbstractItemModel& sprintModel_,
+                           std::unique_ptr<QComboBox> submissionBox_,
+                           SprintRegistrator& sprintRegistrator_,
                            QWidget* parent_)
     : TimerWidgetBase{applicationSettings_, sprintModel_, parent_}
     , ui{std::make_unique<Ui::DefaultTimer>()}
+    , submissionBox{submissionBox_.get()}
 {
     ui->setupUi(this);
 
@@ -42,8 +44,6 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings_,
     WidgetUtils::setRetainSizeWhenHidden(ui->pbStart);
     WidgetUtils::setRetainSizeWhenHidden(ui->pbSubmit);
 
-    ui->cbxSubmissionCandidate->setModel(&taskModel_);
-
     connect(ui->pbStart, &QPushButton::clicked, this, &DefaultTimer::startTask);
     connect(
         ui->pbCancel, &QPushButton::clicked, this, &DefaultTimer::cancelTask);
@@ -51,28 +51,24 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings_,
             &TimerWidgetBase::timerUpdated,
             this,
             &DefaultTimer::onTimerUpdated);
-    onIdleStateEnteredHook();
     connect(ui->pbZone, &QPushButton::clicked, [&]() {
         timer->toggleInTheZoneMode();
     });
-    connect(ui->cbxSubmissionCandidate,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [&](int index) {
-                if (ui->cbxSubmissionCandidate->isVisible())
-                    emit submissionCandidateChanged(index);
-            });
     connect(ui->pbSubmit, &QPushButton::clicked, [&]() {
-        if (ui->cbxSubmissionCandidate->currentIndex() != -1)
+        if (submissionBox->currentIndex() != -1)
             requestSubmission();
     });
+    connect(this,
+            &TimerWidgetBase::submitRequested,
+            &sprintRegistrator_,
+            &SprintRegistrator::onSubmissionRequested);
+
+    ui->gridLayout->addWidget(
+        submissionBox_.release(), 0, 0, 1, 2, Qt::AlignVCenter);
+    onIdleStateEnteredHook();
 }
 
 DefaultTimer::~DefaultTimer() = default;
-
-void DefaultTimer::setCandidateIndex(int index)
-{
-    ui->cbxSubmissionCandidate->setCurrentIndex(index);
-}
 
 void DefaultTimer::setTimerValue(std::chrono::seconds timeLeft)
 {
@@ -86,6 +82,7 @@ void DefaultTimer::onBreakStateEnteredHook() { setUiToRunningState(); }
 void DefaultTimer::setUiToRunningState()
 {
     progressBarMaxValue = static_cast<int>(timer->currentDuration().count());
+    submissionBox->hide();
     ui->progressBar->setMaximum(progressBarMaxValue);
     setTimerValue(timer->currentDuration());
     ui->progressBar->setValue(0);
@@ -106,7 +103,7 @@ void DefaultTimer::onSprintStateLeftHook()
     ui->pbCancel->show();
     ui->progressBar->hide();
     ui->pbSubmit->show();
-    ui->cbxSubmissionCandidate->show();
+    submissionBox->show();
     ui->pbZone->hide();
 }
 
@@ -114,7 +111,7 @@ void DefaultTimer::onIdleStateEnteredHook()
 {
     ui->progressBar->setValue(0);
     ui->progressBar->hide();
-    ui->cbxSubmissionCandidate->hide();
+    submissionBox->hide();
     ui->pbCancel->hide();
     ui->pbSubmit->hide();
     ui->pbStart->show();

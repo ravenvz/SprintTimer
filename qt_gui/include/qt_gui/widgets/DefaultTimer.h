@@ -22,8 +22,10 @@
 #ifndef DEFAULTTIMER_H_QE49BN8Q
 #define DEFAULTTIMER_H_QE49BN8Q
 
+#include "qt_gui/SprintRegistrator.h"
 #include "qt_gui/widgets/TimerWidgetBase.h"
 #include <QAbstractItemModel>
+#include <QComboBox>
 #include <QWidget>
 #include <memory>
 
@@ -39,8 +41,9 @@ class DefaultTimer : public TimerWidgetBase {
 
 public:
     DefaultTimer(const IConfig& applicationSettings,
-                 QAbstractItemModel& taskModel,
                  QAbstractItemModel& sprintModel,
+                 std::unique_ptr<QComboBox> submissionBox,
+                 SprintRegistrator& sprintRegistrator,
                  QWidget* parent);
     ~DefaultTimer() override;
     DefaultTimer(const DefaultTimer&) = delete;
@@ -48,10 +51,9 @@ public:
     DefaultTimer& operator=(const DefaultTimer&) = delete;
     DefaultTimer& operator=(const DefaultTimer&&) = delete;
 
-    void setCandidateIndex(int index) override;
-
 private:
     std::unique_ptr<Ui::DefaultTimer> ui;
+    QComboBox* submissionBox;
     int progressBarMaxValue{0};
 
     void setTimerValue(std::chrono::seconds timeLeft);

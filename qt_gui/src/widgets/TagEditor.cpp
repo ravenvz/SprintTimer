@@ -25,8 +25,7 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-
-TagEditor::TagEditor(AsyncListModel& tagModel, QWidget* parent)
+TagEditor::TagEditor(QAbstractItemModel& tagModel, QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::TagEditorWidget>()}
 {
@@ -43,11 +42,11 @@ TagEditor::TagEditor(AsyncListModel& tagModel, QWidget* parent)
     connect(ui->buttonBoxConfirm,
             &QDialogButtonBox::accepted,
             &tagModel,
-            &AsyncListModel::submitData);
+            &QAbstractItemModel::submit);
     connect(ui->buttonBoxConfirm,
             &QDialogButtonBox::rejected,
             &tagModel,
-            &AsyncListModel::revertData);
+            &QAbstractItemModel::revert);
 }
 
 TagEditor::~TagEditor() = default;

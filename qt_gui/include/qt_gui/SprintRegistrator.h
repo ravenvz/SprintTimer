@@ -19,31 +19,38 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SUBMISSIONBOX_H
-#define SUBMISSIONBOX_H
+#ifndef SPRINTREGISTRATOR_H_RLFYANTP
+#define SPRINTREGISTRATOR_H_RLFYANTP
 
-#include "qt_gui/SprintRegistrator.h"
-#include <QComboBox>
+#include "qt_gui/IndexChangedReemitter.h"
+#include <QAbstractItemModel>
+#include <QObject>
+#include <core/CommandInvoker.h>
+#include <core/ISprintStorageWriter.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-/* Combobox, that retains it's currentIndex when hidden.
- *
- * QComboBox set's current index to -1 when it's hidden,
- * so this subclass is a workaround to retain it. */
-class SubmissionBox : public QComboBox {
+class SprintRegistrator : public QObject {
 public:
-    SubmissionBox(IndexChangedReemitter& selectedTaskRowReemitter,
-                  QWidget* parent = nullptr);
+    SprintRegistrator(QAbstractItemModel& taskModel,
+                      ISprintStorageWriter& sprintWriter,
+                      CommandInvoker& commandInvoker,
+                      IndexChangedReemitter& selectedTaskRowReemitter,
+                      QObject* parent = nullptr);
+
+    void
+    onSubmissionRequested(const std::vector<dw::DateTimeRange>& timeIntervals);
+
+    void onTaskSelected(int taskRow);
 
 private:
-    int persistentIndex{-1};
-
-    void hideEvent(QHideEvent* event) override;
-
-    void showEvent(QShowEvent* event) override;
+    QAbstractItemModel& taskModel;
+    ISprintStorageWriter& sprintWriter;
+    CommandInvoker& commandInvoker;
+    int candidateRow{-1};
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif // SUBMISSIONBOX_H
+#endif /* end of include guard: SPRINTREGISTRATOR_H_RLFYANTP */
+

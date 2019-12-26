@@ -53,7 +53,6 @@ public:
                                          // break counter after restart. Remove
                                          // when refactored StatefulTimer
         QWidget* parent);
-    virtual void setCandidateIndex(int index) = 0;
 
 protected:
     const IConfig& applicationSettings;
@@ -89,7 +88,6 @@ signals:
     void timerUpdated(std::chrono::seconds timeLeft);
     void stateChanged(IStatefulTimer::StateId state);
     void submitRequested(std::vector<dw::DateTimeRange> completedTaskIntervals);
-    void submissionCandidateChanged(int index);
 };
 
 } // namespace sprint_timer::ui::qt_gui

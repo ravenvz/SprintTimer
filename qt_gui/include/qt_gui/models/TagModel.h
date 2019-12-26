@@ -49,10 +49,9 @@ public:
 
     QVariant data(const QModelIndex& index, int role) const final;
 
-public slots:
-    void submitData() final;
+    bool submit() final;
 
-    void revertData() final;
+    void revert() final;
 
 private:
     ITaskStorage& taskStorage;

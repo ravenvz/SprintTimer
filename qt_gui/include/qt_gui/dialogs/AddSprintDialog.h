@@ -22,9 +22,8 @@
 #ifndef ADDSPRINTDIALOG_H
 #define ADDSPRINTDIALOG_H
 
-#include "qt_gui/delegates/SubmissionItemDelegate.h"
-#include <QAbstractItemModel>
 #include <QDialog>
+#include <QComboBox>
 #include <QtWidgets/QCalendarWidget>
 #include <core/CommandInvoker.h>
 #include <core/IConfig.h>
@@ -44,7 +43,7 @@ public:
     AddSprintDialog(const IConfig& applicationSettings,
                     ISprintStorageWriter& sprintWriter,
                     CommandInvoker& commandInvoker,
-                    QAbstractItemModel& taskModel,
+                    std::unique_ptr<QComboBox> taskSelector,
                     QDialog* parent = nullptr);
 
     ~AddSprintDialog() override;
@@ -61,8 +60,7 @@ private:
     const IConfig& applicationSettings;
     ISprintStorageWriter& sprintWriter;
     CommandInvoker& commandInvoker;
-    std::unique_ptr<SubmissionItemDelegate> submissionItemDelegate =
-        std::make_unique<SubmissionItemDelegate>();
+    QComboBox* taskSelector;
 
     std::chrono::seconds totalSprintLength() const;
 
