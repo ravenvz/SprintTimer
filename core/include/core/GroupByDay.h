@@ -22,11 +22,11 @@
 #ifndef GROUPBYDAY_H_6EWBVYZU
 #define GROUPBYDAY_H_6EWBVYZU
 
-#include "core/ProgressGroupingStrategy.h"
+#include "core/GroupByPeriodStrategy.h"
 
 namespace sprint_timer {
 
-class GroupByDay : public ProgressGroupingStrategy {
+class GroupByDay : public GroupByPeriodStrategy {
 public:
     std::vector<GoalProgress>
     computeProgress(const dw::DateRange& dateRange,

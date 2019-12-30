@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef WORKDAYworkScheduleMODEL_H_4DZKR8HV
-#define WORKDAYworkScheduleMODEL_H_4DZKR8HV
+#ifndef WORKSCHEDULEWRAPPER_H_8VTK5QM1
+#define WORKSCHEDULEWRAPPER_H_8VTK5QM1
 
 #include "qt_gui/DatasyncRelay.h"
 #include <QObject>
@@ -37,19 +37,19 @@
 namespace sprint_timer::ui::qt_gui {
 
 #ifdef _MSC_VER
-class GLIB_EXPORT WorkScheduleModel : public QObject {
+class GLIB_EXPORT WorkScheduleWrapper : public QObject {
 #else
-class WorkScheduleModel : public QObject {
+class WorkScheduleWrapper : public QObject {
 #endif // _MSC_VER
 
     Q_OBJECT
 
 public:
-    WorkScheduleModel(IWorkingDaysStorage& workingDaysStorage,
-                      CommandInvoker& commandInvoker,
-                      QueryInvoker& queryInvoker,
-                      DatasyncRelay& datasyncRelay,
-                      QObject* parent = nullptr);
+    WorkScheduleWrapper(IWorkingDaysStorage& workingDaysStorage,
+                        CommandInvoker& commandInvoker,
+                        QueryInvoker& queryInvoker,
+                        DatasyncRelay& datasyncRelay,
+                        QObject* parent = nullptr);
 
     void requestDataUpdate();
 
@@ -69,5 +69,4 @@ private:
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: WORKDAYworkScheduleMODEL_H_4DZKR8HV */
-
+#endif /* end of include guard: WORKSCHEDULEWRAPPER_H_8VTK5QM1 */

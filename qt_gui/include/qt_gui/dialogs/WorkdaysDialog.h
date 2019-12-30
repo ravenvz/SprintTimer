@@ -22,9 +22,9 @@
 #ifndef WORKDAYSDIALOG_H_NVZH9CRG
 #define WORKDAYSDIALOG_H_NVZH9CRG
 
+#include "qt_gui/WorkScheduleWrapper.h"
 #include "qt_gui/WorkdaysChangeListener.h"
 #include "qt_gui/dialogs/AddExceptionalDayDialog.h"
-#include "qt_gui/models/WorkScheduleModel.h"
 #include <QAbstractListModel>
 #include <QDialog>
 #include <memory>
@@ -41,7 +41,7 @@ class WorkdaysDialog : public QDialog, public WorkdaysChangeListener {
 public:
     explicit WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog,
                             QAbstractItemModel& exceptionalDaysModel,
-                            WorkScheduleModel& workScheduleModel,
+                            WorkScheduleWrapper& workScheduleWrapper,
                             QAbstractItemModel& weekScheduleModel,
                             QDialog* parent = nullptr);
 
@@ -54,7 +54,7 @@ public:
 private:
     std::unique_ptr<Ui::WorkdaysDialog> ui;
     AddExceptionalDayDialog& pickDateDialog;
-    WorkScheduleModel& workScheduleModel;
+    WorkScheduleWrapper& workScheduleWrapper;
     WorkSchedule candidateSchedule;
 
     void

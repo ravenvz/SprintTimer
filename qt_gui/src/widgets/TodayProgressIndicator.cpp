@@ -33,7 +33,7 @@ namespace sprint_timer::ui::qt_gui {
 
 TodayProgressIndicator::TodayProgressIndicator(
     const QAbstractItemModel& todaySprintsModel_,
-    const WorkScheduleModel& workScheduleModel_,
+    const WorkScheduleWrapper& workScheduleWrapper_,
     QWidget* parent_)
     : QLabel{parent_}
 {
@@ -45,8 +45,8 @@ TodayProgressIndicator::TodayProgressIndicator(
                     GoalProgress::Actual{todaySprintsModel_.rowCount()}};
                 update();
             });
-    connect(&workScheduleModel_,
-            &WorkScheduleModel::workScheduleChanged,
+    connect(&workScheduleWrapper_,
+            &WorkScheduleWrapper::workScheduleChanged,
             [this](const auto& workSchedule) {
                 progress =
                     GoalProgress{GoalProgress::Estimated{workSchedule.goal(

@@ -58,9 +58,11 @@
 #include <core/QueryInvoker.h>
 #include <filesystem>
 #include <qt_gui/DatasyncRelay.h>
+#include <qt_gui/DistributionRequester.h>
 #include <qt_gui/RequestForDaysBack.h>
 #include <qt_gui/RequestForMonthsBack.h>
 #include <qt_gui/RequestForWeeksBack.h>
+#include <qt_gui/WorkScheduleWrapper.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/SubmissionItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
@@ -71,7 +73,6 @@
 #include <qt_gui/dialogs/SettingsDialog.h>
 #include <qt_gui/dialogs/UndoDialog.h>
 #include <qt_gui/dialogs/WorkdaysDialog.h>
-#include <qt_gui/models/DistributionModel.h>
 #include <qt_gui/models/ExtraDayModel.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/OperationRangeModel.h>
@@ -79,7 +80,6 @@
 #include <qt_gui/models/TagModel.h>
 #include <qt_gui/models/TaskModel.h>
 #include <qt_gui/models/WeekScheduleModel.h>
-#include <qt_gui/models/WorkScheduleModel.h>
 #include <qt_gui/widgets/AutodisablingButton.h>
 #include <qt_gui/widgets/ContextMenuListView.h>
 #include <qt_gui/widgets/DailyTimelineGraph.h>
@@ -342,13 +342,14 @@ int main(int argc, char* argv[])
 
     auto taskSelector = std::make_unique<QComboBox>();
     taskSelector->setModel(&unfinishedTasksModel);
-    taskSelector->setItemDelegate(std::make_unique<SubmissionItemDelegate>().release());
+    taskSelector->setItemDelegate(
+        std::make_unique<SubmissionItemDelegate>().release());
     AddSprintDialog addSprintDialog{applicationSettings,
                                     *sprintStorage,
                                     commandInvoker,
                                     std::move(taskSelector)};
 
-    WorkScheduleModel workScheduleModel{
+    WorkScheduleWrapper workScheduleWrapper{
         *workingDaysStorage, commandInvoker, queryInvoker, datasyncRelay};
 
     UndoDialog undoDialog{commandInvoker};
@@ -381,7 +382,7 @@ int main(int argc, char* argv[])
         std::move(statisticsWindowDateRangePicker),
         std::move(dailyTimelineGraph),
         std::move(statisticsDiagramWidget),
-        workScheduleModel,
+        workScheduleWrapper,
         *sprintStorage,
         queryInvoker,
         datasyncRelay};
@@ -392,27 +393,28 @@ int main(int argc, char* argv[])
 
     WorkdaysDialog workdaysDialog{exceptionalDayDialog,
                                   exceptionalDaysModel,
-                                  workScheduleModel,
+                                  workScheduleWrapper,
                                   scheduleModel};
 
     const int distributionDays{30};
     RequestForDaysBack requestDaysBackStrategy{distributionDays};
     GroupByDay groupByDayStrategy;
-    DistributionModel dailyDistributionModel{*dailyDistributionReader,
-                                             queryInvoker,
-                                             groupByDayStrategy,
-                                             requestDaysBackStrategy,
-                                             datasyncRelay};
+    DistributionRequester dailyDistributionRequester{*dailyDistributionReader,
+                                                     queryInvoker,
+                                                     groupByDayStrategy,
+                                                     requestDaysBackStrategy,
+                                                     datasyncRelay};
     constexpr ProgressView::Rows dailyRows{3};
     constexpr ProgressView::Columns dailyCols{10};
     constexpr ProgressView::GaugeSize dailyGaugeRelSize{0.7};
-    auto dailyProgress = std::make_unique<ProgressView>(dailyDistributionModel,
-                                                        workScheduleModel,
-                                                        groupByDayStrategy,
-                                                        requestDaysBackStrategy,
-                                                        dailyRows,
-                                                        dailyCols,
-                                                        dailyGaugeRelSize);
+    auto dailyProgress =
+        std::make_unique<ProgressView>(dailyDistributionRequester,
+                                       workScheduleWrapper,
+                                       groupByDayStrategy,
+                                       requestDaysBackStrategy,
+                                       dailyRows,
+                                       dailyCols,
+                                       dailyGaugeRelSize);
     dailyProgress->setLegendTitle("Last 30 days");
     dailyProgress->setLegendAverageCaption("Average per day:");
 
@@ -424,17 +426,17 @@ int main(int argc, char* argv[])
     RequestForWeeksBack requestWeeksBackStrategy{distributionWeeks,
                                                  applicationSettings};
     GroupByWeek groupByWeekStrategy{applicationSettings};
-    DistributionModel weeklyDistributionModel{*weeklyDistributionReader,
-                                              queryInvoker,
-                                              groupByWeekStrategy,
-                                              requestWeeksBackStrategy,
-                                              datasyncRelay};
+    DistributionRequester weeklyDistributionRequester{*weeklyDistributionReader,
+                                                      queryInvoker,
+                                                      groupByWeekStrategy,
+                                                      requestWeeksBackStrategy,
+                                                      datasyncRelay};
     const ProgressView::Rows weeklyRows{3};
     const ProgressView::Columns weeklyCols{4};
     const ProgressView::GaugeSize weeklyGaugeRelSize{0.8};
     auto weeklyProgress =
-        std::make_unique<ProgressView>(weeklyDistributionModel,
-                                       workScheduleModel,
+        std::make_unique<ProgressView>(weeklyDistributionRequester,
+                                       workScheduleWrapper,
                                        groupByWeekStrategy,
                                        requestWeeksBackStrategy,
                                        weeklyRows,
@@ -446,17 +448,18 @@ int main(int argc, char* argv[])
     const int distributionMonths{12};
     RequestForMonthsBack requestMonthsBackStrategy{distributionMonths};
     GroupByMonth groupByMonthStrategy;
-    DistributionModel monthlyDistributionModel{*monthlyDistributionReader,
-                                               queryInvoker,
-                                               groupByMonthStrategy,
-                                               requestMonthsBackStrategy,
-                                               datasyncRelay};
+    DistributionRequester monthlyDistributionRequester{
+        *monthlyDistributionReader,
+        queryInvoker,
+        groupByMonthStrategy,
+        requestMonthsBackStrategy,
+        datasyncRelay};
     const ProgressView::Rows monthlyRows{3};
     const ProgressView::Columns monthlyCols{4};
     const ProgressView::GaugeSize monthlyGaugeRelSize{0.8};
     auto monthlyProgress =
-        std::make_unique<ProgressView>(monthlyDistributionModel,
-                                       workScheduleModel,
+        std::make_unique<ProgressView>(monthlyDistributionRequester,
+                                       workScheduleWrapper,
                                        groupByMonthStrategy,
                                        requestMonthsBackStrategy,
                                        monthlyRows,
@@ -540,7 +543,7 @@ int main(int argc, char* argv[])
         std::move(sprintOutline),
         std::move(taskOutline),
         std::make_unique<TodayProgressIndicator>(todaySprintsModel,
-                                                 workScheduleModel),
+                                                 workScheduleWrapper),
         std::move(timerWidget),
         std::move(launcherMenu)};
     applyStyleSheet(app);

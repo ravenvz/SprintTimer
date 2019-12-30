@@ -35,7 +35,7 @@ StatisticsWindow::StatisticsWindow(
     std::unique_ptr<DateRangePicker> dateRangePicker_,
     std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph_,
     std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget_,
-    const WorkScheduleModel& workScheduleModel_,
+    const WorkScheduleWrapper& workScheduleWrapper_,
     ISprintStorageReader& sprintReader_,
     QueryInvoker& queryInvoker_,
     DatasyncRelay& datasyncRelay_,
@@ -44,7 +44,7 @@ StatisticsWindow::StatisticsWindow(
     , dateRangePicker{dateRangePicker_.get()}
     , dailyTimelineGraph{dailyTimelineGraph_.get()}
     , statisticsDiagramWidget{statisticsDiagramWidget_.get()}
-    , workScheduleModel{workScheduleModel_}
+    , workScheduleWrapper{workScheduleWrapper_}
     , sprintReader{sprintReader_}
     , queryInvoker{queryInvoker_}
 {
@@ -62,8 +62,8 @@ StatisticsWindow::StatisticsWindow(
             &StatisticsDiagramWidget::tagSelectionChanged,
             this,
             &StatisticsWindow::onTagSelected);
-    connect(&workScheduleModel,
-            &WorkScheduleModel::workScheduleChanged,
+    connect(&workScheduleWrapper,
+            &WorkScheduleWrapper::workScheduleChanged,
             [this](const WorkSchedule&) { updateViews(); });
     connect(dateRangePicker,
             &DateRangePicker::selectedDateRangeChanged,
@@ -102,8 +102,8 @@ void StatisticsWindow::updateViews()
     const auto dailyDistribution =
         dailyStatistics(interestingSprints, dateRange);
     const int workdays =
-        numWorkdays(workScheduleModel.workSchedule(), dateRange);
-    const int goal = goalFor(workScheduleModel.workSchedule(), dateRange);
+        numWorkdays(workScheduleWrapper.workSchedule(), dateRange);
+    const int goal = goalFor(workScheduleWrapper.workSchedule(), dateRange);
     dailyTimelineGraph->setData(dailyStatistics(interestingSprints, dateRange),
                                 dateRange,
                                 workdays,

@@ -19,20 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef PROGRESSRANGEREQUESTSTRATEGY_H_WCLRNVPK
-#define PROGRESSRANGEREQUESTSTRATEGY_H_WCLRNVPK
+#ifndef GROUPBYPERIODSTRATEGY_H_2JRBSIB5
+#define GROUPBYPERIODSTRATEGY_H_2JRBSIB5
 
+#include "core/GoalProgress.h"
+#include "core/WorkSchedule.h"
 #include <date_wrapper/date_wrapper.h>
+#include <vector>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer {
 
-class ProgressRangeRequestStrategy {
+class GroupByPeriodStrategy {
 public:
-    virtual ~ProgressRangeRequestStrategy() = default;
+    virtual ~GroupByPeriodStrategy() = default;
 
-    virtual dw::DateRange dateRange() const = 0;
+    virtual std::vector<GoalProgress>
+    computeProgress(const dw::DateRange& dateRange,
+                    const std::vector<int>& actualProgress,
+                    const WorkSchedule& workSchedule) const = 0;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer
 
-#endif /* end of include guard: PROGRESSRANGEREQUESTSTRATEGY_H_WCLRNVPK */
+#endif /* end of include guard: GROUPBYPERIODSTRATEGY_H_2JRBSIB5 */

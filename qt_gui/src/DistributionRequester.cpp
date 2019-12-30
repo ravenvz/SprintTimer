@@ -19,35 +19,40 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/models/DistributionModel.h"
+#include "qt_gui/DistributionRequester.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-DistributionModel::DistributionModel(
+DistributionRequester::DistributionRequester(
     ISprintDistributionReader& reader_,
     QueryInvoker& queryInvoker_,
-    const ProgressGroupingStrategy& distributionRequestStrategy_,
-    const ProgressRangeRequestStrategy& requestStrategy_,
+    const GroupByPeriodStrategy& groupByPeriodStrategy_,
+    const BackRequestStrategy& backRequestStrategy_,
     DatasyncRelay& datasyncRelay_,
     QObject* parent)
     : reader{reader_}
     , queryInvoker{queryInvoker_}
-    , distributionRequestStrategy{distributionRequestStrategy_}
-    , requestStrategy{requestStrategy_}
+    , groupByPeriodStrategy{groupByPeriodStrategy_}
+    , backRequestStrategy{backRequestStrategy_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
             this,
-            &DistributionModel::synchronize);
+            &DistributionRequester::synchronize);
 }
 
-const std::vector<int>& DistributionModel::distribution() const { return data; }
+const std::vector<int>& DistributionRequester::distribution() const
+{
+    return data;
+}
 
-void DistributionModel::synchronize()
+void DistributionRequester::synchronize()
 {
     using sprint_timer::use_cases::RequestSprintDistribution;
     queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
-        reader, requestStrategy.dateRange(), [this](const auto& distribution) {
+        reader,
+        backRequestStrategy.dateRange(),
+        [this](const auto& distribution) {
             data = distribution;
             emit distributionChanged(data);
         }));

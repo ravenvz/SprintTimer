@@ -28,12 +28,12 @@ ProgressOverPeriod::ProgressOverPeriod(
     const dw::DateRange& period,
     const std::vector<int>& actualProgress,
     const WorkSchedule& workSchedule,
-    const ProgressGroupingStrategy& groupingStrategy)
+    const GroupByPeriodStrategy& groupByPeriodStrategy)
     : actual_{
           std::accumulate(actualProgress.cbegin(), actualProgress.cend(), 0)}
 {
-    progress_ =
-        groupingStrategy.computeProgress(period, actualProgress, workSchedule);
+    progress_ = groupByPeriodStrategy.computeProgress(
+        period, actualProgress, workSchedule);
     numWorkBins_ = std::accumulate(progress_.cbegin(),
                                    progress_.cend(),
                                    0,

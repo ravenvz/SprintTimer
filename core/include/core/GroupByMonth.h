@@ -22,11 +22,11 @@
 #ifndef SPRINT_TIMER_APP_GROUPBYMONTH_H
 #define SPRINT_TIMER_APP_GROUPBYMONTH_H
 
-#include "core/ProgressGroupingStrategy.h"
+#include "core/GroupByPeriodStrategy.h"
 
 namespace sprint_timer {
 
-class GroupByMonth : public ProgressGroupingStrategy {
+class GroupByMonth : public GroupByPeriodStrategy {
 public:
     std::vector<GoalProgress>
     computeProgress(const dw::DateRange& dateRange,

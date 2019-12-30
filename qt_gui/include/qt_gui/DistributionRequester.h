@@ -19,32 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DISTRIBUTIONMODEL_H_EGAN03FZ
-#define DISTRIBUTIONMODEL_H_EGAN03FZ
+#ifndef DISTRIBUTIONREQUESTER_H_2DNCXVGH
+#define DISTRIBUTIONREQUESTER_H_2DNCXVGH
 
+#include "qt_gui/BackRequestStrategy.h"
 #include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/ProgressRangeRequestStrategy.h"
 #include "qt_gui/Synchronizable.h"
 #include <QObject>
+#include <core/GroupByPeriodStrategy.h>
 #include <core/ISprintDistributionReader.h>
-#include <core/ProgressGroupingStrategy.h>
 #include <core/QueryInvoker.h>
 #include <core/use_cases/RequestSprintDistribution.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class DistributionModel : public QObject, public Synchronizable {
+class DistributionRequester : public QObject, public Synchronizable {
 
     Q_OBJECT
 
 public:
-    DistributionModel(
-        ISprintDistributionReader& reader,
-        QueryInvoker& queryInvoker,
-        const ProgressGroupingStrategy& distributionRequestStrategy,
-        const ProgressRangeRequestStrategy& requestStrategy,
-        DatasyncRelay& datasyncRelay,
-        QObject* parent = nullptr);
+    DistributionRequester(ISprintDistributionReader& reader,
+                          QueryInvoker& queryInvoker,
+                          const GroupByPeriodStrategy& groupByPeriodStrategy,
+                          const BackRequestStrategy& backRequestStrategy,
+                          DatasyncRelay& datasyncRelay,
+                          QObject* parent = nullptr);
 
     const std::vector<int>& distribution() const;
 
@@ -56,11 +55,12 @@ signals:
 private:
     ISprintDistributionReader& reader;
     QueryInvoker& queryInvoker;
-    const ProgressGroupingStrategy& distributionRequestStrategy;
-    const ProgressRangeRequestStrategy& requestStrategy;
+    const GroupByPeriodStrategy& groupByPeriodStrategy;
+    const BackRequestStrategy& backRequestStrategy;
     std::vector<int> data;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: DISTRIBUTIONMODEL_H_EGAN03FZ */
+#endif /* end of include guard: DISTRIBUTIONREQUESTER_H_2DNCXVGH */
+
