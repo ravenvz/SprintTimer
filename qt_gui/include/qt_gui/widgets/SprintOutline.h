@@ -24,23 +24,21 @@
 
 #include <QListView>
 #include <QPushButton>
-#include <QWidget>
 #include <memory>
+#include <QDialog>
 
 namespace sprint_timer::ui::qt_gui {
 
-class SprintModel;
 class AddSprintDialog;
 class UndoDialog;
-class SprintView;
 
 class SprintOutline : public QWidget {
 
     Q_OBJECT
 
 public:
-    SprintOutline(AddSprintDialog& addSprintDialog,
-                  UndoDialog& undoDialog,
+    SprintOutline(QDialog& addSprintDialog,
+                  QDialog& undoDialog,
                   std::unique_ptr<QPushButton> undoButton,
                   std::unique_ptr<QPushButton> addNewSprintButton,
                   std::unique_ptr<QListView> sprintView,

@@ -19,16 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "include/qt_gui/models/WorkScheduleModel.h"
+#include "include/qt_gui/WorkScheduleWrapper.h"
 #include <core/use_cases/ChangeWorkingDays.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-WorkScheduleModel::WorkScheduleModel(IWorkingDaysStorage& workingDaysStorage_,
-                                     CommandInvoker& commandInvoker_,
-                                     QueryInvoker& queryInvoker_,
-                                     DatasyncRelay& datasyncRelay_,
-                                     QObject* parent_)
+WorkScheduleWrapper::WorkScheduleWrapper(
+    IWorkingDaysStorage& workingDaysStorage_,
+    CommandInvoker& commandInvoker_,
+    QueryInvoker& queryInvoker_,
+    DatasyncRelay& datasyncRelay_,
+    QObject* parent_)
     : QObject{parent_}
     , workingDaysStorage{workingDaysStorage_}
     , commandInvoker{commandInvoker_}
@@ -37,10 +38,10 @@ WorkScheduleModel::WorkScheduleModel(IWorkingDaysStorage& workingDaysStorage_,
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
             this,
-            &WorkScheduleModel::requestDataUpdate);
+            &WorkScheduleWrapper::requestDataUpdate);
 }
 
-void WorkScheduleModel::requestDataUpdate()
+void WorkScheduleWrapper::requestDataUpdate()
 {
     using use_cases::RequestWorkingDays;
     queryInvoker.execute(std::make_unique<RequestWorkingDays>(
@@ -50,7 +51,7 @@ void WorkScheduleModel::requestDataUpdate()
         }));
 }
 
-void WorkScheduleModel::changeSchedule(
+void WorkScheduleWrapper::changeSchedule(
     const WorkSchedule& updatedWorkSchedule)
 {
     using sprint_timer::use_cases::ChangeWorkingDays;
@@ -60,7 +61,7 @@ void WorkScheduleModel::changeSchedule(
     emit workScheduleChanged(schedule);
 }
 
-const WorkSchedule& WorkScheduleModel::workSchedule() const
+const WorkSchedule& WorkScheduleWrapper::workSchedule() const
 {
     return schedule;
 }

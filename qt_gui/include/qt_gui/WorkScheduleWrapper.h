@@ -19,53 +19,54 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TAGMODEL_H
-#define TAGMODEL_H
+#ifndef WORKSCHEDULEWRAPPER_H_8VTK5QM1
+#define WORKSCHEDULEWRAPPER_H_8VTK5QM1
 
 #include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/models/AsyncListModel.h"
-#include <QStringListModel>
+#include <QObject>
 #include <core/CommandInvoker.h>
-#include <core/ITaskStorage.h>
+#include <core/IWorkingDaysStorage.h>
 #include <core/QueryInvoker.h>
+#include <core/WorkSchedule.h>
+#include <core/use_cases/RequestWorkingDays.h>
+
+#ifdef _MSC_VER
+#include "qt_gui/WinExport.h"
+#endif // _MSC_VER
 
 namespace sprint_timer::ui::qt_gui {
 
-class TagModel : public AsyncListModel {
+#ifdef _MSC_VER
+class GLIB_EXPORT WorkScheduleWrapper : public QObject {
+#else
+class WorkScheduleWrapper : public QObject {
+#endif // _MSC_VER
+
+    Q_OBJECT
 
 public:
-    TagModel(ITaskStorage& taskStorage,
-             CommandInvoker& commandInvoker,
-             QueryInvoker& queryInvoker,
-             DatasyncRelay& datasyncRelay_,
-             QObject* parent = nullptr);
+    WorkScheduleWrapper(IWorkingDaysStorage& workingDaysStorage,
+                        CommandInvoker& commandInvoker,
+                        QueryInvoker& queryInvoker,
+                        DatasyncRelay& datasyncRelay,
+                        QObject* parent = nullptr);
 
-    bool
-    setData(const QModelIndex& index, const QVariant& value, int role) final;
+    void requestDataUpdate();
 
-    Qt::ItemFlags flags(const QModelIndex& index) const final;
+    void changeSchedule(const WorkSchedule& updatedWorkSchedule);
 
-    int rowCount(const QModelIndex& parent) const final;
+    const WorkSchedule& workSchedule() const;
 
-    QVariant data(const QModelIndex& index, int role) const final;
-
-    bool submit() final;
-
-    void revert() final;
+signals:
+    void workScheduleChanged(const WorkSchedule&);
 
 private:
-    ITaskStorage& taskStorage;
+    IWorkingDaysStorage& workingDaysStorage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
-    using OldNewTagPair = std::pair<std::string, std::string>;
-    std::vector<std::string> storage;
-    std::vector<OldNewTagPair> buffer;
-
-    void requestUpdate() final;
-
-    void onDataArrived(const std::vector<std::string>& tags);
+    WorkSchedule schedule;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: TAGMODEL_H */
+#endif /* end of include guard: WORKSCHEDULEWRAPPER_H_8VTK5QM1 */

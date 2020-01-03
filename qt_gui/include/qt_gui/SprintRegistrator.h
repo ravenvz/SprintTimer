@@ -19,55 +19,38 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef WORKDAYworkScheduleMODEL_H_4DZKR8HV
-#define WORKDAYworkScheduleMODEL_H_4DZKR8HV
+#ifndef SPRINTREGISTRATOR_H_RLFYANTP
+#define SPRINTREGISTRATOR_H_RLFYANTP
 
-#include "qt_gui/DatasyncRelay.h"
+#include "qt_gui/IndexChangedReemitter.h"
+#include <QAbstractItemModel>
 #include <QObject>
 #include <core/CommandInvoker.h>
-#include <core/IWorkingDaysStorage.h>
-#include <core/QueryInvoker.h>
-#include <core/WorkSchedule.h>
-#include <core/use_cases/RequestWorkingDays.h>
-
-#ifdef _MSC_VER
-#include "qt_gui/WinExport.h"
-#endif // _MSC_VER
+#include <core/ISprintStorageWriter.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-#ifdef _MSC_VER
-class GLIB_EXPORT WorkScheduleModel : public QObject {
-#else
-class WorkScheduleModel : public QObject {
-#endif // _MSC_VER
-
-    Q_OBJECT
-
+class SprintRegistrator : public QObject {
 public:
-    WorkScheduleModel(IWorkingDaysStorage& workingDaysStorage,
+    SprintRegistrator(QAbstractItemModel& taskModel,
+                      ISprintStorageWriter& sprintWriter,
                       CommandInvoker& commandInvoker,
-                      QueryInvoker& queryInvoker,
-                      DatasyncRelay& datasyncRelay,
+                      IndexChangedReemitter& selectedTaskRowReemitter,
                       QObject* parent = nullptr);
 
-    void requestDataUpdate();
+    void
+    onSubmissionRequested(const std::vector<dw::DateTimeRange>& timeIntervals);
 
-    void changeSchedule(const WorkSchedule& updatedWorkSchedule);
-
-    const WorkSchedule& workSchedule() const;
-
-signals:
-    void workScheduleChanged(const WorkSchedule&);
+    void onTaskSelected(int taskRow);
 
 private:
-    IWorkingDaysStorage& workingDaysStorage;
+    QAbstractItemModel& taskModel;
+    ISprintStorageWriter& sprintWriter;
     CommandInvoker& commandInvoker;
-    QueryInvoker& queryInvoker;
-    WorkSchedule schedule;
+    int candidateRow{-1};
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: WORKDAYworkScheduleMODEL_H_4DZKR8HV */
+#endif /* end of include guard: SPRINTREGISTRATOR_H_RLFYANTP */
 

@@ -23,6 +23,7 @@
 #include "qt_gui/models/TaskModelRoles.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
+#include <core/use_cases/RegisterNewSprintBulk.h>
 
 namespace {
 
@@ -37,19 +38,21 @@ generateConsecutiveSprints(const QDateTime& initialStartTime,
 namespace sprint_timer::ui::qt_gui {
 
 AddSprintDialog::AddSprintDialog(const IConfig& applicationSettings_,
-                                 SprintModel& sprintModel_,
-                                 QAbstractItemModel& taskModel_,
+                                 ISprintStorageWriter& sprintWriter_,
+                                 CommandInvoker& commandInvoker_,
+                                 std::unique_ptr<QComboBox> taskSelector_,
                                  QDialog* parent_)
     : QDialog{parent_}
     , ui{std::make_unique<Ui::AddSprintDialog>()}
     , datePicker{std::make_unique<QCalendarWidget>()}
     , applicationSettings{applicationSettings_}
-    , sprintModel{sprintModel_}
+    , sprintWriter{sprintWriter_}
+    , commandInvoker{commandInvoker_}
+    , taskSelector{taskSelector_.get()}
 {
     ui->setupUi(this);
 
-    ui->cbPickTask->setModel(&taskModel_);
-    ui->cbPickTask->setItemDelegate(submissionItemDelegate.get());
+    ui->gridLayout->addWidget(taskSelector_.release(), 1, 0, 1, 3);
 
     datePicker->setMaximumDate(QDate::currentDate());
     if (applicationSettings.firstDayOfWeek() == dw::Weekday::Monday)
@@ -104,21 +107,23 @@ std::chrono::seconds AddSprintDialog::totalSprintLength() const
 
 void AddSprintDialog::accept()
 {
-    if (ui->cbPickTask->currentIndex() == -1)
+    if (taskSelector->currentIndex() == -1)
         return;
 
     const auto initialStartTime =
         ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
     const std::string taskUuid{
-        ui->cbPickTask->currentData(static_cast<int>(TaskModelRoles::GetIdRole))
+        taskSelector->currentData(static_cast<int>(TaskModelRoles::GetIdRole))
             .toString()
             .toStdString()};
     const auto sprintDuration = applicationSettings.sprintDuration();
 
-    auto sprints = generateConsecutiveSprints(
+    const auto sprints = generateConsecutiveSprints(
         initialStartTime, sprintDuration, taskUuid, ui->sbNumSprints->value());
 
-    sprintModel.insert(sprints);
+    commandInvoker.executeCommand(
+        std::make_unique<use_cases::RegisterNewSprintBulk>(sprintWriter,
+                                                           sprints));
     resetDataFields();
     QDialog::accept();
 }

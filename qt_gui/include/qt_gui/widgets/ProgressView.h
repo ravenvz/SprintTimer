@@ -22,13 +22,13 @@
 #ifndef PROGRESSVIEW_H_2OXRIURM
 #define PROGRESSVIEW_H_2OXRIURM
 
-#include "qt_gui/ProgressRangeRequestStrategy.h"
-#include "qt_gui/models/DistributionModel.h"
-#include "qt_gui/models/WorkScheduleModel.h"
+#include "qt_gui/BackRequestStrategy.h"
+#include "qt_gui/DistributionRequester.h"
+#include "qt_gui/WorkScheduleWrapper.h"
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
 #include <core/GoalProgress.h>
-#include <core/ProgressGroupingStrategy.h>
+#include <core/GroupByPeriodStrategy.h>
 #include <core/ProgressOverPeriod.h>
 #include <core/WorkSchedule.h>
 #include <memory>
@@ -47,10 +47,10 @@ public:
     using Columns = size_t;
     using GaugeSize = double;
 
-    ProgressView(const DistributionModel& progressModel,
-                 const WorkScheduleModel& workdaysModel,
-                 const ProgressGroupingStrategy& groupingStrategy,
-                 const ProgressRangeRequestStrategy& requestRangeStrategy,
+    ProgressView(const DistributionRequester& distributionRequester,
+                 const WorkScheduleWrapper& workScheduleWrapper,
+                 const GroupByPeriodStrategy& groupingStrategy,
+                 const BackRequestStrategy& backRequestStrategy,
                  Rows numRows,
                  Columns numColumns,
                  GaugeSize gaugeRelSize,

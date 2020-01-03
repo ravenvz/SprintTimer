@@ -27,9 +27,9 @@ namespace sprint_timer::ui::qt_gui {
 
 double degreesToRadians(double degrees);
 
-CombinedIndicator::CombinedIndicator(int sideSizeHint, QWidget* parent)
-    : QWidget{parent}
-    , widthAndHeightHint{sideSizeHint}
+CombinedIndicator::CombinedIndicator(int sideSizeHint_, QWidget* parent_)
+    : QWidget{parent_}
+    , widthAndHeightHint{sideSizeHint_}
 {
     setMouseTracking(true);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -84,8 +84,8 @@ void CombinedIndicator::drawProgressArc(QPainter& painter) const
     constexpr double penSize{4.0};
 
     const int margin = static_cast<int>(rect().width() * marginRatio);
-    const QRectF boundingRect
-        = rect().adjusted(margin, margin, -margin, -margin);
+    const QRectF boundingRect =
+        rect().adjusted(margin, margin, -margin, -margin);
 
     // Draw arc.
     QPen progressPen{color};

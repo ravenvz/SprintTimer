@@ -21,7 +21,10 @@
 *********************************************************************************/
 #include "qt_gui/widgets/FancyTimer.h"
 #include "qt_gui/utils/WidgetUtils.h"
-#include "ui_fancy_timer.h"
+#include <QGridLayout>
+#include <QPushButton>
+
+#include <QDebug>
 
 namespace {
 
@@ -34,58 +37,67 @@ const QColor zoneStateColor{Qt::darkYellow};
 namespace sprint_timer::ui::qt_gui {
 
 FancyTimer::FancyTimer(const IConfig& applicationSettings_,
-                       QAbstractItemModel& taskModel_,
                        QAbstractItemModel& sprintModel_,
+                       std::unique_ptr<QComboBox> submissionBox_,
+                       std::unique_ptr<CombinedIndicator> combinedIndicator_,
+                       SprintRegistrator& sprintRegistrator_,
                        QWidget* parent_)
     : TimerWidgetBase{applicationSettings_, sprintModel_, parent_}
-    , ui{std::make_unique<Ui::FancyTimer>()}
+    , submissionBox{submissionBox_.get()}
+    , combinedIndicator{combinedIndicator_.get()}
 {
-    ui->setupUi(this);
-    combinedIndicator =
-        std::make_unique<CombinedIndicator>(indicatorSize, this).release();
-    combinedIndicator->setSizePolicy(QSizePolicy::MinimumExpanding,
-                                     QSizePolicy::MinimumExpanding);
-    ui->cbxSubmissionCandidate->setModel(&taskModel_);
-    ui->gridLayout->addWidget(
-        combinedIndicator, 2, 0, 1, 2, Qt::AlignHCenter | Qt::AlignVCenter);
+    combinedIndicator_->setSizePolicy(QSizePolicy::MinimumExpanding,
+                                      QSizePolicy::MinimumExpanding);
 
-    WidgetUtils::setRetainSizeWhenHidden(ui->pbCancel);
-    WidgetUtils::setRetainSizeWhenHidden(ui->pbZone);
-    WidgetUtils::setRetainSizeWhenHidden(ui->cbxSubmissionCandidate);
+    auto pbCancel_ = std::make_unique<QPushButton>("Cancel", this);
+    auto pbZone_ = std::make_unique<QPushButton>("InTheZone", this);
+    pbCancel_->setFlat(true);
+    pbZone_->setFlat(true);
 
-    connect(combinedIndicator,
+    WidgetUtils::setRetainSizeWhenHidden(pbCancel_.get());
+    WidgetUtils::setRetainSizeWhenHidden(pbZone_.get());
+    WidgetUtils::setRetainSizeWhenHidden(submissionBox);
+
+    connect(combinedIndicator_.get(),
             &CombinedIndicator::indicatorClicked,
             this,
             &FancyTimer::onIndicatorClicked);
-    connect(ui->cbxSubmissionCandidate,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [&](int index) {
-                if (ui->cbxSubmissionCandidate->isVisible())
-                    emit submissionCandidateChanged(index);
-            });
-    connect(ui->pbZone, &QPushButton::clicked, [&]() {
+    connect(pbZone_.get(), &QPushButton::clicked, [&]() {
         timer->toggleInTheZoneMode();
     });
-    connect(ui->pbCancel, &QPushButton::clicked, this, &FancyTimer::cancelTask);
+    connect(
+        pbCancel_.get(), &QPushButton::clicked, this, &FancyTimer::cancelTask);
 
-    ui->cbxSubmissionCandidate->setItemDelegate(submissionItemDelegate.get());
+    connect(this,
+            &TimerWidgetBase::submitRequested,
+            &sprintRegistrator_,
+            &SprintRegistrator::onSubmissionRequested);
+
+    pbCancel = pbCancel_.get();
+    pbZone = pbZone_.get();
+
+    auto layout = std::make_unique<QGridLayout>();
+    layout->addWidget(combinedIndicator_.release(),
+                      1,
+                      0,
+                      1,
+                      2,
+                      Qt::AlignHCenter | Qt::AlignTop);
+    layout->addWidget(submissionBox_.release(), 0, 0, 1, 2, Qt::AlignHCenter);
+    layout->addWidget(pbCancel_.release(), 2, 0, 1, 1, Qt::AlignLeft);
+    layout->addWidget(pbZone_.release(), 2, 1, 1, 1, Qt::AlignRight);
+    setLayout(layout.release());
 
     onIdleStateEnteredHook();
 }
 
 FancyTimer::~FancyTimer() = default;
 
-void FancyTimer::setCandidateIndex(int index)
-{
-    if (ui->cbxSubmissionCandidate->isVisible())
-        ui->cbxSubmissionCandidate->setCurrentIndex(index);
-}
-
 void FancyTimer::onSprintStateEnteredHook()
 {
-    ui->cbxSubmissionCandidate->hide();
-    ui->pbCancel->show();
-    ui->pbZone->show();
+    submissionBox->hide();
+    pbCancel->show();
+    pbZone->show();
     std::chrono::seconds duration = timer->currentDuration();
     combinedIndicator->setColor(taskStateColor);
     combinedIndicator->setText(timerValueToText(duration));
@@ -99,9 +111,9 @@ void FancyTimer::onSprintStateEnteredHook()
 void FancyTimer::onSprintStateLeftHook()
 {
     TimerWidgetBase::onSprintStateLeftHook();
-    ui->cbxSubmissionCandidate->show();
-    ui->pbCancel->show();
-    ui->pbZone->hide();
+    submissionBox->show();
+    pbCancel->show();
+    pbZone->hide();
     combinedIndicator->setText("Submit");
     combinedIndicator->setDrawArc(false);
     combinedIndicator->repaint();
@@ -109,9 +121,9 @@ void FancyTimer::onSprintStateLeftHook()
 
 void FancyTimer::onBreakStateEnteredHook()
 {
-    ui->cbxSubmissionCandidate->hide();
-    ui->pbCancel->show();
-    ui->pbZone->hide();
+    submissionBox->hide();
+    pbCancel->show();
+    pbZone->hide();
     std::chrono::seconds duration = timer->currentDuration();
     combinedIndicator->setColor(breakStateColor);
     combinedIndicator->setMaxValue(static_cast<int>(duration.count()));
@@ -125,9 +137,9 @@ void FancyTimer::onBreakStateEnteredHook()
 
 void FancyTimer::onIdleStateEnteredHook()
 {
-    ui->cbxSubmissionCandidate->hide();
-    ui->pbCancel->hide();
-    ui->pbZone->hide();
+    submissionBox->hide();
+    pbCancel->hide();
+    pbZone->hide();
     combinedIndicator->setText("Start");
     combinedIndicator->setInvertedStyle(false);
     combinedIndicator->setDrawArc(false);
@@ -136,14 +148,14 @@ void FancyTimer::onIdleStateEnteredHook()
 
 void FancyTimer::onZoneStateEnteredHook()
 {
-    ui->pbCancel->hide();
+    pbCancel->hide();
     combinedIndicator->setColor(zoneStateColor);
     combinedIndicator->repaint();
 }
 
 void FancyTimer::onZoneStateLeftHook()
 {
-    ui->pbCancel->show();
+    pbCancel->show();
     combinedIndicator->setColor(taskStateColor);
     combinedIndicator->repaint();
 }
@@ -173,7 +185,7 @@ void FancyTimer::onIndicatorClicked()
     case IStatefulTimer::StateId::SprintCancelled:
         break;
     case IStatefulTimer::StateId::SprintFinished:
-        if (ui->cbxSubmissionCandidate->currentIndex() != -1)
+        if (submissionBox->currentIndex() != -1)
             requestSubmission();
         break;
     case IStatefulTimer::StateId::IdleEntered:

@@ -22,12 +22,12 @@
 #ifndef GROUPBYWEEK_H_UY9VBON4
 #define GROUPBYWEEK_H_UY9VBON4
 
+#include "core/GroupByPeriodStrategy.h"
 #include "core/IConfig.h"
-#include "core/ProgressGroupingStrategy.h"
 
 namespace sprint_timer {
 
-class GroupByWeek : public ProgressGroupingStrategy {
+class GroupByWeek : public GroupByPeriodStrategy {
 public:
     explicit GroupByWeek(const IConfig& applicationSettings);
 

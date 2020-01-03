@@ -22,13 +22,11 @@
 #ifndef REQUESTFORDAYSBACK_H_N7Y5DX8W
 #define REQUESTFORDAYSBACK_H_N7Y5DX8W
 
-
-#include "qt_gui/ProgressRangeRequestStrategy.h"
-
+#include "qt_gui/BackRequestStrategy.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-class RequestForDaysBack : public ProgressRangeRequestStrategy {
+class RequestForDaysBack : public BackRequestStrategy {
 public:
     RequestForDaysBack(int numDays);
 
@@ -39,6 +37,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: REQUESTFORDAYSBACK_H_N7Y5DX8W */

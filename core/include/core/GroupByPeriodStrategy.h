@@ -19,31 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SUBMISSIONBOX_H
-#define SUBMISSIONBOX_H
+#ifndef GROUPBYPERIODSTRATEGY_H_2JRBSIB5
+#define GROUPBYPERIODSTRATEGY_H_2JRBSIB5
 
-#include "qt_gui/SprintRegistrator.h"
-#include <QComboBox>
+#include "core/GoalProgress.h"
+#include "core/WorkSchedule.h"
+#include <date_wrapper/date_wrapper.h>
+#include <vector>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer {
 
-/* Combobox, that retains it's currentIndex when hidden.
- *
- * QComboBox set's current index to -1 when it's hidden,
- * so this subclass is a workaround to retain it. */
-class SubmissionBox : public QComboBox {
+class GroupByPeriodStrategy {
 public:
-    SubmissionBox(IndexChangedReemitter& selectedTaskRowReemitter,
-                  QWidget* parent = nullptr);
+    virtual ~GroupByPeriodStrategy() = default;
 
-private:
-    int persistentIndex{-1};
-
-    void hideEvent(QHideEvent* event) override;
-
-    void showEvent(QShowEvent* event) override;
+    virtual std::vector<GoalProgress>
+    computeProgress(const dw::DateRange& dateRange,
+                    const std::vector<int>& actualProgress,
+                    const WorkSchedule& workSchedule) const = 0;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer
 
-#endif // SUBMISSIONBOX_H
+#endif /* end of include guard: GROUPBYPERIODSTRATEGY_H_2JRBSIB5 */

@@ -19,20 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef PROGRESSRANGEREQUESTSTRATEGY_H_WCLRNVPK
-#define PROGRESSRANGEREQUESTSTRATEGY_H_WCLRNVPK
+#ifndef PROGRESSRANGEREQUESTSTRATEGY_H_CHJAEUU8
+#define PROGRESSRANGEREQUESTSTRATEGY_H_CHJAEUU8
 
 #include <date_wrapper/date_wrapper.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class ProgressRangeRequestStrategy {
+class BackRequestStrategy {
 public:
-    virtual ~ProgressRangeRequestStrategy() = default;
+    virtual ~BackRequestStrategy() = default;
 
     virtual dw::DateRange dateRange() const = 0;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: PROGRESSRANGEREQUESTSTRATEGY_H_WCLRNVPK */
+#endif /* end of include guard: PROGRESSRANGEREQUESTSTRATEGY_H_CHJAEUU8 */
+

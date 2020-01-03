@@ -49,13 +49,13 @@ namespace sprint_timer::ui::qt_gui {
 
 WorkdaysDialog::WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog_,
                                QAbstractItemModel& exceptionalDaysModel_,
-                               WorkScheduleModel& workScheduleModel_,
+                               WorkScheduleWrapper& workScheduleWrapper_,
                                QAbstractItemModel& weekScheduleModel_,
                                QDialog* parent_)
     : QDialog{parent_}
     , ui{std::make_unique<Ui::WorkdaysDialog>()}
     , pickDateDialog{addExcDayDialog_}
-    , workScheduleModel{workScheduleModel_}
+    , workScheduleWrapper{workScheduleWrapper_}
 {
     ui->setupUi(this);
     ui->listViewExceptionalDays->setModel(&exceptionalDaysModel_);
@@ -74,8 +74,8 @@ WorkdaysDialog::WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog_,
                 ui->dateEditScheduleDate->setEnabled(true);
             }
         });
-    connect(&workScheduleModel,
-            &WorkScheduleModel::workScheduleChanged,
+    connect(&workScheduleWrapper,
+            &WorkScheduleWrapper::workScheduleChanged,
             [this](const WorkSchedule& updatedWorkSchedule) {
                 onWorkScheduleChanged(updatedWorkSchedule);
             });
@@ -104,13 +104,13 @@ WorkdaysDialog::~WorkdaysDialog() = default;
 
 void WorkdaysDialog::accept()
 {
-    workScheduleModel.changeSchedule(candidateSchedule);
+    workScheduleWrapper.changeSchedule(candidateSchedule);
     QDialog::accept();
 }
 
 void WorkdaysDialog::reject()
 {
-    candidateSchedule = workScheduleModel.workSchedule();
+    candidateSchedule = workScheduleWrapper.workSchedule();
     QDialog::reject();
 }
 

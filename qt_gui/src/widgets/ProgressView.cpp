@@ -45,15 +45,14 @@ QString formatDecimal(double decimal)
 
 namespace sprint_timer::ui::qt_gui {
 
-ProgressView::ProgressView(
-    const DistributionModel& progressModel_,
-    const WorkScheduleModel& workdaysModel_,
-    const ProgressGroupingStrategy& groupingStrategy_,
-    const ProgressRangeRequestStrategy& requestRangeStrategy_,
-    Rows numRows_,
-    Columns numColumns_,
-    GaugeSize gaugeRelSize_,
-    QWidget* parent)
+ProgressView::ProgressView(const DistributionRequester& distributionRequester_,
+                           const WorkScheduleWrapper& workScheduleWrapper_,
+                           const GroupByPeriodStrategy& groupByPeriodStrategy_,
+                           const BackRequestStrategy& backRequestStrategy_,
+                           Rows numRows_,
+                           Columns numColumns_,
+                           GaugeSize gaugeRelSize_,
+                           QWidget* parent)
     : QFrame{parent}
     , ui{std::make_unique<Ui::ProgressView>()}
     , numRows{numRows_}
@@ -64,24 +63,24 @@ ProgressView::ProgressView(
     setupGauges();
     updateProgressBar(
         GoalProgress{GoalProgress::Estimated{0}, GoalProgress::Actual{0}});
-    connect(&progressModel_,
-            &DistributionModel::distributionChanged,
+    connect(&distributionRequester_,
+            &DistributionRequester::distributionChanged,
             [&](const std::vector<int>& updatedDistribution) {
                 const ProgressOverPeriod progress{
-                    requestRangeStrategy_.dateRange(),
+                    backRequestStrategy_.dateRange(),
                     updatedDistribution,
-                    workdaysModel_.workSchedule(),
-                    groupingStrategy_};
+                    workScheduleWrapper_.workSchedule(),
+                    groupByPeriodStrategy_};
                 setData(progress);
             });
-    connect(&workdaysModel_,
-            &WorkScheduleModel::workScheduleChanged,
+    connect(&workScheduleWrapper_,
+            &WorkScheduleWrapper::workScheduleChanged,
             [&](const WorkSchedule& updatedWorkSchedule) {
                 const ProgressOverPeriod progress{
-                    requestRangeStrategy_.dateRange(),
-                    progressModel_.distribution(),
+                    backRequestStrategy_.dateRange(),
+                    distributionRequester_.distribution(),
                     updatedWorkSchedule,
-                    groupingStrategy_};
+                    groupByPeriodStrategy_};
                 setData(progress);
             });
 }

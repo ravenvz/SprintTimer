@@ -88,7 +88,7 @@ bool TagModel::setData(const QModelIndex& index,
     return false;
 }
 
-void TagModel::submitData()
+bool TagModel::submit()
 {
     while (!buffer.empty()) {
         commandInvoker.executeCommand(std::make_unique<RenameTag>(
@@ -96,9 +96,10 @@ void TagModel::submitData()
         buffer.pop_back();
     }
     requestDataUpdate();
+    return true;
 }
 
-void TagModel::revertData()
+void TagModel::revert()
 {
     buffer.clear();
     requestDataUpdate();

@@ -22,9 +22,8 @@
 #ifndef TASKVIEW_H_AC0ZCTZN
 #define TASKVIEW_H_AC0ZCTZN
 
+#include "qt_gui/IndexChangedReemitter.h"
 #include "qt_gui/widgets/ReordableListView.h"
-#include <QAbstractItemModel>
-#include <QStyledItemDelegate>
 #include <core/ISprintStorageReader.h>
 #include <core/QueryInvoker.h>
 #include <optional>
@@ -47,22 +46,16 @@ class TaskView : public ReordableListView {
     Q_OBJECT
 
 public:
-    TaskView(QAbstractItemModel& taskModel,
-             ISprintStorageReader& sprintReader,
+    TaskView(ISprintStorageReader& sprintReader,
              QueryInvoker& queryInvoker,
              TaskSprintsView& sprintsForTaskView,
              AddTaskDialog& editTaskDialog,
              std::unique_ptr<QWidget> tagEditor,
-             QStyledItemDelegate& delegate,
+             IndexChangedReemitter& selectedTaskRowReemitter,
              QWidget* parent = nullptr);
-
-    std::optional<int> currentlySelectedRow() const;
 
 public slots:
     void onTaskSelectionChanged(int taskRow);
-
-signals:
-    void taskSelected(int taskRow);
 
 private:
     ISprintStorageReader& sprintReader;
@@ -70,7 +63,6 @@ private:
     TaskSprintsView& sprintsForTaskView;
     AddTaskDialog& editTaskDialog;
     std::unique_ptr<QWidget> tagEditor;
-    std::optional<int> selectedRow;
 
     void showSprintsForTask() const;
 
@@ -81,8 +73,6 @@ private:
     void launchTagEditor() const;
 
     void deleteSelectedTask() const;
-
-    void onTaskRemoved(const QModelIndex&, int first, int last);
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -22,12 +22,13 @@
 #ifndef TASKOUTLINE_H
 #define TASKOUTLINE_H
 
-#include "qt_gui/models/SprintModel.h"
-#include "qt_gui/widgets/TaskView.h"
-#include <QAbstractItemModel>
+#include "qt_gui/widgets/TagEditor.h"
+#include <QAbstractItemView>
 #include <QLineEdit>
 #include <QWidget>
+#include <core/CommandInvoker.h>
 #include <core/ISprintStorageReader.h>
+#include <core/ISprintStorageWriter.h>
 #include <core/QueryInvoker.h>
 #include <memory>
 
@@ -42,9 +43,9 @@ class AddTaskDialog;
  * tasks, add/edit and remove task and tags. */
 class TaskOutline : public QWidget {
 public:
-    TaskOutline(QAbstractItemModel& taskModel,
-                SprintModel& sprintModel,
-                std::unique_ptr<TaskView> taskView,
+    TaskOutline(ISprintStorageWriter& sprintWriter,
+                CommandInvoker& commandInvoker,
+                std::unique_ptr<QAbstractItemView> taskView,
                 AddTaskDialog& addTaskDialog,
                 QWidget* parent = nullptr);
 
@@ -52,10 +53,10 @@ public:
         const std::vector<dw::DateTimeRange>& intervals);
 
 private:
+    ISprintStorageWriter& sprintWriter;
+    CommandInvoker& commandInvoker;
     QPointer<TagEditor> tagEditor;
-    QAbstractItemModel& taskModel;
-    SprintModel& sprintModel;
-    TaskView* taskView;
+    QAbstractItemView* taskView;
     AddTaskDialog& addTaskDialog;
     QLineEdit* quickAddTask;
 

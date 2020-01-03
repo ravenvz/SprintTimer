@@ -20,8 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
-#include <core/use_cases/RegisterNewSprint.h>
-#include <core/use_cases/RegisterNewSprintBulk.h>
 #include <core/use_cases/RemoveSprintTransaction.h>
 #include <core/use_cases/RequestSprints.h>
 
@@ -46,7 +44,6 @@ SprintModel::SprintModel(CommandInvoker& commandInvoker_,
             &DatasyncRelay::dataUpdateRequiered,
             this,
             &AsyncListModel::requestSilentDataUpdate);
-    // requestSilentDataUpdate();
 }
 
 int SprintModel::rowCount(const QModelIndex& parent) const
@@ -73,32 +70,6 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-void SprintModel::insert(const DateTimeRange& timeSpan,
-                         const std::string& taskUuid)
-{
-    Sprint sprint{taskUuid, timeSpan};
-    insert(sprint);
-}
-
-void SprintModel::insert(const Sprint& sprint)
-{
-    registerSprint(sprint);
-    requestDataUpdate();
-}
-
-void SprintModel::insert(const std::vector<Sprint>& sprints)
-{
-    commandInvoker.executeCommand(
-        std::make_unique<RegisterNewSprintBulk>(sprintStorage, sprints));
-    requestDataUpdate();
-}
-
-void SprintModel::registerSprint(const Sprint& sprint)
-{
-    commandInvoker.executeCommand(
-        std::make_unique<RegisterNewSprint>(sprintStorage, sprint));
-}
-
 bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
 {
     beginRemoveRows(index, row, row + count - 1);
@@ -112,16 +83,6 @@ void SprintModel::remove(int row)
     commandInvoker.executeCommand(std::make_unique<RemoveSprintTransaction>(
         sprintStorage, storage[static_cast<size_t>(row)]));
     requestDataUpdate();
-}
-
-const Sprint& SprintModel::itemAt(int row) const { return storage[row]; }
-
-void SprintModel::requestUpdate(const dw::DateRange& dateRange)
-{
-    queryInvoker.execute(std::make_unique<RequestSprints>(
-        sprintStorage, dateRange, [this](const auto& items) {
-            onDataChanged(items);
-        }));
 }
 
 void SprintModel::requestUpdate()
@@ -139,16 +100,6 @@ void SprintModel::onDataChanged(const std::vector<Sprint>& items)
     beginResetModel();
     storage = items;
     endResetModel();
-}
-
-std::vector<Sprint> allSprints(const SprintModel& sprintModel)
-{
-    std::vector<Sprint> sprints;
-    const int numRows{sprintModel.rowCount(QModelIndex{})};
-    sprints.reserve(numRows);
-    for (int row = 0; row < numRows; ++row)
-        sprints.push_back(sprintModel.itemAt(row));
-    return sprints;
 }
 
 } // namespace sprint_timer::ui::qt_gui

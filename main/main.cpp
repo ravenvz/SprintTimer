@@ -58,10 +58,13 @@
 #include <core/QueryInvoker.h>
 #include <filesystem>
 #include <qt_gui/DatasyncRelay.h>
+#include <qt_gui/DistributionRequester.h>
 #include <qt_gui/RequestForDaysBack.h>
 #include <qt_gui/RequestForMonthsBack.h>
 #include <qt_gui/RequestForWeeksBack.h>
+#include <qt_gui/WorkScheduleWrapper.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
+#include <qt_gui/delegates/SubmissionItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
 #include <qt_gui/dialogs/AddExceptionalDayDialog.h>
 #include <qt_gui/dialogs/AddSprintDialog.h>
@@ -70,14 +73,13 @@
 #include <qt_gui/dialogs/SettingsDialog.h>
 #include <qt_gui/dialogs/UndoDialog.h>
 #include <qt_gui/dialogs/WorkdaysDialog.h>
-#include <qt_gui/models/DistributionModel.h>
 #include <qt_gui/models/ExtraDayModel.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/OperationRangeModel.h>
+#include <qt_gui/models/SprintModel.h>
 #include <qt_gui/models/TagModel.h>
 #include <qt_gui/models/TaskModel.h>
 #include <qt_gui/models/WeekScheduleModel.h>
-#include <qt_gui/models/WorkScheduleModel.h>
 #include <qt_gui/widgets/AutodisablingButton.h>
 #include <qt_gui/widgets/ContextMenuListView.h>
 #include <qt_gui/widgets/DailyTimelineGraph.h>
@@ -92,9 +94,11 @@
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/StatisticsDiagramWidget.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
+#include <qt_gui/widgets/SubmissionBox.h>
 #include <qt_gui/widgets/TagEditor.h>
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
+#include <qt_gui/widgets/TaskView.h>
 #include <qt_gui/widgets/TodayProgressIndicator.h>
 #include <qt_gui/widgets/UndoButton.h>
 
@@ -336,10 +340,16 @@ int main(int argc, char* argv[])
     TagModel tagModel{
         *taskStorage, commandInvoker, queryInvoker, datasyncRelay};
 
-    AddSprintDialog addSprintDialog{
-        applicationSettings, todaySprintsModel, unfinishedTasksModel};
+    auto taskSelector = std::make_unique<QComboBox>();
+    taskSelector->setModel(&unfinishedTasksModel);
+    taskSelector->setItemDelegate(
+        std::make_unique<SubmissionItemDelegate>().release());
+    AddSprintDialog addSprintDialog{applicationSettings,
+                                    *sprintStorage,
+                                    commandInvoker,
+                                    std::move(taskSelector)};
 
-    WorkScheduleModel workScheduleModel{
+    WorkScheduleWrapper workScheduleWrapper{
         *workingDaysStorage, commandInvoker, queryInvoker, datasyncRelay};
 
     UndoDialog undoDialog{commandInvoker};
@@ -372,7 +382,7 @@ int main(int argc, char* argv[])
         std::move(statisticsWindowDateRangePicker),
         std::move(dailyTimelineGraph),
         std::move(statisticsDiagramWidget),
-        workScheduleModel,
+        workScheduleWrapper,
         *sprintStorage,
         queryInvoker,
         datasyncRelay};
@@ -383,27 +393,28 @@ int main(int argc, char* argv[])
 
     WorkdaysDialog workdaysDialog{exceptionalDayDialog,
                                   exceptionalDaysModel,
-                                  workScheduleModel,
+                                  workScheduleWrapper,
                                   scheduleModel};
 
     const int distributionDays{30};
     RequestForDaysBack requestDaysBackStrategy{distributionDays};
     GroupByDay groupByDayStrategy;
-    DistributionModel dailyDistributionModel{*dailyDistributionReader,
-                                             queryInvoker,
-                                             groupByDayStrategy,
-                                             requestDaysBackStrategy,
-                                             datasyncRelay};
+    DistributionRequester dailyDistributionRequester{*dailyDistributionReader,
+                                                     queryInvoker,
+                                                     groupByDayStrategy,
+                                                     requestDaysBackStrategy,
+                                                     datasyncRelay};
     constexpr ProgressView::Rows dailyRows{3};
     constexpr ProgressView::Columns dailyCols{10};
     constexpr ProgressView::GaugeSize dailyGaugeRelSize{0.7};
-    auto dailyProgress = std::make_unique<ProgressView>(dailyDistributionModel,
-                                                        workScheduleModel,
-                                                        groupByDayStrategy,
-                                                        requestDaysBackStrategy,
-                                                        dailyRows,
-                                                        dailyCols,
-                                                        dailyGaugeRelSize);
+    auto dailyProgress =
+        std::make_unique<ProgressView>(dailyDistributionRequester,
+                                       workScheduleWrapper,
+                                       groupByDayStrategy,
+                                       requestDaysBackStrategy,
+                                       dailyRows,
+                                       dailyCols,
+                                       dailyGaugeRelSize);
     dailyProgress->setLegendTitle("Last 30 days");
     dailyProgress->setLegendAverageCaption("Average per day:");
 
@@ -415,17 +426,17 @@ int main(int argc, char* argv[])
     RequestForWeeksBack requestWeeksBackStrategy{distributionWeeks,
                                                  applicationSettings};
     GroupByWeek groupByWeekStrategy{applicationSettings};
-    DistributionModel weeklyDistributionModel{*weeklyDistributionReader,
-                                              queryInvoker,
-                                              groupByWeekStrategy,
-                                              requestWeeksBackStrategy,
-                                              datasyncRelay};
+    DistributionRequester weeklyDistributionRequester{*weeklyDistributionReader,
+                                                      queryInvoker,
+                                                      groupByWeekStrategy,
+                                                      requestWeeksBackStrategy,
+                                                      datasyncRelay};
     const ProgressView::Rows weeklyRows{3};
     const ProgressView::Columns weeklyCols{4};
     const ProgressView::GaugeSize weeklyGaugeRelSize{0.8};
     auto weeklyProgress =
-        std::make_unique<ProgressView>(weeklyDistributionModel,
-                                       workScheduleModel,
+        std::make_unique<ProgressView>(weeklyDistributionRequester,
+                                       workScheduleWrapper,
                                        groupByWeekStrategy,
                                        requestWeeksBackStrategy,
                                        weeklyRows,
@@ -437,17 +448,18 @@ int main(int argc, char* argv[])
     const int distributionMonths{12};
     RequestForMonthsBack requestMonthsBackStrategy{distributionMonths};
     GroupByMonth groupByMonthStrategy;
-    DistributionModel monthlyDistributionModel{*monthlyDistributionReader,
-                                               queryInvoker,
-                                               groupByMonthStrategy,
-                                               requestMonthsBackStrategy,
-                                               datasyncRelay};
+    DistributionRequester monthlyDistributionRequester{
+        *monthlyDistributionReader,
+        queryInvoker,
+        groupByMonthStrategy,
+        requestMonthsBackStrategy,
+        datasyncRelay};
     const ProgressView::Rows monthlyRows{3};
     const ProgressView::Columns monthlyCols{4};
     const ProgressView::GaugeSize monthlyGaugeRelSize{0.8};
     auto monthlyProgress =
-        std::make_unique<ProgressView>(monthlyDistributionModel,
-                                       workScheduleModel,
+        std::make_unique<ProgressView>(monthlyDistributionRequester,
+                                       workScheduleWrapper,
                                        groupByMonthStrategy,
                                        requestMonthsBackStrategy,
                                        monthlyRows,
@@ -477,50 +489,52 @@ int main(int argc, char* argv[])
     auto launcherMenu = std::make_unique<LauncherMenu>(
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
 
+    IndexChangedReemitter selectedTaskRowReemitter;
+    SprintRegistrator sprintRegistrator{unfinishedTasksModel,
+                                        *sprintStorage,
+                                        commandInvoker,
+                                        selectedTaskRowReemitter};
     std::unique_ptr<TimerWidgetBase> timerWidget;
+    auto submissionBox =
+        std::make_unique<SubmissionBox>(selectedTaskRowReemitter);
+    submissionBox->setModel(&unfinishedTasksModel);
+    auto submissionItemDelegate = std::make_unique<SubmissionItemDelegate>();
+    submissionBox->setItemDelegate(submissionItemDelegate.release());
     auto timerFlavour = applicationSettings.timerFlavour();
     if (timerFlavour == 0)
         timerWidget = std::make_unique<DefaultTimer>(applicationSettings,
-                                                     unfinishedTasksModel,
                                                      todaySprintsModel,
+                                                     std::move(submissionBox),
+                                                     sprintRegistrator,
                                                      nullptr);
-    else
-        timerWidget = std::make_unique<FancyTimer>(applicationSettings,
-                                                   unfinishedTasksModel,
-                                                   todaySprintsModel,
-                                                   nullptr);
+    else {
+        constexpr int indicatorSize{150};
+        timerWidget = std::make_unique<FancyTimer>(
+            applicationSettings,
+            todaySprintsModel,
+            std::move(submissionBox),
+            std::make_unique<CombinedIndicator>(indicatorSize, nullptr),
+            sprintRegistrator,
+            nullptr);
+    }
 
     HistoryModel taskSprintsModel;
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
     AddTaskDialog addTaskDialog{tagModel};
-    TaskItemDelegate taskItemDelegate;
+    auto taskItemDelegate = std::make_unique<TaskItemDelegate>();
     auto taskView =
-        std::make_unique<TaskView>(unfinishedTasksModel,
-                                   *sprintStorage,
+        std::make_unique<TaskView>(*sprintStorage,
                                    queryInvoker,
                                    taskSprintsView,
                                    addTaskDialog,
                                    std::make_unique<TagEditor>(tagModel),
-                                   taskItemDelegate);
-    QObject::connect(timerWidget.get(),
-                     &TimerWidgetBase::submissionCandidateChanged,
-                     taskView.get(),
-                     &TaskView::onTaskSelectionChanged);
-    // TODO see if we can connect it differently
-    QObject::connect(taskView.get(),
-                     &TaskView::taskSelected,
-                     [timer = timerWidget.get()](const int row) {
-                         timer->setCandidateIndex(row);
-                     });
-    auto taskOutline = std::make_unique<TaskOutline>(unfinishedTasksModel,
-                                                     todaySprintsModel,
-                                                     std::move(taskView),
-                                                     addTaskDialog);
+                                   selectedTaskRowReemitter);
+    taskView->setModel(&unfinishedTasksModel);
+    taskView->setContextMenuPolicy(Qt::CustomContextMenu);
+    taskView->setItemDelegate(taskItemDelegate.release());
 
-    QObject::connect(timerWidget.get(),
-                     &TimerWidgetBase::submitRequested,
-                     taskOutline.get(),
-                     &TaskOutline::onSprintSubmissionRequested);
+    auto taskOutline = std::make_unique<TaskOutline>(
+        *sprintStorage, commandInvoker, std::move(taskView), addTaskDialog);
 
     // Emits initial signal to trigger update requests for all subsribers
     datasyncRelay.onDataChanged();
@@ -529,7 +543,7 @@ int main(int argc, char* argv[])
         std::move(sprintOutline),
         std::move(taskOutline),
         std::make_unique<TodayProgressIndicator>(todaySprintsModel,
-                                                 workScheduleModel),
+                                                 workScheduleWrapper),
         std::move(timerWidget),
         std::move(launcherMenu)};
     applyStyleSheet(app);

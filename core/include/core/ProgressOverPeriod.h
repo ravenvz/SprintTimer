@@ -19,14 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/GoalProgress.h"
+#include "core/GroupByPeriodStrategy.h"
 #include "core/WorkSchedule.h"
 #include <date_wrapper/date_wrapper.h>
+#include <iostream>
 #include <numeric>
 #include <optional>
-
-#include "core/GoalProgress.h"
-#include "core/ProgressGroupingStrategy.h"
-#include <iostream>
 
 #ifndef PROGRESS_H_LE0ZZW37
 #define PROGRESS_H_LE0ZZW37
@@ -38,7 +37,7 @@ public:
     ProgressOverPeriod(const dw::DateRange& period,
                        const std::vector<int>& actualProgress,
                        const WorkSchedule& workSchedule,
-                       const ProgressGroupingStrategy& groupingStrategy);
+                       const GroupByPeriodStrategy& groupByPeriodStrategy);
 
     std::optional<double> percentage() const;
 

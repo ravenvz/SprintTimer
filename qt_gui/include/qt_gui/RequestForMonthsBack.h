@@ -22,13 +22,11 @@
 #ifndef REQUESTFORMONTHSBACK_H_CPBYLFIA
 #define REQUESTFORMONTHSBACK_H_CPBYLFIA
 
-
-#include "qt_gui/ProgressRangeRequestStrategy.h"
-
+#include "qt_gui/BackRequestStrategy.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-class RequestForMonthsBack : public ProgressRangeRequestStrategy {
+class RequestForMonthsBack : public BackRequestStrategy {
 public:
     RequestForMonthsBack(int numMonths);
 
@@ -39,6 +37,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: REQUESTFORMONTHSBACK_H_CPBYLFIA */

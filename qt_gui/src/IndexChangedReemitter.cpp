@@ -19,27 +19,14 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef PROGRESSGROUPINGSTRATEGY_H_S4KWH7CM
-#define PROGRESSGROUPINGSTRATEGY_H_S4KWH7CM
+#include "qt_gui/IndexChangedReemitter.h"
 
-#include "core/GoalProgress.h"
-#include "core/WorkSchedule.h"
-#include <date_wrapper/date_wrapper.h>
-#include <vector>
+namespace sprint_timer::ui::qt_gui {
 
-namespace sprint_timer {
+void IndexChangedReemitter::onRowChanged(int rowNumber)
+{
+    emit currentRowChanged(rowNumber);
+}
 
-class ProgressGroupingStrategy {
-public:
-    virtual ~ProgressGroupingStrategy() = default;
-
-    virtual std::vector<GoalProgress>
-    computeProgress(const dw::DateRange& dateRange,
-                    const std::vector<int>& actualProgress,
-                    const WorkSchedule& workSchedule) const = 0;
-};
-
-} // namespace sprint_timer
-
-#endif /* end of include guard: PROGRESSGROUPINGSTRATEGY_H_S4KWH7CM */
+} // namespace sprint_timer::ui::qt_gui
 
