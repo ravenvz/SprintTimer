@@ -25,7 +25,6 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-
 DateRangePickDialog::DateRangePickDialog(const IConfig& applicationSettings_,
                                          QWidget* parent_)
     : QDialog{parent_}
@@ -35,7 +34,15 @@ DateRangePickDialog::DateRangePickDialog(const IConfig& applicationSettings_,
     ui->setupUi(this);
     ui->cwStart->setMaximumDate(QDate::currentDate());
     ui->cwEnd->setMaximumDate(QDate::currentDate());
-    // NOTE see ui file for used signal connections
+    // NOTE also see ui file for used signal connections
+    connect(ui->cwStart,
+            &QCalendarWidget::clicked,
+            ui->cwEnd,
+            &QCalendarWidget::setMinimumDate);
+    connect(ui->cwEnd,
+            &QCalendarWidget::clicked,
+            ui->cwStart,
+            &QCalendarWidget::setMaximumDate);
 }
 
 DateRangePickDialog::~DateRangePickDialog() = default;
