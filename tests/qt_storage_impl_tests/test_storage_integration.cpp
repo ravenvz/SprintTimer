@@ -681,7 +681,34 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     initializer.runEventLoop();
 }
 
-TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_operational_range)
+TEST_F(QtStorageImplementIntegrationTestFixture,
+       retrieves_operational_range_using_current_date_as_upper_bound)
+{
+    using namespace dw;
+    const Task someTask{TaskBuilder{}.build()};
+    const dw::DateTime timestamp{
+        dw::DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
+    const Sprint right{SprintBuilder{}
+                           .withTaskUuid(someTask.uuid())
+                           .withTimeSpan(add_offset(
+                               DateTimeRange{timestamp, timestamp}, -Years{4}))
+                           .build()};
+    const DateRange expected{Date{Year{2014}, Month{12}, Day{1}},
+                             current_date_local()};
+
+    initializer.taskStorage->save(someTask);
+    initializer.sprintStorage->save(right);
+
+    initializer.operationalRangeReader->requestOperationalRange(
+        [this, &expected](const auto& operationalRange) {
+            EXPECT_EQ(expected, operationalRange);
+            initializer.quit();
+        });
+    initializer.runEventLoop();
+}
+
+TEST_F(QtStorageImplementIntegrationTestFixture,
+       retrieves_operational_range_when_having_some_future_sprint)
 {
     using namespace dw;
     const Task someTask{TaskBuilder{}.build()};
@@ -689,15 +716,18 @@ TEST_F(QtStorageImplementIntegrationTestFixture, retrieves_operational_range)
         dw::DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
     const Sprint left{SprintBuilder{}
                           .withTaskUuid(someTask.uuid())
-                          .withTimeSpan(DateTimeRange{timestamp, timestamp})
+                          .withTimeSpan(add_offset(
+                              DateTimeRange{timestamp, timestamp}, -Years{4}))
                           .build()};
-    const Sprint right{SprintBuilder{}
-                           .withTaskUuid(someTask.uuid())
-                           .withTimeSpan(add_offset(
-                               DateTimeRange{timestamp, timestamp}, -Years{4}))
-                           .build()};
+    const Sprint right{
+        SprintBuilder{}
+            .withTaskUuid(someTask.uuid())
+            .withTimeSpan(add_offset(DateTimeRange{current_date_time_local(),
+                                                   current_date_time_local()},
+                                     Years{4}))
+            .build()};
     const DateRange expected{Date{Year{2014}, Month{12}, Day{1}},
-                             Date{Year{2018}, Month{12}, Day{1}}};
+                             current_date_local() + Years{4}};
 
     initializer.taskStorage->save(someTask);
     initializer.sprintStorage->save(left);
@@ -718,20 +748,15 @@ TEST_F(QtStorageImplementIntegrationTestFixture,
     const Task someTask{TaskBuilder{}.build()};
     const dw::DateTime timestamp{
         dw::DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
-    const Sprint left{SprintBuilder{}
-                          .withTaskUuid(someTask.uuid())
-                          .withTimeSpan(DateTimeRange{timestamp, timestamp})
-                          .build()};
     const Sprint right{SprintBuilder{}
                            .withTaskUuid(someTask.uuid())
                            .withTimeSpan(add_offset(
                                DateTimeRange{timestamp, timestamp}, -Years{4}))
                            .build()};
     const DateRange expected{Date{Year{2014}, Month{12}, Day{1}},
-                             Date{Year{2018}, Month{12}, Day{1}}};
+                             current_date_local()};
 
     initializer.taskStorage->save(someTask);
-    initializer.sprintStorage->save(left);
     initializer.sprintStorage->save(right);
 
     for (int i = 0; i < 10; ++i) {

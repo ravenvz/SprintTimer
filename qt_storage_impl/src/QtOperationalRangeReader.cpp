@@ -53,7 +53,8 @@ void QtOperationalRangeReader::onResultsReceived(
         const auto& record = records.front();
         const dw::DateRange range{
             utils::DateTimeConverter::date(record.value(0).toDate()),
-            utils::DateTimeConverter::date(record.value(1).toDate())};
+            std::max(dw::current_date_local(),
+                     utils::DateTimeConverter::date(record.value(1).toDate()))};
         it->second(range);
         handlers.erase(queryId);
     }
