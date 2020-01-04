@@ -37,6 +37,7 @@ TodayProgressIndicator::TodayProgressIndicator(
     QWidget* parent_)
     : QLabel{parent_}
 {
+    hide();
     connect(&todaySprintsModel_,
             &QAbstractItemModel::modelReset,
             [this, &todaySprintsModel_]() {
