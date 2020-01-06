@@ -1,6 +1,6 @@
 version: "{build}"
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 # init:
 #     - git config --global core.autocrlf input
@@ -28,12 +28,12 @@ configuration:
 build: off
 
 before_build:
-    - set QTDIR=C:\Qt\5.11\msvc2017_64
+    - set QTDIR=C:\Qt\5.13\msvc2017_64
 
 build_script:
     - mkdir build
     - cd build
-    - cmake .. -G "Visual Studio 15 Win64" -DCMAKE_VERBOSE_MAKEFILE="OFF" -DCMAKE_PREFIX_PATH="C:/Qt/5.11/msvc2017_64/lib/cmake" -DCMAKE_INCLUDE_PATH="C:\Libraries\boost_1_67_0" -DBUILD_TESTS=ON -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_INSTALL_PREFIX="C:/sprint_timer_bin"
+    - cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_VERBOSE_MAKEFILE="OFF" -DCMAKE_PREFIX_PATH="C:/Qt/5.13/msvc2017_64/lib/cmake" -DCMAKE_INCLUDE_PATH="C:\Libraries\boost_1_71_0" -DBUILD_TESTS=ON -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_INSTALL_PREFIX="C:/sprint_timer_bin"
     - mkdir C:\projects\sprint_timer\bin
     - mkdir C:\projects\sprint_timer\bin\Release
     - mkdir C:\projects\sprint_timer\bin\Debug
@@ -59,7 +59,7 @@ test_script:
 #       name: package_name
 #
 # deploy:
-#     # выкладываем tagged-коммиты на GitHub Releases:
+#     # publish tagged commits on GitHub Releases:
 #     description: '$(APPVEYOR_REPO_TAG_NAME)'
 #     provider: GitHub
 #
