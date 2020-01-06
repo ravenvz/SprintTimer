@@ -23,7 +23,6 @@
 #include "qt_storage_impl/DatabaseError.h"
 #include "qt_storage_impl/DatabaseInitializer.h"
 #include "qt_storage_impl/QueryError.h"
-
 #include <iostream>
 
 namespace sprint_timer::storage::qt_storage_impl {

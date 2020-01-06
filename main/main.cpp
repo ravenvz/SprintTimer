@@ -113,12 +113,14 @@ std::string getUserDataDirectory()
     PWSTR path;
     if (SUCCEEDED(SHGetKnownFolderPath(
             FOLDERID_LocalAppData, KF_FLAG_CREATE, NULL, &path))) {
-        using convert_type = std::codecvt_utf8<wchar_t>;
-        const std::wstring w_path{path};
-        std::wstring_convert<convert_type, wchar_t> converter;
-        return converter.to_bytes(w_path);
+        // This just returns required buffer size, see docs for WideCharToMultiByte
+        const size_t len = WideCharToMultiByte(CP_UTF8, 0, path, -1, 0, 0, 0, 0);
+        // Taking size (len - 1) as std::string is already null-terminated
+        std::string buf(len - 1, 0);
+        WideCharToMultiByte(CP_UTF8, 0, path, -1, buf.data(), len, 0, 0);
+        return buf;
     }
-    return std::string{};
+	throw std::runtime_error{"unable to find user data directory"};
 }
 #elif defined(__linux__)
 
@@ -152,9 +154,8 @@ std::string getOrCreateSprintTimerDataDirectory()
 {
     const std::string prefix = getUserDataDirectory();
     const std::string dataDirectory{prefix + "/sprint_timer"};
-    if (!exists(dataDirectory)) {
+    if (!exists(dataDirectory))
         create_directory(dataDirectory);
-    }
     return dataDirectory;
 }
 
