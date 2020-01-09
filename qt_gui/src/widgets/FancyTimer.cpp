@@ -24,8 +24,6 @@
 #include <QGridLayout>
 #include <QPushButton>
 
-#include <QDebug>
-
 namespace {
 
 const QColor taskStateColor{"#eb6c59"};
@@ -63,7 +61,7 @@ FancyTimer::FancyTimer(const IConfig& applicationSettings_,
             this,
             &FancyTimer::onIndicatorClicked);
     connect(pbZone_.get(), &QPushButton::clicked, [&]() {
-        timer->toggleInTheZoneMode();
+        workflow->toggleInTheZoneMode();
     });
     connect(
         pbCancel_.get(), &QPushButton::clicked, this, &FancyTimer::cancelTask);
@@ -98,7 +96,7 @@ void FancyTimer::onSprintStateEnteredHook()
     submissionBox->hide();
     pbCancel->show();
     pbZone->show();
-    std::chrono::seconds duration = timer->currentDuration();
+    std::chrono::seconds duration = workflow->currentDuration();
     combinedIndicator->setColor(taskStateColor);
     combinedIndicator->setText(timerValueToText(duration));
     combinedIndicator->setMaxValue(static_cast<int>(duration.count()));
@@ -124,7 +122,7 @@ void FancyTimer::onBreakStateEnteredHook()
     submissionBox->hide();
     pbCancel->show();
     pbZone->hide();
-    std::chrono::seconds duration = timer->currentDuration();
+    std::chrono::seconds duration = workflow->currentDuration();
     combinedIndicator->setColor(breakStateColor);
     combinedIndicator->setMaxValue(static_cast<int>(duration.count()));
     updateIndication(duration);
@@ -171,37 +169,37 @@ void FancyTimer::updateIndication(std::chrono::seconds timeLeft)
 
 bool FancyTimer::indicationUpdateShouldBeIgnored() const
 {
-    return currentState == IStatefulTimer::StateId::IdleEntered ||
-           currentState == IStatefulTimer::StateId::SprintFinished;
+    return currentState == IWorkflow::StateId::IdleEntered ||
+           currentState == IWorkflow::StateId::SprintFinished;
 }
 
 void FancyTimer::onIndicatorClicked()
 {
     switch (currentState) {
-    case IStatefulTimer::StateId::SprintEntered:
+    case IWorkflow::StateId::SprintEntered:
         break;
-    case IStatefulTimer::StateId::SprintLeft:
+    case IWorkflow::StateId::SprintLeft:
         break;
-    case IStatefulTimer::StateId::SprintCancelled:
+    case IWorkflow::StateId::SprintCancelled:
         break;
-    case IStatefulTimer::StateId::SprintFinished:
+    case IWorkflow::StateId::SprintFinished:
         if (submissionBox->currentIndex() != -1)
             requestSubmission();
         break;
-    case IStatefulTimer::StateId::IdleEntered:
+    case IWorkflow::StateId::IdleEntered:
         startTask();
         break;
-    case IStatefulTimer::StateId::IdleLeft:
+    case IWorkflow::StateId::IdleLeft:
         break;
-    case IStatefulTimer::StateId::BreakEntered:
+    case IWorkflow::StateId::BreakEntered:
         break;
-    case IStatefulTimer::StateId::BreakLeft:
+    case IWorkflow::StateId::BreakLeft:
         break;
-    case IStatefulTimer::StateId::BreakCancelled:
+    case IWorkflow::StateId::BreakCancelled:
         break;
-    case IStatefulTimer::StateId::ZoneEntered:
+    case IWorkflow::StateId::ZoneEntered:
         break;
-    case IStatefulTimer::StateId::ZoneLeft:
+    case IWorkflow::StateId::ZoneLeft:
         break;
     }
 }

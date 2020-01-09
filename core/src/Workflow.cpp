@@ -19,8 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "core/StatefulTimer.h"
+#include "core/Workflow.h"
 #include <utility>
 
 namespace sprint_timer {
@@ -28,9 +27,9 @@ namespace sprint_timer {
 using dw::DateTime;
 using dw::DateTimeRange;
 
-StatefulTimer::StatefulTimer(
+Workflow::Workflow(
     std::function<void(std::chrono::seconds timeLeft)> onTickCallback,
-    std::function<void(IStatefulTimer::StateId)> onStateChangedCallback,
+    std::function<void(IWorkflow::StateId)> onStateChangedCallback,
     std::chrono::seconds tickPeriod,
     const IConfig& applicationSettings)
     : currentState{&idle}
@@ -42,72 +41,69 @@ StatefulTimer::StatefulTimer(
 {
 }
 
-void StatefulTimer::start()
+void Workflow::start()
 {
     // TODO probably usage should be limited to Idle and Finished states
     currentState->setNextState(*this);
 }
 
-void StatefulTimer::cancel() { currentState->cancelExit(*this); }
+void Workflow::cancel() { currentState->cancelExit(*this); }
 
-std::chrono::seconds StatefulTimer::currentDuration() const
+std::chrono::seconds Workflow::currentDuration() const
 {
     return currentState->duration(*this);
 }
 
-void StatefulTimer::toggleInTheZoneMode()
+void Workflow::toggleInTheZoneMode()
 {
     currentState->toggleZoneMode(*this);
 }
 
-std::vector<DateTimeRange> StatefulTimer::completedSprints() const
+std::vector<DateTimeRange> Workflow::completedSprints() const
 {
     return buffer;
 }
 
-void StatefulTimer::clearSprintsBuffer() { buffer.clear(); }
+void Workflow::clearSprintsBuffer() { buffer.clear(); }
 
-void StatefulTimer::setNumFinishedSprints(int num) { finishedSprints = num; }
+void Workflow::setNumFinishedSprints(int num) { finishedSprints = num; }
 
-int StatefulTimer::numFinishedSprints() const { return finishedSprints; }
+int Workflow::numFinishedSprints() const { return finishedSprints; }
 
-void StatefulTimer::jumpToState(TimerState& state)
+void Workflow::jumpToState(WorkflowState& state)
 {
     currentState = &state;
     currentState->enter(*this);
 }
 
-void StatefulTimer::transitionToState(TimerState& state)
+void Workflow::transitionToState(WorkflowState& state)
 {
     currentState->normalExit(*this);
     currentState = &state;
     currentState->enter(*this);
 }
 
-bool StatefulTimer::longBreakConditionMet() const
+bool Workflow::longBreakConditionMet() const
 {
     return (finishedSprints + 1) % applicationSettings.numSprintsBeforeBreak()
         == 0;
 }
 
-void StatefulTimer::onTimerRunout() { currentState->onTimerFinished(*this); }
+void Workflow::onTimerRunout() { currentState->onTimerFinished(*this); }
 
-void StatefulTimer::notifyStateChanged(IStatefulTimer::StateId stateId)
+void Workflow::notifyStateChanged(IWorkflow::StateId stateId)
 {
     onStateChangedCallback(stateId);
 }
 
-void StatefulTimer::onTimerTick(PeriodicBackgroundRunner::TickPeriod timeLeft)
+void Workflow::onTimerTick(PeriodicBackgroundRunner::TickPeriod timeLeft)
 {
     using namespace std::chrono;
     onTickCallback(duration_cast<seconds>(timeLeft));
 }
 
-void StatefulTimer::startCountdown()
+void Workflow::startCountdown()
 {
-    // if (periodicBackgroundRunner)
-    //     periodicBackgroundRunner->stop();
-    // periodicBackgroundRunner.reset(nullptr);
     periodicBackgroundRunner = std::make_unique<PeriodicBackgroundRunner>(
         [this](PeriodicBackgroundRunner::TickPeriod timeLeft) {
             this->onTimerTick(timeLeft);
@@ -117,157 +113,157 @@ void StatefulTimer::startCountdown()
         tickInterval);
 }
 
-void TimerState::toggleZoneMode(StatefulTimer& timer) {}
+void WorkflowState::toggleZoneMode(Workflow& timer) {}
 
-void TimerState::onTimerFinished(StatefulTimer& timer) {}
+void WorkflowState::onTimerFinished(Workflow& timer) {}
 
-std::chrono::seconds TimerState::duration(const StatefulTimer& timer) const
+std::chrono::seconds WorkflowState::duration(const Workflow& timer) const
 {
     return std::chrono::minutes{timer.applicationSettings.sprintDuration()};
 }
 
-void Idle::enter(StatefulTimer& timer) const
+void Idle::enter(Workflow& timer) const
 {
-    timer.notifyStateChanged(IStatefulTimer::StateId::IdleEntered);
+    timer.notifyStateChanged(IWorkflow::StateId::IdleEntered);
 }
 
-void Idle::cancelExit(StatefulTimer& timer) {}
+void Idle::cancelExit(Workflow& timer) {}
 
-void Idle::normalExit(StatefulTimer& timer) const
+void Idle::normalExit(Workflow& timer) const
 {
-    timer.notifyStateChanged(IStatefulTimer::StateId::IdleLeft);
+    timer.notifyStateChanged(IWorkflow::StateId::IdleLeft);
 }
 
-void Idle::setNextState(StatefulTimer& timer)
+void Idle::setNextState(Workflow& timer)
 {
     timer.transitionToState(timer.runningSprint);
 }
 
-void RunningSprint::enter(StatefulTimer& timer) const
+void RunningSprint::enter(Workflow& timer) const
 {
-    timer.notifyStateChanged(IStatefulTimer::StateId::SprintEntered);
+    timer.notifyStateChanged(IWorkflow::StateId::SprintEntered);
     timer.mStart = dw::current_date_time_local();
     timer.startCountdown();
 }
 
-void RunningSprint::cancelExit(StatefulTimer& timer)
+void RunningSprint::cancelExit(Workflow& timer)
 {
-    timer.notifyStateChanged(IStatefulTimer::StateId::SprintCancelled);
+    timer.notifyStateChanged(IWorkflow::StateId::SprintCancelled);
     if (timer.periodicBackgroundRunner)
         timer.periodicBackgroundRunner->stop();
     timer.jumpToState(timer.idle);
 }
 
-void RunningSprint::normalExit(StatefulTimer& timer) const
+void RunningSprint::normalExit(Workflow& timer) const
 {
-    timer.notifyStateChanged(IStatefulTimer::StateId::SprintLeft);
+    timer.notifyStateChanged(IWorkflow::StateId::SprintLeft);
 }
 
-void RunningSprint::setNextState(StatefulTimer& timer)
+void RunningSprint::setNextState(Workflow& timer)
 {
     timer.transitionToState(timer.sprintFinished);
 }
 
-std::chrono::seconds RunningSprint::duration(const StatefulTimer& timer) const
+std::chrono::seconds RunningSprint::duration(const Workflow& timer) const
 {
     return std::chrono::minutes{timer.applicationSettings.sprintDuration()};
 }
 
-void RunningSprint::toggleZoneMode(StatefulTimer& timer)
+void RunningSprint::toggleZoneMode(Workflow& timer)
 {
     timer.jumpToState(timer.zone);
 }
 
-void RunningSprint::onTimerFinished(StatefulTimer& timer)
+void RunningSprint::onTimerFinished(Workflow& timer)
 {
     timer.buffer.emplace_back(
         DateTimeRange{timer.mStart, dw::current_date_time_local()});
     setNextState(timer);
 }
 
-void ShortBreak::enter(StatefulTimer& timer) const
+void ShortBreak::enter(Workflow& timer) const
 {
-    timer.notifyStateChanged(IStatefulTimer::StateId::BreakEntered);
+    timer.notifyStateChanged(IWorkflow::StateId::BreakEntered);
     timer.startCountdown();
 }
 
-void ShortBreak::cancelExit(StatefulTimer& timer)
+void ShortBreak::cancelExit(Workflow& timer)
 {
     if (timer.periodicBackgroundRunner)
         timer.periodicBackgroundRunner->stop();
-    timer.notifyStateChanged(IStatefulTimer::StateId::BreakCancelled);
+    timer.notifyStateChanged(IWorkflow::StateId::BreakCancelled);
     timer.jumpToState(timer.idle);
 }
 
-void ShortBreak::normalExit(StatefulTimer& timer) const
+void ShortBreak::normalExit(Workflow& timer) const
 {
-    timer.notifyStateChanged(IStatefulTimer::StateId::BreakLeft);
+    timer.notifyStateChanged(IWorkflow::StateId::BreakLeft);
 }
 
-void ShortBreak::setNextState(StatefulTimer& timer)
+void ShortBreak::setNextState(Workflow& timer)
 {
     timer.transitionToState(timer.idle);
 }
 
-std::chrono::seconds ShortBreak::duration(const StatefulTimer& timer) const
+std::chrono::seconds ShortBreak::duration(const Workflow& timer) const
 {
     return std::chrono::minutes{timer.applicationSettings.shortBreakDuration()};
 }
 
-void ShortBreak::onTimerFinished(StatefulTimer& timer) { setNextState(timer); }
+void ShortBreak::onTimerFinished(Workflow& timer) { setNextState(timer); }
 
-void LongBreak::enter(StatefulTimer& timer) const
+void LongBreak::enter(Workflow& timer) const
 {
-    timer.notifyStateChanged(IStatefulTimer::StateId::BreakEntered);
+    timer.notifyStateChanged(IWorkflow::StateId::BreakEntered);
     timer.startCountdown();
 }
 
-void LongBreak::cancelExit(StatefulTimer& timer)
+void LongBreak::cancelExit(Workflow& timer)
 {
     if (timer.periodicBackgroundRunner)
         timer.periodicBackgroundRunner->stop();
-    timer.notifyStateChanged(IStatefulTimer::StateId::BreakCancelled);
+    timer.notifyStateChanged(IWorkflow::StateId::BreakCancelled);
     timer.jumpToState(timer.idle);
 }
 
-void LongBreak::normalExit(StatefulTimer& timer) const
+void LongBreak::normalExit(Workflow& timer) const
 {
-    timer.notifyStateChanged(IStatefulTimer::StateId::BreakLeft);
+    timer.notifyStateChanged(IWorkflow::StateId::BreakLeft);
 }
 
-void LongBreak::setNextState(StatefulTimer& timer)
+void LongBreak::setNextState(Workflow& timer)
 {
     timer.transitionToState(timer.idle);
 }
 
-std::chrono::seconds LongBreak::duration(const StatefulTimer& timer) const
+std::chrono::seconds LongBreak::duration(const Workflow& timer) const
 {
     return std::chrono::minutes{timer.applicationSettings.longBreakDuration()};
 }
 
-void LongBreak::onTimerFinished(StatefulTimer& timer) { setNextState(timer); }
+void LongBreak::onTimerFinished(Workflow& timer) { setNextState(timer); }
 
-void Zone::enter(StatefulTimer& timer) const
+void Zone::enter(Workflow& timer) const
 {
     // this check is required due to lame test structure that switches states
     // directly without initializing periodicBackgroundRunner
     if (timer.periodicBackgroundRunner)
         timer.periodicBackgroundRunner->setCyclic(true);
-    timer.notifyStateChanged(IStatefulTimer::StateId::ZoneEntered);
+    timer.notifyStateChanged(IWorkflow::StateId::ZoneEntered);
 }
 
-void Zone::cancelExit(StatefulTimer& timer) {}
+void Zone::cancelExit(Workflow& timer) {}
 
-void Zone::normalExit(StatefulTimer& timer) const {}
+void Zone::normalExit(Workflow& timer) const {}
 
-std::chrono::seconds Zone::duration(const StatefulTimer& timer) const
+std::chrono::seconds Zone::duration(const Workflow& timer) const
 {
     return std::chrono::minutes{timer.applicationSettings.sprintDuration()};
 }
 
-void Zone::setNextState(StatefulTimer& timer) {}
+void Zone::setNextState(Workflow& timer) {}
 
-void Zone::toggleZoneMode(StatefulTimer& timer)
+void Zone::toggleZoneMode(Workflow& timer)
 {
     // this check is required due to lame test structure that switches states
     // directly without initializing periodicBackgroundRunner
@@ -275,30 +271,30 @@ void Zone::toggleZoneMode(StatefulTimer& timer)
         timer.periodicBackgroundRunner->setCyclic(false);
     // Changing state directly because we don't want to enter/exit to be called
     timer.currentState = &timer.runningSprint;
-    timer.notifyStateChanged(IStatefulTimer::StateId::ZoneLeft);
+    timer.notifyStateChanged(IWorkflow::StateId::ZoneLeft);
 }
 
-void Zone::onTimerFinished(StatefulTimer& timer)
+void Zone::onTimerFinished(Workflow& timer)
 {
     timer.buffer.emplace_back(
         DateTimeRange{timer.mStart, dw::current_date_time_local()});
     timer.mStart = dw::current_date_time_local();
 }
 
-void SprintFinished::enter(StatefulTimer& timer) const
+void SprintFinished::enter(Workflow& timer) const
 {
-    timer.notifyStateChanged(IStatefulTimer::StateId::SprintFinished);
+    timer.notifyStateChanged(IWorkflow::StateId::SprintFinished);
 }
 
-void SprintFinished::cancelExit(StatefulTimer& timer)
+void SprintFinished::cancelExit(Workflow& timer)
 {
     timer.clearSprintsBuffer();
     timer.jumpToState(timer.idle);
 }
 
-void SprintFinished::normalExit(StatefulTimer& timer) const {}
+void SprintFinished::normalExit(Workflow& timer) const {}
 
-void SprintFinished::setNextState(StatefulTimer& timer)
+void SprintFinished::setNextState(Workflow& timer)
 {
     timer.longBreakConditionMet() ? timer.transitionToState(timer.longBreak)
                                   : timer.transitionToState(timer.shortBreak);

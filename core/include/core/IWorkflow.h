@@ -19,16 +19,15 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#ifndef ISTATEFULTIMER_H_D3DG0N7C
-#define ISTATEFULTIMER_H_D3DG0N7C
+#ifndef IWORKFLOW_H_S3AYV9DP
+#define IWORKFLOW_H_S3AYV9DP
 
 #include "date_wrapper/date_wrapper.h"
 #include <vector>
 
 namespace sprint_timer {
 
-class IStatefulTimer {
+class IWorkflow {
 public:
     enum class StateId {
         IdleEntered,
@@ -44,7 +43,7 @@ public:
         ZoneLeft
     };
 
-    virtual ~IStatefulTimer() = default;
+    virtual ~IWorkflow() = default;
 
     virtual void start() = 0;
 
@@ -63,4 +62,5 @@ public:
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: ISTATEFULTIMER_H_D3DG0N7C */
+#endif /* end of include guard: IWORKFLOW_H_S3AYV9DP */
+
