@@ -20,8 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
-#include <core/use_cases/RemoveSprintTransaction.h>
-#include <core/use_cases/RequestSprints.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -30,15 +28,14 @@ using dw::DateTimeRange;
 using namespace entities;
 using namespace sprint_timer::use_cases;
 
-SprintModel::SprintModel(CommandInvoker& commandInvoker_,
-                         QueryInvoker& queryInvoker_,
-                         ISprintStorage& sprintStorage_,
-                         DatasyncRelay& datasyncRelay_,
-                         QObject* parent_)
+SprintModel::SprintModel(
+    interactors::RemoveSprint& removeSprintInteractor_,
+    interactors::RequestSprintsInteractor& requestSprintsInteractor_,
+    DatasyncRelay& datasyncRelay_,
+    QObject* parent_)
     : AsyncListModel(parent_)
-    , commandInvoker{commandInvoker_}
-    , queryInvoker{queryInvoker_}
-    , sprintStorage{sprintStorage_}
+    , removeSprintInteractor{removeSprintInteractor_}
+    , requestSprintsInteractor{requestSprintsInteractor_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
@@ -80,19 +77,16 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
 
 void SprintModel::remove(int row)
 {
-    commandInvoker.executeCommand(std::make_unique<RemoveSprintTransaction>(
-        sprintStorage, storage[static_cast<size_t>(row)]));
+    removeSprintInteractor.removeSprint(storage[static_cast<size_t>(row)]);
     requestDataUpdate();
 }
 
 void SprintModel::requestUpdate()
 {
     const dw::Date today{dw::current_date_local()};
-    const dw::DateRange dateRange{today, today};
-    queryInvoker.execute(std::make_unique<RequestSprints>(
-        sprintStorage, dateRange, [this](const auto& items) {
-            onDataChanged(items);
-        }));
+    requestSprintsInteractor.request_sprints(
+        dw::DateRange{today, today},
+        [this](const auto& items) { onDataChanged(items); });
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)

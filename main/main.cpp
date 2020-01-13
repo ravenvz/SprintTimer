@@ -113,14 +113,16 @@ std::string getUserDataDirectory()
     PWSTR path;
     if (SUCCEEDED(SHGetKnownFolderPath(
             FOLDERID_LocalAppData, KF_FLAG_CREATE, NULL, &path))) {
-        // This just returns required buffer size, see docs for WideCharToMultiByte
-        const size_t len = WideCharToMultiByte(CP_UTF8, 0, path, -1, 0, 0, 0, 0);
+        // This just returns required buffer size, see docs for
+        // WideCharToMultiByte
+        const size_t len =
+            WideCharToMultiByte(CP_UTF8, 0, path, -1, 0, 0, 0, 0);
         // Taking size (len - 1) as std::string is already null-terminated
         std::string buf(len - 1, 0);
         WideCharToMultiByte(CP_UTF8, 0, path, -1, buf.data(), len, 0, 0);
         return buf;
     }
-	throw std::runtime_error{"unable to find user data directory"};
+    throw std::runtime_error{"unable to find user data directory"};
 }
 #elif defined(__linux__)
 
@@ -305,7 +307,7 @@ int main(int argc, char* argv[])
     Config applicationSettings;
 
     QApplication app(argc, argv);
-    DBService dbService{dataDirectory + "/sprint.db"};
+    DBService dbService{dataDirectory + "/test_sprint.db"};
 
     QtStorageImplementersFactory factory{dbService};
     std::unique_ptr<ISprintStorage> sprintStorage{
@@ -331,13 +333,18 @@ int main(int argc, char* argv[])
     QueryInvoker defaultQueryInvoker;
     VerboseQueryInvoker queryInvoker{defaultQueryInvoker};
 
+    interactors::RequestSprintsInteractor requestSprintsInteractor{
+        queryInvoker, *sprintStorage};
+    interactors::RemoveSprint removeSprintInteractor{commandInvoker,
+                                                     *sprintStorage};
+
     TaskModel unfinishedTasksModel{*taskStorage,
                                    *sprintStorage,
                                    commandInvoker,
                                    queryInvoker,
                                    datasyncRelay};
     SprintModel todaySprintsModel{
-        commandInvoker, queryInvoker, *sprintStorage, datasyncRelay};
+        removeSprintInteractor, requestSprintsInteractor, datasyncRelay};
     TagModel tagModel{
         *taskStorage, commandInvoker, queryInvoker, datasyncRelay};
 

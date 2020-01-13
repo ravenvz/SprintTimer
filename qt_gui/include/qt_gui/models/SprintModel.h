@@ -24,10 +24,8 @@
 
 #include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/models/AsyncListModel.h"
-#include <core/CommandInvoker.h>
-#include <core/ISprintStorage.h>
-#include <core/ITaskStorageWriter.h>
-#include <core/QueryInvoker.h>
+#include <core/interactors/RemoveSprint.h>
+#include <core/interactors/RequestSprintsInteractor.h>
 #include <vector>
 
 namespace sprint_timer::ui::qt_gui {
@@ -36,9 +34,8 @@ class SprintModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    SprintModel(CommandInvoker& commandInvoker,
-                QueryInvoker& queryInvoker,
-                ISprintStorage& sprintStorage,
+    SprintModel(interactors::RemoveSprint& removeSprintInteractor,
+                interactors::RequestSprintsInteractor& requestSprintsInteractor,
                 DatasyncRelay& datasyncRelay,
                 QObject* parent = nullptr);
 
@@ -50,9 +47,8 @@ public:
 
 private:
     std::vector<entities::Sprint> storage;
-    CommandInvoker& commandInvoker;
-    QueryInvoker& queryInvoker;
-    ISprintStorage& sprintStorage;
+    interactors::RemoveSprint& removeSprintInteractor;
+    interactors::RequestSprintsInteractor& requestSprintsInteractor;
 
     void requestUpdate() final;
 
