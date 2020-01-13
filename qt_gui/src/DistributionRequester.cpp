@@ -34,6 +34,7 @@ DistributionRequester::DistributionRequester(
     , queryInvoker{queryInvoker_}
     , groupByPeriodStrategy{groupByPeriodStrategy_}
     , backRequestStrategy{backRequestStrategy_}
+    , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
@@ -53,6 +54,7 @@ void DistributionRequester::synchronize()
         reader,
         backRequestStrategy.dateRange(),
         [this](const auto& distribution) {
+            datasyncRelay.onSyncCompleted("DistributionRequester");
             data = distribution;
             emit distributionChanged(data);
         }));

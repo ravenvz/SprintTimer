@@ -57,6 +57,7 @@ private:
     ITaskStorage& taskStorage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
+    DatasyncRelay& datasyncRelay;
     using OldNewTagPair = std::pair<std::string, std::string>;
     std::vector<std::string> storage;
     std::vector<OldNewTagPair> buffer;

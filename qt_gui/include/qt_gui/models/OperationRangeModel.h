@@ -46,6 +46,7 @@ public:
 private:
     IOperationalRangeReader& reader;
     QueryInvoker& queryInvoker;
+    DatasyncRelay& datasyncRelay;
     QStringList storage;
 
     void requestUpdate() override;

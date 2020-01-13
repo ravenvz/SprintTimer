@@ -57,6 +57,7 @@ private:
     QueryInvoker& queryInvoker;
     const GroupByPeriodStrategy& groupByPeriodStrategy;
     const BackRequestStrategy& backRequestStrategy;
+    DatasyncRelay& datasyncRelay;
     std::vector<int> data;
 };
 

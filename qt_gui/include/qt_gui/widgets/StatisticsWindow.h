@@ -62,6 +62,7 @@ private:
     const WorkScheduleWrapper& workScheduleWrapper;
     ISprintStorageReader& sprintReader;
     QueryInvoker& queryInvoker;
+    DatasyncRelay& datasyncRelay;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;
     const size_t numTopTags{7}; // TODO move to config

@@ -49,6 +49,7 @@ private:
     std::vector<entities::Sprint> storage;
     interactors::RemoveSprint& removeSprintInteractor;
     interactors::RequestSprintsInteractor& requestSprintsInteractor;
+    DatasyncRelay& datasyncRelay;
 
     void requestUpdate() final;
 

@@ -47,6 +47,7 @@ StatisticsWindow::StatisticsWindow(
     , workScheduleWrapper{workScheduleWrapper_}
     , sprintReader{sprintReader_}
     , queryInvoker{queryInvoker_}
+    , datasyncRelay{datasyncRelay_}
 {
     auto layout = std::make_unique<QVBoxLayout>(nullptr);
     layout->addWidget(dateRangePicker_.release(), 1);
@@ -86,6 +87,7 @@ void StatisticsWindow::synchronize()
 void StatisticsWindow::onSprintsUpdated(
     const std::vector<Sprint>& updatedSprints)
 {
+    datasyncRelay.onSyncCompleted("StatisticsWindow");
     sprints = updatedSprints;
     selectedTagIndex = std::optional<size_t>();
     tagTop = TagTop(sprints, numTopTags);

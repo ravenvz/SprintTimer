@@ -73,6 +73,7 @@ HistoryWindow::HistoryWindow(ISprintStorageReader& sprintReader_,
     , historyModel{historyModel_}
     , queryInvoker{queryInvoker_}
     , dateRangePicker{dateRangePicker_.get()}
+    , datasyncRelay{datasyncRelay_}
 {
     ui->setupUi(this);
     dateRangePicker_->setMinimumSize(QSize{400, 80});
@@ -165,6 +166,7 @@ HistoryWindow::ShowingSprints::ShowingSprints(HistoryWindow& widget) noexcept {}
 void HistoryWindow::ShowingSprints::onHistoryRetrieved(
     HistoryWindow& widget, const std::vector<Sprint>& sprints) const
 {
+    widget.datasyncRelay.onSyncCompleted("HistoryWindow sprints");
     const HistoryModel::HistoryData sprintHistory{
         extractHistoryData(sprints, sprintDataExtractor)};
     widget.fillHistoryModel(sprintHistory);
@@ -218,6 +220,7 @@ void HistoryWindow::ShowingTasks::retrieveHistory(HistoryWindow& widget) const
 void HistoryWindow::ShowingTasks::onHistoryRetrieved(
     HistoryWindow& widget, const std::vector<Task>& tasks) const
 {
+    widget.datasyncRelay.onSyncCompleted("HistoryWindow tasks");
     const HistoryModel::HistoryData taskHistory{
         extractHistoryData(tasks, taskDataExtractor)};
     widget.fillHistoryModel(taskHistory);

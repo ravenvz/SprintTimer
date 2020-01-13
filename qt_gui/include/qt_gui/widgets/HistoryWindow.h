@@ -120,6 +120,7 @@ private:
     HistoryModel& historyModel;
     QueryInvoker& queryInvoker;
     DateRangePicker* dateRangePicker;
+    DatasyncRelay& datasyncRelay;
     State state;
 
     /* Assumes that history items are ordered by date ascendantly. */

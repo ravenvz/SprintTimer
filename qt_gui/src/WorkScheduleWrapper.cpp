@@ -34,6 +34,7 @@ WorkScheduleWrapper::WorkScheduleWrapper(
     , workingDaysStorage{workingDaysStorage_}
     , commandInvoker{commandInvoker_}
     , queryInvoker{queryInvoker_}
+    , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
@@ -46,6 +47,7 @@ void WorkScheduleWrapper::requestDataUpdate()
     using use_cases::RequestWorkingDays;
     queryInvoker.execute(std::make_unique<RequestWorkingDays>(
         workingDaysStorage, [this](WorkSchedule&& newSchedule) {
+        datasyncRelay.onSyncCompleted("WorkScheduleWrapper");
             schedule = std::move(newSchedule);
             emit workScheduleChanged(schedule);
         }));

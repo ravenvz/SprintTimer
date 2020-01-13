@@ -37,6 +37,7 @@ TagModel::TagModel(ITaskStorage& taskStorage_,
     , taskStorage{taskStorage_}
     , commandInvoker{commandInvoker_}
     , queryInvoker{queryInvoker_}
+    , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
@@ -113,6 +114,7 @@ void TagModel::requestUpdate()
 
 void TagModel::onDataArrived(const std::vector<std::string>& tags)
 {
+    datasyncRelay.onSyncCompleted("TagModel");
     beginResetModel();
     storage = tags;
     endResetModel();

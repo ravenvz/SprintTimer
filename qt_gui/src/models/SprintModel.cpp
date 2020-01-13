@@ -36,6 +36,7 @@ SprintModel::SprintModel(
     : AsyncListModel(parent_)
     , removeSprintInteractor{removeSprintInteractor_}
     , requestSprintsInteractor{requestSprintsInteractor_}
+    , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
@@ -91,6 +92,7 @@ void SprintModel::requestUpdate()
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)
 {
+    datasyncRelay.onSyncCompleted("SprintModel");
     beginResetModel();
     storage = items;
     endResetModel();

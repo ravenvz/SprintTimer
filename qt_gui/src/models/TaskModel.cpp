@@ -66,6 +66,7 @@ void TaskModel::requestUpdate()
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)
 {
+    datasyncRelay.onSyncCompleted("TaskModel");
     beginResetModel();
     storage = tasks;
     endResetModel();

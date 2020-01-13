@@ -37,6 +37,7 @@ OperationRangeModel::OperationRangeModel(IOperationalRangeReader& reader_,
     : AsyncListModel{parent_}
     , reader{reader_}
     , queryInvoker{queryInvoker_}
+    , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
@@ -66,6 +67,7 @@ void OperationRangeModel::requestUpdate()
         reader, [this](const auto& updatedRange) {
             const int firstYear{static_cast<int>(updatedRange.start().year())};
             const int lastYear{static_cast<int>(updatedRange.finish().year())};
+            datasyncRelay.onSyncCompleted("OperationRangeModel");
             // If number of years is not changed, no need to do anything as
             // storage would be up to date.
             // In practice, model would be reset when it is first

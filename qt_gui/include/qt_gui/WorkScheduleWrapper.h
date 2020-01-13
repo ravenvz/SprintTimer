@@ -64,6 +64,7 @@ private:
     IWorkingDaysStorage& workingDaysStorage;
     CommandInvoker& commandInvoker;
     QueryInvoker& queryInvoker;
+    DatasyncRelay& datasyncRelay;
     WorkSchedule schedule;
 };
 
