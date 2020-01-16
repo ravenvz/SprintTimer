@@ -22,12 +22,13 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/CommandInvoker.h>
-#include <core/use_cases/ToggleTaskCompletionStatus.h>
+#include <core/ActionInvoker.h>
+#include <core/ObservableActionInvoker.h>
+#include <core/actions/ToggleTaskCompleted.h>
 
+using sprint_timer::actions::ToggleTaskCompleted;
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
-using sprint_timer::use_cases::ToggleTaskCompletionStatus;
 using namespace dw;
 
 class ToggleTaskCompletionFixture : public ::testing::Test {
@@ -40,35 +41,32 @@ public:
                   false,
                   dw::DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
 
-    sprint_timer::CommandInvoker commandInvoker;
-    TaskStorageMock task_storage_mock;
+    sprint_timer::ObservableActionInvoker actionInvoker;
+    mocks::TaskStorageMock task_storage_mock;
 };
 
 TEST_F(ToggleTaskCompletionFixture, execute)
 {
     EXPECT_CALL(task_storage_mock,
-                toggleTaskCompletionStatus(someTask.uuid(),
-                                           dw::current_date_time_local()))
+                toggleCompleted(someTask.uuid(), dw::current_date_time_local()))
         .Times(1);
 
-    commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
-        task_storage_mock, someTask));
+    actionInvoker.execute(
+        std::make_unique<ToggleTaskCompleted>(task_storage_mock, someTask));
 }
 
 TEST_F(ToggleTaskCompletionFixture, undo_should_not_modify_timestamp)
 {
     EXPECT_CALL(task_storage_mock,
-                toggleTaskCompletionStatus(someTask.uuid(),
-                                           dw::current_date_time_local()))
+                toggleCompleted(someTask.uuid(), dw::current_date_time_local()))
         .Times(1);
 
-    commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
-        task_storage_mock, someTask));
+    actionInvoker.execute(
+        std::make_unique<ToggleTaskCompleted>(task_storage_mock, someTask));
 
-    EXPECT_CALL(
-        task_storage_mock,
-        toggleTaskCompletionStatus(someTask.uuid(), someTask.lastModified()))
+    EXPECT_CALL(task_storage_mock,
+                toggleCompleted(someTask.uuid(), someTask.lastModified()))
         .Times(1);
 
-    commandInvoker.undo();
+    actionInvoker.undo();
 }

@@ -28,7 +28,6 @@
 #include "qt_gui/widgets/TagEditor.h"
 #include "qt_gui/widgets/TaskSprintsView.h"
 #include <QMenu>
-#include <core/use_cases/RequestSprintsForTask.h>
 
 namespace {
 
@@ -40,21 +39,20 @@ namespace sprint_timer::ui::qt_gui {
 
 using entities::Sprint;
 using entities::Task;
-using use_cases::RequestSprintsForTask;
 
-TaskView::TaskView(ISprintStorageReader& sprintReader_,
-                   QueryInvoker& queryInvoker_,
-                   TaskSprintsView& sprintsForTaskView_,
-                   AddTaskDialog& editTaskDialog_,
-                   std::unique_ptr<QWidget> tagEditor_,
-                   IndexChangedReemitter& selectedTaskRowReemitter_,
-                   QWidget* parent_)
+TaskView::TaskView(
+    TaskSprintsView& sprintsForTaskView_,
+    AddTaskDialog& editTaskDialog_,
+    std::unique_ptr<QWidget> tagEditor_,
+    IndexChangedReemitter& selectedTaskRowReemitter_,
+    QueryHandler<use_cases::SprintsForTaskQuery, std::vector<entities::Sprint>>&
+        sprintsForTaskHandler_,
+    QWidget* parent_)
     : ReordableListView{parent_}
-    , sprintReader{sprintReader_}
-    , queryInvoker{queryInvoker_}
     , sprintsForTaskView{sprintsForTaskView_}
     , editTaskDialog{editTaskDialog_}
     , tagEditor{std::move(tagEditor_)}
+    , sprintsForTaskHandler{sprintsForTaskHandler_}
 {
     connect(this,
             &QAbstractItemView::clicked,
@@ -92,11 +90,9 @@ void TaskView::showSprintsForTask() const
                               .toString()
                               .toStdString();
 
-    queryInvoker.execute(std::make_unique<RequestSprintsForTask>(
-        sprintReader, taskUUID, [&](const std::vector<Sprint>& sprints) {
-            sprintsForTaskView.setData(sprints);
-            sprintsForTaskView.show();
-        }));
+    sprintsForTaskView.setData(sprintsForTaskHandler.handle(
+        use_cases::SprintsForTaskQuery{std::string{taskUUID}}));
+    sprintsForTaskView.show();
 }
 
 void TaskView::showContextMenu(const QPoint& pos) const

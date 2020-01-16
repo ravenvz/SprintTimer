@@ -30,8 +30,8 @@ dw::Weekday weekday_before(dw::Weekday);
 
 namespace sprint_timer {
 
-GroupByWeek::GroupByWeek(const IConfig& applicationSettings_)
-    : applicationSettings{applicationSettings_}
+GroupByWeek::GroupByWeek(dw::Weekday firstDayOfWeek_)
+    : firstDayOfWeek{firstDayOfWeek_}
 {
 }
 
@@ -45,7 +45,6 @@ GroupByWeek::computeProgress(const dw::DateRange& dateRange,
     progress.reserve(actualProgress.size());
     auto actualIt = cbegin(actualProgress);
 
-    const dw::Weekday firstDayOfWeek{applicationSettings.firstDayOfWeek()};
     const dw::Weekday lastDayOfWeek{weekday_before(firstDayOfWeek)};
 
     // To compute goal we are breaking period into intervals of weeks, taking in

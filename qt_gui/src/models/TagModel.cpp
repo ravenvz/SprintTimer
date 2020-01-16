@@ -20,30 +20,24 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/TagModel.h"
-#include <core/use_cases/RenameTag.h>
-#include <core/use_cases/RequestAllTags.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-using use_cases::RenameTag;
-using use_cases::RequestAllTags;
-
-TagModel::TagModel(ITaskStorage& taskStorage_,
-                   CommandInvoker& commandInvoker_,
-                   QueryInvoker& queryInvoker_,
-                   DatasyncRelay& datasyncRelay_,
-                   QObject* parent_)
+TagModel::TagModel(
+    CommandHandler<use_cases::RenameTagCommand>& renameTagHandler_,
+    QueryHandler<use_cases::AllTagsQuery, std::vector<std::string>>&
+        allTagsHandler_,
+    DatasyncRelay& datasyncRelay_,
+    QObject* parent_)
     : AsyncListModel{parent_}
-    , taskStorage{taskStorage_}
-    , commandInvoker{commandInvoker_}
-    , queryInvoker{queryInvoker_}
+    , renameTagHandler{renameTagHandler_}
+    , allTagsHandler{allTagsHandler_}
     , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
             this,
             &AsyncListModel::requestSilentDataUpdate);
-    // requestSilentDataUpdate();
 }
 
 Qt::ItemFlags TagModel::flags(const QModelIndex& index) const
@@ -92,8 +86,8 @@ bool TagModel::setData(const QModelIndex& index,
 bool TagModel::submit()
 {
     while (!buffer.empty()) {
-        commandInvoker.executeCommand(std::make_unique<RenameTag>(
-            taskStorage, buffer.back().first, buffer.back().second));
+        renameTagHandler.handle(use_cases::RenameTagCommand{
+            buffer.back().first, buffer.back().second});
         buffer.pop_back();
     }
     requestDataUpdate();
@@ -108,8 +102,7 @@ void TagModel::revert()
 
 void TagModel::requestUpdate()
 {
-    queryInvoker.execute(std::make_unique<RequestAllTags>(
-        taskStorage, [this](const auto& tags) { this->onDataArrived(tags); }));
+    onDataArrived(allTagsHandler.handle(use_cases::AllTagsQuery{}));
 }
 
 void TagModel::onDataArrived(const std::vector<std::string>& tags)

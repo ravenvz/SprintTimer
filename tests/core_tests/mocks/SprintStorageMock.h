@@ -22,10 +22,12 @@
 #ifndef SPRINTSTORAGEMOCK_H_FQK62RLC
 #define SPRINTSTORAGEMOCK_H_FQK62RLC
 
-#include <core/ISprintStorage.h>
+#include <core/SprintStorage.h>
 #include <gmock/gmock.h>
 
-class SprintStorageMock : public sprint_timer::ISprintStorage {
+namespace mocks {
+
+class SprintStorageMock : public sprint_timer::SprintStorage {
 public:
     MOCK_METHOD1(save, void(const sprint_timer::entities::Sprint&));
     MOCK_METHOD1(save,
@@ -33,12 +35,14 @@ public:
     MOCK_METHOD1(remove, void(const sprint_timer::entities::Sprint&));
     MOCK_METHOD1(remove,
                  void(const std::vector<sprint_timer::entities::Sprint>&));
-    MOCK_METHOD2(requestItems,
-                 void(const dw::DateRange&,
-                      sprint_timer::ISprintStorageReader::Handler));
-    MOCK_METHOD2(sprintsForTask,
-                 void(const std::string& taskUuid,
-                      sprint_timer::ISprintStorageReader::Handler));
+    MOCK_METHOD1(
+        findByDateRange,
+        std::vector<sprint_timer::entities::Sprint>(const dw::DateRange&));
+    MOCK_METHOD1(
+        findByTaskUuid,
+        std::vector<sprint_timer::entities::Sprint>(const std::string&));
 };
+
+} // namespace mocks
 
 #endif /* end of include guard: SPRINTSTORAGEMOCK_H_FQK62RLC */

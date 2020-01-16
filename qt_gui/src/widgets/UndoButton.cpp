@@ -24,15 +24,15 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-UndoButton::UndoButton(CommandInvoker& commandInvoker, QWidget* parent)
+UndoButton::UndoButton(ObservableActionInvoker& actionInvoker, QWidget* parent)
     : QPushButton{parent}
-    , commandInvoker{commandInvoker}
+    , actionInvoker{actionInvoker}
 {
     setText("Undo");
     setEnabled(false);
-    commandInvoker.attach(*this);
+    actionInvoker.attach(*this);
 }
 
-void UndoButton::update() { setEnabled(commandInvoker.hasUndoableCommands()); }
+void UndoButton::update() { setEnabled(actionInvoker.hasUndoableActions()); }
 
 } // namespace sprint_timer::ui::qt_gui

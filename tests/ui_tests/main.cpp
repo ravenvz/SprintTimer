@@ -23,8 +23,8 @@
 #include "QtConfig.h"
 #include "TestUserScenarios.h"
 #include "TestCase.h"
-#include "qt_storage_impl/DBService.h"
-#include "qt_storage_impl/QtStorageImplementersFactory.h"
+#include "qt_storage/DBService.h"
+#include "qt_storage/QtStorageImplementersFactory.h"
 #include <core/CoreService.h>
 
 
@@ -39,21 +39,21 @@ int main(int argc, char* argv[])
     QApplication::setApplicationName("TestSprintTimer");
     Config applicationSettings;
 
-    std::unique_ptr<ISprintStorageReader> sprintStorageReader{
+    std::unique_ptr<SprintStorageReader> sprintStorageReader{
         factory.createSprintStorageReader()};
-    std::unique_ptr<ISprintStorageWriter> sprintStorageWriter{
+    std::unique_ptr<SprintStorageWriter> sprintStorageWriter{
         factory.createSprintStorageWriter()};
     std::unique_ptr<IYearRangeReader> sprintYearRangeReader{
         factory.createYearRangeReader()};
-    std::unique_ptr<ITaskStorageReader> taskStorageReader{
+    std::unique_ptr<TaskStorageReader> taskStorageReader{
         factory.createTaskStorageReader()};
-    std::unique_ptr<ITaskStorageWriter> taskStorageWriter{
+    std::unique_ptr<TaskStorageWriter> taskStorageWriter{
         factory.createTaskStorageWriter()};
-    std::unique_ptr<ISprintDistributionReader> dailyDistributionReader{
+    std::unique_ptr<SprintDistributionReader> dailyDistributionReader{
         factory.createSprintDailyDistributionReader()};
-    std::unique_ptr<ISprintDistributionReader> weeklyDistributionReader{
+    std::unique_ptr<SprintDistributionReader> weeklyDistributionReader{
         factory.createSprintWeeklyDistributionReader()};
-    std::unique_ptr<ISprintDistributionReader> monthlyDistributionReader{
+    std::unique_ptr<SprintDistributionReader> monthlyDistributionReader{
         factory.createSprintMonthlyDistributionReader()};
 
     Core::CoreService coreService{*sprintStorageReader.get(),

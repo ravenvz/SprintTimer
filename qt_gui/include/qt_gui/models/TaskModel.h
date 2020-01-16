@@ -24,11 +24,15 @@
 
 #include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/models/AsyncListModel.h"
-#include <core/CommandInvoker.h>
-#include <core/ISprintStorage.h>
-#include <core/ITaskStorage.h>
-#include <core/QueryInvoker.h>
-#include <core/entities/Task.h>
+#include <core/CommandHandler.h>
+#include <core/SprintStorage.h>
+#include <core/QueryHandler.h>
+#include <core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityCommand.h>
+#include <core/use_cases/create_task/CreateTaskCommand.h>
+#include <core/use_cases/delete_task/DeleteTaskCommand.h>
+#include <core/use_cases/edit_task/EditTaskCommand.h>
+#include <core/use_cases/request_tasks/UnfinishedTasksQuery.h>
+#include <core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h>
 #include <date_wrapper/date_wrapper.h>
 
 namespace sprint_timer::ui::qt_gui {
@@ -37,10 +41,15 @@ class TaskModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    TaskModel(ITaskStorage& taskStorage,
-              ISprintStorage& sprint,
-              CommandInvoker& commandInvoker,
-              QueryInvoker& queryInvoker,
+    TaskModel(CommandHandler<use_cases::ChangeUnfinishedTasksPriorityCommand>&
+                  changePriorityHandler,
+              CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler,
+              CommandHandler<use_cases::DeleteTaskCommand>& deleteTaskHandler,
+              CommandHandler<use_cases::ToggleTaskCompletedCommand>&
+                  toggleCompletionHandler,
+              CommandHandler<use_cases::EditTaskCommand>& editTaskHandler,
+              QueryHandler<use_cases::UnfinishedTasksQuery,
+                           std::vector<entities::Task>>& unfinishedTasksHandler,
               DatasyncRelay& datasyncRelay,
               QObject* parent = nullptr);
 
@@ -73,10 +82,15 @@ public:
     int rowCount(const QModelIndex& parent) const override;
 
 private:
-    ITaskStorage& taskStorage;
-    ISprintStorage& sprintStorage;
-    CommandInvoker& commandInvoker;
-    QueryInvoker& queryInvoker;
+    CommandHandler<use_cases::ChangeUnfinishedTasksPriorityCommand>&
+        changePriorityHandler;
+    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler;
+    CommandHandler<use_cases::DeleteTaskCommand>& deleteTaskHandler;
+    CommandHandler<use_cases::ToggleTaskCompletedCommand>&
+        toggleCompletionHandler;
+    CommandHandler<use_cases::EditTaskCommand>& editTaskHandler;
+    QueryHandler<use_cases::UnfinishedTasksQuery, std::vector<entities::Task>>&
+        unfinishedTasksHandler;
     DatasyncRelay& datasyncRelay;
     std::vector<entities::Task> storage;
 
@@ -94,7 +108,7 @@ private:
 
     void toggleCompleted(const QModelIndex& index);
 
-    void replaceItemAt(int row, const entities::Task& newItem);
+    void replaceItemAt(int row, entities::Task&& newItem);
 };
 
 } // namespace sprint_timer::ui::qt_gui

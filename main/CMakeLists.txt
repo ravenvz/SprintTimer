@@ -3,7 +3,13 @@ project(${SPRINT_MAIN})
 add_executable(${SPRINT_MAIN})
 
 target_compile_features(${SPRINT_MAIN} PUBLIC cxx_std_17)
-target_sources(${SPRINT_MAIN} PUBLIC "main.cpp")
+
+target_sources(${SPRINT_MAIN}
+    PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/VerboseQueryHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/VerboseCommandHandler.h"
+)
 
 target_compile_options(${SPRINT_MAIN} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${SPRINT_MAIN} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")

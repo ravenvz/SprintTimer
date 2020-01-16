@@ -22,14 +22,14 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/CommandInvoker.h>
+#include <core/ObservableActionInvoker.h>
 #include <core/TaskBuilder.h>
-#include <core/use_cases/EditTask.h>
+#include <core/actions/EditTask.h>
 
 using sprint_timer::TaskBuilder;
+using sprint_timer::actions::EditTask;
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
-using sprint_timer::use_cases::EditTask;
 using namespace dw;
 
 class EditTaskFixture : public ::testing::Test {
@@ -42,8 +42,8 @@ public:
                   false,
                   DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
 
-    TaskStorageMock task_storage_mock;
-    sprint_timer::CommandInvoker commandInvoker;
+    mocks::TaskStorageMock task_storage_mock;
+    sprint_timer::ObservableActionInvoker actionInvoker;
 };
 
 TEST_F(EditTaskFixture, should_only_alter_allowed_parameters)
@@ -55,19 +55,19 @@ TEST_F(EditTaskFixture, should_only_alter_allowed_parameters)
                           .withCompletionStatus(!someTask.isCompleted())
                           .withExplicitTags({Tag{"Tag2"}, Tag{"New Tag"}})
                           .build();
-    Task restrictedTask
-        = TaskBuilder{}
-              .withUuid(someTask.uuid()) // Should not be editable
-              .withActualCost(someTask.actualCost()) // Should not be editable
-              .withCompletionStatus(
-                  someTask.isCompleted()) // Should not be editable
-              .withName(editedTask.name())
-              .withEstimatedCost(editedTask.estimatedCost())
-              .withExplicitTags(editedTask.tags())
-              .build();
+    Task restrictedTask =
+        TaskBuilder{}
+            .withUuid(someTask.uuid())             // Should not be editable
+            .withActualCost(someTask.actualCost()) // Should not be editable
+            .withCompletionStatus(
+                someTask.isCompleted()) // Should not be editable
+            .withName(editedTask.name())
+            .withEstimatedCost(editedTask.estimatedCost())
+            .withExplicitTags(editedTask.tags())
+            .build();
     EXPECT_CALL(task_storage_mock, edit(someTask, restrictedTask)).Times(1);
 
-    commandInvoker.executeCommand(
+    actionInvoker.execute(
         std::make_unique<EditTask>(task_storage_mock, someTask, editedTask));
 }
 
@@ -82,10 +82,10 @@ TEST_F(EditTaskFixture, undo)
                           .build();
     EXPECT_CALL(task_storage_mock, edit(someTask, editedTask)).Times(1);
 
-    commandInvoker.executeCommand(
+    actionInvoker.execute(
         std::make_unique<EditTask>(task_storage_mock, someTask, editedTask));
 
     EXPECT_CALL(task_storage_mock, edit(editedTask, someTask));
 
-    commandInvoker.undo();
+    actionInvoker.undo();
 }

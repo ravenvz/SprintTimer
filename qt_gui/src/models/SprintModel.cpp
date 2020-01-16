@@ -29,13 +29,14 @@ using namespace entities;
 using namespace sprint_timer::use_cases;
 
 SprintModel::SprintModel(
-    interactors::RemoveSprint& removeSprintInteractor_,
-    interactors::RequestSprintsInteractor& requestSprintsInteractor_,
+    CommandHandler<DeleteSprintCommand>& deleteSprintHandler_,
+    QueryHandler<RequestSprintsQuery, std::vector<Sprint>>&
+        requestSprintsHandler_,
     DatasyncRelay& datasyncRelay_,
     QObject* parent_)
     : AsyncListModel(parent_)
-    , removeSprintInteractor{removeSprintInteractor_}
-    , requestSprintsInteractor{requestSprintsInteractor_}
+    , deleteSprintHandler{deleteSprintHandler_}
+    , requestSprintsHandler{requestSprintsHandler_}
     , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
@@ -78,16 +79,16 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
 
 void SprintModel::remove(int row)
 {
-    removeSprintInteractor.removeSprint(storage[static_cast<size_t>(row)]);
+    deleteSprintHandler.handle(
+        DeleteSprintCommand{storage[static_cast<size_t>(row)]});
     requestDataUpdate();
 }
 
 void SprintModel::requestUpdate()
 {
     const dw::Date today{dw::current_date_local()};
-    requestSprintsInteractor.request_sprints(
-        dw::DateRange{today, today},
-        [this](const auto& items) { onDataChanged(items); });
+    onDataChanged(requestSprintsHandler.handle(
+        use_cases::RequestSprintsQuery{dw::DateRange{today, today}}));
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)

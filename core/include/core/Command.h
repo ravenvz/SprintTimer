@@ -19,24 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ICOMMAND_H_NHSUJX60
-#define ICOMMAND_H_NHSUJX60
-
-#include <string>
+#ifndef NEWCOMMAND_H_BPIEJHAE
+#define NEWCOMMAND_H_BPIEJHAE
 
 namespace sprint_timer {
 
 class Command {
 public:
     virtual ~Command() = default;
-
-    virtual void execute() = 0;
-
-    virtual void undo() = 0;
-
-    virtual std::string describe() const = 0;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::nca
 
-#endif /* end of include guard: ICOMMAND_H_NHSUJX60 */
+#endif /* end of include guard: NEWCOMMAND_H_BPIEJHAE */
+

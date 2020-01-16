@@ -23,9 +23,6 @@
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_workdays_dialog.h"
 #include <QAbstractItemModel>
-#include <core/use_cases/ChangeWorkingDays.h>
-
-#include <iostream>
 
 Q_DECLARE_METATYPE(sprint_timer::WeekSchedule)
 

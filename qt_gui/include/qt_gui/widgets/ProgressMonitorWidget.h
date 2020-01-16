@@ -22,24 +22,23 @@
 #ifndef GOAL_PROGRESS_WIDGET_H
 #define GOAL_PROGRESS_WIDGET_H
 
-#include "qt_gui/widgets/ProgressView.h"
+#include "qt_gui/SprintTimerWidget.h"
 #include <memory>
 
 namespace sprint_timer::ui::qt_gui {
 
-class ProgressView;
-
-class ProgressMonitorWidget : public QWidget {
+class ProgressMonitorWidget : public SprintTimerWidget {
 public:
     ProgressMonitorWidget(std::unique_ptr<QWidget> dailyProgress,
                           std::unique_ptr<QWidget> weeklyProgress,
                           std::unique_ptr<QWidget> monthlyProgress,
                           QWidget* parent = 0);
 
+    ~ProgressMonitorWidget() override;
+
     QSize sizeHint() const override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // GOAL_PROGRESS_WIDGET_H

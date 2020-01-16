@@ -23,30 +23,26 @@
 #include "qt_gui/widgets/DistributionDiagram.h"
 #include "qt_gui/widgets/TimeDiagram.h"
 #include <QVBoxLayout>
-#include <core/use_cases/RequestSprints.h>
-
-#include <QDebug>
 
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
 
 StatisticsWindow::StatisticsWindow(
+    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
+        requestSprintsHandler_,
     std::unique_ptr<DateRangePicker> dateRangePicker_,
     std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph_,
     std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget_,
     const WorkScheduleWrapper& workScheduleWrapper_,
-    ISprintStorageReader& sprintReader_,
-    QueryInvoker& queryInvoker_,
     DatasyncRelay& datasyncRelay_,
     QWidget* parent_)
     : QFrame{parent_}
+    , requestSprintsHandler{requestSprintsHandler_}
     , dateRangePicker{dateRangePicker_.get()}
     , dailyTimelineGraph{dailyTimelineGraph_.get()}
     , statisticsDiagramWidget{statisticsDiagramWidget_.get()}
     , workScheduleWrapper{workScheduleWrapper_}
-    , sprintReader{sprintReader_}
-    , queryInvoker{queryInvoker_}
     , datasyncRelay{datasyncRelay_}
 {
     auto layout = std::make_unique<QVBoxLayout>(nullptr);
@@ -78,10 +74,8 @@ QSize StatisticsWindow::sizeHint() const { return QSize{1100, 730}; }
 
 void StatisticsWindow::synchronize()
 {
-    queryInvoker.execute(std::make_unique<use_cases::RequestSprints>(
-        sprintReader,
-        dateRangePicker->selectionRange(),
-        [this](const auto& sprints) { onSprintsUpdated(sprints); }));
+    onSprintsUpdated(requestSprintsHandler.handle(
+        use_cases::RequestSprintsQuery{dateRangePicker->selectionRange()}));
 }
 
 void StatisticsWindow::onSprintsUpdated(

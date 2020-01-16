@@ -22,15 +22,15 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/CommandInvoker.h>
-#include <core/use_cases/StoreUnfinishedTasksOrder.h>
+#include <core/ObservableActionInvoker.h>
+#include <core/actions/ChangeTasksPriorities.h>
 
-using sprint_timer::use_cases::StoreUnfinishedTasksOrder;
+using sprint_timer::actions::ChangeTasksPriorities;
 
 class StoreUnfinishedTasksOrderFixture : public ::testing::Test {
 public:
-    TaskStorageMock task_storage_mock;
-    sprint_timer::CommandInvoker commandInvoker;
+    mocks::TaskStorageMock task_storage_mock;
+    sprint_timer::ObservableActionInvoker actionInvoker;
 };
 
 TEST_F(StoreUnfinishedTasksOrderFixture, execute_and_undo)
@@ -39,11 +39,11 @@ TEST_F(StoreUnfinishedTasksOrderFixture, execute_and_undo)
     const std::vector<std::string> new_priorities{"2", "1", "3"};
     EXPECT_CALL(task_storage_mock, updatePriorities(new_priorities)).Times(1);
 
-    commandInvoker.executeCommand(std::make_unique<StoreUnfinishedTasksOrder>(
+    actionInvoker.execute(std::make_unique<ChangeTasksPriorities>(
         task_storage_mock,
         std::vector<std::string>{"1", "2", "3"},
         std::vector<std::string>{"2", "1", "3"}));
 
     EXPECT_CALL(task_storage_mock, updatePriorities(old_priorities)).Times(1);
-    commandInvoker.undo();
+    actionInvoker.undo();
 }

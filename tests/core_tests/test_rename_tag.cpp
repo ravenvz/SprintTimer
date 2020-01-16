@@ -22,25 +22,25 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/CommandInvoker.h>
-#include <core/use_cases/RenameTag.h>
+#include <core/ObservableActionInvoker.h>
+#include <core/actions/RenameTag.h>
 
-using sprint_timer::use_cases::RenameTag;
+using sprint_timer::actions::RenameTag;
 
 class RenameTagFixture : public ::testing::Test {
 public:
-    sprint_timer::CommandInvoker commandInvoker;
-    TaskStorageMock task_storage_mock;
+    sprint_timer::ObservableActionInvoker actionInvoker;
+    mocks::TaskStorageMock task_storage_mock;
 };
 
 TEST_F(RenameTagFixture, execute_and_undo)
 {
     EXPECT_CALL(task_storage_mock, editTag("oldName", "newName")).Times(1);
 
-    commandInvoker.executeCommand(
+    actionInvoker.execute(
         std::make_unique<RenameTag>(task_storage_mock, "oldName", "newName"));
 
     EXPECT_CALL(task_storage_mock, editTag("newName", "oldName")).Times(1);
 
-    commandInvoker.undo();
+    actionInvoker.undo();
 }

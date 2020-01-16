@@ -24,8 +24,8 @@
 
 #include "qt_gui/IndexChangedReemitter.h"
 #include "qt_gui/widgets/ReordableListView.h"
-#include <core/ISprintStorageReader.h>
-#include <core/QueryInvoker.h>
+#include <core/QueryHandler.h>
+#include <core/use_cases/request_sprints/SprintsForTaskQuery.h>
 #include <optional>
 
 #ifdef _MSC_VER
@@ -46,23 +46,23 @@ class TaskView : public ReordableListView {
     Q_OBJECT
 
 public:
-    TaskView(ISprintStorageReader& sprintReader,
-             QueryInvoker& queryInvoker,
-             TaskSprintsView& sprintsForTaskView,
+    TaskView(TaskSprintsView& sprintsForTaskView,
              AddTaskDialog& editTaskDialog,
              std::unique_ptr<QWidget> tagEditor,
              IndexChangedReemitter& selectedTaskRowReemitter,
+             QueryHandler<use_cases::SprintsForTaskQuery,
+                          std::vector<entities::Sprint>>& sprintsForTaskHandler,
              QWidget* parent = nullptr);
 
 public slots:
     void onTaskSelectionChanged(int taskRow);
 
 private:
-    ISprintStorageReader& sprintReader;
-    QueryInvoker& queryInvoker;
     TaskSprintsView& sprintsForTaskView;
     AddTaskDialog& editTaskDialog;
     std::unique_ptr<QWidget> tagEditor;
+    QueryHandler<use_cases::SprintsForTaskQuery, std::vector<entities::Sprint>>&
+        sprintsForTaskHandler;
 
     void showSprintsForTask() const;
 

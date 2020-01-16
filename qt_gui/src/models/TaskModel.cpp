@@ -24,12 +24,6 @@
 #include "qt_gui/models/TaskModelRoles.h"
 #include <QSize>
 #include <QTimer>
-#include <core/use_cases/AddNewTask.h>
-#include <core/use_cases/DeleteTask.h>
-#include <core/use_cases/EditTask.h>
-#include <core/use_cases/RequestUnfinishedTasks.h>
-#include <core/use_cases/StoreUnfinishedTasksOrder.h>
-#include <core/use_cases/ToggleTaskCompletionStatus.h>
 #include <core/utils/Algutils.h>
 #include <string>
 #include <vector>
@@ -39,17 +33,25 @@ namespace sprint_timer::ui::qt_gui {
 using entities::Task;
 using namespace use_cases;
 
-TaskModel::TaskModel(ITaskStorage& taskStorage_,
-                     ISprintStorage& sprintStorage_,
-                     CommandInvoker& commandInvoker_,
-                     QueryInvoker& queryInvoker_,
-                     DatasyncRelay& datasyncRelay_,
-                     QObject* parent_)
+TaskModel::TaskModel(
+    CommandHandler<use_cases::ChangeUnfinishedTasksPriorityCommand>&
+        changePriorityHandler_,
+    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler_,
+    CommandHandler<use_cases::DeleteTaskCommand>& deleteTaskHandler_,
+    CommandHandler<use_cases::ToggleTaskCompletedCommand>&
+        toggleCompletionHandler_,
+    CommandHandler<use_cases::EditTaskCommand>& editTaskHandler_,
+    QueryHandler<use_cases::UnfinishedTasksQuery, std::vector<entities::Task>>&
+        unfinishedTasksHandler_,
+    DatasyncRelay& datasyncRelay_,
+    QObject* parent_)
     : AsyncListModel{parent_}
-    , taskStorage{taskStorage_}
-    , sprintStorage{sprintStorage_}
-    , commandInvoker{commandInvoker_}
-    , queryInvoker{queryInvoker_}
+    , changePriorityHandler{changePriorityHandler_}
+    , createTaskHandler{createTaskHandler_}
+    , deleteTaskHandler{deleteTaskHandler_}
+    , toggleCompletionHandler{toggleCompletionHandler_}
+    , editTaskHandler{editTaskHandler_}
+    , unfinishedTasksHandler{unfinishedTasksHandler_}
     , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
@@ -60,8 +62,8 @@ TaskModel::TaskModel(ITaskStorage& taskStorage_,
 
 void TaskModel::requestUpdate()
 {
-    queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
-        taskStorage, [this](const auto& tasks) { onDataChanged(tasks); }));
+    onDataChanged(
+        unfinishedTasksHandler.handle(use_cases::UnfinishedTasksQuery{}));
 }
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)
@@ -196,7 +198,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
         return uuids;
     };
 
-    auto old_order = uuidsInOrder();
+    auto oldOrder = uuidsInOrder();
 
     beginResetModel();
     utils::slide(storage.begin() + sourceRow,
@@ -204,10 +206,11 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
                  storage.begin() + destinationChild);
     endResetModel();
 
-    auto new_order = uuidsInOrder();
+    auto newOrder = uuidsInOrder();
 
-    commandInvoker.executeCommand(std::make_unique<StoreUnfinishedTasksOrder>(
-        taskStorage, std::move(old_order), std::move(new_order)));
+    changePriorityHandler.handle(
+        use_cases::ChangeUnfinishedTasksPriorityCommand{std::move(oldOrder),
+                                                        std::move(newOrder)});
 
     return true;
 }
@@ -221,11 +224,8 @@ bool TaskModel::removeRows(int row, int count, const QModelIndex& parent)
     if (row < 0 || row >= static_cast<int>(storage.size()))
         return false;
 
-    // Calling beginRemoveRows and endRemoveRows might not have much sense now,
-    // as all model data will be replaced asynchroniously
-    beginRemoveRows(parent, row, row + count - 1);
     remove(row);
-    endRemoveRows();
+
     return true;
 }
 
@@ -248,8 +248,7 @@ int TaskModel::rowCount(const QModelIndex& parent) const
 
 void TaskModel::insert(const Task& item)
 {
-    commandInvoker.executeCommand(
-        std::make_unique<AddNewTask>(taskStorage, item));
+    createTaskHandler.handle(use_cases::CreateTaskCommand{item});
     requestDataUpdate();
 }
 
@@ -257,19 +256,10 @@ void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 
 void TaskModel::remove(int row)
 {
-    beginRemoveRows(QModelIndex(), row, row);
-    commandInvoker.executeCommand(
-        std::make_unique<DeleteTask>(taskStorage, sprintStorage, itemAt(row)));
-    storage.erase(storage.begin() + row);
-    endRemoveRows();
-    // TODO
-    // As a workaround, data update is delayed, because delete operation
-    // takes quite a long time (time is needed to collect sprints) and
-    // in current implementation we have no way to know if command is
-    // completed or not. This should be replaced when more flexible
-    // approach is introduced.
-    QTimer::singleShot(std::chrono::seconds{1},
-                       [this]() { requestDataUpdate(); });
+    // beginRemoveRows(QModelIndex(), row, row);
+    deleteTaskHandler.handle(use_cases::DeleteTaskCommand{itemAt(row)});
+    // storage.erase(storage.begin() + row);
+    // endRemoveRows();
 }
 
 Task TaskModel::itemAt(int row) const
@@ -281,16 +271,15 @@ void TaskModel::toggleCompleted(const QModelIndex& index)
 {
     if (!index.isValid())
         return;
-    commandInvoker.executeCommand(std::make_unique<ToggleTaskCompletionStatus>(
-        taskStorage, itemAt(index.row())));
+    toggleCompletionHandler.handle(
+        use_cases::ToggleTaskCompletedCommand{itemAt(index.row())});
     requestDataUpdate();
 }
 
-void TaskModel::replaceItemAt(int row, const Task& newItem)
+void TaskModel::replaceItemAt(int row, Task&& newItem)
 {
-    Task oldItem = itemAt(row);
-    commandInvoker.executeCommand(
-        std::make_unique<EditTask>(taskStorage, oldItem, newItem));
+    editTaskHandler.handle(
+        use_cases::EditTaskCommand{itemAt(row), std::move(newItem)});
     requestDataUpdate();
 }
 

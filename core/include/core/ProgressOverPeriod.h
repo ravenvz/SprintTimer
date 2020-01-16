@@ -19,6 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef PROGRESS_H_LE0ZZW37
+#define PROGRESS_H_LE0ZZW37
+
 #include "core/GoalProgress.h"
 #include "core/GroupByPeriodStrategy.h"
 #include "core/WorkSchedule.h"
@@ -26,9 +29,6 @@
 #include <iostream>
 #include <numeric>
 #include <optional>
-
-#ifndef PROGRESS_H_LE0ZZW37
-#define PROGRESS_H_LE0ZZW37
 
 namespace sprint_timer {
 

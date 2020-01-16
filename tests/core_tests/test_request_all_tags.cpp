@@ -22,23 +22,22 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestAllTags.h>
+#include <core/use_cases/request_tags/AllTagsQuery.h>
+#include <core/use_cases/request_tags/AllTagsHandler.h>
 
-using sprint_timer::QueryInvoker;
-using sprint_timer::use_cases::RequestAllTags;
+using sprint_timer::use_cases::AllTagsQuery;
+using sprint_timer::use_cases::AllTagsHandler;
 using ::testing::_;
 
 class RequestAllTagsFixture : public ::testing::Test {
 public:
-    QueryInvoker queryInvoker;
-    TaskStorageMock task_storage_mock;
+    mocks::TaskStorageMock task_storage_mock;
+    AllTagsHandler handler{task_storage_mock};
 };
 
 TEST_F(RequestAllTagsFixture, execute)
 {
-    EXPECT_CALL(task_storage_mock, requestAllTags(_)).Times(1);
+    EXPECT_CALL(task_storage_mock, allTags()).Times(1);
 
-    queryInvoker.execute(std::make_unique<RequestAllTags>(
-        task_storage_mock, [](const auto& result) {}));
+    handler.handle(AllTagsQuery{});
 }

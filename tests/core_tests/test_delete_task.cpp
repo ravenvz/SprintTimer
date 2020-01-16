@@ -23,26 +23,26 @@
 #include "mocks/SprintStorageMock.h"
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/CommandInvoker.h>
-#include <core/use_cases/DeleteTask.h>
+#include <core/ActionInvoker.h>
+#include <core/ObservableActionInvoker.h>
+#include <core/actions/DeleteTask.h>
 
 #include <thread>
 
 using ::testing::_;
 using ::testing::InvokeArgument;
 
+using sprint_timer::actions::DeleteTask;
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
-using sprint_timer::use_cases::DeleteTask;
 
 using namespace dw;
 
 class DeleteTaskFixture : public ::testing::Test {
 public:
-    TaskStorageMock task_storage_mock;
-    SprintStorageMock sprint_storage_mock;
-    SprintStorageMock sprintStorage;
-    sprint_timer::CommandInvoker commandInvoker;
+    mocks::TaskStorageMock task_storage_mock;
+    mocks::SprintStorageMock sprint_storage_mock;
+    sprint_timer::ObservableActionInvoker actionInvoker;
 
     Task taskWithSprints{"Task name",
                          4,
@@ -64,7 +64,7 @@ TEST_F(DeleteTaskFixture, delete_task_with_no_sprints)
 {
     EXPECT_CALL(task_storage_mock, remove(taskWithNoSprints.uuid())).Times(1);
 
-    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
+    actionInvoker.execute(std::make_unique<DeleteTask>(
         task_storage_mock, sprint_storage_mock, taskWithNoSprints));
 }
 
@@ -73,33 +73,31 @@ TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_no_sprints)
     // TODO what about lastModified timestamp when undoing task deletion? Check
     EXPECT_CALL(task_storage_mock, remove(taskWithNoSprints.uuid())).Times(1);
 
-    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
+    actionInvoker.execute(std::make_unique<DeleteTask>(
         task_storage_mock, sprint_storage_mock, taskWithNoSprints));
 
     EXPECT_CALL(task_storage_mock, save(taskWithNoSprints)).Times(1);
 
-    commandInvoker.undo();
+    actionInvoker.undo();
 }
 
 TEST_F(DeleteTaskFixture, delete_task_with_sprints)
 {
-    EXPECT_CALL(sprint_storage_mock, sprintsForTask(taskWithSprints.uuid(), _))
-        .WillOnce(
-            InvokeArgument<1>(std::vector<sprint_timer::entities::Sprint>{}));
+    EXPECT_CALL(sprint_storage_mock, findByTaskUuid(taskWithSprints.uuid()))
+        .Times(1);
     EXPECT_CALL(task_storage_mock, remove(taskWithSprints.uuid())).Times(1);
 
-    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
+    actionInvoker.execute(std::make_unique<DeleteTask>(
         task_storage_mock, sprint_storage_mock, taskWithSprints));
 }
 
 TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_sprints)
 {
-    EXPECT_CALL(sprint_storage_mock, sprintsForTask(taskWithSprints.uuid(), _))
-        .WillOnce(
-            InvokeArgument<1>(std::vector<sprint_timer::entities::Sprint>{}));
+    EXPECT_CALL(sprint_storage_mock, findByTaskUuid(taskWithSprints.uuid()))
+        .Times(1);
     EXPECT_CALL(task_storage_mock, remove(taskWithSprints.uuid())).Times(1);
 
-    commandInvoker.executeCommand(std::make_unique<DeleteTask>(
+    actionInvoker.execute(std::make_unique<DeleteTask>(
         task_storage_mock, sprint_storage_mock, taskWithSprints));
 
     // In case of Task with sprints, we must make sure that task is restored
@@ -112,5 +110,5 @@ TEST_F(DeleteTaskFixture, undo_deletion_of_task_with_sprints)
                 save(std::vector<sprint_timer::entities::Sprint>{}))
         .Times(1);
 
-    commandInvoker.undo();
+    actionInvoker.undo();
 }

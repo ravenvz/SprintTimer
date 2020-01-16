@@ -22,25 +22,26 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestTasks.h>
+#include <core/use_cases/request_tasks/FinishedTasksHandler.h>
 
 using namespace dw;
-using sprint_timer::use_cases::RequestTasks;
+using sprint_timer::use_cases::FinishedTasksHandler;
+using sprint_timer::use_cases::FinishedTasksQuery;
 using ::testing::_;
 
 class RequestTasksFixture : public ::testing::Test {
 public:
-    TaskStorageMock task_storage_mock;
-    sprint_timer::QueryInvoker queryInvoker;
+    mocks::TaskStorageMock task_storage_mock;
+    FinishedTasksHandler handler{task_storage_mock};
     const DateRange someDateRange{
         add_offset({current_date(), current_date()}, Days{-1})};
 };
 
 TEST_F(RequestTasksFixture, execute)
 {
-    EXPECT_CALL(task_storage_mock, requestTasks(someDateRange, _)).Times(1);
+    EXPECT_CALL(task_storage_mock, finishedTasks(someDateRange)).Times(1);
 
-    queryInvoker.execute(std::make_unique<RequestTasks>(
-        task_storage_mock, someDateRange, [](const auto& result) {}));
+    auto dateRange = someDateRange;
+
+    handler.handle(FinishedTasksQuery{dateRange});
 }

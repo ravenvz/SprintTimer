@@ -23,11 +23,11 @@
 #define ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6
 
 #include "core/IConfig.h"
-#include "core/IOperationalRangeReader.h"
-#include "core/ISprintDistributionReader.h"
-#include "core/ISprintStorage.h"
-#include "core/ITaskStorage.h"
-#include "core/IWorkingDaysStorage.h"
+#include "core/OperationalRangeReader.h"
+#include "core/SprintDistributionReader.h"
+#include "core/SprintStorage.h"
+#include "core/TaskStorage.h"
+#include "core/WorkScheduleStorage.h"
 #include <memory>
 
 namespace sprint_timer {
@@ -36,24 +36,47 @@ class IStorageImplementersFactory {
 public:
     virtual ~IStorageImplementersFactory() = default;
 
-    virtual std::unique_ptr<ISprintStorage> createSprintStorage() const = 0;
+    virtual std::unique_ptr<SprintStorage> createSprintStorage() const = 0;
 
-    virtual std::unique_ptr<IOperationalRangeReader>
+    virtual std::unique_ptr<OperationalRangeReader>
     createOperationalRangeReader() const = 0;
 
-    virtual std::unique_ptr<ISprintDistributionReader>
+    virtual std::unique_ptr<SprintDistributionReader>
     createSprintDailyDistributionReader() const = 0;
 
-    virtual std::unique_ptr<ISprintDistributionReader>
+    virtual std::unique_ptr<SprintDistributionReader>
     createSprintWeeklyDistributionReader(dw::Weekday firstDayOfWeek) const = 0;
 
-    virtual std::unique_ptr<ISprintDistributionReader>
+    virtual std::unique_ptr<SprintDistributionReader>
     createSprintMonthlyDistributionReader() const = 0;
 
-    virtual std::unique_ptr<ITaskStorage> createTaskStorage() const = 0;
+    virtual std::unique_ptr<TaskStorage> createTaskStorage() const = 0;
 
-    virtual std::unique_ptr<IWorkingDaysStorage>
+    virtual std::unique_ptr<WorkScheduleStorage>
     createWorkingDaysStorage() const = 0;
+};
+
+class StorageImplementersFactory {
+public:
+    virtual ~StorageImplementersFactory() = default;
+
+    virtual std::unique_ptr<SprintStorage> sprintStorage() const = 0;
+
+    virtual std::unique_ptr<TaskStorage> taskStorage() const = 0;
+
+    virtual std::unique_ptr<OperationalRangeReader>
+    operationalRangeReader() const = 0;
+
+    virtual std::unique_ptr<SprintDistributionReader>
+    dailyDistReader() const = 0;
+
+    virtual std::unique_ptr<SprintDistributionReader>
+    weeklyDistReader(dw::Weekday firstDayOfWeek) const = 0;
+
+    virtual std::unique_ptr<SprintDistributionReader>
+    monthlyDistReader() const = 0;
+
+    virtual std::unique_ptr<WorkScheduleStorage> scheduleStorage() const = 0;
 };
 
 } // namespace sprint_timer

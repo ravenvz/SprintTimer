@@ -27,8 +27,6 @@
 #include <QMenu>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include <core/use_cases/RegisterNewSprintBulk.h>
-#include <core/use_cases/RequestSprintsForTask.h>
 
 #include <QDebug>
 
@@ -45,16 +43,14 @@ buildFromIntervals(const std::string& taskUuid,
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
-using use_cases::RequestSprintsForTask;
 
-TaskOutline::TaskOutline(ISprintStorageWriter& sprintWriter_,
-                         CommandInvoker& commandInvoker_,
+TaskOutline::TaskOutline(CommandHandler<use_cases::RegisterSprintBulkCommand>&
+                             registerSprintBulkHandler_,
                          std::unique_ptr<QAbstractItemView> taskView_,
                          AddTaskDialog& addTaskDialog_,
                          QWidget* parent_)
     : QWidget{parent_}
-    , sprintWriter{sprintWriter_}
-    , commandInvoker{commandInvoker_}
+    , registerSprintBulkHandler{registerSprintBulkHandler_}
     , taskView{taskView_.release()}
     , addTaskDialog{addTaskDialog_}
 {
@@ -111,10 +107,8 @@ void TaskOutline::onSprintSubmissionRequested(
         index.data(static_cast<int>(TaskModelRoles::GetIdRole))
             .toString()
             .toStdString();
-    const auto sprints = buildFromIntervals(taskUuid, intervals);
-    commandInvoker.executeCommand(
-        std::make_unique<use_cases::RegisterNewSprintBulk>(sprintWriter,
-                                                           sprints));
+    registerSprintBulkHandler.handle(use_cases::RegisterSprintBulkCommand{
+        buildFromIntervals(taskUuid, intervals)});
 }
 
 void TaskOutline::insertTask(const Task& task)

@@ -19,18 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/CommandInvoker.h"
+#include "core/ActionInvoker.h"
 
 namespace sprint_timer {
 
-void CommandInvoker::executeCommand(std::unique_ptr<Command> command)
+void ActionInvoker::executeCommand(std::unique_ptr<Command> command)
 {
     command->execute();
     commandStack.push(std::move(command));
     notify();
 }
 
-void CommandInvoker::undo()
+void ActionInvoker::undo()
 {
     if (commandStack.empty())
         return;
@@ -39,12 +39,12 @@ void CommandInvoker::undo()
     notify();
 }
 
-std::string CommandInvoker::lastCommandDescription() const
+std::string ActionInvoker::lastCommandDescription() const
 {
     return commandStack.empty() ? "" : commandStack.top()->describe();
 }
 
-bool CommandInvoker::hasUndoableCommands() const
+bool ActionInvoker::hasUndoableCommands() const
 {
     return !commandStack.empty();
 }

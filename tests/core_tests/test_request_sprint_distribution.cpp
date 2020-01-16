@@ -22,10 +22,10 @@
 
 #include "mocks/SprintDistributionReaderMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestSprintDistribution.h>
+#include <core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h>
 
-using sprint_timer::use_cases::RequestSprintDistribution;
+using sprint_timer::use_cases::RequestSprintDistributionHandler;
+using sprint_timer::use_cases::RequestSprintDistributionQuery;
 using namespace dw;
 using ::testing::_;
 
@@ -33,17 +33,16 @@ class RequestSprintDistributionFixture : public ::testing::Test {
 public:
     const DateRange someDateRange{
         add_offset({current_date(), current_date()}, Days{-1})};
-    sprint_timer::QueryInvoker queryInvoker;
-    SprintDistributionReaderMock sprint_distribution_reader_mock;
+    mocks::SprintDistributionReaderMock sprint_distribution_reader_mock;
+    RequestSprintDistributionHandler handler{sprint_distribution_reader_mock};
 };
 
 TEST_F(RequestSprintDistributionFixture, execute)
 {
     EXPECT_CALL(sprint_distribution_reader_mock,
-                requestDistribution(someDateRange, _))
+                sprintDistribution(someDateRange))
         .Times(1);
 
-    queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
-        sprint_distribution_reader_mock, someDateRange, [](const auto& result) {
-        }));
+    auto dateRange = someDateRange;
+    handler.handle(RequestSprintDistributionQuery{std::move(dateRange)});
 }

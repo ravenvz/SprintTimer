@@ -27,23 +27,21 @@ dw::DateRange nWeeksBackTillNow(int numWeeks, dw::Weekday firstDayOfWeek);
 
 } // namespace
 
-
 namespace sprint_timer::ui::qt_gui {
 
 RequestForWeeksBack::RequestForWeeksBack(int numWeeks_,
-                                         const IConfig& applicationSettings_)
+                                         dw::Weekday firstDayOfWeek_)
     : numWeeks{numWeeks_}
-    , applicationSettings{applicationSettings_}
+    , firstDayOfWeek{std::move(firstDayOfWeek_)}
 {
 }
 
 dw::DateRange RequestForWeeksBack::dateRange() const
 {
-    return nWeeksBackTillNow(numWeeks, applicationSettings.firstDayOfWeek());
+    return nWeeksBackTillNow(numWeeks, firstDayOfWeek);
 }
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 namespace {
 

@@ -23,7 +23,7 @@
 #define COMMANDINVOKER_H_WGTA1XLU
 
 #include "core/Command.h"
-#include "core/ICommandInvoker.h"
+#include "core/IActionInvoker.h"
 #include "core/Observable.h"
 #include <iostream>
 #include <memory>
@@ -32,7 +32,7 @@
 
 namespace sprint_timer {
 
-class CommandInvoker : public ICommandInvoker, public Observable {
+class ActionInvoker : public IActionInvoker, public Observable {
 public:
     void executeCommand(std::unique_ptr<Command> command) override;
 

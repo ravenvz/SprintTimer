@@ -25,16 +25,16 @@
 #include "qt_gui/IndexChangedReemitter.h"
 #include <QAbstractItemModel>
 #include <QObject>
-#include <core/CommandInvoker.h>
-#include <core/ISprintStorageWriter.h>
+#include <core/CommandHandler.h>
+#include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 class SprintRegistrator : public QObject {
 public:
     SprintRegistrator(QAbstractItemModel& taskModel,
-                      ISprintStorageWriter& sprintWriter,
-                      CommandInvoker& commandInvoker,
+                      CommandHandler<use_cases::RegisterSprintBulkCommand>&
+                          registerSprintBulkHandler,
                       IndexChangedReemitter& selectedTaskRowReemitter,
                       QObject* parent = nullptr);
 
@@ -45,8 +45,8 @@ public:
 
 private:
     QAbstractItemModel& taskModel;
-    ISprintStorageWriter& sprintWriter;
-    CommandInvoker& commandInvoker;
+    CommandHandler<use_cases::RegisterSprintBulkCommand>&
+        registerSprintBulkHandler;
     int candidateRow{-1};
 };
 

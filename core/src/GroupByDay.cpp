@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #include "core/GroupByDay.h"
 
 namespace sprint_timer {

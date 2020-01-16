@@ -22,11 +22,11 @@
 #ifndef FAKESPRINTDISTRIBUTIONREADER_H_UREC2M3T
 #define FAKESPRINTDISTRIBUTIONREADER_H_UREC2M3T
 
-#include "core/ISprintDistributionReader.h"
+#include "core/SprintDistributionReader.h"
 #include "FakeStorage.h"
 
 
-class FakeSprintDistributionReader : public ISprintDistributionReader {
+class FakeSprintDistributionReader : public SprintDistributionReader {
 public:
     FakeSprintDistributionReader(FakeStorage<Sprint>& storage)
         : storage{storage}
