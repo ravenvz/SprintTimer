@@ -28,7 +28,7 @@
 #include <QWidget>
 #include <core/GoalProgress.h>
 #include <core/IConfig.h>
-#include <core/IStatefulTimer.h>
+#include <core/IWorkflow.h>
 #include <memory>
 
 #ifdef _MSC_VER
@@ -51,14 +51,14 @@ public:
         const IConfig& applicationSettings,
         QAbstractItemModel& sprintModel, // TODO Workaround to preserve long
                                          // break counter after restart. Remove
-                                         // when refactored StatefulTimer
+                                         // when refactored Workflow
         QWidget* parent);
 
 protected:
     const IConfig& applicationSettings;
-    std::unique_ptr<IStatefulTimer> timer;
+    std::unique_ptr<IWorkflow> workflow;
     std::unique_ptr<QMediaPlayer> player = std::make_unique<QMediaPlayer>();
-    IStatefulTimer::StateId currentState;
+    IWorkflow::StateId currentState;
 
     virtual void onSprintStateEnteredHook();
     virtual void onSprintStateLeftHook();
@@ -77,16 +77,16 @@ protected:
 
 protected slots:
     void onTimerTick(std::chrono::seconds timeLeft);
-    void onTimerStateChanged(IStatefulTimer::StateId state);
+    void onWorkflowStateChanged(IWorkflow::StateId state);
     void onTimerUpdated(std::chrono::seconds timeLeft);
-    void onStateChanged(IStatefulTimer::StateId state);
+    void onStateChanged(IWorkflow::StateId state);
     void startTask();
     void cancelTask();
     void onSoundPlaybackError(QMediaPlayer::Error error);
 
 signals:
     void timerUpdated(std::chrono::seconds timeLeft);
-    void stateChanged(IStatefulTimer::StateId state);
+    void stateChanged(IWorkflow::StateId state);
     void submitRequested(std::vector<dw::DateTimeRange> completedTaskIntervals);
 };
 

@@ -29,7 +29,7 @@ namespace sprint_timer {
 
 class GroupByWeek : public GroupByPeriodStrategy {
 public:
-    explicit GroupByWeek(const IConfig& applicationSettings);
+    explicit GroupByWeek(dw::Weekday firstDayOfWeek);
 
     std::vector<GoalProgress>
     computeProgress(const dw::DateRange& dateRange,
@@ -37,7 +37,7 @@ public:
                     const WorkSchedule& workSchedule) const override;
 
 private:
-    const IConfig& applicationSettings;
+    dw::Weekday firstDayOfWeek;
 };
 
 } // namespace sprint_timer

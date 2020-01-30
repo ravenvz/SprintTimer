@@ -63,40 +63,52 @@ ProgressView::ProgressView(const DistributionRequester& distributionRequester_,
     setupGauges();
     updateProgressBar(
         GoalProgress{GoalProgress::Estimated{0}, GoalProgress::Actual{0}});
-    connect(&distributionRequester_,
-            &DistributionRequester::distributionChanged,
-            [&](const std::vector<int>& updatedDistribution) {
-                const ProgressOverPeriod progress{
-                    backRequestStrategy_.dateRange(),
-                    updatedDistribution,
-                    workScheduleWrapper_.workSchedule(),
-                    groupByPeriodStrategy_};
-                setData(progress);
-            });
-    connect(&workScheduleWrapper_,
-            &WorkScheduleWrapper::workScheduleChanged,
-            [&](const WorkSchedule& updatedWorkSchedule) {
-                const ProgressOverPeriod progress{
-                    backRequestStrategy_.dateRange(),
-                    distributionRequester_.distribution(),
-                    updatedWorkSchedule,
-                    groupByPeriodStrategy_};
-                setData(progress);
-            });
+    setData(ProgressOverPeriod{backRequestStrategy_.dateRange(),
+                               distributionRequester_.distribution(),
+                               workScheduleWrapper_.workSchedule(),
+                               groupByPeriodStrategy_});
+    distributionConnection =
+        connect(&distributionRequester_,
+                &DistributionRequester::distributionChanged,
+                [&](const std::vector<int>& updatedDistribution) {
+                    const ProgressOverPeriod progress{
+                        backRequestStrategy_.dateRange(),
+                        updatedDistribution,
+                        workScheduleWrapper_.workSchedule(),
+                        groupByPeriodStrategy_};
+                    setData(progress);
+                });
+    workScheduleConnection =
+        connect(&workScheduleWrapper_,
+                &WorkScheduleWrapper::workScheduleChanged,
+                [&](const WorkSchedule& updatedWorkSchedule) {
+                    const ProgressOverPeriod progress{
+                        backRequestStrategy_.dateRange(),
+                        distributionRequester_.distribution(),
+                        updatedWorkSchedule,
+                        groupByPeriodStrategy_};
+                    setData(progress);
+                });
 }
 
 void ProgressView::setupGauges()
 {
-    for (size_t row = 0; row < numRows; ++row) {
-        for (size_t col = 0; col < numColumns; ++col) {
-            auto gauge = std::make_unique<Gauge>(0, 0, gaugeRelSize, this);
+    for (size_t row = 0; row < numRows.value; ++row) {
+        for (size_t col = 0; col < numColumns.value; ++col) {
+            auto gauge =
+                std::make_unique<Gauge>(0, 0, gaugeRelSize.value, this);
             ui->gaugeLayout->addWidget(
                 gauge.release(), static_cast<int>(row), static_cast<int>(col));
         }
     }
 }
 
-ProgressView::~ProgressView() = default;
+ProgressView::~ProgressView()
+{
+    std::cout << "ProgressViewDestroyed" << std::endl;
+    disconnect(distributionConnection);
+    disconnect(workScheduleConnection);
+}
 
 void ProgressView::setLegendTitle(const QString& title)
 {
@@ -155,8 +167,8 @@ void ProgressView::updateLegend(const ProgressOverPeriod& progress) const
 
 void ProgressView::updateGauges(const ProgressOverPeriod& progress)
 {
-    for (size_t row = 0, ind = 0; row < numRows; ++row) {
-        for (size_t col = 0; col < numColumns; ++col, ++ind) {
+    for (size_t row = 0, ind = 0; row < numRows.value; ++row) {
+        for (size_t col = 0; col < numColumns.value; ++col, ++ind) {
             QLayoutItem* item = ui->gaugeLayout->itemAtPosition(
                 static_cast<int>(row), static_cast<int>(col));
             if (item)

@@ -35,7 +35,7 @@ void showOrBringToForeground(QWidget& widget)
 
 namespace sprint_timer::ui::qt_gui {
 
-LauncherMenu::LauncherMenu(QWidget& progressWindow,
+LauncherMenu::LauncherMenu(SprintTimerWidget& progressWindow,
                            QWidget& statisticsWindow,
                            QWidget& historyWindow,
                            QDialog& settingsDialog,

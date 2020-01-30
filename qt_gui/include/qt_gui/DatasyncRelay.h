@@ -24,6 +24,8 @@
 
 #include "qt_gui/models/AsyncListModel.h"
 #include <QObject>
+#include <chrono>
+#include <iostream>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -31,11 +33,38 @@ class DatasyncRelay : public QObject {
 
     Q_OBJECT
 
-public slots:
-    void onDataChanged() { emit dataUpdateRequiered(); }
+public:
+    void onDataChanged() {
+        displayTimes();
+        clearTimes();
+        starting_point = std::chrono::system_clock::now();
+
+        emit dataUpdateRequiered(); }
+
+    void onSyncCompleted(const std::string id) {
+        exec_timepoints.push_back({id, std::chrono::system_clock::now()});
+    }
+
+    void displayTimes() const
+    {
+        std::cout << "Syncing times data:" << std::endl;
+        for (const auto& [id, dur] : exec_timepoints) {
+            std::cout << id << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(dur - starting_point).count() << " ms"  << std::endl;
+        }
+    }
+
+    void clearTimes()
+    {
+        exec_timepoints.clear();
+    }
 
 signals:
     void dataUpdateRequiered();
+
+private:
+    using exec_time_data_t = std::pair<std::string, std::chrono::time_point<std::chrono::system_clock>>;
+    std::chrono::time_point<std::chrono::system_clock> starting_point;
+    std::vector<exec_time_data_t> exec_timepoints;
 };
 
 } // namespace sprint_timer::ui::qt_gui

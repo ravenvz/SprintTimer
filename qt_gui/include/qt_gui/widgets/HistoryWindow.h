@@ -31,9 +31,9 @@
 #include <QTreeView>
 #include <QWidget>
 #include <core/IConfig.h>
-#include <core/ISprintStorageReader.h>
-#include <core/ITaskStorageReader.h>
-#include <core/QueryInvoker.h>
+#include <core/QueryHandler.h>
+#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
+#include <core/use_cases/request_tasks/FinishedTasksQuery.h>
 #include <memory>
 #include <variant>
 
@@ -47,14 +47,16 @@ class HistoryWindow : public QWidget, public Synchronizable {
     Q_OBJECT
 
 public:
-    explicit HistoryWindow(ISprintStorageReader& sprintReader,
-                           ITaskStorageReader& taskReader,
-                           HistoryModel& historyModel,
-                           QStyledItemDelegate& historyItemDelegate,
-                           QueryInvoker& queryInvoker,
-                           std::unique_ptr<DateRangePicker> dateRangePicker,
-                           DatasyncRelay& datasyncRelay,
-                           QWidget* parent = nullptr);
+    explicit HistoryWindow(
+        QueryHandler<use_cases::RequestSprintsQuery,
+                     std::vector<entities::Sprint>>& requestSprintsHandler,
+        QueryHandler<use_cases::FinishedTasksQuery,
+                     std::vector<entities::Task>>& finishedTasksHandler,
+        HistoryModel& historyModel,
+        QStyledItemDelegate& historyItemDelegate,
+        std::unique_ptr<DateRangePicker> dateRangePicker,
+        DatasyncRelay& datasyncRelay,
+        QWidget* parent = nullptr);
 
     ~HistoryWindow();
 
@@ -115,11 +117,13 @@ private:
     };
 
     std::unique_ptr<Ui::HistoryWindow> ui;
-    ISprintStorageReader& sprintReader;
-    ITaskStorageReader& taskReader;
+    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
+        requestSprintsHandler;
+    QueryHandler<use_cases::FinishedTasksQuery, std::vector<entities::Task>>&
+        finishedTasksHandler;
     HistoryModel& historyModel;
-    QueryInvoker& queryInvoker;
     DateRangePicker* dateRangePicker;
+    DatasyncRelay& datasyncRelay;
     State state;
 
     /* Assumes that history items are ordered by date ascendantly. */

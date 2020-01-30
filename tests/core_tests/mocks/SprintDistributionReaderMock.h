@@ -22,15 +22,17 @@
 #ifndef SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
 #define SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
 
-#include <core/ISprintDistributionReader.h>
+#include <core/SprintDistributionReader.h>
 #include <gmock/gmock.h>
 
+namespace mocks {
+
 class SprintDistributionReaderMock
-    : public sprint_timer::ISprintDistributionReader {
+    : public sprint_timer::SprintDistributionReader {
 public:
-    MOCK_METHOD2(requestDistribution,
-                 void(const dw::DateRange&,
-                      sprint_timer::ISprintDistributionReader::Handler));
+    MOCK_METHOD1(sprintDistribution, std::vector<int>(const dw::DateRange&));
 };
+
+} // namespace mocks
 
 #endif /* end of include guard: SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR */

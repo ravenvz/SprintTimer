@@ -29,10 +29,11 @@
 #include "qt_gui/widgets/DateRangePicker.h"
 #include "qt_gui/widgets/StatisticsDiagramWidget.h"
 #include <QFrame>
-#include <core/ISprintStorageReader.h>
-#include <core/QueryInvoker.h>
+#include <core/SprintStorageReader.h>
+#include <core/QueryHandler.h>
 #include <core/SprintStatistics.h>
 #include <core/TagTop.h>
+#include <core/use_cases/request_sprints/RequestSprintsHandler.h>
 #include <memory>
 #include <optional>
 
@@ -42,12 +43,12 @@ class StatisticsWindow : public QFrame, public Synchronizable {
 
 public:
     StatisticsWindow(
+        QueryHandler<use_cases::RequestSprintsQuery,
+                     std::vector<entities::Sprint>>& requestSprintsHandler,
         std::unique_ptr<DateRangePicker> dateRangePicker,
         std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph,
         std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget,
         const WorkScheduleWrapper& workScheduleWrapper,
-        ISprintStorageReader& sprintReader,
-        QueryInvoker& queryInvoker,
         DatasyncRelay& datasyncRelay,
         QWidget* parent = nullptr);
 
@@ -56,12 +57,13 @@ public:
     QSize sizeHint() const override;
 
 private:
+    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
+        requestSprintsHandler;
     DateRangePicker* dateRangePicker;
     DailyTimelineGraph* dailyTimelineGraph;
     StatisticsDiagramWidget* statisticsDiagramWidget;
     const WorkScheduleWrapper& workScheduleWrapper;
-    ISprintStorageReader& sprintReader;
-    QueryInvoker& queryInvoker;
+    DatasyncRelay& datasyncRelay;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;
     const size_t numTopTags{7}; // TODO move to config

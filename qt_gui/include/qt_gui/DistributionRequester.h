@@ -27,9 +27,8 @@
 #include "qt_gui/Synchronizable.h"
 #include <QObject>
 #include <core/GroupByPeriodStrategy.h>
-#include <core/ISprintDistributionReader.h>
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestSprintDistribution.h>
+#include <core/QueryHandler.h>
+#include <core/use_cases/request_sprint_distribution/RequestSprintDistributionQuery.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -38,12 +37,12 @@ class DistributionRequester : public QObject, public Synchronizable {
     Q_OBJECT
 
 public:
-    DistributionRequester(ISprintDistributionReader& reader,
-                          QueryInvoker& queryInvoker,
-                          const GroupByPeriodStrategy& groupByPeriodStrategy,
-                          const BackRequestStrategy& backRequestStrategy,
-                          DatasyncRelay& datasyncRelay,
-                          QObject* parent = nullptr);
+    DistributionRequester(
+        const BackRequestStrategy& backRequestStrategy,
+        DatasyncRelay& datasyncRelay,
+        QueryHandler<use_cases::RequestSprintDistributionQuery,
+                     std::vector<int>>& requestDistributionHandler,
+        QObject* parent = nullptr);
 
     const std::vector<int>& distribution() const;
 
@@ -53,10 +52,10 @@ signals:
     void distributionChanged(const std::vector<int>&);
 
 private:
-    ISprintDistributionReader& reader;
-    QueryInvoker& queryInvoker;
-    const GroupByPeriodStrategy& groupByPeriodStrategy;
     const BackRequestStrategy& backRequestStrategy;
+    DatasyncRelay& datasyncRelay;
+    QueryHandler<use_cases::RequestSprintDistributionQuery, std::vector<int>>&
+        requestDistributionHandler;
     std::vector<int> data;
 };
 

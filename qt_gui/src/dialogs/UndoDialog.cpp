@@ -25,9 +25,9 @@
 namespace sprint_timer::ui::qt_gui {
 
 
-UndoDialog::UndoDialog(CommandInvoker& commandInvoker, QWidget* parent)
+UndoDialog::UndoDialog(ActionInvoker& actionInvoker, QWidget* parent)
     : ConfirmationDialog{parent}
-    , commandInvoker{commandInvoker}
+    , actionInvoker{actionInvoker}
 {
 }
 
@@ -35,14 +35,14 @@ int UndoDialog::exec()
 {
     QString description{"Revert following action:\n"};
     description.append(
-        QString::fromStdString(commandInvoker.lastCommandDescription()));
+        QString::fromStdString(actionInvoker.lastActionDescription()));
     setActionDescription(description);
     return ConfirmationDialog::exec();
 }
 
 void UndoDialog::accept()
 {
-    commandInvoker.undo();
+    actionInvoker.undo();
     ConfirmationDialog::accept();
 }
 

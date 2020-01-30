@@ -24,8 +24,8 @@
 
 #include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/models/AsyncListModel.h"
-#include <core/IOperationalRangeReader.h>
-#include <core/QueryInvoker.h>
+#include <core/QueryHandler.h>
+#include <core/use_cases/request_op_range/OperationalRangeQuery.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -34,8 +34,8 @@ class OperationRangeModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    OperationRangeModel(IOperationalRangeReader& yearRangeReader,
-                        QueryInvoker& queryInvoker,
+    OperationRangeModel(QueryHandler<use_cases::OperationalRangeQuery,
+                                     dw::DateRange>& operRangeHandler,
                         DatasyncRelay& datasyncRelay,
                         QObject* parent = nullptr);
 
@@ -44,8 +44,9 @@ public:
     QVariant data(const QModelIndex& index, int role) const final;
 
 private:
-    IOperationalRangeReader& reader;
-    QueryInvoker& queryInvoker;
+    QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>&
+        operRangeHandler;
+    DatasyncRelay& datasyncRelay;
     QStringList storage;
 
     void requestUpdate() override;

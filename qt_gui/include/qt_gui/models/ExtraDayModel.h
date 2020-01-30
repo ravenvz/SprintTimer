@@ -26,10 +26,9 @@
 #include <QAbstractListModel>
 #include <QDate>
 #include <algorithm>
-#include <core/CommandInvoker.h>
-#include <core/IWorkingDaysReader.h>
-#include <core/IWorkingDaysWriter.h>
-#include <core/QueryInvoker.h>
+#include <core/ActionInvoker.h>
+#include <core/WorkScheduleReader.h>
+#include <core/WorkScheduleWriter.h>
 #include <core/WorkSchedule.h>
 
 namespace sprint_timer::ui::qt_gui {

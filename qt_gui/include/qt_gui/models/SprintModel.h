@@ -24,10 +24,10 @@
 
 #include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/models/AsyncListModel.h"
-#include <core/CommandInvoker.h>
-#include <core/ISprintStorage.h>
-#include <core/ITaskStorageWriter.h>
-#include <core/QueryInvoker.h>
+#include <core/CommandHandler.h>
+#include <core/QueryHandler.h>
+#include <core/use_cases/delete_sprint/DeleteSprintCommand.h>
+#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
 #include <vector>
 
 namespace sprint_timer::ui::qt_gui {
@@ -36,11 +36,12 @@ class SprintModel : public AsyncListModel {
     Q_OBJECT
 
 public:
-    SprintModel(CommandInvoker& commandInvoker,
-                QueryInvoker& queryInvoker,
-                ISprintStorage& sprintStorage,
-                DatasyncRelay& datasyncRelay,
-                QObject* parent = nullptr);
+    SprintModel(
+        CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler,
+        QueryHandler<use_cases::RequestSprintsQuery,
+                     std::vector<entities::Sprint>>& requestSprintsHandler,
+        DatasyncRelay& datasyncRelay,
+        QObject* parent = nullptr);
 
     int rowCount(const QModelIndex& parent) const final;
 
@@ -50,9 +51,10 @@ public:
 
 private:
     std::vector<entities::Sprint> storage;
-    CommandInvoker& commandInvoker;
-    QueryInvoker& queryInvoker;
-    ISprintStorage& sprintStorage;
+    CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler;
+    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
+        requestSprintsHandler;
+    DatasyncRelay& datasyncRelay;
 
     void requestUpdate() final;
 

@@ -23,10 +23,10 @@
 #define FAKETASKSTORAGEREADER_H_EDPTGODR
 
 #include "FakeStorage.h"
-#include "core/ITaskStorageReader.h"
+#include "core/TaskStorageReader.h"
 #include <algorithm>
 
-class FakeTaskStorageReader : public ITaskStorageReader {
+class FakeTaskStorageReader : public TaskStorageReader {
 public:
     FakeTaskStorageReader(FakeStorage<Task>& storage)
         : storage{storage}

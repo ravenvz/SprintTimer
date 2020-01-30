@@ -23,9 +23,9 @@
 #define FAKESPRINTSTORAGEREADER_H_MFYC8R5A
 
 #include "FakeStorage.h"
-#include "core/ISprintStorageReader.h"
+#include "core/SprintStorageReader.h"
 
-class FakeSprintStorageReader : public ISprintStorageReader {
+class FakeSprintStorageReader : public SprintStorageReader {
 public:
     FakeSprintStorageReader(FakeStorage<Sprint>& storage)
         : storage{storage}

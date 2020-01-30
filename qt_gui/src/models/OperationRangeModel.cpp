@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/OperationRangeModel.h"
-#include <core/use_cases/RequestOperationalRange.h>
 
 namespace {
 
@@ -30,13 +29,14 @@ QStringList toDateStrings(const dw::DateRange& dateRange);
 
 namespace sprint_timer::ui::qt_gui {
 
-OperationRangeModel::OperationRangeModel(IOperationalRangeReader& reader_,
-                                         QueryInvoker& queryInvoker_,
-                                         DatasyncRelay& datasyncRelay_,
-                                         QObject* parent_)
+OperationRangeModel::OperationRangeModel(
+    QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>&
+        operRangeHandler_,
+    DatasyncRelay& datasyncRelay_,
+    QObject* parent_)
     : AsyncListModel{parent_}
-    , reader{reader_}
-    , queryInvoker{queryInvoker_}
+    , operRangeHandler{operRangeHandler_}
+    , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
@@ -61,22 +61,16 @@ QVariant OperationRangeModel::data(const QModelIndex& index, int role) const
 
 void OperationRangeModel::requestUpdate()
 {
-    using use_cases::RequestOperationalRange;
-    queryInvoker.execute(std::make_unique<RequestOperationalRange>(
-        reader, [this](const auto& updatedRange) {
-            const int firstYear{static_cast<int>(updatedRange.start().year())};
-            const int lastYear{static_cast<int>(updatedRange.finish().year())};
-            // If number of years is not changed, no need to do anything as
-            // storage would be up to date.
-            // In practice, model would be reset when it is first
-            // populated (at program start), or when someone works around new
-            // year or submits Sprint for the next year.
-            if (storage.size() == lastYear - firstYear + 1)
-                return;
-            beginResetModel();
-            storage = toDateStrings(updatedRange);
-            endResetModel();
-        }));
+    const auto range =
+        operRangeHandler.handle(use_cases::OperationalRangeQuery{});
+    const int firstYear{static_cast<int>(range.start().year())};
+    const int lastYear{static_cast<int>(range.finish().year())};
+    datasyncRelay.onSyncCompleted("OperationRangeModel");
+    if (storage.size() == lastYear - firstYear + 1)
+        return;
+    beginResetModel();
+    storage = toDateStrings(range);
+    endResetModel();
 }
 
 } // namespace sprint_timer::ui::qt_gui

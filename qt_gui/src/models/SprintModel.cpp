@@ -20,8 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
-#include <core/use_cases/RemoveSprintTransaction.h>
-#include <core/use_cases/RequestSprints.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -30,15 +28,16 @@ using dw::DateTimeRange;
 using namespace entities;
 using namespace sprint_timer::use_cases;
 
-SprintModel::SprintModel(CommandInvoker& commandInvoker_,
-                         QueryInvoker& queryInvoker_,
-                         ISprintStorage& sprintStorage_,
-                         DatasyncRelay& datasyncRelay_,
-                         QObject* parent_)
+SprintModel::SprintModel(
+    CommandHandler<DeleteSprintCommand>& deleteSprintHandler_,
+    QueryHandler<RequestSprintsQuery, std::vector<Sprint>>&
+        requestSprintsHandler_,
+    DatasyncRelay& datasyncRelay_,
+    QObject* parent_)
     : AsyncListModel(parent_)
-    , commandInvoker{commandInvoker_}
-    , queryInvoker{queryInvoker_}
-    , sprintStorage{sprintStorage_}
+    , deleteSprintHandler{deleteSprintHandler_}
+    , requestSprintsHandler{requestSprintsHandler_}
+    , datasyncRelay{datasyncRelay_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
@@ -80,23 +79,21 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
 
 void SprintModel::remove(int row)
 {
-    commandInvoker.executeCommand(std::make_unique<RemoveSprintTransaction>(
-        sprintStorage, storage[static_cast<size_t>(row)]));
+    deleteSprintHandler.handle(
+        DeleteSprintCommand{storage[static_cast<size_t>(row)]});
     requestDataUpdate();
 }
 
 void SprintModel::requestUpdate()
 {
     const dw::Date today{dw::current_date_local()};
-    const dw::DateRange dateRange{today, today};
-    queryInvoker.execute(std::make_unique<RequestSprints>(
-        sprintStorage, dateRange, [this](const auto& items) {
-            onDataChanged(items);
-        }));
+    onDataChanged(requestSprintsHandler.handle(
+        use_cases::RequestSprintsQuery{dw::DateRange{today, today}}));
 }
 
 void SprintModel::onDataChanged(const std::vector<Sprint>& items)
 {
+    datasyncRelay.onSyncCompleted("SprintModel");
     beginResetModel();
     storage = items;
     endResetModel();

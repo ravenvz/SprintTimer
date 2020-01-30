@@ -19,23 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#ifndef SPRINT_TIMER_QUERY_H
-#define SPRINT_TIMER_QUERY_H
-
-#include <string>
+#ifndef NEWQUERY_H_9EK1A72B
+#define NEWQUERY_H_9EK1A72B
 
 namespace sprint_timer {
 
-class Query {
+template <typename ResultT> class Query {
 public:
     virtual ~Query() = default;
-
-    virtual void execute() = 0;
-
-    virtual std::string describe() const = 0;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::nca
 
-#endif // SPRINT_TIMER_QUERY_H
+#endif /* end of include guard: NEWQUERY_H_9EK1A72B */
+

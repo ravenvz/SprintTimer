@@ -22,7 +22,8 @@
 #include "qt_gui/widgets/ProgressMonitorWidget.h"
 #include <QGridLayout>
 #include <QIcon>
-#include <core/use_cases/RequestWorkingDays.h>
+
+#include <iostream>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -31,7 +32,7 @@ ProgressMonitorWidget::ProgressMonitorWidget(
     std::unique_ptr<QWidget> weeklyProgress,
     std::unique_ptr<QWidget> monthlyProgress,
     QWidget* parent)
-    : QWidget{parent}
+    : SprintTimerWidget{parent}
 {
     dailyProgress->setSizePolicy(QSizePolicy::Expanding,
                                  QSizePolicy::MinimumExpanding);
@@ -49,6 +50,11 @@ ProgressMonitorWidget::ProgressMonitorWidget(
     setLayout(layout.release());
 
     setWindowIcon(QIcon(":icons/sprint_timer.png"));
+}
+
+ProgressMonitorWidget::~ProgressMonitorWidget()
+{
+    std::cout << "ProgressMonitorWidget destroyed" << std::endl;
 }
 
 QSize ProgressMonitorWidget::sizeHint() const { return QSize{1225, 650}; }

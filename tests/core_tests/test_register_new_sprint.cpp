@@ -22,20 +22,20 @@
 
 #include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/CommandInvoker.h>
-#include <core/use_cases/RegisterNewSprint.h>
+#include <core/ObservableActionInvoker.h>
+#include <core/actions/RegisterSprint.h>
 
+using sprint_timer::actions::RegisterSprint;
 using sprint_timer::entities::Sprint;
 using sprint_timer::entities::Tag;
-using sprint_timer::use_cases::RegisterNewSprint;
 using namespace dw;
 
 using ::testing::_;
 
-class RegisterNewSprintFixture : public ::testing::Test {
+class RegisterSprintFixture : public ::testing::Test {
 public:
-    sprint_timer::CommandInvoker commandInvoker;
-    SprintStorageMock sprint_storage_mock;
+    sprint_timer::ObservableActionInvoker actionInvoker;
+    mocks::SprintStorageMock sprint_storage_mock;
 
     const DateTimeRange someTimeSpan{add_offset(
         DateTimeRange{current_date_time(), current_date_time()}, Days{-1})};
@@ -46,14 +46,14 @@ public:
                             "722e8400"};
 };
 
-TEST_F(RegisterNewSprintFixture, execute_and_undo)
+TEST_F(RegisterSprintFixture, execute_and_undo)
 {
     EXPECT_CALL(sprint_storage_mock, save(someSprint)).Times(1);
 
-    commandInvoker.executeCommand(
-        std::make_unique<RegisterNewSprint>(sprint_storage_mock, someSprint));
+    actionInvoker.execute(
+        std::make_unique<RegisterSprint>(sprint_storage_mock, someSprint));
 
     EXPECT_CALL(sprint_storage_mock, remove(someSprint)).Times(1);
 
-    commandInvoker.undo();
+    actionInvoker.undo();
 }

@@ -19,26 +19,23 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "mocks/WorkingDaysStorageMock.h"
+#include "mocks/WorkScheduleStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestWorkingDays.h>
+#include <core/use_cases/request_schedule/WorkScheduleHandler.h>
 
+using sprint_timer::use_cases::WorkScheduleHandler;
+using sprint_timer::use_cases::WorkScheduleQuery;
 using ::testing::_;
 
-class RequestWorkingDaysFixture : public ::testing::Test {
+class RequestWorkScheduleFixture : public ::testing::Test {
 public:
-    WorkingDaysStorageMock working_days_storage_mock;
-    sprint_timer::QueryInvoker queryInvoker;
+    mocks::WorkScheduleStorageMock working_days_storage_mock;
+    WorkScheduleHandler handler{working_days_storage_mock};
 };
 
-TEST_F(RequestWorkingDaysFixture, execute)
+TEST_F(RequestWorkScheduleFixture, execute)
 {
-    using sprint_timer::WorkSchedule;
-    using sprint_timer::use_cases::RequestWorkingDays;
-    EXPECT_CALL(working_days_storage_mock, requestData(_)).Times(1);
+    EXPECT_CALL(working_days_storage_mock, schedule()).Times(1);
 
-    queryInvoker.execute(std::make_unique<RequestWorkingDays>(
-        working_days_storage_mock, [](const WorkSchedule& workSchedule) {}));
+    handler.handle(WorkScheduleQuery{});
 }

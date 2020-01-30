@@ -24,11 +24,11 @@
 
 #include "qt_gui/DatasyncRelay.h"
 #include <QObject>
-#include <core/CommandInvoker.h>
-#include <core/IWorkingDaysStorage.h>
-#include <core/QueryInvoker.h>
+#include <core/CommandHandler.h>
+#include <core/QueryHandler.h>
 #include <core/WorkSchedule.h>
-#include <core/use_cases/RequestWorkingDays.h>
+#include <core/use_cases/change_schedule/ChangeWorkScheduleCommand.h>
+#include <core/use_cases/request_schedule/WorkScheduleQuery.h>
 
 #ifdef _MSC_VER
 #include "qt_gui/WinExport.h"
@@ -45,10 +45,11 @@ class WorkScheduleWrapper : public QObject {
     Q_OBJECT
 
 public:
-    WorkScheduleWrapper(IWorkingDaysStorage& workingDaysStorage,
-                        CommandInvoker& commandInvoker,
-                        QueryInvoker& queryInvoker,
-                        DatasyncRelay& datasyncRelay,
+    WorkScheduleWrapper(DatasyncRelay& datasyncRelay,
+                        CommandHandler<use_cases::ChangeWorkScheduleCommand>&
+                            changeScheduleHandler,
+                        QueryHandler<use_cases::WorkScheduleQuery,
+                                     WorkSchedule>& scheduleHandler,
                         QObject* parent = nullptr);
 
     void requestDataUpdate();
@@ -61,9 +62,9 @@ signals:
     void workScheduleChanged(const WorkSchedule&);
 
 private:
-    IWorkingDaysStorage& workingDaysStorage;
-    CommandInvoker& commandInvoker;
-    QueryInvoker& queryInvoker;
+    DatasyncRelay& datasyncRelay;
+    CommandHandler<use_cases::ChangeWorkScheduleCommand>& changeScheduleHandler;
+    QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>& scheduleHandler;
     WorkSchedule schedule;
 };
 

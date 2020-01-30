@@ -44,7 +44,7 @@ else()
 endif()
 
 set(GUI_LIB sprint_timer_qt_gui)
-set(STORAGE_LIB sprint_timer_qt_storage_impl)
+set(STORAGE_LIB sprint_timer_qt_storage)
 set(CORE_LIB sprint_timer_core)
 set(SPRINT_MAIN sprint_timer)
 
@@ -52,7 +52,7 @@ set(EXECUTABLE_INSTALL_PATH_SUFFIX bin)
 set(LIBRARY_INSTALL_PATH_SUFFIX lib)
 
 add_subdirectory(core)
-add_subdirectory(qt_storage_impl)
+add_subdirectory(qt_storage)
 add_subdirectory(qt_gui)
 add_subdirectory(main)
 

@@ -23,12 +23,12 @@
 #include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
 #include <algorithm>
-#include <core/CommandInvoker.h>
+#include <core/ObservableActionInvoker.h>
 #include <core/SprintBuilder.h>
-#include <core/use_cases/RegisterNewSprintBulk.h>
+#include <core/actions/RegisterSprintBulk.h>
 
+using sprint_timer::actions::RegisterSprintBulk;
 using sprint_timer::entities::Sprint;
-using sprint_timer::use_cases::RegisterNewSprintBulk;
 using namespace dw;
 
 namespace {
@@ -56,21 +56,21 @@ generateSomeSprints(size_t numSprints)
 
 } // namespace
 
-class RegisterNewSprintBulkFixture : public ::testing::Test {
+class RegisterSprintBulkFixture : public ::testing::Test {
 public:
-    sprint_timer::CommandInvoker commandInvoker;
-    SprintStorageMock sprint_storage_mock;
+    sprint_timer::ObservableActionInvoker actionInvoker;
+    mocks::SprintStorageMock sprint_storage_mock;
     const std::vector<Sprint> sprintBulk = generateSomeSprints(5);
 };
 
-TEST_F(RegisterNewSprintBulkFixture, execute_and_undo)
+TEST_F(RegisterSprintBulkFixture, execute_and_undo)
 {
     EXPECT_CALL(sprint_storage_mock, save(sprintBulk)).Times(1);
 
-    commandInvoker.executeCommand(std::make_unique<RegisterNewSprintBulk>(
-        sprint_storage_mock, sprintBulk));
+    actionInvoker.execute(
+        std::make_unique<RegisterSprintBulk>(sprint_storage_mock, sprintBulk));
 
     EXPECT_CALL(sprint_storage_mock, remove(sprintBulk)).Times(1);
 
-    commandInvoker.undo();
+    actionInvoker.undo();
 }

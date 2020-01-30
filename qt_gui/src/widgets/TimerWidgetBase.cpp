@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/widgets/TimerWidgetBase.h"
 #include <QMessageBox>
-#include <core/StatefulTimer.h>
+#include <core/Workflow.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -30,20 +30,20 @@ TimerWidgetBase::TimerWidgetBase(const IConfig& applicationSettings,
                                  QWidget* parent)
     : QWidget{parent}
     , applicationSettings{applicationSettings}
-    , currentState{IStatefulTimer::StateId::IdleEntered}
+    , currentState{IWorkflow::StateId::IdleEntered}
 {
-    timer = std::make_unique<StatefulTimer>(
+    workflow = std::make_unique<Workflow>(
         [this](auto timeLeft) { this->onTimerTick(timeLeft); },
-        [this](auto state) { this->onTimerStateChanged(state); },
+        [this](auto state) { this->onWorkflowStateChanged(state); },
         std::chrono::seconds{1},
         applicationSettings);
 
     qRegisterMetaType<std::chrono::seconds>("std::chrono::seconds");
-    qRegisterMetaType<IStatefulTimer::StateId>("IStatefulTimer::StateId");
+    qRegisterMetaType<IWorkflow::StateId>("IWorkflow::StateId");
 
     connect(
         &sprintModel, &QAbstractItemModel::modelReset, [this, &sprintModel] {
-            timer->setNumFinishedSprints(sprintModel.rowCount());
+            workflow->setNumFinishedSprints(sprintModel.rowCount());
         });
 
     connect(player.get(),
@@ -65,7 +65,7 @@ void TimerWidgetBase::onTimerTick(std::chrono::seconds timeLeft)
     emit timerUpdated(timeLeft);
 }
 
-void TimerWidgetBase::onTimerStateChanged(IStatefulTimer::StateId state)
+void TimerWidgetBase::onWorkflowStateChanged(IWorkflow::StateId state)
 {
     emit stateChanged(state);
 }
@@ -75,40 +75,40 @@ void TimerWidgetBase::onTimerUpdated(std::chrono::seconds timeLeft)
     updateIndication(timeLeft);
 }
 
-void TimerWidgetBase::onStateChanged(IStatefulTimer::StateId state)
+void TimerWidgetBase::onStateChanged(IWorkflow::StateId state)
 {
     currentState = state;
     switch (state) {
-    case IStatefulTimer::StateId::SprintEntered:
+    case IWorkflow::StateId::SprintEntered:
         onSprintStateEnteredHook();
         break;
-    case IStatefulTimer::StateId::SprintLeft:
+    case IWorkflow::StateId::SprintLeft:
         break;
-    case IStatefulTimer::StateId::SprintFinished:
+    case IWorkflow::StateId::SprintFinished:
         onSprintStateLeftHook();
         break;
-    case IStatefulTimer::StateId::SprintCancelled:
+    case IWorkflow::StateId::SprintCancelled:
         onSprintStateCancelledHook();
         break;
-    case IStatefulTimer::StateId::BreakEntered:
+    case IWorkflow::StateId::BreakEntered:
         onBreakStateEnteredHook();
         break;
-    case IStatefulTimer::StateId::BreakLeft:
+    case IWorkflow::StateId::BreakLeft:
         onBreakStateFinishedHook();
         break;
-    case IStatefulTimer::StateId::BreakCancelled:
+    case IWorkflow::StateId::BreakCancelled:
         onBreakStateCancelledHook();
         break;
-    case IStatefulTimer::StateId::IdleEntered:
+    case IWorkflow::StateId::IdleEntered:
         onIdleStateEnteredHook();
         break;
-    case IStatefulTimer::StateId::IdleLeft:
+    case IWorkflow::StateId::IdleLeft:
         onIdleStateLeftHook();
         break;
-    case IStatefulTimer::StateId::ZoneEntered:
+    case IWorkflow::StateId::ZoneEntered:
         onZoneStateEnteredHook();
         break;
-    case IStatefulTimer::StateId::ZoneLeft:
+    case IWorkflow::StateId::ZoneLeft:
         onZoneStateLeftHook();
         break;
     default:
@@ -136,16 +136,16 @@ void TimerWidgetBase::onZoneStateEnteredHook() {}
 
 void TimerWidgetBase::onZoneStateLeftHook() {}
 
-void TimerWidgetBase::startTask() { timer->start(); }
+void TimerWidgetBase::startTask() { workflow->start(); }
 
 void TimerWidgetBase::cancelTask()
 {
     ConfirmationDialog cancelDialog;
     QString description("This will destroy current sprint!");
     cancelDialog.setActionDescription(description);
-    if (currentState == IStatefulTimer::StateId::BreakEntered ||
+    if (currentState == IWorkflow::StateId::BreakEntered ||
         cancelDialog.exec()) {
-        timer->cancel();
+        workflow->cancel();
     }
 }
 
@@ -153,14 +153,14 @@ void TimerWidgetBase::cancelTask()
  * that it has valid submission candidate, otherwise behaviour is undefined. */
 void TimerWidgetBase::requestSubmission()
 {
-    emit submitRequested(timer->completedSprints());
-    timer->clearSprintsBuffer();
+    emit submitRequested(workflow->completedSprints());
+    workflow->clearSprintsBuffer();
     startTask();
 }
 
 void TimerWidgetBase::playSound() const
 {
-    if (currentState == IStatefulTimer::StateId::ZoneEntered ||
+    if (currentState == IWorkflow::StateId::ZoneEntered ||
         !applicationSettings.soundIsEnabled()) {
         return;
     }

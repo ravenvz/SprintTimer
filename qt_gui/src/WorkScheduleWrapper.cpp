@@ -20,20 +20,19 @@
 **
 *********************************************************************************/
 #include "include/qt_gui/WorkScheduleWrapper.h"
-#include <core/use_cases/ChangeWorkingDays.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 WorkScheduleWrapper::WorkScheduleWrapper(
-    IWorkingDaysStorage& workingDaysStorage_,
-    CommandInvoker& commandInvoker_,
-    QueryInvoker& queryInvoker_,
     DatasyncRelay& datasyncRelay_,
+    CommandHandler<use_cases::ChangeWorkScheduleCommand>&
+        changeScheduleHandler_,
+    QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>& scheduleHandler_,
     QObject* parent_)
     : QObject{parent_}
-    , workingDaysStorage{workingDaysStorage_}
-    , commandInvoker{commandInvoker_}
-    , queryInvoker{queryInvoker_}
+    , datasyncRelay{datasyncRelay_}
+    , changeScheduleHandler{changeScheduleHandler_}
+    , scheduleHandler{scheduleHandler_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
@@ -43,20 +42,16 @@ WorkScheduleWrapper::WorkScheduleWrapper(
 
 void WorkScheduleWrapper::requestDataUpdate()
 {
-    using use_cases::RequestWorkingDays;
-    queryInvoker.execute(std::make_unique<RequestWorkingDays>(
-        workingDaysStorage, [this](WorkSchedule&& newSchedule) {
-            schedule = std::move(newSchedule);
-            emit workScheduleChanged(schedule);
-        }));
+    schedule = scheduleHandler.handle(use_cases::WorkScheduleQuery{});
+    datasyncRelay.onSyncCompleted("WorkScheduleWrapper");
+    emit workScheduleChanged(schedule);
 }
 
 void WorkScheduleWrapper::changeSchedule(
     const WorkSchedule& updatedWorkSchedule)
 {
-    using sprint_timer::use_cases::ChangeWorkingDays;
-    commandInvoker.executeCommand(std::make_unique<ChangeWorkingDays>(
-        workingDaysStorage, schedule, updatedWorkSchedule));
+    changeScheduleHandler.handle(
+        use_cases::ChangeWorkScheduleCommand{schedule, updatedWorkSchedule});
     schedule = updatedWorkSchedule;
     emit workScheduleChanged(schedule);
 }

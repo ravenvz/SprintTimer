@@ -26,10 +26,8 @@
 #include <QAbstractItemView>
 #include <QLineEdit>
 #include <QWidget>
-#include <core/CommandInvoker.h>
-#include <core/ISprintStorageReader.h>
-#include <core/ISprintStorageWriter.h>
-#include <core/QueryInvoker.h>
+#include <core/CommandHandler.h>
+#include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
 #include <memory>
 
 #include "qt_gui/dialogs/AddTaskDialog.h"
@@ -43,8 +41,8 @@ class AddTaskDialog;
  * tasks, add/edit and remove task and tags. */
 class TaskOutline : public QWidget {
 public:
-    TaskOutline(ISprintStorageWriter& sprintWriter,
-                CommandInvoker& commandInvoker,
+    TaskOutline(CommandHandler<use_cases::RegisterSprintBulkCommand>&
+                    registerSprintBulkHandler,
                 std::unique_ptr<QAbstractItemView> taskView,
                 AddTaskDialog& addTaskDialog,
                 QWidget* parent = nullptr);
@@ -53,8 +51,8 @@ public:
         const std::vector<dw::DateTimeRange>& intervals);
 
 private:
-    ISprintStorageWriter& sprintWriter;
-    CommandInvoker& commandInvoker;
+    CommandHandler<use_cases::RegisterSprintBulkCommand>&
+        registerSprintBulkHandler;
     QPointer<TagEditor> tagEditor;
     QAbstractItemView* taskView;
     AddTaskDialog& addTaskDialog;

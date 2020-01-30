@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/ConfigMock.h"
 #include "gtest/gtest.h"
 #include <core/GoalProgress.h>
 #include <core/GroupByWeek.h>
@@ -29,7 +28,6 @@ using sprint_timer::GoalProgress;
 using sprint_timer::ProgressOverPeriod;
 using sprint_timer::WeekSchedule;
 using sprint_timer::WorkSchedule;
-using ::testing::Return;
 
 using namespace dw;
 
@@ -54,11 +52,10 @@ public:
 
     WeekSchedule weekSchedule;
     WorkSchedule workSchedule;
-    ConfigMock configMock;
 
     const DateRange period{Date{Year{2019}, Month{1}, Day{9}},
                            Date{Year{2019}, Month{2}, Day{14}}};
-    sprint_timer::GroupByWeek groupByWeekStrategy{configMock};
+    sprint_timer::GroupByWeek groupByWeekStrategy{dw::Weekday::Monday};
 };
 
 TEST_F(ProgressByWeekFixture, handles_empty_actual_progress)
@@ -187,9 +184,7 @@ TEST_F(ProgressByWeekFixture,
         {GoalProgress::Estimated{13}, GoalProgress::Actual{65}}};
     const DateRange a_period{Date{Year{2019}, Month{1}, Day{13}},
                              Date{Year{2019}, Month{1}, Day{21}}};
-    const sprint_timer::GroupByWeek strategy{configMock};
-    ON_CALL(configMock, firstDayOfWeek())
-        .WillByDefault(Return(dw::Weekday::Sunday));
+    const sprint_timer::GroupByWeek strategy{dw::Weekday::Sunday};
 
     const ProgressOverPeriod progress{
         a_period, actualProgress, workSchedule, strategy};
@@ -214,9 +209,7 @@ TEST_F(ProgressByWeekFixture, handles_corner_case_when_ending_by_grouping_day)
         {GoalProgress::Estimated{65}, GoalProgress::Actual{65}}};
     const DateRange a_period{Date{Year{2019}, Month{1}, Day{8}},
                              Date{Year{2019}, Month{1}, Day{19}}};
-    const sprint_timer::GroupByWeek strategy{configMock};
-    ON_CALL(configMock, firstDayOfWeek())
-        .WillByDefault(Return(dw::Weekday::Sunday));
+    const sprint_timer::GroupByWeek strategy{dw::Weekday::Sunday};
 
     const ProgressOverPeriod progress{
         a_period, actualProgress, workSchedule, strategy};

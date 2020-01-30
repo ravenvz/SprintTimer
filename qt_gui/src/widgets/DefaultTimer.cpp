@@ -52,7 +52,7 @@ DefaultTimer::DefaultTimer(const IConfig& applicationSettings_,
             this,
             &DefaultTimer::onTimerUpdated);
     connect(ui->pbZone, &QPushButton::clicked, [&]() {
-        timer->toggleInTheZoneMode();
+        workflow->toggleInTheZoneMode();
     });
     connect(ui->pbSubmit, &QPushButton::clicked, [&]() {
         if (submissionBox->currentIndex() != -1)
@@ -81,10 +81,10 @@ void DefaultTimer::onBreakStateEnteredHook() { setUiToRunningState(); }
 
 void DefaultTimer::setUiToRunningState()
 {
-    progressBarMaxValue = static_cast<int>(timer->currentDuration().count());
+    progressBarMaxValue = static_cast<int>(workflow->currentDuration().count());
     submissionBox->hide();
     ui->progressBar->setMaximum(progressBarMaxValue);
-    setTimerValue(timer->currentDuration());
+    setTimerValue(workflow->currentDuration());
     ui->progressBar->setValue(0);
     ui->pbStart->hide();
     ui->pbSubmit->hide();

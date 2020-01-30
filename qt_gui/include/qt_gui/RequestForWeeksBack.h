@@ -23,19 +23,18 @@
 #define REQUESTFORWEEKSBACK_H_YLQJ5OFZ
 
 #include "qt_gui/BackRequestStrategy.h"
-#include <core/IConfig.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 class RequestForWeeksBack : public BackRequestStrategy {
 public:
-    RequestForWeeksBack(int numWeeks, const IConfig& applicationSettings);
+    RequestForWeeksBack(int numWeeks, dw::Weekday firstDayOfWeek);
 
     dw::DateRange dateRange() const override;
 
 private:
     int numWeeks;
-    const IConfig& applicationSettings;
+    dw::Weekday firstDayOfWeek;
 };
 
 } // namespace sprint_timer::ui::qt_gui

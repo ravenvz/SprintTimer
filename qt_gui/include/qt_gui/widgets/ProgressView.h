@@ -43,9 +43,18 @@ class ProgressView : public QFrame {
 
 public:
     using GoalValue = int;
-    using Rows = size_t;
-    using Columns = size_t;
-    using GaugeSize = double;
+
+    struct Rows {
+        size_t value{0};
+    };
+
+    struct Columns {
+        size_t value{0};
+    };
+
+    struct GaugeSize {
+        double value{0};
+    };
 
     ProgressView(const DistributionRequester& distributionRequester,
                  const WorkScheduleWrapper& workScheduleWrapper,
@@ -77,6 +86,8 @@ private:
     const Rows numRows;
     const Columns numColumns;
     const GaugeSize gaugeRelSize;
+    QMetaObject::Connection distributionConnection;
+    QMetaObject::Connection workScheduleConnection;
 
     void setupGauges();
 

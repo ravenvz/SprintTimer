@@ -21,7 +21,6 @@
 *********************************************************************************/
 #include "qt_gui/SprintRegistrator.h"
 #include "qt_gui/models/TaskModelRoles.h"
-#include <core/use_cases/RegisterNewSprintBulk.h>
 
 namespace {
 
@@ -35,14 +34,13 @@ namespace sprint_timer::ui::qt_gui {
 
 SprintRegistrator::SprintRegistrator(
     QAbstractItemModel& taskModel_,
-    ISprintStorageWriter& sprintWriter_,
-    CommandInvoker& commandInvoker_,
+    CommandHandler<use_cases::RegisterSprintBulkCommand>&
+        registerSprintBulkHandler_,
     IndexChangedReemitter& selectedTaskRowReemitter_,
     QObject* parent_)
     : QObject{parent_}
     , taskModel{taskModel_}
-    , sprintWriter{sprintWriter_}
-    , commandInvoker{commandInvoker_}
+    , registerSprintBulkHandler{registerSprintBulkHandler_}
 {
     connect(&selectedTaskRowReemitter_,
             &IndexChangedReemitter::currentRowChanged,
@@ -62,10 +60,8 @@ void SprintRegistrator::onSubmissionRequested(
         index.data(static_cast<int>(TaskModelRoles::GetIdRole))
             .toString()
             .toStdString();
-    const auto sprints = buildFromIntervals(taskUuid, timeIntervals);
-    commandInvoker.executeCommand(
-        std::make_unique<use_cases::RegisterNewSprintBulk>(sprintWriter,
-                                                           sprints));
+    registerSprintBulkHandler.handle(use_cases::RegisterSprintBulkCommand{
+        buildFromIntervals(taskUuid, timeIntervals)});
 }
 
 void SprintRegistrator::onTaskSelected(int taskRow) { candidateRow = taskRow; }

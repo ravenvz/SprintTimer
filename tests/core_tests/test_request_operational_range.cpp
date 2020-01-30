@@ -19,24 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/IOperationalRangeReader.h"
+#include "mocks/OperationalRangeReaderMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestOperationalRange.h>
+#include <core/use_cases/request_op_range/OperationalRangeHandler.h>
+#include <core/use_cases/request_op_range/OperationalRangeQuery.h>
 
-using sprint_timer::use_cases::RequestOperationalRange;
+using sprint_timer::use_cases::OperationalRangeHandler;
+using sprint_timer::use_cases::OperationalRangeQuery;
 using ::testing::_;
 
 class RequestOperationalRangeFixture : public ::testing::Test {
 public:
-    sprint_timer::QueryInvoker queryInvoker;
-    YearRangeReaderMock year_range_reader_mock;
+    mocks::OperationalRangeReaderMock year_range_reader_mock;
+    OperationalRangeHandler handler{year_range_reader_mock};
 };
 
-TEST_F(RequestMinMaxYearFixture, execute)
+TEST_F(RequestOperationalRangeFixture, handle)
 {
-    EXPECT_CALL(year_range_reader_mock, requestYearRange(_)).Times(1);
+    ON_CALL(year_range_reader_mock, operationalRange())
+        .WillByDefault(::testing::Return(
+            dw::DateRange{dw::current_date(), dw::current_date()}));
+    EXPECT_CALL(year_range_reader_mock, operationalRange()).Times(1);
 
-    queryInvoker.execute(std::make_unique<RequestMinMaxYear>(
-        year_range_reader_mock, [](const auto& result) {}));
+    handler.handle(OperationalRangeQuery{});
 }

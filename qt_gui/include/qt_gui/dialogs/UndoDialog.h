@@ -23,13 +23,13 @@
 #define UNDODIALOG_H_WPYAGORZ
 
 #include "qt_gui/dialogs/ConfirmationDialog.h"
-#include <core/CommandInvoker.h>
+#include <core/ActionInvoker.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 class UndoDialog : public ConfirmationDialog {
 public:
-    explicit UndoDialog(CommandInvoker& commandInvoker,
+    explicit UndoDialog(ActionInvoker& actionInvoker,
                         QWidget* parent = nullptr);
 
     int exec() override;
@@ -37,7 +37,7 @@ public:
     void accept() override;
 
 private:
-    CommandInvoker& commandInvoker;
+    ActionInvoker& actionInvoker;
 };
 
 } // namespace sprint_timer::ui::qt_gui

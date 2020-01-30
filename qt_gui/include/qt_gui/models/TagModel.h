@@ -25,18 +25,19 @@
 #include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/models/AsyncListModel.h"
 #include <QStringListModel>
-#include <core/CommandInvoker.h>
-#include <core/ITaskStorage.h>
-#include <core/QueryInvoker.h>
+#include <core/CommandHandler.h>
+#include <core/QueryHandler.h>
+#include <core/use_cases/rename_tag/RenameTagCommand.h>
+#include <core/use_cases/request_tags/AllTagsQuery.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 class TagModel : public AsyncListModel {
 
 public:
-    TagModel(ITaskStorage& taskStorage,
-             CommandInvoker& commandInvoker,
-             QueryInvoker& queryInvoker,
+    TagModel(CommandHandler<use_cases::RenameTagCommand>& renameTagHandler,
+             QueryHandler<use_cases::AllTagsQuery, std::vector<std::string>>&
+                 allTagsHandler,
              DatasyncRelay& datasyncRelay_,
              QObject* parent = nullptr);
 
@@ -54,9 +55,10 @@ public:
     void revert() final;
 
 private:
-    ITaskStorage& taskStorage;
-    CommandInvoker& commandInvoker;
-    QueryInvoker& queryInvoker;
+    CommandHandler<use_cases::RenameTagCommand>& renameTagHandler;
+    QueryHandler<use_cases::AllTagsQuery, std::vector<std::string>>&
+        allTagsHandler;
+    DatasyncRelay& datasyncRelay;
     using OldNewTagPair = std::pair<std::string, std::string>;
     std::vector<std::string> storage;
     std::vector<OldNewTagPair> buffer;

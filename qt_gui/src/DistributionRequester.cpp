@@ -24,16 +24,14 @@
 namespace sprint_timer::ui::qt_gui {
 
 DistributionRequester::DistributionRequester(
-    ISprintDistributionReader& reader_,
-    QueryInvoker& queryInvoker_,
-    const GroupByPeriodStrategy& groupByPeriodStrategy_,
     const BackRequestStrategy& backRequestStrategy_,
     DatasyncRelay& datasyncRelay_,
+    QueryHandler<use_cases::RequestSprintDistributionQuery, std::vector<int>>&
+        requestDistributionHandler_,
     QObject* parent)
-    : reader{reader_}
-    , queryInvoker{queryInvoker_}
-    , groupByPeriodStrategy{groupByPeriodStrategy_}
-    , backRequestStrategy{backRequestStrategy_}
+    : backRequestStrategy{backRequestStrategy_}
+    , datasyncRelay{datasyncRelay_}
+    , requestDistributionHandler{requestDistributionHandler_}
 {
     connect(&datasyncRelay_,
             &DatasyncRelay::dataUpdateRequiered,
@@ -48,14 +46,12 @@ const std::vector<int>& DistributionRequester::distribution() const
 
 void DistributionRequester::synchronize()
 {
-    using sprint_timer::use_cases::RequestSprintDistribution;
-    queryInvoker.execute(std::make_unique<RequestSprintDistribution>(
-        reader,
-        backRequestStrategy.dateRange(),
-        [this](const auto& distribution) {
-            data = distribution;
-            emit distributionChanged(data);
-        }));
+    const auto distribution = requestDistributionHandler.handle(
+        use_cases::RequestSprintDistributionQuery{
+            backRequestStrategy.dateRange()});
+    datasyncRelay.onSyncCompleted("DistributionRequester");
+    data = std::move(distribution);
+    emit distributionChanged(data);
 }
 
 } // namespace sprint_timer::ui::qt_gui

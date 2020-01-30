@@ -22,23 +22,22 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestUnfinishedTasks.h>
+#include <core/use_cases/request_tasks/UnfinishedTasksHandler.h>
+#include <core/use_cases/request_tasks/UnfinishedTasksQuery.h>
 
 using ::testing::_;
 
 class RequestUnfinishedTasksFixture : public ::testing::Test {
 public:
-    TaskStorageMock task_storage_mock;
-    sprint_timer::QueryInvoker queryInvoker;
+    mocks::TaskStorageMock task_storage_mock;
+    sprint_timer::use_cases::UnfinishedTasksHandler handler{task_storage_mock};
 };
 
 TEST_F(RequestUnfinishedTasksFixture, execute)
 {
     using namespace sprint_timer::use_cases;
     using namespace sprint_timer::entities;
-    EXPECT_CALL(task_storage_mock, requestUnfinishedTasks(_)).Times(1);
+    EXPECT_CALL(task_storage_mock, unfinishedTasks()).Times(1);
 
-    queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
-        task_storage_mock, [](const std::vector<Task>&) {}));
+    handler.handle(UnfinishedTasksQuery{});
 }

@@ -21,7 +21,7 @@
 *********************************************************************************/
 
 #include "TestCase.h"
-#include "qt_storage_impl/QtStorageImplementersFactory.h"
+#include "qt_storage/QtStorageImplementersFactory.h"
 
 
 TestCase::TestCase(QApplication* app, MainWindow* mainWindow)
