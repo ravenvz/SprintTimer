@@ -23,15 +23,14 @@
 #define STATISTICSWINDOW_H
 
 #include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/Synchronizable.h"
+#include "qt_gui/SprintTimerWidget.h"
 #include "qt_gui/WorkScheduleWrapper.h"
 #include "qt_gui/widgets/DailyTimelineGraph.h"
 #include "qt_gui/widgets/DateRangePicker.h"
 #include "qt_gui/widgets/StatisticsDiagramWidget.h"
-#include <QFrame>
-#include <core/SprintStorageReader.h>
 #include <core/QueryHandler.h>
 #include <core/SprintStatistics.h>
+#include <core/SprintStorageReader.h>
 #include <core/TagTop.h>
 #include <core/use_cases/request_sprints/RequestSprintsHandler.h>
 #include <memory>
@@ -39,15 +38,14 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-class StatisticsWindow : public QFrame, public Synchronizable {
+class StatisticsWindow : public SprintTimerWidget {
 
 public:
     StatisticsWindow(
         QueryHandler<use_cases::RequestSprintsQuery,
                      std::vector<entities::Sprint>>& requestSprintsHandler,
-        std::unique_ptr<DateRangePicker> dateRangePicker,
-        std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph,
-        std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget,
+        dw::Weekday firstDayOfWeek,
+        QAbstractItemModel& operationRangeModel,
         const WorkScheduleWrapper& workScheduleWrapper,
         DatasyncRelay& datasyncRelay,
         QWidget* parent = nullptr);
@@ -64,12 +62,13 @@ private:
     StatisticsDiagramWidget* statisticsDiagramWidget;
     const WorkScheduleWrapper& workScheduleWrapper;
     DatasyncRelay& datasyncRelay;
+    std::vector<QMetaObject::Connection> connections;
     std::vector<entities::Sprint> sprints;
     TagTop tagTop;
     const size_t numTopTags{7}; // TODO move to config
     std::optional<size_t> selectedTagIndex;
 
-    void synchronize() override;
+    void synchronize();
 
     void updateViews();
 

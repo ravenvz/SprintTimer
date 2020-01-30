@@ -34,10 +34,9 @@ class DailyTimelineGraph;
 
 namespace sprint_timer::ui::qt_gui {
 
-
 class DailyTimelineGraph : public QFrame {
 public:
-    explicit DailyTimelineGraph(QWidget* parent);
+    explicit DailyTimelineGraph(QWidget* parent = nullptr);
 
     ~DailyTimelineGraph();
 
@@ -56,6 +55,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // DAILYTIMELINEGRAPH_H

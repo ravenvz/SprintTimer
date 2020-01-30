@@ -36,7 +36,7 @@ void showOrBringToForeground(QWidget& widget)
 namespace sprint_timer::ui::qt_gui {
 
 LauncherMenu::LauncherMenu(SprintTimerWidget& progressWindow,
-                           QWidget& statisticsWindow,
+                           SprintTimerWidget& statisticsWindow,
                            QWidget& historyWindow,
                            QDialog& settingsDialog,
                            QWidget* parent)
@@ -52,7 +52,7 @@ LauncherMenu::LauncherMenu(SprintTimerWidget& progressWindow,
         showOrBringToForeground(progressWindow);
     });
     connect(ui->pbStatistics, &QPushButton::clicked, [&statisticsWindow]() {
-        showOrBringToForeground(statisticsWindow);
+        statisticsWindow.intercept();
     });
     connect(ui->pbSettings, &QPushButton::clicked, [&settingsDialog]() {
         settingsDialog.exec();

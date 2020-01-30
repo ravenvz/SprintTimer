@@ -42,13 +42,11 @@
 #error "Unknown compiler"
 #endif
 
-#include <QApplication>
-#include <QStyleFactory>
-#include <qt_gui/QtConfig.h>
-#include <qt_gui/widgets/MainWindow.h>
-#include <qt_storage/QtStorageImplementersFactory.h>
+#include "StatisticsWindowProxy.h"
 
+#include <QApplication>
 #include <QObject>
+#include <QStyleFactory>
 #include <core/GroupByDay.h>
 #include <core/GroupByMonth.h>
 #include <core/GroupByWeek.h>
@@ -58,6 +56,7 @@
 #include <filesystem>
 #include <qt_gui/DatasyncRelay.h>
 #include <qt_gui/DistributionRequester.h>
+#include <qt_gui/QtConfig.h>
 #include <qt_gui/RequestForDaysBack.h>
 #include <qt_gui/RequestForMonthsBack.h>
 #include <qt_gui/RequestForWeeksBack.h>
@@ -68,7 +67,6 @@
 #include <qt_gui/dialogs/AddExceptionalDayDialog.h>
 #include <qt_gui/dialogs/AddSprintDialog.h>
 #include <qt_gui/dialogs/AddTaskDialog.h>
-#include <qt_gui/dialogs/DateRangePickDialog.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
 #include <qt_gui/dialogs/UndoDialog.h>
 #include <qt_gui/dialogs/WorkdaysDialog.h>
@@ -89,6 +87,7 @@
 #include <qt_gui/widgets/FancyTimer.h>
 #include <qt_gui/widgets/HistoryWindow.h>
 #include <qt_gui/widgets/LauncherMenu.h>
+#include <qt_gui/widgets/MainWindow.h>
 #include <qt_gui/widgets/ProgressMonitorWidget.h>
 #include <qt_gui/widgets/ProgressView.h>
 #include <qt_gui/widgets/SprintOutline.h>
@@ -101,6 +100,7 @@
 #include <qt_gui/widgets/TaskView.h>
 #include <qt_gui/widgets/TodayProgressIndicator.h>
 #include <qt_gui/widgets/UndoButton.h>
+#include <qt_storage/QtStorageImplementersFactory.h>
 
 #include "VerboseCommandHandler.h"
 #include "VerboseQueryHandler.h"
@@ -452,20 +452,10 @@ int main(int argc, char* argv[])
 
     OperationRangeModel operationRangeModel{*operationalRangeHandler,
                                             datasyncRelay};
-    auto statisticsWindowDateRangePicker = std::make_unique<DateRangePicker>(
-        std::make_unique<DateRangePickDialog>(applicationSettings),
-        operationRangeModel);
-    auto dailyTimelineGraph = std::make_unique<DailyTimelineGraph>(nullptr);
-    auto statisticsDiagramWidget = std::make_unique<StatisticsDiagramWidget>(
-        std::make_unique<BestWorkdayWidget>(nullptr),
-        std::make_unique<DistributionDiagram>(nullptr),
-        std::make_unique<BestWorktimeWidget>(nullptr),
-        nullptr);
-    StatisticsWindow statisticsWindow{
+    sprint_timer::compose::StatisticsWindowProxy statisticsWindow{
         *requestSprintsHandler,
-        std::move(statisticsWindowDateRangePicker),
-        std::move(dailyTimelineGraph),
-        std::move(statisticsDiagramWidget),
+        applicationSettings,
+        operationRangeModel,
         workScheduleWrapper,
         datasyncRelay};
 
@@ -542,8 +532,7 @@ int main(int argc, char* argv[])
                                          std::move(monthlyProgress)};
 
     auto historyWindowDateRangePicker = std::make_unique<DateRangePicker>(
-        std::make_unique<DateRangePickDialog>(applicationSettings),
-        operationRangeModel);
+        operationRangeModel, applicationSettings.firstDayOfWeek());
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
     HistoryWindow historyWindow{*requestSprintsHandler,

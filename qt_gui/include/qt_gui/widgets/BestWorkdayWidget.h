@@ -33,11 +33,10 @@ class BestWorkdayWidget;
 
 namespace sprint_timer::ui::qt_gui {
 
-
 class BestWorkdayWidget : public QWidget {
 
 public:
-    explicit BestWorkdayWidget(QWidget* parent);
+    explicit BestWorkdayWidget(QWidget* parent = nullptr);
 
     virtual ~BestWorkdayWidget();
 
@@ -57,6 +56,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // BESTWORKDAYWIDGET_H

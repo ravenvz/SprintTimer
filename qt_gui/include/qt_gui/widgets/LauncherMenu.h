@@ -37,7 +37,7 @@ class LauncherMenu : public QWidget {
 
 public:
     LauncherMenu(SprintTimerWidget& progressWindow,
-                 QWidget& statisticsWindow,
+                 SprintTimerWidget& statisticsWindow,
                  QWidget& historyWindow,
                  QDialog& settingsDialog,
                  QWidget* parent = nullptr);

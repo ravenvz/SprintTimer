@@ -52,7 +52,7 @@ class DistributionDiagram : public QWidget {
     Q_OBJECT
 
 public:
-    explicit DistributionDiagram(QWidget* parent);
+    explicit DistributionDiagram(QWidget* parent = nullptr);
     ~DistributionDiagram();
 
     /* Set tag frequencies to be displayed as pie chart. */
@@ -82,7 +82,6 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // DISTRIBUTIONDIAGRAM_H
 

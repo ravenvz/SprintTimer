@@ -31,44 +31,59 @@ using namespace entities;
 StatisticsWindow::StatisticsWindow(
     QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
         requestSprintsHandler_,
-    std::unique_ptr<DateRangePicker> dateRangePicker_,
-    std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph_,
-    std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget_,
+    dw::Weekday firstDayOfWeek,
+    QAbstractItemModel& operationRangeModel_,
     const WorkScheduleWrapper& workScheduleWrapper_,
     DatasyncRelay& datasyncRelay_,
     QWidget* parent_)
-    : QFrame{parent_}
+    : SprintTimerWidget{parent_}
     , requestSprintsHandler{requestSprintsHandler_}
-    , dateRangePicker{dateRangePicker_.get()}
-    , dailyTimelineGraph{dailyTimelineGraph_.get()}
-    , statisticsDiagramWidget{statisticsDiagramWidget_.get()}
     , workScheduleWrapper{workScheduleWrapper_}
     , datasyncRelay{datasyncRelay_}
 {
     auto layout = std::make_unique<QVBoxLayout>(nullptr);
+
+    auto dateRangePicker_ =
+        std::make_unique<DateRangePicker>(operationRangeModel_, firstDayOfWeek);
+    dateRangePicker = dateRangePicker_.get();
+
+    auto statisticsDiagramWidget_ = std::make_unique<StatisticsDiagramWidget>();
+    statisticsDiagramWidget = statisticsDiagramWidget_.get();
+
+    auto dailyTimelineGraph_ = std::make_unique<DailyTimelineGraph>();
+    dailyTimelineGraph = dailyTimelineGraph_.get();
+
     layout->addWidget(dateRangePicker_.release(), 1);
     layout->addWidget(dailyTimelineGraph_.release(), 3);
     layout->addWidget(statisticsDiagramWidget_.release(), 4);
     setLayout(layout.release());
 
-    connect(&datasyncRelay_,
-            &DatasyncRelay::dataUpdateRequiered,
-            this,
-            &StatisticsWindow::synchronize);
-    connect(statisticsDiagramWidget,
-            &StatisticsDiagramWidget::tagSelectionChanged,
-            this,
-            &StatisticsWindow::onTagSelected);
-    connect(&workScheduleWrapper,
-            &WorkScheduleWrapper::workScheduleChanged,
-            [this](const WorkSchedule&) { updateViews(); });
-    connect(dateRangePicker,
-            &DateRangePicker::selectedDateRangeChanged,
-            this,
-            &StatisticsWindow::synchronize);
+    connections.push_back(connect(&datasyncRelay_,
+                                  &DatasyncRelay::dataUpdateRequiered,
+                                  this,
+                                  &StatisticsWindow::synchronize));
+    connections.push_back(connect(statisticsDiagramWidget,
+                                  &StatisticsDiagramWidget::tagSelectionChanged,
+                                  this,
+                                  &StatisticsWindow::onTagSelected));
+    connections.push_back(
+        connect(&workScheduleWrapper,
+                &WorkScheduleWrapper::workScheduleChanged,
+                [this](const WorkSchedule&) { updateViews(); }));
+    connections.push_back(connect(dateRangePicker,
+                                  &DateRangePicker::selectedDateRangeChanged,
+                                  this,
+                                  &StatisticsWindow::synchronize));
+
+    synchronize();
 }
 
-StatisticsWindow::~StatisticsWindow() = default;
+StatisticsWindow::~StatisticsWindow()
+{
+    std::for_each(connections.begin(), connections.end(), [](auto& connection) {
+        disconnect(connection);
+    });
+}
 
 QSize StatisticsWindow::sizeHint() const { return QSize{1100, 730}; }
 

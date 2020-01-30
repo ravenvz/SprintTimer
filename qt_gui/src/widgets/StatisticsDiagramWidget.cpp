@@ -24,18 +24,19 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-StatisticsDiagramWidget::StatisticsDiagramWidget(
-    std::unique_ptr<BestWorkdayWidget> bestWorkdayWidget_,
-    std::unique_ptr<DistributionDiagram> tagDiagram_,
-    std::unique_ptr<BestWorktimeWidget> bestWorktimeWidget_,
-    QFrame* parent)
+StatisticsDiagramWidget::StatisticsDiagramWidget(QFrame* parent)
     : QFrame{parent}
-    , bestWorkdayWidget{bestWorkdayWidget_.get()}
-    , tagDiagram{tagDiagram_.get()}
-    , bestWorktimeWidget{bestWorktimeWidget_.get()}
 {
     setFrameShape(StyledPanel);
     setFrameShadow(Raised);
+
+    auto bestWorkdayWidget_ = std::make_unique<BestWorkdayWidget>();
+    auto tagDiagram_ = std::make_unique<DistributionDiagram>();
+    auto bestWorktimeWidget_ = std::make_unique<BestWorktimeWidget>();
+
+    bestWorkdayWidget = bestWorkdayWidget_.get();
+    tagDiagram = tagDiagram_.get();
+    bestWorktimeWidget = bestWorktimeWidget_.get();
 
     connect(tagDiagram,
             &DistributionDiagram::chartSelectionChanged,

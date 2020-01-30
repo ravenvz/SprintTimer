@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/DateRangePicker.h"
+#include "qt_gui/dialogs/DateRangePickDialog.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_date_range_picker.h"
 #include <QtCore/qdatetime.h>
@@ -38,13 +39,12 @@ QStringList monthNames();
 
 namespace sprint_timer::ui::qt_gui {
 
-DateRangePicker::DateRangePicker(
-    std::unique_ptr<DateRangePickDialog> dateRangePickDialog_,
-    QAbstractItemModel& yearsModel_,
-    QWidget* parent_)
+DateRangePicker::DateRangePicker(QAbstractItemModel& yearsModel_,
+                                 dw::Weekday firstDayOfWeek_,
+                                 QWidget* parent_)
     : QWidget{parent_}
     , ui{std::make_unique<Ui::DateRangePicker>()}
-    , dateRangePickDialog{std::move(dateRangePickDialog_)}
+    , firstDayOfWeek{firstDayOfWeek_}
     , selectedDateRange{currentMonth()}
     , monthsModel{monthNames()}
 {
@@ -74,17 +74,16 @@ DateRangePicker::DateRangePicker(
             &QAbstractItemModel::modelReset,
             this,
             &DateRangePicker::preselectCurrentYearMonth);
-    connect(dateRangePickDialog.get(), &QDialog::accepted, [this]() {
-        onRangeChanged(dateRangePickDialog->selectedRange());
-    });
 }
 
 DateRangePicker::~DateRangePicker() = default;
 
 void DateRangePicker::openDatePickDialog()
 {
-    dateRangePickDialog->setSelectionRange(selectedDateRange);
-    dateRangePickDialog->show();
+    DateRangePickDialog dialog{firstDayOfWeek};
+    dialog.setSelectionRange(selectedDateRange);
+    if (dialog.exec())
+        onRangeChanged(dialog.selectedRange());
 }
 
 void DateRangePicker::updateSelectionHintLabel()

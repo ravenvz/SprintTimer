@@ -22,7 +22,6 @@
 #ifndef PICKPERIODWIDGET_H
 #define PICKPERIODWIDGET_H
 
-#include "qt_gui/dialogs/DateRangePickDialog.h"
 #include <QStringListModel>
 #include <QWidget>
 #include <core/IConfig.h>
@@ -47,8 +46,8 @@ class DateRangePicker : public QWidget {
     Q_OBJECT
 
 public:
-    DateRangePicker(std::unique_ptr<DateRangePickDialog> dateRangePickDialog,
-                    QAbstractItemModel& yearsModel,
+    DateRangePicker(QAbstractItemModel& yearsModel,
+                    dw::Weekday firstDayOfWeek,
                     QWidget* parent = nullptr);
 
     ~DateRangePicker() override;
@@ -60,7 +59,7 @@ signals:
 
 private:
     std::unique_ptr<Ui::DateRangePicker> ui;
-    std::unique_ptr<DateRangePickDialog> dateRangePickDialog;
+    dw::Weekday firstDayOfWeek;
     dw::DateRange selectedDateRange;
     QStringListModel monthsModel;
 
