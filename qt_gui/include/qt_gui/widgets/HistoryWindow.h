@@ -23,13 +23,12 @@
 #define HISTORY_VIEW_H
 
 #include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/Synchronizable.h"
+#include "qt_gui/SprintTimerWidget.h"
 #include "qt_gui/dialogs/ExportDialog.h"
 #include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/widgets/DateRangePicker.h"
 #include <QStyledItemDelegate>
 #include <QTreeView>
-#include <QWidget>
 #include <core/IConfig.h>
 #include <core/QueryHandler.h>
 #include <core/use_cases/request_sprints/RequestSprintsQuery.h>
@@ -43,7 +42,7 @@ class HistoryWindow;
 
 namespace sprint_timer::ui::qt_gui {
 
-class HistoryWindow : public QWidget, public Synchronizable {
+class HistoryWindow : public SprintTimerWidget {
     Q_OBJECT
 
 public:
@@ -54,13 +53,14 @@ public:
                      std::vector<entities::Task>>& finishedTasksHandler,
         HistoryModel& historyModel,
         QStyledItemDelegate& historyItemDelegate,
-        std::unique_ptr<DateRangePicker> dateRangePicker,
         DatasyncRelay& datasyncRelay,
+        QAbstractItemModel& operationRangeModel,
+        dw::Weekday firstDayOfWeek,
         QWidget* parent = nullptr);
 
     ~HistoryWindow();
 
-    void synchronize() final;
+    void synchronize();
 
 private:
     struct ShowingSprints {
@@ -125,6 +125,7 @@ private:
     DateRangePicker* dateRangePicker;
     DatasyncRelay& datasyncRelay;
     State state;
+    std::vector<QMetaObject::Connection> connections;
 
     /* Assumes that history items are ordered by date ascendantly. */
     void fillHistoryModel(const HistoryModel::HistoryData& history);

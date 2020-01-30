@@ -59,18 +59,21 @@ HistoryWindow::HistoryWindow(
         finishedTasksHandler_,
     HistoryModel& historyModel_,
     QStyledItemDelegate& historyItemDelegate_,
-    std::unique_ptr<DateRangePicker> dateRangePicker_,
     DatasyncRelay& datasyncRelay_,
+    QAbstractItemModel& operationRangeModel_,
+    dw::Weekday firstDayOfWeek_,
     QWidget* parent_)
-    : QWidget{parent_}
+    : SprintTimerWidget{parent_}
     , ui{std::make_unique<Ui::HistoryWindow>()}
     , requestSprintsHandler{requestSprintsHandler_}
     , finishedTasksHandler{finishedTasksHandler_}
     , historyModel{historyModel_}
-    , dateRangePicker{dateRangePicker_.get()}
     , datasyncRelay{datasyncRelay_}
 {
     ui->setupUi(this);
+    auto dateRangePicker_ = std::make_unique<DateRangePicker>(
+        operationRangeModel_, firstDayOfWeek_);
+    dateRangePicker = dateRangePicker_.get();
     dateRangePicker_->setMinimumSize(QSize{400, 80});
     ui->horizontalLayout->insertWidget(0, dateRangePicker_.release(), 4);
     ui->taskHistoryView->setHeaderHidden(true);
@@ -80,24 +83,32 @@ HistoryWindow::HistoryWindow(
 
     state = ShowingSprints{*this};
 
-    connect(ui->historyTab,
-            &QTabWidget::currentChanged,
-            this,
-            &HistoryWindow::onTabSelected);
-    connect(dateRangePicker,
-            &DateRangePicker::selectedDateRangeChanged,
-            [this](const dw::DateRange&) { synchronize(); });
-    connect(ui->exportButton,
-            &QPushButton::clicked,
-            this,
-            &HistoryWindow::onExportButtonClicked);
-    connect(&datasyncRelay_,
-            &DatasyncRelay::dataUpdateRequiered,
-            this,
-            &HistoryWindow::synchronize);
+    connections.push_back(connect(ui->historyTab,
+                                  &QTabWidget::currentChanged,
+                                  this,
+                                  &HistoryWindow::onTabSelected));
+    connections.push_back(
+        connect(dateRangePicker,
+                &DateRangePicker::selectedDateRangeChanged,
+                [this](const dw::DateRange&) { synchronize(); }));
+    connections.push_back(connect(ui->exportButton,
+                                  &QPushButton::clicked,
+                                  this,
+                                  &HistoryWindow::onExportButtonClicked));
+    connections.push_back(connect(&datasyncRelay_,
+                                  &DatasyncRelay::dataUpdateRequiered,
+                                  this,
+                                  &HistoryWindow::synchronize));
+
+    synchronize();
 }
 
-HistoryWindow::~HistoryWindow() = default;
+HistoryWindow::~HistoryWindow()
+{
+    std::for_each(begin(connections), end(connections), [](auto& connection) {
+        disconnect(connection);
+    });
+}
 
 void HistoryWindow::synchronize()
 {

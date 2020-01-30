@@ -42,10 +42,10 @@
 #error "Unknown compiler"
 #endif
 
+#include "HistoryWindowProxy.h"
 #include "StatisticsWindowProxy.h"
 
 #include <QApplication>
-#include <QObject>
 #include <QStyleFactory>
 #include <core/GroupByDay.h>
 #include <core/GroupByMonth.h>
@@ -54,7 +54,6 @@
 #include <core/ObservableActionInvoker.h>
 #include <core/TaskStorageReader.h>
 #include <filesystem>
-#include <qt_gui/DatasyncRelay.h>
 #include <qt_gui/DistributionRequester.h>
 #include <qt_gui/QtConfig.h>
 #include <qt_gui/RequestForDaysBack.h>
@@ -85,14 +84,12 @@
 #include <qt_gui/widgets/DefaultTimer.h>
 #include <qt_gui/widgets/DialogLaunchButton.h>
 #include <qt_gui/widgets/FancyTimer.h>
-#include <qt_gui/widgets/HistoryWindow.h>
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/MainWindow.h>
 #include <qt_gui/widgets/ProgressMonitorWidget.h>
 #include <qt_gui/widgets/ProgressView.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/StatisticsDiagramWidget.h>
-#include <qt_gui/widgets/StatisticsWindow.h>
 #include <qt_gui/widgets/SubmissionBox.h>
 #include <qt_gui/widgets/TagEditor.h>
 #include <qt_gui/widgets/TaskOutline.h>
@@ -531,16 +528,15 @@ int main(int argc, char* argv[])
                                          std::move(weeklyProgress),
                                          std::move(monthlyProgress)};
 
-    auto historyWindowDateRangePicker = std::make_unique<DateRangePicker>(
-        operationRangeModel, applicationSettings.firstDayOfWeek());
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
-    HistoryWindow historyWindow{*requestSprintsHandler,
-                                *finishedTasksHandler,
-                                historyModel,
-                                historyItemDelegate,
-                                std::move(historyWindowDateRangePicker),
-                                datasyncRelay};
+    compose::HistoryWindowProxy historyWindow{*requestSprintsHandler,
+                                              *finishedTasksHandler,
+                                              historyModel,
+                                              historyItemDelegate,
+                                              datasyncRelay,
+                                              operationRangeModel,
+                                              applicationSettings};
 
     SettingsDialog settingsDialog{applicationSettings};
     auto launcherMenu = std::make_unique<LauncherMenu>(
