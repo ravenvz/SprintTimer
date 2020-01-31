@@ -23,10 +23,10 @@
 #define STATISTICSWINDOW_H
 
 #include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/SprintTimerWidget.h"
 #include "qt_gui/WorkScheduleWrapper.h"
 #include "qt_gui/widgets/DailyTimelineGraph.h"
 #include "qt_gui/widgets/DateRangePicker.h"
+#include "qt_gui/widgets/DisplayableWidget.h"
 #include "qt_gui/widgets/StatisticsDiagramWidget.h"
 #include <core/QueryHandler.h>
 #include <core/SprintStatistics.h>
@@ -38,7 +38,7 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-class StatisticsWindow : public SprintTimerWidget {
+class StatisticsWindow : public DisplayableWidget {
 
 public:
     StatisticsWindow(

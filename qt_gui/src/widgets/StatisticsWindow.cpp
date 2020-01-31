@@ -36,7 +36,7 @@ StatisticsWindow::StatisticsWindow(
     const WorkScheduleWrapper& workScheduleWrapper_,
     DatasyncRelay& datasyncRelay_,
     QWidget* parent_)
-    : SprintTimerWidget{parent_}
+    : DisplayableWidget{parent_}
     , requestSprintsHandler{requestSprintsHandler_}
     , workScheduleWrapper{workScheduleWrapper_}
     , datasyncRelay{datasyncRelay_}

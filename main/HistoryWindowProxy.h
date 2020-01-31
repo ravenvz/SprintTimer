@@ -22,6 +22,7 @@
 #ifndef HISTORYWINDOWPROXY_H_UIWGGP91
 #define HISTORYWINDOWPROXY_H_UIWGGP91
 
+#include "ManagedDisplayable.h"
 #include <QStyledItemDelegate>
 #include <core/IConfig.h>
 #include <core/QueryHandler.h>
@@ -35,7 +36,7 @@
 
 namespace sprint_timer::compose {
 
-class HistoryWindowProxy : public ui::qt_gui::SprintTimerWidget {
+class HistoryWindowProxy : public ManagedDisplayable {
 public:
     HistoryWindowProxy(
         QueryHandler<use_cases::RequestSprintsQuery,
@@ -57,25 +58,6 @@ public:
     {
     }
 
-    void intercept() override
-    {
-        if (historyWindow && historyWindow->isVisible()) {
-            ui::qt_gui::WidgetUtils::bringToForeground(historyWindow);
-            return;
-        }
-        auto historyWindow_ = std::make_unique<ui::qt_gui::HistoryWindow>(
-            requestSprintsHandler,
-            finishedTasksHandler,
-            historyModel,
-            historyItemDelegate,
-            datasyncRelay,
-            operationRangeModel,
-            applicationSettings.firstDayOfWeek());
-        historyWindow_->setAttribute(Qt::WA_DeleteOnClose);
-        historyWindow = historyWindow_.release();
-        historyWindow->show();
-    }
-
 private:
     QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
         requestSprintsHandler;
@@ -86,7 +68,18 @@ private:
     ui::qt_gui::DatasyncRelay& datasyncRelay;
     QAbstractItemModel& operationRangeModel;
     const IConfig& applicationSettings;
-    QWidget* historyWindow{nullptr};
+
+    std::unique_ptr<Displayable> create() override
+    {
+        return std::make_unique<ui::qt_gui::HistoryWindow>(
+            requestSprintsHandler,
+            finishedTasksHandler,
+            historyModel,
+            historyItemDelegate,
+            datasyncRelay,
+            operationRangeModel,
+            applicationSettings.firstDayOfWeek());
+    }
 };
 
 } // namespace sprint_timer::compose

@@ -39,6 +39,7 @@ target_sources(${GUI_LIB}
     PUBLIC
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/BackRequestStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/DatasyncRelay.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/Displayable.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/DistributionRequester.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/IndexChangedReemitter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtConfig.h"
@@ -85,6 +86,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DateRangePicker.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DefaultTimer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DialogLaunchButton.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DisplayableWidget.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DistributionDiagram.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/FancyTimer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/Gauge.h"
@@ -154,6 +156,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DateRangePicker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DefaultTimer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DialogLaunchButton.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DisplayableWidget.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DistributionDiagram.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/FancyTimer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/Gauge.cpp"

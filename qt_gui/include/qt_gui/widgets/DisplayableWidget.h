@@ -19,31 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINT_TIMER_SPRINTOUTLINE_H
-#define SPRINT_TIMER_SPRINTOUTLINE_H
+#ifndef DISPLAYABLEWIDGET_H_IPTOSZW1
+#define DISPLAYABLEWIDGET_H_IPTOSZW1
 
-#include <QDialog>
-#include <QListView>
-#include <QPushButton>
-#include <memory>
+#include "qt_gui/Displayable.h"
+#include <QWidget>
 
 namespace sprint_timer::ui::qt_gui {
 
-class SprintOutline : public QWidget {
-
-    Q_OBJECT
-
+class DisplayableWidget : public QWidget, public Displayable {
 public:
-    SprintOutline(QDialog& addSprintDialog,
-                  QDialog& undoDialog,
-                  std::unique_ptr<QPushButton> undoButton,
-                  std::unique_ptr<QPushButton> addNewSprintButton,
-                  std::unique_ptr<QListView> sprintView,
-                  QWidget* parent = nullptr);
+    explicit DisplayableWidget(QWidget* parent = nullptr);
 
-    ~SprintOutline() override;
+    void display() override;
+
+    bool isActive() const override;
+
+    void bringToTop() override;
+
+    void close() override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif // SPRINT_TIMER_SPRINTOUTLINE_H
+#endif /* end of include guard: DISPLAYABLEWIDGET_H_IPTOSZW1 */

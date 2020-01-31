@@ -23,10 +23,10 @@
 #define HISTORY_VIEW_H
 
 #include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/SprintTimerWidget.h"
 #include "qt_gui/dialogs/ExportDialog.h"
 #include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/widgets/DateRangePicker.h"
+#include "qt_gui/widgets/DisplayableWidget.h"
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <core/IConfig.h>
@@ -42,11 +42,10 @@ class HistoryWindow;
 
 namespace sprint_timer::ui::qt_gui {
 
-class HistoryWindow : public SprintTimerWidget {
-    Q_OBJECT
+class HistoryWindow : public DisplayableWidget {
 
 public:
-    explicit HistoryWindow(
+    HistoryWindow(
         QueryHandler<use_cases::RequestSprintsQuery,
                      std::vector<entities::Sprint>>& requestSprintsHandler,
         QueryHandler<use_cases::FinishedTasksQuery,

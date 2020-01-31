@@ -35,7 +35,7 @@ SprintOutline::SprintOutline(QDialog& addSprintDialog,
     auto layout = std::make_unique<QVBoxLayout>(this);
 
     connect(undoButton.get(), &QPushButton::clicked, [&undoDialog]() {
-        undoDialog.exec();
+        undoDialog.open();
     });
     layout->addWidget(undoButton.release());
 
@@ -43,7 +43,7 @@ SprintOutline::SprintOutline(QDialog& addSprintDialog,
 
     connect(addNewSprintButton.get(),
             &QPushButton::clicked,
-            [&addSprintDialog]() { addSprintDialog.exec(); });
+            [&addSprintDialog]() { addSprintDialog.open(); });
     layout->addWidget(addNewSprintButton.release());
 
     setLayout(layout.release());

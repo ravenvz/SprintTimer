@@ -22,19 +22,19 @@
 #ifndef STATISTICSWINDOWPROXY_H_VYTYRJFC
 #define STATISTICSWINDOWPROXY_H_VYTYRJFC
 
+#include "ManagedDisplayable.h"
 #include <QAbstractItemModel>
 #include <core/IConfig.h>
 #include <core/QueryHandler.h>
 #include <core/use_cases/request_sprints/RequestSprintsQuery.h>
 #include <qt_gui/DatasyncRelay.h>
-#include <qt_gui/SprintTimerWidget.h>
 #include <qt_gui/WorkScheduleWrapper.h>
 #include <qt_gui/utils/WidgetUtils.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
 
 namespace sprint_timer::compose {
 
-class StatisticsWindowProxy : public ui::qt_gui::SprintTimerWidget {
+class StatisticsWindowProxy : public ManagedDisplayable {
 public:
     StatisticsWindowProxy(
         QueryHandler<use_cases::RequestSprintsQuery,
@@ -51,23 +51,6 @@ public:
     {
     }
 
-    void intercept() override
-    {
-        if (window != nullptr && window->isVisible()) {
-            ui::qt_gui::WidgetUtils::bringToForeground(window);
-            return;
-        }
-        auto window_ = std::make_unique<ui::qt_gui::StatisticsWindow>(
-            requestSprintsHandler,
-            settings.firstDayOfWeek(),
-            operationRangeModel,
-            workScheduleWrapper,
-            datasyncRelay);
-        window_->setAttribute(Qt::WA_DeleteOnClose);
-        window = window_.release();
-        window->show();
-    }
-
 private:
     QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
         requestSprintsHandler;
@@ -75,7 +58,16 @@ private:
     QAbstractItemModel& operationRangeModel;
     const ui::qt_gui::WorkScheduleWrapper& workScheduleWrapper;
     ui::qt_gui::DatasyncRelay& datasyncRelay;
-    QWidget* window{nullptr};
+
+    std::unique_ptr<Displayable> create() override
+    {
+        return std::make_unique<ui::qt_gui::StatisticsWindow>(
+            requestSprintsHandler,
+            settings.firstDayOfWeek(),
+            operationRangeModel,
+            workScheduleWrapper,
+            datasyncRelay);
+    }
 };
 
 } // namespace sprint_timer::compose
