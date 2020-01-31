@@ -19,21 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef GROUPBYDAY_H_6EWBVYZU
-#define GROUPBYDAY_H_6EWBVYZU
+#ifndef GROUPBYPERIODSTRATEGY_H_2JRBSIB5
+#define GROUPBYPERIODSTRATEGY_H_2JRBSIB5
 
-#include "core/GroupByPeriodStrategy.h"
+#include "core/GoalProgress.h"
+#include "core/WorkSchedule.h"
+#include <date_wrapper/date_wrapper.h>
+#include <vector>
 
 namespace sprint_timer {
 
-class GroupByDay : public GroupByPeriodStrategy {
+class ProgressComputeStrategy {
 public:
-    std::vector<GoalProgress>
+    virtual ~ProgressComputeStrategy() = default;
+
+    virtual std::vector<GoalProgress>
     computeProgress(const dw::DateRange& dateRange,
                     const std::vector<int>& actualProgress,
-                    const WorkSchedule& workSchedule) const override;
+                    const WorkSchedule& workSchedule) const = 0;
 };
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: GROUPBYDAY_H_6EWBVYZU */
+#endif /* end of include guard: GROUPBYPERIODSTRATEGY_H_2JRBSIB5 */

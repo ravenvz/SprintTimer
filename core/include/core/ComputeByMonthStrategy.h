@@ -19,27 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef GROUPBYWEEK_H_UY9VBON4
-#define GROUPBYWEEK_H_UY9VBON4
+#ifndef COMPUTEBYMONTHSTRATEGY_H_N9K3SQPF
+#define COMPUTEBYMONTHSTRATEGY_H_N9K3SQPF
 
-#include "core/GroupByPeriodStrategy.h"
-#include "core/IConfig.h"
+#include "core/ProgressComputeStrategy.h"
 
 namespace sprint_timer {
 
-class GroupByWeek : public GroupByPeriodStrategy {
+class ComputeByMonthStrategy : public ProgressComputeStrategy {
 public:
-    explicit GroupByWeek(dw::Weekday firstDayOfWeek);
-
     std::vector<GoalProgress>
     computeProgress(const dw::DateRange& dateRange,
                     const std::vector<int>& actualProgress,
                     const WorkSchedule& workSchedule) const override;
-
-private:
-    dw::Weekday firstDayOfWeek;
 };
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: GROUPBYWEEK_H_UY9VBON4 */
+#endif /* end of include guard: COMPUTEBYMONTHSTRATEGY_H_N9K3SQPF */

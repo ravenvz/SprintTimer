@@ -28,7 +28,7 @@
 #include <QtWidgets/QFrame>
 #include <core/Distribution.h>
 #include <core/GoalProgress.h>
-#include <core/GroupByPeriodStrategy.h>
+#include <core/ProgressComputeStrategy.h>
 #include <core/ProgressOverPeriod.h>
 #include <core/WorkSchedule.h>
 #include <memory>
@@ -58,7 +58,7 @@ public:
 
     ProgressView(const DistributionRequester& distributionRequester,
                  const WorkScheduleWrapper& workScheduleWrapper,
-                 const GroupByPeriodStrategy& groupingStrategy,
+                 const ProgressComputeStrategy& groupingStrategy,
                  const BackRequestStrategy& backRequestStrategy,
                  Rows numRows,
                  Columns numColumns,

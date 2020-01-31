@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #include "mocks/ConfigMock.h"
 #include "gtest/gtest.h"
 #include <core/Workflow.h>
@@ -27,90 +26,6 @@
 using namespace sprint_timer;
 
 namespace {
-
-// #<{(| Fixed configuration for testing purposes. |)}>#
-// class TestConfig : public IConfig {
-//
-// public:
-//     int soundVolume() const override { return mSoundVolume; }
-//
-//     void setSoundVolume(int soundVolume) override
-//     {
-//         TestConfig::mSoundVolume = soundVolume;
-//     }
-//
-//     std::chrono::minutes sprintDuration() const override
-//     {
-//         return mSprintDuration;
-//     }
-//
-//     void setSprintDuration(std::chrono::minutes minutes) override
-//     {
-//         TestConfig::mSprintDuration = minutes;
-//     }
-//
-//     std::chrono::minutes shortBreakDuration() const override
-//     {
-//         return mShortBreakDuration;
-//     }
-//
-//     void setShortBreakDuration(std::chrono::minutes duration) override
-//     {
-//         TestConfig::mShortBreakDuration = duration;
-//     }
-//
-//     std::chrono::minutes longBreakDuration() const override
-//     {
-//         return mLongBreakDuration;
-//     }
-//
-//     void setLongBreakDuration(std::chrono::minutes duration) override
-//     {
-//         TestConfig::mLongBreakDuration = duration;
-//     }
-//
-//     int numSprintsBeforeBreak() const override { return mTasksBeforeBreak; }
-//
-//     void setNumSprintsBeforeBreak(int tasksBeforeBreak) override
-//     {
-//         TestConfig::mTasksBeforeBreak = tasksBeforeBreak;
-//     }
-//
-//     bool soundIsEnabled() const override { return mPlaySound; }
-//
-//     void setPlaySound(bool playSound) override
-//     {
-//         TestConfig::mPlaySound = playSound;
-//     }
-//
-//     std::string soundFilePath() const override { return ""; }
-//
-//     void setSoundFilePath(const std::string& filePath) override {}
-//
-//     int timerFlavour() const override { return 0; }
-//
-//     void setTimerFlavour(int timerVariation) override {}
-//
-//     utils::WeekdaySelection workdays() const override
-//     {
-//         return utils::WeekdaySelection{0};
-//     }
-//
-//     void setWorkdays(const utils::WeekdaySelection& workdays) override {}
-//
-//     dw::Weekday firstDayOfWeek() const override { return dw::Weekday::Monday;
-//     }
-//
-//     void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) override {}
-//
-// private:
-//     std::chrono::minutes mSprintDuration{30};
-//     std::chrono::minutes mShortBreakDuration{10};
-//     std::chrono::minutes mLongBreakDuration{20};
-//     int mTasksBeforeBreak{4};
-//     bool mPlaySound{false};
-//     int mSoundVolume{0};
-// };
 
 /* Extends Workflow to provide public method to set state, along with
  * method to transition to next state. That allows to test state transitions

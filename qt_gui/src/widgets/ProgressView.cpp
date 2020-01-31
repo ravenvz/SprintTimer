@@ -47,7 +47,7 @@ namespace sprint_timer::ui::qt_gui {
 
 ProgressView::ProgressView(const DistributionRequester& distributionRequester_,
                            const WorkScheduleWrapper& workScheduleWrapper_,
-                           const GroupByPeriodStrategy& groupByPeriodStrategy_,
+                           const ProgressComputeStrategy& groupByPeriodStrategy_,
                            const BackRequestStrategy& backRequestStrategy_,
                            Rows numRows_,
                            Columns numColumns_,
@@ -63,19 +63,19 @@ ProgressView::ProgressView(const DistributionRequester& distributionRequester_,
     setupGauges();
     updateProgressBar(
         GoalProgress{GoalProgress::Estimated{0}, GoalProgress::Actual{0}});
-    setData(ProgressOverPeriod{backRequestStrategy_.dateRange(),
-                               distributionRequester_.distribution(),
-                               workScheduleWrapper_.workSchedule(),
-                               groupByPeriodStrategy_});
+    setData(ProgressOverPeriod{groupByPeriodStrategy_.computeProgress(
+        backRequestStrategy_.dateRange(),
+        distributionRequester_.distribution(),
+        workScheduleWrapper_.workSchedule())});
     distributionConnection =
         connect(&distributionRequester_,
                 &DistributionRequester::distributionChanged,
                 [&](const std::vector<int>& updatedDistribution) {
                     const ProgressOverPeriod progress{
-                        backRequestStrategy_.dateRange(),
-                        updatedDistribution,
-                        workScheduleWrapper_.workSchedule(),
-                        groupByPeriodStrategy_};
+                        groupByPeriodStrategy_.computeProgress(
+                            backRequestStrategy_.dateRange(),
+                            updatedDistribution,
+                            workScheduleWrapper_.workSchedule())};
                     setData(progress);
                 });
     workScheduleConnection =
@@ -83,10 +83,10 @@ ProgressView::ProgressView(const DistributionRequester& distributionRequester_,
                 &WorkScheduleWrapper::workScheduleChanged,
                 [&](const WorkSchedule& updatedWorkSchedule) {
                     const ProgressOverPeriod progress{
-                        backRequestStrategy_.dateRange(),
-                        distributionRequester_.distribution(),
-                        updatedWorkSchedule,
-                        groupByPeriodStrategy_};
+                        groupByPeriodStrategy_.computeProgress(
+                            backRequestStrategy_.dateRange(),
+                            distributionRequester_.distribution(),
+                            updatedWorkSchedule)};
                     setData(progress);
                 });
 }

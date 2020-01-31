@@ -47,9 +47,9 @@
 
 #include <QApplication>
 #include <QStyleFactory>
-#include <core/GroupByDay.h>
-#include <core/GroupByMonth.h>
-#include <core/GroupByWeek.h>
+#include <core/ComputeByDayStrategy.h>
+#include <core/ComputeByMonthStrategy.h>
+#include <core/ComputeByWeekStrategy.h>
 #include <core/IConfig.h>
 #include <core/ObservableActionInvoker.h>
 #include <core/TaskStorageReader.h>
@@ -467,7 +467,7 @@ int main(int argc, char* argv[])
 
     const int distributionDays{30};
     RequestForDaysBack requestDaysBackStrategy{distributionDays};
-    GroupByDay groupByDayStrategy;
+    ComputeByDayStrategy groupByDayStrategy;
     DistributionRequester dailyDistributionRequester{
         requestDaysBackStrategy,
         datasyncRelay,
@@ -490,7 +490,7 @@ int main(int argc, char* argv[])
     const int distributionWeeks{12};
     RequestForWeeksBack requestWeeksBackStrategy{
         distributionWeeks, applicationSettings.firstDayOfWeek()};
-    GroupByWeek groupByWeekStrategy{applicationSettings.firstDayOfWeek()};
+    ComputeByWeekStrategy groupByWeekStrategy{applicationSettings.firstDayOfWeek()};
     DistributionRequester weeklyDistributionRequester{
         requestWeeksBackStrategy,
         datasyncRelay,
@@ -508,7 +508,7 @@ int main(int argc, char* argv[])
 
     const int distributionMonths{12};
     RequestForMonthsBack requestMonthsBackStrategy{distributionMonths};
-    GroupByMonth groupByMonthStrategy;
+    ComputeByMonthStrategy groupByMonthStrategy;
     DistributionRequester monthlyDistributionRequester{
         requestMonthsBackStrategy,
         datasyncRelay,

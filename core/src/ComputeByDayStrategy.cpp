@@ -19,12 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/GroupByDay.h"
+#include "core/ComputeByDayStrategy.h"
 
 namespace sprint_timer {
 
 std::vector<GoalProgress>
-GroupByDay::computeProgress(const dw::DateRange& dateRange,
+ComputeByDayStrategy::computeProgress(const dw::DateRange& dateRange,
                             const std::vector<int>& actualProgress,
                             const WorkSchedule& workSchedule) const
 {

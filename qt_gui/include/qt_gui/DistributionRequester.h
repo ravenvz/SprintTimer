@@ -26,7 +26,7 @@
 #include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/Synchronizable.h"
 #include <QObject>
-#include <core/GroupByPeriodStrategy.h>
+#include <core/ProgressComputeStrategy.h>
 #include <core/QueryHandler.h>
 #include <core/use_cases/request_sprint_distribution/RequestSprintDistributionQuery.h>
 

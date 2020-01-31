@@ -23,7 +23,7 @@
 #define PROGRESS_H_LE0ZZW37
 
 #include "core/GoalProgress.h"
-#include "core/GroupByPeriodStrategy.h"
+#include "core/ProgressComputeStrategy.h"
 #include "core/WorkSchedule.h"
 #include <date_wrapper/date_wrapper.h>
 #include <iostream>
@@ -34,10 +34,7 @@ namespace sprint_timer {
 
 class ProgressOverPeriod {
 public:
-    ProgressOverPeriod(const dw::DateRange& period,
-                       const std::vector<int>& actualProgress,
-                       const WorkSchedule& workSchedule,
-                       const GroupByPeriodStrategy& groupByPeriodStrategy);
+    ProgressOverPeriod(std::vector<GoalProgress>&& data);
 
     std::optional<double> percentage() const;
 
@@ -56,10 +53,10 @@ public:
     int difference() const;
 
 private:
-    const int actual_;
-    std::vector<GoalProgress> progress_;
-    int numWorkBins_;
-    int estimated_;
+    std::vector<GoalProgress> data;
+    int totalActual;
+    int totalEstimated;
+    int numBins;
 };
 
 } // namespace sprint_timer

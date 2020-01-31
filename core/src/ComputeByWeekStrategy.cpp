@@ -19,46 +19,69 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/GroupByMonth.h"
+#include "core/ComputeByWeekStrategy.h"
+#include <core/IConfig.h>
+
+namespace {
+
+dw::Weekday weekday_before(dw::Weekday);
+
+} // namespace
 
 namespace sprint_timer {
 
+ComputeByWeekStrategy::ComputeByWeekStrategy(dw::Weekday firstDayOfWeek_)
+    : firstDayOfWeek{firstDayOfWeek_}
+{
+}
+
 std::vector<GoalProgress>
-GroupByMonth::computeProgress(const dw::DateRange& dateRange,
-                              const std::vector<int>& actualProgress,
-                              const WorkSchedule& workSchedule) const
+ComputeByWeekStrategy::computeProgress(const dw::DateRange& dateRange,
+                             const std::vector<int>& actualProgress,
+                             const WorkSchedule& workSchedule) const
 {
     using namespace dw;
-    std::vector<int> labour;
     std::vector<GoalProgress> progress;
     progress.reserve(actualProgress.size());
     auto actualIt = cbegin(actualProgress);
 
-    // To compute goal we break dateRange into months, taking in account that
-    // it can start and end with random day of month.
+    const dw::Weekday lastDayOfWeek{weekday_before(firstDayOfWeek)};
+
+    // To compute goal we are breaking period into intervals of weeks, taking in
+    // account that period can start and end with random weekday
     auto start = dateRange.start();
     const auto lastDay = dateRange.finish();
-    auto next_finish = [&start, lastDay]() {
-        return std::min(last_day_of_month(start), lastDay);
+    auto next_finish = [&start, lastDay, lastDayOfWeek]() {
+        return std::min(dw::next_weekday(start, lastDayOfWeek), lastDay);
     };
 
-    for (auto finish = next_finish(); start < lastDay;
+    for (auto finish = next_finish(); start <= lastDay;
          start = finish + Days{1}, finish = next_finish()) {
-        const DateRange monthChunk{start, finish};
+        const DateRange weekChunk{start, finish};
         if (actualIt != cend(actualProgress)) {
             progress.emplace_back(
-                GoalProgress::Estimated{goalFor(workSchedule, monthChunk)},
+                GoalProgress::Estimated{goalFor(workSchedule, weekChunk)},
                 GoalProgress::Actual{*actualIt});
             ++actualIt;
         }
-        else {
+        else
             progress.emplace_back(
-                GoalProgress::Estimated{goalFor(workSchedule, monthChunk)},
+                GoalProgress::Estimated{goalFor(workSchedule, weekChunk)},
                 GoalProgress::Actual{0});
-        }
     }
 
     return progress;
 }
 
 } // namespace sprint_timer
+
+namespace {
+
+dw::Weekday weekday_before(dw::Weekday weekday)
+{
+    if (weekday == dw::Weekday::Monday)
+        return dw::Weekday::Sunday;
+    return static_cast<dw::Weekday>(static_cast<int>(weekday) - 1);
+}
+
+} // namespace

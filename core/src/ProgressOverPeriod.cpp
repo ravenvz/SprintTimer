@@ -20,58 +20,65 @@
 **
 *********************************************************************************/
 #include "core/ProgressOverPeriod.h"
+#include <tuple>
+
+namespace {
+
+std::tuple<int, int, int>
+unpackData(const std::vector<sprint_timer::GoalProgress>& data);
+
+} // namespace
 
 namespace sprint_timer {
 
-ProgressOverPeriod::ProgressOverPeriod(
-    const dw::DateRange& period,
-    const std::vector<int>& actualProgress,
-    const WorkSchedule& workSchedule,
-    const GroupByPeriodStrategy& groupByPeriodStrategy)
-    : actual_{
-          std::accumulate(actualProgress.cbegin(), actualProgress.cend(), 0)}
+ProgressOverPeriod::ProgressOverPeriod(std::vector<GoalProgress>&& data_)
+    : data{std::move(data_)}
 {
-    progress_ = groupByPeriodStrategy.computeProgress(
-        period, actualProgress, workSchedule);
-    numWorkBins_ = std::accumulate(progress_.cbegin(),
-                                   progress_.cend(),
-                                   0,
-                                   [](int acc, const GoalProgress& p) {
-                                       return acc + (p.estimated() ? 1 : 0);
-                                   });
-    estimated_ = std::accumulate(
-        progress_.cbegin(),
-        progress_.cend(),
-        0,
-        [](int acc, const GoalProgress& p) { return acc + p.estimated(); });
+    const auto unpacked = unpackData(data);
+    std::tie(totalActual, totalEstimated, numBins) = unpacked;
 }
 
 std::optional<double> ProgressOverPeriod::percentage() const
 {
-    return numWorkBins_ == 0
-               ? std::optional<double>{}
-               : static_cast<double>(actual()) * 100 / estimated();
+    return numBins == 0 ? std::optional<double>{}
+                        : static_cast<double>(actual()) * 100 / estimated();
 }
 
-int ProgressOverPeriod::estimated() const { return estimated_; }
+int ProgressOverPeriod::estimated() const { return totalEstimated; }
 
-int ProgressOverPeriod::actual() const { return actual_; }
+int ProgressOverPeriod::actual() const { return totalActual; }
 
 std::optional<double> ProgressOverPeriod::averagePerGroupPeriod() const
 {
-    return numWorkBins_ == 0 ? std::optional<double>{}
-                             : static_cast<double>(actual()) / numWorkBins_;
+    return numBins == 0 ? std::optional<double>{}
+                        : static_cast<double>(actual()) / numBins;
 }
 
 GoalProgress ProgressOverPeriod::getValue(size_t binNumber) const
 {
-    return progress_[binNumber];
+    return data[binNumber];
 }
 
-size_t ProgressOverPeriod::size() const { return progress_.size(); }
+size_t ProgressOverPeriod::size() const { return data.size(); }
 
 bool ProgressOverPeriod::isOverwork() const { return difference() < 0; }
 
 int ProgressOverPeriod::difference() const { return estimated() - actual(); }
 
 } // namespace sprint_timer
+
+namespace {
+
+std::tuple<int, int, int>
+unpackData(const std::vector<sprint_timer::GoalProgress>& data)
+{
+    std::tuple<int, int, int> res{0, 0, 0};
+    for (const auto& element : data) {
+        std::get<0>(res) += element.actual();
+        std::get<1>(res) += element.estimated();
+        std::get<2>(res) += (element.estimated() ? 1 : 0);
+    }
+    return res;
+}
+
+} // namespace

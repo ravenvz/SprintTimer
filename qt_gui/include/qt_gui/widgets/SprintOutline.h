@@ -29,9 +29,6 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-class AddSprintDialog;
-class UndoDialog;
-
 class SprintOutline : public QWidget {
 
     Q_OBJECT
