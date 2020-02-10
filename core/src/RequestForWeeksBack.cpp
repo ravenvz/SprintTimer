@@ -19,39 +19,43 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/RequestForDaysBack.h"
-
+#include "core/RequestForWeeksBack.h"
 
 namespace {
 
-dw::DateRange nDaysBackTillNow(int numDays);
+dw::DateRange nWeeksBackTillNow(int numWeeks, dw::Weekday firstDayOfWeek);
 
 } // namespace
 
+namespace sprint_timer {
 
-namespace sprint_timer::ui::qt_gui {
-
-RequestForDaysBack::RequestForDaysBack(int numDays_)
-    : numDays{numDays_}
+RequestForWeeksBack::RequestForWeeksBack(int numWeeks_,
+                                         dw::Weekday firstDayOfWeek_)
+    : numWeeks{numWeeks_}
+    , firstDayOfWeek{std::move(firstDayOfWeek_)}
 {
 }
 
-dw::DateRange RequestForDaysBack::dateRange() const
+dw::DateRange RequestForWeeksBack::dateRange() const
 {
-    return nDaysBackTillNow(numDays);
+    return nWeeksBackTillNow(numWeeks, firstDayOfWeek);
 }
 
-} // namespace sprint_timer::ui::qt_gui
-
+} // namespace sprint_timer
 
 namespace {
 
-dw::DateRange nDaysBackTillNow(int numDays)
+dw::DateRange nWeeksBackTillNow(int numWeeks, dw::Weekday firstDayOfWeek)
 {
     using namespace dw;
     auto now = current_date_local();
-    auto from = now - Days{numDays - 1};
-    return {from, now};
+    const auto from = prev_weekday(now - Weeks{numWeeks - 1},
+                                   static_cast<dw::Weekday>(firstDayOfWeek));
+    const auto lastDayOfWeek{firstDayOfWeek == dw::Weekday::Monday
+                                 ? dw::Weekday::Sunday
+                                 : dw::Weekday::Saturday};
+    const auto to = next_weekday(now, lastDayOfWeek);
+    return {from, to};
 }
 
 } // namespace

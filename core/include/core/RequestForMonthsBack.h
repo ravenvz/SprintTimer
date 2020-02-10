@@ -19,21 +19,23 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/widgets/DisplayableWidget.h"
-#include "qt_gui/utils/WidgetUtils.h"
+#ifndef REQUESTFORMONTHSBACK_H_CPBYLFIA
+#define REQUESTFORMONTHSBACK_H_CPBYLFIA
 
-namespace sprint_timer::ui::qt_gui {
+#include "core/BackRequestStrategy.h"
 
-DisplayableWidget::DisplayableWidget(QWidget* parent)
-    : QWidget{parent}
-{
-}
+namespace sprint_timer {
 
-void DisplayableWidget::display() { show(); }
+class RequestForMonthsBack : public BackRequestStrategy {
+public:
+    RequestForMonthsBack(int numMonths);
 
-bool DisplayableWidget::isActive() const { return isVisible(); }
+    dw::DateRange dateRange() const override;
 
-void DisplayableWidget::dispose() { QWidget::close(); }
+private:
+    int numMonths;
+};
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer
 
+#endif /* end of include guard: REQUESTFORMONTHSBACK_H_CPBYLFIA */

@@ -19,21 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/widgets/DisplayableWidget.h"
+#include "qt_gui/dialogs/StandaloneDisplayableDialog.h"
 #include "qt_gui/utils/WidgetUtils.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-DisplayableWidget::DisplayableWidget(QWidget* parent)
-    : QWidget{parent}
+StandaloneDisplayableDialog::StandaloneDisplayableDialog(QWidget* parent_)
+    : QDialog{parent_}
 {
 }
 
-void DisplayableWidget::display() { show(); }
+void StandaloneDisplayableDialog::display() { open(); }
 
-bool DisplayableWidget::isActive() const { return isVisible(); }
+bool StandaloneDisplayableDialog::isActive() const { return isVisible(); }
 
-void DisplayableWidget::dispose() { QWidget::close(); }
+void StandaloneDisplayableDialog::bringToTop() { WidgetUtils::bringToForeground(this); }
+
+void StandaloneDisplayableDialog::close() {}
 
 } // namespace sprint_timer::ui::qt_gui
-

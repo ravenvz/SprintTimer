@@ -19,21 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/widgets/DisplayableWidget.h"
-#include "qt_gui/utils/WidgetUtils.h"
+#ifndef BASEPRESENTER_H_9G4DRMSO
+#define BASEPRESENTER_H_9G4DRMSO
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer::ui {
 
-DisplayableWidget::DisplayableWidget(QWidget* parent)
-    : QWidget{parent}
-{
-}
+template <typename ViewT> class Presenter {
+public:
+    virtual ~Presenter() = default;
 
-void DisplayableWidget::display() { show(); }
+    virtual void attachView(ViewT& view_)
+    {
+        view = &view_;
+        onViewAttached();
+    }
 
-bool DisplayableWidget::isActive() const { return isVisible(); }
+    virtual void onViewAttached() = 0;
 
-void DisplayableWidget::dispose() { QWidget::close(); }
+protected:
+    ViewT* view{nullptr};
+};
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer::ui
 
+#endif /* end of include guard: BASEPRESENTER_H_9G4DRMSO */

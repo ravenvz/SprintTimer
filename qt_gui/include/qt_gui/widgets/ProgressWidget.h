@@ -19,13 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef PROGRESSVIEW_H_2OXRIURM
-#define PROGRESSVIEW_H_2OXRIURM
+#ifndef PROGRESSWIDGET_H_F1ABWAXG
+#define PROGRESSWIDGET_H_F1ABWAXG
 
-#include "qt_gui/BackRequestStrategy.h"
+#include "core/BackRequestStrategy.h"
 #include "qt_gui/DistributionRequester.h"
 #include "qt_gui/WorkScheduleWrapper.h"
-#include <QtWidgets/QFrame>
+#include <QWidget>
 #include <core/Distribution.h>
 #include <core/GoalProgress.h>
 #include <core/ProgressComputeStrategy.h>
@@ -33,13 +33,17 @@
 #include <core/WorkSchedule.h>
 #include <memory>
 
+#include "qt_gui/presentation/Presenter.h"
+#include "qt_gui/presentation/ProgressPresenterContract.h"
+#include "qt_gui/widgets/DisplayableWidget.h"
+
 namespace Ui {
-class ProgressView;
+class ProgressWidget;
 } // namespace Ui
 
 namespace sprint_timer::ui::qt_gui {
 
-class ProgressView : public QFrame {
+class ProgressWidget : public QWidget, public contracts::DailyProgress::View {
 
 public:
     using GoalValue = int;
@@ -56,16 +60,13 @@ public:
         double value{0};
     };
 
-    ProgressView(const DistributionRequester& distributionRequester,
-                 const WorkScheduleWrapper& workScheduleWrapper,
-                 const ProgressComputeStrategy& groupingStrategy,
-                 const BackRequestStrategy& backRequestStrategy,
-                 Rows numRows,
-                 Columns numColumns,
-                 GaugeSize gaugeRelSize,
-                 QWidget* parent = nullptr);
+    ProgressWidget(Presenter<contracts::DailyProgress::View>& presenter,
+                   Rows numRows,
+                   Columns numColumns,
+                   GaugeSize gaugeRelSize,
+                   QWidget* parent = nullptr);
 
-    virtual ~ProgressView();
+    virtual ~ProgressWidget() override;
 
     void setLegendTitle(const QString& title);
 
@@ -79,26 +80,25 @@ public:
 
     void addLegendRow(QWidget* field);
 
-    void setData(const ProgressOverPeriod& progress);
+    void
+    displayLegend(const contracts::DailyProgress::LegendData& data) override;
+
+    void displayGauges(const std::vector<contracts::DailyProgress::GaugeValues>&
+                           data) override;
+
+    void displayProgressBar(
+        const contracts::DailyProgress::ProgressBarData& data) override;
 
 private:
-    std::unique_ptr<Ui::ProgressView> ui;
+    std::unique_ptr<Ui::ProgressWidget> ui;
+    Presenter<contracts::DailyProgress::View>& presenter;
     const Rows numRows;
     const Columns numColumns;
     const GaugeSize gaugeRelSize;
-    QMetaObject::Connection distributionConnection;
-    QMetaObject::Connection workScheduleConnection;
 
     void setupGauges();
-
-    void updateGauges(const ProgressOverPeriod& progress);
-
-    void updateProgressBar(const GoalProgress& lastBin);
-
-    void updateLegend(const ProgressOverPeriod& progress) const;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: PROGRESSVIEW_H_2OXRIURM */
-
+#endif /* end of include guard: PROGRESSWIDGET_H_F1ABWAXG */

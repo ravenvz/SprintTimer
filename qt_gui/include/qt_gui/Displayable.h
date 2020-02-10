@@ -28,13 +28,11 @@ class Displayable {
 public:
     virtual ~Displayable() = default;
 
-    virtual void display() {}
+    virtual void display() = 0;
 
-    virtual bool isActive() const { return false; }
+    virtual bool isActive() const = 0;
 
-    virtual void bringToTop() {}
-
-    virtual void close() {}
+    virtual void dispose() = 0;
 };
 
 } // namespace sprint_timer::ui::qt_gui

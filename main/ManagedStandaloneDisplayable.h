@@ -19,20 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef MANAGEDDISPLAYABLE_H_8EUFAKWY
-#define MANAGEDDISPLAYABLE_H_8EUFAKWY
+#ifndef MANAGEDDISPLAYABLE_H_A4YKVFTJ
+#define MANAGEDDISPLAYABLE_H_A4YKVFTJ
 
 #include <memory>
-#include <qt_gui/Displayable.h>
+#include <qt_gui/StandaloneDisplayable.h>
 
 namespace sprint_timer {
 
-class ManagedDisplayable : public ui::qt_gui::Displayable {
+class ManagedStandaloneDisplayable : public ui::qt_gui::StandaloneDisplayable {
 public:
     void display() override
     {
-        if (isActive())
+        if (displayable && displayable->isActive()) {
+            displayable->bringToTop();
             return;
+        }
         displayable = create();
         displayable->display();
     }
@@ -44,13 +46,18 @@ public:
         return displayable && displayable->isActive();
     }
 
-private:
-    std::unique_ptr<Displayable> displayable;
+    void bringToTop() override
+    {
+        if (displayable)
+            displayable->bringToTop();
+    }
 
-    virtual std::unique_ptr<Displayable> create() = 0;
+private:
+    std::unique_ptr<StandaloneDisplayable> displayable;
+
+    virtual std::unique_ptr<StandaloneDisplayable> create() = 0;
 };
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: MANAGEDDISPLAYABLE_H_8EUFAKWY */
-
+#endif /* end of include guard: MANAGEDDISPLAYABLE_H_A4YKVFTJ */

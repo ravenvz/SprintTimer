@@ -3,43 +3,39 @@
 ** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef REQUESTFORDAYSBACK_H_N7Y5DX8W
+#define REQUESTFORDAYSBACK_H_N7Y5DX8W
 
-#ifndef SPRINT_TIMER_TESTCASE_H
-#define SPRINT_TIMER_TESTCASE_H
+#include "core/BackRequestStrategy.h"
 
-#include "widgets/MainWindow.h"
-#include <QObject>
-#include <QtTest/QtTest>
+namespace sprint_timer {
 
-class TestCase : public QObject {
-    Q_OBJECT
-
+class RequestForDaysBack : public BackRequestStrategy {
 public:
-    TestCase(QApplication* app, MainWindow* mainWindow);
+    RequestForDaysBack(int numDays);
 
-private slots:
-    void cleanupTestCase();
+    dw::DateRange dateRange() const override;
 
-protected:
-    QApplication* app;
-    MainWindow* mainWindow;
+private:
+    int numDays;
 };
 
+} // namespace sprint_timer
 
-#endif // SPRINT_TIMER_TESTCASE_H
+#endif /* end of include guard: REQUESTFORDAYSBACK_H_N7Y5DX8W */

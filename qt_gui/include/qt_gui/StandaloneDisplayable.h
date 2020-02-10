@@ -3,35 +3,36 @@
 ** Copyright (C) 2016-2019 Pavel Pavlov.
 **
 **
-** This file is part of PROG_NAME.
+** This file is part of SprintTimer.
 **
-** PROG_NAME is free software: you can redistribute it and/or modify
+** SprintTimer is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
 ** the Free Software Foundation, either version 3 of the License, or
 ** (at your option) any later version.
 **
-** PROG_NAME is distributed in the hope that it will be useful,
+** SprintTimer is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ** GNU Lesser General Public License for more details.
 **
 ** You should have received a copy of the GNU Lesser General Public License
-** along with PROG_NAME.  If not, see <http://www.gnu.org/licenses/>.
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef STANDALONEDISPLAYABLE_H_ECWQZTFB
+#define STANDALONEDISPLAYABLE_H_ECWQZTFB
 
-#include "TestCase.h"
-#include "widgets/MainWindow.h"
-#include <QWidget>
-#include <QtTest/QtTest>
+#include "qt_gui/Displayable.h"
 
-class TestUserScenarios : public TestCase {
-    Q_OBJECT
+namespace sprint_timer::ui::qt_gui {
 
+class StandaloneDisplayable : public Displayable {
 public:
-    TestUserScenarios(QApplication* app, MainWindow* mainWindow);
+    virtual ~StandaloneDisplayable() = default;
 
-private slots:
-    void add_task();
-    void manual_add_sprint();
+    virtual void bringToTop() = 0;
 };
+
+} // namespace sprint_timer::ui::qt_gui
+
+#endif /* end of include guard: STANDALONEDISPLAYABLE_H_ECWQZTFB */

@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DISPLAYABLEWIDGET_H_IPTOSZW1
-#define DISPLAYABLEWIDGET_H_IPTOSZW1
+#ifndef DISPLAYABLEWIDGET_H_EHFI9F4N
+#define DISPLAYABLEWIDGET_H_EHFI9F4N
 
 #include "qt_gui/Displayable.h"
 #include <QWidget>
@@ -35,11 +35,9 @@ public:
 
     bool isActive() const override;
 
-    void bringToTop() override;
-
-    void close() override;
+    void dispose() override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: DISPLAYABLEWIDGET_H_IPTOSZW1 */
+#endif /* end of include guard: DISPLAYABLEWIDGET_H_EHFI9F4N */

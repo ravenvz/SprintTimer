@@ -9,6 +9,14 @@ target_sources(${SPRINT_MAIN}
         "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/VerboseQueryHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/VerboseCommandHandler.h"
+
+        "${CMAKE_CURRENT_LIST_DIR}/AddSprintDialogProxy.h"
+        "${CMAKE_CURRENT_LIST_DIR}/HistoryWindowProxy.h"
+        "${CMAKE_CURRENT_LIST_DIR}/ManagedDisplayable.h"
+        "${CMAKE_CURRENT_LIST_DIR}/ManagedStandaloneDisplayable.h"
+        "${CMAKE_CURRENT_LIST_DIR}/ProgressMonitorProxy.h"
+        "${CMAKE_CURRENT_LIST_DIR}/ProgressViewProxy.h"
+        "${CMAKE_CURRENT_LIST_DIR}/StatisticsWindowProxy.h"
 )
 
 target_compile_options(${SPRINT_MAIN} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")

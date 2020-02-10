@@ -19,41 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/RequestForMonthsBack.h"
+#ifndef DISPLAYABLEDIALOG_H_ZLNTGNE6
+#define DISPLAYABLEDIALOG_H_ZLNTGNE6
 
-
-namespace {
-
-dw::DateRange nMonthsBackTillNow(int numMonths);
-
-} // namespace
-
+#include "qt_gui/StandaloneDisplayable.h"
+#include <QDialog>
 
 namespace sprint_timer::ui::qt_gui {
 
-RequestForMonthsBack::RequestForMonthsBack(int numMonths_)
-    : numMonths{numMonths_}
-{
-}
+class StandaloneDisplayableDialog : public QDialog, public StandaloneDisplayable {
+public:
+    explicit StandaloneDisplayableDialog(QWidget* parent = nullptr);
 
-dw::DateRange RequestForMonthsBack::dateRange() const
-{
-    return nMonthsBackTillNow(numMonths);
-}
+    void display() override;
+
+    bool isActive() const override;
+
+    void bringToTop() override;
+
+    void close() override;
+};
 
 } // namespace sprint_timer::ui::qt_gui
 
-
-namespace {
-
-dw::DateRange nMonthsBackTillNow(int numMonths)
-{
-    using namespace dw;
-    const auto now = current_date_local();
-    const auto months_back = now - Months{numMonths - 1};
-    const auto to = last_day_of_month(now);
-    const auto from = Date{months_back.year(), months_back.month(), Day{1}};
-    return DateRange{from, to};
-}
-
-} // namespace
+#endif /* end of include guard: DISPLAYABLEDIALOG_H_ZLNTGNE6 */

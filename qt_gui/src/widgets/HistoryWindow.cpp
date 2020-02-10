@@ -63,7 +63,7 @@ HistoryWindow::HistoryWindow(
     QAbstractItemModel& operationRangeModel_,
     dw::Weekday firstDayOfWeek_,
     QWidget* parent_)
-    : DisplayableWidget{parent_}
+    : StandaloneDisplayableWidget{parent_}
     , ui{std::make_unique<Ui::HistoryWindow>()}
     , requestSprintsHandler{requestSprintsHandler_}
     , finishedTasksHandler{finishedTasksHandler_}

@@ -36,7 +36,7 @@ StatisticsWindow::StatisticsWindow(
     const WorkScheduleWrapper& workScheduleWrapper_,
     DatasyncRelay& datasyncRelay_,
     QWidget* parent_)
-    : DisplayableWidget{parent_}
+    : StandaloneDisplayableWidget{parent_}
     , requestSprintsHandler{requestSprintsHandler_}
     , workScheduleWrapper{workScheduleWrapper_}
     , datasyncRelay{datasyncRelay_}
@@ -83,6 +83,7 @@ StatisticsWindow::~StatisticsWindow()
     std::for_each(connections.begin(), connections.end(), [](auto& connection) {
         disconnect(connection);
     });
+    std::cout << "StatisticsWindow destroyed" << std::endl;
 }
 
 QSize StatisticsWindow::sizeHint() const { return QSize{1100, 730}; }

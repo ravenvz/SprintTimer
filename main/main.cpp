@@ -43,7 +43,11 @@
 #endif
 
 #include "HistoryWindowProxy.h"
+#include "ProgressMonitorProxy.h"
+// #include "ProgressViewProxy.h"
 #include "StatisticsWindowProxy.h"
+
+#include <qt_gui/presentation/ProgressPresenter.h>
 
 #include <QApplication>
 #include <QStyleFactory>
@@ -52,13 +56,13 @@
 #include <core/ComputeByWeekStrategy.h>
 #include <core/IConfig.h>
 #include <core/ObservableActionInvoker.h>
+#include <core/RequestForDaysBack.h>
+#include <core/RequestForMonthsBack.h>
+#include <core/RequestForWeeksBack.h>
 #include <core/TaskStorageReader.h>
 #include <filesystem>
 #include <qt_gui/DistributionRequester.h>
 #include <qt_gui/QtConfig.h>
-#include <qt_gui/RequestForDaysBack.h>
-#include <qt_gui/RequestForMonthsBack.h>
-#include <qt_gui/RequestForWeeksBack.h>
 #include <qt_gui/WorkScheduleWrapper.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/SubmissionItemDelegate.h>
@@ -87,7 +91,7 @@
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/MainWindow.h>
 #include <qt_gui/widgets/ProgressMonitorWidget.h>
-#include <qt_gui/widgets/ProgressView.h>
+#include <qt_gui/widgets/ProgressWidget.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/StatisticsDiagramWidget.h>
 #include <qt_gui/widgets/SubmissionBox.h>
@@ -111,6 +115,7 @@
 #include <core/use_cases/register_sprint/RegisterSprintHandler.h>
 #include <core/use_cases/rename_tag/RenameTagHandler.h>
 #include <core/use_cases/request_op_range/OperationalRangeHandler.h>
+#include <core/use_cases/request_progress/RequestProgressHandler.h>
 #include <core/use_cases/request_schedule/WorkScheduleHandler.h>
 #include <core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h>
 #include <core/use_cases/request_sprints/RequestSprintsHandler.h>
@@ -186,6 +191,51 @@ std::string getOrCreateSprintTimerDataDirectory()
 }
 
 } // namespace
+
+class NewSyncronizingActionInvoker
+    : public sprint_timer::ObservableActionInvoker {
+public:
+    NewSyncronizingActionInvoker(sprint_timer::ObservableActionInvoker& wrapped,
+                                 sprint_timer::Observable& desyncObservable)
+        : wrapped{wrapped}
+        , desyncObservable{desyncObservable}
+    {
+    }
+
+    void execute(std::unique_ptr<sprint_timer::Action> action) override
+    {
+        wrapped.execute(std::move(action));
+        desyncObservable.notify();
+    }
+
+    void undo() override { wrapped.undo(); }
+
+    std::string lastActionDescription() const override
+    {
+        return wrapped.lastActionDescription();
+    }
+
+    bool hasUndoableActions() const override
+    {
+        return wrapped.hasUndoableActions();
+    }
+
+    void attach(sprint_timer::Observer& observer) override
+    {
+        wrapped.attach(observer);
+    }
+
+    void detach(sprint_timer::Observer& observer) override
+    {
+        wrapped.detach(observer);
+    }
+
+    void notify() override { wrapped.notify(); }
+
+private:
+    sprint_timer::ObservableActionInvoker& wrapped;
+    sprint_timer::Observable& desyncObservable;
+};
 
 class SyncronizingActionInvoker : public sprint_timer::ObservableActionInvoker {
 public:
@@ -294,6 +344,31 @@ void applyStyleSheet(QApplication& app)
     styleFile.close();
 }
 
+template <typename ViewT>
+class SyncPresenter : public sprint_timer::ui::Presenter<ViewT>,
+                      public sprint_timer::Observer {
+public:
+    SyncPresenter(std::unique_ptr<sprint_timer::ui::Presenter<ViewT>> wrapped,
+                  sprint_timer::Observable& desyncObservable)
+        : wrapped{std::move(wrapped)}
+        , desyncObservable{desyncObservable}
+    {
+        desyncObservable.attach(*this);
+    }
+
+    ~SyncPresenter() override { desyncObservable.detach(*this); }
+
+    void attachView(ViewT& view_) override { wrapped->attachView(view_); }
+
+    void onViewAttached() override { wrapped->onViewAttached(); }
+
+    void update() override { onViewAttached(); }
+
+private:
+    std::unique_ptr<sprint_timer::ui::Presenter<ViewT>> wrapped;
+    sprint_timer::Observable& desyncObservable;
+};
+
 template <typename CommandT>
 std::unique_ptr<sprint_timer::CommandHandler<CommandT>>
 decorate(std::unique_ptr<sprint_timer::CommandHandler<CommandT>> wrapped)
@@ -308,6 +383,15 @@ decorate(std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>> wrapped)
 {
     return std::make_unique<sprint_timer::VerboseQueryHandler<QueryT, ResultT>>(
         std::move(wrapped));
+}
+
+template <typename ViewT>
+std::unique_ptr<sprint_timer::ui::Presenter<ViewT>>
+decorate(std::unique_ptr<sprint_timer::ui::Presenter<ViewT>> wrapped,
+         sprint_timer::Observable& desyncObservable)
+{
+    return std::make_unique<SyncPresenter<ViewT>>(std::move(wrapped),
+                                                  desyncObservable);
 }
 
 int main(int argc, char* argv[])
@@ -346,11 +430,14 @@ int main(int argc, char* argv[])
     auto scheduleStorage = storageFactory.scheduleStorage();
 
     DatasyncRelay datasyncRelay;
+    Observable desyncObservable;
 
     ObservableActionInvoker observableActionInvoker;
     VerboseActionInvoker verboseActionInvoker{observableActionInvoker};
-    SyncronizingActionInvoker actionInvoker{verboseActionInvoker,
-                                            datasyncRelay};
+    SyncronizingActionInvoker syncActionInvoker{verboseActionInvoker,
+                                                datasyncRelay};
+    NewSyncronizingActionInvoker actionInvoker{syncActionInvoker,
+                                               desyncObservable};
 
     using namespace use_cases;
 
@@ -467,66 +554,85 @@ int main(int argc, char* argv[])
 
     const int distributionDays{30};
     RequestForDaysBack requestDaysBackStrategy{distributionDays};
-    ComputeByDayStrategy groupByDayStrategy;
-    DistributionRequester dailyDistributionRequester{
-        requestDaysBackStrategy,
-        datasyncRelay,
-        *requestSprintDailyDistributionHandler};
-    auto dailyProgress =
-        std::make_unique<ProgressView>(dailyDistributionRequester,
-                                       workScheduleWrapper,
-                                       groupByDayStrategy,
-                                       requestDaysBackStrategy,
-                                       ProgressView::Rows{3},
-                                       ProgressView::Columns{10},
-                                       ProgressView::GaugeSize{0.7});
-    dailyProgress->setLegendTitle("Last 30 days");
-    dailyProgress->setLegendAverageCaption("Average per day:");
-
-    auto configureWorkdaysButton =
-        std::make_unique<DialogLaunchButton>(workdaysDialog, "Configure");
-    dailyProgress->addLegendRow("Workdays", configureWorkdaysButton.release());
+    ComputeByDayStrategy computeByDayStrategy;
+    auto requestDailyProgressHandler =
+        decorate<RequestProgressQuery, ProgressOverPeriod>(
+            std::make_unique<RequestProgressHandler>(
+                requestDaysBackStrategy,
+                computeByDayStrategy,
+                *requestSprintDailyDistributionHandler,
+                *workScheduleHandler));
+    auto dailyProgressPresenter =
+        decorate<sprint_timer::ui::contracts::DailyProgress::View>(
+            std::make_unique<sprint_timer::ui::ProgressPresenter>(
+                *requestDailyProgressHandler),
+            desyncObservable);
+    // auto dailyProgressPresenter =
+    //     std::make_unique<sprint_timer::ui::ProgressPresenter>(
+    //         *requestDailyProgressHandler);
+    // auto dailyProgress =
+    //     std::make_unique<ProgressWidget>(*dailyProgressPresenter,
+    //                                      ProgressWidget::Rows{3},
+    //                                      ProgressWidget::Columns{10},
+    //                                      ProgressWidget::GaugeSize{0.7});
+    // dailyProgress->setLegendTitle("Last 30 days");
+    // dailyProgress->setLegendAverageCaption("Average per day:");
+    // auto configureWorkdaysButton =
+    //     std::make_unique<DialogLaunchButton>(workdaysDialog, "Configure");
+    // dailyProgress->addLegendRow("Workdays",
+    // configureWorkdaysButton.release());
 
     const int distributionWeeks{12};
     RequestForWeeksBack requestWeeksBackStrategy{
         distributionWeeks, applicationSettings.firstDayOfWeek()};
-    ComputeByWeekStrategy groupByWeekStrategy{applicationSettings.firstDayOfWeek()};
-    DistributionRequester weeklyDistributionRequester{
-        requestWeeksBackStrategy,
-        datasyncRelay,
-        *requestSprintWeeklyDistributionHandler};
-    auto weeklyProgress =
-        std::make_unique<ProgressView>(weeklyDistributionRequester,
-                                       workScheduleWrapper,
-                                       groupByWeekStrategy,
-                                       requestWeeksBackStrategy,
-                                       ProgressView::Rows{3},
-                                       ProgressView::Columns{4},
-                                       ProgressView::GaugeSize{0.8});
-    weeklyProgress->setLegendTitle("Last 12 weeks");
-    weeklyProgress->setLegendAverageCaption("Average per week:");
+    ComputeByWeekStrategy computeByWeekStrategy{
+        applicationSettings.firstDayOfWeek()};
+    auto requestWeeklyProgressHandler =
+        decorate<RequestProgressQuery, ProgressOverPeriod>(
+            std::make_unique<RequestProgressHandler>(
+                requestWeeksBackStrategy,
+                computeByWeekStrategy,
+                *requestSprintWeeklyDistributionHandler,
+                *workScheduleHandler));
+    auto weeklyProgressPresenter =
+        decorate<sprint_timer::ui::contracts::DailyProgress::View>(
+            std::make_unique<sprint_timer::ui::ProgressPresenter>(
+                *requestWeeklyProgressHandler),
+            desyncObservable);
+    // auto weeklyProgress =
+    //     std::make_unique<ProgressWidget>(*weeklyProgressPresenter,
+    //                                      ProgressWidget::Rows{3},
+    //                                      ProgressWidget::Columns{4},
+    //                                      ProgressWidget::GaugeSize{0.8});
+    // weeklyProgress->setLegendTitle("Last 12 weeks");
+    // weeklyProgress->setLegendAverageCaption("Average per week:");
 
     const int distributionMonths{12};
     RequestForMonthsBack requestMonthsBackStrategy{distributionMonths};
-    ComputeByMonthStrategy groupByMonthStrategy;
-    DistributionRequester monthlyDistributionRequester{
-        requestMonthsBackStrategy,
-        datasyncRelay,
-        *requestSprintMonthlyDistributionHandler};
-    auto monthlyProgress =
-        std::make_unique<ProgressView>(monthlyDistributionRequester,
-                                       workScheduleWrapper,
-                                       groupByMonthStrategy,
-                                       requestMonthsBackStrategy,
-                                       ProgressView::Rows{3},
-                                       ProgressView::Columns{4},
-                                       ProgressView::GaugeSize{0.8});
-    monthlyProgress->setLegendTitle("Last 12 months");
-    monthlyProgress->setLegendAverageCaption("Average per month:");
+    ComputeByMonthStrategy computeByMonthStrategy;
+    auto requestMonthlyProgressHandler =
+        decorate<RequestProgressQuery, ProgressOverPeriod>(
+            std::make_unique<RequestProgressHandler>(
+                requestMonthsBackStrategy,
+                computeByMonthStrategy,
+                *requestSprintMonthlyDistributionHandler,
+                *workScheduleHandler));
+    auto monthlyProgressPresenter =
+        decorate<sprint_timer::ui::contracts::DailyProgress::View>(
+            std::make_unique<sprint_timer::ui::ProgressPresenter>(
+                *requestMonthlyProgressHandler),
+            desyncObservable);
+    // auto monthlyProgress =
+    //     std::make_unique<ProgressWidget>(*monthlyProgressPresenter,
+    //                                      ProgressWidget::Rows{3},
+    //                                      ProgressWidget::Columns{4},
+    //                                      ProgressWidget::GaugeSize{0.8});
+    // monthlyProgress->setLegendTitle("Last 12 months");
+    // monthlyProgress->setLegendAverageCaption("Average per month:");
 
-    ProgressMonitorWidget progressWindow{std::move(dailyProgress),
-                                         std::move(weeklyProgress),
-                                         std::move(monthlyProgress)};
+    compose::ProgressMonitorProxy progressWindow{*dailyProgressPresenter,
+                                                 *weeklyProgressPresenter,
+                                                 *monthlyProgressPresenter};
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;

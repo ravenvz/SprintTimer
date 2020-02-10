@@ -19,23 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTFORDAYSBACK_H_N7Y5DX8W
-#define REQUESTFORDAYSBACK_H_N7Y5DX8W
-
-#include "qt_gui/BackRequestStrategy.h"
+#include "qt_gui/widgets/StandaloneDisplayableWidget.h"
+#include "qt_gui/utils/WidgetUtils.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-class RequestForDaysBack : public BackRequestStrategy {
-public:
-    RequestForDaysBack(int numDays);
+StandaloneDisplayableWidget::StandaloneDisplayableWidget(QWidget* parent)
+    : QWidget{parent}
+{
+}
 
-    dw::DateRange dateRange() const override;
+void StandaloneDisplayableWidget::display() { show(); }
 
-private:
-    int numDays;
-};
+bool StandaloneDisplayableWidget::isActive() const { return isVisible(); }
+
+void StandaloneDisplayableWidget::bringToTop()
+{
+    WidgetUtils::bringToForeground(this);
+}
+
+void StandaloneDisplayableWidget::dispose() { QWidget::close(); }
 
 } // namespace sprint_timer::ui::qt_gui
-
-#endif /* end of include guard: REQUESTFORDAYSBACK_H_N7Y5DX8W */

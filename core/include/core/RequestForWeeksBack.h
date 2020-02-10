@@ -22,9 +22,9 @@
 #ifndef REQUESTFORWEEKSBACK_H_YLQJ5OFZ
 #define REQUESTFORWEEKSBACK_H_YLQJ5OFZ
 
-#include "qt_gui/BackRequestStrategy.h"
+#include "core/BackRequestStrategy.h"
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer {
 
 class RequestForWeeksBack : public BackRequestStrategy {
 public:
@@ -37,7 +37,7 @@ private:
     dw::Weekday firstDayOfWeek;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer
 
 #endif /* end of include guard: REQUESTFORWEEKSBACK_H_YLQJ5OFZ */
 

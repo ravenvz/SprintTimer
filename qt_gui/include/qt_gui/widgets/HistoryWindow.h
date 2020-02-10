@@ -26,7 +26,7 @@
 #include "qt_gui/dialogs/ExportDialog.h"
 #include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/widgets/DateRangePicker.h"
-#include "qt_gui/widgets/DisplayableWidget.h"
+#include "qt_gui/widgets/StandaloneDisplayableWidget.h"
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <core/IConfig.h>
@@ -42,7 +42,7 @@ class HistoryWindow;
 
 namespace sprint_timer::ui::qt_gui {
 
-class HistoryWindow : public DisplayableWidget {
+class HistoryWindow : public StandaloneDisplayableWidget {
 
 public:
     HistoryWindow(

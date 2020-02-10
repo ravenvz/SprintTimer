@@ -22,7 +22,7 @@
 #ifndef HISTORYWINDOWPROXY_H_UIWGGP91
 #define HISTORYWINDOWPROXY_H_UIWGGP91
 
-#include "ManagedDisplayable.h"
+#include "ManagedStandaloneDisplayable.h"
 #include <QStyledItemDelegate>
 #include <core/IConfig.h>
 #include <core/QueryHandler.h>
@@ -36,7 +36,7 @@
 
 namespace sprint_timer::compose {
 
-class HistoryWindowProxy : public ManagedDisplayable {
+class HistoryWindowProxy : public ManagedStandaloneDisplayable {
 public:
     HistoryWindowProxy(
         QueryHandler<use_cases::RequestSprintsQuery,
@@ -69,7 +69,7 @@ private:
     QAbstractItemModel& operationRangeModel;
     const IConfig& applicationSettings;
 
-    std::unique_ptr<Displayable> create() override
+    std::unique_ptr<StandaloneDisplayable> create() override
     {
         return std::make_unique<ui::qt_gui::HistoryWindow>(
             requestSprintsHandler,

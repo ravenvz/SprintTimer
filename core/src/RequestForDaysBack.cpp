@@ -19,23 +19,36 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef REQUESTFORMONTHSBACK_H_CPBYLFIA
-#define REQUESTFORMONTHSBACK_H_CPBYLFIA
+#include "core/RequestForDaysBack.h"
 
-#include "qt_gui/BackRequestStrategy.h"
+namespace {
 
-namespace sprint_timer::ui::qt_gui {
+dw::DateRange nDaysBackTillNow(int numDays);
 
-class RequestForMonthsBack : public BackRequestStrategy {
-public:
-    RequestForMonthsBack(int numMonths);
+} // namespace
 
-    dw::DateRange dateRange() const override;
+namespace sprint_timer {
 
-private:
-    int numMonths;
-};
+RequestForDaysBack::RequestForDaysBack(int numDays_)
+    : numDays{numDays_}
+{
+}
 
-} // namespace sprint_timer::ui::qt_gui
+dw::DateRange RequestForDaysBack::dateRange() const
+{
+    return nDaysBackTillNow(numDays);
+}
 
-#endif /* end of include guard: REQUESTFORMONTHSBACK_H_CPBYLFIA */
+} // namespace sprint_timer
+
+namespace {
+
+dw::DateRange nDaysBackTillNow(int numDays)
+{
+    using namespace dw;
+    auto now = current_date_local();
+    auto from = now - Days{numDays - 1};
+    return {from, now};
+}
+
+} // namespace

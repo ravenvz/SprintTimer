@@ -19,21 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/widgets/DisplayableWidget.h"
-#include "qt_gui/utils/WidgetUtils.h"
+#ifndef REQUESTPROGRESSQUERY_H_ODK6IZ9X
+#define REQUESTPROGRESSQUERY_H_ODK6IZ9X
 
-namespace sprint_timer::ui::qt_gui {
+#include "core/BackRequestStrategy.h"
+#include "core/ProgressComputeStrategy.h"
+#include "core/ProgressOverPeriod.h"
+#include "core/Query.h"
 
-DisplayableWidget::DisplayableWidget(QWidget* parent)
-    : QWidget{parent}
+namespace sprint_timer::use_cases {
+
+struct RequestProgressQuery : public Query<ProgressOverPeriod> {
+};
+
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os,
+           const RequestProgressQuery& query)
 {
+    os << "RequestProgressQuery{}";
+    return os;
 }
 
-void DisplayableWidget::display() { show(); }
+} // namespace sprint_timer::use_cases
 
-bool DisplayableWidget::isActive() const { return isVisible(); }
-
-void DisplayableWidget::dispose() { QWidget::close(); }
-
-} // namespace sprint_timer::ui::qt_gui
-
+#endif /* end of include guard: REQUESTPROGRESSQUERY_H_ODK6IZ9X */

@@ -28,25 +28,26 @@
 namespace sprint_timer::ui::qt_gui {
 
 ProgressMonitorWidget::ProgressMonitorWidget(
-    std::unique_ptr<QWidget> dailyProgress,
-    std::unique_ptr<QWidget> weeklyProgress,
-    std::unique_ptr<QWidget> monthlyProgress,
+    std::unique_ptr<QWidget> dailyProgress_,
+    std::unique_ptr<QWidget> weeklyProgress_,
+    std::unique_ptr<QWidget> monthlyProgress_,
     QWidget* parent)
-    : SprintTimerWidget{parent}
+    : StandaloneDisplayableWidget{parent}
 {
-    dailyProgress->setSizePolicy(QSizePolicy::Expanding,
-                                 QSizePolicy::MinimumExpanding);
-    weeklyProgress->setSizePolicy(QSizePolicy::Preferred,
+    dailyProgress_->setSizePolicy(QSizePolicy::Expanding,
                                   QSizePolicy::MinimumExpanding);
-    monthlyProgress->setSizePolicy(QSizePolicy::Preferred,
+    weeklyProgress_->setSizePolicy(QSizePolicy::Preferred,
                                    QSizePolicy::MinimumExpanding);
+    monthlyProgress_->setSizePolicy(QSizePolicy::Preferred,
+                                    QSizePolicy::MinimumExpanding);
 
     auto layout = std::make_unique<QGridLayout>(this);
-    layout->setSpacing(15);
-    layout->setContentsMargins(20, 10, 20, 10);
-    layout->addWidget(dailyProgress.release(), 0, 0, 1, 2);
-    layout->addWidget(weeklyProgress.release(), 1, 0, 1, 1);
-    layout->addWidget(monthlyProgress.release(), 1, 1, 1, 1);
+    layout->setHorizontalSpacing(0);
+    layout->setVerticalSpacing(0);
+    layout->setContentsMargins(10, 5, 10, 5);
+    layout->addWidget(dailyProgress_.release(), 0, 0, 1, 2);
+    layout->addWidget(weeklyProgress_.release(), 1, 0, 1, 1);
+    layout->addWidget(monthlyProgress_.release(), 1, 1, 1, 1);
     setLayout(layout.release());
 
     setWindowIcon(QIcon(":icons/sprint_timer.png"));

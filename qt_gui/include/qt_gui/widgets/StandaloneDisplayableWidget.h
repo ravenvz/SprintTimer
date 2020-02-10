@@ -19,21 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef PROGRESSRANGEREQUESTSTRATEGY_H_CHJAEUU8
-#define PROGRESSRANGEREQUESTSTRATEGY_H_CHJAEUU8
+#ifndef DISPLAYABLEWIDGET_H_IPTOSZW1
+#define DISPLAYABLEWIDGET_H_IPTOSZW1
 
-#include <date_wrapper/date_wrapper.h>
+#include "qt_gui/StandaloneDisplayable.h"
+#include <QWidget>
 
 namespace sprint_timer::ui::qt_gui {
 
-class BackRequestStrategy {
+class StandaloneDisplayableWidget : public QWidget,
+                                    public StandaloneDisplayable {
 public:
-    virtual ~BackRequestStrategy() = default;
+    explicit StandaloneDisplayableWidget(QWidget* parent = nullptr);
 
-    virtual dw::DateRange dateRange() const = 0;
+    void display() override;
+
+    bool isActive() const override;
+
+    void bringToTop() override;
+
+    void dispose() override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: PROGRESSRANGEREQUESTSTRATEGY_H_CHJAEUU8 */
-
+#endif /* end of include guard: DISPLAYABLEWIDGET_H_IPTOSZW1 */

@@ -22,7 +22,7 @@
 #ifndef STATISTICSWINDOWPROXY_H_VYTYRJFC
 #define STATISTICSWINDOWPROXY_H_VYTYRJFC
 
-#include "ManagedDisplayable.h"
+#include "ManagedStandaloneDisplayable.h"
 #include <QAbstractItemModel>
 #include <core/IConfig.h>
 #include <core/QueryHandler.h>
@@ -34,7 +34,7 @@
 
 namespace sprint_timer::compose {
 
-class StatisticsWindowProxy : public ManagedDisplayable {
+class StatisticsWindowProxy : public ManagedStandaloneDisplayable {
 public:
     StatisticsWindowProxy(
         QueryHandler<use_cases::RequestSprintsQuery,
@@ -59,7 +59,7 @@ private:
     const ui::qt_gui::WorkScheduleWrapper& workScheduleWrapper;
     ui::qt_gui::DatasyncRelay& datasyncRelay;
 
-    std::unique_ptr<Displayable> create() override
+    std::unique_ptr<StandaloneDisplayable> create() override
     {
         return std::make_unique<ui::qt_gui::StatisticsWindow>(
             requestSprintsHandler,

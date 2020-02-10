@@ -22,8 +22,8 @@
 #ifndef LAUNCHERMENU_H_31QL4GCR
 #define LAUNCHERMENU_H_31QL4GCR
 
-#include "qt_gui/Displayable.h"
 #include "qt_gui/SprintTimerWidget.h"
+#include "qt_gui/StandaloneDisplayable.h"
 #include <QDialog>
 #include <core/IConfig.h>
 #include <memory>
@@ -37,9 +37,9 @@ namespace sprint_timer::ui::qt_gui {
 class LauncherMenu : public QWidget {
 
 public:
-    LauncherMenu(SprintTimerWidget& progressWindow,
-                 Displayable& statisticsWindow,
-                 Displayable& historyWindow,
+    LauncherMenu(StandaloneDisplayable& progressWindow,
+                 StandaloneDisplayable& statisticsWindow,
+                 StandaloneDisplayable& historyWindow,
                  QDialog& settingsDialog,
                  QWidget* parent = nullptr);
 
