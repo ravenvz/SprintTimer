@@ -23,71 +23,35 @@
 #include "ui_best_worktime_widget.h"
 #include <core/SprintStatistics.h>
 
-namespace {
-
-std::vector<dw::DateTimeRange>
-sprintRanges(const std::vector<sprint_timer::entities::Sprint>& sprints);
-
-} // namespace
-
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
 
-BestWorktimeWidget::BestWorktimeWidget(QWidget* parent)
-    : QWidget{parent}
+BestWorktimeWidget::BestWorktimeWidget(
+    BasePresenter<contracts::DaytimeStatisticsContract::View>& presenter_,
+    QWidget* parent_)
+    : QWidget{parent_}
     , ui{std::make_unique<Ui::BestWorktimeWidget>()}
+    , presenter{presenter_}
 {
     ui->setupUi(this);
+    presenter.attachView(*this);
 }
 
 BestWorktimeWidget::~BestWorktimeWidget() = default;
 
-void BestWorktimeWidget::setData(const std::vector<Sprint>& sprints)
-{
-    updateWorkHoursDiagram(sprints);
-}
-
-void BestWorktimeWidget::updateWorkHoursDiagram(
-    const std::vector<Sprint>& sprints)
-{
-    const auto workTimeDistribution = workingHoursStatistics(sprints);
-    auto timeRanges = sprintRanges(sprints);
-    updateLegend(workTimeDistribution, timeRanges.size());
-    ui->timeDiagram->setIntervals(std::move(timeRanges));
-}
-
 void BestWorktimeWidget::updateLegend(
-    const Distribution<double>& workTimeDistribution, size_t numSprints)
+    const contracts::DaytimeStatisticsContract::LegendData& data)
 {
-    if (numSprints == 0) {
-        ui->labelBestWorktimeName->setText("No data");
-        ui->labelBestWorktimeHours->setText("");
-    }
-    else {
-        auto maxValueBin
-            = static_cast<unsigned>(workTimeDistribution.getMaxValueBin());
-        ui->labelBestWorktimeName->setText(
-            QString::fromStdString(DayPart::dayPartName(maxValueBin)));
-        ui->labelBestWorktimeHours->setText(
-            QString::fromStdString(DayPart::dayPartHours(maxValueBin)));
-    }
+    ui->labelBestWorktimeName->setText(QString::fromStdString(data.periodName));
+    ui->labelBestWorktimeHours->setText(
+        QString::fromStdString(data.periodHours));
+}
+
+void BestWorktimeWidget::updateDiagram(
+    const contracts::DaytimeStatisticsContract::DiagramData& data)
+{
+    ui->timeDiagram->setIntervals(data.timeRanges);
 }
 
 } // namespace sprint_timer::ui::qt_gui
-
-namespace {
-
-std::vector<dw::DateTimeRange>
-sprintRanges(const std::vector<sprint_timer::entities::Sprint>& sprints)
-{
-    std::vector<dw::DateTimeRange> sprintRanges;
-    sprintRanges.reserve(sprints.size());
-    std::transform(sprints.cbegin(),
-                   sprints.cend(),
-                   std::back_inserter(sprintRanges),
-                   [](const auto& sprint) { return sprint.timeSpan(); });
-    return sprintRanges;
-}
-
-} // namespace

@@ -35,11 +35,10 @@ public:
             displayable->bringToTop();
             return;
         }
-        displayable = create();
+        else if (!displayable)
+            displayable = create();
         displayable->display();
     }
-
-    void dispose() override { displayable.reset(nullptr); }
 
     bool isActive() const override
     {

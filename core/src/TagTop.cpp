@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #include "core/TagTop.h"
 #include "core/SprintStatistics.h"
 #include <numeric>
@@ -37,7 +36,7 @@ TagTop::TagTop(const std::vector<Sprint>& sprints, size_t topMaxSize)
     mergeTagsWithLowestFrequencies();
 }
 
-TagTop::TagTop() {}
+TagTop::TagTop() { }
 
 void TagTop::arrangeSprintsByTag(const std::vector<Sprint>& sprints)
 {
@@ -135,14 +134,19 @@ std::vector<Tag> TagTop::findAllTags() const
     return allTags;
 }
 
-std::vector<TagTop::TagFrequency> TagTop::tagFrequencies() const
+const std::vector<TagTop::TagFrequency>& TagTop::tagFrequencies() const
 {
     return frequencies;
 }
 
-std::vector<Sprint> TagTop::sprintsForTagAt(size_t position) const
+const std::vector<Sprint>& TagTop::sprintsForTagAt(size_t position) const
 {
     return sprintsByTag.at(tagNameAt(position));
+}
+
+const std::vector<Sprint>& TagTop::sprintsForTag(const Tag& specificTag) const
+{
+    return sprintsByTag.at(specificTag);
 }
 
 std::string TagTop::tagNameAt(size_t position) const

@@ -25,107 +25,149 @@
 #include <QDate>
 #include <QtWidgets/QGridLayout>
 
+namespace {
+
+Qt::PenStyle
+toPenStyle(sprint_timer::ui::contracts::DailyStatisticGraphContract::LineStyle
+               lineStyle);
+
+double computeTopY(
+    const sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphData&
+        data);
+
+sprint_timer::ui::qt_gui::Graph::Data transformData(
+    const sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphData&
+        graphData);
+
+sprint_timer::ui::qt_gui::Graph::VisualOptions
+transformOptions(const sprint_timer::ui::contracts::
+                     DailyStatisticGraphContract::GraphOptions& graphOptions);
+
+} // namespace
+
 namespace sprint_timer::ui::qt_gui {
 
 namespace plot_params {
 
-    constexpr double penWidthF{2.2};
-    const QBrush pointBrush{Qt::white};
-    const QPen normalGraphPen{
-        QColor::fromRgb(246, 61, 13, 255), penWidthF, Qt::SolidLine};
-    const QPen averageGraphPen{Qt::blue, penWidthF, Qt::DotLine};
-    const QPen goalGraphPen{Qt::green, penWidthF, Qt::DashLine};
+constexpr double penWidthF{2.2};
+const QBrush pointBrush{Qt::white};
+const QPen normalGraphPen{
+    QColor::fromRgb(246, 61, 13, 255), penWidthF, Qt::SolidLine};
+const QPen averageGraphPen{Qt::blue, penWidthF, Qt::DotLine};
+const QPen goalGraphPen{Qt::green, penWidthF, Qt::DashLine};
 
 } // namespace plot_params
 
-DailyTimelineGraph::DailyTimelineGraph(QWidget* parent)
-    : QFrame{parent}
+DailyTimelineGraph::DailyTimelineGraph(
+    BasePresenter<contracts::DailyStatisticGraphContract::View>& presenter_,
+    QWidget* parent_)
+    : QFrame{parent_}
     , ui{std::make_unique<Ui::DailyTimelineGraph>()}
+    , presenter{presenter_}
 {
     ui->setupUi(this);
-    setupGraphs();
+    presenter_.attachView(*this);
 }
 
-DailyTimelineGraph::~DailyTimelineGraph() = default;
-
-void DailyTimelineGraph::setupGraphs()
-{
-    Graph averageGraph;
-    Graph normalGraph;
-    Graph goalGraph;
-
-    Graph::VisualOptions averageGraphOptions;
-    averageGraphOptions.linePen = plot_params::averageGraphPen;
-    averageGraph.setVisualOptions(std::move(averageGraphOptions));
-
-    Graph::VisualOptions normalGraphOptions;
-    normalGraphOptions.linePen = plot_params::normalGraphPen;
-    normalGraphOptions.showPoints = true;
-    normalGraphOptions.pointBrush = plot_params::pointBrush;
-    normalGraph.setVisualOptions(std::move(normalGraphOptions));
-
-    Graph::VisualOptions goalGraphOptions;
-    goalGraphOptions.linePen = plot_params::goalGraphPen;
-    goalGraph.setVisualOptions(std::move(goalGraphOptions));
-
-    ui->dailyTimeline->addGraph(std::move(averageGraph));
-    ui->dailyTimeline->addGraph(std::move(goalGraph));
-    ui->dailyTimeline->addGraph(std::move(normalGraph));
-}
-
-void DailyTimelineGraph::setData(const Distribution<double>& dailyDistribution,
-                                 const dw::DateRange& dateRange,
-                                 int numWorkdays,
-                                 int goalForPeriod)
-{
-    const double averagePerWorkday = (numWorkdays == 0)
-        ? 0.0
-        : dailyDistribution.getTotal() / static_cast<double>(numWorkdays);
-
-    const auto sprintsByDay = dailyDistribution.getDistributionVector();
-    Graph::Data averageData{
-        Graph::Point{0, averagePerWorkday, ""},
-        Graph::Point{static_cast<double>(dailyDistribution.getNumBins()),
-                     averagePerWorkday,
-                     ""}};
-    const double averagedGoal
-        = (numWorkdays == 0) ? 0 : goalForPeriod / numWorkdays;
-    Graph::Data goalData{
-        Graph::Point{0, static_cast<double>(averagedGoal), ""},
-        Graph::Point{static_cast<double>(dailyDistribution.getNumBins()),
-                     static_cast<double>(averagedGoal),
-                     ""}};
-    Graph::Data normalData;
-    normalData.reserve(sprintsByDay.size());
-    int position{0};
-    std::transform(
-        sprintsByDay.cbegin(),
-        sprintsByDay.cend(),
-        std::back_inserter(normalData),
-        [&](double value) {
-            const dw::Date date{dateRange.start() + dw::Days{position}};
-            const auto dayNumber = static_cast<unsigned>(date.day());
-            return Graph::Point{
-                double(position++), value, QString{"%1"}.arg(dayNumber)};
-        });
-
-    ui->dailyTimeline->setRangeX(0, dailyDistribution.getNumBins() + 1);
-    ui->dailyTimeline->setRangeY(0, dailyDistribution.getMax() + 1);
-    ui->dailyTimeline->changeGraphData(0, std::move(averageData));
-    ui->dailyTimeline->changeGraphData(1, std::move(goalData));
-    ui->dailyTimeline->changeGraphData(2, std::move(normalData));
-
-    ui->dailyTimeline->repaint();
-    updateLegend(dailyDistribution, averagePerWorkday);
-}
+DailyTimelineGraph::~DailyTimelineGraph() { presenter.detachView(*this); }
 
 void DailyTimelineGraph::updateLegend(
-    const Distribution<double>& dailyDistribution, double averagePerWorkday)
+    const contracts::DailyStatisticGraphContract::LegendData& data)
 {
-    ui->labelTotalSprints->setText(
-        QString("%1").arg(dailyDistribution.getTotal()));
-    ui->labelDailyAverage->setText(
-        QString("%1").arg(averagePerWorkday, 2, 'f', 2, '0'));
+    ui->labelTotalSprints->setText(QString::fromStdString(data.total));
+    ui->labelDailyAverage->setText(QString::fromStdString(data.average));
 }
 
+void DailyTimelineGraph::drawGraph(
+    const contracts::DailyStatisticGraphContract::GraphData& graphData)
+{
+
+    Graph graph;
+    auto data = transformData(graphData);
+    const auto options = transformOptions(graphData.options);
+    graph.setData(std::move(data));
+    graph.setVisualOptions(options);
+
+    ui->dailyTimeline->addGraph(graph);
+
+    ui->dailyTimeline->setRangeX(0, data.size());
+    ui->dailyTimeline->setRangeY(0, computeTopY(graphData));
+
+    ui->dailyTimeline->repaint();
+}
+
+void DailyTimelineGraph::clearGraphs() { ui->dailyTimeline->clear(); }
+
 } // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+Qt::PenStyle
+toPenStyle(sprint_timer::ui::contracts::DailyStatisticGraphContract::LineStyle
+               lineStyle)
+{
+    using sprint_timer::ui::contracts::DailyStatisticGraphContract::LineStyle;
+    switch (lineStyle) {
+    case LineStyle::Dash:
+        return Qt::PenStyle::DashLine;
+    case LineStyle::Dot:
+        return Qt::PenStyle::DotLine;
+    case LineStyle::Solid:
+        return Qt::PenStyle::SolidLine;
+    default:
+        return Qt::PenStyle::NoPen;
+    }
+}
+
+double computeTopY(
+    const sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphData&
+        graphData)
+{
+    const auto& values = graphData.values;
+    if (values.empty())
+        return 0;
+    return std::max_element(values.cbegin(),
+                            values.cend(),
+                            [](const auto& lhs, const auto& rhs) {
+                                return lhs.yValue.value < rhs.yValue.value;
+                            })
+        ->yValue.value;
+}
+
+sprint_timer::ui::qt_gui::Graph::Data transformData(
+    const sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphData&
+        graphData)
+{
+    using sprint_timer::ui::qt_gui::Graph;
+    const auto& values = graphData.values;
+    Graph::Data data;
+    data.reserve(values.size());
+
+    auto entryToData = [](const auto& entry) {
+        return Graph::Point{
+            entry.xValue.value,
+            entry.yValue.value,
+            QString{"%1"}.arg(QString::fromStdString(entry.label))};
+    };
+
+    std::transform(
+        values.cbegin(), values.cend(), std::back_inserter(data), entryToData);
+    return data;
+}
+
+sprint_timer::ui::qt_gui::Graph::VisualOptions
+transformOptions(const sprint_timer::ui::contracts::
+                     DailyStatisticGraphContract::GraphOptions& graphOptions)
+{
+    using sprint_timer::ui::qt_gui::Graph;
+    const Graph::VisualOptions options{
+        QPen{QBrush{QColor{QString::fromStdString(graphOptions.penColor)}},
+             graphOptions.penWidth,
+             toPenStyle(graphOptions.style)},
+        QBrush{QColor{QString::fromStdString(graphOptions.pointColor)}},
+        QPen{QString::fromStdString(graphOptions.penColor)},
+        graphOptions.showPoints};
+    return options;
+}
+
+} // namespace

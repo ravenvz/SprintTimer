@@ -29,8 +29,6 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-using dw::DateTimeRange;
-
 /* Displays vector of TimeSpan as a diagram.
  *
  * Diagram looks like a round clock that can display 24-hours instead
@@ -48,14 +46,14 @@ public:
     explicit TimeDiagram(QWidget* parent);
 
     /* Set vector of time intervals to display as a diagram. */
-    void setIntervals(std::vector<DateTimeRange> newIntervals);
+    void setIntervals(std::vector<dw::DateTimeRange> newIntervals);
 
 protected:
     void paintEvent(QPaintEvent*) override;
 
 private:
     const QColor timeSpanColor = QColor::fromRgb(246, 61, 13, 20);
-    std::vector<DateTimeRange> timeSpans;
+    std::vector<dw::DateTimeRange> timeSpans;
     QRectF totalSizeRect;
     QRectF diagramRect;
     double diagramRadius{0};
@@ -71,6 +69,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: TIMEDIAGRAM_H */

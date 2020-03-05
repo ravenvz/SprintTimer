@@ -22,6 +22,9 @@
 #ifndef ICONFIG_H
 #define ICONFIG_H
 
+// TODO don't think this belongs to the core. Move it from the core when jobs to
+// purge depencies on settings are done application-wise
+
 #include <chrono>
 #include <date_wrapper/date_wrapper.h>
 #include <string>

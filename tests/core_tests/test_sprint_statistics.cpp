@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #include "core/SprintBuilder.h"
 #include "core/SprintStatistics.h"
 #include "core/TagTop.h"
@@ -53,7 +52,6 @@ TEST(WeekdayStatistics, creates_reasonable_defaults_for_empty_distribution)
     EXPECT_DOUBLE_EQ(0, actual.getTotal());
 }
 
-
 TEST(WeekdayStatistics, returns_distribution)
 {
     using namespace dw;
@@ -65,8 +63,8 @@ TEST(WeekdayStatistics, returns_distribution)
                               Date{Year{2015}, Month{6}, Day{14}}};
     for (unsigned i = 1; i < 15; ++i) {
         for (unsigned j = 0; j < i; ++j) {
-            const DateTime sprintDateTime
-                = DateTime{Date{Year{2015}, Month{6}, Day{i}}};
+            const DateTime sprintDateTime =
+                DateTime{Date{Year{2015}, Month{6}, Day{i}}};
             increasingSprints.push_back(
                 sprintBuilder
                     .withTimeSpan(DateTimeRange{sprintDateTime, sprintDateTime})
@@ -87,11 +85,10 @@ TEST(WeekdayStatistics, returns_distribution)
     EXPECT_DOUBLE_EQ(expected_max, distribution.getMax());
 }
 
-
 TEST(WorkingHoursStatistics, creates_reasonable_defaults_for_empty_distribution)
 {
-    const std::vector<double> expected
-        = std::vector<double>(DayPart::numParts, 0);
+    const std::vector<double> expected =
+        std::vector<double>(DayPart::numParts, 0);
 
     const auto actual = workingHoursStatistics(std::vector<Sprint>{});
 
@@ -100,7 +97,6 @@ TEST(WorkingHoursStatistics, creates_reasonable_defaults_for_empty_distribution)
     EXPECT_DOUBLE_EQ(0, actual.getMax());
     EXPECT_DOUBLE_EQ(0, actual.getTotal());
 }
-
 
 TEST(WorkingHoursStatistics, returns_distribution)
 {
@@ -125,7 +121,6 @@ TEST(WorkingHoursStatistics, returns_distribution)
     EXPECT_DOUBLE_EQ(expectedMax, distribution.getMax());
     EXPECT_EQ(expectedMaxValueBin, distribution.getMaxValueBin());
 }
-
 
 TEST(DailyStatistics, creates_reasonable_defaults_for_empty_distribution)
 {
@@ -175,7 +170,6 @@ TEST(DailyStatistics, returns_distribution)
     EXPECT_EQ(expected, distribution.getDistributionVector());
 }
 
-
 TEST(DailyStatistics, ignores_sprints_outside_time_range)
 {
     using namespace dw;
@@ -198,7 +192,6 @@ TEST(DailyStatistics, ignores_sprints_outside_time_range)
 
     EXPECT_EQ(expectedDailyDistribution, distribution.getDistributionVector());
 }
-
 
 TEST(WeekdayStatistics, ignores_sprints_outside_time_range)
 {
@@ -223,7 +216,6 @@ TEST(WeekdayStatistics, ignores_sprints_outside_time_range)
     EXPECT_EQ(expectedWeekdayDistribution,
               distribution.getDistributionVector());
 }
-
 
 class TagTopFixture : public ::testing::Test {
 public:

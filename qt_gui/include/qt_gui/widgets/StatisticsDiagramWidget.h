@@ -35,7 +35,10 @@ class StatisticsDiagramWidget : public QFrame {
     Q_OBJECT
 
 public:
-    StatisticsDiagramWidget(QFrame* parent = nullptr);
+    StatisticsDiagramWidget(std::unique_ptr<QWidget> bestWorkdayWidget,
+                            std::unique_ptr<QWidget> tagDiagramWidget,
+                            std::unique_ptr<QWidget> bestWorktimeWidget,
+                            QFrame* parent = nullptr);
 
     void setData(const std::vector<entities::Sprint>& sprints,
                  const dw::DateRange& dateRange);

@@ -36,8 +36,7 @@ std::string join(ForwardIterator first,
                  const std::string& delimeter,
                  typename std::enable_if<!std::is_same<
                      typename std::iterator_traits<ForwardIterator>::value_type,
-                     std::string>::value>::type* dummy
-                 = 0)
+                     std::string>::value>::type* dummy = 0)
 {
     std::ostringstream res;
     for (auto it = first; it != last; ++it) {
@@ -57,8 +56,7 @@ std::string join(
     const std::string& delimeter,
     typename std::enable_if<
         std::is_same<typename std::iterator_traits<ForwardIterator>::value_type,
-                     std::string>::value>::type* dummy
-    = 0)
+                     std::string>::value>::type* dummy = 0)
 {
     std::ostringstream res;
     for (auto it = first; it != last; ++it) {
@@ -68,7 +66,6 @@ std::string join(
     }
     return res.str();
 }
-
 
 std::string join(const std::vector<std::string>& vec,
                  const std::string& delimeter);
@@ -82,6 +79,8 @@ parseWords(std::string text, std::regex expr = std::regex{"[[:alnum:]+-]+"});
 bool startsWith(const std::string& str, const std::string& start);
 
 bool endsWith(const std::string& str, const std::string& end);
+
+std::string formatDecimal(double value, int precision = 2);
 
 } // namespace sprint_timer::utils
 

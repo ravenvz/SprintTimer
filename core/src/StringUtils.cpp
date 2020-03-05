@@ -20,11 +20,12 @@
 **
 *********************************************************************************/
 #include "core/utils/StringUtils.h"
+#include <iomanip>
 
 namespace sprint_timer::utils {
 
 std::string join(const std::vector<std::string>& vec,
-                              const std::string& delimeter)
+                 const std::string& delimeter)
 {
     return join(vec.cbegin(), vec.cend(), delimeter);
 }
@@ -45,16 +46,23 @@ std::list<std::string> parseWords(std::string text, std::regex expr)
 
 bool startsWith(const std::string& str, const std::string& start)
 {
-	if (start.size() > str.size())
-		return false;
+    if (start.size() > str.size())
+        return false;
     return std::equal(start.cbegin(), start.cend(), str.cbegin());
 }
 
 bool endsWith(const std::string& str, const std::string& end)
 {
-	if (end.size() > str.size())
-		return false;
-	return std::equal(end.crbegin(), end.crend(), str.crbegin());
+    if (end.size() > str.size())
+        return false;
+    return std::equal(end.crbegin(), end.crend(), str.crbegin());
+}
+
+std::string formatDecimal(double value, int precision)
+{
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(precision) << value;
+    return ss.str();
 }
 
 } // namespace sprint_timer::utils

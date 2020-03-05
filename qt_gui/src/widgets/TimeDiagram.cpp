@@ -22,6 +22,18 @@
 #include "qt_gui/widgets/TimeDiagram.h"
 #include <QPainter>
 
+namespace {
+
+constexpr double oneMinuteInDegrees{0.25};
+constexpr int offsetInDegrees{90};
+constexpr int numSegmentsInDegree{16};
+constexpr double longTickRelativeLength{0.05};
+constexpr double tickAngle{double(360 / 24)};
+
+} // namespace
+
+using dw::DateTimeRange;
+
 namespace sprint_timer::ui::qt_gui {
 
 TimeDiagram::TimeDiagram(QWidget* parent)
@@ -42,14 +54,13 @@ void TimeDiagram::paintEvent(QPaintEvent*)
 void TimeDiagram::computeAdaptiveSizes()
 {
     totalSizeRect = rect();
-    double longTickRelativeLength = 0.05;
-    longTickLength = longTickRelativeLength
-        * std::min(totalSizeRect.width(), totalSizeRect.height());
+    longTickLength = longTickRelativeLength *
+                     std::min(totalSizeRect.width(), totalSizeRect.height());
     shortTickLength = longTickLength / 2;
     tickOffset = shortTickLength;
-    diagramRadius = (std::min(totalSizeRect.width(), totalSizeRect.height())
-                     - 2 * (longTickLength + tickOffset))
-        / 2;
+    diagramRadius = (std::min(totalSizeRect.width(), totalSizeRect.height()) -
+                     2 * (longTickLength + tickOffset)) /
+                    2;
     diagramRect = QRectF{totalSizeRect.center().x() - diagramRadius,
                          totalSizeRect.center().y() - diagramRadius,
                          diagramRadius * 2,
@@ -59,7 +70,6 @@ void TimeDiagram::computeAdaptiveSizes()
 void TimeDiagram::drawDiagramCanvas(QPainter& painter)
 {
     QPen pen;
-    double tickAngle = double(360 / 24);
     pen.setWidthF(1.2);
     pen.setColor(Qt::gray);
     painter.setPen(pen);
@@ -95,17 +105,12 @@ void TimeDiagram::drawIntervals(QPainter& painter)
     QBrush arcBrush = QBrush(timeSpanColor);
     painter.setBrush(arcBrush);
     painter.setPen(Qt::NoPen);
-    const double oneMinuteInDegrees = 0.25;
-    const int offsetInDegrees = 90;
-    const int sprintDuration = 25;
-    const int numSegmentsInDegree = 16;
-    const auto& timeSpansRef = timeSpans;
-    for (const auto& timeSpan : timeSpansRef) {
-        double start = (timeSpan.start().hour().count() * 60
-                        + timeSpan.start().minute().count())
-            * oneMinuteInDegrees;
-        // TODO replace with stored sprint duration when implemented
-        const double span = sprintDuration * oneMinuteInDegrees;
+    for (const auto& timeSpan : timeSpans) {
+        double start = (timeSpan.start().hour().count() * 60 +
+                        timeSpan.start().minute().count()) *
+                       oneMinuteInDegrees;
+        const double span = timeSpan.duration<std::chrono::minutes>().count() *
+                            oneMinuteInDegrees;
         painter.drawPie(diagramRect,
                         -(int(start) - offsetInDegrees) * numSegmentsInDegree,
                         -int(span) * numSegmentsInDegree);

@@ -39,6 +39,7 @@ constexpr size_t daysBetween(const dw::Date& date,
     return range.duration().count();
 }
 
+// TODO remove when all calls redirected to handler
 std::vector<int> weekdayFrequency(const dw::DateRange& dateRange)
 {
     std::vector<int> result(daysInWeek, 0);
@@ -50,6 +51,7 @@ std::vector<int> weekdayFrequency(const dw::DateRange& dateRange)
     return result;
 }
 
+// TODO remove when all calls redirected to handler
 constexpr bool containsDate(const dw::DateRange& dateRange,
                             const dw::Date& date) noexcept
 {
@@ -64,6 +66,7 @@ using dw::DateTime;
 using dw::DateTimeRange;
 using entities::Sprint;
 
+// TODO remove when all calls redirected to handler
 Distribution<double> weekdayStatistics(const std::vector<Sprint>& sprints,
                                        const dw::DateRange& dateRange)
 {
@@ -79,7 +82,6 @@ Distribution<double> weekdayStatistics(const std::vector<Sprint>& sprints,
                                 weekdayFrequency(dateRange)};
 }
 
-
 Distribution<double>
 workingHoursStatistics(const std::vector<entities::Sprint>& sprints)
 {
@@ -93,7 +95,6 @@ workingHoursStatistics(const std::vector<entities::Sprint>& sprints)
     return Distribution<double>{std::move(sprintsPerDayPart)};
 }
 
-
 Distribution<double> dailyStatistics(const std::vector<Sprint>& sprints,
                                      const dw::DateRange& dateRange)
 {
@@ -102,88 +103,87 @@ Distribution<double> dailyStatistics(const std::vector<Sprint>& sprints,
     for (const Sprint& sprint : sprints) {
         if (!containsDate(dateRange, sprint.startTime().date()))
             continue;
-        const auto dayNumber
-            = daysBetween(dateRange.start(), sprint.timeSpan().start());
+        const auto dayNumber =
+            daysBetween(dateRange.start(), sprint.timeSpan().start());
         ++sprintsPerDay[static_cast<size_t>(dayNumber)];
     }
 
     return Distribution<double>{std::move(sprintsPerDay)};
 }
 
-
 namespace DayPart {
 
-    DayPart dayPart(const DateTimeRange& timeSpan)
-    {
-        const auto hour = timeSpan.start().hour().count();
+DayPart dayPart(const DateTimeRange& timeSpan)
+{
+    const auto hour = timeSpan.start().hour().count();
 
-        if (22 < hour || hour <= 2) {
-            return DayPart::Midnight;
-        }
-        else if (2 < hour && hour <= 6) {
-            return DayPart::Night;
-        }
-        else if (6 < hour && hour <= 10) {
-            return DayPart::Morning;
-        }
-        else if (10 < hour && hour <= 14) {
-            return DayPart::Noon;
-        }
-        else if (14 < hour && hour <= 18) {
-            return DayPart::Afternoon;
-        }
-        else {
-            return DayPart::Evening;
-        }
+    if (22 < hour || hour <= 2) {
+        return DayPart::Midnight;
     }
+    else if (2 < hour && hour <= 6) {
+        return DayPart::Night;
+    }
+    else if (6 < hour && hour <= 10) {
+        return DayPart::Morning;
+    }
+    else if (10 < hour && hour <= 14) {
+        return DayPart::Noon;
+    }
+    else if (14 < hour && hour <= 18) {
+        return DayPart::Afternoon;
+    }
+    else {
+        return DayPart::Evening;
+    }
+}
 
-    std::string dayPartName(unsigned dayPart)
-    {
-        return dayPartName(static_cast<DayPart>(dayPart));
-    }
+std::string dayPartName(unsigned dayPart)
+{
+    return dayPartName(static_cast<DayPart>(dayPart));
+}
 
-    std::string dayPartName(DayPart dayPart)
-    {
-        switch (dayPart) {
-        case DayPart::Midnight:
-            return "Midnight";
-        case DayPart::Night:
-            return "Night";
-        case DayPart::Morning:
-            return "Morning";
-        case DayPart::Noon:
-            return "Noon";
-        case DayPart::Afternoon:
-            return "Afternoon";
-        case DayPart::Evening:
-            return "Evening";
-        }
-        return "Invalid";
+std::string dayPartName(DayPart dayPart)
+{
+    switch (dayPart) {
+    case DayPart::Midnight:
+        return "Midnight";
+    case DayPart::Night:
+        return "Night";
+    case DayPart::Morning:
+        return "Morning";
+    case DayPart::Noon:
+        return "Noon";
+    case DayPart::Afternoon:
+        return "Afternoon";
+    case DayPart::Evening:
+        return "Evening";
     }
+    return "Invalid";
+}
 
-    std::string dayPartHours(DayPart dayPart)
-    {
-        switch (dayPart) {
-        case DayPart::Midnight:
-            return "22:00 - 2:00";
-        case DayPart::Night:
-            return "2:00 - 6:00";
-        case DayPart::Morning:
-            return "6:00 - 10:00";
-        case DayPart::Noon:
-            return "10:00 - 14:00";
-        case DayPart::Afternoon:
-            return "14:00 - 18:00";
-        case DayPart::Evening:
-            return "18:00 - 22:00";
-        }
-        return "Invalid";
+std::string dayPartHours(DayPart dayPart)
+{
+    switch (dayPart) {
+    case DayPart::Midnight:
+        return "22:00 - 2:00";
+    case DayPart::Night:
+        return "2:00 - 6:00";
+    case DayPart::Morning:
+        return "6:00 - 10:00";
+    case DayPart::Noon:
+        return "10:00 - 14:00";
+    case DayPart::Afternoon:
+        return "14:00 - 18:00";
+    case DayPart::Evening:
+        return "18:00 - 22:00";
     }
+    return "Invalid";
+}
 
-    std::string dayPartHours(unsigned dayPart)
-    {
-        return dayPartHours(static_cast<DayPart>(dayPart));
-    }
+std::string dayPartHours(unsigned dayPart)
+{
+    return dayPartHours(static_cast<DayPart>(dayPart));
+}
 
 } // namespace DayPart
 

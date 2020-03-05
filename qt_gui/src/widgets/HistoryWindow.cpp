@@ -329,7 +329,7 @@ taskDataExtractor(const sprint_timer::entities::Task& task)
 {
     return std::make_pair(utils::toQDate(task.lastModified()),
                           taskToString(task));
-};
+}
 
 template <typename ItemContainer, typename ExtractFn>
 HistoryModel::HistoryData extractHistoryData(const ItemContainer& itemContainer,
@@ -344,7 +344,8 @@ HistoryModel::HistoryData extractHistoryData(const ItemContainer& itemContainer,
                    std::back_inserter(history),
                    extractingFunction);
     return history;
-};
+}
+
 } // namespace
 
 } // namespace sprint_timer::ui::qt_gui

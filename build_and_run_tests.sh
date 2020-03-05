@@ -41,6 +41,8 @@ while getopts "drcamutzvn" opt ; do
 		   ;;
         n) build_tool="ninja"
            generator="Ninja"
+           ;;
+        *) exit 0
     esac
 done
 

@@ -37,8 +37,6 @@ public:
     bool isActive() const override;
 
     void bringToTop() override;
-
-    void dispose() override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

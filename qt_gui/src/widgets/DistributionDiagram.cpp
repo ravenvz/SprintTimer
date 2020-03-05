@@ -25,20 +25,12 @@
 #include <core/entities/Tag.h>
 #include <memory>
 
-namespace {
-
-void nameMergedTags(
-    std::vector<sprint_timer::TagTop::TagFrequency>& tagFrequencies);
-
-std::vector<sprint_timer::ui::qt_gui::DataItem> toDataItems(
-    const std::vector<sprint_timer::TagTop::TagFrequency>& tagFrequencies);
-
-} // namespace
-
 namespace sprint_timer::ui::qt_gui {
 
-DistributionDiagram::DistributionDiagram(QWidget* parent)
-    : QWidget{parent}
+DistributionDiagram::DistributionDiagram(
+    contracts::TagPieDiagramContract::Presenter& presenter_, QWidget* parent_)
+    : QWidget{parent_}
+    , presenter{presenter_}
 {
     auto layout = std::make_unique<QHBoxLayout>();
     diagram = std::make_unique<PieChart>(this).release();
@@ -54,18 +46,37 @@ DistributionDiagram::DistributionDiagram(QWidget* parent)
             &IStatisticalChartLegend::itemClicked,
             this,
             &DistributionDiagram::onLegendItemClicked);
+    presenter.attachView(*this);
 }
 
 DistributionDiagram::~DistributionDiagram() = default;
 
-void DistributionDiagram::setData(
-    std::vector<TagTop::TagFrequency>&& tagFrequencies)
+void DistributionDiagram::updateLegend(const std::vector<std::string>& tagNames)
 {
-    selectedSliceIndex = std::optional<size_t>();
-    nameMergedTags(tagFrequencies);
-    const auto data = toDataItems(tagFrequencies);
-    legend->setData(data);
-    diagram->setData(data);
+    legend->setData(tagNames);
+}
+
+void DistributionDiagram::updateDiagram(
+    std::vector<contracts::TagPieDiagramContract::DiagramData>&& data)
+{
+    std::vector<PieChart::LabelData> pieChartData;
+    pieChartData.reserve(data.size());
+    std::transform(cbegin(data),
+                   cend(data),
+                   std::back_inserter(pieChartData),
+                   [](const auto& elem) {
+                       return PieChart::LabelData{
+                           elem.color, elem.percentage, elem.tagName};
+                   });
+    diagram->setData(pieChartData);
+}
+
+void DistributionDiagram::toggleSelection(std::optional<size_t> selection)
+{
+    if (!selection)
+        return;
+    legend->toggleSelected(*selection);
+    diagram->togglePartActive(*selection);
 }
 
 void DistributionDiagram::setLegendTitle(const QString& title)
@@ -80,23 +91,7 @@ void DistributionDiagram::setLegendTitleFont(QFont font)
 
 void DistributionDiagram::onChartPartClicked(size_t partIndex)
 {
-    const bool selectedNewItem
-        = selectedSliceIndex && (*selectedSliceIndex != partIndex);
-    const bool selectedSameItem = selectedSliceIndex
-        && (*selectedSliceIndex == partIndex) && legend->isSelected(partIndex);
-
-    if (selectedNewItem) {
-        legend->toggleSelected(*selectedSliceIndex);
-        selectedSliceIndex = partIndex;
-    }
-
-    selectedSliceIndex
-        = (selectedSameItem) ? std::optional<size_t>() : partIndex;
-
-    legend->toggleSelected(partIndex);
-    diagram->togglePartActive(partIndex);
-
-    emit chartSelectionChanged(partIndex);
+    presenter.onTagIndexSelected(partIndex);
 }
 
 void DistributionDiagram::onLegendItemClicked(size_t itemIndex)
@@ -105,30 +100,3 @@ void DistributionDiagram::onLegendItemClicked(size_t itemIndex)
 }
 
 } // namespace sprint_timer::ui::qt_gui
-
-
-namespace {
-
-void nameMergedTags(
-    std::vector<sprint_timer::TagTop::TagFrequency>& tagFrequencies)
-{
-    if (!tagFrequencies.empty()
-        && tagFrequencies.back().first == sprint_timer::entities::Tag{""})
-        tagFrequencies.back().first.setName("others");
-}
-
-std::vector<sprint_timer::ui::qt_gui::DataItem> toDataItems(
-    const std::vector<sprint_timer::TagTop::TagFrequency>& tagFrequencies)
-{
-    std::vector<std::pair<std::string, double>> data;
-    data.reserve(tagFrequencies.size());
-    std::transform(tagFrequencies.cbegin(),
-                   tagFrequencies.cend(),
-                   std::back_inserter(data),
-                   [](const auto& elem) -> std::pair<std::string, double> {
-                       return {elem.first.name(), elem.second};
-                   });
-    return data;
-}
-
-} // namespace

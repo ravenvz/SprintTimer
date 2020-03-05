@@ -80,8 +80,7 @@ DateRangePicker::~DateRangePicker() = default;
 
 void DateRangePicker::openDatePickDialog()
 {
-    DateRangePickDialog dialog{firstDayOfWeek};
-    dialog.setSelectionRange(selectedDateRange);
+    DateRangePickDialog dialog{firstDayOfWeek, selectedDateRange};
     if (dialog.exec())
         onRangeChanged(dialog.selectedRange());
 }
@@ -127,8 +126,111 @@ void DateRangePicker::preselectCurrentYearMonth()
     const int currentYear{dw::current_date_local().year()};
     const int offset{currentYear - firstYear};
     ui->cbxYear->setCurrentIndex(offset);
-
     ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+DateRangeSelector::DateRangeSelector(
+    contracts::DateRangeSelectorContract::Presenter& presenter_,
+    QWidget* parent_)
+    : QWidget{parent_}
+    , ui{std::make_unique<Ui::DateRangePicker>()}
+    , presenter{presenter_}
+    , monthsModel{monthNames()}
+    , selectedDateRange{currentMonth()}
+{
+    ui->setupUi(this);
+    ui->cbxMonth->setModel(&monthsModel);
+    presenter.attachView(*this);
+
+    connect(ui->btnPickPeriod,
+            &QPushButton::clicked,
+            this,
+            &DateRangeSelector::openDatePickDialog);
+    connect(ui->cbxYear,
+            QOverload<int>::of(&QComboBox::activated),
+            this,
+            QOverload<>::of(&DateRangeSelector::onYearOrMonthChanged));
+    connect(ui->cbxMonth,
+            QOverload<int>::of(&QComboBox::activated),
+            this,
+            QOverload<>::of(&DateRangeSelector::onYearOrMonthChanged));
+}
+
+DateRangeSelector::~DateRangeSelector() { presenter.detachView(*this); }
+
+void DateRangeSelector::updateOperationalRange(const std::vector<int>& years)
+{
+    QStringList lst;
+    lst.reserve(years.size());
+    std::transform(cbegin(years),
+                   cend(years),
+                   std::back_inserter(lst),
+                   [](const auto& elem) { return QString("%1").arg(elem); });
+    yearsModel = std::make_unique<QStringListModel>(lst);
+
+    ui->cbxMonth->setModel(&monthsModel);
+    ui->cbxYear->setModel(yearsModel.get());
+    updateSelectionHintLabel();
+    preselectCurrentYearMonth();
+}
+
+void DateRangeSelector::setFirstDayOfWeek(dw::Weekday weekday)
+{
+    firstDayOfWeek = weekday;
+}
+
+void DateRangeSelector::onYearOrMonthChanged()
+{
+    using namespace dw;
+    const dw::Date start{
+        Year{ui->cbxYear->currentText().toInt()},
+        Month{static_cast<unsigned>(ui->cbxMonth->currentIndex() + 1)},
+        Day{1}};
+    const dw::Date finish = dw::last_day_of_month(start);
+    selectedDateRange = DateRange{start, finish};
+    presenter.onSelectedRangeChanged(selectedDateRange);
+    updateSelectionHintLabel();
+}
+
+void DateRangeSelector::onRangeChanged(const dw::DateRange& dateRange)
+{
+    selectedDateRange = dateRange;
+    presenter.onSelectedRangeChanged(selectedDateRange);
+    updateSelectionHintLabel();
+}
+
+void DateRangeSelector::updateSelectionHintLabel()
+{
+    // using QDate instead of dw::date here when converting to string
+    // provides date localization
+    ui->labelSelectionHint->setText(
+        QString{"%1 - %2"}
+            .arg(utils::toQDate(selectedDateRange.start()).toString())
+            .arg(utils::toQDate(selectedDateRange.finish()).toString()));
+}
+
+void DateRangeSelector::openDatePickDialog()
+{
+    DateRangePickDialog dialog{firstDayOfWeek, selectedDateRange};
+    if (dialog.exec())
+        onRangeChanged(dialog.selectedRange());
+}
+
+void DateRangeSelector::preselectCurrentYearMonth()
+{
+    using namespace dw;
+    const int firstYear{
+        ui->cbxYear->itemData(0, Qt::DisplayRole).toString().toInt()};
+    const Date currentDate = current_date_local();
+    const int currentYear{currentDate.year()};
+    const int offset{currentYear - firstYear};
+    ui->cbxYear->setCurrentIndex(offset);
+    ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
+    onRangeChanged(
+        DateRange{Date{currentDate.year(), currentDate.month(), Day{1}},
+                  last_day_of_month(currentDate)});
 }
 
 } // namespace sprint_timer::ui::qt_gui

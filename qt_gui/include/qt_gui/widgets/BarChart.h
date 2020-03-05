@@ -55,7 +55,6 @@ private:
 };
 
 class BarChart : public QWidget {
-    Q_OBJECT
 
 public:
     explicit BarChart(QWidget* parent);
@@ -76,6 +75,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // BARCHART_H

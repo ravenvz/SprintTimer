@@ -22,9 +22,9 @@
 #ifndef PIECHART_H_65LSH0MP
 #define PIECHART_H_65LSH0MP
 
-#include <QPainter>
-#include <QMouseEvent>
 #include "qt_gui/widgets/IStatisticalChart.h"
+#include <QMouseEvent>
+#include <QPainter>
 #include <cmath>
 #include <optional>
 
@@ -38,27 +38,33 @@ namespace sprint_timer::ui::qt_gui {
  * the chart.
  * When user selects slice with left mouse click, partClicked(size_t)
  * signal is emitted, indicating an index of the selected slice. */
-class PieChart : public IStatisticalChart {
+class PieChart : public QWidget {
+
     Q_OBJECT
 
 public:
+    struct LabelData {
+        std::string name;
+        double percentage;
+        std::string colorCode;
+    };
+
     explicit PieChart(QWidget* parent);
 
     /* Set data that should be displayed as a pie chart.
      * Labels are ignored by this implementation and sum of all
      * values is treated as 100% */
-    void setData(const std::vector<IStatisticalChart::LabelValuePair>&
-                     dataToDisplay) override;
+    void setData(const std::vector<LabelData>& data);
 
     /* Toggle slice at index as expanded/normal. */
-    void togglePartActive(size_t sliceIndex) override;
+    void togglePartActive(size_t sliceIndex);
 
 protected:
     /* Overriden to implement drawing of the chart. */
-    void paintEvent(QPaintEvent*) override;
+    void paintEvent(QPaintEvent*);
 
     /* Overriden to capture left mouse click on the chart. */
-    void mousePressEvent(QMouseEvent* event) override;
+    void mousePressEvent(QMouseEvent* event);
 
 private:
     /* Rect that bounds this widget for this widget. */
@@ -71,21 +77,7 @@ private:
      */
     std::optional<size_t> activeSliceInd;
     /* Data that is to be displayed as a pie chart. */
-    std::vector<LabelValuePair> data;
-    /* Constant pi. */
-    const double pi{std::acos(-1)};
-    /* Colors for the slices. */
-    std::vector<QBrush> brushes{QBrush(QColor("#28245a")),
-                                QBrush(QColor("#73c245")),
-                                QBrush(QColor("#ea6136")),
-                                QBrush(QColor("#1d589b")),
-                                QBrush(QColor("#d62a36")),
-                                QBrush(QColor("#401b60")),
-                                QBrush(QColor("#f8cd32")),
-                                QBrush(QColor("#258bc8")),
-                                QBrush(QColor("#087847"))};
-    /* Color for chart and slices borders. */
-    const QPen borderColor{Qt::gray};
+    std::vector<LabelData> data;
 
     /* Compute sizes of bounding rectangles. */
     void computeAdaptiveSizes();
@@ -96,9 +88,11 @@ private:
     /* Handle left mouse click event. Emit partClicked(size_t index) with
      * index of clicked slice. */
     void onLeftMouseClick(const QPoint& pos);
+
+signals:
+    void partClicked(size_t);
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: PIECHART_H_65LSH0MP */

@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "core/Observable.h"
 #include "core/Observer.h"
+#include "mocks/QueryHandlerMock.h"
 #include "gmock/gmock.h"
 #include <core/QueryHandler.h>
 #include <core/use_cases/request_progress/RequestProgressQuery.h>
@@ -40,12 +41,6 @@ const std::string restDayEmptyColor{"#ffa500"};
 const std::string blancColor{"#ffffff"};
 
 } // namespace colors
-
-template <typename QueryT, typename ResultT>
-class QueryHandlerMock : public sprint_timer::QueryHandler<QueryT, ResultT> {
-public:
-    MOCK_METHOD(ResultT, handle, (QueryT &&), (override));
-};
 
 namespace sprint_timer::ui::contracts::DailyProgress {
 
@@ -149,8 +144,8 @@ class ProgressPresenterFixture : public ::testing::Test {
 public:
     ::testing::NiceMock<ProgressWidgetMock> viewMock;
     ::testing::NiceMock<
-        QueryHandlerMock<sprint_timer::use_cases::RequestProgressQuery,
-                         ProgressOverPeriod>>
+        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestProgressQuery,
+                                ProgressOverPeriod>>
         requestProgressHandlerMock;
     ::testing::NiceMock<ObservableMock> observableMock;
 };
@@ -175,8 +170,7 @@ TEST_F(ProgressPresenterFixture, displays_gauges_with_correct_colors)
         .WillByDefault(::testing::Return(progress));
     EXPECT_CALL(viewMock, displayGauges(expected)).Times(1);
 
-    sprint_timer::ui::ProgressPresenter presenter{
-        requestProgressHandlerMock};
+    sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
     presenter.attachView(viewMock);
 }
 
@@ -194,8 +188,7 @@ TEST_F(ProgressPresenterFixture, displays_legend_for_empty_progress)
         .WillByDefault(::testing::Return(progress));
     EXPECT_CALL(viewMock, displayLegend(expected)).Times(1);
 
-    sprint_timer::ui::ProgressPresenter presenter{
-        requestProgressHandlerMock};
+    sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
     presenter.attachView(viewMock);
 }
 
@@ -213,8 +206,7 @@ TEST_F(ProgressPresenterFixture, displays_legend_for_underwork_progress)
         .WillByDefault(::testing::Return(progress));
     EXPECT_CALL(viewMock, displayLegend(expected)).Times(1);
 
-    sprint_timer::ui::ProgressPresenter presenter{
-        requestProgressHandlerMock};
+    sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
     presenter.attachView(viewMock);
 }
 
@@ -231,8 +223,7 @@ TEST_F(ProgressPresenterFixture, displays_legend_for_overwork_progress)
         .WillByDefault(::testing::Return(progress));
     EXPECT_CALL(viewMock, displayLegend(expected)).Times(1);
 
-    sprint_timer::ui::ProgressPresenter presenter{
-        requestProgressHandlerMock};
+    sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
     presenter.attachView(viewMock);
 }
 
@@ -248,8 +239,7 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_for_empty_progress)
         .WillByDefault(::testing::Return(progress));
     EXPECT_CALL(viewMock, displayProgressBar(expected)).Times(1);
 
-    sprint_timer::ui::ProgressPresenter presenter{
-        requestProgressHandlerMock};
+    sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
     presenter.attachView(viewMock);
 }
 
@@ -266,8 +256,7 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_underwork_progress)
         .WillByDefault(::testing::Return(progress));
     EXPECT_CALL(viewMock, displayProgressBar(expected)).Times(1);
 
-    sprint_timer::ui::ProgressPresenter presenter{
-        requestProgressHandlerMock};
+    sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
     presenter.attachView(viewMock);
 }
 
@@ -287,13 +276,11 @@ TEST_F(ProgressPresenterFixture,
         .WillByDefault(::testing::Return(progress));
     EXPECT_CALL(viewMock, displayProgressBar(expected)).Times(1);
 
-    sprint_timer::ui::ProgressPresenter presenter{
-        requestProgressHandlerMock};
+    sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
     presenter.attachView(viewMock);
 }
 
-TEST_F(ProgressPresenterFixture,
-       displays_progress_bar_for_overwork_progress)
+TEST_F(ProgressPresenterFixture, displays_progress_bar_for_overwork_progress)
 {
     const ProgressOverPeriod progress{
         {GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{0}},
@@ -306,8 +293,7 @@ TEST_F(ProgressPresenterFixture,
         .WillByDefault(::testing::Return(progress));
     EXPECT_CALL(viewMock, displayProgressBar(expected)).Times(1);
 
-    sprint_timer::ui::ProgressPresenter presenter{
-        requestProgressHandlerMock};
+    sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
     presenter.attachView(viewMock);
 }
 
@@ -324,7 +310,6 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_when_goal_is_met)
         .WillByDefault(::testing::Return(progress));
     EXPECT_CALL(viewMock, displayProgressBar(expected)).Times(1);
 
-    sprint_timer::ui::ProgressPresenter presenter{
-        requestProgressHandlerMock};
+    sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
     presenter.attachView(viewMock);
 }

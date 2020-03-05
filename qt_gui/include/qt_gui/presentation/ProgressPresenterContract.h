@@ -22,7 +22,7 @@
 #ifndef DAILYPROGRESSPRESENTERCONTRACT_H_ERA0VCQQ
 #define DAILYPROGRESSPRESENTERCONTRACT_H_ERA0VCQQ
 
-#include "qt_gui/presentation/Presenter.h"
+#include "qt_gui/presentation/BasePresenter.h"
 #include <core/ProgressOverPeriod.h>
 
 namespace sprint_timer::ui::contracts::DailyProgress {

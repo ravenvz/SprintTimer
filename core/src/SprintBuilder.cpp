@@ -61,13 +61,13 @@ SprintBuilder& SprintBuilder::withTaskUuid(std::string uuid)
 
 SprintBuilder& SprintBuilder::withTag(Tag tag)
 {
-    tags_.emplace_back(std::move(tag));
+    tags_.push_back(std::move(tag));
     return *this;
 }
 
 SprintBuilder& SprintBuilder::withTag(std::string tag)
 {
-    tags_.emplace_back(Tag{std::move(tag)});
+    tags_.push_back(Tag{std::move(tag)});
     return *this;
 }
 

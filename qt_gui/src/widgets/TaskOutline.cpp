@@ -142,6 +142,6 @@ buildFromIntervals(const std::string& taskUuid,
         });
 
     return sprints;
-};
+}
 
 } // namespace

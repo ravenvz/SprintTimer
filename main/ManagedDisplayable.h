@@ -37,8 +37,6 @@ public:
         displayable->display();
     }
 
-    void dispose() override { displayable.reset(nullptr); }
-
     bool isActive() const override
     {
         return displayable && displayable->isActive();

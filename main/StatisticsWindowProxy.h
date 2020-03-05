@@ -32,41 +32,74 @@
 #include <qt_gui/utils/WidgetUtils.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
 
+#include <qt_gui/presentation/BasePresenter.h>
+#include <qt_gui/presentation/BestWorkdayContract.h>
+#include <qt_gui/presentation/DailyStatisticsGraphContract.h>
+#include <qt_gui/presentation/DateRangeSelectorContract.h>
+#include <qt_gui/presentation/DaytimeStatisticsContract.h>
+#include <qt_gui/presentation/TagPieDiagramContract.h>
+#include <qt_gui/widgets/BestWorkdayWidget.h>
+#include <qt_gui/widgets/BestWorktimeWidget.h>
+#include <qt_gui/widgets/DailyTimelineGraph.h>
+#include <qt_gui/widgets/DateRangePicker.h>
+#include <qt_gui/widgets/DistributionDiagram.h>
+
 namespace sprint_timer::compose {
 
 class StatisticsWindowProxy : public ManagedStandaloneDisplayable {
 public:
     StatisticsWindowProxy(
-        QueryHandler<use_cases::RequestSprintsQuery,
-                     std::vector<entities::Sprint>>& requestSprintsHandler_,
-        IConfig& settings_,
-        QAbstractItemModel& operationRangeModel_,
-        const ui::qt_gui::WorkScheduleWrapper& workScheduleWrapper_,
-        ui::qt_gui::DatasyncRelay& datasyncRelay_)
-        : requestSprintsHandler{requestSprintsHandler_}
-        , settings{settings_}
-        , operationRangeModel{operationRangeModel_}
-        , workScheduleWrapper{workScheduleWrapper_}
-        , datasyncRelay{datasyncRelay_}
+        // IConfig& settings_,
+        // TODO rename - remove contract from name, it might be inferred from
+        // namespace
+        ui::BasePresenter<ui::contracts::DailyStatisticGraphContract::View>&
+            dailyStatisticsGraphPresenter_,
+        ui::BasePresenter<ui::contracts::BestWorkday::View>&
+            bestWorkdayPresenter_,
+        ui::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
+            bestWorktimePresenter_,
+        ui::contracts::TagPieDiagramContract::Presenter& tagDiagramPresenter_,
+        // ui::BasePresenter<ui::contracts::DateRangeSelectorContract::View>&
+        //     dateRangeSelectorPresenter_)
+        ui::contracts::DateRangeSelectorContract::Presenter&
+            dateRangeSelectorPresenter_)
+        // : settings{settings_}
+        : dailyStatisticsGraphPresenter{dailyStatisticsGraphPresenter_}
+        , bestWorkdayPresenter{bestWorkdayPresenter_}
+        , bestWorktimePresenter{bestWorktimePresenter_}
+        , tagDiagramPresenter{tagDiagramPresenter_}
+        , dateRangeSelectorPresenter{dateRangeSelectorPresenter_}
     {
     }
 
 private:
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler;
-    IConfig& settings;
-    QAbstractItemModel& operationRangeModel;
-    const ui::qt_gui::WorkScheduleWrapper& workScheduleWrapper;
-    ui::qt_gui::DatasyncRelay& datasyncRelay;
+    // IConfig& settings;
+    ui::BasePresenter<ui::contracts::DailyStatisticGraphContract::View>&
+        dailyStatisticsGraphPresenter;
+    ui::BasePresenter<ui::contracts::BestWorkday::View>& bestWorkdayPresenter;
+    ui::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
+        bestWorktimePresenter;
+    ui::contracts::TagPieDiagramContract::Presenter& tagDiagramPresenter;
+    // ui::BasePresenter<ui::contracts::DateRangeSelectorContract::View>&
+    //     dateRangeSelectorPresenter;
+    ui::contracts::DateRangeSelectorContract::Presenter&
+        dateRangeSelectorPresenter;
 
     std::unique_ptr<StandaloneDisplayable> create() override
     {
-        return std::make_unique<ui::qt_gui::StatisticsWindow>(
-            requestSprintsHandler,
-            settings.firstDayOfWeek(),
-            operationRangeModel,
-            workScheduleWrapper,
-            datasyncRelay);
+        using namespace sprint_timer::ui::qt_gui;
+        return std::make_unique<StatisticsWindow>(
+            std::make_unique<DailyTimelineGraph>(dailyStatisticsGraphPresenter),
+            std::make_unique<BestWorkdayWidget>(bestWorkdayPresenter),
+            std::make_unique<BestWorktimeWidget>(bestWorktimePresenter),
+            std::make_unique<DistributionDiagram>(tagDiagramPresenter),
+            std::make_unique<DateRangeSelector>(dateRangeSelectorPresenter)
+            // std::make_unique<DateRangeSelector>(
+            //     static_cast<
+            //         ui::contracts::DateRangeSelectorContract::Presenter&>(
+            //         dateRangeSelectorPresenter))
+
+        );
     }
 };
 

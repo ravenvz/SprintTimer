@@ -22,13 +22,12 @@
 #include "qt_gui/widgets/ProgressWidget.h"
 #include "qt_gui/widgets/Gauge.h"
 #include "ui_progress_widget.h"
-#include <QDebug>
 #include <QtWidgets/QGridLayout>
 
 namespace sprint_timer::ui::qt_gui {
 
 ProgressWidget::ProgressWidget(
-    Presenter<contracts::DailyProgress::View>& presenter_,
+    BasePresenter<contracts::DailyProgress::View>& presenter_,
     Rows numRows_,
     Columns numColumns_,
     GaugeSize gaugeRelSize_,
@@ -102,7 +101,6 @@ void ProgressWidget::displayLegend(
 void ProgressWidget::displayGauges(
     const std::vector<contracts::DailyProgress::GaugeValues>& data)
 {
-    qDebug() << "HERE";
     for (size_t row = 0, ind = 0; row < numRows.value; ++row) {
         for (size_t col = 0; col < numColumns.value; ++col, ++ind) {
             QLayoutItem* item = ui->gaugeLayout->itemAtPosition(

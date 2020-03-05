@@ -22,6 +22,8 @@
 #ifndef BESTWORKDAYWIDGET_H
 #define BESTWORKDAYWIDGET_H
 
+#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/presentation/BestWorkdayContract.h"
 #include <QtWidgets/QWidget>
 #include <core/Distribution.h>
 #include <core/SprintStatistics.h>
@@ -33,26 +35,23 @@ class BestWorkdayWidget;
 
 namespace sprint_timer::ui::qt_gui {
 
-class BestWorkdayWidget : public QWidget {
+class BestWorkdayWidget : public QWidget, public contracts::BestWorkday::View {
 
 public:
-    explicit BestWorkdayWidget(QWidget* parent = nullptr);
+    explicit BestWorkdayWidget(
+        BasePresenter<contracts::BestWorkday::View>& presenter,
+        QWidget* parent = nullptr);
 
-    virtual ~BestWorkdayWidget();
-
-    void setData(const std::vector<entities::Sprint>& weekdayDistribution,
-                 const dw::DateRange& timeSpan);
+    virtual ~BestWorkdayWidget() override;
 
 private:
     std::unique_ptr<Ui::BestWorkdayWidget> ui;
-    std::vector<QString> labels;
+    BasePresenter<contracts::BestWorkday::View>& presenter;
 
-    void setupWeekdayBarChart();
+    void displayBars(const contracts::BestWorkday::View::BarD& data) override;
 
-    void updateWeekdayBarChart(const Distribution<double>& weekdayDistribution);
-
-    void updateWeekdayBarChartLegend(
-        const Distribution<double>& weekdayDistribution);
+    void displayLegend(
+        const contracts::BestWorkday::View::LegendData& data) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

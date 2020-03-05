@@ -34,8 +34,6 @@ public:
     void display() override;
 
     bool isActive() const override;
-
-    void dispose() override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -28,6 +28,7 @@
 #include <core/Observer.h>
 #include <core/QueryHandler.h>
 #include <core/use_cases/request_progress/RequestProgressQuery.h>
+#include <core/utils/StringUtils.h>
 #include <iomanip>
 #include <iterator>
 
@@ -47,8 +48,6 @@ const std::string restDayEmptyColor{"#ffa500"};
 
 LegendData composeLegendData(const ProgressOverPeriod& progress);
 
-std::string formatDecimal(double value);
-
 GaugeValues composeGaugeValues(const GoalProgress& progress);
 
 std::vector<GaugeValues> composeGaugeData(const ProgressOverPeriod& progress);
@@ -59,7 +58,7 @@ ProgressBarData composeProgressBarData(const ProgressOverPeriod& progress);
 
 namespace sprint_timer::ui {
 
-class ProgressPresenter : public Presenter<contracts::DailyProgress::View> {
+class ProgressPresenter : public BasePresenter<contracts::DailyProgress::View> {
 public:
     explicit ProgressPresenter(
         QueryHandler<use_cases::RequestProgressQuery, ProgressOverPeriod>&
@@ -68,16 +67,12 @@ public:
     {
     }
 
-    void onViewAttached() override { updateView(); }
-
 private:
     QueryHandler<use_cases::RequestProgressQuery, ProgressOverPeriod>&
         requestProgressHandler;
 
-    void updateView()
+    void updateViewImpl() override
     {
-        if (!view)
-            return;
         const auto progress =
             requestProgressHandler.handle(use_cases::RequestProgressQuery{});
         view->displayGauges(composeGaugeData(progress));
@@ -92,6 +87,7 @@ namespace {
 
 LegendData composeLegendData(const ProgressOverPeriod& progress)
 {
+    using sprint_timer::utils::formatDecimal;
     std::stringstream ss;
     ss << progress.actual() << "/" << progress.estimated();
     const std::string count{ss.str()};
@@ -109,13 +105,6 @@ LegendData composeLegendData(const ProgressOverPeriod& progress)
                               : "n/a"};
     LegendData legendData{count, left, difference, average, percentage};
     return legendData;
-}
-
-std::string formatDecimal(double value)
-{
-    std::stringstream ss;
-    ss << std::fixed << std::setprecision(2) << value;
-    return ss.str();
 }
 
 std::vector<GaugeValues> composeGaugeData(const ProgressOverPeriod& progress)

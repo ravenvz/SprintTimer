@@ -68,7 +68,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Afternoon</string>
+      <string/>
      </property>
     </widget>
    </item>
@@ -89,7 +89,7 @@
       </font>
      </property>
      <property name="text">
-      <string>14:00-18:00</string>
+      <string/>
      </property>
     </widget>
    </item>

@@ -55,7 +55,7 @@ ProgressMonitorWidget::ProgressMonitorWidget(
 
 ProgressMonitorWidget::~ProgressMonitorWidget()
 {
-    std::cout << "ProgressMonitorWidget destroyed" << std::endl;
+    std::cerr << "ProgressMonitorWidget destroyed" << std::endl;
 }
 
 QSize ProgressMonitorWidget::sizeHint() const { return QSize{1225, 650}; }

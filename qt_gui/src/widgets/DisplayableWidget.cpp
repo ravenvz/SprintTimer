@@ -33,7 +33,5 @@ void DisplayableWidget::display() { show(); }
 
 bool DisplayableWidget::isActive() const { return isVisible(); }
 
-void DisplayableWidget::dispose() { QWidget::close(); }
-
 } // namespace sprint_timer::ui::qt_gui
 

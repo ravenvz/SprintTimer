@@ -75,7 +75,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Average comparison message</string>
+      <string/>
      </property>
     </widget>
    </item>

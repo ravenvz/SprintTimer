@@ -18,6 +18,7 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/CommandHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Distribution.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/GoalProgress.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/CompositionObserver.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ComputeByDayStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ComputeByMonthStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ProgressComputeStrategy.h"
@@ -95,6 +96,8 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_sprints/RequestSprintsQuery.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_sprints/SprintsForTaskHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_sprints/SprintsForTaskQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_sprint_distribution/Common.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_sprint_distribution/DayPart.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_sprint_distribution/RequestSprintDistributionQuery.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_tags/AllTagsHandler.h"
@@ -112,6 +115,7 @@ target_sources(${CORE_LIB}
 
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/src/GoalProgress.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CompositionObserver.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/ComputeByDayStrategy.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/ComputeByMonthStrategy.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/ComputeByWeekStrategy.cpp"
@@ -168,6 +172,8 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_sprints/RequestSprintsQuery.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_sprints/SprintsForTaskQuery.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_sprints/SprintsForTaskHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_sprint_distribution/Common.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_sprint_distribution/DayPart.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_sprint_distribution/RequestSprintDistributionQuery.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_tags/AllTagsHandler.cpp"

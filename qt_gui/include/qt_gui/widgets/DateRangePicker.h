@@ -22,6 +22,8 @@
 #ifndef PICKPERIODWIDGET_H
 #define PICKPERIODWIDGET_H
 
+#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/presentation/DateRangeSelectorContract.h"
 #include <QStringListModel>
 #include <QWidget>
 #include <core/IConfig.h>
@@ -70,6 +72,38 @@ private:
     void onRangeChanged(const dw::DateRange& dateRange);
 
     void updateSelectionHintLabel();
+
+    void preselectCurrentYearMonth();
+};
+
+class DateRangeSelector : public QWidget,
+                          public contracts::DateRangeSelectorContract::View {
+public:
+    DateRangeSelector(
+        contracts::DateRangeSelectorContract::Presenter& presenter_,
+        QWidget* parent_ = nullptr);
+
+    ~DateRangeSelector() override;
+
+    void updateOperationalRange(const std::vector<int>& years) override;
+
+    void setFirstDayOfWeek(dw::Weekday weekday) override;
+
+private:
+    std::unique_ptr<Ui::DateRangePicker> ui;
+    contracts::DateRangeSelectorContract::Presenter& presenter;
+    std::unique_ptr<QAbstractItemModel> yearsModel;
+    QStringListModel monthsModel;
+    dw::DateRange selectedDateRange;
+    dw::Weekday firstDayOfWeek{dw::Weekday::Sunday};
+
+    void onYearOrMonthChanged();
+
+    void onRangeChanged(const dw::DateRange& dateRange);
+
+    void updateSelectionHintLabel();
+
+    void openDatePickDialog();
 
     void preselectCurrentYearMonth();
 };

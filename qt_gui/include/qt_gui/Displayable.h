@@ -31,8 +31,6 @@ public:
     virtual void display() = 0;
 
     virtual bool isActive() const = 0;
-
-    virtual void dispose() = 0;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -5,7 +5,13 @@ add_executable(${TEST_PRESENTATION})
 
 target_sources(${TEST_PRESENTATION}
     PRIVATE
+    "${CMAKE_CURRENT_LIST_DIR}/test_best_workday_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_daily_statistics_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_date_range_selector_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_daytime_statistics_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_progress_view_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_statistics_mediator.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_tag_diagram_presenter.cpp"
 )
 
 target_compile_features(${TEST_PRESENTATION} PRIVATE cxx_std_17)

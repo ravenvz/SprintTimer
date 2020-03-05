@@ -33,7 +33,7 @@
 #include <core/WorkSchedule.h>
 #include <memory>
 
-#include "qt_gui/presentation/Presenter.h"
+#include "qt_gui/presentation/BasePresenter.h"
 #include "qt_gui/presentation/ProgressPresenterContract.h"
 #include "qt_gui/widgets/DisplayableWidget.h"
 
@@ -60,7 +60,7 @@ public:
         double value{0};
     };
 
-    ProgressWidget(Presenter<contracts::DailyProgress::View>& presenter,
+    ProgressWidget(BasePresenter<contracts::DailyProgress::View>& presenter,
                    Rows numRows,
                    Columns numColumns,
                    GaugeSize gaugeRelSize,
@@ -91,7 +91,7 @@ public:
 
 private:
     std::unique_ptr<Ui::ProgressWidget> ui;
-    Presenter<contracts::DailyProgress::View>& presenter;
+    BasePresenter<contracts::DailyProgress::View>& presenter;
     const Rows numRows;
     const Columns numColumns;
     const GaugeSize gaugeRelSize;

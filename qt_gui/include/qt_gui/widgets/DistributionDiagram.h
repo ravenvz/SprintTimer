@@ -22,6 +22,7 @@
 #ifndef DISTRIBUTIONDIAGRAM_H
 #define DISTRIBUTIONDIAGRAM_H
 
+#include "qt_gui/presentation/TagPieDiagramContract.h"
 #include "qt_gui/widgets/PieChart.h"
 #include "qt_gui/widgets/SimpleLegend.h"
 #include <QLabel>
@@ -31,6 +32,7 @@
 #include <core/SprintStatistics.h>
 #include <core/TagTop.h>
 #include <optional>
+#include <qt_gui/presentation/TagPieDiagramPresenter.h>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -48,21 +50,30 @@ class LegendLabel;
  * part is clicked or selected, chartSelectionChanged(size_t partIndex) signal
  * is emitted, indicating index of chart part being clicked.
  */
-class DistributionDiagram : public QWidget {
+class DistributionDiagram : public QWidget,
+                            public contracts::TagPieDiagramContract::View {
+
     Q_OBJECT
 
 public:
-    explicit DistributionDiagram(QWidget* parent = nullptr);
-    ~DistributionDiagram();
+    DistributionDiagram(contracts::TagPieDiagramContract::Presenter& presenter,
+                        QWidget* parent = nullptr);
 
-    /* Set tag frequencies to be displayed as pie chart. */
-    void setData(std::vector<TagTop::TagFrequency>&& tagFrequencies);
+    ~DistributionDiagram() override;
 
     /* Set title that is displayed above the legend items. */
     void setLegendTitle(const QString& title);
 
     /* Set font to use for legend title. */
     void setLegendTitleFont(QFont font);
+
+    void updateLegend(const std::vector<std::string>& tagNames) override;
+
+    void updateDiagram(
+        std::vector<contracts::TagPieDiagramContract::DiagramData>&& data)
+        override;
+
+    void toggleSelection(std::optional<size_t> selection) override;
 
 private slots:
     /* Handle left mouse click on chart part. */
@@ -76,9 +87,9 @@ signals:
     void chartSelectionChanged(size_t partIndex);
 
 private:
-    IStatisticalChart* diagram;
+    contracts::TagPieDiagramContract::Presenter& presenter;
+    PieChart* diagram;
     IStatisticalChartLegend* legend;
-    std::optional<size_t> selectedSliceIndex;
 };
 
 } // namespace sprint_timer::ui::qt_gui

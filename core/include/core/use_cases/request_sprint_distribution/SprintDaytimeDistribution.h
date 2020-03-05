@@ -19,27 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BASEPRESENTER_H_9G4DRMSO
-#define BASEPRESENTER_H_9G4DRMSO
+#ifndef SPRINTDAYTIMEDISTRIBUTION_H_AUY5FKGR
+#define SPRINTDAYTIMEDISTRIBUTION_H_AUY5FKGR
 
-namespace sprint_timer::ui {
+#include "core/Distribution.h"
+#include <date_wrapper/date_wrapper.h>
 
-template <typename ViewT> class Presenter {
-public:
-    virtual ~Presenter() = default;
+// TODO remove this
 
-    virtual void attachView(ViewT& view_)
-    {
-        view = &view_;
-        onViewAttached();
-    }
+namespace sprint_timer::use_cases {
 
-    virtual void onViewAttached() = 0;
-
-protected:
-    ViewT* view{nullptr};
+struct SprintDaytimeDistribution {
+    Distribution<double> dayPartDistribution;
+    std::vector<dw::DateTimeRange> timeRanges;
 };
 
-} // namespace sprint_timer::ui
+} // namespace sprint_timer::use_cases
 
-#endif /* end of include guard: BASEPRESENTER_H_9G4DRMSO */
+#endif /* end of include guard: SPRINTDAYTIMEDISTRIBUTION_H_AUY5FKGR */
+

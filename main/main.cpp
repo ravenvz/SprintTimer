@@ -45,8 +45,13 @@
 #include "HistoryWindowProxy.h"
 #include "ProgressMonitorProxy.h"
 // #include "ProgressViewProxy.h"
+#include "BestWorkdayPresenterProxy.h"
+#include "DateRangeSelectorPresenterProxy.h"
+#include "ObservableConfig.h"
 #include "StatisticsWindowProxy.h"
+#include <qt_gui/widgets/StatisticsWindow.h>
 
+#include <qt_gui/presentation/DateRangeSelectorPresenter.h>
 #include <qt_gui/presentation/ProgressPresenter.h>
 
 #include <QApplication>
@@ -131,6 +136,12 @@
 #include <qt_storage/QtWorkingDaysStorage.h>
 #include <qt_storage/WorkerConnection.h>
 
+#include <qt_gui/presentation/BestWorkdayPresenter.h>
+#include <qt_gui/presentation/DailyStatisticsGraphPresenter.h>
+#include <qt_gui/presentation/DaytimeStatisticsPresenter.h>
+#include <qt_gui/presentation/StatisticsMediatorImpl.h>
+#include <qt_gui/presentation/TagPieDiagramPresenter.h>
+
 using std::filesystem::create_directory;
 using std::filesystem::exists;
 
@@ -195,6 +206,8 @@ std::string getOrCreateSprintTimerDataDirectory()
 class NewSyncronizingActionInvoker
     : public sprint_timer::ObservableActionInvoker {
 public:
+    // TODO perhaps as a result of multiple implementations of sync mechanism
+    // we have mixed observers
     NewSyncronizingActionInvoker(sprint_timer::ObservableActionInvoker& wrapped,
                                  sprint_timer::Observable& desyncObservable)
         : wrapped{wrapped}
@@ -205,13 +218,19 @@ public:
     void execute(std::unique_ptr<sprint_timer::Action> action) override
     {
         wrapped.execute(std::move(action));
+        // TODO this is technically a second notify, see TODO on top
         desyncObservable.notify();
     }
 
-    void undo() override { wrapped.undo(); }
+    void undo() override
+    {
+        wrapped.undo();
+        desyncObservable.notify();
+    }
 
     std::string lastActionDescription() const override
     {
+        std::cout << "LAST ACTION DESCRIPTION REQUESTED" << std::endl;
         return wrapped.lastActionDescription();
     }
 
@@ -338,36 +357,41 @@ void applyStyleSheet(QApplication& app)
 #else
     QFile styleFile(":app.qss");
 #endif
-    if (!styleFile.open(QFile::ReadOnly))
+    if (styleFile.open(QFile::ReadOnly)) {
+        app.setStyleSheet(QString::fromLatin1(styleFile.readAll()));
+        styleFile.close();
+    }
+    else
         qDebug() << "WARNING error loading styleSheet";
-    app.setStyleSheet(QString::fromLatin1(styleFile.readAll()));
-    styleFile.close();
 }
 
-template <typename ViewT>
-class SyncPresenter : public sprint_timer::ui::Presenter<ViewT>,
-                      public sprint_timer::Observer {
-public:
-    SyncPresenter(std::unique_ptr<sprint_timer::ui::Presenter<ViewT>> wrapped,
-                  sprint_timer::Observable& desyncObservable)
-        : wrapped{std::move(wrapped)}
-        , desyncObservable{desyncObservable}
-    {
-        desyncObservable.attach(*this);
-    }
-
-    ~SyncPresenter() override { desyncObservable.detach(*this); }
-
-    void attachView(ViewT& view_) override { wrapped->attachView(view_); }
-
-    void onViewAttached() override { wrapped->onViewAttached(); }
-
-    void update() override { onViewAttached(); }
-
-private:
-    std::unique_ptr<sprint_timer::ui::Presenter<ViewT>> wrapped;
-    sprint_timer::Observable& desyncObservable;
-};
+// template <typename ViewT>
+// class SyncPresenter : public sprint_timer::ui::BasePresenter<ViewT>,
+//                       public sprint_timer::Observer {
+// public:
+//     SyncPresenter(
+//         std::unique_ptr<sprint_timer::ui::BasePresenter<ViewT>> wrapped,
+//         sprint_timer::Observable& desyncObservable)
+//         : wrapped{std::move(wrapped)}
+//         , desyncObservable{desyncObservable}
+//     {
+//         desyncObservable.attach(*this);
+//     }
+//
+//     ~SyncPresenter() override { desyncObservable.detach(*this); }
+//
+//     void attachView(ViewT& view_) override { wrapped->attachView(view_); }
+//
+//     void detachView(ViewT& view_) override { wrapped->detachView(view_); }
+//
+//     void updateViewImpl() override { wrapped->updateViewImpl(); }
+//
+//     void update() override { wrapped->updateView(); }
+//
+// private:
+//     std::unique_ptr<sprint_timer::ui::BasePresenter<ViewT>> wrapped;
+//     sprint_timer::Observable& desyncObservable;
+// };
 
 template <typename CommandT>
 std::unique_ptr<sprint_timer::CommandHandler<CommandT>>
@@ -385,14 +409,14 @@ decorate(std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>> wrapped)
         std::move(wrapped));
 }
 
-template <typename ViewT>
-std::unique_ptr<sprint_timer::ui::Presenter<ViewT>>
-decorate(std::unique_ptr<sprint_timer::ui::Presenter<ViewT>> wrapped,
-         sprint_timer::Observable& desyncObservable)
-{
-    return std::make_unique<SyncPresenter<ViewT>>(std::move(wrapped),
-                                                  desyncObservable);
-}
+// template <typename ViewT>
+// std::unique_ptr<sprint_timer::ui::BasePresenter<ViewT>>
+// decorate(std::unique_ptr<sprint_timer::ui::BasePresenter<ViewT>> wrapped,
+//          sprint_timer::Observable& desyncObservable)
+// {
+//     return std::make_unique<SyncPresenter<ViewT>>(std::move(wrapped),
+//                                                   desyncObservable);
+// }
 
 int main(int argc, char* argv[])
 {
@@ -411,7 +435,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    Config applicationSettings;
+    Config settings;
+    compose::ObservableConfig applicationSettings{settings};
 
     QApplication app(argc, argv);
 
@@ -536,12 +561,48 @@ int main(int argc, char* argv[])
 
     OperationRangeModel operationRangeModel{*operationalRangeHandler,
                                             datasyncRelay};
-    sprint_timer::compose::StatisticsWindowProxy statisticsWindow{
-        *requestSprintsHandler,
+
+    const size_t numTopTags{5};
+    ui::StatisticsMediatorImpl statisticsMediator{*requestSprintsHandler,
+                                                  numTopTags};
+    compose::DateRangeSelectorPresenterProxy dateRangeSelectorPresenter{
+        *operationalRangeHandler,
+        statisticsMediator,
         applicationSettings,
-        operationRangeModel,
-        workScheduleWrapper,
-        datasyncRelay};
+        applicationSettings};
+    auto statisticsGraphWorkScheduleHandler =
+        decorate<WorkScheduleQuery, WorkSchedule>(
+            std::make_unique<WorkScheduleHandler>(*scheduleStorage));
+    ui::DailyStatisticsGraphPresenter dailyTimelineGraphPresenter{
+        *statisticsGraphWorkScheduleHandler, statisticsMediator};
+    compose::BestWorkdayPresenterProxy bestWorkdayPresenter{
+        statisticsMediator, applicationSettings, applicationSettings};
+    ui::TagPieDiagramPresenter tagPieDiagramPresenter{statisticsMediator};
+    ui::DaytimeStatisticsPresenter daytimeStatisticsPresenter{
+        statisticsMediator};
+
+    // TODO not good, better to pass observable to the constructor so that
+    // dependency would be clearly seen
+    desyncObservable.attach(dailyTimelineGraphPresenter);
+    desyncObservable.attach(bestWorkdayPresenter);
+    desyncObservable.attach(daytimeStatisticsPresenter);
+    desyncObservable.attach(tagPieDiagramPresenter);
+    desyncObservable.attach(dateRangeSelectorPresenter);
+
+    sprint_timer::compose::StatisticsWindowProxy statisticsWindow{
+        // applicationSettings,
+        dailyTimelineGraphPresenter,
+        bestWorkdayPresenter,
+        daytimeStatisticsPresenter,
+        tagPieDiagramPresenter,
+        dateRangeSelectorPresenter};
+
+    // sprint_timer::compose::StatisticsWindowProxy statisticsWindow{
+    //     *requestSprintsHandler,
+    //     applicationSettings,
+    //     operationRangeModel,
+    //     workScheduleWrapper,
+    //     datasyncRelay};
 
     AddExceptionalDayDialog exceptionalDayDialog;
     ExtraDayModel exceptionalDaysModel;
@@ -562,11 +623,12 @@ int main(int argc, char* argv[])
                 computeByDayStrategy,
                 *requestSprintDailyDistributionHandler,
                 *workScheduleHandler));
-    auto dailyProgressPresenter =
-        decorate<sprint_timer::ui::contracts::DailyProgress::View>(
-            std::make_unique<sprint_timer::ui::ProgressPresenter>(
-                *requestDailyProgressHandler),
-            desyncObservable);
+    ui::ProgressPresenter dailyProgressPresenter{*requestDailyProgressHandler};
+    // auto dailyProgressPresenter =
+    //     decorate<sprint_timer::ui::contracts::DailyProgress::View>(
+    //         std::make_unique<sprint_timer::ui::ProgressPresenter>(
+    //             *requestDailyProgressHandler),
+    //         desyncObservable);
     // auto dailyProgressPresenter =
     //     std::make_unique<sprint_timer::ui::ProgressPresenter>(
     //         *requestDailyProgressHandler);
@@ -594,11 +656,13 @@ int main(int argc, char* argv[])
                 computeByWeekStrategy,
                 *requestSprintWeeklyDistributionHandler,
                 *workScheduleHandler));
-    auto weeklyProgressPresenter =
-        decorate<sprint_timer::ui::contracts::DailyProgress::View>(
-            std::make_unique<sprint_timer::ui::ProgressPresenter>(
-                *requestWeeklyProgressHandler),
-            desyncObservable);
+    ui::ProgressPresenter weeklyProgressPresenter{
+        *requestWeeklyProgressHandler};
+    // auto weeklyProgressPresenter =
+    //     decorate<sprint_timer::ui::contracts::DailyProgress::View>(
+    //         std::make_unique<sprint_timer::ui::ProgressPresenter>(
+    //             *requestWeeklyProgressHandler),
+    //         desyncObservable);
     // auto weeklyProgress =
     //     std::make_unique<ProgressWidget>(*weeklyProgressPresenter,
     //                                      ProgressWidget::Rows{3},
@@ -617,11 +681,13 @@ int main(int argc, char* argv[])
                 computeByMonthStrategy,
                 *requestSprintMonthlyDistributionHandler,
                 *workScheduleHandler));
-    auto monthlyProgressPresenter =
-        decorate<sprint_timer::ui::contracts::DailyProgress::View>(
-            std::make_unique<sprint_timer::ui::ProgressPresenter>(
-                *requestMonthlyProgressHandler),
-            desyncObservable);
+    ui::ProgressPresenter monthlyProgressPresenter{
+        *requestMonthlyProgressHandler};
+    // auto monthlyProgressPresenter =
+    //     decorate<sprint_timer::ui::contracts::DailyProgress::View>(
+    //         std::make_unique<sprint_timer::ui::ProgressPresenter>(
+    //             *requestMonthlyProgressHandler),
+    //         desyncObservable);
     // auto monthlyProgress =
     //     std::make_unique<ProgressWidget>(*monthlyProgressPresenter,
     //                                      ProgressWidget::Rows{3},
@@ -629,10 +695,13 @@ int main(int argc, char* argv[])
     //                                      ProgressWidget::GaugeSize{0.8});
     // monthlyProgress->setLegendTitle("Last 12 months");
     // monthlyProgress->setLegendAverageCaption("Average per month:");
+    desyncObservable.attach(dailyProgressPresenter);
+    desyncObservable.attach(weeklyProgressPresenter);
+    desyncObservable.attach(monthlyProgressPresenter);
 
-    compose::ProgressMonitorProxy progressWindow{*dailyProgressPresenter,
-                                                 *weeklyProgressPresenter,
-                                                 *monthlyProgressPresenter};
+    compose::ProgressMonitorProxy progressWindow{dailyProgressPresenter,
+                                                 weeklyProgressPresenter,
+                                                 monthlyProgressPresenter};
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;

@@ -38,6 +38,4 @@ void StandaloneDisplayableWidget::bringToTop()
     WidgetUtils::bringToForeground(this);
 }
 
-void StandaloneDisplayableWidget::dispose() { QWidget::close(); }
-
 } // namespace sprint_timer::ui::qt_gui

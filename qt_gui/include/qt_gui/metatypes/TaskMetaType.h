@@ -25,6 +25,6 @@
 #include <QtCore>
 #include <core/entities/Task.h>
 
-Q_DECLARE_METATYPE(sprint_timer::entities::Task);
+Q_DECLARE_METATYPE(sprint_timer::entities::Task)
 
 #endif /* end of include guard: TASKMETATYPE_H_PFAU13EU */

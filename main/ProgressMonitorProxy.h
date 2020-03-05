@@ -24,7 +24,7 @@
 
 #include "ManagedDisplayable.h"
 #include "ManagedStandaloneDisplayable.h"
-#include <qt_gui/presentation/Presenter.h>
+#include <qt_gui/presentation/BasePresenter.h>
 #include <qt_gui/widgets/DialogLaunchButton.h>
 #include <qt_gui/widgets/ProgressMonitorWidget.h>
 #include <qt_gui/widgets/ProgressWidget.h>
@@ -34,9 +34,9 @@ namespace sprint_timer::compose {
 class ProgressMonitorProxy : public ManagedStandaloneDisplayable {
 public:
     ProgressMonitorProxy(
-        ui::Presenter<ui::contracts::DailyProgress::View>& dailyPresenter,
-        ui::Presenter<ui::contracts::DailyProgress::View>& weeklyPresenter,
-        ui::Presenter<ui::contracts::DailyProgress::View>& monthlyPresenter)
+        ui::BasePresenter<ui::contracts::DailyProgress::View>& dailyPresenter,
+        ui::BasePresenter<ui::contracts::DailyProgress::View>& weeklyPresenter,
+        ui::BasePresenter<ui::contracts::DailyProgress::View>& monthlyPresenter)
         : dailyPresenter{dailyPresenter}
         , weeklyPresenter{weeklyPresenter}
         , monthlyPresenter{monthlyPresenter}
@@ -81,9 +81,9 @@ public:
     }
 
 private:
-    ui::Presenter<ui::contracts::DailyProgress::View>& dailyPresenter;
-    ui::Presenter<ui::contracts::DailyProgress::View>& weeklyPresenter;
-    ui::Presenter<ui::contracts::DailyProgress::View>& monthlyPresenter;
+    ui::BasePresenter<ui::contracts::DailyProgress::View>& dailyPresenter;
+    ui::BasePresenter<ui::contracts::DailyProgress::View>& weeklyPresenter;
+    ui::BasePresenter<ui::contracts::DailyProgress::View>& monthlyPresenter;
 };
 
 } // namespace sprint_timer::compose

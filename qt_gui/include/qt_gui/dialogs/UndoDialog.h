@@ -32,7 +32,7 @@ public:
     explicit UndoDialog(ActionInvoker& actionInvoker,
                         QWidget* parent = nullptr);
 
-    int exec() override;
+    void open() override;
 
     void accept() override;
 
