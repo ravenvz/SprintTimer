@@ -58,9 +58,7 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
             });
 }
 
-
 SettingsDialog::~SettingsDialog() = default;
-
 
 void SettingsDialog::fillSettingsData()
 {
@@ -79,9 +77,8 @@ void SettingsDialog::fillSettingsData()
     auto timerFlavour = applicationSettings.timerFlavour();
     ui->cbxTimerVariation->setCurrentIndex(timerFlavour);
     ui->cbxFirstWeekday->setCurrentIndex(
-        static_cast<int>(applicationSettings.firstDayOfWeek()));
+        applicationSettings.firstDayOfWeek() == dw::Weekday::Monday ? 0 : 1);
 }
-
 
 void SettingsDialog::storeSettingsData()
 {
@@ -98,9 +95,9 @@ void SettingsDialog::storeSettingsData()
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
     applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());
     applicationSettings.setFirstDayOfWeek(
-        static_cast<dw::Weekday>(ui->cbxFirstWeekday->currentIndex()));
+        ui->cbxFirstWeekday->currentIndex() == 0 ? dw::Weekday::Monday
+                                                 : dw::Weekday::Sunday);
 }
-
 
 void SettingsDialog::toggleVolumeControlVisibility()
 {
@@ -109,7 +106,6 @@ void SettingsDialog::toggleVolumeControlVisibility()
     ui->lePathToSoundFile->setEnabled(ui->gbSoundSettings->isChecked());
     ui->pbBrowseSoundFile->setEnabled(ui->gbSoundSettings->isChecked());
 }
-
 
 void SettingsDialog::onBrowseSoundFileButtonClicked()
 {
