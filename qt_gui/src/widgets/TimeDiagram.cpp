@@ -29,6 +29,8 @@ constexpr int offsetInDegrees{90};
 constexpr int numSegmentsInDegree{16};
 constexpr double longTickRelativeLength{0.05};
 constexpr double tickAngle{double(360 / 24)};
+constexpr size_t numTicksPerQuarter{6};
+constexpr double dialPenWidth{1.2};
 
 } // namespace
 
@@ -44,39 +46,32 @@ TimeDiagram::TimeDiagram(QWidget* parent)
 
 void TimeDiagram::paintEvent(QPaintEvent*)
 {
-    computeAdaptiveSizes();
+    drawingParams = DrawingParams{rect()};
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     drawDiagramCanvas(painter);
     drawIntervals(painter);
 }
 
-void TimeDiagram::computeAdaptiveSizes()
-{
-    totalSizeRect = rect();
-    longTickLength = longTickRelativeLength *
-                     std::min(totalSizeRect.width(), totalSizeRect.height());
-    shortTickLength = longTickLength / 2;
-    tickOffset = shortTickLength;
-    diagramRadius = (std::min(totalSizeRect.width(), totalSizeRect.height()) -
-                     2 * (longTickLength + tickOffset)) /
-                    2;
-    diagramRect = QRectF{totalSizeRect.center().x() - diagramRadius,
-                         totalSizeRect.center().y() - diagramRadius,
-                         diagramRadius * 2,
-                         diagramRadius * 2};
-}
-
 void TimeDiagram::drawDiagramCanvas(QPainter& painter)
 {
     QPen pen;
-    pen.setWidthF(1.2);
+    pen.setWidthF(dialPenWidth);
     pen.setColor(Qt::gray);
     painter.setPen(pen);
+    const auto [diagramRect,
+                diagramRadius,
+                tickOffset,
+                longTickLength,
+                shortTickLength] = drawingParams;
     painter.drawEllipse(diagramRect);
     QPointF center = diagramRect.center();
-    for (size_t i = 0; i < 6; ++i) {
-        double length = i % 6 == 0 ? longTickLength : shortTickLength;
+    // Literally, we drawing just drawing 4 ticks (by 2 that are opposite to
+    // each other) and rotating coordinate system (by 45 degrees in total) so
+    // that all are drawn
+    for (size_t i = 0; i < numTicksPerQuarter; ++i) {
+        const bool bigTick{i % numTicksPerQuarter == 0};
+        const double length = bigTick ? longTickLength : shortTickLength;
         painter.drawLine(
             QPointF(center.x(), center.y() - diagramRadius - tickOffset),
             QPointF(center.x(),
@@ -102,16 +97,16 @@ void TimeDiagram::drawDiagramCanvas(QPainter& painter)
 
 void TimeDiagram::drawIntervals(QPainter& painter)
 {
-    QBrush arcBrush = QBrush(timeSpanColor);
+    const QBrush arcBrush = QBrush(timeSpanColor);
     painter.setBrush(arcBrush);
     painter.setPen(Qt::NoPen);
     for (const auto& timeSpan : timeSpans) {
-        double start = (timeSpan.start().hour().count() * 60 +
-                        timeSpan.start().minute().count()) *
-                       oneMinuteInDegrees;
-        const double span = timeSpan.duration<std::chrono::minutes>().count() *
-                            oneMinuteInDegrees;
-        painter.drawPie(diagramRect,
+        const double start{
+            (timeSpan.start().hour() + timeSpan.start().minute()).count() *
+            oneMinuteInDegrees};
+        const double span{timeSpan.duration<std::chrono::minutes>().count() *
+                          oneMinuteInDegrees};
+        painter.drawPie(drawingParams.diagramRect,
                         -(int(start) - offsetInDegrees) * numSegmentsInDegree,
                         -int(span) * numSegmentsInDegree);
     }
@@ -121,6 +116,21 @@ void TimeDiagram::setIntervals(std::vector<dw::DateTimeRange> newIntervals)
 {
     timeSpans = std::move(newIntervals);
     update();
+}
+
+TimeDiagram::DrawingParams::DrawingParams(const QRectF& totalSizeRect)
+{
+    longTickLength = longTickRelativeLength *
+                     std::min(totalSizeRect.width(), totalSizeRect.height());
+    shortTickLength = longTickLength / 2;
+    tickOffset = shortTickLength;
+    diagramRadius = (std::min(totalSizeRect.width(), totalSizeRect.height()) -
+                     2 * (longTickLength + tickOffset)) /
+                    2;
+    diagramRect = QRectF{totalSizeRect.center().x() - diagramRadius,
+                         totalSizeRect.center().y() - diagramRadius,
+                         diagramRadius * 2,
+                         diagramRadius * 2};
 }
 
 } // namespace sprint_timer::ui::qt_gui
