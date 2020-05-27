@@ -203,6 +203,107 @@ std::string getOrCreateSprintTimerDataDirectory()
 
 } // namespace
 
+class Invalidatable {
+public:
+    virtual ~Invalidatable() = default;
+
+    virtual void invalidate() = 0;
+};
+
+class RelayHub : public sprint_timer::Observable,
+                 public sprint_timer::Observer {
+public:
+    void update() override { notify(); }
+};
+
+template <typename CommandT>
+class CacheAwareCommandHandler : public sprint_timer::CommandHandler<CommandT>,
+                                 public sprint_timer::Observable {
+public:
+    using WrappedType = sprint_timer::CommandHandler<CommandT>;
+
+    CacheAwareCommandHandler(std::unique_ptr<WrappedType> wrapped_,
+                             RelayHub& relayHub_)
+        : wrapped{std::move(wrapped_)}
+    {
+        attach(relayHub_);
+    }
+
+    void handle(CommandT&& command)
+    {
+        std::cout << "CacheAwareCommandHandler handles command" << std::endl;
+        notify();
+        wrapped->handle(std::move(command));
+    }
+
+private:
+    std::unique_ptr<WrappedType> wrapped;
+};
+
+template <typename QueryT, typename ResultT>
+class CachingQueryHandler : public sprint_timer::QueryHandler<QueryT, ResultT>,
+                            public Invalidatable,
+                            public sprint_timer::Observer {
+public:
+    using WrappedType = sprint_timer::QueryHandler<QueryT, ResultT>;
+
+    CachingQueryHandler(std::unique_ptr<WrappedType> wrapped_,
+                        RelayHub& relayHub_)
+        : wrapped{std::move(wrapped_)}
+        , relayHub{relayHub_}
+    {
+        relayHub.attach(*this);
+    }
+
+    ~CachingQueryHandler() override { relayHub.detach(*this); }
+
+    void update() override { invalidate(); }
+
+    void invalidate() override
+    {
+        std::cout << "Invalidation" << std::endl;
+        cachedResult = std::nullopt;
+    }
+
+    ResultT handle(QueryT&& query) override
+    {
+        if (!cachedResult) {
+            cachedQuery = query;
+            cachedResult = wrapped->handle(std::move(query));
+        }
+        else
+            std::cout << "Returning cached result" << std::endl;
+        return *cachedResult;
+    }
+
+private:
+    std::unique_ptr<WrappedType> wrapped;
+    RelayHub& relayHub;
+    std::optional<QueryT> cachedQuery;
+    std::optional<ResultT> cachedResult;
+};
+
+template <>
+std::vector<sprint_timer::entities::Sprint>
+CachingQueryHandler<sprint_timer::use_cases::RequestSprintsQuery,
+                    std::vector<sprint_timer::entities::Sprint>>::
+    handle(sprint_timer::use_cases::RequestSprintsQuery&& query)
+{
+    if (!cachedResult ||
+        (cachedQuery && (query.dateRange != cachedQuery->dateRange))) {
+        cachedQuery = query;
+        cachedResult = wrapped->handle(std::move(query));
+    }
+    else {
+        std::cout << "Returning cached value" << std::endl;
+    }
+    return *cachedResult;
+}
+
+// class CachingQueryHandler<sprint_timer::use_cases::RequestSprintsQuery,
+// std::vector<sprint_timer::entities::Sprint>> { public:
+// };
+
 class NewSyncronizingActionInvoker
     : public sprint_timer::ObservableActionInvoker {
 public:
@@ -401,12 +502,30 @@ decorate(std::unique_ptr<sprint_timer::CommandHandler<CommandT>> wrapped)
         std::move(wrapped));
 }
 
+template <typename CommandT>
+std::unique_ptr<sprint_timer::CommandHandler<CommandT>>
+decorate(std::unique_ptr<sprint_timer::CommandHandler<CommandT>> wrapped,
+         RelayHub& relayHub)
+{
+    return std::make_unique<CacheAwareCommandHandler<CommandT>>(
+        std::move(wrapped), relayHub);
+}
+
 template <typename QueryT, typename ResultT>
 std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>>
 decorate(std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>> wrapped)
 {
     return std::make_unique<sprint_timer::VerboseQueryHandler<QueryT, ResultT>>(
         std::move(wrapped));
+}
+
+template <typename QueryT, typename ResultT>
+std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>>
+decorate(std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>> wrapped,
+         RelayHub& relayHub)
+{
+    return std::make_unique<CachingQueryHandler<QueryT, ResultT>>(
+        std::move(wrapped), relayHub);
 }
 
 // template <typename ViewT>
@@ -466,61 +585,163 @@ int main(int argc, char* argv[])
 
     using namespace use_cases;
 
+    RelayHub relayHub;
+
     auto requestSprintsHandler =
         decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
-            std::make_unique<RequestSprintsHandler>(*sprintStorage));
-    auto deleteSprintHandler = decorate<DeleteSprintCommand>(
-        std::make_unique<DeleteSprintHandler>(*sprintStorage, actionInvoker));
-    auto finishedTasksHandler =
-        decorate<FinishedTasksQuery, std::vector<entities::Task>>(
-            std::make_unique<FinishedTasksHandler>(*taskStorage));
-    auto operationalRangeHandler =
-        decorate<OperationalRangeQuery, dw::DateRange>(
-            std::make_unique<OperationalRangeHandler>(*operationalRangeReader));
-    auto allTagsHandler = decorate<AllTagsQuery, std::vector<std::string>>(
-        std::make_unique<AllTagsHandler>(*taskStorage));
-    auto renameTagHandler = decorate<RenameTagCommand>(
-        std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker));
-    auto unfinishedTasksHandler =
-        decorate<UnfinishedTasksQuery, std::vector<entities::Task>>(
-            std::make_unique<UnfinishedTasksHandler>(*taskStorage));
-    auto changePriorityHandler = decorate<ChangeUnfinishedTasksPriorityCommand>(
-        std::make_unique<ChangeUnfinishedTasksPriorityHandler>(*taskStorage,
-                                                               actionInvoker));
-    auto createTaskHandler = decorate<CreateTaskCommand>(
-        std::make_unique<CreateTaskHandler>(*taskStorage, actionInvoker));
-    auto deleteTaskHandler =
-        decorate<DeleteTaskCommand>(std::make_unique<DeleteTaskHandler>(
-            *sprintStorage, *taskStorage, actionInvoker));
-    auto toggleCompletionHandler = decorate<ToggleTaskCompletedCommand>(
-        std::make_unique<ToggleTaskCompletedHandler>(*taskStorage,
-                                                     actionInvoker));
-    auto editTaskHandler = decorate<EditTaskCommand>(
-        std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker));
-    auto registerSprintHandler = decorate<RegisterSprintCommand>(
-        std::make_unique<RegisterSprintHandler>(*sprintStorage, actionInvoker));
-    auto registerSprintBulkHandler = decorate<RegisterSprintBulkCommand>(
-        std::make_unique<RegisterSprintBulkHandler>(*sprintStorage,
-                                                    actionInvoker));
+            decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
+                std::make_unique<RequestSprintsHandler>(*sprintStorage),
+                relayHub));
+    // auto requestSprintsHandler =
+    //     decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
+    //         std::make_unique<RequestSprintsHandler>(*sprintStorage));
     auto requestSprintDailyDistributionHandler =
         decorate<RequestSprintDistributionQuery, std::vector<int>>(
-            std::make_unique<RequestSprintDistributionHandler>(
-                *dailyDistReader));
-    auto requestSprintWeeklyDistributionHandler = std::make_unique<
-        VerboseQueryHandler<RequestSprintDistributionQuery, std::vector<int>>>(
-        std::make_unique<RequestSprintDistributionHandler>(*weeklyDistReader));
+            decorate<RequestSprintDistributionQuery, std::vector<int>>(
+                std::make_unique<RequestSprintDistributionHandler>(
+                    *dailyDistReader),
+                relayHub));
+    auto requestSprintWeeklyDistributionHandler =
+        decorate<RequestSprintDistributionQuery, std::vector<int>>(
+            decorate<RequestSprintDistributionQuery, std::vector<int>>(
+                std::make_unique<RequestSprintDistributionHandler>(
+                    *weeklyDistReader),
+                relayHub));
     auto requestSprintMonthlyDistributionHandler =
         decorate<RequestSprintDistributionQuery, std::vector<int>>(
-            std::make_unique<RequestSprintDistributionHandler>(
-                *monthlyDistReader));
+            decorate<RequestSprintDistributionQuery, std::vector<int>>(
+                std::make_unique<RequestSprintDistributionHandler>(
+                    *monthlyDistReader),
+                relayHub));
     auto sprintsForTaskHandler =
         decorate<SprintsForTaskQuery, std::vector<entities::Sprint>>(
-            std::make_unique<SprintsForTaskHandler>(*sprintStorage));
+            decorate<SprintsForTaskQuery, std::vector<entities::Sprint>>(
+                std::make_unique<SprintsForTaskHandler>(*sprintStorage),
+                relayHub));
     auto workScheduleHandler = decorate<WorkScheduleQuery, WorkSchedule>(
-        std::make_unique<WorkScheduleHandler>(*scheduleStorage));
-    auto changeWorkScheduleHandler = decorate<ChangeWorkScheduleCommand>(
-        std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
-                                                    actionInvoker));
+        decorate<WorkScheduleQuery, WorkSchedule>(
+            std::make_unique<WorkScheduleHandler>(*scheduleStorage), relayHub));
+    auto finishedTasksHandler =
+        decorate<FinishedTasksQuery, std::vector<entities::Task>>(
+            decorate<FinishedTasksQuery, std::vector<entities::Task>>(
+                std::make_unique<FinishedTasksHandler>(*taskStorage),
+                relayHub));
+    auto operationalRangeHandler =
+        decorate<OperationalRangeQuery, dw::DateRange>(
+            decorate<OperationalRangeQuery, dw::DateRange>(
+                std::make_unique<OperationalRangeHandler>(
+                    *operationalRangeReader),
+                relayHub));
+    auto allTagsHandler = decorate<AllTagsQuery, std::vector<std::string>>(
+        decorate<AllTagsQuery, std::vector<std::string>>(
+            std::make_unique<AllTagsHandler>(*taskStorage), relayHub));
+    auto unfinishedTasksHandler =
+        decorate<UnfinishedTasksQuery, std::vector<entities::Task>>(
+            decorate<UnfinishedTasksQuery, std::vector<entities::Task>>(
+                std::make_unique<UnfinishedTasksHandler>(*taskStorage),
+                relayHub));
+    // auto requestSprintDailyDistributionHandler =
+    //     decorate<RequestSprintDistributionQuery, std::vector<int>>(
+    //         std::make_unique<RequestSprintDistributionHandler>(
+    //             *dailyDistReader));
+    // auto requestSprintWeeklyDistributionHandler = std::make_unique<
+    //     VerboseQueryHandler<RequestSprintDistributionQuery,
+    //     std::vector<int>>>(
+    //     std::make_unique<RequestSprintDistributionHandler>(*weeklyDistReader));
+    // auto requestSprintMonthlyDistributionHandler =
+    //     decorate<RequestSprintDistributionQuery, std::vector<int>>(
+    //         std::make_unique<RequestSprintDistributionHandler>(
+    //             *monthlyDistReader));
+    // auto sprintsForTaskHandler =
+    //     decorate<SprintsForTaskQuery, std::vector<entities::Sprint>>(
+    //         std::make_unique<SprintsForTaskHandler>(*sprintStorage));
+    // auto workScheduleHandler = decorate<WorkScheduleQuery, WorkSchedule>(
+    //     std::make_unique<WorkScheduleHandler>(*scheduleStorage));
+    // auto finishedTasksHandler =
+    //     decorate<FinishedTasksQuery, std::vector<entities::Task>>(
+    //         std::make_unique<FinishedTasksHandler>(*taskStorage));
+    // auto operationalRangeHandler =
+    //     decorate<OperationalRangeQuery, dw::DateRange>(
+    //         std::make_unique<OperationalRangeHandler>(*operationalRangeReader));
+    // auto allTagsHandler = decorate<AllTagsQuery, std::vector<std::string>>(
+    //     std::make_unique<AllTagsHandler>(*taskStorage));
+    // auto unfinishedTasksHandler =
+    //     decorate<UnfinishedTasksQuery, std::vector<entities::Task>>(
+    //         std::make_unique<UnfinishedTasksHandler>(*taskStorage));
+
+    auto deleteSprintHandler = decorate<DeleteSprintCommand>(
+        decorate<DeleteSprintCommand>(std::make_unique<DeleteSprintHandler>(
+                                          *sprintStorage, actionInvoker),
+                                      relayHub));
+    auto renameTagHandler =
+        decorate<RenameTagCommand>(decorate<RenameTagCommand>(
+            std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker),
+            relayHub));
+    auto changePriorityHandler = decorate<ChangeUnfinishedTasksPriorityCommand>(
+        decorate<ChangeUnfinishedTasksPriorityCommand>(
+            std::make_unique<ChangeUnfinishedTasksPriorityHandler>(
+                *taskStorage, actionInvoker),
+            relayHub));
+    auto createTaskHandler =
+        decorate<CreateTaskCommand>(decorate<CreateTaskCommand>(
+            std::make_unique<CreateTaskHandler>(*taskStorage, actionInvoker),
+            relayHub));
+    auto deleteTaskHandler =
+        decorate<DeleteTaskCommand>(decorate<DeleteTaskCommand>(
+            std::make_unique<DeleteTaskHandler>(
+                *sprintStorage, *taskStorage, actionInvoker),
+            relayHub));
+    auto toggleCompletionHandler = decorate<ToggleTaskCompletedCommand>(
+        decorate<ToggleTaskCompletedCommand>(
+            std::make_unique<ToggleTaskCompletedHandler>(*taskStorage,
+                                                         actionInvoker),
+            relayHub));
+    auto editTaskHandler = decorate<EditTaskCommand>(decorate<EditTaskCommand>(
+        std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker),
+        relayHub));
+    auto registerSprintHandler = decorate<RegisterSprintCommand>(
+        decorate<RegisterSprintCommand>(std::make_unique<RegisterSprintHandler>(
+                                            *sprintStorage, actionInvoker),
+                                        relayHub));
+    auto registerSprintBulkHandler =
+        decorate<RegisterSprintBulkCommand>(decorate<RegisterSprintBulkCommand>(
+            std::make_unique<RegisterSprintBulkHandler>(*sprintStorage,
+                                                        actionInvoker),
+            relayHub));
+    auto changeWorkScheduleHandler =
+        decorate<ChangeWorkScheduleCommand>(decorate<ChangeWorkScheduleCommand>(
+            std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
+                                                        actionInvoker),
+            relayHub));
+
+    // auto deleteSprintHandler = decorate<DeleteSprintCommand>(
+    //     std::make_unique<DeleteSprintHandler>(*sprintStorage,
+    //     actionInvoker));
+    // auto renameTagHandler = decorate<RenameTagCommand>(
+    //     std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker));
+    // auto changePriorityHandler =
+    // decorate<ChangeUnfinishedTasksPriorityCommand>(
+    //     std::make_unique<ChangeUnfinishedTasksPriorityHandler>(*taskStorage,
+    //                                                            actionInvoker));
+    // auto createTaskHandler = decorate<CreateTaskCommand>(
+    //     std::make_unique<CreateTaskHandler>(*taskStorage, actionInvoker));
+    // auto deleteTaskHandler =
+    //     decorate<DeleteTaskCommand>(std::make_unique<DeleteTaskHandler>(
+    //         *sprintStorage, *taskStorage, actionInvoker));
+    // auto toggleCompletionHandler = decorate<ToggleTaskCompletedCommand>(
+    //     std::make_unique<ToggleTaskCompletedHandler>(*taskStorage,
+    //                                                  actionInvoker));
+    // auto editTaskHandler = decorate<EditTaskCommand>(
+    //     std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker));
+    // auto registerSprintHandler = decorate<RegisterSprintCommand>(
+    //     std::make_unique<RegisterSprintHandler>(*sprintStorage,
+    //     actionInvoker));
+    // auto registerSprintBulkHandler = decorate<RegisterSprintBulkCommand>(
+    //     std::make_unique<RegisterSprintBulkHandler>(*sprintStorage,
+    //                                                 actionInvoker));
+    // auto changeWorkScheduleHandler = decorate<ChangeWorkScheduleCommand>(
+    //     std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
+    //                                                 actionInvoker));
 
     TaskModel unfinishedTasksModel{*changePriorityHandler,
                                    *createTaskHandler,
@@ -529,8 +750,14 @@ int main(int argc, char* argv[])
                                    *editTaskHandler,
                                    *unfinishedTasksHandler,
                                    datasyncRelay};
-    SprintModel todaySprintsModel{
-        *deleteSprintHandler, *requestSprintsHandler, datasyncRelay};
+    auto todaySprintsModelRequestSprintsHandler =
+        decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
+            decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
+                std::make_unique<RequestSprintsHandler>(*sprintStorage),
+                relayHub));
+    SprintModel todaySprintsModel{*deleteSprintHandler,
+                                  *todaySprintsModelRequestSprintsHandler,
+                                  datasyncRelay};
     TagModel tagModel{*renameTagHandler, *allTagsHandler, datasyncRelay};
 
     auto taskSelector = std::make_unique<QComboBox>();
@@ -570,11 +797,13 @@ int main(int argc, char* argv[])
         statisticsMediator,
         applicationSettings,
         applicationSettings};
-    auto statisticsGraphWorkScheduleHandler =
-        decorate<WorkScheduleQuery, WorkSchedule>(
-            std::make_unique<WorkScheduleHandler>(*scheduleStorage));
+    // auto statisticsGraphWorkScheduleHandler =
+    //     decorate<WorkScheduleQuery, WorkSchedule>(
+    //         decorate<WorkScheduleQuery, WorkSchedule>(
+    //             std::make_unique<WorkScheduleHandler>(*scheduleStorage),
+    //             relayHub));
     ui::DailyStatisticsGraphPresenter dailyTimelineGraphPresenter{
-        *statisticsGraphWorkScheduleHandler, statisticsMediator};
+        *workScheduleHandler, statisticsMediator};
     compose::BestWorkdayPresenterProxy bestWorkdayPresenter{
         statisticsMediator, applicationSettings, applicationSettings};
     ui::TagPieDiagramPresenter tagPieDiagramPresenter{statisticsMediator};
@@ -618,11 +847,13 @@ int main(int argc, char* argv[])
     ComputeByDayStrategy computeByDayStrategy;
     auto requestDailyProgressHandler =
         decorate<RequestProgressQuery, ProgressOverPeriod>(
-            std::make_unique<RequestProgressHandler>(
-                requestDaysBackStrategy,
-                computeByDayStrategy,
-                *requestSprintDailyDistributionHandler,
-                *workScheduleHandler));
+            decorate<RequestProgressQuery, ProgressOverPeriod>(
+                std::make_unique<RequestProgressHandler>(
+                    requestDaysBackStrategy,
+                    computeByDayStrategy,
+                    *requestSprintDailyDistributionHandler,
+                    *workScheduleHandler),
+                relayHub));
     ui::ProgressPresenter dailyProgressPresenter{*requestDailyProgressHandler};
     // auto dailyProgressPresenter =
     //     decorate<sprint_timer::ui::contracts::DailyProgress::View>(
@@ -651,11 +882,13 @@ int main(int argc, char* argv[])
         applicationSettings.firstDayOfWeek()};
     auto requestWeeklyProgressHandler =
         decorate<RequestProgressQuery, ProgressOverPeriod>(
-            std::make_unique<RequestProgressHandler>(
-                requestWeeksBackStrategy,
-                computeByWeekStrategy,
-                *requestSprintWeeklyDistributionHandler,
-                *workScheduleHandler));
+            decorate<RequestProgressQuery, ProgressOverPeriod>(
+                std::make_unique<RequestProgressHandler>(
+                    requestWeeksBackStrategy,
+                    computeByWeekStrategy,
+                    *requestSprintWeeklyDistributionHandler,
+                    *workScheduleHandler),
+                relayHub));
     ui::ProgressPresenter weeklyProgressPresenter{
         *requestWeeklyProgressHandler};
     // auto weeklyProgressPresenter =
@@ -676,11 +909,13 @@ int main(int argc, char* argv[])
     ComputeByMonthStrategy computeByMonthStrategy;
     auto requestMonthlyProgressHandler =
         decorate<RequestProgressQuery, ProgressOverPeriod>(
-            std::make_unique<RequestProgressHandler>(
-                requestMonthsBackStrategy,
-                computeByMonthStrategy,
-                *requestSprintMonthlyDistributionHandler,
-                *workScheduleHandler));
+            decorate<RequestProgressQuery, ProgressOverPeriod>(
+                std::make_unique<RequestProgressHandler>(
+                    requestMonthsBackStrategy,
+                    computeByMonthStrategy,
+                    *requestSprintMonthlyDistributionHandler,
+                    *workScheduleHandler),
+                relayHub));
     ui::ProgressPresenter monthlyProgressPresenter{
         *requestMonthlyProgressHandler};
     // auto monthlyProgressPresenter =
@@ -701,7 +936,8 @@ int main(int argc, char* argv[])
 
     compose::ProgressMonitorProxy progressWindow{dailyProgressPresenter,
                                                  weeklyProgressPresenter,
-                                                 monthlyProgressPresenter};
+                                                 monthlyProgressPresenter,
+                                                 workdaysDialog};
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;

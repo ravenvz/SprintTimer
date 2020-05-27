@@ -31,7 +31,7 @@ struct FinishedTasksQuery : public Query<std::vector<entities::Task>> {
 
     FinishedTasksQuery(dw::DateRange dateRange);
 
-    const dw::DateRange dateRange;
+    dw::DateRange dateRange;
 };
 
 template <class CharT, class Traits>

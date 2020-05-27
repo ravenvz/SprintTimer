@@ -34,12 +34,15 @@ namespace sprint_timer::compose {
 class ProgressMonitorProxy : public ManagedStandaloneDisplayable {
 public:
     ProgressMonitorProxy(
-        ui::BasePresenter<ui::contracts::DailyProgress::View>& dailyPresenter,
-        ui::BasePresenter<ui::contracts::DailyProgress::View>& weeklyPresenter,
-        ui::BasePresenter<ui::contracts::DailyProgress::View>& monthlyPresenter)
-        : dailyPresenter{dailyPresenter}
-        , weeklyPresenter{weeklyPresenter}
-        , monthlyPresenter{monthlyPresenter}
+        ui::BasePresenter<ui::contracts::DailyProgress::View>& dailyPresenter_,
+        ui::BasePresenter<ui::contracts::DailyProgress::View>& weeklyPresenter_,
+        ui::BasePresenter<ui::contracts::DailyProgress::View>&
+            monthlyPresenter_,
+        QDialog& workdaysDialog_)
+        : dailyPresenter{dailyPresenter_}
+        , weeklyPresenter{weeklyPresenter_}
+        , monthlyPresenter{monthlyPresenter_}
+        , workdaysDialog{workdaysDialog_}
     {
     }
 
@@ -52,11 +55,11 @@ public:
             ui::qt_gui::ProgressWidget::GaugeSize{0.8});
         dailyProgress->setLegendTitle("Last 30 days");
         dailyProgress->setLegendAverageCaption("Average per day");
-        // auto configureWorkdaysButton =
-        //     std::make_unique<ui::qt_gui::DialogLaunchButton>(workdaysDialog,
-        //     "Configure");
-        // dailyProgress->addLegendRow("Workdays",
-        //                             configureWorkdaysButton.release());
+        auto configureWorkdaysButton =
+            std::make_unique<ui::qt_gui::DialogLaunchButton>(workdaysDialog,
+                                                             "Configure");
+        dailyProgress->addLegendRow("Workdays",
+                                    configureWorkdaysButton.release());
 
         auto weeklyProgress = std::make_unique<ui::qt_gui::ProgressWidget>(
             weeklyPresenter,
@@ -84,6 +87,7 @@ private:
     ui::BasePresenter<ui::contracts::DailyProgress::View>& dailyPresenter;
     ui::BasePresenter<ui::contracts::DailyProgress::View>& weeklyPresenter;
     ui::BasePresenter<ui::contracts::DailyProgress::View>& monthlyPresenter;
+    QDialog& workdaysDialog;
 };
 
 } // namespace sprint_timer::compose
