@@ -23,84 +23,45 @@
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "qt_gui/widgets/DateRangePicker.h"
 #include "ui_history.h"
-#include <QPainter>
-#include <core/external_io/OstreamSink.h>
-#include <core/utils/CSVEncoder.h>
-#include <fstream>
+
+namespace {
+
+sprint_timer::ui::qt_gui::HistoryModel::HistoryItem convertItem(
+    const sprint_timer::ui::contracts::HistoryContract::HistoryItem& item);
+
+sprint_timer::ui::qt_gui::HistoryModel::HistoryData convertHistory(
+    const std::vector<
+        sprint_timer::ui::contracts::HistoryContract::HistoryItem>& history);
+
+} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
 
-namespace {
-
-QString sprintToString(const Sprint& sprint);
-
-QString taskToString(const Task& task);
-
-constexpr int sprintTabIndex{0};
-
-HistoryModel::HistoryItem
-sprintDataExtractor(const sprint_timer::entities::Sprint& sprint);
-
-HistoryModel::HistoryItem
-taskDataExtractor(const sprint_timer::entities::Task& task);
-
-template <typename ItemContainer, typename ExtractFn>
-HistoryModel::HistoryData extractHistoryData(const ItemContainer& itemContainer,
-                                             ExtractFn extractingFunction);
-
-} // namespace
-
-HistoryWindow::HistoryWindow(
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler_,
-    QueryHandler<use_cases::FinishedTasksQuery, std::vector<entities::Task>>&
-        finishedTasksHandler_,
-    HistoryModel& historyModel_,
-    QStyledItemDelegate& historyItemDelegate_,
-    DatasyncRelay& datasyncRelay_,
-    QAbstractItemModel& operationRangeModel_,
-    dw::Weekday firstDayOfWeek_,
-    QWidget* parent_)
+HistoryWindow::HistoryWindow(contracts::HistoryContract::Presenter& presenter_,
+                             HistoryModel& historyModel_,
+                             QStyledItemDelegate& historyItemDelegate_,
+                             QWidget* parent_)
     : StandaloneDisplayableWidget{parent_}
     , ui{std::make_unique<Ui::HistoryWindow>()}
-    , requestSprintsHandler{requestSprintsHandler_}
-    , finishedTasksHandler{finishedTasksHandler_}
+    , presenter{presenter_}
     , historyModel{historyModel_}
-    , datasyncRelay{datasyncRelay_}
 {
     ui->setupUi(this);
-    auto dateRangePicker_ = std::make_unique<DateRangePicker>(
-        operationRangeModel_, firstDayOfWeek_);
-    dateRangePicker = dateRangePicker_.get();
-    dateRangePicker_->setMinimumSize(QSize{400, 80});
-    ui->horizontalLayout->insertWidget(0, dateRangePicker_.release(), 4);
     ui->taskHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setHeaderHidden(true);
     ui->sprintHistoryView->setItemDelegate(&historyItemDelegate_);
     ui->taskHistoryView->setItemDelegate(&historyItemDelegate_);
 
-    state = ShowingSprints{*this};
-
     connections.push_back(connect(ui->historyTab,
                                   &QTabWidget::currentChanged,
                                   this,
                                   &HistoryWindow::onTabSelected));
-    connections.push_back(
-        connect(dateRangePicker,
-                &DateRangePicker::selectedDateRangeChanged,
-                [this](const dw::DateRange&) { synchronize(); }));
     connections.push_back(connect(ui->exportButton,
                                   &QPushButton::clicked,
                                   this,
                                   &HistoryWindow::onExportButtonClicked));
-    connections.push_back(connect(&datasyncRelay_,
-                                  &DatasyncRelay::dataUpdateRequiered,
-                                  this,
-                                  &HistoryWindow::synchronize));
-
-    synchronize();
 }
 
 HistoryWindow::~HistoryWindow()
@@ -110,9 +71,33 @@ HistoryWindow::~HistoryWindow()
     });
 }
 
-void HistoryWindow::synchronize()
+void HistoryWindow::displaySprintHistory(
+    const std::vector<contracts::HistoryContract::HistoryItem>& history)
 {
-    std::visit(HistoryRequestedEvent{*this}, state);
+    fillHistoryModel(convertHistory(history));
+    setHistoryModel(ui->sprintHistoryView);
+}
+
+void HistoryWindow::displayTaskHistory(
+    const std::vector<contracts::HistoryContract::HistoryItem>& history)
+{
+    fillHistoryModel(convertHistory(history));
+    setHistoryModel(ui->taskHistoryView);
+}
+
+contracts::HistoryContract::TaskEditData HistoryWindow::openEditTaskDialog(
+    const contracts::HistoryContract::TaskEditData& data)
+{
+    // TODO placeholder
+    return contracts::HistoryContract::TaskEditData{};
+}
+
+contracts::HistoryContract::SprintEditData HistoryWindow::openEditSprintDialog(
+    const contracts::HistoryContract::SprintEditData& data)
+{
+    // TODO placeholder
+    return contracts::HistoryContract::SprintEditData{
+        dw::DateTimeRange{dw::current_date_time(), dw::current_date_time()}};
 }
 
 void HistoryWindow::fillHistoryModel(const HistoryModel::HistoryData& history)
@@ -122,11 +107,7 @@ void HistoryWindow::fillHistoryModel(const HistoryModel::HistoryData& history)
 
 void HistoryWindow::onTabSelected(int tabIndex)
 {
-    if (tabIndex == sprintTabIndex)
-        state = ShowingSprints{*this};
-    else
-        state = ShowingTasks{*this};
-    synchronize();
+    presenter.onHistoryPaneChanged(tabIndex);
 }
 
 void HistoryWindow::setHistoryModel(QTreeView* view)
@@ -136,216 +117,32 @@ void HistoryWindow::setHistoryModel(QTreeView* view)
     view->show();
 }
 
-void HistoryWindow::onExportButtonClicked()
-{
-    ExportDialog exportDialog;
-    connect(&exportDialog,
-            &ExportDialog::exportConfirmed,
-            this,
-            &HistoryWindow::onDataExportConfirmed);
-    exportDialog.exec();
-}
+void HistoryWindow::onExportButtonClicked() { }
 
-dw::DateRange HistoryWindow::selectedDateInterval() const
-{
-    return dateRangePicker->selectionRange();
-}
-
-void HistoryWindow::onDataExportConfirmed(
-    const ExportDialog::ExportOptions& options)
-{
-    std::visit(ExportRequestedEvent{*this, options}, state);
-}
-
-void HistoryWindow::ShowingSprints::retrieveHistory(HistoryWindow& widget) const
-{
-    const auto sprints = widget.requestSprintsHandler.handle(
-        use_cases::RequestSprintsQuery{widget.selectedDateInterval()});
-    onHistoryRetrieved(widget, sprints);
-}
-
-HistoryWindow::ShowingSprints::ShowingSprints(HistoryWindow& widget) noexcept {}
-
-void HistoryWindow::ShowingSprints::onHistoryRetrieved(
-    HistoryWindow& widget, const std::vector<Sprint>& sprints) const
-{
-    widget.datasyncRelay.onSyncCompleted("HistoryWindow sprints");
-    const HistoryModel::HistoryData sprintHistory{
-        extractHistoryData(sprints, sprintDataExtractor)};
-    widget.fillHistoryModel(sprintHistory);
-    widget.setHistoryModel(widget.ui->sprintHistoryView);
-}
-
-void HistoryWindow::ShowingSprints::exportData(
-    HistoryWindow& widget, const ExportDialog::ExportOptions& options) const
-{
-    // TODO this deserves to be cleaned up as part of data export refactoring
-    std::stringstream ss;
-    ss << options.path << "/Sprints "
-       << dw::to_string(widget.selectedDateInterval(), "dd.MM.yyyy") << ".csv";
-    using namespace external_io;
-    auto filePath = ss.str();
-    auto out = std::make_shared<std::ofstream>(filePath);
-    auto sink = std::make_shared<OstreamSink>(out);
-    auto serializeSprint = [](const Sprint& sprint) {
-        std::vector<std::string> str;
-        auto tags = sprint.tags();
-        str.emplace_back(
-            sprint_timer::utils::join(cbegin(tags), cend(tags), ", "));
-        str.emplace_back(dw::to_string(sprint.timeSpan(), "hh:MM"));
-        str.emplace_back(sprint.name());
-        str.emplace_back(sprint.taskUuid());
-        str.emplace_back(sprint.uuid());
-        return str;
-    };
-    auto func = [serializeSprint](const auto& sprints) {
-        sprint_timer::utils::CSVEncoder encoder;
-        return encoder.encode(sprints, serializeSprint);
-    };
-    const auto sprints = widget.requestSprintsHandler.handle(
-        use_cases::RequestSprintsQuery{widget.selectedDateInterval()});
-    sink->send(func(sprints));
-}
-
-HistoryWindow::ShowingTasks::ShowingTasks(HistoryWindow& widget) noexcept {}
-
-void HistoryWindow::ShowingTasks::retrieveHistory(HistoryWindow& widget) const
-{
-    const auto tasks = widget.finishedTasksHandler.handle(
-        use_cases::FinishedTasksQuery{widget.selectedDateInterval()});
-    onHistoryRetrieved(widget, tasks);
-}
-
-void HistoryWindow::ShowingTasks::onHistoryRetrieved(
-    HistoryWindow& widget, const std::vector<Task>& tasks) const
-{
-    widget.datasyncRelay.onSyncCompleted("HistoryWindow tasks");
-    const HistoryModel::HistoryData taskHistory{
-        extractHistoryData(tasks, taskDataExtractor)};
-    widget.fillHistoryModel(taskHistory);
-    widget.setHistoryModel(widget.ui->taskHistoryView);
-}
-
-void HistoryWindow::ShowingTasks::exportData(
-    HistoryWindow& widget, const ExportDialog::ExportOptions& options) const
-{
-    std::stringstream ss;
-    ss << options.path << "/Tasks "
-       << dw::to_string(widget.selectedDateInterval(), "dd.MM.yyyy") << ".csv";
-    using namespace external_io;
-    auto filePath = ss.str();
-    auto out = std::make_shared<std::ofstream>(filePath);
-    auto sink = std::make_shared<OstreamSink>(out);
-    auto serializeTask = [](const Task& task) {
-        std::vector<std::string> str;
-        auto tags = task.tags();
-        str.emplace_back(
-            sprint_timer::utils::join(cbegin(tags), cend(tags), ", "));
-        str.emplace_back(task.name());
-        str.emplace_back(task.uuid());
-        str.emplace_back(std::to_string(task.isCompleted()));
-        str.emplace_back(std::to_string(task.actualCost()));
-        str.emplace_back(std::to_string(task.estimatedCost()));
-        return str;
-    };
-    auto func = [serializeTask](const auto& tasks) {
-        sprint_timer::utils::CSVEncoder encoder;
-        return encoder.encode(tasks, serializeTask);
-    };
-    const auto tasks = widget.finishedTasksHandler.handle(
-        use_cases::FinishedTasksQuery{widget.selectedDateInterval()});
-    sink->send(func(tasks));
-}
-
-HistoryWindow::HistoryRequestedEvent::HistoryRequestedEvent(
-    HistoryWindow& widget) noexcept
-    : widget{widget}
-{
-}
-
-void HistoryWindow::HistoryRequestedEvent::operator()(std::monostate) {}
-
-void HistoryWindow::HistoryRequestedEvent::operator()(
-    const ShowingSprints& state)
-{
-    state.retrieveHistory(widget);
-}
-
-void HistoryWindow::HistoryRequestedEvent::operator()(const ShowingTasks& state)
-{
-    state.retrieveHistory(widget);
-}
-
-HistoryWindow::ExportRequestedEvent::ExportRequestedEvent(
-    HistoryWindow& widget, const ExportDialog::ExportOptions& options)
-    : widget{widget}
-    , options{options}
-{
-}
-
-void HistoryWindow::ExportRequestedEvent::operator()(std::monostate) {}
-
-void HistoryWindow::ExportRequestedEvent::operator()(
-    const ShowingSprints& state)
-{
-    state.exportData(widget, options);
-}
-
-void HistoryWindow::ExportRequestedEvent::operator()(const ShowingTasks& state)
-{
-    state.exportData(widget, options);
-}
+} // namespace sprint_timer::ui::qt_gui
 
 namespace {
 
-QString sprintToString(const Sprint& sprint)
+sprint_timer::ui::qt_gui::HistoryModel::HistoryItem convertItem(
+    const sprint_timer::ui::contracts::HistoryContract::HistoryItem& item)
 {
-    return QString("%1 - %2 %3 %4")
-        .arg(QString::fromStdString(dw::to_string(sprint.startTime(), "hh:mm")))
-        .arg(
-            QString::fromStdString(dw::to_string(sprint.finishTime(), "hh:mm")))
-        .arg(QString::fromStdString(prefixTags(sprint.tags())))
-        .arg(QString::fromStdString(sprint.name()));
+    const auto& [date, description, uuid] = item;
+    return sprint_timer::ui::qt_gui::HistoryModel::HistoryItem{
+        sprint_timer::ui::qt_gui::utils::toQDate(date),
+        QString::fromStdString(description)};
 }
 
-QString taskToString(const Task& task)
+sprint_timer::ui::qt_gui::HistoryModel::HistoryData convertHistory(
+    const std::vector<
+        sprint_timer::ui::contracts::HistoryContract::HistoryItem>& history)
 {
-    return QString("%1 %2 %3/%4")
-        .arg(QString::fromStdString(prefixTags(task.tags())))
-        .arg(QString::fromStdString(task.name()))
-        .arg(task.actualCost())
-        .arg(task.estimatedCost());
-}
-
-HistoryModel::HistoryItem
-sprintDataExtractor(const sprint_timer::entities::Sprint& sprint)
-{
-    return std::make_pair(utils::toQDate(sprint.startTime()),
-                          sprintToString(sprint));
-}
-
-HistoryModel::HistoryItem
-taskDataExtractor(const sprint_timer::entities::Task& task)
-{
-    return std::make_pair(utils::toQDate(task.lastModified()),
-                          taskToString(task));
-}
-
-template <typename ItemContainer, typename ExtractFn>
-HistoryModel::HistoryData extractHistoryData(const ItemContainer& itemContainer,
-                                             ExtractFn extractingFunction)
-// auto extractHistoryData = [](const auto& itemContainer,
-//                              auto extractingFunction) {
-{
-    HistoryModel::HistoryData history;
-    history.reserve(itemContainer.size());
-    std::transform(cbegin(itemContainer),
-                   cend(itemContainer),
-                   std::back_inserter(history),
-                   extractingFunction);
-    return history;
+    sprint_timer::ui::qt_gui::HistoryModel::HistoryData convertedHistory;
+    convertedHistory.reserve(history.size());
+    std::transform(cbegin(history),
+                   cend(history),
+                   std::back_inserter(convertedHistory),
+                   convertItem);
+    return convertedHistory;
 }
 
 } // namespace
-
-} // namespace sprint_timer::ui::qt_gui

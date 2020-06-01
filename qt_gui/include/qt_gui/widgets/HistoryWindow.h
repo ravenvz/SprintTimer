@@ -25,6 +25,7 @@
 #include "qt_gui/DatasyncRelay.h"
 #include "qt_gui/dialogs/ExportDialog.h"
 #include "qt_gui/models/HistoryModel.h"
+#include "qt_gui/presentation/HistoryContract.h"
 #include "qt_gui/widgets/DateRangePicker.h"
 #include "qt_gui/widgets/StandaloneDisplayableWidget.h"
 #include <QStyledItemDelegate>
@@ -42,94 +43,38 @@ class HistoryWindow;
 
 namespace sprint_timer::ui::qt_gui {
 
-class HistoryWindow : public StandaloneDisplayableWidget {
+class HistoryWindow : public StandaloneDisplayableWidget,
+                      public contracts::HistoryContract::View {
 
 public:
-    HistoryWindow(
-        QueryHandler<use_cases::RequestSprintsQuery,
-                     std::vector<entities::Sprint>>& requestSprintsHandler,
-        QueryHandler<use_cases::FinishedTasksQuery,
-                     std::vector<entities::Task>>& finishedTasksHandler,
-        HistoryModel& historyModel,
-        QStyledItemDelegate& historyItemDelegate,
-        DatasyncRelay& datasyncRelay,
-        QAbstractItemModel& operationRangeModel,
-        dw::Weekday firstDayOfWeek,
-        QWidget* parent = nullptr);
+    HistoryWindow(contracts::HistoryContract::Presenter& presenter,
+                  HistoryModel& historyModel,
+                  QStyledItemDelegate& historyItemDelegate,
+                  QWidget* parent = nullptr);
 
-    ~HistoryWindow();
+    ~HistoryWindow() override;
 
-    void synchronize();
+    void displaySprintHistory(
+        const std::vector<contracts::HistoryContract::HistoryItem>& history)
+        override;
+
+    void displayTaskHistory(
+        const std::vector<contracts::HistoryContract::HistoryItem>& history)
+        override;
+
+    contracts::HistoryContract::TaskEditData openEditTaskDialog(
+        const contracts::HistoryContract::TaskEditData& data) override;
+
+    contracts::HistoryContract::SprintEditData openEditSprintDialog(
+        const contracts::HistoryContract::SprintEditData& data) override;
 
 private:
-    struct ShowingSprints {
-        explicit ShowingSprints(HistoryWindow& widget) noexcept;
-
-        void retrieveHistory(HistoryWindow& widget) const;
-
-        void
-        onHistoryRetrieved(HistoryWindow& widget,
-                           const std::vector<entities::Sprint>& sprints) const;
-
-        void exportData(HistoryWindow& widget,
-                        const ExportDialog::ExportOptions& options) const;
-    };
-    struct ShowingTasks {
-        explicit ShowingTasks(HistoryWindow& widget) noexcept;
-
-        void retrieveHistory(HistoryWindow& widget) const;
-
-        void onHistoryRetrieved(HistoryWindow& widget,
-                                const std::vector<entities::Task>& tasks) const;
-
-        void exportData(HistoryWindow& widget,
-                        const ExportDialog::ExportOptions& options) const;
-    };
-    using State = std::variant<std::monostate, ShowingSprints, ShowingTasks>;
-
-    struct HistoryRequestedEvent {
-
-        HistoryWindow& widget;
-
-        explicit HistoryRequestedEvent(HistoryWindow& widget) noexcept;
-
-        void operator()(std::monostate);
-
-        void operator()(const ShowingSprints&);
-
-        void operator()(const ShowingTasks&);
-    };
-
-    struct ExportRequestedEvent {
-
-        HistoryWindow& widget;
-        const ExportDialog::ExportOptions& options;
-
-        ExportRequestedEvent(HistoryWindow& widget,
-                             const ExportDialog::ExportOptions& options);
-
-        void operator()(std::monostate);
-
-        void operator()(const ShowingSprints&);
-
-        void operator()(const ShowingTasks&);
-    };
-
     std::unique_ptr<Ui::HistoryWindow> ui;
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler;
-    QueryHandler<use_cases::FinishedTasksQuery, std::vector<entities::Task>>&
-        finishedTasksHandler;
+    contracts::HistoryContract::Presenter& presenter;
     HistoryModel& historyModel;
-    DateRangePicker* dateRangePicker;
-    DatasyncRelay& datasyncRelay;
-    State state;
     std::vector<QMetaObject::Connection> connections;
 
-    /* Assumes that history items are ordered by date ascendantly. */
     void fillHistoryModel(const HistoryModel::HistoryData& history);
-
-    dw::DateRange selectedDateInterval() const;
 
 private slots:
 
@@ -138,8 +83,6 @@ private slots:
     void setHistoryModel(QTreeView* view);
 
     void onExportButtonClicked();
-
-    void onDataExportConfirmed(const ExportDialog::ExportOptions& options);
 };
 
 } // namespace sprint_timer::ui::qt_gui

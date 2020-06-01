@@ -19,6 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "mocks/DateRangeChangeListenerMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/StatisticsColleagueMock.h"
 #include "mocks/StatisticsMediatorMock.h"
@@ -47,10 +48,12 @@ public:
     NiceMock<DateRangeSelectorViewMock> viewMock;
     NiceMock<mocks::QueryHandlerMock<OperationalRangeQuery, dw::DateRange>>
         requestOperationalRangeHandlerMock;
-    NiceMock<mocks::StatisticsMediatorMock> mediatorMock;
+    NiceMock<mocks::DateRangeChangeListenerMock> dateRangeChangeListenerMock;
     dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
     sprint_timer::ui::DateRangeSelectorPresenter presenter{
-        requestOperationalRangeHandlerMock, mediatorMock, dw::Weekday::Monday};
+        requestOperationalRangeHandlerMock,
+        dateRangeChangeListenerMock,
+        dw::Weekday::Monday};
 };
 
 TEST_F(DateRangeSelectorPresenterFixture, updates_operational_range)
@@ -66,7 +69,7 @@ TEST_F(DateRangeSelectorPresenterFixture, updates_operational_range)
 TEST_F(DateRangeSelectorPresenterFixture,
        notifies_mediator_when_selected_date_range_is_changed)
 {
-    EXPECT_CALL(mediatorMock, changeRange(&presenter, someDateRange));
+    EXPECT_CALL(dateRangeChangeListenerMock, onRangeChanged(someDateRange));
 
     presenter.onSelectedRangeChanged(someDateRange);
 }

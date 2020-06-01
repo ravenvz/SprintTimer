@@ -30,12 +30,11 @@
 namespace sprint_timer::ui {
 
 class DateRangeSelectorPresenter
-    : public contracts::DateRangeSelectorContract::Presenter,
-      public StatisticsColleague {
+    : public contracts::DateRangeSelectorContract::Presenter {
 public:
     DateRangeSelectorPresenter(
         QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>& handler_,
-        StatisticsMediator& mediator_,
+        DateRangeChangeListener& dateRangeChangeListener_,
         dw::Weekday firstDayOfWeek);
 
     DateRangeSelectorPresenter(DateRangeSelectorPresenter&&) = default;
@@ -43,17 +42,13 @@ public:
     DateRangeSelectorPresenter&
     operator=(DateRangeSelectorPresenter&&) = default;
 
-    ~DateRangeSelectorPresenter() override;
-
     void onSelectedRangeChanged(const dw::DateRange& dateRange) override;
-
-    void onSharedDataChanged() override;
 
 private:
     std::reference_wrapper<
         QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>>
         handler;
-    std::reference_wrapper<StatisticsMediator> mediator;
+    std::reference_wrapper<DateRangeChangeListener> dateRangeChangeListener;
     dw::Weekday firstDayOfWeek;
 
     void updateViewImpl() override;

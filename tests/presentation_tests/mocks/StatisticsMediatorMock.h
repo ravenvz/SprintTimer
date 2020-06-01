@@ -34,10 +34,7 @@ public:
                 (sprint_timer::ui::StatisticsColleague*, std::optional<size_t>),
                 (override));
 
-    MOCK_METHOD(void,
-                changeRange,
-                (sprint_timer::ui::StatisticsColleague*, const dw::DateRange&),
-                (override));
+    MOCK_METHOD(void, onRangeChanged, (const dw::DateRange&), (override));
 
     MOCK_METHOD(const std::vector<sprint_timer::entities::Sprint>&,
                 sprints,
@@ -57,16 +54,6 @@ public:
                 selectedTagNumber,
                 (),
                 (const override));
-
-    MOCK_METHOD(void,
-                addColleague,
-                (sprint_timer::ui::StatisticsColleague*),
-                (override));
-
-    MOCK_METHOD(void,
-                removeColleague,
-                (sprint_timer::ui::StatisticsColleague*),
-                (override));
 };
 
 } // namespace mocks

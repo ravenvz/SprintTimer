@@ -25,24 +25,18 @@ namespace sprint_timer::ui {
 
 DateRangeSelectorPresenter::DateRangeSelectorPresenter(
     QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>& handler_,
-    StatisticsMediator& mediator_,
+    DateRangeChangeListener& dateRangeChangeListener_,
     dw::Weekday firstDayOfWeek_)
     : handler{handler_}
-    , mediator{mediator_}
+    , dateRangeChangeListener{dateRangeChangeListener_}
     , firstDayOfWeek{firstDayOfWeek_}
 {
-    mediator.get().addColleague(this);
-}
-
-DateRangeSelectorPresenter::~DateRangeSelectorPresenter()
-{
-    mediator.get().removeColleague(this);
 }
 
 void DateRangeSelectorPresenter::onSelectedRangeChanged(
     const dw::DateRange& dateRange)
 {
-    mediator.get().changeRange(this, dateRange);
+    dateRangeChangeListener.get().onRangeChanged(dateRange);
 }
 
 void DateRangeSelectorPresenter::updateViewImpl()
@@ -57,8 +51,6 @@ void DateRangeSelectorPresenter::updateViewImpl()
     view->setFirstDayOfWeek(firstDayOfWeek);
     view->updateOperationalRange(years);
 }
-
-void DateRangeSelectorPresenter::onSharedDataChanged() { }
 
 } // namespace sprint_timer::ui
 

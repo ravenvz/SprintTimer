@@ -33,8 +33,7 @@ public:
     void filterByTag(StatisticsColleague* caller,
                      std::optional<size_t> tagNumber) override;
 
-    void changeRange(StatisticsColleague* caller,
-                     const dw::DateRange& range) override;
+    void onRangeChanged(const dw::DateRange& range) override;
 
     const std::vector<entities::Sprint>& sprints() const override;
 
@@ -46,13 +45,8 @@ public:
 
     std::optional<size_t> selectedTagNumber() const override;
 
-    void removeColleague(StatisticsColleague* colleague) override;
-
-    void addColleague(StatisticsColleague* colleague) override;
-
 private:
     QueryHandler& queryHandler;
-    std::unordered_set<StatisticsColleague*> colleagues;
     size_t numTopTags;
     std::vector<entities::Sprint> allSprints;
     TagTop tagtop;
@@ -60,6 +54,8 @@ private:
     std::optional<size_t> currentTagNumber;
 
     void notifyColleagues(StatisticsColleague* caller);
+
+    void notifyColleagues();
 };
 
 } // namespace sprint_timer::ui

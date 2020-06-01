@@ -51,18 +51,15 @@ public:
 };
 
 TEST_F(StatisticsMediatorFixture,
-       notifies_colleaugues_except_caller_when_date_range_is_changed)
+       notifies_colleagues_when_date_range_is_changed)
 {
-    mocks::ColleagueMock driverColleague;
     mediator.addColleague(&colleagueMockFirst);
     mediator.addColleague(&colleagueMockSecond);
-    mediator.addColleague(&driverColleague);
 
     EXPECT_CALL(colleagueMockFirst, onSharedDataChanged()).Times(1);
     EXPECT_CALL(colleagueMockSecond, onSharedDataChanged()).Times(1);
-    EXPECT_CALL(driverColleague, onSharedDataChanged()).Times(0);
 
-    mediator.changeRange(&driverColleague, someDateRange);
+    mediator.onRangeChanged(someDateRange);
 }
 
 TEST_F(StatisticsMediatorFixture,
@@ -106,7 +103,7 @@ TEST_F(StatisticsMediatorFixture, requeries_handler_when_date_range_is_changed)
     EXPECT_CALL(requestSprintsHandlerMock,
                 handle(RequestSprintsQuery{newDateRange}));
 
-    mediator.changeRange(&driverColleague, newDateRange);
+    mediator.onRangeChanged(newDateRange);
 }
 
 TEST_F(StatisticsMediatorFixture, filters_sprints_by_tag)
@@ -129,7 +126,7 @@ TEST_F(StatisticsMediatorFixture, filters_sprints_by_tag)
     ON_CALL(requestSprintsHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(sprints));
 
-    mediator.changeRange(&driverColleague, someDateRange);
+    mediator.onRangeChanged(someDateRange);
     mediator.filterByTag(&driverColleague, 0);
 
     EXPECT_THAT(mediator.sprints(),
@@ -150,7 +147,7 @@ TEST_F(StatisticsMediatorFixture, resets_selected_tag_when_changing_date_range)
 
     EXPECT_EQ(someTagIndex, mediator.selectedTagNumber());
 
-    mediator.changeRange(&driverColleague, someDateRange);
+    mediator.onRangeChanged(someDateRange);
 
     EXPECT_EQ(std::nullopt, mediator.selectedTagNumber());
 }

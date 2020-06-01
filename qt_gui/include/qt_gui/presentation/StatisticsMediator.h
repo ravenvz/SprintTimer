@@ -22,6 +22,7 @@
 #ifndef STATISTICSMEDIATOR_H_3CXN8PXD
 #define STATISTICSMEDIATOR_H_3CXN8PXD
 
+#include "qt_gui/presentation/DateRangeChangeListener.h"
 #include "qt_gui/presentation/StatisticsColleague.h"
 #include <core/QueryHandler.h>
 #include <core/TagTop.h>
@@ -32,7 +33,20 @@
 
 namespace sprint_timer::ui {
 
-class StatisticsMediator {
+template <typename ColleagueT> class Mediator {
+public:
+    virtual ~Mediator() = default;
+
+    void addColleague(ColleagueT* colleague) { colleagues.insert(colleague); }
+
+    void removeColleague(ColleagueT* colleague) { colleagues.erase(colleague); }
+
+protected:
+    std::unordered_set<ColleagueT*> colleagues;
+};
+
+class StatisticsMediator : public Mediator<StatisticsColleague>,
+                           public DateRangeChangeListener {
 public:
     using QueryHandler = QueryHandler<use_cases::RequestSprintsQuery,
                                       std::vector<entities::Sprint>>;
@@ -41,9 +55,6 @@ public:
 
     virtual void filterByTag(StatisticsColleague* caller,
                              std::optional<size_t> numFromTop) = 0;
-
-    virtual void changeRange(StatisticsColleague* caller,
-                             const dw::DateRange& range) = 0;
 
     virtual const std::vector<entities::Sprint>& sprints() const = 0;
 
@@ -54,10 +65,6 @@ public:
     virtual std::optional<dw::DateRange> range() const = 0;
 
     virtual std::optional<size_t> selectedTagNumber() const = 0;
-
-    virtual void removeColleague(StatisticsColleague* colleague) = 0;
-
-    virtual void addColleague(StatisticsColleague* colleague) = 0;
 };
 
 } // namespace sprint_timer::ui
