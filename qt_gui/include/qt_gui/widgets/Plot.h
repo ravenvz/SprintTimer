@@ -25,6 +25,7 @@
 #include <QEvent>
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QPainterPath>
 #include <QString>
 #include <QWidget>
 
