@@ -52,10 +52,8 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
             ui->lePathToSoundFile->text().toStdString());
     });
     connect(ui->cbxTimerVariation,
-            QOverload<const QString&>::of(&QComboBox::currentIndexChanged),
-            [&](const QString& text) {
-                /* ... */
-            });
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [&](int index) { applicationSettings.setTimerFlavour(index); });
 }
 
 SettingsDialog::~SettingsDialog() = default;

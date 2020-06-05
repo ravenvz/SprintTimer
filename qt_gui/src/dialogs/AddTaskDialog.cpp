@@ -45,7 +45,7 @@ AddTaskDialog::AddTaskDialog(QAbstractItemModel& tagModel, QWidget* parent)
     ui->tags->setCurrentText("");
 
     connect(ui->tags,
-            QOverload<const QString&>::of(&QComboBox::activated),
+            &QComboBox::textActivated,
             this,
             &AddTaskDialog::onQuickAddTagActivated);
     connect(ui->taskName,
@@ -61,8 +61,8 @@ Task AddTaskDialog::constructedTask()
     const std::string name = ui->taskName->text().toStdString();
     const int estimatedCost = ui->estimatedCost->value();
     std::list<Tag> tags;
-    std::list<std::string> tagNames
-        = parseWords(ui->leTags->text().toStdString());
+    std::list<std::string> tagNames =
+        parseWords(ui->leTags->text().toStdString());
     // Remove duplicate tags if any.
     tagNames.sort();
     tagNames.unique();
@@ -95,8 +95,8 @@ void AddTaskDialog::fillItemData(const Task& item)
                    std::back_inserter(tagNames),
                    [](const auto& tag) { return tag.name(); });
 
-    QString joined_tags
-        = QString::fromStdString(join(tagNames.cbegin(), tagNames.cend(), " "));
+    QString joined_tags =
+        QString::fromStdString(join(tagNames.cbegin(), tagNames.cend(), " "));
     ui->taskName->setText(QString::fromStdString(item.name()));
     ui->estimatedCost->setValue(item.estimatedCost());
     ui->leTags->setText(joined_tags);
