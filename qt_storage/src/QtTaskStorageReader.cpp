@@ -185,7 +185,7 @@ Task taskFromRecord(const QSqlRecord& record)
     const int actualCost{columnData(record, Column::ActualCost).toInt()};
     const QStringList tagNames{columnData(record, Column::Tags)
                                    .toString()
-                                   .split(",", QString::SkipEmptyParts)};
+                                   .split(",", Qt::SkipEmptyParts)};
     std::list<Tag> tags;
     std::transform(tagNames.cbegin(),
                    tagNames.cend(),
