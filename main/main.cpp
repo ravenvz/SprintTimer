@@ -300,6 +300,23 @@ CachingQueryHandler<sprint_timer::use_cases::RequestSprintsQuery,
     return *cachedResult;
 }
 
+template <>
+std::vector<sprint_timer::entities::Task>
+CachingQueryHandler<sprint_timer::use_cases::FinishedTasksQuery,
+                    std::vector<sprint_timer::entities::Task>>::
+    handle(sprint_timer::use_cases::FinishedTasksQuery&& query)
+{
+    if (!cachedResult ||
+        (cachedQuery && (query.dateRange != cachedQuery->dateRange))) {
+        cachedQuery = query;
+        cachedResult = wrapped->handle(std::move(query));
+    }
+    else {
+        std::cout << "Returning cached value" << std::endl;
+    }
+    return *cachedResult;
+}
+
 // class CachingQueryHandler<sprint_timer::use_cases::RequestSprintsQuery,
 // std::vector<sprint_timer::entities::Sprint>> { public:
 // };
