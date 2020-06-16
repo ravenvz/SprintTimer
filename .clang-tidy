@@ -1,5 +1,5 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,*,-google-runtime-references,-llvm-header-guard,-cppcoreguidelines-special-member-functions,-hicpp-special-member-functions'
+Checks:          '*,-google-runtime-references,-llvm-header-guard,-fuchsia-*,-modernize-use-trailing-return-type'
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false
@@ -9,8 +9,6 @@ CheckOptions:
   - key:             cert-dcl59-cpp.HeaderFileExtensions
     value:           h,hh,hpp,hxx
   - key:             cert-err09-cpp.CheckThrowTemporaries
-    value:           '1'
-  - key:             cert-err61-cpp.CheckThrowTemporaries
     value:           '1'
   - key:             cert-oop11-cpp.IncludeStyle
     value:           llvm
@@ -23,7 +21,7 @@ CheckOptions:
   - key:             cppcoreguidelines-pro-bounds-constant-array-index.GslHeader
     value:           ''
   - key:             cppcoreguidelines-pro-bounds-constant-array-index.IncludeStyle
-    value:           '0'
+    value:           '1'
   - key:             cppcoreguidelines-pro-type-member-init.IgnoreArrays
     value:           '0'
   - key:             cppcoreguidelines-special-member-functions.AllowMissingMoveFunctions
@@ -35,15 +33,15 @@ CheckOptions:
   - key:             google-global-names-in-headers.HeaderFileExtensions
     value:           h
   - key:             google-readability-braces-around-statements.ShortStatementLines
-    value:           '1'
+    value:           '0'
   - key:             google-readability-function-size.BranchThreshold
-    value:           '4294967295'
+    value:           '3'
   - key:             google-readability-function-size.LineThreshold
-    value:           '4294967295'
+    value:           '40'
   - key:             google-readability-function-size.NestingThreshold
-    value:           '4294967295'
+    value:           '3'
   - key:             google-readability-function-size.ParameterThreshold
-    value:           '4294967295'
+    value:           '3'
   - key:             google-readability-function-size.StatementThreshold
     value:           '800'
   - key:             google-readability-namespace-comments.ShortNamespaceLines
@@ -56,16 +54,6 @@ CheckOptions:
     value:           ''
   - key:             google-runtime-int.UnsignedTypePrefix
     value:           uint
-  - key:             hicpp-function-size.BranchThreshold
-    value:           '4294967295'
-  - key:             hicpp-function-size.LineThreshold
-    value:           '4294967295'
-  - key:             hicpp-function-size.NestingThreshold
-    value:           '4294967295'
-  - key:             hicpp-function-size.ParameterThreshold
-    value:           '4294967295'
-  - key:             hicpp-function-size.StatementThreshold
-    value:           '800'
   - key:             hicpp-member-init.IgnoreArrays
     value:           '0'
   - key:             hicpp-named-parameter.IgnoreFailedSplit
@@ -127,13 +115,13 @@ CheckOptions:
   - key:             modernize-loop-convert.NamingStyle
     value:           CamelCase
   - key:             modernize-make-shared.IncludeStyle
-    value:           '0'
+    value:           '1'
   - key:             modernize-make-shared.MakeSmartPtrFunction
     value:           'std::make_shared'
   - key:             modernize-make-shared.MakeSmartPtrFunctionHeader
     value:           memory
   - key:             modernize-make-unique.IncludeStyle
-    value:           '0'
+    value:           '1'
   - key:             modernize-make-unique.MakeSmartPtrFunction
     value:           'std::make_unique'
   - key:             modernize-make-unique.MakeSmartPtrFunctionHeader
@@ -206,9 +194,5 @@ CheckOptions:
     value:           '0'
   - key:             readability-simplify-boolean-expr.ChainedConditionalReturn
     value:           '0'
-  - key:             google-readability-braces-around-statements.ShortStatementLines
-    value:           '2'
-  - key:             readability-braces-around-statements.ShortStatementLines
-    value:           '2'
 ...
 

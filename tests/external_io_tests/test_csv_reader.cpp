@@ -20,20 +20,20 @@
 **
 *********************************************************************************/
 
-#include "core/utils/CSVReader.h"
+#include "gtest/gtest.h"
+#include <external_io/CSVReader.h>
 #include <iostream>
 #include <iterator>
 #include <sstream>
-#include "gtest/gtest.h"
 
-using namespace sprint_timer::utils;
+using namespace sprint_timer::external_io;
 
 namespace {
 
 // TODO that makes test run depend on working directory
 constexpr char const* rfc_4180_test_file = "tests/core_tests/data/rfc_4180.csv";
 
-}
+} // namespace
 
 TEST(TestCSV, test_trows_exception_when_file_not_found)
 {
@@ -56,7 +56,8 @@ TEST(TestCSV, test_handles_case_wnen_last_record_missing_ending_line_break)
 
     CSVReader reader{stream};
 
-    EXPECT_TRUE(std::equal(expected.cbegin(), expected.cend(), reader.cbegin(), reader.cend()));
+    EXPECT_TRUE(std::equal(
+        expected.cbegin(), expected.cend(), reader.cbegin(), reader.cend()));
 }
 
 TEST(TestCSV, test_reads_RFC_4180_file)
@@ -79,6 +80,8 @@ TEST(TestCSV, test_reads_RFC_4180_file)
             "MUST SELL!\nair, moon roof, loaded",
             "4799.00"}};
 
-    EXPECT_TRUE(std::equal(
-        expected_data.cbegin(), expected_data.cend(), reader.cbegin(), reader.cend()));
+    EXPECT_TRUE(std::equal(expected_data.cbegin(),
+                           expected_data.cend(),
+                           reader.cbegin(),
+                           reader.cend()));
 }

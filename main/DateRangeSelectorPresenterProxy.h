@@ -31,11 +31,11 @@ class DateRangeSelectorPresenterProxy
 public:
     DateRangeSelectorPresenterProxy(
         QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>& handler_,
-        ui::StatisticsMediator& mediator_,
+        ui::DateRangeChangeListener& dateRangeChangeListener_,
         IConfig& settings_,
         Observable& configChangedSignaller_)
         : handler{handler_}
-        , mediator{mediator_}
+        , dateRangeChangeListener{dateRangeChangeListener_}
         , settings{settings_}
         , observer{configChangedSignaller_, [this]() { onConfigChanged(); }}
     {
@@ -64,10 +64,11 @@ public:
 
 private:
     QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>& handler;
-    ui::StatisticsMediator& mediator;
+    ui::DateRangeChangeListener& dateRangeChangeListener;
     IConfig& settings;
     dw::Weekday cached{settings.firstDayOfWeek()};
-    ui::DateRangeSelectorPresenter presenter{handler, mediator, cached};
+    ui::DateRangeSelectorPresenter presenter{
+        handler, dateRangeChangeListener, cached};
     CompositionObserver observer;
 
     void updateViewImpl() override { }
@@ -76,8 +77,8 @@ private:
     {
         if (dw::Weekday actual = settings.firstDayOfWeek(); actual != cached) {
             cached = actual;
-            presenter =
-                ui::DateRangeSelectorPresenter{handler, mediator, cached};
+            presenter = ui::DateRangeSelectorPresenter{
+                handler, dateRangeChangeListener, cached};
             presenter.attachView(*view);
         }
     }

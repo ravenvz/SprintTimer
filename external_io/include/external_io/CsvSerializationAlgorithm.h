@@ -19,30 +19,47 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef CSVENCODER_H_GKMATYII
+#define CSVENCODER_H_GKMATYII
 
-#ifndef SPRINT_TIMER_OSTREAMSINK_H_H
-#define SPRINT_TIMER_OSTREAMSINK_H_H
-
-#include <core/external_io/ISink.h>
+#include "core/entities/Sprint.h"
+#include "external_io/SerializationAlgorithm.h"
+#include <memory>
 #include <ostream>
+#include <string>
+#include <vector>
 
 namespace sprint_timer::external_io {
 
-class OstreamSink : public ISink {
+std::string encode(const std::vector<std::string>& records, char delimiter);
 
+template <typename T>
+class CsvSerializationAlgorithm : public SerializationAlgorithm<T> {
 public:
-    OstreamSink(std::shared_ptr<std::ostream> out)
-        : out{out}
+    std::string serialize(const T& type) override
     {
+        return encode(toRecords(type), delimiter);
     }
 
-    void send(const std::string& data) override { (*out) << data; }
+    std::vector<std::string>
+    serializeBatch(const std::vector<T>& batch) override
+    {
+        std::vector<std::string> encoded;
+        encoded.reserve(batch.size());
+        std::transform(cbegin(batch),
+                       cend(batch),
+                       std::back_inserter(encoded),
+                       [this](const auto& type) { return serialize(type); });
+        return encoded;
+    }
 
 private:
-    std::shared_ptr<std::ostream> out;
-};
+    char delimiter{';'};
 
+    virtual std::vector<std::string> toRecords(const T& type) const = 0;
+};
 
 } // namespace sprint_timer::external_io
 
-#endif // SPRINT_TIMER_OSTREAMSINK_H_H
+#endif /* end of include guard: CSVENCODER_H_GKMATYII */
+

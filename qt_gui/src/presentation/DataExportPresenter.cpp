@@ -1,0 +1,156 @@
+/********************************************************************************
+**
+** Copyright (C) 2016-2019 Pavel Pavlov.
+**
+**
+** This file is part of SprintTimer.
+**
+** SprintTimer is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Lesser General Public License as published by
+** the Free Software Foundation, either version 3 of the License, or
+** (at your option) any later version.
+**
+** SprintTimer is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU Lesser General Public License for more details.
+**
+** You should have received a copy of the GNU Lesser General Public License
+** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
+**
+*********************************************************************************/
+#include "qt_gui/presentation/DataExportPresenter.h"
+#include "core/SprintTimerException.h"
+#include <core/DataExporter.h>
+
+namespace {
+
+const std::vector<std::string> availableSinks{"Stdout", "File", "Network"};
+const std::vector<std::string> availableFileFormats{"CSV", "JSON"};
+
+sprint_timer::DataFormat translateFormats(const std::string& format);
+
+sprint_timer::SinkType translateSinks(const std::string& sink);
+
+std::pair<sprint_timer::DataFormat, sprint_timer::SinkType> translateParams(
+    const sprint_timer::ui::contracts::DataExportContract::ExportSelectedParams&
+        params);
+
+std::string composeErrorMessage(
+    sprint_timer::SprintTimerException& exc,
+    sprint_timer::ui::HistoryMediator::DisplayedHistory displayedHistory);
+
+} // namespace
+
+namespace sprint_timer::ui {
+
+DataExportPresenter::DataExportPresenter(SprintsHandler& exportSprintsHandler_,
+                                         TasksHandler& exportTasksHandler_,
+                                         HistoryMediator& mediator_)
+    : exportSprintsHandler{exportSprintsHandler_}
+    , exportTasksHandler{exportTasksHandler_}
+    , mediator{mediator_}
+{
+}
+
+void DataExportPresenter::onGenerateReportRequested()
+{
+    if (!mediator.currentDateRange())
+        return;
+    contracts::DataExportContract::ReportRequestOptions options;
+    view->displayReportOptions(options);
+}
+
+void DataExportPresenter::onDataExportRequested()
+{
+    if (!mediator.currentDateRange())
+        return;
+    contracts::DataExportContract::ExportRequestOptions options{
+        availableFileFormats, availableSinks};
+    view->displayExportOptions(options);
+}
+
+void DataExportPresenter::updateViewImpl()
+{
+    contracts::DataExportContract::ViewElements viewElements{"Generate Report",
+                                                             "Export"};
+    view->setupElements(viewElements);
+}
+
+void DataExportPresenter::onGenerateReportConfirmed(
+    const contracts::DataExportContract::ReportSelectedParams& selectedParams)
+{
+}
+
+void DataExportPresenter::onDataExportConfirmed(
+    const contracts::DataExportContract::ExportSelectedParams& selectedParams)
+{
+    const auto [dataFormat, sinkType] = translateParams(selectedParams);
+    const auto displayedHistory = mediator.displayedHistory();
+    try {
+        switch (displayedHistory) {
+        case HistoryMediator::DisplayedHistory::SprintHistory: {
+
+            exportSprintsHandler.handle(use_cases::ExportSprintsCommand{
+                *mediator.currentDateRange(), dataFormat, sinkType});
+            break;
+        }
+        case HistoryMediator::DisplayedHistory::TaskHistory: {
+            exportTasksHandler.handle(use_cases::ExportTasksCommand{
+                *mediator.currentDateRange(), dataFormat, sinkType});
+
+        } break;
+        }
+    }
+    catch (SprintTimerException& exc) {
+        view->displayError(composeErrorMessage(exc, displayedHistory));
+    }
+}
+
+void DataExportPresenter::onSharedDataChanged() { }
+
+} // namespace sprint_timer::ui
+
+namespace {
+
+sprint_timer::DataFormat translateFormats(const std::string& format)
+{
+    using sprint_timer::DataFormat;
+    if (format == "JSON")
+        return DataFormat::Json;
+    return DataFormat::Csv;
+};
+
+sprint_timer::SinkType translateSinks(const std::string& sink)
+{
+    using sprint_timer::SinkType;
+    if (sink == "Network")
+        return SinkType::Network;
+    if (sink == "File")
+        return SinkType::File;
+    return SinkType::Stdout;
+};
+
+std::pair<sprint_timer::DataFormat, sprint_timer::SinkType> translateParams(
+    const sprint_timer::ui::contracts::DataExportContract::ExportSelectedParams&
+        params)
+{
+    return std::make_pair(translateFormats(params.selectedFileFormat),
+                          translateSinks(params.selectedSink));
+};
+
+std::string composeErrorMessage(
+    sprint_timer::SprintTimerException& exc,
+    sprint_timer::ui::HistoryMediator::DisplayedHistory displayedHistory)
+{
+    using sprint_timer::ui::HistoryMediator;
+    std::stringstream ss;
+    ss << "Error exporting ";
+    ss << (displayedHistory == HistoryMediator::DisplayedHistory::SprintHistory
+               ? "Sprints"
+               : "Tasks");
+    ss << ": '" << exc.what() << "'";
+    return ss.str();
+}
+
+} // namespace

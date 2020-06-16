@@ -19,23 +19,23 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/use_cases/export_data/ExportTasksHandler.h"
 
-#ifndef SPRINT_TIMER_IDATAEXPORTER_H
-#define SPRINT_TIMER_IDATAEXPORTER_H
+namespace sprint_timer::use_cases {
 
-#include "core/external_io/ISink.h"
-#include <vector>
+ExportTasksHandler::ExportTasksHandler(Handler& tasksHandler_,
 
-namespace sprint_timer::external_io {
+                                       DataExporter<entities::Task>& exporter_)
+    : tasksHandler{tasksHandler_}
+    , exporter{exporter_}
+{
+}
 
-class IDataExporter {
-public:
-    virtual ~IDataExporter() = default;
+void ExportTasksHandler::handle(ExportTasksCommand&& command)
+{
+    const auto tasks =
+        tasksHandler.handle(FinishedTasksQuery{command.dateRange});
+    exporter.exportData(tasks, command.format, command.sinkType);
+}
 
-    virtual void exportData(ISink* sink, const std::vector<std::string>& data)
-        = 0;
-};
-
-} // namespace sprint_timer::external_io
-
-#endif // SPRINT_TIMER_IDATAEXPORTER_H
+} // namespace sprint_timer::use_cases

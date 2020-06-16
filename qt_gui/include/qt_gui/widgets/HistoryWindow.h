@@ -19,72 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef HISTORY_VIEW_H
-#define HISTORY_VIEW_H
+#ifndef HISTORYWINDOW_H_NKR3JLFK
+#define HISTORYWINDOW_H_NKR3JLFK
 
-#include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/dialogs/ExportDialog.h"
-#include "qt_gui/models/HistoryModel.h"
-#include "qt_gui/presentation/HistoryContract.h"
-#include "qt_gui/widgets/DateRangePicker.h"
 #include "qt_gui/widgets/StandaloneDisplayableWidget.h"
-#include <QStyledItemDelegate>
-#include <QTreeView>
-#include <core/IConfig.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
-#include <core/use_cases/request_tasks/FinishedTasksQuery.h>
 #include <memory>
-#include <variant>
-
-namespace Ui {
-class HistoryWindow;
-} // namespace Ui
 
 namespace sprint_timer::ui::qt_gui {
 
-class HistoryWindow : public StandaloneDisplayableWidget,
-                      public contracts::HistoryContract::View {
+class HistoryWindow : public StandaloneDisplayableWidget {
 
 public:
-    HistoryWindow(contracts::HistoryContract::Presenter& presenter,
-                  HistoryModel& historyModel,
-                  QStyledItemDelegate& historyItemDelegate,
+    HistoryWindow(std::unique_ptr<QWidget> dateRangeSelector,
+                  std::unique_ptr<QWidget> exportWidget,
+                  std::unique_ptr<QWidget> historyTab,
                   QWidget* parent = nullptr);
 
     ~HistoryWindow() override;
 
-    void displaySprintHistory(
-        const std::vector<contracts::HistoryContract::HistoryItem>& history)
-        override;
-
-    void displayTaskHistory(
-        const std::vector<contracts::HistoryContract::HistoryItem>& history)
-        override;
-
-    contracts::HistoryContract::TaskEditData openEditTaskDialog(
-        const contracts::HistoryContract::TaskEditData& data) override;
-
-    contracts::HistoryContract::SprintEditData openEditSprintDialog(
-        const contracts::HistoryContract::SprintEditData& data) override;
-
-private:
-    std::unique_ptr<Ui::HistoryWindow> ui;
-    contracts::HistoryContract::Presenter& presenter;
-    HistoryModel& historyModel;
-    std::vector<QMetaObject::Connection> connections;
-
-    void fillHistoryModel(const HistoryModel::HistoryData& history);
-
-private slots:
-
-    void onTabSelected(int tabIndex);
-
-    void setHistoryModel(QTreeView* view);
-
-    void onExportButtonClicked();
+    QSize sizeHint() const override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif // HISTORY_VIEW_H
+#endif /* end of include guard: HISTORYWINDOW_H_NKR3JLFK */
+

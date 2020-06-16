@@ -19,22 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef SERIALIZATIONEXCEPTION_H_Q9L2JT6Y
+#define SERIALIZATIONEXCEPTION_H_Q9L2JT6Y
 
-#ifndef SPRINT_TIMER_ISINK_H
-#define SPRINT_TIMER_ISINK_H
-
-#include <string>
+#include <core/SprintTimerException.h>
 
 namespace sprint_timer::external_io {
 
-class ISink {
+class SerializationException : public SprintTimerException {
 public:
-    virtual ~ISink() = default;
-
-    virtual void send(const std::string& data) = 0;
-
+    using SprintTimerException::SprintTimerException;
 };
 
 } // namespace sprint_timer::external_io
 
-#endif // SPRINT_TIMER_ISINK_H
+#endif /* end of include guard: SERIALIZATIONEXCEPTION_H_Q9L2JT6Y */

@@ -42,21 +42,21 @@ void HistoryModel::fill(const HistoryData& orderedHistory)
         return;
     }
 
-    QStandardItem* parent
-        = std::make_unique<QStandardItem>(
-              QString("%1 items in total.").arg(orderedHistory.size()))
-              .release();
+    QStandardItem* parent =
+        std::make_unique<QStandardItem>(
+            QString("%1 items in total.").arg(orderedHistory.size()))
+            .release();
     appendRow(parent);
 
     for (auto same_date_beg = cbegin(orderedHistory);
          same_date_beg != cend(orderedHistory);) {
         const auto [parent_date, parent_descr] = *same_date_beg;
-        auto same_date_end
-            = std::find_if(same_date_beg,
-                           cend(orderedHistory),
-                           [& parent_date = parent_date](const auto& entry) {
-                               return entry.first != parent_date;
-                           });
+        auto same_date_end =
+            std::find_if(same_date_beg,
+                         cend(orderedHistory),
+                         [&parent_date = parent_date](const auto& entry) {
+                             return entry.first != parent_date;
+                         });
 
         parent = std::make_unique<QStandardItem>(
                      QString("%1 (%2 items)")
@@ -70,6 +70,36 @@ void HistoryModel::fill(const HistoryData& orderedHistory)
             auto item = std::make_unique<QStandardItem>(same_date_beg->second);
             parent->setChild(children, item.release());
         }
+    }
+}
+
+void HistoryModel::fill(const contracts::HistoryContract::History& history)
+{
+    clear();
+
+    if (history.totalItems == 0) {
+        auto item = std::make_unique<QStandardItem>("No data.");
+        appendRow(item.release());
+        return;
+    }
+
+    auto parent = std::make_unique<QStandardItem>(
+        QString("%1 items in total.").arg(history.totalItems));
+    appendRow(parent.release());
+
+    for (const auto& dayHistory : history.sortedDayHistory) {
+        auto rowParent = std::make_unique<QStandardItem>(
+            QString("%1 (%2 items)")
+                .arg(QString::fromStdString(
+                    dw::to_string(dayHistory.date, "dd.MM.yyyy")))
+                .arg(dayHistory.sortedItems.size()));
+        int row{0};
+        for (const auto& item : dayHistory.sortedItems) {
+            auto rowItem = std::make_unique<QStandardItem>(
+                QString::fromStdString(item.description));
+            rowParent->setChild(row++, rowItem.release());
+        }
+        appendRow(rowParent.release());
     }
 }
 

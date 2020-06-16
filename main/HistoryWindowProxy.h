@@ -25,13 +25,12 @@
 #include "ManagedStandaloneDisplayable.h"
 #include <QStyledItemDelegate>
 #include <core/IConfig.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
-#include <core/use_cases/request_tasks/FinishedTasksQuery.h>
-#include <qt_gui/DatasyncRelay.h>
-#include <qt_gui/SprintTimerWidget.h>
 #include <qt_gui/models/HistoryModel.h>
+#include <qt_gui/presentation/HistoryPresenter.h>
 #include <qt_gui/utils/WidgetUtils.h>
+#include <qt_gui/widgets/DataExportWidget.h>
+#include <qt_gui/widgets/DateRangePicker.h>
+#include <qt_gui/widgets/HistoryTab.h>
 #include <qt_gui/widgets/HistoryWindow.h>
 
 namespace sprint_timer::compose {
@@ -39,46 +38,29 @@ namespace sprint_timer::compose {
 class HistoryWindowProxy : public ManagedStandaloneDisplayable {
 public:
     HistoryWindowProxy(
-        QueryHandler<use_cases::RequestSprintsQuery,
-                     std::vector<entities::Sprint>>& requestSprintsHandler_,
-        QueryHandler<use_cases::FinishedTasksQuery,
-                     std::vector<entities::Task>>& finishedTasksHandler_,
-        ui::qt_gui::HistoryModel& historyModel_,
-        QStyledItemDelegate& historyItemDelegate_,
-        ui::qt_gui::DatasyncRelay& datasyncRelay_,
-        QAbstractItemModel& operationRangeModel_,
-        const IConfig& applicationSettings_)
-        : requestSprintsHandler{requestSprintsHandler_}
-        , finishedTasksHandler{finishedTasksHandler_}
-        , historyModel{historyModel_}
-        , historyItemDelegate{historyItemDelegate_}
-        , datasyncRelay{datasyncRelay_}
-        , operationRangeModel{operationRangeModel_}
-        , applicationSettings{applicationSettings_}
+        ui::contracts::DateRangeSelectorContract::Presenter&
+            dateRangeSelectorPresenter_,
+        ui::contracts::HistoryContract::Presenter& historyPresenter_,
+        ui::contracts::DataExportContract::Presenter& dataExportPresenter_)
+        : dateRangeSelectorPresenter{dateRangeSelectorPresenter_}
+        , historyPresenter{historyPresenter_}
+        , dataExportPresenter{dataExportPresenter_}
     {
     }
 
 private:
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler;
-    QueryHandler<use_cases::FinishedTasksQuery, std::vector<entities::Task>>&
-        finishedTasksHandler;
-    ui::qt_gui::HistoryModel& historyModel;
-    QStyledItemDelegate& historyItemDelegate;
-    ui::qt_gui::DatasyncRelay& datasyncRelay;
-    QAbstractItemModel& operationRangeModel;
-    const IConfig& applicationSettings;
+    ui::contracts::DateRangeSelectorContract::Presenter&
+        dateRangeSelectorPresenter;
+    ui::contracts::HistoryContract::Presenter& historyPresenter;
+    ui::contracts::DataExportContract::Presenter& dataExportPresenter;
 
     std::unique_ptr<StandaloneDisplayable> create() override
     {
+        using namespace ui::qt_gui;
         return std::make_unique<ui::qt_gui::HistoryWindow>(
-            requestSprintsHandler,
-            finishedTasksHandler,
-            historyModel,
-            historyItemDelegate,
-            datasyncRelay,
-            operationRangeModel,
-            applicationSettings.firstDayOfWeek());
+            std::make_unique<DateRangeSelector>(dateRangeSelectorPresenter),
+            std::make_unique<DataExportWidget>(dataExportPresenter),
+            std::make_unique<HistoryTab>(historyPresenter));
     }
 };
 

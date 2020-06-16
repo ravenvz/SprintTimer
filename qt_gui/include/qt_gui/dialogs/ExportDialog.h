@@ -19,40 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #ifndef SPRINT_TIMER_EXPORTDIALOG_H
 #define SPRINT_TIMER_EXPORTDIALOG_H
 
+#include "qt_gui/presentation/DataExportContract.h"
 #include <QDialog>
+#include <QStringListModel>
 #include <memory>
-
-namespace Ui {
-class ExportDialog;
-} // namespace Ui
 
 namespace sprint_timer::ui::qt_gui {
 
 class ExportDialog : public QDialog {
-    Q_OBJECT
-
 public:
-    struct ExportOptions {
-        const std::string path;
-        const char delimiter;
-    };
+    ExportDialog(
+        const contracts::DataExportContract::ExportRequestOptions& options,
+        contracts::DataExportContract::ExportSelectedParams& selectedParams,
+        QWidget* parent = nullptr);
 
-    explicit ExportDialog(QWidget* parent = nullptr);
     ~ExportDialog() override;
-    void accept() override;
 
 private:
-    std::unique_ptr<Ui::ExportDialog> ui;
-
-signals:
-    void exportConfirmed(const ExportOptions& options);
+    contracts::DataExportContract::ExportSelectedParams& selectedParams;
+    QStringListModel sinkModel;
+    QStringListModel formatModel;
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // SPRINT_TIMER_EXPORTDIALOG_H

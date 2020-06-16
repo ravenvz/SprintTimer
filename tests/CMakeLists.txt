@@ -11,3 +11,4 @@ target_include_directories(gmock_main SYSTEM BEFORE INTERFACE
 add_subdirectory(core_tests)
 add_subdirectory(qt_storage_tests)
 add_subdirectory(presentation_tests)
+add_subdirectory(external_io_tests)

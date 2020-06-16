@@ -23,11 +23,15 @@
 #define STATISTICSMEDIATORIMPL_H_02PSRLBP
 
 #include "qt_gui/presentation/StatisticsMediator.h"
+#include <core/QueryHandler.h>
 
 namespace sprint_timer::ui {
 
 class StatisticsMediatorImpl : public StatisticsMediator {
 public:
+    using QueryHandler = QueryHandler<use_cases::RequestSprintsQuery,
+                                      std::vector<entities::Sprint>>;
+
     StatisticsMediatorImpl(QueryHandler& queryHandler_, size_t numTopTags_);
 
     void filterByTag(StatisticsColleague* caller,

@@ -65,9 +65,6 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/entities/Sprint.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/entities/Tag.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/entities/Task.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/external_io/IDataExporter.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/external_io/ISink.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/external_io/OstreamSink.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/change_schedule/ChangeWorkScheduleCommand.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/change_schedule/ChangeWorkScheduleHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityCommand.h"
@@ -80,6 +77,10 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/delete_task/DeleteTaskHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/edit_task/EditTaskCommand.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/edit_task/EditTaskHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/export_data/ExportSprintsCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/export_data/ExportSprintsHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/export_data/ExportTasksCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/export_data/ExportTasksHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/register_sprint/RegisterSprintCommand.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/register_sprint/RegisterSprintHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
@@ -109,8 +110,6 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/Algutils.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/CSVEncoder.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/CSVReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/StringUtils.h"
 
     PRIVATE
@@ -159,6 +158,10 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/delete_task/DeleteTaskHandler.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/edit_task/EditTaskCommand.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/edit_task/EditTaskHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/export_data/ExportSprintsCommand.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/export_data/ExportSprintsHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/export_data/ExportTasksCommand.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/export_data/ExportTasksHandler.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/register_sprint/RegisterSprintCommand.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/register_sprint/RegisterSprintHandler.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/register_sprint/RegisterSprintBulkCommand.cpp"
@@ -182,8 +185,6 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_tasks/UnfinishedTasksHandler.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/utils/CSVEncoder.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/utils/CSVReader.cpp"
 )
 
 target_include_directories(${CORE_LIB}

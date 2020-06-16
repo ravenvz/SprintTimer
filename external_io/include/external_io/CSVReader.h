@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #ifndef CSVREADER_H_RH5EZUKL
 #define CSVREADER_H_RH5EZUKL
 
@@ -28,25 +27,21 @@
 #include <string>
 #include <vector>
 
-namespace sprint_timer::utils {
+namespace sprint_timer::external_io {
 
 class StreamReadError : public std::runtime_error {
 public:
-    StreamReadError(const std::string& message);
+    explicit StreamReadError(const std::string& message);
 };
-
 
 class FormatError : public std::runtime_error {
 public:
-    FormatError(const std::string& message);
+    explicit FormatError(const std::string& message);
 };
-
 
 using Row = std::vector<std::string>;
 
-
 class ParserState;
-
 
 /* Reads Comma-Separated Values (CSV) from input stream.
 
@@ -155,25 +150,28 @@ private:
     void flushRowBuffer();
 };
 
-
 class ParserState {
 public:
-    virtual ~ParserState() = default;
     virtual void parseChar(CSVReader& reader, char ch) = 0;
-};
 
+    ParserState() = default;
+    virtual ~ParserState() = default;
+    ParserState(const ParserState& other) = delete;
+    ParserState& operator=(const ParserState& other) = delete;
+    ParserState(ParserState&& other) noexcept = delete;
+    ParserState& operator=(ParserState&& other) noexcept = delete;
+};
 
 class ParseValue : public ParserState {
 public:
     void parseChar(CSVReader& reader, char ch) override;
 };
 
-
 class ParseQuotedValue : public ParserState {
 public:
     void parseChar(CSVReader& reader, char ch) override;
 };
 
-} // namespace sprint_timer::utils
+} // namespace sprint_timer::external_io
 
 #endif /* end of include guard: CSVREADER_H_RH5EZUKL */

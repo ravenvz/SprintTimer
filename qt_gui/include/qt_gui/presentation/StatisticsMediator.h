@@ -23,34 +23,18 @@
 #define STATISTICSMEDIATOR_H_3CXN8PXD
 
 #include "qt_gui/presentation/DateRangeChangeListener.h"
+#include "qt_gui/presentation/Mediator.h"
 #include "qt_gui/presentation/StatisticsColleague.h"
-#include <core/QueryHandler.h>
 #include <core/TagTop.h>
 #include <core/use_cases/request_sprints/RequestSprintsQuery.h>
 #include <date_wrapper/date_wrapper.h>
 #include <string>
-#include <unordered_set>
 
 namespace sprint_timer::ui {
-
-template <typename ColleagueT> class Mediator {
-public:
-    virtual ~Mediator() = default;
-
-    void addColleague(ColleagueT* colleague) { colleagues.insert(colleague); }
-
-    void removeColleague(ColleagueT* colleague) { colleagues.erase(colleague); }
-
-protected:
-    std::unordered_set<ColleagueT*> colleagues;
-};
 
 class StatisticsMediator : public Mediator<StatisticsColleague>,
                            public DateRangeChangeListener {
 public:
-    using QueryHandler = QueryHandler<use_cases::RequestSprintsQuery,
-                                      std::vector<entities::Sprint>>;
-
     virtual ~StatisticsMediator() = default;
 
     virtual void filterByTag(StatisticsColleague* caller,

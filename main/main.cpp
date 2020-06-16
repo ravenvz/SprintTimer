@@ -50,8 +50,21 @@
 #include "ObservableConfig.h"
 #include "StatisticsWindowProxy.h"
 #include <qt_gui/widgets/StatisticsWindow.h>
+// #include <external_io/Serializer.h>
+// #include <external_io/RuntimeSinkRouter.h>
 
+#include <core/use_cases/export_data/ExportSprintsHandler.h>
+#include <core/use_cases/export_data/ExportTasksHandler.h>
+#include <external_io/OstreamSink.h>
+#include <external_io/RuntimeConfigurableDataExporter.h>
+#include <external_io/RuntimeSinkRouter.h>
+#include <external_io/Serializer.h>
+#include <external_io/SprintToCsvAlgorithm.h>
+#include <external_io/TaskToCsvAlgorithm.h>
+
+#include <qt_gui/presentation/DataExportPresenter.h>
 #include <qt_gui/presentation/DateRangeSelectorPresenter.h>
+#include <qt_gui/presentation/HistoryPresenter.h>
 #include <qt_gui/presentation/ProgressPresenter.h>
 
 #include <QApplication>
@@ -139,6 +152,7 @@
 #include <qt_gui/presentation/BestWorkdayPresenter.h>
 #include <qt_gui/presentation/DailyStatisticsGraphPresenter.h>
 #include <qt_gui/presentation/DaytimeStatisticsPresenter.h>
+#include <qt_gui/presentation/HistoryMediatorImpl.h>
 #include <qt_gui/presentation/StatisticsMediatorImpl.h>
 #include <qt_gui/presentation/TagPieDiagramPresenter.h>
 
@@ -195,9 +209,10 @@ std::string getUserDataDirectory()
 std::string getOrCreateSprintTimerDataDirectory()
 {
     const std::string prefix = getUserDataDirectory();
-    const std::string dataDirectory{prefix + "/sprint_timer"};
-    if (!exists(dataDirectory))
+    std::string dataDirectory{prefix + "/sprint_timer"};
+    if (!exists(dataDirectory)) {
         create_directory(dataDirectory);
+    }
     return dataDirectory;
 }
 
@@ -229,7 +244,7 @@ public:
         attach(relayHub_);
     }
 
-    void handle(CommandT&& command)
+    void handle(CommandT&& command) override
     {
         std::cout << "CacheAwareCommandHandler handles command" << std::endl;
         notify();
@@ -324,8 +339,8 @@ CachingQueryHandler<sprint_timer::use_cases::FinishedTasksQuery,
 class NewSyncronizingActionInvoker
     : public sprint_timer::ObservableActionInvoker {
 public:
-    // TODO perhaps as a result of multiple implementations of sync mechanism
-    // we have mixed observers
+    // TODO(vizier): perhaps as a result of multiple implementations of sync
+    // mechanism we have mixed observers
     NewSyncronizingActionInvoker(sprint_timer::ObservableActionInvoker& wrapped,
                                  sprint_timer::Observable& desyncObservable)
         : wrapped{wrapped}
@@ -336,7 +351,7 @@ public:
     void execute(std::unique_ptr<sprint_timer::Action> action) override
     {
         wrapped.execute(std::move(action));
-        // TODO this is technically a second notify, see TODO on top
+        // TODO(vizier): this is technically a second notify, see TODO on top
         desyncObservable.notify();
     }
 
@@ -958,13 +973,46 @@ int main(int argc, char* argv[])
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
-    compose::HistoryWindowProxy historyWindow{*requestSprintsHandler,
-                                              *finishedTasksHandler,
-                                              historyModel,
-                                              historyItemDelegate,
-                                              datasyncRelay,
-                                              operationRangeModel,
-                                              applicationSettings};
+    ui::HistoryMediatorImpl historyMediator;
+    ui::HistoryPresenter historyPresenter{
+        *requestSprintsHandler, *finishedTasksHandler, historyMediator};
+    compose::DateRangeSelectorPresenterProxy historyRangeSelectorPresenter{
+        *operationalRangeHandler,
+        historyMediator,
+        applicationSettings,
+        applicationSettings};
+
+    desyncObservable.attach(historyRangeSelectorPresenter);
+
+    external_io::OstreamSink ostreamSink{std::cout};
+
+    external_io::SprintToCsvAlgorithm sprintToCsvAlgorithm;
+    external_io::Serializer<entities::Sprint> sprintSerializer{
+        {{DataFormat::Csv, sprintToCsvAlgorithm}}};
+
+    external_io::TaskToCsvAlgorithm taskToCsvAlgorithm;
+    external_io::Serializer<entities::Task> taskSerializer{
+        {{DataFormat::Csv, taskToCsvAlgorithm}}};
+
+    external_io::RuntimeSinkRouter runtimeSinkRouter{
+        {{SinkType::Stdout, ostreamSink}}};
+    external_io::RuntimeConfigurableDataExporter<entities::Sprint>
+        sprintDataExporter{sprintSerializer, runtimeSinkRouter};
+    external_io::RuntimeConfigurableDataExporter<entities::Task>
+        taskDataExporter{taskSerializer, runtimeSinkRouter};
+    // Does not use synchronizing overload as it doesn't mutate eternal state
+    auto exportSprintsHandler =
+        decorate<ExportSprintsCommand>(std::make_unique<ExportSprintsHandler>(
+            *requestSprintsHandler, sprintDataExporter));
+    // Does not use synchronizing overload as it doesn't mutate eternal state
+    auto exportTasksHandler =
+        decorate<ExportTasksCommand>(std::make_unique<ExportTasksHandler>(
+            *finishedTasksHandler, taskDataExporter));
+    ui::DataExportPresenter dataExportPresenter{
+        *exportSprintsHandler, *exportTasksHandler, historyMediator};
+
+    compose::HistoryWindowProxy historyWindow{
+        historyRangeSelectorPresenter, historyPresenter, dataExportPresenter};
 
     SettingsDialog settingsDialog{applicationSettings};
     auto launcherMenu = std::make_unique<LauncherMenu>(

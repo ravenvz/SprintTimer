@@ -19,34 +19,30 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
-#include "core/utils/CSVReader.h"
+#include "external_io/CSVReader.h"
 #include <iostream>
 #include <iterator>
 #include <memory>
 #include <sstream>
 
-namespace sprint_timer::utils {
+namespace sprint_timer::external_io {
 
 StreamReadError::StreamReadError(const std::string& message)
     : std::runtime_error{message}
 {
 }
 
-
 FormatError::FormatError(const std::string& message)
     : std::runtime_error{message}
 {
 }
 
-
 namespace {
-    auto parseValueState = std::make_unique<ParseValue>();
-    auto parseQuotedValue = std::make_unique<ParseQuotedValue>();
-    constexpr char quote{'"'};
-    constexpr char linebreak{'\n'};
-}
-
+auto parseValueState = std::make_unique<ParseValue>();
+auto parseQuotedValue = std::make_unique<ParseQuotedValue>();
+constexpr char quote{'"'};
+constexpr char linebreak{'\n'};
+} // namespace
 
 CSVReader::CSVReader(std::istream& stream, char separator)
     : file{stream}
@@ -59,7 +55,6 @@ CSVReader::CSVReader(std::istream& stream, char separator)
     }
     parseFile();
 }
-
 
 void CSVReader::parseFile()
 {
@@ -75,24 +70,17 @@ void CSVReader::parseFile()
     }
 }
 
-
 void CSVReader::parseChar(char ch) { state->parseChar(*this, ch); }
-
 
 CSVReader::const_iterator CSVReader::begin() const { return rows.begin(); }
 
-
 CSVReader::const_iterator CSVReader::end() const { return rows.end(); }
-
 
 CSVReader::const_iterator CSVReader::cbegin() const { return rows.cbegin(); }
 
-
 CSVReader::const_iterator CSVReader::cend() const { return rows.cend(); }
 
-
 void CSVReader::pushValueBuffer(char ch) { valueBuffer.push_back(ch); }
-
 
 void CSVReader::flushBuffers()
 {
@@ -100,13 +88,11 @@ void CSVReader::flushBuffers()
     flushRowBuffer();
 }
 
-
 void CSVReader::flushValueBuffer()
 {
     rowBuffer.emplace_back(valueBuffer);
     valueBuffer.clear();
 }
-
 
 void CSVReader::flushRowBuffer()
 {
@@ -123,9 +109,7 @@ void CSVReader::flushRowBuffer()
     ++lineNumber;
 }
 
-
 void CSVReader::skipNextChar() { file.get(); }
-
 
 void ParseValue::parseChar(CSVReader& reader, char ch)
 {
@@ -143,7 +127,6 @@ void ParseValue::parseChar(CSVReader& reader, char ch)
     }
 }
 
-
 void ParseQuotedValue::parseChar(CSVReader& reader, char ch)
 {
     if (ch == quote) {
@@ -160,4 +143,4 @@ void ParseQuotedValue::parseChar(CSVReader& reader, char ch)
     }
 }
 
-} // namespace sprint_timer::utils
+} // namespace sprint_timer::external_io

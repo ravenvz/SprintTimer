@@ -19,47 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef SINK_H_LHIQQTBD
+#define SINK_H_LHIQQTBD
 
-#ifndef SPRINT_TIMER_CSVWRITER_H
-#define SPRINT_TIMER_CSVWRITER_H
-
-#include "core/entities/Sprint.h"
-#include "core/external_io/IDataExporter.h"
-#include <memory>
-#include <ostream>
 #include <string>
 #include <vector>
 
-namespace sprint_timer::utils {
+namespace sprint_timer::external_io {
 
-class CSVEncoder {
+class Sink {
 public:
-    using Data = std::vector<std::string>;
-    CSVEncoder(char delimiter = ',');
+    virtual void send(std::vector<std::string>&& data) = 0;
 
-    std::string encode(const std::vector<Data>& data);
-
-    template <typename T, typename Func>
-    std::string encode(const std::vector<T>& data, Func func)
-    {
-        if (data.empty())
-            return "";
-        for (const auto& item : data) {
-            encodeRow(func(item));
-        }
-        std::string result = ss.str();
-        ss.str("");
-        return result;
-    }
-
-private:
-    const char delimiter;
-    std::stringstream ss;
-
-    void encodeRow(const std::vector<std::string>& row);
-    void writeValue(const std::string& value);
+    Sink() = default;
+    Sink(const Sink& other) = delete;
+    Sink& operator=(const Sink& other) = delete;
+    Sink(Sink&& other) noexcept = delete;
+    Sink& operator=(Sink&& other) noexcept = delete;
+    virtual ~Sink() = default;
 };
 
-} // namespace sprint_timer::utils
+} // namespace sprint_timer::external_io
 
-#endif // SPRINT_TIMER_CSVWRITER_H
+#endif /* end of include guard: SINK_H_LHIQQTBD */
+

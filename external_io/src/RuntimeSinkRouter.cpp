@@ -19,47 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "external_io/RuntimeSinkRouter.h"
 
-#include "core/utils/CSVEncoder.h"
+namespace sprint_timer::external_io {
 
-namespace sprint_timer::utils {
-
-CSVEncoder::CSVEncoder(char delimiter)
-    : delimiter{delimiter}
+RuntimeSinkRouter::RuntimeSinkRouter(SinkTypeMapper&& mapper_)
+    : sinkTypeMapper{std::move(mapper_)}
 {
 }
 
-void CSVEncoder::encodeRow(const std::vector<std::string>& row)
+void RuntimeSinkRouter::route(std::vector<std::string>&& data,
+                              SinkType sinkType)
 {
-    if (row.empty())
+    if (auto sink = sinkTypeMapper.find(sinkType);
+        sink != sinkTypeMapper.cend()) {
+        sink->second.get().send(std::move(data));
         return;
-    for (auto it = row.cbegin(); it != row.cend() - 1; ++it) {
-        writeValue(*it);
-        ss << delimiter;
     }
-    writeValue(row.back());
-    ss << "\n";
+    std::string errMsg{"Unable to find sink to route to with SinkType: "};
+    errMsg += std::to_string(static_cast<int>(sinkType));
+    throw SinkRoutingException{errMsg};
 }
 
-std::string CSVEncoder::encode(const std::vector<CSVEncoder::Data>& data)
-{
-    if (data.empty())
-        return "";
-    for (const auto& row : data) {
-        encodeRow(row);
-    }
-    std::string result = ss.str();
-    ss.str("");
-    return result;
-}
+} // namespace sprint_timer::external_io
 
-void CSVEncoder::writeValue(const std::string& value)
-{
-    for (char ch : value) {
-        ss << ch;
-        if (ch == '"')
-            ss << "\"";
-    }
-}
-
-} // namespace sprint_timer::utils

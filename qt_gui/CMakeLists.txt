@@ -16,7 +16,6 @@ QT5_WRAP_UI(UI_HEADERS
         ui/add_todo_dialog.ui
         ui/pom_cancel_dialog.ui
         ui/settings.ui
-        ui/history.ui
         ui/date_pick_dialog.ui
         ui/add_sprint_dialog.ui
         ui/date_range_picker.ui
@@ -72,6 +71,8 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/WeekScheduleModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/BestWorkdayContract.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/BestWorkdayPresenter.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/DataExportContract.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/DataExportPresenter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/DateRangeChangeListener.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/DailyStatisticsGraphContract.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/DailyStatisticsGraphPresenter.h"
@@ -80,7 +81,10 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/DaytimeStatisticsContract.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/DaytimeStatisticsPresenter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/HistoryContract.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/HistoryMediator.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/HistoryMediatorImpl.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/HistoryPresenter.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/Mediator.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/ProgressPresenterContract.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/ProgressPresenter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/BasePresenter.h"
@@ -98,6 +102,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/CombinedIndicator.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/ContextMenuListView.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DailyTimelineGraph.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DataExportWidget.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DateRangePicker.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DefaultTimer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/DialogLaunchButton.h"
@@ -107,6 +112,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/FancyTimer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/Gauge.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/HistoryWindow.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/HistoryTab.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/IStatisticalChart.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/IStatisticalChartLegend.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/LauncherMenu.h"
@@ -161,8 +167,11 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/utils/WidgetUtils.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/BestWorkdayPresenter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/DailyStatisticsGraphPresenter.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/presentation/DataExportPresenter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/DateRangeSelectorPresenter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/DaytimeStatisticsPresenter.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/presentation/HistoryMediatorImpl.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/presentation/HistoryPresenter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/StatisticsMediatorImpl.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/TagPieDiagramPresenter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/AutodisablingButton.cpp"
@@ -172,6 +181,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/CombinedIndicator.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/ContextMenuListView.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DailyTimelineGraph.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DataExportWidget.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DateRangePicker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DefaultTimer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/DialogLaunchButton.cpp"
@@ -181,6 +191,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/FancyTimer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/Gauge.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/HistoryWindow.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/HistoryTab.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/IStatisticalChart.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/IStatisticalChartLegend.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/LauncherMenu.cpp"
