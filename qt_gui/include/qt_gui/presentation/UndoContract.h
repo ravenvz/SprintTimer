@@ -19,30 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef UNDOCONTRACT_H_0SCLY1JB
+#define UNDOCONTRACT_H_0SCLY1JB
 
-#include "qt_gui/dialogs/UndoDialog.h"
+#include "qt_gui/presentation/BasePresenter.h"
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer::ui::contracts::UndoContract {
 
-UndoDialog::UndoDialog(ActionInvoker& actionInvoker, QWidget* parent)
-    : ConfirmationDialog{parent}
-    , actionInvoker{actionInvoker}
-{
-}
+class View {
+public:
+    virtual void showConfirmationDialog(const std::string& message) = 0;
 
-void UndoDialog::open()
-{
-    QString description{"Revert following action:\n"};
-    description.append(
-        QString::fromStdString(actionInvoker.lastActionDescription()));
-    setActionDescription(description);
-    ConfirmationDialog::exec();
-}
+    virtual void setInteractive(bool interactive) = 0;
 
-void UndoDialog::accept()
-{
-    actionInvoker.undo();
-    ConfirmationDialog::accept();
-}
+    View() = default;
+    virtual ~View() = default;
+    View(const View& other) = delete;
+    View& operator=(const View& other) = delete;
+    View(View&& other) noexcept = delete;
+    View& operator=(View&& other) noexcept = delete;
+};
 
-} // namespace sprint_timer::ui::qt_gui
+class Presenter : public BasePresenter<View> {
+public:
+    virtual void onUndoRequested() = 0;
+
+    virtual void onUndoConfirmed() = 0;
+};
+
+} // namespace sprint_timer::ui::contracts::UndoContract
+
+#endif /* end of include guard: UNDOCONTRACT_H_0SCLY1JB */

@@ -12,9 +12,12 @@ target_sources(${TEST_PRESENTATION}
     "${CMAKE_CURRENT_LIST_DIR}/test_daytime_statistics_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_history_mediator.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_history_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_manual_add_sprint_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_progress_view_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_sprint_outline_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_statistics_mediator.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_tag_diagram_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_undo_presenter.cpp"
 )
 
 target_compile_features(${TEST_PRESENTATION} PRIVATE cxx_std_17)

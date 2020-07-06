@@ -23,12 +23,9 @@
 #define UNDOBUTTON_H_TO9TXCVM
 
 #include <QPushButton>
+#include <core/ActionInvoker.h>
 #include <core/Observable.h>
-#include <core/ObservableActionInvoker.h>
 #include <core/Observer.h>
-
-// TODO should depend on ActionInvoker abstraction or we should do this other
-// way
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -37,13 +34,14 @@ namespace sprint_timer::ui::qt_gui {
  * such commands. */
 class UndoButton : public QPushButton, public Observer {
 public:
-    explicit UndoButton(ObservableActionInvoker& actionInvoker,
+    explicit UndoButton(Observable& undoObservable,
+                        ActionInvoker& actionInvoker,
                         QWidget* parent = nullptr);
 
     void update() override;
 
 private:
-    ObservableActionInvoker& actionInvoker;
+    ActionInvoker& actionInvoker;
 };
 
 } // namespace sprint_timer::ui::qt_gui

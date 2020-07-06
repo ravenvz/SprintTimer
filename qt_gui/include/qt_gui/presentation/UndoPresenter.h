@@ -19,44 +19,47 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BASEPRESENTER_H_9G4DRMSO
-#define BASEPRESENTER_H_9G4DRMSO
+#ifndef UNDOPRESENTER_H_UM9IVZNC
+#define UNDOPRESENTER_H_UM9IVZNC
 
+#include "qt_gui/presentation/UndoContract.h"
+#include <core/ActionInvoker.h>
+#include <core/Observable.h>
 #include <core/Observer.h>
-#include <iostream>
 
 namespace sprint_timer::ui {
 
-template <typename ViewT> class BasePresenter : public Observer {
+class UndoPresenter : public contracts::UndoContract::Presenter {
 public:
-    // virtual ~BasePresenter() = default;
+    friend class UndoObserver;
 
-    virtual void attachView(ViewT& view_)
-    {
-        view = &view_;
-        updateView();
-    }
+    UndoPresenter(Observable& undoObservable, ActionInvoker& actionInvoker);
 
-    virtual void detachView(ViewT& view_) { view = nullptr; }
+    void onUndoRequested() override;
 
-    void updateView()
-    {
-        if (!view) {
-            std::cerr << "WARNING: no view is attached, updating aborted\n";
-            return;
-        }
-        updateViewImpl();
-    }
-
-    void update() override { updateView(); }
-
-protected:
-    ViewT* view{nullptr};
+    void onUndoConfirmed() override;
 
 private:
-    virtual void updateViewImpl() = 0;
+    struct UndoObserver : public Observer {
+        UndoObserver(Observable& undoObservable, UndoPresenter& ref);
+
+        ~UndoObserver() override;
+
+        void update() override;
+
+    private:
+        Observable& undoObservable;
+        UndoPresenter& ref;
+    };
+
+    ActionInvoker& actionInvoker;
+
+    void updateViewImpl() override;
+
+private:
+    UndoObserver undoObserver;
 };
 
 } // namespace sprint_timer::ui
 
-#endif /* end of include guard: BASEPRESENTER_H_9G4DRMSO */
+#endif /* end of include guard: UNDOPRESENTER_H_UM9IVZNC */

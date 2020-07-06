@@ -19,44 +19,35 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BASEPRESENTER_H_9G4DRMSO
-#define BASEPRESENTER_H_9G4DRMSO
+#ifndef ACTIVETASKSCONTRACT_H_6FEWWZAP
+#define ACTIVETASKSCONTRACT_H_6FEWWZAP
 
-#include <core/Observer.h>
-#include <iostream>
+#include <core/entities/Task.h>
 
-namespace sprint_timer::ui {
+namespace sprint_timer::ui::contracts::ActiveTasksContract {
 
-template <typename ViewT> class BasePresenter : public Observer {
+class View {
 public:
-    // virtual ~BasePresenter() = default;
+    virtual void displayTasks(const std::vector<entities::Task>& tasks) = 0;
 
-    virtual void attachView(ViewT& view_)
-    {
-        view = &view_;
-        updateView();
-    }
-
-    virtual void detachView(ViewT& view_) { view = nullptr; }
-
-    void updateView()
-    {
-        if (!view) {
-            std::cerr << "WARNING: no view is attached, updating aborted\n";
-            return;
-        }
-        updateViewImpl();
-    }
-
-    void update() override { updateView(); }
-
-protected:
-    ViewT* view{nullptr};
-
-private:
-    virtual void updateViewImpl() = 0;
+    virtual ~View() = default;
+    View(const View& other) = delete;
+    View& operator=(const View& other) = delete;
+    View(View&& other) noexcept = delete;
+    View& operator=(View&& other) noexcept = delete;
 };
 
-} // namespace sprint_timer::ui
+class Presenter {
+public:
+    virtual void onTaskDelete() = 0;
 
-#endif /* end of include guard: BASEPRESENTER_H_9G4DRMSO */
+    virtual ~Presenter() = default;
+    Presenter(const Presenter& other) = delete;
+    Presenter& operator=(const Presenter& other) = delete;
+    Presenter(Presenter&& other) noexcept = delete;
+    Presenter& operator=(Presenter&& other) noexcept = delete;
+};
+
+} // namespace sprint_timer::ui::contracts::ActiveTasksContract
+
+#endif /* end of include guard: ACTIVETASKSCONTRACT_H_6FEWWZAP */

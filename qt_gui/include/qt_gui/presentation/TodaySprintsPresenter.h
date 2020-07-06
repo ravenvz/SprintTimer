@@ -19,49 +19,50 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTMODEL_H_MQZ2XAPI
-#define SPRINTMODEL_H_MQZ2XAPI
+#ifndef TODAYSPRINTSPRESENTER_H_8U0DLSNR
+#define TODAYSPRINTSPRESENTER_H_8U0DLSNR
 
-#include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/models/AsyncListModel.h"
+#include "qt_gui/presentation/TodaySprints.h"
 #include <core/CommandHandler.h>
 #include <core/QueryHandler.h>
 #include <core/use_cases/delete_sprint/DeleteSprintCommand.h>
 #include <core/use_cases/request_sprints/RequestSprintsQuery.h>
-#include <vector>
+#include <core/use_cases/request_tasks/UnfinishedTasksQuery.h>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer::ui {
 
-class SprintModel : public AsyncListModel {
-
+class TodaySprintsPresenter : public contracts::TodaySprints::Presenter {
 public:
-    SprintModel(
-        CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler,
+    TodaySprintsPresenter(
+        CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler_,
         QueryHandler<use_cases::RequestSprintsQuery,
-                     std::vector<entities::Sprint>>& requestSprintsHandler,
-        DatasyncRelay& datasyncRelay,
-        QObject* parent = nullptr);
+                     std::vector<entities::Sprint>>& requestSprintsHandler_)
+        : deleteSprintHandler{deleteSprintHandler_}
+        , requestSprintsHandler{requestSprintsHandler_}
+    {
+    }
 
-    int rowCount(const QModelIndex& parent) const final;
+    void onSprintDelete(const entities::Sprint& sprint) override
+    {
+        deleteSprintHandler.handle(use_cases::DeleteSprintCommand{sprint});
+    }
 
-    QVariant data(const QModelIndex& index, int role) const final;
-
-    bool removeRows(int row, int count, const QModelIndex& index) final;
+    void updateViewImpl() override
+    {
+        const dw::DateRange range{dw::current_date_local(),
+                                  dw::current_date_local()};
+        const auto sprints =
+            requestSprintsHandler.handle(use_cases::RequestSprintsQuery{range});
+        view->displaySprints(sprints);
+    }
 
 private:
-    std::vector<entities::Sprint> storage;
     CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler;
     QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
         requestSprintsHandler;
-    DatasyncRelay& datasyncRelay;
-
-    void requestUpdate() final;
-
-    void onDataChanged(const std::vector<entities::Sprint>& items);
-
-    void remove(int row);
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer::ui
 
-#endif /* end of include guard: SPRINTMODEL_H_MQZ2XAPI */
+#endif /* end of include guard: TODAYSPRINTSPRESENTER_H_8U0DLSNR */
+

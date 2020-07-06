@@ -19,6 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_gui/presentation/ManualSprintAddPresenter.h"
 #ifdef _WIN32
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
 #include <ShlObj.h>
@@ -61,11 +62,15 @@
 #include <external_io/Serializer.h>
 #include <external_io/SprintToCsvAlgorithm.h>
 #include <external_io/TaskToCsvAlgorithm.h>
+#include <qt_gui/presentation/TodaySprintsPresenter.h>
+#include <qt_gui/widgets/ManualSprintAddView.h>
+#include <qt_gui/widgets/UndoWidget.h>
 
 #include <qt_gui/presentation/DataExportPresenter.h>
 #include <qt_gui/presentation/DateRangeSelectorPresenter.h>
 #include <qt_gui/presentation/HistoryPresenter.h>
 #include <qt_gui/presentation/ProgressPresenter.h>
+#include <qt_gui/presentation/UndoPresenter.h>
 
 #include <QApplication>
 #include <QStyleFactory>
@@ -89,7 +94,6 @@
 #include <qt_gui/dialogs/AddSprintDialog.h>
 #include <qt_gui/dialogs/AddTaskDialog.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
-#include <qt_gui/dialogs/UndoDialog.h>
 #include <qt_gui/dialogs/WorkdaysDialog.h>
 #include <qt_gui/models/ExtraDayModel.h>
 #include <qt_gui/models/HistoryModel.h>
@@ -591,7 +595,7 @@ int main(int argc, char* argv[])
 
     QApplication app(argc, argv);
 
-    // TODO should be one per thread when async is implemented
+    // TODO(vizier): should be one per thread when async is implemented
     storage::qt_storage::WorkerConnection worker_connection{dataDirectory +
                                                             "/test_sprint.db"};
     QtStorageImplementersFactory storageFactory{
@@ -796,27 +800,42 @@ int main(int argc, char* argv[])
     taskSelector->setModel(&unfinishedTasksModel);
     taskSelector->setItemDelegate(
         std::make_unique<SubmissionItemDelegate>().release());
-    AddSprintDialog addSprintDialog{applicationSettings,
-                                    std::move(taskSelector),
-                                    *registerSprintBulkHandler};
+    // AddSprintDialog addSprintDialog{applicationSettings,
+    //                                 std::move(taskSelector),
+    //                                 *registerSprintBulkHandler};
 
     WorkScheduleWrapper workScheduleWrapper{
         datasyncRelay, *changeWorkScheduleHandler, *workScheduleHandler};
 
-    UndoDialog undoDialog{actionInvoker};
+    ui::UndoPresenter undoPresenter{actionInvoker, actionInvoker};
+    auto undoWidget = std::make_unique<qt_gui::UndoWidget>(undoPresenter);
+    // auto undoButton =
+    //     std::make_unique<UndoButton>(actionInvoker, actionInvoker);
 
-    auto undoButton = std::make_unique<UndoButton>(actionInvoker);
-    auto addNewSprintButton = std::make_unique<AutodisablingButton>(
-        unfinishedTasksModel, "Add Sprint Manually");
-    addNewSprintButton->setEnabled(false);
-    auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
-    sprintView->setModel(&todaySprintsModel);
+    // auto addNewSprintButton = std::make_unique<AutodisablingButton>(
+    //     unfinishedTasksModel, "Add Sprint Manually");
+    // addNewSprintButton->setEnabled(false);
+    // auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
+    // PomodoroModel pomodoroModel;
+    // sprintView->setModel(&pomodoroModel);
+
+    ui::TodaySprintsPresenter sprintOutlinePresenter{*deleteSprintHandler,
+                                                     *requestSprintsHandler};
+
+    ui::ManualSprintAddPresenter manualSprintAddPresenter{
+        *registerSprintBulkHandler,
+        *unfinishedTasksHandler,
+        dw::Weekday::Monday,
+        std::chrono::minutes{25}};
+
+    auto manualSprintAddWidget =
+        std::make_unique<qt_gui::ManualSprintAddView>(manualSprintAddPresenter);
+
     auto sprintOutline =
-        std::make_unique<SprintOutline>(addSprintDialog,
-                                        undoDialog,
-                                        std::move(undoButton),
-                                        std::move(addNewSprintButton),
-                                        std::move(sprintView));
+        std::make_unique<SprintOutline>(sprintOutlinePresenter,
+                                        // undoDialog,
+                                        std::move(undoWidget),
+                                        std::move(manualSprintAddWidget));
 
     OperationRangeModel operationRangeModel{*operationalRangeHandler,
                                             datasyncRelay};

@@ -19,44 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BASEPRESENTER_H_9G4DRMSO
-#define BASEPRESENTER_H_9G4DRMSO
+#ifndef SPRINTMETATYPE_H_AVB5EBNY
+#define SPRINTMETATYPE_H_AVB5EBNY
 
-#include <core/Observer.h>
-#include <iostream>
+#include <QtCore>
+#include <core/entities/Sprint.h>
 
-namespace sprint_timer::ui {
+Q_DECLARE_METATYPE(sprint_timer::entities::Sprint)
 
-template <typename ViewT> class BasePresenter : public Observer {
-public:
-    // virtual ~BasePresenter() = default;
+#endif /* end of include guard: SPRINTMETATYPE_H_AVB5EBNY */
 
-    virtual void attachView(ViewT& view_)
-    {
-        view = &view_;
-        updateView();
-    }
-
-    virtual void detachView(ViewT& view_) { view = nullptr; }
-
-    void updateView()
-    {
-        if (!view) {
-            std::cerr << "WARNING: no view is attached, updating aborted\n";
-            return;
-        }
-        updateViewImpl();
-    }
-
-    void update() override { updateView(); }
-
-protected:
-    ViewT* view{nullptr};
-
-private:
-    virtual void updateViewImpl() = 0;
-};
-
-} // namespace sprint_timer::ui
-
-#endif /* end of include guard: BASEPRESENTER_H_9G4DRMSO */

@@ -19,27 +19,33 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef UNDODIALOG_H_WPYAGORZ
-#define UNDODIALOG_H_WPYAGORZ
+#ifndef MANUALSPRINTADDVIEW_H_ICBHYODJ
+#define MANUALSPRINTADDVIEW_H_ICBHYODJ
 
-#include "qt_gui/dialogs/ConfirmationDialog.h"
-#include <core/ActionInvoker.h>
+#include "qt_gui/presentation/ManualSprintAddContract.h"
+#include <QPushButton>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer::qt_gui {
 
-class UndoDialog : public ConfirmationDialog {
+class ManualSprintAddView : public ui::contracts::ManualSprintAddContract::View,
+                            public QPushButton {
 public:
-    explicit UndoDialog(ActionInvoker& actionInvoker,
-                        QWidget* parent = nullptr);
+    explicit ManualSprintAddView(
+        ui::contracts::ManualSprintAddContract::Presenter& presenter,
+        QWidget* parent = nullptr);
 
-    void open() override;
+    ~ManualSprintAddView() override;
 
-    void accept() override;
+    void displayAddSprintDialog(const std::vector<entities::Task>& activeTasks,
+                                dw::Weekday firstDayOfWeek,
+                                std::chrono::minutes sprintDuration) override;
+
+    void setInteractive(bool interactive) override;
 
 private:
-    ActionInvoker& actionInvoker;
+    ui::contracts::ManualSprintAddContract::Presenter& presenter;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer::qt_gui
 
-#endif /* end of include guard: UNDODIALOG_H_WPYAGORZ */
+#endif /* end of include guard: MANUALSPRINTADDVIEW_H_ICBHYODJ */

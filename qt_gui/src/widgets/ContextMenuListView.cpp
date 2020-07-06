@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/utils/MouseRightReleaseEater.h"
 #include "qt_gui/widgets/ContextMenuListView.h"
+#include "qt_gui/utils/MouseRightReleaseEater.h"
 #include <QMenu>
 #include <memory>
 
@@ -41,10 +41,10 @@ void ContextMenuListView::showContextMenu(const QPoint& pos)
     QPoint globalPos = mapToGlobal(pos);
 
     QMenu contextMenu;
-    auto mouseRightReleaseEater
-        = std::make_unique<MouseRightReleaseEater>(&contextMenu);
+    auto mouseRightReleaseEater =
+        std::make_unique<MouseRightReleaseEater>(&contextMenu);
     contextMenu.installEventFilter(mouseRightReleaseEater.release());
-    const auto deleteEntry = "Delete";
+    const auto* deleteEntry = "Delete";
     contextMenu.addAction(deleteEntry);
 
     QAction* selectedEntry = contextMenu.exec(globalPos);

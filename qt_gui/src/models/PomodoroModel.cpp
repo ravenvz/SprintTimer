@@ -19,43 +19,38 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/models/SprintModel.h"
+#include "qt_gui/models/PomodoroModel.h"
+#include "qt_gui/metatypes/SprintMetaType.h"
 
 namespace sprint_timer::ui::qt_gui {
 
 using dw::DateTime;
 using dw::DateTimeRange;
-using namespace entities;
-using namespace sprint_timer::use_cases;
+using entities::Sprint;
+using entities::Tag;
 
-SprintModel::SprintModel(
-    CommandHandler<DeleteSprintCommand>& deleteSprintHandler_,
-    QueryHandler<RequestSprintsQuery, std::vector<Sprint>>&
-        requestSprintsHandler_,
-    DatasyncRelay& datasyncRelay_,
-    QObject* parent_)
-    : AsyncListModel(parent_)
-    , deleteSprintHandler{deleteSprintHandler_}
-    , requestSprintsHandler{requestSprintsHandler_}
-    , datasyncRelay{datasyncRelay_}
+PomodoroModel::PomodoroModel(QObject* parent_)
+    : QAbstractListModel{parent_}
 {
-    connect(&datasyncRelay_,
-            &DatasyncRelay::dataUpdateRequiered,
-            this,
-            &AsyncListModel::requestSilentDataUpdate);
 }
 
-int SprintModel::rowCount(const QModelIndex& /*parent*/) const
+int PomodoroModel::rowCount(const QModelIndex& /*parent*/) const
 {
     return static_cast<int>(storage.size());
 }
 
-QVariant SprintModel::data(const QModelIndex& index, int role) const
+QVariant PomodoroModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
     const Sprint& sprintRef = storage[static_cast<size_t>(index.row())];
+
+    if (role == ItemRole) {
+        QVariant var;
+        var.setValue(sprintRef);
+        return var;
+    }
 
     if (role != Qt::DisplayRole) {
         return QVariant();
@@ -68,7 +63,7 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
         .arg(QString::fromStdString(sprintRef.name()));
 }
 
-bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
+bool PomodoroModel::removeRows(int row, int count, const QModelIndex& index)
 {
     beginRemoveRows(index, row, row + count - 1);
     remove(row);
@@ -76,26 +71,41 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
     return true;
 }
 
-void SprintModel::remove(int row)
+bool PomodoroModel::setData(const QModelIndex& index,
+                            const QVariant& value,
+                            int role)
 {
-    deleteSprintHandler.handle(
-        DeleteSprintCommand{storage[static_cast<size_t>(row)]});
-    requestDataUpdate();
+    if (!index.isValid())
+        return false;
+
+    if (role == InsertRole) {
+        if (index.row() != static_cast<int>(storage.size()) - 1)
+            return false;
+        storage[index.row()] = value.value<Sprint>();
+        return true;
+    }
+
+    return false;
 }
 
-void SprintModel::requestUpdate()
+bool PomodoroModel::insertRows(int row, int count, const QModelIndex& parent)
 {
-    const dw::Date today{dw::current_date_local()};
-    onDataChanged(requestSprintsHandler.handle(
-        use_cases::RequestSprintsQuery{dw::DateRange{today, today}}));
+    // Only support inserting one item after the last row
+    if (row != static_cast<int>(storage.size()) || count != 1)
+        return false;
+
+    beginInsertRows(parent, rowCount(parent), rowCount(parent));
+    storage.emplace_back(Sprint{});
+    endInsertRows();
+    return true;
 }
 
-void SprintModel::onDataChanged(const std::vector<Sprint>& items)
+QHash<int, QByteArray> PomodoroModel::roleNames() const
 {
-    datasyncRelay.onSyncCompleted("SprintModel");
-    beginResetModel();
-    storage = items;
-    endResetModel();
+    QHash<int, QByteArray> result = QAbstractListModel::roleNames();
+    result.insert(InsertRole, QByteArrayLiteral("insert"));
+    result.insert(ItemRole, QByteArrayLiteral("item"));
+    return result;
 }
 
 } // namespace sprint_timer::ui::qt_gui

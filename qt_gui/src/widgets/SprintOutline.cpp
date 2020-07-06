@@ -20,35 +20,103 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/SprintOutline.h"
+#include "qt_gui/dialogs/AddSprintDialog.h"
+#include "qt_gui/metatypes/SprintMetaType.h"
+#include "qt_gui/models/PomodoroModel.h"
 #include <QVBoxLayout>
+#include <qt_gui/widgets/ContextMenuListView.h>
+
+namespace {
+
+void refillModel(QAbstractItemModel* model,
+                 const std::vector<sprint_timer::entities::Sprint>& sprints);
+
+} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
-SprintOutline::SprintOutline(QDialog& addSprintDialog,
-                             QDialog& undoDialog,
-                             std::unique_ptr<QPushButton> undoButton,
-                             std::unique_ptr<QPushButton> addNewSprintButton,
-                             std::unique_ptr<QListView> sprintView,
-                             QWidget* parent)
-    : QWidget{parent}
+SprintOutline::SprintOutline(contracts::TodaySprints::Presenter& presenter_,
+                             std::unique_ptr<QWidget> undoWidget_,
+                             std::unique_ptr<QWidget> manualSprintAddWidget_,
+                             QWidget* parent_)
+    : QWidget{parent_}
+    , presenter{presenter_}
 {
-    auto layout = std::make_unique<QVBoxLayout>(this);
+    auto layout = std::make_unique<QVBoxLayout>();
+    auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
+    sprintModel = std::make_unique<PomodoroModel>().release();
+    sprintView->setModel(sprintModel);
 
-    connect(undoButton.get(), &QPushButton::clicked, [&undoDialog]() {
-        undoDialog.open();
-    });
-    layout->addWidget(undoButton.release());
+    layout->addWidget(undoWidget_.release());
 
     layout->addWidget(sprintView.release());
 
-    connect(addNewSprintButton.get(),
-            &QPushButton::clicked,
-            [&addSprintDialog]() { addSprintDialog.open(); });
-    layout->addWidget(addNewSprintButton.release());
+    layout->addWidget(manualSprintAddWidget_.release());
 
     setLayout(layout.release());
+    presenter_.attachView(*this);
 }
 
-SprintOutline::~SprintOutline() = default;
+SprintOutline::~SprintOutline() { presenter.detachView(*this); }
+
+void SprintOutline::displaySprints(const std::vector<entities::Sprint>& sprints)
+{
+    disconnect(sprintModel,
+               &QAbstractItemModel::rowsAboutToBeRemoved,
+               this,
+               &SprintOutline::onSprintModelRowsAboutToBeRemoved);
+
+    refillModel(sprintModel, sprints);
+
+    connect(sprintModel,
+            &QAbstractItemModel::rowsAboutToBeRemoved,
+            this,
+            &SprintOutline::onSprintModelRowsAboutToBeRemoved);
 
 } // namespace sprint_timer::ui::qt_gui
+
+void SprintOutline::onSprintModelRowsAboutToBeRemoved(const QModelIndex&,
+                                                      int first,
+                                                      int last)
+{
+    for (int row = first; row <= last; ++row) {
+        const auto var = sprintModel->data(sprintModel->index(row, 0),
+                                           PomodoroModel::Roles::ItemRole);
+        const auto sprint = var.value<entities::Sprint>();
+        presenter.onSprintDelete(sprint);
+    }
+}
+
+void SprintOutline::displayAddSprintDialog(
+    const std::vector<entities::Task>& activeTasks,
+    dw::Weekday firstDayOfWeek,
+    std::chrono::minutes sprintDuration)
+{
+    std::vector<entities::Sprint> addedSprints;
+    AddSprintDialog dialog{
+        activeTasks, addedSprints, firstDayOfWeek, sprintDuration};
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.exec();
+}
+
+} // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+void refillModel(QAbstractItemModel* model,
+                 const std::vector<sprint_timer::entities::Sprint>& sprints)
+{
+    model->removeRows(0, model->rowCount());
+
+    for (const auto& sprint : sprints) {
+        QVariant var;
+        var.setValue(sprint);
+        model->insertRow(model->rowCount());
+        model->setData(
+            model->index(model->rowCount() - 1, 0),
+            var,
+            sprint_timer::ui::qt_gui::PomodoroModel::Roles::InsertRole);
+    }
+}
+
+} // namespace

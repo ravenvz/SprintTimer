@@ -19,45 +19,40 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ADDSPRINTDIALOG_H
-#define ADDSPRINTDIALOG_H
+#ifndef POMODOROMODEL_H_GKWGR80Y
+#define POMODOROMODEL_H_GKWGR80Y
 
-#include <QDialog>
-#include <QSpinBox>
-#include <QTimeEdit>
+#include <QAbstractListModel>
 #include <core/entities/Sprint.h>
-#include <core/entities/Task.h>
-#include <memory>
+#include <vector>
 
 namespace sprint_timer::ui::qt_gui {
 
-class AddSprintDialog : public QDialog {
+class PomodoroModel : public QAbstractListModel {
 
 public:
-    AddSprintDialog(const std::vector<entities::Task>& tasks,
-                    std::vector<entities::Sprint>& addedSprints,
-                    dw::Weekday firstDayOfWeek,
-                    std::chrono::minutes sprintDuration,
-                    QDialog* parent = nullptr);
+    explicit PomodoroModel(QObject* parent = nullptr);
 
-    ~AddSprintDialog() override;
+    int rowCount(const QModelIndex& parent) const override;
 
-    void accept() override;
+    QVariant data(const QModelIndex& index, int role) const override;
+
+    bool removeRows(int row, int count, const QModelIndex& index) override;
+
+    bool
+    setData(const QModelIndex& index, const QVariant& value, int role) override;
+
+    bool insertRows(int row, int count, const QModelIndex& parent) override;
+
+    enum Roles { InsertRole = Qt::UserRole + 1, ItemRole = Qt::UserRole + 2 };
+    Q_ENUM(Roles)
+
+    QHash<int, QByteArray> roleNames() const override;
 
 private:
-    std::chrono::minutes sprintDuration;
-    QTimeEdit* startTime = std::make_unique<QTimeEdit>().release();
-    QTimeEdit* finishTime = std::make_unique<QTimeEdit>().release();
-    QSpinBox* sprintNumber = std::make_unique<QSpinBox>().release();
-    QTimeEdit* lastChangedTime = startTime;
-
-    void adjustStartTime(const QDateTime&);
-
-    void adjustFinishTime(const QDateTime&);
-
-    void adjustTime();
+    std::vector<entities::Sprint> storage;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif // ADDSPRINTDIALOG_H
+#endif /* end of include guard: POMODOROMODEL_H_GKWGR80Y */

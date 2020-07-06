@@ -22,6 +22,7 @@
 #ifndef SPRINT_TIMER_SPRINTOUTLINE_H
 #define SPRINT_TIMER_SPRINTOUTLINE_H
 
+#include "qt_gui/presentation/TodaySprints.h"
 #include <QDialog>
 #include <QListView>
 #include <QPushButton>
@@ -29,19 +30,28 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-class SprintOutline : public QWidget {
-
-    Q_OBJECT
+class SprintOutline : public contracts::TodaySprints::View, public QWidget {
 
 public:
-    SprintOutline(QDialog& addSprintDialog,
-                  QDialog& undoDialog,
-                  std::unique_ptr<QPushButton> undoButton,
-                  std::unique_ptr<QPushButton> addNewSprintButton,
-                  std::unique_ptr<QListView> sprintView,
+    SprintOutline(contracts::TodaySprints::Presenter& presenter,
+                  std::unique_ptr<QWidget> undoWidget,
+                  std::unique_ptr<QWidget> manualSprintAddWidget,
                   QWidget* parent = nullptr);
 
     ~SprintOutline() override;
+
+    void displaySprints(const std::vector<entities::Sprint>& sprints) override;
+
+    void displayAddSprintDialog(const std::vector<entities::Task>& activeTasks,
+                                dw::Weekday firstDayOfWeek,
+                                std::chrono::minutes sprintDuration) override;
+
+private:
+    contracts::TodaySprints::Presenter& presenter;
+    QAbstractItemModel* sprintModel;
+
+    void
+    onSprintModelRowsAboutToBeRemoved(const QModelIndex&, int first, int last);
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -19,44 +19,30 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BASEPRESENTER_H_9G4DRMSO
-#define BASEPRESENTER_H_9G4DRMSO
+#ifndef UNDOWIDGET_H_LMBNAZDR
+#define UNDOWIDGET_H_LMBNAZDR
 
-#include <core/Observer.h>
-#include <iostream>
+#include "qt_gui/presentation/UndoContract.h"
+#include <QPushButton>
 
-namespace sprint_timer::ui {
+namespace sprint_timer::qt_gui {
 
-template <typename ViewT> class BasePresenter : public Observer {
+class UndoWidget : public ui::contracts::UndoContract::View,
+                   public QPushButton {
 public:
-    // virtual ~BasePresenter() = default;
+    explicit UndoWidget(ui::contracts::UndoContract::Presenter& presenter,
+                        QWidget* parent = nullptr);
 
-    virtual void attachView(ViewT& view_)
-    {
-        view = &view_;
-        updateView();
-    }
+    ~UndoWidget() override;
 
-    virtual void detachView(ViewT& view_) { view = nullptr; }
+    void showConfirmationDialog(const std::string& message) override;
 
-    void updateView()
-    {
-        if (!view) {
-            std::cerr << "WARNING: no view is attached, updating aborted\n";
-            return;
-        }
-        updateViewImpl();
-    }
-
-    void update() override { updateView(); }
-
-protected:
-    ViewT* view{nullptr};
+    void setInteractive(bool interactive) override;
 
 private:
-    virtual void updateViewImpl() = 0;
+    ui::contracts::UndoContract::Presenter& presenter;
 };
 
-} // namespace sprint_timer::ui
+} // namespace sprint_timer::qt_gui
 
-#endif /* end of include guard: BASEPRESENTER_H_9G4DRMSO */
+#endif /* end of include guard: UNDOWIDGET_H_LMBNAZDR */

@@ -23,143 +23,117 @@
 #include "qt_gui/models/TaskModelRoles.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
+#include <QCalendarWidget>
+#include <QComboBox>
+#include <QDateEdit>
+#include <QFormLayout>
+#include <QSignalBlocker>
 
 namespace {
 
-std::vector<sprint_timer::entities::Sprint>
-generateConsecutiveSprints(const QDateTime& initialStartTime,
-                           std::chrono::minutes sprintDuration,
-                           const std::string& taskUuid,
-                           int numSprints);
+void shiftDate(QTimeEdit* timeEdit, const QDate& date);
+
+std::chrono::seconds totalSprintLength(int numSprints,
+                                       std::chrono::seconds sprintDuration);
 
 } // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
-AddSprintDialog::AddSprintDialog(
-    const IConfig& applicationSettings_,
-    std::unique_ptr<QComboBox> taskSelector_,
-    CommandHandler<use_cases::RegisterSprintBulkCommand>&
-        registerSprintBulkHandler_,
-    QDialog* parent_)
+AddSprintDialog::AddSprintDialog(const std::vector<entities::Task>& /*tasks_*/,
+                                 std::vector<entities::Sprint>& addedSprints_,
+                                 dw::Weekday firstDayOfWeek_,
+                                 std::chrono::minutes sprintDuration_,
+                                 QDialog* parent_)
     : QDialog{parent_}
-    , ui{std::make_unique<Ui::AddSprintDialog>()}
-    , datePicker{std::make_unique<QCalendarWidget>()}
-    , applicationSettings{applicationSettings_}
-    , taskSelector{taskSelector_.get()}
-    , registerSprintBulkHandler{registerSprintBulkHandler_}
+    , sprintDuration{sprintDuration_}
 {
-    ui->setupUi(this);
+    auto layout = std::make_unique<QFormLayout>();
+    auto taskSelector = std::make_unique<QComboBox>();
+    auto datePicker = std::make_unique<QCalendarWidget>();
 
-    ui->gridLayout->addWidget(taskSelector_.release(), 1, 0, 1, 3);
-
+    datePicker->setFirstDayOfWeek(
+        firstDayOfWeek_ == dw::Weekday::Monday ? Qt::Monday : Qt::Sunday);
     datePicker->setMaximumDate(QDate::currentDate());
-    if (applicationSettings.firstDayOfWeek() == dw::Weekday::Monday)
-        datePicker->setFirstDayOfWeek(Qt::Monday);
-    datePicker->setWindowModality(Qt::ApplicationModal);
+    sprintNumber->setMinimum(1);
+    startTime->setDisplayFormat("hh:mm");
+    finishTime->setDisplayFormat("hh:mm");
 
-    connect(ui->timeEditSprintStartTime,
+    connect(startTime,
             &QTimeEdit::dateTimeChanged,
             this,
             &AddSprintDialog::adjustFinishTime);
-    connect(ui->sbNumSprints,
-            QOverload<int>::of(&QSpinBox::valueChanged),
-            this,
-            &AddSprintDialog::adjustFinishTime);
-    connect(ui->timeEditSprintFinishTime,
+    connect(finishTime,
             &QTimeEdit::dateTimeChanged,
             this,
             &AddSprintDialog::adjustStartTime);
-    connect(ui->pushButtonPickDate, &QPushButton::clicked, [this]() {
-        datePicker->show();
-    });
+    connect(sprintNumber,
+            QOverload<int>::of(&QSpinBox::valueChanged),
+            this,
+            &AddSprintDialog::adjustTime);
     connect(
         datePicker.get(), &QCalendarWidget::clicked, [this](const QDate& date) {
-            ui->dateEditSprintDate->setDate(date);
-            datePicker->close();
+            shiftDate(startTime, date);
+            shiftDate(finishTime, date);
         });
-    resetDataFields();
+
+    layout->addRow("Task:", taskSelector.release());
+    layout->addRow("Date:", datePicker.release());
+    layout->addRow("Start time:", startTime);
+    layout->addRow("Finish time:", finishTime);
+    layout->addRow("Number of sprints:", sprintNumber);
+
+    adjustFinishTime(startTime->dateTime());
+
+    setLayout(layout.release());
 }
 
 AddSprintDialog::~AddSprintDialog() = default;
 
-void AddSprintDialog::adjustFinishTime()
+void AddSprintDialog::adjustFinishTime(const QDateTime& dateTime)
 {
-    ui->timeEditSprintFinishTime->setDateTime(
-        ui->timeEditSprintStartTime->dateTime().addSecs(
-            totalSprintLength().count()));
+    lastChangedTime = startTime;
+    const QSignalBlocker blocker{finishTime};
+    finishTime->setDateTime(dateTime.addSecs(
+        totalSprintLength(sprintNumber->value(), sprintDuration).count()));
 }
 
-void AddSprintDialog::adjustStartTime()
+void AddSprintDialog::adjustStartTime(const QDateTime& dateTime)
 {
-    ui->timeEditSprintStartTime->setDateTime(
-        ui->timeEditSprintFinishTime->dateTime().addSecs(
-            -totalSprintLength().count()));
+    lastChangedTime = finishTime;
+    const QSignalBlocker blocker{startTime};
+    startTime->setDateTime(dateTime.addSecs(
+        -totalSprintLength(sprintNumber->value(), sprintDuration).count()));
 }
 
-std::chrono::seconds AddSprintDialog::totalSprintLength() const
+void AddSprintDialog::adjustTime()
 {
-    using namespace std::chrono;
-    return ui->sbNumSprints->value() *
-           duration_cast<seconds>(applicationSettings.sprintDuration());
+    if (lastChangedTime == startTime) {
+        adjustFinishTime(startTime->dateTime());
+    }
+    else {
+        adjustStartTime(finishTime->dateTime());
+    }
 }
 
-void AddSprintDialog::accept()
-{
-    if (taskSelector->currentIndex() == -1)
-        return;
-
-    const auto initialStartTime =
-        ui->timeEditSprintStartTime->dateTime().toTimeSpec(Qt::LocalTime);
-    const std::string taskUuid{
-        taskSelector->currentData(static_cast<int>(TaskModelRoles::GetIdRole))
-            .toString()
-            .toStdString()};
-    const auto sprintDuration = applicationSettings.sprintDuration();
-
-    auto sprints = generateConsecutiveSprints(
-        initialStartTime, sprintDuration, taskUuid, ui->sbNumSprints->value());
-
-    registerSprintBulkHandler.handle(
-        use_cases::RegisterSprintBulkCommand{std::move(sprints)});
-
-    resetDataFields();
-    QDialog::accept();
-}
-
-void AddSprintDialog::resetDataFields()
-{
-    ui->dateEditSprintDate->setDate(QDate::currentDate());
-    adjustFinishTime();
-    ui->sbNumSprints->setValue(1);
-}
+void AddSprintDialog::accept() { }
 
 } // namespace sprint_timer::ui::qt_gui
 
 namespace {
 
-std::vector<sprint_timer::entities::Sprint>
-generateConsecutiveSprints(const QDateTime& initialStartTime,
-                           std::chrono::minutes sprintDuration,
-                           const std::string& taskUuid,
-                           int numSprints)
+void shiftDate(QTimeEdit* timeEdit, const QDate& date)
 {
-    using namespace std::chrono;
-    using sprint_timer::entities::Sprint;
-    using sprint_timer::ui::qt_gui::utils::toDateTime;
+    const QSignalBlocker blocker{timeEdit};
+    const auto time = timeEdit->time();
+    timeEdit->setDate(date);
+    timeEdit->setTime(time);
+}
 
-    std::vector<Sprint> sprints;
-    for (int i = 0; i < numSprints; ++i) {
-        const auto startTime = initialStartTime.addSecs(
-            i * duration_cast<seconds>(sprintDuration).count());
-        const auto finishTime =
-            startTime.addSecs(duration_cast<seconds>(sprintDuration).count());
-        sprints.push_back(Sprint{
-            taskUuid,
-            dw::DateTimeRange{toDateTime(startTime), toDateTime(finishTime)}});
-    }
-
-    return sprints;
+std::chrono::seconds totalSprintLength(int numSprints,
+                                       std::chrono::seconds sprintDuration)
+{
+    return numSprints * sprintDuration;
 }
 
 } // namespace
