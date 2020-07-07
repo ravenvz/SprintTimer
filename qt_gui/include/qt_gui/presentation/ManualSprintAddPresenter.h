@@ -42,6 +42,10 @@ public:
         dw::Weekday firstDayOfWeek,
         std::chrono::minutes sprintDuration);
 
+    ManualSprintAddPresenter(ManualSprintAddPresenter&&) = default;
+
+    ManualSprintAddPresenter& operator=(ManualSprintAddPresenter&&) = default;
+
     void onSprintAddRequested() override;
 
     void onSprintAddConfirmed(size_t taskNumber,
@@ -51,9 +55,10 @@ public:
     void updateViewImpl() override;
 
 private:
-    CommandHandler<use_cases::RegisterSprintBulkCommand>&
+    std::reference_wrapper<CommandHandler<use_cases::RegisterSprintBulkCommand>>
         registerSprintsHandler;
-    QueryHandler<use_cases::UnfinishedTasksQuery, std::vector<entities::Task>>&
+    std::reference_wrapper<QueryHandler<use_cases::UnfinishedTasksQuery,
+                                        std::vector<entities::Task>>>
         activeTasksHandler;
     dw::Weekday firstDayOfWeek;
     std::chrono::minutes sprintDuration;

@@ -22,6 +22,8 @@
 #include "qt_gui/models/PomodoroModel.h"
 #include "qt_gui/metatypes/SprintMetaType.h"
 
+#include <iostream>
+
 namespace sprint_timer::ui::qt_gui {
 
 using dw::DateTime;
@@ -65,9 +67,16 @@ QVariant PomodoroModel::data(const QModelIndex& index, int role) const
 
 bool PomodoroModel::removeRows(int row, int count, const QModelIndex& index)
 {
+    if (count == 0)
+        return false;
+
+    if (row + count - 1 >= static_cast<int>(storage.size()))
+        return false;
+
     beginRemoveRows(index, row, row + count - 1);
-    remove(row);
+    storage.erase(storage.begin() + row, storage.begin() + row + count - 1);
     endRemoveRows();
+
     return true;
 }
 

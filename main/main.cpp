@@ -54,6 +54,8 @@
 // #include <external_io/Serializer.h>
 // #include <external_io/RuntimeSinkRouter.h>
 
+#include "ManualSprintAddPresenterProxy.h"
+
 #include <core/use_cases/export_data/ExportSprintsHandler.h>
 #include <core/use_cases/export_data/ExportTasksHandler.h>
 #include <external_io/OstreamSink.h>
@@ -822,11 +824,17 @@ int main(int argc, char* argv[])
     ui::TodaySprintsPresenter sprintOutlinePresenter{*deleteSprintHandler,
                                                      *requestSprintsHandler};
 
-    ui::ManualSprintAddPresenter manualSprintAddPresenter{
+    // ui::ManualSprintAddPresenter manualSprintAddPresenter{
+    //     *registerSprintBulkHandler,
+    //     *unfinishedTasksHandler,
+    //     dw::Weekday::Monday,
+    //     std::chrono::minutes{25}};
+
+    compose::ManualSprintAddPresenterProxy manualSprintAddPresenter{
         *registerSprintBulkHandler,
         *unfinishedTasksHandler,
-        dw::Weekday::Monday,
-        std::chrono::minutes{25}};
+        applicationSettings,
+        applicationSettings};
 
     auto manualSprintAddWidget =
         std::make_unique<qt_gui::ManualSprintAddView>(manualSprintAddPresenter);

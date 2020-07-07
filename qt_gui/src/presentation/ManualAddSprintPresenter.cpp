@@ -43,7 +43,7 @@ void ManualSprintAddPresenter::onSprintAddRequested()
     // uneffective, but in some (very unlikely) circumstances we might get
     // different values for two calls
     const auto activeTasks =
-        activeTasksHandler.handle(use_cases::UnfinishedTasksQuery{});
+        activeTasksHandler.get().handle(use_cases::UnfinishedTasksQuery{});
     view->displayAddSprintDialog(activeTasks, firstDayOfWeek, sprintDuration);
 }
 
@@ -51,7 +51,7 @@ void ManualSprintAddPresenter::onSprintAddConfirmed(
     size_t taskNumber, dw::DateTime firstSprintStart, size_t numSprints)
 {
     const auto activeTasks =
-        activeTasksHandler.handle(use_cases::UnfinishedTasksQuery{});
+        activeTasksHandler.get().handle(use_cases::UnfinishedTasksQuery{});
 
     const auto& task = activeTasks[taskNumber];
 
@@ -70,14 +70,14 @@ void ManualSprintAddPresenter::onSprintAddConfirmed(
                 .build());
     }
 
-    registerSprintsHandler.handle(
+    registerSprintsHandler.get().handle(
         use_cases::RegisterSprintBulkCommand{std::move(sprints)});
 }
 
 void ManualSprintAddPresenter::updateViewImpl()
 {
     const auto activeTasks =
-        activeTasksHandler.handle(use_cases::UnfinishedTasksQuery{});
+        activeTasksHandler.get().handle(use_cases::UnfinishedTasksQuery{});
     view->setInteractive(!activeTasks.empty());
 }
 
