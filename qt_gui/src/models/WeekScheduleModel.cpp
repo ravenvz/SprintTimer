@@ -20,24 +20,14 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/WeekScheduleModel.h"
-#include <QMetaType>
 #include <QString>
 
-Q_DECLARE_METATYPE(sprint_timer::WeekSchedule)
-
-namespace {
-
-QString describeSchedule(const sprint_timer::WeekSchedule& schedule,
-                         dw::Weekday firstDayOfWeek);
-
-} // namespace
+#include <QDebug>
 
 namespace sprint_timer::ui::qt_gui {
 
-WeekScheduleModel::WeekScheduleModel(const IConfig& applicationSettings_,
-                                     QObject* parent_)
+WeekScheduleModel::WeekScheduleModel(QObject* parent_)
     : QAbstractListModel{parent_}
-    , applicationSettings{applicationSettings_}
 {
 }
 
@@ -51,7 +41,7 @@ bool WeekScheduleModel::insertRows(int row, int count, const QModelIndex& index)
     if (count <= 0 || row < 0)
         return false;
     beginInsertRows(index, row, row + count - 1);
-    data_.insert(data_.begin() + row, count, {QDate{}, WeekSchedule{}});
+    data_.insert(data_.begin() + row, count, {QDate{}, QString{}});
     endInsertRows();
     return true;
 }
@@ -76,11 +66,7 @@ QVariant WeekScheduleModel::data(const QModelIndex& index, int role) const
 
     switch (role) {
     case Qt::DisplayRole: {
-        const QString scheduleDescription{
-            describeSchedule(schedule, applicationSettings.firstDayOfWeek())};
-        return QString{"%1 %2"}
-            .arg(date.toString("dd.MM.yyyy"))
-            .arg(scheduleDescription);
+        return QString{"%1 %2"}.arg(date.toString("dd.MM.yyyy")).arg(schedule);
     }
     case Qt::EditRole: {
         QVariant ventry;
@@ -99,7 +85,9 @@ bool WeekScheduleModel::setData(const QModelIndex& index,
     if (!index.isValid() || role != Qt::EditRole)
         return false;
     auto row = index.row();
-    data_[row] = data.value<QPair<QDate, WeekSchedule>>();
+    data_[row] = data.value<QPair<QDate, QString>>();
+    qDebug() << "Meanwhile in model: "
+             << data.value<QPair<QDate, QString>>().second;
     QVector<int> roles;
     roles << role;
     emit dataChanged(index, index, roles);
@@ -123,29 +111,3 @@ void WeekScheduleModel::sort(int column, Qt::SortOrder order)
 }
 
 } // namespace sprint_timer::ui::qt_gui
-
-namespace {
-
-QString describeSchedule(const sprint_timer::WeekSchedule& schedule,
-                         dw::Weekday firstDayOfWeek)
-{
-    if (firstDayOfWeek == dw::Weekday::Monday)
-        return QString{"%1, %2, %3, %4, %5, %6, %7"}
-            .arg(schedule.targetGoal(dw::Weekday::Monday))
-            .arg(schedule.targetGoal(dw::Weekday::Tuesday))
-            .arg(schedule.targetGoal(dw::Weekday::Wednesday))
-            .arg(schedule.targetGoal(dw::Weekday::Thursday))
-            .arg(schedule.targetGoal(dw::Weekday::Friday))
-            .arg(schedule.targetGoal(dw::Weekday::Saturday))
-            .arg(schedule.targetGoal(dw::Weekday::Sunday));
-    return QString{"%1, %2, %3, %4, %5, %6, %7"}
-        .arg(schedule.targetGoal(dw::Weekday::Sunday))
-        .arg(schedule.targetGoal(dw::Weekday::Monday))
-        .arg(schedule.targetGoal(dw::Weekday::Tuesday))
-        .arg(schedule.targetGoal(dw::Weekday::Wednesday))
-        .arg(schedule.targetGoal(dw::Weekday::Thursday))
-        .arg(schedule.targetGoal(dw::Weekday::Friday))
-        .arg(schedule.targetGoal(dw::Weekday::Saturday));
-}
-
-} // namespace

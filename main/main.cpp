@@ -73,6 +73,7 @@
 #include <qt_gui/presentation/HistoryPresenter.h>
 #include <qt_gui/presentation/ProgressPresenter.h>
 #include <qt_gui/presentation/UndoPresenter.h>
+#include <qt_gui/presentation/WorkScheduleEditorPresenter.h>
 
 #include <QApplication>
 #include <QStyleFactory>
@@ -92,18 +93,15 @@
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/SubmissionItemDelegate.h>
 #include <qt_gui/delegates/TaskItemDelegate.h>
-#include <qt_gui/dialogs/AddExceptionalDayDialog.h>
 #include <qt_gui/dialogs/AddSprintDialog.h>
 #include <qt_gui/dialogs/AddTaskDialog.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
 #include <qt_gui/dialogs/WorkdaysDialog.h>
-#include <qt_gui/models/ExtraDayModel.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/OperationRangeModel.h>
 #include <qt_gui/models/SprintModel.h>
 #include <qt_gui/models/TagModel.h>
 #include <qt_gui/models/TaskModel.h>
-#include <qt_gui/models/WeekScheduleModel.h>
 #include <qt_gui/utils/WidgetUtils.h>
 #include <qt_gui/widgets/AutodisablingButton.h>
 #include <qt_gui/widgets/ContextMenuListView.h>
@@ -824,6 +822,8 @@ int main(int argc, char* argv[])
     ui::TodaySprintsPresenter sprintOutlinePresenter{*deleteSprintHandler,
                                                      *requestSprintsHandler};
 
+    desyncObservable.attach(sprintOutlinePresenter);
+
     // ui::ManualSprintAddPresenter manualSprintAddPresenter{
     //     *registerSprintBulkHandler,
     //     *unfinishedTasksHandler,
@@ -892,14 +892,10 @@ int main(int argc, char* argv[])
     //     workScheduleWrapper,
     //     datasyncRelay};
 
-    AddExceptionalDayDialog exceptionalDayDialog;
-    ExtraDayModel exceptionalDaysModel;
-    WeekScheduleModel scheduleModel{applicationSettings};
-
-    WorkdaysDialog workdaysDialog{exceptionalDayDialog,
-                                  exceptionalDaysModel,
-                                  workScheduleWrapper,
-                                  scheduleModel};
+    // TODO replace with proxy
+    ui::WorkScheduleEditorPresenter workScheduleEditorPresenter{
+        *workScheduleHandler, *changeWorkScheduleHandler, dw::Weekday::Monday};
+    WorkdaysDialog workdaysDialog{workScheduleEditorPresenter};
 
     const int distributionDays{30};
     RequestForDaysBack requestDaysBackStrategy{distributionDays};

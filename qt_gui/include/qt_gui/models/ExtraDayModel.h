@@ -25,11 +25,6 @@
 #include "qt_gui/utils/DateTimeConverter.h"
 #include <QAbstractListModel>
 #include <QDate>
-#include <algorithm>
-#include <core/ActionInvoker.h>
-#include <core/WorkScheduleReader.h>
-#include <core/WorkScheduleWriter.h>
-#include <core/WorkSchedule.h>
 
 namespace sprint_timer::ui::qt_gui {
 

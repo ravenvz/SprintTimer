@@ -18,6 +18,7 @@ target_sources(${TEST_PRESENTATION}
     "${CMAKE_CURRENT_LIST_DIR}/test_statistics_mediator.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_tag_diagram_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_undo_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_work_schedule_editor_presenter.cpp"
 )
 
 target_compile_features(${TEST_PRESENTATION} PRIVATE cxx_std_17)

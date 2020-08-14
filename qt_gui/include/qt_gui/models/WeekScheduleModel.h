@@ -25,14 +25,12 @@
 #include <QAbstractItemModel>
 #include <QDate>
 #include <core/IConfig.h>
-#include <core/WeekSchedule.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 class WeekScheduleModel : public QAbstractListModel {
 public:
-    WeekScheduleModel(const IConfig& applicationSettings,
-                      QObject* parent = nullptr);
+    explicit WeekScheduleModel(QObject* parent = nullptr);
 
     int rowCount(const QModelIndex& parent) const final;
 
@@ -48,8 +46,7 @@ public:
     void sort(int column, Qt::SortOrder order) final;
 
 private:
-    const IConfig& applicationSettings;
-    std::vector<QPair<QDate, WeekSchedule>> data_;
+    std::vector<QPair<QDate, QString>> data_;
 };
 
 } // namespace sprint_timer::ui::qt_gui

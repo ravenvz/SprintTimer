@@ -21,47 +21,62 @@
 *********************************************************************************/
 
 #include "qt_gui/dialogs/AddExceptionalDayDialog.h"
-#include "ui_add_exceptional_day_dialog.h"
+#include "qt_gui/utils/DateTimeConverter.h"
+#include <QCalendarWidget>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QLabel>
+#include <QSpinBox>
 
 namespace sprint_timer::ui::qt_gui {
 
-AddExceptionalDayDialog::AddExceptionalDayDialog(QDialog* parent)
-    : QDialog{parent}
-    , ui{std::make_unique<Ui::AddExceptionalDayDialog>()}
+AddExceptionalDayDialog::AddExceptionalDayDialog(dw::Weekday firstDayOfWeek_,
+                                                 dw::Date preselectedDate_,
+                                                 OutputData& data_,
+                                                 QDialog* parent_)
+    : QDialog{parent_}
 {
-    ui->setupUi(this);
-    startDate_ = ui->calendarWidget->selectedDate();
-    ui->lblDatePlaceholder->setText(startDate_.toString());
-    connect(ui->calendarWidget, &QCalendarWidget::selectionChanged, [this]() {
-        startDate_ = ui->calendarWidget->selectedDate();
-        ui->lblDatePlaceholder->setText(startDate_.toString());
-    });
-    connect(ui->spbNumDays,
-            QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int newValue) { numDays_ = newValue; });
+    auto layout = std::make_unique<QFormLayout>();
+    auto calendar = std::make_unique<QCalendarWidget>();
+    auto dateHint = std::make_unique<QLabel>();
+    auto numSprintsField = std::make_unique<QSpinBox>();
+    auto daysDurationField = std::make_unique<QSpinBox>();
+    auto buttons = std::make_unique<QDialogButtonBox>(QDialogButtonBox::Ok |
+                                                      QDialogButtonBox::Cancel);
+
+    calendar->setFirstDayOfWeek(
+        firstDayOfWeek_ == dw::Weekday::Monday ? Qt::Monday : Qt::Sunday);
+    calendar->setSelectedDate(utils::toQDate(preselectedDate_));
+
+    daysDurationField->setValue(1);
+
+    connect(buttons.get(), &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttons.get(), &QDialogButtonBox::rejected, this, &QDialog::reject);
+    dateHint->setText(calendar->selectedDate().toString());
+    connect(calendar.get(),
+            &QCalendarWidget::selectionChanged,
+            [calWidg = calendar.get(), dateHintWidg = dateHint.get()]() {
+                dateHintWidg->setText(calWidg->selectedDate().toString());
+            });
+    connect(this,
+            &QDialog::accepted,
+            [&data_,
+             numDays = daysDurationField.get(),
+             numSprints = numSprintsField.get(),
+             cal = calendar.get()]() {
+                data_.numDays = numDays->value();
+                data_.sprintsPerDay = numSprints->value();
+                data_.startDate = utils::toDate(cal->selectedDate());
+            });
+
+    layout->addRow(calendar.release());
+    layout->addRow("StartDate:", dateHint.release());
+    layout->addRow("Number of days:", daysDurationField.release());
+    layout->addRow("Number of sprints:", numSprintsField.release());
+    layout->addRow(buttons.release());
+
+    setLayout(layout.release());
 }
-
-AddExceptionalDayDialog::~AddExceptionalDayDialog() = default;
-
-void AddExceptionalDayDialog::accept()
-{
-    QDialog::accept();
-    ui->spbNumDays->setValue(1);
-}
-
-QDate AddExceptionalDayDialog::startDate() const { return startDate_; }
-
-int AddExceptionalDayDialog::numDays() const { return numDays_; }
-
-int AddExceptionalDayDialog::targetGoal() const { return ui->spbNumSprints->value(); }
-
-void AddExceptionalDayDialog::setStartDate(const QDate& date)
-{
-    startDate_ = date;
-    ui->lblDatePlaceholder->setText(startDate_.toString());
-}
-
-void AddExceptionalDayDialog::setNumDays(int numDays) { numDays_ = numDays; }
 
 } // namespace sprint_timer::ui::qt_gui
 

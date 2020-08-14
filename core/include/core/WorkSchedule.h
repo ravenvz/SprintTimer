@@ -82,12 +82,12 @@ int goalFor(const WorkSchedule& workSchedule, const dw::DateRange& dateRange);
 // TODO this operator overload was added for debugging purposes; it is
 // rather expensive to call - best hide it in tests or remove
 template <class CharT, class Traits>
-inline std::basic_ostream<CharT, Traits>&
+std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
            const WorkSchedule& workSchedule);
 
 template <class CharT, class Traits>
-inline std::basic_ostream<CharT, Traits>&
+std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
            const WorkSchedule& workSchedule)
 {

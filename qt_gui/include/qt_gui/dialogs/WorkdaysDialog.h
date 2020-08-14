@@ -22,9 +22,7 @@
 #ifndef WORKDAYSDIALOG_H_NVZH9CRG
 #define WORKDAYSDIALOG_H_NVZH9CRG
 
-#include "qt_gui/WorkScheduleWrapper.h"
-#include "qt_gui/WorkdaysChangeListener.h"
-#include "qt_gui/dialogs/AddExceptionalDayDialog.h"
+#include "qt_gui/presentation/WorkScheduleEditor.h"
 #include <QAbstractListModel>
 #include <QDialog>
 #include <memory>
@@ -35,14 +33,11 @@ class WorkdaysDialog;
 
 namespace sprint_timer::ui::qt_gui {
 
-class WorkdaysDialog : public QDialog, public WorkdaysChangeListener {
-    Q_OBJECT
+class WorkdaysDialog : public contracts::WorkScheduleEditor::View,
+                       public QDialog {
 
 public:
-    explicit WorkdaysDialog(AddExceptionalDayDialog& addExcDayDialog,
-                            QAbstractItemModel& exceptionalDaysModel,
-                            WorkScheduleWrapper& workScheduleWrapper,
-                            QAbstractItemModel& weekScheduleModel,
+    explicit WorkdaysDialog(contracts::WorkScheduleEditor::Presenter& presenter,
                             QDialog* parent = nullptr);
 
     ~WorkdaysDialog() override;
@@ -51,28 +46,32 @@ public:
 
     void reject() override;
 
+    void displayCurrentWeekSchedule(
+        const std::vector<contracts::WorkScheduleEditor::DayAndGoal>&
+            weekSchedule) override;
+
+    void displayRoaster(
+        const std::vector<contracts::WorkScheduleEditor::RoasterRow>& roaster)
+        override;
+
+    void displayExceptionalDays(
+        const std::vector<WorkSchedule::DateGoal>& exceptionalDays) override;
+
+    void displayAddExceptionalDaysDialog(dw::Weekday firstDayOfWeek,
+                                         dw::Date preselectedDate) override;
+
 private:
     std::unique_ptr<Ui::WorkdaysDialog> ui;
-    AddExceptionalDayDialog& pickDateDialog;
-    WorkScheduleWrapper& workScheduleWrapper;
-    WorkSchedule candidateSchedule;
-
-    void
-    onWorkScheduleChanged(const WorkSchedule& updatedWorkSchedule) override;
-
-    void updateWorkdaysView(const WorkSchedule& updatedWorkSchedule);
-
-    void updateSchedulesView(const WorkSchedule& updatedWorkSchedule);
-
-    void initializeDayBoxes(const WeekSchedule& weekSchedule);
-
-    WeekSchedule pollSchedule() const;
-
-    void addExceptionalDay();
+    contracts::WorkScheduleEditor::Presenter& presenter;
+    std::unique_ptr<QAbstractItemModel> exceptionalDaysModel;
+    std::unique_ptr<QAbstractItemModel> roasterModel;
+    std::unique_ptr<QAbstractItemModel> roasterBufferModel;
 
     void addSchedule();
 
-    void onExceptionalDayRemovedFromModel(const QModelIndex&, int first, int);
+    std::vector<uint8_t> pollSchedule() const;
+
+    void onExcDayAboutToBeRemoved(const QModelIndex&, int first, int);
 
     void onScheduleRemovedFromModel(const QModelIndex&, int first, int);
 };

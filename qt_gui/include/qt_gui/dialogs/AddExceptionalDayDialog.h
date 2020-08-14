@@ -21,46 +21,26 @@
 *********************************************************************************/
 #include <QDate>
 #include <QDialog>
+#include <date_wrapper/date_wrapper.h>
 #include <memory>
 
 #ifndef ADDEXCEPTIONALDAYDIALOG_H_4KBYLJOJ
 #define ADDEXCEPTIONALDAYDIALOG_H_4KBYLJOJ
 
-namespace Ui {
-
-class AddExceptionalDayDialog;
-
-} // namespace Ui
-
 namespace sprint_timer::ui::qt_gui {
 
 class AddExceptionalDayDialog : public QDialog {
-    Q_OBJECT
-
 public:
-    explicit AddExceptionalDayDialog(QDialog* parent = nullptr);
+    struct OutputData {
+        dw::Date startDate{dw::current_date_local()};
+        uint16_t numDays{1};
+        uint16_t sprintsPerDay{0};
+    };
 
-    ~AddExceptionalDayDialog() override;
-
-    void accept() override;
-
-    QDate startDate() const;
-
-    int numDays() const;
-
-    int targetGoal() const;
-
-    void setStartDate(const QDate& date);
-
-    void setNumDays(int numDays);
-
-signals:
-    void onDateSelected(const QDate& date, bool recurrent);
-
-private:
-    std::unique_ptr<Ui::AddExceptionalDayDialog> ui;
-    QDate startDate_;
-    int numDays_{1};
+    AddExceptionalDayDialog(dw::Weekday firstDayOfWeek,
+                            dw::Date preselectedDate,
+                            OutputData& data,
+                            QDialog* parent = nullptr);
 };
 
 } // namespace sprint_timer::ui::qt_gui
