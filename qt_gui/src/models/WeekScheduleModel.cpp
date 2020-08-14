@@ -22,8 +22,6 @@
 #include "qt_gui/models/WeekScheduleModel.h"
 #include <QString>
 
-#include <QDebug>
-
 namespace sprint_timer::ui::qt_gui {
 
 WeekScheduleModel::WeekScheduleModel(QObject* parent_)
@@ -86,8 +84,6 @@ bool WeekScheduleModel::setData(const QModelIndex& index,
         return false;
     auto row = index.row();
     data_[row] = data.value<QPair<QDate, QString>>();
-    qDebug() << "Meanwhile in model: "
-             << data.value<QPair<QDate, QString>>().second;
     QVector<int> roles;
     roles << role;
     emit dataChanged(index, index, roles);

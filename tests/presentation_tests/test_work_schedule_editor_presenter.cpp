@@ -127,7 +127,7 @@ TEST_F(WorkScheduleEditorPresenterFixture,
 }
 
 TEST_F(WorkScheduleEditorPresenterFixture,
-       construcs_current_week_schedule_depending_on_first_day_of_week)
+       constructs_current_week_schedule_depending_on_first_day_of_week)
 {
     ui::WorkScheduleEditorPresenter sundayFirstPresenter{
         workScheduleHandler, changeWorkScheduleHandler, dw::Weekday::Sunday};

@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/dialogs/WorkdaysDialog.h"
+#include "qt_gui/dialogs/WorkScheduleEditor.h"
 #include "qt_gui/dialogs/AddExceptionalDayDialog.h"
 #include "qt_gui/models/ExtraDayModel.h"
 #include "qt_gui/models/WeekScheduleModel.h"
@@ -31,7 +31,7 @@ namespace {
 
 /* Remove all rows from given model and fill it with data.
  *
- * Convinient function since models used in WorkdaysDialog do have same
+ * Convinient function since models used in WorkScheduleEditor do have same
  * structure. In particular, it expects that template parameter has structure
  * T = QPair<QDate, A> where A is
  * any type registered withing Qt metatype system.
@@ -47,10 +47,10 @@ constexpr size_t daysInWeek{7};
 
 namespace sprint_timer::ui::qt_gui {
 
-WorkdaysDialog::WorkdaysDialog(
+WorkScheduleEditor::WorkScheduleEditor(
     contracts::WorkScheduleEditor::Presenter& presenter_, QDialog* parent_)
     : QDialog{parent_}
-    , ui{std::make_unique<Ui::WorkdaysDialog>()}
+    , ui{std::make_unique<Ui::WorkScheduleEditor>()}
     , presenter{presenter_}
     , exceptionalDaysModel{std::make_unique<ExtraDayModel>()}
     , roasterBufferModel{std::make_unique<WeekScheduleModel>()}
@@ -76,19 +76,19 @@ WorkdaysDialog::WorkdaysDialog(
     connect(exceptionalDaysModel.get(),
             &QAbstractItemModel::rowsAboutToBeRemoved,
             this,
-            &WorkdaysDialog::onExcDayAboutToBeRemoved);
+            &WorkScheduleEditor::onExcDayAboutToBeRemoved);
     connect(ui->pushButtonAddSchedule,
             &QPushButton::clicked,
             this,
-            &WorkdaysDialog::addSchedule);
+            &WorkScheduleEditor::addSchedule);
     ui->listViewSchedules->setModel(roasterBufferModel.get());
     ui->listViewExceptionalDays->setModel(exceptionalDaysModel.get());
     presenter.attachView(*this);
 }
 
-WorkdaysDialog::~WorkdaysDialog() { presenter.detachView(*this); }
+WorkScheduleEditor::~WorkScheduleEditor() { presenter.detachView(*this); }
 
-void WorkdaysDialog::displayCurrentWeekSchedule(
+void WorkScheduleEditor::displayCurrentWeekSchedule(
     const std::vector<contracts::WorkScheduleEditor::DayAndGoal>& weekSchedule)
 {
     std::array<QLabel*, daysInWeek> labels{ui->labelFirstDay,
@@ -106,17 +106,15 @@ void WorkdaysDialog::displayCurrentWeekSchedule(
                                             ui->sixthDayGoal,
                                             ui->seventhDayGoal};
     const QLocale defaultLocale;
-    auto fillValues =
-        [&labels, &goals, &defaultLocale](const auto& dayAndGoal) {
-            const auto [dayNum, goal] = dayAndGoal;
-            goals[dayNum - 1]->setValue(goal);
-            labels[dayNum - 1]->setText(
-                defaultLocale.dayName(dayNum, QLocale::FormatType::LongFormat));
-        };
-    std::for_each(cbegin(weekSchedule), cend(weekSchedule), fillValues);
+    for (size_t pos{0}; pos < labels.size(); ++pos) {
+        const auto [dayNum, goal] = weekSchedule[pos];
+        labels[pos]->setText(
+            defaultLocale.dayName(dayNum, QLocale::FormatType::LongFormat));
+        goals[pos]->setValue(goal);
+    }
 }
 
-void WorkdaysDialog::displayRoaster(
+void WorkScheduleEditor::displayRoaster(
     const std::vector<contracts::WorkScheduleEditor::RoasterRow>& roaster)
 {
     // How it works?
@@ -162,25 +160,22 @@ void WorkdaysDialog::displayRoaster(
                        return {dwDate, QString::fromStdString(scheduleString)};
                    });
     replaceModelContent(*roasterModel, data);
-    std::for_each(cbegin(data), cend(data), [](const auto& p) {
-        std::cout << p.first << " " << p.second.toStdString() << std::endl;
-    });
     connect(roasterModel.get(),
             &QAbstractItemModel::rowsAboutToBeRemoved,
             this,
-            &WorkdaysDialog::onScheduleRemovedFromModel);
+            &WorkScheduleEditor::onScheduleRemovedFromModel);
     ui->listViewSchedules->setModel(roasterModel.get());
     std::swap(roasterModel, roasterBufferModel);
 }
 
-void WorkdaysDialog::displayExceptionalDays(
+void WorkScheduleEditor::displayExceptionalDays(
     const std::vector<WorkSchedule::DateGoal>& exceptionalDays)
 {
     replaceModelContent(*exceptionalDaysModel, exceptionalDays);
 }
 
-void WorkdaysDialog::displayAddExceptionalDaysDialog(dw::Weekday firstDayOfWeek,
-                                                     dw::Date preselectedDate)
+void WorkScheduleEditor::displayAddExceptionalDaysDialog(
+    dw::Weekday firstDayOfWeek, dw::Date preselectedDate)
 {
     AddExceptionalDayDialog::OutputData outputData;
     AddExceptionalDayDialog dialog{firstDayOfWeek, preselectedDate, outputData};
@@ -190,25 +185,25 @@ void WorkdaysDialog::displayAddExceptionalDaysDialog(dw::Weekday firstDayOfWeek,
     }
 }
 
-void WorkdaysDialog::accept()
+void WorkScheduleEditor::accept()
 {
     presenter.onScheduleChangeConfirmed();
     QDialog::accept();
 }
 
-void WorkdaysDialog::reject()
+void WorkScheduleEditor::reject()
 {
     presenter.onRevertChanges();
     QDialog::reject();
 }
 
-void WorkdaysDialog::addSchedule()
+void WorkScheduleEditor::addSchedule()
 {
     const auto date = utils::toDate(ui->dateEditScheduleDate->date());
     presenter.onWeekScheduleAdded(pollSchedule(), date);
 }
 
-std::vector<uint8_t> WorkdaysDialog::pollSchedule() const
+std::vector<uint8_t> WorkScheduleEditor::pollSchedule() const
 {
     std::vector<uint8_t> goals(daysInWeek, 0);
     std::array<QSpinBox*, daysInWeek> valueBoxes{ui->firstDayGoal,
@@ -225,9 +220,9 @@ std::vector<uint8_t> WorkdaysDialog::pollSchedule() const
     return goals;
 }
 
-void WorkdaysDialog::onExcDayAboutToBeRemoved(const QModelIndex&,
-                                              int first,
-                                              int)
+void WorkScheduleEditor::onExcDayAboutToBeRemoved(const QModelIndex&,
+                                                  int first,
+                                                  int)
 {
     auto* model = ui->listViewExceptionalDays->model();
     if (!model)
@@ -238,9 +233,9 @@ void WorkdaysDialog::onExcDayAboutToBeRemoved(const QModelIndex&,
     presenter.onExceptionalDayRemoved(utils::toDate(entry.first));
 }
 
-void WorkdaysDialog::onScheduleRemovedFromModel(const QModelIndex&,
-                                                int first,
-                                                int)
+void WorkScheduleEditor::onScheduleRemovedFromModel(const QModelIndex&,
+                                                    int first,
+                                                    int)
 {
     auto* model = ui->listViewSchedules->model();
     const auto entry = model->data(model->index(first, 0), Qt::EditRole)
@@ -265,5 +260,6 @@ void replaceModelContent(QAbstractItemModel& model,
         entry.setValue(QPair<QDate, Second>{toQDate(date), payload});
         model.setData(model.index(row, 0), entry);
     }
+}
 
 } // namespace

@@ -50,6 +50,7 @@
 #include "DateRangeSelectorPresenterProxy.h"
 #include "ObservableConfig.h"
 #include "StatisticsWindowProxy.h"
+#include "WorkScheduleEditorPresenterProxy.h"
 #include <qt_gui/widgets/StatisticsWindow.h>
 // #include <external_io/Serializer.h>
 // #include <external_io/RuntimeSinkRouter.h>
@@ -96,7 +97,7 @@
 #include <qt_gui/dialogs/AddSprintDialog.h>
 #include <qt_gui/dialogs/AddTaskDialog.h>
 #include <qt_gui/dialogs/SettingsDialog.h>
-#include <qt_gui/dialogs/WorkdaysDialog.h>
+#include <qt_gui/dialogs/WorkScheduleEditor.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/OperationRangeModel.h>
 #include <qt_gui/models/SprintModel.h>
@@ -892,10 +893,11 @@ int main(int argc, char* argv[])
     //     workScheduleWrapper,
     //     datasyncRelay};
 
-    // TODO replace with proxy
-    ui::WorkScheduleEditorPresenter workScheduleEditorPresenter{
-        *workScheduleHandler, *changeWorkScheduleHandler, dw::Weekday::Monday};
-    WorkdaysDialog workdaysDialog{workScheduleEditorPresenter};
+    compose::WorkScheduleEditorPresenterProxy workScheduleEditorPresenter{
+        *workScheduleHandler,
+        *changeWorkScheduleHandler,
+        applicationSettings,
+        applicationSettings};
 
     const int distributionDays{30};
     RequestForDaysBack requestDaysBackStrategy{distributionDays};
@@ -926,7 +928,8 @@ int main(int argc, char* argv[])
     // dailyProgress->setLegendTitle("Last 30 days");
     // dailyProgress->setLegendAverageCaption("Average per day:");
     // auto configureWorkdaysButton =
-    //     std::make_unique<DialogLaunchButton>(workdaysDialog, "Configure");
+    //     std::make_unique<DialogLaunchButton>(workScheduleEditor,
+    //     "Configure");
     // dailyProgress->addLegendRow("Workdays",
     // configureWorkdaysButton.release());
 
@@ -992,7 +995,7 @@ int main(int argc, char* argv[])
     compose::ProgressMonitorProxy progressWindow{dailyProgressPresenter,
                                                  weeklyProgressPresenter,
                                                  monthlyProgressPresenter,
-                                                 workdaysDialog};
+                                                 workScheduleEditorPresenter};
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;

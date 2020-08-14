@@ -27,21 +27,13 @@ namespace {
 
 constexpr uint16_t daysInWeek{7};
 
-std::vector<sprint_timer::ui::contracts::WorkScheduleEditor::DayAndGoal>
-goalsByWeekday(dw::Weekday firstDayOfWeek,
-               const sprint_timer::WeekSchedule& weekSchedule);
-
 std::string weekScheduleToString(const sprint_timer::WeekSchedule& weekSchedule,
                                  dw::Weekday firstDayOfWeek);
 
 template <typename ForwardIt>
-void changeFirstDayOfWeek(ForwardIt first,
-                          ForwardIt last,
-                          dw::Weekday firstDayOfWeek);
-
-std::vector<std::pair<dw::Weekday, int>>
-dailySchedule(const sprint_timer::WeekSchedule& weekSchedule,
-              dw::Weekday firstDayOfWeek);
+void reorderByFirstWeekday(ForwardIt first,
+                           ForwardIt last,
+                           dw::Weekday firstDayOfWeek);
 
 sprint_timer::WeekSchedule scheduleFromGoals(std::vector<uint8_t>&& goals,
                                              dw::Weekday firstDayOfWeek);
@@ -50,6 +42,14 @@ void displayWeekSchedule(
     const sprint_timer::WeekSchedule& weekSchedule,
     dw::Weekday firstDayOfWeek,
     sprint_timer::ui::contracts::WorkScheduleEditor::View* view);
+
+std::vector<sprint_timer::ui::contracts::WorkScheduleEditor::DayAndGoal>
+goalsByWeekday(dw::Weekday firstDayOfWeek,
+               const sprint_timer::WeekSchedule& weekSchedule);
+
+std::vector<std::pair<dw::Weekday, int>>
+dailySchedule(const sprint_timer::WeekSchedule& weekSchedule,
+              dw::Weekday firstDayOfWeek);
 
 void displayRoaster(
     const sprint_timer::WorkSchedule::Roaster& roaster,
@@ -79,7 +79,7 @@ WorkScheduleEditorPresenter::WorkScheduleEditorPresenter(
 void WorkScheduleEditorPresenter::updateViewImpl()
 {
     bufferedSchedule =
-        workScheduleHandler.handle(use_cases::WorkScheduleQuery{});
+        workScheduleHandler.get().handle(use_cases::WorkScheduleQuery{});
     displayWeekSchedule(
         bufferedSchedule.currentWeekSchedule(), firstDayOfWeek, view);
     displayRoaster(bufferedSchedule.roaster(), firstDayOfWeek, view);
@@ -129,10 +129,10 @@ void WorkScheduleEditorPresenter::onWeekScheduleRemoved(
 void WorkScheduleEditorPresenter::onScheduleChangeConfirmed()
 {
     const auto oldSchedule =
-        workScheduleHandler.handle(use_cases::WorkScheduleQuery{});
+        workScheduleHandler.get().handle(use_cases::WorkScheduleQuery{});
     if (oldSchedule == bufferedSchedule)
         return;
-    changeWorkScheduleHandler.handle(
+    changeWorkScheduleHandler.get().handle(
         use_cases::ChangeWorkScheduleCommand{oldSchedule, bufferedSchedule});
 }
 
@@ -146,24 +146,6 @@ void WorkScheduleEditorPresenter::onRevertChanges()
 } // namespace sprint_timer::ui
 
 namespace {
-
-std::vector<sprint_timer::ui::contracts::WorkScheduleEditor::DayAndGoal>
-goalsByWeekday(dw::Weekday firstDayOfWeek,
-               const sprint_timer::WeekSchedule& weekSchedule)
-{
-    using namespace sprint_timer::ui::contracts::WorkScheduleEditor;
-    auto goals = dailySchedule(weekSchedule, firstDayOfWeek);
-    std::vector<DayAndGoal> result(daysInWeek, {0, 0});
-    std::transform(
-        cbegin(goals),
-        cend(goals),
-        begin(result),
-        [](const auto& elem)
-            -> sprint_timer::ui::contracts::WorkScheduleEditor::DayAndGoal {
-            return {static_cast<uint16_t>(elem.first) + 1, elem.second};
-        });
-    return result;
-}
 
 sprint_timer::WeekSchedule scheduleFromGoals(std::vector<uint8_t>&& goals,
                                              dw::Weekday firstDayOfWeek)
@@ -189,14 +171,6 @@ std::string weekScheduleToString(const sprint_timer::WeekSchedule& weekSchedule,
     return sprint_timer::utils::join(strGoals, ", ");
 }
 
-template <typename ForwardIt>
-void changeFirstDayOfWeek(ForwardIt first,
-                          ForwardIt last,
-                          dw::Weekday firstDayOfWeek)
-{
-    std::rotate(first, first + static_cast<int>(firstDayOfWeek), last);
-}
-
 std::vector<std::pair<dw::Weekday, int>>
 dailySchedule(const sprint_timer::WeekSchedule& weekSchedule,
               dw::Weekday firstDayOfWeek)
@@ -212,8 +186,16 @@ dailySchedule(const sprint_timer::WeekSchedule& weekSchedule,
             const auto weekday = static_cast<dw::Weekday>(day);
             return {weekday, weekSchedule.targetGoal(weekday)};
         });
-    changeFirstDayOfWeek(begin(result), end(result), firstDayOfWeek);
+    reorderByFirstWeekday(begin(result), end(result), firstDayOfWeek);
     return result;
+}
+
+template <typename ForwardIt>
+void reorderByFirstWeekday(ForwardIt first,
+                           ForwardIt last,
+                           dw::Weekday firstDayOfWeek)
+{
+    std::rotate(first, first + static_cast<int>(firstDayOfWeek), last);
 }
 
 void displayWeekSchedule(
@@ -223,6 +205,24 @@ void displayWeekSchedule(
 {
     const auto s = goalsByWeekday(firstDayOfWeek, weekSchedule);
     view->displayCurrentWeekSchedule(s);
+}
+
+std::vector<sprint_timer::ui::contracts::WorkScheduleEditor::DayAndGoal>
+goalsByWeekday(dw::Weekday firstDayOfWeek,
+               const sprint_timer::WeekSchedule& weekSchedule)
+{
+    using namespace sprint_timer::ui::contracts::WorkScheduleEditor;
+    auto goals = dailySchedule(weekSchedule, firstDayOfWeek);
+    std::vector<DayAndGoal> result(daysInWeek, {0, 0});
+    std::transform(
+        cbegin(goals),
+        cend(goals),
+        begin(result),
+        [](const auto& elem)
+            -> sprint_timer::ui::contracts::WorkScheduleEditor::DayAndGoal {
+            return {static_cast<uint16_t>(elem.first) + 1, elem.second};
+        });
+    return result;
 }
 
 void displayRoaster(const sprint_timer::WorkSchedule::Roaster& roaster,

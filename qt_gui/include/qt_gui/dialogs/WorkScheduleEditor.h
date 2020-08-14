@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef WORKDAYSDIALOG_H_NVZH9CRG
-#define WORKDAYSDIALOG_H_NVZH9CRG
+#ifndef WORKSCHEDULEEDITOR_H_N2VONPYL
+#define WORKSCHEDULEEDITOR_H_N2VONPYL
 
 #include "qt_gui/presentation/WorkScheduleEditor.h"
 #include <QAbstractListModel>
@@ -28,19 +28,20 @@
 #include <memory>
 
 namespace Ui {
-class WorkdaysDialog;
+class WorkScheduleEditor;
 } // namespace Ui
 
 namespace sprint_timer::ui::qt_gui {
 
-class WorkdaysDialog : public contracts::WorkScheduleEditor::View,
-                       public QDialog {
+class WorkScheduleEditor : public contracts::WorkScheduleEditor::View,
+                           public QDialog {
 
 public:
-    explicit WorkdaysDialog(contracts::WorkScheduleEditor::Presenter& presenter,
-                            QDialog* parent = nullptr);
+    explicit WorkScheduleEditor(
+        contracts::WorkScheduleEditor::Presenter& presenter,
+        QDialog* parent = nullptr);
 
-    ~WorkdaysDialog() override;
+    ~WorkScheduleEditor() override;
 
     void accept() override;
 
@@ -61,7 +62,7 @@ public:
                                          dw::Date preselectedDate) override;
 
 private:
-    std::unique_ptr<Ui::WorkdaysDialog> ui;
+    std::unique_ptr<Ui::WorkScheduleEditor> ui;
     contracts::WorkScheduleEditor::Presenter& presenter;
     std::unique_ptr<QAbstractItemModel> exceptionalDaysModel;
     std::unique_ptr<QAbstractItemModel> roasterModel;
@@ -78,4 +79,5 @@ private:
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: WORKDAYSDIALOG_H_NVZH9CRG */
+#endif /* end of include guard: WORKSCHEDULEEDITOR_H_N2VONPYL */
+

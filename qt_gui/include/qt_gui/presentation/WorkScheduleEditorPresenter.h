@@ -60,9 +60,10 @@ public:
     void onRevertChanges() override;
 
 private:
-    QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>&
+    std::reference_wrapper<
+        QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>>
         workScheduleHandler;
-    CommandHandler<use_cases::ChangeWorkScheduleCommand>&
+    std::reference_wrapper<CommandHandler<use_cases::ChangeWorkScheduleCommand>>
         changeWorkScheduleHandler;
     dw::Weekday firstDayOfWeek;
     WorkSchedule bufferedSchedule;
