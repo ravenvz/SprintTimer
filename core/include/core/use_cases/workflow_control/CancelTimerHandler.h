@@ -19,21 +19,32 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#ifndef CANCELTIMERHANDLER_H_FAY26HRG
+#define CANCELTIMERHANDLER_H_FAY26HRG
+
+#include "core/CommandHandler.h"
+#include "core/IWorkflow.h"
+#include "core/use_cases/workflow_control/CancelTimer.h"
 
 namespace sprint_timer::use_cases {
 
-RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
+class CancelTimerHandler : public CommandHandler<CancelTimer> {
+public:
+    explicit CancelTimerHandler(IWorkflow& workflow);
+
+    void handle(CancelTimer&& command) override;
+
+private:
+    IWorkflow& workflow;
+};
+
+inline CancelTimerHandler::CancelTimerHandler(IWorkflow& workflow_)
+    : workflow{workflow_}
 {
 }
 
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
-{
-    return lhs.sprints == rhs.sprints;
-}
+inline void CancelTimerHandler::handle(CancelTimer&&) { workflow.cancel(); }
 
 } // namespace sprint_timer::use_cases
 
+#endif /* end of include guard: CANCELTIMERHANDLER_H_FAY26HRG */

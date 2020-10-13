@@ -7,6 +7,7 @@ target_sources(${TEST_CORE}
     PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/test_add_new_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_algutils.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_cancel_timer_command.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_change_work_schedule.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_delete_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_distribution.cpp"
@@ -32,11 +33,13 @@ target_sources(${TEST_CORE}
     "${CMAKE_CURRENT_LIST_DIR}/test_request_work_schedule.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint_builder.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint_statistics.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_start_timer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_stateful_timer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_store_unfinished_tasks_order.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_string_utils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task_builder.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_toggle_zone_mode_command.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_toggle_task_completion_status.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_work_schedule.cpp"
 )

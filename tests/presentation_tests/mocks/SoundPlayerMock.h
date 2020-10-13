@@ -19,21 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include <core/SoundPlayer.h>
 
-namespace sprint_timer::use_cases {
+namespace mocks {
 
-RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
-{
-}
+class SoundPlayerMock : public sprint_timer::SoundPlayer {
+public:
+    MOCK_METHOD(void, play, (const std::string&), (override));
 
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
-{
-    return lhs.sprints == rhs.sprints;
-}
+    MOCK_METHOD(void, setVolume, (int), (override));
 
-} // namespace sprint_timer::use_cases
+    MOCK_METHOD(void, setSoundEnabled, (bool), (override));
+};
 
+} // namespace mocks

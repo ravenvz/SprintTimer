@@ -45,6 +45,7 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/RequestForDaysBack.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/RequestForWeeksBack.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/RequestForMonthsBack.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/SoundPlayer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintBuilder.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintStatistics.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/TagTop.h"
@@ -111,6 +112,7 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/Algutils.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/StringUtils.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/threadsafe_queue.h"
 
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/src/GoalProgress.cpp"

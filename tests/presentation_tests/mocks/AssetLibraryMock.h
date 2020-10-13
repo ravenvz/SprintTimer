@@ -19,21 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include <gmock/gmock.h>
+#include <qt_gui/presentation/AssetLibrary.h>
 
-namespace sprint_timer::use_cases {
+namespace mocks {
 
-RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
-{
-}
+class AssetLibraryMock : public sprint_timer::AssetLibrary {
+public:
+    MOCK_METHOD(std::optional<std::string>,
+                filePath,
+                (const std::string&),
+                (const override));
+};
 
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
-{
-    return lhs.sprints == rhs.sprints;
-}
-
-} // namespace sprint_timer::use_cases
-
+} // namespace mocks

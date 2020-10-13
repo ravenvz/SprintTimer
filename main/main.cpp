@@ -49,16 +49,23 @@
 #include "BestWorkdayPresenterProxy.h"
 #include "DateRangeSelectorPresenterProxy.h"
 #include "ObservableConfig.h"
+#include "RuntimeConfigurableSoundPlayer.h"
+#include "SettingsWatchingAssetLibrary.h"
 #include "StatisticsWindowProxy.h"
 #include "WorkScheduleEditorPresenterProxy.h"
+#include "WorkflowProxy.h"
 #include <qt_gui/widgets/StatisticsWindow.h>
 // #include <external_io/Serializer.h>
 // #include <external_io/RuntimeSinkRouter.h>
 
 #include "ManualSprintAddPresenterProxy.h"
 
+#include <core/Workflow.h>
 #include <core/use_cases/export_data/ExportSprintsHandler.h>
 #include <core/use_cases/export_data/ExportTasksHandler.h>
+#include <core/use_cases/workflow_control/CancelTimerHandler.h>
+#include <core/use_cases/workflow_control/StartTimerHandler.h>
+#include <core/use_cases/workflow_control/ToggleZoneModeHandler.h>
 #include <external_io/OstreamSink.h>
 #include <external_io/RuntimeConfigurableDataExporter.h>
 #include <external_io/RuntimeSinkRouter.h>
@@ -73,8 +80,11 @@
 #include <qt_gui/presentation/DateRangeSelectorPresenter.h>
 #include <qt_gui/presentation/HistoryPresenter.h>
 #include <qt_gui/presentation/ProgressPresenter.h>
+#include <qt_gui/presentation/TimerPresenter.h>
 #include <qt_gui/presentation/UndoPresenter.h>
+#include <qt_gui/presentation/UnfinishedTasksPresenter.h>
 #include <qt_gui/presentation/WorkScheduleEditorPresenter.h>
+#include <qt_gui/widgets/TimerView.h>
 
 #include <QApplication>
 #include <QStyleFactory>
@@ -90,6 +100,7 @@
 #include <filesystem>
 #include <qt_gui/DistributionRequester.h>
 #include <qt_gui/QtConfig.h>
+#include <qt_gui/QtSoundPlayerImp.h>
 #include <qt_gui/WorkScheduleWrapper.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>
 #include <qt_gui/delegates/SubmissionItemDelegate.h>
@@ -108,9 +119,7 @@
 #include <qt_gui/widgets/ContextMenuListView.h>
 #include <qt_gui/widgets/DailyTimelineGraph.h>
 #include <qt_gui/widgets/DateRangePicker.h>
-#include <qt_gui/widgets/DefaultTimer.h>
 #include <qt_gui/widgets/DialogLaunchButton.h>
-#include <qt_gui/widgets/FancyTimer.h>
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/MainWindow.h>
 #include <qt_gui/widgets/ProgressMonitorWidget.h>
@@ -624,6 +633,9 @@ int main(int argc, char* argv[])
 
     RelayHub relayHub;
 
+    compose::WorkflowProxy workflow{
+        std::chrono::seconds{1}, applicationSettings, applicationSettings};
+
     auto requestSprintsHandler =
         decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
             decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
@@ -751,6 +763,15 @@ int main(int argc, char* argv[])
                                                         actionInvoker),
             relayHub));
 
+    auto startTimerHandler =
+        decorate<StartTimer>(std::make_unique<StartTimerHandler>(workflow));
+
+    auto cancelTimerHandler =
+        decorate<CancelTimer>(std::make_unique<CancelTimerHandler>(workflow));
+
+    auto toggleZoneHandler = decorate<ToggleZoneMode>(
+        std::make_unique<ToggleZoneModeHandler>(workflow));
+
     // auto deleteSprintHandler = decorate<DeleteSprintCommand>(
     //     std::make_unique<DeleteSprintHandler>(*sprintStorage,
     //     actionInvoker));
@@ -780,13 +801,7 @@ int main(int argc, char* argv[])
     //     std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
     //                                                 actionInvoker));
 
-    TaskModel unfinishedTasksModel{*changePriorityHandler,
-                                   *createTaskHandler,
-                                   *deleteTaskHandler,
-                                   *toggleCompletionHandler,
-                                   *editTaskHandler,
-                                   *unfinishedTasksHandler,
-                                   datasyncRelay};
+    TaskModel unfinishedTasksModel;
     auto todaySprintsModelRequestSprintsHandler =
         decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
             decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
@@ -1048,29 +1063,55 @@ int main(int argc, char* argv[])
     SprintRegistrator sprintRegistrator{unfinishedTasksModel,
                                         *registerSprintBulkHandler,
                                         selectedTaskRowReemitter};
-    std::unique_ptr<TimerWidgetBase> timerWidget;
-    auto submissionBox =
-        std::make_unique<SubmissionBox>(selectedTaskRowReemitter);
-    submissionBox->setModel(&unfinishedTasksModel);
-    auto submissionItemDelegate = std::make_unique<SubmissionItemDelegate>();
-    submissionBox->setItemDelegate(submissionItemDelegate.release());
-    auto timerFlavour = applicationSettings.timerFlavour();
-    if (timerFlavour == 0)
-        timerWidget = std::make_unique<DefaultTimer>(applicationSettings,
-                                                     todaySprintsModel,
-                                                     std::move(submissionBox),
-                                                     sprintRegistrator,
-                                                     nullptr);
-    else {
-        constexpr int indicatorSize{150};
-        timerWidget = std::make_unique<FancyTimer>(
-            applicationSettings,
-            todaySprintsModel,
-            std::move(submissionBox),
-            std::make_unique<CombinedIndicator>(indicatorSize, nullptr),
-            sprintRegistrator,
-            nullptr);
-    }
+    // std::unique_ptr<TimerWidgetBase> timerWidget;
+    // auto submissionBox =
+    //     std::make_unique<SubmissionBox>(selectedTaskRowReemitter);
+    // submissionBox->setModel(&unfinishedTasksModel);
+    // auto submissionItemDelegate = std::make_unique<SubmissionItemDelegate>();
+    // submissionBox->setItemDelegate(submissionItemDelegate.release());
+    // auto timerFlavour = applicationSettings.timerFlavour();
+    QMediaPlayer qmediaPlayer;
+    compose::RuntimeConfigurableSoundPlayer soundPlayer(
+        applicationSettings,
+        applicationSettings,
+        std::make_unique<qt_gui::SoundPlayerImp>(qmediaPlayer));
+
+    ui::ConfigurableAssetLibrary assetLibrary_{
+        {{"ringSound", applicationSettings.soundFilePath()}}};
+    compose::SettingsWatchingAssetLibrary assetLibrary{
+        assetLibrary_, applicationSettings, applicationSettings};
+    ui::TimerPresenter timerPresenter{
+        workflow, soundPlayer, assetLibrary, "ringSound"};
+    ui::UnfinishedTasksPresenter unfinishedTasksPresenter{
+        *unfinishedTasksHandler,
+        *deleteTaskHandler,
+        *editTaskHandler,
+        *registerSprintBulkHandler};
+    constexpr int indicatorSize{150};
+    auto timerView = std::make_unique<TimerView>(
+        timerPresenter,
+        unfinishedTasksPresenter,
+        // std::move(submissionBox),
+        std::make_unique<CombinedIndicator>(indicatorSize, nullptr));
+
+    // if (timerFlavour == 0)
+    // timerWidget = std::make_unique<DefaultTimer>(applicationSettings,
+    //                                              todaySprintsModel,
+    //                                              std::move(submissionBox),
+    //                                              sprintRegistrator,
+    //                                              soundPlayer,
+    //                                              nullptr);
+    // else {
+    // constexpr int indicatorSize{150};
+    // timerWidget = std::make_unique<FancyTimer>(
+    //     applicationSettings,
+    //     todaySprintsModel,
+    //     std::move(submissionBox),
+    //     std::make_unique<CombinedIndicator>(indicatorSize, nullptr),
+    //     sprintRegistrator,
+    //     soundPlayer,
+    //     nullptr);
+    // }
 
     HistoryModel taskSprintsModel;
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
@@ -1082,19 +1123,27 @@ int main(int argc, char* argv[])
                                    std::make_unique<TagEditor>(tagModel),
                                    selectedTaskRowReemitter,
                                    *sprintsForTaskHandler);
-    taskView->setModel(&unfinishedTasksModel);
+    // auto taskView = std::make_unique<QListView>();
+    // taskView->setModel(&unfinishedTasksModel);
     taskView->setContextMenuPolicy(Qt::CustomContextMenu);
     taskView->setItemDelegate(taskItemDelegate.release());
 
-    auto taskOutline = std::make_unique<TaskOutline>(
-        *registerSprintBulkHandler, std::move(taskView), addTaskDialog);
+    // ui::UnfinishedTasksPresenter unfinishedTasksPresenter{
+    //     *unfinishedTasksHandler,
+    //     *deleteTaskHandler,
+    //     *editTaskHandler,
+    //     *registerSprintBulkHandler};
+    auto taskOutline = std::make_unique<TaskOutline>(unfinishedTasksPresenter,
+                                                     std::move(taskView),
+                                                     addTaskDialog,
+                                                     unfinishedTasksModel);
 
     sprint_timer::ui::qt_gui::MainWindow w{
         std::move(sprintOutline),
         std::move(taskOutline),
         std::make_unique<TodayProgressIndicator>(todaySprintsModel,
                                                  workScheduleWrapper),
-        std::move(timerWidget),
+        std::move(timerView),
         std::move(launcherMenu)};
     applyStyleSheet(app);
     app.setStyle(QStyleFactory::create("Fusion"));

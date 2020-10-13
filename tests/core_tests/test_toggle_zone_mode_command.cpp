@@ -19,4 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/IWorkflow.h"
+#include "core/use_cases/workflow_control/ToggleZoneModeHandler.h"
+#include "mocks/WorkflowMock.h"
 
+using namespace sprint_timer::use_cases;
+
+class ToggleZoneHandlerFixture : public ::testing::Test {
+public:
+    mocks::WorkflowMock workflow;
+    ToggleZoneModeHandler handler{workflow};
+};
+
+TEST_F(ToggleZoneHandlerFixture, handles_command)
+{
+    EXPECT_CALL(workflow, toggleInTheZoneMode());
+
+    handler.handle(ToggleZoneMode{});
+}

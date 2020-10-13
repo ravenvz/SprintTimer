@@ -19,21 +19,23 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#ifndef SOUNDLIBRARY_H_LXRWVZFV
+#define SOUNDLIBRARY_H_LXRWVZFV
 
-namespace sprint_timer::use_cases {
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
-{
-}
+namespace sprint_timer {
 
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
-{
-    return lhs.sprints == rhs.sprints;
-}
+class AssetLibrary {
+public:
+    virtual ~AssetLibrary() = default;
 
-} // namespace sprint_timer::use_cases
+    virtual std::optional<std::string>
+    filePath(const std::string& assetId) const = 0;
+};
 
+} // namespace sprint_timer
+
+#endif /* end of include guard: SOUNDLIBRARY_H_LXRWVZFV */

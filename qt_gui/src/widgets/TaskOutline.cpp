@@ -28,15 +28,9 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include <QDebug>
-
 namespace {
 
 const QString addTaskDialogTitle{"Add new task"};
-
-std::vector<sprint_timer::entities::Sprint>
-buildFromIntervals(const std::string& taskUuid,
-                   const std::vector<dw::DateTimeRange>& intervals);
 
 } // namespace
 
@@ -44,16 +38,19 @@ namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
 
-TaskOutline::TaskOutline(CommandHandler<use_cases::RegisterSprintBulkCommand>&
-                             registerSprintBulkHandler_,
-                         std::unique_ptr<QAbstractItemView> taskView_,
-                         AddTaskDialog& addTaskDialog_,
-                         QWidget* parent_)
+TaskOutline::TaskOutline(
+    contracts::UnfinishedTasksContract::Presenter& presenter_,
+    std::unique_ptr<QAbstractItemView> taskView_,
+    AddTaskDialog& addTaskDialog_,
+    QAbstractItemModel& taskModel_,
+    QWidget* parent_)
     : QWidget{parent_}
-    , registerSprintBulkHandler{registerSprintBulkHandler_}
+    , presenter{presenter_}
+    , taskModel{taskModel_}
     , taskView{taskView_.release()}
     , addTaskDialog{addTaskDialog_}
 {
+    taskView->setModel(&taskModel);
     auto layout = std::make_unique<QVBoxLayout>(this);
 
     auto addTaskButton = std::make_unique<QPushButton>("Add task");
@@ -74,8 +71,17 @@ TaskOutline::TaskOutline(CommandHandler<use_cases::RegisterSprintBulkCommand>&
             &TaskOutline::onQuickAddTodoReturnPressed);
     layout->addWidget(quickAddTask);
 
+    connect(
+        taskView, &QAbstractItemView::clicked, [&](const QModelIndex& index) {
+            presenter.onTaskSelectionChanged(*this, index.row());
+        });
+
     setLayout(layout.release());
+
+    presenter.attachView(*this);
 }
+
+TaskOutline::~TaskOutline() { presenter.detachView(*this); }
 
 void TaskOutline::onQuickAddTodoReturnPressed()
 {
@@ -97,20 +103,6 @@ void TaskOutline::onAddTaskButtonPushed()
     addTaskDialog.disconnect();
 }
 
-void TaskOutline::onSprintSubmissionRequested(
-    const std::vector<dw::DateTimeRange>& intervals)
-{
-    const QModelIndex index = taskView->currentIndex();
-    if (!index.isValid())
-        return;
-    const auto taskUuid =
-        index.data(static_cast<int>(TaskModelRoles::GetIdRole))
-            .toString()
-            .toStdString();
-    registerSprintBulkHandler.handle(use_cases::RegisterSprintBulkCommand{
-        buildFromIntervals(taskUuid, intervals)});
-}
-
 void TaskOutline::insertTask(const Task& task)
 {
     QVariant var;
@@ -122,26 +114,23 @@ void TaskOutline::insertTask(const Task& task)
                    static_cast<int>(TaskModelRoles::Insert));
 }
 
-} // namespace sprint_timer::ui::qt_gui
-
-namespace {
-
-std::vector<sprint_timer::entities::Sprint>
-buildFromIntervals(const std::string& taskUuid,
-                   const std::vector<dw::DateTimeRange>& intervals)
+void TaskOutline::displayTasks(const std::vector<entities::Task>& tasks)
 {
-    std::vector<sprint_timer::entities::Sprint> sprints;
-    sprints.reserve(intervals.size());
-
-    std::transform(
-        intervals.cbegin(),
-        intervals.cend(),
-        std::back_inserter(sprints),
-        [&taskUuid](const auto& interval) {
-            return sprint_timer::entities::Sprint{taskUuid, interval};
-        });
-
-    return sprints;
+    auto* model = taskView->model();
+    model->removeRows(0, model->rowCount());
+    for (const auto& task : tasks) {
+        QVariant var;
+        var.setValue(task);
+        model->insertRow(model->rowCount());
+        model->setData(model->index(model->rowCount() - 1, 0),
+                       var,
+                       static_cast<int>(TaskModelRoles::Insert));
+    }
 }
 
-} // namespace
+void TaskOutline::selectTask(size_t taskIndex)
+{
+    taskView->setCurrentIndex(taskView->model()->index(taskIndex, 0));
+}
+
+} // namespace sprint_timer::ui::qt_gui

@@ -22,6 +22,7 @@
 #ifndef TASKOUTLINE_H
 #define TASKOUTLINE_H
 
+#include "qt_gui/presentation/UnfinishedTasksContract.h"
 #include "qt_gui/widgets/TagEditor.h"
 #include <QAbstractItemView>
 #include <QLineEdit>
@@ -39,20 +40,24 @@ class AddTaskDialog;
 /* Responsible for providing user interface for interactive
  * task management, so that user could view current unfinished
  * tasks, add/edit and remove task and tags. */
-class TaskOutline : public QWidget {
+class TaskOutline : public QWidget,
+                    public contracts::UnfinishedTasksContract::View {
 public:
-    TaskOutline(CommandHandler<use_cases::RegisterSprintBulkCommand>&
-                    registerSprintBulkHandler,
+    TaskOutline(contracts::UnfinishedTasksContract::Presenter& presenter,
                 std::unique_ptr<QAbstractItemView> taskView,
                 AddTaskDialog& addTaskDialog,
+                QAbstractItemModel& taskModel,
                 QWidget* parent = nullptr);
 
-    void onSprintSubmissionRequested(
-        const std::vector<dw::DateTimeRange>& intervals);
+    ~TaskOutline() override;
+
+    void displayTasks(const std::vector<entities::Task>& tasks) override;
+
+    void selectTask(size_t taskIndex) override;
 
 private:
-    CommandHandler<use_cases::RegisterSprintBulkCommand>&
-        registerSprintBulkHandler;
+    contracts::UnfinishedTasksContract::Presenter& presenter;
+    QAbstractItemModel& taskModel;
     QPointer<TagEditor> tagEditor;
     QAbstractItemView* taskView;
     AddTaskDialog& addTaskDialog;

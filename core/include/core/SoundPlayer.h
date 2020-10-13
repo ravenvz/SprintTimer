@@ -19,21 +19,24 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#ifndef SOUNDPLAYER_H_OXEOPEIB
+#define SOUNDPLAYER_H_OXEOPEIB
 
-namespace sprint_timer::use_cases {
+#include <string>
 
-RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
-{
-}
+namespace sprint_timer {
 
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
-{
-    return lhs.sprints == rhs.sprints;
-}
+class SoundPlayer {
+public:
+    virtual ~SoundPlayer() = default;
 
-} // namespace sprint_timer::use_cases
+    virtual void play(const std::string& mediaPath) = 0;
 
+    virtual void setVolume(int volume) = 0;
+
+    virtual void setSoundEnabled(bool enabled) = 0;
+};
+
+} // namespace sprint_timer
+
+#endif /* end of include guard: SOUNDPLAYER_H_OXEOPEIB */

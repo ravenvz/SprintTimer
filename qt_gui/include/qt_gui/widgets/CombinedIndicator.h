@@ -22,7 +22,6 @@
 #ifndef COMBINEDINDICATOR_H_4ZPMFI3J
 #define COMBINEDINDICATOR_H_4ZPMFI3J
 
-#include "qt_gui/widgets/TimerWidgetBase.h"
 #include <QMouseEvent>
 #include <QWidget>
 
@@ -37,7 +36,7 @@ class CombinedIndicator : public QWidget {
 public:
     /* Construct indicator. Takes sideSizeHint as a hint to indicator
      * width and height. */
-    CombinedIndicator(int sideSizeHint, QWidget* parent = nullptr);
+    explicit CombinedIndicator(int sideSizeHint, QWidget* parent = nullptr);
 
     QSize sizeHint() const override;
 

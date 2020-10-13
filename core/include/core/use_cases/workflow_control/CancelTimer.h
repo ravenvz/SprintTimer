@@ -19,21 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#ifndef CANCELTIMER_H_CC4QOKWJ
+#define CANCELTIMER_H_CC4QOKWJ
+
+#include "core/Command.h"
+#include <iostream>
 
 namespace sprint_timer::use_cases {
 
-RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
-{
-}
+class CancelTimer : public Command {
+};
 
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os, const CancelTimer&)
 {
-    return lhs.sprints == rhs.sprints;
+    os << "Cancel timer command";
+    return os;
 }
 
 } // namespace sprint_timer::use_cases
 
+#endif /* end of include guard: CANCELTIMER_H_CC4QOKWJ */

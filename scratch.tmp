@@ -1,0 +1,137 @@
+function! MockMethod() range
+py3 << EOF
+
+import vim
+
+"""
+Takes virtual method definition and returns MOCK_METHOD for it.
+"""
+def mock_from_virtual(line):
+
+    def drop_name(parameter):
+        return parameter.rpartition(" ")[0]
+
+    def split_parameters(parameter_str):
+        params = []
+        inside_angle_brack = 0
+        left_ptr = 0
+        for (right_ptr, char) in enumerate(parameter_str):
+            if (char == '<'):
+                inside_angle_brack += 1
+            elif (char == '>'):
+                inside_angle_brack -= 1
+            elif (char == ","):
+                if (inside_angle_brack):
+                    continue
+                else:
+                    params.append(parameter_str[left_ptr:right_ptr])
+                    left_ptr = right_ptr + 1
+
+        params.append(parameter_str[left_ptr:])
+        return params
+
+    first_space = line.find(" ")
+    open_brace = line.find("(", first_space)
+    close_brace = line.find(")", open_brace)
+    parameter_str = line[open_brace + 1:close_brace + 1]
+    parameters = [drop_name(x.strip()) for x in split_parameters(parameter_str)]
+    return_type, _, method_name = line[first_space + 1:open_brace].rpartition(" ")
+    return "MOCK_METHOD({}, {}, ({}), (override));".format(
+            return_type,
+            method_name,
+            ", ".join(parameters))
+
+def run():
+    converted_lines = []
+    start = int(vim.eval("a:firstline"))
+    stop = int(vim.eval("a:lastline"))
+    buffer = vim.current.buffer
+    for line_num in range(start - 1, stop):
+        line = buffer[line_num].strip()
+        line = line if len(line) == 0 else mock_from_virtual(line)
+        converted_lines.append(line)
+    vim.current.buffer[start - 1:stop] = converted_lines
+
+
+run()
+EOF
+
+endfunction
+
+function! DeclarationFromVirtual() range
+py3 << EOF
+
+import vim
+
+def declaration_from_virtual(line):
+    line = line.strip()
+    _, _, rest = line.partition(" ")
+    content, _, _ = rest.partition("=")
+    return "{}override;".format(content)
+
+def run():
+    converted_lines = []
+    start = int(vim.eval("a:firstline"))
+    stop = int(vim.eval("a:lastline"))
+    buffer = vim.current.buffer
+    for line_num in range(start - 1, stop):
+        line = buffer[line_num].strip()
+        line = line if len(line) == 0 else declaration_from_virtual(line)
+        converted_lines.append(line)
+    vim.current.buffer[start - 1:stop] = converted_lines
+
+run()
+EOF
+
+endfunction
+
+function InplaceImplementation() range
+
+py3 << EOF
+
+import vim
+import re
+
+def try_find_last_class_name(line):
+    regex = "^class (\w+)"
+    matches = re.findall(regex, line)
+    if (matches):
+        return matches[-1]
+
+def definition_from_declaration(line, class_name):
+    return_type, _, rest = line.partition(" ")
+    rest, _, _ = rest.rpartition(" ")
+    return "inline {} {}::{}".format(return_type, class_name, rest)
+
+def run():
+    start = int(vim.eval("a:firstline"))
+    stop = int(vim.eval("a:lastline"))
+    buffer = vim.current.buffer
+    class_name = "Placeholder"
+    for line_num in range(start, 0, -1):
+        name = try_find_last_class_name(buffer[line_num])
+        if (name):
+            class_name = name
+            break
+    converted_lines = []
+    for line_num in range(start - 1, stop):
+        line = buffer[line_num].strip()
+        if len(line) == 0:
+            converted_lines.append(line)
+            continue;
+        converted_lines.append(definition_from_declaration(line, class_name))
+        converted_lines.append("{")
+        converted_lines.append("}")
+
+    current_line = vim.current.line
+    buffer.append(converted_lines, stop)
+
+run()
+EOF
+
+endfunction
+
+command! -range Mock <line1>,<line2>call MockMethod()
+command! -range DeclVirt <line1>,<line2>call DeclarationFromVirtual()
+command! -range ImpPlace <line1>,<line2>call InplaceImplementation()
+

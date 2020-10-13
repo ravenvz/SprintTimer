@@ -19,21 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include "mocks/WorkflowMock.h"
+#include <core/use_cases/workflow_control/CancelTimerHandler.h>
 
-namespace sprint_timer::use_cases {
+using namespace sprint_timer::use_cases;
 
-RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
+class CancelTimerHandlerFixture : public ::testing::Test {
+public:
+    mocks::WorkflowMock workflow;
+    CancelTimerHandler handler{workflow};
+};
+
+TEST_F(CancelTimerHandlerFixture, handles_command)
 {
+    EXPECT_CALL(workflow, cancel());
+
+    handler.handle(CancelTimer{});
 }
-
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
-{
-    return lhs.sprints == rhs.sprints;
-}
-
-} // namespace sprint_timer::use_cases
-

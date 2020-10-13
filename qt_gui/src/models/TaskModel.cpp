@@ -23,7 +23,6 @@
 #include "qt_gui/metatypes/TaskMetaType.h"
 #include "qt_gui/models/TaskModelRoles.h"
 #include <QSize>
-#include <QTimer>
 #include <core/utils/Algutils.h>
 #include <string>
 #include <vector>
@@ -31,44 +30,14 @@
 namespace sprint_timer::ui::qt_gui {
 
 using entities::Task;
-using namespace use_cases;
 
-TaskModel::TaskModel(
-    CommandHandler<use_cases::ChangeUnfinishedTasksPriorityCommand>&
-        changePriorityHandler_,
-    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler_,
-    CommandHandler<use_cases::DeleteTaskCommand>& deleteTaskHandler_,
-    CommandHandler<use_cases::ToggleTaskCompletedCommand>&
-        toggleCompletionHandler_,
-    CommandHandler<use_cases::EditTaskCommand>& editTaskHandler_,
-    QueryHandler<use_cases::UnfinishedTasksQuery, std::vector<entities::Task>>&
-        unfinishedTasksHandler_,
-    DatasyncRelay& datasyncRelay_,
-    QObject* parent_)
-    : AsyncListModel{parent_}
-    , changePriorityHandler{changePriorityHandler_}
-    , createTaskHandler{createTaskHandler_}
-    , deleteTaskHandler{deleteTaskHandler_}
-    , toggleCompletionHandler{toggleCompletionHandler_}
-    , editTaskHandler{editTaskHandler_}
-    , unfinishedTasksHandler{unfinishedTasksHandler_}
-    , datasyncRelay{datasyncRelay_}
+TaskModel::TaskModel(QObject* parent_)
+    : QAbstractListModel{parent_}
 {
-    connect(&datasyncRelay_,
-            &DatasyncRelay::dataUpdateRequiered,
-            this,
-            &AsyncListModel::requestSilentDataUpdate);
-}
-
-void TaskModel::requestUpdate()
-{
-    onDataChanged(
-        unfinishedTasksHandler.handle(use_cases::UnfinishedTasksQuery{}));
 }
 
 void TaskModel::onDataChanged(const std::vector<Task>& tasks)
 {
-    datasyncRelay.onSyncCompleted("TaskModel");
     beginResetModel();
     storage = tasks;
     endResetModel();
@@ -116,8 +85,8 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
         return QString::fromStdString(taskRef.name());
 
     case static_cast<int>(TaskModelRoles::GetIdRole):
-        // TODO analyze usages, as casting back and forth to QString might not
-        // be neccessary
+        // TODO(vizier): analyze usages, as casting back and forth to QString
+        // might not be neccessary
         return QString::fromStdString(taskRef.uuid());
 
     case static_cast<int>(TaskModelRoles::GetStats):
@@ -143,28 +112,33 @@ bool TaskModel::setData(const QModelIndex& index,
                         const QVariant& value,
                         int role)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return false;
+    }
 
     switch (role) {
 
     case static_cast<int>(TaskModelRoles::Insert): {
-        if (index.row() != static_cast<int>(storage.size()) - 1)
+        if (index.row() != static_cast<int>(storage.size()) - 1) {
             return false;
-        insert(value.value<Task>());
+        }
+        storage[index.row()] = value.value<Task>();
+        // insert(value.value<Task>());
         return true;
     }
 
     case static_cast<int>(TaskModelRoles::Replace): {
-        if (index.row() < 0 || index.row() >= static_cast<int>(storage.size()))
+        if (index.row() < 0 ||
+            index.row() >= static_cast<int>(storage.size())) {
             return false;
+        }
 
-        replaceItemAt(index.row(), value.value<Task>());
+        // replaceItemAt(index.row(), value.value<Task>());
         return true;
     }
 
     case static_cast<int>(TaskModelRoles::ToggleCompletion):
-        toggleCompleted(index);
+        // toggleCompleted(index);
         return true;
 
     default:
@@ -180,15 +154,17 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
 {
     // TODO This leads to ignoring dropping item below the last item,
     // should study Qt documentation for item reordering
-    if (destinationChild == -1)
+    if (destinationChild == -1) {
         return false;
+    }
 
     // This offset is needed because slide takes iterator that should point
     // before desired location as position argument
-    if (sourceRow < destinationChild)
+    if (sourceRow < destinationChild) {
         ++destinationChild;
+    }
 
-    auto uuidsInOrder = [& st = storage]() {
+    auto uuidsInOrder = [&st = storage]() {
         std::vector<std::string> uuids;
         uuids.reserve(st.size());
         std::transform(st.cbegin(),
@@ -208,21 +184,19 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
 
     auto newOrder = uuidsInOrder();
 
-    changePriorityHandler.handle(
-        use_cases::ChangeUnfinishedTasksPriorityCommand{std::move(oldOrder),
-                                                        std::move(newOrder)});
-
     return true;
 }
 
 bool TaskModel::removeRows(int row, int count, const QModelIndex& parent)
 {
     // Removing multiple rows is unsupported for now
-    if (count != 1)
+    if (count != 1) {
         return false;
+    }
 
-    if (row < 0 || row >= static_cast<int>(storage.size()))
+    if (row < 0 || row >= static_cast<int>(storage.size())) {
         return false;
+    }
 
     remove(row);
 
@@ -232,11 +206,12 @@ bool TaskModel::removeRows(int row, int count, const QModelIndex& parent)
 bool TaskModel::insertRows(int row, int count, const QModelIndex& parent)
 {
     // Only support inserting one item after the last row
-    if (row != static_cast<int>(storage.size()) || count != 1)
+    if (row != static_cast<int>(storage.size()) || count != 1) {
         return false;
+    }
 
     beginInsertRows(parent, rowCount(parent), rowCount(parent));
-    storage.push_back(Task{});
+    storage.emplace_back(Task{});
     endInsertRows();
     return true;
 }
@@ -246,18 +221,12 @@ int TaskModel::rowCount(const QModelIndex& parent) const
     return static_cast<int>(storage.size());
 }
 
-void TaskModel::insert(const Task& item)
-{
-    createTaskHandler.handle(use_cases::CreateTaskCommand{item});
-    requestDataUpdate();
-}
-
 void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
 
 void TaskModel::remove(int row)
 {
     // beginRemoveRows(QModelIndex(), row, row);
-    deleteTaskHandler.handle(use_cases::DeleteTaskCommand{itemAt(row)});
+    // deleteTaskHandler.handle(use_cases::DeleteTaskCommand{itemAt(row)});
     // storage.erase(storage.begin() + row);
     // endRemoveRows();
 }
@@ -265,22 +234,6 @@ void TaskModel::remove(int row)
 Task TaskModel::itemAt(int row) const
 {
     return storage.at(static_cast<size_t>(row));
-}
-
-void TaskModel::toggleCompleted(const QModelIndex& index)
-{
-    if (!index.isValid())
-        return;
-    toggleCompletionHandler.handle(
-        use_cases::ToggleTaskCompletedCommand{itemAt(index.row())});
-    requestDataUpdate();
-}
-
-void TaskModel::replaceItemAt(int row, Task&& newItem)
-{
-    editTaskHandler.handle(
-        use_cases::EditTaskCommand{itemAt(row), std::move(newItem)});
-    requestDataUpdate();
 }
 
 } // namespace sprint_timer::ui::qt_gui

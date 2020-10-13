@@ -72,13 +72,19 @@ void PeriodicBackgroundRunner::runTimer(std::chrono::milliseconds remainingTime,
         }
 
         timeLeft -= tickPeriod;
+
         onTick(timeLeft);
+
         if (timeLeft < tickPeriod) {
+
             onTimeRunOut();
-            if (cycle)
+
+            if (cycle) {
                 timeLeft = remainingTime;
-            else
+            }
+            else {
                 break;
+            }
         }
     }
 }

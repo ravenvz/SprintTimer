@@ -22,88 +22,16 @@
 #ifndef WORKFLOW_H_QKH9ETW3
 #define WORKFLOW_H_QKH9ETW3
 
-#include "core/IConfig.h"
 #include "core/IWorkflow.h"
 #include "core/PeriodicBackgroundRunner.h"
 #include "date_wrapper/date_wrapper.h"
 #include <chrono>
 #include <memory>
 #include <thread>
+#include <unordered_set>
 #include <vector>
 
 namespace sprint_timer {
-
-class Workflow;
-
-class WorkflowState {
-public:
-    virtual ~WorkflowState() = default;
-    virtual void enter(Workflow& workflow) const = 0;
-    virtual void cancelExit(Workflow& workflow) = 0;
-    virtual void normalExit(Workflow& workflow) const = 0;
-    virtual void setNextState(Workflow& workflow) = 0;
-    virtual void toggleZoneMode(Workflow& workflow);
-    virtual std::chrono::seconds duration(const Workflow& workflow) const;
-    virtual void onTimerFinished(Workflow& workflow);
-};
-
-class Idle final : public WorkflowState {
-public:
-    void enter(Workflow& workflow) const override;
-    void cancelExit(Workflow& workflow) override;
-    void normalExit(Workflow& workflow) const override;
-    void setNextState(Workflow& workflow) override;
-};
-
-class RunningSprint final : public WorkflowState {
-public:
-    void enter(Workflow& workflow) const override;
-    void cancelExit(Workflow& workflow) override;
-    void normalExit(Workflow& workflow) const override;
-    void setNextState(Workflow& workflow) override;
-    std::chrono::seconds duration(const Workflow& workflow) const override;
-    void toggleZoneMode(Workflow& workflow) override;
-    void onTimerFinished(Workflow& workflow) override;
-};
-
-class ShortBreak final : public WorkflowState {
-public:
-    void enter(Workflow& workflow) const override;
-    void cancelExit(Workflow& workflow) override;
-    void normalExit(Workflow& workflow) const override;
-    void setNextState(Workflow& workflow) override;
-    std::chrono::seconds duration(const Workflow& workflow) const override;
-    void onTimerFinished(Workflow& workflow) override;
-};
-
-class LongBreak final : public WorkflowState {
-public:
-    void enter(Workflow& workflow) const override;
-    void cancelExit(Workflow& workflow) override;
-    void normalExit(Workflow& workflow) const override;
-    void setNextState(Workflow& workflow) override;
-    std::chrono::seconds duration(const Workflow& workflow) const override;
-    void onTimerFinished(Workflow& workflow) override;
-};
-
-class Zone final : public WorkflowState {
-public:
-    void enter(Workflow& workflow) const override;
-    void cancelExit(Workflow& workflow) override;
-    void normalExit(Workflow& workflow) const override;
-    void setNextState(Workflow& workflow) override;
-    std::chrono::seconds duration(const Workflow& workflow) const override;
-    void toggleZoneMode(Workflow& workflow) override;
-    void onTimerFinished(Workflow& workflow) override;
-};
-
-class SprintFinished final : public WorkflowState {
-public:
-    void enter(Workflow& workflow) const override;
-    void cancelExit(Workflow& workflow) override;
-    void normalExit(Workflow& workflow) const override;
-    void setNextState(Workflow& workflow) override;
-};
 
 class Workflow : public IWorkflow {
     friend class WorkflowState;
@@ -115,11 +43,8 @@ class Workflow : public IWorkflow {
     friend class SprintFinished;
 
 public:
-    Workflow(
-        std::function<void(std::chrono::seconds timeLeft)> tickCallback,
-        std::function<void(IWorkflow::StateId state)> onStateChangedCallback,
-        std::chrono::seconds tickPeriod,
-        const IConfig& applicationSettings);
+    Workflow(std::chrono::seconds tickPeriod,
+             const IWorkflow::WorkflowParams& params);
 
     ~Workflow() override = default;
 
@@ -139,11 +64,15 @@ public:
 
     std::vector<dw::DateTimeRange> completedSprints() const override;
 
-    void clearSprintsBuffer() override;
-
     void setNumFinishedSprints(int num) override;
 
     int numFinishedSprints() const;
+
+    void addListener(WorkflowListener* listener) override;
+
+    void removeListener(WorkflowListener* listener) override;
+
+    void reconfigure(const WorkflowParams& params) override;
 
 protected:
     Idle idle;
@@ -153,26 +82,26 @@ protected:
     Zone zone;
     SprintFinished sprintFinished;
     WorkflowState* currentState;
+    std::vector<dw::DateTimeRange> buffer;
 
     /* Transition to another state while exiting current state properly. */
-    virtual void transitionToState(WorkflowState& state);
+    void transitionToState(WorkflowState& state);
+
+    void notifyStateChanged(IWorkflow::StateId stateId);
 
 private:
-    const IConfig& applicationSettings;
     const std::chrono::seconds tickInterval;
-    std::function<void(std::chrono::seconds timeLeft)> onTickCallback;
-    std::function<void(IWorkflow::StateId)> onStateChangedCallback;
+    WorkflowParams params;
     std::unique_ptr<PeriodicBackgroundRunner> periodicBackgroundRunner;
     dw::DateTime mStart;
     int finishedSprints{0};
-    std::vector<dw::DateTimeRange> buffer;
+    std::unordered_set<WorkflowListener*> listeners;
 
     /* Jump to another state immediately ignoring proper exit from current state
      */
-    void jumpToState(WorkflowState& state);
+    void jumpIgnoringExitTo(WorkflowState& state);
     bool longBreakConditionMet() const;
     void onTimerRunout();
-    void notifyStateChanged(IWorkflow::StateId stateId);
     void onTimerTick(PeriodicBackgroundRunner::TickPeriod timeLeft);
     void startCountdown();
 };

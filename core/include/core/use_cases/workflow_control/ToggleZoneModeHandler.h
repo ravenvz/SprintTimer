@@ -19,21 +19,35 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#ifndef TOGGLEZONEMODEHANDLER_H_ISDKUEMO
+#define TOGGLEZONEMODEHANDLER_H_ISDKUEMO
+
+#include "core/CommandHandler.h"
+#include "core/IWorkflow.h"
+#include "core/use_cases/workflow_control/ToggleZoneMode.h"
 
 namespace sprint_timer::use_cases {
 
-RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
+class ToggleZoneModeHandler : public CommandHandler<ToggleZoneMode> {
+public:
+    explicit ToggleZoneModeHandler(IWorkflow& workflow);
+
+    void handle(ToggleZoneMode&& command) override;
+
+private:
+    IWorkflow& workflow;
+};
+
+inline ToggleZoneModeHandler::ToggleZoneModeHandler(IWorkflow& workflow_)
+    : workflow{workflow_}
 {
 }
 
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
+inline void ToggleZoneModeHandler::handle(ToggleZoneMode&&)
 {
-    return lhs.sprints == rhs.sprints;
+    workflow.toggleInTheZoneMode();
 }
 
 } // namespace sprint_timer::use_cases
 
+#endif /* end of include guard: TOGGLEZONEMODEHANDLER_H_ISDKUEMO */

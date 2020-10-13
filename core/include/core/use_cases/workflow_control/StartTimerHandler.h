@@ -19,21 +19,32 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#ifndef STARTTIMERHANDLER_H_VTRWBSW9
+#define STARTTIMERHANDLER_H_VTRWBSW9
+
+#include <core/CommandHandler.h>
+#include <core/IWorkflow.h>
+#include <core/use_cases/workflow_control/StartTimer.h>
 
 namespace sprint_timer::use_cases {
 
-RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
+class StartTimerHandler : public CommandHandler<StartTimer> {
+public:
+    explicit StartTimerHandler(IWorkflow& workflow);
+
+    void handle(StartTimer&&) override;
+
+private:
+    IWorkflow& workflow;
+};
+
+inline StartTimerHandler::StartTimerHandler(IWorkflow& workflow_)
+    : workflow{workflow_}
 {
 }
 
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
-{
-    return lhs.sprints == rhs.sprints;
-}
+void StartTimerHandler::handle(StartTimer&&) { workflow.start(); }
 
 } // namespace sprint_timer::use_cases
 
+#endif /* end of include guard: STARTTIMERHANDLER_H_VTRWBSW9 */

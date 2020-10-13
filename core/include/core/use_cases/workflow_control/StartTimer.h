@@ -19,21 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#ifndef STARTTIMER_H_JPDYOP2K
+#define STARTTIMER_H_JPDYOP2K
+
+#include <core/Command.h>
+#include <iostream>
 
 namespace sprint_timer::use_cases {
 
-RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
-{
-}
+class StartTimer : public Command {
+};
 
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os, const StartTimer&)
 {
-    return lhs.sprints == rhs.sprints;
+    os << "Start timer command";
+    return os;
 }
 
 } // namespace sprint_timer::use_cases
 
+#endif /* end of include guard: STARTTIMER_H_JPDYOP2K */
