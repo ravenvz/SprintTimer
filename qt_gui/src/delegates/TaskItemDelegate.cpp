@@ -65,7 +65,7 @@ QSize TaskItemDelegate::sizeHint(const QStyleOptionViewItem& option,
     if (!index.isValid())
         return QSize();
 
-    auto [statsRect, tagsRect, descrRect] = textRectangles(option, index);
+    const auto [statsRect, tagsRect, descrRect] = textRectangles(option, index);
     return QSize{option.rect.width(),
                  tagsRect.height() + descrRect.height() + 3 * offset};
 }
@@ -112,8 +112,7 @@ void TaskItemDelegate::paintItem(QPainter* painter,
     const QString tags =
         index.data(static_cast<int>(TaskModelRoles::GetTags)).toString();
     const QString descr =
-        index.data(static_cast<int>(TaskModelRoles::GetName))
-            .toString();
+        index.data(static_cast<int>(TaskModelRoles::GetName)).toString();
     const QString completionStats =
         index.data(static_cast<int>(TaskModelRoles::GetStats)).toString();
 
@@ -170,8 +169,7 @@ textRectangles(const QStyleOptionViewItem& option, const QModelIndex& index)
     const QString tags =
         index.data(static_cast<int>(TaskModelRoles::GetTags)).toString();
     const QString descr =
-        index.data(static_cast<int>(TaskModelRoles::GetName))
-            .toString();
+        index.data(static_cast<int>(TaskModelRoles::GetName)).toString();
     const QString stats =
         index.data(static_cast<int>(TaskModelRoles::GetStats)).toString();
 

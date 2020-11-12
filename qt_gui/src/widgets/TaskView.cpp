@@ -74,6 +74,8 @@ TaskView::TaskView(
                          QVariant{},
                          static_cast<int>(TaskModelRoles::ToggleCompletion));
     });
+    setWordWrap(true);
+    setVerticalScrollMode(ScrollMode::ScrollPerPixel);
 }
 
 void TaskView::onTaskSelectionChanged(int taskRow)

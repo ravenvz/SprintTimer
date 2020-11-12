@@ -59,7 +59,6 @@ TaskOutline::TaskOutline(
             this,
             &TaskOutline::onAddTaskButtonPushed);
     layout->addWidget(addTaskButton.release());
-
     layout->addWidget(taskView);
 
     auto quickAddTask_ = std::make_unique<QLineEdit>();

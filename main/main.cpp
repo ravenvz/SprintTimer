@@ -1116,7 +1116,7 @@ int main(int argc, char* argv[])
     HistoryModel taskSprintsModel;
     TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
     AddTaskDialog addTaskDialog{tagModel};
-    auto taskItemDelegate = std::make_unique<TaskItemDelegate>();
+    TaskItemDelegate taskItemDelegate;
     auto taskView =
         std::make_unique<TaskView>(taskSprintsView,
                                    addTaskDialog,
@@ -1126,7 +1126,7 @@ int main(int argc, char* argv[])
     // auto taskView = std::make_unique<QListView>();
     // taskView->setModel(&unfinishedTasksModel);
     taskView->setContextMenuPolicy(Qt::CustomContextMenu);
-    taskView->setItemDelegate(taskItemDelegate.release());
+    taskView->setItemDelegate(&taskItemDelegate);
 
     // ui::UnfinishedTasksPresenter unfinishedTasksPresenter{
     //     *unfinishedTasksHandler,
