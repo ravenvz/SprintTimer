@@ -41,8 +41,6 @@ class LegendItem : public QLabel {
 public:
     LegendItem(const QString& text, size_t itemIndex, QWidget* parent);
 
-    virtual ~LegendItem() = default;
-
     /* Toggle state of the item. */
     void toggleSelected();
 
@@ -50,7 +48,7 @@ public:
     bool isSelected() const;
 
 protected:
-    void mousePressEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event) override;
 
 private:
     const size_t itemIndex;
@@ -72,9 +70,7 @@ class SimpleLegend : public IStatisticalChartLegend {
     Q_OBJECT
 
 public:
-    SimpleLegend(QWidget* parent);
-
-    virtual ~SimpleLegend() = default;
+    explicit SimpleLegend(QWidget* parent);
 
     /* Set labels to display. */
     void setData(const std::vector<std::string>& labels) final;

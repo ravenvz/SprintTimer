@@ -32,7 +32,7 @@ class QtTaskStorage : public TaskStorage {
 public:
     QtTaskStorage(std::unique_ptr<TaskStorageReader> reader,
                   std::unique_ptr<TaskStorageWriter> writer);
-    ~QtTaskStorage() = default;
+    ~QtTaskStorage() override = default;
 
     QtTaskStorage(QtTaskStorage&&) = delete;
     QtTaskStorage& operator=(QtTaskStorage&&) = delete;

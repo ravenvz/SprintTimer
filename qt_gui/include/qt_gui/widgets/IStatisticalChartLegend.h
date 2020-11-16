@@ -32,11 +32,11 @@ class IStatisticalChartLegend : public QWidget {
     Q_OBJECT
 
 public:
-    IStatisticalChartLegend(QWidget* parent)
+    explicit IStatisticalChartLegend(QWidget* parent)
         : QWidget(parent)
     {
     }
-    virtual ~IStatisticalChartLegend();
+    ~IStatisticalChartLegend() override;
 
     virtual void setData(const std::vector<std::string>& labels) = 0;
 

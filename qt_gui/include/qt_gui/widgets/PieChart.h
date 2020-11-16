@@ -61,10 +61,10 @@ public:
 
 protected:
     /* Overriden to implement drawing of the chart. */
-    void paintEvent(QPaintEvent*);
+    void paintEvent(QPaintEvent*) override;
 
     /* Overriden to capture left mouse click on the chart. */
-    void mousePressEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event) override;
 
 private:
     /* Rect that bounds this widget for this widget. */

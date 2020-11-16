@@ -43,7 +43,7 @@ class SettingsDialog : public QDialog {
 public:
     explicit SettingsDialog(IConfig& applicationSettings,
                             QDialog* parent = nullptr);
-    ~SettingsDialog();
+    ~SettingsDialog() override;
 
 private slots:
     void storeSettingsData();

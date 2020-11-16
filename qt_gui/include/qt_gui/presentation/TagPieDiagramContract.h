@@ -48,8 +48,6 @@ public:
 
 class Presenter : public BasePresenter<View> {
 public:
-    virtual ~Presenter() = default;
-
     virtual void onTagIndexSelected(size_t index) = 0;
 };
 

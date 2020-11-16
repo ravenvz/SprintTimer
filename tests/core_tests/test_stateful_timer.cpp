@@ -75,7 +75,7 @@ public:
 class WorkflowStates : public ::testing::Test {
 
 protected:
-    virtual void SetUp()
+    void SetUp() override
     {
         std::chrono::seconds tick{1};
         workflow = std::make_unique<WorkflowTest>(tick, workflowParams);

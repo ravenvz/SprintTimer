@@ -65,8 +65,6 @@ public:
 
 class Presenter : public BasePresenter<View> {
 public:
-    virtual ~Presenter() = default;
-
     virtual void onEditTaskMenuSelected(const std::string& uuid) const = 0;
 
     virtual void onEditSprintMenuSelected(const std::string& uuid) const = 0;

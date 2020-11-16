@@ -29,7 +29,7 @@ class QtSprintStorage : public SprintStorage {
 public:
     QtSprintStorage(std::unique_ptr<SprintStorageReader> reader,
                     std::unique_ptr<SprintStorageWriter> writer);
-    ~QtSprintStorage() = default;
+    ~QtSprintStorage() override = default;
 
     QtSprintStorage(QtSprintStorage&&) = delete;
     QtSprintStorage& operator=(QtSprintStorage&&) = delete;

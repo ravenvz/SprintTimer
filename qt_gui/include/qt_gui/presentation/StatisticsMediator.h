@@ -35,8 +35,6 @@ namespace sprint_timer::ui {
 class StatisticsMediator : public Mediator<StatisticsColleague>,
                            public DateRangeChangeListener {
 public:
-    virtual ~StatisticsMediator() = default;
-
     virtual void filterByTag(StatisticsColleague* caller,
                              std::optional<size_t> numFromTop) = 0;
 

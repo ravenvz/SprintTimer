@@ -39,8 +39,6 @@ class HistoryMediator : public Mediator<HistoryColleague>,
 public:
     enum class DisplayedHistory { SprintHistory, TaskHistory };
 
-    virtual ~HistoryMediator() = default;
-
     virtual void changeDisplayedHistory(HistoryColleague* caller,
                                         DisplayedHistory displayedHistory) = 0;
 

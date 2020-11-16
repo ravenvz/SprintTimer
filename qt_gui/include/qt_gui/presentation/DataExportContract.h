@@ -64,8 +64,6 @@ public:
 
 class Presenter : public BasePresenter<View> {
 public:
-    virtual ~Presenter() = default;
-
     virtual void onGenerateReportRequested() = 0;
 
     virtual void onDataExportRequested() = 0;

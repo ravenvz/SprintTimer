@@ -28,8 +28,6 @@ namespace sprint_timer::ui::qt_gui {
 
 class StandaloneDisplayable : public Displayable {
 public:
-    virtual ~StandaloneDisplayable() = default;
-
     virtual void bringToTop() = 0;
 };
 

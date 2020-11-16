@@ -33,7 +33,7 @@ class RenameTagHandler : public CommandHandler<RenameTagCommand> {
 public:
     RenameTagHandler(TaskStorageWriter& writer, ActionInvoker& actionInvoker);
 
-    void handle(RenameTagCommand&& command);
+    void handle(RenameTagCommand&& command) override;
 
 private:
     TaskStorageWriter& writer;
