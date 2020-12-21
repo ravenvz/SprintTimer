@@ -22,8 +22,7 @@
 #ifndef PROGRESSMONITORPROXY_H_LTB9EOMJ
 #define PROGRESSMONITORPROXY_H_LTB9EOMJ
 
-#include "ManagedDisplayable.h"
-#include "ManagedStandaloneDisplayable.h"
+#include "DisplayableLifestyleProxy.h"
 #include <qt_gui/StandaloneDisplayable.h>
 #include <qt_gui/dialogs/WorkScheduleEditor.h>
 #include <qt_gui/presentation/BasePresenter.h>
@@ -34,7 +33,7 @@
 
 namespace sprint_timer::compose {
 
-class ProgressMonitorProxy : public ManagedStandaloneDisplayable {
+class ProgressMonitorProxy : public DisplayableLifestyleProxy {
 public:
     ProgressMonitorProxy(
         ui::BasePresenter<ui::contracts::DailyProgress::View>& dailyPresenter_,
@@ -43,7 +42,7 @@ public:
             monthlyPresenter_,
         ui::contracts::WorkScheduleEditor::Presenter& scheduleEditorPresenter_);
 
-    std::unique_ptr<ui::qt_gui::StandaloneDisplayable> create() override;
+    std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> create() override;
 
 private:
     ui::BasePresenter<ui::contracts::DailyProgress::View>& dailyPresenter;
@@ -65,44 +64,54 @@ inline ProgressMonitorProxy::ProgressMonitorProxy(
 {
 }
 
-inline std::unique_ptr<ui::qt_gui::StandaloneDisplayable>
+inline std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget>
 ProgressMonitorProxy::create()
 {
-    auto dailyProgress = std::make_unique<ui::qt_gui::ProgressWidget>(
-        dailyPresenter,
-        ui::qt_gui::ProgressWidget::Rows{3},
-        ui::qt_gui::ProgressWidget::Columns{10},
-        ui::qt_gui::ProgressWidget::GaugeSize{0.8});
+    using namespace ui::qt_gui;
+    auto dailyProgress =
+        std::make_unique<ProgressWidget>(dailyPresenter,
+                                         ProgressWidget::Rows{3},
+                                         ProgressWidget::Columns{10},
+                                         ProgressWidget::GaugeSize{0.8});
     dailyProgress->setLegendTitle("Last 30 days");
     dailyProgress->setLegendAverageCaption("Average per day");
-    scheduleEditor = std::make_unique<ui::qt_gui::WorkScheduleEditor>(
-        scheduleEditorPresenter);
+    scheduleEditor =
+        std::make_unique<WorkScheduleEditor>(scheduleEditorPresenter);
     auto configureWorkdaysButton =
-        std::make_unique<ui::qt_gui::DialogLaunchButton>(*scheduleEditor,
-                                                         "Configure");
+        std::make_unique<DialogLaunchButton>(*scheduleEditor, "Configure");
     dailyProgress->addLegendRow("Workdays", configureWorkdaysButton.release());
 
-    auto weeklyProgress = std::make_unique<ui::qt_gui::ProgressWidget>(
-        weeklyPresenter,
-        ui::qt_gui::ProgressWidget::Rows{3},
-        ui::qt_gui::ProgressWidget::Columns{4},
-        ui::qt_gui::ProgressWidget::GaugeSize{0.8});
+    auto weeklyProgress =
+        std::make_unique<ProgressWidget>(weeklyPresenter,
+                                         ProgressWidget::Rows{3},
+                                         ProgressWidget::Columns{4},
+                                         ProgressWidget::GaugeSize{0.8});
     weeklyProgress->setLegendTitle("Last 12 weeks");
     weeklyProgress->setLegendAverageCaption("Average per week:");
 
-    auto monthlyProgress = std::make_unique<ui::qt_gui::ProgressWidget>(
-        monthlyPresenter,
-        ui::qt_gui::ProgressWidget::Rows{3},
-        ui::qt_gui::ProgressWidget::Columns{4},
-        ui::qt_gui::ProgressWidget::GaugeSize{0.8});
+    auto monthlyProgress =
+        std::make_unique<ProgressWidget>(monthlyPresenter,
+                                         ProgressWidget::Rows{3},
+                                         ProgressWidget::Columns{4},
+                                         ProgressWidget::GaugeSize{0.8});
     monthlyProgress->setLegendTitle("Last 12 months");
     monthlyProgress->setLegendAverageCaption("Average per month:");
 
-    return std::make_unique<ui::qt_gui::ProgressMonitorWidget>(
-        std::move(dailyProgress),
-        std::move(weeklyProgress),
-        std::move(monthlyProgress));
+    // QPointer<StandaloneDisplayableWidget> ptr =
+    //     new ProgressMonitorWidget{std::move(dailyProgress),
+    //                                           std::move(weeklyProgress),
+    //                                           std::move(monthlyProgress)};
+    // return ptr;
+    return std::make_unique<ProgressMonitorWidget>(std::move(dailyProgress),
+                                                   std::move(weeklyProgress),
+                                                   std::move(monthlyProgress));
+    // return ptr;
+    // return QPointer(new ProgressMonitorWidget>(
+    //     std::move(dailyProgress),
+    //     std::move(weeklyProgress),
+    //     std::move(monthlyProgress));
 }
+
 } // namespace sprint_timer::compose
 
 #endif /* end of include guard: PROGRESSMONITORPROXY_H_LTB9EOMJ */

@@ -41,6 +41,9 @@ public:
     explicit AddTaskDialog(QAbstractItemModel& tagModel,
                            QWidget* parent = nullptr);
 
+    explicit AddTaskDialog(std::vector<std::string>&& tags,
+                           QWidget* parent = nullptr);
+
     ~AddTaskDialog() override;
 
     /* Overidden to accept only if required fields are not empty.
@@ -64,11 +67,11 @@ private slots:
 
 private:
     std::unique_ptr<Ui::AddTaskDialog> ui;
+    std::unique_ptr<QAbstractItemModel> tagModel;
 
     void resetDataFields();
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: ADDTASKDIALOG_H_TBSYZEDZ */

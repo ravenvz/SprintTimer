@@ -22,6 +22,7 @@
 #include "qt_gui/dialogs/AddTaskDialog.h"
 #include "ui_add_todo_dialog.h"
 #include <QRegularExpression>
+#include <QStringListModel>
 #include <core/utils/StringUtils.h>
 
 namespace {
@@ -42,6 +43,33 @@ AddTaskDialog::AddTaskDialog(QAbstractItemModel& tagModel, QWidget* parent)
     ui->setupUi(this);
 
     ui->tags->setModel(&tagModel);
+    ui->tags->setCurrentText("");
+
+    connect(ui->tags,
+            &QComboBox::textActivated,
+            this,
+            &AddTaskDialog::onQuickAddTagActivated);
+    connect(ui->taskName,
+            &QLineEdit::textEdited,
+            this,
+            &AddTaskDialog::resetNameLineEditStyle);
+}
+
+AddTaskDialog::AddTaskDialog(std::vector<std::string>&& tags, QWidget* parent)
+    : QDialog{parent}
+    , ui{std::make_unique<Ui::AddTaskDialog>()}
+{
+    ui->setupUi(this);
+
+    QStringList tagLst;
+    std::transform(
+        cbegin(tags),
+        cend(tags),
+        std::back_inserter(tagLst),
+        [](const auto& elem) { return QString::fromStdString(elem); });
+    tagModel = std::make_unique<QStringListModel>(tagLst);
+
+    ui->tags->setModel(tagModel.get());
     ui->tags->setCurrentText("");
 
     connect(ui->tags,

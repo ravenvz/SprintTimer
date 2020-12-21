@@ -19,36 +19,38 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef LAUNCHERMENU_H_31QL4GCR
-#define LAUNCHERMENU_H_31QL4GCR
+#ifndef ADDTASKCONTROL_H_N0QTM94K
+#define ADDTASKCONTROL_H_N0QTM94K
 
-#include "qt_gui/SprintTimerWidget.h"
-#include "qt_gui/StandaloneDisplayable.h"
-#include <QDialog>
-#include <core/IConfig.h>
-#include <memory>
+#include "qt_gui/presentation/BasePresenter.h"
+#include <vector>
 
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+namespace sprint_timer::ui::contracts::AddTaskControl {
 
-namespace sprint_timer::ui::qt_gui {
-
-class LauncherMenu : public QWidget {
-
-public:
-    LauncherMenu(Displayable& progressWindow,
-                 Displayable& statisticsWindow,
-                 Displayable& historyWindow,
-                 QDialog& settingsDialog,
-                 QWidget* parent = nullptr);
-
-    ~LauncherMenu() override;
-
-private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
+struct TaskDetails {
+    std::string name;
+    std::vector<std::string> tags;
+    int estimatedCost;
+    int actualCost;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+class View {
+public:
+    virtual void displayAddTaskDialog(std::vector<std::string>&& tags) = 0;
 
-#endif /* end of include guard: LAUNCHERMENU_H_31QL4GCR */
+    virtual ~View() = default;
+};
+
+class Presenter : public BasePresenter<View> {
+public:
+    virtual void onTaskAddConfirmed(const TaskDetails& details) const = 0;
+
+    virtual void
+    onTaskAddedInTextForm(const std::string& taskDescription) const = 0;
+
+    virtual void onDialogRequested() const = 0;
+};
+
+} // namespace sprint_timer::ui::contracts::AddTaskControl
+
+#endif /* end of include guard: ADDTASKCONTROL_H_N0QTM94K */

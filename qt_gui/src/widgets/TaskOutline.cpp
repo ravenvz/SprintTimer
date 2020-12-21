@@ -38,19 +38,12 @@ namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
 
-TaskOutline::TaskOutline(
-    contracts::UnfinishedTasksContract::Presenter& presenter_,
-    std::unique_ptr<QAbstractItemView> taskView_,
-    AddTaskDialog& addTaskDialog_,
-    QAbstractItemModel& taskModel_,
-    QWidget* parent_)
+TaskOutline::TaskOutline(ui::contracts::AddTaskControl::Presenter& presenter_,
+                         std::unique_ptr<QWidget> taskView_,
+                         QWidget* parent_)
     : QWidget{parent_}
     , presenter{presenter_}
-    , taskModel{taskModel_}
-    , taskView{taskView_.release()}
-    , addTaskDialog{addTaskDialog_}
 {
-    taskView->setModel(&taskModel);
     auto layout = std::make_unique<QVBoxLayout>(this);
 
     auto addTaskButton = std::make_unique<QPushButton>("Add task");
@@ -59,7 +52,7 @@ TaskOutline::TaskOutline(
             this,
             &TaskOutline::onAddTaskButtonPushed);
     layout->addWidget(addTaskButton.release());
-    layout->addWidget(taskView);
+    layout->addWidget(taskView_.release());
 
     auto quickAddTask_ = std::make_unique<QLineEdit>();
     quickAddTask_->setPlaceholderText("QuickAdd task #tag *estimate");
@@ -70,66 +63,38 @@ TaskOutline::TaskOutline(
             &TaskOutline::onQuickAddTodoReturnPressed);
     layout->addWidget(quickAddTask);
 
-    connect(
-        taskView, &QAbstractItemView::clicked, [&](const QModelIndex& index) {
-            presenter.onTaskSelectionChanged(*this, index.row());
-        });
-
     setLayout(layout.release());
-
     presenter.attachView(*this);
 }
 
 TaskOutline::~TaskOutline() { presenter.detachView(*this); }
 
+void TaskOutline::displayAddTaskDialog(std::vector<std::string>&& tags)
+{
+    AddTaskDialog dialog{std::move(tags)};
+    dialog.setWindowTitle(addTaskDialogTitle);
+    if (dialog.exec() == QDialog::Accepted) {
+        const auto task = dialog.constructedTask();
+        const auto t = task.tags();
+        std::vector<std::string> tagStr(tags.size(), "");
+        std::transform(cbegin(t), cend(t), begin(tagStr), [](const auto& elem) {
+            return elem.name();
+        });
+        ui::contracts::AddTaskControl::TaskDetails details{
+            task.name(), tagStr, task.estimatedCost(), task.actualCost()};
+        presenter.onTaskAddConfirmed(details);
+    }
+}
+
 void TaskOutline::onQuickAddTodoReturnPressed()
 {
-    std::string encodedDescription = quickAddTask->text().toStdString();
+    const std::string encodedDescription = quickAddTask->text().toStdString();
     quickAddTask->clear();
     if (!encodedDescription.empty()) {
-        const Task item{std::move(encodedDescription)};
-        insertTask(item);
+        presenter.onTaskAddedInTextForm(encodedDescription);
     }
 }
 
-void TaskOutline::onAddTaskButtonPushed()
-{
-    connect(&addTaskDialog, &QDialog::accepted, [&]() {
-        insertTask(addTaskDialog.constructedTask());
-    });
-    addTaskDialog.setWindowTitle(addTaskDialogTitle);
-    addTaskDialog.exec();
-    addTaskDialog.disconnect();
-}
-
-void TaskOutline::insertTask(const Task& task)
-{
-    QVariant var;
-    var.setValue(task);
-    QAbstractItemModel* model{taskView->model()};
-    model->insertRow(model->rowCount());
-    model->setData(model->index(model->rowCount() - 1, 0),
-                   var,
-                   static_cast<int>(TaskModelRoles::Insert));
-}
-
-void TaskOutline::displayTasks(const std::vector<entities::Task>& tasks)
-{
-    auto* model = taskView->model();
-    model->removeRows(0, model->rowCount());
-    for (const auto& task : tasks) {
-        QVariant var;
-        var.setValue(task);
-        model->insertRow(model->rowCount());
-        model->setData(model->index(model->rowCount() - 1, 0),
-                       var,
-                       static_cast<int>(TaskModelRoles::Insert));
-    }
-}
-
-void TaskOutline::selectTask(size_t taskIndex)
-{
-    taskView->setCurrentIndex(taskView->model()->index(taskIndex, 0));
-}
+void TaskOutline::onAddTaskButtonPushed() { presenter.onDialogRequested(); }
 
 } // namespace sprint_timer::ui::qt_gui

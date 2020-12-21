@@ -40,61 +40,64 @@ namespace sprint_timer::ui::qt_gui {
 using entities::Sprint;
 using entities::Task;
 
-TaskView::TaskView(
-    TaskSprintsView& sprintsForTaskView_,
-    AddTaskDialog& editTaskDialog_,
-    std::unique_ptr<QWidget> tagEditor_,
-    IndexChangedReemitter& selectedTaskRowReemitter_,
-    QueryHandler<use_cases::SprintsForTaskQuery, std::vector<entities::Sprint>>&
-        sprintsForTaskHandler_,
-    QWidget* parent_)
+TaskView::TaskView(contracts::UnfinishedTasksContract::Presenter& presenter_,
+                   TaskSprintsView& sprintsForTaskView_,
+                   AddTaskDialog& editTaskDialog_,
+                   std::unique_ptr<QWidget> tagEditor_,
+                   QAbstractItemModel& taskModel_,
+                   QWidget* parent_)
     : ReordableListView{parent_}
+    , presenter{presenter_}
     , sprintsForTaskView{sprintsForTaskView_}
     , editTaskDialog{editTaskDialog_}
     , tagEditor{std::move(tagEditor_)}
-    , sprintsForTaskHandler{sprintsForTaskHandler_}
 {
-    connect(this,
-            &QAbstractItemView::clicked,
-            [&selectedTaskRowReemitter_](const QModelIndex& index) {
-                selectedTaskRowReemitter_.onRowChanged(index.row());
-            });
-    connect(&selectedTaskRowReemitter_,
-            &IndexChangedReemitter::currentRowChanged,
-            this,
-            &TaskView::onTaskSelectionChanged);
+    setModel(&taskModel_);
     connect(this,
             &QListView::customContextMenuRequested,
             this,
             &TaskView::showContextMenu);
     connect(this, &QListView::doubleClicked, [this]() {
-        if (!model())
-            return;
-        model()->setData(currentIndex(),
-                         QVariant{},
-                         static_cast<int>(TaskModelRoles::ToggleCompletion));
+        presenter.onToggleTaskComplete(currentIndex().row());
     });
     setWordWrap(true);
     setVerticalScrollMode(ScrollMode::ScrollPerPixel);
+    presenter.attachView(*this);
 }
 
-void TaskView::onTaskSelectionChanged(int taskRow)
+TaskView::~TaskView() { presenter.detachView(*this); }
+
+void TaskView::displayTasks(const std::vector<entities::Task>& tasks)
 {
-    // Prevents signal emission if row hasn't changed
-    if (currentIndex().row() != taskRow)
-        setCurrentIndex(model()->index(taskRow, 0));
+    if (!model()) {
+        return;
+    }
+    model()->removeRows(0, model()->rowCount());
+    for (const auto& task : tasks) {
+        QVariant var;
+        var.setValue(task);
+        model()->insertRow(model()->rowCount());
+        model()->setData(model()->index(model()->rowCount() - 1, 0),
+                         var,
+                         static_cast<int>(TaskModelRoles::Insert));
+    }
+}
+
+void TaskView::selectTask(size_t taskIndex)
+{
+    setCurrentIndex(model()->index(taskIndex, 0));
 }
 
 void TaskView::showSprintsForTask() const
 {
-    const auto taskUUID = currentIndex()
-                              .data(static_cast<int>(TaskModelRoles::GetIdRole))
-                              .toString()
-                              .toStdString();
-
-    sprintsForTaskView.setData(sprintsForTaskHandler.handle(
-        use_cases::SprintsForTaskQuery{std::string{taskUUID}}));
-    sprintsForTaskView.show();
+    // const auto taskUUID = currentIndex()
+    //                           .data(static_cast<int>(TaskModelRoles::GetIdRole))
+    //                           .toString()
+    //                           .toStdString();
+    //
+    // sprintsForTaskView.setData(sprintsForTaskHandler.handle(
+    //     use_cases::SprintsForTaskQuery{std::string{taskUUID}}));
+    // sprintsForTaskView.show();
 }
 
 void TaskView::showContextMenu(const QPoint& pos) const

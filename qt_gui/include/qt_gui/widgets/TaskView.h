@@ -22,15 +22,9 @@
 #ifndef TASKVIEW_H_AC0ZCTZN
 #define TASKVIEW_H_AC0ZCTZN
 
-#include "qt_gui/IndexChangedReemitter.h"
+#include "qt_gui/presentation/UnfinishedTasksContract.h"
 #include "qt_gui/widgets/ReordableListView.h"
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_sprints/SprintsForTaskQuery.h>
 #include <optional>
-
-#ifdef _MSC_VER
-#include "qt_gui/WinExport.h"
-#endif // _MSC_VER
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -38,31 +32,29 @@ class TaskSprintsView;
 class AddTaskDialog;
 class TagEditor;
 
-#ifdef _MSC_VER
-class GLIB_EXPORT TaskView : public ReordableListView {
-#else
-class TaskView : public ReordableListView {
-#endif // _MSC_VER
+class TaskView : public ReordableListView,
+                 public contracts::UnfinishedTasksContract::View {
     Q_OBJECT
 
 public:
-    TaskView(TaskSprintsView& sprintsForTaskView,
+    TaskView(contracts::UnfinishedTasksContract::Presenter& presenter,
+             TaskSprintsView& sprintsForTaskView,
              AddTaskDialog& editTaskDialog,
              std::unique_ptr<QWidget> tagEditor,
-             IndexChangedReemitter& selectedTaskRowReemitter,
-             QueryHandler<use_cases::SprintsForTaskQuery,
-                          std::vector<entities::Sprint>>& sprintsForTaskHandler,
+             QAbstractItemModel& taskModel,
              QWidget* parent = nullptr);
 
-public slots:
-    void onTaskSelectionChanged(int taskRow);
+    ~TaskView() override;
+
+    void displayTasks(const std::vector<entities::Task>& tasks) override;
+
+    void selectTask(size_t taskIndex) override;
 
 private:
+    contracts::UnfinishedTasksContract::Presenter& presenter;
     TaskSprintsView& sprintsForTaskView;
     AddTaskDialog& editTaskDialog;
     std::unique_ptr<QWidget> tagEditor;
-    QueryHandler<use_cases::SprintsForTaskQuery, std::vector<entities::Sprint>>&
-        sprintsForTaskHandler;
 
     void showSprintsForTask() const;
 

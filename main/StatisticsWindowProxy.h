@@ -22,7 +22,7 @@
 #ifndef STATISTICSWINDOWPROXY_H_VYTYRJFC
 #define STATISTICSWINDOWPROXY_H_VYTYRJFC
 
-#include "ManagedStandaloneDisplayable.h"
+#include "DisplayableLifestyleProxy.h"
 #include <QAbstractItemModel>
 #include <core/IConfig.h>
 #include <core/QueryHandler.h>
@@ -46,7 +46,7 @@
 
 namespace sprint_timer::compose {
 
-class StatisticsWindowProxy : public ManagedStandaloneDisplayable {
+class StatisticsWindowProxy : public DisplayableLifestyleProxy {
 public:
     StatisticsWindowProxy(
         // IConfig& settings_,
@@ -59,11 +59,8 @@ public:
         ui::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
             bestWorktimePresenter_,
         ui::contracts::TagPieDiagramContract::Presenter& tagDiagramPresenter_,
-        // ui::BasePresenter<ui::contracts::DateRangeSelectorContract::View>&
-        //     dateRangeSelectorPresenter_)
         ui::contracts::DateRangeSelectorContract::Presenter&
             dateRangeSelectorPresenter_)
-        // : settings{settings_}
         : dailyStatisticsGraphPresenter{dailyStatisticsGraphPresenter_}
         , bestWorkdayPresenter{bestWorkdayPresenter_}
         , bestWorktimePresenter{bestWorktimePresenter_}
@@ -73,19 +70,16 @@ public:
     }
 
 private:
-    // IConfig& settings;
     ui::BasePresenter<ui::contracts::DailyStatisticGraphContract::View>&
         dailyStatisticsGraphPresenter;
     ui::BasePresenter<ui::contracts::BestWorkday::View>& bestWorkdayPresenter;
     ui::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
         bestWorktimePresenter;
     ui::contracts::TagPieDiagramContract::Presenter& tagDiagramPresenter;
-    // ui::BasePresenter<ui::contracts::DateRangeSelectorContract::View>&
-    //     dateRangeSelectorPresenter;
     ui::contracts::DateRangeSelectorContract::Presenter&
         dateRangeSelectorPresenter;
 
-    std::unique_ptr<StandaloneDisplayable> create() override
+    std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> create() override
     {
         using namespace sprint_timer::ui::qt_gui;
         return std::make_unique<StatisticsWindow>(
@@ -93,13 +87,7 @@ private:
             std::make_unique<BestWorkdayWidget>(bestWorkdayPresenter),
             std::make_unique<BestWorktimeWidget>(bestWorktimePresenter),
             std::make_unique<DistributionDiagram>(tagDiagramPresenter),
-            std::make_unique<DateRangeSelector>(dateRangeSelectorPresenter)
-            // std::make_unique<DateRangeSelector>(
-            //     static_cast<
-            //         ui::contracts::DateRangeSelectorContract::Presenter&>(
-            //         dateRangeSelectorPresenter))
-
-        );
+            std::make_unique<DateRangeSelector>(dateRangeSelectorPresenter));
     }
 };
 

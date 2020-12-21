@@ -7,16 +7,13 @@ target_compile_features(${SPRINT_MAIN} PUBLIC cxx_std_17)
 target_sources(${SPRINT_MAIN}
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/DisplayableLifestyleProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/VerboseQueryHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/VerboseCommandHandler.h"
 
-        "${CMAKE_CURRENT_LIST_DIR}/AddSprintDialogProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/HistoryWindowProxy.h"
-        "${CMAKE_CURRENT_LIST_DIR}/ManagedDisplayable.h"
-        "${CMAKE_CURRENT_LIST_DIR}/ManagedStandaloneDisplayable.h"
         "${CMAKE_CURRENT_LIST_DIR}/ObservableConfig.h"
         "${CMAKE_CURRENT_LIST_DIR}/ProgressMonitorProxy.h"
-        "${CMAKE_CURRENT_LIST_DIR}/ProgressViewProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/RuntimeConfigurableSoundPlayer.h"
         "${CMAKE_CURRENT_LIST_DIR}/StatisticsWindowProxy.h"
 

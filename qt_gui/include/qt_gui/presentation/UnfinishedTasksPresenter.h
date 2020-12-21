@@ -29,6 +29,7 @@
 #include <core/use_cases/edit_task/EditTaskCommand.h>
 #include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
 #include <core/use_cases/request_tasks/UnfinishedTasksQuery.h>
+#include <core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h>
 
 namespace sprint_timer::ui {
 
@@ -41,7 +42,9 @@ public:
         CommandHandler<use_cases::DeleteTaskCommand>& deleteTaskHandler,
         CommandHandler<use_cases::EditTaskCommand>& editTaskHandler,
         CommandHandler<use_cases::RegisterSprintBulkCommand>&
-            registerSprintBulkHandler);
+            registerSprintBulkHandler,
+        CommandHandler<use_cases::ToggleTaskCompletedCommand>&
+            toggleCompletionHandler);
 
     void attachView(contracts::UnfinishedTasksContract::View& view) override;
 
@@ -52,7 +55,7 @@ public:
     void onTaskEdit(entities::Task&& oldTask,
                     entities::Task&& updatedTask) override;
 
-    void onToggleTaskComplete(const std::string& taskUuid) override;
+    void onToggleTaskComplete(size_t taskIndex) override;
 
     void onTagEditorRequested() override;
 
@@ -79,6 +82,8 @@ private:
     CommandHandler<use_cases::EditTaskCommand>& editTaskHandler;
     CommandHandler<use_cases::RegisterSprintBulkCommand>&
         registerSprintBulkHandler;
+    CommandHandler<use_cases::ToggleTaskCompletedCommand>&
+        toggleCompletionHandler;
     std::vector<
         std::reference_wrapper<contracts::UnfinishedTasksContract::View>>
         views;
@@ -91,14 +96,16 @@ inline UnfinishedTasksPresenter::UnfinishedTasksPresenter(
     CommandHandler<use_cases::DeleteTaskCommand>& deleteTaskHandler_,
     CommandHandler<use_cases::EditTaskCommand>& editTaskHandler_,
     CommandHandler<use_cases::RegisterSprintBulkCommand>&
-        registerSprintBulkHandler_)
+        registerSprintBulkHandler_,
+    CommandHandler<use_cases::ToggleTaskCompletedCommand>&
+        toggleCompletionHandler_)
     : unfinishedTasksHandler{unfinishedTasksHandler_}
     , deleteTaskHandler{deleteTaskHandler_}
     , editTaskHandler{editTaskHandler_}
     , registerSprintBulkHandler{registerSprintBulkHandler_}
+    , toggleCompletionHandler{toggleCompletionHandler_}
 {
-    unfinishedTasks =
-        unfinishedTasksHandler.handle(use_cases::UnfinishedTasksQuery{});
+    updateViewImpl();
 }
 
 inline void UnfinishedTasksPresenter::attachView(
@@ -125,9 +132,10 @@ inline void UnfinishedTasksPresenter::onTaskEdit(entities::Task&& oldTask,
         use_cases::EditTaskCommand{std::move(oldTask), std::move(updatedTask)});
 }
 
-inline void
-UnfinishedTasksPresenter::onToggleTaskComplete(const std::string& taskUuid)
+inline void UnfinishedTasksPresenter::onToggleTaskComplete(size_t taskIndex)
 {
+    toggleCompletionHandler.handle(
+        use_cases::ToggleTaskCompletedCommand{unfinishedTasks[taskIndex]});
 }
 
 inline void UnfinishedTasksPresenter::onTagEditorRequested() { }
@@ -153,7 +161,14 @@ inline void UnfinishedTasksPresenter::onTaskSelectionChanged(
     }
 }
 
-inline void UnfinishedTasksPresenter::updateViewImpl() { }
+inline void UnfinishedTasksPresenter::updateViewImpl()
+{
+    unfinishedTasks =
+        unfinishedTasksHandler.handle(use_cases::UnfinishedTasksQuery{});
+    for (const auto& v : views) {
+        v.get().displayTasks(unfinishedTasks);
+    }
+}
 
 inline void UnfinishedTasksPresenter::onRegisterSprints(
     size_t taskIndex, const std::vector<dw::DateTimeRange>& timeRanges)

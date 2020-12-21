@@ -19,36 +19,52 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef MANAGEDDISPLAYABLE_H_8EUFAKWY
-#define MANAGEDDISPLAYABLE_H_8EUFAKWY
+#ifndef MANAGEDDISPLAYABLE_H_A4YKVFTJ
+#define MANAGEDDISPLAYABLE_H_A4YKVFTJ
 
+#include <QPointer>
 #include <memory>
-#include <qt_gui/Displayable.h>
+#include <qt_gui/StandaloneDisplayable.h>
+#include <qt_gui/widgets/StandaloneDisplayableWidget.h>
 
 namespace sprint_timer {
 
-class ManagedDisplayable : public ui::qt_gui::Displayable {
+class DisplayableLifestyleProxy : public ui::qt_gui::StandaloneDisplayable {
 public:
     void display() override
     {
-        if (isActive())
+        if (isActive()) {
+            displayable->bringToTop();
             return;
-        displayable = create();
+        }
+        if (!displayable) {
+            displayable = create().release();
+            displayable->setAttribute(Qt::WA_DeleteOnClose);
+        }
         displayable->display();
     }
+
+    ~DisplayableLifestyleProxy() override { delete displayable; }
+
+private:
+    QPointer<ui::qt_gui::StandaloneDisplayableWidget> displayable;
 
     bool isActive() const override
     {
         return displayable && displayable->isActive();
     }
 
-private:
-    std::unique_ptr<Displayable> displayable;
+    void bringToTop() override
+    {
+        if (displayable) {
+            displayable->bringToTop();
+        }
+    }
 
-    virtual std::unique_ptr<Displayable> create() = 0;
+    virtual std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget>
+    create() = 0;
 };
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: MANAGEDDISPLAYABLE_H_8EUFAKWY */
-
+#endif /* end of include guard: MANAGEDDISPLAYABLE_H_A4YKVFTJ */

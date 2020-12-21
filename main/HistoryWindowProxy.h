@@ -22,7 +22,7 @@
 #ifndef HISTORYWINDOWPROXY_H_UIWGGP91
 #define HISTORYWINDOWPROXY_H_UIWGGP91
 
-#include "ManagedStandaloneDisplayable.h"
+#include "DisplayableLifestyleProxy.h"
 #include <QStyledItemDelegate>
 #include <core/IConfig.h>
 #include <qt_gui/models/HistoryModel.h>
@@ -35,7 +35,7 @@
 
 namespace sprint_timer::compose {
 
-class HistoryWindowProxy : public ManagedStandaloneDisplayable {
+class HistoryWindowProxy : public DisplayableLifestyleProxy {
 public:
     HistoryWindowProxy(
         ui::contracts::DateRangeSelectorContract::Presenter&
@@ -54,7 +54,7 @@ private:
     ui::contracts::HistoryContract::Presenter& historyPresenter;
     ui::contracts::DataExportContract::Presenter& dataExportPresenter;
 
-    std::unique_ptr<StandaloneDisplayable> create() override
+    std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> create() override
     {
         using namespace ui::qt_gui;
         return std::make_unique<ui::qt_gui::HistoryWindow>(

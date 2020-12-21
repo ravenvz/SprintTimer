@@ -50,7 +50,7 @@ public:
     virtual void onTaskEdit(entities::Task&& oldTask,
                             entities::Task&& updatedTask) = 0;
 
-    virtual void onToggleTaskComplete(const std::string& taskUuid) = 0;
+    virtual void onToggleTaskComplete(size_t taskIndex) = 0;
 
     virtual void onTagEditorRequested() = 0;
 

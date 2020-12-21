@@ -22,16 +22,11 @@
 #ifndef TASKOUTLINE_H
 #define TASKOUTLINE_H
 
-#include "qt_gui/presentation/UnfinishedTasksContract.h"
+#include "qt_gui/presentation/AddTaskControl.h"
 #include "qt_gui/widgets/TagEditor.h"
-#include <QAbstractItemView>
 #include <QLineEdit>
 #include <QWidget>
-#include <core/CommandHandler.h>
-#include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
 #include <memory>
-
-#include "qt_gui/dialogs/AddTaskDialog.h"
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -40,34 +35,23 @@ class AddTaskDialog;
 /* Responsible for providing user interface for interactive
  * task management, so that user could view current unfinished
  * tasks, add/edit and remove task and tags. */
-class TaskOutline : public QWidget,
-                    public contracts::UnfinishedTasksContract::View {
+class TaskOutline : public QWidget, public ui::contracts::AddTaskControl::View {
 public:
-    TaskOutline(contracts::UnfinishedTasksContract::Presenter& presenter,
-                std::unique_ptr<QAbstractItemView> taskView,
-                AddTaskDialog& addTaskDialog,
-                QAbstractItemModel& taskModel,
+    TaskOutline(ui::contracts::AddTaskControl::Presenter& presenter,
+                std::unique_ptr<QWidget> taskView,
                 QWidget* parent = nullptr);
 
     ~TaskOutline() override;
 
-    void displayTasks(const std::vector<entities::Task>& tasks) override;
-
-    void selectTask(size_t taskIndex) override;
-
 private:
-    contracts::UnfinishedTasksContract::Presenter& presenter;
-    QAbstractItemModel& taskModel;
-    QPointer<TagEditor> tagEditor;
-    QAbstractItemView* taskView;
-    AddTaskDialog& addTaskDialog;
+    ui::contracts::AddTaskControl::Presenter& presenter;
     QLineEdit* quickAddTask;
+
+    void displayAddTaskDialog(std::vector<std::string>&& tags) override;
 
     void onAddTaskButtonPushed();
 
     void onQuickAddTodoReturnPressed();
-
-    void insertTask(const entities::Task& task);
 };
 
 } // namespace sprint_timer::ui::qt_gui

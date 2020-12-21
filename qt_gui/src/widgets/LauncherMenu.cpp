@@ -25,9 +25,9 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-LauncherMenu::LauncherMenu(StandaloneDisplayable& progressWindow,
-                           StandaloneDisplayable& statisticsWindow,
-                           StandaloneDisplayable& historyWindow,
+LauncherMenu::LauncherMenu(Displayable& progressWindow,
+                           Displayable& statisticsWindow,
+                           Displayable& historyWindow,
                            QDialog& settingsDialog,
                            QWidget* parent)
     : QWidget{parent}

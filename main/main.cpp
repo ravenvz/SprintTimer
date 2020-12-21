@@ -43,17 +43,17 @@
 #error "Unknown compiler"
 #endif
 
-#include "HistoryWindowProxy.h"
-#include "ProgressMonitorProxy.h"
-// #include "ProgressViewProxy.h"
 #include "BestWorkdayPresenterProxy.h"
 #include "DateRangeSelectorPresenterProxy.h"
+#include "HistoryWindowProxy.h"
 #include "ObservableConfig.h"
+#include "ProgressMonitorProxy.h"
 #include "RuntimeConfigurableSoundPlayer.h"
 #include "SettingsWatchingAssetLibrary.h"
 #include "StatisticsWindowProxy.h"
 #include "WorkScheduleEditorPresenterProxy.h"
 #include "WorkflowProxy.h"
+#include <qt_gui/presentation/AddTaskControlPresenter.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
 // #include <external_io/Serializer.h>
 // #include <external_io/RuntimeSinkRouter.h>
@@ -1086,7 +1086,8 @@ int main(int argc, char* argv[])
         *unfinishedTasksHandler,
         *deleteTaskHandler,
         *editTaskHandler,
-        *registerSprintBulkHandler};
+        *registerSprintBulkHandler,
+        *toggleCompletionHandler};
     constexpr int indicatorSize{150};
     auto timerView = std::make_unique<TimerView>(
         timerPresenter,
@@ -1118,25 +1119,28 @@ int main(int argc, char* argv[])
     AddTaskDialog addTaskDialog{tagModel};
     TaskItemDelegate taskItemDelegate;
     auto taskView =
-        std::make_unique<TaskView>(taskSprintsView,
+        std::make_unique<TaskView>(unfinishedTasksPresenter,
+                                   taskSprintsView,
                                    addTaskDialog,
                                    std::make_unique<TagEditor>(tagModel),
-                                   selectedTaskRowReemitter,
-                                   *sprintsForTaskHandler);
+                                   unfinishedTasksModel);
     // auto taskView = std::make_unique<QListView>();
     // taskView->setModel(&unfinishedTasksModel);
     taskView->setContextMenuPolicy(Qt::CustomContextMenu);
     taskView->setItemDelegate(&taskItemDelegate);
+
+    desyncObservable.attach(unfinishedTasksPresenter);
 
     // ui::UnfinishedTasksPresenter unfinishedTasksPresenter{
     //     *unfinishedTasksHandler,
     //     *deleteTaskHandler,
     //     *editTaskHandler,
     //     *registerSprintBulkHandler};
-    auto taskOutline = std::make_unique<TaskOutline>(unfinishedTasksPresenter,
-                                                     std::move(taskView),
-                                                     addTaskDialog,
-                                                     unfinishedTasksModel);
+
+    ui::AddTaskControlPresenter addTaskControlPresenter{*createTaskHandler,
+                                                        *allTagsHandler};
+    auto taskOutline = std::make_unique<TaskOutline>(addTaskControlPresenter,
+                                                     std::move(taskView));
 
     sprint_timer::ui::qt_gui::MainWindow w{
         std::move(sprintOutline),

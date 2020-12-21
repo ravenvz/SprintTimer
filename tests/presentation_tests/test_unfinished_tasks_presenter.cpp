@@ -22,12 +22,65 @@
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
+#include <core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h>
 #include <qt_gui/presentation/UnfinishedTasksPresenter.h>
 
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::Truly;
+
+namespace {
+
+auto sameIgnoringUuid = [](const auto& lhs, const auto& rhs) {
+    return lhs.name() == rhs.name() && lhs.timeSpan() == rhs.timeSpan() &&
+           lhs.taskUuid() == rhs.taskUuid() && lhs.tags() == rhs.tags();
+};
+
+struct MatchesRegisterSprintBulkCommand {
+    MatchesRegisterSprintBulkCommand(
+        const std::vector<sprint_timer::entities::Sprint>& sprints_)
+        : sprints{sprints_}
+    {
+    }
+
+    bool operator()(
+        const sprint_timer::use_cases::RegisterSprintBulkCommand& command) const
+    {
+        return std::equal(cbegin(sprints),
+                          cend(sprints),
+                          cbegin(command.sprints),
+                          cend(command.sprints),
+                          sameIgnoringUuid);
+    }
+
+private:
+    const std::vector<sprint_timer::entities::Sprint> sprints;
+};
+
+std::vector<sprint_timer::entities::Sprint>
+makeConsecutiveSprints(const sprint_timer::entities::Task& task,
+                       size_t numSprints,
+                       dw::DateTimeRange startingRange = {
+                           dw::current_date_time(), dw::current_date_time()})
+{
+    using namespace std::chrono_literals;
+    using namespace sprint_timer::entities;
+    std::vector<Sprint> result;
+    size_t sprintUuid{1};
+    result.reserve(numSprints);
+    for (size_t i = 0; i < numSprints; ++i) {
+        result.emplace_back(task.name(),
+                            startingRange,
+                            task.tags(),
+                            std::to_string(sprintUuid++),
+                            task.uuid());
+        startingRange = dw::add_offset(startingRange, 25min);
+    }
+    return result;
+}
+
+} // namespace
 
 using namespace sprint_timer;
 
@@ -67,13 +120,30 @@ public:
     mocks::CommandHandlerMock<use_cases::EditTaskCommand> editTaskHandler;
     mocks::CommandHandlerMock<use_cases::RegisterSprintBulkCommand>
         registerSprintBulkHandler;
+    mocks::CommandHandlerMock<use_cases::ToggleTaskCompletedCommand>
+        toggleTaskCompletionHandler;
     ui::UnfinishedTasksPresenter presenter{unfinishedTasksHandler,
                                            deleteTaskHandler,
                                            editTaskHandler,
-                                           registerSprintBulkHandler};
+                                           registerSprintBulkHandler,
+                                           toggleTaskCompletionHandler};
     NiceMock<UnfinishedTasksViewMock> view;
-    entities::Task someTask{
+    entities::Task someTask1{
         "Name", 4, 2, {entities::Tag{"Tag 1"}, entities::Tag{"Tag 2"}}, false};
+    entities::Task someTask{"Task name",
+                            5,
+                            2,
+                            {entities::Tag{"Tag1"}, entities::Tag{"Tag2"}},
+                            false,
+                            dw::current_date_time()};
+    entities::Task otherTask{
+        "Other task name",
+        2,
+        1,
+        {sprint_timer::entities::Tag{"Tag3"}, entities::Tag{"Tag1"}},
+        false,
+        dw::current_date_time()};
+    std::vector<entities::Task> unfinishedTasks{otherTask, someTask};
 };
 
 TEST_F(UnfinishedTasksPresenterFixture,
@@ -84,7 +154,8 @@ TEST_F(UnfinishedTasksPresenterFixture,
     ui::UnfinishedTasksPresenter presenter_{unfinishedTasksHandler,
                                             deleteTaskHandler,
                                             editTaskHandler,
-                                            registerSprintBulkHandler};
+                                            registerSprintBulkHandler,
+                                            toggleTaskCompletionHandler};
     EXPECT_CALL(view, displayTasks(tasks));
 
     presenter_.attachView(view);
@@ -133,8 +204,8 @@ TEST_F(UnfinishedTasksPresenterFixture,
        notifies_mediator_when_task_selection_is_changed)
 {
     FAIL();
-    // TODO note that this test should be removed if decision to reuse presenter
-    // for both views is employed
+    // TODO(vizier): note that this test should be removed if decision to reuse
+    // presenter for both views is employed
 }
 
 TEST_F(UnfinishedTasksPresenterFixture,
@@ -148,7 +219,28 @@ TEST_F(UnfinishedTasksPresenterFixture, notifies_mediator_when_add_task_invoked)
     FAIL();
 }
 
-TEST_F(UnfinishedTasksPresenterFixture, toggles_task_completion) { FAIL(); }
+TEST_F(UnfinishedTasksPresenterFixture, toggles_task_completion)
+{
+    using namespace std::chrono_literals;
+    using namespace sprint_timer::entities;
+    ON_CALL(unfinishedTasksHandler, handle(_))
+        .WillByDefault(Return(unfinishedTasks));
+    ui::UnfinishedTasksPresenter sut{unfinishedTasksHandler,
+                                     deleteTaskHandler,
+                                     editTaskHandler,
+                                     registerSprintBulkHandler,
+                                     toggleTaskCompletionHandler};
+    sut.attachView(view);
+    auto matchesToggleTaskCompletionCommand =
+        [this](const use_cases::ToggleTaskCompletedCommand& command) {
+            return someTask == command.task;
+        };
+
+    EXPECT_CALL(toggleTaskCompletionHandler,
+                handle(Truly(matchesToggleTaskCompletionCommand)));
+
+    sut.onToggleTaskComplete(1);
+}
 
 TEST_F(UnfinishedTasksPresenterFixture,
        when_task_selection_changes_notifies_other_views)
@@ -171,51 +263,20 @@ TEST_F(UnfinishedTasksPresenterFixture, fires_register_sprint_bulk_command)
 {
     using namespace std::chrono_literals;
     using namespace sprint_timer::entities;
-    Task someTask{"Task name",
-                  5,
-                  2,
-                  {Tag{"Tag1"}, Tag{"Tag2"}},
-                  false,
-                  dw::current_date_time()};
-    Task otherTask{"Other task name",
-                   2,
-                   1,
-                   {Tag{"Tag3"}, Tag{"Tag1"}},
-                   false,
-                   dw::current_date_time()};
-    std::vector<Task> unfinishedTasks{otherTask, someTask};
     ON_CALL(unfinishedTasksHandler, handle(_))
         .WillByDefault(Return(unfinishedTasks));
     ui::UnfinishedTasksPresenter presenter_{unfinishedTasksHandler,
                                             deleteTaskHandler,
                                             editTaskHandler,
-                                            registerSprintBulkHandler};
+                                            registerSprintBulkHandler,
+                                            toggleTaskCompletionHandler};
     presenter_.attachView(view);
     dw::DateTimeRange someTimeRange{dw::current_date_time(),
-                                    dw::current_date_time() + 25min};
-    std::vector<Sprint> sprints{Sprint{someTask.name(),
-                                       someTimeRange,
-                                       someTask.tags(),
-                                       "123",
-                                       someTask.uuid()},
-                                Sprint{someTask.name(),
-                                       dw::add_offset(someTimeRange, 25min),
-                                       someTask.tags(),
-                                       "123",
-                                       someTask.uuid()}};
-    auto sameIgnoringUuid = [](const auto& lhs, const auto& rhs) {
-        return lhs.name() == rhs.name() && lhs.timeSpan() == rhs.timeSpan() &&
-               lhs.taskUuid() == rhs.taskUuid() && lhs.tags() == rhs.tags();
-    };
-    auto matchesCommand =
-        [&](const sprint_timer::use_cases::RegisterSprintBulkCommand& command) {
-            return std::equal(cbegin(sprints),
-                              cend(sprints),
-                              cbegin(command.sprints),
-                              cend(command.sprints),
-                              sameIgnoringUuid);
-        };
-    EXPECT_CALL(registerSprintBulkHandler, handle(Truly(matchesCommand)));
+                                    dw::current_date_time()};
+    auto sprints = makeConsecutiveSprints(someTask, 2, someTimeRange);
+
+    EXPECT_CALL(registerSprintBulkHandler,
+                handle(Truly(MatchesRegisterSprintBulkCommand{sprints})));
 
     const size_t taskIndex{1};
     presenter_.onRegisterSprints(
