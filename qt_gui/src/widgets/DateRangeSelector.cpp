@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/widgets/DateRangePicker.h"
+#include "qt_gui/widgets/DateRangeSelector.h"
 #include "qt_gui/dialogs/DateRangePickDialog.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_date_range_picker.h"
@@ -38,98 +38,6 @@ QStringList monthNames();
 } // namespace
 
 namespace sprint_timer::ui::qt_gui {
-
-DateRangePicker::DateRangePicker(QAbstractItemModel& yearsModel_,
-                                 dw::Weekday firstDayOfWeek_,
-                                 QWidget* parent_)
-    : QWidget{parent_}
-    , ui{std::make_unique<Ui::DateRangePicker>()}
-    , firstDayOfWeek{firstDayOfWeek_}
-    , selectedDateRange{currentMonth()}
-    , monthsModel{monthNames()}
-{
-    ui->setupUi(this);
-    ui->cbxMonth->setModel(&monthsModel);
-    ui->cbxYear->setModel(&yearsModel_);
-
-    updateSelectionHintLabel();
-
-    connect(ui->btnPickPeriod,
-            &QPushButton::clicked,
-            this,
-            &DateRangePicker::openDatePickDialog);
-    connect(ui->cbxYear,
-            QOverload<int>::of(&QComboBox::activated),
-            this,
-            QOverload<>::of(&DateRangePicker::onRangeChanged));
-    connect(ui->cbxMonth,
-            QOverload<int>::of(&QComboBox::activated),
-            this,
-            QOverload<>::of(&DateRangePicker::onRangeChanged));
-    connect(this,
-            &DateRangePicker::selectedDateRangeChanged,
-            this,
-            &DateRangePicker::updateSelectionHintLabel);
-    connect(&yearsModel_,
-            &QAbstractItemModel::modelReset,
-            this,
-            &DateRangePicker::preselectCurrentYearMonth);
-}
-
-DateRangePicker::~DateRangePicker() = default;
-
-void DateRangePicker::openDatePickDialog()
-{
-    DateRangePickDialog dialog{firstDayOfWeek, selectedDateRange};
-    if (dialog.exec())
-        onRangeChanged(dialog.selectedRange());
-}
-
-void DateRangePicker::updateSelectionHintLabel()
-{
-    // using QDate instead of dw::date here when converting to string
-    // provides date localization
-    ui->labelSelectionHint->setText(
-        QString{"%1 - %2"}
-            .arg(utils::toQDate(selectedDateRange.start()).toString())
-            .arg(utils::toQDate(selectedDateRange.finish()).toString()));
-}
-
-void DateRangePicker::onRangeChanged()
-{
-    using namespace dw;
-    const dw::Date start{
-        Year{ui->cbxYear->currentText().toInt()},
-        Month{static_cast<unsigned>(ui->cbxMonth->currentIndex() + 1)},
-        Day{1}};
-    const dw::Date finish = dw::last_day_of_month(start);
-    selectedDateRange = DateRange{start, finish};
-
-    emit selectedDateRangeChanged(selectedDateRange);
-}
-
-void DateRangePicker::onRangeChanged(const dw::DateRange& dateRange)
-{
-    selectedDateRange = dateRange;
-    emit selectedDateRangeChanged(selectedDateRange);
-}
-
-dw::DateRange DateRangePicker::selectionRange() const
-{
-    return selectedDateRange;
-}
-
-void DateRangePicker::preselectCurrentYearMonth()
-{
-    const int firstYear{
-        ui->cbxYear->itemData(0, Qt::DisplayRole).toString().toInt()};
-    const int currentYear{dw::current_date_local().year()};
-    const int offset{currentYear - firstYear};
-    ui->cbxYear->setCurrentIndex(offset);
-    ui->cbxMonth->setCurrentIndex(QDate::currentDate().month() - 1);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
 
 DateRangeSelector::DateRangeSelector(
     contracts::DateRangeSelectorContract::Presenter& presenter_,
@@ -214,8 +122,9 @@ void DateRangeSelector::updateSelectionHintLabel()
 void DateRangeSelector::openDatePickDialog()
 {
     DateRangePickDialog dialog{firstDayOfWeek, selectedDateRange};
-    if (dialog.exec())
+    if (dialog.exec() == QDialog::Accepted) {
         onRangeChanged(dialog.selectedRange());
+    }
 }
 
 void DateRangeSelector::preselectCurrentYearMonth()
@@ -223,7 +132,7 @@ void DateRangeSelector::preselectCurrentYearMonth()
     using namespace dw;
     const int firstYear{
         ui->cbxYear->itemData(0, Qt::DisplayRole).toString().toInt()};
-    const Date currentDate = current_date_local();
+    const Date currentDate{current_date_local()};
     const int currentYear{currentDate.year()};
     const int offset{currentYear - firstYear};
     ui->cbxYear->setCurrentIndex(offset);

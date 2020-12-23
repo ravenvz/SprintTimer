@@ -41,7 +41,7 @@
 #include <qt_gui/widgets/BestWorkdayWidget.h>
 #include <qt_gui/widgets/BestWorktimeWidget.h>
 #include <qt_gui/widgets/DailyTimelineGraph.h>
-#include <qt_gui/widgets/DateRangePicker.h>
+#include <qt_gui/widgets/DateRangeSelector.h>
 #include <qt_gui/widgets/DistributionDiagram.h>
 
 namespace sprint_timer::compose {

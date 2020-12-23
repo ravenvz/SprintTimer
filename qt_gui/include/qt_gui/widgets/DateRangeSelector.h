@@ -29,52 +29,11 @@
 #include <core/IConfig.h>
 #include <memory>
 
-#ifdef _MSC_VER
-#include "qt_gui/WinExport.h"
-#endif // _MSC_VER
-
 namespace Ui {
 class DateRangePicker;
 } // namespace Ui
 
 namespace sprint_timer::ui::qt_gui {
-
-#ifdef _MSC_VER
-class GLIB_EXPORT DateRangePicker : public QWidget {
-#else
-class DateRangePicker : public QWidget {
-#endif // _MSC_VER
-
-    Q_OBJECT
-
-public:
-    DateRangePicker(QAbstractItemModel& yearsModel,
-                    dw::Weekday firstDayOfWeek,
-                    QWidget* parent = nullptr);
-
-    ~DateRangePicker() override;
-
-    dw::DateRange selectionRange() const;
-
-signals:
-    void selectedDateRangeChanged(const dw::DateRange&);
-
-private:
-    std::unique_ptr<Ui::DateRangePicker> ui;
-    dw::Weekday firstDayOfWeek;
-    dw::DateRange selectedDateRange;
-    QStringListModel monthsModel;
-
-    void openDatePickDialog();
-
-    void onRangeChanged();
-
-    void onRangeChanged(const dw::DateRange& dateRange);
-
-    void updateSelectionHintLabel();
-
-    void preselectCurrentYearMonth();
-};
 
 class DateRangeSelector : public QWidget,
                           public contracts::DateRangeSelectorContract::View {

@@ -118,7 +118,7 @@
 #include <qt_gui/widgets/AutodisablingButton.h>
 #include <qt_gui/widgets/ContextMenuListView.h>
 #include <qt_gui/widgets/DailyTimelineGraph.h>
-#include <qt_gui/widgets/DateRangePicker.h>
+#include <qt_gui/widgets/DateRangeSelector.h>
 #include <qt_gui/widgets/DialogLaunchButton.h>
 #include <qt_gui/widgets/LauncherMenu.h>
 #include <qt_gui/widgets/MainWindow.h>

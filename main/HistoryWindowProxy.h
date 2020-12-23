@@ -29,7 +29,7 @@
 #include <qt_gui/presentation/HistoryPresenter.h>
 #include <qt_gui/utils/WidgetUtils.h>
 #include <qt_gui/widgets/DataExportWidget.h>
-#include <qt_gui/widgets/DateRangePicker.h>
+#include <qt_gui/widgets/DateRangeSelector.h>
 #include <qt_gui/widgets/HistoryTab.h>
 #include <qt_gui/widgets/HistoryWindow.h>
 
