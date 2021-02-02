@@ -22,27 +22,24 @@
 #ifndef ADDSPRINTDIALOG_H
 #define ADDSPRINTDIALOG_H
 
-#include <QDialog>
+#include "qt_gui/delegates/SubmissionItemDelegate.h"
+#include "qt_gui/dialogs/DisplayableDialog.h"
+#include "qt_gui/presentation/RegisterSprintControl.h"
 #include <QSpinBox>
 #include <QTimeEdit>
-#include <core/entities/Sprint.h>
-#include <core/entities/Task.h>
-#include <memory>
+#include <date_wrapper/date_wrapper.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class AddSprintDialog : public QDialog {
+class AddSprintDialog : public DisplayableDialog {
 
 public:
-    AddSprintDialog(const std::vector<entities::Task>& tasks,
-                    std::vector<entities::Sprint>& addedSprints,
+    AddSprintDialog(contracts::RegisterSprintControl::Presenter& presenter,
+                    QAbstractItemModel& taskModel,
                     dw::Weekday firstDayOfWeek,
-                    std::chrono::minutes sprintDuration,
-                    QDialog* parent = nullptr);
+                    std::chrono::minutes sprintDuration);
 
     ~AddSprintDialog() override;
-
-    void accept() override;
 
 private:
     std::chrono::minutes sprintDuration;
@@ -50,12 +47,15 @@ private:
     QTimeEdit* finishTime = std::make_unique<QTimeEdit>().release();
     QSpinBox* sprintNumber = std::make_unique<QSpinBox>().release();
     QTimeEdit* lastChangedTime = startTime;
+    SubmissionItemDelegate delegate;
 
-    void adjustStartTime(const QDateTime&);
+    void adjustStartTime();
 
-    void adjustFinishTime(const QDateTime&);
+    void adjustFinishTime();
 
     void adjustTime();
+
+    std::chrono::seconds totalSprintTime() const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -26,7 +26,15 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-enum class TaskModelRoles {
+enum CustomRoles {
+    IdRole = Qt::UserRole + 1,
+    InsertRole,
+    ReplaceRole,
+    ToggleCheckedRole,
+    ItemRole
+};
+
+enum TaskModelRoles {
     GetTags = Qt::UserRole + 1,
     GetName,
     GetStats,

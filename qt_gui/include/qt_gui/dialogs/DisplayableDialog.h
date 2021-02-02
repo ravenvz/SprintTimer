@@ -22,22 +22,21 @@
 #ifndef DISPLAYABLEDIALOG_H_ZLNTGNE6
 #define DISPLAYABLEDIALOG_H_ZLNTGNE6
 
-#include "qt_gui/StandaloneDisplayable.h"
+#include "qt_gui/Displayable.h"
 #include <QDialog>
 
 namespace sprint_timer::ui::qt_gui {
 
-class StandaloneDisplayableDialog : public QDialog, public StandaloneDisplayable {
+class DisplayableDialog : public QDialog, public Displayable {
 public:
-    explicit StandaloneDisplayableDialog(QWidget* parent = nullptr);
+    explicit DisplayableDialog(QWidget* parent = nullptr)
+        : QDialog{parent}
+    {
+    }
 
-    void display() override;
+    void display() override { exec(); }
 
-    bool isActive() const override;
-
-    void bringToTop() override;
-
-    void close() override;
+    bool isActive() const override { return isVisible(); }
 };
 
 } // namespace sprint_timer::ui::qt_gui

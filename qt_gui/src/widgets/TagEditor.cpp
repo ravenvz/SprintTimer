@@ -26,7 +26,7 @@
 namespace sprint_timer::ui::qt_gui {
 
 TagEditor::TagEditor(QAbstractItemModel& tagModel, QWidget* parent)
-    : QWidget{parent}
+    : StandaloneDisplayableWidget{parent}
     , ui{std::make_unique<Ui::TagEditorWidget>()}
 {
     ui->setupUi(this);

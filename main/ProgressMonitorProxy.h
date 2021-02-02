@@ -97,19 +97,9 @@ ProgressMonitorProxy::create()
     monthlyProgress->setLegendTitle("Last 12 months");
     monthlyProgress->setLegendAverageCaption("Average per month:");
 
-    // QPointer<StandaloneDisplayableWidget> ptr =
-    //     new ProgressMonitorWidget{std::move(dailyProgress),
-    //                                           std::move(weeklyProgress),
-    //                                           std::move(monthlyProgress)};
-    // return ptr;
     return std::make_unique<ProgressMonitorWidget>(std::move(dailyProgress),
                                                    std::move(weeklyProgress),
                                                    std::move(monthlyProgress));
-    // return ptr;
-    // return QPointer(new ProgressMonitorWidget>(
-    //     std::move(dailyProgress),
-    //     std::move(weeklyProgress),
-    //     std::move(monthlyProgress));
 }
 
 } // namespace sprint_timer::compose

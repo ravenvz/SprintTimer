@@ -22,6 +22,7 @@
 #ifndef SPRINT_TIMER_SPRINTOUTLINE_H
 #define SPRINT_TIMER_SPRINTOUTLINE_H
 
+#include "qt_gui/Displayable.h"
 #include "qt_gui/presentation/TodaySprints.h"
 #include <QDialog>
 #include <QListView>
@@ -35,7 +36,7 @@ class SprintOutline : public contracts::TodaySprints::View, public QWidget {
 public:
     SprintOutline(contracts::TodaySprints::Presenter& presenter,
                   std::unique_ptr<QWidget> undoWidget,
-                  std::unique_ptr<QWidget> manualSprintAddWidget,
+                  Displayable& addSprintDialog,
                   QWidget* parent = nullptr);
 
     ~SprintOutline() override;

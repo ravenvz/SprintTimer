@@ -37,21 +37,26 @@ namespace sprint_timer::ui::qt_gui {
 
 SprintOutline::SprintOutline(contracts::TodaySprints::Presenter& presenter_,
                              std::unique_ptr<QWidget> undoWidget_,
-                             std::unique_ptr<QWidget> manualSprintAddWidget_,
+                             Displayable& addSprintDialog_,
                              QWidget* parent_)
     : QWidget{parent_}
     , presenter{presenter_}
 {
     auto layout = std::make_unique<QVBoxLayout>();
     auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
+    auto addSprintButton = std::make_unique<QPushButton>("Add Sprint");
     sprintModel = std::make_unique<PomodoroModel>().release();
     sprintView->setModel(sprintModel);
+
+    connect(addSprintButton.get(),
+            &QPushButton::clicked,
+            [&addSprintDialog_]() { addSprintDialog_.display(); });
 
     layout->addWidget(undoWidget_.release());
 
     layout->addWidget(sprintView.release());
 
-    layout->addWidget(manualSprintAddWidget_.release());
+    layout->addWidget(addSprintButton.release());
 
     setLayout(layout.release());
     presenter_.attachView(*this);
@@ -93,10 +98,10 @@ void SprintOutline::displayAddSprintDialog(
     std::chrono::minutes sprintDuration)
 {
     std::vector<entities::Sprint> addedSprints;
-    AddSprintDialog dialog{
-        activeTasks, addedSprints, firstDayOfWeek, sprintDuration};
-    dialog.setWindowModality(Qt::WindowModal);
-    dialog.exec();
+    // AddSprintDialog dialog{
+    //     activeTasks, addedSprints, firstDayOfWeek, sprintDuration};
+    // dialog.setWindowModality(Qt::WindowModal);
+    // dialog.exec();
 }
 
 } // namespace sprint_timer::ui::qt_gui

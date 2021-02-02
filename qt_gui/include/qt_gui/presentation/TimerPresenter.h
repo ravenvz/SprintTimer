@@ -23,6 +23,7 @@
 #define TIMERPRESENTER_H_O4HCGZN9
 
 #include "qt_gui/presentation/AssetLibrary.h"
+#include "qt_gui/presentation/TaskSelectionMediator.h"
 #include "qt_gui/presentation/TimerContract.h"
 #include <core/CommandHandler.h>
 #include <core/IWorkflow.h>
@@ -50,7 +51,8 @@ public:
     TimerPresenter(IWorkflow& workflow,
                    SoundPlayer& player,
                    const AssetLibrary& assetLibrary,
-                   std::string ringSoundId);
+                   std::string ringSoundId,
+                   TaskSelectionMediator& taskSelectionMediator);
 
     ~TimerPresenter() override;
 
@@ -64,28 +66,41 @@ public:
 
     void onWorkflowStateChanged(IWorkflow::StateId currentState) override;
 
+    void onTaskSelectionChanged() override;
+
+    void changeTaskSelection(size_t index, std::string&& uuid) override;
+
 private:
     IWorkflow& workflow;
     SoundPlayer& player;
     const AssetLibrary& assetLibrary;
     std::string ringSoundId;
+    TaskSelectionMediator& taskSelectionMediator;
 
     void updateViewImpl() override;
 };
 
-inline TimerPresenter::TimerPresenter(IWorkflow& workflow_,
-                                      SoundPlayer& player_,
-                                      const AssetLibrary& assetLibrary_,
-                                      std::string ringSoundId_)
+inline TimerPresenter::TimerPresenter(
+    IWorkflow& workflow_,
+    SoundPlayer& player_,
+    const AssetLibrary& assetLibrary_,
+    std::string ringSoundId_,
+    TaskSelectionMediator& taskSelectionMediator_)
     : workflow{workflow_}
     , player{player_}
     , assetLibrary{assetLibrary_}
     , ringSoundId{std::move(ringSoundId_)}
+    , taskSelectionMediator{taskSelectionMediator_}
 {
+    taskSelectionMediator.addColleague(this);
     workflow.addListener(this);
 }
 
-inline TimerPresenter::~TimerPresenter() { workflow.removeListener(this); }
+inline TimerPresenter::~TimerPresenter()
+{
+    taskSelectionMediator.removeColleague(this);
+    workflow.removeListener(this);
+}
 
 inline void TimerPresenter::updateViewImpl()
 {
@@ -142,6 +157,19 @@ inline void TimerPresenter::onTimerClicked()
 inline void TimerPresenter::onCancelClicked() { workflow.cancel(); }
 
 inline void TimerPresenter::onZoneClicked() { workflow.toggleInTheZoneMode(); }
+
+inline void TimerPresenter::onTaskSelectionChanged()
+{
+    if (auto index = taskSelectionMediator.taskIndex(); index) {
+        view->selectTask(*index);
+    }
+}
+
+inline void TimerPresenter::changeTaskSelection(size_t index,
+                                                std::string&& uuid)
+{
+    taskSelectionMediator.changeSelection(this, index, std::move(uuid));
+}
 
 } // namespace sprint_timer::ui
 

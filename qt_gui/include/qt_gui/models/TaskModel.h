@@ -22,16 +22,22 @@
 #ifndef TASKMODEL_H_FUQ5UCBE
 #define TASKMODEL_H_FUQ5UCBE
 
+#include "qt_gui/presentation/TaskContract.h"
+#include "qt_gui/presentation/TaskDTO.h"
 #include <QAbstractListModel>
-#include <core/entities/Task.h>
-#include <date_wrapper/date_wrapper.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class TaskModel : public QAbstractListModel {
+class TaskModel : public QAbstractListModel,
+                  public contracts::TaskContract::View {
 
 public:
-    explicit TaskModel(QObject* parent = nullptr);
+    TaskModel(contracts::TaskContract::Presenter& presenter,
+              QObject* parent = nullptr);
+
+    ~TaskModel() override;
+
+    void displayTasks(const std::vector<TaskDTO>& tasks) override;
 
     Qt::DropActions supportedDropActions() const override;
 
@@ -62,17 +68,10 @@ public:
     int rowCount(const QModelIndex& parent) const override;
 
 private:
-    std::vector<entities::Task> storage;
+    contracts::TaskContract::Presenter& presenter;
+    std::vector<TaskDTO> storage;
 
-    void onDataChanged(const std::vector<entities::Task>& tasks);
-
-    // void insert(const entities::Task& item);
-
-    void remove(const QModelIndex& index);
-
-    void remove(int row);
-
-    entities::Task itemAt(int row) const;
+    TaskDTO itemAt(int row) const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

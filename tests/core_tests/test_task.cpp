@@ -87,17 +87,24 @@ TEST(TestTask, only_treats_words_preceeded_by_single_hash_as_tags)
 
 TEST(TestTask, ostream_operator)
 {
+    using namespace dw;
+    using namespace std::chrono_literals;
+
+    constexpr auto modificationStamp =
+        DateTime{Date{Year{2016}, Month{9}, Day{21}}} + 12h + 59min + 19s;
     const Task item{"I am item with no tags",
                     4,
                     2,
                     "uuid",
                     std::list<Tag>(),
                     false,
-                    dw::current_date_time_local()};
+                    modificationStamp};
     const auto uuid = item.uuid();
     std::string expected{"I am item with no tags 2/4"};
     expected += " Uuid: ";
     expected += uuid;
+    expected += " ";
+    expected += "21.09.2016 12:59:19";
 
     std::stringstream ss;
     ss << item;

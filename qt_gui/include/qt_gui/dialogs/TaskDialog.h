@@ -19,33 +19,38 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef MANUALSPRINTADDVIEW_H_ICBHYODJ
-#define MANUALSPRINTADDVIEW_H_ICBHYODJ
+#ifndef TASKDIALOG_H_J0SNZODV
+#define TASKDIALOG_H_J0SNZODV
 
-#include "qt_gui/presentation/ManualSprintAddContract.h"
-#include <QPushButton>
+#include "qt_gui/dialogs/DisplayableDialog.h"
+#include "qt_gui/presentation/TaskDTO.h"
 
-namespace sprint_timer::qt_gui {
+class QAbstractItemModel;
+class QLineEdit;
+class QSpinBox;
 
-class ManualSprintAddView : public ui::contracts::ManualSprintAddContract::View,
-                            public QPushButton {
+namespace sprint_timer::ui::qt_gui {
+
+class TaskDialog : public DisplayableDialog {
 public:
-    explicit ManualSprintAddView(
-        ui::contracts::ManualSprintAddContract::Presenter& presenter,
-        QWidget* parent = nullptr);
+    explicit TaskDialog(QAbstractItemModel& tagModel,
+                        QWidget* parent = nullptr);
 
-    ~ManualSprintAddView() override;
+protected:
+    [[nodiscard]] TaskDTO parseFormFields() const;
 
-    void displayAddSprintDialog(const std::vector<entities::Task>& activeTasks,
-                                dw::Weekday firstDayOfWeek,
-                                std::chrono::minutes sprintDuration) override;
+    void fillFormFields(const TaskDTO& task);
 
-    void setInteractive(bool interactive) override;
+    [[nodiscard]] bool nameIsEmpty() const;
+
+    void markNameFieldRed();
 
 private:
-    ui::contracts::ManualSprintAddContract::Presenter& presenter;
+    QLineEdit* name;
+    QSpinBox* cost;
+    QLineEdit* tags;
 };
 
-} // namespace sprint_timer::qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: MANUALSPRINTADDVIEW_H_ICBHYODJ */
+#endif /* end of include guard: TASKDIALOG_H_J0SNZODV */

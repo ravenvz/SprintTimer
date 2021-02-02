@@ -29,28 +29,28 @@
 #include <QFormLayout>
 #include <QSignalBlocker>
 
+#include <core/SprintBuilder.h>
+
 namespace {
 
 void shiftDate(QTimeEdit* timeEdit, const QDate& date);
-
-std::chrono::seconds totalSprintLength(int numSprints,
-                                       std::chrono::seconds sprintDuration);
 
 } // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
-AddSprintDialog::AddSprintDialog(const std::vector<entities::Task>& /*tasks_*/,
-                                 std::vector<entities::Sprint>& addedSprints_,
-                                 dw::Weekday firstDayOfWeek_,
-                                 std::chrono::minutes sprintDuration_,
-                                 QDialog* parent_)
-    : QDialog{parent_}
-    , sprintDuration{sprintDuration_}
+AddSprintDialog::AddSprintDialog(
+    contracts::RegisterSprintControl::Presenter& presenter_,
+    QAbstractItemModel& taskModel_,
+    dw::Weekday firstDayOfWeek_,
+    std::chrono::minutes sprintDuration_)
+    : sprintDuration{sprintDuration_}
 {
     auto layout = std::make_unique<QFormLayout>();
-    auto taskSelector = std::make_unique<QComboBox>();
     auto datePicker = std::make_unique<QCalendarWidget>();
+    auto taskSelector = std::make_unique<QComboBox>();
+    auto buttons = std::make_unique<QDialogButtonBox>(QDialogButtonBox::Ok |
+                                                      QDialogButtonBox::Cancel);
 
     datePicker->setFirstDayOfWeek(
         firstDayOfWeek_ == dw::Weekday::Monday ? Qt::Monday : Qt::Sunday);
@@ -58,7 +58,10 @@ AddSprintDialog::AddSprintDialog(const std::vector<entities::Task>& /*tasks_*/,
     sprintNumber->setMinimum(1);
     startTime->setDisplayFormat("hh:mm");
     finishTime->setDisplayFormat("hh:mm");
+    finishTime->setDateTime(QDateTime::currentDateTime());
 
+    connect(buttons.get(), &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttons.get(), &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(startTime,
             &QTimeEdit::dateTimeChanged,
             this,
@@ -76,47 +79,64 @@ AddSprintDialog::AddSprintDialog(const std::vector<entities::Task>& /*tasks_*/,
             shiftDate(startTime, date);
             shiftDate(finishTime, date);
         });
+    connect(this,
+            &QDialog::accepted,
+            [this, &taskModel_, selector = taskSelector.get(), &presenter_]() {
+                const auto taskUuid =
+                    taskModel_
+                        .data(taskModel_.index(selector->currentIndex(), 0),
+                              CustomRoles::IdRole)
+                        .toString()
+                        .toStdString();
+                const auto firstSprintStart =
+                    utils::toDateTime(startTime->dateTime());
+                const auto numSprints = sprintNumber->value();
+                presenter_.registerConsecutiveSprints(
+                    taskUuid, firstSprintStart, numSprints, sprintDuration);
+            });
+
+    taskSelector->setModel(&taskModel_);
+    taskSelector->setItemDelegate(&delegate);
 
     layout->addRow("Task:", taskSelector.release());
     layout->addRow("Date:", datePicker.release());
     layout->addRow("Start time:", startTime);
     layout->addRow("Finish time:", finishTime);
     layout->addRow("Number of sprints:", sprintNumber);
-
-    adjustFinishTime(startTime->dateTime());
+    layout->addRow(buttons.release());
 
     setLayout(layout.release());
+
+    adjustStartTime();
 }
 
 AddSprintDialog::~AddSprintDialog() = default;
 
-void AddSprintDialog::adjustFinishTime(const QDateTime& dateTime)
+void AddSprintDialog::adjustFinishTime()
 {
     lastChangedTime = startTime;
     const QSignalBlocker blocker{finishTime};
-    finishTime->setDateTime(dateTime.addSecs(
-        totalSprintLength(sprintNumber->value(), sprintDuration).count()));
+    finishTime->setDateTime(
+        startTime->dateTime().addSecs(totalSprintTime().count()));
 }
 
-void AddSprintDialog::adjustStartTime(const QDateTime& dateTime)
+void AddSprintDialog::adjustStartTime()
 {
     lastChangedTime = finishTime;
     const QSignalBlocker blocker{startTime};
-    startTime->setDateTime(dateTime.addSecs(
-        -totalSprintLength(sprintNumber->value(), sprintDuration).count()));
+    startTime->setDateTime(
+        finishTime->dateTime().addSecs(-totalSprintTime().count()));
 }
 
 void AddSprintDialog::adjustTime()
 {
-    if (lastChangedTime == startTime) {
-        adjustFinishTime(startTime->dateTime());
-    }
-    else {
-        adjustStartTime(finishTime->dateTime());
-    }
+    lastChangedTime == startTime ? adjustFinishTime() : adjustStartTime();
 }
 
-void AddSprintDialog::accept() { }
+std::chrono::seconds AddSprintDialog::totalSprintTime() const
+{
+    return sprintNumber->value() * sprintDuration;
+}
 
 } // namespace sprint_timer::ui::qt_gui
 
@@ -128,12 +148,6 @@ void shiftDate(QTimeEdit* timeEdit, const QDate& date)
     const auto time = timeEdit->time();
     timeEdit->setDate(date);
     timeEdit->setTime(time);
-}
-
-std::chrono::seconds totalSprintLength(int numSprints,
-                                       std::chrono::seconds sprintDuration)
-{
-    return numSprints * sprintDuration;
 }
 
 } // namespace

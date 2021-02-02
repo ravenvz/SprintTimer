@@ -23,32 +23,21 @@
 #define ADDTASKCONTROL_H_N0QTM94K
 
 #include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/presentation/TaskDTO.h"
 #include <vector>
 
 namespace sprint_timer::ui::contracts::AddTaskControl {
 
-struct TaskDetails {
-    std::string name;
-    std::vector<std::string> tags;
-    int estimatedCost;
-    int actualCost;
-};
-
 class View {
 public:
-    virtual void displayAddTaskDialog(std::vector<std::string>&& tags) = 0;
-
     virtual ~View() = default;
 };
 
 class Presenter : public BasePresenter<View> {
 public:
-    virtual void onTaskAddConfirmed(const TaskDetails& details) const = 0;
+    virtual void addTask(const TaskDTO& details) const = 0;
 
-    virtual void
-    onTaskAddedInTextForm(const std::string& taskDescription) const = 0;
-
-    virtual void onDialogRequested() const = 0;
+    virtual void addTask(const std::string& encodedDescription) const = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::AddTaskControl

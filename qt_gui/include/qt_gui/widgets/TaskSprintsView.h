@@ -22,7 +22,10 @@
 #ifndef TASKSPRINTSVIEW_H_HYCTEOV4
 #define TASKSPRINTSVIEW_H_HYCTEOV4
 
+#include "qt_gui/delegates/HistoryItemDelegate.h"
 #include "qt_gui/models/HistoryModel.h"
+#include "qt_gui/presentation/TaskSprintsContract.h"
+#include "qt_gui/widgets/StandaloneDisplayableWidget.h"
 #include <QStyledItemDelegate>
 #include <QWidget>
 #include <core/entities/Sprint.h>
@@ -34,24 +37,25 @@ class TaskSprintsView;
 
 namespace sprint_timer::ui::qt_gui {
 
-class TaskSprintsView : public QWidget {
-
-    Q_OBJECT
+class TaskSprintsView : public StandaloneDisplayableWidget,
+                        public contracts::TaskSprintsContract::View {
 
 public:
-    TaskSprintsView(HistoryModel& model,
-                    QStyledItemDelegate& delegate,
-                    QWidget* parent = nullptr);
+    TaskSprintsView(
+        BasePresenter<contracts::TaskSprintsContract::View>& presenter,
+        QStyledItemDelegate& delegate,
+        QWidget* parent = nullptr);
 
     explicit TaskSprintsView(QWidget* parent = nullptr);
 
     ~TaskSprintsView() override;
 
-    void setData(const std::vector<entities::Sprint>& sprints);
+    void displaySprints(const std::vector<SprintDTO>& sprints) override;
 
 private:
+    BasePresenter<contracts::TaskSprintsContract::View>& presenter;
     std::unique_ptr<Ui::TaskSprintsView> ui;
-    HistoryModel& model;
+    HistoryModel historyModel;
 };
 
 } // namespace sprint_timer::ui::qt_gui

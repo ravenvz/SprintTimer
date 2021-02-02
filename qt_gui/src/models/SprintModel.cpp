@@ -71,13 +71,14 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
 bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
 {
     beginRemoveRows(index, row, row + count - 1);
-    remove(row);
+    storage.erase(begin(storage) + row, begin(storage) + row + count);
     endRemoveRows();
     return true;
 }
 
 void SprintModel::remove(int row)
 {
+    std::cout << "I AM CALLED!!!!" << std::endl;
     deleteSprintHandler.handle(
         DeleteSprintCommand{storage[static_cast<size_t>(row)]});
     requestDataUpdate();

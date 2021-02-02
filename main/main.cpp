@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/ManualSprintAddPresenter.h"
 #ifdef _WIN32
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
 #include <ShlObj.h>
@@ -43,49 +42,23 @@
 #error "Unknown compiler"
 #endif
 
+#include "AddSprintDialogProxy.h"
+#include "AddTaskDialogProxy.h"
 #include "BestWorkdayPresenterProxy.h"
 #include "DateRangeSelectorPresenterProxy.h"
+#include "EditTaskDialogProxy.h"
 #include "HistoryWindowProxy.h"
 #include "ObservableConfig.h"
 #include "ProgressMonitorProxy.h"
 #include "RuntimeConfigurableSoundPlayer.h"
 #include "SettingsWatchingAssetLibrary.h"
 #include "StatisticsWindowProxy.h"
+#include "TagEditorProxy.h"
+#include "TaskSprintsViewProxy.h"
+#include "VerboseCommandHandler.h"
+#include "VerboseQueryHandler.h"
 #include "WorkScheduleEditorPresenterProxy.h"
 #include "WorkflowProxy.h"
-#include <qt_gui/presentation/AddTaskControlPresenter.h>
-#include <qt_gui/widgets/StatisticsWindow.h>
-// #include <external_io/Serializer.h>
-// #include <external_io/RuntimeSinkRouter.h>
-
-#include "ManualSprintAddPresenterProxy.h"
-
-#include <core/Workflow.h>
-#include <core/use_cases/export_data/ExportSprintsHandler.h>
-#include <core/use_cases/export_data/ExportTasksHandler.h>
-#include <core/use_cases/workflow_control/CancelTimerHandler.h>
-#include <core/use_cases/workflow_control/StartTimerHandler.h>
-#include <core/use_cases/workflow_control/ToggleZoneModeHandler.h>
-#include <external_io/OstreamSink.h>
-#include <external_io/RuntimeConfigurableDataExporter.h>
-#include <external_io/RuntimeSinkRouter.h>
-#include <external_io/Serializer.h>
-#include <external_io/SprintToCsvAlgorithm.h>
-#include <external_io/TaskToCsvAlgorithm.h>
-#include <qt_gui/presentation/TodaySprintsPresenter.h>
-#include <qt_gui/widgets/ManualSprintAddView.h>
-#include <qt_gui/widgets/UndoWidget.h>
-
-#include <qt_gui/presentation/DataExportPresenter.h>
-#include <qt_gui/presentation/DateRangeSelectorPresenter.h>
-#include <qt_gui/presentation/HistoryPresenter.h>
-#include <qt_gui/presentation/ProgressPresenter.h>
-#include <qt_gui/presentation/TimerPresenter.h>
-#include <qt_gui/presentation/UndoPresenter.h>
-#include <qt_gui/presentation/UnfinishedTasksPresenter.h>
-#include <qt_gui/presentation/WorkScheduleEditorPresenter.h>
-#include <qt_gui/widgets/TimerView.h>
-
 #include <QApplication>
 #include <QStyleFactory>
 #include <core/ComputeByDayStrategy.h>
@@ -97,6 +70,37 @@
 #include <core/RequestForMonthsBack.h>
 #include <core/RequestForWeeksBack.h>
 #include <core/TaskStorageReader.h>
+#include <core/Workflow.h>
+#include <core/use_cases/change_schedule/ChangeWorkScheduleHandler.h>
+#include <core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityHandler.h>
+#include <core/use_cases/create_task/CreateTaskHandler.h>
+#include <core/use_cases/delete_sprint/DeleteSprintHandler.h>
+#include <core/use_cases/delete_task/DeleteTaskHandler.h>
+#include <core/use_cases/edit_task/EditTaskHandler.h>
+#include <core/use_cases/export_data/ExportSprintsHandler.h>
+#include <core/use_cases/export_data/ExportTasksHandler.h>
+#include <core/use_cases/register_sprint/RegisterSprintBulkHandler.h>
+#include <core/use_cases/register_sprint/RegisterSprintHandler.h>
+#include <core/use_cases/rename_tag/RenameTagHandler.h>
+#include <core/use_cases/request_op_range/OperationalRangeHandler.h>
+#include <core/use_cases/request_progress/RequestProgressHandler.h>
+#include <core/use_cases/request_schedule/WorkScheduleHandler.h>
+#include <core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h>
+#include <core/use_cases/request_sprints/RequestSprintsHandler.h>
+#include <core/use_cases/request_sprints/SprintsForTaskHandler.h>
+#include <core/use_cases/request_tags/AllTagsHandler.h>
+#include <core/use_cases/request_tasks/FinishedTasksHandler.h>
+#include <core/use_cases/request_tasks/UnfinishedTasksHandler.h>
+#include <core/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.h>
+#include <core/use_cases/workflow_control/CancelTimerHandler.h>
+#include <core/use_cases/workflow_control/StartTimerHandler.h>
+#include <core/use_cases/workflow_control/ToggleZoneModeHandler.h>
+#include <external_io/OstreamSink.h>
+#include <external_io/RuntimeConfigurableDataExporter.h>
+#include <external_io/RuntimeSinkRouter.h>
+#include <external_io/Serializer.h>
+#include <external_io/SprintToCsvAlgorithm.h>
+#include <external_io/TaskToCsvAlgorithm.h>
 #include <filesystem>
 #include <qt_gui/DistributionRequester.h>
 #include <qt_gui/QtConfig.h>
@@ -114,6 +118,26 @@
 #include <qt_gui/models/SprintModel.h>
 #include <qt_gui/models/TagModel.h>
 #include <qt_gui/models/TaskModel.h>
+#include <qt_gui/presentation/ActiveTasksPresenter.h>
+#include <qt_gui/presentation/AddTaskControlPresenter.h>
+#include <qt_gui/presentation/BestWorkdayPresenter.h>
+#include <qt_gui/presentation/DailyStatisticsGraphPresenter.h>
+#include <qt_gui/presentation/DataExportPresenter.h>
+#include <qt_gui/presentation/DateRangeSelectorPresenter.h>
+#include <qt_gui/presentation/DaytimeStatisticsPresenter.h>
+#include <qt_gui/presentation/HistoryMediatorImpl.h>
+#include <qt_gui/presentation/HistoryPresenter.h>
+#include <qt_gui/presentation/ProgressPresenter.h>
+#include <qt_gui/presentation/RegisterSprintControlPresenter.h>
+#include <qt_gui/presentation/StatisticsMediatorImpl.h>
+#include <qt_gui/presentation/TagEditorPresenter.h>
+#include <qt_gui/presentation/TagPieDiagramPresenter.h>
+#include <qt_gui/presentation/TaskSprintsPresenter.h>
+#include <qt_gui/presentation/TaskViewPresenter.h>
+#include <qt_gui/presentation/TimerPresenter.h>
+#include <qt_gui/presentation/TodaySprintsPresenter.h>
+#include <qt_gui/presentation/UndoPresenter.h>
+#include <qt_gui/presentation/WorkScheduleEditorPresenter.h>
 #include <qt_gui/utils/WidgetUtils.h>
 #include <qt_gui/widgets/AutodisablingButton.h>
 #include <qt_gui/widgets/ContextMenuListView.h>
@@ -126,49 +150,22 @@
 #include <qt_gui/widgets/ProgressWidget.h>
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/StatisticsDiagramWidget.h>
+#include <qt_gui/widgets/StatisticsWindow.h>
 #include <qt_gui/widgets/SubmissionBox.h>
-#include <qt_gui/widgets/TagEditor.h>
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
 #include <qt_gui/widgets/TaskView.h>
+#include <qt_gui/widgets/TimerView.h>
 #include <qt_gui/widgets/TodayProgressIndicator.h>
 #include <qt_gui/widgets/UndoButton.h>
-#include <qt_storage/QtStorageImplementersFactory.h>
-
-#include "VerboseCommandHandler.h"
-#include "VerboseQueryHandler.h"
-#include <core/use_cases/change_schedule/ChangeWorkScheduleHandler.h>
-#include <core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityHandler.h>
-#include <core/use_cases/create_task/CreateTaskHandler.h>
-#include <core/use_cases/delete_sprint/DeleteSprintHandler.h>
-#include <core/use_cases/delete_task/DeleteTaskHandler.h>
-#include <core/use_cases/edit_task/EditTaskHandler.h>
-#include <core/use_cases/register_sprint/RegisterSprintBulkHandler.h>
-#include <core/use_cases/register_sprint/RegisterSprintHandler.h>
-#include <core/use_cases/rename_tag/RenameTagHandler.h>
-#include <core/use_cases/request_op_range/OperationalRangeHandler.h>
-#include <core/use_cases/request_progress/RequestProgressHandler.h>
-#include <core/use_cases/request_schedule/WorkScheduleHandler.h>
-#include <core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h>
-#include <core/use_cases/request_sprints/RequestSprintsHandler.h>
-#include <core/use_cases/request_sprints/SprintsForTaskHandler.h>
-#include <core/use_cases/request_tags/AllTagsHandler.h>
-#include <core/use_cases/request_tasks/FinishedTasksHandler.h>
-#include <core/use_cases/request_tasks/UnfinishedTasksHandler.h>
-#include <core/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.h>
+#include <qt_gui/widgets/UndoWidget.h>
 #include <qt_storage/QtOperationalRangeReader.h>
 #include <qt_storage/QtSprintDistributionReader.h>
 #include <qt_storage/QtSprintStorage.h>
+#include <qt_storage/QtStorageImplementersFactory.h>
 #include <qt_storage/QtTaskStorage.h>
 #include <qt_storage/QtWorkingDaysStorage.h>
 #include <qt_storage/WorkerConnection.h>
-
-#include <qt_gui/presentation/BestWorkdayPresenter.h>
-#include <qt_gui/presentation/DailyStatisticsGraphPresenter.h>
-#include <qt_gui/presentation/DaytimeStatisticsPresenter.h>
-#include <qt_gui/presentation/HistoryMediatorImpl.h>
-#include <qt_gui/presentation/StatisticsMediatorImpl.h>
-#include <qt_gui/presentation/TagPieDiagramPresenter.h>
 
 using std::filesystem::create_directory;
 using std::filesystem::exists;
@@ -337,6 +334,23 @@ CachingQueryHandler<sprint_timer::use_cases::FinishedTasksQuery,
 {
     if (!cachedResult ||
         (cachedQuery && (query.dateRange != cachedQuery->dateRange))) {
+        cachedQuery = query;
+        cachedResult = wrapped->handle(std::move(query));
+    }
+    else {
+        std::cout << "Returning cached value" << std::endl;
+    }
+    return *cachedResult;
+}
+
+template <>
+std::vector<sprint_timer::entities::Sprint>
+CachingQueryHandler<sprint_timer::use_cases::SprintsForTaskQuery,
+                    std::vector<sprint_timer::entities::Sprint>>::
+    handle(sprint_timer::use_cases::SprintsForTaskQuery&& query)
+{
+    if (!cachedResult ||
+        (cachedQuery && (query.taskUuid != cachedQuery->taskUuid))) {
         cachedQuery = query;
         cachedResult = wrapped->handle(std::move(query));
     }
@@ -801,7 +815,6 @@ int main(int argc, char* argv[])
     //     std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
     //                                                 actionInvoker));
 
-    TaskModel unfinishedTasksModel;
     auto todaySprintsModelRequestSprintsHandler =
         decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
             decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
@@ -810,15 +823,10 @@ int main(int argc, char* argv[])
     SprintModel todaySprintsModel{*deleteSprintHandler,
                                   *todaySprintsModelRequestSprintsHandler,
                                   datasyncRelay};
-    TagModel tagModel{*renameTagHandler, *allTagsHandler, datasyncRelay};
-
-    auto taskSelector = std::make_unique<QComboBox>();
-    taskSelector->setModel(&unfinishedTasksModel);
-    taskSelector->setItemDelegate(
-        std::make_unique<SubmissionItemDelegate>().release());
-    // AddSprintDialog addSprintDialog{applicationSettings,
-    //                                 std::move(taskSelector),
-    //                                 *registerSprintBulkHandler};
+    ui::TagEditorPresenter tagEditorPresenter{*allTagsHandler,
+                                              *renameTagHandler};
+    desyncObservable.attach(tagEditorPresenter);
+    TagModel tagModel{tagEditorPresenter};
 
     WorkScheduleWrapper workScheduleWrapper{
         datasyncRelay, *changeWorkScheduleHandler, *workScheduleHandler};
@@ -828,8 +836,6 @@ int main(int argc, char* argv[])
     // auto undoButton =
     //     std::make_unique<UndoButton>(actionInvoker, actionInvoker);
 
-    // auto addNewSprintButton = std::make_unique<AutodisablingButton>(
-    //     unfinishedTasksModel, "Add Sprint Manually");
     // addNewSprintButton->setEnabled(false);
     // auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
     // PomodoroModel pomodoroModel;
@@ -840,26 +846,24 @@ int main(int argc, char* argv[])
 
     desyncObservable.attach(sprintOutlinePresenter);
 
-    // ui::ManualSprintAddPresenter manualSprintAddPresenter{
-    //     *registerSprintBulkHandler,
-    //     *unfinishedTasksHandler,
-    //     dw::Weekday::Monday,
-    //     std::chrono::minutes{25}};
+    ui::ActiveTasksPresenter activeTasksPresenter{*unfinishedTasksHandler,
+                                                  *editTaskHandler,
+                                                  *deleteTaskHandler,
+                                                  *toggleCompletionHandler,
+                                                  *changePriorityHandler};
+    desyncObservable.attach(activeTasksPresenter);
+    TaskModel activeTaskModel{activeTasksPresenter};
 
-    compose::ManualSprintAddPresenterProxy manualSprintAddPresenter{
-        *registerSprintBulkHandler,
-        *unfinishedTasksHandler,
+    ui::RegisterSprintControlPresenter registerSprintControlPresenter{
+        *registerSprintBulkHandler};
+    compose::AddSprintDialogProxy addSprintDialog{
+        registerSprintControlPresenter,
+        activeTaskModel,
         applicationSettings,
         applicationSettings};
 
-    auto manualSprintAddWidget =
-        std::make_unique<qt_gui::ManualSprintAddView>(manualSprintAddPresenter);
-
-    auto sprintOutline =
-        std::make_unique<SprintOutline>(sprintOutlinePresenter,
-                                        // undoDialog,
-                                        std::move(undoWidget),
-                                        std::move(manualSprintAddWidget));
+    auto sprintOutline = std::make_unique<SprintOutline>(
+        sprintOutlinePresenter, std::move(undoWidget), addSprintDialog);
 
     OperationRangeModel operationRangeModel{*operationalRangeHandler,
                                             datasyncRelay};
@@ -1060,9 +1064,6 @@ int main(int argc, char* argv[])
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
 
     IndexChangedReemitter selectedTaskRowReemitter;
-    SprintRegistrator sprintRegistrator{unfinishedTasksModel,
-                                        *registerSprintBulkHandler,
-                                        selectedTaskRowReemitter};
     // std::unique_ptr<TimerWidgetBase> timerWidget;
     // auto submissionBox =
     //     std::make_unique<SubmissionBox>(selectedTaskRowReemitter);
@@ -1080,67 +1081,43 @@ int main(int argc, char* argv[])
         {{"ringSound", applicationSettings.soundFilePath()}}};
     compose::SettingsWatchingAssetLibrary assetLibrary{
         assetLibrary_, applicationSettings, applicationSettings};
-    ui::TimerPresenter timerPresenter{
-        workflow, soundPlayer, assetLibrary, "ringSound"};
-    ui::UnfinishedTasksPresenter unfinishedTasksPresenter{
-        *unfinishedTasksHandler,
-        *deleteTaskHandler,
-        *editTaskHandler,
-        *registerSprintBulkHandler,
-        *toggleCompletionHandler};
+    ui::TaskSelectionMediator taskSelectionMediator;
+    ui::TimerPresenter timerPresenter{workflow,
+                                      soundPlayer,
+                                      assetLibrary,
+                                      "ringSound",
+                                      taskSelectionMediator};
+    ui::TaskViewPresenter taskViewPresenter{taskSelectionMediator};
     constexpr int indicatorSize{150};
     auto timerView = std::make_unique<TimerView>(
         timerPresenter,
-        unfinishedTasksPresenter,
-        // std::move(submissionBox),
+        registerSprintControlPresenter,
+        activeTaskModel,
         std::make_unique<CombinedIndicator>(indicatorSize, nullptr));
 
-    // if (timerFlavour == 0)
-    // timerWidget = std::make_unique<DefaultTimer>(applicationSettings,
-    //                                              todaySprintsModel,
-    //                                              std::move(submissionBox),
-    //                                              sprintRegistrator,
-    //                                              soundPlayer,
-    //                                              nullptr);
-    // else {
-    // constexpr int indicatorSize{150};
-    // timerWidget = std::make_unique<FancyTimer>(
-    //     applicationSettings,
-    //     todaySprintsModel,
-    //     std::move(submissionBox),
-    //     std::make_unique<CombinedIndicator>(indicatorSize, nullptr),
-    //     sprintRegistrator,
-    //     soundPlayer,
-    //     nullptr);
-    // }
-
-    HistoryModel taskSprintsModel;
-    TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
-    AddTaskDialog addTaskDialog{tagModel};
+    ui::TaskSprintsPresenter taskSprintsPresenter{*sprintsForTaskHandler,
+                                                  taskSelectionMediator};
+    compose::TaskSprintsViewProxy taskSprintsView{taskSprintsPresenter,
+                                                  historyItemDelegate};
+    ui::AddTaskControlPresenter addTaskControlPresenter{*createTaskHandler};
+    compose::AddTaskDialogProxy addTaskDialog{addTaskControlPresenter,
+                                              tagModel};
     TaskItemDelegate taskItemDelegate;
-    auto taskView =
-        std::make_unique<TaskView>(unfinishedTasksPresenter,
-                                   taskSprintsView,
-                                   addTaskDialog,
-                                   std::make_unique<TagEditor>(tagModel),
-                                   unfinishedTasksModel);
-    // auto taskView = std::make_unique<QListView>();
-    // taskView->setModel(&unfinishedTasksModel);
+    compose::EditTaskDialogProxy editTaskDialog{
+        tagModel, activeTaskModel, taskSelectionMediator};
+    compose::TagEditorProxy tagEditor{tagModel};
+    auto taskView = std::make_unique<TaskView>(taskViewPresenter,
+                                               taskSprintsView,
+                                               editTaskDialog,
+                                               tagEditor,
+                                               activeTaskModel);
+
+    // TODO can't we move in in TaskView itself?
     taskView->setContextMenuPolicy(Qt::CustomContextMenu);
     taskView->setItemDelegate(&taskItemDelegate);
 
-    desyncObservable.attach(unfinishedTasksPresenter);
-
-    // ui::UnfinishedTasksPresenter unfinishedTasksPresenter{
-    //     *unfinishedTasksHandler,
-    //     *deleteTaskHandler,
-    //     *editTaskHandler,
-    //     *registerSprintBulkHandler};
-
-    ui::AddTaskControlPresenter addTaskControlPresenter{*createTaskHandler,
-                                                        *allTagsHandler};
-    auto taskOutline = std::make_unique<TaskOutline>(addTaskControlPresenter,
-                                                     std::move(taskView));
+    auto taskOutline = std::make_unique<TaskOutline>(
+        addTaskControlPresenter, std::move(taskView), addTaskDialog);
 
     sprint_timer::ui::qt_gui::MainWindow w{
         std::move(sprintOutline),

@@ -38,8 +38,6 @@ private:
     std::optional<dw::DateRange> range;
     HistoryMediator::DisplayedHistory history{
         HistoryMediator::DisplayedHistory::SprintHistory};
-
-    void notify() const;
 };
 
 } // namespace sprint_timer::ui

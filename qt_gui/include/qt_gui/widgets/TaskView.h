@@ -22,49 +22,44 @@
 #ifndef TASKVIEW_H_AC0ZCTZN
 #define TASKVIEW_H_AC0ZCTZN
 
-#include "qt_gui/presentation/UnfinishedTasksContract.h"
+#include "qt_gui/StandaloneDisplayable.h"
+#include "qt_gui/dialogs/DisplayableDialog.h"
+#include "qt_gui/presentation/TaskViewContract.h"
 #include "qt_gui/widgets/ReordableListView.h"
-#include <optional>
 
 namespace sprint_timer::ui::qt_gui {
 
-class TaskSprintsView;
-class AddTaskDialog;
-class TagEditor;
-
 class TaskView : public ReordableListView,
-                 public contracts::UnfinishedTasksContract::View {
+                 public contracts::TaskViewContract::View {
     Q_OBJECT
 
 public:
-    TaskView(contracts::UnfinishedTasksContract::Presenter& presenter,
-             TaskSprintsView& sprintsForTaskView,
-             AddTaskDialog& editTaskDialog,
-             std::unique_ptr<QWidget> tagEditor,
+    TaskView(contracts::TaskViewContract::Presenter& presenter,
+             StandaloneDisplayable& sprintsForTaskView,
+             Displayable& editTaskDialog,
+             StandaloneDisplayable& tagEditor,
              QAbstractItemModel& taskModel,
              QWidget* parent = nullptr);
 
     ~TaskView() override;
 
-    void displayTasks(const std::vector<entities::Task>& tasks) override;
-
-    void selectTask(size_t taskIndex) override;
+    void selectTask(std::optional<size_t> taskIndex) override;
 
 private:
-    contracts::UnfinishedTasksContract::Presenter& presenter;
-    TaskSprintsView& sprintsForTaskView;
-    AddTaskDialog& editTaskDialog;
-    std::unique_ptr<QWidget> tagEditor;
-
-    void showSprintsForTask() const;
+    contracts::TaskViewContract::Presenter& presenter;
+    StandaloneDisplayable& sprintsForTaskView;
+    Displayable& editTaskDialog;
+    StandaloneDisplayable& tagEditor;
 
     void showContextMenu(const QPoint& pos) const;
 
     void launchTaskEditor() const;
 
+    void deleteSelectedTask() const;
+
     void launchTagEditor() const;
 
-    void deleteSelectedTask() const;
+    void showSprintsForTask() const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

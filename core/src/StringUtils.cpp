@@ -30,20 +30,6 @@ std::string join(const std::vector<std::string>& vec,
     return join(vec.cbegin(), vec.cend(), delimeter);
 }
 
-/* Given a string, return list of words in that string.
- * Word can contain letters, +, - and digits but no other symbols. */
-std::list<std::string> parseWords(std::string text, std::regex expr)
-{
-    std::sregex_iterator words_begin{text.begin(), text.end(), expr};
-    std::sregex_iterator words_end;
-    std::list<std::string> res;
-
-    for (auto it = words_begin; it != words_end; ++it) {
-        res.push_back(it->str());
-    }
-    return res;
-}
-
 bool startsWith(const std::string& str, const std::string& start)
 {
     if (start.size() > str.size())

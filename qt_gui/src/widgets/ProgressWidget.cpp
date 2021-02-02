@@ -56,7 +56,7 @@ void ProgressWidget::setupGauges()
     }
 }
 
-ProgressWidget::~ProgressWidget() = default;
+ProgressWidget::~ProgressWidget() { presenter.detachView(*this); }
 
 void ProgressWidget::setLegendTitle(const QString& title)
 {

@@ -36,7 +36,7 @@ void StatisticsMediatorImpl::filterByTag(StatisticsColleague* caller,
                                          std::optional<size_t> tagNumber)
 {
     currentTagNumber = tagNumber;
-    notifyColleagues(caller);
+    mediate(caller, [](auto* colleague) { colleague->onSharedDataChanged(); });
 }
 
 void StatisticsMediatorImpl::onRangeChanged(const dw::DateRange& range)
@@ -45,7 +45,7 @@ void StatisticsMediatorImpl::onRangeChanged(const dw::DateRange& range)
     currentTagNumber = std::nullopt;
     allSprints = queryHandler.handle(use_cases::RequestSprintsQuery(range));
     tagtop = TagTop{allSprints, numTopTags};
-    notifyColleagues();
+    notifyAll([](auto* colleague) { colleague->onSharedDataChanged(); });
 }
 
 const std::vector<entities::Sprint>& StatisticsMediatorImpl::sprints() const
@@ -74,20 +74,6 @@ std::optional<dw::DateRange> StatisticsMediatorImpl::range() const
 std::optional<size_t> StatisticsMediatorImpl::selectedTagNumber() const
 {
     return currentTagNumber;
-}
-
-void StatisticsMediatorImpl::notifyColleagues(StatisticsColleague* caller)
-{
-    for (auto* col : colleagues) {
-        if (col && col != caller)
-            col->onSharedDataChanged();
-    }
-}
-
-void StatisticsMediatorImpl::notifyColleagues()
-{
-    for (auto* col : colleagues)
-        col->onSharedDataChanged();
 }
 
 } // namespace sprint_timer::ui

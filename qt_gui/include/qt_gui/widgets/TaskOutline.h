@@ -22,6 +22,7 @@
 #ifndef TASKOUTLINE_H
 #define TASKOUTLINE_H
 
+#include "qt_gui/Displayable.h"
 #include "qt_gui/presentation/AddTaskControl.h"
 #include "qt_gui/widgets/TagEditor.h"
 #include <QLineEdit>
@@ -30,24 +31,19 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-class AddTaskDialog;
-
-/* Responsible for providing user interface for interactive
- * task management, so that user could view current unfinished
- * tasks, add/edit and remove task and tags. */
 class TaskOutline : public QWidget, public ui::contracts::AddTaskControl::View {
 public:
     TaskOutline(ui::contracts::AddTaskControl::Presenter& presenter,
                 std::unique_ptr<QWidget> taskView,
+                Displayable& addTaskDialog,
                 QWidget* parent = nullptr);
 
     ~TaskOutline() override;
 
 private:
     ui::contracts::AddTaskControl::Presenter& presenter;
+    Displayable& addTaskDialog;
     QLineEdit* quickAddTask;
-
-    void displayAddTaskDialog(std::vector<std::string>&& tags) override;
 
     void onAddTaskButtonPushed();
 

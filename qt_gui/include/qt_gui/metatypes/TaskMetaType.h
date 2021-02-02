@@ -22,9 +22,12 @@
 #ifndef TASKMETATYPE_H_PFAU13EU
 #define TASKMETATYPE_H_PFAU13EU
 
+#include "qt_gui/presentation/TaskDTO.h"
 #include <QtCore>
 #include <core/entities/Task.h>
 
 Q_DECLARE_METATYPE(sprint_timer::entities::Task)
+
+Q_DECLARE_METATYPE(sprint_timer::ui::TaskDTO)
 
 #endif /* end of include guard: TASKMETATYPE_H_PFAU13EU */

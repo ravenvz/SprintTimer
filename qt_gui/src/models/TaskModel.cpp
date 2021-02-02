@@ -22,21 +22,27 @@
 #include "qt_gui/models/TaskModel.h"
 #include "qt_gui/metatypes/TaskMetaType.h"
 #include "qt_gui/models/TaskModelRoles.h"
-#include <QSize>
-#include <core/utils/Algutils.h>
 #include <string>
-#include <vector>
+
+namespace {
+
+std::string prefixTags(const std::vector<std::string>& tags);
+
+} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
-using entities::Task;
-
-TaskModel::TaskModel(QObject* parent_)
+TaskModel::TaskModel(contracts::TaskContract::Presenter& presenter_,
+                     QObject* parent_)
     : QAbstractListModel{parent_}
+    , presenter{presenter_}
 {
+    presenter.attachView(*this);
 }
 
-void TaskModel::onDataChanged(const std::vector<Task>& tasks)
+TaskModel::~TaskModel() { presenter.detachView(*this); }
+
+void TaskModel::displayTasks(const std::vector<TaskDTO>& tasks)
 {
     beginResetModel();
     storage = tasks;
@@ -68,40 +74,27 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    const Task& taskRef = storage[static_cast<size_t>(index.row())];
+    const TaskDTO& item = storage[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
         return QString{"%1 %2 %3/%4"}
-            .arg(QString::fromStdString(prefixTags(taskRef.tags())))
-            .arg(QString::fromStdString(taskRef.name()))
-            .arg(taskRef.actualCost())
-            .arg(taskRef.estimatedCost());
+            .arg(QString::fromStdString(prefixTags(item.tags)))
+            .arg(QString::fromStdString(item.name))
+            .arg(item.actualCost)
+            .arg(item.expectedCost);
 
-    case static_cast<int>(TaskModelRoles::GetTags):
-        return QString::fromStdString(prefixTags(taskRef.tags()));
-
-    case static_cast<int>(TaskModelRoles::GetName):
-        return QString::fromStdString(taskRef.name());
-
-    case static_cast<int>(TaskModelRoles::GetIdRole):
-        // TODO(vizier): analyze usages, as casting back and forth to QString
-        // might not be neccessary
-        return QString::fromStdString(taskRef.uuid());
-
-    case static_cast<int>(TaskModelRoles::GetStats):
-        return QString("%1/%2")
-            .arg(taskRef.actualCost())
-            .arg(taskRef.estimatedCost());
-
-    case Qt::CheckStateRole:
-        return taskRef.isCompleted();
-
-    case static_cast<int>(TaskModelRoles::GetItem): {
+    case CustomRoles::ItemRole: {
         QVariant var;
-        var.setValue(taskRef);
+        var.setValue(item);
         return var;
     }
+
+    case CustomRoles::IdRole:
+        return QString::fromStdString(item.uuid);
+
+    case Qt::CheckStateRole:
+        return item.finished;
 
     default:
         return QVariant();
@@ -118,28 +111,23 @@ bool TaskModel::setData(const QModelIndex& index,
 
     switch (role) {
 
-    case static_cast<int>(TaskModelRoles::Insert): {
-        if (index.row() != static_cast<int>(storage.size()) - 1) {
-            return false;
-        }
-        storage[index.row()] = value.value<Task>();
-        // insert(value.value<Task>());
+        // case static_cast<int>(TaskModelRoles::Insert): {
+        //     if (index.row() != static_cast<int>(storage.size()) - 1) {
+        //         return false;
+        //     }
+        //     storage[index.row()] = value.value<TaskDTO>();
+        //     return true;
+        // }
+
+    case (CustomRoles::ReplaceRole): {
+        presenter.editTask(storage[index.row()], value.value<TaskDTO>());
         return true;
     }
 
-    case static_cast<int>(TaskModelRoles::Replace): {
-        if (index.row() < 0 ||
-            index.row() >= static_cast<int>(storage.size())) {
-            return false;
-        }
-
-        // replaceItemAt(index.row(), value.value<Task>());
+    case static_cast<int>(CustomRoles::ToggleCheckedRole): {
+        presenter.toggleFinished(storage[index.row()]);
         return true;
     }
-
-    case static_cast<int>(TaskModelRoles::ToggleCompletion):
-        // toggleCompleted(index);
-        return true;
 
     default:
         return false;
@@ -158,62 +146,39 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
         return false;
     }
 
-    // This offset is needed because slide takes iterator that should point
-    // before desired location as position argument
-    if (sourceRow < destinationChild) {
-        ++destinationChild;
-    }
-
-    auto uuidsInOrder = [&st = storage]() {
-        std::vector<std::string> uuids;
-        uuids.reserve(st.size());
-        std::transform(st.cbegin(),
-                       st.cend(),
-                       std::back_inserter(uuids),
-                       [](const auto& task) { return task.uuid(); });
-        return uuids;
-    };
-
-    auto oldOrder = uuidsInOrder();
-
-    beginResetModel();
-    utils::slide(storage.begin() + sourceRow,
-                 storage.begin() + sourceRow + 1,
-                 storage.begin() + destinationChild);
-    endResetModel();
-
-    auto newOrder = uuidsInOrder();
-
+    presenter.reorderTasks(sourceRow, count, destinationChild);
     return true;
 }
 
 bool TaskModel::removeRows(int row, int count, const QModelIndex& parent)
 {
-    // Removing multiple rows is unsupported for now
-    if (count != 1) {
-        return false;
-    }
-
     if (row < 0 || row >= static_cast<int>(storage.size())) {
         return false;
     }
 
-    remove(row);
+    if (count != 1) {
+        return false;
+    }
 
+    // Rely on presenter to resupply updated data (model data will be fully
+    // replaced, hence no calls to begin/end|removeRows
+    presenter.deleteTask(storage[row]);
     return true;
 }
 
 bool TaskModel::insertRows(int row, int count, const QModelIndex& parent)
 {
-    // Only support inserting one item after the last row
-    if (row != static_cast<int>(storage.size()) || count != 1) {
-        return false;
-    }
+    // // Only support inserting one item after the last row
+    // if (row != static_cast<int>(storage.size()) || count != 1) {
+    //     return false;
+    // }
+    //
+    // beginInsertRows(parent, rowCount(parent), rowCount(parent));
+    // storage.emplace_back(TaskDTO{});
+    // endInsertRows();
+    // return true;
 
-    beginInsertRows(parent, rowCount(parent), rowCount(parent));
-    storage.emplace_back(Task{});
-    endInsertRows();
-    return true;
+    return false;
 }
 
 int TaskModel::rowCount(const QModelIndex& parent) const
@@ -221,19 +186,22 @@ int TaskModel::rowCount(const QModelIndex& parent) const
     return static_cast<int>(storage.size());
 }
 
-void TaskModel::remove(const QModelIndex& index) { remove(index.row()); }
-
-void TaskModel::remove(int row)
-{
-    // beginRemoveRows(QModelIndex(), row, row);
-    // deleteTaskHandler.handle(use_cases::DeleteTaskCommand{itemAt(row)});
-    // storage.erase(storage.begin() + row);
-    // endRemoveRows();
-}
-
-Task TaskModel::itemAt(int row) const
+TaskDTO TaskModel::itemAt(int row) const
 {
     return storage.at(static_cast<size_t>(row));
 }
 
 } // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+std::string prefixTags(const std::vector<std::string>& tags)
+{
+    return sprint_timer::utils::transformJoin(tags, " ", [](const auto& el) {
+        std::string res{"#"};
+        res += el;
+        return res;
+    });
+}
+
+} // namespace

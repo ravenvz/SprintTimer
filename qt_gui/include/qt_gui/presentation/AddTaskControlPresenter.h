@@ -23,6 +23,7 @@
 #define ADDTASKCONTROLPRESENTER_H_KQFERPSW
 
 #include "qt_gui/presentation/AddTaskControl.h"
+#include "qt_gui/presentation/TaskMapper.h"
 #include <core/CommandHandler.h>
 #include <core/QueryHandler.h>
 #include <core/use_cases/create_task/CreateTaskCommand.h>
@@ -32,59 +33,49 @@ namespace sprint_timer::ui {
 
 class AddTaskControlPresenter : public contracts::AddTaskControl::Presenter {
 public:
-    AddTaskControlPresenter(
-        CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler,
-        QueryHandler<use_cases::AllTagsQuery, std::vector<std::string>>&
-            allTagsHandler);
+    explicit AddTaskControlPresenter(
+        CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler);
 
-    void onTaskAddConfirmed(
-        const contracts::AddTaskControl::TaskDetails& details) const override;
+    void addTask(const TaskDTO& details) const override;
 
-    void
-    onTaskAddedInTextForm(const std::string& taskDescription) const override;
-
-    void onDialogRequested() const override;
+    void addTask(const std::string& encodedDescription) const override;
 
 private:
     CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler;
-    QueryHandler<use_cases::AllTagsQuery, std::vector<std::string>>&
-        allTagsHandler;
 
     void updateViewImpl() override;
 };
 
 inline AddTaskControlPresenter::AddTaskControlPresenter(
-    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler_,
-    QueryHandler<use_cases::AllTagsQuery, std::vector<std::string>>&
-        allTagsHandler_)
+    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler_)
     : createTaskHandler{createTaskHandler_}
-    , allTagsHandler{allTagsHandler_}
 {
 }
 
-inline void AddTaskControlPresenter::onTaskAddConfirmed(
-    const contracts::AddTaskControl::TaskDetails& details) const
+inline void AddTaskControlPresenter::addTask(const TaskDTO& details) const
 {
-    std::list<entities::Tag> tags;
+    // TODO Remove task creation when CreateTaskCommand is simplified
+    std::list<entities::Tag> tags(details.tags.size());
     std::transform(cbegin(details.tags),
                    cend(details.tags),
-                   std::back_inserter(tags),
+                   begin(tags),
                    [](const auto& elem) { return entities::Tag{elem}; });
-    createTaskHandler.handle(use_cases::CreateTaskCommand{
-        entities::Task{details.name, details.estimatedCost, 0, tags, false}});
-}
+    entities::Task task{details.name,
+                        details.expectedCost,
+                        0,
+                        tags,
+                        details.finished,
+                        details.modificationStamp};
 
-inline void AddTaskControlPresenter::onTaskAddedInTextForm(
-    const std::string& taskDescription) const
-{
-    const entities::Task task{taskDescription};
     createTaskHandler.handle(use_cases::CreateTaskCommand{task});
+    // createTaskHandler.handle(use_cases::CreateTaskCommand{fromDTO(details)});
 }
 
-inline void AddTaskControlPresenter::onDialogRequested() const
+inline void
+AddTaskControlPresenter::addTask(const std::string& encodedDescription) const
 {
-    auto tags = allTagsHandler.handle(use_cases::AllTagsQuery{});
-    view->displayAddTaskDialog(std::move(tags));
+    const entities::Task task{encodedDescription};
+    createTaskHandler.handle(use_cases::CreateTaskCommand{task});
 }
 
 inline void AddTaskControlPresenter::updateViewImpl() { }

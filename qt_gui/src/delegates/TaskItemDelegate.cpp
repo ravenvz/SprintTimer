@@ -20,9 +20,12 @@
 **
 *********************************************************************************/
 #include "qt_gui/delegates/TaskItemDelegate.h"
+#include "qt_gui/metatypes/TaskMetaType.h"
 #include "qt_gui/models/TaskModelRoles.h"
+#include "qt_gui/presentation/TaskDTO.h"
 #include <QApplication>
 #include <QPainter>
+#include <core/utils/StringUtils.h>
 
 namespace {
 
@@ -45,9 +48,10 @@ QRect boundingRect(const QStyleOptionViewItem& option,
                    int maxWidth,
                    int flags);
 
-bool taskOverspent(const QString& stats);
-
 int contentWidth(const QRect& rect);
+
+std::tuple<QString, QString, QString>
+extractData(const sprint_timer::ui::TaskDTO& item);
 
 } // namespace
 
@@ -101,6 +105,11 @@ void TaskItemDelegate::paintItem(QPainter* painter,
                                  const QModelIndex& index,
                                  int alpha) const
 {
+    auto taskVariant = index.data(CustomRoles::ItemRole);
+    if (taskVariant.isNull()) {
+        return;
+    }
+
     QColor tagCol{tagColor};
     QColor commonCol{commonColor};
     QColor overspentCol{overspentColor};
@@ -109,12 +118,8 @@ void TaskItemDelegate::paintItem(QPainter* painter,
     commonCol.setAlpha(alpha);
     overspentCol.setAlpha(alpha);
 
-    const QString tags =
-        index.data(static_cast<int>(TaskModelRoles::GetTags)).toString();
-    const QString descr =
-        index.data(static_cast<int>(TaskModelRoles::GetName)).toString();
-    const QString completionStats =
-        index.data(static_cast<int>(TaskModelRoles::GetStats)).toString();
+    const auto item = taskVariant.value<TaskDTO>();
+    const auto [tags, descr, completionStats] = extractData(item);
 
     auto [statsRect, tagsRect, descrRect] = textRectangles(option, index);
 
@@ -147,7 +152,7 @@ void TaskItemDelegate::paintItem(QPainter* painter,
                      contentRect.topRight().y() + offset,
                      contentRect.topRight().x() - offset - statsRect.width(),
                      contentRect.topRight().y() + offset);
-    if (taskOverspent(completionStats)) {
+    if (item.actualCost > item.expectedCost) {
         painter->setPen(overspentCol);
     }
     style->drawItemText(painter,
@@ -165,13 +170,11 @@ namespace {
 std::tuple<QRect, QRect, QRect>
 textRectangles(const QStyleOptionViewItem& option, const QModelIndex& index)
 {
-    using sprint_timer::ui::qt_gui::TaskModelRoles;
-    const QString tags =
-        index.data(static_cast<int>(TaskModelRoles::GetTags)).toString();
-    const QString descr =
-        index.data(static_cast<int>(TaskModelRoles::GetName)).toString();
-    const QString stats =
-        index.data(static_cast<int>(TaskModelRoles::GetStats)).toString();
+    using sprint_timer::ui::TaskDTO;
+    using sprint_timer::ui::qt_gui::CustomRoles;
+    const auto taskVariant = index.data(CustomRoles::ItemRole);
+    const auto item = taskVariant.value<TaskDTO>();
+    const auto [tags, descr, stats] = extractData(item);
 
     QRect statsRect{boundingRect(option, stats, contentWidth(option.rect), 0)};
     QRect tagsRect{
@@ -194,12 +197,21 @@ QRect boundingRect(const QStyleOptionViewItem& option,
     return QRect{metrics.boundingRect(0, 0, maxWidth, 0, flags, text)};
 }
 
-bool taskOverspent(const QString& stats)
-{
-    QStringList parts = stats.split("/");
-    return parts[0].toInt() > parts[1].toInt();
-}
-
 int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
+
+std::tuple<QString, QString, QString>
+extractData(const sprint_timer::ui::TaskDTO& item)
+{
+    using namespace sprint_timer::utils;
+    const QString tags{QString::fromStdString(
+        transformJoin(item.tags, " ", [](const auto& elem) {
+            std::string res{"#"};
+            res += elem;
+            return res;
+        }))};
+    return {tags,
+            QString::fromStdString(item.name),
+            QString("%1/%2").arg(item.actualCost).arg(item.expectedCost)};
+}
 
 } // namespace

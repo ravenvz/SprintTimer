@@ -39,9 +39,11 @@ public:
 
     virtual void detachView(ViewT& view_) { view = nullptr; }
 
+    virtual bool noViewsAttached() const { return !view; }
+
     void updateView()
     {
-        if (!view) {
+        if (noViewsAttached()) {
             std::cerr << "WARNING: no view is attached, updating aborted\n";
             return;
         }

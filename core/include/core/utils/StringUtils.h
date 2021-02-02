@@ -59,9 +59,51 @@ std::string join(
                      std::string>::value>::type* dummy = 0)
 {
     std::ostringstream res;
-    for (auto it = first; it != last; ++it) {
-        res << *it;
-        if (!(*it).empty() && std::distance(it, last) > 1)
+    for (; first != last; ++first) {
+        res << *first;
+        if (!first->empty() && std::distance(first, last) > 1)
+            res << delimeter;
+    }
+    return res.str();
+}
+
+template <class ForwardIt, class UnaryOperation>
+std::string transformJoin(
+    ForwardIt first,
+    ForwardIt last,
+    const std::string& delimeter,
+    UnaryOperation op,
+    typename std::enable_if<
+        !std::is_same<typename std::iterator_traits<ForwardIt>::value_type,
+                      std::string>::value>::type* dummy = 0)
+{
+    std::ostringstream res;
+    for (; first != last; ++first) {
+        res << op(*first);
+        if (std::distance(first, last) > 1)
+            res << delimeter;
+    }
+    return res.str();
+}
+
+// Template overload for std::string type
+// Skips empty strings
+template <class ForwardIt, class UnaryOperation>
+std::string transformJoin(
+    ForwardIt first,
+    ForwardIt last,
+    const std::string& delimeter,
+    UnaryOperation op,
+    typename std::enable_if<
+        std::is_same<typename std::iterator_traits<ForwardIt>::value_type,
+                     std::string>::value>::type* dummy = 0)
+{
+    std::ostringstream res;
+    for (; first != last; ++first) {
+        if (first->empty())
+            continue;
+        res << op(*first);
+        if (!first->empty() && std::distance(first, last) > 1)
             res << delimeter;
     }
     return res.str();
@@ -70,11 +112,32 @@ std::string join(
 std::string join(const std::vector<std::string>& vec,
                  const std::string& delimeter);
 
-/* Given a text as string, return list<string> that contains all words in text.
+template <class UnaryOperation>
+std::string transformJoin(const std::vector<std::string>& vec,
+                          const std::string& delimeter,
+                          UnaryOperation op)
+{
+    return transformJoin(cbegin(vec), cend(vec), delimeter, op);
+}
+
+/* Given a text as string, populate provided iterator with all words in text.
    Words are defined by expr regex. Default regex allow words to contain
    letters, digits, '+', '-'. */
-std::list<std::string>
-parseWords(std::string text, std::regex expr = std::regex{"[[:alnum:]+-]+"});
+template <class BidirIt, class OutputIt>
+OutputIt parseWords(BidirIt first,
+                    BidirIt last,
+                    OutputIt out,
+                    std::regex expr = std::regex{"[[:alnum:]+-]+"})
+{
+    std::sregex_iterator words_begin{first, last, expr};
+    std::sregex_iterator words_end;
+
+    for (auto it = words_begin; it != words_end; ++it) {
+        *out++ = it->str();
+    }
+
+    return out;
+}
 
 bool startsWith(const std::string& str, const std::string& start);
 

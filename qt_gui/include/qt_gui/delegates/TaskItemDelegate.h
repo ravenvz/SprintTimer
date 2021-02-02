@@ -44,6 +44,7 @@ private:
                    const QModelIndex& index,
                    int alpha) const;
 
+    // TODO move to implementation or think how to configure
     QColor tagColor{Qt::blue};
     QColor commonColor{Qt::black};
     QColor overspentColor{Qt::red};

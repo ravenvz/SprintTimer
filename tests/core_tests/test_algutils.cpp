@@ -64,6 +64,28 @@ TEST_F(AlgutilsFixture, sliding_last_element_to_the_right)
     EXPECT_EQ(expected, data);
 }
 
+TEST_F(AlgutilsFixture, sliding_first_element_to_the_back)
+{
+    std::vector<int> expected{2, 3, 4, 5, 6, 7, 8, 9, 10, 1};
+
+    auto p = slide(data.begin(), data.begin() + 1, data.begin() + 10);
+
+    EXPECT_EQ(data.begin() + 9, p.first);
+    EXPECT_EQ(data.begin() + 10, p.second);
+    EXPECT_EQ(expected, data);
+}
+
+TEST_F(AlgutilsFixture, sliding_last_element_to_the_front)
+{
+    std::vector<int> expected{10, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+    auto p = slide(data.begin() + 9, data.begin() + 10, data.begin());
+
+    EXPECT_EQ(data.begin(), p.first);
+    EXPECT_EQ(data.begin() + 1, p.second);
+    EXPECT_EQ(expected, data);
+}
+
 TEST_F(AlgutilsFixture, sliding_single_element_to_the_left)
 {
     std::vector<int> expected{1, 9, 2, 3, 4, 5, 6, 7, 8, 10};
@@ -88,7 +110,6 @@ TEST_F(AlgutilsFixture, sliding_first_element_to_the_left)
 
 TEST_F(AlgutilsFixture, sliding_group_of_elements_to_the_right)
 {
-    // std::vector<int> expected{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     std::vector<int> expected{1, 2, 6, 7, 8, 9, 3, 4, 5, 10};
 
     auto p = slide(data.begin() + 2, data.begin() + 5, data.begin() + 9);
@@ -97,7 +118,6 @@ TEST_F(AlgutilsFixture, sliding_group_of_elements_to_the_right)
     EXPECT_EQ(data.begin() + 9, p.second);
     EXPECT_EQ(expected, data);
 }
-
 
 TEST_F(AlgutilsFixture, sliding_group_of_elements_to_the_left)
 {

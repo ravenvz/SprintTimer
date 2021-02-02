@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TimerView.h"
+#include "qt_gui/models/TaskModelRoles.h"
 #include "qt_gui/utils/WidgetUtils.h"
 #include <QApplication>
 
@@ -63,19 +64,20 @@ struct UiChangedEvent : public QEvent {
 namespace sprint_timer::ui::qt_gui {
 
 TimerView::TimerView(ui::contracts::TimerContract::Presenter& timerPresenter_,
-                     ui::contracts::UnfinishedTasksContract::Presenter&
-                         unfinishedTasksPresenter_,
+                     ui::contracts::RegisterSprintControl::Presenter&
+                         registerSprintControlPresenter_,
+                     QAbstractItemModel& taskModel_,
                      std::unique_ptr<CombinedIndicator> combinedIndicator_)
     : timerPresenter{timerPresenter_}
-    , unfinishedTasksPresenter{unfinishedTasksPresenter_}
+    , registerSprintControlPresenter{registerSprintControlPresenter_}
+    , taskModel{taskModel_}
     , combinedIndicator{combinedIndicator_.get()}
-    , taskModel{std::make_unique<QStringListModel>()}
 {
     auto pbCancel_ = std::make_unique<QPushButton>("Cancel");
     auto pbZone_ = std::make_unique<QPushButton>("InTheZone");
     auto submissionBox_ = std::make_unique<QComboBox>();
     submissionBox = submissionBox_.get();
-    submissionBox->setModel(taskModel.get());
+    submissionBox->setModel(&taskModel_);
     pbCancel_->setFlat(true);
     pbZone_->setFlat(true);
     pbZone_->setCheckable(true);
@@ -107,20 +109,20 @@ TimerView::TimerView(ui::contracts::TimerContract::Presenter& timerPresenter_,
         timerPresenter.onZoneClicked();
     });
     connect(submissionBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int index) {
-                unfinishedTasksPresenter.onTaskSelectionChanged(*this, index);
+            QOverload<int>::of(&QComboBox::activated),
+            [this, &taskModel_](int row) {
+                auto uuid =
+                    taskModel_
+                        .data(taskModel_.index(row, 0), CustomRoles::IdRole)
+                        .toString()
+                        .toStdString();
+                timerPresenter.changeTaskSelection(row, std::move(uuid));
             });
 
     timerPresenter.attachView(*this);
-    unfinishedTasksPresenter.attachView(*this);
 }
 
-TimerView::~TimerView()
-{
-    timerPresenter.detachView(*this);
-    unfinishedTasksPresenter.detachView(*this);
-}
+TimerView::~TimerView() { timerPresenter.detachView(*this); }
 
 void TimerView::setupUi(contracts::TimerContract::TimerUiModel&& model)
 {
@@ -140,23 +142,13 @@ void TimerView::submitSprints(
     if (!submissionBox->isVisible()) {
         return;
     }
-    unfinishedTasksPresenter.onRegisterSprints(submissionBox->currentIndex(),
-                                               timeIntervals);
-}
-
-void TimerView::displayTasks(const std::vector<entities::Task>& tasks)
-{
-    auto* model = submissionBox->model();
-    model->removeRows(0, model->rowCount());
-    for (const auto& task : tasks) {
-        // QVariant var;
-        std::stringstream ss;
-        ss << task;
-        // var.setValue(QString::fromStdString(ss.str()));
-        model->insertRow(model->rowCount());
-        model->setData(model->index(model->rowCount() - 1, 0),
-                       QString::fromStdString(ss.str()));
-    }
+    const auto taskUuid =
+        taskModel
+            .data(taskModel.index(submissionBox->currentIndex(), 0),
+                  CustomRoles::IdRole)
+            .toString()
+            .toStdString();
+    registerSprintControlPresenter.registerSprintBulk(taskUuid, timeIntervals);
 }
 
 void TimerView::selectTask(size_t taskIndex)

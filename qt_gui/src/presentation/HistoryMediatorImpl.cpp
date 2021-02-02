@@ -27,7 +27,7 @@ void HistoryMediatorImpl::changeDisplayedHistory(
     HistoryColleague* caller, DisplayedHistory displayedHistory)
 {
     history = displayedHistory;
-    notify();
+    notifyAll([](auto* colleague) { colleague->onSharedDataChanged(); });
 }
 
 std::optional<dw::DateRange> HistoryMediatorImpl::currentDateRange() const
@@ -43,13 +43,7 @@ HistoryMediator::DisplayedHistory HistoryMediatorImpl::displayedHistory() const
 void HistoryMediatorImpl::onRangeChanged(const dw::DateRange& dateRange)
 {
     range = dateRange;
-    notify();
-}
-
-void HistoryMediatorImpl::notify() const
-{
-    for (auto* colleague : colleagues)
-        colleague->onSharedDataChanged();
+    notifyAll([](auto* colleague) { colleague->onSharedDataChanged(); });
 }
 
 } // namespace sprint_timer::ui

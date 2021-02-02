@@ -22,8 +22,8 @@
 #ifndef TIMERVIEW_H_4EUKLBJM
 #define TIMERVIEW_H_4EUKLBJM
 
+#include "qt_gui/presentation/RegisterSprintControl.h"
 #include "qt_gui/presentation/TimerContract.h"
-#include "qt_gui/presentation/UnfinishedTasksContract.h"
 #include "qt_gui/widgets/CombinedIndicator.h"
 #include <QComboBox>
 #include <QGridLayout>
@@ -33,14 +33,13 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-class TimerView : public contracts::TimerContract::View,
-                  public contracts::UnfinishedTasksContract::View,
-                  public QWidget {
+class TimerView : public contracts::TimerContract::View, public QWidget {
 
 public:
     TimerView(ui::contracts::TimerContract::Presenter& timerPresenter,
-              ui::contracts::UnfinishedTasksContract::Presenter&
-                  unfinishedTasksPresenter,
+              ui::contracts::RegisterSprintControl::Presenter&
+                  registerSprintControlPresenter,
+              QAbstractItemModel& taskModel,
               std::unique_ptr<CombinedIndicator> combinedIndicator);
 
     ~TimerView() override;
@@ -49,8 +48,6 @@ public:
 
     void updateTimerValue(std::chrono::seconds currentValue) override;
 
-    void displayTasks(const std::vector<entities::Task>& tasks) override;
-
     void selectTask(size_t taskIndex) override;
 
     void
@@ -58,12 +55,13 @@ public:
 
 private:
     ui::contracts::TimerContract::Presenter& timerPresenter;
-    ui::contracts::UnfinishedTasksContract::Presenter& unfinishedTasksPresenter;
+    ui::contracts::RegisterSprintControl::Presenter&
+        registerSprintControlPresenter;
+    QAbstractItemModel& taskModel;
     QPushButton* pbCancel;
     QPushButton* pbZone;
     QComboBox* submissionBox;
     CombinedIndicator* combinedIndicator;
-    std::unique_ptr<QAbstractItemModel> taskModel;
 
     void customEvent(QEvent* event) override;
 

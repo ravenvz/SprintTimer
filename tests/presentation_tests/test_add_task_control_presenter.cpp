@@ -34,10 +34,6 @@ using ::testing::Truly;
 
 class AddTaskControlViewMock : public ui::contracts::AddTaskControl::View {
 public:
-    MOCK_METHOD(void,
-                displayAddTaskDialog,
-                (std::vector<std::string> &&),
-                (override));
 };
 
 class AddTaskControlPresenterFixture : public ::testing::Test {
@@ -48,20 +44,19 @@ public:
                                      std::vector<std::string>>>
         allTagsHandler;
     AddTaskControlViewMock view;
-    ui::AddTaskControlPresenter sut{createTaskHandler, allTagsHandler};
+    ui::AddTaskControlPresenter sut{createTaskHandler};
 };
 
 namespace {
 
 const dw::DateTime someModificationStamp{dw::current_date_time()};
 
-std::pair<sprint_timer::entities::Task,
-          sprint_timer::ui::contracts::AddTaskControl::TaskDetails>
+std::pair<sprint_timer::entities::Task, sprint_timer::ui::TaskDTO>
 someTaskWithDescription();
 
 /* This matcher ignores uuid and modification timestamp */
-struct MatchesCreateTaskCommand {
-    MatchesCreateTaskCommand(
+struct MatchesCreateTaskCommandWithoutUuid {
+    MatchesCreateTaskCommandWithoutUuid(
         const sprint_timer::use_cases::CreateTaskCommand& expectedCommand_);
 
     bool
@@ -73,75 +68,67 @@ private:
 
 } // namespace
 
-TEST_F(AddTaskControlPresenterFixture,
-       fires_create_task_command_given_task_details)
+TEST_F(AddTaskControlPresenterFixture, invokes_handler_to_add_task_given_dto)
 {
     using namespace sprint_timer::entities;
     const auto [task, details] = someTaskWithDescription();
     const use_cases::CreateTaskCommand expectedCommand{task};
 
-    EXPECT_CALL(createTaskHandler,
-                handle(Truly(MatchesCreateTaskCommand{expectedCommand})));
+    EXPECT_CALL(
+        createTaskHandler,
+        handle(Truly(MatchesCreateTaskCommandWithoutUuid{expectedCommand})));
 
-    sut.onTaskAddConfirmed(details);
+    sut.addTask(details);
 }
 
 TEST_F(AddTaskControlPresenterFixture,
-       fires_create_task_command_given_task_description)
+       invokes_handler_to_add_task_given_task_description)
 {
     using namespace sprint_timer::entities;
-    const use_cases::CreateTaskCommand command{Task{"All parts present",
-                                                    5,
-                                                    0,
-                                                    {Tag{"Test"}},
-                                                    false,
-                                                    someModificationStamp}};
+    const use_cases::CreateTaskCommand command{
+        Task{"All parts present",
+             5,
+             0,
+             {Tag{"Test"}},
+             false,
+             dw::current_date_time_local()}};
 
     EXPECT_CALL(createTaskHandler,
-                handle(Truly(MatchesCreateTaskCommand{command})));
+                handle(Truly(MatchesCreateTaskCommandWithoutUuid{command})));
 
-    sut.onTaskAddedInTextForm("#Test All parts present *5");
-}
-
-TEST_F(AddTaskControlPresenterFixture, provides_tags_to_populate_dialog)
-{
-    using sprint_timer::entities::Tag;
-    sut.attachView(view);
-    const std::vector<std::string> tags{"Tag 1", "Tag 2", "Some other tag"};
-    ON_CALL(allTagsHandler, handle(_)).WillByDefault(Return(tags));
-
-    EXPECT_CALL(view,
-                displayAddTaskDialog(std::vector<std::string>{
-                    "Tag 1", "Tag 2", "Some other tag"}));
-
-    sut.onDialogRequested();
+    sut.addTask("#Test All parts present *5");
 }
 
 namespace {
 
-std::pair<sprint_timer::entities::Task,
-          sprint_timer::ui::contracts::AddTaskControl::TaskDetails>
+std::pair<sprint_timer::entities::Task, sprint_timer::ui::TaskDTO>
 someTaskWithDescription()
 {
     using namespace sprint_timer::entities;
-    const ui::contracts::AddTaskControl::TaskDetails details{
-        "SomeTask", {"Tag 1", "Tag 2"}, 4, 0};
+    const ui::TaskDTO details{"123",
+                              {"Tag 1", "Tag 2"},
+                              "SomeTask",
+                              4,
+                              0,
+                              false,
+                              someModificationStamp};
     Task task{"SomeTask",
               4,
               0,
+              "123",
               {Tag{"Tag 1"}, Tag{"Tag 2"}},
               false,
               someModificationStamp};
     return {task, details};
 }
 
-MatchesCreateTaskCommand::MatchesCreateTaskCommand(
+MatchesCreateTaskCommandWithoutUuid::MatchesCreateTaskCommandWithoutUuid(
     const sprint_timer::use_cases::CreateTaskCommand& expectedCommand_)
     : expectedCommand{expectedCommand_}
 {
 }
 
-bool MatchesCreateTaskCommand::operator()(
+bool MatchesCreateTaskCommandWithoutUuid::operator()(
     const sprint_timer::use_cases::CreateTaskCommand& command) const
 {
     const auto& expected = expectedCommand.task;
@@ -150,7 +137,8 @@ bool MatchesCreateTaskCommand::operator()(
            expected.estimatedCost() == actual.estimatedCost() &&
            expected.actualCost() == actual.actualCost() &&
            expected.isCompleted() == actual.isCompleted() &&
-           expected.tags() == actual.tags();
+           expected.tags() == actual.tags() &&
+           expected.lastModified() == actual.lastModified();
 }
 
 } // namespace

@@ -22,6 +22,7 @@
 #ifndef MEDIATOR_H_WOD0DXBC
 #define MEDIATOR_H_WOD0DXBC
 
+#include <functional>
 #include <unordered_set>
 
 namespace sprint_timer::ui {
@@ -34,7 +35,24 @@ public:
 
     void removeColleague(ColleagueT* colleague) { colleagues.erase(colleague); }
 
-protected:
+    template <typename Functor> void notifyAll(Functor func)
+    {
+        for (auto* col : colleagues) {
+            func(col);
+        }
+    }
+
+    template <typename Functor> void mediate(ColleagueT* caller, Functor func)
+    {
+        for (auto* col : colleagues) {
+            if (col == caller) {
+                continue;
+            }
+            func(col);
+        }
+    }
+
+private:
     std::unordered_set<ColleagueT*> colleagues;
 };
 

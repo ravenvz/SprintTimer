@@ -23,48 +23,25 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-TagModel::TagModel(
-    CommandHandler<use_cases::RenameTagCommand>& renameTagHandler_,
-    QueryHandler<use_cases::AllTagsQuery, std::vector<std::string>>&
-        allTagsHandler_,
-    DatasyncRelay& datasyncRelay_,
-    QObject* parent_)
-    : AsyncListModel{parent_}
-    , renameTagHandler{renameTagHandler_}
-    , allTagsHandler{allTagsHandler_}
-    , datasyncRelay{datasyncRelay_}
+TagModel::TagModel(contracts::TagEditorContract::Presenter& presenter_,
+                   QObject* parent_)
+    : QStringListModel{parent_}
+    , presenter{presenter_}
 {
-    connect(&datasyncRelay_,
-            &DatasyncRelay::dataUpdateRequiered,
-            this,
-            &AsyncListModel::requestSilentDataUpdate);
+    presenter.attachView(*this);
 }
 
-Qt::ItemFlags TagModel::flags(const QModelIndex& index) const
+TagModel::~TagModel() { presenter.detachView(*this); }
+
+inline void TagModel::displayTags(const std::vector<std::string>& tags)
 {
-    return AsyncListModel::flags(index) | Qt::ItemIsEditable;
-}
-
-int TagModel::rowCount(const QModelIndex& parent) const
-{
-    return static_cast<int>(storage.size());
-}
-
-QVariant TagModel::data(const QModelIndex& index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    const std::string tag = storage[static_cast<size_t>(index.row())];
-
-    switch (role) {
-    case Qt::DisplayRole:
-        return QString::fromStdString(tag);
-    case Qt::EditRole:
-        return QString::fromStdString(tag);
-    default:
-        return QVariant();
-    }
+    QStringList data;
+    std::transform(
+        cbegin(tags),
+        cend(tags),
+        std::back_inserter(data),
+        [](const auto& elem) { return QString::fromStdString(elem); });
+    setStringList(data);
 }
 
 bool TagModel::setData(const QModelIndex& index,
@@ -74,10 +51,7 @@ bool TagModel::setData(const QModelIndex& index,
     if (!index.isValid())
         return false;
     if (role == Qt::EditRole) {
-        buffer.push_back({data(index, role).toString().toStdString(),
-                          value.toString().toStdString()});
-        storage[static_cast<size_t>(index.row())] =
-            value.toString().toStdString();
+        buffer.push_back({data(index, role).toString(), value.toString()});
         return true;
     }
     return false;
@@ -86,31 +60,13 @@ bool TagModel::setData(const QModelIndex& index,
 bool TagModel::submit()
 {
     while (!buffer.empty()) {
-        renameTagHandler.handle(use_cases::RenameTagCommand{
-            buffer.back().first, buffer.back().second});
+        presenter.renameTag(buffer.back().first.toStdString(),
+                            buffer.back().second.toStdString());
         buffer.pop_back();
     }
-    requestDataUpdate();
     return true;
 }
 
-void TagModel::revert()
-{
-    buffer.clear();
-    requestDataUpdate();
-}
-
-void TagModel::requestUpdate()
-{
-    onDataArrived(allTagsHandler.handle(use_cases::AllTagsQuery{}));
-}
-
-void TagModel::onDataArrived(const std::vector<std::string>& tags)
-{
-    datasyncRelay.onSyncCompleted("TagModel");
-    beginResetModel();
-    storage = tags;
-    endResetModel();
-}
+void TagModel::revert() { buffer.clear(); }
 
 } // namespace sprint_timer::ui::qt_gui

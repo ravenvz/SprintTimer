@@ -19,40 +19,32 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef MANUALSPRINTADDCONTRACT_H_HPMCRJBF
-#define MANUALSPRINTADDCONTRACT_H_HPMCRJBF
+#ifndef REGISTERSPRINTCONTROL_H_1WZJSFJW
+#define REGISTERSPRINTCONTROL_H_1WZJSFJW
 
 #include "qt_gui/presentation/BasePresenter.h"
-#include <core/entities/Task.h>
+#include <date_wrapper/date_wrapper.h>
 
-namespace sprint_timer::ui::contracts::ManualSprintAddContract {
+namespace sprint_timer::ui::contracts::RegisterSprintControl {
 
 class View {
 public:
-    virtual void
-    displayAddSprintDialog(const std::vector<entities::Task>& activeTasks,
-                           dw::Weekday firstDayOfWeek,
-                           std::chrono::minutes sprintDuration) = 0;
-
-    virtual void setInteractive(bool interactive) = 0;
-
-    View() = default;
     virtual ~View() = default;
-    View(const View& other) = delete;
-    View& operator=(const View& other) = delete;
-    View(View&& other) noexcept = delete;
-    View& operator=(View&& other) noexcept = delete;
 };
 
 class Presenter : public BasePresenter<View> {
 public:
-    virtual void onSprintAddRequested() = 0;
+    virtual void
+    registerConsecutiveSprints(const std::string& taskUuid,
+                               dw::DateTime firstSprintStart,
+                               int32_t numSprints,
+                               std::chrono::minutes sprintDuration) = 0;
 
-    virtual void onSprintAddConfirmed(size_t taskNumber,
-                                      dw::DateTime firstSprintStart,
-                                      size_t numSprints) = 0;
+    virtual void
+    registerSprintBulk(const std::string& taskUuid,
+                       const std::vector<dw::DateTimeRange>& timeRanges) = 0;
 };
 
-} // namespace sprint_timer::ui::contracts::ManualSprintAddContract
+} // namespace sprint_timer::ui::contracts::RegisterSprintControl
 
-#endif /* end of include guard: MANUALSPRINTADDCONTRACT_H_HPMCRJBF */
+#endif /* end of include guard: REGISTERSPRINTCONTROL_H_1WZJSFJW */

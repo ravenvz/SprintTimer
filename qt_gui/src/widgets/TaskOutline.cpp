@@ -40,9 +40,11 @@ using namespace entities;
 
 TaskOutline::TaskOutline(ui::contracts::AddTaskControl::Presenter& presenter_,
                          std::unique_ptr<QWidget> taskView_,
+                         Displayable& addTaskDialog_,
                          QWidget* parent_)
     : QWidget{parent_}
     , presenter{presenter_}
+    , addTaskDialog{addTaskDialog_}
 {
     auto layout = std::make_unique<QVBoxLayout>(this);
 
@@ -64,37 +66,36 @@ TaskOutline::TaskOutline(ui::contracts::AddTaskControl::Presenter& presenter_,
     layout->addWidget(quickAddTask);
 
     setLayout(layout.release());
-    presenter.attachView(*this);
 }
 
-TaskOutline::~TaskOutline() { presenter.detachView(*this); }
-
-void TaskOutline::displayAddTaskDialog(std::vector<std::string>&& tags)
-{
-    AddTaskDialog dialog{std::move(tags)};
-    dialog.setWindowTitle(addTaskDialogTitle);
-    if (dialog.exec() == QDialog::Accepted) {
-        const auto task = dialog.constructedTask();
-        const auto t = task.tags();
-        std::vector<std::string> tagStr(tags.size(), "");
-        std::transform(cbegin(t), cend(t), begin(tagStr), [](const auto& elem) {
-            return elem.name();
-        });
-        ui::contracts::AddTaskControl::TaskDetails details{
-            task.name(), tagStr, task.estimatedCost(), task.actualCost()};
-        presenter.onTaskAddConfirmed(details);
-    }
-}
+TaskOutline::~TaskOutline() { }
 
 void TaskOutline::onQuickAddTodoReturnPressed()
 {
     const std::string encodedDescription = quickAddTask->text().toStdString();
     quickAddTask->clear();
     if (!encodedDescription.empty()) {
-        presenter.onTaskAddedInTextForm(encodedDescription);
+        presenter.addTask(encodedDescription);
     }
 }
 
-void TaskOutline::onAddTaskButtonPushed() { presenter.onDialogRequested(); }
+void TaskOutline::onAddTaskButtonPushed()
+{
+    addTaskDialog.display();
+    // AddTaskDialog dialog{tagModel};
+    // dialog.setWindowTitle(addTaskDialogTitle);
+    // if (dialog.exec() == QDialog::Accepted) {
+    //     const auto task = dialog.constructedTask();
+    //     const auto t = task.tags();
+    //     std::vector<std::string> tagStr(t.size(), "");
+    //     std::transform(cbegin(t), cend(t), begin(tagStr), [](const auto&
+    //     elem) {
+    //         return elem.name();
+    //     });
+    //     ui::contracts::AddTaskControl::TaskDetails details{
+    //         task.name(), tagStr, task.estimatedCost(), task.actualCost()};
+    //     presenter.onTaskAddConfirmed(details);
+    // }
+}
 
 } // namespace sprint_timer::ui::qt_gui

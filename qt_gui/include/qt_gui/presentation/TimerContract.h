@@ -23,6 +23,7 @@
 #define TIMERCONTRACT_H_DSHEHJTD
 
 #include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/presentation/TaskSelectionMediator.h"
 #include <chrono>
 #include <date_wrapper/date_wrapper.h>
 #include <optional>
@@ -43,15 +44,19 @@ public:
 
     virtual void
     submitSprints(const std::vector<dw::DateTimeRange>& timeIntervals) = 0;
+
+    virtual void selectTask(size_t taskIndex) = 0;
 };
 
-class Presenter : public BasePresenter<View> {
+class Presenter : public BasePresenter<View>, public TaskSelectionColleague {
 public:
     virtual void onTimerClicked() = 0;
 
     virtual void onCancelClicked() = 0;
 
     virtual void onZoneClicked() = 0;
+
+    virtual void changeTaskSelection(size_t index, std::string&& uuid) = 0;
 };
 
 struct TimerUiModel {

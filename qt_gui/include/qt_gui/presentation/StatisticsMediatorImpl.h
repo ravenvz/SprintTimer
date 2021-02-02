@@ -56,10 +56,6 @@ private:
     TagTop tagtop;
     std::optional<dw::DateRange> dateRange;
     std::optional<size_t> currentTagNumber;
-
-    void notifyColleagues(StatisticsColleague* caller);
-
-    void notifyColleagues();
 };
 
 } // namespace sprint_timer::ui

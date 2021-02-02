@@ -70,6 +70,8 @@ public:
                 submitSprints,
                 (const std::vector<dw::DateTimeRange>&),
                 (override));
+
+    MOCK_METHOD(void, selectTask, (size_t), (override));
 };
 
 class WorkflowTMock : public sprint_timer::IWorkflow {
@@ -109,15 +111,23 @@ public:
     const std::string someSoundPath{"somesoundpath"};
     NiceMock<mocks::SoundPlayerMock> soundPlayer;
     NiceMock<mocks::AssetLibraryMock> assetLibrary;
-    TimerPresenter presenter{workflow, soundPlayer, assetLibrary, ringSoundId};
+    sprint_timer::ui::TaskSelectionMediator taskSelectionMediator;
+    TimerPresenter presenter{workflow,
+                             soundPlayer,
+                             assetLibrary,
+                             ringSoundId,
+                             taskSelectionMediator};
 };
 
 TEST_F(TimerPresenterFixture, upon_creation_starts_listening_workflow)
 {
     EXPECT_CALL(workflow, addListener(_));
 
-    TimerPresenter otherPresenter{
-        workflow, soundPlayer, assetLibrary, ringSoundId};
+    TimerPresenter otherPresenter{workflow,
+                                  soundPlayer,
+                                  assetLibrary,
+                                  ringSoundId,
+                                  taskSelectionMediator};
 }
 
 TEST_F(TimerPresenterFixture, removes_self_as_workflow_listener_when_destroyed)
@@ -126,8 +136,11 @@ TEST_F(TimerPresenterFixture, removes_self_as_workflow_listener_when_destroyed)
     EXPECT_CALL(wflow, removeListener(_));
 
     {
-        TimerPresenter otherPresenter{
-            wflow, soundPlayer, assetLibrary, ringSoundId};
+        TimerPresenter otherPresenter{wflow,
+                                      soundPlayer,
+                                      assetLibrary,
+                                      ringSoundId,
+                                      taskSelectionMediator};
     }
 }
 
