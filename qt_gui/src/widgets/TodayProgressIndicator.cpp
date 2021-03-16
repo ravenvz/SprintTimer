@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TodayProgressIndicator.h"
-#include "qt_gui/WorkScheduleWrapper.h"
 #include <QAbstractItemModel>
 
 namespace {
@@ -34,9 +33,7 @@ constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
 namespace sprint_timer::ui::qt_gui {
 
 TodayProgressIndicator::TodayProgressIndicator(
-    const QAbstractItemModel& todaySprintsModel_,
-    const WorkScheduleWrapper& workScheduleWrapper_,
-    QWidget* parent_)
+    const QAbstractItemModel& todaySprintsModel_, QWidget* parent_)
     : QLabel{parent_}
     , todaySprintsModel{todaySprintsModel_}
 {
@@ -45,15 +42,15 @@ TodayProgressIndicator::TodayProgressIndicator(
             &QAbstractItemModel::modelReset,
             this,
             &TodayProgressIndicator::update);
-    connect(&workScheduleWrapper_,
-            &WorkScheduleWrapper::workScheduleChanged,
-            [this](const auto& workSchedule) {
-                progress =
-                    GoalProgress{GoalProgress::Estimated{workSchedule.goal(
-                                     dw::current_date_local())},
-                                 GoalProgress::Actual{progress.actual()}};
-                update();
-            });
+    // connect(&workScheduleWrapper_,
+    //         &WorkScheduleWrapper::workScheduleChanged,
+    //         [this](const auto& workSchedule) {
+    //             progress =
+    //                 GoalProgress{GoalProgress::Estimated{workSchedule.goal(
+    //                                  dw::current_date_local())},
+    //                              GoalProgress::Actual{progress.actual()}};
+    //             update();
+    //         });
     update();
 }
 

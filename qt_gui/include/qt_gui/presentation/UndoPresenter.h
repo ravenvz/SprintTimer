@@ -22,6 +22,8 @@
 #ifndef UNDOPRESENTER_H_UM9IVZNC
 #define UNDOPRESENTER_H_UM9IVZNC
 
+#include "qt_gui/presentation/Invalidatable.h"
+#include "qt_gui/presentation/Mediator.h"
 #include "qt_gui/presentation/UndoContract.h"
 #include <core/ActionInvoker.h>
 #include <core/Observable.h>
@@ -33,7 +35,9 @@ class UndoPresenter : public contracts::UndoContract::Presenter {
 public:
     friend class UndoObserver;
 
-    UndoPresenter(Observable& undoObservable, ActionInvoker& actionInvoker);
+    UndoPresenter(Observable& undoObservable,
+                  ActionInvoker& actionInvoker,
+                  Mediator<Invalidatable>& cacheInvalidationMediator);
 
     void onUndoRequested() override;
 
@@ -57,6 +61,7 @@ private:
     void updateViewImpl() override;
 
 private:
+    Mediator<Invalidatable>& cacheInvalidationMediator;
     UndoObserver undoObserver;
 };
 

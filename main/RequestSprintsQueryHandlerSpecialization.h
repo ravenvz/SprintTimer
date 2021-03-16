@@ -19,29 +19,29 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
-#define TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
+#ifndef REQUESTSPRINTSQUERYHANDLERSPECIALIZATION_H_KT7XJXKV
+#define REQUESTSPRINTSQUERYHANDLERSPECIALIZATION_H_KT7XJXKV
 
-#include <QLabel>
-#include <core/GoalProgress.h>
+#include "CacheAwareQueryHandler.h"
+#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
 
-class QAbstractItemModel;
+namespace sprint_timer::compose {
 
-namespace sprint_timer::ui::qt_gui {
+template <>
+std::vector<entities::Sprint>
+CacheAwareQueryHandler<use_cases::RequestSprintsQuery,
+                       std::vector<entities::Sprint>>::
+    handle(sprint_timer::use_cases::RequestSprintsQuery&& query)
+{
+    if (!cachedResult ||
+        (cachedQuery && (query.dateRange != cachedQuery->dateRange))) {
+        cachedQuery = query;
+        cachedResult = wrapped->handle(std::move(query));
+    }
+    return *cachedResult;
+}
 
-class TodayProgressIndicator : public QLabel {
-public:
-    TodayProgressIndicator(const QAbstractItemModel& todaySprintsModel,
-                           QWidget* parent = nullptr);
+} // namespace sprint_timer::compose
 
-private:
-    const QAbstractItemModel& todaySprintsModel;
-    GoalProgress progress;
-
-    void update();
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-#endif /* end of include guard: TODAYPROGRESSINDICATOR_H_ZKLBW9AJ */
-
+#endif /* end of include guard:                                                \
+          REQUESTSPRINTSQUERYHANDLERSPECIALIZATION_H_KT7XJXKV */

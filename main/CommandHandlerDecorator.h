@@ -19,29 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
-#define TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
+#ifndef COMMANDHANDLERDECORATOR_H_GF3JAIOA
+#define COMMANDHANDLERDECORATOR_H_GF3JAIOA
 
-#include <QLabel>
-#include <core/GoalProgress.h>
+#include "CacheAwareCommandHandler.h"
+#include "VerboseCommandHandler.h"
 
-class QAbstractItemModel;
+namespace sprint_timer::compose {
 
-namespace sprint_timer::ui::qt_gui {
+template <typename CommandT>
+std::unique_ptr<CommandHandler<CommandT>>
+decorate(std::unique_ptr<CommandHandler<CommandT>> wrapped)
+{
+    return std::make_unique<sprint_timer::VerboseCommandHandler<CommandT>>(
+        std::move(wrapped));
+}
 
-class TodayProgressIndicator : public QLabel {
-public:
-    TodayProgressIndicator(const QAbstractItemModel& todaySprintsModel,
-                           QWidget* parent = nullptr);
+template <typename CommandT>
+std::unique_ptr<sprint_timer::CommandHandler<CommandT>>
+decorate(std::unique_ptr<sprint_timer::CommandHandler<CommandT>> wrapped,
+         ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator)
+{
+    return std::make_unique<CacheAwareCommandHandler<CommandT>>(
+        std::move(wrapped), cacheInvalidationMediator);
+}
 
-private:
-    const QAbstractItemModel& todaySprintsModel;
-    GoalProgress progress;
+} // namespace sprint_timer::compose
 
-    void update();
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-#endif /* end of include guard: TODAYPROGRESSINDICATOR_H_ZKLBW9AJ */
-
+#endif /* end of include guard: COMMANDHANDLERDECORATOR_H_GF3JAIOA */

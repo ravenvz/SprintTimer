@@ -23,9 +23,12 @@
 
 namespace sprint_timer::ui {
 
-UndoPresenter::UndoPresenter(Observable& undoObservable_,
-                             ActionInvoker& actionInvoker_)
+UndoPresenter::UndoPresenter(
+    Observable& undoObservable_,
+    ActionInvoker& actionInvoker_,
+    Mediator<Invalidatable>& cacheInvalidationMediator_)
     : actionInvoker{actionInvoker_}
+    , cacheInvalidationMediator{cacheInvalidationMediator_}
     , undoObserver{UndoObserver{undoObservable_, *this}}
 {
 }
@@ -42,7 +45,15 @@ void UndoPresenter::onUndoRequested()
     view->showConfirmationDialog(message);
 }
 
-void UndoPresenter::onUndoConfirmed() { actionInvoker.undo(); }
+void UndoPresenter::onUndoConfirmed()
+{
+    // Note order of calls is important
+    // First invalidate all caches
+    cacheInvalidationMediator.notifyAll(
+        [](auto* colleague) { colleague->invalidate(); });
+    // Then allow action invoker to signal resyncronization
+    actionInvoker.undo();
+}
 
 void UndoPresenter::updateViewImpl()
 {

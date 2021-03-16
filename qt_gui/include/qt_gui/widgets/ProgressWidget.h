@@ -24,7 +24,6 @@
 
 #include "core/BackRequestStrategy.h"
 #include "qt_gui/DistributionRequester.h"
-#include "qt_gui/WorkScheduleWrapper.h"
 #include <QWidget>
 #include <core/Distribution.h>
 #include <core/GoalProgress.h>

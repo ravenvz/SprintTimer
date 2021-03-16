@@ -19,29 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
-#define TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
+#ifndef INVALIDATABLE_H_I9VQJJBO
+#define INVALIDATABLE_H_I9VQJJBO
 
-#include <QLabel>
-#include <core/GoalProgress.h>
+namespace sprint_timer::ui {
 
-class QAbstractItemModel;
-
-namespace sprint_timer::ui::qt_gui {
-
-class TodayProgressIndicator : public QLabel {
+class Invalidatable {
 public:
-    TodayProgressIndicator(const QAbstractItemModel& todaySprintsModel,
-                           QWidget* parent = nullptr);
+    virtual ~Invalidatable() = default;
 
-private:
-    const QAbstractItemModel& todaySprintsModel;
-    GoalProgress progress;
-
-    void update();
+    virtual void invalidate() = 0;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer::ui
 
-#endif /* end of include guard: TODAYPROGRESSINDICATOR_H_ZKLBW9AJ */
-
+#endif /* end of include guard: INVALIDATABLE_H_I9VQJJBO */

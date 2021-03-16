@@ -46,12 +46,21 @@ public:
     MOCK_METHOD(bool, hasUndoableActions, (), (const override));
 };
 
+class InvalidatableMock : public sprint_timer::ui::Invalidatable {
+public:
+    MOCK_METHOD(void, invalidate, (), (override));
+};
+
 class UndoPresenterFixture : public ::testing::Test {
 public:
     NiceMock<UndoViewMock> view;
     NiceMock<ActionInvokerMock> actionInvoker;
     sprint_timer::Observable observable;
-    sprint_timer::ui::UndoPresenter presenter{observable, actionInvoker};
+    sprint_timer::ui::Mediator<sprint_timer::ui::Invalidatable>
+        cacheInvalidationMediator;
+    NiceMock<InvalidatableMock> fakeInvalidatable;
+    sprint_timer::ui::UndoPresenter presenter{
+        observable, actionInvoker, cacheInvalidationMediator};
 };
 
 TEST_F(
@@ -131,7 +140,9 @@ TEST_F(
 TEST_F(UndoPresenterFixture, forwards_undo_call_when_undo_confirmed)
 {
     presenter.attachView(view);
+    cacheInvalidationMediator.addColleague(&fakeInvalidatable);
 
+    EXPECT_CALL(fakeInvalidatable, invalidate());
     EXPECT_CALL(actionInvoker, undo());
 
     presenter.onUndoConfirmed();

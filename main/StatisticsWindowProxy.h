@@ -28,7 +28,6 @@
 #include <core/QueryHandler.h>
 #include <core/use_cases/request_sprints/RequestSprintsQuery.h>
 #include <qt_gui/DatasyncRelay.h>
-#include <qt_gui/WorkScheduleWrapper.h>
 #include <qt_gui/utils/WidgetUtils.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
 
