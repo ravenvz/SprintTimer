@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "qt_gui/delegates/TaskItemDelegate.h"
-#include "qt_gui/metatypes/TaskMetaType.h"
-#include "qt_gui/models/TaskModelRoles.h"
+#include "qt_gui/metatypes/TaskDTOMetatype.h"
+#include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/presentation/TaskDTO.h"
 #include <QApplication>
 #include <QPainter>

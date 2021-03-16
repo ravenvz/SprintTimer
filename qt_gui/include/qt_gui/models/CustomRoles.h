@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKMODELROLES_H_ZBXONVGJ
-#define TASKMODELROLES_H_ZBXONVGJ
+#ifndef CUSTOMROLES_H_GI6AQEPJ
+#define CUSTOMROLES_H_GI6AQEPJ
 
 #include <QtCore>
 
@@ -34,17 +34,6 @@ enum CustomRoles {
     ItemRole
 };
 
-enum TaskModelRoles {
-    GetTags = Qt::UserRole + 1,
-    GetName,
-    GetStats,
-    GetIdRole,
-    Replace,
-    ToggleCompletion,
-    GetItem,
-    Insert
-};
-
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: TASKMODELROLES_H_ZBXONVGJ */
+#endif /* end of include guard: CUSTOMROLES_H_GI6AQEPJ */

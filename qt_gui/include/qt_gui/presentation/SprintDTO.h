@@ -33,7 +33,8 @@ struct SprintDTO {
     std::string taskUuid;
     std::string taskName;
     std::vector<std::string> tags;
-    dw::DateTimeRange timeRange;
+    dw::DateTimeRange timeRange{dw::current_date_time(),
+                                dw::current_date_time()};
 };
 
 bool operator==(const SprintDTO& lhs, const SprintDTO& rhs);

@@ -20,6 +20,8 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TodayProgressIndicator.h"
+#include "qt_gui/WorkScheduleWrapper.h"
+#include <QAbstractItemModel>
 
 namespace {
 
@@ -36,16 +38,13 @@ TodayProgressIndicator::TodayProgressIndicator(
     const WorkScheduleWrapper& workScheduleWrapper_,
     QWidget* parent_)
     : QLabel{parent_}
+    , todaySprintsModel{todaySprintsModel_}
 {
     hide();
-    connect(&todaySprintsModel_,
+    connect(&todaySprintsModel,
             &QAbstractItemModel::modelReset,
-            [this, &todaySprintsModel_]() {
-                progress = GoalProgress{
-                    GoalProgress::Estimated{progress.estimated()},
-                    GoalProgress::Actual{todaySprintsModel_.rowCount()}};
-                update();
-            });
+            this,
+            &TodayProgressIndicator::update);
     connect(&workScheduleWrapper_,
             &WorkScheduleWrapper::workScheduleChanged,
             [this](const auto& workSchedule) {
@@ -55,10 +54,13 @@ TodayProgressIndicator::TodayProgressIndicator(
                                  GoalProgress::Actual{progress.actual()}};
                 update();
             });
+    update();
 }
 
 void TodayProgressIndicator::update()
 {
+    progress = GoalProgress{GoalProgress::Estimated{progress.estimated()},
+                            GoalProgress::Actual{todaySprintsModel.rowCount()}};
     const int estimated{progress.estimated()};
     const int actual{progress.actual()};
 

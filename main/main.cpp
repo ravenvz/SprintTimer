@@ -19,6 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_gui/models/SprintModel.h"
 #ifdef _WIN32
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
 #include <ShlObj.h>
@@ -151,7 +152,6 @@
 #include <qt_gui/widgets/SprintOutline.h>
 #include <qt_gui/widgets/StatisticsDiagramWidget.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
-#include <qt_gui/widgets/SubmissionBox.h>
 #include <qt_gui/widgets/TaskOutline.h>
 #include <qt_gui/widgets/TaskSprintsView.h>
 #include <qt_gui/widgets/TaskView.h>
@@ -820,9 +820,6 @@ int main(int argc, char* argv[])
             decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
                 std::make_unique<RequestSprintsHandler>(*sprintStorage),
                 relayHub));
-    SprintModel todaySprintsModel{*deleteSprintHandler,
-                                  *todaySprintsModelRequestSprintsHandler,
-                                  datasyncRelay};
     ui::TagEditorPresenter tagEditorPresenter{*allTagsHandler,
                                               *renameTagHandler};
     desyncObservable.attach(tagEditorPresenter);
@@ -838,13 +835,13 @@ int main(int argc, char* argv[])
 
     // addNewSprintButton->setEnabled(false);
     // auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
-    // PomodoroModel pomodoroModel;
-    // sprintView->setModel(&pomodoroModel);
+    // SprintModel todaySprintsModel;
+    // sprintView->setModel(&todaySprintsModel);
 
-    ui::TodaySprintsPresenter sprintOutlinePresenter{*deleteSprintHandler,
-                                                     *requestSprintsHandler};
+    ui::TodaySprintsPresenter todaySprintsPresenter{*deleteSprintHandler,
+                                                    *requestSprintsHandler};
 
-    desyncObservable.attach(sprintOutlinePresenter);
+    desyncObservable.attach(todaySprintsPresenter);
 
     ui::ActiveTasksPresenter activeTasksPresenter{*unfinishedTasksHandler,
                                                   *editTaskHandler,
@@ -862,8 +859,11 @@ int main(int argc, char* argv[])
         applicationSettings,
         applicationSettings};
 
+    SprintModel todaySprintsModel{todaySprintsPresenter};
+    auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
+    sprintView->setModel(&todaySprintsModel);
     auto sprintOutline = std::make_unique<SprintOutline>(
-        sprintOutlinePresenter, std::move(undoWidget), addSprintDialog);
+        std::move(sprintView), std::move(undoWidget), addSprintDialog);
 
     OperationRangeModel operationRangeModel{*operationalRangeHandler,
                                             datasyncRelay};
@@ -1063,14 +1063,6 @@ int main(int argc, char* argv[])
     auto launcherMenu = std::make_unique<LauncherMenu>(
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
 
-    IndexChangedReemitter selectedTaskRowReemitter;
-    // std::unique_ptr<TimerWidgetBase> timerWidget;
-    // auto submissionBox =
-    //     std::make_unique<SubmissionBox>(selectedTaskRowReemitter);
-    // submissionBox->setModel(&unfinishedTasksModel);
-    // auto submissionItemDelegate = std::make_unique<SubmissionItemDelegate>();
-    // submissionBox->setItemDelegate(submissionItemDelegate.release());
-    // auto timerFlavour = applicationSettings.timerFlavour();
     QMediaPlayer qmediaPlayer;
     compose::RuntimeConfigurableSoundPlayer soundPlayer(
         applicationSettings,

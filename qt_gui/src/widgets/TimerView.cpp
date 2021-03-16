@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TimerView.h"
-#include "qt_gui/models/TaskModelRoles.h"
+#include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/utils/WidgetUtils.h"
 #include <QApplication>
 

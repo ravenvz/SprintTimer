@@ -22,13 +22,14 @@
 #ifndef TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
 #define TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
 
-#include "qt_gui/WorkScheduleWrapper.h"
-#include <QAbstractItemModel>
 #include <QLabel>
-#include <QWidget>
 #include <core/GoalProgress.h>
 
+class QAbstractItemModel;
+
 namespace sprint_timer::ui::qt_gui {
+
+class WorkScheduleWrapper;
 
 class TodayProgressIndicator : public QLabel {
 public:
@@ -37,6 +38,7 @@ public:
                            QWidget* parent = nullptr);
 
 private:
+    const QAbstractItemModel& todaySprintsModel;
     GoalProgress progress;
 
     void update();

@@ -19,13 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTMETATYPE_H_AVB5EBNY
-#define SPRINTMETATYPE_H_AVB5EBNY
+#ifndef TASKDTOMETATYPE_H_FMUN4K37
+#define TASKDTOMETATYPE_H_FMUN4K37
 
+#include "qt_gui/presentation/TaskDTO.h"
 #include <QtCore>
-#include <core/entities/Sprint.h>
 
-Q_DECLARE_METATYPE(sprint_timer::entities::Sprint)
+Q_DECLARE_METATYPE(sprint_timer::ui::TaskDTO)
 
-#endif /* end of include guard: SPRINTMETATYPE_H_AVB5EBNY */
-
+#endif /* end of include guard: TASKDTOMETATYPE_H_FMUN4K37 */

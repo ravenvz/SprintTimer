@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/AddSprintDialog.h"
-#include "qt_gui/models/TaskModelRoles.h"
+#include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
 #include <QCalendarWidget>

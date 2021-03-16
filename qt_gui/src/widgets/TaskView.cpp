@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TaskView.h"
-#include "qt_gui/metatypes/TaskMetaType.h"
-#include "qt_gui/models/TaskModelRoles.h"
+#include "qt_gui/metatypes/TaskDTOMetatype.h"
+#include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/utils/MouseRightReleaseEater.h"
 #include <QMenu>
 

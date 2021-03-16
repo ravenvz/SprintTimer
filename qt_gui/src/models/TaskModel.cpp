@@ -20,8 +20,9 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/TaskModel.h"
-#include "qt_gui/metatypes/TaskMetaType.h"
-#include "qt_gui/models/TaskModelRoles.h"
+#include "qt_gui/metatypes/TaskDTOMetatype.h"
+#include "qt_gui/models/CustomRoles.h"
+#include <core/utils/StringUtils.h>
 #include <string>
 
 namespace {

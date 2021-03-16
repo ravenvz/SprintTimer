@@ -22,6 +22,7 @@
 #ifndef TODAYSPRINTSPRESENTER_H_8U0DLSNR
 #define TODAYSPRINTSPRESENTER_H_8U0DLSNR
 
+#include "qt_gui/presentation/SprintMapper.h"
 #include "qt_gui/presentation/TodaySprints.h"
 #include <core/CommandHandler.h>
 #include <core/QueryHandler.h>
@@ -42,9 +43,10 @@ public:
     {
     }
 
-    void onSprintDelete(const entities::Sprint& sprint) override
+    void onSprintDelete(const SprintDTO& sprint) override
     {
-        deleteSprintHandler.handle(use_cases::DeleteSprintCommand{sprint});
+        deleteSprintHandler.handle(
+            use_cases::DeleteSprintCommand{fromDTO(sprint)});
     }
 
     void updateViewImpl() override
@@ -53,7 +55,7 @@ public:
                                   dw::current_date_local()};
         const auto sprints =
             requestSprintsHandler.handle(use_cases::RequestSprintsQuery{range});
-        view->displaySprints(sprints);
+        view->displaySprints(makeDTOs(sprints));
     }
 
 private:

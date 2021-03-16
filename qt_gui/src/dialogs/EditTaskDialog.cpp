@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/EditTaskDialog.h"
-#include "qt_gui/metatypes/TaskMetaType.h"
-#include "qt_gui/models/TaskModelRoles.h"
+#include "qt_gui/metatypes/TaskDTOMetatype.h"
+#include "qt_gui/models/CustomRoles.h"
 
 namespace sprint_timer::ui::qt_gui {
 

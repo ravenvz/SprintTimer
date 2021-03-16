@@ -19,31 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SUBMISSIONBOX_H
-#define SUBMISSIONBOX_H
+#ifndef SPRINTDTOMETATYPE_H_EUAGS1ZY
+#define SPRINTDTOMETATYPE_H_EUAGS1ZY
 
-#include "qt_gui/SprintRegistrator.h"
-#include <QComboBox>
+#include "qt_gui/presentation/SprintDTO.h"
+#include <QtCore>
 
-namespace sprint_timer::ui::qt_gui {
+Q_DECLARE_METATYPE(sprint_timer::ui::SprintDTO)
 
-/* Combobox, that retains it's currentIndex when hidden.
- *
- * QComboBox set's current index to -1 when it's hidden,
- * so this subclass is a workaround to retain it. */
-class SubmissionBox : public QComboBox {
-public:
-    SubmissionBox(IndexChangedReemitter& selectedTaskRowReemitter,
-                  QWidget* parent = nullptr);
+#endif /* end of include guard: SPRINTDTOMETATYPE_H_EUAGS1ZY */
 
-private:
-    int persistentIndex{-1};
-
-    void hideEvent(QHideEvent* event) override;
-
-    void showEvent(QShowEvent* event) override;
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-#endif // SUBMISSIONBOX_H

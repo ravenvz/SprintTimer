@@ -23,6 +23,7 @@
 #define TODAYSPRINTS_H_V0K2AYQR
 
 #include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/presentation/SprintDTO.h"
 #include <core/entities/Sprint.h>
 #include <core/entities/Task.h>
 
@@ -30,12 +31,7 @@ namespace sprint_timer::ui::contracts::TodaySprints {
 
 class View {
 public:
-    virtual void displaySprints(const std::vector<entities::Sprint>&) = 0;
-
-    virtual void
-    displayAddSprintDialog(const std::vector<entities::Task>& activeTasks,
-                           dw::Weekday firstDayOfWeek,
-                           std::chrono::minutes sprintDuration) = 0;
+    virtual void displaySprints(const std::vector<SprintDTO>&) = 0;
 
     virtual ~View() = default;
     View() = default;
@@ -47,7 +43,7 @@ public:
 
 class Presenter : public BasePresenter<View> {
 public:
-    virtual void onSprintDelete(const entities::Sprint& sprint) = 0;
+    virtual void onSprintDelete(const SprintDTO& sprint) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::TodaySprints
