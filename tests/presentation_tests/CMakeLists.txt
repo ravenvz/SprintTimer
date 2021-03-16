@@ -23,6 +23,7 @@ target_sources(${TEST_PRESENTATION}
     "${CMAKE_CURRENT_LIST_DIR}/test_task_sprints_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task_view_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_timer_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_today_progress_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_undo_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_work_schedule_editor_presenter.cpp"
 )

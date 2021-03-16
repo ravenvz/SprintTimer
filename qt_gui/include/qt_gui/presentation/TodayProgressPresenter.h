@@ -19,33 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
-#define TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
+#ifndef TODAYPROGRESSPRESENTER_H_31EAPJRM
+#define TODAYPROGRESSPRESENTER_H_31EAPJRM
 
 #include "qt_gui/presentation/BasePresenter.h"
 #include "qt_gui/presentation/TodayProgressContract.h"
-#include <QLabel>
-#include <core/GoalProgress.h>
+#include <core/QueryHandler.h>
+#include <core/use_cases/request_progress/RequestProgressQuery.h>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer::ui {
 
-class TodayProgressIndicator : public QLabel,
-                               public contracts::TodayProgressContract::View {
+class TodayProgressPresenter
+    : public BasePresenter<contracts::TodayProgressContract::View> {
 public:
-    explicit TodayProgressIndicator(
-        BasePresenter<contracts::TodayProgressContract::View>& presenter,
-        QWidget* parent = nullptr);
+    using request_progress_hdl_t =
+        QueryHandler<use_cases::RequestProgressQuery, ProgressOverPeriod>;
 
-    ~TodayProgressIndicator() override;
-
-    void displayProgress(const std::string& progress,
-                         const std::string& style) override;
+    explicit TodayProgressPresenter(
+        request_progress_hdl_t& requestProgressHandler);
 
 private:
-    BasePresenter<contracts::TodayProgressContract::View>& presenter;
+    request_progress_hdl_t& requestProgressHandler;
+
+    void updateViewImpl() override;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer::ui
 
-#endif /* end of include guard: TODAYPROGRESSINDICATOR_H_ZKLBW9AJ */
-
+#endif /* end of include guard: TODAYPROGRESSPRESENTER_H_31EAPJRM */

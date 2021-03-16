@@ -137,6 +137,7 @@
 #include <qt_gui/presentation/TaskSprintsPresenter.h>
 #include <qt_gui/presentation/TaskViewPresenter.h>
 #include <qt_gui/presentation/TimerPresenter.h>
+#include <qt_gui/presentation/TodayProgressPresenter.h>
 #include <qt_gui/presentation/TodaySprintsPresenter.h>
 #include <qt_gui/presentation/UndoPresenter.h>
 #include <qt_gui/presentation/WorkScheduleEditorPresenter.h>
@@ -780,10 +781,26 @@ int main(int argc, char* argv[])
     auto taskOutline = std::make_unique<TaskOutline>(
         addTaskControlPresenter, std::move(taskView), addTaskDialog);
 
+    RequestForDaysBack requestThisDayStrategy{1};
+    // ComputeByDayStrategy computeByDayStrategy;
+
+    auto requestTodayProgressHandler =
+        compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
+            compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
+                std::make_unique<RequestProgressHandler>(
+                    requestThisDayStrategy,
+                    computeByDayStrategy,
+                    *requestSprintDailyDistributionHandler,
+                    *workScheduleHandler),
+                cacheInvalidationMediator));
+    ui::TodayProgressPresenter todayProgressPresenter{
+        *requestTodayProgressHandler};
+    desyncObservable.attach(todayProgressPresenter);
+
     sprint_timer::ui::qt_gui::MainWindow w{
         std::move(sprintOutline),
         std::move(taskOutline),
-        std::make_unique<TodayProgressIndicator>(todaySprintsModel),
+        std::make_unique<TodayProgressIndicator>(todayProgressPresenter),
         std::move(timerView),
         std::move(launcherMenu)};
     applyStyleSheet(app);

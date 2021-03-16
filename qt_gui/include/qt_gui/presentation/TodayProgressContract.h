@@ -19,33 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
-#define TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
+#ifndef TODAYPROGRESSCONTRACT_H_PUVI6CYE
+#define TODAYPROGRESSCONTRACT_H_PUVI6CYE
 
-#include "qt_gui/presentation/BasePresenter.h"
-#include "qt_gui/presentation/TodayProgressContract.h"
-#include <QLabel>
-#include <core/GoalProgress.h>
+#include <string>
 
-namespace sprint_timer::ui::qt_gui {
+namespace sprint_timer::ui::contracts::TodayProgressContract {
 
-class TodayProgressIndicator : public QLabel,
-                               public contracts::TodayProgressContract::View {
+class View {
 public:
-    explicit TodayProgressIndicator(
-        BasePresenter<contracts::TodayProgressContract::View>& presenter,
-        QWidget* parent = nullptr);
+    virtual ~View() = default;
 
-    ~TodayProgressIndicator() override;
-
-    void displayProgress(const std::string& progress,
-                         const std::string& style) override;
-
-private:
-    BasePresenter<contracts::TodayProgressContract::View>& presenter;
+    virtual void displayProgress(const std::string& progressStr,
+                                 const std::string& style) = 0;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer::ui::contracts::TodayProgressContract
 
-#endif /* end of include guard: TODAYPROGRESSINDICATOR_H_ZKLBW9AJ */
-
+#endif /* end of include guard: TODAYPROGRESSCONTRACT_H_PUVI6CYE */

@@ -20,61 +20,28 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TodayProgressIndicator.h"
-#include <QAbstractItemModel>
-
-namespace {
-
-constexpr char const* workgoalMetStyleSheet = "QLabel { color: green; }";
-constexpr char const* overworkStyleSheet = "QLabel { color: red; }";
-constexpr char const* underworkStyleSheet = "QLabel { color: black; }";
-
-} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
 TodayProgressIndicator::TodayProgressIndicator(
-    const QAbstractItemModel& todaySprintsModel_, QWidget* parent_)
+    BasePresenter<contracts::TodayProgressContract::View>& presenter_,
+    QWidget* parent_)
     : QLabel{parent_}
-    , todaySprintsModel{todaySprintsModel_}
+    , presenter{presenter_}
 {
-    hide();
-    connect(&todaySprintsModel,
-            &QAbstractItemModel::modelReset,
-            this,
-            &TodayProgressIndicator::update);
-    // connect(&workScheduleWrapper_,
-    //         &WorkScheduleWrapper::workScheduleChanged,
-    //         [this](const auto& workSchedule) {
-    //             progress =
-    //                 GoalProgress{GoalProgress::Estimated{workSchedule.goal(
-    //                                  dw::current_date_local())},
-    //                              GoalProgress::Actual{progress.actual()}};
-    //             update();
-    //         });
-    update();
+    presenter.attachView(*this);
 }
 
-void TodayProgressIndicator::update()
+TodayProgressIndicator::~TodayProgressIndicator()
 {
-    progress = GoalProgress{GoalProgress::Estimated{progress.estimated()},
-                            GoalProgress::Actual{todaySprintsModel.rowCount()}};
-    const int estimated{progress.estimated()};
-    const int actual{progress.actual()};
+    presenter.detachView(*this);
+}
 
-    if (estimated == 0) {
-        hide();
-        return;
-    }
-
-    show();
-    setText(QString("Daily goal progress: %1/%2").arg(actual).arg(estimated));
-
-    if (actual == estimated)
-        setStyleSheet(workgoalMetStyleSheet);
-    else if (actual > estimated)
-        setStyleSheet(overworkStyleSheet);
-    else
-        setStyleSheet(underworkStyleSheet);
+void TodayProgressIndicator::displayProgress(const std::string& progress,
+                                             const std::string& style)
+{
+    setStyleSheet(QString::fromStdString(style));
+    setText(QString::fromStdString(progress));
 }
 
 } // namespace sprint_timer::ui::qt_gui
