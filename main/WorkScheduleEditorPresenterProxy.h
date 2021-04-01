@@ -109,11 +109,13 @@ inline void WorkScheduleEditorPresenterProxy::updateViewImpl()
 
 inline void WorkScheduleEditorPresenterProxy::onConfigChanged()
 {
-    if (auto v = view(); v && settings.firstDayOfWeek() != cached) {
+    if (settings.firstDayOfWeek() != cached) {
         cached = settings.firstDayOfWeek();
         presenter = ui::WorkScheduleEditorPresenter{
             workScheduleHandler, changeWorkScheduleHandler, cached};
-        attachView(*view().value());
+        if (auto v = view(); v) {
+            attachView(*view().value());
+        }
     }
 }
 

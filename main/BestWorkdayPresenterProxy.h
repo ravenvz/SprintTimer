@@ -50,10 +50,12 @@ private:
 
     void onConfigChanged()
     {
-        if (auto v = view(); v && settings.firstDayOfWeek() != cached) {
+        if (auto current = settings.firstDayOfWeek(); current != cached) {
             cached = settings.firstDayOfWeek();
             presenter = ui::BestWorkdayPresenter{mediator, cached};
-            presenter.attachView(*v.value());
+            if (auto v = view(); v) {
+                presenter.attachView(*v.value());
+            }
         }
     }
 

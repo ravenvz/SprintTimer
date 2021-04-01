@@ -62,15 +62,13 @@ private:
 
     void onConfigChanged()
     {
-        auto v = view();
-        if (!v) {
-            return;
-        }
         if (dw::Weekday actual = settings.firstDayOfWeek(); actual != cached) {
             cached = actual;
             presenter = ui::DateRangeSelectorPresenter{
                 handler, dateRangeChangeListener, cached};
-            presenter.attachView(*view().value());
+            if (auto v = view(); v) {
+                presenter.attachView(*view().value());
+            }
         }
     }
 
