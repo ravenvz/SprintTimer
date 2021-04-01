@@ -25,6 +25,7 @@
 
 namespace {
 
+// TODO replace with compile-time data
 const std::vector<std::string> availableSinks{"Stdout", "File", "Network"};
 const std::vector<std::string> availableFileFormats{"CSV", "JSON"};
 
@@ -44,9 +45,10 @@ std::string composeErrorMessage(
 
 namespace sprint_timer::ui {
 
-DataExportPresenter::DataExportPresenter(SprintsHandler& exportSprintsHandler_,
-                                         TasksHandler& exportTasksHandler_,
-                                         HistoryMediator& mediator_)
+DataExportPresenter::DataExportPresenter(
+    export_sprints_hdl_t& exportSprintsHandler_,
+    export_tasks_hdl_t& exportTasksHandler_,
+    HistoryMediator& mediator_)
     : exportSprintsHandler{exportSprintsHandler_}
     , exportTasksHandler{exportTasksHandler_}
     , mediator{mediator_}
@@ -55,27 +57,31 @@ DataExportPresenter::DataExportPresenter(SprintsHandler& exportSprintsHandler_,
 
 void DataExportPresenter::onGenerateReportRequested()
 {
-    if (!mediator.currentDateRange())
-        return;
-    contracts::DataExportContract::ReportRequestOptions options;
-    view->displayReportOptions(options);
+    if (auto v = view(); v && mediator.currentDateRange()) {
+        contracts::DataExportContract::ReportRequestOptions options;
+        v.value()->displayReportOptions(options);
+    }
 }
 
 void DataExportPresenter::onDataExportRequested()
 {
-    if (!mediator.currentDateRange())
-        return;
-    contracts::DataExportContract::ExportRequestOptions options{
-        availableFileFormats, availableSinks};
-    view->displayExportOptions(options);
+    if (auto v = view(); v && mediator.currentDateRange()) {
+        contracts::DataExportContract::ExportRequestOptions options{
+            availableFileFormats, availableSinks};
+        v.value()->displayExportOptions(options);
+    }
 }
 
 void DataExportPresenter::updateViewImpl()
 {
-    contracts::DataExportContract::ViewElements viewElements{"Generate Report",
-                                                             "Export"};
-    view->setupElements(viewElements);
+    if (auto v = view(); v) {
+        contracts::DataExportContract::ViewElements viewElements{
+            "Generate Report", "Export"};
+        v.value()->setupElements(viewElements);
+    }
 }
+
+void DataExportPresenter::onViewAttached() { updateView(); }
 
 void DataExportPresenter::onGenerateReportConfirmed(
     const contracts::DataExportContract::ReportSelectedParams& selectedParams)
@@ -103,7 +109,9 @@ void DataExportPresenter::onDataExportConfirmed(
         }
     }
     catch (SprintTimerException& exc) {
-        view->displayError(composeErrorMessage(exc, displayedHistory));
+        if (auto v = view(); v) {
+            v.value()->displayError(composeErrorMessage(exc, displayedHistory));
+        }
     }
 }
 

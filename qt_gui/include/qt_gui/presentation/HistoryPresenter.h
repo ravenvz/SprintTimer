@@ -58,6 +58,8 @@ private:
     HistoryMediator& mediator;
 
     void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

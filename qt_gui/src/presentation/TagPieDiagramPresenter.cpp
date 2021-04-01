@@ -63,26 +63,31 @@ TagPieDiagramPresenter::~TagPieDiagramPresenter()
 
 void TagPieDiagramPresenter::onTagIndexSelected(size_t index)
 {
-    // deselect previos selection if any
-    if (selection.currentIndex())
-        view->toggleSelection(selection.currentIndex());
-    selection.select(index);
-    view->toggleSelection(selection.currentIndex());
-    mediator.filterByTag(this, selection.currentIndex());
+    if (auto v = view(); v) {
+        // deselect previos selection if any
+        if (selection.currentIndex()) {
+            v.value()->toggleSelection(selection.currentIndex());
+        }
+        selection.select(index);
+        v.value()->toggleSelection(selection.currentIndex());
+        mediator.filterByTag(this, selection.currentIndex());
+    }
 }
 
 void TagPieDiagramPresenter::onSharedDataChanged() { updateView(); }
 
+void TagPieDiagramPresenter::onViewAttached() { updateView(); }
+
 void TagPieDiagramPresenter::updateViewImpl()
 {
-    if (!mediator.range())
-        return;
-    const auto& frequencies = mediator.tagFrequencies();
-    auto [diagramData, legendData] = extractData(frequencies);
-    selection.setTags(legendData);
-    view->toggleSelection(selection.currentIndex());
-    view->updateDiagram(std::move(diagramData));
-    view->updateLegend(legendData);
+    if (auto v = view(); v && mediator.range()) {
+        const auto& frequencies = mediator.tagFrequencies();
+        auto [diagramData, legendData] = extractData(frequencies);
+        selection.setTags(legendData);
+        v.value()->toggleSelection(selection.currentIndex());
+        v.value()->updateDiagram(std::move(diagramData));
+        v.value()->updateLegend(legendData);
+    }
 }
 
 void TagPieDiagramPresenter::Selection::select(size_t index)

@@ -22,22 +22,21 @@
 #ifndef UNFINISHEDTASKSCONTRACT_H_3TEOUIV4
 #define UNFINISHEDTASKSCONTRACT_H_3TEOUIV4
 
-#include "qt_gui/presentation/BasePresenter.h"
-#include <core/entities/Task.h>
-#include <optional>
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 
 namespace sprint_timer::ui::contracts::TaskViewContract {
 
-class View {
-public:
-    virtual ~View() = default;
+class View;
 
-    virtual void selectTask(std::optional<size_t> taskIndex) = 0;
-};
-
-class Presenter : public BasePresenter<View> {
+class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void changeTaskSelection(size_t index, std::string&& uuid) = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
+public:
+    virtual void selectTask(std::optional<size_t> taskIndex) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::TaskViewContract

@@ -22,20 +22,16 @@
 #ifndef TASKCONTRACT_H_MQASHYXA
 #define TASKCONTRACT_H_MQASHYXA
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include "qt_gui/presentation/TaskDTO.h"
 #include <vector>
 
 namespace sprint_timer::ui::contracts::TaskContract {
 
-class View {
-public:
-    virtual ~View() = default;
+class View;
 
-    virtual void displayTasks(const std::vector<TaskDTO>& tasks) = 0;
-};
-
-class Presenter : public BasePresenter<View> {
+class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void editTask(const TaskDTO& original, const TaskDTO& edited) = 0;
 
@@ -45,6 +41,11 @@ public:
 
     virtual void
     reorderTasks(size_t sourceRow, size_t count, size_t destinationRow) = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
+public:
+    virtual void displayTasks(const std::vector<TaskDTO>& tasks) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::TaskContract

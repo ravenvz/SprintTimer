@@ -32,10 +32,7 @@ class TaskModel : public QAbstractListModel,
                   public contracts::TaskContract::View {
 
 public:
-    TaskModel(contracts::TaskContract::Presenter& presenter,
-              QObject* parent = nullptr);
-
-    ~TaskModel() override;
+    explicit TaskModel(QObject* parent = nullptr);
 
     void displayTasks(const std::vector<TaskDTO>& tasks) override;
 
@@ -68,10 +65,7 @@ public:
     int rowCount(const QModelIndex& parent) const override;
 
 private:
-    contracts::TaskContract::Presenter& presenter;
     std::vector<TaskDTO> storage;
-
-    TaskDTO itemAt(int row) const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -23,18 +23,9 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-TodayProgressIndicator::TodayProgressIndicator(
-    BasePresenter<contracts::TodayProgressContract::View>& presenter_,
-    QWidget* parent_)
+TodayProgressIndicator::TodayProgressIndicator(QWidget* parent_)
     : QLabel{parent_}
-    , presenter{presenter_}
 {
-    presenter.attachView(*this);
-}
-
-TodayProgressIndicator::~TodayProgressIndicator()
-{
-    presenter.detachView(*this);
 }
 
 void TodayProgressIndicator::displayProgress(const std::string& progress,

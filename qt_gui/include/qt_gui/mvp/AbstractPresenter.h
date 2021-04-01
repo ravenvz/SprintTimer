@@ -19,28 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/DataExportContract.h"
-#include <QWidget>
+#ifndef ABSTRACTPRESENTER_H_OYQNP6L7
+#define ABSTRACTPRESENTER_H_OYQNP6L7
 
-namespace sprint_timer::ui::qt_gui {
+namespace mvp {
 
-class DataExportWidget : public contracts::DataExportContract::View,
-                         public QWidget {
+class AbstractView;
+
+class AbstractPresenter {
 public:
-    explicit DataExportWidget(QWidget* parent = nullptr);
+    virtual ~AbstractPresenter() = default;
 
-    void displayExportOptions(
-        const contracts::DataExportContract::ExportRequestOptions& options)
-        override;
-
-    void displayReportOptions(
-        const contracts::DataExportContract::ReportRequestOptions& options)
-        override;
-
-    void setupElements(const contracts::DataExportContract::ViewElements&
-                           viewElements) override;
-
-    void displayError(const std::string& errorMessage) override;
+    virtual void updateView() = 0;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace mvp
+
+#endif /* end of include guard: ABSTRACTPRESENTER_H_OYQNP6L7 */

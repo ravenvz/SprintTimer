@@ -22,22 +22,23 @@
 #ifndef ADDTASKCONTROL_H_N0QTM94K
 #define ADDTASKCONTROL_H_N0QTM94K
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include "qt_gui/presentation/TaskDTO.h"
 #include <vector>
 
 namespace sprint_timer::ui::contracts::AddTaskControl {
 
-class View {
-public:
-    virtual ~View() = default;
-};
+class View;
 
-class Presenter : public BasePresenter<View> {
+class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void addTask(const TaskDTO& details) const = 0;
 
     virtual void addTask(const std::string& encodedDescription) const = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
 };
 
 } // namespace sprint_timer::ui::contracts::AddTaskControl

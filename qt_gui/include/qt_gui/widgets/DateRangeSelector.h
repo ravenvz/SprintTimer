@@ -22,7 +22,6 @@
 #ifndef PICKPERIODWIDGET_H
 #define PICKPERIODWIDGET_H
 
-#include "qt_gui/presentation/BasePresenter.h"
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
 #include <QStringListModel>
 #include <QWidget>
@@ -38,9 +37,7 @@ namespace sprint_timer::ui::qt_gui {
 class DateRangeSelector : public QWidget,
                           public contracts::DateRangeSelectorContract::View {
 public:
-    DateRangeSelector(
-        contracts::DateRangeSelectorContract::Presenter& presenter_,
-        QWidget* parent_ = nullptr);
+    explicit DateRangeSelector(QWidget* parent_ = nullptr);
 
     ~DateRangeSelector() override;
 
@@ -50,7 +47,6 @@ public:
 
 private:
     std::unique_ptr<Ui::DateRangePicker> ui;
-    contracts::DateRangeSelectorContract::Presenter& presenter;
     std::unique_ptr<QAbstractItemModel> yearsModel;
     QStringListModel monthsModel;
     dw::DateRange selectedDateRange;

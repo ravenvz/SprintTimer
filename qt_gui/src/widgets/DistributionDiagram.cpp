@@ -27,10 +27,8 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-DistributionDiagram::DistributionDiagram(
-    contracts::TagPieDiagramContract::Presenter& presenter_, QWidget* parent_)
+DistributionDiagram::DistributionDiagram(QWidget* parent_)
     : QWidget{parent_}
-    , presenter{presenter_}
 {
     auto layout = std::make_unique<QHBoxLayout>();
     diagram = std::make_unique<PieChart>(this).release();
@@ -46,7 +44,6 @@ DistributionDiagram::DistributionDiagram(
             &IStatisticalChartLegend::itemClicked,
             this,
             &DistributionDiagram::onLegendItemClicked);
-    presenter.attachView(*this);
 }
 
 DistributionDiagram::~DistributionDiagram() = default;
@@ -91,7 +88,9 @@ void DistributionDiagram::setLegendTitleFont(QFont font)
 
 void DistributionDiagram::onChartPartClicked(size_t partIndex)
 {
-    presenter.onTagIndexSelected(partIndex);
+    if (auto p = presenter(); p) {
+        p.value()->onTagIndexSelected(partIndex);
+    }
 }
 
 void DistributionDiagram::onLegendItemClicked(size_t itemIndex)

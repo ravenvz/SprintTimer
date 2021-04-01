@@ -56,22 +56,24 @@ void HistoryPresenter::onEditSprintMenuSelected(const std::string& uuid) const
 void HistoryPresenter::updateViewImpl()
 {
     const auto range = mediator.currentDateRange();
-    if (!range || !view)
-        return;
-    const auto history = mediator.displayedHistory();
-    switch (history) {
-    case HistoryMediator::DisplayedHistory::SprintHistory: {
-        const auto sprints = requestSprintsHandler.handle(
-            use_cases::RequestSprintsQuery{*range});
-        view->displayHistory(toHistory(sprints));
-    } break;
-    case HistoryMediator::DisplayedHistory::TaskHistory: {
-        const auto tasks =
-            requestTasksHandler.handle(use_cases::FinishedTasksQuery{*range});
-        view->displayHistory(toHistory(tasks));
-    } break;
+    if (auto v = view(); v && range) {
+        const auto history = mediator.displayedHistory();
+        switch (history) {
+        case HistoryMediator::DisplayedHistory::SprintHistory: {
+            const auto sprints = requestSprintsHandler.handle(
+                use_cases::RequestSprintsQuery{*range});
+            v.value()->displayHistory(toHistory(sprints));
+        } break;
+        case HistoryMediator::DisplayedHistory::TaskHistory: {
+            const auto tasks = requestTasksHandler.handle(
+                use_cases::FinishedTasksQuery{*range});
+            v.value()->displayHistory(toHistory(tasks));
+        } break;
+        }
     }
 }
+
+void HistoryPresenter::onViewAttached() { updateView(); }
 
 void HistoryPresenter::onDisplayedTabChanged(int tabNumber)
 {

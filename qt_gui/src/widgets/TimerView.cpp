@@ -63,12 +63,12 @@ struct UiChangedEvent : public QEvent {
 
 namespace sprint_timer::ui::qt_gui {
 
-TimerView::TimerView(ui::contracts::TimerContract::Presenter& timerPresenter_,
-                     ui::contracts::RegisterSprintControl::Presenter&
+TimerView::TimerView(ui::contracts::RegisterSprintControl::Presenter&
                          registerSprintControlPresenter_,
                      QAbstractItemModel& taskModel_,
-                     std::unique_ptr<CombinedIndicator> combinedIndicator_)
-    : timerPresenter{timerPresenter_}
+                     std::unique_ptr<CombinedIndicator> combinedIndicator_,
+                     QWidget* parent_)
+    : QWidget{parent_}
     , registerSprintControlPresenter{registerSprintControlPresenter_}
     , taskModel{taskModel_}
     , combinedIndicator{combinedIndicator_.get()}
@@ -100,13 +100,19 @@ TimerView::TimerView(ui::contracts::TimerContract::Presenter& timerPresenter_,
     setLayout(layout.release());
 
     connect(combinedIndicator, &CombinedIndicator::indicatorClicked, [this]() {
-        timerPresenter.onTimerClicked();
+        if (auto p = presenter(); p) {
+            p.value()->onTimerClicked();
+        }
     });
     connect(pbCancel, &QPushButton::clicked, [this]() {
-        timerPresenter.onCancelClicked();
+        if (auto p = presenter(); p) {
+            p.value()->onCancelClicked();
+        }
     });
     connect(pbZone, &QPushButton::clicked, [this]() {
-        timerPresenter.onZoneClicked();
+        if (auto p = presenter(); p) {
+            p.value()->onZoneClicked();
+        }
     });
     connect(submissionBox,
             QOverload<int>::of(&QComboBox::activated),
@@ -116,13 +122,13 @@ TimerView::TimerView(ui::contracts::TimerContract::Presenter& timerPresenter_,
                         .data(taskModel_.index(row, 0), CustomRoles::IdRole)
                         .toString()
                         .toStdString();
-                timerPresenter.changeTaskSelection(row, std::move(uuid));
+                if (auto p = presenter(); p) {
+                    p.value()->changeTaskSelection(row, std::move(uuid));
+                }
             });
-
-    timerPresenter.attachView(*this);
 }
 
-TimerView::~TimerView() { timerPresenter.detachView(*this); }
+TimerView::~TimerView() = default;
 
 void TimerView::setupUi(contracts::TimerContract::TimerUiModel&& model)
 {

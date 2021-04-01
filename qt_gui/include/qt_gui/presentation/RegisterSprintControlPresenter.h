@@ -48,8 +48,6 @@ public:
         const std::string& taskUuid,
         const std::vector<dw::DateTimeRange>& timeRanges) override;
 
-    void updateViewImpl() override;
-
 private:
     register_sprint_bulk_hdl_t& registerSprintBulkHandler;
 };
@@ -92,8 +90,6 @@ inline void RegisterSprintControlPresenter::registerSprintBulk(
     registerSprintBulkHandler.handle(
         use_cases::RegisterSprintBulkCommand{std::move(sprints)});
 }
-
-void RegisterSprintControlPresenter::updateViewImpl() { }
 
 } // namespace sprint_timer::ui
 

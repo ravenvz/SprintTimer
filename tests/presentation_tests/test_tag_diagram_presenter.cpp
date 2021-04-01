@@ -105,8 +105,10 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const DiagramData& data)
 
 } // namespace sprint_timer::ui::contracts::TagPieDiagramContract
 
-class TagDiagramViewMock : public View {
+class TagDiagramview : public View {
 public:
+    using View::View;
+
     MOCK_METHOD(void, updateDiagram, (std::vector<DiagramData> &&), (override));
     MOCK_METHOD(void,
                 updateLegend,
@@ -117,10 +119,10 @@ public:
 
 class TagDiagramPresenterFixture : public ::testing::Test {
 public:
-    NiceMock<TagDiagramViewMock> viewMock;
     NiceMock<mocks::StatisticsMediatorMock> mediator_mock;
     const size_t numTopTags{7};
-    sprint_timer::ui::TagPieDiagramPresenter presenter{mediator_mock};
+    sprint_timer::ui::TagPieDiagramPresenter sut{mediator_mock};
+    NiceMock<TagDiagramview> view;
     dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
     dw::DateTimeRange someTimeSpan{dw::current_date_time(),
                                    dw::current_date_time()};
@@ -128,15 +130,12 @@ public:
 
 TEST_F(TagDiagramPresenterFixture, does_nothing_when_not_provided_date_range)
 {
-    // std::vector<sprint_timer::TagTop::TagFrequency> stubFrequencies;
     ON_CALL(mediator_mock, range()).WillByDefault(Return(std::nullopt));
-    // ON_CALL(mediator_mock, tagFrequencies())
-    //     .WillByDefault(ReturnRef(stubFrequencies));
 
     EXPECT_CALL(mediator_mock, tagFrequencies()).Times(0);
-    EXPECT_CALL(viewMock, updateDiagram(_)).Times(0);
+    EXPECT_CALL(view, updateDiagram(_)).Times(0);
 
-    presenter.attachView(viewMock);
+    sut.updateView();
 }
 
 TEST_F(TagDiagramPresenterFixture, updates_diagram_with_generic_data)
@@ -152,9 +151,9 @@ TEST_F(TagDiagramPresenterFixture, updates_diagram_with_generic_data)
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
 
-    EXPECT_CALL(viewMock, updateDiagram(Truly(has_right_data)));
+    EXPECT_CALL(view, updateDiagram(Truly(has_right_data)));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }
 
 TEST_F(TagDiagramPresenterFixture, updates_legend_with_generic_data)
@@ -166,9 +165,9 @@ TEST_F(TagDiagramPresenterFixture, updates_legend_with_generic_data)
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
 
-    EXPECT_CALL(viewMock, updateLegend(expected));
+    EXPECT_CALL(view, updateLegend(expected));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }
 
 TEST_F(TagDiagramPresenterFixture, renames_leftover_tags_when_updating_legend)
@@ -183,9 +182,9 @@ TEST_F(TagDiagramPresenterFixture, renames_leftover_tags_when_updating_legend)
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
 
-    EXPECT_CALL(viewMock, updateLegend(expected));
+    EXPECT_CALL(view, updateLegend(expected));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }
 
 TEST_F(TagDiagramPresenterFixture, cycles_through_colors)
@@ -213,9 +212,9 @@ TEST_F(TagDiagramPresenterFixture, cycles_through_colors)
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
 
-    EXPECT_CALL(viewMock, updateDiagram(Truly(has_right_data)));
+    EXPECT_CALL(view, updateDiagram(Truly(has_right_data)));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }
 
 TEST_F(TagDiagramPresenterFixture,
@@ -227,14 +226,16 @@ TEST_F(TagDiagramPresenterFixture,
     using ::testing::Truly;
     dw::DateRange newDateRange{dw::current_date(),
                                dw::current_date() + dw::Days{10}};
-    presenter.attachView(viewMock);
     const sprint_timer::TagTop stubTagTop;
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
+    ON_CALL(mediator_mock, tagFrequencies())
+        .WillByDefault(ReturnRef(stubTagTop.tagFrequencies()));
+    sut.attachView(view);
 
-    EXPECT_CALL(mediator_mock, tagFrequencies())
-        .WillOnce(ReturnRef(stubTagTop.tagFrequencies()));
+    EXPECT_CALL(view, updateDiagram(_));
+    EXPECT_CALL(view, updateLegend(_));
 
-    presenter.onSharedDataChanged();
+    sut.onSharedDataChanged();
 }
 
 TEST_F(TagDiagramPresenterFixture, notifies_mediator_when_tag_is_selected)
@@ -245,12 +246,11 @@ TEST_F(TagDiagramPresenterFixture, notifies_mediator_when_tag_is_selected)
         .WillByDefault(::testing::Return(optDateRange));
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 
-    EXPECT_CALL(mediator_mock,
-                filterByTag(&presenter, std::optional<size_t>(2)));
+    EXPECT_CALL(mediator_mock, filterByTag(&sut, std::optional<size_t>(2)));
 
-    presenter.onTagIndexSelected(2);
+    sut.onTagIndexSelected(2);
 }
 
 TEST_F(TagDiagramPresenterFixture,
@@ -262,12 +262,12 @@ TEST_F(TagDiagramPresenterFixture,
     ON_CALL(mediator_mock, range()).WillByDefault(Return(optDateRange));
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
-    presenter.attachView(viewMock);
-    presenter.onTagIndexSelected(3);
+    sut.attachView(view);
+    sut.onTagIndexSelected(3);
 
-    EXPECT_CALL(mediator_mock, filterByTag(&presenter, selectedTag));
+    EXPECT_CALL(mediator_mock, filterByTag(&sut, selectedTag));
 
-    presenter.onTagIndexSelected(2);
+    sut.onTagIndexSelected(2);
 }
 
 TEST_F(TagDiagramPresenterFixture,
@@ -278,43 +278,27 @@ TEST_F(TagDiagramPresenterFixture,
     ON_CALL(mediator_mock, range()).WillByDefault(Return(optDateRange));
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
-    presenter.attachView(viewMock);
-    presenter.onTagIndexSelected(2);
+    sut.attachView(view);
+    sut.onTagIndexSelected(2);
 
-    EXPECT_CALL(mediator_mock,
-                filterByTag(&presenter, std::optional<size_t>{}));
+    EXPECT_CALL(mediator_mock, filterByTag(&sut, std::optional<size_t>{}));
 
-    presenter.onTagIndexSelected(2);
+    sut.onTagIndexSelected(2);
 }
 
-TEST_F(TagDiagramPresenterFixture,
-       updates_selection_on_view_when_view_is_attached)
+TEST_F(TagDiagramPresenterFixture, resets_selection_when_updating_view)
 {
     const auto tagtop = build_bigger_tag_top_fixture(someTimeSpan, numTopTags);
     const std::optional<size_t> expected;
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
+    sut.onTagIndexSelected(3);
+    sut.attachView(view);
 
-    EXPECT_CALL(viewMock, toggleSelection(expected));
+    EXPECT_CALL(view, toggleSelection(expected));
 
-    presenter.attachView(viewMock);
-}
-
-TEST_F(TagDiagramPresenterFixture,
-       updates_selection_on_view_when_view_is_reattached)
-{
-    const auto tagtop = build_bigger_tag_top_fixture(someTimeSpan, numTopTags);
-    const std::optional<size_t> expected;
-    ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
-    ON_CALL(mediator_mock, tagFrequencies())
-        .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
-    presenter.attachView(viewMock);
-    presenter.onTagIndexSelected(3);
-
-    EXPECT_CALL(viewMock, toggleSelection(expected));
-
-    presenter.attachView(viewMock);
+    sut.updateView();
 }
 
 TEST_F(
@@ -326,11 +310,11 @@ TEST_F(
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 
-    EXPECT_CALL(viewMock, toggleSelection(expected));
+    EXPECT_CALL(view, toggleSelection(expected));
 
-    presenter.onTagIndexSelected(3);
+    sut.onTagIndexSelected(3);
 }
 
 TEST_F(TagDiagramPresenterFixture,
@@ -341,16 +325,15 @@ TEST_F(TagDiagramPresenterFixture,
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
-    presenter.attachView(viewMock);
     const size_t previouslySelectedIndex{3};
-    presenter.onTagIndexSelected(previouslySelectedIndex);
+    sut.attachView(view);
+    sut.onTagIndexSelected(previouslySelectedIndex);
 
     EXPECT_CALL(
-        viewMock,
-        toggleSelection(std::optional<size_t>(previouslySelectedIndex)));
-    EXPECT_CALL(viewMock, toggleSelection(expected));
+        view, toggleSelection(std::optional<size_t>(previouslySelectedIndex)));
+    EXPECT_CALL(view, toggleSelection(expected));
 
-    presenter.onTagIndexSelected(previouslySelectedIndex);
+    sut.onTagIndexSelected(previouslySelectedIndex);
 }
 
 TEST_F(
@@ -362,11 +345,11 @@ TEST_F(
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
     ON_CALL(mediator_mock, tagFrequencies())
         .WillByDefault(ReturnRef(tagtop.tagFrequencies()));
-    presenter.attachView(viewMock);
-    presenter.onTagIndexSelected(3);
+    sut.attachView(view);
+    sut.onTagIndexSelected(3);
 
-    EXPECT_CALL(viewMock, toggleSelection(std::optional<size_t>(3)));
-    EXPECT_CALL(viewMock, toggleSelection(expected));
+    EXPECT_CALL(view, toggleSelection(std::optional<size_t>(3)));
+    EXPECT_CALL(view, toggleSelection(expected));
 
-    presenter.onTagIndexSelected(5);
+    sut.onTagIndexSelected(5);
 }

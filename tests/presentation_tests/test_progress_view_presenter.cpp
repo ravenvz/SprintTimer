@@ -152,6 +152,7 @@ public:
 
 TEST_F(ProgressPresenterFixture, displays_gauges_with_correct_colors)
 {
+    using namespace colors;
     const ProgressOverPeriod progress{
         {GoalProgress{GoalProgress::Estimated{0}, GoalProgress::Actual{12}},
          GoalProgress{GoalProgress::Estimated{7}, GoalProgress::Actual{10}},
@@ -165,9 +166,9 @@ TEST_F(ProgressPresenterFixture, displays_gauges_with_correct_colors)
         GaugeValues{0, 0, restDayEmptyColor, restDayEmptyColor},
         GaugeValues{11, 11, normalFilledColor, normalFilledColor},
     }};
-
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
+
     EXPECT_CALL(viewMock, displayGauges(expected)).Times(1);
 
     sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
@@ -183,9 +184,9 @@ TEST_F(ProgressPresenterFixture, displays_legend_for_empty_progress)
     }};
     const LegendData expected{
         "0/30", "Left to complete:", "30", "0.00", "0.00%"};
-
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
+
     EXPECT_CALL(viewMock, displayLegend(expected)).Times(1);
 
     sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
@@ -201,9 +202,9 @@ TEST_F(ProgressPresenterFixture, displays_legend_for_underwork_progress)
     }};
     const LegendData expected{
         "15/30", "Left to complete:", "15", "5.00", "50.00%"};
-
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
+
     EXPECT_CALL(viewMock, displayLegend(expected)).Times(1);
 
     sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
@@ -218,9 +219,9 @@ TEST_F(ProgressPresenterFixture, displays_legend_for_overwork_progress)
         GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{15}},
     }};
     const LegendData expected{"45/30", "Overwork:", "15", "15.00", "150.00%"};
-
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
+
     EXPECT_CALL(viewMock, displayLegend(expected)).Times(1);
 
     sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
@@ -234,9 +235,9 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_for_empty_progress)
     // when bar is hidden; test should reflect that
     const ProgressBarData expected{
         0, 0, colors::blancColor, colors::blancColor, false};
-
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
+
     EXPECT_CALL(viewMock, displayProgressBar(expected)).Times(1);
 
     sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
@@ -251,9 +252,9 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_underwork_progress)
          GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{4}}}};
     const ProgressBarData expected{
         10, 4, colors::blancColor, colors::normalEmptyColor, true};
-
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
+
     EXPECT_CALL(viewMock, displayProgressBar(expected)).Times(1);
 
     sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
@@ -271,9 +272,9 @@ TEST_F(ProgressPresenterFixture,
     // when bar is hidden; test should reflect that
     const ProgressBarData expected{
         0, 0, colors::blancColor, colors::normalFilledColor, false};
-
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
+
     EXPECT_CALL(viewMock, displayProgressBar(expected)).Times(1);
 
     sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
@@ -288,9 +289,9 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_for_overwork_progress)
          GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{14}}}};
     const ProgressBarData expected{
         10, 14, colors::normalFilledColor, colors::overworkFilledColor, true};
-
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
+
     EXPECT_CALL(viewMock, displayProgressBar(expected)).Times(1);
 
     sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};
@@ -305,9 +306,9 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_when_goal_is_met)
          GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{10}}}};
     const ProgressBarData expected{
         10, 10, colors::blancColor, colors::normalFilledColor, true};
-
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
+
     EXPECT_CALL(viewMock, displayProgressBar(expected)).Times(1);
 
     sprint_timer::ui::ProgressPresenter presenter{requestProgressHandlerMock};

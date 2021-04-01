@@ -24,7 +24,6 @@
 
 #include "qt_gui/presentation/TodaySprints.h"
 #include <QAbstractListModel>
-#include <core/entities/Sprint.h>
 #include <vector>
 
 namespace sprint_timer::ui::qt_gui {
@@ -33,10 +32,7 @@ class SprintModel : public QAbstractListModel,
                     public contracts::TodaySprints::View {
 
 public:
-    explicit SprintModel(contracts::TodaySprints::Presenter& presenter,
-                         QObject* parent = nullptr);
-
-    ~SprintModel() override;
+    explicit SprintModel(QObject* parent = nullptr);
 
     void displaySprints(const std::vector<SprintDTO>&) override;
 
@@ -53,7 +49,6 @@ public:
     // bool insertRows(int row, int count, const QModelIndex& parent) override;
 
 private:
-    contracts::TodaySprints::Presenter& presenter;
     std::vector<SprintDTO> storage;
 };
 

@@ -31,7 +31,7 @@ class TagPieDiagramPresenter
     : public contracts::TagPieDiagramContract::Presenter,
       public StatisticsColleague {
 public:
-    TagPieDiagramPresenter(StatisticsMediator& mediator);
+    explicit TagPieDiagramPresenter(StatisticsMediator& mediator);
 
     ~TagPieDiagramPresenter() override;
 
@@ -57,6 +57,8 @@ private:
     Selection selection;
 
     void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

@@ -42,6 +42,8 @@ private:
     TaskSelectionMediator& taskSelectionMediator;
 
     void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
 inline TaskViewPresenter::TaskViewPresenter(
@@ -64,10 +66,12 @@ inline void TaskViewPresenter::changeTaskSelection(size_t index,
 
 inline void TaskViewPresenter::updateViewImpl() { onTaskSelectionChanged(); }
 
+inline void TaskViewPresenter::onViewAttached() { updateView(); }
+
 inline void TaskViewPresenter::onTaskSelectionChanged()
 {
-    if (view) {
-        view->selectTask(taskSelectionMediator.taskIndex());
+    if (auto v = view(); v) {
+        v.value()->selectTask(taskSelectionMediator.taskIndex());
     }
 }
 

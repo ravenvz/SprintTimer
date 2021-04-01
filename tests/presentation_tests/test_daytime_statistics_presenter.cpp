@@ -25,6 +25,7 @@
 #include <qt_gui/presentation/DaytimeStatisticsPresenter.h>
 
 using sprint_timer::entities::Sprint;
+using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::ReturnRef;
@@ -74,6 +75,8 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const DiagramData& data)
 class DaytimeStatisticsViewMock
     : public sprint_timer::ui::contracts::DaytimeStatisticsContract::View {
 public:
+    using sprint_timer::ui::contracts::DaytimeStatisticsContract::View::View;
+
     MOCK_METHOD(void,
                 updateLegend,
                 (const sprint_timer::ui::contracts::DaytimeStatisticsContract::
@@ -89,9 +92,9 @@ public:
 class DaytimeStatisticsPresenterFixture : public ::testing::Test {
 public:
     NiceMock<mocks::StatisticsMediatorMock> mediator_mock;
-    NiceMock<DaytimeStatisticsViewMock> viewMock;
     const size_t numTopTags{20};
-    sprint_timer::ui::DaytimeStatisticsPresenter presenter{mediator_mock};
+    sprint_timer::ui::DaytimeStatisticsPresenter sut{mediator_mock};
+    NiceMock<DaytimeStatisticsViewMock> view;
     const dw::DateRange someDateRange{dw::current_date(),
                                       dw::current_date() + dw::Days{1}};
 
@@ -121,12 +124,11 @@ TEST_F(DaytimeStatisticsPresenterFixture,
     using sprint_timer::ui::contracts::DaytimeStatisticsContract::LegendData;
     const LegendData expected{"No data", ""};
     const std::optional<dw::DateRange> emptyRange;
-
     ON_CALL(mediator_mock, range()).WillByDefault(Return(emptyRange));
 
-    EXPECT_CALL(viewMock, updateLegend(expected)).Times(1);
+    EXPECT_CALL(view, updateLegend(expected));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }
 
 TEST_F(DaytimeStatisticsPresenterFixture,
@@ -135,13 +137,12 @@ TEST_F(DaytimeStatisticsPresenterFixture,
     using sprint_timer::ui::contracts::DaytimeStatisticsContract::LegendData;
     const LegendData expected{"No data", ""};
     const std::vector<Sprint> sprints;
-
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
 
-    EXPECT_CALL(viewMock, updateLegend(expected)).Times(1);
+    EXPECT_CALL(view, updateLegend(expected));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }
 
 TEST_F(DaytimeStatisticsPresenterFixture,
@@ -151,11 +152,12 @@ TEST_F(DaytimeStatisticsPresenterFixture,
     const DiagramData expected{colors::filledColor,
                                std::vector<dw::DateTimeRange>{}};
     const std::vector<Sprint> sprints;
-
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
 
-    presenter.attachView(viewMock);
+    EXPECT_CALL(view, updateDiagram(expected));
+
+    sut.attachView(view);
 }
 
 TEST_F(DaytimeStatisticsPresenterFixture, updates_legend_with_generic_data)
@@ -167,9 +169,9 @@ TEST_F(DaytimeStatisticsPresenterFixture, updates_legend_with_generic_data)
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
 
-    EXPECT_CALL(viewMock, updateLegend(expected));
+    EXPECT_CALL(view, updateLegend(expected));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }
 
 TEST_F(DaytimeStatisticsPresenterFixture, updates_diagram_with_generic_data)
@@ -193,21 +195,23 @@ TEST_F(DaytimeStatisticsPresenterFixture, updates_diagram_with_generic_data)
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
 
-    EXPECT_CALL(viewMock, updateDiagram(expected));
+    EXPECT_CALL(view, updateDiagram(expected));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }
 
 TEST_F(DaytimeStatisticsPresenterFixture,
-       requeries_handler_when_shared_data_is_changed)
+       requeries_mediator_when_shared_data_is_changed)
 {
     const dw::DateRange newDateRange{dw::current_date() - dw::Days{-10},
                                      dw::current_date()};
-    presenter.attachView(viewMock);
-    ON_CALL(mediator_mock, range()).WillByDefault(Return(newDateRange));
     const std::vector<Sprint> stubSprints;
+    ON_CALL(mediator_mock, range()).WillByDefault(Return(newDateRange));
+    ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(stubSprints));
+    sut.attachView(view);
 
-    EXPECT_CALL(mediator_mock, sprints()).WillOnce(ReturnRef(stubSprints));
+    EXPECT_CALL(view, updateDiagram(_));
+    EXPECT_CALL(view, updateLegend(_));
 
-    presenter.onSharedDataChanged();
+    sut.onSharedDataChanged();
 }

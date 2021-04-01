@@ -22,7 +22,8 @@
 #ifndef TIMERCONTRACT_H_DSHEHJTD
 #define TIMERCONTRACT_H_DSHEHJTD
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include "qt_gui/presentation/TaskSelectionMediator.h"
 #include <chrono>
 #include <date_wrapper/date_wrapper.h>
@@ -34,21 +35,10 @@ namespace sprint_timer::ui::contracts::TimerContract {
 
 struct TimerUiModel;
 
-class View {
-public:
-    virtual ~View() = default;
+class View;
 
-    virtual void updateTimerValue(std::chrono::seconds timerValue) = 0;
-
-    virtual void setupUi(TimerUiModel&& model) = 0;
-
-    virtual void
-    submitSprints(const std::vector<dw::DateTimeRange>& timeIntervals) = 0;
-
-    virtual void selectTask(size_t taskIndex) = 0;
-};
-
-class Presenter : public BasePresenter<View>, public TaskSelectionColleague {
+class Presenter : public mvp::BasePresenter<View>,
+                  public TaskSelectionColleague {
 public:
     virtual void onTimerClicked() = 0;
 
@@ -57,6 +47,18 @@ public:
     virtual void onZoneClicked() = 0;
 
     virtual void changeTaskSelection(size_t index, std::string&& uuid) = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
+public:
+    virtual void updateTimerValue(std::chrono::seconds timerValue) = 0;
+
+    virtual void setupUi(TimerUiModel&& model) = 0;
+
+    virtual void
+    submitSprints(const std::vector<dw::DateTimeRange>& timeIntervals) = 0;
+
+    virtual void selectTask(size_t taskIndex) = 0;
 };
 
 struct TimerUiModel {

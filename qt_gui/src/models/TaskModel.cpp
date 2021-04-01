@@ -33,15 +33,10 @@ std::string prefixTags(const std::vector<std::string>& tags);
 
 namespace sprint_timer::ui::qt_gui {
 
-TaskModel::TaskModel(contracts::TaskContract::Presenter& presenter_,
-                     QObject* parent_)
+TaskModel::TaskModel(QObject* parent_)
     : QAbstractListModel{parent_}
-    , presenter{presenter_}
 {
-    presenter.attachView(*this);
 }
-
-TaskModel::~TaskModel() { presenter.detachView(*this); }
 
 void TaskModel::displayTasks(const std::vector<TaskDTO>& tasks)
 {
@@ -121,13 +116,19 @@ bool TaskModel::setData(const QModelIndex& index,
         // }
 
     case (CustomRoles::ReplaceRole): {
-        presenter.editTask(storage[index.row()], value.value<TaskDTO>());
-        return true;
+        if (auto p = presenter(); p) {
+            p.value()->editTask(storage[index.row()], value.value<TaskDTO>());
+            return true;
+        }
+        return false;
     }
 
     case static_cast<int>(CustomRoles::ToggleCheckedRole): {
-        presenter.toggleFinished(storage[index.row()]);
-        return true;
+        if (auto p = presenter(); p) {
+            p.value()->toggleFinished(storage[index.row()]);
+            return true;
+        }
+        return false;
     }
 
     default:
@@ -147,8 +148,12 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
         return false;
     }
 
-    presenter.reorderTasks(sourceRow, count, destinationChild);
-    return true;
+    if (auto p = presenter(); p) {
+        p.value()->reorderTasks(sourceRow, count, destinationChild);
+        return true;
+    }
+
+    return false;
 }
 
 bool TaskModel::removeRows(int row, int count, const QModelIndex& parent)
@@ -163,8 +168,11 @@ bool TaskModel::removeRows(int row, int count, const QModelIndex& parent)
 
     // Rely on presenter to resupply updated data (model data will be fully
     // replaced, hence no calls to begin/end|removeRows
-    presenter.deleteTask(storage[row]);
-    return true;
+    if (auto p = presenter(); p) {
+        p.value()->deleteTask(storage[row]);
+        return true;
+    }
+    return false;
 }
 
 bool TaskModel::insertRows(int row, int count, const QModelIndex& parent)
@@ -185,11 +193,6 @@ bool TaskModel::insertRows(int row, int count, const QModelIndex& parent)
 int TaskModel::rowCount(const QModelIndex& parent) const
 {
     return static_cast<int>(storage.size());
-}
-
-TaskDTO TaskModel::itemAt(int row) const
-{
-    return storage.at(static_cast<size_t>(row));
 }
 
 } // namespace sprint_timer::ui::qt_gui

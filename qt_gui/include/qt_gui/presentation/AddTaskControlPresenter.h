@@ -42,8 +42,6 @@ public:
 
 private:
     CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler;
-
-    void updateViewImpl() override;
 };
 
 inline AddTaskControlPresenter::AddTaskControlPresenter(
@@ -77,8 +75,6 @@ AddTaskControlPresenter::addTask(const std::string& encodedDescription) const
     const entities::Task task{encodedDescription};
     createTaskHandler.handle(use_cases::CreateTaskCommand{task});
 }
-
-inline void AddTaskControlPresenter::updateViewImpl() { }
 
 } // namespace sprint_timer::ui
 

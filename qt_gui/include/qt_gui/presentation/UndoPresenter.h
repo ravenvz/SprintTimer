@@ -60,6 +60,8 @@ private:
 
     void updateViewImpl() override;
 
+    void onViewAttached() override;
+
 private:
     Mediator<Invalidatable>& cacheInvalidationMediator;
     UndoObserver undoObserver;

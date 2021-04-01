@@ -27,15 +27,11 @@ namespace sprint_timer::ui::qt_gui {
 
 using namespace entities;
 
-BestWorktimeWidget::BestWorktimeWidget(
-    BasePresenter<contracts::DaytimeStatisticsContract::View>& presenter_,
-    QWidget* parent_)
+BestWorktimeWidget::BestWorktimeWidget(QWidget* parent_)
     : QWidget{parent_}
     , ui{std::make_unique<Ui::BestWorktimeWidget>()}
-    , presenter{presenter_}
 {
     ui->setupUi(this);
-    presenter.attachView(*this);
 }
 
 BestWorktimeWidget::~BestWorktimeWidget() = default;

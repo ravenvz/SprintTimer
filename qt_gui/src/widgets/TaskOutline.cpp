@@ -20,10 +20,12 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TaskOutline.h"
+#include "qt_gui/Displayable.h"
 #include "qt_gui/dialogs/AddTaskDialog.h"
 #include "qt_gui/metatypes/TaskDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/widgets/TaskView.h"
+#include <QLineEdit>
 #include <QMenu>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -36,14 +38,10 @@ const QString addTaskDialogTitle{"Add new task"};
 
 namespace sprint_timer::ui::qt_gui {
 
-using namespace entities;
-
-TaskOutline::TaskOutline(ui::contracts::AddTaskControl::Presenter& presenter_,
-                         std::unique_ptr<QWidget> taskView_,
+TaskOutline::TaskOutline(std::unique_ptr<QWidget> taskView_,
                          Displayable& addTaskDialog_,
                          QWidget* parent_)
     : QWidget{parent_}
-    , presenter{presenter_}
     , addTaskDialog{addTaskDialog_}
 {
     auto layout = std::make_unique<QVBoxLayout>(this);
@@ -68,34 +66,15 @@ TaskOutline::TaskOutline(ui::contracts::AddTaskControl::Presenter& presenter_,
     setLayout(layout.release());
 }
 
-TaskOutline::~TaskOutline() { }
-
 void TaskOutline::onQuickAddTodoReturnPressed()
 {
     const std::string encodedDescription = quickAddTask->text().toStdString();
     quickAddTask->clear();
-    if (!encodedDescription.empty()) {
-        presenter.addTask(encodedDescription);
+    if (auto p = presenter(); p && !encodedDescription.empty()) {
+        p.value()->addTask(encodedDescription);
     }
 }
 
-void TaskOutline::onAddTaskButtonPushed()
-{
-    addTaskDialog.display();
-    // AddTaskDialog dialog{tagModel};
-    // dialog.setWindowTitle(addTaskDialogTitle);
-    // if (dialog.exec() == QDialog::Accepted) {
-    //     const auto task = dialog.constructedTask();
-    //     const auto t = task.tags();
-    //     std::vector<std::string> tagStr(t.size(), "");
-    //     std::transform(cbegin(t), cend(t), begin(tagStr), [](const auto&
-    //     elem) {
-    //         return elem.name();
-    //     });
-    //     ui::contracts::AddTaskControl::TaskDetails details{
-    //         task.name(), tagStr, task.estimatedCost(), task.actualCost()};
-    //     presenter.onTaskAddConfirmed(details);
-    // }
-}
+void TaskOutline::onAddTaskButtonPushed() { addTaskDialog.display(); }
 
 } // namespace sprint_timer::ui::qt_gui

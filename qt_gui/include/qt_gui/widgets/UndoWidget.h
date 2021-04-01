@@ -30,17 +30,11 @@ namespace sprint_timer::qt_gui {
 class UndoWidget : public ui::contracts::UndoContract::View,
                    public QPushButton {
 public:
-    explicit UndoWidget(ui::contracts::UndoContract::Presenter& presenter,
-                        QWidget* parent = nullptr);
-
-    ~UndoWidget() override;
+    explicit UndoWidget(QWidget* parent = nullptr);
 
     void showConfirmationDialog(const std::string& message) override;
 
     void setInteractive(bool interactive) override;
-
-private:
-    ui::contracts::UndoContract::Presenter& presenter;
 };
 
 } // namespace sprint_timer::qt_gui

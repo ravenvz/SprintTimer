@@ -51,12 +51,16 @@ public:
 
     void updateViewImpl() override
     {
-        const dw::DateRange range{dw::current_date_local(),
-                                  dw::current_date_local()};
-        const auto sprints =
-            requestSprintsHandler.handle(use_cases::RequestSprintsQuery{range});
-        view->displaySprints(makeDTOs(sprints));
+        if (auto v = view(); v) {
+            const dw::DateRange range{dw::current_date_local(),
+                                      dw::current_date_local()};
+            const auto sprints = requestSprintsHandler.handle(
+                use_cases::RequestSprintsQuery{range});
+            v.value()->displaySprints(makeDTOs(sprints));
+        }
     }
+
+    void onViewAttached() override { updateView(); }
 
 private:
     CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler;

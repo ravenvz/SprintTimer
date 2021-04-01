@@ -22,7 +22,8 @@
 #ifndef DAILYPROGRESSPRESENTERCONTRACT_H_ERA0VCQQ
 #define DAILYPROGRESSPRESENTERCONTRACT_H_ERA0VCQQ
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <core/ProgressOverPeriod.h>
 
 namespace sprint_timer::ui::contracts::DailyProgress {
@@ -50,10 +51,8 @@ struct ProgressBarData {
     bool isVisible;
 };
 
-class View {
+class View : public mvp::BaseView<View, mvp::BasePresenter<View>> {
 public:
-    virtual ~View() = default;
-
     virtual void displayLegend(const LegendData& data) = 0;
 
     virtual void displayGauges(const std::vector<GaugeValues>& data) = 0;

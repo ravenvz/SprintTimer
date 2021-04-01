@@ -22,7 +22,8 @@
 #ifndef WORKSCHEDULEEDITOR_H_UCRXQH70
 #define WORKSCHEDULEEDITOR_H_UCRXQH70
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <core/WorkSchedule.h>
 #include <date_wrapper/date_wrapper.h>
 
@@ -34,28 +35,9 @@ using RoasterRow = std::pair<dw::Date, std::string>;
 
 using ExceptionalDay = std::pair<dw::Date, uint32_t>;
 
-class View {
-public:
-    virtual void
-    displayCurrentWeekSchedule(const std::vector<DayAndGoal>& weekSchedule) = 0;
+class View;
 
-    virtual void displayRoaster(const std::vector<RoasterRow>& roaster) = 0;
-
-    virtual void displayExceptionalDays(
-        const std::vector<WorkSchedule::DateGoal>& exceptionalDays) = 0;
-
-    virtual void displayAddExceptionalDaysDialog(dw::Weekday firstDayOfWeek,
-                                                 dw::Date preselectedDate) = 0;
-
-    View() = default;
-    virtual ~View() = default;
-    View(const View& other) = delete;
-    View& operator=(const View& other) = delete;
-    View(View&& other) noexcept = delete;
-    View& operator=(View&& other) noexcept = delete;
-};
-
-class Presenter : public BasePresenter<View> {
+class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void onAddExceptionalRequested() = 0;
 
@@ -73,6 +55,26 @@ public:
     virtual void onScheduleChangeConfirmed() = 0;
 
     virtual void onRevertChanges() = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
+public:
+    virtual void
+    displayCurrentWeekSchedule(const std::vector<DayAndGoal>& weekSchedule) = 0;
+
+    virtual void displayRoaster(const std::vector<RoasterRow>& roaster) = 0;
+
+    virtual void displayExceptionalDays(
+        const std::vector<WorkSchedule::DateGoal>& exceptionalDays) = 0;
+
+    virtual void displayAddExceptionalDaysDialog(dw::Weekday firstDayOfWeek,
+                                                 dw::Date preselectedDate) = 0;
+
+    View() = default;
+    View(const View& other) = delete;
+    View& operator=(const View& other) = delete;
+    View(View&& other) noexcept = delete;
+    View& operator=(View&& other) noexcept = delete;
 };
 
 } // namespace sprint_timer::ui::contracts::WorkScheduleEditor

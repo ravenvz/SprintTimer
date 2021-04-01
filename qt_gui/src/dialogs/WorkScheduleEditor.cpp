@@ -47,11 +47,9 @@ constexpr size_t daysInWeek{7};
 
 namespace sprint_timer::ui::qt_gui {
 
-WorkScheduleEditor::WorkScheduleEditor(
-    contracts::WorkScheduleEditor::Presenter& presenter_, QDialog* parent_)
-    : QDialog{parent_}
+WorkScheduleEditor::WorkScheduleEditor(QDialog* parent_)
+    : DisplayableDialog{parent_}
     , ui{std::make_unique<Ui::WorkScheduleEditor>()}
-    , presenter{presenter_}
     , exceptionalDaysModel{std::make_unique<ExtraDayModel>()}
     , roasterBufferModel{std::make_unique<WeekScheduleModel>()}
 {
@@ -71,7 +69,9 @@ WorkScheduleEditor::WorkScheduleEditor(
             }
         });
     connect(ui->btnAddExceptionalDay, &QPushButton::clicked, [this]() {
-        presenter.onAddExceptionalRequested();
+        if (auto p = presenter(); p) {
+            p.value()->onAddExceptionalRequested();
+        }
     });
     connect(exceptionalDaysModel.get(),
             &QAbstractItemModel::rowsAboutToBeRemoved,
@@ -83,10 +83,9 @@ WorkScheduleEditor::WorkScheduleEditor(
             &WorkScheduleEditor::addSchedule);
     ui->listViewSchedules->setModel(roasterBufferModel.get());
     ui->listViewExceptionalDays->setModel(exceptionalDaysModel.get());
-    presenter.attachView(*this);
 }
 
-WorkScheduleEditor::~WorkScheduleEditor() { presenter.detachView(*this); }
+WorkScheduleEditor::~WorkScheduleEditor() = default;
 
 void WorkScheduleEditor::displayCurrentWeekSchedule(
     const std::vector<contracts::WorkScheduleEditor::DayAndGoal>& weekSchedule)
@@ -181,26 +180,35 @@ void WorkScheduleEditor::displayAddExceptionalDaysDialog(
     AddExceptionalDayDialog dialog{firstDayOfWeek, preselectedDate, outputData};
     if (dialog.exec() == QDialog::Accepted) {
         auto [startDate, numDays, sprintsPerDay] = outputData;
-        presenter.onExceptionalDaysAdded(startDate, numDays, sprintsPerDay);
+        if (auto p = presenter(); p) {
+            p.value()->onExceptionalDaysAdded(
+                startDate, numDays, sprintsPerDay);
+        }
     }
 }
 
 void WorkScheduleEditor::accept()
 {
-    presenter.onScheduleChangeConfirmed();
+    if (auto p = presenter(); p) {
+        p.value()->onScheduleChangeConfirmed();
+    }
     QDialog::accept();
 }
 
 void WorkScheduleEditor::reject()
 {
-    presenter.onRevertChanges();
+    if (auto p = presenter(); p) {
+        p.value()->onRevertChanges();
+    }
     QDialog::reject();
 }
 
 void WorkScheduleEditor::addSchedule()
 {
     const auto date = utils::toDate(ui->dateEditScheduleDate->date());
-    presenter.onWeekScheduleAdded(pollSchedule(), date);
+    if (auto p = presenter(); p) {
+        p.value()->onWeekScheduleAdded(pollSchedule(), date);
+    }
 }
 
 std::vector<uint8_t> WorkScheduleEditor::pollSchedule() const
@@ -224,23 +232,27 @@ void WorkScheduleEditor::onExcDayAboutToBeRemoved(const QModelIndex&,
                                                   int first,
                                                   int)
 {
-    auto* model = ui->listViewExceptionalDays->model();
-    if (!model)
-        return;
-    const auto entry = model->data(model->index(first, 0), Qt::EditRole)
-                           .value<QPair<QDate, int>>();
-    QSignalBlocker signalBlocker{model};
-    presenter.onExceptionalDayRemoved(utils::toDate(entry.first));
+    if (auto p = presenter(); p) {
+        auto* model = ui->listViewExceptionalDays->model();
+        if (!model)
+            return;
+        const auto entry = model->data(model->index(first, 0), Qt::EditRole)
+                               .value<QPair<QDate, int>>();
+        QSignalBlocker signalBlocker{model};
+        p.value()->onExceptionalDayRemoved(utils::toDate(entry.first));
+    }
 }
 
 void WorkScheduleEditor::onScheduleRemovedFromModel(const QModelIndex&,
                                                     int first,
                                                     int)
 {
-    auto* model = ui->listViewSchedules->model();
-    const auto entry = model->data(model->index(first, 0), Qt::EditRole)
-                           .value<QPair<QDate, QString>>();
-    presenter.onWeekScheduleRemoved(utils::toDate(entry.first));
+    if (auto p = presenter(); p) {
+        auto* model = ui->listViewSchedules->model();
+        const auto entry = model->data(model->index(first, 0), Qt::EditRole)
+                               .value<QPair<QDate, QString>>();
+        p.value()->onWeekScheduleRemoved(utils::toDate(entry.first));
+    }
 }
 
 } // namespace sprint_timer::ui::qt_gui

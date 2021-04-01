@@ -22,7 +22,6 @@
 #ifndef DAILYSTATISTICSGRAPHPRESENTER_H_8VCTBWMG
 #define DAILYSTATISTICSGRAPHPRESENTER_H_8VCTBWMG
 
-#include "qt_gui/presentation/BasePresenter.h"
 #include "qt_gui/presentation/DailyStatisticsGraphContract.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
 #include <core/use_cases/request_schedule/WorkScheduleHandler.h>
@@ -30,24 +29,26 @@
 namespace sprint_timer::ui {
 
 class DailyStatisticsGraphPresenter
-    : public BasePresenter<contracts::DailyStatisticGraphContract::View>,
+    : public mvp::BasePresenter<contracts::DailyStatisticGraphContract::View>,
       public StatisticsColleague {
 public:
-    DailyStatisticsGraphPresenter(
-        QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>&
-            workScheduleHandler,
-        StatisticsMediator& mediator);
+    using schedule_hdl_t =
+        QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>;
+
+    DailyStatisticsGraphPresenter(schedule_hdl_t& workScheduleHandler,
+                                  StatisticsMediator& mediator);
 
     ~DailyStatisticsGraphPresenter() override;
 
     void onSharedDataChanged() override;
 
 private:
-    QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>&
-        workScheduleHandler;
+    schedule_hdl_t& workScheduleHandler;
     StatisticsMediator& mediator;
 
     void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

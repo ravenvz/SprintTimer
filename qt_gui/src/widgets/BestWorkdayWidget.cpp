@@ -20,34 +20,51 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/BestWorkdayWidget.h"
-#include "ui_best_workday_widget.h"
+#include "qt_gui/widgets/BarChart.h"
 #include <QDate>
+#include <QLabel>
+#include <QLocale>
+#include <QSizePolicy>
+#include <QVBoxLayout>
 
 namespace sprint_timer::ui::qt_gui {
 
-BestWorkdayWidget::BestWorkdayWidget(
-    BasePresenter<contracts::BestWorkday::View>& presenter_, QWidget* parent_)
+BestWorkdayWidget::BestWorkdayWidget(QWidget* parent_)
     : QWidget{parent_}
-    , ui{std::make_unique<Ui::BestWorkdayWidget>()}
-    , presenter{presenter_}
+    , labelBestWorkdayName{std::make_unique<QLabel>().release()}
+    , labelBestWorkdayMsg{std::make_unique<QLabel>().release()}
+    , workdayBarChart{std::make_unique<BarChart>(nullptr).release()}
 {
-    ui->setupUi(this);
-    presenter.attachView(*this);
-}
+    auto layout_ = std::make_unique<QVBoxLayout>();
 
-BestWorkdayWidget::~BestWorkdayWidget() { presenter.detachView(*this); }
+    auto labelTitle_ = std::make_unique<QLabel>("Best Workday");
+
+    labelTitle_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    labelBestWorkdayName->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    labelBestWorkdayMsg->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    QFont labelFont{labelBestWorkdayName->font()};
+    labelFont.setBold(true);
+    labelBestWorkdayName->setFont(labelFont);
+
+    layout_->addWidget(labelTitle_.release());
+    layout_->addWidget(labelBestWorkdayName);
+    layout_->addWidget(labelBestWorkdayMsg);
+    layout_->addWidget(workdayBarChart);
+
+    setLayout(layout_.release());
+}
 
 void BestWorkdayWidget::displayLegend(const LegendData& data)
 {
     if (data.dayNum == -1) {
-        ui->labelBestWorkdayName->setText(
-            QString::fromStdString(data.percentage));
+        labelBestWorkdayName->setText(QString::fromStdString(data.percentage));
         return;
     }
     const QLocale defaultLocale;
-    ui->labelBestWorkdayName->setText(
+    labelBestWorkdayName->setText(
         defaultLocale.dayName(data.dayNum, QLocale::FormatType::LongFormat));
-    ui->labelBestWorkdayMsg->setText(
+    labelBestWorkdayMsg->setText(
         QString("%1% more than average")
             .arg(QString::fromStdString(data.percentage)));
 }
@@ -67,11 +84,11 @@ void BestWorkdayWidget::displayBars(const BarD& data)
     QPen pen;
     pen.setWidthF(1.2);
     pen.setColor(QString::fromStdString(data.borderColor));
-    ui->workdayBarChart->setPen(pen);
+    workdayBarChart->setPen(pen);
     QBrush brush = QBrush(QColor(QString::fromStdString(data.barColor)));
-    ui->workdayBarChart->setBrush(brush);
+    workdayBarChart->setBrush(brush);
     const BarData barData = BarData(data.barValues, labels_);
-    ui->workdayBarChart->setData(barData);
+    workdayBarChart->setData(barData);
 }
 
 } // namespace sprint_timer::ui::qt_gui

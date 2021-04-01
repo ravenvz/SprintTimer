@@ -22,7 +22,6 @@
 #ifndef TODAYPROGRESSPRESENTER_H_31EAPJRM
 #define TODAYPROGRESSPRESENTER_H_31EAPJRM
 
-#include "qt_gui/presentation/BasePresenter.h"
 #include "qt_gui/presentation/TodayProgressContract.h"
 #include <core/QueryHandler.h>
 #include <core/use_cases/request_progress/RequestProgressQuery.h>
@@ -30,7 +29,7 @@
 namespace sprint_timer::ui {
 
 class TodayProgressPresenter
-    : public BasePresenter<contracts::TodayProgressContract::View> {
+    : public mvp::BasePresenter<contracts::TodayProgressContract::View> {
 public:
     using request_progress_hdl_t =
         QueryHandler<use_cases::RequestProgressQuery, ProgressOverPeriod>;
@@ -42,6 +41,8 @@ private:
     request_progress_hdl_t& requestProgressHandler;
 
     void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

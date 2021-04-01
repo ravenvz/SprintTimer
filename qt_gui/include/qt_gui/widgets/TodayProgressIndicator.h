@@ -22,7 +22,6 @@
 #ifndef TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
 #define TODAYPROGRESSINDICATOR_H_ZKLBW9AJ
 
-#include "qt_gui/presentation/BasePresenter.h"
 #include "qt_gui/presentation/TodayProgressContract.h"
 #include <QLabel>
 #include <core/GoalProgress.h>
@@ -32,17 +31,10 @@ namespace sprint_timer::ui::qt_gui {
 class TodayProgressIndicator : public QLabel,
                                public contracts::TodayProgressContract::View {
 public:
-    explicit TodayProgressIndicator(
-        BasePresenter<contracts::TodayProgressContract::View>& presenter,
-        QWidget* parent = nullptr);
-
-    ~TodayProgressIndicator() override;
+    explicit TodayProgressIndicator(QWidget* parent = nullptr);
 
     void displayProgress(const std::string& progress,
                          const std::string& style) override;
-
-private:
-    BasePresenter<contracts::TodayProgressContract::View>& presenter;
 };
 
 } // namespace sprint_timer::ui::qt_gui

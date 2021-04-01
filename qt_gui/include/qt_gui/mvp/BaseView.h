@@ -19,28 +19,42 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/DataExportContract.h"
-#include <QWidget>
+#ifndef BASEVIEW_H_KOLQR62J
+#define BASEVIEW_H_KOLQR62J
 
-namespace sprint_timer::ui::qt_gui {
+#include "qt_gui/mvp/crtp.h"
+#include <optional>
 
-class DataExportWidget : public contracts::DataExportContract::View,
-                         public QWidget {
+namespace mvp {
+
+template <class ViewImp, class PresenterT>
+class BaseView : public crtp<ViewImp> {
 public:
-    explicit DataExportWidget(QWidget* parent = nullptr);
+    void setPresenter(PresenterT& presenter_)
+    {
+        maybePresenter = &presenter_;
+        maybePresenter->attachView(this->underlying());
+    }
 
-    void displayExportOptions(
-        const contracts::DataExportContract::ExportRequestOptions& options)
-        override;
+    virtual ~BaseView()
+    {
+        if (maybePresenter != nullptr) {
+            maybePresenter->detachView(this->underlying());
+        }
+    }
 
-    void displayReportOptions(
-        const contracts::DataExportContract::ReportRequestOptions& options)
-        override;
+    std::optional<PresenterT*> presenter() const
+    {
+        return (maybePresenter == nullptr) ? std::nullopt
+                                           : std::make_optional(maybePresenter);
+    }
 
-    void setupElements(const contracts::DataExportContract::ViewElements&
-                           viewElements) override;
+private:
+    BaseView() = default;
+    friend ViewImp;
 
-    void displayError(const std::string& errorMessage) override;
+    PresenterT* maybePresenter{nullptr};
 };
+} // namespace mvp
 
-} // namespace sprint_timer::ui::qt_gui
+#endif /* end of include guard: BASEVIEW_H_KOLQR62J */

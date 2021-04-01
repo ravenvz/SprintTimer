@@ -20,6 +20,8 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TaskView.h"
+#include "qt_gui/StandaloneDisplayable.h"
+#include "qt_gui/dialogs/DisplayableDialog.h"
 #include "qt_gui/metatypes/TaskDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/utils/MouseRightReleaseEater.h"
@@ -27,14 +29,12 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-TaskView::TaskView(contracts::TaskViewContract::Presenter& presenter_,
-                   StandaloneDisplayable& sprintsForTaskView_,
+TaskView::TaskView(StandaloneDisplayable& sprintsForTaskView_,
                    Displayable& editTaskDialog_,
                    StandaloneDisplayable& tagEditor_,
                    QAbstractItemModel& taskModel_,
                    QWidget* parent_)
     : ReordableListView{parent_}
-    , presenter{presenter_}
     , sprintsForTaskView{sprintsForTaskView_}
     , editTaskDialog{editTaskDialog_}
     , tagEditor{tagEditor_}
@@ -55,14 +55,14 @@ TaskView::TaskView(contracts::TaskViewContract::Presenter& presenter_,
     connect(this, &QListView::pressed, [this]() {
         const auto var = model()->data(currentIndex(), CustomRoles::IdRole);
         const auto uuid = var.value<QString>();
-        presenter.changeTaskSelection(currentIndex().row(), uuid.toStdString());
+        if (auto p = presenter(); p) {
+            p.value()->changeTaskSelection(currentIndex().row(),
+                                           uuid.toStdString());
+        }
     });
     setWordWrap(true);
     setVerticalScrollMode(ScrollMode::ScrollPerPixel);
-    presenter.attachView(*this);
 }
-
-TaskView::~TaskView() { presenter.detachView(*this); }
 
 void TaskView::selectTask(std::optional<size_t> taskIndex)
 {

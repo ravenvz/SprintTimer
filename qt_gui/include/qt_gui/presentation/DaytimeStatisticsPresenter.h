@@ -22,14 +22,14 @@
 #ifndef DAYTIMESTATISTICSPRESENTER_H_XI31IPVZ
 #define DAYTIMESTATISTICSPRESENTER_H_XI31IPVZ
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/presentation/DaytimeStatisticsContract.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
 
 namespace sprint_timer::ui {
 
 class DaytimeStatisticsPresenter
-    : public BasePresenter<contracts::DaytimeStatisticsContract::View>,
+    : public mvp::BasePresenter<contracts::DaytimeStatisticsContract::View>,
       public StatisticsColleague {
 public:
     explicit DaytimeStatisticsPresenter(StatisticsMediator& mediator);
@@ -42,6 +42,8 @@ private:
     StatisticsMediator& mediator;
 
     void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
 struct SprintDaytimeDistribution {

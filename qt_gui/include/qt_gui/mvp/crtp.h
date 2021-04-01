@@ -19,28 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/DataExportContract.h"
-#include <QWidget>
+#ifndef CRTP_H_QPS375FV
+#define CRTP_H_QPS375FV
 
-namespace sprint_timer::ui::qt_gui {
+namespace mvp {
 
-class DataExportWidget : public contracts::DataExportContract::View,
-                         public QWidget {
-public:
-    explicit DataExportWidget(QWidget* parent = nullptr);
+template <typename T> struct crtp {
+    T& underlying() { return static_cast<T&>(*this); }
 
-    void displayExportOptions(
-        const contracts::DataExportContract::ExportRequestOptions& options)
-        override;
-
-    void displayReportOptions(
-        const contracts::DataExportContract::ReportRequestOptions& options)
-        override;
-
-    void setupElements(const contracts::DataExportContract::ViewElements&
-                           viewElements) override;
-
-    void displayError(const std::string& errorMessage) override;
+    T const& underlying() const { return static_cast<T const&>(*this); }
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace mvp
+
+#endif /* end of include guard: CRTP_H_QPS375FV */

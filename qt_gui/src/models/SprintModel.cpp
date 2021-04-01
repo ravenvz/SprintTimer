@@ -34,18 +34,11 @@ namespace sprint_timer::ui::qt_gui {
 
 using dw::DateTime;
 using dw::DateTimeRange;
-using entities::Sprint;
-using entities::Tag;
 
-SprintModel::SprintModel(contracts::TodaySprints::Presenter& presenter_,
-                         QObject* parent_)
+SprintModel::SprintModel(QObject* parent_)
     : QAbstractListModel{parent_}
-    , presenter{presenter_}
 {
-    presenter.attachView(*this);
 }
-
-SprintModel::~SprintModel() { presenter.detachView(*this); }
 
 void SprintModel::displaySprints(const std::vector<SprintDTO>& sprints)
 {
@@ -87,13 +80,16 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
     if (row + count - 1 >= static_cast<int>(storage.size()))
         return false;
 
-    beginRemoveRows(index, row, row + count - 1);
-    storage.erase(storage.begin() + row, storage.begin() + row + count - 1);
-    endRemoveRows();
+    // beginRemoveRows(index, row, row + count - 1);
+    // storage.erase(storage.begin() + row, storage.begin() + row + count - 1);
+    // endRemoveRows();
 
-    presenter.onSprintDelete(storage[row]);
+    if (auto p = presenter(); p) {
+        p.value()->onSprintDelete(storage[row]);
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
 // bool SprintModel::setData(const QModelIndex& index,

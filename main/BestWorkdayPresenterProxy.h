@@ -26,9 +26,8 @@
 
 namespace sprint_timer::compose {
 
-class BestWorkdayPresenterProxy
-    : public ui::BasePresenter<ui::contracts::BestWorkday::View>,
-      public ui::StatisticsColleague {
+class BestWorkdayPresenterProxy : public ui::contracts::BestWorkday::Presenter,
+                                  public ui::StatisticsColleague {
 public:
     BestWorkdayPresenterProxy(ui::StatisticsMediator& mediator_,
                               IConfig& settings_,
@@ -40,18 +39,6 @@ public:
     {
     }
 
-    void attachView(ui::contracts::BestWorkday::View& view_) override
-    {
-        presenter.attachView(view_);
-        BasePresenter::attachView(view_);
-    }
-
-    void detachView(ui::contracts::BestWorkday::View& view_) override
-    {
-        presenter.detachView(view_);
-        BasePresenter::detachView(view_);
-    }
-
     void onSharedDataChanged() override { }
 
 private:
@@ -61,15 +48,20 @@ private:
     ui::BestWorkdayPresenter presenter{mediator, cached};
     CompositionObserver configChangedWatcher;
 
-    void updateViewImpl() override { }
-
     void onConfigChanged()
     {
-        if (view && settings.firstDayOfWeek() != cached) {
+        if (auto v = view(); v && settings.firstDayOfWeek() != cached) {
             cached = settings.firstDayOfWeek();
             presenter = ui::BestWorkdayPresenter{mediator, cached};
-            presenter.attachView(*view);
+            presenter.attachView(*v.value());
         }
+    }
+
+    void onViewAttached() override { presenter.attachView(*view().value()); }
+
+    void beforeViewDetached() override
+    {
+        presenter.detachView(*view().value());
     }
 };
 

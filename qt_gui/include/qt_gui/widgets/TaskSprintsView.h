@@ -41,10 +41,7 @@ class TaskSprintsView : public StandaloneDisplayableWidget,
                         public contracts::TaskSprintsContract::View {
 
 public:
-    TaskSprintsView(
-        BasePresenter<contracts::TaskSprintsContract::View>& presenter,
-        QStyledItemDelegate& delegate,
-        QWidget* parent = nullptr);
+    TaskSprintsView(QStyledItemDelegate& delegate, QWidget* parent = nullptr);
 
     explicit TaskSprintsView(QWidget* parent = nullptr);
 
@@ -53,7 +50,6 @@ public:
     void displaySprints(const std::vector<SprintDTO>& sprints) override;
 
 private:
-    BasePresenter<contracts::TaskSprintsContract::View>& presenter;
     std::unique_ptr<Ui::TaskSprintsView> ui;
     HistoryModel historyModel;
 };

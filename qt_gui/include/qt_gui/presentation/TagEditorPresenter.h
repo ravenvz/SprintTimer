@@ -47,6 +47,8 @@ private:
     rename_tag_hdl_t& renameTagHandler;
 
     void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
 TagEditorPresenter::TagEditorPresenter(all_tags_hdl_t& allTagsHandler_,
@@ -64,10 +66,13 @@ inline void TagEditorPresenter::renameTag(const std::string& original,
 
 inline void TagEditorPresenter::updateViewImpl()
 {
-    if (view) {
-        view->displayTags(allTagsHandler.handle(use_cases::AllTagsQuery{}));
+    if (auto v = view(); v) {
+        v.value()->displayTags(
+            allTagsHandler.handle(use_cases::AllTagsQuery{}));
     }
 }
+
+inline void TagEditorPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 

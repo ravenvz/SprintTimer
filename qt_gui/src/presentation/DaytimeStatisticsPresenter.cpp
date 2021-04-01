@@ -27,10 +27,10 @@ namespace {
 const std::string filledColor{"#f63c0d"};
 
 void updateViewWithStubData(
-    sprint_timer::ui::contracts::DaytimeStatisticsContract::View* view);
+    sprint_timer::ui::contracts::DaytimeStatisticsContract::View& view);
 
 void updateViewWithValidData(
-    sprint_timer::ui::contracts::DaytimeStatisticsContract::View* view,
+    sprint_timer::ui::contracts::DaytimeStatisticsContract::View& view,
     const sprint_timer::ui::SprintDaytimeDistribution& distribution);
 
 sprint_timer::ui::SprintDaytimeDistribution
@@ -62,43 +62,47 @@ void DaytimeStatisticsPresenter::onSharedDataChanged() { updateView(); }
 
 void DaytimeStatisticsPresenter::updateViewImpl()
 {
-    if (!mediator.range()) {
-        updateViewWithStubData(view);
-        return;
+    if (auto v = view(); v) {
+        if (!mediator.range()) {
+            updateViewWithStubData(*v.value());
+            return;
+        }
+        const auto& sprints = mediator.sprints();
+        if (sprints.empty()) {
+            updateViewWithStubData(*v.value());
+            return;
+        }
+        const auto distribution = buildDistribution(sprints);
+        updateViewWithValidData(*v.value(), distribution);
     }
-    const auto& sprints = mediator.sprints();
-    if (sprints.empty()) {
-        updateViewWithStubData(view);
-        return;
-    }
-    const auto distribution = buildDistribution(sprints);
-    updateViewWithValidData(view, distribution);
 }
+
+void DaytimeStatisticsPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 
 namespace {
 
 void updateViewWithStubData(
-    sprint_timer::ui::contracts::DaytimeStatisticsContract::View* view)
+    sprint_timer::ui::contracts::DaytimeStatisticsContract::View& view)
 {
     using namespace sprint_timer::ui::contracts::DaytimeStatisticsContract;
-    view->updateLegend(LegendData{"No data", ""});
-    view->updateDiagram(
+    view.updateLegend(LegendData{"No data", ""});
+    view.updateDiagram(
         DiagramData{filledColor, std::vector<dw::DateTimeRange>{}});
 }
 
 void updateViewWithValidData(
-    sprint_timer::ui::contracts::DaytimeStatisticsContract::View* view,
+    sprint_timer::ui::contracts::DaytimeStatisticsContract::View& view,
     const sprint_timer::ui::SprintDaytimeDistribution& distribution)
 {
     using namespace sprint_timer::ui::contracts::DaytimeStatisticsContract;
     using namespace sprint_timer::use_cases;
     const auto maxValueBin = static_cast<unsigned>(
         distribution.dayPartDistribution.getMaxValueBin());
-    view->updateLegend(
+    view.updateLegend(
         LegendData{dayPartName(maxValueBin), dayPartHours(maxValueBin)});
-    view->updateDiagram(DiagramData{filledColor, distribution.timeRanges});
+    view.updateDiagram(DiagramData{filledColor, distribution.timeRanges});
 }
 
 sprint_timer::ui::SprintDaytimeDistribution

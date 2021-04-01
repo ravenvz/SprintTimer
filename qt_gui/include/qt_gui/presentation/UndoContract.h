@@ -22,29 +22,31 @@
 #ifndef UNDOCONTRACT_H_0SCLY1JB
 #define UNDOCONTRACT_H_0SCLY1JB
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 
 namespace sprint_timer::ui::contracts::UndoContract {
 
-class View {
+class View;
+
+class Presenter : public mvp::BasePresenter<View> {
+public:
+    virtual void onUndoRequested() = 0;
+
+    virtual void onUndoConfirmed() = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
 public:
     virtual void showConfirmationDialog(const std::string& message) = 0;
 
     virtual void setInteractive(bool interactive) = 0;
 
     View() = default;
-    virtual ~View() = default;
     View(const View& other) = delete;
     View& operator=(const View& other) = delete;
     View(View&& other) noexcept = delete;
     View& operator=(View&& other) noexcept = delete;
-};
-
-class Presenter : public BasePresenter<View> {
-public:
-    virtual void onUndoRequested() = 0;
-
-    virtual void onUndoConfirmed() = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::UndoContract

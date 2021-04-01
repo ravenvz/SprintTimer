@@ -51,9 +51,9 @@ private:
     ui::WorkScheduleEditorPresenter presenter{
         workScheduleHandler, changeWorkScheduleHandler, cached};
 
-    void attachView(ui::contracts::WorkScheduleEditor::View& view_) override;
+    void onViewAttached() override;
 
-    void detachView(ui::contracts::WorkScheduleEditor::View& view_) override;
+    void beforeViewDetached() override;
 
     void onConfigChanged();
 
@@ -92,29 +92,28 @@ inline WorkScheduleEditorPresenterProxy::WorkScheduleEditorPresenterProxy(
 {
 }
 
-inline void WorkScheduleEditorPresenterProxy::attachView(
-    ui::contracts::WorkScheduleEditor::View& view_)
+inline void WorkScheduleEditorPresenterProxy::onViewAttached()
 {
-    presenter.attachView(view_);
-    BasePresenter::attachView(view_);
+    presenter.attachView(*view().value());
 }
 
-inline void WorkScheduleEditorPresenterProxy::detachView(
-    ui::contracts::WorkScheduleEditor::View& view_)
+inline void WorkScheduleEditorPresenterProxy::beforeViewDetached()
 {
-    presenter.detachView(view_);
-    BasePresenter::detachView(view_);
+    presenter.detachView(*view().value());
 }
 
-inline void WorkScheduleEditorPresenterProxy::updateViewImpl() { }
+inline void WorkScheduleEditorPresenterProxy::updateViewImpl()
+{
+    presenter.updateView();
+}
 
 inline void WorkScheduleEditorPresenterProxy::onConfigChanged()
 {
-    if (view && settings.firstDayOfWeek() != cached) {
+    if (auto v = view(); v && settings.firstDayOfWeek() != cached) {
         cached = settings.firstDayOfWeek();
         presenter = ui::WorkScheduleEditorPresenter{
             workScheduleHandler, changeWorkScheduleHandler, cached};
-        attachView(*view);
+        attachView(*view().value());
     }
 }
 

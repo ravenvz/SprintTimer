@@ -78,29 +78,35 @@ WorkScheduleEditorPresenter::WorkScheduleEditorPresenter(
 
 void WorkScheduleEditorPresenter::updateViewImpl()
 {
-    bufferedSchedule =
-        workScheduleHandler.get().handle(use_cases::WorkScheduleQuery{});
-    displayWeekSchedule(
-        bufferedSchedule.currentWeekSchedule(), firstDayOfWeek, view);
-    displayRoaster(bufferedSchedule.roaster(), firstDayOfWeek, view);
-    displayExceptionalDays(bufferedSchedule.exceptionalDays(), view);
+    if (auto v = view(); v) {
+        bufferedSchedule =
+            workScheduleHandler.get().handle(use_cases::WorkScheduleQuery{});
+        displayWeekSchedule(
+            bufferedSchedule.currentWeekSchedule(), firstDayOfWeek, v.value());
+        displayRoaster(bufferedSchedule.roaster(), firstDayOfWeek, v.value());
+        displayExceptionalDays(bufferedSchedule.exceptionalDays(), v.value());
+    }
 }
 
 void WorkScheduleEditorPresenter::onAddExceptionalRequested()
 {
-    view->displayAddExceptionalDaysDialog(firstDayOfWeek,
-                                          dw::current_date_local());
+    if (auto v = view(); v) {
+        v.value()->displayAddExceptionalDaysDialog(firstDayOfWeek,
+                                                   dw::current_date_local());
+    }
 }
 
 void WorkScheduleEditorPresenter::onExceptionalDaysAdded(dw::Date startDate,
                                                          uint16_t numDays,
                                                          uint16_t sprintsPerDay)
 {
-    for (uint16_t i = 0; i < numDays; ++i) {
-        bufferedSchedule.addExceptionalDay(startDate + dw::Days{i},
-                                           sprintsPerDay);
+    if (auto v = view(); v) {
+        for (uint16_t i = 0; i < numDays; ++i) {
+            bufferedSchedule.addExceptionalDay(startDate + dw::Days{i},
+                                               sprintsPerDay);
+        }
+        displayExceptionalDays(bufferedSchedule.exceptionalDays(), v.value());
     }
-    displayExceptionalDays(bufferedSchedule.exceptionalDays(), view);
 }
 
 void WorkScheduleEditorPresenter::onExceptionalDayRemoved(dw::Date date)
@@ -112,18 +118,22 @@ void WorkScheduleEditorPresenter::onExceptionalDayRemoved(dw::Date date)
 void WorkScheduleEditorPresenter::onWeekScheduleAdded(
     std::vector<uint8_t>&& schedule, dw::Date startDate)
 {
-    bufferedSchedule.addWeekSchedule(
-        startDate, scheduleFromGoals(std::move(schedule), firstDayOfWeek));
-    displayRoaster(bufferedSchedule.roaster(), firstDayOfWeek, view);
+    if (auto v = view(); v) {
+        bufferedSchedule.addWeekSchedule(
+            startDate, scheduleFromGoals(std::move(schedule), firstDayOfWeek));
+        displayRoaster(bufferedSchedule.roaster(), firstDayOfWeek, v.value());
+    }
 }
 
 void WorkScheduleEditorPresenter::onWeekScheduleRemoved(
     dw::Date scheduleStartDate)
 {
-    bufferedSchedule.removeWeekSchedule(scheduleStartDate);
-    displayRoaster(bufferedSchedule.roaster(), firstDayOfWeek, view);
-    displayWeekSchedule(
-        bufferedSchedule.currentWeekSchedule(), firstDayOfWeek, view);
+    if (auto v = view(); v) {
+        bufferedSchedule.removeWeekSchedule(scheduleStartDate);
+        displayRoaster(bufferedSchedule.roaster(), firstDayOfWeek, v.value());
+        displayWeekSchedule(
+            bufferedSchedule.currentWeekSchedule(), firstDayOfWeek, v.value());
+    }
 }
 
 void WorkScheduleEditorPresenter::onScheduleChangeConfirmed()

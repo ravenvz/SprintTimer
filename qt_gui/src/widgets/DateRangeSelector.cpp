@@ -39,18 +39,14 @@ QStringList monthNames();
 
 namespace sprint_timer::ui::qt_gui {
 
-DateRangeSelector::DateRangeSelector(
-    contracts::DateRangeSelectorContract::Presenter& presenter_,
-    QWidget* parent_)
+DateRangeSelector::DateRangeSelector(QWidget* parent_)
     : QWidget{parent_}
     , ui{std::make_unique<Ui::DateRangePicker>()}
-    , presenter{presenter_}
     , monthsModel{monthNames()}
     , selectedDateRange{currentMonth()}
 {
     ui->setupUi(this);
     ui->cbxMonth->setModel(&monthsModel);
-    presenter.attachView(*this);
 
     connect(ui->btnPickPeriod,
             &QPushButton::clicked,
@@ -66,7 +62,7 @@ DateRangeSelector::DateRangeSelector(
             QOverload<>::of(&DateRangeSelector::onYearOrMonthChanged));
 }
 
-DateRangeSelector::~DateRangeSelector() { presenter.detachView(*this); }
+DateRangeSelector::~DateRangeSelector() { }
 
 void DateRangeSelector::updateOperationalRange(const std::vector<int>& years)
 {
@@ -92,21 +88,25 @@ void DateRangeSelector::setFirstDayOfWeek(dw::Weekday weekday)
 void DateRangeSelector::onYearOrMonthChanged()
 {
     using namespace dw;
-    const dw::Date start{
-        Year{ui->cbxYear->currentText().toInt()},
-        Month{static_cast<unsigned>(ui->cbxMonth->currentIndex() + 1)},
-        Day{1}};
-    const dw::Date finish = dw::last_day_of_month(start);
-    selectedDateRange = DateRange{start, finish};
-    presenter.onSelectedRangeChanged(selectedDateRange);
-    updateSelectionHintLabel();
+    if (auto p = presenter(); p) {
+        const dw::Date start{
+            Year{ui->cbxYear->currentText().toInt()},
+            Month{static_cast<unsigned>(ui->cbxMonth->currentIndex() + 1)},
+            Day{1}};
+        const dw::Date finish = dw::last_day_of_month(start);
+        selectedDateRange = DateRange{start, finish};
+        p.value()->onSelectedRangeChanged(selectedDateRange);
+        updateSelectionHintLabel();
+    }
 }
 
 void DateRangeSelector::onRangeChanged(const dw::DateRange& dateRange)
 {
     selectedDateRange = dateRange;
-    presenter.onSelectedRangeChanged(selectedDateRange);
-    updateSelectionHintLabel();
+    if (auto p = presenter(); p) {
+        p.value()->onSelectedRangeChanged(selectedDateRange);
+        updateSelectionHintLabel();
+    }
 }
 
 void DateRangeSelector::updateSelectionHintLabel()

@@ -22,6 +22,8 @@
 #ifndef DAILYSTATISTICSGRAPHCONTRACT_H_KSDC1OBX
 #define DAILYSTATISTICSGRAPHCONTRACT_H_KSDC1OBX
 
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <string>
 #include <vector>
 
@@ -71,10 +73,8 @@ struct GraphData {
     std::vector<GraphValue> values;
 };
 
-class View {
+class View : public mvp::BaseView<View, mvp::BasePresenter<View>> {
 public:
-    virtual ~View() = default;
-
     virtual void updateLegend(const LegendData& data) = 0;
 
     virtual void clearGraphs() = 0;

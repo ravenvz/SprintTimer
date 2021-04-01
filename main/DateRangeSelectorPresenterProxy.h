@@ -44,20 +44,6 @@ public:
     {
     }
 
-    void
-    attachView(ui::contracts::DateRangeSelectorContract::View& view_) override
-    {
-        presenter.attachView(view_);
-        BasePresenter::attachView(view_);
-    }
-
-    void
-    detachView(ui::contracts::DateRangeSelectorContract::View& view_) override
-    {
-        presenter.detachView(view_);
-        BasePresenter::detachView(view_);
-    }
-
     void onSelectedRangeChanged(const dw::DateRange& dateRange) override
     {
         presenter.onSelectedRangeChanged(dateRange);
@@ -74,20 +60,28 @@ private:
         handler, dateRangeChangeListener, cached};
     CompositionObserver observer;
 
-    void updateViewImpl() override { }
-
     void onConfigChanged()
     {
+        auto v = view();
+        if (!v) {
+            return;
+        }
         if (dw::Weekday actual = settings.firstDayOfWeek(); actual != cached) {
             cached = actual;
             presenter = ui::DateRangeSelectorPresenter{
                 handler, dateRangeChangeListener, cached};
-            presenter.attachView(*view);
+            presenter.attachView(*view().value());
         }
+    }
+
+    void onViewAttached() override { presenter.attachView(*view().value()); }
+
+    void beforeViewDetached() override
+    {
+        presenter.detachView(*view().value());
     }
 };
 
 } // namespace sprint_timer::compose
-
 
 #endif /* end of include guard: DATERANGESELECTORPRESENTERPROXY_H_ICWE0OQ4 */

@@ -30,17 +30,16 @@ namespace sprint_timer::ui {
 class DataExportPresenter : public contracts::DataExportContract::Presenter,
                             public HistoryColleague {
 public:
-    using SprintsHandler = CommandHandler<use_cases::ExportSprintsCommand>;
-    using TasksHandler = CommandHandler<use_cases::ExportTasksCommand>;
-    DataExportPresenter(SprintsHandler& exportSprintsHandler,
-                        TasksHandler& exportTasksHandler,
+    using export_sprints_hdl_t =
+        CommandHandler<use_cases::ExportSprintsCommand>;
+    using export_tasks_hdl_t = CommandHandler<use_cases::ExportTasksCommand>;
+    DataExportPresenter(export_sprints_hdl_t& exportSprintsHandler,
+                        export_tasks_hdl_t& exportTasksHandler,
                         HistoryMediator& mediator);
 
     void onGenerateReportRequested() override;
 
     void onDataExportRequested() override;
-
-    void updateViewImpl() override;
 
     void onGenerateReportConfirmed(
         const contracts::DataExportContract::ReportSelectedParams&
@@ -53,9 +52,13 @@ public:
     void onSharedDataChanged() override;
 
 private:
-    SprintsHandler& exportSprintsHandler;
-    TasksHandler& exportTasksHandler;
+    export_sprints_hdl_t& exportSprintsHandler;
+    export_tasks_hdl_t& exportTasksHandler;
     HistoryMediator& mediator;
+
+    void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

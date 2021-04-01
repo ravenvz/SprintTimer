@@ -77,45 +77,56 @@ void BestWorkdayPresenter::updateViewImpl()
     updateBars(distribution);
 }
 
+void BestWorkdayPresenter::onViewAttached() { updateView(); }
+
 void BestWorkdayPresenter::updateLegend(
     const Distribution<double>& distribution) const
 {
     using contracts::BestWorkday::View;
-    const double average = distribution.getAverage();
-    const int relativeComparisonInPercent =
-        static_cast<int>((distribution.getMax() - average) * 100 / average);
-    View::LegendData legendData{
-        static_cast<int>(distribution.getMaxValueBin() + 1),
-        std::to_string(relativeComparisonInPercent)};
-    view->displayLegend(legendData);
+
+    if (auto v = view(); v) {
+        const double average = distribution.getAverage();
+        const int relativeComparisonInPercent =
+            static_cast<int>((distribution.getMax() - average) * 100 / average);
+        View::LegendData legendData{
+            static_cast<int>(distribution.getMaxValueBin() + 1),
+            std::to_string(relativeComparisonInPercent)};
+        v.value()->displayLegend(legendData);
+    }
 }
 
 void BestWorkdayPresenter::updateBars(
     const Distribution<double>& distribution) const
 {
     using contracts::BestWorkday::View;
-    auto values = distribution.getDistributionVector();
-    std::rotate(begin(values),
-                begin(values) + static_cast<unsigned>(firstDayOfWeek),
-                end(values));
-    view->displayBars(View::BarD{barBorderColor,
-                                 barColor,
-                                 values,
-                                 firstDayOfWeek == dw::Weekday::Monday
-                                     ? mondayFirstOrder
-                                     : sundayFirstOrder});
+
+    if (auto v = view(); v) {
+        auto values = distribution.getDistributionVector();
+        std::rotate(begin(values),
+                    begin(values) + static_cast<unsigned>(firstDayOfWeek),
+                    end(values));
+        v.value()->displayBars(View::BarD{barBorderColor,
+                                          barColor,
+                                          values,
+                                          firstDayOfWeek == dw::Weekday::Monday
+                                              ? mondayFirstOrder
+                                              : sundayFirstOrder});
+    }
 }
 
 void BestWorkdayPresenter::updateWithDefaultValues() const
 {
     using contracts::BestWorkday::View;
-    view->displayLegend(View::LegendData{-1, "No data"});
-    view->displayBars(View::BarD{barBorderColor,
-                                 barColor,
-                                 {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-                                 firstDayOfWeek == dw::Weekday::Monday
-                                     ? mondayFirstOrder
-                                     : sundayFirstOrder});
+
+    if (auto v = view(); v) {
+        v.value()->displayLegend(View::LegendData{-1, "No data"});
+        v.value()->displayBars(View::BarD{barBorderColor,
+                                          barColor,
+                                          {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                                          firstDayOfWeek == dw::Weekday::Monday
+                                              ? mondayFirstOrder
+                                              : sundayFirstOrder});
+    }
 }
 
 } // namespace sprint_timer::ui

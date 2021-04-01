@@ -31,7 +31,6 @@
 #include <qt_gui/utils/WidgetUtils.h>
 #include <qt_gui/widgets/StatisticsWindow.h>
 
-#include <qt_gui/presentation/BasePresenter.h>
 #include <qt_gui/presentation/BestWorkdayContract.h>
 #include <qt_gui/presentation/DailyStatisticsGraphContract.h>
 #include <qt_gui/presentation/DateRangeSelectorContract.h>
@@ -51,11 +50,10 @@ public:
         // IConfig& settings_,
         // TODO rename - remove contract from name, it might be inferred from
         // namespace
-        ui::BasePresenter<ui::contracts::DailyStatisticGraphContract::View>&
+        mvp::BasePresenter<ui::contracts::DailyStatisticGraphContract::View>&
             dailyStatisticsGraphPresenter_,
-        ui::BasePresenter<ui::contracts::BestWorkday::View>&
-            bestWorkdayPresenter_,
-        ui::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
+        ui::contracts::BestWorkday::Presenter& bestWorkdayPresenter_,
+        mvp::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
             bestWorktimePresenter_,
         ui::contracts::TagPieDiagramContract::Presenter& tagDiagramPresenter_,
         ui::contracts::DateRangeSelectorContract::Presenter&
@@ -69,10 +67,10 @@ public:
     }
 
 private:
-    ui::BasePresenter<ui::contracts::DailyStatisticGraphContract::View>&
+    mvp::BasePresenter<ui::contracts::DailyStatisticGraphContract::View>&
         dailyStatisticsGraphPresenter;
-    ui::BasePresenter<ui::contracts::BestWorkday::View>& bestWorkdayPresenter;
-    ui::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
+    ui::contracts::BestWorkday::Presenter& bestWorkdayPresenter;
+    mvp::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
         bestWorktimePresenter;
     ui::contracts::TagPieDiagramContract::Presenter& tagDiagramPresenter;
     ui::contracts::DateRangeSelectorContract::Presenter&
@@ -81,12 +79,22 @@ private:
     std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> create() override
     {
         using namespace sprint_timer::ui::qt_gui;
+        auto selector = std::make_unique<DateRangeSelector>();
+        selector->setPresenter(dateRangeSelectorPresenter);
+        auto bestWorkdayView = std::make_unique<BestWorkdayWidget>();
+        bestWorkdayView->setPresenter(bestWorkdayPresenter);
+        auto distributionDiagram = std::make_unique<DistributionDiagram>();
+        distributionDiagram->setPresenter(tagDiagramPresenter);
+        auto bestWorktimeView = std::make_unique<BestWorktimeWidget>();
+        bestWorktimeView->setPresenter(bestWorktimePresenter);
+        auto dailyTimelineGraph = std::make_unique<DailyTimelineGraph>();
+        dailyTimelineGraph->setPresenter(dailyStatisticsGraphPresenter);
         return std::make_unique<StatisticsWindow>(
-            std::make_unique<DailyTimelineGraph>(dailyStatisticsGraphPresenter),
-            std::make_unique<BestWorkdayWidget>(bestWorkdayPresenter),
-            std::make_unique<BestWorktimeWidget>(bestWorktimePresenter),
-            std::make_unique<DistributionDiagram>(tagDiagramPresenter),
-            std::make_unique<DateRangeSelector>(dateRangeSelectorPresenter));
+            std::move(dailyTimelineGraph),
+            std::move(bestWorkdayView),
+            std::move(bestWorktimeView),
+            std::move(distributionDiagram),
+            std::move(selector));
     }
 };
 

@@ -31,10 +31,7 @@ class TagModel : public QStringListModel,
                  public contracts::TagEditorContract::View {
 
 public:
-    explicit TagModel(contracts::TagEditorContract::Presenter& presenter,
-                      QObject* parent = nullptr);
-
-    ~TagModel() override;
+    explicit TagModel(QObject* parent = nullptr);
 
     void displayTags(const std::vector<std::string>& tags) override;
 
@@ -46,7 +43,6 @@ public:
     void revert() final;
 
 private:
-    contracts::TagEditorContract::Presenter& presenter;
     using OriginalEditedTagPair = std::pair<QString, QString>;
     std::vector<OriginalEditedTagPair> buffer;
 };

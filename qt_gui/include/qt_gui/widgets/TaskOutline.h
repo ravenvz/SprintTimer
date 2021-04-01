@@ -22,26 +22,23 @@
 #ifndef TASKOUTLINE_H
 #define TASKOUTLINE_H
 
-#include "qt_gui/Displayable.h"
 #include "qt_gui/presentation/AddTaskControl.h"
 #include "qt_gui/widgets/TagEditor.h"
-#include <QLineEdit>
 #include <QWidget>
 #include <memory>
+
+class QLineEdit;
+class Displayable;
 
 namespace sprint_timer::ui::qt_gui {
 
 class TaskOutline : public QWidget, public ui::contracts::AddTaskControl::View {
 public:
-    TaskOutline(ui::contracts::AddTaskControl::Presenter& presenter,
-                std::unique_ptr<QWidget> taskView,
+    TaskOutline(std::unique_ptr<QWidget> taskView,
                 Displayable& addTaskDialog,
                 QWidget* parent = nullptr);
 
-    ~TaskOutline() override;
-
 private:
-    ui::contracts::AddTaskControl::Presenter& presenter;
     Displayable& addTaskDialog;
     QLineEdit* quickAddTask;
 

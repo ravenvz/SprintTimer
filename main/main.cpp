@@ -47,6 +47,8 @@
 #include "AddTaskDialogProxy.h"
 #include "BestWorkdayPresenterProxy.h"
 #include "CommandHandlerDecorator.h"
+#include "CompositePresenter.h"
+#include "DataConsistencyWatcher.h"
 #include "DateRangeSelectorPresenterProxy.h"
 #include "EditTaskDialogProxy.h"
 #include "HistoryWindowProxy.h"
@@ -61,6 +63,7 @@
 #include "TaskSprintsViewProxy.h"
 #include "VerboseCommandHandler.h"
 #include "VerboseQueryHandler.h"
+#include "WorkScheduleEditorLifestyleProxy.h"
 #include "WorkScheduleEditorPresenterProxy.h"
 #include "WorkflowProxy.h"
 #include <QApplication>
@@ -544,13 +547,13 @@ int main(int argc, char* argv[])
 
     ui::TagEditorPresenter tagEditorPresenter{*allTagsHandler,
                                               *renameTagHandler};
-    desyncObservable.attach(tagEditorPresenter);
-    TagModel tagModel{tagEditorPresenter};
+    TagModel tagModel;
+    tagModel.setPresenter(tagEditorPresenter);
 
     ui::UndoPresenter undoPresenter{
         actionInvoker, actionInvoker, cacheInvalidationMediator};
-    desyncObservable.attach(undoPresenter);
-    auto undoWidget = std::make_unique<qt_gui::UndoWidget>(undoPresenter);
+    auto undoWidget = std::make_unique<qt_gui::UndoWidget>();
+    undoWidget->setPresenter(undoPresenter);
     // auto undoButton =
     //     std::make_unique<UndoButton>(actionInvoker, actionInvoker);
 
@@ -562,15 +565,13 @@ int main(int argc, char* argv[])
     ui::TodaySprintsPresenter todaySprintsPresenter{*deleteSprintHandler,
                                                     *requestSprintsHandler};
 
-    desyncObservable.attach(todaySprintsPresenter);
-
     ui::ActiveTasksPresenter activeTasksPresenter{*unfinishedTasksHandler,
                                                   *editTaskHandler,
                                                   *deleteTaskHandler,
                                                   *toggleCompletionHandler,
                                                   *changePriorityHandler};
-    desyncObservable.attach(activeTasksPresenter);
-    TaskModel activeTaskModel{activeTasksPresenter};
+    TaskModel activeTaskModel;
+    activeTaskModel.setPresenter(activeTasksPresenter);
 
     ui::RegisterSprintControlPresenter registerSprintControlPresenter{
         *registerSprintBulkHandler};
@@ -580,7 +581,9 @@ int main(int argc, char* argv[])
         applicationSettings,
         applicationSettings};
 
-    SprintModel todaySprintsModel{todaySprintsPresenter};
+    SprintModel todaySprintsModel;
+    todaySprintsModel.setPresenter(todaySprintsPresenter);
+
     auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
     sprintView->setModel(&todaySprintsModel);
     auto sprintOutline = std::make_unique<SprintOutline>(
@@ -609,11 +612,6 @@ int main(int argc, char* argv[])
 
     // TODO not good, better to pass observable to the constructor so that
     // dependency would be clearly seen
-    desyncObservable.attach(dailyTimelineGraphPresenter);
-    desyncObservable.attach(bestWorkdayPresenter);
-    desyncObservable.attach(daytimeStatisticsPresenter);
-    desyncObservable.attach(tagPieDiagramPresenter);
-    desyncObservable.attach(dateRangeSelectorPresenter);
 
     sprint_timer::compose::StatisticsWindowProxy statisticsWindow{
         // applicationSettings,
@@ -677,14 +675,13 @@ int main(int argc, char* argv[])
     ui::ProgressPresenter monthlyProgressPresenter{
         *requestMonthlyProgressHandler};
 
-    desyncObservable.attach(dailyProgressPresenter);
-    desyncObservable.attach(weeklyProgressPresenter);
-    desyncObservable.attach(monthlyProgressPresenter);
+    compose::WorkScheduleEditorLifestyleProxy workScheduleEditor{
+        workScheduleEditorPresenter};
 
     compose::ProgressMonitorProxy progressWindow{dailyProgressPresenter,
                                                  weeklyProgressPresenter,
                                                  monthlyProgressPresenter,
-                                                 workScheduleEditorPresenter};
+                                                 workScheduleEditor};
 
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
@@ -696,8 +693,6 @@ int main(int argc, char* argv[])
         historyMediator,
         applicationSettings,
         applicationSettings};
-
-    desyncObservable.attach(historyRangeSelectorPresenter);
 
     external_io::OstreamSink ostreamSink{std::cout};
 
@@ -752,10 +747,10 @@ int main(int argc, char* argv[])
     ui::TaskViewPresenter taskViewPresenter{taskSelectionMediator};
     constexpr int indicatorSize{150};
     auto timerView = std::make_unique<TimerView>(
-        timerPresenter,
         registerSprintControlPresenter,
         activeTaskModel,
         std::make_unique<CombinedIndicator>(indicatorSize, nullptr));
+    timerView->setPresenter(timerPresenter);
 
     ui::TaskSprintsPresenter taskSprintsPresenter{*sprintsForTaskHandler,
                                                   taskSelectionMediator};
@@ -768,18 +763,17 @@ int main(int argc, char* argv[])
     compose::EditTaskDialogProxy editTaskDialog{
         tagModel, activeTaskModel, taskSelectionMediator};
     compose::TagEditorProxy tagEditor{tagModel};
-    auto taskView = std::make_unique<TaskView>(taskViewPresenter,
-                                               taskSprintsView,
-                                               editTaskDialog,
-                                               tagEditor,
-                                               activeTaskModel);
+    auto taskView = std::make_unique<TaskView>(
+        taskSprintsView, editTaskDialog, tagEditor, activeTaskModel);
+    taskView->setPresenter(taskViewPresenter);
 
     // TODO can't we move in in TaskView itself?
     taskView->setContextMenuPolicy(Qt::CustomContextMenu);
     taskView->setItemDelegate(&taskItemDelegate);
 
-    auto taskOutline = std::make_unique<TaskOutline>(
-        addTaskControlPresenter, std::move(taskView), addTaskDialog);
+    auto taskOutline =
+        std::make_unique<TaskOutline>(std::move(taskView), addTaskDialog);
+    taskOutline->setPresenter(addTaskControlPresenter);
 
     RequestForDaysBack requestThisDayStrategy{1};
     // ComputeByDayStrategy computeByDayStrategy;
@@ -795,14 +789,36 @@ int main(int argc, char* argv[])
                 cacheInvalidationMediator));
     ui::TodayProgressPresenter todayProgressPresenter{
         *requestTodayProgressHandler};
-    desyncObservable.attach(todayProgressPresenter);
 
-    sprint_timer::ui::qt_gui::MainWindow w{
-        std::move(sprintOutline),
-        std::move(taskOutline),
-        std::make_unique<TodayProgressIndicator>(todayProgressPresenter),
-        std::move(timerView),
-        std::move(launcherMenu)};
+    compose::CompositePresenter compositePresenter{
+        {undoPresenter,
+         todayProgressPresenter,
+         todaySprintsPresenter,
+         activeTasksPresenter,
+         bestWorkdayPresenter,
+         daytimeStatisticsPresenter,
+         tagPieDiagramPresenter,
+         dateRangeSelectorPresenter,
+         historyRangeSelectorPresenter,
+         dailyProgressPresenter,
+         weeklyProgressPresenter,
+         monthlyProgressPresenter,
+         tagEditorPresenter,
+         dailyTimelineGraphPresenter}};
+    // TODO Where is work schedule presenter?
+    // HistoryPresenter?
+
+    compose::DataConsistencyWatcher watcher{desyncObservable,
+                                            compositePresenter};
+
+    auto todayProgressIndicator = std::make_unique<TodayProgressIndicator>();
+    todayProgressPresenter.attachView(*todayProgressIndicator);
+
+    sprint_timer::ui::qt_gui::MainWindow w{std::move(sprintOutline),
+                                           std::move(taskOutline),
+                                           std::move(todayProgressIndicator),
+                                           std::move(timerView),
+                                           std::move(launcherMenu)};
     applyStyleSheet(app);
     app.setStyle(QStyleFactory::create("Fusion"));
 

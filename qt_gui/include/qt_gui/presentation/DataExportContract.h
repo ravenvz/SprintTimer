@@ -22,7 +22,8 @@
 #ifndef DATAEXPORTCONTRACT_H_JEBXZWQV
 #define DATAEXPORTCONTRACT_H_JEBXZWQV
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <string>
 #include <vector>
 
@@ -49,20 +50,9 @@ struct ViewElements {
     std::string exportButtonText;
 };
 
-class View {
-public:
-    virtual ~View() = default;
+class View;
 
-    virtual void displayExportOptions(const ExportRequestOptions& options) = 0;
-
-    virtual void displayReportOptions(const ReportRequestOptions& options) = 0;
-
-    virtual void setupElements(const ViewElements& viewElements) = 0;
-
-    virtual void displayError(const std::string& errorMessage) = 0;
-};
-
-class Presenter : public BasePresenter<View> {
+class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void onGenerateReportRequested() = 0;
 
@@ -73,6 +63,17 @@ public:
 
     virtual void
     onDataExportConfirmed(const ExportSelectedParams& selectedParams) = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
+public:
+    virtual void displayExportOptions(const ExportRequestOptions& options) = 0;
+
+    virtual void displayReportOptions(const ReportRequestOptions& options) = 0;
+
+    virtual void setupElements(const ViewElements& viewElements) = 0;
+
+    virtual void displayError(const std::string& errorMessage) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::DataExportContract

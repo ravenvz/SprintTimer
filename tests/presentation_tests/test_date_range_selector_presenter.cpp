@@ -29,12 +29,15 @@
 #include <qt_gui/presentation/StatisticsMediator.h>
 
 using namespace ::testing;
+using namespace dw;
 
 using sprint_timer::use_cases::OperationalRangeQuery;
 
 class DateRangeSelectorViewMock
     : public sprint_timer::ui::contracts::DateRangeSelectorContract::View {
 public:
+    using sprint_timer::ui::contracts::DateRangeSelectorContract::View::View;
+
     MOCK_METHOD(void,
                 updateOperationalRange,
                 (const std::vector<int>&),
@@ -45,25 +48,43 @@ public:
 
 class DateRangeSelectorPresenterFixture : public ::testing::Test {
 public:
-    NiceMock<DateRangeSelectorViewMock> viewMock;
     NiceMock<mocks::QueryHandlerMock<OperationalRangeQuery, dw::DateRange>>
         requestOperationalRangeHandlerMock;
     NiceMock<mocks::DateRangeChangeListenerMock> dateRangeChangeListenerMock;
-    dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
-    sprint_timer::ui::DateRangeSelectorPresenter presenter{
+    DateRange someDateRange{Date{Year{1995}, Month{2}, Day{7}},
+                            Date{Year{2003}, Month{8}, Day{3}}};
+    NiceMock<DateRangeSelectorViewMock> view;
+    sprint_timer::ui::DateRangeSelectorPresenter sut{
         requestOperationalRangeHandlerMock,
         dateRangeChangeListenerMock,
         dw::Weekday::Monday};
 };
 
+TEST_F(DateRangeSelectorPresenterFixture,
+       initializes_view_when_view_is_attached)
+{
+    ON_CALL(requestOperationalRangeHandlerMock, handle(_))
+        .WillByDefault(Return(someDateRange));
+    const std::vector<int> expected{
+        1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003};
+
+    EXPECT_CALL(view, updateOperationalRange(expected));
+    EXPECT_CALL(view, setFirstDayOfWeek(dw::Weekday::Monday));
+
+    sut.attachView(view);
+}
+
 TEST_F(DateRangeSelectorPresenterFixture, updates_operational_range)
 {
     ON_CALL(requestOperationalRangeHandlerMock, handle(_))
         .WillByDefault(Return(someDateRange));
+    const std::vector<int> expected{
+        1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003};
+    sut.attachView(view);
 
-    EXPECT_CALL(viewMock, updateOperationalRange(_));
+    EXPECT_CALL(view, updateOperationalRange(expected));
 
-    presenter.attachView(viewMock);
+    sut.updateView();
 }
 
 TEST_F(DateRangeSelectorPresenterFixture,
@@ -71,15 +92,16 @@ TEST_F(DateRangeSelectorPresenterFixture,
 {
     EXPECT_CALL(dateRangeChangeListenerMock, onRangeChanged(someDateRange));
 
-    presenter.onSelectedRangeChanged(someDateRange);
+    sut.onSelectedRangeChanged(someDateRange);
 }
 
 TEST_F(DateRangeSelectorPresenterFixture, sets_first_day_of_week_for_view)
 {
     ON_CALL(requestOperationalRangeHandlerMock, handle(_))
         .WillByDefault(Return(someDateRange));
+    sut.attachView(view);
 
-    EXPECT_CALL(viewMock, setFirstDayOfWeek(dw::Weekday::Monday));
+    EXPECT_CALL(view, setFirstDayOfWeek(dw::Weekday::Monday));
 
-    presenter.attachView(viewMock);
+    sut.updateView();
 }

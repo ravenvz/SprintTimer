@@ -22,14 +22,14 @@
 #ifndef TODAYPROGRESSCONTRACT_H_PUVI6CYE
 #define TODAYPROGRESSCONTRACT_H_PUVI6CYE
 
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <string>
 
 namespace sprint_timer::ui::contracts::TodayProgressContract {
 
-class View {
+class View : public mvp::BaseView<View, mvp::BasePresenter<View>> {
 public:
-    virtual ~View() = default;
-
     virtual void displayProgress(const std::string& progressStr,
                                  const std::string& style) = 0;
 };

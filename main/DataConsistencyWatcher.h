@@ -19,46 +19,36 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BASEPRESENTER_H_9G4DRMSO
-#define BASEPRESENTER_H_9G4DRMSO
+#ifndef DATACONSISTENCYWATCHER_H_OYWEAZWS
+#define DATACONSISTENCYWATCHER_H_OYWEAZWS
 
-#include <core/Observer.h>
-#include <iostream>
+#include <core/Observable.h>
+#include <qt_gui/mvp/AbstractPresenter.h>
 
-namespace sprint_timer::ui {
+namespace sprint_timer::compose {
 
-template <typename ViewT> class BasePresenter : public Observer {
+class DataConsistencyWatcher : public Observer {
 public:
-    // virtual ~BasePresenter() = default;
-
-    virtual void attachView(ViewT& view_)
+    DataConsistencyWatcher(Observable& dataInconsistencyObserver_,
+                           mvp::AbstractPresenter& presenter_)
+        : dataInconsistencyObserver{dataInconsistencyObserver_}
+        , presenter{presenter_}
     {
-        view = &view_;
-        updateView();
+        dataInconsistencyObserver.attach(*this);
     }
 
-    virtual void detachView(ViewT& view_) { view = nullptr; }
-
-    virtual bool noViewsAttached() const { return !view; }
-
-    void updateView()
+    ~DataConsistencyWatcher() override
     {
-        if (noViewsAttached()) {
-            std::cerr << "WARNING: no view is attached, updating aborted\n";
-            return;
-        }
-        updateViewImpl();
+        dataInconsistencyObserver.detach(*this);
     }
 
-    void update() override { updateView(); }
-
-protected:
-    ViewT* view{nullptr};
+    void update() override { presenter.updateView(); }
 
 private:
-    virtual void updateViewImpl() = 0;
+    Observable& dataInconsistencyObserver;
+    mvp::AbstractPresenter& presenter;
 };
 
-} // namespace sprint_timer::ui
+} // namespace sprint_timer::compose
 
-#endif /* end of include guard: BASEPRESENTER_H_9G4DRMSO */
+#endif /* end of include guard: DATACONSISTENCYWATCHER_H_OYWEAZWS */

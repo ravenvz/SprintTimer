@@ -36,11 +36,11 @@ namespace sprint_timer::ui::qt_gui {
 class TimerView : public contracts::TimerContract::View, public QWidget {
 
 public:
-    TimerView(ui::contracts::TimerContract::Presenter& timerPresenter,
-              ui::contracts::RegisterSprintControl::Presenter&
+    TimerView(ui::contracts::RegisterSprintControl::Presenter&
                   registerSprintControlPresenter,
               QAbstractItemModel& taskModel,
-              std::unique_ptr<CombinedIndicator> combinedIndicator);
+              std::unique_ptr<CombinedIndicator> combinedIndicator,
+              QWidget* parent = nullptr);
 
     ~TimerView() override;
 
@@ -54,7 +54,6 @@ public:
     submitSprints(const std::vector<dw::DateTimeRange>& timeIntervals) override;
 
 private:
-    ui::contracts::TimerContract::Presenter& timerPresenter;
     ui::contracts::RegisterSprintControl::Presenter&
         registerSprintControlPresenter;
     QAbstractItemModel& taskModel;

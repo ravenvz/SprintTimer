@@ -30,18 +30,19 @@ namespace sprint_timer::compose {
 class TaskSprintsViewProxy : public DisplayableLifestyleProxy {
 public:
     TaskSprintsViewProxy(
-        ui::BasePresenter<ui::contracts::TaskSprintsContract::View>& presenter_,
+        mvp::BasePresenter<ui::contracts::TaskSprintsContract::View>&
+            presenter_,
         QStyledItemDelegate& delegate);
 
 private:
-    ui::BasePresenter<ui::contracts::TaskSprintsContract::View>& presenter;
+    mvp::BasePresenter<ui::contracts::TaskSprintsContract::View>& presenter;
     QStyledItemDelegate& delegate;
 
     std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> create() override;
 };
 
 TaskSprintsViewProxy::TaskSprintsViewProxy(
-    ui::BasePresenter<ui::contracts::TaskSprintsContract::View>& presenter_,
+    mvp::BasePresenter<ui::contracts::TaskSprintsContract::View>& presenter_,
     QStyledItemDelegate& delegate_)
     : presenter{presenter_}
     , delegate{delegate_}
@@ -51,7 +52,10 @@ TaskSprintsViewProxy::TaskSprintsViewProxy(
 inline std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget>
 TaskSprintsViewProxy::create()
 {
-    return std::make_unique<ui::qt_gui::TaskSprintsView>(presenter, delegate);
+    auto taskSprintsView =
+        std::make_unique<ui::qt_gui::TaskSprintsView>(delegate);
+    presenter.attachView(*taskSprintsView);
+    return taskSprintsView;
 }
 
 } // namespace sprint_timer::compose

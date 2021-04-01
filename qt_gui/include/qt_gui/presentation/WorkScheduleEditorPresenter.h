@@ -67,6 +67,8 @@ private:
         changeWorkScheduleHandler;
     dw::Weekday firstDayOfWeek;
     WorkSchedule bufferedSchedule;
+
+    void onViewAttached() override { updateView(); }
 };
 
 } // namespace sprint_timer::ui

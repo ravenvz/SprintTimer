@@ -33,8 +33,6 @@
 #include <core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h>
 #include <core/utils/Algutils.h>
 
-#include <iostream>
-
 namespace sprint_timer::ui {
 
 class ActiveTasksPresenter : public contracts::TaskContract::Presenter {
@@ -73,6 +71,8 @@ private:
     std::vector<TaskDTO> tasks;
 
     void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
 inline ActiveTasksPresenter::ActiveTasksPresenter(
@@ -132,10 +132,14 @@ inline void ActiveTasksPresenter::reorderTasks(size_t sourceRow,
 
 inline void ActiveTasksPresenter::updateViewImpl()
 {
-    tasks =
-        makeDTOs(activeTasksHandler.handle(use_cases::UnfinishedTasksQuery{}));
-    view->displayTasks(tasks);
+    if (auto v = view(); v) {
+        tasks = makeDTOs(
+            activeTasksHandler.handle(use_cases::UnfinishedTasksQuery{}));
+        v.value()->displayTasks(tasks);
+    }
 }
+
+inline void ActiveTasksPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 

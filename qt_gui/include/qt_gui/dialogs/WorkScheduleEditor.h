@@ -22,9 +22,9 @@
 #ifndef WORKSCHEDULEEDITOR_H_N2VONPYL
 #define WORKSCHEDULEEDITOR_H_N2VONPYL
 
+#include "qt_gui/dialogs/DisplayableDialog.h"
 #include "qt_gui/presentation/WorkScheduleEditor.h"
 #include <QAbstractListModel>
-#include <QDialog>
 #include <memory>
 
 namespace Ui {
@@ -34,12 +34,10 @@ class WorkScheduleEditor;
 namespace sprint_timer::ui::qt_gui {
 
 class WorkScheduleEditor : public contracts::WorkScheduleEditor::View,
-                           public QDialog {
+                           public DisplayableDialog {
 
 public:
-    explicit WorkScheduleEditor(
-        contracts::WorkScheduleEditor::Presenter& presenter,
-        QDialog* parent = nullptr);
+    explicit WorkScheduleEditor(QDialog* parent = nullptr);
 
     ~WorkScheduleEditor() override;
 
@@ -63,7 +61,6 @@ public:
 
 private:
     std::unique_ptr<Ui::WorkScheduleEditor> ui;
-    contracts::WorkScheduleEditor::Presenter& presenter;
     std::unique_ptr<QAbstractItemModel> exceptionalDaysModel;
     std::unique_ptr<QAbstractItemModel> roasterModel;
     std::unique_ptr<QAbstractItemModel> roasterBufferModel;

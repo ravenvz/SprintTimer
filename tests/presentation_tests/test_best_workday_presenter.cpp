@@ -102,10 +102,10 @@ class BestWorkdayPresenterFixture : public ::testing::Test {
 public:
     const size_t numTopTags{20};
     NiceMock<mocks::StatisticsMediatorMock> mediator_mock;
-    NiceMock<BestWorkdayViewMock> viewMock;
     const DateRange someDateRange{dw::current_date(), dw::current_date()};
     const DateRange specificDateRange{Date{Year{2015}, Month{6}, Day{1}},
                                       Date{Year{2015}, Month{6}, Day{14}}};
+    NiceMock<BestWorkdayViewMock> view;
 
     std::vector<Sprint> buildSprintsFixture()
     {
@@ -140,11 +140,12 @@ TEST_F(BestWorkdayPresenterFixture,
         {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
     const View::LegendData expected{-1, "No data"};
     ON_CALL(mediator_mock, range()).WillByDefault(Return(std::nullopt));
-    BestWorkdayPresenter presenter{mediator_mock, dw::Weekday::Monday};
+    BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Monday};
+    sut.attachView(view);
 
-    EXPECT_CALL(viewMock, displayLegend(expected)).Times(1);
+    EXPECT_CALL(view, displayLegend(expected)).Times(1);
 
-    presenter.attachView(viewMock);
+    sut.updateView();
 }
 
 TEST_F(BestWorkdayPresenterFixture,
@@ -154,39 +155,43 @@ TEST_F(BestWorkdayPresenterFixture,
     const std::vector<Sprint> sprints;
     ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
-    BestWorkdayPresenter presenter{mediator_mock, dw::Weekday::Monday};
+    BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Monday};
+    sut.attachView(view);
 
-    EXPECT_CALL(viewMock, displayLegend(expected));
+    EXPECT_CALL(view, displayLegend(expected));
 
-    presenter.attachView(viewMock);
+    sut.updateView();
 }
 
 TEST_F(BestWorkdayPresenterFixture, updates_legend_for_generic_data)
 {
     const auto sprints = buildSprintsFixture();
     const View::LegendData expected{7, "40"};
-    BestWorkdayPresenter presenter{mediator_mock, dw::Weekday::Monday};
+    BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Monday};
     ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
+    sut.attachView(view);
 
-    EXPECT_CALL(viewMock, displayLegend(expected)).Times(1);
+    EXPECT_CALL(view, displayLegend(expected)).Times(1);
 
-    presenter.attachView(viewMock);
+    sut.updateView();
 }
 
 TEST_F(BestWorkdayPresenterFixture,
-       requeries_handler_when_shared_data_is_changed)
+       requeries_mediator_when_shared_data_is_changed)
 {
     using sprint_timer::entities::Tag;
     const dw::DateRange newDateRange{dw::current_date(), dw::current_date()};
-    BestWorkdayPresenter presenter{mediator_mock, dw::Weekday::Monday};
-    presenter.attachView(viewMock);
-    ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
+    BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Monday};
     const std::vector<Sprint> stubSprints;
+    ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
+    ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(stubSprints));
+    sut.attachView(view);
 
-    EXPECT_CALL(mediator_mock, sprints()).WillOnce(ReturnRef(stubSprints));
+    EXPECT_CALL(view, displayLegend(_));
+    EXPECT_CALL(view, displayBars(_));
 
-    presenter.onSharedDataChanged();
+    sut.onSharedDataChanged();
 }
 
 TEST_F(BestWorkdayPresenterFixture, updates_bars_when_there_are_no_sprints)
@@ -195,14 +200,14 @@ TEST_F(BestWorkdayPresenterFixture, updates_bars_when_there_are_no_sprints)
                               barColor,
                               {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
                               {1, 2, 3, 4, 5, 6, 7}};
-    BestWorkdayPresenter presenter{mediator_mock, dw::Weekday::Monday};
+    BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Monday};
     const std::vector<Sprint> sprints;
     ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
 
-    EXPECT_CALL(viewMock, displayBars(expected)).Times(1);
+    EXPECT_CALL(view, displayBars(expected));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }
 
 TEST_F(BestWorkdayPresenterFixture, updates_bar_for_generic_data)
@@ -214,11 +219,11 @@ TEST_F(BestWorkdayPresenterFixture, updates_bar_for_generic_data)
                               {1, 2, 3, 4, 5, 6, 7}};
     ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
-    BestWorkdayPresenter presenter{mediator_mock, dw::Weekday::Monday};
+    BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Monday};
 
-    EXPECT_CALL(viewMock, displayBars(expected)).Times(1);
+    EXPECT_CALL(view, displayBars(expected));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }
 
 TEST_F(BestWorkdayPresenterFixture,
@@ -231,9 +236,9 @@ TEST_F(BestWorkdayPresenterFixture,
                               {7, 1, 2, 3, 4, 5, 6}};
     ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
-    BestWorkdayPresenter presenter{mediator_mock, dw::Weekday::Sunday};
+    BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Sunday};
 
-    EXPECT_CALL(viewMock, displayBars(expected)).Times(1);
+    EXPECT_CALL(view, displayBars(expected));
 
-    presenter.attachView(viewMock);
+    sut.attachView(view);
 }

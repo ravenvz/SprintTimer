@@ -35,14 +35,14 @@ UndoPresenter::UndoPresenter(
 
 void UndoPresenter::onUndoRequested()
 {
-    if (!actionInvoker.hasUndoableActions())
-        return;
-    std::string message{"Revert following action:\n\n"};
-    message += actionInvoker.lastActionDescription();
-    message.push_back('\n');
-    message.push_back('\n');
-    message += "Are you sure?";
-    view->showConfirmationDialog(message);
+    if (auto v = view(); v && actionInvoker.hasUndoableActions()) {
+        std::string message{"Revert following action:\n\n"};
+        message += actionInvoker.lastActionDescription();
+        message.push_back('\n');
+        message.push_back('\n');
+        message += "Are you sure?";
+        v.value()->showConfirmationDialog(message);
+    }
 }
 
 void UndoPresenter::onUndoConfirmed()
@@ -57,8 +57,12 @@ void UndoPresenter::onUndoConfirmed()
 
 void UndoPresenter::updateViewImpl()
 {
-    view->setInteractive(actionInvoker.hasUndoableActions());
+    if (auto v = view(); v) {
+        v.value()->setInteractive(actionInvoker.hasUndoableActions());
+    }
 }
+
+void UndoPresenter::onViewAttached() { updateView(); }
 
 UndoPresenter::UndoObserver::UndoObserver(Observable& undoObservable,
                                           UndoPresenter& ref)

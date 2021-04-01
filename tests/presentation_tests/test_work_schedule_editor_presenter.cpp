@@ -78,8 +78,9 @@ operator<<(std::basic_ostream<CharT, Traits>& os, uint8_t v)
 WeekSchedule buildWeekSchedule(const std::array<int, 7>& raw_schedule)
 {
     WeekSchedule w_schedule;
-    for (size_t i = 0; i < raw_schedule.size(); ++i)
+    for (size_t i = 0; i < raw_schedule.size(); ++i) {
         w_schedule.setTargetGoal(static_cast<dw::Weekday>(i), raw_schedule[i]);
+    }
     return w_schedule;
 }
 

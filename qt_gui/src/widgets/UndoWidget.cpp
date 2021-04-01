@@ -27,18 +27,16 @@
 
 namespace sprint_timer::qt_gui {
 
-UndoWidget::UndoWidget(ui::contracts::UndoContract::Presenter& presenter_,
-                       QWidget* parent_)
+UndoWidget::UndoWidget(QWidget* parent_)
     : QPushButton{parent_}
-    , presenter{presenter_}
 {
     setText("Undo");
-    connect(
-        this, &QPushButton::clicked, [this]() { presenter.onUndoRequested(); });
-    presenter.attachView(*this);
+    connect(this, &QPushButton::clicked, [this]() {
+        if (auto p = presenter(); p) {
+            p.value()->onUndoRequested();
+        }
+    });
 }
-
-UndoWidget::~UndoWidget() { presenter.detachView(*this); }
 
 void UndoWidget::showConfirmationDialog(const std::string& message)
 {
@@ -46,7 +44,9 @@ void UndoWidget::showConfirmationDialog(const std::string& message)
     messageBox.setText(QString::fromStdString(message));
     messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
     if (int ret = messageBox.exec(); ret == QMessageBox::Yes) {
-        presenter.onUndoConfirmed();
+        if (auto p = presenter(); p) {
+            p.value()->onUndoConfirmed();
+        }
     }
 }
 

@@ -22,7 +22,8 @@
 #ifndef HISTORYCONTRACT_H_6VK9MSI7
 #define HISTORYCONTRACT_H_6VK9MSI7
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <date_wrapper/date_wrapper.h>
 
 namespace sprint_timer::ui::contracts::HistoryContract {
@@ -52,24 +53,24 @@ struct SprintEditData {
     dw::DateTimeRange range;
 };
 
-class View {
-public:
-    virtual ~View() = default;
+class View;
 
-    virtual void displayHistory(const History& history) = 0;
-
-    virtual TaskEditData openEditTaskDialog(const TaskEditData& data) = 0;
-
-    virtual SprintEditData openEditSprintDialog(const SprintEditData& data) = 0;
-};
-
-class Presenter : public BasePresenter<View> {
+class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void onEditTaskMenuSelected(const std::string& uuid) const = 0;
 
     virtual void onEditSprintMenuSelected(const std::string& uuid) const = 0;
 
     virtual void onDisplayedTabChanged(int tabNumber) = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
+public:
+    virtual void displayHistory(const History& history) = 0;
+
+    virtual TaskEditData openEditTaskDialog(const TaskEditData& data) = 0;
+
+    virtual SprintEditData openEditSprintDialog(const SprintEditData& data) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::HistoryContract

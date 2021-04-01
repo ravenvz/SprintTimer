@@ -27,24 +27,21 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-DataExportWidget::DataExportWidget(
-    contracts::DataExportContract::Presenter& presenter_, QWidget* parent_)
+DataExportWidget::DataExportWidget(QWidget* parent_)
     : QWidget{parent_}
-    , presenter{presenter_}
 {
     auto layout = std::make_unique<QVBoxLayout>();
     auto reportButton = std::make_unique<QPushButton>("Generate report");
     auto exportButton = std::make_unique<QPushButton>("Export");
     connect(exportButton.get(), &QPushButton::clicked, [this]() {
-        presenter.onDataExportRequested();
+        if (auto p = presenter(); p) {
+            p.value()->onDataExportRequested();
+        }
     });
     layout->addWidget(reportButton.release());
     layout->addWidget(exportButton.release());
     setLayout(layout.release());
-    presenter.attachView(*this);
 }
-
-DataExportWidget::~DataExportWidget() { presenter.detachView(*this); }
 
 void DataExportWidget::displayExportOptions(
     const contracts::DataExportContract::ExportRequestOptions& options)
@@ -52,7 +49,9 @@ void DataExportWidget::displayExportOptions(
     contracts::DataExportContract::ExportSelectedParams selectedParams;
     ExportDialog dialog{options, selectedParams};
     connect(&dialog, &QDialog::accepted, [this, &selectedParams]() {
-        presenter.onDataExportConfirmed(selectedParams);
+        if (auto p = presenter(); p) {
+            p.value()->onDataExportConfirmed(selectedParams);
+        }
     });
     dialog.setModal(true);
     dialog.exec();

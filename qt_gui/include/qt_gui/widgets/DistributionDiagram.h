@@ -52,12 +52,8 @@ class LegendLabel;
  */
 class DistributionDiagram : public QWidget,
                             public contracts::TagPieDiagramContract::View {
-
-    Q_OBJECT
-
 public:
-    DistributionDiagram(contracts::TagPieDiagramContract::Presenter& presenter,
-                        QWidget* parent = nullptr);
+    explicit DistributionDiagram(QWidget* parent = nullptr);
 
     ~DistributionDiagram() override;
 
@@ -75,21 +71,15 @@ public:
 
     void toggleSelection(std::optional<size_t> selection) override;
 
-private slots:
+private:
+    PieChart* diagram;
+    IStatisticalChartLegend* legend;
+
     /* Handle left mouse click on chart part. */
     void onChartPartClicked(size_t partIndex);
 
     /* Handle left mouse click on legend item. */
     void onLegendItemClicked(size_t itemIndex);
-
-signals:
-    /* Emitted when chart part selected/deselected. */
-    void chartSelectionChanged(size_t partIndex);
-
-private:
-    contracts::TagPieDiagramContract::Presenter& presenter;
-    PieChart* diagram;
-    IStatisticalChartLegend* legend;
 };
 
 } // namespace sprint_timer::ui::qt_gui

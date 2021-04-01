@@ -22,15 +22,14 @@
 #ifndef BESTWORKDAYPRESENTER_H_OIE4UYUT
 #define BESTWORKDAYPRESENTER_H_OIE4UYUT
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/presentation/BestWorkdayContract.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
 
 namespace sprint_timer::ui {
 
-class BestWorkdayPresenter
-    : public BasePresenter<sprint_timer::ui::contracts::BestWorkday::View>,
-      public StatisticsColleague {
+class BestWorkdayPresenter : public contracts::BestWorkday::Presenter,
+                             public StatisticsColleague {
 public:
     BestWorkdayPresenter(StatisticsMediator& mediator,
                          dw::Weekday firstDayOfWeek);
@@ -48,6 +47,8 @@ private:
     dw::Weekday firstDayOfWeek;
 
     void updateViewImpl() override;
+
+    void onViewAttached() override;
 
     void updateLegend(const Distribution<double>& distribution) const;
 

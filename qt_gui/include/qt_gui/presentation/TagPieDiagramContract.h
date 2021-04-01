@@ -22,7 +22,8 @@
 #ifndef TAGPIEDIAGRAMCONTRACT_H_OMZV6RFJ
 #define TAGPIEDIAGRAMCONTRACT_H_OMZV6RFJ
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <optional>
 #include <string>
 #include <vector>
@@ -35,10 +36,10 @@ struct DiagramData {
     double percentage;
 };
 
-class View {
-public:
-    virtual ~View() = default;
+class Presenter;
 
+class View : public mvp::BaseView<View, Presenter> {
+public:
     virtual void updateLegend(const std::vector<std::string>& tagNames) = 0;
 
     virtual void updateDiagram(std::vector<DiagramData>&& data) = 0;
@@ -46,7 +47,7 @@ public:
     virtual void toggleSelection(std::optional<size_t> selection) = 0;
 };
 
-class Presenter : public BasePresenter<View> {
+class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void onTagIndexSelected(size_t index) = 0;
 };

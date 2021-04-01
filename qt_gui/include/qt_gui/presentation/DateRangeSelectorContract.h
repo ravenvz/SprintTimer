@@ -22,22 +22,23 @@
 #ifndef DATERANGESELECTORCONTRACT_H_QMKBCECA
 #define DATERANGESELECTORCONTRACT_H_QMKBCECA
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <date_wrapper/date_wrapper.h>
 #include <vector>
 
 namespace sprint_timer::ui::contracts::DateRangeSelectorContract {
 
-class View {
-public:
-    virtual ~View() = default;
+class Presenter;
 
+class View : public mvp::BaseView<View, Presenter> {
+public:
     virtual void updateOperationalRange(const std::vector<int>& years) = 0;
 
     virtual void setFirstDayOfWeek(dw::Weekday weekday) = 0;
 };
 
-class Presenter : public BasePresenter<View> {
+class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void onSelectedRangeChanged(const dw::DateRange& dateRange) = 0;
 };

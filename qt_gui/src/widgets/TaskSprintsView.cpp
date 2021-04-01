@@ -41,22 +41,18 @@ std::string prefixTags(const std::vector<std::string>& tags);
 
 namespace sprint_timer::ui::qt_gui {
 
-TaskSprintsView::TaskSprintsView(
-    BasePresenter<contracts::TaskSprintsContract::View>& presenter_,
-    QStyledItemDelegate& delegate_,
-    QWidget* parent_)
+TaskSprintsView::TaskSprintsView(QStyledItemDelegate& delegate_,
+                                 QWidget* parent_)
     : StandaloneDisplayableWidget{parent_}
-    , presenter{presenter_}
     , ui{std::make_unique<Ui::TaskSprintsView>()}
 {
     ui->setupUi(this);
     ui->treeView->setHeaderHidden(true);
     ui->treeView->setModel(&historyModel);
     ui->treeView->setItemDelegate(&delegate_);
-    presenter.attachView(*this);
 }
 
-TaskSprintsView::~TaskSprintsView() { presenter.detachView(*this); }
+TaskSprintsView::~TaskSprintsView() = default;
 
 void TaskSprintsView::displaySprints(const std::vector<SprintDTO>& sprints)
 {

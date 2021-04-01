@@ -147,6 +147,7 @@ TEST_F(TimerPresenterFixture, removes_self_as_workflow_listener_when_destroyed)
 TEST_F(TimerPresenterFixture, sets_up_idle_view_state_when_view_is_attached)
 {
     const std::string text{"Start"};
+
     EXPECT_CALL(view, setupUi(TimerUiModel::idleUiModel(text)));
 
     presenter.attachView(view);
@@ -156,6 +157,7 @@ TEST_F(TimerPresenterFixture, updates_timer_value)
 {
     const std::chrono::seconds secondsLeft{58};
     presenter.attachView(view);
+
     EXPECT_CALL(view, updateTimerValue(secondsLeft));
 
     presenter.onTimerTick(secondsLeft);
@@ -164,6 +166,7 @@ TEST_F(TimerPresenterFixture, updates_timer_value)
 TEST_F(TimerPresenterFixture, displays_idle_ui_when_workflow_enters_idle_state)
 {
     presenter.attachView(view);
+
     EXPECT_CALL(view, setupUi(TimerUiModel::idleUiModel("Start")));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::Idle);
@@ -172,6 +175,7 @@ TEST_F(TimerPresenterFixture, displays_idle_ui_when_workflow_enters_idle_state)
 TEST_F(TimerPresenterFixture, displays_submission_ui_when_sprint_ends)
 {
     presenter.attachView(view);
+
     EXPECT_CALL(view, setupUi(TimerUiModel::sprintFinishedUiModel("Submit")));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::SprintFinished);
@@ -182,6 +186,7 @@ TEST_F(TimerPresenterFixture, displays_running_state_when_sprint_started)
     const std::chrono::seconds sprintDuration{1500};
     ON_CALL(workflow, currentDuration()).WillByDefault(Return(sprintDuration));
     presenter.attachView(view);
+
     EXPECT_CALL(view,
                 setupUi(TimerUiModel::runningUiModel(
                     sprintDuration, sprintStateColor, true)));
@@ -194,6 +199,7 @@ TEST_F(TimerPresenterFixture, displays_running_state_when_brake_started)
     std::chrono::seconds breakDuration{300};
     presenter.attachView(view);
     ON_CALL(workflow, currentDuration()).WillByDefault(Return(breakDuration));
+
     EXPECT_CALL(view,
                 setupUi(TimerUiModel::runningUiModel(
                     breakDuration, brakeStateColor, false)));
@@ -224,6 +230,7 @@ TEST_F(
         dw::add_offset(someInterval, 75min)};
     presenter.onWorkflowStateChanged(IWorkflow::StateId::SprintFinished);
     ON_CALL(workflow, completedSprints()).WillByDefault(Return(timeIntervals));
+
     EXPECT_CALL(view, submitSprints(timeIntervals));
     EXPECT_CALL(workflow, start());
 
@@ -247,6 +254,7 @@ TEST_F(TimerPresenterFixture, delegates_to_workflow_when_zone_button_clicked)
 TEST_F(TimerPresenterFixture, switches_view_into_the_zone_mode)
 {
     presenter.attachView(view);
+
     EXPECT_CALL(view, setupUi(TimerUiModel::zoneModeUiModel(zoneStateColor)));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::ZoneEntered);
@@ -255,6 +263,7 @@ TEST_F(TimerPresenterFixture, switches_view_into_the_zone_mode)
 TEST_F(TimerPresenterFixture, switches_view_out_of_the_zone_mode)
 {
     presenter.attachView(view);
+
     EXPECT_CALL(view,
                 setupUi(TimerUiModel::returnFromZoneUiModel(sprintStateColor)));
 
@@ -265,6 +274,8 @@ TEST_F(TimerPresenterFixture, plays_sound_when_break_finished)
 {
     ON_CALL(assetLibrary, filePath(ringSoundId))
         .WillByDefault(Return(someSoundPath));
+    presenter.attachView(view);
+
     EXPECT_CALL(soundPlayer, play(someSoundPath));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::BreakFinished);
@@ -275,6 +286,7 @@ TEST_F(TimerPresenterFixture, plays_sound_when_sprint_finished)
     ON_CALL(assetLibrary, filePath(ringSoundId))
         .WillByDefault(Return(someSoundPath));
     presenter.attachView(view);
+
     EXPECT_CALL(soundPlayer, play(someSoundPath));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::SprintFinished);

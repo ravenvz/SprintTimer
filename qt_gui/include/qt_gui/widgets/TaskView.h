@@ -22,31 +22,28 @@
 #ifndef TASKVIEW_H_AC0ZCTZN
 #define TASKVIEW_H_AC0ZCTZN
 
-#include "qt_gui/StandaloneDisplayable.h"
-#include "qt_gui/dialogs/DisplayableDialog.h"
 #include "qt_gui/presentation/TaskViewContract.h"
 #include "qt_gui/widgets/ReordableListView.h"
 
 namespace sprint_timer::ui::qt_gui {
+
+class Displayable;
+class StandaloneDisplayable;
 
 class TaskView : public ReordableListView,
                  public contracts::TaskViewContract::View {
     Q_OBJECT
 
 public:
-    TaskView(contracts::TaskViewContract::Presenter& presenter,
-             StandaloneDisplayable& sprintsForTaskView,
+    TaskView(StandaloneDisplayable& sprintsForTaskView,
              Displayable& editTaskDialog,
              StandaloneDisplayable& tagEditor,
              QAbstractItemModel& taskModel,
              QWidget* parent = nullptr);
 
-    ~TaskView() override;
-
     void selectTask(std::optional<size_t> taskIndex) override;
 
 private:
-    contracts::TaskViewContract::Presenter& presenter;
     StandaloneDisplayable& sprintsForTaskView;
     Displayable& editTaskDialog;
     StandaloneDisplayable& tagEditor;

@@ -29,6 +29,7 @@ using GraphValues = std::vector<std::pair<
     sprint_timer::ui::contracts::DailyStatisticGraphContract::DayNumber,
     sprint_timer::ui::contracts::DailyStatisticGraphContract::Value>>;
 
+// TODO replace with constexpr
 const std::string dailyGraphColor{"#f63c0d"};
 const std::string averageColor{"#3949c4"};
 const std::string goalColor{"#39c473"};
@@ -87,9 +88,7 @@ constexpr size_t daysBetween(const dw::Date& date,
 namespace sprint_timer::ui {
 
 DailyStatisticsGraphPresenter::DailyStatisticsGraphPresenter(
-    QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>&
-        workScheduleHandler_,
-    StatisticsMediator& mediator_)
+    schedule_hdl_t& workScheduleHandler_, StatisticsMediator& mediator_)
     : workScheduleHandler{workScheduleHandler_}
     , mediator{mediator_}
 {
@@ -105,9 +104,14 @@ void DailyStatisticsGraphPresenter::onSharedDataChanged() { updateView(); }
 
 void DailyStatisticsGraphPresenter::updateViewImpl()
 {
+    auto v = view();
+    if (!v) {
+        return;
+    }
+
     const auto range = mediator.range();
     if (!range) {
-        view->updateLegend(
+        v.value()->updateLegend(
             ui::contracts::DailyStatisticGraphContract::LegendData{"No data",
                                                                    "No data"});
         return;
@@ -117,9 +121,11 @@ void DailyStatisticsGraphPresenter::updateViewImpl()
     const auto schedule =
         workScheduleHandler.handle(use_cases::WorkScheduleQuery{});
     const auto distribution = dailyStatistics(sprints, *range);
-    view->clearGraphs();
-    updateAll(view, distribution, schedule, *mediator.range());
+    v.value()->clearGraphs();
+    updateAll(v.value(), distribution, schedule, *mediator.range());
 }
+
+void DailyStatisticsGraphPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 

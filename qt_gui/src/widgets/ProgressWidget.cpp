@@ -26,23 +26,21 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-ProgressWidget::ProgressWidget(
-    BasePresenter<contracts::DailyProgress::View>& presenter_,
-    Rows numRows_,
-    Columns numColumns_,
-    GaugeSize gaugeRelSize_,
-    QWidget* parent)
+ProgressWidget::ProgressWidget(Rows numRows_,
+                               Columns numColumns_,
+                               GaugeSize gaugeRelSize_,
+                               QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::ProgressWidget>()}
-    , presenter{presenter_}
     , numRows{numRows_}
     , numColumns{numColumns_}
     , gaugeRelSize{gaugeRelSize_}
 {
     ui->setupUi(this);
     setupGauges();
-    presenter.attachView(*this);
 }
+
+ProgressWidget::~ProgressWidget() = default;
 
 void ProgressWidget::setupGauges()
 {
@@ -55,8 +53,6 @@ void ProgressWidget::setupGauges()
         }
     }
 }
-
-ProgressWidget::~ProgressWidget() { presenter.detachView(*this); }
 
 void ProgressWidget::setLegendTitle(const QString& title)
 {

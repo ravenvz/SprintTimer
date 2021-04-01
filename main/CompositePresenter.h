@@ -19,28 +19,36 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/DataExportContract.h"
-#include <QWidget>
+#ifndef COMPOSITEPRESENTER_H_6XHKSCDA
+#define COMPOSITEPRESENTER_H_6XHKSCDA
 
-namespace sprint_timer::ui::qt_gui {
+#include <functional>
+#include <qt_gui/mvp/AbstractPresenter.h>
+#include <vector>
 
-class DataExportWidget : public contracts::DataExportContract::View,
-                         public QWidget {
+namespace sprint_timer::compose {
+
+class CompositePresenter : public mvp::AbstractPresenter {
 public:
-    explicit DataExportWidget(QWidget* parent = nullptr);
+    using container_t =
+        std::vector<std::reference_wrapper<mvp::AbstractPresenter>>;
 
-    void displayExportOptions(
-        const contracts::DataExportContract::ExportRequestOptions& options)
-        override;
+    explicit CompositePresenter(container_t&& presenters_)
+        : presenters{std::move(presenters_)}
+    {
+    }
 
-    void displayReportOptions(
-        const contracts::DataExportContract::ReportRequestOptions& options)
-        override;
+    void updateView() override
+    {
+        for (auto& element : presenters) {
+            element.get().updateView();
+        }
+    }
 
-    void setupElements(const contracts::DataExportContract::ViewElements&
-                           viewElements) override;
-
-    void displayError(const std::string& errorMessage) override;
+private:
+    container_t presenters;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer::compose
+
+#endif /* end of include guard: COMPOSITEPRESENTER_H_6XHKSCDA */

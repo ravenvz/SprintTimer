@@ -20,6 +20,7 @@ set(CLANG_COMPILE_OPTIONS -Weverything
                           -Wno-conversion # TODO source is old release of Howard Hinnant's date lib
                           -Wno-old-style-cast # TODO source is old release of Howard Hinnant's date lib
                           -Wno-gnu-zero-variadic-macro-arguments # gmock
+                          -Wno-return-std-move-in-c++11
                           )
 
 set(GCC_COMPILE_OPTIONS -Wall

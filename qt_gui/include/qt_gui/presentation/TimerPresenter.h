@@ -78,6 +78,8 @@ private:
     TaskSelectionMediator& taskSelectionMediator;
 
     void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
 inline TimerPresenter::TimerPresenter(
@@ -104,52 +106,64 @@ inline TimerPresenter::~TimerPresenter()
 
 inline void TimerPresenter::updateViewImpl()
 {
-    using contracts::TimerContract::TimerUiModel;
-    view->setupUi(TimerUiModel::idleUiModel(idleTimerText));
+    if (auto v = view(); v) {
+        v.value()->setupUi(
+            contracts::TimerContract::TimerUiModel::idleUiModel(idleTimerText));
+    }
 }
+
+inline void TimerPresenter::onViewAttached() { updateView(); }
 
 inline void TimerPresenter::onTimerTick(std::chrono::seconds timeLeft)
 {
-    view->updateTimerValue(timeLeft);
+    if (auto v = view(); v) {
+        v.value()->updateTimerValue(timeLeft);
+    }
 }
 
 inline void
 TimerPresenter::onWorkflowStateChanged(IWorkflow::StateId currentState)
 {
-    using contracts::TimerContract::TimerUiModel;
-    switch (currentState) {
-    case IWorkflow::StateId::Idle:
-        view->setupUi(TimerUiModel::idleUiModel(idleTimerText));
-        break;
-    case IWorkflow::StateId::RunningSprint:
-        view->setupUi(TimerUiModel::runningUiModel(
-            workflow.currentDuration(), sprintColor, true));
-        break;
-    case IWorkflow::StateId::SprintFinished:
-        player.play(*assetLibrary.filePath(ringSoundId));
-        view->setupUi(TimerUiModel::sprintFinishedUiModel(submissionTimerText));
-        break;
-    case IWorkflow::StateId::BreakStarted:
-        view->setupUi(TimerUiModel::runningUiModel(
-            workflow.currentDuration(), breakColor, false));
-        break;
-    case IWorkflow::StateId::BreakFinished:
-        player.play(*assetLibrary.filePath(ringSoundId));
-        break;
-    case IWorkflow::StateId::ZoneEntered:
-        view->setupUi(TimerUiModel::zoneModeUiModel(zoneColor));
-        break;
-    case IWorkflow::StateId::ZoneLeft:
-        view->setupUi(TimerUiModel::returnFromZoneUiModel(sprintColor));
-        break;
+    if (auto v = view(); v) {
+        using contracts::TimerContract::TimerUiModel;
+        switch (currentState) {
+        case IWorkflow::StateId::Idle:
+            v.value()->setupUi(TimerUiModel::idleUiModel(idleTimerText));
+            break;
+        case IWorkflow::StateId::RunningSprint:
+            v.value()->setupUi(TimerUiModel::runningUiModel(
+                workflow.currentDuration(), sprintColor, true));
+            break;
+        case IWorkflow::StateId::SprintFinished:
+            player.play(*assetLibrary.filePath(ringSoundId));
+            v.value()->setupUi(
+                TimerUiModel::sprintFinishedUiModel(submissionTimerText));
+            break;
+        case IWorkflow::StateId::BreakStarted:
+            v.value()->setupUi(TimerUiModel::runningUiModel(
+                workflow.currentDuration(), breakColor, false));
+            break;
+        case IWorkflow::StateId::BreakFinished:
+            player.play(*assetLibrary.filePath(ringSoundId));
+            break;
+        case IWorkflow::StateId::ZoneEntered:
+            v.value()->setupUi(TimerUiModel::zoneModeUiModel(zoneColor));
+            break;
+        case IWorkflow::StateId::ZoneLeft:
+            v.value()->setupUi(
+                TimerUiModel::returnFromZoneUiModel(sprintColor));
+            break;
+        }
     }
 }
 
 inline void TimerPresenter::onTimerClicked()
 {
-    if (const auto& timeRanges = workflow.completedSprints();
-        !timeRanges.empty()) {
-        view->submitSprints(timeRanges);
+    const auto& timeRanges = workflow.completedSprints();
+    auto v = view();
+
+    if (v && !timeRanges.empty()) {
+        v.value()->submitSprints(timeRanges);
     }
     workflow.start();
 }
@@ -160,8 +174,12 @@ inline void TimerPresenter::onZoneClicked() { workflow.toggleInTheZoneMode(); }
 
 inline void TimerPresenter::onTaskSelectionChanged()
 {
+    auto v = view();
+    if (!v) {
+        return;
+    }
     if (auto index = taskSelectionMediator.taskIndex(); index) {
-        view->selectTask(*index);
+        v.value()->selectTask(*index);
     }
 }
 

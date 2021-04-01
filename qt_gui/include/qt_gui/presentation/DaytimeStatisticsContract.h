@@ -22,6 +22,8 @@
 #ifndef DAYTIMESTATISTICSCONTRACT_H_R72BBVOY
 #define DAYTIMESTATISTICSCONTRACT_H_R72BBVOY
 
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <date_wrapper/date_wrapper.h>
 #include <string>
 #include <vector>
@@ -38,10 +40,8 @@ struct DiagramData {
     std::vector<dw::DateTimeRange> timeRanges;
 };
 
-class View {
+class View : public mvp::BaseView<View, mvp::BasePresenter<View>> {
 public:
-    virtual ~View() = default;
-
     virtual void updateLegend(const LegendData& data) = 0;
 
     virtual void updateDiagram(const DiagramData& data) = 0;

@@ -22,12 +22,16 @@
 #ifndef BESTWORKDAYCONTRACT_H_PNBSPBF6
 #define BESTWORKDAYCONTRACT_H_PNBSPBF6
 
+#include <qt_gui/mvp/BasePresenter.h>
+#include <qt_gui/mvp/BaseView.h>
 #include <string>
 #include <vector>
 
 namespace sprint_timer::ui::contracts::BestWorkday {
 
-class View {
+class Presenter;
+
+class View : public mvp::BaseView<View, Presenter> {
 public:
     struct BarD {
         std::string borderColor;
@@ -41,11 +45,12 @@ public:
         std::string percentage;
     };
 
-    virtual ~View() = default;
-
     virtual void displayBars(const BarD& data) = 0;
 
     virtual void displayLegend(const LegendData& data) = 0;
+};
+
+class Presenter : public mvp::BasePresenter<View> {
 };
 
 } // namespace sprint_timer::ui::contracts::BestWorkday

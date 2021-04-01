@@ -22,23 +22,24 @@
 #ifndef TAGEDITORCONTRACT_H_WPYE6S9V
 #define TAGEDITORCONTRACT_H_WPYE6S9V
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <string>
 #include <vector>
 
 namespace sprint_timer::ui::contracts::TagEditorContract {
 
-class View {
-public:
-    virtual ~View() = default;
+class View;
 
-    virtual void displayTags(const std::vector<std::string>& tags) = 0;
-};
-
-class Presenter : public BasePresenter<View> {
+class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void renameTag(const std::string& original,
                            const std::string& renamed) = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
+public:
+    virtual void displayTags(const std::vector<std::string>& tags) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::TagEditorContract

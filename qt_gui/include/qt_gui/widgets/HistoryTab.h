@@ -31,9 +31,7 @@ namespace sprint_timer::ui::qt_gui {
 
 class HistoryTab : public QTabWidget, public contracts::HistoryContract::View {
 public:
-    HistoryTab(contracts::HistoryContract::Presenter& presenter);
-
-    ~HistoryTab() override;
+    HistoryTab();
 
     void
     displayHistory(const contracts::HistoryContract::History& history) override;
@@ -45,7 +43,6 @@ public:
         const contracts::HistoryContract::SprintEditData& data) override;
 
 private:
-    contracts::HistoryContract::Presenter& presenter;
     HistoryModel historyModel;
     HistoryItemDelegate delegate;
 };

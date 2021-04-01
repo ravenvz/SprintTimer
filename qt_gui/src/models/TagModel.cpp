@@ -23,15 +23,10 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-TagModel::TagModel(contracts::TagEditorContract::Presenter& presenter_,
-                   QObject* parent_)
+TagModel::TagModel(QObject* parent_)
     : QStringListModel{parent_}
-    , presenter{presenter_}
 {
-    presenter.attachView(*this);
 }
-
-TagModel::~TagModel() { presenter.detachView(*this); }
 
 inline void TagModel::displayTags(const std::vector<std::string>& tags)
 {
@@ -59,12 +54,15 @@ bool TagModel::setData(const QModelIndex& index,
 
 bool TagModel::submit()
 {
-    while (!buffer.empty()) {
-        presenter.renameTag(buffer.back().first.toStdString(),
-                            buffer.back().second.toStdString());
-        buffer.pop_back();
+    if (auto p = presenter(); p) {
+        while (!buffer.empty()) {
+            p.value()->renameTag(buffer.back().first.toStdString(),
+                                 buffer.back().second.toStdString());
+            buffer.pop_back();
+        }
+        return true;
     }
-    return true;
+    return false;
 }
 
 void TagModel::revert() { buffer.clear(); }

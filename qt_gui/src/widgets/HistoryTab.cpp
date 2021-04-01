@@ -24,8 +24,7 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-HistoryTab::HistoryTab(contracts::HistoryContract::Presenter& presenter_)
-    : presenter{presenter_}
+HistoryTab::HistoryTab()
 {
     auto sprintWidget = std::make_unique<QTreeView>();
     sprintWidget->setItemDelegate(&delegate);
@@ -40,15 +39,13 @@ HistoryTab::HistoryTab(contracts::HistoryContract::Presenter& presenter_)
     // presenter.onDisplayedTabChanged(currentIndex());
 
     connect(this, &QTabWidget::currentChanged, [this] {
-        presenter.onDisplayedTabChanged(currentIndex());
+        if (auto p = presenter(); p) {
+            p.value()->onDisplayedTabChanged(currentIndex());
+        }
     });
 
     show();
-
-    presenter.attachView(*this);
 }
-
-HistoryTab::~HistoryTab() { presenter.detachView(*this); }
 
 void HistoryTab::displayHistory(
     const contracts::HistoryContract::History& history)

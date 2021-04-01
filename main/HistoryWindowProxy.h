@@ -57,10 +57,15 @@ private:
     std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> create() override
     {
         using namespace ui::qt_gui;
-        return std::make_unique<HistoryWindow>(
-            std::make_unique<DateRangeSelector>(dateRangeSelectorPresenter),
-            std::make_unique<DataExportWidget>(dataExportPresenter),
-            std::make_unique<HistoryTab>(historyPresenter));
+        auto selector = std::make_unique<DateRangeSelector>();
+        selector->setPresenter(dateRangeSelectorPresenter);
+        auto historyTab = std::make_unique<HistoryTab>();
+        historyTab->setPresenter(historyPresenter);
+        auto dataExportWidget = std::make_unique<DataExportWidget>();
+        dataExportWidget->setPresenter(dataExportPresenter);
+        return std::make_unique<HistoryWindow>(std::move(selector),
+                                               std::move(dataExportWidget),
+                                               std::move(historyTab));
     }
 };
 

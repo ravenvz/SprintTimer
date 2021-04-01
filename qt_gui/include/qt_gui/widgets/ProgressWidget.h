@@ -24,6 +24,8 @@
 
 #include "core/BackRequestStrategy.h"
 #include "qt_gui/DistributionRequester.h"
+#include "qt_gui/presentation/ProgressPresenterContract.h"
+#include "qt_gui/widgets/DisplayableWidget.h"
 #include <QWidget>
 #include <core/Distribution.h>
 #include <core/GoalProgress.h>
@@ -31,10 +33,6 @@
 #include <core/ProgressOverPeriod.h>
 #include <core/WorkSchedule.h>
 #include <memory>
-
-#include "qt_gui/presentation/BasePresenter.h"
-#include "qt_gui/presentation/ProgressPresenterContract.h"
-#include "qt_gui/widgets/DisplayableWidget.h"
 
 namespace Ui {
 class ProgressWidget;
@@ -59,13 +57,12 @@ public:
         double value{0};
     };
 
-    ProgressWidget(BasePresenter<contracts::DailyProgress::View>& presenter,
-                   Rows numRows,
+    ProgressWidget(Rows numRows,
                    Columns numColumns,
                    GaugeSize gaugeRelSize,
                    QWidget* parent = nullptr);
 
-    virtual ~ProgressWidget() override;
+    ~ProgressWidget() override;
 
     void setLegendTitle(const QString& title);
 
@@ -90,7 +87,6 @@ public:
 
 private:
     std::unique_ptr<Ui::ProgressWidget> ui;
-    BasePresenter<contracts::DailyProgress::View>& presenter;
     const Rows numRows;
     const Columns numColumns;
     const GaugeSize gaugeRelSize;

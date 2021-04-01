@@ -22,17 +22,15 @@
 #ifndef REGISTERSPRINTCONTROL_H_1WZJSFJW
 #define REGISTERSPRINTCONTROL_H_1WZJSFJW
 
-#include "qt_gui/presentation/BasePresenter.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <date_wrapper/date_wrapper.h>
 
 namespace sprint_timer::ui::contracts::RegisterSprintControl {
 
-class View {
-public:
-    virtual ~View() = default;
-};
+class View;
 
-class Presenter : public BasePresenter<View> {
+class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void
     registerConsecutiveSprints(const std::string& taskUuid,
@@ -43,6 +41,9 @@ public:
     virtual void
     registerSprintBulk(const std::string& taskUuid,
                        const std::vector<dw::DateTimeRange>& timeRanges) = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
 };
 
 } // namespace sprint_timer::ui::contracts::RegisterSprintControl

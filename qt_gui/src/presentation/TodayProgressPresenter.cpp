@@ -44,20 +44,20 @@ TodayProgressPresenter::TodayProgressPresenter(
 
 void TodayProgressPresenter::updateViewImpl()
 {
-    if (!view) {
-        return;
+    if (auto v = view(); v) {
+        const auto progressOverPeriod =
+            requestProgressHandler.handle(use_cases::RequestProgressQuery{});
+        const auto progress =
+            progressOverPeriod.getValue(progressOverPeriod.size() - 1);
+
+        const auto progressStr = constructProgressString(progress);
+        const std::string style{pickStyle(progress)};
+
+        v.value()->displayProgress(progressStr, style);
     }
-
-    const auto progressOverPeriod =
-        requestProgressHandler.handle(use_cases::RequestProgressQuery{});
-    const auto progress =
-        progressOverPeriod.getValue(progressOverPeriod.size() - 1);
-
-    const auto progressStr = constructProgressString(progress);
-    const std::string style{pickStyle(progress)};
-
-    view->displayProgress(progressStr, style);
 }
+
+void TodayProgressPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 

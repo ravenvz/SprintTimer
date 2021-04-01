@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/DateRangeSelectorPresenter.h"
+#include <numeric>
 
 namespace sprint_timer::ui {
 
@@ -41,16 +42,19 @@ void DateRangeSelectorPresenter::onSelectedRangeChanged(
 
 void DateRangeSelectorPresenter::updateViewImpl()
 {
-    const auto range = handler.get().handle(use_cases::OperationalRangeQuery{});
-    std::vector<int> years;
-    const int startYear = static_cast<int>(range.start().year());
-    const int lastYear = static_cast<int>(range.finish().year());
-    for (int current = startYear; current <= lastYear; ++current) {
-        years.push_back(current);
+    if (auto v = view(); v) {
+        const auto range =
+            handler.get().handle(use_cases::OperationalRangeQuery{});
+        const int startYear = static_cast<int>(range.start().year());
+        const int lastYear = static_cast<int>(range.finish().year());
+        std::vector<int> years(lastYear - startYear + 1, 0);
+        std::iota(begin(years), end(years), startYear);
+        v.value()->setFirstDayOfWeek(firstDayOfWeek);
+        v.value()->updateOperationalRange(years);
     }
-    view->setFirstDayOfWeek(firstDayOfWeek);
-    view->updateOperationalRange(years);
 }
+
+void DateRangeSelectorPresenter::onViewAttached() { updateViewImpl(); }
 
 } // namespace sprint_timer::ui
 

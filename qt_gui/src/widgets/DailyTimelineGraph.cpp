@@ -58,18 +58,14 @@ const QPen goalGraphPen{Qt::green, penWidthF, Qt::DashLine};
 
 } // namespace plot_params
 
-DailyTimelineGraph::DailyTimelineGraph(
-    BasePresenter<contracts::DailyStatisticGraphContract::View>& presenter_,
-    QWidget* parent_)
+DailyTimelineGraph::DailyTimelineGraph(QWidget* parent_)
     : QFrame{parent_}
     , ui{std::make_unique<Ui::DailyTimelineGraph>()}
-    , presenter{presenter_}
 {
     ui->setupUi(this);
-    presenter_.attachView(*this);
 }
 
-DailyTimelineGraph::~DailyTimelineGraph() { presenter.detachView(*this); }
+DailyTimelineGraph::~DailyTimelineGraph() = default;
 
 void DailyTimelineGraph::updateLegend(
     const contracts::DailyStatisticGraphContract::LegendData& data)
@@ -81,7 +77,6 @@ void DailyTimelineGraph::updateLegend(
 void DailyTimelineGraph::drawGraph(
     const contracts::DailyStatisticGraphContract::GraphData& graphData)
 {
-
     Graph graph;
     auto data = transformData(graphData);
     const auto options = transformOptions(graphData.options);

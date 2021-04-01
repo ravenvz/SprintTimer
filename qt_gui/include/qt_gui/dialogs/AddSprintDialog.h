@@ -55,7 +55,7 @@ private:
 
     void adjustTime();
 
-    std::chrono::seconds totalSprintTime() const;
+    [[nodiscard]] std::chrono::seconds totalSprintTime() const;
 };
 
 } // namespace sprint_timer::ui::qt_gui
