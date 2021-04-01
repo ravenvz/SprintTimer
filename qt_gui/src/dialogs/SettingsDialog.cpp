@@ -27,14 +27,12 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
-    : QDialog{parent}
+SettingsDialog::SettingsDialog(IConfig& applicationSettings_, QDialog* parent_)
+    : DisplayableDialog{parent_}
     , ui{std::make_unique<Ui::SettingsDialog>()}
-    , applicationSettings{applicationSettings}
+    , applicationSettings{applicationSettings_}
 {
     ui->setupUi(this);
-    auto timerModel = std::make_unique<QStringListModel>(timers, this);
-    ui->cbxTimerVariation->setModel(timerModel.release());
 
     fillSettingsData();
 
@@ -51,9 +49,6 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
         applicationSettings.setSoundFilePath(
             ui->lePathToSoundFile->text().toStdString());
     });
-    connect(ui->cbxTimerVariation,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [&](int index) { applicationSettings.setTimerFlavour(index); });
 }
 
 SettingsDialog::~SettingsDialog() = default;
@@ -72,8 +67,6 @@ void SettingsDialog::fillSettingsData()
     ui->lePathToSoundFile->setText(
         QString::fromStdString(applicationSettings.soundFilePath()));
     ui->hSliderVolume->setValue(applicationSettings.soundVolume());
-    auto timerFlavour = applicationSettings.timerFlavour();
-    ui->cbxTimerVariation->setCurrentIndex(timerFlavour);
     ui->cbxFirstWeekday->setCurrentIndex(
         applicationSettings.firstDayOfWeek() == dw::Weekday::Monday ? 0 : 1);
 }
@@ -91,7 +84,6 @@ void SettingsDialog::storeSettingsData()
         ui->spBxLongBreakAfter->value());
     applicationSettings.setPlaySound(ui->gbSoundSettings->isChecked());
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
-    applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());
     applicationSettings.setFirstDayOfWeek(
         ui->cbxFirstWeekday->currentIndex() == 0 ? dw::Weekday::Monday
                                                  : dw::Weekday::Sunday);

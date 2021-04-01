@@ -22,8 +22,8 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-
 #include "core/IConfig.h"
+#include "qt_gui/dialogs/DisplayableDialog.h"
 #include <QDialog>
 #include <QSettings>
 #include <QStringList>
@@ -37,28 +37,26 @@ class QStringListModel;
 
 namespace sprint_timer::ui::qt_gui {
 
-class SettingsDialog : public QDialog {
-    Q_OBJECT
-
+class SettingsDialog : public DisplayableDialog {
 public:
     explicit SettingsDialog(IConfig& applicationSettings,
                             QDialog* parent = nullptr);
-    ~SettingsDialog() override;
 
-private slots:
-    void storeSettingsData();
-    void toggleVolumeControlVisibility();
-    void onBrowseSoundFileButtonClicked();
+    ~SettingsDialog() override;
 
 private:
     std::unique_ptr<Ui::SettingsDialog> ui;
     IConfig& applicationSettings;
-    QStringList timers{"Default timer", "Fancy timer"};
 
     void fillSettingsData();
+
+    void storeSettingsData();
+
+    void toggleVolumeControlVisibility();
+
+    void onBrowseSoundFileButtonClicked();
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // SETTINGSDIALOG_H
