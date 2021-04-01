@@ -28,7 +28,7 @@ namespace sprint_timer::ui::qt_gui {
 LauncherMenu::LauncherMenu(Displayable& progressWindow,
                            Displayable& statisticsWindow,
                            Displayable& historyWindow,
-                           QDialog& settingsDialog,
+                           Displayable& settingsDialog,
                            QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::LauncherMenu>()}
@@ -45,7 +45,7 @@ LauncherMenu::LauncherMenu(Displayable& progressWindow,
         statisticsWindow.display();
     });
     connect(ui->pbSettings, &QPushButton::clicked, [&settingsDialog]() {
-        settingsDialog.exec();
+        settingsDialog.display();
     });
 }
 

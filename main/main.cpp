@@ -56,6 +56,7 @@
 #include "ProgressMonitorProxy.h"
 #include "QueryHandlerDecorator.h"
 #include "RuntimeConfigurableSoundPlayer.h"
+#include "SettingsDialogLifestyleProxy.h"
 #include "SettingsWatchingAssetLibrary.h"
 #include "StatisticsWindowProxy.h"
 #include "SynchronizingActionInvoker.h"
@@ -117,7 +118,6 @@
 #include <qt_gui/delegates/TaskItemDelegate.h>
 #include <qt_gui/dialogs/AddSprintDialog.h>
 #include <qt_gui/dialogs/AddTaskDialog.h>
-#include <qt_gui/dialogs/SettingsDialog.h>
 #include <qt_gui/dialogs/WorkScheduleEditor.h>
 #include <qt_gui/models/HistoryModel.h>
 #include <qt_gui/models/SprintModel.h>
@@ -724,7 +724,7 @@ int main(int argc, char* argv[])
     compose::HistoryWindowProxy historyWindow{
         historyRangeSelectorPresenter, historyPresenter, dataExportPresenter};
 
-    SettingsDialog settingsDialog{applicationSettings};
+    compose::SettingsDialogLifestyleProxy settingsDialog{applicationSettings};
     auto launcherMenu = std::make_unique<LauncherMenu>(
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
 

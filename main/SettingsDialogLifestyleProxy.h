@@ -19,36 +19,36 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef LAUNCHERMENU_H_31QL4GCR
-#define LAUNCHERMENU_H_31QL4GCR
+#ifndef SETTINGSDIALOGLIFESTYLEPROXY_H_XCXF9QKE
+#define SETTINGSDIALOGLIFESTYLEPROXY_H_XCXF9QKE
 
-#include "qt_gui/SprintTimerWidget.h"
-#include "qt_gui/StandaloneDisplayable.h"
-#include <QDialog>
-#include <core/IConfig.h>
-#include <memory>
+#include "DisplayableDialogLifestyleProxy.h"
+#include <qt_gui/dialogs/SettingsDialog.h>
 
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+namespace sprint_timer::compose {
 
-namespace sprint_timer::ui::qt_gui {
-
-class LauncherMenu : public QWidget {
-
+class SettingsDialogLifestyleProxy : public DisplaybleDialogLifestyleProxy {
 public:
-    LauncherMenu(Displayable& progressWindow,
-                 Displayable& statisticsWindow,
-                 Displayable& historyWindow,
-                 Displayable& settingsDialog,
-                 QWidget* parent = nullptr);
-
-    ~LauncherMenu() override;
+    explicit SettingsDialogLifestyleProxy(IConfig& applicationSettings);
 
 private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
+    IConfig& applicationSettings;
+
+    std::unique_ptr<ui::qt_gui::DisplayableDialog> create() override;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+inline SettingsDialogLifestyleProxy::SettingsDialogLifestyleProxy(
+    IConfig& applicationSettings_)
+    : applicationSettings{applicationSettings_}
+{
+}
 
-#endif /* end of include guard: LAUNCHERMENU_H_31QL4GCR */
+inline std::unique_ptr<ui::qt_gui::DisplayableDialog>
+SettingsDialogLifestyleProxy::create()
+{
+    return std::make_unique<ui::qt_gui::SettingsDialog>(applicationSettings);
+}
+
+} // namespace sprint_timer::compose
+
+#endif /* end of include guard: SETTINGSDIALOGLIFESTYLEPROXY_H_XCXF9QKE */
