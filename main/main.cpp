@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
         worker_connection.connectionName()};
     auto sprintStorage = storageFactory.sprintStorage();
     auto taskStorage = storageFactory.taskStorage();
-    auto dailyDistReader = storageFactory.dailyDistReader();
+    auto dailyDistReader = storageFactory.dailyDistReader(30);
     auto weeklyDistReader =
         storageFactory.weeklyDistReader(applicationSettings.firstDayOfWeek());
     auto monthlyDistReader = storageFactory.monthlyDistReader();
@@ -776,15 +776,23 @@ int main(int argc, char* argv[])
     taskOutline->setPresenter(addTaskControlPresenter);
 
     RequestForDaysBack requestThisDayStrategy{1};
-    // ComputeByDayStrategy computeByDayStrategy;
 
+    // TODO this handler is created as workaround - otherwise we would have to
+    // deal with false cache-hit as queries are not atm compared
+    auto todayDistReader = storageFactory.dailyDistReader(1);
+    auto requestTodayDistributionHandler =
+        compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+            compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+                std::make_unique<RequestSprintDistributionHandler>(
+                    *todayDistReader),
+                cacheInvalidationMediator));
     auto requestTodayProgressHandler =
         compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
             compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
                 std::make_unique<RequestProgressHandler>(
                     requestThisDayStrategy,
                     computeByDayStrategy,
-                    *requestSprintDailyDistributionHandler,
+                    *requestTodayDistributionHandler,
                     *workScheduleHandler),
                 cacheInvalidationMediator));
     ui::TodayProgressPresenter todayProgressPresenter{

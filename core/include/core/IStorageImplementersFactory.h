@@ -32,30 +32,6 @@
 
 namespace sprint_timer {
 
-class IStorageImplementersFactory {
-public:
-    virtual ~IStorageImplementersFactory() = default;
-
-    virtual std::unique_ptr<SprintStorage> createSprintStorage() const = 0;
-
-    virtual std::unique_ptr<OperationalRangeReader>
-    createOperationalRangeReader() const = 0;
-
-    virtual std::unique_ptr<SprintDistributionReader>
-    createSprintDailyDistributionReader() const = 0;
-
-    virtual std::unique_ptr<SprintDistributionReader>
-    createSprintWeeklyDistributionReader(dw::Weekday firstDayOfWeek) const = 0;
-
-    virtual std::unique_ptr<SprintDistributionReader>
-    createSprintMonthlyDistributionReader() const = 0;
-
-    virtual std::unique_ptr<TaskStorage> createTaskStorage() const = 0;
-
-    virtual std::unique_ptr<WorkScheduleStorage>
-    createWorkingDaysStorage() const = 0;
-};
-
 class StorageImplementersFactory {
 public:
     virtual ~StorageImplementersFactory() = default;
@@ -68,7 +44,7 @@ public:
     operationalRangeReader() const = 0;
 
     virtual std::unique_ptr<SprintDistributionReader>
-    dailyDistReader() const = 0;
+    dailyDistReader(size_t numDays) const = 0;
 
     virtual std::unique_ptr<SprintDistributionReader>
     weeklyDistReader(dw::Weekday firstDayOfWeek) const = 0;

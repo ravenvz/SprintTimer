@@ -27,6 +27,8 @@
 #include <qt_gui/presentation/Invalidatable.h>
 #include <qt_gui/presentation/Mediator.h>
 
+#include <iostream>
+
 namespace sprint_timer::compose {
 
 template <typename QueryT, typename ResultT>
@@ -57,6 +59,9 @@ public:
         if (!cachedResult) {
             cachedQuery = query;
             cachedResult = wrapped->handle(std::move(query));
+        }
+        else {
+            std::cout << "Cache hit" << std::endl;
         }
         return *cachedResult;
     }

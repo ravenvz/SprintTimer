@@ -38,7 +38,8 @@ public:
     std::unique_ptr<OperationalRangeReader>
     operationalRangeReader() const override;
 
-    std::unique_ptr<SprintDistributionReader> dailyDistReader() const override;
+    std::unique_ptr<SprintDistributionReader>
+    dailyDistReader(size_t numDays) const override;
 
     std::unique_ptr<SprintDistributionReader>
     weeklyDistReader(dw::Weekday firstDayOfWeek) const override;
