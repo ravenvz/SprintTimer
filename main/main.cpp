@@ -812,7 +812,8 @@ int main(int argc, char* argv[])
          weeklyProgressPresenter,
          monthlyProgressPresenter,
          tagEditorPresenter,
-         statisticsMediator, // TODO workaround until statistics view is streamlined
+         statisticsMediator, // TODO workaround until statistics view is
+                             // streamlined
          dailyTimelineGraphPresenter}};
     // TODO Where is work schedule presenter?
     // HistoryPresenter?

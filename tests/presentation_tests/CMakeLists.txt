@@ -28,7 +28,7 @@ target_sources(${TEST_PRESENTATION}
     "${CMAKE_CURRENT_LIST_DIR}/test_work_schedule_editor_presenter.cpp"
 )
 
-target_compile_features(${TEST_PRESENTATION} PRIVATE cxx_std_17)
+target_compile_features(${TEST_PRESENTATION} PRIVATE cxx_std_20)
 target_compile_options(${TEST_PRESENTATION} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${TEST_PRESENTATION} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 

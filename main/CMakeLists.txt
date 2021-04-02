@@ -2,7 +2,7 @@ project(${SPRINT_MAIN})
 
 add_executable(${SPRINT_MAIN})
 
-target_compile_features(${SPRINT_MAIN} PUBLIC cxx_std_17)
+target_compile_features(${SPRINT_MAIN} PUBLIC cxx_std_20)
 
 target_sources(${SPRINT_MAIN}
     PRIVATE

@@ -233,7 +233,7 @@ target_sources(${GUI_LIB}
         "${UI_HEADERS}"
 )
 
-target_compile_features(${GUI_LIB} PUBLIC cxx_std_17)
+target_compile_features(${GUI_LIB} PUBLIC cxx_std_20)
 target_compile_options(${GUI_LIB} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${GUI_LIB} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 

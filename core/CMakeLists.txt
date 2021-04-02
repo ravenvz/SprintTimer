@@ -194,7 +194,7 @@ target_include_directories(${CORE_LIB}
     PUBLIC include
     PUBLIC ${Boost_INCLUDE_DIRS})
 
-target_compile_features(${CORE_LIB} PUBLIC cxx_std_17)
+target_compile_features(${CORE_LIB} PUBLIC cxx_std_20)
 target_compile_options(${CORE_LIB} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${CORE_LIB} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 

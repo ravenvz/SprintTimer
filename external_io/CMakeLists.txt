@@ -27,7 +27,7 @@ target_sources(${EXTERNAL_IO_LIB}
 
 target_include_directories(${EXTERNAL_IO_LIB} PUBLIC include PUBLIC src)
 
-target_compile_features(${EXTERNAL_IO_LIB} PRIVATE cxx_std_17)
+target_compile_features(${EXTERNAL_IO_LIB} PRIVATE cxx_std_20)
 target_compile_options(${EXTERNAL_IO_LIB} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${EXTERNAL_IO_LIB} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 

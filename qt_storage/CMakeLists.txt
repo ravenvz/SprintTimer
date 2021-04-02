@@ -63,7 +63,7 @@ target_sources(${STORAGE_LIB}
 
 target_include_directories(${STORAGE_LIB} PUBLIC include PUBLIC src)
 
-target_compile_features(${STORAGE_LIB} PRIVATE cxx_std_17)
+target_compile_features(${STORAGE_LIB} PRIVATE cxx_std_20)
 target_compile_options(${STORAGE_LIB} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${STORAGE_LIB} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 

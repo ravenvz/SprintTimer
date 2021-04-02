@@ -14,7 +14,7 @@ target_sources(${TEST_EXTERNAL_IO}
     "${CMAKE_CURRENT_LIST_DIR}/test_task_to_csv.cpp"
 )
 
-target_compile_features(${TEST_EXTERNAL_IO} PRIVATE cxx_std_17)
+target_compile_features(${TEST_EXTERNAL_IO} PRIVATE cxx_std_20)
 target_compile_options(${TEST_EXTERNAL_IO} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
 target_compile_options(${TEST_EXTERNAL_IO} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
 
