@@ -25,14 +25,21 @@
 #include "qt_gui/presentation/StatisticsMediator.h"
 #include <core/QueryHandler.h>
 
+// TODO workaround until statistics view is streamlined
+#include "qt_gui/mvp/AbstractPresenter.h"
+
 namespace sprint_timer::ui {
 
-class StatisticsMediatorImpl : public StatisticsMediator {
+// TODO workaround until statistics view is streamlined
+class StatisticsMediatorImpl : public StatisticsMediator, public mvp::AbstractPresenter {
 public:
     using QueryHandler = QueryHandler<use_cases::RequestSprintsQuery,
                                       std::vector<entities::Sprint>>;
 
     StatisticsMediatorImpl(QueryHandler& queryHandler_, size_t numTopTags_);
+
+// TODO workaround until statistics view is streamlined
+    void updateView() override;
 
     void filterByTag(StatisticsColleague* caller,
                      std::optional<size_t> tagNumber) override;

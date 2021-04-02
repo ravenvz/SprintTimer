@@ -32,6 +32,17 @@ StatisticsMediatorImpl::StatisticsMediatorImpl(QueryHandler& queryHandler_,
         queryHandler.handle(use_cases::RequestSprintsQuery{*dateRange});
 }
 
+// TODO workaround until statistics view is streamlined
+void StatisticsMediatorImpl::updateView() {
+    if (!dateRange) {
+        return;
+    }
+    currentTagNumber = std::nullopt;
+    allSprints = queryHandler.handle(use_cases::RequestSprintsQuery{*dateRange});
+    tagtop = TagTop{allSprints, numTopTags};
+    notifyAll([](auto* colleague) { colleague->onSharedDataChanged(); });
+}
+
 void StatisticsMediatorImpl::filterByTag(StatisticsColleague* caller,
                                          std::optional<size_t> tagNumber)
 {
