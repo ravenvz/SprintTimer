@@ -20,7 +20,9 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/BestWorktimeWidget.h"
-#include "ui_best_worktime_widget.h"
+#include "qt_gui/widgets/TimeDiagram.h"
+#include <QGridLayout>
+#include <QLabel>
 #include <core/SprintStatistics.h>
 
 namespace sprint_timer::ui::qt_gui {
@@ -29,25 +31,37 @@ using namespace entities;
 
 BestWorktimeWidget::BestWorktimeWidget(QWidget* parent_)
     : QWidget{parent_}
-    , ui{std::make_unique<Ui::BestWorktimeWidget>()}
+    , bestWorktimeName{std::make_unique<QLabel>().release()}
+    , bestWorkHours{std::make_unique<QLabel>().release()}
+    , timeDiagram{std::make_unique<TimeDiagram>(this).release()}
 {
-    ui->setupUi(this);
-}
+    auto layout_ = std::make_unique<QGridLayout>();
 
-BestWorktimeWidget::~BestWorktimeWidget() = default;
+    auto title_ = std::make_unique<QLabel>("Best Worktime");
+
+    QFont boldFont{bestWorktimeName->font()};
+    boldFont.setBold(true);
+    bestWorktimeName->setFont(boldFont);
+
+    layout_->addWidget(title_.release(), 0, 0);
+    layout_->addWidget(bestWorktimeName, 1, 0);
+    layout_->addWidget(bestWorkHours, 2, 0);
+    layout_->addWidget(timeDiagram, 0, 1, 20, 5);
+
+    setLayout(layout_.release());
+}
 
 void BestWorktimeWidget::updateLegend(
     const contracts::DaytimeStatisticsContract::LegendData& data)
 {
-    ui->labelBestWorktimeName->setText(QString::fromStdString(data.periodName));
-    ui->labelBestWorktimeHours->setText(
-        QString::fromStdString(data.periodHours));
+    bestWorktimeName->setText(QString::fromStdString(data.periodName));
+    bestWorkHours->setText(QString::fromStdString(data.periodHours));
 }
 
 void BestWorktimeWidget::updateDiagram(
     const contracts::DaytimeStatisticsContract::DiagramData& data)
 {
-    ui->timeDiagram->setIntervals(data.timeRanges);
+    timeDiagram->setIntervals(data.timeRanges);
 }
 
 } // namespace sprint_timer::ui::qt_gui

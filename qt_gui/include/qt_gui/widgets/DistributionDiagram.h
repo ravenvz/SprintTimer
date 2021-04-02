@@ -23,22 +23,18 @@
 #define DISTRIBUTIONDIAGRAM_H
 
 #include "qt_gui/presentation/TagPieDiagramContract.h"
-#include "qt_gui/widgets/PieChart.h"
-#include "qt_gui/widgets/SimpleLegend.h"
-#include <QLabel>
 #include <QMouseEvent>
-#include <QVBoxLayout>
 #include <QWidget>
-#include <core/SprintStatistics.h>
-#include <core/TagTop.h>
-#include <optional>
-#include <qt_gui/presentation/TagPieDiagramPresenter.h>
 
 namespace sprint_timer::ui::qt_gui {
 
 using DataItem = std::pair<std::string, double>;
 
 class LegendLabel;
+
+class PieChart;
+
+class IStatisticalChartLegend;
 
 /* Displays information about data distribution relative to some quantity.
  *

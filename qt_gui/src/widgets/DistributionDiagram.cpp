@@ -20,7 +20,10 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/DistributionDiagram.h"
-#include <QHBoxLayout>
+#include "qt_gui/widgets/PieChart.h"
+#include "qt_gui/widgets/SimpleLegend.h"
+#include <QGridLayout>
+#include <QLabel>
 #include <QtGui/qpainter.h>
 #include <core/entities/Tag.h>
 #include <memory>
@@ -29,13 +32,17 @@ namespace sprint_timer::ui::qt_gui {
 
 DistributionDiagram::DistributionDiagram(QWidget* parent_)
     : QWidget{parent_}
+    , diagram{std::make_unique<PieChart>(this).release()}
+    , legend{std::make_unique<SimpleLegend>(this).release()}
 {
-    auto layout = std::make_unique<QHBoxLayout>();
-    diagram = std::make_unique<PieChart>(this).release();
-    legend = std::make_unique<SimpleLegend>(this).release();
-    layout->addWidget(legend);
-    layout->addWidget(diagram);
+    auto layout = std::make_unique<QGridLayout>();
+
+    layout->addWidget(std::make_unique<QLabel>("Top Tags").release(), 0, 0);
+    layout->addWidget(legend, 1, 0, Qt::AlignTop);
+    layout->addWidget(diagram, 0, 1, 20, 5);
+
     setLayout(layout.release()); // QWidget takes ownership of layout
+
     connect(diagram,
             &PieChart::partClicked,
             this,

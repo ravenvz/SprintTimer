@@ -40,9 +40,9 @@ StatisticsWindow::StatisticsWindow(
     auto bottomFrame = std::make_unique<QFrame>();
     bottomFrame->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     auto bottomFrameLayout = std::make_unique<QHBoxLayout>(nullptr);
-    bottomFrameLayout->addWidget(bestWorkdayWidget_.release(), 1);
-    bottomFrameLayout->addWidget(distributionDiagram_.release(), 2);
-    bottomFrameLayout->addWidget(bestWorktimeWidget_.release(), 2);
+    bottomFrameLayout->addWidget(bestWorkdayWidget_.release(), 12);
+    bottomFrameLayout->addWidget(distributionDiagram_.release(), 20);
+    bottomFrameLayout->addWidget(bestWorktimeWidget_.release(), 20);
     bottomFrame->setLayout(bottomFrameLayout.release());
 
     auto layout = std::make_unique<QVBoxLayout>(nullptr);
