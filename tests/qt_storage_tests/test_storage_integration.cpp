@@ -583,7 +583,7 @@ TEST_F(QtStorageTestFixture, reads_sprint_daily_distribution)
 {
     const auto taskStorage = initializer.factory.taskStorage();
     const auto sprintStorage = initializer.factory.sprintStorage();
-    const auto dailyDistReader = initializer.factory.dailyDistReader();
+    const auto dailyDistReader = initializer.factory.dailyDistReader(30);
     using namespace dw;
     const Task someTask{TaskBuilder{}.build()};
     SprintBuilder sprintBuilder{SprintBuilder{}.withTaskUuid(someTask.uuid())};

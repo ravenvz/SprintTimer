@@ -51,6 +51,8 @@ public:
 
     Sprint(const std::string& taskUuid, const dw::DateTimeRange& timeSpan);
 
+    Sprint();
+
     // Sprint name is identical to it's associated task name.
     std::string name() const;
 

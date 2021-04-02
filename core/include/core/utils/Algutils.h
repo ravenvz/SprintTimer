@@ -27,8 +27,10 @@
 
 namespace sprint_timer::utils {
 
-template <typename T>
-auto slide(T first, T last, T position) -> std::pair<T, T>
+/* Slide elements inside of container.
+ * Return pair of iterators to first and last elements of moved sequence.
+ */
+template <typename T> auto slide(T first, T last, T position) -> std::pair<T, T>
 {
     if (position < last)
         return {position, std::rotate(position, first, last)};

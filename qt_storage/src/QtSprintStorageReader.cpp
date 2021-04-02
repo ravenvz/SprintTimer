@@ -143,7 +143,7 @@ sprint_timer::entities::Sprint sprintFromQSqlRecord(const QSqlRecord& record)
         columnData(record, Columns::Uuid).toString().toStdString();
     QStringList tagNames{columnData(record, Columns::Tags)
                              .toString()
-                             .split(",", QString::SkipEmptyParts)};
+                             .split(",", Qt::SkipEmptyParts)};
     std::string taskUuid =
         columnData(record, Columns::TodoUuid).toString().toStdString();
     std::list<Tag> tags;

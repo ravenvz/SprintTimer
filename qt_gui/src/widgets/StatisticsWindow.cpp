@@ -20,105 +20,43 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/StatisticsWindow.h"
-#include "qt_gui/widgets/DistributionDiagram.h"
-#include "qt_gui/widgets/TimeDiagram.h"
+#include <QFrame>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
+
+#include <iostream>
 
 namespace sprint_timer::ui::qt_gui {
 
-using namespace entities;
-
 StatisticsWindow::StatisticsWindow(
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler_,
-    std::unique_ptr<DateRangePicker> dateRangePicker_,
-    std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph_,
-    std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget_,
-    const WorkScheduleWrapper& workScheduleWrapper_,
-    DatasyncRelay& datasyncRelay_,
+    std::unique_ptr<QWidget> dailyTimelineGraph_,
+    std::unique_ptr<QWidget> bestWorkdayWidget_,
+    std::unique_ptr<QWidget> bestWorktimeWidget_,
+    std::unique_ptr<QWidget> distributionDiagram_,
+    std::unique_ptr<QWidget> datePickerWidget_,
     QWidget* parent_)
-    : QFrame{parent_}
-    , requestSprintsHandler{requestSprintsHandler_}
-    , dateRangePicker{dateRangePicker_.get()}
-    , dailyTimelineGraph{dailyTimelineGraph_.get()}
-    , statisticsDiagramWidget{statisticsDiagramWidget_.get()}
-    , workScheduleWrapper{workScheduleWrapper_}
-    , datasyncRelay{datasyncRelay_}
+    : StandaloneDisplayableWidget{parent_}
 {
-    auto layout = std::make_unique<QVBoxLayout>(nullptr);
-    layout->addWidget(dateRangePicker_.release(), 1);
-    layout->addWidget(dailyTimelineGraph_.release(), 3);
-    layout->addWidget(statisticsDiagramWidget_.release(), 4);
-    setLayout(layout.release());
+    auto bottomFrame = std::make_unique<QFrame>();
+    bottomFrame->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    auto bottomFrameLayout = std::make_unique<QHBoxLayout>(nullptr);
+    bottomFrameLayout->addWidget(bestWorkdayWidget_.release(), 12);
+    bottomFrameLayout->addWidget(distributionDiagram_.release(), 20);
+    bottomFrameLayout->addWidget(bestWorktimeWidget_.release(), 20);
+    bottomFrame->setLayout(bottomFrameLayout.release());
 
-    connect(&datasyncRelay_,
-            &DatasyncRelay::dataUpdateRequiered,
-            this,
-            &StatisticsWindow::synchronize);
-    connect(statisticsDiagramWidget,
-            &StatisticsDiagramWidget::tagSelectionChanged,
-            this,
-            &StatisticsWindow::onTagSelected);
-    connect(&workScheduleWrapper,
-            &WorkScheduleWrapper::workScheduleChanged,
-            [this](const WorkSchedule&) { updateViews(); });
-    connect(dateRangePicker,
-            &DateRangePicker::selectedDateRangeChanged,
-            this,
-            &StatisticsWindow::synchronize);
+    auto layout = std::make_unique<QVBoxLayout>(nullptr);
+    layout->addWidget(datePickerWidget_.release(), 1);
+    layout->addWidget(dailyTimelineGraph_.release(), 3);
+    layout->addWidget(bottomFrame.release(), 4);
+    setLayout(layout.release());
 }
 
-StatisticsWindow::~StatisticsWindow() = default;
+StatisticsWindow::~StatisticsWindow()
+{
+    std::cerr << "StatisticsWindow destroyed\n";
+}
 
 QSize StatisticsWindow::sizeHint() const { return QSize{1100, 730}; }
-
-void StatisticsWindow::synchronize()
-{
-    onSprintsUpdated(requestSprintsHandler.handle(
-        use_cases::RequestSprintsQuery{dateRangePicker->selectionRange()}));
-}
-
-void StatisticsWindow::onSprintsUpdated(
-    const std::vector<Sprint>& updatedSprints)
-{
-    datasyncRelay.onSyncCompleted("StatisticsWindow");
-    sprints = updatedSprints;
-    selectedTagIndex = std::optional<size_t>();
-    tagTop = TagTop(sprints, numTopTags);
-    updateViews();
-    statisticsDiagramWidget->setTagFrequencies(tagTop.tagFrequencies());
-}
-
-void StatisticsWindow::updateViews()
-{
-    const auto dateRange = dateRangePicker->selectionRange();
-    const std::vector<Sprint>& interestingSprints =
-        (selectedTagIndex ? tagTop.sprintsForTagAt(*selectedTagIndex)
-                          : sprints);
-    const auto dailyDistribution =
-        dailyStatistics(interestingSprints, dateRange);
-    const int workdays =
-        numWorkdays(workScheduleWrapper.workSchedule(), dateRange);
-    const int goal = goalFor(workScheduleWrapper.workSchedule(), dateRange);
-    dailyTimelineGraph->setData(dailyStatistics(interestingSprints, dateRange),
-                                dateRange,
-                                workdays,
-                                goal);
-    statisticsDiagramWidget->setData(interestingSprints, dateRange);
-}
-
-void StatisticsWindow::onTagSelected(size_t tagIndex)
-{
-    if (!selectedTagIndex) {
-        selectedTagIndex = tagIndex;
-    }
-    else {
-        selectedTagIndex = (*selectedTagIndex == tagIndex)
-                               ? std::optional<size_t>()
-                               : tagIndex;
-    }
-
-    updateViews();
-}
 
 } // namespace sprint_timer::ui::qt_gui

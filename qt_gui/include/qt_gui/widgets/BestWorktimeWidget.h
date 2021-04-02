@@ -22,34 +22,32 @@
 #ifndef BESTWORKTIMEWIDGET_H
 #define BESTWORKTIMEWIDGET_H
 
-#include <QtWidgets/QWidget>
-#include <core/Distribution.h>
-#include <core/entities/Sprint.h>
-#include <memory>
+#include "qt_gui/presentation/DaytimeStatisticsContract.h"
+#include <QWidget>
 
-namespace Ui {
-class BestWorktimeWidget;
-} // namespace Ui
+class QLabel;
 
 namespace sprint_timer::ui::qt_gui {
 
-class BestWorktimeWidget : public QWidget {
+class TimeDiagram;
+
+class BestWorktimeWidget : public QWidget,
+                           public contracts::DaytimeStatisticsContract::View {
 public:
-    explicit BestWorktimeWidget(QWidget* parent);
-
-    virtual ~BestWorktimeWidget();
-
-    void setData(const std::vector<entities::Sprint>& sprints);
+    explicit BestWorktimeWidget(QWidget* parent = nullptr);
 
 private:
-    std::unique_ptr<Ui::BestWorktimeWidget> ui;
-    void updateWorkHoursDiagram(const std::vector<entities::Sprint>& sprints);
+    QLabel* bestWorktimeName;
+    QLabel* bestWorkHours;
+    TimeDiagram* timeDiagram;
 
-    void updateLegend(const Distribution<double>& workTimeDistribution,
-                      size_t numSprints);
+    void updateLegend(
+        const contracts::DaytimeStatisticsContract::LegendData& data) override;
+
+    void updateDiagram(
+        const contracts::DaytimeStatisticsContract::DiagramData& data) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // BESTWORKTIMEWIDGET_H

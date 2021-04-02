@@ -30,13 +30,13 @@ TEST(TestStringUtils, test_parse_words)
 {
     const std::string text{
         "Some    text1, ?that! should?Be,parsed... in C++ ..D--  "};
-    const std::list<std::string> expected{
+    const std::vector<std::string> expected{
         "Some", "text1", "that", "should", "Be", "parsed", "in", "C++", "D--"};
 
-    const auto actual = parseWords(text);
+    std::vector<std::string> actual;
+    parseWords(cbegin(text), cend(text), std::back_inserter(actual));
 
-    EXPECT_EQ(expected.size(), actual.size());
-    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
+    EXPECT_EQ(expected, actual);
 }
 
 TEST(TestStringUtils, test_join_empty_container)
@@ -46,9 +46,7 @@ TEST(TestStringUtils, test_join_empty_container)
 
     const std::string actual = join(parts, ", ");
 
-    EXPECT_EQ(expected.size(), actual.size());
-    EXPECT_TRUE(
-        std::equal(expected.cbegin(), expected.cend(), actual.cbegin()));
+    EXPECT_EQ(expected, actual);
 }
 
 TEST(TestStringUtils, test_join_with_some_parts_empty)
@@ -58,8 +56,7 @@ TEST(TestStringUtils, test_join_with_some_parts_empty)
 
     std::string actual = join(parts, " ");
 
-    EXPECT_EQ(expected.size(), actual.size());
-    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
+    EXPECT_EQ(expected, actual);
 }
 
 TEST(TestStringUtils, test_join_with_all_parts_empty)
@@ -69,8 +66,7 @@ TEST(TestStringUtils, test_join_with_all_parts_empty)
 
     const std::string actual = join(parts, " ");
 
-    EXPECT_EQ(expected.size(), actual.size());
-    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
+    EXPECT_EQ(expected, actual);
 }
 
 TEST(TestStringUtils, test_join_on_list_of_ints)
@@ -80,8 +76,47 @@ TEST(TestStringUtils, test_join_on_list_of_ints)
 
     const std::string actual = join(parts.cbegin(), parts.cend(), " -> ");
 
-    EXPECT_EQ(expected.size(), actual.size());
-    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), actual.begin()));
+    EXPECT_EQ(expected, actual);
+}
+
+TEST(TestStringUtils, test_transform_join_on_strings)
+{
+    const std::vector<std::string> parts{"Some", "", "are", "empty"};
+    const std::string expected{"#Some #are #empty"};
+
+    const std::string actual =
+        transformJoin(cbegin(parts), cend(parts), " ", [](const auto& elem) {
+            std::string res{"#"};
+            res += elem;
+            return res;
+        });
+
+    EXPECT_EQ(expected, actual);
+}
+
+TEST(TestStringUtils, test_transform_join_on_ints)
+{
+    const std::vector<int> parts{1, 2, 3, 4};
+    const std::string expected{"1 + 4 + 9 + 16"};
+
+    const std::string actual = transformJoin(
+        parts.cbegin(), parts.cend(), " + ", [](int num) { return num * num; });
+
+    EXPECT_EQ(expected, actual);
+}
+
+TEST(TestStringUtils, test_transform_join_string_vec)
+{
+    const std::vector<std::string> parts{"Some", "", "are", "empty"};
+    const std::string expected{"#Some #are #empty"};
+
+    const std::string actual = transformJoin(parts, " ", [](const auto& elem) {
+        std::string res{"#"};
+        res += elem;
+        return res;
+    });
+
+    EXPECT_EQ(expected, actual);
 }
 
 TEST(TestStringUtils, test_starts_with)

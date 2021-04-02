@@ -20,35 +20,29 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/SprintOutline.h"
+#include <QPushButton>
 #include <QVBoxLayout>
 
 namespace sprint_timer::ui::qt_gui {
 
-SprintOutline::SprintOutline(QDialog& addSprintDialog,
-                             QDialog& undoDialog,
-                             std::unique_ptr<QPushButton> undoButton,
-                             std::unique_ptr<QPushButton> addNewSprintButton,
-                             std::unique_ptr<QListView> sprintView,
-                             QWidget* parent)
-    : QWidget{parent}
+SprintOutline::SprintOutline(std::unique_ptr<QWidget> sprintView_,
+                             std::unique_ptr<QWidget> undoWidget_,
+                             Displayable& addSprintDialog_,
+                             QWidget* parent_)
+    : QWidget{parent_}
 {
-    auto layout = std::make_unique<QVBoxLayout>(this);
+    auto layout = std::make_unique<QVBoxLayout>();
+    auto addSprintButton = std::make_unique<QPushButton>("Add Sprint");
 
-    connect(undoButton.get(), &QPushButton::clicked, [&undoDialog]() {
-        undoDialog.exec();
-    });
-    layout->addWidget(undoButton.release());
-
-    layout->addWidget(sprintView.release());
-
-    connect(addNewSprintButton.get(),
+    connect(addSprintButton.get(),
             &QPushButton::clicked,
-            [&addSprintDialog]() { addSprintDialog.exec(); });
-    layout->addWidget(addNewSprintButton.release());
+            [&addSprintDialog_]() { addSprintDialog_.display(); });
+
+    layout->addWidget(undoWidget_.release());
+    layout->addWidget(sprintView_.release());
+    layout->addWidget(addSprintButton.release());
 
     setLayout(layout.release());
 }
-
-SprintOutline::~SprintOutline() = default;
 
 } // namespace sprint_timer::ui::qt_gui

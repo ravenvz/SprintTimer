@@ -66,13 +66,13 @@
       <widget class="QLabel" name="labelTotalSprints">
        <property name="font">
         <font>
-         <pointsize>13</pointsize>
+         <pointsize>9</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
        <property name="text">
-        <string>402</string>
+        <string>777</string>
        </property>
       </widget>
      </item>
@@ -80,13 +80,13 @@
       <widget class="QLabel" name="labelDailyAverage">
        <property name="font">
         <font>
-         <pointsize>13</pointsize>
+         <pointsize>9</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
        <property name="text">
-        <string>14.36</string>
+        <string>77.77</string>
        </property>
       </widget>
      </item>

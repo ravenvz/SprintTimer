@@ -20,79 +20,53 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TaskView.h"
-#include "qt_gui/dialogs/AddTaskDialog.h"
-#include "qt_gui/metatypes/TaskMetaType.h"
-#include "qt_gui/models/TaskModelRoles.h"
+#include "qt_gui/StandaloneDisplayable.h"
+#include "qt_gui/dialogs/DisplayableDialog.h"
+#include "qt_gui/metatypes/TaskDTOMetatype.h"
+#include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/utils/MouseRightReleaseEater.h"
-#include "qt_gui/utils/WidgetUtils.h"
-#include "qt_gui/widgets/TagEditor.h"
-#include "qt_gui/widgets/TaskSprintsView.h"
 #include <QMenu>
-
-namespace {
-
-const QString editTaskDialogTitle{"Edit task"};
-
-} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
-using entities::Sprint;
-using entities::Task;
-
-TaskView::TaskView(
-    TaskSprintsView& sprintsForTaskView_,
-    AddTaskDialog& editTaskDialog_,
-    std::unique_ptr<QWidget> tagEditor_,
-    IndexChangedReemitter& selectedTaskRowReemitter_,
-    QueryHandler<use_cases::SprintsForTaskQuery, std::vector<entities::Sprint>>&
-        sprintsForTaskHandler_,
-    QWidget* parent_)
+TaskView::TaskView(StandaloneDisplayable& sprintsForTaskView_,
+                   Displayable& editTaskDialog_,
+                   StandaloneDisplayable& tagEditor_,
+                   QAbstractItemModel& taskModel_,
+                   QWidget* parent_)
     : ReordableListView{parent_}
     , sprintsForTaskView{sprintsForTaskView_}
     , editTaskDialog{editTaskDialog_}
-    , tagEditor{std::move(tagEditor_)}
-    , sprintsForTaskHandler{sprintsForTaskHandler_}
+    , tagEditor{tagEditor_}
 {
-    connect(this,
-            &QAbstractItemView::clicked,
-            [&selectedTaskRowReemitter_](const QModelIndex& index) {
-                selectedTaskRowReemitter_.onRowChanged(index.row());
-            });
-    connect(&selectedTaskRowReemitter_,
-            &IndexChangedReemitter::currentRowChanged,
-            this,
-            &TaskView::onTaskSelectionChanged);
+    setModel(&taskModel_);
     connect(this,
             &QListView::customContextMenuRequested,
             this,
             &TaskView::showContextMenu);
-    connect(this, &QListView::doubleClicked, [this]() {
-        if (!model())
-            return;
-        model()->setData(currentIndex(),
-                         QVariant{},
-                         static_cast<int>(TaskModelRoles::ToggleCompletion));
+    connect(this, &QListView::doubleClicked, [this, &taskModel_]() {
+        if (currentIndex().row() < model()->rowCount()) {
+            taskModel_.setData(
+                taskModel_.index(currentIndex().row(), 0),
+                QVariant{},
+                static_cast<int>(CustomRoles::ToggleCheckedRole));
+        }
     });
+    connect(this, &QListView::pressed, [this]() {
+        const auto var = model()->data(currentIndex(), CustomRoles::IdRole);
+        const auto uuid = var.value<QString>();
+        if (auto p = presenter(); p) {
+            p.value()->changeTaskSelection(currentIndex().row(),
+                                           uuid.toStdString());
+        }
+    });
+    setWordWrap(true);
+    setVerticalScrollMode(ScrollMode::ScrollPerPixel);
 }
 
-void TaskView::onTaskSelectionChanged(int taskRow)
+void TaskView::selectTask(std::optional<size_t> taskIndex)
 {
-    // Prevents signal emission if row hasn't changed
-    if (currentIndex().row() != taskRow)
-        setCurrentIndex(model()->index(taskRow, 0));
-}
-
-void TaskView::showSprintsForTask() const
-{
-    const auto taskUUID = currentIndex()
-                              .data(static_cast<int>(TaskModelRoles::GetIdRole))
-                              .toString()
-                              .toStdString();
-
-    sprintsForTaskView.setData(sprintsForTaskHandler.handle(
-        use_cases::SprintsForTaskQuery{std::string{taskUUID}}));
-    sprintsForTaskView.show();
+    setCurrentIndex(taskIndex ? model()->index(*taskIndex, 0) : QModelIndex{});
 }
 
 void TaskView::showContextMenu(const QPoint& pos) const
@@ -115,50 +89,29 @@ void TaskView::showContextMenu(const QPoint& pos) const
 
     QAction* selectedEntry = contextMenu.exec(globalPos);
 
-    if (selectedEntry && selectedEntry->text() == editEntry)
+    if (!selectedEntry) {
+        return;
+    }
+
+    if (selectedEntry->text() == editEntry)
         launchTaskEditor();
-    if (selectedEntry && selectedEntry->text() == deleteEntry)
+    if (selectedEntry->text() == deleteEntry)
         deleteSelectedTask();
-    if (selectedEntry && selectedEntry->text() == tagEditorEntry)
+    if (selectedEntry->text() == tagEditorEntry)
         launchTagEditor();
-    if (selectedEntry && selectedEntry->text() == viewSprintsEntry)
+    if (selectedEntry->text() == viewSprintsEntry)
         showSprintsForTask();
 }
 
-void TaskView::launchTaskEditor() const
-{
-    const QModelIndex index = currentIndex();
-    const auto itemToEdit = currentIndex()
-                                .data(static_cast<int>(TaskModelRoles::GetItem))
-                                .value<Task>();
-
-    editTaskDialog.setWindowTitle(editTaskDialogTitle);
-    editTaskDialog.fillItemData(itemToEdit);
-    connect(&editTaskDialog, &QDialog::accepted, [&]() {
-        Task updatedItem = editTaskDialog.constructedTask();
-        updatedItem.setActualCost(itemToEdit.actualCost());
-        updatedItem.setCompleted(itemToEdit.isCompleted());
-        QVariant var;
-        var.setValue(updatedItem);
-        model()->setData(index, var, static_cast<int>(TaskModelRoles::Replace));
-    });
-    editTaskDialog.exec();
-    editTaskDialog.disconnect();
-}
-
-void TaskView::launchTagEditor() const
-{
-    if (!tagEditor)
-        return;
-    if (tagEditor->isVisible())
-        WidgetUtils::bringToForeground(tagEditor.get());
-    else
-        tagEditor->show();
-}
+void TaskView::launchTaskEditor() const { editTaskDialog.display(); }
 
 void TaskView::deleteSelectedTask() const
 {
     model()->removeRow(currentIndex().row());
 }
+
+void TaskView::launchTagEditor() const { tagEditor.display(); }
+
+void TaskView::showSprintsForTask() const { sprintsForTaskView.display(); }
 
 } // namespace sprint_timer::ui::qt_gui

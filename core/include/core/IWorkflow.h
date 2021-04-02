@@ -27,20 +27,96 @@
 
 namespace sprint_timer {
 
+class Workflow;
+
+class WorkflowState {
+public:
+    virtual ~WorkflowState() = default;
+    virtual void enter(Workflow& workflow) const = 0;
+    virtual void cancel(Workflow& workflow);
+    virtual void exit(Workflow& workflow) = 0;
+    virtual void toggleZoneMode(Workflow& workflow);
+    virtual std::chrono::seconds duration(const Workflow& workflow) const;
+    virtual void onTimerFinished(Workflow& workflow);
+};
+
+class Idle final : public WorkflowState {
+public:
+    void enter(Workflow& workflow) const override;
+    void exit(Workflow& workflow) override;
+};
+
+class RunningSprint final : public WorkflowState {
+public:
+    void enter(Workflow& workflow) const override;
+    void cancel(Workflow& workflow) override;
+    void exit(Workflow& workflow) override;
+    std::chrono::seconds duration(const Workflow& workflow) const override;
+    void toggleZoneMode(Workflow& workflow) override;
+    void onTimerFinished(Workflow& workflow) override;
+};
+
+class ShortBreak final : public WorkflowState {
+public:
+    void enter(Workflow& workflow) const override;
+    void cancel(Workflow& workflow) override;
+    void exit(Workflow& workflow) override;
+    std::chrono::seconds duration(const Workflow& workflow) const override;
+    void onTimerFinished(Workflow& workflow) override;
+};
+
+class LongBreak final : public WorkflowState {
+public:
+    void enter(Workflow& workflow) const override;
+    void cancel(Workflow& workflow) override;
+    void exit(Workflow& workflow) override;
+    std::chrono::seconds duration(const Workflow& workflow) const override;
+    void onTimerFinished(Workflow& workflow) override;
+};
+
+class Zone final : public WorkflowState {
+public:
+    void enter(Workflow& workflow) const override;
+    void exit(Workflow& workflow) override;
+    std::chrono::seconds duration(const Workflow& workflow) const override;
+    void toggleZoneMode(Workflow& workflow) override;
+    void onTimerFinished(Workflow& workflow) override;
+};
+
+class SprintFinished final : public WorkflowState {
+public:
+    void enter(Workflow& workflow) const override;
+    void cancel(Workflow& workflow) override;
+    void exit(Workflow& workflow) override;
+};
+
 class IWorkflow {
 public:
     enum class StateId {
-        IdleEntered,
-        IdleLeft,
-        SprintEntered,
-        SprintLeft,
-        SprintCancelled,
+        Idle,
+        RunningSprint,
         SprintFinished,
-        BreakEntered,
-        BreakLeft,
-        BreakCancelled,
+        BreakStarted,
+        BreakFinished,
         ZoneEntered,
         ZoneLeft
+    };
+
+    struct WorkflowParams {
+        std::chrono::seconds sprintDuration;
+        std::chrono::seconds shortBreakDuration;
+        std::chrono::seconds longBreakDuration;
+        int32_t numSprintsBeforeLongBreak;
+    };
+
+    class WorkflowListener {
+    public:
+        virtual ~WorkflowListener() = default;
+
+        virtual void onTimerTick(std::chrono::seconds timeLeft) = 0;
+
+        virtual void
+        onWorkflowStateChanged(IWorkflow::StateId currentState) = 0;
     };
 
     virtual ~IWorkflow() = default;
@@ -57,7 +133,11 @@ public:
 
     virtual void setNumFinishedSprints(int num) = 0;
 
-    virtual void clearSprintsBuffer() = 0;
+    virtual void addListener(WorkflowListener* listener) = 0;
+
+    virtual void removeListener(WorkflowListener* listener) = 0;
+
+    virtual void reconfigure(const WorkflowParams& params) = 0;
 };
 
 } // namespace sprint_timer

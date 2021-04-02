@@ -22,8 +22,8 @@
 #ifndef TAGEDITOR_H
 #define TAGEDITOR_H
 
+#include "qt_gui/widgets/StandaloneDisplayableWidget.h"
 #include <QAbstractItemModel>
-#include <QWidget>
 #include <memory>
 
 namespace Ui {
@@ -32,9 +32,7 @@ class TagEditorWidget;
 
 namespace sprint_timer::ui::qt_gui {
 
-class TagEditor : public QWidget {
-
-    Q_OBJECT
+class TagEditor : public StandaloneDisplayableWidget {
 
 public:
     explicit TagEditor(QAbstractItemModel& tagModel, QWidget* parent = nullptr);

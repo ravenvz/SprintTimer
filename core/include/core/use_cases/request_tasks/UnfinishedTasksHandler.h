@@ -33,7 +33,7 @@ class UnfinishedTasksHandler
 public:
     explicit UnfinishedTasksHandler(TaskStorageReader& reader);
 
-    std::vector<entities::Task> handle(UnfinishedTasksQuery&&);
+    std::vector<entities::Task> handle(UnfinishedTasksQuery&&) override;
 
 private:
     TaskStorageReader& reader;

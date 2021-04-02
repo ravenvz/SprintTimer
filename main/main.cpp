@@ -19,6 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_gui/models/SprintModel.h"
 #ifdef _WIN32
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
 #include <ShlObj.h>
@@ -42,78 +43,55 @@
 #error "Unknown compiler"
 #endif
 
-#include <QApplication>
-#include <QStyleFactory>
-#include <qt_gui/QtConfig.h>
-#include <qt_gui/widgets/MainWindow.h>
-#include <qt_storage/QtStorageImplementersFactory.h>
-
-#include <QObject>
-#include <core/GroupByDay.h>
-#include <core/GroupByMonth.h>
-#include <core/GroupByWeek.h>
-#include <core/IConfig.h>
-#include <core/ObservableActionInvoker.h>
-#include <core/TaskStorageReader.h>
-#include <filesystem>
-#include <qt_gui/DatasyncRelay.h>
-#include <qt_gui/DistributionRequester.h>
-#include <qt_gui/RequestForDaysBack.h>
-#include <qt_gui/RequestForMonthsBack.h>
-#include <qt_gui/RequestForWeeksBack.h>
-#include <qt_gui/WorkScheduleWrapper.h>
-#include <qt_gui/delegates/HistoryItemDelegate.h>
-#include <qt_gui/delegates/SubmissionItemDelegate.h>
-#include <qt_gui/delegates/TaskItemDelegate.h>
-#include <qt_gui/dialogs/AddExceptionalDayDialog.h>
-#include <qt_gui/dialogs/AddSprintDialog.h>
-#include <qt_gui/dialogs/AddTaskDialog.h>
-#include <qt_gui/dialogs/DateRangePickDialog.h>
-#include <qt_gui/dialogs/SettingsDialog.h>
-#include <qt_gui/dialogs/UndoDialog.h>
-#include <qt_gui/dialogs/WorkdaysDialog.h>
-#include <qt_gui/models/ExtraDayModel.h>
-#include <qt_gui/models/HistoryModel.h>
-#include <qt_gui/models/OperationRangeModel.h>
-#include <qt_gui/models/SprintModel.h>
-#include <qt_gui/models/TagModel.h>
-#include <qt_gui/models/TaskModel.h>
-#include <qt_gui/models/WeekScheduleModel.h>
-#include <qt_gui/utils/WidgetUtils.h>
-#include <qt_gui/widgets/AutodisablingButton.h>
-#include <qt_gui/widgets/ContextMenuListView.h>
-#include <qt_gui/widgets/DailyTimelineGraph.h>
-#include <qt_gui/widgets/DateRangePicker.h>
-#include <qt_gui/widgets/DefaultTimer.h>
-#include <qt_gui/widgets/DialogLaunchButton.h>
-#include <qt_gui/widgets/FancyTimer.h>
-#include <qt_gui/widgets/HistoryWindow.h>
-#include <qt_gui/widgets/LauncherMenu.h>
-#include <qt_gui/widgets/ProgressMonitorWidget.h>
-#include <qt_gui/widgets/ProgressView.h>
-#include <qt_gui/widgets/SprintOutline.h>
-#include <qt_gui/widgets/StatisticsDiagramWidget.h>
-#include <qt_gui/widgets/StatisticsWindow.h>
-#include <qt_gui/widgets/SubmissionBox.h>
-#include <qt_gui/widgets/TagEditor.h>
-#include <qt_gui/widgets/TaskOutline.h>
-#include <qt_gui/widgets/TaskSprintsView.h>
-#include <qt_gui/widgets/TaskView.h>
-#include <qt_gui/widgets/TodayProgressIndicator.h>
-#include <qt_gui/widgets/UndoButton.h>
-
+#include "AddSprintDialogProxy.h"
+#include "AddTaskDialogProxy.h"
+#include "BestWorkdayPresenterProxy.h"
+#include "CommandHandlerDecorator.h"
+#include "CompositePresenter.h"
+#include "DataConsistencyWatcher.h"
+#include "DateRangeSelectorPresenterProxy.h"
+#include "EditTaskDialogProxy.h"
+#include "HistoryWindowProxy.h"
+#include "ObservableConfig.h"
+#include "ProgressMonitorProxy.h"
+#include "QueryHandlerDecorator.h"
+#include "RuntimeConfigurableSoundPlayer.h"
+#include "SettingsDialogLifestyleProxy.h"
+#include "SettingsWatchingAssetLibrary.h"
+#include "StatisticsWindowProxy.h"
+#include "SynchronizingActionInvoker.h"
+#include "TagEditorProxy.h"
+#include "TaskSprintsViewProxy.h"
 #include "VerboseCommandHandler.h"
 #include "VerboseQueryHandler.h"
+#include "WorkScheduleEditorLifestyleProxy.h"
+#include "WorkScheduleEditorPresenterProxy.h"
+#include "WorkflowProxy.h"
+#include <QApplication>
+#include <QStyleFactory>
+#include <core/ComputeByDayStrategy.h>
+#include <core/ComputeByMonthStrategy.h>
+#include <core/ComputeByWeekStrategy.h>
+#include <core/IConfig.h>
+#include <core/ObservableActionInvoker.h>
+#include <core/RequestForDaysBack.h>
+#include <core/RequestForMonthsBack.h>
+#include <core/RequestForWeeksBack.h>
+#include <core/TaskStorageReader.h>
+#include <core/Workflow.h>
 #include <core/use_cases/change_schedule/ChangeWorkScheduleHandler.h>
 #include <core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityHandler.h>
 #include <core/use_cases/create_task/CreateTaskHandler.h>
 #include <core/use_cases/delete_sprint/DeleteSprintHandler.h>
 #include <core/use_cases/delete_task/DeleteTaskHandler.h>
 #include <core/use_cases/edit_task/EditTaskHandler.h>
+#include <core/use_cases/export_data/ExportSprintsHandler.h>
+#include <core/use_cases/export_data/ExportTasksHandler.h>
 #include <core/use_cases/register_sprint/RegisterSprintBulkHandler.h>
 #include <core/use_cases/register_sprint/RegisterSprintHandler.h>
 #include <core/use_cases/rename_tag/RenameTagHandler.h>
 #include <core/use_cases/request_op_range/OperationalRangeHandler.h>
+#include <core/use_cases/request_progress/RequestProgressHandler.h>
 #include <core/use_cases/request_schedule/WorkScheduleHandler.h>
 #include <core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h>
 #include <core/use_cases/request_sprints/RequestSprintsHandler.h>
@@ -122,12 +100,83 @@
 #include <core/use_cases/request_tasks/FinishedTasksHandler.h>
 #include <core/use_cases/request_tasks/UnfinishedTasksHandler.h>
 #include <core/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.h>
+#include <core/use_cases/workflow_control/CancelTimerHandler.h>
+#include <core/use_cases/workflow_control/StartTimerHandler.h>
+#include <core/use_cases/workflow_control/ToggleZoneModeHandler.h>
+#include <external_io/OstreamSink.h>
+#include <external_io/RuntimeConfigurableDataExporter.h>
+#include <external_io/RuntimeSinkRouter.h>
+#include <external_io/Serializer.h>
+#include <external_io/SprintToCsvAlgorithm.h>
+#include <external_io/TaskToCsvAlgorithm.h>
+#include <filesystem>
+#include <qt_gui/DistributionRequester.h>
+#include <qt_gui/QtConfig.h>
+#include <qt_gui/QtSoundPlayerImp.h>
+#include <qt_gui/delegates/HistoryItemDelegate.h>
+#include <qt_gui/delegates/SubmissionItemDelegate.h>
+#include <qt_gui/delegates/TaskItemDelegate.h>
+#include <qt_gui/dialogs/AddSprintDialog.h>
+#include <qt_gui/dialogs/AddTaskDialog.h>
+#include <qt_gui/dialogs/WorkScheduleEditor.h>
+#include <qt_gui/models/HistoryModel.h>
+#include <qt_gui/models/SprintModel.h>
+#include <qt_gui/models/TagModel.h>
+#include <qt_gui/models/TaskModel.h>
+#include <qt_gui/presentation/ActiveTasksPresenter.h>
+#include <qt_gui/presentation/AddTaskControlPresenter.h>
+#include <qt_gui/presentation/BestWorkdayPresenter.h>
+#include <qt_gui/presentation/DailyStatisticsGraphPresenter.h>
+#include <qt_gui/presentation/DataExportPresenter.h>
+#include <qt_gui/presentation/DateRangeSelectorPresenter.h>
+#include <qt_gui/presentation/DaytimeStatisticsPresenter.h>
+#include <qt_gui/presentation/HistoryMediatorImpl.h>
+#include <qt_gui/presentation/HistoryPresenter.h>
+#include <qt_gui/presentation/ProgressPresenter.h>
+#include <qt_gui/presentation/RegisterSprintControlPresenter.h>
+#include <qt_gui/presentation/StatisticsMediatorImpl.h>
+#include <qt_gui/presentation/TagEditorPresenter.h>
+#include <qt_gui/presentation/TagPieDiagramPresenter.h>
+#include <qt_gui/presentation/TaskSprintsPresenter.h>
+#include <qt_gui/presentation/TaskViewPresenter.h>
+#include <qt_gui/presentation/TimerPresenter.h>
+#include <qt_gui/presentation/TodayProgressPresenter.h>
+#include <qt_gui/presentation/TodaySprintsPresenter.h>
+#include <qt_gui/presentation/UndoPresenter.h>
+#include <qt_gui/presentation/WorkScheduleEditorPresenter.h>
+#include <qt_gui/utils/WidgetUtils.h>
+#include <qt_gui/widgets/AutodisablingButton.h>
+#include <qt_gui/widgets/ContextMenuListView.h>
+#include <qt_gui/widgets/DailyTimelineGraph.h>
+#include <qt_gui/widgets/DateRangeSelector.h>
+#include <qt_gui/widgets/DialogLaunchButton.h>
+#include <qt_gui/widgets/LauncherMenu.h>
+#include <qt_gui/widgets/MainWindow.h>
+#include <qt_gui/widgets/ProgressMonitorWidget.h>
+#include <qt_gui/widgets/ProgressWidget.h>
+#include <qt_gui/widgets/SprintOutline.h>
+#include <qt_gui/widgets/StatisticsDiagramWidget.h>
+#include <qt_gui/widgets/StatisticsWindow.h>
+#include <qt_gui/widgets/TaskOutline.h>
+#include <qt_gui/widgets/TaskSprintsView.h>
+#include <qt_gui/widgets/TaskView.h>
+#include <qt_gui/widgets/TimerView.h>
+#include <qt_gui/widgets/TodayProgressIndicator.h>
+#include <qt_gui/widgets/UndoButton.h>
+#include <qt_gui/widgets/UndoWidget.h>
 #include <qt_storage/QtOperationalRangeReader.h>
 #include <qt_storage/QtSprintDistributionReader.h>
 #include <qt_storage/QtSprintStorage.h>
+#include <qt_storage/QtStorageImplementersFactory.h>
 #include <qt_storage/QtTaskStorage.h>
 #include <qt_storage/QtWorkingDaysStorage.h>
 #include <qt_storage/WorkerConnection.h>
+
+/* Check three times before touching this */
+#include "FinishedTasksQueryHandlerSpecialization.h"
+#include "RequestSprintsQueryHandlerSpecialization.h"
+#include "SprintsForTaskQueryHandlerSpecialization.h"
+/* Check three times before touching this */
 
 using std::filesystem::create_directory;
 using std::filesystem::exists;
@@ -182,62 +231,14 @@ std::string getUserDataDirectory()
 std::string getOrCreateSprintTimerDataDirectory()
 {
     const std::string prefix = getUserDataDirectory();
-    const std::string dataDirectory{prefix + "/sprint_timer"};
-    if (!exists(dataDirectory))
+    std::string dataDirectory{prefix + "/sprint_timer"};
+    if (!exists(dataDirectory)) {
         create_directory(dataDirectory);
+    }
     return dataDirectory;
 }
 
 } // namespace
-
-class SyncronizingActionInvoker : public sprint_timer::ObservableActionInvoker {
-public:
-    SyncronizingActionInvoker(
-        sprint_timer::ObservableActionInvoker& wrapped,
-        sprint_timer::ui::qt_gui::DatasyncRelay& datasyncRelay)
-        : wrapped{wrapped}
-        , datasyncRelay{datasyncRelay}
-    {
-    }
-
-    void execute(std::unique_ptr<sprint_timer::Action> action) override
-    {
-        wrapped.execute(std::move(action));
-        datasyncRelay.onDataChanged();
-    }
-
-    void undo() override
-    {
-        wrapped.undo();
-        datasyncRelay.onDataChanged();
-    }
-
-    std::string lastActionDescription() const override
-    {
-        return wrapped.lastActionDescription();
-    }
-
-    bool hasUndoableActions() const override
-    {
-        return wrapped.hasUndoableActions();
-    }
-
-    void attach(sprint_timer::Observer& observer) override
-    {
-        wrapped.attach(observer);
-    }
-
-    void detach(sprint_timer::Observer& observer) override
-    {
-        wrapped.detach(observer);
-    }
-
-    void notify() override { wrapped.notify(); }
-
-private:
-    sprint_timer::ObservableActionInvoker& wrapped;
-    sprint_timer::ui::qt_gui::DatasyncRelay& datasyncRelay;
-};
 
 class VerboseActionInvoker : public sprint_timer::ObservableActionInvoker {
 public:
@@ -248,6 +249,7 @@ public:
 
     void execute(std::unique_ptr<sprint_timer::Action> action) override
     {
+        std::cout << "Executing action: " << std::endl;
         std::cout << action->describe() << std::endl;
         wrapped.execute(std::move(action));
     }
@@ -291,26 +293,12 @@ void applyStyleSheet(QApplication& app)
 #else
     QFile styleFile(":app.qss");
 #endif
-    if (!styleFile.open(QFile::ReadOnly))
+    if (styleFile.open(QFile::ReadOnly)) {
+        app.setStyleSheet(QString::fromLatin1(styleFile.readAll()));
+        styleFile.close();
+    }
+    else
         qDebug() << "WARNING error loading styleSheet";
-    app.setStyleSheet(QString::fromLatin1(styleFile.readAll()));
-    styleFile.close();
-}
-
-template <typename CommandT>
-std::unique_ptr<sprint_timer::CommandHandler<CommandT>>
-decorate(std::unique_ptr<sprint_timer::CommandHandler<CommandT>> wrapped)
-{
-    return std::make_unique<sprint_timer::VerboseCommandHandler<CommandT>>(
-        std::move(wrapped));
-}
-
-template <typename QueryT, typename ResultT>
-std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>>
-decorate(std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>> wrapped)
-{
-    return std::make_unique<sprint_timer::VerboseQueryHandler<QueryT, ResultT>>(
-        std::move(wrapped));
 }
 
 int main(int argc, char* argv[])
@@ -330,290 +318,518 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    Config applicationSettings;
+    Config settings;
+    compose::ObservableConfig applicationSettings{settings};
 
     QApplication app(argc, argv);
 
-    // TODO should be one per thread when async is implemented
+    // TODO(vizier): should be one per thread when async is implemented
     storage::qt_storage::WorkerConnection worker_connection{dataDirectory +
                                                             "/test_sprint.db"};
     QtStorageImplementersFactory storageFactory{
         worker_connection.connectionName()};
     auto sprintStorage = storageFactory.sprintStorage();
     auto taskStorage = storageFactory.taskStorage();
-    auto dailyDistReader = storageFactory.dailyDistReader();
+    auto dailyDistReader = storageFactory.dailyDistReader(30);
     auto weeklyDistReader =
         storageFactory.weeklyDistReader(applicationSettings.firstDayOfWeek());
     auto monthlyDistReader = storageFactory.monthlyDistReader();
     auto operationalRangeReader = storageFactory.operationalRangeReader();
     auto scheduleStorage = storageFactory.scheduleStorage();
 
-    DatasyncRelay datasyncRelay;
+    Observable desyncObservable;
 
     ObservableActionInvoker observableActionInvoker;
     VerboseActionInvoker verboseActionInvoker{observableActionInvoker};
-    SyncronizingActionInvoker actionInvoker{verboseActionInvoker,
-                                            datasyncRelay};
+    compose::SyncronizingActionInvoker actionInvoker{verboseActionInvoker,
+                                                     desyncObservable};
 
     using namespace use_cases;
 
+    ui::Mediator<ui::Invalidatable> cacheInvalidationMediator;
+    // RelayHub cacheInvalidationMediator;
+
+    compose::WorkflowProxy workflow{
+        std::chrono::seconds{1}, applicationSettings, applicationSettings};
+
     auto requestSprintsHandler =
-        decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
-            std::make_unique<RequestSprintsHandler>(*sprintStorage));
-    auto deleteSprintHandler = decorate<DeleteSprintCommand>(
-        std::make_unique<DeleteSprintHandler>(*sprintStorage, actionInvoker));
-    auto finishedTasksHandler =
-        decorate<FinishedTasksQuery, std::vector<entities::Task>>(
-            std::make_unique<FinishedTasksHandler>(*taskStorage));
-    auto operationalRangeHandler =
-        decorate<OperationalRangeQuery, dw::DateRange>(
-            std::make_unique<OperationalRangeHandler>(*operationalRangeReader));
-    auto allTagsHandler = decorate<AllTagsQuery, std::vector<std::string>>(
-        std::make_unique<AllTagsHandler>(*taskStorage));
-    auto renameTagHandler = decorate<RenameTagCommand>(
-        std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker));
-    auto unfinishedTasksHandler =
-        decorate<UnfinishedTasksQuery, std::vector<entities::Task>>(
-            std::make_unique<UnfinishedTasksHandler>(*taskStorage));
-    auto changePriorityHandler = decorate<ChangeUnfinishedTasksPriorityCommand>(
-        std::make_unique<ChangeUnfinishedTasksPriorityHandler>(*taskStorage,
-                                                               actionInvoker));
-    auto createTaskHandler = decorate<CreateTaskCommand>(
-        std::make_unique<CreateTaskHandler>(*taskStorage, actionInvoker));
-    auto deleteTaskHandler =
-        decorate<DeleteTaskCommand>(std::make_unique<DeleteTaskHandler>(
-            *sprintStorage, *taskStorage, actionInvoker));
-    auto toggleCompletionHandler = decorate<ToggleTaskCompletedCommand>(
-        std::make_unique<ToggleTaskCompletedHandler>(*taskStorage,
-                                                     actionInvoker));
-    auto editTaskHandler = decorate<EditTaskCommand>(
-        std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker));
-    auto registerSprintHandler = decorate<RegisterSprintCommand>(
-        std::make_unique<RegisterSprintHandler>(*sprintStorage, actionInvoker));
-    auto registerSprintBulkHandler = decorate<RegisterSprintBulkCommand>(
-        std::make_unique<RegisterSprintBulkHandler>(*sprintStorage,
-                                                    actionInvoker));
+        compose::decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
+            compose::decorate<RequestSprintsQuery,
+                              std::vector<entities::Sprint>>(
+                std::make_unique<RequestSprintsHandler>(*sprintStorage),
+                cacheInvalidationMediator));
+    // auto requestSprintsHandler =
+    //     compose::decorate<RequestSprintsQuery,
+    //     std::vector<entities::Sprint>>(
+    //         std::make_unique<RequestSprintsHandler>(*sprintStorage));
     auto requestSprintDailyDistributionHandler =
-        decorate<RequestSprintDistributionQuery, std::vector<int>>(
-            std::make_unique<RequestSprintDistributionHandler>(
-                *dailyDistReader));
-    auto requestSprintWeeklyDistributionHandler = std::make_unique<
-        VerboseQueryHandler<RequestSprintDistributionQuery, std::vector<int>>>(
-        std::make_unique<RequestSprintDistributionHandler>(*weeklyDistReader));
+        compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+            compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+                std::make_unique<RequestSprintDistributionHandler>(
+                    *dailyDistReader),
+                cacheInvalidationMediator));
+    auto requestSprintWeeklyDistributionHandler =
+        compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+            compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+                std::make_unique<RequestSprintDistributionHandler>(
+                    *weeklyDistReader),
+                cacheInvalidationMediator));
     auto requestSprintMonthlyDistributionHandler =
-        decorate<RequestSprintDistributionQuery, std::vector<int>>(
-            std::make_unique<RequestSprintDistributionHandler>(
-                *monthlyDistReader));
+        compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+            compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+                std::make_unique<RequestSprintDistributionHandler>(
+                    *monthlyDistReader),
+                cacheInvalidationMediator));
     auto sprintsForTaskHandler =
-        decorate<SprintsForTaskQuery, std::vector<entities::Sprint>>(
-            std::make_unique<SprintsForTaskHandler>(*sprintStorage));
-    auto workScheduleHandler = decorate<WorkScheduleQuery, WorkSchedule>(
-        std::make_unique<WorkScheduleHandler>(*scheduleStorage));
-    auto changeWorkScheduleHandler = decorate<ChangeWorkScheduleCommand>(
-        std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
-                                                    actionInvoker));
+        compose::decorate<SprintsForTaskQuery, std::vector<entities::Sprint>>(
+            compose::decorate<SprintsForTaskQuery,
+                              std::vector<entities::Sprint>>(
+                std::make_unique<SprintsForTaskHandler>(*sprintStorage),
+                cacheInvalidationMediator));
+    auto workScheduleHandler =
+        compose::decorate<WorkScheduleQuery, WorkSchedule>(
+            compose::decorate<WorkScheduleQuery, WorkSchedule>(
+                std::make_unique<WorkScheduleHandler>(*scheduleStorage),
+                cacheInvalidationMediator));
+    auto finishedTasksHandler =
+        compose::decorate<FinishedTasksQuery, std::vector<entities::Task>>(
+            compose::decorate<FinishedTasksQuery, std::vector<entities::Task>>(
+                std::make_unique<FinishedTasksHandler>(*taskStorage),
+                cacheInvalidationMediator));
+    auto operationalRangeHandler =
+        compose::decorate<OperationalRangeQuery, dw::DateRange>(
+            compose::decorate<OperationalRangeQuery, dw::DateRange>(
+                std::make_unique<OperationalRangeHandler>(
+                    *operationalRangeReader),
+                cacheInvalidationMediator));
+    auto allTagsHandler =
+        compose::decorate<AllTagsQuery, std::vector<std::string>>(
+            compose::decorate<AllTagsQuery, std::vector<std::string>>(
+                std::make_unique<AllTagsHandler>(*taskStorage),
+                cacheInvalidationMediator));
+    auto unfinishedTasksHandler =
+        compose::decorate<UnfinishedTasksQuery, std::vector<entities::Task>>(
+            compose::decorate<UnfinishedTasksQuery,
+                              std::vector<entities::Task>>(
+                std::make_unique<UnfinishedTasksHandler>(*taskStorage),
+                cacheInvalidationMediator));
+    // auto requestSprintDailyDistributionHandler =
+    //     compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+    //         std::make_unique<RequestSprintDistributionHandler>(
+    //             *dailyDistReader));
+    // auto requestSprintWeeklyDistributionHandler = std::make_unique<
+    //     VerboseQueryHandler<RequestSprintDistributionQuery,
+    //     std::vector<int>>>(
+    //     std::make_unique<RequestSprintDistributionHandler>(*weeklyDistReader));
+    // auto requestSprintMonthlyDistributionHandler =
+    //     compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+    //         std::make_unique<RequestSprintDistributionHandler>(
+    //             *monthlyDistReader));
+    // auto sprintsForTaskHandler =
+    //     compose::decorate<SprintsForTaskQuery,
+    //     std::vector<entities::Sprint>>(
+    //         std::make_unique<SprintsForTaskHandler>(*sprintStorage));
+    // auto workScheduleHandler = compose::decorate<WorkScheduleQuery,
+    // WorkSchedule>(
+    //     std::make_unique<WorkScheduleHandler>(*scheduleStorage));
+    // auto finishedTasksHandler =
+    //     compose::decorate<FinishedTasksQuery, std::vector<entities::Task>>(
+    //         std::make_unique<FinishedTasksHandler>(*taskStorage));
+    // auto operationalRangeHandler =
+    //     compose::decorate<OperationalRangeQuery, dw::DateRange>(
+    //         std::make_unique<OperationalRangeHandler>(*operationalRangeReader));
+    // auto allTagsHandler = compose::decorate<AllTagsQuery,
+    // std::vector<std::string>>(
+    //     std::make_unique<AllTagsHandler>(*taskStorage));
+    // auto unfinishedTasksHandler =
+    //     compose::decorate<UnfinishedTasksQuery, std::vector<entities::Task>>(
+    //         std::make_unique<UnfinishedTasksHandler>(*taskStorage));
 
-    TaskModel unfinishedTasksModel{*changePriorityHandler,
-                                   *createTaskHandler,
-                                   *deleteTaskHandler,
-                                   *toggleCompletionHandler,
-                                   *editTaskHandler,
-                                   *unfinishedTasksHandler,
-                                   datasyncRelay};
-    SprintModel todaySprintsModel{
-        *deleteSprintHandler, *requestSprintsHandler, datasyncRelay};
-    TagModel tagModel{*renameTagHandler, *allTagsHandler, datasyncRelay};
+    auto deleteSprintHandler = compose::decorate<DeleteSprintCommand>(
+        compose::decorate<DeleteSprintCommand>(
+            std::make_unique<DeleteSprintHandler>(*sprintStorage,
+                                                  actionInvoker),
+            cacheInvalidationMediator));
+    auto renameTagHandler =
+        compose::decorate<RenameTagCommand>(compose::decorate<RenameTagCommand>(
+            std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker),
+            cacheInvalidationMediator));
+    auto changePriorityHandler =
+        compose::decorate<ChangeUnfinishedTasksPriorityCommand>(
+            compose::decorate<ChangeUnfinishedTasksPriorityCommand>(
+                std::make_unique<ChangeUnfinishedTasksPriorityHandler>(
+                    *taskStorage, actionInvoker),
+                cacheInvalidationMediator));
+    auto createTaskHandler = compose::decorate<CreateTaskCommand>(
+        compose::decorate<CreateTaskCommand>(
+            std::make_unique<CreateTaskHandler>(*taskStorage, actionInvoker),
+            cacheInvalidationMediator));
+    auto deleteTaskHandler = compose::decorate<DeleteTaskCommand>(
+        compose::decorate<DeleteTaskCommand>(
+            std::make_unique<DeleteTaskHandler>(
+                *sprintStorage, *taskStorage, actionInvoker),
+            cacheInvalidationMediator));
+    auto toggleCompletionHandler =
+        compose::decorate<ToggleTaskCompletedCommand>(
+            compose::decorate<ToggleTaskCompletedCommand>(
+                std::make_unique<ToggleTaskCompletedHandler>(*taskStorage,
+                                                             actionInvoker),
+                cacheInvalidationMediator));
+    auto editTaskHandler =
+        compose::decorate<EditTaskCommand>(compose::decorate<EditTaskCommand>(
+            std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker),
+            cacheInvalidationMediator));
+    auto registerSprintHandler = compose::decorate<RegisterSprintCommand>(
+        compose::decorate<RegisterSprintCommand>(
+            std::make_unique<RegisterSprintHandler>(*sprintStorage,
+                                                    actionInvoker),
+            cacheInvalidationMediator));
+    auto registerSprintBulkHandler =
+        compose::decorate<RegisterSprintBulkCommand>(
+            compose::decorate<RegisterSprintBulkCommand>(
+                std::make_unique<RegisterSprintBulkHandler>(*sprintStorage,
+                                                            actionInvoker),
+                cacheInvalidationMediator));
+    auto changeWorkScheduleHandler =
+        compose::decorate<ChangeWorkScheduleCommand>(
+            compose::decorate<ChangeWorkScheduleCommand>(
+                std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
+                                                            actionInvoker),
+                cacheInvalidationMediator));
 
-    auto taskSelector = std::make_unique<QComboBox>();
-    taskSelector->setModel(&unfinishedTasksModel);
-    taskSelector->setItemDelegate(
-        std::make_unique<SubmissionItemDelegate>().release());
-    AddSprintDialog addSprintDialog{applicationSettings,
-                                    std::move(taskSelector),
-                                    *registerSprintBulkHandler};
+    auto startTimerHandler = compose::decorate<StartTimer>(
+        std::make_unique<StartTimerHandler>(workflow));
 
-    WorkScheduleWrapper workScheduleWrapper{
-        datasyncRelay, *changeWorkScheduleHandler, *workScheduleHandler};
+    auto cancelTimerHandler = compose::decorate<CancelTimer>(
+        std::make_unique<CancelTimerHandler>(workflow));
 
-    UndoDialog undoDialog{actionInvoker};
+    auto toggleZoneHandler = compose::decorate<ToggleZoneMode>(
+        std::make_unique<ToggleZoneModeHandler>(workflow));
 
-    auto undoButton = std::make_unique<UndoButton>(actionInvoker);
-    auto addNewSprintButton = std::make_unique<AutodisablingButton>(
-        unfinishedTasksModel, "Add Sprint Manually");
-    addNewSprintButton->setEnabled(false);
+    // auto deleteSprintHandler = compose::decorate<DeleteSprintCommand>(
+    //     std::make_unique<DeleteSprintHandler>(*sprintStorage,
+    //     actionInvoker));
+    // auto renameTagHandler = compose::decorate<RenameTagCommand>(
+    //     std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker));
+    // auto changePriorityHandler =
+    // compose::decorate<ChangeUnfinishedTasksPriorityCommand>(
+    //     std::make_unique<ChangeUnfinishedTasksPriorityHandler>(*taskStorage,
+    //                                                            actionInvoker));
+    // auto createTaskHandler = compose::decorate<CreateTaskCommand>(
+    //     std::make_unique<CreateTaskHandler>(*taskStorage, actionInvoker));
+    // auto deleteTaskHandler =
+    //     compose::decorate<DeleteTaskCommand>(std::make_unique<DeleteTaskHandler>(
+    //         *sprintStorage, *taskStorage, actionInvoker));
+    // auto toggleCompletionHandler =
+    // compose::decorate<ToggleTaskCompletedCommand>(
+    //     std::make_unique<ToggleTaskCompletedHandler>(*taskStorage,
+    //                                                  actionInvoker));
+    // auto editTaskHandler = compose::decorate<EditTaskCommand>(
+    //     std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker));
+    // auto registerSprintHandler = compose::decorate<RegisterSprintCommand>(
+    //     std::make_unique<RegisterSprintHandler>(*sprintStorage,
+    //     actionInvoker));
+    // auto registerSprintBulkHandler =
+    // compose::decorate<RegisterSprintBulkCommand>(
+    //     std::make_unique<RegisterSprintBulkHandler>(*sprintStorage,
+    //                                                 actionInvoker));
+    // auto changeWorkScheduleHandler =
+    // compose::decorate<ChangeWorkScheduleCommand>(
+    //     std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
+    //                                                 actionInvoker));
+
+    auto todaySprintsModelRequestSprintsHandler =
+        compose::decorate<RequestSprintsQuery, std::vector<entities::Sprint>>(
+            compose::decorate<RequestSprintsQuery,
+                              std::vector<entities::Sprint>>(
+                std::make_unique<RequestSprintsHandler>(*sprintStorage),
+                cacheInvalidationMediator));
+
+    ui::TagEditorPresenter tagEditorPresenter{*allTagsHandler,
+                                              *renameTagHandler};
+    TagModel tagModel;
+    tagModel.setPresenter(tagEditorPresenter);
+
+    ui::UndoPresenter undoPresenter{
+        actionInvoker, actionInvoker, cacheInvalidationMediator};
+    auto undoWidget = std::make_unique<qt_gui::UndoWidget>();
+    undoWidget->setPresenter(undoPresenter);
+    // auto undoButton =
+    //     std::make_unique<UndoButton>(actionInvoker, actionInvoker);
+
+    // addNewSprintButton->setEnabled(false);
+    // auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
+    // SprintModel todaySprintsModel;
+    // sprintView->setModel(&todaySprintsModel);
+
+    ui::TodaySprintsPresenter todaySprintsPresenter{*deleteSprintHandler,
+                                                    *requestSprintsHandler};
+
+    ui::ActiveTasksPresenter activeTasksPresenter{*unfinishedTasksHandler,
+                                                  *editTaskHandler,
+                                                  *deleteTaskHandler,
+                                                  *toggleCompletionHandler,
+                                                  *changePriorityHandler};
+    TaskModel activeTaskModel;
+    activeTaskModel.setPresenter(activeTasksPresenter);
+
+    ui::RegisterSprintControlPresenter registerSprintControlPresenter{
+        *registerSprintBulkHandler};
+    compose::AddSprintDialogProxy addSprintDialog{
+        registerSprintControlPresenter,
+        activeTaskModel,
+        applicationSettings,
+        applicationSettings};
+
+    SprintModel todaySprintsModel;
+    todaySprintsModel.setPresenter(todaySprintsPresenter);
+
     auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
     sprintView->setModel(&todaySprintsModel);
-    auto sprintOutline =
-        std::make_unique<SprintOutline>(addSprintDialog,
-                                        undoDialog,
-                                        std::move(undoButton),
-                                        std::move(addNewSprintButton),
-                                        std::move(sprintView));
+    auto sprintOutline = std::make_unique<SprintOutline>(
+        std::move(sprintView), std::move(undoWidget), addSprintDialog);
 
-    OperationRangeModel operationRangeModel{*operationalRangeHandler,
-                                            datasyncRelay};
-    auto statisticsWindowDateRangePicker = std::make_unique<DateRangePicker>(
-        std::make_unique<DateRangePickDialog>(applicationSettings),
-        operationRangeModel);
-    auto dailyTimelineGraph = std::make_unique<DailyTimelineGraph>(nullptr);
-    auto statisticsDiagramWidget = std::make_unique<StatisticsDiagramWidget>(
-        std::make_unique<BestWorkdayWidget>(nullptr),
-        std::make_unique<DistributionDiagram>(nullptr),
-        std::make_unique<BestWorktimeWidget>(nullptr),
-        nullptr);
-    StatisticsWindow statisticsWindow{
-        *requestSprintsHandler,
-        std::move(statisticsWindowDateRangePicker),
-        std::move(dailyTimelineGraph),
-        std::move(statisticsDiagramWidget),
-        workScheduleWrapper,
-        datasyncRelay};
+    const size_t numTopTags{5};
+    ui::StatisticsMediatorImpl statisticsMediator{*requestSprintsHandler,
+                                                  numTopTags};
+    compose::DateRangeSelectorPresenterProxy dateRangeSelectorPresenter{
+        *operationalRangeHandler,
+        statisticsMediator,
+        applicationSettings,
+        applicationSettings};
+    // auto statisticsGraphWorkScheduleHandler =
+    //     compose::decorate<WorkScheduleQuery, WorkSchedule>(
+    //         compose::decorate<WorkScheduleQuery, WorkSchedule>(
+    //             std::make_unique<WorkScheduleHandler>(*scheduleStorage),
+    //             cacheInvalidationMediator));
+    ui::DailyStatisticsGraphPresenter dailyTimelineGraphPresenter{
+        *workScheduleHandler, statisticsMediator};
+    compose::BestWorkdayPresenterProxy bestWorkdayPresenter{
+        statisticsMediator, applicationSettings, applicationSettings};
+    ui::TagPieDiagramPresenter tagPieDiagramPresenter{statisticsMediator};
+    ui::DaytimeStatisticsPresenter daytimeStatisticsPresenter{
+        statisticsMediator};
 
-    AddExceptionalDayDialog exceptionalDayDialog;
-    ExtraDayModel exceptionalDaysModel;
-    WeekScheduleModel scheduleModel{applicationSettings};
+    // TODO not good, better to pass observable to the constructor so that
+    // dependency would be clearly seen
 
-    WorkdaysDialog workdaysDialog{exceptionalDayDialog,
-                                  exceptionalDaysModel,
-                                  workScheduleWrapper,
-                                  scheduleModel};
+    sprint_timer::compose::StatisticsWindowProxy statisticsWindow{
+        // applicationSettings,
+        dailyTimelineGraphPresenter,
+        bestWorkdayPresenter,
+        daytimeStatisticsPresenter,
+        tagPieDiagramPresenter,
+        dateRangeSelectorPresenter};
+
+    compose::WorkScheduleEditorPresenterProxy workScheduleEditorPresenter{
+        *workScheduleHandler,
+        *changeWorkScheduleHandler,
+        applicationSettings,
+        applicationSettings};
 
     const int distributionDays{30};
     RequestForDaysBack requestDaysBackStrategy{distributionDays};
-    GroupByDay groupByDayStrategy;
-    DistributionRequester dailyDistributionRequester{
-        requestDaysBackStrategy,
-        datasyncRelay,
-        *requestSprintDailyDistributionHandler};
-    auto dailyProgress =
-        std::make_unique<ProgressView>(dailyDistributionRequester,
-                                       workScheduleWrapper,
-                                       groupByDayStrategy,
-                                       requestDaysBackStrategy,
-                                       ProgressView::Rows{3},
-                                       ProgressView::Columns{10},
-                                       ProgressView::GaugeSize{0.7});
-    dailyProgress->setLegendTitle("Last 30 days");
-    dailyProgress->setLegendAverageCaption("Average per day:");
+    ComputeByDayStrategy computeByDayStrategy;
 
-    auto configureWorkdaysButton =
-        std::make_unique<DialogLaunchButton>(workdaysDialog, "Configure");
-    dailyProgress->addLegendRow("Workdays", configureWorkdaysButton.release());
+    auto requestDailyProgressHandler =
+        compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
+            compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
+                std::make_unique<RequestProgressHandler>(
+                    requestDaysBackStrategy,
+                    computeByDayStrategy,
+                    *requestSprintDailyDistributionHandler,
+                    *workScheduleHandler),
+                cacheInvalidationMediator));
+
+    ui::ProgressPresenter dailyProgressPresenter{*requestDailyProgressHandler};
 
     const int distributionWeeks{12};
     RequestForWeeksBack requestWeeksBackStrategy{
         distributionWeeks, applicationSettings.firstDayOfWeek()};
-    GroupByWeek groupByWeekStrategy{applicationSettings.firstDayOfWeek()};
-    DistributionRequester weeklyDistributionRequester{
-        requestWeeksBackStrategy,
-        datasyncRelay,
-        *requestSprintWeeklyDistributionHandler};
-    auto weeklyProgress =
-        std::make_unique<ProgressView>(weeklyDistributionRequester,
-                                       workScheduleWrapper,
-                                       groupByWeekStrategy,
-                                       requestWeeksBackStrategy,
-                                       ProgressView::Rows{3},
-                                       ProgressView::Columns{4},
-                                       ProgressView::GaugeSize{0.8});
-    weeklyProgress->setLegendTitle("Last 12 weeks");
-    weeklyProgress->setLegendAverageCaption("Average per week:");
+    ComputeByWeekStrategy computeByWeekStrategy{
+        applicationSettings.firstDayOfWeek()};
+    auto requestWeeklyProgressHandler =
+        compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
+            compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
+                std::make_unique<RequestProgressHandler>(
+                    requestWeeksBackStrategy,
+                    computeByWeekStrategy,
+                    *requestSprintWeeklyDistributionHandler,
+                    *workScheduleHandler),
+                cacheInvalidationMediator));
+    ui::ProgressPresenter weeklyProgressPresenter{
+        *requestWeeklyProgressHandler};
 
     const int distributionMonths{12};
     RequestForMonthsBack requestMonthsBackStrategy{distributionMonths};
-    GroupByMonth groupByMonthStrategy;
-    DistributionRequester monthlyDistributionRequester{
-        requestMonthsBackStrategy,
-        datasyncRelay,
-        *requestSprintMonthlyDistributionHandler};
-    auto monthlyProgress =
-        std::make_unique<ProgressView>(monthlyDistributionRequester,
-                                       workScheduleWrapper,
-                                       groupByMonthStrategy,
-                                       requestMonthsBackStrategy,
-                                       ProgressView::Rows{3},
-                                       ProgressView::Columns{4},
-                                       ProgressView::GaugeSize{0.8});
-    monthlyProgress->setLegendTitle("Last 12 months");
-    monthlyProgress->setLegendAverageCaption("Average per month:");
+    ComputeByMonthStrategy computeByMonthStrategy;
+    auto requestMonthlyProgressHandler =
+        compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
+            compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
+                std::make_unique<RequestProgressHandler>(
+                    requestMonthsBackStrategy,
+                    computeByMonthStrategy,
+                    *requestSprintMonthlyDistributionHandler,
+                    *workScheduleHandler),
+                cacheInvalidationMediator));
+    ui::ProgressPresenter monthlyProgressPresenter{
+        *requestMonthlyProgressHandler};
 
-    ProgressMonitorWidget progressWindow{std::move(dailyProgress),
-                                         std::move(weeklyProgress),
-                                         std::move(monthlyProgress)};
+    compose::WorkScheduleEditorLifestyleProxy workScheduleEditor{
+        workScheduleEditorPresenter};
 
-    auto historyWindowDateRangePicker = std::make_unique<DateRangePicker>(
-        std::make_unique<DateRangePickDialog>(applicationSettings),
-        operationRangeModel);
+    compose::ProgressMonitorProxy progressWindow{dailyProgressPresenter,
+                                                 weeklyProgressPresenter,
+                                                 monthlyProgressPresenter,
+                                                 workScheduleEditor};
+
     HistoryItemDelegate historyItemDelegate;
     HistoryModel historyModel;
-    HistoryWindow historyWindow{*requestSprintsHandler,
-                                *finishedTasksHandler,
-                                historyModel,
-                                historyItemDelegate,
-                                std::move(historyWindowDateRangePicker),
-                                datasyncRelay};
+    ui::HistoryMediatorImpl historyMediator;
+    ui::HistoryPresenter historyPresenter{
+        *requestSprintsHandler, *finishedTasksHandler, historyMediator};
+    compose::DateRangeSelectorPresenterProxy historyRangeSelectorPresenter{
+        *operationalRangeHandler,
+        historyMediator,
+        applicationSettings,
+        applicationSettings};
 
-    SettingsDialog settingsDialog{applicationSettings};
+    external_io::OstreamSink ostreamSink{std::cout};
+
+    external_io::SprintToCsvAlgorithm sprintToCsvAlgorithm;
+    external_io::Serializer<entities::Sprint> sprintSerializer{
+        {{DataFormat::Csv, sprintToCsvAlgorithm}}};
+
+    external_io::TaskToCsvAlgorithm taskToCsvAlgorithm;
+    external_io::Serializer<entities::Task> taskSerializer{
+        {{DataFormat::Csv, taskToCsvAlgorithm}}};
+
+    external_io::RuntimeSinkRouter runtimeSinkRouter{
+        {{SinkType::Stdout, ostreamSink}}};
+    external_io::RuntimeConfigurableDataExporter<entities::Sprint>
+        sprintDataExporter{sprintSerializer, runtimeSinkRouter};
+    external_io::RuntimeConfigurableDataExporter<entities::Task>
+        taskDataExporter{taskSerializer, runtimeSinkRouter};
+    // Does not use synchronizing overload as it doesn't mutate eternal state
+    auto exportSprintsHandler = compose::decorate<ExportSprintsCommand>(
+        std::make_unique<ExportSprintsHandler>(*requestSprintsHandler,
+                                               sprintDataExporter));
+    // Does not use synchronizing overload as it doesn't mutate eternal state
+    auto exportTasksHandler = compose::decorate<ExportTasksCommand>(
+        std::make_unique<ExportTasksHandler>(*finishedTasksHandler,
+                                             taskDataExporter));
+    ui::DataExportPresenter dataExportPresenter{
+        *exportSprintsHandler, *exportTasksHandler, historyMediator};
+
+    compose::HistoryWindowProxy historyWindow{
+        historyRangeSelectorPresenter, historyPresenter, dataExportPresenter};
+
+    compose::SettingsDialogLifestyleProxy settingsDialog{applicationSettings};
     auto launcherMenu = std::make_unique<LauncherMenu>(
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
 
-    IndexChangedReemitter selectedTaskRowReemitter;
-    SprintRegistrator sprintRegistrator{unfinishedTasksModel,
-                                        *registerSprintBulkHandler,
-                                        selectedTaskRowReemitter};
-    std::unique_ptr<TimerWidgetBase> timerWidget;
-    auto submissionBox =
-        std::make_unique<SubmissionBox>(selectedTaskRowReemitter);
-    submissionBox->setModel(&unfinishedTasksModel);
-    auto submissionItemDelegate = std::make_unique<SubmissionItemDelegate>();
-    submissionBox->setItemDelegate(submissionItemDelegate.release());
-    auto timerFlavour = applicationSettings.timerFlavour();
-    if (timerFlavour == 0)
-        timerWidget = std::make_unique<DefaultTimer>(applicationSettings,
-                                                     todaySprintsModel,
-                                                     std::move(submissionBox),
-                                                     sprintRegistrator,
-                                                     nullptr);
-    else {
-        constexpr int indicatorSize{150};
-        timerWidget = std::make_unique<FancyTimer>(
-            applicationSettings,
-            todaySprintsModel,
-            std::move(submissionBox),
-            std::make_unique<CombinedIndicator>(indicatorSize, nullptr),
-            sprintRegistrator,
-            nullptr);
-    }
+    QMediaPlayer qmediaPlayer;
+    compose::RuntimeConfigurableSoundPlayer soundPlayer(
+        applicationSettings,
+        applicationSettings,
+        std::make_unique<qt_gui::SoundPlayerImp>(qmediaPlayer));
 
-    HistoryModel taskSprintsModel;
-    TaskSprintsView taskSprintsView{taskSprintsModel, historyItemDelegate};
-    AddTaskDialog addTaskDialog{tagModel};
-    auto taskItemDelegate = std::make_unique<TaskItemDelegate>();
-    auto taskView =
-        std::make_unique<TaskView>(taskSprintsView,
-                                   addTaskDialog,
-                                   std::make_unique<TagEditor>(tagModel),
-                                   selectedTaskRowReemitter,
-                                   *sprintsForTaskHandler);
-    taskView->setModel(&unfinishedTasksModel);
+    ui::ConfigurableAssetLibrary assetLibrary_{
+        {{"ringSound", applicationSettings.soundFilePath()}}};
+    compose::SettingsWatchingAssetLibrary assetLibrary{
+        assetLibrary_, applicationSettings, applicationSettings};
+    ui::TaskSelectionMediator taskSelectionMediator;
+    ui::TimerPresenter timerPresenter{workflow,
+                                      soundPlayer,
+                                      assetLibrary,
+                                      "ringSound",
+                                      taskSelectionMediator};
+    ui::TaskViewPresenter taskViewPresenter{taskSelectionMediator};
+    constexpr int indicatorSize{150};
+    auto timerView = std::make_unique<TimerView>(
+        registerSprintControlPresenter,
+        activeTaskModel,
+        std::make_unique<CombinedIndicator>(indicatorSize, nullptr));
+    timerView->setPresenter(timerPresenter);
+
+    ui::TaskSprintsPresenter taskSprintsPresenter{*sprintsForTaskHandler,
+                                                  taskSelectionMediator};
+    compose::TaskSprintsViewProxy taskSprintsView{taskSprintsPresenter,
+                                                  historyItemDelegate};
+    ui::AddTaskControlPresenter addTaskControlPresenter{*createTaskHandler};
+    compose::AddTaskDialogProxy addTaskDialog{addTaskControlPresenter,
+                                              tagModel};
+    TaskItemDelegate taskItemDelegate;
+    compose::EditTaskDialogProxy editTaskDialog{
+        tagModel, activeTaskModel, taskSelectionMediator};
+    compose::TagEditorProxy tagEditor{tagModel};
+    auto taskView = std::make_unique<TaskView>(
+        taskSprintsView, editTaskDialog, tagEditor, activeTaskModel);
+    taskView->setPresenter(taskViewPresenter);
+
+    // TODO can't we move in in TaskView itself?
     taskView->setContextMenuPolicy(Qt::CustomContextMenu);
-    taskView->setItemDelegate(taskItemDelegate.release());
+    taskView->setItemDelegate(&taskItemDelegate);
 
-    auto taskOutline = std::make_unique<TaskOutline>(
-        *registerSprintBulkHandler, std::move(taskView), addTaskDialog);
+    auto taskOutline =
+        std::make_unique<TaskOutline>(std::move(taskView), addTaskDialog);
+    taskOutline->setPresenter(addTaskControlPresenter);
 
-    sprint_timer::ui::qt_gui::MainWindow w{
-        std::move(sprintOutline),
-        std::move(taskOutline),
-        std::make_unique<TodayProgressIndicator>(todaySprintsModel,
-                                                 workScheduleWrapper),
-        std::move(timerWidget),
-        std::move(launcherMenu)};
+    RequestForDaysBack requestThisDayStrategy{1};
+
+    // TODO this handler is created as workaround - otherwise we would have to
+    // deal with false cache-hit as queries are not atm compared
+    auto todayDistReader = storageFactory.dailyDistReader(1);
+    auto requestTodayDistributionHandler =
+        compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+            compose::decorate<RequestSprintDistributionQuery, std::vector<int>>(
+                std::make_unique<RequestSprintDistributionHandler>(
+                    *todayDistReader),
+                cacheInvalidationMediator));
+    auto requestTodayProgressHandler =
+        compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
+            compose::decorate<RequestProgressQuery, ProgressOverPeriod>(
+                std::make_unique<RequestProgressHandler>(
+                    requestThisDayStrategy,
+                    computeByDayStrategy,
+                    *requestTodayDistributionHandler,
+                    *workScheduleHandler),
+                cacheInvalidationMediator));
+    ui::TodayProgressPresenter todayProgressPresenter{
+        *requestTodayProgressHandler};
+
+    compose::CompositePresenter compositePresenter{
+        {undoPresenter,
+         todayProgressPresenter,
+         todaySprintsPresenter,
+         activeTasksPresenter,
+         bestWorkdayPresenter,
+         daytimeStatisticsPresenter,
+         tagPieDiagramPresenter,
+         dateRangeSelectorPresenter,
+         historyRangeSelectorPresenter,
+         dailyProgressPresenter,
+         weeklyProgressPresenter,
+         monthlyProgressPresenter,
+         tagEditorPresenter,
+         statisticsMediator, // TODO workaround until statistics view is streamlined
+         dailyTimelineGraphPresenter}};
+    // TODO Where is work schedule presenter?
+    // HistoryPresenter?
+
+    compose::DataConsistencyWatcher watcher{desyncObservable,
+                                            compositePresenter};
+
+    auto todayProgressIndicator = std::make_unique<TodayProgressIndicator>();
+    todayProgressPresenter.attachView(*todayProgressIndicator);
+
+    sprint_timer::ui::qt_gui::MainWindow w{std::move(sprintOutline),
+                                           std::move(taskOutline),
+                                           std::move(todayProgressIndicator),
+                                           std::move(timerView),
+                                           std::move(launcherMenu)};
     applyStyleSheet(app);
     app.setStyle(QStyleFactory::create("Fusion"));
-
-    // Emits initial signal to trigger update requests for all subsribers
-    datasyncRelay.onDataChanged();
 
     w.show();
 

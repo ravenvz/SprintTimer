@@ -25,24 +25,24 @@
 #include <QEvent>
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QPainterPath>
 #include <QString>
 #include <QWidget>
 
 namespace sprint_timer::ui::qt_gui {
 
 struct AxisRange {
-    // Set minimum and maximum values on axis.
-    // If start > end, then start is asssigned to end, and end to start.
+    void autoExpand(double start, double end);
+
     void setRange(double start, double end);
 
     // Return axis span, that is distance between minimum and maximum value.
     double span() const;
 
 private:
-    double start;
-    double end;
+    double start{0};
+    double end{0};
 };
-
 
 struct DrawingParams {
     DrawingParams(const QRectF& availableRect,
@@ -55,7 +55,6 @@ struct DrawingParams {
     const QPointF referencePoint;
     const double pointSize;
 };
-
 
 class Graph {
     friend class point_to_point_box;
@@ -106,22 +105,27 @@ private:
 };
 
 class Plot : public QWidget {
-    Q_OBJECT
-
 public:
     explicit Plot(QWidget* parent);
 
     // Add Graph to plot. Multiple graphs can be added.
     void addGraph(Graph graph);
 
+    void addGraph(Graph graph, Graph::VisualOptions options);
+
     // Set data points to graph with given number.
     void changeGraphData(size_t graphNum, Graph::Data&& data);
+
+    void changeGraphVisualOptions(size_t graphNum,
+                                  Graph::VisualOptions options);
 
     // Set visible axis range.
     void setRangeX(double start, double end);
 
     // Set visible axis range.
     void setRangeY(double start, double end);
+
+    void clear();
 
 private:
     std::vector<Graph> graphs;
@@ -135,6 +139,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // PLOT_H

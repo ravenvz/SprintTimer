@@ -27,14 +27,12 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
-    : QDialog{parent}
+SettingsDialog::SettingsDialog(IConfig& applicationSettings_, QDialog* parent_)
+    : DisplayableDialog{parent_}
     , ui{std::make_unique<Ui::SettingsDialog>()}
-    , applicationSettings{applicationSettings}
+    , applicationSettings{applicationSettings_}
 {
     ui->setupUi(this);
-    auto timerModel = std::make_unique<QStringListModel>(timers, this);
-    ui->cbxTimerVariation->setModel(timerModel.release());
 
     fillSettingsData();
 
@@ -51,16 +49,9 @@ SettingsDialog::SettingsDialog(IConfig& applicationSettings, QDialog* parent)
         applicationSettings.setSoundFilePath(
             ui->lePathToSoundFile->text().toStdString());
     });
-    connect(ui->cbxTimerVariation,
-            QOverload<const QString&>::of(&QComboBox::currentIndexChanged),
-            [&](const QString& text) {
-                /* ... */
-            });
 }
 
-
 SettingsDialog::~SettingsDialog() = default;
-
 
 void SettingsDialog::fillSettingsData()
 {
@@ -76,12 +67,9 @@ void SettingsDialog::fillSettingsData()
     ui->lePathToSoundFile->setText(
         QString::fromStdString(applicationSettings.soundFilePath()));
     ui->hSliderVolume->setValue(applicationSettings.soundVolume());
-    auto timerFlavour = applicationSettings.timerFlavour();
-    ui->cbxTimerVariation->setCurrentIndex(timerFlavour);
     ui->cbxFirstWeekday->setCurrentIndex(
-        static_cast<int>(applicationSettings.firstDayOfWeek()));
+        applicationSettings.firstDayOfWeek() == dw::Weekday::Monday ? 0 : 1);
 }
-
 
 void SettingsDialog::storeSettingsData()
 {
@@ -96,11 +84,10 @@ void SettingsDialog::storeSettingsData()
         ui->spBxLongBreakAfter->value());
     applicationSettings.setPlaySound(ui->gbSoundSettings->isChecked());
     applicationSettings.setSoundVolume(ui->hSliderVolume->value());
-    applicationSettings.setTimerFlavour(ui->cbxTimerVariation->currentIndex());
     applicationSettings.setFirstDayOfWeek(
-        static_cast<dw::Weekday>(ui->cbxFirstWeekday->currentIndex()));
+        ui->cbxFirstWeekday->currentIndex() == 0 ? dw::Weekday::Monday
+                                                 : dw::Weekday::Sunday);
 }
-
 
 void SettingsDialog::toggleVolumeControlVisibility()
 {
@@ -109,7 +96,6 @@ void SettingsDialog::toggleVolumeControlVisibility()
     ui->lePathToSoundFile->setEnabled(ui->gbSoundSettings->isChecked());
     ui->pbBrowseSoundFile->setEnabled(ui->gbSoundSettings->isChecked());
 }
-
 
 void SettingsDialog::onBrowseSoundFileButtonClicked()
 {

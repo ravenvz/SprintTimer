@@ -22,10 +22,8 @@
 #ifndef DAILYTIMELINEGRAPH_H
 #define DAILYTIMELINEGRAPH_H
 
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLabel>
-#include <core/Distribution.h>
-#include <date_wrapper/date_wrapper.h>
+#include "qt_gui/presentation/DailyStatisticsGraphContract.h"
+#include <QFrame>
 #include <memory>
 
 namespace Ui {
@@ -34,28 +32,28 @@ class DailyTimelineGraph;
 
 namespace sprint_timer::ui::qt_gui {
 
-
-class DailyTimelineGraph : public QFrame {
+class DailyTimelineGraph : public QFrame,
+                           public contracts::DailyStatisticGraphContract::View {
 public:
-    explicit DailyTimelineGraph(QWidget* parent);
+    explicit DailyTimelineGraph(QWidget* parent = nullptr);
 
-    ~DailyTimelineGraph();
+    ~DailyTimelineGraph() override;
 
-    void setData(const Distribution<double>& dailyDistribution,
-                 const dw::DateRange& dateRange,
-                 int numWorkdays,
-                 int goalForPeriod);
+    void clearGraphs() override;
+
+    void drawGraph(const contracts::DailyStatisticGraphContract::GraphData&
+                       graphData) override;
 
 private:
     std::unique_ptr<Ui::DailyTimelineGraph> ui;
 
-    void setupGraphs();
+    void setGraphsVisualOptions(
+        const contracts::DailyStatisticGraphContract::GraphData& data);
 
-    void updateLegend(const Distribution<double>& dailyDistribution,
-                      double averagePerWorkday);
+    void updateLegend(const contracts::DailyStatisticGraphContract::LegendData&
+                          legendData) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // DAILYTIMELINEGRAPH_H

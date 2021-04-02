@@ -22,32 +22,21 @@
 #ifndef SPRINT_TIMER_SPRINTOUTLINE_H
 #define SPRINT_TIMER_SPRINTOUTLINE_H
 
-#include <QListView>
-#include <QPushButton>
+#include "qt_gui/Displayable.h"
+#include <QWidget>
 #include <memory>
-#include <QDialog>
 
 namespace sprint_timer::ui::qt_gui {
 
-class AddSprintDialog;
-class UndoDialog;
-
 class SprintOutline : public QWidget {
 
-    Q_OBJECT
-
 public:
-    SprintOutline(QDialog& addSprintDialog,
-                  QDialog& undoDialog,
-                  std::unique_ptr<QPushButton> undoButton,
-                  std::unique_ptr<QPushButton> addNewSprintButton,
-                  std::unique_ptr<QListView> sprintView,
+    SprintOutline(std::unique_ptr<QWidget> sprintView,
+                  std::unique_ptr<QWidget> undoWidget,
+                  Displayable& addSprintDialog,
                   QWidget* parent = nullptr);
-
-    ~SprintOutline() override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // SPRINT_TIMER_SPRINTOUTLINE_H

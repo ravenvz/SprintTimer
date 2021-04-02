@@ -31,7 +31,7 @@ namespace sprint_timer::use_cases {
 struct RequestSprintDistributionQuery : public Query<std::vector<int>> {
     explicit RequestSprintDistributionQuery(dw::DateRange&& dateRange);
 
-    const dw::DateRange dateRange;
+    dw::DateRange dateRange;
 };
 
 template <class CharT, class Traits>

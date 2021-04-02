@@ -60,16 +60,21 @@ class TagTop {
 public:
     using TagFrequency = std::pair<entities::Tag, double>;
 
-    using TagSprints
-        = std::unordered_map<entities::Tag, std::vector<entities::Sprint>>;
+    using TagSprints =
+        std::unordered_map<entities::Tag, std::vector<entities::Sprint>>;
 
     TagTop(const std::vector<entities::Sprint>& sprints, size_t topMaxSize);
 
     TagTop();
 
-    std::vector<TagFrequency> tagFrequencies() const;
+    const std::vector<TagFrequency>& tagFrequencies() const;
 
-    std::vector<entities::Sprint> sprintsForTagAt(size_t position) const;
+    const std::vector<entities::Sprint>& sprintsForTagAt(size_t position) const;
+
+    const std::vector<entities::Sprint>& allSprints() const;
+
+    const std::vector<entities::Sprint>&
+    sprintsForTag(const entities::Tag& tag) const;
 
     std::string tagNameAt(size_t position) const;
 

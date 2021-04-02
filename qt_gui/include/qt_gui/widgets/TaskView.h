@@ -22,57 +22,41 @@
 #ifndef TASKVIEW_H_AC0ZCTZN
 #define TASKVIEW_H_AC0ZCTZN
 
-#include "qt_gui/IndexChangedReemitter.h"
+#include "qt_gui/presentation/TaskViewContract.h"
 #include "qt_gui/widgets/ReordableListView.h"
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_sprints/SprintsForTaskQuery.h>
-#include <optional>
-
-#ifdef _MSC_VER
-#include "qt_gui/WinExport.h"
-#endif // _MSC_VER
 
 namespace sprint_timer::ui::qt_gui {
 
-class TaskSprintsView;
-class AddTaskDialog;
-class TagEditor;
+class Displayable;
+class StandaloneDisplayable;
 
-#ifdef _MSC_VER
-class GLIB_EXPORT TaskView : public ReordableListView {
-#else
-class TaskView : public ReordableListView {
-#endif // _MSC_VER
+class TaskView : public ReordableListView,
+                 public contracts::TaskViewContract::View {
     Q_OBJECT
 
 public:
-    TaskView(TaskSprintsView& sprintsForTaskView,
-             AddTaskDialog& editTaskDialog,
-             std::unique_ptr<QWidget> tagEditor,
-             IndexChangedReemitter& selectedTaskRowReemitter,
-             QueryHandler<use_cases::SprintsForTaskQuery,
-                          std::vector<entities::Sprint>>& sprintsForTaskHandler,
+    TaskView(StandaloneDisplayable& sprintsForTaskView,
+             Displayable& editTaskDialog,
+             StandaloneDisplayable& tagEditor,
+             QAbstractItemModel& taskModel,
              QWidget* parent = nullptr);
 
-public slots:
-    void onTaskSelectionChanged(int taskRow);
+    void selectTask(std::optional<size_t> taskIndex) override;
 
 private:
-    TaskSprintsView& sprintsForTaskView;
-    AddTaskDialog& editTaskDialog;
-    std::unique_ptr<QWidget> tagEditor;
-    QueryHandler<use_cases::SprintsForTaskQuery, std::vector<entities::Sprint>>&
-        sprintsForTaskHandler;
-
-    void showSprintsForTask() const;
+    StandaloneDisplayable& sprintsForTaskView;
+    Displayable& editTaskDialog;
+    StandaloneDisplayable& tagEditor;
 
     void showContextMenu(const QPoint& pos) const;
 
     void launchTaskEditor() const;
 
+    void deleteSelectedTask() const;
+
     void launchTagEditor() const;
 
-    void deleteSelectedTask() const;
+    void showSprintsForTask() const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

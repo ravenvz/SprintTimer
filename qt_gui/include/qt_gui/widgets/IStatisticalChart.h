@@ -41,7 +41,7 @@ public:
     {
     }
 
-    virtual ~IStatisticalChart();
+    ~IStatisticalChart() override;
 
     /* Set data that is to be displayed as a chart.
      * Sum of all values is treated as 100%. */

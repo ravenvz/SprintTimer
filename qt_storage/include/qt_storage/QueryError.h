@@ -36,8 +36,8 @@ public:
     std::string queryError() const;
 
 private:
-    const std::string query;
-    const std::string lastError;
+    std::string query;
+    std::string lastError;
 };
 
 } // namespace sprint_timer::storage::qt_storage

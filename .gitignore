@@ -19,3 +19,5 @@ compile_commands.json
 Testing/
 cmake-build-*/
 .idea/
+SprintTimer.srctrl*
+.clangd

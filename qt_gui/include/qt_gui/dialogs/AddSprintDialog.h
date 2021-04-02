@@ -22,50 +22,40 @@
 #ifndef ADDSPRINTDIALOG_H
 #define ADDSPRINTDIALOG_H
 
-#include <QComboBox>
-#include <QDialog>
-#include <QtWidgets/QCalendarWidget>
-#include <core/CommandHandler.h>
-#include <core/IConfig.h>
-#include <core/SprintStorageWriter.h>
-#include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
-#include <memory>
-
-namespace Ui {
-class AddSprintDialog;
-} // namespace Ui
+#include "qt_gui/delegates/SubmissionItemDelegate.h"
+#include "qt_gui/dialogs/DisplayableDialog.h"
+#include "qt_gui/presentation/RegisterSprintControl.h"
+#include <QSpinBox>
+#include <QTimeEdit>
+#include <date_wrapper/date_wrapper.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class AddSprintDialog : public QDialog {
-    Q_OBJECT
+class AddSprintDialog : public DisplayableDialog {
 
 public:
-    AddSprintDialog(const IConfig& applicationSettings,
-                    std::unique_ptr<QComboBox> taskSelector,
-                    CommandHandler<use_cases::RegisterSprintBulkCommand>&
-                        registerSprintBulkHandler,
-                    QDialog* parent = nullptr);
+    AddSprintDialog(contracts::RegisterSprintControl::Presenter& presenter,
+                    QAbstractItemModel& taskModel,
+                    dw::Weekday firstDayOfWeek,
+                    std::chrono::minutes sprintDuration);
 
     ~AddSprintDialog() override;
 
-    void accept() override;
+private:
+    std::chrono::minutes sprintDuration;
+    QTimeEdit* startTime = std::make_unique<QTimeEdit>().release();
+    QTimeEdit* finishTime = std::make_unique<QTimeEdit>().release();
+    QSpinBox* sprintNumber = std::make_unique<QSpinBox>().release();
+    QTimeEdit* lastChangedTime = startTime;
+    SubmissionItemDelegate delegate;
 
-private slots:
-    void adjustFinishTime();
     void adjustStartTime();
 
-private:
-    std::unique_ptr<Ui::AddSprintDialog> ui;
-    std::unique_ptr<QCalendarWidget> datePicker;
-    const IConfig& applicationSettings;
-    QComboBox* taskSelector;
-    CommandHandler<use_cases::RegisterSprintBulkCommand>&
-        registerSprintBulkHandler;
+    void adjustFinishTime();
 
-    std::chrono::seconds totalSprintLength() const;
+    void adjustTime();
 
-    void resetDataFields();
+    [[nodiscard]] std::chrono::seconds totalSprintTime() const;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -56,9 +56,8 @@ QtStorageImplementersFactory::operationalRangeReader() const
 }
 
 std::unique_ptr<SprintDistributionReader>
-QtStorageImplementersFactory::dailyDistReader() const
+QtStorageImplementersFactory::dailyDistReader(size_t numDays) const
 {
-    constexpr size_t numDays{30};
     return std::make_unique<QtSprintDailyDistributionReader>(connectionName,
                                                              numDays);
 }

@@ -36,9 +36,7 @@ constexpr static double marginRelSize{0.07};
 constexpr static double pointBoxRelSize{0.025};
 const QBrush pointBoxBrush{Qt::white};
 
-
 QRectF computeAvailableRectange(const QRectF& totalSizeRect);
-
 
 struct point_to_point_box {
     point_to_point_box(const DrawingParams& drawingParams)
@@ -49,18 +47,18 @@ struct point_to_point_box {
     Graph::PointBox operator()(const Graph::Point& p)
     {
         QPainterPath path;
-		// TODO figure out why MSVC doesn't like this structured binging
+        // TODO figure out why MSVC doesn't like this structured binging
 #ifdef WIN32
-		auto labelOffset = drawingParams.labelOffset;
-		const auto scaleX = drawingParams.scaleX;
-		const auto scaleY = drawingParams.scaleY;
-		const auto referencePoint = drawingParams.referencePoint;
-		const auto pointSize = drawingParams.pointSize;
+        auto labelOffset = drawingParams.labelOffset;
+        const auto scaleX = drawingParams.scaleX;
+        const auto scaleY = drawingParams.scaleY;
+        const auto referencePoint = drawingParams.referencePoint;
+        const auto pointSize = drawingParams.pointSize;
 #else
-         const auto [labelOffset, scaleX, scaleY, referencePoint, pointSize]
-            = drawingParams;
+        const auto& [labelOffset, scaleX, scaleY, referencePoint, pointSize] =
+            drawingParams;
 #endif
-        const QPointF position{p.x * scaleX + referencePoint.x(),
+        const QPointF position{referencePoint.x() + p.x * scaleX,
                                referencePoint.y() - p.y * scaleY - labelOffset};
         path.addEllipse(QPointF{0, 0}, pointSize, pointSize);
         return Graph::PointBox{path, position, QString("%1").arg(p.y)};
@@ -76,8 +74,14 @@ namespace sprint_timer::ui::qt_gui {
 
 void AxisRange::setRange(double start, double end)
 {
-    this->start = std::min(start, end);
-    this->end = std::max(start, end);
+    this->start = start;
+    this->end = end;
+}
+
+void AxisRange::autoExpand(double start, double end)
+{
+    this->start = std::min(this->start, start);
+    this->end = std::max(this->end, end);
 }
 
 double AxisRange::span() const { return end - start; }
@@ -92,8 +96,9 @@ DrawingParams::DrawingParams(const QRectF& availableRect,
                              const AxisRange& rangeX,
                              const AxisRange& rangeY)
     : labelOffset{labelOffsetRelSize * availableRect.height()}
-    , scaleX{rangeX.span() > 0 ? availableRect.width() / rangeX.span() : 1}
-    , scaleY{rangeY.span() > 0
+    , scaleX{rangeX.span() > 1 ? availableRect.width() / (rangeX.span() - 1)
+                               : 1}
+    , scaleY{rangeY.span() > 1
                  ? (availableRect.height() - labelOffset) / rangeY.span()
                  : 1}
     , referencePoint{availableRect.bottomLeft()}
@@ -109,9 +114,30 @@ void Plot::changeGraphData(size_t graphNum, Graph::Data&& data)
         graphs[graphNum].setData(std::move(data));
 }
 
-void Plot::setRangeX(double start, double end) { rangeX.setRange(start, end); }
+void Plot::changeGraphVisualOptions(size_t graphNum,
+                                    Graph::VisualOptions options)
+{
+    if (graphNum < graphs.size())
+        graphs[graphNum].setVisualOptions(std::move(options));
+}
 
-void Plot::setRangeY(double start, double end) { rangeY.setRange(start, end); }
+void Plot::setRangeX(double start, double end)
+{
+    rangeX.autoExpand(start, end);
+}
+
+void Plot::setRangeY(double start, double end)
+{
+    rangeY.autoExpand(start, end);
+}
+
+void Plot::clear()
+{
+    graphs.clear();
+    rangeX.setRange(0, 0);
+    rangeY.setRange(0, 0);
+    repaint();
+}
 
 void Plot::paintEvent(QPaintEvent*)
 {
@@ -119,6 +145,7 @@ void Plot::paintEvent(QPaintEvent*)
     painter.setRenderHint(QPainter::Antialiasing);
 
     availableRect = computeAvailableRectange(this->rect());
+
     const DrawingParams drawingParams{availableRect, rangeX, rangeY};
 
     for (auto& graph : graphs)
@@ -209,7 +236,7 @@ void Graph::handleMouseMoveEvent(QMouseEvent* event) const
     if (!options.showPoints)
         return;
 
-    // According to Qt documentation on should call event->ignore
+    // According to Qt documentation one should call event->ignore
     // if QToolTip::hideText called or QToolTip::showText is called
     // with empty string
     for (const auto& box : pointBoxes) {
@@ -232,13 +259,8 @@ namespace {
 
 QRectF computeAvailableRectange(const QRectF& totalSizeRect)
 {
-    const double availableWidth{(1 - marginRelSize) * totalSizeRect.width()};
-    const double availableHeight{(1 - marginRelSize) * totalSizeRect.height()};
-    const QPointF center{totalSizeRect.center()};
-    return QRectF{center.x() - availableWidth / 2,
-                  center.y() - availableHeight / 2,
-                  availableWidth,
-                  availableHeight};
+    const double margin{marginRelSize * totalSizeRect.height()};
+    return totalSizeRect.adjusted(margin, margin, -margin, -margin);
 }
 
 } // namespace

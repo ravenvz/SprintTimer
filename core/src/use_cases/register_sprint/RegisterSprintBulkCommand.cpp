@@ -29,5 +29,11 @@ RegisterSprintBulkCommand::RegisterSprintBulkCommand(
 {
 }
 
+bool operator==(const RegisterSprintBulkCommand& lhs,
+                const RegisterSprintBulkCommand& rhs)
+{
+    return lhs.sprints == rhs.sprints;
+}
+
 } // namespace sprint_timer::use_cases
 

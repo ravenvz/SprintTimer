@@ -26,6 +26,10 @@ namespace sprint_timer::ui::qt_gui {
 ReordableListView::ReordableListView(QWidget* parent)
     : QListView(parent)
 {
+    setSelectionMode(QAbstractItemView::SingleSelection);
+    setDragEnabled(true);
+    viewport()->setAcceptDrops(true);
+    setDropIndicatorShown(true);
 }
 
 void ReordableListView::dropEvent(QDropEvent* event)

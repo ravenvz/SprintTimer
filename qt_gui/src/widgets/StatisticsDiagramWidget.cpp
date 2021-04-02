@@ -25,41 +25,20 @@
 namespace sprint_timer::ui::qt_gui {
 
 StatisticsDiagramWidget::StatisticsDiagramWidget(
-    std::unique_ptr<BestWorkdayWidget> bestWorkdayWidget_,
-    std::unique_ptr<DistributionDiagram> tagDiagram_,
-    std::unique_ptr<BestWorktimeWidget> bestWorktimeWidget_,
+    std::unique_ptr<QWidget> bestWorkdayWidget_,
+    std::unique_ptr<QWidget> tagDiagramWidget_,
+    std::unique_ptr<QWidget> bestWorktimeWidget_,
     QFrame* parent)
     : QFrame{parent}
-    , bestWorkdayWidget{bestWorkdayWidget_.get()}
-    , tagDiagram{tagDiagram_.get()}
-    , bestWorktimeWidget{bestWorktimeWidget_.get()}
 {
     setFrameShape(StyledPanel);
     setFrameShadow(Raised);
 
-    connect(tagDiagram,
-            &DistributionDiagram::chartSelectionChanged,
-            [this](size_t index) { emit tagSelectionChanged(index); });
-
-    auto layout = std::make_unique<QHBoxLayout>(this);
+    auto layout = std::make_unique<QHBoxLayout>();
     layout->addWidget(bestWorkdayWidget_.release(), 7);
-    layout->addWidget(tagDiagram_.release(), 10);
+    layout->addWidget(tagDiagramWidget_.release(), 10);
     layout->addWidget(bestWorktimeWidget_.release(), 10);
     setLayout(layout.release());
-}
-
-void StatisticsDiagramWidget::setData(
-    const std::vector<entities::Sprint>& sprints,
-    const dw::DateRange& dateRange)
-{
-    bestWorkdayWidget->setData(sprints, dateRange);
-    bestWorktimeWidget->setData(sprints);
-}
-
-void StatisticsDiagramWidget::setTagFrequencies(
-    std::vector<TagTop::TagFrequency>&& tagFrequencies)
-{
-    tagDiagram->setData(std::move(tagFrequencies));
 }
 
 } // namespace sprint_timer::ui::qt_gui

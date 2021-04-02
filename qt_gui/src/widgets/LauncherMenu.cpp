@@ -23,22 +23,12 @@
 #include "qt_gui/utils/WidgetUtils.h"
 #include "ui_launcher_menu.h"
 
-namespace {
-
-void showOrBringToForeground(QWidget& widget)
-{
-    using namespace sprint_timer::ui::qt_gui::WidgetUtils;
-    widget.isVisible() ? bringToForeground(&widget) : widget.show();
-}
-
-} // namespace
-
 namespace sprint_timer::ui::qt_gui {
 
-LauncherMenu::LauncherMenu(SprintTimerWidget& progressWindow,
-                           QWidget& statisticsWindow,
-                           QWidget& historyWindow,
-                           QDialog& settingsDialog,
+LauncherMenu::LauncherMenu(Displayable& progressWindow,
+                           Displayable& statisticsWindow,
+                           Displayable& historyWindow,
+                           Displayable& settingsDialog,
                            QWidget* parent)
     : QWidget{parent}
     , ui{std::make_unique<Ui::LauncherMenu>()}
@@ -46,16 +36,16 @@ LauncherMenu::LauncherMenu(SprintTimerWidget& progressWindow,
     ui->setupUi(this);
 
     connect(ui->pbHistory, &QPushButton::clicked, [&historyWindow]() {
-        showOrBringToForeground(historyWindow);
+        historyWindow.display();
     });
     connect(ui->pbProgress, &QPushButton::clicked, [&progressWindow]() {
-        showOrBringToForeground(progressWindow);
+        progressWindow.display();
     });
     connect(ui->pbStatistics, &QPushButton::clicked, [&statisticsWindow]() {
-        showOrBringToForeground(statisticsWindow);
+        statisticsWindow.display();
     });
     connect(ui->pbSettings, &QPushButton::clicked, [&settingsDialog]() {
-        settingsDialog.exec();
+        settingsDialog.display();
     });
 }
 

@@ -36,13 +36,13 @@ const QString hideMenu{"H&ide menu"};
 // shrink-expand size configuration
 namespace widget_size {
 
-constexpr int outlineWidth{320};
-constexpr int outlineHeight{200};
-const QSize leftWidget{outlineWidth, outlineHeight};
-const QSize rightWidget{outlineWidth, outlineHeight};
-const QSize menuWidget{50, 100};
-const QSize timerWidget{100, 300};
-constexpr int buttonsHeight{50};
+constexpr int baseSize{50};
+constexpr int outlineWidth{baseSize * 7};
+constexpr int outlineHeight{baseSize * 4};
+const QSize outlineSize{outlineWidth, outlineHeight};
+const QSize menuWidget{baseSize, baseSize * 2};
+const QSize timerWidget{baseSize * 2, baseSize * 6};
+constexpr int buttonsHeight{baseSize};
 const QSize expandedMenu{timerWidget.width(),
                          timerWidget.height() + buttonsHeight +
                              menuWidget.height()};
@@ -71,11 +71,11 @@ MainWindow::MainWindow(std::unique_ptr<QWidget> sprintOutline_,
 {
     ui->setupUi(this);
 
-    sprintsWidget->setMinimumSize(widget_size::leftWidget);
+    sprintsWidget->setMinimumSize(widget_size::outlineSize);
     sprintsWidget->setVisible(false);
     ui->gridLayout->addWidget(sprintsWidget, 0, 2, 3, 1);
 
-    tasksWidget->setMinimumSize(widget_size::rightWidget);
+    tasksWidget->setMinimumSize(widget_size::outlineSize);
     tasksWidget->setVisible(false);
     ui->gridLayout->addWidget(tasksWidget, 0, 0, 3, 1);
 

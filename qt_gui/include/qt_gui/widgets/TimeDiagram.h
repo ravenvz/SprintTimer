@@ -29,41 +29,44 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-using dw::DateTimeRange;
-
-/* Displays vector of TimeSpan as a diagram.
+/* Displays vector of time ranges as a diagram.
  *
- * Diagram looks like a round clock that can display 24-hours instead
- * of 12 with resolution of 1 hour.
- * Top point corresponds to midnight, right point to 6:00,
- * bottom point to 12:00, left point to 18:00.
+ * Diagram looks like a round clock that can has 24 hours indicators, as opposed
+ * to classic 12-hours clock.
+ * Top point corresponds to midnight,
+ * right point to 6:00,
+ * bottom point to 12:00,
+ * left point to 18:00.
  *
- * Time spans are painted as a sector on this diagram. If multiple time spans
+ * Time ranges spans are painted as a sector on this diagram. If multiple ranges
  * are intersecting, intersection is painted in brighter color.
  */
 class TimeDiagram : public QWidget {
-    Q_OBJECT
 
 public:
     explicit TimeDiagram(QWidget* parent);
 
-    /* Set vector of time intervals to display as a diagram. */
-    void setIntervals(std::vector<DateTimeRange> newIntervals);
+    void setIntervals(std::vector<dw::DateTimeRange> newIntervals);
 
 protected:
     void paintEvent(QPaintEvent*) override;
 
 private:
-    const QColor timeSpanColor = QColor::fromRgb(246, 61, 13, 20);
-    std::vector<DateTimeRange> timeSpans;
-    QRectF totalSizeRect;
-    QRectF diagramRect;
-    double diagramRadius{0};
-    double tickOffset{0};
-    double longTickLength{0};
-    double shortTickLength{0};
+    struct DrawingParams {
+        DrawingParams(const QRectF& totalSizeRect);
 
-    void computeAdaptiveSizes();
+        DrawingParams() = default;
+
+        QRectF diagramRect;
+        double diagramRadius{0};
+        double tickOffset{0};
+        double longTickLength{0};
+        double shortTickLength{0};
+    };
+
+    const QColor timeSpanColor = QColor::fromRgb(246, 61, 13, 20);
+    std::vector<dw::DateTimeRange> timeSpans;
+    DrawingParams drawingParams;
 
     void drawDiagramCanvas(QPainter& painter);
 
@@ -71,6 +74,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: TIMEDIAGRAM_H */

@@ -22,21 +22,19 @@
 #ifndef DISTRIBUTIONDIAGRAM_H
 #define DISTRIBUTIONDIAGRAM_H
 
-#include "qt_gui/widgets/PieChart.h"
-#include "qt_gui/widgets/SimpleLegend.h"
-#include <QLabel>
+#include "qt_gui/presentation/TagPieDiagramContract.h"
 #include <QMouseEvent>
-#include <QVBoxLayout>
 #include <QWidget>
-#include <core/SprintStatistics.h>
-#include <core/TagTop.h>
-#include <optional>
 
 namespace sprint_timer::ui::qt_gui {
 
 using DataItem = std::pair<std::string, double>;
 
 class LegendLabel;
+
+class PieChart;
+
+class IStatisticalChartLegend;
 
 /* Displays information about data distribution relative to some quantity.
  *
@@ -48,15 +46,12 @@ class LegendLabel;
  * part is clicked or selected, chartSelectionChanged(size_t partIndex) signal
  * is emitted, indicating index of chart part being clicked.
  */
-class DistributionDiagram : public QWidget {
-    Q_OBJECT
-
+class DistributionDiagram : public QWidget,
+                            public contracts::TagPieDiagramContract::View {
 public:
-    explicit DistributionDiagram(QWidget* parent);
-    ~DistributionDiagram();
+    explicit DistributionDiagram(QWidget* parent = nullptr);
 
-    /* Set tag frequencies to be displayed as pie chart. */
-    void setData(std::vector<TagTop::TagFrequency>&& tagFrequencies);
+    ~DistributionDiagram() override;
 
     /* Set title that is displayed above the legend items. */
     void setLegendTitle(const QString& title);
@@ -64,25 +59,26 @@ public:
     /* Set font to use for legend title. */
     void setLegendTitleFont(QFont font);
 
-private slots:
+    void updateLegend(const std::vector<std::string>& tagNames) override;
+
+    void updateDiagram(
+        std::vector<contracts::TagPieDiagramContract::DiagramData>&& data)
+        override;
+
+    void toggleSelection(std::optional<size_t> selection) override;
+
+private:
+    PieChart* diagram;
+    IStatisticalChartLegend* legend;
+
     /* Handle left mouse click on chart part. */
     void onChartPartClicked(size_t partIndex);
 
     /* Handle left mouse click on legend item. */
     void onLegendItemClicked(size_t itemIndex);
-
-signals:
-    /* Emitted when chart part selected/deselected. */
-    void chartSelectionChanged(size_t partIndex);
-
-private:
-    IStatisticalChart* diagram;
-    IStatisticalChartLegend* legend;
-    std::optional<size_t> selectedSliceIndex;
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // DISTRIBUTIONDIAGRAM_H
 

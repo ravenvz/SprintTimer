@@ -23,12 +23,13 @@
 #define DISTRIBUTION_H_HG9WILUN
 
 #include <cstdlib>
+#include <iostream>
+#include <iterator>
 #include <vector>
 
 namespace sprint_timer {
 
-template <class T>
-class Distribution {
+template <class T> class Distribution {
 public:
     Distribution() = default;
 
@@ -114,6 +115,27 @@ private:
         }
     }
 };
+
+template <typename T>
+bool operator==(const Distribution<T>& lhs, const Distribution<T>& rhs)
+{
+    return lhs.getDistributionVector() == rhs.getDistributionVector();
+}
+
+template <class CharT, class Traits, class T>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os, const Distribution<T>& distr)
+{
+    os << "Distribution{"
+       << "\n\taverage: " << distr.getAverage() << "\n\tmax: " << distr.getMax()
+       << " at bin " << distr.getMaxValueBin()
+       << "\n\ttotal: " << distr.getTotal()
+       << "\n\tnumbers of bins: " << distr.getNumBins() << "\n\t";
+    const auto vec = distr.getDistributionVector();
+    std::copy(cbegin(vec), cend(vec), std::ostream_iterator<T>(os, ", "));
+    os << "}\n";
+    return os;
+}
 
 } // namespace sprint_timer
 

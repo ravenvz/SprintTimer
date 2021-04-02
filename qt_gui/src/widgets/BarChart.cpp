@@ -23,6 +23,14 @@
 #include <QMouseEvent>
 #include <QPainter>
 
+namespace {
+
+constexpr double gapToWidthRatio{0.4};
+constexpr double barHeightToMaxHeightRatio{0.8};
+constexpr double margin{0.1};
+
+} // namespace
+
 namespace sprint_timer::ui::qt_gui {
 
 BarChart::BarChart(QWidget* parent)
@@ -44,7 +52,6 @@ void BarChart::paintEvent(QPaintEvent*)
 {
     const QRectF totalSizeRect = rect();
     const QPointF rectCenter = totalSizeRect.center();
-    const double margin = 0.1;
     const double availableWidth = (1 - margin) * totalSizeRect.width();
     const double availableHeight = (1 - margin) * totalSizeRect.height();
     availableRect = QRectF{rectCenter.x() - availableWidth / 2,
@@ -58,11 +65,9 @@ void BarChart::paintEvent(QPaintEvent*)
 
 void BarChart::drawBars(QPainter& painter)
 {
-    constexpr double gapToWidthRatio = 0.4;
-    constexpr double barHeightToMaxHeightRatio = 0.8;
-
-    const double barWidth = availableRect.width()
-        / (barData.size() * (1 + gapToWidthRatio) + gapToWidthRatio);
+    const double barWidth =
+        availableRect.width() /
+        (barData.size() * (1 + gapToWidthRatio) + gapToWidthRatio);
     const double gapWidth = gapToWidthRatio * barWidth;
     const double legendHeightRatio = (1 - barHeightToMaxHeightRatio) / 2;
     const double maxHeight = barHeightToMaxHeightRatio * availableRect.height();
@@ -76,29 +81,29 @@ void BarChart::drawBars(QPainter& painter)
 
     for (size_t i = 0; i < barData.size(); ++i) {
         painter.setPen(labelPen);
-        QPointF legendOffsetPoint = QPointF(
-            barWidth / 2, -legendHeightRatio * availableRect.height());
+        const QPointF legendOffsetPoint =
+            QPointF(barWidth / 2, -legendHeightRatio * availableRect.height());
         painter.drawText(current - legendOffsetPoint, barData[i].label);
-        QRectF barRect
-            = QRectF{current.x() - barWidth / 2,
-                     current.y() - barData[i].normalizedValue * maxHeight,
-                     barWidth,
-                     barData[i].normalizedValue * maxHeight};
-        painter.drawText(barRect.topLeft()
-                             - QPointF(0, legendHeightRatio / 2 * maxHeight),
+        const QRectF barRect =
+            QRectF{current.x() - barWidth / 2,
+                   current.y() - barData[i].normalizedValue * maxHeight,
+                   barWidth,
+                   barData[i].normalizedValue * maxHeight};
+        painter.drawText(barRect.topLeft() -
+                             QPointF(0, legendHeightRatio / 2 * maxHeight),
                          QString("%1").arg(barData[i].value, 1, 'f', 1, '0'));
         painter.setPen(pen);
         painter.drawRect(barRect);
-         current.setX(current.x() + barWidth + gapWidth);
+        current.setX(current.x() + barWidth + gapWidth);
     }
 }
 
-BarData::BarData() {}
+BarData::BarData() = default;
 
 BarData::BarData(const std::vector<double>& values,
                  const std::vector<QString>& labels)
 {
-    size_t length = std::min(values.size(), labels.size());
+    const size_t length = std::min(values.size(), labels.size());
     data.reserve(length);
     for (size_t i = 0; i < length; ++i) {
         data.push_back(BarDataItem{labels[i], values[i], 0.0});
@@ -108,16 +113,18 @@ BarData::BarData(const std::vector<double>& values,
 
 void BarData::normalize()
 {
-    double maxValue = std::max_element(data.begin(),
-                                       data.end(),
-                                       [](auto entry1, auto entry2) {
-                                           return entry1.value < entry2.value;
-                                       })
-                          ->value;
+    const double maxValue =
+        std::max_element(data.begin(),
+                         data.end(),
+                         [](auto entry1, auto entry2) {
+                             return entry1.value < entry2.value;
+                         })
+            ->value;
     std::transform(
         data.begin(), data.end(), data.begin(), [maxValue](auto entry) {
-            return BarDataItem{
-                entry.label, entry.value, (maxValue > 0.0) ? entry.value / maxValue : 0.0};
+            return BarDataItem{entry.label,
+                               entry.value,
+                               (maxValue > 0.0) ? entry.value / maxValue : 0.0};
         });
 }
 

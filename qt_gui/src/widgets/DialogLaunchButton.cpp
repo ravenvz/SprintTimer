@@ -23,12 +23,12 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-DialogLaunchButton::DialogLaunchButton(QDialog& dialog,
+DialogLaunchButton::DialogLaunchButton(Displayable& dialog,
                                        const QString& text,
                                        QWidget* parent)
     : QPushButton{text, parent}
 {
-    connect(this, &QPushButton::clicked, &dialog, &QDialog::exec);
+    connect(this, &QPushButton::clicked, [&dialog]() { dialog.display(); });
 }
 
 } // namespace sprint_timer::ui::qt_gui

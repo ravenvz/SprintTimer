@@ -22,6 +22,7 @@
 #ifndef HISTORYMODEL_H_UW24GPQR
 #define HISTORYMODEL_H_UW24GPQR
 
+#include "qt_gui/presentation/HistoryContract.h"
 #include <QDate>
 #include <QStandardItemModel>
 #include <QString>
@@ -39,6 +40,8 @@ public:
 
     /* Assumes that orderedHistory is sorted by date asc. */
     void fill(const HistoryData& orderedHistory);
+
+    void fill(const contracts::HistoryContract::History& history);
 
     void sortAndfill(HistoryData&& unorderedHistory);
 };

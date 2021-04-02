@@ -19,129 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef HISTORY_VIEW_H
-#define HISTORY_VIEW_H
+#ifndef HISTORYWINDOW_H_NKR3JLFK
+#define HISTORYWINDOW_H_NKR3JLFK
 
-#include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/Synchronizable.h"
-#include "qt_gui/dialogs/ExportDialog.h"
-#include "qt_gui/models/HistoryModel.h"
-#include "qt_gui/widgets/DateRangePicker.h"
-#include <QStyledItemDelegate>
-#include <QTreeView>
-#include <QWidget>
-#include <core/IConfig.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
-#include <core/use_cases/request_tasks/FinishedTasksQuery.h>
+#include "qt_gui/widgets/StandaloneDisplayableWidget.h"
 #include <memory>
-#include <variant>
-
-namespace Ui {
-class HistoryWindow;
-} // namespace Ui
 
 namespace sprint_timer::ui::qt_gui {
 
-class HistoryWindow : public QWidget, public Synchronizable {
-    Q_OBJECT
+class HistoryWindow : public StandaloneDisplayableWidget {
 
 public:
-    explicit HistoryWindow(
-        QueryHandler<use_cases::RequestSprintsQuery,
-                     std::vector<entities::Sprint>>& requestSprintsHandler,
-        QueryHandler<use_cases::FinishedTasksQuery,
-                     std::vector<entities::Task>>& finishedTasksHandler,
-        HistoryModel& historyModel,
-        QStyledItemDelegate& historyItemDelegate,
-        std::unique_ptr<DateRangePicker> dateRangePicker,
-        DatasyncRelay& datasyncRelay,
-        QWidget* parent = nullptr);
+    HistoryWindow(std::unique_ptr<QWidget> dateRangeSelector,
+                  std::unique_ptr<QWidget> exportWidget,
+                  std::unique_ptr<QWidget> historyTab,
+                  QWidget* parent = nullptr);
 
-    ~HistoryWindow();
+    ~HistoryWindow() override;
 
-    void synchronize() final;
-
-private:
-    struct ShowingSprints {
-        explicit ShowingSprints(HistoryWindow& widget) noexcept;
-
-        void retrieveHistory(HistoryWindow& widget) const;
-
-        void
-        onHistoryRetrieved(HistoryWindow& widget,
-                           const std::vector<entities::Sprint>& sprints) const;
-
-        void exportData(HistoryWindow& widget,
-                        const ExportDialog::ExportOptions& options) const;
-    };
-    struct ShowingTasks {
-        explicit ShowingTasks(HistoryWindow& widget) noexcept;
-
-        void retrieveHistory(HistoryWindow& widget) const;
-
-        void onHistoryRetrieved(HistoryWindow& widget,
-                                const std::vector<entities::Task>& tasks) const;
-
-        void exportData(HistoryWindow& widget,
-                        const ExportDialog::ExportOptions& options) const;
-    };
-    using State = std::variant<std::monostate, ShowingSprints, ShowingTasks>;
-
-    struct HistoryRequestedEvent {
-
-        HistoryWindow& widget;
-
-        explicit HistoryRequestedEvent(HistoryWindow& widget) noexcept;
-
-        void operator()(std::monostate);
-
-        void operator()(const ShowingSprints&);
-
-        void operator()(const ShowingTasks&);
-    };
-
-    struct ExportRequestedEvent {
-
-        HistoryWindow& widget;
-        const ExportDialog::ExportOptions& options;
-
-        ExportRequestedEvent(HistoryWindow& widget,
-                             const ExportDialog::ExportOptions& options);
-
-        void operator()(std::monostate);
-
-        void operator()(const ShowingSprints&);
-
-        void operator()(const ShowingTasks&);
-    };
-
-    std::unique_ptr<Ui::HistoryWindow> ui;
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler;
-    QueryHandler<use_cases::FinishedTasksQuery, std::vector<entities::Task>>&
-        finishedTasksHandler;
-    HistoryModel& historyModel;
-    DateRangePicker* dateRangePicker;
-    DatasyncRelay& datasyncRelay;
-    State state;
-
-    /* Assumes that history items are ordered by date ascendantly. */
-    void fillHistoryModel(const HistoryModel::HistoryData& history);
-
-    dw::DateRange selectedDateInterval() const;
-
-private slots:
-
-    void onTabSelected(int tabIndex);
-
-    void setHistoryModel(QTreeView* view);
-
-    void onExportButtonClicked();
-
-    void onDataExportConfirmed(const ExportDialog::ExportOptions& options);
+    QSize sizeHint() const override;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif // HISTORY_VIEW_H
+#endif /* end of include guard: HISTORYWINDOW_H_NKR3JLFK */
+

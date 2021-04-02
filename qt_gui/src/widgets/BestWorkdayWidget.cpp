@@ -20,70 +20,75 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/BestWorkdayWidget.h"
-#include "ui_best_workday_widget.h"
+#include "qt_gui/widgets/BarChart.h"
 #include <QDate>
+#include <QLabel>
+#include <QLocale>
+#include <QSizePolicy>
+#include <QVBoxLayout>
 
 namespace sprint_timer::ui::qt_gui {
 
-BestWorkdayWidget::BestWorkdayWidget(QWidget* parent)
-    : QWidget(parent)
-    , ui{std::make_unique<Ui::BestWorkdayWidget>()}
+BestWorkdayWidget::BestWorkdayWidget(QWidget* parent_)
+    : QWidget{parent_}
+    , labelBestWorkdayName{std::make_unique<QLabel>().release()}
+    , labelBestWorkdayMsg{std::make_unique<QLabel>().release()}
+    , workdayBarChart{std::make_unique<BarChart>(nullptr).release()}
 {
-    ui->setupUi(this);
-    const QLocale defaultLocale;
-    for (int i = 0; i < 7; ++i) {
-        labels.push_back(
-            defaultLocale.dayName(i + 1, QLocale::FormatType::ShortFormat));
-    }
-    setupWeekdayBarChart();
+    auto layout_ = std::make_unique<QVBoxLayout>();
+
+    auto labelTitle_ = std::make_unique<QLabel>("Best Workday");
+
+    labelTitle_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    labelBestWorkdayName->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    labelBestWorkdayMsg->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    QFont labelFont{labelBestWorkdayName->font()};
+    labelFont.setBold(true);
+    labelBestWorkdayName->setFont(labelFont);
+
+    layout_->addWidget(labelTitle_.release());
+    layout_->addWidget(labelBestWorkdayName);
+    layout_->addWidget(labelBestWorkdayMsg);
+    layout_->addWidget(workdayBarChart);
+
+    setLayout(layout_.release());
 }
 
-BestWorkdayWidget::~BestWorkdayWidget() = default;
-
-void BestWorkdayWidget::setupWeekdayBarChart()
+void BestWorkdayWidget::displayLegend(const LegendData& data)
 {
-    QPen pen;
-    pen.setWidthF(1.2);
-    pen.setColor(Qt::red);
-    ui->workdayBarChart->setPen(pen);
-    QBrush brush = QBrush(QColor("#73c245"));
-    ui->workdayBarChart->setBrush(brush);
-}
-
-void BestWorkdayWidget::setData(const std::vector<entities::Sprint>& sprints,
-                                const dw::DateRange& dateRange)
-{
-    const auto distribution = weekdayStatistics(sprints, dateRange);
-    updateWeekdayBarChart(distribution);
-    updateWeekdayBarChartLegend(distribution);
-}
-
-void BestWorkdayWidget::updateWeekdayBarChart(
-    const Distribution<double>& weekdayDistribution)
-{
-    std::vector<double> values = weekdayDistribution.getDistributionVector();
-    const BarData data = BarData(values, labels);
-    ui->workdayBarChart->setData(data);
-}
-
-void BestWorkdayWidget::updateWeekdayBarChartLegend(
-    const Distribution<double>& weekdayDistribution)
-{
-    if (weekdayDistribution.empty()) {
-        ui->labelBestWorkdayName->setText("No data");
-        ui->labelBestWorkdayMsg->setText("");
+    if (data.dayNum == -1) {
+        labelBestWorkdayName->setText(QString::fromStdString(data.percentage));
         return;
     }
-
-    const double average = weekdayDistribution.getAverage();
-    const int relativeComparisonInPercent =
-        int((weekdayDistribution.getMax() - average) * 100 / average);
     const QLocale defaultLocale;
-    ui->labelBestWorkdayName->setText(defaultLocale.dayName(
-        static_cast<int>(weekdayDistribution.getMaxValueBin()) + 1,
-        QLocale::FormatType::LongFormat));
-    ui->labelBestWorkdayMsg->setText(
-        QString("%1% more than average").arg(relativeComparisonInPercent));
+    labelBestWorkdayName->setText(
+        defaultLocale.dayName(data.dayNum, QLocale::FormatType::LongFormat));
+    labelBestWorkdayMsg->setText(
+        QString("%1% more than average")
+            .arg(QString::fromStdString(data.percentage)));
+}
+
+void BestWorkdayWidget::displayBars(const BarD& data)
+{
+    const QLocale defaultLocale;
+    std::vector<QString> labels_;
+    labels_.reserve(7);
+    std::transform(cbegin(data.dayOrder),
+                   cend(data.dayOrder),
+                   std::back_inserter(labels_),
+                   [&defaultLocale](const auto& elem) {
+                       return defaultLocale.dayName(
+                           elem, QLocale::FormatType::ShortFormat);
+                   });
+    QPen pen;
+    pen.setWidthF(1.2);
+    pen.setColor(QString::fromStdString(data.borderColor));
+    workdayBarChart->setPen(pen);
+    QBrush brush = QBrush(QColor(QString::fromStdString(data.barColor)));
+    workdayBarChart->setBrush(brush);
+    const BarData barData = BarData(data.barValues, labels_);
+    workdayBarChart->setData(barData);
 }
 
 } // namespace sprint_timer::ui::qt_gui

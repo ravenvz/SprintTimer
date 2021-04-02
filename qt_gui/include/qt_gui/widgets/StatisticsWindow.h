@@ -22,60 +22,24 @@
 #ifndef STATISTICSWINDOW_H
 #define STATISTICSWINDOW_H
 
-#include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/Synchronizable.h"
-#include "qt_gui/WorkScheduleWrapper.h"
-#include "qt_gui/widgets/DailyTimelineGraph.h"
-#include "qt_gui/widgets/DateRangePicker.h"
-#include "qt_gui/widgets/StatisticsDiagramWidget.h"
-#include <QFrame>
-#include <core/SprintStorageReader.h>
-#include <core/QueryHandler.h>
-#include <core/SprintStatistics.h>
-#include <core/TagTop.h>
-#include <core/use_cases/request_sprints/RequestSprintsHandler.h>
+#include "qt_gui/widgets/StandaloneDisplayableWidget.h"
 #include <memory>
-#include <optional>
 
 namespace sprint_timer::ui::qt_gui {
 
-class StatisticsWindow : public QFrame, public Synchronizable {
+class StatisticsWindow : public StandaloneDisplayableWidget {
 
 public:
-    StatisticsWindow(
-        QueryHandler<use_cases::RequestSprintsQuery,
-                     std::vector<entities::Sprint>>& requestSprintsHandler,
-        std::unique_ptr<DateRangePicker> dateRangePicker,
-        std::unique_ptr<DailyTimelineGraph> dailyTimelineGraph,
-        std::unique_ptr<StatisticsDiagramWidget> statisticsDiagramWidget,
-        const WorkScheduleWrapper& workScheduleWrapper,
-        DatasyncRelay& datasyncRelay,
-        QWidget* parent = nullptr);
+    StatisticsWindow(std::unique_ptr<QWidget> dailyTimelineGraph,
+                     std::unique_ptr<QWidget> bestWorkdayWidget,
+                     std::unique_ptr<QWidget> bestWorktimeWidget,
+                     std::unique_ptr<QWidget> distributionDiagram,
+                     std::unique_ptr<QWidget> datePickerWidget,
+                     QWidget* parent = nullptr);
 
     ~StatisticsWindow() override;
 
     QSize sizeHint() const override;
-
-private:
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler;
-    DateRangePicker* dateRangePicker;
-    DailyTimelineGraph* dailyTimelineGraph;
-    StatisticsDiagramWidget* statisticsDiagramWidget;
-    const WorkScheduleWrapper& workScheduleWrapper;
-    DatasyncRelay& datasyncRelay;
-    std::vector<entities::Sprint> sprints;
-    TagTop tagTop;
-    const size_t numTopTags{7}; // TODO move to config
-    std::optional<size_t> selectedTagIndex;
-
-    void synchronize() override;
-
-    void updateViews();
-
-    void onSprintsUpdated(const std::vector<entities::Sprint>& sprints);
-
-    void onTagSelected(size_t tagIndex);
 };
 
 } // namespace sprint_timer::ui::qt_gui

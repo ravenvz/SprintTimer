@@ -22,53 +22,25 @@
 #ifndef ADDTASKDIALOG_H_TBSYZEDZ
 #define ADDTASKDIALOG_H_TBSYZEDZ
 
-#include "core/entities/Task.h"
-#include <QAbstractItemModel>
-#include <QDialog>
-#include <QPointer>
-
-namespace Ui {
-class AddTaskDialog;
-} // namespace Ui
+#include "qt_gui/dialogs/TaskDialog.h"
+#include "qt_gui/presentation/AddTaskControl.h"
 
 namespace sprint_timer::ui::qt_gui {
 
 /* Provides front end to create or edit Task. */
-class AddTaskDialog : public QDialog {
-    Q_OBJECT
+class AddTaskDialog : public TaskDialog {
 
 public:
     explicit AddTaskDialog(QAbstractItemModel& tagModel,
+                           contracts::AddTaskControl::Presenter& presenter,
                            QWidget* parent = nullptr);
 
-    ~AddTaskDialog() override;
-
-    /* Overidden to accept only if required fields are not empty.
-     *
-     * Empty required fields are marked with red border when trying to
-     * accept dialog.*/
     void accept() override;
 
-    /* Return Task constructed from data in UI elements. */
-    entities::Task constructedTask();
-
-    /* Corresponding UI elements are filled with data from given Task. */
-    void fillItemData(const entities::Task& item);
-
-private slots:
-    /* Append tag to string of tags when selected from drop-down menu. */
-    void onQuickAddTagActivated(const QString& tag);
-
-    /* Remove red border (if present) when user starts to fill-out task name. */
-    void resetNameLineEditStyle();
-
 private:
-    std::unique_ptr<Ui::AddTaskDialog> ui;
-
-    void resetDataFields();
+    contracts::AddTaskControl::Presenter& presenter;
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: ADDTASKDIALOG_H_TBSYZEDZ */

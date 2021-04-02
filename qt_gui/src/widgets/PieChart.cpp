@@ -21,16 +21,43 @@
 *********************************************************************************/
 #include "qt_gui/widgets/PieChart.h"
 
+namespace {
+
+constexpr int degreesInCircle = 360;
+
+// QPainter API requires degrees to be specified in 1/16 of degree.
+constexpr int qtDegPrecision = 16;
+
+constexpr int qtFullCircle = degreesInCircle * qtDegPrecision;
+
+/* Constant pi. */
+const double pi{std::acos(-1)};
+
+/* Colors for the slices. */
+std::vector<QBrush> brushes{QBrush(QColor("#28245a")),
+                            QBrush(QColor("#73c245")),
+                            QBrush(QColor("#ea6136")),
+                            QBrush(QColor("#1d589b")),
+                            QBrush(QColor("#d62a36")),
+                            QBrush(QColor("#401b60")),
+                            QBrush(QColor("#f8cd32")),
+                            QBrush(QColor("#258bc8")),
+                            QBrush(QColor("#087847"))};
+
+/* Color for chart and slices borders. */
+const QPen borderColor{Qt::gray};
+
+} // namespace
+
 namespace sprint_timer::ui::qt_gui {
 
-PieChart::PieChart(QWidget* parent)
-    : IStatisticalChart(parent)
+PieChart::PieChart(QWidget* parent_)
+    : QWidget{parent_}
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 }
 
-void PieChart::setData(
-    const std::vector<IStatisticalChart::LabelValuePair>& dataToDisplay)
+void PieChart::setData(const std::vector<LabelData>& dataToDisplay)
 {
     data = dataToDisplay;
     activeSliceInd = std::optional<size_t>();
@@ -43,23 +70,19 @@ void PieChart::paintEvent(QPaintEvent*)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(borderColor);
-    constexpr int degreesInCircle = 360;
-    // QPainter API requires degrees to be specified in 1/16 of degree.
-    constexpr int qtDegPrecision = 16;
-    constexpr int qtFullCircle = degreesInCircle * qtDegPrecision;
 
     double offset = 0; // Offset to next slice in degrees.
 
     for (size_t sliceInd = 0; sliceInd < data.size(); ++sliceInd) {
-        const bool isCurrentlyActiveSlice
-            = activeSliceInd && (*activeSliceInd == sliceInd);
-        const double currentValue = data[sliceInd].second;
+        const bool isCurrentlyActiveSlice =
+            activeSliceInd && (*activeSliceInd == sliceInd);
+        const double currentValue = data[sliceInd].percentage;
 
         painter.setBrush(brushes[sliceInd % brushes.size()]);
 
         if (isCurrentlyActiveSlice) {
-            QPointF offsetPoint
-                = computeOffsetPoint(currentValue * degreesInCircle, offset);
+            QPointF offsetPoint =
+                computeOffsetPoint(currentValue * degreesInCircle, offset);
             painter.translate(offsetPoint);
             painter.drawPie(pieRect,
                             int(offset * qtDegPrecision),
@@ -78,8 +101,8 @@ void PieChart::paintEvent(QPaintEvent*)
 
 QPointF PieChart::computeOffsetPoint(double current, double offset)
 {
-    double angle = offset + current / 2;
-    double angleRads = angle * pi / 180;
+    const double angle = offset + current / 2;
+    const double angleRads = angle * pi / 180;
     return QPointF{(expandedShiftLength * cos(angleRads)),
                    (-expandedShiftLength * sin(angleRads))};
 }
@@ -88,12 +111,12 @@ void PieChart::computeAdaptiveSizes()
 {
     widgetRect = QRectF(QPointF(0, 0), this->size());
     QPointF center = widgetRect.center();
-    double expandedSliceRelativeDiameter
-        = 0.98 * std::min(widgetRect.width(), widgetRect.height());
-    double diagramRelativeDiameter
-        = expandedSliceRelativeDiameter - 0.1 * expandedSliceRelativeDiameter;
-    expandedShiftLength
-        = (expandedSliceRelativeDiameter - diagramRelativeDiameter) / 2;
+    double expandedSliceRelativeDiameter =
+        0.98 * std::min(widgetRect.width(), widgetRect.height());
+    double diagramRelativeDiameter =
+        expandedSliceRelativeDiameter - 0.1 * expandedSliceRelativeDiameter;
+    expandedShiftLength =
+        (expandedSliceRelativeDiameter - diagramRelativeDiameter) / 2;
     pieRect = QRectF{center.x() - diagramRelativeDiameter / 2,
                      center.y() - diagramRelativeDiameter / 2,
                      diagramRelativeDiameter,
@@ -112,7 +135,7 @@ void PieChart::onLeftMouseClick(const QPoint& pos)
     double angle = QLineF(pieRect.center(), pos).angle();
     double offset = 0;
     for (size_t sliceInd = 0; sliceInd < data.size(); ++sliceInd) {
-        offset += data[sliceInd].second * 360;
+        offset += data[sliceInd].percentage * 360;
         if (angle < offset) {
             emit partClicked(sliceInd);
             break;

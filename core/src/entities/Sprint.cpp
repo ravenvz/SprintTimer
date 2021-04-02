@@ -64,6 +64,11 @@ Sprint::Sprint(const std::string& taskUuid, const DateTimeRange& timeSpan)
 {
 }
 
+Sprint::Sprint()
+    : timeSpan_{dw::current_date_time(), dw::current_date_time()}
+{
+}
+
 std::string Sprint::name() const { return name_; }
 
 DateTime Sprint::startTime() const { return timeSpan_.start(); }
@@ -89,15 +94,17 @@ std::ostream& operator<<(std::ostream& os, const Sprint& sprint)
 
 bool operator==(const Sprint& lhs, const Sprint& rhs)
 {
-    return lhs.taskUuid() == rhs.taskUuid() && lhs.uuid() == rhs.uuid()
-        && lhs.name() == rhs.name()
-        // There is a reason to compare DateTimeRanges by seconds
-        // TODO need to control the sources, see also todo at Task
-        && dw::to_time_point<std::chrono::seconds>(lhs.timeSpan().start())
-        == dw::to_time_point<std::chrono::seconds>(rhs.timeSpan().start())
-        && dw::to_time_point<std::chrono::seconds>(lhs.timeSpan().finish())
-        == dw::to_time_point<std::chrono::seconds>(rhs.timeSpan().finish())
-        && lhs.tags() == rhs.tags();
+    return lhs.taskUuid() == rhs.taskUuid() && lhs.uuid() == rhs.uuid() &&
+           lhs.name() == rhs.name()
+           // There is a reason to compare DateTimeRanges by seconds
+           // TODO need to control the sources, see also todo at Task
+           && dw::to_time_point<std::chrono::seconds>(lhs.timeSpan().start()) ==
+                  dw::to_time_point<std::chrono::seconds>(
+                      rhs.timeSpan().start()) &&
+           dw::to_time_point<std::chrono::seconds>(lhs.timeSpan().finish()) ==
+               dw::to_time_point<std::chrono::seconds>(
+                   rhs.timeSpan().finish()) &&
+           lhs.tags() == rhs.tags();
 }
 
 } // namespace sprint_timer::entities

@@ -47,6 +47,9 @@ operator<<(std::basic_ostream<CharT, Traits>& os,
     return os;
 }
 
+bool operator==(const RegisterSprintBulkCommand& lhs,
+                const RegisterSprintBulkCommand& rhs);
+
 } // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: REGISTERSPRINTBULKCOMMAND_H_E07Q6KCM */

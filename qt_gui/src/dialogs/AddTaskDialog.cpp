@@ -20,109 +20,26 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/AddTaskDialog.h"
-#include "ui_add_todo_dialog.h"
-#include <QRegularExpression>
-#include <core/utils/StringUtils.h>
-
-namespace {
-
-const QString requiredFieldEmptyStyle{"QLineEdit { border: 2px solid red; }"};
-
-} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
-using namespace entities;
-using namespace utils;
-
-AddTaskDialog::AddTaskDialog(QAbstractItemModel& tagModel, QWidget* parent)
-    : QDialog{parent}
-    , ui{std::make_unique<Ui::AddTaskDialog>()}
+AddTaskDialog::AddTaskDialog(QAbstractItemModel& tagModel_,
+                             contracts::AddTaskControl::Presenter& presenter_,
+                             QWidget* parent_)
+    : TaskDialog{tagModel_, parent_}
+    , presenter{presenter_}
 {
-    ui->setupUi(this);
-
-    ui->tags->setModel(&tagModel);
-    ui->tags->setCurrentText("");
-
-    connect(ui->tags,
-            QOverload<const QString&>::of(&QComboBox::activated),
-            this,
-            &AddTaskDialog::onQuickAddTagActivated);
-    connect(ui->taskName,
-            &QLineEdit::textEdited,
-            this,
-            &AddTaskDialog::resetNameLineEditStyle);
-}
-
-AddTaskDialog::~AddTaskDialog() = default;
-
-Task AddTaskDialog::constructedTask()
-{
-    const std::string name = ui->taskName->text().toStdString();
-    const int estimatedCost = ui->estimatedCost->value();
-    std::list<Tag> tags;
-    std::list<std::string> tagNames
-        = parseWords(ui->leTags->text().toStdString());
-    // Remove duplicate tags if any.
-    tagNames.sort();
-    tagNames.unique();
-
-    std::transform(tagNames.cbegin(),
-                   tagNames.cend(),
-                   std::back_inserter(tags),
-                   [](const auto& name) { return Tag{name}; });
-
-    return Task{name, estimatedCost, 0, std::move(tags), false};
+    setWindowTitle("Add new task");
 }
 
 void AddTaskDialog::accept()
 {
-    QString name = ui->taskName->text();
-    if (name.isEmpty())
-        ui->taskName->setStyleSheet(requiredFieldEmptyStyle);
-    else {
-        QDialog::accept();
+    if (nameIsEmpty()) {
+        markNameFieldRed();
+        return;
     }
-    resetDataFields();
-}
-
-void AddTaskDialog::fillItemData(const Task& item)
-{
-    const auto tags = item.tags();
-    std::list<std::string> tagNames;
-    std::transform(tags.cbegin(),
-                   tags.cend(),
-                   std::back_inserter(tagNames),
-                   [](const auto& tag) { return tag.name(); });
-
-    QString joined_tags
-        = QString::fromStdString(join(tagNames.cbegin(), tagNames.cend(), " "));
-    ui->taskName->setText(QString::fromStdString(item.name()));
-    ui->estimatedCost->setValue(item.estimatedCost());
-    ui->leTags->setText(joined_tags);
-}
-
-void AddTaskDialog::onQuickAddTagActivated(const QString& tag)
-{
-    QString prevTag = ui->leTags->text();
-    if (!prevTag.isEmpty()) {
-        prevTag.append(" ");
-    }
-    prevTag.append(tag);
-    ui->leTags->setText(prevTag);
-}
-
-void AddTaskDialog::resetNameLineEditStyle()
-{
-    ui->taskName->setStyleSheet("");
-}
-
-void AddTaskDialog::resetDataFields()
-{
-    ui->taskName->clear();
-    ui->leTags->clear();
-    ui->tags->setCurrentIndex(-1);
-    ui->estimatedCost->setValue(1);
+    presenter.addTask(parseFormFields());
+    QDialog::accept();
 }
 
 } // namespace sprint_timer::ui::qt_gui

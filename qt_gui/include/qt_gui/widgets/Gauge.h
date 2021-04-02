@@ -32,20 +32,12 @@ namespace sprint_timer::ui::qt_gui {
 
 class HoverState;
 
-class WorkProgressState;
-
 class Gauge : public QWidget {
     Q_OBJECT
 
     friend class HoverState;
     friend class HoverStateHovered;
     friend class HoverStateUnhovered;
-    friend class WorkProgressState;
-    friend class WorkProgressNone;
-    friend class WorkProgressDone;
-    friend class WorkProgressUnderwork;
-    friend class WorkProgressOverwork;
-    friend class WorkProgressRest;
 
 public:
     Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent);
@@ -56,13 +48,19 @@ public:
 
     void setData(const GoalProgress& progress);
 
+    void setData(int indicated,
+                 int total,
+                 const std::string& emptyColor,
+                 const std::string& filledColor);
+
 private:
     GoalProgress progress;
     const double gaugeRelSize;
     HoverState* hoverState;
-    WorkProgressState* workProgressState;
     QRectF outerRect;
     QRectF innerRect;
+    QColor emptyColor;
+    QColor filledColor;
 
     void paintEvent(QPaintEvent*) override;
 
@@ -74,11 +72,8 @@ private:
 
     void drawInnerCircle(QPainter& painter);
 
-    void updateState();
-
     void mouseMoveEvent(QMouseEvent* event) override;
 };
-
 
 class HoverState {
 public:
@@ -101,48 +96,6 @@ public:
     void draw(const Gauge& gauge, QPainter& painter) final;
 };
 
-class WorkProgressState {
-public:
-    virtual void draw(const Gauge& gauge, QPainter& painter);
-
-    virtual ~WorkProgressState() = default;
-
-protected:
-    QBrush empty;
-    QBrush filled;
-
-    virtual void setupBrushes();
-};
-
-class WorkProgressUnderwork : public WorkProgressState {
-protected:
-    void setupBrushes() final;
-};
-
-class WorkProgressOverwork : public WorkProgressState {
-protected:
-    void setupBrushes() final;
-};
-
-class WorkProgressDone : public WorkProgressState {
-public:
-    void draw(const Gauge& gauge, QPainter& painter) final;
-};
-
-class WorkProgressNone : public WorkProgressState {
-public:
-    void draw(const Gauge& gauge, QPainter& painter) final;
-};
-
-class WorkProgressRest : public WorkProgressState {
-public:
-    void draw(const Gauge& gauge, QPainter& painter) override;
-
-protected:
-    void setupBrushes() override;
-};
-
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>WorkdaysDialog</class>
- <widget class="QDialog" name="WorkdaysDialog">
+ <class>WorkScheduleEditor</class>
+ <widget class="QDialog" name="WorkScheduleEditor">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -29,14 +29,14 @@
        </property>
        <layout class="QFormLayout" name="formLayout_2">
         <item row="0" column="0">
-         <widget class="QLabel" name="labelMonday">
+         <widget class="QLabel" name="labelFirstDay">
           <property name="text">
            <string>Monday</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSpinBox" name="mondayBox">
+         <widget class="QSpinBox" name="firstDayGoal">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -46,14 +46,14 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="labelTuesday">
+         <widget class="QLabel" name="labelSecondDay">
           <property name="text">
            <string>Tuesday</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSpinBox" name="tuesdayBox">
+         <widget class="QSpinBox" name="secondDayGoal">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -63,14 +63,14 @@
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="labelWednesday">
+         <widget class="QLabel" name="labelThirdDay">
           <property name="text">
            <string>Wednesday</string>
           </property>
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSpinBox" name="wednesdayBox">
+         <widget class="QSpinBox" name="thirdDayGoal">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -80,14 +80,14 @@
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="labelThursday">
+         <widget class="QLabel" name="labelFourthDay">
           <property name="text">
            <string>Thursday</string>
           </property>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QSpinBox" name="thursdayBox">
+         <widget class="QSpinBox" name="fourthDayGoal">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -97,14 +97,14 @@
          </widget>
         </item>
         <item row="4" column="0">
-         <widget class="QLabel" name="labelFriday">
+         <widget class="QLabel" name="labelFifthDay">
           <property name="text">
            <string>Friday</string>
           </property>
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QSpinBox" name="fridayBox">
+         <widget class="QSpinBox" name="fifthDayGoal">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -114,14 +114,14 @@
          </widget>
         </item>
         <item row="5" column="0">
-         <widget class="QLabel" name="labelSaturday">
+         <widget class="QLabel" name="labelSixthDay">
           <property name="text">
            <string>Saturday</string>
           </property>
          </widget>
         </item>
         <item row="5" column="1">
-         <widget class="QSpinBox" name="saturdayBox">
+         <widget class="QSpinBox" name="sixthDayGoal">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -131,14 +131,14 @@
          </widget>
         </item>
         <item row="6" column="0">
-         <widget class="QLabel" name="labelSunday">
+         <widget class="QLabel" name="labelSeventhDay">
           <property name="text">
            <string>Sunday</string>
           </property>
          </widget>
         </item>
         <item row="6" column="1">
-         <widget class="QSpinBox" name="sundayBox">
+         <widget class="QSpinBox" name="seventhDayGoal">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -253,7 +253,7 @@
   <connection>
    <sender>btnOkCancel</sender>
    <signal>rejected()</signal>
-   <receiver>WorkdaysDialog</receiver>
+   <receiver>WorkScheduleEditor</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -269,7 +269,7 @@
   <connection>
    <sender>btnOkCancel</sender>
    <signal>accepted()</signal>
-   <receiver>WorkdaysDialog</receiver>
+   <receiver>WorkScheduleEditor</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

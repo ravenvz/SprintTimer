@@ -20,30 +20,62 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/ExportDialog.h"
-#include "ui_export_dialog.h"
-#include <QFileDialog>
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QLabel>
+#include <QStringListModel>
+
+namespace {
+
+QStringList toStringList(const std::vector<std::string>& vec)
+{
+    QStringList result;
+    result.reserve(vec.size());
+    std::transform(
+        cbegin(vec),
+        cend(vec),
+        std::back_inserter(result),
+        [](const auto& elem) { return QString::fromStdString(elem); });
+    return result;
+}
+
+} // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
-ExportDialog::ExportDialog(QWidget* parent)
-    : QDialog{parent}
-    , ui{std::make_unique<Ui::ExportDialog>()}
+ExportDialog::ExportDialog(
+    const contracts::DataExportContract::ExportRequestOptions& options_,
+    contracts::DataExportContract::ExportSelectedParams& selectedParams_,
+    QWidget* parent_)
+    : QDialog{parent_}
+    , selectedParams{selectedParams_}
 {
-    ui->setupUi(this);
+    auto formLayout = std::make_unique<QFormLayout>();
+    auto descriptionLabel = std::make_unique<QLabel>("Export parameters:");
+    auto sinks = std::make_unique<QComboBox>();
+    auto formats = std::make_unique<QComboBox>();
+    sinkModel.setStringList(toStringList(options_.availableSinks));
+    sinks->setModel(&sinkModel);
+    formatModel.setStringList(toStringList(options_.availableFileFormats));
+    formats->setModel(&formatModel);
+    auto buttons = std::make_unique<QDialogButtonBox>(QDialogButtonBox::Ok |
+                                                      QDialogButtonBox::Cancel);
+    connect(buttons.get(), &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttons.get(), &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(
+        this, &QDialog::accepted, [this, f = formats.get(), s = sinks.get()]() {
+            selectedParams.selectedFileFormat = f->currentText().toStdString();
+            selectedParams.selectedSink = s->currentText().toStdString();
+        });
+    // TODO make sure that addRow takes ownership of widget
+    formLayout->addRow(descriptionLabel.release());
+    formLayout->addRow("&Sink:", sinks.release());
+    formLayout->addRow("&Format:", formats.release());
+    formLayout->addRow(buttons.release());
+    setLayout(formLayout.release());
 }
 
 ExportDialog::~ExportDialog() = default;
-
-void ExportDialog::accept()
-{
-    auto path = QFileDialog::getExistingDirectory(
-        this, tr("Select directory"), "", QFileDialog::ShowDirsOnly);
-    if (path.isEmpty())
-        return;
-    ExportOptions options{path.toStdString(),
-                          ui->cbxDelimiterOptions->currentText()[0].toLatin1()};
-    emit exportConfirmed(options);
-    QDialog::accept();
-}
 
 } // namespace sprint_timer::ui::qt_gui

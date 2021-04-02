@@ -22,47 +22,29 @@
 #ifndef TASKOUTLINE_H
 #define TASKOUTLINE_H
 
+#include "qt_gui/presentation/AddTaskControl.h"
 #include "qt_gui/widgets/TagEditor.h"
-#include <QAbstractItemView>
-#include <QLineEdit>
 #include <QWidget>
-#include <core/CommandHandler.h>
-#include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
 #include <memory>
 
-#include "qt_gui/dialogs/AddTaskDialog.h"
+class QLineEdit;
+class Displayable;
 
 namespace sprint_timer::ui::qt_gui {
 
-class AddTaskDialog;
-
-/* Responsible for providing user interface for interactive
- * task management, so that user could view current unfinished
- * tasks, add/edit and remove task and tags. */
-class TaskOutline : public QWidget {
+class TaskOutline : public QWidget, public ui::contracts::AddTaskControl::View {
 public:
-    TaskOutline(CommandHandler<use_cases::RegisterSprintBulkCommand>&
-                    registerSprintBulkHandler,
-                std::unique_ptr<QAbstractItemView> taskView,
-                AddTaskDialog& addTaskDialog,
+    TaskOutline(std::unique_ptr<QWidget> taskView,
+                Displayable& addTaskDialog,
                 QWidget* parent = nullptr);
 
-    void onSprintSubmissionRequested(
-        const std::vector<dw::DateTimeRange>& intervals);
-
 private:
-    CommandHandler<use_cases::RegisterSprintBulkCommand>&
-        registerSprintBulkHandler;
-    QPointer<TagEditor> tagEditor;
-    QAbstractItemView* taskView;
-    AddTaskDialog& addTaskDialog;
+    Displayable& addTaskDialog;
     QLineEdit* quickAddTask;
 
     void onAddTaskButtonPushed();
 
     void onQuickAddTodoReturnPressed();
-
-    void insertTask(const entities::Task& task);
 };
 
 } // namespace sprint_timer::ui::qt_gui

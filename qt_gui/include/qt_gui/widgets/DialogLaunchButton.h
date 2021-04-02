@@ -22,7 +22,7 @@
 #ifndef DIALOGLAUNCHBUTTON_H_HAO5CGIQ
 #define DIALOGLAUNCHBUTTON_H_HAO5CGIQ
 
-#include <QDialog>
+#include "qt_gui/Displayable.h"
 #include <QPushButton>
 
 namespace sprint_timer::ui::qt_gui {
@@ -30,7 +30,7 @@ namespace sprint_timer::ui::qt_gui {
 /* QPushButton extension that launches QDialog when clicked. */
 class DialogLaunchButton : public QPushButton {
 public:
-    DialogLaunchButton(QDialog& dialog,
+    DialogLaunchButton(Displayable& dialog,
                        const QString& text,
                        QWidget* parent = nullptr);
 };

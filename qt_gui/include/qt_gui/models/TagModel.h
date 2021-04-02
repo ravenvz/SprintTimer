@@ -22,50 +22,29 @@
 #ifndef TAGMODEL_H
 #define TAGMODEL_H
 
-#include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/models/AsyncListModel.h"
+#include "qt_gui/presentation/TagEditorContract.h"
 #include <QStringListModel>
-#include <core/CommandHandler.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/rename_tag/RenameTagCommand.h>
-#include <core/use_cases/request_tags/AllTagsQuery.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class TagModel : public AsyncListModel {
+class TagModel : public QStringListModel,
+                 public contracts::TagEditorContract::View {
 
 public:
-    TagModel(CommandHandler<use_cases::RenameTagCommand>& renameTagHandler,
-             QueryHandler<use_cases::AllTagsQuery, std::vector<std::string>>&
-                 allTagsHandler,
-             DatasyncRelay& datasyncRelay_,
-             QObject* parent = nullptr);
+    explicit TagModel(QObject* parent = nullptr);
+
+    void displayTags(const std::vector<std::string>& tags) override;
 
     bool
     setData(const QModelIndex& index, const QVariant& value, int role) final;
-
-    Qt::ItemFlags flags(const QModelIndex& index) const final;
-
-    int rowCount(const QModelIndex& parent) const final;
-
-    QVariant data(const QModelIndex& index, int role) const final;
 
     bool submit() final;
 
     void revert() final;
 
 private:
-    CommandHandler<use_cases::RenameTagCommand>& renameTagHandler;
-    QueryHandler<use_cases::AllTagsQuery, std::vector<std::string>>&
-        allTagsHandler;
-    DatasyncRelay& datasyncRelay;
-    using OldNewTagPair = std::pair<std::string, std::string>;
-    std::vector<std::string> storage;
-    std::vector<OldNewTagPair> buffer;
-
-    void requestUpdate() final;
-
-    void onDataArrived(const std::vector<std::string>& tags);
+    using OriginalEditedTagPair = std::pair<QString, QString>;
+    std::vector<OriginalEditedTagPair> buffer;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -140,21 +140,22 @@ std::ostream& operator<<(std::ostream& os, const Task& task)
         os << " ";
     os << task.name() << " ";
     os << task.actualCost() << "/" << task.estimatedCost() << " ";
-    os << "Uuid: " << task.uuid();
+    os << "Uuid: " << task.uuid() << " ";
+    os << task.lastModified();
     return os;
 }
 
 bool operator==(const Task& lhs, const Task& rhs)
 {
-    return lhs.uuid() == rhs.uuid() && lhs.name() == rhs.name()
-        && lhs.estimatedCost() == rhs.estimatedCost()
-        && lhs.actualCost() == rhs.actualCost() && lhs.tags() == rhs.tags()
-        && lhs.isCompleted() == rhs.isCompleted()
-        // There is a reason to compare them by seconds, as last modified
-        // timestamp can come from different sources with different precision
-        // TODO need to control the sources as this can end up badly
-        && dw::to_time_point<std::chrono::seconds>(lhs.lastModified())
-        == dw::to_time_point<std::chrono::seconds>(rhs.lastModified());
+    return lhs.uuid() == rhs.uuid() && lhs.name() == rhs.name() &&
+           lhs.estimatedCost() == rhs.estimatedCost() &&
+           lhs.actualCost() == rhs.actualCost() && lhs.tags() == rhs.tags() &&
+           lhs.isCompleted() == rhs.isCompleted()
+           // There is a reason to compare them by seconds, as last modified
+           // timestamp can come from different sources with different precision
+           // TODO need to control the sources as this can end up badly
+           && dw::to_time_point<std::chrono::seconds>(lhs.lastModified()) ==
+                  dw::to_time_point<std::chrono::seconds>(rhs.lastModified());
 }
 
 } // namespace sprint_timer::entities

@@ -25,11 +25,11 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-DateRangePickDialog::DateRangePickDialog(const IConfig& applicationSettings_,
+DateRangePickDialog::DateRangePickDialog(dw::Weekday firstDayOfWeek,
+                                         const dw::DateRange& dateRange,
                                          QWidget* parent_)
     : QDialog{parent_}
     , ui{std::make_unique<Ui::DateRangePickDialog>()}
-    , applicationSettings{applicationSettings_}
 {
     ui->setupUi(this);
     ui->cwStart->setMaximumDate(QDate::currentDate());
@@ -43,6 +43,16 @@ DateRangePickDialog::DateRangePickDialog(const IConfig& applicationSettings_,
             &QCalendarWidget::clicked,
             ui->cwStart,
             &QCalendarWidget::setMaximumDate);
+    if (firstDayOfWeek == dw::Weekday::Monday) {
+        ui->cwStart->setFirstDayOfWeek(Qt::Monday);
+        ui->cwEnd->setFirstDayOfWeek(Qt::Monday);
+    }
+    else {
+        ui->cwStart->setFirstDayOfWeek(Qt::Sunday);
+        ui->cwEnd->setFirstDayOfWeek(Qt::Sunday);
+    }
+    ui->dePickStartDate->setDate(utils::toQDate(dateRange.start()));
+    ui->dePickEndDate->setDate(utils::toQDate(dateRange.finish()));
 }
 
 DateRangePickDialog::~DateRangePickDialog() = default;
@@ -51,25 +61,6 @@ dw::DateRange DateRangePickDialog::selectedRange()
 {
     return dw::DateRange{utils::toDate(ui->cwStart->selectedDate()),
                          utils::toDate(ui->cwEnd->selectedDate())};
-}
-
-void DateRangePickDialog::setSelectionRange(const dw::DateRange& dateRange)
-{
-    ui->dePickStartDate->setDate(utils::toQDate(dateRange.start()));
-    ui->dePickEndDate->setDate(utils::toQDate(dateRange.finish()));
-}
-
-void DateRangePickDialog::showEvent(QShowEvent* event)
-{
-    if (applicationSettings.firstDayOfWeek() == dw::Weekday::Monday) {
-        ui->cwStart->setFirstDayOfWeek(Qt::Monday);
-        ui->cwEnd->setFirstDayOfWeek(Qt::Monday);
-    }
-    else {
-        ui->cwStart->setFirstDayOfWeek(Qt::Sunday);
-        ui->cwEnd->setFirstDayOfWeek(Qt::Sunday);
-    }
-    QDialog::showEvent(event);
 }
 
 } // namespace sprint_timer::ui::qt_gui

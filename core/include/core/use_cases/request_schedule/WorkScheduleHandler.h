@@ -22,8 +22,8 @@
 #ifndef WORKSCHEDULEHANDLER_H_SFAQQ6MZ
 #define WORKSCHEDULEHANDLER_H_SFAQQ6MZ
 
-#include "core/WorkScheduleReader.h"
 #include "core/QueryHandler.h"
+#include "core/WorkScheduleReader.h"
 #include "core/use_cases/request_schedule/WorkScheduleQuery.h"
 
 namespace sprint_timer::use_cases {

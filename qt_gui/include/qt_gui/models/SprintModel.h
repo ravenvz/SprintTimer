@@ -19,50 +19,39 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTMODEL_H_MQZ2XAPI
-#define SPRINTMODEL_H_MQZ2XAPI
+#ifndef POMODOROMODEL_H_GKWGR80Y
+#define POMODOROMODEL_H_GKWGR80Y
 
-#include "qt_gui/DatasyncRelay.h"
-#include "qt_gui/models/AsyncListModel.h"
-#include <core/CommandHandler.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/delete_sprint/DeleteSprintCommand.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
+#include "qt_gui/presentation/TodaySprints.h"
+#include <QAbstractListModel>
 #include <vector>
 
 namespace sprint_timer::ui::qt_gui {
 
-class SprintModel : public AsyncListModel {
-    Q_OBJECT
+class SprintModel : public QAbstractListModel,
+                    public contracts::TodaySprints::View {
 
 public:
-    SprintModel(
-        CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler,
-        QueryHandler<use_cases::RequestSprintsQuery,
-                     std::vector<entities::Sprint>>& requestSprintsHandler,
-        DatasyncRelay& datasyncRelay,
-        QObject* parent = nullptr);
+    explicit SprintModel(QObject* parent = nullptr);
 
-    int rowCount(const QModelIndex& parent) const final;
+    void displaySprints(const std::vector<SprintDTO>&) override;
 
-    QVariant data(const QModelIndex& index, int role) const final;
+    int rowCount(const QModelIndex& parent) const override;
 
-    bool removeRows(int row, int count, const QModelIndex& index) final;
+    QVariant data(const QModelIndex& index, int role) const override;
+
+    bool removeRows(int row, int count, const QModelIndex& index) override;
+
+    // bool
+    // setData(const QModelIndex& index, const QVariant& value, int role)
+    // override;
+
+    // bool insertRows(int row, int count, const QModelIndex& parent) override;
 
 private:
-    std::vector<entities::Sprint> storage;
-    CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler;
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler;
-    DatasyncRelay& datasyncRelay;
-
-    void requestUpdate() final;
-
-    void onDataChanged(const std::vector<entities::Sprint>& items);
-
-    void remove(int row);
+    std::vector<SprintDTO> storage;
 };
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: SPRINTMODEL_H_MQZ2XAPI */
+#endif /* end of include guard: POMODOROMODEL_H_GKWGR80Y */
