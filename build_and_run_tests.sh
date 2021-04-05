@@ -51,17 +51,10 @@ if [ -n "$sanitizers" ]; then
     build_tests="OFF"
 fi
 
-cmake_options="-G $generator \
-               -DCMAKE_BUILD_TYPE=$build_type \
-               -DECM_ENABLE_SANITIZERS=$sanitizers \
-               -DBUILD_TESTS=$build_tests \
-               -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
-
-
 echo "$build_type build using $cxx_compiler and $build_tool"
 
-(cd build && \
-    CC=$c_compiler CXX=$cxx_compiler cmake -$cmake_options $verbose_makefile_option .. \
+(cd build && CC=$c_compiler CXX=$cxx_compiler\
+    cmake -G "${generator}" "-DCMAKE_BUILD_TYPE=$build_type -DBUILD_TESTS=$build_tests" ..\
     && $build_tool $build_tool_options)
 
 if [ $build_tests == "ON" ]; then

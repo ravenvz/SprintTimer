@@ -13,15 +13,18 @@ PUBLIC
 	"${CMAKE_CURRENT_LIST_DIR}/QtStorageInitializer.h"
 )
 
-target_compile_features(${TEST_QT_STORAGE} PRIVATE cxx_std_20)
-target_compile_options(${TEST_QT_STORAGE} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
-target_compile_options(${TEST_QT_STORAGE} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
+# target_include_directories(${TEST_QT_STORAGE}
+#     PUBLIC ../include
+#     PRIVATE ../src
+# )
 
-target_include_directories(${TEST_QT_STORAGE}
-    PUBLIC ../include
-    PRIVATE ../src
+target_link_libraries(
+    ${TEST_QT_STORAGE}
+    PRIVATE
+        project_options
+        project_warnings
+        gtest
+        ${STORAGE_LIB}
 )
-
-target_link_libraries(${TEST_QT_STORAGE} gtest ${STORAGE_LIB})
 
 gtest_discover_tests(${TEST_QT_STORAGE})

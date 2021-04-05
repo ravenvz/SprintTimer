@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 
 if (POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
@@ -7,41 +7,18 @@ if (POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
 
+project(sprint_timer_app VERSION 0.6.3)
+include(cmake/StandardProjectSettings.cmake)
+include(cmake/PreventInSourceBuilds.cmake)
+
 set(CMAKE_MACOSX_RPATH 0)
-
-set(PROJECT sprint_timer_app)
-project(${PROJECT} VERSION 0.6.3)
-
-if (ECM_ENABLE_SANITIZERS AND UNIX AND NOT APPLE)
-    find_package(ECM REQUIRED NO_MODULE)
-    set(CMAKE_MODULE_PATH ${ECM_MODULE_DIR})
-    include(ECMEnableSanitizers)
-endif()
-
-option(BUILD_TESTS ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/static)
 
-include(compiler_options.cmake)
-
-if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-    set(DEBUG_COMPILE_OPTIONS ${CLANG_COMPILE_OPTIONS})
-    set(RELEASE_COMPILE_OPTIONS ${CLANG_COMPILE_OPTIONS})
-    if (ECM_ENABLE_SANITIZERS)
-        message ("Enabled sanitizers: " "${ECM_ENABLE_SANITIZERS}")
-    endif()
-elseif(CMAKE_COMPILER_IS_GNUCXX)
-    set(DEBUG_COMPILE_OPTIONS ${GCC_COMPILE_OPTIONS})
-    set(RELEASE_COMPILE_OPTIONS ${GCC_COMPILE_OPTIONS})
-elseif(MSVC)
-	message("SprintTimer has experimental support for MSVC compiler")
-	# Rely on default compiler options for now
-else()
-    message("Compiler might not be supported yet.")
-endif()
+set(EXECUTABLE_INSTALL_PATH_SUFFIX bin)
+set(LIBRARY_INSTALL_PATH_SUFFIX lib)
 
 set(GUI_LIB sprint_timer_qt_gui)
 set(STORAGE_LIB sprint_timer_qt_storage)
@@ -49,20 +26,49 @@ set(CORE_LIB sprint_timer_core)
 set(SPRINT_MAIN sprint_timer)
 set(EXTERNAL_IO_LIB external_io)
 
-set(EXECUTABLE_INSTALL_PATH_SUFFIX bin)
-set(LIBRARY_INSTALL_PATH_SUFFIX lib)
+# Link this 'library' to set the c++ standard / compile-time options requested
+add_library(project_options INTERFACE)
+target_compile_features(project_options INTERFACE cxx_std_20)
 
-add_subdirectory(core)
-add_subdirectory(qt_storage)
-add_subdirectory(qt_gui)
-add_subdirectory(main)
-add_subdirectory(external_io)
+if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
+    option(ENABLE_BUILD_WITH_TIME_TRACE "Enable -ftime-trace to generate time tracing .json files on clang" OFF)
+    if(ENABLE_BUILD_WITH_TIME_TRACE)
+        target_compile_options(project_options INTERFACE -ftime-trace)
+    endif()
+endif()
 
-if (BUILD_TESTS)
+# Link this 'library' to use the warnings specified in CompilerWarnings.cmake
+add_library(project_warnings INTERFACE)
+
+# enable cache system
+include(cmake/Cache.cmake)
+
+# standard compiler warnings
+include(cmake/CompilerWarnings.cmake)
+set_project_warnings(project_warnings)
+
+# sanitizer options if supported by compiler
+include(cmake/Sanitizers.cmake)
+enable_sanitizers(project_options)
+
+# enable doxygen
+# include(cmake/Doxygen.cmake)
+# enable_doxygen()
+
+# allow for static analysis options
+include(cmake/StaticAnalyzers.cmake)
+
+option(BUILD_SHARED_LIBS "Enable compilation of shared libraries" OFF)
+option(ENABLE_TESTING "Enable Test Builds" ON)
+option(ENABLE_FUZZING "Enable Fuzzing Builds" OFF)
+
+add_subdirectory(src)
+
+if(ENABLE_TESTING)
     set(TEST_RUN_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
     enable_testing()
 	include(GoogleTest)
-	add_subdirectory(tests)
+    add_subdirectory(tests)
 endif()
 
 # Package builder
