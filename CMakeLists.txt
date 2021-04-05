@@ -20,6 +20,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/static)
 set(EXECUTABLE_INSTALL_PATH_SUFFIX bin)
 set(LIBRARY_INSTALL_PATH_SUFFIX lib)
 
+# names of binaries that are used to link against
 set(GUI_LIB sprint_timer_qt_gui)
 set(STORAGE_LIB sprint_timer_qt_storage)
 set(CORE_LIB sprint_timer_core)

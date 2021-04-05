@@ -40,8 +40,8 @@ constexpr IWorkflow::WorkflowParams workflowParams{
 class WorkflowTest : public Workflow {
 public:
     WorkflowTest(std::chrono::seconds tickPeriod,
-                 const IWorkflow::WorkflowParams& workflowParams)
-        : Workflow{tickPeriod, workflowParams}
+                 const IWorkflow::WorkflowParams& workflowParams_)
+        : Workflow{tickPeriod, workflowParams_}
     {
     }
 

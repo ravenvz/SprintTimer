@@ -72,16 +72,16 @@ private:
 
 namespace sprint_timer::ui::qt_gui {
 
-void AxisRange::setRange(double start, double end)
+void AxisRange::setRange(double start_, double end_)
 {
-    this->start = start;
-    this->end = end;
+    start = start_;
+    end = end_;
 }
 
-void AxisRange::autoExpand(double start, double end)
+void AxisRange::autoExpand(double start_, double end_)
 {
-    this->start = std::min(this->start, start);
-    this->end = std::max(this->end, end);
+    start = std::min(start_, start);
+    end = std::max(end_, end);
 }
 
 double AxisRange::span() const { return end - start; }

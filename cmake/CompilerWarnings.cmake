@@ -53,7 +53,6 @@ function(set_project_warnings project_name)
       -Wno-old-style-cast # warn for c-style casts # TODO enabled due to Howard Hinnant's date lib
       -Wno-shorten-64-to-32 # TODO my fault
       -Wno-unused-parameter # TODO my fault
-      -Wno-shadow # TODO my fault
       -Wno-deprecated-enum-enum-conversion # TODO my fault
   )
 

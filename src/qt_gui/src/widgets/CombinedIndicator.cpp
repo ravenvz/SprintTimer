@@ -56,7 +56,7 @@ void CombinedIndicator::setInvertedStyle(bool inverted)
 
 void CombinedIndicator::setDrawArc(bool shouldDraw) { drawArc = shouldDraw; }
 
-void CombinedIndicator::setColor(const QColor& color) { this->color = color; }
+void CombinedIndicator::setColor(const QColor& color_) { color = color_; }
 
 void CombinedIndicator::paintEvent(QPaintEvent*)
 {

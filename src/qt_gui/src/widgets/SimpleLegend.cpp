@@ -85,9 +85,9 @@ void SimpleLegend::setData(const std::vector<std::string>& labels)
     }
 }
 
-void SimpleLegend::setTitle(const QString& title)
+void SimpleLegend::setTitle(const QString& title_)
 {
-    this->title->setText(title);
+    title->setText(title_);
 }
 
 void SimpleLegend::toggleSelected(size_t index)
