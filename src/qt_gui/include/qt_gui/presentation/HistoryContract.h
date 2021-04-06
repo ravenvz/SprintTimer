@@ -25,32 +25,38 @@
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
 #include <date_wrapper/date_wrapper.h>
+#include <vector>
 
 namespace sprint_timer::ui::contracts::HistoryContract {
 
 struct Item {
     std::string description;
     std::string uuid;
+    bool operator==(const Item&) const = default;
 };
 
 struct DayHistory {
     dw::Date date;
     std::vector<Item> sortedItems;
+    bool operator==(const DayHistory&) const = default;
 };
 
 struct History {
     size_t totalItems{0};
     std::vector<DayHistory> sortedDayHistory;
+    bool operator==(const History& other) const = default;
 };
 
 struct TaskEditData {
     std::string name;
     int estimatedCost;
     std::vector<std::string> tags;
+    bool operator==(const TaskEditData&) const = default;
 };
 
 struct SprintEditData {
     dw::DateTimeRange range;
+    bool operator==(const SprintEditData&) const = default;
 };
 
 class View;
