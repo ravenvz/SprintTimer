@@ -136,10 +136,10 @@ bool TaskModel::setData(const QModelIndex& index,
     }
 }
 
-bool TaskModel::moveRows(const QModelIndex& sourceParent,
+bool TaskModel::moveRows(const QModelIndex& /*sourceParent*/,
                          int sourceRow,
                          int count,
-                         const QModelIndex& destinationParent,
+                         const QModelIndex& /*destinationParent*/,
                          int destinationChild)
 {
     // TODO This leads to ignoring dropping item below the last item,
@@ -156,7 +156,7 @@ bool TaskModel::moveRows(const QModelIndex& sourceParent,
     return false;
 }
 
-bool TaskModel::removeRows(int row, int count, const QModelIndex& parent)
+bool TaskModel::removeRows(int row, int count, const QModelIndex& /*parent*/)
 {
     if (row < 0 || row >= static_cast<int>(storage.size())) {
         return false;
@@ -175,7 +175,9 @@ bool TaskModel::removeRows(int row, int count, const QModelIndex& parent)
     return false;
 }
 
-bool TaskModel::insertRows(int row, int count, const QModelIndex& parent)
+bool TaskModel::insertRows(int /*row*/,
+                           int /*count*/,
+                           const QModelIndex& /*parent*/)
 {
     // // Only support inserting one item after the last row
     // if (row != static_cast<int>(storage.size()) || count != 1) {
@@ -190,7 +192,7 @@ bool TaskModel::insertRows(int row, int count, const QModelIndex& parent)
     return false;
 }
 
-int TaskModel::rowCount(const QModelIndex& parent) const
+int TaskModel::rowCount(const QModelIndex& /*parent*/) const
 {
     return static_cast<int>(storage.size());
 }

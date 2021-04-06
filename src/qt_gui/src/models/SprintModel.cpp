@@ -72,13 +72,15 @@ QVariant SprintModel::data(const QModelIndex& index, int role) const
     return sprintToString(sprintRef);
 }
 
-bool SprintModel::removeRows(int row, int count, const QModelIndex& index)
+bool SprintModel::removeRows(int row, int count, const QModelIndex& /*index*/)
 {
-    if (count == 0)
+    if (count == 0) {
         return false;
+    }
 
-    if (row + count - 1 >= static_cast<int>(storage.size()))
+    if (row + count - 1 >= static_cast<int>(storage.size())) {
         return false;
+    }
 
     // beginRemoveRows(index, row, row + count - 1);
     // storage.erase(storage.begin() + row, storage.begin() + row + count - 1);

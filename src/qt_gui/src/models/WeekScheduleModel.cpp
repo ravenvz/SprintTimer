@@ -29,15 +29,16 @@ WeekScheduleModel::WeekScheduleModel(QObject* parent_)
 {
 }
 
-int WeekScheduleModel::rowCount(const QModelIndex& parent) const
+int WeekScheduleModel::rowCount(const QModelIndex& /*parent*/) const
 {
     return static_cast<int>(data_.size());
 }
 
 bool WeekScheduleModel::insertRows(int row, int count, const QModelIndex& index)
 {
-    if (count <= 0 || row < 0)
+    if (count <= 0 || row < 0) {
         return false;
+    }
     beginInsertRows(index, row, row + count - 1);
     data_.insert(data_.begin() + row, count, {QDate{}, QString{}});
     endInsertRows();
@@ -46,8 +47,9 @@ bool WeekScheduleModel::insertRows(int row, int count, const QModelIndex& index)
 
 bool WeekScheduleModel::removeRows(int row, int count, const QModelIndex& index)
 {
-    if (count <= 0 || row < 0 || (row + count) > rowCount(index))
+    if (count <= 0 || row < 0 || (row + count) > rowCount(index)) {
         return false;
+    }
     beginRemoveRows(index, row, row + count - 1);
     data_.erase(data_.begin() + row, data_.begin() + row + count);
     endRemoveRows();
@@ -90,7 +92,7 @@ bool WeekScheduleModel::setData(const QModelIndex& index,
     return true;
 }
 
-void WeekScheduleModel::sort(int column, Qt::SortOrder order)
+void WeekScheduleModel::sort(int /*column*/, Qt::SortOrder order)
 {
     emit layoutAboutToBeChanged();
     if (order == Qt::AscendingOrder)

@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include <gmock/gmock.h>
-#include <qt_gui/presentation/HistoryMediator.h>
+#include "qt_gui/presentation/HistoryMediator.h"
 
 namespace mocks {
 

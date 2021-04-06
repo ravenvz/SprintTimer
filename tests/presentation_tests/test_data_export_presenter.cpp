@@ -107,15 +107,15 @@ bool operator==(const ExportSelectedParams& lhs,
 template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
-           const ReportRequestOptions& options)
+           const ReportRequestOptions& /*options*/)
 {
     os << "ReportRequestOptions{";
     os << '}';
     return os;
 }
 
-bool operator==(const ReportRequestOptions& lhs,
-                const ReportRequestOptions& rhs)
+bool operator==(const ReportRequestOptions& /*lhs*/,
+                const ReportRequestOptions& /*rhs*/)
 {
     return true;
 }

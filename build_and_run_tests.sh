@@ -54,7 +54,7 @@ fi
 echo "$build_type build using $cxx_compiler and $build_tool"
 
 (cd build && CC=$c_compiler CXX=$cxx_compiler\
-    cmake -G "${generator}" "-DCMAKE_BUILD_TYPE=$build_type -DBUILD_TESTS=$build_tests" ..\
+    cmake -G "${generator}" -DCMAKE_BUILD_TYPE=$build_type -DBUILD_TESTS=$build_tests ..\
     && $build_tool $build_tool_options)
 
 if [ $build_tests == "ON" ]; then

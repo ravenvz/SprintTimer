@@ -63,7 +63,7 @@ void DataExportWidget::displayReportOptions(
 }
 
 void DataExportWidget::setupElements(
-    const contracts::DataExportContract::ViewElements& viewElements)
+    const contracts::DataExportContract::ViewElements& /*viewElements*/)
 {
 }
 

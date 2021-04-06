@@ -5,6 +5,15 @@ add_executable(${TEST_CORE})
 
 target_sources(${TEST_CORE}
     PRIVATE
+    "${CMAKE_CURRENT_LIST_DIR}/mocks/ConfigMock.h"
+    "${CMAKE_CURRENT_LIST_DIR}/mocks/DataExporterMock.h"
+    "${CMAKE_CURRENT_LIST_DIR}/mocks/OperationalRangeReaderMock.h"
+    "${CMAKE_CURRENT_LIST_DIR}/mocks/QueryHandlerMock.h"
+    "${CMAKE_CURRENT_LIST_DIR}/mocks/SprintDistributionReaderMock.h"
+    "${CMAKE_CURRENT_LIST_DIR}/mocks/SprintStorageMock.h"
+    "${CMAKE_CURRENT_LIST_DIR}/mocks/TaskStorageMock.h"
+    "${CMAKE_CURRENT_LIST_DIR}/mocks/WorkflowMock.h"
+    "${CMAKE_CURRENT_LIST_DIR}/mocks/WorkScheduleStorageMock.h"
     "${CMAKE_CURRENT_LIST_DIR}/test_add_new_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_algutils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_cancel_timer_command.cpp"
@@ -55,8 +64,8 @@ target_link_libraries(
     PRIVATE
         project_options
         project_warnings
-        gmock_main
         ${CORE_LIB}
+        gmock_main
 )
 
 # gtest_add_tests(TARGET ${TEST_CORE})

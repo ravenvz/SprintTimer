@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <core/CommandHandler.h>
+#include "core/CommandHandler.h"
 #include <gmock/gmock.h>
 
 namespace mocks {

@@ -37,8 +37,8 @@ endif()
 target_link_libraries(
     ${TEST_PRESENTATION}
     PRIVATE
-    project_options
-    project_warnings
+        project_options
+        project_warnings
         gmock_main
         ${GUI_LIB}
 )

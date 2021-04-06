@@ -57,13 +57,13 @@ void HistoryTab::displayHistory(
 }
 
 contracts::HistoryContract::TaskEditData HistoryTab::openEditTaskDialog(
-    const contracts::HistoryContract::TaskEditData& data)
+    const contracts::HistoryContract::TaskEditData& /*data*/)
 {
     return contracts::HistoryContract::TaskEditData{};
 }
 
 contracts::HistoryContract::SprintEditData HistoryTab::openEditSprintDialog(
-    const contracts::HistoryContract::SprintEditData& data)
+    const contracts::HistoryContract::SprintEditData& /*data*/)
 {
     return contracts::HistoryContract::SprintEditData{
         dw::DateTimeRange{dw::current_date_time(), dw::current_date_time()}};

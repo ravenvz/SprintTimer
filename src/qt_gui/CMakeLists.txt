@@ -233,7 +233,7 @@ target_sources(${GUI_LIB}
         "${UI_HEADERS}"
 )
 
-target_include_directories(${GUI_LIB} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+target_include_directories(${GUI_LIB} PUBLIC include)
 target_link_libraries(${GUI_LIB}
     PRIVATE
         project_options
