@@ -51,8 +51,8 @@ function(set_project_warnings project_name)
       -Wno-implicit-int-conversion # TODO date lib
       -Wno-implicit-int-float-conversion # TODO date lib
       -Wno-old-style-cast # warn for c-style casts # TODO enabled due to Howard Hinnant's date lib
-      -Wno-shorten-64-to-32 # TODO my fault
-      -Wno-deprecated-enum-enum-conversion # TODO my fault
+      # -Wno-shorten-64-to-32 # TODO my fault
+      -Wno-deprecated-enum-enum-conversion # TODO used in QFrame::setFrameStyle() - see if Qt6 dealt with it
   )
 
   if(WARNINGS_AS_ERRORS)

@@ -31,7 +31,6 @@ namespace {
 QStringList toStringList(const std::vector<std::string>& vec)
 {
     QStringList result;
-    result.reserve(vec.size());
     std::transform(
         cbegin(vec),
         cend(vec),

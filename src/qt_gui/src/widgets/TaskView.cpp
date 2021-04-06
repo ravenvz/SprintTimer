@@ -66,7 +66,8 @@ TaskView::TaskView(StandaloneDisplayable& sprintsForTaskView_,
 
 void TaskView::selectTask(std::optional<size_t> taskIndex)
 {
-    setCurrentIndex(taskIndex ? model()->index(*taskIndex, 0) : QModelIndex{});
+    setCurrentIndex(taskIndex ? model()->index(static_cast<int>(*taskIndex), 0)
+                              : QModelIndex{});
 }
 
 void TaskView::showContextMenu(const QPoint& pos) const

@@ -38,7 +38,7 @@ EditTaskDialog::EditTaskDialog(
     if (!ind) {
         return;
     }
-    const auto modelIndex = taskModel.index(*ind, 0);
+    const auto modelIndex = taskModel.index(static_cast<int>(*ind), 0);
     const auto item = taskModel.data(modelIndex, CustomRoles::ItemRole);
     const auto task = item.value<TaskDTO>();
 
@@ -59,8 +59,9 @@ void EditTaskDialog::accept()
     TaskDTO editedTask = parseFormFields();
     QVariant var;
     var.setValue(editedTask);
-    taskModel.setData(
-        taskModel.index(*selectedTask, 0), var, CustomRoles::ReplaceRole);
+    taskModel.setData(taskModel.index(static_cast<int>(*selectedTask), 0),
+                      var,
+                      CustomRoles::ReplaceRole);
     QDialog::accept();
 }
 

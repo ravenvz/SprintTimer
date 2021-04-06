@@ -265,12 +265,12 @@ void replaceModelContent(QAbstractItemModel& model,
 {
     using sprint_timer::ui::qt_gui::utils::toQDate;
     model.removeRows(0, model.rowCount());
-    model.insertRows(0, data.size());
+    model.insertRows(0, static_cast<int>(data.size()));
     for (size_t row = 0; row < data.size(); ++row) {
         const auto& [date, payload] = data[row];
         QVariant entry;
         entry.setValue(QPair<QDate, Second>{toQDate(date), payload});
-        model.setData(model.index(row, 0), entry);
+        model.setData(model.index(static_cast<int>(row), 0), entry);
     }
 }
 

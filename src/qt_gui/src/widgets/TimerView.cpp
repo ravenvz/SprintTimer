@@ -159,7 +159,7 @@ void TimerView::submitSprints(
 
 void TimerView::selectTask(size_t taskIndex)
 {
-    submissionBox->setCurrentIndex(taskIndex);
+    submissionBox->setCurrentIndex(static_cast<int>(taskIndex));
 }
 
 void TimerView::customEvent(QEvent* event)

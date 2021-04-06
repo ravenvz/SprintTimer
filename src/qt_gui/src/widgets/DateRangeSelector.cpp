@@ -67,7 +67,6 @@ DateRangeSelector::~DateRangeSelector() { }
 void DateRangeSelector::updateOperationalRange(const std::vector<int>& years)
 {
     QStringList lst;
-    lst.reserve(years.size());
     std::transform(cbegin(years),
                    cend(years),
                    std::back_inserter(lst),
