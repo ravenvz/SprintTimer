@@ -58,9 +58,9 @@ public:
 
     void toggleFinished(const TaskDTO& task) override;
 
-    void reorderTasks(size_t sourceRow,
-                      size_t count,
-                      size_t destinationRow) override;
+    void reorderTasks(int32_t sourceRow,
+                      int32_t count,
+                      int32_t destinationRow) override;
 
 private:
     active_tasks_hdl_t& activeTasksHandler;
@@ -107,9 +107,9 @@ inline void ActiveTasksPresenter::toggleFinished(const TaskDTO& task)
         use_cases::ToggleTaskCompletedCommand{fromDTO(task)});
 }
 
-inline void ActiveTasksPresenter::reorderTasks(size_t sourceRow,
-                                               size_t count,
-                                               size_t destinationRow)
+inline void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
+                                               int32_t count,
+                                               int32_t destinationRow)
 {
     std::vector<std::string> oldOrder(tasks.size());
     std::transform(cbegin(tasks),
@@ -118,7 +118,7 @@ inline void ActiveTasksPresenter::reorderTasks(size_t sourceRow,
                    [](const auto& elem) { return elem.uuid; });
 
     // Offset is needed due to slide implementation
-    int offset{sourceRow < destinationRow ? 1 : 0};
+    int32_t offset{sourceRow < destinationRow ? 1 : 0};
 
     std::vector<std::string> newOrder = oldOrder;
     utils::slide(begin(newOrder) + sourceRow,

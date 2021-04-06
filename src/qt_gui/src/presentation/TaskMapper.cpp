@@ -27,7 +27,8 @@ namespace {
 template <typename ForwardIt>
 std::vector<std::string> tagsToString(ForwardIt first, ForwardIt last)
 {
-    std::vector<std::string> strings(std::distance(first, last));
+    std::vector<std::string> strings(
+        static_cast<size_t>(std::distance(first, last)));
     std::transform(first, last, begin(strings), [](const auto& elem) {
         return elem.name();
     });
@@ -38,7 +39,8 @@ template <typename ForwardIt>
 std::list<sprint_timer::entities::Tag> tagsFromStrings(ForwardIt first,
                                                        ForwardIt last)
 {
-    std::list<sprint_timer::entities::Tag> tags(std::distance(first, last));
+    std::list<sprint_timer::entities::Tag> tags(
+        static_cast<size_t>(std::distance(first, last)));
     std::transform(first, last, begin(tags), [](const auto& elem) {
         return sprint_timer::entities::Tag{elem};
     });

@@ -80,8 +80,7 @@ sprint_timer::Distribution<double>
 dailyStatistics(const std::vector<sprint_timer::entities::Sprint>& sprints,
                 const dw::DateRange& dateRange);
 
-constexpr size_t daysBetween(const dw::Date& date,
-                             const dw::DateTime& dateTime) noexcept;
+size_t daysBetween(const dw::Date& date, const dw::DateTime& dateTime);
 
 } // namespace
 
@@ -254,24 +253,25 @@ dailyStatistics(const std::vector<sprint_timer::entities::Sprint>& sprints,
 {
     using sprint_timer::entities::Sprint;
     using sprint_timer::use_cases::containsDate;
-    std::vector<double> sprintsPerDay(dateRange.duration().count() + 1, 0);
+    std::vector<double> sprintsPerDay(
+        static_cast<size_t>(dateRange.duration().count() + 1), 0);
 
     for (const Sprint& sprint : sprints) {
         if (!containsDate(dateRange, sprint.startTime().date()))
             continue;
         const auto dayNumber =
             daysBetween(dateRange.start(), sprint.timeSpan().start());
-        ++sprintsPerDay[static_cast<size_t>(dayNumber)];
+        ++sprintsPerDay[dayNumber];
     }
 
     return sprint_timer::Distribution<double>{std::move(sprintsPerDay)};
 }
 
-constexpr size_t daysBetween(const dw::Date& date,
-                             const dw::DateTime& dateTime) noexcept
+size_t daysBetween(const dw::Date& date, const dw::DateTime& dateTime)
 {
     const auto range = dw::DateRange{
         date, dw::Date{dateTime.year(), dateTime.month(), dateTime.day()}};
-    return range.duration().count();
+    return static_cast<size_t>(range.duration().count());
 }
+
 } // namespace

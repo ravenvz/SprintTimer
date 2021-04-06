@@ -36,7 +36,7 @@ constexpr size_t daysBetween(const dw::Date& date,
 {
     const auto range = dw::DateRange{
         date, dw::Date{dateTime.year(), dateTime.month(), dateTime.day()}};
-    return range.duration().count();
+    return static_cast<size_t>(range.duration().count());
 }
 
 // TODO remove when all calls redirected to handler
@@ -98,7 +98,8 @@ workingHoursStatistics(const std::vector<entities::Sprint>& sprints)
 Distribution<double> dailyStatistics(const std::vector<Sprint>& sprints,
                                      const dw::DateRange& dateRange)
 {
-    std::vector<double> sprintsPerDay(dateRange.duration().count() + 1, 0);
+    std::vector<double> sprintsPerDay(
+        static_cast<size_t>(dateRange.duration().count() + 1), 0);
 
     for (const Sprint& sprint : sprints) {
         if (!containsDate(dateRange, sprint.startTime().date()))

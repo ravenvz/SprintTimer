@@ -40,7 +40,7 @@ public:
     virtual void toggleFinished(const TaskDTO& task) = 0;
 
     virtual void
-    reorderTasks(size_t sourceRow, size_t count, size_t destinationRow) = 0;
+    reorderTasks(int32_t sourceRow, int32_t count, int32_t destinationRow) = 0;
 };
 
 class View : public mvp::BaseView<View, Presenter> {

@@ -35,18 +35,18 @@ int ExtraDayModel::rowCount(const QModelIndex& /*parent*/) const
 
 bool ExtraDayModel::insertRows(int row, int count, const QModelIndex& index)
 {
-	if (count <= 0 || row < 0)
-		return false;
+    if (count <= 0 || row < 0)
+        return false;
     beginInsertRows(index, row, row + count - 1);
-    data_.insert(data_.begin() + row, count, {QDate(), 0});
+    data_.insert(data_.begin() + row, static_cast<size_t>(count), {QDate(), 0});
     endInsertRows();
     return true;
 }
 
 bool ExtraDayModel::removeRows(int row, int count, const QModelIndex& index)
 {
-	if (count <= 0 || row < 0 || (row + count) > rowCount(index))
-		return false;
+    if (count <= 0 || row < 0 || (row + count) > rowCount(index))
+        return false;
     beginRemoveRows(index, row, row + count - 1);
     data_.erase(data_.begin() + row, data_.begin() + row + count);
     endRemoveRows();
@@ -80,8 +80,7 @@ bool ExtraDayModel::setData(const QModelIndex& index,
 {
     if (!index.isValid() || role != Qt::EditRole)
         return false;
-    auto row = index.row();
-    data_[row] = data.value<QPair<QDate, int>>();
+    data_[static_cast<size_t>(index.row())] = data.value<QPair<QDate, int>>();
     QVector<int> roles;
     roles << role;
     emit dataChanged(index, index, roles);

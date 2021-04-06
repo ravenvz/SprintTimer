@@ -32,25 +32,21 @@ QDateTime toQDateTime(const dw::DateTime& dt)
         Qt::OffsetFromUTC);
 }
 
-
 QDate toQDate(const dw::DateTime& dt) { return toQDateTime(dt).date(); }
-
 
 QDate toQDate(const dw::Date& date)
 {
     return QDate(static_cast<int>(date.year()),
-                 static_cast<unsigned>(date.month()),
-                 static_cast<unsigned>(date.day()));
+                 static_cast<int>(static_cast<unsigned>(date.month())),
+                 static_cast<int>(static_cast<unsigned>(date.day())));
 }
-
 
 dw::DateTime toDateTime(const QDateTime& qdt)
 {
     return dw::DateTime{std::chrono::system_clock::time_point{
-               std::chrono::milliseconds{qdt.toMSecsSinceEpoch()}}}
-    + std::chrono::seconds{qdt.offsetFromUtc()};
+               std::chrono::milliseconds{qdt.toMSecsSinceEpoch()}}} +
+           std::chrono::seconds{qdt.offsetFromUtc()};
 }
-
 
 dw::Date toDate(const QDate& date)
 {

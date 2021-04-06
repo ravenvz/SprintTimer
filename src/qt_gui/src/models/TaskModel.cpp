@@ -105,6 +105,8 @@ bool TaskModel::setData(const QModelIndex& index,
         return false;
     }
 
+    const size_t pos{static_cast<size_t>(index.row())};
+
     switch (role) {
 
         // case static_cast<int>(TaskModelRoles::Insert): {
@@ -117,7 +119,7 @@ bool TaskModel::setData(const QModelIndex& index,
 
     case (CustomRoles::ReplaceRole): {
         if (auto p = presenter(); p) {
-            p.value()->editTask(storage[index.row()], value.value<TaskDTO>());
+            p.value()->editTask(storage[pos], value.value<TaskDTO>());
             return true;
         }
         return false;
@@ -125,7 +127,7 @@ bool TaskModel::setData(const QModelIndex& index,
 
     case static_cast<int>(CustomRoles::ToggleCheckedRole): {
         if (auto p = presenter(); p) {
-            p.value()->toggleFinished(storage[index.row()]);
+            p.value()->toggleFinished(storage[pos]);
             return true;
         }
         return false;
@@ -169,7 +171,7 @@ bool TaskModel::removeRows(int row, int count, const QModelIndex& /*parent*/)
     // Rely on presenter to resupply updated data (model data will be fully
     // replaced, hence no calls to begin/end|removeRows
     if (auto p = presenter(); p) {
-        p.value()->deleteTask(storage[row]);
+        p.value()->deleteTask(storage[static_cast<size_t>(row)]);
         return true;
     }
     return false;

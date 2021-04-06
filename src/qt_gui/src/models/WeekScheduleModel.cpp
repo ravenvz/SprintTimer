@@ -40,7 +40,8 @@ bool WeekScheduleModel::insertRows(int row, int count, const QModelIndex& index)
         return false;
     }
     beginInsertRows(index, row, row + count - 1);
-    data_.insert(data_.begin() + row, count, {QDate{}, QString{}});
+    data_.insert(
+        data_.begin() + row, static_cast<size_t>(count), {QDate{}, QString{}});
     endInsertRows();
     return true;
 }
@@ -84,8 +85,8 @@ bool WeekScheduleModel::setData(const QModelIndex& index,
 {
     if (!index.isValid() || role != Qt::EditRole)
         return false;
-    auto row = index.row();
-    data_[row] = data.value<QPair<QDate, QString>>();
+    data_[static_cast<size_t>(index.row())] =
+        data.value<QPair<QDate, QString>>();
     QVector<int> roles;
     roles << role;
     emit dataChanged(index, index, roles);

@@ -56,8 +56,8 @@ TaskView::TaskView(StandaloneDisplayable& sprintsForTaskView_,
         const auto var = model()->data(currentIndex(), CustomRoles::IdRole);
         const auto uuid = var.value<QString>();
         if (auto p = presenter(); p) {
-            p.value()->changeTaskSelection(currentIndex().row(),
-                                           uuid.toStdString());
+            const size_t taskPos{static_cast<size_t>(currentIndex().row())};
+            p.value()->changeTaskSelection(taskPos, uuid.toStdString());
         }
     });
     setWordWrap(true);

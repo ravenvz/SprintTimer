@@ -64,7 +64,7 @@ inline void RegisterSprintControlPresenter::registerConsecutiveSprints(
     int32_t numSprints,
     std::chrono::minutes sprintDuration)
 {
-    std::vector<entities::Sprint> sprints(numSprints);
+    std::vector<entities::Sprint> sprints(static_cast<size_t>(numSprints));
     auto builder = SprintBuilder{}.withTaskUuid(taskUuid);
     dw::DateTimeRange span{firstSprintStart, firstSprintStart + sprintDuration};
     std::generate(begin(sprints), end(sprints), [&]() {

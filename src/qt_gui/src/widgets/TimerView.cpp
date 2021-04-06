@@ -123,7 +123,8 @@ TimerView::TimerView(ui::contracts::RegisterSprintControl::Presenter&
                         .toString()
                         .toStdString();
                 if (auto p = presenter(); p) {
-                    p.value()->changeTaskSelection(row, std::move(uuid));
+                    p.value()->changeTaskSelection(static_cast<size_t>(row),
+                                                   std::move(uuid));
                 }
             });
 }

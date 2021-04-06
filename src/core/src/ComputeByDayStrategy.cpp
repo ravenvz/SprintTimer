@@ -25,12 +25,12 @@ namespace sprint_timer {
 
 std::vector<GoalProgress>
 ComputeByDayStrategy::computeProgress(const dw::DateRange& dateRange,
-                            const std::vector<int>& actualProgress,
-                            const WorkSchedule& workSchedule) const
+                                      const std::vector<int>& actualProgress,
+                                      const WorkSchedule& workSchedule) const
 {
     using namespace dw;
     std::vector<GoalProgress> progress;
-    progress.reserve(dateRange.duration().count());
+    progress.reserve(static_cast<size_t>(dateRange.duration().count()));
     auto actualIt = cbegin(actualProgress);
 
     for (auto day = dateRange.start(); day <= dateRange.finish();

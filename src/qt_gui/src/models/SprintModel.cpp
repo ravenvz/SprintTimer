@@ -87,7 +87,7 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& /*index*/)
     // endRemoveRows();
 
     if (auto p = presenter(); p) {
-        p.value()->onSprintDelete(storage[row]);
+        p.value()->onSprintDelete(storage[static_cast<size_t>(row)]);
         return true;
     }
 

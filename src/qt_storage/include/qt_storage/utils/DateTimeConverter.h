@@ -52,15 +52,15 @@ public:
     static QDate qDate(const Date& date)
     {
         return QDate(static_cast<int>(date.year()),
-                     static_cast<unsigned>(date.month()),
-                     static_cast<unsigned>(date.day()));
+                     static_cast<int>(static_cast<unsigned>(date.month())),
+                     static_cast<int>(static_cast<unsigned>(date.day())));
     }
 
     static DateTime dateTime(const QDateTime& qdt)
     {
         return DateTime{std::chrono::system_clock::time_point{
-                   std::chrono::milliseconds{qdt.toMSecsSinceEpoch()}}}
-        + std::chrono::seconds{qdt.offsetFromUtc()};
+                   std::chrono::milliseconds{qdt.toMSecsSinceEpoch()}}} +
+               std::chrono::seconds{qdt.offsetFromUtc()};
         // return DateTime::fromTime_t(qdt.toTime_t(), qdt.offsetFromUtc());
     }
 

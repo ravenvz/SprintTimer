@@ -107,9 +107,9 @@ void WorkScheduleEditor::displayCurrentWeekSchedule(
     const QLocale defaultLocale;
     for (size_t pos{0}; pos < labels.size(); ++pos) {
         const auto [dayNum, goal] = weekSchedule[pos];
-        labels[pos]->setText(
-            defaultLocale.dayName(dayNum, QLocale::FormatType::LongFormat));
-        goals[pos]->setValue(goal);
+        labels[pos]->setText(defaultLocale.dayName(
+            static_cast<int>(dayNum), QLocale::FormatType::LongFormat));
+        goals[pos]->setValue(static_cast<int>(goal));
     }
 }
 

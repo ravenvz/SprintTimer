@@ -47,7 +47,8 @@ void DateRangeSelectorPresenter::updateViewImpl()
             handler.get().handle(use_cases::OperationalRangeQuery{});
         const int startYear = static_cast<int>(range.start().year());
         const int lastYear = static_cast<int>(range.finish().year());
-        std::vector<int> years(lastYear - startYear + 1, 0);
+        std::vector<int> years(static_cast<size_t>(lastYear - startYear + 1),
+                               0);
         std::iota(begin(years), end(years), startYear);
         v.value()->setFirstDayOfWeek(firstDayOfWeek);
         v.value()->updateOperationalRange(years);
