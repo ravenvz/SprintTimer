@@ -1,5 +1,3 @@
-project(${STORAGE_LIB})
-
 find_package(Qt5 REQUIRED COMPONENTS Core Sql)
 
 # Tell CMake to run moc when necessary:

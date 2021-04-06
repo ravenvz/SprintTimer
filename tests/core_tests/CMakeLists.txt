@@ -1,9 +1,6 @@
-set(TEST_CORE test_core)
-project(${TEST_CORE})
+add_executable(test_core)
 
-add_executable(${TEST_CORE})
-
-target_sources(${TEST_CORE}
+target_sources(test_core
     PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/mocks/ConfigMock.h"
     "${CMAKE_CURRENT_LIST_DIR}/mocks/DataExporterMock.h"
@@ -56,11 +53,11 @@ target_sources(${TEST_CORE}
 # TODO Workaround. MSVC compiler cannot link gmock properly otherwise
 # Check if it is still required when next version of gtest is released.
 if (MSVC)
-	target_compile_definitions(${TEST_CORE} PRIVATE -DGTEST_LINKED_AS_SHARED_LIBRARY)
+	target_compile_definitions(test_core PRIVATE -DGTEST_LINKED_AS_SHARED_LIBRARY)
 endif()
 
 target_link_libraries(
-    ${TEST_CORE}
+    test_core
     PRIVATE
         project_options
         project_warnings
@@ -69,4 +66,4 @@ target_link_libraries(
 )
 
 # gtest_add_tests(TARGET ${TEST_CORE})
-gtest_discover_tests(${TEST_CORE} WORKING_DIRECTORY ${TEST_RUN_DIR})
+gtest_discover_tests(test_core WORKING_DIRECTORY ${TEST_RUN_DIR})

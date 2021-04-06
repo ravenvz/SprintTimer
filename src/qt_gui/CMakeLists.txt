@@ -1,5 +1,3 @@
-project(${GUI_LIB})
-
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Multimedia)
 
 # Tell CMake to run moc when necessary:

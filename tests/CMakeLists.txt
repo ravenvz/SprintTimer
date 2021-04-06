@@ -1,6 +1,3 @@
-set(PROJECT_TESTS sprint_timer_tests)
-project(${PROJECT_TESTS})
-
 # Download and unpack googletest at configure time
 include(CMakeLists-gtest.txt)
 

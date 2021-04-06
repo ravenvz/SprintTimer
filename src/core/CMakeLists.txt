@@ -1,5 +1,3 @@
-project(${CORE_LIB})
-
 # Download date_wrapper lib at configure time then add as subdirectory
 include(CMakeLists-datewrapper.txt)
 

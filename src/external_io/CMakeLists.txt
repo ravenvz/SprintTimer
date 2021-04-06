@@ -1,7 +1,3 @@
-project(${EXTERNAL_IO_LIB})
-
-# set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 add_library(${EXTERNAL_IO_LIB} SHARED)
 
 target_sources(${EXTERNAL_IO_LIB}

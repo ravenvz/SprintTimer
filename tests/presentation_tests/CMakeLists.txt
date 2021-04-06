@@ -1,9 +1,6 @@
-set(TEST_PRESENTATION test_presentation)
-project(${TEST_PRESENTATION})
+add_executable(test_presentation)
 
-add_executable(${TEST_PRESENTATION})
-
-target_sources(${TEST_PRESENTATION}
+target_sources(test_presentation
     PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/test_active_tasks_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_add_task_control_presenter.cpp"
@@ -31,11 +28,11 @@ target_sources(${TEST_PRESENTATION}
 # TODO Workaround. MSVC compiler cannot link gmock properly otherwise
 # Check if it is still required when next version of gtest is released.
 if (MSVC)
-	target_compile_definitions(${TEST_PRESENTATION} PRIVATE -DGTEST_LINKED_AS_SHARED_LIBRARY)
+	target_compile_definitions(test_presentation PRIVATE -DGTEST_LINKED_AS_SHARED_LIBRARY)
 endif()
 
 target_link_libraries(
-    ${TEST_PRESENTATION}
+    test_presentation
     PRIVATE
         project_options
         project_warnings
@@ -43,5 +40,4 @@ target_link_libraries(
         ${GUI_LIB}
 )
 
-# gtest_add_tests(TARGET ${TEST_PRESENTATION})
-gtest_discover_tests(${TEST_PRESENTATION} WORKING_DIRECTORY ${TEST_RUN_DIR})
+gtest_discover_tests(test_presentation WORKING_DIRECTORY ${TEST_RUN_DIR})
