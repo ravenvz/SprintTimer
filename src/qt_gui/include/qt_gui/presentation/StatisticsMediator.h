@@ -29,6 +29,7 @@
 #include <core/use_cases/request_sprints/RequestSprintsQuery.h>
 #include <date_wrapper/date_wrapper.h>
 #include <string>
+#include <optional>
 
 namespace sprint_timer::ui {
 

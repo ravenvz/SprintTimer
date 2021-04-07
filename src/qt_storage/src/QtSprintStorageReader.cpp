@@ -50,9 +50,6 @@ using namespace dw;
 using namespace storage::utils;
 using namespace entities;
 
-// TODO remove later
-using namespace qt_storage;
-
 QtSprintStorageReader::QtSprintStorageReader(const QString& connectionName_)
     : connectionName{connectionName_}
 {

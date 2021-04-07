@@ -24,6 +24,7 @@
 
 #include "qt_gui/presentation/DateRangeChangeListener.h"
 #include "qt_gui/presentation/Mediator.h"
+#include <optional>
 
 namespace sprint_timer::ui {
 
