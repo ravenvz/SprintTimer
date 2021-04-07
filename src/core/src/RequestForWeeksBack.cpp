@@ -49,8 +49,7 @@ dw::DateRange nWeeksBackTillNow(int numWeeks, dw::Weekday firstDayOfWeek)
 {
     using namespace dw;
     auto now = current_date_local();
-    const auto from = prev_weekday(now - Weeks{numWeeks - 1},
-                                   static_cast<dw::Weekday>(firstDayOfWeek));
+    const auto from = prev_weekday(now - Weeks{numWeeks - 1}, firstDayOfWeek);
     const auto lastDayOfWeek{firstDayOfWeek == dw::Weekday::Monday
                                  ? dw::Weekday::Sunday
                                  : dw::Weekday::Saturday};
