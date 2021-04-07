@@ -36,7 +36,6 @@ target_sources(${GUI_LIB}
     PUBLIC
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/DatasyncRelay.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/Displayable.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/DistributionRequester.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/IndexChangedReemitter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtSoundPlayerImp.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtConfig.h"
@@ -147,8 +146,6 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/UndoWidget.h"
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/resources/resources.qrc"
-        "${CMAKE_CURRENT_LIST_DIR}/src/DistributionRequester.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/IndexChangedReemitter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/QtConfig.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/HistoryItemDelegate.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/delegates/SubmissionItemDelegate.cpp"

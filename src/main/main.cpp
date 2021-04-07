@@ -110,7 +110,6 @@
 #include <external_io/SprintToCsvAlgorithm.h>
 #include <external_io/TaskToCsvAlgorithm.h>
 #include <filesystem>
-#include <qt_gui/DistributionRequester.h>
 #include <qt_gui/QtConfig.h>
 #include <qt_gui/QtSoundPlayerImp.h>
 #include <qt_gui/delegates/HistoryItemDelegate.h>

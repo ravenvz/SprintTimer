@@ -23,7 +23,6 @@
 #define PROGRESSWIDGET_H_F1ABWAXG
 
 #include "core/BackRequestStrategy.h"
-#include "qt_gui/DistributionRequester.h"
 #include "qt_gui/presentation/ProgressPresenterContract.h"
 #include "qt_gui/widgets/DisplayableWidget.h"
 #include <QWidget>
