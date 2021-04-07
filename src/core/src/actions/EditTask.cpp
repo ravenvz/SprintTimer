@@ -28,29 +28,29 @@ namespace sprint_timer::actions {
 
 using namespace entities;
 
-EditTask::EditTask(TaskStorageWriter& writer,
-                   Task originalTask,
-                   Task editedTask)
-    : writer{writer}
-    , originalTask_{std::move(originalTask)}
-    , editedTask_{editedTask.name(),
-                  editedTask.estimatedCost(),
-                  originalTask_.actualCost(),
-                  originalTask_.uuid(),
-                  editedTask.tags(),
-                  originalTask_.isCompleted(),
-                  dw::current_date_time_local()}
+EditTask::EditTask(TaskStorageWriter& writer_,
+                   Task originalTask_,
+                   const Task& editedTask_)
+    : writer{writer_}
+    , editedTask{editedTask_.name(),
+                 editedTask_.estimatedCost(),
+                 originalTask_.actualCost(),
+                 originalTask_.uuid(),
+                 editedTask_.tags(),
+                 originalTask_.isCompleted(),
+                 dw::current_date_time_local()}
+    , originalTask{std::move(originalTask_)}
 {
 }
 
-void EditTask::execute() { writer.edit(originalTask_, editedTask_); }
+void EditTask::execute() { writer.edit(originalTask, editedTask); }
 
-void EditTask::undo() { writer.edit(editedTask_, originalTask_); }
+void EditTask::undo() { writer.edit(editedTask, originalTask); }
 
 std::string EditTask::describe() const
 {
     std::stringstream ss;
-    ss << "Edit task '" << originalTask_ << " -> " << editedTask_ << "'";
+    ss << "Edit task '" << originalTask << " -> " << editedTask << "'";
     return ss.str();
 }
 

@@ -23,8 +23,8 @@
 
 namespace sprint_timer::ui {
 
-StatisticsMediatorImpl::StatisticsMediatorImpl(QueryHandler& queryHandler_,
-                                               size_t numTopTags_)
+StatisticsMediatorImpl::StatisticsMediatorImpl(
+    request_sprints_hdl_t& queryHandler_, size_t numTopTags_)
     : queryHandler{queryHandler_}
     , numTopTags{numTopTags_}
 {
@@ -33,12 +33,14 @@ StatisticsMediatorImpl::StatisticsMediatorImpl(QueryHandler& queryHandler_,
 }
 
 // TODO workaround until statistics view is streamlined
-void StatisticsMediatorImpl::updateView() {
+void StatisticsMediatorImpl::updateView()
+{
     if (!dateRange) {
         return;
     }
     currentTagNumber = std::nullopt;
-    allSprints = queryHandler.handle(use_cases::RequestSprintsQuery{*dateRange});
+    allSprints =
+        queryHandler.handle(use_cases::RequestSprintsQuery{*dateRange});
     tagtop = TagTop{allSprints, numTopTags};
     notifyAll([](auto* colleague) { colleague->onSharedDataChanged(); });
 }

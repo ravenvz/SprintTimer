@@ -28,7 +28,6 @@ TEST_F(WorkScheduleFixture, adding_and_removing_exceptional_days)
     const Date holiday_1{Date{Year{2018}, Month{6}, Day{11}}};
     const Date holiday_2{Date{Year{2018}, Month{6}, Day{12}}};
     const Date extra_workday_1{Date{Year{2018}, Month{6}, Day{9}}};
-    WorkSchedule workSchedule;
     workSchedule.addWeekSchedule(some_date, some_week_schedule);
     workSchedule.addExceptionalDay(holiday_1, 0);
     workSchedule.addExceptionalDay(holiday_2, 0);
@@ -60,7 +59,6 @@ TEST_F(WorkScheduleFixture, adding_and_removing_exceptional_days)
 
 TEST_F(WorkScheduleFixture, removing_exceptional_day)
 {
-    WorkSchedule workSchedule;
     workSchedule.addWeekSchedule(some_date, some_week_schedule);
     const dw::Date date_1{Date{Year{2019}, Month{5}, Day{9}}};
     const dw::Date date_2{Date{Year{2019}, Month{5}, Day{22}}};
@@ -74,7 +72,6 @@ TEST_F(WorkScheduleFixture, removing_exceptional_day)
 TEST_F(WorkScheduleFixture,
        no_extra_day_can_be_workday_and_holiday_simultaneously)
 {
-    WorkSchedule workSchedule;
     workSchedule.addWeekSchedule(some_date, some_week_schedule);
     const int some_goal{22};
 

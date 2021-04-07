@@ -31,14 +31,16 @@
 namespace sprint_timer::ui {
 
 // TODO workaround until statistics view is streamlined
-class StatisticsMediatorImpl : public StatisticsMediator, public mvp::AbstractPresenter {
+class StatisticsMediatorImpl : public StatisticsMediator,
+                               public mvp::AbstractPresenter {
 public:
-    using QueryHandler = QueryHandler<use_cases::RequestSprintsQuery,
-                                      std::vector<entities::Sprint>>;
+    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery,
+                                               std::vector<entities::Sprint>>;
 
-    StatisticsMediatorImpl(QueryHandler& queryHandler_, size_t numTopTags_);
+    StatisticsMediatorImpl(request_sprints_hdl_t& queryHandler_,
+                           size_t numTopTags_);
 
-// TODO workaround until statistics view is streamlined
+    // TODO workaround until statistics view is streamlined
     void updateView() override;
 
     void filterByTag(StatisticsColleague* caller,
@@ -57,7 +59,7 @@ public:
     std::optional<size_t> selectedTagNumber() const override;
 
 private:
-    QueryHandler& queryHandler;
+    request_sprints_hdl_t& queryHandler;
     size_t numTopTags;
     std::vector<entities::Sprint> allSprints;
     TagTop tagtop;

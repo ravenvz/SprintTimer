@@ -159,8 +159,8 @@ MainWindow::ExpandedMenu::ExpandedMenu(MainWindow& widget)
     widget.size = widget_size::expandedMenu;
 }
 
-MainWindow::ViewToggledEvent::ViewToggledEvent(MainWindow& widget)
-    : widget{widget}
+MainWindow::ViewToggledEvent::ViewToggledEvent(MainWindow& widget_)
+    : widget{widget_}
 {
 }
 
@@ -190,8 +190,8 @@ MainWindow::State MainWindow::ViewToggledEvent::operator()(const Expanded&)
     return ExpandedMenu{widget};
 }
 
-MainWindow::MenuToggledEvent::MenuToggledEvent(MainWindow& widget)
-    : widget{widget}
+MainWindow::MenuToggledEvent::MenuToggledEvent(MainWindow& widget_)
+    : widget{widget_}
 {
 }
 

@@ -30,18 +30,21 @@ namespace sprint_timer::compose {
 
 class RuntimeConfigurableSoundPlayer : public SoundPlayer {
 public:
-    RuntimeConfigurableSoundPlayer(IConfig& applicationSettings,
-                                   Observable& configChangedSignaller,
-                                   std::unique_ptr<SoundPlayer> wrapped)
-        : applicationSettings{applicationSettings}
-        , wrapped{std::move(wrapped)}
-        , observer{configChangedSignaller, [this]() { onConfigChanged(); }}
+    RuntimeConfigurableSoundPlayer(IConfig& applicationSettings_,
+                                   Observable& configChangedSignaller_,
+                                   std::unique_ptr<SoundPlayer> wrapped_)
+        : applicationSettings{applicationSettings_}
+        , wrapped{std::move(wrapped_)}
+        , observer{configChangedSignaller_, [this]() { onConfigChanged(); }}
     {
     }
 
     void setVolume(int volume) override { wrapped->setVolume(volume); }
 
-    void play(const std::string& mediaPath) override { wrapped->play(mediaPath); }
+    void play(const std::string& mediaPath) override
+    {
+        wrapped->play(mediaPath);
+    }
 
     void setSoundEnabled(bool enabled) override
     {

@@ -39,8 +39,8 @@ const QBrush pointBoxBrush{Qt::white};
 QRectF computeAvailableRectange(const QRectF& totalSizeRect);
 
 struct point_to_point_box {
-    point_to_point_box(const DrawingParams& drawingParams)
-        : drawingParams{drawingParams}
+    point_to_point_box(const DrawingParams& drawingParams_)
+        : drawingParams{drawingParams_}
     {
     }
 
@@ -108,10 +108,10 @@ DrawingParams::DrawingParams(const QRectF& availableRect,
 
 void Plot::addGraph(Graph graph) { graphs.push_back(std::move(graph)); }
 
-void Plot::changeGraphData(size_t graphNum, Graph::Data&& data)
+void Plot::changeGraphData(size_t graphNum, Graph::Data&& data_)
 {
     if (graphNum < graphs.size())
-        graphs[graphNum].setData(std::move(data));
+        graphs[graphNum].setData(std::move(data_));
 }
 
 void Plot::changeGraphVisualOptions(size_t graphNum,

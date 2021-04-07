@@ -32,8 +32,9 @@ toPenStyle(sprint_timer::ui::contracts::DailyStatisticGraphContract::LineStyle
                lineStyle);
 
 double computeTopY(
-    const sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphData&
-        data);
+    const std::vector<
+        sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphValue>&
+        graphValues);
 
 sprint_timer::ui::qt_gui::Graph::Data transformData(
     const sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphData&
@@ -68,25 +69,25 @@ DailyTimelineGraph::DailyTimelineGraph(QWidget* parent_)
 DailyTimelineGraph::~DailyTimelineGraph() = default;
 
 void DailyTimelineGraph::updateLegend(
-    const contracts::DailyStatisticGraphContract::LegendData& data)
+    const contracts::DailyStatisticGraphContract::LegendData& data_)
 {
-    ui->labelTotalSprints->setText(QString::fromStdString(data.total));
-    ui->labelDailyAverage->setText(QString::fromStdString(data.average));
+    ui->labelTotalSprints->setText(QString::fromStdString(data_.total));
+    ui->labelDailyAverage->setText(QString::fromStdString(data_.average));
 }
 
 void DailyTimelineGraph::drawGraph(
     const contracts::DailyStatisticGraphContract::GraphData& graphData)
 {
     Graph graph;
-    auto data = transformData(graphData);
+    const auto& graphValues = graphData.values;
     const auto options = transformOptions(graphData.options);
-    graph.setData(std::move(data));
+    graph.setData(transformData(graphData));
     graph.setVisualOptions(options);
 
     ui->dailyTimeline->addGraph(graph);
 
-    ui->dailyTimeline->setRangeX(0, data.size());
-    ui->dailyTimeline->setRangeY(0, computeTopY(graphData));
+    ui->dailyTimeline->setRangeX(0, static_cast<double>(graphValues.size()));
+    ui->dailyTimeline->setRangeY(0, computeTopY(graphValues));
 
     ui->dailyTimeline->repaint();
 }
@@ -115,14 +116,14 @@ toPenStyle(sprint_timer::ui::contracts::DailyStatisticGraphContract::LineStyle
 }
 
 double computeTopY(
-    const sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphData&
-        graphData)
+    const std::vector<
+        sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphValue>&
+        graphValues)
 {
-    const auto& values = graphData.values;
-    if (values.empty())
+    if (graphValues.empty())
         return 0;
-    return std::max_element(values.cbegin(),
-                            values.cend(),
+    return std::max_element(graphValues.cbegin(),
+                            graphValues.cend(),
                             [](const auto& lhs, const auto& rhs) {
                                 return lhs.yValue.value < rhs.yValue.value;
                             })

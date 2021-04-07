@@ -124,17 +124,17 @@ sprint_timer::ui::contracts::HistoryContract::Item toItem(const Entity& entity)
 {
     return sprint_timer::ui::contracts::HistoryContract::Item{describe(entity),
                                                               entity.uuid()};
-};
+}
 
 dw::Date extractDate(const sprint_timer::entities::Sprint& sprint)
 {
     return sprint.startTime().date();
-};
+}
 
 dw::Date extractDate(const sprint_timer::entities::Task& task)
 {
     return task.lastModified().date();
-};
+}
 
 /* Precondition: entities are sorted by their time in ascending order. */
 template <typename Entity>

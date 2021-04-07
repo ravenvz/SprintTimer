@@ -52,16 +52,16 @@ BestWorktimeWidget::BestWorktimeWidget(QWidget* parent_)
 }
 
 void BestWorktimeWidget::updateLegend(
-    const contracts::DaytimeStatisticsContract::LegendData& data)
+    const contracts::DaytimeStatisticsContract::LegendData& data_)
 {
-    bestWorktimeName->setText(QString::fromStdString(data.periodName));
-    bestWorkHours->setText(QString::fromStdString(data.periodHours));
+    bestWorktimeName->setText(QString::fromStdString(data_.periodName));
+    bestWorkHours->setText(QString::fromStdString(data_.periodHours));
 }
 
 void BestWorktimeWidget::updateDiagram(
-    const contracts::DaytimeStatisticsContract::DiagramData& data)
+    const contracts::DaytimeStatisticsContract::DiagramData& data_)
 {
-    timeDiagram->setIntervals(data.timeRanges);
+    timeDiagram->setIntervals(data_.timeRanges);
 }
 
 } // namespace sprint_timer::ui::qt_gui

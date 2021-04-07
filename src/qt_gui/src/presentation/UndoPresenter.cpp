@@ -64,10 +64,10 @@ void UndoPresenter::updateViewImpl()
 
 void UndoPresenter::onViewAttached() { updateView(); }
 
-UndoPresenter::UndoObserver::UndoObserver(Observable& undoObservable,
-                                          UndoPresenter& ref)
-    : undoObservable{undoObservable}
-    , ref{ref}
+UndoPresenter::UndoObserver::UndoObserver(Observable& undoObservable_,
+                                          UndoPresenter& ref_)
+    : undoObservable{undoObservable_}
+    , ref{ref_}
 {
     undoObservable.attach(*this);
 }

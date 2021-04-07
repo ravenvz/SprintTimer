@@ -24,8 +24,8 @@
 namespace {
 
 struct TagsEqual {
-    TagsEqual(const sprint_timer::entities::Tag& referenceTag)
-        : referenceTag{referenceTag}
+    explicit TagsEqual(const sprint_timer::entities::Tag& referenceTag_)
+        : referenceTag{referenceTag_}
     {
     }
 
@@ -39,8 +39,8 @@ private:
 };
 
 struct ContainsTag {
-    ContainsTag(const sprint_timer::entities::Tag& referenceTag)
-        : referenceTag{referenceTag}
+    explicit ContainsTag(const sprint_timer::entities::Tag& referenceTag_)
+        : referenceTag{referenceTag_}
     {
     }
 

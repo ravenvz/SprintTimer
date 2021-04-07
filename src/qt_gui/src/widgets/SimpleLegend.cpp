@@ -24,11 +24,13 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-LegendItem::LegendItem(const QString& text, size_t itemIndex, QWidget* parent)
-    : QLabel(parent)
-    , itemIndex(itemIndex)
+LegendItem::LegendItem(const QString& text_,
+                       size_t itemIndex_,
+                       QWidget* parent_)
+    : QLabel{parent_}
+    , itemIndex{itemIndex_}
 {
-    this->setText(text);
+    this->setText(text_);
 }
 
 void LegendItem::toggleSelected()
@@ -45,8 +47,8 @@ void LegendItem::mousePressEvent(QMouseEvent* event)
         emit clicked(itemIndex);
 }
 
-SimpleLegend::SimpleLegend(QWidget* parent)
-    : IStatisticalChartLegend(parent)
+SimpleLegend::SimpleLegend(QWidget* parent_)
+    : IStatisticalChartLegend{parent_}
 {
     layout = std::make_unique<QVBoxLayout>().release();
     title = std::make_unique<QLabel>().release();
@@ -56,11 +58,11 @@ SimpleLegend::SimpleLegend(QWidget* parent)
 }
 
 void SimpleLegend::setData(
-    const std::vector<std::pair<std::string, double>>& data)
+    const std::vector<std::pair<std::string, double>>& data_)
 {
     std::vector<std::string> labels;
-    std::transform(data.cbegin(),
-                   data.cend(),
+    std::transform(data_.cbegin(),
+                   data_.cend(),
                    std::back_inserter(labels),
                    [](const auto& elem) { return elem.first; });
     setData(labels);
@@ -85,10 +87,7 @@ void SimpleLegend::setData(const std::vector<std::string>& labels)
     }
 }
 
-void SimpleLegend::setTitle(const QString& title_)
-{
-    title->setText(title_);
-}
+void SimpleLegend::setTitle(const QString& title_) { title->setText(title_); }
 
 void SimpleLegend::toggleSelected(size_t index)
 {

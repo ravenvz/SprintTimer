@@ -73,16 +73,13 @@ operator<<(std::basic_ostream<CharT, Traits>& os,
            const ExportRequestOptions& options)
 {
     os << "ExportRequestOptions{\n\tavailable formats: ";
-    std::copy(cbegin(options.availableFileFormats),
-              cend(options.availableFileFormats),
-              std::ostream_iterator<std::iterator_traits<decltype(
-                  cbegin(options.availableFileFormats))>::value_type>(std::cout,
-                                                                      ", "));
+    for (const auto& element : options.availableFileFormats) {
+        os << element << ", ";
+    }
     os << "\n\tavailable Sinks: ";
-    std::copy(cbegin(options.availableSinks),
-              cend(options.availableSinks),
-              std::ostream_iterator<std::iterator_traits<decltype(cbegin(
-                  options.availableSinks))>::value_type>(std::cout, ", "));
+    for (const auto& element : options.availableSinks) {
+        os << element << ", ";
+    }
     os << "\n}";
     return os;
 }

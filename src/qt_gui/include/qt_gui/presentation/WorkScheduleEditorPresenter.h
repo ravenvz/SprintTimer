@@ -45,8 +45,8 @@ public:
     void onAddExceptionalRequested() override;
 
     void onExceptionalDaysAdded(dw::Date startDate,
-                                uint16_t numDays,
-                                uint16_t sprintsPerDay) override;
+                                int32_t numDays,
+                                int32_t sprintsPerDay) override;
 
     void onExceptionalDayRemoved(dw::Date date) override;
 

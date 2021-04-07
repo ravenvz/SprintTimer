@@ -31,8 +31,8 @@ namespace sprint_timer::external_io {
 class OstreamSink : public Sink {
 
 public:
-    explicit OstreamSink(std::ostream& out)
-        : out{out}
+    explicit OstreamSink(std::ostream& out_)
+        : out{out_}
     {
     }
 

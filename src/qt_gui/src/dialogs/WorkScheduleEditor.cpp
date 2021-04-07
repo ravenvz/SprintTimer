@@ -149,16 +149,16 @@ void WorkScheduleEditor::displayRoaster(
     // replaced by a new instance at next call to this method (it will be
     // roasterBufferModel at time of this call).
     roasterModel = std::make_unique<WeekScheduleModel>();
-    std::vector<std::pair<dw::Date, QString>> data;
-    data.reserve(roaster.size());
+    std::vector<std::pair<dw::Date, QString>> data_;
+    data_.reserve(roaster.size());
     std::transform(cbegin(roaster),
                    cend(roaster),
-                   std::back_inserter(data),
+                   std::back_inserter(data_),
                    [](const auto& elem) -> std::pair<dw::Date, QString> {
                        auto [dwDate, scheduleString] = elem;
                        return {dwDate, QString::fromStdString(scheduleString)};
                    });
-    replaceModelContent(*roasterModel, data);
+    replaceModelContent(*roasterModel, data_);
     connect(roasterModel.get(),
             &QAbstractItemModel::rowsAboutToBeRemoved,
             this,

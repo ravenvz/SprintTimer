@@ -55,27 +55,28 @@ BestWorkdayWidget::BestWorkdayWidget(QWidget* parent_)
     setLayout(layout_.release());
 }
 
-void BestWorkdayWidget::displayLegend(const LegendData& data)
+void BestWorkdayWidget::displayLegend(const LegendData& legendData)
 {
-    if (data.dayNum == -1) {
-        labelBestWorkdayName->setText(QString::fromStdString(data.percentage));
+    if (legendData.dayNum == -1) {
+        labelBestWorkdayName->setText(
+            QString::fromStdString(legendData.percentage));
         return;
     }
     const QLocale defaultLocale;
-    labelBestWorkdayName->setText(
-        defaultLocale.dayName(data.dayNum, QLocale::FormatType::LongFormat));
+    labelBestWorkdayName->setText(defaultLocale.dayName(
+        legendData.dayNum, QLocale::FormatType::LongFormat));
     labelBestWorkdayMsg->setText(
         QString("%1% more than average")
-            .arg(QString::fromStdString(data.percentage)));
+            .arg(QString::fromStdString(legendData.percentage)));
 }
 
-void BestWorkdayWidget::displayBars(const BarD& data)
+void BestWorkdayWidget::displayBars(const BarD& data_)
 {
     const QLocale defaultLocale;
     std::vector<QString> labels_;
     labels_.reserve(7);
-    std::transform(cbegin(data.dayOrder),
-                   cend(data.dayOrder),
+    std::transform(cbegin(data_.dayOrder),
+                   cend(data_.dayOrder),
                    std::back_inserter(labels_),
                    [&defaultLocale](const auto& elem) {
                        return defaultLocale.dayName(
@@ -83,11 +84,11 @@ void BestWorkdayWidget::displayBars(const BarD& data)
                    });
     QPen pen;
     pen.setWidthF(1.2);
-    pen.setColor(QString::fromStdString(data.borderColor));
+    pen.setColor(QString::fromStdString(data_.borderColor));
     workdayBarChart->setPen(pen);
-    QBrush brush = QBrush(QColor(QString::fromStdString(data.barColor)));
+    QBrush brush = QBrush(QColor(QString::fromStdString(data_.barColor)));
     workdayBarChart->setBrush(brush);
-    const BarData barData = BarData(data.barValues, labels_);
+    const BarData barData = BarData(data_.barValues, labels_);
     workdayBarChart->setData(barData);
 }
 

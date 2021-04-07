@@ -84,7 +84,8 @@ void DataExportPresenter::updateViewImpl()
 void DataExportPresenter::onViewAttached() { updateView(); }
 
 void DataExportPresenter::onGenerateReportConfirmed(
-    const contracts::DataExportContract::ReportSelectedParams& /*selectedParams*/)
+    const contracts::DataExportContract::
+        ReportSelectedParams& /*selectedParams*/)
 {
 }
 
@@ -127,7 +128,7 @@ sprint_timer::DataFormat translateFormats(const std::string& format)
     if (format == "JSON")
         return DataFormat::Json;
     return DataFormat::Csv;
-};
+}
 
 sprint_timer::SinkType translateSinks(const std::string& sink)
 {
@@ -137,7 +138,7 @@ sprint_timer::SinkType translateSinks(const std::string& sink)
     if (sink == "File")
         return SinkType::File;
     return SinkType::Stdout;
-};
+}
 
 std::pair<sprint_timer::DataFormat, sprint_timer::SinkType> translateParams(
     const sprint_timer::ui::contracts::DataExportContract::ExportSelectedParams&
@@ -145,7 +146,7 @@ std::pair<sprint_timer::DataFormat, sprint_timer::SinkType> translateParams(
 {
     return std::make_pair(translateFormats(params.selectedFileFormat),
                           translateSinks(params.selectedSink));
-};
+}
 
 std::string composeErrorMessage(
     sprint_timer::SprintTimerException& exc,

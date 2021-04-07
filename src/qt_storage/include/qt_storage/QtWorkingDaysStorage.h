@@ -38,7 +38,7 @@ public:
     QtWorkScheduleStorage(const QtWorkScheduleStorage&) = delete;
     QtWorkScheduleStorage& operator=(const QtWorkScheduleStorage&) = delete;
 
-    void updateSchedule(const WorkSchedule& schedule) final;
+    void updateSchedule(const WorkSchedule& workSchedule) final;
 
     WorkSchedule schedule() final;
 

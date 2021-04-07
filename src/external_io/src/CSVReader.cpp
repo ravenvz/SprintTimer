@@ -44,9 +44,9 @@ constexpr char quote{'"'};
 constexpr char linebreak{'\n'};
 } // namespace
 
-CSVReader::CSVReader(std::istream& stream, char separator)
-    : file{stream}
-    , separator{separator}
+CSVReader::CSVReader(std::istream& stream_, char separator_)
+    : file{stream_}
+    , separator{separator_}
     , state{parseValueState.get()}
 {
     if (!file) {

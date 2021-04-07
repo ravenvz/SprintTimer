@@ -24,13 +24,44 @@
 
 namespace {
 
-constexpr double oneMinuteInDegrees{0.25};
+constexpr int32_t degreesInCircle{360};
+constexpr int32_t numSegmentsInDegree{16};
+constexpr int32_t numSegmentsInCircle{degreesInCircle * numSegmentsInDegree};
+
+constexpr int32_t hoursInDay{24};
+constexpr int32_t minutesInHour{60};
+constexpr int32_t minutesInDay{hoursInDay * minutesInHour};
+
+constexpr double oneMinuteInDegrees{degreesInCircle / double{minutesInDay}};
+constexpr int32_t oneDegreeInMinutes{minutesInDay / degreesInCircle};
+
 constexpr int offsetInDegrees{90};
-constexpr int numSegmentsInDegree{16};
 constexpr double longTickRelativeLength{0.05};
-constexpr double tickAngle{double(360 / 24)};
+// constexpr double tickAngle{double{degreesInCircle} / 24};
+constexpr int32_t tickAngle{degreesInCircle / 24};
 constexpr size_t numTicksPerQuarter{6};
 constexpr double dialPenWidth{1.2};
+
+constexpr auto minutesFromMidnight(const auto& dateTime) -> int32_t
+{
+    return static_cast<int32_t>((dateTime.hour() + dateTime.minute()).count());
+}
+
+constexpr auto mapDateTimeToSegmentedAngle(const dw::DateTime& dateTime)
+    -> int32_t
+{
+    const auto angle = minutesFromMidnight(dateTime) / oneDegreeInMinutes;
+    return -(angle - offsetInDegrees) * numSegmentsInDegree;
+}
+
+constexpr auto timeSpanToArc(const dw::DateTimeRange& timeSpan)
+    -> std::pair<int, int>
+{
+    const auto startAngle = mapDateTimeToSegmentedAngle(timeSpan.start());
+    const auto stopAngle = mapDateTimeToSegmentedAngle(timeSpan.finish());
+    const auto spanAngle = stopAngle - startAngle;
+    return {startAngle, spanAngle};
+}
 
 } // namespace
 
@@ -100,15 +131,10 @@ void TimeDiagram::drawIntervals(QPainter& painter)
     const QBrush arcBrush = QBrush(timeSpanColor);
     painter.setBrush(arcBrush);
     painter.setPen(Qt::NoPen);
+
     for (const auto& timeSpan : timeSpans) {
-        const double start{
-            (timeSpan.start().hour() + timeSpan.start().minute()).count() *
-            oneMinuteInDegrees};
-        const double span{timeSpan.duration<std::chrono::minutes>().count() *
-                          oneMinuteInDegrees};
-        painter.drawPie(drawingParams.diagramRect,
-                        -(int(start) - offsetInDegrees) * numSegmentsInDegree,
-                        -int(span) * numSegmentsInDegree);
+        const auto [startAngle, spanAngle] = timeSpanToArc(timeSpan);
+        painter.drawPie(drawingParams.diagramRect, startAngle, spanAngle);
     }
 }
 

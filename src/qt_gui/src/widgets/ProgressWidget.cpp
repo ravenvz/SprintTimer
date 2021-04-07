@@ -85,49 +85,51 @@ void ProgressWidget::addLegendRow(QWidget* field)
 }
 
 void ProgressWidget::displayLegend(
-    const contracts::DailyProgress::LegendData& data)
+    const contracts::DailyProgress::LegendData& legendData)
 {
-    ui->lblProgress->setText(QString::fromStdString(data.count));
-    ui->lblLeftCaption->setText(QString::fromStdString(data.left));
-    ui->lblLeft->setText(QString::fromStdString(data.difference));
-    ui->lblAverage->setText(QString::fromStdString(data.average));
-    ui->lblPercentage->setText(QString::fromStdString(data.percentage));
+    ui->lblProgress->setText(QString::fromStdString(legendData.count));
+    ui->lblLeftCaption->setText(QString::fromStdString(legendData.left));
+    ui->lblLeft->setText(QString::fromStdString(legendData.difference));
+    ui->lblAverage->setText(QString::fromStdString(legendData.average));
+    ui->lblPercentage->setText(QString::fromStdString(legendData.percentage));
 }
 
 void ProgressWidget::displayGauges(
-    const std::vector<contracts::DailyProgress::GaugeValues>& data)
+    const std::vector<contracts::DailyProgress::GaugeValues>& values)
 {
     for (size_t row = 0, ind = 0; row < numRows.value; ++row) {
         for (size_t col = 0; col < numColumns.value; ++col, ++ind) {
             QLayoutItem* item = ui->gaugeLayout->itemAtPosition(
                 static_cast<int>(row), static_cast<int>(col));
-            if (item) {
-                const auto& [estimated, actual, emptyColor, filledColor] =
-                    data[ind];
-                dynamic_cast<Gauge*>(item->widget())
-                    ->setData(actual, estimated, emptyColor, filledColor);
+            if (item == nullptr) {
+                return;
             }
+            const auto& [estimated, actual, emptyColor, filledColor] =
+                values[ind];
+            dynamic_cast<Gauge*>(item->widget())
+                ->setData(actual, estimated, emptyColor, filledColor);
         }
     }
 }
 
 void ProgressWidget::displayProgressBar(
-    const contracts::DailyProgress::ProgressBarData& data)
+    const contracts::DailyProgress::ProgressBarData& barData)
 {
     QPalette palette = ui->progressBarGoalProgress->palette();
     palette.setColor(QPalette::Highlight,
-                     QColor{QString::fromStdString(data.filledColor)});
+                     QColor{QString::fromStdString(barData.filledColor)});
     palette.setColor(QPalette::Base,
-                     QColor{QString::fromStdString(data.emptyColor)});
+                     QColor{QString::fromStdString(barData.emptyColor)});
     ui->progressBarGoalProgress->setPalette(palette);
-    ui->progressBarGoalProgress->setMaximum(data.estimated);
-    ui->progressBarGoalProgress->setFormat(QString{"%1"}.arg(data.actual) +
+    ui->progressBarGoalProgress->setMaximum(barData.estimated);
+    ui->progressBarGoalProgress->setFormat(QString{"%1"}.arg(barData.actual) +
                                            QString{"/%m"});
-    if (data.estimated && data.actual != data.estimated)
-        ui->progressBarGoalProgress->setValue(data.actual % data.estimated);
+    if (barData.estimated && barData.actual != barData.estimated)
+        ui->progressBarGoalProgress->setValue(barData.actual %
+                                              barData.estimated);
     else
-        ui->progressBarGoalProgress->setValue(data.actual);
-    ui->progressBarGoalProgress->setVisible(data.isVisible);
+        ui->progressBarGoalProgress->setValue(barData.actual);
+    ui->progressBarGoalProgress->setVisible(barData.isVisible);
     ui->progressBarGoalProgress->repaint();
 }
 

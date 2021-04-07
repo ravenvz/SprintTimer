@@ -50,12 +50,13 @@ void TagTop::computeTagFrequencies()
     const auto total = accumulate(
         sprintsByTag.cbegin(),
         sprintsByTag.cend(),
-        0uLL,
+        0ULL,
         [](auto aux, const auto& entry) { return aux + entry.second.size(); });
 
     for (const auto& entry : sprintsByTag) {
-        frequencies.push_back(
-            {entry.first, entry.second.size() / double(total)});
+        const auto freq = static_cast<double>(entry.second.size()) /
+                          static_cast<double>(total);
+        frequencies.emplace_back(entry.first, freq);
     }
 }
 
@@ -63,7 +64,7 @@ void TagTop::orderTagsByDecreasingFrequency()
 {
     const auto limit = std::min(numTopTags, frequencies.size());
     std::partial_sort(frequencies.begin(),
-                      frequencies.begin() + static_cast<long>(limit),
+                      frequencies.begin() + static_cast<int64_t>(limit),
                       frequencies.end(),
                       [](const auto& lhs, const auto& rhs) {
                           return lhs.second > rhs.second;

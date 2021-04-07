@@ -30,10 +30,10 @@ class SyncronizingActionInvoker : public ObservableActionInvoker {
 public:
     // TODO(vizier): perhaps as a result of multiple implementations of sync
     // mechanism we have mixed observers
-    SyncronizingActionInvoker(ObservableActionInvoker& wrapped,
-                              Observable& desyncObservable)
-        : wrapped{wrapped}
-        , desyncObservable{desyncObservable}
+    SyncronizingActionInvoker(ObservableActionInvoker& wrapped_,
+                              Observable& desyncObservable_)
+        : wrapped{wrapped_}
+        , desyncObservable{desyncObservable_}
     {
     }
 

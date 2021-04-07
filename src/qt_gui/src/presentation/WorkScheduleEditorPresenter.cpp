@@ -97,11 +97,11 @@ void WorkScheduleEditorPresenter::onAddExceptionalRequested()
 }
 
 void WorkScheduleEditorPresenter::onExceptionalDaysAdded(dw::Date startDate,
-                                                         uint16_t numDays,
-                                                         uint16_t sprintsPerDay)
+                                                         int32_t numDays,
+                                                         int32_t sprintsPerDay)
 {
     if (auto v = view(); v) {
-        for (uint16_t i = 0; i < numDays; ++i) {
+        for (int32_t i = 0; i < numDays; ++i) {
             bufferedSchedule.addExceptionalDay(startDate + dw::Days{i},
                                                sprintsPerDay);
         }

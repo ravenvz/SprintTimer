@@ -241,8 +241,9 @@ std::string getOrCreateSprintTimerDataDirectory()
 
 class VerboseActionInvoker : public sprint_timer::ObservableActionInvoker {
 public:
-    VerboseActionInvoker(sprint_timer::ObservableActionInvoker& wrapped)
-        : wrapped{wrapped}
+    explicit VerboseActionInvoker(
+        sprint_timer::ObservableActionInvoker& wrapped_)
+        : wrapped{wrapped_}
     {
     }
 

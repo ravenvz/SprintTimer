@@ -61,12 +61,12 @@ void DistributionDiagram::updateLegend(const std::vector<std::string>& tagNames)
 }
 
 void DistributionDiagram::updateDiagram(
-    std::vector<contracts::TagPieDiagramContract::DiagramData>&& data)
+    std::vector<contracts::TagPieDiagramContract::DiagramData>&& diagramData)
 {
     std::vector<PieChart::LabelData> pieChartData;
-    pieChartData.reserve(data.size());
-    std::transform(cbegin(data),
-                   cend(data),
+    pieChartData.reserve(diagramData.size());
+    std::transform(cbegin(diagramData),
+                   cend(diagramData),
                    std::back_inserter(pieChartData),
                    [](const auto& elem) {
                        return PieChart::LabelData{

@@ -51,12 +51,10 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const DayHistory& history)
 {
     os << "DayHistory{";
     os << history.date << ", ";
-    std::copy(cbegin(history.sortedItems),
-              cend(history.sortedItems),
-              std::ostream_iterator<std::iterator_traits<decltype(
-                  cbegin(history.sortedItems))>::value_type>(std::cout, ", "));
-    os << "}";
-    std::cout << '\n';
+    for (const auto& element : history.sortedItems) {
+        os << element << ", ";
+    }
+    os << "}\n";
     return os;
 }
 
@@ -67,12 +65,11 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const History& history)
     os << "History{\n";
     os << "\ttotal: " << history.totalItems << "\n";
     os << "\t";
-    std::copy(cbegin(history.sortedDayHistory),
-              cend(history.sortedDayHistory),
-              std::ostream_iterator<std::iterator_traits<decltype(cbegin(
-                  history.sortedDayHistory))>::value_type>(std::cout, ", "));
-    std::cout << '\n';
-    os << "}";
+    for (const auto& element : history.sortedDayHistory) {
+        os << element << ", ";
+    }
+    os << "}\n";
+    os << "}\n";
     return os;
 }
 

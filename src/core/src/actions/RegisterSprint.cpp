@@ -24,10 +24,10 @@
 
 namespace sprint_timer::actions {
 
-RegisterSprint::RegisterSprint(SprintStorageWriter& writer,
-                               entities::Sprint newSprint)
-    : writer{writer}
-    , sprint{std::move(newSprint)}
+RegisterSprint::RegisterSprint(SprintStorageWriter& writer_,
+                               entities::Sprint newSprint_)
+    : writer{writer_}
+    , sprint{std::move(newSprint_)}
 {
 }
 

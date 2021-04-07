@@ -25,17 +25,18 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-ConnectionGuard::ConnectionGuard(const QString& dbName,
-                                 const QString& connectionName)
-    : connectionName{connectionName}
+ConnectionGuard::ConnectionGuard(const QString& dbName_,
+                                 const QString& connectionName_)
+    : connectionName{connectionName_}
 {
     auto db = QSqlDatabase::addDatabase("QSQLITE", connectionName);
-    if (dbName == "file::memory:?cache=shared") {
+    if (dbName_ == "file::memory:?cache=shared") {
         db.setConnectOptions("QSQLITE_OPEN_URI");
     }
-    db.setDatabaseName(dbName);
-    if (!db.open() || db.isOpenError())
+    db.setDatabaseName(dbName_);
+    if (!db.open() || db.isOpenError()) {
         throw DatabaseError{"Unable to open connection to the database", db};
+    }
 }
 
 ConnectionGuard::~ConnectionGuard()

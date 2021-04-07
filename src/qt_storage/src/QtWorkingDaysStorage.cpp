@@ -102,7 +102,7 @@ QtWorkScheduleStorage::QtWorkScheduleStorage(const QString& connectionName_)
                        .arg(ExceptionalDayTable::Columns::goal));
 }
 
-void QtWorkScheduleStorage::updateSchedule(const WorkSchedule& schedule)
+void QtWorkScheduleStorage::updateSchedule(const WorkSchedule& workSchedule)
 {
     TransactionGuard guard{connectionName};
 
@@ -112,7 +112,7 @@ void QtWorkScheduleStorage::updateSchedule(const WorkSchedule& schedule)
     QSqlQuery deleteAllSchedules{QSqlDatabase::database(connectionName)};
     tryExecute(deleteAllSchedules, deleteAllSchedulesStr);
 
-    for (const auto& [date, schedule] : schedule.roaster()) {
+    for (const auto& [date, schedule] : workSchedule.roaster()) {
         storeScheduleQuery.bindValue(
             ":applied_since",
             QString::fromStdString(dw::to_string(date, "yyyy-MM-dd")));
@@ -133,7 +133,7 @@ void QtWorkScheduleStorage::updateSchedule(const WorkSchedule& schedule)
         tryExecute(storeScheduleQuery);
     }
 
-    const auto exceptionalDays = schedule.exceptionalDays();
+    const auto exceptionalDays = workSchedule.exceptionalDays();
     for (const auto& [day, goal] : exceptionalDays) {
         storeExceptionalDaysQuery.bindValue(
             ":date", QString::fromStdString(dw::to_string(day, "yyyy-MM-dd")));

@@ -48,21 +48,21 @@ auto unhoveredState = std::make_unique<HoverStateUnhovered>();
 
 } // namespace
 
-Gauge::Gauge(int actual, int goal, double gaugeRelSize, QWidget* parent)
-    : QWidget{parent}
-    , progress{GoalProgress{GoalProgress::Estimated{goal},
-                            GoalProgress::Actual{actual}}}
-    , gaugeRelSize{gaugeRelSize}
+Gauge::Gauge(int actual_, int goal_, double gaugeRelSize_, QWidget* parent_)
+    : QWidget{parent_}
+    , progress{GoalProgress{GoalProgress::Estimated{goal_},
+                            GoalProgress::Actual{actual_}}}
+    , gaugeRelSize{gaugeRelSize_}
     , hoverState{unhoveredState.get()}
 {
     installEventFilter(this);
     setMouseTracking(true);
 }
 
-Gauge::Gauge(GoalProgress progress, double gaugeRelSize, QWidget* parent)
-    : QWidget{parent}
-    , progress{progress}
-    , gaugeRelSize{gaugeRelSize}
+Gauge::Gauge(GoalProgress progress_, double gaugeRelSize_, QWidget* parent_)
+    : QWidget{parent_}
+    , progress{progress_}
+    , gaugeRelSize{gaugeRelSize_}
     , hoverState{unhoveredState.get()}
 {
     installEventFilter(this);
@@ -129,12 +129,17 @@ void Gauge::drawOuterCircle(QPainter& painter)
     painter.setBrush(QBrush(emptyColor));
     painter.drawEllipse(outerRect);
     if (progress.estimated() > 0) {
-        const int completedAngle =
-            static_cast<int>((progress.actual() % progress.estimated()) *
-                             fullCircle / float(progress.estimated()));
+        // Note that due to integer division angle would be a little off,
+        // but for practical purposes this is irrevant,
+        // as numerator is big (minimum is 5760) and denominator
+        // is estimated to be less then 500 so the difference will
+        // negligible (around 0.5 - 1.0 degree).
+        const int completedAngle = (progress.actual() % progress.estimated()) *
+                                   fullCircle / progress.estimated();
         painter.setBrush(QBrush(filledColor));
-        if (completedAngle != 0)
+        if (completedAngle != 0) {
             painter.drawPie(outerRect, offsetToTop, -completedAngle);
+        }
     }
 }
 

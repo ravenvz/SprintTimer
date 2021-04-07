@@ -47,9 +47,9 @@ public:
     }
 
     Distribution(std::vector<T>&& distribution_,
-                 std::vector<int>&& binFrequency)
+                 std::vector<int>&& binFrequency_)
         : distribution{std::move(distribution_)}
-        , binFrequency{std::move(binFrequency)}
+        , binFrequency{std::move(binFrequency_)}
     {
         normalizeByBinFrequency();
         computeMaxAndAverage();
@@ -70,10 +70,7 @@ public:
         return 0;
     }
 
-    bool isValidBin(size_t bin) const
-    {
-        return bin >= 0 && bin < distribution.size();
-    }
+    bool isValidBin(size_t bin) const { return bin < distribution.size(); }
 
     std::vector<T> getDistributionVector() const { return distribution; }
 

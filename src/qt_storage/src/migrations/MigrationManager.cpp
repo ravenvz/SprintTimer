@@ -116,8 +116,8 @@ void MigrationManager::addMigration(unsigned version,
 
 namespace {
 
-Backup::Backup(const QString& filename)
-    : filename{filename}
+Backup::Backup(const QString& filename_)
+    : filename{filename_}
 {
     createBackupCopy(filename);
     shouldRestore = true;

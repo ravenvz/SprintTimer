@@ -38,9 +38,9 @@ BarChart::BarChart(QWidget* parent)
 {
 }
 
-void BarChart::setData(const BarData& data)
+void BarChart::setData(const BarData& data_)
 {
-    barData = data;
+    barData = data_;
     repaint();
 }
 
@@ -67,7 +67,8 @@ void BarChart::drawBars(QPainter& painter)
 {
     const double barWidth =
         availableRect.width() /
-        (barData.size() * (1 + gapToWidthRatio) + gapToWidthRatio);
+        (static_cast<double>(barData.size()) * (1 + gapToWidthRatio) +
+         gapToWidthRatio);
     const double gapWidth = gapToWidthRatio * barWidth;
     const double legendHeightRatio = (1 - barHeightToMaxHeightRatio) / 2;
     const double maxHeight = barHeightToMaxHeightRatio * availableRect.height();

@@ -32,10 +32,10 @@ namespace sprint_timer::external_io {
 template <typename T>
 class RuntimeConfigurableDataExporter : public DataExporter<T> {
 public:
-    RuntimeConfigurableDataExporter(Serializer<T>& serializer,
-                                    RuntimeSinkRouter& router)
-        : serializer{serializer}
-        , router{router}
+    RuntimeConfigurableDataExporter(Serializer<T>& serializer_,
+                                    RuntimeSinkRouter& router_)
+        : serializer{serializer_}
+        , router{router_}
     {
     }
 

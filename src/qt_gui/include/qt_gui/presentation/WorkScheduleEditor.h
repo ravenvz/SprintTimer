@@ -42,8 +42,8 @@ public:
     virtual void onAddExceptionalRequested() = 0;
 
     virtual void onExceptionalDaysAdded(dw::Date startDate,
-                                        uint16_t numDays,
-                                        uint16_t sprintsPerDay) = 0;
+                                        int32_t numDays,
+                                        int32_t sprintsPerDay) = 0;
 
     virtual void onExceptionalDayRemoved(dw::Date date) = 0;
 

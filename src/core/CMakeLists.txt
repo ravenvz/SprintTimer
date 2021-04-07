@@ -187,12 +187,14 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.cpp"
 )
 
-target_include_directories(
-    ${CORE_LIB}
-    PUBLIC
+target_include_directories(${CORE_LIB}
+    SYSTEM INTERFACE
         ${date_wrapper_INCLUDE_DIRS}
+)
+target_include_directories(${CORE_LIB}
+    PUBLIC
         include
-        ${Boost_INCLUDE_DIRS}
+        # ${Boost_INCLUDE_DIRS}
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

@@ -24,10 +24,10 @@
 
 namespace sprint_timer::actions {
 
-DeleteSprint::DeleteSprint(SprintStorageWriter& writer,
-                           entities::Sprint sprintToRemove)
-    : writer{writer}
-    , sprint{std::move(sprintToRemove)}
+DeleteSprint::DeleteSprint(SprintStorageWriter& writer_,
+                           entities::Sprint sprintToRemove_)
+    : writer{writer_}
+    , sprint{std::move(sprintToRemove_)}
 {
 }
 

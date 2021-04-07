@@ -32,14 +32,14 @@ namespace sprint_timer::compose {
 class AddSprintDialogProxy : public DisplaybleDialogLifestyleProxy {
 public:
     AddSprintDialogProxy(
-        ui::contracts::RegisterSprintControl::Presenter& presenter,
-        QAbstractItemModel& taskModel,
-        IConfig& settings,
-        Observable& configChangedSignaller)
-        : presenter{presenter}
-        , taskModel{taskModel}
-        , settings{settings}
-        , configChangedWatcher{configChangedSignaller,
+        ui::contracts::RegisterSprintControl::Presenter& presenter_,
+        QAbstractItemModel& taskModel_,
+        IConfig& settings_,
+        Observable& configChangedSignaller_)
+        : presenter{presenter_}
+        , taskModel{taskModel_}
+        , settings{settings_}
+        , configChangedWatcher{configChangedSignaller_,
                                [this]() { onConfigChanged(); }}
     {
     }

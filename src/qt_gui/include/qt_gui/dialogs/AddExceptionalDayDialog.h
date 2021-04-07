@@ -33,8 +33,8 @@ class AddExceptionalDayDialog : public QDialog {
 public:
     struct OutputData {
         dw::Date startDate{dw::current_date_local()};
-        uint16_t numDays{1};
-        uint16_t sprintsPerDay{0};
+        int32_t numDays{1};
+        int32_t sprintsPerDay{0};
     };
 
     AddExceptionalDayDialog(dw::Weekday firstDayOfWeek,

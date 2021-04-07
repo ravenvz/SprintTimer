@@ -41,11 +41,11 @@ public:
 
     GoalProgress(Estimated expected, Actual actual);
 
-    int estimated() const;
+    [[nodiscard]] int estimated() const;
 
-    int actual() const;
+    [[nodiscard]] int actual() const;
 
-    std::optional<double> percentage() const;
+    [[nodiscard]] std::optional<double> percentage() const;
 
 private:
     int expected_{0};
