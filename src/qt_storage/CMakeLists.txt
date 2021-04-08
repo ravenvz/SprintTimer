@@ -67,8 +67,8 @@ target_link_libraries(
     PUBLIC Qt5::Sql
     PUBLIC ${CORE_LIB}
     PRIVATE
-        project_options
-        project_warnings
+        sprint_timer_options
+        sprint_timer_warnings
 )
 
 if (WIN32)

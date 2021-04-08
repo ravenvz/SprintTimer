@@ -13,8 +13,8 @@ PUBLIC
 target_link_libraries(
     test_qt_storage
     PRIVATE
-        project_options
-        project_warnings
+        sprint_timer_options
+        sprint_timer_warnings
         gtest
         ${STORAGE_LIB}
 )

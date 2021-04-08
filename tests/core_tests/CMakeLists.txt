@@ -59,8 +59,8 @@ endif()
 target_link_libraries(
     test_core
     PRIVATE
-        project_options
-        project_warnings
+        sprint_timer_options
+        sprint_timer_warnings
         ${CORE_LIB}
         gmock_main
 )

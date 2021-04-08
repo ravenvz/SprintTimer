@@ -37,8 +37,8 @@ target_sources(${SPRINT_MAIN}
 target_link_libraries(
     ${SPRINT_MAIN}
     PRIVATE
-        project_options
-        project_warnings
+        sprint_timer_options
+        sprint_timer_warnings
         ${GUI_LIB}
         ${STORAGE_LIB}
         ${EXTERNAL_IO_LIB}

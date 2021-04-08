@@ -201,8 +201,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(
         ${CORE_LIB}
         PRIVATE
-            project_options
-            project_warnings
+            sprint_timer_options
+            sprint_timer_warnings
         PUBLIC
             date_wrapper
             stdc++fs
@@ -211,8 +211,8 @@ else()
     target_link_libraries(
         ${CORE_LIB}
         PRIVATE
-            project_options
-            project_warnings
+            sprint_timer_options
+            sprint_timer_warnings
         PUBLIC
             date_wrapper
 )

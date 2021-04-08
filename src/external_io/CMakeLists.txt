@@ -26,8 +26,8 @@ target_include_directories(${EXTERNAL_IO_LIB} PUBLIC include PUBLIC src)
 target_link_libraries(
     ${EXTERNAL_IO_LIB}
     PRIVATE
-        project_options
-        project_warnings
+        sprint_timer_options
+        sprint_timer_warnings
     PUBLIC
         ${CORE_LIB}
 )

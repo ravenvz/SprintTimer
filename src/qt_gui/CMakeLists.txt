@@ -233,8 +233,8 @@ endif()
 target_include_directories(${GUI_LIB} PUBLIC include)
 target_link_libraries(${GUI_LIB}
     PRIVATE
-        project_options
-        project_warnings
+        sprint_timer_options
+        sprint_timer_warnings
     PUBLIC
         Qt5::Core
         Qt5::Widgets
