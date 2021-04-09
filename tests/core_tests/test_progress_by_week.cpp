@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -88,7 +88,7 @@ TEST_F(ComputeProgressByWeekStrategyFixture, work_during_vacation)
 {
     const Date start{Year{2019}, Month{1}, Day{9}};
     const Date finish{Year{2019}, Month{2}, Day{14}};
-    const DateRange period{start, finish};
+    const DateRange vacationPeriod{start, finish};
     WeekSchedule vacationSchedule;
     vacationSchedule.setTargetGoal(dw::Weekday::Monday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Tuesday, 0);
@@ -109,7 +109,7 @@ TEST_F(ComputeProgressByWeekStrategyFixture, work_during_vacation)
         {GoalProgress::Estimated{0}, GoalProgress::Actual{60}}};
 
     const auto actual = mondayFirstStrategy.computeProgress(
-        period, distribution, vacationTracker);
+        vacationPeriod, distribution, vacationTracker);
 
     EXPECT_EQ(expected, actual);
 }

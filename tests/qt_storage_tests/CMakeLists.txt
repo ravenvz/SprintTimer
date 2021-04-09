@@ -1,9 +1,6 @@
-set(TEST_QT_STORAGE test_qt_storage)
-project(${TEST_QT_STORAGE})
+add_executable(test_qt_storage)
 
-add_executable(${TEST_QT_STORAGE})
-
-target_sources(${TEST_QT_STORAGE}
+target_sources(test_qt_storage
 PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/test_qt_storage_utils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_storage_integration.cpp"
@@ -13,15 +10,13 @@ PUBLIC
 	"${CMAKE_CURRENT_LIST_DIR}/QtStorageInitializer.h"
 )
 
-target_compile_features(${TEST_QT_STORAGE} PRIVATE cxx_std_20)
-target_compile_options(${TEST_QT_STORAGE} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
-target_compile_options(${TEST_QT_STORAGE} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
-
-target_include_directories(${TEST_QT_STORAGE}
-    PUBLIC ../include
-    PRIVATE ../src
+target_link_libraries(
+    test_qt_storage
+    PRIVATE
+        sprint_timer_options
+        sprint_timer_warnings
+        gtest
+        ${STORAGE_LIB}
 )
 
-target_link_libraries(${TEST_QT_STORAGE} gtest ${STORAGE_LIB})
-
-gtest_discover_tests(${TEST_QT_STORAGE})
+gtest_discover_tests(test_qt_storage)

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -40,8 +40,8 @@ constexpr IWorkflow::WorkflowParams workflowParams{
 class WorkflowTest : public Workflow {
 public:
     WorkflowTest(std::chrono::seconds tickPeriod,
-                 const IWorkflow::WorkflowParams& workflowParams)
-        : Workflow{tickPeriod, workflowParams}
+                 const IWorkflow::WorkflowParams& workflowParams_)
+        : Workflow{tickPeriod, workflowParams_}
     {
     }
 

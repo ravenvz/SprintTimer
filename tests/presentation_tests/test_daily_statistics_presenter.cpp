@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -79,20 +79,19 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const GraphOptions& options)
     return os;
 }
 
-template <typename WrappedType>
-bool operator==(const WrappedType& lhs, const WrappedType& rhs)
+bool operator==(const DayNumber& lhs, const DayNumber& rhs)
 {
     return lhs.value == rhs.value;
 }
 
-template <> bool operator==(const Value& lhs, const Value& rhs)
+bool operator==(const Value& lhs, const Value& rhs)
 {
     return std::abs(lhs.value - rhs.value) < 0.001;
 }
 
 bool operator==(const GraphValue& lhs, const GraphValue& rhs)
 {
-    return lhs.xValue == rhs.xValue && rhs.yValue == rhs.yValue &&
+    return lhs.xValue == rhs.xValue && lhs.yValue == rhs.yValue &&
            lhs.label == rhs.label;
 }
 

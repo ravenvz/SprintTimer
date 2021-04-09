@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -73,16 +73,13 @@ operator<<(std::basic_ostream<CharT, Traits>& os,
            const ExportRequestOptions& options)
 {
     os << "ExportRequestOptions{\n\tavailable formats: ";
-    std::copy(cbegin(options.availableFileFormats),
-              cend(options.availableFileFormats),
-              std::ostream_iterator<std::iterator_traits<decltype(
-                  cbegin(options.availableFileFormats))>::value_type>(std::cout,
-                                                                      ", "));
+    for (const auto& element : options.availableFileFormats) {
+        os << element << ", ";
+    }
     os << "\n\tavailable Sinks: ";
-    std::copy(cbegin(options.availableSinks),
-              cend(options.availableSinks),
-              std::ostream_iterator<std::iterator_traits<decltype(cbegin(
-                  options.availableSinks))>::value_type>(std::cout, ", "));
+    for (const auto& element : options.availableSinks) {
+        os << element << ", ";
+    }
     os << "\n}";
     return os;
 }
@@ -107,15 +104,15 @@ bool operator==(const ExportSelectedParams& lhs,
 template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
-           const ReportRequestOptions& options)
+           const ReportRequestOptions& /*options*/)
 {
     os << "ReportRequestOptions{";
     os << '}';
     return os;
 }
 
-bool operator==(const ReportRequestOptions& lhs,
-                const ReportRequestOptions& rhs)
+bool operator==(const ReportRequestOptions& /*lhs*/,
+                const ReportRequestOptions& /*rhs*/)
 {
     return true;
 }

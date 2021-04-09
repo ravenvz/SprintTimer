@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 
-#include "qt_storage/utils.h"
+#include <qt_storage/utils.h>
 #include <list>
 #include <iterator>
 #include "gtest/gtest.h"

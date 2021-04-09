@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include <gmock/gmock.h>
-#include <qt_gui/presentation/HistoryMediator.h>
+#include "qt_gui/presentation/HistoryMediator.h"
 
 namespace mocks {
 

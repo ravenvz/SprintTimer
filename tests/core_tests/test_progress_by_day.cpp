@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -41,14 +41,14 @@ public:
         weekSchedule.setTargetGoal(dw::Weekday::Wednesday, 13);
         weekSchedule.setTargetGoal(dw::Weekday::Thursday, 13);
         weekSchedule.setTargetGoal(dw::Weekday::Friday, 13);
-        workSchedule.addWeekSchedule(period.start(), weekSchedule);
+        workSchedule.addWeekSchedule(somePeriod.start(), weekSchedule);
     }
 
     WeekSchedule weekSchedule;
     WorkSchedule workSchedule;
 
-    const DateRange period{Date{Year{2019}, Month{1}, Day{30}},
-                           Date{Year{2019}, Month{2}, Day{4}}};
+    const DateRange somePeriod{Date{Year{2019}, Month{1}, Day{30}},
+                               Date{Year{2019}, Month{2}, Day{4}}};
     sprint_timer::ComputeByDayStrategy computeByDayStrategy;
 };
 

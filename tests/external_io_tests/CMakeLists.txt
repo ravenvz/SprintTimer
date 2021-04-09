@@ -1,9 +1,6 @@
-set(TEST_EXTERNAL_IO test_external_io)
-project(${TEST_EXTERNAL_IO})
+add_executable(test_external_io)
 
-add_executable(${TEST_EXTERNAL_IO})
-
-target_sources(${TEST_EXTERNAL_IO}
+target_sources(test_external_io
     PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/test_csv_reader.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_csv_serialization_algorithm.cpp"
@@ -14,20 +11,19 @@ target_sources(${TEST_EXTERNAL_IO}
     "${CMAKE_CURRENT_LIST_DIR}/test_task_to_csv.cpp"
 )
 
-target_compile_features(${TEST_EXTERNAL_IO} PRIVATE cxx_std_20)
-target_compile_options(${TEST_EXTERNAL_IO} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_COMPILE_OPTIONS}>")
-target_compile_options(${TEST_EXTERNAL_IO} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_COMPILE_OPTIONS}>")
-
 # TODO Workaround. MSVC compiler cannot link gmock properly otherwise
 # Check if it is still required when next version of gtest is released.
 if (MSVC)
-	target_compile_definitions(${TEST_EXTERNAL_IO} PRIVATE -DGTEST_LINKED_AS_SHARED_LIBRARY)
+	target_compile_definitions(test_external_io PRIVATE -DGTEST_LINKED_AS_SHARED_LIBRARY)
 endif()
 
-target_link_libraries(${TEST_EXTERNAL_IO}
-    PRIVATE gmock_main
-    PRIVATE ${EXTERNAL_IO_LIB}
+target_link_libraries(
+    test_external_io
+    PRIVATE
+        sprint_timer_options
+        sprint_timer_warnings
+        gmock_main
+        ${EXTERNAL_IO_LIB}
 )
 
-# gtest_add_tests(TARGET ${TEST_EXTERNAL_IO})
-gtest_discover_tests(${TEST_EXTERNAL_IO} WORKING_DIRECTORY ${TEST_RUN_DIR})
+gtest_discover_tests(test_external_io WORKING_DIRECTORY ${TEST_RUN_DIR})

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -21,7 +21,6 @@
 *********************************************************************************/
 #include "mocks/HistoryMediatorMock.h"
 #include "mocks/QueryHandlerMock.h"
-#include <core/SprintBuilder.h>
 #include <core/TaskBuilder.h>
 #include <core/use_cases/request_sprints/RequestSprintsQuery.h>
 #include <core/use_cases/request_tasks/FinishedTasksQuery.h>
@@ -46,30 +45,17 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const Item& item)
     return os;
 }
 
-bool operator==(const Item& lhs, const Item& rhs)
-{
-    return std::tie(lhs.description, lhs.uuid) ==
-           std::tie(lhs.description, lhs.uuid);
-}
-
 template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const DayHistory& history)
 {
     os << "DayHistory{";
     os << history.date << ", ";
-    std::copy(cbegin(history.sortedItems),
-              cend(history.sortedItems),
-              std::ostream_iterator<std::iterator_traits<decltype(
-                  cbegin(history.sortedItems))>::value_type>(std::cout, ", "));
-    std::cout << '\n';
-    os << "}";
+    for (const auto& element : history.sortedItems) {
+        os << element << ", ";
+    }
+    os << "}\n";
     return os;
-}
-
-bool operator==(const DayHistory& lhs, const DayHistory& rhs)
-{
-    return lhs.date == rhs.date && lhs.sortedItems == rhs.sortedItems;
 }
 
 template <class CharT, class Traits>
@@ -79,19 +65,12 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const History& history)
     os << "History{\n";
     os << "\ttotal: " << history.totalItems << "\n";
     os << "\t";
-    std::copy(cbegin(history.sortedDayHistory),
-              cend(history.sortedDayHistory),
-              std::ostream_iterator<std::iterator_traits<decltype(cbegin(
-                  history.sortedDayHistory))>::value_type>(std::cout, ", "));
-    std::cout << '\n';
-    os << "}";
+    for (const auto& element : history.sortedDayHistory) {
+        os << element << ", ";
+    }
+    os << "}\n";
+    os << "}\n";
     return os;
-}
-
-bool operator==(const History& lhs, const History& rhs)
-{
-    return lhs.totalItems == rhs.totalItems &&
-           lhs.sortedDayHistory == rhs.sortedDayHistory;
 }
 
 } // namespace sprint_timer::ui::contracts::HistoryContract
@@ -183,7 +162,7 @@ TEST_F(HistoryPresenterFixture,
         {DayHistory{someDate - Days{3},
                     {Item{"04:00 - 04:25 #Tag3 Another task", "1"}}},
          DayHistory{someDate - Days{2},
-                    {Item{"03:00 - 03:25 #Tag1 Tag2 Some task", "2"}}},
+                    {Item{"03:00 - 03:25 #Tag1 #Tag2 Some task", "2"}}},
          DayHistory{someDate,
                     {Item{"01:00 - 01:25 #Tag1 #Tag2 Some task", "3"},
                      Item{"10:00 - 10:25 #Tag1 #Tag2 Some task", "4"}}},
@@ -194,7 +173,6 @@ TEST_F(HistoryPresenterFixture,
                     }},
          DayHistory{someDate + Days{3},
                     {Item{"05:00 - 05:25 #Tag3 Another task", "7"}}}}};
-
     ON_CALL(mediatorMock, currentDateRange()).WillByDefault(Return(dateRange));
     ON_CALL(mediatorMock, displayedHistory())
         .WillByDefault(
@@ -285,35 +263,45 @@ buildSomeSprints(const dw::Date& someDate)
 {
     using namespace sprint_timer;
     using namespace dw;
-    SprintBuilder builder;
-    std::vector<entities::Sprint> sprints;
     const DateTime someDateTime{someDate};
     const DateTimeRange span{someDateTime, someDateTime + 25min};
-    builder.withTaskUuid("123")
-        .withExplicitTags({Tag{"Tag1"}, Tag{"Tag2"}})
-        .withName("Some task");
-    builder.withTaskUuid("345")
-        .withExplicitTags({Tag{"Tag3"}})
-        .withName("Another task");
-    sprints.push_back(builder.withUuid("1")
-                          .withTimeSpan(add_offset(span, -Days{3} + 4h))
-                          .build());
-    sprints.push_back(builder.withUuid("2")
-                          .withTimeSpan(add_offset(span, -Days{2} + 3h))
-                          .build());
-    sprints.push_back(
-        builder.withUuid("3").withTimeSpan(add_offset(span, 1h)).build());
-    sprints.push_back(
-        builder.withUuid("4").withTimeSpan(add_offset(span, 10h)).build());
-    sprints.push_back(builder.withUuid("5")
-                          .withTimeSpan(add_offset(span, Days{2} + 1h))
-                          .build());
-    sprints.push_back(builder.withUuid("6")
-                          .withTimeSpan(add_offset(span, Days{2} + 6h))
-                          .build());
-    sprints.push_back(builder.withUuid("7")
-                          .withTimeSpan(add_offset(span, Days{3} + 5h))
-                          .build());
+    std::vector<Sprint> sprints{
+        Sprint{"Another task",
+               add_offset(span, -Days{3} + 4h),
+               {Tag{"Tag3"}},
+               "1",
+               "345"},
+        Sprint{"Some task",
+               add_offset(span, -Days{2} + 3h),
+               {Tag{"Tag1"}, Tag{"Tag2"}},
+               "2",
+               "123"},
+        Sprint{"Some task",
+               add_offset(span, 1h),
+               {Tag{"Tag1"}, Tag{"Tag2"}},
+               "3",
+               "123"},
+        Sprint{"Some task",
+               add_offset(span, 10h),
+               {Tag{"Tag1"}, Tag{"Tag2"}},
+               "4",
+               "123"},
+        Sprint{"Some task",
+               add_offset(span, Days{2} + 1h),
+               {Tag{"Tag1"}, Tag{"Tag2"}},
+               "5",
+               "123"},
+        Sprint{"Some task",
+               add_offset(span, Days{2} + 6h),
+               {Tag{"Tag1"}, Tag{"Tag2"}},
+               "6",
+               "123"},
+        Sprint{"Another task",
+               add_offset(span, Days{3} + 5h),
+               {Tag{"Tag3"}},
+               "7",
+               "345"},
+    };
     return sprints;
 }
 
