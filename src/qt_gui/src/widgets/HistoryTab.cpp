@@ -52,6 +52,9 @@ void HistoryTab::displayHistory(
 {
     historyModel.fill(history);
     auto* v = dynamic_cast<QTreeView*>(widget(currentIndex()));
+    if (v == nullptr) {
+        return;
+    }
     v->setModel(&historyModel);
     v->expandAll();
 }

@@ -37,7 +37,7 @@ public:
             displayable->bringToTop();
             return;
         }
-        if (!displayable) {
+        if (displayable.isNull()) {
             displayable = create().release();
             displayable->setAttribute(Qt::WA_DeleteOnClose);
         }
@@ -51,12 +51,12 @@ private:
 
     bool isActive() const override
     {
-        return displayable && displayable->isActive();
+        return !displayable.isNull() && displayable->isActive();
     }
 
     void bringToTop() override
     {
-        if (displayable) {
+        if (!displayable.isNull()) {
             displayable->bringToTop();
         }
     }

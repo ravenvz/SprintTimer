@@ -25,19 +25,25 @@ namespace sprint_timer::ui::qt_gui {
 
 namespace WidgetUtils {
 
-    void setRetainSizeWhenHidden(QWidget* widget)
-    {
-        QSizePolicy policy = widget->sizePolicy();
-        policy.setRetainSizeWhenHidden(true);
-        widget->setSizePolicy(policy);
+void setRetainSizeWhenHidden(QWidget* widget)
+{
+    if (widget == nullptr) {
+        return;
     }
+    QSizePolicy policy = widget->sizePolicy();
+    policy.setRetainSizeWhenHidden(true);
+    widget->setSizePolicy(policy);
+}
 
-    void bringToForeground(QWidget* widget)
-    {
-        widget->raise();
-        widget->activateWindow();
-        widget->showNormal();
+void bringToForeground(QWidget* widget)
+{
+    if (widget == nullptr) {
+        return;
     }
+    widget->raise();
+    widget->activateWindow();
+    widget->showNormal();
+}
 
 } // namespace WidgetUtils
 
