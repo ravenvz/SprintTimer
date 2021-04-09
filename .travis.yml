@@ -58,7 +58,7 @@ script:
   if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
       (cd build && cmake --build . --config ${BUILD_TYPE} -- -j2); (cd build && ctest);
   else
-      docker run -v $TRAVIS_BUILD_DIR:/project ${DOCKER_USERNAME}/sprint_ci_arch /bin/bash -c "(cd project/build && cmake --build . --config $BUILD_TYPE -- -j2 && ctest --progress --output-on-failure)";
+      docker run --security-opt seccomp:unconfined -v $TRAVIS_BUILD_DIR:/project ${DOCKER_USERNAME}/sprint_ci_arch /bin/bash -c "(cd project/build && cmake --build . --config $BUILD_TYPE -- -j2 && ctest --progress --output-on-failure)";
   fi;
 
 env:
