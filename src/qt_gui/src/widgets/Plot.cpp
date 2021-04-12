@@ -28,12 +28,12 @@ namespace {
 
 using namespace sprint_timer::ui::qt_gui;
 
-constexpr static int labelSkipInd{28};
-constexpr static int toolTipOffset{50};
+constexpr int labelSkipInd{28};
+constexpr int toolTipOffset{50};
 // RelSizes' are relative to Widget's rect() height
-constexpr static double labelOffsetRelSize{0.15};
-constexpr static double marginRelSize{0.07};
-constexpr static double pointBoxRelSize{0.025};
+constexpr double labelOffsetRelSize{0.15};
+constexpr double marginRelSize{0.07};
+constexpr double pointBoxRelSize{0.025};
 const QBrush pointBoxBrush{Qt::white};
 
 QRectF computeAvailableRectange(const QRectF& totalSizeRect);
