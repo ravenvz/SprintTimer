@@ -20,9 +20,9 @@
 **
 *********************************************************************************/
 #include "DisplayableDialogLifestyleProxy.h"
-#include <core/CompositionObserver.h>
-#include <core/IConfig.h>
-#include <qt_gui/dialogs/AddSprintDialog.h>
+#include "core/CompositionObserver.h"
+#include "core/IConfig.h"
+#include "qt_gui/dialogs/AddSprintDialog.h"
 
 #ifndef ADDSPRINTDIALOGPROXY_H_QRM9YHDS
 #define ADDSPRINTDIALOGPROXY_H_QRM9YHDS

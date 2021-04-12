@@ -24,8 +24,8 @@
 #include "qt_gui/presentation/TaskMapper.h"
 #include "gmock/gmock.h"
 #include <algorithm>
-#include <core/TaskBuilder.h>
-#include <qt_gui/presentation/ActiveTasksPresenter.h>
+#include "core/TaskBuilder.h"
+#include "qt_gui/presentation/ActiveTasksPresenter.h"
 
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;

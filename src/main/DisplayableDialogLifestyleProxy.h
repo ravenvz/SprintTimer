@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include <QPointer>
 #include <memory>
-#include <qt_gui/dialogs/DisplayableDialog.h>
+#include "qt_gui/dialogs/DisplayableDialog.h"
 
 #ifndef DISPLAYABLEDIALOGLIFESTYLEPROXY_H_IQLGLKYT
 #define DISPLAYABLEDIALOGLIFESTYLEPROXY_H_IQLGLKYT

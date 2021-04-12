@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "gmock/gmock.h"
-#include <qt_gui/presentation/UndoContract.h>
-#include <qt_gui/presentation/UndoPresenter.h>
+#include "qt_gui/presentation/UndoContract.h"
+#include "qt_gui/presentation/UndoPresenter.h"
 
 using namespace ::testing;
 

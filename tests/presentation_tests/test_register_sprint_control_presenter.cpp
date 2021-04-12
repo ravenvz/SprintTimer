@@ -21,8 +21,8 @@
 *********************************************************************************/
 #include "mocks/CommandHandlerMock.h"
 #include <algorithm>
-#include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
-#include <qt_gui/presentation/RegisterSprintControlPresenter.h>
+#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include "qt_gui/presentation/RegisterSprintControlPresenter.h"
 
 using sprint_timer::use_cases::RegisterSprintBulkCommand;
 using ::testing::NiceMock;

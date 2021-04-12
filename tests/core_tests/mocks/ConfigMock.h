@@ -22,8 +22,8 @@
 #ifndef CONFIGMOCK_H_OVJZ2UQN
 #define CONFIGMOCK_H_OVJZ2UQN
 
-#include <core/IConfig.h>
-#include <gmock/gmock.h>
+#include "core/IConfig.h"
+#include "gmock/gmock.h"
 
 class ConfigMock : public sprint_timer::IConfig {
 public:

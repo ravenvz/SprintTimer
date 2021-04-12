@@ -22,7 +22,7 @@
 
 #include "core/utils/StringUtils.h"
 #include "gtest/gtest.h"
-#include <core/utils/Algutils.h>
+#include "core/utils/Algutils.h"
 
 using namespace sprint_timer::utils;
 

@@ -26,7 +26,7 @@
 // purge depencies on settings are done application-wise
 
 #include <chrono>
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 #include <string>
 
 namespace sprint_timer {

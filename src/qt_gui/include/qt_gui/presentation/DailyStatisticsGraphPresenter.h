@@ -24,7 +24,7 @@
 
 #include "qt_gui/presentation/DailyStatisticsGraphContract.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
-#include <core/use_cases/request_schedule/WorkScheduleHandler.h>
+#include "core/use_cases/request_schedule/WorkScheduleHandler.h"
 
 namespace sprint_timer::ui {
 

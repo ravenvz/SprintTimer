@@ -23,7 +23,7 @@
 #define SPRINTSFORTASKQUERYHANDLERSPECIALIZATION_H_R4ADYXNW
 
 #include "CacheAwareQueryHandler.h"
-#include <core/use_cases/request_sprints/SprintsForTaskQuery.h>
+#include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
 
 namespace sprint_timer::compose {
 

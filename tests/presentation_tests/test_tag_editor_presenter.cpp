@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <core/use_cases/request_tags/AllTagsHandler.h>
-#include <qt_gui/presentation/TagEditorPresenter.h>
+#include "core/use_cases/request_tags/AllTagsHandler.h"
+#include "qt_gui/presentation/TagEditorPresenter.h"
 
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"

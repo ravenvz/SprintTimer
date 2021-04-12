@@ -22,10 +22,10 @@
 #ifndef WORKSCHEDULEEDITORPRESENTERPROXY_H_JRLPYTZH
 #define WORKSCHEDULEEDITORPRESENTERPROXY_H_JRLPYTZH
 
-#include <core/CompositionObserver.h>
-#include <core/IConfig.h>
-#include <core/Observable.h>
-#include <qt_gui/presentation/WorkScheduleEditorPresenter.h>
+#include "core/CompositionObserver.h"
+#include "core/IConfig.h"
+#include "core/Observable.h"
+#include "qt_gui/presentation/WorkScheduleEditorPresenter.h"
 
 namespace sprint_timer::compose {
 

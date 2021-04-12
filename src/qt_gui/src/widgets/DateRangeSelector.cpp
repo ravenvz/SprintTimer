@@ -23,8 +23,8 @@
 #include "qt_gui/dialogs/DateRangePickDialog.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_date_range_picker.h"
-#include <QtCore/qdatetime.h>
-#include <QtCore/qstringlistmodel.h>
+#include "QtCore/qdatetime.h"
+#include "QtCore/qstringlistmodel.h"
 #include <algorithm>
 #include <iterator>
 #include <memory>

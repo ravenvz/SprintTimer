@@ -24,8 +24,8 @@
 #include "qt_gui/widgets/SimpleLegend.h"
 #include <QGridLayout>
 #include <QLabel>
-#include <QtGui/qpainter.h>
-#include <core/entities/Tag.h>
+#include "QtGui/qpainter.h"
+#include "core/entities/Tag.h"
 #include <memory>
 
 namespace sprint_timer::ui::qt_gui {

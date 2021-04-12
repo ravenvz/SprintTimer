@@ -21,9 +21,9 @@
 *********************************************************************************/
 #include "mocks/WorkScheduleStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/ObservableActionInvoker.h>
-#include <core/actions/ChangeWorkSchedule.h>
-#include <core/use_cases/change_schedule/ChangeWorkScheduleHandler.h>
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/ChangeWorkSchedule.h"
+#include "core/use_cases/change_schedule/ChangeWorkScheduleHandler.h"
 
 using namespace sprint_timer;
 

@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "mocks/ConfigMock.h"
 #include "gmock/gmock.h"
-#include <core/Workflow.h>
+#include "core/Workflow.h"
 
 using namespace sprint_timer;
 

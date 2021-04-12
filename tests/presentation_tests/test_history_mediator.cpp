@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "gmock/gmock.h"
-#include <qt_gui/presentation/HistoryMediatorImpl.h>
+#include "qt_gui/presentation/HistoryMediatorImpl.h"
 
 using namespace sprint_timer;
 using namespace ::testing;

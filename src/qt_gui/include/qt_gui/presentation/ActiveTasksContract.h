@@ -22,7 +22,7 @@
 #ifndef ACTIVETASKSCONTRACT_H_6FEWWZAP
 #define ACTIVETASKSCONTRACT_H_6FEWWZAP
 
-#include <core/entities/Task.h>
+#include "core/entities/Task.h"
 
 namespace sprint_timer::ui::contracts::ActiveTasksContract {
 

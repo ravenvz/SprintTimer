@@ -22,8 +22,8 @@
 #ifndef SINKMOCK_H_XWWR7ZEO
 #define SINKMOCK_H_XWWR7ZEO
 
-#include <external_io/Sink.h>
-#include <gmock/gmock.h>
+#include "external_io/Sink.h"
+#include "gmock/gmock.h"
 
 namespace mocks {
 

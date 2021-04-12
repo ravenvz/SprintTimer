@@ -27,7 +27,7 @@
 #include "qt_gui/presentation/RegisterSprintControl.h"
 #include <QSpinBox>
 #include <QTimeEdit>
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::ui::qt_gui {
 

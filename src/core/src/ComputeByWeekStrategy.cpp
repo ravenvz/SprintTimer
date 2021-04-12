@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "core/ComputeByWeekStrategy.h"
-#include <core/IConfig.h>
+#include "core/IConfig.h"
 
 namespace {
 

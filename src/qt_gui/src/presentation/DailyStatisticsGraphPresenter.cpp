@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/DailyStatisticsGraphPresenter.h"
-#include <core/use_cases/request_sprint_distribution/Common.h>
+#include "core/use_cases/request_sprint_distribution/Common.h"
 #include <numeric>
 #include <string_view>
 

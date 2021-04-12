@@ -21,8 +21,8 @@
 *********************************************************************************/
 #include "mocks/StatisticsMediatorMock.h"
 #include "gtest/gtest.h"
-#include <core/SprintBuilder.h>
-#include <qt_gui/presentation/TopTagDiagramPresenter.h>
+#include "core/SprintBuilder.h"
+#include "qt_gui/presentation/TopTagDiagramPresenter.h"
 
 using ::testing::_;
 using ::testing::NiceMock;

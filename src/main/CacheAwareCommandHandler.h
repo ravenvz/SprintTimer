@@ -22,10 +22,10 @@
 #ifndef CACHEAWARECOMMANDHANDLER_H_DVXZS5E1
 #define CACHEAWARECOMMANDHANDLER_H_DVXZS5E1
 
-#include <core/CommandHandler.h>
+#include "core/CommandHandler.h"
 #include <memory>
-#include <qt_gui/presentation/Invalidatable.h>
-#include <qt_gui/presentation/Mediator.h>
+#include "qt_gui/presentation/Invalidatable.h"
+#include "qt_gui/presentation/Mediator.h"
 
 namespace sprint_timer::compose {
 

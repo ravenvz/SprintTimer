@@ -22,8 +22,8 @@
 #ifndef SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
 #define SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
 
-#include <core/SprintDistributionReader.h>
-#include <gmock/gmock.h>
+#include "core/SprintDistributionReader.h"
+#include "gmock/gmock.h"
 
 namespace mocks {
 

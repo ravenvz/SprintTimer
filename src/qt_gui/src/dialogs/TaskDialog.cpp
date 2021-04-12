@@ -26,7 +26,7 @@
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QSpinBox>
-#include <core/utils/StringUtils.h>
+#include "core/utils/StringUtils.h"
 
 namespace {
 

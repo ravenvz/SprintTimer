@@ -22,10 +22,10 @@
 #ifndef CACHEAWAREQUERYHANDLER_H_JGYKWEAB
 #define CACHEAWAREQUERYHANDLER_H_JGYKWEAB
 
-#include <core/QueryHandler.h>
+#include "core/QueryHandler.h"
 #include <memory>
-#include <qt_gui/presentation/Invalidatable.h>
-#include <qt_gui/presentation/Mediator.h>
+#include "qt_gui/presentation/Invalidatable.h"
+#include "qt_gui/presentation/Mediator.h"
 
 #include <iostream>
 

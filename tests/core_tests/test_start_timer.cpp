@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "mocks/WorkflowMock.h"
-#include <core/use_cases/workflow_control/StartTimerHandler.h>
+#include "core/use_cases/workflow_control/StartTimerHandler.h"
 
 class StartTimerFixture : public ::testing::Test {
 public:

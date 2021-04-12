@@ -22,9 +22,9 @@
 #ifndef WORKFLOWPROXY_H_VT728IZA
 #define WORKFLOWPROXY_H_VT728IZA
 
-#include <core/CompositionObserver.h>
-#include <core/IConfig.h>
-#include <core/Workflow.h>
+#include "core/CompositionObserver.h"
+#include "core/IConfig.h"
+#include "core/Workflow.h"
 
 namespace sprint_timer::compose {
 

@@ -22,9 +22,9 @@
 #ifndef DATERANGESELECTORPRESENTERPROXY_H_ICWE0OQ4
 #define DATERANGESELECTORPRESENTERPROXY_H_ICWE0OQ4
 
-#include <core/CompositionObserver.h>
-#include <core/IConfig.h>
-#include <qt_gui/presentation/DateRangeSelectorPresenter.h>
+#include "core/CompositionObserver.h"
+#include "core/IConfig.h"
+#include "qt_gui/presentation/DateRangeSelectorPresenter.h"
 
 namespace sprint_timer::compose {
 

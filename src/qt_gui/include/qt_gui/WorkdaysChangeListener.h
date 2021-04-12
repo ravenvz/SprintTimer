@@ -22,7 +22,7 @@
 #ifndef WORKDAYSCHANGELISTENER_H_G23DLI68
 #define WORKDAYSCHANGELISTENER_H_G23DLI68
 
-#include <core/WorkSchedule.h>
+#include "core/WorkSchedule.h"
 
 namespace sprint_timer::ui::qt_gui {
 

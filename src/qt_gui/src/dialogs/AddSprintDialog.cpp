@@ -29,7 +29,7 @@
 #include <QFormLayout>
 #include <QSignalBlocker>
 
-#include <core/SprintBuilder.h>
+#include "core/SprintBuilder.h"
 
 namespace {
 

@@ -22,9 +22,9 @@
 #ifndef RUNTIMECONFIGURABLESOUNDPLAYER_H_N5HGISEB
 #define RUNTIMECONFIGURABLESOUNDPLAYER_H_N5HGISEB
 
-#include <core/CompositionObserver.h>
-#include <core/IConfig.h>
-#include <core/SoundPlayer.h>
+#include "core/CompositionObserver.h"
+#include "core/IConfig.h"
+#include "core/SoundPlayer.h"
 
 namespace sprint_timer::compose {
 

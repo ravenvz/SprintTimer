@@ -22,7 +22,7 @@
 
 #include "core/entities/Task.h"
 #include "gtest/gtest.h"
-#include <core/SprintBuilder.h>
+#include "core/SprintBuilder.h"
 
 using namespace std::chrono_literals;
 using namespace sprint_timer;

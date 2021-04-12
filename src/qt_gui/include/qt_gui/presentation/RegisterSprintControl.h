@@ -24,7 +24,7 @@
 
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 #include <vector>
 
 namespace sprint_timer::ui::contracts::RegisterSprintControl {

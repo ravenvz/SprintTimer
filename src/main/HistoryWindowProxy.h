@@ -24,14 +24,14 @@
 
 #include "DisplayableLifestyleProxy.h"
 #include <QStyledItemDelegate>
-#include <core/IConfig.h>
-#include <qt_gui/models/HistoryModel.h>
-#include <qt_gui/presentation/HistoryPresenter.h>
-#include <qt_gui/utils/WidgetUtils.h>
-#include <qt_gui/widgets/DataExportWidget.h>
-#include <qt_gui/widgets/DateRangeSelector.h>
-#include <qt_gui/widgets/HistoryTab.h>
-#include <qt_gui/widgets/HistoryWindow.h>
+#include "core/IConfig.h"
+#include "qt_gui/models/HistoryModel.h"
+#include "qt_gui/presentation/HistoryPresenter.h"
+#include "qt_gui/utils/WidgetUtils.h"
+#include "qt_gui/widgets/DataExportWidget.h"
+#include "qt_gui/widgets/DateRangeSelector.h"
+#include "qt_gui/widgets/HistoryTab.h"
+#include "qt_gui/widgets/HistoryWindow.h"
 
 namespace sprint_timer::compose {
 

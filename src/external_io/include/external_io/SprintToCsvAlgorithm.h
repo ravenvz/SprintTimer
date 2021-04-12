@@ -23,7 +23,7 @@
 #define SPRINTTOCSVALGORITHM_H_IAOKJLBQ
 
 #include "external_io/CsvSerializationAlgorithm.h"
-#include <core/entities/Sprint.h>
+#include "core/entities/Sprint.h"
 
 namespace sprint_timer::external_io {
 

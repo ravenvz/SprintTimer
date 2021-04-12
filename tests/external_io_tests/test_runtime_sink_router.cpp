@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "mocks/SinkMock.h"
-#include <external_io/RuntimeSinkRouter.h>
+#include "external_io/RuntimeSinkRouter.h"
 
 using ::testing::NiceMock;
 using namespace sprint_timer;

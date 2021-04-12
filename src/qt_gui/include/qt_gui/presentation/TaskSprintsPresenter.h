@@ -26,8 +26,8 @@
 #include "qt_gui/presentation/SprintMapper.h"
 #include "qt_gui/presentation/TaskSelectionContext.h"
 #include "qt_gui/presentation/TaskSprintsContract.h"
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_sprints/SprintsForTaskQuery.h>
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
 
 namespace sprint_timer::ui {
 

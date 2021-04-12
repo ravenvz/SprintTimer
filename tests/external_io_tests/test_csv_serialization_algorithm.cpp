@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 
-#include <external_io/CsvSerializationAlgorithm.h>
-#include <gtest/gtest.h>
+#include "external_io/CsvSerializationAlgorithm.h"
+#include "gtest/gtest.h"
 
 using namespace sprint_timer::external_io;
 

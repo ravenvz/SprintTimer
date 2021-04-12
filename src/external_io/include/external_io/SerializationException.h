@@ -22,7 +22,7 @@
 #ifndef SERIALIZATIONEXCEPTION_H_Q9L2JT6Y
 #define SERIALIZATIONEXCEPTION_H_Q9L2JT6Y
 
-#include <core/SprintTimerException.h>
+#include "core/SprintTimerException.h"
 
 namespace sprint_timer::external_io {
 

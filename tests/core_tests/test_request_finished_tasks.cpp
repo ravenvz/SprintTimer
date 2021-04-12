@@ -22,8 +22,8 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/use_cases/request_tasks/FinishedTasksHandler.h>
-#include <core/use_cases/request_tasks/FinishedTasksQuery.h>
+#include "core/use_cases/request_tasks/FinishedTasksHandler.h"
+#include "core/use_cases/request_tasks/FinishedTasksQuery.h"
 
 using namespace dw;
 using ::testing::_;

@@ -21,9 +21,9 @@
 *********************************************************************************/
 #include "mocks/DataExporterMock.h"
 #include "mocks/QueryHandlerMock.h"
-#include <core/TaskBuilder.h>
-#include <core/use_cases/export_data/ExportTasksHandler.h>
-#include <core/use_cases/request_tasks/FinishedTasksQuery.h>
+#include "core/TaskBuilder.h"
+#include "core/use_cases/export_data/ExportTasksHandler.h"
+#include "core/use_cases/request_tasks/FinishedTasksQuery.h"
 
 using ::testing::_;
 using ::testing::NiceMock;

@@ -22,8 +22,8 @@
 
 #include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/ObservableActionInvoker.h>
-#include <core/actions/DeleteSprint.h>
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/DeleteSprint.h"
 
 using sprint_timer::actions::DeleteSprint;
 using sprint_timer::entities::Sprint;

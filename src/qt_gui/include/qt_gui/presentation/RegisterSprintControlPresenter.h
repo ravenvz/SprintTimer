@@ -23,9 +23,9 @@
 #define REGISTERSPRINTCONTROLPRESENTER_H_CJFOM9FV
 
 #include "qt_gui/presentation/RegisterSprintControl.h"
-#include <core/CommandHandler.h>
-#include <core/SprintBuilder.h>
-#include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
+#include "core/CommandHandler.h"
+#include "core/SprintBuilder.h"
+#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
 
 namespace sprint_timer::ui {
 

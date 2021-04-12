@@ -26,11 +26,11 @@
 #include "qt_gui/presentation/ProgressPresenterContract.h"
 #include "qt_gui/widgets/DisplayableWidget.h"
 #include <QWidget>
-#include <core/Distribution.h>
-#include <core/GoalProgress.h>
-#include <core/ProgressComputeStrategy.h>
-#include <core/ProgressOverPeriod.h>
-#include <core/WorkSchedule.h>
+#include "core/Distribution.h"
+#include "core/GoalProgress.h"
+#include "core/ProgressComputeStrategy.h"
+#include "core/ProgressOverPeriod.h"
+#include "core/WorkSchedule.h"
 #include <memory>
 
 namespace Ui {

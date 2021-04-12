@@ -22,8 +22,8 @@
 #ifndef SERIALIZATIONALGORITHMMOCK_H_BJ9DZY5T
 #define SERIALIZATIONALGORITHMMOCK_H_BJ9DZY5T
 
-#include <external_io/SerializationAlgorithm.h>
-#include <gmock/gmock.h>
+#include "external_io/SerializationAlgorithm.h"
+#include "gmock/gmock.h"
 
 namespace mocks {
 

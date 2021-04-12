@@ -26,7 +26,7 @@
 #include "qt_gui/mvp/BaseView.h"
 #include "qt_gui/presentation/TaskSelectionMediator.h"
 #include <chrono>
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 #include <optional>
 #include <string>
 #include <vector>

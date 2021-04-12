@@ -22,7 +22,7 @@
 #ifndef SINKROUTINGEXCEPTION_H_OWM1GBVN
 #define SINKROUTINGEXCEPTION_H_OWM1GBVN
 
-#include <core/SprintTimerException.h>
+#include "core/SprintTimerException.h"
 
 namespace sprint_timer::external_io {
 

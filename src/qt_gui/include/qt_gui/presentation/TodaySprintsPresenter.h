@@ -24,11 +24,11 @@
 
 #include "qt_gui/presentation/SprintMapper.h"
 #include "qt_gui/presentation/TodaySprints.h"
-#include <core/CommandHandler.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/delete_sprint/DeleteSprintCommand.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
-#include <core/use_cases/request_tasks/UnfinishedTasksQuery.h>
+#include "core/CommandHandler.h"
+#include "core/QueryHandler.h"
+#include "core/use_cases/delete_sprint/DeleteSprintCommand.h"
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
+#include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
 
 namespace sprint_timer::ui {
 

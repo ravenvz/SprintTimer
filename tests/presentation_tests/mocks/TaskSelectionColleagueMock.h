@@ -22,8 +22,8 @@
 #ifndef TASKSELECTIONCOLLEAGUEMOCK_H_USODC6KX
 #define TASKSELECTIONCOLLEAGUEMOCK_H_USODC6KX
 
-#include <gmock/gmock.h>
-#include <qt_gui/presentation/TaskSelectionMediator.h>
+#include "gmock/gmock.h"
+#include "qt_gui/presentation/TaskSelectionMediator.h"
 
 namespace mocks {
 

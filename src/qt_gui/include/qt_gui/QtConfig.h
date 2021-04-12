@@ -24,8 +24,8 @@
 
 #include <QSettings>
 #include <QVariant>
-#include <core/IConfig.h>
-#include <date_wrapper/date_wrapper.h>
+#include "core/IConfig.h"
+#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::ui::qt_gui {
 

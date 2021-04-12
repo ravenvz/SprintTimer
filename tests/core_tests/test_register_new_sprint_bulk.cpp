@@ -23,9 +23,9 @@
 #include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
 #include <algorithm>
-#include <core/ObservableActionInvoker.h>
-#include <core/SprintBuilder.h>
-#include <core/actions/RegisterSprintBulk.h>
+#include "core/ObservableActionInvoker.h"
+#include "core/SprintBuilder.h"
+#include "core/actions/RegisterSprintBulk.h"
 
 using sprint_timer::actions::RegisterSprintBulk;
 using sprint_timer::entities::Sprint;

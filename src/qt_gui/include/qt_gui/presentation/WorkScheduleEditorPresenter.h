@@ -23,10 +23,10 @@
 #define WORKSCHEDULEEDITORPRESENTER_H_B6HTHBSK
 
 #include "qt_gui/presentation/WorkScheduleEditor.h"
-#include <core/CommandHandler.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/change_schedule/ChangeWorkScheduleCommand.h>
-#include <core/use_cases/request_schedule/WorkScheduleQuery.h>
+#include "core/CommandHandler.h"
+#include "core/QueryHandler.h"
+#include "core/use_cases/change_schedule/ChangeWorkScheduleCommand.h"
+#include "core/use_cases/request_schedule/WorkScheduleQuery.h"
 
 namespace sprint_timer::ui {
 

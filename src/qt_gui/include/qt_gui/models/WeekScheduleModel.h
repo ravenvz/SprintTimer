@@ -24,7 +24,7 @@
 
 #include <QAbstractItemModel>
 #include <QDate>
-#include <core/IConfig.h>
+#include "core/IConfig.h"
 
 namespace sprint_timer::ui::qt_gui {
 

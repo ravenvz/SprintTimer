@@ -22,8 +22,8 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/ObservableActionInvoker.h>
-#include <core/actions/RenameTag.h>
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/RenameTag.h"
 
 using sprint_timer::actions::RenameTag;
 

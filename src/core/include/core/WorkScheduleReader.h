@@ -22,7 +22,7 @@
 #ifndef IWORKINGDAYREADER_H_G8IYQC0N
 #define IWORKINGDAYREADER_H_G8IYQC0N
 
-#include <core/WorkSchedule.h>
+#include "core/WorkSchedule.h"
 #include <functional>
 
 namespace sprint_timer {

@@ -23,7 +23,7 @@
 #define TASKTOCSVALGORITHM_H_1UWREKPC
 
 #include "external_io/CsvSerializationAlgorithm.h"
-#include <core/entities/Task.h>
+#include "core/entities/Task.h"
 
 namespace sprint_timer::external_io {
 

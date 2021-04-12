@@ -23,7 +23,7 @@
 #define EDITTASKDIALOGPROXY_H_WZ7UTD03
 
 #include "DisplayableDialogLifestyleProxy.h"
-#include <qt_gui/dialogs/EditTaskDialog.h>
+#include "qt_gui/dialogs/EditTaskDialog.h"
 
 namespace sprint_timer::compose {
 

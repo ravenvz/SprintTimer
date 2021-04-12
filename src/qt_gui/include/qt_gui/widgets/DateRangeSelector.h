@@ -25,7 +25,7 @@
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
 #include <QStringListModel>
 #include <QWidget>
-#include <core/IConfig.h>
+#include "core/IConfig.h"
 #include <memory>
 
 namespace Ui {

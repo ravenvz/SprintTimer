@@ -23,8 +23,8 @@
 #define SPRINTREQUESTER_H_JO239RMT
 
 #include "qt_gui/presentation/SharedValue.h"
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 
 namespace sprint_timer::ui {
 

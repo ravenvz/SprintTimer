@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "gtest/gtest.h"
-#include <core/TaskBuilder.h>
-#include <external_io/TaskToCsvAlgorithm.h>
+#include "core/TaskBuilder.h"
+#include "external_io/TaskToCsvAlgorithm.h"
 
 using namespace dw;
 using namespace std::chrono_literals;

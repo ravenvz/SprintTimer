@@ -24,22 +24,22 @@
 
 #include "DisplayableLifestyleProxy.h"
 #include <QAbstractItemModel>
-#include <core/IConfig.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
-#include <qt_gui/utils/WidgetUtils.h>
-#include <qt_gui/widgets/StatisticsWindow.h>
+#include "core/IConfig.h"
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
+#include "qt_gui/utils/WidgetUtils.h"
+#include "qt_gui/widgets/StatisticsWindow.h"
 
-#include <qt_gui/presentation/BestWorkdayContract.h>
-#include <qt_gui/presentation/DailyStatisticsGraphContract.h>
-#include <qt_gui/presentation/DateRangeSelectorContract.h>
-#include <qt_gui/presentation/DaytimeStatisticsContract.h>
-#include <qt_gui/presentation/TopTagDiagramContract.h>
-#include <qt_gui/widgets/BestWorkdayWidget.h>
-#include <qt_gui/widgets/BestWorktimeWidget.h>
-#include <qt_gui/widgets/DailyTimelineGraph.h>
-#include <qt_gui/widgets/DateRangeSelector.h>
-#include <qt_gui/widgets/TopTagDiagram.h>
+#include "qt_gui/presentation/BestWorkdayContract.h"
+#include "qt_gui/presentation/DailyStatisticsGraphContract.h"
+#include "qt_gui/presentation/DateRangeSelectorContract.h"
+#include "qt_gui/presentation/DaytimeStatisticsContract.h"
+#include "qt_gui/presentation/TopTagDiagramContract.h"
+#include "qt_gui/widgets/BestWorkdayWidget.h"
+#include "qt_gui/widgets/BestWorktimeWidget.h"
+#include "qt_gui/widgets/DailyTimelineGraph.h"
+#include "qt_gui/widgets/DateRangeSelector.h"
+#include "qt_gui/widgets/TopTagDiagram.h"
 
 namespace sprint_timer::compose {
 

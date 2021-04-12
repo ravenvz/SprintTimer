@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <core/DataExporter.h>
-#include <gmock/gmock.h>
+#include "core/DataExporter.h"
+#include "gmock/gmock.h"
 
 namespace mocks {
 

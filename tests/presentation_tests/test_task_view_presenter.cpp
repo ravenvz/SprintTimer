@@ -21,9 +21,9 @@
 *********************************************************************************/
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
-#include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
-#include <core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h>
-#include <qt_gui/presentation/TaskViewPresenter.h>
+#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include "core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h"
+#include "qt_gui/presentation/TaskViewPresenter.h"
 
 using ::testing::_;
 using ::testing::NiceMock;

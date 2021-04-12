@@ -23,7 +23,7 @@
 #define DATEPICKDIALOG_H
 
 #include <QDialog>
-#include <core/IConfig.h>
+#include "core/IConfig.h"
 #include <memory>
 
 namespace Ui {

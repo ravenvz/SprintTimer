@@ -24,7 +24,7 @@
 
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
-#include <core/ProgressOverPeriod.h>
+#include "core/ProgressOverPeriod.h"
 
 namespace sprint_timer::ui::contracts::DailyProgress {
 

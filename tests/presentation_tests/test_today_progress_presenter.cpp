@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "mocks/QueryHandlerMock.h"
-#include <qt_gui/presentation/TodayProgressPresenter.h>
+#include "qt_gui/presentation/TodayProgressPresenter.h"
 #include <string_view>
 
 using ::testing::_;

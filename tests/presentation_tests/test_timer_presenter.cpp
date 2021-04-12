@@ -23,9 +23,9 @@
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/SoundPlayerMock.h"
 #include "gmock/gmock.h"
-#include <core/entities/Task.h>
-#include <core/use_cases/workflow_control/StartTimer.h>
-#include <qt_gui/presentation/TimerPresenter.h>
+#include "core/entities/Task.h"
+#include "core/use_cases/workflow_control/StartTimer.h"
+#include "qt_gui/presentation/TimerPresenter.h"
 
 using sprint_timer::IWorkflow;
 using sprint_timer::ui::TimerPresenter;

@@ -23,9 +23,9 @@
 #define UNDOBUTTON_H_TO9TXCVM
 
 #include <QPushButton>
-#include <core/ActionInvoker.h>
-#include <core/Observable.h>
-#include <core/Observer.h>
+#include "core/ActionInvoker.h"
+#include "core/Observable.h"
+#include "core/Observer.h"
 
 namespace sprint_timer::ui::qt_gui {
 

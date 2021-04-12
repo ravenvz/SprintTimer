@@ -22,8 +22,8 @@
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/StatisticsColleagueMock.h"
 #include "gmock/gmock.h"
-#include <core/SprintBuilder.h>
-#include <qt_gui/presentation/StatisticsMediatorImpl.h>
+#include "core/SprintBuilder.h"
+#include "qt_gui/presentation/StatisticsMediatorImpl.h"
 
 using namespace sprint_timer::ui;
 using sprint_timer::entities::Sprint;

@@ -23,9 +23,9 @@
 #define QTSTORAGEINITIALIZER_H_WR5MUUAC
 
 #include <QCoreApplication>
-#include <qt_storage/WorkerConnection.h>
-#include <qt_storage/DatabaseInitializer.h>
-#include <qt_storage/QtStorageImplementersFactory.h>
+#include "qt_storage/WorkerConnection.h"
+#include "qt_storage/DatabaseInitializer.h"
+#include "qt_storage/QtStorageImplementersFactory.h"
 
 struct TestStorageInitializer {
 

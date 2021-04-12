@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <core/IConfig.h>
-#include <core/Observable.h>
+#include "core/IConfig.h"
+#include "core/Observable.h"
 
 namespace sprint_timer::compose {
 

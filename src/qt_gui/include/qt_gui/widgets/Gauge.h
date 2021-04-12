@@ -24,8 +24,8 @@
 
 #include <QEvent>
 #include <QWidget>
-#include <core/GoalProgress.h>
-#include <core/ProgressOverPeriod.h>
+#include "core/GoalProgress.h"
+#include "core/ProgressOverPeriod.h"
 #include <memory>
 
 namespace sprint_timer::ui::qt_gui {

@@ -23,7 +23,7 @@
 #define FINISHEDTASKSQUERYHANDLERSPECIALIZATION_H_RAKVEY9S
 
 #include "CacheAwareQueryHandler.h"
-#include <core/use_cases/request_tasks/FinishedTasksQuery.h>
+#include "core/use_cases/request_tasks/FinishedTasksQuery.h"
 
 namespace sprint_timer::compose {
 

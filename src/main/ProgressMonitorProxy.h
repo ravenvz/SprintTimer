@@ -23,13 +23,13 @@
 #define PROGRESSMONITORPROXY_H_LTB9EOMJ
 
 #include "DisplayableLifestyleProxy.h"
-#include <qt_gui/StandaloneDisplayable.h>
-#include <qt_gui/dialogs/WorkScheduleEditor.h>
-#include <qt_gui/mvp/BasePresenter.h>
-#include <qt_gui/presentation/WorkScheduleEditorPresenter.h>
-#include <qt_gui/widgets/DialogLaunchButton.h>
-#include <qt_gui/widgets/ProgressMonitorWidget.h>
-#include <qt_gui/widgets/ProgressWidget.h>
+#include "qt_gui/StandaloneDisplayable.h"
+#include "qt_gui/dialogs/WorkScheduleEditor.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/presentation/WorkScheduleEditorPresenter.h"
+#include "qt_gui/widgets/DialogLaunchButton.h"
+#include "qt_gui/widgets/ProgressMonitorWidget.h"
+#include "qt_gui/widgets/ProgressWidget.h"
 
 namespace sprint_timer::compose {
 

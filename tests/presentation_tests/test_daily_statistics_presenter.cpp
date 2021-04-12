@@ -22,8 +22,8 @@
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/StatisticsColleagueMock.h"
 #include "mocks/StatisticsMediatorMock.h"
-#include <core/SprintBuilder.h>
-#include <qt_gui/presentation/DailyStatisticsGraphPresenter.h>
+#include "core/SprintBuilder.h"
+#include "qt_gui/presentation/DailyStatisticsGraphPresenter.h"
 #include <string_view>
 
 using sprint_timer::entities::Sprint;

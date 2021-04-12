@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "core/CommandHandler.h"
-#include <gmock/gmock.h>
+#include "gmock/gmock.h"
 
 namespace mocks {
 

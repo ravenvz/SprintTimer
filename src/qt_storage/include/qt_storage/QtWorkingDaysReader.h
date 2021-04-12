@@ -23,8 +23,8 @@
 #define QTWORKINGDAYSREADER_H_0RFFMJYS
 
 #include "qt_storage/DBService.h"
-#include <core/IConfig.h>
-#include <core/WorkScheduleReader.h>
+#include "core/IConfig.h"
+#include "core/WorkScheduleReader.h"
 #include <queue>
 
 namespace sprint_timer::storage::qt_storage {

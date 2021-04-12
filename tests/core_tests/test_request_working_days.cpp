@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "mocks/WorkScheduleStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/use_cases/request_schedule/WorkScheduleHandler.h>
+#include "core/use_cases/request_schedule/WorkScheduleHandler.h"
 
 using sprint_timer::use_cases::WorkScheduleHandler;
 using sprint_timer::use_cases::WorkScheduleQuery;

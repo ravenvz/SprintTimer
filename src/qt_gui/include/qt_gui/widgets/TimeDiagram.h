@@ -24,7 +24,7 @@
 
 #include <QEvent>
 #include <QWidget>
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 #include <vector>
 
 namespace sprint_timer::ui::qt_gui {

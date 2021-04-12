@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "qt_storage/QtSprintStorageReader.h"
 #include "qt_storage/QtSprintStorageWriter.h"
-#include <core/SprintStorage.h>
+#include "core/SprintStorage.h"
 
 namespace sprint_timer::storage::qt_storage {
 

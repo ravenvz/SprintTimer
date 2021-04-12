@@ -25,7 +25,7 @@
 #include "qt_gui/presentation/TaskDTO.h"
 #include <QApplication>
 #include <QPainter>
-#include <core/utils/StringUtils.h>
+#include "core/utils/StringUtils.h"
 
 namespace {
 

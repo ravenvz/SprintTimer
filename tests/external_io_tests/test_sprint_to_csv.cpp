@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "gtest/gtest.h"
-#include <core/SprintBuilder.h>
-#include <external_io/SprintToCsvAlgorithm.h>
+#include "core/SprintBuilder.h"
+#include "external_io/SprintToCsvAlgorithm.h"
 
 using namespace sprint_timer;
 using namespace std::chrono_literals;

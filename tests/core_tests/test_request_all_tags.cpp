@@ -22,8 +22,8 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/use_cases/request_tags/AllTagsQuery.h>
-#include <core/use_cases/request_tags/AllTagsHandler.h>
+#include "core/use_cases/request_tags/AllTagsQuery.h"
+#include "core/use_cases/request_tags/AllTagsHandler.h"
 
 using sprint_timer::use_cases::AllTagsQuery;
 using sprint_timer::use_cases::AllTagsHandler;

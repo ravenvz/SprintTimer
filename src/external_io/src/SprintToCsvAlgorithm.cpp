@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "external_io/SprintToCsvAlgorithm.h"
-#include <core/utils/StringUtils.h>
+#include "core/utils/StringUtils.h"
 
 namespace sprint_timer::external_io {
 

@@ -23,7 +23,7 @@
 #define STATISTICSMEDIATORIMPL_H_02PSRLBP
 
 #include "qt_gui/presentation/StatisticsMediator.h"
-#include <core/QueryHandler.h>
+#include "core/QueryHandler.h"
 
 // TODO workaround until statistics view is streamlined
 #include "qt_gui/mvp/AbstractPresenter.h"

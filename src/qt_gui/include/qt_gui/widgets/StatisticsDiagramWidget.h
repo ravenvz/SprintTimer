@@ -26,7 +26,7 @@
 #include "qt_gui/widgets/BestWorktimeWidget.h"
 #include "qt_gui/widgets/TopTagDiagram.h"
 #include <QFrame>
-#include <core/TagTop.h>
+#include "core/TagTop.h"
 
 namespace sprint_timer::ui::qt_gui {
 

@@ -22,8 +22,8 @@
 #ifndef WORKINGDAYSSTORAGEMOCK_H_XPILNRIE
 #define WORKINGDAYSSTORAGEMOCK_H_XPILNRIE
 
-#include <core/WorkScheduleStorage.h>
-#include <gmock/gmock.h>
+#include "core/WorkScheduleStorage.h"
+#include "gmock/gmock.h"
 
 namespace mocks {
 

@@ -23,7 +23,7 @@
 #define SETTINGSDIALOGLIFESTYLEPROXY_H_XCXF9QKE
 
 #include "DisplayableDialogLifestyleProxy.h"
-#include <qt_gui/dialogs/SettingsDialog.h>
+#include "qt_gui/dialogs/SettingsDialog.h"
 
 namespace sprint_timer::compose {
 

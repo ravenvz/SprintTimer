@@ -23,7 +23,7 @@
 #define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
 
 #include <QSqlQuery>
-#include <core/SprintStorageWriter.h>
+#include "core/SprintStorageWriter.h"
 
 namespace sprint_timer::storage::qt_storage {
 

@@ -22,9 +22,9 @@
 #ifndef STARTTIMERHANDLER_H_VTRWBSW9
 #define STARTTIMERHANDLER_H_VTRWBSW9
 
-#include <core/CommandHandler.h>
-#include <core/IWorkflow.h>
-#include <core/use_cases/workflow_control/StartTimer.h>
+#include "core/CommandHandler.h"
+#include "core/IWorkflow.h"
+#include "core/use_cases/workflow_control/StartTimer.h"
 
 namespace sprint_timer::use_cases {
 

@@ -21,10 +21,10 @@
 *********************************************************************************/
 #include "mocks/HistoryMediatorMock.h"
 #include "mocks/QueryHandlerMock.h"
-#include <core/TaskBuilder.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
-#include <core/use_cases/request_tasks/FinishedTasksQuery.h>
-#include <qt_gui/presentation/HistoryPresenter.h>
+#include "core/TaskBuilder.h"
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
+#include "core/use_cases/request_tasks/FinishedTasksQuery.h"
+#include "qt_gui/presentation/HistoryPresenter.h"
 
 using namespace ::testing;
 using namespace sprint_timer;

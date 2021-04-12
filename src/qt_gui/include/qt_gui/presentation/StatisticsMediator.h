@@ -25,9 +25,9 @@
 #include "qt_gui/presentation/DateRangeChangeListener.h"
 #include "qt_gui/presentation/Mediator.h"
 #include "qt_gui/presentation/StatisticsColleague.h"
-#include <core/TagTop.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
-#include <date_wrapper/date_wrapper.h>
+#include "core/TagTop.h"
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
+#include "date_wrapper/date_wrapper.h"
 #include <string>
 #include <optional>
 

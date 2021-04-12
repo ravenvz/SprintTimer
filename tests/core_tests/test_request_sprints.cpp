@@ -22,9 +22,9 @@
 
 #include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_sprints/RequestSprintsHandler.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_sprints/RequestSprintsHandler.h"
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 
 using namespace dw;
 using sprint_timer::entities::Sprint;

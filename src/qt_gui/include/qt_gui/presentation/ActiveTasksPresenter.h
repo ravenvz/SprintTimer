@@ -24,14 +24,14 @@
 
 #include "qt_gui/presentation/TaskContract.h"
 #include "qt_gui/presentation/TaskMapper.h"
-#include <core/CommandHandler.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityCommand.h>
-#include <core/use_cases/delete_task/DeleteTaskCommand.h>
-#include <core/use_cases/edit_task/EditTaskCommand.h>
-#include <core/use_cases/request_tasks/UnfinishedTasksQuery.h>
-#include <core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h>
-#include <core/utils/Algutils.h>
+#include "core/CommandHandler.h"
+#include "core/QueryHandler.h"
+#include "core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityCommand.h"
+#include "core/use_cases/delete_task/DeleteTaskCommand.h"
+#include "core/use_cases/edit_task/EditTaskCommand.h"
+#include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
+#include "core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h"
+#include "core/utils/Algutils.h"
 
 namespace sprint_timer::ui {
 

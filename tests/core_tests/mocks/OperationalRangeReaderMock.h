@@ -23,7 +23,7 @@
 #define OPERATIONALRANGEREADERMOCK_H_APJ2MZW1
 
 #include "gmock/gmock.h"
-#include <core/OperationalRangeReader.h>
+#include "core/OperationalRangeReader.h"
 
 namespace mocks {
 

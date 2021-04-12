@@ -23,8 +23,8 @@
 #define TODAYPROGRESSPRESENTER_H_31EAPJRM
 
 #include "qt_gui/presentation/TodayProgressContract.h"
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_progress/RequestProgressQuery.h>
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_progress/RequestProgressQuery.h"
 
 namespace sprint_timer::ui {
 

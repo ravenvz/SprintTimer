@@ -22,11 +22,11 @@
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/HistoryMediatorMock.h"
 #include "gmock/gmock.h"
-#include <core/SprintTimerException.h>
-#include <core/use_cases/export_data/ExportSprintsCommand.h>
-#include <core/use_cases/export_data/ExportTasksCommand.h>
-#include <qt_gui/presentation/DataExportPresenter.h>
-#include <qt_gui/presentation/HistoryMediator.h>
+#include "core/SprintTimerException.h"
+#include "core/use_cases/export_data/ExportSprintsCommand.h"
+#include "core/use_cases/export_data/ExportTasksCommand.h"
+#include "qt_gui/presentation/DataExportPresenter.h"
+#include "qt_gui/presentation/HistoryMediator.h"
 
 using ::testing::_;
 using ::testing::NiceMock;

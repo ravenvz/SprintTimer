@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "gtest/gtest.h"
-#include <core/ProgressOverPeriod.h>
+#include "core/ProgressOverPeriod.h"
 
 using namespace sprint_timer;
 

@@ -24,8 +24,8 @@
 
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_op_range/OperationalRangeQuery.h>
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_op_range/OperationalRangeQuery.h"
 
 namespace sprint_timer::ui {
 

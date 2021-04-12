@@ -22,7 +22,7 @@
 #ifndef DAYPART_H_X1VWLXSB
 #define DAYPART_H_X1VWLXSB
 
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 #include <string>
 
 namespace sprint_timer::use_cases {

@@ -23,7 +23,7 @@
 #define TAGEDITORPROXY_H_R1NUUTME
 
 #include "DisplayableLifestyleProxy.h"
-#include <qt_gui/widgets/TagEditor.h>
+#include "qt_gui/widgets/TagEditor.h"
 
 namespace sprint_timer::compose {
 

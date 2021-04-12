@@ -24,7 +24,7 @@
 
 #include "qt_storage/QtTaskStorageReader.h"
 #include "qt_storage/QtTaskStorageWriter.h"
-#include <core/TaskStorage.h>
+#include "core/TaskStorage.h"
 
 namespace sprint_timer::storage::qt_storage {
 

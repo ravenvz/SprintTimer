@@ -22,8 +22,8 @@
 #ifndef BESTWORKDAYCONTRACT_H_PNBSPBF6
 #define BESTWORKDAYCONTRACT_H_PNBSPBF6
 
-#include <qt_gui/mvp/BasePresenter.h>
-#include <qt_gui/mvp/BaseView.h>
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 #include <string>
 #include <vector>
 

@@ -22,7 +22,7 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/use_cases/request_tasks/FinishedTasksHandler.h>
+#include "core/use_cases/request_tasks/FinishedTasksHandler.h"
 
 using namespace dw;
 using sprint_timer::use_cases::FinishedTasksHandler;

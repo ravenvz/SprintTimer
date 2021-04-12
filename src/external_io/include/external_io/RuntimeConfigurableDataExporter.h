@@ -24,8 +24,8 @@
 
 #include "external_io/RuntimeSinkRouter.h"
 #include "external_io/Serializer.h"
-#include <core/DataExporter.h>
-#include <core/entities/Sprint.h>
+#include "core/DataExporter.h"
+#include "core/entities/Sprint.h"
 
 namespace sprint_timer::external_io {
 

@@ -23,7 +23,7 @@
 #include "qt_gui/widgets/TimeDiagram.h"
 #include <QGridLayout>
 #include <QLabel>
-#include <core/SprintStatistics.h>
+#include "core/SprintStatistics.h"
 
 namespace sprint_timer::ui::qt_gui {
 

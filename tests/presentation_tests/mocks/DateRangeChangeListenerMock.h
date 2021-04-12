@@ -22,8 +22,8 @@
 #ifndef DATERANGECHANGELISTENERMOCK_H_R6GXBZDZ
 #define DATERANGECHANGELISTENERMOCK_H_R6GXBZDZ
 
-#include <gmock/gmock.h>
-#include <qt_gui/presentation/DateRangeChangeListener.h>
+#include "gmock/gmock.h"
+#include "qt_gui/presentation/DateRangeChangeListener.h"
 
 namespace mocks {
 

@@ -23,7 +23,7 @@
 #define REQUESTSPRINTDISTRIBUTIONQUERY_H_QAWGRCJE
 
 #include "core/Query.h"
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 #include <vector>
 
 namespace sprint_timer::use_cases {

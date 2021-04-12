@@ -23,7 +23,7 @@
 #define OPERATIONALRANGEQUERY_H_V3X81WJU
 
 #include "core/Query.h"
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::use_cases {
 

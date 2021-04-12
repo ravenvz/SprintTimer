@@ -22,9 +22,9 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/ActionInvoker.h>
-#include <core/ObservableActionInvoker.h>
-#include <core/actions/ToggleTaskCompleted.h>
+#include "core/ActionInvoker.h"
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/ToggleTaskCompleted.h"
 
 using sprint_timer::actions::ToggleTaskCompleted;
 using sprint_timer::entities::Tag;

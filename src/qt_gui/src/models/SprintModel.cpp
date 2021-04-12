@@ -22,7 +22,7 @@
 #include "qt_gui/models/SprintModel.h"
 #include "qt_gui/metatypes/SprintDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
-#include <core/utils/StringUtils.h>
+#include "core/utils/StringUtils.h"
 
 namespace {
 

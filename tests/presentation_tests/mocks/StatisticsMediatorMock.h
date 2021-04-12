@@ -23,7 +23,7 @@
 #define STATISTICSMEDIATORMOCK_H_RX2EJZRW
 
 #include "gmock/gmock.h"
-#include <qt_gui/presentation/StatisticsMediator.h>
+#include "qt_gui/presentation/StatisticsMediator.h"
 
 namespace mocks {
 

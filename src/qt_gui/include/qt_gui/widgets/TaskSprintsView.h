@@ -28,7 +28,7 @@
 #include "qt_gui/widgets/StandaloneDisplayableWidget.h"
 #include <QStyledItemDelegate>
 #include <QWidget>
-#include <core/entities/Sprint.h>
+#include "core/entities/Sprint.h"
 #include <memory>
 
 namespace Ui {

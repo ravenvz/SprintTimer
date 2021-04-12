@@ -23,7 +23,7 @@
 #define QTWORKINGDAYSWRITER_H_GMTRHCHZ
 
 #include "qt_storage/DBService.h"
-#include <core/WorkScheduleWriter.h>
+#include "core/WorkScheduleWriter.h"
 
 namespace sprint_timer::storage::qt_storage {
 

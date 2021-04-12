@@ -22,8 +22,8 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/use_cases/request_tasks/UnfinishedTasksHandler.h>
-#include <core/use_cases/request_tasks/UnfinishedTasksQuery.h>
+#include "core/use_cases/request_tasks/UnfinishedTasksHandler.h"
+#include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
 
 using ::testing::_;
 

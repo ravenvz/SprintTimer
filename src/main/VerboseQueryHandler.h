@@ -22,7 +22,7 @@
 #ifndef VERBOSEQUERYHANDLER_H_PLEQQBNM
 #define VERBOSEQUERYHANDLER_H_PLEQQBNM
 
-#include <core/QueryHandler.h>
+#include "core/QueryHandler.h"
 #include <iostream>
 #include <memory>
 

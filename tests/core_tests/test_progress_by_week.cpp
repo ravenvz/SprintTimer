@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "gtest/gtest.h"
-#include <core/ComputeByWeekStrategy.h>
-#include <core/GoalProgress.h>
+#include "core/ComputeByWeekStrategy.h"
+#include "core/GoalProgress.h"
 
 using sprint_timer::GoalProgress;
 using sprint_timer::WeekSchedule;

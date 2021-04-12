@@ -24,7 +24,7 @@
 
 #include "external_io/SerializationAlgorithm.h"
 #include "external_io/SerializationException.h"
-#include <core/DataExporter.h>
+#include "core/DataExporter.h"
 #include <unordered_map>
 
 namespace sprint_timer::external_io {

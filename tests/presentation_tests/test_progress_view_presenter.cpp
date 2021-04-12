@@ -23,9 +23,9 @@
 #include "core/Observer.h"
 #include "mocks/QueryHandlerMock.h"
 #include "gmock/gmock.h"
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_progress/RequestProgressQuery.h>
-#include <qt_gui/presentation/ProgressPresenter.h>
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_progress/RequestProgressQuery.h"
+#include "qt_gui/presentation/ProgressPresenter.h"
 #include <string_view>
 
 using sprint_timer::GoalProgress;

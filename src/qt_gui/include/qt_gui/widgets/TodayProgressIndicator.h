@@ -24,7 +24,7 @@
 
 #include "qt_gui/presentation/TodayProgressContract.h"
 #include <QLabel>
-#include <core/GoalProgress.h>
+#include "core/GoalProgress.h"
 
 namespace sprint_timer::ui::qt_gui {
 

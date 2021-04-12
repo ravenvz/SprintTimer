@@ -22,7 +22,7 @@
 
 #include "mocks/SprintDistributionReaderMock.h"
 #include "gtest/gtest.h"
-#include <core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h>
+#include "core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h"
 
 using sprint_timer::use_cases::RequestSprintDistributionHandler;
 using sprint_timer::use_cases::RequestSprintDistributionQuery;

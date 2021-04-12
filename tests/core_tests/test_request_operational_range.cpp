@@ -21,8 +21,8 @@
 *********************************************************************************/
 #include "mocks/OperationalRangeReaderMock.h"
 #include "gtest/gtest.h"
-#include <core/use_cases/request_op_range/OperationalRangeHandler.h>
-#include <core/use_cases/request_op_range/OperationalRangeQuery.h>
+#include "core/use_cases/request_op_range/OperationalRangeHandler.h"
+#include "core/use_cases/request_op_range/OperationalRangeQuery.h"
 
 using sprint_timer::use_cases::OperationalRangeHandler;
 using sprint_timer::use_cases::OperationalRangeQuery;

@@ -19,10 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <core/CompositionObserver.h>
-#include <core/IConfig.h>
-#include <core/Observable.h>
-#include <qt_gui/presentation/BestWorkdayPresenter.h>
+#include "core/CompositionObserver.h"
+#include "core/IConfig.h"
+#include "core/Observable.h"
+#include "qt_gui/presentation/BestWorkdayPresenter.h"
 
 namespace sprint_timer::compose {
 

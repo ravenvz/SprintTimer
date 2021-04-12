@@ -22,7 +22,7 @@
 #include "qt_gui/widgets/TaskSprintsView.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_sprints_for_task_view.h"
-#include <core/utils/StringUtils.h>
+#include "core/utils/StringUtils.h"
 
 namespace {
 

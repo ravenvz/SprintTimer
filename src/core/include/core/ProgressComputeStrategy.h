@@ -24,7 +24,7 @@
 
 #include "core/GoalProgress.h"
 #include "core/WorkSchedule.h"
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 #include <vector>
 
 namespace sprint_timer {

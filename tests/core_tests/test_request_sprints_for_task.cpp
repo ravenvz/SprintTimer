@@ -22,7 +22,7 @@
 
 #include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/use_cases/request_sprints/SprintsForTaskHandler.h>
+#include "core/use_cases/request_sprints/SprintsForTaskHandler.h"
 
 using sprint_timer::use_cases::SprintsForTaskHandler;
 using sprint_timer::use_cases::SprintsForTaskQuery;

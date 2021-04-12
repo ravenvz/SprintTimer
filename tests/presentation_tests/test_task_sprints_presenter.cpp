@@ -22,7 +22,7 @@
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/TaskSelectionColleagueMock.h"
 #include "qt_gui/presentation/TaskSelectionMediator.h"
-#include <qt_gui/presentation/TaskSprintsPresenter.h>
+#include "qt_gui/presentation/TaskSprintsPresenter.h"
 
 using sprint_timer::ui::SprintDTO;
 using sprint_timer::use_cases::SprintsForTaskQuery;

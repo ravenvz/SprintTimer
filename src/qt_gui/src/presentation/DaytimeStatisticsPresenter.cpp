@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/DaytimeStatisticsPresenter.h"
-#include <core/use_cases/request_sprint_distribution/DayPart.h>
+#include "core/use_cases/request_sprint_distribution/DayPart.h"
 
 namespace {
 

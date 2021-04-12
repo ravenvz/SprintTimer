@@ -23,10 +23,10 @@
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/StatisticsColleagueMock.h"
 #include "mocks/StatisticsMediatorMock.h"
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_op_range/OperationalRangeQuery.h>
-#include <qt_gui/presentation/DateRangeSelectorPresenter.h>
-#include <qt_gui/presentation/StatisticsMediator.h>
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_op_range/OperationalRangeQuery.h"
+#include "qt_gui/presentation/DateRangeSelectorPresenter.h"
+#include "qt_gui/presentation/StatisticsMediator.h"
 
 using namespace ::testing;
 using namespace dw;

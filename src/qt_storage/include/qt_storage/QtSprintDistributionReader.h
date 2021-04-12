@@ -25,7 +25,7 @@
 #include "core/SprintDistributionReader.h"
 #include <QDate>
 #include <QSqlQuery>
-#include <core/IConfig.h>
+#include "core/IConfig.h"
 
 namespace sprint_timer::storage::qt_storage {
 

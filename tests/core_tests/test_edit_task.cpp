@@ -22,9 +22,9 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/ObservableActionInvoker.h>
-#include <core/TaskBuilder.h>
-#include <core/actions/EditTask.h>
+#include "core/ObservableActionInvoker.h"
+#include "core/TaskBuilder.h"
+#include "core/actions/EditTask.h"
 
 using sprint_timer::TaskBuilder;
 using sprint_timer::actions::EditTask;

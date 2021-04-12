@@ -24,9 +24,9 @@
 
 #include "qt_gui/presentation/HistoryContract.h"
 #include "qt_gui/presentation/HistoryMediator.h"
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
-#include <core/use_cases/request_tasks/FinishedTasksQuery.h>
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
+#include "core/use_cases/request_tasks/FinishedTasksQuery.h"
 
 namespace sprint_timer::ui {
 

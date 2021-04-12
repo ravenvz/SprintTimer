@@ -23,7 +23,7 @@
 #define WORKSCHEDULEEDITORLIFESTYLEPROXY_H_ZMV8PUTD
 
 #include "DisplayableDialogLifestyleProxy.h"
-#include <qt_gui/dialogs/WorkScheduleEditor.h>
+#include "qt_gui/dialogs/WorkScheduleEditor.h"
 
 namespace sprint_timer::compose {
 

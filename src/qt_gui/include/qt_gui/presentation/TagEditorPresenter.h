@@ -23,10 +23,10 @@
 #define TAGEDITORPRESENTER_H_QMSK5CBY
 
 #include "qt_gui/presentation/TagEditorContract.h"
-#include <core/CommandHandler.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/rename_tag/RenameTagCommand.h>
-#include <core/use_cases/request_tags/AllTagsQuery.h>
+#include "core/CommandHandler.h"
+#include "core/QueryHandler.h"
+#include "core/use_cases/rename_tag/RenameTagCommand.h"
+#include "core/use_cases/request_tags/AllTagsQuery.h"
 
 namespace sprint_timer::ui {
 

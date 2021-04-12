@@ -22,8 +22,8 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/ObservableActionInvoker.h>
-#include <core/actions/CreateTask.h>
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/CreateTask.h"
 
 using sprint_timer::actions::CreateTask;
 using sprint_timer::entities::Tag;

@@ -24,8 +24,8 @@
 
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
-#include <core/WorkSchedule.h>
-#include <date_wrapper/date_wrapper.h>
+#include "core/WorkSchedule.h"
+#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::ui::contracts::WorkScheduleEditor {
 

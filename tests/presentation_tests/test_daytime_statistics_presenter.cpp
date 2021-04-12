@@ -20,9 +20,9 @@
 **
 *********************************************************************************/
 #include "mocks/StatisticsMediatorMock.h"
-#include <core/SprintBuilder.h>
-#include <qt_gui/presentation/DaytimeStatisticsContract.h>
-#include <qt_gui/presentation/DaytimeStatisticsPresenter.h>
+#include "core/SprintBuilder.h"
+#include "qt_gui/presentation/DaytimeStatisticsContract.h"
+#include "qt_gui/presentation/DaytimeStatisticsPresenter.h"
 
 using sprint_timer::entities::Sprint;
 using ::testing::_;

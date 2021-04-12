@@ -22,7 +22,7 @@
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include <gmock/gmock-spec-builders.h>
-#include <qt_gui/presentation/WorkScheduleEditorPresenter.h>
+#include "qt_gui/presentation/WorkScheduleEditorPresenter.h"
 
 using namespace sprint_timer;
 using namespace ::testing;

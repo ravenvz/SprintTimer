@@ -23,7 +23,7 @@
 #define SPRINTMAPPER_H_U4OQ1PMS
 
 #include "qt_gui/presentation/SprintDTO.h"
-#include <core/entities/Sprint.h>
+#include "core/entities/Sprint.h"
 
 namespace sprint_timer::ui {
 

@@ -23,7 +23,7 @@
 #define DATETIMECONVERTER_H_Y4Z1XDHQ
 
 #include <QDateTime>
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::ui::qt_gui::utils {
 

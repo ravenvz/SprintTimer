@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "mocks/SerializationAlgorithmMock.h"
 #include "mocks/SinkMock.h"
-#include <external_io/RuntimeConfigurableDataExporter.h>
+#include "external_io/RuntimeConfigurableDataExporter.h"
 
 using namespace sprint_timer;
 using namespace sprint_timer::external_io;

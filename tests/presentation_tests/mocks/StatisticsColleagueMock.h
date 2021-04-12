@@ -23,7 +23,7 @@
 #define STATISTICSCOLLEAGUEMOCK_H_2ZSPXNBR
 
 #include "gmock/gmock.h"
-#include <qt_gui/presentation/StatisticsColleague.h>
+#include "qt_gui/presentation/StatisticsColleague.h"
 
 using sprint_timer::ui::StatisticsColleague;
 

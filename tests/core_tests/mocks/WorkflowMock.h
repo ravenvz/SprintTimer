@@ -22,8 +22,8 @@
 #ifndef WORKFLOWMOCK_H_NH6SQD7C
 #define WORKFLOWMOCK_H_NH6SQD7C
 
-#include <core/IWorkflow.h>
-#include <gmock/gmock.h>
+#include "core/IWorkflow.h"
+#include "gmock/gmock.h"
 
 namespace mocks {
 

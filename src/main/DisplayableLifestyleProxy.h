@@ -24,8 +24,8 @@
 
 #include <QPointer>
 #include <memory>
-#include <qt_gui/StandaloneDisplayable.h>
-#include <qt_gui/widgets/StandaloneDisplayableWidget.h>
+#include "qt_gui/StandaloneDisplayable.h"
+#include "qt_gui/widgets/StandaloneDisplayableWidget.h"
 
 namespace sprint_timer {
 

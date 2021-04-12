@@ -25,9 +25,9 @@
 #include "qt_gui/presentation/Invalidatable.h"
 #include "qt_gui/presentation/Mediator.h"
 #include "qt_gui/presentation/UndoContract.h"
-#include <core/ActionInvoker.h>
-#include <core/Observable.h>
-#include <core/Observer.h>
+#include "core/ActionInvoker.h"
+#include "core/Observable.h"
+#include "core/Observer.h"
 
 namespace sprint_timer::ui {
 

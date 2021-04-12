@@ -23,7 +23,7 @@
 #define SHAREDVALUE_H_ETUSINPQ
 
 #include <optional>
-#include <core/Observable.h>
+#include "core/Observable.h"
 
 namespace sprint_timer::ui {
 

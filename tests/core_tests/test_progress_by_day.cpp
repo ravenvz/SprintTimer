@@ -22,8 +22,8 @@
 #include "core/ComputeByDayStrategy.h"
 #include "core/GoalProgress.h"
 #include "gtest/gtest.h"
-#include <core/GoalProgress.h>
-#include <core/ProgressOverPeriod.h>
+#include "core/GoalProgress.h"
+#include "core/ProgressOverPeriod.h"
 
 using sprint_timer::GoalProgress;
 using sprint_timer::ProgressOverPeriod;

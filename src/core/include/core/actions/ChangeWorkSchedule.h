@@ -22,8 +22,8 @@
 #ifndef CHANGEWORKSCHEDULE_H_PKVJV23C
 #define CHANGEWORKSCHEDULE_H_PKVJV23C
 
-#include <core/Action.h>
-#include <core/WorkScheduleWriter.h>
+#include "core/Action.h"
+#include "core/WorkScheduleWriter.h"
 
 namespace sprint_timer::actions {
 

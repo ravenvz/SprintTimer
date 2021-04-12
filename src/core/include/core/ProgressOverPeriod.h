@@ -25,7 +25,7 @@
 #include "core/GoalProgress.h"
 #include "core/ProgressComputeStrategy.h"
 #include "core/WorkSchedule.h"
-#include <date_wrapper/date_wrapper.h>
+#include "date_wrapper/date_wrapper.h"
 #include <iostream>
 #include <numeric>
 #include <optional>

@@ -23,8 +23,8 @@
 #define ADDTASKDIALOGPROXY_H_JMC1VRX7
 
 #include "DisplayableDialogLifestyleProxy.h"
-#include <qt_gui/dialogs/AddTaskDialog.h>
-#include <qt_gui/presentation/AddTaskControl.h>
+#include "qt_gui/dialogs/AddTaskDialog.h"
+#include "qt_gui/presentation/AddTaskControl.h"
 
 namespace sprint_timer::compose {
 

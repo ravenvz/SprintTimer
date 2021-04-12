@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
-#include <qt_gui/presentation/TodaySprintsPresenter.h>
+#include "qt_gui/presentation/TodaySprintsPresenter.h"
 
 using namespace ::testing;
 using namespace sprint_timer;

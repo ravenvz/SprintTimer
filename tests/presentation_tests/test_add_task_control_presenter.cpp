@@ -21,9 +21,9 @@
 *********************************************************************************/
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
-#include <core/use_cases/create_task/CreateTaskCommand.h>
-#include <core/use_cases/request_tags/AllTagsQuery.h>
-#include <qt_gui/presentation/AddTaskControlPresenter.h>
+#include "core/use_cases/create_task/CreateTaskCommand.h"
+#include "core/use_cases/request_tags/AllTagsQuery.h"
+#include "qt_gui/presentation/AddTaskControlPresenter.h"
 
 using namespace sprint_timer;
 

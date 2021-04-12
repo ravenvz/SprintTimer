@@ -23,7 +23,7 @@
 #define TASKSPRINTSVIEWPROXY_H_XBJVYFVL
 
 #include "DisplayableLifestyleProxy.h"
-#include <qt_gui/widgets/TaskSprintsView.h>
+#include "qt_gui/widgets/TaskSprintsView.h"
 
 namespace sprint_timer::compose {
 

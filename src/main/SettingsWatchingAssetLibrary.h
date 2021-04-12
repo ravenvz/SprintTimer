@@ -22,9 +22,9 @@
 #ifndef SETTINGSWATCHINGASSETLIBRARY_H_Z2VS0DMQ
 #define SETTINGSWATCHINGASSETLIBRARY_H_Z2VS0DMQ
 
-#include <core/CompositionObserver.h>
-#include <core/IConfig.h>
-#include <qt_gui/presentation/ConfigurableAssetLibrary.h>
+#include "core/CompositionObserver.h"
+#include "core/IConfig.h"
+#include "qt_gui/presentation/ConfigurableAssetLibrary.h"
 
 namespace sprint_timer::compose {
 

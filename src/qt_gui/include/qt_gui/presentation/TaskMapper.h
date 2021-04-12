@@ -23,7 +23,7 @@
 #define TASKMAPPER_H_92B3YBWU
 
 #include "qt_gui/presentation/TaskDTO.h"
-#include <core/entities/Task.h>
+#include "core/entities/Task.h"
 
 namespace sprint_timer::ui {
 

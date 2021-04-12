@@ -25,13 +25,13 @@
 #include "qt_gui/presentation/AssetLibrary.h"
 #include "qt_gui/presentation/TaskSelectionMediator.h"
 #include "qt_gui/presentation/TimerContract.h"
-#include <core/CommandHandler.h>
-#include <core/IWorkflow.h>
-#include <core/SoundPlayer.h>
-#include <core/use_cases/register_sprint/RegisterSprintBulkCommand.h>
-#include <core/use_cases/workflow_control/CancelTimer.h>
-#include <core/use_cases/workflow_control/StartTimer.h>
-#include <core/use_cases/workflow_control/ToggleZoneMode.h>
+#include "core/CommandHandler.h"
+#include "core/IWorkflow.h"
+#include "core/SoundPlayer.h"
+#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include "core/use_cases/workflow_control/CancelTimer.h"
+#include "core/use_cases/workflow_control/StartTimer.h"
+#include "core/use_cases/workflow_control/ToggleZoneMode.h"
 
 namespace sprint_timer::ui {
 

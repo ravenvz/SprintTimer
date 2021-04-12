@@ -23,9 +23,9 @@
 #include "mocks/SprintStorageMock.h"
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/ActionInvoker.h>
-#include <core/ObservableActionInvoker.h>
-#include <core/actions/DeleteTask.h>
+#include "core/ActionInvoker.h"
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/DeleteTask.h"
 
 #include <thread>
 

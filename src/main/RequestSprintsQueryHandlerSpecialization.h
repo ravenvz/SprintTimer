@@ -23,7 +23,7 @@
 #define REQUESTSPRINTSQUERYHANDLERSPECIALIZATION_H_KT7XJXKV
 
 #include "CacheAwareQueryHandler.h"
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 
 namespace sprint_timer::compose {
 

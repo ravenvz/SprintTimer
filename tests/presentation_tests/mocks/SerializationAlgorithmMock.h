@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <gmock/gmock.h>
-#include <core/external_io/SerializationAlgorithm.h>
+#include "gmock/gmock.h"
+#include "core/external_io/SerializationAlgorithm.h"
 
 namespace mocks {
 

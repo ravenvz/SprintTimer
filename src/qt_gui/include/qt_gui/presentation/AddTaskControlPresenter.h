@@ -24,10 +24,10 @@
 
 #include "qt_gui/presentation/AddTaskControl.h"
 #include "qt_gui/presentation/TaskMapper.h"
-#include <core/CommandHandler.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/create_task/CreateTaskCommand.h>
-#include <core/use_cases/request_tags/AllTagsQuery.h>
+#include "core/CommandHandler.h"
+#include "core/QueryHandler.h"
+#include "core/use_cases/create_task/CreateTaskCommand.h"
+#include "core/use_cases/request_tags/AllTagsQuery.h"
 
 namespace sprint_timer::ui {
 

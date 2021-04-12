@@ -23,7 +23,7 @@
 #define COMPOSITEPRESENTER_H_6XHKSCDA
 
 #include <functional>
-#include <qt_gui/mvp/AbstractPresenter.h>
+#include "qt_gui/mvp/AbstractPresenter.h"
 #include <vector>
 
 namespace sprint_timer::compose {

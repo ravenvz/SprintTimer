@@ -20,9 +20,9 @@
 **
 *********************************************************************************/
 #include "mocks/StatisticsMediatorMock.h"
-#include <core/SprintBuilder.h>
-#include <qt_gui/presentation/BestWorkdayContract.h>
-#include <qt_gui/presentation/BestWorkdayPresenter.h>
+#include "core/SprintBuilder.h"
+#include "qt_gui/presentation/BestWorkdayContract.h"
+#include "qt_gui/presentation/BestWorkdayPresenter.h"
 
 using sprint_timer::Distribution;
 using sprint_timer::entities::Sprint;

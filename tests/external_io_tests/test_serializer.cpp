@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "mocks/SerializationAlgorithmMock.h"
 #include "gtest/gtest.h"
-#include <external_io/Serializer.h>
+#include "external_io/Serializer.h"
 
 using namespace sprint_timer;
 using namespace sprint_timer::external_io;

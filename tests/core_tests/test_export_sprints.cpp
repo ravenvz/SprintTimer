@@ -21,9 +21,9 @@
 *********************************************************************************/
 #include "mocks/DataExporterMock.h"
 #include "mocks/QueryHandlerMock.h"
-#include <core/SprintBuilder.h>
-#include <core/use_cases/export_data/ExportSprintsHandler.h>
-#include <core/use_cases/request_sprints/RequestSprintsQuery.h>
+#include "core/SprintBuilder.h"
+#include "core/use_cases/export_data/ExportSprintsHandler.h"
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 
 using ::testing::_;
 using ::testing::NiceMock;

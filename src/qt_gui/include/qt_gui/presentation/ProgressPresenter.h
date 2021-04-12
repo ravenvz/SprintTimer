@@ -24,11 +24,11 @@
 
 #include "core/BackRequestStrategy.h"
 #include "qt_gui/presentation/ProgressPresenterContract.h"
-#include <core/Observable.h>
-#include <core/Observer.h>
-#include <core/QueryHandler.h>
-#include <core/use_cases/request_progress/RequestProgressQuery.h>
-#include <core/utils/StringUtils.h>
+#include "core/Observable.h"
+#include "core/Observer.h"
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_progress/RequestProgressQuery.h"
+#include "core/utils/StringUtils.h"
 #include <iomanip>
 #include <iterator>
 

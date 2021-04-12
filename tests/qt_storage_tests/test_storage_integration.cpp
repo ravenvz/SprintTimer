@@ -21,9 +21,9 @@
 *********************************************************************************/
 #include "QtStorageInitializer.h"
 #include "gtest/gtest.h"
-#include <core/SprintBuilder.h>
-#include <core/TaskBuilder.h>
-#include <core/WorkSchedule.h>
+#include "core/SprintBuilder.h"
+#include "core/TaskBuilder.h"
+#include "core/WorkSchedule.h"
 
 using namespace sprint_timer::storage::qt_storage;
 using sprint_timer::SprintBuilder;

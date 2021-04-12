@@ -22,8 +22,8 @@
 #ifndef DATACONSISTENCYWATCHER_H_OYWEAZWS
 #define DATACONSISTENCYWATCHER_H_OYWEAZWS
 
-#include <core/Observable.h>
-#include <qt_gui/mvp/AbstractPresenter.h>
+#include "core/Observable.h"
+#include "qt_gui/mvp/AbstractPresenter.h"
 
 namespace sprint_timer::compose {
 

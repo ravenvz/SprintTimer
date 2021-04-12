@@ -23,7 +23,7 @@
 #define QTWORKINGDAYSSTORAGE_H_EXLIBP9M
 
 #include <QSqlQuery>
-#include <core/WorkScheduleStorage.h>
+#include "core/WorkScheduleStorage.h"
 
 namespace sprint_timer::storage::qt_storage {
 

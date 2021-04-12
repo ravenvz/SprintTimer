@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <gmock/gmock.h>
-#include <qt_gui/presentation/AssetLibrary.h>
+#include "gmock/gmock.h"
+#include "qt_gui/presentation/AssetLibrary.h"
 
 namespace mocks {
 

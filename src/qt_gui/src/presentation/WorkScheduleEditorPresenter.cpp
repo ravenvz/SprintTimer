@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/WorkScheduleEditorPresenter.h"
-#include <core/utils/StringUtils.h>
+#include "core/utils/StringUtils.h"
 #include <numeric>
 
 namespace {

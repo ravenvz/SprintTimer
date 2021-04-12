@@ -22,8 +22,8 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/ObservableActionInvoker.h>
-#include <core/actions/ChangeTasksPriorities.h>
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/ChangeTasksPriorities.h"
 
 using sprint_timer::actions::ChangeTasksPriorities;
 

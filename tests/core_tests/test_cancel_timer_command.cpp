@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "mocks/WorkflowMock.h"
-#include <core/use_cases/workflow_control/CancelTimerHandler.h>
+#include "core/use_cases/workflow_control/CancelTimerHandler.h"
 
 using namespace sprint_timer::use_cases;
 
