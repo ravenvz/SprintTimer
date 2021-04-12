@@ -24,7 +24,7 @@
 
 namespace {
 
-const std::string filledColor{"#f63c0d"};
+constexpr std::string_view filledColor{"#f63c0d"};
 
 void updateViewWithStubData(
     sprint_timer::ui::contracts::DaytimeStatisticsContract::View& view);
@@ -88,8 +88,8 @@ void updateViewWithStubData(
 {
     using namespace sprint_timer::ui::contracts::DaytimeStatisticsContract;
     view.updateLegend(LegendData{"No data", ""});
-    view.updateDiagram(
-        DiagramData{filledColor, std::vector<dw::DateTimeRange>{}});
+    view.updateDiagram(DiagramData{std::string{filledColor},
+                                   std::vector<dw::DateTimeRange>{}});
 }
 
 void updateViewWithValidData(
@@ -102,7 +102,8 @@ void updateViewWithValidData(
         distribution.dayPartDistribution.getMaxValueBin());
     view.updateLegend(
         LegendData{dayPartName(maxValueBin), dayPartHours(maxValueBin)});
-    view.updateDiagram(DiagramData{filledColor, distribution.timeRanges});
+    view.updateDiagram(
+        DiagramData{std::string{filledColor}, distribution.timeRanges});
 }
 
 sprint_timer::ui::SprintDaytimeDistribution

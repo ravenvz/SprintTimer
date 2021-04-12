@@ -36,8 +36,8 @@ using namespace dw;
 
 namespace {
 
-const std::string barBorderColor{"#f63c0d"};
-const std::string barColor{"#73c245"};
+constexpr std::string_view barBorderColor{"#f63c0d"};
+constexpr std::string_view barColor{"#73c245"};
 
 } // namespace
 
@@ -196,8 +196,8 @@ TEST_F(BestWorkdayPresenterFixture,
 
 TEST_F(BestWorkdayPresenterFixture, updates_bars_when_there_are_no_sprints)
 {
-    const View::BarD expected{barBorderColor,
-                              barColor,
+    const View::BarD expected{std::string{barBorderColor},
+                              std::string{barColor},
                               {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
                               {1, 2, 3, 4, 5, 6, 7}};
     BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Monday};
@@ -213,8 +213,8 @@ TEST_F(BestWorkdayPresenterFixture, updates_bars_when_there_are_no_sprints)
 TEST_F(BestWorkdayPresenterFixture, updates_bar_for_generic_data)
 {
     const auto sprints = buildSprintsFixture();
-    const View::BarD expected{barBorderColor,
-                              barColor,
+    const View::BarD expected{std::string{barBorderColor},
+                              std::string{barColor},
                               {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5},
                               {1, 2, 3, 4, 5, 6, 7}};
     ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
@@ -230,8 +230,8 @@ TEST_F(BestWorkdayPresenterFixture,
        updates_bar_for_generic_data_when_first_day_of_week_is_sunday)
 {
     const auto sprints = buildSprintsFixture();
-    const View::BarD expected{barBorderColor,
-                              barColor,
+    const View::BarD expected{std::string{barBorderColor},
+                              std::string{barColor},
                               {10.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5},
                               {7, 1, 2, 3, 4, 5, 6}};
     ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));

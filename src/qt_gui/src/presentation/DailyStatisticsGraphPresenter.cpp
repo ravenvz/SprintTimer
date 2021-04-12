@@ -22,6 +22,7 @@
 #include "qt_gui/presentation/DailyStatisticsGraphPresenter.h"
 #include <core/use_cases/request_sprint_distribution/Common.h>
 #include <numeric>
+#include <string_view>
 
 namespace {
 
@@ -29,11 +30,10 @@ using GraphValues = std::vector<std::pair<
     sprint_timer::ui::contracts::DailyStatisticGraphContract::DayNumber,
     sprint_timer::ui::contracts::DailyStatisticGraphContract::Value>>;
 
-// TODO replace with constexpr
-const std::string dailyGraphColor{"#f63c0d"};
-const std::string averageColor{"#3949c4"};
-const std::string goalColor{"#39c473"};
-const std::string pointColor{"#ffffff"};
+constexpr std::string_view dailyGraphColor{"#f63c0d"};
+constexpr std::string_view averageColor{"#3949c4"};
+constexpr std::string_view goalColor{"#39c473"};
+constexpr std::string_view pointColor{"#ffffff"};
 constexpr double penWidthF{2.2};
 
 void updateAll(
@@ -177,8 +177,11 @@ void updateDailyGraph(
                 DayNumber{static_cast<unsigned>(date.day())}.value)});
         date = date + dw::Days{1};
     }
-    GraphOptions graphOptions{
-        dailyGraphColor, penWidthF, true, pointColor, LineStyle::Solid};
+    GraphOptions graphOptions{std::string{dailyGraphColor},
+                              penWidthF,
+                              true,
+                              std::string{pointColor},
+                              LineStyle::Solid};
     view->drawGraph(GraphData{graphOptions, values});
 }
 
@@ -193,7 +196,7 @@ void updateActualAverageGraph(
 
     const auto average = computeActualAverage(distribution, range, schedule);
     GraphOptions graphOptions{
-        averageColor, penWidthF, false, "", LineStyle::Solid};
+        std::string{averageColor}, penWidthF, false, "", LineStyle::Solid};
     const auto graphValues = buildLineGraph(range, average);
     view->drawGraph(GraphData{graphOptions, graphValues});
 }
@@ -209,7 +212,8 @@ void updateExpectedAverageGraph(
 
     const auto average = computeExpectedAverage(range, schedule);
     const auto graphValues = buildLineGraph(range, average);
-    GraphOptions graphOptions{goalColor, penWidthF, false, "", LineStyle::Dash};
+    GraphOptions graphOptions{
+        std::string{goalColor}, penWidthF, false, "", LineStyle::Dash};
     view->drawGraph(GraphData{graphOptions, graphValues});
 }
 

@@ -38,10 +38,10 @@ using namespace sprint_timer::use_cases;
 
 namespace {
 
-const std::string sprintStateColor{"#eb6c59"};
-const std::string brakeStateColor{"#73c245"};
-const std::string zoneStateColor{"#808000"};
-const std::string ringSoundId{"ringSoundId"};
+constexpr std::string_view sprintStateColor{"#eb6c59"};
+constexpr std::string_view brakeStateColor{"#73c245"};
+constexpr std::string_view zoneStateColor{"#808000"};
+constexpr std::string_view ringSoundId{"ringSoundId"};
 
 } // namespace
 
@@ -115,7 +115,7 @@ public:
     TimerPresenter presenter{workflow,
                              soundPlayer,
                              assetLibrary,
-                             ringSoundId,
+                             std::string{ringSoundId},
                              taskSelectionMediator};
 };
 
@@ -126,7 +126,7 @@ TEST_F(TimerPresenterFixture, upon_creation_starts_listening_workflow)
     TimerPresenter otherPresenter{workflow,
                                   soundPlayer,
                                   assetLibrary,
-                                  ringSoundId,
+                                  std::string{ringSoundId},
                                   taskSelectionMediator};
 }
 
@@ -139,7 +139,7 @@ TEST_F(TimerPresenterFixture, removes_self_as_workflow_listener_when_destroyed)
         TimerPresenter otherPresenter{wflow,
                                       soundPlayer,
                                       assetLibrary,
-                                      ringSoundId,
+                                      std::string{ringSoundId},
                                       taskSelectionMediator};
     }
 }
@@ -189,7 +189,7 @@ TEST_F(TimerPresenterFixture, displays_running_state_when_sprint_started)
 
     EXPECT_CALL(view,
                 setupUi(TimerUiModel::runningUiModel(
-                    sprintDuration, sprintStateColor, true)));
+                    sprintDuration, std::string{sprintStateColor}, true)));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::RunningSprint);
 }
@@ -202,7 +202,7 @@ TEST_F(TimerPresenterFixture, displays_running_state_when_brake_started)
 
     EXPECT_CALL(view,
                 setupUi(TimerUiModel::runningUiModel(
-                    breakDuration, brakeStateColor, false)));
+                    breakDuration, std::string{brakeStateColor}, false)));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::BreakStarted);
 }
@@ -255,7 +255,9 @@ TEST_F(TimerPresenterFixture, switches_view_into_the_zone_mode)
 {
     presenter.attachView(view);
 
-    EXPECT_CALL(view, setupUi(TimerUiModel::zoneModeUiModel(zoneStateColor)));
+    EXPECT_CALL(
+        view,
+        setupUi(TimerUiModel::zoneModeUiModel(std::string{zoneStateColor})));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::ZoneEntered);
 }
@@ -265,14 +267,15 @@ TEST_F(TimerPresenterFixture, switches_view_out_of_the_zone_mode)
     presenter.attachView(view);
 
     EXPECT_CALL(view,
-                setupUi(TimerUiModel::returnFromZoneUiModel(sprintStateColor)));
+                setupUi(TimerUiModel::returnFromZoneUiModel(
+                    std::string{sprintStateColor})));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::ZoneLeft);
 }
 
 TEST_F(TimerPresenterFixture, plays_sound_when_break_finished)
 {
-    ON_CALL(assetLibrary, filePath(ringSoundId))
+    ON_CALL(assetLibrary, filePath(std::string{ringSoundId}))
         .WillByDefault(Return(someSoundPath));
     presenter.attachView(view);
 
@@ -283,7 +286,7 @@ TEST_F(TimerPresenterFixture, plays_sound_when_break_finished)
 
 TEST_F(TimerPresenterFixture, plays_sound_when_sprint_finished)
 {
-    ON_CALL(assetLibrary, filePath(ringSoundId))
+    ON_CALL(assetLibrary, filePath(std::string{ringSoundId}))
         .WillByDefault(Return(someSoundPath));
     presenter.attachView(view);
 

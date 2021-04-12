@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "mocks/QueryHandlerMock.h"
 #include <qt_gui/presentation/TodayProgressPresenter.h>
+#include <string_view>
 
 using ::testing::_;
 using ::testing::NiceMock;
@@ -31,9 +32,9 @@ using sprint_timer::use_cases::RequestProgressQuery;
 
 namespace {
 
-const std::string normalStyle{"QLabel { color: black; }"};
-const std::string overworkStyle{"QLabel { color: red; }"};
-const std::string matchStyle{"QLabel { color: green; }"};
+constexpr std::string_view normalStyle{"QLabel { color: black; }"};
+constexpr std::string_view overworkStyle{"QLabel { color: red; }"};
+constexpr std::string_view matchStyle{"QLabel { color: green; }"};
 
 } // namespace
 
@@ -62,8 +63,9 @@ TEST_F(TodayProgressPresenterFixture,
         {GoalProgress{GoalProgress::Estimated{12}, GoalProgress::Actual{3}}}};
     ON_CALL(requestProgressHandler, handle(_)).WillByDefault(Return(progress));
 
-    EXPECT_CALL(view,
-                displayProgress("Daily goal progress: 3/12", normalStyle));
+    EXPECT_CALL(
+        view,
+        displayProgress("Daily goal progress: 3/12", std::string{normalStyle}));
 
     sut.attachView(view);
 }
@@ -77,7 +79,8 @@ TEST_F(TodayProgressPresenterFixture,
     ON_CALL(requestProgressHandler, handle(_)).WillByDefault(Return(progress));
 
     EXPECT_CALL(view,
-                displayProgress("Daily goal progress: 17/12", overworkStyle));
+                displayProgress("Daily goal progress: 17/12",
+                                std::string{overworkStyle}));
 
     sut.attachView(view);
 }
@@ -90,8 +93,9 @@ TEST_F(TodayProgressPresenterFixture,
         {GoalProgress{GoalProgress::Estimated{12}, GoalProgress::Actual{12}}}};
     ON_CALL(requestProgressHandler, handle(_)).WillByDefault(Return(progress));
 
-    EXPECT_CALL(view,
-                displayProgress("Daily goal progress: 12/12", matchStyle));
+    EXPECT_CALL(
+        view,
+        displayProgress("Daily goal progress: 12/12", std::string{matchStyle}));
 
     sut.attachView(view);
 }

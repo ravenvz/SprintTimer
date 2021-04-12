@@ -23,10 +23,10 @@
 
 namespace {
 
-constexpr char const* title{"Daily goal progress: "};
-constexpr char const* normalStyle = "QLabel { color: black; }";
-constexpr char const* overworkStyle = "QLabel { color: red; }";
-constexpr char const* matchStyle = "QLabel { color: green; }";
+constexpr std::string_view title{"Daily goal progress: "};
+constexpr std::string_view normalStyle = "QLabel { color: black; }";
+constexpr std::string_view overworkStyle = "QLabel { color: red; }";
+constexpr std::string_view matchStyle = "QLabel { color: green; }";
 
 std::string pickStyle(const sprint_timer::GoalProgress& progress);
 
@@ -69,12 +69,12 @@ std::string pickStyle(const sprint_timer::GoalProgress& progress)
         return "";
     }
     if (progress.actual() < progress.estimated()) {
-        return normalStyle;
+        return std::string{normalStyle};
     }
     if (progress.actual() == progress.estimated()) {
-        return matchStyle;
+        return std::string{matchStyle};
     }
-    return overworkStyle;
+    return std::string{overworkStyle};
 }
 
 std::string constructProgressString(const sprint_timer::GoalProgress& progress)

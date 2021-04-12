@@ -26,6 +26,7 @@
 #include <core/QueryHandler.h>
 #include <core/use_cases/request_progress/RequestProgressQuery.h>
 #include <qt_gui/presentation/ProgressPresenter.h>
+#include <string_view>
 
 using sprint_timer::GoalProgress;
 using sprint_timer::ProgressOverPeriod;
@@ -33,12 +34,12 @@ using namespace sprint_timer::ui::contracts::DailyProgress;
 
 namespace colors {
 
-const std::string normalEmptyColor{"#a0a0a4"};
-const std::string normalFilledColor{"#6baa15"};
-const std::string overworkEmptyColor{normalFilledColor};
-const std::string overworkFilledColor{"#ff0000"};
-const std::string restDayEmptyColor{"#ffa500"};
-const std::string blancColor{"#ffffff"};
+constexpr std::string_view normalEmptyColor{"#a0a0a4"};
+constexpr std::string_view normalFilledColor{"#6baa15"};
+constexpr std::string_view overworkEmptyColor{normalFilledColor};
+constexpr std::string_view overworkFilledColor{"#ff0000"};
+constexpr std::string_view restDayEmptyColor{"#ffa500"};
+constexpr std::string_view blancColor{"#ffffff"};
 
 } // namespace colors
 
@@ -160,11 +161,24 @@ TEST_F(ProgressPresenterFixture, displays_gauges_with_correct_colors)
          GoalProgress{GoalProgress::Estimated{0}, GoalProgress::Actual{0}},
          GoalProgress{GoalProgress::Estimated{11}, GoalProgress::Actual{11}}}};
     const std::vector<GaugeValues> expected{{
-        GaugeValues{0, 12, restDayEmptyColor, restDayEmptyColor},
-        GaugeValues{7, 10, overworkEmptyColor, overworkFilledColor},
-        GaugeValues{5, 0, normalEmptyColor, normalEmptyColor},
-        GaugeValues{0, 0, restDayEmptyColor, restDayEmptyColor},
-        GaugeValues{11, 11, normalFilledColor, normalFilledColor},
+        GaugeValues{0,
+                    12,
+                    std::string{restDayEmptyColor},
+                    std::string{restDayEmptyColor}},
+        GaugeValues{7,
+                    10,
+                    std::string{overworkEmptyColor},
+                    std::string{overworkFilledColor}},
+        GaugeValues{
+            5, 0, std::string{normalEmptyColor}, std::string{normalEmptyColor}},
+        GaugeValues{0,
+                    0,
+                    std::string{restDayEmptyColor},
+                    std::string{restDayEmptyColor}},
+        GaugeValues{11,
+                    11,
+                    std::string{normalFilledColor},
+                    std::string{normalFilledColor}},
     }};
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
@@ -233,8 +247,11 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_for_empty_progress)
     const ProgressOverPeriod progress{{}};
     // TODO it is a bit lazy - we actually do not care what colors are returned
     // when bar is hidden; test should reflect that
-    const ProgressBarData expected{
-        0, 0, colors::blancColor, colors::blancColor, false};
+    const ProgressBarData expected{0,
+                                   0,
+                                   std::string{colors::blancColor},
+                                   std::string{colors::blancColor},
+                                   false};
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
 
@@ -250,8 +267,11 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_underwork_progress)
         {GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{0}},
          GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{0}},
          GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{4}}}};
-    const ProgressBarData expected{
-        10, 4, colors::blancColor, colors::normalEmptyColor, true};
+    const ProgressBarData expected{10,
+                                   4,
+                                   std::string{colors::blancColor},
+                                   std::string{colors::normalEmptyColor},
+                                   true};
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
 
@@ -270,8 +290,11 @@ TEST_F(ProgressPresenterFixture,
          GoalProgress{GoalProgress::Estimated{0}, GoalProgress::Actual{0}}}};
     // TODO it is a bit lazy - we actually do not care what colors are returned
     // when bar is hidden; test should reflect that
-    const ProgressBarData expected{
-        0, 0, colors::blancColor, colors::normalFilledColor, false};
+    const ProgressBarData expected{0,
+                                   0,
+                                   std::string{colors::blancColor},
+                                   std::string{colors::normalFilledColor},
+                                   false};
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
 
@@ -287,8 +310,11 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_for_overwork_progress)
         {GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{0}},
          GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{0}},
          GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{14}}}};
-    const ProgressBarData expected{
-        10, 14, colors::normalFilledColor, colors::overworkFilledColor, true};
+    const ProgressBarData expected{10,
+                                   14,
+                                   std::string{colors::normalFilledColor},
+                                   std::string{colors::overworkFilledColor},
+                                   true};
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
 
@@ -304,8 +330,11 @@ TEST_F(ProgressPresenterFixture, displays_progress_bar_when_goal_is_met)
         {GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{0}},
          GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{0}},
          GoalProgress{GoalProgress::Estimated{10}, GoalProgress::Actual{10}}}};
-    const ProgressBarData expected{
-        10, 10, colors::blancColor, colors::normalFilledColor, true};
+    const ProgressBarData expected{10,
+                                   10,
+                                   std::string{colors::blancColor},
+                                   std::string{colors::normalFilledColor},
+                                   true};
     ON_CALL(requestProgressHandlerMock, handle(::testing::_))
         .WillByDefault(::testing::Return(progress));
 

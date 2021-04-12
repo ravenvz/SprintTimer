@@ -24,12 +24,10 @@
 
 namespace {
 
-const std::string barBorderColor{"#f63c0d"};
-const std::string barColor{"#73c245"};
+constexpr std::string_view barBorderColor{"#f63c0d"};
+constexpr std::string_view barColor{"#73c245"};
 const std::vector<int> mondayFirstOrder{1, 2, 3, 4, 5, 6, 7};
 const std::vector<int> sundayFirstOrder{7, 1, 2, 3, 4, 5, 6};
-// constexpr double penWidth{1.2};
-
 constexpr size_t daysInWeek{7};
 
 sprint_timer::Distribution<double>
@@ -105,8 +103,8 @@ void BestWorkdayPresenter::updateBars(
         std::rotate(begin(values),
                     begin(values) + static_cast<unsigned>(firstDayOfWeek),
                     end(values));
-        v.value()->displayBars(View::BarD{barBorderColor,
-                                          barColor,
+        v.value()->displayBars(View::BarD{std::string{barBorderColor},
+                                          std::string{barColor},
                                           values,
                                           firstDayOfWeek == dw::Weekday::Monday
                                               ? mondayFirstOrder
@@ -120,8 +118,8 @@ void BestWorkdayPresenter::updateWithDefaultValues() const
 
     if (auto v = view(); v) {
         v.value()->displayLegend(View::LegendData{-1, "No data"});
-        v.value()->displayBars(View::BarD{barBorderColor,
-                                          barColor,
+        v.value()->displayBars(View::BarD{std::string{barBorderColor},
+                                          std::string{barColor},
                                           {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
                                           firstDayOfWeek == dw::Weekday::Monday
                                               ? mondayFirstOrder

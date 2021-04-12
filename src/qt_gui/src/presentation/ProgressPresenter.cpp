@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/ProgressPresenter.h"
+#include <string_view>
 
 namespace {
 
@@ -29,11 +30,11 @@ using sprint_timer::ui::contracts::DailyProgress::GaugeValues;
 using sprint_timer::ui::contracts::DailyProgress::LegendData;
 using sprint_timer::ui::contracts::DailyProgress::ProgressBarData;
 
-const std::string normalEmptyColor{"#a0a0a4"};
-const std::string normalFilledColor{"#6baa15"};
-const std::string overworkEmptyColor{normalFilledColor};
-const std::string overworkFilledColor{"#ff0000"};
-const std::string restDayEmptyColor{"#ffa500"};
+constexpr std::string_view normalEmptyColor{"#a0a0a4"};
+constexpr std::string_view normalFilledColor{"#6baa15"};
+constexpr std::string_view overworkEmptyColor{normalFilledColor};
+constexpr std::string_view overworkFilledColor{"#ff0000"};
+constexpr std::string_view restDayEmptyColor{"#ffa500"};
 
 LegendData composeLegendData(const ProgressOverPeriod& progress);
 
@@ -112,20 +113,20 @@ GaugeValues composeGaugeValues(const GoalProgress& progress)
         filledColor = restDayEmptyColor;
     }
     else if (progress.actual() == 0) {
-        emptyColor = normalEmptyColor;
-        filledColor = normalEmptyColor;
+        emptyColor = std::string{normalEmptyColor};
+        filledColor = std::string{normalEmptyColor};
     }
     else if (progress.actual() == progress.estimated()) {
-        emptyColor = normalFilledColor;
-        filledColor = normalFilledColor;
+        emptyColor = std::string{normalFilledColor};
+        filledColor = std::string{normalFilledColor};
     }
     else if (progress.actual() > progress.estimated()) {
-        emptyColor = overworkEmptyColor;
-        filledColor = overworkFilledColor;
+        emptyColor = std::string{overworkEmptyColor};
+        filledColor = std::string{overworkFilledColor};
     }
     else if (progress.actual() < progress.estimated()) {
-        emptyColor = normalEmptyColor;
-        filledColor = normalFilledColor;
+        emptyColor = std::string{normalEmptyColor};
+        filledColor = std::string{normalFilledColor};
     }
     return GaugeValues{
         progress.estimated(), progress.actual(), emptyColor, filledColor};
@@ -134,7 +135,7 @@ GaugeValues composeGaugeValues(const GoalProgress& progress)
 ProgressBarData composeProgressBarData(const ProgressOverPeriod& progress)
 {
     std::string emptyColor{"#ffffff"};
-    std::string filledColor{normalEmptyColor};
+    std::string filledColor{std::string{normalEmptyColor}};
 
     if (progress.size() == 0)
         return ProgressBarData{progress.estimated(),
@@ -146,11 +147,11 @@ ProgressBarData composeProgressBarData(const ProgressOverPeriod& progress)
     const auto& lastBin = progress.getValue(progress.size() - 1);
 
     if (lastBin.actual() > lastBin.estimated()) {
-        emptyColor = normalFilledColor;
-        filledColor = overworkFilledColor;
+        emptyColor = std::string{normalFilledColor};
+        filledColor = std::string{overworkFilledColor};
     }
     else if (lastBin.actual() == lastBin.estimated()) {
-        filledColor = normalFilledColor;
+        filledColor = std::string{normalFilledColor};
     }
     return ProgressBarData{lastBin.estimated(),
                            lastBin.actual(),

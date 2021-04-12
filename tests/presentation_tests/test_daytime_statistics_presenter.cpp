@@ -32,7 +32,7 @@ using ::testing::ReturnRef;
 
 namespace colors {
 
-const std::string filledColor{"#f63c0d"};
+constexpr std::string_view filledColor{"#f63c0d"};
 
 } // namespace colors
 
@@ -149,7 +149,7 @@ TEST_F(DaytimeStatisticsPresenterFixture,
        updates_diagram_with_placeholder_data_when_no_date_range_is_supplied)
 {
     using sprint_timer::ui::contracts::DaytimeStatisticsContract::DiagramData;
-    const DiagramData expected{colors::filledColor,
+    const DiagramData expected{std::string{colors::filledColor},
                                std::vector<dw::DateTimeRange>{}};
     const std::vector<Sprint> sprints;
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
@@ -191,7 +191,7 @@ TEST_F(DaytimeStatisticsPresenterFixture, updates_diagram_with_generic_data)
     const SprintDaytimeDistribution daytimeDistribution{distribution,
                                                         timeRanges};
     const auto sprints = buildSprintsFixture();
-    const DiagramData expected{colors::filledColor, timeRanges};
+    const DiagramData expected{std::string{colors::filledColor}, timeRanges};
     ON_CALL(mediator_mock, range()).WillByDefault(Return(someDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
 

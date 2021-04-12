@@ -28,7 +28,7 @@
 #include <chrono>
 #include <date_wrapper/date_wrapper.h>
 #include <optional>
-#include <string_view>
+#include <string>
 #include <vector>
 
 namespace sprint_timer::ui::contracts::TimerContract {
@@ -67,11 +67,11 @@ struct TimerUiModel {
     bool zoneControlVisible;
     bool dialVisible;
     bool invertedDial;
-    std::optional<std::string_view> dialColor;
-    std::optional<std::string_view> centerText;
+    std::optional<std::string> dialColor;
+    std::optional<std::string> centerText;
     std::optional<std::chrono::seconds> timerTotalDuration;
 
-    [[nodiscard]] static TimerUiModel idleUiModel(std::string_view text_)
+    [[nodiscard]] static TimerUiModel idleUiModel(std::string text_)
     {
         return TimerUiModel{false,
                             false,
@@ -79,13 +79,13 @@ struct TimerUiModel {
                             false,
                             false,
                             std::nullopt,
-                            std::optional<std::string_view>{text_},
+                            std::optional<std::string>{text_},
                             std::nullopt};
     }
 
     [[nodiscard]] static TimerUiModel
     runningUiModel(std::chrono::seconds timerTotalDuration_,
-                   std::string_view dialColor_,
+                   std::string dialColor_,
                    bool zoneControlVisible_)
     {
         return TimerUiModel{false,
@@ -93,26 +93,26 @@ struct TimerUiModel {
                             zoneControlVisible_,
                             true,
                             false,
-                            std::optional<std::string_view>{dialColor_},
+                            std::optional<std::string>{dialColor_},
                             std::nullopt,
                             timerTotalDuration_};
     }
 
     [[nodiscard]] static TimerUiModel
-    returnFromZoneUiModel(std::string_view dialColor_)
+    returnFromZoneUiModel(std::string dialColor_)
     {
         return TimerUiModel{false,
                             true,
                             true,
                             true,
                             false,
-                            std::optional<std::string_view>{dialColor_},
+                            std::optional<std::string>{dialColor_},
                             std::nullopt,
                             std::nullopt};
     }
 
     [[nodiscard]] static TimerUiModel
-    sprintFinishedUiModel(std::string_view centerText_)
+    sprintFinishedUiModel(std::string centerText_)
     {
         return TimerUiModel{true,
                             true,
@@ -120,19 +120,18 @@ struct TimerUiModel {
                             false,
                             false,
                             std::nullopt,
-                            std::optional<std::string_view>{centerText_},
+                            std::optional<std::string>{centerText_},
                             std::nullopt};
     }
 
-    [[nodiscard]] static TimerUiModel
-    zoneModeUiModel(std::string_view dialColor_)
+    [[nodiscard]] static TimerUiModel zoneModeUiModel(std::string dialColor_)
     {
         return TimerUiModel{false,
                             false,
                             true,
                             true,
                             false,
-                            std::optional<std::string_view>{dialColor_},
+                            std::optional<std::string>{dialColor_},
                             std::nullopt,
                             std::nullopt};
     }
@@ -143,8 +142,8 @@ private:
                  bool zoneControlVisible_,
                  bool dialVisible_,
                  bool invertedDial_,
-                 std::optional<std::string_view> dialColor_,
-                 std::optional<std::string_view> centerText_,
+                 std::optional<std::string> dialColor_,
+                 std::optional<std::string> centerText_,
                  std::optional<std::chrono::seconds> timerTotalDuration_)
         : submissionBoxVisible{submissionBoxVisible_}
         , cancelControlVisible{cancelControlVisible_}

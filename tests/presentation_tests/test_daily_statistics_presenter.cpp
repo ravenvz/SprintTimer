@@ -24,6 +24,7 @@
 #include "mocks/StatisticsMediatorMock.h"
 #include <core/SprintBuilder.h>
 #include <qt_gui/presentation/DailyStatisticsGraphPresenter.h>
+#include <string_view>
 
 using sprint_timer::entities::Sprint;
 using sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphData;
@@ -33,10 +34,10 @@ using ::testing::ReturnRef;
 
 namespace constants {
 
-const std::string dailyGraphColor{"#f63c0d"};
-const std::string averageColor{"#3949c4"};
-const std::string goalColor{"#39c473"};
-const std::string pointColor{"#ffffff"};
+constexpr std::string_view dailyGraphColor{"#f63c0d"};
+constexpr std::string_view averageColor{"#3949c4"};
+constexpr std::string_view goalColor{"#39c473"};
+constexpr std::string_view pointColor{"#ffffff"};
 constexpr double penWidthF{2.2};
 
 } // namespace constants
@@ -228,11 +229,12 @@ TEST_F(DailyStatisticsPresenterFixture, updates_graph_with_generic_data)
     using ::testing::_;
     using ::testing::Return;
 
-    const GraphOptions expectedDailyOptions{constants::dailyGraphColor,
-                                            constants::penWidthF,
-                                            true,
-                                            constants::pointColor,
-                                            LineStyle::Solid};
+    const GraphOptions expectedDailyOptions{
+        std::string{constants::dailyGraphColor},
+        constants::penWidthF,
+        true,
+        std::string{constants::pointColor},
+        LineStyle::Solid};
     const GraphData expectedDaily{expectedDailyOptions,
                                   {GraphValue{Value{0}, Value{2}, "1"},
                                    GraphValue{Value{1}, Value{12}, "2"},
@@ -240,17 +242,21 @@ TEST_F(DailyStatisticsPresenterFixture, updates_graph_with_generic_data)
                                    GraphValue{Value{3}, Value{0}, "4"},
                                    GraphValue{Value{4}, Value{10}, "5"}}};
 
-    const GraphOptions expectedAverageOptions{
-        constants::goalColor, constants::penWidthF, false, "", LineStyle::Dash};
+    const GraphOptions expectedAverageOptions{std::string{constants::goalColor},
+                                              constants::penWidthF,
+                                              false,
+                                              "",
+                                              LineStyle::Dash};
     const GraphData expectedAverage{expectedAverageOptions,
                                     {GraphValue{Value{0}, Value{12}, ""},
                                      GraphValue{Value{4}, Value{12}, ""}}};
 
-    const GraphOptions actualAverageOptions{constants::averageColor,
-                                            constants::penWidthF,
-                                            false,
-                                            "",
-                                            LineStyle::Solid};
+    const GraphOptions actualAverageOptions{
+        std::string{constants::averageColor},
+        constants::penWidthF,
+        false,
+        "",
+        LineStyle::Solid};
     const GraphData actualAverage{actualAverageOptions,
                                   {GraphValue{Value{0}, Value{19.5}, ""},
                                    GraphValue{Value{4}, Value{19.5}, ""}}};
