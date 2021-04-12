@@ -135,7 +135,7 @@
 #include <qt_gui/presentation/RegisterSprintControlPresenter.h>
 #include <qt_gui/presentation/StatisticsMediatorImpl.h>
 #include <qt_gui/presentation/TagEditorPresenter.h>
-#include <qt_gui/presentation/TagPieDiagramPresenter.h>
+#include <qt_gui/presentation/TopTagDiagramPresenter.h>
 #include <qt_gui/presentation/TaskSprintsPresenter.h>
 #include <qt_gui/presentation/TaskViewPresenter.h>
 #include <qt_gui/presentation/TimerPresenter.h>
@@ -606,7 +606,7 @@ int main(int argc, char* argv[])
         *workScheduleHandler, statisticsMediator};
     compose::BestWorkdayPresenterProxy bestWorkdayPresenter{
         statisticsMediator, applicationSettings, applicationSettings};
-    ui::TagPieDiagramPresenter tagPieDiagramPresenter{statisticsMediator};
+    ui::TopTagDiagramPresenter tagPieDiagramPresenter{statisticsMediator};
     ui::DaytimeStatisticsPresenter daytimeStatisticsPresenter{
         statisticsMediator};
 

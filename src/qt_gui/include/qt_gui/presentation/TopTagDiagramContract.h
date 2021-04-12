@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TAGPIEDIAGRAMCONTRACT_H_OMZV6RFJ
-#define TAGPIEDIAGRAMCONTRACT_H_OMZV6RFJ
+#ifndef TOPTAGDIAGRAMCONTRACT_H_QG2W8EJW
+#define TOPTAGDIAGRAMCONTRACT_H_QG2W8EJW
 
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-namespace sprint_timer::ui::contracts::TagPieDiagramContract {
+namespace sprint_timer::ui::contracts::TopTagDiagramContract {
 
 struct DiagramData {
     std::string tagName;
@@ -52,6 +52,6 @@ public:
     virtual void onTagIndexSelected(size_t index) = 0;
 };
 
-} // namespace sprint_timer::ui::contracts::TagPieDiagramContract
+} // namespace sprint_timer::ui::contracts::TopTagDiagramContract
 
-#endif /* end of include guard: TAGPIEDIAGRAMCONTRACT_H_OMZV6RFJ */
+#endif /* end of include guard: TOPTAGDIAGRAMCONTRACT_H_QG2W8EJW */

@@ -19,10 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DISTRIBUTIONDIAGRAM_H
-#define DISTRIBUTIONDIAGRAM_H
+#ifndef TOPTAGDIAGRAM_H_IABMCEKV
+#define TOPTAGDIAGRAM_H_IABMCEKV
 
-#include "qt_gui/presentation/TagPieDiagramContract.h"
+#include "qt_gui/presentation/TopTagDiagramContract.h"
 #include <QMouseEvent>
 #include <QWidget>
 
@@ -46,12 +46,12 @@ class IStatisticalChartLegend;
  * part is clicked or selected, chartSelectionChanged(size_t partIndex) signal
  * is emitted, indicating index of chart part being clicked.
  */
-class DistributionDiagram : public QWidget,
-                            public contracts::TagPieDiagramContract::View {
+class TopTagDiagram : public QWidget,
+                      public contracts::TopTagDiagramContract::View {
 public:
-    explicit DistributionDiagram(QWidget* parent = nullptr);
+    explicit TopTagDiagram(QWidget* parent = nullptr);
 
-    ~DistributionDiagram() override;
+    ~TopTagDiagram() override;
 
     /* Set title that is displayed above the legend items. */
     void setLegendTitle(const QString& title);
@@ -62,7 +62,7 @@ public:
     void updateLegend(const std::vector<std::string>& tagNames) override;
 
     void updateDiagram(
-        std::vector<contracts::TagPieDiagramContract::DiagramData>&& data)
+        std::vector<contracts::TopTagDiagramContract::DiagramData>&& data)
         override;
 
     void toggleSelection(std::optional<size_t> selection) override;
@@ -80,5 +80,4 @@ private:
 
 } // namespace sprint_timer::ui::qt_gui
 
-#endif // DISTRIBUTIONDIAGRAM_H
-
+#endif /* end of include guard: TOPTAGDIAGRAM_H_IABMCEKV */

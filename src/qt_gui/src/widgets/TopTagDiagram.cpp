@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/widgets/DistributionDiagram.h"
+#include "qt_gui/widgets/TopTagDiagram.h"
 #include "qt_gui/widgets/PieChart.h"
 #include "qt_gui/widgets/SimpleLegend.h"
 #include <QGridLayout>
@@ -30,7 +30,7 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-DistributionDiagram::DistributionDiagram(QWidget* parent_)
+TopTagDiagram::TopTagDiagram(QWidget* parent_)
     : QWidget{parent_}
     , diagram{std::make_unique<PieChart>(this).release()}
     , legend{std::make_unique<SimpleLegend>(this).release()}
@@ -46,22 +46,22 @@ DistributionDiagram::DistributionDiagram(QWidget* parent_)
     connect(diagram,
             &PieChart::partClicked,
             this,
-            &DistributionDiagram::onChartPartClicked);
+            &TopTagDiagram::onChartPartClicked);
     connect(legend,
             &IStatisticalChartLegend::itemClicked,
             this,
-            &DistributionDiagram::onLegendItemClicked);
+            &TopTagDiagram::onLegendItemClicked);
 }
 
-DistributionDiagram::~DistributionDiagram() = default;
+TopTagDiagram::~TopTagDiagram() = default;
 
-void DistributionDiagram::updateLegend(const std::vector<std::string>& tagNames)
+void TopTagDiagram::updateLegend(const std::vector<std::string>& tagNames)
 {
     legend->setData(tagNames);
 }
 
-void DistributionDiagram::updateDiagram(
-    std::vector<contracts::TagPieDiagramContract::DiagramData>&& diagramData)
+void TopTagDiagram::updateDiagram(
+    std::vector<contracts::TopTagDiagramContract::DiagramData>&& diagramData)
 {
     std::vector<PieChart::LabelData> pieChartData;
     pieChartData.reserve(diagramData.size());
@@ -75,7 +75,7 @@ void DistributionDiagram::updateDiagram(
     diagram->setData(pieChartData);
 }
 
-void DistributionDiagram::toggleSelection(std::optional<size_t> selection)
+void TopTagDiagram::toggleSelection(std::optional<size_t> selection)
 {
     if (!selection)
         return;
@@ -83,24 +83,24 @@ void DistributionDiagram::toggleSelection(std::optional<size_t> selection)
     diagram->togglePartActive(*selection);
 }
 
-void DistributionDiagram::setLegendTitle(const QString& title)
+void TopTagDiagram::setLegendTitle(const QString& title)
 {
     legend->setTitle(title);
 }
 
-void DistributionDiagram::setLegendTitleFont(QFont font)
+void TopTagDiagram::setLegendTitleFont(QFont font)
 {
     legend->setTitleFont(font);
 }
 
-void DistributionDiagram::onChartPartClicked(size_t partIndex)
+void TopTagDiagram::onChartPartClicked(size_t partIndex)
 {
     if (auto p = presenter(); p) {
         p.value()->onTagIndexSelected(partIndex);
     }
 }
 
-void DistributionDiagram::onLegendItemClicked(size_t itemIndex)
+void TopTagDiagram::onLegendItemClicked(size_t itemIndex)
 {
     onChartPartClicked(itemIndex);
 }

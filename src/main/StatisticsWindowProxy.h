@@ -34,12 +34,12 @@
 #include <qt_gui/presentation/DailyStatisticsGraphContract.h>
 #include <qt_gui/presentation/DateRangeSelectorContract.h>
 #include <qt_gui/presentation/DaytimeStatisticsContract.h>
-#include <qt_gui/presentation/TagPieDiagramContract.h>
+#include <qt_gui/presentation/TopTagDiagramContract.h>
 #include <qt_gui/widgets/BestWorkdayWidget.h>
 #include <qt_gui/widgets/BestWorktimeWidget.h>
 #include <qt_gui/widgets/DailyTimelineGraph.h>
 #include <qt_gui/widgets/DateRangeSelector.h>
-#include <qt_gui/widgets/DistributionDiagram.h>
+#include <qt_gui/widgets/TopTagDiagram.h>
 
 namespace sprint_timer::compose {
 
@@ -54,7 +54,7 @@ public:
         ui::contracts::BestWorkday::Presenter& bestWorkdayPresenter_,
         mvp::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
             bestWorktimePresenter_,
-        ui::contracts::TagPieDiagramContract::Presenter& tagDiagramPresenter_,
+        ui::contracts::TopTagDiagramContract::Presenter& tagDiagramPresenter_,
         ui::contracts::DateRangeSelectorContract::Presenter&
             dateRangeSelectorPresenter_)
         : dailyStatisticsGraphPresenter{dailyStatisticsGraphPresenter_}
@@ -71,7 +71,7 @@ private:
     ui::contracts::BestWorkday::Presenter& bestWorkdayPresenter;
     mvp::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
         bestWorktimePresenter;
-    ui::contracts::TagPieDiagramContract::Presenter& tagDiagramPresenter;
+    ui::contracts::TopTagDiagramContract::Presenter& tagDiagramPresenter;
     ui::contracts::DateRangeSelectorContract::Presenter&
         dateRangeSelectorPresenter;
 
@@ -82,7 +82,7 @@ private:
         selector->setPresenter(dateRangeSelectorPresenter);
         auto bestWorkdayView = std::make_unique<BestWorkdayWidget>();
         bestWorkdayView->setPresenter(bestWorkdayPresenter);
-        auto distributionDiagram = std::make_unique<DistributionDiagram>();
+        auto distributionDiagram = std::make_unique<TopTagDiagram>();
         distributionDiagram->setPresenter(tagDiagramPresenter);
         auto bestWorktimeView = std::make_unique<BestWorktimeWidget>();
         bestWorktimeView->setPresenter(bestWorktimePresenter);

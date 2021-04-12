@@ -19,21 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TAGPIEDIAGRAMPRESENTER_H_OHMURAGE
-#define TAGPIEDIAGRAMPRESENTER_H_OHMURAGE
+#ifndef TOPTAGDIAGRAMPRESENTER_H_US74BVEO
+#define TOPTAGDIAGRAMPRESENTER_H_US74BVEO
 
 #include "qt_gui/presentation/StatisticsMediator.h"
-#include "qt_gui/presentation/TagPieDiagramContract.h"
+#include "qt_gui/presentation/TopTagDiagramContract.h"
 
 namespace sprint_timer::ui {
 
-class TagPieDiagramPresenter
-    : public contracts::TagPieDiagramContract::Presenter,
+class TopTagDiagramPresenter
+    : public contracts::TopTagDiagramContract::Presenter,
       public StatisticsColleague {
 public:
-    explicit TagPieDiagramPresenter(StatisticsMediator& mediator);
+    explicit TopTagDiagramPresenter(StatisticsMediator& mediator);
 
-    ~TagPieDiagramPresenter() override;
+    ~TopTagDiagramPresenter() override;
 
     void onTagIndexSelected(size_t index) override;
 
@@ -63,4 +63,4 @@ private:
 
 } // namespace sprint_timer::ui
 
-#endif /* end of include guard: TAGPIEDIAGRAMPRESENTER_H_OHMURAGE */
+#endif /* end of include guard: TOPTAGDIAGRAMPRESENTER_H_US74BVEO */

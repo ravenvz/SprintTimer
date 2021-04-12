@@ -24,7 +24,7 @@
 
 #include "qt_gui/widgets/BestWorkdayWidget.h"
 #include "qt_gui/widgets/BestWorktimeWidget.h"
-#include "qt_gui/widgets/DistributionDiagram.h"
+#include "qt_gui/widgets/TopTagDiagram.h"
 #include <QFrame>
 #include <core/TagTop.h>
 
@@ -50,7 +50,7 @@ signals:
 
 private:
     BestWorkdayWidget* bestWorkdayWidget;
-    DistributionDiagram* tagDiagram;
+    TopTagDiagram* tagDiagram;
     BestWorktimeWidget* bestWorktimeWidget;
 };
 

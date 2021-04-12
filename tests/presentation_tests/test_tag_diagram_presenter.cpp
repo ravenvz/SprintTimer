@@ -22,13 +22,13 @@
 #include "mocks/StatisticsMediatorMock.h"
 #include "gtest/gtest.h"
 #include <core/SprintBuilder.h>
-#include <qt_gui/presentation/TagPieDiagramPresenter.h>
+#include <qt_gui/presentation/TopTagDiagramPresenter.h>
 
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::ReturnRef;
-using namespace sprint_timer::ui::contracts::TagPieDiagramContract;
+using namespace sprint_timer::ui::contracts::TopTagDiagramContract;
 
 namespace {
 
@@ -86,7 +86,7 @@ build_bigger_tag_top_fixture(const dw::DateTimeRange& someTimeSpan,
 
 } // namespace
 
-namespace sprint_timer::ui::contracts::TagPieDiagramContract {
+namespace sprint_timer::ui::contracts::TopTagDiagramContract {
 
 bool operator==(const DiagramData& lhs, const DiagramData& rhs)
 {
@@ -103,7 +103,7 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const DiagramData& data)
     return os;
 }
 
-} // namespace sprint_timer::ui::contracts::TagPieDiagramContract
+} // namespace sprint_timer::ui::contracts::TopTagDiagramContract
 
 class TagDiagramview : public View {
 public:
@@ -121,7 +121,7 @@ class TagDiagramPresenterFixture : public ::testing::Test {
 public:
     NiceMock<mocks::StatisticsMediatorMock> mediator_mock;
     const size_t numTopTags{7};
-    sprint_timer::ui::TagPieDiagramPresenter sut{mediator_mock};
+    sprint_timer::ui::TopTagDiagramPresenter sut{mediator_mock};
     NiceMock<TagDiagramview> view;
     dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
     dw::DateTimeRange someTimeSpan{dw::current_date_time(),

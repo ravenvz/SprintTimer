@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/TagPieDiagramPresenter.h"
+#include "qt_gui/presentation/TopTagDiagramPresenter.h"
 
 namespace {
 
@@ -33,12 +33,12 @@ const std::vector<std::string> colors{{"#28245a",
                                        "#258bc8",
                                        "#087847"}};
 
-// std::vector<sprint_timer::ui::contracts::TagPieDiagramContract::DiagramData>
+// std::vector<sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData>
 // toDiagramData(const sprint_timer::TagTop& tagtop);
 
 using ExtractedData = std::pair<
     std::vector<
-        sprint_timer::ui::contracts::TagPieDiagramContract::DiagramData>,
+        sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData>,
     std::vector<std::string>>;
 
 ExtractedData
@@ -50,18 +50,18 @@ void renameLeftoverTags(std::vector<std::string>& tagNames);
 
 namespace sprint_timer::ui {
 
-TagPieDiagramPresenter::TagPieDiagramPresenter(StatisticsMediator& mediator_)
+TopTagDiagramPresenter::TopTagDiagramPresenter(StatisticsMediator& mediator_)
     : mediator{mediator_}
 {
     mediator.addColleague(this);
 }
 
-TagPieDiagramPresenter::~TagPieDiagramPresenter()
+TopTagDiagramPresenter::~TopTagDiagramPresenter()
 {
     mediator.removeColleague(this);
 }
 
-void TagPieDiagramPresenter::onTagIndexSelected(size_t index)
+void TopTagDiagramPresenter::onTagIndexSelected(size_t index)
 {
     if (auto v = view(); v) {
         // deselect previos selection if any
@@ -74,11 +74,11 @@ void TagPieDiagramPresenter::onTagIndexSelected(size_t index)
     }
 }
 
-void TagPieDiagramPresenter::onSharedDataChanged() { updateView(); }
+void TopTagDiagramPresenter::onSharedDataChanged() { updateView(); }
 
-void TagPieDiagramPresenter::onViewAttached() { updateView(); }
+void TopTagDiagramPresenter::onViewAttached() { updateView(); }
 
-void TagPieDiagramPresenter::updateViewImpl()
+void TopTagDiagramPresenter::updateViewImpl()
 {
     if (auto v = view(); v && mediator.range()) {
         const auto& frequencies = mediator.tagFrequencies();
@@ -90,18 +90,18 @@ void TagPieDiagramPresenter::updateViewImpl()
     }
 }
 
-void TagPieDiagramPresenter::Selection::select(size_t index)
+void TopTagDiagramPresenter::Selection::select(size_t index)
 {
     const bool sameIndex{selectedIndex && *selectedIndex == index};
     selectedIndex = sameIndex ? std::nullopt : std::optional<size_t>(index);
 }
 
-std::optional<size_t> TagPieDiagramPresenter::Selection::currentIndex() const
+std::optional<size_t> TopTagDiagramPresenter::Selection::currentIndex() const
 {
     return selectedIndex;
 }
 
-void TagPieDiagramPresenter::Selection::setTags(
+void TopTagDiagramPresenter::Selection::setTags(
     const std::vector<std::string>& updatedTags)
 {
     selectedIndex = std::nullopt;
@@ -115,7 +115,7 @@ namespace {
 ExtractedData
 extractData(const std::vector<sprint_timer::TagTop::TagFrequency>& frequencies)
 {
-    using sprint_timer::ui::contracts::TagPieDiagramContract::DiagramData;
+    using sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData;
     std::vector<DiagramData> diagramData;
     std::vector<std::string> legendData;
     diagramData.reserve(frequencies.size());
