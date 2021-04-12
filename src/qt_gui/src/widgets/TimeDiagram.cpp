@@ -34,7 +34,7 @@ constexpr int32_t tickAngle{degreesInCircle / 24};
 constexpr size_t numTicksPerQuarter{6};
 constexpr double dialPenWidth{1.2};
 
-constexpr auto minutesFromMidnight(const auto& dateTime) noexcept -> int32_t;
+constexpr auto minutesFromMidnight(const dw::DateTime& dateTime) noexcept -> int32_t;
 
 constexpr auto
 mapDateTimeToSegmentedAngle(const dw::DateTime& dateTime) noexcept -> int32_t;
@@ -142,7 +142,7 @@ TimeDiagram::DrawingParams::DrawingParams(const QRectF& totalSizeRect)
 
 namespace {
 
-constexpr auto minutesFromMidnight(const auto& dateTime) noexcept -> int32_t
+constexpr auto minutesFromMidnight(const dw::DateTime& dateTime) noexcept -> int32_t
 {
     return static_cast<int32_t>((dateTime.hour() + dateTime.minute()).count());
 }
