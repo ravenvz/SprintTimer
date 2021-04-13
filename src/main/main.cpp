@@ -67,8 +67,6 @@
 #include "WorkScheduleEditorLifestyleProxy.h"
 #include "WorkScheduleEditorPresenterProxy.h"
 #include "WorkflowProxy.h"
-#include <QApplication>
-#include <QStyleFactory>
 #include "core/ComputeByDayStrategy.h"
 #include "core/ComputeByMonthStrategy.h"
 #include "core/ComputeByWeekStrategy.h"
@@ -109,7 +107,6 @@
 #include "external_io/Serializer.h"
 #include "external_io/SprintToCsvAlgorithm.h"
 #include "external_io/TaskToCsvAlgorithm.h"
-#include <filesystem>
 #include "qt_gui/QtConfig.h"
 #include "qt_gui/QtSoundPlayerImp.h"
 #include "qt_gui/delegates/HistoryItemDelegate.h"
@@ -135,12 +132,12 @@
 #include "qt_gui/presentation/RegisterSprintControlPresenter.h"
 #include "qt_gui/presentation/StatisticsMediatorImpl.h"
 #include "qt_gui/presentation/TagEditorPresenter.h"
-#include "qt_gui/presentation/TopTagDiagramPresenter.h"
 #include "qt_gui/presentation/TaskSprintsPresenter.h"
 #include "qt_gui/presentation/TaskViewPresenter.h"
 #include "qt_gui/presentation/TimerPresenter.h"
 #include "qt_gui/presentation/TodayProgressPresenter.h"
 #include "qt_gui/presentation/TodaySprintsPresenter.h"
+#include "qt_gui/presentation/TopTagDiagramPresenter.h"
 #include "qt_gui/presentation/UndoPresenter.h"
 #include "qt_gui/presentation/WorkScheduleEditorPresenter.h"
 #include "qt_gui/utils/WidgetUtils.h"
@@ -170,6 +167,9 @@
 #include "qt_storage/QtTaskStorage.h"
 #include "qt_storage/QtWorkingDaysStorage.h"
 #include "qt_storage/WorkerConnection.h"
+#include <QApplication>
+#include <QStyleFactory>
+#include <filesystem>
 
 /* Check three times before touching this */
 #include "FinishedTasksQueryHandlerSpecialization.h"
@@ -576,10 +576,7 @@ int main(int argc, char* argv[])
     ui::RegisterSprintControlPresenter registerSprintControlPresenter{
         *registerSprintBulkHandler};
     compose::AddSprintDialogProxy addSprintDialog{
-        registerSprintControlPresenter,
-        activeTaskModel,
-        applicationSettings,
-        applicationSettings};
+        registerSprintControlPresenter, activeTaskModel, applicationSettings};
 
     SprintModel todaySprintsModel;
     todaySprintsModel.setPresenter(todaySprintsPresenter);

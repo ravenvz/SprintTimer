@@ -34,35 +34,26 @@ public:
     AddSprintDialogProxy(
         ui::contracts::RegisterSprintControl::Presenter& presenter_,
         QAbstractItemModel& taskModel_,
-        IConfig& settings_,
-        Observable& configChangedSignaller_)
+        IConfig& settings_)
         : presenter{presenter_}
         , taskModel{taskModel_}
         , settings{settings_}
-        , configChangedWatcher{configChangedSignaller_,
-                               [this]() { onConfigChanged(); }}
     {
     }
 
     std::unique_ptr<ui::qt_gui::DisplayableDialog> create() override
     {
         return std::make_unique<ui::qt_gui::AddSprintDialog>(
-            presenter, taskModel, dw::Weekday::Sunday, sprintDuration);
+            presenter,
+            taskModel,
+            settings.firstDayOfWeek(),
+            settings.sprintDuration());
     }
 
 private:
     ui::contracts::RegisterSprintControl::Presenter& presenter;
     QAbstractItemModel& taskModel;
     IConfig& settings;
-    CompositionObserver configChangedWatcher;
-    std::chrono::minutes sprintDuration{settings.sprintDuration()};
-    dw::Weekday firstDayOfWeek{settings.firstDayOfWeek()};
-
-    void onConfigChanged()
-    {
-        sprintDuration = settings.sprintDuration();
-        firstDayOfWeek = settings.firstDayOfWeek();
-    }
 };
 
 } // namespace sprint_timer::compose
