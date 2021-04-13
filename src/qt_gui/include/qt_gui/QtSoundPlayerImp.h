@@ -22,8 +22,8 @@
 #ifndef QTSOUNDPLAYERIMP_H_F7WYTSZA
 #define QTSOUNDPLAYERIMP_H_F7WYTSZA
 
-#include <QMediaPlayer>
 #include "core/SoundPlayer.h"
+#include <QMediaPlayer>
 
 namespace sprint_timer::qt_gui {
 

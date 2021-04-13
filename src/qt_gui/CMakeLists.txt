@@ -1,4 +1,4 @@
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets Multimedia)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
@@ -8,7 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTORCC ON)
 
-QT5_WRAP_UI(UI_HEADERS
+QT6_WRAP_UI(UI_HEADERS
         ui/mainwindow.ui
         ui/add_exceptional_day_dialog.ui
         ui/add_todo_dialog.ui
@@ -260,9 +260,8 @@ target_link_libraries(${GUI_LIB}
         sprint_timer_options
         sprint_timer_warnings
     PUBLIC
-        Qt5::Core
-        Qt5::Widgets
-        Qt5::Multimedia
+        Qt6::Core
+        Qt6::Widgets
         ${CORE_LIB}
 )
 

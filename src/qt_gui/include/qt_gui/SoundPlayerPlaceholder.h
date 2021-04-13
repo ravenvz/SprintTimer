@@ -19,27 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/widgets/ReordableListView.h"
+#ifndef SOUNDPLAYERPLACEHOLDER_H_MPZOYOQ8
+#define SOUNDPLAYERPLACEHOLDER_H_MPZOYOQ8
+
+#include "core/SoundPlayer.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-ReordableListView::ReordableListView(QWidget* parent)
-    : QListView(parent)
-{
-    setSelectionMode(QAbstractItemView::SingleSelection);
-    setDragEnabled(true);
-    viewport()->setAcceptDrops(true);
-    setDropIndicatorShown(true);
-}
+class SoundPlayerPlaceholder : public SoundPlayer {
+public:
+    void setVolume(int /* volume */) override { }
 
-void ReordableListView::dropEvent(QDropEvent* event)
-{
-    int rowMovedFrom = currentIndex().row();
-    int rowMovedTo = indexAt(event->position().toPoint()).row();
-    model()->moveRows(
-        QModelIndex(), rowMovedFrom, 1, QModelIndex(), rowMovedTo);
-}
+    void play(const std::string& /* mediaPath */) override { }
+
+    void setSoundEnabled(bool /* enabled */) override { }
+};
 
 } // namespace sprint_timer::ui::qt_gui
 
-
+#endif /* end of include guard: SOUNDPLAYERPLACEHOLDER_H_MPZOYOQ8 */

@@ -118,7 +118,7 @@
 #include "external_io/SprintToCsvAlgorithm.h"
 #include "external_io/TaskToCsvAlgorithm.h"
 #include "qt_gui/QtConfig.h"
-#include "qt_gui/QtSoundPlayerImp.h"
+#include "qt_gui/SoundPlayerPlaceholder.h"
 #include "qt_gui/delegates/HistoryItemDelegate.h"
 #include "qt_gui/delegates/SubmissionItemDelegate.h"
 #include "qt_gui/delegates/TaskItemDelegate.h"
@@ -319,7 +319,6 @@ int main(int argc, char* argv[])
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QApplication::setOrganizationName("RavenStudio");
     QApplication::setApplicationName("SprintTimer");
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     const std::string dataDirectory = getOrCreateSprintTimerDataDirectory();
     if (dataDirectory.empty()) {
@@ -724,11 +723,11 @@ int main(int argc, char* argv[])
     auto launcherMenu = std::make_unique<LauncherMenu>(
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
 
-    QMediaPlayer qmediaPlayer;
+    // QMediaPlayer qmediaPlayer;
     compose::RuntimeConfigurableSoundPlayer soundPlayer(
         applicationSettings,
         applicationSettings,
-        std::make_unique<qt_gui::SoundPlayerImp>(qmediaPlayer));
+        std::make_unique<ui::qt_gui::SoundPlayerPlaceholder>());
 
     ui::ConfigurableAssetLibrary assetLibrary_{
         {{"ringSound", applicationSettings.soundFilePath()}}};

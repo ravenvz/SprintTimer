@@ -233,19 +233,23 @@ void Graph::drawAxisLabels(QPainter& painter, double labelPosY)
 
 void Graph::handleMouseMoveEvent(QMouseEvent* event) const
 {
-    if (!options.showPoints)
+    if (!options.showPoints) {
         return;
+    }
 
     // According to Qt documentation one should call event->ignore
     // if QToolTip::hideText called or QToolTip::showText is called
     // with empty string
     for (const auto& box : pointBoxes) {
-        if (!box.path.contains(event->pos() - box.position))
+        if (!box.path.contains(event->globalPosition() - box.position)) {
             continue;
-        const QPoint toolTipPos{event->globalPos().x(),
-                                event->globalPos().y() - toolTipOffset};
-        if (box.toolTip.isEmpty())
+        }
+        const QPoint toolTipPos{
+            static_cast<int>(event->globalPosition().x()),
+            static_cast<int>(event->globalPosition().y() - toolTipOffset)};
+        if (box.toolTip.isEmpty()) {
             event->ignore();
+        }
         QToolTip::showText(toolTipPos, box.toolTip);
         return;
     }
