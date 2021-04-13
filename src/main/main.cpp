@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
+#include "qt_storage/DatabaseInitializer.h"
 #ifdef _WIN32
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
 #include <ShlObj.h>
@@ -323,9 +324,16 @@ int main(int argc, char* argv[])
 
     QApplication app(argc, argv);
 
+    const QString sqliteFile =
+        QString::fromStdString(dataDirectory + "/test_sprint.db");
+
+    {
+        DatabaseInitializer initializer{sqliteFile};
+    }
+
     // TODO(vizier): should be one per thread when async is implemented
-    storage::qt_storage::WorkerConnection worker_connection{dataDirectory +
-                                                            "/test_sprint.db"};
+    storage::qt_storage::WorkerConnection worker_connection{sqliteFile};
+
     QtStorageImplementersFactory storageFactory{
         worker_connection.connectionName()};
     auto sprintStorage = storageFactory.sprintStorage();

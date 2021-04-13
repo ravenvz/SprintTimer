@@ -38,9 +38,9 @@ namespace sprint_timer::storage::qt_storage {
 
 class WorkerConnection {
 public:
-    WorkerConnection(const QString& filename);
+    explicit WorkerConnection(const QString& filename);
 
-    WorkerConnection(const std::string& filename);
+    explicit WorkerConnection(const std::string& filename);
 
     ~WorkerConnection() = default;
 
