@@ -26,6 +26,8 @@
 #include <QWidget>
 #include <memory>
 
+class QPushButton;
+
 namespace sprint_timer::ui::qt_gui {
 
 class SprintOutline : public QWidget {
@@ -33,6 +35,7 @@ class SprintOutline : public QWidget {
 public:
     SprintOutline(std::unique_ptr<QWidget> sprintView,
                   std::unique_ptr<QWidget> undoWidget,
+                  std::unique_ptr<QPushButton> addSprintButton,
                   Displayable& addSprintDialog,
                   QWidget* parent = nullptr);
 };

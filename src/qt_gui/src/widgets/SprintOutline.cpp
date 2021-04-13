@@ -27,20 +27,20 @@ namespace sprint_timer::ui::qt_gui {
 
 SprintOutline::SprintOutline(std::unique_ptr<QWidget> sprintView_,
                              std::unique_ptr<QWidget> undoWidget_,
+                             std::unique_ptr<QPushButton> addSprintButton_,
                              Displayable& addSprintDialog_,
                              QWidget* parent_)
     : QWidget{parent_}
 {
     auto layout = std::make_unique<QVBoxLayout>();
-    auto addSprintButton = std::make_unique<QPushButton>("Add Sprint");
 
-    connect(addSprintButton.get(),
+    connect(addSprintButton_.get(),
             &QPushButton::clicked,
             [&addSprintDialog_]() { addSprintDialog_.display(); });
 
     layout->addWidget(undoWidget_.release());
     layout->addWidget(sprintView_.release());
-    layout->addWidget(addSprintButton.release());
+    layout->addWidget(addSprintButton_.release());
 
     setLayout(layout.release());
 }

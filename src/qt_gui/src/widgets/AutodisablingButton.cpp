@@ -21,6 +21,12 @@
 *********************************************************************************/
 #include "qt_gui/widgets/AutodisablingButton.h"
 
+namespace {
+
+void enableWidgetWhenModelHasData(QWidget& widget, QAbstractItemModel& model);
+
+} // namespace
+
 namespace sprint_timer::ui::qt_gui {
 
 AutodisablingButton::AutodisablingButton(QAbstractItemModel& model_,
@@ -28,9 +34,20 @@ AutodisablingButton::AutodisablingButton(QAbstractItemModel& model_,
                                          QWidget* parent_)
     : QPushButton{text, parent_}
 {
+    enableWidgetWhenModelHasData(*this, model_);
+
     connect(&model_, &QAbstractItemModel::modelReset, [this, &model_]() {
-        setEnabled(model_.rowCount() != 0);
+        enableWidgetWhenModelHasData(*this, model_);
     });
 }
 
 } // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+void enableWidgetWhenModelHasData(QWidget& widget, QAbstractItemModel& model)
+{
+    widget.setEnabled(model.rowCount() > 0);
+}
+
+} // namespace

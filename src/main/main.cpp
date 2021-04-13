@@ -558,18 +558,6 @@ int main(int argc, char* argv[])
     TagModel tagModel;
     tagModel.setPresenter(tagEditorPresenter);
 
-    ui::UndoPresenter undoPresenter{
-        actionInvoker, actionInvoker, cacheInvalidationMediator};
-    auto undoWidget = std::make_unique<qt_gui::UndoWidget>();
-    undoWidget->setPresenter(undoPresenter);
-    // auto undoButton =
-    //     std::make_unique<UndoButton>(actionInvoker, actionInvoker);
-
-    // addNewSprintButton->setEnabled(false);
-    // auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
-    // SprintModel todaySprintsModel;
-    // sprintView->setModel(&todaySprintsModel);
-
     ui::TodaySprintsPresenter todaySprintsPresenter{*deleteSprintHandler,
                                                     *requestSprintsHandler};
 
@@ -591,8 +579,15 @@ int main(int argc, char* argv[])
 
     auto sprintView = std::make_unique<ContextMenuListView>(nullptr);
     sprintView->setModel(&todaySprintsModel);
+    ui::UndoPresenter undoPresenter{
+        actionInvoker, actionInvoker, cacheInvalidationMediator};
+    auto undoWidget = std::make_unique<qt_gui::UndoWidget>();
+    undoWidget->setPresenter(undoPresenter);
     auto sprintOutline = std::make_unique<SprintOutline>(
-        std::move(sprintView), std::move(undoWidget), addSprintDialog);
+        std::move(sprintView),
+        std::move(undoWidget),
+        std::make_unique<AutodisablingButton>(activeTaskModel, "Add Sprint"),
+        addSprintDialog);
 
     const size_t numTopTags{5};
     ui::StatisticsMediatorImpl statisticsMediator{*requestSprintsHandler,
