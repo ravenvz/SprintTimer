@@ -140,7 +140,6 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TimeDiagram.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TimerView.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/TodayProgressIndicator.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/UndoButton.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/widgets/UndoWidget.h"
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/resources/resources.qrc"
@@ -221,7 +220,6 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TimeDiagram.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TimerView.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TodayProgressIndicator.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/widgets/UndoButton.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/UndoWidget.cpp"
         "${UI_HEADERS}"
 )

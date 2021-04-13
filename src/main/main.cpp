@@ -159,7 +159,6 @@
 #include "qt_gui/widgets/TaskView.h"
 #include "qt_gui/widgets/TimerView.h"
 #include "qt_gui/widgets/TodayProgressIndicator.h"
-#include "qt_gui/widgets/UndoButton.h"
 #include "qt_gui/widgets/UndoWidget.h"
 #include "qt_storage/QtOperationalRangeReader.h"
 #include "qt_storage/QtSprintDistributionReader.h"
