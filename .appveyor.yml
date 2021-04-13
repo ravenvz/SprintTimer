@@ -28,16 +28,16 @@ configuration:
 build: off
 
 before_build:
-    - set QTDIR=C:\Qt\5.15\msvc2017_64
+    - set QTDIR=C:\Qt\5.15\msvc2019_64
     - set DEBUG_BIN_DIR=C:\projects\sprint_timer\build\x64_Debug\bin
     - set RELEASE_BIN_DIR=C:\projects\sprint_timer\build\x64_Release\bin
 
 build_script:
     - mkdir build
     - cd build
-    - cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_VERBOSE_MAKEFILE="OFF" -DCMAKE_PREFIX_PATH="C:/Qt/5.15/msvc2017_64/lib/cmake" -DCMAKE_INCLUDE_PATH="C:\Libraries\boost_1_71_0" -DWARNINGS_AS_ERRORS=False -DENABLE_TESTING=ON -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_INSTALL_PREFIX="C:/sprint_timer_bin"
-    - mkdir C:\projects\sprint_timer\build\x64_Debug\bin
-    - mkdir C:\projects\sprint_timer\build\x64_Release\bin
+    - cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_VERBOSE_MAKEFILE="OFF" -DCMAKE_PREFIX_PATH="C:/Qt/5.15/msvc2019_64/lib/cmake" -DCMAKE_INCLUDE_PATH="C:\Libraries\boost_1_71_0" -DWARNINGS_AS_ERRORS=False -DENABLE_TESTING=ON -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_INSTALL_PREFIX="C:/sprint_timer_bin"
+    - mkdir DEBUG_BIN_DIR
+    - mkdir RELEASE_BIN_DIR
     - copy %QTDIR%\bin\Qt5Core.dll RELEASE_BIN_DIR
     - copy %QTDIR%\bin\Qt5Gui.dll RELEASE_BIN_DIR
     - copy %QTDIR%\bin\Qt5Multimedia.dll RELEASE_BIN_DIR
