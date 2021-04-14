@@ -28,7 +28,7 @@ TagModel::TagModel(QObject* parent_)
 {
 }
 
-inline void TagModel::displayTags(const std::vector<std::string>& tags)
+void TagModel::displayTags(const std::vector<std::string>& tags)
 {
     QStringList data;
     std::transform(
