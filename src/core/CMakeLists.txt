@@ -192,9 +192,11 @@ target_include_directories(${CORE_LIB}
         ${date_wrapper_INCLUDE_DIRS}
 )
 target_include_directories(${CORE_LIB}
+    SYSTEM PUBLIC ${Boost_INCLUDE_DIRS}
+)
+target_include_directories(${CORE_LIB}
     PUBLIC
         include
-		${Boost_INCLUDE_DIRS}
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
