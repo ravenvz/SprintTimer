@@ -21,19 +21,15 @@
 *********************************************************************************/
 #include "QtStorageInitializer.h"
 
-// namespace {
-//
-// int dummyArgc{1};
-// char argv[] = "dummy";
-// char* dummyArgv[] = {argv};
-//
-// } // namespace
-//
-// QtStorageInitializer::QtStorageInitializer()
-//     : app{dummyArgc, dummyArgv}
-// {
-// }
-//
-// void QtStorageInitializer::runEventLoop() { app.exec(); }
-//
-// void QtStorageInitializer::quit() { app.quit(); }
+namespace {
+
+int dummyArgc{1};
+char argv[] = "dummy";
+char* dummyArgv[] = {argv};
+
+} // namespace
+
+TestStorageInitializer::TestStorageInitializer()
+    : app{dummyArgc, dummyArgv}
+{
+}

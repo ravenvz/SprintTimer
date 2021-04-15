@@ -31,7 +31,7 @@ using namespace sprint_timer::external_io;
 namespace {
 
 // TODO that makes test run depend on working directory
-constexpr char const* rfc_4180_test_file = "tests/core_tests/data/rfc_4180.csv";
+constexpr char const* rfc_4180_test_file = "tests/external_io_tests/data/rfc_4180.csv";
 
 } // namespace
 

@@ -29,6 +29,9 @@
 
 struct TestStorageInitializer {
 
+    TestStorageInitializer();
+
+    QCoreApplication app;
     const QString name{"file::memory:?cache=shared"};
     sprint_timer::storage::qt_storage::ConnectionGuard connectionGuard{
         name, "Keep alive conn"};
