@@ -196,7 +196,6 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/HistoryPresenter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/ProgressPresenter.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/RegisterSprintControlPresenter.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/presentation/SprintDTO.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/SprintMapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/StatisticsMediatorImpl.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/presentation/TimerPresenter.cpp"

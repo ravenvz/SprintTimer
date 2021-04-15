@@ -35,9 +35,9 @@ struct SprintDTO {
     std::vector<std::string> tags;
     dw::DateTimeRange timeRange{dw::current_date_time(),
                                 dw::current_date_time()};
-};
 
-bool operator==(const SprintDTO& lhs, const SprintDTO& rhs);
+    bool operator==(const SprintDTO& other) const = default;
+};
 
 } // namespace sprint_timer::ui
 
