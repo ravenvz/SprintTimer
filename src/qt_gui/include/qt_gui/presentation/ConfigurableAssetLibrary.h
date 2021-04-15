@@ -41,29 +41,6 @@ private:
     std::unordered_map<std::string, std::string> assetPathMapper;
 };
 
-inline ConfigurableAssetLibrary::ConfigurableAssetLibrary(
-    const std::vector<std::pair<std::string, std::string>>& entries_)
-{
-    for (const auto& entry : entries_) {
-        assetPathMapper.insert(entry);
-    }
-}
-
-inline std::optional<std::string>
-ConfigurableAssetLibrary::filePath(const std::string& assetId) const
-{
-    if (auto entry = assetPathMapper.find(assetId);
-        entry != assetPathMapper.cend()) {
-        return entry->second;
-    }
-    return std::nullopt;
-}
-
-inline void ConfigurableAssetLibrary::replaceAssetPath(
-    const std::pair<std::string, std::string>& entry)
-{
-    assetPathMapper[entry.first] = entry.second;
-}
 } // namespace sprint_timer::ui
 
 #endif /* end of include guard: CONFIGURABLEASSETLIBRARY_H_1PX4JSGU */

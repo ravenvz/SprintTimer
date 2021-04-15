@@ -19,31 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SHAREDVALUE_H_ETUSINPQ
-#define SHAREDVALUE_H_ETUSINPQ
-
-#include <optional>
-#include "core/Observable.h"
+#include "qt_gui/presentation/TagEditorPresenter.h"
 
 namespace sprint_timer::ui {
 
-template <typename T>
-class SharedValue : public Observable {
-public:
-    std::optional<T> value() const
-    {
-        return val;
-    }
+TagEditorPresenter::TagEditorPresenter(all_tags_hdl_t& allTagsHandler_,
+                                       rename_tag_hdl_t& renameTagHandler_)
+    : allTagsHandler{allTagsHandler_}
+    , renameTagHandler{renameTagHandler_}
+{
+}
 
-    void setValue(T value_)
-    {
-        val = std::move(value_);
-    }
+void TagEditorPresenter::renameTag(const std::string& original,
+                                   const std::string& renamed)
+{
+    renameTagHandler.handle(use_cases::RenameTagCommand{original, renamed});
+}
 
-private:
-    std::optional<T> val;
-};
+void TagEditorPresenter::updateViewImpl()
+{
+    if (auto v = view(); v) {
+        v.value()->displayTags(
+            allTagsHandler.handle(use_cases::AllTagsQuery{}));
+    }
+}
+
+void TagEditorPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
-
-#endif /* end of include guard: SHAREDVALUE_H_ETUSINPQ */

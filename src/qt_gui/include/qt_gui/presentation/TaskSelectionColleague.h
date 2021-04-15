@@ -19,32 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ADDTASKCONTROLPRESENTER_H_KQFERPSW
-#define ADDTASKCONTROLPRESENTER_H_KQFERPSW
-
-#include "core/CommandHandler.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/create_task/CreateTaskCommand.h"
-#include "core/use_cases/request_tags/AllTagsQuery.h"
-#include "qt_gui/presentation/AddTaskControl.h"
-#include "qt_gui/presentation/TaskMapper.h"
+#ifndef TASKSELECTIONCOLLEAGUE_H_HWIGXCOT
+#define TASKSELECTIONCOLLEAGUE_H_HWIGXCOT
 
 namespace sprint_timer::ui {
 
-class AddTaskControlPresenter : public contracts::AddTaskControl::Presenter {
+class TaskSelectionColleague {
 public:
-    explicit AddTaskControlPresenter(
-        CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler);
+    virtual ~TaskSelectionColleague() = default;
 
-    void addTask(const TaskDTO& details) const override;
-
-    void addTask(const std::string& encodedDescription) const override;
-
-private:
-    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler;
+    virtual void onTaskSelectionChanged() = 0;
 };
 
 } // namespace sprint_timer::ui
 
-#endif /* end of include guard: ADDTASKCONTROLPRESENTER_H_KQFERPSW */
-
+#endif /* end of include guard: TASKSELECTIONCOLLEAGUE_H_HWIGXCOT */

@@ -46,35 +46,6 @@ private:
     void onViewAttached() override;
 };
 
-inline TaskViewPresenter::TaskViewPresenter(
-    TaskSelectionMediator& taskSelectionMediator_)
-    : taskSelectionMediator{taskSelectionMediator_}
-{
-    taskSelectionMediator.addColleague(this);
-}
-
-inline TaskViewPresenter::~TaskViewPresenter()
-{
-    taskSelectionMediator.removeColleague(this);
-}
-
-inline void TaskViewPresenter::changeTaskSelection(size_t index,
-                                                   std::string&& uuid)
-{
-    taskSelectionMediator.changeSelection(this, index, std::move(uuid));
-}
-
-inline void TaskViewPresenter::updateViewImpl() { onTaskSelectionChanged(); }
-
-inline void TaskViewPresenter::onViewAttached() { updateView(); }
-
-inline void TaskViewPresenter::onTaskSelectionChanged()
-{
-    if (auto v = view(); v) {
-        v.value()->selectTask(taskSelectionMediator.taskIndex());
-    }
-}
-
 } // namespace sprint_timer::ui
 
 #endif /* end of include guard: UNFINISHEDTASKSPRESENTER_H_LUJVQIYM */

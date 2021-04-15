@@ -23,36 +23,23 @@
 #define TASKSELECTIONMEDIATOR_H_K1DXY98M
 
 #include "qt_gui/presentation/Mediator.h"
+#include "qt_gui/presentation/TaskSelectionColleague.h"
 #include "qt_gui/presentation/TaskSelectionContext.h"
 #include <string>
 #include <vector>
 
 namespace sprint_timer::ui {
 
-class TaskSelectionColleague {
-public:
-    virtual ~TaskSelectionColleague() = default;
-
-    virtual void onTaskSelectionChanged() = 0;
-};
-
 class TaskSelectionMediator : public Mediator<TaskSelectionColleague>,
                               public TaskSelectionContext {
 public:
     void changeSelection(TaskSelectionColleague* caller,
                          size_t taskIndex,
-                         std::string&& taskUuid)
-    {
-        index = taskIndex;
-        uuid = std::move(taskUuid);
+                         std::string&& taskUuid);
 
-        mediate(caller,
-                [](auto* colleague) { colleague->onTaskSelectionChanged(); });
-    }
+    std::optional<size_t> taskIndex() const override;
 
-    std::optional<size_t> taskIndex() const override { return index; }
-
-    std::optional<std::string> taskUuid() const override { return uuid; }
+    std::optional<std::string> taskUuid() const override;
 
 private:
     std::optional<size_t> index;

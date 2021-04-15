@@ -19,32 +19,36 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ADDTASKCONTROLPRESENTER_H_KQFERPSW
-#define ADDTASKCONTROLPRESENTER_H_KQFERPSW
-
-#include "core/CommandHandler.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/create_task/CreateTaskCommand.h"
-#include "core/use_cases/request_tags/AllTagsQuery.h"
-#include "qt_gui/presentation/AddTaskControl.h"
-#include "qt_gui/presentation/TaskMapper.h"
+#include "qt_gui/presentation/TaskViewPresenter.h"
 
 namespace sprint_timer::ui {
 
-class AddTaskControlPresenter : public contracts::AddTaskControl::Presenter {
-public:
-    explicit AddTaskControlPresenter(
-        CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler);
+TaskViewPresenter::TaskViewPresenter(
+    TaskSelectionMediator& taskSelectionMediator_)
+    : taskSelectionMediator{taskSelectionMediator_}
+{
+    taskSelectionMediator.addColleague(this);
+}
 
-    void addTask(const TaskDTO& details) const override;
+TaskViewPresenter::~TaskViewPresenter()
+{
+    taskSelectionMediator.removeColleague(this);
+}
 
-    void addTask(const std::string& encodedDescription) const override;
+void TaskViewPresenter::changeTaskSelection(size_t index, std::string&& uuid)
+{
+    taskSelectionMediator.changeSelection(this, index, std::move(uuid));
+}
 
-private:
-    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler;
-};
+void TaskViewPresenter::updateViewImpl() { onTaskSelectionChanged(); }
+
+void TaskViewPresenter::onViewAttached() { updateView(); }
+
+void TaskViewPresenter::onTaskSelectionChanged()
+{
+    if (auto v = view(); v) {
+        v.value()->selectTask(taskSelectionMediator.taskIndex());
+    }
+}
 
 } // namespace sprint_timer::ui
-
-#endif /* end of include guard: ADDTASKCONTROLPRESENTER_H_KQFERPSW */
-

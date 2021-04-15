@@ -22,10 +22,10 @@
 #ifndef REGISTERSPRINTCONTROLPRESENTER_H_CJFOM9FV
 #define REGISTERSPRINTCONTROLPRESENTER_H_CJFOM9FV
 
-#include "qt_gui/presentation/RegisterSprintControl.h"
 #include "core/CommandHandler.h"
 #include "core/SprintBuilder.h"
 #include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include "qt_gui/presentation/RegisterSprintControl.h"
 
 namespace sprint_timer::ui {
 
@@ -51,45 +51,6 @@ public:
 private:
     register_sprint_bulk_hdl_t& registerSprintBulkHandler;
 };
-
-inline RegisterSprintControlPresenter::RegisterSprintControlPresenter(
-    register_sprint_bulk_hdl_t& registerSprintBulkHandler_)
-    : registerSprintBulkHandler{registerSprintBulkHandler_}
-{
-}
-
-inline void RegisterSprintControlPresenter::registerConsecutiveSprints(
-    const std::string& taskUuid,
-    dw::DateTime firstSprintStart,
-    int32_t numSprints,
-    std::chrono::minutes sprintDuration)
-{
-    std::vector<entities::Sprint> sprints(static_cast<size_t>(numSprints));
-    auto builder = SprintBuilder{}.withTaskUuid(taskUuid);
-    dw::DateTimeRange span{firstSprintStart, firstSprintStart + sprintDuration};
-    std::generate(begin(sprints), end(sprints), [&]() {
-        const auto prevSpan = span;
-        span = dw::add_offset(span, sprintDuration);
-        return builder.withTimeSpan(prevSpan).build();
-    });
-    registerSprintBulkHandler.handle(
-        use_cases::RegisterSprintBulkCommand{std::move(sprints)});
-}
-
-inline void RegisterSprintControlPresenter::registerSprintBulk(
-    const std::string& taskUuid,
-    const std::vector<dw::DateTimeRange>& timeRanges)
-{
-    std::vector<entities::Sprint> sprints(timeRanges.size());
-    std::transform(cbegin(timeRanges),
-                   cend(timeRanges),
-                   begin(sprints),
-                   [&](const auto& elem) {
-                       return entities::Sprint{taskUuid, elem};
-                   });
-    registerSprintBulkHandler.handle(
-        use_cases::RegisterSprintBulkCommand{std::move(sprints)});
-}
 
 } // namespace sprint_timer::ui
 

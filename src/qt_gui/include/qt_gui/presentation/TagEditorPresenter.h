@@ -22,11 +22,11 @@
 #ifndef TAGEDITORPRESENTER_H_QMSK5CBY
 #define TAGEDITORPRESENTER_H_QMSK5CBY
 
-#include "qt_gui/presentation/TagEditorContract.h"
 #include "core/CommandHandler.h"
 #include "core/QueryHandler.h"
 #include "core/use_cases/rename_tag/RenameTagCommand.h"
 #include "core/use_cases/request_tags/AllTagsQuery.h"
+#include "qt_gui/presentation/TagEditorContract.h"
 
 namespace sprint_timer::ui {
 
@@ -50,29 +50,6 @@ private:
 
     void onViewAttached() override;
 };
-
-TagEditorPresenter::TagEditorPresenter(all_tags_hdl_t& allTagsHandler_,
-                                       rename_tag_hdl_t& renameTagHandler_)
-    : allTagsHandler{allTagsHandler_}
-    , renameTagHandler{renameTagHandler_}
-{
-}
-
-inline void TagEditorPresenter::renameTag(const std::string& original,
-                                          const std::string& renamed)
-{
-    renameTagHandler.handle(use_cases::RenameTagCommand{original, renamed});
-}
-
-inline void TagEditorPresenter::updateViewImpl()
-{
-    if (auto v = view(); v) {
-        v.value()->displayTags(
-            allTagsHandler.handle(use_cases::AllTagsQuery{}));
-    }
-}
-
-inline void TagEditorPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 

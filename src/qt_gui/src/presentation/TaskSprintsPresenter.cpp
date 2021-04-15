@@ -19,32 +19,29 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ADDTASKCONTROLPRESENTER_H_KQFERPSW
-#define ADDTASKCONTROLPRESENTER_H_KQFERPSW
-
-#include "core/CommandHandler.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/create_task/CreateTaskCommand.h"
-#include "core/use_cases/request_tags/AllTagsQuery.h"
-#include "qt_gui/presentation/AddTaskControl.h"
-#include "qt_gui/presentation/TaskMapper.h"
+#include "qt_gui/presentation/TaskSprintsPresenter.h"
 
 namespace sprint_timer::ui {
 
-class AddTaskControlPresenter : public contracts::AddTaskControl::Presenter {
-public:
-    explicit AddTaskControlPresenter(
-        CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler);
+TaskSprintsPresenter::TaskSprintsPresenter(
+    sprints_for_task_hdl_t& sprintsForTaskHandler_,
+    const TaskSelectionContext& taskSelectionContext_)
+    : sprintsForTaskHandler{sprintsForTaskHandler_}
+    , taskSelectionContext{taskSelectionContext_}
+{
+}
 
-    void addTask(const TaskDTO& details) const override;
+void TaskSprintsPresenter::updateViewImpl()
+{
+    if (auto v = view(); v) {
+        if (auto uuid = taskSelectionContext.taskUuid(); uuid) {
+            const auto sprints = sprintsForTaskHandler.handle(
+                use_cases::SprintsForTaskQuery{std::move(*uuid)});
+            v.value()->displaySprints(makeDTOs(sprints));
+        }
+    }
+}
 
-    void addTask(const std::string& encodedDescription) const override;
-
-private:
-    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler;
-};
+void TaskSprintsPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
-
-#endif /* end of include guard: ADDTASKCONTROLPRESENTER_H_KQFERPSW */
-

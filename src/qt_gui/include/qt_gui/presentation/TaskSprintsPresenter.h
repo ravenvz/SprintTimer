@@ -22,12 +22,12 @@
 #ifndef TASKSPRINTSPRESENTER_H_VN5LZSTF
 #define TASKSPRINTSPRESENTER_H_VN5LZSTF
 
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/presentation/SprintMapper.h"
 #include "qt_gui/presentation/TaskSelectionContext.h"
 #include "qt_gui/presentation/TaskSprintsContract.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
 
 namespace sprint_timer::ui {
 
@@ -48,27 +48,6 @@ private:
 
     void onViewAttached() override;
 };
-
-inline TaskSprintsPresenter::TaskSprintsPresenter(
-    sprints_for_task_hdl_t& sprintsForTaskHandler_,
-    const TaskSelectionContext& taskSelectionContext_)
-    : sprintsForTaskHandler{sprintsForTaskHandler_}
-    , taskSelectionContext{taskSelectionContext_}
-{
-}
-
-inline void TaskSprintsPresenter::updateViewImpl()
-{
-    if (auto v = view(); v) {
-        if (auto uuid = taskSelectionContext.taskUuid(); uuid) {
-            const auto sprints = sprintsForTaskHandler.handle(
-                use_cases::SprintsForTaskQuery{std::move(*uuid)});
-            v.value()->displaySprints(makeDTOs(sprints));
-        }
-    }
-}
-
-inline void TaskSprintsPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 

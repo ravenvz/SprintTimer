@@ -19,34 +19,32 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SOUNDLIBRARY_H_LXRWVZFV
-#define SOUNDLIBRARY_H_LXRWVZFV
+#include "qt_gui/presentation/ConfigurableAssetLibrary.h"
 
-#include <string>
-#include <unordered_map>
-#include <vector>
+namespace sprint_timer::ui {
 
-namespace sprint_timer {
+ConfigurableAssetLibrary::ConfigurableAssetLibrary(
+    const std::vector<std::pair<std::string, std::string>>& entries_)
+{
+    for (const auto& entry : entries_) {
+        assetPathMapper.insert(entry);
+    }
+}
 
-class AssetLibrary {
-public:
-    virtual ~AssetLibrary() = default;
+std::optional<std::string>
+ConfigurableAssetLibrary::filePath(const std::string& assetId) const
+{
+    if (auto entry = assetPathMapper.find(assetId);
+        entry != assetPathMapper.cend()) {
+        return entry->second;
+    }
+    return std::nullopt;
+}
 
-    virtual std::optional<std::string> filePath(const std::string& assetId) = 0;
-};
+void ConfigurableAssetLibrary::replaceAssetPath(
+    const std::pair<std::string, std::string>& entry)
+{
+    assetPathMapper[entry.first] = entry.second;
+}
 
-class RuntimeConfigurableAssetLibrary : public AssetLibrary {
-public:
-    RuntimeConfigurableAssetLibrary(const IConfig& settings,
-                                    Observable& configChangedSignaller);
-
-    std::optional<std::string> filePath(const std::string& assetId) override;
-
-private:
-    const IConfig& settings;
-    CompositionObserver configChangedWatcher;
-};
-
-} // namespace sprint_timer
-
-#endif /* end of include guard: SOUNDLIBRARY_H_LXRWVZFV */
+} // namespace sprint_timer::ui

@@ -22,13 +22,13 @@
 #ifndef TODAYSPRINTSPRESENTER_H_8U0DLSNR
 #define TODAYSPRINTSPRESENTER_H_8U0DLSNR
 
-#include "qt_gui/presentation/SprintMapper.h"
-#include "qt_gui/presentation/TodaySprints.h"
 #include "core/CommandHandler.h"
 #include "core/QueryHandler.h"
 #include "core/use_cases/delete_sprint/DeleteSprintCommand.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
+#include "qt_gui/presentation/SprintMapper.h"
+#include "qt_gui/presentation/TodaySprints.h"
 
 namespace sprint_timer::ui {
 
@@ -37,30 +37,13 @@ public:
     TodaySprintsPresenter(
         CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler_,
         QueryHandler<use_cases::RequestSprintsQuery,
-                     std::vector<entities::Sprint>>& requestSprintsHandler_)
-        : deleteSprintHandler{deleteSprintHandler_}
-        , requestSprintsHandler{requestSprintsHandler_}
-    {
-    }
+                     std::vector<entities::Sprint>>& requestSprintsHandler_);
 
-    void onSprintDelete(const SprintDTO& sprint) override
-    {
-        deleteSprintHandler.handle(
-            use_cases::DeleteSprintCommand{fromDTO(sprint)});
-    }
+    void onSprintDelete(const SprintDTO& sprint) override;
 
-    void updateViewImpl() override
-    {
-        if (auto v = view(); v) {
-            const dw::DateRange range{dw::current_date_local(),
-                                      dw::current_date_local()};
-            const auto sprints = requestSprintsHandler.handle(
-                use_cases::RequestSprintsQuery{range});
-            v.value()->displaySprints(makeDTOs(sprints));
-        }
-    }
+    void updateViewImpl() override;
 
-    void onViewAttached() override { updateView(); }
+    void onViewAttached() override;
 
 private:
     CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler;
