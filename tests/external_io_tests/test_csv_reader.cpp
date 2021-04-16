@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 
-#include "gtest/gtest.h"
 #include "external_io/CSVReader.h"
+#include "gtest/gtest.h"
 #include <iostream>
 #include <iterator>
 #include <sstream>
@@ -31,7 +31,8 @@ using namespace sprint_timer::external_io;
 namespace {
 
 // TODO that makes test run depend on working directory
-constexpr char const* rfc_4180_test_file = "tests/external_io_tests/data/rfc_4180.csv";
+constexpr std::string_view rfc_4180_test_file =
+    "tests/external_io_tests/data/rfc_4180.csv";
 
 } // namespace
 
@@ -62,7 +63,7 @@ TEST(TestCSV, test_handles_case_wnen_last_record_missing_ending_line_break)
 
 TEST(TestCSV, test_reads_RFC_4180_file)
 {
-    std::fstream file{rfc_4180_test_file};
+    std::fstream file{std::string{rfc_4180_test_file}};
     CSVReader reader{file};
     Row expected_header{"Year", "Make", "Model", "Description", "Price"};
     std::vector<Row> expected_data{
