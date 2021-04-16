@@ -609,9 +609,6 @@ int main(int argc, char* argv[])
     ui::DaytimeStatisticsPresenter daytimeStatisticsPresenter{
         statisticsMediator};
 
-    // TODO not good, better to pass observable to the constructor so that
-    // dependency would be clearly seen
-
     sprint_timer::compose::StatisticsWindowProxy statisticsWindow{
         // applicationSettings,
         dailyTimelineGraphPresenter,
@@ -762,13 +759,12 @@ int main(int argc, char* argv[])
     compose::EditTaskDialogProxy editTaskDialog{
         tagModel, activeTaskModel, taskSelectionMediator};
     compose::TagEditorProxy tagEditor{tagModel};
-    auto taskView = std::make_unique<TaskView>(
-        taskSprintsView, editTaskDialog, tagEditor, activeTaskModel);
+    auto taskView = std::make_unique<TaskView>(taskSprintsView,
+                                               editTaskDialog,
+                                               tagEditor,
+                                               activeTaskModel,
+                                               taskItemDelegate);
     taskView->setPresenter(taskViewPresenter);
-
-    // TODO can't we move in in TaskView itself?
-    taskView->setContextMenuPolicy(Qt::CustomContextMenu);
-    taskView->setItemDelegate(&taskItemDelegate);
 
     auto taskOutline =
         std::make_unique<TaskOutline>(std::move(taskView), addTaskDialog);

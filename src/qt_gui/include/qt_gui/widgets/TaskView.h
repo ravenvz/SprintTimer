@@ -24,6 +24,7 @@
 
 #include "qt_gui/presentation/TaskViewContract.h"
 #include "qt_gui/widgets/ReordableListView.h"
+#include <QStyledItemDelegate>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -39,6 +40,7 @@ public:
              Displayable& editTaskDialog,
              StandaloneDisplayable& tagEditor,
              QAbstractItemModel& taskModel,
+             QStyledItemDelegate& delegate,
              QWidget* parent = nullptr);
 
     void selectTask(std::optional<size_t> taskIndex) override;

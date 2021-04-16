@@ -33,6 +33,7 @@ TaskView::TaskView(StandaloneDisplayable& sprintsForTaskView_,
                    Displayable& editTaskDialog_,
                    StandaloneDisplayable& tagEditor_,
                    QAbstractItemModel& taskModel_,
+                   QStyledItemDelegate& delegate_,
                    QWidget* parent_)
     : ReordableListView{parent_}
     , sprintsForTaskView{sprintsForTaskView_}
@@ -62,6 +63,8 @@ TaskView::TaskView(StandaloneDisplayable& sprintsForTaskView_,
     });
     setWordWrap(true);
     setVerticalScrollMode(ScrollMode::ScrollPerPixel);
+    setItemDelegate(&delegate_);
+    setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void TaskView::selectTask(std::optional<size_t> taskIndex)
