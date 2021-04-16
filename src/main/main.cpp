@@ -807,11 +807,10 @@ int main(int argc, char* argv[])
          weeklyProgressPresenter,
          monthlyProgressPresenter,
          tagEditorPresenter,
+         historyPresenter,
          statisticsMediator, // TODO workaround until statistics view is
                              // streamlined
          dailyTimelineGraphPresenter}};
-    // TODO Where is work schedule presenter?
-    // HistoryPresenter?
 
     compose::DataConsistencyWatcher watcher{desyncObservable,
                                             compositePresenter};
