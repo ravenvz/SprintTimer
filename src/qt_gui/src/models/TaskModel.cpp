@@ -20,9 +20,9 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/TaskModel.h"
+#include "core/utils/StringUtils.h"
 #include "qt_gui/metatypes/TaskDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
-#include "core/utils/StringUtils.h"
 #include <string>
 
 namespace {
@@ -144,8 +144,6 @@ bool TaskModel::moveRows(const QModelIndex& /*sourceParent*/,
                          const QModelIndex& /*destinationParent*/,
                          int destinationChild)
 {
-    // TODO This leads to ignoring dropping item below the last item,
-    // should study Qt documentation for item reordering
     if (destinationChild == -1) {
         return false;
     }

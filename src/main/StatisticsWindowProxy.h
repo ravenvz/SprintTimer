@@ -23,12 +23,12 @@
 #define STATISTICSWINDOWPROXY_H_VYTYRJFC
 
 #include "DisplayableLifestyleProxy.h"
-#include <QAbstractItemModel>
 #include "core/IConfig.h"
 #include "core/QueryHandler.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "qt_gui/utils/WidgetUtils.h"
 #include "qt_gui/widgets/StatisticsWindow.h"
+#include <QAbstractItemModel>
 
 #include "qt_gui/presentation/BestWorkdayContract.h"
 #include "qt_gui/presentation/DailyStatisticsGraphContract.h"
@@ -46,9 +46,6 @@ namespace sprint_timer::compose {
 class StatisticsWindowProxy : public DisplayableLifestyleProxy {
 public:
     StatisticsWindowProxy(
-        // IConfig& settings_,
-        // TODO rename - remove contract from name, it might be inferred from
-        // namespace
         mvp::BasePresenter<ui::contracts::DailyStatisticGraphContract::View>&
             dailyStatisticsGraphPresenter_,
         ui::contracts::BestWorkday::Presenter& bestWorkdayPresenter_,

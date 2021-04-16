@@ -67,7 +67,6 @@ ExportDialog::ExportDialog(
             selectedParams.selectedFileFormat = f->currentText().toStdString();
             selectedParams.selectedSink = s->currentText().toStdString();
         });
-    // TODO make sure that addRow takes ownership of widget
     formLayout->addRow(descriptionLabel.release());
     formLayout->addRow("&Sink:", sinks.release());
     formLayout->addRow("&Format:", formats.release());
