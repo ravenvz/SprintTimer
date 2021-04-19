@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TimerView.h"
+#include "qt_gui/UiThreadRunnerHelper.h"
 #include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/utils/WidgetUtils.h"
 #include <QApplication>
@@ -27,37 +28,6 @@
 namespace {
 
 QString timerValueToText(std::chrono::seconds timeLeft);
-
-constexpr QEvent::Type uiChangeEvent =
-    static_cast<QEvent::Type>(QEvent::User + 1);
-
-constexpr QEvent::Type timerTickEvent =
-    static_cast<QEvent::Type>(QEvent::User + 2);
-
-class TimerTickEvent : public QEvent {
-public:
-    explicit TimerTickEvent(std::chrono::seconds timeLeft_)
-        : QEvent{timerTickEvent}
-        , timeLeft{timeLeft_}
-    {
-    }
-
-    std::chrono::seconds timerValue() const { return timeLeft; }
-
-private:
-    std::chrono::seconds timeLeft;
-};
-
-struct UiChangedEvent : public QEvent {
-    UiChangedEvent(
-        sprint_timer::ui::contracts::TimerContract::TimerUiModel&& model_)
-        : QEvent{uiChangeEvent}
-        , model{std::move(model_)}
-    {
-    }
-
-    sprint_timer::ui::contracts::TimerContract::TimerUiModel model;
-};
 
 } // namespace
 
@@ -133,14 +103,14 @@ TimerView::~TimerView() = default;
 
 void TimerView::setupUi(contracts::TimerContract::TimerUiModel&& model)
 {
-    QApplication::postEvent(
-        this, std::make_unique<UiChangedEvent>(std::move(model)).release());
+    runInUiThread([this, m = std::move(model)]() { onUiChangeRequested(m); });
 }
 
 void TimerView::updateTimerValue(std::chrono::seconds currentValue)
 {
-    QCoreApplication::postEvent(
-        this, std::make_unique<TimerTickEvent>(currentValue).release());
+    runInUiThread([this, secondsLeft = currentValue]() {
+        onUpdateTimerValue(secondsLeft);
+    });
 }
 
 void TimerView::submitSprints(
@@ -161,17 +131,6 @@ void TimerView::submitSprints(
 void TimerView::selectTask(size_t taskIndex)
 {
     submissionBox->setCurrentIndex(static_cast<int>(taskIndex));
-}
-
-void TimerView::customEvent(QEvent* event)
-{
-    if (event->type() == timerTickEvent) {
-        onUpdateTimerValue(dynamic_cast<TimerTickEvent*>(event)->timerValue());
-    }
-    else if (event->type() == uiChangeEvent) {
-        auto* evt = dynamic_cast<UiChangedEvent*>(event);
-        onUiChangeRequested(evt->model);
-    }
 }
 
 void TimerView::onUpdateTimerValue(std::chrono::seconds currentValue)

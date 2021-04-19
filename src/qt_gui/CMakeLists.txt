@@ -39,6 +39,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtConfig.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/StandaloneDisplayable.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/Synchronizable.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/UiThreadRunnerHelper.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/WinExport.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/WorkdaysChangeListener.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/delegates/HistoryItemDelegate.h"
