@@ -1,5 +1,6 @@
 # Download date_wrapper lib at configure time then add as subdirectory
 include(CMakeLists-datewrapper.txt)
+include(CMakeLists-threadpool.txt)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -192,6 +193,10 @@ target_include_directories(${CORE_LIB}
         ${date_wrapper_INCLUDE_DIRS}
 )
 target_include_directories(${CORE_LIB}
+    SYSTEM INTERFACE
+        ${thread_pool_INCLUDE_DIRS}
+)
+target_include_directories(${CORE_LIB}
     SYSTEM PUBLIC ${Boost_INCLUDE_DIRS}
 )
 target_include_directories(${CORE_LIB}
@@ -208,6 +213,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         PUBLIC
             date_wrapper
             stdc++fs
+        PRIVATE INTERFACE
+            RiftenThiefpool::RiftenThiefpool
 )
 else()
     target_link_libraries(
