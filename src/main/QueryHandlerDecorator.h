@@ -36,8 +36,8 @@ decorate(std::unique_ptr<QueryHandler<QueryT, ResultT>> wrapped)
 }
 
 template <typename QueryT, typename ResultT>
-std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>>
-decorate(std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>> wrapped,
+std::unique_ptr<QueryHandler<QueryT, ResultT>>
+decorate(std::unique_ptr<QueryHandler<QueryT, ResultT>> wrapped,
          ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator)
 {
     return std::make_unique<CacheAwareQueryHandler<QueryT, ResultT>>(
