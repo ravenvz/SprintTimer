@@ -25,7 +25,7 @@
 namespace mocks {
 
 template <typename QueryT, typename ResultT>
-class QueryHandlerMock : public sprint_timer::QueryHandler<QueryT, ResultT> {
+class QueryHandlerMock : public sprint_timer::QueryHandler<QueryT> {
 public:
     MOCK_METHOD(ResultT, handle, (QueryT &&), (override));
 };

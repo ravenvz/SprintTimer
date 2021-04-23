@@ -22,18 +22,20 @@
 #ifndef DATERANGESELECTORPRESENTER_H_9Y6GTFSZ
 #define DATERANGESELECTORPRESENTER_H_9Y6GTFSZ
 
-#include "qt_gui/presentation/DateRangeSelectorContract.h"
-#include "qt_gui/presentation/StatisticsMediator.h"
 #include "core/QueryHandler.h"
 #include "core/use_cases/request_op_range/OperationalRangeQuery.h"
+#include "qt_gui/presentation/DateRangeSelectorContract.h"
+#include "qt_gui/presentation/StatisticsMediator.h"
 
 namespace sprint_timer::ui {
 
 class DateRangeSelectorPresenter
     : public contracts::DateRangeSelectorContract::Presenter {
 public:
+    using op_range_query_t = QueryHandler<use_cases::OperationalRangeQuery>;
+
     DateRangeSelectorPresenter(
-        QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>& handler_,
+        QueryHandler<use_cases::OperationalRangeQuery>& handler_,
         DateRangeChangeListener& dateRangeChangeListener_,
         dw::Weekday firstDayOfWeek);
 
@@ -45,9 +47,7 @@ public:
     void onSelectedRangeChanged(const dw::DateRange& dateRange) override;
 
 private:
-    std::reference_wrapper<
-        QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>>
-        handler;
+    std::reference_wrapper<op_range_query_t> handler;
     std::reference_wrapper<DateRangeChangeListener> dateRangeChangeListener;
     dw::Weekday firstDayOfWeek;
 

@@ -34,8 +34,7 @@ namespace sprint_timer::ui {
 class TaskSprintsPresenter
     : public mvp::BasePresenter<contracts::TaskSprintsContract::View> {
 public:
-    using sprints_for_task_hdl_t = QueryHandler<use_cases::SprintsForTaskQuery,
-                                                std::vector<entities::Sprint>>;
+    using sprints_for_task_hdl_t = QueryHandler<use_cases::SprintsForTaskQuery>;
 
     TaskSprintsPresenter(sprints_for_task_hdl_t& sprintsForTaskHandler,
                          const TaskSelectionContext& taskSelectionContext);

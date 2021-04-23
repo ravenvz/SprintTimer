@@ -27,20 +27,20 @@
 
 namespace sprint_timer::compose {
 
-template <typename QueryT, typename ResultT>
-std::unique_ptr<QueryHandler<QueryT, ResultT>>
-decorate(std::unique_ptr<QueryHandler<QueryT, ResultT>> wrapped)
+template <typename QueryT>
+std::unique_ptr<QueryHandler<QueryT>>
+decorate(std::unique_ptr<QueryHandler<QueryT>> wrapped)
 {
-    return std::make_unique<sprint_timer::VerboseQueryHandler<QueryT, ResultT>>(
+    return std::make_unique<sprint_timer::VerboseQueryHandler<QueryT>>(
         std::move(wrapped));
 }
 
-template <typename QueryT, typename ResultT>
-std::unique_ptr<QueryHandler<QueryT, ResultT>>
-decorate(std::unique_ptr<QueryHandler<QueryT, ResultT>> wrapped,
+template <typename QueryT>
+std::unique_ptr<QueryHandler<QueryT>>
+decorate(std::unique_ptr<QueryHandler<QueryT>> wrapped,
          ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator)
 {
-    return std::make_unique<CacheAwareQueryHandler<QueryT, ResultT>>(
+    return std::make_unique<CacheAwareQueryHandler<QueryT>>(
         std::move(wrapped), cacheInvalidationMediator);
 }
 

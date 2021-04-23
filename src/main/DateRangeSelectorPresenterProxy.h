@@ -33,7 +33,7 @@ class DateRangeSelectorPresenterProxy
       public ui::StatisticsColleague {
 public:
     DateRangeSelectorPresenterProxy(
-        QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>& handler_,
+        QueryHandler<use_cases::OperationalRangeQuery>& handler_,
         ui::DateRangeChangeListener& dateRangeChangeListener_,
         IConfig& settings_,
         Observable& configChangedSignaller_)
@@ -52,7 +52,7 @@ public:
     void onSharedDataChanged() override { }
 
 private:
-    QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>& handler;
+    QueryHandler<use_cases::OperationalRangeQuery>& handler;
     ui::DateRangeChangeListener& dateRangeChangeListener;
     IConfig& settings;
     dw::Weekday cached{settings.firstDayOfWeek()};

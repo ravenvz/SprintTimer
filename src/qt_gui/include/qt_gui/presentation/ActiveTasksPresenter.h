@@ -36,8 +36,7 @@ namespace sprint_timer::ui {
 
 class ActiveTasksPresenter : public contracts::TaskContract::Presenter {
 public:
-    using active_tasks_hdl_t = QueryHandler<use_cases::UnfinishedTasksQuery,
-                                            std::vector<entities::Task>>;
+    using active_tasks_hdl_t = QueryHandler<use_cases::UnfinishedTasksQuery>;
     using edit_task_hdl_t = CommandHandler<use_cases::EditTaskCommand>;
     using delete_task_hdl_t = CommandHandler<use_cases::DeleteTaskCommand>;
     using toggle_task_completion_hdl_t =

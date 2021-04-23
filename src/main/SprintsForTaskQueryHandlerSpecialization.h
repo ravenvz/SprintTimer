@@ -29,9 +29,8 @@ namespace sprint_timer::compose {
 
 template <>
 std::vector<entities::Sprint>
-CacheAwareQueryHandler<use_cases::SprintsForTaskQuery,
-                       std::vector<entities::Sprint>>::
-    handle(use_cases::SprintsForTaskQuery&& query)
+CacheAwareQueryHandler<use_cases::SprintsForTaskQuery>::handle(
+    use_cases::SprintsForTaskQuery&& query)
 {
     if (!cachedResult ||
         (cachedQuery && (query.taskUuid != cachedQuery->taskUuid))) {

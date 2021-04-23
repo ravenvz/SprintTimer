@@ -22,14 +22,13 @@
 #ifndef UNFINISHEDTASKSHANDLER_H_LVO6P2GE
 #define UNFINISHEDTASKSHANDLER_H_LVO6P2GE
 
-#include "core/TaskStorageReader.h"
 #include "core/QueryHandler.h"
+#include "core/TaskStorageReader.h"
 #include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
 
 namespace sprint_timer::use_cases {
 
-class UnfinishedTasksHandler
-    : public QueryHandler<UnfinishedTasksQuery, std::vector<entities::Task>> {
+class UnfinishedTasksHandler : public QueryHandler<UnfinishedTasksQuery> {
 public:
     explicit UnfinishedTasksHandler(TaskStorageReader& reader);
 

@@ -23,19 +23,19 @@
 #define CACHEAWAREQUERYHANDLER_H_JGYKWEAB
 
 #include "core/QueryHandler.h"
-#include <memory>
 #include "qt_gui/presentation/Invalidatable.h"
 #include "qt_gui/presentation/Mediator.h"
+#include <memory>
 
 #include <iostream>
 
 namespace sprint_timer::compose {
 
-template <typename QueryT, typename ResultT>
-class CacheAwareQueryHandler : public QueryHandler<QueryT, ResultT>,
+template <typename QueryT>
+class CacheAwareQueryHandler : public QueryHandler<QueryT>,
                                public ui::Invalidatable {
 public:
-    using WrappedType = sprint_timer::QueryHandler<QueryT, ResultT>;
+    using WrappedType = sprint_timer::QueryHandler<QueryT>;
     using MediatorType =
         sprint_timer::ui::Mediator<sprint_timer::ui::Invalidatable>;
 
@@ -54,7 +54,7 @@ public:
 
     void invalidate() override { cachedResult = std::nullopt; }
 
-    ResultT handle(QueryT&& query) override
+    QueryT::result_t handle(QueryT&& query) override
     {
         if (!cachedResult) {
             cachedQuery = query;
@@ -70,7 +70,7 @@ private:
     std::unique_ptr<WrappedType> wrapped;
     MediatorType& cacheInvalidationMediator;
     std::optional<QueryT> cachedQuery;
-    std::optional<ResultT> cachedResult;
+    std::optional<typename QueryT::result_t> cachedResult;
 };
 
 } // namespace sprint_timer::compose

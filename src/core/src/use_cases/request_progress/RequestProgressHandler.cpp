@@ -26,9 +26,8 @@ namespace sprint_timer::use_cases {
 RequestProgressHandler::RequestProgressHandler(
     const BackRequestStrategy& backRequestStrategy_,
     const ProgressComputeStrategy& progressComputeStrategy_,
-    QueryHandler<RequestSprintDistributionQuery, std::vector<int>>&
-        requestDistributionHandler_,
-    QueryHandler<WorkScheduleQuery, WorkSchedule>& requestWorkScheduleHandler_)
+    QueryHandler<RequestSprintDistributionQuery>& requestDistributionHandler_,
+    QueryHandler<WorkScheduleQuery>& requestWorkScheduleHandler_)
     : requestDistributionHandler{requestDistributionHandler_}
     , requestWorkScheduleHandler{requestWorkScheduleHandler_}
     , backRequestStrategy{backRequestStrategy_}
@@ -36,7 +35,8 @@ RequestProgressHandler::RequestProgressHandler(
 {
 }
 
-ProgressOverPeriod RequestProgressHandler::handle(RequestProgressQuery&& /*query*/)
+ProgressOverPeriod
+RequestProgressHandler::handle(RequestProgressQuery&& /*query*/)
 {
     const auto distribution = requestDistributionHandler.handle(
         use_cases::RequestSprintDistributionQuery{

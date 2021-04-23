@@ -23,12 +23,12 @@
 #define ALLTAGSHANDLER_H_BIEXTOA7
 
 #include "core/QueryHandler.h"
-#include "core/use_cases/request_tags/AllTagsQuery.h"
 #include "core/TaskStorageReader.h"
+#include "core/use_cases/request_tags/AllTagsQuery.h"
 
 namespace sprint_timer::use_cases {
 
-class AllTagsHandler : public QueryHandler<AllTagsQuery, std::vector<std::string>> {
+class AllTagsHandler : public QueryHandler<AllTagsQuery> {
 public:
     explicit AllTagsHandler(TaskStorageReader& reader);
 

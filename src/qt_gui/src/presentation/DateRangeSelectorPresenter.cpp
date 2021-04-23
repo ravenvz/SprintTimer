@@ -25,7 +25,7 @@
 namespace sprint_timer::ui {
 
 DateRangeSelectorPresenter::DateRangeSelectorPresenter(
-    QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>& handler_,
+    op_range_query_t& handler_,
     DateRangeChangeListener& dateRangeChangeListener_,
     dw::Weekday firstDayOfWeek_)
     : handler{handler_}

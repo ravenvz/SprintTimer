@@ -29,7 +29,7 @@
 namespace sprint_timer::use_cases {
 
 class RequestSprintDistributionHandler
-    : public QueryHandler<RequestSprintDistributionQuery, std::vector<int>> {
+    : public QueryHandler<RequestSprintDistributionQuery> {
 public:
     explicit RequestSprintDistributionHandler(SprintDistributionReader& reader);
 

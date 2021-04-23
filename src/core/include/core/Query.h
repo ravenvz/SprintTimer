@@ -26,10 +26,12 @@ namespace sprint_timer {
 
 template <typename ResultT> class Query {
 public:
+    using result_t = ResultT;
+
     virtual ~Query() = default;
 };
 
-} // namespace sprint_timer::nca
+} // namespace sprint_timer
 
 #endif /* end of include guard: NEWQUERY_H_9EK1A72B */
 

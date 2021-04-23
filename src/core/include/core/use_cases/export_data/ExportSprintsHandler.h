@@ -31,8 +31,7 @@ namespace sprint_timer::use_cases {
 
 class ExportSprintsHandler : public CommandHandler<ExportSprintsCommand> {
 public:
-    using Handler =
-        QueryHandler<RequestSprintsQuery, std::vector<entities::Sprint>>;
+    using Handler = QueryHandler<RequestSprintsQuery>;
 
     ExportSprintsHandler(Handler& sprintsHandler,
                          DataExporter<entities::Sprint>& exporter);

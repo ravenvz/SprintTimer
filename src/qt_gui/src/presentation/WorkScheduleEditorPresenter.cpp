@@ -65,8 +65,7 @@ void displayExceptionalDays(
 namespace sprint_timer::ui {
 
 WorkScheduleEditorPresenter::WorkScheduleEditorPresenter(
-    QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>&
-        workScheduleHandler_,
+    QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler_,
     CommandHandler<use_cases::ChangeWorkScheduleCommand>&
         changeWorkScheduleHandler_,
     dw::Weekday firstDayOfWeek_)

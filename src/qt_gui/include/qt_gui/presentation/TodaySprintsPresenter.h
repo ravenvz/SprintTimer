@@ -36,8 +36,7 @@ class TodaySprintsPresenter : public contracts::TodaySprints::Presenter {
 public:
     TodaySprintsPresenter(
         CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler_,
-        QueryHandler<use_cases::RequestSprintsQuery,
-                     std::vector<entities::Sprint>>& requestSprintsHandler_);
+        QueryHandler<use_cases::RequestSprintsQuery>& requestSprintsHandler_);
 
     void onSprintDelete(const SprintDTO& sprint) override;
 
@@ -47,8 +46,7 @@ public:
 
 private:
     CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler;
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler;
+    QueryHandler<use_cases::RequestSprintsQuery>& requestSprintsHandler;
 };
 
 } // namespace sprint_timer::ui

@@ -25,8 +25,7 @@ namespace sprint_timer::ui {
 
 TodaySprintsPresenter::TodaySprintsPresenter(
     CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler_,
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler_)
+    QueryHandler<use_cases::RequestSprintsQuery>& requestSprintsHandler_)
     : deleteSprintHandler{deleteSprintHandler_}
     , requestSprintsHandler{requestSprintsHandler_}
 {

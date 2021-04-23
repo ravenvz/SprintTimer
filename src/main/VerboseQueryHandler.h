@@ -28,26 +28,26 @@
 
 namespace sprint_timer {
 
-template <typename QueryT, typename ResultT>
-class VerboseQueryHandler : public QueryHandler<QueryT, ResultT> {
+template <typename QueryT>
+class VerboseQueryHandler : public QueryHandler<QueryT> {
 public:
-    VerboseQueryHandler(std::unique_ptr<QueryHandler<QueryT, ResultT>> wraped);
+    VerboseQueryHandler(std::unique_ptr<QueryHandler<QueryT>> wraped);
 
-    ResultT handle(QueryT&& query) override;
+    QueryT::result_t handle(QueryT&& query) override;
 
 private:
-    std::unique_ptr<QueryHandler<QueryT, ResultT>> wrapped;
+    std::unique_ptr<QueryHandler<QueryT>> wrapped;
 };
 
-template <typename QueryT, typename ResultT>
-VerboseQueryHandler<QueryT, ResultT>::VerboseQueryHandler(
-    std::unique_ptr<QueryHandler<QueryT, ResultT>> wrapped_)
+template <typename QueryT>
+VerboseQueryHandler<QueryT>::VerboseQueryHandler(
+    std::unique_ptr<QueryHandler<QueryT>> wrapped_)
     : wrapped{std::move(wrapped_)}
 {
 }
 
-template <typename QueryT, typename ResultT>
-ResultT VerboseQueryHandler<QueryT, ResultT>::handle(QueryT&& query)
+template <typename QueryT>
+QueryT::result_t VerboseQueryHandler<QueryT>::handle(QueryT&& query)
 {
     std::cout << "Handling query: " << query << '\n';
     return wrapped->handle(std::move(query));

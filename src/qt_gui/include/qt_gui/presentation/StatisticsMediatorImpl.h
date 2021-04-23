@@ -22,8 +22,8 @@
 #ifndef STATISTICSMEDIATORIMPL_H_02PSRLBP
 #define STATISTICSMEDIATORIMPL_H_02PSRLBP
 
-#include "qt_gui/presentation/StatisticsMediator.h"
 #include "core/QueryHandler.h"
+#include "qt_gui/presentation/StatisticsMediator.h"
 
 // TODO workaround until statistics view is streamlined
 #include "qt_gui/mvp/AbstractPresenter.h"
@@ -34,8 +34,7 @@ namespace sprint_timer::ui {
 class StatisticsMediatorImpl : public StatisticsMediator,
                                public mvp::AbstractPresenter {
 public:
-    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery,
-                                               std::vector<entities::Sprint>>;
+    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery>;
 
     StatisticsMediatorImpl(request_sprints_hdl_t& queryHandler_,
                            size_t numTopTags_);

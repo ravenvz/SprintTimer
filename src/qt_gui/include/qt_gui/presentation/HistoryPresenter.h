@@ -22,21 +22,19 @@
 #ifndef HISTORYPRESENTER_H_FAVPGZSN
 #define HISTORYPRESENTER_H_FAVPGZSN
 
-#include "qt_gui/presentation/HistoryContract.h"
-#include "qt_gui/presentation/HistoryMediator.h"
 #include "core/QueryHandler.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "core/use_cases/request_tasks/FinishedTasksQuery.h"
+#include "qt_gui/presentation/HistoryContract.h"
+#include "qt_gui/presentation/HistoryMediator.h"
 
 namespace sprint_timer::ui {
 
 class HistoryPresenter : public contracts::HistoryContract::Presenter,
                          public HistoryColleague {
 public:
-    using SprintsRequestHandler = QueryHandler<use_cases::RequestSprintsQuery,
-                                               std::vector<entities::Sprint>>;
-    using TaskRequestHandler = QueryHandler<use_cases::FinishedTasksQuery,
-                                            std::vector<entities::Task>>&;
+    using SprintsRequestHandler = QueryHandler<use_cases::RequestSprintsQuery>;
+    using TaskRequestHandler = QueryHandler<use_cases::FinishedTasksQuery>;
 
     HistoryPresenter(SprintsRequestHandler& requestSprintsHandler,
                      TaskRequestHandler& requestTasksHandler,
