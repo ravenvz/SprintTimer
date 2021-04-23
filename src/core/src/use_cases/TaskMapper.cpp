@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/TaskMapper.h"
+#include "core/use_cases/TaskMapper.h"
 #include <algorithm>
 
 namespace {
@@ -49,13 +49,13 @@ std::list<sprint_timer::entities::Tag> tagsFromStrings(ForwardIt first,
 
 } // namespace
 
-namespace sprint_timer::ui {
+namespace sprint_timer::use_cases {
 
-sprint_timer::ui::TaskDTO makeDTO(const sprint_timer::entities::Task& task)
+sprint_timer::use_cases::TaskDTO makeDTO(const sprint_timer::entities::Task& task)
 {
     const auto& tags = task.tags();
     std::vector<std::string> tagStr = tagsToString(cbegin(tags), cend(tags));
-    return sprint_timer::ui::TaskDTO{task.uuid(),
+    return sprint_timer::use_cases::TaskDTO{task.uuid(),
                                      tagStr,
                                      task.name(),
                                      task.estimatedCost(),
@@ -96,4 +96,4 @@ std::vector<entities::Task> fromDTOs(const std::vector<TaskDTO>& dtos)
     return tasks;
 }
 
-} // namespace sprint_timer::ui
+} // namespace sprint_timer::use_cases

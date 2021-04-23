@@ -23,7 +23,7 @@
 #define TASKMODEL_H_FUQ5UCBE
 
 #include "qt_gui/presentation/TaskContract.h"
-#include "qt_gui/presentation/TaskDTO.h"
+#include "core/use_cases/TaskDTO.h"
 #include <QAbstractListModel>
 
 namespace sprint_timer::ui::qt_gui {
@@ -34,7 +34,7 @@ class TaskModel : public QAbstractListModel,
 public:
     explicit TaskModel(QObject* parent = nullptr);
 
-    void displayTasks(const std::vector<TaskDTO>& tasks) override;
+    void displayTasks(const std::vector<use_cases::TaskDTO>& tasks) override;
 
     Qt::DropActions supportedDropActions() const override;
 
@@ -65,7 +65,7 @@ public:
     int rowCount(const QModelIndex& parent) const override;
 
 private:
-    std::vector<TaskDTO> storage;
+    std::vector<use_cases::TaskDTO> storage;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -24,7 +24,7 @@
 
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
-#include "qt_gui/presentation/TaskDTO.h"
+#include "core/use_cases/TaskDTO.h"
 #include <vector>
 
 namespace sprint_timer::ui::contracts::TaskContract {
@@ -33,11 +33,11 @@ class View;
 
 class Presenter : public mvp::BasePresenter<View> {
 public:
-    virtual void editTask(const TaskDTO& original, const TaskDTO& edited) = 0;
+    virtual void editTask(const use_cases::TaskDTO& original, const use_cases::TaskDTO& edited) = 0;
 
-    virtual void deleteTask(const TaskDTO& task) = 0;
+    virtual void deleteTask(const use_cases::TaskDTO& task) = 0;
 
-    virtual void toggleFinished(const TaskDTO& task) = 0;
+    virtual void toggleFinished(const use_cases::TaskDTO& task) = 0;
 
     virtual void
     reorderTasks(int32_t sourceRow, int32_t count, int32_t destinationRow) = 0;
@@ -45,7 +45,7 @@ public:
 
 class View : public mvp::BaseView<View, Presenter> {
 public:
-    virtual void displayTasks(const std::vector<TaskDTO>& tasks) = 0;
+    virtual void displayTasks(const std::vector<use_cases::TaskDTO>& tasks) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::TaskContract

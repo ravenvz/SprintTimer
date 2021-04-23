@@ -23,7 +23,7 @@
 #define TASKDIALOG_H_J0SNZODV
 
 #include "qt_gui/dialogs/DisplayableDialog.h"
-#include "qt_gui/presentation/TaskDTO.h"
+#include "core/use_cases/TaskDTO.h"
 
 class QAbstractItemModel;
 class QLineEdit;
@@ -37,9 +37,9 @@ public:
                         QWidget* parent = nullptr);
 
 protected:
-    [[nodiscard]] TaskDTO parseFormFields() const;
+    [[nodiscard]] use_cases::TaskDTO parseFormFields() const;
 
-    void fillFormFields(const TaskDTO& task);
+    void fillFormFields(const use_cases::TaskDTO& task);
 
     [[nodiscard]] bool nameIsEmpty() const;
 

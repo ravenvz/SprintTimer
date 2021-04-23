@@ -24,7 +24,7 @@
 #include "qt_gui/presentation/TaskSelectionMediator.h"
 #include "qt_gui/presentation/TaskSprintsPresenter.h"
 
-using sprint_timer::ui::SprintDTO;
+using sprint_timer::use_cases::SprintDTO;
 using sprint_timer::use_cases::SprintsForTaskQuery;
 using ::testing::_;
 using ::testing::NiceMock;

@@ -27,7 +27,7 @@
 #include "core/use_cases/create_task/CreateTaskCommand.h"
 #include "core/use_cases/request_tags/AllTagsQuery.h"
 #include "qt_gui/presentation/AddTaskControl.h"
-#include "qt_gui/presentation/TaskMapper.h"
+#include "core/use_cases/TaskMapper.h"
 
 namespace sprint_timer::ui {
 
@@ -36,7 +36,7 @@ public:
     explicit AddTaskControlPresenter(
         CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler);
 
-    void addTask(const TaskDTO& details) const override;
+    void addTask(const use_cases::TaskDTO& details) const override;
 
     void addTask(const std::string& encodedDescription) const override;
 

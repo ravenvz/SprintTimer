@@ -22,6 +22,7 @@
 #ifndef STATISTICSMEDIATORIMPL_H_02PSRLBP
 #define STATISTICSMEDIATORIMPL_H_02PSRLBP
 
+#include "core/AsyncQueryHandler.h"
 #include "core/QueryHandler.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
 
@@ -34,9 +35,14 @@ namespace sprint_timer::ui {
 class StatisticsMediatorImpl : public StatisticsMediator,
                                public mvp::AbstractPresenter {
 public:
-    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery>;
+    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery,
+                                               std::vector<entities::Sprint>>;
+    using async_request_sprints_hdl_t =
+        AsyncQueryHandler<use_cases::RequestSprintsQuery,
+                          std::vector<entities::Sprint>>;
 
     StatisticsMediatorImpl(request_sprints_hdl_t& queryHandler_,
+                           async_request_sprints_hdl_t& asyncQueryHandler_,
                            size_t numTopTags_);
 
     // TODO workaround until statistics view is streamlined
@@ -59,11 +65,16 @@ public:
 
 private:
     request_sprints_hdl_t& queryHandler;
+    async_request_sprints_hdl_t& asyncQueryHandler;
     size_t numTopTags;
     std::vector<entities::Sprint> allSprints;
     TagTop tagtop;
     std::optional<dw::DateRange> dateRange;
     std::optional<size_t> currentTagNumber;
+
+    void requestData();
+
+    void onDataReadyCallback(std::vector<entities::Sprint> sprints);
 };
 
 } // namespace sprint_timer::ui

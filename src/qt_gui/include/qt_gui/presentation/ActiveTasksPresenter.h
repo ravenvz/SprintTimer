@@ -30,7 +30,7 @@
 #include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
 #include "core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h"
 #include "qt_gui/presentation/TaskContract.h"
-#include "qt_gui/presentation/TaskMapper.h"
+#include "core/use_cases/TaskMapper.h"
 
 namespace sprint_timer::ui {
 
@@ -50,11 +50,11 @@ public:
                          toggle_task_completion_hdl_t& toggleFinishedHandler,
                          change_priority_hdl_t& changePriorityHandler);
 
-    void editTask(const TaskDTO& oldTask, const TaskDTO& newTask) override;
+    void editTask(const use_cases::TaskDTO& oldTask, const use_cases::TaskDTO& newTask) override;
 
-    void deleteTask(const TaskDTO& task) override;
+    void deleteTask(const use_cases::TaskDTO& task) override;
 
-    void toggleFinished(const TaskDTO& task) override;
+    void toggleFinished(const use_cases::TaskDTO& task) override;
 
     void reorderTasks(int32_t sourceRow,
                       int32_t count,
@@ -66,7 +66,7 @@ private:
     delete_task_hdl_t& deleteTaskHandler;
     toggle_task_completion_hdl_t& toggleFinishedHandler;
     change_priority_hdl_t& changePriorityHandler;
-    std::vector<TaskDTO> tasks;
+    std::vector<use_cases::TaskDTO> tasks;
 
     void updateViewImpl() override;
 

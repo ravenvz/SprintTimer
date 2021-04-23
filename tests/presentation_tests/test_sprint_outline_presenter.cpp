@@ -29,7 +29,7 @@ using namespace sprint_timer;
 namespace {
 
 using SprintsWithDTOs =
-    std::pair<std::vector<entities::Sprint>, std::vector<ui::SprintDTO>>;
+    std::pair<std::vector<entities::Sprint>, std::vector<use_cases::SprintDTO>>;
 
 SprintsWithDTOs makeSomeSprints();
 
@@ -48,7 +48,7 @@ class SprintOutlineViewMock : public ui::contracts::TodaySprints::View {
 public:
     MOCK_METHOD(void,
                 displaySprints,
-                (const std::vector<sprint_timer::ui::SprintDTO>&),
+                (const std::vector<use_cases::SprintDTO>&),
                 (override));
 };
 
@@ -79,7 +79,7 @@ TEST_F(TodaySprintsPresenterFixture, deletes_sprint)
     using entities::Tag;
     const auto [sprints, dtos] = makeSomeSprints();
     const entities::Sprint sprint = sprints[1];
-    const ui::SprintDTO dto = dtos[1];
+    const use_cases::SprintDTO dto = dtos[1];
 
     EXPECT_CALL(deleteSprintHandler,
                 handle(use_cases::DeleteSprintCommand{sprint}));
@@ -108,11 +108,11 @@ SprintsWithDTOs makeSomeSprints()
                "1"},
         Sprint{"Task 2", add_offset(someRange, 2h), {Tag{"Tag3"}}, "3", "2"}};
 
-    std::vector<ui::SprintDTO> dtos{
-        ui::SprintDTO{"1", "1", "Task 1", {"Tag1", "Tag2"}, someRange},
-        ui::SprintDTO{
+    std::vector<use_cases::SprintDTO> dtos{
+        use_cases::SprintDTO{"1", "1", "Task 1", {"Tag1", "Tag2"}, someRange},
+        use_cases::SprintDTO{
             "2", "1", "Task 1", {"Tag1", "Tag2"}, add_offset(someRange, 25min)},
-        ui::SprintDTO{"3", "2", "Task 2", {"Tag3"}, add_offset(someRange, 2h)}};
+        use_cases::SprintDTO{"3", "2", "Task 2", {"Tag3"}, add_offset(someRange, 2h)}};
 
     return {sprints, dtos};
 }

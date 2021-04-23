@@ -25,7 +25,7 @@
 #include "core/QueryHandler.h"
 #include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
 #include "qt_gui/mvp/BasePresenter.h"
-#include "qt_gui/presentation/SprintMapper.h"
+#include "core/use_cases/SprintMapper.h"
 #include "qt_gui/presentation/TaskSelectionContext.h"
 #include "qt_gui/presentation/TaskSprintsContract.h"
 

@@ -51,7 +51,7 @@ namespace {
 
 const dw::DateTime someModificationStamp{dw::current_date_time()};
 
-std::pair<sprint_timer::entities::Task, sprint_timer::ui::TaskDTO>
+std::pair<sprint_timer::entities::Task, sprint_timer::use_cases::TaskDTO>
 someTaskWithDescription();
 
 /* This matcher ignores uuid and modification timestamp */
@@ -101,11 +101,11 @@ TEST_F(AddTaskControlPresenterFixture,
 
 namespace {
 
-std::pair<sprint_timer::entities::Task, sprint_timer::ui::TaskDTO>
+std::pair<sprint_timer::entities::Task, sprint_timer::use_cases::TaskDTO>
 someTaskWithDescription()
 {
     using namespace sprint_timer::entities;
-    const ui::TaskDTO details{"123",
+    const sprint_timer::use_cases::TaskDTO details{"123",
                               {"Tag 1", "Tag 2"},
                               "SomeTask",
                               4,

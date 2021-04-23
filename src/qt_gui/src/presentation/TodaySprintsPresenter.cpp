@@ -31,7 +31,7 @@ TodaySprintsPresenter::TodaySprintsPresenter(
 {
 }
 
-void TodaySprintsPresenter::onSprintDelete(const SprintDTO& sprint)
+void TodaySprintsPresenter::onSprintDelete(const use_cases::SprintDTO& sprint)
 {
     deleteSprintHandler.handle(use_cases::DeleteSprintCommand{fromDTO(sprint)});
 }
@@ -43,7 +43,7 @@ void TodaySprintsPresenter::updateViewImpl()
                                   dw::current_date_local()};
         const auto sprints =
             requestSprintsHandler.handle(use_cases::RequestSprintsQuery{range});
-        v.value()->displaySprints(makeDTOs(sprints));
+        v.value()->displaySprints(use_cases::makeDTOs(sprints));
     }
 }
 

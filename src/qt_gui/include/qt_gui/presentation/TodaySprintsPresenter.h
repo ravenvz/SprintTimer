@@ -27,7 +27,7 @@
 #include "core/use_cases/delete_sprint/DeleteSprintCommand.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
-#include "qt_gui/presentation/SprintMapper.h"
+#include "core/use_cases/SprintMapper.h"
 #include "qt_gui/presentation/TodaySprints.h"
 
 namespace sprint_timer::ui {
@@ -38,7 +38,7 @@ public:
         CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler_,
         QueryHandler<use_cases::RequestSprintsQuery>& requestSprintsHandler_);
 
-    void onSprintDelete(const SprintDTO& sprint) override;
+    void onSprintDelete(const use_cases::SprintDTO& sprint) override;
 
     void updateViewImpl() override;
 

@@ -22,10 +22,10 @@
 #ifndef SPRINTDTOMETATYPE_H_EUAGS1ZY
 #define SPRINTDTOMETATYPE_H_EUAGS1ZY
 
-#include "qt_gui/presentation/SprintDTO.h"
+#include "core/use_cases/SprintDTO.h"
 #include <QtCore>
 
-Q_DECLARE_METATYPE(sprint_timer::ui::SprintDTO)
+Q_DECLARE_METATYPE(sprint_timer::use_cases::SprintDTO)
 
 #endif /* end of include guard: SPRINTDTOMETATYPE_H_EUAGS1ZY */
 

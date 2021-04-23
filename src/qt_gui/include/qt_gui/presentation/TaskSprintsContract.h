@@ -24,14 +24,14 @@
 
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
-#include "qt_gui/presentation/SprintDTO.h"
+#include "core/use_cases/SprintDTO.h"
 #include <vector>
 
 namespace sprint_timer::ui::contracts::TaskSprintsContract {
 
 class View : public mvp::BaseView<View, mvp::BasePresenter<View>> {
 public:
-    virtual void displaySprints(const std::vector<SprintDTO>& sprints) = 0;
+    virtual void displaySprints(const std::vector<use_cases::SprintDTO>& sprints) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::TaskSprintsContract

@@ -19,26 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTDTO_H_VMXFAC02
-#define SPRINTDTO_H_VMXFAC02
+#ifndef TASKDTO_H_SZ7KJM8B
+#define TASKDTO_H_SZ7KJM8B
 
 #include "date_wrapper/date_wrapper.h"
 #include <string>
 #include <vector>
 
-namespace sprint_timer::ui {
+namespace sprint_timer::use_cases {
 
-struct SprintDTO {
+struct TaskDTO {
     std::string uuid;
-    std::string taskUuid;
-    std::string taskName;
     std::vector<std::string> tags;
-    dw::DateTimeRange timeRange{dw::current_date_time(),
-                                dw::current_date_time()};
+    std::string name;
+    int expectedCost;
+    int actualCost;
+    bool finished;
+    dw::DateTime modificationStamp{dw::current_date_time_local()};
 
-    bool operator==(const SprintDTO& other) const = default;
+    bool operator==(const TaskDTO&) const = default;
 };
 
-} // namespace sprint_timer::ui
+} // namespace sprint_timer::use_cases
 
-#endif /* end of include guard: SPRINTDTO_H_VMXFAC02 */
+#endif /* end of include guard: TASKDTO_H_SZ7KJM8B */

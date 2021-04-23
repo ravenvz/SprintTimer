@@ -27,7 +27,7 @@
 namespace {
 
 using sprint_timer::entities::Sprint;
-using sprint_timer::ui::SprintDTO;
+using sprint_timer::use_cases::SprintDTO;
 using sprint_timer::ui::qt_gui::HistoryModel;
 
 HistoryModel::HistoryData

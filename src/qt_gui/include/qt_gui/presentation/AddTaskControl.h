@@ -24,7 +24,7 @@
 
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
-#include "qt_gui/presentation/TaskDTO.h"
+#include "core/use_cases/TaskDTO.h"
 #include <vector>
 
 namespace sprint_timer::ui::contracts::AddTaskControl {
@@ -33,7 +33,7 @@ class View;
 
 class Presenter : public mvp::BasePresenter<View> {
 public:
-    virtual void addTask(const TaskDTO& details) const = 0;
+    virtual void addTask(const use_cases::TaskDTO& details) const = 0;
 
     virtual void addTask(const std::string& encodedDescription) const = 0;
 };

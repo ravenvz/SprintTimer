@@ -20,16 +20,18 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/StatisticsMediatorImpl.h"
+#include "qt_gui/UiThreadRunnerHelper.h"
 
 namespace sprint_timer::ui {
 
 StatisticsMediatorImpl::StatisticsMediatorImpl(
-    request_sprints_hdl_t& queryHandler_, size_t numTopTags_)
+    request_sprints_hdl_t& queryHandler_,
+    async_request_sprints_hdl_t& asyncQueryHandler_,
+    size_t numTopTags_)
     : queryHandler{queryHandler_}
+    , asyncQueryHandler{asyncQueryHandler_}
     , numTopTags{numTopTags_}
 {
-    if (dateRange)
-        queryHandler.handle(use_cases::RequestSprintsQuery{*dateRange});
 }
 
 // TODO workaround until statistics view is streamlined
@@ -39,10 +41,7 @@ void StatisticsMediatorImpl::updateView()
         return;
     }
     currentTagNumber = std::nullopt;
-    allSprints =
-        queryHandler.handle(use_cases::RequestSprintsQuery{*dateRange});
-    tagtop = TagTop{allSprints, numTopTags};
-    notifyAll([](auto* colleague) { colleague->onSharedDataChanged(); });
+    requestData();
 }
 
 void StatisticsMediatorImpl::filterByTag(StatisticsColleague* caller,
@@ -52,13 +51,28 @@ void StatisticsMediatorImpl::filterByTag(StatisticsColleague* caller,
     mediate(caller, [](auto* colleague) { colleague->onSharedDataChanged(); });
 }
 
+void StatisticsMediatorImpl::requestData()
+{
+    asyncQueryHandler.handle(
+        use_cases::RequestSprintsQuery{*dateRange},
+        [this](auto sprints) { onDataReadyCallback(std::move(sprints)); });
+}
+
+void StatisticsMediatorImpl::onDataReadyCallback(
+    std::vector<entities::Sprint> sprints)
+{
+    qt_gui::runInUiThread([this, sp = std::move(sprints)]() mutable {
+        allSprints = std::move(sp);
+        tagtop = TagTop{allSprints, numTopTags};
+        notifyAll([](auto* colleague) { colleague->onSharedDataChanged(); });
+    });
+}
+
 void StatisticsMediatorImpl::onRangeChanged(const dw::DateRange& range)
 {
     dateRange = range;
     currentTagNumber = std::nullopt;
-    allSprints = queryHandler.handle(use_cases::RequestSprintsQuery(range));
-    tagtop = TagTop{allSprints, numTopTags};
-    notifyAll([](auto* colleague) { colleague->onSharedDataChanged(); });
+    requestData();
 }
 
 const std::vector<entities::Sprint>& StatisticsMediatorImpl::sprints() const

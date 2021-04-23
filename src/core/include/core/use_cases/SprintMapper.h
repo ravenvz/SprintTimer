@@ -22,10 +22,10 @@
 #ifndef SPRINTMAPPER_H_U4OQ1PMS
 #define SPRINTMAPPER_H_U4OQ1PMS
 
-#include "qt_gui/presentation/SprintDTO.h"
+#include "core/use_cases/SprintDTO.h"
 #include "core/entities/Sprint.h"
 
-namespace sprint_timer::ui {
+namespace sprint_timer::use_cases {
 
 SprintDTO makeDTO(const entities::Sprint& sprint);
 
@@ -57,6 +57,6 @@ inline OutputIt fromDTOs(InputIt first, InputIt last, OutputIt out)
     return out;
 }
 
-} // namespace sprint_timer::ui
+} // namespace sprint_timer::use_cases
 
 #endif /* end of include guard: SPRINTMAPPER_H_U4OQ1PMS */

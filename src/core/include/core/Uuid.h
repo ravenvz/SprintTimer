@@ -19,22 +19,29 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKMAPPER_H_92B3YBWU
-#define TASKMAPPER_H_92B3YBWU
+#ifndef UUID_H_TMG14LH9
+#define UUID_H_TMG14LH9
 
-#include "qt_gui/presentation/TaskDTO.h"
-#include "core/entities/Task.h"
+#include <string>
 
-namespace sprint_timer::ui {
+namespace sprint_timer {
 
-TaskDTO makeDTO(const entities::Task& task);
+// struct Uuid {
+//     Uuid(std::string_view val_)
+//         : val{val_}
+//     {
+//     }
+//
+//     [[nodiscard]] std::string_view value() const
+//     {
+//         return val;
+//     }
+// private:
+//     std::string val;
+// };
 
-std::vector<TaskDTO> makeDTOs(const std::vector<entities::Task>& tasks);
+using Uuid = std::string;
 
-entities::Task fromDTO(const TaskDTO& dto);
+} // namespace sprint_timer
 
-std::vector<entities::Task> fromDTOs(const std::vector<TaskDTO>& dtos);
-
-} // namespace sprint_timer::ui
-
-#endif /* end of include guard: TASKMAPPER_H_92B3YBWU */
+#endif /* end of include guard: UUID_H_TMG14LH9 */

@@ -34,7 +34,7 @@ class SprintModel : public QAbstractListModel,
 public:
     explicit SprintModel(QObject* parent = nullptr);
 
-    void displaySprints(const std::vector<SprintDTO>&) override;
+    void displaySprints(const std::vector<use_cases::SprintDTO>&) override;
 
     int rowCount(const QModelIndex& parent) const override;
 
@@ -49,7 +49,7 @@ public:
     // bool insertRows(int row, int count, const QModelIndex& parent) override;
 
 private:
-    std::vector<SprintDTO> storage;
+    std::vector<use_cases::SprintDTO> storage;
 };
 
 } // namespace sprint_timer::ui::qt_gui

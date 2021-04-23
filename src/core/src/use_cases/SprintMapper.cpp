@@ -19,9 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/SprintMapper.h"
+#include "core/use_cases/SprintMapper.h"
 
-namespace sprint_timer::ui {
+namespace sprint_timer::use_cases {
 
 SprintDTO makeDTO(const entities::Sprint& sprint)
 {
@@ -65,4 +65,4 @@ std::vector<entities::Sprint> fromDTOs(const std::vector<SprintDTO>& dtos)
     return res;
 }
 
-} // namespace sprint_timer::ui
+} // namespace sprint_timer::use_cases

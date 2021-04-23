@@ -29,7 +29,7 @@ AddTaskControlPresenter::AddTaskControlPresenter(
 {
 }
 
-void AddTaskControlPresenter::addTask(const TaskDTO& details) const
+void AddTaskControlPresenter::addTask(const use_cases::TaskDTO& details) const
 {
     // TODO Remove task creation when CreateTaskCommand is simplified
     std::list<entities::Tag> tags(details.tags.size());

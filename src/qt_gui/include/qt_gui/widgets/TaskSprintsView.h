@@ -47,7 +47,7 @@ public:
 
     ~TaskSprintsView() override;
 
-    void displaySprints(const std::vector<SprintDTO>& sprints) override;
+    void displaySprints(const std::vector<use_cases::SprintDTO>& sprints) override;
 
 private:
     std::unique_ptr<Ui::TaskSprintsView> ui;

@@ -19,15 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/SprintDTO.h"
+#ifndef TASKMAPPER_H_92B3YBWU
+#define TASKMAPPER_H_92B3YBWU
 
-namespace sprint_timer::ui {
+#include "core/use_cases/TaskDTO.h"
+#include "core/entities/Task.h"
 
-bool operator==(const SprintDTO& lhs, const SprintDTO& rhs)
-{
-    return lhs.uuid == rhs.uuid && lhs.taskUuid == rhs.taskUuid &&
-           lhs.taskName == rhs.taskName && lhs.tags == rhs.tags &&
-           lhs.timeRange == rhs.timeRange;
-}
+namespace sprint_timer::use_cases {
 
-} // namespace sprint_timer::ui
+TaskDTO makeDTO(const entities::Task& task);
+
+std::vector<TaskDTO> makeDTOs(const std::vector<entities::Task>& tasks);
+
+entities::Task fromDTO(const TaskDTO& dto);
+
+std::vector<entities::Task> fromDTOs(const std::vector<TaskDTO>& dtos);
+
+} // namespace sprint_timer::use_cases
+
+#endif /* end of include guard: TASKMAPPER_H_92B3YBWU */

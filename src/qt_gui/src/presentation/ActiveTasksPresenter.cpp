@@ -24,6 +24,8 @@
 
 namespace sprint_timer::ui {
 
+using use_cases::TaskDTO;
+
 ActiveTasksPresenter::ActiveTasksPresenter(
     active_tasks_hdl_t& activeTasksHandler_,
     edit_task_hdl_t& editTaskHandler_,
@@ -82,7 +84,7 @@ void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
 void ActiveTasksPresenter::updateViewImpl()
 {
     if (auto v = view(); v) {
-        tasks = makeDTOs(
+        tasks = use_cases::makeDTOs(
             activeTasksHandler.handle(use_cases::UnfinishedTasksQuery{}));
         v.value()->displayTasks(tasks);
     }

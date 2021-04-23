@@ -44,6 +44,9 @@
 #error "Unknown compiler"
 #endif
 
+#include "core/ThreadPoolQueryHandler.h"
+#include <riften/thiefpool.hpp>
+
 #include "AddSprintDialogProxy.h"
 #include "AddTaskDialogProxy.h"
 #include "BestWorkdayPresenterProxy.h"
@@ -330,6 +333,8 @@ int main(int argc, char* argv[])
         DatabaseInitializer initializer{sqliteFile};
     }
 
+    riften::Thiefpool threadPool{8};
+
     // TODO(vizier): should be one per thread when async is implemented
     storage::qt_storage::WorkerConnection worker_connection{sqliteFile};
 
@@ -545,9 +550,14 @@ int main(int argc, char* argv[])
         std::make_unique<AutodisablingButton>(activeTaskModel, "Add Sprint"),
         addSprintDialog);
 
+    auto asyncRequestSprintsHandler =
+        ThreadPoolQueryHandler<use_cases::RequestSprintsQuery,
+                               std::vector<entities::Sprint>>{
+            threadPool, *requestSprintsHandler};
+
     const size_t numTopTags{5};
-    ui::StatisticsMediatorImpl statisticsMediator{*requestSprintsHandler,
-                                                  numTopTags};
+    ui::StatisticsMediatorImpl statisticsMediator{
+        *requestSprintsHandler, asyncRequestSprintsHandler, numTopTags};
     compose::DateRangeSelectorPresenterProxy dateRangeSelectorPresenter{
         *operationalRangeHandler,
         statisticsMediator,

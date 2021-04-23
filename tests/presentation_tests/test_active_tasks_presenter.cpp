@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
-#include "qt_gui/presentation/TaskMapper.h"
+#include "core/use_cases/TaskMapper.h"
 #include "gmock/gmock.h"
 #include <algorithm>
 #include "core/TaskBuilder.h"
@@ -30,23 +30,19 @@
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
 using sprint_timer::ui::ActiveTasksPresenter;
-using sprint_timer::ui::TaskDTO;
 using sprint_timer::ui::contracts::TaskContract::View;
-using sprint_timer::use_cases::ChangeUnfinishedTasksPriorityCommand;
-using sprint_timer::use_cases::DeleteTaskCommand;
-using sprint_timer::use_cases::EditTaskCommand;
-using sprint_timer::use_cases::ToggleTaskCompletedCommand;
-using sprint_timer::use_cases::UnfinishedTasksQuery;
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
+
+using namespace sprint_timer::use_cases;
 
 namespace {
 
 using namespace std::chrono_literals;
 
-std::vector<sprint_timer::ui::TaskDTO> someTaskDtos{
-    sprint_timer::ui::TaskDTO{
+std::vector<TaskDTO> someTaskDtos{
+    TaskDTO{
         "1",
         {"Tag 1", "Tag 2"},
         "Task 1",
@@ -54,7 +50,7 @@ std::vector<sprint_timer::ui::TaskDTO> someTaskDtos{
         2,
         false,
         dw::DateTime{std::chrono::system_clock::time_point{1596401779s}}},
-    sprint_timer::ui::TaskDTO{
+    TaskDTO{
         "2",
         {"Tag 5", "Tag 2"},
         "Task 2",
@@ -62,7 +58,7 @@ std::vector<sprint_timer::ui::TaskDTO> someTaskDtos{
         4,
         false,
         dw::DateTime{std::chrono::system_clock::time_point{1572878664s}}},
-    sprint_timer::ui::TaskDTO{
+    TaskDTO{
         "3",
         {"Tag 7", "Tag 1"},
         "Task 3",
@@ -113,12 +109,6 @@ bool operator==(const use_cases::ChangeUnfinishedTasksPriorityCommand& lhs,
                 const use_cases::ChangeUnfinishedTasksPriorityCommand& rhs);
 
 } // namespace sprint_timer::use_cases
-
-namespace sprint_timer::ui {
-
-bool operator==(const TaskDTO& lhs, const TaskDTO& rhs);
-
-} // namespace sprint_timer::ui
 
 class TaskContractViewMock
     : public sprint_timer::ui::contracts::TaskContract::View {
@@ -263,15 +253,3 @@ bool operator==(const ChangeUnfinishedTasksPriorityCommand& lhs,
 }
 
 } // namespace sprint_timer::use_cases
-
-namespace sprint_timer::ui {
-
-bool operator==(const TaskDTO& lhs, const TaskDTO& rhs)
-{
-    return lhs.uuid == rhs.uuid && lhs.name == rhs.name &&
-           lhs.expectedCost == rhs.expectedCost &&
-           lhs.actualCost == rhs.actualCost && lhs.tags == rhs.tags;
-}
-
-} // namespace sprint_timer::ui
-
