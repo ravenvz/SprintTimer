@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "core/use_cases/request_sprints/SprintsForTaskHandler.h"
+#include "core/use_cases/SprintMapper.h"
 
 namespace sprint_timer::use_cases {
 
@@ -28,10 +29,10 @@ SprintsForTaskHandler::SprintsForTaskHandler(SprintStorageReader& reader_)
 {
 }
 
-std::vector<entities::Sprint>
+typename SprintsForTaskQuery::result_t
 SprintsForTaskHandler::handle(SprintsForTaskQuery&& query)
 {
-    return reader.findByTaskUuid(query.taskUuid);
+    return makeDTOs(reader.findByTaskUuid(query.taskUuid));
 }
 
 } // namespace sprint_timer::use_cases

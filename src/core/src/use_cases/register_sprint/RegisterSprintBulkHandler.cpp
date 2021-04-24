@@ -20,7 +20,9 @@
 **
 *********************************************************************************/
 #include "core/use_cases/register_sprint/RegisterSprintBulkHandler.h"
+#include "core/SprintBuilder.h"
 #include "core/actions/RegisterSprintBulk.h"
+#include <algorithm>
 
 namespace sprint_timer::use_cases {
 
@@ -33,8 +35,16 @@ RegisterSprintBulkHandler::RegisterSprintBulkHandler(
 
 void RegisterSprintBulkHandler::handle(RegisterSprintBulkCommand&& command)
 {
+    auto builder = SprintBuilder{}.withTaskUuid(command.taskUuid);
+    std::vector<entities::Sprint> sprints(command.intervals.size());
+    std::transform(cbegin(command.intervals),
+                   cend(command.intervals),
+                   begin(sprints),
+                   [&](const auto& interval) {
+                       return builder.withTimeSpan(interval).build();
+                   });
     actionInvoker.execute(
-        std::make_unique<actions::RegisterSprintBulk>(writer, command.sprints));
+        std::make_unique<actions::RegisterSprintBulk>(writer, sprints));
 }
 
 } // namespace sprint_timer::use_cases

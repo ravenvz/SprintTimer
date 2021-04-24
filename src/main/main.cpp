@@ -82,7 +82,7 @@
 #include "core/TaskStorageReader.h"
 #include "core/Workflow.h"
 #include "core/use_cases/change_schedule/ChangeWorkScheduleHandler.h"
-#include "core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityHandler.h"
+#include "core/use_cases/change_tasks_priority/ChangeActiveTasksPriorityHandler.h"
 #include "core/use_cases/create_task/CreateTaskHandler.h"
 #include "core/use_cases/delete_sprint/DeleteSprintHandler.h"
 #include "core/use_cases/delete_task/DeleteTaskHandler.h"
@@ -99,8 +99,8 @@
 #include "core/use_cases/request_sprints/RequestSprintsHandler.h"
 #include "core/use_cases/request_sprints/SprintsForTaskHandler.h"
 #include "core/use_cases/request_tags/AllTagsHandler.h"
+#include "core/use_cases/request_tasks/ActiveTasksHandler.h"
 #include "core/use_cases/request_tasks/FinishedTasksHandler.h"
-#include "core/use_cases/request_tasks/UnfinishedTasksHandler.h"
 #include "core/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.h"
 #include "core/use_cases/workflow_control/CancelTimerHandler.h"
 #include "core/use_cases/workflow_control/StartTimerHandler.h"
@@ -410,9 +410,9 @@ int main(int argc, char* argv[])
         compose::decorate<AllTagsQuery>(compose::decorate<AllTagsQuery>(
             std::make_unique<AllTagsHandler>(*taskStorage),
             cacheInvalidationMediator));
-    auto unfinishedTasksHandler = compose::decorate<UnfinishedTasksQuery>(
-        compose::decorate<UnfinishedTasksQuery>(
-            std::make_unique<UnfinishedTasksHandler>(*taskStorage),
+    auto unfinishedTasksHandler =
+        compose::decorate<ActiveTasksQuery>(compose::decorate<ActiveTasksQuery>(
+            std::make_unique<ActiveTasksHandler>(*taskStorage),
             cacheInvalidationMediator));
 
     auto deleteSprintHandler = compose::decorate<DeleteSprintCommand>(
@@ -425,9 +425,9 @@ int main(int argc, char* argv[])
             std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker),
             cacheInvalidationMediator));
     auto changePriorityHandler =
-        compose::decorate<ChangeUnfinishedTasksPriorityCommand>(
-            compose::decorate<ChangeUnfinishedTasksPriorityCommand>(
-                std::make_unique<ChangeUnfinishedTasksPriorityHandler>(
+        compose::decorate<ChangeActiveTasksPriorityCommand>(
+            compose::decorate<ChangeActiveTasksPriorityCommand>(
+                std::make_unique<ChangeActiveTasksPriorityHandler>(
                     *taskStorage, actionInvoker),
                 cacheInvalidationMediator));
     auto createTaskHandler = compose::decorate<CreateTaskCommand>(
@@ -482,8 +482,8 @@ int main(int argc, char* argv[])
     // auto renameTagHandler = compose::decorate<RenameTagCommand>(
     //     std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker));
     // auto changePriorityHandler =
-    // compose::decorate<ChangeUnfinishedTasksPriorityCommand>(
-    //     std::make_unique<ChangeUnfinishedTasksPriorityHandler>(*taskStorage,
+    // compose::decorate<ChangeActiveTasksPriorityCommand>(
+    //     std::make_unique<ChangeActiveTasksPriorityHandler>(*taskStorage,
     //                                                            actionInvoker));
     // auto createTaskHandler = compose::decorate<CreateTaskCommand>(
     //     std::make_unique<CreateTaskHandler>(*taskStorage, actionInvoker));
@@ -551,8 +551,7 @@ int main(int argc, char* argv[])
         addSprintDialog);
 
     auto asyncRequestSprintsHandler =
-        ThreadPoolQueryHandler<use_cases::RequestSprintsQuery,
-                               std::vector<entities::Sprint>>{
+        ThreadPoolQueryHandler<use_cases::RequestSprintsQuery>{
             threadPool, *requestSprintsHandler};
 
     const size_t numTopTags{5};
@@ -658,19 +657,19 @@ int main(int argc, char* argv[])
     external_io::OstreamSink ostreamSink{std::cout};
 
     external_io::SprintToCsvAlgorithm sprintToCsvAlgorithm;
-    external_io::Serializer<entities::Sprint> sprintSerializer{
+    external_io::Serializer<SprintDTO> sprintSerializer{
         {{DataFormat::Csv, sprintToCsvAlgorithm}}};
 
     external_io::TaskToCsvAlgorithm taskToCsvAlgorithm;
-    external_io::Serializer<entities::Task> taskSerializer{
+    external_io::Serializer<TaskDTO> taskSerializer{
         {{DataFormat::Csv, taskToCsvAlgorithm}}};
 
     external_io::RuntimeSinkRouter runtimeSinkRouter{
         {{SinkType::Stdout, ostreamSink}}};
-    external_io::RuntimeConfigurableDataExporter<entities::Sprint>
-        sprintDataExporter{sprintSerializer, runtimeSinkRouter};
-    external_io::RuntimeConfigurableDataExporter<entities::Task>
-        taskDataExporter{taskSerializer, runtimeSinkRouter};
+    external_io::RuntimeConfigurableDataExporter<SprintDTO> sprintDataExporter{
+        sprintSerializer, runtimeSinkRouter};
+    external_io::RuntimeConfigurableDataExporter<TaskDTO> taskDataExporter{
+        taskSerializer, runtimeSinkRouter};
     // Does not use synchronizing overload as it doesn't mutate eternal state
     auto exportSprintsHandler = compose::decorate<ExportSprintsCommand>(
         std::make_unique<ExportSprintsHandler>(*requestSprintsHandler,

@@ -22,7 +22,6 @@
 #include "core/entities/Task.h"
 #include "core/BoostUUIDGenerator.h"
 #include <iostream>
-#include <regex>
 
 namespace {
 
@@ -67,15 +66,6 @@ Task::Task(std::string name,
 {
 }
 
-Task::Task(std::string encodedDescription)
-    : uuid_{uuid_generator.generateUUID()}
-    , lastModified_{dw::current_date_time_local()}
-{
-    decodeDescription(std::move(encodedDescription));
-}
-
-std::string Task::estimatedPrefix = std::string{"*"};
-
 std::string Task::name() const { return name_; }
 
 bool Task::isCompleted() const { return completed_; }
@@ -103,34 +93,6 @@ void Task::setActualCost(int numSprints) { actualCost_ = numSprints; }
 void Task::setModifiedTimeStamp(const DateTime& timeStamp)
 {
     lastModified_ = timeStamp;
-}
-
-void Task::decodeDescription(std::string&& encodedDescription)
-{
-    std::regex tagRegex{"^" + Tag::prefix + R"(\w+)"};
-    std::regex estimatedRegex{"^\\" + estimatedPrefix + R"(\w+)"};
-    std::regex anyNonWhitespace{"\\S+"};
-
-    std::sregex_iterator words_begin{
-        encodedDescription.begin(), encodedDescription.end(), anyNonWhitespace};
-    std::sregex_iterator words_end;
-
-    std::vector<std::string> nameParts;
-
-    for (auto it = words_begin; it != words_end; ++it) {
-        std::string word{it->str()};
-        if (std::regex_match(word, tagRegex)) {
-            tags_.push_back(Tag{word.substr(1)});
-        }
-        else if (std::regex_match(word, estimatedRegex)) {
-            estimatedCost_ = stoi(word.substr(1));
-        }
-        else {
-            nameParts.push_back(word);
-        }
-    }
-
-    name_ = utils::join(nameParts, " ");
 }
 
 std::ostream& operator<<(std::ostream& os, const Task& task)

@@ -23,8 +23,8 @@
 
 namespace sprint_timer::use_cases {
 
-ExportSprintsHandler::ExportSprintsHandler(
-    Handler& sprintsHandler_, DataExporter<entities::Sprint>& exporter_)
+ExportSprintsHandler::ExportSprintsHandler(Handler& sprintsHandler_,
+                                           DataExporter<SprintDTO>& exporter_)
     : sprintsHandler{sprintsHandler_}
     , exporter{exporter_}
 {

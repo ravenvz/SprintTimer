@@ -34,13 +34,13 @@ public:
     using Handler = QueryHandler<RequestSprintsQuery>;
 
     ExportSprintsHandler(Handler& sprintsHandler,
-                         DataExporter<entities::Sprint>& exporter);
+                         DataExporter<SprintDTO>& exporter);
 
     void handle(ExportSprintsCommand&& command) override;
 
 private:
     Handler& sprintsHandler;
-    DataExporter<entities::Sprint>& exporter;
+    DataExporter<SprintDTO>& exporter;
 };
 
 } // namespace sprint_timer::use_cases

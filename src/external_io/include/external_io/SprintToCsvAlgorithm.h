@@ -22,15 +22,16 @@
 #ifndef SPRINTTOCSVALGORITHM_H_IAOKJLBQ
 #define SPRINTTOCSVALGORITHM_H_IAOKJLBQ
 
+#include "core/use_cases/SprintDTO.h"
 #include "external_io/CsvSerializationAlgorithm.h"
-#include "core/entities/Sprint.h"
 
 namespace sprint_timer::external_io {
 
-class SprintToCsvAlgorithm : public CsvSerializationAlgorithm<entities::Sprint> {
+class SprintToCsvAlgorithm
+    : public CsvSerializationAlgorithm<use_cases::SprintDTO> {
 private:
     std::vector<std::string>
-    toRecords(const entities::Sprint& sprint) const override;
+    toRecords(const use_cases::SprintDTO& sprint) const override;
 };
 
 } // namespace sprint_timer::external_io

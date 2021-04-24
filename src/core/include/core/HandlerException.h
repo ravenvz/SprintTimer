@@ -19,25 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef UNFINISHEDTASKSHANDLER_H_LVO6P2GE
-#define UNFINISHEDTASKSHANDLER_H_LVO6P2GE
+#ifndef HANDLEREXCEPTION_H_V5YB27GA
+#define HANDLEREXCEPTION_H_V5YB27GA
 
-#include "core/QueryHandler.h"
-#include "core/TaskStorageReader.h"
-#include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
+#include "core/SprintTimerException.h"
 
-namespace sprint_timer::use_cases {
+namespace sprint_timer {
 
-class UnfinishedTasksHandler : public QueryHandler<UnfinishedTasksQuery> {
+class HandlerException : public SprintTimerException {
 public:
-    explicit UnfinishedTasksHandler(TaskStorageReader& reader);
-
-    std::vector<entities::Task> handle(UnfinishedTasksQuery&&) override;
-
-private:
-    TaskStorageReader& reader;
+    explicit HandlerException(const std::string& message)
+        : SprintTimerException{message}
+    {
+    }
 };
 
-} // namespace sprint_timer::use_cases
+} // namespace sprint_timer
 
-#endif /* end of include guard: UNFINISHEDTASKSHANDLER_H_LVO6P2GE */
+#endif /* end of include guard: HANDLEREXCEPTION_H_V5YB27GA */
+

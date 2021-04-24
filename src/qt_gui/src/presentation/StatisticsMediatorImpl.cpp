@@ -20,16 +20,17 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/StatisticsMediatorImpl.h"
+#include "core/use_cases/SprintMapper.h"
 #include "qt_gui/UiThreadRunnerHelper.h"
 
 namespace sprint_timer::ui {
 
 StatisticsMediatorImpl::StatisticsMediatorImpl(
-    request_sprints_hdl_t& queryHandler_,
+    request_sprints_hdl_t& /*queryHandler_*/,
     async_request_sprints_hdl_t& asyncQueryHandler_,
     size_t numTopTags_)
-    : queryHandler{queryHandler_}
-    , asyncQueryHandler{asyncQueryHandler_}
+    // : queryHandler{queryHandler_}
+    : asyncQueryHandler{asyncQueryHandler_}
     , numTopTags{numTopTags_}
 {
 }
@@ -54,8 +55,9 @@ void StatisticsMediatorImpl::filterByTag(StatisticsColleague* caller,
 void StatisticsMediatorImpl::requestData()
 {
     asyncQueryHandler.handle(
-        use_cases::RequestSprintsQuery{*dateRange},
-        [this](auto sprints) { onDataReadyCallback(std::move(sprints)); });
+        use_cases::RequestSprintsQuery{*dateRange}, [this](auto sprints) {
+            onDataReadyCallback(use_cases::fromDTOs(sprints));
+        });
 }
 
 void StatisticsMediatorImpl::onDataReadyCallback(

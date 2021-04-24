@@ -40,22 +40,21 @@ ActiveTasksPresenter::ActiveTasksPresenter(
 {
 }
 
-void ActiveTasksPresenter::editTask(const TaskDTO& original,
-                                    const TaskDTO& edited)
+void ActiveTasksPresenter::editTask(const TaskDTO& editedTask)
 {
-    editTaskHandler.handle(
-        use_cases::EditTaskCommand{fromDTO(original), fromDTO(edited)});
+    editTaskHandler.handle(use_cases::EditTaskCommand{editedTask});
 }
 
-void ActiveTasksPresenter::deleteTask(const TaskDTO& task)
+void ActiveTasksPresenter::deleteTask(const std::string& uuid)
 {
-    deleteTaskHandler.handle(use_cases::DeleteTaskCommand{fromDTO(task)});
+    deleteTaskHandler.handle(use_cases::DeleteTaskCommand{uuid});
 }
 
-void ActiveTasksPresenter::toggleFinished(const TaskDTO& task)
+void ActiveTasksPresenter::toggleFinished(
+    const std::string& uuid, dw::DateTime lastModificationTimestamp)
 {
     toggleFinishedHandler.handle(
-        use_cases::ToggleTaskCompletedCommand{fromDTO(task)});
+        use_cases::ToggleTaskCompletedCommand{uuid, lastModificationTimestamp});
 }
 
 void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
@@ -76,16 +75,14 @@ void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
                  begin(newOrder) + sourceRow + count,
                  begin(newOrder) + destinationRow + offset);
 
-    changePriorityHandler.handle(
-        use_cases::ChangeUnfinishedTasksPriorityCommand{std::move(oldOrder),
-                                                        std::move(newOrder)});
+    changePriorityHandler.handle(use_cases::ChangeActiveTasksPriorityCommand{
+        std::move(oldOrder), std::move(newOrder)});
 }
 
 void ActiveTasksPresenter::updateViewImpl()
 {
     if (auto v = view(); v) {
-        tasks = use_cases::makeDTOs(
-            activeTasksHandler.handle(use_cases::UnfinishedTasksQuery{}));
+        tasks = activeTasksHandler.handle(use_cases::ActiveTasksQuery{});
         v.value()->displayTasks(tasks);
     }
 }

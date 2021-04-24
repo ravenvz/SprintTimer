@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/TaskBuilder.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "core/use_cases/request_tasks/FinishedTasksQuery.h"
 #include "mocks/HistoryMediatorMock.h"
@@ -28,7 +27,6 @@
 
 using namespace ::testing;
 using namespace sprint_timer;
-using namespace sprint_timer::entities;
 using namespace std::chrono_literals;
 using namespace dw;
 
@@ -77,10 +75,10 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const History& history)
 
 namespace {
 
-std::vector<sprint_timer::entities::Sprint>
+std::vector<sprint_timer::use_cases::SprintDTO>
 buildSomeSprints(const dw::Date& someDate);
 
-std::vector<sprint_timer::entities::Task>
+std::vector<sprint_timer::use_cases::TaskDTO>
 buildSomeTasks(const dw::Date& someDate);
 
 } // namespace
@@ -239,7 +237,7 @@ TEST_F(HistoryPresenterFixture,
        displays_history_when_notified_about_shared_data_change)
 {
     const dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
-    const std::vector<Sprint> sprints;
+    const std::vector<use_cases::SprintDTO> sprints;
     const ui::contracts::HistoryContract::History expected;
     presenter.attachView(viewMock);
     ON_CALL(mediatorMock, currentDateRange())
@@ -256,111 +254,99 @@ TEST_F(HistoryPresenterFixture,
 
 namespace {
 
-std::vector<sprint_timer::entities::Sprint>
+std::vector<sprint_timer::use_cases::SprintDTO>
 buildSomeSprints(const dw::Date& someDate)
 {
-    using namespace sprint_timer;
     using namespace dw;
+    using sprint_timer::use_cases::SprintDTO;
     const DateTime someDateTime{someDate};
     const DateTimeRange span{someDateTime, someDateTime + 25min};
-    std::vector<Sprint> sprints{
-        Sprint{"Another task",
-               add_offset(span, -Days{3} + 4h),
-               {Tag{"Tag3"}},
-               "1",
-               "345"},
-        Sprint{"Some task",
-               add_offset(span, -Days{2} + 3h),
-               {Tag{"Tag1"}, Tag{"Tag2"}},
-               "2",
-               "123"},
-        Sprint{"Some task",
-               add_offset(span, 1h),
-               {Tag{"Tag1"}, Tag{"Tag2"}},
-               "3",
-               "123"},
-        Sprint{"Some task",
-               add_offset(span, 10h),
-               {Tag{"Tag1"}, Tag{"Tag2"}},
-               "4",
-               "123"},
-        Sprint{"Some task",
-               add_offset(span, Days{2} + 1h),
-               {Tag{"Tag1"}, Tag{"Tag2"}},
-               "5",
-               "123"},
-        Sprint{"Some task",
-               add_offset(span, Days{2} + 6h),
-               {Tag{"Tag1"}, Tag{"Tag2"}},
-               "6",
-               "123"},
-        Sprint{"Another task",
-               add_offset(span, Days{3} + 5h),
-               {Tag{"Tag3"}},
-               "7",
-               "345"},
+    std::vector<SprintDTO> sprints{
+        SprintDTO{"1",
+                  "345",
+                  "Another task",
+                  {"Tag3"},
+                  add_offset(span, -Days{3} + 4h)},
+        SprintDTO{"2",
+                  "123",
+                  "Some task",
+                  {"Tag1", "Tag2"},
+                  add_offset(span, -Days{2} + 3h)},
+        SprintDTO{
+            "3", "123", "Some task", {"Tag1", "Tag2"}, add_offset(span, 1h)},
+        SprintDTO{
+            "4", "123", "Some task", {"Tag1", "Tag2"}, add_offset(span, 10h)},
+        SprintDTO{"5",
+                  "123",
+                  "Some task",
+                  {"Tag1", "Tag2"},
+                  add_offset(span, Days{2} + 1h)},
+        SprintDTO{"6",
+                  "123",
+                  "Some task",
+                  {"Tag1", "Tag2"},
+                  add_offset(span, Days{2} + 6h)},
+        SprintDTO{"7",
+                  "345",
+                  "Another task",
+                  {"Tag3"},
+                  add_offset(span, Days{3} + 5h)},
     };
     return sprints;
 }
 
-std::vector<sprint_timer::entities::Task>
+std::vector<sprint_timer::use_cases::TaskDTO>
 buildSomeTasks(const dw::Date& someDate)
 {
     using namespace sprint_timer;
     using namespace dw;
+    using use_cases::TaskDTO;
     const DateTime someDateTime{someDate};
-    TaskBuilder builder;
-    builder.withCompletionStatus(true);
-    std::vector<Task> tasks;
-    tasks.push_back(builder.withName("Earliest task")
-                        .withUuid("1")
-                        .withExplicitTags({Tag{"Tag1"}})
-                        .withActualCost(3)
-                        .withEstimatedCost(2)
-                        .withLastModificationStamp(someDateTime - Days{4})
-                        .build());
-    tasks.push_back(builder.withName("Second to earliest")
-                        .withUuid("2")
-                        .withExplicitTags({Tag{"Tag9"}})
-                        .withActualCost(7)
-                        .withEstimatedCost(2)
-                        .withLastModificationStamp(someDateTime - Days{3} + 3h)
-                        .build());
-    tasks.push_back(builder.withName("Same day task 1")
-                        .withUuid("3")
-                        .withExplicitTags({Tag{"Tag7"}})
-                        .withActualCost(15)
-                        .withEstimatedCost(5)
-                        .withLastModificationStamp(someDateTime - Days{2})
-                        .build());
-    tasks.push_back(builder.withName("Same day task 2")
-                        .withUuid("4")
-                        .withExplicitTags({Tag{"Tag5"}})
-                        .withActualCost(5)
-                        .withEstimatedCost(5)
-                        .withLastModificationStamp(someDateTime - Days{2} + 1h)
-                        .build());
-    tasks.push_back(builder.withName("Same day task 3")
-                        .withUuid("5")
-                        .withExplicitTags({Tag{"Tag5"}})
-                        .withActualCost(7)
-                        .withEstimatedCost(12)
-                        .withLastModificationStamp(someDateTime - Days{2} + 3h)
-                        .build());
-    tasks.push_back(builder.withName("Second to last")
-                        .withUuid("6")
-                        .withExplicitTags({Tag{"Tag1"}})
-                        .withActualCost(5)
-                        .withEstimatedCost(5)
-                        .withLastModificationStamp(someDateTime + Days{3})
-                        .build());
-    tasks.push_back(builder.withName("Latest task")
-                        .withUuid("7")
-                        .withEstimatedCost(7)
-                        .withActualCost(0)
-                        .withExplicitTags({})
-                        .withLastModificationStamp(someDateTime + Days{4})
-                        .build());
+    std::vector<TaskDTO> tasks{
+        TaskDTO{
+            "1", {"Tag1"}, "Earliest task", 2, 3, true, someDateTime - Days{4}},
+        TaskDTO{"2",
+                {"Tag9"},
+                "Second to earliest",
+                2,
+                7,
+                true,
+                someDateTime - Days{3} + 3h},
+        TaskDTO{"3",
+                {"Tag7"},
+                "Same day task 1",
+                5,
+                15,
+                true,
+                someDateTime - Days{2}},
+        TaskDTO{"4",
+                {"Tag5"},
+                "Same day task 2",
+                5,
+                5,
+                true,
+                someDateTime - Days{2} + 1h},
+        TaskDTO{"5",
+                {"Tag5"},
+                "Same day task 3",
+                12,
+                7,
+                true,
+                someDateTime - Days{2} + 3h},
+        TaskDTO{"6",
+                {"Tag1"},
+                "Second to last",
+                5,
+                5,
+                true,
+                someDateTime + Days{3}},
+        TaskDTO{"7",
+                std::vector<std::string>{},
+                "Latest task",
+                7,
+                0,
+                true,
+                someDateTime + Days{4}}};
     return tasks;
 }
 

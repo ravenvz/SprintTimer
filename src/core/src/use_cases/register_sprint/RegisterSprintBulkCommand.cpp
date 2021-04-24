@@ -24,15 +24,10 @@
 namespace sprint_timer::use_cases {
 
 RegisterSprintBulkCommand::RegisterSprintBulkCommand(
-    std::vector<entities::Sprint>&& sprints_)
-    : sprints{std::move(sprints_)}
+    std::string taskUuid_, std::vector<dw::DateTimeRange> intervals_)
+    : taskUuid{std::move(taskUuid_)}
+    , intervals{std::move(intervals_)}
 {
-}
-
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs)
-{
-    return lhs.sprints == rhs.sprints;
 }
 
 } // namespace sprint_timer::use_cases

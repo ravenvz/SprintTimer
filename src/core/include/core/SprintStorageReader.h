@@ -35,7 +35,10 @@ public:
     findByDateRange(const dw::DateRange& dateRange) = 0;
 
     virtual std::vector<entities::Sprint>
-    findByTaskUuid(const std::string& uuid) = 0;
+    findByTaskUuid(const std::string& taskUuid) = 0;
+
+    virtual std::vector<entities::Sprint>
+    findByUuid(const std::string& uuid) = 0;
 };
 
 } // namespace sprint_timer

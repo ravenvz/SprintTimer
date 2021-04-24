@@ -22,10 +22,10 @@
 #ifndef SPRINTDTO_H_VMXFAC02
 #define SPRINTDTO_H_VMXFAC02
 
+#include "core/Uuid.h"
 #include "date_wrapper/date_wrapper.h"
 #include <string>
 #include <vector>
-#include "core/Uuid.h"
 
 namespace sprint_timer::use_cases {
 
@@ -39,6 +39,20 @@ struct SprintDTO {
 
     bool operator==(const SprintDTO& other) const = default;
 };
+
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os, const SprintDTO& sprint)
+{
+    os << "SprintDTO{"
+       << "taskUuid: " << sprint.taskUuid << ", " << sprint.taskName << ", "
+       << sprint.uuid;
+    for (const auto& element : sprint.tags) {
+        os << '#' << element << ' ';
+    }
+    os << sprint.timeRange << "}";
+    return os;
+}
 
 } // namespace sprint_timer::use_cases
 

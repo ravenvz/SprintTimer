@@ -28,7 +28,7 @@
 namespace sprint_timer::compose {
 
 template <>
-std::vector<entities::Task>
+typename use_cases::FinishedTasksQuery::result_t
 CacheAwareQueryHandler<use_cases::FinishedTasksQuery>::handle(
     use_cases::FinishedTasksQuery&& query)
 {

@@ -25,18 +25,19 @@
 namespace sprint_timer::external_io {
 
 std::vector<std::string>
-TaskToCsvAlgorithm::toRecords(const entities::Task& task) const
+TaskToCsvAlgorithm::toRecords(const use_cases::TaskDTO& task) const
 {
     using sprint_timer::utils::join;
     std::vector<std::string> records;
-    const auto tags = task.tags();
-    records.emplace_back(task.uuid());
-    records.emplace_back(task.name());
+    const auto& tags = task.tags;
+    records.emplace_back(task.uuid);
+    records.emplace_back(task.name);
     records.emplace_back(join(cbegin(tags), cend(tags), ","));
-    records.emplace_back(std::to_string(task.actualCost()));
-    records.emplace_back(std::to_string(task.estimatedCost()));
-    records.push_back(std::to_string(task.isCompleted() ? 1 : 0));
-    records.push_back(dw::to_string(task.lastModified(), "hh:mm dd.MM.yyyy"));
+    records.emplace_back(std::to_string(task.actualCost));
+    records.emplace_back(std::to_string(task.expectedCost));
+    records.push_back(std::to_string(task.finished ? 1 : 0));
+    records.push_back(
+        dw::to_string(task.modificationStamp, "hh:mm dd.MM.yyyy"));
     return records;
 }
 

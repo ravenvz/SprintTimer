@@ -30,9 +30,10 @@ namespace sprint_timer::use_cases {
 
 class RequestSprintsHandler : public QueryHandler<RequestSprintsQuery> {
 public:
-    RequestSprintsHandler(SprintStorageReader& reader_);
+    explicit RequestSprintsHandler(SprintStorageReader& reader_);
 
-    std::vector<entities::Sprint> handle(RequestSprintsQuery&& query) override;
+    typename RequestSprintsQuery::result_t
+    handle(RequestSprintsQuery&& query) override;
 
 private:
     SprintStorageReader& reader;

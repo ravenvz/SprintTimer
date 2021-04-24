@@ -20,9 +20,9 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
+#include "core/utils/StringUtils.h"
 #include "qt_gui/metatypes/SprintDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
-#include "core/utils/StringUtils.h"
 
 namespace {
 
@@ -88,7 +88,7 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& /*index*/)
     // endRemoveRows();
 
     if (auto p = presenter(); p) {
-        p.value()->onSprintDelete(storage[static_cast<size_t>(row)]);
+        p.value()->onSprintDelete(storage[static_cast<size_t>(row)].uuid);
         return true;
     }
 

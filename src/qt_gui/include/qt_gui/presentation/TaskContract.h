@@ -22,9 +22,9 @@
 #ifndef TASKCONTRACT_H_MQASHYXA
 #define TASKCONTRACT_H_MQASHYXA
 
+#include "core/use_cases/TaskDTO.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
-#include "core/use_cases/TaskDTO.h"
 #include <vector>
 
 namespace sprint_timer::ui::contracts::TaskContract {
@@ -33,11 +33,12 @@ class View;
 
 class Presenter : public mvp::BasePresenter<View> {
 public:
-    virtual void editTask(const use_cases::TaskDTO& original, const use_cases::TaskDTO& edited) = 0;
+    virtual void editTask(const use_cases::TaskDTO& editedTask) = 0;
 
-    virtual void deleteTask(const use_cases::TaskDTO& task) = 0;
+    virtual void deleteTask(const std::string& uuid) = 0;
 
-    virtual void toggleFinished(const use_cases::TaskDTO& task) = 0;
+    virtual void toggleFinished(const std::string& uuid,
+                                dw::DateTime lastModified) = 0;
 
     virtual void
     reorderTasks(int32_t sourceRow, int32_t count, int32_t destinationRow) = 0;

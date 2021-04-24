@@ -34,14 +34,13 @@ class ExportTasksHandler : public CommandHandler<ExportTasksCommand> {
 public:
     using Handler = QueryHandler<FinishedTasksQuery>;
 
-    ExportTasksHandler(Handler& tasksHandler,
-                       DataExporter<entities::Task>& exporter);
+    ExportTasksHandler(Handler& tasksHandler, DataExporter<TaskDTO>& exporter);
 
     void handle(ExportTasksCommand&& command) override;
 
 private:
     Handler& tasksHandler;
-    DataExporter<entities::Task>& exporter;
+    DataExporter<TaskDTO>& exporter;
 };
 
 } // namespace sprint_timer::use_cases

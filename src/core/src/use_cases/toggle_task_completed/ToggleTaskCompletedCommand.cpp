@@ -23,8 +23,10 @@
 
 namespace sprint_timer::use_cases {
 
-ToggleTaskCompletedCommand::ToggleTaskCompletedCommand(entities::Task task_)
-    : task{std::move(task_)}
+ToggleTaskCompletedCommand::ToggleTaskCompletedCommand(
+    std::string taskUuid_, dw::DateTime lastModified_)
+    : taskUuid{std::move(taskUuid_)}
+    , lastModificationTimestamp{lastModified_}
 {
 }
 

@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "core/use_cases/request_tasks/FinishedTasksHandler.h"
+#include "core/use_cases/TaskMapper.h"
 
 namespace sprint_timer::use_cases {
 
@@ -28,10 +29,10 @@ FinishedTasksHandler::FinishedTasksHandler(TaskStorageReader& reader_)
 {
 }
 
-std::vector<entities::Task>
+typename FinishedTasksQuery::result_t
 FinishedTasksHandler::handle(FinishedTasksQuery&& query)
 {
-    return reader.finishedTasks(query.dateRange);
+    return makeDTOs(reader.finishedTasks(query.dateRange));
 }
 
 } // namespace sprint_timer::use_cases

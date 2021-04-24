@@ -33,7 +33,7 @@ public:
     {
     }
 
-    void requestUnfinishedTasks(Handler handler) final
+    void requestActiveTasks(Handler handler) final
     {
         auto tempHandler = [handler](const std::vector<Task>& allReturned) {
             std::vector<Task> unfinished;

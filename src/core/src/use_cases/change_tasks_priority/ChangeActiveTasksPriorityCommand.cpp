@@ -19,34 +19,15 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef CHANGEUNFINISHEDTASKSPRIORITYCOMMAND_H_HPVUFTQ8
-#define CHANGEUNFINISHEDTASKSPRIORITYCOMMAND_H_HPVUFTQ8
-
-#include "core/Command.h"
-#include <string>
-#include <vector>
+#include "core/use_cases/change_tasks_priority/ChangeActiveTasksPriorityCommand.h"
 
 namespace sprint_timer::use_cases {
 
-struct ChangeUnfinishedTasksPriorityCommand : public Command {
-    ChangeUnfinishedTasksPriorityCommand(std::vector<std::string>&& oldOrder,
-                                         std::vector<std::string>&& newOrder);
-
-    std::vector<std::string> oldOrder;
-    std::vector<std::string> newOrder;
-};
-
-template <class CharT, class Traits>
-std::basic_ostream<CharT, Traits>&
-operator<<(std::basic_ostream<CharT, Traits>& os,
-           const ChangeUnfinishedTasksPriorityCommand&)
+ChangeActiveTasksPriorityCommand::ChangeActiveTasksPriorityCommand(
+    std::vector<std::string> oldOrder_, std::vector<std::string> newOrder_)
+    : oldOrder{std::move(oldOrder_)}
+    , newOrder{std::move(newOrder_)}
 {
-    os << "ChangeUnfinishedTasksPriorityCommand{}";
-    return os;
 }
 
 } // namespace sprint_timer::use_cases
-
-#endif /* end of include guard:                                                \
-          CHANGEUNFINISHEDTASKSPRIORITYCOMMAND_H_HPVUFTQ8 */
-

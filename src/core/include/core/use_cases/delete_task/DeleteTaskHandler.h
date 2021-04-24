@@ -25,7 +25,7 @@
 #include "core/ActionInvoker.h"
 #include "core/CommandHandler.h"
 #include "core/SprintStorage.h"
-#include "core/TaskStorageWriter.h"
+#include "core/TaskStorage.h"
 #include "core/use_cases/delete_task/DeleteTaskCommand.h"
 
 namespace sprint_timer::use_cases {
@@ -33,14 +33,14 @@ namespace sprint_timer::use_cases {
 class DeleteTaskHandler : public CommandHandler<DeleteTaskCommand> {
 public:
     DeleteTaskHandler(SprintStorage& sprintStorage,
-                      TaskStorageWriter& taskWriter,
+                      TaskStorage& taskStorage,
                       ActionInvoker& actionInvoker);
 
     void handle(DeleteTaskCommand&& command) override;
 
 private:
     SprintStorage& sprintStorage;
-    TaskStorageWriter& taskWriter;
+    TaskStorage& taskStorage;
     ActionInvoker& actionInvoker;
 };
 

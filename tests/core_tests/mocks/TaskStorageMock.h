@@ -29,23 +29,42 @@ namespace mocks {
 
 class TaskStorageMock : public sprint_timer::TaskStorage {
 public:
-    MOCK_METHOD1(save, void(const sprint_timer::entities::Task&));
-    MOCK_METHOD1(remove, void(const std::string&));
-    MOCK_METHOD2(edit,
-                 void(const sprint_timer::entities::Task&,
-                      const sprint_timer::entities::Task&));
-    MOCK_METHOD2(toggleCompleted,
-                 void(const std::string&, const dw::DateTime&));
-    MOCK_METHOD1(updatePriorities, void(const std::vector<std::string>&));
-    MOCK_METHOD2(editTag, void(const std::string&, const std::string&));
-    MOCK_METHOD0(unfinishedTasks, std::vector<sprint_timer::entities::Task>());
-    MOCK_METHOD1(
-        finishedTasks,
-        std::vector<sprint_timer::entities::Task>(const dw::DateRange&));
-    MOCK_METHOD1(
-        allTasks,
-        std::vector<sprint_timer::entities::Task>(const dw::DateRange&));
-    MOCK_METHOD0(allTags, std::vector<std::string>());
+    MOCK_METHOD(void, save, (const sprint_timer::entities::Task&), (override));
+    MOCK_METHOD(void, remove, (const std::string&), (override));
+    MOCK_METHOD(void,
+                edit,
+                (const sprint_timer::entities::Task&,
+                 const sprint_timer::entities::Task&),
+                (override));
+    MOCK_METHOD(void,
+                toggleCompleted,
+                (const std::string&, const dw::DateTime&),
+                (override));
+    MOCK_METHOD(void,
+                updatePriorities,
+                (const std::vector<std::string>&),
+                (override));
+    MOCK_METHOD(void,
+                editTag,
+                (const std::string&, const std::string&),
+                (override));
+    MOCK_METHOD((std::vector<sprint_timer::entities::Task>),
+                unfinishedTasks,
+                (),
+                (override));
+    MOCK_METHOD((std::vector<sprint_timer::entities::Task>),
+                finishedTasks,
+                (const dw::DateRange&),
+                (override));
+    MOCK_METHOD((std::vector<sprint_timer::entities::Task>),
+                allTasks,
+                (const dw::DateRange&),
+                (override));
+    MOCK_METHOD((std::vector<std::string>), allTags, (), (override));
+    MOCK_METHOD((std::vector<sprint_timer::entities::Task>),
+                findByUuid,
+                (const std::string&),
+                (override));
 };
 
 } // namespace mocks

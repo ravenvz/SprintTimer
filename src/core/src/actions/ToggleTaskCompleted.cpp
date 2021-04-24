@@ -20,17 +20,20 @@
 **
 *********************************************************************************/
 
+#include <utility>
+
 #include "core/actions/ToggleTaskCompleted.h"
 
 using dw::DateTime;
 
 namespace sprint_timer::actions {
 
-ToggleTaskCompleted::ToggleTaskCompleted(TaskStorageWriter& taskStorageWriter,
-                                         const entities::Task& task)
-    : writer{taskStorageWriter}
-    , uuid{task.uuid()}
-    , oldTimeStamp{task.lastModified()}
+ToggleTaskCompleted::ToggleTaskCompleted(TaskStorageWriter& taskStorageWriter_,
+                                         std::string uuid_,
+                                         dw::DateTime lastModified_)
+    : writer{taskStorageWriter_}
+    , uuid{std::move(uuid_)}
+    , oldTimeStamp{lastModified_}
 {
 }
 

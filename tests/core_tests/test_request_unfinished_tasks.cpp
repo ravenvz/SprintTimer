@@ -22,22 +22,22 @@
 
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include "core/use_cases/request_tasks/UnfinishedTasksHandler.h"
-#include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
+#include "core/use_cases/request_tasks/ActiveTasksHandler.h"
+#include "core/use_cases/request_tasks/ActiveTasksQuery.h"
 
 using ::testing::_;
 
-class RequestUnfinishedTasksFixture : public ::testing::Test {
+class RequestActiveTasksFixture : public ::testing::Test {
 public:
     mocks::TaskStorageMock task_storage_mock;
-    sprint_timer::use_cases::UnfinishedTasksHandler handler{task_storage_mock};
+    sprint_timer::use_cases::ActiveTasksHandler handler{task_storage_mock};
 };
 
-TEST_F(RequestUnfinishedTasksFixture, execute)
+TEST_F(RequestActiveTasksFixture, execute)
 {
     using namespace sprint_timer::use_cases;
     using namespace sprint_timer::entities;
     EXPECT_CALL(task_storage_mock, unfinishedTasks()).Times(1);
 
-    handler.handle(UnfinishedTasksQuery{});
+    handler.handle(ActiveTasksQuery{});
 }

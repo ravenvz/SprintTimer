@@ -24,19 +24,19 @@
 
 #include "core/ActionInvoker.h"
 #include "core/CommandHandler.h"
-#include "core/TaskStorageWriter.h"
+#include "core/TaskStorage.h"
 #include "core/use_cases/edit_task/EditTaskCommand.h"
 
 namespace sprint_timer::use_cases {
 
 class EditTaskHandler : public CommandHandler<EditTaskCommand> {
 public:
-    EditTaskHandler(TaskStorageWriter& writer, ActionInvoker& actionInvoker);
+    EditTaskHandler(TaskStorage& taskStorage, ActionInvoker& actionInvoker);
 
     void handle(EditTaskCommand&& command) override;
 
 private:
-    TaskStorageWriter& writer;
+    TaskStorage& taskStorage;
     ActionInvoker& actionInvoker;
 };
 

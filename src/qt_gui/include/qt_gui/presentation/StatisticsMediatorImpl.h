@@ -35,11 +35,9 @@ namespace sprint_timer::ui {
 class StatisticsMediatorImpl : public StatisticsMediator,
                                public mvp::AbstractPresenter {
 public:
-    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery,
-                                               std::vector<entities::Sprint>>;
+    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery>;
     using async_request_sprints_hdl_t =
-        AsyncQueryHandler<use_cases::RequestSprintsQuery,
-                          std::vector<entities::Sprint>>;
+        AsyncQueryHandler<use_cases::RequestSprintsQuery>;
 
     StatisticsMediatorImpl(request_sprints_hdl_t& queryHandler_,
                            async_request_sprints_hdl_t& asyncQueryHandler_,
@@ -64,7 +62,7 @@ public:
     std::optional<size_t> selectedTagNumber() const override;
 
 private:
-    request_sprints_hdl_t& queryHandler;
+    // request_sprints_hdl_t& queryHandler;
     async_request_sprints_hdl_t& asyncQueryHandler;
     size_t numTopTags;
     std::vector<entities::Sprint> allSprints;

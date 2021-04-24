@@ -24,11 +24,12 @@
 
 #include "core/Query.h"
 #include "core/entities/Sprint.h"
+#include "core/use_cases/SprintDTO.h"
 
 namespace sprint_timer::use_cases {
 
-struct SprintsForTaskQuery : public Query<std::vector<entities::Sprint>> {
-    explicit SprintsForTaskQuery(std::string&& taskUuid);
+struct SprintsForTaskQuery : public Query<std::vector<SprintDTO>> {
+    explicit SprintsForTaskQuery(std::string taskUuid);
 
     std::string taskUuid;
 };

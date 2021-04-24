@@ -23,15 +23,18 @@
 #define REQUESTSPRINTSQUERY_H_OFBUPL62
 
 #include "core/Query.h"
-#include "core/entities/Sprint.h"
+#include "core/use_cases/SprintDTO.h"
 #include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::use_cases {
 
-struct RequestSprintsQuery : public Query<std::vector<entities::Sprint>> {
-    RequestSprintsQuery(dw::DateRange dateRange);
+struct RequestSprintsQuery : public Query<std::vector<SprintDTO>> {
+    explicit RequestSprintsQuery(dw::DateRange dateRange);
 
     dw::DateRange dateRange;
+
+    friend bool operator==(const RequestSprintsQuery&,
+                           const RequestSprintsQuery&) = default;
 };
 
 template <class CharT, class Traits>

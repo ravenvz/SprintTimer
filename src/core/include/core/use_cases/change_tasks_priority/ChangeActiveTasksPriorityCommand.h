@@ -19,22 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityHandler.h"
-#include "core/actions/ChangeTasksPriorities.h"
+#ifndef CHANGEUNFINISHEDTASKSPRIORITYCOMMAND_H_HPVUFTQ8
+#define CHANGEUNFINISHEDTASKSPRIORITYCOMMAND_H_HPVUFTQ8
+
+#include "core/Command.h"
+#include <string>
+#include <vector>
 
 namespace sprint_timer::use_cases {
-ChangeUnfinishedTasksPriorityHandler::ChangeUnfinishedTasksPriorityHandler(
-    TaskStorageWriter& writer_, ActionInvoker& actionInvoker_)
-    : writer{writer_}
-    , actionInvoker{actionInvoker_}
-{
-}
 
-void ChangeUnfinishedTasksPriorityHandler::handle(
-    ChangeUnfinishedTasksPriorityCommand&& command)
+struct ChangeActiveTasksPriorityCommand : public Command {
+    ChangeActiveTasksPriorityCommand(std::vector<std::string> oldOrder,
+                                     std::vector<std::string> newOrder);
+
+    std::vector<std::string> oldOrder;
+    std::vector<std::string> newOrder;
+};
+
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os,
+           const ChangeActiveTasksPriorityCommand&)
 {
-    actionInvoker.execute(std::make_unique<actions::ChangeTasksPriorities>(
-        writer, std::move(command.oldOrder), std::move(command.newOrder)));
+    os << "ChangeActiveTasksPriorityCommand{}";
+    return os;
 }
 
 } // namespace sprint_timer::use_cases
+
+#endif /* end of include guard:                                                \
+          CHANGEUNFINISHEDTASKSPRIORITYCOMMAND_H_HPVUFTQ8 */
+

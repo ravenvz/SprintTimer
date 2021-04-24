@@ -41,11 +41,14 @@ public:
 
     std::vector<std::string> allTags() final;
 
+    std::vector<entities::Task> findByUuid(const std::string& uuid) final;
+
 private:
     const QString& connectionName;
     QSqlQuery finishedTasksQuery;
     QSqlQuery allTasksQuery;
     QSqlQuery tagsQuery;
+    QSqlQuery findByUuidQuery;
 };
 
 } // namespace sprint_timer::storage::qt_storage

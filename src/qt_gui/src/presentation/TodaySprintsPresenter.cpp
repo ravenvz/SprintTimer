@@ -31,9 +31,9 @@ TodaySprintsPresenter::TodaySprintsPresenter(
 {
 }
 
-void TodaySprintsPresenter::onSprintDelete(const use_cases::SprintDTO& sprint)
+void TodaySprintsPresenter::onSprintDelete(const std::string& uuid)
 {
-    deleteSprintHandler.handle(use_cases::DeleteSprintCommand{fromDTO(sprint)});
+    deleteSprintHandler.handle(use_cases::DeleteSprintCommand{uuid});
 }
 
 void TodaySprintsPresenter::updateViewImpl()
@@ -43,7 +43,7 @@ void TodaySprintsPresenter::updateViewImpl()
                                   dw::current_date_local()};
         const auto sprints =
             requestSprintsHandler.handle(use_cases::RequestSprintsQuery{range});
-        v.value()->displaySprints(use_cases::makeDTOs(sprints));
+        v.value()->displaySprints(sprints);
     }
 }
 

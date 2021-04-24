@@ -92,6 +92,22 @@ QtTaskStorageReader::QtTaskStorageReader(const QString& connectionName_)
             .arg(TaskTable::Columns::lastModified)
             .arg(TaskTable::Columns::uuid)
             .arg(TasksView::name));
+
+    findByUuidQuery =
+        tryPrepare(connectionName,
+                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
+                           "FROM %10 "
+                           "WHERE %9 == (:uuid);"}
+                       .arg(TaskTable::Columns::id)
+                       .arg(TaskTable::Columns::name)
+                       .arg(TaskTable::Columns::estimatedCost)
+                       .arg(TaskTable::Columns::actualCost)
+                       .arg(TaskTable::Columns::priority)
+                       .arg(TaskTable::Columns::completed)
+                       .arg(TasksView::Aliases::tags)
+                       .arg(TaskTable::Columns::lastModified)
+                       .arg(TaskTable::Columns::uuid)
+                       .arg(TasksView::name));
 }
 
 std::vector<entities::Task> QtTaskStorageReader::unfinishedTasks()
@@ -151,6 +167,14 @@ std::vector<std::string> QtTaskStorageReader::allTags()
                    .arg(TagTable::name));
 
     return tagsFromQuery(query);
+}
+
+std::vector<entities::Task>
+QtTaskStorageReader::findByUuid(const std::string& uuid)
+{
+    findByUuidQuery.bindValue(":uuid", QVariant(QString::fromStdString(uuid)));
+    tryExecute(findByUuidQuery);
+    return tasksFromQuery(findByUuidQuery);
 }
 
 } // namespace sprint_timer::storage::qt_storage

@@ -19,30 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef CHANGEUNFINISHEDTASKPRIORITYHANDLER_H_6ZMFXITZ
-#define CHANGEUNFINISHEDTASKPRIORITYHANDLER_H_6ZMFXITZ
+#include "core/use_cases/TaskDTO.h"
 
-#include "core/ActionInvoker.h"
-#include "core/CommandHandler.h"
-#include "core/TaskStorageWriter.h"
-#include "core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityCommand.h"
-
-namespace sprint_timer::use_cases {
-
-class ChangeUnfinishedTasksPriorityHandler
-    : public CommandHandler<ChangeUnfinishedTasksPriorityCommand> {
-public:
-    ChangeUnfinishedTasksPriorityHandler(TaskStorageWriter& writer,
-                                         ActionInvoker& actionInvoker);
-
-    void handle(ChangeUnfinishedTasksPriorityCommand&& command) override;
-
-private:
-    TaskStorageWriter& writer;
-    ActionInvoker& actionInvoker;
-};
-
-} // namespace sprint_timer::use_cases
-
-#endif /* end of include guard: CHANGEUNFINISHEDTASKPRIORITYHANDLER_H_6ZMFXITZ \
-        */
+std::vector<std::string>
+extractUuids(const std::vector<sprint_timer::use_cases::TaskDTO>& taskDTOs);

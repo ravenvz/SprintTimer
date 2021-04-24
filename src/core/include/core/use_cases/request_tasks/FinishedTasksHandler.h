@@ -32,7 +32,8 @@ class FinishedTasksHandler : public QueryHandler<FinishedTasksQuery> {
 public:
     explicit FinishedTasksHandler(TaskStorageReader& reader);
 
-    std::vector<entities::Task> handle(FinishedTasksQuery&& query) override;
+    typename FinishedTasksQuery::result_t
+    handle(FinishedTasksQuery&& query) override;
 
 private:
     TaskStorageReader& reader;

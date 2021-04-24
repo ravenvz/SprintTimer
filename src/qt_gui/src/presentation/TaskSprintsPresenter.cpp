@@ -36,8 +36,8 @@ void TaskSprintsPresenter::updateViewImpl()
     if (auto v = view(); v) {
         if (auto uuid = taskSelectionContext.taskUuid(); uuid) {
             const auto sprints = sprintsForTaskHandler.handle(
-                use_cases::SprintsForTaskQuery{std::move(*uuid)});
-            v.value()->displaySprints(use_cases::makeDTOs(sprints));
+                use_cases::SprintsForTaskQuery{*uuid});
+            v.value()->displaySprints(sprints);
         }
     }
 }

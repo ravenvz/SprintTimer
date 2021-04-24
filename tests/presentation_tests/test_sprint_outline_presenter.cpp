@@ -28,21 +28,9 @@ using namespace sprint_timer;
 
 namespace {
 
-using SprintsWithDTOs =
-    std::pair<std::vector<entities::Sprint>, std::vector<use_cases::SprintDTO>>;
-
-SprintsWithDTOs makeSomeSprints();
+std::vector<use_cases::SprintDTO> makeSomeSprints();
 
 } // namespace
-
-namespace sprint_timer::use_cases {
-
-bool operator==(const DeleteSprintCommand& lhs, const DeleteSprintCommand& rhs)
-{
-    return lhs.sprint == rhs.sprint;
-}
-
-} // namespace sprint_timer::use_cases
 
 class SprintOutlineViewMock : public ui::contracts::TodaySprints::View {
 public:
@@ -65,10 +53,10 @@ public:
 
 TEST_F(TodaySprintsPresenterFixture, updates_view_with_sprints)
 {
-    const auto [sprints, dtos] = makeSomeSprints();
+    const auto sprints = makeSomeSprints();
     ON_CALL(requestSprintsHandler, handle(_)).WillByDefault(Return(sprints));
 
-    EXPECT_CALL(viewMock, displaySprints(dtos));
+    EXPECT_CALL(viewMock, displaySprints(sprints));
 
     presenter.attachView(viewMock);
 }
@@ -76,36 +64,23 @@ TEST_F(TodaySprintsPresenterFixture, updates_view_with_sprints)
 TEST_F(TodaySprintsPresenterFixture, deletes_sprint)
 {
     using entities::Tag;
-    const auto [sprints, dtos] = makeSomeSprints();
-    const entities::Sprint sprint = sprints[1];
-    const use_cases::SprintDTO dto = dtos[1];
+    const std::string someUuid{"123"};
 
     EXPECT_CALL(deleteSprintHandler,
-                handle(use_cases::DeleteSprintCommand{sprint}));
+                handle(use_cases::DeleteSprintCommand{someUuid}));
 
-    presenter.onSprintDelete(dto);
+    presenter.onSprintDelete(someUuid);
 }
 
 namespace {
 
-SprintsWithDTOs makeSomeSprints()
+std::vector<use_cases::SprintDTO> makeSomeSprints()
 {
     using namespace dw;
     using namespace std::chrono_literals;
-    using entities::Sprint;
-    using entities::Tag;
     const Date someDate{Year{2020}, Month{7}, Day{6}};
     const DateTime someDateTime{someDate};
     const DateTimeRange someRange{someDateTime, someDateTime + 25min};
-
-    std::vector<Sprint> sprints{
-        Sprint{"Task 1", someRange, {Tag{"Tag1"}, Tag{"Tag2"}}, "1", "1"},
-        Sprint{"Task 1",
-               add_offset(someRange, 25min),
-               {Tag{"Tag1"}, Tag{"Tag2"}},
-               "2",
-               "1"},
-        Sprint{"Task 2", add_offset(someRange, 2h), {Tag{"Tag3"}}, "3", "2"}};
 
     std::vector<use_cases::SprintDTO> dtos{
         use_cases::SprintDTO{"1", "1", "Task 1", {"Tag1", "Tag2"}, someRange},
@@ -114,7 +89,7 @@ SprintsWithDTOs makeSomeSprints()
         use_cases::SprintDTO{
             "3", "2", "Task 2", {"Tag3"}, add_offset(someRange, 2h)}};
 
-    return {sprints, dtos};
+    return dtos;
 }
 
 } // namespace

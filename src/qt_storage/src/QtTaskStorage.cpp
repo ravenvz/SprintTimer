@@ -47,6 +47,11 @@ QtTaskStorage::allTasks(const dw::DateRange& dateRange)
     return reader->allTasks(dateRange);
 }
 
+std::vector<entities::Task> QtTaskStorage::findByUuid(const std::string& uuid)
+{
+    return reader->findByUuid(uuid);
+}
+
 std::vector<std::string> QtTaskStorage::allTags() { return reader->allTags(); }
 
 void QtTaskStorage::save(const entities::Task& task) { writer->save(task); }

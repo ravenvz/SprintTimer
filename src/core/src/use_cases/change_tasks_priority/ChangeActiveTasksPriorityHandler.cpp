@@ -19,20 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/request_tasks/UnfinishedTasksHandler.h"
+#include "core/use_cases/change_tasks_priority/ChangeActiveTasksPriorityHandler.h"
+#include "core/actions/ChangeTasksPriorities.h"
 
 namespace sprint_timer::use_cases {
-
-UnfinishedTasksHandler::UnfinishedTasksHandler(TaskStorageReader& reader_)
-    : reader{reader_}
+ChangeActiveTasksPriorityHandler::ChangeActiveTasksPriorityHandler(
+    TaskStorageWriter& writer_, ActionInvoker& actionInvoker_)
+    : writer{writer_}
+    , actionInvoker{actionInvoker_}
 {
 }
 
-std::vector<entities::Task>
-UnfinishedTasksHandler::handle(UnfinishedTasksQuery&&)
+void ChangeActiveTasksPriorityHandler::handle(
+    ChangeActiveTasksPriorityCommand&& command)
 {
-    return reader.unfinishedTasks();
+    actionInvoker.execute(std::make_unique<actions::ChangeTasksPriorities>(
+        writer, std::move(command.oldOrder), std::move(command.newOrder)));
 }
 
 } // namespace sprint_timer::use_cases
-

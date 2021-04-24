@@ -29,6 +29,8 @@ public:
     using result_t = ResultT;
 
     virtual ~Query() = default;
+
+    friend bool operator==(const Query&, const Query&) = default;
 };
 
 } // namespace sprint_timer

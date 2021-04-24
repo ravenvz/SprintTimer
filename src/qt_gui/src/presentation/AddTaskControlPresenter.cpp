@@ -20,6 +20,19 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/AddTaskControlPresenter.h"
+#include "core/utils/StringUtils.h"
+#include <regex>
+
+namespace {
+
+constexpr std::string_view tagReg{"^#(\\w+)"};
+constexpr std::string_view estimatedReg{"^\\*(\\w+)"};
+constexpr std::string_view anyNonWhitespaceReg{"\\S+"};
+
+std::tuple<std::string, std::vector<std::string>, int32_t>
+decodeDescription(const std::string& description);
+
+} // namespace
 
 namespace sprint_timer::ui {
 
@@ -31,28 +44,53 @@ AddTaskControlPresenter::AddTaskControlPresenter(
 
 void AddTaskControlPresenter::addTask(const use_cases::TaskDTO& details) const
 {
-    // TODO Remove task creation when CreateTaskCommand is simplified
-    std::list<entities::Tag> tags(details.tags.size());
-    std::transform(cbegin(details.tags),
-                   cend(details.tags),
-                   begin(tags),
-                   [](const auto& elem) { return entities::Tag{elem}; });
-    entities::Task task{details.name,
-                        details.expectedCost,
-                        0,
-                        tags,
-                        details.finished,
-                        details.modificationStamp};
-
-    createTaskHandler.handle(use_cases::CreateTaskCommand{task});
-    // createTaskHandler.handle(use_cases::CreateTaskCommand{fromDTO(details)});
+    createTaskHandler.handle(use_cases::CreateTaskCommand{
+        details.name, details.tags, details.expectedCost});
 }
 
 void AddTaskControlPresenter::addTask(
     const std::string& encodedDescription) const
 {
-    const entities::Task task{encodedDescription};
-    createTaskHandler.handle(use_cases::CreateTaskCommand{task});
+    auto [name, tags, cost] = decodeDescription(encodedDescription);
+    createTaskHandler.handle(use_cases::CreateTaskCommand{name, tags, cost});
 }
 
 } // namespace sprint_timer::ui
+
+namespace  {
+
+std::tuple<std::string, std::vector<std::string>, int32_t>
+decodeDescription(const std::string& description)
+{
+    std::regex tagRegex{tagReg.cbegin(), tagReg.cend()};
+    std::regex estimatedRegex{cbegin(estimatedReg), cend(estimatedReg)};
+    std::regex anyNonWhitespace{anyNonWhitespaceReg.cbegin(),
+                                anyNonWhitespaceReg.cend()};
+
+    std::sregex_iterator words_begin{
+        description.begin(), description.end(), anyNonWhitespace};
+    std::sregex_iterator words_end;
+
+    std::vector<std::string> nameParts;
+    std::vector<std::string> tags;
+    int32_t estimatedCost{1};
+
+    for (auto it = words_begin; it != words_end; ++it) {
+        std::string word{it->str()};
+        if (std::regex_match(word, tagRegex)) {
+            tags.push_back(word.substr(1));
+        }
+        else if (std::regex_match(word, estimatedRegex)) {
+            estimatedCost = stoi(word.substr(1));
+        }
+        else {
+            nameParts.push_back(word);
+        }
+    }
+
+    std::string name = sprint_timer::utils::join(nameParts, " ");
+
+    return {name, tags, estimatedCost};
+}
+
+} // namespace 

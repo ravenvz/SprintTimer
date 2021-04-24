@@ -23,8 +23,8 @@
 
 namespace sprint_timer::use_cases {
 
-DeleteTaskCommand::DeleteTaskCommand(entities::Task task_)
-    : task{std::move(task_)}
+DeleteTaskCommand::DeleteTaskCommand(std::string uuid_)
+    : uuid{std::move(uuid_)}
 {
 }
 

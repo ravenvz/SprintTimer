@@ -23,10 +23,8 @@
 
 namespace sprint_timer::use_cases {
 
-EditTaskCommand::EditTaskCommand(entities::Task&& originalTask_,
-                                 entities::Task&& editedTask_)
-    : originalTask{std::move(originalTask_)}
-    , editedTask{std::move(editedTask_)}
+EditTaskCommand::EditTaskCommand(TaskDTO editedTask_)
+    : editedTask{std::move(editedTask_)}
 {
 }
 

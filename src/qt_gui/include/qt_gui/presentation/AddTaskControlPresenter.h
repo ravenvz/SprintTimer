@@ -38,6 +38,27 @@ public:
 
     void addTask(const use_cases::TaskDTO& details) const override;
 
+    /* Construct Task from encoded description.
+     * Description is a string of text that may have some words with
+     * special prefixes. That prefixes indicate tags and number of
+     * estimated sprints for this task.
+     *
+     * Default values are:
+     *      '#' - as a tag prefix;
+     *      '*' - as an estimated cost prefix.
+     *
+     * If description has multiple words with tag prefixes, multiple tags
+     * will be assigned to the task, but additional rules apply:
+     *
+     *      only words with single tag prefix are interpreted as tags, so
+     *      ##Tag will be interpreted as a part of the name, not as a tag;
+     *
+     *      single tag prefix (with no characters after it) is also interpreted
+     *      as a part of the name.
+     *
+     * Description can have multiple words with estimated cost prefixes,
+     * but only last of them will be interpreted, previous will be interpreted
+     * as a part of the name. */
     void addTask(const std::string& encodedDescription) const override;
 
 private:

@@ -19,15 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityCommand.h"
+#ifndef UNFINISHEDTASKSHANDLER_H_LVO6P2GE
+#define UNFINISHEDTASKSHANDLER_H_LVO6P2GE
+
+#include "core/QueryHandler.h"
+#include "core/TaskStorageReader.h"
+#include "core/use_cases/request_tasks/ActiveTasksQuery.h"
 
 namespace sprint_timer::use_cases {
 
-ChangeUnfinishedTasksPriorityCommand::ChangeUnfinishedTasksPriorityCommand(
-    std::vector<std::string>&& oldOrder_, std::vector<std::string>&& newOrder_)
-    : oldOrder{std::move(oldOrder_)}
-    , newOrder{std::move(newOrder_)}
-{
-}
+class ActiveTasksHandler : public QueryHandler<ActiveTasksQuery> {
+public:
+    explicit ActiveTasksHandler(TaskStorageReader& reader);
+
+    ActiveTasksQuery::result_t handle(ActiveTasksQuery&&) override;
+
+private:
+    TaskStorageReader& reader;
+};
 
 } // namespace sprint_timer::use_cases
+
+#endif /* end of include guard: UNFINISHEDTASKSHANDLER_H_LVO6P2GE */

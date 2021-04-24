@@ -19,26 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef UNFINISHEDTASKSQUERY_H_TDIPRNVY
-#define UNFINISHEDTASKSQUERY_H_TDIPRNVY
+#include "use_cases_tests/matchers/MatchesSprintIgnoringUuid.h"
 
-#include "core/Query.h"
-#include "core/entities/Task.h"
-#include <vector>
+namespace matchers {
 
-namespace sprint_timer::use_cases {
-
-struct UnfinishedTasksQuery : public Query<std::vector<entities::Task>> {
-};
-
-template <class CharT, class Traits>
-std::basic_ostream<CharT, Traits>&
-operator<<(std::basic_ostream<CharT, Traits>& os, const UnfinishedTasksQuery&)
+MatchesSprintIgnoringUuid::MatchesSprintIgnoringUuid(const match_t& expected_)
+    : expected{expected_}
 {
-    os << "UnfinishedTasksQuery{}";
-    return os;
 }
 
-} // namespace sprint_timer::use_cases
+bool MatchesSprintIgnoringUuid::operator()(const match_t& actual) const
+{
+    return expected.taskUuid == actual.taskUuid &&
+           expected.taskName == actual.taskName &&
+           expected.tags == actual.tags &&
+           expected.timeRange == actual.timeRange;
+}
 
-#endif /* end of include guard: UNFINISHEDTASKSQUERY_H_TDIPRNVY */
+} // namespace matchers

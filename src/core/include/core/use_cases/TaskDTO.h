@@ -37,8 +37,22 @@ struct TaskDTO {
     bool finished;
     dw::DateTime modificationStamp{dw::current_date_time_local()};
 
-    bool operator==(const TaskDTO&) const = default;
+    friend bool operator==(const TaskDTO&, const TaskDTO&) = default;
 };
+
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
+{
+    os << "TaskDTO{" << task.uuid << ", ";
+    for (const auto& element : task.tags) {
+        os << '#' << element << ' ';
+    }
+    os << task.actualCost << '/' << task.expectedCost;
+    os << (task.finished ? " finished " : " pending ");
+    os << task.modificationStamp << '}';
+    return os;
+}
 
 } // namespace sprint_timer::use_cases
 

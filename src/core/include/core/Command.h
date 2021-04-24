@@ -27,9 +27,11 @@ namespace sprint_timer {
 class Command {
 public:
     virtual ~Command() = default;
+
+    friend bool operator==(const Command&, const Command&) = default;
 };
 
-} // namespace sprint_timer::nca
+} // namespace sprint_timer
 
 #endif /* end of include guard: NEWCOMMAND_H_BPIEJHAE */
 
