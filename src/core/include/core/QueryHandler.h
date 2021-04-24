@@ -26,7 +26,7 @@ namespace sprint_timer {
 
 template <typename QueryT> class QueryHandler {
 public:
-    using QueryResult = QueryT::result_t;
+    using QueryResult = typename QueryT::result_t;
 
     virtual ~QueryHandler() = default;
 

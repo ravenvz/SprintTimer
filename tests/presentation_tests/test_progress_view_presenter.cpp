@@ -21,11 +21,11 @@
 *********************************************************************************/
 #include "core/Observable.h"
 #include "core/Observer.h"
-#include "mocks/QueryHandlerMock.h"
-#include "gmock/gmock.h"
 #include "core/QueryHandler.h"
 #include "core/use_cases/request_progress/RequestProgressQuery.h"
+#include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/ProgressPresenter.h"
+#include "gmock/gmock.h"
 #include <string_view>
 
 using sprint_timer::GoalProgress;
@@ -145,8 +145,7 @@ class ProgressPresenterFixture : public ::testing::Test {
 public:
     ::testing::NiceMock<ProgressWidgetMock> viewMock;
     ::testing::NiceMock<
-        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestProgressQuery,
-                                ProgressOverPeriod>>
+        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestProgressQuery>>
         requestProgressHandlerMock;
     ::testing::NiceMock<ObservableMock> observableMock;
 };

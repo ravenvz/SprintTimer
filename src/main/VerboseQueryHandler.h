@@ -31,9 +31,9 @@ namespace sprint_timer {
 template <typename QueryT>
 class VerboseQueryHandler : public QueryHandler<QueryT> {
 public:
-    VerboseQueryHandler(std::unique_ptr<QueryHandler<QueryT>> wraped);
+    explicit VerboseQueryHandler(std::unique_ptr<QueryHandler<QueryT>> wraped);
 
-    QueryT::result_t handle(QueryT&& query) override;
+    typename QueryT::result_t handle(QueryT&& query) override;
 
 private:
     std::unique_ptr<QueryHandler<QueryT>> wrapped;
@@ -47,7 +47,7 @@ VerboseQueryHandler<QueryT>::VerboseQueryHandler(
 }
 
 template <typename QueryT>
-QueryT::result_t VerboseQueryHandler<QueryT>::handle(QueryT&& query)
+typename QueryT::result_t VerboseQueryHandler<QueryT>::handle(QueryT&& query)
 {
     std::cout << "Handling query: " << query << '\n';
     return wrapped->handle(std::move(query));

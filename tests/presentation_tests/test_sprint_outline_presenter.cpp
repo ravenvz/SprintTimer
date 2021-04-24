@@ -54,8 +54,7 @@ public:
 
 class TodaySprintsPresenterFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::QueryHandlerMock<use_cases::RequestSprintsQuery,
-                                     std::vector<entities::Sprint>>>
+    NiceMock<mocks::QueryHandlerMock<use_cases::RequestSprintsQuery>>
         requestSprintsHandler;
     NiceMock<mocks::CommandHandlerMock<use_cases::DeleteSprintCommand>>
         deleteSprintHandler;
@@ -112,7 +111,8 @@ SprintsWithDTOs makeSomeSprints()
         use_cases::SprintDTO{"1", "1", "Task 1", {"Tag1", "Tag2"}, someRange},
         use_cases::SprintDTO{
             "2", "1", "Task 1", {"Tag1", "Tag2"}, add_offset(someRange, 25min)},
-        use_cases::SprintDTO{"3", "2", "Task 2", {"Tag3"}, add_offset(someRange, 2h)}};
+        use_cases::SprintDTO{
+            "3", "2", "Task 2", {"Tag3"}, add_offset(someRange, 2h)}};
 
     return {sprints, dtos};
 }

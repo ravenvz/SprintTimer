@@ -54,7 +54,7 @@ public:
 
     void invalidate() override { cachedResult = std::nullopt; }
 
-    QueryT::result_t handle(QueryT&& query) override
+    typename QueryT::result_t handle(QueryT&& query) override
     {
         if (!cachedResult) {
             cachedQuery = query;

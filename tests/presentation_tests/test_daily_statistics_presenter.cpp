@@ -19,10 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/SprintBuilder.h"
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/StatisticsColleagueMock.h"
 #include "mocks/StatisticsMediatorMock.h"
-#include "core/SprintBuilder.h"
 #include "qt_gui/presentation/DailyStatisticsGraphPresenter.h"
 #include <string_view>
 
@@ -164,12 +164,10 @@ public:
 
 class DailyStatisticsPresenterFixture : public ::testing::Test {
 public:
-    ::testing::NiceMock<
-        mocks::QueryHandlerMock<WorkScheduleQuery, sprint_timer::WorkSchedule>>
+    ::testing::NiceMock<mocks::QueryHandlerMock<WorkScheduleQuery>>
         workScheduleHandlerMock;
     ::testing::NiceMock<
-        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestSprintsQuery,
-                                std::vector<Sprint>>>
+        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestSprintsQuery>>
         requestSprintsHandlerMock;
     ::testing::NiceMock<mocks::StatisticsMediatorMock> mediator_mock;
     sprint_timer::ui::DailyStatisticsGraphPresenter presenter{

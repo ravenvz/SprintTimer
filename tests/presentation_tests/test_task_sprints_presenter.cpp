@@ -57,7 +57,7 @@ class TaskSprintsPresenterFixture : public ::testing::Test {
 public:
     TaskSprintsViewMock view;
     sprint_timer::ui::TaskSelectionMediator taskSelectionMediator;
-    NiceMock<mocks::QueryHandlerMock<SprintsForTaskQuery, std::vector<Sprint>>>
+    NiceMock<mocks::QueryHandlerMock<SprintsForTaskQuery>>
         sprintsForTaskHandler;
     sprint_timer::ui::TaskSprintsPresenter sut{sprintsForTaskHandler,
                                                taskSelectionMediator};

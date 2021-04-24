@@ -19,11 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/DataExporterMock.h"
-#include "mocks/QueryHandlerMock.h"
 #include "core/SprintBuilder.h"
 #include "core/use_cases/export_data/ExportSprintsHandler.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
+#include "mocks/DataExporterMock.h"
+#include "mocks/QueryHandlerMock.h"
 
 using ::testing::_;
 using ::testing::NiceMock;
@@ -41,8 +41,7 @@ bool operator==(const RequestSprintsQuery& lhs, const RequestSprintsQuery& rhs)
 
 class ExportSprintsHandlerFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::QueryHandlerMock<use_cases::RequestSprintsQuery,
-                                     std::vector<entities::Sprint>>>
+    NiceMock<mocks::QueryHandlerMock<use_cases::RequestSprintsQuery>>
         requestSprintsHandlerMock;
     NiceMock<mocks::DataExporterMock<entities::Sprint>> exporterMock;
     use_cases::ExportSprintsHandler handler{requestSprintsHandlerMock,

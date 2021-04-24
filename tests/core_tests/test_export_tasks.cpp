@@ -19,11 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/DataExporterMock.h"
-#include "mocks/QueryHandlerMock.h"
 #include "core/TaskBuilder.h"
 #include "core/use_cases/export_data/ExportTasksHandler.h"
 #include "core/use_cases/request_tasks/FinishedTasksQuery.h"
+#include "mocks/DataExporterMock.h"
+#include "mocks/QueryHandlerMock.h"
 
 using ::testing::_;
 using ::testing::NiceMock;
@@ -41,8 +41,7 @@ bool operator==(const FinishedTasksQuery& lhs, const FinishedTasksQuery& rhs)
 
 class ExportTasksHandlerFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::QueryHandlerMock<use_cases::FinishedTasksQuery,
-                                     std::vector<entities::Task>>>
+    NiceMock<mocks::QueryHandlerMock<use_cases::FinishedTasksQuery>>
         requestTasksHandlerMock;
     NiceMock<mocks::DataExporterMock<entities::Task>> exporterMock;
     use_cases::ExportTasksHandler handler{requestTasksHandlerMock,

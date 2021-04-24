@@ -43,9 +43,7 @@ public:
 class TagEditorPresenterFixture : public ::testing::Test {
 public:
     TagEditorViewMock view;
-    NiceMock<mocks::QueryHandlerMock<use_cases::AllTagsQuery,
-                                     std::vector<std::string>>>
-        allTagsHandler;
+    NiceMock<mocks::QueryHandlerMock<use_cases::AllTagsQuery>> allTagsHandler;
     NiceMock<mocks::CommandHandlerMock<use_cases::RenameTagCommand>>
         renameTagHandler;
     ui::TagEditorPresenter sut{allTagsHandler, renameTagHandler};

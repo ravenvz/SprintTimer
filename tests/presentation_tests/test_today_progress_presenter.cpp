@@ -49,7 +49,7 @@ public:
 
 class TodayProgressPresenterFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::QueryHandlerMock<RequestProgressQuery, ProgressOverPeriod>>
+    NiceMock<mocks::QueryHandlerMock<RequestProgressQuery>>
         requestProgressHandler;
     TodayProgressViewMock view;
     sprint_timer::ui::TodayProgressPresenter sut{requestProgressHandler};

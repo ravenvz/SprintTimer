@@ -19,11 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/HistoryMediatorMock.h"
-#include "mocks/QueryHandlerMock.h"
 #include "core/TaskBuilder.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "core/use_cases/request_tasks/FinishedTasksQuery.h"
+#include "mocks/HistoryMediatorMock.h"
+#include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/HistoryPresenter.h"
 
 using namespace ::testing;
@@ -105,11 +105,9 @@ public:
 
 class HistoryPresenterFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::QueryHandlerMock<use_cases::RequestSprintsQuery,
-                                     std::vector<Sprint>>>
+    NiceMock<mocks::QueryHandlerMock<use_cases::RequestSprintsQuery>>
         sprintHandlerMock;
-    NiceMock<mocks::QueryHandlerMock<use_cases::FinishedTasksQuery,
-                                     std::vector<Task>>>
+    NiceMock<mocks::QueryHandlerMock<use_cases::FinishedTasksQuery>>
         taskHandlerMock;
     NiceMock<mocks::HistoryMediatorMock> mediatorMock;
     ui::HistoryPresenter presenter{
