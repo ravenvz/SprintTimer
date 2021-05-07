@@ -36,8 +36,8 @@ void updateViewWithValidData(
 sprint_timer::ui::SprintDaytimeDistribution
 buildDistribution(const std::vector<sprint_timer::entities::Sprint>& sprints);
 
-sprint_timer::Distribution<double> workingHoursStatistics(
-    const std::vector<sprint_timer::entities::Sprint>& sprints);
+sprint_timer::Distribution<double>
+workingHoursStatistics(const std::vector<dw::DateTimeRange>& timeSpans);
 
 std::vector<dw::DateTimeRange>
 extractRanges(const std::vector<sprint_timer::entities::Sprint>& sprints);
@@ -109,18 +109,19 @@ void updateViewWithValidData(
 sprint_timer::ui::SprintDaytimeDistribution
 buildDistribution(const std::vector<sprint_timer::entities::Sprint>& sprints)
 {
+    const auto ranges = extractRanges(sprints);
     return sprint_timer::ui::SprintDaytimeDistribution{
-        workingHoursStatistics(sprints), extractRanges(sprints)};
+        workingHoursStatistics(ranges), ranges};
 }
 
-sprint_timer::Distribution<double> workingHoursStatistics(
-    const std::vector<sprint_timer::entities::Sprint>& sprints)
+sprint_timer::Distribution<double>
+workingHoursStatistics(const std::vector<dw::DateTimeRange>& timeSpans)
 {
     using namespace sprint_timer::use_cases;
     std::vector<double> sprintsPerDayPart(numParts, 0);
 
-    for (const auto& sprint : sprints) {
-        ++sprintsPerDayPart[static_cast<size_t>(dayPart(sprint.timeSpan()))];
+    for (const auto& range : timeSpans) {
+        ++sprintsPerDayPart[static_cast<size_t>(dayPart(range))];
     }
 
     return sprint_timer::Distribution<double>{std::move(sprintsPerDayPart)};
