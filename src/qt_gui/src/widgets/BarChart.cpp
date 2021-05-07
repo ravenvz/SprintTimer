@@ -101,8 +101,8 @@ void BarChart::drawBars(QPainter& painter)
 
 BarData::BarData() = default;
 
-BarData::BarData(const std::vector<double>& values,
-                 const std::vector<QString>& labels)
+BarData::BarData(std::span<const double> values,
+                 std::span<const QString> labels)
 {
     const size_t length = std::min(values.size(), labels.size());
     data.reserve(length);

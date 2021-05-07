@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "core/SprintBuilder.h"
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/StatisticsColleagueMock.h"
 #include "mocks/StatisticsMediatorMock.h"

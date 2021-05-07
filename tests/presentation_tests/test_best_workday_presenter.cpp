@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/StatisticsMediatorMock.h"
 #include "core/SprintBuilder.h"
+#include "mocks/StatisticsMediatorMock.h"
 #include "qt_gui/presentation/BestWorkdayContract.h"
 #include "qt_gui/presentation/BestWorkdayPresenter.h"
 
@@ -61,9 +61,15 @@ operator<<(std::basic_ostream<CharT, Traits>& os,
 
 bool operator==(const View::BarD& lhs, const View::BarD& rhs)
 {
-    return std::tie(
-               lhs.barColor, lhs.borderColor, lhs.barValues, lhs.dayOrder) ==
-           std::tie(rhs.barColor, rhs.borderColor, rhs.barValues, rhs.dayOrder);
+    return lhs.barColor == rhs.barColor && lhs.borderColor == rhs.borderColor &&
+           std::equal(cbegin(lhs.barValues),
+                      cend(lhs.barValues),
+                      cbegin(rhs.barValues),
+                      cend(rhs.barValues)) &&
+           std::equal(cbegin(lhs.dayOrder),
+                      cend(lhs.dayOrder),
+                      cbegin(rhs.dayOrder),
+                      cend(rhs.dayOrder));
 }
 
 template <class CharT, class Traits>
@@ -196,10 +202,12 @@ TEST_F(BestWorkdayPresenterFixture,
 
 TEST_F(BestWorkdayPresenterFixture, updates_bars_when_there_are_no_sprints)
 {
+    const std::array<double, 7> barValues{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    const std::array<int, 7> dayOrder{1, 2, 3, 4, 5, 6, 7};
     const View::BarD expected{std::string{barBorderColor},
                               std::string{barColor},
-                              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-                              {1, 2, 3, 4, 5, 6, 7}};
+                              barValues,
+                              dayOrder};
     BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Monday};
     const std::vector<Sprint> sprints;
     ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
@@ -212,11 +220,13 @@ TEST_F(BestWorkdayPresenterFixture, updates_bars_when_there_are_no_sprints)
 
 TEST_F(BestWorkdayPresenterFixture, updates_bar_for_generic_data)
 {
+    const std::array<double, 7> barValues{4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
+    const std::array<int, 7> dayOrder{1, 2, 3, 4, 5, 6, 7};
     const auto sprints = buildSprintsFixture();
     const View::BarD expected{std::string{barBorderColor},
                               std::string{barColor},
-                              {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5},
-                              {1, 2, 3, 4, 5, 6, 7}};
+                              barValues,
+                              dayOrder};
     ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
     BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Monday};
@@ -229,11 +239,13 @@ TEST_F(BestWorkdayPresenterFixture, updates_bar_for_generic_data)
 TEST_F(BestWorkdayPresenterFixture,
        updates_bar_for_generic_data_when_first_day_of_week_is_sunday)
 {
+    const std::array<double, 7> barValues{10.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5};
+    const std::array<int, 7> dayOrder{7, 1, 2, 3, 4, 5, 6};
     const auto sprints = buildSprintsFixture();
     const View::BarD expected{std::string{barBorderColor},
                               std::string{barColor},
-                              {10.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5},
-                              {7, 1, 2, 3, 4, 5, 6}};
+                              barValues,
+                              dayOrder};
     ON_CALL(mediator_mock, range()).WillByDefault(Return(specificDateRange));
     ON_CALL(mediator_mock, sprints()).WillByDefault(ReturnRef(sprints));
     BestWorkdayPresenter sut{mediator_mock, dw::Weekday::Sunday};

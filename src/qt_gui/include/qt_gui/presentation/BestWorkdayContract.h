@@ -24,6 +24,8 @@
 
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
+#include <array>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -36,8 +38,8 @@ public:
     struct BarD {
         std::string borderColor;
         std::string barColor;
-        std::vector<double> barValues;
-        std::vector<int> dayOrder;
+        std::span<const double, 7> barValues;
+        std::span<const int, 7> dayOrder;
     };
 
     struct LegendData {
