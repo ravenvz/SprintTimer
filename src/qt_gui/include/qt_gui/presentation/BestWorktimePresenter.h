@@ -19,34 +19,42 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DAYTIMESTATISTICSCONTRACT_H_R72BBVOY
-#define DAYTIMESTATISTICSCONTRACT_H_R72BBVOY
+#ifndef BESTDAYTIMEPRESENTER_H_DDRXAWZC
+#define BESTDAYTIMEPRESENTER_H_DDRXAWZC
 
 #include "qt_gui/mvp/BasePresenter.h"
-#include "qt_gui/mvp/BaseView.h"
-#include "date_wrapper/date_wrapper.h"
-#include <string>
-#include <vector>
+#include "qt_gui/presentation/BestWorktimeContract.h"
+#include "qt_gui/presentation/StatisticsContext.h"
+#include "qt_gui/presentation/StatisticsMediator.h"
 
-namespace sprint_timer::ui::contracts::DaytimeStatisticsContract {
+namespace sprint_timer::ui {
 
-struct LegendData {
-    std::string periodName;
-    std::string periodHours;
+class BestWorktimePresenter
+    : public mvp::BasePresenter<contracts::BestWorktimeContract::View>,
+      public StatisticsColleague {
+public:
+    BestWorktimePresenter(StatisticsMediator& mediator,
+                          const StatisticsContext& statisticsContext);
+
+    ~BestWorktimePresenter() override;
+
+    void onSharedDataChanged() override;
+
+private:
+    StatisticsMediator& mediator;
+    const StatisticsContext& statisticsContext;
+
+    void updateViewImpl() override;
+
+    void onViewAttached() override;
 };
 
-struct DiagramData {
-    std::string filledColor;
+struct SprintDaytimeDistribution {
+    sprint_timer::Distribution<double> dayPartDistribution;
     std::vector<dw::DateTimeRange> timeRanges;
 };
 
-class View : public mvp::BaseView<View, mvp::BasePresenter<View>> {
-public:
-    virtual void updateLegend(const LegendData& data) = 0;
+} // namespace sprint_timer::ui
 
-    virtual void updateDiagram(const DiagramData& data) = 0;
-};
+#endif /* end of include guard: BESTDAYTIMEPRESENTER_H_DDRXAWZC */
 
-} // namespace sprint_timer::ui::contracts::DaytimeStatisticsContract
-
-#endif /* end of include guard: DAYTIMESTATISTICSCONTRACT_H_R72BBVOY */

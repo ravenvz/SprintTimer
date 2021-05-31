@@ -23,16 +23,16 @@
 #define DATACONSISTENCYWATCHER_H_OYWEAZWS
 
 #include "core/Observable.h"
-#include "qt_gui/mvp/AbstractPresenter.h"
+#include "qt_gui/mvp/DataFetcher.h"
 
 namespace sprint_timer::compose {
 
 class DataConsistencyWatcher : public Observer {
 public:
     DataConsistencyWatcher(Observable& dataInconsistencyObserver_,
-                           mvp::AbstractPresenter& presenter_)
+                           mvp::DataFetcher& dataFetcher_)
         : dataInconsistencyObserver{dataInconsistencyObserver_}
-        , presenter{presenter_}
+        , dataFetcher{dataFetcher_}
     {
         dataInconsistencyObserver.attach(*this);
     }
@@ -42,11 +42,15 @@ public:
         dataInconsistencyObserver.detach(*this);
     }
 
-    void update() override { presenter.updateView(); }
+    void update() override
+    {
+        dataFetcher.fetchData();
+        dataFetcher.updateView();
+    }
 
 private:
     Observable& dataInconsistencyObserver;
-    mvp::AbstractPresenter& presenter;
+    mvp::DataFetcher& dataFetcher;
 };
 
 } // namespace sprint_timer::compose

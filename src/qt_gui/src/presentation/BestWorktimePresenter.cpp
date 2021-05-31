@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/DaytimeStatisticsPresenter.h"
+#include "qt_gui/presentation/BestWorktimePresenter.h"
 #include "core/use_cases/request_sprint_distribution/DayPart.h"
 
 namespace {
@@ -27,10 +27,10 @@ namespace {
 constexpr std::string_view filledColor{"#f63c0d"};
 
 void updateViewWithStubData(
-    sprint_timer::ui::contracts::DaytimeStatisticsContract::View& view);
+    sprint_timer::ui::contracts::BestWorktimeContract::View& view);
 
 void updateViewWithValidData(
-    sprint_timer::ui::contracts::DaytimeStatisticsContract::View& view,
+    sprint_timer::ui::contracts::BestWorktimeContract::View& view,
     const sprint_timer::ui::SprintDaytimeDistribution& distribution);
 
 sprint_timer::ui::SprintDaytimeDistribution
@@ -46,28 +46,29 @@ extractRanges(const std::vector<sprint_timer::entities::Sprint>& sprints);
 
 namespace sprint_timer::ui {
 
-DaytimeStatisticsPresenter::DaytimeStatisticsPresenter(
-    StatisticsMediator& mediator_)
+BestWorktimePresenter::BestWorktimePresenter(
+    StatisticsMediator& mediator_, const StatisticsContext& statisticsContext_)
     : mediator{mediator_}
+    , statisticsContext{statisticsContext_}
 {
     mediator.addColleague(this);
 }
 
-DaytimeStatisticsPresenter::~DaytimeStatisticsPresenter()
+BestWorktimePresenter::~BestWorktimePresenter()
 {
     mediator.removeColleague(this);
 }
 
-void DaytimeStatisticsPresenter::onSharedDataChanged() { updateView(); }
+void BestWorktimePresenter::onSharedDataChanged() { updateView(); }
 
-void DaytimeStatisticsPresenter::updateViewImpl()
+void BestWorktimePresenter::updateViewImpl()
 {
     if (auto v = view(); v) {
-        if (!mediator.range()) {
+        if (!statisticsContext.currentRange()) {
             updateViewWithStubData(*v.value());
             return;
         }
-        const auto& sprints = mediator.sprints();
+        const auto& sprints = statisticsContext.sprints();
         if (sprints.empty()) {
             updateViewWithStubData(*v.value());
             return;
@@ -77,26 +78,26 @@ void DaytimeStatisticsPresenter::updateViewImpl()
     }
 }
 
-void DaytimeStatisticsPresenter::onViewAttached() { updateView(); }
+void BestWorktimePresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 
 namespace {
 
 void updateViewWithStubData(
-    sprint_timer::ui::contracts::DaytimeStatisticsContract::View& view)
+    sprint_timer::ui::contracts::BestWorktimeContract::View& view)
 {
-    using namespace sprint_timer::ui::contracts::DaytimeStatisticsContract;
+    using namespace sprint_timer::ui::contracts::BestWorktimeContract;
     view.updateLegend(LegendData{"No data", ""});
     view.updateDiagram(DiagramData{std::string{filledColor},
                                    std::vector<dw::DateTimeRange>{}});
 }
 
 void updateViewWithValidData(
-    sprint_timer::ui::contracts::DaytimeStatisticsContract::View& view,
+    sprint_timer::ui::contracts::BestWorktimeContract::View& view,
     const sprint_timer::ui::SprintDaytimeDistribution& distribution)
 {
-    using namespace sprint_timer::ui::contracts::DaytimeStatisticsContract;
+    using namespace sprint_timer::ui::contracts::BestWorktimeContract;
     using namespace sprint_timer::use_cases;
     const auto maxValueBin = static_cast<unsigned>(
         distribution.dayPartDistribution.getMaxValueBin());

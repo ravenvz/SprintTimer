@@ -23,7 +23,6 @@
 #define STATISTICSMEDIATOR_H_3CXN8PXD
 
 #include "core/TagTop.h"
-#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "date_wrapper/date_wrapper.h"
 #include "qt_gui/presentation/DateRangeChangeListener.h"
 #include "qt_gui/presentation/Mediator.h"
@@ -36,18 +35,22 @@ namespace sprint_timer::ui {
 class StatisticsMediator : public Mediator<StatisticsColleague>,
                            public DateRangeChangeListener {
 public:
-    virtual void filterByTag(StatisticsColleague* caller,
-                             std::optional<size_t> numFromTop) = 0;
+    virtual void changeNumTopTags(size_t /*numTopTags_*/) { }
 
-    virtual const std::vector<entities::Sprint>& sprints() const = 0;
+    void selectTag(StatisticsColleague* caller, std::optional<size_t> tagNumber)
+    {
+        mediate(caller, [tag = tagNumber](auto* colleague) {
+            colleague->onTagSelected(tag);
+        });
+        mediate(caller,
+                [](auto* colleague) { colleague->onSharedDataChanged(); });
+    }
 
-    virtual const std::vector<TagTop::TagFrequency>& tagFrequencies() const = 0;
-
-    virtual void changeNumTopTags(size_t numTopTags_) = 0;
-
-    virtual std::optional<dw::DateRange> range() const = 0;
-
-    virtual std::optional<size_t> selectedTagNumber() const = 0;
+    void onRangeChanged(const dw::DateRange& range) override
+    {
+        notifyAll(
+            [&](auto* colleague) { colleague->onDateRangeChanged(range); });
+    }
 };
 
 } // namespace sprint_timer::ui

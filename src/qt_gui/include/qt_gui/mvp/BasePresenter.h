@@ -22,13 +22,13 @@
 #ifndef BASEPRESENTER_H_JFOEV97B
 #define BASEPRESENTER_H_JFOEV97B
 
-#include "qt_gui/mvp/AbstractPresenter.h"
+#include "qt_gui/mvp/DataFetcher.h"
 #include <iostream>
 #include <optional>
 
 namespace mvp {
 
-template <typename ViewT> class BasePresenter : public AbstractPresenter {
+template <typename ViewT> class BasePresenter : public DataFetcher {
 public:
     void updateView() override
     {
@@ -38,6 +38,8 @@ public:
         }
         std::cout << "No view is attached; updating aborted" << std::endl;
     }
+
+    void fetchData() override { fetchDataImpl(); }
 
     void attachView(ViewT& view)
     {
@@ -63,6 +65,8 @@ private:
     ViewT* maybeView{nullptr};
 
     virtual void updateViewImpl() { }
+
+    virtual void fetchDataImpl() { }
 
     virtual void beforeViewAttached() { }
 

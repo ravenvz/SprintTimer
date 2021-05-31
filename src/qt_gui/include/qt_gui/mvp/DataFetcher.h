@@ -19,36 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef COMPOSITEPRESENTER_H_6XHKSCDA
-#define COMPOSITEPRESENTER_H_6XHKSCDA
+#ifndef DATAFETCHER_H_LZLTGKHX
+#define DATAFETCHER_H_LZLTGKHX
 
-#include <functional>
-#include "qt_gui/mvp/AbstractPresenter.h"
-#include <vector>
+namespace mvp {
 
-namespace sprint_timer::compose {
-
-class CompositePresenter : public mvp::AbstractPresenter {
+class DataFetcher {
 public:
-    using container_t =
-        std::vector<std::reference_wrapper<mvp::AbstractPresenter>>;
+    virtual ~DataFetcher() = default;
 
-    explicit CompositePresenter(container_t&& presenters_)
-        : presenters{std::move(presenters_)}
-    {
-    }
+    virtual void updateView() = 0;
 
-    void updateView() override
-    {
-        for (auto& element : presenters) {
-            element.get().updateView();
-        }
-    }
-
-private:
-    container_t presenters;
+    virtual void fetchData() = 0;
 };
 
-} // namespace sprint_timer::compose
+} // namespace mvp
 
-#endif /* end of include guard: COMPOSITEPRESENTER_H_6XHKSCDA */
+#endif /* end of include guard: DATAFETCHER_H_LZLTGKHX */
+

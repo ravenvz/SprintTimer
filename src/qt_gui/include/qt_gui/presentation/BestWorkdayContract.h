@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BESTWORKDAYCONTRACT_H_PNBSPBF6
-#define BESTWORKDAYCONTRACT_H_PNBSPBF6
+#ifndef BESTWORKDAYCONTRACT_H_HPKS73X0
+#define BESTWORKDAYCONTRACT_H_HPKS73X0
 
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
@@ -57,4 +57,5 @@ class Presenter : public mvp::BasePresenter<View> {
 
 } // namespace sprint_timer::ui::contracts::BestWorkday
 
-#endif /* end of include guard: BESTWORKDAYCONTRACT_H_PNBSPBF6 */
+#endif /* end of include guard: BESTWORKDAYCONTRACT_H_HPKS73X0 */
+

@@ -8,6 +8,7 @@ target_sources(${SPRINT_MAIN}
         "${CMAKE_CURRENT_LIST_DIR}/CacheAwareCommandHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/CacheAwareQueryHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/CommandHandlerDecorator.h"
+        "${CMAKE_CURRENT_LIST_DIR}/CompositeDataFetcher.h"
         "${CMAKE_CURRENT_LIST_DIR}/DateRangeSelectorPresenterProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/DisplayableDialogLifestyleProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/DisplayableLifestyleProxy.h"

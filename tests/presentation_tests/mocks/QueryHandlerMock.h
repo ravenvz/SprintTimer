@@ -19,6 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/AsyncQueryHandler.h"
 #include "core/QueryHandler.h"
 #include "gmock/gmock.h"
 
@@ -28,6 +29,25 @@ template <typename QueryT>
 class QueryHandlerMock : public sprint_timer::QueryHandler<QueryT> {
 public:
     MOCK_METHOD(typename QueryT::result_t, handle, (QueryT &&), (override));
+};
+
+template <typename QueryT>
+class AsyncQueryHandlerMock : public sprint_timer::AsyncQueryHandler<QueryT> {
+public:
+    MOCK_METHOD(std::future<typename QueryT::result_t>,
+                handleAwaitImpl,
+                (QueryT &&),
+                (override));
+
+    MOCK_METHOD(typename QueryT::result_t,
+                handleSyncImpl,
+                (QueryT &&),
+                (override));
+
+    MOCK_METHOD(void,
+                handleCallbackImpl,
+                (QueryT&&, std::function<void(typename QueryT::result_t)>),
+                (override));
 };
 
 } // namespace mocks

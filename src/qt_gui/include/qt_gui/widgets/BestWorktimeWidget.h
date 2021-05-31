@@ -22,7 +22,7 @@
 #ifndef BESTWORKTIMEWIDGET_H
 #define BESTWORKTIMEWIDGET_H
 
-#include "qt_gui/presentation/DaytimeStatisticsContract.h"
+#include "qt_gui/presentation/BestWorktimeContract.h"
 #include <QWidget>
 
 class QLabel;
@@ -32,7 +32,7 @@ namespace sprint_timer::ui::qt_gui {
 class TimeDiagram;
 
 class BestWorktimeWidget : public QWidget,
-                           public contracts::DaytimeStatisticsContract::View {
+                           public contracts::BestWorktimeContract::View {
 public:
     explicit BestWorktimeWidget(QWidget* parent = nullptr);
 
@@ -42,10 +42,10 @@ private:
     TimeDiagram* timeDiagram;
 
     void updateLegend(
-        const contracts::DaytimeStatisticsContract::LegendData& data) override;
+        const contracts::BestWorktimeContract::LegendData& data) override;
 
     void updateDiagram(
-        const contracts::DaytimeStatisticsContract::DiagramData& data) override;
+        const contracts::BestWorktimeContract::DiagramData& data) override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

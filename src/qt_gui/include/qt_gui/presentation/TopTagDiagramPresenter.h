@@ -22,6 +22,7 @@
 #ifndef TOPTAGDIAGRAMPRESENTER_H_US74BVEO
 #define TOPTAGDIAGRAMPRESENTER_H_US74BVEO
 
+#include "qt_gui/presentation/StatisticsContext.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
 #include "qt_gui/presentation/TopTagDiagramContract.h"
 
@@ -31,7 +32,8 @@ class TopTagDiagramPresenter
     : public contracts::TopTagDiagramContract::Presenter,
       public StatisticsColleague {
 public:
-    explicit TopTagDiagramPresenter(StatisticsMediator& mediator);
+    TopTagDiagramPresenter(StatisticsMediator& mediator,
+                           const StatisticsContext& statisticsContext);
 
     ~TopTagDiagramPresenter() override;
 
@@ -54,6 +56,7 @@ private:
     };
 
     StatisticsMediator& mediator;
+    const StatisticsContext& statisticsContext;
     Selection selection;
 
     void updateViewImpl() override;

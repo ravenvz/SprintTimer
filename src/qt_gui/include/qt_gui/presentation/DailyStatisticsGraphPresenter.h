@@ -24,6 +24,7 @@
 
 #include "core/use_cases/request_schedule/WorkScheduleHandler.h"
 #include "qt_gui/presentation/DailyStatisticsGraphContract.h"
+#include "qt_gui/presentation/StatisticsContext.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
 
 namespace sprint_timer::ui {
@@ -32,10 +33,11 @@ class DailyStatisticsGraphPresenter
     : public mvp::BasePresenter<contracts::DailyStatisticGraphContract::View>,
       public StatisticsColleague {
 public:
-    using schedule_hdl_t = QueryHandler<use_cases::WorkScheduleQuery>;
+    using schedule_hdl_t = AsyncQueryHandler<use_cases::WorkScheduleQuery>;
 
     DailyStatisticsGraphPresenter(schedule_hdl_t& workScheduleHandler,
-                                  StatisticsMediator& mediator);
+                                  StatisticsMediator& mediator,
+                                  const StatisticsContext& statisticsContext);
 
     ~DailyStatisticsGraphPresenter() override;
 
@@ -44,6 +46,10 @@ public:
 private:
     schedule_hdl_t& workScheduleHandler;
     StatisticsMediator& mediator;
+    const StatisticsContext& statisticsContext;
+    std::future<schedule_hdl_t::Result> workScheduleFuture;
+
+    void fetchDataImpl() override;
 
     void updateViewImpl() override;
 

@@ -206,6 +206,18 @@ target_include_directories(${CORE_LIB}
 target_include_directories(${CORE_LIB}
     SYSTEM PUBLIC ${Boost_INCLUDE_DIRS}
 )
+
+# used to silence warnings from thiefpool
+target_include_directories(${CORE_LIB} SYSTEM BEFORE INTERFACE
+    "$<BUILD_INTERFACE:${RiftenThiefpool_SOURCE_DIR}/include>"
+)
+
+# foreach(dir ${dirs})
+# target_include_directories(${CORE_LIB}
+#     SYSTEM PRIVATE ${RiftenThiefpool_INCLUDE_DIRS}
+# )
+# endforeach()
+
 target_include_directories(${CORE_LIB}
     PUBLIC
         include
@@ -220,7 +232,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         PUBLIC
             date_wrapper
             stdc++fs
-        PRIVATE INTERFACE
+        INTERFACE
             RiftenThiefpool::RiftenThiefpool
 )
 else()
@@ -231,6 +243,8 @@ else()
             sprint_timer_warnings
         PUBLIC
             date_wrapper
+        PRIVATE INTERFACE
+            RiftenThiefpool::RiftenThiefpool
 )
 endif()
 

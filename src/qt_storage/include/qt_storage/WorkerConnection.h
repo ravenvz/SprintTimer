@@ -19,20 +19,15 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DB_HELPER_H
-#define DB_HELPER_H
+#ifndef WORKERCONNECTION_H_QYWK9G25
+#define WORKERCONNECTION_H_QYWK9G25
 
 #include "qt_storage/ConnectionGuard.h"
 #include "qt_storage/QueryError.h"
-#include <QDebug>
-#include <QHash>
 #include <QObject>
 #include <QSqlDatabase>
-#include <QThread>
+#include <QString>
 #include <QtSql>
-#include <algorithm>
-#include <memory>
-#include <vector>
 
 namespace sprint_timer::storage::qt_storage {
 
@@ -62,4 +57,5 @@ private:
 
 } // namespace sprint_timer::storage::qt_storage
 
-#endif // DB_HELPER_H
+#endif /* end of include guard: WORKERCONNECTION_H_QYWK9G25 */
+

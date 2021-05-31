@@ -24,6 +24,7 @@
 
 #include "core/QueryHandler.h"
 #include "core/use_cases/request_op_range/OperationalRangeQuery.h"
+#include "qt_gui/presentation/DateRangeChangeListener.h"
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
 

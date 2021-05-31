@@ -33,7 +33,7 @@
 #include "qt_gui/presentation/BestWorkdayContract.h"
 #include "qt_gui/presentation/DailyStatisticsGraphContract.h"
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
-#include "qt_gui/presentation/DaytimeStatisticsContract.h"
+#include "qt_gui/presentation/BestWorktimeContract.h"
 #include "qt_gui/presentation/TopTagDiagramContract.h"
 #include "qt_gui/widgets/BestWorkdayWidget.h"
 #include "qt_gui/widgets/BestWorktimeWidget.h"
@@ -49,7 +49,7 @@ public:
         mvp::BasePresenter<ui::contracts::DailyStatisticGraphContract::View>&
             dailyStatisticsGraphPresenter_,
         ui::contracts::BestWorkday::Presenter& bestWorkdayPresenter_,
-        mvp::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
+        mvp::BasePresenter<ui::contracts::BestWorktimeContract::View>&
             bestWorktimePresenter_,
         ui::contracts::TopTagDiagramContract::Presenter& tagDiagramPresenter_,
         ui::contracts::DateRangeSelectorContract::Presenter&
@@ -66,7 +66,7 @@ private:
     mvp::BasePresenter<ui::contracts::DailyStatisticGraphContract::View>&
         dailyStatisticsGraphPresenter;
     ui::contracts::BestWorkday::Presenter& bestWorkdayPresenter;
-    mvp::BasePresenter<ui::contracts::DaytimeStatisticsContract::View>&
+    mvp::BasePresenter<ui::contracts::BestWorktimeContract::View>&
         bestWorktimePresenter;
     ui::contracts::TopTagDiagramContract::Presenter& tagDiagramPresenter;
     ui::contracts::DateRangeSelectorContract::Presenter&

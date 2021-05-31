@@ -42,9 +42,12 @@ std::vector<int> weekdayFrequency(const dw::DateRange& dateRange);
 
 namespace sprint_timer::ui {
 
-BestWorkdayPresenter::BestWorkdayPresenter(StatisticsMediator& mediator_,
-                                           dw::Weekday firstDayOfWeek_)
+BestWorkdayPresenter::BestWorkdayPresenter(
+    StatisticsMediator& mediator_,
+    const StatisticsContext& statisticsContext_,
+    dw::Weekday firstDayOfWeek_)
     : mediator{mediator_}
+    , statisticsContext{statisticsContext_}
     , firstDayOfWeek{firstDayOfWeek_}
 {
     mediator.get().addColleague(this);
@@ -60,13 +63,13 @@ void BestWorkdayPresenter::onSharedDataChanged() { updateView(); }
 void BestWorkdayPresenter::updateViewImpl()
 {
     using contracts::BestWorkday::View;
-    const auto range = mediator.get().range();
+    const auto range = statisticsContext.get().currentRange();
     if (!range) {
         updateWithDefaultValues();
         return;
     }
 
-    const auto& sprints = mediator.get().sprints();
+    const auto& sprints = statisticsContext.get().sprints();
     if (sprints.empty()) {
         updateWithDefaultValues();
         return;

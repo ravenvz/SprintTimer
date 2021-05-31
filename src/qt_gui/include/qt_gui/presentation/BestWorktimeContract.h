@@ -19,38 +19,35 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DAYTIMESTATISTICSPRESENTER_H_XI31IPVZ
-#define DAYTIMESTATISTICSPRESENTER_H_XI31IPVZ
+#ifndef BESTWORKTIMECONTRACT_H_D6SHGQLX
+#define BESTWORKTIMECONTRACT_H_D6SHGQLX
 
+#include "date_wrapper/date_wrapper.h"
 #include "qt_gui/mvp/BasePresenter.h"
-#include "qt_gui/presentation/DaytimeStatisticsContract.h"
-#include "qt_gui/presentation/StatisticsMediator.h"
+#include "qt_gui/mvp/BaseView.h"
+#include <string>
+#include <vector>
 
-namespace sprint_timer::ui {
+namespace sprint_timer::ui::contracts::BestWorktimeContract {
 
-class DaytimeStatisticsPresenter
-    : public mvp::BasePresenter<contracts::DaytimeStatisticsContract::View>,
-      public StatisticsColleague {
-public:
-    explicit DaytimeStatisticsPresenter(StatisticsMediator& mediator);
-
-    ~DaytimeStatisticsPresenter() override;
-
-    void onSharedDataChanged() override;
-
-private:
-    StatisticsMediator& mediator;
-
-    void updateViewImpl() override;
-
-    void onViewAttached() override;
+struct LegendData {
+    std::string periodName;
+    std::string periodHours;
 };
 
-struct SprintDaytimeDistribution {
-    sprint_timer::Distribution<double> dayPartDistribution;
+struct DiagramData {
+    std::string filledColor;
     std::vector<dw::DateTimeRange> timeRanges;
 };
 
-} // namespace sprint_timer::ui
+class View : public mvp::BaseView<View, mvp::BasePresenter<View>> {
+public:
+    virtual void updateLegend(const LegendData& data) = 0;
 
-#endif /* end of include guard: DAYTIMESTATISTICSPRESENTER_H_XI31IPVZ */
+    virtual void updateDiagram(const DiagramData& data) = 0;
+};
+
+} // namespace sprint_timer::ui::contracts::BestWorktimeContract
+
+#endif /* end of include guard: BESTWORKTIMECONTRACT_H_D6SHGQLX */
+

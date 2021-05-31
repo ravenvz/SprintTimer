@@ -30,8 +30,8 @@ namespace sprint_timer {
 template <typename QueryT>
 class ThreadPoolQueryHandler : public AsyncQueryHandler<QueryT> {
 public:
-    explicit ThreadPoolQueryHandler(riften::Thiefpool& threadPool_,
-                                    QueryHandler<QueryT>& syncHandler_)
+    ThreadPoolQueryHandler(riften::Thiefpool& threadPool_,
+                           QueryHandler<QueryT>& syncHandler_)
         : threadPool{threadPool_}
         , syncHandler{syncHandler_}
     {
@@ -50,7 +50,7 @@ private:
     handleAwaitImpl(QueryT&& query) override
     {
         return threadPool.enqueue([this, q = std::move(query)]() mutable {
-            return syncHandler.handle(std::move(q));
+            return handleSyncImpl(std::move(q));
         });
     }
 
@@ -59,12 +59,12 @@ private:
         std::function<void(typename QueryT::result_t)> callback) override
     {
         threadPool.enqueue_detach(
-            [&](auto clb, auto q) { clb(syncHandler.handle(std::move(q))); },
+            [&](auto clb, auto q) { clb(handleSyncImpl(std::move(q))); },
             callback,
             std::move(query));
     }
 
-    typename QueryT::result_t handleSyncImp(QueryT&& query) override
+    typename QueryT::result_t handleSyncImpl(QueryT&& query) override
     {
         return syncHandler.handle(std::move(query));
     }

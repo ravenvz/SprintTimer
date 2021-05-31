@@ -26,8 +26,6 @@
 #include <functional>
 #include <future>
 
-#include <iostream>
-
 namespace sprint_timer {
 
 template <typename QueryT> class AsyncQueryHandler {
@@ -49,13 +47,13 @@ public:
 
     Result handleSync(QueryT&& query)
     {
-        return handleSyncImp(std::move(query));
+        return handleSyncImpl(std::move(query));
     }
 
 private:
     virtual std::future<Result> handleAwaitImpl(QueryT&& query) = 0;
 
-    virtual Result handleSyncImp(QueryT&& query) = 0;
+    virtual Result handleSyncImpl(QueryT&& query) = 0;
 
     virtual void handleCallbackImpl(QueryT&& query, Callback callback) = 0;
 };

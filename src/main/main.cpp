@@ -51,7 +51,7 @@
 #include "AddTaskDialogProxy.h"
 #include "BestWorkdayPresenterProxy.h"
 #include "CommandHandlerDecorator.h"
-#include "CompositePresenter.h"
+#include "CompositeDataFetcher.h"
 #include "DataConsistencyWatcher.h"
 #include "DateRangeSelectorPresenterProxy.h"
 #include "EditTaskDialogProxy.h"
@@ -126,15 +126,15 @@
 #include "qt_gui/presentation/ActiveTasksPresenter.h"
 #include "qt_gui/presentation/AddTaskControlPresenter.h"
 #include "qt_gui/presentation/BestWorkdayPresenter.h"
+#include "qt_gui/presentation/BestWorktimePresenter.h"
 #include "qt_gui/presentation/DailyStatisticsGraphPresenter.h"
 #include "qt_gui/presentation/DataExportPresenter.h"
 #include "qt_gui/presentation/DateRangeSelectorPresenter.h"
-#include "qt_gui/presentation/DaytimeStatisticsPresenter.h"
 #include "qt_gui/presentation/HistoryMediatorImpl.h"
 #include "qt_gui/presentation/HistoryPresenter.h"
 #include "qt_gui/presentation/ProgressPresenter.h"
 #include "qt_gui/presentation/RegisterSprintControlPresenter.h"
-#include "qt_gui/presentation/StatisticsMediatorImpl.h"
+#include "qt_gui/presentation/StatisticsSharedDataFetcher.h"
 #include "qt_gui/presentation/TagEditorPresenter.h"
 #include "qt_gui/presentation/TaskSprintsPresenter.h"
 #include "qt_gui/presentation/TaskViewPresenter.h"
@@ -550,36 +550,49 @@ int main(int argc, char* argv[])
         std::make_unique<AutodisablingButton>(activeTaskModel, "Add Sprint"),
         addSprintDialog);
 
+    // TODO group async handlers and utilize composer for them
     auto asyncRequestSprintsHandler =
         ThreadPoolQueryHandler<use_cases::RequestSprintsQuery>{
             threadPool, *requestSprintsHandler};
+    auto asyncWorkScheduleHandler =
+        ThreadPoolQueryHandler<use_cases::WorkScheduleQuery>{
+            threadPool, *workScheduleHandler};
 
     const size_t numTopTags{5};
-    ui::StatisticsMediatorImpl statisticsMediator{
-        *requestSprintsHandler, asyncRequestSprintsHandler, numTopTags};
-    compose::DateRangeSelectorPresenterProxy dateRangeSelectorPresenter{
-        *operationalRangeHandler,
-        statisticsMediator,
-        applicationSettings,
-        applicationSettings};
+    ui::StatisticsMediator statisticsMediator;
     // auto statisticsGraphWorkScheduleHandler =
     //     compose::decorate<WorkScheduleQuery, WorkSchedule>(
     //         compose::decorate<WorkScheduleQuery, WorkSchedule>(
     //             std::make_unique<WorkScheduleHandler>(*scheduleStorage),
     //             cacheInvalidationMediator));
+    ui::StatisticsContext statisticsContext;
+    ui::StatisticsSharedDataFetcher statisticsSharedDataFetcher{
+        asyncRequestSprintsHandler,
+        statisticsMediator,
+        statisticsContext,
+        numTopTags};
+    compose::DateRangeSelectorPresenterProxy dateRangeSelectorPresenter{
+        *operationalRangeHandler,
+        statisticsMediator,
+        applicationSettings,
+        applicationSettings};
     ui::DailyStatisticsGraphPresenter dailyTimelineGraphPresenter{
-        *workScheduleHandler, statisticsMediator};
+        asyncWorkScheduleHandler, statisticsMediator, statisticsContext};
     compose::BestWorkdayPresenterProxy bestWorkdayPresenter{
-        statisticsMediator, applicationSettings, applicationSettings};
-    ui::TopTagDiagramPresenter tagPieDiagramPresenter{statisticsMediator};
-    ui::DaytimeStatisticsPresenter daytimeStatisticsPresenter{
-        statisticsMediator};
+        statisticsMediator,
+        statisticsContext,
+        applicationSettings,
+        applicationSettings};
+    ui::TopTagDiagramPresenter tagPieDiagramPresenter{statisticsMediator,
+                                                      statisticsContext};
+    ui::BestWorktimePresenter bestWorktimePresenter{statisticsMediator,
+                                                    statisticsContext};
 
     sprint_timer::compose::StatisticsWindowProxy statisticsWindow{
         // applicationSettings,
         dailyTimelineGraphPresenter,
         bestWorkdayPresenter,
-        daytimeStatisticsPresenter,
+        bestWorktimePresenter,
         tagPieDiagramPresenter,
         dateRangeSelectorPresenter};
 
@@ -756,13 +769,13 @@ int main(int argc, char* argv[])
     ui::TodayProgressPresenter todayProgressPresenter{
         *requestTodayProgressHandler};
 
-    compose::CompositePresenter compositePresenter{
+    compose::CompositeDataFetcher compositeDataFetcher{
         {undoPresenter,
          todayProgressPresenter,
          todaySprintsPresenter,
          activeTasksPresenter,
          bestWorkdayPresenter,
-         daytimeStatisticsPresenter,
+         bestWorktimePresenter,
          tagPieDiagramPresenter,
          dateRangeSelectorPresenter,
          historyRangeSelectorPresenter,
@@ -771,12 +784,11 @@ int main(int argc, char* argv[])
          monthlyProgressPresenter,
          tagEditorPresenter,
          historyPresenter,
-         statisticsMediator, // TODO workaround until statistics view is
-                             // streamlined
+         statisticsSharedDataFetcher,
          dailyTimelineGraphPresenter}};
 
     compose::DataConsistencyWatcher watcher{desyncObservable,
-                                            compositePresenter};
+                                            compositeDataFetcher};
 
     auto todayProgressIndicator = std::make_unique<TodayProgressIndicator>();
     todayProgressPresenter.attachView(*todayProgressIndicator);
