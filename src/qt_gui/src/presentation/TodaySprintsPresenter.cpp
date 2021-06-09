@@ -24,8 +24,8 @@
 namespace sprint_timer::ui {
 
 TodaySprintsPresenter::TodaySprintsPresenter(
-    CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler_,
-    QueryHandler<use_cases::RequestSprintsQuery>& requestSprintsHandler_)
+    delete_sprints_hdl_t& deleteSprintHandler_,
+    request_sprints_hdl_t& requestSprintsHandler_)
     : deleteSprintHandler{deleteSprintHandler_}
     , requestSprintsHandler{requestSprintsHandler_}
 {
@@ -36,17 +36,18 @@ void TodaySprintsPresenter::onSprintDelete(const std::string& uuid)
     deleteSprintHandler.handle(use_cases::DeleteSprintCommand{uuid});
 }
 
-void TodaySprintsPresenter::updateViewImpl()
+void TodaySprintsPresenter::fetchDataImpl()
 {
-    if (auto v = view(); v) {
-        const dw::DateRange range{dw::current_date_local(),
-                                  dw::current_date_local()};
-        const auto sprints =
-            requestSprintsHandler.handle(use_cases::RequestSprintsQuery{range});
-        v.value()->displaySprints(sprints);
-    }
+    const dw::DateRange range{dw::current_date_local(),
+                              dw::current_date_local()};
+    data = requestSprintsHandler.handle(use_cases::RequestSprintsQuery{range});
 }
 
-void TodaySprintsPresenter::onViewAttached() { updateView(); }
+void TodaySprintsPresenter::updateViewImpl()
+{
+    if (auto v = view(); v && data) {
+        v.value()->displaySprints(*data);
+    }
+}
 
 } // namespace sprint_timer::ui

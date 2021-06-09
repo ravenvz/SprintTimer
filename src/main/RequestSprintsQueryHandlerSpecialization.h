@@ -32,10 +32,16 @@ typename use_cases::RequestSprintsQuery::result_t
 CacheAwareQueryHandler<use_cases::RequestSprintsQuery>::handle(
     sprint_timer::use_cases::RequestSprintsQuery&& query)
 {
-    if (!cachedResult ||
-        (cachedQuery && (query.dateRange != cachedQuery->dateRange))) {
-        cachedQuery = query;
-        cachedResult = wrapped->handle(std::move(query));
+    {
+        std::lock_guard lock{mtx};
+        if (!cachedResult ||
+            (cachedQuery && (query.dateRange != cachedQuery->dateRange))) {
+            cachedQuery = query;
+            cachedResult = wrapped->handle(std::move(query));
+        }
+        else {
+            std::cout << "Cache hit!" << std::endl;
+        }
     }
     return *cachedResult;
 }

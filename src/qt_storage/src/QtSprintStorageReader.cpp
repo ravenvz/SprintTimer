@@ -50,8 +50,8 @@ using namespace dw;
 using namespace storage::utils;
 using namespace entities;
 
-QtSprintStorageReader::QtSprintStorageReader(const QString& connectionName_)
-    : connectionName{connectionName_}
+QtSprintStorageReader::QtSprintStorageReader(QString connectionName_)
+    : connectionName{std::move(connectionName_)}
 {
     findByDateRangeQuery =
         tryPrepare(connectionName,
@@ -84,7 +84,7 @@ QtSprintStorageReader::QtSprintStorageReader(const QString& connectionName_)
                        .arg(TaskTable::Columns::uuid)
                        .arg(SprintView::name));
 
-    findByUuidQuery = tryPrepare(connectionName_,
+    findByUuidQuery = tryPrepare(connectionName,
                                  QString{"SELECT %1, %2, %3, %4, %5, %6, %7 "
                                          "FROM %8 "
                                          "WHERE %7 = (:uuid)"}

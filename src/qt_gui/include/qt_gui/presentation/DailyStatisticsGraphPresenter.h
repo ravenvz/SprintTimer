@@ -33,7 +33,7 @@ class DailyStatisticsGraphPresenter
     : public mvp::BasePresenter<contracts::DailyStatisticGraphContract::View>,
       public StatisticsColleague {
 public:
-    using schedule_hdl_t = AsyncQueryHandler<use_cases::WorkScheduleQuery>;
+    using schedule_hdl_t = QueryHandler<use_cases::WorkScheduleQuery>;
 
     DailyStatisticsGraphPresenter(schedule_hdl_t& workScheduleHandler,
                                   StatisticsMediator& mediator,
@@ -47,13 +47,11 @@ private:
     schedule_hdl_t& workScheduleHandler;
     StatisticsMediator& mediator;
     const StatisticsContext& statisticsContext;
-    std::future<schedule_hdl_t::Result> workScheduleFuture;
+    std::optional<schedule_hdl_t::result_t> data;
 
     void fetchDataImpl() override;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

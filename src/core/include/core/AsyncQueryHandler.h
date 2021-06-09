@@ -30,32 +30,33 @@ namespace sprint_timer {
 
 template <typename QueryT> class AsyncQueryHandler {
 public:
-    using Result = typename QueryT::result_t;
-    using Callback = std::function<void(Result)>;
+    using result_t = typename QueryT::result_t;
+    using callback_t = std::function<void(result_t)>;
 
     virtual ~AsyncQueryHandler() = default;
 
-    std::future<Result> handle(QueryT&& query)
+    std::future<result_t> handle(QueryT&& query)
     {
         return handleAwaitImpl(std::move(query));
     }
 
-    void handle(QueryT&& query, Callback callback)
+    void handle(QueryT&& query, callback_t callback)
     {
-        handleCallbackImpl(std::move(query), std::forward<Callback>(callback));
+        handleCallbackImpl(std::move(query),
+                           std::forward<callback_t>(callback));
     }
 
-    Result handleSync(QueryT&& query)
+    result_t handleSync(QueryT&& query)
     {
         return handleSyncImpl(std::move(query));
     }
 
 private:
-    virtual std::future<Result> handleAwaitImpl(QueryT&& query) = 0;
+    virtual std::future<result_t> handleAwaitImpl(QueryT&& query) = 0;
 
-    virtual Result handleSyncImpl(QueryT&& query) = 0;
+    virtual result_t handleSyncImpl(QueryT&& query) = 0;
 
-    virtual void handleCallbackImpl(QueryT&& query, Callback callback) = 0;
+    virtual void handleCallbackImpl(QueryT&& query, callback_t callback) = 0;
 };
 
 } // namespace sprint_timer

@@ -131,7 +131,7 @@ public:
 
 TEST_F(ActiveTasksPresenterFixture, populates_task_when_view_is_attached)
 {
-    ON_CALL(activeTasksHandler, handle(_)).WillByDefault(Return(someTaskDtos));
+    mocks::given_handler_returns(activeTasksHandler, someTaskDtos);
     ActiveTasksPresenter sut{makePresenter()};
 
     EXPECT_CALL(view, displayTasks(someTaskDtos));
@@ -177,7 +177,7 @@ TEST_F(ActiveTasksPresenterFixture, toggles_task_completion)
 TEST_F(ActiveTasksPresenterFixture,
        changes_task_order_by_moving_bottom_task_to_top)
 {
-    ON_CALL(activeTasksHandler, handle(_)).WillByDefault(Return(someTaskDtos));
+    mocks::given_handler_returns(activeTasksHandler, someTaskDtos);
     ChangeActiveTasksPriorityCommand expected{
         {someTasks[0].uuid(), someTasks[1].uuid(), someTasks[2].uuid()},
         {someTasks[2].uuid(), someTasks[0].uuid(), someTasks[1].uuid()}};
@@ -192,7 +192,7 @@ TEST_F(ActiveTasksPresenterFixture,
 TEST_F(ActiveTasksPresenterFixture,
        changes_task_order_by_moving_top_task_to_bottom)
 {
-    ON_CALL(activeTasksHandler, handle(_)).WillByDefault(Return(someTaskDtos));
+    mocks::given_handler_returns(activeTasksHandler, someTaskDtos);
     ChangeActiveTasksPriorityCommand expected{
         {someTasks[0].uuid(), someTasks[1].uuid(), someTasks[2].uuid()},
         {someTasks[1].uuid(), someTasks[2].uuid(), someTasks[0].uuid()}};

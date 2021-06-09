@@ -22,7 +22,7 @@
 #ifndef STATISTICSSHAREDDATAFETCHER_H_SCYAK0IT
 #define STATISTICSSHAREDDATAFETCHER_H_SCYAK0IT
 
-#include "core/AsyncQueryHandler.h"
+#include "core/QueryHandler.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "qt_gui/mvp/DataFetcher.h"
 #include "qt_gui/presentation/StatisticsColleague.h"
@@ -34,63 +34,29 @@ namespace sprint_timer::ui {
 class StatisticsSharedDataFetcher : public mvp::DataFetcher,
                                     public StatisticsColleague {
 public:
-    using request_sprints_hdl_t =
-        AsyncQueryHandler<use_cases::RequestSprintsQuery>;
+    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery>;
 
     StatisticsSharedDataFetcher(request_sprints_hdl_t& requestSprintsHandler_,
                                 StatisticsMediator& mediator_,
                                 StatisticsContext& statisticsContext_,
-                                size_t numTopTags_)
-        : requestSprintsHandler{requestSprintsHandler_}
-        , mediator{mediator_}
-        , statisticsContext{statisticsContext_}
-        , numTopTags{numTopTags_}
-    {
-        mediator.addColleague(this);
-    }
+                                size_t numTopTags_);
 
-    ~StatisticsSharedDataFetcher() { mediator.removeColleague(this); }
+    ~StatisticsSharedDataFetcher();
 
-    void fetchData() override
-    {
-        if (!statisticsContext.currentRange()) {
-            return;
-        }
-        dataFuture = requestSprintsHandler.handle(
-            use_cases::RequestSprintsQuery{*statisticsContext.currentRange()});
-    }
+    void fetchData() override;
 
-    void updateView() override
-    {
-        if (!dataFuture.valid() || !statisticsContext.currentRange()) {
-            return;
-        }
-        statisticsContext = StatisticsContext{
-            dataFuture.get(), *statisticsContext.currentRange(), numTopTags};
-        mediator.mediate(
-            this, [](auto* colleague) { colleague->onSharedDataChanged(); });
-    }
+    void updateView() override;
 
-    void onDateRangeChanged(const dw::DateRange& range) override
-    {
-        const auto sprints = requestSprintsHandler.handleSync(
-            use_cases::RequestSprintsQuery{range});
-        statisticsContext = StatisticsContext{sprints, range, numTopTags};
-        mediator.mediate(
-            this, [](auto* colleague) { colleague->onSharedDataChanged(); });
-    }
+    void onDateRangeChanged(const dw::DateRange& range) override;
 
-    void onTagSelected(std::optional<size_t> tag) override
-    {
-        statisticsContext.selectTag(tag);
-    }
+    void onTagSelected(std::optional<size_t> tag) override;
 
 private:
     request_sprints_hdl_t& requestSprintsHandler;
     StatisticsMediator& mediator;
     StatisticsContext& statisticsContext;
     size_t numTopTags;
-    std::future<use_cases::RequestSprintsQuery::result_t> dataFuture;
+    std::optional<use_cases::RequestSprintsQuery::result_t> data;
 };
 
 } // namespace sprint_timer::ui

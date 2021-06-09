@@ -78,8 +78,6 @@ void BestWorktimePresenter::updateViewImpl()
     }
 }
 
-void BestWorktimePresenter::onViewAttached() { updateView(); }
-
 } // namespace sprint_timer::ui
 
 namespace {

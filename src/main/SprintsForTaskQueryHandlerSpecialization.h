@@ -32,10 +32,16 @@ typename use_cases::SprintsForTaskQuery::result_t
 CacheAwareQueryHandler<use_cases::SprintsForTaskQuery>::handle(
     use_cases::SprintsForTaskQuery&& query)
 {
-    if (!cachedResult ||
-        (cachedQuery && (query.taskUuid != cachedQuery->taskUuid))) {
-        cachedQuery = query;
-        cachedResult = wrapped->handle(std::move(query));
+    {
+        std::lock_guard lock{mtx};
+        if (!cachedResult ||
+            (cachedQuery && (query.taskUuid != cachedQuery->taskUuid))) {
+            cachedQuery = query;
+            cachedResult = wrapped->handle(std::move(query));
+        }
+        else {
+            std::cout << "Cache hit!" << std::endl;
+        }
     }
     return *cachedResult;
 }

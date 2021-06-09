@@ -42,8 +42,6 @@ void TaskViewPresenter::changeTaskSelection(size_t index, std::string&& uuid)
 
 void TaskViewPresenter::updateViewImpl() { onTaskSelectionChanged(); }
 
-void TaskViewPresenter::onViewAttached() { updateView(); }
-
 void TaskViewPresenter::onTaskSelectionChanged()
 {
     if (auto v = view(); v) {

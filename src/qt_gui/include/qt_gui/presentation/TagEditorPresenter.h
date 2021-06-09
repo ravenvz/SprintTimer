@@ -44,10 +44,11 @@ public:
 private:
     all_tags_hdl_t& allTagsHandler;
     rename_tag_hdl_t& renameTagHandler;
+    std::optional<all_tags_hdl_t::result_t> data;
+
+    void fetchDataImpl() override;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

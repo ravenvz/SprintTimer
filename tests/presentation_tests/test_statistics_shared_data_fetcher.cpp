@@ -44,8 +44,8 @@ bool operator==(const StatisticsContext& lhs, const StatisticsContext& rhs)
 
 class StatisticsSharedDataFetcherFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::AsyncQueryHandlerMock<
-        sprint_timer::use_cases::RequestSprintsQuery>>
+    NiceMock<
+        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestSprintsQuery>>
         requestSprintsHandler;
     NiceMock<mocks::ColleagueMock> fakeColleague;
     sprint_timer::ui::StatisticsMediator statisticsMediator;
@@ -60,7 +60,7 @@ TEST_F(StatisticsSharedDataFetcherFixture,
     sprint_timer::ui::StatisticsSharedDataFetcher sut{
         requestSprintsHandler, statisticsMediator, context, numTopTags};
 
-    EXPECT_CALL(requestSprintsHandler, handleAwaitImpl(_)).Times(0);
+    EXPECT_CALL(requestSprintsHandler, handle(_)).Times(0);
 
     sut.fetchData();
 }
@@ -72,10 +72,7 @@ TEST_F(StatisticsSharedDataFetcherFixture, updates_context_when_range_is_set)
     sprint_timer::ui::StatisticsSharedDataFetcher sut{
         requestSprintsHandler, statisticsMediator, context, numTopTags};
     std::vector<SprintDTO> sprints;
-    std::promise<std::vector<SprintDTO>> p;
-    p.set_value(sprints);
-    ON_CALL(requestSprintsHandler, handleAwaitImpl(_))
-        .WillByDefault(Return(ByMove(p.get_future())));
+    mocks::given_handler_returns(requestSprintsHandler, sprints);
     statisticsMediator.onRangeChanged(someDateRange);
     const sprint_timer::ui::StatisticsContext expected{
         sprints, someDateRange, numTopTags};
@@ -95,10 +92,7 @@ TEST_F(StatisticsSharedDataFetcherFixture, notifies_mediator_when_data_is_ready)
         sprints, someDateRange, numTopTags};
     sprint_timer::ui::StatisticsSharedDataFetcher sut{
         requestSprintsHandler, statisticsMediator, context, numTopTags};
-    std::promise<std::vector<SprintDTO>> p;
-    p.set_value(sprints);
-    ON_CALL(requestSprintsHandler, handleAwaitImpl(_))
-        .WillByDefault(Return(ByMove(p.get_future())));
+    mocks::given_handler_returns(requestSprintsHandler, sprints);
 
     EXPECT_CALL(fakeColleague, onSharedDataChanged());
 

@@ -23,9 +23,9 @@
 #define TASKSPRINTSPRESENTER_H_VN5LZSTF
 
 #include "core/QueryHandler.h"
+#include "core/use_cases/SprintMapper.h"
 #include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
 #include "qt_gui/mvp/BasePresenter.h"
-#include "core/use_cases/SprintMapper.h"
 #include "qt_gui/presentation/TaskSelectionContext.h"
 #include "qt_gui/presentation/TaskSprintsContract.h"
 
@@ -44,8 +44,6 @@ private:
     const TaskSelectionContext& taskSelectionContext;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

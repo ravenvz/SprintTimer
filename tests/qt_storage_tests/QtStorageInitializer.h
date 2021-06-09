@@ -22,10 +22,10 @@
 #ifndef QTSTORAGEINITIALIZER_H_WR5MUUAC
 #define QTSTORAGEINITIALIZER_H_WR5MUUAC
 
-#include <QCoreApplication>
-#include "qt_storage/WorkerConnection.h"
 #include "qt_storage/DatabaseInitializer.h"
 #include "qt_storage/QtStorageImplementersFactory.h"
+#include "qt_storage/WorkerConnection.h"
+#include <QCoreApplication>
 
 struct TestStorageInitializer {
 
@@ -36,7 +36,8 @@ struct TestStorageInitializer {
     sprint_timer::storage::qt_storage::ConnectionGuard connectionGuard{
         name, "Keep alive conn"};
     sprint_timer::storage::qt_storage::DatabaseInitializer db{name};
-    sprint_timer::storage::qt_storage::WorkerConnection dbService{name};
+    sprint_timer::storage::qt_storage::WorkerConnection dbService{
+        name, "Worker connection"};
     sprint_timer::storage::qt_storage::QtStorageImplementersFactory factory{
         dbService.connectionName()};
 };

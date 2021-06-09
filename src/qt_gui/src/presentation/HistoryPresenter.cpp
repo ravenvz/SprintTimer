@@ -21,8 +21,6 @@
 *********************************************************************************/
 #include "qt_gui/presentation/HistoryPresenter.h"
 
-#include <iostream>
-
 namespace {
 
 /* Precondition: entities are sorted by their time in ascending order. */
@@ -37,8 +35,8 @@ dw::Date extractDate(const sprint_timer::use_cases::SprintDTO& sprint);
 namespace sprint_timer::ui {
 
 HistoryPresenter::HistoryPresenter(
-    SprintsRequestHandler& requestSprintsHandler_,
-    TaskRequestHandler& requestTasksHandler_,
+    request_sprints_hdl_t& requestSprintsHandler_,
+    finished_task_hdl_t& requestTasksHandler_,
     HistoryMediator& mediator_)
     : requestSprintsHandler{requestSprintsHandler_}
     , requestTasksHandler{requestTasksHandler_}
@@ -58,32 +56,50 @@ void HistoryPresenter::onEditSprintMenuSelected(
 {
 }
 
-void HistoryPresenter::updateViewImpl()
+void HistoryPresenter::fetchDataImpl()
 {
     const auto range = mediator.currentDateRange();
+    if (!range) {
+        return;
+    }
+
+    switch (mediator.displayedHistory()) {
+    case HistoryMediator::DisplayedHistory::SprintHistory:
+        sprintData = requestSprintsHandler.handle(
+            use_cases::RequestSprintsQuery{*range});
+        break;
+    case HistoryMediator::DisplayedHistory::TaskHistory:
+        taskData =
+            requestTasksHandler.handle(use_cases::FinishedTasksQuery{*range});
+        break;
+    }
+}
+
+void HistoryPresenter::updateViewImpl()
+{
     auto v = view();
-    if (!v || !range) {
+    if (!v) {
         return;
     }
 
     const auto history = mediator.displayedHistory();
     switch (history) {
     case HistoryMediator::DisplayedHistory::SprintHistory: {
-        const auto sprints = requestSprintsHandler.handle(
-            use_cases::RequestSprintsQuery{*range});
-        v.value()->displayHistory(toHistory(sprints));
+        if (!sprintData) {
+            return;
+        }
+        v.value()->displayHistory(toHistory(*sprintData));
         break;
     }
     case HistoryMediator::DisplayedHistory::TaskHistory: {
-        const auto tasks =
-            requestTasksHandler.handle(use_cases::FinishedTasksQuery{*range});
-        v.value()->displayHistory(toHistory(tasks));
+        if (!taskData) {
+            return;
+        }
+        v.value()->displayHistory(toHistory(*taskData));
         break;
     }
     }
 }
-
-void HistoryPresenter::onViewAttached() { updateView(); }
 
 void HistoryPresenter::onDisplayedTabChanged(int tabNumber)
 {
@@ -91,7 +107,11 @@ void HistoryPresenter::onDisplayedTabChanged(int tabNumber)
         this, static_cast<HistoryMediator::DisplayedHistory>(tabNumber));
 }
 
-void HistoryPresenter::onSharedDataChanged() { updateView(); }
+void HistoryPresenter::onSharedDataChanged()
+{
+    fetchData();
+    updateView();
+}
 
 } // namespace sprint_timer::ui
 
@@ -104,7 +124,6 @@ std::string describe(const sprint_timer::use_cases::SprintDTO& sprint)
     for (const auto& tag : sprint.tags)
         ss << "#" << tag << " ";
     ss << sprint.taskName;
-    std::cout << ss.str() << std::endl;
     return ss.str();
 }
 

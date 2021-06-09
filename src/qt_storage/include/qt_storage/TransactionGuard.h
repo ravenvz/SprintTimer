@@ -41,7 +41,7 @@ public:
     void commit();
 
 private:
-    QString connectionName;
+    const QString& connectionName;
     bool hasCommited{false};
 };
 

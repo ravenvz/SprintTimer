@@ -29,8 +29,8 @@ namespace sprint_timer::storage::qt_storage {
 
 using namespace qt_storage;
 
-QtSprintStorageWriter::QtSprintStorageWriter(const QString& connectionName_)
-    : connectionName{connectionName_}
+QtSprintStorageWriter::QtSprintStorageWriter(QString connectionName_)
+    : connectionName{std::move(connectionName_)}
 {
     saveSprintQuery = tryPrepare(
         connectionName,

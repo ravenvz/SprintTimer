@@ -19,8 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage/QtWorkingDaysStorage.h"
+#include <utility>
+
 #include "qt_storage/DatabaseDescription.h"
+#include "qt_storage/QtWorkScheduleStorage.h"
 #include "qt_storage/TransactionGuard.h"
 #include "qt_storage/utils/DateTimeConverter.h"
 #include "qt_storage/utils/QueryUtils.h"
@@ -74,8 +76,8 @@ const QString deleteAllSchedulesStr =
 
 namespace sprint_timer::storage::qt_storage {
 
-QtWorkScheduleStorage::QtWorkScheduleStorage(const QString& connectionName_)
-    : connectionName{connectionName_}
+QtWorkScheduleStorage::QtWorkScheduleStorage(QString connectionName_)
+    : connectionName{std::move(connectionName_)}
 {
     using namespace qt_storage;
 
@@ -188,7 +190,7 @@ recordToSchedule(const QSqlRecord& record)
     const auto wed_goal =
         record.value(static_cast<int>(ScheduleColumns::WednesdayGoal)).toInt();
     const auto thu_goal =
-        record.value(static_cast<int>(ScheduleColumns::TuesdayGoal)).toInt();
+        record.value(static_cast<int>(ScheduleColumns::ThursdayGoal)).toInt();
     const auto fri_goal =
         record.value(static_cast<int>(ScheduleColumns::FridayGoal)).toInt();
     const auto sat_goal =

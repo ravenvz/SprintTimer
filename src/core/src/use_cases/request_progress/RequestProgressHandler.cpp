@@ -21,6 +21,8 @@
 *********************************************************************************/
 #include "core/use_cases/request_progress/RequestProgressHandler.h"
 
+#include <iostream>
+
 namespace sprint_timer::use_cases {
 
 RequestProgressHandler::RequestProgressHandler(

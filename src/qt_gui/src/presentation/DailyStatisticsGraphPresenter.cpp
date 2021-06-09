@@ -109,15 +109,11 @@ void DailyStatisticsGraphPresenter::fetchDataImpl()
     if (!statisticsContext.currentRange()) {
         return;
     }
-    workScheduleFuture =
-        workScheduleHandler.handle(use_cases::WorkScheduleQuery{});
+    data = workScheduleHandler.handle(use_cases::WorkScheduleQuery{});
 }
 
 void DailyStatisticsGraphPresenter::updateViewImpl()
 {
-    if (!workScheduleFuture.valid()) {
-        fetchData();
-    }
     auto v = view();
     if (!v) {
         return;
@@ -131,16 +127,16 @@ void DailyStatisticsGraphPresenter::updateViewImpl()
         return;
     }
 
+    if (!data) {
+        return;
+    }
+
     const auto& sprints = statisticsContext.sprints();
     const auto distribution = dailyStatistics(sprints, *range);
     v.value()->clearGraphs();
-    updateAll(v.value(),
-              distribution,
-              workScheduleFuture.get(),
-              *statisticsContext.currentRange());
+    updateAll(
+        v.value(), distribution, *data, *statisticsContext.currentRange());
 }
-
-void DailyStatisticsGraphPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 

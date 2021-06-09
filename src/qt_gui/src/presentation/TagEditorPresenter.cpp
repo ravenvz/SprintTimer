@@ -36,14 +36,16 @@ void TagEditorPresenter::renameTag(const std::string& original,
     renameTagHandler.handle(use_cases::RenameTagCommand{original, renamed});
 }
 
-void TagEditorPresenter::updateViewImpl()
+void TagEditorPresenter::fetchDataImpl()
 {
-    if (auto v = view(); v) {
-        v.value()->displayTags(
-            allTagsHandler.handle(use_cases::AllTagsQuery{}));
-    }
+    data = allTagsHandler.handle(use_cases::AllTagsQuery{});
 }
 
-void TagEditorPresenter::onViewAttached() { updateView(); }
+void TagEditorPresenter::updateViewImpl()
+{
+    if (auto v = view(); v && data) {
+        v.value()->displayTags(*data);
+    }
+}
 
 } // namespace sprint_timer::ui

@@ -22,14 +22,14 @@
 #ifndef QTWORKINGDAYSSTORAGE_H_EXLIBP9M
 #define QTWORKINGDAYSSTORAGE_H_EXLIBP9M
 
-#include <QSqlQuery>
 #include "core/WorkScheduleStorage.h"
+#include <QSqlQuery>
 
 namespace sprint_timer::storage::qt_storage {
 
 class QtWorkScheduleStorage : public WorkScheduleStorage {
 public:
-    explicit QtWorkScheduleStorage(const QString& connectionName);
+    explicit QtWorkScheduleStorage(QString connectionName);
     ~QtWorkScheduleStorage() override = default;
 
     QtWorkScheduleStorage(QtWorkScheduleStorage&&) = delete;
@@ -43,7 +43,7 @@ public:
     WorkSchedule schedule() final;
 
 private:
-    const QString connectionName;
+    QString connectionName;
     QSqlQuery storeScheduleQuery;
     QSqlQuery storeExceptionalDaysQuery;
 };

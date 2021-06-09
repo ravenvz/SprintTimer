@@ -31,25 +31,29 @@ namespace sprint_timer {
 template <typename CommandT>
 class VerboseCommandHandler : public CommandHandler<CommandT> {
 public:
-    VerboseCommandHandler(std::unique_ptr<CommandHandler<CommandT>> wrapped);
+    VerboseCommandHandler(std::unique_ptr<CommandHandler<CommandT>> wrapped,
+                          std::ostream& outputStream_);
 
     void handle(CommandT&& command) override;
 
 private:
     std::unique_ptr<CommandHandler<CommandT>> wrapped;
+    std::ostream& os;
 };
 
 template <typename CommandT>
 VerboseCommandHandler<CommandT>::VerboseCommandHandler(
-    std::unique_ptr<CommandHandler<CommandT>> wrapped_)
+    std::unique_ptr<CommandHandler<CommandT>> wrapped_,
+    std::ostream& outputStream_)
     : wrapped{std::move(wrapped_)}
+    , os{outputStream_}
 {
 }
 
 template <typename CommandT>
 void VerboseCommandHandler<CommandT>::handle(CommandT&& command)
 {
-    std::cout << "Handling command: " << command << '\n';
+    os << "Handling command: " << command << '\n';
     wrapped->handle(std::move(command));
 }
 

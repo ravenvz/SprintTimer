@@ -27,17 +27,18 @@
 #include "core/use_cases/request_tasks/FinishedTasksQuery.h"
 #include "qt_gui/presentation/HistoryContract.h"
 #include "qt_gui/presentation/HistoryMediator.h"
+#include <optional>
 
 namespace sprint_timer::ui {
 
 class HistoryPresenter : public contracts::HistoryContract::Presenter,
                          public HistoryColleague {
 public:
-    using SprintsRequestHandler = QueryHandler<use_cases::RequestSprintsQuery>;
-    using TaskRequestHandler = QueryHandler<use_cases::FinishedTasksQuery>;
+    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery>;
+    using finished_task_hdl_t = QueryHandler<use_cases::FinishedTasksQuery>;
 
-    HistoryPresenter(SprintsRequestHandler& requestSprintsHandler,
-                     TaskRequestHandler& requestTasksHandler,
+    HistoryPresenter(request_sprints_hdl_t& requestSprintsHandler,
+                     finished_task_hdl_t& requestTasksHandler,
                      HistoryMediator& mediator);
 
     ~HistoryPresenter() override;
@@ -51,13 +52,15 @@ public:
     void onSharedDataChanged() override;
 
 private:
-    SprintsRequestHandler& requestSprintsHandler;
-    TaskRequestHandler& requestTasksHandler;
+    request_sprints_hdl_t& requestSprintsHandler;
+    finished_task_hdl_t& requestTasksHandler;
     HistoryMediator& mediator;
+    std::optional<request_sprints_hdl_t::result_t> sprintData;
+    std::optional<finished_task_hdl_t::result_t> taskData;
+
+    void fetchDataImpl() override;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

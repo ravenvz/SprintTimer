@@ -23,16 +23,19 @@
 #define COMMANDHANDLERDECORATOR_H_GF3JAIOA
 
 #include "CacheAwareCommandHandler.h"
+#include "ProfilingCommandHandler.h"
 #include "VerboseCommandHandler.h"
 
 namespace sprint_timer::compose {
 
 template <typename CommandT>
 std::unique_ptr<CommandHandler<CommandT>>
-decorate(std::unique_ptr<CommandHandler<CommandT>> wrapped)
+decorate(std::unique_ptr<CommandHandler<CommandT>> wrapped, std::ostream& os)
 {
     return std::make_unique<sprint_timer::VerboseCommandHandler<CommandT>>(
-        std::move(wrapped));
+        std::move(wrapped), os);
+    // return std::make_unique<ProfilingCommandHandler<CommandT>>(
+    //     std::move(wrapped), os);
 }
 
 template <typename CommandT>

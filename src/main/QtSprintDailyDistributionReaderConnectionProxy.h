@@ -19,28 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTWORKINGDAYSWRITER_H_GMTRHCHZ
-#define QTWORKINGDAYSWRITER_H_GMTRHCHZ
+#ifndef QTSPRINTDISTRIBUTIONREADERCONNECTIONPROXY_H_EBGCGDJT
+#define QTSPRINTDISTRIBUTIONREADERCONNECTIONPROXY_H_EBGCGDJT
 
-#include "qt_storage/DBService.h"
-#include "core/WorkScheduleWriter.h"
+#include "ThreadConnectionHelper.h"
+#include "core/SprintDistributionReader.h"
 
-namespace sprint_timer::storage::qt_storage {
+namespace sprint_timer::compose {
 
-class QtWorkingDaysWriter : public WorkScheduleWriter {
+class QtSprintDailyDistributionReaderConnectionProxy
+    : public SprintDistributionReader {
 public:
-    explicit QtWorkingDaysWriter(DBService& dbService);
+    QtSprintDailyDistributionReaderConnectionProxy(
+        ThreadConnectionHelper& connectionHelper, size_t numDays);
 
-    void changeWorkingDays(const WorkSchedule& workSchedule) override;
+    std::vector<int>
+    sprintDistribution(const dw::DateRange& dateRange) override;
 
 private:
-    DBService& dbService;
-    qint64 storeSchedulesQueryId{-1};
-    qint64 storeExceptionalDaysQuery{-1};
+    ThreadConnectionHelper& connectionHelper;
+    size_t numDays;
 
-    void removeExtraDays(const std::vector<dw::Date>& days);
+    void createStorageInteractor();
 };
 
-} // namespace sprint_timer::storage::qt_storage
+} // namespace sprint_timer::compose
 
-#endif /* end of include guard: QTWORKINGDAYSWRITER_H_GMTRHCHZ */
+#endif /* end of include guard:                                                \
+          QTSPRINTDISTRIBUTIONREADERCONNECTIONPROXY_H_EBGCGDJT */

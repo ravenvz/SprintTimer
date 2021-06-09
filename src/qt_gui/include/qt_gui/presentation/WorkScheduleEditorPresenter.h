@@ -39,8 +39,6 @@ public:
             changeWorkScheduleHandler,
         dw::Weekday firstDayOfWeek);
 
-    void updateViewImpl() override;
-
     void onAddExceptionalRequested() override;
 
     void onExceptionalDaysAdded(dw::Date startDate,
@@ -66,7 +64,7 @@ private:
     dw::Weekday firstDayOfWeek;
     WorkSchedule bufferedSchedule;
 
-    void onViewAttached() override { updateView(); }
+    void updateViewImpl() override;
 };
 
 } // namespace sprint_timer::ui

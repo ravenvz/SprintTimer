@@ -173,7 +173,7 @@ public:
 
 class DailyStatisticsSharedDataFetcherFixture : public ::testing::Test {
 public:
-    ::testing::NiceMock<mocks::AsyncQueryHandlerMock<WorkScheduleQuery>>
+    ::testing::NiceMock<mocks::QueryHandlerMock<WorkScheduleQuery>>
         workScheduleHandlerMock;
     sprint_timer::ui::StatisticsMediator mediator;
     ::testing::NiceMock<mocks::ColleagueMock> fakeColleague;
@@ -217,10 +217,7 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture,
         sprints, dateRange, numTopTags};
     sprint_timer::ui::DailyStatisticsGraphPresenter sut{
         workScheduleHandlerMock, mediator, statisticsContext};
-    std::promise<sprint_timer::use_cases::WorkScheduleQuery::result_t> p;
-    p.set_value(schedule);
-    ON_CALL(workScheduleHandlerMock, handleAwaitImpl(_))
-        .WillByDefault(Return(ByMove(p.get_future())));
+    mocks::given_handler_returns(workScheduleHandlerMock, schedule);
 
     EXPECT_CALL(viewMock, updateLegend(expected));
 
@@ -280,10 +277,7 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture, updates_graph_with_generic_data)
         sprints, dateRange, numTopTags};
     sprint_timer::ui::DailyStatisticsGraphPresenter sut{
         workScheduleHandlerMock, mediator, statisticsContext};
-    std::promise<sprint_timer::use_cases::WorkScheduleQuery::result_t> p;
-    p.set_value(schedule);
-    ON_CALL(workScheduleHandlerMock, handleAwaitImpl(_))
-        .WillByDefault(Return(ByMove(p.get_future())));
+    mocks::given_handler_returns(workScheduleHandlerMock, schedule);
 
     EXPECT_CALL(viewMock, clearGraphs());
     EXPECT_CALL(viewMock, drawGraph(expectedDaily));
@@ -293,37 +287,3 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture, updates_graph_with_generic_data)
     sut.attachView(viewMock);
 }
 
-// TODO this test is convoluted; it should also utilize StatisticsContext or
-// should be fully rewritten
-TEST_F(DailyStatisticsSharedDataFetcherFixture,
-       requeries_handler_when_shared_data_is_changed)
-{
-    using ::testing::_;
-    using ::testing::Return;
-    using ::testing::Truly;
-    using namespace dw;
-    constexpr DateRange dateRange{Date{Year{2020}, Month{2}, Day{1}},
-                                  Date{Year{2020}, Month{2}, Day{5}}};
-    const auto newDateRange =
-        dw::DateRange{dw::current_date(), dw::current_date()};
-    sprint_timer::WeekSchedule weekSchedule;
-    sprint_timer::WorkSchedule schedule;
-    schedule.addWeekSchedule(dateRange.start() - dw::Years{1}, weekSchedule);
-    const std::vector<sprint_timer::use_cases::SprintDTO> sprints;
-    sprint_timer::ui::StatisticsContext statisticsContext{
-        sprints, newDateRange, numTopTags};
-    sprint_timer::ui::DailyStatisticsGraphPresenter sut{
-        workScheduleHandlerMock, mediator, statisticsContext};
-    std::promise<sprint_timer::use_cases::WorkScheduleQuery::result_t> p;
-    p.set_value(schedule);
-    EXPECT_CALL(workScheduleHandlerMock, handleAwaitImpl(_))
-        .WillOnce(Return(::testing::ByMove(p.get_future())));
-    sut.attachView(viewMock);
-
-    std::promise<sprint_timer::use_cases::WorkScheduleQuery::result_t> ot;
-    ot.set_value(schedule);
-    EXPECT_CALL(workScheduleHandlerMock, handleAwaitImpl(_))
-        .WillOnce(Return(::testing::ByMove(ot.get_future())));
-
-    sut.onSharedDataChanged();
-}

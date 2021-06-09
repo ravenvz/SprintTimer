@@ -27,6 +27,7 @@
 #include "qt_gui/presentation/DateRangeChangeListener.h"
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
+#include <optional>
 
 namespace sprint_timer::ui {
 
@@ -51,10 +52,11 @@ private:
     std::reference_wrapper<op_range_query_t> handler;
     std::reference_wrapper<DateRangeChangeListener> dateRangeChangeListener;
     dw::Weekday firstDayOfWeek;
+    std::optional<op_range_query_t::result_t> data;
+
+    void fetchDataImpl() override;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

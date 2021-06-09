@@ -42,6 +42,4 @@ void TaskSprintsPresenter::updateViewImpl()
     }
 }
 
-void TaskSprintsPresenter::onViewAttached() { updateView(); }
-
 } // namespace sprint_timer::ui

@@ -51,8 +51,6 @@ private:
 
     void updateViewImpl() override;
 
-    void onViewAttached() override;
-
     void updateLegend(const Distribution<double>& distribution) const;
 
     void updateBars(const Distribution<double>& distribution) const;

@@ -27,8 +27,8 @@
 namespace sprint_timer::storage::qt_storage {
 
 QtOperationalRangeReader::QtOperationalRangeReader(
-    const QString& connectionName_)
-    : connectionName{connectionName_}
+    QString connectionName_)
+    : connectionName{std::move(connectionName_)}
 {
 }
 

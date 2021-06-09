@@ -32,10 +32,16 @@ typename use_cases::FinishedTasksQuery::result_t
 CacheAwareQueryHandler<use_cases::FinishedTasksQuery>::handle(
     use_cases::FinishedTasksQuery&& query)
 {
-    if (!cachedResult ||
-        (cachedQuery && (query.dateRange != cachedQuery->dateRange))) {
-        cachedQuery = query;
-        cachedResult = wrapped->handle(std::move(query));
+    {
+        std::lock_guard lock{mtx};
+        if (!cachedResult ||
+            (cachedQuery && (query.dateRange != cachedQuery->dateRange))) {
+            cachedQuery = query;
+            cachedResult = wrapped->handle(std::move(query));
+        }
+        else {
+            std::cout << "Cache hit!" << std::endl;
+        }
     }
     return *cachedResult;
 }

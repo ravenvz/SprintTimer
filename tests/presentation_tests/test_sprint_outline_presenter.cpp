@@ -54,7 +54,7 @@ public:
 TEST_F(TodaySprintsPresenterFixture, updates_view_with_sprints)
 {
     const auto sprints = makeSomeSprints();
-    ON_CALL(requestSprintsHandler, handle(_)).WillByDefault(Return(sprints));
+    given_handler_returns(requestSprintsHandler, sprints);
 
     EXPECT_CALL(viewMock, displaySprints(sprints));
 

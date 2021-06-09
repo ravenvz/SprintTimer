@@ -45,8 +45,6 @@ private:
     const StatisticsContext& statisticsContext;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 struct SprintDaytimeDistribution {

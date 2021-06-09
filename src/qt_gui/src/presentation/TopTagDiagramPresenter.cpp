@@ -78,8 +78,6 @@ void TopTagDiagramPresenter::onTagIndexSelected(size_t index)
 
 void TopTagDiagramPresenter::onSharedDataChanged() { updateView(); }
 
-void TopTagDiagramPresenter::onViewAttached() { updateView(); }
-
 void TopTagDiagramPresenter::updateViewImpl()
 {
     if (auto v = view(); v && statisticsContext.currentRange()) {

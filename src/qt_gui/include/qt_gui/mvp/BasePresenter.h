@@ -39,7 +39,12 @@ public:
         std::cout << "No view is attached; updating aborted" << std::endl;
     }
 
-    void fetchData() override { fetchDataImpl(); }
+    void fetchData() override
+    {
+        if (maybeView) {
+            fetchDataImpl();
+        }
+    }
 
     void attachView(ViewT& view)
     {
@@ -70,7 +75,11 @@ private:
 
     virtual void beforeViewAttached() { }
 
-    virtual void onViewAttached() { }
+    virtual void onViewAttached()
+    {
+        fetchData();
+        updateView();
+    }
 
     virtual void beforeViewDetached() { }
 

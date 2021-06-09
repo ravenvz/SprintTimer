@@ -80,8 +80,6 @@ void BestWorkdayPresenter::updateViewImpl()
     updateBars(distribution);
 }
 
-void BestWorkdayPresenter::onViewAttached() { updateView(); }
-
 void BestWorkdayPresenter::updateLegend(
     const Distribution<double>& distribution) const
 {

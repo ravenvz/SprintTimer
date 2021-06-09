@@ -22,16 +22,16 @@
 #ifndef QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3
 #define QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3
 
+#include "core/IConfig.h"
 #include "core/SprintDistributionReader.h"
 #include <QDate>
 #include <QSqlQuery>
-#include "core/IConfig.h"
 
 namespace sprint_timer::storage::qt_storage {
 
 class DistributionReaderBase : public SprintDistributionReader {
 public:
-    DistributionReaderBase(size_t distributionSize);
+    DistributionReaderBase(QString connectionName, size_t distributionSize);
 
     DistributionReaderBase(DistributionReaderBase&&) = delete;
     DistributionReaderBase& operator=(DistributionReaderBase&&) = delete;
@@ -43,6 +43,7 @@ public:
     sprintDistribution(const dw::DateRange& dateRange) override;
 
 protected:
+    QString connectionName;
     QSqlQuery rangeQuery;
 
     virtual QDate nextExpectedDate(const QDate& referenceDate) const = 0;
@@ -62,8 +63,7 @@ private:
 
 class QtSprintDailyDistributionReader : public DistributionReaderBase {
 public:
-    QtSprintDailyDistributionReader(const QString& connectionName_,
-                                    size_t numBins);
+    QtSprintDailyDistributionReader(QString connectionName, size_t numBins);
 
 private:
     QDate nextExpectedDate(const QDate& referenceDate) const override;
@@ -71,8 +71,7 @@ private:
 
 class QtSprintDistReaderMondayFirst : public DistributionReaderBase {
 public:
-    QtSprintDistReaderMondayFirst(const QString& connectionName_,
-                                  size_t numBins);
+    QtSprintDistReaderMondayFirst(QString connectionName, size_t numBins);
 
 private:
     QDate nextExpectedDate(const QDate& referenceDate) const override;
@@ -85,8 +84,7 @@ private:
 
 class QtSprintDistReaderSundayFirst : public DistributionReaderBase {
 public:
-    QtSprintDistReaderSundayFirst(const QString& connectionName_,
-                                  size_t numBins);
+    QtSprintDistReaderSundayFirst(QString connectionName, size_t numBins);
 
 private:
     QDate nextExpectedDate(const QDate& referenceDate) const override;
@@ -99,8 +97,7 @@ private:
 
 class QtSprintMonthlyDistributionReader : public DistributionReaderBase {
 public:
-    QtSprintMonthlyDistributionReader(const QString& connectionName_,
-                                      size_t numBins);
+    QtSprintMonthlyDistributionReader(QString connectionName, size_t numBins);
 
 private:
     QDate nextExpectedDate(const QDate& referenceDate) const override;

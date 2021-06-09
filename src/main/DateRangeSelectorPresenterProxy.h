@@ -72,6 +72,8 @@ private:
         }
     }
 
+    void fetchDataImpl() override { presenter.fetchData(); }
+
     void onViewAttached() override { presenter.attachView(*view().value()); }
 
     void beforeViewDetached() override

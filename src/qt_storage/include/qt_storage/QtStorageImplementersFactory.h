@@ -22,8 +22,8 @@
 #ifndef QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC
 #define QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC
 
-#include <QString>
 #include "core/IStorageImplementersFactory.h"
+#include <QString>
 
 namespace sprint_timer::storage::qt_storage {
 

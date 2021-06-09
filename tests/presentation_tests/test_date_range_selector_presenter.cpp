@@ -63,8 +63,8 @@ public:
 TEST_F(DateRangeSelectorPresenterFixture,
        initializes_view_when_view_is_attached)
 {
-    ON_CALL(requestOperationalRangeHandlerMock, handle(_))
-        .WillByDefault(Return(someDateRange));
+    mocks::given_handler_returns(requestOperationalRangeHandlerMock,
+                                 someDateRange);
     const std::vector<int> expected{
         1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003};
 
@@ -76,8 +76,8 @@ TEST_F(DateRangeSelectorPresenterFixture,
 
 TEST_F(DateRangeSelectorPresenterFixture, updates_operational_range)
 {
-    ON_CALL(requestOperationalRangeHandlerMock, handle(_))
-        .WillByDefault(Return(someDateRange));
+    mocks::given_handler_returns(requestOperationalRangeHandlerMock,
+                                 someDateRange);
     const std::vector<int> expected{
         1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003};
     sut.attachView(view);
@@ -97,8 +97,8 @@ TEST_F(DateRangeSelectorPresenterFixture,
 
 TEST_F(DateRangeSelectorPresenterFixture, sets_first_day_of_week_for_view)
 {
-    ON_CALL(requestOperationalRangeHandlerMock, handle(_))
-        .WillByDefault(Return(someDateRange));
+    mocks::given_handler_returns(requestOperationalRangeHandlerMock,
+                                 someDateRange);
     sut.attachView(view);
 
     EXPECT_CALL(view, setFirstDayOfWeek(dw::Weekday::Monday));

@@ -31,6 +31,7 @@
 #include "core/use_cases/request_tasks/ActiveTasksQuery.h"
 #include "core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h"
 #include "qt_gui/presentation/TaskContract.h"
+#include <optional>
 
 namespace sprint_timer::ui {
 
@@ -67,11 +68,11 @@ private:
     delete_task_hdl_t& deleteTaskHandler;
     toggle_task_completion_hdl_t& toggleFinishedHandler;
     change_priority_hdl_t& changePriorityHandler;
-    std::vector<use_cases::TaskDTO> tasks;
+    std::optional<active_tasks_hdl_t::result_t> data;
+
+    void fetchDataImpl() override;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

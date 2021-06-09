@@ -30,7 +30,7 @@ namespace sprint_timer::storage::qt_storage {
 
 class QtTaskStorageReader : public TaskStorageReader {
 public:
-    explicit QtTaskStorageReader(const QString& connectionName);
+    explicit QtTaskStorageReader(QString connectionName);
 
     std::vector<entities::Task> unfinishedTasks() final;
 
@@ -44,7 +44,7 @@ public:
     std::vector<entities::Task> findByUuid(const std::string& uuid) final;
 
 private:
-    const QString& connectionName;
+    QString connectionName;
     QSqlQuery finishedTasksQuery;
     QSqlQuery allTasksQuery;
     QSqlQuery tagsQuery;

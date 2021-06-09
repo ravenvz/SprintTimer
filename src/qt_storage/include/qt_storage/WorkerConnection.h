@@ -24,18 +24,13 @@
 
 #include "qt_storage/ConnectionGuard.h"
 #include "qt_storage/QueryError.h"
-#include <QObject>
-#include <QSqlDatabase>
 #include <QString>
-#include <QtSql>
 
 namespace sprint_timer::storage::qt_storage {
 
 class WorkerConnection {
 public:
-    explicit WorkerConnection(const QString& filename);
-
-    explicit WorkerConnection(const std::string& filename);
+    WorkerConnection(QString filename, QString connectionName);
 
     ~WorkerConnection() = default;
 
@@ -48,9 +43,9 @@ public:
     QString connectionName() const;
 
 private:
-    const QString filename;
-    const QString connName{"SyncConnection"};
-    qt_storage::ConnectionGuard connection{filename, connName};
+    QString filename;
+    QString connName;
+    qt_storage::ConnectionGuard connection;
 
     void setPragmas();
 };

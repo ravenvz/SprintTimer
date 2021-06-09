@@ -61,9 +61,12 @@ void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
                                         int32_t count,
                                         int32_t destinationRow)
 {
-    std::vector<std::string> oldOrder(tasks.size());
-    std::transform(cbegin(tasks),
-                   cend(tasks),
+    if (!data) {
+        return;
+    }
+    std::vector<std::string> oldOrder(data->size());
+    std::transform(cbegin(*data),
+                   cend(*data),
                    begin(oldOrder),
                    [](const auto& elem) { return elem.uuid; });
 
@@ -79,14 +82,16 @@ void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
         std::move(oldOrder), std::move(newOrder)});
 }
 
-void ActiveTasksPresenter::updateViewImpl()
+void ActiveTasksPresenter::fetchDataImpl()
 {
-    if (auto v = view(); v) {
-        tasks = activeTasksHandler.handle(use_cases::ActiveTasksQuery{});
-        v.value()->displayTasks(tasks);
-    }
+    data = activeTasksHandler.handle(use_cases::ActiveTasksQuery{});
 }
 
-void ActiveTasksPresenter::onViewAttached() { updateView(); }
+void ActiveTasksPresenter::updateViewImpl()
+{
+    if (auto v = view(); v && data) {
+        v.value()->displayTasks(*data);
+    }
+}
 
 } // namespace sprint_timer::ui

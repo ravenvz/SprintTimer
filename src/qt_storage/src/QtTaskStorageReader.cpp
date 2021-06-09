@@ -56,8 +56,8 @@ QVariant columnData(const QSqlRecord& record, Column column);
 
 namespace sprint_timer::storage::qt_storage {
 
-QtTaskStorageReader::QtTaskStorageReader(const QString& connectionName_)
-    : connectionName{connectionName_}
+QtTaskStorageReader::QtTaskStorageReader(QString connectionName_)
+    : connectionName{std::move(connectionName_)}
 {
     finishedTasksQuery =
         tryPrepare(connectionName,

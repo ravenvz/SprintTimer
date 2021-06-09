@@ -30,7 +30,7 @@ namespace sprint_timer::storage::qt_storage {
 
 class QtTaskStorageWriter : public TaskStorageWriter {
 public:
-    explicit QtTaskStorageWriter(const QString& connectionName);
+    explicit QtTaskStorageWriter(QString connectionName);
 
     QtTaskStorageWriter(QtTaskStorageWriter&&) = delete;
     QtTaskStorageWriter& operator=(QtTaskStorageWriter&&) = delete;
