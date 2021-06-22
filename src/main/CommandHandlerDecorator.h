@@ -30,7 +30,7 @@ namespace sprint_timer::compose {
 
 template <typename CommandT>
 std::unique_ptr<CommandHandler<CommandT>>
-decorate(std::unique_ptr<CommandHandler<CommandT>> wrapped, std::ostream& os)
+decorate_com_handler(std::unique_ptr<CommandHandler<CommandT>> wrapped, std::ostream& os)
 {
     return std::make_unique<sprint_timer::VerboseCommandHandler<CommandT>>(
         std::move(wrapped), os);
@@ -40,7 +40,7 @@ decorate(std::unique_ptr<CommandHandler<CommandT>> wrapped, std::ostream& os)
 
 template <typename CommandT>
 std::unique_ptr<sprint_timer::CommandHandler<CommandT>>
-decorate(std::unique_ptr<sprint_timer::CommandHandler<CommandT>> wrapped,
+decorate_com_handler(std::unique_ptr<sprint_timer::CommandHandler<CommandT>> wrapped,
          ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator)
 {
     return std::make_unique<CacheAwareCommandHandler<CommandT>>(

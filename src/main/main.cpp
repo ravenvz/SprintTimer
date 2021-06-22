@@ -452,75 +452,75 @@ int main(int argc, char* argv[])
             cacheInvalidationMediator),
         outputStream);
 
-    auto deleteSprintHandler = compose::decorate<DeleteSprintCommand>(
-        compose::decorate<DeleteSprintCommand>(
+    auto deleteSprintHandler = compose::decorate_com_handler<DeleteSprintCommand>(
+        compose::decorate_com_handler<DeleteSprintCommand>(
             std::make_unique<DeleteSprintHandler>(*sprintStorage,
                                                   actionInvoker),
             cacheInvalidationMediator),
         outputStream);
-    auto renameTagHandler = compose::decorate<RenameTagCommand>(
-        compose::decorate<RenameTagCommand>(
+    auto renameTagHandler = compose::decorate_com_handler<RenameTagCommand>(
+        compose::decorate_com_handler<RenameTagCommand>(
             std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker),
             cacheInvalidationMediator),
         outputStream);
     auto changePriorityHandler =
-        compose::decorate<ChangeActiveTasksPriorityCommand>(
-            compose::decorate<ChangeActiveTasksPriorityCommand>(
+        compose::decorate_com_handler<ChangeActiveTasksPriorityCommand>(
+            compose::decorate_com_handler<ChangeActiveTasksPriorityCommand>(
                 std::make_unique<ChangeActiveTasksPriorityHandler>(
                     *taskStorage, actionInvoker),
                 cacheInvalidationMediator),
             outputStream);
-    auto createTaskHandler = compose::decorate<CreateTaskCommand>(
-        compose::decorate<CreateTaskCommand>(
+    auto createTaskHandler = compose::decorate_com_handler<CreateTaskCommand>(
+        compose::decorate_com_handler<CreateTaskCommand>(
             std::make_unique<CreateTaskHandler>(*taskStorage, actionInvoker),
             cacheInvalidationMediator),
         outputStream);
-    auto deleteTaskHandler = compose::decorate<DeleteTaskCommand>(
-        compose::decorate<DeleteTaskCommand>(
+    auto deleteTaskHandler = compose::decorate_com_handler<DeleteTaskCommand>(
+        compose::decorate_com_handler<DeleteTaskCommand>(
             std::make_unique<DeleteTaskHandler>(
                 *sprintStorage, *taskStorage, actionInvoker),
             cacheInvalidationMediator),
         outputStream);
     auto toggleCompletionHandler =
-        compose::decorate<ToggleTaskCompletedCommand>(
-            compose::decorate<ToggleTaskCompletedCommand>(
+        compose::decorate_com_handler<ToggleTaskCompletedCommand>(
+            compose::decorate_com_handler<ToggleTaskCompletedCommand>(
                 std::make_unique<ToggleTaskCompletedHandler>(*taskStorage,
                                                              actionInvoker),
                 cacheInvalidationMediator),
             outputStream);
-    auto editTaskHandler = compose::decorate<EditTaskCommand>(
-        compose::decorate<EditTaskCommand>(
+    auto editTaskHandler = compose::decorate_com_handler<EditTaskCommand>(
+        compose::decorate_com_handler<EditTaskCommand>(
             std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker),
             cacheInvalidationMediator),
         outputStream);
-    auto registerSprintHandler = compose::decorate<RegisterSprintCommand>(
-        compose::decorate<RegisterSprintCommand>(
+    auto registerSprintHandler = compose::decorate_com_handler<RegisterSprintCommand>(
+        compose::decorate_com_handler<RegisterSprintCommand>(
             std::make_unique<RegisterSprintHandler>(*sprintStorage,
                                                     actionInvoker),
             cacheInvalidationMediator),
         outputStream);
     auto registerSprintBulkHandler =
-        compose::decorate<RegisterSprintBulkCommand>(
-            compose::decorate<RegisterSprintBulkCommand>(
+        compose::decorate_com_handler<RegisterSprintBulkCommand>(
+            compose::decorate_com_handler<RegisterSprintBulkCommand>(
                 std::make_unique<RegisterSprintBulkHandler>(*sprintStorage,
                                                             actionInvoker),
                 cacheInvalidationMediator),
             outputStream);
     auto changeWorkScheduleHandler =
-        compose::decorate<ChangeWorkScheduleCommand>(
-            compose::decorate<ChangeWorkScheduleCommand>(
+        compose::decorate_com_handler<ChangeWorkScheduleCommand>(
+            compose::decorate_com_handler<ChangeWorkScheduleCommand>(
                 std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
                                                             actionInvoker),
                 cacheInvalidationMediator),
             outputStream);
 
-    auto startTimerHandler = compose::decorate<StartTimer>(
+    auto startTimerHandler = compose::decorate_com_handler<StartTimer>(
         std::make_unique<StartTimerHandler>(workflow), outputStream);
 
-    auto cancelTimerHandler = compose::decorate<CancelTimer>(
+    auto cancelTimerHandler = compose::decorate_com_handler<CancelTimer>(
         std::make_unique<CancelTimerHandler>(workflow), outputStream);
 
-    auto toggleZoneHandler = compose::decorate<ToggleZoneMode>(
+    auto toggleZoneHandler = compose::decorate_com_handler<ToggleZoneMode>(
         std::make_unique<ToggleZoneModeHandler>(workflow), outputStream);
 
     ui::TagEditorPresenter tagEditorPresenter{*allTagsHandler,
@@ -696,12 +696,12 @@ int main(int argc, char* argv[])
     external_io::RuntimeConfigurableDataExporter<TaskDTO> taskDataExporter{
         taskSerializer, runtimeSinkRouter};
     // Does not use synchronizing overload as it doesn't mutate eternal state
-    auto exportSprintsHandler = compose::decorate<ExportSprintsCommand>(
+    auto exportSprintsHandler = compose::decorate_com_handler<ExportSprintsCommand>(
         std::make_unique<ExportSprintsHandler>(*historyRequestSprintsHandler,
                                                sprintDataExporter),
         outputStream);
     // Does not use synchronizing overload as it doesn't mutate eternal state
-    auto exportTasksHandler = compose::decorate<ExportTasksCommand>(
+    auto exportTasksHandler = compose::decorate_com_handler<ExportTasksCommand>(
         std::make_unique<ExportTasksHandler>(*finishedTasksHandler,
                                              taskDataExporter),
         outputStream);
