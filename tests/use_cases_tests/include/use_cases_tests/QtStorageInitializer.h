@@ -52,11 +52,27 @@ private:
         factory.taskStorage()};
     std::unique_ptr<sprint_timer::SprintStorage> sprintStorage{
         factory.sprintStorage()};
+    std::unique_ptr<sprint_timer::OperationalRangeReader>
+        operationalRangeReader{factory.operationalRangeReader()};
     sprint_timer::ObservableActionInvoker actionInvoker;
     sprint_timer::compose::TestCommandHandlerComposer commandHandlerComp{
         actionInvoker, *taskStorage, *sprintStorage};
+    std::unique_ptr<sprint_timer::SprintDistributionReader> dailyDistReader{
+        factory.dailyDistReader(30)};
+    std::unique_ptr<sprint_timer::SprintDistributionReader>
+        mondayFirstDistReader{factory.weeklyDistReader(dw::Weekday::Monday)};
+    std::unique_ptr<sprint_timer::SprintDistributionReader>
+        sundayFirstDistReader{factory.weeklyDistReader(dw::Weekday::Sunday)};
+    std::unique_ptr<sprint_timer::SprintDistributionReader> monthlyDistReader{
+        factory.monthlyDistReader()};
     sprint_timer::compose::TestQueryHandlerComposer queryHandlerComp{
-        *taskStorage, *sprintStorage};
+        *taskStorage,
+        *sprintStorage,
+        *operationalRangeReader,
+        *dailyDistReader,
+        *mondayFirstDistReader,
+        *sundayFirstDistReader,
+        *monthlyDistReader};
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */

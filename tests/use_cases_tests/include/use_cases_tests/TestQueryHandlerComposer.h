@@ -22,8 +22,12 @@
 #ifndef TESTQUERYHANDLERCOMPOSER_H_UAVBEGPJ
 #define TESTQUERYHANDLERCOMPOSER_H_UAVBEGPJ
 
+#include "core/OperationalRangeReader.h"
+#include "core/SprintDistributionReader.h"
 #include "core/SprintStorage.h"
 #include "core/TaskStorage.h"
+#include "core/use_cases/request_op_range/OperationalRangeHandler.h"
+#include "core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h"
 #include "core/use_cases/request_sprints/RequestSprintsHandler.h"
 #include "core/use_cases/request_sprints/SprintsForTaskHandler.h"
 #include "core/use_cases/request_tags/AllTagsHandler.h"
@@ -34,13 +38,24 @@
 namespace sprint_timer::compose {
 
 struct TestQueryHandlerComposer : public QueryHandlerComposer {
-    TestQueryHandlerComposer(TaskStorage& taskStorage_,
-                             SprintStorage& sprintStorage_)
+    TestQueryHandlerComposer(
+        TaskStorage& taskStorage_,
+        SprintStorage& sprintStorage_,
+        OperationalRangeReader& operationRangeReader_,
+        SprintDistributionReader& dailyDistReader_,
+        SprintDistributionReader& mondayFirstWeeklyDistReader_,
+        SprintDistributionReader& sundayFirstWeeklyDistReader_,
+        SprintDistributionReader& monthlyDistReader_)
         : activeTasks{taskStorage_}
         , allTags{taskStorage_}
         , requestSprints{sprintStorage_}
         , finishedTasks{taskStorage_}
         , sprintsForTask{sprintStorage_}
+        , operationalRange{operationRangeReader_}
+        , dailyDistribution{dailyDistReader_}
+        , mondayFirstWeeklyDistribution{mondayFirstWeeklyDistReader_}
+        , sundayFirstWeeklyDistribution{sundayFirstWeeklyDistReader_}
+        , monthlyDistribution{monthlyDistReader_}
     {
     }
 
@@ -71,12 +86,44 @@ struct TestQueryHandlerComposer : public QueryHandlerComposer {
         return sprintsForTask;
     }
 
+    QueryHandler<use_cases::OperationalRangeQuery>&
+    operationalRangeHandler() override
+    {
+        return operationalRange;
+    }
+
+    QueryHandler<use_cases::RequestSprintDistributionQuery>&
+    dailyDistHandler() override
+    {
+        return dailyDistribution;
+    }
+
+    QueryHandler<use_cases::RequestSprintDistributionQuery>&
+    weeklyDistHandler(dw::Weekday firstDayOfWeek) override
+    {
+        if (firstDayOfWeek == dw::Weekday::Monday) {
+            return mondayFirstWeeklyDistribution;
+        }
+        return sundayFirstWeeklyDistribution;
+    }
+
+    QueryHandler<use_cases::RequestSprintDistributionQuery>&
+    monthlyDistHandler() override
+    {
+        return monthlyDistribution;
+    }
+
 private:
     use_cases::ActiveTasksHandler activeTasks;
     use_cases::AllTagsHandler allTags;
     use_cases::RequestSprintsHandler requestSprints;
     use_cases::FinishedTasksHandler finishedTasks;
     use_cases::SprintsForTaskHandler sprintsForTask;
+    use_cases::OperationalRangeHandler operationalRange;
+    use_cases::RequestSprintDistributionHandler dailyDistribution;
+    use_cases::RequestSprintDistributionHandler mondayFirstWeeklyDistribution;
+    use_cases::RequestSprintDistributionHandler sundayFirstWeeklyDistribution;
+    use_cases::RequestSprintDistributionHandler monthlyDistribution;
 };
 
 } // namespace sprint_timer::compose

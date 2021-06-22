@@ -46,7 +46,7 @@ public:
         queryComposer.activeTasksHandler()};
 };
 
-TEST_F(RequestingSprintsFixture, test_name)
+TEST_F(RequestingSprintsFixture, requesting_sprints_in_given_date_range)
 {
     using ::testing::Truly;
     createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 17});

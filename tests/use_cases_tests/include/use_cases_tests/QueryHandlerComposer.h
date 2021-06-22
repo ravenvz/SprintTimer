@@ -23,6 +23,8 @@
 #define QUERYHANDLERCOMPOSER_H_TUJS0ZHX
 
 #include "core/QueryHandler.h"
+#include "core/use_cases/request_op_range/OperationalRangeQuery.h"
+#include "core/use_cases/request_sprint_distribution/RequestSprintDistributionQuery.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
 #include "core/use_cases/request_tags/AllTagsQuery.h"
@@ -46,6 +48,18 @@ struct QueryHandlerComposer {
 
     virtual QueryHandler<use_cases::SprintsForTaskQuery>&
     sprintsForTaskHandler() = 0;
+
+    virtual QueryHandler<use_cases::OperationalRangeQuery>&
+    operationalRangeHandler() = 0;
+
+    virtual QueryHandler<use_cases::RequestSprintDistributionQuery>&
+    dailyDistHandler() = 0;
+
+    virtual QueryHandler<use_cases::RequestSprintDistributionQuery>&
+    weeklyDistHandler(dw::Weekday firstDayOfWeek) = 0;
+
+    virtual QueryHandler<use_cases::RequestSprintDistributionQuery>&
+    monthlyDistHandler() = 0;
 };
 
 } // namespace sprint_timer::compose
