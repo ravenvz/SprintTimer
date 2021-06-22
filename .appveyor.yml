@@ -12,7 +12,7 @@ environment:
 image:
     - Ubuntu2004
     - Visual Studio 2019
-    - macOS
+    - macos
 
 shallow_clone: true              # only last commit without history
 
@@ -41,9 +41,9 @@ matrix:
           COMPILER: g++
         - image: Ubuntu2004
           COMPILER: msvc2019
-        - image: macOS
+        - image: macos
           COMPILER: g++
-        - image: macOS
+        - image: macos
           COMPILER: msvc2019
 
 for:
