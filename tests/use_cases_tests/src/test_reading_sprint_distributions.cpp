@@ -52,16 +52,16 @@ public:
         queryComposer.monthlyDistHandler()};
 };
 
-TEST_F(ReadingSprintDistributionsFixture, reads_sprint_daily_distribution)
-{
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", {"Tag1", "Tag2"}, 28});
-    const auto taskUuid =
-        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
-    std::vector<dw::DateRange> sprintRanges;
-    const DateTime someDate{Date{Year{2018}, Month{12}, Day{2}}};
-    const DateRange range{(someDate - Days{29}).date(), someDate.date()};
-
-    // Out of range
-    std::generate_n(std::back_inserter(sprintRanges), 2, []() {});
-}
+// TEST_F(ReadingSprintDistributionsFixture, reads_sprint_daily_distribution)
+// {
+//     createTaskHandler.handle(
+//         CreateTaskCommand{"Some task", {"Tag1", "Tag2"}, 28});
+//     const auto taskUuid =
+//         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+//     std::vector<dw::DateRange> sprintRanges;
+//     const DateTime someDate{Date{Year{2018}, Month{12}, Day{2}}};
+//     const DateRange range{(someDate - Days{29}).date(), someDate.date()};
+//
+//     // Out of range
+//     std::generate_n(std::back_inserter(sprintRanges), 2, []() {});
+// }
