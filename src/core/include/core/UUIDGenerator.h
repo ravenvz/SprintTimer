@@ -19,38 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef UUIDGENERATOR_H_H65TNJ7C
+#define UUIDGENERATOR_H_H65TNJ7C
 
-#ifndef TASKBUILDER_H_GSWUA7WV
-#define TASKBUILDER_H_GSWUA7WV
-
-#include "core/entities/Task.h"
-#include <optional>
+#include <string>
 
 namespace sprint_timer {
 
-class TaskBuilder {
+class UUIDGenerator {
 public:
-    entities::Task build();
-    TaskBuilder& withName(std::string name);
-    TaskBuilder& withEstimatedCost(int cost);
-    TaskBuilder& withActualCost(int cost);
-    TaskBuilder& withUuid(std::string uuid);
-    TaskBuilder& withTag(std::string tag);
-    TaskBuilder& withTag(entities::Tag tag);
-    TaskBuilder& withLastModificationStamp(dw::DateTime timeStamp);
-    TaskBuilder& withExplicitTags(std::list<entities::Tag> tags);
-    TaskBuilder& withCompletionStatus(bool completed);
+    virtual std::string generateUUID() = 0;
 
-private:
-    std::string mName;
-    int mEstimatedCost{1};
-    int mActualCost{0};
-    std::optional<std::string> mUuid;
-    std::optional<dw::DateTime> mLastModified;
-    std::list<entities::Tag> mTags;
-    bool mCompletionStatus{false};
+    virtual ~UUIDGenerator() = default;
 };
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: TASKBUILDER_H_GSWUA7WV */
+#endif /* end of include guard: UUIDGENERATOR_H_H65TNJ7C */

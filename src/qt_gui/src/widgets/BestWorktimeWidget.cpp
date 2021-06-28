@@ -23,11 +23,8 @@
 #include "qt_gui/widgets/TimeDiagram.h"
 #include <QGridLayout>
 #include <QLabel>
-#include "core/SprintStatistics.h"
 
 namespace sprint_timer::ui::qt_gui {
-
-using namespace entities;
 
 BestWorktimeWidget::BestWorktimeWidget(QWidget* parent_)
     : QWidget{parent_}

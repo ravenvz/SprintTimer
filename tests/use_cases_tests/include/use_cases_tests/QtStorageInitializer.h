@@ -22,6 +22,7 @@
 #ifndef QTSTORAGEINITIALIZER_H_WR5MUUAC
 #define QTSTORAGEINITIALIZER_H_WR5MUUAC
 
+#include "common_utils/FakeUuidGenerator.h"
 #include "core/ObservableActionInvoker.h"
 #include "qt_storage/DatabaseInitializer.h"
 #include "qt_storage/QtStorageImplementersFactory.h"
@@ -55,8 +56,9 @@ private:
     std::unique_ptr<sprint_timer::OperationalRangeReader>
         operationalRangeReader{factory.operationalRangeReader()};
     sprint_timer::ObservableActionInvoker actionInvoker;
+    FakeUuidGenerator uuidGenerator;
     sprint_timer::compose::TestCommandHandlerComposer commandHandlerComp{
-        actionInvoker, *taskStorage, *sprintStorage};
+        actionInvoker, *taskStorage, *sprintStorage, uuidGenerator};
     std::unique_ptr<sprint_timer::SprintDistributionReader> dailyDistReader{
         factory.dailyDistReader(30)};
     std::unique_ptr<sprint_timer::SprintDistributionReader>

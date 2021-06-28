@@ -73,4 +73,3 @@ TEST_F(CreatingTasksFixture, creates_task)
     EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
                 ::testing::ElementsAre("Tag1", "Tag2"));
 }
-

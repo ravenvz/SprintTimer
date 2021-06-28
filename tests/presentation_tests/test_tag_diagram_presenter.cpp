@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/SprintBuilder.h"
+#include "common_utils/FakeUuidGenerator.h"
 #include "mocks/StatisticsColleagueMock.h"
 #include "qt_gui/presentation/TopTagDiagramPresenter.h"
 #include "gtest/gtest.h"
@@ -54,14 +54,27 @@ sprint_timer::ui::StatisticsContext buildFewSprintsContextFixture()
     dw::DateTimeRange someTimeSpan{dw::current_date_time(),
                                    dw::current_date_time()};
     const size_t numTopTags{7};
-    std::vector<Sprint> sprints;
-    SprintBuilder builder;
-    builder.withTaskUuid("123").withTimeSpan(someTimeSpan);
-    sprints.push_back(builder.withExplicitTags({Tag{"Tag1"}}).build());
-    sprints.push_back(builder.withExplicitTags({Tag{"Tag1"}}).build());
-    sprints.push_back(builder.withExplicitTags({Tag{"Tag2"}}).build());
-    return ui::StatisticsContext{
-        use_cases::makeDTOs(sprints), someDateRange, numTopTags};
+    const std::string taskUuid{"123"};
+    const std::string taskName{"Some task"};
+    FakeUuidGenerator generator;
+    std::vector<SprintDTO> sprints{
+        SprintDTO{generator.generateUUID(),
+                  taskUuid,
+                  taskName,
+                  {"Tag1"},
+                  someTimeSpan},
+        SprintDTO{generator.generateUUID(),
+                  taskUuid,
+                  taskName,
+                  {"Tag1"},
+                  someTimeSpan},
+        SprintDTO{generator.generateUUID(),
+                  taskUuid,
+                  taskName,
+                  {"Tag2"},
+                  someTimeSpan},
+    };
+    return ui::StatisticsContext{sprints, someDateRange, numTopTags};
 }
 
 sprint_timer::ui::StatisticsContext
@@ -72,27 +85,88 @@ buildLargerSprintsContextFixture(size_t numTopTags)
     dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
     dw::DateTimeRange someTimeSpan{dw::current_date_time(),
                                    dw::current_date_time()};
-    std::vector<Sprint> sprints;
-    SprintBuilder builder;
-    auto append_n = [&sprints](const auto& sprint, size_t times) {
-        for (size_t i = 0; i < times; ++i) {
-            sprints.push_back(sprint);
-        }
-    };
-    builder.withTaskUuid("123").withTimeSpan(someTimeSpan);
-    append_n(builder.withExplicitTags({Tag{"Tag1"}}).build(), 11);
-    append_n(builder.withExplicitTags({Tag{"Tag2"}}).build(), 10);
-    append_n(builder.withExplicitTags({Tag{"Tag3"}}).build(), 9);
-    append_n(builder.withExplicitTags({Tag{"Tag4"}}).build(), 8);
-    append_n(builder.withExplicitTags({Tag{"Tag5"}}).build(), 7);
-    append_n(builder.withExplicitTags({Tag{"Tag6"}}).build(), 6);
-    append_n(builder.withExplicitTags({Tag{"Tag7"}}).build(), 5);
-    append_n(builder.withExplicitTags({Tag{"Tag8"}}).build(), 4);
-    append_n(builder.withExplicitTags({Tag{"Tag9"}}).build(), 3);
-    append_n(builder.withExplicitTags({Tag{"Tag10"}}).build(), 2);
-    append_n(builder.withExplicitTags({Tag{"Tag11"}}).build(), 1);
-    return ui::StatisticsContext{
-        use_cases::makeDTOs(sprints), someDateRange, numTopTags};
+    std::vector<SprintDTO> sprints;
+    const std::string taskUuid{"123"};
+    const std::string taskName{"Some name"};
+    FakeUuidGenerator generator;
+    std::generate_n(std::back_inserter(sprints), 11, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag1"},
+                         someTimeSpan};
+    });
+    std::generate_n(std::back_inserter(sprints), 10, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag2"},
+                         someTimeSpan};
+    });
+    std::generate_n(std::back_inserter(sprints), 9, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag3"},
+                         someTimeSpan};
+    });
+    std::generate_n(std::back_inserter(sprints), 8, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag4"},
+                         someTimeSpan};
+    });
+    std::generate_n(std::back_inserter(sprints), 7, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag5"},
+                         someTimeSpan};
+    });
+    std::generate_n(std::back_inserter(sprints), 6, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag6"},
+                         someTimeSpan};
+    });
+    std::generate_n(std::back_inserter(sprints), 5, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag7"},
+                         someTimeSpan};
+    });
+    std::generate_n(std::back_inserter(sprints), 4, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag8"},
+                         someTimeSpan};
+    });
+    std::generate_n(std::back_inserter(sprints), 3, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag9"},
+                         someTimeSpan};
+    });
+    std::generate_n(std::back_inserter(sprints), 2, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag10"},
+                         someTimeSpan};
+    });
+    std::generate_n(std::back_inserter(sprints), 1, [&]() {
+        return SprintDTO{generator.generateUUID(),
+                         taskUuid,
+                         taskName,
+                         {"Tag11"},
+                         someTimeSpan};
+    });
+    return ui::StatisticsContext{sprints, someDateRange, numTopTags};
 }
 
 } // namespace
@@ -224,7 +298,6 @@ TEST_F(TagDiagramPresenterFixture, cycles_through_colors)
 TEST_F(TagDiagramPresenterFixture,
        requeries_handler_when_shared_data_is_changed)
 {
-    using sprint_timer::SprintBuilder;
     using sprint_timer::entities::Sprint;
     using sprint_timer::entities::Tag;
     using ::testing::Truly;

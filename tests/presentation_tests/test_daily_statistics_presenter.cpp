@@ -19,14 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/SprintBuilder.h"
+#include "common_utils/FakeUuidGenerator.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/StatisticsColleagueMock.h"
 #include "qt_gui/presentation/DailyStatisticsGraphPresenter.h"
 #include <string_view>
 
-using sprint_timer::entities::Sprint;
 using sprint_timer::ui::DailyStatisticsGraphPresenter;
 using sprint_timer::ui::StatisticsContext;
 using sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphData;
@@ -134,33 +133,48 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const WrappedType& type)
 
 } // namespace sprint_timer::ui::contracts::DailyStatisticGraphContract
 
-std::vector<Sprint> buildSprintsFixture()
+std::vector<sprint_timer::use_cases::SprintDTO> buildSomeSprints()
 {
     using namespace std::chrono_literals;
     using namespace dw;
-    std::vector<Sprint> sprints;
+    using sprint_timer::use_cases::SprintDTO;
+    FakeUuidGenerator generator;
+    std::vector<SprintDTO> sprints;
     auto append_n = [&sprints](const auto& sprint, size_t times) {
         for (size_t i = 0; i < times; ++i) {
             sprints.push_back(sprint);
         }
     };
-    sprint_timer::SprintBuilder builder;
-    builder.withTaskUuid("123");
-    DateTime dateTime{Date{Year{2020}, Month{2}, Day{1}}};
-    builder.withTimeSpan(DateTimeRange{dateTime, dateTime});
-    append_n(builder.build(), 2);
-    builder.withTimeSpan(DateTimeRange{dateTime + Days{1}, dateTime + Days{1}});
-    append_n(builder.build(), 12);
-    builder.withTimeSpan(DateTimeRange{dateTime + Days{2}, dateTime + Days{2}});
-    append_n(builder.build(), 15);
-    builder.withTimeSpan(DateTimeRange{dateTime + Days{4}, dateTime + Days{4}});
-    append_n(builder.build(), 10);
-    return sprints;
-}
+    const DateTime dateTime{Date{Year{2020}, Month{2}, Day{1}}};
+    const DateTimeRange dateTimeRange{dateTime, dateTime};
+    const std::string taskUuid{"123"};
 
-std::vector<sprint_timer::use_cases::SprintDTO> buildSomeSprints()
-{
-    return sprint_timer::use_cases::makeDTOs(buildSprintsFixture());
+    append_n(SprintDTO{generator.generateUUID(),
+                       taskUuid,
+                       "",
+                       std::vector<std::string>{},
+                       dateTimeRange},
+             2);
+    append_n(SprintDTO{generator.generateUUID(),
+                       taskUuid,
+                       "",
+                       std::vector<std::string>{},
+                       add_offset(dateTimeRange, Days{1})},
+             12);
+    append_n(SprintDTO{generator.generateUUID(),
+                       taskUuid,
+                       "",
+                       std::vector<std::string>{},
+                       add_offset(dateTimeRange, Days{2})},
+             15);
+    append_n(SprintDTO{generator.generateUUID(),
+                       taskUuid,
+                       "",
+                       std::vector<std::string>{},
+                       add_offset(dateTimeRange, Days{4})},
+             10);
+
+    return sprints;
 }
 
 class DailyStatisticsViewMock

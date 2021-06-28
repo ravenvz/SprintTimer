@@ -19,35 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef BESTWORKDAYWIDGET_H
-#define BESTWORKDAYWIDGET_H
+#include "common_utils/FakeUuidGenerator.h"
 
-#include "qt_gui/presentation/BestWorkdayContract.h"
-#include "qt_gui/widgets/BarChart.h"
-#include <QtWidgets/QWidget>
-#include "core/Distribution.h"
-#include <memory>
-
-class QLabel;
-
-namespace sprint_timer::ui::qt_gui {
-
-class BestWorkdayWidget : public QWidget, public contracts::BestWorkday::View {
-public:
-    explicit BestWorkdayWidget(QWidget* parent = nullptr);
-
-private:
-    QLabel* labelBestWorkdayName;
-    QLabel* labelBestWorkdayMsg;
-    BarChart* workdayBarChart;
-    // std::unique_ptr<Ui::BestWorkdayWidget> ui;
-
-    void displayBars(const contracts::BestWorkday::View::BarD& data) override;
-
-    void displayLegend(
-        const contracts::BestWorkday::View::LegendData& data) override;
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-#endif // BESTWORKDAYWIDGET_H
+std::string FakeUuidGenerator::generateUUID()
+{
+    return std::to_string(fakeId++);
+}

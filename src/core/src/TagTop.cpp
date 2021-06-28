@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "core/TagTop.h"
-#include "core/SprintStatistics.h"
 #include <numeric>
 
 namespace sprint_timer {

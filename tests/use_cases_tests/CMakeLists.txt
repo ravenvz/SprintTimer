@@ -44,9 +44,8 @@ target_link_libraries(
     PRIVATE
         sprint_timer_options
         sprint_timer_warnings
-        ${CORE_LIB}
+        common_utils
         ${STORAGE_LIB}
-        gmock_main
 )
 
 gtest_discover_tests(test_use_cases WORKING_DIRECTORY ${TEST_RUN_DIR})

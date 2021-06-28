@@ -60,8 +60,9 @@ std::vector<SprintDTO> makeDTOs(const std::vector<entities::Sprint>& sprints)
 
 std::vector<entities::Sprint> fromDTOs(const std::vector<SprintDTO>& dtos)
 {
-    std::vector<entities::Sprint> res(dtos.size());
-    fromDTOs(cbegin(dtos), cend(dtos), begin(res));
+    std::vector<entities::Sprint> res;
+    res.reserve(dtos.size());
+    fromDTOs(cbegin(dtos), cend(dtos), std::back_inserter(res));
     return res;
 }
 

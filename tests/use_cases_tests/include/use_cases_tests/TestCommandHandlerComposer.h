@@ -40,10 +40,11 @@ namespace sprint_timer::compose {
 struct TestCommandHandlerComposer : public CommandHandlerComposer {
     TestCommandHandlerComposer(ActionInvoker& actionInvoker_,
                                TaskStorage& taskStorage_,
-                               SprintStorage& sprintStorage_)
+                               SprintStorage& sprintStorage_,
+                               UUIDGenerator& generator_)
         : createTask{taskStorage_, actionInvoker_}
         , deleteTask{sprintStorage_, taskStorage_, actionInvoker_}
-        , registerSprintBulk{sprintStorage_, actionInvoker_}
+        , registerSprintBulk{sprintStorage_, actionInvoker_, generator_}
         , toggleTaskCompleted{taskStorage_, actionInvoker_}
         , deleteSprint{sprintStorage_, actionInvoker_}
         , editTask{taskStorage_, actionInvoker_}

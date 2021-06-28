@@ -29,7 +29,7 @@
 namespace sprint_timer::use_cases {
 
 struct RequestSprintDistributionQuery : public Query<std::vector<int>> {
-    explicit RequestSprintDistributionQuery(dw::DateRange&& dateRange);
+    explicit RequestSprintDistributionQuery(dw::DateRange dateRange);
 
     dw::DateRange dateRange;
 };

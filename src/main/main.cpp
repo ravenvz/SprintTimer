@@ -75,6 +75,7 @@
 #include "WorkScheduleEditorLifestyleProxy.h"
 #include "WorkScheduleEditorPresenterProxy.h"
 #include "WorkflowProxy.h"
+#include "core/BoostUUIDGenerator.h"
 #include "core/ComputeByDayStrategy.h"
 #include "core/ComputeByMonthStrategy.h"
 #include "core/ComputeByWeekStrategy.h"
@@ -339,6 +340,8 @@ int main(int argc, char* argv[])
 
     riften::Thiefpool threadPool{6};
 
+    BoostUUIDGenerator uuidGenerator;
+
     compose::ThreadConnectionHelper threadConnectionHelper{dataDirectory +
                                                            "/test_sprint.db"};
     compose::SQliteStorageFactory storageFactory{threadConnectionHelper,
@@ -452,12 +455,13 @@ int main(int argc, char* argv[])
             cacheInvalidationMediator),
         outputStream);
 
-    auto deleteSprintHandler = compose::decorate_com_handler<DeleteSprintCommand>(
+    auto deleteSprintHandler =
         compose::decorate_com_handler<DeleteSprintCommand>(
-            std::make_unique<DeleteSprintHandler>(*sprintStorage,
-                                                  actionInvoker),
-            cacheInvalidationMediator),
-        outputStream);
+            compose::decorate_com_handler<DeleteSprintCommand>(
+                std::make_unique<DeleteSprintHandler>(*sprintStorage,
+                                                      actionInvoker),
+                cacheInvalidationMediator),
+            outputStream);
     auto renameTagHandler = compose::decorate_com_handler<RenameTagCommand>(
         compose::decorate_com_handler<RenameTagCommand>(
             std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker),
@@ -493,17 +497,18 @@ int main(int argc, char* argv[])
             std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker),
             cacheInvalidationMediator),
         outputStream);
-    auto registerSprintHandler = compose::decorate_com_handler<RegisterSprintCommand>(
+    auto registerSprintHandler =
         compose::decorate_com_handler<RegisterSprintCommand>(
-            std::make_unique<RegisterSprintHandler>(*sprintStorage,
-                                                    actionInvoker),
-            cacheInvalidationMediator),
-        outputStream);
+            compose::decorate_com_handler<RegisterSprintCommand>(
+                std::make_unique<RegisterSprintHandler>(*sprintStorage,
+                                                        actionInvoker),
+                cacheInvalidationMediator),
+            outputStream);
     auto registerSprintBulkHandler =
         compose::decorate_com_handler<RegisterSprintBulkCommand>(
             compose::decorate_com_handler<RegisterSprintBulkCommand>(
-                std::make_unique<RegisterSprintBulkHandler>(*sprintStorage,
-                                                            actionInvoker),
+                std::make_unique<RegisterSprintBulkHandler>(
+                    *sprintStorage, actionInvoker, uuidGenerator),
                 cacheInvalidationMediator),
             outputStream);
     auto changeWorkScheduleHandler =
@@ -696,10 +701,11 @@ int main(int argc, char* argv[])
     external_io::RuntimeConfigurableDataExporter<TaskDTO> taskDataExporter{
         taskSerializer, runtimeSinkRouter};
     // Does not use synchronizing overload as it doesn't mutate eternal state
-    auto exportSprintsHandler = compose::decorate_com_handler<ExportSprintsCommand>(
-        std::make_unique<ExportSprintsHandler>(*historyRequestSprintsHandler,
-                                               sprintDataExporter),
-        outputStream);
+    auto exportSprintsHandler =
+        compose::decorate_com_handler<ExportSprintsCommand>(
+            std::make_unique<ExportSprintsHandler>(
+                *historyRequestSprintsHandler, sprintDataExporter),
+            outputStream);
     // Does not use synchronizing overload as it doesn't mutate eternal state
     auto exportTasksHandler = compose::decorate_com_handler<ExportTasksCommand>(
         std::make_unique<ExportTasksHandler>(*finishedTasksHandler,
