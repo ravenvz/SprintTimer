@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/SprintBuilder.h"
+#include "common_utils/FakeUuidGenerator.h"
 #include "core/SprintStatistics.h"
 #include "core/TagTop.h"
 #include "gtest/gtest.h"
@@ -56,7 +56,10 @@ TEST(WeekdayStatistics, returns_distribution)
 {
     using namespace dw;
     std::vector<Sprint> increasingSprints;
-    SprintBuilder sprintBuilder = SprintBuilder{}.withTaskUuid("irrelevant");
+    const std::string taskUuid{"123"};
+    const std::string taskName{"Some task name"};
+    const std::list<Tag> tags{Tag{"Tag1"}, Tag{"Tag2"}};
+    FakeUuidGenerator generator;
     // (2015, 6, 1) is Monday, so each weekday occures exactly twice
     // in 14-day timeSpan
     const DateRange dateRange{Date{Year{2015}, Month{6}, Day{1}},
@@ -65,10 +68,12 @@ TEST(WeekdayStatistics, returns_distribution)
         for (unsigned j = 0; j < i; ++j) {
             const DateTime sprintDateTime =
                 DateTime{Date{Year{2015}, Month{6}, Day{i}}};
-            increasingSprints.push_back(
-                sprintBuilder
-                    .withTimeSpan(DateTimeRange{sprintDateTime, sprintDateTime})
-                    .build());
+            increasingSprints.emplace_back(
+                taskName,
+                DateTimeRange{sprintDateTime, sprintDateTime},
+                tags,
+                generator.generateUUID(),
+                taskUuid);
         }
     }
     const double expected_average = 7.5;
@@ -103,12 +108,19 @@ TEST(WorkingHoursStatistics, returns_distribution)
     using namespace dw;
     const DateTime start{DateTime{Date{Year{2015}, Month{6}, Day{2}}}};
     std::vector<Sprint> sprints;
-    SprintBuilder builder = SprintBuilder{}.withTaskUuid("");
-    for (int i = 0; i < 30; ++i) {
-        DateTimeRange sprintTimespan{start + std::chrono::hours{i},
-                                     start + std::chrono::minutes(i * 60 + 25)};
-        sprints.push_back(builder.withTimeSpan(sprintTimespan).build());
-    }
+    const std::string taskUuid{"123"};
+    const std::string taskName{"Some task name"};
+    const std::list<Tag> tags{Tag{"Tag1"}, Tag{"Tag2"}};
+    FakeUuidGenerator generator;
+    std::generate_n(std::back_inserter(sprints), 30, [&, i = -1]() mutable {
+        ++i;
+        return Sprint{taskName,
+                      DateTimeRange{start + std::chrono::hours{i},
+                                    start + std::chrono::minutes{i * 60 + 25}},
+                      tags,
+                      generator.generateUUID(),
+                      taskUuid};
+    });
     const std::vector<double> expectedDistribution{7, 7, 4, 4, 4, 4};
     const double expectedAverage{5.0};
     const double expectedMax{7};
@@ -145,14 +157,20 @@ TEST(DailyStatistics, returns_distribution)
     std::vector<Sprint> sprints;
     std::vector<double> expected(48, 0);
     const DateTime sprintStart = current_date_time();
-    SprintBuilder sprintBuilder;
-    sprintBuilder.withTaskUuid("");
+    const std::string taskUuid{"123"};
+    const std::string taskName{"Some task name"};
+    const std::list<Tag> tags{Tag{"Tag1"}, Tag{"Tag2"}};
+    FakeUuidGenerator generator;
+
     for (size_t i = 0; i < 48; ++i) {
         for (size_t j = 0; j < i + 1; ++j) {
             const DateTime sprintDateTime = sprintStart + dw::Days{i};
             const DateTimeRange sprintTimeSpan{sprintDateTime, sprintDateTime};
-            sprints.push_back(
-                sprintBuilder.withTimeSpan(sprintTimeSpan).build());
+            sprints.emplace_back(taskName,
+                                 sprintTimeSpan,
+                                 tags,
+                                 generator.generateUUID(),
+                                 taskUuid);
             expected[i]++;
         }
     }
@@ -176,16 +194,18 @@ TEST(DailyStatistics, ignores_sprints_outside_time_range)
     const DateRange dateRange{Date{Year{2018}, Month{6}, Day{26}},
                               Date{Year{2018}, Month{6}, Day{28}}};
     const DateTime start{DateTime{dateRange.start()}};
-    auto sprintBuilder = SprintBuilder{}.withTaskUuid("");
     const auto startTime = start - Days{1};
     std::vector<Sprint> sprints;
-    for (int i = 0; i < 5; ++i) {
-        sprints.push_back(
-            sprintBuilder
-                .withTimeSpan(DateTimeRange{startTime + dw::Days{i},
-                                            startTime + dw::Days{i} + 25min})
-                .build());
-    }
+    const std::string taskUuid{"123"};
+    const std::string taskName{"Some task name"};
+    const std::list<Tag> tags{Tag{"Tag1"}, Tag{"Tag2"}};
+    FakeUuidGenerator generator;
+    std::generate_n(std::back_inserter(sprints), 5, [&, i = -1]() mutable {
+        ++i;
+        return Sprint{
+            taskName,
+            DateTimeRange{startTime + Days{i}, startTime + Days{i} + 25min}};
+    });
     const std::vector<double> expectedDailyDistribution{1, 1, 1};
 
     const auto distribution = dailyStatistics(sprints, dateRange);
@@ -199,16 +219,18 @@ TEST(WeekdayStatistics, ignores_sprints_outside_time_range)
     const DateRange dateRange{Date{Year{2018}, Month{6}, Day{26}},
                               Date{Year{2018}, Month{6}, Day{28}}};
     const DateTime start{DateTime{dateRange.start()}};
-    auto sprintBuilder = SprintBuilder{}.withTaskUuid("");
     const auto startTime = start - Days{1};
     std::vector<Sprint> sprints;
-    for (int i = 0; i < 5; ++i) {
-        sprints.push_back(
-            sprintBuilder
-                .withTimeSpan(DateTimeRange{startTime + dw::Days{i},
-                                            startTime + dw::Days{i} + 25min})
-                .build());
-    }
+    const std::string taskUuid{"123"};
+    const std::string taskName{"Some task name"};
+    const std::list<Tag> tags{Tag{"Tag1"}, Tag{"Tag2"}};
+    FakeUuidGenerator generator;
+    std::generate_n(std::back_inserter(sprints), 5, [&, i = -1]() mutable {
+        ++i;
+        return Sprint{
+            taskName,
+            DateTimeRange{startTime + Days{i}, startTime + Days{i} + 25min}};
+    });
     const std::vector<double> expectedWeekdayDistribution{0, 1, 1, 1, 0, 0, 0};
 
     const auto distribution = weekdayStatistics(sprints, dateRange);
@@ -219,23 +241,31 @@ TEST(WeekdayStatistics, ignores_sprints_outside_time_range)
 
 class TagTopFixture : public ::testing::Test {
 public:
-    void push_n(std::vector<Sprint>& sprints, const Sprint& sprint, size_t n)
-    {
-        for (size_t i = 0; i < n; ++i)
-            sprints.push_back(sprint);
-    }
     const DateTimeRange defaultTimespan{dw::current_date_time() - 25min,
                                         dw::current_date_time()};
+    const std::string taskUuid{"123"};
+    const std::string taskName{"Some task name"};
+    FakeUuidGenerator generator;
 };
 
 TEST_F(TagTopFixture,
        getting_sprints_or_tag_name_throws_exception_when_position_is_invalid)
 {
     std::vector<Sprint> sprints;
-    SprintBuilder sprintBuilder;
-    sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
-    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
-    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
+    std::generate_n(std::back_inserter(sprints), 4, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag1"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 49, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag2"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
 
     TagTop tagTop{sprints, 3};
 
@@ -247,10 +277,20 @@ TEST_F(TagTopFixture,
 TEST_F(TagTopFixture, does_not_reduce_frequency_vector_when_all_tags_fit)
 {
     std::vector<Sprint> sprints;
-    SprintBuilder sprintBuilder;
-    sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
-    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
-    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
+    std::generate_n(std::back_inserter(sprints), 4, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag1"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 49, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag2"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
     std::vector<TagTop::TagFrequency> expected{{Tag{"Tag2"}, double(49) / 53},
                                                {Tag{"Tag1"}, double(4) / 53}};
 
@@ -265,10 +305,20 @@ TEST_F(TagTopFixture,
        does_not_reduce_slice_vector_when_has_less_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
-    SprintBuilder sprintBuilder;
-    sprintBuilder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
-    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
-    push_n(sprints, sprintBuilder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
+    std::generate_n(std::back_inserter(sprints), 4, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag1"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 49, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag2"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
     std::vector<TagTop::TagFrequency> expected;
     expected.push_back(std::make_pair(Tag{"Tag2"}, double(49) / 53));
     expected.push_back(std::make_pair(Tag{"Tag1"}, double(4) / 53));
@@ -285,19 +335,55 @@ TEST_F(TagTopFixture,
 TEST_F(TagTopFixture, distributes_sprints_to_tags_ignoring_non_tagged)
 {
     std::vector<Sprint> sprints;
-    SprintBuilder builder;
-    builder.withTaskUuid("1234").withTimeSpan(defaultTimespan);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
-    push_n(sprints,
-           builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(),
-           1);
-    push_n(sprints,
-           builder.withExplicitTags({Tag{"C++"}, Tag{"Tag4"}}).build(),
-           10);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag4"}}).build(), 25);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag5"}}).build(), 4);
-    push_n(sprints, builder.withExplicitTags({}).build(), 100);
+    std::generate_n(std::back_inserter(sprints), 4, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag1"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 49, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag2"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 1, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag1"}, Tag{"Tag2"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 10, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"C++"}, Tag{"Tag4"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 25, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag4"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 4, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag5"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 100, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      std::list<Tag>{},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
     std::vector<TagTop::TagFrequency> expected{
         std::make_pair(Tag{"Tag2"}, double(50) / 104),
         std::make_pair(Tag{"Tag4"}, double(35) / 104),
@@ -323,19 +409,48 @@ TEST_F(TagTopFixture, distributes_sprints_to_tags_ignoring_non_tagged)
 TEST_F(TagTopFixture, reduces_slice_vector_tail_when_has_more_tags_than_allowed)
 {
     std::vector<Sprint> sprints;
-    SprintBuilder builder;
-    builder.withTaskUuid("1234");
-    builder.withTimeSpan(defaultTimespan);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag1"}}).build(), 4);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag2"}}).build(), 49);
-    push_n(sprints,
-           builder.withExplicitTags({Tag{"Tag2"}, Tag{"Tag1"}}).build(),
-           1);
-    push_n(sprints,
-           builder.withExplicitTags({Tag{"Tag3"}, Tag{"Tag4"}}).build(),
-           10);
-    push_n(sprints, builder.withExplicitTags({Tag{"Tag4"}}).build(), 25);
-    push_n(sprints, builder.withExplicitTags({}).build(), 100);
+    std::generate_n(std::back_inserter(sprints), 4, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag1"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 49, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag2"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 1, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag2"}, Tag{"Tag1"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 10, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag3"}, Tag{"Tag4"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 25, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      {Tag{"Tag4"}},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
+    std::generate_n(std::back_inserter(sprints), 100, [&]() {
+        return Sprint{taskName,
+                      defaultTimespan,
+                      std::list<Tag>{},
+                      generator.generateUUID(),
+                      taskUuid};
+    });
     std::vector<TagTop::TagFrequency> expected{
         std::make_pair(Tag{"Tag2"}, double(50) / 100),
         std::make_pair(Tag{"Tag4"}, double(35) / 100),

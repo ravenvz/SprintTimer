@@ -29,8 +29,6 @@
 #include <QFormLayout>
 #include <QSignalBlocker>
 
-#include "core/SprintBuilder.h"
-
 namespace {
 
 void shiftDate(QTimeEdit* timeEdit, const QDate& date);

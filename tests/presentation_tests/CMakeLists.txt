@@ -37,6 +37,7 @@ target_link_libraries(
     PRIVATE
         sprint_timer_options
         sprint_timer_warnings
+        common_utils
         gmock_main
         ${GUI_LIB}
 )

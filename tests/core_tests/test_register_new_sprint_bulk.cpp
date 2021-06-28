@@ -20,51 +20,46 @@
 **
 *********************************************************************************/
 
+#include "common_utils/FakeUuidGenerator.h"
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/RegisterSprintBulk.h"
 #include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
-#include <algorithm>
-#include "core/ObservableActionInvoker.h"
-#include "core/SprintBuilder.h"
-#include "core/actions/RegisterSprintBulk.h"
 
 using sprint_timer::actions::RegisterSprintBulk;
 using sprint_timer::entities::Sprint;
 using namespace dw;
 
-namespace {
-
-std::vector<sprint_timer::entities::Sprint>
-generateSomeSprints(size_t numSprints)
-{
-    using namespace sprint_timer;
-    using namespace std::chrono;
-    using namespace std::chrono_literals;
-    std::vector<entities::Sprint> sprints;
-    SprintBuilder builder;
-    const dw::DateTime start{current_date_time()};
-    int i{0};
-    auto gen = [&start, &i, &builder]() {
-        const DateTimeRange time_range{
-            add_offset(DateTimeRange{start, start + 25min}, hours{i})};
-        return builder.withTaskUuid(std::to_string(i++))
-            .withTimeSpan(time_range)
-            .build();
-    };
-    std::generate_n(std::back_inserter(sprints), numSprints, gen);
-    return sprints;
-}
-
-} // namespace
-
 class RegisterSprintBulkFixture : public ::testing::Test {
 public:
     sprint_timer::ObservableActionInvoker actionInvoker;
     mocks::SprintStorageMock sprint_storage_mock;
-    const std::vector<Sprint> sprintBulk = generateSomeSprints(5);
 };
 
 TEST_F(RegisterSprintBulkFixture, execute_and_undo)
 {
+    using namespace std::chrono_literals;
+    using sprint_timer::entities::Tag;
+
+    const std::string taskUuid{"123"};
+    const std::list<Tag> tags{Tag{"Tag1"}, Tag{"Tag2"}};
+    const DateTimeRange timeRange{current_date_time(),
+                                  current_date_time() + 25min};
+    const std::string taskName{"Some task name"};
+    FakeUuidGenerator generator;
+    std::vector<Sprint> sprintBulk{
+        Sprint{taskName,
+               add_offset(timeRange, 1h),
+               tags,
+               generator.generateUUID(),
+               taskUuid},
+        Sprint{taskName,
+               add_offset(timeRange, 3h),
+               tags,
+               generator.generateUUID(),
+               taskUuid},
+    };
+
     EXPECT_CALL(sprint_storage_mock, save(sprintBulk)).Times(1);
 
     actionInvoker.execute(

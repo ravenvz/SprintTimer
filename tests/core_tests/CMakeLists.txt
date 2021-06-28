@@ -37,7 +37,6 @@ target_sources(test_core
     "${CMAKE_CURRENT_LIST_DIR}/test_request_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_unfinished_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_work_schedule.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/test_sprint_builder.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint_statistics.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_start_timer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_stateful_timer.cpp"
@@ -61,6 +60,7 @@ target_link_libraries(
     PRIVATE
         sprint_timer_options
         sprint_timer_warnings
+        common_utils
         ${CORE_LIB}
         gmock_main
 )

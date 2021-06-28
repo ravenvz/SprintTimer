@@ -19,28 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/ActionInvoker.h"
-#include "core/CommandHandler.h"
-#include "core/SprintStorageWriter.h"
-#include "core/UUIDGenerator.h"
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#ifndef UUIDGENERATOR_H_H65TNJ7C
+#define UUIDGENERATOR_H_H65TNJ7C
 
-namespace sprint_timer::use_cases {
+#include <string>
 
-class RegisterSprintBulkHandler
-    : public CommandHandler<RegisterSprintBulkCommand> {
+namespace sprint_timer {
+
+class UUIDGenerator {
 public:
-    RegisterSprintBulkHandler(SprintStorageWriter& writer,
-                              ActionInvoker& actionInvoker,
-                              UUIDGenerator& uuidGenerator);
+    virtual std::string generateUUID() = 0;
 
-    void handle(RegisterSprintBulkCommand&& command) override;
-
-private:
-    SprintStorageWriter& writer;
-    ActionInvoker& actionInvoker;
-    UUIDGenerator& uuidGenerator;
+    virtual ~UUIDGenerator() = default;
 };
 
-} // namespace sprint_timer::use_cases
+} // namespace sprint_timer
 
+#endif /* end of include guard: UUIDGENERATOR_H_H65TNJ7C */

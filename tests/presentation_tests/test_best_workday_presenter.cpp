@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/SprintBuilder.h"
+#include "common_utils/FakeUuidGenerator.h"
 #include "mocks/StatisticsMediatorMock.h"
 #include "qt_gui/presentation/BestWorkdayContract.h"
 #include "qt_gui/presentation/BestWorkdayPresenter.h"
@@ -82,13 +82,13 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const View::BarD& data)
        << ", values: ";
     std::copy(cbegin(data.barValues),
               cend(data.barValues),
-              std::ostream_iterator<typename std::iterator_traits<decltype(
-                  cbegin(data.barValues))>::value_type>(os, ", "));
+              std::ostream_iterator<typename std::iterator_traits<
+                  decltype(cbegin(data.barValues))>::value_type>(os, ", "));
     os << " dayOrder: ";
     std::copy(cbegin(data.dayOrder),
               cend(data.dayOrder),
-              std::ostream_iterator<typename std::iterator_traits<decltype(
-                  cbegin(data.dayOrder))>::value_type>(os, ", "));
+              std::ostream_iterator<typename std::iterator_traits<
+                  decltype(cbegin(data.dayOrder))>::value_type>(os, ", "));
     os << "}";
     return os;
 }
@@ -113,13 +113,14 @@ public:
     const DateRange specificDateRange{Date{Year{2015}, Month{6}, Day{1}},
                                       Date{Year{2015}, Month{6}, Day{14}}};
     NiceMock<BestWorkdayViewMock> view;
+    FakeUuidGenerator generator;
 
-    std::vector<Sprint> buildSprintsFixture()
+    std::vector<SprintDTO> buildSomeSprints()
     {
         using namespace dw;
-        std::vector<Sprint> sprints;
-        sprint_timer::SprintBuilder builder;
-        builder.withTaskUuid("123");
+        std::vector<SprintDTO> sprints;
+        const std::string taskUuid{"123"};
+        const std::string taskName{"Some task"};
         // (2015, 6, 1) is Monday, so each weekday occures exactly twice
         // in 14-day timeSpan
         // {Date{Year{2015}, Month{6}, Day{1}},
@@ -130,18 +131,15 @@ public:
             for (unsigned j = 0; j < i; ++j) {
                 const DateTime sprintDateTime =
                     DateTime{Date{Year{2015}, Month{6}, Day{i}}};
-                sprints.push_back(builder
-                                      .withTimeSpan(DateTimeRange{
-                                          sprintDateTime, sprintDateTime})
-                                      .build());
+                sprints.push_back(
+                    SprintDTO{generator.generateUUID(),
+                              taskUuid,
+                              taskName,
+                              std::vector<std::string>{},
+                              DateTimeRange{sprintDateTime, sprintDateTime}});
             }
         }
         return sprints;
-    }
-
-    std::vector<SprintDTO> buildSomeSprints()
-    {
-        return sprint_timer::use_cases::makeDTOs(buildSprintsFixture());
     }
 };
 

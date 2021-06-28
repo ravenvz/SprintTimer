@@ -24,7 +24,7 @@
 namespace sprint_timer::use_cases {
 
 RequestSprintDistributionQuery::RequestSprintDistributionQuery(
-    dw::DateRange&& dateRange_)
+    dw::DateRange dateRange_)
     : dateRange{std::move(dateRange_)}
 {
 }

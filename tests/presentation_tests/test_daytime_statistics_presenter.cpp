@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/SprintBuilder.h"
+#include "common_utils/FakeUuidGenerator.h"
 #include "mocks/StatisticsMediatorMock.h"
 #include "qt_gui/presentation/BestWorktimeContract.h"
 #include "qt_gui/presentation/BestWorktimePresenter.h"
@@ -80,16 +80,16 @@ class DaytimeStatisticsViewMock
 public:
     using sprint_timer::ui::contracts::BestWorktimeContract::View::View;
 
-    MOCK_METHOD(void,
-                updateLegend,
-                (const sprint_timer::ui::contracts::BestWorktimeContract::
-                     LegendData&),
-                (override));
-    MOCK_METHOD(void,
-                updateDiagram,
-                (const sprint_timer::ui::contracts::BestWorktimeContract::
-                     DiagramData&),
-                (override));
+    MOCK_METHOD(
+        void,
+        updateLegend,
+        (const sprint_timer::ui::contracts::BestWorktimeContract::LegendData&),
+        (override));
+    MOCK_METHOD(
+        void,
+        updateDiagram,
+        (const sprint_timer::ui::contracts::BestWorktimeContract::DiagramData&),
+        (override));
 };
 
 class BestWorktimePresenterFixture : public ::testing::Test {
@@ -99,14 +99,15 @@ public:
     NiceMock<DaytimeStatisticsViewMock> view;
     const dw::DateRange someDateRange{dw::current_date(),
                                       dw::current_date() + dw::Days{1}};
+    FakeUuidGenerator generator;
 
-    std::vector<Sprint> buildSprintsFixture()
+    std::vector<SprintDTO> buildSomeSprints()
     {
         using namespace sprint_timer;
         using namespace std::chrono_literals;
-        std::vector<Sprint> sprints;
-        SprintBuilder builder;
-        builder.withTaskUuid("123");
+        const std::string taskUuid{"123"};
+        const std::string taskName{"Some task"};
+        const std::vector<std::string> tags;
         const dw::DateTime dateTime{dw::current_date()};
         const std::vector<dw::DateTimeRange> timeRanges{
             {dateTime + 15h, dateTime + 15h + 25min},
@@ -114,14 +115,13 @@ public:
             {dateTime + 2h, dateTime + 2h + 25min},
             {dateTime + 5h, dateTime + 5h + 25min},
             {dateTime + 3h, dateTime + 3h + 25min}};
-        for (const auto& range : timeRanges)
-            sprints.push_back(builder.withTimeSpan(range).build());
+        std::vector<SprintDTO> sprints;
+        sprints.reserve(timeRanges.size());
+        for (const auto& range : timeRanges) {
+            sprints.push_back(SprintDTO{
+                generator.generateUUID(), taskUuid, taskName, tags, range});
+        }
         return sprints;
-    }
-
-    std::vector<SprintDTO> buildSomeSprints()
-    {
-        return sprint_timer::use_cases::makeDTOs(buildSprintsFixture());
     }
 };
 
@@ -176,7 +176,7 @@ TEST_F(BestWorktimePresenterFixture, updates_legend_with_generic_data)
     sprint_timer::ui::StatisticsContext statisticsContext{
         sprints, someDateRange, numTopTags};
     sprint_timer::ui::BestWorktimePresenter sut{mediator_mock,
-                                                     statisticsContext};
+                                                statisticsContext};
 
     EXPECT_CALL(view, updateLegend(expected));
 
@@ -204,7 +204,7 @@ TEST_F(BestWorktimePresenterFixture, updates_diagram_with_generic_data)
     sprint_timer::ui::StatisticsContext statisticsContext{
         sprints, someDateRange, numTopTags};
     sprint_timer::ui::BestWorktimePresenter sut{mediator_mock,
-                                                     statisticsContext};
+                                                statisticsContext};
 
     EXPECT_CALL(view, updateDiagram(expected));
 
@@ -219,7 +219,7 @@ TEST_F(BestWorktimePresenterFixture, updates_when_shared_data_is_changed)
     sprint_timer::ui::StatisticsContext statisticsContext{
         stubSprints, newDateRange, numTopTags};
     sprint_timer::ui::BestWorktimePresenter sut{mediator_mock,
-                                                     statisticsContext};
+                                                statisticsContext};
     sut.attachView(view);
 
     EXPECT_CALL(view, updateDiagram(_));

@@ -23,7 +23,6 @@
 #define REGISTERSPRINTCONTROLPRESENTER_H_CJFOM9FV
 
 #include "core/CommandHandler.h"
-#include "core/SprintBuilder.h"
 #include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
 #include "qt_gui/presentation/RegisterSprintControl.h"
 

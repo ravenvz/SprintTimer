@@ -5,6 +5,7 @@ target_include_directories(gmock_main SYSTEM BEFORE INTERFACE
     "$<BUILD_INTERFACE:${gtest_SOURCE_DIR}/include>"
     "$<BUILD_INTERFACE:${gmock_SOURCE_DIR}/include>")
 
+add_subdirectory(common_utils)
 add_subdirectory(core_tests)
 add_subdirectory(qt_storage_tests)
 add_subdirectory(presentation_tests)
