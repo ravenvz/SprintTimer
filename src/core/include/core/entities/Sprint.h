@@ -38,20 +38,13 @@ namespace sprint_timer::entities {
 class Sprint {
 
 public:
-    Sprint(const std::string& taskName,
-           const dw::DateTimeRange& timeSpan,
-           const std::list<Tag>& tags,
-           const std::string& uuid,
-           const std::string& taskUuid);
+    Sprint(std::string taskName,
+           dw::DateTimeRange timeSpan,
+           std::list<Tag> tags,
+           std::string uuid,
+           std::string taskUuid);
 
-    Sprint(const std::string& taskName,
-           const dw::DateTimeRange& timeSpan,
-           const std::list<Tag>& tags,
-           const std::string& taskUuid);
-
-    Sprint(const std::string& taskUuid, const dw::DateTimeRange& timeSpan);
-
-    Sprint();
+    // Sprint();
 
     // Sprint name is identical to it's associated task name.
     std::string name() const;

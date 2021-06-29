@@ -38,10 +38,11 @@ RegisterSprintBulkHandler::RegisterSprintBulkHandler(
 
 void RegisterSprintBulkHandler::handle(RegisterSprintBulkCommand&& command)
 {
-    std::vector<entities::Sprint> sprints(command.intervals.size());
+    std::vector<entities::Sprint> sprints;
+    sprints.reserve(command.intervals.size());
     std::transform(cbegin(command.intervals),
                    cend(command.intervals),
-                   begin(sprints),
+                   std::back_inserter(sprints),
                    [&](const auto& interval) {
                        return entities::Sprint{"",
                                                interval,

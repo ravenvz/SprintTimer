@@ -37,7 +37,6 @@ target_sources(test_core
     "${CMAKE_CURRENT_LIST_DIR}/test_request_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_unfinished_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_request_work_schedule.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/test_sprint_statistics.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_start_timer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_stateful_timer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_store_unfinished_tasks_order.cpp"
