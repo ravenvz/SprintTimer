@@ -42,7 +42,6 @@ target_sources(test_core
     "${CMAKE_CURRENT_LIST_DIR}/test_store_unfinished_tasks_order.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_string_utils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/test_task_builder.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_toggle_zone_mode_command.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_toggle_task_completion_status.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_work_schedule.cpp"

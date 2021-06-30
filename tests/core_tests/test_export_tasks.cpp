@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/TaskBuilder.h"
 #include "core/use_cases/export_data/ExportTasksHandler.h"
 #include "core/use_cases/request_tasks/FinishedTasksQuery.h"
 #include "mocks/DataExporterMock.h"
@@ -54,8 +53,6 @@ public:
 TEST_F(ExportTasksHandlerFixture, delegates_to_exporter)
 {
     using namespace std::chrono_literals;
-    TaskBuilder builder;
-    builder.withUuid("123");
     const std::vector<TaskDTO> tasks{TaskDTO{"123",
                                              {"Tag1"},
                                              "Some task",

@@ -44,8 +44,6 @@ public:
            std::string uuid,
            std::string taskUuid);
 
-    // Sprint();
-
     // Sprint name is identical to it's associated task name.
     std::string name() const;
 

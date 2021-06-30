@@ -19,14 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/EditTask.h"
 #include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include "core/ObservableActionInvoker.h"
-#include "core/TaskBuilder.h"
-#include "core/actions/EditTask.h"
 
-using sprint_timer::TaskBuilder;
 using sprint_timer::actions::EditTask;
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
@@ -48,24 +45,23 @@ public:
 
 TEST_F(EditTaskFixture, should_only_alter_allowed_parameters)
 {
-    Task editedTask = TaskBuilder{}
-                          .withName("Edited")
-                          .withEstimatedCost(someTask.estimatedCost() + 3)
-                          .withActualCost(someTask.actualCost() + 2)
-                          .withCompletionStatus(!someTask.isCompleted())
-                          .withExplicitTags({Tag{"Tag2"}, Tag{"New Tag"}})
-                          .build();
-    Task restrictedTask =
-        TaskBuilder{}
-            .withUuid(someTask.uuid())             // Should not be editable
-            .withActualCost(someTask.actualCost()) // Should not be editable
-            .withCompletionStatus(
-                someTask.isCompleted()) // Should not be editable
-            .withName(editedTask.name())
-            .withEstimatedCost(editedTask.estimatedCost())
-            .withExplicitTags(editedTask.tags())
-            .build();
-    EXPECT_CALL(task_storage_mock, edit(someTask, restrictedTask)).Times(1);
+    const Task editedTask{"Edited",
+                          someTask.estimatedCost() + 3,
+                          someTask.actualCost() + 2,
+                          someTask.uuid(),
+                          {Tag{"Tag2"}, Tag{"NewTag"}},
+                          !someTask.isCompleted(),
+                          dw::current_date_time_local()};
+    const Task restrictedTask{
+        editedTask.name(),
+        editedTask.estimatedCost(),
+        someTask.actualCost(), // Should not be editable
+        someTask.uuid(),       // Should not be editable
+        editedTask.tags(),
+        someTask.isCompleted(),
+        dw::current_date_time_local()}; // Should not be editable
+
+    EXPECT_CALL(task_storage_mock, edit(someTask, restrictedTask));
 
     actionInvoker.execute(
         std::make_unique<EditTask>(task_storage_mock, someTask, editedTask));
@@ -73,13 +69,13 @@ TEST_F(EditTaskFixture, should_only_alter_allowed_parameters)
 
 TEST_F(EditTaskFixture, undo)
 {
-    Task editedTask = TaskBuilder{}
-                          .withUuid(someTask.uuid())
-                          .withExplicitTags({Tag{"New tag"}})
-                          .withName("Edited")
-                          .withActualCost(someTask.actualCost())
-                          .withEstimatedCost(someTask.estimatedCost() + 2)
-                          .build();
+    const Task editedTask{"Edited",
+                          someTask.estimatedCost() + 2,
+                          someTask.actualCost(),
+                          someTask.uuid(),
+                          {Tag{"NewTag"}},
+                          someTask.isCompleted(),
+                          dw::current_date_time_local()};
     EXPECT_CALL(task_storage_mock, edit(someTask, editedTask)).Times(1);
 
     actionInvoker.execute(

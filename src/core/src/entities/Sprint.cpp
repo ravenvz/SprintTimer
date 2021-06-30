@@ -42,11 +42,6 @@ Sprint::Sprint(std::string taskName,
 {
 }
 
-// Sprint::Sprint()
-//     : timeSpan_{dw::current_date_time(), dw::current_date_time()}
-// {
-// }
-
 std::string Sprint::name() const { return name_; }
 
 DateTime Sprint::startTime() const { return timeSpan_.start(); }
