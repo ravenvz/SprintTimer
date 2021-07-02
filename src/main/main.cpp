@@ -79,6 +79,7 @@
 #include "core/ComputeByDayStrategy.h"
 #include "core/ComputeByMonthStrategy.h"
 #include "core/ComputeByWeekStrategy.h"
+#include "core/DefaultDateTimeProvider.h"
 #include "core/IConfig.h"
 #include "core/ObservableActionInvoker.h"
 #include "core/RequestForDaysBack.h"
@@ -341,6 +342,7 @@ int main(int argc, char* argv[])
     riften::Thiefpool threadPool{6};
 
     BoostUUIDGenerator uuidGenerator;
+    DefaultDateTimeProvider dateTimeProvider;
 
     compose::ThreadConnectionHelper threadConnectionHelper{dataDirectory +
                                                            "/test_sprint.db"};
@@ -476,7 +478,8 @@ int main(int argc, char* argv[])
             outputStream);
     auto createTaskHandler = compose::decorate_com_handler<CreateTaskCommand>(
         compose::decorate_com_handler<CreateTaskCommand>(
-            std::make_unique<CreateTaskHandler>(*taskStorage, actionInvoker),
+            std::make_unique<CreateTaskHandler>(
+                *taskStorage, actionInvoker, uuidGenerator, dateTimeProvider),
             cacheInvalidationMediator),
         outputStream);
     auto deleteTaskHandler = compose::decorate_com_handler<DeleteTaskCommand>(

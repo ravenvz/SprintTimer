@@ -23,31 +23,9 @@
 #include "core/BoostUUIDGenerator.h"
 #include <iostream>
 
-namespace {
-
-sprint_timer::BoostUUIDGenerator uuid_generator;
-
-} // namespace
-
 namespace sprint_timer::entities {
 
 using dw::DateTime;
-
-Task::Task(std::string name,
-           int estimatedCost,
-           int actualCost,
-           std::list<Tag> tags,
-           bool completed,
-           const DateTime& lastModified)
-    : Task{std::move(name),
-           estimatedCost,
-           actualCost,
-           uuid_generator.generateUUID(),
-           std::move(tags),
-           completed,
-           lastModified}
-{
-}
 
 Task::Task(std::string name,
            int estimatedCost,
