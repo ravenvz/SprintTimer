@@ -19,34 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef CREATETASKHANDLER_H_COE3EMLV
-#define CREATETASKHANDLER_H_COE3EMLV
+#ifndef DATETIMEPROVIDER_H_ND1KPYZU
+#define DATETIMEPROVIDER_H_ND1KPYZU
 
-#include "core/ActionInvoker.h"
-#include "core/CommandHandler.h"
-#include "core/DateTimeProvider.h"
-#include "core/TaskStorageWriter.h"
-#include "core/UUIDGenerator.h"
-#include "core/use_cases/create_task/CreateTaskCommand.h"
+#include "date_wrapper/date_wrapper.h"
+namespace sprint_timer {
 
-namespace sprint_timer::use_cases {
-
-class CreateTaskHandler : public CommandHandler<CreateTaskCommand> {
+class DateTimeProvider {
 public:
-    CreateTaskHandler(TaskStorageWriter& writer,
-                      ActionInvoker& actionInvoker,
-                      UUIDGenerator& uuidGenerator,
-                      DateTimeProvider& dateTimeProvider);
+    virtual ~DateTimeProvider() = default;
 
-    void handle(CreateTaskCommand&& command) override;
+    virtual dw::Date dateNow() = 0;
 
-private:
-    TaskStorageWriter& writer;
-    ActionInvoker& actionInvoker;
-    UUIDGenerator& uuidGenerator;
-    DateTimeProvider& dateTimeProvider;
+    virtual dw::DateTime dateTimeNow() = 0;
+
+    virtual dw::Date dateLocalNow() = 0;
+
+    virtual dw::DateTime dateTimeLocalNow() = 0;
 };
 
-} // namespace sprint_timer::use_cases
+} // namespace sprint_timer
 
-#endif /* end of include guard: CREATETASKHANDLER_H_COE3EMLV */
+#endif /* end of include guard: DATETIMEPROVIDER_H_ND1KPYZU */

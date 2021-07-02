@@ -19,34 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef CREATETASKHANDLER_H_COE3EMLV
-#define CREATETASKHANDLER_H_COE3EMLV
+#ifndef DATETIMEPROVIDERMOCK_H_JFCR0B6M
+#define DATETIMEPROVIDERMOCK_H_JFCR0B6M
 
-#include "core/ActionInvoker.h"
-#include "core/CommandHandler.h"
 #include "core/DateTimeProvider.h"
-#include "core/TaskStorageWriter.h"
-#include "core/UUIDGenerator.h"
-#include "core/use_cases/create_task/CreateTaskCommand.h"
+#include "gmock/gmock.h"
 
-namespace sprint_timer::use_cases {
+namespace mocks {
 
-class CreateTaskHandler : public CommandHandler<CreateTaskCommand> {
+class DateTimeProviderMock : public sprint_timer::DateTimeProvider {
 public:
-    CreateTaskHandler(TaskStorageWriter& writer,
-                      ActionInvoker& actionInvoker,
-                      UUIDGenerator& uuidGenerator,
-                      DateTimeProvider& dateTimeProvider);
+    MOCK_METHOD(dw::Date, dateNow, (), (override));
 
-    void handle(CreateTaskCommand&& command) override;
+    MOCK_METHOD(dw::DateTime, dateTimeNow, (), (override));
 
-private:
-    TaskStorageWriter& writer;
-    ActionInvoker& actionInvoker;
-    UUIDGenerator& uuidGenerator;
-    DateTimeProvider& dateTimeProvider;
+    MOCK_METHOD(dw::Date, dateLocalNow, (), (override));
+
+    MOCK_METHOD(dw::DateTime, dateTimeLocalNow, (), (override));
 };
 
-} // namespace sprint_timer::use_cases
+} // namespace mocks
 
-#endif /* end of include guard: CREATETASKHANDLER_H_COE3EMLV */
+#endif /* end of include guard: DATETIMEPROVIDERMOCK_H_JFCR0B6M */

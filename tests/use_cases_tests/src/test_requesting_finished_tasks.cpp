@@ -19,8 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "gtest/gtest.h"
-
 #include "use_cases_tests/QtStorageInitializer.h"
 #include "use_cases_tests/matchers/MatchesTaskIgnoringUuid.h"
 #include "gmock/gmock.h"

@@ -19,34 +19,44 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef CREATETASKHANDLER_H_COE3EMLV
-#define CREATETASKHANDLER_H_COE3EMLV
+#ifndef DEFAULTDATETIMEPROVIDER_H_WN1DU3KC
+#define DEFAULTDATETIMEPROVIDER_H_WN1DU3KC
 
-#include "core/ActionInvoker.h"
-#include "core/CommandHandler.h"
 #include "core/DateTimeProvider.h"
-#include "core/TaskStorageWriter.h"
-#include "core/UUIDGenerator.h"
-#include "core/use_cases/create_task/CreateTaskCommand.h"
 
-namespace sprint_timer::use_cases {
+namespace sprint_timer {
 
-class CreateTaskHandler : public CommandHandler<CreateTaskCommand> {
+class DefaultDateTimeProvider : public DateTimeProvider {
 public:
-    CreateTaskHandler(TaskStorageWriter& writer,
-                      ActionInvoker& actionInvoker,
-                      UUIDGenerator& uuidGenerator,
-                      DateTimeProvider& dateTimeProvider);
+    dw::Date dateNow() override;
 
-    void handle(CreateTaskCommand&& command) override;
+    dw::DateTime dateTimeNow() override;
 
-private:
-    TaskStorageWriter& writer;
-    ActionInvoker& actionInvoker;
-    UUIDGenerator& uuidGenerator;
-    DateTimeProvider& dateTimeProvider;
+    dw::Date dateLocalNow() override;
+
+    dw::DateTime dateTimeLocalNow() override;
 };
 
-} // namespace sprint_timer::use_cases
+inline dw::Date DefaultDateTimeProvider::dateNow()
+{
+    return dw::current_date();
+}
 
-#endif /* end of include guard: CREATETASKHANDLER_H_COE3EMLV */
+inline dw::DateTime DefaultDateTimeProvider::dateTimeNow()
+{
+    return dw::current_date_time();
+}
+
+inline dw::Date DefaultDateTimeProvider::dateLocalNow()
+{
+    return dw::current_date_local();
+}
+
+inline dw::DateTime DefaultDateTimeProvider::dateTimeLocalNow()
+{
+    return dw::current_date_time_local();
+}
+
+} // namespace sprint_timer
+
+#endif /* end of include guard: DEFAULTDATETIMEPROVIDER_H_WN1DU3KC */

@@ -41,13 +41,6 @@ public:
     Task(std::string name,
          int estimatedCost,
          int actualCost,
-         std::list<Tag> tags,
-         bool completed,
-         const dw::DateTime& lastModified = dw::current_date_time_local());
-
-    Task(std::string name,
-         int estimatedCost,
-         int actualCost,
          std::string uuid,
          std::list<Tag> tags,
          bool completed,
