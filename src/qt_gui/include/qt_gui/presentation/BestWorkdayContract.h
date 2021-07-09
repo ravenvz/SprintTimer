@@ -38,7 +38,7 @@ public:
     struct BarD {
         std::string borderColor;
         std::string barColor;
-        std::span<const double, 7> barValues;
+        std::span<const double> barValues;
         std::span<const int, 7> dayOrder;
     };
 
