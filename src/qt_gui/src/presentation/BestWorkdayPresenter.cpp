@@ -108,7 +108,7 @@ void BestWorkdayPresenter::updateBars(
                     end(values));
         v.value()->displayBars(View::BarD{std::string{barBorderColor},
                                           std::string{barColor},
-                                          std::span<double, 7>{values.begin(), values.end()},
+                                          std::span<const double, 7>{values.cbegin(), values.cend()},
                                           firstDayOfWeek == dw::Weekday::Monday
                                               ? mondayFirstOrder
                                               : sundayFirstOrder});
