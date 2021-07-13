@@ -10,8 +10,8 @@ environment:
         - COMPILER: msvc2019
 
 image:
-    # - Ubuntu2004
-    # - Visual Studio 2019
+    - Ubuntu2004
+    - Visual Studio 2019
     - macos
 
 shallow_clone: true              # only last commit without history
@@ -170,9 +170,9 @@ for:
         #     - sh: export APPVEYOR_VNC_BLOCK=true
         #     - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
 
-        on_finish:
-          - sh: export APPVEYOR_SSH_BLOCK=true
-          - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
+        # on_finish:
+        #   - sh: export APPVEYOR_SSH_BLOCK=true
+        #   - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
 
 # Windows RDP access
 
