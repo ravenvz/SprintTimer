@@ -10,8 +10,8 @@ environment:
         - COMPILER: msvc2019
 
 image:
-    - Ubuntu2004
-    - Visual Studio 2019
+    # - Ubuntu2004
+    # - Visual Studio 2019
     - macos
 
 shallow_clone: true              # only last commit without history
@@ -166,9 +166,9 @@ for:
             - sh: (cd build && CC=clang CXX=clang++ cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/clang_64/lib/cmake")
             - sh: (cd build && cmake --build . --config ${CONFIGURATION})
 
-        # on_finish:
-        #     - sh: export APPVEYOR_VNC_BLOCK=true
-        #     - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
+        on_finish:
+            - sh: export APPVEYOR_VNC_BLOCK=true
+            - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
 
 # Windows RDP access
 
