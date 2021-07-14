@@ -103,6 +103,7 @@ for:
             - sh: sudo apt install -y libboost-dev
             - sh: sudo apt-get install -y libpulse-mainloop-glib0
             - sh: sudo apt install -y mesa-common-dev libglu1-mesa-dev
+            - sh: sudo apt install -y g++-10
             - sh: sudo apt install -y clang-11 lldb-11 lld-11
 
         clone_folder: ~/projects/sprint_timer
