@@ -7,12 +7,12 @@ environment:
     matrix:
         - COMPILER: g++
         - COMPILER: clang++
-        # - COMPILER: msvc2019
+        - COMPILER: msvc2019
 
 image:
     - Ubuntu2004
-    # - Visual Studio 2019
-    - macos
+    - Visual Studio 2019
+    - previous macos
 
 shallow_clone: true              # only last commit without history
 
@@ -113,11 +113,11 @@ for:
             - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
             - sh: mkdir build
             - sh: (cd build && CC=clang-11 CXX=clang++-11 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/gcc_64/lib/cmake")
-            - sh: (cd build && cmake --build . --config ${CONFIGURATION})
+            - sh: (cd build && cmake --build . --config ${CONFIGURATION}) -j2
 
-        on_finish:
-          - sh: export APPVEYOR_SSH_BLOCK=true
-          - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
+        # on_finish:
+        #   - sh: export APPVEYOR_SSH_BLOCK=true
+        #   - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
 
     -
         matrix:
@@ -143,7 +143,7 @@ for:
             - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
             - sh: mkdir build
             - sh: (cd build && CC=/usr/bin/gcc-10 CXX=/usr/bin/g++-10 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/gcc_64/lib/cmake")
-            - sh: (cd build && cmake --build . --config ${CONFIGURATION})
+            - sh: (cd build && cmake --build . --config ${CONFIGURATION}) -j2
 
         # on_finish:
         #   - sh: export APPVEYOR_SSH_BLOCK=true
@@ -156,8 +156,9 @@ for:
 
         install:
             - sh: brew update
-            - sh: brew install boost
             - sh: brew install gcc
+            # - sh: brew install llvm
+            - sh: brew install boost
 
         clone_folder: ~/projects/sprint_timer
 
@@ -165,9 +166,17 @@ for:
             - sh: echo ${CONFIGURATION}
             - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
             - sh: mkdir build
-            - sh: (cd build && CC=gcc CXX=g++ cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/clang_64/lib/cmake")
-            - sh: (cd build && cmake --build . --config ${CONFIGURATION})
+            - sh: (cd build && CC=/usr/local/bin/gcc-11 CXX=/usr/local/bin/g++-11 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/clang_64/lib/cmake")
+            - sh: (cd build && cmake --build . --config ${CONFIGURATION}) -j2
 
+
+        # build_script:
+        #     - sh: echo ${CONFIGURATION}
+        #     - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
+        #     - sh: mkdir build
+        #     - sh: (cd build && CC=($brew --prefix llvm)/bin/clang CXX=($brew --prefix llvm)/bin/clang++ cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/clang_64/lib/cmake")
+        #     - sh: (cd build && cmake --build . --config ${CONFIGURATION}) -j2
+        #
         # on_finish:
         #     - sh: export APPVEYOR_VNC_BLOCK=true
         #     - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
