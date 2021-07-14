@@ -113,7 +113,7 @@ for:
             - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
             - sh: mkdir build
             - sh: (cd build && CC=clang-11 CXX=clang++-11 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/gcc_64/lib/cmake")
-            - sh: (cd build && cmake --build . --config ${CONFIGURATION}) -j2
+            - sh: (cd build && cmake --build . --config ${CONFIGURATION} -j2)
 
         # on_finish:
         #   - sh: export APPVEYOR_SSH_BLOCK=true
@@ -143,7 +143,7 @@ for:
             - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
             - sh: mkdir build
             - sh: (cd build && CC=/usr/bin/gcc-10 CXX=/usr/bin/g++-10 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/gcc_64/lib/cmake")
-            - sh: (cd build && cmake --build . --config ${CONFIGURATION}) -j2
+            - sh: (cd build && cmake --build . --config ${CONFIGURATION} -j2)
 
         # on_finish:
         #   - sh: export APPVEYOR_SSH_BLOCK=true
@@ -167,7 +167,7 @@ for:
             - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
             - sh: mkdir build
             - sh: (cd build && CC=/usr/local/bin/gcc-11 CXX=/usr/local/bin/g++-11 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/clang_64/lib/cmake")
-            - sh: (cd build && cmake --build . --config ${CONFIGURATION}) -j2
+            - sh: (cd build && cmake --build . --config ${CONFIGURATION} -j2)
 
 
         # build_script:
