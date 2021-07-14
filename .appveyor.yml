@@ -42,7 +42,7 @@ matrix:
         - image: Ubuntu2004
           COMPILER: msvc2019
         - image: macos
-          COMPILER: g++
+          COMPILER: clang++
         - image: macos
           COMPILER: msvc2019
 
@@ -156,6 +156,7 @@ for:
         install:
             - sh: brew update
             - sh: brew install boost
+            - sh: brew install gcc
 
         clone_folder: ~/projects/sprint_timer
 
@@ -163,7 +164,7 @@ for:
             - sh: echo ${CONFIGURATION}
             - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
             - sh: mkdir build
-            - sh: (cd build && CC=clang CXX=clang++ cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/clang_64/lib/cmake")
+            - sh: (cd build && CC=gcc CXX=g++ cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/clang_64/lib/cmake")
             - sh: (cd build && cmake --build . --config ${CONFIGURATION})
 
         # on_finish:
