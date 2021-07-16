@@ -27,6 +27,7 @@
 #include "core/SprintStorage.h"
 #include "core/TaskStorage.h"
 #include "core/use_cases/request_op_range/OperationalRangeHandler.h"
+#include "core/use_cases/request_schedule/WorkScheduleHandler.h"
 #include "core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h"
 #include "core/use_cases/request_sprints/RequestSprintsHandler.h"
 #include "core/use_cases/request_sprints/SprintsForTaskHandler.h"
@@ -42,6 +43,7 @@ struct TestQueryHandlerComposer : public QueryHandlerComposer {
         TaskStorage& taskStorage_,
         SprintStorage& sprintStorage_,
         OperationalRangeReader& operationRangeReader_,
+        WorkScheduleReader& workScheduleReader_,
         SprintDistributionReader& dailyDistReader_,
         SprintDistributionReader& mondayFirstWeeklyDistReader_,
         SprintDistributionReader& sundayFirstWeeklyDistReader_,
@@ -56,6 +58,7 @@ struct TestQueryHandlerComposer : public QueryHandlerComposer {
         , mondayFirstWeeklyDistribution{mondayFirstWeeklyDistReader_}
         , sundayFirstWeeklyDistribution{sundayFirstWeeklyDistReader_}
         , monthlyDistribution{monthlyDistReader_}
+        , workSchedule{workScheduleReader_}
     {
     }
 
@@ -113,6 +116,11 @@ struct TestQueryHandlerComposer : public QueryHandlerComposer {
         return monthlyDistribution;
     }
 
+    QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler() override
+    {
+        return workSchedule;
+    }
+
 private:
     use_cases::ActiveTasksHandler activeTasks;
     use_cases::AllTagsHandler allTags;
@@ -124,6 +132,7 @@ private:
     use_cases::RequestSprintDistributionHandler mondayFirstWeeklyDistribution;
     use_cases::RequestSprintDistributionHandler sundayFirstWeeklyDistribution;
     use_cases::RequestSprintDistributionHandler monthlyDistribution;
+    use_cases::WorkScheduleHandler workSchedule;
 };
 
 } // namespace sprint_timer::compose

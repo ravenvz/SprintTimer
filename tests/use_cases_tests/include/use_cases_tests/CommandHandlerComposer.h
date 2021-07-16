@@ -23,6 +23,7 @@
 #define COMMANDHANDLERCOMPOSER_H_TIYTGWRO
 
 #include "core/CommandHandler.h"
+#include "core/use_cases/change_schedule/ChangeWorkScheduleCommand.h"
 #include "core/use_cases/change_tasks_priority/ChangeActiveTasksPriorityCommand.h"
 #include "core/use_cases/create_task/CreateTaskCommand.h"
 #include "core/use_cases/delete_sprint/DeleteSprintCommand.h"
@@ -58,6 +59,9 @@ struct CommandHandlerComposer {
     reorderTasksHandler() = 0;
 
     virtual CommandHandler<use_cases::RenameTagCommand>& renameTagHandler() = 0;
+
+    virtual CommandHandler<use_cases::ChangeWorkScheduleCommand>&
+    changeWorkScheduleHandler() = 0;
 };
 
 } // namespace sprint_timer::compose

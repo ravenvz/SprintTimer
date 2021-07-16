@@ -28,6 +28,7 @@ target_sources(test_use_cases
     "${CMAKE_CURRENT_LIST_DIR}/src/test_requesting_sprints_for_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_requesting_tags.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_retrieving_operation_range.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/test_retrieving_work_schedule.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_toggling_task_completion.cpp"
 )
 

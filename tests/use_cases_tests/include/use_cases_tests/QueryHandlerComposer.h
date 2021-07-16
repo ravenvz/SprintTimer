@@ -24,6 +24,7 @@
 
 #include "core/QueryHandler.h"
 #include "core/use_cases/request_op_range/OperationalRangeQuery.h"
+#include "core/use_cases/request_schedule/WorkScheduleQuery.h"
 #include "core/use_cases/request_sprint_distribution/RequestSprintDistributionQuery.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
@@ -60,6 +61,9 @@ struct QueryHandlerComposer {
 
     virtual QueryHandler<use_cases::RequestSprintDistributionQuery>&
     monthlyDistHandler() = 0;
+
+    virtual QueryHandler<use_cases::WorkScheduleQuery>&
+    workScheduleHandler() = 0;
 };
 
 } // namespace sprint_timer::compose

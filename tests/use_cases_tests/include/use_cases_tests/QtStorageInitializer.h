@@ -24,13 +24,13 @@
 
 #include "common_utils/DateTimeProviderMock.h"
 #include "common_utils/FakeUuidGenerator.h"
+#include "core/DefaultDateTimeProvider.h"
 #include "core/ObservableActionInvoker.h"
 #include "qt_storage/DatabaseInitializer.h"
 #include "qt_storage/QtStorageImplementersFactory.h"
 #include "qt_storage/WorkerConnection.h"
 #include "use_cases_tests/TestCommandHandlerComposer.h"
 #include "use_cases_tests/TestQueryHandlerComposer.h"
-#include "core/DefaultDateTimeProvider.h"
 #include <QCoreApplication>
 
 struct TestStorageInitializer {
@@ -61,10 +61,13 @@ private:
         operationalRangeReader{factory.operationalRangeReader()};
     sprint_timer::ObservableActionInvoker actionInvoker;
     FakeUuidGenerator uuidGenerator;
+    std::unique_ptr<sprint_timer::WorkScheduleStorage> workScheduleStorage{
+        factory.scheduleStorage()};
     sprint_timer::compose::TestCommandHandlerComposer commandHandlerComp{
         actionInvoker,
         *taskStorage,
         *sprintStorage,
+        *workScheduleStorage,
         uuidGenerator,
         dateTimeProvider};
     std::unique_ptr<sprint_timer::SprintDistributionReader> dailyDistReader{
@@ -79,6 +82,7 @@ private:
         *taskStorage,
         *sprintStorage,
         *operationalRangeReader,
+        *workScheduleStorage,
         *dailyDistReader,
         *mondayFirstDistReader,
         *sundayFirstDistReader,
