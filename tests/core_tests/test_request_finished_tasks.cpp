@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,28 +20,28 @@
 **
 *********************************************************************************/
 
-#include "mocks/TaskStorageReaderMock.h"
+#include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestFinishedTasks.h>
+#include "core/use_cases/request_tasks/FinishedTasksHandler.h"
+#include "core/use_cases/request_tasks/FinishedTasksQuery.h"
 
 using namespace dw;
-using sprint_timer::use_cases::RequestFinishedTasks;
 using ::testing::_;
+using sprint_timer::use_cases::FinishedTasksQuery;
+using sprint_timer::use_cases::FinishedTasksHandler;
 
-class RequestFinishedTasksFixture : public ::testing::Test {
+class FinishedTasksHandlerFixture : public ::testing::Test {
 public:
-    TaskStorageReaderMock task_reader_mock;
-    sprint_timer::QueryInvoker queryInvoker;
+    mocks::TaskStorageMock task_storage_mock;
+    FinishedTasksHandler handler{task_storage_mock};
     const DateRange someDateRange{
         add_offset({current_date(), current_date()}, Days{-1})};
 };
 
-TEST_F(RequestFinishedTasksFixture, execute)
+TEST_F(FinishedTasksHandlerFixture, execute)
 {
-    EXPECT_CALL(task_reader_mock, requestFinishedTasks(someDateRange, _))
+    EXPECT_CALL(task_storage_mock, finishedTasks(someDateRange))
         .Times(1);
 
-    queryInvoker.execute(std::make_unique<RequestFinishedTasks>(
-        task_reader_mock, someDateRange, [](const auto& result) {}));
+    handler.handle(FinishedTasksQuery{someDateRange});
 }

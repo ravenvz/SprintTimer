@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,14 +20,14 @@
 **
 *********************************************************************************/
 
-#include "mocks/TaskStorageWriterMock.h"
+#include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/CommandInvoker.h>
-#include <core/use_cases/AddNewTask.h>
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/CreateTask.h"
 
+using sprint_timer::actions::CreateTask;
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
-using sprint_timer::use_cases::AddNewTask;
 using namespace dw;
 
 class RegisterTaskFixture : public ::testing::Test {
@@ -39,18 +39,18 @@ public:
                   {Tag{"Tag1"}, Tag{"Tag2"}},
                   false,
                   DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
-    TaskStorageWriterMock task_writer_mock;
-    sprint_timer::CommandInvoker commandInvoker;
+    mocks::TaskStorageMock task_storage_mock;
+    sprint_timer::ObservableActionInvoker actionInvoker;
 };
 
 TEST_F(RegisterTaskFixture, execute_and_undo)
 {
-    EXPECT_CALL(task_writer_mock, save(someTask)).Times(1);
+    EXPECT_CALL(task_storage_mock, save(someTask)).Times(1);
 
-    commandInvoker.executeCommand(
-        std::make_unique<AddNewTask>(task_writer_mock, someTask));
+    actionInvoker.execute(
+        std::make_unique<CreateTask>(task_storage_mock, someTask));
 
-    EXPECT_CALL(task_writer_mock, remove(someTask.uuid())).Times(1);
+    EXPECT_CALL(task_storage_mock, remove(someTask.uuid())).Times(1);
 
-    commandInvoker.undo();
+    actionInvoker.undo();
 }

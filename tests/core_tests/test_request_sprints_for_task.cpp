@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,24 +20,23 @@
 **
 *********************************************************************************/
 
-#include "mocks/SprintStorageReaderMock.h"
+#include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestSprintsForTask.h>
+#include "core/use_cases/request_sprints/SprintsForTaskHandler.h"
 
-using sprint_timer::use_cases::RequestSprintsForTask;
+using sprint_timer::use_cases::SprintsForTaskHandler;
+using sprint_timer::use_cases::SprintsForTaskQuery;
 using ::testing::_;
 
 class RequestSprintsForTaskFixture : public ::testing::Test {
 public:
-    SprintStorageReaderMock sprint_reader_mock;
-    sprint_timer::QueryInvoker queryInvoker;
+    mocks::SprintStorageMock sprint_storage_mock;
+    SprintsForTaskHandler handler{sprint_storage_mock};
 };
 
 TEST_F(RequestSprintsForTaskFixture, execute)
 {
-    EXPECT_CALL(sprint_reader_mock, sprintsForTask("123", _)).Times(1);
+    EXPECT_CALL(sprint_storage_mock, findByTaskUuid("123")).Times(1);
 
-    queryInvoker.execute(std::make_unique<RequestSprintsForTask>(
-        sprint_reader_mock, "123", [](const auto& result) {}));
+    handler.handle(SprintsForTaskQuery{"123"});
 }

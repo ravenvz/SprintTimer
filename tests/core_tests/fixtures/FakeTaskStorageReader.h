@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,17 +23,17 @@
 #define FAKETASKSTORAGEREADER_H_EDPTGODR
 
 #include "FakeStorage.h"
-#include "core/ITaskStorageReader.h"
+#include "core/TaskStorageReader.h"
 #include <algorithm>
 
-class FakeTaskStorageReader : public ITaskStorageReader {
+class FakeTaskStorageReader : public TaskStorageReader {
 public:
     FakeTaskStorageReader(FakeStorage<Task>& storage)
         : storage{storage}
     {
     }
 
-    void requestUnfinishedTasks(Handler handler) final
+    void requestActiveTasks(Handler handler) final
     {
         auto tempHandler = [handler](const std::vector<Task>& allReturned) {
             std::vector<Task> unfinished;

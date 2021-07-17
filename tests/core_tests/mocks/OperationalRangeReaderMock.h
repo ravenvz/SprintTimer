@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,13 +23,15 @@
 #define OPERATIONALRANGEREADERMOCK_H_APJ2MZW1
 
 #include "gmock/gmock.h"
-#include <core/IOperationalRangeReader.h>
+#include "core/OperationalRangeReader.h"
 
-class OperationalRangeReaderMock
-    : public sprint_timer::IOperationalRangeReader {
+namespace mocks {
+
+class OperationalRangeReaderMock : public sprint_timer::OperationalRangeReader {
 public:
-    MOCK_METHOD1(requestOperationalRange,
-                 void(IOperationalRangeReader::Handler));
+    MOCK_METHOD0(operationalRange, dw::DateRange());
 };
+
+} // namespace mocks
 
 #endif /* end of include guard: OPERATIONALRANGEREADERMOCK_H_APJ2MZW1 */

@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -26,78 +26,26 @@
 using namespace sprint_timer::entities;
 using dw::DateTime;
 
-TEST(TestTask, constructs_task_from_string_description_where_all_parts_present)
-{
-    const Task item{"#Test All parts present *5"};
-
-    EXPECT_TRUE(std::list<Tag>{Tag{"Test"}} == item.tags());
-    EXPECT_EQ(std::string{"All parts present"}, item.name());
-    EXPECT_EQ(5, item.estimatedCost());
-}
-
-TEST(
-    TestTask,
-    should_set_estimated_cost_to_one_if_non_given_when_constructing_from_description)
-{
-    const Task item{"#Test Todo with tag"};
-
-    EXPECT_TRUE(std::list<Tag>{Tag{"Test"}} == item.tags());
-    EXPECT_EQ(std::string{"Todo with tag"}, item.name());
-    EXPECT_EQ(1, item.estimatedCost());
-}
-
-TEST(TestTask, constructs_from_description_with_no_tags_given)
-{
-    const Task item{"Simple todo *2"};
-
-    EXPECT_EQ(std::string{"Simple todo"}, item.name());
-    EXPECT_EQ(2, item.estimatedCost());
-    EXPECT_TRUE(item.tags().empty());
-}
-
-TEST(TestTask, construct_from_description_when_no_name_given)
-{
-    const Task item{"#Tag #Test *4"};
-    std::list<Tag> expected{Tag{"Tag"}, Tag{"Test"}};
-
-    const auto actual = item.tags();
-
-    EXPECT_TRUE(std::equal(
-        expected.cbegin(), expected.cend(), actual.cbegin(), actual.cend()));
-    EXPECT_EQ(4, item.estimatedCost());
-}
-
-TEST(TestTask,
-     should_parse_only_last_num_estimated_when_constructing_from_description)
-{
-    const Task item{"Multiple estimated *4 *9"};
-
-    EXPECT_EQ(9, item.estimatedCost());
-}
-
-TEST(TestTask, only_treats_words_preceeded_by_single_hash_as_tags)
-{
-    const Task item{
-        "##My #tag1  #   ##    beautiful,marvelous, great   content"};
-
-    EXPECT_TRUE(std::list<Tag>{Tag{"tag1"}} == item.tags());
-    EXPECT_EQ(std::string{"##My # ## beautiful,marvelous, great content"},
-              item.name());
-}
-
 TEST(TestTask, ostream_operator)
 {
+    using namespace dw;
+    using namespace std::chrono_literals;
+
+    constexpr auto modificationStamp =
+        DateTime{Date{Year{2016}, Month{9}, Day{21}}} + 12h + 59min + 19s;
     const Task item{"I am item with no tags",
                     4,
                     2,
                     "uuid",
                     std::list<Tag>(),
                     false,
-                    dw::current_date_time_local()};
+                    modificationStamp};
     const auto uuid = item.uuid();
     std::string expected{"I am item with no tags 2/4"};
     expected += " Uuid: ";
     expected += uuid;
+    expected += " ";
+    expected += "21.09.2016 12:59:19";
 
     std::stringstream ss;
     ss << item;

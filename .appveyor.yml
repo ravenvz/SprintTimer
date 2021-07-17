@@ -1,15 +1,20 @@
 version: "{build}"
 
-image: Visual Studio 2017
+environment:
 
-# init:
-#     - git config --global core.autocrlf input
+    TREAT_WARNINGS_AS_ERRORS: True
 
-clone_folder: c:\projects\sprint_timer
+    matrix:
+        - COMPILER: g++
+        - COMPILER: clang++
+        - COMPILER: msvc2019
+
+image:
+    - Ubuntu2004
+    - Visual Studio 2019
+    - macos
+
 shallow_clone: true              # only last commit without history
-
-matrix:
-    fast_finish: false           # don't stop on error in some build
 
 platform:
     - x64
@@ -18,48 +23,179 @@ configuration:
     - Debug
     - Release
 
-# environment:
-#     matrix:
-#         - TOOLCHAIN: msvc15
-
 # install:
 #     - call ci\appveyor\set-env.bat %TOOLCHAIN% %PLATFORM%
 
 build: off
 
-before_build:
-    - set QTDIR=C:\Qt\5.11\msvc2017_64
-
-build_script:
-    - mkdir build
-    - cd build
-    - cmake .. -G "Visual Studio 15 Win64" -DCMAKE_VERBOSE_MAKEFILE="OFF" -DCMAKE_PREFIX_PATH="C:/Qt/5.11/msvc2017_64/lib/cmake" -DCMAKE_INCLUDE_PATH="C:\Libraries\boost_1_67_0" -DBUILD_TESTS=ON -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_INSTALL_PREFIX="C:/sprint_timer_bin"
-    - mkdir C:\projects\sprint_timer\bin
-    - mkdir C:\projects\sprint_timer\bin\Release
-    - mkdir C:\projects\sprint_timer\bin\Debug
-    - copy %QTDIR%\bin\Qt5Core.dll c:\projects\sprint_timer\bin\Release
-    - copy %QTDIR%\bin\Qt5Cored.dll c:\projects\sprint_timer\bin\Debug
-    - copy %QTDIR%\bin\Qt5Gui.dll c:\projects\sprint_timer\bin\Release
-    - copy %QTDIR%\bin\Qt5Guid.dll c:\projects\sprint_timer\bin\Debug
-    - copy %QTDIR%\bin\Qt5Multimedia.dll c:\projects\sprint_timer\bin\Release
-    - copy %QTDIR%\bin\Qt5Multimediad.dll c:\projects\sprint_timer\bin\Debug
-    - copy %QTDIR%\bin\Qt5Network.dll c:\projects\sprint_timer\bin\Release
-    - copy %QTDIR%\bin\Qt5Networkd.dll c:\projects\sprint_timer\bin\Debug
-    - copy %QTDIR%\bin\Qt5Sql.dll c:\projects\sprint_timer\bin\Release
-    - copy %QTDIR%\bin\Qt5Sqld.dll c:\projects\sprint_timer\bin\Debug
-    - copy %QTDIR%\bin\Qt5Widgets.dll c:\projects\sprint_timer\bin\Release
-    - copy %QTDIR%\bin\Qt5Widgetsd.dll c:\projects\sprint_timer\bin\Debug
-    - cmake --build . --config %configuration%
-
 test_script:
-    - ctest
+    - sh: cd build && ctest --output-on-failure --progress
+    - cmd: ctest --output-on-failure --progress
+
+matrix:
+    exclude:
+        # Exclude invalid options
+        - image: Visual Studio 2019
+          COMPILER: clang++
+        - image: Visual Studio 2019
+          COMPILER: g++
+        - image: Ubuntu2004
+          COMPILER: msvc2019
+        - image: macos
+          COMPILER: g++
+        - image: macos
+          COMPILER: msvc2019
+        - image: macos
+          COMPILER: g++
+
+for:
+    -
+        matrix:
+          only:
+              - image: Visual Studio 2019
+
+        environment:
+            TREAT_WARNINGS_AS_ERRORS: False
+
+        clone_folder: c:\projects\sprint_timer
+
+        before_build:
+            - set QTDIR=C:\Qt\5.15\msvc2019_64
+            - set DEBUG_BIN_DIR=C:\projects\sprint_timer\build\bin\Debug
+            - set RELEASE_BIN_DIR=C:\projects\sprint_timer\build\bin\Release
+            - mkdir build
+            - mkdir %DEBUG_BIN_DIR%
+            - mkdir %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Core.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Gui.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Multimedia.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Network.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Sql.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Widgets.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\plugins\platforms\qwindows.dll %RELEASE_BIN_DIR%
+            - xcopy %QTDIR%\plugins\sqldrivers %RELEASE_BIN_DIR%\sqldrivers /i
+            - copy %QTDIR%\bin\Qt5Cored.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Guid.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Multimediad.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Networkd.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Sqld.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt5Widgetsd.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\plugins\platforms\qwindowsd.dll %DEBUG_BIN_DIR%
+            - xcopy %QTDIR%\plugins\sqldrivers %DEBUG_BIN_DIR%\sqldrivers /i
+
+        build_script:
+            - echo %CONFIGURATION%
+            - echo %TREAT_WARNINGS_AS_ERRORS%
+            - cd build
+            - cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_VERBOSE_MAKEFILE="OFF" -DCMAKE_PREFIX_PATH="C:/Qt/5.15/msvc2019_64/lib/cmake" -DCMAKE_INCLUDE_PATH="C:\Libraries\boost_1_71_0" -DWARNINGS_AS_ERRORS=%TREAT_WARNINGS_AS_ERRORS% -DENABLE_TESTING=ON -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_INSTALL_PREFIX="C:/sprint_timer_bin"
+            - cmake --build . --config %CONFIGURATION%
+
+        # on_finish:
+        #     - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+    -
+        matrix:
+          only:
+              - image: Ubuntu2004
+                COMPILER: clang++
+
+        install:
+            - sh: echo $env:CONFIGURATION
+            - sh: sudo apt update
+            - sh: sudo apt install -y libboost-dev
+            - sh: sudo apt-get install -y libpulse-mainloop-glib0
+            - sh: sudo apt install -y mesa-common-dev libglu1-mesa-dev
+            - sh: sudo apt install -y g++-10
+            - sh: sudo apt install -y clang-11 lldb-11 lld-11
+
+        clone_folder: ~/projects/sprint_timer
+
+        build_script:
+            - sh: echo ${CONFIGURATION}
+            - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
+            - sh: mkdir build
+            - sh: (cd build && CC=clang-11 CXX=clang++-11 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DENABLE_TESTING=ON -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/gcc_64/lib/cmake")
+            - sh: (cd build && cmake --build . --config ${CONFIGURATION} -j2)
+
+        # on_finish:
+        #   - sh: export APPVEYOR_SSH_BLOCK=true
+        #   - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
+
+    -
+        matrix:
+          only:
+              - image: Ubuntu2004
+                COMPILER: g++
+
+        environment:
+            TREAT_WARNINGS_AS_ERRORS: False
+
+        install:
+            - sh: echo $env:CONFIGURATION
+            - sh: sudo apt update
+            - sh: sudo apt install -y libboost-dev
+            - sh: sudo apt-get install -y libpulse-mainloop-glib0
+            - sh: sudo apt install -y mesa-common-dev libglu1-mesa-dev
+            - sh: sudo apt install -y g++-10
+
+        clone_folder: ~/projects/sprint_timer
+
+        build_script:
+            - sh: echo ${CONFIGURATION}
+            - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
+            - sh: mkdir build
+            - sh: (cd build && CC=/usr/bin/gcc-10 CXX=/usr/bin/g++-10 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DENABLE_TESTING=ON -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/gcc_64/lib/cmake")
+            - sh: (cd build && cmake --build . --config ${CONFIGURATION} -j2)
+
+        # on_finish:
+        #   - sh: export APPVEYOR_SSH_BLOCK=true
+        #   - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
+
+    -
+        matrix:
+          only:
+              - image: macos
+
+        install:
+            - sh: brew update
+            - sh: brew install gcc
+            - sh: brew install boost
+            - sh: brew install llvm
+
+        clone_folder: ~/projects/sprint_timer
+
+        # build_script:
+        #     - sh: echo ${CONFIGURATION}
+        #     - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
+        #     - sh: mkdir build
+        #     - sh: (cd build && CC=/usr/local/bin/gcc-11 CXX=/usr/local/bin/g++-11 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/clang_64/lib/cmake")
+        #     - sh: (cd build && cmake --build . --config ${CONFIGURATION} -j2)
+
+        build_script:
+            - sh: echo ${CONFIGURATION}
+            - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
+            - sh: mkdir build
+            - sh: (cd build && CC=$(brew --prefix llvm)/bin/clang CXX=$(brew --prefix llvm)/bin/clang++ cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DENABLE_TESTING=ON -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/clang_64/lib/cmake")
+            - sh: (cd build && cmake --build . --config ${CONFIGURATION} -j2)
+
+        # on_finish:
+        #     - sh: export APPVEYOR_VNC_BLOCK=true
+        #     - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
+
+        # on_finish:
+        #   - sh: export APPVEYOR_SSH_BLOCK=true
+        #   - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
+
+# Windows RDP access
+
+# Linux ssh access
 
 # artifacts:
 #     - path: <local-package-path>
 #       name: package_name
 #
 # deploy:
-#     # выкладываем tagged-коммиты на GitHub Releases:
+#     # publish tagged commits on GitHub Releases:
 #     description: '$(APPVEYOR_REPO_TAG_NAME)'
 #     provider: GitHub
 #

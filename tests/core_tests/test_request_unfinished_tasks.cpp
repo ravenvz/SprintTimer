@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,25 +20,24 @@
 **
 *********************************************************************************/
 
-#include "mocks/TaskStorageReaderMock.h"
+#include "mocks/TaskStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestUnfinishedTasks.h>
+#include "core/use_cases/request_tasks/ActiveTasksHandler.h"
+#include "core/use_cases/request_tasks/ActiveTasksQuery.h"
 
 using ::testing::_;
 
-class RequestUnfinishedTasksFixture : public ::testing::Test {
+class RequestActiveTasksFixture : public ::testing::Test {
 public:
-    TaskStorageReaderMock task_storage_reader_mock;
-    sprint_timer::QueryInvoker queryInvoker;
+    mocks::TaskStorageMock task_storage_mock;
+    sprint_timer::use_cases::ActiveTasksHandler handler{task_storage_mock};
 };
 
-TEST_F(RequestUnfinishedTasksFixture, execute)
+TEST_F(RequestActiveTasksFixture, execute)
 {
     using namespace sprint_timer::use_cases;
     using namespace sprint_timer::entities;
-    EXPECT_CALL(task_storage_reader_mock, requestUnfinishedTasks(_)).Times(1);
+    EXPECT_CALL(task_storage_mock, unfinishedTasks()).Times(1);
 
-    queryInvoker.execute(std::make_unique<RequestUnfinishedTasks>(
-        task_storage_reader_mock, [](const std::vector<Task>&) {}));
+    handler.handle(ActiveTasksQuery{});
 }

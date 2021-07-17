@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,9 +23,9 @@
 #define FAKETASKSTORAGEWRITER_H_L9TXWRHX
 
 #include "FakeStorage.h"
-#include "core/ITaskStorageWriter.h"
+#include "core/TaskStorageWriter.h"
 
-class FakeTaskStorageWriter : public sprint_timer::ITaskStorageWriter {
+class FakeTaskStorageWriter : public sprint_timer::TaskStorageWriter {
 public:
     FakeTaskStorageWriter(FakeStorage<sprint_timer::entities::Task>& storage)
         : storage{storage}

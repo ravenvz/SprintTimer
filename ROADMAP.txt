@@ -1,10 +1,21 @@
-Plans for version 0.7.0
+Next version plans
 -----------------------
 Changes for this version will be focused on reducing technical debt
 and fixing bugs rather than new features.
 
 HISTORY
 ----------------------------------------------------------------
+Version 0.6.4
+-------------
+All settings options are now applied immediately, no restart is required.
+Improved UI for adding sprints dialog.
+Fixed crash when tag editor was opened the second time.
+Fixed bug when sprints were not updated in history view.
+Fixed bug when sprints for the last day were not shown in history view.
+Fixed bug when placeholder text was shown for a short time above the timer on startup.
+Fixed rare bug when only finished tasks were shown in task view.
+Fixed issue when sprint count for previous day was shown in timer view after midnight.
+
 Version 0.6.3
 -------------
 Number of estimated sprints can now be specified for each weekday

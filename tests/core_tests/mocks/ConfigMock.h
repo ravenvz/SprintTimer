@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,8 +22,8 @@
 #ifndef CONFIGMOCK_H_OVJZ2UQN
 #define CONFIGMOCK_H_OVJZ2UQN
 
-#include <core/IConfig.h>
-#include <gmock/gmock.h>
+#include "core/IConfig.h"
+#include "gmock/gmock.h"
 
 class ConfigMock : public sprint_timer::IConfig {
 public:

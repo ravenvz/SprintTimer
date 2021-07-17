@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,11 +22,11 @@
 #ifndef FAKESPRINTDISTRIBUTIONREADER_H_UREC2M3T
 #define FAKESPRINTDISTRIBUTIONREADER_H_UREC2M3T
 
-#include "core/ISprintDistributionReader.h"
+#include "core/SprintDistributionReader.h"
 #include "FakeStorage.h"
 
 
-class FakeSprintDistributionReader : public ISprintDistributionReader {
+class FakeSprintDistributionReader : public SprintDistributionReader {
 public:
     FakeSprintDistributionReader(FakeStorage<Sprint>& storage)
         : storage{storage}

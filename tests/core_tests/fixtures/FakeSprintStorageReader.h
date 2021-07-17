@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -23,9 +23,9 @@
 #define FAKESPRINTSTORAGEREADER_H_MFYC8R5A
 
 #include "FakeStorage.h"
-#include "core/ISprintStorageReader.h"
+#include "core/SprintStorageReader.h"
 
-class FakeSprintStorageReader : public ISprintStorageReader {
+class FakeSprintStorageReader : public SprintStorageReader {
 public:
     FakeSprintStorageReader(FakeStorage<Sprint>& storage)
         : storage{storage}

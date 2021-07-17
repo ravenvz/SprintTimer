@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,22 +20,22 @@
 **
 *********************************************************************************/
 
-#include "mocks/SprintStorageWriterMock.h"
+#include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/CommandInvoker.h>
-#include <core/use_cases/RemoveSprintTransaction.h>
+#include "core/ObservableActionInvoker.h"
+#include "core/actions/DeleteSprint.h"
 
+using sprint_timer::actions::DeleteSprint;
 using sprint_timer::entities::Sprint;
 using sprint_timer::entities::Tag;
-using sprint_timer::use_cases::RemoveSprintTransaction;
 using namespace dw;
 
 using ::testing::_;
 
 class DeleteSprintFixture : public ::testing::Test {
 public:
-    sprint_timer::CommandInvoker commandInvoker;
-    SprintStorageWriterMock sprint_writer_mock;
+    sprint_timer::ObservableActionInvoker actionInvoker;
+    mocks::SprintStorageMock sprint_storage_mock;
 
     const DateTimeRange someTimeSpan{add_offset(
         DateTimeRange{current_date_time(), current_date_time()}, Days{-1})};
@@ -48,12 +48,12 @@ public:
 
 TEST_F(DeleteSprintFixture, execute_and_undo)
 {
-    EXPECT_CALL(sprint_writer_mock, remove(someSprint)).Times(1);
+    EXPECT_CALL(sprint_storage_mock, remove(someSprint)).Times(1);
 
-    commandInvoker.executeCommand(std::make_unique<RemoveSprintTransaction>(
-        sprint_writer_mock, someSprint));
+    actionInvoker.execute(
+        std::make_unique<DeleteSprint>(sprint_storage_mock, someSprint));
 
-    EXPECT_CALL(sprint_writer_mock, save(someSprint)).Times(1);
+    EXPECT_CALL(sprint_storage_mock, save(someSprint)).Times(1);
 
-    commandInvoker.undo();
+    actionInvoker.undo();
 }

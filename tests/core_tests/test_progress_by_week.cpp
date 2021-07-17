@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -19,95 +19,76 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/ConfigMock.h"
 #include "gtest/gtest.h"
-#include <core/GoalProgress.h>
-#include <core/GroupByWeek.h>
-#include <core/ProgressOverPeriod.h>
+#include "core/ComputeByWeekStrategy.h"
+#include "core/GoalProgress.h"
 
 using sprint_timer::GoalProgress;
-using sprint_timer::ProgressOverPeriod;
 using sprint_timer::WeekSchedule;
-using sprint_timer::WorkdayTracker;
-using ::testing::Return;
+using sprint_timer::WorkSchedule;
 
 using namespace dw;
 
-/* NOTE
- * These tests focus on testing ProgressOverPeriod features together with
- * GroupByMonth strategy. They do not test odd combinations of WeekSchedules or
- * addition of exceptional days trusting that these things are tested in
- * WorkdayTracker tests.
- */
-
-class ProgressByWeekFixture : public ::testing::Test {
+class ComputeProgressByWeekStrategyFixture : public ::testing::Test {
 public:
-    ProgressByWeekFixture()
+    ComputeProgressByWeekStrategyFixture()
     {
-        schedule.setTargetGoal(dw::Weekday::Monday, 13);
-        schedule.setTargetGoal(dw::Weekday::Tuesday, 13);
-        schedule.setTargetGoal(dw::Weekday::Wednesday, 13);
-        schedule.setTargetGoal(dw::Weekday::Thursday, 13);
-        schedule.setTargetGoal(dw::Weekday::Friday, 13);
-        workdayTracker.addWeekSchedule(period.start() - Years{1}, schedule);
+        weekSchedule.setTargetGoal(dw::Weekday::Monday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Tuesday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Wednesday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Thursday, 13);
+        weekSchedule.setTargetGoal(dw::Weekday::Friday, 13);
+        workSchedule.addWeekSchedule(period.start() - Years{1}, weekSchedule);
     }
 
-    WeekSchedule schedule;
-    WorkdayTracker workdayTracker;
-    ConfigMock configMock;
+    WeekSchedule weekSchedule;
+    WorkSchedule workSchedule;
 
     const DateRange period{Date{Year{2019}, Month{1}, Day{9}},
                            Date{Year{2019}, Month{2}, Day{14}}};
-    sprint_timer::GroupByWeek groupByWeekStrategy{configMock};
+    const sprint_timer::ComputeByWeekStrategy mondayFirstStrategy{
+        dw::Weekday::Monday};
 };
 
-TEST_F(ProgressByWeekFixture, underwork)
+TEST_F(ComputeProgressByWeekStrategyFixture, handles_empty_distribution)
 {
-    const std::vector<int> actualProgress{15, 13, 14, 0, 10, 12};
+    const std::vector<int> distribution;
     const std::vector<GoalProgress> expected{
-        {39, 15}, {65, 13}, {65, 14}, {65, 0}, {65, 10}, {52, 12}};
+        {GoalProgress::Estimated{39}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{52}, GoalProgress::Actual{0}}};
 
-    const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByWeekStrategy};
+    const auto actual =
+        mondayFirstStrategy.computeProgress(period, distribution, workSchedule);
 
-    EXPECT_EQ(64, progress.actual());
-    EXPECT_EQ(351, progress.estimated());
-    EXPECT_NEAR(18.2, *progress.percentage(), 0.1);
-    EXPECT_EQ(287, progress.difference());
-    EXPECT_FALSE(progress.isOverwork());
-    EXPECT_NEAR(10.6, *progress.averagePerGroupPeriod(), 0.1);
-    EXPECT_EQ(6, progress.size());
-
-    for (size_t i = 0; i < actualProgress.size(); ++i)
-        EXPECT_EQ(expected[i], progress.getValue(i));
+    EXPECT_EQ(expected, actual);
 }
 
-TEST_F(ProgressByWeekFixture, overwork)
+TEST_F(ComputeProgressByWeekStrategyFixture, handles_generic_distribution)
 {
-    const std::vector<int> actualProgress{40, 79, 67, 63, 64, 89};
+    const std::vector<int> distribution{15, 13, 14, 0, 10, 12};
     const std::vector<GoalProgress> expected{
-        {39, 40}, {65, 79}, {65, 67}, {65, 63}, {65, 64}, {52, 89}};
+        {GoalProgress::Estimated{39}, GoalProgress::Actual{15}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{13}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{14}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{0}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{10}},
+        {GoalProgress::Estimated{52}, GoalProgress::Actual{12}}};
 
-    const ProgressOverPeriod progress{
-        period, actualProgress, workdayTracker, groupByWeekStrategy};
+    const auto actual =
+        mondayFirstStrategy.computeProgress(period, distribution, workSchedule);
 
-    EXPECT_EQ(402, progress.actual());
-    EXPECT_EQ(351, progress.estimated());
-    EXPECT_NEAR(114.5, *progress.percentage(), 0.1);
-    EXPECT_EQ(-51, progress.difference());
-    EXPECT_TRUE(progress.isOverwork());
-    EXPECT_NEAR(67, *progress.averagePerGroupPeriod(), 0.1);
-    EXPECT_EQ(6, progress.size());
-
-    for (size_t i = 0; i < actualProgress.size(); ++i)
-        EXPECT_EQ(expected[i], progress.getValue(i));
+    EXPECT_EQ(expected, actual);
 }
 
-TEST_F(ProgressByWeekFixture, work_during_vacation)
+TEST_F(ComputeProgressByWeekStrategyFixture, work_during_vacation)
 {
     const Date start{Year{2019}, Month{1}, Day{9}};
     const Date finish{Year{2019}, Month{2}, Day{14}};
-    const DateRange period{start, finish};
+    const DateRange vacationPeriod{start, finish};
     WeekSchedule vacationSchedule;
     vacationSchedule.setTargetGoal(dw::Weekday::Monday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Tuesday, 0);
@@ -116,74 +97,53 @@ TEST_F(ProgressByWeekFixture, work_during_vacation)
     vacationSchedule.setTargetGoal(dw::Weekday::Friday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Saturday, 0);
     vacationSchedule.setTargetGoal(dw::Weekday::Sunday, 0);
-    WorkdayTracker vacationTracker;
+    WorkSchedule vacationTracker;
     vacationTracker.addWeekSchedule(start, vacationSchedule);
-    const std::vector<int> actualProgress{30, 65, 65, 50, 64, 60};
+    const std::vector<int> distribution{30, 65, 65, 50, 64, 60};
     const std::vector<GoalProgress> expected{
-        {0, 30}, {0, 65}, {0, 65}, {0, 50}, {0, 64}, {0, 60}};
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{30}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{65}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{65}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{50}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{64}},
+        {GoalProgress::Estimated{0}, GoalProgress::Actual{60}}};
 
-    const ProgressOverPeriod progress{
-        period, actualProgress, vacationTracker, groupByWeekStrategy};
+    const auto actual = mondayFirstStrategy.computeProgress(
+        vacationPeriod, distribution, vacationTracker);
 
-    EXPECT_EQ(334, progress.actual());
-    EXPECT_EQ(0, progress.estimated());
-    EXPECT_FALSE(progress.percentage());
-    EXPECT_EQ(-334, progress.difference());
-    EXPECT_TRUE(progress.isOverwork());
-    EXPECT_FALSE(progress.averagePerGroupPeriod());
-    EXPECT_EQ(6, progress.size());
-
-    for (size_t i = 0; i < actualProgress.size(); ++i)
-        EXPECT_EQ(expected[i], progress.getValue(i));
+    EXPECT_EQ(expected, actual);
 }
 
-TEST_F(ProgressByWeekFixture,
+TEST_F(ComputeProgressByWeekStrategyFixture,
        handles_corner_case_when_starting_from_grouping_day)
 {
-    const std::vector<int> actualProgress{30, 65};
-    const std::vector<GoalProgress> expected{{65, 30}, {13, 65}};
+    const std::vector<int> distribution{30, 65};
+    const std::vector<GoalProgress> expected{
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{30}},
+        {GoalProgress::Estimated{13}, GoalProgress::Actual{65}}};
     const DateRange a_period{Date{Year{2019}, Month{1}, Day{13}},
                              Date{Year{2019}, Month{1}, Day{21}}};
-    const sprint_timer::GroupByWeek strategy{configMock};
-    ON_CALL(configMock, firstDayOfWeek())
-        .WillByDefault(Return(dw::Weekday::Sunday));
 
-    const ProgressOverPeriod progress{
-        a_period, actualProgress, workdayTracker, strategy};
+    const sprint_timer::ComputeByWeekStrategy strategy{dw::Weekday::Sunday};
+    const auto actual =
+        strategy.computeProgress(a_period, distribution, workSchedule);
 
-    EXPECT_EQ(95, progress.actual());
-    EXPECT_EQ(78, progress.estimated());
-    EXPECT_NEAR(121.7, *progress.percentage(), 0.1);
-    EXPECT_EQ(-17, progress.difference());
-    EXPECT_TRUE(progress.isOverwork());
-    EXPECT_NEAR(47.5, *progress.averagePerGroupPeriod(), 0.1);
-    EXPECT_EQ(2, progress.size());
-
-    for (size_t i = 0; i < actualProgress.size(); ++i)
-        EXPECT_EQ(expected[i], progress.getValue(i));
+    EXPECT_EQ(expected, actual);
 }
 
-TEST_F(ProgressByWeekFixture, handles_corner_case_when_ending_by_grouping_day)
+TEST_F(ComputeProgressByWeekStrategyFixture,
+       handles_corner_case_when_ending_by_grouping_day)
 {
-    const std::vector<int> actualProgress{30, 65};
-    const std::vector<GoalProgress> expected{{52, 30}, {65, 65}};
+    const std::vector<int> distribution{30, 65};
+    const std::vector<GoalProgress> expected{
+        {GoalProgress::Estimated{52}, GoalProgress::Actual{30}},
+        {GoalProgress::Estimated{65}, GoalProgress::Actual{65}}};
     const DateRange a_period{Date{Year{2019}, Month{1}, Day{8}},
                              Date{Year{2019}, Month{1}, Day{19}}};
-    const sprint_timer::GroupByWeek strategy{configMock};
-    ON_CALL(configMock, firstDayOfWeek())
-        .WillByDefault(Return(dw::Weekday::Sunday));
 
-    const ProgressOverPeriod progress{
-        a_period, actualProgress, workdayTracker, strategy};
+    const sprint_timer::ComputeByWeekStrategy strategy{dw::Weekday::Sunday};
+    const auto actual =
+        strategy.computeProgress(a_period, distribution, workSchedule);
 
-    EXPECT_EQ(95, progress.actual());
-    EXPECT_EQ(117, progress.estimated());
-    EXPECT_NEAR(81.2, *progress.percentage(), 0.1);
-    EXPECT_EQ(22, progress.difference());
-    EXPECT_FALSE(progress.isOverwork());
-    EXPECT_NEAR(47.5, *progress.averagePerGroupPeriod(), 0.1);
-    EXPECT_EQ(2, progress.size());
-
-    for (size_t i = 0; i < actualProgress.size(); ++i)
-        EXPECT_EQ(expected[i], progress.getValue(i));
+    EXPECT_EQ(expected, actual);
 }

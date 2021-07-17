@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -20,30 +20,30 @@
 **
 *********************************************************************************/
 
-#include "mocks/SprintStorageReaderMock.h"
+#include "mocks/SprintStorageMock.h"
 #include "gtest/gtest.h"
-#include <core/QueryInvoker.h>
-#include <core/use_cases/RequestSprints.h>
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_sprints/RequestSprintsHandler.h"
+#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 
 using namespace dw;
-using sprint_timer::QueryInvoker;
 using sprint_timer::entities::Sprint;
-using sprint_timer::use_cases::RequestSprints;
+using sprint_timer::use_cases::RequestSprintsHandler;
+using sprint_timer::use_cases::RequestSprintsQuery;
 using ::testing::_;
 
-class RequestSprintsFixture : public ::testing::Test {
+class RequestSprintsHandlerFixture : public ::testing::Test {
 public:
-    SprintStorageReaderMock sprint_reader_mock;
-    QueryInvoker query_executor;
+    mocks::SprintStorageMock sprint_storage_mock;
+    RequestSprintsHandler handler{sprint_storage_mock};
 
     const DateRange someDateRange{
         dw::add_offset({current_date_local(), current_date_local()}, Days{-1})};
 };
 
-TEST_F(RequestSprintsFixture, execute)
+TEST_F(RequestSprintsHandlerFixture, execute)
 {
-    EXPECT_CALL(sprint_reader_mock, requestItems(someDateRange, _));
+    EXPECT_CALL(sprint_storage_mock, findByDateRange(someDateRange));
 
-    query_executor.execute(std::make_unique<RequestSprints>(
-        sprint_reader_mock, someDateRange, [](const auto& result) {}));
+    handler.handle(RequestSprintsQuery{someDateRange});
 }

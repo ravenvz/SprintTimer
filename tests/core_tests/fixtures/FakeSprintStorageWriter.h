@@ -1,6 +1,6 @@
 /********************************************************************************
 **
-** Copyright (C) 2016-2019 Pavel Pavlov.
+** Copyright (C) 2016-2021 Pavel Pavlov.
 **
 **
 ** This file is part of SprintTimer.
@@ -22,12 +22,12 @@
 #ifndef FAKESPRINTWRITER_H_IHZ1QWFR
 #define FAKESPRINTWRITER_H_IHZ1QWFR
 
-#include "core/ISprintStorageWriter.h"
+#include "core/SprintStorageWriter.h"
 #include "FakeStorage.h"
 
-/* Fake implementation of ISprintStorageWriter that exposes
+/* Fake implementation of SprintStorageWriter that exposes
  * internal storage and allows to test execute/undo. */
-class FakeSprintWriter : public ISprintStorageWriter {
+class FakeSprintWriter : public SprintStorageWriter {
 public:
     FakeSprintWriter(FakeStorage<Sprint>& storage)
         : storage{storage}
