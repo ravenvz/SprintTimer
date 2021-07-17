@@ -48,6 +48,7 @@ TimerView::TimerView(ui::contracts::RegisterSprintControl::Presenter&
     auto submissionBox_ = std::make_unique<QComboBox>();
     submissionBox = submissionBox_.get();
     submissionBox->setModel(&taskModel_);
+    submissionBox->setItemDelegate(&delegate);
     pbCancel_->setFlat(true);
     pbZone_->setFlat(true);
     pbZone_->setCheckable(true);
