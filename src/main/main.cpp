@@ -658,9 +658,9 @@ int main(int argc, char* argv[])
         compose::decorate<RequestProgressQuery>(
             compose::decorate<RequestProgressQuery>(
                 std::make_unique<RequestProgressHandler>(
-                    requestWeeksBackStrategy,
-                    computeByWeekStrategy,
-                    *requestSprintWeeklyDistributionHandler,
+                    requestMonthsBackStrategy,
+                    computeByMonthStrategy,
+                    *requestSprintMonthlyDistributionHandler,
                     *workScheduleHandler),
                 cacheInvalidationMediator),
             outputStream);
