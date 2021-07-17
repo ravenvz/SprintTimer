@@ -19,13 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/entities/Task.h"
+#include "core/use_cases/workflow_control/StartTimer.h"
 #include "mocks/AssetLibraryMock.h"
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/SoundPlayerMock.h"
-#include "gmock/gmock.h"
-#include "core/entities/Task.h"
-#include "core/use_cases/workflow_control/StartTimer.h"
 #include "qt_gui/presentation/TimerPresenter.h"
+#include "gmock/gmock.h"
 
 using sprint_timer::IWorkflow;
 using sprint_timer::ui::TimerPresenter;
@@ -174,8 +174,13 @@ TEST_F(TimerPresenterFixture, displays_idle_ui_when_workflow_enters_idle_state)
 
 TEST_F(TimerPresenterFixture, displays_submission_ui_when_sprint_ends)
 {
+    const size_t taskIndex{2};
+    std::string taskUuid{"123"};
+    taskSelectionMediator.changeSelection(
+        nullptr, taskIndex, std::move(taskUuid));
     presenter.attachView(view);
 
+    EXPECT_CALL(view, selectTask(taskIndex));
     EXPECT_CALL(view, setupUi(TimerUiModel::sprintFinishedUiModel("Submit")));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::SprintFinished);

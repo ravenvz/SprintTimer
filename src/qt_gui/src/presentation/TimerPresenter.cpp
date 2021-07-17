@@ -86,8 +86,12 @@ void TimerPresenter::onWorkflowStateChanged(IWorkflow::StateId currentState)
                 workflow.currentDuration(), std::string{sprintColor}, true));
             break;
         case IWorkflow::StateId::SprintFinished:
-            if (auto mediaPath = assetLibrary.filePath(ringSoundId); mediaPath) {
+            if (auto mediaPath = assetLibrary.filePath(ringSoundId);
+                mediaPath) {
                 player.play(*mediaPath);
+            }
+            if (auto index = taskSelectionMediator.taskIndex(); index) {
+                v.value()->selectTask(*index);
             }
             v.value()->setupUi(TimerUiModel::sprintFinishedUiModel(
                 std::string{submissionTimerText}));
