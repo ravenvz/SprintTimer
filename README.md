@@ -15,8 +15,8 @@ It is a tool that helps to deal with time-framed tasks effectively. It encourage
 
 * it features task list (that is deliberately made small, as it intended to contain task for 1-2 days)
 * it stores every task and sprint and is able to answer some statistical queries for any period of time;
-* you can easily see what tasks had been done in, say, August 15 of the last year;
-* it allows you to quickly observe progress for last 30 days, last 4 months and last year;
+* it features history view - you can easily see what tasks had been done in, say, August 15 of the last year;
+* it features progress view that allows you to quickly observe progress for last 30 days, last 4 months and last year;
 * there are times when you are in the flow and don't want to be distracted - just click *InTheZone* button and sprints will be run without breaks and notifications and then be all stored when you finished.
 
 ### SprintTimer in action
@@ -24,29 +24,45 @@ It is a tool that helps to deal with time-framed tasks effectively. It encourage
 
 ### Dependencies
 
-C++ compiler with C++17 support and std::filesystem library (experimental will do)
-CMake version 3.12
-Qt framework, version 5.x; last tested build on 5.11.2
+Versions up to 0.6.3 can be build with C++ compiler that supports C++17. Higher versions will require C++20 support
+std::filesystem library
+CMake version 3.15+
+Qt framework, version 5.x
 SQLite3 any revision
 Boost libraries 1.60+ (probably dependency will be removed later)
+
+### Binary releases
+
+For now binary releases are not provided, you have to build from source.
 
 ### Building from source
 
 Note that develop branch is unstable and is not guaranteed to build on all platforms.
 
-Cmake can be used to generate project files for different build systems.
-Below are some examples, alternatively you can use build system that siuts you.
+This project uses CMake to generate project files for different build systems.
+
+Some optional CMake variables:
+* WARNINGS_AS_ERRORS Treat compiler warnings as errors
+* ENABLE_TESTING build tests
+* ENABLE_SANITIZER_ADDRESS
+* ENABLE_SANITIZER_LEAK
+* ENABLE_SANITIZER_UNDEFINED_BEHAVIOR
+* ENABLE_SANITIZER_THREAD
+* ENABLE_SANITIZER_MEMORY
 
 #### Linux
 
+Build is tested with GNU and clang compilers.
+
+Example of building release version:
+
 ```shell
-cd build && cmake -DBUILD_TYPE=Release .. && make
+mkdir build && cd build && cmake -DBUILD_TYPE=Release ..
+cmake --build . --config Release
 ```
 
 #### Windows
-Windows build is still in experimental stage as it requires MSVC 2017 compiler supplied with Visual Studio 2017 Preview version to build (It supports CMake version 3.8 that is minimum required version).
-
-##### Shell
+Build is tested with MSVC compiler.
 
 1. Make sure you have all dependencies installed (or built from source).
 2. Open command prompt and navigate to build directory of cloned repo.
@@ -62,28 +78,41 @@ cmake --build . --config Release
 
 Before running executable, make sure that path to Qt installation is added to system path.
 Alternatively, you can copy required dll's manually.
-Assuming that you have built Release version: navigate to repo/bin/Release,
+Assuming that you have built Release version: navigate to <Qt directory>/bin/Release,
 copy following dll's from Qt installation for your compiler bin folder to repo/bin/Release folder:
 
 Qt5Core.dll
+
 Qt5Gui.dll
+
 Qt5Multimedia.dll
+
 Qt5Network.dll
+
 Qt5Sql.dll
+
 Qt5Widgets.dll
 
 It might be required to copy to the same folder from Qt installation plugins folder following plugins (creating folders as needed):
 
 audio/qtaudio_windows.dll
+
 sqldrivers/qsqlite.dll
 
 #### Mac OS X
+
+NOTE
+
+Latest version that can be build on Mac OS X is 0.6.3
+
+Since version 0.6.4 compiler with C++20 support is required. For now both apple clang and llvm clang are unable to build project due to lack of feature support (concepts support is partial).
+
 Install dependencies and Xcode.
-As C++17 complient compiler is required, Apple clang compiler that is shipped with the system might not be sufficient.
+As Apple clang compiler shipped with the system might use outdated standard library, it might not be sufficient.
 One way to overcome this is to install latest llvm with homebrew:
 
 ```shell
-brew install --with-toolchain llvm
+brew install llvm
 ```
 
 Note that depending on your Qt installation type, you might need to change LDFLAGS and/or CPPFLAGS and adjust path to Qt, refer to Qt documentation.
