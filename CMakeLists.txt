@@ -7,7 +7,7 @@ if (POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
 
-project(sprint_timer_app VERSION 0.6.3)
+project(sprint_timer_app VERSION 0.6.4)
 
 # Download CPM
 include(cmake/CpmDownload.cmake)
@@ -57,7 +57,7 @@ enable_sanitizers(sprint_timer_options)
 include(cmake/StaticAnalyzers.cmake)
 
 option(BUILD_SHARED_LIBS "Enable compilation of shared libraries" OFF)
-option(ENABLE_TESTING "Enable Test Builds" ON)
+option(ENABLE_TESTING "Enable Test Builds" OFF)
 option(ENABLE_FUZZING "Enable Fuzzing Builds" OFF)
 
 add_subdirectory(src)
