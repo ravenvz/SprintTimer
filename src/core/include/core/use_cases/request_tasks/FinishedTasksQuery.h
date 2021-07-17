@@ -23,11 +23,11 @@
 #define FINISHEDTASKSQUERY_H_0NZ7WYWV
 
 #include "core/Query.h"
-#include "core/entities/Task.h"
+#include "core/use_cases/TaskDTO.h"
 
 namespace sprint_timer::use_cases {
 
-struct FinishedTasksQuery : public Query<std::vector<entities::Task>> {
+struct FinishedTasksQuery : public Query<std::vector<TaskDTO>> {
 
     FinishedTasksQuery(dw::DateRange dateRange);
 

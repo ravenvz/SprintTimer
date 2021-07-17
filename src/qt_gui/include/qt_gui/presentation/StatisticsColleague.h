@@ -22,13 +22,20 @@
 #ifndef STATISTICSCOLLEAGUE_H_IQP8ZAEH
 #define STATISTICSCOLLEAGUE_H_IQP8ZAEH
 
+#include "date_wrapper/date_wrapper.h"
+#include <optional>
+
 namespace sprint_timer::ui {
 
 class StatisticsColleague {
 public:
     virtual ~StatisticsColleague() = default;
 
-    virtual void onSharedDataChanged() = 0;
+    virtual void onSharedDataChanged() { }
+
+    virtual void onTagSelected(std::optional<size_t> /*tagNumber*/) { }
+
+    virtual void onDateRangeChanged(const dw::DateRange& /*range*/) { }
 };
 
 } // namespace sprint_timer::ui

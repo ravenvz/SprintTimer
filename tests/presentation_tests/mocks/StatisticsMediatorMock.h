@@ -22,38 +22,14 @@
 #ifndef STATISTICSMEDIATORMOCK_H_RX2EJZRW
 #define STATISTICSMEDIATORMOCK_H_RX2EJZRW
 
-#include "gmock/gmock.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
+#include "gmock/gmock.h"
 
 namespace mocks {
 
 class StatisticsMediatorMock : public sprint_timer::ui::StatisticsMediator {
 public:
-    MOCK_METHOD(void,
-                filterByTag,
-                (sprint_timer::ui::StatisticsColleague*, std::optional<size_t>),
-                (override));
-
-    MOCK_METHOD(void, onRangeChanged, (const dw::DateRange&), (override));
-
-    MOCK_METHOD(const std::vector<sprint_timer::entities::Sprint>&,
-                sprints,
-                (),
-                (const override));
-
-    MOCK_METHOD(const std::vector<sprint_timer::TagTop::TagFrequency>&,
-                tagFrequencies,
-                (),
-                (const override));
-
     MOCK_METHOD(void, changeNumTopTags, (size_t), (override));
-
-    MOCK_METHOD((std::optional<dw::DateRange>), range, (), (const override));
-
-    MOCK_METHOD((std::optional<size_t>),
-                selectedTagNumber,
-                (),
-                (const override));
 };
 
 } // namespace mocks

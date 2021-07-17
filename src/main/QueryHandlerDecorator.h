@@ -25,22 +25,26 @@
 #include "CacheAwareQueryHandler.h"
 #include "VerboseQueryHandler.h"
 
+#include "ProfilingQueryHandler.h"
+
 namespace sprint_timer::compose {
 
-template <typename QueryT, typename ResultT>
-std::unique_ptr<QueryHandler<QueryT, ResultT>>
-decorate(std::unique_ptr<QueryHandler<QueryT, ResultT>> wrapped)
+template <typename QueryT>
+std::unique_ptr<QueryHandler<QueryT>>
+decorate(std::unique_ptr<QueryHandler<QueryT>> wrapped, std::ostream& os)
 {
-    return std::make_unique<sprint_timer::VerboseQueryHandler<QueryT, ResultT>>(
-        std::move(wrapped));
+    return std::make_unique<ProfilingQueryHandler<QueryT>>(std::move(wrapped),
+                                                           os);
+    // return std::make_unique<sprint_timer::VerboseQueryHandler<QueryT>>(
+    //     std::move(wrapped), os);
 }
 
-template <typename QueryT, typename ResultT>
-std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>>
-decorate(std::unique_ptr<sprint_timer::QueryHandler<QueryT, ResultT>> wrapped,
+template <typename QueryT>
+std::unique_ptr<QueryHandler<QueryT>>
+decorate(std::unique_ptr<QueryHandler<QueryT>> wrapped,
          ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator)
 {
-    return std::make_unique<CacheAwareQueryHandler<QueryT, ResultT>>(
+    return std::make_unique<CacheAwareQueryHandler<QueryT>>(
         std::move(wrapped), cacheInvalidationMediator);
 }
 

@@ -24,11 +24,15 @@
 
 namespace sprint_timer {
 
-template <typename QueryT, typename ResultT> class QueryHandler {
+template <typename QueryT> class QueryHandler {
 public:
+    using result_t = typename QueryT::result_t;
+
+    using query_t = QueryT;
+
     virtual ~QueryHandler() = default;
 
-    virtual ResultT handle(QueryT&& query) = 0;
+    virtual result_t handle(QueryT&& query) = 0;
 };
 
 } // namespace sprint_timer

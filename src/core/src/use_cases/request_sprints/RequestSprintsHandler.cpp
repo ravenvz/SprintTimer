@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "core/use_cases/request_sprints/RequestSprintsHandler.h"
+#include "core/use_cases/SprintMapper.h"
 
 namespace sprint_timer::use_cases {
 
@@ -28,10 +29,10 @@ RequestSprintsHandler::RequestSprintsHandler(SprintStorageReader& reader_)
 {
 }
 
-std::vector<entities::Sprint>
+typename RequestSprintsQuery::result_t
 RequestSprintsHandler::handle(RequestSprintsQuery&& query)
 {
-    return reader.findByDateRange(query.dateRange);
+    return makeDTOs(reader.findByDateRange(query.dateRange));
 }
 
 } // namespace sprint_timer::use_cases

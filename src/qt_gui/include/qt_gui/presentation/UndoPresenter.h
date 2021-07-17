@@ -22,12 +22,12 @@
 #ifndef UNDOPRESENTER_H_UM9IVZNC
 #define UNDOPRESENTER_H_UM9IVZNC
 
-#include "qt_gui/presentation/Invalidatable.h"
-#include "qt_gui/presentation/Mediator.h"
-#include "qt_gui/presentation/UndoContract.h"
 #include "core/ActionInvoker.h"
 #include "core/Observable.h"
 #include "core/Observer.h"
+#include "qt_gui/presentation/Invalidatable.h"
+#include "qt_gui/presentation/Mediator.h"
+#include "qt_gui/presentation/UndoContract.h"
 
 namespace sprint_timer::ui {
 
@@ -59,8 +59,6 @@ private:
     ActionInvoker& actionInvoker;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 
 private:
     Mediator<Invalidatable>& cacheInvalidationMediator;

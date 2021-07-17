@@ -1,5 +1,6 @@
 # Download date_wrapper lib at configure time then add as subdirectory
 include(CMakeLists-datewrapper.txt)
+include(CMakeLists-threadpool.txt)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -19,9 +20,11 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/CompositionObserver.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ComputeByDayStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ComputeByMonthStrategy.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/DateTimeProvider.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ProgressComputeStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ComputeByWeekStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/IConfig.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/HandlerException.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintDistributionReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintStorageReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintStorageWriter.h"
@@ -44,10 +47,7 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/RequestForWeeksBack.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/RequestForMonthsBack.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/SoundPlayer.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintBuilder.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintStatistics.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/TagTop.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/TaskBuilder.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/WeekSchedule.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/WorkSchedule.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Workflow.h"
@@ -64,10 +64,14 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/entities/Sprint.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/entities/Tag.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/entities/Task.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/SprintDTO.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/SprintMapper.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/TaskDTO.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/TaskMapper.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/change_schedule/ChangeWorkScheduleCommand.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/change_schedule/ChangeWorkScheduleHandler.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityCommand.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/change_tasks_priority/ChangeActiveTasksPriorityCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/change_tasks_priority/ChangeActiveTasksPriorityHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/create_task/CreateTaskCommand.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/create_task/CreateTaskHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/delete_sprint/DeleteSprintCommand.h"
@@ -104,8 +108,8 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_tags/AllTagsQuery.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_tasks/FinishedTasksHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_tasks/FinishedTasksQuery.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_tasks/UnfinishedTasksHandler.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_tasks/UnfinishedTasksQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_tasks/ActiveTasksHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/request_tasks/ActiveTasksQuery.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/Algutils.h"
@@ -125,11 +129,8 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/RequestForDaysBack.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/RequestForWeeksBack.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/RequestForMonthsBack.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/SprintBuilder.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/SprintStatistics.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/StringUtils.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/TagTop.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/TaskBuilder.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/WeekSchedule.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/WorkSchedule.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/Workflow.cpp"
@@ -146,10 +147,12 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/entities/Sprint.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/entities/Tag.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/entities/Task.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/SprintMapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/TaskMapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/change_schedule/ChangeWorkScheduleCommand.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/change_schedule/ChangeWorkScheduleHandler.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityCommand.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/change_tasks_priority/ChangeActiveTasksPriorityCommand.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/change_tasks_priority/ChangeActiveTasksPriorityHandler.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/create_task/CreateTaskCommand.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/create_task/CreateTaskHandler.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/delete_sprint/DeleteSprintCommand.cpp"
@@ -182,7 +185,7 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_tags/AllTagsHandler.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_tasks/FinishedTasksHandler.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_tasks/FinishedTasksQuery.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_tasks/UnfinishedTasksHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/request_tasks/ActiveTasksHandler.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.cpp"
 )
@@ -192,8 +195,24 @@ target_include_directories(${CORE_LIB}
         ${date_wrapper_INCLUDE_DIRS}
 )
 target_include_directories(${CORE_LIB}
+    SYSTEM INTERFACE
+        ${thread_pool_INCLUDE_DIRS}
+)
+target_include_directories(${CORE_LIB}
     SYSTEM PUBLIC ${Boost_INCLUDE_DIRS}
 )
+
+# used to silence warnings from thiefpool
+target_include_directories(${CORE_LIB} SYSTEM BEFORE INTERFACE
+    "$<BUILD_INTERFACE:${RiftenThiefpool_SOURCE_DIR}/include>"
+)
+
+# foreach(dir ${dirs})
+# target_include_directories(${CORE_LIB}
+#     SYSTEM PRIVATE ${RiftenThiefpool_INCLUDE_DIRS}
+# )
+# endforeach()
+
 target_include_directories(${CORE_LIB}
     PUBLIC
         include
@@ -208,6 +227,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         PUBLIC
             date_wrapper
             stdc++fs
+        INTERFACE
+            RiftenThiefpool::RiftenThiefpool
 )
 else()
     target_link_libraries(
@@ -217,6 +238,8 @@ else()
             sprint_timer_warnings
         PUBLIC
             date_wrapper
+        PRIVATE INTERFACE
+            RiftenThiefpool::RiftenThiefpool
 )
 endif()
 

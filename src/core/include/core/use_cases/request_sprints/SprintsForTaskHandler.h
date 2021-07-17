@@ -22,18 +22,18 @@
 #ifndef SPRINTSFORTASKHANDLER_H_3MQVBOC5
 #define SPRINTSFORTASKHANDLER_H_3MQVBOC5
 
-#include "core/SprintStorageReader.h"
 #include "core/QueryHandler.h"
+#include "core/SprintStorageReader.h"
 #include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
 
 namespace sprint_timer::use_cases {
 
-class SprintsForTaskHandler
-    : public QueryHandler<SprintsForTaskQuery, std::vector<entities::Sprint>> {
+class SprintsForTaskHandler : public QueryHandler<SprintsForTaskQuery> {
 public:
-    SprintsForTaskHandler(SprintStorageReader& reader);
+    explicit SprintsForTaskHandler(SprintStorageReader& reader);
 
-    std::vector<entities::Sprint> handle(SprintsForTaskQuery&& query) override;
+    typename SprintsForTaskQuery::result_t
+    handle(SprintsForTaskQuery&& query) override;
 
 private:
     SprintStorageReader& reader;

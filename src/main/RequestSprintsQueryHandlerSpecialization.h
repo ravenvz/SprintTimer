@@ -28,15 +28,20 @@
 namespace sprint_timer::compose {
 
 template <>
-std::vector<entities::Sprint>
-CacheAwareQueryHandler<use_cases::RequestSprintsQuery,
-                       std::vector<entities::Sprint>>::
-    handle(sprint_timer::use_cases::RequestSprintsQuery&& query)
+typename use_cases::RequestSprintsQuery::result_t
+CacheAwareQueryHandler<use_cases::RequestSprintsQuery>::handle(
+    sprint_timer::use_cases::RequestSprintsQuery&& query)
 {
-    if (!cachedResult ||
-        (cachedQuery && (query.dateRange != cachedQuery->dateRange))) {
-        cachedQuery = query;
-        cachedResult = wrapped->handle(std::move(query));
+    {
+        std::lock_guard lock{mtx};
+        if (!cachedResult ||
+            (cachedQuery && (query.dateRange != cachedQuery->dateRange))) {
+            cachedQuery = query;
+            cachedResult = wrapped->handle(std::move(query));
+        }
+        else {
+            std::cout << "Cache hit!" << std::endl;
+        }
     }
     return *cachedResult;
 }

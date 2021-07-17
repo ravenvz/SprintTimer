@@ -24,10 +24,10 @@
 
 namespace mocks {
 
-template <typename QueryT, typename ResultT>
-class QueryHandlerMock : public sprint_timer::QueryHandler<QueryT, ResultT> {
+template <typename QueryT>
+class QueryHandlerMock : public sprint_timer::QueryHandler<QueryT> {
 public:
-    MOCK_METHOD(ResultT, handle, (QueryT &&), (override));
+    MOCK_METHOD(typename QueryT::result_t, handle, (QueryT &&), (override));
 };
 
 } // namespace mocks

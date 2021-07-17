@@ -23,11 +23,8 @@
 #include "qt_gui/widgets/TimeDiagram.h"
 #include <QGridLayout>
 #include <QLabel>
-#include "core/SprintStatistics.h"
 
 namespace sprint_timer::ui::qt_gui {
-
-using namespace entities;
 
 BestWorktimeWidget::BestWorktimeWidget(QWidget* parent_)
     : QWidget{parent_}
@@ -52,14 +49,14 @@ BestWorktimeWidget::BestWorktimeWidget(QWidget* parent_)
 }
 
 void BestWorktimeWidget::updateLegend(
-    const contracts::DaytimeStatisticsContract::LegendData& data_)
+    const contracts::BestWorktimeContract::LegendData& data_)
 {
     bestWorktimeName->setText(QString::fromStdString(data_.periodName));
     bestWorkHours->setText(QString::fromStdString(data_.periodHours));
 }
 
 void BestWorktimeWidget::updateDiagram(
-    const contracts::DaytimeStatisticsContract::DiagramData& data_)
+    const contracts::BestWorktimeContract::DiagramData& data_)
 {
     timeDiagram->setIntervals(data_.timeRanges);
 }

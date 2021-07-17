@@ -22,9 +22,9 @@
 #ifndef QTTASKSTORAGE_H_C1DPFISW
 #define QTTASKSTORAGE_H_C1DPFISW
 
+#include "core/TaskStorage.h"
 #include "qt_storage/QtTaskStorageReader.h"
 #include "qt_storage/QtTaskStorageWriter.h"
-#include "core/TaskStorage.h"
 
 namespace sprint_timer::storage::qt_storage {
 
@@ -48,6 +48,8 @@ public:
     std::vector<entities::Task> allTasks(const dw::DateRange& dateRange) final;
 
     std::vector<std::string> allTags() final;
+
+    std::vector<entities::Task> findByUuid(const std::string& uuid) final;
 
     void save(const entities::Task& task) final;
 

@@ -62,8 +62,6 @@ void UndoPresenter::updateViewImpl()
     }
 }
 
-void UndoPresenter::onViewAttached() { updateView(); }
-
 UndoPresenter::UndoObserver::UndoObserver(Observable& undoObservable_,
                                           UndoPresenter& ref_)
     : undoObservable{undoObservable_}

@@ -23,14 +23,19 @@
 #define DELETETASKCOMMAND_H_5PQUTOMC
 
 #include "core/Command.h"
+#include "core/Uuid.h"
 #include "core/entities/Task.h"
+#include "core/use_cases/TaskDTO.h"
 
 namespace sprint_timer::use_cases {
 
 struct DeleteTaskCommand : public Command {
-    explicit DeleteTaskCommand(entities::Task task);
+    explicit DeleteTaskCommand(std::string uuid);
 
-    const entities::Task task;
+    std::string uuid;
+
+    friend bool operator==(const DeleteTaskCommand&,
+                           const DeleteTaskCommand&) = default;
 };
 
 template <class CharT, class Traits>
@@ -38,7 +43,7 @@ std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
            const DeleteTaskCommand& command)
 {
-    os << "DeleteTaskCommand{" << command.task << "}";
+    os << "DeleteTaskCommand{" << command.uuid << "}";
     return os;
 }
 

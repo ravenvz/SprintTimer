@@ -62,8 +62,6 @@ private:
     QComboBox* submissionBox;
     CombinedIndicator* combinedIndicator;
 
-    void customEvent(QEvent* event) override;
-
     void
     onUiChangeRequested(const contracts::TimerContract::TimerUiModel& model);
 

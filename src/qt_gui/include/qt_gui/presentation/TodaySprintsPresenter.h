@@ -24,31 +24,32 @@
 
 #include "core/CommandHandler.h"
 #include "core/QueryHandler.h"
+#include "core/use_cases/SprintMapper.h"
 #include "core/use_cases/delete_sprint/DeleteSprintCommand.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
-#include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
-#include "qt_gui/presentation/SprintMapper.h"
+#include "core/use_cases/request_tasks/ActiveTasksQuery.h"
 #include "qt_gui/presentation/TodaySprints.h"
+#include <optional>
 
 namespace sprint_timer::ui {
 
 class TodaySprintsPresenter : public contracts::TodaySprints::Presenter {
 public:
-    TodaySprintsPresenter(
-        CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler_,
-        QueryHandler<use_cases::RequestSprintsQuery,
-                     std::vector<entities::Sprint>>& requestSprintsHandler_);
+    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery>;
+    using delete_sprints_hdl_t = CommandHandler<use_cases::DeleteSprintCommand>;
+    TodaySprintsPresenter(delete_sprints_hdl_t& deleteSprintHandler_,
+                          request_sprints_hdl_t& requestSprintsHandler_);
 
-    void onSprintDelete(const SprintDTO& sprint) override;
-
-    void updateViewImpl() override;
-
-    void onViewAttached() override;
+    void onSprintDelete(const std::string& uuid) override;
 
 private:
-    CommandHandler<use_cases::DeleteSprintCommand>& deleteSprintHandler;
-    QueryHandler<use_cases::RequestSprintsQuery, std::vector<entities::Sprint>>&
-        requestSprintsHandler;
+    delete_sprints_hdl_t& deleteSprintHandler;
+    request_sprints_hdl_t& requestSprintsHandler;
+    std::optional<request_sprints_hdl_t::result_t> data;
+
+    void fetchDataImpl() override;
+
+    void updateViewImpl() override;
 };
 
 } // namespace sprint_timer::ui

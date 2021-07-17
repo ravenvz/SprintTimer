@@ -43,9 +43,7 @@ public:
 class TagEditorPresenterFixture : public ::testing::Test {
 public:
     TagEditorViewMock view;
-    NiceMock<mocks::QueryHandlerMock<use_cases::AllTagsQuery,
-                                     std::vector<std::string>>>
-        allTagsHandler;
+    NiceMock<mocks::QueryHandlerMock<use_cases::AllTagsQuery>> allTagsHandler;
     NiceMock<mocks::CommandHandlerMock<use_cases::RenameTagCommand>>
         renameTagHandler;
     ui::TagEditorPresenter sut{allTagsHandler, renameTagHandler};
@@ -54,7 +52,7 @@ public:
 TEST_F(TagEditorPresenterFixture, displays_tags_when_view_is_attached)
 {
     const std::vector<std::string> tags{"Tag1", "Tag3", "OtherTag"};
-    ON_CALL(allTagsHandler, handle(_)).WillByDefault(Return(tags));
+    mocks::given_handler_returns(allTagsHandler, tags);
 
     EXPECT_CALL(view, displayTags(tags));
 

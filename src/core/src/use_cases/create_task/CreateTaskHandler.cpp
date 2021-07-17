@@ -24,17 +24,37 @@
 
 namespace sprint_timer::use_cases {
 
+using entities::Tag;
+using entities::Task;
+
 CreateTaskHandler::CreateTaskHandler(TaskStorageWriter& writer_,
-                                     ActionInvoker& actionInvoker_)
+                                     ActionInvoker& actionInvoker_,
+                                     UUIDGenerator& uuidGenerator_,
+                                     DateTimeProvider& dateTimeProvider_)
     : writer{writer_}
     , actionInvoker{actionInvoker_}
+    , uuidGenerator{uuidGenerator_}
+    , dateTimeProvider{dateTimeProvider_}
 {
 }
 
 void CreateTaskHandler::handle(CreateTaskCommand&& command)
 {
-    actionInvoker.execute(
-        std::make_unique<actions::CreateTask>(writer, std::move(command.task)));
+    std::list<Tag> tags;
+    std::transform(cbegin(command.tags),
+                   cend(command.tags),
+                   std::back_inserter(tags),
+                   [](const auto& elem) { return Tag{elem}; });
+    actionInvoker.execute(std::make_unique<actions::CreateTask>(
+        writer,
+        Task{command.name,
+             command.estimatedCost,
+             0,
+             uuidGenerator.generateUUID(),
+             tags,
+             false,
+             dateTimeProvider.dateTimeLocalNow()}));
 }
+
 } // namespace sprint_timer::use_cases
 

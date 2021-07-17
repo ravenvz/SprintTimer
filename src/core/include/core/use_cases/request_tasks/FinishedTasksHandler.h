@@ -22,18 +22,18 @@
 #ifndef FINISHEDTASKSHANDLER_H_FROSQWWI
 #define FINISHEDTASKSHANDLER_H_FROSQWWI
 
-#include "core/TaskStorageReader.h"
 #include "core/QueryHandler.h"
+#include "core/TaskStorageReader.h"
 #include "core/use_cases/request_tasks/FinishedTasksQuery.h"
 
 namespace sprint_timer::use_cases {
 
-class FinishedTasksHandler
-    : public QueryHandler<FinishedTasksQuery, std::vector<entities::Task>> {
+class FinishedTasksHandler : public QueryHandler<FinishedTasksQuery> {
 public:
     explicit FinishedTasksHandler(TaskStorageReader& reader);
 
-    std::vector<entities::Task> handle(FinishedTasksQuery&& query) override;
+    typename FinishedTasksQuery::result_t
+    handle(FinishedTasksQuery&& query) override;
 
 private:
     TaskStorageReader& reader;

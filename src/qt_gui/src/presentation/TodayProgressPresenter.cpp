@@ -42,13 +42,18 @@ TodayProgressPresenter::TodayProgressPresenter(
 {
 }
 
+void TodayProgressPresenter::fetchDataImpl()
+{
+    data = requestProgressHandler.handle(use_cases::RequestProgressQuery{});
+}
+
 void TodayProgressPresenter::updateViewImpl()
 {
-    if (auto v = view(); v) {
-        const auto progressOverPeriod =
-            requestProgressHandler.handle(use_cases::RequestProgressQuery{});
-        const auto progress =
-            progressOverPeriod.getValue(progressOverPeriod.size() - 1);
+    if (auto v = view(); v && data) {
+        if (data->size() == 0) {
+            return;
+        }
+        const auto progress = data->getValue(data->size() - 1);
 
         const auto progressStr = constructProgressString(progress);
         const std::string style{pickStyle(progress)};
@@ -56,8 +61,6 @@ void TodayProgressPresenter::updateViewImpl()
         v.value()->displayProgress(progressStr, style);
     }
 }
-
-void TodayProgressPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 

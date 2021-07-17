@@ -30,7 +30,7 @@ namespace sprint_timer::storage::qt_storage {
 
 class QtSprintStorageReader : public SprintStorageReader {
 public:
-    explicit QtSprintStorageReader(const QString& connectionName);
+    explicit QtSprintStorageReader(QString connectionName);
 
     QtSprintStorageReader(QtSprintStorageReader&&) = delete;
     QtSprintStorageReader& operator=(QtSprintStorageReader&&) = delete;
@@ -41,12 +41,16 @@ public:
     std::vector<entities::Sprint>
     findByDateRange(const dw::DateRange& dateRange) final;
 
-    std::vector<entities::Sprint> findByTaskUuid(const std::string& uuid) final;
+    std::vector<entities::Sprint>
+    findByTaskUuid(const std::string& taskUuid) final;
+
+    std::vector<entities::Sprint> findByUuid(const std::string& uuid) final;
 
 private:
-    const QString connectionName;
+    QString connectionName;
     QSqlQuery findByDateRangeQuery;
     QSqlQuery findByTaskUuidQuery;
+    QSqlQuery findByUuidQuery;
 };
 
 } // namespace sprint_timer::storage::qt_storage

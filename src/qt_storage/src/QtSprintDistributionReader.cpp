@@ -24,6 +24,8 @@
 #include "qt_storage/utils/DateTimeConverter.h"
 #include "qt_storage/utils/QueryUtils.h"
 
+#include <QDebug>
+
 namespace {
 
 constexpr int daysInWeek{7};
@@ -34,8 +36,9 @@ std::vector<std::pair<QDate, int>> unfilledDistribution(QSqlQuery& query);
 
 namespace sprint_timer::storage::qt_storage {
 
-DistributionReaderBase::DistributionReaderBase(size_t distributionSize_)
-    : distributionSize{std::move(distributionSize_)}
+DistributionReaderBase::DistributionReaderBase(QString connectionName_, size_t distributionSize_)
+    : connectionName{std::move(connectionName_)}
+    , distributionSize{std::move(distributionSize_)}
 {
 }
 
@@ -91,12 +94,12 @@ bool DistributionReaderBase::compareDate(const QDate& expected,
 }
 
 QtSprintDailyDistributionReader::QtSprintDailyDistributionReader(
-    const QString& connectionName_, size_t numBins_)
-    : DistributionReaderBase{numBins_}
+    QString connectionName_, size_t numBins_)
+    : DistributionReaderBase{std::move(connectionName_), numBins_}
 {
     using namespace qt_storage;
     rangeQuery =
-        tryPrepare(connectionName_,
+        tryPrepare(connectionName,
                    QString{"SELECT COUNT(*), DATE(%1) "
                            "FROM %2 WHERE DATE(%1) >= DATE(:start_date) "
                            "AND DATE(%1) <= DATE(:end_date) "
@@ -113,11 +116,11 @@ QDate QtSprintDailyDistributionReader::nextExpectedDate(
 }
 
 QtSprintDistReaderMondayFirst::QtSprintDistReaderMondayFirst(
-    const QString& connectionName_, size_t numBins_)
-    : DistributionReaderBase{numBins_}
+    QString connectionName_, size_t numBins_)
+    : DistributionReaderBase{std::move(connectionName_), numBins_}
 {
     using namespace qt_storage;
-    rangeQuery = tryPrepare(connectionName_,
+    rangeQuery = tryPrepare(connectionName,
                             QString{"SELECT COUNT(*), start_time "
                                     "FROM %2 WHERE DATE(%1) >= (:start_date) "
                                     "AND DATE(%1) <= (:end_date) "
@@ -147,12 +150,12 @@ bool QtSprintDistReaderMondayFirst::compareDate(const QDate& expected,
 }
 
 QtSprintDistReaderSundayFirst::QtSprintDistReaderSundayFirst(
-    const QString& connectionName_, size_t numBins_)
-    : DistributionReaderBase{numBins_}
+    QString connectionName_, size_t numBins_)
+    : DistributionReaderBase{std::move(connectionName_), numBins_}
 {
     using namespace qt_storage;
     rangeQuery =
-        tryPrepare(connectionName_,
+        tryPrepare(connectionName,
                    QString{"SELECT COUNT(*), DATE(%1, 'weekday 6') AS saturday "
                            "FROM %2 WHERE DATE(%1) >= (:start_date) AND "
                            "date(%1) <= (:end_date) "
@@ -182,11 +185,11 @@ bool QtSprintDistReaderSundayFirst::compareDate(const QDate& expected,
 }
 
 QtSprintMonthlyDistributionReader::QtSprintMonthlyDistributionReader(
-    const QString& connectionName_, size_t numBins_)
-    : DistributionReaderBase{numBins_}
+    QString connectionName_, size_t numBins_)
+    : DistributionReaderBase{std::move(connectionName_), numBins_}
 {
     using namespace qt_storage;
-    rangeQuery = tryPrepare(connectionName_,
+    rangeQuery = tryPrepare(connectionName,
                             QString{"SELECT COUNT(*), start_time "
                                     "FROM %2 WHERE DATE(%1) >= (:start_date) "
                                     "AND DATE(%1) <= (:end_date) "

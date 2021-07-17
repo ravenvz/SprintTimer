@@ -23,14 +23,11 @@
 #define DAILYPROGRESSPRESENTER_H_JN1XIWIZ
 
 #include "core/BackRequestStrategy.h"
-#include "qt_gui/presentation/ProgressPresenterContract.h"
-#include "core/Observable.h"
-#include "core/Observer.h"
 #include "core/QueryHandler.h"
 #include "core/use_cases/request_progress/RequestProgressQuery.h"
 #include "core/utils/StringUtils.h"
-#include <iomanip>
-#include <iterator>
+#include "qt_gui/presentation/ProgressPresenterContract.h"
+#include <optional>
 
 namespace sprint_timer::ui {
 
@@ -38,16 +35,17 @@ class ProgressPresenter
     : public mvp::BasePresenter<contracts::DailyProgress::View> {
 public:
     using request_progress_hdl_t =
-        QueryHandler<use_cases::RequestProgressQuery, ProgressOverPeriod>;
+        QueryHandler<use_cases::RequestProgressQuery>;
 
     explicit ProgressPresenter(request_progress_hdl_t& requestProgressHandler);
 
 private:
     request_progress_hdl_t& requestProgressHandler;
+    std::optional<request_progress_hdl_t::result_t> data;
+
+    void fetchDataImpl() override;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

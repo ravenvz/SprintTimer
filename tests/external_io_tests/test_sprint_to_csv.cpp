@@ -19,33 +19,29 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "gtest/gtest.h"
-#include "core/SprintBuilder.h"
 #include "external_io/SprintToCsvAlgorithm.h"
+#include "gtest/gtest.h"
 
 using namespace sprint_timer;
 using namespace std::chrono_literals;
-using namespace ::sprint_timer::entities;
 using namespace ::dw;
+using sprint_timer::use_cases::SprintDTO;
 
 class SprintToCsvFixture : public ::testing::Test {
 public:
     Date someDate{Year{2020}, Month{6}, Day{19}};
     DateTime startTime{DateTime{someDate} + 2h};
-    SprintBuilder builder;
     external_io::SprintToCsvAlgorithm sprintSerializer;
 };
 
 TEST_F(SprintToCsvFixture, serializes_sprint)
 {
-    const auto sprint =
-        builder.withName("Alone sprint!")
-            .withTaskUuid("123")
-            .withUuid("321")
-            .withExplicitTags({Tag{"SomeTag"}, Tag{"SomeOtherTag"}})
-            .withTimeSpan(
-                DateTimeRange{startTime + 10h, startTime + 10h + 25min})
-            .build();
+    const SprintDTO sprint{
+        "321",
+        "123",
+        "Alone sprint!",
+        {"SomeTag", "SomeOtherTag"},
+        DateTimeRange{startTime + 10h, startTime + 10h + 25min}};
     const std::string expected{"SomeTag,SomeOtherTag;19.06.2020 12:00 - "
                                "19.06.2020 12:25;Alone sprint!;123;321"};
 
@@ -54,21 +50,19 @@ TEST_F(SprintToCsvFixture, serializes_sprint)
 
 TEST_F(SprintToCsvFixture, serializes_batch)
 {
-    std::vector<Sprint> sprints;
-    sprints.push_back(
-        builder.withName("Sprint 1")
-            .withTaskUuid("123")
-            .withUuid("321")
-            .withExplicitTags({Tag{"SomeTag"}, Tag{"SomeOtherTag"}})
-            .withTimeSpan(DateTimeRange{startTime, startTime + 25min})
-            .build());
-    sprints.push_back(
-        builder.withName("Sprint 2")
-            .withTaskUuid("345")
-            .withUuid("534")
-            .withExplicitTags({})
-            .withTimeSpan(DateTimeRange{startTime + 2h, startTime + 2h + 25min})
-            .build());
+    std::vector<SprintDTO> sprints{
+        SprintDTO{"321",
+                  "123",
+                  "Sprint 1",
+                  {"SomeTag", "SomeOtherTag"},
+                  DateTimeRange{startTime, startTime + 25min}},
+        SprintDTO{"534",
+                  "345",
+                  "Sprint 2",
+                  std::vector<std::string>{},
+                  DateTimeRange{startTime + 2h, startTime + 2h + 25min}}
+
+    };
     const std::vector<std::string> expected{
         "SomeTag,SomeOtherTag;19.06.2020 02:00 - 19.06.2020 02:25;Sprint "
         "1;123;321",

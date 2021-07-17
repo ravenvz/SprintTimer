@@ -24,19 +24,19 @@
 #include "qt_storage/DatabaseInitializer.h"
 #include "qt_storage/QueryError.h"
 #include "qt_storage/utils/QueryUtils.h"
-#include <iostream>
+#include <utility>
+
+#include <QDebug>
 
 namespace sprint_timer::storage::qt_storage {
 
-WorkerConnection::WorkerConnection(const QString& filename_)
-    : filename{filename_}
+WorkerConnection::WorkerConnection(QString filename_, QString connectionName_)
+    : filename{std::move(filename_)}
+    , connName{std::move(connectionName_)}
+    , connection{filename, connName}
 {
+    qDebug() << "Worker connection: " << connName;
     setPragmas();
-}
-
-WorkerConnection::WorkerConnection(const std::string& filename_)
-    : filename{QString::fromStdString(filename_)}
-{
 }
 
 QString WorkerConnection::connectionName() const { return connName; }

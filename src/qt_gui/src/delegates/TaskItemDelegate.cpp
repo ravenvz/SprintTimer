@@ -22,7 +22,7 @@
 #include "qt_gui/delegates/TaskItemDelegate.h"
 #include "qt_gui/metatypes/TaskDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
-#include "qt_gui/presentation/TaskDTO.h"
+#include "core/use_cases/TaskDTO.h"
 #include <QApplication>
 #include <QPainter>
 #include "core/utils/StringUtils.h"
@@ -51,7 +51,7 @@ QRect boundingRect(const QStyleOptionViewItem& option,
 int contentWidth(const QRect& rect);
 
 std::tuple<QString, QString, QString>
-extractData(const sprint_timer::ui::TaskDTO& item);
+extractData(const sprint_timer::use_cases::TaskDTO& item);
 
 } // namespace
 
@@ -118,7 +118,7 @@ void TaskItemDelegate::paintItem(QPainter* painter,
     commonCol.setAlpha(alpha);
     overspentCol.setAlpha(alpha);
 
-    const auto item = taskVariant.value<TaskDTO>();
+    const auto item = taskVariant.value<use_cases::TaskDTO>();
     const auto [tags, descr, completionStats] = extractData(item);
 
     auto [statsRect, tagsRect, descrRect] = textRectangles(option, index);
@@ -170,7 +170,7 @@ namespace {
 std::tuple<QRect, QRect, QRect>
 textRectangles(const QStyleOptionViewItem& option, const QModelIndex& index)
 {
-    using sprint_timer::ui::TaskDTO;
+    using sprint_timer::use_cases::TaskDTO;
     using sprint_timer::ui::qt_gui::CustomRoles;
     const auto taskVariant = index.data(CustomRoles::ItemRole);
     const auto item = taskVariant.value<TaskDTO>();
@@ -200,7 +200,7 @@ QRect boundingRect(const QStyleOptionViewItem& option,
 int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
 
 std::tuple<QString, QString, QString>
-extractData(const sprint_timer::ui::TaskDTO& item)
+extractData(const sprint_timer::use_cases::TaskDTO& item)
 {
     using namespace sprint_timer::utils;
     const QString tags{QString::fromStdString(

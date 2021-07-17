@@ -22,9 +22,9 @@
 #ifndef TODAYSPRINTS_H_V0K2AYQR
 #define TODAYSPRINTS_H_V0K2AYQR
 
+#include "core/use_cases/SprintDTO.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
-#include "qt_gui/presentation/SprintDTO.h"
 
 namespace sprint_timer::ui::contracts::TodaySprints {
 
@@ -32,12 +32,12 @@ class View;
 
 class Presenter : public mvp::BasePresenter<View> {
 public:
-    virtual void onSprintDelete(const SprintDTO& sprint) = 0;
+    virtual void onSprintDelete(const std::string& uuid) = 0;
 };
 
 class View : public mvp::BaseView<View, Presenter> {
 public:
-    virtual void displaySprints(const std::vector<SprintDTO>&) = 0;
+    virtual void displaySprints(const std::vector<use_cases::SprintDTO>&) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::TodaySprints

@@ -25,7 +25,7 @@
 namespace sprint_timer::ui {
 
 DateRangeSelectorPresenter::DateRangeSelectorPresenter(
-    QueryHandler<use_cases::OperationalRangeQuery, dw::DateRange>& handler_,
+    op_range_query_t& handler_,
     DateRangeChangeListener& dateRangeChangeListener_,
     dw::Weekday firstDayOfWeek_)
     : handler{handler_}
@@ -40,13 +40,16 @@ void DateRangeSelectorPresenter::onSelectedRangeChanged(
     dateRangeChangeListener.get().onRangeChanged(dateRange);
 }
 
+void DateRangeSelectorPresenter::fetchDataImpl()
+{
+    data = handler.get().handle(use_cases::OperationalRangeQuery{});
+}
+
 void DateRangeSelectorPresenter::updateViewImpl()
 {
-    if (auto v = view(); v) {
-        const auto range =
-            handler.get().handle(use_cases::OperationalRangeQuery{});
-        const int startYear = static_cast<int>(range.start().year());
-        const int lastYear = static_cast<int>(range.finish().year());
+    if (auto v = view(); v && data) {
+        const int startYear = static_cast<int>(data->start().year());
+        const int lastYear = static_cast<int>(data->finish().year());
         std::vector<int> years(static_cast<size_t>(lastYear - startYear + 1),
                                0);
         std::iota(begin(years), end(years), startYear);
@@ -54,8 +57,6 @@ void DateRangeSelectorPresenter::updateViewImpl()
         v.value()->updateOperationalRange(years);
     }
 }
-
-void DateRangeSelectorPresenter::onViewAttached() { updateViewImpl(); }
 
 } // namespace sprint_timer::ui
 

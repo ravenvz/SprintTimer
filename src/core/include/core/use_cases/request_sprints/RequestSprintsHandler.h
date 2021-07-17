@@ -22,18 +22,18 @@
 #ifndef REQUESTSPRINTSHANDLER_H_R5ERSYHK
 #define REQUESTSPRINTSHANDLER_H_R5ERSYHK
 
-#include "core/SprintStorageReader.h"
 #include "core/QueryHandler.h"
+#include "core/SprintStorageReader.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 
 namespace sprint_timer::use_cases {
 
-class RequestSprintsHandler
-    : public QueryHandler<RequestSprintsQuery, std::vector<entities::Sprint>> {
+class RequestSprintsHandler : public QueryHandler<RequestSprintsQuery> {
 public:
-    RequestSprintsHandler(SprintStorageReader& reader_);
+    explicit RequestSprintsHandler(SprintStorageReader& reader_);
 
-    std::vector<entities::Sprint> handle(RequestSprintsQuery&& query) override;
+    typename RequestSprintsQuery::result_t
+    handle(RequestSprintsQuery&& query) override;
 
 private:
     SprintStorageReader& reader;

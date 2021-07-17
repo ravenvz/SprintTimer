@@ -20,13 +20,13 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
+#include "core/utils/StringUtils.h"
 #include "qt_gui/metatypes/SprintDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
-#include "core/utils/StringUtils.h"
 
 namespace {
 
-QString sprintToString(const sprint_timer::ui::SprintDTO& sprint);
+QString sprintToString(const sprint_timer::use_cases::SprintDTO& sprint);
 
 } // namespace
 
@@ -34,6 +34,7 @@ namespace sprint_timer::ui::qt_gui {
 
 using dw::DateTime;
 using dw::DateTimeRange;
+using use_cases::SprintDTO;
 
 SprintModel::SprintModel(QObject* parent_)
     : QAbstractListModel{parent_}
@@ -87,7 +88,7 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& /*index*/)
     // endRemoveRows();
 
     if (auto p = presenter(); p) {
-        p.value()->onSprintDelete(storage[static_cast<size_t>(row)]);
+        p.value()->onSprintDelete(storage[static_cast<size_t>(row)].uuid);
         return true;
     }
 
@@ -127,7 +128,7 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& /*index*/)
 
 namespace {
 
-QString sprintToString(const sprint_timer::ui::SprintDTO& sprint)
+QString sprintToString(const sprint_timer::use_cases::SprintDTO& sprint)
 {
     const auto& timeSpan = sprint.timeRange;
     const auto& tags = sprint.tags;

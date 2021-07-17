@@ -24,6 +24,7 @@
 #include <string_view>
 
 using ::testing::_;
+using ::testing::ByMove;
 using ::testing::NiceMock;
 using ::testing::Return;
 
@@ -49,7 +50,7 @@ public:
 
 class TodayProgressPresenterFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::QueryHandlerMock<RequestProgressQuery, ProgressOverPeriod>>
+    NiceMock<mocks::QueryHandlerMock<RequestProgressQuery>>
         requestProgressHandler;
     TodayProgressViewMock view;
     sprint_timer::ui::TodayProgressPresenter sut{requestProgressHandler};
@@ -59,14 +60,16 @@ TEST_F(TodayProgressPresenterFixture,
        displays_progress_in_normal_style_when_underwork)
 {
     using namespace sprint_timer;
-    ProgressOverPeriod progress{
-        {GoalProgress{GoalProgress::Estimated{12}, GoalProgress::Actual{3}}}};
-    ON_CALL(requestProgressHandler, handle(_)).WillByDefault(Return(progress));
+    given_handler_returns(
+        requestProgressHandler,
+        ProgressOverPeriod{{GoalProgress{GoalProgress::Estimated{12},
+                                         GoalProgress::Actual{3}}}});
 
     EXPECT_CALL(
         view,
         displayProgress("Daily goal progress: 3/12", std::string{normalStyle}));
 
+    sut.fetchData();
     sut.attachView(view);
 }
 
@@ -74,14 +77,16 @@ TEST_F(TodayProgressPresenterFixture,
        displays_progress_in_overwork_style_when_overwork)
 {
     using namespace sprint_timer;
-    ProgressOverPeriod progress{
-        {GoalProgress{GoalProgress::Estimated{12}, GoalProgress::Actual{17}}}};
-    ON_CALL(requestProgressHandler, handle(_)).WillByDefault(Return(progress));
+    given_handler_returns(
+        requestProgressHandler,
+        ProgressOverPeriod{{GoalProgress{GoalProgress::Estimated{12},
+                                         GoalProgress::Actual{17}}}});
 
     EXPECT_CALL(view,
                 displayProgress("Daily goal progress: 17/12",
                                 std::string{overworkStyle}));
 
+    sut.fetchData();
     sut.attachView(view);
 }
 
@@ -89,14 +94,16 @@ TEST_F(TodayProgressPresenterFixture,
        displays_progress_in_match_style_when_goal_matched_exactly)
 {
     using namespace sprint_timer;
-    ProgressOverPeriod progress{
-        {GoalProgress{GoalProgress::Estimated{12}, GoalProgress::Actual{12}}}};
-    ON_CALL(requestProgressHandler, handle(_)).WillByDefault(Return(progress));
+    given_handler_returns(
+        requestProgressHandler,
+        ProgressOverPeriod{{GoalProgress{GoalProgress::Estimated{12},
+                                         GoalProgress::Actual{12}}}});
 
     EXPECT_CALL(
         view,
         displayProgress("Daily goal progress: 12/12", std::string{matchStyle}));
 
+    sut.fetchData();
     sut.attachView(view);
 }
 
@@ -104,12 +111,14 @@ TEST_F(TodayProgressPresenterFixture,
        displays_empty_progress_for_non_working_day)
 {
     using namespace sprint_timer;
-    ProgressOverPeriod progress{
-        {GoalProgress{GoalProgress::Estimated{0}, GoalProgress::Actual{12}}}};
-    ON_CALL(requestProgressHandler, handle(_)).WillByDefault(Return(progress));
+    given_handler_returns(
+        requestProgressHandler,
+        ProgressOverPeriod{{GoalProgress{GoalProgress::Estimated{0},
+                                         GoalProgress::Actual{12}}}});
 
     EXPECT_CALL(view, displayProgress("", ""));
 
+    sut.fetchData();
     sut.attachView(view);
 }
 

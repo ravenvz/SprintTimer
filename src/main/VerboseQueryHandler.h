@@ -25,31 +25,39 @@
 #include "core/QueryHandler.h"
 #include <iostream>
 #include <memory>
+#include <mutex>
 
 namespace sprint_timer {
 
-template <typename QueryT, typename ResultT>
-class VerboseQueryHandler : public QueryHandler<QueryT, ResultT> {
+template <typename QueryT>
+class VerboseQueryHandler : public QueryHandler<QueryT> {
 public:
-    VerboseQueryHandler(std::unique_ptr<QueryHandler<QueryT, ResultT>> wraped);
+    VerboseQueryHandler(std::unique_ptr<QueryHandler<QueryT>> wraped,
+                        std::ostream& os);
 
-    ResultT handle(QueryT&& query) override;
+    typename QueryT::result_t handle(QueryT&& query) override;
 
 private:
-    std::unique_ptr<QueryHandler<QueryT, ResultT>> wrapped;
+    std::unique_ptr<QueryHandler<QueryT>> wrapped;
+    std::ostream& os;
+    std::mutex mtx;
 };
 
-template <typename QueryT, typename ResultT>
-VerboseQueryHandler<QueryT, ResultT>::VerboseQueryHandler(
-    std::unique_ptr<QueryHandler<QueryT, ResultT>> wrapped_)
+template <typename QueryT>
+VerboseQueryHandler<QueryT>::VerboseQueryHandler(
+    std::unique_ptr<QueryHandler<QueryT>> wrapped_, std::ostream& os_)
     : wrapped{std::move(wrapped_)}
+    , os{os_}
 {
 }
 
-template <typename QueryT, typename ResultT>
-ResultT VerboseQueryHandler<QueryT, ResultT>::handle(QueryT&& query)
+template <typename QueryT>
+typename QueryT::result_t VerboseQueryHandler<QueryT>::handle(QueryT&& query)
 {
-    std::cout << "Handling query: " << query << '\n';
+    {
+        std::lock_guard lock{mtx};
+        os << "Handling query: " << query << '\n';
+    }
     return wrapped->handle(std::move(query));
 }
 

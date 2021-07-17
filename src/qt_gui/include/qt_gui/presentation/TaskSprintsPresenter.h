@@ -23,9 +23,9 @@
 #define TASKSPRINTSPRESENTER_H_VN5LZSTF
 
 #include "core/QueryHandler.h"
+#include "core/use_cases/SprintMapper.h"
 #include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
 #include "qt_gui/mvp/BasePresenter.h"
-#include "qt_gui/presentation/SprintMapper.h"
 #include "qt_gui/presentation/TaskSelectionContext.h"
 #include "qt_gui/presentation/TaskSprintsContract.h"
 
@@ -34,8 +34,7 @@ namespace sprint_timer::ui {
 class TaskSprintsPresenter
     : public mvp::BasePresenter<contracts::TaskSprintsContract::View> {
 public:
-    using sprints_for_task_hdl_t = QueryHandler<use_cases::SprintsForTaskQuery,
-                                                std::vector<entities::Sprint>>;
+    using sprints_for_task_hdl_t = QueryHandler<use_cases::SprintsForTaskQuery>;
 
     TaskSprintsPresenter(sprints_for_task_hdl_t& sprintsForTaskHandler,
                          const TaskSelectionContext& taskSelectionContext);
@@ -45,8 +44,6 @@ private:
     const TaskSelectionContext& taskSelectionContext;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

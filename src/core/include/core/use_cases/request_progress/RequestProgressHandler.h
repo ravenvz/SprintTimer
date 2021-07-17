@@ -31,23 +31,20 @@
 
 namespace sprint_timer::use_cases {
 
-class RequestProgressHandler
-    : public QueryHandler<RequestProgressQuery, ProgressOverPeriod> {
+class RequestProgressHandler : public QueryHandler<RequestProgressQuery> {
 public:
     RequestProgressHandler(
         const BackRequestStrategy& backRequestStrategy,
         const ProgressComputeStrategy& progressComputeStrategy,
-        QueryHandler<RequestSprintDistributionQuery, std::vector<int>>&
+        QueryHandler<RequestSprintDistributionQuery>&
             requestDistributionHandler,
-        QueryHandler<WorkScheduleQuery, WorkSchedule>&
-            requestWorkScheduleHandler);
+        QueryHandler<WorkScheduleQuery>& requestWorkScheduleHandler);
 
     ProgressOverPeriod handle(RequestProgressQuery&& query) override;
 
 private:
-    QueryHandler<RequestSprintDistributionQuery, std::vector<int>>&
-        requestDistributionHandler;
-    QueryHandler<WorkScheduleQuery, WorkSchedule>& requestWorkScheduleHandler;
+    QueryHandler<RequestSprintDistributionQuery>& requestDistributionHandler;
+    QueryHandler<WorkScheduleQuery>& requestWorkScheduleHandler;
     const BackRequestStrategy& backRequestStrategy;
     const ProgressComputeStrategy& progressComputeStrategy;
 };

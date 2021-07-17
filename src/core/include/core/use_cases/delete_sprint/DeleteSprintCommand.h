@@ -28,9 +28,12 @@
 namespace sprint_timer::use_cases {
 
 struct DeleteSprintCommand : public Command {
-    explicit DeleteSprintCommand(entities::Sprint sprint);
+    explicit DeleteSprintCommand(std::string uuid);
 
-    const entities::Sprint sprint;
+    std::string uuid;
+
+    friend bool operator==(const DeleteSprintCommand&,
+                           const DeleteSprintCommand&) = default;
 };
 
 template <class CharT, class Traits>
@@ -38,7 +41,7 @@ std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
            const DeleteSprintCommand& command)
 {
-    os << "DeleteSprintCommand{" << command.sprint << "}";
+    os << "DeleteSprintCommand{" << command.uuid << "}";
     return os;
 }
 

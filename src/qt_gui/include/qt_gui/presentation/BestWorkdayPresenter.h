@@ -24,6 +24,7 @@
 
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/presentation/BestWorkdayContract.h"
+#include "qt_gui/presentation/StatisticsContext.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
 
 namespace sprint_timer::ui {
@@ -32,6 +33,7 @@ class BestWorkdayPresenter : public contracts::BestWorkday::Presenter,
                              public StatisticsColleague {
 public:
     BestWorkdayPresenter(StatisticsMediator& mediator,
+                         const StatisticsContext& statisticsContext,
                          dw::Weekday firstDayOfWeek);
 
     ~BestWorkdayPresenter() override;
@@ -44,11 +46,10 @@ public:
 
 private:
     std::reference_wrapper<StatisticsMediator> mediator;
+    std::reference_wrapper<const StatisticsContext> statisticsContext;
     dw::Weekday firstDayOfWeek;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 
     void updateLegend(const Distribution<double>& distribution) const;
 

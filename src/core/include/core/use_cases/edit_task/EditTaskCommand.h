@@ -24,14 +24,17 @@
 
 #include "core/Command.h"
 #include "core/entities/Task.h"
+#include "core/use_cases/TaskDTO.h"
 
 namespace sprint_timer::use_cases {
 
 struct EditTaskCommand : public Command {
-    EditTaskCommand(entities::Task&& originalTask, entities::Task&& editedTask);
+    explicit EditTaskCommand(TaskDTO editedTask);
 
-    const entities::Task originalTask;
-    const entities::Task editedTask;
+    TaskDTO editedTask;
+
+    friend bool operator==(const EditTaskCommand&,
+                           const EditTaskCommand&) = default;
 };
 
 template <class CharT, class Traits>
@@ -39,8 +42,7 @@ std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
            const EditTaskCommand& command)
 {
-    os << "EditTaskCommand{" << command.originalTask << " -> "
-       << command.editedTask << "}";
+    os << "EditTaskCommand{" << command.editedTask;
     return os;
 }
 

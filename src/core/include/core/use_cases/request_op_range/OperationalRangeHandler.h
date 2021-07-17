@@ -28,8 +28,7 @@
 
 namespace sprint_timer::use_cases {
 
-class OperationalRangeHandler
-    : public QueryHandler<OperationalRangeQuery, dw::DateRange> {
+class OperationalRangeHandler : public QueryHandler<OperationalRangeQuery> {
 public:
     explicit OperationalRangeHandler(OperationalRangeReader& reader);
 

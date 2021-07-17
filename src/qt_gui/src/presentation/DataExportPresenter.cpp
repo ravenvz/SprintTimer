@@ -81,8 +81,6 @@ void DataExportPresenter::updateViewImpl()
     }
 }
 
-void DataExportPresenter::onViewAttached() { updateView(); }
-
 void DataExportPresenter::onGenerateReportConfirmed(
     const contracts::DataExportContract::
         ReportSelectedParams& /*selectedParams*/)

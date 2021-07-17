@@ -30,6 +30,7 @@
 
 namespace {
 
+// TODO consider QStringView
 const QString requiredFieldEmptyStyle{"QLineEdit { border: 2px solid red; }"};
 
 constexpr int layoutSpacing{25};
@@ -40,6 +41,7 @@ constexpr int maxVisibleItems{15};
 namespace sprint_timer::ui::qt_gui {
 
 using namespace utils;
+using use_cases::TaskDTO;
 
 TaskDialog::TaskDialog(QAbstractItemModel& tagModel_, QWidget* parent_)
     : DisplayableDialog{parent_}

@@ -27,16 +27,16 @@ namespace sprint_timer::external_io {
 using entities::Sprint;
 
 std::vector<std::string>
-SprintToCsvAlgorithm::toRecords(const entities::Sprint& sprint) const
+SprintToCsvAlgorithm::toRecords(const use_cases::SprintDTO& sprint) const
 {
     using sprint_timer::utils::join;
     std::vector<std::string> records;
-    auto tags = sprint.tags();
+    const auto& tags = sprint.tags;
     records.emplace_back(join(cbegin(tags), cend(tags), ","));
-    records.emplace_back(dw::to_string(sprint.timeSpan(), "dd.MM.yyyy hh:mm"));
-    records.emplace_back(sprint.name());
-    records.emplace_back(sprint.taskUuid());
-    records.emplace_back(sprint.uuid());
+    records.emplace_back(dw::to_string(sprint.timeRange, "dd.MM.yyyy hh:mm"));
+    records.emplace_back(sprint.taskName);
+    records.emplace_back(sprint.taskUuid);
+    records.emplace_back(sprint.uuid);
     return records;
 }
 

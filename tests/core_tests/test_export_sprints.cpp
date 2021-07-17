@@ -19,32 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/DataExporterMock.h"
-#include "mocks/QueryHandlerMock.h"
-#include "core/SprintBuilder.h"
 #include "core/use_cases/export_data/ExportSprintsHandler.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
+#include "mocks/DataExporterMock.h"
+#include "mocks/QueryHandlerMock.h"
 
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
 using namespace sprint_timer;
 
-namespace sprint_timer::use_cases {
-
-bool operator==(const RequestSprintsQuery& lhs, const RequestSprintsQuery& rhs)
-{
-    return lhs.dateRange == rhs.dateRange;
-}
-
-} // namespace sprint_timer::use_cases
-
 class ExportSprintsHandlerFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::QueryHandlerMock<use_cases::RequestSprintsQuery,
-                                     std::vector<entities::Sprint>>>
+    NiceMock<mocks::QueryHandlerMock<use_cases::RequestSprintsQuery>>
         requestSprintsHandlerMock;
-    NiceMock<mocks::DataExporterMock<entities::Sprint>> exporterMock;
+    NiceMock<mocks::DataExporterMock<use_cases::SprintDTO>> exporterMock;
     use_cases::ExportSprintsHandler handler{requestSprintsHandlerMock,
                                             exporterMock};
     const dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
@@ -52,11 +41,12 @@ public:
 
 TEST_F(ExportSprintsHandlerFixture, delegates_to_exporter)
 {
-    sprint_timer::SprintBuilder builder;
-    builder.withTaskUuid("123").withTimeSpan(
-        dw::DateTimeRange{dw::current_date_time(), dw::current_date_time()});
-    const std::vector<entities::Sprint> sprints{builder.build(),
-                                                builder.build()};
+    using use_cases::SprintDTO;
+    const dw::DateTimeRange someTimeSpan{dw::current_date_time(),
+                                         dw::current_date_time()};
+    const std::vector<SprintDTO> sprints{
+        SprintDTO{"321", "123", "Some task", {"Tag1", "Tag2"}, someTimeSpan},
+        SprintDTO{"654", "456", "Other task", {"Tag7"}, someTimeSpan}};
     ON_CALL(requestSprintsHandlerMock,
             handle(sprint_timer::use_cases::RequestSprintsQuery{someDateRange}))
         .WillByDefault(Return(sprints));

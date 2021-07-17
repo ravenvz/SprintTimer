@@ -28,9 +28,14 @@
 namespace sprint_timer::use_cases {
 
 struct ToggleTaskCompletedCommand : public Command {
-    explicit ToggleTaskCompletedCommand(entities::Task task);
+    ToggleTaskCompletedCommand(std::string taskUuid,
+                               dw::DateTime lastModificationTimestamp);
 
-    const entities::Task task;
+    friend bool operator==(const ToggleTaskCompletedCommand&,
+                           const ToggleTaskCompletedCommand&) = default;
+
+    std::string taskUuid;
+    dw::DateTime lastModificationTimestamp;
 };
 
 template <class CharT, class Traits>
@@ -38,7 +43,7 @@ std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
            const ToggleTaskCompletedCommand& command)
 {
-    os << "ToggleTaskCompletedCommand{" << command.task << "}";
+    os << "ToggleTaskCompletedCommand{" << command.taskUuid << "}";
     return os;
 }
 

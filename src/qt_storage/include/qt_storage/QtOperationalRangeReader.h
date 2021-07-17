@@ -29,7 +29,7 @@ namespace sprint_timer::storage::qt_storage {
 
 class QtOperationalRangeReader : public OperationalRangeReader {
 public:
-    explicit QtOperationalRangeReader(const QString& connectionName);
+    explicit QtOperationalRangeReader(QString connectionName);
 
     QtOperationalRangeReader(QtOperationalRangeReader&&) = delete;
     QtOperationalRangeReader& operator=(QtOperationalRangeReader&&) = delete;
@@ -41,7 +41,7 @@ public:
     dw::DateRange operationalRange() final;
 
 private:
-    const QString& connectionName;
+    QString connectionName;
 };
 
 } // namespace sprint_timer::storage::qt_storage

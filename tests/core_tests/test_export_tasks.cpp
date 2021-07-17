@@ -19,16 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/DataExporterMock.h"
-#include "mocks/QueryHandlerMock.h"
-#include "core/TaskBuilder.h"
 #include "core/use_cases/export_data/ExportTasksHandler.h"
 #include "core/use_cases/request_tasks/FinishedTasksQuery.h"
+#include "mocks/DataExporterMock.h"
+#include "mocks/QueryHandlerMock.h"
 
+using sprint_timer::use_cases::TaskDTO;
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
 using namespace sprint_timer;
+using namespace dw;
 
 namespace sprint_timer::use_cases {
 
@@ -41,10 +42,9 @@ bool operator==(const FinishedTasksQuery& lhs, const FinishedTasksQuery& rhs)
 
 class ExportTasksHandlerFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::QueryHandlerMock<use_cases::FinishedTasksQuery,
-                                     std::vector<entities::Task>>>
+    NiceMock<mocks::QueryHandlerMock<use_cases::FinishedTasksQuery>>
         requestTasksHandlerMock;
-    NiceMock<mocks::DataExporterMock<entities::Task>> exporterMock;
+    NiceMock<mocks::DataExporterMock<use_cases::TaskDTO>> exporterMock;
     use_cases::ExportTasksHandler handler{requestTasksHandlerMock,
                                           exporterMock};
     const dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
@@ -52,9 +52,21 @@ public:
 
 TEST_F(ExportTasksHandlerFixture, delegates_to_exporter)
 {
-    TaskBuilder builder;
-    builder.withUuid("123");
-    const std::vector<entities::Task> tasks{builder.build(), builder.build()};
+    using namespace std::chrono_literals;
+    const std::vector<TaskDTO> tasks{TaskDTO{"123",
+                                             {"Tag1"},
+                                             "Some task",
+                                             5,
+                                             7,
+                                             true,
+                                             current_date_time_local() - 4h},
+                                     TaskDTO{"345",
+                                             {"Tag1", "Tag2"},
+                                             "Another task",
+                                             2,
+                                             2,
+                                             true,
+                                             current_date_time_local()}};
     ON_CALL(requestTasksHandlerMock,
             handle(use_cases::FinishedTasksQuery{someDateRange}))
         .WillByDefault(Return(tasks));

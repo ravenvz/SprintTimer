@@ -25,6 +25,7 @@
 #include <QEvent>
 #include <QPen>
 #include <QWidget>
+#include <span>
 #include <vector>
 
 namespace sprint_timer::ui::qt_gui {
@@ -42,8 +43,7 @@ public:
 
     /* Both vectors should be of equal size, otherwise data would
      * be set only for number of bars equal to shortest vector */
-    BarData(const std::vector<double>& values,
-            const std::vector<QString>& labels);
+    BarData(std::span<const double> values, std::span<const QString> labels);
 
     const BarDataItem& operator[](size_t idx) const;
     size_t size() const;

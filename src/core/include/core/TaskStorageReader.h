@@ -41,6 +41,8 @@ public:
     allTasks(const dw::DateRange& dateRange) = 0;
 
     virtual std::vector<std::string> allTags() = 0;
+
+    virtual std::vector<entities::Task> findByUuid(const std::string& uuid) = 0;
 };
 
 } // namespace sprint_timer

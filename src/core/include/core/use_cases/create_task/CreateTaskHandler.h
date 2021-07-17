@@ -24,20 +24,27 @@
 
 #include "core/ActionInvoker.h"
 #include "core/CommandHandler.h"
+#include "core/DateTimeProvider.h"
 #include "core/TaskStorageWriter.h"
+#include "core/UUIDGenerator.h"
 #include "core/use_cases/create_task/CreateTaskCommand.h"
 
 namespace sprint_timer::use_cases {
 
 class CreateTaskHandler : public CommandHandler<CreateTaskCommand> {
 public:
-    CreateTaskHandler(TaskStorageWriter& writer, ActionInvoker& actionInvoker);
+    CreateTaskHandler(TaskStorageWriter& writer,
+                      ActionInvoker& actionInvoker,
+                      UUIDGenerator& uuidGenerator,
+                      DateTimeProvider& dateTimeProvider);
 
     void handle(CreateTaskCommand&& command) override;
 
 private:
     TaskStorageWriter& writer;
     ActionInvoker& actionInvoker;
+    UUIDGenerator& uuidGenerator;
+    DateTimeProvider& dateTimeProvider;
 };
 
 } // namespace sprint_timer::use_cases

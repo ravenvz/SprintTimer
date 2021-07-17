@@ -20,23 +20,33 @@
 **
 *********************************************************************************/
 #include "core/use_cases/delete_task/DeleteTaskHandler.h"
+#include "core/HandlerException.h"
 #include "core/actions/DeleteTask.h"
+#include "core/use_cases/TaskMapper.h"
 
 namespace sprint_timer::use_cases {
 
 DeleteTaskHandler::DeleteTaskHandler(SprintStorage& sprintStorage_,
-                                     TaskStorageWriter& taskWriter_,
+                                     TaskStorage& taskStorage_,
                                      ActionInvoker& actionInvoker_)
     : sprintStorage{sprintStorage_}
-    , taskWriter{taskWriter_}
+    , taskStorage{taskStorage_}
     , actionInvoker{actionInvoker_}
 {
 }
 
 void DeleteTaskHandler::handle(DeleteTaskCommand&& command)
 {
+    auto matchingUuid = taskStorage.findByUuid(command.uuid);
+    if (matchingUuid.empty()) {
+        std::string message{"Trying to delete task with uuid: "};
+        message += command.uuid;
+        message += " that doesn't exist.";
+        throw HandlerException{message};
+    }
+
     actionInvoker.execute(std::make_unique<actions::DeleteTask>(
-        taskWriter, sprintStorage, std::move(command.task)));
+        taskStorage, sprintStorage, matchingUuid.front()));
 }
 
 } // namespace sprint_timer::use_cases

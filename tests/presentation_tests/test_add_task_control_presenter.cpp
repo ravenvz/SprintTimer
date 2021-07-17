@@ -19,10 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/CommandHandlerMock.h"
-#include "mocks/QueryHandlerMock.h"
 #include "core/use_cases/create_task/CreateTaskCommand.h"
 #include "core/use_cases/request_tags/AllTagsQuery.h"
+#include "mocks/CommandHandlerMock.h"
+#include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/AddTaskControlPresenter.h"
 
 using namespace sprint_timer;
@@ -40,9 +40,7 @@ class AddTaskControlPresenterFixture : public ::testing::Test {
 public:
     NiceMock<mocks::CommandHandlerMock<use_cases::CreateTaskCommand>>
         createTaskHandler;
-    NiceMock<mocks::QueryHandlerMock<use_cases::AllTagsQuery,
-                                     std::vector<std::string>>>
-        allTagsHandler;
+    NiceMock<mocks::QueryHandlerMock<use_cases::AllTagsQuery>> allTagsHandler;
     AddTaskControlViewMock view;
     ui::AddTaskControlPresenter sut{createTaskHandler};
 };
@@ -51,20 +49,8 @@ namespace {
 
 const dw::DateTime someModificationStamp{dw::current_date_time()};
 
-std::pair<sprint_timer::entities::Task, sprint_timer::ui::TaskDTO>
+std::pair<sprint_timer::entities::Task, sprint_timer::use_cases::TaskDTO>
 someTaskWithDescription();
-
-/* This matcher ignores uuid and modification timestamp */
-struct MatchesCreateTaskCommandWithoutUuid {
-    MatchesCreateTaskCommandWithoutUuid(
-        const sprint_timer::use_cases::CreateTaskCommand& expectedCommand_);
-
-    bool
-    operator()(const sprint_timer::use_cases::CreateTaskCommand& command) const;
-
-private:
-    const sprint_timer::use_cases::CreateTaskCommand& expectedCommand;
-};
 
 } // namespace
 
@@ -72,46 +58,87 @@ TEST_F(AddTaskControlPresenterFixture, invokes_handler_to_add_task_given_dto)
 {
     using namespace sprint_timer::entities;
     const auto [task, details] = someTaskWithDescription();
-    const use_cases::CreateTaskCommand expectedCommand{task};
 
-    EXPECT_CALL(
-        createTaskHandler,
-        handle(Truly(MatchesCreateTaskCommandWithoutUuid{expectedCommand})));
+    EXPECT_CALL(createTaskHandler,
+                handle(use_cases::CreateTaskCommand{
+                    details.name, details.tags, details.expectedCost}));
 
     sut.addTask(details);
 }
 
 TEST_F(AddTaskControlPresenterFixture,
-       invokes_handler_to_add_task_given_task_description)
+       adds_task_from_decoded_description_with_all_parts_present)
 {
-    using namespace sprint_timer::entities;
-    const use_cases::CreateTaskCommand command{
-        Task{"All parts present",
-             5,
-             0,
-             {Tag{"Test"}},
-             false,
-             dw::current_date_time_local()}};
-
-    EXPECT_CALL(createTaskHandler,
-                handle(Truly(MatchesCreateTaskCommandWithoutUuid{command})));
+    EXPECT_CALL(
+        createTaskHandler,
+        handle(use_cases::CreateTaskCommand{"All parts present", {"Test"}, 5}));
 
     sut.addTask("#Test All parts present *5");
 }
 
+TEST_F(AddTaskControlPresenterFixture,
+       adds_task_with_default_estimated_cost_when_it_missing_in_encoded_description)
+{
+    EXPECT_CALL(
+        createTaskHandler,
+        handle(use_cases::CreateTaskCommand{"Task with tag", {"Test"}, 1}));
+
+    sut.addTask("#Test Task with tag");
+}
+
+TEST_F(AddTaskControlPresenterFixture,
+       adds_task_when_there_are_no_tags_in_encoded_description)
+{
+    EXPECT_CALL(
+        createTaskHandler,
+        handle(use_cases::CreateTaskCommand{"Simple task", std::vector<std::string>{}, 2}));
+
+    sut.addTask("Simple task *2");
+}
+
+TEST_F(AddTaskControlPresenterFixture,
+       adds_task_when_there_is_no_name_in_encoded_description)
+{
+    EXPECT_CALL(
+        createTaskHandler,
+        handle(use_cases::CreateTaskCommand{"", {"Tag", "Test"}, 44}));
+
+    sut.addTask("#Tag #Test *44");
+}
+
+TEST_F(AddTaskControlPresenterFixture,
+       adds_task_taking_only_last_encoded_cost_estimation)
+{
+    EXPECT_CALL(
+        createTaskHandler,
+        handle(use_cases::CreateTaskCommand{"Multiple estimated", std::vector<std::string>{}, 9}));
+
+    sut.addTask("Multiple estimated *5 *9");
+}
+
+TEST_F(AddTaskControlPresenterFixture,
+       adds_task_only_treating_words_preceeded_by_single_hash_as_tags)
+{
+    EXPECT_CALL(
+        createTaskHandler,
+        handle(use_cases::CreateTaskCommand{"##My # ## beautiful,marvelous, great content", {"tag1"}, 1}));
+
+    sut.addTask("##My #tag1  #   ##    beautiful,marvelous, great   content");
+}
+
 namespace {
 
-std::pair<sprint_timer::entities::Task, sprint_timer::ui::TaskDTO>
+std::pair<sprint_timer::entities::Task, sprint_timer::use_cases::TaskDTO>
 someTaskWithDescription()
 {
     using namespace sprint_timer::entities;
-    const ui::TaskDTO details{"123",
-                              {"Tag 1", "Tag 2"},
-                              "SomeTask",
-                              4,
-                              0,
-                              false,
-                              someModificationStamp};
+    const sprint_timer::use_cases::TaskDTO details{"123",
+                                                   {"Tag 1", "Tag 2"},
+                                                   "SomeTask",
+                                                   4,
+                                                   0,
+                                                   false,
+                                                   someModificationStamp};
     Task task{"SomeTask",
               4,
               0,
@@ -120,25 +147,6 @@ someTaskWithDescription()
               false,
               someModificationStamp};
     return {task, details};
-}
-
-MatchesCreateTaskCommandWithoutUuid::MatchesCreateTaskCommandWithoutUuid(
-    const sprint_timer::use_cases::CreateTaskCommand& expectedCommand_)
-    : expectedCommand{expectedCommand_}
-{
-}
-
-bool MatchesCreateTaskCommandWithoutUuid::operator()(
-    const sprint_timer::use_cases::CreateTaskCommand& command) const
-{
-    const auto& expected = expectedCommand.task;
-    const auto& actual = command.task;
-    return expected.name() == actual.name() &&
-           expected.estimatedCost() == actual.estimatedCost() &&
-           expected.actualCost() == actual.actualCost() &&
-           expected.isCompleted() == actual.isCompleted() &&
-           expected.tags() == actual.tags() &&
-           expected.lastModified() == actual.lastModified();
 }
 
 } // namespace

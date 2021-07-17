@@ -28,9 +28,17 @@
 namespace sprint_timer::use_cases {
 
 struct CreateTaskCommand : public Command {
-    explicit CreateTaskCommand(entities::Task task);
 
-    const entities::Task task;
+    CreateTaskCommand(std::string name,
+                      std::vector<std::string> tags,
+                      int32_t estimatedCost);
+
+    std::string name;
+    std::vector<std::string> tags;
+    int32_t estimatedCost;
+
+    friend bool operator==(const CreateTaskCommand&,
+                           const CreateTaskCommand&) = default;
 };
 
 template <class CharT, class Traits>
@@ -38,7 +46,11 @@ std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
            const CreateTaskCommand& command)
 {
-    os << "CreateTaskCommand{" << command.task << "}";
+    os << "CreateTaskCommand{";
+    for (const auto& tag : command.tags) {
+        os << '#' << tag << ' ';
+    }
+    os << command.estimatedCost << "}";
     return os;
 }
 

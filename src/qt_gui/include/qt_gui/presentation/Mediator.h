@@ -38,14 +38,16 @@ public:
     template <typename Functor> void notifyAll(Functor func)
     {
         for (auto* col : colleagues) {
-            func(col);
+            if (col) {
+                func(col);
+            }
         }
     }
 
     template <typename Functor> void mediate(ColleagueT* caller, Functor func)
     {
         for (auto* col : colleagues) {
-            if (col == caller) {
+            if (!col || col == caller) {
                 continue;
             }
             func(col);

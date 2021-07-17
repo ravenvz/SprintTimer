@@ -8,6 +8,10 @@ if (POLICY CMP0076)
 endif()
 
 project(sprint_timer_app VERSION 0.6.3)
+
+# Download CPM
+include(cmake/CpmDownload.cmake)
+
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 

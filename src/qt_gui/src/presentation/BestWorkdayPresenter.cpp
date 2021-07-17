@@ -26,9 +26,11 @@ namespace {
 
 constexpr std::string_view barBorderColor{"#f63c0d"};
 constexpr std::string_view barColor{"#73c245"};
-const std::vector<int> mondayFirstOrder{1, 2, 3, 4, 5, 6, 7};
-const std::vector<int> sundayFirstOrder{7, 1, 2, 3, 4, 5, 6};
+constexpr std::array<int, 7> mondayFirstOrder{1, 2, 3, 4, 5, 6, 7};
+constexpr std::array<int, 7> sundayFirstOrder{7, 1, 2, 3, 4, 5, 6};
 constexpr size_t daysInWeek{7};
+constexpr std::array<double, 7> zeroBarValues{
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 sprint_timer::Distribution<double>
 weekdayStatistics(const std::vector<sprint_timer::entities::Sprint>& sprints,
@@ -40,10 +42,13 @@ std::vector<int> weekdayFrequency(const dw::DateRange& dateRange);
 
 namespace sprint_timer::ui {
 
-BestWorkdayPresenter::BestWorkdayPresenter(StatisticsMediator& mediator_,
-                                           dw::Weekday firstDayOfWeek_)
+BestWorkdayPresenter::BestWorkdayPresenter(
+    StatisticsMediator& mediator_,
+    const StatisticsContext& statisticsContext_,
+    dw::Weekday firstDayOfWeek_)
     : mediator{mediator_}
-    , firstDayOfWeek{std::move(firstDayOfWeek_)}
+    , statisticsContext{statisticsContext_}
+    , firstDayOfWeek{firstDayOfWeek_}
 {
     mediator.get().addColleague(this);
 }
@@ -58,13 +63,13 @@ void BestWorkdayPresenter::onSharedDataChanged() { updateView(); }
 void BestWorkdayPresenter::updateViewImpl()
 {
     using contracts::BestWorkday::View;
-    const auto range = mediator.get().range();
+    const auto range = statisticsContext.get().currentRange();
     if (!range) {
         updateWithDefaultValues();
         return;
     }
 
-    const auto& sprints = mediator.get().sprints();
+    const auto& sprints = statisticsContext.get().sprints();
     if (sprints.empty()) {
         updateWithDefaultValues();
         return;
@@ -74,8 +79,6 @@ void BestWorkdayPresenter::updateViewImpl()
     updateLegend(distribution);
     updateBars(distribution);
 }
-
-void BestWorkdayPresenter::onViewAttached() { updateView(); }
 
 void BestWorkdayPresenter::updateLegend(
     const Distribution<double>& distribution) const
@@ -105,7 +108,7 @@ void BestWorkdayPresenter::updateBars(
                     end(values));
         v.value()->displayBars(View::BarD{std::string{barBorderColor},
                                           std::string{barColor},
-                                          values,
+                                          std::span<const double>{values},
                                           firstDayOfWeek == dw::Weekday::Monday
                                               ? mondayFirstOrder
                                               : sundayFirstOrder});
@@ -120,7 +123,7 @@ void BestWorkdayPresenter::updateWithDefaultValues() const
         v.value()->displayLegend(View::LegendData{-1, "No data"});
         v.value()->displayBars(View::BarD{std::string{barBorderColor},
                                           std::string{barColor},
-                                          {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                                          zeroBarValues,
                                           firstDayOfWeek == dw::Weekday::Monday
                                               ? mondayFirstOrder
                                               : sundayFirstOrder});

@@ -19,11 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/presentation/DataExportContract.h"
-#include "qt_gui/presentation/HistoryMediator.h"
 #include "core/CommandHandler.h"
 #include "core/use_cases/export_data/ExportSprintsCommand.h"
 #include "core/use_cases/export_data/ExportTasksCommand.h"
+#include "qt_gui/presentation/DataExportContract.h"
+#include "qt_gui/presentation/HistoryMediator.h"
 
 namespace sprint_timer::ui {
 
@@ -57,8 +57,6 @@ private:
     HistoryMediator& mediator;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

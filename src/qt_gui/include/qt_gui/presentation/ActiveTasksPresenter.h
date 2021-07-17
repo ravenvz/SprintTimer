@@ -24,26 +24,26 @@
 
 #include "core/CommandHandler.h"
 #include "core/QueryHandler.h"
-#include "core/use_cases/change_tasks_priority/ChangeUnfinishedTasksPriorityCommand.h"
+#include "core/use_cases/TaskMapper.h"
+#include "core/use_cases/change_tasks_priority/ChangeActiveTasksPriorityCommand.h"
 #include "core/use_cases/delete_task/DeleteTaskCommand.h"
 #include "core/use_cases/edit_task/EditTaskCommand.h"
-#include "core/use_cases/request_tasks/UnfinishedTasksQuery.h"
+#include "core/use_cases/request_tasks/ActiveTasksQuery.h"
 #include "core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h"
 #include "qt_gui/presentation/TaskContract.h"
-#include "qt_gui/presentation/TaskMapper.h"
+#include <optional>
 
 namespace sprint_timer::ui {
 
 class ActiveTasksPresenter : public contracts::TaskContract::Presenter {
 public:
-    using active_tasks_hdl_t = QueryHandler<use_cases::UnfinishedTasksQuery,
-                                            std::vector<entities::Task>>;
+    using active_tasks_hdl_t = QueryHandler<use_cases::ActiveTasksQuery>;
     using edit_task_hdl_t = CommandHandler<use_cases::EditTaskCommand>;
     using delete_task_hdl_t = CommandHandler<use_cases::DeleteTaskCommand>;
     using toggle_task_completion_hdl_t =
         CommandHandler<use_cases::ToggleTaskCompletedCommand>;
     using change_priority_hdl_t =
-        CommandHandler<use_cases::ChangeUnfinishedTasksPriorityCommand>;
+        CommandHandler<use_cases::ChangeActiveTasksPriorityCommand>;
 
     ActiveTasksPresenter(active_tasks_hdl_t& activeTasksHandler,
                          edit_task_hdl_t& editTaskHandler,
@@ -51,11 +51,12 @@ public:
                          toggle_task_completion_hdl_t& toggleFinishedHandler,
                          change_priority_hdl_t& changePriorityHandler);
 
-    void editTask(const TaskDTO& oldTask, const TaskDTO& newTask) override;
+    void editTask(const use_cases::TaskDTO& editedTask) override;
 
-    void deleteTask(const TaskDTO& task) override;
+    void deleteTask(const std::string& uuid) override;
 
-    void toggleFinished(const TaskDTO& task) override;
+    void toggleFinished(const std::string& uuid,
+                        dw::DateTime lastModificationTimestamp) override;
 
     void reorderTasks(int32_t sourceRow,
                       int32_t count,
@@ -67,11 +68,11 @@ private:
     delete_task_hdl_t& deleteTaskHandler;
     toggle_task_completion_hdl_t& toggleFinishedHandler;
     change_priority_hdl_t& changePriorityHandler;
-    std::vector<TaskDTO> tasks;
+    std::optional<active_tasks_hdl_t::result_t> data;
+
+    void fetchDataImpl() override;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

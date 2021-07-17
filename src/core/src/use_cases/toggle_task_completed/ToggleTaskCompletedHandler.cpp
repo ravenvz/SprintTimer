@@ -33,8 +33,8 @@ ToggleTaskCompletedHandler::ToggleTaskCompletedHandler(
 
 void ToggleTaskCompletedHandler::handle(ToggleTaskCompletedCommand&& command)
 {
-    actionInvoker.execute(
-        std::make_unique<actions::ToggleTaskCompleted>(writer, command.task));
+    actionInvoker.execute(std::make_unique<actions::ToggleTaskCompleted>(
+        writer, command.taskUuid, command.lastModificationTimestamp));
 }
 
 } // namespace sprint_timer::use_cases

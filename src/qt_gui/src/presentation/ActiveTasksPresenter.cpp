@@ -24,6 +24,8 @@
 
 namespace sprint_timer::ui {
 
+using use_cases::TaskDTO;
+
 ActiveTasksPresenter::ActiveTasksPresenter(
     active_tasks_hdl_t& activeTasksHandler_,
     edit_task_hdl_t& editTaskHandler_,
@@ -38,31 +40,33 @@ ActiveTasksPresenter::ActiveTasksPresenter(
 {
 }
 
-void ActiveTasksPresenter::editTask(const TaskDTO& original,
-                                    const TaskDTO& edited)
+void ActiveTasksPresenter::editTask(const TaskDTO& editedTask)
 {
-    editTaskHandler.handle(
-        use_cases::EditTaskCommand{fromDTO(original), fromDTO(edited)});
+    editTaskHandler.handle(use_cases::EditTaskCommand{editedTask});
 }
 
-void ActiveTasksPresenter::deleteTask(const TaskDTO& task)
+void ActiveTasksPresenter::deleteTask(const std::string& uuid)
 {
-    deleteTaskHandler.handle(use_cases::DeleteTaskCommand{fromDTO(task)});
+    deleteTaskHandler.handle(use_cases::DeleteTaskCommand{uuid});
 }
 
-void ActiveTasksPresenter::toggleFinished(const TaskDTO& task)
+void ActiveTasksPresenter::toggleFinished(
+    const std::string& uuid, dw::DateTime lastModificationTimestamp)
 {
     toggleFinishedHandler.handle(
-        use_cases::ToggleTaskCompletedCommand{fromDTO(task)});
+        use_cases::ToggleTaskCompletedCommand{uuid, lastModificationTimestamp});
 }
 
 void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
                                         int32_t count,
                                         int32_t destinationRow)
 {
-    std::vector<std::string> oldOrder(tasks.size());
-    std::transform(cbegin(tasks),
-                   cend(tasks),
+    if (!data) {
+        return;
+    }
+    std::vector<std::string> oldOrder(data->size());
+    std::transform(cbegin(*data),
+                   cend(*data),
                    begin(oldOrder),
                    [](const auto& elem) { return elem.uuid; });
 
@@ -74,20 +78,20 @@ void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
                  begin(newOrder) + sourceRow + count,
                  begin(newOrder) + destinationRow + offset);
 
-    changePriorityHandler.handle(
-        use_cases::ChangeUnfinishedTasksPriorityCommand{std::move(oldOrder),
-                                                        std::move(newOrder)});
+    changePriorityHandler.handle(use_cases::ChangeActiveTasksPriorityCommand{
+        std::move(oldOrder), std::move(newOrder)});
+}
+
+void ActiveTasksPresenter::fetchDataImpl()
+{
+    data = activeTasksHandler.handle(use_cases::ActiveTasksQuery{});
 }
 
 void ActiveTasksPresenter::updateViewImpl()
 {
-    if (auto v = view(); v) {
-        tasks = makeDTOs(
-            activeTasksHandler.handle(use_cases::UnfinishedTasksQuery{}));
-        v.value()->displayTasks(tasks);
+    if (auto v = view(); v && data) {
+        v.value()->displayTasks(*data);
     }
 }
-
-void ActiveTasksPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui

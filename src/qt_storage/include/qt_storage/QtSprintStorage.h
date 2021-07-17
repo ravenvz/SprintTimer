@@ -19,9 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef QTSPRINTSTORAGE_H_HNDKFVAS
+#define QTSPRINTSTORAGE_H_HNDKFVAS
+
+#include "core/SprintStorage.h"
 #include "qt_storage/QtSprintStorageReader.h"
 #include "qt_storage/QtSprintStorageWriter.h"
-#include "core/SprintStorage.h"
 
 namespace sprint_timer::storage::qt_storage {
 
@@ -40,7 +43,10 @@ public:
     std::vector<entities::Sprint>
     findByDateRange(const dw::DateRange& dateRange) final;
 
-    std::vector<entities::Sprint> findByTaskUuid(const std::string& uuid) final;
+    std::vector<entities::Sprint>
+    findByTaskUuid(const std::string& taskUuid) final;
+
+    std::vector<entities::Sprint> findByUuid(const std::string& uuid) final;
 
     void save(const entities::Sprint& sprint) final;
 
@@ -56,3 +62,5 @@ private:
 };
 
 } // namespace sprint_timer::storage::qt_storage
+
+#endif /* end of include guard: QTSPRINTSTORAGE_H_HNDKFVAS */

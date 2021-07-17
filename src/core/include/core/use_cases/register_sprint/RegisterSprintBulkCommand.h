@@ -23,14 +23,19 @@
 #define REGISTERSPRINTBULKCOMMAND_H_E07Q6KCM
 
 #include "core/Command.h"
-#include "core/entities/Sprint.h"
+#include "core/use_cases/SprintDTO.h"
 
 namespace sprint_timer::use_cases {
 
 struct RegisterSprintBulkCommand : public Command {
-    explicit RegisterSprintBulkCommand(std::vector<entities::Sprint>&& sprints);
+    RegisterSprintBulkCommand(std::string taskUuid,
+                              std::vector<dw::DateTimeRange> intervals);
 
-    const std::vector<entities::Sprint> sprints;
+    std::string taskUuid;
+    std::vector<dw::DateTimeRange> intervals;
+
+    friend bool operator==(const RegisterSprintBulkCommand&,
+                           const RegisterSprintBulkCommand&) = default;
 };
 
 template <class CharT, class Traits>
@@ -38,17 +43,13 @@ std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
            const RegisterSprintBulkCommand& command)
 {
-    os << "Register sprint bulk:\n";
-    const auto& sprints = command.sprints;
-    std::copy(sprints.cbegin(),
-              sprints.cend(),
-              std::ostream_iterator<entities::Sprint>(os, "\n"));
+    os << "Register sprint bulk for task:" << command.taskUuid << '\n';
+    for (const auto& interval : command.intervals) {
+        os << interval << '\n';
+    }
     os << "}\n";
     return os;
 }
-
-bool operator==(const RegisterSprintBulkCommand& lhs,
-                const RegisterSprintBulkCommand& rhs);
 
 } // namespace sprint_timer::use_cases
 

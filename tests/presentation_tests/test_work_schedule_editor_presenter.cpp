@@ -21,8 +21,8 @@
 *********************************************************************************/
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
-#include <gmock/gmock-spec-builders.h>
 #include "qt_gui/presentation/WorkScheduleEditorPresenter.h"
+#include <gmock/gmock-spec-builders.h>
 
 using namespace sprint_timer;
 using namespace ::testing;
@@ -104,8 +104,7 @@ WorkSchedule createSomeWorkSchedule()
 class WorkScheduleEditorPresenterFixture : public ::testing::Test {
 public:
     NiceMock<WorkScheduleEditorViewMock> view;
-    NiceMock<
-        mocks::QueryHandlerMock<use_cases::WorkScheduleQuery, WorkSchedule>>
+    NiceMock<mocks::QueryHandlerMock<use_cases::WorkScheduleQuery>>
         workScheduleHandler;
     NiceMock<mocks::CommandHandlerMock<use_cases::ChangeWorkScheduleCommand>>
         changeWorkScheduleHandler;

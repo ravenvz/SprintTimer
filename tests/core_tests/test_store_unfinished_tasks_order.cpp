@@ -27,13 +27,13 @@
 
 using sprint_timer::actions::ChangeTasksPriorities;
 
-class StoreUnfinishedTasksOrderFixture : public ::testing::Test {
+class StoreActiveTasksOrderFixture : public ::testing::Test {
 public:
     mocks::TaskStorageMock task_storage_mock;
     sprint_timer::ObservableActionInvoker actionInvoker;
 };
 
-TEST_F(StoreUnfinishedTasksOrderFixture, execute_and_undo)
+TEST_F(StoreActiveTasksOrderFixture, execute_and_undo)
 {
     const std::vector<std::string> old_priorities{"1", "2", "3"};
     const std::vector<std::string> new_priorities{"2", "1", "3"};

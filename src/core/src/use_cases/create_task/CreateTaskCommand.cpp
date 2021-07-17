@@ -23,8 +23,12 @@
 
 namespace sprint_timer::use_cases {
 
-CreateTaskCommand::CreateTaskCommand(entities::Task task_)
-    : task{std::move(task_)}
+CreateTaskCommand::CreateTaskCommand(std::string name_,
+                                     std::vector<std::string> tags_,
+                                     int32_t estimatedCost_)
+    : name{std::move(name_)}
+    , tags{std::move(tags_)}
+    , estimatedCost{std::move(estimatedCost_)}
 {
 }
 

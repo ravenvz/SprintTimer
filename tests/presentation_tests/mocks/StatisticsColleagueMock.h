@@ -22,8 +22,8 @@
 #ifndef STATISTICSCOLLEAGUEMOCK_H_2ZSPXNBR
 #define STATISTICSCOLLEAGUEMOCK_H_2ZSPXNBR
 
-#include "gmock/gmock.h"
 #include "qt_gui/presentation/StatisticsColleague.h"
+#include "gmock/gmock.h"
 
 using sprint_timer::ui::StatisticsColleague;
 
@@ -32,6 +32,10 @@ namespace mocks {
 class ColleagueMock : public StatisticsColleague {
 public:
     MOCK_METHOD(void, onSharedDataChanged, (), (override));
+
+    MOCK_METHOD(void, onTagSelected, (std::optional<size_t>), (override));
+
+    MOCK_METHOD(void, onDateRangeChanged, (const dw::DateRange&), (override));
 };
 
 } // namespace mocks

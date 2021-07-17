@@ -28,8 +28,7 @@
 
 namespace sprint_timer::use_cases {
 
-class WorkScheduleHandler
-    : public QueryHandler<WorkScheduleQuery, WorkSchedule> {
+class WorkScheduleHandler : public QueryHandler<WorkScheduleQuery> {
 public:
     WorkScheduleHandler(WorkScheduleReader& reader);
 

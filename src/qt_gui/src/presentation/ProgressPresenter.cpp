@@ -54,18 +54,19 @@ ProgressPresenter::ProgressPresenter(
 {
 }
 
-void ProgressPresenter::updateViewImpl()
+void ProgressPresenter::fetchDataImpl()
 {
-    if (auto v = view(); v) {
-        const auto progress =
-            requestProgressHandler.handle(use_cases::RequestProgressQuery{});
-        v.value()->displayGauges(composeGaugeData(progress));
-        v.value()->displayProgressBar(composeProgressBarData(progress));
-        v.value()->displayLegend(composeLegendData(progress));
-    }
+    data = requestProgressHandler.handle(use_cases::RequestProgressQuery{});
 }
 
-void ProgressPresenter::onViewAttached() { updateView(); }
+void ProgressPresenter::updateViewImpl()
+{
+    if (auto v = view(); v && data) {
+        v.value()->displayGauges(composeGaugeData(*data));
+        v.value()->displayProgressBar(composeProgressBarData(*data));
+        v.value()->displayLegend(composeLegendData(*data));
+    }
+}
 
 } // namespace sprint_timer::ui
 

@@ -23,7 +23,7 @@
 
 namespace sprint_timer::use_cases {
 
-SprintsForTaskQuery::SprintsForTaskQuery(std::string&& taskUuid_)
+SprintsForTaskQuery::SprintsForTaskQuery(std::string taskUuid_)
     : taskUuid{std::move(taskUuid_)}
 {
 }

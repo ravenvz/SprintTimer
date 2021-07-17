@@ -24,8 +24,7 @@
 namespace sprint_timer::use_cases {
 
 ExportTasksHandler::ExportTasksHandler(Handler& tasksHandler_,
-
-                                       DataExporter<entities::Task>& exporter_)
+                                       DataExporter<TaskDTO>& exporter_)
     : tasksHandler{tasksHandler_}
     , exporter{exporter_}
 {

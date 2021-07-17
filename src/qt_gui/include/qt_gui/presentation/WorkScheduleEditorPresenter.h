@@ -22,11 +22,11 @@
 #ifndef WORKSCHEDULEEDITORPRESENTER_H_B6HTHBSK
 #define WORKSCHEDULEEDITORPRESENTER_H_B6HTHBSK
 
-#include "qt_gui/presentation/WorkScheduleEditor.h"
 #include "core/CommandHandler.h"
 #include "core/QueryHandler.h"
 #include "core/use_cases/change_schedule/ChangeWorkScheduleCommand.h"
 #include "core/use_cases/request_schedule/WorkScheduleQuery.h"
+#include "qt_gui/presentation/WorkScheduleEditor.h"
 
 namespace sprint_timer::ui {
 
@@ -34,13 +34,10 @@ class WorkScheduleEditorPresenter
     : public contracts::WorkScheduleEditor::Presenter {
 public:
     WorkScheduleEditorPresenter(
-        QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>&
-            workScheduleHandler,
+        QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler,
         CommandHandler<use_cases::ChangeWorkScheduleCommand>&
             changeWorkScheduleHandler,
         dw::Weekday firstDayOfWeek);
-
-    void updateViewImpl() override;
 
     void onAddExceptionalRequested() override;
 
@@ -60,15 +57,14 @@ public:
     void onRevertChanges() override;
 
 private:
-    std::reference_wrapper<
-        QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>>
+    std::reference_wrapper<QueryHandler<use_cases::WorkScheduleQuery>>
         workScheduleHandler;
     std::reference_wrapper<CommandHandler<use_cases::ChangeWorkScheduleCommand>>
         changeWorkScheduleHandler;
     dw::Weekday firstDayOfWeek;
     WorkSchedule bufferedSchedule;
 
-    void onViewAttached() override { updateView(); }
+    void updateViewImpl() override;
 };
 
 } // namespace sprint_timer::ui

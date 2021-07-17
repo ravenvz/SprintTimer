@@ -19,57 +19,49 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/use_cases/TaskMapper.h"
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
-#include "qt_gui/presentation/TaskMapper.h"
+#include "qt_gui/presentation/ActiveTasksPresenter.h"
 #include "gmock/gmock.h"
 #include <algorithm>
-#include "core/TaskBuilder.h"
-#include "qt_gui/presentation/ActiveTasksPresenter.h"
 
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
 using sprint_timer::ui::ActiveTasksPresenter;
-using sprint_timer::ui::TaskDTO;
 using sprint_timer::ui::contracts::TaskContract::View;
-using sprint_timer::use_cases::ChangeUnfinishedTasksPriorityCommand;
-using sprint_timer::use_cases::DeleteTaskCommand;
-using sprint_timer::use_cases::EditTaskCommand;
-using sprint_timer::use_cases::ToggleTaskCompletedCommand;
-using sprint_timer::use_cases::UnfinishedTasksQuery;
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
+
+using namespace sprint_timer::use_cases;
 
 namespace {
 
 using namespace std::chrono_literals;
 
-std::vector<sprint_timer::ui::TaskDTO> someTaskDtos{
-    sprint_timer::ui::TaskDTO{
-        "1",
-        {"Tag 1", "Tag 2"},
-        "Task 1",
-        4,
-        2,
-        false,
-        dw::DateTime{std::chrono::system_clock::time_point{1596401779s}}},
-    sprint_timer::ui::TaskDTO{
-        "2",
-        {"Tag 5", "Tag 2"},
-        "Task 2",
-        15,
-        4,
-        false,
-        dw::DateTime{std::chrono::system_clock::time_point{1572878664s}}},
-    sprint_timer::ui::TaskDTO{
-        "3",
-        {"Tag 7", "Tag 1"},
-        "Task 3",
-        1,
-        0,
-        false,
-        dw::DateTime{std::chrono::system_clock::time_point{1614965664s}}}};
+std::vector<TaskDTO> someTaskDtos{
+    TaskDTO{"1",
+            {"Tag 1", "Tag 2"},
+            "Task 1",
+            4,
+            2,
+            false,
+            dw::DateTime{std::chrono::system_clock::time_point{1596401779s}}},
+    TaskDTO{"2",
+            {"Tag 5", "Tag 2"},
+            "Task 2",
+            15,
+            4,
+            false,
+            dw::DateTime{std::chrono::system_clock::time_point{1572878664s}}},
+    TaskDTO{"3",
+            {"Tag 7", "Tag 1"},
+            "Task 3",
+            1,
+            0,
+            false,
+            dw::DateTime{std::chrono::system_clock::time_point{1614965664s}}}};
 
 std::vector<sprint_timer::entities::Task> someTasks{
     sprint_timer::entities::Task{
@@ -104,21 +96,10 @@ std::vector<sprint_timer::entities::Task> someTasks{
 
 namespace sprint_timer::use_cases {
 
-bool operator==(const use_cases::DeleteTaskCommand& lhs,
-                const use_cases::DeleteTaskCommand& rhs);
-
-bool operator==(const EditTaskCommand& lhs, const EditTaskCommand& rhs);
-
-bool operator==(const use_cases::ChangeUnfinishedTasksPriorityCommand& lhs,
-                const use_cases::ChangeUnfinishedTasksPriorityCommand& rhs);
+bool operator==(const use_cases::ChangeActiveTasksPriorityCommand& lhs,
+                const use_cases::ChangeActiveTasksPriorityCommand& rhs);
 
 } // namespace sprint_timer::use_cases
-
-namespace sprint_timer::ui {
-
-bool operator==(const TaskDTO& lhs, const TaskDTO& rhs);
-
-} // namespace sprint_timer::ui
 
 class TaskContractViewMock
     : public sprint_timer::ui::contracts::TaskContract::View {
@@ -129,13 +110,12 @@ public:
 class ActiveTasksPresenterFixture : public ::testing::Test {
 public:
     NiceMock<TaskContractViewMock> view;
-    NiceMock<mocks::QueryHandlerMock<UnfinishedTasksQuery, std::vector<Task>>>
-        activeTasksHandler;
+    NiceMock<mocks::QueryHandlerMock<ActiveTasksQuery>> activeTasksHandler;
     NiceMock<mocks::CommandHandlerMock<EditTaskCommand>> editTaskHandler;
     NiceMock<mocks::CommandHandlerMock<DeleteTaskCommand>> deleteTaskHandler;
     NiceMock<mocks::CommandHandlerMock<ToggleTaskCompletedCommand>>
         toggleFinishedHandler;
-    NiceMock<mocks::CommandHandlerMock<ChangeUnfinishedTasksPriorityCommand>>
+    NiceMock<mocks::CommandHandlerMock<ChangeActiveTasksPriorityCommand>>
         changePriorityHandler;
 
     ActiveTasksPresenter makePresenter()
@@ -150,7 +130,7 @@ public:
 
 TEST_F(ActiveTasksPresenterFixture, populates_task_when_view_is_attached)
 {
-    ON_CALL(activeTasksHandler, handle(_)).WillByDefault(Return(someTasks));
+    mocks::given_handler_returns(activeTasksHandler, someTaskDtos);
     ActiveTasksPresenter sut{makePresenter()};
 
     EXPECT_CALL(view, displayTasks(someTaskDtos));
@@ -160,63 +140,44 @@ TEST_F(ActiveTasksPresenterFixture, populates_task_when_view_is_attached)
 
 TEST_F(ActiveTasksPresenterFixture, edits_task)
 {
-    const auto modificationStamp{dw::current_date_time()};
-    auto original = someTasks[1];
-    auto edited = Task{"Edited name",
-                       55,
-                       77,
-                       "2",
-                       std::list<Tag>{Tag{"Tag 1"}, Tag{"Other tag"}},
-                       false,
-                       modificationStamp};
-    const auto originalDTO = someTaskDtos[1];
-    const auto editedDTO = TaskDTO{"2",
-                                   {"Tag 1", "Other tag"},
-                                   "Edited name",
-                                   55,
-                                   77,
-                                   false,
-                                   modificationStamp};
+    const auto editedDTO =
+        TaskDTO{"2", {"Tag 1", "Other tag"}, "Edited name", 55, 77, false};
     ActiveTasksPresenter sut{makePresenter()};
     sut.attachView(view);
 
-    EXPECT_CALL(
-        editTaskHandler,
-        handle(EditTaskCommand{std::move(original), std::move(edited)}));
+    EXPECT_CALL(editTaskHandler, handle(EditTaskCommand{editedDTO}));
 
-    sut.editTask(originalDTO, editedDTO);
+    sut.editTask(editedDTO);
 }
 
 TEST_F(ActiveTasksPresenterFixture, deletes_task)
 {
     ActiveTasksPresenter sut{makePresenter()};
     sut.attachView(view);
+    const std::string someUuid{"123"};
 
-    EXPECT_CALL(deleteTaskHandler, handle(DeleteTaskCommand{someTasks[1]}));
+    EXPECT_CALL(deleteTaskHandler, handle(DeleteTaskCommand{someUuid}));
 
-    sut.deleteTask(someTaskDtos[1]);
+    sut.deleteTask(someUuid);
 }
 
 TEST_F(ActiveTasksPresenterFixture, toggles_task_completion)
 {
-    const auto someTask = someTasks[1];
+    const auto someTask = someTaskDtos[1];
     ActiveTasksPresenter sut{makePresenter()};
-    auto matchesToggleTaskCompletionCommand =
-        [&](const ToggleTaskCompletedCommand& command) {
-            return someTask == command.task;
-        };
 
     EXPECT_CALL(toggleFinishedHandler,
-                handle(::testing::Truly(matchesToggleTaskCompletionCommand)));
+                handle(ToggleTaskCompletedCommand{someTask.uuid,
+                                                  someTask.modificationStamp}));
 
-    sut.toggleFinished(someTaskDtos[1]);
+    sut.toggleFinished(someTask.uuid, someTask.modificationStamp);
 }
 
 TEST_F(ActiveTasksPresenterFixture,
        changes_task_order_by_moving_bottom_task_to_top)
 {
-    ON_CALL(activeTasksHandler, handle(_)).WillByDefault(Return(someTasks));
-    ChangeUnfinishedTasksPriorityCommand expected{
+    mocks::given_handler_returns(activeTasksHandler, someTaskDtos);
+    ChangeActiveTasksPriorityCommand expected{
         {someTasks[0].uuid(), someTasks[1].uuid(), someTasks[2].uuid()},
         {someTasks[2].uuid(), someTasks[0].uuid(), someTasks[1].uuid()}};
     ActiveTasksPresenter sut{makePresenter()};
@@ -230,8 +191,8 @@ TEST_F(ActiveTasksPresenterFixture,
 TEST_F(ActiveTasksPresenterFixture,
        changes_task_order_by_moving_top_task_to_bottom)
 {
-    ON_CALL(activeTasksHandler, handle(_)).WillByDefault(Return(someTasks));
-    ChangeUnfinishedTasksPriorityCommand expected{
+    mocks::given_handler_returns(activeTasksHandler, someTaskDtos);
+    ChangeActiveTasksPriorityCommand expected{
         {someTasks[0].uuid(), someTasks[1].uuid(), someTasks[2].uuid()},
         {someTasks[1].uuid(), someTasks[2].uuid(), someTasks[0].uuid()}};
     ActiveTasksPresenter sut{makePresenter()};
@@ -244,34 +205,10 @@ TEST_F(ActiveTasksPresenterFixture,
 
 namespace sprint_timer::use_cases {
 
-bool operator==(const use_cases::DeleteTaskCommand& lhs,
-                const use_cases::DeleteTaskCommand& rhs)
-{
-    return lhs.task == rhs.task;
-}
-
-bool operator==(const EditTaskCommand& lhs, const EditTaskCommand& rhs)
-{
-    return lhs.originalTask == rhs.originalTask &&
-           lhs.editedTask == rhs.editedTask;
-}
-
-bool operator==(const ChangeUnfinishedTasksPriorityCommand& lhs,
-                const ChangeUnfinishedTasksPriorityCommand& rhs)
+bool operator==(const ChangeActiveTasksPriorityCommand& lhs,
+                const ChangeActiveTasksPriorityCommand& rhs)
 {
     return lhs.oldOrder == rhs.oldOrder && lhs.newOrder == rhs.newOrder;
 }
 
 } // namespace sprint_timer::use_cases
-
-namespace sprint_timer::ui {
-
-bool operator==(const TaskDTO& lhs, const TaskDTO& rhs)
-{
-    return lhs.uuid == rhs.uuid && lhs.name == rhs.name &&
-           lhs.expectedCost == rhs.expectedCost &&
-           lhs.actualCost == rhs.actualCost && lhs.tags == rhs.tags;
-}
-
-} // namespace sprint_timer::ui
-

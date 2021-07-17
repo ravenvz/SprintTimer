@@ -24,7 +24,7 @@
 #include "qt_storage/QtSprintDistributionReader.h"
 #include "qt_storage/QtSprintStorage.h"
 #include "qt_storage/QtTaskStorage.h"
-#include "qt_storage/QtWorkingDaysStorage.h"
+#include "qt_storage/QtWorkScheduleStorage.h"
 
 namespace sprint_timer::storage::qt_storage {
 

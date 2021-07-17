@@ -32,8 +32,7 @@ namespace sprint_timer::ui {
 
 class TagEditorPresenter : public contracts::TagEditorContract::Presenter {
 public:
-    using all_tags_hdl_t =
-        QueryHandler<use_cases::AllTagsQuery, std::vector<std::string>>;
+    using all_tags_hdl_t = QueryHandler<use_cases::AllTagsQuery>;
     using rename_tag_hdl_t = CommandHandler<use_cases::RenameTagCommand>;
 
     TagEditorPresenter(all_tags_hdl_t& allTagsHandler,
@@ -45,10 +44,11 @@ public:
 private:
     all_tags_hdl_t& allTagsHandler;
     rename_tag_hdl_t& renameTagHandler;
+    std::optional<all_tags_hdl_t::result_t> data;
+
+    void fetchDataImpl() override;
 
     void updateViewImpl() override;
-
-    void onViewAttached() override;
 };
 
 } // namespace sprint_timer::ui

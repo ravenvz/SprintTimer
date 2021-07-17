@@ -20,52 +20,25 @@
 **
 *********************************************************************************/
 #include "core/entities/Sprint.h"
-#include "core/BoostUUIDGenerator.h"
 #include "core/utils/StringUtils.h"
 #include <algorithm>
-
-namespace {
-
-sprint_timer::BoostUUIDGenerator uuid_generator;
-
-}
+#include <utility>
 
 namespace sprint_timer::entities {
 
 using dw::DateTime;
 using dw::DateTimeRange;
 
-Sprint::Sprint(const std::string& taskName,
-               const DateTimeRange& timeSpan,
-               const std::list<Tag>& tags,
-               const std::string& uuid,
-               const std::string& taskUuid)
-    : name_{taskName}
+Sprint::Sprint(std::string taskName,
+               DateTimeRange timeSpan,
+               std::list<Tag> tags,
+               std::string uuid,
+               std::string taskUuid)
+    : name_{std::move(taskName)}
     , timeSpan_{timeSpan}
-    , uuid_{uuid}
-    , taskUuid_{taskUuid}
-    , tags_{tags}
-{
-}
-
-Sprint::Sprint(const std::string& taskName,
-               const DateTimeRange& timeSpan,
-               const std::list<Tag>& tags,
-               const std::string& taskUuid)
-    : Sprint{taskName, timeSpan, tags, uuid_generator.generateUUID(), taskUuid}
-{
-}
-
-// TODO What's up with name? What's up with tags?
-Sprint::Sprint(const std::string& taskUuid, const DateTimeRange& timeSpan)
-    : timeSpan_{timeSpan}
-    , uuid_{uuid_generator.generateUUID()}
-    , taskUuid_{taskUuid}
-{
-}
-
-Sprint::Sprint()
-    : timeSpan_{dw::current_date_time(), dw::current_date_time()}
+    , uuid_{std::move(uuid)}
+    , taskUuid_{std::move(taskUuid)}
+    , tags_{std::move(tags)}
 {
 }
 

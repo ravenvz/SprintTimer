@@ -20,21 +20,29 @@
 **
 *********************************************************************************/
 #include "core/use_cases/delete_sprint/DeleteSprintHandler.h"
+#include "core/HandlerException.h"
 #include "core/actions/DeleteSprint.h"
 
 namespace sprint_timer::use_cases {
 
-DeleteSprintHandler::DeleteSprintHandler(SprintStorageWriter& writer_,
+DeleteSprintHandler::DeleteSprintHandler(SprintStorage& sprintStorage_,
                                          ActionInvoker& actionInvoker_)
-    : writer{writer_}
+    : sprintStorage{sprintStorage_}
     , actionInvoker{actionInvoker_}
 {
 }
 
 void DeleteSprintHandler::handle(DeleteSprintCommand&& command)
 {
-    actionInvoker.execute(
-        std::make_unique<actions::DeleteSprint>(writer, command.sprint));
+    const auto matchingUuid = sprintStorage.findByUuid(command.uuid);
+    if (matchingUuid.empty()) {
+        std::string message{"Trying to delete sprint with uuid: "};
+        message += command.uuid;
+        message += " that does not exist.";
+        throw HandlerException{message};
+    }
+    actionInvoker.execute(std::make_unique<actions::DeleteSprint>(
+        sprintStorage, matchingUuid.front()));
 }
 
 } // namespace sprint_timer::use_cases

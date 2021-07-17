@@ -20,11 +20,11 @@
 **
 *********************************************************************************/
 
-#include "mocks/TaskStorageMock.h"
-#include "gtest/gtest.h"
 #include "core/ActionInvoker.h"
 #include "core/ObservableActionInvoker.h"
 #include "core/actions/ToggleTaskCompleted.h"
+#include "mocks/TaskStorageMock.h"
+#include "gtest/gtest.h"
 
 using sprint_timer::actions::ToggleTaskCompleted;
 using sprint_timer::entities::Tag;
@@ -33,40 +33,32 @@ using namespace dw;
 
 class ToggleTaskCompletionFixture : public ::testing::Test {
 public:
-    Task someTask{"Task name",
-                  4,
-                  2,
-                  "550e8400-e29b-41d4-a716-446655440000",
-                  {Tag{"Tag1"}, Tag{"Tag2"}},
-                  false,
-                  dw::DateTime{Date{Year{2015}, Month{11}, Day{10}}}};
-
     sprint_timer::ObservableActionInvoker actionInvoker;
     mocks::TaskStorageMock task_storage_mock;
+    const DateTime oldTimeStamp{DateTime{Date{Year{2021}, Month{4}, Day{28}}} +
+                                std::chrono::hours{3}};
 };
 
 TEST_F(ToggleTaskCompletionFixture, execute)
 {
+    const std::string uuid{"123"};
     EXPECT_CALL(task_storage_mock,
-                toggleCompleted(someTask.uuid(), dw::current_date_time_local()))
-        .Times(1);
+                toggleCompleted(uuid, dw::current_date_time_local()));
 
-    actionInvoker.execute(
-        std::make_unique<ToggleTaskCompleted>(task_storage_mock, someTask));
+    actionInvoker.execute(std::make_unique<ToggleTaskCompleted>(
+        task_storage_mock, uuid, oldTimeStamp));
 }
 
 TEST_F(ToggleTaskCompletionFixture, undo_should_not_modify_timestamp)
 {
+    const std::string uuid{"123"};
     EXPECT_CALL(task_storage_mock,
-                toggleCompleted(someTask.uuid(), dw::current_date_time_local()))
-        .Times(1);
+                toggleCompleted(uuid, dw::current_date_time_local()));
 
-    actionInvoker.execute(
-        std::make_unique<ToggleTaskCompleted>(task_storage_mock, someTask));
+    actionInvoker.execute(std::make_unique<ToggleTaskCompleted>(
+        task_storage_mock, uuid, oldTimeStamp));
 
-    EXPECT_CALL(task_storage_mock,
-                toggleCompleted(someTask.uuid(), someTask.lastModified()))
-        .Times(1);
+    EXPECT_CALL(task_storage_mock, toggleCompleted(uuid, oldTimeStamp));
 
     actionInvoker.undo();
 }

@@ -21,8 +21,6 @@
 *********************************************************************************/
 #include "qt_gui/presentation/HistoryPresenter.h"
 
-#include <iostream>
-
 namespace {
 
 /* Precondition: entities are sorted by their time in ascending order. */
@@ -30,15 +28,15 @@ template <typename Entity>
 sprint_timer::ui::contracts::HistoryContract::History
 toHistory(const std::vector<Entity>& entities);
 
-dw::Date extractDate(const sprint_timer::entities::Sprint& sprint);
+dw::Date extractDate(const sprint_timer::use_cases::SprintDTO& sprint);
 
 } // namespace
 
 namespace sprint_timer::ui {
 
 HistoryPresenter::HistoryPresenter(
-    SprintsRequestHandler& requestSprintsHandler_,
-    TaskRequestHandler& requestTasksHandler_,
+    request_sprints_hdl_t& requestSprintsHandler_,
+    finished_task_hdl_t& requestTasksHandler_,
     HistoryMediator& mediator_)
     : requestSprintsHandler{requestSprintsHandler_}
     , requestTasksHandler{requestTasksHandler_}
@@ -58,32 +56,50 @@ void HistoryPresenter::onEditSprintMenuSelected(
 {
 }
 
-void HistoryPresenter::updateViewImpl()
+void HistoryPresenter::fetchDataImpl()
 {
     const auto range = mediator.currentDateRange();
+    if (!range) {
+        return;
+    }
+
+    switch (mediator.displayedHistory()) {
+    case HistoryMediator::DisplayedHistory::SprintHistory:
+        sprintData = requestSprintsHandler.handle(
+            use_cases::RequestSprintsQuery{*range});
+        break;
+    case HistoryMediator::DisplayedHistory::TaskHistory:
+        taskData =
+            requestTasksHandler.handle(use_cases::FinishedTasksQuery{*range});
+        break;
+    }
+}
+
+void HistoryPresenter::updateViewImpl()
+{
     auto v = view();
-    if (!v || !range) {
+    if (!v) {
         return;
     }
 
     const auto history = mediator.displayedHistory();
     switch (history) {
     case HistoryMediator::DisplayedHistory::SprintHistory: {
-        const auto sprints = requestSprintsHandler.handle(
-            use_cases::RequestSprintsQuery{*range});
-        v.value()->displayHistory(toHistory(sprints));
+        if (!sprintData) {
+            return;
+        }
+        v.value()->displayHistory(toHistory(*sprintData));
         break;
     }
     case HistoryMediator::DisplayedHistory::TaskHistory: {
-        const auto tasks =
-            requestTasksHandler.handle(use_cases::FinishedTasksQuery{*range});
-        v.value()->displayHistory(toHistory(tasks));
+        if (!taskData) {
+            return;
+        }
+        v.value()->displayHistory(toHistory(*taskData));
         break;
     }
     }
 }
-
-void HistoryPresenter::onViewAttached() { updateView(); }
 
 void HistoryPresenter::onDisplayedTabChanged(int tabNumber)
 {
@@ -91,31 +107,33 @@ void HistoryPresenter::onDisplayedTabChanged(int tabNumber)
         this, static_cast<HistoryMediator::DisplayedHistory>(tabNumber));
 }
 
-void HistoryPresenter::onSharedDataChanged() { updateView(); }
+void HistoryPresenter::onSharedDataChanged()
+{
+    fetchData();
+    updateView();
+}
 
 } // namespace sprint_timer::ui
 
 namespace {
 
-std::string describe(const sprint_timer::entities::Sprint& sprint)
+std::string describe(const sprint_timer::use_cases::SprintDTO& sprint)
 {
     std::stringstream ss;
-    ss << dw::to_string(sprint.startTime(), "hh:mm") << " - "
-       << dw::to_string(sprint.finishTime(), "hh:mm") << " ";
-    for (const auto& tag : sprint.tags())
+    ss << dw::to_string(sprint.timeRange, "hh:mm") << " ";
+    for (const auto& tag : sprint.tags)
         ss << "#" << tag << " ";
-    ss << sprint.name();
-    std::cout << ss.str() << std::endl;
+    ss << sprint.taskName;
     return ss.str();
 }
 
-std::string describe(const sprint_timer::entities::Task& task)
+std::string describe(const sprint_timer::use_cases::TaskDTO& task)
 {
     std::stringstream ss;
-    for (const auto& tag : task.tags())
+    for (const auto& tag : task.tags)
         ss << "#" << tag << ' ';
-    ss << task.name();
-    ss << ' ' << task.actualCost() << '/' << task.estimatedCost();
+    ss << task.name;
+    ss << ' ' << task.actualCost << '/' << task.expectedCost;
     return ss.str();
 }
 
@@ -123,17 +141,26 @@ template <typename Entity>
 sprint_timer::ui::contracts::HistoryContract::Item toItem(const Entity& entity)
 {
     return sprint_timer::ui::contracts::HistoryContract::Item{describe(entity),
-                                                              entity.uuid()};
+                                                              entity.uuid};
 }
 
-dw::Date extractDate(const sprint_timer::entities::Sprint& sprint)
+// TODO remove when all handlers interactions are cleaned from entities
+template <>
+sprint_timer::ui::contracts::HistoryContract::Item
+toItem(const sprint_timer::use_cases::TaskDTO& entity)
 {
-    return sprint.startTime().date();
+    return sprint_timer::ui::contracts::HistoryContract::Item{describe(entity),
+                                                              entity.uuid};
 }
 
-dw::Date extractDate(const sprint_timer::entities::Task& task)
+dw::Date extractDate(const sprint_timer::use_cases::SprintDTO& sprint)
 {
-    return task.lastModified().date();
+    return sprint.timeRange.start().date();
+}
+
+dw::Date extractDate(const sprint_timer::use_cases::TaskDTO& task)
+{
+    return task.modificationStamp.date();
 }
 
 /* Precondition: entities are sorted by their time in ascending order. */

@@ -24,20 +24,20 @@
 
 #include "core/ActionInvoker.h"
 #include "core/CommandHandler.h"
-#include "core/SprintStorageWriter.h"
+#include "core/SprintStorage.h"
 #include "core/use_cases/delete_sprint/DeleteSprintCommand.h"
 
 namespace sprint_timer::use_cases {
 
 class DeleteSprintHandler : public CommandHandler<DeleteSprintCommand> {
 public:
-    DeleteSprintHandler(SprintStorageWriter& writer,
+    DeleteSprintHandler(SprintStorage& sprintStorage,
                         ActionInvoker& actionInvoker);
 
     void handle(DeleteSprintCommand&& command) override;
 
 private:
-    SprintStorageWriter& writer;
+    SprintStorage& sprintStorage;
     ActionInvoker& actionInvoker;
 };
 

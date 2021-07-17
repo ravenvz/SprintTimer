@@ -31,8 +31,8 @@ namespace sprint_timer::storage::qt_storage {
 
 using namespace qt_storage;
 
-QtTaskStorageWriter::QtTaskStorageWriter(const QString& connectionName_)
-    : connectionName{connectionName_}
+QtTaskStorageWriter::QtTaskStorageWriter(QString connectionName_)
+    : connectionName{std::move(connectionName_)}
 {
     createTaskQuery =
         tryPrepare(connectionName,

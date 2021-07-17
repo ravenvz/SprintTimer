@@ -29,18 +29,34 @@ namespace mocks {
 
 class SprintStorageMock : public sprint_timer::SprintStorage {
 public:
-    MOCK_METHOD1(save, void(const sprint_timer::entities::Sprint&));
-    MOCK_METHOD1(save,
-                 void(const std::vector<sprint_timer::entities::Sprint>&));
-    MOCK_METHOD1(remove, void(const sprint_timer::entities::Sprint&));
-    MOCK_METHOD1(remove,
-                 void(const std::vector<sprint_timer::entities::Sprint>&));
-    MOCK_METHOD1(
-        findByDateRange,
-        std::vector<sprint_timer::entities::Sprint>(const dw::DateRange&));
-    MOCK_METHOD1(
-        findByTaskUuid,
-        std::vector<sprint_timer::entities::Sprint>(const std::string&));
+    MOCK_METHOD(void,
+                save,
+                (const sprint_timer::entities::Sprint&),
+                (override));
+    MOCK_METHOD(void,
+                save,
+                (const std::vector<sprint_timer::entities::Sprint>&),
+                (override));
+    MOCK_METHOD(void,
+                remove,
+                (const sprint_timer::entities::Sprint&),
+                (override));
+    MOCK_METHOD(void,
+                remove,
+                (const std::vector<sprint_timer::entities::Sprint>&),
+                (override));
+    MOCK_METHOD(std::vector<sprint_timer::entities::Sprint>,
+                findByDateRange,
+                (const dw::DateRange&),
+                (override));
+    MOCK_METHOD(std::vector<sprint_timer::entities::Sprint>,
+                findByTaskUuid,
+                (const std::string&),
+                (override));
+    MOCK_METHOD(std::vector<sprint_timer::entities::Sprint>,
+                findByUuid,
+                (const std::string&),
+                (override));
 };
 
 } // namespace mocks

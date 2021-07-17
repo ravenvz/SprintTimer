@@ -50,8 +50,10 @@ void renameLeftoverTags(std::vector<std::string>& tagNames);
 
 namespace sprint_timer::ui {
 
-TopTagDiagramPresenter::TopTagDiagramPresenter(StatisticsMediator& mediator_)
+TopTagDiagramPresenter::TopTagDiagramPresenter(
+    StatisticsMediator& mediator_, const StatisticsContext& statisticsContext_)
     : mediator{mediator_}
+    , statisticsContext{statisticsContext_}
 {
     mediator.addColleague(this);
 }
@@ -64,24 +66,22 @@ TopTagDiagramPresenter::~TopTagDiagramPresenter()
 void TopTagDiagramPresenter::onTagIndexSelected(size_t index)
 {
     if (auto v = view(); v) {
-        // deselect previos selection if any
+        // deselect previous selection if any
         if (selection.currentIndex()) {
             v.value()->toggleSelection(selection.currentIndex());
         }
         selection.select(index);
         v.value()->toggleSelection(selection.currentIndex());
-        mediator.filterByTag(this, selection.currentIndex());
+        mediator.selectTag(this, selection.currentIndex());
     }
 }
 
 void TopTagDiagramPresenter::onSharedDataChanged() { updateView(); }
 
-void TopTagDiagramPresenter::onViewAttached() { updateView(); }
-
 void TopTagDiagramPresenter::updateViewImpl()
 {
-    if (auto v = view(); v && mediator.range()) {
-        const auto& frequencies = mediator.tagFrequencies();
+    if (auto v = view(); v && statisticsContext.currentRange()) {
+        const auto& frequencies = statisticsContext.tagFrequencies();
         auto [diagramData, legendData] = extractData(frequencies);
         selection.setTags(legendData);
         v.value()->toggleSelection(selection.currentIndex());

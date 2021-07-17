@@ -37,9 +37,15 @@ QtSprintStorage::findByDateRange(const dw::DateRange& dateRange)
 }
 
 std::vector<entities::Sprint>
-QtSprintStorage::findByTaskUuid(const std::string& uuid)
+QtSprintStorage::findByTaskUuid(const std::string& taskUuid)
 {
-    return reader->findByTaskUuid(uuid);
+    return reader->findByTaskUuid(taskUuid);
+}
+
+std::vector<entities::Sprint>
+QtSprintStorage::findByUuid(const std::string& uuid)
+{
+    return reader->findByUuid(uuid);
 }
 
 void QtSprintStorage::save(const entities::Sprint& sprint)

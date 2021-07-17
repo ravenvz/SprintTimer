@@ -24,7 +24,7 @@
 #include "qt_gui/presentation/TaskSelectionMediator.h"
 #include "qt_gui/presentation/TaskSprintsPresenter.h"
 
-using sprint_timer::ui::SprintDTO;
+using sprint_timer::use_cases::SprintDTO;
 using sprint_timer::use_cases::SprintsForTaskQuery;
 using ::testing::_;
 using ::testing::NiceMock;
@@ -40,10 +40,6 @@ bool operator==(const SprintsForTaskQuery& lhs, const SprintsForTaskQuery& rhs)
 
 } // namespace sprint_timer::use_cases
 
-// TODO remove when DTOs are returned by query
-using sprint_timer::entities::Sprint;
-using sprint_timer::entities::Tag;
-
 class TaskSprintsViewMock
     : public sprint_timer::ui::contracts::TaskSprintsContract::View {
 public:
@@ -57,23 +53,13 @@ class TaskSprintsPresenterFixture : public ::testing::Test {
 public:
     TaskSprintsViewMock view;
     sprint_timer::ui::TaskSelectionMediator taskSelectionMediator;
-    NiceMock<mocks::QueryHandlerMock<SprintsForTaskQuery, std::vector<Sprint>>>
+    NiceMock<mocks::QueryHandlerMock<SprintsForTaskQuery>>
         sprintsForTaskHandler;
     sprint_timer::ui::TaskSprintsPresenter sut{sprintsForTaskHandler,
                                                taskSelectionMediator};
     NiceMock<mocks::TaskSelectionColleagueMock> fakeColleague;
     dw::DateTimeRange someTimeRange{dw::current_date_time(),
                                     dw::current_date_time() + 25min};
-    std::vector<Sprint> someSprints{Sprint{"Some task name",
-                                           someTimeRange,
-                                           {Tag{"Tag1"}, Tag{"Tag2"}},
-                                           "789",
-                                           "123"},
-                                    Sprint{"Some task name",
-                                           dw::add_offset(someTimeRange, 2h),
-                                           {Tag{"Tag1"}, Tag{"Tag2"}},
-                                           "555",
-                                           "123"}};
     std::vector<SprintDTO> someSprintDtos{
         SprintDTO{
             "789", "123", "Some task name", {"Tag1", "Tag2"}, someTimeRange},
@@ -97,7 +83,7 @@ TEST_F(TaskSprintsPresenterFixture,
 {
     taskSelectionMediator.changeSelection(&fakeColleague, 2, "123");
     ON_CALL(sprintsForTaskHandler, handle(SprintsForTaskQuery{"123"}))
-        .WillByDefault(Return(someSprints));
+        .WillByDefault(Return(someSprintDtos));
 
     EXPECT_CALL(view, displaySprints(someSprintDtos));
 

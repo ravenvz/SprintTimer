@@ -22,15 +22,16 @@
 #ifndef BOOSTUUIDGENERATOR_H_OF6HXUYB
 #define BOOSTUUIDGENERATOR_H_OF6HXUYB
 
+#include "core/UUIDGenerator.h"
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
 namespace sprint_timer {
 
-class BoostUUIDGenerator {
+class BoostUUIDGenerator : public UUIDGenerator {
 public:
-    std::string generateUUID() { return to_string(generator()); }
+    std::string generateUUID() override { return to_string(generator()); }
 
 private:
     boost::uuids::random_generator generator;

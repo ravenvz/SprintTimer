@@ -19,28 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DB_HELPER_H
-#define DB_HELPER_H
+#ifndef WORKERCONNECTION_H_QYWK9G25
+#define WORKERCONNECTION_H_QYWK9G25
 
 #include "qt_storage/ConnectionGuard.h"
 #include "qt_storage/QueryError.h"
-#include <QDebug>
-#include <QHash>
-#include <QObject>
-#include <QSqlDatabase>
-#include <QThread>
-#include <QtSql>
-#include <algorithm>
-#include <memory>
-#include <vector>
+#include <QString>
 
 namespace sprint_timer::storage::qt_storage {
 
 class WorkerConnection {
 public:
-    explicit WorkerConnection(const QString& filename);
-
-    explicit WorkerConnection(const std::string& filename);
+    WorkerConnection(QString filename, QString connectionName);
 
     ~WorkerConnection() = default;
 
@@ -53,13 +43,14 @@ public:
     QString connectionName() const;
 
 private:
-    const QString filename;
-    const QString connName{"SyncConnection"};
-    qt_storage::ConnectionGuard connection{filename, connName};
+    QString filename;
+    QString connName;
+    qt_storage::ConnectionGuard connection;
 
     void setPragmas();
 };
 
 } // namespace sprint_timer::storage::qt_storage
 
-#endif // DB_HELPER_H
+#endif /* end of include guard: WORKERCONNECTION_H_QYWK9G25 */
+

@@ -19,14 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/CommandHandlerMock.h"
-#include <algorithm>
 #include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include "mocks/CommandHandlerMock.h"
 #include "qt_gui/presentation/RegisterSprintControlPresenter.h"
 
 using sprint_timer::use_cases::RegisterSprintBulkCommand;
 using ::testing::NiceMock;
-using ::testing::Truly;
 
 namespace {
 
@@ -56,28 +54,9 @@ TEST_F(RegisterSprintControlPresenterFixture,
         add_offset(firstSprintRange, 25min),
         add_offset(firstSprintRange, 50min),
         add_offset(firstSprintRange, 75min)};
-    auto matchesByUuidAndRange = [&](const RegisterSprintBulkCommand& command) {
-        const auto sprints = command.sprints;
-        std::vector<DateTimeRange> ranges;
-        std::transform(cbegin(sprints),
-                       cend(sprints),
-                       std::back_inserter(ranges),
-                       [](const auto& elem) { return elem.timeSpan(); });
-
-        if (!std::all_of(cbegin(sprints), cend(sprints), [&](const auto& elem) {
-                return elem.taskUuid() == taskUuid;
-            })) {
-            return false;
-        }
-
-        return std::equal(cbegin(expectedRanges),
-                          cend(expectedRanges),
-                          cbegin(ranges),
-                          cend(ranges));
-    };
 
     EXPECT_CALL(registerSprintBulkHandler,
-                handle(Truly(matchesByUuidAndRange)));
+                handle(RegisterSprintBulkCommand{taskUuid, expectedRanges}));
 
     sut.registerConsecutiveSprints(taskUuid, firstSprintStartTime, 4, 25min);
 }
@@ -97,28 +76,9 @@ TEST_F(RegisterSprintControlPresenterFixture,
         add_offset(firstSprintRange, 25min),
         add_offset(firstSprintRange, 50min),
         add_offset(firstSprintRange, 75min)};
-    auto matchesByUuidAndRange = [&](const RegisterSprintBulkCommand& command) {
-        const auto sprints = command.sprints;
-        std::vector<DateTimeRange> ranges;
-        std::transform(cbegin(sprints),
-                       cend(sprints),
-                       std::back_inserter(ranges),
-                       [](const auto& elem) { return elem.timeSpan(); });
-
-        if (!std::all_of(cbegin(sprints), cend(sprints), [&](const auto& elem) {
-                return elem.taskUuid() == taskUuid;
-            })) {
-            return false;
-        }
-
-        return std::equal(cbegin(expectedRanges),
-                          cend(expectedRanges),
-                          cbegin(ranges),
-                          cend(ranges));
-    };
 
     EXPECT_CALL(registerSprintBulkHandler,
-                handle(Truly(matchesByUuidAndRange)));
+                handle(RegisterSprintBulkCommand{taskUuid, expectedRanges}));
 
     sut.registerSprintBulk(taskUuid, expectedRanges);
 }

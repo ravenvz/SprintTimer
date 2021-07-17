@@ -33,16 +33,14 @@ class WorkScheduleEditorPresenterProxy
     : public ui::contracts::WorkScheduleEditor::Presenter {
 public:
     WorkScheduleEditorPresenterProxy(
-        QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>&
-            workScheduleHandler,
+        QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler,
         CommandHandler<use_cases::ChangeWorkScheduleCommand>&
             changeWorkScheduleHandler,
         const IConfig& settings,
         Observable& configChangedSignaller);
 
 private:
-    QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>&
-        workScheduleHandler;
+    QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler;
     CommandHandler<use_cases::ChangeWorkScheduleCommand>&
         changeWorkScheduleHandler;
     const IConfig& settings;
@@ -78,8 +76,7 @@ private:
 };
 
 inline WorkScheduleEditorPresenterProxy::WorkScheduleEditorPresenterProxy(
-    QueryHandler<use_cases::WorkScheduleQuery, WorkSchedule>&
-        workScheduleHandler_,
+    QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler_,
     CommandHandler<use_cases::ChangeWorkScheduleCommand>&
         changeWorkScheduleHandler_,
     const IConfig& settings_,

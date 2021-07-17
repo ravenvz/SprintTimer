@@ -30,7 +30,8 @@ namespace sprint_timer::actions {
 class ToggleTaskCompleted : public Action {
 public:
     ToggleTaskCompleted(TaskStorageWriter& taskStorageWriter,
-                        const entities::Task& task);
+                        std::string uuid,
+                        dw::DateTime lastModificationTimestamp);
 
     void execute() final;
 

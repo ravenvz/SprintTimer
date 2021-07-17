@@ -26,7 +26,6 @@
 #include "qt_gui/widgets/BarChart.h"
 #include <QtWidgets/QWidget>
 #include "core/Distribution.h"
-#include "core/SprintStatistics.h"
 #include <memory>
 
 class QLabel;

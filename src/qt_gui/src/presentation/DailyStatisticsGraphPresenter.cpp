@@ -87,9 +87,12 @@ size_t daysBetween(const dw::Date& date, const dw::DateTime& dateTime);
 namespace sprint_timer::ui {
 
 DailyStatisticsGraphPresenter::DailyStatisticsGraphPresenter(
-    schedule_hdl_t& workScheduleHandler_, StatisticsMediator& mediator_)
+    schedule_hdl_t& workScheduleHandler_,
+    StatisticsMediator& mediator_,
+    const StatisticsContext& statisticsContext_)
     : workScheduleHandler{workScheduleHandler_}
     , mediator{mediator_}
+    , statisticsContext{statisticsContext_}
 {
     mediator.addColleague(this);
 }
@@ -101,6 +104,14 @@ DailyStatisticsGraphPresenter::~DailyStatisticsGraphPresenter()
 
 void DailyStatisticsGraphPresenter::onSharedDataChanged() { updateView(); }
 
+void DailyStatisticsGraphPresenter::fetchDataImpl()
+{
+    if (!statisticsContext.currentRange()) {
+        return;
+    }
+    data = workScheduleHandler.handle(use_cases::WorkScheduleQuery{});
+}
+
 void DailyStatisticsGraphPresenter::updateViewImpl()
 {
     auto v = view();
@@ -108,7 +119,7 @@ void DailyStatisticsGraphPresenter::updateViewImpl()
         return;
     }
 
-    const auto range = mediator.range();
+    const auto range = statisticsContext.currentRange();
     if (!range) {
         v.value()->updateLegend(
             ui::contracts::DailyStatisticGraphContract::LegendData{"No data",
@@ -116,15 +127,16 @@ void DailyStatisticsGraphPresenter::updateViewImpl()
         return;
     }
 
-    const auto& sprints = mediator.sprints();
-    const auto schedule =
-        workScheduleHandler.handle(use_cases::WorkScheduleQuery{});
+    if (!data) {
+        return;
+    }
+
+    const auto& sprints = statisticsContext.sprints();
     const auto distribution = dailyStatistics(sprints, *range);
     v.value()->clearGraphs();
-    updateAll(v.value(), distribution, schedule, *mediator.range());
+    updateAll(
+        v.value(), distribution, *data, *statisticsContext.currentRange());
 }
-
-void DailyStatisticsGraphPresenter::onViewAttached() { updateView(); }
 
 } // namespace sprint_timer::ui
 
