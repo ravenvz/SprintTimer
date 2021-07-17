@@ -22,6 +22,7 @@
 #ifndef TIMERVIEW_H_4EUKLBJM
 #define TIMERVIEW_H_4EUKLBJM
 
+#include "qt_gui/delegates/SubmissionItemDelegate.h"
 #include "qt_gui/presentation/RegisterSprintControl.h"
 #include "qt_gui/presentation/TimerContract.h"
 #include "qt_gui/widgets/CombinedIndicator.h"
@@ -61,6 +62,7 @@ private:
     QPushButton* pbZone;
     QComboBox* submissionBox;
     CombinedIndicator* combinedIndicator;
+    SubmissionItemDelegate delegate;
 
     void
     onUiChangeRequested(const contracts::TimerContract::TimerUiModel& model);
