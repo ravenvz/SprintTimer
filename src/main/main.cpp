@@ -333,7 +333,7 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
 
     const QString sqliteFile =
-        QString::fromStdString(dataDirectory + "/test_sprint.db");
+        QString::fromStdString(dataDirectory + "/sprint.db");
 
     {
         DatabaseInitializer initializer{sqliteFile};
@@ -345,7 +345,7 @@ int main(int argc, char* argv[])
     DefaultDateTimeProvider dateTimeProvider;
 
     compose::ThreadConnectionHelper threadConnectionHelper{dataDirectory +
-                                                           "/test_sprint.db"};
+                                                           "/sprint.db"};
     compose::SQliteStorageFactory storageFactory{threadConnectionHelper,
                                                  applicationSettings};
 

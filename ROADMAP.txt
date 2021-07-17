@@ -5,7 +5,7 @@ and fixing bugs rather than new features.
 
 HISTORY
 ----------------------------------------------------------------
-Version 0.6.4
+Version 0.6.5
 -------------
 All settings options are now applied immediately, no restart is required.
 Improved UI for adding sprints dialog.
