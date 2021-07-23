@@ -22,7 +22,7 @@
 #include "core/entities/Task.h"
 #include "core/use_cases/workflow_control/StartTimer.h"
 #include "mocks/AssetLibraryMock.h"
-#include "mocks/CommandHandlerMock.h"
+#include "mocks/QueryHandlerMock.h"
 #include "mocks/SoundPlayerMock.h"
 #include "qt_gui/presentation/TimerPresenter.h"
 #include "gmock/gmock.h"
@@ -108,15 +108,28 @@ class TimerPresenterFixture : public ::testing::Test {
 public:
     TimerViewMock view;
     NiceMock<WorkflowTMock> workflow;
+    NiceMock<
+        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestProgressQuery>>
+        todayProgressHandler;
     const std::string someSoundPath{"somesoundpath"};
     NiceMock<mocks::SoundPlayerMock> soundPlayer;
     NiceMock<mocks::AssetLibraryMock> assetLibrary;
     sprint_timer::ui::TaskSelectionMediator taskSelectionMediator;
     TimerPresenter presenter{workflow,
+                             todayProgressHandler,
                              soundPlayer,
                              assetLibrary,
                              std::string{ringSoundId},
                              taskSelectionMediator};
+
+    void SetUp() override
+    {
+        using sprint_timer::GoalProgress;
+        ON_CALL(todayProgressHandler, handle(_))
+            .WillByDefault(
+                Return(sprint_timer::ProgressOverPeriod{{GoalProgress{
+                    GoalProgress::Estimated{12}, GoalProgress::Actual{7}}}}));
+    }
 };
 
 TEST_F(TimerPresenterFixture, upon_creation_starts_listening_workflow)
@@ -124,6 +137,7 @@ TEST_F(TimerPresenterFixture, upon_creation_starts_listening_workflow)
     EXPECT_CALL(workflow, addListener(_));
 
     TimerPresenter otherPresenter{workflow,
+                                  todayProgressHandler,
                                   soundPlayer,
                                   assetLibrary,
                                   std::string{ringSoundId},
@@ -137,6 +151,7 @@ TEST_F(TimerPresenterFixture, removes_self_as_workflow_listener_when_destroyed)
 
     {
         TimerPresenter otherPresenter{wflow,
+                                      todayProgressHandler,
                                       soundPlayer,
                                       assetLibrary,
                                       std::string{ringSoundId},
@@ -151,6 +166,30 @@ TEST_F(TimerPresenterFixture, sets_up_idle_view_state_when_view_is_attached)
     EXPECT_CALL(view, setupUi(TimerUiModel::idleUiModel(text)));
 
     presenter.attachView(view);
+}
+
+TEST_F(TimerPresenterFixture,
+       sets_sprint_count_for_workflow_when_view_is_attached)
+{
+    using sprint_timer::GoalProgress;
+    NiceMock<
+        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestProgressQuery>>
+        progressHandler;
+    const int numActualSprints{4};
+    TimerPresenter otherPresenter{workflow,
+                                  progressHandler,
+                                  soundPlayer,
+                                  assetLibrary,
+                                  std::string{ringSoundId},
+                                  taskSelectionMediator};
+    ON_CALL(progressHandler, handle(_))
+        .WillByDefault(Return(sprint_timer::ProgressOverPeriod{
+            {GoalProgress{GoalProgress::Estimated{14}, GoalProgress::Actual{2}},
+             GoalProgress{GoalProgress::Estimated{12},
+                          GoalProgress::Actual{numActualSprints}}}}));
+    EXPECT_CALL(workflow, setNumFinishedSprints(numActualSprints));
+
+    otherPresenter.attachView(view);
 }
 
 TEST_F(TimerPresenterFixture, updates_timer_value)

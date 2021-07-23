@@ -19,9 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/Workflow.h"
 #include "mocks/ConfigMock.h"
 #include "gmock/gmock.h"
-#include "core/Workflow.h"
 
 using namespace sprint_timer;
 
@@ -128,7 +128,7 @@ TEST_F(WorkflowStates, should_transition_to_break_after_finished)
 TEST_F(WorkflowStates,
        should_transition_to_long_break_after_finished_when_met_req)
 {
-    workflow->setNumFinishedSprints(sprintsBeforeBreakStarted - 1);
+    workflow->setNumFinishedSprints(sprintsBeforeBreakStarted);
     workflow->set_state(workflow->finished_state());
     EXPECT_CALL(listener,
                 onWorkflowStateChanged(IWorkflow::StateId::BreakStarted));
