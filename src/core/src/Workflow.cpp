@@ -22,6 +22,8 @@
 #include "core/Workflow.h"
 #include <utility>
 
+#include <iostream>
+
 namespace sprint_timer {
 
 using dw::DateTime;
@@ -71,7 +73,11 @@ void Workflow::transitionToState(WorkflowState& state)
 
 bool Workflow::longBreakConditionMet() const
 {
-    return (finishedSprints + 1) % params.numSprintsBeforeLongBreak == 0;
+    std::cout << "Number of sprints in the buffer: " << buffer.size()
+              << std::endl;
+    std::cout << "Number of finished sprints as indicated by workflow: "
+              << numFinishedSprints() << std::endl;
+    return finishedSprints % params.numSprintsBeforeLongBreak == 0;
 }
 
 void Workflow::onTimerRunout() { currentState->onTimerFinished(*this); }
@@ -202,6 +208,11 @@ void ShortBreak::onTimerFinished(Workflow& timer) { exit(timer); }
 
 void LongBreak::enter(Workflow& timer) const
 {
+    std::cout << "Entering the long break" << std::endl;
+    std::cout << "Number of sprints in the buffer: " << timer.buffer.size()
+              << std::endl;
+    std::cout << "Number of finished sprints as indicated by workflow: "
+              << timer.numFinishedSprints() << std::endl;
     timer.notifyStateChanged(IWorkflow::StateId::BreakStarted);
     timer.startCountdown();
 }
@@ -276,6 +287,8 @@ void SprintFinished::cancel(Workflow& timer)
 
 void SprintFinished::exit(Workflow& timer)
 {
+    timer.setNumFinishedSprints(timer.numFinishedSprints() +
+                                static_cast<int>(timer.buffer.size()));
     timer.buffer.clear();
     timer.longBreakConditionMet() ? timer.transitionToState(timer.longBreak)
                                   : timer.transitionToState(timer.shortBreak);
