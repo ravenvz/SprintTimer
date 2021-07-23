@@ -5,6 +5,10 @@ and fixing bugs rather than new features.
 
 HISTORY
 ----------------------------------------------------------------
+Version 0.6.7
+-------------
+Fixed bug when long break was not activated when it should be.
+
 Version 0.6.5
 -------------
 All settings options are now applied immediately, no restart is required.

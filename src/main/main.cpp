@@ -736,6 +736,7 @@ int main(int argc, char* argv[])
         assetLibrary_, applicationSettings, applicationSettings};
     ui::TaskSelectionMediator taskSelectionMediator;
     ui::TimerPresenter timerPresenter{workflow,
+                                      *requestDailyProgressHandler,
                                       soundPlayer,
                                       assetLibrary,
                                       "ringSound",

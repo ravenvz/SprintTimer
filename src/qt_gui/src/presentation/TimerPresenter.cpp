@@ -35,11 +35,13 @@ constexpr std::string_view submissionTimerText{"Submit"};
 namespace sprint_timer::ui {
 
 TimerPresenter::TimerPresenter(IWorkflow& workflow_,
+                               today_progress_hdl_t& todayProgressHandler_,
                                SoundPlayer& player_,
                                const AssetLibrary& assetLibrary_,
                                std::string ringSoundId_,
                                TaskSelectionMediator& taskSelectionMediator_)
     : workflow{workflow_}
+    , todayProgressHandler{todayProgressHandler_}
     , player{player_}
     , assetLibrary{assetLibrary_}
     , ringSoundId{std::move(ringSoundId_)}
@@ -58,6 +60,14 @@ TimerPresenter::~TimerPresenter()
 void TimerPresenter::updateViewImpl()
 {
     if (auto v = view(); v) {
+        const auto progress =
+            todayProgressHandler.handle(use_cases::RequestProgressQuery{});
+        if (progress.size() != 0) {
+            workflow.setNumFinishedSprints(
+                todayProgressHandler.handle(use_cases::RequestProgressQuery{})
+                    .getValue(progress.size() - 1)
+                    .actual());
+        }
         v.value()->setupUi(contracts::TimerContract::TimerUiModel::idleUiModel(
             std::string{idleTimerText}));
     }

@@ -22,23 +22,28 @@
 #ifndef TIMERPRESENTER_H_O4HCGZN9
 #define TIMERPRESENTER_H_O4HCGZN9
 
-#include "qt_gui/presentation/AssetLibrary.h"
-#include "qt_gui/presentation/TaskSelectionMediator.h"
-#include "qt_gui/presentation/TimerContract.h"
 #include "core/CommandHandler.h"
 #include "core/IWorkflow.h"
+#include "core/QueryHandler.h"
 #include "core/SoundPlayer.h"
 #include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include "core/use_cases/request_progress/RequestProgressQuery.h"
 #include "core/use_cases/workflow_control/CancelTimer.h"
 #include "core/use_cases/workflow_control/StartTimer.h"
 #include "core/use_cases/workflow_control/ToggleZoneMode.h"
+#include "qt_gui/presentation/AssetLibrary.h"
+#include "qt_gui/presentation/TaskSelectionMediator.h"
+#include "qt_gui/presentation/TimerContract.h"
 
 namespace sprint_timer::ui {
 
 class TimerPresenter : public contracts::TimerContract::Presenter,
                        public IWorkflow::WorkflowListener {
 public:
+    using today_progress_hdl_t = QueryHandler<use_cases::RequestProgressQuery>;
+
     TimerPresenter(IWorkflow& workflow,
+                   today_progress_hdl_t& todayProgressHandler,
                    SoundPlayer& player,
                    const AssetLibrary& assetLibrary,
                    std::string ringSoundId,
@@ -62,6 +67,7 @@ public:
 
 private:
     IWorkflow& workflow;
+    today_progress_hdl_t& todayProgressHandler;
     SoundPlayer& player;
     const AssetLibrary& assetLibrary;
     std::string ringSoundId;
