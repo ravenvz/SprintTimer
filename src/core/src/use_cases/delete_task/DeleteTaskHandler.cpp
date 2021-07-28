@@ -26,11 +26,9 @@
 
 namespace sprint_timer::use_cases {
 
-DeleteTaskHandler::DeleteTaskHandler(SprintStorage& sprintStorage_,
-                                     TaskStorage& taskStorage_,
+DeleteTaskHandler::DeleteTaskHandler(TaskStorage& taskStorage_,
                                      ActionInvoker& actionInvoker_)
-    : sprintStorage{sprintStorage_}
-    , taskStorage{taskStorage_}
+    : taskStorage{taskStorage_}
     , actionInvoker{actionInvoker_}
 {
 }
@@ -46,7 +44,7 @@ void DeleteTaskHandler::handle(DeleteTaskCommand&& command)
     }
 
     actionInvoker.execute(std::make_unique<actions::DeleteTask>(
-        taskStorage, sprintStorage, matchingUuid.front()));
+        taskStorage, matchingUuid.front()));
 }
 
 } // namespace sprint_timer::use_cases

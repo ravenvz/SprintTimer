@@ -24,6 +24,8 @@
 #include "use_cases_tests/utils/utils.h"
 #include "gmock/gmock.h"
 
+#include <iostream>
+
 using namespace sprint_timer;
 using namespace sprint_timer::use_cases;
 using namespace sprint_timer::entities;
@@ -52,6 +54,19 @@ public:
         queryComposer.monthlyDistHandler()};
 };
 
+template <typename ForwardIt>
+ForwardIt
+generate_n_consecutive_ranges(ForwardIt first, dw::DateTime base, int n)
+{
+    using namespace std::chrono_literals;
+    const dw::DateTimeRange baseRange{dw::DateTime{base},
+                                      dw::DateTime{base} + 25min};
+    std::generate_n(first, n, [&, i = 0]() mutable {
+        return dw::add_offset(baseRange, i++ * 25min);
+    });
+    return first;
+}
+
 TEST_F(ReadingSprintDistributionsFixture, reads_sprint_daily_distribution)
 {
     createTaskHandler.handle(
@@ -65,34 +80,33 @@ TEST_F(ReadingSprintDistributionsFixture, reads_sprint_daily_distribution)
                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 2};
     // Out of range
-    std::generate_n(std::back_inserter(sprintRanges), 2, [&]() {
-        return DateTimeRange{DateTime{someDate - Days{30}},
-                             DateTime{someDate - Days{30}}};
-    });
+    generate_n_consecutive_ranges(
+        std::back_inserter(sprintRanges), DateTime{someDate - Days{30}}, 2);
+
     // On left border
-    std::generate_n(std::back_inserter(sprintRanges), 4, [&]() {
-        return DateTimeRange{DateTime{someDate - Days{29}},
-                             DateTime{someDate - Days{29}}};
-    });
+    generate_n_consecutive_ranges(
+        std::back_inserter(sprintRanges), DateTime{someDate - Days{29}}, 4);
+
     // In range
-    std::generate_n(std::back_inserter(sprintRanges), 3, [&]() {
-        return DateTimeRange{DateTime{someDate - Days{20}},
-                             DateTime{someDate - Days{20}}};
-    });
+    generate_n_consecutive_ranges(
+        std::back_inserter(sprintRanges), DateTime{someDate - Days{20}}, 3);
+
     // In range
-    std::generate_n(std::back_inserter(sprintRanges), 7, [&]() {
-        return DateTimeRange{DateTime{someDate - Days{10}},
-                             DateTime{someDate - Days{10}}};
-    });
+    generate_n_consecutive_ranges(
+        std::back_inserter(sprintRanges), DateTime{someDate - Days{10}}, 7);
+
     // On right border
-    std::generate_n(std::back_inserter(sprintRanges), 2, [&]() {
-        return DateTimeRange{DateTime{someDate}, DateTime{someDate}};
-    });
+    generate_n_consecutive_ranges(
+        std::back_inserter(sprintRanges), DateTime{someDate}, 2);
+
     // Out of range
-    std::generate_n(std::back_inserter(sprintRanges), 3, [&]() {
-        return DateTimeRange{DateTime{someDate + Days{1}},
-                             DateTime{someDate + Days{1}}};
-    });
+    generate_n_consecutive_ranges(
+        std::back_inserter(sprintRanges), DateTime{someDate + Days{1}}, 3);
+
+    for (const auto& r : sprintRanges) {
+        std::cout << r << std::endl;
+    }
+
     registerSprintBulkHandler.handle(
         RegisterSprintBulkCommand{taskUuid, sprintRanges});
 

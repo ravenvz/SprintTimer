@@ -32,6 +32,7 @@ target_sources(${STORAGE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage/migrations/Migration_v4.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage/migrations/Migration_v5.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage/migrations/Migration_v6.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage/migrations/Migration_v7.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage/utils/DateTimeConverter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_storage/utils/QueryUtils.h"
     PRIVATE
@@ -56,6 +57,7 @@ target_sources(${STORAGE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/migrations/Migration_v4.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/migrations/Migration_v5.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/migrations/Migration_v6.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/migrations/Migration_v7.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/utils/QueryUtils.cpp"
 )
 

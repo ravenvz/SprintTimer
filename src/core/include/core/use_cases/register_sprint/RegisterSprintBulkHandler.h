@@ -22,6 +22,7 @@
 #include "core/ActionInvoker.h"
 #include "core/CommandHandler.h"
 #include "core/SprintStorageWriter.h"
+#include "core/TaskStorageReader.h"
 #include "core/UUIDGenerator.h"
 #include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
 
@@ -30,14 +31,16 @@ namespace sprint_timer::use_cases {
 class RegisterSprintBulkHandler
     : public CommandHandler<RegisterSprintBulkCommand> {
 public:
-    RegisterSprintBulkHandler(SprintStorageWriter& writer,
+    RegisterSprintBulkHandler(TaskStorageReader& taskReader,
+                              SprintStorageWriter& sprintWriter,
                               ActionInvoker& actionInvoker,
                               UUIDGenerator& uuidGenerator);
 
     void handle(RegisterSprintBulkCommand&& command) override;
 
 private:
-    SprintStorageWriter& writer;
+    TaskStorageReader& taskReader;
+    SprintStorageWriter& sprintWriter;
     ActionInvoker& actionInvoker;
     UUIDGenerator& uuidGenerator;
 };

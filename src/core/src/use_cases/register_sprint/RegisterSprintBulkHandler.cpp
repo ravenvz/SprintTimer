@@ -27,10 +27,12 @@
 namespace sprint_timer::use_cases {
 
 RegisterSprintBulkHandler::RegisterSprintBulkHandler(
-    SprintStorageWriter& writer_,
+    TaskStorageReader& taskReader_,
+    SprintStorageWriter& sprintWriter_,
     ActionInvoker& actionInvoker_,
     UUIDGenerator& uuidGenerator_)
-    : writer{writer_}
+    : taskReader{taskReader_}
+    , sprintWriter{sprintWriter_}
     , actionInvoker{actionInvoker_}
     , uuidGenerator{uuidGenerator_}
 {
@@ -38,6 +40,7 @@ RegisterSprintBulkHandler::RegisterSprintBulkHandler(
 
 void RegisterSprintBulkHandler::handle(RegisterSprintBulkCommand&& command)
 {
+    entities::Task task = taskReader.findByUuid(command.taskUuid).front();
     std::vector<entities::Sprint> sprints;
     sprints.reserve(command.intervals.size());
     std::transform(cbegin(command.intervals),
@@ -50,8 +53,11 @@ void RegisterSprintBulkHandler::handle(RegisterSprintBulkCommand&& command)
                                                uuidGenerator.generateUUID(),
                                                command.taskUuid};
                    });
+    for (const auto& sprint : sprints) {
+        task.addSprint(sprint);
+    }
     actionInvoker.execute(
-        std::make_unique<actions::RegisterSprintBulk>(writer, sprints));
+        std::make_unique<actions::RegisterSprintBulk>(sprintWriter, sprints));
 }
 
 } // namespace sprint_timer::use_cases

@@ -25,10 +25,8 @@
 namespace sprint_timer::actions {
 
 DeleteTask::DeleteTask(TaskStorageWriter& taskStorageWriter_,
-                       SprintStorage& sprintStorage_,
                        entities::Task taskToRemove_)
     : taskWriter{taskStorageWriter_}
-    , sprintStorage{sprintStorage_}
     , task{std::move(taskToRemove_)}
 {
 }
@@ -39,27 +37,10 @@ void DeleteTask::execute()
         taskWriter.remove(task.uuid());
         return;
     }
-    taskSprints = sprintStorage.findByTaskUuid(task.uuid());
     taskWriter.remove(task.uuid());
 }
 
-void DeleteTask::undo()
-{
-    // This prevents doubling actual cost in case when deletion
-    // of Task that has sprints will be undone - otherwise actual cost
-    // will be restored and when sprints are added afterwards, actual cost
-    // effectively doubles.
-    if (task.actualCost() != 0) {
-        entities::Task nullifiedCostTask = task;
-        nullifiedCostTask.setActualCost(0);
-        taskWriter.save(nullifiedCostTask);
-    }
-    else {
-        taskWriter.save(task);
-    }
-
-    sprintStorage.save(taskSprints);
-}
+void DeleteTask::undo() { taskWriter.save(task); }
 
 std::string DeleteTask::describe() const
 {

@@ -21,56 +21,156 @@
 *********************************************************************************/
 #include "core/entities/Task.h"
 #include "core/BoostUUIDGenerator.h"
+#include "core/SprintTimerException.h"
 #include <iostream>
+
+namespace {
+
+struct sprints_in_conflict {
+    sprints_in_conflict(const sprint_timer::entities::Sprint& sprint_)
+        : sprint{sprint_}
+    {
+    }
+
+    bool operator()(const sprint_timer::entities::Sprint& otherSprint) const
+    {
+        const auto start = sprint.timeSpan().start();
+        const auto finish = sprint.timeSpan().finish();
+
+        if (areConsecutive(sprint.timeSpan(), otherSprint.timeSpan())) {
+            return false;
+        }
+
+        return inRange(start, otherSprint.timeSpan()) ||
+               inRange(finish, otherSprint.timeSpan());
+    }
+
+private:
+    const sprint_timer::entities::Sprint& sprint;
+
+    bool areConsecutive(const auto& lhs, const auto& rhs) const
+    {
+        return equalToSeconds(lhs.start(), rhs.finish()) ||
+               equalToSeconds(lhs.finish(), rhs.start());
+    };
+
+    bool inRange(auto dateTime, auto range) const
+    {
+        return dateTime >= range.start() && dateTime <= range.finish();
+    };
+
+    bool equalToSeconds(const auto& lhs, const auto& rhs) const
+    {
+        return lhs.date() == rhs.date() && lhs.hour() == rhs.hour() &&
+               lhs.minute() == rhs.minute() && lhs.second() == rhs.second();
+    };
+};
+
+} // namespace
 
 namespace sprint_timer::entities {
 
 using dw::DateTime;
 
-Task::Task(std::string name,
-           int estimatedCost,
-           int actualCost,
-           std::string uuid,
-           std::list<Tag> tags,
-           bool completed,
-           const DateTime& lastModified)
-    : name_{std::move(name)}
-    , estimatedCost_{estimatedCost}
-    , actualCost_{actualCost}
-    , uuid_{uuid}
-    , tags_{std::move(tags)}
-    , completed_{completed}
-    , lastModified_{lastModified}
+Task::Task(std::string uuid_,
+           std::string name_,
+           int estimatedCost_,
+           dw::DateTime lastModified_)
+    : taskName{std::move(name_)}
+    , estimated{estimatedCost_}
+    , id{std::move(uuid_)}
+    , timeStamp{lastModified_}
 {
 }
 
-std::string Task::name() const { return name_; }
-
-bool Task::isCompleted() const { return completed_; }
-
-int Task::estimatedCost() const { return estimatedCost_; }
-
-int Task::actualCost() const { return actualCost_; }
-
-std::string Task::uuid() const { return uuid_; }
-
-std::list<Tag> Task::tags() const { return tags_; }
-
-DateTime Task::lastModified() const { return lastModified_; }
-
-void Task::setName(const std::string& name) { name_ = name; }
-
-void Task::setCompleted(bool completed) { completed_ = completed; }
-
-void Task::setEstimatedCost(int numSprints) { estimatedCost_ = numSprints; }
-
-void Task::setTags(const std::list<Tag>& newTags) { tags_ = newTags; }
-
-void Task::setActualCost(int numSprints) { actualCost_ = numSprints; }
-
-void Task::setModifiedTimeStamp(const DateTime& timeStamp)
+Task::Task(std::string name_,
+           int estimatedCost_,
+           std::vector<Sprint> sprints_,
+           std::string uuid_,
+           std::list<Tag> tags_,
+           bool completed_,
+           const dw::DateTime& lastModified_)
+    : taskName{std::move(name_)}
+    , estimated{estimatedCost_}
+    , id{std::move(uuid_)}
+    , tag{std::move(tags_)}
+    , completed{completed_}
+    , timeStamp{lastModified_}
+    , sprintCont{std::move(sprints_)}
 {
-    lastModified_ = timeStamp;
+}
+
+Task::Task(std::string name_,
+           int estimatedCost_,
+           int actualCost_,
+           std::string uuid_,
+           std::list<Tag> tags_,
+           bool completed_,
+           const DateTime& lastModified_)
+    : taskName{std::move(name_)}
+    , estimated{estimatedCost_}
+    , actual{actualCost_}
+    , id{std::move(uuid_)}
+    , tag{std::move(tags_)}
+    , completed{completed_}
+    , timeStamp{lastModified_}
+{
+}
+
+std::string Task::name() const { return taskName; }
+
+bool Task::isCompleted() const { return completed; }
+
+int Task::estimatedCost() const { return estimated; }
+
+int Task::actualCost() const { return static_cast<int>(sprintCont.size()); }
+
+std::string Task::uuid() const { return id; }
+
+std::list<Tag> Task::tags() const { return tag; }
+
+DateTime Task::lastModified() const { return timeStamp; }
+
+const std::vector<Sprint>& Task::sprints() const { return sprintCont; }
+
+void Task::setName(const std::string& name_) { taskName = name_; }
+
+void Task::setCompleted(bool completed_) { completed = completed_; }
+
+void Task::setEstimatedCost(int numSprints) { estimated = numSprints; }
+
+void Task::setTags(const std::list<Tag>& newTags) { tag = newTags; }
+
+void Task::setActualCost(int numSprints) { actual = numSprints; }
+
+void Task::setModifiedTimeStamp(const DateTime& timeStamp_)
+{
+    timeStamp = timeStamp_;
+}
+
+void Task::addSprint(Sprint sprint)
+{
+    if (conflictDetectedWith(sprint)) {
+        std::stringstream ss;
+        ss << "Attempting to add sprint that conflicts with others:\n";
+        ss << sprint;
+        ss << "\nin conflict with:\n";
+        for (const auto& s : sprintCont) {
+            if (sprints_in_conflict{sprint}(s)) {
+                ss << s << '\n';
+            }
+        }
+        throw SprintTimerException{ss.str()};
+    }
+    sprintCont.push_back(std::move(sprint));
+    timeStamp = dw::current_date_time_local();
+}
+
+bool Task::conflictDetectedWith(const Sprint& sprint) const
+{
+    // TODO if sprint order is enforced sorted, might use binary search
+    return std::any_of(
+        cbegin(sprintCont), cend(sprintCont), sprints_in_conflict{sprint});
 }
 
 std::ostream& operator<<(std::ostream& os, const Task& task)

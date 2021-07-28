@@ -32,14 +32,11 @@ namespace sprint_timer::use_cases {
 
 class DeleteTaskHandler : public CommandHandler<DeleteTaskCommand> {
 public:
-    DeleteTaskHandler(SprintStorage& sprintStorage,
-                      TaskStorage& taskStorage,
-                      ActionInvoker& actionInvoker);
+    DeleteTaskHandler(TaskStorage& taskStorage, ActionInvoker& actionInvoker);
 
     void handle(DeleteTaskCommand&& command) override;
 
 private:
-    SprintStorage& sprintStorage;
     TaskStorage& taskStorage;
     ActionInvoker& actionInvoker;
 };

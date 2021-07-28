@@ -49,8 +49,11 @@ struct TestCommandHandlerComposer : public CommandHandlerComposer {
                      actionInvoker_,
                      generator_,
                      dateTimeProvider_}
-        , deleteTask{sprintStorage_, taskStorage_, actionInvoker_}
-        , registerSprintBulk{sprintStorage_, actionInvoker_, generator_}
+        , deleteTask{taskStorage_, actionInvoker_}
+        , registerSprintBulk{taskStorage_,
+                             sprintStorage_,
+                             actionInvoker_,
+                             generator_}
         , toggleTaskCompleted{taskStorage_, actionInvoker_}
         , deleteSprint{sprintStorage_, actionInvoker_}
         , editTask{taskStorage_, actionInvoker_}

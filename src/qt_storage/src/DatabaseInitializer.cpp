@@ -29,6 +29,7 @@
 #include "qt_storage/migrations/Migration_v4.h"
 #include "qt_storage/migrations/Migration_v5.h"
 #include "qt_storage/migrations/Migration_v6.h"
+#include "qt_storage/migrations/Migration_v7.h"
 #include "qt_storage/utils/QueryUtils.h"
 #include <QDebug>
 #include <QSqlDriver>
@@ -352,6 +353,7 @@ MigrationManager prepareMigrationManager(QSqlDatabase& /*database*/)
     migrationManager.addMigration(3, std::make_unique<Migration_v4>());
     migrationManager.addMigration(4, std::make_unique<Migration_v5>());
     migrationManager.addMigration(5, std::make_unique<Migration_v6>());
+    migrationManager.addMigration(6, std::make_unique<Migration_v7>());
     return migrationManager;
 }
 

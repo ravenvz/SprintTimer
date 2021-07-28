@@ -38,6 +38,19 @@ namespace sprint_timer::entities {
 class Task {
 
 public:
+    Task(std::string uuid,
+         std::string name,
+         int estimatedCost,
+         dw::DateTime lastModified);
+
+    Task(std::string name,
+         int estimatedCost,
+         std::vector<Sprint> sprints,
+         std::string uuid,
+         std::list<Tag> tags,
+         bool completed,
+         const dw::DateTime& lastModified);
+
     Task(std::string name,
          int estimatedCost,
          int actualCost,
@@ -62,6 +75,8 @@ public:
 
     dw::DateTime lastModified() const;
 
+    const std::vector<Sprint>& sprints() const;
+
     void setName(const std::string& name);
 
     void setCompleted(bool completed);
@@ -74,14 +89,19 @@ public:
 
     void setModifiedTimeStamp(const dw::DateTime& timeStamp);
 
+    void addSprint(Sprint sprint);
+
 private:
-    std::string name_;
-    int estimatedCost_{1};
-    int actualCost_{0};
-    std::string uuid_;
-    std::list<Tag> tags_;
-    bool completed_{false};
-    dw::DateTime lastModified_{dw::current_date_time_local()};
+    std::string taskName;
+    int estimated{1};
+    int actual{0};
+    std::string id;
+    std::list<Tag> tag;
+    bool completed{false};
+    dw::DateTime timeStamp{dw::current_date_time_local()};
+    std::vector<Sprint> sprintCont;
+
+    bool conflictDetectedWith(const Sprint& sprint) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Task& task);

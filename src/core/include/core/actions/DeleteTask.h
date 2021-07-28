@@ -31,7 +31,6 @@ namespace sprint_timer::actions {
 class DeleteTask : public Action {
 public:
     DeleteTask(TaskStorageWriter& taskStorageWriter,
-               SprintStorage& sprintStorage,
                entities::Task taskToRemove);
 
     void execute() final;
@@ -42,9 +41,7 @@ public:
 
 private:
     TaskStorageWriter& taskWriter;
-    SprintStorage& sprintStorage;
     const entities::Task task;
-    std::vector<entities::Sprint> taskSprints;
 };
 
 } // namespace sprint_timer::actions

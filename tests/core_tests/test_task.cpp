@@ -19,37 +19,92 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
+#include "core/SprintTimerException.h"
 #include "core/entities/Task.h"
 #include "gtest/gtest.h"
 
 using namespace sprint_timer::entities;
 using dw::DateTime;
 
-TEST(TestTask, ostream_operator)
+TEST(TestTask, adding_sprint)
+{
+    using namespace std::chrono_literals;
+    using namespace dw;
+    const std::string taskName{"Some name"};
+    const std::string taskUuid{"123"};
+    constexpr auto modificationStamp =
+        DateTime{Date{Year{2016}, Month{9}, Day{21}}} + 12h + 59min + 19s;
+    Task someTask{taskUuid, taskName, 4, modificationStamp};
+
+    someTask.addSprint(Sprint{taskName,
+                              DateTimeRange{current_date_time_local(),
+                                            current_date_time_local() + 25min},
+                              std::list<Tag>{},
+                              "777",
+                              taskUuid});
+    someTask.addSprint(Sprint{taskName,
+                              DateTimeRange{current_date_time_local() + 25min,
+                                            current_date_time_local() + 50min},
+                              std::list<Tag>{},
+                              "888",
+                              taskUuid});
+
+    EXPECT_EQ(2, someTask.actualCost());
+    EXPECT_EQ(current_date_time_local(), someTask.lastModified());
+}
+
+TEST(TestTask, rejects_sprint_if_it_intersects_with_others)
 {
     using namespace dw;
     using namespace std::chrono_literals;
-
     constexpr auto modificationStamp =
         DateTime{Date{Year{2016}, Month{9}, Day{21}}} + 12h + 59min + 19s;
-    const Task item{"I am item with no tags",
-                    4,
-                    2,
-                    "uuid",
-                    std::list<Tag>(),
-                    false,
-                    modificationStamp};
-    const auto uuid = item.uuid();
-    std::string expected{"I am item with no tags 2/4"};
-    expected += " Uuid: ";
-    expected += uuid;
-    expected += " ";
-    expected += "21.09.2016 12:59:19";
+    Task someTask{"123", "Some name", 4, modificationStamp};
+    const DateTimeRange timeRange{dw::current_date_time(),
+                                  dw::current_date_time() + 25min};
+    const DateTimeRange conflictingTimeRange{dw::add_offset(timeRange, 15min)};
+    someTask.addSprint(
+        Sprint{"Some name", timeRange, std::list<Tag>{}, "111", "123"});
 
-    std::stringstream ss;
-    ss << item;
-    std::string actual{ss.str()};
-
-    EXPECT_EQ(expected, actual);
+    ASSERT_THROW(
+        someTask.addSprint(Sprint{
+            "Some name", conflictingTimeRange, std::list<Tag>{}, "222", "123"}),
+        sprint_timer::SprintTimerException);
 }
+
+TEST(TestTask, accepts_sprints_when_there_are_no_conflicts)
+{
+    using namespace dw;
+    using namespace std::chrono_literals;
+    constexpr auto modificationStamp =
+        DateTime{Date{Year{2016}, Month{9}, Day{21}}} + 12h + 59min + 19s;
+    Task someTask{"123", "Some name", 4, modificationStamp};
+    const DateTimeRange timeRange{dw::current_date_time(),
+                                  dw::current_date_time() + 25min};
+    const std::vector<Sprint> sprints{
+        Sprint{"Some name", timeRange, std::list<Tag>{}, "1", "123"},
+        Sprint{"Some name",
+               add_offset(timeRange, 25min),
+               std::list<Tag>{},
+               "2",
+               "123"},
+        Sprint{"Some name",
+               add_offset(timeRange, 24h),
+               std::list<Tag>{},
+               "3",
+               "123"},
+        Sprint{"Some name",
+               add_offset(timeRange, 24h + 25min),
+               std::list<Tag>{},
+               "4",
+               "123"}};
+
+    for (const auto& sprint : sprints) {
+        someTask.addSprint(sprint);
+    }
+
+    EXPECT_EQ(sprints, someTask.sprints());
+    EXPECT_EQ(4, someTask.actualCost());
+    EXPECT_EQ(current_date_time_local(), someTask.lastModified());
+}
+

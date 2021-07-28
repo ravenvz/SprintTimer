@@ -23,9 +23,9 @@
 #define QUERYHANDLERDECORATOR_H_PDP6G0WS
 
 #include "CacheAwareQueryHandler.h"
-#include "VerboseQueryHandler.h"
-
+#include "ErrorHandlingQueryHandler.h"
 #include "ProfilingQueryHandler.h"
+#include "VerboseQueryHandler.h"
 
 namespace sprint_timer::compose {
 
@@ -33,8 +33,9 @@ template <typename QueryT>
 std::unique_ptr<QueryHandler<QueryT>>
 decorate(std::unique_ptr<QueryHandler<QueryT>> wrapped, std::ostream& os)
 {
-    return std::make_unique<ProfilingQueryHandler<QueryT>>(std::move(wrapped),
-                                                           os);
+    return std::make_unique<ErrorHandlingQueryHandler<QueryT>>(
+        std::make_unique<ProfilingQueryHandler<QueryT>>(std::move(wrapped), os),
+        os);
     // return std::make_unique<sprint_timer::VerboseQueryHandler<QueryT>>(
     //     std::move(wrapped), os);
 }

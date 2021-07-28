@@ -333,7 +333,7 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
 
     const QString sqliteFile =
-        QString::fromStdString(dataDirectory + "/sprint.db");
+        QString::fromStdString(dataDirectory + "/test_sprint.db");
 
     {
         DatabaseInitializer initializer{sqliteFile};
@@ -345,7 +345,7 @@ int main(int argc, char* argv[])
     DefaultDateTimeProvider dateTimeProvider;
 
     compose::ThreadConnectionHelper threadConnectionHelper{dataDirectory +
-                                                           "/sprint.db"};
+                                                           "/test_sprint.db"};
     compose::SQliteStorageFactory storageFactory{threadConnectionHelper,
                                                  applicationSettings};
 
@@ -484,8 +484,7 @@ int main(int argc, char* argv[])
         outputStream);
     auto deleteTaskHandler = compose::decorate_com_handler<DeleteTaskCommand>(
         compose::decorate_com_handler<DeleteTaskCommand>(
-            std::make_unique<DeleteTaskHandler>(
-                *sprintStorage, *taskStorage, actionInvoker),
+            std::make_unique<DeleteTaskHandler>(*taskStorage, actionInvoker),
             cacheInvalidationMediator),
         outputStream);
     auto toggleCompletionHandler =
@@ -511,7 +510,7 @@ int main(int argc, char* argv[])
         compose::decorate_com_handler<RegisterSprintBulkCommand>(
             compose::decorate_com_handler<RegisterSprintBulkCommand>(
                 std::make_unique<RegisterSprintBulkHandler>(
-                    *sprintStorage, actionInvoker, uuidGenerator),
+                    *taskStorage, *sprintStorage, actionInvoker, uuidGenerator),
                 cacheInvalidationMediator),
             outputStream);
     auto changeWorkScheduleHandler =

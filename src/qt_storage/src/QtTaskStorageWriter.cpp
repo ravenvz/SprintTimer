@@ -98,6 +98,15 @@ QtTaskStorageWriter::QtTaskStorageWriter(QString connectionName_)
                                       ":old_name;"}
                                   .arg(TagTable::name)
                                   .arg(TagTable::Columns::name));
+    insertSprintQuery = tryPrepare(
+        connectionName,
+        QString{"INSERT INTO %1(%2, %3, %4, %5) "
+                "VALUES(:todo_uuid, :startTime, :finishTime, :uuid);"}
+            .arg(SprintView::name)
+            .arg(SprintTable::Columns::taskUuid)
+            .arg(SprintTable::Columns::startTime)
+            .arg(SprintTable::Columns::finishTime)
+            .arg(SprintTable::Columns::uuid));
 }
 
 void QtTaskStorageWriter::save(const entities::Task& task)
@@ -116,6 +125,9 @@ void QtTaskStorageWriter::save(const entities::Task& task)
     TransactionGuard guard{connectionName};
     tryExecute(createTaskQuery);
     insertTags(uuid, task.tags());
+    for (const auto& sprint : task.sprints()) {
+        insertSprint(sprint);
+    }
     guard.commit();
 }
 
@@ -211,6 +223,23 @@ void QtTaskStorageWriter::removeTags(const QString& taskUuid,
         deleteTagQuery.bindValue(":tag", QString::fromStdString(tag.name()));
         tryExecute(deleteTagQuery);
     }
+}
+
+void QtTaskStorageWriter::insertSprint(
+    const sprint_timer::entities::Sprint& sprint)
+{
+    using storage::utils::DateTimeConverter;
+    const QDateTime startTime =
+        DateTimeConverter::qDateTime(sprint.timeSpan().start());
+    const QDateTime finishTime =
+        DateTimeConverter::qDateTime(sprint.timeSpan().finish());
+    insertSprintQuery.bindValue(
+        ":todo_uuid", QVariant(QString::fromStdString(sprint.taskUuid())));
+    insertSprintQuery.bindValue(":startTime", QVariant(startTime));
+    insertSprintQuery.bindValue(":finishTime", QVariant(finishTime));
+    insertSprintQuery.bindValue(
+        ":uuid", QVariant(QString::fromStdString(sprint.uuid())));
+    tryExecute(insertSprintQuery);
 }
 
 } // namespace sprint_timer::storage::qt_storage
