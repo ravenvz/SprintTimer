@@ -40,8 +40,8 @@ Workflow::Workflow(std::chrono::seconds tickPeriod_,
 
 void Workflow::start()
 {
-    // TODO probably usage should be limited to Idle and Finished states
-    currentState->exit(*this);
+    if (currentState == &sprintFinished || currentState == &idle)
+        currentState->exit(*this);
 }
 
 void Workflow::cancel() { currentState->cancel(*this); }

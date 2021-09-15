@@ -119,7 +119,11 @@ bool TaskModel::setData(const QModelIndex& index,
 
     case (CustomRoles::ReplaceRole): {
         if (auto p = presenter(); p) {
-            p.value()->editTask(value.value<use_cases::TaskDTO>());
+            const auto& oldTask = storage[pos];
+            auto editedTask = value.value<use_cases::TaskDTO>();
+            editedTask.uuid = oldTask.uuid;
+            editedTask.actualCost = oldTask.actualCost;
+            p.value()->editTask(editedTask);
             return true;
         }
         return false;

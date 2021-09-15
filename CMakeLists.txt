@@ -7,7 +7,7 @@ if (POLICY CMP0076)
     cmake_policy(SET CMP0076 NEW)
 endif()
 
-project(sprint_timer_app VERSION 0.6.7)
+project(sprint_timer_app VERSION 0.6.8)
 
 # Download CPM
 include(cmake/CpmDownload.cmake)
