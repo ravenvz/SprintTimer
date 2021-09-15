@@ -5,6 +5,10 @@ and fixing bugs rather than new features.
 
 HISTORY
 ----------------------------------------------------------------
+Version 0.6.8
+-------------
+Fixed crash when confirming task edition
+
 Version 0.6.7
 -------------
 Fixed bug when long break was not activated when it should be.
