@@ -8,6 +8,7 @@ HISTORY
 Version 0.6.8
 -------------
 Fixed crash when confirming task edition
+Fixed bug when clicking on timer resulted in inexpected timer state changes
 
 Version 0.6.7
 -------------
