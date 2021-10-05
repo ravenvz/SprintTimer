@@ -12,7 +12,7 @@ environment:
 image:
     - Ubuntu2004
     - Visual Studio 2019
-    - macos
+    - macos-bigsur
 
 shallow_clone: true              # only last commit without history
 
@@ -60,26 +60,26 @@ for:
         clone_folder: c:\projects\sprint_timer
 
         before_build:
-            - set QTDIR=C:\Qt\5.15\msvc2019_64
+            - set QTDIR=C:\Qt\6.2.0\msvc2019_64
             - set DEBUG_BIN_DIR=C:\projects\sprint_timer\build\bin\Debug
             - set RELEASE_BIN_DIR=C:\projects\sprint_timer\build\bin\Release
             - mkdir build
             - mkdir %DEBUG_BIN_DIR%
             - mkdir %RELEASE_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Core.dll %RELEASE_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Gui.dll %RELEASE_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Multimedia.dll %RELEASE_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Network.dll %RELEASE_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Sql.dll %RELEASE_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Widgets.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Core.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Gui.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Multimedia.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Network.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Sql.dll %RELEASE_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Widgets.dll %RELEASE_BIN_DIR%
             - copy %QTDIR%\plugins\platforms\qwindows.dll %RELEASE_BIN_DIR%
             - xcopy %QTDIR%\plugins\sqldrivers %RELEASE_BIN_DIR%\sqldrivers /i
-            - copy %QTDIR%\bin\Qt5Cored.dll %DEBUG_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Guid.dll %DEBUG_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Multimediad.dll %DEBUG_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Networkd.dll %DEBUG_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Sqld.dll %DEBUG_BIN_DIR%
-            - copy %QTDIR%\bin\Qt5Widgetsd.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Cored.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Guid.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Multimediad.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Networkd.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Sqld.dll %DEBUG_BIN_DIR%
+            - copy %QTDIR%\bin\Qt6Widgetsd.dll %DEBUG_BIN_DIR%
             - copy %QTDIR%\plugins\platforms\qwindowsd.dll %DEBUG_BIN_DIR%
             - xcopy %QTDIR%\plugins\sqldrivers %DEBUG_BIN_DIR%\sqldrivers /i
 
@@ -87,7 +87,7 @@ for:
             - echo %CONFIGURATION%
             - echo %TREAT_WARNINGS_AS_ERRORS%
             - cd build
-            - cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_VERBOSE_MAKEFILE="OFF" -DCMAKE_PREFIX_PATH="C:/Qt/5.15/msvc2019_64/lib/cmake" -DCMAKE_INCLUDE_PATH="C:\Libraries\boost_1_71_0" -DWARNINGS_AS_ERRORS=%TREAT_WARNINGS_AS_ERRORS% -DENABLE_TESTING=ON -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_INSTALL_PREFIX="C:/sprint_timer_bin"
+            - cmake .. -G "Visual Studio 16 2019" -A x64 -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_VERBOSE_MAKEFILE="OFF" -DCMAKE_PREFIX_PATH="C:/Qt/6.2.0/msvc2019_64/lib/cmake" -DCMAKE_INCLUDE_PATH="C:\Libraries\boost_1_77_0" -DWARNINGS_AS_ERRORS=%TREAT_WARNINGS_AS_ERRORS% -DENABLE_TESTING=ON -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE -DBUILD_SHARED_LIBS=TRUE -DCMAKE_INSTALL_PREFIX="C:/sprint_timer_bin"
             - cmake --build . --config %CONFIGURATION%
 
         # on_finish:
@@ -114,7 +114,7 @@ for:
             - sh: echo ${CONFIGURATION}
             - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
             - sh: mkdir build
-            - sh: (cd build && CC=clang-11 CXX=clang++-11 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DENABLE_TESTING=ON -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/gcc_64/lib/cmake")
+            - sh: (cd build && CC=clang-11 CXX=clang++-11 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DENABLE_TESTING=ON -DCMAKE_PREFIX_PATH="$HOME/Qt/6.1.2/gcc_64/lib/cmake")
             - sh: (cd build && cmake --build . --config ${CONFIGURATION} -j2)
 
         # on_finish:
@@ -144,7 +144,7 @@ for:
             - sh: echo ${CONFIGURATION}
             - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
             - sh: mkdir build
-            - sh: (cd build && CC=/usr/bin/gcc-10 CXX=/usr/bin/g++-10 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DENABLE_TESTING=ON -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/gcc_64/lib/cmake")
+            - sh: (cd build && CC=/usr/bin/gcc-10 CXX=/usr/bin/g++-10 cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DENABLE_TESTING=ON -DCMAKE_PREFIX_PATH="$HOME/Qt/6.1.2/gcc_64/lib/cmake")
             - sh: (cd build && cmake --build . --config ${CONFIGURATION} -j2)
 
         # on_finish:
@@ -175,7 +175,7 @@ for:
             - sh: echo ${CONFIGURATION}
             - sh: echo ${TREAT_WARNINGS_AS_ERRORS}
             - sh: mkdir build
-            - sh: (cd build && CC=$(brew --prefix llvm)/bin/clang CXX=$(brew --prefix llvm)/bin/clang++ cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DENABLE_TESTING=ON -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/5.15.2/clang_64/lib/cmake")
+            - sh: (cd build && CC=$(brew --prefix llvm)/bin/clang CXX=$(brew --prefix llvm)/bin/clang++ cmake .. -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DENABLE_TESTING=ON -DWARNINGS_AS_ERRORS=${TREAT_WARNINGS_AS_ERRORS} -DCMAKE_PREFIX_PATH="$HOME/Qt/6.1.2/clang_64/lib/cmake")
             - sh: (cd build && cmake --build . --config ${CONFIGURATION} -j2)
 
         # on_finish:

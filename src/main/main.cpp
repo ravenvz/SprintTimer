@@ -177,6 +177,7 @@
 #include "qt_storage/QtWorkScheduleStorage.h"
 #include "qt_storage/WorkerConnection.h"
 #include <QApplication>
+#include <QFile>
 #include <QStyleFactory>
 #include <filesystem>
 
