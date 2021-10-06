@@ -23,18 +23,22 @@
 #define QTSOUNDPLAYERIMP_H_F7WYTSZA
 
 #include "core/SoundPlayer.h"
+#include <QAudioOutput>
 #include <QMediaPlayer>
 
-namespace sprint_timer::qt_gui {
+namespace sprint_timer::ui::qt_gui {
 
-class SoundPlayerImp : public SoundPlayer {
+class QtSoundPlayerImp : public SoundPlayer {
 public:
-    explicit SoundPlayerImp(QMediaPlayer& qmediaPlayer_)
+    explicit QtSoundPlayerImp(QMediaPlayer& qmediaPlayer_)
         : qmediaPlayer{qmediaPlayer_}
     {
     }
 
-    void setVolume(int volume) override { qmediaPlayer.setVolume(volume); }
+    void setVolume(int volume) override
+    {
+        audioOut.setVolume(static_cast<float>(volume) / 100.0f);
+    }
 
     void play(const std::string& mediaPath) override
     {
@@ -43,7 +47,8 @@ public:
         if (!soundEnabled) {
             return;
         }
-        qmediaPlayer.setMedia(
+        qmediaPlayer.setAudioOutput(&audioOut);
+        qmediaPlayer.setSource(
             QUrl::fromLocalFile(QString::fromStdString(mediaPath)));
         qmediaPlayer.play();
     }
@@ -51,10 +56,11 @@ public:
     void setSoundEnabled(bool enabled) override { soundEnabled = enabled; }
 
 private:
+    QAudioOutput audioOut;
     QMediaPlayer& qmediaPlayer;
     bool soundEnabled{true};
 };
 
-} // namespace sprint_timer::qt_gui
+} // namespace sprint_timer::ui::qt_gui
 
 #endif /* end of include guard: QTSOUNDPLAYERIMP_H_F7WYTSZA */

@@ -254,6 +254,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/${GUI_LIB}_autogen/mocs_compilation.cpp PROPERTIES COMPILE_FLAGS "-Wno-useless-cast")
 endif()
 
+find_package(Qt6 COMPONENTS Multimedia REQUIRED)
 target_include_directories(${GUI_LIB} PUBLIC include)
 target_link_libraries(${GUI_LIB}
     PRIVATE
@@ -262,6 +263,7 @@ target_link_libraries(${GUI_LIB}
     PUBLIC
         Qt6::Core
         Qt6::Widgets
+        Qt6::Multimedia
         ${CORE_LIB}
 )
 
