@@ -29,7 +29,7 @@ namespace {
 using namespace sprint_timer::ui::qt_gui;
 
 constexpr int labelSkipInd{28};
-constexpr int toolTipOffset{50};
+constexpr int toolTipOffset{40};
 // RelSizes' are relative to Widget's rect() height
 constexpr double labelOffsetRelSize{0.15};
 constexpr double marginRelSize{0.07};
@@ -241,15 +241,14 @@ void Graph::handleMouseMoveEvent(QMouseEvent* event) const
     // if QToolTip::hideText called or QToolTip::showText is called
     // with empty string
     for (const auto& box : pointBoxes) {
-        if (!box.path.contains(event->globalPosition() - box.position)) {
+        if (!box.path.contains(event->pos() - box.position)) {
             continue;
         }
-        const QPoint toolTipPos{
-            static_cast<int>(event->globalPosition().x()),
-            static_cast<int>(event->globalPosition().y() - toolTipOffset)};
         if (box.toolTip.isEmpty()) {
             event->ignore();
         }
+        auto [x, y] = event->globalPosition().toPoint();
+        const QPoint toolTipPos{QPoint{x, y - toolTipOffset}};
         QToolTip::showText(toolTipPos, box.toolTip);
         return;
     }
