@@ -19,32 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSOUNDPLAYERIMP_H_F7WYTSZA
-#define QTSOUNDPLAYERIMP_H_F7WYTSZA
+#include "SoundPlayerFactory.h"
+#include "qt_gui/QtSoundPlayerImp.h"
 
-#include "core/SoundPlayer.h"
-#include <QAudioOutput>
+#include <QMediaPlayer>
 
-class QMediaPlayer;
+namespace  {
 
-namespace sprint_timer::ui::qt_gui {
+QMediaPlayer realPlayer;
 
-class QtSoundPlayerImp : public SoundPlayer {
-public:
-    explicit QtSoundPlayerImp(QMediaPlayer& qmediaPlayer_);
+} // namespace 
 
-    void setVolume(int volume) override;
+namespace sprint_timer::compose {
 
-    void play(const std::string& mediaPath) override;
+std::unique_ptr<SoundPlayer> createPlayer() {
+    return std::make_unique<ui::qt_gui::QtSoundPlayerImp>(realPlayer);
+}
 
-    void setSoundEnabled(bool enabled) override;
+} // namespace sprint_timer::compose
 
-private:
-    QAudioOutput audioOut;
-    QMediaPlayer& qmediaPlayer;
-    bool soundEnabled{true};
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-#endif /* end of include guard: QTSOUNDPLAYERIMP_H_F7WYTSZA */

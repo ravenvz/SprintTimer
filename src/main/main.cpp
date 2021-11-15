@@ -66,6 +66,7 @@
 #include "SQliteStorageFactory.h"
 #include "SettingsDialogLifestyleProxy.h"
 #include "SettingsWatchingAssetLibrary.h"
+#include "SoundPlayerFactory.h"
 #include "StatisticsWindowProxy.h"
 #include "SynchronizingActionInvoker.h"
 #include "TagEditorProxy.h"
@@ -118,7 +119,6 @@
 #include "external_io/SprintToCsvAlgorithm.h"
 #include "external_io/TaskToCsvAlgorithm.h"
 #include "qt_gui/QtConfig.h"
-#include "qt_gui/QtSoundPlayerImp.h"
 #include "qt_gui/delegates/HistoryItemDelegate.h"
 #include "qt_gui/delegates/SubmissionItemDelegate.h"
 #include "qt_gui/delegates/TaskItemDelegate.h"
@@ -724,11 +724,15 @@ int main(int argc, char* argv[])
     auto launcherMenu = std::make_unique<LauncherMenu>(
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
 
-    QMediaPlayer qmediaPlayer;
+    // QMediaPlayer qmediaPlayer;
+    // compose::RuntimeConfigurableSoundPlayer soundPlayer(
+    //     applicationSettings,
+    //     applicationSettings,
+    //     std::make_unique<ui::qt_gui::QtSoundPlayerImp>(qmediaPlayer));
     compose::RuntimeConfigurableSoundPlayer soundPlayer(
         applicationSettings,
         applicationSettings,
-        std::make_unique<ui::qt_gui::QtSoundPlayerImp>(qmediaPlayer));
+        compose::createPlayer());
 
     ui::ConfigurableAssetLibrary assetLibrary_{
         {{"ringSound", applicationSettings.soundFilePath()}}};

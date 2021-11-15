@@ -1,4 +1,5 @@
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets
+                 OPTIONAL_COMPONENTS Multimedia)
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
@@ -32,10 +33,13 @@ QT6_WRAP_UI(UI_HEADERS
 
 add_library(${GUI_LIB} SHARED)
 
+if (Qt6Multimedia_FOUND)
+    set(SOUND_PLAYER_IMP "${CMAKE_CURRENT_LIST_DIR}/src/QtSoundPlayerImp.cpp")
+endif()
+
 target_sources(${GUI_LIB}
     PUBLIC
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/Displayable.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtSoundPlayerImp.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtConfig.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/StandaloneDisplayable.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/Synchronizable.h"
@@ -246,6 +250,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/TodayProgressIndicator.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/widgets/UndoWidget.cpp"
         "${UI_HEADERS}"
+        ${SOUND_PLAYER_IMP}
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -254,18 +259,29 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/${GUI_LIB}_autogen/mocs_compilation.cpp PROPERTIES COMPILE_FLAGS "-Wno-useless-cast")
 endif()
 
-find_package(Qt6 COMPONENTS Multimedia REQUIRED)
 target_include_directories(${GUI_LIB} PUBLIC include)
-target_link_libraries(${GUI_LIB}
-    PRIVATE
-        sprint_timer_options
-        sprint_timer_warnings
-    PUBLIC
-        Qt6::Core
-        Qt6::Widgets
-        Qt6::Multimedia
-        ${CORE_LIB}
-)
+if (Qt6Multimedia_FOUND)
+    target_link_libraries(${GUI_LIB}
+        PRIVATE
+            sprint_timer_options
+            sprint_timer_warnings
+        PUBLIC
+            Qt6::Core
+            Qt6::Widgets
+            Qt6::Multimedia
+            ${CORE_LIB}
+    )
+else()
+    target_link_libraries(${GUI_LIB}
+        PRIVATE
+            sprint_timer_options
+            sprint_timer_warnings
+        PUBLIC
+            Qt6::Core
+            Qt6::Widgets
+            ${CORE_LIB}
+    )
+endif()
 
 if (MSVC)
 	add_definitions(-DWIN_EXPORT_WORKAROUND)

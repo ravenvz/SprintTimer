@@ -62,9 +62,10 @@ option(ENABLE_FUZZING "Enable Fuzzing Builds" OFF)
 
 add_subdirectory(src)
 
-if(ENABLE_TESTING)
+enable_testing()
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
     set(TEST_RUN_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-    enable_testing()
 	include(GoogleTest)
     add_subdirectory(tests)
 endif()

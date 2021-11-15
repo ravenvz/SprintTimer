@@ -1,5 +1,12 @@
 add_executable(${SPRINT_MAIN})
 
+find_package(Qt6 OPTIONAL_COMPONENTS Multimedia)
+if (Qt6Multimedia_FOUND)
+    set (SOUND_PLAYER "${CMAKE_CURRENT_LIST_DIR}/SoundPlayerFactory.cpp")
+else() 
+    set (SOUND_PLAYER "${CMAKE_CURRENT_LIST_DIR}/StubSoundPlayerFactory.cpp")
+endif()
+
 target_sources(${SPRINT_MAIN}
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/AddSprintDialogProxy.h"
@@ -35,6 +42,7 @@ target_sources(${SPRINT_MAIN}
         "${CMAKE_CURRENT_LIST_DIR}/QueryHandlerDecorator.h"
         "${CMAKE_CURRENT_LIST_DIR}/RequestSprintsQueryHandlerSpecialization.h"
         "${CMAKE_CURRENT_LIST_DIR}/RuntimeConfigurableSoundPlayer.h"
+        "${CMAKE_CURRENT_LIST_DIR}/SoundPlayerFactory.h"
         "${CMAKE_CURRENT_LIST_DIR}/SQliteStorageFactory.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/SQliteStorageFactory.h"
         "${CMAKE_CURRENT_LIST_DIR}/SettingsWatchingAssetLibrary.h"
@@ -50,7 +58,7 @@ target_sources(${SPRINT_MAIN}
         "${CMAKE_CURRENT_LIST_DIR}/WorkScheduleEditorPresenterProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/WorkflowProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
-
+        ${SOUND_PLAYER}
 )
 
 target_link_libraries(

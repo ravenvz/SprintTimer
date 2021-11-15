@@ -128,9 +128,9 @@ void Plot::mouseMoveEvent(QMouseEvent* event)
         graph.handleMouseMoveEvent(event);
 }
 
-Graph::PointBox::PointBox(QPointF position, QString toolTip)
-    : position{position}
-    , toolTip{toolTip}
+Graph::PointBox::PointBox(QPointF position_, QString toolTip_)
+    : position{position_}
+    , toolTip{toolTip_}
 {
 }
 
