@@ -168,7 +168,8 @@ bool Gauge::eventFilter(QObject* object, QEvent* event)
 
 void Gauge::mouseMoveEvent(QMouseEvent* event)
 {
-    const QPoint toolTipPos{event->globalPos().x(), event->globalPos().y()};
+    const QPoint toolTipPos{static_cast<int>(event->globalPosition().x()),
+                            static_cast<int>(event->globalPosition().y())};
     const QString toolTipText = QString{"%1 completed \n%2 estimated"}
                                     .arg(progress.actual())
                                     .arg(progress.estimated());
@@ -182,8 +183,9 @@ void HoverState::drawText(const Gauge& gauge,
     QFont font = painter.font();
     font.setPixelSize(static_cast<int>(0.3 * gauge.innerRect.width()));
     painter.setFont(font);
-    if (gauge.progress.actual() != 0)
+    if (gauge.progress.actual() != 0) {
         painter.drawText(gauge.innerRect, Qt::AlignCenter, text);
+    }
 }
 
 void HoverStateHovered::draw(const Gauge& gauge, QPainter& painter)

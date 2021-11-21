@@ -44,21 +44,7 @@ private:
     double end{0};
 };
 
-struct DrawingParams {
-    DrawingParams(const QRectF& availableRect,
-                  const AxisRange& rangeX,
-                  const AxisRange& rangeY);
-
-    const double labelOffset;
-    const double scaleX;
-    const double scaleY;
-    const QPointF referencePoint;
-    const double pointSize;
-};
-
 class Graph {
-    friend class point_to_point_box;
-
 public:
     struct Point {
         double x;
@@ -67,9 +53,12 @@ public:
     };
 
     struct PointBox {
-        QPainterPath path;
         QPointF position;
         QString toolTip;
+
+        PointBox() = default;
+
+        PointBox(QPointF position, QString toolTip);
     };
 
     struct VisualOptions {
@@ -79,29 +68,45 @@ public:
         bool showPoints{false};
     };
 
+    struct ResizingScaler {
+        ResizingScaler() = default;
+
+        ResizingScaler(const QRectF& availableRect,
+                       const AxisRange& rangeX,
+                       const AxisRange& rangeY);
+
+        double labelOffset;
+        double scaleX;
+        double scaleY;
+        QPointF referencePoint;
+        QPainterPath pointPath;
+    };
+
     using Data = std::vector<Point>;
 
-    // Set data for this Graph.
+    // Assumes that data is sorted by x coordinate in ascending order.
     void setData(Graph::Data&& data);
 
     void setVisualOptions(VisualOptions options);
 
-    void draw(QPainter& painter, const DrawingParams& drawingParams);
+    void draw(QPainter& painter,
+              const QRectF& canvasRect,
+              const AxisRange& rangeX,
+              const AxisRange& rangeY);
 
     void handleMouseMoveEvent(QMouseEvent* event) const;
 
 private:
     VisualOptions options;
+    ResizingScaler resizingScaler;
     Data points;
-    std::vector<PointBox> pointBoxes;
-
-    void populatePointBoxes(const DrawingParams& drawingParams);
+    size_t labelSkipStep;
 
     void drawPolyline(QPainter& painter) const;
 
-    void drawPoints(QPainter& painter);
+    void drawPoints(QPainter& painter) const;
 
-    void drawAxisLabels(QPainter& painter, double labelYPos);
+    void drawAxisLabels(QPainter& painter) const;
 };
 
 class Plot : public QWidget {
@@ -131,7 +136,6 @@ private:
     std::vector<Graph> graphs;
     AxisRange rangeX;
     AxisRange rangeY;
-    QRectF availableRect;
 
     void paintEvent(QPaintEvent*) override;
 

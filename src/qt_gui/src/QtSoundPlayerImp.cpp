@@ -19,32 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTSOUNDPLAYERIMP_H_F7WYTSZA
-#define QTSOUNDPLAYERIMP_H_F7WYTSZA
-
-#include "core/SoundPlayer.h"
-#include <QAudioOutput>
-
-class QMediaPlayer;
+#include "qt_gui/QtSoundPlayerImp.h"
+#include <QMediaPlayer>
 
 namespace sprint_timer::ui::qt_gui {
 
-class QtSoundPlayerImp : public SoundPlayer {
-public:
-    explicit QtSoundPlayerImp(QMediaPlayer& qmediaPlayer_);
+QtSoundPlayerImp::QtSoundPlayerImp(QMediaPlayer& qmediaPlayer_)
+    : qmediaPlayer{qmediaPlayer_}
+{
+}
 
-    void setVolume(int volume) override;
+void QtSoundPlayerImp::setVolume(int volume)
+{
+    audioOut.setVolume(static_cast<float>(volume) / 100.0f);
+}
 
-    void play(const std::string& mediaPath) override;
+void QtSoundPlayerImp::play(const std::string& mediaPath)
+{
+    // That's ok as long as we do not play, say videos, which is out of
+    // scope of this application
+    if (!soundEnabled) {
+        return;
+    }
+    qmediaPlayer.setAudioOutput(&audioOut);
+    qmediaPlayer.setSource(
+        QUrl::fromLocalFile(QString::fromStdString(mediaPath)));
+    qmediaPlayer.play();
+}
 
-    void setSoundEnabled(bool enabled) override;
-
-private:
-    QAudioOutput audioOut;
-    QMediaPlayer& qmediaPlayer;
-    bool soundEnabled{true};
-};
+void QtSoundPlayerImp::setSoundEnabled(bool enabled) { soundEnabled = enabled; }
 
 } // namespace sprint_timer::ui::qt_gui
-
-#endif /* end of include guard: QTSOUNDPLAYERIMP_H_F7WYTSZA */

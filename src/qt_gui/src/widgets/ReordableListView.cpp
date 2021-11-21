@@ -35,7 +35,7 @@ ReordableListView::ReordableListView(QWidget* parent)
 void ReordableListView::dropEvent(QDropEvent* event)
 {
     int rowMovedFrom = currentIndex().row();
-    int rowMovedTo = indexAt(event->pos()).row();
+    int rowMovedTo = indexAt(event->position().toPoint()).row();
     model()->moveRows(
         QModelIndex(), rowMovedFrom, 1, QModelIndex(), rowMovedTo);
 }

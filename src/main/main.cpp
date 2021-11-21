@@ -66,6 +66,7 @@
 #include "SQliteStorageFactory.h"
 #include "SettingsDialogLifestyleProxy.h"
 #include "SettingsWatchingAssetLibrary.h"
+#include "SoundPlayerFactory.h"
 #include "StatisticsWindowProxy.h"
 #include "SynchronizingActionInvoker.h"
 #include "TagEditorProxy.h"
@@ -118,7 +119,6 @@
 #include "external_io/SprintToCsvAlgorithm.h"
 #include "external_io/TaskToCsvAlgorithm.h"
 #include "qt_gui/QtConfig.h"
-#include "qt_gui/QtSoundPlayerImp.h"
 #include "qt_gui/delegates/HistoryItemDelegate.h"
 #include "qt_gui/delegates/SubmissionItemDelegate.h"
 #include "qt_gui/delegates/TaskItemDelegate.h"
@@ -177,6 +177,7 @@
 #include "qt_storage/QtWorkScheduleStorage.h"
 #include "qt_storage/WorkerConnection.h"
 #include <QApplication>
+#include <QFile>
 #include <QStyleFactory>
 #include <filesystem>
 
@@ -319,7 +320,6 @@ int main(int argc, char* argv[])
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QApplication::setOrganizationName("RavenStudio");
     QApplication::setApplicationName("SprintTimer");
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     const std::string dataDirectory = getOrCreateSprintTimerDataDirectory();
     if (dataDirectory.empty()) {
@@ -724,11 +724,15 @@ int main(int argc, char* argv[])
     auto launcherMenu = std::make_unique<LauncherMenu>(
         progressWindow, statisticsWindow, historyWindow, settingsDialog);
 
-    QMediaPlayer qmediaPlayer;
+    // QMediaPlayer qmediaPlayer;
+    // compose::RuntimeConfigurableSoundPlayer soundPlayer(
+    //     applicationSettings,
+    //     applicationSettings,
+    //     std::make_unique<ui::qt_gui::QtSoundPlayerImp>(qmediaPlayer));
     compose::RuntimeConfigurableSoundPlayer soundPlayer(
         applicationSettings,
         applicationSettings,
-        std::make_unique<qt_gui::SoundPlayerImp>(qmediaPlayer));
+        compose::createPlayer());
 
     ui::ConfigurableAssetLibrary assetLibrary_{
         {{"ringSound", applicationSettings.soundFilePath()}}};

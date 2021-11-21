@@ -1,4 +1,4 @@
-find_package(Qt5 REQUIRED COMPONENTS Core Sql)
+find_package(Qt6 REQUIRED COMPONENTS Core Sql)
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
@@ -63,8 +63,8 @@ target_include_directories(${STORAGE_LIB} PUBLIC include PUBLIC src)
 
 target_link_libraries(
     ${STORAGE_LIB}
-    PUBLIC Qt5::Core
-    PUBLIC Qt5::Sql
+    PUBLIC Qt6::Core
+    PUBLIC Qt6::Sql
     PUBLIC ${CORE_LIB}
     PRIVATE
         sprint_timer_options
