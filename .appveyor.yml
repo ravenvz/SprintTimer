@@ -12,7 +12,7 @@ environment:
 image:
     - Ubuntu2004
     - Visual Studio 2019
-    - macos-bigsur
+    # - macos-bigsur
 
 shallow_clone: true              # only last commit without history
 
