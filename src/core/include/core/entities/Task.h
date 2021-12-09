@@ -75,19 +75,9 @@ public:
 
     dw::DateTime lastModified() const;
 
-    const std::vector<Sprint>& sprints() const;
-
-    void setName(const std::string& name);
+    [[nodiscard]] const std::vector<Sprint>& sprints() const;
 
     void setCompleted(bool completed);
-
-    void setEstimatedCost(int numSprints);
-
-    void setActualCost(int numSprints);
-
-    void setTags(const std::list<Tag>& newTags);
-
-    void setModifiedTimeStamp(const dw::DateTime& timeStamp);
 
     void addSprint(Sprint sprint);
 

@@ -29,6 +29,7 @@
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
 #include "core/use_cases/request_tags/AllTagsQuery.h"
+#include "core/use_cases/request_task_backlog/TaskBacklogQuery.h"
 #include "core/use_cases/request_tasks/ActiveTasksQuery.h"
 #include "core/use_cases/request_tasks/FinishedTasksQuery.h"
 
@@ -64,6 +65,8 @@ struct QueryHandlerComposer {
 
     virtual QueryHandler<use_cases::WorkScheduleQuery>&
     workScheduleHandler() = 0;
+
+    virtual QueryHandler<use_cases::TaskBacklogQuery>& taskBacklogHandler() = 0;
 };
 
 } // namespace sprint_timer::compose

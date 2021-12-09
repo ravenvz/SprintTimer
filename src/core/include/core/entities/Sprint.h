@@ -73,6 +73,8 @@ std::ostream& operator<<(std::ostream& os, const Sprint& sprint);
 
 bool operator==(const Sprint& lhs, const Sprint& rhs);
 
+bool intersectingInTime(const Sprint& lhs, const Sprint& rhs);
+
 } // namespace sprint_timer::entities
 
 #endif // SPRINT_H_XWNOT32M

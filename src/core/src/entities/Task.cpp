@@ -133,20 +133,7 @@ DateTime Task::lastModified() const { return timeStamp; }
 
 const std::vector<Sprint>& Task::sprints() const { return sprintCont; }
 
-void Task::setName(const std::string& name_) { taskName = name_; }
-
 void Task::setCompleted(bool completed_) { completed = completed_; }
-
-void Task::setEstimatedCost(int numSprints) { estimated = numSprints; }
-
-void Task::setTags(const std::list<Tag>& newTags) { tag = newTags; }
-
-void Task::setActualCost(int numSprints) { actual = numSprints; }
-
-void Task::setModifiedTimeStamp(const DateTime& timeStamp_)
-{
-    timeStamp = timeStamp_;
-}
 
 void Task::addSprint(Sprint sprint)
 {

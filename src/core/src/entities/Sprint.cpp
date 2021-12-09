@@ -24,6 +24,16 @@
 #include <algorithm>
 #include <utility>
 
+namespace {
+
+bool areConsecutive(const dw::DateTimeRange& lhs, const dw::DateTimeRange& rhs);
+
+bool inRange(dw::DateTime dateTime, dw::DateTimeRange range);
+
+bool equalToMinutes(const dw::DateTime& lhs, const dw::DateTime& rhs);
+
+} // namespace
+
 namespace sprint_timer::entities {
 
 using dw::DateTime;
@@ -80,4 +90,35 @@ bool operator==(const Sprint& lhs, const Sprint& rhs)
            lhs.tags() == rhs.tags();
 }
 
+bool intersectingInTime(const Sprint& lhs, const Sprint& rhs)
+{
+    if (areConsecutive(lhs.timeSpan(), rhs.timeSpan())) {
+        return false;
+    }
+
+    return inRange(lhs.startTime(), rhs.timeSpan()) ||
+           inRange(lhs.finishTime(), rhs.timeSpan());
+}
+
 } // namespace sprint_timer::entities
+
+namespace {
+
+bool areConsecutive(const dw::DateTimeRange& lhs, const dw::DateTimeRange& rhs)
+{
+    return equalToMinutes(lhs.start(), rhs.finish()) ||
+           equalToMinutes(lhs.finish(), rhs.start());
+}
+
+bool inRange(dw::DateTime dateTime, dw::DateTimeRange range)
+{
+    return range.start() <= dateTime && dateTime <= range.finish();
+}
+
+bool equalToMinutes(const dw::DateTime& lhs, const dw::DateTime& rhs)
+{
+    return lhs.date() == rhs.date() && lhs.hour() == rhs.hour() &&
+           lhs.minute() == rhs.minute();
+}
+
+} // namespace

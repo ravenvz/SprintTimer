@@ -47,6 +47,8 @@ public:
         queryComposer.requestSprintsHandler()};
     CommandHandler<ToggleTaskCompletedCommand>& toggleTaskCompletedHandler{
         commandComposer.toggleTaskCompletedHandler()};
+    QueryHandler<TaskBacklogQuery>& taskBacklogHandler{
+        queryComposer.taskBacklogHandler()};
 };
 
 TEST_F(
@@ -81,4 +83,39 @@ TEST_F(
                                     0,
                                     false,
                                     current_date_time_local()}));
+}
+
+TEST_F(RequestingActiveTasksFixture,
+       task_backlog_contains_active_and_recently_finished_tasks)
+{
+    createTaskHandler.handle(
+        CreateTaskCommand{"Task name", {"Tag1", "Tag2"}, 4});
+    createTaskHandler.handle(
+        CreateTaskCommand{"Some other task", {"SomeTag"}, 2});
+    const auto tasks = activeTasksHandler.handle(ActiveTasksQuery{});
+    std::vector<std::string> uuids;
+    std::transform(cbegin(tasks),
+                   cend(tasks),
+                   std::back_inserter(uuids),
+                   [](const auto& elem) { return elem.uuid; });
+    toggleTaskCompletedHandler.handle(
+        ToggleTaskCompletedCommand{uuids.front(), current_date_time_local()});
+    TaskBacklog expected{{Task{"Task name",
+                               4,
+                               std::vector<entities::Sprint>{},
+                               uuids[0],
+                               {Tag{"Tag1"}, Tag{"Tag2"}},
+                               true,
+                               current_date_time_local()},
+                          Task{"Some other task",
+                               2,
+                               std::vector<entities::Sprint>{},
+                               uuids[1],
+                               {Tag{"SomeTag"}},
+                               false,
+                               current_date_time_local()}}};
+
+    const auto actual = taskBacklogHandler.handle(TaskBacklogQuery{});
+
+    EXPECT_EQ(expected, actual);
 }

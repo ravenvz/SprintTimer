@@ -19,6 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "core/SprintConflictException.h"
+#include "core/SprintTimerException.h"
 #include "use_cases_tests/QtStorageInitializer.h"
 #include "gtest/gtest.h"
 
@@ -27,6 +29,7 @@ using namespace sprint_timer::use_cases;
 using namespace sprint_timer::entities;
 using namespace sprint_timer::compose;
 using namespace dw;
+using namespace std::chrono_literals;
 
 class RegisteringSprintsFixture : public ::testing::Test {
 public:
@@ -45,7 +48,6 @@ public:
 TEST_F(RegisteringSprintsFixture,
        registering_sprints_increments_task_actual_count)
 {
-    using namespace std::chrono_literals;
     createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 5});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
@@ -66,4 +68,50 @@ TEST_F(RegisteringSprintsFixture,
 
     const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
     EXPECT_EQ(expected, activeTasks.front());
+}
+
+TEST_F(RegisteringSprintsFixture,
+       throws_exception_when_sprint_intersection_detected)
+{
+    const DateTimeRange range{current_date_time_local(),
+                              current_date_time_local() + 25min};
+    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 15});
+    createTaskHandler.handle(
+        CreateTaskCommand{"Another task", {"SomeTag", "AnotherTag"}, 7});
+    const auto taskUuids = activeTasksHandler.handle(ActiveTasksQuery{});
+    registerSprintsHandler.handle(RegisterSprintBulkCommand{
+        taskUuids[0].uuid, {range, add_offset(range, 25min)}});
+    registerSprintsHandler.handle(RegisterSprintBulkCommand{
+        taskUuids[1].uuid,
+        {add_offset(range, 2h), add_offset(range, 2h + 30min)}});
+
+    ASSERT_THROW(registerSprintsHandler.handle(RegisterSprintBulkCommand{
+                     taskUuids[0].uuid, {add_offset(range, 2h - 24min)}}),
+                 SprintConflictException);
+}
+
+TEST_F(
+    RegisteringSprintsFixture,
+    throws_exception_when_trying_to_add_sprints_that_are_conflicting_between_themselves)
+{
+    const DateTimeRange range{current_date_time_local(),
+                              current_date_time_local() + 25min};
+    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 15});
+    const auto taskUuids = activeTasksHandler.handle(ActiveTasksQuery{});
+
+    ASSERT_THROW(registerSprintsHandler.handle(RegisterSprintBulkCommand{
+                     taskUuids[0].uuid, {range, add_offset(range, 12min)}}),
+                 SprintConflictException);
+}
+
+TEST_F(RegisteringSprintsFixture,
+       throws_when_registering_sprint_for_task_that_is_not_found)
+{
+    const std::string bogusUuid{"123"};
+    const DateTimeRange range{current_date_time_local(),
+                              current_date_time_local() + 25min};
+
+    ASSERT_THROW(registerSprintsHandler.handle(
+                     RegisterSprintBulkCommand{bogusUuid, {range}}),
+                 SprintTimerException);
 }

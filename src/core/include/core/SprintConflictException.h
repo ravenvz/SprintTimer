@@ -19,33 +19,30 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/ActionInvoker.h"
-#include "core/CommandHandler.h"
-#include "core/SprintStorage.h"
-#include "core/TaskStorageReader.h"
-#include "core/UUIDGenerator.h"
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#ifndef SPRINTCONFLICTEXCEPTION_H
+#define SPRINTCONFLICTEXCEPTION_H
 
-namespace sprint_timer::use_cases {
+#include "core/SprintTimerException.h"
+#include "core/entities/Sprint.h"
+#include <string>
+#include <vector>
 
-class RegisterSprintBulkHandler
-    : public CommandHandler<RegisterSprintBulkCommand> {
+namespace sprint_timer {
+
+class SprintConflictException : public SprintTimerException {
 public:
-    RegisterSprintBulkHandler(TaskStorageReader& taskReader,
-                              SprintStorage& sprintStorage,
-                              ActionInvoker& actionInvoker,
-                              UUIDGenerator& uuidGenerator);
+    using conflicting_sprints_pair = std::pair<sprint_timer::entities::Sprint,
+                                               sprint_timer::entities::Sprint>;
 
-    void handle(RegisterSprintBulkCommand&& command) override;
+    explicit SprintConflictException(
+        std::vector<conflicting_sprints_pair>&& conflictingSprints);
+
+    const std::vector<conflicting_sprints_pair>& conflictingSprints() const;
 
 private:
-    TaskStorageReader& taskReader;
-    SprintStorage& sprintStorage;
-    ActionInvoker& actionInvoker;
-    UUIDGenerator& uuidGenerator;
-
-    void throwIfTaskDoesNotExist(const std::string& taskUuid);
+    std::vector<conflicting_sprints_pair> sprintPairs;
 };
 
-} // namespace sprint_timer::use_cases
+} // namespace sprint_timer
 
+#endif /* end of include guard: SPRINTCONFLICTEXCEPTION_H */

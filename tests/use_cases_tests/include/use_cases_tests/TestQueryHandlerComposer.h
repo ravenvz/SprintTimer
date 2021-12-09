@@ -32,6 +32,7 @@
 #include "core/use_cases/request_sprints/RequestSprintsHandler.h"
 #include "core/use_cases/request_sprints/SprintsForTaskHandler.h"
 #include "core/use_cases/request_tags/AllTagsHandler.h"
+#include "core/use_cases/request_task_backlog/TaskBacklogHandler.h"
 #include "core/use_cases/request_tasks/ActiveTasksHandler.h"
 #include "core/use_cases/request_tasks/FinishedTasksHandler.h"
 #include "use_cases_tests/QueryHandlerComposer.h"
@@ -59,6 +60,7 @@ struct TestQueryHandlerComposer : public QueryHandlerComposer {
         , sundayFirstWeeklyDistribution{sundayFirstWeeklyDistReader_}
         , monthlyDistribution{monthlyDistReader_}
         , workSchedule{workScheduleReader_}
+        , taskBacklog{taskStorage_}
     {
     }
 
@@ -121,6 +123,11 @@ struct TestQueryHandlerComposer : public QueryHandlerComposer {
         return workSchedule;
     }
 
+    QueryHandler<use_cases::TaskBacklogQuery>& taskBacklogHandler() override
+    {
+        return taskBacklog;
+    }
+
 private:
     use_cases::ActiveTasksHandler activeTasks;
     use_cases::AllTagsHandler allTags;
@@ -133,6 +140,7 @@ private:
     use_cases::RequestSprintDistributionHandler sundayFirstWeeklyDistribution;
     use_cases::RequestSprintDistributionHandler monthlyDistribution;
     use_cases::WorkScheduleHandler workSchedule;
+    use_cases::TaskBacklogHandler taskBacklog;
 };
 
 } // namespace sprint_timer::compose

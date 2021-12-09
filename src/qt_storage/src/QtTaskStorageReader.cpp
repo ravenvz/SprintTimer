@@ -314,9 +314,8 @@ auto advTaskFromRecords(auto first, auto last) -> Task
     const dw::DateTime lastModified =
         sprint_timer::storage::utils::DateTimeConverter::dateTime(
             qLastModified);
-    Task task{uuid, name, estimatedCost, lastModified};
-    task.setCompleted(finished);
-    task.setTags(tags);
+
+    std::vector<Sprint> sprints;
     for (; first != last; ++first) {
         const std::string sprintUuid{
             columnData(*first, AdvColumn::SprintUuid).toString().toStdString()};
@@ -327,7 +326,7 @@ auto advTaskFromRecords(auto first, auto last) -> Task
             columnData(*first, AdvColumn::StartTime).toDateTime()};
         const QDateTime finishTime{
             columnData(*first, AdvColumn::FinishTime).toDateTime()};
-        task.addSprint(Sprint{
+        sprints.push_back(Sprint{
             name,
             dw::DateTimeRange{
                 sprint_timer::storage::utils::DateTimeConverter::dateTime(
@@ -338,7 +337,9 @@ auto advTaskFromRecords(auto first, auto last) -> Task
             sprintUuid,
             uuid});
     }
-    return task;
+
+    return Task{
+        name, estimatedCost, sprints, uuid, tags, finished, lastModified};
 };
 
 std::vector<Task> advTasksFromQuery(QSqlQuery& query)
