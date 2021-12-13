@@ -46,6 +46,7 @@ target_sources(test_core
     "${CMAKE_CURRENT_LIST_DIR}/test_task_backlog.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_toggle_zone_mode_command.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_toggle_task_completion_status.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_tag_top.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_work_schedule.cpp"
 )
 

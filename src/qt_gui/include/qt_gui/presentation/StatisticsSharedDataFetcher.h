@@ -24,6 +24,7 @@
 
 #include "core/QueryHandler.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
+#include "core/use_cases/request_statistics/SprintStatisticsQuery.h"
 #include "qt_gui/mvp/DataFetcher.h"
 #include "qt_gui/presentation/StatisticsColleague.h"
 #include "qt_gui/presentation/StatisticsContext.h"
@@ -35,13 +36,26 @@ class StatisticsSharedDataFetcher : public mvp::DataFetcher,
                                     public StatisticsColleague {
 public:
     using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery>;
+    using sprint_statistics_hdl_t =
+        QueryHandler<use_cases::SprintStatisticsQuery>;
 
-    StatisticsSharedDataFetcher(request_sprints_hdl_t& requestSprintsHandler_,
-                                StatisticsMediator& mediator_,
-                                StatisticsContext& statisticsContext_,
-                                size_t numTopTags_);
+    StatisticsSharedDataFetcher(
+        sprint_statistics_hdl_t& sprintStatisticsHandler_,
+        StatisticsMediator& mediator_,
+        StatisticsContext& statisticsContext_,
+        size_t numTopTags_);
 
-    ~StatisticsSharedDataFetcher();
+    ~StatisticsSharedDataFetcher() override;
+
+    StatisticsSharedDataFetcher(const StatisticsSharedDataFetcher&) = delete;
+
+    StatisticsSharedDataFetcher(StatisticsSharedDataFetcher&&) = delete;
+
+    StatisticsSharedDataFetcher&
+    operator=(const StatisticsSharedDataFetcher&) = delete;
+
+    StatisticsSharedDataFetcher&
+    operator=(StatisticsSharedDataFetcher&&) = delete;
 
     void fetchData() override;
 
@@ -52,11 +66,11 @@ public:
     void onTagSelected(std::optional<size_t> tag) override;
 
 private:
-    request_sprints_hdl_t& requestSprintsHandler;
+    sprint_statistics_hdl_t& sprintStatisticsHandler;
     StatisticsMediator& mediator;
     StatisticsContext& statisticsContext;
     size_t numTopTags;
-    std::optional<use_cases::RequestSprintsQuery::result_t> data;
+    // std::optional<use_cases::RequestSprintsQuery::result_t> data;
 };
 
 } // namespace sprint_timer::ui

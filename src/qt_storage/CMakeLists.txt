@@ -1,4 +1,4 @@
-find_package(Qt6 REQUIRED COMPONENTS Core Sql)
+find_package(Qt6 COMPONENTS Core Sql REQUIRED )
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)

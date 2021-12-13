@@ -22,6 +22,8 @@
 #ifndef QUERYHANDLER_H_ERQY31DP
 #define QUERYHANDLER_H_ERQY31DP
 
+#include <concepts>
+
 namespace sprint_timer {
 
 template <typename QueryT> class QueryHandler {

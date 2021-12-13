@@ -31,15 +31,6 @@ using ::testing::NiceMock;
 using ::testing::Return;
 using namespace std::chrono_literals;
 
-namespace sprint_timer::use_cases {
-
-bool operator==(const SprintsForTaskQuery& lhs, const SprintsForTaskQuery& rhs)
-{
-    return lhs.taskUuid == rhs.taskUuid;
-}
-
-} // namespace sprint_timer::use_cases
-
 class TaskSprintsViewMock
     : public sprint_timer::ui::contracts::TaskSprintsContract::View {
 public:

@@ -20,8 +20,15 @@
 **
 *********************************************************************************/
 #include "core/WeekSchedule.h"
+#include <algorithm>
+#include <ranges>
 
 namespace sprint_timer {
+
+WeekSchedule::WeekSchedule(std::array<int, 7> goals)
+    : goals_{goals}
+{
+}
 
 int WeekSchedule::targetGoal(const dw::Weekday& weekday) const
 {
@@ -36,21 +43,6 @@ void WeekSchedule::setTargetGoal(const dw::Weekday& weekday, int goal)
 bool WeekSchedule::isWorkday(const dw::Weekday& weekday) const
 {
     return goals_[static_cast<size_t>(weekday)] > 0;
-}
-
-bool operator==(const WeekSchedule& lhs, const WeekSchedule& rhs)
-{
-    for (size_t i = 0; i < 7; ++i) {
-        if (lhs.targetGoal(static_cast<dw::Weekday>(i))
-            != rhs.targetGoal(static_cast<dw::Weekday>(i)))
-            return false;
-    }
-    return true;
-}
-
-bool operator!=(const WeekSchedule& lhs, const WeekSchedule& rhs)
-{
-    return !(lhs == rhs);
 }
 
 } // namespace sprint_timer

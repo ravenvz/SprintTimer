@@ -19,28 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef COMMON_H_U7S8D6JF
-#define COMMON_H_U7S8D6JF
+#ifndef WORKTIMESTATISTICSHANDLER_H_TZW2ANHS
+#define WORKTIMESTATISTICSHANDLER_H_TZW2ANHS
 
-#include "core/entities/Sprint.h"
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_statistics/SprintStatisticsQuery.h"
+#include "core/use_cases/request_statistics/WorktimeStatisticsQuery.h"
 
 namespace sprint_timer::use_cases {
 
-std::vector<sprint_timer::entities::Sprint>
-filterByTag(const std::vector<sprint_timer::entities::Sprint>& sprints,
-            const sprint_timer::entities::Tag& tag);
+class WorktimeStatisticsHandler : public QueryHandler<WorktimeStatisticsQuery> {
+public:
+    using sprint_statistics_handler_t = QueryHandler<SprintStatisticsQuery>;
 
-constexpr bool containsDate(const dw::DateRange& dateRange,
-                            const dw::Date& date) noexcept
-{
-    return dateRange.start() <= date && date <= dateRange.finish();
-}
+    explicit WorktimeStatisticsHandler(
+        sprint_statistics_handler_t& sprintStatisticsHandler);
 
-constexpr size_t sizeInDays(const dw::DateRange& dateRange) noexcept
-{
-    return static_cast<size_t>(dateRange.duration().count()) + 1;
-}
+    result_t handle(WorktimeStatisticsQuery&& query) override;
+
+private:
+    sprint_statistics_handler_t& sprintStatisticsHandler;
+};
 
 } // namespace sprint_timer::use_cases
 
-#endif /* end of include guard: COMMON_H_U7S8D6JF */
+#endif /* end of include guard: WORKTIMESTATISTICSHANDLER_H_TZW2ANHS */

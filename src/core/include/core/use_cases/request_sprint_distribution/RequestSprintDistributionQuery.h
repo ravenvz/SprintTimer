@@ -32,6 +32,9 @@ struct RequestSprintDistributionQuery : public Query<std::vector<int>> {
     explicit RequestSprintDistributionQuery(dw::DateRange dateRange);
 
     dw::DateRange dateRange;
+
+    friend bool operator==(const RequestSprintDistributionQuery&,
+                           const RequestSprintDistributionQuery&) = default;
 };
 
 template <class CharT, class Traits>

@@ -19,16 +19,14 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "common_utils/FakeUuidGenerator.h"
+#include "mocks/QueryHandlerMock.h"
 #include "mocks/StatisticsMediatorMock.h"
 #include "qt_gui/presentation/BestWorkdayContract.h"
 #include "qt_gui/presentation/BestWorkdayPresenter.h"
 
-using sprint_timer::Distribution;
-using sprint_timer::entities::Sprint;
 using sprint_timer::ui::BestWorkdayPresenter;
+using sprint_timer::ui::StatisticsContext;
 using sprint_timer::ui::contracts::BestWorkday::View;
-using sprint_timer::use_cases::SprintDTO;
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
@@ -107,101 +105,88 @@ public:
 
 class BestWorkdayPresenterFixture : public ::testing::Test {
 public:
-    const size_t numTopTags{20};
     sprint_timer::ui::StatisticsMediator mediator;
     const DateRange someDateRange{dw::current_date(), dw::current_date()};
-    const DateRange specificDateRange{Date{Year{2015}, Month{6}, Day{1}},
-                                      Date{Year{2015}, Month{6}, Day{14}}};
     NiceMock<BestWorkdayViewMock> view;
-    FakeUuidGenerator generator;
-
-    std::vector<SprintDTO> buildSomeSprints()
-    {
-        using namespace dw;
-        std::vector<SprintDTO> sprints;
-        const std::string taskUuid{"123"};
-        const std::string taskName{"Some task"};
-        // (2015, 6, 1) is Monday, so each weekday occures exactly twice
-        // in 14-day timeSpan
-        // {Date{Year{2015}, Month{6}, Day{1}},
-        // Date{Year{2015}, Month{6}, Day{14}}};
-        // This generates workday distribution
-        // {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5}
-        for (unsigned i = 1; i < 15; ++i) {
-            for (unsigned j = 0; j < i; ++j) {
-                const DateTime sprintDateTime =
-                    DateTime{Date{Year{2015}, Month{6}, Day{i}}};
-                sprints.push_back(
-                    SprintDTO{generator.generateUUID(),
-                              taskUuid,
-                              taskName,
-                              std::vector<std::string>{},
-                              DateTimeRange{sprintDateTime, sprintDateTime}});
-            }
-        }
-        return sprints;
-    }
+    NiceMock<mocks::QueryHandlerMock<
+        sprint_timer::use_cases::WorkdayStatisticsQuery>>
+        workdayStatisticsHandlerMock;
 };
 
 TEST_F(BestWorkdayPresenterFixture,
        updates_legend_with_placeholder_data_when_no_date_range_is_supplied)
 {
-    const Distribution<double> distribution{
-        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
     const View::LegendData expected{-1, "No data"};
-    sprint_timer::ui::StatisticsContext statisticsContext;
-    BestWorkdayPresenter sut{mediator, statisticsContext, dw::Weekday::Monday};
+    StatisticsContext statisticsContext;
+    BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
+                             mediator,
+                             statisticsContext,
+                             dw::Weekday::Monday};
     sut.attachView(view);
 
+    EXPECT_CALL(workdayStatisticsHandlerMock, handle(_)).Times(0);
     EXPECT_CALL(view, displayLegend(expected)).Times(1);
 
     sut.updateView();
 }
 
 TEST_F(BestWorkdayPresenterFixture,
-       updates_placeholder_legend_when_there_are_no_sprints)
+       updates_legend_with_placeholder_data_when_distribution_empty)
 {
     const View::LegendData expected{-1, "No data"};
-    const std::vector<Sprint> sprints;
-    sprint_timer::ui::StatisticsContext statisticsContext;
-    BestWorkdayPresenter sut{mediator, statisticsContext, dw::Weekday::Monday};
+    StatisticsContext statisticsContext{
+        dw::DateRange{dw::current_date(), dw::current_date()}};
+    BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
+                             mediator,
+                             statisticsContext,
+                             dw::Weekday::Monday};
     sut.attachView(view);
+    ON_CALL(workdayStatisticsHandlerMock, handle(_))
+        .WillByDefault(Return(std::nullopt));
 
     EXPECT_CALL(view, displayLegend(expected));
 
     sut.updateView();
 }
 
-TEST_F(BestWorkdayPresenterFixture, updates_legend_for_generic_data)
+TEST_F(BestWorkdayPresenterFixture, updates_legend_with_generic_data)
 {
-    const auto sprints = buildSomeSprints();
-    const View::LegendData expected{7, "40"};
-    sprint_timer::ui::StatisticsContext statisticsContext{
-        sprints, specificDateRange, numTopTags};
-    BestWorkdayPresenter sut{mediator, statisticsContext, dw::Weekday::Monday};
-    sut.attachView(view);
+    const View::LegendData expected{2, "63"};
+    const StatisticsContext statisticsContext{someDateRange};
+    BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
+                             mediator,
+                             statisticsContext,
+                             dw::Weekday::Monday};
+    sprint_timer::use_cases::WorkdayStatisticsDTO workdayStatistics{
+        {2.0, 3.5, 2.0, 3.0, 1.0, 3.0, 0.5}, dw::Weekday::Tuesday, 63};
+    ON_CALL(workdayStatisticsHandlerMock, handle(_))
+        .WillByDefault(Return(workdayStatistics));
 
     EXPECT_CALL(view, displayLegend(expected)).Times(1);
 
-    sut.updateView();
+    sut.attachView(view);
 }
 
-TEST_F(BestWorkdayPresenterFixture, updates_view_when_shared_data_is_changed)
+TEST_F(BestWorkdayPresenterFixture, updates_legend_when_date_range_is_changed)
 {
-    using sprint_timer::entities::Tag;
-    const dw::DateRange newDateRange{dw::current_date(), dw::current_date()};
-    sprint_timer::ui::StatisticsContext statisticsContext{
-        std::vector<SprintDTO>{}, specificDateRange, numTopTags};
-    BestWorkdayPresenter sut{mediator, statisticsContext, dw::Weekday::Monday};
+    const View::LegendData expected{2, "63"};
+    const StatisticsContext statisticsContext{someDateRange};
+    BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
+                             mediator,
+                             statisticsContext,
+                             dw::Weekday::Monday};
     sut.attachView(view);
+    sprint_timer::use_cases::WorkdayStatisticsDTO workdayStatistics{
+        {2.0, 3.5, 2.0, 3.0, 1.0, 3.0, 0.5}, dw::Weekday::Tuesday, 63};
+    ON_CALL(workdayStatisticsHandlerMock, handle(_))
+        .WillByDefault(Return(workdayStatistics));
 
-    EXPECT_CALL(view, displayLegend(_));
-    EXPECT_CALL(view, displayBars(_));
+    EXPECT_CALL(view, displayLegend(expected)).Times(1);
 
     sut.onSharedDataChanged();
 }
 
-TEST_F(BestWorkdayPresenterFixture, updates_bars_when_there_are_no_sprints)
+TEST_F(BestWorkdayPresenterFixture, updates_bars_when_distribution_is_empty)
 {
     const std::array<double, 7> barValues{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     const std::array<int, 7> dayOrder{1, 2, 3, 4, 5, 6, 7};
@@ -209,31 +194,62 @@ TEST_F(BestWorkdayPresenterFixture, updates_bars_when_there_are_no_sprints)
                               std::string{barColor},
                               barValues,
                               dayOrder};
-    sprint_timer::ui::StatisticsContext statisticsContext{
-        std::vector<SprintDTO>{}, specificDateRange, numTopTags};
-    BestWorkdayPresenter sut{mediator, statisticsContext, dw::Weekday::Monday};
+    const StatisticsContext statisticsContext{someDateRange};
+    ON_CALL(workdayStatisticsHandlerMock, handle(_))
+        .WillByDefault(Return(sprint_timer::use_cases::WorkdayStatisticsDTO{}));
+    BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
+                             mediator,
+                             statisticsContext,
+                             dw::Weekday::Monday};
 
     EXPECT_CALL(view, displayBars(expected));
 
     sut.attachView(view);
 }
 
-TEST_F(BestWorkdayPresenterFixture, updates_bar_for_generic_data)
+TEST_F(BestWorkdayPresenterFixture, updates_bar_with_generic_data)
 {
     const std::array<double, 7> barValues{4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
     const std::array<int, 7> dayOrder{1, 2, 3, 4, 5, 6, 7};
-    const auto sprints = buildSomeSprints();
     const View::BarD expected{std::string{barBorderColor},
                               std::string{barColor},
                               barValues,
                               dayOrder};
-    sprint_timer::ui::StatisticsContext statisticsContext{
-        sprints, specificDateRange, numTopTags};
-    BestWorkdayPresenter sut{mediator, statisticsContext, dw::Weekday::Monday};
+    const StatisticsContext statisticsContext{someDateRange};
+    BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
+                             mediator,
+                             statisticsContext,
+                             dw::Weekday::Monday};
+    ON_CALL(workdayStatisticsHandlerMock, handle(_))
+        .WillByDefault(Return(sprint_timer::use_cases::WorkdayStatisticsDTO{
+            {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5}, dw::Weekday::Sunday, 40}));
 
     EXPECT_CALL(view, displayBars(expected));
 
     sut.attachView(view);
+}
+
+TEST_F(BestWorkdayPresenterFixture, updates_bar_when_date_range_is_changed)
+{
+    const std::array<double, 7> barValues{4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5};
+    const std::array<int, 7> dayOrder{1, 2, 3, 4, 5, 6, 7};
+    const View::BarD expected{std::string{barBorderColor},
+                              std::string{barColor},
+                              barValues,
+                              dayOrder};
+    const StatisticsContext statisticsContext{someDateRange};
+    BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
+                             mediator,
+                             statisticsContext,
+                             dw::Weekday::Monday};
+    sut.attachView(view);
+    ON_CALL(workdayStatisticsHandlerMock, handle(_))
+        .WillByDefault(Return(sprint_timer::use_cases::WorkdayStatisticsDTO{
+            {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5}, dw::Weekday::Sunday, 40}));
+
+    EXPECT_CALL(view, displayBars(expected));
+
+    sut.onSharedDataChanged();
 }
 
 TEST_F(BestWorkdayPresenterFixture,
@@ -241,14 +257,18 @@ TEST_F(BestWorkdayPresenterFixture,
 {
     const std::array<double, 7> barValues{10.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5};
     const std::array<int, 7> dayOrder{7, 1, 2, 3, 4, 5, 6};
-    const auto sprints = buildSomeSprints();
     const View::BarD expected{std::string{barBorderColor},
                               std::string{barColor},
                               barValues,
                               dayOrder};
-    sprint_timer::ui::StatisticsContext statisticsContext{
-        sprints, specificDateRange, numTopTags};
-    BestWorkdayPresenter sut{mediator, statisticsContext, dw::Weekday::Sunday};
+    const StatisticsContext statisticsContext{someDateRange};
+    BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
+                             mediator,
+                             statisticsContext,
+                             dw::Weekday::Sunday};
+    ON_CALL(workdayStatisticsHandlerMock, handle(_))
+        .WillByDefault(Return(sprint_timer::use_cases::WorkdayStatisticsDTO{
+            {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5}, dw::Weekday::Sunday, 40}));
 
     EXPECT_CALL(view, displayBars(expected));
 

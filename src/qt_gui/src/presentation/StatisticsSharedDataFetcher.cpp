@@ -24,11 +24,11 @@
 namespace sprint_timer::ui {
 
 StatisticsSharedDataFetcher::StatisticsSharedDataFetcher(
-    request_sprints_hdl_t& requestSprintsHandler_,
+    sprint_statistics_hdl_t& sprintStatisticsHandler_,
     StatisticsMediator& mediator_,
     StatisticsContext& statisticsContext_,
     size_t numTopTags_)
-    : requestSprintsHandler{requestSprintsHandler_}
+    : sprintStatisticsHandler{sprintStatisticsHandler_}
     , mediator{mediator_}
     , statisticsContext{statisticsContext_}
     , numTopTags{numTopTags_}
@@ -43,31 +43,28 @@ StatisticsSharedDataFetcher::~StatisticsSharedDataFetcher()
 
 void StatisticsSharedDataFetcher::fetchData()
 {
-    if (!statisticsContext.currentRange()) {
-        return;
+    if (auto dateRange = statisticsContext.currentRange(); dateRange) {
+        statisticsContext = StatisticsContext{
+            sprintStatisticsHandler.handle(
+                use_cases::SprintStatisticsQuery{numTopTags, *dateRange}),
+            *statisticsContext.currentRange()};
     }
-    data = requestSprintsHandler.handle(
-        use_cases::RequestSprintsQuery{*statisticsContext.currentRange()});
 }
 
 void StatisticsSharedDataFetcher::updateView()
 {
-    if (!data || !statisticsContext.currentRange()) {
+    if (!statisticsContext.currentRange()) {
         return;
     }
-    statisticsContext =
-        StatisticsContext{*data, *statisticsContext.currentRange(), numTopTags};
     mediator.mediate(this,
                      [](auto* colleague) { colleague->onSharedDataChanged(); });
 }
 
 void StatisticsSharedDataFetcher::onDateRangeChanged(const dw::DateRange& range)
 {
-    const auto sprints =
-        requestSprintsHandler.handle(use_cases::RequestSprintsQuery{range});
-    statisticsContext = StatisticsContext{sprints, range, numTopTags};
-    mediator.mediate(this,
-                     [](auto* colleague) { colleague->onSharedDataChanged(); });
+    statisticsContext = StatisticsContext{range};
+    fetchData();
+    updateView();
 }
 
 void StatisticsSharedDataFetcher::onTagSelected(std::optional<size_t> tag)

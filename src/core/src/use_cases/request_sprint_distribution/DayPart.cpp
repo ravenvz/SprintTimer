@@ -20,30 +20,52 @@
 **
 *********************************************************************************/
 #include "core/use_cases/request_sprint_distribution/DayPart.h"
+#include <array>
+#include <string_view>
+
+namespace {
+
+constexpr size_t numDayParts{6};
+
+constexpr std::array<std::string_view, numDayParts> dayPartNameTable{
+    "Midnight", "Night", "Morning", "Noon", "Afternoon", "Evening"};
+
+constexpr std::array<std::string_view, numDayParts> dayPartHoursTable{
+    "22:00 - 2:00",
+    "2:00 - 6:00",
+    "6:00 - 10:00",
+    "10:00 - 14:00",
+    "14:00 - 18:00",
+    "18:00 - 22:00"};
+
+constexpr std::string_view invalid{"Invalid"};
+
+} // namespace
 
 namespace sprint_timer::use_cases {
 
 DayPart dayPart(const dw::DateTimeRange& timeSpan)
 {
     const auto hour = timeSpan.start().hour().count();
+    using enum DayPart;
 
     if (22 < hour || hour <= 2) {
-        return DayPart::Midnight;
+        return Midnight;
     }
     else if (2 < hour && hour <= 6) {
-        return DayPart::Night;
+        return Night;
     }
     else if (6 < hour && hour <= 10) {
-        return DayPart::Morning;
+        return Morning;
     }
     else if (10 < hour && hour <= 14) {
-        return DayPart::Noon;
+        return Noon;
     }
     else if (14 < hour && hour <= 18) {
-        return DayPart::Afternoon;
+        return Afternoon;
     }
     else {
-        return DayPart::Evening;
+        return Evening;
     }
 }
 
@@ -54,40 +76,14 @@ std::string dayPartName(unsigned dayPart)
 
 std::string dayPartName(DayPart dayPart)
 {
-    switch (dayPart) {
-    case DayPart::Midnight:
-        return "Midnight";
-    case DayPart::Night:
-        return "Night";
-    case DayPart::Morning:
-        return "Morning";
-    case DayPart::Noon:
-        return "Noon";
-    case DayPart::Afternoon:
-        return "Afternoon";
-    case DayPart::Evening:
-        return "Evening";
-    }
-    return "Invalid";
+    const auto num = static_cast<size_t>(dayPart);
+    return std::string{num < numDayParts ? dayPartNameTable[num] : invalid};
 }
 
 std::string dayPartHours(DayPart dayPart)
 {
-    switch (dayPart) {
-    case DayPart::Midnight:
-        return "22:00 - 2:00";
-    case DayPart::Night:
-        return "2:00 - 6:00";
-    case DayPart::Morning:
-        return "6:00 - 10:00";
-    case DayPart::Noon:
-        return "10:00 - 14:00";
-    case DayPart::Afternoon:
-        return "14:00 - 18:00";
-    case DayPart::Evening:
-        return "18:00 - 22:00";
-    }
-    return "Invalid";
+    const auto num = static_cast<size_t>(dayPart);
+    return std::string{num < numDayParts ? dayPartHoursTable[num] : invalid};
 }
 
 std::string dayPartHours(unsigned dayPart)

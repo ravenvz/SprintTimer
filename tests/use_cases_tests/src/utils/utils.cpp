@@ -20,14 +20,14 @@
 **
 *********************************************************************************/
 #include "use_cases_tests/utils/utils.h"
+#include <algorithm>
+#include <ranges>
 
 std::vector<std::string>
 extractUuids(const std::vector<sprint_timer::use_cases::TaskDTO>& taskDTOs)
 {
     std::vector<std::string> uuids(taskDTOs.size(), "");
-    std::transform(cbegin(taskDTOs),
-                   cend(taskDTOs),
-                   begin(uuids),
-                   [](const auto& elem) { return elem.uuid; });
+    std::ranges::transform(
+        taskDTOs, begin(uuids), [](const auto& elem) { return elem.uuid; });
     return uuids;
 }

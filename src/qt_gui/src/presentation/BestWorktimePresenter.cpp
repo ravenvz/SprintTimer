@@ -24,6 +24,11 @@
 
 namespace {
 
+struct SprintDaytimeDistribution {
+    sprint_timer::Distribution<double> dayPartDistribution;
+    std::vector<dw::DateTimeRange> timeRanges;
+};
+
 constexpr std::string_view filledColor{"#f63c0d"};
 
 void updateViewWithStubData(
@@ -31,24 +36,18 @@ void updateViewWithStubData(
 
 void updateViewWithValidData(
     sprint_timer::ui::contracts::BestWorktimeContract::View& view,
-    const sprint_timer::ui::SprintDaytimeDistribution& distribution);
-
-sprint_timer::ui::SprintDaytimeDistribution
-buildDistribution(const std::vector<sprint_timer::entities::Sprint>& sprints);
-
-sprint_timer::Distribution<double>
-workingHoursStatistics(const std::vector<dw::DateTimeRange>& timeSpans);
-
-std::vector<dw::DateTimeRange>
-extractRanges(const std::vector<sprint_timer::entities::Sprint>& sprints);
+    const sprint_timer::use_cases::WorktimeStatisticsDTO& distribution);
 
 } // namespace
 
 namespace sprint_timer::ui {
 
 BestWorktimePresenter::BestWorktimePresenter(
-    StatisticsMediator& mediator_, const StatisticsContext& statisticsContext_)
-    : mediator{mediator_}
+    worktime_statistics_handler_t& worktimeStatisticsHandler_,
+    StatisticsMediator& mediator_,
+    const StatisticsContext& statisticsContext_)
+    : worktimeStatisticsHandler{worktimeStatisticsHandler_}
+    , mediator{mediator_}
     , statisticsContext{statisticsContext_}
 {
     mediator.addColleague(this);
@@ -59,22 +58,33 @@ BestWorktimePresenter::~BestWorktimePresenter()
     mediator.removeColleague(this);
 }
 
-void BestWorktimePresenter::onSharedDataChanged() { updateView(); }
+void BestWorktimePresenter::onSharedDataChanged()
+{
+    fetchData();
+    updateView();
+}
+
+void BestWorktimePresenter::fetchDataImpl()
+{
+    if (!statisticsContext.currentRange()) {
+        return;
+    }
+
+    worktimeStatistics = worktimeStatisticsHandler.handle(
+        use_cases::WorktimeStatisticsQuery{statisticsContext.numTopTags(),
+                                           statisticsContext.selectedTag(),
+                                           *statisticsContext.currentRange()});
+}
 
 void BestWorktimePresenter::updateViewImpl()
 {
     if (auto v = view(); v) {
-        if (!statisticsContext.currentRange()) {
+        if (!statisticsContext.currentRange() || !worktimeStatistics) {
             updateViewWithStubData(*v.value());
-            return;
         }
-        const auto& sprints = statisticsContext.sprints();
-        if (sprints.empty()) {
-            updateViewWithStubData(*v.value());
-            return;
+        else {
+            updateViewWithValidData(*v.value(), *worktimeStatistics);
         }
-        const auto distribution = buildDistribution(sprints);
-        updateViewWithValidData(*v.value(), distribution);
     }
 }
 
@@ -93,49 +103,16 @@ void updateViewWithStubData(
 
 void updateViewWithValidData(
     sprint_timer::ui::contracts::BestWorktimeContract::View& view,
-    const sprint_timer::ui::SprintDaytimeDistribution& distribution)
+    const sprint_timer::use_cases::WorktimeStatisticsDTO& distribution)
 {
     using namespace sprint_timer::ui::contracts::BestWorktimeContract;
     using namespace sprint_timer::use_cases;
-    const auto maxValueBin = static_cast<unsigned>(
-        distribution.dayPartDistribution.getMaxValueBin());
-    view.updateLegend(
-        LegendData{dayPartName(maxValueBin), dayPartHours(maxValueBin)});
+    // const auto maxValueBin = static_cast<unsigned>(
+    //     distribution.dayPartDistribution.getMaxValueBin());
+    view.updateLegend(LegendData{dayPartName(distribution.bestWorktime),
+                                 dayPartHours(distribution.bestWorktime)});
     view.updateDiagram(
         DiagramData{std::string{filledColor}, distribution.timeRanges});
-}
-
-sprint_timer::ui::SprintDaytimeDistribution
-buildDistribution(const std::vector<sprint_timer::entities::Sprint>& sprints)
-{
-    const auto ranges = extractRanges(sprints);
-    return sprint_timer::ui::SprintDaytimeDistribution{
-        workingHoursStatistics(ranges), ranges};
-}
-
-sprint_timer::Distribution<double>
-workingHoursStatistics(const std::vector<dw::DateTimeRange>& timeSpans)
-{
-    using namespace sprint_timer::use_cases;
-    std::vector<double> sprintsPerDayPart(numParts, 0);
-
-    for (const auto& range : timeSpans) {
-        ++sprintsPerDayPart[static_cast<size_t>(dayPart(range))];
-    }
-
-    return sprint_timer::Distribution<double>{std::move(sprintsPerDayPart)};
-}
-
-std::vector<dw::DateTimeRange>
-extractRanges(const std::vector<sprint_timer::entities::Sprint>& sprints)
-{
-    std::vector<dw::DateTimeRange> sprintRanges;
-    sprintRanges.reserve(sprints.size());
-    std::transform(cbegin(sprints),
-                   cend(sprints),
-                   std::back_inserter(sprintRanges),
-                   [](const auto& elem) { return elem.timeSpan(); });
-    return sprintRanges;
 }
 
 } // namespace

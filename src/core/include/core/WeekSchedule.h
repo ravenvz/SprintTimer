@@ -22,18 +22,25 @@
 #ifndef WEEKSCHEDULE_H_NTSVHHA0
 #define WEEKSCHEDULE_H_NTSVHHA0
 
-#include <array>
 #include "date_wrapper/date_wrapper.h"
+#include <array>
+#include <span>
 
 namespace sprint_timer {
 
 class WeekSchedule {
 public:
+    WeekSchedule() = default;
+
+    explicit WeekSchedule(std::array<int, 7> goals);
+
     int targetGoal(const dw::Weekday& weekday) const;
 
     void setTargetGoal(const dw::Weekday& weekday, int goal);
 
     bool isWorkday(const dw::Weekday& weekday) const;
+
+    friend bool operator==(const WeekSchedule&, const WeekSchedule&) = default;
 
 private:
     std::array<int, 7> goals_{0, 0, 0, 0, 0, 0, 0};
@@ -54,10 +61,6 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const WeekSchedule& schedule)
     os << "\n\t}";
     return os;
 }
-
-bool operator==(const WeekSchedule& lhs, const WeekSchedule& rhs);
-
-bool operator!=(const WeekSchedule& lhs, const WeekSchedule& rhs);
 
 } // namespace sprint_timer
 

@@ -31,6 +31,11 @@
 #include "core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h"
 #include "core/use_cases/request_sprints/RequestSprintsHandler.h"
 #include "core/use_cases/request_sprints/SprintsForTaskHandler.h"
+#include "core/use_cases/request_statistics/DailyStatisticsHandler.h"
+#include "core/use_cases/request_statistics/SprintStatisticsHandler.h"
+#include "core/use_cases/request_statistics/TopTagFrequenciesHandler.h"
+#include "core/use_cases/request_statistics/WorkdayStatisticsHandler.h"
+#include "core/use_cases/request_statistics/WorktimeStatisticsHandler.h"
 #include "core/use_cases/request_tags/AllTagsHandler.h"
 #include "core/use_cases/request_task_backlog/TaskBacklogHandler.h"
 #include "core/use_cases/request_tasks/ActiveTasksHandler.h"
@@ -39,7 +44,7 @@
 
 namespace sprint_timer::compose {
 
-struct TestQueryHandlerComposer : public QueryHandlerComposer {
+struct TestQueryHandlerComposer final : public QueryHandlerComposer {
     TestQueryHandlerComposer(
         TaskStorage& taskStorage_,
         SprintStorage& sprintStorage_,
@@ -48,85 +53,51 @@ struct TestQueryHandlerComposer : public QueryHandlerComposer {
         SprintDistributionReader& dailyDistReader_,
         SprintDistributionReader& mondayFirstWeeklyDistReader_,
         SprintDistributionReader& sundayFirstWeeklyDistReader_,
-        SprintDistributionReader& monthlyDistReader_)
-        : activeTasks{taskStorage_}
-        , allTags{taskStorage_}
-        , requestSprints{sprintStorage_}
-        , finishedTasks{taskStorage_}
-        , sprintsForTask{sprintStorage_}
-        , operationalRange{operationRangeReader_}
-        , dailyDistribution{dailyDistReader_}
-        , mondayFirstWeeklyDistribution{mondayFirstWeeklyDistReader_}
-        , sundayFirstWeeklyDistribution{sundayFirstWeeklyDistReader_}
-        , monthlyDistribution{monthlyDistReader_}
-        , workSchedule{workScheduleReader_}
-        , taskBacklog{taskStorage_}
-    {
-    }
+        SprintDistributionReader& monthlyDistReader_);
 
-    QueryHandler<use_cases::ActiveTasksQuery>& activeTasksHandler() override
-    {
-        return activeTasks;
-    }
+    QueryHandler<use_cases::ActiveTasksQuery>& activeTasksHandler() override;
 
-    QueryHandler<use_cases::AllTagsQuery>& allTagsHandler() override
-    {
-        return allTags;
-    }
+    QueryHandler<use_cases::AllTagsQuery>& allTagsHandler() override;
 
     QueryHandler<use_cases::RequestSprintsQuery>&
-    requestSprintsHandler() override
-    {
-        return requestSprints;
-    }
+    requestSprintsHandler() override;
 
-    QueryHandler<use_cases::FinishedTasksQuery>& finishedTasksHandler() override
-    {
-        return finishedTasks;
-    }
+    QueryHandler<use_cases::FinishedTasksQuery>&
+    finishedTasksHandler() override;
 
     QueryHandler<use_cases::SprintsForTaskQuery>&
-    sprintsForTaskHandler() override
-    {
-        return sprintsForTask;
-    }
+    sprintsForTaskHandler() override;
 
     QueryHandler<use_cases::OperationalRangeQuery>&
-    operationalRangeHandler() override
-    {
-        return operationalRange;
-    }
+    operationalRangeHandler() override;
 
     QueryHandler<use_cases::RequestSprintDistributionQuery>&
-    dailyDistHandler() override
-    {
-        return dailyDistribution;
-    }
+    dailyDistHandler() override;
 
     QueryHandler<use_cases::RequestSprintDistributionQuery>&
-    weeklyDistHandler(dw::Weekday firstDayOfWeek) override
-    {
-        if (firstDayOfWeek == dw::Weekday::Monday) {
-            return mondayFirstWeeklyDistribution;
-        }
-        return sundayFirstWeeklyDistribution;
-    }
+    weeklyDistHandler(dw::Weekday firstDayOfWeek) override;
 
     QueryHandler<use_cases::RequestSprintDistributionQuery>&
-    monthlyDistHandler() override
-    {
-        return monthlyDistribution;
-    }
+    monthlyDistHandler() override;
 
-    QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler() override
-    {
-        return workSchedule;
-    }
+    QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler() override;
 
-    QueryHandler<use_cases::TaskBacklogQuery>& taskBacklogHandler() override
-    {
-        return taskBacklog;
-    }
+    QueryHandler<use_cases::TaskBacklogQuery>& taskBacklogHandler() override;
+
+    QueryHandler<use_cases::SprintStatisticsQuery>&
+    sprintStatisticsHandler() override;
+
+    QueryHandler<use_cases::WorkdayStatisticsQuery>&
+    workdayStatisticsHandler() override;
+
+    QueryHandler<use_cases::WorktimeStatisticsQuery>&
+    worktimeStatisticsHandler() override;
+
+    QueryHandler<use_cases::DailyStatisticsQuery>&
+    dailyStatisticsHandler() override;
+
+    QueryHandler<use_cases::TopTagFrequenciesQuery>&
+    topTagFrequenciesHandler() override;
 
 private:
     use_cases::ActiveTasksHandler activeTasks;
@@ -141,6 +112,12 @@ private:
     use_cases::RequestSprintDistributionHandler monthlyDistribution;
     use_cases::WorkScheduleHandler workSchedule;
     use_cases::TaskBacklogHandler taskBacklog;
+    use_cases::SprintStatisticsHandler sprintStatistics;
+    use_cases::WorkdayStatisticsHandler workdaysStatistics{sprintStatistics};
+    use_cases::WorktimeStatisticsHandler worktimeStatistics{sprintStatistics};
+    use_cases::DailyStatisticsHandler dailyStatistics{workSchedule,
+                                                      sprintStatistics};
+    use_cases::TopTagFrequenciesHandler topTagFrequencies{sprintStatistics};
 };
 
 } // namespace sprint_timer::compose

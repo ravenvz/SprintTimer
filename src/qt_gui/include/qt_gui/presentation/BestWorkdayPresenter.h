@@ -22,6 +22,9 @@
 #ifndef BESTWORKDAYPRESENTER_H_OIE4UYUT
 #define BESTWORKDAYPRESENTER_H_OIE4UYUT
 
+#include "core/Distribution.h"
+#include "core/QueryHandler.h"
+#include "core/use_cases/request_statistics/WorkdayStatisticsQuery.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/presentation/BestWorkdayContract.h"
 #include "qt_gui/presentation/StatisticsContext.h"
@@ -32,7 +35,11 @@ namespace sprint_timer::ui {
 class BestWorkdayPresenter : public contracts::BestWorkday::Presenter,
                              public StatisticsColleague {
 public:
-    BestWorkdayPresenter(StatisticsMediator& mediator,
+    using workday_statistics_handler_t =
+        QueryHandler<use_cases::WorkdayStatisticsQuery>;
+
+    BestWorkdayPresenter(workday_statistics_handler_t& workdayStatisticsHandler,
+                         StatisticsMediator& mediator,
                          const StatisticsContext& statisticsContext,
                          dw::Weekday firstDayOfWeek);
 
@@ -45,15 +52,21 @@ public:
     BestWorkdayPresenter& operator=(BestWorkdayPresenter&& other) = default;
 
 private:
+    std::reference_wrapper<workday_statistics_handler_t>
+        workdayStatisticsHandler;
     std::reference_wrapper<StatisticsMediator> mediator;
     std::reference_wrapper<const StatisticsContext> statisticsContext;
     dw::Weekday firstDayOfWeek;
+    std::optional<use_cases::WorkdayStatisticsDTO> workdayStatistics;
+
+    void fetchDataImpl() override;
 
     void updateViewImpl() override;
 
-    void updateLegend(const Distribution<double>& distribution) const;
+    void updateLegend(dw::Weekday bestWorkday,
+                      int percentageAboveAverage) const;
 
-    void updateBars(const Distribution<double>& distribution) const;
+    void updateBars(std::array<double, 7> weekdayDistribution) const;
 
     void updateWithDefaultValues() const;
 };

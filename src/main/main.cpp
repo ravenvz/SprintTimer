@@ -105,6 +105,11 @@
 #include "core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h"
 #include "core/use_cases/request_sprints/RequestSprintsHandler.h"
 #include "core/use_cases/request_sprints/SprintsForTaskHandler.h"
+#include "core/use_cases/request_statistics/DailyStatisticsHandler.h"
+#include "core/use_cases/request_statistics/SprintStatisticsHandler.h"
+#include "core/use_cases/request_statistics/TopTagFrequenciesHandler.h"
+#include "core/use_cases/request_statistics/WorkdayStatisticsHandler.h"
+#include "core/use_cases/request_statistics/WorktimeStatisticsHandler.h"
 #include "core/use_cases/request_tags/AllTagsHandler.h"
 #include "core/use_cases/request_tasks/ActiveTasksHandler.h"
 #include "core/use_cases/request_tasks/FinishedTasksHandler.h"
@@ -182,9 +187,9 @@
 #include <filesystem>
 
 /* Check three times before touching this */
-#include "FinishedTasksQueryHandlerSpecialization.h"
-#include "RequestSprintsQueryHandlerSpecialization.h"
-#include "SprintsForTaskQueryHandlerSpecialization.h"
+// #include "FinishedTasksQueryHandlerSpecialization.h"
+// #include "RequestSprintsQueryHandlerSpecialization.h"
+// #include "SprintsForTaskQueryHandlerSpecialization.h"
 /* Check three times before touching this */
 
 using std::filesystem::create_directory;
@@ -456,6 +461,35 @@ int main(int argc, char* argv[])
             std::make_unique<ActiveTasksHandler>(*taskStorage),
             cacheInvalidationMediator),
         outputStream);
+    auto sprintStatisticsHandler = compose::decorate<SprintStatisticsQuery>(
+        compose::decorate<SprintStatisticsQuery>(
+            std::make_unique<SprintStatisticsHandler>(*sprintStorage),
+            cacheInvalidationMediator),
+        outputStream);
+    auto workdayStatisticsHandler = compose::decorate<WorkdayStatisticsQuery>(
+        compose::decorate<WorkdayStatisticsQuery>(
+            std::make_unique<WorkdayStatisticsHandler>(
+                *sprintStatisticsHandler),
+            cacheInvalidationMediator),
+        outputStream);
+    auto worktimeStatisticsHandler = compose::decorate<WorktimeStatisticsQuery>(
+        compose::decorate<WorktimeStatisticsQuery>(
+            std::make_unique<WorktimeStatisticsHandler>(
+                *sprintStatisticsHandler),
+            cacheInvalidationMediator),
+        outputStream);
+    auto dailyStatisticsHandler = compose::decorate<DailyStatisticsQuery>(
+        compose::decorate<DailyStatisticsQuery>(
+            std::make_unique<DailyStatisticsHandler>(*workScheduleHandler,
+                                                     *sprintStatisticsHandler),
+            cacheInvalidationMediator),
+        outputStream);
+    auto topTagFrequenciesHandler = compose::decorate<TopTagFrequenciesQuery>(
+        compose::decorate<TopTagFrequenciesQuery>(
+            std::make_unique<TopTagFrequenciesHandler>(
+                *sprintStatisticsHandler),
+            cacheInvalidationMediator),
+        outputStream);
 
     auto deleteSprintHandler =
         compose::decorate_com_handler<DeleteSprintCommand>(
@@ -575,7 +609,7 @@ int main(int argc, char* argv[])
     //             cacheInvalidationMediator));
     ui::StatisticsContext statisticsContext;
     ui::StatisticsSharedDataFetcher statisticsSharedDataFetcher{
-        *statisticsRequestSprintsHandler,
+        *sprintStatisticsHandler,
         statisticsMediator,
         statisticsContext,
         numTopTags};
@@ -585,19 +619,19 @@ int main(int argc, char* argv[])
         applicationSettings,
         applicationSettings};
     ui::DailyStatisticsGraphPresenter dailyTimelineGraphPresenter{
-        *workScheduleHandler, statisticsMediator, statisticsContext};
+        *dailyStatisticsHandler, statisticsMediator, statisticsContext};
     compose::BestWorkdayPresenterProxy bestWorkdayPresenter{
+        *workdayStatisticsHandler,
         statisticsMediator,
         statisticsContext,
         applicationSettings,
         applicationSettings};
-    ui::TopTagDiagramPresenter tagPieDiagramPresenter{statisticsMediator,
-                                                      statisticsContext};
-    ui::BestWorktimePresenter bestWorktimePresenter{statisticsMediator,
-                                                    statisticsContext};
+    ui::TopTagDiagramPresenter tagPieDiagramPresenter{
+        *topTagFrequenciesHandler, statisticsMediator, statisticsContext};
+    ui::BestWorktimePresenter bestWorktimePresenter{
+        *worktimeStatisticsHandler, statisticsMediator, statisticsContext};
 
     sprint_timer::compose::StatisticsWindowProxy statisticsWindow{
-        // applicationSettings,
         dailyTimelineGraphPresenter,
         bestWorkdayPresenter,
         bestWorktimePresenter,
@@ -729,9 +763,7 @@ int main(int argc, char* argv[])
     //     applicationSettings,
     //     std::make_unique<ui::qt_gui::QtSoundPlayerImp>(qmediaPlayer));
     compose::RuntimeConfigurableSoundPlayer soundPlayer(
-        applicationSettings,
-        applicationSettings,
-        compose::createPlayer());
+        applicationSettings, applicationSettings, compose::createPlayer());
 
     ui::ConfigurableAssetLibrary assetLibrary_{
         {{"ringSound", applicationSettings.soundFilePath()}}};
@@ -781,13 +813,16 @@ int main(int argc, char* argv[])
         threadPool,
         {activeTasksPresenter,
          dateRangeSelectorPresenter,
+         bestWorkdayPresenter,
          historyRangeSelectorPresenter,
          dailyProgressPresenter,
          weeklyProgressPresenter,
          monthlyProgressPresenter,
+         bestWorktimePresenter,
+         dailyTimelineGraphPresenter,
          tagEditorPresenter,
          historyPresenter,
-         statisticsSharedDataFetcher,
+         tagPieDiagramPresenter,
          todayProgressPresenter,
          todaySprintsPresenter}};
 

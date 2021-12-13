@@ -29,11 +29,14 @@ namespace sprint_timer::compose {
 class BestWorkdayPresenterProxy : public ui::contracts::BestWorkday::Presenter,
                                   public ui::StatisticsColleague {
 public:
-    BestWorkdayPresenterProxy(ui::StatisticsMediator& mediator_,
+    BestWorkdayPresenterProxy(QueryHandler<use_cases::WorkdayStatisticsQuery>&
+                                  workdayStatisticsHandler_,
+                              ui::StatisticsMediator& mediator_,
                               const ui::StatisticsContext& statisticsContext_,
                               IConfig& settings_,
                               Observable& configChangedSignaller_)
-        : mediator{mediator_}
+        : workdayStatisticsHandler{workdayStatisticsHandler_}
+        , mediator{mediator_}
         , statisticsContext{statisticsContext_}
         , settings{settings_}
         , configChangedWatcher{configChangedSignaller_,
@@ -44,19 +47,21 @@ public:
     void onSharedDataChanged() override { }
 
 private:
+    QueryHandler<use_cases::WorkdayStatisticsQuery>& workdayStatisticsHandler;
     ui::StatisticsMediator& mediator;
     const ui::StatisticsContext& statisticsContext;
     IConfig& settings;
     dw::Weekday cached{settings.firstDayOfWeek()};
-    ui::BestWorkdayPresenter presenter{mediator, statisticsContext, cached};
+    ui::BestWorkdayPresenter presenter{
+        workdayStatisticsHandler, mediator, statisticsContext, cached};
     CompositionObserver configChangedWatcher;
 
     void onConfigChanged()
     {
         if (auto current = settings.firstDayOfWeek(); current != cached) {
             cached = settings.firstDayOfWeek();
-            presenter =
-                ui::BestWorkdayPresenter{mediator, statisticsContext, cached};
+            presenter = ui::BestWorkdayPresenter{
+                workdayStatisticsHandler, mediator, statisticsContext, cached};
             if (auto v = view(); v) {
                 presenter.attachView(*v.value());
             }

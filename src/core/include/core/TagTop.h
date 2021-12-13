@@ -23,8 +23,9 @@
 #ifndef SPRINT_TIMER_TAGTOP_H
 #define SPRINT_TIMER_TAGTOP_H
 
-#include "Distribution.h"
 #include "core/entities/Sprint.h"
+#include <optional>
+#include <span>
 #include <unordered_map>
 
 namespace sprint_timer {
@@ -39,7 +40,7 @@ namespace sprint_timer {
  * at the very bottom.
  * Maximum size of the top is specified at class construction.
  * Note, that actual size might be lower than maximum, because not all top
- * position might be filled.
+ * positions may be filled when number of different tags is lower than top size.
  *
  * In case when two or more tags have same frequency, the tie is broken
  * arbitrarily.
@@ -56,31 +57,38 @@ namespace sprint_timer {
  *
  *
  * */
+
+// struct TagFrequencyT {
+//     std::string tag;
+//     double frequency;
+//     std::vector<dw::DateRange> sprints;
+// };
+
 class TagTop {
 public:
     using TagFrequency = std::pair<entities::Tag, double>;
 
     using TagSprints =
-        std::unordered_map<entities::Tag, std::vector<entities::Sprint>>;
+        std::unordered_map<entities::Tag, std::vector<dw::DateTimeRange>>;
+
+    using sprint_tags_t =
+        std::pair<dw::DateTimeRange, std::list<entities::Tag>>;
+
+    TagTop() = default;
 
     TagTop(const std::vector<entities::Sprint>& sprints, size_t topMaxSize);
 
-    TagTop();
+    TagTop(std::span<const sprint_tags_t> input, size_t topSize);
 
     const std::vector<TagFrequency>& tagFrequencies() const;
 
-    const std::vector<entities::Sprint>& sprintsForTagAt(size_t position) const;
-
-    const std::vector<entities::Sprint>& allSprints() const;
-
-    const std::vector<entities::Sprint>&
-    sprintsForTag(const entities::Tag& tag) const;
-
-    std::string tagNameAt(size_t position) const;
+    const std::vector<dw::DateTimeRange>&
+    sprintsForTagAt(std::optional<size_t> position) const;
 
     size_t topSize() const;
 
 private:
+    std::vector<dw::DateTimeRange> dateRanges;
     TagSprints sprintsByTag;
     std::vector<TagFrequency> frequencies;
     size_t numTopTags{0};
@@ -90,19 +98,9 @@ private:
 
     void computeTagFrequencies();
 
-    void orderTagsByDecreasingFrequency();
+    void buildTagTop();
 
-    void mergeTagsWithLowestFrequencies();
-
-    void buildIndexMap();
-
-    std::vector<entities::Tag> mergeBottomTags();
-
-    std::vector<entities::Tag> findTopTags() const;
-
-    std::vector<entities::Tag> findAllTags() const;
-
-    std::vector<entities::Tag> findBottomTags() const;
+    std::string tagNameAt(size_t position) const;
 };
 
 } // namespace sprint_timer

@@ -32,6 +32,9 @@ struct SprintsForTaskQuery : public Query<std::vector<SprintDTO>> {
     explicit SprintsForTaskQuery(std::string taskUuid);
 
     std::string taskUuid;
+
+    friend bool operator==(const SprintsForTaskQuery&,
+                           const SprintsForTaskQuery&) = default;
 };
 
 template <class CharT, class Traits>

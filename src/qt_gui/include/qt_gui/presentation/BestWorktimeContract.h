@@ -25,18 +25,18 @@
 #include "date_wrapper/date_wrapper.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
-#include <string>
+#include <string_view>
 #include <vector>
 
 namespace sprint_timer::ui::contracts::BestWorktimeContract {
 
 struct LegendData {
-    std::string periodName;
-    std::string periodHours;
+    std::string_view periodName;
+    std::string_view periodHours;
 };
 
 struct DiagramData {
-    std::string filledColor;
+    std::string_view filledColor;
     std::vector<dw::DateTimeRange> timeRanges;
 };
 

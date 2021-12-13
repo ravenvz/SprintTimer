@@ -30,13 +30,29 @@
 
 namespace sprint_timer::utils {
 
-template <class ForwardIterator>
-std::string join(ForwardIterator first,
-                 ForwardIterator last,
-                 const std::string& delimeter,
-                 typename std::enable_if<!std::is_same<
-                     typename std::iterator_traits<ForwardIterator>::value_type,
-                     std::string>::value>::type*  /*unused*/= 0)
+// template <typename T>
+// using EnableIfString = std::enable_if_t<
+//     std::is_same_v<typename std::iterator_traits<T>::value_type,
+//     std::string>>;
+//
+// template <typename T>
+// using EnableIfNotString = std::enable_if_t<
+//     !std::is_same_v<typename std::iterator_traits<T>::value_type,
+//     std::string>>;
+
+template <typename Iterator>
+concept StringIterator =
+    std::is_same_v<typename std::iterator_traits<Iterator>::value_type,
+                   std::string>;
+
+template <typename Iterator>
+concept NonStringIterator =
+    !std::is_same_v<typename std::iterator_traits<Iterator>::value_type,
+                    std::string>;
+
+template <NonStringIterator ForwardIterator>
+std::string
+join(ForwardIterator first, ForwardIterator last, const std::string& delimeter)
 {
     std::ostringstream res;
     for (auto it = first; it != last; ++it) {
@@ -49,14 +65,9 @@ std::string join(ForwardIterator first,
 
 // Template overload for std::string type
 // Skips empty strings
-template <class ForwardIterator>
-std::string join(
-    ForwardIterator first,
-    ForwardIterator last,
-    const std::string& delimeter,
-    typename std::enable_if<
-        std::is_same<typename std::iterator_traits<ForwardIterator>::value_type,
-                     std::string>::value>::type*  /*dummy*/ = 0)
+template <StringIterator ForwardIterator>
+std::string
+join(ForwardIterator first, ForwardIterator last, const std::string& delimeter)
 {
     std::ostringstream res;
     for (; first != last; ++first) {
@@ -67,15 +78,11 @@ std::string join(
     return res.str();
 }
 
-template <class ForwardIt, class UnaryOperation>
-std::string transformJoin(
-    ForwardIt first,
-    ForwardIt last,
-    const std::string& delimeter,
-    UnaryOperation op,
-    typename std::enable_if<
-        !std::is_same<typename std::iterator_traits<ForwardIt>::value_type,
-                      std::string>::value>::type*  /*dummy*/ = 0)
+template <NonStringIterator ForwardIt, typename UnaryOperation>
+std::string transformJoin(ForwardIt first,
+                          ForwardIt last,
+                          const std::string& delimeter,
+                          UnaryOperation op)
 {
     std::ostringstream res;
     for (; first != last; ++first) {
@@ -88,15 +95,11 @@ std::string transformJoin(
 
 // Template overload for std::string type
 // Skips empty strings
-template <class ForwardIt, class UnaryOperation>
-std::string transformJoin(
-    ForwardIt first,
-    ForwardIt last,
-    const std::string& delimeter,
-    UnaryOperation op,
-    typename std::enable_if<
-        std::is_same<typename std::iterator_traits<ForwardIt>::value_type,
-                     std::string>::value>::type*  /*dummy*/ = 0)
+template <StringIterator ForwardIt, typename UnaryOperation>
+std::string transformJoin(ForwardIt first,
+                          ForwardIt last,
+                          const std::string& delimeter,
+                          UnaryOperation op)
 {
     std::ostringstream res;
     for (; first != last; ++first) {

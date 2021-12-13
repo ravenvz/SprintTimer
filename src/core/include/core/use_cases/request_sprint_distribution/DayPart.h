@@ -27,8 +27,6 @@
 
 namespace sprint_timer::use_cases {
 
-constexpr size_t numParts{6};
-
 /* Represent a day partition
  *
  * Day has 6 4-hour parts:

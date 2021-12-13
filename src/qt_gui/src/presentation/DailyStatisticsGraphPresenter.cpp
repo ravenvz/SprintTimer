@@ -20,8 +20,6 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/DailyStatisticsGraphPresenter.h"
-#include "core/use_cases/request_sprint_distribution/Common.h"
-#include <numeric>
 #include <string_view>
 
 namespace {
@@ -38,59 +36,51 @@ constexpr double penWidthF{2.2};
 
 void updateAll(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::Distribution<double>& distribution,
-    const sprint_timer::WorkSchedule& schedule,
+    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range);
 
 void updateLegend(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const std::vector<double>& distribution,
-    const sprint_timer::WorkSchedule& schedule,
-    const dw::DateRange& range);
+    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics);
 
 void updateDailyGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const std::vector<double>& distribution,
+    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range);
 
 void updateActualAverageGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const std::vector<double>& distribution,
-    const sprint_timer::WorkSchedule& schedule,
+    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range);
 
 void updateExpectedAverageGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const std::vector<double>& distribution,
-    const sprint_timer::WorkSchedule& schedule,
+    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range);
 
-double computeExpectedAverage(const dw::DateRange& dateRange,
-                              const sprint_timer::WorkSchedule& schedule);
-
-double computeActualAverage(const std::vector<double>& distribution,
-                            const dw::DateRange& dateRange,
-                            const sprint_timer::WorkSchedule& schedule);
+std::vector<
+    sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphValue>
+polylineGraphValues(std::span<const int> distribution,
+                    const dw::DateRange& dateRange);
 
 std::vector<
     sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphValue>
 buildLineGraph(const dw::DateRange& range, double value);
 
-sprint_timer::Distribution<double>
-dailyStatistics(const std::vector<sprint_timer::entities::Sprint>& sprints,
-                const dw::DateRange& dateRange);
-
-size_t daysBetween(const dw::Date& date, const dw::DateTime& dateTime);
+constexpr size_t sizeInDays(const dw::DateRange& dateRange) noexcept
+{
+    return static_cast<size_t>(dateRange.duration().count()) + 1;
+}
 
 } // namespace
 
 namespace sprint_timer::ui {
 
 DailyStatisticsGraphPresenter::DailyStatisticsGraphPresenter(
-    schedule_hdl_t& workScheduleHandler_,
+    daily_statistics_handler_t& dailyStatisticsHandler_,
     StatisticsMediator& mediator_,
     const StatisticsContext& statisticsContext_)
-    : workScheduleHandler{workScheduleHandler_}
+    : dailyStatisticsHandler{dailyStatisticsHandler_}
     , mediator{mediator_}
     , statisticsContext{statisticsContext_}
 {
@@ -102,14 +92,21 @@ DailyStatisticsGraphPresenter::~DailyStatisticsGraphPresenter()
     mediator.removeColleague(this);
 }
 
-void DailyStatisticsGraphPresenter::onSharedDataChanged() { updateView(); }
+void DailyStatisticsGraphPresenter::onSharedDataChanged()
+{
+    fetchData();
+    updateView();
+}
 
 void DailyStatisticsGraphPresenter::fetchDataImpl()
 {
     if (!statisticsContext.currentRange()) {
         return;
     }
-    data = workScheduleHandler.handle(use_cases::WorkScheduleQuery{});
+    dailyStatistics = dailyStatisticsHandler.handle(
+        use_cases::DailyStatisticsQuery{statisticsContext.numTopTags(),
+                                        statisticsContext.selectedTag(),
+                                        *statisticsContext.currentRange()});
 }
 
 void DailyStatisticsGraphPresenter::updateViewImpl()
@@ -120,22 +117,15 @@ void DailyStatisticsGraphPresenter::updateViewImpl()
     }
 
     const auto range = statisticsContext.currentRange();
-    if (!range) {
+    if (!range or !dailyStatistics) {
         v.value()->updateLegend(
             ui::contracts::DailyStatisticGraphContract::LegendData{"No data",
                                                                    "No data"});
         return;
     }
 
-    if (!data) {
-        return;
-    }
-
-    const auto& sprints = statisticsContext.sprints();
-    const auto distribution = dailyStatistics(sprints, *range);
     v.value()->clearGraphs();
-    updateAll(
-        v.value(), distribution, *data, *statisticsContext.currentRange());
+    updateAll(v.value(), *dailyStatistics, *statisticsContext.currentRange());
 }
 
 } // namespace sprint_timer::ui
@@ -144,115 +134,96 @@ namespace {
 
 void updateAll(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::Distribution<double>& distribution,
-    const sprint_timer::WorkSchedule& schedule,
+    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range)
 {
-    const auto& vec = distribution.getDistributionVector();
-    updateLegend(view, vec, schedule, range);
-    updateDailyGraph(view, vec, range);
-    updateExpectedAverageGraph(view, vec, schedule, range);
-    updateActualAverageGraph(view, vec, schedule, range);
+    updateLegend(view, dailyStatistics);
+    updateDailyGraph(view, dailyStatistics, range);
+    updateExpectedAverageGraph(view, dailyStatistics, range);
+    updateActualAverageGraph(view, dailyStatistics, range);
 }
 
 void updateLegend(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const std::vector<double>& distribution,
-    const sprint_timer::WorkSchedule& schedule,
-    const dw::DateRange& range)
+    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics)
 {
     using sprint_timer::ui::contracts::DailyStatisticGraphContract::LegendData;
     using sprint_timer::utils::formatDecimal;
-    const auto total =
-        std::accumulate(cbegin(distribution), cend(distribution), 0);
-    const auto average = computeActualAverage(distribution, range, schedule);
     view->updateLegend(
-        LegendData{std::to_string(total), formatDecimal(average)});
+        LegendData{std::to_string(dailyStatistics.totalSprints),
+                   formatDecimal(dailyStatistics.averageSprintsPerWorkday)});
 }
 
 void updateDailyGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const std::vector<double>& distribution,
+    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range)
 {
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
-    using sprint_timer::use_cases::sizeInDays;
+    view->drawGraph(
+        GraphData{GraphOptions{penWidthF,
+                               std::string{dailyGraphColor},
+                               std::string{pointColor},
+                               true,
+                               LineStyle::Solid},
+                  polylineGraphValues(dailyStatistics.distribution, range)});
+}
 
+std::vector<
+    sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphValue>
+polylineGraphValues(std::span<const int> distribution,
+                    const dw::DateRange& dateRange)
+{
+    using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
     std::vector<GraphValue> values;
-    values.reserve(sizeInDays(range));
-    auto date = range.start();
-    for (size_t i = 0; i < sizeInDays(range); ++i) {
-        values.push_back(GraphValue{
-            Value{static_cast<double>(i)},
-            Value{distribution[i]},
-            std::to_string(
-                DayNumber{static_cast<unsigned>(date.day())}.value)});
-        date = date + dw::Days{1};
-    }
-    GraphOptions graphOptions{std::string{dailyGraphColor},
-                              penWidthF,
-                              true,
-                              std::string{pointColor},
-                              LineStyle::Solid};
-    view->drawGraph(GraphData{graphOptions, values});
+    values.reserve(sizeInDays(dateRange));
+
+    auto toGraphValue = [i = 0, date = dateRange.start()](int val) mutable {
+        const auto x = Value{static_cast<double>(i)};
+        const auto y = Value{static_cast<double>(val)};
+        const auto label_date =
+            static_cast<unsigned>((date + dw::Days{i++}).day());
+        return GraphValue{x, y, std::to_string(label_date)};
+    };
+
+    std::ranges::transform(
+        distribution, std::back_inserter(values), toGraphValue);
+
+    return values;
 }
 
 void updateActualAverageGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const std::vector<double>& distribution,
-    const sprint_timer::WorkSchedule& schedule,
+    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range)
 {
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
-    using sprint_timer::use_cases::sizeInDays;
 
-    const auto average = computeActualAverage(distribution, range, schedule);
+    const auto average = dailyStatistics.averageSprintsPerWorkday;
     GraphOptions graphOptions{
-        std::string{averageColor}, penWidthF, false, "", LineStyle::Solid};
+        penWidthF, std::string{averageColor}, "", false, LineStyle::Solid};
     const auto graphValues = buildLineGraph(range, average);
     view->drawGraph(GraphData{graphOptions, graphValues});
 }
 
 void updateExpectedAverageGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const std::vector<double>& /*distribution*/,
-    const sprint_timer::WorkSchedule& schedule,
+    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range)
 {
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
-    using sprint_timer::use_cases::sizeInDays;
 
-    const auto average = computeExpectedAverage(range, schedule);
-    const auto graphValues = buildLineGraph(range, average);
+    const auto expectedAverage = dailyStatistics.expectedSprintsPerWorkday;
+    const auto graphValues = buildLineGraph(range, expectedAverage);
     GraphOptions graphOptions{
-        std::string{goalColor}, penWidthF, false, "", LineStyle::Dash};
+        penWidthF, std::string{goalColor}, "", false, LineStyle::Dash};
     view->drawGraph(GraphData{graphOptions, graphValues});
-}
-
-double computeExpectedAverage(const dw::DateRange& dateRange,
-                              const sprint_timer::WorkSchedule& schedule)
-{
-    double goal{
-        static_cast<double>(sprint_timer::goalFor(schedule, dateRange))};
-    int numWorkdays{sprint_timer::numWorkdays(schedule, dateRange)};
-    return numWorkdays > 0 ? goal / numWorkdays : 0;
-}
-
-double computeActualAverage(const std::vector<double>& distribution,
-                            const dw::DateRange& dateRange,
-                            const sprint_timer::WorkSchedule& schedule)
-{
-    double total =
-        std::accumulate(cbegin(distribution), cend(distribution), 0.0);
-    const auto numWorkdays = sprint_timer::numWorkdays(schedule, dateRange);
-    return numWorkdays > 0 ? total / numWorkdays : 0;
 }
 
 std::vector<
     sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphValue>
 buildLineGraph(const dw::DateRange& range, double value)
 {
-    using sprint_timer::use_cases::sizeInDays;
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
     // Note that sizeInDays(range) >= 1 always
     std::vector<GraphValue> values{
@@ -261,33 +232,6 @@ buildLineGraph(const dw::DateRange& range, double value)
                    Value{value},
                    ""}};
     return values;
-}
-
-sprint_timer::Distribution<double>
-dailyStatistics(const std::vector<sprint_timer::entities::Sprint>& sprints,
-                const dw::DateRange& dateRange)
-{
-    using sprint_timer::entities::Sprint;
-    using sprint_timer::use_cases::containsDate;
-    std::vector<double> sprintsPerDay(
-        static_cast<size_t>(dateRange.duration().count() + 1), 0);
-
-    for (const Sprint& sprint : sprints) {
-        if (!containsDate(dateRange, sprint.startTime().date()))
-            continue;
-        const auto dayNumber =
-            daysBetween(dateRange.start(), sprint.timeSpan().start());
-        ++sprintsPerDay[dayNumber];
-    }
-
-    return sprint_timer::Distribution<double>{std::move(sprintsPerDay)};
-}
-
-size_t daysBetween(const dw::Date& date, const dw::DateTime& dateTime)
-{
-    const auto range = dw::DateRange{
-        date, dw::Date{dateTime.year(), dateTime.month(), dateTime.day()}};
-    return static_cast<size_t>(range.duration().count());
 }
 
 } // namespace

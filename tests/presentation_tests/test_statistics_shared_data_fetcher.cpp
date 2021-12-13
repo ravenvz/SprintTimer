@@ -25,6 +25,8 @@
 #include "qt_gui/presentation/StatisticsSharedDataFetcher.h"
 #include "gtest/gtest.h"
 
+using sprint_timer::TagTop;
+using sprint_timer::entities::Sprint;
 using ::testing::_;
 using ::testing::ByMove;
 using ::testing::NiceMock;
@@ -34,7 +36,7 @@ namespace sprint_timer::ui {
 
 bool operator==(const StatisticsContext& lhs, const StatisticsContext& rhs)
 {
-    return lhs.sprints() == rhs.sprints() &&
+    return lhs.sprintIntervals() == rhs.sprintIntervals() &&
            lhs.tagFrequencies() == rhs.tagFrequencies() &&
            lhs.currentRange() == rhs.currentRange() &&
            lhs.selectedTag() == rhs.selectedTag();
@@ -45,8 +47,8 @@ bool operator==(const StatisticsContext& lhs, const StatisticsContext& rhs)
 class StatisticsSharedDataFetcherFixture : public ::testing::Test {
 public:
     NiceMock<
-        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestSprintsQuery>>
-        requestSprintsHandler;
+        mocks::QueryHandlerMock<sprint_timer::use_cases::SprintStatisticsQuery>>
+        sprintStatisticsHandler;
     NiceMock<mocks::ColleagueMock> fakeColleague;
     sprint_timer::ui::StatisticsMediator statisticsMediator;
     dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
@@ -58,24 +60,24 @@ TEST_F(StatisticsSharedDataFetcherFixture,
 {
     sprint_timer::ui::StatisticsContext context;
     sprint_timer::ui::StatisticsSharedDataFetcher sut{
-        requestSprintsHandler, statisticsMediator, context, numTopTags};
+        sprintStatisticsHandler, statisticsMediator, context, numTopTags};
 
-    EXPECT_CALL(requestSprintsHandler, handle(_)).Times(0);
+    EXPECT_CALL(sprintStatisticsHandler, handle(_)).Times(0);
 
     sut.fetchData();
 }
 
 TEST_F(StatisticsSharedDataFetcherFixture, updates_context_when_range_is_set)
 {
-    using sprint_timer::use_cases::SprintDTO;
+    using sprint_timer::use_cases::SprintStatisticsDTO;
     sprint_timer::ui::StatisticsContext context;
     sprint_timer::ui::StatisticsSharedDataFetcher sut{
-        requestSprintsHandler, statisticsMediator, context, numTopTags};
-    std::vector<SprintDTO> sprints;
-    mocks::given_handler_returns(requestSprintsHandler, sprints);
+        sprintStatisticsHandler, statisticsMediator, context, numTopTags};
+    SprintStatisticsDTO sprintStatistics;
+    mocks::given_handler_returns(sprintStatisticsHandler, sprintStatistics);
     statisticsMediator.onRangeChanged(someDateRange);
-    const sprint_timer::ui::StatisticsContext expected{
-        sprints, someDateRange, numTopTags};
+    const sprint_timer::ui::StatisticsContext expected{SprintStatisticsDTO{},
+                                                       someDateRange};
 
     sut.fetchData();
     sut.updateView();
@@ -85,19 +87,17 @@ TEST_F(StatisticsSharedDataFetcherFixture, updates_context_when_range_is_set)
 
 TEST_F(StatisticsSharedDataFetcherFixture, notifies_mediator_when_data_is_ready)
 {
-    using sprint_timer::use_cases::SprintDTO;
+    using sprint_timer::use_cases::SprintStatisticsDTO;
     statisticsMediator.addColleague(&fakeColleague);
-    std::vector<SprintDTO> sprints;
-    sprint_timer::ui::StatisticsContext context{
-        sprints, someDateRange, numTopTags};
+    sprint_timer::ui::StatisticsContext context{SprintStatisticsDTO{},
+                                                someDateRange};
     sprint_timer::ui::StatisticsSharedDataFetcher sut{
-        requestSprintsHandler, statisticsMediator, context, numTopTags};
-    mocks::given_handler_returns(requestSprintsHandler, sprints);
+        sprintStatisticsHandler, statisticsMediator, context, numTopTags};
+    mocks::given_handler_returns(sprintStatisticsHandler,
+                                 SprintStatisticsDTO{});
 
     EXPECT_CALL(fakeColleague, onSharedDataChanged());
 
     sut.fetchData();
     sut.updateView();
 }
-
-// TEST_F(StatisticsSharedDataFetcherFixture, notifies_mediator_when_) { }

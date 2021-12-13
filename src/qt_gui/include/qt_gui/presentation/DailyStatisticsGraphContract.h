@@ -56,17 +56,12 @@ struct GraphValue {
 enum class LineStyle { Solid, Dot, Dash };
 
 struct GraphOptions {
-    std::string penColor;
     double penWidth;
-    bool showPoints;
+    std::string penColor;
     std::string pointColor;
+    bool showPoints;
     LineStyle style;
 };
-
-// struct GraphData {
-//     GraphOptions options;
-//     std::vector<std::pair<DayNumber, Value>> data;
-// };
 
 struct GraphData {
     GraphOptions options;

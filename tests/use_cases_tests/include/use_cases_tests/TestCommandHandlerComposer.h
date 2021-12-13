@@ -38,85 +38,41 @@
 
 namespace sprint_timer::compose {
 
-struct TestCommandHandlerComposer : public CommandHandlerComposer {
+struct TestCommandHandlerComposer final : public CommandHandlerComposer {
     TestCommandHandlerComposer(ActionInvoker& actionInvoker_,
                                TaskStorage& taskStorage_,
                                SprintStorage& sprintStorage_,
                                WorkScheduleWriter& scheduleStorage_,
                                UUIDGenerator& generator_,
-                               DateTimeProvider& dateTimeProvider_)
-        : createTask{taskStorage_,
-                     actionInvoker_,
-                     generator_,
-                     dateTimeProvider_}
-        , deleteTask{taskStorage_, actionInvoker_}
-        , registerSprintBulk{taskStorage_,
-                             sprintStorage_,
-                             actionInvoker_,
-                             generator_}
-        , toggleTaskCompleted{taskStorage_, actionInvoker_}
-        , deleteSprint{sprintStorage_, actionInvoker_}
-        , editTask{taskStorage_, actionInvoker_}
-        , reorderTasks{taskStorage_, actionInvoker_}
-        , renameTag{taskStorage_, actionInvoker_}
-        , changeSchedule{scheduleStorage_, actionInvoker_}
-    {
-    }
+                               DateTimeProvider& dateTimeProvider_);
 
-    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler() override
-    {
-        return createTask;
-    }
+    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler() override;
 
-    CommandHandler<use_cases::DeleteTaskCommand>& deleteTaskHandler() override
-    {
-        return deleteTask;
-    }
+    CommandHandler<use_cases::DeleteTaskCommand>& deleteTaskHandler() override;
 
     CommandHandler<use_cases::RegisterSprintBulkCommand>&
-    registerSprintBulkHandler() override
-    {
-        return registerSprintBulk;
-    }
+    registerSprintBulkHandler() override;
 
     CommandHandler<use_cases::ToggleTaskCompletedCommand>&
-    toggleTaskCompletedHandler() override
-    {
-        return toggleTaskCompleted;
-    }
+    toggleTaskCompletedHandler() override;
 
     CommandHandler<use_cases::DeleteSprintCommand>&
-    deleteSprintHandler() override
-    {
-        return deleteSprint;
-    }
+    deleteSprintHandler() override;
 
-    CommandHandler<use_cases::EditTaskCommand>& editTaskHandler() override
-    {
-        return editTask;
-    }
+    CommandHandler<use_cases::EditTaskCommand>& editTaskHandler() override;
 
     CommandHandler<use_cases::ChangeActiveTasksPriorityCommand>&
-    reorderTasksHandler() override
-    {
-        return reorderTasks;
-    }
+    reorderTasksHandler() override;
 
-    CommandHandler<use_cases::RenameTagCommand>& renameTagHandler() override
-    {
-        return renameTag;
-    }
+    CommandHandler<use_cases::RenameTagCommand>& renameTagHandler() override;
 
     CommandHandler<use_cases::ChangeWorkScheduleCommand>&
-    changeWorkScheduleHandler() override
-    {
-        return changeSchedule;
-    }
+    changeWorkScheduleHandler() override;
 
 private:
-    use_cases::CreateTaskHandler createTask;
+    std::unique_ptr<use_cases::CreateTaskHandler> createTask;
     use_cases::DeleteTaskHandler deleteTask;
-    use_cases::RegisterSprintBulkHandler registerSprintBulk;
+    std::unique_ptr<use_cases::RegisterSprintBulkHandler> registerSprintBulk;
     use_cases::ToggleTaskCompletedHandler toggleTaskCompleted;
     use_cases::DeleteSprintHandler deleteSprint;
     use_cases::EditTaskHandler editTask;

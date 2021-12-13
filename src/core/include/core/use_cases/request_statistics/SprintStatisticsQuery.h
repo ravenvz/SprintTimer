@@ -19,15 +19,36 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/change_schedule/ChangeWorkScheduleCommand.h"
+#ifndef SPRINTSTATISTICSQUERY_H
+#define SPRINTSTATISTICSQUERY_H
+
+#include "core/Query.h"
+#include "core/TagTop.h"
+#include "core/use_cases/request_statistics/SprintStatisticsDTO.h"
+#include <iostream>
 
 namespace sprint_timer::use_cases {
 
-ChangeWorkScheduleCommand::ChangeWorkScheduleCommand(
-    const WorkSchedule& oldSchedule_, const WorkSchedule& newSchedule_)
-    : oldSchedule{oldSchedule_}
-    , newSchedule{newSchedule_}
+struct SprintStatisticsQuery {
+    using result_t = SprintStatisticsDTO;
+
+    size_t numTopTags;
+    dw::DateRange dateRange;
+
+    friend bool operator==(const SprintStatisticsQuery&,
+                           const SprintStatisticsQuery&) = default;
+};
+
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os,
+           const SprintStatisticsQuery& query)
 {
+    os << "SprintStatisticsQuery {" << query.dateRange << ", "
+       << query.numTopTags << "}";
+    return os;
 }
 
 } // namespace sprint_timer::use_cases
+
+#endif /* end of include guard: SPRINTSTATISTICSQUERY_H */

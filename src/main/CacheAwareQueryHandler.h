@@ -29,7 +29,7 @@
 #include <mutex>
 #include <optional>
 
-#include <iostream>
+// #include <iostream>
 
 namespace sprint_timer::compose {
 
@@ -62,13 +62,13 @@ public:
     {
         {
             std::lock_guard lock{mtx};
-            if (!cachedResult) {
+            if (!cachedResult || cachedQuery != query) {
                 cachedQuery = query;
                 cachedResult = wrapped->handle(std::move(query));
             }
-            else {
-                std::cout << "Cache hit" << std::endl;
-            }
+            // else {
+            //     std::cout << "Cache hit\n";
+            // }
         }
         return *cachedResult;
     }

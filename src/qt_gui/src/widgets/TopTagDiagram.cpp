@@ -20,13 +20,14 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TopTagDiagram.h"
+#include "QtGui/qpainter.h"
+#include "core/entities/Tag.h"
 #include "qt_gui/widgets/PieChart.h"
 #include "qt_gui/widgets/SimpleLegend.h"
 #include <QGridLayout>
 #include <QLabel>
-#include "QtGui/qpainter.h"
-#include "core/entities/Tag.h"
 #include <memory>
+#include <ranges>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -65,13 +66,11 @@ void TopTagDiagram::updateDiagram(
 {
     std::vector<PieChart::LabelData> pieChartData;
     pieChartData.reserve(diagramData.size());
-    std::transform(cbegin(diagramData),
-                   cend(diagramData),
-                   std::back_inserter(pieChartData),
-                   [](const auto& elem) {
-                       return PieChart::LabelData{
-                           elem.color, elem.percentage, elem.tagName};
-                   });
+    std::ranges::transform(
+        diagramData, std::back_inserter(pieChartData), [](const auto& elem) {
+            return PieChart::LabelData{
+                elem.color, elem.percentage, elem.tagName};
+        });
     diagram->setData(pieChartData);
 }
 

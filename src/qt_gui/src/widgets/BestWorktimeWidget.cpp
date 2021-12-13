@@ -51,8 +51,10 @@ BestWorktimeWidget::BestWorktimeWidget(QWidget* parent_)
 void BestWorktimeWidget::updateLegend(
     const contracts::BestWorktimeContract::LegendData& data_)
 {
-    bestWorktimeName->setText(QString::fromStdString(data_.periodName));
-    bestWorkHours->setText(QString::fromStdString(data_.periodHours));
+    bestWorktimeName->setText(
+        QString::fromStdString(std::string{data_.periodName}));
+    bestWorkHours->setText(
+        QString::fromStdString(std::string{data_.periodHours}));
 }
 
 void BestWorktimeWidget::updateDiagram(

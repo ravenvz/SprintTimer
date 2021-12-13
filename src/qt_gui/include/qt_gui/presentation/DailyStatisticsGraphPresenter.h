@@ -22,7 +22,7 @@
 #ifndef DAILYSTATISTICSGRAPHPRESENTER_H_8VCTBWMG
 #define DAILYSTATISTICSGRAPHPRESENTER_H_8VCTBWMG
 
-#include "core/use_cases/request_schedule/WorkScheduleHandler.h"
+#include "core/use_cases/request_statistics/DailyStatisticsQuery.h"
 #include "qt_gui/presentation/DailyStatisticsGraphContract.h"
 #include "qt_gui/presentation/StatisticsContext.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
@@ -33,21 +33,23 @@ class DailyStatisticsGraphPresenter
     : public mvp::BasePresenter<contracts::DailyStatisticGraphContract::View>,
       public StatisticsColleague {
 public:
-    using schedule_hdl_t = QueryHandler<use_cases::WorkScheduleQuery>;
+    using daily_statistics_handler_t =
+        QueryHandler<use_cases::DailyStatisticsQuery>;
 
-    DailyStatisticsGraphPresenter(schedule_hdl_t& workScheduleHandler,
-                                  StatisticsMediator& mediator,
-                                  const StatisticsContext& statisticsContext);
+    DailyStatisticsGraphPresenter(
+        daily_statistics_handler_t& dailyStatisticsHandler,
+        StatisticsMediator& mediator,
+        const StatisticsContext& statisticsContext);
 
     ~DailyStatisticsGraphPresenter() override;
 
     void onSharedDataChanged() override;
 
 private:
-    schedule_hdl_t& workScheduleHandler;
+    daily_statistics_handler_t& dailyStatisticsHandler;
     StatisticsMediator& mediator;
     const StatisticsContext& statisticsContext;
-    std::optional<schedule_hdl_t::result_t> data;
+    std::optional<use_cases::DailyStatisticsDTO> dailyStatistics;
 
     void fetchDataImpl() override;
 

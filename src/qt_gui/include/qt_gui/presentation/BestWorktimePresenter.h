@@ -22,6 +22,8 @@
 #ifndef BESTDAYTIMEPRESENTER_H_DDRXAWZC
 #define BESTDAYTIMEPRESENTER_H_DDRXAWZC
 
+#include "core/Distribution.h"
+#include "core/use_cases/request_statistics/WorktimeStatisticsQuery.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/presentation/BestWorktimeContract.h"
 #include "qt_gui/presentation/StatisticsContext.h"
@@ -33,23 +35,27 @@ class BestWorktimePresenter
     : public mvp::BasePresenter<contracts::BestWorktimeContract::View>,
       public StatisticsColleague {
 public:
-    BestWorktimePresenter(StatisticsMediator& mediator,
-                          const StatisticsContext& statisticsContext);
+    using worktime_statistics_handler_t =
+        QueryHandler<use_cases::WorktimeStatisticsQuery>;
+
+    BestWorktimePresenter(
+        worktime_statistics_handler_t& worktimeStatisticsHandler,
+        StatisticsMediator& mediator,
+        const StatisticsContext& statisticsContext);
 
     ~BestWorktimePresenter() override;
 
     void onSharedDataChanged() override;
 
 private:
+    worktime_statistics_handler_t& worktimeStatisticsHandler;
     StatisticsMediator& mediator;
     const StatisticsContext& statisticsContext;
+    std::optional<use_cases::WorktimeStatisticsDTO> worktimeStatistics;
+
+    void fetchDataImpl() override;
 
     void updateViewImpl() override;
-};
-
-struct SprintDaytimeDistribution {
-    sprint_timer::Distribution<double> dayPartDistribution;
-    std::vector<dw::DateTimeRange> timeRanges;
 };
 
 } // namespace sprint_timer::ui

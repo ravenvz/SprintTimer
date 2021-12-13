@@ -28,6 +28,11 @@
 #include "core/use_cases/request_sprint_distribution/RequestSprintDistributionQuery.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
+#include "core/use_cases/request_statistics/DailyStatisticsQuery.h"
+#include "core/use_cases/request_statistics/SprintStatisticsQuery.h"
+#include "core/use_cases/request_statistics/TopTagFrequenciesQuery.h"
+#include "core/use_cases/request_statistics/WorkdayStatisticsQuery.h"
+#include "core/use_cases/request_statistics/WorktimeStatisticsQuery.h"
 #include "core/use_cases/request_tags/AllTagsQuery.h"
 #include "core/use_cases/request_task_backlog/TaskBacklogQuery.h"
 #include "core/use_cases/request_tasks/ActiveTasksQuery.h"
@@ -67,6 +72,21 @@ struct QueryHandlerComposer {
     workScheduleHandler() = 0;
 
     virtual QueryHandler<use_cases::TaskBacklogQuery>& taskBacklogHandler() = 0;
+
+    virtual QueryHandler<use_cases::SprintStatisticsQuery>&
+    sprintStatisticsHandler() = 0;
+
+    virtual QueryHandler<use_cases::WorkdayStatisticsQuery>&
+    workdayStatisticsHandler() = 0;
+
+    virtual QueryHandler<use_cases::WorktimeStatisticsQuery>&
+    worktimeStatisticsHandler() = 0;
+
+    virtual QueryHandler<use_cases::DailyStatisticsQuery>&
+    dailyStatisticsHandler() = 0;
+
+    virtual QueryHandler<use_cases::TopTagFrequenciesQuery>&
+    topTagFrequenciesHandler() = 0;
 };
 
 } // namespace sprint_timer::compose

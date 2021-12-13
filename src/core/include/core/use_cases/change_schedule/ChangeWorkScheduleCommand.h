@@ -22,15 +22,11 @@
 #ifndef CHANGEWORKSCHEDULECOMMAND_H_OXD83WXS
 #define CHANGEWORKSCHEDULECOMMAND_H_OXD83WXS
 
-#include "core/Command.h"
 #include "core/WorkSchedule.h"
 
 namespace sprint_timer::use_cases {
 
-struct ChangeWorkScheduleCommand : public Command {
-    ChangeWorkScheduleCommand(const WorkSchedule& oldSchedule,
-                              const WorkSchedule& newSchedule);
-
+struct ChangeWorkScheduleCommand {
     const WorkSchedule oldSchedule;
     const WorkSchedule newSchedule;
 };

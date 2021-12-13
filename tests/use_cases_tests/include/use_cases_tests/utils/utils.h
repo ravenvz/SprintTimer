@@ -19,7 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef UTILS_H_4MJTC1OS
+#define UTILS_H_4MJTC1OS
+
 #include "core/use_cases/TaskDTO.h"
+#include "date_wrapper/date_wrapper.h"
+#include <ranges>
 
 std::vector<std::string>
 extractUuids(const std::vector<sprint_timer::use_cases::TaskDTO>& taskDTOs);
+
+constexpr dw::DateTimeRange createRange(dw::DateTime start) noexcept
+{
+    using namespace std::chrono_literals;
+    return dw::DateTimeRange{start, start + 25min};
+}
+
+#endif /* end of include guard: UTILS_H_4MJTC1OS */

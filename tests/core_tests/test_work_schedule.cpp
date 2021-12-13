@@ -1,21 +1,12 @@
-#include "gtest/gtest.h"
 #include "core/WorkSchedule.h"
+#include "gtest/gtest.h"
 
 using namespace dw;
 using namespace sprint_timer;
 
-WeekSchedule buildWeekSchedule(const std::array<int, 7>& raw_schedule)
-{
-    WeekSchedule w_schedule;
-    for (size_t i = 0; i < raw_schedule.size(); ++i)
-        w_schedule.setTargetGoal(static_cast<dw::Weekday>(i), raw_schedule[i]);
-    return w_schedule;
-}
-
 class WorkScheduleFixture : public ::testing::Test {
 public:
-    const WeekSchedule some_week_schedule{
-        buildWeekSchedule({5, 5, 5, 5, 5, 0, 0})};
+    const WeekSchedule some_week_schedule{{5, 5, 5, 5, 5, 0, 0}};
     const dw::Date some_date{Year{1996}, Month{10}, Day{11}};
     WorkSchedule workSchedule;
 };
@@ -102,7 +93,7 @@ TEST_F(WorkScheduleFixture,
 TEST_F(WorkScheduleFixture,
        overwrites_last_schedule_when_new_is_inserted_with_same_date)
 {
-    const WeekSchedule newSchedule{buildWeekSchedule({5, 5, 5, 5, 5, 0, 5})};
+    const WeekSchedule newSchedule{{5, 5, 5, 5, 5, 0, 5}};
     WorkSchedule::Roaster expected{{some_date, newSchedule}};
 
     workSchedule.addWeekSchedule(some_date, some_week_schedule);
@@ -122,7 +113,7 @@ TEST_F(WorkScheduleFixture,
 TEST_F(WorkScheduleFixture, returns_week_schedule_for_current_date)
 {
     const WeekSchedule expected{some_week_schedule};
-    const WeekSchedule old_schedule{buildWeekSchedule({3, 3, 3, 3, 3, 3, 3})};
+    const WeekSchedule old_schedule{{3, 3, 3, 3, 3, 3, 3}};
     workSchedule.addWeekSchedule(some_date, some_week_schedule);
     workSchedule.addWeekSchedule(some_date - Years{1}, old_schedule);
 
@@ -132,10 +123,9 @@ TEST_F(WorkScheduleFixture, returns_week_schedule_for_current_date)
 TEST_F(WorkScheduleFixture, returns_week_schedule_for_specified_date)
 {
     const WeekSchedule empty_schedule;
-    const WeekSchedule first_schedule{buildWeekSchedule({1, 1, 1, 1, 1, 1, 1})};
-    const WeekSchedule second_schedule{
-        buildWeekSchedule({2, 2, 2, 2, 2, 2, 2})};
-    const WeekSchedule third_schedule{buildWeekSchedule({3, 3, 3, 3, 3, 3, 3})};
+    const WeekSchedule first_schedule{{1, 1, 1, 1, 1, 1, 1}};
+    const WeekSchedule second_schedule{{2, 2, 2, 2, 2, 2, 2}};
+    const WeekSchedule third_schedule{{3, 3, 3, 3, 3, 3, 3}};
     const auto date_1 = some_date;
     const auto date_2 = some_date + Years{1};
     const auto date_3 = some_date + Years{2};
@@ -158,7 +148,7 @@ TEST_F(WorkScheduleFixture, returns_week_schedule_for_specified_date)
 TEST_F(WorkScheduleFixture,
        ignores_week_schedule_insertion_when_current_insertion_has_same_schedule)
 {
-    const WeekSchedule w_schedule{buildWeekSchedule({5, 5, 5, 5, 5, 5, 5})};
+    const WeekSchedule w_schedule{{5, 5, 5, 5, 5, 5, 5}};
     const auto date_1 = some_date;
     const auto date_2 = date_1 + Years{1};
     WorkSchedule::Roaster expected{{date_1, w_schedule}};
@@ -173,8 +163,8 @@ TEST_F(
     WorkScheduleFixture,
     ignores_week_schedule_insertion_when_it_is_same_as_schedule_for_previous_date)
 {
-    const WeekSchedule w_schedule_1{buildWeekSchedule({1, 1, 1, 1, 1, 1, 1})};
-    const WeekSchedule w_schedule_2{buildWeekSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const WeekSchedule w_schedule_1{{1, 1, 1, 1, 1, 1, 1}};
+    const WeekSchedule w_schedule_2{{2, 2, 2, 2, 2, 2, 2}};
     const auto date_1 = some_date;
     const auto date_2 = date_1 + Years{1};
     const auto date_between = date_1 + Months{4};
@@ -194,8 +184,8 @@ TEST_F(
     WorkScheduleFixture,
     merges_week_schedules_when_schedule_for_first_date_that_is_greater_than_inserted_is_same)
 {
-    const WeekSchedule w_schedule_1{buildWeekSchedule({1, 1, 1, 1, 1, 1, 1})};
-    const WeekSchedule w_schedule_2{buildWeekSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const WeekSchedule w_schedule_1{{1, 1, 1, 1, 1, 1, 1}};
+    const WeekSchedule w_schedule_2{{2, 2, 2, 2, 2, 2, 2}};
     const auto date_1 = some_date;
     const auto date_2 = date_1 + Years{1};
     const auto date_between = date_1 + Months{4};
@@ -213,8 +203,8 @@ TEST_F(
     WorkScheduleFixture,
     removing_week_schedule_for_specific_date_is_ignored_when_there_is_no_schedule_for_that_date)
 {
-    const WeekSchedule w_schedule_1{buildWeekSchedule({1, 1, 1, 1, 1, 1, 1})};
-    const WeekSchedule w_schedule_2{buildWeekSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const WeekSchedule w_schedule_1{{1, 1, 1, 1, 1, 1, 1}};
+    const WeekSchedule w_schedule_2{{2, 2, 2, 2, 2, 2, 2}};
     const auto date_1 = some_date;
     const auto date_2 = date_1 + Years{1};
     const auto date_between = date_1 + Months{4};
@@ -230,8 +220,8 @@ TEST_F(
 
 TEST_F(WorkScheduleFixture, removing_week_schedule_that_is_earliest_one)
 {
-    const WeekSchedule w_schedule_1{buildWeekSchedule({1, 1, 1, 1, 1, 1, 1})};
-    const WeekSchedule w_schedule_2{buildWeekSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const WeekSchedule w_schedule_1{{1, 1, 1, 1, 1, 1, 1}};
+    const WeekSchedule w_schedule_2{{2, 2, 2, 2, 2, 2, 2}};
     const auto date_1 = some_date;
     const auto date_2 = date_1 + Years{1};
     workSchedule.addWeekSchedule(date_1, w_schedule_1);
@@ -245,8 +235,8 @@ TEST_F(WorkScheduleFixture, removing_week_schedule_that_is_earliest_one)
 
 TEST_F(WorkScheduleFixture, removing_week_schedule_that_is_latest_one)
 {
-    const WeekSchedule w_schedule_1{buildWeekSchedule({1, 1, 1, 1, 1, 1, 1})};
-    const WeekSchedule w_schedule_2{buildWeekSchedule({2, 2, 2, 2, 2, 2, 2})};
+    const WeekSchedule w_schedule_1{{1, 1, 1, 1, 1, 1, 1}};
+    const WeekSchedule w_schedule_2{{2, 2, 2, 2, 2, 2, 2}};
     const auto date_1 = some_date;
     const auto date_2 = date_1 + Years{1};
     workSchedule.addWeekSchedule(date_1, w_schedule_1);
@@ -260,9 +250,9 @@ TEST_F(WorkScheduleFixture, removing_week_schedule_that_is_latest_one)
 
 TEST_F(WorkScheduleFixture, removing_week_schedule_in_the_middle)
 {
-    const WeekSchedule w_schedule_1{buildWeekSchedule({1, 1, 1, 1, 1, 1, 1})};
-    const WeekSchedule w_schedule_2{buildWeekSchedule({2, 2, 2, 2, 2, 2, 2})};
-    const WeekSchedule w_schedule_3{buildWeekSchedule({3, 3, 3, 3, 3, 3, 3})};
+    const WeekSchedule w_schedule_1{{1, 1, 1, 1, 1, 1, 1}};
+    const WeekSchedule w_schedule_2{{2, 2, 2, 2, 2, 2, 2}};
+    const WeekSchedule w_schedule_3{{3, 3, 3, 3, 3, 3, 3}};
     const auto date_1 = some_date;
     const auto date_2 = date_1 + Years{1};
     const auto date_3 = date_1 + Years{2};
@@ -280,9 +270,9 @@ TEST_F(WorkScheduleFixture, removing_week_schedule_in_the_middle)
 TEST_F(WorkScheduleFixture,
        removing_week_schedule_in_the_middle_merges_adjacent_if_they_are_same)
 {
-    const WeekSchedule w_schedule_1{buildWeekSchedule({1, 1, 1, 1, 1, 1, 1})};
-    const WeekSchedule w_schedule_2{buildWeekSchedule({2, 2, 2, 2, 2, 2, 2})};
-    const WeekSchedule w_schedule_3{buildWeekSchedule({1, 1, 1, 1, 1, 1, 1})};
+    const WeekSchedule w_schedule_1{{1, 1, 1, 1, 1, 1, 1}};
+    const WeekSchedule w_schedule_2{{2, 2, 2, 2, 2, 2, 2}};
+    const WeekSchedule w_schedule_3{{1, 1, 1, 1, 1, 1, 1}};
     const auto date_1 = some_date;
     const auto date_2 = date_1 + Years{1};
     const auto date_3 = date_1 + Years{2};
@@ -298,8 +288,7 @@ TEST_F(WorkScheduleFixture,
 
 TEST_F(WorkScheduleFixture, returns_estimated_goal_for_given_period)
 {
-    const WeekSchedule w_schedule{
-        buildWeekSchedule({13, 13, 13, 13, 13, 0, 0})};
+    const WeekSchedule w_schedule{{13, 13, 13, 13, 13, 0, 0}};
     workSchedule.addWeekSchedule(Date{Year{2019}, Month{5}, Day{1}},
                                  w_schedule);
     workSchedule.addExceptionalDay(Date{Year{2019}, Month{5}, Day{1}}, 0);
@@ -319,26 +308,25 @@ TEST_F(WorkScheduleFixture, returns_estimated_goal_for_given_period)
 TEST_F(WorkScheduleFixture, w_schedule_benchmark)
 {
     workSchedule.addWeekSchedule(some_date,
-                                 buildWeekSchedule({1, 1, 1, 1, 1, 1, 1}));
+                                 WeekSchedule{{1, 1, 1, 1, 1, 1, 1}});
     workSchedule.addWeekSchedule(Date{Year{1997}, Month{1}, Day{1}},
-                                 buildWeekSchedule({2, 2, 2, 2, 2, 2, 2}));
+                                 WeekSchedule{{2, 2, 2, 2, 2, 2, 2}});
     workSchedule.addWeekSchedule(Date{Year{1998}, Month{1}, Day{1}},
-                                 buildWeekSchedule({3, 3, 3, 3, 3, 3, 3}));
+                                 WeekSchedule{{3, 3, 3, 3, 3, 3, 3}});
     workSchedule.addWeekSchedule(Date{Year{1999}, Month{1}, Day{1}},
-                                 buildWeekSchedule({4, 4, 4, 4, 4, 4, 4}));
+                                 WeekSchedule{{4, 4, 4, 4, 4, 4, 4}});
     workSchedule.addWeekSchedule(Date{Year{2000}, Month{1}, Day{1}},
-                                 buildWeekSchedule({5, 5, 5, 5, 5, 5, 5}));
+                                 WeekSchedule{{5, 5, 5, 5, 5, 5, 5}});
     workSchedule.addWeekSchedule(Date{Year{2001}, Month{1}, Day{1}},
-                                 buildWeekSchedule({6, 6, 6, 6, 6, 6, 6}));
+                                 WeekSchedule{{6, 6, 6, 6, 6, 6, 6}});
     workSchedule.addWeekSchedule(Date{Year{2002}, Month{1}, Day{1}},
-                                 buildWeekSchedule({7, 7, 7, 7, 7, 7, 7}));
+                                 WeekSchedule{{7, 7, 7, 7, 7, 7, 7}});
     workSchedule.addWeekSchedule(Date{Year{2004}, Month{1}, Day{1}},
-                                 buildWeekSchedule({8, 8, 8, 8, 8, 8, 8}));
+                                 WeekSchedule{{8, 8, 8, 8, 8, 8, 8}});
     workSchedule.addWeekSchedule(Date{Year{2005}, Month{1}, Day{1}},
-                                 buildWeekSchedule({9, 9, 9, 9, 9, 9, 9}));
-    workSchedule.addWeekSchedule(
-        Date{Year{2006}, Month{1}, Day{1}},
-        buildWeekSchedule({10, 10, 10, 10, 10, 10, 10}));
+                                 WeekSchedule{{9, 9, 9, 9, 9, 9, 9}});
+    workSchedule.addWeekSchedule(Date{Year{2006}, Month{1}, Day{1}},
+                                 WeekSchedule{{10, 10, 10, 10, 10, 10, 10}});
 
     const dw::Date stop_date{some_date + dw::Years{200}};
     for (dw::Date date = some_date; date < stop_date;

@@ -37,9 +37,15 @@ struct TestStorageInitializer {
 
     TestStorageInitializer();
 
-    auto& commandHandlerComposer() { return commandHandlerComp; }
+    sprint_timer::compose::CommandHandlerComposer& commandHandlerComposer()
+    {
+        return *commandHandlerComp;
+    }
 
-    auto& queryHandlerComposer() { return queryHandlerComp; }
+    sprint_timer::compose::QueryHandlerComposer& queryHandlerComposer()
+    {
+        return *queryHandlerComp;
+    }
 
     sprint_timer::DefaultDateTimeProvider dateTimeProvider;
 
@@ -63,13 +69,15 @@ private:
     FakeUuidGenerator uuidGenerator;
     std::unique_ptr<sprint_timer::WorkScheduleStorage> workScheduleStorage{
         factory.scheduleStorage()};
-    sprint_timer::compose::TestCommandHandlerComposer commandHandlerComp{
-        actionInvoker,
-        *taskStorage,
-        *sprintStorage,
-        *workScheduleStorage,
-        uuidGenerator,
-        dateTimeProvider};
+    std::unique_ptr<sprint_timer::compose::CommandHandlerComposer>
+        commandHandlerComp{
+            std::make_unique<sprint_timer::compose::TestCommandHandlerComposer>(
+                actionInvoker,
+                *taskStorage,
+                *sprintStorage,
+                *workScheduleStorage,
+                uuidGenerator,
+                dateTimeProvider)};
     std::unique_ptr<sprint_timer::SprintDistributionReader> dailyDistReader{
         factory.dailyDistReader(30)};
     std::unique_ptr<sprint_timer::SprintDistributionReader>
@@ -78,15 +86,17 @@ private:
         sundayFirstDistReader{factory.weeklyDistReader(dw::Weekday::Sunday)};
     std::unique_ptr<sprint_timer::SprintDistributionReader> monthlyDistReader{
         factory.monthlyDistReader()};
-    sprint_timer::compose::TestQueryHandlerComposer queryHandlerComp{
-        *taskStorage,
-        *sprintStorage,
-        *operationalRangeReader,
-        *workScheduleStorage,
-        *dailyDistReader,
-        *mondayFirstDistReader,
-        *sundayFirstDistReader,
-        *monthlyDistReader};
+    std::unique_ptr<sprint_timer::compose::QueryHandlerComposer>
+        queryHandlerComp{
+            std::make_unique<sprint_timer::compose::TestQueryHandlerComposer>(
+                *taskStorage,
+                *sprintStorage,
+                *operationalRangeReader,
+                *workScheduleStorage,
+                *dailyDistReader,
+                *mondayFirstDistReader,
+                *sundayFirstDistReader,
+                *monthlyDistReader)};
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */

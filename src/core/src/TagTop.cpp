@@ -20,118 +20,93 @@
 **
 *********************************************************************************/
 #include "core/TagTop.h"
+#include "core/utils/Algutils.h"
 #include <numeric>
+#include <ranges>
 
 namespace sprint_timer {
 
 using namespace entities;
 
-TagTop::TagTop(const std::vector<Sprint>& sprints, size_t topMaxSize)
-    : numTopTags{topMaxSize}
+TagTop::TagTop(const std::vector<Sprint>& sprints_, size_t topMaxSize_)
+    : numTopTags{topMaxSize_}
 {
-    arrangeSprintsByTag(sprints);
+    arrangeSprintsByTag(sprints_);
     computeTagFrequencies();
-    orderTagsByDecreasingFrequency();
-    mergeTagsWithLowestFrequencies();
+    buildTagTop();
 }
 
-TagTop::TagTop() { }
+TagTop::TagTop(std::span<const sprint_tags_t> input_, size_t topSize_)
+    : numTopTags{topSize_}
+{
+    for (const auto& [timeRange, tags] : input_) {
+        dateRanges.emplace_back(timeRange);
+        for (const auto& tag : tags) {
+            sprintsByTag[tag].push_back(timeRange);
+        }
+    }
+    computeTagFrequencies();
+    buildTagTop();
+}
 
 void TagTop::arrangeSprintsByTag(const std::vector<Sprint>& sprints)
 {
-    for (const Sprint& sprint : sprints)
-        for (const auto& tag : sprint.tags())
-            sprintsByTag[tag].push_back(sprint);
+    for (const Sprint& sprint : sprints) {
+        dateRanges.emplace_back(sprint.timeSpan());
+        for (const auto& tag : sprint.tags()) {
+            sprintsByTag[tag].push_back(sprint.timeSpan());
+        }
+    }
 }
 
 void TagTop::computeTagFrequencies()
 {
-    const auto total = accumulate(
-        sprintsByTag.cbegin(),
-        sprintsByTag.cend(),
-        0ULL,
-        [](auto aux, const auto& entry) { return aux + entry.second.size(); });
-
-    for (const auto& entry : sprintsByTag) {
-        const auto freq = static_cast<double>(entry.second.size()) /
-                          static_cast<double>(total);
-        frequencies.emplace_back(entry.first, freq);
-    }
+    const auto total =
+        ranges_ext::fold(sprintsByTag, 0ULL, [](auto acc, const auto& entry) {
+            return acc + entry.second.size();
+        });
+    auto tag_frequency = [total = static_cast<double>(total)](
+                             const auto& entry) -> TagFrequency {
+        const auto& [tag, intervals] = entry;
+        return {tag, static_cast<double>(intervals.size()) / total};
+    };
+    const auto frequencies_view = sprintsByTag |
+                                  std::views::transform(tag_frequency) |
+                                  std::views::common;
+    frequencies = std::vector<TagFrequency>(frequencies_view.begin(),
+                                            frequencies_view.end());
 }
 
-void TagTop::orderTagsByDecreasingFrequency()
+void TagTop::buildTagTop()
 {
-    const auto limit = std::min(numTopTags, frequencies.size());
-    std::partial_sort(frequencies.begin(),
-                      frequencies.begin() + static_cast<int64_t>(limit),
-                      frequencies.end(),
-                      [](const auto& lhs, const auto& rhs) {
-                          return lhs.second > rhs.second;
-                      });
-}
+    const int64_t limit = static_cast<int64_t>(
+        std::max(std::min(numTopTags, frequencies.size()), 1UL) - 1);
+    std::ranges::partial_sort(frequencies,
+                              begin(frequencies) + limit,
+                              std::greater<double>{},
+                              [](const auto& entry) { return entry.second; });
 
-void TagTop::mergeTagsWithLowestFrequencies()
-{
-    if (frequencies.size() < numTopTags)
+    if (frequencies.size() < numTopTags) {
         return;
-
-    const auto otherTags = mergeBottomTags();
-
-    for (const auto& tag : otherTags)
-        sprintsByTag[dummyTag].insert(sprintsByTag[dummyTag].end(),
-                                      sprintsByTag[tag].begin(),
-                                      sprintsByTag[tag].end());
-}
-
-std::vector<Tag> TagTop::mergeBottomTags()
-{
-    while (frequencies.size() > numTopTags) {
-        frequencies[frequencies.size() - 2].second += frequencies.back().second;
-        frequencies.pop_back();
     }
-    frequencies.back().first = dummyTag;
-    sprintsByTag.insert(make_pair(dummyTag, std::vector<Sprint>()));
-    return findBottomTags();
-}
 
-std::vector<Tag> TagTop::findBottomTags() const
-{
-    std::vector<Tag> topTags = findTopTags();
-    std::vector<Tag> allTags = findAllTags();
-    std::sort(topTags.begin(), topTags.end());
-    std::sort(allTags.begin(), allTags.end());
+    const auto bottomTags =
+        std::ranges::subrange(begin(frequencies) + limit, end(frequencies));
 
-    std::vector<Tag> bottomTags;
-    set_difference(allTags.begin(),
-                   allTags.end(),
-                   topTags.begin(),
-                   topTags.end(),
-                   back_inserter(bottomTags));
+    const auto combinedBottomTagFrequency = ranges_ext::fold(
+        bottomTags | std::views::elements<1>, 0.0, std::plus<double>{});
 
-    return bottomTags;
-}
+    const auto bottomTagsView = bottomTags | std::views::elements<0>;
 
-std::vector<Tag> TagTop::findTopTags() const
-{
-    std::vector<Tag> topTagsSet;
-    topTagsSet.reserve(frequencies.size());
-    transform(frequencies.cbegin(),
-              frequencies.cend(),
-              back_inserter(topTagsSet),
-              [](const auto& elem) { return elem.first; });
-    return topTagsSet;
-}
+    std::ranges::for_each(bottomTagsView, [this](const auto& tag) {
+        std::ranges::copy(sprintsByTag[tag],
+                          std::back_inserter(sprintsByTag[dummyTag]));
+    });
+    std::ranges::sort(
+        sprintsByTag[dummyTag], std::less{}, &dw::DateTimeRange::start);
 
-std::vector<Tag> TagTop::findAllTags() const
-{
-    std::vector<Tag> allTags;
-    allTags.reserve(sprintsByTag.size());
-    transform(sprintsByTag.cbegin(),
-              sprintsByTag.cend(),
-              back_inserter(allTags),
-              [](const auto& entry) { return entry.first; });
-
-    return allTags;
+    frequencies.erase(begin(frequencies) + limit + 1, end(frequencies));
+    frequencies.back() = {dummyTag, combinedBottomTagFrequency};
 }
 
 const std::vector<TagTop::TagFrequency>& TagTop::tagFrequencies() const
@@ -139,14 +114,13 @@ const std::vector<TagTop::TagFrequency>& TagTop::tagFrequencies() const
     return frequencies;
 }
 
-const std::vector<Sprint>& TagTop::sprintsForTagAt(size_t position) const
+const std::vector<dw::DateTimeRange>&
+TagTop::sprintsForTagAt(std::optional<size_t> position) const
 {
-    return sprintsByTag.at(tagNameAt(position));
-}
-
-const std::vector<Sprint>& TagTop::sprintsForTag(const Tag& specificTag) const
-{
-    return sprintsByTag.at(specificTag);
+    if (!position) {
+        return dateRanges;
+    }
+    return sprintsByTag.at(tagNameAt(*position));
 }
 
 std::string TagTop::tagNameAt(size_t position) const

@@ -28,10 +28,12 @@
 namespace sprint_timer::use_cases {
 
 struct FinishedTasksQuery : public Query<std::vector<TaskDTO>> {
-
     FinishedTasksQuery(dw::DateRange dateRange);
 
     dw::DateRange dateRange;
+
+    friend bool operator==(const FinishedTasksQuery&,
+                           const FinishedTasksQuery&) = default;
 };
 
 template <class CharT, class Traits>

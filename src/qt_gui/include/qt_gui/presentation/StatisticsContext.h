@@ -28,8 +28,10 @@
 #include "core/use_cases/SprintMapper.h"
 #include "core/use_cases/request_sprints/RequestSprintsQuery.h"
 #include <optional>
+#include <ranges>
 
 #include "core/use_cases/SprintMapper.h"
+#include "core/use_cases/request_statistics/SprintStatisticsDTO.h"
 
 namespace sprint_timer::ui {
 
@@ -37,13 +39,15 @@ class StatisticsContext {
 public:
     StatisticsContext() = default;
 
-    StatisticsContext(const std::vector<use_cases::SprintDTO>& sprints,
-                      dw::DateRange dateRange,
-                      size_t topTags);
+    explicit StatisticsContext(dw::DateRange dateRange);
 
-    const std::vector<entities::Sprint>& sprints() const;
+    StatisticsContext(use_cases::SprintStatisticsDTO&& data,
+                      dw::DateRange dateRange);
 
-    const std::vector<TagTop::TagFrequency>& tagFrequencies() const;
+    const std::vector<dw::DateTimeRange>& sprintIntervals() const;
+
+    [[nodiscard]] std::vector<std::pair<std::string, double>>
+    tagFrequencies() const;
 
     std::optional<dw::DateRange> currentRange() const;
 
@@ -54,54 +58,10 @@ public:
     size_t numTopTags() const;
 
 private:
-    std::vector<entities::Sprint> sprintsTemp;
+    use_cases::SprintStatisticsDTO data;
     std::optional<dw::DateRange> dateRange;
-    size_t topTags{5};
-    TagTop tagTop;
     std::optional<size_t> tag;
 };
-
-inline StatisticsContext::StatisticsContext(
-    const std::vector<use_cases::SprintDTO>& sprints_,
-    dw::DateRange dateRange_,
-    size_t topTags_)
-    : sprintsTemp{use_cases::fromDTOs(sprints_)}
-    , dateRange{dateRange_}
-    , topTags{topTags_}
-    , tagTop{TagTop{sprintsTemp, topTags_}}
-{
-}
-
-inline const std::vector<entities::Sprint>& StatisticsContext::sprints() const
-{
-    if (tag) {
-        return tagTop.sprintsForTagAt(*tag);
-    }
-    return sprintsTemp;
-}
-
-inline const std::vector<TagTop::TagFrequency>&
-StatisticsContext::tagFrequencies() const
-{
-    return tagTop.tagFrequencies();
-}
-
-inline std::optional<dw::DateRange> StatisticsContext::currentRange() const
-{
-    return dateRange;
-}
-
-inline void StatisticsContext::selectTag(std::optional<size_t> tagNumber)
-{
-    tag = tagNumber;
-}
-
-inline std::optional<size_t> StatisticsContext::selectedTag() const
-{
-    return tag;
-}
-
-inline size_t StatisticsContext::numTopTags() const { return topTags; }
 
 } // namespace sprint_timer::ui
 

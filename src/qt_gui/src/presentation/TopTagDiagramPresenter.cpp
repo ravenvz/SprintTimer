@@ -20,29 +20,36 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/TopTagDiagramPresenter.h"
+#include <array>
+#include <ranges>
+#include <string_view>
 
 namespace {
 
-const std::vector<std::string> colors{{"#28245a",
-                                       "#73c245",
-                                       "#ea6136",
-                                       "#1d589b",
-                                       "#d62a36",
-                                       "#401b60",
-                                       "#f8cd32",
-                                       "#258bc8",
-                                       "#087847"}};
+constexpr std::array<std::string_view, 9> colors{{"#28245a",
+                                                  "#73c245",
+                                                  "#ea6136",
+                                                  "#1d589b",
+                                                  "#d62a36",
+                                                  "#401b60",
+                                                  "#f8cd32",
+                                                  "#258bc8",
+                                                  "#087847"}};
 
-// std::vector<sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData>
-// toDiagramData(const sprint_timer::TagTop& tagtop);
+// using ExtractedData = std::pair<
+//     std::vector<
+//         sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData>,
+//     std::vector<std::string>>;
 
-using ExtractedData = std::pair<
-    std::vector<
-        sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData>,
-    std::vector<std::string>>;
+struct ExtractedData {
+    std::vector<sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData>
+        diagramData;
+    std::vector<std::string> legendData;
+};
 
 ExtractedData
-extractData(const std::vector<sprint_timer::TagTop::TagFrequency>& frequencies);
+extractData(const sprint_timer::use_cases::TopTagFrequenciesQuery::result_t&
+                topTagFrequencies);
 
 void renameLeftoverTags(std::vector<std::string>& tagNames);
 
@@ -51,8 +58,11 @@ void renameLeftoverTags(std::vector<std::string>& tagNames);
 namespace sprint_timer::ui {
 
 TopTagDiagramPresenter::TopTagDiagramPresenter(
-    StatisticsMediator& mediator_, const StatisticsContext& statisticsContext_)
-    : mediator{mediator_}
+    top_tag_frequencies_handler_t& topTagFrequenciesHandler_,
+    StatisticsMediator& mediator_,
+    const StatisticsContext& statisticsContext_)
+    : topTagFrequenciesHandler{topTagFrequenciesHandler_}
+    , mediator{mediator_}
     , statisticsContext{statisticsContext_}
 {
     mediator.addColleague(this);
@@ -76,13 +86,25 @@ void TopTagDiagramPresenter::onTagIndexSelected(size_t index)
     }
 }
 
-void TopTagDiagramPresenter::onSharedDataChanged() { updateView(); }
+void TopTagDiagramPresenter::onSharedDataChanged()
+{
+    fetchData();
+    updateView();
+}
+
+void TopTagDiagramPresenter::fetchDataImpl()
+{
+    if (const auto range = statisticsContext.currentRange(); range) {
+        topTagFrequencies =
+            topTagFrequenciesHandler.handle(use_cases::TopTagFrequenciesQuery{
+                statisticsContext.numTopTags(), *range});
+    }
+}
 
 void TopTagDiagramPresenter::updateViewImpl()
 {
-    if (auto v = view(); v && statisticsContext.currentRange()) {
-        const auto& frequencies = statisticsContext.tagFrequencies();
-        auto [diagramData, legendData] = extractData(frequencies);
+    if (auto v = view(); v && topTagFrequencies) {
+        auto&& [diagramData, legendData] = extractData(topTagFrequencies);
         selection.setTags(legendData);
         v.value()->toggleSelection(selection.currentIndex());
         v.value()->updateDiagram(std::move(diagramData));
@@ -113,19 +135,25 @@ void TopTagDiagramPresenter::Selection::setTags(
 namespace {
 
 ExtractedData
-extractData(const std::vector<sprint_timer::TagTop::TagFrequency>& frequencies)
+extractData(const sprint_timer::use_cases::TopTagFrequenciesQuery::result_t&
+                topTagFrequencies)
 {
     using sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData;
     std::vector<DiagramData> diagramData;
     std::vector<std::string> legendData;
-    diagramData.reserve(frequencies.size());
-    legendData.reserve(frequencies.size());
-    for (size_t i = 0; i < frequencies.size(); ++i) {
-        diagramData.push_back(DiagramData{frequencies[i].first.name(),
-                                          colors[i % colors.size()],
-                                          frequencies[i].second});
-        legendData.push_back(frequencies[i].first.name());
-    }
+    diagramData.reserve(topTagFrequencies->size());
+    legendData.reserve(topTagFrequencies->size());
+
+    auto nextColor = [&, i = 0ULL]() mutable {
+        return colors[i++ % colors.size()];
+    };
+    auto fillData = [&](const auto& entry) {
+        diagramData.emplace_back(
+            entry.tag, std::string{nextColor()}, entry.frequency);
+        legendData.emplace_back(entry.tag);
+    };
+    std::ranges::for_each(*topTagFrequencies, fillData);
+
     renameLeftoverTags(legendData);
 
     return {diagramData, legendData};
