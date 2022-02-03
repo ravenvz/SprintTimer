@@ -25,6 +25,7 @@
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
 #include <optional>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -42,7 +43,7 @@ class View : public mvp::BaseView<View, Presenter> {
 public:
     virtual void updateLegend(const std::vector<std::string>& tagNames) = 0;
 
-    virtual void updateDiagram(std::vector<DiagramData>&& data) = 0;
+    virtual void updateDiagram(std::span<const DiagramData> data) = 0;
 
     virtual void toggleSelection(std::optional<size_t> selection) = 0;
 };

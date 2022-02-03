@@ -104,10 +104,10 @@ void TopTagDiagramPresenter::fetchDataImpl()
 void TopTagDiagramPresenter::updateViewImpl()
 {
     if (auto v = view(); v && topTagFrequencies) {
-        auto&& [diagramData, legendData] = extractData(topTagFrequencies);
+        const auto [diagramData, legendData] = extractData(topTagFrequencies);
         selection.setTags(legendData);
         v.value()->toggleSelection(selection.currentIndex());
-        v.value()->updateDiagram(std::move(diagramData));
+        v.value()->updateDiagram(diagramData);
         v.value()->updateLegend(legendData);
     }
 }

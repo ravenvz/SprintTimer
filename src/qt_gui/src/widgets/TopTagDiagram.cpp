@@ -62,14 +62,13 @@ void TopTagDiagram::updateLegend(const std::vector<std::string>& tagNames)
 }
 
 void TopTagDiagram::updateDiagram(
-    std::vector<contracts::TopTagDiagramContract::DiagramData>&& diagramData)
+    std::span<const contracts::TopTagDiagramContract::DiagramData> diagramData)
 {
-    std::vector<PieChart::LabelData> pieChartData;
+    std::vector<PieChart::DataEntry> pieChartData;
     pieChartData.reserve(diagramData.size());
     std::ranges::transform(
         diagramData, std::back_inserter(pieChartData), [](const auto& elem) {
-            return PieChart::LabelData{
-                elem.color, elem.percentage, elem.tagName};
+            return PieChart::DataEntry{elem.percentage, elem.color};
         });
     diagram->setData(pieChartData);
 }

@@ -25,6 +25,7 @@
 #include "qt_gui/presentation/TopTagDiagramContract.h"
 #include <QMouseEvent>
 #include <QWidget>
+#include <span>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -62,7 +63,7 @@ public:
     void updateLegend(const std::vector<std::string>& tagNames) override;
 
     void updateDiagram(
-        std::vector<contracts::TopTagDiagramContract::DiagramData>&& data)
+        std::span<const contracts::TopTagDiagramContract::DiagramData> data)
         override;
 
     void toggleSelection(std::optional<size_t> selection) override;

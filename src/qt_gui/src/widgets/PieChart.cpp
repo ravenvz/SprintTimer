@@ -20,32 +20,46 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/PieChart.h"
+#include <array>
+#include <cmath>
+#include <numbers>
 
 namespace {
 
-constexpr int degreesInCircle = 360;
+constexpr int degreesInCircle{360};
 
 // QPainter API requires degrees to be specified in 1/16 of degree.
-constexpr int qtDegPrecision = 16;
+constexpr int qtDegPrecision{16};
 
-constexpr int qtFullCircle = degreesInCircle * qtDegPrecision;
+constexpr int qtFullCircle{degreesInCircle * qtDegPrecision};
 
-/* Constant pi. */
-const double pi{std::acos(-1)};
+// Scale of expanded diagram to shortest side of widget's bounding rectangle.
+constexpr double expandedScale{0.99};
 
-/* Colors for the slices. */
-std::vector<QBrush> brushes{QBrush(QColor("#28245a")),
-                            QBrush(QColor("#73c245")),
-                            QBrush(QColor("#ea6136")),
-                            QBrush(QColor("#1d589b")),
-                            QBrush(QColor("#d62a36")),
-                            QBrush(QColor("#401b60")),
-                            QBrush(QColor("#f8cd32")),
-                            QBrush(QColor("#258bc8")),
-                            QBrush(QColor("#087847"))};
+// Scale of shrinked diagram to shortest side of widget's bounding rectangle.
+constexpr double shrinkedScale{0.85};
 
 /* Color for chart and slices borders. */
 const QPen borderColor{Qt::gray};
+
+struct PainterTransformScope {
+
+    explicit PainterTransformScope(QPainter& painter_);
+
+    ~PainterTransformScope();
+
+private:
+    QPainter& painter;
+};
+
+std::pair<QRectF, double> adaptedDimensions(const QRectF& boundingRect);
+
+QPointF computeOffsetPoint(double angle, double expansionLength);
+
+void drawSlice(QPainter& painter,
+               const QRectF& pieRect,
+               double startAngle,
+               double stopAngle);
 
 } // namespace
 
@@ -57,70 +71,58 @@ PieChart::PieChart(QWidget* parent_)
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 }
 
-void PieChart::setData(const std::vector<LabelData>& dataToDisplay)
+void PieChart::setData(std::span<const DataEntry> dataToDisplay)
 {
-    data = dataToDisplay;
-    activeSliceInd = std::optional<size_t>();
+    angles.clear();
+    angles.resize(dataToDisplay.size());
+    brushes.clear();
+    brushes.resize(dataToDisplay.size());
+
+    std::ranges::transform(
+        dataToDisplay,
+        begin(brushes),
+        [](const auto& color) { return QBrush(QColor(color.c_str())); },
+        &DataEntry::colorCode);
+
+    std::transform_inclusive_scan(cbegin(dataToDisplay),
+                                  cend(dataToDisplay),
+                                  begin(angles),
+                                  std::plus<double>{},
+                                  [](const DataEntry& value) {
+                                      return value.percentage * degreesInCircle;
+                                  });
+    activeSliceInd = std::nullopt;
+    repaint();
+}
+
+void PieChart::togglePartActive(size_t sliceIndex)
+{
+    activeSliceInd = isSelected(sliceIndex) ? std::nullopt
+                                            : std::optional<size_t>(sliceIndex);
     repaint();
 }
 
 void PieChart::paintEvent(QPaintEvent*)
 {
-    computeAdaptiveSizes();
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(borderColor);
 
-    double offset = 0; // Offset to next slice in degrees.
+    const auto [pieRect, expansionLength] = adaptedDimensions(this->rect());
 
-    for (size_t sliceInd = 0; sliceInd < data.size(); ++sliceInd) {
-        const bool isCurrentlyActiveSlice =
-            activeSliceInd && (*activeSliceInd == sliceInd);
-        const double currentValue = data[sliceInd].percentage;
-
-        painter.setBrush(brushes[sliceInd % brushes.size()]);
-
-        if (isCurrentlyActiveSlice) {
-            QPointF offsetPoint =
-                computeOffsetPoint(currentValue * degreesInCircle, offset);
-            painter.translate(offsetPoint);
-            painter.drawPie(pieRect,
-                            int(offset * qtDegPrecision),
-                            int(currentValue * qtFullCircle));
-            painter.resetTransform();
+    auto draw = [&, startAngle = 0.0, sliceInd = 0UL](double angle) mutable {
+        painter.setBrush(brushes[sliceInd]);
+        PainterTransformScope transformScope{painter};
+        if (isSelected(sliceInd)) {
+            painter.translate(
+                computeOffsetPoint((startAngle + angle) / 2, expansionLength));
         }
-        else {
-            painter.drawPie(pieRect,
-                            int(offset * qtDegPrecision),
-                            int(currentValue * qtFullCircle));
-        }
+        drawSlice(painter, pieRect, startAngle, angle);
+        ++sliceInd;
+        startAngle = angle;
+    };
 
-        offset += currentValue * degreesInCircle;
-    }
-}
-
-QPointF PieChart::computeOffsetPoint(double current, double offset)
-{
-    const double angle = offset + current / 2;
-    const double angleRads = angle * pi / 180;
-    return QPointF{(expandedShiftLength * cos(angleRads)),
-                   (-expandedShiftLength * sin(angleRads))};
-}
-
-void PieChart::computeAdaptiveSizes()
-{
-    widgetRect = QRectF(QPointF(0, 0), this->size());
-    QPointF center = widgetRect.center();
-    double expandedSliceRelativeDiameter =
-        0.98 * std::min(widgetRect.width(), widgetRect.height());
-    double diagramRelativeDiameter =
-        expandedSliceRelativeDiameter - 0.1 * expandedSliceRelativeDiameter;
-    expandedShiftLength =
-        (expandedSliceRelativeDiameter - diagramRelativeDiameter) / 2;
-    pieRect = QRectF{center.x() - diagramRelativeDiameter / 2,
-                     center.y() - diagramRelativeDiameter / 2,
-                     diagramRelativeDiameter,
-                     diagramRelativeDiameter};
+    std::ranges::for_each(angles, draw);
 }
 
 void PieChart::mousePressEvent(QMouseEvent* event)
@@ -132,25 +134,60 @@ void PieChart::mousePressEvent(QMouseEvent* event)
 
 void PieChart::onLeftMouseClick(const QPoint& pos)
 {
-    double angle = QLineF(pieRect.center(), pos).angle();
-    double offset = 0;
-    for (size_t sliceInd = 0; sliceInd < data.size(); ++sliceInd) {
-        offset += data[sliceInd].percentage * 360;
-        if (angle < offset) {
-            emit partClicked(sliceInd);
-            break;
-        }
+    const double angle{QLineF(rect().center(), pos).angle()};
+    if (const auto it = std::ranges::lower_bound(angles, angle);
+        it != cend(angles)) {
+        emit partClicked(static_cast<size_t>(std::distance(begin(angles), it)));
     }
 }
 
-void PieChart::togglePartActive(size_t sliceIndex)
+bool PieChart::isSelected(size_t index) const
 {
-    if (activeSliceInd && (*activeSliceInd == sliceIndex))
-        activeSliceInd = std::optional<size_t>();
-    else
-        activeSliceInd = sliceIndex;
-    repaint();
+    return activeSliceInd and (activeSliceInd.value() == index);
 }
 
 } // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+PainterTransformScope::PainterTransformScope(QPainter& painter_)
+    : painter{painter_}
+{
+}
+
+PainterTransformScope::~PainterTransformScope() { painter.resetTransform(); }
+
+std::pair<QRectF, double> adaptedDimensions(const QRectF& boundingRect)
+{
+    const QPointF center{boundingRect.center()};
+    const double shortestSide{
+        std::min(boundingRect.width(), boundingRect.height())};
+    const double expandedPieRadius{expandedScale * shortestSide / 2};
+    const double shrinkedPieRadius{shrinkedScale * shortestSide / 2};
+    return {QRectF{center.x() - shrinkedPieRadius,
+                   center.y() - shrinkedPieRadius,
+                   2 * shrinkedPieRadius,
+                   2 * shrinkedPieRadius},
+            expandedPieRadius - shrinkedPieRadius};
+};
+
+QPointF computeOffsetPoint(double angle, double expansionLength)
+{
+    const double angleRads{angle * std::numbers::pi / 180};
+    return QPointF{expansionLength * cos(angleRads),
+                   -expansionLength * sin(angleRads)};
+};
+
+void drawSlice(QPainter& painter,
+               const QRectF& pieRect,
+               double startAngle,
+               double stopAngle)
+{
+    painter.drawPie(
+        pieRect,
+        static_cast<int>(startAngle * qtDegPrecision),
+        static_cast<int>((stopAngle - startAngle) * qtDegPrecision));
+};
+
+} // namespace
 

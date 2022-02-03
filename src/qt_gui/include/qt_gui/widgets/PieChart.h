@@ -22,11 +22,11 @@
 #ifndef PIECHART_H_65LSH0MP
 #define PIECHART_H_65LSH0MP
 
-#include "qt_gui/widgets/IStatisticalChart.h"
 #include <QMouseEvent>
 #include <QPainter>
-#include <cmath>
+#include <QWidget>
 #include <optional>
+#include <span>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -35,7 +35,7 @@ namespace sprint_timer::ui::qt_gui {
  * It provides means to select individual slice of the pie chart
  * by either invoking method call or by user clicking the desired
  * slice. Slice then 'expands' - that is - moved from a center of
- * the chart.
+ * the chart (like a pie slice).
  * When user selects slice with left mouse click, partClicked(size_t)
  * signal is emitted, indicating an index of the selected slice. */
 class PieChart : public QWidget {
@@ -43,51 +43,31 @@ class PieChart : public QWidget {
     Q_OBJECT
 
 public:
-    struct LabelData {
-        std::string name;
+    struct DataEntry {
         double percentage;
         std::string colorCode;
     };
 
     explicit PieChart(QWidget* parent);
 
-    /* Set data that should be displayed as a pie chart.
-     * Labels are ignored by this implementation and sum of all
-     * values is treated as 100% */
-    void setData(const std::vector<LabelData>& data);
+    void setData(std::span<const DataEntry> data);
 
-    /* Toggle slice at index as expanded/normal. */
     void togglePartActive(size_t sliceIndex);
 
-protected:
-    /* Overriden to implement drawing of the chart. */
+private:
+    std::optional<size_t> activeSliceInd;
+    std::vector<double> angles;
+    std::vector<QBrush> brushes;
+
     void paintEvent(QPaintEvent*) override;
 
-    /* Overriden to capture left mouse click on the chart. */
     void mousePressEvent(QMouseEvent* event) override;
-
-private:
-    /* Rect that bounds this widget for this widget. */
-    QRectF widgetRect;
-    /* Rect that bounds chart in non-expanded state. */
-    QRectF pieRect;
-    /* Distance by which expanded slice is shifted from center of the chart. */
-    double expandedShiftLength;
-    /* Index of currently active slice or nothing if no slice selected.
-     */
-    std::optional<size_t> activeSliceInd;
-    /* Data that is to be displayed as a pie chart. */
-    std::vector<LabelData> data;
-
-    /* Compute sizes of bounding rectangles. */
-    void computeAdaptiveSizes();
-
-    /* Return point where expanded slice center point should be. */
-    QPointF computeOffsetPoint(double current, double offset);
 
     /* Handle left mouse click event. Emit partClicked(size_t index) with
      * index of clicked slice. */
     void onLeftMouseClick(const QPoint& pos);
+
+    [[nodiscard]] bool isSelected(size_t index) const;
 
 signals:
     void partClicked(size_t);

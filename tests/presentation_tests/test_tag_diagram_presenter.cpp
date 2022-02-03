@@ -70,7 +70,10 @@ class TagDiagramview : public View {
 public:
     using View::View;
 
-    MOCK_METHOD(void, updateDiagram, (std::vector<DiagramData> &&), (override));
+    MOCK_METHOD(void,
+                updateDiagram,
+                (std::span<const DiagramData>),
+                (override));
     MOCK_METHOD(void,
                 updateLegend,
                 (const std::vector<std::string>&),
@@ -108,8 +111,8 @@ TEST_F(TagDiagramPresenterFixture, updates_diagram_with_generic_data)
     using ::testing::Truly;
     const std::vector<DiagramData> expected{{"Tag1", colors[0], double{2} / 3},
                                             {"Tag2", colors[1], double{1} / 3}};
-    auto has_right_data = [&expected](const std::vector<DiagramData>& arg) {
-        return arg == expected;
+    auto has_right_data = [&expected](std::span<const DiagramData> arg) {
+        return std::ranges::equal(expected, arg);
     };
     const StatisticsContext statisticsContext{someDateRange};
     sprint_timer::ui::TopTagDiagramPresenter sut{
@@ -179,8 +182,8 @@ TEST_F(TagDiagramPresenterFixture, cycles_through_colors)
         {"Tag10", colors[0], double{2} / 66},
         {"Tag11", colors[1], double{1} / 66},
     };
-    auto has_right_data = [&expected](std::vector<DiagramData>& arg) {
-        return arg == expected;
+    auto has_right_data = [&expected](std::span<const DiagramData> arg) {
+        return std::ranges::equal(expected, arg);
     };
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
@@ -207,8 +210,8 @@ TEST_F(TagDiagramPresenterFixture, updates_diagram_when_shared_data_is_changed)
     using ::testing::Truly;
     const std::vector<DiagramData> expected{{"Tag1", colors[0], double{2} / 3},
                                             {"Tag2", colors[1], double{1} / 3}};
-    auto has_right_data = [&expected](const std::vector<DiagramData>& arg) {
-        return arg == expected;
+    auto has_right_data = [&expected](std::span<const DiagramData> arg) {
+        return std::ranges::equal(expected, arg);
     };
     const StatisticsContext statisticsContext{someDateRange};
     sprint_timer::ui::TopTagDiagramPresenter sut{
