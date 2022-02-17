@@ -22,10 +22,12 @@
 #ifndef SIMPLELEGEND_H_FM2CYP6M
 #define SIMPLELEGEND_H_FM2CYP6M
 
-#include "qt_gui/widgets/IStatisticalChartLegend.h"
 #include <QLabel>
 #include <QMouseEvent>
 #include <QVBoxLayout>
+#include <span>
+
+#include <QDebug>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -41,6 +43,8 @@ class LegendItem : public QLabel {
 public:
     LegendItem(const QString& text, size_t itemIndex, QWidget* parent);
 
+    ~LegendItem() { qDebug() << "Legend item destroyed"; }
+
     /* Toggle state of the item. */
     void toggleSelected();
 
@@ -51,9 +55,9 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
 
 private:
-    const size_t itemIndex;
-    const QString selectedStyle{"QLabel { color: green; }"};
-    const QString normalStyle{"QLabel { color: black; }"};
+    size_t itemIndex;
+    QString selectedStyle{"QLabel { color: green; }"};
+    QString normalStyle{"QLabel { color: black; }"};
     bool selected{false};
 
 signals:
@@ -61,49 +65,47 @@ signals:
     void clicked(size_t itemIndex);
 };
 
-
 /* Displays labels in vertical layout with headline title.
  *
  * When clicked with left mouse button, emits itemClicked(size_t index) signal,
  * where index is the 0-based index of item in the list. */
-class SimpleLegend : public IStatisticalChartLegend {
+class SimpleLegend : public QWidget {
     Q_OBJECT
 
 public:
     explicit SimpleLegend(QWidget* parent);
 
     /* Set labels to display. */
-    void setData(const std::vector<std::string>& labels) final;
+    void setData(std::span<const std::string> labels);
 
     /* Overload that accepts vector of label-value pairs. Values are ignored. */
-    void
-    setData(const std::vector<std::pair<std::string, double>>& labels) final;
 
     /* Set headline title. */
-    void setTitle(const QString& title) final;
+    void setTitle(const QString& title);
 
     /* Mark item with given index as selected. */
-    void toggleSelected(size_t index) final;
+    void toggleSelected(size_t index);
 
     /* Return true if item with given index is selected and false otherwise. */
-    bool isSelected(size_t index) const final;
+    bool isSelected(size_t index) const;
 
     /* Set title font. */
-    virtual void setTitleFont(QFont font) final;
+    virtual void setTitleFont(QFont font);
 
-protected slots:
+private slots:
     /* Handle left mouse click. This implementation just emits
      * itemClicked(index). */
-    void onItemClicked(size_t index) final;
+    void onItemClicked(size_t index);
 
 private:
-    std::vector<LegendItem*> items;
-    QVBoxLayout* layout;
+    // QVBoxLayout* layout;
     QLabel* title;
+    std::vector<LegendItem*> items;
 
+signals:
+    void itemClicked(size_t index);
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: SIMPLELEGEND_H_FM2CYP6M */

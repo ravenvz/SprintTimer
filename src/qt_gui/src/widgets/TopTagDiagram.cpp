@@ -49,14 +49,14 @@ TopTagDiagram::TopTagDiagram(QWidget* parent_)
             this,
             &TopTagDiagram::onChartPartClicked);
     connect(legend,
-            &IStatisticalChartLegend::itemClicked,
+            &SimpleLegend::itemClicked,
             this,
             &TopTagDiagram::onLegendItemClicked);
 }
 
 TopTagDiagram::~TopTagDiagram() = default;
 
-void TopTagDiagram::updateLegend(const std::vector<std::string>& tagNames)
+void TopTagDiagram::updateLegend(std::span<const std::string> tagNames)
 {
     legend->setData(tagNames);
 }

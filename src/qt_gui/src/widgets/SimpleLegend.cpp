@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/widgets/SimpleLegend.h"
 #include <memory>
+#include <ranges>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -48,43 +49,39 @@ void LegendItem::mousePressEvent(QMouseEvent* event)
 }
 
 SimpleLegend::SimpleLegend(QWidget* parent_)
-    : IStatisticalChartLegend{parent_}
+    : QWidget{parent_}
+    , title{std::make_unique<QLabel>().release()}
 {
-    layout = std::make_unique<QVBoxLayout>().release();
-    title = std::make_unique<QLabel>().release();
-    layout->addWidget(title);
-    layout->addStretch(1);
-    setLayout(layout);
+    auto l = std::make_unique<QVBoxLayout>();
+    l->addWidget(title);
+    l->addStretch(1);
+    setLayout(l.release());
 }
 
-void SimpleLegend::setData(
-    const std::vector<std::pair<std::string, double>>& data_)
+void SimpleLegend::setData(std::span<const std::string> labels)
 {
-    std::vector<std::string> labels;
-    std::transform(data_.cbegin(),
-                   data_.cend(),
-                   std::back_inserter(labels),
-                   [](const auto& elem) { return elem.first; });
-    setData(labels);
-}
-
-void SimpleLegend::setData(const std::vector<std::string>& labels)
-{
-    for (auto item : items) {
-        layout->removeWidget(item);
-        delete item;
+    for (auto* item : items) {
+        layout()->removeWidget(item);
     }
+
     items.clear();
-    for (size_t i = 0; i < labels.size(); ++i) {
-        LegendItem* item = std::make_unique<LegendItem>(
-                               QString::fromStdString(labels[i]), i, this)
-                               .release();
-        layout->addWidget(item);
+
+    qDeleteAll(findChildren<QWidget*>("", Qt::FindDirectChildrenOnly));
+
+    auto makeItem = [&, i = 0UL](const auto& label) mutable {
+        auto item = std::make_unique<LegendItem>(
+            QString::fromStdString(label), i++, this);
+        layout()->addWidget(item.get());
         item->setVisible(true);
-        connect(
-            item, SIGNAL(clicked(size_t)), this, SLOT(onItemClicked(size_t)));
-        items.push_back(item);
-    }
+        connect(item.get(),
+                &LegendItem::clicked,
+                this,
+                &SimpleLegend::onItemClicked);
+        return item.release();
+    };
+
+    items.reserve(labels.size());
+    std::ranges::transform(labels, begin(items), makeItem);
 }
 
 void SimpleLegend::setTitle(const QString& title_) { title->setText(title_); }

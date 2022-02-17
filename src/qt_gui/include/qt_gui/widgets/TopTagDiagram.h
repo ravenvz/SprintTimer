@@ -35,7 +35,7 @@ class LegendLabel;
 
 class PieChart;
 
-class IStatisticalChartLegend;
+class SimpleLegend;
 
 /* Displays information about data distribution relative to some quantity.
  *
@@ -60,7 +60,7 @@ public:
     /* Set font to use for legend title. */
     void setLegendTitleFont(QFont font);
 
-    void updateLegend(const std::vector<std::string>& tagNames) override;
+    void updateLegend(std::span<const std::string> tagNames) override;
 
     void updateDiagram(
         std::span<const contracts::TopTagDiagramContract::DiagramData> data)
@@ -70,7 +70,7 @@ public:
 
 private:
     PieChart* diagram;
-    IStatisticalChartLegend* legend;
+    SimpleLegend* legend;
 
     /* Handle left mouse click on chart part. */
     void onChartPartClicked(size_t partIndex);
