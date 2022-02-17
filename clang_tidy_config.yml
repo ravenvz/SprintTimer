@@ -1,5 +1,5 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,clang-diagnostic-*,clang-analyzer-*,*,-google-runtime-references,-llvm-header-guard,*,-google-runtime-references,-llvm-header-guard'
+Checks:          'clang-diagnostic-*,clang-analyzer-*,clang-diagnostic-*,clang-analyzer-*,*,-google-runtime-references,-llvm-header-guard,*,-google-runtime-references,-llvm-header-guard,-altera-*'
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false

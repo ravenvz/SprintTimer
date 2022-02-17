@@ -66,20 +66,21 @@ void BestWorktimePresenter::onSharedDataChanged()
 
 void BestWorktimePresenter::fetchDataImpl()
 {
-    if (!statisticsContext.currentRange()) {
+    const auto [numTopTags, selectedRange, selectedTag] = statisticsContext;
+
+    if (!selectedRange) {
         return;
     }
 
-    worktimeStatistics = worktimeStatisticsHandler.handle(
-        use_cases::WorktimeStatisticsQuery{statisticsContext.numTopTags(),
-                                           statisticsContext.selectedTag(),
-                                           *statisticsContext.currentRange()});
+    worktimeStatistics =
+        worktimeStatisticsHandler.handle(use_cases::WorktimeStatisticsQuery{
+            numTopTags, selectedTag, *selectedRange});
 }
 
 void BestWorktimePresenter::updateViewImpl()
 {
     if (auto v = view(); v) {
-        if (!statisticsContext.currentRange() || !worktimeStatistics) {
+        if (!statisticsContext.selectedRange || !worktimeStatistics) {
             updateViewWithStubData(*v.value());
         }
         else {

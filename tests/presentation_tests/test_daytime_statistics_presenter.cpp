@@ -96,10 +96,14 @@ public:
     NiceMock<mocks::QueryHandlerMock<
         sprint_timer::use_cases::WorktimeStatisticsQuery>>
         worktimeStatisticsHandler;
-    const size_t numTopTags{20};
+    size_t someNumTopTags{20};
     NiceMock<DaytimeStatisticsViewMock> view;
-    const dw::DateRange someDateRange{dw::current_date(),
-                                      dw::current_date() + dw::Days{1}};
+    dw::DateRange someDateRange{dw::current_date(),
+                                dw::current_date() + dw::Days{1}};
+    sprint_timer::ui::StatisticsContext statisticsContext{
+        someNumTopTags, someDateRange, std::nullopt};
+    sprint_timer::ui::BestWorktimePresenter sut{
+        worktimeStatisticsHandler, mediator_mock, statisticsContext};
 };
 
 TEST_F(BestWorktimePresenterFixture,
@@ -107,9 +111,6 @@ TEST_F(BestWorktimePresenterFixture,
 {
     using sprint_timer::ui::contracts::BestWorktimeContract::LegendData;
     const LegendData expected{"No data", ""};
-    const StatisticsContext statisticsContext{someDateRange};
-    BestWorktimePresenter sut{
-        worktimeStatisticsHandler, mediator_mock, statisticsContext};
 
     EXPECT_CALL(view, updateLegend(expected));
 
@@ -121,9 +122,6 @@ TEST_F(BestWorktimePresenterFixture,
 {
     using sprint_timer::ui::contracts::BestWorktimeContract::LegendData;
     const LegendData expected{"No data", ""};
-    const StatisticsContext statisticsContext{someDateRange};
-    BestWorktimePresenter sut{
-        worktimeStatisticsHandler, mediator_mock, statisticsContext};
 
     EXPECT_CALL(view, updateLegend(expected));
 
@@ -136,9 +134,6 @@ TEST_F(BestWorktimePresenterFixture,
     using sprint_timer::ui::contracts::BestWorktimeContract::DiagramData;
     const DiagramData expected{colors::filledColor,
                                std::vector<dw::DateTimeRange>{}};
-    const StatisticsContext statisticsContext{someDateRange};
-    BestWorktimePresenter sut{
-        worktimeStatisticsHandler, mediator_mock, statisticsContext};
 
     EXPECT_CALL(view, updateDiagram(expected));
 
@@ -151,9 +146,6 @@ TEST_F(BestWorktimePresenterFixture, updates_legend_with_generic_data)
     using namespace std::chrono_literals;
     using sprint_timer::use_cases::WorktimeStatisticsDTO;
     const LegendData expected{"Night", "2:00 - 6:00"};
-    sprint_timer::ui::StatisticsContext statisticsContext{someDateRange};
-    sprint_timer::ui::BestWorktimePresenter sut{
-        worktimeStatisticsHandler, mediator_mock, statisticsContext};
     mocks::given_handler_returns(
         worktimeStatisticsHandler,
         WorktimeStatisticsDTO{std::vector<dw::DateTimeRange>{},
@@ -170,9 +162,6 @@ TEST_F(BestWorktimePresenterFixture, updates_legend_when_shared_data_changed)
     using namespace std::chrono_literals;
     using sprint_timer::use_cases::WorktimeStatisticsDTO;
     const LegendData expected{"Night", "2:00 - 6:00"};
-    sprint_timer::ui::StatisticsContext statisticsContext{someDateRange};
-    sprint_timer::ui::BestWorktimePresenter sut{
-        worktimeStatisticsHandler, mediator_mock, statisticsContext};
     sut.attachView(view);
     mocks::given_handler_returns(
         worktimeStatisticsHandler,
@@ -198,9 +187,6 @@ TEST_F(BestWorktimePresenterFixture, updates_diagram_with_generic_data)
         {dateTime + 5h, dateTime + 5h + 25min},
         {dateTime + 3h, dateTime + 3h + 25min}};
     const DiagramData expected{colors::filledColor, timeRanges};
-    sprint_timer::ui::StatisticsContext statisticsContext{someDateRange};
-    sprint_timer::ui::BestWorktimePresenter sut{
-        worktimeStatisticsHandler, mediator_mock, statisticsContext};
     mocks::given_handler_returns(
         worktimeStatisticsHandler,
         WorktimeStatisticsDTO{timeRanges, DayPart::Afternoon});
@@ -224,9 +210,6 @@ TEST_F(BestWorktimePresenterFixture, updates_diagram_when_shared_data_changed)
         {dateTime + 5h, dateTime + 5h + 25min},
         {dateTime + 3h, dateTime + 3h + 25min}};
     const DiagramData expected{colors::filledColor, timeRanges};
-    sprint_timer::ui::StatisticsContext statisticsContext{someDateRange};
-    sprint_timer::ui::BestWorktimePresenter sut{
-        worktimeStatisticsHandler, mediator_mock, statisticsContext};
     sut.attachView(view);
     mocks::given_handler_returns(
         worktimeStatisticsHandler,

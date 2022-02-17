@@ -35,15 +35,15 @@ TopTagFrequenciesHandler::handle(TopTagFrequenciesQuery&& query)
     const auto statistics = sprintStatisticsHandler.handle(
         SprintStatisticsQuery{query.numTopTags, query.dateRange});
 
-    if (statistics.allSprints.empty()) {
+    if (!statistics) {
         return std::nullopt;
     }
 
     std::vector<TagFrequencyDTO> result;
-    result.reserve(statistics.data.size());
+    result.reserve(statistics->data.size());
 
     std::ranges::transform(
-        statistics.data, std::back_inserter(result), [](const auto& entry) {
+        statistics->data, std::back_inserter(result), [](const auto& entry) {
             return TagFrequencyDTO{entry.frequency, entry.tag};
         });
 

@@ -36,11 +36,6 @@ constexpr std::array<std::string_view, 9> colors{{"#28245a",
                                                   "#258bc8",
                                                   "#087847"}};
 
-// using ExtractedData = std::pair<
-//     std::vector<
-//         sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData>,
-//     std::vector<std::string>>;
-
 struct ExtractedData {
     std::vector<sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData>
         diagramData;
@@ -94,10 +89,10 @@ void TopTagDiagramPresenter::onSharedDataChanged()
 
 void TopTagDiagramPresenter::fetchDataImpl()
 {
-    if (const auto range = statisticsContext.currentRange(); range) {
-        topTagFrequencies =
-            topTagFrequenciesHandler.handle(use_cases::TopTagFrequenciesQuery{
-                statisticsContext.numTopTags(), *range});
+    const auto [numTopTags, selectedRange, _] = statisticsContext;
+    if (selectedRange) {
+        topTagFrequencies = topTagFrequenciesHandler.handle(
+            use_cases::TopTagFrequenciesQuery{numTopTags, *selectedRange});
     }
 }
 

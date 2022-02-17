@@ -106,21 +106,25 @@ public:
 class BestWorkdayPresenterFixture : public ::testing::Test {
 public:
     sprint_timer::ui::StatisticsMediator mediator;
-    const DateRange someDateRange{dw::current_date(), dw::current_date()};
     NiceMock<BestWorkdayViewMock> view;
     NiceMock<mocks::QueryHandlerMock<
         sprint_timer::use_cases::WorkdayStatisticsQuery>>
         workdayStatisticsHandlerMock;
+    size_t someNumTopTags{5};
+    StatisticsContext statisticsContext{
+        someNumTopTags,
+        dw::DateRange{dw::current_date(), dw::current_date()},
+        std::nullopt};
 };
 
 TEST_F(BestWorkdayPresenterFixture,
        updates_legend_with_placeholder_data_when_no_date_range_is_supplied)
 {
     const View::LegendData expected{-1, "No data"};
-    StatisticsContext statisticsContext;
+    StatisticsContext emptyStatisticsContext;
     BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
                              mediator,
-                             statisticsContext,
+                             emptyStatisticsContext,
                              dw::Weekday::Monday};
     sut.attachView(view);
 
@@ -134,8 +138,6 @@ TEST_F(BestWorkdayPresenterFixture,
        updates_legend_with_placeholder_data_when_distribution_empty)
 {
     const View::LegendData expected{-1, "No data"};
-    StatisticsContext statisticsContext{
-        dw::DateRange{dw::current_date(), dw::current_date()}};
     BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
                              mediator,
                              statisticsContext,
@@ -152,7 +154,6 @@ TEST_F(BestWorkdayPresenterFixture,
 TEST_F(BestWorkdayPresenterFixture, updates_legend_with_generic_data)
 {
     const View::LegendData expected{2, "63"};
-    const StatisticsContext statisticsContext{someDateRange};
     BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
                              mediator,
                              statisticsContext,
@@ -170,7 +171,6 @@ TEST_F(BestWorkdayPresenterFixture, updates_legend_with_generic_data)
 TEST_F(BestWorkdayPresenterFixture, updates_legend_when_date_range_is_changed)
 {
     const View::LegendData expected{2, "63"};
-    const StatisticsContext statisticsContext{someDateRange};
     BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
                              mediator,
                              statisticsContext,
@@ -194,7 +194,6 @@ TEST_F(BestWorkdayPresenterFixture, updates_bars_when_distribution_is_empty)
                               std::string{barColor},
                               barValues,
                               dayOrder};
-    const StatisticsContext statisticsContext{someDateRange};
     ON_CALL(workdayStatisticsHandlerMock, handle(_))
         .WillByDefault(Return(sprint_timer::use_cases::WorkdayStatisticsDTO{}));
     BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
@@ -215,7 +214,6 @@ TEST_F(BestWorkdayPresenterFixture, updates_bar_with_generic_data)
                               std::string{barColor},
                               barValues,
                               dayOrder};
-    const StatisticsContext statisticsContext{someDateRange};
     BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
                              mediator,
                              statisticsContext,
@@ -237,7 +235,6 @@ TEST_F(BestWorkdayPresenterFixture, updates_bar_when_date_range_is_changed)
                               std::string{barColor},
                               barValues,
                               dayOrder};
-    const StatisticsContext statisticsContext{someDateRange};
     BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
                              mediator,
                              statisticsContext,
@@ -261,7 +258,6 @@ TEST_F(BestWorkdayPresenterFixture,
                               std::string{barColor},
                               barValues,
                               dayOrder};
-    const StatisticsContext statisticsContext{someDateRange};
     BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
                              mediator,
                              statisticsContext,

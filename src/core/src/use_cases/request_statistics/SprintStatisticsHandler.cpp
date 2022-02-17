@@ -34,6 +34,9 @@ typename SprintStatisticsQuery::result_t
 SprintStatisticsHandler::handle(SprintStatisticsQuery&& query)
 {
     const auto sprints = reader.findByDateRange(query.dateRange);
+    if (sprints.empty()) {
+        return std::nullopt;
+    }
     const TagTop tagTop{sprints, query.numTopTags};
     const auto& frequencies = tagTop.tagFrequencies();
     std::vector<TaggedSprintsDTO> taggedSprints(frequencies.size());

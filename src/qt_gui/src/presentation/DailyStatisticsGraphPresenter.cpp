@@ -100,13 +100,13 @@ void DailyStatisticsGraphPresenter::onSharedDataChanged()
 
 void DailyStatisticsGraphPresenter::fetchDataImpl()
 {
-    if (!statisticsContext.currentRange()) {
+    const auto [numTopTags, selectedRange, selectedTag] = statisticsContext;
+    if (!selectedRange) {
         return;
     }
-    dailyStatistics = dailyStatisticsHandler.handle(
-        use_cases::DailyStatisticsQuery{statisticsContext.numTopTags(),
-                                        statisticsContext.selectedTag(),
-                                        *statisticsContext.currentRange()});
+    dailyStatistics =
+        dailyStatisticsHandler.handle(use_cases::DailyStatisticsQuery{
+            numTopTags, selectedTag, *selectedRange});
 }
 
 void DailyStatisticsGraphPresenter::updateViewImpl()
@@ -116,8 +116,7 @@ void DailyStatisticsGraphPresenter::updateViewImpl()
         return;
     }
 
-    const auto range = statisticsContext.currentRange();
-    if (!range or !dailyStatistics) {
+    if (!statisticsContext.selectedRange || !dailyStatistics) {
         v.value()->updateLegend(
             ui::contracts::DailyStatisticGraphContract::LegendData{"No data",
                                                                    "No data"});
@@ -125,7 +124,7 @@ void DailyStatisticsGraphPresenter::updateViewImpl()
     }
 
     v.value()->clearGraphs();
-    updateAll(v.value(), *dailyStatistics, *statisticsContext.currentRange());
+    updateAll(v.value(), *dailyStatistics, *statisticsContext.selectedRange);
 }
 
 } // namespace sprint_timer::ui

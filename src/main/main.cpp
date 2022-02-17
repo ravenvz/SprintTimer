@@ -145,7 +145,6 @@
 #include "qt_gui/presentation/HistoryPresenter.h"
 #include "qt_gui/presentation/ProgressPresenter.h"
 #include "qt_gui/presentation/RegisterSprintControlPresenter.h"
-#include "qt_gui/presentation/StatisticsSharedDataFetcher.h"
 #include "qt_gui/presentation/TagEditorPresenter.h"
 #include "qt_gui/presentation/TaskSprintsPresenter.h"
 #include "qt_gui/presentation/TaskViewPresenter.h"
@@ -608,11 +607,6 @@ int main(int argc, char* argv[])
     //             std::make_unique<WorkScheduleHandler>(*scheduleStorage),
     //             cacheInvalidationMediator));
     ui::StatisticsContext statisticsContext;
-    ui::StatisticsSharedDataFetcher statisticsSharedDataFetcher{
-        *sprintStatisticsHandler,
-        statisticsMediator,
-        statisticsContext,
-        numTopTags};
     compose::DateRangeSelectorPresenterProxy dateRangeSelectorPresenter{
         *operationalRangeHandler,
         statisticsMediator,

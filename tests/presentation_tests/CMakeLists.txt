@@ -14,7 +14,6 @@ target_sources(test_presentation
     "${CMAKE_CURRENT_LIST_DIR}/test_progress_view_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_register_sprint_control_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint_outline_presenter.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/test_statistics_shared_data_fetcher.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_statistics_mediator.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_tag_diagram_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_tag_editor_presenter.cpp"

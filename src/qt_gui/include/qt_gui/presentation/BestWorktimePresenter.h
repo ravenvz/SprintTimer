@@ -23,6 +23,7 @@
 #define BESTDAYTIMEPRESENTER_H_DDRXAWZC
 
 #include "core/Distribution.h"
+#include "core/QueryHandler.h"
 #include "core/use_cases/request_statistics/WorktimeStatisticsQuery.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/presentation/BestWorktimeContract.h"

@@ -57,12 +57,15 @@ WorkdayStatisticsHandler::handle(WorkdayStatisticsQuery&& query)
 {
     const auto statistics = handler.handle(
         SprintStatisticsQuery{query.numTopTags, query.dateRange});
+    if (!statistics) {
+        return std::nullopt;
+    }
     if (auto tag = query.nthTagFromTop; tag and *tag >= query.numTopTags) {
-        return WorkdayStatisticsDTO{};
+        return std::nullopt;
     }
     const auto& sprints = query.nthTagFromTop
-                              ? statistics.data[*query.nthTagFromTop].sprints
-                              : statistics.allSprints;
+                              ? statistics->data[*query.nthTagFromTop].sprints
+                              : statistics->allSprints;
     return computeStatistics(sprints, query.dateRange);
 }
 

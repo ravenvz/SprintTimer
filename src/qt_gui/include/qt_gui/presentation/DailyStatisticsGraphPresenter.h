@@ -22,6 +22,7 @@
 #ifndef DAILYSTATISTICSGRAPHPRESENTER_H_8VCTBWMG
 #define DAILYSTATISTICSGRAPHPRESENTER_H_8VCTBWMG
 
+#include "core/QueryHandler.h"
 #include "core/use_cases/request_statistics/DailyStatisticsQuery.h"
 #include "qt_gui/presentation/DailyStatisticsGraphContract.h"
 #include "qt_gui/presentation/StatisticsContext.h"

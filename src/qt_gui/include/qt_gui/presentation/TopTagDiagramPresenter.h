@@ -22,6 +22,7 @@
 #ifndef TOPTAGDIAGRAMPRESENTER_H_US74BVEO
 #define TOPTAGDIAGRAMPRESENTER_H_US74BVEO
 
+#include "core/QueryHandler.h"
 #include "core/use_cases/request_statistics/TopTagFrequenciesQuery.h"
 #include "qt_gui/presentation/StatisticsContext.h"
 #include "qt_gui/presentation/StatisticsMediator.h"

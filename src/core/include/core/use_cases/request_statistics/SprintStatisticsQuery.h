@@ -30,7 +30,7 @@
 namespace sprint_timer::use_cases {
 
 struct SprintStatisticsQuery {
-    using result_t = SprintStatisticsDTO;
+    using result_t = std::optional<SprintStatisticsDTO>;
 
     size_t numTopTags;
     dw::DateRange dateRange;

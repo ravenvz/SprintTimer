@@ -44,14 +44,14 @@ DailyStatisticsHandler::handle(DailyStatisticsQuery&& query)
     const auto statistics = sprintStatisticsHandler.handle(
         SprintStatisticsQuery{query.numTopTags, query.dateRange});
 
-    if (statistics.allSprints.empty()) {
+    if (!statistics) {
         return std::nullopt;
     }
 
     const auto schedule = workScheduleHandler.handle(WorkScheduleQuery{});
     const auto& sprints = query.nthTagFromTop
-                              ? statistics.data[*query.nthTagFromTop].sprints
-                              : statistics.allSprints;
+                              ? statistics->data[*query.nthTagFromTop].sprints
+                              : statistics->allSprints;
 
     std::vector<int32_t> sprintsPerDay(
         static_cast<size_t>(query.dateRange.duration().count() + 1), 0);

@@ -74,36 +74,35 @@ public:
                 updateDiagram,
                 (std::span<const DiagramData>),
                 (override));
-    MOCK_METHOD(void,
-                updateLegend,
-                (const std::vector<std::string>&),
-                (override));
+    MOCK_METHOD(void, updateLegend, (std::span<const std::string>), (override));
     MOCK_METHOD(void, toggleSelection, (std::optional<size_t>), (override));
 };
 
 class TagDiagramPresenterFixture : public ::testing::Test {
 public:
     sprint_timer::ui::StatisticsMediator statistics_mediator;
-    const size_t numTopTags{4};
+    size_t numTopTags{4};
     NiceMock<TagDiagramview> view;
     NiceMock<mocks::ColleagueMock> fake_colleague;
     NiceMock<mocks::QueryHandlerMock<
         sprint_timer::use_cases::TopTagFrequenciesQuery>>
         topTagFrequenciesHandler;
     dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
-    dw::DateTimeRange someTimeSpan{dw::current_date_time(),
-                                   dw::current_date_time()};
+    StatisticsContext statisticsContext{
+        numTopTags, someDateRange, std::nullopt};
+    sprint_timer::ui::TopTagDiagramPresenter sut{
+        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
 };
 
 TEST_F(TagDiagramPresenterFixture, does_nothing_when_not_provided_date_range)
 {
-    StatisticsContext statisticsContext;
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
+    StatisticsContext emptyStatisticsContext;
+    TopTagDiagramPresenter presenter{
+        topTagFrequenciesHandler, statistics_mediator, emptyStatisticsContext};
 
     EXPECT_CALL(view, updateDiagram(_)).Times(0);
 
-    sut.updateView();
+    presenter.updateView();
 }
 
 TEST_F(TagDiagramPresenterFixture, updates_diagram_with_generic_data)
@@ -114,9 +113,6 @@ TEST_F(TagDiagramPresenterFixture, updates_diagram_with_generic_data)
     auto has_right_data = [&expected](std::span<const DiagramData> arg) {
         return std::ranges::equal(expected, arg);
     };
-    const StatisticsContext statisticsContext{someDateRange};
-    sprint_timer::ui::TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
         std::vector<sprint_timer::use_cases::TagFrequencyDTO>{
@@ -129,17 +125,13 @@ TEST_F(TagDiagramPresenterFixture, updates_diagram_with_generic_data)
 
 TEST_F(TagDiagramPresenterFixture, updates_legend_with_generic_data)
 {
-    using ::testing::Truly;
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
-    const std::vector<std::string> expected{"Tag1", "Tag2"};
+    using ::testing::ElementsAreArray;
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
         std::vector<sprint_timer::use_cases::TagFrequencyDTO>{
             {double{2} / 3, "Tag1"}, {double{1} / 3, "Tag2"}});
 
-    EXPECT_CALL(view, updateLegend(expected));
+    EXPECT_CALL(view, updateLegend(ElementsAreArray({"Tag1", "Tag2"})));
 
     sut.attachView(view);
 }
@@ -147,18 +139,15 @@ TEST_F(TagDiagramPresenterFixture, updates_legend_with_generic_data)
 TEST_F(TagDiagramPresenterFixture, renames_leftover_tags_when_updating_legend)
 {
 
-    using ::testing::Truly;
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
-    const std::vector<std::string> expected{
-        "Tag1", "Tag2", "Tag3", "Tag4", "others"};
+    using ::testing::ElementsAreArray;
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
         std::vector<sprint_timer::use_cases::TagFrequencyDTO>{
             {0, "Tag1"}, {0, "Tag2"}, {0, "Tag3"}, {0, "Tag4"}, {0, ""}});
 
-    EXPECT_CALL(view, updateLegend(expected));
+    EXPECT_CALL(view,
+                updateLegend(ElementsAreArray(
+                    {"Tag1", "Tag2", "Tag3", "Tag4", "others"})));
 
     sut.attachView(view);
 }
@@ -166,9 +155,6 @@ TEST_F(TagDiagramPresenterFixture, renames_leftover_tags_when_updating_legend)
 TEST_F(TagDiagramPresenterFixture, cycles_through_colors)
 {
     using ::testing::Truly;
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
     const std::vector<DiagramData> expected{
         {"Tag1", colors[0], double{11} / 66},
         {"Tag2", colors[1], double{10} / 66},
@@ -213,9 +199,6 @@ TEST_F(TagDiagramPresenterFixture, updates_diagram_when_shared_data_is_changed)
     auto has_right_data = [&expected](std::span<const DiagramData> arg) {
         return std::ranges::equal(expected, arg);
     };
-    const StatisticsContext statisticsContext{someDateRange};
-    sprint_timer::ui::TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
     sut.attachView(view);
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
@@ -229,27 +212,20 @@ TEST_F(TagDiagramPresenterFixture, updates_diagram_when_shared_data_is_changed)
 
 TEST_F(TagDiagramPresenterFixture, updates_legend_when_shared_data_is_changed)
 {
-    using ::testing::Truly;
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
+    using ::testing::ElementsAreArray;
     sut.attachView(view);
-    const std::vector<std::string> expected{"Tag1", "Tag2"};
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
         std::vector<sprint_timer::use_cases::TagFrequencyDTO>{
             {double{2} / 3, "Tag1"}, {double{1} / 3, "Tag2"}});
 
-    EXPECT_CALL(view, updateLegend(expected));
+    EXPECT_CALL(view, updateLegend(ElementsAreArray({"Tag1", "Tag2"})));
 
     sut.onSharedDataChanged();
 }
 
 TEST_F(TagDiagramPresenterFixture, changes_to_tag_selection_are_mediated)
 {
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
     statistics_mediator.addColleague(&fake_colleague);
     std::optional<size_t> selectedTag{2};
     sut.attachView(view);
@@ -263,9 +239,6 @@ TEST_F(
     TagDiagramPresenterFixture,
     changes_to_tag_selection_are_mediated_when_another_tag_is_selected_after_attaching_view)
 {
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
     statistics_mediator.addColleague(&fake_colleague);
     const std::optional<size_t> selectedTag{2};
     sut.attachView(view);
@@ -279,9 +252,6 @@ TEST_F(
 TEST_F(TagDiagramPresenterFixture,
        changes_are_mediated_when_tag_is_selected_and_then_deselected)
 {
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
     statistics_mediator.addColleague(&fake_colleague);
     sut.attachView(view);
     sut.onTagIndexSelected(2);
@@ -293,9 +263,6 @@ TEST_F(TagDiagramPresenterFixture,
 
 TEST_F(TagDiagramPresenterFixture, resets_selection_when_updating_view)
 {
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
     const std::optional<size_t> expected;
     sut.onTagIndexSelected(3);
     const std::vector<sprint_timer::use_cases::TagFrequencyDTO> irrelevantData;
@@ -311,9 +278,6 @@ TEST_F(
     TagDiagramPresenterFixture,
     updates_selection_on_view_when_no_items_were_selected_and_then_some_item_is_selected)
 {
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
     const std::vector<sprint_timer::use_cases::TagFrequencyDTO> irrelevantData;
     mocks::given_handler_returns(topTagFrequenciesHandler, irrelevantData);
     const std::optional<size_t> expected{3};
@@ -327,9 +291,6 @@ TEST_F(
 TEST_F(TagDiagramPresenterFixture,
        cancels_selection_on_view_when_same_tag_is_selected_twice)
 {
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
     const std::optional<size_t> expected;
     const size_t previouslySelectedIndex{3};
     const std::vector<sprint_timer::use_cases::TagFrequencyDTO> irrelevantData;
@@ -348,9 +309,6 @@ TEST_F(
     TagDiagramPresenterFixture,
     updates_selection_when_one_item_is_selected_and_then_another_item_is_selected)
 {
-    const StatisticsContext statisticsContext{someDateRange};
-    TopTagDiagramPresenter sut{
-        topTagFrequenciesHandler, statistics_mediator, statisticsContext};
     statistics_mediator.addColleague(&fake_colleague);
     const std::optional<size_t> expected{5};
     const std::vector<sprint_timer::use_cases::TagFrequencyDTO> irrelevantData;

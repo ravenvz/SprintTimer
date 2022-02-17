@@ -64,20 +64,19 @@ void BestWorkdayPresenter::onSharedDataChanged()
 
 void BestWorkdayPresenter::fetchDataImpl()
 {
-    if (auto range = statisticsContext.get().currentRange(); range) {
+    const auto [numTopTags, selectedRange, selectedTag] =
+        statisticsContext.get();
+    if (selectedRange) {
         workdayStatistics = workdayStatisticsHandler.get().handle(
             use_cases::WorkdayStatisticsQuery{
-                statisticsContext.get().numTopTags(),
-                statisticsContext.get().selectedTag(),
-                *range});
+                numTopTags, selectedTag, *selectedRange});
     }
 }
 
 void BestWorkdayPresenter::updateViewImpl()
 {
     using contracts::BestWorkday::View;
-    const auto range = statisticsContext.get().currentRange();
-    if (!range or !workdayStatistics) {
+    if (!statisticsContext.get().selectedRange || !workdayStatistics) {
         updateWithDefaultValues();
         return;
     }

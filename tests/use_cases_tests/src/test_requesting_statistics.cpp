@@ -148,15 +148,14 @@ TEST_F(RequestingSprintStatisticsFixture, returns_statistics)
     SprintStatisticsDTO expected{
         numTopTags, std::move(allSprints), std::move(taggedSprints)};
 
-    SprintStatisticsDTOEquals(
-        SprintStatisticsDTO{numTopTags, {}, {}},
+    ASSERT_FALSE(
         sprintStatisticsHandler.handle(use_cases::SprintStatisticsQuery{
             numTopTags,
             dw::DateRange{(initialDateTime - Days{30}).date(),
                           (initialDateTime - Days{15}).date()}}));
     SprintStatisticsDTOEquals(
         expected,
-        sprintStatisticsHandler.handle(use_cases::SprintStatisticsQuery{
+        *sprintStatisticsHandler.handle(use_cases::SprintStatisticsQuery{
             numTopTags,
             dw::DateRange{initialDateTime.date(),
                           (initialDateTime + Days{10}).date()}}));

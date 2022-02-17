@@ -112,8 +112,7 @@ TEST_F(RequestingWorkdayStatisticsFixture, returns_workday_statistics)
         *workdayStatisticsHandler.handle(
             WorkdayStatisticsQuery{4, 3, enclosingDateRange}));
     // Tag greater than numTopTags returns empty dataset
-    ExpectWorkdayStatisticsEquals(
-        WorkdayStatisticsDTO{},
-        *workdayStatisticsHandler.handle(
-            WorkdayStatisticsQuery{4, 4, enclosingDateRange}));
+    EXPECT_EQ(std::nullopt,
+              workdayStatisticsHandler.handle(
+                  WorkdayStatisticsQuery{4, 4, enclosingDateRange}));
 }

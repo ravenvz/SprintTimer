@@ -30,6 +30,7 @@ using sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphData;
 using sprint_timer::ui::contracts::DailyStatisticGraphContract::LegendData;
 using ::testing::Return;
 using ::testing::ReturnRef;
+using namespace ::dw;
 
 namespace constants {
 
@@ -145,15 +146,18 @@ public:
     ::testing::NiceMock<
         mocks::QueryHandlerMock<sprint_timer::use_cases::DailyStatisticsQuery>>
         dailyStatisticsHandler;
+    DateRange someDateRange{Date{Year{2020}, Month{2}, Day{1}},
+                            Date{Year{2020}, Month{2}, Day{5}}};
+    size_t someNumTopTags{5};
+    sprint_timer::ui::StatisticsContext statisticsContext{
+        someNumTopTags, someDateRange, std::nullopt};
+    sprint_timer::ui::DailyStatisticsGraphPresenter sut{
+        dailyStatisticsHandler, mediator, statisticsContext};
 };
 
 TEST_F(DailyStatisticsSharedDataFetcherFixture,
        sets_placeholder_legend_data_for_view_when_not_provided_date_range)
 {
-    const StatisticsContext statisticsContext{};
-    DailyStatisticsGraphPresenter sut{
-        dailyStatisticsHandler, mediator, statisticsContext};
-
     EXPECT_CALL(viewMock, updateLegend(LegendData{"No data", "No data"}));
     EXPECT_CALL(viewMock, drawGraph(::testing::_)).Times(0);
 
@@ -163,15 +167,8 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture,
 TEST_F(DailyStatisticsSharedDataFetcherFixture,
        updates_legend_with_generic_data)
 {
-    using namespace dw;
     using sprint_timer::use_cases::DailyStatisticsDTO;
-    using namespace ::testing;
-    constexpr DateRange dateRange{Date{Year{2020}, Month{2}, Day{1}},
-                                  Date{Year{2020}, Month{2}, Day{5}}};
     const LegendData expected{"90", "77.70"};
-    sprint_timer::ui::StatisticsContext statisticsContext{dateRange};
-    sprint_timer::ui::DailyStatisticsGraphPresenter sut{
-        dailyStatisticsHandler, mediator, statisticsContext};
     const DailyStatisticsDTO dailyStatistics{77.7, 55.5, 90, {20, 0, 12, 22}};
     mocks::given_handler_returns(dailyStatisticsHandler, dailyStatistics);
 
@@ -183,15 +180,8 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture,
 TEST_F(DailyStatisticsSharedDataFetcherFixture,
        updates_legend_when_shared_data_changed)
 {
-    using namespace dw;
     using sprint_timer::use_cases::DailyStatisticsDTO;
-    using namespace ::testing;
-    constexpr DateRange dateRange{Date{Year{2020}, Month{2}, Day{1}},
-                                  Date{Year{2020}, Month{2}, Day{5}}};
     const LegendData expected{"90", "77.70"};
-    sprint_timer::ui::StatisticsContext statisticsContext{dateRange};
-    sprint_timer::ui::DailyStatisticsGraphPresenter sut{
-        dailyStatisticsHandler, mediator, statisticsContext};
     sut.attachView(viewMock);
     const DailyStatisticsDTO dailyStatistics{77.7, 55.5, 90, {20, 0, 12, 22}};
     mocks::given_handler_returns(dailyStatisticsHandler, dailyStatistics);
@@ -203,11 +193,8 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture,
 
 TEST_F(DailyStatisticsSharedDataFetcherFixture, updates_graph_with_generic_data)
 {
-    using namespace dw;
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
     using sprint_timer::use_cases::DailyStatisticsDTO;
-    using ::testing::_;
-    using ::testing::ByMove;
     const GraphOptions expectedDailyOptions{
         constants::penWidthF,
         std::string{constants::dailyGraphColor},
@@ -237,11 +224,6 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture, updates_graph_with_generic_data)
     const GraphData actualAverage{actualAverageOptions,
                                   {GraphValue{Value{0}, Value{19.5}, ""},
                                    GraphValue{Value{4}, Value{19.5}, ""}}};
-    constexpr DateRange dateRange{Date{Year{2020}, Month{2}, Day{1}},
-                                  Date{Year{2020}, Month{2}, Day{5}}};
-    sprint_timer::ui::StatisticsContext statisticsContext{dateRange};
-    sprint_timer::ui::DailyStatisticsGraphPresenter sut{
-        dailyStatisticsHandler, mediator, statisticsContext};
     mocks::given_handler_returns(
         dailyStatisticsHandler,
         DailyStatisticsDTO{19.5, 12.0, 39, {2, 12, 15, 0, 10}});
@@ -257,11 +239,8 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture, updates_graph_with_generic_data)
 TEST_F(DailyStatisticsSharedDataFetcherFixture,
        updates_graph_when_shared_data_changed)
 {
-    using namespace dw;
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
     using sprint_timer::use_cases::DailyStatisticsDTO;
-    using ::testing::_;
-    using ::testing::ByMove;
     const GraphOptions expectedDailyOptions{
         constants::penWidthF,
         std::string{constants::dailyGraphColor},
@@ -291,11 +270,6 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture,
     const GraphData actualAverage{actualAverageOptions,
                                   {GraphValue{Value{0}, Value{19.5}, ""},
                                    GraphValue{Value{4}, Value{19.5}, ""}}};
-    constexpr DateRange dateRange{Date{Year{2020}, Month{2}, Day{1}},
-                                  Date{Year{2020}, Month{2}, Day{5}}};
-    sprint_timer::ui::StatisticsContext statisticsContext{dateRange};
-    sprint_timer::ui::DailyStatisticsGraphPresenter sut{
-        dailyStatisticsHandler, mediator, statisticsContext};
     sut.attachView(viewMock);
     mocks::given_handler_returns(
         dailyStatisticsHandler,

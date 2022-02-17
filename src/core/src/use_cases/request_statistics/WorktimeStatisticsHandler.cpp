@@ -43,13 +43,13 @@ WorktimeStatisticsHandler::handle(WorktimeStatisticsQuery&& query)
     const auto statistics = sprintStatisticsHandler.handle(
         SprintStatisticsQuery{query.numTopTags, query.dateRange});
 
-    if (statistics.allSprints.empty()) {
+    if (!statistics) {
         return std::nullopt;
     }
 
     const auto& sprints = query.nthTagFromTop
-                              ? statistics.data[*query.nthTagFromTop].sprints
-                              : statistics.allSprints;
+                              ? statistics->data[*query.nthTagFromTop].sprints
+                              : statistics->allSprints;
 
     std::vector<double> sprintsPerDayPart(numDayParts, 0);
     auto updateCount = [&sprintsPerDayPart](const auto& timeSpan) {

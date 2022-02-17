@@ -29,7 +29,7 @@ namespace mocks {
 
 class StatisticsMediatorMock : public sprint_timer::ui::StatisticsMediator {
 public:
-    MOCK_METHOD(void, changeNumTopTags, (size_t), (override));
+    // MOCK_METHOD(void, changeNumTopTags, (size_t), (override));
 };
 
 } // namespace mocks
