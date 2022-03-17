@@ -81,16 +81,6 @@ void TopTagDiagram::toggleSelection(std::optional<size_t> selection)
     diagram->togglePartActive(*selection);
 }
 
-void TopTagDiagram::setLegendTitle(const QString& title)
-{
-    legend->setTitle(title);
-}
-
-void TopTagDiagram::setLegendTitleFont(QFont font)
-{
-    legend->setTitleFont(font);
-}
-
 void TopTagDiagram::onChartPartClicked(size_t partIndex)
 {
     if (auto p = presenter(); p) {

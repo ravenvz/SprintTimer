@@ -27,6 +27,7 @@
 #include <optional>
 #include <span>
 #include <string>
+#include <ranges>
 
 namespace sprint_timer::ui::contracts::TopTagDiagramContract {
 

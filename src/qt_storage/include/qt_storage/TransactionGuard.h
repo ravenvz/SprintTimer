@@ -28,7 +28,7 @@ namespace sprint_timer::storage::qt_storage {
 
 class TransactionGuard {
 public:
-    TransactionGuard(const QString& connectionName);
+    explicit TransactionGuard(const QString& connectionName);
 
     ~TransactionGuard();
 

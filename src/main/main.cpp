@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
+#include "qt_gui/presentation/StatisticsDateRangeListener.h"
 #include "qt_storage/DatabaseInitializer.h"
 #ifdef _WIN32
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
@@ -600,16 +601,19 @@ int main(int argc, char* argv[])
         addSprintDialog);
 
     const size_t numTopTags{5};
+    ui::StatisticsContext statisticsContext{
+        numTopTags, std::nullopt, std::nullopt};
     ui::StatisticsMediator statisticsMediator;
+    ui::StatisticsDateRangeListener statisticsDateRangeListener{
+        statisticsMediator, statisticsContext};
     // auto statisticsGraphWorkScheduleHandler =
     //     compose::decorate<WorkScheduleQuery, WorkSchedule>(
     //         compose::decorate<WorkScheduleQuery, WorkSchedule>(
     //             std::make_unique<WorkScheduleHandler>(*scheduleStorage),
     //             cacheInvalidationMediator));
-    ui::StatisticsContext statisticsContext;
     compose::DateRangeSelectorPresenterProxy dateRangeSelectorPresenter{
         *operationalRangeHandler,
-        statisticsMediator,
+        statisticsDateRangeListener,
         applicationSettings,
         applicationSettings};
     ui::DailyStatisticsGraphPresenter dailyTimelineGraphPresenter{

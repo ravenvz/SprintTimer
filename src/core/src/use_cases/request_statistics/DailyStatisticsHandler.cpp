@@ -44,17 +44,21 @@ DailyStatisticsHandler::handle(DailyStatisticsQuery&& query)
     const auto statistics = sprintStatisticsHandler.handle(
         SprintStatisticsQuery{query.numTopTags, query.dateRange});
 
+    std::vector<int32_t> sprintsPerDay(
+        static_cast<size_t>(query.dateRange.duration().count() + 1), 0);
+    const auto schedule = workScheduleHandler.handle(WorkScheduleQuery{});
+    const auto workdays = numWorkdays(schedule, query.dateRange);
+    const double goal{static_cast<double>(goalFor(schedule, query.dateRange))};
+    const double expectedAverage = workdays > 0 ? goal / workdays : 0;
+
     if (!statistics) {
-        return std::nullopt;
+        return DailyStatisticsDTO{0.0, expectedAverage, 0, sprintsPerDay};
     }
 
-    const auto schedule = workScheduleHandler.handle(WorkScheduleQuery{});
     const auto& sprints = query.nthTagFromTop
                               ? statistics->data[*query.nthTagFromTop].sprints
                               : statistics->allSprints;
 
-    std::vector<int32_t> sprintsPerDay(
-        static_cast<size_t>(query.dateRange.duration().count() + 1), 0);
     auto updateCount = [&sprintsPerDay,
                         start = query.dateRange.start()](const auto& interval) {
         const auto dayNumber = daysBetween(start, interval.start());
@@ -63,10 +67,7 @@ DailyStatisticsHandler::handle(DailyStatisticsQuery&& query)
     std::ranges::for_each(sprints, updateCount);
 
     const auto total = ranges_ext::fold(sprintsPerDay, 0, std::plus<int>{});
-    const auto workdays = numWorkdays(schedule, query.dateRange);
     const double actualAverage = workdays > 0 ? total / workdays : 0;
-    const double goal{static_cast<double>(goalFor(schedule, query.dateRange))};
-    const double expectedAverage = workdays > 0 ? goal / workdays : 0;
 
     return DailyStatisticsDTO{
         actualAverage, expectedAverage, total, sprintsPerDay};

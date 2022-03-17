@@ -40,7 +40,7 @@ public:
     TopTagDiagramPresenter(
         top_tag_frequencies_handler_t& topTagFrequenciesHandler,
         StatisticsMediator& mediator,
-        const StatisticsContext& statisticsContext);
+        StatisticsContext& statisticsContext);
 
     ~TopTagDiagramPresenter() override;
 
@@ -64,7 +64,7 @@ private:
 
     top_tag_frequencies_handler_t& topTagFrequenciesHandler;
     StatisticsMediator& mediator;
-    const StatisticsContext& statisticsContext;
+    StatisticsContext& statisticsContext;
     Selection selection;
     use_cases::TopTagFrequenciesQuery::result_t topTagFrequencies;
 

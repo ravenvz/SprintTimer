@@ -24,6 +24,7 @@
 #include "ui_daily_timeline_graph.h"
 #include <QDate>
 #include <QtWidgets/QGridLayout>
+#include <ranges>
 
 namespace {
 
@@ -120,14 +121,14 @@ double computeTopY(
         sprint_timer::ui::contracts::DailyStatisticGraphContract::GraphValue>&
         graphValues)
 {
-    if (graphValues.empty())
+    if (graphValues.empty()) {
         return 0;
-    return std::max_element(graphValues.cbegin(),
-                            graphValues.cend(),
-                            [](const auto& lhs, const auto& rhs) {
-                                return lhs.yValue.value < rhs.yValue.value;
-                            })
-        ->yValue.value;
+    }
+    const auto y = std::ranges::max_element(
+        graphValues, [](const auto& lhs, const auto& rhs) {
+            return lhs.yValue.value < rhs.yValue.value;
+        });
+    return y->yValue.value;
 }
 
 sprint_timer::ui::qt_gui::Graph::Data transformData(
@@ -146,8 +147,7 @@ sprint_timer::ui::qt_gui::Graph::Data transformData(
             QString{"%1"}.arg(QString::fromStdString(entry.label))};
     };
 
-    std::transform(
-        values.cbegin(), values.cend(), std::back_inserter(data), entryToData);
+    std::ranges::transform(values, std::back_inserter(data), entryToData);
     return data;
 }
 
@@ -156,14 +156,13 @@ transformOptions(const sprint_timer::ui::contracts::
                      DailyStatisticGraphContract::GraphOptions& graphOptions)
 {
     using sprint_timer::ui::qt_gui::Graph;
-    const Graph::VisualOptions options{
+    return Graph::VisualOptions{
         QPen{QBrush{QColor{QString::fromStdString(graphOptions.penColor)}},
              graphOptions.penWidth,
              toPenStyle(graphOptions.style)},
         QBrush{QColor{QString::fromStdString(graphOptions.pointColor)}},
         QPen{QString::fromStdString(graphOptions.penColor)},
         graphOptions.showPoints};
-    return options;
 }
 
 } // namespace

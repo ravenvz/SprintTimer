@@ -37,7 +37,7 @@ struct DailyStatisticsDTO {
 };
 
 struct DailyStatisticsQuery {
-    using result_t = std::optional<DailyStatisticsDTO>;
+    using result_t = DailyStatisticsDTO;
 
     size_t numTopTags;
     std::optional<size_t> nthTagFromTop;

@@ -54,12 +54,6 @@ public:
 
     ~TopTagDiagram() override;
 
-    /* Set title that is displayed above the legend items. */
-    void setLegendTitle(const QString& title);
-
-    /* Set font to use for legend title. */
-    void setLegendTitleFont(QFont font);
-
     void updateLegend(std::span<const std::string> tagNames) override;
 
     void updateDiagram(

@@ -22,7 +22,9 @@
 #ifndef MEDIATOR_H_WOD0DXBC
 #define MEDIATOR_H_WOD0DXBC
 
+#include <algorithm>
 #include <functional>
+#include <ranges>
 #include <unordered_set>
 
 namespace sprint_timer::ui {
@@ -35,23 +37,16 @@ public:
 
     void removeColleague(ColleagueT* colleague) { colleagues.erase(colleague); }
 
-    template <typename Functor> void notifyAll(Functor func)
+    template <typename Func> void notifyAll(Func func)
     {
-        for (auto* col : colleagues) {
-            if (col) {
-                func(col);
-            }
-        }
+        auto notNull = [](ColleagueT* col) -> bool { return col; };
+        std::ranges::for_each(colleagues | std::views::filter(notNull), func);
     }
 
-    template <typename Functor> void mediate(ColleagueT* caller, Functor func)
+    template <typename Func> void mediate(ColleagueT* caller, Func func)
     {
-        for (auto* col : colleagues) {
-            if (!col || col == caller) {
-                continue;
-            }
-            func(col);
-        }
+        auto notCaller = [&](ColleagueT* col) { return col && col != caller; };
+        std::ranges::for_each(colleagues | std::views::filter(notCaller), func);
     }
 
 private:

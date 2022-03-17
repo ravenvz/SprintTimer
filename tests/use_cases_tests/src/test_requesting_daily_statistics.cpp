@@ -80,26 +80,30 @@ TEST_F(RequestingDailyStatisticsFixture, returns_daily_statistics)
 
     WorkSchedule oldSchedule;
     WorkSchedule workSchedule;
-    workSchedule.addWeekSchedule(initialDateTime.date(),
+    workSchedule.addWeekSchedule(initialDateTime.date() - Days{100},
                                  WeekSchedule{{12, 12, 12, 12, 12, 0, 0}});
     changeWorkScheduleHandler.handle(ChangeWorkScheduleCommand{
         .oldSchedule = oldSchedule, .newSchedule = workSchedule});
     const double expectedSprintsPerWorkday{84.0};
 
     // No data in this date range
-    EXPECT_EQ(std::nullopt,
-              dailyStatisticsHandler.handle(DailyStatisticsQuery{
-                  4,
-                  std::nullopt,
-                  dw::DateRange{(initialDateTime - Days{50}).date(),
-                                (initialDateTime - Days{30}).date()}}));
+    expectDailyStatisticsEquals(
+        DailyStatisticsDTO{0.0,
+                           expectedSprintsPerWorkday,
+                           0,
+                           {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+        dailyStatisticsHandler.handle(DailyStatisticsQuery{
+            4,
+            std::nullopt,
+            dw::DateRange{(initialDateTime - Days{11}).date(),
+                          (initialDateTime - Days{1}).date()}}));
     // No filtering by tag
     expectDailyStatisticsEquals(
         DailyStatisticsDTO{3.43,
                            expectedSprintsPerWorkday,
                            24,
                            {3, 0, 2, 5, 2, 3, 1, 3, 1, 2, 2}},
-        *dailyStatisticsHandler.handle(
+        dailyStatisticsHandler.handle(
             DailyStatisticsQuery{4, std::nullopt, enclosingDateRange}));
     // Filter by 0-th top tag
     expectDailyStatisticsEquals(
@@ -107,7 +111,7 @@ TEST_F(RequestingDailyStatisticsFixture, returns_daily_statistics)
                            expectedSprintsPerWorkday,
                            10,
                            {1, 0, 0, 3, 1, 0, 1, 3, 0, 0, 1}},
-        *dailyStatisticsHandler.handle(
+        dailyStatisticsHandler.handle(
             DailyStatisticsQuery{4, 0, enclosingDateRange}));
     // Filter by other combined tags
     expectDailyStatisticsEquals(
@@ -115,6 +119,6 @@ TEST_F(RequestingDailyStatisticsFixture, returns_daily_statistics)
                            expectedSprintsPerWorkday,
                            8,
                            {2, 0, 2, 1, 0, 2, 0, 0, 0, 1, 0}},
-        *dailyStatisticsHandler.handle(
+        dailyStatisticsHandler.handle(
             DailyStatisticsQuery{4, 3, enclosingDateRange}));
 }

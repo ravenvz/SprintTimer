@@ -105,6 +105,19 @@ TEST_F(TagDiagramPresenterFixture, does_nothing_when_not_provided_date_range)
     presenter.updateView();
 }
 
+TEST_F(TagDiagramPresenterFixture,
+       updates_view_with_stub_data_when_has_no_data_for_given_date_range)
+{
+    using testing::ElementsAreArray;
+    const std::vector<DiagramData> stubDiagramData;
+    const std::vector<std::string> stubLegendData;
+
+    EXPECT_CALL(view, updateDiagram(ElementsAreArray(stubDiagramData)));
+    EXPECT_CALL(view, updateLegend(ElementsAreArray(stubLegendData)));
+
+    sut.attachView(view);
+}
+
 TEST_F(TagDiagramPresenterFixture, updates_diagram_with_generic_data)
 {
     using ::testing::Truly;

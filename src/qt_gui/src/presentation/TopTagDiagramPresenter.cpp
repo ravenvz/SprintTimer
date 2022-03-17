@@ -55,7 +55,7 @@ namespace sprint_timer::ui {
 TopTagDiagramPresenter::TopTagDiagramPresenter(
     top_tag_frequencies_handler_t& topTagFrequenciesHandler_,
     StatisticsMediator& mediator_,
-    const StatisticsContext& statisticsContext_)
+    StatisticsContext& statisticsContext_)
     : topTagFrequenciesHandler{topTagFrequenciesHandler_}
     , mediator{mediator_}
     , statisticsContext{statisticsContext_}
@@ -77,6 +77,7 @@ void TopTagDiagramPresenter::onTagIndexSelected(size_t index)
         }
         selection.select(index);
         v.value()->toggleSelection(selection.currentIndex());
+        statisticsContext.selectedTag = selection.currentIndex();
         mediator.selectTag(this, selection.currentIndex());
     }
 }
@@ -98,8 +99,11 @@ void TopTagDiagramPresenter::fetchDataImpl()
 
 void TopTagDiagramPresenter::updateViewImpl()
 {
-    if (auto v = view(); v && topTagFrequencies) {
-        const auto [diagramData, legendData] = extractData(topTagFrequencies);
+    using contracts::TopTagDiagramContract::DiagramData;
+    if (auto v = view(); v) {
+        const auto [diagramData, legendData] =
+            topTagFrequencies ? extractData(topTagFrequencies)
+                              : ExtractedData{};
         selection.setTags(legendData);
         v.value()->toggleSelection(selection.currentIndex());
         v.value()->updateDiagram(diagramData);

@@ -156,10 +156,46 @@ public:
 };
 
 TEST_F(DailyStatisticsSharedDataFetcherFixture,
-       sets_placeholder_legend_data_for_view_when_not_provided_date_range)
+       sets_placeholder_data_when_not_provided_date_range)
 {
-    EXPECT_CALL(viewMock, updateLegend(LegendData{"No data", "No data"}));
-    EXPECT_CALL(viewMock, drawGraph(::testing::_)).Times(0);
+    using sprint_timer::use_cases::DailyStatisticsDTO;
+    using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
+    const GraphOptions expectedDailyOptions{
+        constants::penWidthF,
+        std::string{constants::dailyGraphColor},
+        std::string{constants::pointColor},
+        true,
+        LineStyle::Solid};
+    const GraphData expectedDaily{expectedDailyOptions,
+                                  {GraphValue{Value{0}, Value{0}, "1"},
+                                   GraphValue{Value{1}, Value{0}, "2"},
+                                   GraphValue{Value{2}, Value{0}, "3"},
+                                   GraphValue{Value{3}, Value{0}, "4"},
+                                   GraphValue{Value{4}, Value{0}, "5"}}};
+    const GraphOptions expectedAverageOptions{constants::penWidthF,
+                                              std::string{constants::goalColor},
+                                              "",
+                                              false,
+                                              LineStyle::Dash};
+    const GraphData expectedAverage{expectedAverageOptions,
+                                    {GraphValue{Value{0}, Value{0}, ""},
+                                     GraphValue{Value{4}, Value{0}, ""}}};
+    const GraphOptions actualAverageOptions{
+        constants::penWidthF,
+        std::string{constants::averageColor},
+        "",
+        false,
+        LineStyle::Solid};
+    const GraphData actualAverage{actualAverageOptions,
+                                  {GraphValue{Value{0}, Value{0}, ""},
+                                   GraphValue{Value{4}, Value{0}, ""}}};
+    mocks::given_handler_returns(
+        dailyStatisticsHandler,
+        DailyStatisticsDTO{0.0, 0.0, 0, {0, 0, 0, 0, 0}});
+    EXPECT_CALL(viewMock, updateLegend(LegendData{"0", "0.00"}));
+    EXPECT_CALL(viewMock, drawGraph(expectedDaily));
+    EXPECT_CALL(viewMock, drawGraph(expectedAverage));
+    EXPECT_CALL(viewMock, drawGraph(actualAverage));
 
     sut.attachView(viewMock);
 }
