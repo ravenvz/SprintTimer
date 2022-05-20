@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
 #include "qt_gui/presentation/StatisticsDateRangeListener.h"
+#include "qt_gui/widgets/PlanningWindow.h"
 #include "qt_storage/DatabaseInitializer.h"
 #ifdef _WIN32
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
@@ -752,8 +753,12 @@ int main(int argc, char* argv[])
         historyRangeSelectorPresenter, historyPresenter, dataExportPresenter};
 
     compose::SettingsDialogLifestyleProxy settingsDialog{applicationSettings};
-    auto launcherMenu = std::make_unique<LauncherMenu>(
-        progressWindow, statisticsWindow, historyWindow, settingsDialog);
+    PlanningWindow planningWindow;
+    auto launcherMenu = std::make_unique<LauncherMenu>(progressWindow,
+                                                       statisticsWindow,
+                                                       historyWindow,
+                                                       planningWindow,
+                                                       settingsDialog);
 
     // QMediaPlayer qmediaPlayer;
     // compose::RuntimeConfigurableSoundPlayer soundPlayer(

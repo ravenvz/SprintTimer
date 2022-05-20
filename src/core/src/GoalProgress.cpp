@@ -24,9 +24,10 @@
 
 namespace sprint_timer {
 
-GoalProgress::GoalProgress()
-    : expected_{0}
-    , actual_{0}
+GoalProgress::GoalProgress() = default;
+
+GoalProgress::GoalProgress(Estimated expected)
+    : expected_{expected.value}
 {
 }
 

@@ -19,37 +19,24 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef LAUNCHERMENU_H_31QL4GCR
-#define LAUNCHERMENU_H_31QL4GCR
+#ifndef SAVETASKTREE_H_N4GBFEPQ
+#define SAVETASKTREE_H_N4GBFEPQ
 
-#include "qt_gui/SprintTimerWidget.h"
-#include "qt_gui/StandaloneDisplayable.h"
-#include <QDialog>
-#include "core/IConfig.h"
-#include <memory>
+#include "core/Command.h"
 
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+namespace sprint_timer::use_cases {
 
-namespace sprint_timer::ui::qt_gui {
-
-class LauncherMenu : public QWidget {
-
-public:
-    LauncherMenu(Displayable& progressWindow,
-                 Displayable& statisticsWindow,
-                 Displayable& historyWindow,
-                 Displayable& planningWindow,
-                 Displayable& settingsDialog,
-                 QWidget* parent = nullptr);
-
-    ~LauncherMenu() override;
-
-private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
+struct TaskTreeDTO {
+    friend bool operator==(const TaskTreeDTO&, const TaskTreeDTO&) = default;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+struct SaveTaskTreeCommand : public Command {
+    TaskTreeDTO taskTree;
 
-#endif /* end of include guard: LAUNCHERMENU_H_31QL4GCR */
+    friend bool operator==(const SaveTaskTreeCommand&,
+                           const SaveTaskTreeCommand&) = default;
+};
+
+} // namespace sprint_timer::use_cases
+
+#endif /* end of include guard: SAVETASKTREE_H_N4GBFEPQ */

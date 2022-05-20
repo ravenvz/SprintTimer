@@ -19,37 +19,16 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef LAUNCHERMENU_H_31QL4GCR
-#define LAUNCHERMENU_H_31QL4GCR
+#include "core/Observer.h"
 
-#include "qt_gui/SprintTimerWidget.h"
-#include "qt_gui/StandaloneDisplayable.h"
-#include <QDialog>
-#include "core/IConfig.h"
-#include <memory>
+namespace sprint_timer {
 
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+Observer::Observer(Observable& observable_)
+    : observable{observable_}
+{
+    observable.attach(this);
+}
 
-namespace sprint_timer::ui::qt_gui {
+Observer::~Observer() { observable.detach(this); }
 
-class LauncherMenu : public QWidget {
-
-public:
-    LauncherMenu(Displayable& progressWindow,
-                 Displayable& statisticsWindow,
-                 Displayable& historyWindow,
-                 Displayable& planningWindow,
-                 Displayable& settingsDialog,
-                 QWidget* parent = nullptr);
-
-    ~LauncherMenu() override;
-
-private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-#endif /* end of include guard: LAUNCHERMENU_H_31QL4GCR */
+} // namespace sprint_timer

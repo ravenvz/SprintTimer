@@ -19,37 +19,19 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef LAUNCHERMENU_H_31QL4GCR
-#define LAUNCHERMENU_H_31QL4GCR
+#include <utility>
 
-#include "qt_gui/SprintTimerWidget.h"
-#include "qt_gui/StandaloneDisplayable.h"
-#include <QDialog>
-#include "core/IConfig.h"
-#include <memory>
+#include "qt_storage/QtTaskTreeFileStorage.h"
 
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+namespace sprint_timer::storage {
 
-namespace sprint_timer::ui::qt_gui {
+QtTaskTreeFileStorage::QtTaskTreeFileStorage(std::filesystem::path storageDir_)
+    : storageDir{std::move(storageDir_)}
+{
+}
 
-class LauncherMenu : public QWidget {
+TaskTree QtTaskTreeFileStorage::readTree() { return TaskTree{}; }
 
-public:
-    LauncherMenu(Displayable& progressWindow,
-                 Displayable& statisticsWindow,
-                 Displayable& historyWindow,
-                 Displayable& planningWindow,
-                 Displayable& settingsDialog,
-                 QWidget* parent = nullptr);
+void QtTaskTreeFileStorage::saveTree(const TaskTree& taskTree) { }
 
-    ~LauncherMenu() override;
-
-private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-#endif /* end of include guard: LAUNCHERMENU_H_31QL4GCR */
+} // namespace sprint_timer::storage

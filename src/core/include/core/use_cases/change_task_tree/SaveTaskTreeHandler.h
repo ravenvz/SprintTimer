@@ -19,37 +19,29 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef LAUNCHERMENU_H_31QL4GCR
-#define LAUNCHERMENU_H_31QL4GCR
+#ifndef SAVETASKTREEHANDLER_H_K84IJWNM
+#define SAVETASKTREEHANDLER_H_K84IJWNM
 
-#include "qt_gui/SprintTimerWidget.h"
-#include "qt_gui/StandaloneDisplayable.h"
-#include <QDialog>
-#include "core/IConfig.h"
-#include <memory>
+#include "core/ActionInvoker.h"
+#include "core/CommandHandler.h"
+#include "core/use_cases/change_task_tree/SaveTaskTreeCommand.h"
 
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+namespace sprint_timer::use_cases {
 
-namespace sprint_timer::ui::qt_gui {
-
-class LauncherMenu : public QWidget {
-
+class SaveTaskTreeHandler : public CommandHandler<SaveTaskTreeCommand> {
 public:
-    LauncherMenu(Displayable& progressWindow,
-                 Displayable& statisticsWindow,
-                 Displayable& historyWindow,
-                 Displayable& planningWindow,
-                 Displayable& settingsDialog,
-                 QWidget* parent = nullptr);
+    SaveTaskTreeHandler(TaskTreeStorageWriter& taskTreeWriter,
+                        ActionInvoker& actionInvoker)
+    {
+    }
 
-    ~LauncherMenu() override;
+    void handle(SaveTaskTreeCommand&& command) override { }
 
 private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
+    TaskTreeStorageWriter& taskTreeWriter;
+    ActionInvoker& actionInvoker;
 };
 
-} // namespace sprint_timer::ui::qt_gui
+} // namespace sprint_timer::use_cases
 
-#endif /* end of include guard: LAUNCHERMENU_H_31QL4GCR */
+#endif /* end of include guard: SAVETASKTREEHANDLER_H_K84IJWNM */

@@ -19,37 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef LAUNCHERMENU_H_31QL4GCR
-#define LAUNCHERMENU_H_31QL4GCR
+#ifndef RETRIEVETASKTREEHANDLER_H_NBLZX4SV
+#define RETRIEVETASKTREEHANDLER_H_NBLZX4SV
 
-#include "qt_gui/SprintTimerWidget.h"
-#include "qt_gui/StandaloneDisplayable.h"
-#include <QDialog>
-#include "core/IConfig.h"
-#include <memory>
+namespace sprint_timer::use_cases {
 
-namespace Ui {
-class LauncherMenu;
-} // namespace Ui
+} // namespace sprint_timer::use_cases
 
-namespace sprint_timer::ui::qt_gui {
-
-class LauncherMenu : public QWidget {
-
-public:
-    LauncherMenu(Displayable& progressWindow,
-                 Displayable& statisticsWindow,
-                 Displayable& historyWindow,
-                 Displayable& planningWindow,
-                 Displayable& settingsDialog,
-                 QWidget* parent = nullptr);
-
-    ~LauncherMenu() override;
-
-private:
-    std::unique_ptr<Ui::LauncherMenu> ui;
-};
-
-} // namespace sprint_timer::ui::qt_gui
-
-#endif /* end of include guard: LAUNCHERMENU_H_31QL4GCR */
+#endif /* end of include guard: RETRIEVETASKTREEHANDLER_H_NBLZX4SV */

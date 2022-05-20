@@ -41,6 +41,8 @@ public:
 
     GoalProgress(Estimated expected, Actual actual);
 
+    explicit GoalProgress(Estimated expected);
+
     [[nodiscard]] int estimated() const;
 
     [[nodiscard]] int actual() const;

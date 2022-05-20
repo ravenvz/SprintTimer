@@ -15,6 +15,7 @@ target_sources(test_use_cases
     "${CMAKE_CURRENT_LIST_DIR}/src/QtStorageInitializer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/matchers/MatchesSprintIgnoringUuid.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/matchers/MatchesTaskIgnoringUuid.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_changing_task_tree.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_creating_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_editing_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_reading_sprint_distributions.cpp"
