@@ -27,6 +27,7 @@ TestCommandHandlerComposer::TestCommandHandlerComposer(
     ActionInvoker& actionInvoker_,
     TaskStorage& taskStorage_,
     SprintStorage& sprintStorage_,
+    TaskTreeMetadataStorage& taskTreeStorage_,
     WorkScheduleWriter& scheduleStorage_,
     UUIDGenerator& generator_,
     DateTimeProvider& dateTimeProvider_)
@@ -41,6 +42,7 @@ TestCommandHandlerComposer::TestCommandHandlerComposer(
     , reorderTasks{taskStorage_, actionInvoker_}
     , renameTag{taskStorage_, actionInvoker_}
     , changeSchedule{scheduleStorage_, actionInvoker_}
+    , saveTaskTree{taskTreeStorage_, actionInvoker_}
 {
 }
 
@@ -96,6 +98,12 @@ CommandHandler<use_cases::ChangeWorkScheduleCommand>&
 TestCommandHandlerComposer::changeWorkScheduleHandler()
 {
     return changeSchedule;
+}
+
+CommandHandler<use_cases::SaveTaskTreeCommand>&
+TestCommandHandlerComposer::saveTaskTreeHandler()
+{
+    return saveTaskTree;
 }
 
 } // namespace sprint_timer::compose

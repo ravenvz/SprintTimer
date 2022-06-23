@@ -52,7 +52,9 @@ TEST_F(ExportSprintsHandlerFixture, delegates_to_exporter)
         .WillByDefault(Return(sprints));
 
     EXPECT_CALL(exporterMock,
-                exportData(sprints, DataFormat::Json, SinkType::Network));
+                exportData(::testing::ElementsAreArray(sprints),
+                           DataFormat::Json,
+                           SinkType::Network));
 
     handler.handle(use_cases::ExportSprintsCommand{
         someDateRange, DataFormat::Json, SinkType::Network});

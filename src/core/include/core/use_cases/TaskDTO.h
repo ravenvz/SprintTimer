@@ -48,6 +48,7 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
     for (const auto& element : task.tags) {
         os << '#' << element << ' ';
     }
+    os << task.name << " ";
     os << task.actualCost << '/' << task.expectedCost;
     os << (task.finished ? " finished " : " pending ");
     os << task.modificationStamp << '}';

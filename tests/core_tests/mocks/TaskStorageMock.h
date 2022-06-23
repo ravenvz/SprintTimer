@@ -65,6 +65,10 @@ public:
                 findByUuid,
                 (const std::string&),
                 (override));
+    MOCK_METHOD((std::vector<sprint_timer::entities::Task>),
+                findMatching,
+                (std::span<const std::string>),
+                (override));
 };
 
 } // namespace mocks

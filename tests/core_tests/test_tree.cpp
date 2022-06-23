@@ -56,6 +56,22 @@ public:
     sprint_timer::Tree<std::string, int> sut{make_sample_tree()};
 };
 
+TEST_F(TreeFixture, is_copy_constructible)
+{
+    const auto actual = sut;
+
+    EXPECT_EQ(sut, actual);
+}
+
+TEST_F(TreeFixture, is_copy_assignable)
+{
+    sprint_timer::Tree<std::string, int> actual;
+
+    actual = sut;
+
+    EXPECT_EQ(sut, actual);
+}
+
 TEST_F(TreeFixture, able_to_transform_tree_to_tree_with_another_payload_type)
 {
     sprint_timer::Tree<std::string, std::string> expected;
@@ -84,4 +100,88 @@ TEST_F(TreeFixture, flatten_and_unflatten)
         sprint_timer::Tree<std::string, int>::unflatten(flattened);
 
     EXPECT_EQ(sut, restored);
+}
+
+TEST_F(TreeFixture, returns_none_when_asked_for_payload_for_missing_key)
+{
+    EXPECT_EQ(std::nullopt, sut.payload("bogus_key"));
+}
+
+TEST_F(TreeFixture, returns_payload_for_given_key)
+{
+    EXPECT_EQ(8, sut.payload("8"));
+    EXPECT_EQ(1, sut.payload("1"));
+}
+
+TEST_F(TreeFixture, returns_null_when_asked_for_parent_of_bogus_child)
+{
+    EXPECT_EQ(std::nullopt, sut.parent("bogus_id"));
+}
+
+TEST_F(TreeFixture, returns_null_when_asked_for_parent_of_top_level_child)
+{
+    EXPECT_EQ(std::nullopt, sut.parent("4"));
+}
+
+TEST_F(TreeFixture, returns_some_key_when_asked_for_parent_of_lower_level_child)
+{
+    EXPECT_EQ("7", sut.parent("8").value().get());
+}
+
+TEST_F(TreeFixture, returns_top_level_when_asked_for_children_for_bogus_key)
+{
+    const std::vector<std::string> expected{"1", "4", "9"};
+
+    EXPECT_TRUE(std::ranges::equal(expected, sut.children("bogus_key")));
+}
+
+TEST_F(TreeFixture, returns_top_level_children)
+{
+    const std::vector<std::string> expected{"1", "4", "9"};
+
+    EXPECT_TRUE(std::ranges::equal(expected, sut.children()));
+}
+
+TEST_F(TreeFixture, returns_children_for_existing_key)
+{
+    const std::vector<std::string> expected{"6", "7"};
+
+    EXPECT_TRUE(std::ranges::equal(expected, sut.children("5")));
+}
+
+TEST_F(TreeFixture, returns_none_when_asked_for_nth_child_of_missing_key)
+{
+    EXPECT_EQ(std::nullopt, sut.nthChild("bogus_key", 0));
+}
+
+TEST_F(TreeFixture,
+       returns_none_when_asked_for_nth_child_of_existing_key_but_out_of_bounds)
+{
+
+    EXPECT_EQ(std::nullopt, sut.nthChild("5", 2));
+    EXPECT_EQ(std::nullopt, sut.nthChild(3));
+}
+
+TEST_F(TreeFixture, returns_nth_child)
+{
+    EXPECT_EQ(7, sut.nthChild("5", 1));
+    EXPECT_EQ(9, sut.nthChild(2));
+}
+
+TEST_F(TreeFixture, returns_node_position_in_parent_children)
+{
+    EXPECT_EQ(std::optional<size_t>{2}, sut.positionInChildren("9"));
+    EXPECT_EQ(std::optional<size_t>{1}, sut.positionInChildren("7"));
+    EXPECT_EQ(std::optional<size_t>{0}, sut.positionInChildren("5"));
+    EXPECT_EQ(std::optional<size_t>{}, sut.positionInChildren("bogus_key"));
+}
+
+TEST_F(TreeFixture, returns_keys_in_unspecified_order)
+{
+    std::vector<std::string> expected{
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+    std::vector<std::string> actual;
+    std::ranges::copy(sut.keys(), std::back_inserter(actual));
+
+    EXPECT_THAT(actual, ::testing::UnorderedElementsAreArray(expected));
 }

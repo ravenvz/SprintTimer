@@ -22,7 +22,7 @@
 #ifndef DATAEXPORTER_H_PRTTGREQ
 #define DATAEXPORTER_H_PRTTGREQ
 
-#include <vector>
+#include <span>
 
 namespace sprint_timer {
 
@@ -32,9 +32,9 @@ enum class SinkType { Stdout, File, Network };
 
 template <typename T> class DataExporter {
 public:
-    virtual void exportData(const std::vector<T>& data,
+    virtual void exportData(std::span<const T> data,
                             DataFormat format,
-                            SinkType sink) = 0;
+                            SinkType sink) const = 0;
 
     DataExporter() = default;
     virtual ~DataExporter() = default;

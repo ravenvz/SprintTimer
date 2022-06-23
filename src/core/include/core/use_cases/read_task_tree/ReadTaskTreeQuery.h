@@ -19,41 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKDIALOGCONTRACT_H_NIV0BLMP
-#define TASKDIALOGCONTRACT_H_NIV0BLMP
+#ifndef RETRIEVETASKTREE_H_IVJTJ9DF
+#define RETRIEVETASKTREE_H_IVJTJ9DF
 
-#include "qt_gui/presentation/BasePresenter.h"
-#include <list>
+#include "core/Query.h"
+#include "core/use_cases/TaskTreeDTO.h"
 
-namespace sprint_timer::ui::contracts::TaskDialog {
+namespace sprint_timer::use_cases {
 
-struct TaskDTO {
-    std::string name;
-    std::list<std::string> tags;
-    int estimatedCost;
-    int actualCost;
+struct ReadTaskTreeQuery : public Query<TaskTreeDTO> {
 };
 
-class View {
-public:
-    View() = default;
-    virtual ~View() = default;
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os, const ReadTaskTreeQuery&)
+{
+    os << "ReadTaskTreeQuery{}";
+    return os;
+}
 
-    virtual void fillForm(TaskDTO&& taskData) const = 0;
+} // namespace sprint_timer::use_cases
 
-    virtual TaskDTO task() const = 0;
-
-    View(View&&) = delete;
-    View& operator=(View&&) = delete;
-
-    View(const View&) = delete;
-    View& operator=(const View&) = delete;
-};
-
-class Presenter : public BasePresenter<View> {
-public:
-};
-
-} // namespace sprint_timer::ui::contracts::TaskDialog
-
-#endif /* end of include guard: TASKDIALOGCONTRACT_H_NIV0BLMP */
+#endif /* end of include guard: RETRIEVETASKTREE_H_IVJTJ9DF */

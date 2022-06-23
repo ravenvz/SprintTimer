@@ -25,6 +25,7 @@
 #include "core/ActionInvoker.h"
 #include "core/SprintStorage.h"
 #include "core/TaskStorage.h"
+#include "core/TaskTreeMetadataStorage.h"
 #include "core/use_cases/change_schedule/ChangeWorkScheduleHandler.h"
 #include "core/use_cases/change_tasks_priority/ChangeActiveTasksPriorityHandler.h"
 #include "core/use_cases/create_task/CreateTaskHandler.h"
@@ -33,6 +34,7 @@
 #include "core/use_cases/edit_task/EditTaskHandler.h"
 #include "core/use_cases/register_sprint/RegisterSprintBulkHandler.h"
 #include "core/use_cases/rename_tag/RenameTagHandler.h"
+#include "core/use_cases/save_task_tree/SaveTaskTreeHandler.h"
 #include "core/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.h"
 #include "use_cases_tests/CommandHandlerComposer.h"
 
@@ -42,6 +44,7 @@ struct TestCommandHandlerComposer final : public CommandHandlerComposer {
     TestCommandHandlerComposer(ActionInvoker& actionInvoker_,
                                TaskStorage& taskStorage_,
                                SprintStorage& sprintStorage_,
+                               TaskTreeMetadataStorage& taskTree_,
                                WorkScheduleWriter& scheduleStorage_,
                                UUIDGenerator& generator_,
                                DateTimeProvider& dateTimeProvider_);
@@ -69,6 +72,9 @@ struct TestCommandHandlerComposer final : public CommandHandlerComposer {
     CommandHandler<use_cases::ChangeWorkScheduleCommand>&
     changeWorkScheduleHandler() override;
 
+    CommandHandler<use_cases::SaveTaskTreeCommand>&
+    saveTaskTreeHandler() override;
+
 private:
     std::unique_ptr<use_cases::CreateTaskHandler> createTask;
     use_cases::DeleteTaskHandler deleteTask;
@@ -79,6 +85,7 @@ private:
     use_cases::ChangeActiveTasksPriorityHandler reorderTasks;
     use_cases::RenameTagHandler renameTag;
     use_cases::ChangeWorkScheduleHandler changeSchedule;
+    use_cases::SaveTaskTreeHandler saveTaskTree;
 };
 
 } // namespace sprint_timer::compose

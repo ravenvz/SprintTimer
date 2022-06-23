@@ -36,7 +36,7 @@ public:
             updateViewImpl();
             return;
         }
-        std::cout << "No view is attached; updating aborted" << std::endl;
+        std::cerr << "No view is attached; updating aborted" << std::endl;
     }
 
     void fetchData() override
@@ -85,6 +85,7 @@ private:
 
     virtual void onViewDetached() { }
 };
+
 } // namespace mvp
 
 #endif /* end of include guard: BASEPRESENTER_H_JFOEV97B */

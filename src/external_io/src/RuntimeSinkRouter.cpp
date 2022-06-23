@@ -28,12 +28,12 @@ RuntimeSinkRouter::RuntimeSinkRouter(SinkTypeMapper&& mapper_)
 {
 }
 
-void RuntimeSinkRouter::route(std::vector<std::string>&& data,
+void RuntimeSinkRouter::route(std::span<const std::string> data,
                               SinkType sinkType)
 {
     if (auto sink = sinkTypeMapper.find(sinkType);
         sink != sinkTypeMapper.cend()) {
-        sink->second.get().send(std::move(data));
+        sink->second.get().send(data);
         return;
     }
     std::string errMsg{"Unable to find sink to route to with SinkType: "};

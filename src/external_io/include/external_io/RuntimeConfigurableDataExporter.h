@@ -22,10 +22,10 @@
 #ifndef SPRINTDATAEXPORTER_H_ZDYS5FI6
 #define SPRINTDATAEXPORTER_H_ZDYS5FI6
 
-#include "external_io/RuntimeSinkRouter.h"
-#include "external_io/Serializer.h"
 #include "core/DataExporter.h"
 #include "core/entities/Sprint.h"
+#include "external_io/RuntimeSinkRouter.h"
+#include "external_io/Serializer.h"
 
 namespace sprint_timer::external_io {
 
@@ -39,16 +39,16 @@ public:
     {
     }
 
-    void exportData(const std::vector<T>& data,
+    void exportData(std::span<const T> data,
                     DataFormat format,
-                    SinkType sinkType) override
+                    SinkType sinkType) const override
     {
-        std::vector<std::string> serializedItems;
-        serializedItems.reserve(data.size());
-        for (const auto& item : data) {
-            serializedItems.push_back(serializer.serialize(item, format));
-        }
-        router.route(std::move(serializedItems), sinkType);
+        std::vector<std::string> serializedItems(data.size());
+        std::ranges::transform(
+            data, begin(serializedItems), [&](const auto& item) {
+                return serializer.serialize(item, format);
+            });
+        router.route(serializedItems, sinkType);
     }
 
 private:

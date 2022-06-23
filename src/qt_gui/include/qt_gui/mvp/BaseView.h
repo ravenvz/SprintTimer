@@ -27,6 +27,7 @@
 
 namespace mvp {
 
+/* NOTE that presenter's lifetime should exceed view's lifetime */
 template <class ViewImp, class PresenterT>
 class BaseView : public crtp<ViewImp> {
 public:
@@ -40,6 +41,7 @@ public:
     {
         if (maybePresenter != nullptr) {
             maybePresenter->detachView(this->underlying());
+            maybePresenter = nullptr;
         }
     }
 

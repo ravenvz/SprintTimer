@@ -37,7 +37,7 @@ public:
 
     explicit RuntimeSinkRouter(SinkTypeMapper&& mapper);
 
-    void route(std::vector<std::string>&& data, SinkType sinkType);
+    void route(std::span<const std::string> data, SinkType sinkType);
 
 private:
     SinkTypeMapper sinkTypeMapper;

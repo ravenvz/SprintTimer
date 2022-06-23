@@ -43,12 +43,16 @@ public:
 
     std::vector<entities::Task> findByUuid(const std::string& uuid) final;
 
+    std::vector<entities::Task>
+    findMatching(std::span<const std::string> uuids) final;
+
 private:
     QString connectionName;
     QSqlQuery finishedTasksQuery;
     QSqlQuery allTasksQuery;
     QSqlQuery tagsQuery;
     QSqlQuery findByUuidQuery;
+    QSqlQuery findMatchingQuery;
 };
 
 } // namespace sprint_timer::storage::qt_storage

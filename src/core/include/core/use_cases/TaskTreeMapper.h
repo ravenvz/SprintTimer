@@ -19,29 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SAVETASKTREEHANDLER_H_K84IJWNM
-#define SAVETASKTREEHANDLER_H_K84IJWNM
+#ifndef TASKTREEMAPPER_H_3MWDRK5F
+#define TASKTREEMAPPER_H_3MWDRK5F
 
-#include "core/ActionInvoker.h"
-#include "core/CommandHandler.h"
-#include "core/use_cases/change_task_tree/SaveTaskTreeCommand.h"
+#include "core/TaskTree.h"
+#include "core/use_cases/TaskTreeDTO.h"
 
 namespace sprint_timer::use_cases {
 
-class SaveTaskTreeHandler : public CommandHandler<SaveTaskTreeCommand> {
-public:
-    SaveTaskTreeHandler(TaskTreeStorageWriter& taskTreeWriter,
-                        ActionInvoker& actionInvoker)
-    {
-    }
+TaskTreeDTO makeDTO(const TaskTree& taskTree);
 
-    void handle(SaveTaskTreeCommand&& command) override { }
-
-private:
-    TaskTreeStorageWriter& taskTreeWriter;
-    ActionInvoker& actionInvoker;
-};
+TaskTree fromDTO(const TaskTreeDTO& taskTreeDto);
 
 } // namespace sprint_timer::use_cases
 
-#endif /* end of include guard: SAVETASKTREEHANDLER_H_K84IJWNM */
+#endif /* end of include guard: TASKTREEMAPPER_H_3MWDRK5F */

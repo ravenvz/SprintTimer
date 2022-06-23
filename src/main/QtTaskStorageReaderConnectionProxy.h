@@ -44,6 +44,9 @@ public:
 
     std::vector<entities::Task> findByUuid(const std::string& uuid) override;
 
+    std::vector<entities::Task>
+    findMatching(std::span<const std::string> uuids) override;
+
 private:
     ThreadConnectionHelper& connectionHelper;
 

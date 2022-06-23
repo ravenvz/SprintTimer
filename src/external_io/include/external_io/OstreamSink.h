@@ -23,8 +23,10 @@
 #define SPRINT_TIMER_OSTREAMSINK_H_H
 
 #include "external_io/Sink.h"
+#include <algorithm>
 #include <iterator>
 #include <ostream>
+#include <ranges>
 
 namespace sprint_timer::external_io {
 
@@ -36,13 +38,13 @@ public:
     {
     }
 
-    void send(std::vector<std::string>&& data) override
+    void send(std::span<const std::string> data) override
     {
-        std::copy(cbegin(data),
-                  cend(data),
-                  std::ostream_iterator<
-                      std::iterator_traits<decltype(cbegin(data))>::value_type>(
-                      out, "\n"));
+        std::ranges::copy(
+            data,
+            std::ostream_iterator<
+                std::iterator_traits<decltype(cbegin(data))>::value_type>(
+                out, "\n"));
     }
 
 private:

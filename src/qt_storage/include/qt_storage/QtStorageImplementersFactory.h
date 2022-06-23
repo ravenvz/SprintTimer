@@ -24,12 +24,14 @@
 
 #include "core/IStorageImplementersFactory.h"
 #include <QString>
+#include <filesystem>
 
 namespace sprint_timer::storage::qt_storage {
 
 class QtStorageImplementersFactory : public StorageImplementersFactory {
 public:
-    explicit QtStorageImplementersFactory(const QString& connectionName);
+    QtStorageImplementersFactory(const QString& connectionName,
+                                 std::filesystem::path fileStorageDir);
 
     std::unique_ptr<SprintStorage> sprintStorage() const override;
 
@@ -49,8 +51,12 @@ public:
 
     std::unique_ptr<WorkScheduleStorage> scheduleStorage() const override;
 
+    std::unique_ptr<TaskTreeMetadataStorage>
+    taskTreeStorage(TaskStorageReader&) const override;
+
 private:
     QString connectionName;
+    std::filesystem::path storageDir;
 };
 
 } // namespace sprint_timer::storage::qt_storage

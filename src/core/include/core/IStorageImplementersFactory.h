@@ -27,6 +27,7 @@
 #include "core/SprintDistributionReader.h"
 #include "core/SprintStorage.h"
 #include "core/TaskStorage.h"
+#include "core/TaskTreeMetadataStorage.h"
 #include "core/WorkScheduleStorage.h"
 #include <memory>
 
@@ -53,6 +54,9 @@ public:
     monthlyDistReader() const = 0;
 
     virtual std::unique_ptr<WorkScheduleStorage> scheduleStorage() const = 0;
+
+    virtual std::unique_ptr<TaskTreeMetadataStorage>
+    taskTreeStorage(TaskStorageReader&) const = 0;
 };
 
 } // namespace sprint_timer

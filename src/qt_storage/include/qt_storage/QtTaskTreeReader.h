@@ -19,11 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef RETRIEVETASKTREEHANDLER_H_NBLZX4SV
-#define RETRIEVETASKTREEHANDLER_H_NBLZX4SV
+#ifndef QTTASKTREESTORAGEREADER_H_AHDKRZJS
+#define QTTASKTREESTORAGEREADER_H_AHDKRZJS
 
-namespace sprint_timer::use_cases {
+#include "core/TaskStorageReader.h"
+#include "core/TaskTreeMetadataReader.h"
+#include <filesystem>
 
-} // namespace sprint_timer::use_cases
+namespace sprint_timer::storage::qt_storage {
 
-#endif /* end of include guard: RETRIEVETASKTREEHANDLER_H_NBLZX4SV */
+class QtTaskTreeReader : public TaskTreeMetadataReader {
+public:
+    explicit QtTaskTreeReader(std::filesystem::path storageDir);
+
+    [[nodiscard]] TaskMetadataTree readTree() const override;
+
+private:
+    std::filesystem::path storageDir;
+};
+
+} // namespace sprint_timer::storage::qt_storage
+
+#endif /* end of include guard: QTTASKTREESTORAGEREADER_H_AHDKRZJS */

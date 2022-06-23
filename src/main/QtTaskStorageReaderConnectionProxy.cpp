@@ -73,6 +73,13 @@ QtTaskStorageReaderConnectionProxy::findByUuid(const std::string& uuid)
     return localStorage.value().findByUuid(uuid);
 }
 
+std::vector<entities::Task> QtTaskStorageReaderConnectionProxy::findMatching(
+    std::span<const std::string> uuids)
+{
+    checkStorageInteractorInitialized();
+    return localStorage.value().findMatching(uuids);
+}
+
 void QtTaskStorageReaderConnectionProxy::checkStorageInteractorInitialized()
 {
     if (!localStorage) {

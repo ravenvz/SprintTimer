@@ -19,10 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_gui/models/SprintModel.h"
-#include "qt_gui/presentation/StatisticsDateRangeListener.h"
-#include "qt_gui/widgets/PlanningWindow.h"
-#include "qt_storage/DatabaseInitializer.h"
 #ifdef _WIN32
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
 #include <ShlObj.h>
@@ -59,6 +55,7 @@
 #include "EditTaskDialogProxy.h"
 #include "HistoryWindowProxy.h"
 #include "ObservableConfig.h"
+#include "PlannerWindowProxy.h"
 #include "ProfilingCompositeDataFetcher.h"
 #include "ProgressMonitorProxy.h"
 #include "QtSprintStorageReaderConnectionProxy.h"
@@ -98,6 +95,7 @@
 #include "core/use_cases/edit_task/EditTaskHandler.h"
 #include "core/use_cases/export_data/ExportSprintsHandler.h"
 #include "core/use_cases/export_data/ExportTasksHandler.h"
+#include "core/use_cases/read_task_tree/ReadTaskTreeHandler.h"
 #include "core/use_cases/register_sprint/RegisterSprintBulkHandler.h"
 #include "core/use_cases/register_sprint/RegisterSprintHandler.h"
 #include "core/use_cases/rename_tag/RenameTagHandler.h"
@@ -133,6 +131,7 @@
 #include "qt_gui/dialogs/AddTaskDialog.h"
 #include "qt_gui/dialogs/WorkScheduleEditor.h"
 #include "qt_gui/models/HistoryModel.h"
+#include "qt_gui/models/PlannerModel.h"
 #include "qt_gui/models/SprintModel.h"
 #include "qt_gui/models/TagModel.h"
 #include "qt_gui/models/TaskModel.h"
@@ -145,8 +144,10 @@
 #include "qt_gui/presentation/DateRangeSelectorPresenter.h"
 #include "qt_gui/presentation/HistoryMediatorImpl.h"
 #include "qt_gui/presentation/HistoryPresenter.h"
+#include "qt_gui/presentation/PlannerPresenter.h"
 #include "qt_gui/presentation/ProgressPresenter.h"
 #include "qt_gui/presentation/RegisterSprintControlPresenter.h"
+#include "qt_gui/presentation/StatisticsDateRangeListener.h"
 #include "qt_gui/presentation/TagEditorPresenter.h"
 #include "qt_gui/presentation/TaskSprintsPresenter.h"
 #include "qt_gui/presentation/TaskViewPresenter.h"
@@ -175,6 +176,7 @@
 #include "qt_gui/widgets/TimerView.h"
 #include "qt_gui/widgets/TodayProgressIndicator.h"
 #include "qt_gui/widgets/UndoWidget.h"
+#include "qt_storage/DatabaseInitializer.h"
 #include "qt_storage/QtOperationalRangeReader.h"
 #include "qt_storage/QtSprintDistributionReader.h"
 #include "qt_storage/QtSprintStorage.h"
@@ -352,8 +354,8 @@ int main(int argc, char* argv[])
 
     compose::ThreadConnectionHelper threadConnectionHelper{dataDirectory +
                                                            "/test_sprint.db"};
-    compose::SQliteStorageFactory storageFactory{threadConnectionHelper,
-                                                 applicationSettings};
+    compose::SQliteStorageFactory storageFactory{
+        threadConnectionHelper, dataDirectory, applicationSettings};
 
     // QtStorageImplementersFactory storageFactory{
     //     worker_connection.connectionName()};
@@ -365,6 +367,7 @@ int main(int argc, char* argv[])
     auto monthlyDistReader = storageFactory.monthlyDistReader();
     auto operationalRangeReader = storageFactory.operationalRangeReader();
     auto scheduleStorage = storageFactory.scheduleStorage();
+    auto taskTreeMetadataReader = storageFactory.taskTreeStorage(*taskStorage);
 
     Observable desyncObservable;
 
@@ -410,7 +413,6 @@ int main(int argc, char* argv[])
                 std::make_unique<RequestSprintsHandler>(*sprintStorage),
                 cacheInvalidationMediator),
             outputStream);
-
     auto requestSprintDailyDistributionHandler =
         compose::decorate<RequestSprintDistributionQuery>(
             compose::decorate<RequestSprintDistributionQuery>(
@@ -489,6 +491,12 @@ int main(int argc, char* argv[])
         compose::decorate<TopTagFrequenciesQuery>(
             std::make_unique<TopTagFrequenciesHandler>(
                 *sprintStatisticsHandler),
+            cacheInvalidationMediator),
+        outputStream);
+    auto readPlannerHandler = compose::decorate<ReadTaskTreeQuery>(
+        compose::decorate<ReadTaskTreeQuery>(
+            std::make_unique<ReadTaskTreeHandler>(*taskStorage,
+                                                  *taskTreeMetadataReader),
             cacheInvalidationMediator),
         outputStream);
 
@@ -580,6 +588,9 @@ int main(int argc, char* argv[])
                                                   *changePriorityHandler};
     TaskModel activeTaskModel;
     activeTaskModel.setPresenter(activeTasksPresenter);
+
+    ui::PlannerPresenter plannerPresenter{*readPlannerHandler};
+    compose::PlannerWindowProxy plannerWindow{plannerPresenter};
 
     ui::RegisterSprintControlPresenter registerSprintControlPresenter{
         *registerSprintBulkHandler};
@@ -735,7 +746,7 @@ int main(int argc, char* argv[])
         sprintSerializer, runtimeSinkRouter};
     external_io::RuntimeConfigurableDataExporter<TaskDTO> taskDataExporter{
         taskSerializer, runtimeSinkRouter};
-    // Does not use synchronizing overload as it doesn't mutate eternal state
+    // Does not use synchronizing overload as it doesn't mutate internal state
     auto exportSprintsHandler =
         compose::decorate_com_handler<ExportSprintsCommand>(
             std::make_unique<ExportSprintsHandler>(
@@ -753,11 +764,10 @@ int main(int argc, char* argv[])
         historyRangeSelectorPresenter, historyPresenter, dataExportPresenter};
 
     compose::SettingsDialogLifestyleProxy settingsDialog{applicationSettings};
-    PlanningWindow planningWindow;
     auto launcherMenu = std::make_unique<LauncherMenu>(progressWindow,
                                                        statisticsWindow,
                                                        historyWindow,
-                                                       planningWindow,
+                                                       plannerWindow,
                                                        settingsDialog);
 
     // QMediaPlayer qmediaPlayer;
@@ -817,6 +827,7 @@ int main(int argc, char* argv[])
         {activeTasksPresenter,
          dateRangeSelectorPresenter,
          bestWorkdayPresenter,
+         plannerPresenter,
          historyRangeSelectorPresenter,
          dailyProgressPresenter,
          weeklyProgressPresenter,

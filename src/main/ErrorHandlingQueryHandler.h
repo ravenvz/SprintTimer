@@ -24,6 +24,7 @@
 
 #include "core/QueryHandler.h"
 #include "qt_storage/QueryError.h"
+#include <QMessageBox>
 #include <iostream>
 #include <memory>
 
@@ -60,6 +61,15 @@ ErrorHandlingQueryHandler<QueryT>::handle(QueryT&& query)
     catch (storage::qt_storage::QueryError& exc) {
         os << exc.queryText() << '\n';
         os << exc.queryError() << '\n';
+        throw;
+    }
+    catch (std::exception& exc) {
+        QMessageBox msgBox;
+        std::stringstream ss;
+        msgBox.setText("Exception when handling query");
+        ss << query << " \n with description: " << exc.what();
+        msgBox.setText(QString::fromStdString(ss.str()));
+        msgBox.exec();
         throw;
     }
 }

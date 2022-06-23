@@ -31,6 +31,7 @@
 #include "core/use_cases/edit_task/EditTaskCommand.h"
 #include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
 #include "core/use_cases/rename_tag/RenameTagCommand.h"
+#include "core/use_cases/save_task_tree/SaveTaskTreeCommand.h"
 #include "core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h"
 
 namespace sprint_timer::compose {
@@ -62,6 +63,9 @@ struct CommandHandlerComposer {
 
     virtual CommandHandler<use_cases::ChangeWorkScheduleCommand>&
     changeWorkScheduleHandler() = 0;
+
+    virtual CommandHandler<use_cases::SaveTaskTreeCommand>&
+    saveTaskTreeHandler() = 0;
 };
 
 } // namespace sprint_timer::compose

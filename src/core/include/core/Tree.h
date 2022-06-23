@@ -22,6 +22,7 @@
 #ifndef TREE_H_RQOZCKEL
 #define TREE_H_RQOZCKEL
 
+#include <concepts>
 #include <functional>
 #include <memory>
 #include <queue>
@@ -34,7 +35,8 @@
 
 namespace sprint_timer {
 
-template <typename KeyT, typename PayloadT> class Tree {
+template <std::default_initializable KeyT, std::default_initializable PayloadT>
+class Tree {
 
     // TODO should we expose entry as <K, P> or just payload? If former then
     // change in structure required
@@ -69,22 +71,23 @@ template <typename KeyT, typename PayloadT> class Tree {
         }
     }
 
+    /* Func is (size_t level, const entry_t& entry) */
     template <typename Func> void for_each(Func func) const
     {
-        std::stack<const Node*> frontier;
+        std::stack<std::pair<int, const Node*>> frontier;
         for (auto& child : std::ranges::reverse_view(root->children)) {
-            frontier.push(child.get());
+            frontier.push({0, child.get()});
         }
 
         while (!frontier.empty()) {
-            auto* current = frontier.top();
+            auto current = std::move(frontier.top());
             frontier.pop();
-            const auto& children = current->children;
+            const auto& children = current.second->children;
 
-            func(current);
+            func(current.first, current.second);
 
             for (auto& child : std::ranges::reverse_view(children)) {
-                frontier.push(child.get());
+                frontier.push({current.first + 1, child.get()});
             }
         }
     }
@@ -94,15 +97,24 @@ public:
 
     Tree() = default;
 
-    Tree(const Tree&) = delete;
+    Tree(const Tree& other)
+    {
+        *this =
+            other.mapped<PayloadT>([](const auto& payload) { return payload; });
+    }
 
-    Tree& operator=(const Tree&) = delete;
+    Tree& operator=(const Tree& other)
+    {
+        *this =
+            other.mapped<PayloadT>([](const auto& payload) { return payload; });
+        return *this;
+    }
 
     Tree(Tree&&) noexcept = default;
 
     Tree& operator=(Tree&&) noexcept = default;
 
-    void addChild(KeyT key, PayloadT payload, std::optional<KeyT> parent)
+    void addChild(KeyT key, PayloadT payload, const std::optional<KeyT>& parent)
     {
         auto* parentPtr = parent and registry.contains(*parent)
                               ? registry[*parent]
@@ -113,11 +125,12 @@ public:
         parentPtr->children.push_back(std::move(node));
     }
 
+    /* Func is (const PayloadT&) -> TransPayload */
     template <typename TransPayload, typename Func> auto mapped(Func func) const
     {
         Tree<KeyT, TransPayload> mappedTree;
 
-        auto transformPayload = [&](auto* node) {
+        auto transformPayload = [&](auto /*level*/, auto* node) {
             mappedTree.addChild(node->key,
                                 func(node->payload),
                                 node->parent
@@ -130,16 +143,103 @@ public:
         return mappedTree;
     }
 
+    std::optional<std::reference_wrapper<const KeyT>>
+    parent(const KeyT& child) const
+    {
+        if (auto childIt = registry.find(child); childIt != cend(registry)) {
+            if (auto* parentPtr = childIt->second->parent; parentPtr) {
+                return parentPtr == root.get()
+                           ? std::nullopt
+                           : std::optional<std::reference_wrapper<KeyT>>{
+                                 parentPtr->key};
+            }
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::reference_wrapper<const PayloadT>>
+    payload(const KeyT& key) const
+    {
+        if (auto it = registry.find(key); it != cend(registry)) {
+            return {it->second->payload};
+        }
+        return std::nullopt;
+    }
+
+    /* Return view to (keys) children of node with given key. If key is invalid
+     * returns view to root's children. */
+    auto children(const KeyT& key) const
+    {
+        auto it = registry.find(key);
+        Node* parent = it != cend(registry) ? it->second : root.get();
+        return std::views::transform(parent->children,
+                                     [](const auto& ptr) { return ptr->key; });
+    }
+
+    /* Return view to children (keys) of root node (top-level children). */
+    auto children() const
+    {
+        return std::views::transform(root->children,
+                                     [](const auto& ptr) { return ptr->key; });
+    }
+
+    std::optional<std::reference_wrapper<const PayloadT>>
+    nthChild(const KeyT& key, size_t n) const
+    {
+        if (auto it = registry.find(key); it != cend(registry)) {
+            if (n < it->second->children.size()) {
+                return it->second->children[n]->payload;
+            }
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::reference_wrapper<const PayloadT>>
+    nthChild(size_t n) const
+    {
+        if (n < root->children.size()) {
+            return root->children[n]->payload;
+        }
+        return std::nullopt;
+    }
+
+    // Returns node position among it's parent's children. //
+    std::optional<size_t> positionInChildren(const KeyT& key) const
+    {
+        auto it = registry.find(key);
+        if (it == cend(registry)) {
+            return {};
+        }
+
+        const Node* parent{
+            it->second->parent == root.get() ? root.get() : it->second->parent};
+        for (size_t row = 0; const auto& child : parent->children) {
+            if (child->key == key) {
+                return row;
+            }
+            ++row;
+        }
+        return std::nullopt;
+    }
+
     [[nodiscard]] std::vector<PayloadT> leaves() const
     {
         std::vector<PayloadT> nodes;
-        auto push_leaf = [&nodes](const auto* node) {
+        auto push_leaf = [&nodes](auto /*level*/, const auto* node) {
             if (node->children.empty()) {
                 nodes.push_back(node->payload);
             }
         };
         for_each(push_leaf);
         return nodes;
+    }
+
+    /* Func is (const entry_t&) -> void */
+    template <typename Func> void dfs(Func func) const
+    {
+        for_each([&](int /*level*/, const Node* node) {
+            func(node->key, node->payload);
+        });
     }
 
     std::vector<std::optional<entry_t>> flatten() const
@@ -165,70 +265,41 @@ public:
         return flattened;
     }
 
-    static Tree unflatten(const std::vector<std::optional<entry_t>>& flat)
+    static Tree unflatten(std::span<const std::optional<entry_t>> flat)
     {
         Tree<KeyT, PayloadT> result;
-        std::vector<std::unique_ptr<Node>> cont;
-        std::transform(cbegin(flat),
-                       cend(flat),
-                       std::back_inserter(cont),
-                       [](const auto& elem) -> std::unique_ptr<Node> {
-                           if (!elem) {
-                               return nullptr;
-                           }
-                           auto [key, pld] = *elem;
-                           return std::make_unique<Node>(
-                               std::move(key), std::move(pld), nullptr);
-                       });
+        std::queue<std::reference_wrapper<const entry_t>> frontier;
+        const entry_t fakeroot;
+        frontier.push(fakeroot);
 
-        if (flat.size() == 2) {
-            return result;
-        }
-        std::queue<Node*> frontier;
-        auto rt = std::make_unique<Node>();
-        frontier.push(rt.get());
-        size_t i{1};
-
-        while (!frontier.empty()) {
-            auto* current = frontier.front();
+        // Starting from 2 as we have empty root node in the tree itself
+        // and flattened version also has it.
+        for (size_t i{2}; !frontier.empty(); ++i) {
+            const auto current = frontier.front();
             frontier.pop();
-            ++i;
-            while (cont[i]) {
-                auto child = std::move(cont[i]);
-                child->parent = current;
-                frontier.push(child.get());
-                current->children.push_back(std::move(child));
-                ++i;
+            for (; flat[i]; ++i) {
+                auto& [key, payload] = *flat[i];
+                result.addChild(key, payload, current.get().first);
+                frontier.push(flat[i].value());
             }
         }
 
-        result.root = std::move(rt);
         return result;
     }
+
+    auto keys() const { return std::views::keys(registry); }
 
     std::string display() const
     {
         std::stringstream ss;
-        std::stack<std::pair<int, const Node*>> frontier;
-        for (auto& child : std::ranges::reverse_view(root->children)) {
-            frontier.push({0, child.get()});
-        }
-
-        while (!frontier.empty()) {
-            auto current = frontier.top();
-            frontier.pop();
-
-            auto [level, node] = current;
-
-            for (int i = 0; i < level; ++i) {
-                ss << '\t';
+        auto print_node = [&](auto level, auto* current) {
+            for (auto i = 0; i < level; ++i) {
+                ss << "  ";
             }
-            ss << node->key << " -> " << node->payload << '\n';
+            ss << current->key << " -> " << current->payload << '\n';
+        };
 
-            for (auto& child : std::ranges::reverse_view(node->children)) {
-                frontier.push({level + 1, child.get()});
-            }
-        }
+        for_each(print_node);
 
         return ss.str();
     }
@@ -248,8 +319,12 @@ operator<<(std::basic_ostream<CharT, Traits>& os,
 template <typename K, typename P>
 bool operator==(const Tree<K, P>& lhs, const Tree<K, P>& rhs)
 {
-    // return true;
-    return lhs.flatten() == rhs.flatten();
+    const auto left = lhs.flatten();
+    const auto right = rhs.flatten();
+    return std::equal(
+        cbegin(left) + 1, cend(left), cbegin(right) + 1, cend(right));
+    // return lhs.flatten() |
+    //        std::views::drop(1) == rhs.flatten() | std::views::drop(1);
 }
 
 } // namespace sprint_timer

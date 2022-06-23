@@ -29,7 +29,7 @@ namespace mocks {
 
 class SinkMock : public sprint_timer::external_io::Sink {
 public:
-    MOCK_METHOD(void, send, (std::vector<std::string> &&), (override));
+    MOCK_METHOD(void, send, (std::span<const std::string>), (override));
 };
 
 } // namespace mocks

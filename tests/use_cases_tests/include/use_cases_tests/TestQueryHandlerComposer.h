@@ -26,6 +26,8 @@
 #include "core/SprintDistributionReader.h"
 #include "core/SprintStorage.h"
 #include "core/TaskStorage.h"
+#include "core/TaskTreeMetadataReader.h"
+#include "core/use_cases/read_task_tree/ReadTaskTreeHandler.h"
 #include "core/use_cases/request_op_range/OperationalRangeHandler.h"
 #include "core/use_cases/request_schedule/WorkScheduleHandler.h"
 #include "core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h"
@@ -53,7 +55,8 @@ struct TestQueryHandlerComposer final : public QueryHandlerComposer {
         SprintDistributionReader& dailyDistReader_,
         SprintDistributionReader& mondayFirstWeeklyDistReader_,
         SprintDistributionReader& sundayFirstWeeklyDistReader_,
-        SprintDistributionReader& monthlyDistReader_);
+        SprintDistributionReader& monthlyDistReader_,
+        TaskTreeMetadataReader& taskTreeMetadataStorage_);
 
     QueryHandler<use_cases::ActiveTasksQuery>& activeTasksHandler() override;
 
@@ -99,6 +102,8 @@ struct TestQueryHandlerComposer final : public QueryHandlerComposer {
     QueryHandler<use_cases::TopTagFrequenciesQuery>&
     topTagFrequenciesHandler() override;
 
+    QueryHandler<use_cases::ReadTaskTreeQuery>& readTaskTreeHandler() override;
+
 private:
     use_cases::ActiveTasksHandler activeTasks;
     use_cases::AllTagsHandler allTags;
@@ -118,6 +123,7 @@ private:
     use_cases::DailyStatisticsHandler dailyStatistics{workSchedule,
                                                       sprintStatistics};
     use_cases::TopTagFrequenciesHandler topTagFrequencies{sprintStatistics};
+    use_cases::ReadTaskTreeHandler readTaskTree;
 };
 
 } // namespace sprint_timer::compose

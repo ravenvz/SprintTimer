@@ -52,6 +52,12 @@ std::vector<entities::Task> QtTaskStorage::findByUuid(const std::string& uuid)
     return reader->findByUuid(uuid);
 }
 
+std::vector<entities::Task>
+QtTaskStorage::findMatching(std::span<const std::string> uuids)
+{
+    return reader->findMatching(uuids);
+}
+
 std::vector<std::string> QtTaskStorage::allTags() { return reader->allTags(); }
 
 void QtTaskStorage::save(const entities::Task& task) { writer->save(task); }

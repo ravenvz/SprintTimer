@@ -23,6 +23,7 @@
 #define QUERYHANDLERCOMPOSER_H_TUJS0ZHX
 
 #include "core/QueryHandler.h"
+#include "core/use_cases/read_task_tree/ReadTaskTreeQuery.h"
 #include "core/use_cases/request_op_range/OperationalRangeQuery.h"
 #include "core/use_cases/request_schedule/WorkScheduleQuery.h"
 #include "core/use_cases/request_sprint_distribution/RequestSprintDistributionQuery.h"
@@ -87,6 +88,9 @@ struct QueryHandlerComposer {
 
     virtual QueryHandler<use_cases::TopTagFrequenciesQuery>&
     topTagFrequenciesHandler() = 0;
+
+    virtual QueryHandler<use_cases::ReadTaskTreeQuery>&
+    readTaskTreeHandler() = 0;
 };
 
 } // namespace sprint_timer::compose

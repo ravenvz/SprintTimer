@@ -24,6 +24,7 @@ target_sources(${SPRINT_MAIN}
         "${CMAKE_CURRENT_LIST_DIR}/HistoryWindowProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/ObservableConfig.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/ObservableConfig.h"
+        "${CMAKE_CURRENT_LIST_DIR}/PlannerWindowProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/ProgressMonitorProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/QtOperationalRangeReaderConnectionProxy.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/QtOperationalRangeReaderConnectionProxy.h"

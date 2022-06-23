@@ -67,7 +67,7 @@ Qt::ItemFlags TaskModel::flags(const QModelIndex& index) const
 QVariant TaskModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) {
-        return QVariant();
+        return {};
     }
 
     const use_cases::TaskDTO& item = storage[static_cast<size_t>(index.row())];

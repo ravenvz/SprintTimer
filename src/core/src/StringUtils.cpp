@@ -51,5 +51,16 @@ std::string formatDecimal(double value, int precision)
     return ss.str();
 }
 
+std::vector<std::string_view> split(std::string_view str, char delimeter)
+{
+    std::vector<std::string_view> result;
+    for (size_t left{0}, right{0}; right != std::string_view::npos;
+         left = right + 1) {
+        right = str.find_first_of(delimeter, left);
+        result.push_back(str.substr(left, right - left));
+    }
+    return result;
+}
+
 } // namespace sprint_timer::utils
 

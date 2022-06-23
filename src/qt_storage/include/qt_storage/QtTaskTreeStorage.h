@@ -22,24 +22,26 @@
 #ifndef TASKTREEFILESTORAGE_H_YQ94RXZP
 #define TASKTREEFILESTORAGE_H_YQ94RXZP
 
-#include "core/TaskTree.h"
-#include "core/TaskTreeStorage.h"
+#include "core/TaskTreeMetadataStorage.h"
+#include <QSqlQuery>
 #include <filesystem>
 
-namespace sprint_timer::storage {
+namespace sprint_timer::storage::qt_storage {
 
-class QtTaskTreeFileStorage : public TaskTreeStorage {
+class QtTaskTreeStorage : public TaskTreeMetadataStorage {
 public:
-    explicit QtTaskTreeFileStorage(std::filesystem::path storageDir);
+    QtTaskTreeStorage(std::unique_ptr<TaskTreeMetadataReader> reader,
+                      std::unique_ptr<TaskTreeMetadataWriter> writer);
 
-    TaskTree readTree() override;
+    [[nodiscard]] TaskMetadataTree readTree() const override;
 
-    void saveTree(const TaskTree& taskTree) override;
+    void saveTree(const TaskMetadataTree& taskTree) const override;
 
 private:
-    std::filesystem::path storageDir;
+    std::unique_ptr<TaskTreeMetadataReader> reader;
+    std::unique_ptr<TaskTreeMetadataWriter> writer;
 };
 
-} // namespace sprint_timer::storage
+} // namespace sprint_timer::storage::qt_storage
 
 #endif /* end of include guard: TASKTREEFILESTORAGE_H_YQ94RXZP */

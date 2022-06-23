@@ -22,14 +22,14 @@
 #ifndef SINK_H_LHIQQTBD
 #define SINK_H_LHIQQTBD
 
+#include <span>
 #include <string>
-#include <vector>
 
 namespace sprint_timer::external_io {
 
 class Sink {
 public:
-    virtual void send(std::vector<std::string>&& data) = 0;
+    virtual void send(std::span<const std::string> data) = 0;
 
     Sink() = default;
     Sink(const Sink& other) = delete;

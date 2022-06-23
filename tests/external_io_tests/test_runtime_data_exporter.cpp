@@ -19,9 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "external_io/RuntimeConfigurableDataExporter.h"
 #include "mocks/SerializationAlgorithmMock.h"
 #include "mocks/SinkMock.h"
-#include "external_io/RuntimeConfigurableDataExporter.h"
 
 using namespace sprint_timer;
 using namespace sprint_timer::external_io;
@@ -48,11 +48,12 @@ TEST_F(RuntimeConfigurableDataExporterFixture, dispatches_data)
                                           {SinkType::Stdout, stdoutSink},
                                           {SinkType::File, fileSink}}};
     RuntimeConfigurableDataExporter<int> exporter{serializer, sinkRouter};
-    std::vector<std::string> expected{"Serialized", "Serialized", "Serialized"};
+    const std::vector<std::string> expected{
+        "Serialized", "Serialized", "Serialized"};
     ON_CALL(jsonSerializationAlgo, serialize(_))
         .WillByDefault(Return("Serialized"));
 
-    EXPECT_CALL(networkSink, send(std::move(expected)));
+    EXPECT_CALL(networkSink, send(::testing::ElementsAreArray(expected)));
 
     exporter.exportData(
         std::vector<int>{1, 2, 3}, DataFormat::Json, SinkType::Network);

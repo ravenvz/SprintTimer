@@ -39,7 +39,7 @@ struct TestStorageInitializer {
     sprint_timer::storage::qt_storage::WorkerConnection dbService{
         name, "Worker connection"};
     sprint_timer::storage::qt_storage::QtStorageImplementersFactory factory{
-        dbService.connectionName()};
+        dbService.connectionName(), "task_tree_storage"};
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */

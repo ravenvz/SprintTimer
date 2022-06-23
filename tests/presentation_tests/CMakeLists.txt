@@ -11,6 +11,7 @@ target_sources(test_presentation
     "${CMAKE_CURRENT_LIST_DIR}/test_daytime_statistics_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_history_mediator.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_history_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_planner_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_progress_view_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_register_sprint_control_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint_outline_presenter.cpp"

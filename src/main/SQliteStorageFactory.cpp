@@ -22,9 +22,9 @@
 #include "SQliteStorageFactory.h"
 #include "QtOperationalRangeReaderConnectionProxy.h"
 #include "QtSprintDailyDistributionReaderConnectionProxy.h"
+#include "QtSprintMonthlyDistributionReaderConnectionProxy.h"
 #include "QtSprintStorageReaderConnectionProxy.h"
 #include "QtSprintWeeklyDistributionReaderConnectionProxy.h"
-#include "QtSprintMonthlyDistributionReaderConnectionProxy.h"
 #include "QtTaskStorageReaderConnectionProxy.h"
 #include "QtWorkScheduleStorageConnectionProxy.h"
 #include "qt_storage/QtOperationalRangeReader.h"
@@ -32,16 +32,23 @@
 #include "qt_storage/QtSprintStorage.h"
 #include "qt_storage/QtStorageImplementersFactory.h"
 #include "qt_storage/QtTaskStorage.h"
+#include "qt_storage/QtTaskTreeReader.h"
+#include "qt_storage/QtTaskTreeStorage.h"
+#include "qt_storage/QtTaskTreeWriter.h"
 #include "qt_storage/QtWorkScheduleStorage.h"
 #include <optional>
+#include <utility>
 
 using namespace sprint_timer::storage::qt_storage;
 
 namespace sprint_timer::compose {
 
 SQliteStorageFactory::SQliteStorageFactory(
-    ThreadConnectionHelper& connectionHelper_, IConfig& applicationSettings_)
+    ThreadConnectionHelper& connectionHelper_,
+    std::filesystem::path fileStorageDir_,
+    IConfig& applicationSettings_)
     : connectionHelper{connectionHelper_}
+    , fileStorageDir{std::move(fileStorageDir_)}
     , applicationSettings{applicationSettings_}
 {
 }
@@ -78,7 +85,7 @@ SQliteStorageFactory::dailyDistReader(size_t numDays) const
 }
 
 std::unique_ptr<SprintDistributionReader>
-    SQliteStorageFactory::weeklyDistReader(dw::Weekday /*firstDayOfWeek*/) const
+SQliteStorageFactory::weeklyDistReader(dw::Weekday /*firstDayOfWeek*/) const
 {
     constexpr size_t numWeeks{12};
     return std::make_unique<QtSprintWeeklyDistributionReaderConnectionProxy>(
@@ -99,4 +106,14 @@ SQliteStorageFactory::scheduleStorage() const
     return std::make_unique<QtWorkScheduleStorageConnectionProxy>(
         connectionHelper);
 }
+
+std::unique_ptr<TaskTreeMetadataStorage>
+SQliteStorageFactory::taskTreeStorage(TaskStorageReader& /*unused*/) const
+{
+    return std::make_unique<QtTaskTreeStorage>(
+        std::make_unique<QtTaskTreeReader>(fileStorageDir),
+        std::make_unique<QtTaskTreeWriter>(connectionHelper.connectionName(),
+                                           fileStorageDir));
+}
+
 } // namespace sprint_timer::compose

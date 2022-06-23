@@ -23,50 +23,63 @@
 #define TASKTREE_H_MRVCAPBE
 
 #include "core/GoalProgress.h"
+#include "core/TaskType.h"
 #include "core/Tree.h"
+#include "core/entities/Task.h"
 #include "date_wrapper/date_wrapper.h"
-#include <functional>
-#include <memory>
-#include <queue>
-#include <ranges>
-#include <stack>
-#include <unordered_map>
-#include <utility>
 #include <vector>
 
 namespace sprint_timer {
 
-enum class TaskType { Project, Folder, Recurring, Regular };
-
 struct TaskNode {
-    std::string name;
-    std::string uuid;
-    GoalProgress progress{GoalProgress::Estimated{0}, GoalProgress::Actual{0}};
-    bool completed{false};
-    TaskType taskType{TaskType::Regular};
-    dw::DateTime lastModified{dw::current_date_time_local()};
+    entities::Task task;
+    TaskType type{TaskType::Regular};
+    std::optional<dw::DateTime> dueTime;
+    std::optional<dw::DateTime> reminder;
+    std::string notes;
 
-    friend bool operator==(const TaskNode&, const TaskNode&) = default;
-};
-
-class TaskTree {
-public:
-    void addChild(TaskNode task, std::optional<std::string> parent)
+    // TODO use default implementation when task notes are supported in storage
+    // friend bool operator==(const TaskNode&, const TaskNode&) = default;
+    friend bool operator==(const TaskNode& lhs, const TaskNode& rhs)
     {
-        tree.addChild(task.uuid, task, std::move(parent));
+        return lhs.task == rhs.task && lhs.type == rhs.type &&
+               lhs.dueTime == rhs.dueTime && lhs.reminder == rhs.reminder;
     }
-
-    std::vector<TaskNode> immediateTasks() const { return tree.leaves(); }
-
-    TaskTree projects() const { return TaskTree{}; }
-
-    friend bool operator==(const TaskTree&, const TaskTree&) { return true; }
-
-    friend bool operator!=(const TaskTree&, const TaskTree&) { return false; }
-
-private:
-    Tree<std::string, TaskNode> tree;
 };
+
+using TaskTree = Tree<std::string, TaskNode>;
+
+inline std::vector<TaskNode> immediateTasks(const TaskTree& taskTree)
+{
+    return taskTree.leaves();
+}
+
+inline TaskTree projects(const TaskTree& taskTree) { return TaskTree{}; }
+
+inline void insertTask(TaskTree& taskTree,
+                       const TaskNode& taskNode,
+                       const std::optional<std::string>& parent = std::nullopt)
+{
+    taskTree.addChild(taskNode.task.uuid(), taskNode, parent);
+}
+
+// class TaskTree {
+// public:
+//     void insertTask(const TaskNode& taskNode,
+//                     const std::optional<std::string>& parent)
+//     {
+//         tree.addChild(taskNode.task.uuid(), taskNode, parent);
+//     }
+//
+//     std::vector<TaskNode> immediateTasks() const { return tree.leaves(); }
+//
+//     TaskTree projects() const { return TaskTree{}; }
+//
+//     friend bool operator==(const TaskTree&, const TaskTree&) { return true; }
+//
+// private:
+//     Tree<std::string, TaskNode> tree;
+// };
 
 } // namespace sprint_timer
 

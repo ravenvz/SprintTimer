@@ -19,19 +19,46 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_storage/QtTaskTreeStorage.h"
+#include "qt_storage/DatabaseDescription.h"
+#include "qt_storage/utils/QueryUtils.h"
 #include <utility>
 
-#include "qt_storage/QtTaskTreeFileStorage.h"
+namespace {
 
-namespace sprint_timer::storage {
+enum class AdvColumn {
+    Name,
+    Uuid,
+    EstimatedCost,
+    Tags,
+    Completed,
+    StartTime,
+    FinishTime,
+    Priority,
+    LastModified,
+    SprintUuid
+};
 
-QtTaskTreeFileStorage::QtTaskTreeFileStorage(std::filesystem::path storageDir_)
-    : storageDir{std::move(storageDir_)}
+} // namespace
+
+namespace sprint_timer::storage::qt_storage {
+
+QtTaskTreeStorage::QtTaskTreeStorage(
+    std::unique_ptr<TaskTreeMetadataReader> reader_,
+    std::unique_ptr<TaskTreeMetadataWriter> writer_)
+    : reader{std::move(reader_)}
+    , writer{std::move(writer_)}
 {
 }
 
-TaskTree QtTaskTreeFileStorage::readTree() { return TaskTree{}; }
+TaskMetadataTree QtTaskTreeStorage::readTree() const
+{
+    return reader->readTree();
+}
 
-void QtTaskTreeFileStorage::saveTree(const TaskTree& taskTree) { }
+void QtTaskTreeStorage::saveTree(const TaskMetadataTree& taskTree) const
+{
+    writer->saveTree(taskTree);
+}
 
-} // namespace sprint_timer::storage
+} // namespace sprint_timer::storage::qt_storage

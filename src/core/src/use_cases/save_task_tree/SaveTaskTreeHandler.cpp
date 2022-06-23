@@ -19,24 +19,32 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SAVETASKTREE_H_N4GBFEPQ
-#define SAVETASKTREE_H_N4GBFEPQ
-
-#include "core/Command.h"
+#include "core/use_cases/save_task_tree/SaveTaskTreeHandler.h"
+#include "core/use_cases/TaskTreeMapper.h"
 
 namespace sprint_timer::use_cases {
 
-struct TaskTreeDTO {
-    friend bool operator==(const TaskTreeDTO&, const TaskTreeDTO&) = default;
-};
+SaveTaskTreeHandler::SaveTaskTreeHandler(
+    TaskTreeMetadataStorage& taskTreeStorage_, ActionInvoker& actionInvoker_)
+    : taskTreeStorage{taskTreeStorage_}
+    , actionInvoker{actionInvoker_}
+{
+}
 
-struct SaveTaskTreeCommand : public Command {
-    TaskTreeDTO taskTree;
-
-    friend bool operator==(const SaveTaskTreeCommand&,
-                           const SaveTaskTreeCommand&) = default;
-};
+void SaveTaskTreeHandler::handle(SaveTaskTreeCommand&& command)
+{
+    // TODO wire invoker
+    // const auto taskTree = fromDTO(command.taskTree);
+    auto mapper = [](const TaskNodeDTO& node) {
+        return TaskMetadata{
+            node.task.uuid,
+            static_cast<TaskType>(node.type), // TODO do proper mapping
+            node.dueTime,
+            node.reminder,
+            node.notes};
+    };
+    const auto metadataTree = command.taskTree.mapped<TaskMetadata>(mapper);
+    taskTreeStorage.saveTree(metadataTree);
+}
 
 } // namespace sprint_timer::use_cases
-
-#endif /* end of include guard: SAVETASKTREE_H_N4GBFEPQ */

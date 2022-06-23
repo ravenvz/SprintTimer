@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/SinkMock.h"
 #include "external_io/RuntimeSinkRouter.h"
+#include "mocks/SinkMock.h"
 
 using ::testing::NiceMock;
 using namespace sprint_timer;
@@ -37,19 +37,19 @@ TEST(RuntimeSinkRouterFixture, delegates_to_sink_based_on_runtime_parameter)
         {SinkType::Stdout, stdoutSinkMock}};
     RuntimeSinkRouter router{std::move(mapper)};
 
-    EXPECT_CALL(fileSinkMock,
-                send(std::vector<std::string>{"whatever", "file"}));
-    router.route(std::vector<std::string>{"whatever", "file"}, SinkType::File);
+    const std::vector<std::string> fileSinkData{"whatever", "file"};
+    EXPECT_CALL(fileSinkMock, send(::testing::ElementsAreArray(fileSinkData)));
+    router.route(fileSinkData, SinkType::File);
 
+    const std::vector<std::string> stdoutSinkData{"whatever", "stdout"};
     EXPECT_CALL(stdoutSinkMock,
-                send(std::vector<std::string>{"whatever", "stdout"}));
-    router.route(std::vector<std::string>{"whatever", "stdout"},
-                 SinkType::Stdout);
+                send(::testing::ElementsAreArray(stdoutSinkData)));
+    router.route(stdoutSinkData, SinkType::Stdout);
 
+    const std::vector<std::string> networkSinkData{"whatever", "network"};
     EXPECT_CALL(networkSinkMock,
-                send(std::vector<std::string>{"whatever", "network"}));
-    router.route(std::vector<std::string>{"whatever", "network"},
-                 SinkType::Network);
+                send(::testing::ElementsAreArray(networkSinkData)));
+    router.route(networkSinkData, SinkType::Network);
 }
 
 TEST(RuntimeSinkRouterFixture, throws_when_unable_route_to_sink)

@@ -57,6 +57,38 @@ constexpr OutputIt find_all_adjacent_matches(InputIt first,
     return d_first;
 }
 
+// TODO remove when upgraded to C++23
+template <typename Opt, typename TransFunc>
+constexpr auto transform(Opt&& opt, TransFunc&& func)
+    -> std::optional<decltype(func(*std::forward<Opt>(opt)))>
+{
+    if (!opt) {
+        return std::nullopt;
+    }
+    return {func(*std::forward<Opt>(opt))};
+}
+
+// TODO remove when upgraded to C++23
+template <typename Opt, typename Func>
+constexpr auto and_then(Opt&& opt, Func&& func)
+    -> decltype(func(*std::forward<Opt>(opt)))
+{
+    if (!opt) {
+        return std::nullopt;
+    }
+    return func(*std::forward<Opt>(opt));
+}
+
+// TODO remove when upgraded to C++23
+template <typename Opt, typename Func>
+constexpr auto or_else(Opt&& opt, Func&& func) -> Opt
+{
+    if (opt) {
+        return std::forward<Opt>(opt);
+    }
+    return func();
+}
+
 } // namespace sprint_timer::utils
 
 namespace sprint_timer::ranges_ext {
@@ -188,7 +220,8 @@ constexpr T fold(R&& r, T init, BinaryOperation op, Proj proj = {})
 //     {
 //     }
 //
-//     constexpr std::ranges::iterator_t<base_t> base() const { return current_; }
+//     constexpr std::ranges::iterator_t<base_t> base() const { return current_;
+//     }
 //
 //     constexpr iterator& operator++() { return advance(1); }
 //
@@ -201,7 +234,8 @@ constexpr T fold(R&& r, T init, BinaryOperation op, Proj proj = {})
 //     }
 //
 //     constexpr bool operator==(const iterator& other)
-//         const requires std::equality_comparable<std::ranges::iterator_t<base_t>>
+//         const requires
+//         std::equality_comparable<std::ranges::iterator_t<base_t>>
 //     {
 //         return current_ == other;
 //     }
@@ -304,8 +338,8 @@ constexpr T fold(R&& r, T init, BinaryOperation op, Proj proj = {})
 //
 //     friend constexpr auto operator<=>(
 //         const iterator& x,
-//         const iterator& y) requires std::ranges::random_access_range<base_t> and
-//         std::three_way_comparable<std::ranges::iterator_t<base_t>>
+//         const iterator& y) requires std::ranges::random_access_range<base_t>
+//         and std::three_way_comparable<std::ranges::iterator_t<base_t>>
 //     {
 //         return x.current_ <=> y.current_;
 //     }

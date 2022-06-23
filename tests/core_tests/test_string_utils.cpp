@@ -21,7 +21,7 @@
 *********************************************************************************/
 
 #include "core/utils/StringUtils.h"
-#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 using namespace sprint_timer;
 using namespace sprint_timer::utils;
@@ -138,4 +138,13 @@ TEST(TestStringUtils, test_ends_with)
     EXPECT_FALSE(endsWith("whatever", "everest"));
     EXPECT_FALSE(endsWith("", "ever"));
     EXPECT_FALSE(endsWith("ever", "whatever"));
+}
+
+TEST(TestStringUtils, test_split)
+{
+    EXPECT_THAT(split("I,am,csv,data", ','),
+                ::testing::ElementsAre("I", "am", "csv", "data"));
+    EXPECT_THAT(split("Singleword", ','), ::testing::ElementsAre("Singleword"));
+    EXPECT_THAT(split(",", ','),
+                ::testing::ElementsAre(std::string{}, std::string{}));
 }

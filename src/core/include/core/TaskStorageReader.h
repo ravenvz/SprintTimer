@@ -25,6 +25,7 @@
 #include "core/entities/Task.h"
 #include "date_wrapper/date_wrapper.h"
 #include <functional>
+#include <span>
 
 namespace sprint_timer {
 
@@ -43,6 +44,9 @@ public:
     virtual std::vector<std::string> allTags() = 0;
 
     virtual std::vector<entities::Task> findByUuid(const std::string& uuid) = 0;
+
+    virtual std::vector<entities::Task>
+    findMatching(std::span<const std::string> uuids) = 0;
 };
 
 } // namespace sprint_timer

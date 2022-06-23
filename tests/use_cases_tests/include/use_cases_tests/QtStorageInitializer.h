@@ -49,6 +49,8 @@ struct TestStorageInitializer {
 
     sprint_timer::DefaultDateTimeProvider dateTimeProvider;
 
+    std::filesystem::path fileStoragePath{"tests/tmp"};
+
 private:
     QCoreApplication app;
     const QString name{"file::memory:?cache=shared"};
@@ -58,7 +60,7 @@ private:
     sprint_timer::storage::qt_storage::WorkerConnection dbService{
         name, "Worker connection"};
     sprint_timer::storage::qt_storage::QtStorageImplementersFactory factory{
-        dbService.connectionName()};
+        dbService.connectionName(), fileStoragePath};
     std::unique_ptr<sprint_timer::TaskStorage> taskStorage{
         factory.taskStorage()};
     std::unique_ptr<sprint_timer::SprintStorage> sprintStorage{
@@ -69,12 +71,15 @@ private:
     FakeUuidGenerator uuidGenerator;
     std::unique_ptr<sprint_timer::WorkScheduleStorage> workScheduleStorage{
         factory.scheduleStorage()};
+    std::unique_ptr<sprint_timer::TaskTreeMetadataStorage> taskTreeStorage{
+        factory.taskTreeStorage(*taskStorage)};
     std::unique_ptr<sprint_timer::compose::CommandHandlerComposer>
         commandHandlerComp{
             std::make_unique<sprint_timer::compose::TestCommandHandlerComposer>(
                 actionInvoker,
                 *taskStorage,
                 *sprintStorage,
+                *taskTreeStorage,
                 *workScheduleStorage,
                 uuidGenerator,
                 dateTimeProvider)};
@@ -96,7 +101,8 @@ private:
                 *dailyDistReader,
                 *mondayFirstDistReader,
                 *sundayFirstDistReader,
-                *monthlyDistReader)};
+                *monthlyDistReader,
+                *taskTreeStorage)};
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */

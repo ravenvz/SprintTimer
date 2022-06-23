@@ -82,6 +82,15 @@ void ErrorReportingCommandHandler<CommandT>::handle(CommandT&& command)
         msgBox.setInformativeText(exc.what());
         msgBox.exec();
     }
+    catch (std::exception& exc) {
+        QMessageBox msgBox;
+        std::stringstream ss;
+        msgBox.setText("Exception when handling command");
+        ss << command << " \n with description: " << exc.what();
+        msgBox.setText(QString::fromStdString(ss.str()));
+        msgBox.exec();
+        throw;
+    }
 }
 
 } // namespace sprint_timer

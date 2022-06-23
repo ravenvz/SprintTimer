@@ -261,6 +261,61 @@ TEST_F(AlgutilsFixture, fold_to_different_type)
     EXPECT_EQ(expected, actual);
 }
 
+TEST_F(AlgutilsFixture, monadic_mapping_empty_optional)
+{
+    std::optional<int> maybeValue;
+    auto square = [](int x) { return x * x; };
+
+    EXPECT_EQ(std::nullopt, utils::transform(maybeValue, square));
+}
+
+TEST_F(AlgutilsFixture, monadic_mapping_non_type_changing_optional)
+{
+    std::optional<int> maybeValue{3};
+    auto square = [](int x) { return x * x; };
+
+    EXPECT_EQ(std::optional<int>{9}, utils::transform(maybeValue, square));
+}
+
+TEST_F(AlgutilsFixture, monadic_mapping_type_changing_optional)
+{
+    std::optional<int> maybeValue{4};
+
+    EXPECT_EQ(
+        std::optional<std::string>("4"),
+        utils::transform(maybeValue, [](int x) { return std::to_string(x); }));
+}
+
+TEST_F(AlgutilsFixture, monadic_and_then)
+{
+    auto maybeSquare = [](int val) -> std::optional<std::string> {
+        if (val % 2 == 0) {
+            return {std::to_string(val * val)};
+        }
+        return std::nullopt;
+    };
+
+    EXPECT_EQ(std::optional<std::string>{},
+              utils::and_then(std::optional<int>{}, maybeSquare));
+    EXPECT_EQ(std::optional<std::string>{},
+              utils::and_then(std::optional<int>{7}, maybeSquare));
+    EXPECT_EQ(std::optional<std::string>{"64"},
+              utils::and_then(std::optional<int>{8}, maybeSquare));
+}
+
+TEST_F(AlgutilsFixture, monadic_or_else)
+{
+    auto func = []() { return std::optional<std::string>{"None"}; };
+
+    EXPECT_EQ(std::optional<std::string>{"None"},
+              utils::or_else(std::optional<std::string>{}, func));
+    EXPECT_EQ(std::optional<std::string>{"Some"},
+              utils::or_else(std::optional<std::string>{"Some"}, func));
+    EXPECT_EQ(std::optional<std::string>{},
+              utils::or_else(std::optional<std::string>{},
+                             []() { return std::nullopt; }));
+}
+
 // TEST_F(AlgutilsFixture, adjacent_view)
 // {
 //     // auto ints = std::views::iota(1, 6);

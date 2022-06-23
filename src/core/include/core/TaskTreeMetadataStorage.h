@@ -19,21 +19,20 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKTREESTORAGE_H_4KPVAQQ3
-#define TASKTREESTORAGE_H_4KPVAQQ3
+#ifndef TASKTREEMETADATASTORAGE_H_TYKA93GF
+#define TASKTREEMETADATASTORAGE_H_TYKA93GF
 
 #include "core/TaskTree.h"
+#include "core/TaskTreeMetadataReader.h"
+#include "core/TaskTreeMetadataWriter.h"
+
 namespace sprint_timer {
 
-class TaskTreeStorage {
-public:
-    virtual ~TaskTreeStorage() = default;
-
-    virtual TaskTree readTree() = 0;
-
-    virtual void saveTree(const TaskTree& taskTree) = 0;
+class TaskTreeMetadataStorage : public TaskTreeMetadataReader,
+                                public TaskTreeMetadataWriter {
 };
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: TASKTREESTORAGE_H_4KPVAQQ3 */
+#endif /* end of include guard: TASKTREEMETADATASTORAGE_H_TYKA93GF */
+

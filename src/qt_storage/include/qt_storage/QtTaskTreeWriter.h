@@ -19,11 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef RETRIEVETASKTREE_H_IVJTJ9DF
-#define RETRIEVETASKTREE_H_IVJTJ9DF
+#ifndef QTTASKTREESTORAGEWRITER_H_XDLUUTCC
+#define QTTASKTREESTORAGEWRITER_H_XDLUUTCC
 
-namespace sprint_timer::use_cases {
+#include "core/TaskTreeMetadataWriter.h"
+#include <QString>
+#include <filesystem>
 
-} // namespace sprint_timer::use_cases
+namespace sprint_timer::storage::qt_storage {
 
-#endif /* end of include guard: RETRIEVETASKTREE_H_IVJTJ9DF */
+class QtTaskTreeWriter : public TaskTreeMetadataWriter {
+public:
+    QtTaskTreeWriter(QString connectionName, std::filesystem::path storageDir);
+
+    void saveTree(const TaskMetadataTree& taskTree) const override;
+
+private:
+    QString connectionName;
+    std::filesystem::path storageDir;
+};
+
+} // namespace sprint_timer::storage::qt_storage
+
+#endif /* end of include guard: QTTASKTREESTORAGEWRITER_H_XDLUUTCC */

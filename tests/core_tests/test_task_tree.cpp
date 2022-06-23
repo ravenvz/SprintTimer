@@ -23,6 +23,7 @@
 #include "gtest/gtest.h"
 
 using namespace sprint_timer;
+using namespace dw;
 
 namespace sprint_timer {
 
@@ -30,10 +31,22 @@ template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const TaskNode& taskNode)
 {
-    os << "TaskNode{" << taskNode.taskType << ", " << taskNode.name << ", "
-       << taskNode.uuid << ", ";
-    os << taskNode.progress.actual() << "/" << taskNode.progress.estimated()
-       << ", " << taskNode.completed << ", " << taskNode.lastModified << "}";
+    os << "TaskNode{" << taskNode.task << ", type: " << taskNode.type
+       << ", dueTime: ";
+    if (auto dt = taskNode.dueTime; dt) {
+        os << *dt;
+    }
+    else {
+        os << "null";
+    }
+    os << ", reminder: ";
+    if (auto rmd = taskNode.reminder; rmd) {
+        os << *rmd;
+    }
+    else {
+        os << "null";
+    }
+    os << "}";
     return os;
 }
 
@@ -64,96 +77,179 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskType& taskType)
 
 class TaskTreeFixture : public ::testing::Test {
 public:
-    TaskNode folder1{"folder1",
-                     "f1",
-                     GoalProgress{},
-                     false,
+    TaskNode folder1{entities::Task{"folder1",
+                                    0,
+                                    0,
+                                    "f1",
+                                    std::list<entities::Tag>{},
+                                    false,
+                                    dw::current_date_time()},
                      TaskType::Folder,
-                     dw::current_date_time()};
-    TaskNode folder2{"folder2",
-                     "f2",
-                     GoalProgress{},
-                     false,
+                     std::nullopt,
+                     std::nullopt,
+                     std::string{}};
+    TaskNode folder2{entities::Task{"folder2",
+                                    0,
+                                    0,
+                                    "f2",
+                                    std::list<entities::Tag>{},
+                                    false,
+                                    dw::current_date_time()},
                      TaskType::Folder,
-                     dw::current_date_time()};
-    TaskNode project1{"project1",
-                      "p1",
-                      GoalProgress{},
-                      false,
+                     std::nullopt,
+                     std::nullopt,
+                     std::string{}};
+    TaskNode project1{entities::Task{"project1",
+                                     0,
+                                     0,
+                                     "p1",
+                                     std::list<entities::Tag>{},
+                                     false,
+                                     dw::current_date_time()},
                       TaskType::Project,
-                      dw::current_date_time()};
-    TaskNode project2{"project2",
-                      "p2",
-                      GoalProgress{},
-                      false,
+                      std::nullopt,
+                      std::nullopt,
+                      std::string{}};
+    TaskNode project2{entities::Task{"project2",
+                                     0,
+                                     0,
+                                     "p2",
+                                     std::list<entities::Tag>{},
+                                     false,
+                                     dw::current_date_time()},
                       TaskType::Project,
-                      dw::current_date_time()};
-    TaskNode project3{"project3",
-                      "p3",
-                      GoalProgress{},
-                      false,
+                      std::nullopt,
+                      std::nullopt,
+                      std::string{}};
+    TaskNode project3{entities::Task{"project3",
+                                     0,
+                                     0,
+                                     "p3",
+                                     std::list<entities::Tag>{},
+                                     false,
+                                     dw::current_date_time()},
                       TaskType::Project,
-                      dw::current_date_time()};
-    TaskNode folder3{"folder3",
-                     "f3",
-                     GoalProgress{},
-                     false,
+                      std::nullopt,
+                      std::nullopt,
+                      std::string{}};
+    TaskNode folder3{entities::Task{"folder3",
+                                    0,
+                                    0,
+                                    "f3",
+                                    std::list<entities::Tag>{},
+                                    false,
+                                    dw::current_date_time()},
                      TaskType::Folder,
-                     dw::current_date_time()};
-    TaskNode task1{"task1",
-                   "t1",
-                   GoalProgress{GoalProgress::Estimated{4}},
-                   false,
-                   TaskType::Regular,
-                   dw::current_date_time()};
-    TaskNode project4{"project4",
-                      "p4",
-                      GoalProgress{},
-                      false,
+                     std::nullopt,
+                     std::nullopt,
+                     std::string{}};
+    TaskNode task1{
+        entities::Task{"task1",
+                       4,
+                       0,
+                       "t1",
+                       std::list<entities::Tag>{entities::Tag{"Tag1"}},
+                       false,
+                       dw::current_date_time()},
+        TaskType::Regular,
+        std::nullopt,
+        std::nullopt,
+        std::string{"Some notes for task 1"}};
+    TaskNode project4{entities::Task{"project4",
+                                     4,
+                                     0,
+                                     "p4",
+                                     std::list<entities::Tag>{},
+                                     false,
+                                     dw::current_date_time()},
                       TaskType::Project,
-                      dw::current_date_time()};
-    TaskNode task2{"task2",
-                   "t2",
-                   GoalProgress{GoalProgress::Estimated{3}},
-                   false,
-                   TaskType::Regular,
-                   dw::current_date_time()};
-    TaskNode task3{"task3",
-                   "t3",
-                   GoalProgress{GoalProgress::Estimated{12}},
-                   false,
-                   TaskType::Regular,
-                   dw::current_date_time()};
-    TaskNode task4{"task4",
-                   "t4",
-                   GoalProgress{GoalProgress::Estimated{10}},
-                   false,
-                   TaskType::Regular,
-                   dw::current_date_time()};
-    TaskNode task5{"task5",
-                   "t5",
-                   GoalProgress{GoalProgress::Estimated{7}},
-                   false,
-                   TaskType::Regular,
-                   dw::current_date_time()};
-    TaskNode task6{"task6",
-                   "t6",
-                   GoalProgress{GoalProgress::Estimated{2}},
-                   false,
-                   TaskType::Regular,
-                   dw::current_date_time()};
-    TaskNode recurringTask1{"recurringTask1",
-                            "r1",
-                            GoalProgress{},
-                            false,
+                      std::nullopt,
+                      std::nullopt,
+                      std::string{"Some notes for project4 1"}};
+    TaskNode task2{
+        entities::Task{"task2",
+                       3,
+                       0,
+                       "t2",
+                       std::list<entities::Tag>{entities::Tag{"Tag2"}},
+                       false,
+                       dw::current_date_time()},
+        TaskType::Regular,
+        DateTime{Date{Year{2022}, Month{5}, Day{24}}, std::chrono::hours{17}},
+        DateTime{Date{Year{2022}, Month{5}, Day{24}},
+                 std::chrono::hours{16} + std::chrono::minutes{45}},
+        std::string{"Some notes for task 2"}};
+    TaskNode task3{
+        entities::Task{"task3",
+                       4,
+                       0,
+                       "t3",
+                       std::list<entities::Tag>{entities::Tag{"Tag3"}},
+                       false,
+                       dw::current_date_time()},
+        TaskType::Regular,
+        std::nullopt,
+        std::nullopt,
+        std::string{"Some notes for task 3"}};
+    TaskNode task4{
+        entities::Task{"task4",
+                       4,
+                       0,
+                       "t4",
+                       std::list<entities::Tag>{entities::Tag{"Tag4"}},
+                       false,
+                       dw::current_date_time()},
+        TaskType::Regular,
+        std::nullopt,
+        std::nullopt,
+        std::string{}};
+    TaskNode task5{
+        entities::Task{"task5",
+                       4,
+                       0,
+                       "t5",
+                       std::list<entities::Tag>{entities::Tag{"Tag5"}},
+                       false,
+                       dw::current_date_time()},
+        TaskType::Regular,
+        std::nullopt,
+        std::nullopt,
+        std::string{"Some notes for task 5"}};
+    TaskNode task6{
+        entities::Task{"task6",
+                       5,
+                       5,
+                       "t6",
+                       std::list<entities::Tag>{entities::Tag{"Tag6"}},
+                       true,
+                       dw::current_date_time()},
+        TaskType::Regular,
+        std::nullopt,
+        std::nullopt,
+        std::string{"Some notes for task 6"}};
+    TaskNode recurringTask1{entities::Task{"recurringTask1",
+                                           2,
+                                           0,
+                                           "r1",
+                                           std::list<entities::Tag>{},
+                                           false,
+                                           dw::current_date_time()},
                             TaskType::Recurring,
-                            dw::current_date_time()};
-    TaskNode task7{"task7",
-                   "t7",
-                   GoalProgress{GoalProgress::Estimated{5}},
-                   false,
-                   TaskType::Regular,
-                   dw::current_date_time()};
+                            std::nullopt,
+                            std::nullopt,
+                            std::string{"Some notes for recurringTask1"}};
+    TaskNode task7{
+        entities::Task{"task7",
+                       4,
+                       0,
+                       "t7",
+                       std::list<entities::Tag>{entities::Tag{"Tag7"}},
+                       false,
+                       dw::current_date_time()},
+        TaskType::Regular,
+        std::nullopt,
+        std::nullopt,
+        std::string{"Some notes for task 7"}};
 
     TaskTree buildSampleTree()
     {
@@ -175,21 +271,21 @@ public:
          * task7
          */
         TaskTree tree;
-        tree.addChild(folder1, std::nullopt);
-        tree.addChild(folder2, "f1");
-        tree.addChild(project1, "f2");
-        tree.addChild(project2, "p1");
-        tree.addChild(project3, "p1");
-        tree.addChild(folder3, "p3");
-        tree.addChild(task1, "f3");
-        tree.addChild(project4, std::nullopt);
-        tree.addChild(task2, "p4");
-        tree.addChild(task3, "t2");
-        tree.addChild(task4, "t2");
-        tree.addChild(task5, "t4");
-        tree.addChild(recurringTask1, "t4");
-        tree.addChild(task6, "p4");
-        tree.addChild(task7, std::nullopt);
+        insertTask(tree, folder1, std::nullopt);
+        insertTask(tree, folder2, "f1");
+        insertTask(tree, project1, "f2");
+        insertTask(tree, project2, "p1");
+        insertTask(tree, project3, "p1");
+        insertTask(tree, folder3, "p3");
+        insertTask(tree, task1, "f3");
+        insertTask(tree, project4, std::nullopt);
+        insertTask(tree, task2, "p4");
+        insertTask(tree, task3, "t2");
+        insertTask(tree, task4, "t2");
+        insertTask(tree, task5, "t4");
+        insertTask(tree, recurringTask1, "t4");
+        insertTask(tree, task6, "p4");
+        insertTask(tree, task7, std::nullopt);
         return tree;
     }
 };
@@ -200,25 +296,25 @@ TEST_F(TaskTreeFixture, returns_immediate_tasks)
     std::vector<TaskNode> expected{
         project2, task1, task3, task5, recurringTask1, task6, task7};
 
-    EXPECT_EQ(expected, tree.immediateTasks());
+    EXPECT_EQ(expected, immediateTasks(tree));
 }
 
 TEST_F(TaskTreeFixture, returns_projects_subtrees)
 {
     const TaskTree tree = buildSampleTree();
     TaskTree expected;
-    expected.addChild(project1, std::nullopt);
-    expected.addChild(project2, "p1");
-    expected.addChild(project3, "p1");
-    expected.addChild(folder3, "p3");
-    expected.addChild(task1, "f3");
-    expected.addChild(project4, std::nullopt);
-    expected.addChild(task2, "p4");
-    expected.addChild(task3, "t2");
-    expected.addChild(task4, "t2");
-    expected.addChild(task5, "t4");
-    expected.addChild(recurringTask1, "t4");
-    expected.addChild(task6, "p4");
+    insertTask(expected, project1, std::nullopt);
+    insertTask(expected, project2, "p1");
+    insertTask(expected, project3, "p1");
+    insertTask(expected, folder3, "p3");
+    insertTask(expected, task1, "f3");
+    insertTask(expected, project4, std::nullopt);
+    insertTask(expected, task2, "p4");
+    insertTask(expected, task3, "t2");
+    insertTask(expected, task4, "t2");
+    insertTask(expected, task5, "t4");
+    insertTask(expected, recurringTask1, "t4");
+    insertTask(expected, task6, "p4");
 
-    EXPECT_EQ(expected, tree.projects());
+    EXPECT_EQ(expected, projects(tree));
 }

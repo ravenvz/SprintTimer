@@ -20,9 +20,14 @@
 **
 *********************************************************************************/
 #include "qt_storage/QtTaskStorageReader.h"
+#include "core/utils/StringUtils.h"
 #include "qt_storage/DatabaseDescription.h"
 #include "qt_storage/utils/DateTimeConverter.h"
 #include "qt_storage/utils/QueryUtils.h"
+
+#include <QSqlError>
+#include <iostream>
+#include <iterator>
 
 namespace {
 
@@ -77,22 +82,6 @@ QtTaskStorageReader::QtTaskStorageReader(QString connectionName_)
     : connectionName{std::move(connectionName_)}
 {
     finishedTasksQuery =
-        // tryPrepare(connectionName,
-        //            QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
-        //                    "FROM %10 "
-        //                    "WHERE %6 = 1 AND DATE(%8) >= (:start_date) "
-        //                    "AND DATE(%8) <= (:end_date) "
-        //                    "ORDER BY %8;"}
-        //                .arg(TaskTable::Columns::id)
-        //                .arg(TaskTable::Columns::name)
-        //                .arg(TaskTable::Columns::estimatedCost)
-        //                .arg(TaskTable::Columns::actualCost)
-        //                .arg(TaskTable::Columns::priority)
-        //                .arg(TaskTable::Columns::completed)
-        //                .arg(TasksView::Aliases::tags)
-        //                .arg(TaskTable::Columns::lastModified)
-        //                .arg(TaskTable::Columns::uuid)
-        //                .arg(TasksView::name));
         tryPrepare(connectionName,
                    QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10 "
                            "FROM %11 "
@@ -116,22 +105,6 @@ QtTaskStorageReader::QtTaskStorageReader(QString connectionName_)
                        .arg(TasksView::name)
                        .arg(SprintTable::name));
 
-    // allTasksQuery =
-    // connectionName,
-    // QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
-    //         "FROM %10 "
-    //         "WHERE DATE(%8) >= (:start_date) AND DATE(%8) <= (:end_date) "
-    //         "ORDER BY %8;"}
-    //     .arg(TaskTable::Columns::id)
-    //     .arg(TaskTable::Columns::name)
-    //     .arg(TaskTable::Columns::estimatedCost)
-    //     .arg(TaskTable::Columns::actualCost)
-    //     .arg(TaskTable::Columns::priority)
-    //     .arg(TaskTable::Columns::completed)
-    //     .arg(TasksView::Aliases::tags)
-    //     .arg(TaskTable::Columns::lastModified)
-    //     .arg(TaskTable::Columns::uuid)
-    //     .arg(TasksView::name));
     allTasksQuery = tryPrepare(
         connectionName,
         QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10 "
@@ -177,21 +150,27 @@ QtTaskStorageReader::QtTaskStorageReader(QString connectionName_)
                                 .arg(SprintTable::Columns::taskUuid))
                        .arg(TasksView::name)
                        .arg(SprintTable::name));
-    // findByUuidQuery =
-    //     tryPrepare(connectionName,
-    //                QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
-    //                        "FROM %10 "
-    //                        "WHERE %9 == (:uuid);"}
-    //                    .arg(TaskTable::Columns::id)
-    //                    .arg(TaskTable::Columns::name)
-    //                    .arg(TaskTable::Columns::estimatedCost)
-    //                    .arg(TaskTable::Columns::actualCost)
-    //                    .arg(TaskTable::Columns::priority)
-    //                    .arg(TaskTable::Columns::completed)
-    //                    .arg(TasksView::Aliases::tags)
-    //                    .arg(TaskTable::Columns::lastModified)
-    //                    .arg(TaskTable::Columns::uuid)
-    //                    .arg(TasksView::name));
+    findMatchingQuery =
+        tryPrepare(connectionName,
+                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10 "
+                           "FROM %11 "
+                           "LEFT JOIN %12 ON %2 = %10 "
+                           "WHERE %2 IN ((:uuids_list));"}
+                       .arg(TaskTable::Columns::name)
+                       .arg(QString{"%1.%2"}.arg(TasksView::name,
+                                                 TaskTable::Columns::uuid))
+                       .arg(TaskTable::Columns::estimatedCost)
+                       .arg(TasksView::Aliases::tags)
+                       .arg(TaskTable::Columns::completed)
+                       .arg(SprintTable::Columns::startTime)
+                       .arg(SprintTable::Columns::finishTime)
+                       .arg(TaskTable::Columns::priority)
+                       .arg(TaskTable::Columns::lastModified)
+                       .arg(QString{"%1.%2 "}
+                                .arg(SprintTable::name)
+                                .arg(SprintTable::Columns::taskUuid))
+                       .arg(TasksView::name)
+                       .arg(SprintTable::name));
 }
 
 std::vector<entities::Task> QtTaskStorageReader::unfinishedTasks()
@@ -219,23 +198,7 @@ std::vector<entities::Task> QtTaskStorageReader::unfinishedTasks()
                             .arg(SprintTable::Columns::taskUuid))
                    .arg(TasksView::name)
                    .arg(SprintTable::name));
-    // tryExecute(query,
-    //            QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9 "
-    //                    "FROM %10 "
-    //                    "WHERE %6 = 0 OR %8 > DATETIME('now', '-1 day') "
-    //                    "ORDER BY %5;"}
-    //                .arg(TaskTable::Columns::id)
-    //                .arg(TaskTable::Columns::name)
-    //                .arg(TaskTable::Columns::estimatedCost)
-    //                .arg(TaskTable::Columns::actualCost)
-    //                .arg(TaskTable::Columns::priority)
-    //                .arg(TaskTable::Columns::completed)
-    //                .arg(TasksView::Aliases::tags)
-    //                .arg(TaskTable::Columns::lastModified)
-    //                .arg(TaskTable::Columns::uuid)
-    //                .arg(TasksView::name));
     return advTasksFromQuery(query);
-    // return tasksFromQuery(query);
 }
 
 std::vector<Task>
@@ -282,6 +245,39 @@ QtTaskStorageReader::findByUuid(const std::string& uuid)
     findByUuidQuery.bindValue(":uuid", QVariant(QString::fromStdString(uuid)));
     tryExecute(findByUuidQuery);
     return advTasksFromQuery(findByUuidQuery);
+}
+
+std::vector<Task>
+QtTaskStorageReader::findMatching(std::span<const std::string> uuids)
+{
+    const auto us = sprint_timer::utils::transformJoin(
+        cbegin(uuids), cend(uuids), ",", [](const auto& id) {
+            return "'" + std::string{id} + "'";
+        });
+    QSqlQuery query(QSqlDatabase::database(connectionName));
+    tryExecute(query,
+               QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10 "
+                       "FROM %11 "
+                       "LEFT JOIN %12 ON %2 = %10 "
+                       "WHERE %2 IN (%13);"}
+                   .arg(TaskTable::Columns::name)
+                   .arg(QString{"%1.%2"}.arg(TasksView::name,
+                                             TaskTable::Columns::uuid))
+                   .arg(TaskTable::Columns::estimatedCost)
+                   .arg(TasksView::Aliases::tags)
+                   .arg(TaskTable::Columns::completed)
+                   .arg(SprintTable::Columns::startTime)
+                   .arg(SprintTable::Columns::finishTime)
+                   .arg(TaskTable::Columns::priority)
+                   .arg(TaskTable::Columns::lastModified)
+                   .arg(QString{"%1.%2 "}
+                            .arg(SprintTable::name)
+                            .arg(SprintTable::Columns::taskUuid))
+                   .arg(TasksView::name)
+                   .arg(SprintTable::name)
+                   .arg(QString::fromStdString(us)));
+
+    return advTasksFromQuery(query);
 }
 
 } // namespace sprint_timer::storage::qt_storage

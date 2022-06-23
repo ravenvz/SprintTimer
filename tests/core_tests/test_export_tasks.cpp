@@ -72,7 +72,9 @@ TEST_F(ExportTasksHandlerFixture, delegates_to_exporter)
         .WillByDefault(Return(tasks));
 
     EXPECT_CALL(exporterMock,
-                exportData(tasks, DataFormat::Json, SinkType::Network));
+                exportData(::testing::ElementsAreArray(tasks),
+                           DataFormat::Json,
+                           SinkType::Network));
 
     handler.handle(use_cases::ExportTasksCommand{
         someDateRange, DataFormat::Json, SinkType::Network});

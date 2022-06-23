@@ -29,10 +29,10 @@ class DataExporterMock : public sprint_timer::DataExporter<T> {
 public:
     MOCK_METHOD(void,
                 exportData,
-                (const std::vector<T>&,
+                (std::span<const T>,
                  sprint_timer::DataFormat,
                  sprint_timer::SinkType),
-                (override));
+                (const, override));
 };
 
 } // namespace mocks

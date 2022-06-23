@@ -51,6 +51,9 @@ public:
 
     std::vector<entities::Task> findByUuid(const std::string& uuid) final;
 
+    std::vector<entities::Task>
+    findMatching(std::span<const std::string> uuids) final;
+
     void save(const entities::Task& task) final;
 
     void remove(const std::string& uuid) final;

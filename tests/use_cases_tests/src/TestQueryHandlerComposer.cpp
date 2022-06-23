@@ -31,7 +31,8 @@ TestQueryHandlerComposer::TestQueryHandlerComposer(
     SprintDistributionReader& dailyDistReader_,
     SprintDistributionReader& mondayFirstWeeklyDistReader_,
     SprintDistributionReader& sundayFirstWeeklyDistReader_,
-    SprintDistributionReader& monthlyDistReader_)
+    SprintDistributionReader& monthlyDistReader_,
+    TaskTreeMetadataReader& taskTreeMetadataStorage_)
     : activeTasks{taskStorage_}
     , allTags{taskStorage_}
     , requestSprints{sprintStorage_}
@@ -46,6 +47,7 @@ TestQueryHandlerComposer::TestQueryHandlerComposer(
     , taskBacklog{taskStorage_}
     , sprintStatistics{sprintStorage_}
     , workdaysStatistics{sprintStatistics}
+    , readTaskTree{taskStorage_, taskTreeMetadataStorage_}
 {
 }
 
@@ -146,6 +148,12 @@ QueryHandler<use_cases::TopTagFrequenciesQuery>&
 TestQueryHandlerComposer::topTagFrequenciesHandler()
 {
     return topTagFrequencies;
+}
+
+QueryHandler<use_cases::ReadTaskTreeQuery>&
+TestQueryHandlerComposer::readTaskTreeHandler()
+{
+    return readTaskTree;
 }
 
 } // namespace sprint_timer::compose
