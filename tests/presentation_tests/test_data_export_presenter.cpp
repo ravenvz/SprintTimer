@@ -21,10 +21,9 @@
 *********************************************************************************/
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/HistoryMediatorMock.h"
-#include "gmock/gmock.h"
 #include "core/SprintTimerException.h"
-#include "core/use_cases/export_data/ExportSprintsCommand.h"
-#include "core/use_cases/export_data/ExportTasksCommand.h"
+#include "api/requests/ExportSprintsCommand.h"
+#include "api/requests/ExportTasksCommand.h"
 #include "qt_gui/presentation/DataExportPresenter.h"
 #include "qt_gui/presentation/HistoryMediator.h"
 
@@ -38,25 +37,8 @@ using namespace sprint_timer::ui;
 using sprint_timer::DataFormat;
 using sprint_timer::SinkType;
 using sprint_timer::ui::HistoryMediator;
-using sprint_timer::use_cases::ExportSprintsCommand;
-using sprint_timer::use_cases::ExportTasksCommand;
-
-namespace sprint_timer::use_cases {
-
-bool operator==(const ExportSprintsCommand& lhs,
-                const ExportSprintsCommand& rhs)
-{
-    return lhs.dateRange == rhs.dateRange && lhs.format == rhs.format &&
-           lhs.sinkType == rhs.sinkType;
-}
-
-bool operator==(const ExportTasksCommand& lhs, const ExportTasksCommand& rhs)
-{
-    return lhs.dateRange == rhs.dateRange && lhs.format == rhs.format &&
-           lhs.sinkType == rhs.sinkType;
-}
-
-} // namespace sprint_timer::use_cases
+using sprint_timer::api::ExportSprintsCommand;
+using sprint_timer::api::ExportTasksCommand;
 
 namespace sprint_timer::ui::contracts::DataExportContract {
 
@@ -177,10 +159,10 @@ public:
 class DataExportPresenterFixture : public ::testing::Test {
 public:
     NiceMock<mocks::CommandHandlerMock<
-        sprint_timer::use_cases::ExportSprintsCommand>>
+        sprint_timer::api::ExportSprintsCommand>>
         exportSprintsHandlerMock;
     NiceMock<
-        mocks::CommandHandlerMock<sprint_timer::use_cases::ExportTasksCommand>>
+        mocks::CommandHandlerMock<sprint_timer::api::ExportTasksCommand>>
         exportTasksHandlerMock;
     NiceMock<ViewMock> viewMock;
     NiceMock<mocks::HistoryMediatorMock> mediatorMock;

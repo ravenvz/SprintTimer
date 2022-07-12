@@ -68,7 +68,7 @@ void BestWorkdayPresenter::fetchDataImpl()
         statisticsContext.get();
     if (selectedRange) {
         workdayStatistics = workdayStatisticsHandler.get().handle(
-            use_cases::WorkdayStatisticsQuery{
+            api::WorkdayStatisticsQuery{
                 numTopTags, selectedTag, *selectedRange});
     }
 }

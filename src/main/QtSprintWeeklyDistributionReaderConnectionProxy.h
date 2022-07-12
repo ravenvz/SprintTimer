@@ -23,7 +23,7 @@
 #define QTSPRINTWEEKLYDISTRIBUTIONREADERCONNECTIONPROXY_H_JC2HZ8AV
 
 #include "ThreadConnectionHelper.h"
-#include "core/IConfig.h"
+#include "api/IConfig.h"
 #include "core/SprintDistributionReader.h"
 
 namespace sprint_timer::compose {
@@ -34,7 +34,7 @@ public:
     QtSprintWeeklyDistributionReaderConnectionProxy(
         ThreadConnectionHelper& connectionHelper,
         size_t numWeeks,
-        IConfig& applicationSettings);
+        api::IConfig& applicationSettings);
 
     std::vector<int>
     sprintDistribution(const dw::DateRange& dateRange) override;
@@ -42,7 +42,7 @@ public:
 private:
     ThreadConnectionHelper& connectionHelper;
     size_t numWeeks;
-    IConfig& applicationSettings;
+    api::IConfig& applicationSettings;
 
     void checkStorageInteractorInitialized();
 };

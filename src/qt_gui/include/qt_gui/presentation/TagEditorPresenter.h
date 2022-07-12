@@ -22,18 +22,18 @@
 #ifndef TAGEDITORPRESENTER_H_QMSK5CBY
 #define TAGEDITORPRESENTER_H_QMSK5CBY
 
-#include "core/CommandHandler.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/rename_tag/RenameTagCommand.h"
-#include "core/use_cases/request_tags/AllTagsQuery.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/RenameTagCommand.h"
+#include "api/requests/AllTagsQuery.h"
 #include "qt_gui/presentation/TagEditorContract.h"
 
 namespace sprint_timer::ui {
 
 class TagEditorPresenter : public contracts::TagEditorContract::Presenter {
 public:
-    using all_tags_hdl_t = QueryHandler<use_cases::AllTagsQuery>;
-    using rename_tag_hdl_t = CommandHandler<use_cases::RenameTagCommand>;
+    using all_tags_hdl_t = asp::QueryHandler<api::AllTagsQuery>;
+    using rename_tag_hdl_t = asp::CommandHandler<api::RenameTagCommand>;
 
     TagEditorPresenter(all_tags_hdl_t& allTagsHandler,
                        rename_tag_hdl_t& renameTagHandler);
@@ -44,7 +44,7 @@ public:
 private:
     all_tags_hdl_t& allTagsHandler;
     rename_tag_hdl_t& renameTagHandler;
-    std::optional<all_tags_hdl_t::result_t> data;
+    std::optional<api::AllTagsQuery::Result> data;
 
     void fetchDataImpl() override;
 

@@ -19,8 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_progress/RequestProgressQuery.h"
+#include "api/requests/RequestProgressQuery.h"
 #include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/ProgressPresenter.h"
 #include "gmock/gmock.h"
@@ -140,7 +139,7 @@ class ProgressPresenterFixture : public ::testing::Test {
 public:
     ::testing::NiceMock<ProgressWidgetMock> viewMock;
     ::testing::NiceMock<
-        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestProgressQuery>>
+        mocks::QueryHandlerMock<sprint_timer::api::RequestProgressQuery>>
         requestProgressHandlerMock;
 };
 

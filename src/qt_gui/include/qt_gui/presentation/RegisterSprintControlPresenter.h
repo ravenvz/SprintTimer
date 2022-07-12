@@ -22,8 +22,8 @@
 #ifndef REGISTERSPRINTCONTROLPRESENTER_H_CJFOM9FV
 #define REGISTERSPRINTCONTROLPRESENTER_H_CJFOM9FV
 
-#include "core/CommandHandler.h"
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/requests/RegisterSprintBulkCommand.h"
 #include "qt_gui/presentation/RegisterSprintControl.h"
 
 namespace sprint_timer::ui {
@@ -32,7 +32,7 @@ class RegisterSprintControlPresenter
     : public contracts::RegisterSprintControl::Presenter {
 public:
     using register_sprint_bulk_hdl_t =
-        CommandHandler<use_cases::RegisterSprintBulkCommand>;
+        asp::CommandHandler<api::RegisterSprintBulkCommand>;
 
     explicit RegisterSprintControlPresenter(
         register_sprint_bulk_hdl_t& registerSprintBulkHandler);

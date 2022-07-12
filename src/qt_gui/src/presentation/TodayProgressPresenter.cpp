@@ -44,7 +44,7 @@ TodayProgressPresenter::TodayProgressPresenter(
 
 void TodayProgressPresenter::fetchDataImpl()
 {
-    data = requestProgressHandler.handle(use_cases::RequestProgressQuery{});
+    data = requestProgressHandler.handle(api::RequestProgressQuery{});
 }
 
 void TodayProgressPresenter::updateViewImpl()

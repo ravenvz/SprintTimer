@@ -22,7 +22,7 @@
 #ifndef TASKCONTRACT_H_MQASHYXA
 #define TASKCONTRACT_H_MQASHYXA
 
-#include "core/use_cases/TaskDTO.h"
+#include "api/dtos/TaskDTO.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
 #include <vector>
@@ -33,7 +33,7 @@ class View;
 
 class Presenter : public mvp::BasePresenter<View> {
 public:
-    virtual void editTask(const use_cases::TaskDTO& editedTask) = 0;
+    virtual void editTask(const api::TaskDTO& editedTask) = 0;
 
     virtual void deleteTask(const std::string& uuid) = 0;
 
@@ -46,7 +46,7 @@ public:
 
 class View : public mvp::BaseView<View, Presenter> {
 public:
-    virtual void displayTasks(const std::vector<use_cases::TaskDTO>& tasks) = 0;
+    virtual void displayTasks(const std::vector<api::TaskDTO>& tasks) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::TaskContract

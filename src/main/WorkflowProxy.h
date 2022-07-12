@@ -22,8 +22,8 @@
 #ifndef WORKFLOWPROXY_H_VT728IZA
 #define WORKFLOWPROXY_H_VT728IZA
 
+#include "api/IConfig.h"
 #include "core/CompositionObserver.h"
-#include "core/IConfig.h"
 #include "core/Workflow.h"
 
 namespace sprint_timer::compose {
@@ -31,7 +31,7 @@ namespace sprint_timer::compose {
 class WorkflowProxy : public IWorkflow {
 public:
     WorkflowProxy(std::chrono::seconds timerTickPeriod,
-                  const IConfig& settings,
+                  const api::IConfig& settings,
                   Observable& configChangedSignaller);
 
     void start() override;
@@ -56,7 +56,7 @@ public:
 
 private:
     std::chrono::seconds timerTickPeriod;
-    const IConfig& settings;
+    const api::IConfig& settings;
     CompositionObserver configChangedWatcher;
     IWorkflow::WorkflowParams workflowParams{settings.sprintDuration(),
                                              settings.shortBreakDuration(),
@@ -68,7 +68,7 @@ private:
 };
 
 inline WorkflowProxy::WorkflowProxy(std::chrono::seconds timerTickPeriod_,
-                                    const IConfig& settings_,
+                                    const api::IConfig& settings_,
                                     Observable& configChangedSignaller_)
     : timerTickPeriod{timerTickPeriod_}
     , settings{settings_}

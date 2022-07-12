@@ -22,12 +22,12 @@
 #ifndef SOUNDPLAYERFACTORY_H
 #define SOUNDPLAYERFACTORY_H
 
-#include "core/SoundPlayer.h"
+#include "api/SoundPlayer.h"
 #include <memory>
 
 namespace sprint_timer::compose {
 
-std::unique_ptr<SoundPlayer> createPlayer();
+std::unique_ptr<api::SoundPlayer> createPlayer();
 
 } // namespace sprint_timer::compose
 

@@ -22,7 +22,7 @@
 #ifndef PLANNERCONTRACT_H_FYB5GGKL
 #define PLANNERCONTRACT_H_FYB5GGKL
 
-#include "core/use_cases/TaskTreeDTO.h"
+#include "api/dtos/TaskTreeDTO.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
 
@@ -36,7 +36,7 @@ public:
 
 class View : public mvp::BaseView<View, Presenter> {
 public:
-    virtual void displayPlanner(const use_cases::TaskTreeDTO& taskTree) = 0;
+    virtual void displayPlanner(const api::TaskTreeDTO& taskTree) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::PlannerContract

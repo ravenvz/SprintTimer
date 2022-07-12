@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "core/Workflow.h"
-#include "mocks/ConfigMock.h"
 #include "gmock/gmock.h"
 
 using namespace sprint_timer;
@@ -82,7 +81,6 @@ protected:
         workflow->addListener(&listener);
     }
 
-    ConfigMock configMock;
     WorkflowListenerMock listener;
     std::unique_ptr<WorkflowTest> workflow;
 };

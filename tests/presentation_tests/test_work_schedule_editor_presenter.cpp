@@ -56,17 +56,6 @@ public:
                 (override));
 };
 
-namespace sprint_timer::use_cases {
-
-bool operator==(const ChangeWorkScheduleCommand& lhs,
-                const ChangeWorkScheduleCommand& rhs)
-{
-    return lhs.oldSchedule == rhs.oldSchedule &&
-           lhs.newSchedule == rhs.newSchedule;
-}
-
-} // namespace sprint_timer::use_cases
-
 template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, uint8_t v)
@@ -104,9 +93,9 @@ WorkSchedule createSomeWorkSchedule()
 class WorkScheduleEditorPresenterFixture : public ::testing::Test {
 public:
     NiceMock<WorkScheduleEditorViewMock> view;
-    NiceMock<mocks::QueryHandlerMock<use_cases::WorkScheduleQuery>>
+    NiceMock<mocks::QueryHandlerMock<api::WorkScheduleQuery>>
         workScheduleHandler;
-    NiceMock<mocks::CommandHandlerMock<use_cases::ChangeWorkScheduleCommand>>
+    NiceMock<mocks::CommandHandlerMock<api::ChangeWorkScheduleCommand>>
         changeWorkScheduleHandler;
     const dw::Weekday firstDayOfWeek{dw::Weekday::Monday};
     ui::WorkScheduleEditorPresenter presenter{
@@ -298,7 +287,7 @@ TEST_F(
 
 TEST_F(WorkScheduleEditorPresenterFixture, stores_work_schedule_on_confirmation)
 {
-    using sprint_timer::use_cases::ChangeWorkScheduleCommand;
+    using sprint_timer::api::ChangeWorkScheduleCommand;
     using namespace dw;
     auto updatedSchedule = schedule;
     const auto someWeekSchedule = buildWeekSchedule({6, 5, 4, 3, 2, 1, 0});
@@ -335,7 +324,7 @@ TEST_F(WorkScheduleEditorPresenterFixture,
 TEST_F(WorkScheduleEditorPresenterFixture,
        on_revert_changes_updates_view_with_original_schedule)
 {
-    using sprint_timer::use_cases::ChangeWorkScheduleCommand;
+    using sprint_timer::api::ChangeWorkScheduleCommand;
     using namespace dw;
     auto updatedSchedule = schedule;
     const auto someWeekSchedule = buildWeekSchedule({6, 5, 4, 3, 2, 1, 0});
@@ -385,7 +374,7 @@ TEST_F(WorkScheduleEditorPresenterFixture,
 
     EXPECT_CALL(
         changeWorkScheduleHandler,
-        handle(use_cases::ChangeWorkScheduleCommand{oldSchedule, schedule}));
+        handle(api::ChangeWorkScheduleCommand{oldSchedule, schedule}));
 
     sundayFirstPresenter.onScheduleChangeConfirmed();
 }

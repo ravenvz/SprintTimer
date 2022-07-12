@@ -56,7 +56,7 @@ ProgressPresenter::ProgressPresenter(
 
 void ProgressPresenter::fetchDataImpl()
 {
-    data = requestProgressHandler.handle(use_cases::RequestProgressQuery{});
+    data = requestProgressHandler.handle(api::RequestProgressQuery{});
 }
 
 void ProgressPresenter::updateViewImpl()

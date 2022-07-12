@@ -29,7 +29,7 @@ using ::testing::NiceMock;
 using ::testing::Return;
 
 using sprint_timer::ProgressOverPeriod;
-using sprint_timer::use_cases::RequestProgressQuery;
+using sprint_timer::api::RequestProgressQuery;
 
 namespace {
 

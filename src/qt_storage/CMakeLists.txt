@@ -73,7 +73,7 @@ target_link_libraries(
     ${STORAGE_LIB}
     PUBLIC Qt6::Core
     PUBLIC Qt6::Sql
-    PUBLIC ${CORE_LIB}
+    PUBLIC ${API_LIB}
     PRIVATE
         sprint_timer_options
         sprint_timer_warnings

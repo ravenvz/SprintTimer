@@ -38,7 +38,7 @@ TaskModel::TaskModel(QObject* parent_)
 {
 }
 
-void TaskModel::displayTasks(const std::vector<use_cases::TaskDTO>& tasks)
+void TaskModel::displayTasks(const std::vector<api::TaskDTO>& tasks)
 {
     beginResetModel();
     storage = tasks;
@@ -70,7 +70,7 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
         return {};
     }
 
-    const use_cases::TaskDTO& item = storage[static_cast<size_t>(index.row())];
+    const api::TaskDTO& item = storage[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
@@ -120,7 +120,7 @@ bool TaskModel::setData(const QModelIndex& index,
     case (CustomRoles::ReplaceRole): {
         if (auto p = presenter(); p) {
             const auto& oldTask = storage[pos];
-            auto editedTask = value.value<use_cases::TaskDTO>();
+            auto editedTask = value.value<api::TaskDTO>();
             editedTask.uuid = oldTask.uuid;
             editedTask.actualCost = oldTask.actualCost;
             p.value()->editTask(editedTask);

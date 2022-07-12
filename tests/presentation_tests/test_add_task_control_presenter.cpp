@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/create_task/CreateTaskCommand.h"
-#include "core/use_cases/request_tags/AllTagsQuery.h"
+#include "api/requests/CreateTaskCommand.h"
+#include "api/requests/AllTagsQuery.h"
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/AddTaskControlPresenter.h"
@@ -38,9 +38,9 @@ public:
 
 class AddTaskControlPresenterFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::CommandHandlerMock<use_cases::CreateTaskCommand>>
+    NiceMock<mocks::CommandHandlerMock<api::CreateTaskCommand>>
         createTaskHandler;
-    NiceMock<mocks::QueryHandlerMock<use_cases::AllTagsQuery>> allTagsHandler;
+    NiceMock<mocks::QueryHandlerMock<api::AllTagsQuery>> allTagsHandler;
     AddTaskControlViewMock view;
     ui::AddTaskControlPresenter sut{createTaskHandler};
 };
@@ -49,7 +49,7 @@ namespace {
 
 const dw::DateTime someModificationStamp{dw::current_date_time()};
 
-std::pair<sprint_timer::entities::Task, sprint_timer::use_cases::TaskDTO>
+std::pair<sprint_timer::entities::Task, api::TaskDTO>
 someTaskWithDescription();
 
 } // namespace
@@ -60,7 +60,7 @@ TEST_F(AddTaskControlPresenterFixture, invokes_handler_to_add_task_given_dto)
     const auto [task, details] = someTaskWithDescription();
 
     EXPECT_CALL(createTaskHandler,
-                handle(use_cases::CreateTaskCommand{
+                handle(api::CreateTaskCommand{
                     details.name, details.tags, details.expectedCost}));
 
     sut.addTask(details);
@@ -71,7 +71,7 @@ TEST_F(AddTaskControlPresenterFixture,
 {
     EXPECT_CALL(
         createTaskHandler,
-        handle(use_cases::CreateTaskCommand{"All parts present", {"Test"}, 5}));
+        handle(api::CreateTaskCommand{"All parts present", {"Test"}, 5}));
 
     sut.addTask("#Test All parts present *5");
 }
@@ -81,7 +81,7 @@ TEST_F(AddTaskControlPresenterFixture,
 {
     EXPECT_CALL(
         createTaskHandler,
-        handle(use_cases::CreateTaskCommand{"Task with tag", {"Test"}, 1}));
+        handle(api::CreateTaskCommand{"Task with tag", {"Test"}, 1}));
 
     sut.addTask("#Test Task with tag");
 }
@@ -91,7 +91,7 @@ TEST_F(AddTaskControlPresenterFixture,
 {
     EXPECT_CALL(
         createTaskHandler,
-        handle(use_cases::CreateTaskCommand{"Simple task", std::vector<std::string>{}, 2}));
+        handle(api::CreateTaskCommand{"Simple task", std::vector<std::string>{}, 2}));
 
     sut.addTask("Simple task *2");
 }
@@ -101,7 +101,7 @@ TEST_F(AddTaskControlPresenterFixture,
 {
     EXPECT_CALL(
         createTaskHandler,
-        handle(use_cases::CreateTaskCommand{"", {"Tag", "Test"}, 44}));
+        handle(api::CreateTaskCommand{"", {"Tag", "Test"}, 44}));
 
     sut.addTask("#Tag #Test *44");
 }
@@ -111,7 +111,7 @@ TEST_F(AddTaskControlPresenterFixture,
 {
     EXPECT_CALL(
         createTaskHandler,
-        handle(use_cases::CreateTaskCommand{"Multiple estimated", std::vector<std::string>{}, 9}));
+        handle(api::CreateTaskCommand{"Multiple estimated", std::vector<std::string>{}, 9}));
 
     sut.addTask("Multiple estimated *5 *9");
 }
@@ -121,18 +121,18 @@ TEST_F(AddTaskControlPresenterFixture,
 {
     EXPECT_CALL(
         createTaskHandler,
-        handle(use_cases::CreateTaskCommand{"##My # ## beautiful,marvelous, great content", {"tag1"}, 1}));
+        handle(api::CreateTaskCommand{"##My # ## beautiful,marvelous, great content", {"tag1"}, 1}));
 
     sut.addTask("##My #tag1  #   ##    beautiful,marvelous, great   content");
 }
 
 namespace {
 
-std::pair<sprint_timer::entities::Task, sprint_timer::use_cases::TaskDTO>
+std::pair<sprint_timer::entities::Task, sprint_timer::api::TaskDTO>
 someTaskWithDescription()
 {
     using namespace sprint_timer::entities;
-    const sprint_timer::use_cases::TaskDTO details{"123",
+    const sprint_timer::api::TaskDTO details{"123",
                                                    {"Tag 1", "Tag 2"},
                                                    "SomeTask",
                                                    4,

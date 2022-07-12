@@ -22,8 +22,8 @@
 #ifndef DATERANGESELECTORPRESENTER_H_9Y6GTFSZ
 #define DATERANGESELECTORPRESENTER_H_9Y6GTFSZ
 
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_op_range/OperationalRangeQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/OperationalRangeQuery.h"
 #include "qt_gui/presentation/DateRangeChangeListener.h"
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
@@ -34,10 +34,10 @@ namespace sprint_timer::ui {
 class DateRangeSelectorPresenter
     : public contracts::DateRangeSelectorContract::Presenter {
 public:
-    using op_range_query_t = QueryHandler<use_cases::OperationalRangeQuery>;
+    using op_range_query_t = asp::QueryHandler<api::OperationalRangeQuery>;
 
     DateRangeSelectorPresenter(
-        QueryHandler<use_cases::OperationalRangeQuery>& handler_,
+        op_range_query_t& handler_,
         DateRangeChangeListener& dateRangeChangeListener_,
         dw::Weekday firstDayOfWeek);
 
@@ -52,7 +52,7 @@ private:
     std::reference_wrapper<op_range_query_t> handler;
     std::reference_wrapper<DateRangeChangeListener> dateRangeChangeListener;
     dw::Weekday firstDayOfWeek;
-    std::optional<op_range_query_t::result_t> data;
+    std::optional<api::OperationalRangeQuery::Result> data;
 
     void fetchDataImpl() override;
 

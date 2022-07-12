@@ -23,17 +23,17 @@
 #define SQLITESTORAGEFACTORY_H_ONDMSA1X
 
 #include "ThreadConnectionHelper.h"
-#include "core/IConfig.h"
-#include "core/IStorageImplementersFactory.h"
+#include "api/IConfig.h"
+#include "api/StorageImplementersFactory.h"
 #include <filesystem>
 
 namespace sprint_timer::compose {
 
-class SQliteStorageFactory : public StorageImplementersFactory {
+class SQliteStorageFactory : public api::StorageImplementersFactory {
 public:
     SQliteStorageFactory(ThreadConnectionHelper& connectionHelper,
                          std::filesystem::path fileStorageDir,
-                         IConfig& applicationSettings);
+                         api::IConfig& applicationSettings);
 
     std::unique_ptr<SprintStorage> sprintStorage() const override;
 
@@ -59,7 +59,7 @@ public:
 private:
     ThreadConnectionHelper& connectionHelper;
     std::filesystem::path fileStorageDir;
-    IConfig& applicationSettings;
+    api::IConfig& applicationSettings;
 };
 
 } // namespace sprint_timer::compose

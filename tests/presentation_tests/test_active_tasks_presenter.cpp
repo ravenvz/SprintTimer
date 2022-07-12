@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/TaskMapper.h"
+#include "api/dtos/TaskMapper.h"
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/ActiveTasksPresenter.h"
@@ -34,7 +34,7 @@ using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
 
-using namespace sprint_timer::use_cases;
+using namespace sprint_timer::api;
 
 namespace {
 
@@ -93,13 +93,6 @@ std::vector<sprint_timer::entities::Task> someTasks{
         dw::DateTime{std::chrono::system_clock::time_point{1614965664s}}}};
 
 } // namespace
-
-namespace sprint_timer::use_cases {
-
-bool operator==(const use_cases::ChangeActiveTasksPriorityCommand& lhs,
-                const use_cases::ChangeActiveTasksPriorityCommand& rhs);
-
-} // namespace sprint_timer::use_cases
 
 class TaskContractViewMock
     : public sprint_timer::ui::contracts::TaskContract::View {
@@ -203,12 +196,3 @@ TEST_F(ActiveTasksPresenterFixture,
     sut.reorderTasks(0, 1, 2);
 }
 
-namespace sprint_timer::use_cases {
-
-bool operator==(const ChangeActiveTasksPriorityCommand& lhs,
-                const ChangeActiveTasksPriorityCommand& rhs)
-{
-    return lhs.oldOrder == rhs.oldOrder && lhs.newOrder == rhs.newOrder;
-}
-
-} // namespace sprint_timer::use_cases

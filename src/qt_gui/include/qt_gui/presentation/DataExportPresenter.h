@@ -19,9 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/CommandHandler.h"
-#include "core/use_cases/export_data/ExportSprintsCommand.h"
-#include "core/use_cases/export_data/ExportTasksCommand.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/requests/ExportSprintsCommand.h"
+#include "api/requests/ExportTasksCommand.h"
 #include "qt_gui/presentation/DataExportContract.h"
 #include "qt_gui/presentation/HistoryMediator.h"
 
@@ -31,8 +31,8 @@ class DataExportPresenter : public contracts::DataExportContract::Presenter,
                             public HistoryColleague {
 public:
     using export_sprints_hdl_t =
-        CommandHandler<use_cases::ExportSprintsCommand>;
-    using export_tasks_hdl_t = CommandHandler<use_cases::ExportTasksCommand>;
+        asp::CommandHandler<api::ExportSprintsCommand>;
+    using export_tasks_hdl_t = asp::CommandHandler<api::ExportTasksCommand>;
     DataExportPresenter(export_sprints_hdl_t& exportSprintsHandler,
                         export_tasks_hdl_t& exportTasksHandler,
                         HistoryMediator& mediator);

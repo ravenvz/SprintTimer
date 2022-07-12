@@ -22,8 +22,8 @@
 #ifndef SETTINGSWATCHINGASSETLIBRARY_H_Z2VS0DMQ
 #define SETTINGSWATCHINGASSETLIBRARY_H_Z2VS0DMQ
 
+#include "api/IConfig.h"
 #include "core/CompositionObserver.h"
-#include "core/IConfig.h"
 #include "qt_gui/presentation/ConfigurableAssetLibrary.h"
 
 namespace sprint_timer::compose {
@@ -31,7 +31,7 @@ namespace sprint_timer::compose {
 class SettingsWatchingAssetLibrary : public AssetLibrary {
 public:
     SettingsWatchingAssetLibrary(ui::ConfigurableAssetLibrary& wrapped,
-                                 const IConfig& settings,
+                                 const api::IConfig& settings,
                                  Observable& configChangedSignaller);
 
     std::optional<std::string>
@@ -41,14 +41,14 @@ public:
 
 private:
     ui::ConfigurableAssetLibrary& wrapped;
-    const IConfig& settings;
+    const api::IConfig& settings;
     CompositionObserver configChangedWatcher;
     std::string cachedRingSoundFilePath{settings.soundFilePath()};
 };
 
 inline SettingsWatchingAssetLibrary::SettingsWatchingAssetLibrary(
     ui::ConfigurableAssetLibrary& wrapped_,
-    const IConfig& settings_,
+    const api::IConfig& settings_,
     Observable& configChangedSignaller_)
     : wrapped{wrapped_}
     , settings{settings_}

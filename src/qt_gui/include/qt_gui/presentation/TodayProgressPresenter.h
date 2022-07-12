@@ -22,8 +22,8 @@
 #ifndef TODAYPROGRESSPRESENTER_H_31EAPJRM
 #define TODAYPROGRESSPRESENTER_H_31EAPJRM
 
-#include "core/AsyncQueryHandler.h"
-#include "core/use_cases/request_progress/RequestProgressQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/RequestProgressQuery.h"
 #include "qt_gui/presentation/TodayProgressContract.h"
 #include <optional>
 
@@ -32,15 +32,14 @@ namespace sprint_timer::ui {
 class TodayProgressPresenter
     : public mvp::BasePresenter<contracts::TodayProgressContract::View> {
 public:
-    using request_progress_hdl_t =
-        QueryHandler<use_cases::RequestProgressQuery>;
+    using request_progress_hdl_t = asp::QueryHandler<api::RequestProgressQuery>;
 
     explicit TodayProgressPresenter(
         request_progress_hdl_t& requestProgressHandler);
 
 private:
     request_progress_hdl_t& requestProgressHandler;
-    std::optional<request_progress_hdl_t::result_t> data;
+    std::optional<api::RequestProgressQuery::Result> data;
 
     void fetchDataImpl() override;
 

@@ -22,10 +22,10 @@
 #ifndef WORKSCHEDULEEDITORPRESENTER_H_B6HTHBSK
 #define WORKSCHEDULEEDITORPRESENTER_H_B6HTHBSK
 
-#include "core/CommandHandler.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/change_schedule/ChangeWorkScheduleCommand.h"
-#include "core/use_cases/request_schedule/WorkScheduleQuery.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/ChangeWorkScheduleCommand.h"
+#include "api/requests/WorkScheduleQuery.h"
 #include "qt_gui/presentation/WorkScheduleEditor.h"
 
 namespace sprint_timer::ui {
@@ -33,10 +33,12 @@ namespace sprint_timer::ui {
 class WorkScheduleEditorPresenter
     : public contracts::WorkScheduleEditor::Presenter {
 public:
+    using work_schedule_handler_t = asp::QueryHandler<api::WorkScheduleQuery>;
+    using change_schedule_handler_t =
+        asp::CommandHandler<api::ChangeWorkScheduleCommand>;
     WorkScheduleEditorPresenter(
-        QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler,
-        CommandHandler<use_cases::ChangeWorkScheduleCommand>&
-            changeWorkScheduleHandler,
+        work_schedule_handler_t& workScheduleHandler,
+        change_schedule_handler_t& changeWorkScheduleHandler,
         dw::Weekday firstDayOfWeek);
 
     void onAddExceptionalRequested() override;
@@ -57,10 +59,8 @@ public:
     void onRevertChanges() override;
 
 private:
-    std::reference_wrapper<QueryHandler<use_cases::WorkScheduleQuery>>
-        workScheduleHandler;
-    std::reference_wrapper<CommandHandler<use_cases::ChangeWorkScheduleCommand>>
-        changeWorkScheduleHandler;
+    std::reference_wrapper<work_schedule_handler_t> workScheduleHandler;
+    std::reference_wrapper<change_schedule_handler_t> changeWorkScheduleHandler;
     dw::Weekday firstDayOfWeek;
     WorkSchedule bufferedSchedule;
 

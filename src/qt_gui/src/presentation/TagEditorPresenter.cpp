@@ -33,12 +33,12 @@ TagEditorPresenter::TagEditorPresenter(all_tags_hdl_t& allTagsHandler_,
 void TagEditorPresenter::renameTag(const std::string& original,
                                    const std::string& renamed)
 {
-    renameTagHandler.handle(use_cases::RenameTagCommand{original, renamed});
+    renameTagHandler.handle(api::RenameTagCommand{original, renamed});
 }
 
 void TagEditorPresenter::fetchDataImpl()
 {
-    data = allTagsHandler.handle(use_cases::AllTagsQuery{});
+    data = allTagsHandler.handle(api::AllTagsQuery{});
 }
 
 void TagEditorPresenter::updateViewImpl()

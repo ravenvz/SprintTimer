@@ -1,0 +1,144 @@
+add_library(${API_LIB} SHARED)
+
+target_sources(${API_LIB}
+    PUBLIC
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/IConfig.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorage.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorageReader.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorageWriter.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/SoundPlayer.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/StorageImplementersFactory.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/Command.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/Query.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/Request.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/RequestHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/RequestHandlerDecorator.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/ValidatingHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/ValidationException.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/Validator.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/DayPart.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/SprintDTO.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/SprintDaytimeDistribution.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/SprintMapper.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/SprintStatisticsDTO.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaggedSprintsDTO.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskDTO.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskMapper.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskTreeDTO.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskTreeMapper.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/ActiveTasksHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/AllTagsHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/ChangeActiveTasksPriorityHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/ChangeWorkScheduleHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/CreateTaskHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/DailyStatisticsHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/DeleteSprintHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/DeleteTaskHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/EditTaskHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/ExportSprintsHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/ExportTasksHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/FinishedTasksHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/OperationalRangeHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/ReadTaskTreeHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/RegisterSprintBulkHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/RegisterSprintHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/RenameTagHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/RequestProgressHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/RequestSprintDistributionHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/RequestSprintsHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/SaveTaskTreeHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/SprintStatisticsHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/SprintsForTaskHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/TaskBacklogHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/TasksInRangeHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/ToggleTaskCompletedHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/TopTagFrequenciesHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/WorkScheduleHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/WorkdayStatisticsHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/handlers/WorktimeStatisticsHandler.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/ActiveTasksQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/AllTagsQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/ChangeActiveTasksPriorityCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/ChangeWorkScheduleCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/CreateTaskCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/DailyStatisticsQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/DeleteSprintCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/DeleteTaskCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/EditTaskCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/ExportSprintsCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/ExportTasksCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/FinishedTasksQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/OperationalRangeQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/ReadTaskTreeQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/RegisterSprintBulkCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/RegisterSprintCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/RenameTagCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/RequestProgressQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/RequestSprintDistributionQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/RequestSprintsQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/SaveTaskTreeCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/SprintStatisticsQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/SprintsForTaskQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/TaskBacklogQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/TasksInRangeQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/ToggleTaskCompletedCommand.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/TopTagFrequenciesQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/WorkScheduleQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/WorkdayStatisticsQuery.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/WorktimeStatisticsQuery.h"
+
+    PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/src/dtos/DayPart.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/dtos/SprintMapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/dtos/TaskMapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/dtos/TaskTreeMapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/ActiveTasksHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/AllTagsHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/ChangeActiveTasksPriorityHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/ChangeWorkScheduleHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/CreateTaskHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/DailyStatisticsHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/DeleteSprintHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/DeleteTaskHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/EditTaskHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/ExportSprintsHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/ExportTasksHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/FinishedTasksHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/OperationalRangeHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/ReadTaskTreeHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/RegisterSprintBulkHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/RegisterSprintHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/RenameTagHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/RequestProgressHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/RequestSprintDistributionHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/RequestSprintsHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/SaveTaskTreeHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/SprintStatisticsHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/SprintsForTaskHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/ToggleTaskCompletedHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/TopTagFrequenciesHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/WorkScheduleHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/WorkdayStatisticsHandler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/handlers/WorktimeStatisticsHandler.cpp"
+
+)
+
+target_include_directories(${API_LIB}
+    PUBLIC
+        include
+)
+
+target_link_libraries(
+    ${API_LIB}
+    PRIVATE
+        sprint_timer_options
+        sprint_timer_warnings
+    PUBLIC
+        ${CORE_LIB}
+)
+
+if (WIN32)
+    install(TARGETS ${API_LIB} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})
+else()
+    install(TARGETS ${API_LIB} LIBRARY DESTINATION ${LIBRARY_INSTALL_PATH_SUFFIX})
+endif()

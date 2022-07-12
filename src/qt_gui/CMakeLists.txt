@@ -266,7 +266,7 @@ if (Qt6Multimedia_FOUND)
             Qt6::Core
             Qt6::Widgets
             Qt6::Multimedia
-            ${CORE_LIB}
+            ${API_LIB}
     )
 else()
     target_link_libraries(${GUI_LIB}

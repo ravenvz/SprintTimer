@@ -22,12 +22,12 @@
 #ifndef TODAYSPRINTSPRESENTER_H_8U0DLSNR
 #define TODAYSPRINTSPRESENTER_H_8U0DLSNR
 
-#include "core/CommandHandler.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/SprintMapper.h"
-#include "core/use_cases/delete_sprint/DeleteSprintCommand.h"
-#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
-#include "core/use_cases/request_tasks/ActiveTasksQuery.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/dtos/SprintMapper.h"
+#include "api/requests/DeleteSprintCommand.h"
+#include "api/requests/RequestSprintsQuery.h"
+#include "api/requests/ActiveTasksQuery.h"
 #include "qt_gui/presentation/TodaySprints.h"
 #include <optional>
 
@@ -35,8 +35,8 @@ namespace sprint_timer::ui {
 
 class TodaySprintsPresenter : public contracts::TodaySprints::Presenter {
 public:
-    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery>;
-    using delete_sprints_hdl_t = CommandHandler<use_cases::DeleteSprintCommand>;
+    using request_sprints_hdl_t = asp::QueryHandler<api::RequestSprintsQuery>;
+    using delete_sprints_hdl_t = asp::CommandHandler<api::DeleteSprintCommand>;
     TodaySprintsPresenter(delete_sprints_hdl_t& deleteSprintHandler_,
                           request_sprints_hdl_t& requestSprintsHandler_);
 
@@ -45,7 +45,7 @@ public:
 private:
     delete_sprints_hdl_t& deleteSprintHandler;
     request_sprints_hdl_t& requestSprintsHandler;
-    std::optional<request_sprints_hdl_t::result_t> data;
+    std::optional<api::RequestSprintsQuery::Result> data;
 
     void fetchDataImpl() override;
 

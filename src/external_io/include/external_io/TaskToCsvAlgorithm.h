@@ -22,16 +22,16 @@
 #ifndef TASKTOCSVALGORITHM_H_1UWREKPC
 #define TASKTOCSVALGORITHM_H_1UWREKPC
 
-#include "core/use_cases/TaskDTO.h"
+#include "api/dtos/TaskDTO.h"
 #include "external_io/CsvSerializationAlgorithm.h"
 
 namespace sprint_timer::external_io {
 
 class TaskToCsvAlgorithm
-    : public CsvSerializationAlgorithm<use_cases::TaskDTO> {
+    : public CsvSerializationAlgorithm<api::TaskDTO> {
 private:
     std::vector<std::string>
-    toRecords(const use_cases::TaskDTO& task) const override;
+    toRecords(const api::TaskDTO& task) const override;
 };
 
 } // namespace sprint_timer::external_io

@@ -22,8 +22,8 @@
 #ifndef TOPTAGDIAGRAMPRESENTER_H_US74BVEO
 #define TOPTAGDIAGRAMPRESENTER_H_US74BVEO
 
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_statistics/TopTagFrequenciesQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/TopTagFrequenciesQuery.h"
 #include "qt_gui/presentation/StatisticsContext.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
 #include "qt_gui/presentation/TopTagDiagramContract.h"
@@ -35,7 +35,7 @@ class TopTagDiagramPresenter
       public StatisticsColleague {
 public:
     using top_tag_frequencies_handler_t =
-        QueryHandler<use_cases::TopTagFrequenciesQuery>;
+        asp::QueryHandler<api::TopTagFrequenciesQuery>;
 
     TopTagDiagramPresenter(
         top_tag_frequencies_handler_t& topTagFrequenciesHandler,
@@ -66,7 +66,7 @@ private:
     StatisticsMediator& mediator;
     StatisticsContext& statisticsContext;
     Selection selection;
-    use_cases::TopTagFrequenciesQuery::result_t topTagFrequencies;
+    api::TopTagFrequenciesQuery::Result topTagFrequencies;
 
     void fetchDataImpl() override;
 

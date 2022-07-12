@@ -23,7 +23,6 @@
 #define COMPUTEBYWEEKSTRATEGY_H_WQPDUP42
 
 #include "core/ProgressComputeStrategy.h"
-#include "core/IConfig.h"
 
 namespace sprint_timer {
 

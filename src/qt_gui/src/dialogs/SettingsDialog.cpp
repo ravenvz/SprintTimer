@@ -27,7 +27,8 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-SettingsDialog::SettingsDialog(IConfig& applicationSettings_, QDialog* parent_)
+SettingsDialog::SettingsDialog(api::IConfig& applicationSettings_,
+                               QDialog* parent_)
     : DisplayableDialog{parent_}
     , ui{std::make_unique<Ui::SettingsDialog>()}
     , applicationSettings{applicationSettings_}

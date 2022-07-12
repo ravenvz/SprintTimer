@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/read_task_tree/ReadTaskTreeQuery.h"
+#include "api/requests/ReadTaskTreeQuery.h"
 #include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/PlannerPresenter.h"
 #include "gmock/gmock.h"
@@ -33,7 +33,7 @@ class PlannerWindowMock
 public:
     MOCK_METHOD(void,
                 displayPlanner,
-                (const sprint_timer::use_cases::TaskTreeDTO&),
+                (const sprint_timer::api::TaskTreeDTO&),
                 (override));
 };
 
@@ -41,7 +41,7 @@ class PlannerPresenterFixture : public ::testing::Test {
 public:
     NiceMock<PlannerWindowMock> view;
     NiceMock<
-        mocks::QueryHandlerMock<sprint_timer::use_cases::ReadTaskTreeQuery>>
+        mocks::QueryHandlerMock<sprint_timer::api::ReadTaskTreeQuery>>
         readPlannerHandler;
     sprint_timer::ui::PlannerPresenter sut{readPlannerHandler};
 };
@@ -55,14 +55,14 @@ TEST_F(PlannerPresenterFixture, does_nothing_when_view_is_not_attached)
 
 TEST_F(PlannerPresenterFixture, updates_view_when_view_is_attached)
 {
-    // sprint_timer::use_cases::TaskTreeDTO tree;
-    auto matches_tree = [](const sprint_timer::use_cases::TaskTreeDTO& tree) {
-        return tree == sprint_timer::use_cases::TaskTreeDTO{};
+    // sprint_timer::api::TaskTreeDTO tree;
+    auto matches_tree = [](const sprint_timer::api::TaskTreeDTO& tree) {
+        return tree == sprint_timer::api::TaskTreeDTO{};
     };
     ON_CALL(readPlannerHandler,
-            handle(sprint_timer::use_cases::ReadTaskTreeQuery{}))
+            handle(sprint_timer::api::ReadTaskTreeQuery{}))
         .WillByDefault(
-            Return(::testing::ByMove(sprint_timer::use_cases::TaskTreeDTO{})));
+            Return(::testing::ByMove(sprint_timer::api::TaskTreeDTO{})));
 
     EXPECT_CALL(view, displayPlanner(::testing::Truly(matches_tree)));
 

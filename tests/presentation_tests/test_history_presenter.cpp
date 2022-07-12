@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
-#include "core/use_cases/request_tasks/FinishedTasksQuery.h"
+#include "api/requests/RequestSprintsQuery.h"
+#include "api/requests/FinishedTasksQuery.h"
 #include "mocks/HistoryMediatorMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/HistoryPresenter.h"
@@ -75,10 +75,10 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const History& history)
 
 namespace {
 
-std::vector<sprint_timer::use_cases::SprintDTO>
+std::vector<sprint_timer::api::SprintDTO>
 buildSomeSprints(const dw::Date& someDate);
 
-std::vector<sprint_timer::use_cases::TaskDTO>
+std::vector<sprint_timer::api::TaskDTO>
 buildSomeTasks(const dw::Date& someDate);
 
 } // namespace
@@ -103,9 +103,9 @@ public:
 
 class HistoryPresenterFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::QueryHandlerMock<use_cases::RequestSprintsQuery>>
+    NiceMock<mocks::QueryHandlerMock<api::RequestSprintsQuery>>
         sprintHandlerMock;
-    NiceMock<mocks::QueryHandlerMock<use_cases::FinishedTasksQuery>>
+    NiceMock<mocks::QueryHandlerMock<api::FinishedTasksQuery>>
         taskHandlerMock;
     NiceMock<mocks::HistoryMediatorMock> mediatorMock;
     ui::HistoryPresenter presenter{
@@ -237,7 +237,7 @@ TEST_F(HistoryPresenterFixture,
        displays_history_when_notified_about_shared_data_change)
 {
     const dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
-    const std::vector<use_cases::SprintDTO> sprints;
+    const std::vector<api::SprintDTO> sprints;
     const ui::contracts::HistoryContract::History expected;
     presenter.attachView(viewMock);
     ON_CALL(mediatorMock, currentDateRange())
@@ -254,11 +254,11 @@ TEST_F(HistoryPresenterFixture,
 
 namespace {
 
-std::vector<sprint_timer::use_cases::SprintDTO>
+std::vector<sprint_timer::api::SprintDTO>
 buildSomeSprints(const dw::Date& someDate)
 {
     using namespace dw;
-    using sprint_timer::use_cases::SprintDTO;
+    using sprint_timer::api::SprintDTO;
     const DateTime someDateTime{someDate};
     const DateTimeRange span{someDateTime, someDateTime + 25min};
     std::vector<SprintDTO> sprints{
@@ -295,12 +295,12 @@ buildSomeSprints(const dw::Date& someDate)
     return sprints;
 }
 
-std::vector<sprint_timer::use_cases::TaskDTO>
+std::vector<sprint_timer::api::TaskDTO>
 buildSomeTasks(const dw::Date& someDate)
 {
     using namespace sprint_timer;
     using namespace dw;
-    using use_cases::TaskDTO;
+    using api::TaskDTO;
     const DateTime someDateTime{someDate};
     std::vector<TaskDTO> tasks{
         TaskDTO{

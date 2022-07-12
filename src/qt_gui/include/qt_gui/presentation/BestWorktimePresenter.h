@@ -23,8 +23,8 @@
 #define BESTDAYTIMEPRESENTER_H_DDRXAWZC
 
 #include "core/Distribution.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_statistics/WorktimeStatisticsQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/WorktimeStatisticsQuery.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/presentation/BestWorktimeContract.h"
 #include "qt_gui/presentation/StatisticsContext.h"
@@ -37,7 +37,7 @@ class BestWorktimePresenter
       public StatisticsColleague {
 public:
     using worktime_statistics_handler_t =
-        QueryHandler<use_cases::WorktimeStatisticsQuery>;
+        asp::QueryHandler<api::WorktimeStatisticsQuery>;
 
     BestWorktimePresenter(
         worktime_statistics_handler_t& worktimeStatisticsHandler,
@@ -52,7 +52,7 @@ private:
     worktime_statistics_handler_t& worktimeStatisticsHandler;
     StatisticsMediator& mediator;
     const StatisticsContext& statisticsContext;
-    std::optional<use_cases::WorktimeStatisticsDTO> worktimeStatistics;
+    std::optional<api::WorktimeStatisticsDTO> worktimeStatistics;
 
     void fetchDataImpl() override;
 

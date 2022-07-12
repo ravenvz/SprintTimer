@@ -22,21 +22,23 @@
 #ifndef ADDTASKCONTROLPRESENTER_H_KQFERPSW
 #define ADDTASKCONTROLPRESENTER_H_KQFERPSW
 
-#include "core/CommandHandler.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/create_task/CreateTaskCommand.h"
-#include "core/use_cases/request_tags/AllTagsQuery.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/dtos/TaskMapper.h"
+#include "api/requests/AllTagsQuery.h"
+#include "api/requests/CreateTaskCommand.h"
 #include "qt_gui/presentation/AddTaskControl.h"
-#include "core/use_cases/TaskMapper.h"
 
 namespace sprint_timer::ui {
 
 class AddTaskControlPresenter : public contracts::AddTaskControl::Presenter {
 public:
-    explicit AddTaskControlPresenter(
-        CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler);
+    using create_task_handler_t = asp::CommandHandler<api::CreateTaskCommand>;
 
-    void addTask(const use_cases::TaskDTO& details) const override;
+    explicit AddTaskControlPresenter(
+        create_task_handler_t& createTaskHandler);
+
+    void addTask(const api::TaskDTO& details) const override;
 
     /* Construct Task from encoded description.
      * Description is a string of text that may have some words with
@@ -62,7 +64,7 @@ public:
     void addTask(const std::string& encodedDescription) const override;
 
 private:
-    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler;
+    create_task_handler_t& createTaskHandler;
 };
 
 } // namespace sprint_timer::ui

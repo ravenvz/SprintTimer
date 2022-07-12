@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/BestWorktimePresenter.h"
-#include "core/use_cases/request_sprint_distribution/DayPart.h"
+#include "api/dtos/DayPart.h"
 
 namespace {
 
@@ -36,7 +36,7 @@ void updateViewWithStubData(
 
 void updateViewWithValidData(
     sprint_timer::ui::contracts::BestWorktimeContract::View& view,
-    const sprint_timer::use_cases::WorktimeStatisticsDTO& distribution);
+    const sprint_timer::api::WorktimeStatisticsDTO& distribution);
 
 } // namespace
 
@@ -73,7 +73,7 @@ void BestWorktimePresenter::fetchDataImpl()
     }
 
     worktimeStatistics =
-        worktimeStatisticsHandler.handle(use_cases::WorktimeStatisticsQuery{
+        worktimeStatisticsHandler.handle(api::WorktimeStatisticsQuery{
             numTopTags, selectedTag, *selectedRange});
 }
 
@@ -104,10 +104,10 @@ void updateViewWithStubData(
 
 void updateViewWithValidData(
     sprint_timer::ui::contracts::BestWorktimeContract::View& view,
-    const sprint_timer::use_cases::WorktimeStatisticsDTO& distribution)
+    const sprint_timer::api::WorktimeStatisticsDTO& distribution)
 {
     using namespace sprint_timer::ui::contracts::BestWorktimeContract;
-    using namespace sprint_timer::use_cases;
+    using namespace sprint_timer::api;
     // const auto maxValueBin = static_cast<unsigned>(
     //     distribution.dayPartDistribution.getMaxValueBin());
     view.updateLegend(LegendData{dayPartName(distribution.bestWorktime),

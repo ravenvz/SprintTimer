@@ -32,7 +32,7 @@ QString extractTags(std::span<const std::string> tags);
 
 namespace sprint_timer::ui::qt_gui {
 
-PlannerModel::Item toPlannerItem(const use_cases::TaskNodeDTO& taskNode)
+PlannerModel::Item toPlannerItem(const api::TaskNodeDTO& taskNode)
 {
     using sprint_timer::utils::transform;
     const auto& task = taskNode.task;
@@ -204,7 +204,7 @@ int PlannerModel::rowCount(const QModelIndex& parent) const
 
 int PlannerModel::columnCount(const QModelIndex& parent) const { return 5; }
 
-void PlannerModel::displayPlanner(const use_cases::TaskTreeDTO& taskTree)
+void PlannerModel::displayPlanner(const api::TaskTreeDTO& taskTree)
 {
     beginResetModel();
     storage = taskTree.mapped<Item>(toPlannerItem);
@@ -256,7 +256,7 @@ PlannerModel::Item::Item(std::string uuid_,
                          QString tags_,
                          std::optional<QDateTime> dueDate_,
                          std::optional<QDateTime> reminder_,
-                         use_cases::TaskTypeDTO type_,
+                         api::TaskTypeDTO type_,
                          QString notes_)
     : uuid{std::move(uuid_)}
     , data{std::move(name_),

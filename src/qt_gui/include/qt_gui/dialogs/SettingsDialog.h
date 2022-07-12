@@ -22,7 +22,7 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include "core/IConfig.h"
+#include "api/IConfig.h"
 #include "qt_gui/dialogs/DisplayableDialog.h"
 #include <QDialog>
 #include <QSettings>
@@ -39,14 +39,14 @@ namespace sprint_timer::ui::qt_gui {
 
 class SettingsDialog : public DisplayableDialog {
 public:
-    explicit SettingsDialog(IConfig& applicationSettings,
+    explicit SettingsDialog(api::IConfig& applicationSettings,
                             QDialog* parent = nullptr);
 
     ~SettingsDialog() override;
 
 private:
     std::unique_ptr<Ui::SettingsDialog> ui;
-    IConfig& applicationSettings;
+    api::IConfig& applicationSettings;
 
     void fillSettingsData();
 

@@ -23,7 +23,7 @@
 #define QTWORKSCHEDULESTORAGECONNECTIONPROXY_H_T4TKDFNH
 
 #include "ThreadConnectionHelper.h"
-#include "core/IStorageImplementersFactory.h"
+#include "api/StorageImplementersFactory.h"
 #include "core/WorkScheduleStorage.h"
 #include <QString>
 

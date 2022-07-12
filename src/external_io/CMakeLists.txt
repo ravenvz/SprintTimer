@@ -29,7 +29,7 @@ target_link_libraries(
         sprint_timer_options
         sprint_timer_warnings
     PUBLIC
-        ${CORE_LIB}
+        ${API_LIB}
 )
 
 if (WIN32)

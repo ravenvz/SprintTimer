@@ -19,9 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/request_tags/AllTagsHandler.h"
 #include "qt_gui/presentation/TagEditorPresenter.h"
-
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
 
@@ -43,8 +41,8 @@ public:
 class TagEditorPresenterFixture : public ::testing::Test {
 public:
     TagEditorViewMock view;
-    NiceMock<mocks::QueryHandlerMock<use_cases::AllTagsQuery>> allTagsHandler;
-    NiceMock<mocks::CommandHandlerMock<use_cases::RenameTagCommand>>
+    NiceMock<mocks::QueryHandlerMock<api::AllTagsQuery>> allTagsHandler;
+    NiceMock<mocks::CommandHandlerMock<api::RenameTagCommand>>
         renameTagHandler;
     ui::TagEditorPresenter sut{allTagsHandler, renameTagHandler};
 };
@@ -63,7 +61,7 @@ TEST_F(TagEditorPresenterFixture, invokes_handler_to_rename_tag)
 {
     const std::string original{"OldName"};
     const std::string renamed{"Renamed"};
-    auto matchesCommand = [&](const use_cases::RenameTagCommand& command) {
+    auto matchesCommand = [&](const api::RenameTagCommand& command) {
         return command.oldName == original && command.newName == renamed;
     };
 

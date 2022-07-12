@@ -22,8 +22,8 @@
 #ifndef WORKSCHEDULEEDITORPRESENTERPROXY_H_JRLPYTZH
 #define WORKSCHEDULEEDITORPRESENTERPROXY_H_JRLPYTZH
 
+#include "api/IConfig.h"
 #include "core/CompositionObserver.h"
-#include "core/IConfig.h"
 #include "core/Observable.h"
 #include "qt_gui/presentation/WorkScheduleEditorPresenter.h"
 
@@ -33,17 +33,17 @@ class WorkScheduleEditorPresenterProxy
     : public ui::contracts::WorkScheduleEditor::Presenter {
 public:
     WorkScheduleEditorPresenterProxy(
-        QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler,
-        CommandHandler<use_cases::ChangeWorkScheduleCommand>&
+        asp::QueryHandler<api::WorkScheduleQuery>& workScheduleHandler,
+        asp::CommandHandler<api::ChangeWorkScheduleCommand>&
             changeWorkScheduleHandler,
-        const IConfig& settings,
+        const api::IConfig& settings,
         Observable& configChangedSignaller);
 
 private:
-    QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler;
-    CommandHandler<use_cases::ChangeWorkScheduleCommand>&
+    asp::QueryHandler<api::WorkScheduleQuery>& workScheduleHandler;
+    asp::CommandHandler<api::ChangeWorkScheduleCommand>&
         changeWorkScheduleHandler;
-    const IConfig& settings;
+    const api::IConfig& settings;
     CompositionObserver configChangedWatcher;
     dw::Weekday cached{settings.firstDayOfWeek()};
     ui::WorkScheduleEditorPresenter presenter{
@@ -76,10 +76,10 @@ private:
 };
 
 inline WorkScheduleEditorPresenterProxy::WorkScheduleEditorPresenterProxy(
-    QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler_,
-    CommandHandler<use_cases::ChangeWorkScheduleCommand>&
+    asp::QueryHandler<api::WorkScheduleQuery>& workScheduleHandler_,
+    asp::CommandHandler<api::ChangeWorkScheduleCommand>&
         changeWorkScheduleHandler_,
-    const IConfig& settings_,
+    const api::IConfig& settings_,
     Observable& configChangedSignaller_)
     : workScheduleHandler{workScheduleHandler_}
     , changeWorkScheduleHandler{changeWorkScheduleHandler_}

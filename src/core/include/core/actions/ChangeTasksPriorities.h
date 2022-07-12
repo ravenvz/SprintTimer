@@ -30,8 +30,8 @@ namespace sprint_timer::actions {
 class ChangeTasksPriorities : public Action {
 public:
     ChangeTasksPriorities(TaskStorageWriter& taskStorageWriter,
-                          std::vector<std::string>&& old_order,
-                          std::vector<std::string>&& new_order);
+                          std::vector<std::string> old_order,
+                          std::vector<std::string> new_order);
 
     void execute() final;
 
@@ -41,8 +41,8 @@ public:
 
 private:
     TaskStorageWriter& writer;
-    const std::vector<std::string> old_order_;
-    const std::vector<std::string> new_order_;
+    std::vector<std::string> old_order_;
+    std::vector<std::string> new_order_;
 };
 
 } // namespace sprint_timer::actions

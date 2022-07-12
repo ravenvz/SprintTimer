@@ -22,7 +22,6 @@
 #ifndef QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3
 #define QTSPRINTDISTRIBUTIONREADER_H_TS4GUJR3
 
-#include "core/IConfig.h"
 #include "core/SprintDistributionReader.h"
 #include <QDate>
 #include <QSqlQuery>

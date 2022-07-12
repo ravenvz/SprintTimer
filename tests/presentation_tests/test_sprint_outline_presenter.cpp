@@ -28,7 +28,7 @@ using namespace sprint_timer;
 
 namespace {
 
-std::vector<use_cases::SprintDTO> makeSomeSprints();
+std::vector<api::SprintDTO> makeSomeSprints();
 
 } // namespace
 
@@ -36,15 +36,15 @@ class SprintOutlineViewMock : public ui::contracts::TodaySprints::View {
 public:
     MOCK_METHOD(void,
                 displaySprints,
-                (const std::vector<use_cases::SprintDTO>&),
+                (const std::vector<api::SprintDTO>&),
                 (override));
 };
 
 class TodaySprintsPresenterFixture : public ::testing::Test {
 public:
-    NiceMock<mocks::QueryHandlerMock<use_cases::RequestSprintsQuery>>
+    NiceMock<mocks::QueryHandlerMock<api::RequestSprintsQuery>>
         requestSprintsHandler;
-    NiceMock<mocks::CommandHandlerMock<use_cases::DeleteSprintCommand>>
+    NiceMock<mocks::CommandHandlerMock<api::DeleteSprintCommand>>
         deleteSprintHandler;
     NiceMock<SprintOutlineViewMock> viewMock;
     ui::TodaySprintsPresenter presenter{deleteSprintHandler,
@@ -67,14 +67,14 @@ TEST_F(TodaySprintsPresenterFixture, deletes_sprint)
     const std::string someUuid{"123"};
 
     EXPECT_CALL(deleteSprintHandler,
-                handle(use_cases::DeleteSprintCommand{someUuid}));
+                handle(api::DeleteSprintCommand{someUuid}));
 
     presenter.onSprintDelete(someUuid);
 }
 
 namespace {
 
-std::vector<use_cases::SprintDTO> makeSomeSprints()
+std::vector<api::SprintDTO> makeSomeSprints()
 {
     using namespace dw;
     using namespace std::chrono_literals;
@@ -82,11 +82,11 @@ std::vector<use_cases::SprintDTO> makeSomeSprints()
     const DateTime someDateTime{someDate};
     const DateTimeRange someRange{someDateTime, someDateTime + 25min};
 
-    std::vector<use_cases::SprintDTO> dtos{
-        use_cases::SprintDTO{"1", "1", "Task 1", {"Tag1", "Tag2"}, someRange},
-        use_cases::SprintDTO{
+    std::vector<api::SprintDTO> dtos{
+        api::SprintDTO{"1", "1", "Task 1", {"Tag1", "Tag2"}, someRange},
+        api::SprintDTO{
             "2", "1", "Task 1", {"Tag1", "Tag2"}, add_offset(someRange, 25min)},
-        use_cases::SprintDTO{
+        api::SprintDTO{
             "3", "2", "Task 2", {"Tag3"}, add_offset(someRange, 2h)}};
 
     return dtos;

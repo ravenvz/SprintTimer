@@ -96,7 +96,7 @@ public:
 
     int columnCount(const QModelIndex& parent) const override;
 
-    void displayPlanner(const use_cases::TaskTreeDTO& taskTree) override;
+    void displayPlanner(const api::TaskTreeDTO& taskTree) override;
 
     void displayGoals();
 
@@ -115,7 +115,7 @@ private:
              QString tags_,
              std::optional<QDateTime> dueDate_,
              std::optional<QDateTime> reminder_,
-             use_cases::TaskTypeDTO type_,
+             api::TaskTypeDTO type_,
              QString notes_);
 
         Item();
@@ -125,7 +125,7 @@ private:
         std::string uuid;
         QStringList data;
         bool finished{};
-        use_cases::TaskTypeDTO type{use_cases::TaskTypeDTO::Regular};
+        api::TaskTypeDTO type{api::TaskTypeDTO::Regular};
         QString notes;
     };
 
@@ -133,7 +133,7 @@ private:
 
     std::optional<std::pair<const Item*, int>> findParent(Item* node) const;
 
-    friend Item toPlannerItem(const use_cases::TaskNodeDTO& taskNode);
+    friend Item toPlannerItem(const api::TaskNodeDTO& taskNode);
 };
 
 } // namespace sprint_timer::ui::qt_gui

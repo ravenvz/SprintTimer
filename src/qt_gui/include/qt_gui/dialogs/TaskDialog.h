@@ -22,8 +22,8 @@
 #ifndef TASKDIALOG_H_J0SNZODV
 #define TASKDIALOG_H_J0SNZODV
 
+#include "api/dtos/TaskDTO.h"
 #include "qt_gui/dialogs/DisplayableDialog.h"
-#include "core/use_cases/TaskDTO.h"
 
 class QAbstractItemModel;
 class QLineEdit;
@@ -37,9 +37,9 @@ public:
                         QWidget* parent = nullptr);
 
 protected:
-    [[nodiscard]] use_cases::TaskDTO parseFormFields() const;
+    [[nodiscard]] api::TaskDTO parseFormFields() const;
 
-    void fillFormFields(const use_cases::TaskDTO& task);
+    void fillFormFields(const api::TaskDTO& task);
 
     [[nodiscard]] bool nameIsEmpty() const;
 

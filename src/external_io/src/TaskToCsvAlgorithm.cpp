@@ -25,7 +25,7 @@
 namespace sprint_timer::external_io {
 
 std::vector<std::string>
-TaskToCsvAlgorithm::toRecords(const use_cases::TaskDTO& task) const
+TaskToCsvAlgorithm::toRecords(const api::TaskDTO& task) const
 {
     using sprint_timer::utils::join;
     std::vector<std::string> records;

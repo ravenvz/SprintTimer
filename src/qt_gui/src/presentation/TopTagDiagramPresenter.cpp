@@ -42,9 +42,8 @@ struct ExtractedData {
     std::vector<std::string> legendData;
 };
 
-ExtractedData
-extractData(const sprint_timer::use_cases::TopTagFrequenciesQuery::result_t&
-                topTagFrequencies);
+ExtractedData extractData(
+    const sprint_timer::api::TopTagFrequenciesQuery::Result& topTagFrequencies);
 
 void renameLeftoverTags(std::vector<std::string>& tagNames);
 
@@ -93,7 +92,7 @@ void TopTagDiagramPresenter::fetchDataImpl()
     const auto [numTopTags, selectedRange, _] = statisticsContext;
     if (selectedRange) {
         topTagFrequencies = topTagFrequenciesHandler.handle(
-            use_cases::TopTagFrequenciesQuery{numTopTags, *selectedRange});
+            api::TopTagFrequenciesQuery{numTopTags, *selectedRange});
     }
 }
 
@@ -133,9 +132,8 @@ void TopTagDiagramPresenter::Selection::setTags(
 
 namespace {
 
-ExtractedData
-extractData(const sprint_timer::use_cases::TopTagFrequenciesQuery::result_t&
-                topTagFrequencies)
+ExtractedData extractData(
+    const sprint_timer::api::TopTagFrequenciesQuery::Result& topTagFrequencies)
 {
     using sprint_timer::ui::contracts::TopTagDiagramContract::DiagramData;
     std::vector<DiagramData> diagramData;

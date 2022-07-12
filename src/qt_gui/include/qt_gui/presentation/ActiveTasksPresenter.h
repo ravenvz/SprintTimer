@@ -22,14 +22,14 @@
 #ifndef ACTIVETASKSPRESENTER_H_IYZPDQWQ
 #define ACTIVETASKSPRESENTER_H_IYZPDQWQ
 
-#include "core/CommandHandler.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/TaskMapper.h"
-#include "core/use_cases/change_tasks_priority/ChangeActiveTasksPriorityCommand.h"
-#include "core/use_cases/delete_task/DeleteTaskCommand.h"
-#include "core/use_cases/edit_task/EditTaskCommand.h"
-#include "core/use_cases/request_tasks/ActiveTasksQuery.h"
-#include "core/use_cases/toggle_task_completed/ToggleTaskCompletedCommand.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/dtos/TaskMapper.h"
+#include "api/requests/ActiveTasksQuery.h"
+#include "api/requests/ChangeActiveTasksPriorityCommand.h"
+#include "api/requests/DeleteTaskCommand.h"
+#include "api/requests/EditTaskCommand.h"
+#include "api/requests/ToggleTaskCompletedCommand.h"
 #include "qt_gui/presentation/TaskContract.h"
 #include <optional>
 
@@ -37,13 +37,13 @@ namespace sprint_timer::ui {
 
 class ActiveTasksPresenter : public contracts::TaskContract::Presenter {
 public:
-    using active_tasks_hdl_t = QueryHandler<use_cases::ActiveTasksQuery>;
-    using edit_task_hdl_t = CommandHandler<use_cases::EditTaskCommand>;
-    using delete_task_hdl_t = CommandHandler<use_cases::DeleteTaskCommand>;
+    using active_tasks_hdl_t = asp::QueryHandler<api::ActiveTasksQuery>;
+    using edit_task_hdl_t = asp::CommandHandler<api::EditTaskCommand>;
+    using delete_task_hdl_t = asp::CommandHandler<api::DeleteTaskCommand>;
     using toggle_task_completion_hdl_t =
-        CommandHandler<use_cases::ToggleTaskCompletedCommand>;
+        asp::CommandHandler<api::ToggleTaskCompletedCommand>;
     using change_priority_hdl_t =
-        CommandHandler<use_cases::ChangeActiveTasksPriorityCommand>;
+        asp::CommandHandler<api::ChangeActiveTasksPriorityCommand>;
 
     ActiveTasksPresenter(active_tasks_hdl_t& activeTasksHandler,
                          edit_task_hdl_t& editTaskHandler,
@@ -51,7 +51,7 @@ public:
                          toggle_task_completion_hdl_t& toggleFinishedHandler,
                          change_priority_hdl_t& changePriorityHandler);
 
-    void editTask(const use_cases::TaskDTO& editedTask) override;
+    void editTask(const api::TaskDTO& editedTask) override;
 
     void deleteTask(const std::string& uuid) override;
 
@@ -68,7 +68,7 @@ private:
     delete_task_hdl_t& deleteTaskHandler;
     toggle_task_completion_hdl_t& toggleFinishedHandler;
     change_priority_hdl_t& changePriorityHandler;
-    std::optional<active_tasks_hdl_t::result_t> data;
+    std::optional<api::ActiveTasksQuery::Result> data;
 
     void fetchDataImpl() override;
 

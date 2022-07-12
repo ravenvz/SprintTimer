@@ -144,7 +144,7 @@ public:
     sprint_timer::ui::StatisticsMediator mediator;
     ::testing::NiceMock<DailyStatisticsViewMock> viewMock;
     ::testing::NiceMock<
-        mocks::QueryHandlerMock<sprint_timer::use_cases::DailyStatisticsQuery>>
+        mocks::QueryHandlerMock<sprint_timer::api::DailyStatisticsQuery>>
         dailyStatisticsHandler;
     DateRange someDateRange{Date{Year{2020}, Month{2}, Day{1}},
                             Date{Year{2020}, Month{2}, Day{5}}};
@@ -158,7 +158,7 @@ public:
 TEST_F(DailyStatisticsSharedDataFetcherFixture,
        sets_placeholder_data_when_not_provided_date_range)
 {
-    using sprint_timer::use_cases::DailyStatisticsDTO;
+    using sprint_timer::api::DailyStatisticsDTO;
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
     const GraphOptions expectedDailyOptions{
         constants::penWidthF,
@@ -203,7 +203,7 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture,
 TEST_F(DailyStatisticsSharedDataFetcherFixture,
        updates_legend_with_generic_data)
 {
-    using sprint_timer::use_cases::DailyStatisticsDTO;
+    using sprint_timer::api::DailyStatisticsDTO;
     const LegendData expected{"90", "77.70"};
     const DailyStatisticsDTO dailyStatistics{77.7, 55.5, 90, {20, 0, 12, 22}};
     mocks::given_handler_returns(dailyStatisticsHandler, dailyStatistics);
@@ -216,7 +216,7 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture,
 TEST_F(DailyStatisticsSharedDataFetcherFixture,
        updates_legend_when_shared_data_changed)
 {
-    using sprint_timer::use_cases::DailyStatisticsDTO;
+    using sprint_timer::api::DailyStatisticsDTO;
     const LegendData expected{"90", "77.70"};
     sut.attachView(viewMock);
     const DailyStatisticsDTO dailyStatistics{77.7, 55.5, 90, {20, 0, 12, 22}};
@@ -230,7 +230,7 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture,
 TEST_F(DailyStatisticsSharedDataFetcherFixture, updates_graph_with_generic_data)
 {
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
-    using sprint_timer::use_cases::DailyStatisticsDTO;
+    using sprint_timer::api::DailyStatisticsDTO;
     const GraphOptions expectedDailyOptions{
         constants::penWidthF,
         std::string{constants::dailyGraphColor},
@@ -276,7 +276,7 @@ TEST_F(DailyStatisticsSharedDataFetcherFixture,
        updates_graph_when_shared_data_changed)
 {
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
-    using sprint_timer::use_cases::DailyStatisticsDTO;
+    using sprint_timer::api::DailyStatisticsDTO;
     const GraphOptions expectedDailyOptions{
         constants::penWidthF,
         std::string{constants::dailyGraphColor},

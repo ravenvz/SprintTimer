@@ -22,28 +22,27 @@
 #ifndef CACHEAWAREQUERYHANDLER_H_JGYKWEAB
 #define CACHEAWAREQUERYHANDLER_H_JGYKWEAB
 
-#include "core/QueryHandler.h"
+#include "api/com_query/RequestHandlerDecorator.h"
+#include "api/com_query/Query.h"
 #include "qt_gui/presentation/Invalidatable.h"
 #include "qt_gui/presentation/Mediator.h"
 #include <memory>
 #include <mutex>
 #include <optional>
 
-// #include <iostream>
-
 namespace sprint_timer::compose {
 
-template <typename QueryT>
-class CacheAwareQueryHandler : public QueryHandler<QueryT>,
+template <asp::Query QueryT>
+class CacheAwareQueryHandler : public asp::RequestHandlerDecorator<QueryT>,
                                public ui::Invalidatable {
 public:
-    using WrappedType = sprint_timer::QueryHandler<QueryT>;
+    using WrappedType = asp::QueryHandler<QueryT>;
     using MediatorType =
         sprint_timer::ui::Mediator<sprint_timer::ui::Invalidatable>;
 
     CacheAwareQueryHandler(std::unique_ptr<WrappedType> wrapped_,
                            MediatorType& cacheInvalidationMediator_)
-        : wrapped{std::move(wrapped_)}
+        : asp::RequestHandlerDecorator<QueryT>{std::move(wrapped_)}
         , cacheInvalidationMediator{cacheInvalidationMediator_}
     {
         cacheInvalidationMediator.addColleague(this);
@@ -58,13 +57,13 @@ public:
     // main thread
     void invalidate() override { cachedResult = std::nullopt; }
 
-    typename QueryT::result_t handle(QueryT&& query) override
+    QueryT::Result handle(const QueryT& query) override
     {
         {
             std::lock_guard lock{mtx};
             if (!cachedResult || cachedQuery != query) {
                 cachedQuery = query;
-                cachedResult = wrapped->handle(std::move(query));
+                cachedResult = asp::RequestHandlerDecorator<QueryT>::handle(std::move(query));
             }
             // else {
             //     std::cout << "Cache hit\n";
@@ -74,10 +73,9 @@ public:
     }
 
 private:
-    std::unique_ptr<WrappedType> wrapped;
     MediatorType& cacheInvalidationMediator;
     std::optional<QueryT> cachedQuery;
-    std::optional<typename QueryT::result_t> cachedResult;
+    std::optional<typename QueryT::Result> cachedResult;
     std::mutex mtx;
 };
 

@@ -20,13 +20,13 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/TaskDialog.h"
+#include "core/utils/StringUtils.h"
 #include <QAbstractItemModel>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QSpinBox>
-#include "core/utils/StringUtils.h"
 
 namespace {
 
@@ -41,7 +41,7 @@ constexpr int maxVisibleItems{15};
 namespace sprint_timer::ui::qt_gui {
 
 using namespace utils;
-using use_cases::TaskDTO;
+using api::TaskDTO;
 
 TaskDialog::TaskDialog(QAbstractItemModel& tagModel_, QWidget* parent_)
     : DisplayableDialog{parent_}

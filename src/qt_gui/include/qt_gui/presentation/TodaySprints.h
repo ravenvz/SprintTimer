@@ -22,7 +22,7 @@
 #ifndef TODAYSPRINTS_H_V0K2AYQR
 #define TODAYSPRINTS_H_V0K2AYQR
 
-#include "core/use_cases/SprintDTO.h"
+#include "api/dtos/SprintDTO.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
 
@@ -37,7 +37,7 @@ public:
 
 class View : public mvp::BaseView<View, Presenter> {
 public:
-    virtual void displaySprints(const std::vector<use_cases::SprintDTO>&) = 0;
+    virtual void displaySprints(const std::vector<api::SprintDTO>&) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::TodaySprints

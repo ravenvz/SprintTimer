@@ -23,17 +23,15 @@
 #define STATISTICSWINDOWPROXY_H_VYTYRJFC
 
 #include "DisplayableLifestyleProxy.h"
-#include "core/IConfig.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/RequestSprintsQuery.h"
 #include "qt_gui/utils/WidgetUtils.h"
 #include "qt_gui/widgets/StatisticsWindow.h"
-#include <QAbstractItemModel>
 
 #include "qt_gui/presentation/BestWorkdayContract.h"
+#include "qt_gui/presentation/BestWorktimeContract.h"
 #include "qt_gui/presentation/DailyStatisticsGraphContract.h"
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
-#include "qt_gui/presentation/BestWorktimeContract.h"
 #include "qt_gui/presentation/TopTagDiagramContract.h"
 #include "qt_gui/widgets/BestWorkdayWidget.h"
 #include "qt_gui/widgets/BestWorktimeWidget.h"

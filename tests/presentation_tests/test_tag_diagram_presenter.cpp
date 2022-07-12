@@ -85,7 +85,7 @@ public:
     NiceMock<TagDiagramview> view;
     NiceMock<mocks::ColleagueMock> fake_colleague;
     NiceMock<mocks::QueryHandlerMock<
-        sprint_timer::use_cases::TopTagFrequenciesQuery>>
+        sprint_timer::api::TopTagFrequenciesQuery>>
         topTagFrequenciesHandler;
     dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
     StatisticsContext statisticsContext{
@@ -128,7 +128,7 @@ TEST_F(TagDiagramPresenterFixture, updates_diagram_with_generic_data)
     };
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
-        std::vector<sprint_timer::use_cases::TagFrequencyDTO>{
+        std::vector<sprint_timer::api::TagFrequencyDTO>{
             {double{2} / 3, "Tag1"}, {double{1} / 3, "Tag2"}});
 
     EXPECT_CALL(view, updateDiagram(Truly(has_right_data)));
@@ -141,7 +141,7 @@ TEST_F(TagDiagramPresenterFixture, updates_legend_with_generic_data)
     using ::testing::ElementsAreArray;
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
-        std::vector<sprint_timer::use_cases::TagFrequencyDTO>{
+        std::vector<sprint_timer::api::TagFrequencyDTO>{
             {double{2} / 3, "Tag1"}, {double{1} / 3, "Tag2"}});
 
     EXPECT_CALL(view, updateLegend(ElementsAreArray({"Tag1", "Tag2"})));
@@ -155,7 +155,7 @@ TEST_F(TagDiagramPresenterFixture, renames_leftover_tags_when_updating_legend)
     using ::testing::ElementsAreArray;
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
-        std::vector<sprint_timer::use_cases::TagFrequencyDTO>{
+        std::vector<sprint_timer::api::TagFrequencyDTO>{
             {0, "Tag1"}, {0, "Tag2"}, {0, "Tag3"}, {0, "Tag4"}, {0, ""}});
 
     EXPECT_CALL(view,
@@ -186,7 +186,7 @@ TEST_F(TagDiagramPresenterFixture, cycles_through_colors)
     };
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
-        std::vector<sprint_timer::use_cases::TagFrequencyDTO>{
+        std::vector<sprint_timer::api::TagFrequencyDTO>{
             {double{11} / 66, "Tag1"},
             {double{10} / 66, "Tag2"},
             {double{9} / 66, "Tag3"},
@@ -215,7 +215,7 @@ TEST_F(TagDiagramPresenterFixture, updates_diagram_when_shared_data_is_changed)
     sut.attachView(view);
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
-        std::vector<sprint_timer::use_cases::TagFrequencyDTO>{
+        std::vector<sprint_timer::api::TagFrequencyDTO>{
             {double{2} / 3, "Tag1"}, {double{1} / 3, "Tag2"}});
 
     EXPECT_CALL(view, updateDiagram(Truly(has_right_data)));
@@ -229,7 +229,7 @@ TEST_F(TagDiagramPresenterFixture, updates_legend_when_shared_data_is_changed)
     sut.attachView(view);
     mocks::given_handler_returns(
         topTagFrequenciesHandler,
-        std::vector<sprint_timer::use_cases::TagFrequencyDTO>{
+        std::vector<sprint_timer::api::TagFrequencyDTO>{
             {double{2} / 3, "Tag1"}, {double{1} / 3, "Tag2"}});
 
     EXPECT_CALL(view, updateLegend(ElementsAreArray({"Tag1", "Tag2"})));
@@ -278,7 +278,7 @@ TEST_F(TagDiagramPresenterFixture, resets_selection_when_updating_view)
 {
     const std::optional<size_t> expected;
     sut.onTagIndexSelected(3);
-    const std::vector<sprint_timer::use_cases::TagFrequencyDTO> irrelevantData;
+    const std::vector<sprint_timer::api::TagFrequencyDTO> irrelevantData;
     mocks::given_handler_returns(topTagFrequenciesHandler, irrelevantData);
     sut.attachView(view);
 
@@ -291,7 +291,7 @@ TEST_F(
     TagDiagramPresenterFixture,
     updates_selection_on_view_when_no_items_were_selected_and_then_some_item_is_selected)
 {
-    const std::vector<sprint_timer::use_cases::TagFrequencyDTO> irrelevantData;
+    const std::vector<sprint_timer::api::TagFrequencyDTO> irrelevantData;
     mocks::given_handler_returns(topTagFrequenciesHandler, irrelevantData);
     const std::optional<size_t> expected{3};
     sut.attachView(view);
@@ -306,7 +306,7 @@ TEST_F(TagDiagramPresenterFixture,
 {
     const std::optional<size_t> expected;
     const size_t previouslySelectedIndex{3};
-    const std::vector<sprint_timer::use_cases::TagFrequencyDTO> irrelevantData;
+    const std::vector<sprint_timer::api::TagFrequencyDTO> irrelevantData;
     mocks::given_handler_returns(topTagFrequenciesHandler, irrelevantData);
     sut.attachView(view);
     sut.onTagIndexSelected(previouslySelectedIndex);
@@ -324,7 +324,7 @@ TEST_F(
 {
     statistics_mediator.addColleague(&fake_colleague);
     const std::optional<size_t> expected{5};
-    const std::vector<sprint_timer::use_cases::TagFrequencyDTO> irrelevantData;
+    const std::vector<sprint_timer::api::TagFrequencyDTO> irrelevantData;
     mocks::given_handler_returns(topTagFrequenciesHandler, irrelevantData);
     sut.attachView(view);
     sut.onTagIndexSelected(3);

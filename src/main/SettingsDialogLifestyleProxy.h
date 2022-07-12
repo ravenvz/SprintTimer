@@ -29,16 +29,16 @@ namespace sprint_timer::compose {
 
 class SettingsDialogLifestyleProxy : public DisplaybleDialogLifestyleProxy {
 public:
-    explicit SettingsDialogLifestyleProxy(IConfig& applicationSettings);
+    explicit SettingsDialogLifestyleProxy(api::IConfig& applicationSettings);
 
 private:
-    IConfig& applicationSettings;
+    api::IConfig& applicationSettings;
 
     std::unique_ptr<ui::qt_gui::DisplayableDialog> create() override;
 };
 
 inline SettingsDialogLifestyleProxy::SettingsDialogLifestyleProxy(
-    IConfig& applicationSettings_)
+    api::IConfig& applicationSettings_)
     : applicationSettings{applicationSettings_}
 {
 }

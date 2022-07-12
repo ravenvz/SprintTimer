@@ -32,7 +32,7 @@ QMediaPlayer realPlayer;
 
 namespace sprint_timer::compose {
 
-std::unique_ptr<SoundPlayer> createPlayer() {
+std::unique_ptr<api::SoundPlayer> createPlayer() {
     return std::make_unique<ui::qt_gui::QtSoundPlayerImp>(realPlayer);
 }
 

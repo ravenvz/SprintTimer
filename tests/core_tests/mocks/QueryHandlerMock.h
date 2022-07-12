@@ -19,15 +19,15 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/QueryHandler.h"
+#include "api/com_query/QueryHandler.h"
 #include "gmock/gmock.h"
 
 namespace mocks {
 
-template <typename QueryT>
-class QueryHandlerMock : public sprint_timer::QueryHandler<QueryT> {
+template <query QueryT>
+class QueryHandlerMock : public asp::QueryHandler<QueryT> {
 public:
-    MOCK_METHOD(typename QueryT::result_t, handle, (QueryT &&), (override));
+    MOCK_METHOD(QueryT::Result, handle, (const QueryT&), (override));
 };
 
 } // namespace mocks

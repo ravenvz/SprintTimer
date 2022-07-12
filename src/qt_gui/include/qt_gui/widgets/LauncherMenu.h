@@ -25,7 +25,6 @@
 #include "qt_gui/SprintTimerWidget.h"
 #include "qt_gui/StandaloneDisplayable.h"
 #include <QDialog>
-#include "core/IConfig.h"
 #include <memory>
 
 namespace Ui {

@@ -28,7 +28,7 @@ template <typename Entity>
 sprint_timer::ui::contracts::HistoryContract::History
 toHistory(const std::vector<Entity>& entities);
 
-dw::Date extractDate(const sprint_timer::use_cases::SprintDTO& sprint);
+dw::Date extractDate(const sprint_timer::api::SprintDTO& sprint);
 
 } // namespace
 
@@ -66,11 +66,11 @@ void HistoryPresenter::fetchDataImpl()
     switch (mediator.displayedHistory()) {
     case HistoryMediator::DisplayedHistory::SprintHistory:
         sprintData = requestSprintsHandler.handle(
-            use_cases::RequestSprintsQuery{*range});
+            api::RequestSprintsQuery{*range});
         break;
     case HistoryMediator::DisplayedHistory::TaskHistory:
         taskData =
-            requestTasksHandler.handle(use_cases::FinishedTasksQuery{*range});
+            requestTasksHandler.handle(api::FinishedTasksQuery{*range});
         break;
     }
 }
@@ -117,7 +117,7 @@ void HistoryPresenter::onSharedDataChanged()
 
 namespace {
 
-std::string describe(const sprint_timer::use_cases::SprintDTO& sprint)
+std::string describe(const sprint_timer::api::SprintDTO& sprint)
 {
     std::stringstream ss;
     ss << dw::to_string(sprint.timeRange, "hh:mm") << " ";
@@ -127,7 +127,7 @@ std::string describe(const sprint_timer::use_cases::SprintDTO& sprint)
     return ss.str();
 }
 
-std::string describe(const sprint_timer::use_cases::TaskDTO& task)
+std::string describe(const sprint_timer::api::TaskDTO& task)
 {
     std::stringstream ss;
     for (const auto& tag : task.tags)
@@ -147,18 +147,18 @@ sprint_timer::ui::contracts::HistoryContract::Item toItem(const Entity& entity)
 // TODO remove when all handlers interactions are cleaned from entities
 template <>
 sprint_timer::ui::contracts::HistoryContract::Item
-toItem(const sprint_timer::use_cases::TaskDTO& entity)
+toItem(const sprint_timer::api::TaskDTO& entity)
 {
     return sprint_timer::ui::contracts::HistoryContract::Item{describe(entity),
                                                               entity.uuid};
 }
 
-dw::Date extractDate(const sprint_timer::use_cases::SprintDTO& sprint)
+dw::Date extractDate(const sprint_timer::api::SprintDTO& sprint)
 {
     return sprint.timeRange.start().date();
 }
 
-dw::Date extractDate(const sprint_timer::use_cases::TaskDTO& task)
+dw::Date extractDate(const sprint_timer::api::TaskDTO& task)
 {
     return task.modificationStamp.date();
 }

@@ -23,8 +23,8 @@
 #define BESTWORKDAYPRESENTER_H_OIE4UYUT
 
 #include "core/Distribution.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_statistics/WorkdayStatisticsQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/WorkdayStatisticsQuery.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/presentation/BestWorkdayContract.h"
 #include "qt_gui/presentation/StatisticsContext.h"
@@ -36,7 +36,7 @@ class BestWorkdayPresenter : public contracts::BestWorkday::Presenter,
                              public StatisticsColleague {
 public:
     using workday_statistics_handler_t =
-        QueryHandler<use_cases::WorkdayStatisticsQuery>;
+        asp::QueryHandler<api::WorkdayStatisticsQuery>;
 
     BestWorkdayPresenter(workday_statistics_handler_t& workdayStatisticsHandler,
                          StatisticsMediator& mediator,
@@ -57,7 +57,7 @@ private:
     std::reference_wrapper<StatisticsMediator> mediator;
     std::reference_wrapper<const StatisticsContext> statisticsContext;
     dw::Weekday firstDayOfWeek;
-    std::optional<use_cases::WorkdayStatisticsDTO> workdayStatistics;
+    std::optional<api::WorkdayStatisticsDTO> workdayStatistics;
 
     void fetchDataImpl() override;
 

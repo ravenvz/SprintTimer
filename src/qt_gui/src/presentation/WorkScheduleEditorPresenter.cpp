@@ -65,9 +65,8 @@ void displayExceptionalDays(
 namespace sprint_timer::ui {
 
 WorkScheduleEditorPresenter::WorkScheduleEditorPresenter(
-    QueryHandler<use_cases::WorkScheduleQuery>& workScheduleHandler_,
-    CommandHandler<use_cases::ChangeWorkScheduleCommand>&
-        changeWorkScheduleHandler_,
+    work_schedule_handler_t& workScheduleHandler_,
+    change_schedule_handler_t& changeWorkScheduleHandler_,
     dw::Weekday firstDayOfWeek_)
     : workScheduleHandler{workScheduleHandler_}
     , changeWorkScheduleHandler{changeWorkScheduleHandler_}
@@ -79,7 +78,7 @@ void WorkScheduleEditorPresenter::updateViewImpl()
 {
     if (auto v = view(); v) {
         bufferedSchedule =
-            workScheduleHandler.get().handle(use_cases::WorkScheduleQuery{});
+            workScheduleHandler.get().handle(api::WorkScheduleQuery{});
         displayWeekSchedule(
             bufferedSchedule.currentWeekSchedule(), firstDayOfWeek, v.value());
         displayRoaster(bufferedSchedule.roaster(), firstDayOfWeek, v.value());
@@ -138,18 +137,18 @@ void WorkScheduleEditorPresenter::onWeekScheduleRemoved(
 void WorkScheduleEditorPresenter::onScheduleChangeConfirmed()
 {
     const auto oldSchedule =
-        workScheduleHandler.get().handle(use_cases::WorkScheduleQuery{});
+        workScheduleHandler.get().handle(api::WorkScheduleQuery{});
     if (oldSchedule == bufferedSchedule)
         return;
     changeWorkScheduleHandler.get().handle(
-        use_cases::ChangeWorkScheduleCommand{oldSchedule, bufferedSchedule});
+        api::ChangeWorkScheduleCommand{oldSchedule, bufferedSchedule});
 }
 
 void WorkScheduleEditorPresenter::onRevertChanges()
 {
     updateView();
     // bufferedSchedule =
-    //     workScheduleHandler.handle(use_cases::WorkScheduleQuery{});
+    //     workScheduleHandler.handle(api::WorkScheduleQuery{});
 }
 
 } // namespace sprint_timer::ui

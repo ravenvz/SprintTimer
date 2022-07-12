@@ -22,16 +22,16 @@
 #ifndef PLANNERPRESENTER_H_FPLV5C7S
 #define PLANNERPRESENTER_H_FPLV5C7S
 
-#include "core/QueryHandler.h"
-#include "core/use_cases/TaskTreeDTO.h"
-#include "core/use_cases/read_task_tree/ReadTaskTreeQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/dtos/TaskTreeDTO.h"
+#include "api/requests/ReadTaskTreeQuery.h"
 #include "qt_gui/presentation/PlannerContract.h"
 
 namespace sprint_timer::ui {
 
 class PlannerPresenter : public contracts::PlannerContract::Presenter {
 public:
-    using read_planner_handler_t = QueryHandler<use_cases::ReadTaskTreeQuery>;
+    using read_planner_handler_t = asp::QueryHandler<api::ReadTaskTreeQuery>;
 
     explicit PlannerPresenter(read_planner_handler_t& readPlannerHandler_)
         : readPlannerHandler{readPlannerHandler_}
@@ -40,7 +40,7 @@ public:
 
 private:
     read_planner_handler_t& readPlannerHandler;
-    use_cases::TaskTreeDTO data;
+    api::TaskTreeDTO data;
 
     void updateViewImpl() override
     {
@@ -51,7 +51,7 @@ private:
 
     void fetchDataImpl() override
     {
-        data = readPlannerHandler.handle(use_cases::ReadTaskTreeQuery{});
+        data = readPlannerHandler.handle(api::ReadTaskTreeQuery{});
     }
 };
 

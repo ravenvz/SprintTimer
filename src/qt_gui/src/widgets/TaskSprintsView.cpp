@@ -20,14 +20,14 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TaskSprintsView.h"
+#include "core/utils/StringUtils.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_sprints_for_task_view.h"
-#include "core/utils/StringUtils.h"
 
 namespace {
 
+using sprint_timer::api::SprintDTO;
 using sprint_timer::entities::Sprint;
-using sprint_timer::use_cases::SprintDTO;
 using sprint_timer::ui::qt_gui::HistoryModel;
 
 HistoryModel::HistoryData

@@ -23,8 +23,6 @@
 #define HISTORYWINDOWPROXY_H_UIWGGP91
 
 #include "DisplayableLifestyleProxy.h"
-#include <QStyledItemDelegate>
-#include "core/IConfig.h"
 #include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/presentation/HistoryPresenter.h"
 #include "qt_gui/utils/WidgetUtils.h"
@@ -32,6 +30,7 @@
 #include "qt_gui/widgets/DateRangeSelector.h"
 #include "qt_gui/widgets/HistoryTab.h"
 #include "qt_gui/widgets/HistoryWindow.h"
+#include <QStyledItemDelegate>
 
 namespace sprint_timer::compose {
 

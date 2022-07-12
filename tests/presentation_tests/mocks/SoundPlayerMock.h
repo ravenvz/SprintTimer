@@ -19,11 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/SoundPlayer.h"
+#include "api/SoundPlayer.h"
 
 namespace mocks {
 
-class SoundPlayerMock : public sprint_timer::SoundPlayer {
+class SoundPlayerMock : public sprint_timer::api::SoundPlayer {
 public:
     MOCK_METHOD(void, play, (const std::string&), (override));
 

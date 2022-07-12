@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "core/entities/Task.h"
-#include "core/use_cases/workflow_control/StartTimer.h"
 #include "mocks/AssetLibraryMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/SoundPlayerMock.h"
@@ -34,7 +33,7 @@ using ::testing::NiceMock;
 using ::testing::Return;
 
 using namespace sprint_timer::ui::contracts::TimerContract;
-using namespace sprint_timer::use_cases;
+using namespace sprint_timer::api;
 
 namespace {
 
@@ -109,7 +108,7 @@ public:
     TimerViewMock view;
     NiceMock<WorkflowTMock> workflow;
     NiceMock<
-        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestProgressQuery>>
+        mocks::QueryHandlerMock<sprint_timer::api::RequestProgressQuery>>
         todayProgressHandler;
     const std::string someSoundPath{"somesoundpath"};
     NiceMock<mocks::SoundPlayerMock> soundPlayer;
@@ -173,7 +172,7 @@ TEST_F(TimerPresenterFixture,
 {
     using sprint_timer::GoalProgress;
     NiceMock<
-        mocks::QueryHandlerMock<sprint_timer::use_cases::RequestProgressQuery>>
+        mocks::QueryHandlerMock<sprint_timer::api::RequestProgressQuery>>
         progressHandler;
     const int numActualSprints{4};
     TimerPresenter otherPresenter{workflow,

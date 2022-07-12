@@ -19,15 +19,15 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/CommandHandler.h"
+#include "api/com_query/CommandHandler.h"
 #include "gmock/gmock.h"
 
 namespace mocks {
 
-template <typename CommandT>
-class CommandHandlerMock : public sprint_timer::CommandHandler<CommandT> {
+template <asp::Command CommandT>
+class CommandHandlerMock : public asp::CommandHandler<CommandT> {
 public:
-    MOCK_METHOD(void, handle, (CommandT &&), (override));
+    MOCK_METHOD(void, handle, (const CommandT&), (override));
 };
 
 } // namespace mocks

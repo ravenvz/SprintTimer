@@ -19,14 +19,14 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/IConfig.h"
+#include "api/IConfig.h"
 #include "core/Observable.h"
 
 namespace sprint_timer::compose {
 
-class ObservableConfig : public IConfig, public Observable {
+class ObservableConfig : public api::IConfig, public Observable {
 public:
-    ObservableConfig(IConfig& wrapped_);
+    explicit ObservableConfig(api::IConfig& wrapped_);
 
     std::chrono::minutes sprintDuration() const override;
 
@@ -65,7 +65,7 @@ public:
     void setFirstDayOfWeek(dw::Weekday firstDayOfWeek) override;
 
 private:
-    IConfig& wrapped;
+    api::IConfig& wrapped;
 };
 
 } // namespace sprint_timer::compose

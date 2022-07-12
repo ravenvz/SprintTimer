@@ -25,7 +25,7 @@
 using namespace sprint_timer;
 using namespace std::chrono_literals;
 using namespace ::dw;
-using sprint_timer::use_cases::SprintDTO;
+using sprint_timer::api::SprintDTO;
 
 class SprintToCsvFixture : public ::testing::Test {
 public:

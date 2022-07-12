@@ -36,26 +36,26 @@ constexpr double penWidthF{2.2};
 
 void updateAll(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
+    const sprint_timer::api::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range);
 
 void updateLegend(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics);
+    const sprint_timer::api::DailyStatisticsDTO& dailyStatistics);
 
 void updateDailyGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
+    const sprint_timer::api::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range);
 
 void updateActualAverageGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
+    const sprint_timer::api::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range);
 
 void updateExpectedAverageGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
+    const sprint_timer::api::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range);
 
 std::vector<
@@ -105,7 +105,7 @@ void DailyStatisticsGraphPresenter::fetchDataImpl()
         return;
     }
     dailyStatistics =
-        dailyStatisticsHandler.handle(use_cases::DailyStatisticsQuery{
+        dailyStatisticsHandler.handle(api::DailyStatisticsQuery{
             numTopTags, selectedTag, *selectedRange});
 }
 
@@ -133,7 +133,7 @@ namespace {
 
 void updateAll(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
+    const sprint_timer::api::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range)
 {
     updateLegend(view, dailyStatistics);
@@ -144,7 +144,7 @@ void updateAll(
 
 void updateLegend(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics)
+    const sprint_timer::api::DailyStatisticsDTO& dailyStatistics)
 {
     using sprint_timer::ui::contracts::DailyStatisticGraphContract::LegendData;
     using sprint_timer::utils::formatDecimal;
@@ -155,7 +155,7 @@ void updateLegend(
 
 void updateDailyGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
+    const sprint_timer::api::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range)
 {
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
@@ -193,7 +193,7 @@ polylineGraphValues(std::span<const int> distribution,
 
 void updateActualAverageGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
+    const sprint_timer::api::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range)
 {
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;
@@ -207,7 +207,7 @@ void updateActualAverageGraph(
 
 void updateExpectedAverageGraph(
     sprint_timer::ui::contracts::DailyStatisticGraphContract::View* view,
-    const sprint_timer::use_cases::DailyStatisticsDTO& dailyStatistics,
+    const sprint_timer::api::DailyStatisticsDTO& dailyStatistics,
     const dw::DateRange& range)
 {
     using namespace sprint_timer::ui::contracts::DailyStatisticGraphContract;

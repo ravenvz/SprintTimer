@@ -19,11 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/WorkScheduleStorageMock.h"
-#include "gtest/gtest.h"
 #include "core/ObservableActionInvoker.h"
 #include "core/actions/ChangeWorkSchedule.h"
-#include "core/use_cases/change_schedule/ChangeWorkScheduleHandler.h"
+#include "mocks/WorkScheduleStorageMock.h"
+#include "gtest/gtest.h"
 
 using namespace sprint_timer;
 
@@ -35,8 +34,6 @@ public:
 
 TEST_F(ChangeWorkingDaysFixture, execute_and_undo)
 {
-    using sprint_timer::use_cases::ChangeWorkScheduleCommand;
-    using sprint_timer::use_cases::ChangeWorkScheduleHandler;
     using namespace dw;
     const WorkSchedule oldWorkSchedule;
     WorkSchedule newWorkSchedule;

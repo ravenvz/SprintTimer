@@ -22,16 +22,16 @@
 #ifndef QT_CONFIG_H_3HPQW7BI
 #define QT_CONFIG_H_3HPQW7BI
 
+#include "api/IConfig.h"
+#include "date_wrapper/date_wrapper.h"
 #include <QSettings>
 #include <QVariant>
-#include "core/IConfig.h"
-#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::ui::qt_gui {
 
 /* Implements IConfig application config interface using Qt framework
  * features. */
-class Config : public IConfig {
+class Config : public api::IConfig {
 
 public:
     std::chrono::minutes sprintDuration() const override;
@@ -75,6 +75,5 @@ private:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif /* end of include guard: QT_CONFIG_H_3HPQW7BI */

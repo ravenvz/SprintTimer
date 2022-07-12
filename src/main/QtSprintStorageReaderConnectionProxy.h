@@ -23,7 +23,6 @@
 #define QTSPRINTSTORAGEREADERCONNECTIONPROXY_H_NKO8EHDL
 
 #include "ThreadConnectionHelper.h"
-#include "core/IStorageImplementersFactory.h"
 #include "core/SprintStorageReader.h"
 #include <QString>
 
@@ -31,7 +30,7 @@ namespace sprint_timer::compose {
 
 class QtSprintStorageReaderConnectionProxy : public SprintStorageReader {
 public:
-    QtSprintStorageReaderConnectionProxy(ThreadConnectionHelper& connectionHelper);
+    explicit QtSprintStorageReaderConnectionProxy(ThreadConnectionHelper& connectionHelper);
 
     ~QtSprintStorageReaderConnectionProxy() = default;
 

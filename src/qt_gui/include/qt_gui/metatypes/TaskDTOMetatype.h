@@ -22,9 +22,9 @@
 #ifndef TASKDTOMETATYPE_H_FMUN4K37
 #define TASKDTOMETATYPE_H_FMUN4K37
 
-#include "core/use_cases/TaskDTO.h"
+#include "api/dtos/TaskDTO.h"
 #include <QtCore>
 
-Q_DECLARE_METATYPE(sprint_timer::use_cases::TaskDTO)
+Q_DECLARE_METATYPE(sprint_timer::api::TaskDTO)
 
 #endif /* end of include guard: TASKDTOMETATYPE_H_FMUN4K37 */

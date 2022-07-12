@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "api/IConfig.h"
 #include "core/CompositionObserver.h"
-#include "core/IConfig.h"
 #include "core/Observable.h"
 #include "qt_gui/presentation/BestWorkdayPresenter.h"
 
@@ -29,11 +29,11 @@ namespace sprint_timer::compose {
 class BestWorkdayPresenterProxy : public ui::contracts::BestWorkday::Presenter,
                                   public ui::StatisticsColleague {
 public:
-    BestWorkdayPresenterProxy(QueryHandler<use_cases::WorkdayStatisticsQuery>&
+    BestWorkdayPresenterProxy(asp::QueryHandler<api::WorkdayStatisticsQuery>&
                                   workdayStatisticsHandler_,
                               ui::StatisticsMediator& mediator_,
                               const ui::StatisticsContext& statisticsContext_,
-                              IConfig& settings_,
+                              api::IConfig& settings_,
                               Observable& configChangedSignaller_)
         : workdayStatisticsHandler{workdayStatisticsHandler_}
         , mediator{mediator_}
@@ -47,10 +47,10 @@ public:
     void onSharedDataChanged() override { }
 
 private:
-    QueryHandler<use_cases::WorkdayStatisticsQuery>& workdayStatisticsHandler;
+    asp::QueryHandler<api::WorkdayStatisticsQuery>& workdayStatisticsHandler;
     ui::StatisticsMediator& mediator;
     const ui::StatisticsContext& statisticsContext;
-    IConfig& settings;
+    api::IConfig& settings;
     dw::Weekday cached{settings.firstDayOfWeek()};
     ui::BestWorkdayPresenter presenter{
         workdayStatisticsHandler, mediator, statisticsContext, cached};

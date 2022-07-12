@@ -24,7 +24,7 @@
 
 namespace sprint_timer::ui {
 
-using use_cases::TaskDTO;
+using api::TaskDTO;
 
 ActiveTasksPresenter::ActiveTasksPresenter(
     active_tasks_hdl_t& activeTasksHandler_,
@@ -42,19 +42,19 @@ ActiveTasksPresenter::ActiveTasksPresenter(
 
 void ActiveTasksPresenter::editTask(const TaskDTO& editedTask)
 {
-    editTaskHandler.handle(use_cases::EditTaskCommand{editedTask});
+    editTaskHandler.handle(api::EditTaskCommand{editedTask});
 }
 
 void ActiveTasksPresenter::deleteTask(const std::string& uuid)
 {
-    deleteTaskHandler.handle(use_cases::DeleteTaskCommand{uuid});
+    deleteTaskHandler.handle(api::DeleteTaskCommand{uuid});
 }
 
 void ActiveTasksPresenter::toggleFinished(
     const std::string& uuid, dw::DateTime lastModificationTimestamp)
 {
     toggleFinishedHandler.handle(
-        use_cases::ToggleTaskCompletedCommand{uuid, lastModificationTimestamp});
+        api::ToggleTaskCompletedCommand{uuid, lastModificationTimestamp});
 }
 
 void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
@@ -78,13 +78,13 @@ void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
                  begin(newOrder) + sourceRow + count,
                  begin(newOrder) + destinationRow + offset);
 
-    changePriorityHandler.handle(use_cases::ChangeActiveTasksPriorityCommand{
+    changePriorityHandler.handle(api::ChangeActiveTasksPriorityCommand{
         std::move(oldOrder), std::move(newOrder)});
 }
 
 void ActiveTasksPresenter::fetchDataImpl()
 {
-    data = activeTasksHandler.handle(use_cases::ActiveTasksQuery{});
+    data = activeTasksHandler.handle(api::ActiveTasksQuery{});
 }
 
 void ActiveTasksPresenter::updateViewImpl()

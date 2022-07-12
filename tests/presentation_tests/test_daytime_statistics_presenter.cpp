@@ -94,7 +94,7 @@ class BestWorktimePresenterFixture : public ::testing::Test {
 public:
     NiceMock<mocks::StatisticsMediatorMock> mediator_mock;
     NiceMock<mocks::QueryHandlerMock<
-        sprint_timer::use_cases::WorktimeStatisticsQuery>>
+        sprint_timer::api::WorktimeStatisticsQuery>>
         worktimeStatisticsHandler;
     size_t someNumTopTags{20};
     NiceMock<DaytimeStatisticsViewMock> view;
@@ -144,12 +144,12 @@ TEST_F(BestWorktimePresenterFixture, updates_legend_with_generic_data)
 {
     using sprint_timer::ui::contracts::BestWorktimeContract::LegendData;
     using namespace std::chrono_literals;
-    using sprint_timer::use_cases::WorktimeStatisticsDTO;
+    using sprint_timer::api::WorktimeStatisticsDTO;
     const LegendData expected{"Night", "2:00 - 6:00"};
     mocks::given_handler_returns(
         worktimeStatisticsHandler,
         WorktimeStatisticsDTO{std::vector<dw::DateTimeRange>{},
-                              sprint_timer::use_cases::DayPart::Night});
+                              sprint_timer::api::DayPart::Night});
 
     EXPECT_CALL(view, updateLegend(expected));
 
@@ -160,13 +160,13 @@ TEST_F(BestWorktimePresenterFixture, updates_legend_when_shared_data_changed)
 {
     using sprint_timer::ui::contracts::BestWorktimeContract::LegendData;
     using namespace std::chrono_literals;
-    using sprint_timer::use_cases::WorktimeStatisticsDTO;
+    using sprint_timer::api::WorktimeStatisticsDTO;
     const LegendData expected{"Night", "2:00 - 6:00"};
     sut.attachView(view);
     mocks::given_handler_returns(
         worktimeStatisticsHandler,
         WorktimeStatisticsDTO{std::vector<dw::DateTimeRange>{},
-                              sprint_timer::use_cases::DayPart::Night});
+                              sprint_timer::api::DayPart::Night});
 
     EXPECT_CALL(view, updateLegend(expected));
 
@@ -177,7 +177,7 @@ TEST_F(BestWorktimePresenterFixture, updates_diagram_with_generic_data)
 {
     using sprint_timer::ui::contracts::BestWorktimeContract::DiagramData;
     using namespace std::chrono_literals;
-    using namespace sprint_timer::use_cases;
+    using namespace sprint_timer::api;
 
     const dw::DateTime dateTime{dw::current_date()};
     const std::vector<dw::DateTimeRange> timeRanges{
@@ -200,7 +200,7 @@ TEST_F(BestWorktimePresenterFixture, updates_diagram_when_shared_data_changed)
 {
     using sprint_timer::ui::contracts::BestWorktimeContract::DiagramData;
     using namespace std::chrono_literals;
-    using namespace sprint_timer::use_cases;
+    using namespace sprint_timer::api;
 
     const dw::DateTime dateTime{dw::current_date()};
     const std::vector<dw::DateTimeRange> timeRanges{

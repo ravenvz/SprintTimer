@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "DisplayableDialogLifestyleProxy.h"
+#include "api/IConfig.h"
 #include "core/CompositionObserver.h"
-#include "core/IConfig.h"
 #include "qt_gui/dialogs/AddSprintDialog.h"
 
 #ifndef ADDSPRINTDIALOGPROXY_H_QRM9YHDS
@@ -34,7 +34,7 @@ public:
     AddSprintDialogProxy(
         ui::contracts::RegisterSprintControl::Presenter& presenter_,
         QAbstractItemModel& taskModel_,
-        IConfig& settings_)
+        api::IConfig& settings_)
         : presenter{presenter_}
         , taskModel{taskModel_}
         , settings{settings_}
@@ -53,7 +53,7 @@ public:
 private:
     ui::contracts::RegisterSprintControl::Presenter& presenter;
     QAbstractItemModel& taskModel;
-    IConfig& settings;
+    api::IConfig& settings;
 };
 
 } // namespace sprint_timer::compose

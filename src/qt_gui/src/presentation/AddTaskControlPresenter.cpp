@@ -37,14 +37,14 @@ decodeDescription(const std::string& description);
 namespace sprint_timer::ui {
 
 AddTaskControlPresenter::AddTaskControlPresenter(
-    CommandHandler<use_cases::CreateTaskCommand>& createTaskHandler_)
+    create_task_handler_t& createTaskHandler_)
     : createTaskHandler{createTaskHandler_}
 {
 }
 
-void AddTaskControlPresenter::addTask(const use_cases::TaskDTO& details) const
+void AddTaskControlPresenter::addTask(const api::TaskDTO& details) const
 {
-    createTaskHandler.handle(use_cases::CreateTaskCommand{
+    createTaskHandler.handle(api::CreateTaskCommand{
         details.name, details.tags, details.expectedCost});
 }
 
@@ -52,7 +52,7 @@ void AddTaskControlPresenter::addTask(
     const std::string& encodedDescription) const
 {
     auto [name, tags, cost] = decodeDescription(encodedDescription);
-    createTaskHandler.handle(use_cases::CreateTaskCommand{name, tags, cost});
+    createTaskHandler.handle(api::CreateTaskCommand{name, tags, cost});
 }
 
 } // namespace sprint_timer::ui

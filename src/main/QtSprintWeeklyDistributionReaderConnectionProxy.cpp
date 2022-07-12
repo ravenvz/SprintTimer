@@ -41,7 +41,7 @@ QtSprintWeeklyDistributionReaderConnectionProxy::
     QtSprintWeeklyDistributionReaderConnectionProxy(
         ThreadConnectionHelper& connectionHelper_,
         size_t numWeeks_,
-        IConfig& applicationSettings_)
+        api::IConfig& applicationSettings_)
     : connectionHelper{connectionHelper_}
     , numWeeks{numWeeks_}
     , applicationSettings{applicationSettings_}

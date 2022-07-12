@@ -35,8 +35,8 @@ void TaskSprintsPresenter::updateViewImpl()
 {
     if (auto v = view(); v) {
         if (auto uuid = taskSelectionContext.taskUuid(); uuid) {
-            const auto sprints = sprintsForTaskHandler.handle(
-                use_cases::SprintsForTaskQuery{*uuid});
+            const auto sprints =
+                sprintsForTaskHandler.handle(api::SprintsForTaskQuery{*uuid});
             v.value()->displaySprints(sprints);
         }
     }

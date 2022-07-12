@@ -24,32 +24,65 @@
 
 #include "CacheAwareCommandHandler.h"
 #include "ErrorReportingCommandHandler.h"
-#include "ProfilingCommandHandler.h"
-#include "VerboseCommandHandler.h"
+#include "ProfilingRequestHandler.h"
+#include "VerboseRequestHandler.h"
 
 namespace sprint_timer::compose {
 
-template <typename CommandT>
-std::unique_ptr<CommandHandler<CommandT>>
-decorate_com_handler(std::unique_ptr<CommandHandler<CommandT>> wrapped,
-                     std::ostream& os)
+template <asp::Command CommandT>
+std::unique_ptr<asp::RequestHandler<CommandT>>
+decorate_command(std::unique_ptr<asp::RequestHandler<CommandT>> wrapped,
+                 std::ostream& os,
+                 ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator)
 {
-    return std::make_unique<ErrorReportingCommandHandler<CommandT>>(
-        std::make_unique<sprint_timer::VerboseCommandHandler<CommandT>>(
-            std::move(wrapped), os));
-    // return std::make_unique<ErrorReportingCommandHandler<CommandT>>(
-    //     std::make_unique<ProfilingCommandHandler<CommandT>>(std::move(wrapped),
-    //                                                         os));
+    auto cacheAwareHandler =
+        std::make_unique<CacheAwareCommandHandler<CommandT>>(
+            std::move(wrapped), cacheInvalidationMediator);
+    auto verboseHandler = std::make_unique<VerboseRequestHandler<CommandT>>(
+        std::move(cacheAwareHandler), os);
+    auto errorReportingHandler =
+        std::make_unique<ErrorReportingCommandHandler<CommandT>>(
+            std::move(verboseHandler));
+    return errorReportingHandler;
 }
 
-template <typename CommandT>
-std::unique_ptr<sprint_timer::CommandHandler<CommandT>> decorate_com_handler(
-    std::unique_ptr<sprint_timer::CommandHandler<CommandT>> wrapped,
-    ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator)
+// This overload is useful for commands that do not mutate internal state (so no
+// synchronization is needed).
+template <asp::Command CommandT>
+std::unique_ptr<asp::RequestHandler<CommandT>> decorate_immutable_command(
+    std::unique_ptr<asp::RequestHandler<CommandT>> wrapped, std::ostream& os)
 {
-    return std::make_unique<CacheAwareCommandHandler<CommandT>>(
-        std::move(wrapped), cacheInvalidationMediator);
+    auto verboseHandler = std::make_unique<VerboseRequestHandler<CommandT>>(
+        std::move(wrapped), os);
+    auto errorReportingHandler =
+        std::make_unique<ErrorReportingCommandHandler<CommandT>>(
+            std::move(verboseHandler));
+    return errorReportingHandler;
 }
+
+// template <asp::Request CommandT>
+// std::unique_ptr<asp::RequestHandler<CommandT>>
+// decorate_com_handler(std::unique_ptr<asp::RequestHandler<CommandT>> wrapped,
+//                      std::ostream& os)
+// {
+//     return std::make_unique<ErrorReportingRequestHandler<CommandT>>(
+//         std::make_unique<sprint_timer::VerboseRequestHandler<CommandT>>(
+//             std::move(wrapped), os));
+//     // return std::make_unique<ErrorReportingCommandHandler<CommandT>>(
+//     //
+//     std::make_unique<ProfilingCommandHandler<CommandT>>(std::move(wrapped),
+//     //                                                         os));
+// }
+//
+// template <typename CommandT>
+// std::unique_ptr<asp::RequestHandler<CommandT>>
+// decorate_com_handler(std::unique_ptr<asp::RequestHandler<CommandT>> wrapped,
+//                      ui::Mediator<ui::Invalidatable>&
+//                      cacheInvalidationMediator)
+// {
+//     return std::make_unique<CacheAwareCommandHandler<CommandT>>(
+//         std::move(wrapped), cacheInvalidationMediator);
+// }
 
 } // namespace sprint_timer::compose
 

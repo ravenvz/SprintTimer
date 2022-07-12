@@ -22,8 +22,8 @@
 #ifndef DATERANGESELECTORPRESENTERPROXY_H_ICWE0OQ4
 #define DATERANGESELECTORPRESENTERPROXY_H_ICWE0OQ4
 
+#include "api/IConfig.h"
 #include "core/CompositionObserver.h"
-#include "core/IConfig.h"
 #include "qt_gui/presentation/DateRangeSelectorPresenter.h"
 
 namespace sprint_timer::compose {
@@ -33,9 +33,9 @@ class DateRangeSelectorPresenterProxy
       public ui::StatisticsColleague {
 public:
     DateRangeSelectorPresenterProxy(
-        QueryHandler<use_cases::OperationalRangeQuery>& handler_,
+        asp::QueryHandler<api::OperationalRangeQuery>& handler_,
         ui::DateRangeChangeListener& dateRangeChangeListener_,
-        IConfig& settings_,
+        api::IConfig& settings_,
         Observable& configChangedSignaller_)
         : handler{handler_}
         , dateRangeChangeListener{dateRangeChangeListener_}
@@ -52,9 +52,9 @@ public:
     void onSharedDataChanged() override { }
 
 private:
-    QueryHandler<use_cases::OperationalRangeQuery>& handler;
+    asp::QueryHandler<api::OperationalRangeQuery>& handler;
     ui::DateRangeChangeListener& dateRangeChangeListener;
-    IConfig& settings;
+    api::IConfig& settings;
     dw::Weekday cached{settings.firstDayOfWeek()};
     ui::DateRangeSelectorPresenter presenter{
         handler, dateRangeChangeListener, cached};

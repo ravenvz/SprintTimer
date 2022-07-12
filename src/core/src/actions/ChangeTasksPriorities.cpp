@@ -23,25 +23,18 @@
 
 namespace sprint_timer::actions {
 
-ChangeTasksPriorities::ChangeTasksPriorities(
-    TaskStorageWriter& writer_,
-    std::vector<std::string>&& old_order,
-    std::vector<std::string>&& new_order)
+ChangeTasksPriorities::ChangeTasksPriorities(TaskStorageWriter& writer_,
+                                             std::vector<std::string> old_order,
+                                             std::vector<std::string> new_order)
     : writer{writer_}
     , old_order_{std::move(old_order)}
     , new_order_{std::move(new_order)}
 {
 }
 
-void ChangeTasksPriorities::execute()
-{
-    writer.updatePriorities(std::move(new_order_));
-}
+void ChangeTasksPriorities::execute() { writer.updatePriorities(new_order_); }
 
-void ChangeTasksPriorities::undo()
-{
-    writer.updatePriorities(std::move(old_order_));
-}
+void ChangeTasksPriorities::undo() { writer.updatePriorities(old_order_); }
 
 std::string ChangeTasksPriorities::describe() const
 {

@@ -22,13 +22,13 @@
 #ifndef TASKSPRINTSVIEW_H_HYCTEOV4
 #define TASKSPRINTSVIEW_H_HYCTEOV4
 
+#include "core/entities/Sprint.h"
 #include "qt_gui/delegates/HistoryItemDelegate.h"
 #include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/presentation/TaskSprintsContract.h"
 #include "qt_gui/widgets/StandaloneDisplayableWidget.h"
 #include <QStyledItemDelegate>
 #include <QWidget>
-#include "core/entities/Sprint.h"
 #include <memory>
 
 namespace Ui {
@@ -47,7 +47,7 @@ public:
 
     ~TaskSprintsView() override;
 
-    void displaySprints(const std::vector<use_cases::SprintDTO>& sprints) override;
+    void displaySprints(const std::vector<api::SprintDTO>& sprints) override;
 
 private:
     std::unique_ptr<Ui::TaskSprintsView> ui;

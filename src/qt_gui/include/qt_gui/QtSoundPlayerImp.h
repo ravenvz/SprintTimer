@@ -22,14 +22,14 @@
 #ifndef QTSOUNDPLAYERIMP_H_F7WYTSZA
 #define QTSOUNDPLAYERIMP_H_F7WYTSZA
 
-#include "core/SoundPlayer.h"
+#include "api/SoundPlayer.h"
 #include <QAudioOutput>
 
 class QMediaPlayer;
 
 namespace sprint_timer::ui::qt_gui {
 
-class QtSoundPlayerImp : public SoundPlayer {
+class QtSoundPlayerImp : public api::SoundPlayer {
 public:
     explicit QtSoundPlayerImp(QMediaPlayer& qmediaPlayer_);
 

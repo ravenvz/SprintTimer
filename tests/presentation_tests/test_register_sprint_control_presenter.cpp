@@ -19,11 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/use_cases/register_sprint/RegisterSprintBulkCommand.h"
+#include "api/requests/RegisterSprintBulkCommand.h"
 #include "mocks/CommandHandlerMock.h"
 #include "qt_gui/presentation/RegisterSprintControlPresenter.h"
 
-using sprint_timer::use_cases::RegisterSprintBulkCommand;
+using sprint_timer::api::RegisterSprintBulkCommand;
 using ::testing::NiceMock;
 
 namespace {

@@ -22,9 +22,9 @@
 #ifndef TASKSPRINTSPRESENTER_H_VN5LZSTF
 #define TASKSPRINTSPRESENTER_H_VN5LZSTF
 
-#include "core/QueryHandler.h"
-#include "core/use_cases/SprintMapper.h"
-#include "core/use_cases/request_sprints/SprintsForTaskQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/dtos/SprintMapper.h"
+#include "api/requests/SprintsForTaskQuery.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/presentation/TaskSelectionContext.h"
 #include "qt_gui/presentation/TaskSprintsContract.h"
@@ -34,7 +34,7 @@ namespace sprint_timer::ui {
 class TaskSprintsPresenter
     : public mvp::BasePresenter<contracts::TaskSprintsContract::View> {
 public:
-    using sprints_for_task_hdl_t = QueryHandler<use_cases::SprintsForTaskQuery>;
+    using sprints_for_task_hdl_t = asp::QueryHandler<api::SprintsForTaskQuery>;
 
     TaskSprintsPresenter(sprints_for_task_hdl_t& sprintsForTaskHandler,
                          const TaskSelectionContext& taskSelectionContext);

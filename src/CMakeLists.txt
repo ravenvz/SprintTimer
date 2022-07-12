@@ -8,6 +8,7 @@ endif()
 set(CMAKE_MACOSX_RPATH 0)
 
 add_subdirectory(core)
+add_subdirectory(api)
 add_subdirectory(qt_storage)
 add_subdirectory(qt_gui)
 add_subdirectory(external_io)

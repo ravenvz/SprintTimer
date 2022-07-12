@@ -23,8 +23,8 @@
 #define DAILYPROGRESSPRESENTER_H_JN1XIWIZ
 
 #include "core/BackRequestStrategy.h"
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_progress/RequestProgressQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/RequestProgressQuery.h"
 #include "core/utils/StringUtils.h"
 #include "qt_gui/presentation/ProgressPresenterContract.h"
 #include <optional>
@@ -35,13 +35,13 @@ class ProgressPresenter
     : public mvp::BasePresenter<contracts::DailyProgress::View> {
 public:
     using request_progress_hdl_t =
-        QueryHandler<use_cases::RequestProgressQuery>;
+        asp::QueryHandler<api::RequestProgressQuery>;
 
     explicit ProgressPresenter(request_progress_hdl_t& requestProgressHandler);
 
 private:
     request_progress_hdl_t& requestProgressHandler;
-    std::optional<request_progress_hdl_t::result_t> data;
+    std::optional<api::RequestProgressQuery::Result> data;
 
     void fetchDataImpl() override;
 

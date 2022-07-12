@@ -22,17 +22,17 @@
 #ifndef RUNTIMECONFIGURABLESOUNDPLAYER_H_N5HGISEB
 #define RUNTIMECONFIGURABLESOUNDPLAYER_H_N5HGISEB
 
+#include "api/IConfig.h"
 #include "core/CompositionObserver.h"
-#include "core/IConfig.h"
-#include "core/SoundPlayer.h"
+#include "api/SoundPlayer.h"
 
 namespace sprint_timer::compose {
 
-class RuntimeConfigurableSoundPlayer : public SoundPlayer {
+class RuntimeConfigurableSoundPlayer : public api::SoundPlayer {
 public:
-    RuntimeConfigurableSoundPlayer(IConfig& applicationSettings_,
+    RuntimeConfigurableSoundPlayer(api::IConfig& applicationSettings_,
                                    Observable& configChangedSignaller_,
-                                   std::unique_ptr<SoundPlayer> wrapped_)
+                                   std::unique_ptr<api::SoundPlayer> wrapped_)
         : applicationSettings{applicationSettings_}
         , wrapped{std::move(wrapped_)}
         , observer{configChangedSignaller_, [this]() { onConfigChanged(); }}
@@ -58,8 +58,8 @@ public:
     }
 
 private:
-    IConfig& applicationSettings;
-    std::unique_ptr<SoundPlayer> wrapped;
+    api::IConfig& applicationSettings;
+    std::unique_ptr<api::SoundPlayer> wrapped;
     CompositionObserver observer;
 };
 

@@ -20,31 +20,27 @@
 **
 *********************************************************************************/
 #include "SoundPlayerFactory.h"
-#include "core/SoundPlayer.h"
+#include "api/SoundPlayer.h"
 #include <iostream>
 
 namespace sprint_timer::compose {
 
-class SoundPlayerStub : public SoundPlayer {
+class SoundPlayerStub : public api::SoundPlayer {
 public:
-    void play(const std::string&  /*mediaPath*/) override {
+    void play(const std::string& /*mediaPath*/) override
+    {
         std::cerr << "Project compiled without sound support\n";
     }
 
-    void setVolume(int /*volume*/) override 
-    {
-    }
+    void setVolume(int /*volume*/) override { }
 
-    void setSoundEnabled(bool /*enabled*/) override
-    {
-    }
-    
+    void setSoundEnabled(bool /*enabled*/) override { }
 };
 
-std::unique_ptr<SoundPlayer> createPlayer() {
+std::unique_ptr<api::SoundPlayer> createPlayer()
+{
     return std::make_unique<SoundPlayerStub>();
 }
 
 } // namespace sprint_timer::compose
-
 

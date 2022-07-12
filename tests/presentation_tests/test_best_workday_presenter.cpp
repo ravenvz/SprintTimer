@@ -93,9 +93,9 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const View::BarD& data)
 
 } // namespace sprint_timer::ui::contracts::BestWorkday
 
-namespace sprint_timer::use_cases {
+namespace sprint_timer::api {
 
-} // namespace sprint_timer::use_cases
+} // namespace sprint_timer::api
 
 class BestWorkdayViewMock : public View {
 public:
@@ -108,7 +108,7 @@ public:
     sprint_timer::ui::StatisticsMediator mediator;
     NiceMock<BestWorkdayViewMock> view;
     NiceMock<mocks::QueryHandlerMock<
-        sprint_timer::use_cases::WorkdayStatisticsQuery>>
+        sprint_timer::api::WorkdayStatisticsQuery>>
         workdayStatisticsHandlerMock;
     size_t someNumTopTags{5};
     StatisticsContext statisticsContext{
@@ -158,7 +158,7 @@ TEST_F(BestWorkdayPresenterFixture, updates_legend_with_generic_data)
                              mediator,
                              statisticsContext,
                              dw::Weekday::Monday};
-    sprint_timer::use_cases::WorkdayStatisticsDTO workdayStatistics{
+    sprint_timer::api::WorkdayStatisticsDTO workdayStatistics{
         {2.0, 3.5, 2.0, 3.0, 1.0, 3.0, 0.5}, dw::Weekday::Tuesday, 63};
     ON_CALL(workdayStatisticsHandlerMock, handle(_))
         .WillByDefault(Return(workdayStatistics));
@@ -176,7 +176,7 @@ TEST_F(BestWorkdayPresenterFixture, updates_legend_when_date_range_is_changed)
                              statisticsContext,
                              dw::Weekday::Monday};
     sut.attachView(view);
-    sprint_timer::use_cases::WorkdayStatisticsDTO workdayStatistics{
+    sprint_timer::api::WorkdayStatisticsDTO workdayStatistics{
         {2.0, 3.5, 2.0, 3.0, 1.0, 3.0, 0.5}, dw::Weekday::Tuesday, 63};
     ON_CALL(workdayStatisticsHandlerMock, handle(_))
         .WillByDefault(Return(workdayStatistics));
@@ -195,7 +195,7 @@ TEST_F(BestWorkdayPresenterFixture, updates_bars_when_distribution_is_empty)
                               barValues,
                               dayOrder};
     ON_CALL(workdayStatisticsHandlerMock, handle(_))
-        .WillByDefault(Return(sprint_timer::use_cases::WorkdayStatisticsDTO{}));
+        .WillByDefault(Return(sprint_timer::api::WorkdayStatisticsDTO{}));
     BestWorkdayPresenter sut{workdayStatisticsHandlerMock,
                              mediator,
                              statisticsContext,
@@ -219,7 +219,7 @@ TEST_F(BestWorkdayPresenterFixture, updates_bar_with_generic_data)
                              statisticsContext,
                              dw::Weekday::Monday};
     ON_CALL(workdayStatisticsHandlerMock, handle(_))
-        .WillByDefault(Return(sprint_timer::use_cases::WorkdayStatisticsDTO{
+        .WillByDefault(Return(sprint_timer::api::WorkdayStatisticsDTO{
             {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5}, dw::Weekday::Sunday, 40}));
 
     EXPECT_CALL(view, displayBars(expected));
@@ -241,7 +241,7 @@ TEST_F(BestWorkdayPresenterFixture, updates_bar_when_date_range_is_changed)
                              dw::Weekday::Monday};
     sut.attachView(view);
     ON_CALL(workdayStatisticsHandlerMock, handle(_))
-        .WillByDefault(Return(sprint_timer::use_cases::WorkdayStatisticsDTO{
+        .WillByDefault(Return(sprint_timer::api::WorkdayStatisticsDTO{
             {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5}, dw::Weekday::Sunday, 40}));
 
     EXPECT_CALL(view, displayBars(expected));
@@ -263,7 +263,7 @@ TEST_F(BestWorkdayPresenterFixture,
                              statisticsContext,
                              dw::Weekday::Sunday};
     ON_CALL(workdayStatisticsHandlerMock, handle(_))
-        .WillByDefault(Return(sprint_timer::use_cases::WorkdayStatisticsDTO{
+        .WillByDefault(Return(sprint_timer::api::WorkdayStatisticsDTO{
             {4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5}, dw::Weekday::Sunday, 40}));
 
     EXPECT_CALL(view, displayBars(expected));

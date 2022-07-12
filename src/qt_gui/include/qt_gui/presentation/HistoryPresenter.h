@@ -22,9 +22,9 @@
 #ifndef HISTORYPRESENTER_H_FAVPGZSN
 #define HISTORYPRESENTER_H_FAVPGZSN
 
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_sprints/RequestSprintsQuery.h"
-#include "core/use_cases/request_tasks/FinishedTasksQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/RequestSprintsQuery.h"
+#include "api/requests/FinishedTasksQuery.h"
 #include "qt_gui/presentation/HistoryContract.h"
 #include "qt_gui/presentation/HistoryMediator.h"
 #include <optional>
@@ -34,8 +34,8 @@ namespace sprint_timer::ui {
 class HistoryPresenter : public contracts::HistoryContract::Presenter,
                          public HistoryColleague {
 public:
-    using request_sprints_hdl_t = QueryHandler<use_cases::RequestSprintsQuery>;
-    using finished_task_hdl_t = QueryHandler<use_cases::FinishedTasksQuery>;
+    using request_sprints_hdl_t = asp::QueryHandler<api::RequestSprintsQuery>;
+    using finished_task_hdl_t = asp::QueryHandler<api::FinishedTasksQuery>;
 
     HistoryPresenter(request_sprints_hdl_t& requestSprintsHandler,
                      finished_task_hdl_t& requestTasksHandler,
@@ -55,8 +55,8 @@ private:
     request_sprints_hdl_t& requestSprintsHandler;
     finished_task_hdl_t& requestTasksHandler;
     HistoryMediator& mediator;
-    std::optional<request_sprints_hdl_t::result_t> sprintData;
-    std::optional<finished_task_hdl_t::result_t> taskData;
+    std::optional<api::RequestSprintsQuery::Result> sprintData;
+    std::optional<api::FinishedTasksQuery::Result> taskData;
 
     void fetchDataImpl() override;
 

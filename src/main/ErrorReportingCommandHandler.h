@@ -19,8 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef ERRORREPORTINGCOMMANDHANDLER_H_XSH6RYR0
+#define ERRORREPORTINGCOMMANDHANDLER_H_XSH6RYR0
 
-#include "core/CommandHandler.h"
+#include "api/com_query/Command.h"
+#include "api/com_query/RequestHandlerDecorator.h"
 #include "core/SprintConflictException.h"
 #include "core/SprintTimerException.h"
 #include "qt_storage/QueryError.h"
@@ -30,30 +33,29 @@
 
 namespace sprint_timer {
 
-template <typename CommandT>
-class ErrorReportingCommandHandler : public CommandHandler<CommandT> {
+template <asp::Command CommandT>
+class ErrorReportingCommandHandler
+    : public asp::RequestHandlerDecorator<CommandT> {
 public:
-    ErrorReportingCommandHandler(
-        std::unique_ptr<CommandHandler<CommandT>> wrapped);
+    explicit ErrorReportingCommandHandler(
+        std::unique_ptr<asp::RequestHandler<CommandT>> wrapped);
 
-    void handle(CommandT&& command) override;
-
-private:
-    std::unique_ptr<CommandHandler<CommandT>> wrapped;
+    CommandT::Result handle(const CommandT& command) override;
 };
 
-template <typename CommandT>
+template <asp::Command CommandT>
 ErrorReportingCommandHandler<CommandT>::ErrorReportingCommandHandler(
-    std::unique_ptr<CommandHandler<CommandT>> wrapped_)
-    : wrapped{std::move(wrapped_)}
+    std::unique_ptr<asp::RequestHandler<CommandT>> wrapped_)
+    : asp::RequestHandlerDecorator<CommandT>{std::move(wrapped_)}
 {
 }
 
-template <typename CommandT>
-void ErrorReportingCommandHandler<CommandT>::handle(CommandT&& command)
+template <asp::Command CommandT>
+CommandT::Result
+ErrorReportingCommandHandler<CommandT>::handle(const CommandT& request)
 {
     try {
-        wrapped->handle(std::move(command));
+        return asp::RequestHandlerDecorator<CommandT>::handle(request);
     }
     catch (storage::qt_storage::QueryError& exc) {
         std::stringstream ss;
@@ -69,7 +71,7 @@ void ErrorReportingCommandHandler<CommandT>::handle(CommandT&& command)
         std::stringstream ss;
         ss << "Conflict detected between following pairs of sprints:\n";
         std::string_view dateFormat{"hh:mm:ss dd.MM.yyyy"};
-        for (auto& [left, right] : exc.conflictingSprints()) {
+        for (const auto& [left, right] : exc.conflictingSprints()) {
             ss << dw::to_string(left.timeSpan(), dateFormat) << " and "
                << dw::to_string(right.timeSpan(), dateFormat) << '\n';
         }
@@ -85,8 +87,8 @@ void ErrorReportingCommandHandler<CommandT>::handle(CommandT&& command)
     catch (std::exception& exc) {
         QMessageBox msgBox;
         std::stringstream ss;
-        msgBox.setText("Exception when handling command");
-        ss << command << " \n with description: " << exc.what();
+        msgBox.setText("Exception when handling request");
+        ss << request << " \n with description: " << exc.what();
         msgBox.setText(QString::fromStdString(ss.str()));
         msgBox.exec();
         throw;
@@ -94,3 +96,6 @@ void ErrorReportingCommandHandler<CommandT>::handle(CommandT&& command)
 }
 
 } // namespace sprint_timer
+
+#endif /* end of include guard: ERRORREPORTINGCOMMANDHANDLER_H_XSH6RYR0 */
+

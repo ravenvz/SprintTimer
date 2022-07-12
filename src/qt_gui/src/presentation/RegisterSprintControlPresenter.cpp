@@ -43,7 +43,7 @@ void RegisterSprintControlPresenter::registerConsecutiveSprints(
             return dw::add_offset(span, iteration++ * sprintDuration);
         });
     registerSprintBulkHandler.handle(
-        use_cases::RegisterSprintBulkCommand{taskUuid, intervals});
+        api::RegisterSprintBulkCommand{taskUuid, intervals});
 }
 
 void RegisterSprintControlPresenter::registerSprintBulk(
@@ -51,7 +51,7 @@ void RegisterSprintControlPresenter::registerSprintBulk(
     const std::vector<dw::DateTimeRange>& timeRanges)
 {
     registerSprintBulkHandler.handle(
-        use_cases::RegisterSprintBulkCommand{taskUuid, timeRanges});
+        api::RegisterSprintBulkCommand{taskUuid, timeRanges});
 }
 
 } // namespace sprint_timer::ui

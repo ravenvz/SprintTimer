@@ -36,7 +36,7 @@ namespace sprint_timer::ui {
 
 TimerPresenter::TimerPresenter(IWorkflow& workflow_,
                                today_progress_hdl_t& todayProgressHandler_,
-                               SoundPlayer& player_,
+                               api::SoundPlayer& player_,
                                const AssetLibrary& assetLibrary_,
                                std::string ringSoundId_,
                                TaskSelectionMediator& taskSelectionMediator_)
@@ -61,10 +61,10 @@ void TimerPresenter::updateViewImpl()
 {
     if (auto v = view(); v) {
         const auto progress =
-            todayProgressHandler.handle(use_cases::RequestProgressQuery{});
+            todayProgressHandler.handle(api::RequestProgressQuery{});
         if (progress.size() != 0) {
             workflow.setNumFinishedSprints(
-                todayProgressHandler.handle(use_cases::RequestProgressQuery{})
+                todayProgressHandler.handle(api::RequestProgressQuery{})
                     .getValue(progress.size() - 1)
                     .actual());
         }

@@ -18,9 +18,10 @@ include(cmake/PreventInSourceBuilds.cmake)
 set(CMAKE_MACOSX_RPATH 0)
 
 # names of binaries that are used to link against
-set(GUI_LIB sprint_timer_qt_gui)
-set(STORAGE_LIB sprint_timer_qt_storage)
 set(CORE_LIB sprint_timer_core)
+set(STORAGE_LIB sprint_timer_qt_storage)
+set(GUI_LIB sprint_timer_qt_gui)
+set(API_LIB sprint_timer_api)
 set(SPRINT_MAIN sprint_timer)
 set(EXTERNAL_IO_LIB external_io)
 
@@ -59,6 +60,7 @@ include(cmake/StaticAnalyzers.cmake)
 option(BUILD_SHARED_LIBS "Enable compilation of shared libraries" OFF)
 option(ENABLE_TESTING "Enable Test Builds" OFF)
 option(ENABLE_FUZZING "Enable Fuzzing Builds" OFF)
+option(WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON)
 
 add_subdirectory(src)
 

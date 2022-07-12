@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "core/ComputeByWeekStrategy.h"
-#include "core/IConfig.h"
 
 namespace {
 
@@ -37,8 +36,8 @@ ComputeByWeekStrategy::ComputeByWeekStrategy(dw::Weekday firstDayOfWeek_)
 
 std::vector<GoalProgress>
 ComputeByWeekStrategy::computeProgress(const dw::DateRange& dateRange,
-                             const std::vector<int>& actualProgress,
-                             const WorkSchedule& workSchedule) const
+                                       const std::vector<int>& actualProgress,
+                                       const WorkSchedule& workSchedule) const
 {
     using namespace dw;
     std::vector<GoalProgress> progress;

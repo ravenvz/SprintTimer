@@ -33,14 +33,14 @@ TodaySprintsPresenter::TodaySprintsPresenter(
 
 void TodaySprintsPresenter::onSprintDelete(const std::string& uuid)
 {
-    deleteSprintHandler.handle(use_cases::DeleteSprintCommand{uuid});
+    deleteSprintHandler.handle(api::DeleteSprintCommand{uuid});
 }
 
 void TodaySprintsPresenter::fetchDataImpl()
 {
     const dw::DateRange range{dw::current_date_local(),
                               dw::current_date_local()};
-    data = requestSprintsHandler.handle(use_cases::RequestSprintsQuery{range});
+    data = requestSprintsHandler.handle(api::RequestSprintsQuery{range});
 }
 
 void TodaySprintsPresenter::updateViewImpl()

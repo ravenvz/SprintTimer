@@ -22,8 +22,8 @@
 #ifndef DAILYSTATISTICSGRAPHPRESENTER_H_8VCTBWMG
 #define DAILYSTATISTICSGRAPHPRESENTER_H_8VCTBWMG
 
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_statistics/DailyStatisticsQuery.h"
+#include "api/com_query/QueryHandler.h"
+#include "api/requests/DailyStatisticsQuery.h"
 #include "qt_gui/presentation/DailyStatisticsGraphContract.h"
 #include "qt_gui/presentation/StatisticsContext.h"
 #include "qt_gui/presentation/StatisticsMediator.h"
@@ -35,7 +35,7 @@ class DailyStatisticsGraphPresenter
       public StatisticsColleague {
 public:
     using daily_statistics_handler_t =
-        QueryHandler<use_cases::DailyStatisticsQuery>;
+        asp::QueryHandler<api::DailyStatisticsQuery>;
 
     DailyStatisticsGraphPresenter(
         daily_statistics_handler_t& dailyStatisticsHandler,
@@ -50,7 +50,7 @@ private:
     daily_statistics_handler_t& dailyStatisticsHandler;
     StatisticsMediator& mediator;
     const StatisticsContext& statisticsContext;
-    std::optional<use_cases::DailyStatisticsDTO> dailyStatistics;
+    std::optional<api::DailyStatisticsDTO> dailyStatistics;
 
     void fetchDataImpl() override;
 

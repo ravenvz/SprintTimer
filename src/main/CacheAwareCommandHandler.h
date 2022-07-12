@@ -22,38 +22,39 @@
 #ifndef CACHEAWARECOMMANDHANDLER_H_DVXZS5E1
 #define CACHEAWARECOMMANDHANDLER_H_DVXZS5E1
 
-#include "core/CommandHandler.h"
-#include <memory>
+#include "api/com_query/Command.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/com_query/RequestHandlerDecorator.h"
 #include "qt_gui/presentation/Invalidatable.h"
 #include "qt_gui/presentation/Mediator.h"
+#include <memory>
 
 namespace sprint_timer::compose {
 
-template <typename CommandT>
-class CacheAwareCommandHandler : public CommandHandler<CommandT> {
+template <asp::Command CommandT>
+class CacheAwareCommandHandler : public asp::RequestHandlerDecorator<CommandT> {
 public:
-    using WrappedType = sprint_timer::CommandHandler<CommandT>;
+    using WrappedType = asp::CommandHandler<CommandT>;
 
     CacheAwareCommandHandler(
         std::unique_ptr<WrappedType> wrapped_,
         ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator_)
-        : wrapped{std::move(wrapped_)}
+        : asp::RequestHandlerDecorator<CommandT>{std::move(wrapped_)}
         , cacheInvalidationMediator{cacheInvalidationMediator_}
     {
     }
 
-    void handle(CommandT&& command) override
+    void handle(const CommandT& command) override
     {
         // Calling notify first to reset caches
         cacheInvalidationMediator.notifyAll(
             [](auto* colleague) { colleague->invalidate(); });
         // notify();
         // Then SyncronizingActionInvoker should launch update of all caches
-        wrapped->handle(std::move(command));
+        asp::RequestHandlerDecorator<CommandT>::handle(command);
     }
 
 private:
-    std::unique_ptr<WrappedType> wrapped;
     ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator;
 };
 

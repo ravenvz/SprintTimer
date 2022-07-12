@@ -22,13 +22,13 @@
 #ifndef QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC
 #define QT_STORAGE_IMPLEMENTERS_FACTORY_H_57Q0AHPC
 
-#include "core/IStorageImplementersFactory.h"
+#include "api/StorageImplementersFactory.h"
 #include <QString>
 #include <filesystem>
 
 namespace sprint_timer::storage::qt_storage {
 
-class QtStorageImplementersFactory : public StorageImplementersFactory {
+class QtStorageImplementersFactory : public api::StorageImplementersFactory {
 public:
     QtStorageImplementersFactory(const QString& connectionName,
                                  std::filesystem::path fileStorageDir);

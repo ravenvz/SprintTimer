@@ -22,8 +22,8 @@
 #ifndef DATEPICKDIALOG_H
 #define DATEPICKDIALOG_H
 
+#include "date_wrapper/date_wrapper.h"
 #include <QDialog>
-#include "core/IConfig.h"
 #include <memory>
 
 namespace Ui {

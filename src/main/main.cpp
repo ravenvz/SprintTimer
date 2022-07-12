@@ -42,7 +42,6 @@
 #error "Unknown compiler"
 #endif
 
-#include "core/ThreadPoolQueryHandler.h"
 #include <riften/thiefpool.hpp>
 
 #include "AddSprintDialogProxy.h"
@@ -70,53 +69,51 @@
 #include "SynchronizingActionInvoker.h"
 #include "TagEditorProxy.h"
 #include "TaskSprintsViewProxy.h"
-#include "VerboseCommandHandler.h"
-#include "VerboseQueryHandler.h"
 #include "WorkScheduleEditorLifestyleProxy.h"
 #include "WorkScheduleEditorPresenterProxy.h"
 #include "WorkflowProxy.h"
+#include "api/handlers/ActiveTasksHandler.h"
+#include "api/handlers/AllTagsHandler.h"
+// #include "api/handlers/CancelTimerHandler.h"
+#include "api/handlers/ChangeActiveTasksPriorityHandler.h"
+#include "api/handlers/ChangeWorkScheduleHandler.h"
+#include "api/handlers/CreateTaskHandler.h"
+#include "api/handlers/DailyStatisticsHandler.h"
+#include "api/handlers/DeleteSprintHandler.h"
+#include "api/handlers/DeleteTaskHandler.h"
+#include "api/handlers/EditTaskHandler.h"
+#include "api/handlers/ExportSprintsHandler.h"
+#include "api/handlers/ExportTasksHandler.h"
+#include "api/handlers/FinishedTasksHandler.h"
+#include "api/handlers/OperationalRangeHandler.h"
+#include "api/handlers/ReadTaskTreeHandler.h"
+#include "api/handlers/RegisterSprintBulkHandler.h"
+#include "api/handlers/RegisterSprintHandler.h"
+#include "api/handlers/RenameTagHandler.h"
+#include "api/handlers/RequestProgressHandler.h"
+#include "api/handlers/RequestSprintDistributionHandler.h"
+#include "api/handlers/RequestSprintsHandler.h"
+#include "api/handlers/SprintStatisticsHandler.h"
+#include "api/handlers/SprintsForTaskHandler.h"
+// #include "api/handlers/StartTimerHandler.h"
+#include "api/handlers/ToggleTaskCompletedHandler.h"
+// #include "api/handlers/ToggleZoneModeHandler.h"
+#include "api/IConfig.h"
+#include "api/handlers/TopTagFrequenciesHandler.h"
+#include "api/handlers/WorkScheduleHandler.h"
+#include "api/handlers/WorkdayStatisticsHandler.h"
+#include "api/handlers/WorktimeStatisticsHandler.h"
 #include "core/BoostUUIDGenerator.h"
 #include "core/ComputeByDayStrategy.h"
 #include "core/ComputeByMonthStrategy.h"
 #include "core/ComputeByWeekStrategy.h"
 #include "core/DefaultDateTimeProvider.h"
-#include "core/IConfig.h"
 #include "core/ObservableActionInvoker.h"
 #include "core/RequestForDaysBack.h"
 #include "core/RequestForMonthsBack.h"
 #include "core/RequestForWeeksBack.h"
 #include "core/TaskStorageReader.h"
 #include "core/Workflow.h"
-#include "core/use_cases/change_schedule/ChangeWorkScheduleHandler.h"
-#include "core/use_cases/change_tasks_priority/ChangeActiveTasksPriorityHandler.h"
-#include "core/use_cases/create_task/CreateTaskHandler.h"
-#include "core/use_cases/delete_sprint/DeleteSprintHandler.h"
-#include "core/use_cases/delete_task/DeleteTaskHandler.h"
-#include "core/use_cases/edit_task/EditTaskHandler.h"
-#include "core/use_cases/export_data/ExportSprintsHandler.h"
-#include "core/use_cases/export_data/ExportTasksHandler.h"
-#include "core/use_cases/read_task_tree/ReadTaskTreeHandler.h"
-#include "core/use_cases/register_sprint/RegisterSprintBulkHandler.h"
-#include "core/use_cases/register_sprint/RegisterSprintHandler.h"
-#include "core/use_cases/rename_tag/RenameTagHandler.h"
-#include "core/use_cases/request_op_range/OperationalRangeHandler.h"
-#include "core/use_cases/request_progress/RequestProgressHandler.h"
-#include "core/use_cases/request_schedule/WorkScheduleHandler.h"
-#include "core/use_cases/request_sprint_distribution/RequestSprintDistributionHandler.h"
-#include "core/use_cases/request_sprints/RequestSprintsHandler.h"
-#include "core/use_cases/request_sprints/SprintsForTaskHandler.h"
-#include "core/use_cases/request_statistics/DailyStatisticsHandler.h"
-#include "core/use_cases/request_statistics/SprintStatisticsHandler.h"
-#include "core/use_cases/request_statistics/TopTagFrequenciesHandler.h"
-#include "core/use_cases/request_statistics/WorkdayStatisticsHandler.h"
-#include "core/use_cases/request_statistics/WorktimeStatisticsHandler.h"
-#include "core/use_cases/request_tags/AllTagsHandler.h"
-#include "core/use_cases/request_tasks/ActiveTasksHandler.h"
-#include "core/use_cases/request_tasks/FinishedTasksHandler.h"
-#include "core/use_cases/toggle_task_completed/ToggleTaskCompletedHandler.h"
-#include "core/use_cases/workflow_control/CancelTimerHandler.h"
-#include "core/use_cases/workflow_control/StartTimerHandler.h"
-#include "core/use_cases/workflow_control/ToggleZoneModeHandler.h"
 #include "external_io/OstreamSink.h"
 #include "external_io/RuntimeConfigurableDataExporter.h"
 #include "external_io/RuntimeSinkRouter.h"
@@ -376,7 +373,7 @@ int main(int argc, char* argv[])
     compose::SyncronizingActionInvoker actionInvoker{verboseActionInvoker,
                                                      desyncObservable};
 
-    using namespace use_cases;
+    using namespace api;
 
     ui::Mediator<ui::Invalidatable> cacheInvalidationMediator;
     // RelayHub cacheInvalidationMediator;
@@ -386,192 +383,167 @@ int main(int argc, char* argv[])
 
     std::ostream outputStream{std::cout.rdbuf()};
 
-    auto requestSprintsHandler = compose::decorate<RequestSprintsQuery>(
-        compose::decorate<RequestSprintsQuery>(
+    auto requestSprintsHandler = compose::decorate_query<RequestSprintsQuery>(
+        std::make_unique<RequestSprintsHandler>(*sprintStorage),
+        outputStream,
+        cacheInvalidationMediator);
+    auto todayRequestSprintsHandler =
+        compose::decorate_query<RequestSprintsQuery>(
             std::make_unique<RequestSprintsHandler>(*sprintStorage),
-            cacheInvalidationMediator),
-        outputStream);
-    auto todayRequestSprintsHandler = compose::decorate<RequestSprintsQuery>(
-        compose::decorate<RequestSprintsQuery>(
-            std::make_unique<RequestSprintsHandler>(*sprintStorage),
-            cacheInvalidationMediator),
-        outputStream);
+            outputStream,
+            cacheInvalidationMediator);
     auto statisticsRequestSprintsHandler =
-        compose::decorate<RequestSprintsQuery>(
-            compose::decorate<RequestSprintsQuery>(
-                std::make_unique<RequestSprintsHandler>(*sprintStorage),
-                cacheInvalidationMediator),
-            outputStream);
-    auto historyRequestSprintsHandler = compose::decorate<RequestSprintsQuery>(
-        compose::decorate<RequestSprintsQuery>(
+        compose::decorate_query<RequestSprintsQuery>(
             std::make_unique<RequestSprintsHandler>(*sprintStorage),
-            cacheInvalidationMediator),
-        outputStream);
+            outputStream,
+            cacheInvalidationMediator);
+    auto historyRequestSprintsHandler =
+        compose::decorate_query<RequestSprintsQuery>(
+            std::make_unique<RequestSprintsHandler>(*sprintStorage),
+            outputStream,
+            cacheInvalidationMediator);
     auto todaySprintsModelRequestSprintsHandler =
-        compose::decorate<RequestSprintsQuery>(
-            compose::decorate<RequestSprintsQuery>(
-                std::make_unique<RequestSprintsHandler>(*sprintStorage),
-                cacheInvalidationMediator),
-            outputStream);
+        compose::decorate_query<RequestSprintsQuery>(
+            std::make_unique<RequestSprintsHandler>(*sprintStorage),
+            outputStream,
+            cacheInvalidationMediator);
     auto requestSprintDailyDistributionHandler =
-        compose::decorate<RequestSprintDistributionQuery>(
-            compose::decorate<RequestSprintDistributionQuery>(
-                std::make_unique<RequestSprintDistributionHandler>(
-                    *dailyDistributionReader),
-                cacheInvalidationMediator),
-            outputStream);
+        compose::decorate_query<RequestSprintDistributionQuery>(
+            std::make_unique<RequestSprintDistributionHandler>(
+                *dailyDistributionReader),
+            outputStream,
+            cacheInvalidationMediator);
     auto requestSprintWeeklyDistributionHandler =
-        compose::decorate<RequestSprintDistributionQuery>(
-            compose::decorate<RequestSprintDistributionQuery>(
-                std::make_unique<RequestSprintDistributionHandler>(
-                    *weeklyDistReader),
-                cacheInvalidationMediator),
-            outputStream);
+        compose::decorate_query<RequestSprintDistributionQuery>(
+            std::make_unique<RequestSprintDistributionHandler>(
+                *weeklyDistReader),
+            outputStream,
+            cacheInvalidationMediator);
     auto requestSprintMonthlyDistributionHandler =
-        compose::decorate<RequestSprintDistributionQuery>(
-            compose::decorate<RequestSprintDistributionQuery>(
-                std::make_unique<RequestSprintDistributionHandler>(
-                    *monthlyDistReader),
-                cacheInvalidationMediator),
-            outputStream);
-    auto sprintsForTaskHandler = compose::decorate<SprintsForTaskQuery>(
-        compose::decorate<SprintsForTaskQuery>(
-            std::make_unique<SprintsForTaskHandler>(*sprintStorage),
-            cacheInvalidationMediator),
-        outputStream);
-    auto workScheduleHandler = compose::decorate<WorkScheduleQuery>(
-        compose::decorate<WorkScheduleQuery>(
-            std::make_unique<WorkScheduleHandler>(*scheduleStorage),
-            cacheInvalidationMediator),
-        outputStream);
-    auto finishedTasksHandler = compose::decorate<FinishedTasksQuery>(
-        compose::decorate<FinishedTasksQuery>(
-            std::make_unique<FinishedTasksHandler>(*taskStorage),
-            cacheInvalidationMediator),
-        outputStream);
-    auto operationalRangeHandler = compose::decorate<OperationalRangeQuery>(
-        compose::decorate<OperationalRangeQuery>(
+        compose::decorate_query<RequestSprintDistributionQuery>(
+            std::make_unique<RequestSprintDistributionHandler>(
+                *monthlyDistReader),
+            outputStream,
+            cacheInvalidationMediator);
+    auto sprintsForTaskHandler = compose::decorate_query<SprintsForTaskQuery>(
+        std::make_unique<SprintsForTaskHandler>(*sprintStorage),
+        outputStream,
+        cacheInvalidationMediator);
+    auto workScheduleHandler = compose::decorate_query<WorkScheduleQuery>(
+        std::make_unique<WorkScheduleHandler>(*scheduleStorage),
+        outputStream,
+        cacheInvalidationMediator);
+    auto finishedTasksHandler = compose::decorate_query<FinishedTasksQuery>(
+        std::make_unique<FinishedTasksHandler>(*taskStorage),
+        outputStream,
+        cacheInvalidationMediator);
+    auto operationalRangeHandler =
+        compose::decorate_query<OperationalRangeQuery>(
             std::make_unique<OperationalRangeHandler>(*operationalRangeReader),
-            cacheInvalidationMediator),
-        outputStream);
-    auto allTagsHandler = compose::decorate<AllTagsQuery>(
-        compose::decorate<AllTagsQuery>(
-            std::make_unique<AllTagsHandler>(*taskStorage),
-            cacheInvalidationMediator),
-        outputStream);
-    auto unfinishedTasksHandler = compose::decorate<ActiveTasksQuery>(
-        compose::decorate<ActiveTasksQuery>(
-            std::make_unique<ActiveTasksHandler>(*taskStorage),
-            cacheInvalidationMediator),
-        outputStream);
-    auto sprintStatisticsHandler = compose::decorate<SprintStatisticsQuery>(
-        compose::decorate<SprintStatisticsQuery>(
+            outputStream,
+            cacheInvalidationMediator);
+    auto allTagsHandler = compose::decorate_query<AllTagsQuery>(
+        std::make_unique<AllTagsHandler>(*taskStorage),
+        outputStream,
+        cacheInvalidationMediator);
+    auto unfinishedTasksHandler = compose::decorate_query<ActiveTasksQuery>(
+        std::make_unique<ActiveTasksHandler>(*taskStorage),
+        outputStream,
+        cacheInvalidationMediator);
+    auto sprintStatisticsHandler =
+        compose::decorate_query<SprintStatisticsQuery>(
             std::make_unique<SprintStatisticsHandler>(*sprintStorage),
-            cacheInvalidationMediator),
-        outputStream);
-    auto workdayStatisticsHandler = compose::decorate<WorkdayStatisticsQuery>(
-        compose::decorate<WorkdayStatisticsQuery>(
+            outputStream,
+            cacheInvalidationMediator);
+    auto workdayStatisticsHandler =
+        compose::decorate_query<WorkdayStatisticsQuery>(
             std::make_unique<WorkdayStatisticsHandler>(
                 *sprintStatisticsHandler),
-            cacheInvalidationMediator),
-        outputStream);
-    auto worktimeStatisticsHandler = compose::decorate<WorktimeStatisticsQuery>(
-        compose::decorate<WorktimeStatisticsQuery>(
+            outputStream,
+            cacheInvalidationMediator);
+    auto worktimeStatisticsHandler =
+        compose::decorate_query<WorktimeStatisticsQuery>(
             std::make_unique<WorktimeStatisticsHandler>(
                 *sprintStatisticsHandler),
-            cacheInvalidationMediator),
-        outputStream);
-    auto dailyStatisticsHandler = compose::decorate<DailyStatisticsQuery>(
-        compose::decorate<DailyStatisticsQuery>(
-            std::make_unique<DailyStatisticsHandler>(*workScheduleHandler,
-                                                     *sprintStatisticsHandler),
-            cacheInvalidationMediator),
-        outputStream);
-    auto topTagFrequenciesHandler = compose::decorate<TopTagFrequenciesQuery>(
-        compose::decorate<TopTagFrequenciesQuery>(
+            outputStream,
+            cacheInvalidationMediator);
+    auto dailyStatisticsHandler = compose::decorate_query<DailyStatisticsQuery>(
+        std::make_unique<DailyStatisticsHandler>(*workScheduleHandler,
+                                                 *sprintStatisticsHandler),
+        outputStream,
+        cacheInvalidationMediator);
+    auto topTagFrequenciesHandler =
+        compose::decorate_query<TopTagFrequenciesQuery>(
             std::make_unique<TopTagFrequenciesHandler>(
                 *sprintStatisticsHandler),
-            cacheInvalidationMediator),
-        outputStream);
-    auto readPlannerHandler = compose::decorate<ReadTaskTreeQuery>(
-        compose::decorate<ReadTaskTreeQuery>(
-            std::make_unique<ReadTaskTreeHandler>(*taskStorage,
-                                                  *taskTreeMetadataReader),
-            cacheInvalidationMediator),
-        outputStream);
+            outputStream,
+            cacheInvalidationMediator);
+    auto readPlannerHandler = compose::decorate_query<ReadTaskTreeQuery>(
+        std::make_unique<ReadTaskTreeHandler>(*taskStorage,
+                                              *taskTreeMetadataReader),
+        outputStream,
+        cacheInvalidationMediator);
 
-    auto deleteSprintHandler =
-        compose::decorate_com_handler<DeleteSprintCommand>(
-            compose::decorate_com_handler<DeleteSprintCommand>(
-                std::make_unique<DeleteSprintHandler>(*sprintStorage,
-                                                      actionInvoker),
-                cacheInvalidationMediator),
-            outputStream);
-    auto renameTagHandler = compose::decorate_com_handler<RenameTagCommand>(
-        compose::decorate_com_handler<RenameTagCommand>(
-            std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker),
-            cacheInvalidationMediator),
-        outputStream);
+    auto deleteSprintHandler = compose::decorate_command<DeleteSprintCommand>(
+        std::make_unique<DeleteSprintHandler>(*sprintStorage, actionInvoker),
+        outputStream,
+        cacheInvalidationMediator);
+    auto renameTagHandler = compose::decorate_command<RenameTagCommand>(
+        std::make_unique<RenameTagHandler>(*taskStorage, actionInvoker),
+        outputStream,
+        cacheInvalidationMediator);
     auto changePriorityHandler =
-        compose::decorate_com_handler<ChangeActiveTasksPriorityCommand>(
-            compose::decorate_com_handler<ChangeActiveTasksPriorityCommand>(
-                std::make_unique<ChangeActiveTasksPriorityHandler>(
-                    *taskStorage, actionInvoker),
-                cacheInvalidationMediator),
-            outputStream);
-    auto createTaskHandler = compose::decorate_com_handler<CreateTaskCommand>(
-        compose::decorate_com_handler<CreateTaskCommand>(
-            std::make_unique<CreateTaskHandler>(
-                *taskStorage, actionInvoker, uuidGenerator, dateTimeProvider),
-            cacheInvalidationMediator),
-        outputStream);
-    auto deleteTaskHandler = compose::decorate_com_handler<DeleteTaskCommand>(
-        compose::decorate_com_handler<DeleteTaskCommand>(
-            std::make_unique<DeleteTaskHandler>(*taskStorage, actionInvoker),
-            cacheInvalidationMediator),
-        outputStream);
+        compose::decorate_command<ChangeActiveTasksPriorityCommand>(
+            std::make_unique<ChangeActiveTasksPriorityHandler>(*taskStorage,
+                                                               actionInvoker),
+            outputStream,
+            cacheInvalidationMediator);
+    auto createTaskHandler = compose::decorate_command<CreateTaskCommand>(
+        std::make_unique<CreateTaskHandler>(
+            *taskStorage, actionInvoker, uuidGenerator, dateTimeProvider),
+        outputStream,
+        cacheInvalidationMediator);
+    auto deleteTaskHandler = compose::decorate_command<DeleteTaskCommand>(
+        std::make_unique<DeleteTaskHandler>(*taskStorage, actionInvoker),
+        outputStream,
+        cacheInvalidationMediator);
     auto toggleCompletionHandler =
-        compose::decorate_com_handler<ToggleTaskCompletedCommand>(
-            compose::decorate_com_handler<ToggleTaskCompletedCommand>(
-                std::make_unique<ToggleTaskCompletedHandler>(*taskStorage,
-                                                             actionInvoker),
-                cacheInvalidationMediator),
-            outputStream);
-    auto editTaskHandler = compose::decorate_com_handler<EditTaskCommand>(
-        compose::decorate_com_handler<EditTaskCommand>(
-            std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker),
-            cacheInvalidationMediator),
-        outputStream);
+        compose::decorate_command<ToggleTaskCompletedCommand>(
+            std::make_unique<ToggleTaskCompletedHandler>(*taskStorage,
+                                                         actionInvoker),
+            outputStream,
+            cacheInvalidationMediator);
+    auto editTaskHandler = compose::decorate_command<EditTaskCommand>(
+        std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker),
+        outputStream,
+        cacheInvalidationMediator);
     auto registerSprintHandler =
-        compose::decorate_com_handler<RegisterSprintCommand>(
-            compose::decorate_com_handler<RegisterSprintCommand>(
-                std::make_unique<RegisterSprintHandler>(*sprintStorage,
-                                                        actionInvoker),
-                cacheInvalidationMediator),
-            outputStream);
+        compose::decorate_command<RegisterSprintCommand>(
+            std::make_unique<RegisterSprintHandler>(*sprintStorage,
+                                                    actionInvoker),
+            outputStream,
+            cacheInvalidationMediator);
     auto registerSprintBulkHandler =
-        compose::decorate_com_handler<RegisterSprintBulkCommand>(
-            compose::decorate_com_handler<RegisterSprintBulkCommand>(
-                std::make_unique<RegisterSprintBulkHandler>(
-                    *taskStorage, *sprintStorage, actionInvoker, uuidGenerator),
-                cacheInvalidationMediator),
-            outputStream);
+        compose::decorate_command<RegisterSprintBulkCommand>(
+            std::make_unique<RegisterSprintBulkHandler>(
+                *taskStorage, *sprintStorage, actionInvoker, uuidGenerator),
+            outputStream,
+            cacheInvalidationMediator);
     auto changeWorkScheduleHandler =
-        compose::decorate_com_handler<ChangeWorkScheduleCommand>(
-            compose::decorate_com_handler<ChangeWorkScheduleCommand>(
-                std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
-                                                            actionInvoker),
-                cacheInvalidationMediator),
-            outputStream);
+        compose::decorate_command<ChangeWorkScheduleCommand>(
+            std::make_unique<ChangeWorkScheduleHandler>(*scheduleStorage,
+                                                        actionInvoker),
+            outputStream,
+            cacheInvalidationMediator);
 
-    auto startTimerHandler = compose::decorate_com_handler<StartTimer>(
-        std::make_unique<StartTimerHandler>(workflow), outputStream);
-
-    auto cancelTimerHandler = compose::decorate_com_handler<CancelTimer>(
-        std::make_unique<CancelTimerHandler>(workflow), outputStream);
-
-    auto toggleZoneHandler = compose::decorate_com_handler<ToggleZoneMode>(
-        std::make_unique<ToggleZoneModeHandler>(workflow), outputStream);
+    // auto startTimerHandler = compose::decorate_com_handler<StartTimer>(
+    //     std::make_unique<StartTimerHandler>(workflow), outputStream);
+    //
+    // auto cancelTimerHandler = compose::decorate_com_handler<CancelTimer>(
+    //     std::make_unique<CancelTimerHandler>(workflow), outputStream);
+    //
+    // auto toggleZoneHandler = compose::decorate_com_handler<ToggleZoneMode>(
+    //     std::make_unique<ToggleZoneModeHandler>(workflow), outputStream);
 
     ui::TagEditorPresenter tagEditorPresenter{*allTagsHandler,
                                               *renameTagHandler};
@@ -658,15 +630,15 @@ int main(int argc, char* argv[])
     RequestForDaysBack requestDaysBackStrategy{distributionDays};
     ComputeByDayStrategy computeByDayStrategy;
 
-    auto requestDailyProgressHandler = compose::decorate<RequestProgressQuery>(
-        compose::decorate<RequestProgressQuery>(
+    auto requestDailyProgressHandler =
+        compose::decorate_query<RequestProgressQuery>(
             std::make_unique<RequestProgressHandler>(
                 requestDaysBackStrategy,
                 computeByDayStrategy,
                 *requestSprintDailyDistributionHandler,
                 *workScheduleHandler),
-            cacheInvalidationMediator),
-        outputStream);
+            outputStream,
+            cacheInvalidationMediator);
 
     ui::ProgressPresenter dailyProgressPresenter{*requestDailyProgressHandler};
 
@@ -675,38 +647,30 @@ int main(int argc, char* argv[])
         distributionWeeks, applicationSettings.firstDayOfWeek()};
     ComputeByWeekStrategy computeByWeekStrategy{
         applicationSettings.firstDayOfWeek()};
-    auto requestWeeklyProgressHandler = compose::decorate<RequestProgressQuery>(
-        compose::decorate<RequestProgressQuery>(
+    auto requestWeeklyProgressHandler =
+        compose::decorate_query<RequestProgressQuery>(
             std::make_unique<RequestProgressHandler>(
                 requestWeeksBackStrategy,
                 computeByWeekStrategy,
                 *requestSprintWeeklyDistributionHandler,
                 *workScheduleHandler),
-            cacheInvalidationMediator),
-        outputStream);
+            outputStream,
+            cacheInvalidationMediator);
     ui::ProgressPresenter weeklyProgressPresenter{
         *requestWeeklyProgressHandler};
 
     const int distributionMonths{12};
     RequestForMonthsBack requestMonthsBackStrategy{distributionMonths};
     ComputeByMonthStrategy computeByMonthStrategy;
-    // auto monthlyProgressScheduleStorage = storageFactory.scheduleStorage();
-    // auto monthlyProgressWorkScheduleHandler =
-    //     compose::decorate<WorkScheduleQuery>(
-    //         compose::decorate<WorkScheduleQuery>(
-    //             std::make_unique<WorkScheduleHandler>(*scheduleStorage),
-    //             cacheInvalidationMediator),
-    //         outputStream);
     auto requestMonthlyProgressHandler =
-        compose::decorate<RequestProgressQuery>(
-            compose::decorate<RequestProgressQuery>(
-                std::make_unique<RequestProgressHandler>(
-                    requestMonthsBackStrategy,
-                    computeByMonthStrategy,
-                    *requestSprintMonthlyDistributionHandler,
-                    *workScheduleHandler),
-                cacheInvalidationMediator),
-            outputStream);
+        compose::decorate_query<RequestProgressQuery>(
+            std::make_unique<RequestProgressHandler>(
+                requestMonthsBackStrategy,
+                computeByMonthStrategy,
+                *requestSprintMonthlyDistributionHandler,
+                *workScheduleHandler),
+            outputStream,
+            cacheInvalidationMediator);
 
     ui::ProgressPresenter monthlyProgressPresenter{
         *requestMonthlyProgressHandler};
@@ -748,15 +712,16 @@ int main(int argc, char* argv[])
         taskSerializer, runtimeSinkRouter};
     // Does not use synchronizing overload as it doesn't mutate internal state
     auto exportSprintsHandler =
-        compose::decorate_com_handler<ExportSprintsCommand>(
+        compose::decorate_immutable_command<ExportSprintsCommand>(
             std::make_unique<ExportSprintsHandler>(
                 *historyRequestSprintsHandler, sprintDataExporter),
             outputStream);
     // Does not use synchronizing overload as it doesn't mutate eternal state
-    auto exportTasksHandler = compose::decorate_com_handler<ExportTasksCommand>(
-        std::make_unique<ExportTasksHandler>(*finishedTasksHandler,
-                                             taskDataExporter),
-        outputStream);
+    auto exportTasksHandler =
+        compose::decorate_immutable_command<ExportTasksCommand>(
+            std::make_unique<ExportTasksHandler>(*finishedTasksHandler,
+                                                 taskDataExporter),
+            outputStream);
     ui::DataExportPresenter dataExportPresenter{
         *exportSprintsHandler, *exportTasksHandler, historyMediator};
 

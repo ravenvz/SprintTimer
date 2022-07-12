@@ -26,15 +26,15 @@
 
 namespace {
 
-QString sprintToString(const sprint_timer::use_cases::SprintDTO& sprint);
+QString sprintToString(const sprint_timer::api::SprintDTO& sprint);
 
 } // namespace
 
 namespace sprint_timer::ui::qt_gui {
 
+using api::SprintDTO;
 using dw::DateTime;
 using dw::DateTimeRange;
-using use_cases::SprintDTO;
 
 SprintModel::SprintModel(QObject* parent_)
     : QAbstractListModel{parent_}
@@ -128,7 +128,7 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& /*index*/)
 
 namespace {
 
-QString sprintToString(const sprint_timer::use_cases::SprintDTO& sprint)
+QString sprintToString(const sprint_timer::api::SprintDTO& sprint)
 {
     const auto& timeSpan = sprint.timeRange;
     const auto& tags = sprint.tags;

@@ -19,8 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/QueryHandler.h"
-#include "core/use_cases/request_op_range/OperationalRangeQuery.h"
+#include "api/requests/OperationalRangeQuery.h"
 #include "mocks/DateRangeChangeListenerMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/StatisticsColleagueMock.h"
@@ -31,7 +30,7 @@
 using namespace ::testing;
 using namespace dw;
 
-using sprint_timer::use_cases::OperationalRangeQuery;
+using sprint_timer::api::OperationalRangeQuery;
 
 class DateRangeSelectorViewMock
     : public sprint_timer::ui::contracts::DateRangeSelectorContract::View {

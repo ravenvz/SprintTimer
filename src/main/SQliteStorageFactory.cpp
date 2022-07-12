@@ -46,7 +46,7 @@ namespace sprint_timer::compose {
 SQliteStorageFactory::SQliteStorageFactory(
     ThreadConnectionHelper& connectionHelper_,
     std::filesystem::path fileStorageDir_,
-    IConfig& applicationSettings_)
+    api::IConfig& applicationSettings_)
     : connectionHelper{connectionHelper_}
     , fileStorageDir{std::move(fileStorageDir_)}
     , applicationSettings{applicationSettings_}

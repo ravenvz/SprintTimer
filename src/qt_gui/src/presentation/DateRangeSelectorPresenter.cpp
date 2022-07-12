@@ -42,7 +42,7 @@ void DateRangeSelectorPresenter::onSelectedRangeChanged(
 
 void DateRangeSelectorPresenter::fetchDataImpl()
 {
-    data = handler.get().handle(use_cases::OperationalRangeQuery{});
+    data = handler.get().handle(api::OperationalRangeQuery{});
 }
 
 void DateRangeSelectorPresenter::updateViewImpl()

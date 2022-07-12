@@ -96,12 +96,12 @@ void DataExportPresenter::onDataExportConfirmed(
         switch (displayedHistory) {
         case HistoryMediator::DisplayedHistory::SprintHistory: {
 
-            exportSprintsHandler.handle(use_cases::ExportSprintsCommand{
+            exportSprintsHandler.handle(api::ExportSprintsCommand{
                 *mediator.currentDateRange(), dataFormat, sinkType});
             break;
         }
         case HistoryMediator::DisplayedHistory::TaskHistory: {
-            exportTasksHandler.handle(use_cases::ExportTasksCommand{
+            exportTasksHandler.handle(api::ExportTasksCommand{
                 *mediator.currentDateRange(), dataFormat, sinkType});
 
         } break;
