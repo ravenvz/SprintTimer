@@ -43,6 +43,7 @@ TestCommandHandlerComposer::TestCommandHandlerComposer(
     , renameTag{taskStorage_, actionInvoker_}
     , changeSchedule{scheduleStorage_, actionInvoker_}
     , saveTaskTree{taskTreeStorage_, actionInvoker_}
+    , undo{actionInvoker_}
 {
 }
 
@@ -104,6 +105,12 @@ asp::CommandHandler<api::SaveTaskTreeCommand>&
 TestCommandHandlerComposer::saveTaskTreeHandler()
 {
     return saveTaskTree;
+}
+
+asp::CommandHandler<api::UndoLastCommand>&
+TestCommandHandlerComposer::undoHandler()
+{
+    return undo;
 }
 
 } // namespace sprint_timer::compose

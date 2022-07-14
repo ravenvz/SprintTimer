@@ -23,19 +23,20 @@
 #define DATETIMEPROVIDER_H_ND1KPYZU
 
 #include "date_wrapper/date_wrapper.h"
+
 namespace sprint_timer {
 
 class DateTimeProvider {
 public:
     virtual ~DateTimeProvider() = default;
 
-    virtual dw::Date dateNow() = 0;
+    virtual dw::Date dateNow() const = 0;
 
-    virtual dw::DateTime dateTimeNow() = 0;
+    virtual dw::DateTime dateTimeNow() const = 0;
 
-    virtual dw::Date dateLocalNow() = 0;
+    virtual dw::Date dateLocalNow() const = 0;
 
-    virtual dw::DateTime dateTimeLocalNow() = 0;
+    virtual dw::DateTime dateTimeLocalNow() const = 0;
 };
 
 } // namespace sprint_timer

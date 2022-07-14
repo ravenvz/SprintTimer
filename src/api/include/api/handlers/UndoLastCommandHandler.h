@@ -19,25 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DATETIMEPROVIDERMOCK_H_JFCR0B6M
-#define DATETIMEPROVIDERMOCK_H_JFCR0B6M
+#ifndef UNDOLASTCOMMANDHANDLER_H_WELR6XYB
+#define UNDOLASTCOMMANDHANDLER_H_WELR6XYB
 
-#include "core/DateTimeProvider.h"
-#include "gmock/gmock.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/requests/UndoLastCommand.h"
+#include "core/ActionInvoker.h"
 
-namespace mocks {
+namespace sprint_timer::api {
 
-class DateTimeProviderMock : public sprint_timer::DateTimeProvider {
+class UndoLastCommandHandler : public asp::CommandHandler<UndoLastCommand> {
 public:
-    MOCK_METHOD(dw::Date, dateNow, (), (const override));
+    explicit UndoLastCommandHandler(ActionInvoker& actionInvoker);
 
-    MOCK_METHOD(dw::DateTime, dateTimeNow, (), (const override));
+    void handle(const UndoLastCommand& command) override;
 
-    MOCK_METHOD(dw::Date, dateLocalNow, (), (const override));
-
-    MOCK_METHOD(dw::DateTime, dateTimeLocalNow, (), (const override));
+private:
+    ActionInvoker& actionInvoker;
 };
 
-} // namespace mocks
+} // namespace sprint_timer::api
 
-#endif /* end of include guard: DATETIMEPROVIDERMOCK_H_JFCR0B6M */
+#endif /* end of include guard: UNDOLASTCOMMANDHANDLER_H_WELR6XYB */

@@ -23,8 +23,8 @@
 #define COMMANDHANDLERCOMPOSER_H_TIYTGWRO
 
 #include "api/com_query/CommandHandler.h"
-#include "api/requests/ChangeWorkScheduleCommand.h"
 #include "api/requests/ChangeActiveTasksPriorityCommand.h"
+#include "api/requests/ChangeWorkScheduleCommand.h"
 #include "api/requests/CreateTaskCommand.h"
 #include "api/requests/DeleteSprintCommand.h"
 #include "api/requests/DeleteTaskCommand.h"
@@ -33,6 +33,7 @@
 #include "api/requests/RenameTagCommand.h"
 #include "api/requests/SaveTaskTreeCommand.h"
 #include "api/requests/ToggleTaskCompletedCommand.h"
+#include "api/requests/UndoLastCommand.h"
 
 namespace sprint_timer::compose {
 
@@ -66,6 +67,8 @@ struct CommandHandlerComposer {
 
     virtual asp::CommandHandler<api::SaveTaskTreeCommand>&
     saveTaskTreeHandler() = 0;
+
+    virtual asp::CommandHandler<api::UndoLastCommand>& undoHandler() = 0;
 };
 
 } // namespace sprint_timer::compose

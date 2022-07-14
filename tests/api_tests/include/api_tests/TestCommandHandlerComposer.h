@@ -32,6 +32,7 @@
 #include "api/handlers/RenameTagHandler.h"
 #include "api/handlers/SaveTaskTreeHandler.h"
 #include "api/handlers/ToggleTaskCompletedHandler.h"
+#include "api/handlers/UndoLastCommandHandler.h"
 #include "api_tests/CommandHandlerComposer.h"
 #include "core/ActionInvoker.h"
 #include "core/SprintStorage.h"
@@ -75,6 +76,8 @@ struct TestCommandHandlerComposer final : public CommandHandlerComposer {
     asp::CommandHandler<api::SaveTaskTreeCommand>&
     saveTaskTreeHandler() override;
 
+    asp::CommandHandler<api::UndoLastCommand>& undoHandler() override;
+
 private:
     std::unique_ptr<api::CreateTaskHandler> createTask;
     api::DeleteTaskHandler deleteTask;
@@ -86,6 +89,7 @@ private:
     api::RenameTagHandler renameTag;
     api::ChangeWorkScheduleHandler changeSchedule;
     api::SaveTaskTreeHandler saveTaskTree;
+    api::UndoLastCommandHandler undo;
 };
 
 } // namespace sprint_timer::compose

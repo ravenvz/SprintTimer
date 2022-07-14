@@ -27,6 +27,8 @@
 #include "qt_storage/utils/QueryUtils.h"
 #include <QVariant>
 
+#include <iostream>
+
 namespace sprint_timer::storage::qt_storage {
 
 using namespace qt_storage;
@@ -111,6 +113,8 @@ QtTaskStorageWriter::QtTaskStorageWriter(QString connectionName_)
 
 void QtTaskStorageWriter::save(const entities::Task& task)
 {
+    std::cout << "Task in storage:" << std::endl;
+    std::cout << task << std::endl;
     const QString uuid = QString::fromStdString(task.uuid());
     createTaskQuery.bindValue(":name", QString::fromStdString(task.name()));
     createTaskQuery.bindValue(":estimated_cost", task.estimatedCost());

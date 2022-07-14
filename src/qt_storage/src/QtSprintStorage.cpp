@@ -21,6 +21,9 @@
 *********************************************************************************/
 #include "qt_storage/QtSprintStorage.h"
 
+#include <iostream>
+#include <iterator>
+
 namespace sprint_timer::storage::qt_storage {
 
 QtSprintStorage::QtSprintStorage(std::unique_ptr<SprintStorageReader> reader_,
@@ -55,6 +58,12 @@ void QtSprintStorage::save(const entities::Sprint& sprint)
 
 void QtSprintStorage::save(const std::vector<entities::Sprint>& sprints)
 {
+    std::copy(cbegin(sprints),
+              cend(sprints),
+              std::ostream_iterator<
+                  std::iterator_traits<decltype(cbegin(sprints))>::value_type>(
+                  std::cout, ", "));
+    std::cout << '\n';
     writer->save(sprints);
 }
 

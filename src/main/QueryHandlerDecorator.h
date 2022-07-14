@@ -41,7 +41,7 @@ decorate_query(std::unique_ptr<asp::RequestHandler<QueryT>> wrapped,
         std::move(cacheAwareHandler), os);
     auto errorReportingHandler =
         std::make_unique<ErrorReportingQueryHandler<QueryT>>(
-            std::move(cacheAwareHandler));
+            std::move(profilingHandler));
     return errorReportingHandler;
 }
 

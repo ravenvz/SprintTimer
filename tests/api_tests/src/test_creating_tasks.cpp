@@ -49,6 +49,9 @@ public:
         queryComposer.activeTasksHandler()};
     asp::QueryHandler<AllTagsQuery>& allTagsHandler{
         queryComposer.allTagsHandler()};
+    asp::CommandHandler<UndoLastCommand>& undoHandler{
+        commandComposer.undoHandler()};
+    const sprint_timer::DateTimeProvider& dt{initializer.dateTimeProvider()};
 };
 
 TEST_F(CreatingTasksFixture, creates_task)
@@ -56,16 +59,10 @@ TEST_F(CreatingTasksFixture, creates_task)
     const std::string name{"Task name"};
     const std::vector<std::string> tags{"Tag1", "Tag2"};
     const int32_t estimatedCost{4};
-    TaskDTO expected{"any_uuid",
-                     tags,
-                     name,
-                     estimatedCost,
-                     0,
-                     false,
-                     current_date_time_local()};
+    TaskDTO expected{
+        "any_uuid", tags, name, estimatedCost, 0, false, dt.dateTimeLocalNow()};
 
     createTaskHandler.handle(CreateTaskCommand{name, tags, estimatedCost});
-
     const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
 
     EXPECT_EQ(1, activeTasks.size());
@@ -73,4 +70,20 @@ TEST_F(CreatingTasksFixture, creates_task)
                 Truly(matchers::MatchesTaskIgnoringUuid{expected}));
     EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
                 ::testing::ElementsAre("Tag1", "Tag2"));
+}
+
+TEST_F(CreatingTasksFixture, undoing_task_creation_cleans_up_associated_tags)
+{
+    const std::string name{"Task name"};
+    const std::vector<std::string> tags{"Tag1", "Tag2"};
+    const int32_t estimatedCost{4};
+    TaskDTO expected{
+        "any_uuid", tags, name, estimatedCost, 0, false, dt.dateTimeLocalNow()};
+    createTaskHandler.handle(CreateTaskCommand{name, tags, estimatedCost});
+
+    undoHandler.handle(UndoLastCommand{});
+
+    const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
+    EXPECT_TRUE(activeTasks.empty());
+    EXPECT_TRUE(allTagsHandler.handle(AllTagsQuery{}).empty());
 }

@@ -19,25 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DATETIMEPROVIDERMOCK_H_JFCR0B6M
-#define DATETIMEPROVIDERMOCK_H_JFCR0B6M
+#ifndef UNDOLASTCOMMAND_H_B9NKEYQ5
+#define UNDOLASTCOMMAND_H_B9NKEYQ5
 
-#include "core/DateTimeProvider.h"
-#include "gmock/gmock.h"
+namespace sprint_timer::api {
 
-namespace mocks {
+struct UndoLastCommand {
+    using Result = void;
 
-class DateTimeProviderMock : public sprint_timer::DateTimeProvider {
-public:
-    MOCK_METHOD(dw::Date, dateNow, (), (const override));
-
-    MOCK_METHOD(dw::DateTime, dateTimeNow, (), (const override));
-
-    MOCK_METHOD(dw::Date, dateLocalNow, (), (const override));
-
-    MOCK_METHOD(dw::DateTime, dateTimeLocalNow, (), (const override));
+    friend bool operator==(const UndoLastCommand&,
+                           const UndoLastCommand&) = default;
 };
 
-} // namespace mocks
+} // namespace sprint_timer::api
 
-#endif /* end of include guard: DATETIMEPROVIDERMOCK_H_JFCR0B6M */
+#endif /* end of include guard: UNDOLASTCOMMAND_H_B9NKEYQ5 */

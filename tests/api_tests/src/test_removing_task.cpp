@@ -19,9 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "gtest/gtest.h"
-
 #include "api_tests/QtStorageInitializer.h"
+#include "api_tests/matchers/MatchesSprintIgnoringUuid.h"
 #include "core/HandlerException.h"
 #include "gmock/gmock.h"
 
@@ -30,6 +29,7 @@ using namespace sprint_timer::api;
 using namespace sprint_timer::entities;
 using namespace sprint_timer::compose;
 using namespace dw;
+using ::testing::Truly;
 
 class RemovingTaskFixture : public ::testing::Test {
 public:
@@ -49,6 +49,10 @@ public:
         commandComposer.registerSprintBulkHandler()};
     asp::QueryHandler<RequestSprintsQuery>& requestSprintsHandler{
         queryComposer.requestSprintsHandler()};
+    asp::QueryHandler<SprintsForTaskQuery>& sprintsForTaskHandler{
+        queryComposer.sprintsForTaskHandler()};
+    asp::CommandHandler<UndoLastCommand>& undoHandler{
+        commandComposer.undoHandler()};
     TaskDTO task{"",
                  {"Tag1", "Tag2"},
                  "Task name",
@@ -133,4 +137,71 @@ TEST_F(RemovingTaskFixture,
     EXPECT_THROW(
         deleteTaskHandler.handle(DeleteTaskCommand{"Non-existing uuid"}),
         HandlerException);
+}
+
+TEST_F(RemovingTaskFixture, undoing_removing_task_restores_tags_and_sprints)
+{
+    using namespace std::chrono_literals;
+    createTaskHandler.handle(
+        CreateTaskCommand{task.name, task.tags, task.expectedCost});
+    const dw::Date someDate{Year{2021}, Month{3}, Day{3}};
+    const dw::DateTime firstSprintStartTime{DateTime{someDate} + 3h};
+    const dw::DateTimeRange firstSprintRange{firstSprintStartTime,
+                                             firstSprintStartTime + 25min};
+    const std::vector<DateTimeRange> intervals{
+        firstSprintRange,
+        add_offset(firstSprintRange, 1h + 25min),
+        add_offset(firstSprintRange, 5h + 50min),
+        add_offset(firstSprintRange, 7h + 75min)};
+    const auto storedTask =
+        activeTasksHandler.handle(ActiveTasksQuery{}).front();
+    const auto uuid = storedTask.uuid;
+    // activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    registerSprintBulkHandler.handle(
+        RegisterSprintBulkCommand(uuid, intervals));
+    deleteTaskHandler.handle(DeleteTaskCommand{uuid});
+    std::vector<SprintDTO> expectedSprints{
+        SprintDTO{"irrelevant", uuid, task.name, task.tags, firstSprintRange},
+        SprintDTO{"irrelevant",
+                  uuid,
+                  task.name,
+                  task.tags,
+                  add_offset(firstSprintRange, 1h + 25min)},
+        SprintDTO{"irrelevant",
+                  uuid,
+                  task.name,
+                  task.tags,
+                  add_offset(firstSprintRange, 5h + 50min)},
+        SprintDTO{"irrelevant",
+                  uuid,
+                  task.name,
+                  task.tags,
+                  add_offset(firstSprintRange, 7h + 75min)},
+    };
+
+    try {
+        undoHandler.handle(UndoLastCommand{});
+
+        EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
+                    ::testing::ElementsAre("Tag1", "Tag2"));
+        EXPECT_THAT(
+            sprintsForTaskHandler.handle(SprintsForTaskQuery{uuid}),
+            ::testing::ElementsAre(
+                Truly(matchers::MatchesSprintIgnoringUuid(expectedSprints[0])),
+                Truly(matchers::MatchesSprintIgnoringUuid(expectedSprints[1])),
+                Truly(matchers::MatchesSprintIgnoringUuid(expectedSprints[2])),
+                Truly(
+                    matchers::MatchesSprintIgnoringUuid(expectedSprints[3]))));
+    }
+    catch (sprint_timer::storage::qt_storage::QueryError& exc) {
+        std::cerr << exc.queryText() << '\n';
+        std::cerr << exc.queryError() << '\n';
+        throw;
+    }
+    // EXPECT_TRUE(activeTasksHandler.handle(ActiveTasksQuery{}).empty());
+    // EXPECT_TRUE(allTagsHandler.handle(AllTagsQuery{}).empty());
+    // EXPECT_TRUE(
+    //     requestSprintsHandler
+    //         .handle(RequestSprintsQuery{dw::DateRange{someDate, someDate}})
+    //         .empty());
 }

@@ -22,6 +22,8 @@
 #ifndef QTSTORAGEINITIALIZER_H_WR5MUUAC
 #define QTSTORAGEINITIALIZER_H_WR5MUUAC
 
+#include "api_tests/TestCommandHandlerComposer.h"
+#include "api_tests/TestQueryHandlerComposer.h"
 #include "common_utils/DateTimeProviderMock.h"
 #include "common_utils/FakeUuidGenerator.h"
 #include "core/DefaultDateTimeProvider.h"
@@ -29,8 +31,6 @@
 #include "qt_storage/DatabaseInitializer.h"
 #include "qt_storage/QtStorageImplementersFactory.h"
 #include "qt_storage/WorkerConnection.h"
-#include "api_tests/TestCommandHandlerComposer.h"
-#include "api_tests/TestQueryHandlerComposer.h"
 #include <QCoreApplication>
 
 struct TestStorageInitializer {
@@ -47,7 +47,10 @@ struct TestStorageInitializer {
         return *queryHandlerComp;
     }
 
-    sprint_timer::DefaultDateTimeProvider dateTimeProvider;
+    const sprint_timer::DateTimeProvider& dateTimeProvider() const
+    {
+        return dtProvider;
+    }
 
     std::filesystem::path fileStoragePath{"tests/tmp"};
 
@@ -82,7 +85,7 @@ private:
                 *taskTreeStorage,
                 *workScheduleStorage,
                 uuidGenerator,
-                dateTimeProvider)};
+                dtProvider)};
     std::unique_ptr<sprint_timer::SprintDistributionReader> dailyDistReader{
         factory.dailyDistReader(30)};
     std::unique_ptr<sprint_timer::SprintDistributionReader>
@@ -103,6 +106,7 @@ private:
                 *sundayFirstDistReader,
                 *monthlyDistReader,
                 *taskTreeStorage)};
+    sprint_timer::DefaultDateTimeProvider dtProvider;
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */

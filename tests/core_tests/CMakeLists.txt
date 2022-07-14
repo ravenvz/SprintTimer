@@ -9,7 +9,6 @@ target_sources(test_core
     "${CMAKE_CURRENT_LIST_DIR}/mocks/TaskStorageMock.h"
     "${CMAKE_CURRENT_LIST_DIR}/mocks/WorkflowMock.h"
     "${CMAKE_CURRENT_LIST_DIR}/mocks/WorkScheduleStorageMock.h"
-    "${CMAKE_CURRENT_LIST_DIR}/test_add_new_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_algutils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_change_work_schedule.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_delete_task.cpp"
