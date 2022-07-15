@@ -51,25 +51,6 @@ QtSprintStorageReaderConnectionProxy::findByDateRange(
     return localStorage->findByDateRange(dateRange);
 }
 
-std::vector<entities::Sprint>
-QtSprintStorageReaderConnectionProxy::findByTaskUuid(
-    const std::string& taskUuid)
-{
-    if (!localStorage) {
-        createStorageInteractor();
-    }
-    return localStorage->findByTaskUuid(taskUuid);
-}
-
-std::vector<entities::Sprint>
-QtSprintStorageReaderConnectionProxy::findByUuid(const std::string& uuid)
-{
-    if (!localStorage) {
-        createStorageInteractor();
-    }
-    return localStorage->findByUuid(uuid);
-}
-
 void QtSprintStorageReaderConnectionProxy::createStorageInteractor()
 {
     localStorage.emplace(connectionHelper.connectionName());

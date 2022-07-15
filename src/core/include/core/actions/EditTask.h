@@ -41,8 +41,8 @@ public:
 
 private:
     TaskStorageWriter& writer;
-    const entities::Task editedTask;
-    const entities::Task originalTask;
+    entities::Task editedTask;
+    entities::Task originalTask;
 };
 
 } // namespace sprint_timer::actions

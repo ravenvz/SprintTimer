@@ -152,7 +152,7 @@ void TaskItemDelegate::paintItem(QPainter* painter,
                      contentRect.topRight().y() + offset,
                      contentRect.topRight().x() - offset - statsRect.width(),
                      contentRect.topRight().y() + offset);
-    if (item.actualCost > item.expectedCost) {
+    if (item.sprints.size() > static_cast<size_t>(item.expectedCost)) {
         painter->setPen(overspentCol);
     }
     style->drawItemText(painter,
@@ -211,7 +211,7 @@ extractData(const sprint_timer::api::TaskDTO& item)
         }))};
     return {tags,
             QString::fromStdString(item.name),
-            QString("%1/%2").arg(item.actualCost).arg(item.expectedCost)};
+            QString("%1/%2").arg(item.sprints.size()).arg(item.expectedCost)};
 }
 
 } // namespace

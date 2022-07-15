@@ -56,7 +56,7 @@ void EditTaskDialog::accept()
     if (!selectedTask) {
         return;
     }
-    api::TaskDTO editedTask = parseFormFields();
+    const auto editedTask = parseFormFields();
     QVariant var;
     var.setValue(editedTask);
     taskModel.setData(taskModel.index(static_cast<int>(*selectedTask), 0),

@@ -426,7 +426,7 @@ int main(int argc, char* argv[])
             outputStream,
             cacheInvalidationMediator);
     auto sprintsForTaskHandler = compose::decorate_query<SprintsForTaskQuery>(
-        std::make_unique<SprintsForTaskHandler>(*sprintStorage),
+        std::make_unique<SprintsForTaskHandler>(*taskStorage),
         outputStream,
         cacheInvalidationMediator);
     auto workScheduleHandler = compose::decorate_query<WorkScheduleQuery>(

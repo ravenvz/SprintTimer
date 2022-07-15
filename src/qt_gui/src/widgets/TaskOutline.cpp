@@ -21,12 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/widgets/TaskOutline.h"
 #include "qt_gui/Displayable.h"
-#include "qt_gui/dialogs/AddTaskDialog.h"
-#include "qt_gui/metatypes/TaskDTOMetatype.h"
-#include "qt_gui/models/CustomRoles.h"
-#include "qt_gui/widgets/TaskView.h"
 #include <QLineEdit>
-#include <QMenu>
 #include <QPushButton>
 #include <QVBoxLayout>
 

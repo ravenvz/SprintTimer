@@ -20,9 +20,16 @@
 **
 *********************************************************************************/
 #include "api/handlers/EditTaskHandler.h"
+#include "api/dtos/SprintMapper.h"
+#include "api/dtos/TagMapper.h"
+#include "api/dtos/TaskMapper.h"
 #include "core/HandlerException.h"
 #include "core/actions/EditTask.h"
 #include <algorithm>
+
+namespace {
+
+} // namespace
 
 namespace sprint_timer::api {
 
@@ -39,7 +46,6 @@ EditTaskHandler::EditTaskHandler(TaskStorage& taskStorage_,
 void EditTaskHandler::handle(const EditTaskCommand& command)
 {
     const auto& editedDTO = command.editedTask;
-    const auto& tagDTO = editedDTO.tags;
     auto matchingUuid = taskStorage.findByUuid(editedDTO.uuid);
     if (matchingUuid.empty()) {
         std::string message{"Trying to edit task with uuid: "};
@@ -48,20 +54,21 @@ void EditTaskHandler::handle(const EditTaskCommand& command)
         throw HandlerException{message};
     }
     std::list<Tag> tags;
-    std::transform(cbegin(tagDTO),
-                   cend(tagDTO),
-                   std::back_inserter(tags),
-                   [](const auto& elem) { return Tag{elem}; });
-    Task originalTask = matchingUuid.front();
-    Task editedTask{editedDTO.name,
-                    editedDTO.expectedCost,
-                    originalTask.actualCost(),
-                    editedDTO.uuid,
-                    tags,
-                    originalTask.isCompleted(),
-                    dw::current_date_time_local()};
+    std::ranges::copy(dtoAdapter(editedDTO.tags), std::back_inserter(tags));
+    const Task& originalTask = matchingUuid.front();
+    const Task editedTask{editedDTO.name,
+                          editedDTO.expectedCost,
+                          originalTask.replaceSprints(),
+                          editedDTO.uuid,
+                          tags,
+                          originalTask.isCompleted(),
+                          dw::current_date_time_local()};
     actionInvoker.execute(std::make_unique<actions::EditTask>(
         taskStorage, originalTask, editedTask));
 }
 
 } // namespace sprint_timer::api
+
+namespace {
+
+} // namespace

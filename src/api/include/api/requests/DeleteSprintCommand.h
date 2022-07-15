@@ -24,13 +24,14 @@
 
 #include "api/com_query/Command.h"
 #include "core/entities/Sprint.h"
+#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::api {
 
 struct DeleteSprintCommand {
     using Result = void;
 
-    std::string uuid;
+    dw::DateTimeRange timeRange;
 
     friend bool operator==(const DeleteSprintCommand&,
                            const DeleteSprintCommand&) = default;
@@ -41,7 +42,7 @@ std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
            const DeleteSprintCommand& command)
 {
-    os << "DeleteSprintCommand{" << command.uuid << "}";
+    os << "DeleteSprintCommand{" << command.timeRange << "}";
     return os;
 }
 

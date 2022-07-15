@@ -32,7 +32,11 @@ FinishedTasksHandler::FinishedTasksHandler(TaskStorageReader& reader_)
 FinishedTasksQuery::Result
 FinishedTasksHandler::handle(const FinishedTasksQuery& query)
 {
-    return makeDTOs(reader.finishedTasks(query.dateRange));
+    const auto tasks = reader.finishedTasks(query.dateRange);
+    std::vector<TaskDTO> result;
+    result.reserve(tasks.size());
+    std::ranges::copy(dtoAdapter(tasks), std::back_inserter(result));
+    return result;
 }
 
 } // namespace sprint_timer::api

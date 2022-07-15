@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/requests/CreateTaskCommand.h"
 #include "api/requests/AllTagsQuery.h"
+#include "api/requests/CreateTaskCommand.h"
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/AddTaskControlPresenter.h"
@@ -45,19 +45,17 @@ public:
     ui::AddTaskControlPresenter sut{createTaskHandler};
 };
 
-namespace {
-
-const dw::DateTime someModificationStamp{dw::current_date_time()};
-
-std::pair<sprint_timer::entities::Task, api::TaskDTO>
-someTaskWithDescription();
-
-} // namespace
-
 TEST_F(AddTaskControlPresenterFixture, invokes_handler_to_add_task_given_dto)
 {
     using namespace sprint_timer::entities;
-    const auto [task, details] = someTaskWithDescription();
+    const dw::DateTime someModificationStamp{dw::current_date_time()};
+    const sprint_timer::api::TaskDTO details{"123",
+                                                {"Tag 1", "Tag 2"},
+                                                "SomeTask",
+                                                4,
+                                                {},
+                                                false,
+                                                someModificationStamp};
 
     EXPECT_CALL(createTaskHandler,
                 handle(api::CreateTaskCommand{
@@ -76,12 +74,12 @@ TEST_F(AddTaskControlPresenterFixture,
     sut.addTask("#Test All parts present *5");
 }
 
-TEST_F(AddTaskControlPresenterFixture,
-       adds_task_with_default_estimated_cost_when_it_missing_in_encoded_description)
+TEST_F(
+    AddTaskControlPresenterFixture,
+    adds_task_with_default_estimated_cost_when_it_missing_in_encoded_description)
 {
-    EXPECT_CALL(
-        createTaskHandler,
-        handle(api::CreateTaskCommand{"Task with tag", {"Test"}, 1}));
+    EXPECT_CALL(createTaskHandler,
+                handle(api::CreateTaskCommand{"Task with tag", {"Test"}, 1}));
 
     sut.addTask("#Test Task with tag");
 }
@@ -89,9 +87,9 @@ TEST_F(AddTaskControlPresenterFixture,
 TEST_F(AddTaskControlPresenterFixture,
        adds_task_when_there_are_no_tags_in_encoded_description)
 {
-    EXPECT_CALL(
-        createTaskHandler,
-        handle(api::CreateTaskCommand{"Simple task", std::vector<std::string>{}, 2}));
+    EXPECT_CALL(createTaskHandler,
+                handle(api::CreateTaskCommand{
+                    "Simple task", std::vector<std::string>{}, 2}));
 
     sut.addTask("Simple task *2");
 }
@@ -99,9 +97,8 @@ TEST_F(AddTaskControlPresenterFixture,
 TEST_F(AddTaskControlPresenterFixture,
        adds_task_when_there_is_no_name_in_encoded_description)
 {
-    EXPECT_CALL(
-        createTaskHandler,
-        handle(api::CreateTaskCommand{"", {"Tag", "Test"}, 44}));
+    EXPECT_CALL(createTaskHandler,
+                handle(api::CreateTaskCommand{"", {"Tag", "Test"}, 44}));
 
     sut.addTask("#Tag #Test *44");
 }
@@ -109,9 +106,9 @@ TEST_F(AddTaskControlPresenterFixture,
 TEST_F(AddTaskControlPresenterFixture,
        adds_task_taking_only_last_encoded_cost_estimation)
 {
-    EXPECT_CALL(
-        createTaskHandler,
-        handle(api::CreateTaskCommand{"Multiple estimated", std::vector<std::string>{}, 9}));
+    EXPECT_CALL(createTaskHandler,
+                handle(api::CreateTaskCommand{
+                    "Multiple estimated", std::vector<std::string>{}, 9}));
 
     sut.addTask("Multiple estimated *5 *9");
 }
@@ -121,32 +118,9 @@ TEST_F(AddTaskControlPresenterFixture,
 {
     EXPECT_CALL(
         createTaskHandler,
-        handle(api::CreateTaskCommand{"##My # ## beautiful,marvelous, great content", {"tag1"}, 1}));
+        handle(api::CreateTaskCommand{
+            "##My # ## beautiful,marvelous, great content", {"tag1"}, 1}));
 
     sut.addTask("##My #tag1  #   ##    beautiful,marvelous, great   content");
 }
 
-namespace {
-
-std::pair<sprint_timer::entities::Task, sprint_timer::api::TaskDTO>
-someTaskWithDescription()
-{
-    using namespace sprint_timer::entities;
-    const sprint_timer::api::TaskDTO details{"123",
-                                                   {"Tag 1", "Tag 2"},
-                                                   "SomeTask",
-                                                   4,
-                                                   0,
-                                                   false,
-                                                   someModificationStamp};
-    Task task{"SomeTask",
-              4,
-              0,
-              "123",
-              {Tag{"Tag 1"}, Tag{"Tag 2"}},
-              false,
-              someModificationStamp};
-    return {task, details};
-}
-
-} // namespace

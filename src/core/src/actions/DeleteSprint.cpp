@@ -33,7 +33,7 @@ DeleteSprint::DeleteSprint(SprintStorageWriter& writer_,
 
 void DeleteSprint::execute() { writer.remove(sprint); }
 
-void DeleteSprint::undo() { writer.save(sprint); }
+void DeleteSprint::undo() { writer.restore(sprint); }
 
 std::string DeleteSprint::describe() const
 {

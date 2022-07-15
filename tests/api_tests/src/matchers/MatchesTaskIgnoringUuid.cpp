@@ -25,8 +25,9 @@ namespace matchers {
 
 using sprint_timer::api::TaskDTO;
 
-MatchesTaskIgnoringUuid::MatchesTaskIgnoringUuid(const TaskDTO& taskDTO)
-    : expected{taskDTO}
+MatchesTaskIgnoringUuid::MatchesTaskIgnoringUuid(
+    const sprint_timer::api::TaskDTO& taskDto)
+    : expected{taskDto}
 {
 }
 
@@ -34,7 +35,7 @@ bool MatchesTaskIgnoringUuid::operator()(const TaskDTO& task) const
 {
     return expected.name == task.name && expected.tags == task.tags &&
            expected.expectedCost == task.expectedCost &&
-           expected.actualCost == task.actualCost &&
+           expected.sprints == task.sprints &&
            expected.modificationStamp == task.modificationStamp &&
            expected.finished == task.finished;
 }

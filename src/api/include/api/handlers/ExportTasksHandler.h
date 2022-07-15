@@ -32,14 +32,15 @@ namespace sprint_timer::api {
 
 class ExportTasksHandler : public asp::CommandHandler<ExportTasksCommand> {
 public:
-    using Handler = asp::QueryHandler<FinishedTasksQuery>;
+    using finished_tasks_handler_t = asp::QueryHandler<FinishedTasksQuery>;
 
-    ExportTasksHandler(Handler& tasksHandler, DataExporter<TaskDTO>& exporter);
+    ExportTasksHandler(finished_tasks_handler_t& tasksHandler,
+                       DataExporter<TaskDTO>& exporter);
 
     void handle(const ExportTasksCommand& command) override;
 
 private:
-    Handler& tasksHandler;
+    finished_tasks_handler_t& tasksHandler;
     DataExporter<TaskDTO>& exporter;
 };
 

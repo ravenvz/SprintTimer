@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/requests/RequestSprintsQuery.h"
 #include "api/requests/FinishedTasksQuery.h"
+#include "api/requests/RequestSprintsQuery.h"
 #include "mocks/HistoryMediatorMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/HistoryPresenter.h"
@@ -105,8 +105,7 @@ class HistoryPresenterFixture : public ::testing::Test {
 public:
     NiceMock<mocks::QueryHandlerMock<api::RequestSprintsQuery>>
         sprintHandlerMock;
-    NiceMock<mocks::QueryHandlerMock<api::FinishedTasksQuery>>
-        taskHandlerMock;
+    NiceMock<mocks::QueryHandlerMock<api::FinishedTasksQuery>> taskHandlerMock;
     NiceMock<mocks::HistoryMediatorMock> mediatorMock;
     ui::HistoryPresenter presenter{
         sprintHandlerMock, taskHandlerMock, mediatorMock};
@@ -295,6 +294,19 @@ buildSomeSprints(const dw::Date& someDate)
     return sprints;
 }
 
+std::vector<dw::DateTimeRange> generateDateRanges(dw::DateTimeRange initial,
+                                                  size_t number)
+{
+    auto gen_function = [&initial, i = 0]() mutable {
+        return dw::add_offset(initial, 25min * i++);
+    };
+    std::vector<dw::DateTimeRange> result;
+    result.reserve(number);
+    std::ranges::generate_n(
+        std::back_inserter(result), static_cast<int>(number), gen_function);
+    return result;
+}
+
 std::vector<sprint_timer::api::TaskDTO>
 buildSomeTasks(const dw::Date& someDate)
 {
@@ -302,51 +314,57 @@ buildSomeTasks(const dw::Date& someDate)
     using namespace dw;
     using api::TaskDTO;
     const DateTime someDateTime{someDate};
-    std::vector<TaskDTO> tasks{
-        TaskDTO{
-            "1", {"Tag1"}, "Earliest task", 2, 3, true, someDateTime - Days{4}},
-        TaskDTO{"2",
-                {"Tag9"},
-                "Second to earliest",
-                2,
-                7,
-                true,
-                someDateTime - Days{3} + 3h},
-        TaskDTO{"3",
-                {"Tag7"},
-                "Same day task 1",
-                5,
-                15,
-                true,
-                someDateTime - Days{2}},
-        TaskDTO{"4",
-                {"Tag5"},
-                "Same day task 2",
-                5,
-                5,
-                true,
-                someDateTime - Days{2} + 1h},
-        TaskDTO{"5",
-                {"Tag5"},
-                "Same day task 3",
-                12,
-                7,
-                true,
-                someDateTime - Days{2} + 3h},
-        TaskDTO{"6",
-                {"Tag1"},
-                "Second to last",
-                5,
-                5,
-                true,
-                someDateTime + Days{3}},
-        TaskDTO{"7",
-                std::vector<std::string>{},
-                "Latest task",
-                7,
-                0,
-                true,
-                someDateTime + Days{4}}};
+    const DateTimeRange someSprint{current_date_time(),
+                                   current_date_time() + 25min};
+    std::vector<TaskDTO> tasks{TaskDTO{"1",
+                                             {"Tag1"},
+                                             "Earliest task",
+                                             2,
+                                             generateDateRanges(someSprint, 3),
+                                             true,
+                                             someDateTime - Days{4}},
+                                  TaskDTO{"2",
+                                             {"Tag9"},
+                                             "Second to earliest",
+                                             2,
+                                             generateDateRanges(someSprint, 7),
+                                             true,
+                                             someDateTime - Days{3} + 3h},
+                                  TaskDTO{"3",
+                                             {"Tag7"},
+                                             "Same day task 1",
+                                             5,
+                                             generateDateRanges(someSprint, 15),
+                                             true,
+                                             someDateTime - Days{2}},
+                                  TaskDTO{"4",
+                                             {"Tag5"},
+                                             "Same day task 2",
+                                             5,
+                                             generateDateRanges(someSprint, 5),
+                                             true,
+                                             someDateTime - Days{2} + 1h},
+                                  TaskDTO{"5",
+                                             {"Tag5"},
+                                             "Same day task 3",
+                                             12,
+                                             generateDateRanges(someSprint, 7),
+                                             true,
+                                             someDateTime - Days{2} + 3h},
+                                  TaskDTO{"6",
+                                             {"Tag1"},
+                                             "Second to last",
+                                             5,
+                                             generateDateRanges(someSprint, 5),
+                                             true,
+                                             someDateTime + Days{3}},
+                                  TaskDTO{"7",
+                                             std::vector<std::string>{},
+                                             "Latest task",
+                                             7,
+                                             {},
+                                             true,
+                                             someDateTime + Days{4}}};
     return tasks;
 }
 

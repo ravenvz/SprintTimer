@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "api_tests/QtStorageInitializer.h"
-#include "api_tests/matchers/MatchesSprintIgnoringUuid.h"
 #include "core/HandlerException.h"
 #include "gmock/gmock.h"
 
@@ -29,7 +28,6 @@ using namespace sprint_timer::api;
 using namespace sprint_timer::entities;
 using namespace sprint_timer::compose;
 using namespace dw;
-using ::testing::Truly;
 
 class RemovingTaskFixture : public ::testing::Test {
 public:
@@ -57,7 +55,7 @@ public:
                  {"Tag1", "Tag2"},
                  "Task name",
                  4,
-                 0,
+                 {},
                  false,
                  dw::current_date_time()};
 };
@@ -156,52 +154,21 @@ TEST_F(RemovingTaskFixture, undoing_removing_task_restores_tags_and_sprints)
     const auto storedTask =
         activeTasksHandler.handle(ActiveTasksQuery{}).front();
     const auto uuid = storedTask.uuid;
-    // activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    const TaskDTO expected{uuid,
+                           task.tags,
+                           task.name,
+                           task.expectedCost,
+                           intervals,
+                           false,
+                           current_date_time_local()};
     registerSprintBulkHandler.handle(
         RegisterSprintBulkCommand(uuid, intervals));
     deleteTaskHandler.handle(DeleteTaskCommand{uuid});
-    std::vector<SprintDTO> expectedSprints{
-        SprintDTO{"irrelevant", uuid, task.name, task.tags, firstSprintRange},
-        SprintDTO{"irrelevant",
-                  uuid,
-                  task.name,
-                  task.tags,
-                  add_offset(firstSprintRange, 1h + 25min)},
-        SprintDTO{"irrelevant",
-                  uuid,
-                  task.name,
-                  task.tags,
-                  add_offset(firstSprintRange, 5h + 50min)},
-        SprintDTO{"irrelevant",
-                  uuid,
-                  task.name,
-                  task.tags,
-                  add_offset(firstSprintRange, 7h + 75min)},
-    };
 
-    try {
-        undoHandler.handle(UndoLastCommand{});
+    undoHandler.handle(UndoLastCommand{});
+    const auto actual = activeTasksHandler.handle(ActiveTasksQuery{}).front();
 
-        EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
-                    ::testing::ElementsAre("Tag1", "Tag2"));
-        EXPECT_THAT(
-            sprintsForTaskHandler.handle(SprintsForTaskQuery{uuid}),
-            ::testing::ElementsAre(
-                Truly(matchers::MatchesSprintIgnoringUuid(expectedSprints[0])),
-                Truly(matchers::MatchesSprintIgnoringUuid(expectedSprints[1])),
-                Truly(matchers::MatchesSprintIgnoringUuid(expectedSprints[2])),
-                Truly(
-                    matchers::MatchesSprintIgnoringUuid(expectedSprints[3]))));
-    }
-    catch (sprint_timer::storage::qt_storage::QueryError& exc) {
-        std::cerr << exc.queryText() << '\n';
-        std::cerr << exc.queryError() << '\n';
-        throw;
-    }
-    // EXPECT_TRUE(activeTasksHandler.handle(ActiveTasksQuery{}).empty());
-    // EXPECT_TRUE(allTagsHandler.handle(AllTagsQuery{}).empty());
-    // EXPECT_TRUE(
-    //     requestSprintsHandler
-    //         .handle(RequestSprintsQuery{dw::DateRange{someDate, someDate}})
-    //         .empty());
+    EXPECT_EQ(expected, actual);
+    EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
+                ::testing::ElementsAre("Tag1", "Tag2"));
 }

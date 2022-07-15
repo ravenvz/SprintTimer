@@ -23,7 +23,6 @@
 #define DELETETASKCOMMAND_H_5PQUTOMC
 
 #include "api/com_query/Command.h"
-#include "api/dtos/TaskDTO.h"
 #include "core/Uuid.h"
 #include "core/entities/Task.h"
 

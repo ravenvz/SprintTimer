@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "api_tests/QtStorageInitializer.h"
+#include "api_tests/matchers/MatchesTaskIgnoringUuid.h"
 #include "gtest/gtest.h"
 
 using namespace sprint_timer;
@@ -30,20 +31,22 @@ using namespace dw;
 class RemovingSprintsFixture : public ::testing::Test {
 public:
     TestStorageInitializer initializer;
-    compose::CommandHandlerComposer& commandHandlerComposer{
+    compose::CommandHandlerComposer& commandComposer{
         initializer.commandHandlerComposer()};
     compose::QueryHandlerComposer& queryHandlerComposer{
         initializer.queryHandlerComposer()};
     asp::QueryHandler<ActiveTasksQuery>& activeTasksHandler{
         queryHandlerComposer.activeTasksHandler()};
     asp::CommandHandler<RegisterSprintBulkCommand>& registerSprintsHandler{
-        commandHandlerComposer.registerSprintBulkHandler()};
+        commandComposer.registerSprintBulkHandler()};
     asp::CommandHandler<CreateTaskCommand>& createTaskHandler{
-        commandHandlerComposer.createTaskHandler()};
+        commandComposer.createTaskHandler()};
     asp::QueryHandler<SprintsForTaskQuery>& sprintsForTaskHandler{
         queryHandlerComposer.sprintsForTaskHandler()};
     asp::CommandHandler<DeleteSprintCommand>& deleteSprintHandler{
-        commandHandlerComposer.deleteSprintHandler()};
+        commandComposer.deleteSprintHandler()};
+    asp::CommandHandler<UndoLastCommand>& undoHandler{
+        commandComposer.undoHandler()};
 };
 
 TEST_F(RemovingSprintsFixture, removing_sprints_decrements_task_actual_count)
@@ -58,11 +61,46 @@ TEST_F(RemovingSprintsFixture, removing_sprints_decrements_task_actual_count)
         range, add_offset(range, 3h), add_offset(range, 5h)};
     registerSprintsHandler.handle(
         RegisterSprintBulkCommand{taskUuid, intervals});
-    const auto sprints =
-        sprintsForTaskHandler.handle(SprintsForTaskQuery{taskUuid});
 
-    deleteSprintHandler.handle(DeleteSprintCommand{sprints.front().uuid});
+    deleteSprintHandler.handle(DeleteSprintCommand{add_offset(range, 3h)});
+    const auto task = activeTasksHandler.handle(ActiveTasksQuery{}).front();
 
-    EXPECT_EQ(2,
-              activeTasksHandler.handle(ActiveTasksQuery{}).front().actualCost);
+    EXPECT_THAT(task,
+                ::testing::Truly(matchers::MatchesTaskIgnoringUuid(
+                    TaskDTO{"irrelevant_uuid",
+                            {"Tag1"},
+                            "Some task",
+                            5,
+                            {range, add_offset(range, 5h)},
+                            false,
+                            current_date_time_local()})));
+}
+
+TEST_F(RemovingSprintsFixture, undoing_removing_sprints)
+{
+
+    using namespace std::chrono_literals;
+    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 5});
+    const auto taskUuid =
+        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    const DateTimeRange range{current_date_time_local(),
+                              current_date_time_local() + 25min};
+    const std::vector<dw::DateTimeRange> intervals{
+        range, add_offset(range, 3h), add_offset(range, 5h)};
+    registerSprintsHandler.handle(
+        RegisterSprintBulkCommand{taskUuid, intervals});
+    deleteSprintHandler.handle(DeleteSprintCommand{add_offset(range, 3h)});
+
+    undoHandler.handle(UndoLastCommand{});
+    const auto task = activeTasksHandler.handle(ActiveTasksQuery{}).front();
+
+    EXPECT_THAT(task,
+                ::testing::Truly(matchers::MatchesTaskIgnoringUuid(TaskDTO{
+                    "irrelevant_uuid",
+                    {"Tag1"},
+                    "Some task",
+                    5,
+                    {range, add_offset(range, 3h), add_offset(range, 5h)},
+                    false,
+                    current_date_time_local()})));
 }

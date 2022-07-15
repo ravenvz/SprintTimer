@@ -32,7 +32,7 @@ class View;
 
 class Presenter : public mvp::BasePresenter<View> {
 public:
-    virtual void onSprintDelete(const std::string& uuid) = 0;
+    virtual void onSprintDelete(dw::DateTimeRange sprint) = 0;
 };
 
 class View : public mvp::BaseView<View, Presenter> {

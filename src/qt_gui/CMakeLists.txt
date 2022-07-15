@@ -73,7 +73,6 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/mvp/BasePresenter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/mvp/BaseView.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/mvp/DataFetcher.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/ActiveTasksContract.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/ActiveTasksPresenter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/AddTaskControl.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/presentation/AddTaskControlPresenter.h"

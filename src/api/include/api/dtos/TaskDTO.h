@@ -33,7 +33,7 @@ struct TaskDTO {
     std::vector<std::string> tags;
     std::string name;
     int expectedCost;
-    int actualCost;
+    std::vector<dw::DateTimeRange> sprints;
     bool finished;
     dw::DateTime modificationStamp{dw::current_date_time_local()};
 
@@ -49,7 +49,7 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
         os << '#' << element << ' ';
     }
     os << task.name << " ";
-    os << task.actualCost << '/' << task.expectedCost;
+    os << task.sprints.size() << '/' << task.expectedCost;
     os << (task.finished ? " finished " : " pending ");
     os << task.modificationStamp << '}';
     return os;

@@ -19,31 +19,22 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/ObservableActionInvoker.h"
-#include "core/actions/ChangeWorkSchedule.h"
-#include "mocks/WorkScheduleStorageMock.h"
-#include "gtest/gtest.h"
+#include "core/entities/Tag.h"
+#include <ranges>
+#include <span>
 
-using namespace sprint_timer;
+namespace sprint_timer::api {
 
-class ChangeWorkingDaysFixture : public ::testing::Test {
-public:
-    mocks::WorkScheduleStorageMock storage;
-    sprint_timer::ObservableActionInvoker actionInvoker;
-};
-
-TEST_F(ChangeWorkingDaysFixture, execute_and_undo)
+inline auto dtoAdapter(std::span<const entities::Tag> tags)
 {
-    using namespace dw;
-    const WorkSchedule oldWorkSchedule;
-    WorkSchedule newWorkSchedule;
-    newWorkSchedule.addExceptionalDay(Date{Year{2019}, Month{1}, Day{1}}, 0);
-    EXPECT_CALL(storage, updateSchedule(newWorkSchedule)).Times(1);
-
-    actionInvoker.execute(std::make_unique<actions::ChangeWorkSchedule>(
-        storage, oldWorkSchedule, newWorkSchedule));
-
-    EXPECT_CALL(storage, updateSchedule(oldWorkSchedule));
-
-    actionInvoker.undo();
+    return std::views::transform(tags,
+                                 [](const auto& tag) { return tag.name(); });
 }
+
+inline auto dtoAdapter(std::span<const std::string> tagStrings)
+{
+    return std::views::transform(
+        tagStrings, [](const auto& str) { return entities::Tag{str}; });
+}
+
+} // namespace sprint_timer::api

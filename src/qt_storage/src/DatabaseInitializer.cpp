@@ -41,7 +41,7 @@ namespace {
 
 using namespace sprint_timer::storage::qt_storage;
 
-constexpr unsigned currentDatabaseVersion{6};
+constexpr unsigned currentDatabaseVersion{7};
 
 bool databaseFileNotFound(const QString& filePath);
 
@@ -72,8 +72,9 @@ DatabaseInitializer::DatabaseInitializer(const QString& filename)
 
     auto db = QSqlDatabase::database(connectionName);
 
-    if (dbIsNew)
+    if (dbIsNew) {
         create(db);
+    }
 
     const auto migrationManager = prepareMigrationManager(db);
     migrationManager.runMigrations(connectionName);
@@ -116,24 +117,22 @@ void createTables(QSqlQuery& query)
 
     const QString createTaskTable{
         "CREATE TABLE " % TaskTable::name % "(" % TaskTable::Columns::id %
-        " INTEGER PRIMARY KEY AUTOINCREMENT, " % TaskTable::Columns::name %
-        " TEXT, " % TaskTable::Columns::estimatedCost % " INTEGER, " %
-        TaskTable::Columns::actualCost % " INTEGER, " %
+        " INTEGER PRIMARY KEY AUTOINCREMENT, " % TaskTable::Columns::uuid %
+        " TEXT UNIQUE NOT NULL, " % TaskTable::Columns::name % " TEXT, " %
+        TaskTable::Columns::estimatedCost % " INTEGER, " %
         TaskTable::Columns::completed % " BOOLEAN, " %
-        TaskTable::Columns::priority % " INTEGER, " %
         TaskTable::Columns::lastModified % " DATETIME, " %
-        TaskTable::Columns::uuid % " TEXT UNIQUE NOT NULL)"};
+        TaskTable::Columns::deleted % " BOOLEAN DEFAULT 0);"};
 
     const QString createSprintTable{
         "CREATE TABLE " % SprintTable::name % "(" % SprintTable::Columns::id %
-        " INTEGER PRIMARY KEY AUTOINCREMENT, " %
-        SprintTable::Columns::taskUuid % " TEXT, " %
-        SprintTable::Columns::startTime % " DATETIME, " %
+        " INTEGER PRIMARY KEY AUTOINCREMENT, " % SprintTable::Columns::task_id %
+        " INTEGER, " % SprintTable::Columns::startTime % " DATETIME, " %
         SprintTable::Columns::finishTime % " DATETIME, " %
-        SprintTable::Columns::uuid % " TEXT UNIQUE NOT NULL, " %
-        "FOREIGN KEY (" % SprintTable::Columns::taskUuid % ") " %
-        "REFERENCES " % TaskTable::name % "(" % TaskTable::Columns::uuid % ")" %
-        " ON DELETE CASCADE)"};
+        SprintTable::Columns::deleted % " BOOLEAN DEFAULT 0, " %
+        "FOREIGN KEY (" % SprintTable::Columns::task_id % ") " % "REFERENCES " %
+        TaskTable::name % "(" % TaskTable::Columns::id %
+        ") ON DELETE CASCADE);"};
 
     const QString createTagTable{
         "CREATE TABLE " % TagTable::name % "(" % TagTable::Columns::id %
@@ -182,12 +181,11 @@ void createTables(QSqlQuery& query)
 
 void createViews(QSqlQuery& query)
 {
-    QString createTaskTagView{
+    const QString createTaskTagView{
         "CREATE VIEW " % TaskTagView::name % " AS " % "SELECT " %
         TaskTable::name % "." % TaskTable::Columns::id % ", " %
-        TaskTable::name % "." % TaskTable::Columns::name % ", " %
-        TaskTable::Columns::estimatedCost % ", " %
-        TaskTable::Columns::actualCost % ", " % TaskTable::Columns::priority %
+        TaskTable::name % "." % TaskTable::Columns::name % " " %
+        TaskTagView::Aliases::name % ", " % TaskTable::Columns::estimatedCost %
         ", " % TaskTable::Columns::completed % ", " % TagTable::name % "." %
         TagTable::Columns::name % " " % TaskTagView::Aliases::tagName % ", " %
         TaskTable::Columns::lastModified % ", " % TaskTable::Columns::uuid %
@@ -196,36 +194,42 @@ void createViews(QSqlQuery& query)
         TaskTagTable::name % "." % TaskTagTable::Columns::taskId %
         " LEFT JOIN " % TagTable::name % " ON " % TaskTagTable::name % "." %
         TaskTagTable::Columns::tagId % " = " % TagTable::name % "." %
-        TagTable::Columns::id % " ORDER BY " % TaskTable::name % "." %
-        TaskTable::Columns::priority % ";"};
+        TagTable::Columns::id % " WHERE " % TaskTable::Columns::deleted %
+        " = 0;"};
 
     const QString createSprintView{
         "CREATE VIEW " % SprintView::name % " AS " % "SELECT " %
-        SprintTable::name % "." % SprintTable::Columns::id % ", " %
-        SprintTable::name % "." % SprintTable::Columns::taskUuid % ", " %
-        TaskTable::name % "." % TaskTable::Columns::name % ", " %
-        "GROUP_CONCAT( " % TagTable::name % "." % TagTable::Columns::name %
-        ") " % SprintView::Aliases::tags % ", " %
-        SprintTable::Columns::startTime % ", " %
-        SprintTable::Columns::finishTime % ", " % SprintTable::name % "." %
-        SprintTable::Columns::uuid % " FROM " % SprintTable::name % " JOIN " %
-        TaskTable::name % " ON " % SprintTable::name % "." %
-        SprintTable::Columns::taskUuid % " = " % TaskTable::name % "." %
-        TaskTable::Columns::uuid % " LEFT JOIN " % TaskTagTable::name % " ON " %
+        TaskTable::name % "." % TaskTable::Columns::id % " " %
+        SprintView::Aliases::taskid % ", " % TaskTable::name % "." %
+        TaskTable::Columns::name % ", " % "GROUP_CONCAT(" % TagTable::name %
+        "." % TagTable::Columns::name % ") " % SprintView::Aliases::tags %
+        ", " % SprintTable::Columns::startTime % ", " %
+        SprintTable::Columns::finishTime % " FROM " % SprintTable::name %
+        " JOIN " % TaskTable::name % " ON " % SprintTable::name % "." %
+        SprintTable::Columns::task_id % " = " % TaskTable::name % "." %
+        TaskTable::Columns::id % " LEFT JOIN " % TaskTagTable::name % " ON " %
         TaskTagTable::name % "." % TaskTagTable::Columns::taskId % " = " %
         TaskTable::name % "." % TaskTable::Columns::id % " LEFT JOIN " %
         TagTable::name % " ON " % TagTable::name % "." % TagTable::Columns::id %
         " = " % TaskTagTable::name % "." % TaskTagTable::Columns::tagId %
-        " GROUP BY " % SprintTable::name % "." % SprintTable::Columns::id %
-        ";"};
+        " WHERE " % SprintTable::name % "." % SprintTable::Columns::deleted %
+        " = 0 " % " GROUP BY " % SprintTable::name % "." %
+        SprintTable::Columns::id % ";"};
+
+    const QString createCleanSprintView{
+        "CREATE VIEW " % CleanSprintView::name % " AS SELECT " %
+        SprintTable::Columns::id % ", " % SprintTable::Columns::task_id % ", " %
+        SprintTable::Columns::startTime % ", " %
+        SprintTable::Columns::finishTime % " FROM " % " " % SprintTable::name %
+        " WHERE " % SprintTable::Columns::deleted % " = 0;"};
 
     const QString createTaskView{
         "CREATE VIEW " % TasksView::name % " AS " % "SELECT " %
-        TaskTable::name % "." % TaskTable::Columns::id % ", " %
-        TaskTable::name % "." % TaskTable::Columns::name % ", " %
+        TaskTable::name % "." % TaskTable::Columns::id % " " %
+        TasksView::Aliases::task_id % ", " % TaskTable::name % "." %
+        TaskTable::Columns::name % " " % TasksView::Aliases::name % ", " %
         TaskTable::Columns::estimatedCost % ", " %
-        TaskTable::Columns::actualCost % ", " % TaskTable::Columns::priority %
-        ", " % TaskTable::Columns::completed % ", " % "GROUP_CONCAT(" %
+        TaskTable::Columns::completed % ", " % "GROUP_CONCAT(" %
         TagTable::name % "." % TagTable::Columns::name % ") " %
         TasksView::Aliases::tags % ", " % TaskTable::Columns::lastModified %
         ", " % TaskTable::Columns::uuid % " FROM " % TaskTable::name %
@@ -233,13 +237,27 @@ void createViews(QSqlQuery& query)
         TaskTable::Columns::id % " = " % TaskTagTable::name % "." %
         TaskTagTable::Columns::taskId % " LEFT JOIN " % TagTable::name %
         " ON " % TaskTagTable::name % "." % TaskTagTable::Columns::tagId %
-        " = " % TagTable::name % "." % TagTable::Columns::id % " GROUP BY " %
-        TaskTable::name % "." % TaskTable::Columns::id % " ORDER BY " %
-        TaskTable::name % "." % TaskTable::Columns::priority % ";"};
+        " = " % TagTable::name % "." % TagTable::Columns::id % " WHERE " %
+        TaskTable::Columns::deleted % " = 0 GROUP BY " % TaskTable::name % "." %
+        TaskTable::Columns::id};
+
+    const QString createAdvTaskView{
+        "CREATE VIEW " % AdvTaskView::name % " AS " % "SELECT " %
+        TaskTable::Columns::uuid % ", " % TaskTable::Columns::name % ", " %
+        TaskTable::Columns::estimatedCost % ", " %
+        TaskTable::Columns::completed % ", " % TasksView::Aliases::tags % ", " %
+        TaskTable::Columns::lastModified % ", " %
+        SprintTable::Columns::startTime % ", " %
+        SprintTable::Columns::finishTime % " FROM " % TasksView::name %
+        " LEFT JOIN " % CleanSprintView::name % " ON " % CleanSprintView::name %
+        "." % SprintTable::Columns::task_id % " = " % TasksView::name % "." %
+        TasksView::Aliases::task_id % ";"};
 
     tryExecute(query, createTaskTagView);
     tryExecute(query, createSprintView);
+    tryExecute(query, createCleanSprintView);
     tryExecute(query, createTaskView);
+    tryExecute(query, createAdvTaskView);
 }
 
 void createTriggers(QSqlQuery& query)
@@ -271,34 +289,22 @@ void createTriggers(QSqlQuery& query)
         " = OLD." % TaskTagTable::Columns::tagId % ") = 0; " % "END;"};
 
     // Trigger to remove from sprint as views are read-only in Sqlite3
-    // Also increments Task's num completed sprints
     const QString createSprintViewDeleteTrigger{
         "CREATE TRIGGER " % SprintViewDeleteTrigger::name %
         " INSTEAD OF DELETE ON " % SprintView::name % " BEGIN " %
         "DELETE FROM " % SprintTable::name % " WHERE " %
-        SprintTable::Columns::uuid % " = OLD." % SprintTable::Columns::uuid %
-        "; " % "UPDATE " % TaskTable::name % " SET " %
-        TaskTable::Columns::actualCost % " = " %
-        TaskTable::Columns::actualCost % " - 1" % " WHERE " %
-        TaskTable::Columns::uuid % " = OLD." % SprintTable::Columns::taskUuid %
-        "; " % " END;"};
+        SprintTable::Columns::startTime % " = OLD." %
+        SprintTable::Columns::startTime % "; END;"};
 
-    // Also decrements Task's num completed sprints
     const QString createSprintViewInsertTrigger{
         "CREATE TRIGGER " % SprintViewInsertTrigger::name %
         " INSTEAD OF INSERT ON " % SprintView::name % " BEGIN " %
         "INSERT INTO " % SprintTable::name % "(" %
-        SprintTable::Columns::taskUuid % ", " %
-        SprintTable::Columns::startTime % ", " %
-        SprintTable::Columns::finishTime % ", " % SprintTable::Columns::uuid %
-        ") " % "SELECT" % " NEW." % SprintTable::Columns::taskUuid % ", NEW." %
+        SprintTable::Columns::task_id % ", " % SprintTable::Columns::startTime %
+        ", " % SprintTable::Columns::finishTime % ") SELECT NEW." %
+        SprintView::Aliases::taskid % ", NEW." %
         SprintTable::Columns::startTime % ", NEW." %
-        SprintTable::Columns::finishTime % ", NEW." %
-        SprintTable::Columns::uuid % "; " % "UPDATE " % TaskTable::name %
-        " SET " % TaskTable::Columns::actualCost % " = " %
-        TaskTable::Columns::actualCost % " + 1" % " WHERE " %
-        TaskTable::Columns::uuid % " = NEW." % SprintTable::Columns::taskUuid %
-        "; " % "END;"};
+        SprintTable::Columns::finishTime % "; END;"};
 
     // Trigger to remove from task_view
     const QString createTaskViewDeleteTrigger{
@@ -314,11 +320,9 @@ void createTriggers(QSqlQuery& query)
         TaskTable::name % " SET " % TaskTable::Columns::name % " = NEW." %
         TaskTable::Columns::name % ", " % TaskTable::Columns::estimatedCost %
         " = NEW." % TaskTable::Columns::estimatedCost % ", " %
-        TaskTable::Columns::actualCost % " = NEW." %
-        TaskTable::Columns::actualCost % ", " % TaskTable::Columns::priority %
-        " = NEW." % TaskTable::Columns::priority % ", " %
         TaskTable::Columns::completed % " = NEW." %
-        TaskTable::Columns::completed % ", " %
+        TaskTable::Columns::completed % ", " % TaskTable::Columns::deleted %
+        " = OLD." % TaskTable::Columns::deleted % ", " %
         TaskTable::Columns::lastModified % " = NEW." %
         TaskTable::Columns::lastModified % " WHERE " % TaskTable::Columns::id %
         " = OLD." % TaskTable::Columns::id % ";" % " END;"};

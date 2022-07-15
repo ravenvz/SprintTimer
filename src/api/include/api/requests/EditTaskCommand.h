@@ -23,7 +23,6 @@
 #define EDITTASKCOMMAND_H_NELJHM6H
 
 #include "api/dtos/TaskDTO.h"
-#include "core/entities/Task.h"
 
 namespace sprint_timer::api {
 

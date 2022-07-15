@@ -41,34 +41,85 @@ public:
         queryComposer.activeTasksHandler()};
     asp::CommandHandler<EditTaskCommand>& editTaskHandler{
         commandComposer.editTaskHandler()};
+    asp::CommandHandler<UndoLastCommand>& undoHandler{
+        commandComposer.undoHandler()};
+    asp::QueryHandler<AllTagsQuery>& allTagsHandler{
+        queryComposer.allTagsHandler()};
 };
 
 TEST_F(EditingTaskFixture, throws_when_no_task_with_given_uuid_exists)
 {
-    TaskDTO editedTask{"123", {"Tag1"}, "Some edited task name", 22, 0, false};
+    const TaskDTO editedTask{
+        "123", {"Tag1"}, "Some edited task name", 22, {}, false};
+
     EXPECT_THROW(editTaskHandler.handle(EditTaskCommand{editedTask}),
                  HandlerException);
 }
 
-TEST_F(
-    EditingTaskFixture,
-    test_editing_task_alters_timestamp_and_only_changes_name_tags_and_estimated_cost)
+TEST_F(EditingTaskFixture,
+       test_edition_only_changes_name_tags_and_estimated_cost)
 {
-    const DateTime timeStamp{DateTime{Date{Year{2021}, Month{5}, Day{4}}}};
     createTaskHandler.handle(CreateTaskCommand{"Name", {"Tag9"}, 7});
     const auto uuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const TaskDTO editedTask{
-        uuid, {"Tag1"}, "Some edited task name", 22, 0, true, timeStamp};
+        uuid, {"Tag1"}, "Some edited task name", 22, {}, false};
     const TaskDTO expected{uuid,
                            {"Tag1"},
                            "Some edited task name",
                            22,
-                           0,
+                           {},
                            false,
                            current_date_time_local()};
 
     editTaskHandler.handle(EditTaskCommand{editedTask});
 
     EXPECT_EQ(expected, activeTasksHandler.handle(ActiveTasksQuery{}).front());
+}
+
+TEST_F(EditingTaskFixture, undoing_task_edition)
+{
+    createTaskHandler.handle(CreateTaskCommand{"Name", {"Tag9"}, 7});
+    const auto uuid =
+        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    const TaskDTO expected{
+        uuid, {"Tag9"}, "Name", 7, {}, false, current_date_time_local()};
+    const TaskDTO editedTask{
+        uuid, {"Tag1"}, "Some edited task name", 22, {}, false};
+    editTaskHandler.handle(EditTaskCommand{editedTask});
+
+    undoHandler.handle(UndoLastCommand{});
+
+    EXPECT_EQ(expected, activeTasksHandler.handle(ActiveTasksQuery{}).front());
+}
+
+TEST_F(EditingTaskFixture, orphaned_tags_are_removed_after_edition)
+{
+    createTaskHandler.handle(CreateTaskCommand{"Name", {"Tag9"}, 7});
+    const auto uuid =
+        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    const TaskDTO editedTask{
+        uuid, {"Tag1"}, "Some edited task name", 22, {}, false};
+    const std::vector<std::string> expected{"Tag1"};
+
+    editTaskHandler.handle(EditTaskCommand{editedTask});
+
+    const auto tags = allTagsHandler.handle(AllTagsQuery{});
+    EXPECT_EQ(expected, tags);
+}
+
+TEST_F(EditingTaskFixture, orphaned_tags_are_recreated_after_undoing_edition)
+{
+    createTaskHandler.handle(CreateTaskCommand{"Name", {"Tag9"}, 7});
+    const auto uuid =
+        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    const TaskDTO editedTask{
+        uuid, {"Tag1"}, "Some edited task name", 22, {}, false};
+    const std::vector<std::string> expected{"Tag9"};
+    editTaskHandler.handle(EditTaskCommand{editedTask});
+
+    undoHandler.handle(UndoLastCommand{});
+
+    const auto tags = allTagsHandler.handle(AllTagsQuery{});
+    EXPECT_EQ(expected, tags);
 }

@@ -19,35 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ACTIVETASKSCONTRACT_H_6FEWWZAP
-#define ACTIVETASKSCONTRACT_H_6FEWWZAP
+#ifndef MIGRATION_V7_H_DR4Y16V3
+#define MIGRATION_V7_H_DR4Y16V3
 
-#include "core/entities/Task.h"
+#include "qt_storage/migrations/Migration.h"
 
-namespace sprint_timer::ui::contracts::ActiveTasksContract {
+namespace sprint_timer::storage::qt_storage {
 
-class View {
+class Migration_v7 final : public Migration {
 public:
-    virtual void displayTasks(const std::vector<entities::Task>& tasks) = 0;
-
-    virtual ~View() = default;
-    View(const View& other) = delete;
-    View& operator=(const View& other) = delete;
-    View(View&& other) noexcept = delete;
-    View& operator=(View&& other) noexcept = delete;
+    void run(const QString& connectionName) const final;
 };
 
-class Presenter {
-public:
-    virtual void onTaskDelete() = 0;
+} // namespace sprint_timer::storage::qt_storage
 
-    virtual ~Presenter() = default;
-    Presenter(const Presenter& other) = delete;
-    Presenter& operator=(const Presenter& other) = delete;
-    Presenter(Presenter&& other) noexcept = delete;
-    Presenter& operator=(Presenter&& other) noexcept = delete;
-};
-
-} // namespace sprint_timer::ui::contracts::ActiveTasksContract
-
-#endif /* end of include guard: ACTIVETASKSCONTRACT_H_6FEWWZAP */
+#endif /* end of include guard: MIGRATION_V7_H_DR4Y16V3 */

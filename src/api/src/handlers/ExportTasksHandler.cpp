@@ -23,7 +23,7 @@
 
 namespace sprint_timer::api {
 
-ExportTasksHandler::ExportTasksHandler(Handler& tasksHandler_,
+ExportTasksHandler::ExportTasksHandler(finished_tasks_handler_t& tasksHandler_,
                                        DataExporter<TaskDTO>& exporter_)
     : tasksHandler{tasksHandler_}
     , exporter{exporter_}

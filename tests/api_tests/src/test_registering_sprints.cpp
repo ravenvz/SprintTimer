@@ -43,10 +43,11 @@ public:
         commandComposer.registerSprintBulkHandler()};
     asp::CommandHandler<CreateTaskCommand>& createTaskHandler{
         commandComposer.createTaskHandler()};
+    asp::CommandHandler<UndoLastCommand>& undoCommandHandler{
+        commandComposer.undoHandler()};
 };
 
-TEST_F(RegisteringSprintsFixture,
-       registering_sprints_increments_task_actual_count)
+TEST_F(RegisteringSprintsFixture, registers_sprints)
 {
     createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 5});
     const auto taskUuid =
@@ -59,12 +60,38 @@ TEST_F(RegisteringSprintsFixture,
                            {"Tag1"},
                            "Some task",
                            5,
-                           2,
+                           intervals,
                            false,
                            current_date_time_local()};
 
     registerSprintsHandler.handle(
         RegisterSprintBulkCommand{taskUuid, intervals});
+
+    const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
+    EXPECT_EQ(expected, activeTasks.front());
+}
+
+TEST_F(RegisteringSprintsFixture, undoing_registering_sprints)
+{
+
+    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 5});
+    const auto taskUuid =
+        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    const DateTimeRange range{current_date_time_local(),
+                              current_date_time_local() + 25min};
+    const std::vector<dw::DateTimeRange> intervals{range,
+                                                   add_offset(range, 3h)};
+    const TaskDTO expected{taskUuid,
+                           {"Tag1"},
+                           "Some task",
+                           5,
+                           {},
+                           false,
+                           current_date_time_local()};
+
+    registerSprintsHandler.handle(
+        RegisterSprintBulkCommand{taskUuid, intervals});
+    undoCommandHandler.handle(UndoLastCommand{});
 
     const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
     EXPECT_EQ(expected, activeTasks.front());

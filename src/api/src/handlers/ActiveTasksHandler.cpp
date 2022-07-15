@@ -32,7 +32,10 @@ ActiveTasksHandler::ActiveTasksHandler(TaskStorageReader& reader_)
 ActiveTasksQuery::Result ActiveTasksHandler::handle(const ActiveTasksQuery&)
 {
     auto tasks = reader.unfinishedTasks();
-    return makeDTOs(tasks);
+    std::vector<TaskDTO> dtos;
+    dtos.reserve(tasks.size());
+    std::ranges::copy(dtoAdapter(tasks), std::back_inserter(dtos));
+    return dtos;
 }
 
 } // namespace sprint_timer::api

@@ -23,6 +23,7 @@ target_sources(${API_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/SprintStatisticsDTO.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaggedSprintsDTO.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskDTO.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TagMapper.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskMapper.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskTreeDTO.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskTreeMapper.h"

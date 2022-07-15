@@ -24,19 +24,19 @@
 
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/SprintsForTaskQuery.h"
-#include "core/SprintStorageReader.h"
+#include "core/TaskStorageReader.h"
 
 namespace sprint_timer::api {
 
 class SprintsForTaskHandler : public asp::QueryHandler<SprintsForTaskQuery> {
 public:
-    explicit SprintsForTaskHandler(SprintStorageReader& reader);
+    explicit SprintsForTaskHandler(TaskStorageReader& reader);
 
     SprintsForTaskQuery::Result
     handle(const SprintsForTaskQuery& query) override;
 
 private:
-    SprintStorageReader& reader;
+    TaskStorageReader& reader;
 };
 
 } // namespace sprint_timer::api

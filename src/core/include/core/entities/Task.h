@@ -22,6 +22,7 @@
 #ifndef TASK_H_7VXCYMOK
 #define TASK_H_7VXCYMOK
 
+#include "core/GoalProgress.h"
 #include "core/entities/Sprint.h"
 #include "core/entities/Tag.h"
 #include "core/utils/StringUtils.h"
@@ -45,7 +46,7 @@ public:
 
     Task(std::string name,
          int estimatedCost,
-         std::vector<Sprint> sprints,
+         std::vector<ReplaceSprint> sprints,
          std::string uuid,
          std::list<Tag> tags,
          bool completed,
@@ -75,7 +76,11 @@ public:
 
     dw::DateTime lastModified() const;
 
+    GoalProgress goalProgress() const;
+
     [[nodiscard]] const std::vector<Sprint>& sprints() const;
+
+    [[nodiscard]] const std::vector<ReplaceSprint>& replaceSprints() const;
 
     void setCompleted(bool completed);
 
@@ -90,6 +95,7 @@ private:
     bool completed{false};
     dw::DateTime timeStamp{dw::current_date_time_local()};
     std::vector<Sprint> sprintCont;
+    std::vector<ReplaceSprint> repSprintCont;
 
     bool conflictDetectedWith(const Sprint& sprint) const;
 };

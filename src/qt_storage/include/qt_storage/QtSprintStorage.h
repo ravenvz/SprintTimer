@@ -43,11 +43,6 @@ public:
     std::vector<entities::Sprint>
     findByDateRange(const dw::DateRange& dateRange) final;
 
-    std::vector<entities::Sprint>
-    findByTaskUuid(const std::string& taskUuid) final;
-
-    std::vector<entities::Sprint> findByUuid(const std::string& uuid) final;
-
     void save(const entities::Sprint& sprint) final;
 
     void save(const std::vector<entities::Sprint>& sprints) final;
@@ -55,6 +50,8 @@ public:
     void remove(const entities::Sprint& sprint) final;
 
     void remove(const std::vector<entities::Sprint>& sprints) final;
+
+    void restore(const entities::Sprint& sprint) final;
 
 private:
     std::unique_ptr<SprintStorageReader> reader;

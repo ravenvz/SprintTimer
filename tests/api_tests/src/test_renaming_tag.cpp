@@ -43,6 +43,8 @@ public:
         queryComposer.allTagsHandler()};
     asp::CommandHandler<RenameTagCommand>& renameTagHandler{
         commandComposer.renameTagHandler()};
+    asp::CommandHandler<UndoLastCommand>& undoHandler{
+        commandComposer.undoHandler()};
 };
 
 TEST_F(RenamingTagFixture, renaming_tag)
@@ -68,6 +70,21 @@ TEST_F(RenamingTagFixture, renaming_that_does_not_exist_does_nothing)
         CreateTaskCommand{"Other task", {"Tag2", "Tag3", "Tag4"}, 21});
 
     renameTagHandler.handle(RenameTagCommand{"NonExistingTag", "RenamedTag"});
+
+    EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
+                UnorderedElementsAre("Tag1", "Tag2", "Tag3", "Tag4"));
+}
+
+TEST_F(RenamingTagFixture, undoing_renaming_tag)
+{
+    using ::testing::UnorderedElementsAre;
+    createTaskHandler.handle(
+        CreateTaskCommand{"Some task", {"Tag1", "Tag2", "Tag3"}, 12});
+    createTaskHandler.handle(
+        CreateTaskCommand{"Other task", {"Tag2", "Tag3", "Tag4"}, 21});
+    renameTagHandler.handle(RenameTagCommand{"Tag3", "RenamedTag"});
+
+    undoHandler.handle(UndoLastCommand{});
 
     EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
                 UnorderedElementsAre("Tag1", "Tag2", "Tag3", "Tag4"));

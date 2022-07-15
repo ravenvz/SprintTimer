@@ -142,10 +142,12 @@ namespace {
 
 void shiftDate(QTimeEdit* timeEdit, const QDate& date)
 {
-    const QSignalBlocker blocker{timeEdit};
     const auto time = timeEdit->time();
-    timeEdit->setDate(date);
-    timeEdit->setTime(time);
+    {
+        const QSignalBlocker blocker{timeEdit};
+        timeEdit->setDate(date);
+        timeEdit->setTime(time);
+    }
 }
 
 } // namespace

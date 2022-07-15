@@ -57,7 +57,7 @@ void AddTaskControlPresenter::addTask(
 
 } // namespace sprint_timer::ui
 
-namespace  {
+namespace {
 
 std::tuple<std::string, std::vector<std::string>, int32_t>
 decodeDescription(const std::string& description)
@@ -93,4 +93,4 @@ decodeDescription(const std::string& description)
     return {name, tags, estimatedCost};
 }
 
-} // namespace 
+} // namespace

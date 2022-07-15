@@ -23,38 +23,44 @@
 #include "qt_storage/DatabaseError.h"
 #include <QDebug>
 #include <QSqlDatabase>
-#include <QSqlError>
 #include <QSqlDriver>
+#include <QSqlError>
 
 namespace sprint_timer::storage::qt_storage {
 
 TransactionGuard::TransactionGuard(const QString& connectionName_)
     : connectionName{connectionName_}
 {
-    if (!QSqlDatabase::database(connectionName).driver()->hasFeature(QSqlDriver::Transactions))
+    if (!QSqlDatabase::database(connectionName)
+             .driver()
+             ->hasFeature(QSqlDriver::Transactions)) {
         throw DatabaseError{"SQL driver does not support transactions",
                             QSqlDatabase::database(connectionName)};
+    }
 
-    if (!QSqlDatabase::database(connectionName).transaction())
+    if (!QSqlDatabase::database(connectionName).transaction()) {
         throw DatabaseError{"Error starting transaction",
                             QSqlDatabase::database(connectionName)};
+    }
 }
 
 TransactionGuard::~TransactionGuard()
 {
     if (!hasCommited) {
-        if (!QSqlDatabase::database(connectionName).rollback())
+        if (!QSqlDatabase::database(connectionName).rollback()) {
             qDebug()
                 << "Cannot rollback transaction "
                 << QSqlDatabase::database(connectionName).lastError().text();
+        }
     }
 }
 
 void TransactionGuard::commit()
 {
-    if (!QSqlDatabase::database(connectionName).commit())
+    if (!QSqlDatabase::database(connectionName).commit()) {
         throw DatabaseError{"Cannot commit transaction",
                             QSqlDatabase::database(connectionName)};
+    }
     hasCommited = true;
 }
 

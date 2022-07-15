@@ -22,8 +22,8 @@
 #ifndef QTSPRINTSTORAGEWRITER_H_U7AAXVTC
 #define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
 
-#include <QSqlQuery>
 #include "core/SprintStorageWriter.h"
+#include <QSqlQuery>
 
 namespace sprint_timer::storage::qt_storage {
 
@@ -45,10 +45,13 @@ public:
 
     void remove(const std::vector<entities::Sprint>& sprints) final;
 
+    void restore(const entities::Sprint& sprint) final;
+
 private:
     QString connectionName;
     QSqlQuery saveSprintQuery;
     QSqlQuery deleteSprintQuery;
+    QSqlQuery restoreSprintQuery;
 };
 
 } // namespace sprint_timer::storage::qt_storage

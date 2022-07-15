@@ -44,10 +44,11 @@ public:
         queryComposer.requestSprintsHandler()};
     asp::QueryHandler<ActiveTasksQuery>& activeTasksHandler{
         queryComposer.activeTasksHandler()};
+    asp::CommandHandler<DeleteSprintCommand>& deleteSprintHandler{
+        commandComposer.deleteSprintHandler()};
 };
 
-TEST_F(RequestingSprintsFixture,
-       requesting_sprints_in_given_date_range)
+TEST_F(RequestingSprintsFixture, requesting_sprints_in_given_date_range)
 {
     using ::testing::Truly;
     createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 17});
@@ -87,4 +88,46 @@ TEST_F(RequestingSprintsFixture,
                 SprintDTO{"irrelevant", uuid, "Some task", {"Tag1"}, inRange})),
             Truly(matchers::MatchesSprintIgnoringUuid(SprintDTO{
                 "irrelevant", uuid, "Some task", {"Tag1"}, onRightBorder}))));
+}
+
+TEST_F(RequestingSprintsFixture,
+       requesting_sprints_in_given_date_range_ignores_deleted_sprints)
+{
+    using namespace std::chrono_literals;
+    using ::testing::Truly;
+    const DateTime someDateTime =
+        DateTime{Date{Year{2022}, Month{7}, Day{21}}} + 3h;
+    const DateTimeRange first{someDateTime, someDateTime + 25min};
+    const DateTimeRange second{someDateTime + 3h, someDateTime + 3h + 25min};
+    const DateTimeRange third{someDateTime + 7h, someDateTime + 7h + 25min};
+    createTaskHandler.handle(
+        CreateTaskCommand{"Some task", {"Tag1", "Tag2"}, 8});
+    const auto uuid =
+        extractUuids(activeTasksHandler.handle(ActiveTasksQuery{})).front();
+    registerSprintBulkHandler.handle(
+        RegisterSprintBulkCommand{uuid, {first, second, third}});
+    std::vector<SprintDTO> expected{
+        SprintDTO{
+            "irrelevant_uuid", uuid, "Some task", {"Tag1", "Tag2"}, first},
+        SprintDTO{
+            "irrelevant_uuid", uuid, "Some task", {"Tag1", "Tag2"}, third},
+    };
+
+    deleteSprintHandler.handle(DeleteSprintCommand{second});
+    const auto actual = requestSprintsHandler.handle(RequestSprintsQuery{
+        DateRange{first.start().date(), third.start().date()}});
+
+    EXPECT_THAT(
+        actual,
+        ::testing::ElementsAre(
+            Truly(
+                matchers::MatchesSprintIgnoringUuid(SprintDTO{"irrelevant_uuid",
+                                                              uuid,
+                                                              "Some task",
+                                                              {"Tag1", "Tag2"},
+                                                              first})),
+            Truly(matchers::MatchesSprintIgnoringUuid(SprintDTO{
+                "irrelevant_uuid", uuid, "Some task", {"Tag1", "Tag2"}, third}))
+
+                ));
 }

@@ -20,80 +20,51 @@
 **
 *********************************************************************************/
 #include "api/dtos/TaskMapper.h"
+#include "api/dtos/SprintMapper.h"
+#include "api/dtos/TagMapper.h"
 #include <algorithm>
-
-namespace {
-
-template <typename ForwardIt>
-std::vector<std::string> tagsToString(ForwardIt first, ForwardIt last)
-{
-    std::vector<std::string> strings(
-        static_cast<size_t>(std::distance(first, last)));
-    std::transform(first, last, begin(strings), [](const auto& elem) {
-        return elem.name();
-    });
-    return strings;
-}
-
-template <typename ForwardIt>
-std::list<sprint_timer::entities::Tag> tagsFromStrings(ForwardIt first,
-                                                       ForwardIt last)
-{
-    std::list<sprint_timer::entities::Tag> tags(
-        static_cast<size_t>(std::distance(first, last)));
-    std::transform(first, last, begin(tags), [](const auto& elem) {
-        return sprint_timer::entities::Tag{elem};
-    });
-    return tags;
-}
-
-} // namespace
 
 namespace sprint_timer::api {
 
 TaskDTO makeDTO(const sprint_timer::entities::Task& task)
 {
-    const auto& tags = task.tags();
-    std::vector<std::string> tagStr = tagsToString(cbegin(tags), cend(tags));
-    return sprint_timer::api::TaskDTO{task.uuid(),
-                                      tagStr,
-                                      task.name(),
-                                      task.estimatedCost(),
-                                      task.actualCost(),
-                                      task.isCompleted(),
-                                      task.lastModified()};
-}
+    std::vector<std::string> tags(task.tags().size());
 
-std::vector<TaskDTO> makeDTOs(const std::vector<entities::Task>& tasks)
-{
-    std::vector<TaskDTO> dtos;
-    dtos.reserve(tasks.size());
-    std::transform(cbegin(tasks),
-                   cend(tasks),
-                   std::back_inserter(dtos),
-                   [](const auto& elem) { return makeDTO(elem); });
-    return dtos;
+    // TODO remove when Task uses std::vector instead of std::list
+    std::vector<entities::Tag> tagV(task.tags().size());
+    std::ranges::copy(task.tags(), begin(tagV));
+
+    std::ranges::copy(dtoAdapter(tagV), begin(tags));
+    std::vector<dw::DateTimeRange> sprints;
+    sprints.reserve(task.replaceSprints().size());
+    std::ranges::copy(dtoAdapter(task.replaceSprints()),
+                      std::back_inserter(sprints));
+    return sprint_timer::api::TaskDTO{task.uuid(),
+                                         tags,
+                                         task.name(),
+                                         task.estimatedCost(),
+                                         sprints,
+                                         task.isCompleted(),
+                                         task.lastModified()};
 }
 
 entities::Task fromDTO(const TaskDTO& dto)
 {
+    std::list<entities::Tag> tags;
+    std::ranges::copy(dtoAdapter(dto.tags), std::back_inserter(tags));
+
+    std::vector<entities::ReplaceSprint> sprints;
+    sprints.reserve(dto.sprints.size());
+    std::ranges::copy(dtoAdapter(dto.sprints), std::back_inserter(sprints));
+
     return entities::Task{dto.name,
                           dto.expectedCost,
-                          dto.actualCost,
+                          sprints,
                           dto.uuid,
-                          tagsFromStrings(cbegin(dto.tags), cend(dto.tags)),
+                          tags,
                           dto.finished,
                           dto.modificationStamp};
 }
 
-std::vector<entities::Task> fromDTOs(const std::vector<TaskDTO>& dtos)
-{
-    std::vector<entities::Task> tasks(dtos.size());
-    std::transform(cbegin(dtos),
-                   cend(dtos),
-                   begin(tasks),
-                   [](const auto& elem) { return fromDTO(elem); });
-    return tasks;
-}
-
 } // namespace sprint_timer::api
+

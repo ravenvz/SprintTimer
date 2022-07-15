@@ -63,13 +63,16 @@ TEST_F(TodaySprintsPresenterFixture, updates_view_with_sprints)
 
 TEST_F(TodaySprintsPresenterFixture, deletes_sprint)
 {
-    using entities::Tag;
-    const std::string someUuid{"123"};
+    using namespace dw;
+    using namespace std::chrono_literals;
+    const Date someDate{Year{2020}, Month{7}, Day{6}};
+    const DateTime someDateTime{someDate};
+    const DateTimeRange someRange{someDateTime, someDateTime + 25min};
 
     EXPECT_CALL(deleteSprintHandler,
-                handle(api::DeleteSprintCommand{someUuid}));
+                handle(api::DeleteSprintCommand{someRange}));
 
-    presenter.onSprintDelete(someUuid);
+    presenter.onSprintDelete(someRange);
 }
 
 namespace {

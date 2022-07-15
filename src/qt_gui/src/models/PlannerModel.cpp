@@ -39,7 +39,7 @@ PlannerModel::Item toPlannerItem(const api::TaskNodeDTO& taskNode)
     return PlannerModel::Item{task.uuid,
                               QString::fromStdString(task.name),
                               task.expectedCost,
-                              task.actualCost,
+                              static_cast<int>(task.sprints.size()),
                               task.finished,
                               extractTags(task.tags),
                               transform(taskNode.dueTime, utils::toQDateTime),

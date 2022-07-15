@@ -38,18 +38,15 @@ QtTaskStorageWriter::QtTaskStorageWriter(QString connectionName_)
 {
     createTaskQuery =
         tryPrepare(connectionName,
-                   QString{"INSERT INTO %1 (%2, %3, %4, %5, %6, %7, %8) "
-                           "VALUES (:name, :estimated_cost, :actual_cost, "
-                           ":completed, "
-                           ":priority, :last_modified, :uuid); "}
+                   QString{"INSERT INTO %1 (%2, %3, %4, %5, %6) "
+                           "VALUES (:uuid, :name, :estimated_cost, "
+                           ":completed, :last_modified);"}
                        .arg(TaskTable::name)
+                       .arg(TaskTable::Columns::uuid)
                        .arg(TaskTable::Columns::name)
                        .arg(TaskTable::Columns::estimatedCost)
-                       .arg(TaskTable::Columns::actualCost)
                        .arg(TaskTable::Columns::completed)
-                       .arg(TaskTable::Columns::priority)
-                       .arg(TaskTable::Columns::lastModified)
-                       .arg(TaskTable::Columns::uuid));
+                       .arg(TaskTable::Columns::lastModified));
     createTagQuery =
         tryPrepare(connectionName,
                    QString{"INSERT INTO %1(%2, %3) VALUES(:tag, :uuid);"}
@@ -89,32 +86,28 @@ QtTaskStorageWriter::QtTaskStorageWriter(QString connectionName_)
                        .arg(TaskTable::Columns::completed)
                        .arg(TaskTable::Columns::lastModified)
                        .arg(TaskTable::Columns::uuid));
-    updatePrioritiesQuery = tryPrepare(connectionName,
-                                       QString{"UPDATE %1 SET %2 = :priority "
-                                               "WHERE %3 = :uuid;"}
-                                           .arg(TaskTable::name)
-                                           .arg(TaskTable::Columns::priority)
-                                           .arg(TaskTable::Columns::uuid));
     editTagQuery = tryPrepare(connectionName,
                               QString{"UPDATE %1 SET %2 = :new_name WHERE %2 = "
                                       ":old_name;"}
                                   .arg(TagTable::name)
                                   .arg(TagTable::Columns::name));
-    insertSprintQuery = tryPrepare(
-        connectionName,
-        QString{"INSERT INTO %1(%2, %3, %4, %5) "
-                "VALUES(:todo_uuid, :startTime, :finishTime, :uuid);"}
-            .arg(SprintView::name)
-            .arg(SprintTable::Columns::taskUuid)
-            .arg(SprintTable::Columns::startTime)
-            .arg(SprintTable::Columns::finishTime)
-            .arg(SprintTable::Columns::uuid));
+    insertSprintQuery =
+        tryPrepare(connectionName,
+                   QString{"INSERT INTO %1 (%2, %3, %4) "
+                           "VALUES("
+                           "(SELECT %5 FROM %6 WHERE %7 = :todo_uuid), "
+                           ":startTime, :finishTime);"}
+                       .arg(SprintView::name)
+                       .arg(SprintView::Aliases::taskid)
+                       .arg(SprintTable::Columns::startTime)
+                       .arg(SprintTable::Columns::finishTime)
+                       .arg(TaskTable::Columns::id)
+                       .arg(TaskTable::name)
+                       .arg(TaskTable::Columns::uuid));
 }
 
 void QtTaskStorageWriter::save(const entities::Task& task)
 {
-    std::cout << "Task in storage:" << std::endl;
-    std::cout << task << std::endl;
     const QString uuid = QString::fromStdString(task.uuid());
     createTaskQuery.bindValue(":name", QString::fromStdString(task.name()));
     createTaskQuery.bindValue(":estimated_cost", task.estimatedCost());
@@ -130,7 +123,7 @@ void QtTaskStorageWriter::save(const entities::Task& task)
     tryExecute(createTaskQuery);
     insertTags(uuid, task.tags());
     for (const auto& sprint : task.sprints()) {
-        insertSprint(sprint);
+        insertSprint(uuid, sprint);
     }
     guard.commit();
 }
@@ -230,19 +223,16 @@ void QtTaskStorageWriter::removeTags(const QString& taskUuid,
 }
 
 void QtTaskStorageWriter::insertSprint(
-    const sprint_timer::entities::Sprint& sprint)
+    const QString& taskUuid, const sprint_timer::entities::Sprint& sprint)
 {
     using storage::utils::DateTimeConverter;
     const QDateTime startTime =
         DateTimeConverter::qDateTime(sprint.timeSpan().start());
     const QDateTime finishTime =
         DateTimeConverter::qDateTime(sprint.timeSpan().finish());
-    insertSprintQuery.bindValue(
-        ":todo_uuid", QVariant(QString::fromStdString(sprint.taskUuid())));
+    insertSprintQuery.bindValue(":todo_uuid", QVariant(taskUuid));
     insertSprintQuery.bindValue(":startTime", QVariant(startTime));
     insertSprintQuery.bindValue(":finishTime", QVariant(finishTime));
-    insertSprintQuery.bindValue(
-        ":uuid", QVariant(QString::fromStdString(sprint.uuid())));
     tryExecute(insertSprintQuery);
 }
 

@@ -24,10 +24,39 @@
 
 #include "api/dtos/SprintDTO.h"
 #include "core/entities/Sprint.h"
+#include <ranges>
+#include <span>
 
 namespace sprint_timer::api {
 
 SprintDTO makeDTO(const entities::Sprint& sprint);
+
+inline dw::DateTimeRange makeDTO(const entities::ReplaceSprint& sprint)
+{
+    return sprint.timeSpan();
+}
+
+inline auto fromDTO(const dw::DateTimeRange& dto) -> entities::ReplaceSprint
+{
+    return entities::ReplaceSprint{dto};
+}
+
+// auto dtoAdapter(std::span<const entities::Sprint> sprints)
+// {
+//     return std::views::transform(sprints, makeDTO);
+// }
+
+inline auto dtoAdapter(std::span<const entities::ReplaceSprint> sprints)
+{
+    return std::views::transform(
+        sprints, [](const auto& sprint) { return makeDTO(sprint); });
+}
+
+inline auto dtoAdapter(std::span<const dw::DateTimeRange> dtos)
+{
+    return std::views::transform(dtos,
+                                 [](const auto& dto) { return fromDTO(dto); });
+}
 
 template <class InputIt, class OutputIt>
 OutputIt makeDTOs(InputIt first, InputIt last, OutputIt out);

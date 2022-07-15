@@ -35,8 +35,7 @@ class AddTaskControlPresenter : public contracts::AddTaskControl::Presenter {
 public:
     using create_task_handler_t = asp::CommandHandler<api::CreateTaskCommand>;
 
-    explicit AddTaskControlPresenter(
-        create_task_handler_t& createTaskHandler);
+    explicit AddTaskControlPresenter(create_task_handler_t& createTaskHandler);
 
     void addTask(const api::TaskDTO& details) const override;
 

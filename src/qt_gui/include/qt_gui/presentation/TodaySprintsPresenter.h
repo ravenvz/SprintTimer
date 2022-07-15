@@ -40,7 +40,7 @@ public:
     TodaySprintsPresenter(delete_sprints_hdl_t& deleteSprintHandler_,
                           request_sprints_hdl_t& requestSprintsHandler_);
 
-    void onSprintDelete(const std::string& uuid) override;
+    void onSprintDelete(dw::DateTimeRange sprint) override;
 
 private:
     delete_sprints_hdl_t& deleteSprintHandler;

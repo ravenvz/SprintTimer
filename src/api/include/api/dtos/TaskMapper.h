@@ -24,16 +24,26 @@
 
 #include "api/dtos/TaskDTO.h"
 #include "core/entities/Task.h"
+#include <ranges>
+#include <span>
 
 namespace sprint_timer::api {
 
-TaskDTO makeDTO(const entities::Task& task);
-
-std::vector<TaskDTO> makeDTOs(const std::vector<entities::Task>& tasks);
+TaskDTO makeDTO(const sprint_timer::entities::Task& task);
 
 entities::Task fromDTO(const TaskDTO& dto);
 
-std::vector<entities::Task> fromDTOs(const std::vector<TaskDTO>& dtos);
+inline auto dtoAdapter(std::span<const entities::Task> tasks)
+{
+    return std::views::transform(
+        tasks, [](const auto& task) { return makeDTO(task); });
+}
+
+inline auto dtoAdapter(std::span<const TaskDTO> dtos)
+{
+    return std::views::transform(dtos,
+                                 [](const auto& dto) { return fromDTO(dto); });
+}
 
 } // namespace sprint_timer::api
 

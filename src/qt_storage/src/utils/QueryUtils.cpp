@@ -9,25 +9,46 @@ namespace sprint_timer::storage::qt_storage {
 
 void tryExecute(QSqlQuery& query, const QString& queryStr)
 {
-    if (!query.exec(queryStr)) {
-        throw QueryError{"Error executing query", query};
+    try {
+        if (!query.exec(queryStr)) {
+            throw QueryError{"Error executing query", query};
+        }
+    }
+    catch (QueryError& err) {
+        std::cerr << err.queryText() << std::endl;
+        std::cerr << err.queryError() << std::endl;
+        throw;
     }
 }
 
 void tryExecute(QSqlQuery& query)
 {
-    if (!query.exec()) {
-        throw qt_storage::QueryError{"Error executing query", query};
+    try {
+        if (!query.exec()) {
+            throw qt_storage::QueryError{"Error executing query", query};
+        }
+    }
+    catch (QueryError& err) {
+        std::cerr << err.queryText() << std::endl;
+        std::cerr << err.queryError() << std::endl;
+        throw;
     }
 }
 
 QSqlQuery tryPrepare(const QString& connectionName, const QString& queryStr)
 {
     QSqlQuery query{QSqlDatabase::database(connectionName)};
-    if (!query.prepare(queryStr)) {
-        throw qt_storage::QueryError{"Error preparing query", query};
+    try {
+        if (!query.prepare(queryStr)) {
+            throw qt_storage::QueryError{"Error preparing query", query};
+        }
+        return query;
     }
-    return query;
+    catch (QueryError& err) {
+        std::cerr << err.queryText() << std::endl;
+        std::cerr << err.queryError() << std::endl;
+        throw;
+    }
 }
 
 std::vector<QSqlRecord> tryFetchAll(QSqlQuery& query, const QString& queryStr)

@@ -47,11 +47,6 @@ public:
     std::vector<entities::Sprint>
     findByDateRange(const dw::DateRange& dateRange) override;
 
-    std::vector<entities::Sprint>
-    findByTaskUuid(const std::string& taskUuid) override;
-
-    std::vector<entities::Sprint> findByUuid(const std::string& uuid) override;
-
 private:
     ThreadConnectionHelper& connectionHelper;
 

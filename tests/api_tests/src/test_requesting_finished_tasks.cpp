@@ -58,12 +58,12 @@ TEST_F(RequestingFinishedTasksFixture, requesting_finished_tasks)
     toggleTaskCompletedHandler.handle(
         ToggleTaskCompletedCommand{uuid, current_date_time_local()});
     TaskDTO expected{"",
-                     {"Tag1", "Tag2"},
-                     "Task name",
-                     4,
-                     0,
-                     true,
-                     dw::current_date_time_local()};
+                        {"Tag1", "Tag2"},
+                        "Task name",
+                        4,
+                        {},
+                        true,
+                        dw::current_date_time_local()};
 
     const auto finishedTasks = finishedTasksHandler.handle(FinishedTasksQuery{
         DateRange{current_date_local(), current_date_local()}});

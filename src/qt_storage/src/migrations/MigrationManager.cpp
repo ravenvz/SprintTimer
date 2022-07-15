@@ -84,7 +84,8 @@ void MigrationManager::runMigrations(const QString& connectionName) const
     Backup backupController{
         QSqlDatabase::database(connectionName).databaseName()};
 
-    // TODO disable foreign keys here
+    QSqlQuery query{QSqlDatabase::database(connectionName)};
+    tryExecute(query, "PRAGMA foreign_keys=off;");
 
     while (version < currentDatabaseVersion) {
         if (auto migrationFound = migrations.find(version);
@@ -103,6 +104,9 @@ void MigrationManager::runMigrations(const QString& connectionName) const
                 std::to_string(version)};
         }
     }
+
+    tryExecute(query, "PRAGMA foreign_keys=on;");
+
     backupController.release();
 }
 

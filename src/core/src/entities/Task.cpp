@@ -85,7 +85,7 @@ Task::Task(std::string uuid_,
 
 Task::Task(std::string name_,
            int estimatedCost_,
-           std::vector<Sprint> sprints_,
+           std::vector<ReplaceSprint> sprints_,
            std::string uuid_,
            std::list<Tag> tags_,
            bool completed_,
@@ -96,8 +96,14 @@ Task::Task(std::string name_,
     , tag{std::move(tags_)}
     , completed{completed_}
     , timeStamp{lastModified_}
-    , sprintCont{std::move(sprints_)}
+    , repSprintCont{std::move(sprints_)}
 {
+    std::transform(cbegin(repSprintCont),
+                   cend(repSprintCont),
+                   std::back_inserter(sprintCont),
+                   [this](const auto& elem) {
+                       return Sprint{taskName, elem.timeSpan(), tag, "", id};
+                   });
 }
 
 Task::Task(std::string name_,
@@ -131,7 +137,18 @@ std::list<Tag> Task::tags() const { return tag; }
 
 DateTime Task::lastModified() const { return timeStamp; }
 
+auto Task::goalProgress() const -> GoalProgress
+{
+    return GoalProgress{GoalProgress::Estimated{estimatedCost()},
+                        GoalProgress::Actual{actualCost()}};
+}
+
 const std::vector<Sprint>& Task::sprints() const { return sprintCont; }
+
+auto Task::replaceSprints() const -> const std::vector<ReplaceSprint>&
+{
+    return repSprintCont;
+}
 
 void Task::setCompleted(bool completed_) { completed = completed_; }
 

@@ -27,8 +27,7 @@
 
 namespace sprint_timer::external_io {
 
-class TaskToCsvAlgorithm
-    : public CsvSerializationAlgorithm<api::TaskDTO> {
+class TaskToCsvAlgorithm : public CsvSerializationAlgorithm<api::TaskDTO> {
 private:
     std::vector<std::string>
     toRecords(const api::TaskDTO& task) const override;

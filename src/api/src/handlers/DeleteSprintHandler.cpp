@@ -25,7 +25,7 @@
 
 namespace sprint_timer::api {
 
-DeleteSprintHandler::DeleteSprintHandler(SprintStorage& sprintStorage_,
+DeleteSprintHandler::DeleteSprintHandler(SprintStorageWriter& sprintStorage_,
                                          ActionInvoker& actionInvoker_)
     : sprintStorage{sprintStorage_}
     , actionInvoker{actionInvoker_}
@@ -34,15 +34,10 @@ DeleteSprintHandler::DeleteSprintHandler(SprintStorage& sprintStorage_,
 
 void DeleteSprintHandler::handle(const DeleteSprintCommand& command)
 {
-    const auto matchingUuid = sprintStorage.findByUuid(command.uuid);
-    if (matchingUuid.empty()) {
-        std::string message{"Trying to delete sprint with uuid: "};
-        message += command.uuid;
-        message += " that does not exist.";
-        throw HandlerException{message};
-    }
-    actionInvoker.execute(std::make_unique<actions::DeleteSprint>(
-        sprintStorage, matchingUuid.front()));
+    // TODO remove when switched sprints
+    const entities::Sprint sprint{"", command.timeRange, {}, "", ""};
+    actionInvoker.execute(
+        std::make_unique<actions::DeleteSprint>(sprintStorage, sprint));
 }
 
 } // namespace sprint_timer::api

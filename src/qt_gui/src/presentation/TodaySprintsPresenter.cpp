@@ -31,9 +31,9 @@ TodaySprintsPresenter::TodaySprintsPresenter(
 {
 }
 
-void TodaySprintsPresenter::onSprintDelete(const std::string& uuid)
+void TodaySprintsPresenter::onSprintDelete(dw::DateTimeRange sprint)
 {
-    deleteSprintHandler.handle(api::DeleteSprintCommand{uuid});
+    deleteSprintHandler.handle(api::DeleteSprintCommand{sprint});
 }
 
 void TodaySprintsPresenter::fetchDataImpl()

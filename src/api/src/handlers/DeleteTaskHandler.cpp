@@ -24,8 +24,6 @@
 #include "core/HandlerException.h"
 #include "core/actions/DeleteTask.h"
 
-#include <iostream>
-
 namespace sprint_timer::api {
 
 DeleteTaskHandler::DeleteTaskHandler(TaskStorage& taskStorage_,
@@ -38,8 +36,6 @@ DeleteTaskHandler::DeleteTaskHandler(TaskStorage& taskStorage_,
 void DeleteTaskHandler::handle(const DeleteTaskCommand& command)
 {
     auto matchingUuid = taskStorage.findByUuid(command.uuid);
-    std::cout << "Task in handler: " << std::endl;
-    std::cout << matchingUuid.front() << std::endl;
     if (matchingUuid.empty()) {
         std::string message{"Trying to delete task with uuid: "};
         message += command.uuid;

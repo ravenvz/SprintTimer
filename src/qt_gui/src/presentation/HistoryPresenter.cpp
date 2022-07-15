@@ -65,12 +65,11 @@ void HistoryPresenter::fetchDataImpl()
 
     switch (mediator.displayedHistory()) {
     case HistoryMediator::DisplayedHistory::SprintHistory:
-        sprintData = requestSprintsHandler.handle(
-            api::RequestSprintsQuery{*range});
+        sprintData =
+            requestSprintsHandler.handle(api::RequestSprintsQuery{*range});
         break;
     case HistoryMediator::DisplayedHistory::TaskHistory:
-        taskData =
-            requestTasksHandler.handle(api::FinishedTasksQuery{*range});
+        taskData = requestTasksHandler.handle(api::FinishedTasksQuery{*range});
         break;
     }
 }
@@ -133,7 +132,7 @@ std::string describe(const sprint_timer::api::TaskDTO& task)
     for (const auto& tag : task.tags)
         ss << "#" << tag << ' ';
     ss << task.name;
-    ss << ' ' << task.actualCost << '/' << task.expectedCost;
+    ss << ' ' << task.sprints.size() << '/' << task.expectedCost;
     return ss.str();
 }
 

@@ -24,10 +24,13 @@
 
 #include "api/dtos/TaskDTO.h"
 #include "date_wrapper/date_wrapper.h"
-#include <ranges>
+#include <span>
 
 std::vector<std::string>
 extractUuids(const std::vector<sprint_timer::api::TaskDTO>& taskDTOs);
+
+std::vector<std::string>
+extractUuids(std::span<const sprint_timer::api::TaskDTO> taskDTOs);
 
 constexpr dw::DateTimeRange createRange(dw::DateTime start) noexcept
 {

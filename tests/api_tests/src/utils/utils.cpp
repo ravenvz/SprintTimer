@@ -31,3 +31,12 @@ extractUuids(const std::vector<sprint_timer::api::TaskDTO>& taskDTOs)
         taskDTOs, begin(uuids), [](const auto& elem) { return elem.uuid; });
     return uuids;
 }
+
+std::vector<std::string>
+extractUuids(std::span<const sprint_timer::api::TaskDTO> taskDTOs)
+{
+    std::vector<std::string> uuids(taskDTOs.size(), "");
+    std::ranges::transform(
+        taskDTOs, begin(uuids), [](const auto& elem) { return elem.uuid; });
+    return uuids;
+}

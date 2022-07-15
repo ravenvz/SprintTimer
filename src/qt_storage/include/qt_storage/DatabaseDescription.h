@@ -46,11 +46,10 @@ namespace Columns {
 inline const QStringView id{QStringLiteral("id")};
 inline const QStringView name{QStringLiteral("name")};
 inline const QStringView estimatedCost{QStringLiteral("estimated_cost")};
-inline const QStringView actualCost{QStringLiteral("actual_cost")};
 inline const QStringView completed{QStringLiteral("completed")};
-inline const QStringView priority{QStringLiteral("priority")};
 inline const QStringView lastModified{QStringLiteral("last_modified")};
 inline const QStringView uuid{QStringLiteral("uuid")};
+inline const QStringView deleted{QStringLiteral("deleted")};
 } // namespace Columns
 
 } // namespace TaskTable
@@ -60,10 +59,10 @@ inline const QStringView name{QStringLiteral("sprint")};
 
 namespace Columns {
 inline const QStringView id{QStringLiteral("id")};
-inline const QStringView taskUuid{QStringLiteral("task_uuid")};
+inline const QStringView task_id{QStringLiteral("task_id")};
 inline const QStringView startTime{QStringLiteral("start_time")};
 inline const QStringView finishTime{QStringLiteral("finish_time")};
-inline const QStringView uuid{QStringLiteral("uuid")};
+inline const QStringView deleted{QStringLiteral("deleted")};
 } // namespace Columns
 
 } // namespace SprintTable
@@ -122,6 +121,7 @@ inline const QStringView name{QStringLiteral("task_tag_view")};
 
 namespace Aliases {
 inline const QStringView tagName{QStringLiteral("tagname")};
+inline const QStringView name{QStringLiteral("name")};
 } // namespace Aliases
 
 } // namespace TaskTagView
@@ -139,9 +139,14 @@ inline const QStringView name{QStringLiteral("sprint_view")};
 
 namespace Aliases {
 inline const QStringView tags{QStringLiteral("tags")};
-}
+inline const QStringView taskid{QStringLiteral("taskid")};
+} // namespace Aliases
 
 } // namespace SprintView
+
+namespace CleanSprintView {
+inline const QStringView name{QStringLiteral("clean_sprint_view")};
+} // namespace CleanSprintView
 
 namespace SprintViewDeleteTrigger {
 inline const QStringView name{QStringLiteral("delete_from_sprint_view")};
@@ -156,9 +161,21 @@ inline const QStringView name{QStringLiteral("task_view")};
 
 namespace Aliases {
 inline const QStringView tags{QStringLiteral("tags")};
+inline const QStringView task_id{QStringLiteral("task_id")};
+inline const QStringView name{QStringLiteral("name")};
 } // namespace Aliases
 
 } // namespace TasksView
+
+namespace AdvTaskView {
+inline const QStringView name{QStringLiteral("adv_task_view")};
+
+namespace Aliases {
+inline const QStringView tags{QStringLiteral("tags")};
+inline const QStringView task_name{QStringLiteral("task_name")};
+} // namespace Aliases
+
+} // namespace AdvTaskView
 
 namespace TaskViewDeleteTrigger {
 inline const QStringView name{QStringLiteral("on_task_view_delete")};

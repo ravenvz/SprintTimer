@@ -26,8 +26,6 @@
 #include "qt_storage/utils/QueryUtils.h"
 
 #include <QSqlError>
-#include <iostream>
-#include <iterator>
 
 namespace {
 
@@ -46,16 +44,14 @@ enum class Column {
 };
 
 enum class AdvColumn {
+    Uuid = 0,
     Name,
-    Uuid,
     EstimatedCost,
-    Tags,
     Completed,
+    Tags,
+    LastModified,
     StartTime,
     FinishTime,
-    Priority,
-    LastModified,
-    SprintUuid
 };
 
 enum class TagColumn { Id, Name };
@@ -83,121 +79,86 @@ QtTaskStorageReader::QtTaskStorageReader(QString connectionName_)
 {
     finishedTasksQuery =
         tryPrepare(connectionName,
-                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10 "
-                           "FROM %11 "
-                           "LEFT JOIN %12 ON %2 = %10 "
-                           "WHERE %5 = 1 AND DATE(%9) >= (:start_date) "
-                           "AND DATE(%9) <= (:end_date) "
-                           "ORDER BY %8, %2;"}
+                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
+                           "FROM %9 "
+                           "WHERE %4 = 1 AND DATE(%6) >= (:start_date) "
+                           "AND DATE(%6) <= (:end_date) "
+                           "ORDER BY %6, %1;"}
+                       .arg(TaskTable::Columns::uuid)
                        .arg(TaskTable::Columns::name)
-                       .arg(QString{"%1.%2"}.arg(TasksView::name,
-                                                 TaskTable::Columns::uuid))
                        .arg(TaskTable::Columns::estimatedCost)
-                       .arg(TasksView::Aliases::tags)
                        .arg(TaskTable::Columns::completed)
+                       .arg(TasksView::Aliases::tags)
+                       .arg(TaskTable::Columns::lastModified)
                        .arg(SprintTable::Columns::startTime)
                        .arg(SprintTable::Columns::finishTime)
-                       .arg(TaskTable::Columns::priority)
-                       .arg(TaskTable::Columns::lastModified)
-                       .arg(QString{"%1.%2 "}
-                                .arg(SprintTable::name)
-                                .arg(SprintTable::Columns::taskUuid))
-                       .arg(TasksView::name)
-                       .arg(SprintTable::name));
+                       .arg(AdvTaskView::name));
 
     allTasksQuery = tryPrepare(
         connectionName,
-        QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10 "
-                "FROM %11 "
-                "LEFT JOIN %12 ON %2 = %10 "
-                "WHERE DATE(%9) >= (:start_date) AND DATE(%9) <= (:end_date) "
-                "ORDER BY %8, %2;"}
+        QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
+                "FROM %9 "
+                "WHERE DATE(%6) >= (:start_date) AND DATE(%6) <= (:end_date) "
+                "ORDER BY %6, %1;"}
+            .arg(TaskTable::Columns::uuid)
             .arg(TaskTable::Columns::name)
-            .arg(
-                QString{"%1.%2"}.arg(TasksView::name, TaskTable::Columns::uuid))
             .arg(TaskTable::Columns::estimatedCost)
-            .arg(TasksView::Aliases::tags)
             .arg(TaskTable::Columns::completed)
+            .arg(TasksView::Aliases::tags)
+            .arg(TaskTable::Columns::lastModified)
             .arg(SprintTable::Columns::startTime)
             .arg(SprintTable::Columns::finishTime)
-            .arg(TaskTable::Columns::priority)
-            .arg(TaskTable::Columns::lastModified)
-            .arg(QString{"%1.%2 "}
-                     .arg(SprintTable::name)
-                     .arg(SprintTable::Columns::taskUuid))
-            .arg(TasksView::name)
-            .arg(SprintTable::name));
+            .arg(AdvTaskView::name));
 
     findByUuidQuery =
         tryPrepare(connectionName,
-                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10 "
-                           "FROM %11 "
-                           "LEFT JOIN %12 ON %2 = %10 "
-                           "WHERE %2 = (:uuid) "
-                           "ORDER BY %8, %2;"}
+                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
+                           "FROM %9 "
+                           "WHERE %1 = (:uuid) "
+                           "ORDER BY %6, %1;"}
+                       .arg(TaskTable::Columns::uuid)
                        .arg(TaskTable::Columns::name)
-                       .arg(QString{"%1.%2"}.arg(TasksView::name,
-                                                 TaskTable::Columns::uuid))
                        .arg(TaskTable::Columns::estimatedCost)
-                       .arg(TasksView::Aliases::tags)
                        .arg(TaskTable::Columns::completed)
+                       .arg(TasksView::Aliases::tags)
+                       .arg(TaskTable::Columns::lastModified)
                        .arg(SprintTable::Columns::startTime)
                        .arg(SprintTable::Columns::finishTime)
-                       .arg(TaskTable::Columns::priority)
-                       .arg(TaskTable::Columns::lastModified)
-                       .arg(QString{"%1.%2 "}
-                                .arg(SprintTable::name)
-                                .arg(SprintTable::Columns::taskUuid))
-                       .arg(TasksView::name)
-                       .arg(SprintTable::name));
+                       .arg(AdvTaskView::name));
+
     findMatchingQuery =
         tryPrepare(connectionName,
-                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10 "
-                           "FROM %11 "
-                           "LEFT JOIN %12 ON %2 = %10 "
-                           "WHERE %2 IN ((:uuids_list));"}
+                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
+                           "FROM %9 "
+                           "WHERE %1 IN ((:uuids_list));"}
+                       .arg(TaskTable::Columns::uuid)
                        .arg(TaskTable::Columns::name)
-                       .arg(QString{"%1.%2"}.arg(TasksView::name,
-                                                 TaskTable::Columns::uuid))
                        .arg(TaskTable::Columns::estimatedCost)
-                       .arg(TasksView::Aliases::tags)
                        .arg(TaskTable::Columns::completed)
+                       .arg(TasksView::Aliases::tags)
+                       .arg(TaskTable::Columns::lastModified)
                        .arg(SprintTable::Columns::startTime)
                        .arg(SprintTable::Columns::finishTime)
-                       .arg(TaskTable::Columns::priority)
-                       .arg(TaskTable::Columns::lastModified)
-                       .arg(QString{"%1.%2 "}
-                                .arg(SprintTable::name)
-                                .arg(SprintTable::Columns::taskUuid))
-                       .arg(TasksView::name)
-                       .arg(SprintTable::name));
+                       .arg(AdvTaskView::name));
 }
 
 std::vector<entities::Task> QtTaskStorageReader::unfinishedTasks()
 {
-
     QSqlQuery query{QSqlDatabase::database(connectionName)};
     tryExecute(query,
-               QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10 "
-                       "FROM %11 "
-                       "LEFT JOIN %12 ON %2 = %10 "
-                       "WHERE %5 = 0 OR %9 > DATETIME('now', '-1 day') "
-                       "ORDER BY %8, %2;"}
+               QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
+                       "FROM %9 "
+                       "WHERE %4 = 0 OR %6 > DATETIME('now', '-1 day') "
+                       "ORDER BY %6, %1;"}
+                   .arg(TaskTable::Columns::uuid)
                    .arg(TaskTable::Columns::name)
-                   .arg(QString{"%1.%2"}.arg(TasksView::name,
-                                             TaskTable::Columns::uuid))
                    .arg(TaskTable::Columns::estimatedCost)
-                   .arg(TasksView::Aliases::tags)
                    .arg(TaskTable::Columns::completed)
+                   .arg(TasksView::Aliases::tags)
+                   .arg(TaskTable::Columns::lastModified)
                    .arg(SprintTable::Columns::startTime)
                    .arg(SprintTable::Columns::finishTime)
-                   .arg(TaskTable::Columns::priority)
-                   .arg(TaskTable::Columns::lastModified)
-                   .arg(QString{"%1.%2 "}
-                            .arg(SprintTable::name)
-                            .arg(SprintTable::Columns::taskUuid))
-                   .arg(TasksView::name)
-                   .arg(SprintTable::name));
+                   .arg(AdvTaskView::name));
     return advTasksFromQuery(query);
 }
 
@@ -256,25 +217,18 @@ QtTaskStorageReader::findMatching(std::span<const std::string> uuids)
         });
     QSqlQuery query(QSqlDatabase::database(connectionName));
     tryExecute(query,
-               QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10 "
-                       "FROM %11 "
-                       "LEFT JOIN %12 ON %2 = %10 "
-                       "WHERE %2 IN (%13);"}
+               QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
+                       "FROM %9 "
+                       "WHERE %1 IN (%10);"}
+                   .arg(TaskTable::Columns::uuid)
                    .arg(TaskTable::Columns::name)
-                   .arg(QString{"%1.%2"}.arg(TasksView::name,
-                                             TaskTable::Columns::uuid))
                    .arg(TaskTable::Columns::estimatedCost)
-                   .arg(TasksView::Aliases::tags)
                    .arg(TaskTable::Columns::completed)
+                   .arg(TasksView::Aliases::tags)
+                   .arg(TaskTable::Columns::lastModified)
                    .arg(SprintTable::Columns::startTime)
                    .arg(SprintTable::Columns::finishTime)
-                   .arg(TaskTable::Columns::priority)
-                   .arg(TaskTable::Columns::lastModified)
-                   .arg(QString{"%1.%2 "}
-                            .arg(SprintTable::name)
-                            .arg(SprintTable::Columns::taskUuid))
-                   .arg(TasksView::name)
-                   .arg(SprintTable::name)
+                   .arg(AdvTaskView::name)
                    .arg(QString::fromStdString(us)));
 
     return advTasksFromQuery(query);
@@ -284,12 +238,15 @@ QtTaskStorageReader::findMatching(std::span<const std::string> uuids)
 
 namespace {
 
+using sprint_timer::entities::ReplaceSprint;
 using sprint_timer::entities::Sprint;
 using sprint_timer::entities::Tag;
 using sprint_timer::entities::Task;
 
 auto advTaskFromRecords(auto first, auto last) -> Task
 {
+    using sprint_timer::storage::utils::DateTimeConverter;
+
     const std::string name{
         columnData(*first, AdvColumn::Name).toString().toStdString()};
     const std::string uuid{
@@ -311,27 +268,22 @@ auto advTaskFromRecords(auto first, auto last) -> Task
         sprint_timer::storage::utils::DateTimeConverter::dateTime(
             qLastModified);
 
-    std::vector<Sprint> sprints;
+    // std::vector<Sprint> sprints;
+    std::vector<ReplaceSprint> sprints;
     for (; first != last; ++first) {
-        const std::string sprintUuid{
-            columnData(*first, AdvColumn::SprintUuid).toString().toStdString()};
-        if (sprintUuid.empty()) {
-            break;
-        }
         const QDateTime startTime{
             columnData(*first, AdvColumn::StartTime).toDateTime()};
+        // If task has no sprints, field would be an empty string thus
+        // resulting an invalid QDateTime when parsing. So we break here
+        // and task will have empty sprints.
+        if (!startTime.isValid()) {
+            break;
+        }
         const QDateTime finishTime{
             columnData(*first, AdvColumn::FinishTime).toDateTime()};
-        sprints.push_back(Sprint{
-            name,
-            dw::DateTimeRange{
-                sprint_timer::storage::utils::DateTimeConverter::dateTime(
-                    startTime),
-                sprint_timer::storage::utils::DateTimeConverter::dateTime(
-                    finishTime)},
-            tags,
-            sprintUuid,
-            uuid});
+        sprints.push_back(ReplaceSprint{
+            dw::DateTimeRange{DateTimeConverter::dateTime(startTime),
+                              DateTimeConverter::dateTime(finishTime)}});
     }
 
     return Task{

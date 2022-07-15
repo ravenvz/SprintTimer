@@ -88,7 +88,7 @@ bool SprintModel::removeRows(int row, int count, const QModelIndex& /*index*/)
     // endRemoveRows();
 
     if (auto p = presenter(); p) {
-        p.value()->onSprintDelete(storage[static_cast<size_t>(row)].uuid);
+        p.value()->onSprintDelete(storage[static_cast<size_t>(row)].timeRange);
         return true;
     }
 

@@ -52,6 +52,8 @@ public:
         queryComposer.weeklyDistHandler(Weekday::Sunday)};
     asp::QueryHandler<RequestSprintDistributionQuery>& monthlyDistHandler{
         queryComposer.monthlyDistHandler()};
+    asp::CommandHandler<DeleteSprintCommand>& deleteSprintHandler{
+        commandComposer.deleteSprintHandler()};
 };
 
 template <typename ForwardIt>
@@ -82,34 +84,24 @@ TEST_F(ReadingSprintDistributionsFixture, reads_sprint_daily_distribution)
     // Out of range
     generate_n_consecutive_ranges(
         std::back_inserter(sprintRanges), DateTime{someDate - Days{30}}, 2);
-
     // On left border
     generate_n_consecutive_ranges(
         std::back_inserter(sprintRanges), DateTime{someDate - Days{29}}, 4);
-
     // In range
     generate_n_consecutive_ranges(
         std::back_inserter(sprintRanges), DateTime{someDate - Days{20}}, 3);
-
     // In range
     generate_n_consecutive_ranges(
         std::back_inserter(sprintRanges), DateTime{someDate - Days{10}}, 7);
-
     // On right border
     generate_n_consecutive_ranges(
         std::back_inserter(sprintRanges), DateTime{someDate}, 2);
-
     // Out of range
     generate_n_consecutive_ranges(
         std::back_inserter(sprintRanges), DateTime{someDate + Days{1}}, 3);
 
-    for (const auto& r : sprintRanges) {
-        std::cout << r << std::endl;
-    }
-
     registerSprintBulkHandler.handle(
         RegisterSprintBulkCommand{taskUuid, sprintRanges});
-
     const auto distribution =
         dailyDistHandler.handle(RequestSprintDistributionQuery{range});
 
@@ -258,4 +250,33 @@ TEST_F(ReadingSprintDistributionsFixture,
             DateRange{lowerDate.date(), upperDate.date()}});
 
     ASSERT_EQ(expected, distribution);
+}
+
+TEST_F(ReadingSprintDistributionsFixture,
+       ignores_deleted_sprints_when_reading_sprint_distribution)
+{
+    using namespace std::chrono_literals;
+    createTaskHandler.handle(
+        CreateTaskCommand{"Some task", std::vector<std::string>{}, 77});
+    const auto taskUuid =
+        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    const dw::DateTime someDateTime{Date{Year{2016}, Month{2}, Day{12}}};
+    const dw::DateTimeRange first{someDateTime, someDateTime + 25min};
+    const dw::DateTimeRange second{someDateTime + 3h,
+                                   someDateTime + 3h + 25min};
+    const dw::DateTimeRange third{someDateTime + 5h, someDateTime + 5h + 25min};
+    const std::vector<int> expected{2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    registerSprintBulkHandler.handle(
+        RegisterSprintBulkCommand{taskUuid, {first, second, third}});
+
+    deleteSprintHandler.handle(DeleteSprintCommand{second});
+    const auto sundayFirstDistribution =
+        sundayFirstDistHandler.handle(RequestSprintDistributionQuery{
+            DateRange{someDateTime.date(), someDateTime.date()}});
+    const auto mondayFirstDistribution =
+        mondayFirstDistHandler.handle(RequestSprintDistributionQuery{
+            DateRange{someDateTime.date(), someDateTime.date()}});
+
+    ASSERT_EQ(expected, sundayFirstDistribution);
+    ASSERT_EQ(expected, mondayFirstDistribution);
 }

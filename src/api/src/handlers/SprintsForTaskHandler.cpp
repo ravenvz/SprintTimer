@@ -21,10 +21,11 @@
 *********************************************************************************/
 #include "api/handlers/SprintsForTaskHandler.h"
 #include "api/dtos/SprintMapper.h"
+#include "core/HandlerException.h"
 
 namespace sprint_timer::api {
 
-SprintsForTaskHandler::SprintsForTaskHandler(SprintStorageReader& reader_)
+SprintsForTaskHandler::SprintsForTaskHandler(TaskStorageReader& reader_)
     : reader{reader_}
 {
 }
@@ -32,7 +33,13 @@ SprintsForTaskHandler::SprintsForTaskHandler(SprintStorageReader& reader_)
 SprintsForTaskQuery::Result
 SprintsForTaskHandler::handle(const SprintsForTaskQuery& query)
 {
-    return makeDTOs(reader.findByTaskUuid(query.taskUuid));
+    const auto tasks = reader.findByUuid(query.taskUuid);
+    if (tasks.empty()) {
+        throw HandlerException("unable to find task with uuid: " +
+                               query.taskUuid);
+    }
+    const auto& sprints = tasks.front().sprints();
+    return makeDTOs(sprints);
 }
 
 } // namespace sprint_timer::api

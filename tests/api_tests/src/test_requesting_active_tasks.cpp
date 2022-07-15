@@ -70,19 +70,19 @@ TEST_F(
 
     EXPECT_THAT(activeTasksHandler.handle(ActiveTasksQuery{}),
                 ElementsAre(TaskDTO{uuids.front(),
-                                    {"Tag1", "Tag2"},
-                                    "Task name",
-                                    4,
-                                    0,
-                                    true,
-                                    current_date_time_local()},
+                                       {"Tag1", "Tag2"},
+                                       "Task name",
+                                       4,
+                                       {},
+                                       true,
+                                       current_date_time_local()},
                             TaskDTO{uuids.back(),
-                                    {"SomeTag"},
-                                    "Some other task",
-                                    2,
-                                    0,
-                                    false,
-                                    current_date_time_local()}));
+                                       {"SomeTag"},
+                                       "Some other task",
+                                       2,
+                                       {},
+                                       false,
+                                       current_date_time_local()}));
 }
 
 // TEST_F(RequestingActiveTasksFixture,
@@ -99,7 +99,8 @@ TEST_F(
 //                    std::back_inserter(uuids),
 //                    [](const auto& elem) { return elem.uuid; });
 //     toggleTaskCompletedHandler.handle(
-//         ToggleTaskCompletedCommand{uuids.front(), current_date_time_local()});
+//         ToggleTaskCompletedCommand{uuids.front(),
+//         current_date_time_local()});
 //     TaskBacklog expected{{Task{"Task name",
 //                                4,
 //                                std::vector<entities::Sprint>{},

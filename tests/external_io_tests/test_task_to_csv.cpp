@@ -31,18 +31,20 @@ class TaskToCsvFixture : public ::testing::Test {
 public:
     Date someDate{Year{2020}, Month{6}, Day{19}};
     DateTime someTimeStamp{DateTime{someDate} + 2h};
+    DateTimeRange someSprint{DateTime{someDate}, DateTime{someDate} + 25min};
     external_io::TaskToCsvAlgorithm taskSerializer;
 };
 
 TEST_F(TaskToCsvFixture, serializes_task)
 {
-    const TaskDTO task{"123",
-                       {"Tag1", "Tag2"},
-                       "Some task",
-                       5,
-                       3,
-                       true,
-                       someTimeStamp + 2h + 33min};
+    const TaskDTO task{
+        "123",
+        {"Tag1", "Tag2"},
+        "Some task",
+        5,
+        {someSprint, add_offset(someSprint, 50min), add_offset(someSprint, 2h)},
+        true,
+        someTimeStamp + 2h + 33min};
     const std::string expected{
         "123;Some task;Tag1,Tag2;3;5;1;04:33 19.06.2020"};
 
@@ -53,32 +55,37 @@ TEST_F(TaskToCsvFixture, serializes_batch)
 {
     const std::vector<TaskDTO> tasks{
         TaskDTO{"123",
-                {"Tag1"},
-                "First task",
-                19,
-                19,
-                true,
-                someTimeStamp + 8h + 12min},
+                   {"Tag1"},
+                   "First task",
+                   19,
+                   {someSprint, add_offset(someSprint, 50min)},
+                   true,
+                   someTimeStamp + 8h + 12min},
         TaskDTO{"345",
-                std::vector<std::string>{},
-                "Second task",
-                7,
-                12,
-                false,
-                someTimeStamp + 12h + 58min},
+                   std::vector<std::string>{},
+                   "Second task",
+                   7,
+                   {someSprint,
+                    add_offset(someSprint, 50min),
+                    add_offset(someSprint, 2h)},
+                   false,
+                   someTimeStamp + 12h + 58min},
         TaskDTO{"567",
-                {"Tag1", "Tag2"},
-                "Third task",
-                20,
-                9,
-                true,
-                someTimeStamp + 1h + 12min},
+                   {"Tag1", "Tag2"},
+                   "Third task",
+                   20,
+                   {someSprint,
+                    add_offset(someSprint, 50min),
+                    add_offset(someSprint, 2h),
+                    add_offset(someSprint, 3h)},
+                   true,
+                   someTimeStamp + 1h + 12min},
 
     };
     const std::vector<std::string> expected{
-        "123;First task;Tag1;19;19;1;10:12 19.06.2020",
-        "345;Second task;;12;7;0;14:58 19.06.2020",
-        "567;Third task;Tag1,Tag2;9;20;1;03:12 19.06.2020"};
+        "123;First task;Tag1;2;19;1;10:12 19.06.2020",
+        "345;Second task;;3;7;0;14:58 19.06.2020",
+        "567;Third task;Tag1,Tag2;4;20;1;03:12 19.06.2020"};
 
     EXPECT_EQ(expected, taskSerializer.serializeBatch(tasks));
 }

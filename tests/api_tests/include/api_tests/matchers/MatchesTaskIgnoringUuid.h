@@ -23,11 +23,14 @@
 #define MATCHESTASKIGNORINGUUID_H_FACBNU37
 
 #include "api/dtos/TaskDTO.h"
+#include <optional>
 
 namespace matchers {
 
 struct MatchesTaskIgnoringUuid {
-    explicit MatchesTaskIgnoringUuid(const sprint_timer::api::TaskDTO& taskDTO);
+
+    explicit MatchesTaskIgnoringUuid(
+        const sprint_timer::api::TaskDTO& taskDto);
 
     bool operator()(const sprint_timer::api::TaskDTO& task) const;
 

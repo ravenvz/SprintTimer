@@ -23,14 +23,14 @@
 #define TASKOUTLINE_H
 
 #include "qt_gui/presentation/AddTaskControl.h"
-#include "qt_gui/widgets/TagEditor.h"
 #include <QWidget>
 #include <memory>
 
 class QLineEdit;
-class Displayable;
 
 namespace sprint_timer::ui::qt_gui {
+
+class Displayable;
 
 class TaskOutline : public QWidget, public ui::contracts::AddTaskControl::View {
 public:

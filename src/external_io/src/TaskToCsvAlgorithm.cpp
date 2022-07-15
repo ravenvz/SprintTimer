@@ -33,7 +33,7 @@ TaskToCsvAlgorithm::toRecords(const api::TaskDTO& task) const
     records.emplace_back(task.uuid);
     records.emplace_back(task.name);
     records.emplace_back(join(cbegin(tags), cend(tags), ","));
-    records.emplace_back(std::to_string(task.actualCost));
+    records.emplace_back(std::to_string(task.sprints.size()));
     records.emplace_back(std::to_string(task.expectedCost));
     records.push_back(std::to_string(task.finished ? 1 : 0));
     records.push_back(

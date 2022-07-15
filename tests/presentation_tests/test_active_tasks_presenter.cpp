@@ -41,54 +41,28 @@ namespace {
 using namespace std::chrono_literals;
 
 std::vector<TaskDTO> someTaskDtos{
-    TaskDTO{"1",
-            {"Tag 1", "Tag 2"},
-            "Task 1",
-            4,
-            2,
-            false,
-            dw::DateTime{std::chrono::system_clock::time_point{1596401779s}}},
-    TaskDTO{"2",
-            {"Tag 5", "Tag 2"},
-            "Task 2",
-            15,
-            4,
-            false,
-            dw::DateTime{std::chrono::system_clock::time_point{1572878664s}}},
-    TaskDTO{"3",
-            {"Tag 7", "Tag 1"},
-            "Task 3",
-            1,
-            0,
-            false,
-            dw::DateTime{std::chrono::system_clock::time_point{1614965664s}}}};
-
-std::vector<sprint_timer::entities::Task> someTasks{
-    sprint_timer::entities::Task{
+    TaskDTO{
+        "1",
+        {"Tag 1", "Tag 2"},
         "Task 1",
         4,
-        2,
-        "1",
-        {sprint_timer::entities::Tag{"Tag 1"},
-         sprint_timer::entities::Tag{"Tag 2"}},
+        {},
         false,
         dw::DateTime{std::chrono::system_clock::time_point{1596401779s}}},
-    sprint_timer::entities::Task{
+    TaskDTO{
+        "2",
+        {"Tag 5", "Tag 2"},
         "Task 2",
         15,
-        4,
-        "2",
-        {sprint_timer::entities::Tag{"Tag 5"},
-         sprint_timer::entities::Tag{"Tag 2"}},
+        {},
         false,
         dw::DateTime{std::chrono::system_clock::time_point{1572878664s}}},
-    sprint_timer::entities::Task{
+    TaskDTO{
+        "3",
+        {"Tag 7", "Tag 1"},
         "Task 3",
         1,
-        0,
-        "3",
-        {sprint_timer::entities::Tag{"Tag 7"},
-         sprint_timer::entities::Tag{"Tag 1"}},
+        {},
         false,
         dw::DateTime{std::chrono::system_clock::time_point{1614965664s}}}};
 
@@ -97,7 +71,10 @@ std::vector<sprint_timer::entities::Task> someTasks{
 class TaskContractViewMock
     : public sprint_timer::ui::contracts::TaskContract::View {
 public:
-    MOCK_METHOD(void, displayTasks, (const std::vector<TaskDTO>&), (override));
+    MOCK_METHOD(void,
+                displayTasks,
+                (const std::vector<TaskDTO>&),
+                (override));
 };
 
 class ActiveTasksPresenterFixture : public ::testing::Test {
@@ -134,7 +111,7 @@ TEST_F(ActiveTasksPresenterFixture, populates_task_when_view_is_attached)
 TEST_F(ActiveTasksPresenterFixture, edits_task)
 {
     const auto editedDTO =
-        TaskDTO{"2", {"Tag 1", "Other tag"}, "Edited name", 55, 77, false};
+        TaskDTO{"2", {"Tag 1", "Other tag"}, "Edited name", 55, {}, false};
     ActiveTasksPresenter sut{makePresenter()};
     sut.attachView(view);
 
@@ -171,8 +148,8 @@ TEST_F(ActiveTasksPresenterFixture,
 {
     mocks::given_handler_returns(activeTasksHandler, someTaskDtos);
     ChangeActiveTasksPriorityCommand expected{
-        {someTasks[0].uuid(), someTasks[1].uuid(), someTasks[2].uuid()},
-        {someTasks[2].uuid(), someTasks[0].uuid(), someTasks[1].uuid()}};
+        {someTaskDtos[0].uuid, someTaskDtos[1].uuid, someTaskDtos[2].uuid},
+        {someTaskDtos[2].uuid, someTaskDtos[0].uuid, someTaskDtos[1].uuid}};
     ActiveTasksPresenter sut{makePresenter()};
     sut.attachView(view);
 
@@ -186,8 +163,8 @@ TEST_F(ActiveTasksPresenterFixture,
 {
     mocks::given_handler_returns(activeTasksHandler, someTaskDtos);
     ChangeActiveTasksPriorityCommand expected{
-        {someTasks[0].uuid(), someTasks[1].uuid(), someTasks[2].uuid()},
-        {someTasks[1].uuid(), someTasks[2].uuid(), someTasks[0].uuid()}};
+        {someTaskDtos[0].uuid, someTaskDtos[1].uuid, someTaskDtos[2].uuid},
+        {someTaskDtos[1].uuid, someTaskDtos[2].uuid, someTaskDtos[0].uuid}};
     ActiveTasksPresenter sut{makePresenter()};
     sut.attachView(view);
 

@@ -30,6 +30,31 @@
 
 namespace sprint_timer::entities {
 
+class ReplaceSprint {
+public:
+    explicit ReplaceSprint(dw::DateTimeRange timeSpan_)
+        : timeRange{timeSpan_}
+    {
+    }
+
+    dw::DateTimeRange timeSpan() const { return timeRange; }
+
+private:
+    dw::DateTimeRange timeRange;
+};
+
+class FigureOutName {
+public:
+    FigureOutName(std::string taskName,
+                  ReplaceSprint sprint,
+                  std::vector<Tag> tags);
+
+private:
+    std::string taskName;
+    ReplaceSprint sprint;
+    std::vector<Tag> tags;
+};
+
 /* Represents Sprint concept.
  *
  * Sprint is an n-minute time interval that is associated with

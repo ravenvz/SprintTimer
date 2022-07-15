@@ -27,13 +27,10 @@
 namespace {
 
 enum class Columns {
-    Id = 0,
-    TodoUuid,
-    Name,
+    Name = 0,
     Tags,
     StartTime,
     FinishTime,
-    Uuid,
 };
 
 QVariant columnData(const QSqlRecord& record, Columns column);
@@ -53,49 +50,17 @@ using namespace entities;
 QtSprintStorageReader::QtSprintStorageReader(QString connectionName_)
     : connectionName{std::move(connectionName_)}
 {
-    findByDateRangeQuery =
-        tryPrepare(connectionName,
-                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7 "
-                           "FROM %8 "
-                           "WHERE DATE(%5) >= (:startTime) "
-                           "AND DATE(%5) <= (:finishTime) "
-                           "ORDER BY %5"}
-                       .arg(SprintTable::Columns::id)
-                       .arg(SprintTable::Columns::taskUuid)
-                       .arg(TaskTable::Columns::name)
-                       .arg(SprintView::Aliases::tags)
-                       .arg(SprintTable::Columns::startTime)
-                       .arg(SprintTable::Columns::finishTime)
-                       .arg(TaskTable::Columns::uuid)
-                       .arg(SprintView::name));
-
-    findByTaskUuidQuery =
-        tryPrepare(connectionName,
-                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7 "
-                           "FROM %8 "
-                           "WHERE %2 = (:taskUuid) "
-                           "ORDER by %5"}
-                       .arg(SprintTable::Columns::id)
-                       .arg(SprintTable::Columns::taskUuid)
-                       .arg(TaskTable::Columns::name)
-                       .arg(SprintView::Aliases::tags)
-                       .arg(SprintTable::Columns::startTime)
-                       .arg(SprintTable::Columns::finishTime)
-                       .arg(TaskTable::Columns::uuid)
-                       .arg(SprintView::name));
-
-    findByUuidQuery = tryPrepare(connectionName,
-                                 QString{"SELECT %1, %2, %3, %4, %5, %6, %7 "
-                                         "FROM %8 "
-                                         "WHERE %7 = (:uuid)"}
-                                     .arg(SprintTable::Columns::id)
-                                     .arg(SprintTable::Columns::taskUuid)
-                                     .arg(TaskTable::Columns::name)
-                                     .arg(SprintView::Aliases::tags)
-                                     .arg(SprintTable::Columns::startTime)
-                                     .arg(SprintTable::Columns::finishTime)
-                                     .arg(TaskTable::Columns::uuid)
-                                     .arg(SprintView::name));
+    findByDateRangeQuery = tryPrepare(connectionName,
+                                      QString{"SELECT %1, %2, %3, %4 "
+                                              "FROM %5 "
+                                              "WHERE DATE(%3) >= (:startTime) "
+                                              "AND DATE(%4) <= (:finishTime) "
+                                              "ORDER BY %3"}
+                                          .arg(TaskTable::Columns::name)
+                                          .arg(SprintView::Aliases::tags)
+                                          .arg(SprintTable::Columns::startTime)
+                                          .arg(SprintTable::Columns::finishTime)
+                                          .arg(SprintView::name));
 }
 
 std::vector<Sprint>
@@ -111,22 +76,6 @@ QtSprintStorageReader::findByDateRange(const dw::DateRange& dateRange)
     tryExecute(findByDateRangeQuery);
 
     return sprintsFromQuery(findByDateRangeQuery);
-}
-
-std::vector<Sprint>
-QtSprintStorageReader::findByTaskUuid(const std::string& taskUuid)
-{
-    findByTaskUuidQuery.bindValue(":taskUuid",
-                                  QVariant{QString::fromStdString(taskUuid)});
-    tryExecute(findByTaskUuidQuery);
-    return sprintsFromQuery(findByTaskUuidQuery);
-}
-
-std::vector<Sprint> QtSprintStorageReader::findByUuid(const std::string& uuid)
-{
-    findByUuidQuery.bindValue(":uuid", QString::fromStdString(uuid));
-    tryExecute(findByUuidQuery);
-    return sprintsFromQuery(findByUuidQuery);
 }
 
 } // namespace sprint_timer::storage::qt_storage
@@ -156,13 +105,11 @@ sprint_timer::entities::Sprint sprintFromQSqlRecord(const QSqlRecord& record)
     QDateTime finish = columnData(record, Columns::FinishTime).toDateTime();
     const dw::DateTimeRange timeSpan{DateTimeConverter::dateTime(start),
                                      DateTimeConverter::dateTime(finish)};
-    std::string uuid =
-        columnData(record, Columns::Uuid).toString().toStdString();
+    std::string uuid;
     QStringList tagNames{columnData(record, Columns::Tags)
                              .toString()
                              .split(",", Qt::SkipEmptyParts)};
-    std::string taskUuid =
-        columnData(record, Columns::TodoUuid).toString().toStdString();
+    std::string taskUuid;
     std::list<Tag> tags;
     std::transform(tagNames.cbegin(),
                    tagNames.cend(),

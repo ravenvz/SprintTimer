@@ -24,6 +24,7 @@
 
 #include "core/entities/Sprint.h"
 #include "date_wrapper/date_wrapper.h"
+// #include <span>
 
 namespace sprint_timer {
 
@@ -38,6 +39,10 @@ public:
     virtual void remove(const entities::Sprint& sprint) = 0;
 
     virtual void remove(const std::vector<entities::Sprint>& sprints) = 0;
+
+    virtual void restore(const entities::Sprint& sprint) = 0;
+
+    // virtual void restore(std::span<const entities::Sprint>& sprints) = 0;
 };
 
 } // namespace sprint_timer

@@ -70,14 +70,14 @@ QVariant TaskModel::data(const QModelIndex& index, int role) const
         return {};
     }
 
-    const api::TaskDTO& item = storage[static_cast<size_t>(index.row())];
+    const auto& item = storage[static_cast<size_t>(index.row())];
 
     switch (role) {
     case Qt::DisplayRole:
         return QString{"%1 %2 %3/%4"}
             .arg(QString::fromStdString(prefixTags(item.tags)))
             .arg(QString::fromStdString(item.name))
-            .arg(item.actualCost)
+            .arg(item.sprints.size())
             .arg(item.expectedCost);
 
     case CustomRoles::ItemRole: {
@@ -122,7 +122,7 @@ bool TaskModel::setData(const QModelIndex& index,
             const auto& oldTask = storage[pos];
             auto editedTask = value.value<api::TaskDTO>();
             editedTask.uuid = oldTask.uuid;
-            editedTask.actualCost = oldTask.actualCost;
+            editedTask.sprints = oldTask.sprints;
             p.value()->editTask(editedTask);
             return true;
         }

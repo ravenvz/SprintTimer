@@ -24,8 +24,6 @@
 #include "qt_storage/utils/DateTimeConverter.h"
 #include "qt_storage/utils/QueryUtils.h"
 
-#include <QDebug>
-
 namespace {
 
 constexpr int daysInWeek{7};
@@ -36,9 +34,10 @@ std::vector<std::pair<QDate, int>> unfilledDistribution(QSqlQuery& query);
 
 namespace sprint_timer::storage::qt_storage {
 
-DistributionReaderBase::DistributionReaderBase(QString connectionName_, size_t distributionSize_)
+DistributionReaderBase::DistributionReaderBase(QString connectionName_,
+                                               size_t distributionSize_)
     : connectionName{std::move(connectionName_)}
-    , distributionSize{std::move(distributionSize_)}
+    , distributionSize{distributionSize_}
 {
 }
 
@@ -69,8 +68,9 @@ std::vector<int> DistributionReaderBase::zeroFilledDistribution(
     QDate expected = normalizeDate(startDate);
     auto recordIter = cbegin(unfilled);
     for (auto& elem : sprintCount) {
-        if (recordIter == cend(unfilled))
+        if (recordIter == cend(unfilled)) {
             break;
+        }
         const auto& [date, value] = *recordIter;
         if (compareDate(expected, date)) {
             elem = value;
@@ -98,15 +98,15 @@ QtSprintDailyDistributionReader::QtSprintDailyDistributionReader(
     : DistributionReaderBase{std::move(connectionName_), numBins_}
 {
     using namespace qt_storage;
-    rangeQuery =
-        tryPrepare(connectionName,
-                   QString{"SELECT COUNT(*), DATE(%1) "
-                           "FROM %2 WHERE DATE(%1) >= DATE(:start_date) "
-                           "AND DATE(%1) <= DATE(:end_date) "
-                           "GROUP BY DATE(%1) "
-                           "ORDER BY DATE(%1)"}
-                       .arg(SprintTable::Columns::startTime)
-                       .arg(SprintTable::name));
+    rangeQuery = tryPrepare(connectionName,
+                            QString{"SELECT COUNT(*), DATE(%1) "
+                                    "FROM %2 WHERE "
+                                    "DATE(%1) >= DATE(:start_date) "
+                                    "AND DATE(%1) <= DATE(:end_date) "
+                                    "GROUP BY DATE(%1) "
+                                    "ORDER BY DATE(%1)"}
+                                .arg(SprintTable::Columns::startTime)
+                                .arg(CleanSprintView::name));
 }
 
 QDate QtSprintDailyDistributionReader::nextExpectedDate(
@@ -122,14 +122,15 @@ QtSprintDistReaderMondayFirst::QtSprintDistReaderMondayFirst(
     using namespace qt_storage;
     rangeQuery = tryPrepare(connectionName,
                             QString{"SELECT COUNT(*), start_time "
-                                    "FROM %2 WHERE DATE(%1) >= (:start_date) "
+                                    "FROM %2 WHERE "
+                                    "DATE(%1) >= (:start_date) "
                                     "AND DATE(%1) <= (:end_date) "
                                     "GROUP BY (STRFTIME('%j', DATE(%1, '-3 "
                                     "days', 'weekday 4')) - 1) / 7 + "
                                     "1 "
                                     "ORDER BY DATE(%1)"}
                                 .arg(SprintTable::Columns::startTime)
-                                .arg(SprintTable::name));
+                                .arg(CleanSprintView::name));
 }
 
 QDate QtSprintDistReaderMondayFirst::nextExpectedDate(
@@ -157,12 +158,13 @@ QtSprintDistReaderSundayFirst::QtSprintDistReaderSundayFirst(
     rangeQuery =
         tryPrepare(connectionName,
                    QString{"SELECT COUNT(*), DATE(%1, 'weekday 6') AS saturday "
-                           "FROM %2 WHERE DATE(%1) >= (:start_date) AND "
-                           "date(%1) <= (:end_date) "
+                           "FROM %2 WHERE "
+                           "DATE(%1) >= (:start_date) "
+                           "AND date(%1) <= (:end_date) "
                            "GROUP BY saturday "
                            "ORDER BY DATE(%1)"}
                        .arg(SprintTable::Columns::startTime)
-                       .arg(SprintTable::name));
+                       .arg(CleanSprintView::name));
 }
 
 QDate QtSprintDistReaderSundayFirst::nextExpectedDate(
@@ -173,8 +175,9 @@ QDate QtSprintDistReaderSundayFirst::nextExpectedDate(
 
 QDate QtSprintDistReaderSundayFirst::normalizeDate(const QDate& date) const
 {
-    if (date.dayOfWeek() == Qt::DayOfWeek::Sunday)
+    if (date.dayOfWeek() == Qt::DayOfWeek::Sunday) {
         return date.addDays(6);
+    }
     return date.addDays(Qt::DayOfWeek::Saturday - date.dayOfWeek());
 }
 
@@ -191,12 +194,13 @@ QtSprintMonthlyDistributionReader::QtSprintMonthlyDistributionReader(
     using namespace qt_storage;
     rangeQuery = tryPrepare(connectionName,
                             QString{"SELECT COUNT(*), start_time "
-                                    "FROM %2 WHERE DATE(%1) >= (:start_date) "
+                                    "FROM %2 WHERE "
+                                    "DATE(%1) >= (:start_date) "
                                     "AND DATE(%1) <= (:end_date) "
                                     "GROUP BY STRFTIME('%m', DATE(%1)) "
                                     "ORDER BY DATE(%1)"}
                                 .arg(SprintTable::Columns::startTime)
-                                .arg(SprintTable::name));
+                                .arg(CleanSprintView::name));
 }
 
 QDate QtSprintMonthlyDistributionReader::nextExpectedDate(
@@ -221,9 +225,8 @@ std::vector<std::pair<QDate, int>> unfilledDistribution(QSqlQuery& query)
     const auto records = copyAllRecords(query);
     std::vector<std::pair<QDate, int>> distribution;
     distribution.reserve(records.size());
-    std::transform(
-        records.cbegin(),
-        records.cend(),
+    std::ranges::transform(
+        records,
         std::back_inserter(distribution),
         [](const auto& record) -> std::pair<QDate, int> {
             return {record.value(1).toDate(), record.value(0).toInt()};

@@ -70,7 +70,7 @@ private:
     void removeTags(const QString& taskUuid,
                     const std::list<entities::Tag>& tags);
 
-    void insertSprint(const entities::Sprint& sprint);
+    void insertSprint(const QString& taskUuid, const entities::Sprint& sprint);
 };
 
 } // namespace sprint_timer::storage::qt_storage

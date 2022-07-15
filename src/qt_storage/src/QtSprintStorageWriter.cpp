@@ -32,19 +32,31 @@ using namespace qt_storage;
 QtSprintStorageWriter::QtSprintStorageWriter(QString connectionName_)
     : connectionName{std::move(connectionName_)}
 {
-    saveSprintQuery = tryPrepare(
-        connectionName,
-        QString{"INSERT INTO %1(%2, %3, %4, %5) "
-                "VALUES(:todo_uuid, :startTime, :finishTime, :uuid);"}
-            .arg(SprintView::name)
-            .arg(SprintTable::Columns::taskUuid)
-            .arg(SprintTable::Columns::startTime)
-            .arg(SprintTable::Columns::finishTime)
-            .arg(SprintTable::Columns::uuid));
+    saveSprintQuery =
+        tryPrepare(connectionName,
+                   QString{"INSERT INTO %1(%2, %3, %4) "
+                           "VALUES("
+                           "(SELECT %5 FROM %6 WHERE %7 = :todo_uuid), "
+                           ":startTime, :finishTime);"}
+                       .arg(SprintView::name)
+                       .arg(SprintView::Aliases::taskid)
+                       .arg(SprintTable::Columns::startTime)
+                       .arg(SprintTable::Columns::finishTime)
+                       .arg(TaskTable::Columns::id)
+                       .arg(TaskTable::name)
+                       .arg(TaskTable::Columns::uuid));
     deleteSprintQuery = tryPrepare(connectionName,
-                                   QString{"DELETE FROM %1 WHERE %2 = (:uuid);"}
-                                       .arg(SprintView::name)
-                                       .arg(SprintTable::Columns::uuid));
+                                   QString{"UPDATE %1 set %2 = 1 "
+                                           "WHERE %3 = (:startTime);"}
+                                       .arg(SprintTable::name)
+                                       .arg(SprintTable::Columns::deleted)
+                                       .arg(SprintTable::Columns::startTime));
+    restoreSprintQuery = tryPrepare(connectionName,
+                                    QString{"UPDATE %1 set %2 = 0 "
+                                            "WHERE %3 = (:startTime);"}
+                                        .arg(SprintTable::name)
+                                        .arg(SprintTable::Columns::deleted)
+                                        .arg(SprintTable::Columns::startTime));
 }
 
 void QtSprintStorageWriter::save(const entities::Sprint& sprint)
@@ -58,31 +70,42 @@ void QtSprintStorageWriter::save(const entities::Sprint& sprint)
         ":todo_uuid", QVariant(QString::fromStdString(sprint.taskUuid())));
     saveSprintQuery.bindValue(":startTime", QVariant(startTime));
     saveSprintQuery.bindValue(":finishTime", QVariant(finishTime));
-    saveSprintQuery.bindValue(":uuid",
-                              QVariant(QString::fromStdString(sprint.uuid())));
     tryExecute(saveSprintQuery);
 }
 
 void QtSprintStorageWriter::save(const std::vector<entities::Sprint>& sprints)
 {
     TransactionGuard guard{connectionName};
-    for (const auto& sprint : sprints)
+    for (const auto& sprint : sprints) {
         save(sprint);
+    }
     guard.commit();
 }
 
 void QtSprintStorageWriter::remove(const entities::Sprint& sprint)
 {
-    deleteSprintQuery.bindValue(
-        ":uuid", QVariant(QString::fromStdString(sprint.uuid())));
+    using storage::utils::DateTimeConverter;
+    const QDateTime startTime =
+        DateTimeConverter::qDateTime(sprint.timeSpan().start());
+    deleteSprintQuery.bindValue(":startTime", QVariant(startTime));
     tryExecute(deleteSprintQuery);
+}
+
+void QtSprintStorageWriter::restore(const entities::Sprint& sprint)
+{
+    using storage::utils::DateTimeConverter;
+    const QDateTime startTime =
+        DateTimeConverter::qDateTime(sprint.timeSpan().start());
+    restoreSprintQuery.bindValue(":startTime", QVariant(startTime));
+    tryExecute(restoreSprintQuery);
 }
 
 void QtSprintStorageWriter::remove(const std::vector<entities::Sprint>& sprints)
 {
     TransactionGuard guard{connectionName};
-    for (const auto& sprint : sprints)
+    for (const auto& sprint : sprints) {
         remove(sprint);
+    }
     guard.commit();
 }
 

@@ -49,13 +49,9 @@ public:
                 findByDateRange,
                 (const dw::DateRange&),
                 (override));
-    MOCK_METHOD(std::vector<sprint_timer::entities::Sprint>,
-                findByTaskUuid,
-                (const std::string&),
-                (override));
-    MOCK_METHOD(std::vector<sprint_timer::entities::Sprint>,
-                findByUuid,
-                (const std::string&),
+    MOCK_METHOD(void,
+                restore,
+                (const sprint_timer::entities::Sprint&),
                 (override));
 };
 

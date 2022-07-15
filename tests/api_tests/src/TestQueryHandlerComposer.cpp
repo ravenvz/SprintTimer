@@ -37,7 +37,7 @@ TestQueryHandlerComposer::TestQueryHandlerComposer(
     , allTags{taskStorage_}
     , requestSprints{sprintStorage_}
     , finishedTasks{taskStorage_}
-    , sprintsForTask{sprintStorage_}
+    , sprintsForTask{taskStorage_}
     , operationalRange{operationRangeReader_}
     , dailyDistribution{dailyDistReader_}
     , mondayFirstWeeklyDistribution{mondayFirstWeeklyDistReader_}

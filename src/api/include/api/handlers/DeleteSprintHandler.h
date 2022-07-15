@@ -25,19 +25,19 @@
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/DeleteSprintCommand.h"
 #include "core/ActionInvoker.h"
-#include "core/SprintStorage.h"
+#include "core/SprintStorageWriter.h"
 
 namespace sprint_timer::api {
 
 class DeleteSprintHandler : public asp::CommandHandler<DeleteSprintCommand> {
 public:
-    DeleteSprintHandler(SprintStorage& sprintStorage,
+    DeleteSprintHandler(SprintStorageWriter& sprintStorage,
                         ActionInvoker& actionInvoker);
 
     void handle(const DeleteSprintCommand& command) override;
 
 private:
-    SprintStorage& sprintStorage;
+    SprintStorageWriter& sprintStorage;
     ActionInvoker& actionInvoker;
 };
 

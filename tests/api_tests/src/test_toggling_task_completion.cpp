@@ -40,6 +40,8 @@ public:
         queryComposer.activeTasksHandler()};
     asp::CommandHandler<ToggleTaskCompletedCommand>& toggleTaskCompletedHandler{
         commandComposer.toggleTaskCompletedHandler()};
+    asp::CommandHandler<UndoLastCommand>& undoHandler{
+        commandComposer.undoHandler()};
 };
 
 TEST_F(TogglingTaskCompletionFixture, toggling_task_completion_alters_timestamp)
@@ -49,10 +51,25 @@ TEST_F(TogglingTaskCompletionFixture, toggling_task_completion_alters_timestamp)
     const auto uuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const TaskDTO expected{
-        uuid, {"Tag9"}, "Name", 7, 0, true, current_date_time_local()};
+        uuid, {"Tag9"}, "Name", 7, {}, true, current_date_time_local()};
 
     toggleTaskCompletedHandler.handle(
         ToggleTaskCompletedCommand{uuid, timeStamp});
+
+    EXPECT_EQ(expected, activeTasksHandler.handle(ActiveTasksQuery{}).front());
+}
+
+TEST_F(TogglingTaskCompletionFixture, undoing_task_completion)
+{
+    const DateTime timeStamp{DateTime{Date{Year{2021}, Month{5}, Day{4}}}};
+    createTaskHandler.handle(CreateTaskCommand{"Name", {"Tag9"}, 7});
+    const auto uuid =
+        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    const TaskDTO expected{uuid, {"Tag9"}, "Name", 7, {}, false, timeStamp};
+    toggleTaskCompletedHandler.handle(
+        ToggleTaskCompletedCommand{uuid, timeStamp});
+
+    undoHandler.handle(UndoLastCommand{});
 
     EXPECT_EQ(expected, activeTasksHandler.handle(ActiveTasksQuery{}).front());
 }

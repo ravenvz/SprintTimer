@@ -59,8 +59,13 @@ TEST_F(CreatingTasksFixture, creates_task)
     const std::string name{"Task name"};
     const std::vector<std::string> tags{"Tag1", "Tag2"};
     const int32_t estimatedCost{4};
-    TaskDTO expected{
-        "any_uuid", tags, name, estimatedCost, 0, false, dt.dateTimeLocalNow()};
+    TaskDTO expected{"any_uuid",
+                     tags,
+                     name,
+                     estimatedCost,
+                     {},
+                     false,
+                     dt.dateTimeLocalNow()};
 
     createTaskHandler.handle(CreateTaskCommand{name, tags, estimatedCost});
     const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
@@ -77,8 +82,13 @@ TEST_F(CreatingTasksFixture, undoing_task_creation_cleans_up_associated_tags)
     const std::string name{"Task name"};
     const std::vector<std::string> tags{"Tag1", "Tag2"};
     const int32_t estimatedCost{4};
-    TaskDTO expected{
-        "any_uuid", tags, name, estimatedCost, 0, false, dt.dateTimeLocalNow()};
+    TaskDTO expected{"any_uuid",
+                     tags,
+                     name,
+                     estimatedCost,
+                     {},
+                     false,
+                     dt.dateTimeLocalNow()};
     createTaskHandler.handle(CreateTaskCommand{name, tags, estimatedCost});
 
     undoHandler.handle(UndoLastCommand{});
