@@ -26,7 +26,7 @@
 #include "api/requests/CreateTaskCommand.h"
 #include "core/ActionInvoker.h"
 #include "core/DateTimeProvider.h"
-#include "core/TaskStorageWriter.h"
+#include "api/TaskStorageWriter.h"
 #include "core/UUIDGenerator.h"
 
 namespace sprint_timer::api {

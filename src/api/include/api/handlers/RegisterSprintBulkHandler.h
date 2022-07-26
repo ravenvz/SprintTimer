@@ -23,7 +23,7 @@
 #include "api/requests/RegisterSprintBulkCommand.h"
 #include "core/ActionInvoker.h"
 #include "core/SprintStorage.h"
-#include "core/TaskStorageReader.h"
+#include "api/TaskStorageReader.h"
 #include "core/UUIDGenerator.h"
 
 namespace sprint_timer::api {

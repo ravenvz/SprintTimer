@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/actions/RegisterSprintBulk.h"
+#include "api/actions/RegisterSprintBulk.h"
 
 namespace sprint_timer::actions {
 

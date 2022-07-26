@@ -19,26 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/actions/ChangeTasksPriorities.h"
+#include "api/actions/CreateTask.h"
 
 namespace sprint_timer::actions {
 
-ChangeTasksPriorities::ChangeTasksPriorities(TaskStorageWriter& writer_,
-                                             std::vector<std::string> old_order,
-                                             std::vector<std::string> new_order)
-    : writer{writer_}
-    , old_order_{std::move(old_order)}
-    , new_order_{std::move(new_order)}
+CreateTask::CreateTask(TaskStorageWriter& taskStorageWriter,
+                       entities::Task newTask)
+    : writer{taskStorageWriter}
+    , task{std::move(newTask)}
 {
 }
 
-void ChangeTasksPriorities::execute() { writer.updatePriorities(new_order_); }
+void CreateTask::execute() { writer.save(task); }
 
-void ChangeTasksPriorities::undo() { writer.updatePriorities(old_order_); }
+void CreateTask::undo() { writer.remove(task.uuid()); }
 
-std::string ChangeTasksPriorities::describe() const
+std::string CreateTask::describe() const
 {
-    return "Store unfinished tasks order";
+    std::stringstream ss;
+    ss << "Add new task '" << task << "'";
+    return ss.str();
 }
 
 } // namespace sprint_timer::actions

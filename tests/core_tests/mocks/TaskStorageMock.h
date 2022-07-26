@@ -22,7 +22,7 @@
 #ifndef TASKSTORAGEMOCK_H_EQEDPXT6
 #define TASKSTORAGEMOCK_H_EQEDPXT6
 
-#include "core/TaskStorage.h"
+#include "api/TaskStorage.h"
 #include "gmock/gmock.h"
 
 namespace mocks {

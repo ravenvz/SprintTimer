@@ -24,7 +24,7 @@
 #include "api/dtos/TagMapper.h"
 #include "api/dtos/TaskMapper.h"
 #include "core/HandlerException.h"
-#include "core/actions/EditTask.h"
+#include "api/actions/EditTask.h"
 #include <algorithm>
 
 namespace {

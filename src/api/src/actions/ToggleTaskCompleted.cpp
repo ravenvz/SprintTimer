@@ -22,7 +22,7 @@
 
 #include <utility>
 
-#include "core/actions/ToggleTaskCompleted.h"
+#include "api/actions/ToggleTaskCompleted.h"
 
 using dw::DateTime;
 

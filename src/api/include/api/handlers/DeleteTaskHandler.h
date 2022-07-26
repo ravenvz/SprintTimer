@@ -26,7 +26,7 @@
 #include "api/requests/DeleteTaskCommand.h"
 #include "core/ActionInvoker.h"
 #include "core/SprintStorage.h"
-#include "core/TaskStorage.h"
+#include "api/TaskStorage.h"
 
 namespace sprint_timer::api {
 

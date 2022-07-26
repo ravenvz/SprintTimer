@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "api/handlers/ChangeActiveTasksPriorityHandler.h"
-#include "core/actions/ChangeTasksPriorities.h"
+#include "api/actions/ChangeTasksPriorities.h"
 
 namespace sprint_timer::api {
 

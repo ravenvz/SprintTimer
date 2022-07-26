@@ -26,7 +26,7 @@
 #include "api_tests/QtStorageInitializer.h"
 #include "api_tests/matchers/MatchesTaskIgnoringUuid.h"
 #include "core/ObservableActionInvoker.h"
-#include "core/TaskStorage.h"
+#include "api/TaskStorage.h"
 #include "core/TaskTree.h"
 #include "gtest/gtest.h"
 

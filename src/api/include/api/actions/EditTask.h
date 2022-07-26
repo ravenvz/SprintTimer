@@ -19,19 +19,19 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TOGGLETASKCOMPLETED_H_BSLZSITB
-#define TOGGLETASKCOMPLETED_H_BSLZSITB
+#ifndef EDITTASKCOMMAND_H_3FYYCQWP
+#define EDITTASKCOMMAND_H_3FYYCQWP
 
 #include "core/Action.h"
-#include "core/TaskStorageWriter.h"
+#include "api/TaskStorageWriter.h"
 
 namespace sprint_timer::actions {
 
-class ToggleTaskCompleted : public Action {
+class EditTask : public Action {
 public:
-    ToggleTaskCompleted(TaskStorageWriter& taskStorageWriter,
-                        std::string uuid,
-                        dw::DateTime lastModificationTimestamp);
+    EditTask(TaskStorageWriter& writer,
+             entities::Task originalTask,
+             const entities::Task& editedTask);
 
     void execute() final;
 
@@ -41,11 +41,10 @@ public:
 
 private:
     TaskStorageWriter& writer;
-    const std::string uuid;
-    const dw::DateTime oldTimeStamp;
+    entities::Task editedTask;
+    entities::Task originalTask;
 };
 
 } // namespace sprint_timer::actions
 
-#endif /* end of include guard: TOGGLETASKCOMPLETED_H_BSLZSITB */
-
+#endif /* end of include guard: EDITTASKCOMMAND_H_3FYYCQWP */

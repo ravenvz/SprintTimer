@@ -20,32 +20,25 @@
 **
 *********************************************************************************/
 
-#include "core/actions/DeleteTask.h"
+#include "api/actions/DeleteSprint.h"
 
 namespace sprint_timer::actions {
 
-DeleteTask::DeleteTask(TaskStorageWriter& taskStorageWriter_,
-                       entities::Task taskToRemove_)
-    : taskWriter{taskStorageWriter_}
-    , task{std::move(taskToRemove_)}
+DeleteSprint::DeleteSprint(SprintStorageWriter& writer_,
+                           entities::Sprint sprintToRemove_)
+    : writer{writer_}
+    , sprint{std::move(sprintToRemove_)}
 {
 }
 
-void DeleteTask::execute()
-{
-    if (task.actualCost() == 0) {
-        taskWriter.remove(task.uuid());
-        return;
-    }
-    taskWriter.remove(task.uuid());
-}
+void DeleteSprint::execute() { writer.remove(sprint); }
 
-void DeleteTask::undo() { taskWriter.save(task); }
+void DeleteSprint::undo() { writer.restore(sprint); }
 
-std::string DeleteTask::describe() const
+std::string DeleteSprint::describe() const
 {
     std::stringstream ss;
-    ss << "Delete task '" << task << "'";
+    ss << "Remove sprint '" << sprint << "'";
     return ss.str();
 }
 

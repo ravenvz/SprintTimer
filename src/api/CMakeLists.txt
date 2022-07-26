@@ -2,6 +2,16 @@ add_library(${API_LIB} SHARED)
 
 target_sources(${API_LIB}
     PUBLIC
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/ChangeTasksPriorities.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/ChangeWorkSchedule.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/CreateTask.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/DeleteSprint.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/DeleteTask.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/EditTask.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/RegisterSprint.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/RegisterSprintBulk.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/RenameTag.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/ToggleTaskCompleted.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/IConfig.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorage.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorageReader.h"
@@ -91,6 +101,16 @@ target_sources(${API_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/WorktimeStatisticsQuery.h"
 
     PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/src/actions/ChangeTasksPriorities.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/actions/ChangeWorkSchedule.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/actions/CreateTask.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/actions/DeleteSprint.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/actions/DeleteTask.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/actions/EditTask.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/actions/RegisterSprint.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/actions/RegisterSprintBulk.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/actions/RenameTag.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/actions/ToggleTaskCompleted.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dtos/DayPart.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dtos/SprintMapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dtos/TaskMapper.cpp"

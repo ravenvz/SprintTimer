@@ -19,17 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ITASKSTORAGE_H_8CEZB2YU
-#define ITASKSTORAGE_H_8CEZB2YU
 
-#include "core/TaskStorageReader.h"
-#include "core/TaskStorageWriter.h"
+#include "api/actions/DeleteTask.h"
 
-namespace sprint_timer {
+namespace sprint_timer::actions {
 
-class TaskStorage : public TaskStorageReader, public TaskStorageWriter {
-};
+DeleteTask::DeleteTask(TaskStorageWriter& taskStorageWriter_,
+                       entities::Task taskToRemove_)
+    : taskWriter{taskStorageWriter_}
+    , task{std::move(taskToRemove_)}
+{
+}
 
-} // namespace sprint_timer
+void DeleteTask::execute()
+{
+    if (task.actualCost() == 0) {
+        taskWriter.remove(task.uuid());
+        return;
+    }
+    taskWriter.remove(task.uuid());
+}
 
-#endif /* end of include guard: ITASKSTORAGE_H_8CEZB2YU */
+void DeleteTask::undo() { taskWriter.save(task); }
+
+std::string DeleteTask::describe() const
+{
+    std::stringstream ss;
+    ss << "Delete task '" << task << "'";
+    return ss.str();
+}
+
+} // namespace sprint_timer::actions

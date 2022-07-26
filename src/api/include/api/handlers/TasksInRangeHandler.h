@@ -23,7 +23,7 @@
 #define TASKSINRANGEHANDLER_H_XJYQDCR4
 
 #include "api/com_query/QueryHandler.h"
-#include "core/TaskStorageReader.h"
+#include "api/TaskStorageReader.h"
 // #include "core/use_cases/TaskMapper.h"
 #include "api/com_query/TasksInRangeQuery.h"
 

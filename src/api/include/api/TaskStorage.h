@@ -19,27 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef ITASKSTORAGE_H_8CEZB2YU
+#define ITASKSTORAGE_H_8CEZB2YU
 
-#include "core/actions/RegisterSprint.h"
+#include "api/TaskStorageReader.h"
+#include "api/TaskStorageWriter.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer {
 
-RegisterSprint::RegisterSprint(SprintStorageWriter& writer_,
-                               entities::Sprint newSprint_)
-    : writer{writer_}
-    , sprint{std::move(newSprint_)}
-{
-}
+class TaskStorage : public TaskStorageReader, public TaskStorageWriter {
+};
 
-void RegisterSprint::execute() { writer.save(sprint); }
+} // namespace sprint_timer
 
-void RegisterSprint::undo() { writer.remove(sprint); }
-
-std::string RegisterSprint::describe() const
-{
-    std::stringstream ss;
-    ss << "Register new sprint '" << sprint << "'";
-    return ss.str();
-}
-
-} // namespace sprint_timer::actions
+#endif /* end of include guard: ITASKSTORAGE_H_8CEZB2YU */

@@ -20,25 +20,37 @@
 **
 *********************************************************************************/
 
-#include "core/actions/DeleteSprint.h"
+#include "api/actions/EditTask.h"
+
+using dw::DateTime;
 
 namespace sprint_timer::actions {
 
-DeleteSprint::DeleteSprint(SprintStorageWriter& writer_,
-                           entities::Sprint sprintToRemove_)
+using namespace entities;
+
+EditTask::EditTask(TaskStorageWriter& writer_,
+                   Task originalTask_,
+                   const Task& editedTask_)
     : writer{writer_}
-    , sprint{std::move(sprintToRemove_)}
+    , editedTask{editedTask_.name(),
+                 editedTask_.estimatedCost(),
+                 originalTask_.actualCost(),
+                 originalTask_.uuid(),
+                 editedTask_.tags(),
+                 originalTask_.isCompleted(),
+                 dw::current_date_time_local()}
+    , originalTask{std::move(originalTask_)}
 {
 }
 
-void DeleteSprint::execute() { writer.remove(sprint); }
+void EditTask::execute() { writer.edit(originalTask, editedTask); }
 
-void DeleteSprint::undo() { writer.restore(sprint); }
+void EditTask::undo() { writer.edit(editedTask, originalTask); }
 
-std::string DeleteSprint::describe() const
+std::string EditTask::describe() const
 {
     std::stringstream ss;
-    ss << "Remove sprint '" << sprint << "'";
+    ss << "Edit task '" << originalTask << " -> " << editedTask << "'";
     return ss.str();
 }
 

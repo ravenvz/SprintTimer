@@ -22,7 +22,7 @@
 #ifndef QTTASKSTORAGEWRITER_H_AB4O73ZJ
 #define QTTASKSTORAGEWRITER_H_AB4O73ZJ
 
-#include "core/TaskStorageWriter.h"
+#include "api/TaskStorageWriter.h"
 #include "core/entities/Tag.h"
 #include <QSqlQuery>
 

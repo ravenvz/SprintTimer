@@ -22,7 +22,7 @@
 #include "api/handlers/DeleteTaskHandler.h"
 #include "api/dtos/TaskMapper.h"
 #include "core/HandlerException.h"
-#include "core/actions/DeleteTask.h"
+#include "api/actions/DeleteTask.h"
 
 namespace sprint_timer::api {
 

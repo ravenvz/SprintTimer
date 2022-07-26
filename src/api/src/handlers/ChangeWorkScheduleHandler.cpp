@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "api/handlers/ChangeWorkScheduleHandler.h"
-#include "core/actions/ChangeWorkSchedule.h"
+#include "api/actions/ChangeWorkSchedule.h"
 
 namespace sprint_timer::api {
 

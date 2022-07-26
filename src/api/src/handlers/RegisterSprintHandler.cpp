@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "api/handlers/RegisterSprintHandler.h"
-#include "core/actions/RegisterSprint.h"
+#include "api/actions/RegisterSprint.h"
 
 namespace sprint_timer::api {
 

@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "api/handlers/ToggleTaskCompletedHandler.h"
-#include "core/actions/ToggleTaskCompleted.h"
+#include "api/actions/ToggleTaskCompleted.h"
 
 namespace sprint_timer::api {
 

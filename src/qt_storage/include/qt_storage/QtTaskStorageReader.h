@@ -22,7 +22,7 @@
 #ifndef QTTASKSTORAGEREADER_H_48BDKQZ7
 #define QTTASKSTORAGEREADER_H_48BDKQZ7
 
-#include "core/TaskStorageReader.h"
+#include "api/TaskStorageReader.h"
 #include <QSqlQuery>
 #include <queue>
 

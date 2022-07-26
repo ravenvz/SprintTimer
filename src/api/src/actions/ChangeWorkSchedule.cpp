@@ -19,34 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef RENAMETAG_H_5X4BJA83
-#define RENAMETAG_H_5X4BJA83
-
-#include "core/Action.h"
-#include "core/TaskStorageWriter.h"
-#include <iostream>
+#include "api/actions/ChangeWorkSchedule.h"
 
 namespace sprint_timer::actions {
 
-class RenameTag : public Action {
-public:
-    RenameTag(TaskStorageWriter& tagStorageWriter,
-              std::string oldName,
-              std::string newName);
+ChangeWorkSchedule::ChangeWorkSchedule(WorkScheduleWriter& writer_,
+                                       const WorkSchedule& oldWorkSchedule_,
+                                       const WorkSchedule& newWorkSchedule_)
+    : writer{writer_}
+    , oldWorkSchedule{oldWorkSchedule_}
+    , newWorkSchedule{newWorkSchedule_}
+{
+}
 
-    void execute() final;
+void ChangeWorkSchedule::execute() { writer.updateSchedule(newWorkSchedule); }
 
-    void undo() final;
+void ChangeWorkSchedule::undo() { writer.updateSchedule(oldWorkSchedule); }
 
-    std::string describe() const final;
+std::string ChangeWorkSchedule::describe() const
+{
+    std::stringstream ss;
+    ss << "Change workdays \nfrom:\n";
+    ss << oldWorkSchedule;
+    ss << "\nto:\n";
+    ss << newWorkSchedule << "\n";
+    return ss.str();
+}
 
-private:
-    TaskStorageWriter& writer;
-    const std::string oldName_;
-    const std::string newName_;
-};
-
-} // namespace sprint_timer::use_cases
-
-#endif /* end of include guard: RENAMETAG_H_5X4BJA83 */
-
+} // namespace sprint_timer::actions

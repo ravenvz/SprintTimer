@@ -25,7 +25,7 @@
 #include "core/OperationalRangeReader.h"
 #include "core/SprintDistributionReader.h"
 #include "core/SprintStorage.h"
-#include "core/TaskStorage.h"
+#include "api/TaskStorage.h"
 #include "core/TaskTreeMetadataStorage.h"
 #include "core/WorkScheduleStorage.h"
 #include <memory>

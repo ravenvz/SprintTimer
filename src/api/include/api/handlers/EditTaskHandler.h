@@ -25,7 +25,7 @@
 #include "api/com_query/CommandHandler.h"
 #include "api/requests//EditTaskCommand.h"
 #include "core/ActionInvoker.h"
-#include "core/TaskStorage.h"
+#include "api/TaskStorage.h"
 
 namespace sprint_timer::api {
 

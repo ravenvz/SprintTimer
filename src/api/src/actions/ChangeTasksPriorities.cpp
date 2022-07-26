@@ -19,32 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef EDITTASKCOMMAND_H_3FYYCQWP
-#define EDITTASKCOMMAND_H_3FYYCQWP
-
-#include "core/Action.h"
-#include "core/TaskStorageWriter.h"
+#include "api/actions/ChangeTasksPriorities.h"
 
 namespace sprint_timer::actions {
 
-class EditTask : public Action {
-public:
-    EditTask(TaskStorageWriter& writer,
-             entities::Task originalTask,
-             const entities::Task& editedTask);
+ChangeTasksPriorities::ChangeTasksPriorities(TaskStorageWriter& writer_,
+                                             std::vector<std::string> old_order,
+                                             std::vector<std::string> new_order)
+    : writer{writer_}
+    , old_order_{std::move(old_order)}
+    , new_order_{std::move(new_order)}
+{
+}
 
-    void execute() final;
+void ChangeTasksPriorities::execute() { writer.updatePriorities(new_order_); }
 
-    void undo() final;
+void ChangeTasksPriorities::undo() { writer.updatePriorities(old_order_); }
 
-    std::string describe() const final;
-
-private:
-    TaskStorageWriter& writer;
-    entities::Task editedTask;
-    entities::Task originalTask;
-};
+std::string ChangeTasksPriorities::describe() const
+{
+    return "Store unfinished tasks order";
+}
 
 } // namespace sprint_timer::actions
-
-#endif /* end of include guard: EDITTASKCOMMAND_H_3FYYCQWP */

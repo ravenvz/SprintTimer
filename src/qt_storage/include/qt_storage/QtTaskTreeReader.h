@@ -22,7 +22,7 @@
 #ifndef QTTASKTREESTORAGEREADER_H_AHDKRZJS
 #define QTTASKTREESTORAGEREADER_H_AHDKRZJS
 
-#include "core/TaskStorageReader.h"
+#include "api/TaskStorageReader.h"
 #include "core/TaskTreeMetadataReader.h"
 #include <filesystem>
 

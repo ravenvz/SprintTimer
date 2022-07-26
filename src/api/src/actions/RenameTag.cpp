@@ -19,30 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/actions/ChangeWorkSchedule.h"
+
+#include "api/actions/RenameTag.h"
 
 namespace sprint_timer::actions {
 
-ChangeWorkSchedule::ChangeWorkSchedule(WorkScheduleWriter& writer_,
-                                       const WorkSchedule& oldWorkSchedule_,
-                                       const WorkSchedule& newWorkSchedule_)
-    : writer{writer_}
-    , oldWorkSchedule{oldWorkSchedule_}
-    , newWorkSchedule{newWorkSchedule_}
+RenameTag::RenameTag(TaskStorageWriter& tagStorageWriter,
+                     std::string oldName,
+                     std::string newName)
+    : writer{tagStorageWriter}
+    , oldName_{std::move(oldName)}
+    , newName_{std::move(newName)}
 {
 }
 
-void ChangeWorkSchedule::execute() { writer.updateSchedule(newWorkSchedule); }
+void RenameTag::execute() { writer.editTag(oldName_, newName_); }
 
-void ChangeWorkSchedule::undo() { writer.updateSchedule(oldWorkSchedule); }
+void RenameTag::undo() { writer.editTag(newName_, oldName_); }
 
-std::string ChangeWorkSchedule::describe() const
+std::string RenameTag::describe() const
 {
     std::stringstream ss;
-    ss << "Change workdays \nfrom:\n";
-    ss << oldWorkSchedule;
-    ss << "\nto:\n";
-    ss << newWorkSchedule << "\n";
+    ss << "Edit tag (" << oldName_ << " -> " << newName_ << ")";
     return ss.str();
 }
 

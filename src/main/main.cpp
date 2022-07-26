@@ -112,7 +112,7 @@
 #include "core/RequestForDaysBack.h"
 #include "core/RequestForMonthsBack.h"
 #include "core/RequestForWeeksBack.h"
-#include "core/TaskStorageReader.h"
+#include "api/TaskStorageReader.h"
 #include "core/Workflow.h"
 #include "external_io/OstreamSink.h"
 #include "external_io/RuntimeConfigurableDataExporter.h"

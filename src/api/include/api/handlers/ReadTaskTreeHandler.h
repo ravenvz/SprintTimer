@@ -24,7 +24,7 @@
 
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/ReadTaskTreeQuery.h"
-#include "core/TaskStorageReader.h"
+#include "api/TaskStorageReader.h"
 #include "core/TaskTreeMetadataReader.h"
 
 namespace sprint_timer::api {

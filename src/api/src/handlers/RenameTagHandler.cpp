@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "api/handlers/RenameTagHandler.h"
-#include "core/actions/RenameTag.h"
+#include "api/actions/RenameTag.h"
 #include <memory>
 
 namespace sprint_timer::api {

@@ -19,25 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/actions/CreateTask.h"
+
+#include "api/actions/RegisterSprint.h"
 
 namespace sprint_timer::actions {
 
-CreateTask::CreateTask(TaskStorageWriter& taskStorageWriter,
-                       entities::Task newTask)
-    : writer{taskStorageWriter}
-    , task{std::move(newTask)}
+RegisterSprint::RegisterSprint(SprintStorageWriter& writer_,
+                               entities::Sprint newSprint_)
+    : writer{writer_}
+    , sprint{std::move(newSprint_)}
 {
 }
 
-void CreateTask::execute() { writer.save(task); }
+void RegisterSprint::execute() { writer.save(sprint); }
 
-void CreateTask::undo() { writer.remove(task.uuid()); }
+void RegisterSprint::undo() { writer.remove(sprint); }
 
-std::string CreateTask::describe() const
+std::string RegisterSprint::describe() const
 {
     std::stringstream ss;
-    ss << "Add new task '" << task << "'";
+    ss << "Register new sprint '" << sprint << "'";
     return ss.str();
 }
 

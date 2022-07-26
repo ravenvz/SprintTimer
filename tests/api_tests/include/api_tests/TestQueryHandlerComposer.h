@@ -40,7 +40,7 @@
 #include "core/OperationalRangeReader.h"
 #include "core/SprintDistributionReader.h"
 #include "core/SprintStorage.h"
-#include "core/TaskStorage.h"
+#include "api/TaskStorage.h"
 #include "core/TaskTreeMetadataReader.h"
 
 namespace sprint_timer::compose {

@@ -19,19 +19,19 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DELETETASK_H_07POXQ41
-#define DELETETASK_H_07POXQ41
+#ifndef CHANGETASKSPRIORITIES_H_MDWA0JUJ
+#define CHANGETASKSPRIORITIES_H_MDWA0JUJ
 
 #include "core/Action.h"
-#include "core/SprintStorage.h"
-#include "core/TaskStorageWriter.h"
+#include "api/TaskStorageWriter.h"
 
 namespace sprint_timer::actions {
 
-class DeleteTask : public Action {
+class ChangeTasksPriorities : public Action {
 public:
-    DeleteTask(TaskStorageWriter& taskStorageWriter,
-               entities::Task taskToRemove);
+    ChangeTasksPriorities(TaskStorageWriter& taskStorageWriter,
+                          std::vector<std::string> old_order,
+                          std::vector<std::string> new_order);
 
     void execute() final;
 
@@ -40,11 +40,12 @@ public:
     std::string describe() const final;
 
 private:
-    TaskStorageWriter& taskWriter;
-    const entities::Task task;
+    TaskStorageWriter& writer;
+    std::vector<std::string> old_order_;
+    std::vector<std::string> new_order_;
 };
 
 } // namespace sprint_timer::actions
 
-#endif /* end of include guard: DELETETASK_H_07POXQ41 */
+#endif /* end of include guard: CHANGETASKSPRIORITIES_H_MDWA0JUJ */
 

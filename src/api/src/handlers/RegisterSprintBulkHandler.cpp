@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "api/handlers/RegisterSprintBulkHandler.h"
 #include "core/SprintConflictException.h"
-#include "core/actions/RegisterSprintBulk.h"
+#include "api/actions/RegisterSprintBulk.h"
 #include "core/entities/Sprint.h"
 #include "core/utils/Algutils.h"
 #include <algorithm>

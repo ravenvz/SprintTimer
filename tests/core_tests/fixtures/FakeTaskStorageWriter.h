@@ -23,7 +23,7 @@
 #define FAKETASKSTORAGEWRITER_H_L9TXWRHX
 
 #include "FakeStorage.h"
-#include "core/TaskStorageWriter.h"
+#include "api/TaskStorageWriter.h"
 
 class FakeTaskStorageWriter : public sprint_timer::TaskStorageWriter {
 public:

@@ -19,39 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef CREATETASK_H_ISATC8JM
+#define CREATETASK_H_ISATC8JM
 
-#include "core/actions/EditTask.h"
-
-using dw::DateTime;
+#include "core/Action.h"
+#include "api/TaskStorageWriter.h"
+#include "core/entities/Task.h"
 
 namespace sprint_timer::actions {
 
-using namespace entities;
+class CreateTask : public Action {
+public:
+    CreateTask(TaskStorageWriter& taskStorageWriter, entities::Task task);
 
-EditTask::EditTask(TaskStorageWriter& writer_,
-                   Task originalTask_,
-                   const Task& editedTask_)
-    : writer{writer_}
-    , editedTask{editedTask_.name(),
-                 editedTask_.estimatedCost(),
-                 originalTask_.actualCost(),
-                 originalTask_.uuid(),
-                 editedTask_.tags(),
-                 originalTask_.isCompleted(),
-                 dw::current_date_time_local()}
-    , originalTask{std::move(originalTask_)}
-{
-}
+    void execute() final;
 
-void EditTask::execute() { writer.edit(originalTask, editedTask); }
+    void undo() final;
 
-void EditTask::undo() { writer.edit(editedTask, originalTask); }
+    std::string describe() const final;
 
-std::string EditTask::describe() const
-{
-    std::stringstream ss;
-    ss << "Edit task '" << originalTask << " -> " << editedTask << "'";
-    return ss.str();
-}
+private:
+    TaskStorageWriter& writer;
+    const entities::Task task;
+};
 
 } // namespace sprint_timer::actions
+
+#endif /* end of include guard: CREATETASK_H_ISATC8JM */
+

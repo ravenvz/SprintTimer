@@ -23,7 +23,7 @@
 #define SPRINT_TIMER_APP_QTTASKSTORAGEREADERCONNECTIONPROXY_H
 
 #include "ThreadConnectionHelper.h"
-#include "core/TaskStorageReader.h"
+#include "api/TaskStorageReader.h"
 
 namespace sprint_timer::compose {
 

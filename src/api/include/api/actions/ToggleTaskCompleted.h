@@ -19,19 +19,19 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef CHANGETASKSPRIORITIES_H_MDWA0JUJ
-#define CHANGETASKSPRIORITIES_H_MDWA0JUJ
+#ifndef TOGGLETASKCOMPLETED_H_BSLZSITB
+#define TOGGLETASKCOMPLETED_H_BSLZSITB
 
 #include "core/Action.h"
-#include "core/TaskStorageWriter.h"
+#include "api/TaskStorageWriter.h"
 
 namespace sprint_timer::actions {
 
-class ChangeTasksPriorities : public Action {
+class ToggleTaskCompleted : public Action {
 public:
-    ChangeTasksPriorities(TaskStorageWriter& taskStorageWriter,
-                          std::vector<std::string> old_order,
-                          std::vector<std::string> new_order);
+    ToggleTaskCompleted(TaskStorageWriter& taskStorageWriter,
+                        std::string uuid,
+                        dw::DateTime lastModificationTimestamp);
 
     void execute() final;
 
@@ -41,11 +41,11 @@ public:
 
 private:
     TaskStorageWriter& writer;
-    std::vector<std::string> old_order_;
-    std::vector<std::string> new_order_;
+    const std::string uuid;
+    const dw::DateTime oldTimeStamp;
 };
 
 } // namespace sprint_timer::actions
 
-#endif /* end of include guard: CHANGETASKSPRIORITIES_H_MDWA0JUJ */
+#endif /* end of include guard: TOGGLETASKCOMPLETED_H_BSLZSITB */
 

@@ -36,7 +36,7 @@
 #include "api_tests/CommandHandlerComposer.h"
 #include "core/ActionInvoker.h"
 #include "core/SprintStorage.h"
-#include "core/TaskStorage.h"
+#include "api/TaskStorage.h"
 #include "core/TaskTreeMetadataStorage.h"
 
 namespace sprint_timer::compose {

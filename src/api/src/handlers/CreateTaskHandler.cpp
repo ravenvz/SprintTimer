@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "api/handlers/CreateTaskHandler.h"
-#include "core/actions/CreateTask.h"
+#include "api/actions/CreateTask.h"
 
 namespace sprint_timer::api {
 

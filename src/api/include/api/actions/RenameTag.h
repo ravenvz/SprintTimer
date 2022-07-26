@@ -19,29 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#ifndef RENAMETAG_H_5X4BJA83
+#define RENAMETAG_H_5X4BJA83
 
-#include "core/actions/RenameTag.h"
+#include "core/Action.h"
+#include "api/TaskStorageWriter.h"
+#include <iostream>
 
 namespace sprint_timer::actions {
 
-RenameTag::RenameTag(TaskStorageWriter& tagStorageWriter,
-                     std::string oldName,
-                     std::string newName)
-    : writer{tagStorageWriter}
-    , oldName_{std::move(oldName)}
-    , newName_{std::move(newName)}
-{
-}
+class RenameTag : public Action {
+public:
+    RenameTag(TaskStorageWriter& tagStorageWriter,
+              std::string oldName,
+              std::string newName);
 
-void RenameTag::execute() { writer.editTag(oldName_, newName_); }
+    void execute() final;
 
-void RenameTag::undo() { writer.editTag(newName_, oldName_); }
+    void undo() final;
 
-std::string RenameTag::describe() const
-{
-    std::stringstream ss;
-    ss << "Edit tag (" << oldName_ << " -> " << newName_ << ")";
-    return ss.str();
-}
+    std::string describe() const final;
 
-} // namespace sprint_timer::actions
+private:
+    TaskStorageWriter& writer;
+    const std::string oldName_;
+    const std::string newName_;
+};
+
+} // namespace sprint_timer::use_cases
+
+#endif /* end of include guard: RENAMETAG_H_5X4BJA83 */
+

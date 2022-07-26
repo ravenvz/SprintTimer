@@ -22,7 +22,7 @@
 #ifndef QTTASKSTORAGE_H_C1DPFISW
 #define QTTASKSTORAGE_H_C1DPFISW
 
-#include "core/TaskStorage.h"
+#include "api/TaskStorage.h"
 #include "qt_storage/QtTaskStorageReader.h"
 #include "qt_storage/QtTaskStorageWriter.h"
 
