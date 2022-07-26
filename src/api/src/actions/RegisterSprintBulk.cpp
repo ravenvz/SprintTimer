@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "api/actions/RegisterSprintBulk.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 using entities::Sprint;
 
@@ -48,5 +48,5 @@ std::string RegisterSprintBulk::describe() const
     return ss.str();
 }
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions
 

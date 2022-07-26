@@ -1,5 +1,4 @@
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets
-                 OPTIONAL_COMPONENTS Multimedia)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Multimedia)
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)

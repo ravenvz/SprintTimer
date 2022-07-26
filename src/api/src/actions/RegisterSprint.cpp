@@ -22,7 +22,7 @@
 
 #include "api/actions/RegisterSprint.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 RegisterSprint::RegisterSprint(SprintStorageWriter& writer_,
                                entities::Sprint newSprint_)
@@ -42,4 +42,4 @@ std::string RegisterSprint::describe() const
     return ss.str();
 }
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions

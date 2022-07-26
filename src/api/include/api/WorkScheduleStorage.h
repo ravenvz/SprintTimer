@@ -19,20 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef UUIDGENERATOR_H_H65TNJ7C
-#define UUIDGENERATOR_H_H65TNJ7C
+#ifndef IWORKINGDAYSSTORAGE_H_EGNQRQKY
+#define IWORKINGDAYSSTORAGE_H_EGNQRQKY
 
-#include <string>
+#include "api/WorkScheduleReader.h"
+#include "api/WorkScheduleWriter.h"
 
 namespace sprint_timer {
 
-class UUIDGenerator {
-public:
-    virtual std::string generateUUID() = 0;
-
-    virtual ~UUIDGenerator() = default;
+class WorkScheduleStorage : public WorkScheduleReader,
+                            public WorkScheduleWriter {
 };
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: UUIDGENERATOR_H_H65TNJ7C */
+#endif /* end of include guard: IWORKINGDAYSSTORAGE_H_EGNQRQKY */

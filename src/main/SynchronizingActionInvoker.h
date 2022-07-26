@@ -22,7 +22,7 @@
 #ifndef SYNCHRONIZINGACTIONINVOKER_H_KMS4R5HA
 #define SYNCHRONIZINGACTIONINVOKER_H_KMS4R5HA
 
-#include "core/ObservableActionInvoker.h"
+#include "api/ObservableActionInvoker.h"
 
 namespace sprint_timer::compose {
 

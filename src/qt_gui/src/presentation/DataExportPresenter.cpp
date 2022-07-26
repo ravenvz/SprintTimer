@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/DataExportPresenter.h"
-#include "core/DataExporter.h"
+#include "api/DataExporter.h"
 #include "core/SprintTimerException.h"
 
 namespace {

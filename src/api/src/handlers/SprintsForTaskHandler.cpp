@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "api/handlers/SprintsForTaskHandler.h"
 #include "api/dtos/SprintMapper.h"
-#include "core/HandlerException.h"
+#include "api/HandlerException.h"
 
 namespace sprint_timer::api {
 

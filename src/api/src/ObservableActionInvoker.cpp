@@ -19,17 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef FAKEUUIDGENERATOR_H_CGD3LPU0
-#define FAKEUUIDGENERATOR_H_CGD3LPU0
+#include "api/ObservableActionInvoker.h"
 
-#include "core/UUIDGenerator.h"
+namespace sprint_timer {
 
-class FakeUuidGenerator : public sprint_timer::UUIDGenerator {
-public:
-    std::string generateUUID() override;
+void ObservableActionInvoker::execute(std::unique_ptr<Action> action)
+{
+    action->execute();
+    actionStack.push(std::move(action));
+    notify();
+}
 
-private:
-    int fakeId{0};
-};
+void ObservableActionInvoker::undo()
+{
+    if (actionStack.empty())
+        return;
+    actionStack.top()->undo();
+    actionStack.pop();
+    notify();
+}
 
-#endif /* end of include guard: FAKEUUIDGENERATOR_H_CGD3LPU0 */
+std::string ObservableActionInvoker::lastActionDescription() const
+{
+    return actionStack.empty() ? "" : actionStack.top()->describe();
+}
+
+bool ObservableActionInvoker::hasUndoableActions() const
+{
+    return !actionStack.empty();
+}
+
+} // namespace sprint_timer

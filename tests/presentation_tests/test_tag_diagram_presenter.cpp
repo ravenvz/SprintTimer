@@ -19,7 +19,6 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "common_utils/FakeUuidGenerator.h"
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/StatisticsColleagueMock.h"
 #include "qt_gui/presentation/TopTagDiagramPresenter.h"
@@ -84,8 +83,7 @@ public:
     size_t numTopTags{4};
     NiceMock<TagDiagramview> view;
     NiceMock<mocks::ColleagueMock> fake_colleague;
-    NiceMock<mocks::QueryHandlerMock<
-        sprint_timer::api::TopTagFrequenciesQuery>>
+    NiceMock<mocks::QueryHandlerMock<sprint_timer::api::TopTagFrequenciesQuery>>
         topTagFrequenciesHandler;
     dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
     StatisticsContext statisticsContext{

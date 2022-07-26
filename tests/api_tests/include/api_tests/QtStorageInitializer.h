@@ -22,12 +22,12 @@
 #ifndef QTSTORAGEINITIALIZER_H_WR5MUUAC
 #define QTSTORAGEINITIALIZER_H_WR5MUUAC
 
+#include "api/DefaultDateTimeProvider.h"
+#include "api/ObservableActionInvoker.h"
+#include "api_tests/FakeUuidGenerator.h"
 #include "api_tests/TestCommandHandlerComposer.h"
 #include "api_tests/TestQueryHandlerComposer.h"
 #include "common_utils/DateTimeProviderMock.h"
-#include "common_utils/FakeUuidGenerator.h"
-#include "core/DefaultDateTimeProvider.h"
-#include "core/ObservableActionInvoker.h"
 #include "qt_storage/DatabaseInitializer.h"
 #include "qt_storage/QtStorageImplementersFactory.h"
 #include "qt_storage/WorkerConnection.h"
@@ -47,7 +47,7 @@ struct TestStorageInitializer {
         return *queryHandlerComp;
     }
 
-    const sprint_timer::DateTimeProvider& dateTimeProvider() const
+    const sprint_timer::api::DateTimeProvider& dateTimeProvider() const
     {
         return dtProvider;
     }
@@ -106,7 +106,7 @@ private:
                 *sundayFirstDistReader,
                 *monthlyDistReader,
                 *taskTreeStorage)};
-    sprint_timer::DefaultDateTimeProvider dtProvider;
+    sprint_timer::api::DefaultDateTimeProvider dtProvider;
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */

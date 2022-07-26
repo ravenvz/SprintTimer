@@ -19,10 +19,10 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/Action.h"
+#include "api/Action.h"
 #include "api/SprintStorageWriter.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 class RegisterSprintBulk : public Action {
 public:
@@ -40,4 +40,4 @@ private:
     const std::vector<entities::Sprint> sprints;
 };
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions

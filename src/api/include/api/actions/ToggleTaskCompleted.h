@@ -22,10 +22,10 @@
 #ifndef TOGGLETASKCOMPLETED_H_BSLZSITB
 #define TOGGLETASKCOMPLETED_H_BSLZSITB
 
-#include "core/Action.h"
+#include "api/Action.h"
 #include "api/TaskStorageWriter.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 class ToggleTaskCompleted : public Action {
 public:
@@ -45,7 +45,7 @@ private:
     const dw::DateTime oldTimeStamp;
 };
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions
 
 #endif /* end of include guard: TOGGLETASKCOMPLETED_H_BSLZSITB */
 

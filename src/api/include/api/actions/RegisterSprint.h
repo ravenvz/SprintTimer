@@ -22,10 +22,10 @@
 #ifndef REGISTERSPRINT_H_QSOGCUHB
 #define REGISTERSPRINT_H_QSOGCUHB
 
-#include "core/Action.h"
+#include "api/Action.h"
 #include "api/SprintStorageWriter.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 class RegisterSprint : public Action {
 public:
@@ -42,6 +42,6 @@ private:
     const entities::Sprint sprint;
 };
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions
 
 #endif /* end of include guard: REGISTERSPRINT_H_QSOGCUHB */

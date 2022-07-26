@@ -19,20 +19,29 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
-#define SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR
+#ifndef ACTION_H_LZE48PW5
+#define ACTION_H_LZE48PW5
 
-#include "core/SprintDistributionReader.h"
-#include "gmock/gmock.h"
+#include <string>
 
-namespace mocks {
+namespace sprint_timer {
 
-class SprintDistributionReaderMock
-    : public sprint_timer::SprintDistributionReader {
+/* Note that Action is a Command in classical Command pattern.
+ * This name was choosen so that it would not be confused with user
+ * commands. Actions are used in api module internally and are not
+ * ment to be used by api module clients directly. */
+class Action {
 public:
-    MOCK_METHOD1(sprintDistribution, std::vector<int>(const dw::DateRange&));
+    virtual ~Action() = default;
+
+    virtual void execute() = 0;
+
+    virtual void undo() = 0;
+
+    virtual std::string describe() const = 0;
 };
 
-} // namespace mocks
+} // namespace sprint_timer
 
-#endif /* end of include guard: SPRINTDISTRIBUTIONREADERMOCK_H_RNDBJKUR */
+#endif /* end of include guard: ACTION_H_LZE48PW5 */
+

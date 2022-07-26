@@ -19,26 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef DATETIMEPROVIDER_H_ND1KPYZU
-#define DATETIMEPROVIDER_H_ND1KPYZU
+#ifndef ACTIONINVOKER_H_BMI3FZHH
+#define ACTIONINVOKER_H_BMI3FZHH
 
-#include "date_wrapper/date_wrapper.h"
+#include "api/Action.h"
+#include <memory>
+#include <string>
 
 namespace sprint_timer {
 
-class DateTimeProvider {
+class ActionInvoker {
 public:
-    virtual ~DateTimeProvider() = default;
+    virtual ~ActionInvoker() = default;
 
-    virtual dw::Date dateNow() const = 0;
+    virtual void execute(std::unique_ptr<Action> action) = 0;
 
-    virtual dw::DateTime dateTimeNow() const = 0;
+    virtual void undo() = 0;
 
-    virtual dw::Date dateLocalNow() const = 0;
+    virtual std::string lastActionDescription() const = 0;
 
-    virtual dw::DateTime dateTimeLocalNow() const = 0;
+    virtual bool hasUndoableActions() const = 0;
 };
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: DATETIMEPROVIDER_H_ND1KPYZU */
+#endif /* end of include guard: ACTIONINVOKER_H_BMI3FZHH */

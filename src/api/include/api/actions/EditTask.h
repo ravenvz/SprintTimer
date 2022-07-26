@@ -22,10 +22,10 @@
 #ifndef EDITTASKCOMMAND_H_3FYYCQWP
 #define EDITTASKCOMMAND_H_3FYYCQWP
 
-#include "core/Action.h"
+#include "api/Action.h"
 #include "api/TaskStorageWriter.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 class EditTask : public Action {
 public:
@@ -45,6 +45,6 @@ private:
     entities::Task originalTask;
 };
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions
 
 #endif /* end of include guard: EDITTASKCOMMAND_H_3FYYCQWP */

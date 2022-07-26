@@ -22,7 +22,7 @@
 #ifndef FAKESPRINTDISTRIBUTIONREADER_H_UREC2M3T
 #define FAKESPRINTDISTRIBUTIONREADER_H_UREC2M3T
 
-#include "core/SprintDistributionReader.h"
+#include "api/SprintDistributionReader.h"
 #include "FakeStorage.h"
 
 

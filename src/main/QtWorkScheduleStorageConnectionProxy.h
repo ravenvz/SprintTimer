@@ -24,7 +24,7 @@
 
 #include "ThreadConnectionHelper.h"
 #include "api/StorageImplementersFactory.h"
-#include "core/WorkScheduleStorage.h"
+#include "api/WorkScheduleStorage.h"
 #include <QString>
 
 namespace sprint_timer::compose {

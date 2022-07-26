@@ -24,8 +24,8 @@
 
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/ChangeWorkScheduleCommand.h"
-#include "core/ActionInvoker.h"
-#include "core/WorkScheduleWriter.h"
+#include "api/ActionInvoker.h"
+#include "api/WorkScheduleWriter.h"
 
 namespace sprint_timer::api {
 

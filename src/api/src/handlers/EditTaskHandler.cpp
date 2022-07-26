@@ -23,7 +23,7 @@
 #include "api/dtos/SprintMapper.h"
 #include "api/dtos/TagMapper.h"
 #include "api/dtos/TaskMapper.h"
-#include "core/HandlerException.h"
+#include "api/HandlerException.h"
 #include "api/actions/EditTask.h"
 #include <algorithm>
 

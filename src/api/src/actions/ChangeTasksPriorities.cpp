@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "api/actions/ChangeTasksPriorities.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 ChangeTasksPriorities::ChangeTasksPriorities(TaskStorageWriter& writer_,
                                              std::vector<std::string> old_order,
@@ -41,4 +41,4 @@ std::string ChangeTasksPriorities::describe() const
     return "Store unfinished tasks order";
 }
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions

@@ -2,13 +2,7 @@ add_executable(test_core)
 
 target_sources(test_core
     PRIVATE
-    "${CMAKE_CURRENT_LIST_DIR}/mocks/OperationalRangeReaderMock.h"
-    "${CMAKE_CURRENT_LIST_DIR}/mocks/QueryHandlerMock.h"
-    "${CMAKE_CURRENT_LIST_DIR}/mocks/SprintDistributionReaderMock.h"
-    "${CMAKE_CURRENT_LIST_DIR}/mocks/SprintStorageMock.h"
-    "${CMAKE_CURRENT_LIST_DIR}/mocks/TaskStorageMock.h"
     "${CMAKE_CURRENT_LIST_DIR}/mocks/WorkflowMock.h"
-    "${CMAKE_CURRENT_LIST_DIR}/mocks/WorkScheduleStorageMock.h"
     "${CMAKE_CURRENT_LIST_DIR}/test_algutils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_distribution.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_progress_by_day.cpp"

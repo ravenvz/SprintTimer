@@ -19,14 +19,14 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "api/ObservableActionInvoker.h"
+#include "api/TaskStorage.h"
 #include "api/dtos/TaskDTO.h"
 #include "api/handlers/ActiveTasksHandler.h"
 #include "api/handlers/AllTagsHandler.h"
 #include "api/handlers/CreateTaskHandler.h"
 #include "api_tests/QtStorageInitializer.h"
 #include "api_tests/matchers/MatchesTaskIgnoringUuid.h"
-#include "core/ObservableActionInvoker.h"
-#include "api/TaskStorage.h"
 #include "gmock/gmock.h"
 
 using namespace sprint_timer;
@@ -51,7 +51,8 @@ public:
         queryComposer.allTagsHandler()};
     asp::CommandHandler<UndoLastCommand>& undoHandler{
         commandComposer.undoHandler()};
-    const sprint_timer::DateTimeProvider& dt{initializer.dateTimeProvider()};
+    const sprint_timer::api::DateTimeProvider& dt{
+        initializer.dateTimeProvider()};
 };
 
 TEST_F(CreatingTasksFixture, creates_task)

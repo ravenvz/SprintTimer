@@ -22,10 +22,10 @@
 #ifndef CHANGEWORKSCHEDULE_H_PKVJV23C
 #define CHANGEWORKSCHEDULE_H_PKVJV23C
 
-#include "core/Action.h"
-#include "core/WorkScheduleWriter.h"
+#include "api/Action.h"
+#include "api/WorkScheduleWriter.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 class ChangeWorkSchedule : public Action {
 public:
@@ -45,7 +45,7 @@ private:
     const WorkSchedule newWorkSchedule;
 };
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions
 
 #endif /* end of include guard: CHANGEWORKSCHEDULE_H_PKVJV23C */
 

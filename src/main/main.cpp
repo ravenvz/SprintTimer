@@ -98,21 +98,21 @@
 // #include "api/handlers/StartTimerHandler.h"
 #include "api/handlers/ToggleTaskCompletedHandler.h"
 // #include "api/handlers/ToggleZoneModeHandler.h"
+#include "api/BoostUUIDGenerator.h"
+#include "api/DefaultDateTimeProvider.h"
 #include "api/IConfig.h"
+#include "api/ObservableActionInvoker.h"
+#include "api/TaskStorageReader.h"
 #include "api/handlers/TopTagFrequenciesHandler.h"
 #include "api/handlers/WorkScheduleHandler.h"
 #include "api/handlers/WorkdayStatisticsHandler.h"
 #include "api/handlers/WorktimeStatisticsHandler.h"
-#include "core/BoostUUIDGenerator.h"
 #include "core/ComputeByDayStrategy.h"
 #include "core/ComputeByMonthStrategy.h"
 #include "core/ComputeByWeekStrategy.h"
-#include "core/DefaultDateTimeProvider.h"
-#include "core/ObservableActionInvoker.h"
 #include "core/RequestForDaysBack.h"
 #include "core/RequestForMonthsBack.h"
 #include "core/RequestForWeeksBack.h"
-#include "api/TaskStorageReader.h"
 #include "core/Workflow.h"
 #include "external_io/OstreamSink.h"
 #include "external_io/RuntimeConfigurableDataExporter.h"
@@ -346,8 +346,8 @@ int main(int argc, char* argv[])
 
     riften::Thiefpool threadPool{6};
 
-    BoostUUIDGenerator uuidGenerator;
-    DefaultDateTimeProvider dateTimeProvider;
+    api::BoostUUIDGenerator uuidGenerator;
+    api::DefaultDateTimeProvider dateTimeProvider;
 
     compose::ThreadConnectionHelper threadConnectionHelper{dataDirectory +
                                                            "/test_sprint.db"};

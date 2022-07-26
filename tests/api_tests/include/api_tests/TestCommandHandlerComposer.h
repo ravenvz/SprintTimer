@@ -22,6 +22,9 @@
 #ifndef TESTCOMMANDHANDLERCOMPOSER_H_TCE5XWBA
 #define TESTCOMMANDHANDLERCOMPOSER_H_TCE5XWBA
 
+#include "api/ActionInvoker.h"
+#include "api/SprintStorage.h"
+#include "api/TaskStorage.h"
 #include "api/handlers/ChangeActiveTasksPriorityHandler.h"
 #include "api/handlers/ChangeWorkScheduleHandler.h"
 #include "api/handlers/CreateTaskHandler.h"
@@ -34,9 +37,6 @@
 #include "api/handlers/ToggleTaskCompletedHandler.h"
 #include "api/handlers/UndoLastCommandHandler.h"
 #include "api_tests/CommandHandlerComposer.h"
-#include "core/ActionInvoker.h"
-#include "api/SprintStorage.h"
-#include "api/TaskStorage.h"
 #include "core/TaskTreeMetadataStorage.h"
 
 namespace sprint_timer::compose {
@@ -47,8 +47,8 @@ struct TestCommandHandlerComposer final : public CommandHandlerComposer {
                                SprintStorage& sprintStorage_,
                                TaskTreeMetadataStorage& taskTree_,
                                WorkScheduleWriter& scheduleStorage_,
-                               UUIDGenerator& generator_,
-                               DateTimeProvider& dateTimeProvider_);
+                               api::UUIDGenerator& generator_,
+                               api::DateTimeProvider& dateTimeProvider_);
 
     asp::CommandHandler<api::CreateTaskCommand>& createTaskHandler() override;
 

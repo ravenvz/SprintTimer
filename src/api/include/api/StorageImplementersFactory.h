@@ -22,12 +22,12 @@
 #ifndef ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6
 #define ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6
 
-#include "core/OperationalRangeReader.h"
-#include "core/SprintDistributionReader.h"
+#include "api/OperationalRangeReader.h"
+#include "api/SprintDistributionReader.h"
 #include "api/SprintStorage.h"
 #include "api/TaskStorage.h"
 #include "core/TaskTreeMetadataStorage.h"
-#include "core/WorkScheduleStorage.h"
+#include "api/WorkScheduleStorage.h"
 #include <memory>
 
 namespace sprint_timer::api {

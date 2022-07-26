@@ -19,29 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef OBSERVABLEACTIONINVOKER_H_0GOUKWEQ
-#define OBSERVABLEACTIONINVOKER_H_0GOUKWEQ
+#include "api_tests/FakeUuidGenerator.h"
 
-#include "core/ActionInvoker.h"
-#include "core/Observable.h"
-#include <stack>
-
-namespace sprint_timer {
-
-class ObservableActionInvoker : public ActionInvoker, public Observable {
-public:
-    void execute(std::unique_ptr<Action> action) override;
-
-    void undo() override;
-
-    std::string lastActionDescription() const override;
-
-    bool hasUndoableActions() const override;
-
-private:
-    std::stack<std::unique_ptr<Action>> actionStack;
-};
-
-} // namespace sprint_timer
-
-#endif /* end of include guard: OBSERVABLEACTIONINVOKER_H_0GOUKWEQ */
+std::string FakeUuidGenerator::generateUUID()
+{
+    return std::to_string(fakeId++);
+}

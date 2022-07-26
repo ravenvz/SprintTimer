@@ -19,34 +19,26 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/ObservableActionInvoker.h"
+#ifndef DATETIMEPROVIDER_H_ND1KPYZU
+#define DATETIMEPROVIDER_H_ND1KPYZU
 
-namespace sprint_timer {
+#include "date_wrapper/date_wrapper.h"
 
-void ObservableActionInvoker::execute(std::unique_ptr<Action> action)
-{
-    action->execute();
-    actionStack.push(std::move(action));
-    notify();
-}
+namespace sprint_timer::api {
 
-void ObservableActionInvoker::undo()
-{
-    if (actionStack.empty())
-        return;
-    actionStack.top()->undo();
-    actionStack.pop();
-    notify();
-}
+class DateTimeProvider {
+public:
+    virtual ~DateTimeProvider() = default;
 
-std::string ObservableActionInvoker::lastActionDescription() const
-{
-    return actionStack.empty() ? "" : actionStack.top()->describe();
-}
+    virtual dw::Date dateNow() const = 0;
 
-bool ObservableActionInvoker::hasUndoableActions() const
-{
-    return !actionStack.empty();
-}
+    virtual dw::DateTime dateTimeNow() const = 0;
 
-} // namespace sprint_timer
+    virtual dw::Date dateLocalNow() const = 0;
+
+    virtual dw::DateTime dateTimeLocalNow() const = 0;
+};
+
+} // namespace sprint_timer::api
+
+#endif /* end of include guard: DATETIMEPROVIDER_H_ND1KPYZU */

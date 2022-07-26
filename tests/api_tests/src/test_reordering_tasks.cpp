@@ -32,7 +32,7 @@ using namespace dw;
 
 using ::testing::ElementsAre;
 
-class ReorderingTasksFixture : public ::testing::Test {
+class DISABLED_ReorderingTasksFixture : public ::testing::Test {
 public:
     TestStorageInitializer initializer;
     CommandHandlerComposer& commandComposer{
@@ -50,7 +50,7 @@ public:
         commandComposer.reorderTasksHandler()};
 };
 
-TEST_F(ReorderingTasksFixture, changing_active_tasks_order)
+TEST_F(DISABLED_ReorderingTasksFixture, changing_active_tasks_order)
 {
     createTaskHandler.handle(CreateTaskCommand{"Task 1", {"Tag1"}, 1});
     createTaskHandler.handle(CreateTaskCommand{"Task 2", {"Tag2"}, 2});

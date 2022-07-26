@@ -34,16 +34,17 @@
 
 // TODO make this an integration test or move to external_io tests
 
-class ExportTasksHandlerFixture : public ::testing::Test {
+class DISABLED_ExportTasksHandlerFixture : public ::testing::Test {
 public:
     // NiceMock<mocks::QueryHandlerMock<api::FinishedTasksQuery>>
     //     requestTasksHandlerMock;
     // NiceMock<mocks::DataExporterMock<api::TaskDTO>> exporterMock;
     // api::ExportTasksHandler handler{requestTasksHandlerMock, exporterMock};
-    // const dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
+    // const dw::DateRange someDateRange{dw::current_date(),
+    // dw::current_date()};
 };
 
-TEST_F(ExportTasksHandlerFixture, delegates_to_exporter)
+TEST_F(DISABLED_ExportTasksHandlerFixture, delegates_to_exporter)
 {
     // using namespace std::chrono_literals;
     // const std::vector<TaskDTO> tasks{TaskDTO{"123",

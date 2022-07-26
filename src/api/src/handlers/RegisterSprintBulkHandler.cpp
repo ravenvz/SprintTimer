@@ -20,8 +20,8 @@
 **
 *********************************************************************************/
 #include "api/handlers/RegisterSprintBulkHandler.h"
-#include "core/SprintConflictException.h"
 #include "api/actions/RegisterSprintBulk.h"
+#include "core/SprintConflictException.h"
 #include "core/entities/Sprint.h"
 #include "core/utils/Algutils.h"
 #include <algorithm>
@@ -41,7 +41,7 @@ dw::DateRange fittingRange(const std::vector<dw::DateTimeRange>& intervals);
 
 std::vector<sprint_timer::entities::Sprint>
 buildSprintsFromIntervals(const std::string& taskUuid,
-                          sprint_timer::UUIDGenerator& uuidGenerator,
+                          sprint_timer::api::UUIDGenerator& uuidGenerator,
                           const std::vector<dw::DateTimeRange>& intervals);
 
 bool orderByStartTime(const sprint_timer::entities::Sprint& lhs,
@@ -139,7 +139,7 @@ dw::DateRange unite(dw::DateRange a, dw::DateTimeRange b)
 
 std::vector<sprint_timer::entities::Sprint>
 buildSprintsFromIntervals(const std::string& taskUuid,
-                          sprint_timer::UUIDGenerator& uuidGenerator,
+                          sprint_timer::api::UUIDGenerator& uuidGenerator,
                           const std::vector<dw::DateTimeRange>& intervals)
 {
     using namespace sprint_timer::entities;
@@ -152,7 +152,7 @@ buildSprintsFromIntervals(const std::string& taskUuid,
     };
     std::vector<Sprint> sprints;
     sprints.reserve(intervals.size());
-    std::ranges::copy(std::ranges::views::transform(intervals, to_sprint),
+    std::ranges::copy(std::views::transform(intervals, to_sprint),
                       std::back_inserter(sprints));
     std::ranges::sort(sprints, orderByStartTime);
     return sprints;

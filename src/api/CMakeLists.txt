@@ -1,7 +1,32 @@
 add_library(${API_LIB} SHARED)
 
+find_package(Boost REQUIRED)
+
 target_sources(${API_LIB}
     PUBLIC
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/Action.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/ActionInvoker.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/BoostUUIDGenerator.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/DataExporter.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/DateTimeProvider.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/DefaultDateTimeProvider.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/IConfig.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/HandlerException.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/ObservableActionInvoker.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/OperationalRangeReader.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/SoundPlayer.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/SprintDistributionReader.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/SprintStorage.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/SprintStorageReader.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/SprintStorageWriter.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/StorageImplementersFactory.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorage.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorageReader.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorageWriter.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/UUIDGenerator.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/WorkScheduleReader.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/WorkScheduleStorage.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/WorkScheduleWriter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/ChangeTasksPriorities.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/ChangeWorkSchedule.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/CreateTask.h"
@@ -12,12 +37,6 @@ target_sources(${API_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/RegisterSprintBulk.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/RenameTag.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/actions/ToggleTaskCompleted.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/api/IConfig.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorage.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorageReader.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorageWriter.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/api/SoundPlayer.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/api/StorageImplementersFactory.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/Command.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/Query.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/com_query/Request.h"
@@ -31,9 +50,9 @@ target_sources(${API_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/SprintDaytimeDistribution.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/SprintMapper.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/SprintStatisticsDTO.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TagMapper.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaggedSprintsDTO.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskDTO.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TagMapper.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskMapper.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskTreeDTO.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/dtos/TaskTreeMapper.h"
@@ -101,6 +120,7 @@ target_sources(${API_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/WorktimeStatisticsQuery.h"
 
     PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/src/ObservableActionInvoker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/actions/ChangeTasksPriorities.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/actions/ChangeWorkSchedule.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/actions/CreateTask.cpp"
@@ -150,6 +170,10 @@ target_sources(${API_LIB}
 target_include_directories(${API_LIB}
     PUBLIC
         include
+)
+
+target_include_directories(${API_LIB}
+    SYSTEM PUBLIC ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(

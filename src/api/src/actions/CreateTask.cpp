@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "api/actions/CreateTask.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 CreateTask::CreateTask(TaskStorageWriter& taskStorageWriter,
                        entities::Task newTask)
@@ -41,4 +41,4 @@ std::string CreateTask::describe() const
     return ss.str();
 }
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions

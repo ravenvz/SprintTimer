@@ -22,7 +22,7 @@
 #ifndef UNDOPRESENTER_H_UM9IVZNC
 #define UNDOPRESENTER_H_UM9IVZNC
 
-#include "core/ActionInvoker.h"
+#include "api/ActionInvoker.h"
 #include "core/Observable.h"
 #include "core/Observer.h"
 #include "qt_gui/presentation/Invalidatable.h"

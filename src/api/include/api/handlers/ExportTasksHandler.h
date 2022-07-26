@@ -22,11 +22,11 @@
 #ifndef EXPORTTASKSHANDLER_H_MSZJ51TI
 #define EXPORTTASKSHANDLER_H_MSZJ51TI
 
+#include "api/DataExporter.h"
 #include "api/com_query/CommandHandler.h"
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/ExportTasksCommand.h"
 #include "api/requests/FinishedTasksQuery.h"
-#include "core/DataExporter.h"
 
 namespace sprint_timer::api {
 

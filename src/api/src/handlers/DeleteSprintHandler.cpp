@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "api/handlers/DeleteSprintHandler.h"
-#include "core/HandlerException.h"
+#include "api/HandlerException.h"
 #include "api/actions/DeleteSprint.h"
 
 namespace sprint_timer::api {

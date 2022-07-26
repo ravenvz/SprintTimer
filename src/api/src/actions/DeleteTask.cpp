@@ -22,7 +22,7 @@
 
 #include "api/actions/DeleteTask.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 DeleteTask::DeleteTask(TaskStorageWriter& taskStorageWriter_,
                        entities::Task taskToRemove_)
@@ -49,4 +49,4 @@ std::string DeleteTask::describe() const
     return ss.str();
 }
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions

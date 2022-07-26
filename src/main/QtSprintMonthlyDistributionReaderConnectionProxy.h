@@ -23,7 +23,7 @@
 #define QTSPRINTMONTHLYDISTRIBUTIONREADERCONNECTIONPROXY_H_UBE4QP29
 
 #include "ThreadConnectionHelper.h"
-#include "core/SprintDistributionReader.h"
+#include "api/SprintDistributionReader.h"
 
 namespace sprint_timer::compose {
 

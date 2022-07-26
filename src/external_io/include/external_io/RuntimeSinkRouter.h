@@ -22,7 +22,7 @@
 #ifndef RUNTIMESINKROUTER_H_XANBYPYS
 #define RUNTIMESINKROUTER_H_XANBYPYS
 
-#include "core/DataExporter.h"
+#include "api/DataExporter.h"
 #include "external_io/Sink.h"
 #include "external_io/SinkRoutingException.h"
 #include <functional>

@@ -21,10 +21,10 @@
 *********************************************************************************/
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/RegisterSprintBulkCommand.h"
-#include "core/ActionInvoker.h"
+#include "api/ActionInvoker.h"
 #include "api/SprintStorage.h"
 #include "api/TaskStorageReader.h"
-#include "core/UUIDGenerator.h"
+#include "api/UUIDGenerator.h"
 
 namespace sprint_timer::api {
 

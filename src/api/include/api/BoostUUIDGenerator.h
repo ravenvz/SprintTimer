@@ -19,15 +19,24 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/com_query/QueryHandler.h"
-#include "gmock/gmock.h"
+#ifndef BOOSTUUIDGENERATOR_H_OF6HXUYB
+#define BOOSTUUIDGENERATOR_H_OF6HXUYB
 
-namespace mocks {
+#include "api/UUIDGenerator.h"
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
-template <query QueryT>
-class QueryHandlerMock : public asp::QueryHandler<QueryT> {
+namespace sprint_timer::api {
+
+class BoostUUIDGenerator : public UUIDGenerator {
 public:
-    MOCK_METHOD(QueryT::Result, handle, (const QueryT&), (override));
+    std::string generateUUID() override { return to_string(generator()); }
+
+private:
+    boost::uuids::random_generator generator;
 };
 
-} // namespace mocks
+} // namespace sprint_timer::api
+
+#endif /* end of include guard: BOOSTUUIDGENERATOR_H_OF6HXUYB */

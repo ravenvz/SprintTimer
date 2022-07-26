@@ -26,7 +26,7 @@
 
 using dw::DateTime;
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 ToggleTaskCompleted::ToggleTaskCompleted(TaskStorageWriter& taskStorageWriter_,
                                          std::string uuid_,
@@ -51,4 +51,4 @@ std::string ToggleTaskCompleted::describe() const
     return ss.str();
 }
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions

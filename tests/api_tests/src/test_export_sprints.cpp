@@ -32,16 +32,17 @@
 
 // TODO make this an integration test or move to external_io tests
 
-class ExportSprintsHandlerFixture : public ::testing::Test {
+class DISABLED_ExportSprintsHandlerFixture : public ::testing::Test {
 public:
     // NiceMock<mocks::QueryHandlerMock<api::RequestSprintsQuery>>
     //     requestSprintsHandlerMock;
     // NiceMock<mocks::DataExporterMock<api::SprintDTO>> exporterMock;
-    // api::ExportSprintsHandler handler{requestSprintsHandlerMock, exporterMock};
-    // const dw::DateRange someDateRange{dw::current_date(), dw::current_date()};
+    // api::ExportSprintsHandler handler{requestSprintsHandlerMock,
+    // exporterMock}; const dw::DateRange someDateRange{dw::current_date(),
+    // dw::current_date()};
 };
 
-TEST_F(ExportSprintsHandlerFixture, delegates_to_exporter)
+TEST_F(DISABLED_ExportSprintsHandlerFixture, delegates_to_exporter)
 {
     // using api::SprintDTO;
     // const dw::DateTimeRange someTimeSpan{dw::current_date_time(),

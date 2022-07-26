@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/ActionInvoker.h"
+#include "api/ActionInvoker.h"
 
 namespace sprint_timer {
 

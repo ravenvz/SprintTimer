@@ -26,7 +26,7 @@
 #include "api/requests/DailyStatisticsQuery.h"
 #include "api/requests/SprintStatisticsQuery.h"
 #include "api/requests/WorkScheduleQuery.h"
-#include "core/WorkScheduleReader.h"
+#include "api/WorkScheduleReader.h"
 
 namespace sprint_timer::api {
 

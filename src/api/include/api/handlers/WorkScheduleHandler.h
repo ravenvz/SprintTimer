@@ -24,7 +24,7 @@
 
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/WorkScheduleQuery.h"
-#include "core/WorkScheduleReader.h"
+#include "api/WorkScheduleReader.h"
 
 namespace sprint_timer::api {
 

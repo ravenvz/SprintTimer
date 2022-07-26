@@ -22,11 +22,11 @@
 #ifndef RENAMETAG_H_5X4BJA83
 #define RENAMETAG_H_5X4BJA83
 
-#include "core/Action.h"
+#include "api/Action.h"
 #include "api/TaskStorageWriter.h"
 #include <iostream>
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 class RenameTag : public Action {
 public:

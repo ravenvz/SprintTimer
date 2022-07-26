@@ -29,8 +29,8 @@ TestCommandHandlerComposer::TestCommandHandlerComposer(
     SprintStorage& sprintStorage_,
     TaskTreeMetadataStorage& taskTreeStorage_,
     WorkScheduleWriter& scheduleStorage_,
-    UUIDGenerator& generator_,
-    DateTimeProvider& dateTimeProvider_)
+    api::UUIDGenerator& generator_,
+    api::DateTimeProvider& dateTimeProvider_)
     : createTask{std::make_unique<api::CreateTaskHandler>(
           taskStorage_, actionInvoker_, generator_, dateTimeProvider_)}
     , deleteTask{taskStorage_, actionInvoker_}

@@ -23,7 +23,7 @@
 #define QTOPERATIONALRANGEREADERCONNECTIONPROXY_H_CA3RLXBQ
 
 #include "ThreadConnectionHelper.h"
-#include "core/OperationalRangeReader.h"
+#include "api/OperationalRangeReader.h"
 
 namespace sprint_timer::compose {
 

@@ -24,7 +24,7 @@
 
 using dw::DateTime;
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 using namespace entities;
 
@@ -54,4 +54,4 @@ std::string EditTask::describe() const
     return ss.str();
 }
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions

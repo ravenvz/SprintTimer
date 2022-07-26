@@ -2,33 +2,20 @@
 include(CMakeLists-datewrapper.txt)
 include(CMakeLists-threadpool.txt)
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
-find_package(Boost REQUIRED)
-
 add_library(${CORE_LIB} SHARED)
 
 target_sources(${CORE_LIB}
     PUBLIC
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/ActionInvoker.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/BackRequestStrategy.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/BoostUUIDGenerator.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Distribution.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/GoalProgress.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/CompositionObserver.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ComputeByDayStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ComputeByMonthStrategy.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/DateTimeProvider.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ProgressComputeStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ComputeByWeekStrategy.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/HandlerException.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintDistributionReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/IWorkflow.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/WorkScheduleReader.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/WorkScheduleWriter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Observable.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/ObservableActionInvoker.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Observer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/PeriodicBackgroundRunner.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ProgressOverPeriod.h"
@@ -60,7 +47,6 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/ComputeByMonthStrategy.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/ComputeByWeekStrategy.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/Observable.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/ObservableActionInvoker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/PeriodicBackgroundRunner.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/ProgressOverPeriod.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/RequestForDaysBack.cpp"
@@ -84,9 +70,6 @@ target_include_directories(${CORE_LIB}
 target_include_directories(${CORE_LIB}
     SYSTEM INTERFACE
         ${thread_pool_INCLUDE_DIRS}
-)
-target_include_directories(${CORE_LIB}
-    SYSTEM PUBLIC ${Boost_INCLUDE_DIRS}
 )
 
 # used to silence warnings from thiefpool

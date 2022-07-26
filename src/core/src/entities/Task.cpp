@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "core/entities/Task.h"
-#include "core/BoostUUIDGenerator.h"
 #include "core/SprintTimerException.h"
 #include <iostream>
 

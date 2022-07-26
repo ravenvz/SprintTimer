@@ -22,10 +22,10 @@
 #ifndef CHANGETASKSPRIORITIES_H_MDWA0JUJ
 #define CHANGETASKSPRIORITIES_H_MDWA0JUJ
 
-#include "core/Action.h"
+#include "api/Action.h"
 #include "api/TaskStorageWriter.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 class ChangeTasksPriorities : public Action {
 public:
@@ -45,7 +45,7 @@ private:
     std::vector<std::string> new_order_;
 };
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions
 
 #endif /* end of include guard: CHANGETASKSPRIORITIES_H_MDWA0JUJ */
 

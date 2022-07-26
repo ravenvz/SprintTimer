@@ -24,7 +24,7 @@
 
 #include "ThreadConnectionHelper.h"
 #include "api/IConfig.h"
-#include "core/SprintDistributionReader.h"
+#include "api/SprintDistributionReader.h"
 
 namespace sprint_timer::compose {
 

@@ -22,10 +22,10 @@
 #ifndef DELETESPRINT_H_QH45FZZY
 #define DELETESPRINT_H_QH45FZZY
 
-#include "core/Action.h"
+#include "api/Action.h"
 #include "api/SprintStorageWriter.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 class DeleteSprint : public Action {
 public:
@@ -42,6 +42,6 @@ private:
     const entities::Sprint sprint;
 };
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions
 
 #endif /* end of include guard: DELETESPRINT_H_QH45FZZY */

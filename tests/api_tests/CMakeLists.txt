@@ -3,6 +3,7 @@ add_executable(test_api)
 target_sources(test_api
     PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/CommandHandlerComposer.h"
+    "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/FakeUuidGenerator.h"
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/QtStorageInitializer.h"
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/QueryHandlerComposer.h"
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/TestCommandHandlerComposer.h"
@@ -12,6 +13,7 @@ target_sources(test_api
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/matchers/MatchesTaskIgnoringUuid.h"
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/mocks/DataExporterMock.h"
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/utils/utils.h"
+    "${CMAKE_CURRENT_LIST_DIR}/src/FakeUuidGenerator.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/QtStorageInitializer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/TestCommandHandlerComposer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/TestQueryHandlerComposer.cpp"

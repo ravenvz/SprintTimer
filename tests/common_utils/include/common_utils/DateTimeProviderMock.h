@@ -22,12 +22,12 @@
 #ifndef DATETIMEPROVIDERMOCK_H_JFCR0B6M
 #define DATETIMEPROVIDERMOCK_H_JFCR0B6M
 
-#include "core/DateTimeProvider.h"
+#include "api/DateTimeProvider.h"
 #include "gmock/gmock.h"
 
 namespace mocks {
 
-class DateTimeProviderMock : public sprint_timer::DateTimeProvider {
+class DateTimeProviderMock : public sprint_timer::api::DateTimeProvider {
 public:
     MOCK_METHOD(dw::Date, dateNow, (), (const override));
 

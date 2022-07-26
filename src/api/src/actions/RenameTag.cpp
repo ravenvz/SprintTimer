@@ -22,7 +22,7 @@
 
 #include "api/actions/RenameTag.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 RenameTag::RenameTag(TaskStorageWriter& tagStorageWriter,
                      std::string oldName,
@@ -44,4 +44,4 @@ std::string RenameTag::describe() const
     return ss.str();
 }
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions

@@ -22,11 +22,11 @@
 #ifndef DELETETASK_H_07POXQ41
 #define DELETETASK_H_07POXQ41
 
-#include "core/Action.h"
+#include "api/Action.h"
 #include "api/SprintStorage.h"
 #include "api/TaskStorageWriter.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 class DeleteTask : public Action {
 public:
@@ -44,7 +44,7 @@ private:
     const entities::Task task;
 };
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions
 
 #endif /* end of include guard: DELETETASK_H_07POXQ41 */
 

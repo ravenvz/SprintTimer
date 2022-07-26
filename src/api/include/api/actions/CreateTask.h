@@ -22,11 +22,11 @@
 #ifndef CREATETASK_H_ISATC8JM
 #define CREATETASK_H_ISATC8JM
 
-#include "core/Action.h"
+#include "api/Action.h"
 #include "api/TaskStorageWriter.h"
 #include "core/entities/Task.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 class CreateTask : public Action {
 public:
@@ -43,7 +43,7 @@ private:
     const entities::Task task;
 };
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions
 
 #endif /* end of include guard: CREATETASK_H_ISATC8JM */
 

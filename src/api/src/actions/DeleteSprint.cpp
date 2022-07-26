@@ -22,7 +22,7 @@
 
 #include "api/actions/DeleteSprint.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 DeleteSprint::DeleteSprint(SprintStorageWriter& writer_,
                            entities::Sprint sprintToRemove_)
@@ -42,4 +42,4 @@ std::string DeleteSprint::describe() const
     return ss.str();
 }
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions

@@ -22,7 +22,7 @@
 #ifndef QTOPERATIONALRANGEREADER_H_MNEJCZ5Y
 #define QTOPERATIONALRANGEREADER_H_MNEJCZ5Y
 
-#include "core/OperationalRangeReader.h"
+#include "api/OperationalRangeReader.h"
 #include <QString>
 
 namespace sprint_timer::storage::qt_storage {

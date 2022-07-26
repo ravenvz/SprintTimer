@@ -22,9 +22,9 @@
 #ifndef OPERATIONALRANGEHANDLER_H_XCHBPURG
 #define OPERATIONALRANGEHANDLER_H_XCHBPURG
 
+#include "api/OperationalRangeReader.h"
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/OperationalRangeQuery.h"
-#include "core/OperationalRangeReader.h"
 
 namespace sprint_timer::api {
 

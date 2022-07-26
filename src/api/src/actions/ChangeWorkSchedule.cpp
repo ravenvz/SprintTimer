@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "api/actions/ChangeWorkSchedule.h"
 
-namespace sprint_timer::actions {
+namespace sprint_timer::api::actions {
 
 ChangeWorkSchedule::ChangeWorkSchedule(WorkScheduleWriter& writer_,
                                        const WorkSchedule& oldWorkSchedule_,
@@ -46,4 +46,4 @@ std::string ChangeWorkSchedule::describe() const
     return ss.str();
 }
 
-} // namespace sprint_timer::actions
+} // namespace sprint_timer::api::actions

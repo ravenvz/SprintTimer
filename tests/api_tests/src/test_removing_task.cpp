@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "api_tests/QtStorageInitializer.h"
-#include "core/HandlerException.h"
+#include "api/HandlerException.h"
 #include "gmock/gmock.h"
 
 using namespace sprint_timer;

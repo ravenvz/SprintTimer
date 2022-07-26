@@ -19,29 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ACTION_H_LZE48PW5
-#define ACTION_H_LZE48PW5
+#ifndef FAKEUUIDGENERATOR_H_CGD3LPU0
+#define FAKEUUIDGENERATOR_H_CGD3LPU0
 
-#include <string>
+#include "api/UUIDGenerator.h"
 
-namespace sprint_timer {
-
-/* Note that Action is a Command in classical Command pattern.
- * This name was choosen so that it would not be confused with user
- * commands. Actions are used in core module internally and are not
- * ment to be used by core module clients directly. */
-class Action {
+class FakeUuidGenerator : public sprint_timer::api::UUIDGenerator {
 public:
-    virtual ~Action() = default;
+    std::string generateUUID() override;
 
-    virtual void execute() = 0;
-
-    virtual void undo() = 0;
-
-    virtual std::string describe() const = 0;
+private:
+    int fakeId{0};
 };
 
-} // namespace sprint_timer
-
-#endif /* end of include guard: ACTION_H_LZE48PW5 */
-
+#endif /* end of include guard: FAKEUUIDGENERATOR_H_CGD3LPU0 */

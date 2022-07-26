@@ -19,21 +19,44 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef WORKINGDAYSSTORAGEMOCK_H_XPILNRIE
-#define WORKINGDAYSSTORAGEMOCK_H_XPILNRIE
+#ifndef DEFAULTDATETIMEPROVIDER_H_WN1DU3KC
+#define DEFAULTDATETIMEPROVIDER_H_WN1DU3KC
 
-#include "core/WorkScheduleStorage.h"
-#include "gmock/gmock.h"
+#include "api/DateTimeProvider.h"
 
-namespace mocks {
+namespace sprint_timer::api {
 
-class WorkScheduleStorageMock : public sprint_timer::WorkScheduleStorage {
+class DefaultDateTimeProvider : public DateTimeProvider {
 public:
-    MOCK_METHOD0(schedule, sprint_timer::WorkSchedule());
+    dw::Date dateNow() const override;
 
-    MOCK_METHOD1(updateSchedule, void(const sprint_timer::WorkSchedule&));
+    dw::DateTime dateTimeNow() const override;
+
+    dw::Date dateLocalNow() const override;
+
+    dw::DateTime dateTimeLocalNow() const override;
 };
 
-} // namespace mocks
+inline dw::Date DefaultDateTimeProvider::dateNow() const
+{
+    return dw::current_date();
+}
 
-#endif /* end of include guard: WORKINGDAYSSTORAGEMOCK_H_XPILNRIE */
+inline dw::DateTime DefaultDateTimeProvider::dateTimeNow() const
+{
+    return dw::current_date_time();
+}
+
+inline dw::Date DefaultDateTimeProvider::dateLocalNow() const
+{
+    return dw::current_date_local();
+}
+
+inline dw::DateTime DefaultDateTimeProvider::dateTimeLocalNow() const
+{
+    return dw::current_date_time_local();
+}
+
+} // namespace sprint_timer::api
+
+#endif /* end of include guard: DEFAULTDATETIMEPROVIDER_H_WN1DU3KC */

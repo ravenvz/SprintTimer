@@ -24,7 +24,7 @@
 
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/RequestSprintDistributionQuery.h"
-#include "core/SprintDistributionReader.h"
+#include "api/SprintDistributionReader.h"
 
 namespace sprint_timer::api {
 
