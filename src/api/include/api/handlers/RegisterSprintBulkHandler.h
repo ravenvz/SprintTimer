@@ -22,7 +22,7 @@
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/RegisterSprintBulkCommand.h"
 #include "core/ActionInvoker.h"
-#include "core/SprintStorage.h"
+#include "api/SprintStorage.h"
 #include "api/TaskStorageReader.h"
 #include "core/UUIDGenerator.h"
 

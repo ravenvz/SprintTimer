@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "core/Action.h"
-#include "core/SprintStorageWriter.h"
+#include "api/SprintStorageWriter.h"
 
 namespace sprint_timer::actions {
 

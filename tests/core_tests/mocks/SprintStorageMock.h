@@ -22,7 +22,7 @@
 #ifndef SPRINTSTORAGEMOCK_H_FQK62RLC
 #define SPRINTSTORAGEMOCK_H_FQK62RLC
 
-#include "core/SprintStorage.h"
+#include "api/SprintStorage.h"
 #include "gmock/gmock.h"
 
 namespace mocks {

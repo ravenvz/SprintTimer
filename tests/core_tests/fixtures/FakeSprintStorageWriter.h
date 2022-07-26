@@ -22,7 +22,7 @@
 #ifndef FAKESPRINTWRITER_H_IHZ1QWFR
 #define FAKESPRINTWRITER_H_IHZ1QWFR
 
-#include "core/SprintStorageWriter.h"
+#include "api/SprintStorageWriter.h"
 #include "FakeStorage.h"
 
 /* Fake implementation of SprintStorageWriter that exposes

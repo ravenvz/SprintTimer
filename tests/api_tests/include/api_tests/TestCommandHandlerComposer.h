@@ -35,7 +35,7 @@
 #include "api/handlers/UndoLastCommandHandler.h"
 #include "api_tests/CommandHandlerComposer.h"
 #include "core/ActionInvoker.h"
-#include "core/SprintStorage.h"
+#include "api/SprintStorage.h"
 #include "api/TaskStorage.h"
 #include "core/TaskTreeMetadataStorage.h"
 

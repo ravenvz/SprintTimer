@@ -22,7 +22,7 @@
 #ifndef QTSPRINTSTORAGEREADER_H_JXULCJ6I
 #define QTSPRINTSTORAGEREADER_H_JXULCJ6I
 
-#include "core/SprintStorageReader.h"
+#include "api/SprintStorageReader.h"
 #include "core/entities/Tag.h"
 #include <QSqlQuery>
 

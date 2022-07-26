@@ -22,8 +22,8 @@
 #ifndef ISPRINTSTORAGE_H_7Q24BCNX
 #define ISPRINTSTORAGE_H_7Q24BCNX
 
-#include "core/SprintStorageReader.h"
-#include "core/SprintStorageWriter.h"
+#include "api/SprintStorageReader.h"
+#include "api/SprintStorageWriter.h"
 
 namespace sprint_timer {
 

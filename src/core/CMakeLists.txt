@@ -24,8 +24,6 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ComputeByWeekStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/HandlerException.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintDistributionReader.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintStorageReader.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintStorageWriter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/IWorkflow.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/WorkScheduleReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/WorkScheduleWriter.h"

@@ -23,7 +23,7 @@
 #define FAKESPRINTSTORAGEREADER_H_MFYC8R5A
 
 #include "FakeStorage.h"
-#include "core/SprintStorageReader.h"
+#include "api/SprintStorageReader.h"
 
 class FakeSprintStorageReader : public SprintStorageReader {
 public:

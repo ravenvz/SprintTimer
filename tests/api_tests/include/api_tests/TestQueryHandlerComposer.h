@@ -39,7 +39,7 @@
 #include "api_tests/QueryHandlerComposer.h"
 #include "core/OperationalRangeReader.h"
 #include "core/SprintDistributionReader.h"
-#include "core/SprintStorage.h"
+#include "api/SprintStorage.h"
 #include "api/TaskStorage.h"
 #include "core/TaskTreeMetadataReader.h"
 

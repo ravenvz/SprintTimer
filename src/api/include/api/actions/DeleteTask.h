@@ -23,7 +23,7 @@
 #define DELETETASK_H_07POXQ41
 
 #include "core/Action.h"
-#include "core/SprintStorage.h"
+#include "api/SprintStorage.h"
 #include "api/TaskStorageWriter.h"
 
 namespace sprint_timer::actions {

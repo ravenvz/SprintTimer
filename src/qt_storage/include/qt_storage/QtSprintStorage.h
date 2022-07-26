@@ -22,7 +22,7 @@
 #ifndef QTSPRINTSTORAGE_H_HNDKFVAS
 #define QTSPRINTSTORAGE_H_HNDKFVAS
 
-#include "core/SprintStorage.h"
+#include "api/SprintStorage.h"
 #include "qt_storage/QtSprintStorageReader.h"
 #include "qt_storage/QtSprintStorageWriter.h"
 

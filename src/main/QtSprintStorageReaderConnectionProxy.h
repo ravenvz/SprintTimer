@@ -23,7 +23,7 @@
 #define QTSPRINTSTORAGEREADERCONNECTIONPROXY_H_NKO8EHDL
 
 #include "ThreadConnectionHelper.h"
-#include "core/SprintStorageReader.h"
+#include "api/SprintStorageReader.h"
 #include <QString>
 
 namespace sprint_timer::compose {

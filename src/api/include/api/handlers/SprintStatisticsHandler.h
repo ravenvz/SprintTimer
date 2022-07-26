@@ -24,7 +24,7 @@
 
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/SprintStatisticsQuery.h"
-#include "core/SprintStorageReader.h"
+#include "api/SprintStorageReader.h"
 
 namespace sprint_timer::api {
 
