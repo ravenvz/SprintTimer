@@ -26,7 +26,7 @@
 #include <ranges>
 
 using sprint_timer::TagTop;
-using sprint_timer::entities::Tag;
+using sprint_timer::Tag;
 using namespace ::testing;
 
 namespace {
@@ -35,7 +35,7 @@ constexpr std::chrono::minutes sprintDuration{25};
 
 struct SprintFactory {
     SprintFactory(dw::DateTimeRange timeSpan_,
-                  std::list<sprint_timer::entities::Tag> tags_)
+                  std::vector<sprint_timer::Tag> tags_)
         : timeSpan{timeSpan_}
         , tags{tags_}
     {
@@ -48,15 +48,16 @@ struct SprintFactory {
 
 private:
     dw::DateTimeRange timeSpan;
-    std::list<sprint_timer::entities::Tag> tags;
+    std::vector<sprint_timer::Tag> tags;
     int iteration{0};
 };
 
 std::vector<sprint_timer::TagTop::sprint_tags_t> buildSomeSprints();
 
-bool contains(const std::pair<dw::DateTimeRange,
-                              std::list<sprint_timer::entities::Tag>>& element,
-              const sprint_timer::entities::Tag& value)
+bool contains(
+    const std::pair<dw::DateTimeRange,
+                    std::vector<sprint_timer::Tag>>& element,
+    const sprint_timer::Tag& value)
 {
     return std::ranges::find(element.second, value) !=
            std::cend(element.second);
@@ -64,8 +65,9 @@ bool contains(const std::pair<dw::DateTimeRange,
 
 std::vector<dw::DateTimeRange> findSprintsWithTag(
     std::span<const std::pair<dw::DateTimeRange,
-                              std::list<sprint_timer::entities::Tag>>> sprints,
-    const sprint_timer::entities::Tag& tag)
+                              std::vector<sprint_timer::Tag>>>
+        sprints,
+    const sprint_timer::Tag& tag)
 {
     std::vector<dw::DateTimeRange> sprintsForTag;
     std::ranges::copy(sprints | std::views::filter([&](const auto& el) {
@@ -166,7 +168,7 @@ namespace {
 std::vector<sprint_timer::TagTop::sprint_tags_t> buildSomeSprints()
 {
     using sprint_timer::TagTop;
-    using sprint_timer::entities::Tag;
+    using sprint_timer::Tag;
     std::vector<sprint_timer::TagTop::sprint_tags_t> result;
     const dw::DateTimeRange someTimeSpan{
         dw::current_date_time(), dw::current_date_time() + sprintDuration};

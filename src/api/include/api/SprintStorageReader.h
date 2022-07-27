@@ -22,7 +22,7 @@
 #ifndef ISPRINTSTORAGEREADER_H_UJ8CZPXS
 #define ISPRINTSTORAGEREADER_H_UJ8CZPXS
 
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include <functional>
 
 namespace sprint_timer {
@@ -31,7 +31,7 @@ class SprintStorageReader {
 public:
     virtual ~SprintStorageReader() = default;
 
-    virtual std::vector<entities::Sprint>
+    virtual std::vector<SprintRecord>
     findByDateRange(const dw::DateRange& dateRange) = 0;
 };
 

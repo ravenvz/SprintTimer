@@ -19,12 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/com_query/CommandHandler.h"
-#include "api/requests/RegisterSprintBulkCommand.h"
 #include "api/ActionInvoker.h"
 #include "api/SprintStorage.h"
 #include "api/TaskStorageReader.h"
-#include "api/UUIDGenerator.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/requests/RegisterSprintBulkCommand.h"
 
 namespace sprint_timer::api {
 
@@ -33,8 +32,7 @@ class RegisterSprintBulkHandler
 public:
     RegisterSprintBulkHandler(TaskStorageReader& taskReader,
                               SprintStorage& sprintStorage,
-                              ActionInvoker& actionInvoker,
-                              UUIDGenerator& uuidGenerator);
+                              ActionInvoker& actionInvoker);
 
     void handle(const RegisterSprintBulkCommand& command) override;
 
@@ -42,7 +40,6 @@ private:
     TaskStorageReader& taskReader;
     SprintStorage& sprintStorage;
     ActionInvoker& actionInvoker;
-    UUIDGenerator& uuidGenerator;
 
     void throwIfTaskDoesNotExist(const std::string& taskUuid);
 };

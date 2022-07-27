@@ -33,18 +33,14 @@ QtSprintStorage::QtSprintStorage(std::unique_ptr<SprintStorageReader> reader_,
 {
 }
 
-std::vector<entities::Sprint>
+std::vector<SprintRecord>
 QtSprintStorage::findByDateRange(const dw::DateRange& dateRange)
 {
     return reader->findByDateRange(dateRange);
 }
 
-void QtSprintStorage::save(const entities::Sprint& sprint)
-{
-    writer->save(sprint);
-}
-
-void QtSprintStorage::save(const std::vector<entities::Sprint>& sprints)
+void QtSprintStorage::save(const std::string& taskUuid,
+                           const std::vector<Sprint>& sprints)
 {
     std::copy(cbegin(sprints),
               cend(sprints),
@@ -52,19 +48,21 @@ void QtSprintStorage::save(const std::vector<entities::Sprint>& sprints)
                   std::iterator_traits<decltype(cbegin(sprints))>::value_type>(
                   std::cout, ", "));
     std::cout << '\n';
-    writer->save(sprints);
+    writer->save(taskUuid, sprints);
 }
 
-void QtSprintStorage::remove(const entities::Sprint& sprint)
+void QtSprintStorage::remove(const Sprint& sprint)
 {
     writer->remove(sprint);
 }
 
-void QtSprintStorage::remove(const std::vector<entities::Sprint>& sprints)
+void QtSprintStorage::remove(const std::vector<Sprint>& sprints)
 {
     writer->remove(sprints);
 }
-void QtSprintStorage::restore(const entities::Sprint& sprint) {
+
+void QtSprintStorage::restore(const Sprint& sprint)
+{
     writer->restore(sprint);
 }
 

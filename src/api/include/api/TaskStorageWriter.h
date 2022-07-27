@@ -22,7 +22,7 @@
 #ifndef ITASKSTORAGEWRITER_H_PVAMCJ6G
 #define ITASKSTORAGEWRITER_H_PVAMCJ6G
 
-#include "core/entities/Task.h"
+#include "core/Task.h"
 
 namespace sprint_timer {
 
@@ -30,12 +30,12 @@ class TaskStorageWriter {
 public:
     virtual ~TaskStorageWriter() = default;
 
-    virtual void save(const entities::Task& task) = 0;
+    virtual void save(const Task& task) = 0;
 
     virtual void remove(const std::string& uuid) = 0;
 
-    virtual void edit(const entities::Task& oldTask,
-                      const entities::Task& editedTask) = 0;
+    virtual void edit(const Task& oldTask,
+                      const Task& editedTask) = 0;
 
     virtual void toggleCompleted(const std::string& uuid,
                                  const dw::DateTime& timeStamp) = 0;

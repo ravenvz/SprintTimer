@@ -19,47 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "api/ObservableActionInvoker.h"
+#include "api/TaskStorage.h"
 #include "api/dtos/TaskTreeMapper.h"
 #include "api/handlers/ActiveTasksHandler.h"
 #include "api/handlers/AllTagsHandler.h"
 #include "api/handlers/CreateTaskHandler.h"
 #include "api_tests/QtStorageInitializer.h"
 #include "api_tests/matchers/MatchesTaskIgnoringUuid.h"
-#include "api/ObservableActionInvoker.h"
-#include "api/TaskStorage.h"
 #include "core/TaskTree.h"
 #include "gtest/gtest.h"
 
 using namespace sprint_timer;
 using namespace sprint_timer::api;
-using namespace sprint_timer::entities;
+using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
+using namespace std::chrono_literals;
 
 namespace sprint_timer {
-
-// template <class CharT, class Traits>
-// std::basic_ostream<CharT, Traits>&
-// operator<<(std::basic_ostream<CharT, Traits>& os, const TaskNode& taskNode)
-// {
-//     os << "TaskNode{" << taskNode.task << ", type: " << taskNode.type
-//        << ", dueTime: ";
-//     if (auto dt = taskNode.dueTime; dt) {
-//         os << *dt;
-//     }
-//     else {
-//         os << ", null";
-//     }
-//     os << ", reminder: ";
-//     if (auto rmd = taskNode.reminder; rmd) {
-//         os << *rmd;
-//     }
-//     else {
-//         os << ", null";
-//     }
-//     os << "}";
-//     return os;
-// }
 
 template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
@@ -112,6 +90,9 @@ public:
         commandComposer.saveTaskTreeHandler()};
     asp::QueryHandler<ReadTaskTreeQuery>& readTaskTreeHandler{
         queryComposer.readTaskTreeHandler()};
+    asp::CommandHandler<RegisterSprintBulkCommand>& registerSprintsHandler{
+        commandComposer.registerSprintBulkHandler()};
+
     TaskNode folder1;
     TaskNode folder2;
     TaskNode project1;
@@ -165,180 +146,189 @@ public:
         uuid_map["r1"] = "13";
         uuid_map["t7"] = "14";
 
-        folder1 = TaskNode{entities::Task{"folder1",
-                                          0,
-                                          0,
-                                          uuid_map["f1"],
-                                          std::list<entities::Tag>{},
-                                          false,
-                                          dw::current_date_time_local()},
+        const dw::DateTimeRange dtr{current_date_time_local(),
+                                    current_date_time_local() + 25min};
+
+        registerSprintsHandler.handle(RegisterSprintBulkCommand{
+            uuid_map["t6"],
+            {dw::DateTimeRange{dw::add_offset(dtr, 25min)},
+             dw::DateTimeRange{dw::add_offset(dtr, 50min)},
+             dw::DateTimeRange{dw::add_offset(dtr, 75min)},
+             dw::DateTimeRange{dw::add_offset(dtr, 105min)},
+             dw::DateTimeRange{dw::add_offset(dtr, 130min)}}});
+
+        folder1 = TaskNode{Task{"folder1",
+                                0,
+                                {},
+                                uuid_map["f1"],
+                                {},
+                                false,
+                                dw::current_date_time_local()},
                            TaskType::Folder,
                            std::nullopt,
                            std::nullopt,
                            std::string{}};
-        folder2 = TaskNode{entities::Task{"folder2",
-                                          0,
-                                          0,
-                                          uuid_map["f2"],
-                                          std::list<entities::Tag>{},
-                                          false,
-                                          dw::current_date_time_local()},
+        folder2 = TaskNode{Task{"folder2",
+                                0,
+                                {},
+                                uuid_map["f2"],
+                                {},
+                                false,
+                                dw::current_date_time_local()},
                            TaskType::Folder,
                            std::nullopt,
                            std::nullopt,
                            std::string{}};
-        project1 = TaskNode{entities::Task{"project1",
-                                           0,
-                                           0,
-                                           uuid_map["p1"],
-                                           std::list<entities::Tag>{},
-                                           false,
-                                           dw::current_date_time_local()},
+        project1 = TaskNode{Task{"project1",
+                                 0,
+                                 {},
+                                 uuid_map["p1"],
+                                 {},
+                                 false,
+                                 dw::current_date_time_local()},
                             TaskType::Project,
                             std::nullopt,
                             std::nullopt,
                             std::string{}};
-        project2 = TaskNode{entities::Task{"project2",
-                                           0,
-                                           0,
-                                           uuid_map["p2"],
-                                           std::list<entities::Tag>{},
-                                           false,
-                                           dw::current_date_time_local()},
+        project2 = TaskNode{Task{"project2",
+                                 0,
+                                 {},
+                                 uuid_map["p2"],
+                                 {},
+                                 false,
+                                 dw::current_date_time_local()},
                             TaskType::Project,
                             std::nullopt,
                             std::nullopt,
                             std::string{}};
-        project3 = TaskNode{entities::Task{"project3",
-                                           0,
-                                           0,
-                                           uuid_map["p3"],
-                                           std::list<entities::Tag>{},
-                                           false,
-                                           dw::current_date_time_local()},
+        project3 = TaskNode{Task{"project3",
+                                 0,
+                                 {},
+                                 uuid_map["p3"],
+                                 {},
+                                 false,
+                                 dw::current_date_time_local()},
                             TaskType::Project,
                             std::nullopt,
                             std::nullopt,
                             std::string{}};
-        folder3 = TaskNode{entities::Task{"folder3",
-                                          0,
-                                          0,
-                                          uuid_map["f3"],
-                                          std::list<entities::Tag>{},
-                                          false,
-                                          dw::current_date_time_local()},
+        folder3 = TaskNode{Task{"folder3",
+                                0,
+                                {},
+                                uuid_map["f3"],
+                                {},
+                                false,
+                                dw::current_date_time_local()},
                            TaskType::Folder,
                            std::nullopt,
                            std::nullopt,
                            std::string{}};
-        task1 = TaskNode{
-            entities::Task{"task1",
-                           4,
-                           0,
-                           uuid_map["t1"],
-                           std::list<entities::Tag>{entities::Tag{"Tag1"}},
-                           false,
-                           dw::current_date_time_local()},
-            TaskType::Regular,
-            std::nullopt,
-            std::nullopt,
-            std::string{"Some notes for task 1"}};
-        project4 = TaskNode{entities::Task{"project4",
-                                           0,
-                                           0,
-                                           uuid_map["p4"],
-                                           std::list<entities::Tag>{},
-                                           false,
-                                           dw::current_date_time_local()},
+        task1 = TaskNode{Task{"task1",
+                              4,
+                              {},
+                              uuid_map["t1"],
+                              {Tag{"Tag1"}},
+                              false,
+                              dw::current_date_time_local()},
+                         TaskType::Regular,
+                         std::nullopt,
+                         std::nullopt,
+                         std::string{"Some notes for task 1"}};
+        project4 = TaskNode{Task{"project4",
+                                 0,
+                                 {},
+                                 uuid_map["p4"],
+                                 {},
+                                 false,
+                                 dw::current_date_time_local()},
                             TaskType::Project,
                             std::nullopt,
                             std::nullopt,
                             std::string{"Some notes for project4 1"}};
         task2 = TaskNode{
-            entities::Task{"task2",
-                           3,
-                           0,
-                           uuid_map["t2"],
-                           std::list<entities::Tag>{entities::Tag{"Tag2"}},
-                           false,
-                           dw::current_date_time_local()},
+            Task{"task2",
+                 3,
+                 {},
+                 uuid_map["t2"],
+                 {Tag{"Tag2"}},
+                 false,
+                 dw::current_date_time_local()},
             TaskType::Regular,
             DateTime{Date{Year{2022}, Month{5}, Day{24}},
                      std::chrono::hours{17}},
             DateTime{Date{Year{2022}, Month{5}, Day{24}},
                      std::chrono::hours{16} + std::chrono::minutes{45}},
             std::string{"Some notes for task 2"}};
-        task3 = TaskNode{
-            entities::Task{"task3",
-                           4,
-                           0,
-                           uuid_map["t3"],
-                           std::list<entities::Tag>{entities::Tag{"Tag3"}},
-                           false,
-                           dw::current_date_time_local()},
-            TaskType::Regular,
-            std::nullopt,
-            std::nullopt,
-            std::string{"Some notes for task 3"}};
-        task4 = TaskNode{
-            entities::Task{"task4",
-                           4,
-                           0,
-                           uuid_map["t4"],
-                           std::list<entities::Tag>{entities::Tag{"Tag4"}},
-                           false,
-                           dw::current_date_time_local()},
-            TaskType::Regular,
-            std::nullopt,
-            std::nullopt,
-            std::string{}};
-        task5 = TaskNode{
-            entities::Task{"task5",
-                           4,
-                           0,
-                           uuid_map["t5"],
-                           std::list<entities::Tag>{entities::Tag{"Tag5"}},
-                           false,
-                           dw::current_date_time_local()},
-            TaskType::Regular,
-            std::nullopt,
-            std::nullopt,
-            std::string{"Some notes for task 5"}};
-        task6 = TaskNode{
-            entities::Task{"task6",
-                           5,
-                           5,
-                           uuid_map["t6"],
-                           std::list<entities::Tag>{entities::Tag{"Tag6"}},
-                           false,
-                           dw::current_date_time_local()},
-            TaskType::Regular,
-            std::nullopt,
-            std::nullopt,
-            std::string{"Some notes for task 6"}};
-        recurringTask1 = TaskNode{entities::Task{"recurringTask1",
-                                                 2,
-                                                 0,
-                                                 uuid_map["r1"],
-                                                 std::list<entities::Tag>{},
-                                                 false,
-                                                 dw::current_date_time_local()},
+        task3 = TaskNode{Task{"task3",
+                              4,
+                              {},
+                              uuid_map["t3"],
+                              {Tag{"Tag3"}},
+                              false,
+                              dw::current_date_time_local()},
+                         TaskType::Regular,
+                         std::nullopt,
+                         std::nullopt,
+                         std::string{"Some notes for task 3"}};
+        task4 = TaskNode{Task{"task4",
+                              4,
+                              {},
+                              uuid_map["t4"],
+                              {Tag{"Tag4"}},
+                              false,
+                              dw::current_date_time_local()},
+                         TaskType::Regular,
+                         std::nullopt,
+                         std::nullopt,
+                         std::string{}};
+        task5 = TaskNode{Task{"task5",
+                              4,
+                              {},
+                              uuid_map["t5"],
+                              {Tag{"Tag5"}},
+                              false,
+                              dw::current_date_time_local()},
+                         TaskType::Regular,
+                         std::nullopt,
+                         std::nullopt,
+                         std::string{"Some notes for task 5"}};
+        task6 = TaskNode{Task{"task6",
+                              5,
+                              {Sprint{dw::add_offset(dtr, 25min)},
+                               Sprint{dw::add_offset(dtr, 50min)},
+                               Sprint{dw::add_offset(dtr, 75min)},
+                               Sprint{dw::add_offset(dtr, 105min)},
+                               Sprint{dw::add_offset(dtr, 130min)}},
+                              uuid_map["t6"],
+                              {Tag{"Tag6"}},
+                              false,
+                              dw::current_date_time_local()},
+                         TaskType::Regular,
+                         std::nullopt,
+                         std::nullopt,
+                         std::string{"Some notes for task 6"}};
+        recurringTask1 = TaskNode{Task{"recurringTask1",
+                                       2,
+                                       {},
+                                       uuid_map["r1"],
+                                       {},
+                                       false,
+                                       dw::current_date_time_local()},
                                   TaskType::Recurring,
                                   std::nullopt,
                                   std::nullopt,
                                   std::string{"Some notes for recurringTask1"}};
-        task7 = TaskNode{
-            entities::Task{"task7",
-                           4,
-                           0,
-                           uuid_map["t7"],
-                           std::list<entities::Tag>{entities::Tag{"Tag7"}},
-                           false,
-                           dw::current_date_time_local()},
-            TaskType::Regular,
-            std::nullopt,
-            std::nullopt,
-            std::string{"Some notes for task 7"}};
+        task7 = TaskNode{Task{"task7",
+                              4,
+                              {},
+                              uuid_map["t7"],
+                              {Tag{"Tag7"}},
+                              false,
+                              dw::current_date_time_local()},
+                         TaskType::Regular,
+                         std::nullopt,
+                         std::nullopt,
+                         std::string{"Some notes for task 7"}};
 
         /*
          * folder1
@@ -385,5 +375,8 @@ TEST_F(ChangingTaskTreeFixture, saving_and_restoring_tree)
 
     const auto actual = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
 
+    const auto expected = makeDTO(tree);
+    std::cout << expected << std::endl;
+    std::cout << actual << std::endl;
     EXPECT_EQ(makeDTO(tree), actual);
 }

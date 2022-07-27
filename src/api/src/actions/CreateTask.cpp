@@ -24,7 +24,7 @@
 namespace sprint_timer::api::actions {
 
 CreateTask::CreateTask(TaskStorageWriter& taskStorageWriter,
-                       entities::Task newTask)
+                       Task newTask)
     : writer{taskStorageWriter}
     , task{std::move(newTask)}
 {

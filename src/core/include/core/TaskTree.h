@@ -23,16 +23,16 @@
 #define TASKTREE_H_MRVCAPBE
 
 #include "core/GoalProgress.h"
+#include "core/Task.h"
 #include "core/TaskType.h"
 #include "core/Tree.h"
-#include "core/entities/Task.h"
 #include "date_wrapper/date_wrapper.h"
 #include <vector>
 
 namespace sprint_timer {
 
 struct TaskNode {
-    entities::Task task;
+    Task task;
     TaskType type{TaskType::Regular};
     std::optional<dw::DateTime> dueTime;
     std::optional<dw::DateTime> reminder;

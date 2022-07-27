@@ -27,7 +27,7 @@
 
 using namespace sprint_timer;
 using namespace sprint_timer::api;
-using namespace sprint_timer::entities;
+using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
 
@@ -103,14 +103,14 @@ TEST_F(
 //         current_date_time_local()});
 //     TaskBacklog expected{{Task{"Task name",
 //                                4,
-//                                std::vector<entities::Sprint>{},
+//                                std::vector<Sprint>{},
 //                                uuids[0],
 //                                {Tag{"Tag1"}, Tag{"Tag2"}},
 //                                true,
 //                                current_date_time_local()},
 //                           Task{"Some other task",
 //                                2,
-//                                std::vector<entities::Sprint>{},
+//                                std::vector<Sprint>{},
 //                                uuids[1],
 //                                {Tag{"SomeTag"}},
 //                                false,

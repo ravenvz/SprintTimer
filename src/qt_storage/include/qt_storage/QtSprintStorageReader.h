@@ -23,7 +23,7 @@
 #define QTSPRINTSTORAGEREADER_H_JXULCJ6I
 
 #include "api/SprintStorageReader.h"
-#include "core/entities/Tag.h"
+#include "core/Tag.h"
 #include <QSqlQuery>
 
 namespace sprint_timer::storage::qt_storage {
@@ -38,7 +38,7 @@ public:
     QtSprintStorageReader(const QtSprintStorageReader&) = delete;
     QtSprintStorageReader& operator=(const QtSprintStorageReader&) = delete;
 
-    std::vector<entities::Sprint>
+    std::vector<SprintRecord>
     findByDateRange(const dw::DateRange& dateRange) final;
 
 private:

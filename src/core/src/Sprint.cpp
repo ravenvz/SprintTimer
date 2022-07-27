@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include "core/utils/StringUtils.h"
 #include <algorithm>
 #include <utility>
@@ -34,60 +34,18 @@ bool equalToMinutes(const dw::DateTime& lhs, const dw::DateTime& rhs);
 
 } // namespace
 
-namespace sprint_timer::entities {
+namespace sprint_timer {
 
 using dw::DateTime;
 using dw::DateTimeRange;
 
-Sprint::Sprint(std::string taskName,
-               DateTimeRange timeSpan,
-               std::list<Tag> tags,
-               std::string uuid,
-               std::string taskUuid)
-    : name_{std::move(taskName)}
-    , timeSpan_{timeSpan}
-    , uuid_{std::move(uuid)}
-    , taskUuid_{std::move(taskUuid)}
-    , tags_{std::move(tags)}
-{
-}
-
-std::string Sprint::name() const { return name_; }
-
-DateTime Sprint::startTime() const { return timeSpan_.start(); }
-
-DateTime Sprint::finishTime() const { return timeSpan_.finish(); }
-
-DateTimeRange Sprint::timeSpan() const { return timeSpan_; }
-
-std::string Sprint::uuid() const { return uuid_; }
-
-std::string Sprint::taskUuid() const { return taskUuid_; }
-
-std::list<Tag> Sprint::tags() const { return tags_; }
-
-std::ostream& operator<<(std::ostream& os, const Sprint& sprint)
-{
-    for (const auto& tag : sprint.tags())
-        os << tag.nameWithPrefix();
-    os << " " << sprint.name() << " " << sprint.timeSpan()
-       << " Uuid: " << sprint.uuid() << " TaskUuid: " << sprint.taskUuid();
-    return os;
-}
-
 bool operator==(const Sprint& lhs, const Sprint& rhs)
 {
-    return lhs.taskUuid() == rhs.taskUuid() && lhs.uuid() == rhs.uuid() &&
-           lhs.name() == rhs.name()
+    return rhs.duration() == rhs.duration() &&
            // There is a reason to compare DateTimeRanges by seconds
            // TODO need to control the sources, see also todo at Task
-           && dw::to_time_point<std::chrono::seconds>(lhs.timeSpan().start()) ==
-                  dw::to_time_point<std::chrono::seconds>(
-                      rhs.timeSpan().start()) &&
-           dw::to_time_point<std::chrono::seconds>(lhs.timeSpan().finish()) ==
-               dw::to_time_point<std::chrono::seconds>(
-                   rhs.timeSpan().finish()) &&
-           lhs.tags() == rhs.tags();
+           dw::to_time_point<std::chrono::seconds>(lhs.start()) ==
+               dw::to_time_point<std::chrono::seconds>(rhs.start());
 }
 
 bool intersectingInTime(const Sprint& lhs, const Sprint& rhs)
@@ -95,12 +53,11 @@ bool intersectingInTime(const Sprint& lhs, const Sprint& rhs)
     if (areConsecutive(lhs.timeSpan(), rhs.timeSpan())) {
         return false;
     }
-
-    return inRange(lhs.startTime(), rhs.timeSpan()) ||
-           inRange(lhs.finishTime(), rhs.timeSpan());
+    return inRange(lhs.timeSpan().start(), rhs.timeSpan()) ||
+           inRange(lhs.timeSpan().finish(), rhs.timeSpan());
 }
 
-} // namespace sprint_timer::entities
+} // namespace sprint_timer
 
 namespace {
 

@@ -152,22 +152,22 @@ TEST_F(HistoryPresenterFixture,
     // NOTE that HistoryPresenter assumes that sprints are sorted by their
     // startTime in ascending order
     const auto sprints = buildSomeSprints(someDate);
-    const auto expected = History{
-        7,
-        {DayHistory{someDate - Days{3},
-                    {Item{"04:00 - 04:25 #Tag3 Another task", "1"}}},
-         DayHistory{someDate - Days{2},
-                    {Item{"03:00 - 03:25 #Tag1 #Tag2 Some task", "2"}}},
-         DayHistory{someDate,
-                    {Item{"01:00 - 01:25 #Tag1 #Tag2 Some task", "3"},
-                     Item{"10:00 - 10:25 #Tag1 #Tag2 Some task", "4"}}},
-         DayHistory{someDate + Days{2},
-                    {
-                        Item{"01:00 - 01:25 #Tag1 #Tag2 Some task", "5"},
-                        Item{"06:00 - 06:25 #Tag1 #Tag2 Some task", "6"},
-                    }},
-         DayHistory{someDate + Days{3},
-                    {Item{"05:00 - 05:25 #Tag3 Another task", "7"}}}}};
+    const auto expected =
+        History{7,
+                {DayHistory{someDate - Days{3},
+                            {Item{"04:00 - 04:25 #Tag3 Another task", ""}}},
+                 DayHistory{someDate - Days{2},
+                            {Item{"03:00 - 03:25 #Tag1 #Tag2 Some task", ""}}},
+                 DayHistory{someDate,
+                            {Item{"01:00 - 01:25 #Tag1 #Tag2 Some task", ""},
+                             Item{"10:00 - 10:25 #Tag1 #Tag2 Some task", ""}}},
+                 DayHistory{someDate + Days{2},
+                            {
+                                Item{"01:00 - 01:25 #Tag1 #Tag2 Some task", ""},
+                                Item{"06:00 - 06:25 #Tag1 #Tag2 Some task", ""},
+                            }},
+                 DayHistory{someDate + Days{3},
+                            {Item{"05:00 - 05:25 #Tag3 Another task", ""}}}}};
     ON_CALL(mediatorMock, currentDateRange()).WillByDefault(Return(dateRange));
     ON_CALL(mediatorMock, displayedHistory())
         .WillByDefault(
@@ -261,35 +261,17 @@ buildSomeSprints(const dw::Date& someDate)
     const DateTime someDateTime{someDate};
     const DateTimeRange span{someDateTime, someDateTime + 25min};
     std::vector<SprintDTO> sprints{
-        SprintDTO{"1",
-                  "345",
-                  "Another task",
-                  {"Tag3"},
-                  add_offset(span, -Days{3} + 4h)},
-        SprintDTO{"2",
-                  "123",
-                  "Some task",
-                  {"Tag1", "Tag2"},
-                  add_offset(span, -Days{2} + 3h)},
+        SprintDTO{"Another task", {"Tag3"}, add_offset(span, -Days{3} + 4h)},
         SprintDTO{
-            "3", "123", "Some task", {"Tag1", "Tag2"}, add_offset(span, 1h)},
+            "Some task", {"Tag1", "Tag2"}, add_offset(span, -Days{2} + 3h)},
+        SprintDTO{"Some task", {"Tag1", "Tag2"}, add_offset(span, 1h)},
+        SprintDTO{"Some task", {"Tag1", "Tag2"}, add_offset(span, 10h)},
         SprintDTO{
-            "4", "123", "Some task", {"Tag1", "Tag2"}, add_offset(span, 10h)},
-        SprintDTO{"5",
-                  "123",
-                  "Some task",
-                  {"Tag1", "Tag2"},
-                  add_offset(span, Days{2} + 1h)},
-        SprintDTO{"6",
-                  "123",
-                  "Some task",
-                  {"Tag1", "Tag2"},
-                  add_offset(span, Days{2} + 6h)},
-        SprintDTO{"7",
-                  "345",
-                  "Another task",
-                  {"Tag3"},
-                  add_offset(span, Days{3} + 5h)},
+
+            "Some task", {"Tag1", "Tag2"}, add_offset(span, Days{2} + 1h)},
+        SprintDTO{
+            "Some task", {"Tag1", "Tag2"}, add_offset(span, Days{2} + 6h)},
+        SprintDTO{"Another task", {"Tag3"}, add_offset(span, Days{3} + 5h)},
     };
     return sprints;
 }
@@ -307,8 +289,7 @@ std::vector<dw::DateTimeRange> generateDateRanges(dw::DateTimeRange initial,
     return result;
 }
 
-std::vector<sprint_timer::api::TaskDTO>
-buildSomeTasks(const dw::Date& someDate)
+std::vector<sprint_timer::api::TaskDTO> buildSomeTasks(const dw::Date& someDate)
 {
     using namespace sprint_timer;
     using namespace dw;
@@ -317,54 +298,54 @@ buildSomeTasks(const dw::Date& someDate)
     const DateTimeRange someSprint{current_date_time(),
                                    current_date_time() + 25min};
     std::vector<TaskDTO> tasks{TaskDTO{"1",
-                                             {"Tag1"},
-                                             "Earliest task",
-                                             2,
-                                             generateDateRanges(someSprint, 3),
-                                             true,
-                                             someDateTime - Days{4}},
-                                  TaskDTO{"2",
-                                             {"Tag9"},
-                                             "Second to earliest",
-                                             2,
-                                             generateDateRanges(someSprint, 7),
-                                             true,
-                                             someDateTime - Days{3} + 3h},
-                                  TaskDTO{"3",
-                                             {"Tag7"},
-                                             "Same day task 1",
-                                             5,
-                                             generateDateRanges(someSprint, 15),
-                                             true,
-                                             someDateTime - Days{2}},
-                                  TaskDTO{"4",
-                                             {"Tag5"},
-                                             "Same day task 2",
-                                             5,
-                                             generateDateRanges(someSprint, 5),
-                                             true,
-                                             someDateTime - Days{2} + 1h},
-                                  TaskDTO{"5",
-                                             {"Tag5"},
-                                             "Same day task 3",
-                                             12,
-                                             generateDateRanges(someSprint, 7),
-                                             true,
-                                             someDateTime - Days{2} + 3h},
-                                  TaskDTO{"6",
-                                             {"Tag1"},
-                                             "Second to last",
-                                             5,
-                                             generateDateRanges(someSprint, 5),
-                                             true,
-                                             someDateTime + Days{3}},
-                                  TaskDTO{"7",
-                                             std::vector<std::string>{},
-                                             "Latest task",
-                                             7,
-                                             {},
-                                             true,
-                                             someDateTime + Days{4}}};
+                                       {"Tag1"},
+                                       "Earliest task",
+                                       2,
+                                       generateDateRanges(someSprint, 3),
+                                       true,
+                                       someDateTime - Days{4}},
+                               TaskDTO{"2",
+                                       {"Tag9"},
+                                       "Second to earliest",
+                                       2,
+                                       generateDateRanges(someSprint, 7),
+                                       true,
+                                       someDateTime - Days{3} + 3h},
+                               TaskDTO{"3",
+                                       {"Tag7"},
+                                       "Same day task 1",
+                                       5,
+                                       generateDateRanges(someSprint, 15),
+                                       true,
+                                       someDateTime - Days{2}},
+                               TaskDTO{"4",
+                                       {"Tag5"},
+                                       "Same day task 2",
+                                       5,
+                                       generateDateRanges(someSprint, 5),
+                                       true,
+                                       someDateTime - Days{2} + 1h},
+                               TaskDTO{"5",
+                                       {"Tag5"},
+                                       "Same day task 3",
+                                       12,
+                                       generateDateRanges(someSprint, 7),
+                                       true,
+                                       someDateTime - Days{2} + 3h},
+                               TaskDTO{"6",
+                                       {"Tag1"},
+                                       "Second to last",
+                                       5,
+                                       generateDateRanges(someSprint, 5),
+                                       true,
+                                       someDateTime + Days{3}},
+                               TaskDTO{"7",
+                                       std::vector<std::string>{},
+                                       "Latest task",
+                                       7,
+                                       {},
+                                       true,
+                                       someDateTime + Days{4}}};
     return tasks;
 }
 

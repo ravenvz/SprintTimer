@@ -23,47 +23,29 @@
 
 namespace sprint_timer::api {
 
-SprintDTO makeDTO(const entities::Sprint& sprint)
+auto makeDTO(const Sprint& sprint) -> dw::DateTimeRange
+{
+    return sprint.timeSpan();
+}
+
+auto fromDTO(const dw::DateTimeRange& dto) -> Sprint { return Sprint{dto}; }
+
+auto makeDTO(const SprintRecord& sprint) -> SprintDTO
 {
     const auto& tagsEnt = sprint.tags();
     std::vector<std::string> tags(tagsEnt.size());
-    std::transform(cbegin(tagsEnt),
-                   cend(tagsEnt),
-                   begin(tags),
-                   [](const auto& elem) { return elem.name(); });
-    return SprintDTO{sprint.uuid(),
-                     sprint.taskUuid(),
-                     sprint.name(),
-                     tags,
-                     sprint.timeSpan()};
+    std::ranges::transform(
+        tagsEnt, begin(tags), [](const auto& elem) { return elem.name(); });
+    return SprintDTO{sprint.taskName(), tags, sprint.timeSpan()};
 }
 
-entities::Sprint fromDTO(const SprintDTO& dto)
+auto fromDTO(const SprintDTO& dto) -> SprintRecord
 {
     const auto& tagStr = dto.tags;
-    std::list<entities::Tag> tags(tagStr.size());
-    std::transform(cbegin(tagStr),
-                   cend(tagStr),
-                   begin(tags),
-                   [](const auto& elem) { return entities::Tag{elem}; });
-    return entities::Sprint{
-        dto.taskName, dto.timeRange, tags, dto.uuid, dto.taskUuid};
-}
-
-std::vector<SprintDTO> makeDTOs(const std::vector<entities::Sprint>& sprints)
-{
-    std::vector<SprintDTO> res;
-    res.reserve(sprints.size());
-    makeDTOs(cbegin(sprints), cend(sprints), std::back_inserter(res));
-    return res;
-}
-
-std::vector<entities::Sprint> fromDTOs(const std::vector<SprintDTO>& dtos)
-{
-    std::vector<entities::Sprint> res;
-    res.reserve(dtos.size());
-    fromDTOs(cbegin(dtos), cend(dtos), std::back_inserter(res));
-    return res;
+    std::vector<Tag> tags(tagStr.size());
+    std::ranges::transform(
+        tagStr, begin(tags), [](const auto& elem) { return Tag{elem}; });
+    return SprintRecord{dto.taskName, dto.timeRange, tags};
 }
 
 } // namespace sprint_timer::api

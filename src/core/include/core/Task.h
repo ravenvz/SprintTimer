@@ -23,13 +23,13 @@
 #define TASK_H_7VXCYMOK
 
 #include "core/GoalProgress.h"
-#include "core/entities/Sprint.h"
-#include "core/entities/Tag.h"
+#include "core/Sprint.h"
+#include "core/Tag.h"
 #include "core/utils/StringUtils.h"
 #include "date_wrapper/date_wrapper.h"
-#include <list>
+#include <vector>
 
-namespace sprint_timer::entities {
+namespace sprint_timer {
 
 /* Represent Task that may have many associated sprints.
  *
@@ -39,24 +39,11 @@ namespace sprint_timer::entities {
 class Task {
 
 public:
-    Task(std::string uuid,
-         std::string name,
-         int estimatedCost,
-         dw::DateTime lastModified);
-
     Task(std::string name,
          int estimatedCost,
-         std::vector<ReplaceSprint> sprints,
+         std::vector<Sprint> sprints,
          std::string uuid,
-         std::list<Tag> tags,
-         bool completed,
-         const dw::DateTime& lastModified);
-
-    Task(std::string name,
-         int estimatedCost,
-         int actualCost,
-         std::string uuid,
-         std::list<Tag> tags,
+         std::vector<Tag> tags,
          bool completed,
          const dw::DateTime& lastModified);
 
@@ -72,15 +59,13 @@ public:
 
     std::string uuid() const;
 
-    std::list<Tag> tags() const;
+    std::vector<Tag> tags() const;
 
     dw::DateTime lastModified() const;
 
     GoalProgress goalProgress() const;
 
     [[nodiscard]] const std::vector<Sprint>& sprints() const;
-
-    [[nodiscard]] const std::vector<ReplaceSprint>& replaceSprints() const;
 
     void setCompleted(bool completed);
 
@@ -89,13 +74,11 @@ public:
 private:
     std::string taskName;
     int estimated{1};
-    int actual{0};
     std::string id;
-    std::list<Tag> tag;
+    std::vector<Tag> tag;
     bool completed{false};
     dw::DateTime timeStamp{dw::current_date_time_local()};
     std::vector<Sprint> sprintCont;
-    std::vector<ReplaceSprint> repSprintCont;
 
     bool conflictDetectedWith(const Sprint& sprint) const;
 };
@@ -104,6 +87,6 @@ std::ostream& operator<<(std::ostream& os, const Task& task);
 
 bool operator==(const Task& lhs, const Task& rhs);
 
-} // namespace sprint_timer::entities
+} // namespace sprint_timer
 
 #endif /* end of include guard: TASK_H_7VXCYMOK */

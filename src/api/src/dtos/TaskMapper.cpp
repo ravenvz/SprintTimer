@@ -26,38 +26,32 @@
 
 namespace sprint_timer::api {
 
-TaskDTO makeDTO(const sprint_timer::entities::Task& task)
+TaskDTO makeDTO(const sprint_timer::Task& task)
 {
     std::vector<std::string> tags(task.tags().size());
-
-    // TODO remove when Task uses std::vector instead of std::list
-    std::vector<entities::Tag> tagV(task.tags().size());
-    std::ranges::copy(task.tags(), begin(tagV));
-
-    std::ranges::copy(dtoAdapter(tagV), begin(tags));
+    std::ranges::copy(dtoAdapter(task.tags()), begin(tags));
     std::vector<dw::DateTimeRange> sprints;
-    sprints.reserve(task.replaceSprints().size());
-    std::ranges::copy(dtoAdapter(task.replaceSprints()),
-                      std::back_inserter(sprints));
+    sprints.reserve(task.sprints().size());
+    std::ranges::copy(dtoAdapter(task.sprints()), std::back_inserter(sprints));
     return sprint_timer::api::TaskDTO{task.uuid(),
-                                         tags,
-                                         task.name(),
-                                         task.estimatedCost(),
-                                         sprints,
-                                         task.isCompleted(),
-                                         task.lastModified()};
+                                      tags,
+                                      task.name(),
+                                      task.estimatedCost(),
+                                      sprints,
+                                      task.isCompleted(),
+                                      task.lastModified()};
 }
 
-entities::Task fromDTO(const TaskDTO& dto)
+Task fromDTO(const TaskDTO& dto)
 {
-    std::list<entities::Tag> tags;
+    std::vector<Tag> tags;
     std::ranges::copy(dtoAdapter(dto.tags), std::back_inserter(tags));
 
-    std::vector<entities::ReplaceSprint> sprints;
+    std::vector<Sprint> sprints;
     sprints.reserve(dto.sprints.size());
     std::ranges::copy(dtoAdapter(dto.sprints), std::back_inserter(sprints));
 
-    return entities::Task{dto.name,
+    return Task{dto.name,
                           dto.expectedCost,
                           sprints,
                           dto.uuid,

@@ -30,8 +30,8 @@ namespace sprint_timer::api::actions {
 class EditTask : public Action {
 public:
     EditTask(TaskStorageWriter& writer,
-             entities::Task originalTask,
-             const entities::Task& editedTask);
+             Task originalTask,
+             const Task& editedTask);
 
     void execute() final;
 
@@ -41,8 +41,8 @@ public:
 
 private:
     TaskStorageWriter& writer;
-    entities::Task editedTask;
-    entities::Task originalTask;
+    Task editedTask;
+    Task originalTask;
 };
 
 } // namespace sprint_timer::api::actions

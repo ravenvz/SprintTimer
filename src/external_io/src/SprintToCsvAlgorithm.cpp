@@ -24,8 +24,6 @@
 
 namespace sprint_timer::external_io {
 
-using entities::Sprint;
-
 std::vector<std::string>
 SprintToCsvAlgorithm::toRecords(const api::SprintDTO& sprint) const
 {
@@ -35,8 +33,6 @@ SprintToCsvAlgorithm::toRecords(const api::SprintDTO& sprint) const
     records.emplace_back(join(cbegin(tags), cend(tags), ","));
     records.emplace_back(dw::to_string(sprint.timeRange, "dd.MM.yyyy hh:mm"));
     records.emplace_back(sprint.taskName);
-    records.emplace_back(sprint.taskUuid);
-    records.emplace_back(sprint.uuid);
     return records;
 }
 

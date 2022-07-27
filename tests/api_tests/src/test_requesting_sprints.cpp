@@ -20,13 +20,12 @@
 **
 *********************************************************************************/
 #include "api_tests/QtStorageInitializer.h"
-#include "api_tests/matchers/MatchesSprintIgnoringUuid.h"
 #include "api_tests/utils/utils.h"
 #include "gmock/gmock.h"
 
 using namespace sprint_timer;
 using namespace sprint_timer::api;
-using namespace sprint_timer::entities;
+using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
 
@@ -79,15 +78,11 @@ TEST_F(RequestingSprintsFixture, requesting_sprints_in_given_date_range)
     const auto sprints =
         requestSprintsHandler.handle(RequestSprintsQuery{range});
 
-    EXPECT_THAT(
-        sprints,
-        ::testing::ElementsAre(
-            Truly(matchers::MatchesSprintIgnoringUuid(SprintDTO{
-                "irrelevant", uuid, "Some task", {"Tag1"}, onLeftBorder})),
-            Truly(matchers::MatchesSprintIgnoringUuid(
-                SprintDTO{"irrelevant", uuid, "Some task", {"Tag1"}, inRange})),
-            Truly(matchers::MatchesSprintIgnoringUuid(SprintDTO{
-                "irrelevant", uuid, "Some task", {"Tag1"}, onRightBorder}))));
+    EXPECT_THAT(sprints,
+                ::testing::ElementsAre(
+                    SprintDTO{"Some task", {"Tag1"}, onLeftBorder},
+                    SprintDTO{"Some task", {"Tag1"}, inRange},
+                    SprintDTO{"Some task", {"Tag1"}, onRightBorder}));
 }
 
 TEST_F(RequestingSprintsFixture,
@@ -106,28 +101,13 @@ TEST_F(RequestingSprintsFixture,
         extractUuids(activeTasksHandler.handle(ActiveTasksQuery{})).front();
     registerSprintBulkHandler.handle(
         RegisterSprintBulkCommand{uuid, {first, second, third}});
-    std::vector<SprintDTO> expected{
-        SprintDTO{
-            "irrelevant_uuid", uuid, "Some task", {"Tag1", "Tag2"}, first},
-        SprintDTO{
-            "irrelevant_uuid", uuid, "Some task", {"Tag1", "Tag2"}, third},
-    };
 
     deleteSprintHandler.handle(DeleteSprintCommand{second});
     const auto actual = requestSprintsHandler.handle(RequestSprintsQuery{
         DateRange{first.start().date(), third.start().date()}});
 
-    EXPECT_THAT(
-        actual,
-        ::testing::ElementsAre(
-            Truly(
-                matchers::MatchesSprintIgnoringUuid(SprintDTO{"irrelevant_uuid",
-                                                              uuid,
-                                                              "Some task",
-                                                              {"Tag1", "Tag2"},
-                                                              first})),
-            Truly(matchers::MatchesSprintIgnoringUuid(SprintDTO{
-                "irrelevant_uuid", uuid, "Some task", {"Tag1", "Tag2"}, third}))
-
-                ));
+    EXPECT_THAT(actual,
+                ::testing::ElementsAre(
+                    SprintDTO{"Some task", {"Tag1", "Tag2"}, first},
+                    SprintDTO{"Some task", {"Tag1", "Tag2"}, third}));
 }

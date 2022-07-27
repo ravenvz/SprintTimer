@@ -39,21 +39,21 @@ QtTaskStorageReaderConnectionProxy::QtTaskStorageReaderConnectionProxy(
 {
 }
 
-std::vector<entities::Task>
+std::vector<Task>
 QtTaskStorageReaderConnectionProxy::unfinishedTasks()
 {
     checkStorageInteractorInitialized();
     return localStorage->unfinishedTasks();
 }
 
-std::vector<entities::Task> QtTaskStorageReaderConnectionProxy::finishedTasks(
+std::vector<Task> QtTaskStorageReaderConnectionProxy::finishedTasks(
     const dw::DateRange& dateRange)
 {
     checkStorageInteractorInitialized();
     return localStorage->finishedTasks(dateRange);
 }
 
-std::vector<entities::Task>
+std::vector<Task>
 QtTaskStorageReaderConnectionProxy::allTasks(const dw::DateRange& dateRange)
 {
     checkStorageInteractorInitialized();
@@ -66,14 +66,14 @@ std::vector<std::string> QtTaskStorageReaderConnectionProxy::allTags()
     return localStorage->allTags();
 }
 
-std::vector<entities::Task>
+std::vector<Task>
 QtTaskStorageReaderConnectionProxy::findByUuid(const std::string& uuid)
 {
     checkStorageInteractorInitialized();
     return localStorage.value().findByUuid(uuid);
 }
 
-std::vector<entities::Task> QtTaskStorageReaderConnectionProxy::findMatching(
+std::vector<Task> QtTaskStorageReaderConnectionProxy::findMatching(
     std::span<const std::string> uuids)
 {
     checkStorageInteractorInitialized();

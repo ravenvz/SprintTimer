@@ -23,7 +23,7 @@
 #define DELETESPRINTCOMMAND_H_OZ6JM3PA
 
 #include "api/com_query/Command.h"
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::api {

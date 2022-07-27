@@ -19,13 +19,13 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
+#include "core/Tag.h"
 #include <ranges>
 #include <span>
 
 namespace sprint_timer::api {
 
-inline auto dtoAdapter(std::span<const entities::Tag> tags)
+inline auto dtoAdapter(std::span<const Tag> tags)
 {
     return std::views::transform(tags,
                                  [](const auto& tag) { return tag.name(); });
@@ -34,7 +34,7 @@ inline auto dtoAdapter(std::span<const entities::Tag> tags)
 inline auto dtoAdapter(std::span<const std::string> tagStrings)
 {
     return std::views::transform(
-        tagStrings, [](const auto& str) { return entities::Tag{str}; });
+        tagStrings, [](const auto& str) { return Tag{str}; });
 }
 
 } // namespace sprint_timer::api

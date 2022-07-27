@@ -30,8 +30,6 @@
 namespace sprint_timer::api {
 
 struct SprintDTO {
-    Uuid uuid;
-    Uuid taskUuid;
     std::string taskName;
     std::vector<std::string> tags;
     dw::DateTimeRange timeRange{dw::current_date_time(),
@@ -44,9 +42,7 @@ template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const SprintDTO& sprint)
 {
-    os << "SprintDTO{"
-       << "taskUuid: " << sprint.taskUuid << ", " << sprint.taskName << ", "
-       << sprint.uuid;
+    os << "SprintDTO{" << sprint.taskName << ", ";
     for (const auto& element : sprint.tags) {
         os << '#' << element << ' ';
     }

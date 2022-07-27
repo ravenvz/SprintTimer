@@ -22,7 +22,7 @@
 #ifndef ITASKSTORAGEREADER_H_RMTKEREJ
 #define ITASKSTORAGEREADER_H_RMTKEREJ
 
-#include "core/entities/Task.h"
+#include "core/Task.h"
 #include "date_wrapper/date_wrapper.h"
 #include <functional>
 #include <span>
@@ -33,19 +33,19 @@ class TaskStorageReader {
 public:
     virtual ~TaskStorageReader() = default;
 
-    virtual std::vector<entities::Task> unfinishedTasks() = 0;
+    virtual std::vector<Task> unfinishedTasks() = 0;
 
-    virtual std::vector<entities::Task>
+    virtual std::vector<Task>
     finishedTasks(const dw::DateRange& dateRange) = 0;
 
-    virtual std::vector<entities::Task>
+    virtual std::vector<Task>
     allTasks(const dw::DateRange& dateRange) = 0;
 
     virtual std::vector<std::string> allTags() = 0;
 
-    virtual std::vector<entities::Task> findByUuid(const std::string& uuid) = 0;
+    virtual std::vector<Task> findByUuid(const std::string& uuid) = 0;
 
-    virtual std::vector<entities::Task>
+    virtual std::vector<Task>
     findMatching(std::span<const std::string> uuids) = 0;
 };
 

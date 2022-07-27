@@ -23,8 +23,9 @@
 #define QTTASKSTORAGEWRITER_H_AB4O73ZJ
 
 #include "api/TaskStorageWriter.h"
-#include "core/entities/Tag.h"
+#include "core/Tag.h"
 #include <QSqlQuery>
+#include <span>
 
 namespace sprint_timer::storage::qt_storage {
 
@@ -38,12 +39,12 @@ public:
     QtTaskStorageWriter(const QtTaskStorageWriter&) = delete;
     QtTaskStorageWriter& operator=(const QtTaskStorageWriter&) = delete;
 
-    void save(const entities::Task& task) final;
+    void save(const Task& task) final;
 
     void remove(const std::string& uuid) final;
 
-    void edit(const entities::Task& oldTask,
-              const entities::Task& editedTask) final;
+    void edit(const Task& oldTask,
+              const Task& editedTask) final;
 
     void toggleCompleted(const std::string& uuid,
                          const dw::DateTime& timeStamp) final;
@@ -65,12 +66,12 @@ private:
     QSqlQuery insertSprintQuery;
 
     void insertTags(const QString& taskUuid,
-                    const std::list<entities::Tag>& tagNames);
+                    std::span<const Tag> tags);
 
     void removeTags(const QString& taskUuid,
-                    const std::list<entities::Tag>& tags);
+                    std::span<const Tag> tags);
 
-    void insertSprint(const QString& taskUuid, const entities::Sprint& sprint);
+    void insertSprint(const QString& taskUuid, const Sprint& sprint);
 };
 
 } // namespace sprint_timer::storage::qt_storage

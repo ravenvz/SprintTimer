@@ -20,19 +20,20 @@
 **
 *********************************************************************************/
 #include "api/actions/RegisterSprintBulk.h"
+#include <utility>
 
 namespace sprint_timer::api::actions {
 
-using entities::Sprint;
-
 RegisterSprintBulk::RegisterSprintBulk(SprintStorageWriter& writer_,
+                                       std::string taskUuid_,
                                        std::vector<Sprint> sprints_)
     : writer{writer_}
+    , taskUuid{std::move(taskUuid_)}
     , sprints{std::move(sprints_)}
 {
 }
 
-void RegisterSprintBulk::execute() { writer.save(sprints); }
+void RegisterSprintBulk::execute() { writer.save(taskUuid, sprints); }
 
 void RegisterSprintBulk::undo() { writer.remove(sprints); }
 

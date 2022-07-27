@@ -21,11 +21,9 @@
 *********************************************************************************/
 #include "api/handlers/CreateTaskHandler.h"
 #include "api/actions/CreateTask.h"
+#include "api/dtos/TagMapper.h"
 
 namespace sprint_timer::api {
-
-using entities::Tag;
-using entities::Task;
 
 CreateTaskHandler::CreateTaskHandler(TaskStorageWriter& writer_,
                                      ActionInvoker& actionInvoker_,
@@ -40,16 +38,13 @@ CreateTaskHandler::CreateTaskHandler(TaskStorageWriter& writer_,
 
 void CreateTaskHandler::handle(const CreateTaskCommand& command)
 {
-    std::list<Tag> tags;
-    std::transform(cbegin(command.tags),
-                   cend(command.tags),
-                   std::back_inserter(tags),
-                   [](const auto& elem) { return Tag{elem}; });
+    std::vector<Tag> tags;
+    std::ranges::copy(dtoAdapter(command.tags), std::back_inserter(tags));
     actionInvoker.execute(std::make_unique<actions::CreateTask>(
         writer,
         Task{command.name,
              command.estimatedCost,
-             0,
+             {},
              uuidGenerator.generateUUID(),
              tags,
              false,

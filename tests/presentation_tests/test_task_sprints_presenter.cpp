@@ -52,11 +52,8 @@ public:
     dw::DateTimeRange someTimeRange{dw::current_date_time(),
                                     dw::current_date_time() + 25min};
     std::vector<SprintDTO> someSprintDtos{
-        SprintDTO{
-            "789", "123", "Some task name", {"Tag1", "Tag2"}, someTimeRange},
-        SprintDTO{"555",
-                  "123",
-                  "Some task name",
+        SprintDTO{"Some task name", {"Tag1", "Tag2"}, someTimeRange},
+        SprintDTO{"Some task name",
                   {"Tag1", "Tag2"},
                   dw::add_offset(someTimeRange, 2h)}};
 };

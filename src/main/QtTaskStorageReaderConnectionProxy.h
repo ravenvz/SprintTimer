@@ -32,19 +32,19 @@ public:
     QtTaskStorageReaderConnectionProxy(
         ThreadConnectionHelper& connectionHelper);
 
-    std::vector<entities::Task> unfinishedTasks() override;
+    std::vector<Task> unfinishedTasks() override;
 
-    std::vector<entities::Task>
+    std::vector<Task>
     finishedTasks(const dw::DateRange& dateRange) override;
 
-    std::vector<entities::Task>
+    std::vector<Task>
     allTasks(const dw::DateRange& dateRange) override;
 
     std::vector<std::string> allTags() override;
 
-    std::vector<entities::Task> findByUuid(const std::string& uuid) override;
+    std::vector<Task> findByUuid(const std::string& uuid) override;
 
-    std::vector<entities::Task>
+    std::vector<Task>
     findMatching(std::span<const std::string> uuids) override;
 
 private:

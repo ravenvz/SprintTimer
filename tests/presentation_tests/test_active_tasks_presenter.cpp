@@ -26,8 +26,8 @@
 #include "gmock/gmock.h"
 #include <algorithm>
 
-using sprint_timer::entities::Tag;
-using sprint_timer::entities::Task;
+using sprint_timer::Tag;
+using sprint_timer::Task;
 using sprint_timer::ui::ActiveTasksPresenter;
 using sprint_timer::ui::contracts::TaskContract::View;
 using ::testing::_;

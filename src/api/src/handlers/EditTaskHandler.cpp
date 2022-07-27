@@ -20,11 +20,11 @@
 **
 *********************************************************************************/
 #include "api/handlers/EditTaskHandler.h"
+#include "api/HandlerException.h"
+#include "api/actions/EditTask.h"
 #include "api/dtos/SprintMapper.h"
 #include "api/dtos/TagMapper.h"
 #include "api/dtos/TaskMapper.h"
-#include "api/HandlerException.h"
-#include "api/actions/EditTask.h"
 #include <algorithm>
 
 namespace {
@@ -32,9 +32,6 @@ namespace {
 } // namespace
 
 namespace sprint_timer::api {
-
-using entities::Tag;
-using entities::Task;
 
 EditTaskHandler::EditTaskHandler(TaskStorage& taskStorage_,
                                  ActionInvoker& actionInvoker_)
@@ -53,12 +50,12 @@ void EditTaskHandler::handle(const EditTaskCommand& command)
         message += " that does not exist.";
         throw HandlerException{message};
     }
-    std::list<Tag> tags;
+    std::vector<Tag> tags;
     std::ranges::copy(dtoAdapter(editedDTO.tags), std::back_inserter(tags));
     const Task& originalTask = matchingUuid.front();
     const Task editedTask{editedDTO.name,
                           editedDTO.expectedCost,
-                          originalTask.replaceSprints(),
+                          originalTask.sprints(),
                           editedDTO.uuid,
                           tags,
                           originalTask.isCompleted(),

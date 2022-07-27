@@ -41,7 +41,7 @@ QtSprintStorageReaderConnectionProxy::QtSprintStorageReaderConnectionProxy(
 {
 }
 
-std::vector<entities::Sprint>
+std::vector<SprintRecord>
 QtSprintStorageReaderConnectionProxy::findByDateRange(
     const dw::DateRange& dateRange)
 {

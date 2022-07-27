@@ -19,11 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include "gtest/gtest.h"
 #include <chrono>
 
-using namespace sprint_timer::entities;
+using namespace sprint_timer;
 
 class TestSprintFixture : public ::testing::Test {
 public:
@@ -34,22 +34,12 @@ TEST_F(TestSprintFixture, detects_no_conflict_when_sprints_are_apart_in_time)
     using namespace dw;
     using namespace std::chrono_literals;
 
-    const Sprint left{
-        "Whatever",
-        DateTimeRange{
-            DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 18h + 43min + 38s,
-            DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 19h + 8min + 38s},
-        std::list<Tag>{},
-        "1",
-        "1"};
-    const Sprint right{
-        "Whatever",
-        DateTimeRange{
-            DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 19h + 43min + 38s,
-            DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 20h + 8min + 38s},
-        std::list<Tag>{},
-        "2",
-        "1"};
+    const Sprint left{DateTimeRange{
+        DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 18h + 43min + 38s,
+        DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 19h + 8min + 38s}};
+    const Sprint right{DateTimeRange{
+        DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 19h + 43min + 38s,
+        DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 20h + 8min + 38s}};
 
     ASSERT_FALSE(intersectingInTime(left, right));
     ASSERT_FALSE(intersectingInTime(right, left));
@@ -63,38 +53,22 @@ TEST_F(
     using namespace std::chrono_literals;
 
     ASSERT_FALSE(intersectingInTime(
-        Sprint{"Whatever",
-               DateTimeRange{DateTime{Date{Year{2021}, Month{11}, Day{26}}} +
-                                 19h + 8min + 1s,
-                             DateTime{Date{Year{2021}, Month{11}, Day{26}}} +
-                                 20h + 33min + 1s},
-               std::list<Tag>{},
-               "1",
-               "2"},
-        Sprint{"Whatever",
-               DateTimeRange{DateTime{Date{Year{2021}, Month{11}, Day{26}}} +
+        Sprint{DateTimeRange{
+            DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 19h + 8min + 1s,
+            DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 20h + 33min + 1s}},
+        Sprint{DateTimeRange{DateTime{Date{Year{2021}, Month{11}, Day{26}}} +
                                  18h + 43min + 59s,
                              DateTime{Date{Year{2021}, Month{11}, Day{26}}} +
-                                 19h + 8min + 59s},
-               std::list<Tag>{},
-               "2",
-               "2"}));
+                                 19h + 8min + 59s}}));
     ASSERT_FALSE(intersectingInTime(
-        Sprint{"Whatever",
-               DateTimeRange{DateTime{Date{Year{2021}, Month{5}, Day{2}}} +
-                                 23h + 45min + 28s,
-                             DateTime{Date{Year{2021}, Month{5}, Day{3}}} +
-                                 10min + 28s},
-               std::list<Tag>{},
-               "1",
-               "2"},
-        Sprint{"Whatever",
-               DateTimeRange{
-                   DateTime{Date{Year{2021}, Month{5}, Day{3}}} + 10min + 2s,
-                   DateTime{Date{Year{2021}, Month{5}, Day{3}}} + 35min + 2s},
-               std::list<Tag>{},
-               "2",
-               "2"}));
+        Sprint{DateTimeRange{
+            DateTime{Date{Year{2021}, Month{5}, Day{2}}} + 23h + 45min + 28s,
+            DateTime{Date{Year{2021}, Month{5}, Day{3}}} + 10min + 28s}},
+        Sprint{
+            DateTimeRange{
+                DateTime{Date{Year{2021}, Month{5}, Day{3}}} + 10min + 2s,
+                DateTime{Date{Year{2021}, Month{5}, Day{3}}} + 35min + 2s},
+        }));
 }
 
 TEST_F(TestSprintFixture,
@@ -104,21 +78,15 @@ TEST_F(TestSprintFixture,
     using namespace std::chrono_literals;
 
     const Sprint left{
-        "Whatever",
         DateTimeRange{
             DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 18h + 43min + 28s,
             DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 19h + 8min + 38s},
-        std::list<Tag>{},
-        "2",
-        "1"};
+    };
     const Sprint right{
-        "Whatever",
         DateTimeRange{
             DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 18h + 52min + 18s,
             DateTime{Date{Year{2021}, Month{11}, Day{26}}} + 19h + 17min + 18s},
-        std::list<Tag>{},
-        "1",
-        "1"};
+    };
 
     ASSERT_TRUE(intersectingInTime(left, right));
     ASSERT_TRUE(intersectingInTime(right, left));

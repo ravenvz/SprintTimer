@@ -19,9 +19,16 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Tag.h"
+#include "core/Tag.h"
+#include "core/utils/StringUtils.h"
 
-namespace sprint_timer::entities {
+namespace {
+
+constexpr std::string_view prefix{"#"};
+
+} // namespace
+
+namespace sprint_timer {
 
 Tag::Tag(std::string name)
     : name_{std::move(name)}
@@ -32,15 +39,23 @@ std::string Tag::name() const { return name_; }
 
 void Tag::setName(const std::string& name) { name_ = name; }
 
-std::string Tag::nameWithPrefix() const
+std::string prefixTags(std::span<const Tag> tags)
 {
-    if (name().empty())
+    if (tags.empty()) {
         return "";
-    return prefix + name();
+    }
+    std::vector<std::string> prefixedTags(tags.size());
+    std::ranges::transform(
+        tags, std::back_inserter(prefixedTags), [](const auto& tag) {
+            return tag.nameWithPrefix();
+        });
+    return utils::join(prefixedTags.cbegin(), prefixedTags.cend(), " ");
 }
 
-/* static */
-std::string const Tag::prefix = std::string("#");
+std::string Tag::nameWithPrefix() const
+{
+    return name().empty() ? std::string{} : std::string{prefix} + name();
+}
 
 std::ostream& operator<<(std::ostream& os, const Tag& tag)
 {
@@ -48,14 +63,4 @@ std::ostream& operator<<(std::ostream& os, const Tag& tag)
     return os;
 }
 
-bool operator<(const Tag& lhs, const Tag& rhs)
-{
-    return lhs.name() < rhs.name();
-}
-
-bool operator==(const Tag& lhs, const Tag& rhs)
-{
-    return lhs.name() == rhs.name();
-}
-
-} // namespace sprint_timer::entities
+} // namespace sprint_timer

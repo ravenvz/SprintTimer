@@ -35,7 +35,7 @@ TestCommandHandlerComposer::TestCommandHandlerComposer(
           taskStorage_, actionInvoker_, generator_, dateTimeProvider_)}
     , deleteTask{taskStorage_, actionInvoker_}
     , registerSprintBulk{std::make_unique<api::RegisterSprintBulkHandler>(
-          taskStorage_, sprintStorage_, actionInvoker_, generator_)}
+          taskStorage_, sprintStorage_, actionInvoker_)}
     , toggleTaskCompleted{taskStorage_, actionInvoker_}
     , deleteSprint{sprintStorage_, actionInvoker_}
     , editTask{taskStorage_, actionInvoker_}

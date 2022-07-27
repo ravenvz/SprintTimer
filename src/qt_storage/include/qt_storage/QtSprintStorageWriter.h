@@ -37,21 +37,22 @@ public:
     QtSprintStorageWriter(const QtSprintStorageWriter&) = delete;
     QtSprintStorageWriter& operator=(const QtSprintStorageWriter&) = delete;
 
-    void save(const entities::Sprint& sprint) final;
+    void save(const std::string& taskUuid,
+              const std::vector<Sprint>& sprints) final;
 
-    void save(const std::vector<entities::Sprint>& sprints) final;
+    void remove(const Sprint& sprint) final;
 
-    void remove(const entities::Sprint& sprint) final;
+    void remove(const std::vector<Sprint>& sprints) final;
 
-    void remove(const std::vector<entities::Sprint>& sprints) final;
-
-    void restore(const entities::Sprint& sprint) final;
+    void restore(const Sprint& sprint) final;
 
 private:
     QString connectionName;
     QSqlQuery saveSprintQuery;
     QSqlQuery deleteSprintQuery;
     QSqlQuery restoreSprintQuery;
+
+    void save(const std::string& taskUuid, const Sprint& sprint);
 };
 
 } // namespace sprint_timer::storage::qt_storage

@@ -23,7 +23,7 @@
 #define SPRINTSTATISTICS_H
 
 #include "Distribution.h"
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include <algorithm>
 #include <vector>
 
@@ -32,19 +32,19 @@ namespace sprint_timer {
 /* Returns distribution of finished sprints per weekday. It is up to caller to
  * ensure that sprints fit into the dateRange. */
 Distribution<double>
-weekdayStatistics(const std::vector<entities::Sprint>& sprints,
+weekdayStatistics(const std::vector<Sprint>& sprints,
                   const dw::DateRange& dateRange);
 
 
 /* Returns distribution of sprint times per day hours. */
 Distribution<double>
-workingHoursStatistics(const std::vector<entities::Sprint>& sprints);
+workingHoursStatistics(const std::vector<Sprint>& sprints);
 
 
 /* Returns number of completed sprints per day. It is up to caller to ensure
  * that sprints fit into the dateRange. */
 Distribution<double>
-dailyStatistics(const std::vector<entities::Sprint>& sprints,
+dailyStatistics(const std::vector<Sprint>& sprints,
                 const dw::DateRange& dateRange);
 
 namespace DayPart {

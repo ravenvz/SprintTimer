@@ -19,15 +19,14 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #include "api/actions/DeleteSprint.h"
 
 namespace sprint_timer::api::actions {
 
 DeleteSprint::DeleteSprint(SprintStorageWriter& writer_,
-                           entities::Sprint sprintToRemove_)
+                           Sprint sprintToRemove_)
     : writer{writer_}
-    , sprint{std::move(sprintToRemove_)}
+    , sprint{sprintToRemove_}
 {
 }
 

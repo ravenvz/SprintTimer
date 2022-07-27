@@ -24,7 +24,7 @@
 
 #include "api/com_query/Command.h"
 #include "core/Uuid.h"
-#include "core/entities/Task.h"
+#include "core/Task.h"
 
 namespace sprint_timer::api {
 

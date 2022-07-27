@@ -22,11 +22,11 @@
 #ifndef STATISTICSDIAGRAMWIDGET_H_NQA0OVEZ
 #define STATISTICSDIAGRAMWIDGET_H_NQA0OVEZ
 
+#include "core/TagTop.h"
 #include "qt_gui/widgets/BestWorkdayWidget.h"
 #include "qt_gui/widgets/BestWorktimeWidget.h"
 #include "qt_gui/widgets/TopTagDiagram.h"
 #include <QFrame>
-#include "core/TagTop.h"
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -40,7 +40,7 @@ public:
                             std::unique_ptr<QWidget> bestWorktimeWidget,
                             QFrame* parent = nullptr);
 
-    void setData(const std::vector<entities::Sprint>& sprints,
+    void setData(const std::vector<SprintRecord>& sprints,
                  const dw::DateRange& dateRange);
 
     void setTagFrequencies(std::vector<TagTop::TagFrequency>&& tagFrequency);

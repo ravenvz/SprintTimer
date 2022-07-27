@@ -26,9 +26,7 @@
 
 namespace sprint_timer {
 
-using namespace entities;
-
-TagTop::TagTop(const std::vector<Sprint>& sprints_, size_t topMaxSize_)
+TagTop::TagTop(const std::vector<SprintRecord>& sprints_, size_t topMaxSize_)
     : numTopTags{topMaxSize_}
 {
     arrangeSprintsByTag(sprints_);
@@ -49,9 +47,9 @@ TagTop::TagTop(std::span<const sprint_tags_t> input_, size_t topSize_)
     buildTagTop();
 }
 
-void TagTop::arrangeSprintsByTag(const std::vector<Sprint>& sprints)
+void TagTop::arrangeSprintsByTag(const std::vector<SprintRecord>& sprints)
 {
-    for (const Sprint& sprint : sprints) {
+    for (const SprintRecord& sprint : sprints) {
         dateRanges.emplace_back(sprint.timeSpan());
         for (const auto& tag : sprint.tags()) {
             sprintsByTag[tag].push_back(sprint.timeSpan());
@@ -70,9 +68,11 @@ void TagTop::computeTagFrequencies()
         const auto& [tag, intervals] = entry;
         return {tag, static_cast<double>(intervals.size()) / total};
     };
-    const auto frequencies_view = sprintsByTag |
-                                  std::views::transform(tag_frequency) |
-                                  std::views::common;
+    // clang-format off
+    const auto frequencies_view = sprintsByTag
+                                    | std::views::transform(tag_frequency) 
+                                    | std::views::common;
+    // clang-format on
     frequencies = std::vector<TagFrequency>(frequencies_view.begin(),
                                             frequencies_view.end());
 }
@@ -120,7 +120,7 @@ TagTop::sprintsForTagAt(std::optional<size_t> position) const
     if (!position) {
         return dateRanges;
     }
-    return sprintsByTag.at(tagNameAt(*position));
+    return sprintsByTag.at(Tag{tagNameAt(*position)});
 }
 
 std::string TagTop::tagNameAt(size_t position) const

@@ -37,13 +37,11 @@ public:
 TEST_F(SprintToCsvFixture, serializes_sprint)
 {
     const SprintDTO sprint{
-        "321",
-        "123",
         "Alone sprint!",
         {"SomeTag", "SomeOtherTag"},
         DateTimeRange{startTime + 10h, startTime + 10h + 25min}};
     const std::string expected{"SomeTag,SomeOtherTag;19.06.2020 12:00 - "
-                               "19.06.2020 12:25;Alone sprint!;123;321"};
+                               "19.06.2020 12:25;Alone sprint!"};
 
     EXPECT_EQ(expected, sprintSerializer.serialize(sprint));
 }
@@ -51,22 +49,17 @@ TEST_F(SprintToCsvFixture, serializes_sprint)
 TEST_F(SprintToCsvFixture, serializes_batch)
 {
     std::vector<SprintDTO> sprints{
-        SprintDTO{"321",
-                  "123",
-                  "Sprint 1",
+        SprintDTO{"Sprint 1",
                   {"SomeTag", "SomeOtherTag"},
                   DateTimeRange{startTime, startTime + 25min}},
-        SprintDTO{"534",
-                  "345",
-                  "Sprint 2",
+        SprintDTO{"Sprint 2",
                   std::vector<std::string>{},
                   DateTimeRange{startTime + 2h, startTime + 2h + 25min}}
 
     };
     const std::vector<std::string> expected{
-        "SomeTag,SomeOtherTag;19.06.2020 02:00 - 19.06.2020 02:25;Sprint "
-        "1;123;321",
-        ";19.06.2020 04:00 - 19.06.2020 04:25;Sprint 2;345;534"};
+        "SomeTag,SomeOtherTag;19.06.2020 02:00 - 19.06.2020 02:25;Sprint 1",
+        ";19.06.2020 04:00 - 19.06.2020 04:25;Sprint 2"};
 
     EXPECT_EQ(expected, sprintSerializer.serializeBatch(sprints));
 }

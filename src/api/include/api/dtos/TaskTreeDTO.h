@@ -25,6 +25,8 @@
 #include "api/dtos/TaskDTO.h"
 #include "core/Tree.h"
 
+#include <iostream>
+
 namespace sprint_timer::api {
 
 enum class TaskTypeDTO { Project, Folder, Recurring, Regular };
@@ -40,6 +42,7 @@ struct TaskNodeDTO {
     // friend bool operator==(const TaskNodeDTO&, const TaskNodeDTO&) = default;
     friend bool operator==(const TaskNodeDTO& lhs, const TaskNodeDTO& rhs)
     {
+        std::cout << lhs.task << " -> " << rhs.task << std::endl;
         return lhs.task == rhs.task and lhs.type == rhs.type and
                lhs.dueTime == rhs.dueTime and lhs.reminder == rhs.reminder;
     }
@@ -49,7 +52,7 @@ template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const TaskNodeDTO& taskNode)
 {
-    os << "TaskNode{";
+    os << "TaskNodeDTO{";
     using enum TaskTypeDTO;
     switch (taskNode.type) {
     case Project:
@@ -66,18 +69,18 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskNodeDTO& taskNode)
     }
     os << ", ";
     if (auto dt = taskNode.dueTime; dt) {
-        os << "due: " << *dt;
+        os << "due: " << *dt << ", ";
     }
     else {
-        os << ", null";
+        os << "null, ";
     }
     if (auto rmd = taskNode.reminder; rmd) {
-        os << ", remind: " << *rmd;
+        os << "remind: " << *rmd << ", ";
     }
     else {
-        os << ", null";
+        os << "null, ";
     }
-    os << ", notes: " << taskNode.notes << "}";
+    os << "notes: " << taskNode.notes << "}";
 
     return os;
 }

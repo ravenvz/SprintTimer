@@ -24,13 +24,13 @@
 
 #include "api/Action.h"
 #include "api/TaskStorageWriter.h"
-#include "core/entities/Task.h"
+#include "core/Task.h"
 
 namespace sprint_timer::api::actions {
 
 class CreateTask : public Action {
 public:
-    CreateTask(TaskStorageWriter& taskStorageWriter, entities::Task task);
+    CreateTask(TaskStorageWriter& taskStorageWriter, Task task);
 
     void execute() final;
 
@@ -40,7 +40,7 @@ public:
 
 private:
     TaskStorageWriter& writer;
-    const entities::Task task;
+    const Task task;
 };
 
 } // namespace sprint_timer::api::actions

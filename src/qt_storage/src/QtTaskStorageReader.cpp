@@ -29,21 +29,9 @@
 
 namespace {
 
-using sprint_timer::entities::Task;
+using sprint_timer::Task;
 
 enum class Column {
-    Id,
-    Name,
-    EstimatedCost,
-    ActualCost,
-    Priority,
-    Completed,
-    Tags,
-    LastModified,
-    Uuid
-};
-
-enum class AdvColumn {
     Uuid = 0,
     Name,
     EstimatedCost,
@@ -58,17 +46,11 @@ enum class TagColumn { Id, Name };
 
 std::vector<Task> tasksFromQuery(QSqlQuery& query);
 
-std::vector<Task> advTasksFromQuery(QSqlQuery& query);
-
-Task taskFromRecord(const QSqlRecord& record);
-
 std::vector<std::string> tagsFromQuery(QSqlQuery& query);
 
 std::string tagFromRecord(const QSqlRecord& record);
 
 QVariant columnData(const QSqlRecord& record, Column column);
-
-QVariant columnData(const QSqlRecord& record, AdvColumn column);
 
 } // namespace
 
@@ -142,7 +124,7 @@ QtTaskStorageReader::QtTaskStorageReader(QString connectionName_)
                        .arg(AdvTaskView::name));
 }
 
-std::vector<entities::Task> QtTaskStorageReader::unfinishedTasks()
+std::vector<Task> QtTaskStorageReader::unfinishedTasks()
 {
     QSqlQuery query{QSqlDatabase::database(connectionName)};
     tryExecute(query,
@@ -159,7 +141,7 @@ std::vector<entities::Task> QtTaskStorageReader::unfinishedTasks()
                    .arg(SprintTable::Columns::startTime)
                    .arg(SprintTable::Columns::finishTime)
                    .arg(AdvTaskView::name));
-    return advTasksFromQuery(query);
+    return tasksFromQuery(query);
 }
 
 std::vector<Task>
@@ -172,7 +154,7 @@ QtTaskStorageReader::finishedTasks(const dw::DateRange& dateRange)
                                  QVariant(QString::fromStdString(dw::to_string(
                                      dateRange.finish(), "yyyy-MM-dd"))));
     tryExecute(finishedTasksQuery);
-    return advTasksFromQuery(finishedTasksQuery);
+    return tasksFromQuery(finishedTasksQuery);
 }
 
 std::vector<Task> QtTaskStorageReader::allTasks(const dw::DateRange& dateRange)
@@ -184,7 +166,7 @@ std::vector<Task> QtTaskStorageReader::allTasks(const dw::DateRange& dateRange)
                             QVariant(QString::fromStdString(dw::to_string(
                                 dateRange.finish(), "yyyy-MM-dd"))));
     tryExecute(allTasksQuery);
-    return advTasksFromQuery(allTasksQuery);
+    return tasksFromQuery(allTasksQuery);
 }
 
 std::vector<std::string> QtTaskStorageReader::allTags()
@@ -200,12 +182,12 @@ std::vector<std::string> QtTaskStorageReader::allTags()
     return tagsFromQuery(query);
 }
 
-std::vector<entities::Task>
+std::vector<Task>
 QtTaskStorageReader::findByUuid(const std::string& uuid)
 {
     findByUuidQuery.bindValue(":uuid", QVariant(QString::fromStdString(uuid)));
     tryExecute(findByUuidQuery);
-    return advTasksFromQuery(findByUuidQuery);
+    return tasksFromQuery(findByUuidQuery);
 }
 
 std::vector<Task>
@@ -231,48 +213,46 @@ QtTaskStorageReader::findMatching(std::span<const std::string> uuids)
                    .arg(AdvTaskView::name)
                    .arg(QString::fromStdString(us)));
 
-    return advTasksFromQuery(query);
+    return tasksFromQuery(query);
 }
 
 } // namespace sprint_timer::storage::qt_storage
 
 namespace {
 
-using sprint_timer::entities::ReplaceSprint;
-using sprint_timer::entities::Sprint;
-using sprint_timer::entities::Tag;
-using sprint_timer::entities::Task;
+using sprint_timer::Sprint;
+using sprint_timer::SprintRecord;
+using sprint_timer::Tag;
+using sprint_timer::Task;
 
-auto advTaskFromRecords(auto first, auto last) -> Task
+auto taskFromRecords(auto first, auto last) -> Task
 {
     using sprint_timer::storage::utils::DateTimeConverter;
 
     const std::string name{
-        columnData(*first, AdvColumn::Name).toString().toStdString()};
+        columnData(*first, Column::Name).toString().toStdString()};
     const std::string uuid{
-        columnData(*first, AdvColumn::Uuid).toString().toStdString()};
-    const int estimatedCost{
-        columnData(*first, AdvColumn::EstimatedCost).toInt()};
-    const QStringList tagNames{columnData(*first, AdvColumn::Tags)
+        columnData(*first, Column::Uuid).toString().toStdString()};
+    const int estimatedCost{columnData(*first, Column::EstimatedCost).toInt()};
+    const QStringList tagNames{columnData(*first, Column::Tags)
                                    .toString()
                                    .split(",", Qt::SkipEmptyParts)};
-    std::list<Tag> tags;
-    std::transform(tagNames.cbegin(),
-                   tagNames.cend(),
-                   std::back_inserter(tags),
-                   [](const auto& tag) { return Tag{tag.toStdString()}; });
-    const bool finished{columnData(*first, AdvColumn::Completed).toBool()};
+    std::vector<Tag> tags;
+    std::ranges::transform(
+        tagNames, std::back_inserter(tags), [](const auto& tag) {
+            return Tag{tag.toStdString()};
+        });
+    const bool finished{columnData(*first, Column::Completed).toBool()};
     const QDateTime qLastModified{
-        columnData(*first, AdvColumn::LastModified).toDateTime()};
+        columnData(*first, Column::LastModified).toDateTime()};
     const dw::DateTime lastModified =
         sprint_timer::storage::utils::DateTimeConverter::dateTime(
             qLastModified);
 
-    // std::vector<Sprint> sprints;
-    std::vector<ReplaceSprint> sprints;
+    std::vector<Sprint> sprints;
     for (; first != last; ++first) {
         const QDateTime startTime{
-            columnData(*first, AdvColumn::StartTime).toDateTime()};
+            columnData(*first, Column::StartTime).toDateTime()};
         // If task has no sprints, field would be an empty string thus
         // resulting an invalid QDateTime when parsing. So we break here
         // and task will have empty sprints.
@@ -280,17 +260,17 @@ auto advTaskFromRecords(auto first, auto last) -> Task
             break;
         }
         const QDateTime finishTime{
-            columnData(*first, AdvColumn::FinishTime).toDateTime()};
-        sprints.push_back(ReplaceSprint{
-            dw::DateTimeRange{DateTimeConverter::dateTime(startTime),
-                              DateTimeConverter::dateTime(finishTime)}});
+            columnData(*first, Column::FinishTime).toDateTime()};
+        sprints.push_back(
+            Sprint{dw::DateTimeRange{DateTimeConverter::dateTime(startTime),
+                                     DateTimeConverter::dateTime(finishTime)}});
     }
 
     return Task{
         name, estimatedCost, sprints, uuid, tags, finished, lastModified};
 };
 
-std::vector<Task> advTasksFromQuery(QSqlQuery& query)
+std::vector<Task> tasksFromQuery(QSqlQuery& query)
 {
     const auto records =
         sprint_timer::storage::qt_storage::copyAllRecords(query);
@@ -300,62 +280,16 @@ std::vector<Task> advTasksFromQuery(QSqlQuery& query)
     }
 
     for (auto it = records.cbegin(); it != records.cend();) {
-        QVariant uuid = columnData(*it, AdvColumn::Uuid);
+        QVariant uuid = columnData(*it, Column::Uuid);
         auto next = std::find_if(it, records.cend(), [&](const auto& record) {
-            return columnData(record, AdvColumn::Uuid) != uuid;
+            return columnData(record, Column::Uuid) != uuid;
         });
-        Task task = advTaskFromRecords(it, next);
+        Task task = taskFromRecords(it, next);
         tasks.push_back(task);
         it = next;
     }
 
     return tasks;
-}
-
-std::vector<Task> tasksFromQuery(QSqlQuery& query)
-{
-    using namespace sprint_timer::storage::qt_storage;
-    const auto records = copyAllRecords(query);
-    std::vector<Task> tasks;
-    tasks.reserve(records.size());
-    std::transform(records.cbegin(),
-                   records.cend(),
-                   std::back_inserter(tasks),
-                   taskFromRecord);
-    return tasks;
-}
-
-Task taskFromRecord(const QSqlRecord& record)
-{
-    using sprint_timer::entities::Tag;
-    using sprint_timer::storage::utils::DateTimeConverter;
-
-    const std::string name{
-        columnData(record, Column::Name).toString().toStdString()};
-    const std::string uuid{
-        columnData(record, Column::Uuid).toString().toStdString()};
-    const int estimatedCost{columnData(record, Column::EstimatedCost).toInt()};
-    const int actualCost{columnData(record, Column::ActualCost).toInt()};
-    const QStringList tagNames{columnData(record, Column::Tags)
-                                   .toString()
-                                   .split(",", Qt::SkipEmptyParts)};
-    std::list<Tag> tags;
-    std::transform(tagNames.cbegin(),
-                   tagNames.cend(),
-                   std::back_inserter(tags),
-                   [](const auto& tag) { return Tag{tag.toStdString()}; });
-    const bool finished{columnData(record, Column::Completed).toBool()};
-    const QDateTime qLastModified{
-        columnData(record, Column::LastModified).toDateTime()};
-    const dw::DateTime lastModified =
-        DateTimeConverter::dateTime(qLastModified);
-    return Task{name,
-                estimatedCost,
-                actualCost,
-                uuid,
-                std::move(tags),
-                finished,
-                lastModified};
 }
 
 std::vector<std::string> tagsFromQuery(QSqlQuery& query)
@@ -381,11 +315,6 @@ std::string tagFromRecord(const QSqlRecord& record)
 }
 
 QVariant columnData(const QSqlRecord& record, Column column)
-{
-    return record.value(static_cast<int>(column));
-}
-
-QVariant columnData(const QSqlRecord& record, AdvColumn column)
 {
     return record.value(static_cast<int>(column));
 }

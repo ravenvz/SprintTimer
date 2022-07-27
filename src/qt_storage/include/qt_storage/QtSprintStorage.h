@@ -40,18 +40,17 @@ public:
     QtSprintStorage(const QtSprintStorage&) = delete;
     QtSprintStorage& operator=(const QtSprintStorage&) = delete;
 
-    std::vector<entities::Sprint>
+    std::vector<SprintRecord>
     findByDateRange(const dw::DateRange& dateRange) final;
 
-    void save(const entities::Sprint& sprint) final;
+    void save(const std::string& taskUuid,
+              const std::vector<Sprint>& sprints) final;
 
-    void save(const std::vector<entities::Sprint>& sprints) final;
+    void remove(const Sprint& sprint) final;
 
-    void remove(const entities::Sprint& sprint) final;
+    void remove(const std::vector<Sprint>& sprints) final;
 
-    void remove(const std::vector<entities::Sprint>& sprints) final;
-
-    void restore(const entities::Sprint& sprint) final;
+    void restore(const Sprint& sprint) final;
 
 private:
     std::unique_ptr<SprintStorageReader> reader;

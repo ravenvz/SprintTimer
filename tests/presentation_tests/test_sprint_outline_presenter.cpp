@@ -86,11 +86,10 @@ std::vector<api::SprintDTO> makeSomeSprints()
     const DateTimeRange someRange{someDateTime, someDateTime + 25min};
 
     std::vector<api::SprintDTO> dtos{
-        api::SprintDTO{"1", "1", "Task 1", {"Tag1", "Tag2"}, someRange},
+        api::SprintDTO{"Task 1", {"Tag1", "Tag2"}, someRange},
         api::SprintDTO{
-            "2", "1", "Task 1", {"Tag1", "Tag2"}, add_offset(someRange, 25min)},
-        api::SprintDTO{
-            "3", "2", "Task 2", {"Tag3"}, add_offset(someRange, 2h)}};
+            "Task 1", {"Tag1", "Tag2"}, add_offset(someRange, 25min)},
+        api::SprintDTO{"Task 2", {"Tag3"}, add_offset(someRange, 2h)}};
 
     return dtos;
 }

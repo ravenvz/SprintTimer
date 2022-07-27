@@ -260,7 +260,7 @@ ReadTaskTreeHandler::handle(const ReadTaskTreeQuery& /*query*/)
     std::vector<std::string> uuids;
     std::ranges::copy(metaTree.keys(), std::back_inserter(uuids));
     auto tasks = taskStorageReader.findMatching(uuids);
-    std::unordered_map<std::string, entities::Task> taskMap;
+    std::unordered_map<std::string, Task> taskMap;
     for (auto& task : tasks) {
         taskMap.insert({task.uuid(), std::move(task)});
     }

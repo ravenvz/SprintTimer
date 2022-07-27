@@ -25,7 +25,7 @@
 namespace sprint_timer::api::actions {
 
 DeleteTask::DeleteTask(TaskStorageWriter& taskStorageWriter_,
-                       entities::Task taskToRemove_)
+                       Task taskToRemove_)
     : taskWriter{taskStorageWriter_}
     , task{std::move(taskToRemove_)}
 {

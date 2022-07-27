@@ -25,7 +25,7 @@
 
 using namespace sprint_timer;
 using namespace sprint_timer::api;
-using namespace sprint_timer::entities;
+using namespace sprint_timer;
 using namespace dw;
 
 class RemovingSprintsFixture : public ::testing::Test {

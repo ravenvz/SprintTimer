@@ -23,7 +23,7 @@
 #define SPRINTDATAEXPORTER_H_ZDYS5FI6
 
 #include "api/DataExporter.h"
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include "external_io/RuntimeSinkRouter.h"
 #include "external_io/Serializer.h"
 

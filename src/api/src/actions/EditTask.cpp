@@ -26,15 +26,13 @@ using dw::DateTime;
 
 namespace sprint_timer::api::actions {
 
-using namespace entities;
-
 EditTask::EditTask(TaskStorageWriter& writer_,
                    Task originalTask_,
                    const Task& editedTask_)
     : writer{writer_}
     , editedTask{editedTask_.name(),
                  editedTask_.estimatedCost(),
-                 originalTask_.actualCost(),
+                 originalTask_.sprints(),
                  originalTask_.uuid(),
                  editedTask_.tags(),
                  originalTask_.isCompleted(),

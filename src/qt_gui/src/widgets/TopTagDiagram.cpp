@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/widgets/TopTagDiagram.h"
 #include "QtGui/qpainter.h"
-#include "core/entities/Tag.h"
+#include "core/Tag.h"
 #include "qt_gui/widgets/PieChart.h"
 #include "qt_gui/widgets/SimpleLegend.h"
 #include <QGridLayout>

@@ -23,7 +23,7 @@
 #ifndef SPRINT_TIMER_TAGTOP_H
 #define SPRINT_TIMER_TAGTOP_H
 
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include <optional>
 #include <span>
 #include <unordered_map>
@@ -66,17 +66,18 @@ namespace sprint_timer {
 
 class TagTop {
 public:
-    using TagFrequency = std::pair<entities::Tag, double>;
+    using TagFrequency = std::pair<Tag, double>;
 
     using TagSprints =
-        std::unordered_map<entities::Tag, std::vector<dw::DateTimeRange>>;
+        std::unordered_map<Tag, std::vector<dw::DateTimeRange>>;
 
     using sprint_tags_t =
-        std::pair<dw::DateTimeRange, std::list<entities::Tag>>;
+        std::pair<dw::DateTimeRange, std::vector<Tag>>;
 
     TagTop() = default;
 
-    TagTop(const std::vector<entities::Sprint>& sprints, size_t topMaxSize);
+    TagTop(const std::vector<SprintRecord>& sprints,
+           size_t topMaxSize);
 
     TagTop(std::span<const sprint_tags_t> input, size_t topSize);
 
@@ -92,9 +93,10 @@ private:
     TagSprints sprintsByTag;
     std::vector<TagFrequency> frequencies;
     size_t numTopTags{0};
-    entities::Tag dummyTag{""};
+    Tag dummyTag{""};
 
-    void arrangeSprintsByTag(const std::vector<entities::Sprint>& sprints);
+    void
+    arrangeSprintsByTag(const std::vector<SprintRecord>& sprints);
 
     void computeTagFrequencies();
 

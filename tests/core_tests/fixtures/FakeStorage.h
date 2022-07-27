@@ -23,7 +23,7 @@
 #define FAKESTORAGE_H_K56HOST8
 
 #include "core/Distribution.h"
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include "date_wrapper/date_wrapper.h"
 #include <algorithm>
 #include <functional>
@@ -53,14 +53,14 @@ public:
     }
 
     bool itemLiesInRange(const dw::TimeSpan& timeSpan,
-                         const sprint_timer::entities::Sprint& item)
+                         const sprint_timer::Sprint& item)
     {
         return (timeSpan.start() <= item.startTime()
                 && item.startTime() <= timeSpan.finish());
     }
 
     bool itemLiesInRange(const dw::TimeSpan& timeSpan,
-                         const sprint_timer::entities::Task& item)
+                         const sprint_timer::Task& item)
     {
         return (timeSpan.start() <= item.lastModified()
                 && item.lastModified() <= timeSpan.finish());
@@ -79,10 +79,10 @@ public:
     }
 
     void requestUnfinishedItems(
-        std::function<void(const std::vector<sprint_timer::entities::Task>&)>
+        std::function<void(const std::vector<sprint_timer::Task>&)>
             callback)
     {
-        std::vector<sprint_timer::entities::Task> unfinished;
+        std::vector<sprint_timer::Task> unfinished;
         for (const auto& item : storage) {
             if (!item.second.isCompleted())
                 unfinished.push_back(item.second);
@@ -109,7 +109,7 @@ public:
                     });
                     std::string newNameCopy{newName};
                     oldTags.push_back(
-                        sprint_timer::entities::Tag{std::move(newNameCopy)});
+                        sprint_timer::Tag{std::move(newNameCopy)});
                     storage.at(pair.first).setTags(oldTags);
                 }
             }

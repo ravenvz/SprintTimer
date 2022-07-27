@@ -26,8 +26,7 @@
 #include "qt_storage/utils/DateTimeConverter.h"
 #include "qt_storage/utils/QueryUtils.h"
 #include <QVariant>
-
-#include <iostream>
+#include <algorithm>
 
 namespace sprint_timer::storage::qt_storage {
 
@@ -106,7 +105,7 @@ QtTaskStorageWriter::QtTaskStorageWriter(QString connectionName_)
                        .arg(TaskTable::Columns::uuid));
 }
 
-void QtTaskStorageWriter::save(const entities::Task& task)
+void QtTaskStorageWriter::save(const Task& task)
 {
     const QString uuid = QString::fromStdString(task.uuid());
     createTaskQuery.bindValue(":name", QString::fromStdString(task.name()));
@@ -135,8 +134,8 @@ void QtTaskStorageWriter::remove(const std::string& uuid)
     tryExecute(deleteTaskQuery);
 }
 
-void QtTaskStorageWriter::edit(const entities::Task& oldTask,
-                               const entities::Task& editedTask)
+void QtTaskStorageWriter::edit(const Task& oldTask,
+                               const Task& editedTask)
 {
     using namespace utils;
 
@@ -151,10 +150,10 @@ void QtTaskStorageWriter::edit(const entities::Task& oldTask,
 
     auto oldTags = oldTask.tags();
     auto newTags = editedTask.tags();
-    oldTags.sort();
-    newTags.sort();
-    std::list<entities::Tag> tagsToRemove;
-    std::list<entities::Tag> tagsToInsert;
+    std::ranges::sort(oldTags);
+    std::ranges::sort(newTags);
+    std::vector<Tag> tagsToRemove;
+    std::vector<Tag> tagsToInsert;
 
     twoWayDiff(cbegin(oldTags),
                cend(oldTags),
@@ -203,7 +202,7 @@ void QtTaskStorageWriter::editTag(const std::string& oldName,
 }
 
 void QtTaskStorageWriter::insertTags(const QString& taskUuid,
-                                     const std::list<entities::Tag>& tags)
+                                     std::span<const Tag> tags)
 {
     for (const auto& tag : tags) {
         createTagQuery.bindValue(":tag", QString::fromStdString(tag.name()));
@@ -213,7 +212,7 @@ void QtTaskStorageWriter::insertTags(const QString& taskUuid,
 }
 
 void QtTaskStorageWriter::removeTags(const QString& taskUuid,
-                                     const std::list<entities::Tag>& tags)
+                                     std::span<const Tag> tags)
 {
     for (const auto& tag : tags) {
         deleteTagQuery.bindValue(":uuid", taskUuid);
@@ -223,13 +222,11 @@ void QtTaskStorageWriter::removeTags(const QString& taskUuid,
 }
 
 void QtTaskStorageWriter::insertSprint(
-    const QString& taskUuid, const sprint_timer::entities::Sprint& sprint)
+    const QString& taskUuid, const sprint_timer::Sprint& sprint)
 {
     using storage::utils::DateTimeConverter;
-    const QDateTime startTime =
-        DateTimeConverter::qDateTime(sprint.timeSpan().start());
-    const QDateTime finishTime =
-        DateTimeConverter::qDateTime(sprint.timeSpan().finish());
+    const QDateTime startTime = DateTimeConverter::qDateTime(sprint.start());
+    const QDateTime finishTime = DateTimeConverter::qDateTime(sprint.finish());
     insertSprintQuery.bindValue(":todo_uuid", QVariant(taskUuid));
     insertSprintQuery.bindValue(":startTime", QVariant(startTime));
     insertSprintQuery.bindValue(":finishTime", QVariant(finishTime));

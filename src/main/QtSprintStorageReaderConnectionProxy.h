@@ -30,7 +30,8 @@ namespace sprint_timer::compose {
 
 class QtSprintStorageReaderConnectionProxy : public SprintStorageReader {
 public:
-    explicit QtSprintStorageReaderConnectionProxy(ThreadConnectionHelper& connectionHelper);
+    explicit QtSprintStorageReaderConnectionProxy(
+        ThreadConnectionHelper& connectionHelper);
 
     ~QtSprintStorageReaderConnectionProxy() = default;
 
@@ -44,7 +45,7 @@ public:
     QtSprintStorageReaderConnectionProxy&
     operator=(const QtSprintStorageReaderConnectionProxy&) = delete;
 
-    std::vector<entities::Sprint>
+    std::vector<SprintRecord>
     findByDateRange(const dw::DateRange& dateRange) override;
 
 private:

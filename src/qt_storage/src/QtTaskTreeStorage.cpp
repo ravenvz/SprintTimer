@@ -26,7 +26,7 @@
 
 namespace {
 
-enum class AdvColumn {
+enum class Column {
     Name,
     Uuid,
     EstimatedCost,

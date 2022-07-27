@@ -30,8 +30,7 @@ MatchesSprintIgnoringUuid::MatchesSprintIgnoringUuid(const match_t& expected_)
 
 bool MatchesSprintIgnoringUuid::operator()(const match_t& actual) const
 {
-    return expected.taskUuid == actual.taskUuid &&
-           expected.taskName == actual.taskName &&
+    return expected.taskName == actual.taskName &&
            expected.tags == actual.tags &&
            expected.timeRange == actual.timeRange;
 }

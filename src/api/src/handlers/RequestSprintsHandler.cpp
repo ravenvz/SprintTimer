@@ -32,7 +32,11 @@ RequestSprintsHandler::RequestSprintsHandler(SprintStorageReader& reader_)
 RequestSprintsQuery::Result
 RequestSprintsHandler::handle(const RequestSprintsQuery& query)
 {
-    return makeDTOs(reader.findByDateRange(query.dateRange));
+    const auto sprintRecords = reader.findByDateRange(query.dateRange);
+    std::vector<SprintDTO> res;
+    res.reserve(sprintRecords.size());
+    std::ranges::copy(dtoAdapter(sprintRecords), std::back_inserter(res));
+    return res;
 }
 
 } // namespace sprint_timer::api

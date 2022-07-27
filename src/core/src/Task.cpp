@@ -19,74 +19,39 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Task.h"
+#include "core/Task.h"
 #include "core/SprintTimerException.h"
+#include <algorithm>
 #include <iostream>
 
 namespace {
 
 struct sprints_in_conflict {
-    sprints_in_conflict(const sprint_timer::entities::Sprint& sprint_)
+    sprints_in_conflict(const sprint_timer::Sprint& sprint_)
         : sprint{sprint_}
     {
     }
 
-    bool operator()(const sprint_timer::entities::Sprint& otherSprint) const
+    bool operator()(const sprint_timer::Sprint& otherSprint) const
     {
-        const auto start = sprint.timeSpan().start();
-        const auto finish = sprint.timeSpan().finish();
-
-        if (areConsecutive(sprint.timeSpan(), otherSprint.timeSpan())) {
-            return false;
-        }
-
-        return inRange(start, otherSprint.timeSpan()) ||
-               inRange(finish, otherSprint.timeSpan());
+        return sprint_timer::intersectingInTime(sprint, otherSprint);
     }
 
 private:
-    const sprint_timer::entities::Sprint& sprint;
-
-    bool areConsecutive(const auto& lhs, const auto& rhs) const
-    {
-        return equalToSeconds(lhs.start(), rhs.finish()) ||
-               equalToSeconds(lhs.finish(), rhs.start());
-    };
-
-    bool inRange(auto dateTime, auto range) const
-    {
-        return dateTime >= range.start() && dateTime <= range.finish();
-    };
-
-    bool equalToSeconds(const auto& lhs, const auto& rhs) const
-    {
-        return lhs.date() == rhs.date() && lhs.hour() == rhs.hour() &&
-               lhs.minute() == rhs.minute() && lhs.second() == rhs.second();
-    };
+    const sprint_timer::Sprint& sprint;
 };
 
 } // namespace
 
-namespace sprint_timer::entities {
+namespace sprint_timer {
 
 using dw::DateTime;
 
-Task::Task(std::string uuid_,
-           std::string name_,
-           int estimatedCost_,
-           dw::DateTime lastModified_)
-    : taskName{std::move(name_)}
-    , estimated{estimatedCost_}
-    , id{std::move(uuid_)}
-    , timeStamp{lastModified_}
-{
-}
-
 Task::Task(std::string name_,
            int estimatedCost_,
-           std::vector<ReplaceSprint> sprints_,
+           std::vector<Sprint> sprints_,
            std::string uuid_,
-           std::list<Tag> tags_,
+           std::vector<Tag> tags_,
            bool completed_,
            const dw::DateTime& lastModified_)
     : taskName{std::move(name_)}
@@ -95,30 +60,7 @@ Task::Task(std::string name_,
     , tag{std::move(tags_)}
     , completed{completed_}
     , timeStamp{lastModified_}
-    , repSprintCont{std::move(sprints_)}
-{
-    std::transform(cbegin(repSprintCont),
-                   cend(repSprintCont),
-                   std::back_inserter(sprintCont),
-                   [this](const auto& elem) {
-                       return Sprint{taskName, elem.timeSpan(), tag, "", id};
-                   });
-}
-
-Task::Task(std::string name_,
-           int estimatedCost_,
-           int actualCost_,
-           std::string uuid_,
-           std::list<Tag> tags_,
-           bool completed_,
-           const DateTime& lastModified_)
-    : taskName{std::move(name_)}
-    , estimated{estimatedCost_}
-    , actual{actualCost_}
-    , id{std::move(uuid_)}
-    , tag{std::move(tags_)}
-    , completed{completed_}
-    , timeStamp{lastModified_}
+    , sprintCont{std::move(sprints_)}
 {
 }
 
@@ -132,7 +74,7 @@ int Task::actualCost() const { return static_cast<int>(sprintCont.size()); }
 
 std::string Task::uuid() const { return id; }
 
-std::list<Tag> Task::tags() const { return tag; }
+std::vector<Tag> Task::tags() const { return tag; }
 
 DateTime Task::lastModified() const { return timeStamp; }
 
@@ -142,12 +84,7 @@ auto Task::goalProgress() const -> GoalProgress
                         GoalProgress::Actual{actualCost()}};
 }
 
-const std::vector<Sprint>& Task::sprints() const { return sprintCont; }
-
-auto Task::replaceSprints() const -> const std::vector<ReplaceSprint>&
-{
-    return repSprintCont;
-}
+auto Task::sprints() const -> const std::vector<Sprint>& { return sprintCont; }
 
 void Task::setCompleted(bool completed_) { completed = completed_; }
 
@@ -172,8 +109,7 @@ void Task::addSprint(Sprint sprint)
 bool Task::conflictDetectedWith(const Sprint& sprint) const
 {
     // TODO if sprint order is enforced sorted, might use binary search
-    return std::any_of(
-        cbegin(sprintCont), cend(sprintCont), sprints_in_conflict{sprint});
+    return std::ranges::any_of(sprintCont, sprints_in_conflict{sprint});
 }
 
 std::ostream& operator<<(std::ostream& os, const Task& task)
@@ -201,4 +137,4 @@ bool operator==(const Task& lhs, const Task& rhs)
                   dw::to_time_point<std::chrono::seconds>(rhs.lastModified());
 }
 
-} // namespace sprint_timer::entities
+} // namespace sprint_timer

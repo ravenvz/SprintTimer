@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/DailyStatisticsGraphPresenter.h"
+#include "core/utils/StringUtils.h"
 #include <string_view>
 
 namespace {
@@ -104,9 +105,8 @@ void DailyStatisticsGraphPresenter::fetchDataImpl()
     if (!selectedRange) {
         return;
     }
-    dailyStatistics =
-        dailyStatisticsHandler.handle(api::DailyStatisticsQuery{
-            numTopTags, selectedTag, *selectedRange});
+    dailyStatistics = dailyStatisticsHandler.handle(
+        api::DailyStatisticsQuery{numTopTags, selectedTag, *selectedRange});
 }
 
 void DailyStatisticsGraphPresenter::updateViewImpl()

@@ -22,21 +22,19 @@
 #ifndef TAG_H_6HD0W9PY
 #define TAG_H_6HD0W9PY
 
-#include "core/utils/StringUtils.h"
 #include <algorithm>
 #include <ostream>
+#include <span>
 #include <string>
 #include <vector>
 
-namespace sprint_timer::entities {
+namespace sprint_timer {
 
 class Tag {
 public:
     Tag() = default;
 
-    Tag(std::string name);
-
-    static const std::string prefix;
+    explicit Tag(std::string name);
 
     std::string name() const;
 
@@ -44,38 +42,26 @@ public:
 
     std::string nameWithPrefix() const;
 
+    auto operator<=>(const Tag& other) const = default;
+
 private:
     std::string name_;
 };
 
 std::ostream& operator<<(std::ostream& os, const Tag& tag);
 
-bool operator<(const Tag& lhs, const Tag& rhs);
-
-bool operator==(const Tag& lhs, const Tag& rhs);
-
 /* Given container with tags, return string that contains
  * all tags with leading prefix separated by whitespace.*/
-template <typename TagContainer>
-std::string prefixTags(const TagContainer& tags)
-{
-    if (tags.empty())
-        return "";
-    std::vector<Tag> prefixedTags;
-    std::transform(tags.cbegin(),
-                   tags.cend(),
-                   std::back_inserter(prefixedTags),
-                   [](const auto& tag) { return tag.nameWithPrefix(); });
-    return utils::join(prefixedTags.cbegin(), prefixedTags.cend(), " ");
-}
+std::string prefixTags(std::span<const Tag> tags);
 
-} // namespace sprint_timer::entities
+} // namespace sprint_timer
 
+// TODO probably the only place where Tag used as key is in TagTop. Deal with
+// hash here and do not reopen std namespace
 namespace std {
 
-template <>
-struct hash<sprint_timer::entities::Tag> {
-    size_t operator()(const sprint_timer::entities::Tag& tag) const
+template <> struct hash<sprint_timer::Tag> {
+    size_t operator()(const sprint_timer::Tag& tag) const
     {
         return std::hash<std::string>()(tag.name());
     }

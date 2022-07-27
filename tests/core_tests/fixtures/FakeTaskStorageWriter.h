@@ -27,43 +27,43 @@
 
 class FakeTaskStorageWriter : public sprint_timer::TaskStorageWriter {
 public:
-    FakeTaskStorageWriter(FakeStorage<sprint_timer::entities::Task>& storage)
+    FakeTaskStorageWriter(FakeStorage<sprint_timer::Task>& storage)
         : storage{storage}
     {
     }
 
-    void save(const sprint_timer::entities::Task& task) final
+    void save(const sprint_timer::Task& task) final
     {
         storage.store(task);
     }
 
-    void remove(const sprint_timer::entities::Task& task) final
+    void remove(const sprint_timer::Task& task) final
     {
         storage.remove(task.uuid());
     }
 
-    void edit(const sprint_timer::entities::Task& task,
-              const sprint_timer::entities::Task& editedTask) final
+    void edit(const sprint_timer::Task& task,
+              const sprint_timer::Task& editedTask) final
     {
         storage.itemRef(task.uuid()) = editedTask;
     }
 
     void incrementSprints(const std::string& uuid) final
     {
-        sprint_timer::entities::Task& item = storage.itemRef(uuid);
+        sprint_timer::Task& item = storage.itemRef(uuid);
         item.setActualCost(item.actualCost() + 1);
     }
 
     void decrementSprints(const std::string& uuid) final
     {
-        sprint_timer::entities::Task& item = storage.itemRef(uuid);
+        sprint_timer::Task& item = storage.itemRef(uuid);
         item.setActualCost(item.actualCost() - 1);
     }
 
     void toggleTaskCompletionStatus(const std::string& uuid,
                                     const dw::DateTime& timeStamp) final
     {
-        sprint_timer::entities::Task& taskRef = storage.itemRef(uuid);
+        sprint_timer::Task& taskRef = storage.itemRef(uuid);
         taskRef.setCompleted(!taskRef.isCompleted());
         taskRef.setModifiedTimeStamp(timeStamp);
     }
@@ -75,7 +75,7 @@ public:
         storage.editTag(oldName, newName);
     }
 
-    FakeStorage<sprint_timer::entities::Task>& storage;
+    FakeStorage<sprint_timer::Task>& storage;
 };
 
 #endif /* end of include guard: FAKETASKSTORAGEWRITER_H_L9TXWRHX */

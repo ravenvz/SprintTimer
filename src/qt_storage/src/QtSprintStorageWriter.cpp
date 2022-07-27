@@ -59,30 +59,32 @@ QtSprintStorageWriter::QtSprintStorageWriter(QString connectionName_)
                                         .arg(SprintTable::Columns::startTime));
 }
 
-void QtSprintStorageWriter::save(const entities::Sprint& sprint)
+void QtSprintStorageWriter::save(const std::string& taskUuid,
+                                 const std::vector<Sprint>& sprints)
+{
+    TransactionGuard guard{connectionName};
+    for (const auto& sprint : sprints) {
+        save(taskUuid, sprint);
+    }
+    guard.commit();
+}
+
+void QtSprintStorageWriter::save(const std::string& taskUuid,
+                                 const Sprint& sprint)
 {
     using storage::utils::DateTimeConverter;
     const QDateTime startTime =
         DateTimeConverter::qDateTime(sprint.timeSpan().start());
     const QDateTime finishTime =
         DateTimeConverter::qDateTime(sprint.timeSpan().finish());
-    saveSprintQuery.bindValue(
-        ":todo_uuid", QVariant(QString::fromStdString(sprint.taskUuid())));
+    saveSprintQuery.bindValue(":todo_uuid",
+                              QVariant(QString::fromStdString(taskUuid)));
     saveSprintQuery.bindValue(":startTime", QVariant(startTime));
     saveSprintQuery.bindValue(":finishTime", QVariant(finishTime));
     tryExecute(saveSprintQuery);
 }
 
-void QtSprintStorageWriter::save(const std::vector<entities::Sprint>& sprints)
-{
-    TransactionGuard guard{connectionName};
-    for (const auto& sprint : sprints) {
-        save(sprint);
-    }
-    guard.commit();
-}
-
-void QtSprintStorageWriter::remove(const entities::Sprint& sprint)
+void QtSprintStorageWriter::remove(const Sprint& sprint)
 {
     using storage::utils::DateTimeConverter;
     const QDateTime startTime =
@@ -91,7 +93,7 @@ void QtSprintStorageWriter::remove(const entities::Sprint& sprint)
     tryExecute(deleteSprintQuery);
 }
 
-void QtSprintStorageWriter::restore(const entities::Sprint& sprint)
+void QtSprintStorageWriter::restore(const Sprint& sprint)
 {
     using storage::utils::DateTimeConverter;
     const QDateTime startTime =
@@ -100,7 +102,7 @@ void QtSprintStorageWriter::restore(const entities::Sprint& sprint)
     tryExecute(restoreSprintQuery);
 }
 
-void QtSprintStorageWriter::remove(const std::vector<entities::Sprint>& sprints)
+void QtSprintStorageWriter::remove(const std::vector<Sprint>& sprints)
 {
     TransactionGuard guard{connectionName};
     for (const auto& sprint : sprints) {

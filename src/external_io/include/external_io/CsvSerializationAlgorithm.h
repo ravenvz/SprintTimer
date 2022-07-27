@@ -22,7 +22,7 @@
 #ifndef CSVENCODER_H_GKMATYII
 #define CSVENCODER_H_GKMATYII
 
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include "external_io/SerializationAlgorithm.h"
 #include <memory>
 #include <ostream>

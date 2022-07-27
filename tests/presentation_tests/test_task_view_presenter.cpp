@@ -32,14 +32,14 @@ using ::testing::Truly;
 
 namespace {
 
-// std::vector<sprint_timer::entities::Sprint>
-// makeConsecutiveSprints(const sprint_timer::entities::Task& task,
+// std::vector<sprint_timer::Sprint>
+// makeConsecutiveSprints(const sprint_timer::Task& task,
 //                        size_t numSprints,
 //                        dw::DateTimeRange startingRange = {
 //                            dw::current_date_time(), dw::current_date_time()})
 // {
 //     using namespace std::chrono_literals;
-//     using namespace sprint_timer::entities;
+//     using namespace sprint_timer;
 //     std::vector<Sprint> result;
 //     size_t sprintUuid{1};
 //     result.reserve(numSprints);

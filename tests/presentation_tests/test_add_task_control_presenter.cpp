@@ -47,7 +47,7 @@ public:
 
 TEST_F(AddTaskControlPresenterFixture, invokes_handler_to_add_task_given_dto)
 {
-    using namespace sprint_timer::entities;
+    using namespace sprint_timer;
     const dw::DateTime someModificationStamp{dw::current_date_time()};
     const sprint_timer::api::TaskDTO details{"123",
                                                 {"Tag 1", "Tag 2"},

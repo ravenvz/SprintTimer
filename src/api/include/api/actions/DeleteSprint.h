@@ -29,7 +29,7 @@ namespace sprint_timer::api::actions {
 
 class DeleteSprint : public Action {
 public:
-    DeleteSprint(SprintStorageWriter& writer, entities::Sprint sprintToRemove);
+    DeleteSprint(SprintStorageWriter& writer, Sprint sprintToRemove);
 
     void execute() final;
 
@@ -39,7 +39,7 @@ public:
 
 private:
     SprintStorageWriter& writer;
-    const entities::Sprint sprint;
+    Sprint sprint;
 };
 
 } // namespace sprint_timer::api::actions

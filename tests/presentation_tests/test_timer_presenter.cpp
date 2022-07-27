@@ -19,7 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "core/entities/Task.h"
+#include "core/Task.h"
 #include "mocks/AssetLibraryMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/SoundPlayerMock.h"

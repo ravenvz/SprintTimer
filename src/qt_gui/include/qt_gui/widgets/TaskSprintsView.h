@@ -22,7 +22,7 @@
 #ifndef TASKSPRINTSVIEW_H_HYCTEOV4
 #define TASKSPRINTSVIEW_H_HYCTEOV4
 
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include "qt_gui/delegates/HistoryItemDelegate.h"
 #include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/presentation/TaskSprintsContract.h"

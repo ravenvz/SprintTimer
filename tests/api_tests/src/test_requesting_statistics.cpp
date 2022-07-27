@@ -26,7 +26,7 @@
 
 using namespace sprint_timer;
 using namespace sprint_timer::api;
-using namespace sprint_timer::entities;
+using namespace sprint_timer;
 using namespace dw;
 using namespace std::chrono_literals;
 

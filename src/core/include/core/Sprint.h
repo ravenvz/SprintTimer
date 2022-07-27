@@ -22,55 +22,67 @@
 #ifndef SPRINT_H_XWNOT32M
 #define SPRINT_H_XWNOT32M
 
-#include "core/entities/Tag.h"
+#include "core/Tag.h"
 #include "date_wrapper/date_wrapper.h"
-#include <list>
 #include <ostream>
 #include <string>
 
-namespace sprint_timer::entities {
+namespace sprint_timer {
 
-class ReplaceSprint {
+class Sprint {
 public:
-    explicit ReplaceSprint(dw::DateTimeRange timeSpan_)
-        : timeRange{timeSpan_}
+    Sprint(dw::DateTimeRange timeSpan_)
+        : startTime{timeSpan_.start()}
+        , length{timeSpan_.duration<std::chrono::minutes>()}
     {
     }
 
-    dw::DateTimeRange timeSpan() const { return timeRange; }
+    Sprint(dw::DateTime start_, std::chrono::minutes duration)
+        : startTime{start_}
+        , length{duration}
+    {
+    }
+
+    dw::DateTime start() const { return startTime; }
+
+    dw::DateTime finish() const { return startTime + length; }
+
+    std::chrono::minutes duration() const { return length; }
+
+    dw::DateTimeRange timeSpan() const
+    {
+        return dw::DateTimeRange{startTime, startTime + length};
+    }
 
 private:
-    dw::DateTimeRange timeRange;
+    dw::DateTime startTime;
+    std::chrono::minutes length;
 };
 
-class FigureOutName {
-public:
-    FigureOutName(std::string taskName,
-                  ReplaceSprint sprint,
-                  std::vector<Tag> tags);
+bool operator==(const Sprint& lhs, const Sprint& rhs);
 
-private:
-    std::string taskName;
-    ReplaceSprint sprint;
-    std::vector<Tag> tags;
-};
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os, const Sprint& sprint)
+{
+    os << "Sprint{" << sprint.timeSpan() << "}";
+    return os;
+}
 
 /* Represents Sprint concept.
  *
  * Sprint is an n-minute time interval that is associated with
  * a Task. It has the same name and tags it's associated Task has.
  */
-class Sprint {
+class SprintRecord {
 
 public:
-    Sprint(std::string taskName,
-           dw::DateTimeRange timeSpan,
-           std::list<Tag> tags,
-           std::string uuid,
-           std::string taskUuid);
+    SprintRecord(std::string taskName,
+                 dw::DateTimeRange timeSpan,
+                 std::vector<Tag> tags);
 
     // Sprint name is identical to it's associated task name.
-    std::string name() const;
+    std::string taskName() const;
 
     dw::DateTime startTime() const;
 
@@ -78,28 +90,24 @@ public:
 
     dw::DateTimeRange timeSpan() const;
 
-    std::string uuid() const;
-
-    std::string taskUuid() const;
-
     /* Tags are identical the associated task tags.
      * Order of tags in the list is not specified. */
-    std::list<Tag> tags() const;
+    std::vector<Tag> tags() const;
 
 private:
     std::string name_;
     dw::DateTimeRange timeSpan_;
-    std::string uuid_;
-    std::string taskUuid_;
-    std::list<Tag> tags_;
+    std::vector<Tag> tags_;
 };
 
-std::ostream& operator<<(std::ostream& os, const Sprint& sprint);
+std::ostream& operator<<(std::ostream& os, const SprintRecord& sprint);
 
-bool operator==(const Sprint& lhs, const Sprint& rhs);
+bool operator==(const SprintRecord& lhs, const SprintRecord& rhs);
+
+bool intersectingInTime(const SprintRecord& lhs, const SprintRecord& rhs);
 
 bool intersectingInTime(const Sprint& lhs, const Sprint& rhs);
 
-} // namespace sprint_timer::entities
+} // namespace sprint_timer
 
 #endif // SPRINT_H_XWNOT32M

@@ -19,31 +19,46 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ISPRINTSTORAGEWRITER_H_PMJNRBFY
-#define ISPRINTSTORAGEWRITER_H_PMJNRBFY
+#ifndef SPRINTRECORD_H_L0VWMOSF
+#define SPRINTRECORD_H_L0VWMOSF
 
-#include "core/Sprint.h"
+#include "core/Tag.h"
 #include "date_wrapper/date_wrapper.h"
-// #include <span>
+#include <vector>
 
 namespace sprint_timer {
 
-class SprintStorageWriter {
+class SprintRecord {
 public:
-    virtual ~SprintStorageWriter() = default;
+    SprintRecord(std::string taskName,
+                 dw::DateTimeRange timeSpan,
+                 std::vector<Tag> tags);
 
-    virtual void save(const std::string& taskUuid,
-                      const std::vector<Sprint>& sprints) = 0;
+    // Sprint name is identical to it's associated task name.
+    std::string taskName() const;
 
-    virtual void remove(const Sprint& sprint) = 0;
+    dw::DateTime startTime() const;
 
-    virtual void remove(const std::vector<Sprint>& sprints) = 0;
+    dw::DateTime finishTime() const;
 
-    virtual void restore(const Sprint& sprint) = 0;
+    dw::DateTimeRange timeSpan() const;
 
-    // virtual void restore(std::span<const Sprint>& sprints) = 0;
+    /* Tags are identical the associated task tags.
+     * Order of tags in the list is not specified. */
+    std::vector<Tag> tags() const;
+
+private:
+    std::string name_;
+    dw::DateTimeRange timeSpan_;
+    std::vector<Tag> tags_;
 };
+
+std::ostream& operator<<(std::ostream& os, const SprintRecord& sprint);
+
+bool operator==(const SprintRecord& lhs, const SprintRecord& rhs);
+
+// bool intersectingInTime(const SprintRecord& lhs, const SprintRecord& rhs);
 
 } // namespace sprint_timer
 
-#endif /* end of include guard: ISPRINTSTORAGEWRITER_H_PMJNRBFY */
+#endif /* end of include guard: SPRINTRECORD_H_L0VWMOSF */

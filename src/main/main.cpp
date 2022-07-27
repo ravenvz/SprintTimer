@@ -88,7 +88,6 @@
 #include "api/handlers/OperationalRangeHandler.h"
 #include "api/handlers/ReadTaskTreeHandler.h"
 #include "api/handlers/RegisterSprintBulkHandler.h"
-#include "api/handlers/RegisterSprintHandler.h"
 #include "api/handlers/RenameTagHandler.h"
 #include "api/handlers/RequestProgressHandler.h"
 #include "api/handlers/RequestSprintDistributionHandler.h"
@@ -517,16 +516,10 @@ int main(int argc, char* argv[])
         std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker),
         outputStream,
         cacheInvalidationMediator);
-    auto registerSprintHandler =
-        compose::decorate_command<RegisterSprintCommand>(
-            std::make_unique<RegisterSprintHandler>(*sprintStorage,
-                                                    actionInvoker),
-            outputStream,
-            cacheInvalidationMediator);
     auto registerSprintBulkHandler =
         compose::decorate_command<RegisterSprintBulkCommand>(
             std::make_unique<RegisterSprintBulkHandler>(
-                *taskStorage, *sprintStorage, actionInvoker, uuidGenerator),
+                *taskStorage, *sprintStorage, actionInvoker),
             outputStream,
             cacheInvalidationMediator);
     auto changeWorkScheduleHandler =

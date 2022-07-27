@@ -32,18 +32,18 @@ class QtTaskStorageReader : public TaskStorageReader {
 public:
     explicit QtTaskStorageReader(QString connectionName);
 
-    std::vector<entities::Task> unfinishedTasks() final;
+    std::vector<Task> unfinishedTasks() final;
 
-    std::vector<entities::Task>
+    std::vector<Task>
     finishedTasks(const dw::DateRange& dateRange) final;
 
-    std::vector<entities::Task> allTasks(const dw::DateRange& dateRange) final;
+    std::vector<Task> allTasks(const dw::DateRange& dateRange) final;
 
     std::vector<std::string> allTags() final;
 
-    std::vector<entities::Task> findByUuid(const std::string& uuid) final;
+    std::vector<Task> findByUuid(const std::string& uuid) final;
 
-    std::vector<entities::Task>
+    std::vector<Task>
     findMatching(std::span<const std::string> uuids) final;
 
 private:

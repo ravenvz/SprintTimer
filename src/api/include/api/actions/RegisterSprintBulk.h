@@ -27,7 +27,8 @@ namespace sprint_timer::api::actions {
 class RegisterSprintBulk : public Action {
 public:
     RegisterSprintBulk(SprintStorageWriter& writer_,
-                       std::vector<entities::Sprint> sprints_);
+                       std::string taskUuid_,
+                       std::vector<Sprint> sprints_);
 
     void execute() override;
 
@@ -37,7 +38,8 @@ public:
 
 private:
     SprintStorageWriter& writer;
-    const std::vector<entities::Sprint> sprints;
+    std::string taskUuid;
+    const std::vector<Sprint> sprints;
 };
 
 } // namespace sprint_timer::api::actions

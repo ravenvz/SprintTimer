@@ -143,6 +143,14 @@ sprint_timer::ui::contracts::HistoryContract::Item toItem(const Entity& entity)
                                                               entity.uuid};
 }
 
+template <>
+sprint_timer::ui::contracts::HistoryContract::Item
+toItem(const sprint_timer::api::SprintDTO& entity)
+{
+    return sprint_timer::ui::contracts::HistoryContract::Item{describe(entity),
+                                                              ""};
+}
+
 // TODO remove when all handlers interactions are cleaned from entities
 template <>
 sprint_timer::ui::contracts::HistoryContract::Item

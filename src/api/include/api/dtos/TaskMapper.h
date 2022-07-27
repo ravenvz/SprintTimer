@@ -23,17 +23,17 @@
 #define TASKMAPPER_H_92B3YBWU
 
 #include "api/dtos/TaskDTO.h"
-#include "core/entities/Task.h"
+#include "core/Task.h"
 #include <ranges>
 #include <span>
 
 namespace sprint_timer::api {
 
-TaskDTO makeDTO(const sprint_timer::entities::Task& task);
+TaskDTO makeDTO(const sprint_timer::Task& task);
 
-entities::Task fromDTO(const TaskDTO& dto);
+Task fromDTO(const TaskDTO& dto);
 
-inline auto dtoAdapter(std::span<const entities::Task> tasks)
+inline auto dtoAdapter(std::span<const Task> tasks)
 {
     return std::views::transform(
         tasks, [](const auto& task) { return makeDTO(task); });

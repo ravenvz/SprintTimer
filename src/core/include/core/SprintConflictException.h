@@ -23,7 +23,7 @@
 #define SPRINTCONFLICTEXCEPTION_H
 
 #include "core/SprintTimerException.h"
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include <string>
 #include <vector>
 
@@ -31,8 +31,8 @@ namespace sprint_timer {
 
 class SprintConflictException : public SprintTimerException {
 public:
-    using conflicting_sprints_pair = std::pair<sprint_timer::entities::Sprint,
-                                               sprint_timer::entities::Sprint>;
+    using conflicting_sprints_pair = std::pair<sprint_timer::Sprint,
+                                               sprint_timer::Sprint>;
 
     explicit SprintConflictException(
         std::vector<conflicting_sprints_pair>&& conflictingSprints);

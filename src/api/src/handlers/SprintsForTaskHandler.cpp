@@ -20,8 +20,9 @@
 **
 *********************************************************************************/
 #include "api/handlers/SprintsForTaskHandler.h"
-#include "api/dtos/SprintMapper.h"
 #include "api/HandlerException.h"
+#include "api/dtos/SprintMapper.h"
+#include "api/dtos/TagMapper.h"
 
 namespace sprint_timer::api {
 
@@ -39,7 +40,20 @@ SprintsForTaskHandler::handle(const SprintsForTaskQuery& query)
                                query.taskUuid);
     }
     const auto& sprints = tasks.front().sprints();
-    return makeDTOs(sprints);
+
+    // TODO see if we can move it somewhere (Task perhaps?)
+    std::vector<std::string> tags;
+    std::ranges::copy(dtoAdapter(tasks.front().tags()),
+                      std::back_inserter(tags));
+
+    std::vector<SprintDTO> res;
+    res.reserve(sprints.size());
+
+    std::ranges::transform(
+        sprints, std::back_inserter(res), [&](const auto& sprint) {
+            return SprintDTO{tasks.front().name(), tags, sprint.timeSpan()};
+        });
+    return res;
 }
 
 } // namespace sprint_timer::api

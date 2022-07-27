@@ -40,26 +40,26 @@ public:
     QtTaskStorage(const QtTaskStorage&) = delete;
     QtTaskStorage& operator=(const QtTaskStorage&) = delete;
 
-    std::vector<entities::Task> unfinishedTasks() final;
+    std::vector<Task> unfinishedTasks() final;
 
-    std::vector<entities::Task>
+    std::vector<Task>
     finishedTasks(const dw::DateRange& dateRange) final;
 
-    std::vector<entities::Task> allTasks(const dw::DateRange& dateRange) final;
+    std::vector<Task> allTasks(const dw::DateRange& dateRange) final;
 
     std::vector<std::string> allTags() final;
 
-    std::vector<entities::Task> findByUuid(const std::string& uuid) final;
+    std::vector<Task> findByUuid(const std::string& uuid) final;
 
-    std::vector<entities::Task>
+    std::vector<Task>
     findMatching(std::span<const std::string> uuids) final;
 
-    void save(const entities::Task& task) final;
+    void save(const Task& task) final;
 
     void remove(const std::string& uuid) final;
 
-    void edit(const entities::Task& oldTask,
-              const entities::Task& editedTask) final;
+    void edit(const Task& oldTask,
+              const Task& editedTask) final;
 
     void toggleCompleted(const std::string& uuid,
                          const dw::DateTime& timeStamp) final;

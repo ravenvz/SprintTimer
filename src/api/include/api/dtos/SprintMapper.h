@@ -23,30 +23,17 @@
 #define SPRINTMAPPER_H_U4OQ1PMS
 
 #include "api/dtos/SprintDTO.h"
-#include "core/entities/Sprint.h"
+#include "core/Sprint.h"
 #include <ranges>
 #include <span>
 
 namespace sprint_timer::api {
 
-SprintDTO makeDTO(const entities::Sprint& sprint);
+auto makeDTO(const Sprint& sprint) -> dw::DateTimeRange;
 
-inline dw::DateTimeRange makeDTO(const entities::ReplaceSprint& sprint)
-{
-    return sprint.timeSpan();
-}
+auto fromDTO(const dw::DateTimeRange& dto) -> Sprint;
 
-inline auto fromDTO(const dw::DateTimeRange& dto) -> entities::ReplaceSprint
-{
-    return entities::ReplaceSprint{dto};
-}
-
-// auto dtoAdapter(std::span<const entities::Sprint> sprints)
-// {
-//     return std::views::transform(sprints, makeDTO);
-// }
-
-inline auto dtoAdapter(std::span<const entities::ReplaceSprint> sprints)
+inline auto dtoAdapter(std::span<const Sprint> sprints)
 {
     return std::views::transform(
         sprints, [](const auto& sprint) { return makeDTO(sprint); });
@@ -58,32 +45,20 @@ inline auto dtoAdapter(std::span<const dw::DateTimeRange> dtos)
                                  [](const auto& dto) { return fromDTO(dto); });
 }
 
-template <class InputIt, class OutputIt>
-OutputIt makeDTOs(InputIt first, InputIt last, OutputIt out);
+auto fromDTO(const SprintDTO& dto) -> SprintRecord;
 
-std::vector<SprintDTO> makeDTOs(const std::vector<entities::Sprint>& sprints);
+auto makeDTO(const SprintRecord& sprint) -> SprintDTO;
 
-entities::Sprint fromDTO(const SprintDTO& dto);
-
-template <class InputIt, class OutputIt>
-OutputIt fromDTOs(InputIt first, InputIt last, OutputIt out);
-
-std::vector<entities::Sprint> fromDTOs(const std::vector<SprintDTO>& dtos);
-
-template <class InputIt, class OutputIt>
-inline OutputIt makeDTOs(InputIt first, InputIt last, OutputIt out)
+inline auto dtoAdapter(std::span<const SprintRecord> sprints)
 {
-    std::transform(
-        first, last, out, [](const auto& elem) { return makeDTO(elem); });
-    return out;
+    return std::views::transform(
+        sprints, [](const auto& sprint) { return makeDTO(sprint); });
 }
 
-template <class InputIt, class OutputIt>
-inline OutputIt fromDTOs(InputIt first, InputIt last, OutputIt out)
+inline auto dtoAdapter(std::span<const SprintDTO> dtos)
 {
-    std::transform(
-        first, last, out, [](const auto& elem) { return fromDTO(elem); });
-    return out;
+    return std::views::transform(dtos,
+                                 [](const auto& dto) { return fromDTO(dto); });
 }
 
 } // namespace sprint_timer::api

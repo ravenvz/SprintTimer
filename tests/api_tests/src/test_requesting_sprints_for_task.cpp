@@ -20,12 +20,11 @@
 **
 *********************************************************************************/
 #include "api_tests/QtStorageInitializer.h"
-#include "api_tests/matchers/MatchesSprintIgnoringUuid.h"
 #include "gmock/gmock.h"
 
 using namespace sprint_timer;
 using namespace sprint_timer::api;
-using namespace sprint_timer::entities;
+using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
 
@@ -56,7 +55,6 @@ public:
 TEST_F(SprintsForTaskFixture, all_sprints_for_specific_task)
 {
     using namespace std::chrono_literals;
-    using matchers::MatchesSprintIgnoringUuid;
     createTaskHandler.handle(
         CreateTaskCommand{"First task", {"Tag1", "Tag2"}, 8});
     createTaskHandler.handle(
@@ -82,22 +80,11 @@ TEST_F(SprintsForTaskFixture, all_sprints_for_specific_task)
 
     EXPECT_THAT(
         actual,
-        ::testing::ElementsAre(Truly(MatchesSprintIgnoringUuid(
-                                   SprintDTO{"any",
-                                             uuids.back(),
-                                             "Another task",
-                                             {"Tag2", "Tag3"},
-                                             add_offset(someRange, 2h)})),
-                               Truly(MatchesSprintIgnoringUuid(
-                                   SprintDTO{"anything",
-                                             uuids.back(),
-                                             "Another task",
-                                             {"Tag2", "Tag3"},
-                                             add_offset(someRange, 3h)})),
-                               Truly(MatchesSprintIgnoringUuid(
-                                   SprintDTO{"whatever",
-                                             uuids.back(),
-                                             "Another task",
-                                             {"Tag2", "Tag3"},
-                                             add_offset(someRange, 4h)}))));
+        ::testing::ElementsAre(
+            SprintDTO{
+                "Another task", {"Tag2", "Tag3"}, add_offset(someRange, 2h)},
+            SprintDTO{
+                "Another task", {"Tag2", "Tag3"}, add_offset(someRange, 3h)},
+            SprintDTO{
+                "Another task", {"Tag2", "Tag3"}, add_offset(someRange, 4h)}));
 }

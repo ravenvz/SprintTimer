@@ -35,9 +35,11 @@ enum class Columns {
 
 QVariant columnData(const QSqlRecord& record, Columns column);
 
-std::vector<sprint_timer::entities::Sprint> sprintsFromQuery(QSqlQuery& query);
+std::vector<sprint_timer::SprintRecord>
+sprintsFromQuery(QSqlQuery& query);
 
-sprint_timer::entities::Sprint sprintFromQSqlRecord(const QSqlRecord& record);
+sprint_timer::SprintRecord
+sprintFromQSqlRecord(const QSqlRecord& record);
 
 } // namespace
 
@@ -45,7 +47,6 @@ namespace sprint_timer::storage::qt_storage {
 
 using namespace dw;
 using namespace storage::utils;
-using namespace entities;
 
 QtSprintStorageReader::QtSprintStorageReader(QString connectionName_)
     : connectionName{std::move(connectionName_)}
@@ -63,7 +64,7 @@ QtSprintStorageReader::QtSprintStorageReader(QString connectionName_)
                                           .arg(SprintView::name));
 }
 
-std::vector<Sprint>
+std::vector<SprintRecord>
 QtSprintStorageReader::findByDateRange(const dw::DateRange& dateRange)
 {
     findByDateRangeQuery.bindValue(":startTime",
@@ -82,11 +83,12 @@ QtSprintStorageReader::findByDateRange(const dw::DateRange& dateRange)
 
 namespace {
 
-std::vector<sprint_timer::entities::Sprint> sprintsFromQuery(QSqlQuery& query)
+std::vector<sprint_timer::SprintRecord>
+sprintsFromQuery(QSqlQuery& query)
 {
     using namespace sprint_timer::storage::qt_storage;
     const auto records = copyAllRecords(query);
-    std::vector<sprint_timer::entities::Sprint> sprints;
+    std::vector<sprint_timer::SprintRecord> sprints;
     sprints.reserve(records.size());
     std::transform(records.cbegin(),
                    records.cend(),
@@ -95,27 +97,26 @@ std::vector<sprint_timer::entities::Sprint> sprintsFromQuery(QSqlQuery& query)
     return sprints;
 }
 
-sprint_timer::entities::Sprint sprintFromQSqlRecord(const QSqlRecord& record)
+sprint_timer::SprintRecord
+sprintFromQSqlRecord(const QSqlRecord& record)
 {
-    using sprint_timer::entities::Sprint;
-    using sprint_timer::entities::Tag;
+    using sprint_timer::SprintRecord;
+    using sprint_timer::Tag;
     using sprint_timer::storage::utils::DateTimeConverter;
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
     QDateTime finish = columnData(record, Columns::FinishTime).toDateTime();
     const dw::DateTimeRange timeSpan{DateTimeConverter::dateTime(start),
                                      DateTimeConverter::dateTime(finish)};
-    std::string uuid;
     QStringList tagNames{columnData(record, Columns::Tags)
                              .toString()
                              .split(",", Qt::SkipEmptyParts)};
-    std::string taskUuid;
-    std::list<Tag> tags;
-    std::transform(tagNames.cbegin(),
-                   tagNames.cend(),
-                   std::back_inserter(tags),
-                   [](const auto& nm) { return Tag{nm.toStdString()}; });
-    return Sprint{name.toStdString(), timeSpan, tags, uuid, taskUuid};
+    std::vector<Tag> tags;
+    std::ranges::transform(
+        tagNames, std::back_inserter(tags), [](const auto& nm) {
+            return Tag{nm.toStdString()};
+        });
+    return SprintRecord{name.toStdString(), timeSpan, tags};
 }
 
 QVariant columnData(const QSqlRecord& record, Columns column)
