@@ -19,27 +19,37 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/SaveTaskTreeHandler.h"
-#include "api/dtos/TaskTreeMapper.h"
-#include "api/dtos/TaskTypeMapper.h"
+#ifndef RECURRENCE_H_4H7M9DQE
+#define RECURRENCE_H_4H7M9DQE
 
-namespace sprint_timer::api {
+#include "date_wrapper/date_wrapper.h"
 
-SaveTaskTreeHandler::SaveTaskTreeHandler(
-    TaskTreeMetadataStorage& taskTreeStorage_, ActionInvoker& actionInvoker_)
-    : taskTreeStorage{taskTreeStorage_}
-    , actionInvoker{actionInvoker_}
+namespace sprint_timer {
+
+class Recurrence {
+public:
+    explicit Recurrence(std::string recPattern);
+
+    [[nodiscard]] auto nextRecurrence() const -> dw::DateTime;
+
+    [[nodiscard]] auto pattern() const -> std::string;
+
+private:
+    std::string recPattern;
+};
+
+inline Recurrence::Recurrence(std::string recPattern_)
+    : recPattern{std::move(recPattern_)}
 {
 }
 
-void SaveTaskTreeHandler::handle(const SaveTaskTreeCommand& command)
+inline auto Recurrence::nextRecurrence() const -> dw::DateTime
 {
-    // TODO wire invoker
-    auto mapper = [](const TaskNodeDTO& node) {
-        return TaskMetadata{node.task.uuid, fromDTO(node.type)};
-    };
-    const auto metadataTree = command.taskTree.mapped<TaskMetadata>(mapper);
-    taskTreeStorage.saveTree(metadataTree);
+    return dw::current_date_time_local();
 }
 
-} // namespace sprint_timer::api
+inline auto Recurrence::pattern() const -> std::string { return recPattern; }
+
+} // namespace sprint_timer
+
+#endif /* end of include guard: RECURRENCE_H_4H7M9DQE */

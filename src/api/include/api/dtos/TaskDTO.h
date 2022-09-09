@@ -22,7 +22,11 @@
 #ifndef TASKDTO_H_SZ7KJM8B
 #define TASKDTO_H_SZ7KJM8B
 
+#include "api/dtos/NoteDTO.h"
+#include "api/dtos/TaskTimeframeDTO.h"
+#include "core/utils/Algutils.h"
 #include "date_wrapper/date_wrapper.h"
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -36,6 +40,8 @@ struct TaskDTO {
     std::vector<dw::DateTimeRange> sprints;
     bool finished;
     dw::DateTime modificationStamp{dw::current_date_time_local()};
+    std::optional<NoteDTO> notes = std::nullopt;
+    std::optional<TaskTimeframeDTO> timeFrame = std::nullopt;
 
     friend bool operator==(const TaskDTO&, const TaskDTO&) = default;
 };
@@ -44,13 +50,26 @@ template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
 {
+    using utils::inspect;
+
     os << "TaskDTO{" << task.uuid << ", ";
     for (const auto& element : task.tags) {
         os << '#' << element << ' ';
     }
-    os << task.name << " ";
-    os << task.sprints.size() << '/' << task.expectedCost;
-    os << (task.finished ? " finished " : " pending ");
+    os << task.name << ", ";
+    os << task.sprints.size() << '/' << task.expectedCost << ", ";
+    os << (task.finished ? "finished, " : "pending, ");
+    inspect(task.notes,
+            [&](const auto& note) { os << '"' << note.text << "\", "; });
+    inspect(task.timeFrame, [&](const auto& frame) {
+        os << frame.frame << ", ";
+        inspect(frame.remindAt, [&](const auto& reminder) {
+            os << "remind: " << reminder << ", ";
+        });
+        inspect(frame.recurrence, [&](const auto& recurrence) {
+            os << "recurrence: " << '"' << recurrence << "\", ";
+        });
+    });
     os << task.modificationStamp << '}';
     return os;
 }

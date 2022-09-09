@@ -19,27 +19,33 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/SaveTaskTreeHandler.h"
-#include "api/dtos/TaskTreeMapper.h"
-#include "api/dtos/TaskTypeMapper.h"
+#ifndef NOTE_H_WTSAIWEF
+#define NOTE_H_WTSAIWEF
 
-namespace sprint_timer::api {
+#include <span>
+#include <string>
+#include <string_view>
+#include <vector>
 
-SaveTaskTreeHandler::SaveTaskTreeHandler(
-    TaskTreeMetadataStorage& taskTreeStorage_, ActionInvoker& actionInvoker_)
-    : taskTreeStorage{taskTreeStorage_}
-    , actionInvoker{actionInvoker_}
+namespace sprint_timer {
+
+class Note {
+public:
+    explicit Note(std::string note);
+
+    [[nodiscard]] auto textNotes() const -> std::string;
+
+private:
+    std::string note;
+};
+
+inline Note::Note(std::string note_)
+    : note{std::move(note_)}
 {
 }
 
-void SaveTaskTreeHandler::handle(const SaveTaskTreeCommand& command)
-{
-    // TODO wire invoker
-    auto mapper = [](const TaskNodeDTO& node) {
-        return TaskMetadata{node.task.uuid, fromDTO(node.type)};
-    };
-    const auto metadataTree = command.taskTree.mapped<TaskMetadata>(mapper);
-    taskTreeStorage.saveTree(metadataTree);
-}
+inline std::string Note::textNotes() const { return note; }
 
-} // namespace sprint_timer::api
+} // namespace sprint_timer
+
+#endif /* end of include guard: NOTE_H_WTSAIWEF */

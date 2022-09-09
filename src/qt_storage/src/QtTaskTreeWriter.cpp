@@ -65,24 +65,7 @@ void QtTaskTreeWriter::saveTree(const TaskMetadataTree& taskTree) const
             continue;
         }
         out << node->first << ',';
-        out << static_cast<int>(node->second.taskType) << ',';
-        if (auto dueTime = node->second.dueTime; dueTime) {
-            std::cout << "COUT: " << *dueTime << std::endl;
-            out << *dueTime;
-        }
-        else {
-            out << '?';
-        }
-        out << ',';
-        if (auto reminder = node->second.reminder; reminder) {
-            out << *reminder;
-        }
-        else {
-            out << '?';
-        }
-        out << '\n';
-        // out << ',';
-        // out << node->second.notes << '\n';
+        out << static_cast<int>(node->second.taskType) << '\n';
     }
 }
 

@@ -24,13 +24,8 @@
 #include "qt_storage/DatabaseDescription.h"
 #include "qt_storage/utils/QueryUtils.h"
 #include <fstream>
+
 #include <iostream>
-
-namespace {
-
-std::optional<dw::DateTime> parseDateTime(std::string_view str);
-
-} // namespace
 
 namespace sprint_timer::storage::qt_storage {
 
@@ -60,18 +55,15 @@ TaskMetadataTree QtTaskTreeReader::readTree() const
             }
 
             const auto parts = utils::split(line, ',');
-            if (parts.size() != 4) {
+            if (parts.size() != 2) {
                 throw std::runtime_error("TODO throw proper error");
             }
+            const std::string uuid{parts[0]};
             const auto type =
                 static_cast<TaskType>(std::stoi(std::string{parts[1]}));
-            const auto dueTime = parseDateTime(parts[2]);
-            const auto reminder = parseDateTime(parts[3]);
-            const std::string uuid{parts[0]};
 
-            flattenedTree.emplace_back(std::make_pair(
-                uuid,
-                TaskMetadata{uuid, type, dueTime, reminder, std::string{}}));
+            flattenedTree.emplace_back(
+                std::make_pair(uuid, TaskMetadata{uuid, type}));
         }
     }
 
@@ -80,32 +72,3 @@ TaskMetadataTree QtTaskTreeReader::readTree() const
 
 } // namespace sprint_timer::storage::qt_storage
 
-namespace {
-
-std::optional<dw::DateTime> parseDateTime(std::string_view str)
-{
-    using namespace dw;
-    using sprint_timer::utils::split;
-
-    if (str.front() == '?') {
-        return std::nullopt;
-    }
-    // TODO Check sizes etc
-    const auto dateTimeParts = split(str, ' ');
-    const auto dateParts = split(dateTimeParts[0], '.');
-    const auto timeParts = split(dateTimeParts[1], ':');
-
-    const auto date = Date{
-        Year{std::stoi(std::string{dateParts[2]})},
-        Month{static_cast<unsigned int>(std::stoul(std::string{dateParts[1]}))},
-        Day{static_cast<unsigned int>(std::stoul(std::string{dateParts[0]}))}};
-    const auto dateTime =
-        DateTime{date} +
-        std::chrono::hours{std::stoi(std::string{timeParts[0]})} +
-        std::chrono::minutes{std::stoi(std::string{timeParts[1]})} +
-        std::chrono::minutes{std::stoi(std::string{timeParts[2]})};
-
-    return dateTime;
-}
-
-} // namespace

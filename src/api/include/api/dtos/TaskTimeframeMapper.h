@@ -19,27 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/SaveTaskTreeHandler.h"
-#include "api/dtos/TaskTreeMapper.h"
-#include "api/dtos/TaskTypeMapper.h"
+#ifndef TASKTIMEFRAMEMAPPER_H_WJ31CXEL
+#define TASKTIMEFRAMEMAPPER_H_WJ31CXEL
+
+#include "api/dtos/TaskTimeframeDTO.h"
+#include "core/TaskTimeframe.h"
 
 namespace sprint_timer::api {
 
-SaveTaskTreeHandler::SaveTaskTreeHandler(
-    TaskTreeMetadataStorage& taskTreeStorage_, ActionInvoker& actionInvoker_)
-    : taskTreeStorage{taskTreeStorage_}
-    , actionInvoker{actionInvoker_}
-{
-}
+auto makeDTO(const TaskTimeframe& timeFrame) -> TaskTimeframeDTO;
 
-void SaveTaskTreeHandler::handle(const SaveTaskTreeCommand& command)
-{
-    // TODO wire invoker
-    auto mapper = [](const TaskNodeDTO& node) {
-        return TaskMetadata{node.task.uuid, fromDTO(node.type)};
-    };
-    const auto metadataTree = command.taskTree.mapped<TaskMetadata>(mapper);
-    taskTreeStorage.saveTree(metadataTree);
-}
+auto fromDTO(const TaskTimeframeDTO& dto) -> TaskTimeframe;
 
 } // namespace sprint_timer::api
+
+#endif /* end of include guard: TASKTIMEFRAMEMAPPER_H_WJ31CXEL */

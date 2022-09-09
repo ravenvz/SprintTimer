@@ -67,9 +67,6 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskType& taskType)
     case Folder:
         os << "Folder";
         break;
-    case Recurring:
-        os << "Recurring";
-        break;
     }
     return os;
 }
@@ -79,141 +76,132 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskType& taskType)
 class TaskTreeFixture : public ::testing::Test {
 public:
     TaskNode folder1{
-        Task{
-            "folder1", 0, {}, "f1", {}, false, dw::current_date_time()},
+        Task{"folder1", 0, {}, "f1", {}, false, dw::current_date_time()},
         TaskType::Folder,
         std::nullopt,
         std::nullopt,
         std::string{}};
     TaskNode folder2{
-        Task{
-            "folder2", 0, {}, "f2", {}, false, dw::current_date_time()},
+        Task{"folder2", 0, {}, "f2", {}, false, dw::current_date_time()},
         TaskType::Folder,
         std::nullopt,
         std::nullopt,
         std::string{}};
     TaskNode project1{
-        Task{
-            "project1", 0, {}, "p1", {}, false, dw::current_date_time()},
+        Task{"project1", 0, {}, "p1", {}, false, dw::current_date_time()},
         TaskType::Project,
         std::nullopt,
         std::nullopt,
         std::string{}};
     TaskNode project2{
-        Task{
-            "project2", 0, {}, "p2", {}, false, dw::current_date_time()},
+        Task{"project2", 0, {}, "p2", {}, false, dw::current_date_time()},
         TaskType::Project,
         std::nullopt,
         std::nullopt,
         std::string{}};
     TaskNode project3{
-        Task{
-            "project3", 0, {}, "p3", {}, false, dw::current_date_time()},
+        Task{"project3", 0, {}, "p3", {}, false, dw::current_date_time()},
         TaskType::Project,
         std::nullopt,
         std::nullopt,
         std::string{}};
     TaskNode folder3{
-        Task{
-            "folder3", 0, {}, "f3", {}, false, dw::current_date_time()},
+        Task{"folder3", 0, {}, "f3", {}, false, dw::current_date_time()},
         TaskType::Folder,
         std::nullopt,
         std::nullopt,
         std::string{}};
     TaskNode task1{Task{"task1",
-                                  4,
-                                  {},
-                                  "t1",
-                                  {Tag{"Tag1"}},
-                                  false,
-                                  dw::current_date_time()},
+                        4,
+                        {},
+                        "t1",
+                        {Tag{"Tag1"}},
+                        false,
+                        dw::current_date_time()},
                    TaskType::Regular,
                    std::nullopt,
                    std::nullopt,
                    std::string{"Some notes for task 1"}};
     TaskNode project4{
-        Task{
-            "project4", 4, {}, "p4", {}, false, dw::current_date_time()},
+        Task{"project4", 4, {}, "p4", {}, false, dw::current_date_time()},
         TaskType::Project,
         std::nullopt,
         std::nullopt,
         std::string{"Some notes for project4 1"}};
     TaskNode task2{
         Task{"task2",
-                       3,
-                       {},
-                       "t2",
-                       {Tag{"Tag2"}},
-                       false,
-                       dw::current_date_time()},
+             3,
+             {},
+             "t2",
+             {Tag{"Tag2"}},
+             false,
+             dw::current_date_time()},
         TaskType::Regular,
         DateTime{Date{Year{2022}, Month{5}, Day{24}}, std::chrono::hours{17}},
         DateTime{Date{Year{2022}, Month{5}, Day{24}},
                  std::chrono::hours{16} + std::chrono::minutes{45}},
         std::string{"Some notes for task 2"}};
     TaskNode task3{Task{"task3",
-                                  4,
-                                  {},
-                                  "t3",
-                                  {Tag{"Tag3"}},
-                                  false,
-                                  dw::current_date_time()},
+                        4,
+                        {},
+                        "t3",
+                        {Tag{"Tag3"}},
+                        false,
+                        dw::current_date_time()},
                    TaskType::Regular,
                    std::nullopt,
                    std::nullopt,
                    std::string{"Some notes for task 3"}};
     TaskNode task4{Task{"task4",
-                                  4,
-                                  {},
-                                  "t4",
-                                  {Tag{"Tag4"}},
-                                  false,
-                                  dw::current_date_time()},
+                        4,
+                        {},
+                        "t4",
+                        {Tag{"Tag4"}},
+                        false,
+                        dw::current_date_time()},
                    TaskType::Regular,
                    std::nullopt,
                    std::nullopt,
                    std::string{}};
     TaskNode task5{Task{"task5",
-                                  4,
-                                  {},
-                                  "t5",
-                                  {Tag{"Tag5"}},
-                                  false,
-                                  dw::current_date_time()},
+                        4,
+                        {},
+                        "t5",
+                        {Tag{"Tag5"}},
+                        false,
+                        dw::current_date_time()},
                    TaskType::Regular,
                    std::nullopt,
                    std::nullopt,
                    std::string{"Some notes for task 5"}};
-    TaskNode task6{
-        Task{"task6",
-                       5,
-                       {Sprint{current_date_time(), 25min},
-                        Sprint{current_date_time(), 25min},
-                        Sprint{current_date_time(), 25min},
-                        Sprint{current_date_time(), 25min},
-                        Sprint{current_date_time(), 25min}},
-                       "t6",
-                       {Tag{"Tag6"}},
-                       true,
-                       dw::current_date_time()},
-        TaskType::Regular,
-        std::nullopt,
-        std::nullopt,
-        std::string{"Some notes for task 6"}};
+    TaskNode task6{Task{"task6",
+                        5,
+                        {Sprint{current_date_time(), 25min},
+                         Sprint{current_date_time(), 25min},
+                         Sprint{current_date_time(), 25min},
+                         Sprint{current_date_time(), 25min},
+                         Sprint{current_date_time(), 25min}},
+                        "t6",
+                        {Tag{"Tag6"}},
+                        true,
+                        dw::current_date_time()},
+                   TaskType::Regular,
+                   std::nullopt,
+                   std::nullopt,
+                   std::string{"Some notes for task 6"}};
     TaskNode recurringTask1{
-        Task{
-            "recurringTask1", 2, {}, "r1", {}, false, dw::current_date_time()},
-        TaskType::Recurring,
+        Task{"recurringTask1", 2, {}, "r1", {}, false, dw::current_date_time()},
+        TaskType::Regular,
         std::nullopt,
         std::nullopt,
         std::string{"Some notes for recurringTask1"}};
     TaskNode task7{Task{"task7",
-                                  4,
-                                  {},
-                                  "t7",
-                                  {Tag{"Tag7"}},
-                                  false,
-                                  dw::current_date_time()},
+                        4,
+                        {},
+                        "t7",
+                        {Tag{"Tag7"}},
+                        false,
+                        dw::current_date_time()},
                    TaskType::Regular,
                    std::nullopt,
                    std::nullopt,

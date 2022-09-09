@@ -316,6 +316,26 @@ TEST_F(AlgutilsFixture, monadic_or_else)
                              []() { return std::nullopt; }));
 }
 
+TEST_F(AlgutilsFixture, test_inspect_optional_does_nothing_when_nullopt)
+{
+    int x{2};
+    auto side_effect = [&x](int y) { x += y; };
+
+    sprint_timer::utils::inspect(std::optional<int>{}, side_effect);
+
+    EXPECT_EQ(2, x);
+}
+
+TEST_F(AlgutilsFixture, test_inspect_calls_side_effect_with_contained_value)
+{
+    int x{2};
+    auto side_effect = [&x](int y) { x += y; };
+
+    sprint_timer::utils::inspect(std::optional<int>{5}, side_effect);
+
+    EXPECT_EQ(7, x);
+}
+
 // TEST_F(AlgutilsFixture, adjacent_view)
 // {
 //     // auto ints = std::views::iota(1, 6);

@@ -31,9 +31,6 @@ namespace sprint_timer {
 struct TaskMetadata {
     std::string uuid;
     TaskType taskType;
-    std::optional<dw::DateTime> dueTime;
-    std::optional<dw::DateTime> reminder;
-    std::string notes;
 };
 
 template <class CharT, class Traits>
@@ -43,21 +40,7 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskMetadata& data)
     auto opt_h = []() { return std::optional<std::string>{"null"}; };
     os << "TaskMetadata{";
     os << "uuid: " << data.uuid << ", ";
-    os << "type: " << static_cast<int>(data.taskType) << ", ";
-    if (auto dt = data.dueTime; dt) {
-        os << "dueTime: " << *dt << ", ";
-    }
-    else {
-        os << "dueTime: null, ";
-    }
-    if (auto rmd = data.reminder; rmd) {
-        os << "reminder: " << *rmd << ", ";
-    }
-    else {
-        os << "reminder: null, ";
-    }
-    os << "notes: " << data.notes;
-    os << "}";
+    os << "type: " << static_cast<int>(data.taskType) << "}";
 
     return os;
 }

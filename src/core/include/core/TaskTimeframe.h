@@ -19,27 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/SaveTaskTreeHandler.h"
-#include "api/dtos/TaskTreeMapper.h"
-#include "api/dtos/TaskTypeMapper.h"
+#ifndef TASKTIMEFRAME_H_TJRHDXEA
+#define TASKTIMEFRAME_H_TJRHDXEA
 
-namespace sprint_timer::api {
+#include "core/Recurrence.h"
+#include "date_wrapper/date_wrapper.h"
+#include <optional>
 
-SaveTaskTreeHandler::SaveTaskTreeHandler(
-    TaskTreeMetadataStorage& taskTreeStorage_, ActionInvoker& actionInvoker_)
-    : taskTreeStorage{taskTreeStorage_}
-    , actionInvoker{actionInvoker_}
-{
-}
+namespace sprint_timer {
 
-void SaveTaskTreeHandler::handle(const SaveTaskTreeCommand& command)
-{
-    // TODO wire invoker
-    auto mapper = [](const TaskNodeDTO& node) {
-        return TaskMetadata{node.task.uuid, fromDTO(node.type)};
-    };
-    const auto metadataTree = command.taskTree.mapped<TaskMetadata>(mapper);
-    taskTreeStorage.saveTree(metadataTree);
-}
+struct TaskTimeframe {
+    dw::DateTimeRange frame;
+    std::optional<dw::DateTime> remindAt;
+    std::optional<Recurrence> recurrence;
+};
 
-} // namespace sprint_timer::api
+} // namespace sprint_timer
+
+#endif /* end of include guard: TASKTIMEFRAME_H_TJRHDXEA */

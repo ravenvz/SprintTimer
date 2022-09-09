@@ -43,8 +43,7 @@ public:
 
     void remove(const std::string& uuid) final;
 
-    void edit(const Task& oldTask,
-              const Task& editedTask) final;
+    void edit(const Task& oldTask, const Task& editedTask) final;
 
     void toggleCompleted(const std::string& uuid,
                          const dw::DateTime& timeStamp) final;
@@ -64,14 +63,18 @@ private:
     QSqlQuery updatePrioritiesQuery;
     QSqlQuery editTagQuery;
     QSqlQuery insertSprintQuery;
+    QSqlQuery insertNotesQuery;
+    QSqlQuery insertTimeframeQuery;
 
-    void insertTags(const QString& taskUuid,
-                    std::span<const Tag> tags);
+    void insertTags(const QString& taskUuid, std::span<const Tag> tags);
 
-    void removeTags(const QString& taskUuid,
-                    std::span<const Tag> tags);
+    void removeTags(const QString& taskUuid, std::span<const Tag> tags);
 
     void insertSprint(const QString& taskUuid, const Sprint& sprint);
+
+    void insertNotes(const QString& taskUuid, const Note& notes);
+
+    void insertTimeframe(const QString& taskUuid, TaskTimeframe timeFrame);
 };
 
 } // namespace sprint_timer::storage::qt_storage

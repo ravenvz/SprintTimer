@@ -55,9 +55,6 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskType& taskType)
     case Folder:
         os << "Folder";
         break;
-    case Recurring:
-        os << "Recurring";
-        break;
     }
     return os;
 }
@@ -314,7 +311,7 @@ public:
                                        {},
                                        false,
                                        dw::current_date_time_local()},
-                                  TaskType::Recurring,
+                                  TaskType::Regular,
                                   std::nullopt,
                                   std::nullopt,
                                   std::string{"Some notes for recurringTask1"}};

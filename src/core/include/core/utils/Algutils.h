@@ -89,6 +89,14 @@ constexpr auto or_else(Opt&& opt, Func&& func) -> Opt
     return func();
 }
 
+template <typename Opt, typename Func>
+constexpr auto inspect(Opt&& opt, Func&& func) -> void
+{
+    if (opt) {
+        func(*std::forward<Opt>(opt));
+    }
+}
+
 } // namespace sprint_timer::utils
 
 namespace sprint_timer::ranges_ext {

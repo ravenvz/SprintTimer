@@ -116,6 +116,31 @@ inline const QStringView sunday_goal{QStringLiteral("sun_goal")};
 
 } // namespace ScheduleTable
 
+namespace TaskTimeframeTable {
+inline const QStringView name{QStringLiteral("task_timeframe")};
+
+namespace Columns {
+inline const QStringView id{QStringLiteral("id")};
+inline const QStringView task_id{QStringLiteral("task_id")};
+inline const QStringView start{QStringLiteral("start")};
+inline const QStringView due{QStringLiteral("due")};
+inline const QStringView reminder{QStringLiteral("reminder")};
+inline const QStringView recurrence{QStringLiteral("recurrence")};
+} // namespace Columns
+
+} // namespace TaskTimeframeTable
+
+namespace NotesTable {
+inline const QStringView name{QStringLiteral("note")};
+
+namespace Columns {
+inline const QStringView id{QStringLiteral("id")};
+inline const QStringView task_id{QStringLiteral("task_id")};
+inline const QStringView text{QStringLiteral("text")};
+} // namespace Columns
+
+} // namespace NotesTable
+
 namespace TaskTagView {
 inline const QStringView name{QStringLiteral("task_tag_view")};
 
@@ -172,7 +197,7 @@ inline const QStringView name{QStringLiteral("adv_task_view")};
 
 namespace Aliases {
 inline const QStringView tags{QStringLiteral("tags")};
-inline const QStringView task_name{QStringLiteral("task_name")};
+// inline const QStringView task_name{QStringLiteral("task_name")};
 } // namespace Aliases
 
 } // namespace AdvTaskView

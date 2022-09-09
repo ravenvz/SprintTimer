@@ -78,7 +78,7 @@ TEST(TestTask, accepts_sprints_when_there_are_no_conflicts)
         someTask.addSprint(sprint);
     }
 
-    EXPECT_EQ(sprints, someTask.sprints());
+    EXPECT_TRUE(std::ranges::equal(sprints, someTask.sprints()));
     EXPECT_EQ(4, someTask.actualCost());
     EXPECT_EQ(current_date_time_local(), someTask.lastModified());
 }

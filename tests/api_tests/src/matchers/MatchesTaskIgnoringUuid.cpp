@@ -33,11 +33,14 @@ MatchesTaskIgnoringUuid::MatchesTaskIgnoringUuid(
 
 bool MatchesTaskIgnoringUuid::operator()(const TaskDTO& task) const
 {
-    return expected.name == task.name && expected.tags == task.tags &&
+    return expected.name == task.name &&
+           expected.tags == task.tags &&
            expected.expectedCost == task.expectedCost &&
            expected.sprints == task.sprints &&
            expected.modificationStamp == task.modificationStamp &&
-           expected.finished == task.finished;
+           expected.finished == task.finished &&
+           expected.notes == task.notes &&
+           expected.timeFrame == task.timeFrame;
 }
 
 } // namespace matchers

@@ -60,6 +60,24 @@ void Migration_v7::run(const QString& connectionName) const
     tryExecute(query, "ALTER TABLE task_temp RENAME TO task;");
 
     tryExecute(query,
+               "CREATE TABLE IF NOT EXISTS note ("
+               "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+               "task_id INTEGER UNIQUE NOT NULL, "
+               "text STRING, "
+               "data BLOB, "
+               "FOREIGN KEY (task_id) REFERENCES task(id) ON DELETE CASCADE);");
+
+    tryExecute(query,
+               "CREATE TABLE IF NOT EXISTS task_timeframe ("
+               "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+               "task_id INTEGER UNIQUE NOT NULL, "
+               "start DATETIME DEFAULT NULL, "
+               "due DATETIME DEFAULT NULL, "
+               "reminder DATETIME DEFAULT NULL, "
+               "recurrence TEXT DEFAULT NULL, "
+               "FOREIGN KEY (task_id) REFERENCES task(id) ON DELETE CASCADE);");
+
+    tryExecute(query,
                "ALTER TABLE sprint "
                "ADD COLUMN deleted BOOLEAN DEFAULT 0; ");
 
@@ -116,20 +134,25 @@ void Migration_v7::run(const QString& connectionName) const
                "CREATE VIEW task_view AS "
                "SELECT task.id task_id, task.name name, estimated_cost, "
                "completed, "
-               "GROUP_CONCAT(tag.name) tags, last_modified, uuid "
+               "GROUP_CONCAT(tag.name) tags, last_modified, uuid, "
+               "text, start, due, reminder, recurrence "
                "FROM task "
                "LEFT JOIN tasktag ON task.id = tasktag.task_id "
                "LEFT JOIN tag ON tasktag.tag_id = tag.id "
+               "LEFT JOIN notes ON task.id = notes.task_id "
+               "LEFT JOIN task_timeframe ON task.id = task_timeframe.task_id "
                "WHERE deleted = 0 "
                "GROUP BY task.id;");
 
     tryExecute(query,
                "CREATE VIEW adv_task_view AS "
                "SELECT uuid, name, estimated_cost, completed, "
-               "tags, last_modified, start_time, finish_time "
+               "tags, last_modified, start_time, finish_time, "
+               "text, start, due, reminder, recurrence "
                "FROM task_view "
                "LEFT JOIN clean_sprint_view "
-               "ON clean_sprint_view.task_id = task_view.task_id;");
+               "ON clean_sprint_view.task_id = task_view.task_id "
+               "LEFT JOIN note ON note.task_id = task_view.task_id;");
 
     // "CREATE VIEW adv_task_view AS "
     // "SELECT uuid, task.name task_name, estimated_cost, completed, "

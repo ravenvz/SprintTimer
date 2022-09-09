@@ -23,8 +23,10 @@
 #define TASK_H_7VXCYMOK
 
 #include "core/GoalProgress.h"
+#include "core/Note.h"
 #include "core/Sprint.h"
 #include "core/Tag.h"
+#include "core/TaskTimeframe.h"
 #include "core/utils/StringUtils.h"
 #include "date_wrapper/date_wrapper.h"
 #include <vector>
@@ -45,27 +47,43 @@ public:
          std::string uuid,
          std::vector<Tag> tags,
          bool completed,
-         const dw::DateTime& lastModified);
+         dw::DateTime lastModified,
+         std::optional<Note> note = std::nullopt,
+         std::optional<TaskTimeframe> taskTimeframe = std::nullopt);
 
     Task() = default;
 
-    std::string name() const;
+    [[nodiscard]] std::string name() const;
 
-    bool isCompleted() const;
+    [[nodiscard]] bool isCompleted() const;
 
-    int estimatedCost() const;
+    [[nodiscard]] int estimatedCost() const;
 
-    int actualCost() const;
+    [[nodiscard]] int actualCost() const;
 
-    std::string uuid() const;
+    [[nodiscard]] std::string uuid() const;
 
-    std::vector<Tag> tags() const;
+    [[nodiscard]] std::span<const Tag> tags() const;
 
-    dw::DateTime lastModified() const;
+    [[nodiscard]] dw::DateTime lastModified() const;
 
-    GoalProgress goalProgress() const;
+    [[nodiscard]] GoalProgress goalProgress() const;
 
-    [[nodiscard]] const std::vector<Sprint>& sprints() const;
+    [[nodiscard]] std::span<const Sprint> sprints() const;
+
+    [[nodiscard]] std::optional<dw::DateTime> activeSince() const;
+
+    [[nodiscard]] std::optional<dw::DateTime> dueTo() const;
+
+    [[nodiscard]] std::optional<dw::DateTime> remindAt() const;
+
+    [[nodiscard]] std::optional<Recurrence> recurrence() const;
+
+    [[nodiscard]] std::optional<Note> notes() const;
+
+    [[nodiscard]] std::optional<TaskTimeframe> timeFrame() const;
+
+    std::optional<Task> finish();
 
     void setCompleted(bool completed);
 
@@ -73,12 +91,14 @@ public:
 
 private:
     std::string taskName;
-    int estimated{1};
+    int estimated{0};
+    std::vector<Sprint> sprintCont;
     std::string id;
     std::vector<Tag> tag;
     bool completed{false};
+    std::optional<TaskTimeframe> frame;
+    std::optional<Note> note;
     dw::DateTime timeStamp{dw::current_date_time_local()};
-    std::vector<Sprint> sprintCont;
 
     bool conflictDetectedWith(const Sprint& sprint) const;
 };

@@ -22,8 +22,9 @@
 #ifndef CREATETASKCOMMAND_H_21OMMTXC
 #define CREATETASKCOMMAND_H_21OMMTXC
 
+#include "api/dtos/NoteDTO.h"
+#include "api/dtos/TaskTimeframeDTO.h"
 #include <cstdint>
-#include <string>
 #include <vector>
 
 namespace sprint_timer::api {
@@ -34,7 +35,9 @@ struct CreateTaskCommand {
 
     std::string name;
     std::vector<std::string> tags;
-    int32_t estimatedCost;
+    int32_t estimatedCost{0};
+    std::optional<NoteDTO> notes{};
+    std::optional<TaskTimeframeDTO> timeFrame{};
 
     friend bool operator==(const CreateTaskCommand&,
                            const CreateTaskCommand&) = default;
@@ -46,10 +49,24 @@ operator<<(std::basic_ostream<CharT, Traits>& os,
            const CreateTaskCommand& command)
 {
     os << "CreateTaskCommand{";
+    os << command.name << ", ";
     for (const auto& tag : command.tags) {
         os << '#' << tag << ' ';
     }
-    os << command.estimatedCost << "}";
+    os << command.estimatedCost << ", ";
+    if (auto notes = command.notes; notes) {
+        os << "notes present, ";
+    }
+    if (auto frame = command.timeFrame; frame) {
+        os << frame->frame << " ";
+        if (auto remind = frame->remindAt; remind) {
+            os << "reminder: " << *remind << " ";
+        }
+        if (auto recurrence = frame->recurrence; recurrence) {
+            os << "recurrence: " << *recurrence;
+        }
+    }
+    os << "}";
     return os;
 }
 

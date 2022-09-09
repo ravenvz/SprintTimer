@@ -24,7 +24,7 @@
 
 namespace sprint_timer {
 
-enum class TaskType { Project, Folder, Recurring, Regular };
+enum class TaskType { Project, Folder, Regular };
 
 } // namespace sprint_timer
 

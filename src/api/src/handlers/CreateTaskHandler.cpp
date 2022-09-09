@@ -21,7 +21,10 @@
 *********************************************************************************/
 #include "api/handlers/CreateTaskHandler.h"
 #include "api/actions/CreateTask.h"
+#include "api/dtos/NoteMapper.h"
 #include "api/dtos/TagMapper.h"
+#include "api/dtos/TaskTimeframeMapper.h"
+#include "core/utils/Algutils.h"
 
 namespace sprint_timer::api {
 
@@ -48,7 +51,12 @@ void CreateTaskHandler::handle(const CreateTaskCommand& command)
              uuidGenerator.generateUUID(),
              tags,
              false,
-             dateTimeProvider.dateTimeLocalNow()}));
+             dateTimeProvider.dateTimeLocalNow(),
+             utils::transform(command.notes,
+                              [&](const auto note) { return fromDTO(note); }),
+             utils::transform(command.timeFrame, [&](const auto& frame) {
+                 return fromDTO(frame);
+             })}));
 }
 
 } // namespace sprint_timer::api

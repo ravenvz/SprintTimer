@@ -22,6 +22,7 @@
 #include "api/handlers/ReadTaskTreeHandler.h"
 #include "api/dtos/TaskMapper.h"
 #include "api/dtos/TaskTreeMapper.h"
+#include "api/dtos/TaskTypeMapper.h"
 #include "core/SprintTimerException.h"
 
 namespace {
@@ -270,11 +271,7 @@ ReadTaskTreeHandler::handle(const ReadTaskTreeQuery& /*query*/)
         if (it == taskMap.cend()) {
             throw SprintTimerException{"Error reading task tree"};
         }
-        return TaskNodeDTO{makeDTO(it->second),
-                           static_cast<TaskTypeDTO>(payload.taskType),
-                           payload.dueTime,
-                           payload.reminder,
-                           payload.notes};
+        return TaskNodeDTO{makeDTO(it->second), makeDTO(payload.taskType)};
     };
 
     return metaTree.mapped<TaskNodeDTO>(combine);

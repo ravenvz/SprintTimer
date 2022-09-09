@@ -19,27 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/SaveTaskTreeHandler.h"
-#include "api/dtos/TaskTreeMapper.h"
-#include "api/dtos/TaskTypeMapper.h"
+#ifndef NOTEMAPPER_H_C17RJQGI
+#define NOTEMAPPER_H_C17RJQGI
+
+#include "api/dtos/NoteDTO.h"
+#include "core/Note.h"
 
 namespace sprint_timer::api {
 
-SaveTaskTreeHandler::SaveTaskTreeHandler(
-    TaskTreeMetadataStorage& taskTreeStorage_, ActionInvoker& actionInvoker_)
-    : taskTreeStorage{taskTreeStorage_}
-    , actionInvoker{actionInvoker_}
-{
-}
+auto fromDTO(const NoteDTO& dto) -> Note;
 
-void SaveTaskTreeHandler::handle(const SaveTaskTreeCommand& command)
-{
-    // TODO wire invoker
-    auto mapper = [](const TaskNodeDTO& node) {
-        return TaskMetadata{node.task.uuid, fromDTO(node.type)};
-    };
-    const auto metadataTree = command.taskTree.mapped<TaskMetadata>(mapper);
-    taskTreeStorage.saveTree(metadataTree);
-}
+auto makeDTO(const Note& note) -> NoteDTO;
 
 } // namespace sprint_timer::api
+
+#endif /* end of include guard: NOTEMAPPER_H_C17RJQGI */

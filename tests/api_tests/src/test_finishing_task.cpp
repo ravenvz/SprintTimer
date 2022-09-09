@@ -28,7 +28,7 @@ using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
 
-class TogglingTaskCompletionFixture : public ::testing::Test {
+class FinishingTaskFixture : public ::testing::Test {
 public:
     TestStorageInitializer initializer;
     CommandHandlerComposer& commandComposer{
@@ -44,7 +44,15 @@ public:
         commandComposer.undoHandler()};
 };
 
-TEST_F(TogglingTaskCompletionFixture, toggling_task_completion_alters_timestamp)
+TEST_F(FinishingTaskFixture, finishing_recurring_task_creates_another_task_instance) {
+    FAIL();
+}
+
+TEST_F(FinishingTaskFixture, undoing_finishing_recurring_task_removes_created_task_instance) {
+    FAIL();
+}
+
+TEST_F(FinishingTaskFixture, toggling_task_completion_alters_timestamp)
 {
     const DateTime timeStamp{DateTime{Date{Year{2021}, Month{5}, Day{4}}}};
     createTaskHandler.handle(CreateTaskCommand{"Name", {"Tag9"}, 7});
@@ -59,7 +67,7 @@ TEST_F(TogglingTaskCompletionFixture, toggling_task_completion_alters_timestamp)
     EXPECT_EQ(expected, activeTasksHandler.handle(ActiveTasksQuery{}).front());
 }
 
-TEST_F(TogglingTaskCompletionFixture, undoing_task_completion)
+TEST_F(FinishingTaskFixture, undoing_task_completion)
 {
     const DateTime timeStamp{DateTime{Date{Year{2021}, Month{5}, Day{4}}}};
     createTaskHandler.handle(CreateTaskCommand{"Name", {"Tag9"}, 7});

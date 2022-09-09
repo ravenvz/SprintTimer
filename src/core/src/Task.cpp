@@ -23,6 +23,7 @@
 #include "core/SprintTimerException.h"
 #include <algorithm>
 #include <iostream>
+#include <utility>
 
 namespace {
 
@@ -53,14 +54,18 @@ Task::Task(std::string name_,
            std::string uuid_,
            std::vector<Tag> tags_,
            bool completed_,
-           const dw::DateTime& lastModified_)
+           dw::DateTime lastModified_,
+           std::optional<Note> note_,
+           std::optional<TaskTimeframe> taskTimeframe_)
     : taskName{std::move(name_)}
     , estimated{estimatedCost_}
+    , sprintCont{std::move(sprints_)}
     , id{std::move(uuid_)}
     , tag{std::move(tags_)}
     , completed{completed_}
+    , frame{std::move(taskTimeframe_)}
+    , note{std::move(note_)}
     , timeStamp{lastModified_}
-    , sprintCont{std::move(sprints_)}
 {
 }
 
@@ -74,7 +79,7 @@ int Task::actualCost() const { return static_cast<int>(sprintCont.size()); }
 
 std::string Task::uuid() const { return id; }
 
-std::vector<Tag> Task::tags() const { return tag; }
+auto Task::tags() const -> std::span<const Tag> { return tag; }
 
 DateTime Task::lastModified() const { return timeStamp; }
 
@@ -84,7 +89,30 @@ auto Task::goalProgress() const -> GoalProgress
                         GoalProgress::Actual{actualCost()}};
 }
 
-auto Task::sprints() const -> const std::vector<Sprint>& { return sprintCont; }
+auto Task::sprints() const -> std::span<const Sprint> { return sprintCont; }
+
+auto Task::activeSince() const -> std::optional<dw::DateTime>
+{
+    return std::nullopt;
+}
+
+auto Task::dueTo() const -> std::optional<dw::DateTime> { return std::nullopt; }
+
+auto Task::remindAt() const -> std::optional<dw::DateTime>
+{
+    return std::nullopt;
+}
+
+auto Task::recurrence() const -> std::optional<Recurrence>
+{
+    return std::nullopt;
+}
+
+auto Task::notes() const -> std::optional<Note> { return note; }
+
+auto Task::timeFrame() const -> std::optional<TaskTimeframe> { return frame; }
+
+auto Task::finish() -> std::optional<Task> { return std::nullopt; }
 
 void Task::setCompleted(bool completed_) { completed = completed_; }
 
@@ -128,7 +156,11 @@ bool operator==(const Task& lhs, const Task& rhs)
 {
     return lhs.uuid() == rhs.uuid() && lhs.name() == rhs.name() &&
            lhs.estimatedCost() == rhs.estimatedCost() &&
-           lhs.actualCost() == rhs.actualCost() && lhs.tags() == rhs.tags() &&
+           lhs.actualCost() == rhs.actualCost() &&
+           std::equal(cbegin(lhs.tags()),
+                      cend(lhs.tags()),
+                      cbegin(rhs.tags()),
+                      cend(rhs.tags())) &&
            lhs.isCompleted() == rhs.isCompleted()
            // There is a reason to compare them by seconds, as last modified
            // timestamp can come from different sources with different precision

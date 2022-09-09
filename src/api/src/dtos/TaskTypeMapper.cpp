@@ -19,27 +19,41 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/SaveTaskTreeHandler.h"
-#include "api/dtos/TaskTreeMapper.h"
 #include "api/dtos/TaskTypeMapper.h"
 
 namespace sprint_timer::api {
 
-SaveTaskTreeHandler::SaveTaskTreeHandler(
-    TaskTreeMetadataStorage& taskTreeStorage_, ActionInvoker& actionInvoker_)
-    : taskTreeStorage{taskTreeStorage_}
-    , actionInvoker{actionInvoker_}
+auto makeDTO(TaskType taskType) -> TaskTypeDTO
 {
+    using enum TaskType;
+
+    switch (taskType) {
+    case Project:
+        return TaskTypeDTO::Project;
+    case Folder:
+        return TaskTypeDTO::Folder;
+    case Regular:
+        return TaskTypeDTO::Regular;
+    };
+
+    return TaskTypeDTO::Regular;
 }
 
-void SaveTaskTreeHandler::handle(const SaveTaskTreeCommand& command)
+auto fromDTO(const TaskTypeDTO& taskType) -> TaskType
 {
-    // TODO wire invoker
-    auto mapper = [](const TaskNodeDTO& node) {
-        return TaskMetadata{node.task.uuid, fromDTO(node.type)};
+    using enum TaskTypeDTO;
+
+    switch (taskType) {
+    case Project:
+        return TaskType::Project;
+        break;
+    case Folder:
+        return TaskType::Folder;
+    case Regular:
+        return TaskType::Regular;
     };
-    const auto metadataTree = command.taskTree.mapped<TaskMetadata>(mapper);
-    taskTreeStorage.saveTree(metadataTree);
+
+    return TaskType::Regular;
 }
 
 } // namespace sprint_timer::api

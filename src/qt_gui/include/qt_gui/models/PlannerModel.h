@@ -116,7 +116,7 @@ private:
              std::optional<QDateTime> dueDate_,
              std::optional<QDateTime> reminder_,
              api::TaskTypeDTO type_,
-             QString notes_);
+             std::optional<QString> notes_);
 
         Item();
 

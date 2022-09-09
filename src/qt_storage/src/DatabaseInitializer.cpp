@@ -170,6 +170,27 @@ void createTables(QSqlQuery& query)
         ScheduleTable::Columns::saturday_goal % " INTEGER, " %
         ScheduleTable::Columns::sunday_goal % " INTEGER);"};
 
+    const QString createTaskTimeframeTable{
+        "CREATE TABLE IF NOT EXISTS " % TaskTimeframeTable::name % "(" %
+        TaskTimeframeTable::Columns::id %
+        " INTEGER PRIMARY KEY AUTOINCREMENT, " %
+        TaskTimeframeTable::Columns::task_id % " INTEGER UNIQUE NOT NULL, " %
+        TaskTimeframeTable::Columns::start % " DATETIME DEFAULT NULL, " %
+        TaskTimeframeTable::Columns::due % " DATETIME DEFAULT NULL, " %
+        TaskTimeframeTable::Columns::reminder % " DATETIME DEFAULT NULL, " %
+        TaskTimeframeTable::Columns::recurrence % " TEXT DEFAULT NULL, " %
+        "FOREIGN KEY (" % TaskTimeframeTable::Columns::task_id %
+        ") REFERENCES " % TaskTable::name % "(" % TaskTable::Columns::id %
+        ") ON DELETE CASCADE);"};
+
+    const QString createNotesTable{
+        "CREATE TABLE IF NOT EXISTS " % NotesTable::name % " (" %
+        NotesTable::Columns::id % " INTEGER PRIMARY KEY AUTOINCREMENT, " %
+        NotesTable::Columns::task_id % " INTEGER UNIQUE NOT NULL, " %
+        NotesTable::Columns::text % " STRING, FOREIGN KEY (" %
+        NotesTable::Columns::task_id % ") REFERENCES " % TaskTable::name % "(" %
+        TaskTable::Columns::id % ") ON DELETE CASCADE);"};
+
     tryExecute(query, createInfoTable);
     tryExecute(query, createTaskTable);
     tryExecute(query, createTagTable);
@@ -177,6 +198,8 @@ void createTables(QSqlQuery& query)
     tryExecute(query, createTaskTagTable);
     tryExecute(query, createExceptionalDayTable);
     tryExecute(query, createScheduleTable);
+    tryExecute(query, createNotesTable);
+    tryExecute(query, createTaskTimeframeTable);
 }
 
 void createViews(QSqlQuery& query)
@@ -232,12 +255,22 @@ void createViews(QSqlQuery& query)
         TaskTable::Columns::completed % ", " % "GROUP_CONCAT(" %
         TagTable::name % "." % TagTable::Columns::name % ") " %
         TasksView::Aliases::tags % ", " % TaskTable::Columns::lastModified %
-        ", " % TaskTable::Columns::uuid % " FROM " % TaskTable::name %
+        ", " % TaskTable::Columns::uuid % ", " % NotesTable::Columns::text %
+        ", " % TaskTimeframeTable::Columns::start % ", " %
+        TaskTimeframeTable::Columns::due % ", " %
+        TaskTimeframeTable::Columns::reminder % ", " %
+        TaskTimeframeTable::Columns::recurrence % " FROM " % TaskTable::name %
         " LEFT JOIN " % TaskTagTable::name % " ON " % TaskTable::name % "." %
         TaskTable::Columns::id % " = " % TaskTagTable::name % "." %
         TaskTagTable::Columns::taskId % " LEFT JOIN " % TagTable::name %
         " ON " % TaskTagTable::name % "." % TaskTagTable::Columns::tagId %
-        " = " % TagTable::name % "." % TagTable::Columns::id % " WHERE " %
+        " = " % TagTable::name % "." % TagTable::Columns::id % " LEFT JOIN " %
+        NotesTable::name % " ON " % TaskTable::name % "." %
+        TaskTable::Columns::id % " = " % NotesTable::name % "." %
+        NotesTable::Columns::task_id % " LEFT JOIN " %
+        TaskTimeframeTable::name % " ON " % TaskTable::name % "." %
+        TaskTable::Columns::id % " = " % TaskTimeframeTable::name % "." %
+        TaskTimeframeTable::Columns::task_id % " WHERE " %
         TaskTable::Columns::deleted % " = 0 GROUP BY " % TaskTable::name % "." %
         TaskTable::Columns::id};
 
@@ -248,7 +281,11 @@ void createViews(QSqlQuery& query)
         TaskTable::Columns::completed % ", " % TasksView::Aliases::tags % ", " %
         TaskTable::Columns::lastModified % ", " %
         SprintTable::Columns::startTime % ", " %
-        SprintTable::Columns::finishTime % " FROM " % TasksView::name %
+        SprintTable::Columns::finishTime % ", " % NotesTable::Columns::text %
+        ", " % TaskTimeframeTable::Columns::start % ", " %
+        TaskTimeframeTable::Columns::due % ", " %
+        TaskTimeframeTable::Columns::reminder % ", " %
+        TaskTimeframeTable::Columns::recurrence % " FROM " % TasksView::name %
         " LEFT JOIN " % CleanSprintView::name % " ON " % CleanSprintView::name %
         "." % SprintTable::Columns::task_id % " = " % TasksView::name % "." %
         TasksView::Aliases::task_id % ";"};

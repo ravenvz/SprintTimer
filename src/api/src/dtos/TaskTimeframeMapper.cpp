@@ -19,27 +19,27 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/SaveTaskTreeHandler.h"
-#include "api/dtos/TaskTreeMapper.h"
-#include "api/dtos/TaskTypeMapper.h"
+#include "api/dtos/TaskTimeframeMapper.h"
+#include "core/Recurrence.h"
+#include "core/utils/Algutils.h"
 
 namespace sprint_timer::api {
 
-SaveTaskTreeHandler::SaveTaskTreeHandler(
-    TaskTreeMetadataStorage& taskTreeStorage_, ActionInvoker& actionInvoker_)
-    : taskTreeStorage{taskTreeStorage_}
-    , actionInvoker{actionInvoker_}
+auto makeDTO(const TaskTimeframe& timeFrame) -> TaskTimeframeDTO
 {
+    const auto recurrence =
+        utils::transform(timeFrame.recurrence,
+                         [](const auto& recurr) { return recurr.pattern(); });
+    return TaskTimeframeDTO{timeFrame.frame, timeFrame.remindAt, recurrence};
 }
 
-void SaveTaskTreeHandler::handle(const SaveTaskTreeCommand& command)
+auto fromDTO(const TaskTimeframeDTO& dto) -> TaskTimeframe
 {
-    // TODO wire invoker
-    auto mapper = [](const TaskNodeDTO& node) {
-        return TaskMetadata{node.task.uuid, fromDTO(node.type)};
-    };
-    const auto metadataTree = command.taskTree.mapped<TaskMetadata>(mapper);
-    taskTreeStorage.saveTree(metadataTree);
+    const auto recurrence =
+        utils::transform(dto.recurrence, [](const auto& pattern) {
+            return Recurrence{pattern};
+        });
+    return TaskTimeframe{dto.frame, dto.remindAt, recurrence};
 }
 
 } // namespace sprint_timer::api

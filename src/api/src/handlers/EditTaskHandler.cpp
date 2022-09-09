@@ -55,7 +55,8 @@ void EditTaskHandler::handle(const EditTaskCommand& command)
     const Task& originalTask = matchingUuid.front();
     const Task editedTask{editedDTO.name,
                           editedDTO.expectedCost,
-                          originalTask.sprints(),
+                          std::vector<Sprint>{cbegin(originalTask.sprints()),
+                                              cend(originalTask.sprints())},
                           editedDTO.uuid,
                           tags,
                           originalTask.isCompleted(),

@@ -21,73 +21,22 @@
 *********************************************************************************/
 #include "api/dtos/TaskTreeMapper.h"
 #include "api/dtos/TaskMapper.h"
-
-namespace {
-
-sprint_timer::api::TaskTypeDTO makeTaskTypeDTO(sprint_timer::TaskType taskType)
-{
-    using namespace sprint_timer::api;
-    using enum sprint_timer::TaskType;
-
-    switch (taskType) {
-    case Project:
-        return TaskTypeDTO::Project;
-    case Folder:
-        return TaskTypeDTO::Folder;
-    case Recurring:
-        return TaskTypeDTO::Recurring;
-    case Regular:
-        return TaskTypeDTO::Regular;
-    };
-
-    return TaskTypeDTO::Regular;
-}
-
-sprint_timer::TaskType
-fromTaskTypeDTO(const sprint_timer::api::TaskTypeDTO& taskType)
-{
-    using namespace sprint_timer;
-    using enum sprint_timer::api::TaskTypeDTO;
-
-    switch (taskType) {
-    case Project:
-        return TaskType::Project;
-        break;
-    case Folder:
-        return TaskType::Folder;
-    case Recurring:
-        return TaskType::Recurring;
-    case Regular:
-        return TaskType::Regular;
-    };
-
-    return TaskType::Regular;
-}
-
-} // namespace
+#include "api/dtos/TaskTypeMapper.h"
 
 namespace sprint_timer::api {
 
-TaskTreeDTO makeDTO(const TaskTree& taskTree)
+auto makeDTO(const TaskTree& taskTree) -> TaskTreeDTO
 {
     auto mapNode = [](const TaskNode& taskNode) {
-        return TaskNodeDTO{makeDTO(taskNode.task),
-                           makeTaskTypeDTO(taskNode.type),
-                           taskNode.dueTime,
-                           taskNode.reminder,
-                           taskNode.notes};
+        return TaskNodeDTO{makeDTO(taskNode.task), makeDTO(taskNode.type)};
     };
     return taskTree.mapped<TaskNodeDTO>(mapNode);
 }
 
-TaskTree fromDTO(const TaskTreeDTO& taskTreeDto)
+auto fromDTO(const TaskTreeDTO& taskTreeDto) -> TaskTree
 {
     auto mapNode = [](const TaskNodeDTO& taskNode) {
-        return TaskNode{fromDTO(taskNode.task),
-                        fromTaskTypeDTO(taskNode.type),
-                        taskNode.dueTime,
-                        taskNode.reminder,
-                        taskNode.notes};
+        return TaskNode{fromDTO(taskNode.task), fromDTO(taskNode.type)};
     };
     return taskTreeDto.mapped<TaskNode>(mapNode);
 }

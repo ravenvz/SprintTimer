@@ -26,7 +26,13 @@
 
 namespace {
 
-QString extractTags(std::span<const std::string> tags);
+auto extractTags(std::span<const std::string> tags) -> QString;
+
+auto extractDueTime(const sprint_timer::api::TaskTimeframeDTO& timeFrame)
+    -> dw::DateTime;
+
+auto extractReminder(const sprint_timer::api::TaskTimeframeDTO& timeFrame)
+    -> std::optional<dw::DateTime>;
 
 } // namespace
 
@@ -34,18 +40,26 @@ namespace sprint_timer::ui::qt_gui {
 
 PlannerModel::Item toPlannerItem(const api::TaskNodeDTO& taskNode)
 {
+    using sprint_timer::utils::and_then;
     using sprint_timer::utils::transform;
+
     const auto& task = taskNode.task;
-    return PlannerModel::Item{task.uuid,
-                              QString::fromStdString(task.name),
-                              task.expectedCost,
-                              static_cast<int>(task.sprints.size()),
-                              task.finished,
-                              extractTags(task.tags),
-                              transform(taskNode.dueTime, utils::toQDateTime),
-                              transform(taskNode.reminder, utils::toQDateTime),
-                              taskNode.type,
-                              QString::fromStdString(taskNode.notes)};
+
+    return PlannerModel::Item{
+        task.uuid,
+        QString::fromStdString(task.name),
+        task.expectedCost,
+        static_cast<int>(task.sprints.size()),
+        task.finished,
+        extractTags(task.tags),
+        transform(transform(task.timeFrame, extractDueTime),
+                  utils::toQDateTime),
+        transform(and_then(task.timeFrame, extractReminder),
+                  utils::toQDateTime),
+        taskNode.type,
+        transform(task.notes, [](const auto& notes) {
+            return QString::fromStdString(notes.text);
+        })};
 }
 
 PlannerModel::PlannerModel(QObject* parent_)
@@ -257,7 +271,7 @@ PlannerModel::Item::Item(std::string uuid_,
                          std::optional<QDateTime> dueDate_,
                          std::optional<QDateTime> reminder_,
                          api::TaskTypeDTO type_,
-                         QString notes_)
+                         std::optional<QString> notes_)
     : uuid{std::move(uuid_)}
     , data{std::move(name_),
            QString{"%1/%2"}.arg(actual_).arg(expected_),
@@ -266,7 +280,7 @@ PlannerModel::Item::Item(std::string uuid_,
            reminder_ ? reminder_->toString() : QString{}}
     , finished{finished_}
     , type{type_}
-    , notes{std::move(notes_)}
+    , notes{notes_ ? *notes_ : QString{}}
 {
 }
 
@@ -278,11 +292,23 @@ PlannerModel::Item::~Item() { std::cerr << "Item destroyed " << uuid << "\n"; }
 
 namespace {
 
-QString extractTags(std::span<const std::string> tags)
+auto extractTags(std::span<const std::string> tags) -> QString
 {
     QStringList res(static_cast<int64_t>(tags.size()));
     std::ranges::transform(tags, std::begin(res), QString::fromStdString);
     return res.join(", ");
+}
+
+auto extractDueTime(const sprint_timer::api::TaskTimeframeDTO& timeFrame)
+    -> dw::DateTime
+{
+    return timeFrame.frame.finish();
+}
+
+auto extractReminder(const sprint_timer::api::TaskTimeframeDTO& timeFrame)
+    -> std::optional<dw::DateTime>
+{
+    return timeFrame.remindAt;
 }
 
 } // namespace

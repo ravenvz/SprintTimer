@@ -57,20 +57,31 @@ public:
 
 TEST_F(CreatingTasksFixture, creates_task)
 {
+    using namespace std::chrono_literals;
     const std::string name{"Task name"};
     const std::vector<std::string> tags{"Tag1", "Tag2"};
     const int32_t estimatedCost{4};
-    TaskDTO expected{"any_uuid",
-                     tags,
-                     name,
-                     estimatedCost,
-                     {},
-                     false,
-                     dt.dateTimeLocalNow()};
+    const TaskTimeframeDTO timeFrame{
+        DateTimeRange{current_date_time(), current_date_time() + Days{20}},
+        current_date_time() + 24h,
+        "recurrence string"};
+    const NoteDTO notes{"Some note"};
+    const TaskDTO expected{"any_uuid",
+                           tags,
+                           name,
+                           estimatedCost,
+                           {},
+                           false,
+                           dt.dateTimeLocalNow(),
+                           notes,
+                           timeFrame};
 
-    createTaskHandler.handle(CreateTaskCommand{name, tags, estimatedCost});
+    createTaskHandler.handle(
+        CreateTaskCommand{name, tags, estimatedCost, notes, timeFrame});
     const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
 
+    std::cout << "Actual:\n" << activeTasks.front() << std::endl;
+    std::cout << "Expected:\n" << expected << std::endl;
     EXPECT_EQ(1, activeTasks.size());
     EXPECT_THAT(activeTasks.front(),
                 Truly(matchers::MatchesTaskIgnoringUuid{expected}));

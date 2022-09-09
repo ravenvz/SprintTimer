@@ -32,9 +32,11 @@ EditTask::EditTask(TaskStorageWriter& writer_,
     : writer{writer_}
     , editedTask{editedTask_.name(),
                  editedTask_.estimatedCost(),
-                 originalTask_.sprints(),
+                 std::vector<Sprint>{originalTask_.sprints().begin(),
+                                     originalTask_.sprints().end()},
                  originalTask_.uuid(),
-                 editedTask_.tags(),
+                 std::vector<Tag>{editedTask_.tags().begin(),
+                                  editedTask_.tags().end()},
                  originalTask_.isCompleted(),
                  dw::current_date_time_local()}
     , originalTask{std::move(originalTask_)}

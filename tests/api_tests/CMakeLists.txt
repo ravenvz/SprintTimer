@@ -26,6 +26,7 @@ target_sources(test_api
     "${CMAKE_CURRENT_LIST_DIR}/src/test_editing_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_export_sprints.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_export_tasks.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/test_finishing_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_reading_sprint_distributions.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_registering_sprints.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_removing_sprints.cpp"
@@ -43,7 +44,6 @@ target_sources(test_api
     "${CMAKE_CURRENT_LIST_DIR}/src/test_requesting_workday_statistics.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_requesting_worktime_statistics.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_retrieving_operation_range.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/test_toggling_task_completion.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/utils/utils.cpp"
 )
 

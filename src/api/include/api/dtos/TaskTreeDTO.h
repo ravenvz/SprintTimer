@@ -23,29 +23,16 @@
 #define TASKTREEDTO_H_JN159NM6
 
 #include "api/dtos/TaskDTO.h"
+#include "api/dtos/TaskTypeDTO.h"
 #include "core/Tree.h"
 
-#include <iostream>
-
 namespace sprint_timer::api {
-
-enum class TaskTypeDTO { Project, Folder, Recurring, Regular };
 
 struct TaskNodeDTO {
     TaskDTO task;
     TaskTypeDTO type;
-    std::optional<dw::DateTime> dueTime;
-    std::optional<dw::DateTime> reminder;
-    std::string notes;
 
-    // TODO use default implementation when task notes are supported in storage
-    // friend bool operator==(const TaskNodeDTO&, const TaskNodeDTO&) = default;
-    friend bool operator==(const TaskNodeDTO& lhs, const TaskNodeDTO& rhs)
-    {
-        std::cout << lhs.task << " -> " << rhs.task << std::endl;
-        return lhs.task == rhs.task and lhs.type == rhs.type and
-               lhs.dueTime == rhs.dueTime and lhs.reminder == rhs.reminder;
-    }
+    friend bool operator==(const TaskNodeDTO&, const TaskNodeDTO&) = default;
 };
 
 template <class CharT, class Traits>
@@ -53,35 +40,7 @@ std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const TaskNodeDTO& taskNode)
 {
     os << "TaskNodeDTO{";
-    using enum TaskTypeDTO;
-    switch (taskNode.type) {
-    case Project:
-        os << "Project";
-        break;
-    case Folder:
-        os << "Folder";
-        break;
-    case Recurring:
-        os << "Recurring";
-        break;
-    case Regular:
-        os << "Regular";
-    }
-    os << ", ";
-    if (auto dt = taskNode.dueTime; dt) {
-        os << "due: " << *dt << ", ";
-    }
-    else {
-        os << "null, ";
-    }
-    if (auto rmd = taskNode.reminder; rmd) {
-        os << "remind: " << *rmd << ", ";
-    }
-    else {
-        os << "null, ";
-    }
-    os << "notes: " << taskNode.notes << "}";
-
+    os << taskNode.task << taskNode.type << "}";
     return os;
 }
 
