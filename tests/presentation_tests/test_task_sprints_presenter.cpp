@@ -24,8 +24,7 @@
 #include "qt_gui/presentation/TaskSelectionMediator.h"
 #include "qt_gui/presentation/TaskSprintsPresenter.h"
 
-using sprint_timer::api::SprintDTO;
-using sprint_timer::api::SprintsForTaskQuery;
+using namespace sprint_timer::api;
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
@@ -56,6 +55,16 @@ public:
         SprintDTO{"Some task name",
                   {"Tag1", "Tag2"},
                   dw::add_offset(someTimeRange, 2h)}};
+    TaskDTO someTask{"123",
+                     {"Tag1", "Tag2"},
+                     "Some name",
+                     5,
+                     {someTimeRange, dw::add_offset(someTimeRange, 2h)},
+                     false,
+                     dw::current_date_time_local(),
+                     std::nullopt,
+                     TaskTimeframeDTO{},
+                     TaskTypeDTO::Regular};
 };
 
 TEST_F(TaskSprintsPresenterFixture,
@@ -69,7 +78,7 @@ TEST_F(TaskSprintsPresenterFixture,
 TEST_F(TaskSprintsPresenterFixture,
        updates_view_with_sprints_for_task_that_is_currently_selected)
 {
-    taskSelectionMediator.changeSelection(&fakeColleague, 2, "123");
+    taskSelectionMediator.changeSelection(&fakeColleague, TaskDTO{someTask});
     ON_CALL(sprintsForTaskHandler, handle(SprintsForTaskQuery{"123"}))
         .WillByDefault(Return(someSprintDtos));
 

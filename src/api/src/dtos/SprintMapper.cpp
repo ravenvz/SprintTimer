@@ -23,29 +23,34 @@
 
 namespace sprint_timer::api {
 
-auto makeDTO(const Sprint& sprint) -> dw::DateTimeRange
+auto SprintMapper::convert(const SprintRecord& sprintRecord) const -> SprintDTO
 {
-    return sprint.timeSpan();
-}
-
-auto fromDTO(const dw::DateTimeRange& dto) -> Sprint { return Sprint{dto}; }
-
-auto makeDTO(const SprintRecord& sprint) -> SprintDTO
-{
-    const auto& tagsEnt = sprint.tags();
+    const auto& tagsEnt = sprintRecord.tags();
     std::vector<std::string> tags(tagsEnt.size());
     std::ranges::transform(
         tagsEnt, begin(tags), [](const auto& elem) { return elem.name(); });
-    return SprintDTO{sprint.taskName(), tags, sprint.timeSpan()};
+    return SprintDTO{sprintRecord.taskName(), tags, sprintRecord.timeSpan()};
 }
 
-auto fromDTO(const SprintDTO& dto) -> SprintRecord
+auto SprintMapper::convert(const SprintDTO& dto) const -> SprintRecord
 {
     const auto& tagStr = dto.tags;
     std::vector<Tag> tags(tagStr.size());
     std::ranges::transform(
         tagStr, begin(tags), [](const auto& elem) { return Tag{elem}; });
     return SprintRecord{dto.taskName, dto.timeRange, tags};
+}
+
+auto SprintDatetimeMapper::convert(const Sprint& sprint) const
+    -> dw::DateTimeRange
+{
+    return sprint.timeSpan();
+}
+
+auto SprintDatetimeMapper::convert(const dw::DateTimeRange& dto) const
+    -> Sprint
+{
+    return Sprint{dto};
 }
 
 } // namespace sprint_timer::api

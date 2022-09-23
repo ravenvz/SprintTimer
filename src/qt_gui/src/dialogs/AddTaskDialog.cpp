@@ -20,26 +20,49 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/AddTaskDialog.h"
+#include "core/utils/Algutils.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-AddTaskDialog::AddTaskDialog(QAbstractItemModel& tagModel_,
-                             contracts::AddTaskControl::Presenter& presenter_,
-                             QWidget* parent_)
-    : TaskDialog{tagModel_, parent_}
-    , presenter{presenter_}
+AddTaskDialog::AddTaskDialog(dw::Weekday firstDayOfWeek_, QWidget* parent_)
+    : TaskDialog{firstDayOfWeek_, parent_}
 {
     setWindowTitle("Add new task");
 }
 
-void AddTaskDialog::accept()
+auto AddTaskDialog::accept() -> void
 {
+    using sprint_timer::utils::inspect;
     if (nameIsEmpty()) {
         markNameFieldRed();
         return;
     }
-    presenter.addTask(parseFormFields());
+    inspect(presenter(), [this](auto* presenter) {
+        auto taskDto = parseFormFields();
+        presenter->onTaskCreationAccepted(std::move(taskDto.name),
+                                          std::move(taskDto.tags),
+                                          taskDto.expectedCost,
+                                          taskDto.kind,
+                                          std::move(parent),
+                                          insertBeforePos,
+                                          std::move(taskDto.notes),
+                                          std::move(taskDto.timeFrame));
+    });
     QDialog::accept();
 }
 
+auto AddTaskDialog::fillParentData(
+    const std::optional<std::string>& parentUuid,
+    const std::optional<int64_t>& insertBeforePosition) -> void
+{
+    parent = parentUuid;
+    insertBeforePos = insertBeforePosition;
+}
+
+auto AddTaskDialog::fillTags(std::span<const std::string> tags) -> void
+{
+    fillTagField(tags);
+}
+
 } // namespace sprint_timer::ui::qt_gui
+

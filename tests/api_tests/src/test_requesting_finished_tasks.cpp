@@ -49,21 +49,36 @@ public:
 
 TEST_F(RequestingFinishedTasksFixture, requesting_finished_tasks)
 {
-    createTaskHandler.handle(
-        CreateTaskCommand{"Task name", {"Tag1", "Tag2"}, 4});
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some other task", {"SomeTag"}, 2});
+    createTaskHandler.handle(CreateTaskCommand{"Task name",
+                                               {"Tag1", "Tag2"},
+                                               4,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Some other task",
+                                               {"SomeTag"},
+                                               2,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto uuids = activeTasksHandler.handle(ActiveTasksQuery{});
     const auto uuid = uuids.front().uuid;
     toggleTaskCompletedHandler.handle(
         ToggleTaskCompletedCommand{uuid, current_date_time_local()});
     TaskDTO expected{"",
-                        {"Tag1", "Tag2"},
-                        "Task name",
-                        4,
-                        {},
-                        true,
-                        dw::current_date_time_local()};
+                     {"Tag1", "Tag2"},
+                     "Task name",
+                     4,
+                     {},
+                     true,
+                     dw::current_date_time_local(),
+                     std::nullopt,
+                     TaskTimeframeDTO{},
+                     TaskTypeDTO::Regular};
 
     const auto finishedTasks = finishedTasksHandler.handle(FinishedTasksQuery{
         DateRange{current_date_local(), current_date_local()}});

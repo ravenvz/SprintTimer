@@ -23,22 +23,29 @@
 #define ADDTASKDIALOG_H_TBSYZEDZ
 
 #include "qt_gui/dialogs/TaskDialog.h"
-#include "qt_gui/presentation/AddTaskControl.h"
+#include "qt_gui/presentation/AddTaskDialogContract.h"
 
 namespace sprint_timer::ui::qt_gui {
 
 /* Provides front end to create or edit Task. */
-class AddTaskDialog : public TaskDialog {
+class AddTaskDialog : public TaskDialog,
+                      public contracts::AddTaskDialogContract::View {
 
 public:
-    explicit AddTaskDialog(QAbstractItemModel& tagModel,
-                           contracts::AddTaskControl::Presenter& presenter,
+    explicit AddTaskDialog(dw::Weekday firstDayOfWeek,
                            QWidget* parent = nullptr);
 
-    void accept() override;
+    auto accept() -> void override;
+
+    auto fillParentData(const std::optional<std::string>& parentUuid,
+                        const std::optional<int64_t>& insertBeforePosition)
+        -> void override;
+
+    auto fillTags(std::span<const std::string> tags) -> void override;
 
 private:
-    contracts::AddTaskControl::Presenter& presenter;
+    std::optional<std::string> parent;
+    std::optional<int64_t> insertBeforePos;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -24,24 +24,26 @@
 
 #include "api/Action.h"
 #include "api/SprintStorage.h"
-#include "api/TaskStorageWriter.h"
+#include "api/TaskStorage.h"
 
 namespace sprint_timer::api::actions {
 
 class DeleteTask : public Action {
 public:
-    DeleteTask(TaskStorageWriter& taskStorageWriter,
-               Task taskToRemove);
+    DeleteTask(TaskStorage& taskStorage, Task taskToRemove);
 
-    void execute() final;
+    auto execute() -> void final;
 
-    void undo() final;
+    auto undo() -> void final;
 
-    std::string describe() const final;
+    [[nodiscard]] auto describe() const -> std::string final;
 
 private:
-    TaskStorageWriter& taskWriter;
-    const Task task;
+    TaskStorage& taskStorage;
+    Task task;
+    TaskTree subTree;
+    std::optional<std::string> parent;
+    std::optional<int64_t> position;
 };
 
 } // namespace sprint_timer::api::actions

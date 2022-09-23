@@ -49,8 +49,14 @@ public:
 TEST_F(RetrievingOperationRangeFixture,
        retrieves_operation_range_using_current_date_as_upper_bound)
 {
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", {"Tag1", "Tag2"}, 4});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1", "Tag2"},
+                                               4,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const dw::DateTime timestamp{
@@ -67,18 +73,20 @@ TEST_F(RetrievingOperationRangeFixture,
 
 TEST_F(RetrievingOperationRangeFixture, retrieves_operation_range)
 {
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", {"Tag1", "Tag2"}, 4});
-    const auto taskUuid =
-        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1", "Tag2"},
+                                               4,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const dw::DateTime timestamp{
         dw::DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
     registerSprintBulkHandler.handle(RegisterSprintBulkCommand{
-        taskUuid,
-        {add_offset(DateTimeRange{timestamp, timestamp}, -Years{4})}});
+        "0", {add_offset(DateTimeRange{timestamp, timestamp}, -Years{4})}});
     registerSprintBulkHandler.handle(RegisterSprintBulkCommand{
-        taskUuid,
-        {add_offset(DateTimeRange{timestamp, timestamp}, +Years{5})}});
+        "0", {add_offset(DateTimeRange{timestamp, timestamp}, +Years{5})}});
     const DateRange expected{Date{Year{2014}, Month{12}, Day{1}},
                              Date{Year{2023}, Month{12}, Day{1}}};
 

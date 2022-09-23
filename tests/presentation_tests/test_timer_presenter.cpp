@@ -23,6 +23,7 @@
 #include "mocks/AssetLibraryMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "mocks/SoundPlayerMock.h"
+#include "mocks/TaskSelectionColleagueMock.h"
 #include "qt_gui/presentation/TimerPresenter.h"
 #include "gmock/gmock.h"
 
@@ -70,7 +71,10 @@ public:
                 (const std::vector<dw::DateTimeRange>&),
                 (override));
 
-    MOCK_METHOD(void, selectTask, (size_t), (override));
+    MOCK_METHOD(void,
+                selectTask,
+                (const std::optional<std::string>&),
+                (override));
 };
 
 class WorkflowTMock : public sprint_timer::IWorkflow {
@@ -107,19 +111,29 @@ class TimerPresenterFixture : public ::testing::Test {
 public:
     TimerViewMock view;
     NiceMock<WorkflowTMock> workflow;
-    NiceMock<
-        mocks::QueryHandlerMock<sprint_timer::api::RequestProgressQuery>>
+    NiceMock<mocks::QueryHandlerMock<sprint_timer::api::RequestProgressQuery>>
         todayProgressHandler;
     const std::string someSoundPath{"somesoundpath"};
     NiceMock<mocks::SoundPlayerMock> soundPlayer;
     NiceMock<mocks::AssetLibraryMock> assetLibrary;
     sprint_timer::ui::TaskSelectionMediator taskSelectionMediator;
+    NiceMock<mocks::TaskSelectionColleagueMock> taskSelectionColleague;
     TimerPresenter presenter{workflow,
                              todayProgressHandler,
                              soundPlayer,
                              assetLibrary,
                              std::string{ringSoundId},
                              taskSelectionMediator};
+    TaskDTO someTask{"123",
+                     {"Tag1", "Tag2"},
+                     "Some name",
+                     5,
+                     {},
+                     false,
+                     dw::current_date_time_local(),
+                     std::nullopt,
+                     TaskTimeframeDTO{},
+                     TaskTypeDTO::Regular};
 
     void SetUp() override
     {
@@ -171,8 +185,7 @@ TEST_F(TimerPresenterFixture,
        sets_sprint_count_for_workflow_when_view_is_attached)
 {
     using sprint_timer::GoalProgress;
-    NiceMock<
-        mocks::QueryHandlerMock<sprint_timer::api::RequestProgressQuery>>
+    NiceMock<mocks::QueryHandlerMock<sprint_timer::api::RequestProgressQuery>>
         progressHandler;
     const int numActualSprints{4};
     TimerPresenter otherPresenter{workflow,
@@ -212,13 +225,10 @@ TEST_F(TimerPresenterFixture, displays_idle_ui_when_workflow_enters_idle_state)
 
 TEST_F(TimerPresenterFixture, displays_submission_ui_when_sprint_ends)
 {
-    const size_t taskIndex{2};
-    std::string taskUuid{"123"};
-    taskSelectionMediator.changeSelection(
-        nullptr, taskIndex, std::move(taskUuid));
+    taskSelectionMediator.changeSelection(&taskSelectionColleague, TaskDTO{someTask});
     presenter.attachView(view);
 
-    EXPECT_CALL(view, selectTask(taskIndex));
+    EXPECT_CALL(view, selectTask(std::optional<std::string>{someTask.uuid}));
     EXPECT_CALL(view, setupUi(TimerUiModel::sprintFinishedUiModel("Submit")));
 
     presenter.onWorkflowStateChanged(IWorkflow::StateId::SprintFinished);
@@ -278,6 +288,16 @@ TEST_F(
     EXPECT_CALL(workflow, start());
 
     presenter.onTimerClicked();
+}
+
+TEST_F(TimerPresenterFixture, notifies_mediator_on_task_selection_changed) {
+    NiceMock<mocks::TaskSelectionColleagueMock> anotherColleague;
+    taskSelectionMediator.addColleague(&taskSelectionColleague);
+    taskSelectionMediator.addColleague(&anotherColleague);
+
+    EXPECT_CALL(taskSelectionColleague, onTaskSelectionChanged);
+
+    presenter.changeTaskSelection(TaskDTO{someTask});
 }
 
 TEST_F(TimerPresenterFixture, cancels_workflow_state_when_cancel_clicked)

@@ -19,6 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "qt_gui/presentation/EditTaskDialogPresenter.h"
 #ifdef _WIN32
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
 #include <ShlObj.h>
@@ -45,7 +46,6 @@
 #include <riften/thiefpool.hpp>
 
 #include "AddSprintDialogProxy.h"
-#include "AddTaskDialogProxy.h"
 #include "BestWorkdayPresenterProxy.h"
 #include "CommandHandlerDecorator.h"
 #include "CompositeDataFetcher.h"
@@ -74,6 +74,14 @@
 #include "WorkflowProxy.h"
 #include "api/handlers/ActiveTasksHandler.h"
 #include "api/handlers/AllTagsHandler.h"
+#include "api/handlers/SaveTaskTreeHandler.h"
+#include "qt_gui/delegates/PlannerItemDelegate.h"
+#include "qt_gui/presentation/AddTaskContext.h"
+#include "qt_gui/presentation/AddTaskControlPresenter.h"
+#include "qt_gui/presentation/AddTaskDialogPresenter.h"
+#include "qt_gui/presentation/EditTaskContext.h"
+#include <QAbstractItemModelTester>
+#include <fstream>
 // #include "api/handlers/CancelTimerHandler.h"
 #include "api/handlers/ChangeActiveTasksPriorityHandler.h"
 #include "api/handlers/ChangeWorkScheduleHandler.h"
@@ -97,11 +105,19 @@
 // #include "api/handlers/StartTimerHandler.h"
 #include "api/handlers/ToggleTaskCompletedHandler.h"
 // #include "api/handlers/ToggleZoneModeHandler.h"
+#include "AddTaskDialogLifestyleProxy.h"
 #include "api/BoostUUIDGenerator.h"
 #include "api/DefaultDateTimeProvider.h"
 #include "api/IConfig.h"
 #include "api/ObservableActionInvoker.h"
 #include "api/TaskStorageReader.h"
+#include "api/dtos/NoteMapper.h"
+#include "api/dtos/SprintMapper.h"
+#include "api/dtos/TagMapper.h"
+#include "api/dtos/TaskMapper.h"
+#include "api/dtos/TaskTimeframeMapper.h"
+#include "api/dtos/TaskTreeMapper.h"
+#include "api/dtos/TaskTypeMapper.h"
 #include "api/handlers/TopTagFrequenciesHandler.h"
 #include "api/handlers/WorkScheduleHandler.h"
 #include "api/handlers/WorkdayStatisticsHandler.h"
@@ -180,6 +196,13 @@
 #include "qt_storage/QtTaskStorage.h"
 #include "qt_storage/QtWorkScheduleStorage.h"
 #include "qt_storage/WorkerConnection.h"
+#include "qt_storage/migrations/MigrationManager.h"
+#include "qt_storage/migrations/Migration_v3.h"
+
+#include "qt_storage/migrations/Migration_v4.h"
+#include "qt_storage/migrations/Migration_v5.h"
+#include "qt_storage/migrations/Migration_v6.h"
+#include "qt_storage/migrations/Migration_v7.h"
 #include <QApplication>
 #include <QFile>
 #include <QStyleFactory>
@@ -338,9 +361,14 @@ int main(int argc, char* argv[])
 
     const QString sqliteFile =
         QString::fromStdString(dataDirectory + "/test_sprint.db");
-
     {
-        DatabaseInitializer initializer{sqliteFile};
+        MigrationManager migrationManager;
+        migrationManager.addMigration(2, std::make_unique<Migration_v3>());
+        migrationManager.addMigration(3, std::make_unique<Migration_v4>());
+        migrationManager.addMigration(4, std::make_unique<Migration_v5>());
+        migrationManager.addMigration(5, std::make_unique<Migration_v6>());
+        migrationManager.addMigration(6, std::make_unique<Migration_v7>());
+        DatabaseInitializer initializer{sqliteFile, migrationManager};
     }
 
     riften::Thiefpool threadPool{6};
@@ -348,13 +376,24 @@ int main(int argc, char* argv[])
     api::BoostUUIDGenerator uuidGenerator;
     api::DefaultDateTimeProvider dateTimeProvider;
 
+    api::NoteMapper noteMapper;
+    api::SprintDatetimeMapper sprintDateTimeMapper;
+    api::SprintMapper sprintMapper;
+    api::TagMapper tagMapper;
+    api::TaskTimeframeMapper timeFrameMapper;
+    api::TaskTypeMapper taskTypeMapper;
+    api::TaskMapper taskMapper{noteMapper,
+                               tagMapper,
+                               timeFrameMapper,
+                               taskTypeMapper,
+                               sprintDateTimeMapper};
+    api::TaskTreeMapper taskTreeMapper{taskMapper};
+
     compose::ThreadConnectionHelper threadConnectionHelper{dataDirectory +
                                                            "/test_sprint.db"};
-    compose::SQliteStorageFactory storageFactory{
-        threadConnectionHelper, dataDirectory, applicationSettings};
+    compose::SQliteStorageFactory storageFactory{threadConnectionHelper,
+                                                 applicationSettings};
 
-    // QtStorageImplementersFactory storageFactory{
-    //     worker_connection.connectionName()};
     auto sprintStorage = storageFactory.sprintStorage();
     auto taskStorage = storageFactory.taskStorage();
     auto dailyDistributionReader = storageFactory.dailyDistReader(30);
@@ -363,7 +402,6 @@ int main(int argc, char* argv[])
     auto monthlyDistReader = storageFactory.monthlyDistReader();
     auto operationalRangeReader = storageFactory.operationalRangeReader();
     auto scheduleStorage = storageFactory.scheduleStorage();
-    auto taskTreeMetadataReader = storageFactory.taskTreeStorage(*taskStorage);
 
     Observable desyncObservable;
 
@@ -383,27 +421,31 @@ int main(int argc, char* argv[])
     std::ostream outputStream{std::cout.rdbuf()};
 
     auto requestSprintsHandler = compose::decorate_query<RequestSprintsQuery>(
-        std::make_unique<RequestSprintsHandler>(*sprintStorage),
+        std::make_unique<RequestSprintsHandler>(*sprintStorage, sprintMapper),
         outputStream,
         cacheInvalidationMediator);
     auto todayRequestSprintsHandler =
         compose::decorate_query<RequestSprintsQuery>(
-            std::make_unique<RequestSprintsHandler>(*sprintStorage),
+            std::make_unique<RequestSprintsHandler>(*sprintStorage,
+                                                    sprintMapper),
             outputStream,
             cacheInvalidationMediator);
     auto statisticsRequestSprintsHandler =
         compose::decorate_query<RequestSprintsQuery>(
-            std::make_unique<RequestSprintsHandler>(*sprintStorage),
+            std::make_unique<RequestSprintsHandler>(*sprintStorage,
+                                                    sprintMapper),
             outputStream,
             cacheInvalidationMediator);
     auto historyRequestSprintsHandler =
         compose::decorate_query<RequestSprintsQuery>(
-            std::make_unique<RequestSprintsHandler>(*sprintStorage),
+            std::make_unique<RequestSprintsHandler>(*sprintStorage,
+                                                    sprintMapper),
             outputStream,
             cacheInvalidationMediator);
     auto todaySprintsModelRequestSprintsHandler =
         compose::decorate_query<RequestSprintsQuery>(
-            std::make_unique<RequestSprintsHandler>(*sprintStorage),
+            std::make_unique<RequestSprintsHandler>(*sprintStorage,
+                                                    sprintMapper),
             outputStream,
             cacheInvalidationMediator);
     auto requestSprintDailyDistributionHandler =
@@ -425,7 +467,7 @@ int main(int argc, char* argv[])
             outputStream,
             cacheInvalidationMediator);
     auto sprintsForTaskHandler = compose::decorate_query<SprintsForTaskQuery>(
-        std::make_unique<SprintsForTaskHandler>(*taskStorage),
+        std::make_unique<SprintsForTaskHandler>(*taskStorage, tagMapper),
         outputStream,
         cacheInvalidationMediator);
     auto workScheduleHandler = compose::decorate_query<WorkScheduleQuery>(
@@ -433,7 +475,7 @@ int main(int argc, char* argv[])
         outputStream,
         cacheInvalidationMediator);
     auto finishedTasksHandler = compose::decorate_query<FinishedTasksQuery>(
-        std::make_unique<FinishedTasksHandler>(*taskStorage),
+        std::make_unique<FinishedTasksHandler>(*taskStorage, taskMapper),
         outputStream,
         cacheInvalidationMediator);
     auto operationalRangeHandler =
@@ -446,7 +488,7 @@ int main(int argc, char* argv[])
         outputStream,
         cacheInvalidationMediator);
     auto unfinishedTasksHandler = compose::decorate_query<ActiveTasksQuery>(
-        std::make_unique<ActiveTasksHandler>(*taskStorage),
+        std::make_unique<ActiveTasksHandler>(*taskStorage, taskMapper),
         outputStream,
         cacheInvalidationMediator);
     auto sprintStatisticsHandler =
@@ -478,8 +520,7 @@ int main(int argc, char* argv[])
             outputStream,
             cacheInvalidationMediator);
     auto readPlannerHandler = compose::decorate_query<ReadTaskTreeQuery>(
-        std::make_unique<ReadTaskTreeHandler>(*taskStorage,
-                                              *taskTreeMetadataReader),
+        std::make_unique<ReadTaskTreeHandler>(*taskStorage, taskTreeMapper),
         outputStream,
         cacheInvalidationMediator);
 
@@ -498,8 +539,11 @@ int main(int argc, char* argv[])
             outputStream,
             cacheInvalidationMediator);
     auto createTaskHandler = compose::decorate_command<CreateTaskCommand>(
-        std::make_unique<CreateTaskHandler>(
-            *taskStorage, actionInvoker, uuidGenerator, dateTimeProvider),
+        std::make_unique<CreateTaskHandler>(*taskStorage,
+                                            actionInvoker,
+                                            uuidGenerator,
+                                            dateTimeProvider,
+                                            taskMapper),
         outputStream,
         cacheInvalidationMediator);
     auto deleteTaskHandler = compose::decorate_command<DeleteTaskCommand>(
@@ -513,13 +557,16 @@ int main(int argc, char* argv[])
             outputStream,
             cacheInvalidationMediator);
     auto editTaskHandler = compose::decorate_command<EditTaskCommand>(
-        std::make_unique<EditTaskHandler>(*taskStorage, actionInvoker),
+        std::make_unique<EditTaskHandler>(
+            *taskStorage, actionInvoker, taskMapper),
         outputStream,
         cacheInvalidationMediator);
     auto registerSprintBulkHandler =
         compose::decorate_command<RegisterSprintBulkCommand>(
-            std::make_unique<RegisterSprintBulkHandler>(
-                *taskStorage, *sprintStorage, actionInvoker),
+            std::make_unique<RegisterSprintBulkHandler>(*taskStorage,
+                                                        *sprintStorage,
+                                                        actionInvoker,
+                                                        sprintDateTimeMapper),
             outputStream,
             cacheInvalidationMediator);
     auto changeWorkScheduleHandler =
@@ -528,6 +575,11 @@ int main(int argc, char* argv[])
                                                         actionInvoker),
             outputStream,
             cacheInvalidationMediator);
+    auto savePlannerHandler = compose::decorate_command<SaveTaskTreeCommand>(
+        std::make_unique<SaveTaskTreeHandler>(
+            *taskStorage, actionInvoker, taskTreeMapper),
+        outputStream,
+        cacheInvalidationMediator);
 
     // auto startTimerHandler = compose::decorate_com_handler<StartTimer>(
     //     std::make_unique<StartTimerHandler>(workflow), outputStream);
@@ -537,6 +589,83 @@ int main(int argc, char* argv[])
     //
     // auto toggleZoneHandler = compose::decorate_com_handler<ToggleZoneMode>(
     //     std::make_unique<ToggleZoneModeHandler>(workflow), outputStream);
+
+    // // TODO this is in fact a part of Migration_v7
+
+    // TaskTreeDTO tree;
+    // createTaskHandler->handle(CreateTaskCommand{
+    //     "Overdue task",
+    //     {"TestTag", "OtherTag"},
+    //     4,
+    //     TaskTypeDTO::Regular,
+    //     std::nullopt,
+    //     std::nullopt,
+    //     NoteDTO{"Some test task note."},
+    //     api::TaskTimeframeDTO{dw::current_date_time_local() - dw::Days{2},
+    //                           dw::current_date_time_local() - dw::Days{1},
+    //                           dw::current_date_time_local() - dw::Days{1},
+    //                           std::nullopt}});
+    //
+    // createTaskHandler->handle(CreateTaskCommand{
+    //     "Today task",
+    //     {"TestTag", "OtherTag", "YetAnother"},
+    //     4,
+    //     TaskTypeDTO::Regular,
+    //     std::nullopt,
+    //     std::nullopt,
+    //     NoteDTO{"Today task note"},
+    //     api::TaskTimeframeDTO{dw::current_date_time_local() - dw::Days{2},
+    //                           dw::current_date_time_local(),
+    //                           dw::current_date_time_local() - dw::Days{1},
+    //                           std::nullopt}});
+    //
+    // createTaskHandler->handle(CreateTaskCommand{
+    //     "Coming up soon task",
+    //     {"Dev"},
+    //     4,
+    //     TaskTypeDTO::Regular,
+    //     std::nullopt,
+    //     std::nullopt,
+    //     NoteDTO{"Today task note"},
+    //     api::TaskTimeframeDTO{dw::current_date_time_local() - dw::Days{2},
+    //                           dw::current_date_time_local() + dw::Days{3},
+    //                           dw::current_date_time_local() - dw::Days{1},
+    //                           std::nullopt}});
+    //
+    // createTaskHandler->handle(CreateTaskCommand{
+    //     "Coming up not soon task",
+    //     {"Study"},
+    //     7,
+    //     TaskTypeDTO::Regular,
+    //     std::nullopt,
+    //     std::nullopt,
+    //     std::nullopt,
+    //     api::TaskTimeframeDTO{dw::current_date_time_local() - dw::Days{2},
+    //                           dw::current_date_time_local() + dw::Days{30},
+    //                           dw::current_date_time_local() - dw::Days{1},
+    //                           std::nullopt}});
+    //
+    // createTaskHandler->handle(CreateTaskCommand{
+    //     "Coming up soon task",
+    //     {"Dev"},
+    //     4,
+    //     TaskTypeDTO::Regular,
+    //     std::nullopt,
+    //     std::nullopt,
+    //     NoteDTO{"Today task note"},
+    //     api::TaskTimeframeDTO{dw::current_date_time_local() - dw::Days{2},
+    //                           dw::current_date_time_local() + dw::Days{3},
+    //                           dw::current_date_time_local() - dw::Days{1},
+    //                           std::nullopt}});
+    //
+    // const auto tasks = unfinishedTasksHandler->handle(ActiveTasksQuery{});
+    //
+    // for (const auto& task : tasks) {
+    //     tree.addChild(task.uuid, task, std::nullopt, std::nullopt);
+    // }
+    //
+    // savePlannerHandler->handle(SaveTaskTreeCommand{tree});
+    // std::cout << "Task tree file created.\n";
 
     ui::TagEditorPresenter tagEditorPresenter{*allTagsHandler,
                                               *renameTagHandler};
@@ -553,9 +682,6 @@ int main(int argc, char* argv[])
                                                   *changePriorityHandler};
     TaskModel activeTaskModel;
     activeTaskModel.setPresenter(activeTasksPresenter);
-
-    ui::PlannerPresenter plannerPresenter{*readPlannerHandler};
-    compose::PlannerWindowProxy plannerWindow{plannerPresenter};
 
     ui::RegisterSprintControlPresenter registerSprintControlPresenter{
         *registerSprintBulkHandler};
@@ -721,6 +847,53 @@ int main(int argc, char* argv[])
     compose::HistoryWindowProxy historyWindow{
         historyRangeSelectorPresenter, historyPresenter, dataExportPresenter};
 
+    ui::AddTaskContext addTaskContext;
+    ui::EditTaskContext editTaskContext;
+
+    ui::AddTaskControlPresenter addTaskControlPresenter{*createTaskHandler};
+    ui::AddTaskDialogPresenter addTaskDialogPresenter{*createTaskHandler,
+                                                      *allTagsHandler,
+                                                      *readPlannerHandler,
+                                                      addTaskContext};
+    compose::AddTaskDialogLifestyleProxy addTaskDialog{addTaskDialogPresenter,
+                                                       settings};
+    ui::EditTaskDialogPresenter editTaskDialogPresenter{
+        *editTaskHandler, *allTagsHandler, editTaskContext};
+    compose::EditTaskDialogProxy editTaskDialog{editTaskDialogPresenter,
+                                                settings};
+
+    sprint_timer::ui::PlannerColors plannerColors{"#000000",
+                                                  "#FFFFFF",
+                                                  "#FFFFFF",
+                                                  "#000000",
+                                                  "#73c245",
+                                                  "#eb6c59",
+                                                  "#fca103",
+                                                  "#1b4fa8",
+                                                  "#2ea81b",
+                                                  "#eb6c59",
+                                                  "#1b4fa8"};
+    ui::PlannerPresenter plannerPresenter{plannerColors,
+                                          *readPlannerHandler,
+                                          *savePlannerHandler,
+                                          *deleteTaskHandler,
+                                          addTaskContext,
+                                          editTaskContext,
+                                          dateTimeProvider};
+    PlannerItemDelegate plannerItemDelegate;
+
+    PlannerModel plannerModel{};
+    // QAbstractItemModelTester* tester = new QAbstractItemModelTester(
+    //     &plannerModel,
+    //     QAbstractItemModelTester::FailureReportingMode::Warning);
+
+    // plannerModel.setPresenter(plannerPresenter);
+    compose::PlannerWindowProxy plannerWindow{plannerPresenter,
+                                              plannerModel,
+                                              plannerItemDelegate,
+                                              addTaskDialog,
+                                              editTaskDialog};
+
     compose::SettingsDialogLifestyleProxy settingsDialog{applicationSettings};
     auto launcherMenu = std::make_unique<LauncherMenu>(progressWindow,
                                                        statisticsWindow,
@@ -736,11 +909,12 @@ int main(int argc, char* argv[])
     compose::RuntimeConfigurableSoundPlayer soundPlayer(
         applicationSettings, applicationSettings, compose::createPlayer());
 
+    ui::TaskSelectionMediator taskSelectionMediator;
+
     ui::ConfigurableAssetLibrary assetLibrary_{
         {{"ringSound", applicationSettings.soundFilePath()}}};
     compose::SettingsWatchingAssetLibrary assetLibrary{
         assetLibrary_, applicationSettings, applicationSettings};
-    ui::TaskSelectionMediator taskSelectionMediator;
     ui::TimerPresenter timerPresenter{workflow,
                                       *requestDailyProgressHandler,
                                       soundPlayer,
@@ -759,13 +933,8 @@ int main(int argc, char* argv[])
                                                   taskSelectionMediator};
     compose::TaskSprintsViewProxy taskSprintsView{taskSprintsPresenter,
                                                   historyItemDelegate};
-    ui::AddTaskControlPresenter addTaskControlPresenter{*createTaskHandler};
-    compose::AddTaskDialogProxy addTaskDialog{addTaskControlPresenter,
-                                              tagModel};
-    TaskItemDelegate taskItemDelegate;
-    compose::EditTaskDialogProxy editTaskDialog{
-        tagModel, activeTaskModel, taskSelectionMediator};
     compose::TagEditorProxy tagEditor{tagModel};
+    TaskItemDelegate taskItemDelegate;
     auto taskView = std::make_unique<TaskView>(taskSprintsView,
                                                editTaskDialog,
                                                tagEditor,

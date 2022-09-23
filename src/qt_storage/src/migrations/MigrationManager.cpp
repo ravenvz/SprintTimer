@@ -32,32 +32,32 @@ namespace {
 
 using namespace sprint_timer::storage::qt_storage;
 
-void updateVersion(const QString& connectionName, unsigned newVersion);
+auto updateVersion(const QString& connectionName, unsigned newVersion) -> void;
 
-unsigned getDatabaseVersion(const QString& connectionName);
+auto getDatabaseVersion(const QString& connectionName) -> unsigned;
 
 class Backup {
 public:
     explicit Backup(const QString& filename);
 
     Backup(Backup&&) = delete;
-    Backup& operator=(Backup&&) = delete;
+    auto operator=(Backup&&) -> Backup& = delete;
 
     Backup(Backup&) = delete;
-    Backup& operator=(Backup&) = delete;
+    auto operator=(Backup&) -> Backup& = delete;
 
     ~Backup();
 
-    void release();
+    auto release() -> void;
 
 private:
-    const QString filename;
+    QString filename;
     bool shouldRestore{false};
 };
 
-void createBackupCopy(const QString& filename);
+auto createBackupCopy(const QString& filename) -> void;
 
-void restoreBackupCopy(const QString& filename);
+auto restoreBackupCopy(const QString& filename) -> void;
 
 const QString getVersionQuery{"SELECT " % InfoTable::Columns::value % " from " %
                               InfoTable::name % " where " %
@@ -67,19 +67,17 @@ const QString getVersionQuery{"SELECT " % InfoTable::Columns::value % " from " %
 
 namespace sprint_timer::storage::qt_storage {
 
-MigrationManager::MigrationManager(unsigned currentDbVersion)
-    : currentDatabaseVersion{currentDbVersion}
-{
-}
-
-void MigrationManager::runMigrations(const QString& connectionName) const
+auto MigrationManager::runMigrations(const QString& connectionName,
+                                     unsigned currentDatabaseVersion) const
+    -> void
 {
     auto version = getDatabaseVersion(connectionName);
     qDebug() << "Latest database version is " << currentDatabaseVersion;
     qDebug() << "Actual database version is " << version;
 
-    if (version == currentDatabaseVersion)
+    if (version == currentDatabaseVersion) {
         return;
+    }
 
     Backup backupController{
         QSqlDatabase::database(connectionName).databaseName()};
@@ -122,9 +120,9 @@ namespace {
 
 Backup::Backup(const QString& filename_)
     : filename{filename_}
+    , shouldRestore{true}
 {
     createBackupCopy(filename);
-    shouldRestore = true;
 }
 
 Backup::~Backup()
@@ -139,9 +137,9 @@ Backup::~Backup()
     }
 }
 
-void Backup::release() { shouldRestore = false; }
+auto Backup::release() -> void { shouldRestore = false; }
 
-void createBackupCopy(const QString& filename)
+auto createBackupCopy(const QString& filename) -> void
 {
     bool ok{true};
     if (QFile::exists(filename + ".old"))
@@ -153,7 +151,7 @@ void createBackupCopy(const QString& filename)
     qDebug() << "Created backup copy of the database";
 }
 
-void restoreBackupCopy(const QString& filename)
+auto restoreBackupCopy(const QString& filename) -> void
 {
     bool ok{true};
     if (QFile::exists(filename))
@@ -165,7 +163,7 @@ void restoreBackupCopy(const QString& filename)
     qDebug() << "Restored database from backup copy";
 }
 
-unsigned getDatabaseVersion(const QString& connectionName)
+auto getDatabaseVersion(const QString& connectionName) -> unsigned
 {
     using namespace sprint_timer::storage::qt_storage;
     QSqlQuery query = tryPrepare(connectionName, getVersionQuery);
@@ -182,7 +180,7 @@ unsigned getDatabaseVersion(const QString& connectionName)
     return version;
 }
 
-void updateVersion(const QString& connectionName, unsigned newVersion)
+auto updateVersion(const QString& connectionName, unsigned newVersion) -> void
 {
     const QString queryStr =
         QString{"update %1 set %2 = (:value) where %3 = (:name)"}

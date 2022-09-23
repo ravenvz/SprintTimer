@@ -39,7 +39,8 @@ public:
     QueryHandlerComposer& queryComposer{initializer.queryHandlerComposer()};
     asp::CommandHandler<CreateTaskCommand>& createTaskHandler{
         commandComposer.createTaskHandler()};
-    asp::QueryHandler<AllTagsQuery>& allTagsHandler{queryComposer.allTagsHandler()};
+    asp::QueryHandler<AllTagsQuery>& allTagsHandler{
+        queryComposer.allTagsHandler()};
 };
 
 TEST_F(RequestingTasksFixture, requesting_tags_on_empty_system)
@@ -50,10 +51,22 @@ TEST_F(RequestingTasksFixture, requesting_tags_on_empty_system)
 TEST_F(RequestingTasksFixture, requesting_tags)
 {
     using ::testing::UnorderedElementsAre;
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", {"Tag1", "Tag2", "Tag3"}, 12});
-    createTaskHandler.handle(
-        CreateTaskCommand{"Other task", {"Tag2", "Tag3", "Tag4"}, 21});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1", "Tag2", "Tag3"},
+                                               12,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Other task",
+                                               {"Tag2", "Tag3", "Tag4"},
+                                               21,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
 
     EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
                 UnorderedElementsAre("Tag1", "Tag2", "Tag3", "Tag4"));

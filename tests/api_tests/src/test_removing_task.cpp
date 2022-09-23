@@ -19,8 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api_tests/QtStorageInitializer.h"
 #include "api/HandlerException.h"
+#include "api_tests/QtStorageInitializer.h"
+#include "api_tests/fixtures/TaskTreeFixture.h"
 #include "gmock/gmock.h"
 
 using namespace sprint_timer;
@@ -49,6 +50,8 @@ public:
         queryComposer.requestSprintsHandler()};
     asp::QueryHandler<SprintsForTaskQuery>& sprintsForTaskHandler{
         queryComposer.sprintsForTaskHandler()};
+    asp::QueryHandler<ReadTaskTreeQuery>& readTaskTreeHandler{
+        queryComposer.readTaskTreeHandler()};
     asp::CommandHandler<UndoLastCommand>& undoHandler{
         commandComposer.undoHandler()};
     TaskDTO task{"",
@@ -57,76 +60,49 @@ public:
                  4,
                  {},
                  false,
-                 dw::current_date_time()};
+                 dw::current_date_time(),
+                 std::nullopt,
+                 TaskTimeframeDTO{},
+                 TaskTypeDTO::Regular};
 };
+
+/*    Task tree fixture used in these tests looks like that
+ *
+ *    0 folder1
+ *    1    project1
+ *    2       task1
+ *    5       task3 (3 sprints)
+ *    3       project2
+ *    4 task2
+ *
+ *
+ */
 
 TEST_F(RemovingTaskFixture, removing_task_with_no_sprints)
 {
-    createTaskHandler.handle(
-        CreateTaskCommand{task.name, task.tags, task.expectedCost});
-    const auto uuid =
-        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
+    auto tree = fixtures::givenSomeTaskTreeCreated(createTaskHandler,
+                                                   registerSprintBulkHandler);
+    tree.removeNode("3");
 
-    deleteTaskHandler.handle(DeleteTaskCommand{uuid});
+    deleteTaskHandler.handle(DeleteTaskCommand{"3"});
 
-    EXPECT_TRUE(activeTasksHandler.handle(ActiveTasksQuery{}).empty());
-    EXPECT_TRUE(allTagsHandler.handle(AllTagsQuery{}).empty());
+    EXPECT_THAT(
+        allTagsHandler.handle(AllTagsQuery{}),
+        ::testing::UnorderedElementsAre("Tag1", "Tag2", "Tag3", "ProjectTag1"));
+    EXPECT_EQ(tree, readTaskTreeHandler.handle(ReadTaskTreeQuery{}));
 }
 
 TEST_F(RemovingTaskFixture, removing_task_that_has_assosiated_sprints)
 {
-    using namespace std::chrono_literals;
-    createTaskHandler.handle(
-        CreateTaskCommand{task.name, task.tags, task.expectedCost});
-    const dw::Date someDate{Year{2021}, Month{3}, Day{3}};
-    const dw::DateTime firstSprintStartTime{DateTime{someDate} + 3h};
-    const dw::DateTimeRange firstSprintRange{firstSprintStartTime,
-                                             firstSprintStartTime + 25min};
-    const std::vector<DateTimeRange> intervals{
-        firstSprintRange,
-        add_offset(firstSprintRange, 1h + 25min),
-        add_offset(firstSprintRange, 5h + 50min),
-        add_offset(firstSprintRange, 7h + 75min)};
-    const auto uuid =
-        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
-    registerSprintBulkHandler.handle(
-        RegisterSprintBulkCommand(uuid, intervals));
+    auto tree = fixtures::givenSomeTaskTreeCreated(createTaskHandler,
+                                                   registerSprintBulkHandler);
+    tree.removeNode("5");
 
-    deleteTaskHandler.handle(DeleteTaskCommand{uuid});
+    deleteTaskHandler.handle(DeleteTaskCommand{"5"});
 
-    EXPECT_TRUE(activeTasksHandler.handle(ActiveTasksQuery{}).empty());
-    EXPECT_TRUE(allTagsHandler.handle(AllTagsQuery{}).empty());
-    EXPECT_TRUE(
-        requestSprintsHandler
-            .handle(RequestSprintsQuery{dw::DateRange{someDate, someDate}})
-            .empty());
-}
-
-TEST_F(RemovingTaskFixture, removing_task_cleanes_up_orphaned_tags)
-{
-    createTaskHandler.handle(
-        CreateTaskCommand{task.name, task.tags, task.expectedCost});
-    const auto uuid =
-        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
-
-    deleteTaskHandler.handle(DeleteTaskCommand{uuid});
-
-    EXPECT_TRUE(allTagsHandler.handle(AllTagsQuery{}).empty());
-}
-
-TEST_F(RemovingTaskFixture,
-       removing_task_does_not_remove_tag_if_some_other_task_has_it)
-{
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", {"Tag1", "SharedTag"}, 7});
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some other task", {"SharedTag", "Tag2"}, 7});
-    const auto tasks = activeTasksHandler.handle(ActiveTasksQuery{});
-
-    deleteTaskHandler.handle(DeleteTaskCommand{tasks.front().uuid});
-
+    EXPECT_EQ(tree, readTaskTreeHandler.handle(ReadTaskTreeQuery{}));
     EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
-                ::testing::ElementsAre("SharedTag", "Tag2"));
+                ::testing::UnorderedElementsAre("Tag1", "Tag2", "ProjectTag1"));
 }
 
 TEST_F(RemovingTaskFixture,
@@ -137,38 +113,51 @@ TEST_F(RemovingTaskFixture,
         HandlerException);
 }
 
-TEST_F(RemovingTaskFixture, undoing_removing_task_restores_tags_and_sprints)
+TEST_F(RemovingTaskFixture,
+       undoing_removing_parent_task_restores_children_and_tags_and_sprints)
 {
-    using namespace std::chrono_literals;
-    createTaskHandler.handle(
-        CreateTaskCommand{task.name, task.tags, task.expectedCost});
-    const dw::Date someDate{Year{2021}, Month{3}, Day{3}};
-    const dw::DateTime firstSprintStartTime{DateTime{someDate} + 3h};
-    const dw::DateTimeRange firstSprintRange{firstSprintStartTime,
-                                             firstSprintStartTime + 25min};
-    const std::vector<DateTimeRange> intervals{
-        firstSprintRange,
-        add_offset(firstSprintRange, 1h + 25min),
-        add_offset(firstSprintRange, 5h + 50min),
-        add_offset(firstSprintRange, 7h + 75min)};
-    const auto storedTask =
-        activeTasksHandler.handle(ActiveTasksQuery{}).front();
-    const auto uuid = storedTask.uuid;
-    const TaskDTO expected{uuid,
-                           task.tags,
-                           task.name,
-                           task.expectedCost,
-                           intervals,
-                           false,
-                           current_date_time_local()};
-    registerSprintBulkHandler.handle(
-        RegisterSprintBulkCommand(uuid, intervals));
-    deleteTaskHandler.handle(DeleteTaskCommand{uuid});
+    auto tree = fixtures::givenSomeTaskTreeCreated(createTaskHandler,
+                                                   registerSprintBulkHandler);
+    deleteTaskHandler.handle(DeleteTaskCommand{"1"});
 
     undoHandler.handle(UndoLastCommand{});
-    const auto actual = activeTasksHandler.handle(ActiveTasksQuery{}).front();
 
-    EXPECT_EQ(expected, actual);
-    EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
-                ::testing::ElementsAre("Tag1", "Tag2"));
+    EXPECT_EQ(tree, readTaskTreeHandler.handle(ReadTaskTreeQuery{}));
+    EXPECT_THAT(
+        allTagsHandler.handle(AllTagsQuery{}),
+        ::testing::UnorderedElementsAre("Tag1", "Tag2", "Tag3", "ProjectTag1"));
+
+    // using namespace std::chrono_literals;
+    // createTaskHandler.handle(
+    //     CreateTaskCommand{task.name, task.tags, task.expectedCost});
+    // const dw::Date someDate{Year{2021}, Month{3}, Day{3}};
+    // const dw::DateTime firstSprintStartTime{DateTime{someDate} + 3h};
+    // const dw::DateTimeRange firstSprintRange{firstSprintStartTime,
+    //                                          firstSprintStartTime + 25min};
+    // const std::vector<DateTimeRange> intervals{
+    //     firstSprintRange,
+    //     add_offset(firstSprintRange, 1h + 25min),
+    //     add_offset(firstSprintRange, 5h + 50min),
+    //     add_offset(firstSprintRange, 7h + 75min)};
+    // const auto storedTask =
+    //     activeTasksHandler.handle(ActiveTasksQuery{}).front();
+    // const auto uuid = storedTask.uuid;
+    // const TaskDTO expected{uuid,
+    //                        task.tags,
+    //                        task.name,
+    //                        task.expectedCost,
+    //                        intervals,
+    //                        false,
+    //                        current_date_time_local()};
+    // registerSprintBulkHandler.handle(
+    //     RegisterSprintBulkCommand(uuid, intervals));
+    // deleteTaskHandler.handle(DeleteTaskCommand{uuid});
+    //
+    // undoHandler.handle(UndoLastCommand{});
+    // const auto actual =
+    // activeTasksHandler.handle(ActiveTasksQuery{}).front();
+    //
+    // EXPECT_EQ(expected, actual);
+    // EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
+    //             ::testing::ElementsAre("Tag1", "Tag2"));
 }

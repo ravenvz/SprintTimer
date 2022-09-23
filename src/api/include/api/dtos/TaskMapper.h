@@ -22,28 +22,37 @@
 #ifndef TASKMAPPER_H_92B3YBWU
 #define TASKMAPPER_H_92B3YBWU
 
+#include "api/dtos/NoteMapper.h"
 #include "api/dtos/TaskDTO.h"
 #include "core/Task.h"
+#include "core/utils/Converter.h"
 #include <ranges>
 #include <span>
 
 namespace sprint_timer::api {
 
-TaskDTO makeDTO(const sprint_timer::Task& task);
+class TaskMapper : public Converter<TaskDTO, Task> {
+public:
+    TaskMapper(
+        const Converter<NoteDTO, Note>& noteMapper,
+        const Converter<std::string, Tag>& tagMapper,
+        const Converter<TaskTimeframeDTO, TaskTimeframe>& timeFrameMapper_,
+        const Converter<TaskTypeDTO, TaskType>& taskTypeMapper_,
+        const Converter<dw::DateTimeRange, Sprint>& sprintMapper);
 
-Task fromDTO(const TaskDTO& dto);
+private:
+    [[nodiscard]] auto convert(const TaskDTO& dto) const
+        -> Task override;
 
-inline auto dtoAdapter(std::span<const Task> tasks)
-{
-    return std::views::transform(
-        tasks, [](const auto& task) { return makeDTO(task); });
-}
+    [[nodiscard]] auto convert(const Task& task) const
+        -> TaskDTO override;
 
-inline auto dtoAdapter(std::span<const TaskDTO> dtos)
-{
-    return std::views::transform(dtos,
-                                 [](const auto& dto) { return fromDTO(dto); });
-}
+    const Converter<NoteDTO, Note>& noteMapper;
+    const Converter<std::string, Tag>& tagMapper;
+    const Converter<TaskTimeframeDTO, TaskTimeframe>& timeFrameMapper;
+    const Converter<TaskTypeDTO, TaskType>& taskTypeMapper;
+    const Converter<dw::DateTimeRange, Sprint>& sprintMapper;
+};
 
 } // namespace sprint_timer::api
 

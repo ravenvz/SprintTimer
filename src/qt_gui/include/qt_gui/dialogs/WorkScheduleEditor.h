@@ -24,6 +24,7 @@
 
 #include "qt_gui/dialogs/DisplayableDialog.h"
 #include "qt_gui/presentation/WorkScheduleEditor.h"
+#include "qt_gui/utils/DateTimeConverter.h"
 #include <QAbstractListModel>
 #include <memory>
 
@@ -64,6 +65,7 @@ private:
     std::unique_ptr<QAbstractItemModel> exceptionalDaysModel;
     std::unique_ptr<QAbstractItemModel> roasterModel;
     std::unique_ptr<QAbstractItemModel> roasterBufferModel;
+    utils::DateConverter dateConverter;
 
     void addSchedule();
 

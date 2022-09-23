@@ -21,13 +21,13 @@
 *********************************************************************************/
 #include "api/handlers/SprintsForTaskHandler.h"
 #include "api/HandlerException.h"
-#include "api/dtos/SprintMapper.h"
-#include "api/dtos/TagMapper.h"
 
 namespace sprint_timer::api {
 
-SprintsForTaskHandler::SprintsForTaskHandler(TaskStorageReader& reader_)
+SprintsForTaskHandler::SprintsForTaskHandler(
+    TaskStorageReader& reader_, const Converter<std::string, Tag>& tagMapper_)
     : reader{reader_}
+    , tagMapper{tagMapper_}
 {
 }
 
@@ -43,7 +43,7 @@ SprintsForTaskHandler::handle(const SprintsForTaskQuery& query)
 
     // TODO see if we can move it somewhere (Task perhaps?)
     std::vector<std::string> tags;
-    std::ranges::copy(dtoAdapter(tasks.front().tags()),
+    std::ranges::copy(tagMapper(tasks.front().tags()),
                       std::back_inserter(tags));
 
     std::vector<SprintDTO> res;

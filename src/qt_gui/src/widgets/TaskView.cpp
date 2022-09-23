@@ -54,12 +54,11 @@ TaskView::TaskView(StandaloneDisplayable& sprintsForTaskView_,
         }
     });
     connect(this, &QListView::pressed, [this]() {
-        const auto var = model()->data(currentIndex(), CustomRoles::IdRole);
-        const auto uuid = var.value<QString>();
-        if (auto p = presenter(); p) {
-            const size_t taskPos{static_cast<size_t>(currentIndex().row())};
-            p.value()->changeTaskSelection(taskPos, uuid.toStdString());
-        }
+        utils::inspect(presenter(), [&](auto* presenter) {
+            const auto var =
+                model()->data(currentIndex(), CustomRoles::ItemRole);
+            presenter->changeTaskSelection(var.value<api::TaskDTO>());
+        });
     });
     setWordWrap(true);
     setVerticalScrollMode(ScrollMode::ScrollPerPixel);
@@ -67,10 +66,17 @@ TaskView::TaskView(StandaloneDisplayable& sprintsForTaskView_,
     setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-void TaskView::selectTask(std::optional<size_t> taskIndex)
+void TaskView::selectTask(const std::optional<std::string>& uuid)
 {
-    setCurrentIndex(taskIndex ? model()->index(static_cast<int>(*taskIndex), 0)
-                              : QModelIndex{});
+    // TODO repeats TimerView::SelectTask
+    auto findIndex = [&](const std::string& id) {
+        const auto matches = model()->match(model()->index(0, 0),
+                                            CustomRoles::IdRole,
+                                            QString::fromStdString(id));
+        return matches.isEmpty() ? QModelIndex{} : matches.front();
+    };
+    const auto maybeIndex = utils::transform(uuid, findIndex);
+    setCurrentIndex(maybeIndex.value_or(QModelIndex{}));
 }
 
 void TaskView::showContextMenu(const QPoint& pos) const
@@ -79,17 +85,14 @@ void TaskView::showContextMenu(const QPoint& pos) const
     QMenu contextMenu;
     contextMenu.installEventFilter(
         std::make_unique<MouseRightReleaseEater>(&contextMenu).release());
-    const auto editEntry = "Edit";
-    const auto deleteEntry = "Delete";
-    const auto tagEditorEntry = "Tag editor";
-    const auto viewSprintsEntry = "View sprints";
-    contextMenu.addAction(editEntry);
+
+    auto* editAction = contextMenu.addAction("Edit");
     contextMenu.addSeparator();
-    contextMenu.addAction(deleteEntry);
+    auto* deleteAction = contextMenu.addAction("Delete");
     contextMenu.addSeparator();
-    contextMenu.addAction(tagEditorEntry);
+    auto* launchTagEditorAction = contextMenu.addAction("Launch Tag Editor");
     contextMenu.addSeparator();
-    contextMenu.addAction(viewSprintsEntry);
+    auto* displaySprintsAction = contextMenu.addAction("View Sprints");
 
     QAction* selectedEntry = contextMenu.exec(globalPos);
 
@@ -97,14 +100,18 @@ void TaskView::showContextMenu(const QPoint& pos) const
         return;
     }
 
-    if (selectedEntry->text() == editEntry)
+    if (selectedEntry == editAction) {
         launchTaskEditor();
-    if (selectedEntry->text() == deleteEntry)
+    }
+    if (selectedEntry == deleteAction) {
         deleteSelectedTask();
-    if (selectedEntry->text() == tagEditorEntry)
+    }
+    if (selectedEntry == launchTagEditorAction) {
         launchTagEditor();
-    if (selectedEntry->text() == viewSprintsEntry)
+    }
+    if (selectedEntry == displaySprintsAction) {
         showSprintsForTask();
+    }
 }
 
 void TaskView::launchTaskEditor() const { editTaskDialog.display(); }

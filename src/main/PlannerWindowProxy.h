@@ -23,35 +23,59 @@
 #define PLANNERWINDOWPROXY_H_3VTKAR0F
 
 #include "DisplayableLifestyleProxy.h"
+#include "qt_gui/dialogs/AddTaskDialog.h"
+#include "qt_gui/dialogs/EditTaskDialog.h"
 #include "qt_gui/models/PlannerModel.h"
+#include "qt_gui/presentation/AddTaskControl.h"
+#include "qt_gui/presentation/DateRangeSelectorContract.h"
 #include "qt_gui/presentation/PlannerContract.h"
+#include "qt_gui/presentation/TaskSelectionContext.h"
 #include "qt_gui/widgets/PlannerWindow.h"
+
+class QAbstractItemDelegate;
 
 namespace sprint_timer::compose {
 
 class PlannerWindowProxy : public DisplayableLifestyleProxy {
 public:
-    explicit PlannerWindowProxy(
-        ui::contracts::PlannerContract::Presenter& presenter_);
+    PlannerWindowProxy(ui::contracts::PlannerContract::Presenter& presenter_,
+                       QAbstractItemModel& plannerModel_,
+                       QAbstractItemDelegate& plannerItemDelegate_,
+                       ui::qt_gui::Displayable& addTaskDialog_,
+                       ui::qt_gui::Displayable& editTaskDialog_);
 
 private:
     ui::contracts::PlannerContract::Presenter& presenter;
+    QAbstractItemModel& plannerModel;
+    QAbstractItemDelegate& plannerItemDelegate;
+    ui::qt_gui::Displayable& addTaskDialog;
+    ui::qt_gui::Displayable& editTaskDialog;
 
-    std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> create() override;
+    auto create()
+        -> std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> override;
 };
 
 inline PlannerWindowProxy::PlannerWindowProxy(
-    ui::contracts::PlannerContract::Presenter& presenter_)
+    ui::contracts::PlannerContract::Presenter& presenter_,
+    QAbstractItemModel& plannerModel_,
+    QAbstractItemDelegate& plannerItemDelegate_,
+    ui::qt_gui::Displayable& addTaskDialog_,
+    ui::qt_gui::Displayable& editTaskDialog_)
     : presenter{presenter_}
+    , plannerModel{plannerModel_}
+    , plannerItemDelegate{plannerItemDelegate_}
+    , addTaskDialog{addTaskDialog_}
+    , editTaskDialog{editTaskDialog_}
 {
 }
 
-inline std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget>
-PlannerWindowProxy::create()
+inline auto PlannerWindowProxy::create()
+    -> std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget>
 {
-    auto plannerModel = std::make_unique<ui::qt_gui::PlannerModel>();
-    plannerModel->setPresenter(presenter);
-    return std::make_unique<ui::qt_gui::PlannerWindow>(std::move(plannerModel));
+    auto view = std::make_unique<ui::qt_gui::PlannerWindow>(
+        plannerModel, plannerItemDelegate, addTaskDialog, editTaskDialog);
+    view->setPresenter(presenter);
+    return view;
 }
 
 } // namespace sprint_timer::compose

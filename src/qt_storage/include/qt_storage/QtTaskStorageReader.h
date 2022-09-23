@@ -30,21 +30,23 @@ namespace sprint_timer::storage::qt_storage {
 
 class QtTaskStorageReader : public TaskStorageReader {
 public:
-    explicit QtTaskStorageReader(QString connectionName);
+    explicit QtTaskStorageReader(QString connectionName_);
 
-    std::vector<Task> unfinishedTasks() final;
+    auto unfinishedTasks() -> std::vector<Task> final;
 
-    std::vector<Task>
-    finishedTasks(const dw::DateRange& dateRange) final;
+    auto finishedTasks(const dw::DateRange& dateRange)
+        -> std::vector<Task> final;
 
-    std::vector<Task> allTasks(const dw::DateRange& dateRange) final;
+    auto allTasks(const dw::DateRange& dateRange) -> std::vector<Task> final;
 
-    std::vector<std::string> allTags() final;
+    auto allTags() -> std::vector<std::string> final;
 
-    std::vector<Task> findByUuid(const std::string& uuid) final;
+    auto findByUuid(const std::string& uuid) -> std::vector<Task> final;
 
-    std::vector<Task>
-    findMatching(std::span<const std::string> uuids) final;
+    auto findMatching(std::span<const std::string> uuids)
+        -> std::vector<Task> final;
+
+    auto taskTree() -> TaskTree final;
 
 private:
     QString connectionName;
@@ -52,7 +54,6 @@ private:
     QSqlQuery allTasksQuery;
     QSqlQuery tagsQuery;
     QSqlQuery findByUuidQuery;
-    QSqlQuery findMatchingQuery;
 };
 
 } // namespace sprint_timer::storage::qt_storage

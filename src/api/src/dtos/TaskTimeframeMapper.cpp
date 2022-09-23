@@ -25,21 +25,22 @@
 
 namespace sprint_timer::api {
 
-auto makeDTO(const TaskTimeframe& timeFrame) -> TaskTimeframeDTO
+auto TaskTimeframeMapper::convert(const TaskTimeframe& frame) const
+    -> TaskTimeframeDTO
 {
-    const auto recurrence =
-        utils::transform(timeFrame.recurrence,
-                         [](const auto& recurr) { return recurr.pattern(); });
-    return TaskTimeframeDTO{timeFrame.frame, timeFrame.remindAt, recurrence};
+    const auto recurrence = utils::transform(
+        frame.recurrence, [](const auto& recurr) { return recurr.pattern(); });
+    return TaskTimeframeDTO{frame.start, frame.due, frame.remindAt, recurrence};
 }
 
-auto fromDTO(const TaskTimeframeDTO& dto) -> TaskTimeframe
+auto TaskTimeframeMapper::convert(const TaskTimeframeDTO& dto) const
+    -> TaskTimeframe
 {
     const auto recurrence =
         utils::transform(dto.recurrence, [](const auto& pattern) {
             return Recurrence{pattern};
         });
-    return TaskTimeframe{dto.frame, dto.remindAt, recurrence};
+    return TaskTimeframe{dto.start, dto.due, dto.remindAt, recurrence};
 }
 
 } // namespace sprint_timer::api

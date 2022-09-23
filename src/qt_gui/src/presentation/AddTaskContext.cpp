@@ -19,25 +19,24 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTTASKTREESTORAGEREADER_H_AHDKRZJS
-#define QTTASKTREESTORAGEREADER_H_AHDKRZJS
+#include "qt_gui/presentation/AddTaskContext.h"
 
-#include "api/TaskStorageReader.h"
-#include "core/TaskTreeMetadataReader.h"
-#include <filesystem>
+namespace sprint_timer::ui {
 
-namespace sprint_timer::storage::qt_storage {
+AddTaskContext::AddTaskContext() = default;
 
-class QtTaskTreeReader : public TaskTreeMetadataReader {
-public:
-    explicit QtTaskTreeReader(std::filesystem::path storageDir);
+AddTaskContext::AddTaskContext(std::optional<std::string>&& parentUuid_,
+                               TaskAddMode taskAddMode_)
+    : parentTaskUuid{std::move(parentUuid_)}
+    , taskAddMode{taskAddMode_}
+{
+}
 
-    [[nodiscard]] TaskMetadataTree readTree() const override;
+auto AddTaskContext::parent() const -> const std::optional<std::string>&
+{
+    return parentTaskUuid;
+}
 
-private:
-    std::filesystem::path storageDir;
-};
+auto AddTaskContext::mode() const -> TaskAddMode { return taskAddMode; }
 
-} // namespace sprint_timer::storage::qt_storage
-
-#endif /* end of include guard: QTTASKTREESTORAGEREADER_H_AHDKRZJS */
+} // namespace sprint_timer::ui

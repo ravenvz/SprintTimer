@@ -22,6 +22,7 @@
 #ifndef DATABASEINITIALIZER_H_0M6DCEGH
 #define DATABASEINITIALIZER_H_0M6DCEGH
 
+#include "qt_storage/migrations/MigrationManager.h"
 #include <QString>
 
 namespace sprint_timer::storage::qt_storage {
@@ -29,8 +30,8 @@ namespace sprint_timer::storage::qt_storage {
 class DatabaseInitializer {
 
 public:
-    explicit DatabaseInitializer(const QString& filename);
-
+    DatabaseInitializer(const QString& filename_,
+                        const MigrationManager& migrationManager_);
 };
 
 } // namespace sprint_timer::storage::qt_storage

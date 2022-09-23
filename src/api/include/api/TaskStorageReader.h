@@ -23,6 +23,7 @@
 #define ITASKSTORAGEREADER_H_RMTKEREJ
 
 #include "core/Task.h"
+#include "core/TaskTree.h"
 #include "date_wrapper/date_wrapper.h"
 #include <functional>
 #include <span>
@@ -33,20 +34,22 @@ class TaskStorageReader {
 public:
     virtual ~TaskStorageReader() = default;
 
-    virtual std::vector<Task> unfinishedTasks() = 0;
+    virtual auto unfinishedTasks() -> std::vector<Task> = 0;
 
-    virtual std::vector<Task>
-    finishedTasks(const dw::DateRange& dateRange) = 0;
+    virtual auto finishedTasks(const dw::DateRange& dateRange)
+        -> std::vector<Task> = 0;
 
-    virtual std::vector<Task>
-    allTasks(const dw::DateRange& dateRange) = 0;
+    virtual auto allTasks(const dw::DateRange& dateRange)
+        -> std::vector<Task> = 0;
 
-    virtual std::vector<std::string> allTags() = 0;
+    virtual auto allTags() -> std::vector<std::string> = 0;
 
-    virtual std::vector<Task> findByUuid(const std::string& uuid) = 0;
+    virtual auto findByUuid(const std::string& uuid) -> std::vector<Task> = 0;
 
-    virtual std::vector<Task>
-    findMatching(std::span<const std::string> uuids) = 0;
+    virtual auto findMatching(std::span<const std::string> uuids)
+        -> std::vector<Task> = 0;
+
+    virtual auto taskTree() -> TaskTree = 0;
 };
 
 } // namespace sprint_timer

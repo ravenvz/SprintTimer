@@ -22,51 +22,46 @@
 #include "api/handlers/EditTaskHandler.h"
 #include "api/HandlerException.h"
 #include "api/actions/EditTask.h"
-#include "api/dtos/SprintMapper.h"
-#include "api/dtos/TagMapper.h"
-#include "api/dtos/TaskMapper.h"
+#include "core/utils/Algutils.h"
 #include <algorithm>
 
-namespace {
-
-} // namespace
+#include <iostream>
 
 namespace sprint_timer::api {
 
 EditTaskHandler::EditTaskHandler(TaskStorage& taskStorage_,
-                                 ActionInvoker& actionInvoker_)
+                                 ActionInvoker& actionInvoker_,
+                                 const Converter<TaskDTO, Task>& taskMapper_)
     : taskStorage{taskStorage_}
     , actionInvoker{actionInvoker_}
+    , taskMapper{taskMapper_}
 {
 }
 
 void EditTaskHandler::handle(const EditTaskCommand& command)
 {
-    const auto& editedDTO = command.editedTask;
-    auto matchingUuid = taskStorage.findByUuid(editedDTO.uuid);
+    const Task desiredTask{taskMapper(command.editedTask)};
+    const auto matchingUuid = taskStorage.findByUuid(desiredTask.uuid());
     if (matchingUuid.empty()) {
         std::string message{"Trying to edit task with uuid: "};
-        message += editedDTO.uuid;
+        message += desiredTask.uuid();
         message += " that does not exist.";
         throw HandlerException{message};
     }
-    std::vector<Tag> tags;
-    std::ranges::copy(dtoAdapter(editedDTO.tags), std::back_inserter(tags));
+
     const Task& originalTask = matchingUuid.front();
-    const Task editedTask{editedDTO.name,
-                          editedDTO.expectedCost,
-                          std::vector<Sprint>{cbegin(originalTask.sprints()),
-                                              cend(originalTask.sprints())},
-                          editedDTO.uuid,
-                          tags,
-                          originalTask.isCompleted(),
-                          dw::current_date_time_local()};
+    const Task editedTask = originalTask.edit(desiredTask);
+
+    std::cout << "Original task" << std::endl;
+    std::cout << originalTask << std::endl;
+    std::cout << "Desired task" << std::endl;
+    std::cout << desiredTask << std::endl;
+    std::cout << "Edited task" << std::endl;
+    std::cout << editedTask << std::endl;
+
     actionInvoker.execute(std::make_unique<actions::EditTask>(
         taskStorage, originalTask, editedTask));
 }
 
 } // namespace sprint_timer::api
 
-namespace {
-
-} // namespace

@@ -23,6 +23,7 @@
 #define EDITTASKCOMMAND_H_NELJHM6H
 
 #include "api/dtos/TaskDTO.h"
+#include "api/dtos/TaskTypeDTO.h"
 
 namespace sprint_timer::api {
 
@@ -40,7 +41,7 @@ std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os,
            const EditTaskCommand& command)
 {
-    os << "EditTaskCommand{" << command.editedTask;
+    os << "EditTaskCommand{" << command.editedTask << "}";
     return os;
 }
 

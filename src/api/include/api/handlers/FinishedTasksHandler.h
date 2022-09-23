@@ -22,20 +22,24 @@
 #ifndef FINISHEDTASKSHANDLER_H_FROSQWWI
 #define FINISHEDTASKSHANDLER_H_FROSQWWI
 
+#include "api/TaskStorageReader.h"
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/FinishedTasksQuery.h"
-#include "api/TaskStorageReader.h"
+#include "core/utils/Converter.h"
 
 namespace sprint_timer::api {
 
 class FinishedTasksHandler : public asp::QueryHandler<FinishedTasksQuery> {
 public:
-    explicit FinishedTasksHandler(TaskStorageReader& reader);
+    FinishedTasksHandler(TaskStorageReader& reader,
+                         const Converter<TaskDTO, Task>& taskMapper);
 
-    FinishedTasksQuery::Result handle(const FinishedTasksQuery& query) override;
+    auto handle(const FinishedTasksQuery& query)
+        -> FinishedTasksQuery::Result override;
 
 private:
     TaskStorageReader& reader;
+    const Converter<TaskDTO, Task>& taskMapper;
 };
 
 } // namespace sprint_timer::api

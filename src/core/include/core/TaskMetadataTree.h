@@ -29,8 +29,8 @@
 namespace sprint_timer {
 
 struct TaskMetadata {
-    std::string uuid;
-    TaskType taskType;
+    std::string uuid{};
+    TaskType taskType{TaskType::Regular};
 };
 
 template <class CharT, class Traits>

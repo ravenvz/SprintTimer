@@ -31,36 +31,32 @@
 
 namespace sprint_timer {
 
-struct TaskNode {
-    Task task;
-    TaskType type{TaskType::Regular};
-    std::optional<dw::DateTime> dueTime;
-    std::optional<dw::DateTime> reminder;
-    std::string notes;
+using TaskTree = Tree<std::string, Task>;
 
-    // TODO use default implementation when task notes are supported in storage
-    // friend bool operator==(const TaskNode&, const TaskNode&) = default;
-    friend bool operator==(const TaskNode& lhs, const TaskNode& rhs)
-    {
-        return lhs.task == rhs.task && lhs.type == rhs.type &&
-               lhs.dueTime == rhs.dueTime && lhs.reminder == rhs.reminder;
-    }
-};
-
-using TaskTree = Tree<std::string, TaskNode>;
-
-inline std::vector<TaskNode> immediateTasks(const TaskTree& taskTree)
+inline auto immediateTasks(const TaskTree& taskTree) -> std::vector<Task>
 {
     return taskTree.leaves();
 }
 
-inline TaskTree projects(const TaskTree& taskTree) { return TaskTree{}; }
-
-inline void insertTask(TaskTree& taskTree,
-                       const TaskNode& taskNode,
-                       const std::optional<std::string>& parent = std::nullopt)
+inline auto projects(const TaskTree& taskTree) -> TaskTree
 {
-    taskTree.addChild(taskNode.task.uuid(), taskNode, parent);
+    TaskTree subtree;
+    std::optional<std::string> parent;
+    auto fun = [&](const auto& key, const auto& payload) {
+        if (payload.kind() == TaskType::Project) {
+            subtree.addSubtree(taskTree.subTree(key), parent, std::nullopt);
+        }
+    };
+    taskTree.dfs(fun);
+    return subtree;
+}
+
+inline auto insertTask(TaskTree& taskTree,
+                       const Task& task,
+                       const std::optional<std::string>& parent = std::nullopt)
+    -> void
+{
+    taskTree.addChild(task.uuid(), task, parent);
 }
 
 // class TaskTree {

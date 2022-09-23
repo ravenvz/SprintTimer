@@ -25,7 +25,7 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-void Migration_v7::run(const QString& connectionName) const
+auto Migration_v7::run(const QString& connectionName) const -> void
 {
     QSqlQuery query{QSqlDatabase::database(connectionName)};
 
@@ -39,32 +39,35 @@ void Migration_v7::run(const QString& connectionName) const
                "ADD COLUMN deleted BOOLEAN DEFAULT 0;");
 
     tryExecute(query,
-               "CREATE TABLE IF NOT EXISTS task_temp ("
-               "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-               "uuid TEXT UNIQUE NOT NULL, "
-               "name TEXT, "
-               "estimated_cost INTEGER, "
-               "completed BOOLEAN, "
-               "last_modified DATETIME, "
-               "deleted BOOLEAN DEFAULT 0);");
+               "ALTER TABLE task "
+               "ADD COLUMN type INTEGER DEFAULT 2;");
 
-    tryExecute(
-        query,
-        "INSERT INTO task_temp(id, uuid, name, estimated_cost, completed, "
-        "last_modified, deleted)"
-        "SELECT id, uuid, name, estimated_cost, completed, last_modified, "
-        "deleted "
-        "FROM task; ");
+    // tryExecute(query,
+    //            "CREATE TABLE IF NOT EXISTS task_temp ("
+    //            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+    //            "uuid TEXT UNIQUE NOT NULL, "
+    //            "name TEXT, "
+    //            "estimated_cost INTEGER, "
+    //            "completed BOOLEAN, "
+    //            "last_modified DATETIME, "
+    //            "deleted BOOLEAN DEFAULT 0);");
 
-    tryExecute(query, "DROP TABLE task;");
-    tryExecute(query, "ALTER TABLE task_temp RENAME TO task;");
+    // tryExecute(
+    //     query,
+    //     "INSERT INTO task_temp(id, uuid, name, estimated_cost, completed, "
+    //     "last_modified, deleted, )"
+    //     "SELECT id, uuid, name, estimated_cost, completed, last_modified, "
+    //     "deleted "
+    //     "FROM task; ");
+    //
+    // tryExecute(query, "DROP TABLE task;");
+    // tryExecute(query, "ALTER TABLE task_temp RENAME TO task;");
 
     tryExecute(query,
                "CREATE TABLE IF NOT EXISTS note ("
                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                "task_id INTEGER UNIQUE NOT NULL, "
                "text STRING, "
-               "data BLOB, "
                "FOREIGN KEY (task_id) REFERENCES task(id) ON DELETE CASCADE);");
 
     tryExecute(query,
@@ -103,6 +106,10 @@ void Migration_v7::run(const QString& connectionName) const
     tryExecute(query, "ALTER TABLE sprint_temp RENAME TO sprint;");
 
     tryExecute(query,
+               "CREATE TABLE IF NOT EXISTS task_tree ("
+               "task_uuid STRING);");
+
+    tryExecute(query,
                "CREATE VIEW sprint_view AS "
                "SELECT task.id taskid, task.name, GROUP_CONCAT(tag.name) tags, "
                "start_time, finish_time "
@@ -123,8 +130,7 @@ void Migration_v7::run(const QString& connectionName) const
     tryExecute(query,
                "CREATE VIEW task_tag_view AS "
                "SELECT task.id id, task.name name, estimated_cost, completed, "
-               "tag.name tagname, "
-               "last_modified, uuid "
+               "tag.name tagname, last_modified, uuid, type "
                "FROM task "
                "JOIN tasktag on task.id = tasktag.task_id "
                "LEFT JOIN tag ON tag.id = tasktag.tag_id "
@@ -134,12 +140,12 @@ void Migration_v7::run(const QString& connectionName) const
                "CREATE VIEW task_view AS "
                "SELECT task.id task_id, task.name name, estimated_cost, "
                "completed, "
-               "GROUP_CONCAT(tag.name) tags, last_modified, uuid, "
+               "GROUP_CONCAT(tag.name) tags, last_modified, uuid, type, "
                "text, start, due, reminder, recurrence "
                "FROM task "
                "LEFT JOIN tasktag ON task.id = tasktag.task_id "
                "LEFT JOIN tag ON tasktag.tag_id = tag.id "
-               "LEFT JOIN notes ON task.id = notes.task_id "
+               "LEFT JOIN note ON task.id = note.task_id "
                "LEFT JOIN task_timeframe ON task.id = task_timeframe.task_id "
                "WHERE deleted = 0 "
                "GROUP BY task.id;");
@@ -148,11 +154,12 @@ void Migration_v7::run(const QString& connectionName) const
                "CREATE VIEW adv_task_view AS "
                "SELECT uuid, name, estimated_cost, completed, "
                "tags, last_modified, start_time, finish_time, "
-               "text, start, due, reminder, recurrence "
+               "text, start, due, reminder, recurrence, type, "
+               "task_view.task_id id "
                "FROM task_view "
                "LEFT JOIN clean_sprint_view "
-               "ON clean_sprint_view.task_id = task_view.task_id "
-               "LEFT JOIN note ON note.task_id = task_view.task_id;");
+               "ON clean_sprint_view.task_id = task_view.task_id;");
+    // "LEFT JOIN note ON note.task_id = task_view.task_id;");
 
     // "CREATE VIEW adv_task_view AS "
     // "SELECT uuid, task.name task_name, estimated_cost, completed, "
@@ -200,14 +207,39 @@ void Migration_v7::run(const QString& connectionName) const
                "DELETE FROM task "
                "WHERE id = OLD.id; END;");
 
+    tryExecute(
+        query,
+        "CREATE TRIGGER on_adv_task_view_update "
+        "INSTEAD OF UPDATE ON adv_task_view "
+        "BEGIN "
+        "UPDATE task SET name = NEW.name, estimated_cost = NEW.estimated_cost, "
+        "completed = NEW.completed, last_modified = NEW.last_modified, type = "
+        "NEW.type "
+        "WHERE id = OLD.id; "
+        "INSERT INTO note(task_id, text) "
+        "VALUES (OLD.id, NEW.text) "
+        "ON CONFLICT(task_id) DO UPDATE SET text=NEW.text; "
+        "UPDATE task_timeframe "
+        "SET start = NEW.start, due = NEW.due, reminder = NEW.reminder, "
+        "recurrence = NEW.recurrence "
+        "WHERE task_id = OLD.id;"
+        "END;");
+
     tryExecute(query,
-               "CREATE TRIGGER on_task_view_update "
-               "INSTEAD OF UPDATE ON task_view BEGIN "
-               "UPDATE task SET name = NEW.name, estimated_cost = "
-               "NEW.estimated_cost, completed = NEW.completed, "
-               "last_modified = NEW.last_modified, "
-               "deleted = OLD.deleted "
-               "WHERE id = OLD.id; END;");
+               "CREATE TRIGGER clean_empty_notes "
+               "AFTER UPDATE ON note "
+               "BEGIN "
+               "DELETE FROM note WHERE text IS NULL; "
+               "END;");
+
+    // tryExecute(query,
+    //            "CREATE TRIGGER on_task_view_update "
+    //            "INSTEAD OF UPDATE ON task_view BEGIN "
+    //            "UPDATE task SET name = NEW.name, estimated_cost = "
+    //            "NEW.estimated_cost, completed = NEW.completed, "
+    //            "last_modified = NEW.last_modified, "
+    //            "deleted = OLD.deleted "
+    //            "WHERE id = OLD.id; END;");
 
     tryExecute(query,
                "CREATE TRIGGER delete_from_sprint_view "

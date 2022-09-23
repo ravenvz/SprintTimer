@@ -29,28 +29,29 @@ namespace sprint_timer::compose {
 
 class QtTaskStorageReaderConnectionProxy : public TaskStorageReader {
 public:
-    QtTaskStorageReaderConnectionProxy(
+    explicit QtTaskStorageReaderConnectionProxy(
         ThreadConnectionHelper& connectionHelper);
 
-    std::vector<Task> unfinishedTasks() override;
+    auto unfinishedTasks() -> std::vector<Task> override;
 
-    std::vector<Task>
-    finishedTasks(const dw::DateRange& dateRange) override;
+    auto finishedTasks(const dw::DateRange& dateRange)
+        -> std::vector<Task> override;
 
-    std::vector<Task>
-    allTasks(const dw::DateRange& dateRange) override;
+    auto allTasks(const dw::DateRange& dateRange) -> std::vector<Task> override;
 
-    std::vector<std::string> allTags() override;
+    auto allTags() -> std::vector<std::string> override;
 
-    std::vector<Task> findByUuid(const std::string& uuid) override;
+    auto findByUuid(const std::string& uuid) -> std::vector<Task> override;
 
-    std::vector<Task>
-    findMatching(std::span<const std::string> uuids) override;
+    auto findMatching(std::span<const std::string> uuids)
+        -> std::vector<Task> override;
+
+    auto taskTree() -> TaskTree override;
 
 private:
     ThreadConnectionHelper& connectionHelper;
 
-    void checkStorageInteractorInitialized();
+    auto checkStorageInteractorInitialized() -> void;
 };
 
 } // namespace sprint_timer::compose

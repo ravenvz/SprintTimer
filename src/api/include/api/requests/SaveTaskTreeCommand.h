@@ -36,6 +36,16 @@ struct SaveTaskTreeCommand {
                            const SaveTaskTreeCommand&) = default;
 };
 
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os,
+           const SaveTaskTreeCommand& command)
+{
+    // os << "SaveTaskTreeCommand{**tree omitted from output**}";
+    os << "SaveTaskTreeCommand{" << command.taskTree << "}";
+    return os;
+}
+
 } // namespace sprint_timer::api
 
 #endif /* end of include guard: SAVETASKTREE_H_N4GBFEPQ */

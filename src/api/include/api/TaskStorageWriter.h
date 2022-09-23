@@ -23,6 +23,7 @@
 #define ITASKSTORAGEWRITER_H_PVAMCJ6G
 
 #include "core/Task.h"
+#include "core/TaskTree.h"
 
 namespace sprint_timer {
 
@@ -30,21 +31,22 @@ class TaskStorageWriter {
 public:
     virtual ~TaskStorageWriter() = default;
 
-    virtual void save(const Task& task) = 0;
+    virtual auto save(const Task& task) -> void = 0;
 
-    virtual void remove(const std::string& uuid) = 0;
+    virtual auto remove(const std::string& uuid) -> void = 0;
 
-    virtual void edit(const Task& oldTask,
-                      const Task& editedTask) = 0;
+    virtual auto edit(const Task& oldTask, const Task& editedTask) -> void = 0;
 
-    virtual void toggleCompleted(const std::string& uuid,
-                                 const dw::DateTime& timeStamp) = 0;
+    virtual auto toggleCompleted(const std::string& uuid,
+                                 const dw::DateTime& timeStamp) -> void = 0;
 
-    virtual void
-    updatePriorities(const std::vector<std::string>& priorities) = 0;
+    virtual auto updatePriorities(const std::vector<std::string>& priorities)
+        -> void = 0;
 
-    virtual void editTag(const std::string& oldName,
-                         const std::string& newName) = 0;
+    virtual auto editTag(const std::string& oldName, const std::string& newName)
+        -> void = 0;
+
+    virtual auto saveTree(const TaskTree& taskTree) -> void = 0;
 };
 
 } // namespace sprint_timer

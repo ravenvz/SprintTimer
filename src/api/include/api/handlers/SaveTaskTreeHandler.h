@@ -22,23 +22,26 @@
 #ifndef SAVETASKTREEHANDLER_H_K84IJWNM
 #define SAVETASKTREEHANDLER_H_K84IJWNM
 
+#include "api/ActionInvoker.h"
+#include "api/TaskStorage.h"
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/SaveTaskTreeCommand.h"
-#include "api/ActionInvoker.h"
-#include "core/TaskTreeMetadataStorage.h"
+#include "core/utils/Converter.h"
 
 namespace sprint_timer::api {
 
 class SaveTaskTreeHandler : public asp::CommandHandler<SaveTaskTreeCommand> {
 public:
-    SaveTaskTreeHandler(TaskTreeMetadataStorage& taskTreeStorage_,
-                        ActionInvoker& actionInvoker_);
+    SaveTaskTreeHandler(TaskStorage& taskStorage_,
+                        ActionInvoker& actionInvoker_,
+                        const Converter<TaskTreeDTO, TaskTree>& taskTreeMapper);
 
     void handle(const SaveTaskTreeCommand& command) override;
 
 private:
-    TaskTreeMetadataStorage& taskTreeStorage;
+    TaskStorage& taskStorage;
     ActionInvoker& actionInvoker;
+    const Converter<TaskTreeDTO, TaskTree>& taskTreeMapper;
 };
 
 } // namespace sprint_timer::api

@@ -31,30 +31,29 @@
 namespace sprint_timer::api {
 
 struct TaskTimeframeDTO {
-    dw::DateTimeRange frame;
+    dw::DateTime start{dw::current_date_time_local()};
+    std::optional<dw::DateTime> due;
     std::optional<dw::DateTime> remindAt{};
     std::optional<std::string> recurrence{};
-
-    friend bool operator==(const TaskTimeframeDTO& lhs,
-                           const TaskTimeframeDTO& rhs)
-    {
-        auto date_time_equal = [](const auto& left, const auto& right) {
-            return std::tuple(left.date(),
-                              left.hour(),
-                              left.minute(),
-                              left.second()) == std::tuple(right.date(),
-                                                           right.hour(),
-                                                           right.minute(),
-                                                           right.second());
-        };
-        return date_time_equal(lhs.frame.start(), rhs.frame.start()) &&
-               date_time_equal(lhs.frame.finish(), rhs.frame.finish()) &&
-               lhs.recurrence == rhs.recurrence &&
-               ((!lhs.remindAt && !rhs.remindAt) ||
-                (lhs.remindAt && rhs.remindAt &&
-                 date_time_equal(*lhs.remindAt, *rhs.remindAt)));
-    }
 };
+
+inline auto operator==(const TaskTimeframeDTO& lhs, const TaskTimeframeDTO& rhs)
+    -> bool
+{
+    auto date_time_equal = [](const auto& left, const auto& right) {
+        return std::tuple(
+                   left.date(), left.hour(), left.minute(), left.second()) ==
+               std::tuple(
+                   right.date(), right.hour(), right.minute(), right.second());
+    };
+    return date_time_equal(lhs.start, rhs.start) &&
+           ((!lhs.due && !rhs.due) ||
+            (lhs.due && rhs.due && date_time_equal(*lhs.due, *rhs.due))) &&
+           lhs.recurrence == rhs.recurrence &&
+           ((!lhs.remindAt && !rhs.remindAt) ||
+            (lhs.remindAt && rhs.remindAt &&
+             date_time_equal(*lhs.remindAt, *rhs.remindAt)));
+}
 
 } // namespace sprint_timer::api
 

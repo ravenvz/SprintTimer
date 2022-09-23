@@ -23,6 +23,8 @@
 #define QTOPERATIONALRANGEREADER_H_MNEJCZ5Y
 
 #include "api/OperationalRangeReader.h"
+#include "qt_storage/utils/DateTimeConverter.h"
+
 #include <QString>
 
 namespace sprint_timer::storage::qt_storage {
@@ -32,16 +34,20 @@ public:
     explicit QtOperationalRangeReader(QString connectionName);
 
     QtOperationalRangeReader(QtOperationalRangeReader&&) = delete;
-    QtOperationalRangeReader& operator=(QtOperationalRangeReader&&) = delete;
 
     QtOperationalRangeReader(const QtOperationalRangeReader&) = delete;
-    QtOperationalRangeReader&
-    operator=(const QtOperationalRangeReader&) = delete;
 
-    dw::DateRange operationalRange() final;
+    auto operator=(const QtOperationalRangeReader&)
+        -> QtOperationalRangeReader& = delete;
+
+    auto operator=(QtOperationalRangeReader&&)
+        -> QtOperationalRangeReader& = delete;
+
+    auto operationalRange() -> dw::DateRange final;
 
 private:
     QString connectionName;
+    sprint_timer::storage::utils::DateConverter dateConverter;
 };
 
 } // namespace sprint_timer::storage::qt_storage

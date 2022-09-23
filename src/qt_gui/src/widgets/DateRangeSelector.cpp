@@ -20,11 +20,11 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/DateRangeSelector.h"
+#include "QtCore/qdatetime.h"
+#include "QtCore/qstringlistmodel.h"
 #include "qt_gui/dialogs/DateRangePickDialog.h"
 #include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_date_range_picker.h"
-#include "QtCore/qdatetime.h"
-#include "QtCore/qstringlistmodel.h"
 #include <algorithm>
 #include <iterator>
 #include <memory>
@@ -112,10 +112,11 @@ void DateRangeSelector::updateSelectionHintLabel()
 {
     // using QDate instead of dw::date here when converting to string
     // provides date localization
+    const utils::DateConverter dateConverter;
     ui->labelSelectionHint->setText(
         QString{"%1 - %2"}
-            .arg(utils::toQDate(selectedDateRange.start()).toString())
-            .arg(utils::toQDate(selectedDateRange.finish()).toString()));
+            .arg(dateConverter(selectedDateRange.start()).toString())
+            .arg(dateConverter(selectedDateRange.finish()).toString()));
 }
 
 void DateRangeSelector::openDatePickDialog()

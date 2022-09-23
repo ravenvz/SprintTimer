@@ -66,7 +66,7 @@ QueryT::Result ErrorReportingQueryHandler<QueryT>::handle(const QueryT& request)
     }
     catch (SprintTimerException& exc) {
         QMessageBox msgBox;
-        msgBox.setText("Exception when handling command");
+        msgBox.setText("Exception when handling query");
         msgBox.setInformativeText(exc.what());
         msgBox.exec();
         throw;
@@ -74,7 +74,7 @@ QueryT::Result ErrorReportingQueryHandler<QueryT>::handle(const QueryT& request)
     catch (std::exception& exc) {
         QMessageBox msgBox;
         std::stringstream ss;
-        msgBox.setText("Exception when handling request");
+        msgBox.setText("Exception when handling query");
         ss << request << " \n with description: " << exc.what();
         msgBox.setText(QString::fromStdString(ss.str()));
         msgBox.exec();

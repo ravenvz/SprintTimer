@@ -27,22 +27,28 @@ TestCommandHandlerComposer::TestCommandHandlerComposer(
     ActionInvoker& actionInvoker_,
     TaskStorage& taskStorage_,
     SprintStorage& sprintStorage_,
-    TaskTreeMetadataStorage& taskTreeStorage_,
     WorkScheduleWriter& scheduleStorage_,
     api::UUIDGenerator& generator_,
-    api::DateTimeProvider& dateTimeProvider_)
-    : createTask{std::make_unique<api::CreateTaskHandler>(
-          taskStorage_, actionInvoker_, generator_, dateTimeProvider_)}
+    api::DateTimeProvider& dateTimeProvider_,
+    const Converter<api::TaskDTO, Task>& taskMapper_,
+    // const Converter<std::string, Tag>& tagMapper_,
+    const Converter<dw::DateTimeRange, Sprint>& sprintMapper_,
+    const Converter<api::TaskTreeDTO, TaskTree>& taskTreeMapper_)
+    : createTask{std::make_unique<api::CreateTaskHandler>(taskStorage_,
+                                                          actionInvoker_,
+                                                          generator_,
+                                                          dateTimeProvider_,
+                                                          taskMapper_)}
     , deleteTask{taskStorage_, actionInvoker_}
     , registerSprintBulk{std::make_unique<api::RegisterSprintBulkHandler>(
-          taskStorage_, sprintStorage_, actionInvoker_)}
+          taskStorage_, sprintStorage_, actionInvoker_, sprintMapper_)}
     , toggleTaskCompleted{taskStorage_, actionInvoker_}
     , deleteSprint{sprintStorage_, actionInvoker_}
-    , editTask{taskStorage_, actionInvoker_}
+    , editTask{taskStorage_, actionInvoker_, taskMapper_}
     , reorderTasks{taskStorage_, actionInvoker_}
     , renameTag{taskStorage_, actionInvoker_}
     , changeSchedule{scheduleStorage_, actionInvoker_}
-    , saveTaskTree{taskTreeStorage_, actionInvoker_}
+    , saveTaskTree{taskStorage_, actionInvoker_, taskTreeMapper_}
     , undo{actionInvoker_}
 {
 }

@@ -93,10 +93,12 @@ namespace sprint_timer::api {
 RegisterSprintBulkHandler::RegisterSprintBulkHandler(
     TaskStorageReader& taskReader_,
     SprintStorage& sprintStorage_,
-    ActionInvoker& actionInvoker_)
+    ActionInvoker& actionInvoker_,
+    const Converter<dw::DateTimeRange, Sprint>& sprintMapper_)
     : taskReader{taskReader_}
     , sprintStorage{sprintStorage_}
     , actionInvoker{actionInvoker_}
+    , sprintMapper{sprintMapper_}
 {
 }
 
@@ -104,7 +106,7 @@ void RegisterSprintBulkHandler::handle(const RegisterSprintBulkCommand& command)
 {
     std::vector<Sprint> sprints;
     sprints.reserve(command.intervals.size());
-    std::ranges::copy(dtoAdapter(command.intervals),
+    std::ranges::copy(sprintMapper(command.intervals),
                       std::back_inserter(sprints));
 
     if (sprints.empty()) {

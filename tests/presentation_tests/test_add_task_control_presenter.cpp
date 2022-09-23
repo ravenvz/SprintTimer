@@ -27,6 +27,8 @@
 
 using namespace sprint_timer;
 
+using sprint_timer::api::TaskTimeframeDTO;
+using sprint_timer::api::TaskTypeDTO;
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
@@ -50,16 +52,25 @@ TEST_F(AddTaskControlPresenterFixture, invokes_handler_to_add_task_given_dto)
     using namespace sprint_timer;
     const dw::DateTime someModificationStamp{dw::current_date_time()};
     const sprint_timer::api::TaskDTO details{"123",
-                                                {"Tag 1", "Tag 2"},
-                                                "SomeTask",
-                                                4,
-                                                {},
-                                                false,
-                                                someModificationStamp};
+                                             {"Tag 1", "Tag 2"},
+                                             "SomeTask",
+                                             4,
+                                             {},
+                                             false,
+                                             someModificationStamp,
+                                             std::nullopt,
+                                             TaskTimeframeDTO{},
+                                             TaskTypeDTO::Regular};
 
     EXPECT_CALL(createTaskHandler,
-                handle(api::CreateTaskCommand{
-                    details.name, details.tags, details.expectedCost}));
+                handle(api::CreateTaskCommand{details.name,
+                                              details.tags,
+                                              details.expectedCost,
+                                              TaskTypeDTO::Regular,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              TaskTimeframeDTO{}}));
 
     sut.addTask(details);
 }
@@ -67,9 +78,15 @@ TEST_F(AddTaskControlPresenterFixture, invokes_handler_to_add_task_given_dto)
 TEST_F(AddTaskControlPresenterFixture,
        adds_task_from_decoded_description_with_all_parts_present)
 {
-    EXPECT_CALL(
-        createTaskHandler,
-        handle(api::CreateTaskCommand{"All parts present", {"Test"}, 5}));
+    EXPECT_CALL(createTaskHandler,
+                handle(api::CreateTaskCommand{"All parts present",
+                                              {"Test"},
+                                              5,
+                                              TaskTypeDTO::Regular,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              TaskTimeframeDTO{}}));
 
     sut.addTask("#Test All parts present *5");
 }
@@ -79,7 +96,14 @@ TEST_F(
     adds_task_with_default_estimated_cost_when_it_missing_in_encoded_description)
 {
     EXPECT_CALL(createTaskHandler,
-                handle(api::CreateTaskCommand{"Task with tag", {"Test"}, 1}));
+                handle(api::CreateTaskCommand{"Task with tag",
+                                              {"Test"},
+                                              1,
+                                              TaskTypeDTO::Regular,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              TaskTimeframeDTO{}}));
 
     sut.addTask("#Test Task with tag");
 }
@@ -88,8 +112,14 @@ TEST_F(AddTaskControlPresenterFixture,
        adds_task_when_there_are_no_tags_in_encoded_description)
 {
     EXPECT_CALL(createTaskHandler,
-                handle(api::CreateTaskCommand{
-                    "Simple task", std::vector<std::string>{}, 2}));
+                handle(api::CreateTaskCommand{"Simple task",
+                                              std::vector<std::string>{},
+                                              2,
+                                              TaskTypeDTO::Regular,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              TaskTimeframeDTO{}}));
 
     sut.addTask("Simple task *2");
 }
@@ -98,7 +128,14 @@ TEST_F(AddTaskControlPresenterFixture,
        adds_task_when_there_is_no_name_in_encoded_description)
 {
     EXPECT_CALL(createTaskHandler,
-                handle(api::CreateTaskCommand{"", {"Tag", "Test"}, 44}));
+                handle(api::CreateTaskCommand{"",
+                                              {"Tag", "Test"},
+                                              44,
+                                              TaskTypeDTO::Regular,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              TaskTimeframeDTO{}}));
 
     sut.addTask("#Tag #Test *44");
 }
@@ -107,8 +144,14 @@ TEST_F(AddTaskControlPresenterFixture,
        adds_task_taking_only_last_encoded_cost_estimation)
 {
     EXPECT_CALL(createTaskHandler,
-                handle(api::CreateTaskCommand{
-                    "Multiple estimated", std::vector<std::string>{}, 9}));
+                handle(api::CreateTaskCommand{"Multiple estimated",
+                                              std::vector<std::string>{},
+                                              9,
+                                              TaskTypeDTO::Regular,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              std::nullopt,
+                                              TaskTimeframeDTO{}}));
 
     sut.addTask("Multiple estimated *5 *9");
 }
@@ -116,10 +159,16 @@ TEST_F(AddTaskControlPresenterFixture,
 TEST_F(AddTaskControlPresenterFixture,
        adds_task_only_treating_words_preceeded_by_single_hash_as_tags)
 {
-    EXPECT_CALL(
-        createTaskHandler,
-        handle(api::CreateTaskCommand{
-            "##My # ## beautiful,marvelous, great content", {"tag1"}, 1}));
+    EXPECT_CALL(createTaskHandler,
+                handle(api::CreateTaskCommand{
+                    "##My # ## beautiful,marvelous, great content",
+                    {"tag1"},
+                    1,
+                    TaskTypeDTO::Regular,
+                    std::nullopt,
+                    std::nullopt,
+                    std::nullopt,
+                    TaskTimeframeDTO{}}));
 
     sut.addTask("##My #tag1  #   ##    beautiful,marvelous, great   content");
 }

@@ -66,8 +66,9 @@ TaskItemDelegate::TaskItemDelegate(QObject* parent)
 QSize TaskItemDelegate::sizeHint(const QStyleOptionViewItem& option,
                                  const QModelIndex& index) const
 {
-    if (!index.isValid())
-        return QSize();
+    if (!index.isValid()) {
+        return {};
+    }
 
     const auto [statsRect, tagsRect, descrRect] = textRectangles(option, index);
     return QSize{option.rect.width(),

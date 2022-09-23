@@ -24,13 +24,18 @@
 
 #include "api/dtos/TaskTypeDTO.h"
 #include "core/TaskType.h"
+#include "core/utils/Converter.h"
 
 namespace sprint_timer::api {
 
-auto makeDTO(sprint_timer::TaskType taskType) -> sprint_timer::api::TaskTypeDTO;
+class TaskTypeMapper : public Converter<TaskTypeDTO, TaskType> {
+private:
+    [[nodiscard]] auto convert(const TaskType& kind) const
+        -> TaskTypeDTO override;
 
-auto fromDTO(const sprint_timer::api::TaskTypeDTO& taskType)
-    -> sprint_timer::TaskType;
+    [[nodiscard]] auto convert(const TaskTypeDTO& dto) const
+        -> TaskType override;
+};
 
 } // namespace sprint_timer::api
 

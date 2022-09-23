@@ -22,21 +22,25 @@
 #ifndef REQUESTSPRINTSHANDLER_H_R5ERSYHK
 #define REQUESTSPRINTSHANDLER_H_R5ERSYHK
 
+#include "api/SprintStorageReader.h"
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/RequestSprintsQuery.h"
-#include "api/SprintStorageReader.h"
+#include "core/utils/Converter.h"
 
 namespace sprint_timer::api {
 
 class RequestSprintsHandler : public asp::QueryHandler<RequestSprintsQuery> {
 public:
-    explicit RequestSprintsHandler(SprintStorageReader& reader_);
+    explicit RequestSprintsHandler(
+        SprintStorageReader& reader_,
+        const Converter<SprintDTO, SprintRecord>& sprintMapper_);
 
     RequestSprintsQuery::Result
     handle(const RequestSprintsQuery& query) override;
 
 private:
     SprintStorageReader& reader;
+    const Converter<SprintDTO, SprintRecord>& sprintMapper;
 };
 
 } // namespace sprint_timer::api

@@ -20,22 +20,23 @@
 **
 *********************************************************************************/
 #include "api/handlers/FinishedTasksHandler.h"
-#include "api/dtos/TaskMapper.h"
 
 namespace sprint_timer::api {
 
-FinishedTasksHandler::FinishedTasksHandler(TaskStorageReader& reader_)
+FinishedTasksHandler::FinishedTasksHandler(
+    TaskStorageReader& reader_, const Converter<TaskDTO, Task>& taskMapper_)
     : reader{reader_}
+    , taskMapper{taskMapper_}
 {
 }
 
-FinishedTasksQuery::Result
-FinishedTasksHandler::handle(const FinishedTasksQuery& query)
+auto FinishedTasksHandler::handle(const FinishedTasksQuery& query)
+    -> FinishedTasksQuery::Result
 {
     const auto tasks = reader.finishedTasks(query.dateRange);
     std::vector<TaskDTO> result;
     result.reserve(tasks.size());
-    std::ranges::copy(dtoAdapter(tasks), std::back_inserter(result));
+    std::ranges::copy(taskMapper(tasks), std::back_inserter(result));
     return result;
 }
 

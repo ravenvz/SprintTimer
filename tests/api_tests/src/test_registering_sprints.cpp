@@ -49,7 +49,14 @@ public:
 
 TEST_F(RegisteringSprintsFixture, registers_sprints)
 {
-    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 5});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1"},
+                                               5,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const DateTimeRange range{current_date_time_local(),
@@ -62,7 +69,10 @@ TEST_F(RegisteringSprintsFixture, registers_sprints)
                            5,
                            intervals,
                            false,
-                           current_date_time_local()};
+                           current_date_time_local(),
+                           std::nullopt,
+                           TaskTimeframeDTO{},
+                           TaskTypeDTO::Regular};
 
     registerSprintsHandler.handle(
         RegisterSprintBulkCommand{taskUuid, intervals});
@@ -74,7 +84,14 @@ TEST_F(RegisteringSprintsFixture, registers_sprints)
 TEST_F(RegisteringSprintsFixture, undoing_registering_sprints)
 {
 
-    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 5});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1"},
+                                               5,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const DateTimeRange range{current_date_time_local(),
@@ -87,7 +104,10 @@ TEST_F(RegisteringSprintsFixture, undoing_registering_sprints)
                            5,
                            {},
                            false,
-                           current_date_time_local()};
+                           current_date_time_local(),
+                           std::nullopt,
+                           TaskTimeframeDTO{},
+                           TaskTypeDTO::Regular};
 
     registerSprintsHandler.handle(
         RegisterSprintBulkCommand{taskUuid, intervals});
@@ -102,9 +122,22 @@ TEST_F(RegisteringSprintsFixture,
 {
     const DateTimeRange range{current_date_time_local(),
                               current_date_time_local() + 25min};
-    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 15});
-    createTaskHandler.handle(
-        CreateTaskCommand{"Another task", {"SomeTag", "AnotherTag"}, 7});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1"},
+                                               15,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Another task",
+                                               {"SomeTag", "AnotherTag"},
+                                               7,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuids = activeTasksHandler.handle(ActiveTasksQuery{});
     registerSprintsHandler.handle(RegisterSprintBulkCommand{
         taskUuids[0].uuid, {range, add_offset(range, 25min)}});
@@ -123,7 +156,14 @@ TEST_F(
 {
     const DateTimeRange range{current_date_time_local(),
                               current_date_time_local() + 25min};
-    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 15});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1"},
+                                               15,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuids = activeTasksHandler.handle(ActiveTasksQuery{});
 
     ASSERT_THROW(registerSprintsHandler.handle(RegisterSprintBulkCommand{

@@ -23,7 +23,6 @@
 #include "qt_gui/dialogs/AddExceptionalDayDialog.h"
 #include "qt_gui/models/ExtraDayModel.h"
 #include "qt_gui/models/WeekScheduleModel.h"
-#include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_workdays_dialog.h"
 #include <QAbstractItemModel>
 
@@ -38,8 +37,10 @@ namespace {
  * It should be noted that all model data is removed and refilled, one
  * should be careful to supress/disconnect signals it is required. */
 template <typename First, typename Second>
-void replaceModelContent(QAbstractItemModel& model,
-                         const std::vector<std::pair<First, Second>>& data);
+void replaceModelContent(
+    QAbstractItemModel& model,
+    const std::vector<std::pair<First, Second>>& data,
+    const sprint_timer::Converter<QDate, dw::Date>& dateConverter);
 
 constexpr size_t daysInWeek{7};
 
@@ -158,7 +159,7 @@ void WorkScheduleEditor::displayRoaster(
                        auto [dwDate, scheduleString] = elem;
                        return {dwDate, QString::fromStdString(scheduleString)};
                    });
-    replaceModelContent(*roasterModel, data_);
+    replaceModelContent(*roasterModel, data_, dateConverter);
     connect(roasterModel.get(),
             &QAbstractItemModel::rowsAboutToBeRemoved,
             this,
@@ -170,7 +171,7 @@ void WorkScheduleEditor::displayRoaster(
 void WorkScheduleEditor::displayExceptionalDays(
     const std::vector<WorkSchedule::DateGoal>& exceptionalDays)
 {
-    replaceModelContent(*exceptionalDaysModel, exceptionalDays);
+    replaceModelContent(*exceptionalDaysModel, exceptionalDays, dateConverter);
 }
 
 void WorkScheduleEditor::displayAddExceptionalDaysDialog(
@@ -205,7 +206,7 @@ void WorkScheduleEditor::reject()
 
 void WorkScheduleEditor::addSchedule()
 {
-    const auto date = utils::toDate(ui->dateEditScheduleDate->date());
+    const auto date = dateConverter(ui->dateEditScheduleDate->date());
     if (auto p = presenter(); p) {
         p.value()->onWeekScheduleAdded(pollSchedule(), date);
     }
@@ -234,12 +235,13 @@ void WorkScheduleEditor::onExcDayAboutToBeRemoved(const QModelIndex&,
 {
     if (auto p = presenter(); p) {
         auto* model = ui->listViewExceptionalDays->model();
-        if (!model)
+        if (model == nullptr) {
             return;
+        }
         const auto entry = model->data(model->index(first, 0), Qt::EditRole)
                                .value<QPair<QDate, int>>();
         QSignalBlocker signalBlocker{model};
-        p.value()->onExceptionalDayRemoved(utils::toDate(entry.first));
+        p.value()->onExceptionalDayRemoved(dateConverter(entry.first));
     }
 }
 
@@ -251,7 +253,7 @@ void WorkScheduleEditor::onScheduleRemovedFromModel(const QModelIndex&,
         auto* model = ui->listViewSchedules->model();
         const auto entry = model->data(model->index(first, 0), Qt::EditRole)
                                .value<QPair<QDate, QString>>();
-        p.value()->onWeekScheduleRemoved(utils::toDate(entry.first));
+        p.value()->onWeekScheduleRemoved(dateConverter(entry.first));
     }
 }
 
@@ -260,16 +262,17 @@ void WorkScheduleEditor::onScheduleRemovedFromModel(const QModelIndex&,
 namespace {
 
 template <typename First, typename Second>
-void replaceModelContent(QAbstractItemModel& model,
-                         const std::vector<std::pair<First, Second>>& data)
+void replaceModelContent(
+    QAbstractItemModel& model,
+    const std::vector<std::pair<First, Second>>& data,
+    const sprint_timer::Converter<QDate, dw::Date>& dateConverter)
 {
-    using sprint_timer::ui::qt_gui::utils::toQDate;
     model.removeRows(0, model.rowCount());
     model.insertRows(0, static_cast<int>(data.size()));
     for (size_t row = 0; row < data.size(); ++row) {
         const auto& [date, payload] = data[row];
         QVariant entry;
-        entry.setValue(QPair<QDate, Second>{toQDate(date), payload});
+        entry.setValue(QPair<QDate, Second>{dateConverter(date), payload});
         model.setData(model.index(static_cast<int>(row), 0), entry);
     }
 }

@@ -51,16 +51,18 @@ DateRangePickDialog::DateRangePickDialog(dw::Weekday firstDayOfWeek,
         ui->cwStart->setFirstDayOfWeek(Qt::Sunday);
         ui->cwEnd->setFirstDayOfWeek(Qt::Sunday);
     }
-    ui->dePickStartDate->setDate(utils::toQDate(dateRange.start()));
-    ui->dePickEndDate->setDate(utils::toQDate(dateRange.finish()));
+    const utils::DateConverter dateConverter;
+    ui->dePickStartDate->setDate(dateConverter(dateRange.start()));
+    ui->dePickEndDate->setDate(dateConverter(dateRange.finish()));
 }
 
 DateRangePickDialog::~DateRangePickDialog() = default;
 
 dw::DateRange DateRangePickDialog::selectedRange()
 {
-    return dw::DateRange{utils::toDate(ui->cwStart->selectedDate()),
-                         utils::toDate(ui->cwEnd->selectedDate())};
+    const utils::DateConverter dateConverter;
+    return dw::DateRange{dateConverter(ui->cwStart->selectedDate()),
+                         dateConverter(ui->cwEnd->selectedDate())};
 }
 
 } // namespace sprint_timer::ui::qt_gui

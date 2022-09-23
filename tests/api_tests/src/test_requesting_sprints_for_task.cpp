@@ -55,10 +55,22 @@ public:
 TEST_F(SprintsForTaskFixture, all_sprints_for_specific_task)
 {
     using namespace std::chrono_literals;
-    createTaskHandler.handle(
-        CreateTaskCommand{"First task", {"Tag1", "Tag2"}, 8});
-    createTaskHandler.handle(
-        CreateTaskCommand{"Another task", {"Tag2", "Tag3"}, 4});
+    createTaskHandler.handle(CreateTaskCommand{"First task",
+                                               {"Tag1", "Tag2"},
+                                               8,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Another task",
+                                               {"Tag2", "Tag3"},
+                                               4,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
     std::vector<std::string> uuids(2, "");
     std::transform(cbegin(activeTasks),

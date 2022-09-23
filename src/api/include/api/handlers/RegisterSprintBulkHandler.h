@@ -24,15 +24,18 @@
 #include "api/TaskStorageReader.h"
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/RegisterSprintBulkCommand.h"
+#include "core/utils/Converter.h"
 
 namespace sprint_timer::api {
 
 class RegisterSprintBulkHandler
     : public asp::CommandHandler<RegisterSprintBulkCommand> {
 public:
-    RegisterSprintBulkHandler(TaskStorageReader& taskReader,
-                              SprintStorage& sprintStorage,
-                              ActionInvoker& actionInvoker);
+    RegisterSprintBulkHandler(
+        TaskStorageReader& taskReader,
+        SprintStorage& sprintStorage,
+        ActionInvoker& actionInvoker,
+        const Converter<dw::DateTimeRange, Sprint>& sprintMapper);
 
     void handle(const RegisterSprintBulkCommand& command) override;
 
@@ -40,6 +43,7 @@ private:
     TaskStorageReader& taskReader;
     SprintStorage& sprintStorage;
     ActionInvoker& actionInvoker;
+    const Converter<dw::DateTimeRange, Sprint>& sprintMapper;
 
     void throwIfTaskDoesNotExist(const std::string& taskUuid);
 };

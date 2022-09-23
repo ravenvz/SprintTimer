@@ -49,7 +49,7 @@ public:
 
     void updateTimerValue(std::chrono::seconds currentValue) override;
 
-    void selectTask(size_t taskIndex) override;
+    void selectTask(const std::optional<std::string>& uuid) override;
 
     void
     submitSprints(const std::vector<dw::DateTimeRange>& timeIntervals) override;

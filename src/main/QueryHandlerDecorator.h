@@ -35,36 +35,18 @@ decorate_query(std::unique_ptr<asp::RequestHandler<QueryT>> wrapped,
                std::ostream& os,
                ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator)
 {
+    // NOTE inner handlers are on top
     auto cacheAwareHandler = std::make_unique<CacheAwareQueryHandler<QueryT>>(
         std::move(wrapped), cacheInvalidationMediator);
     auto profilingHandler = std::make_unique<ProfilingRequestHandler<QueryT>>(
         std::move(cacheAwareHandler), os);
+    auto verboseHandler = std::make_unique<VerboseRequestHandler<QueryT>>(
+        std::move(profilingHandler), os);
     auto errorReportingHandler =
         std::make_unique<ErrorReportingQueryHandler<QueryT>>(
-            std::move(profilingHandler));
+            std::move(verboseHandler));
     return errorReportingHandler;
 }
-
-// template <asp::Query QueryT>
-// std::unique_ptr<asp::RequestHandler<QueryT>>
-// decorate_query(std::unique_ptr<asp::RequestHandler<QueryT>> wrapped,
-// std::ostream& os)
-//{
-//     return std::make_unique<asp::RequestHandler<QueryT>>(
-//         std::make_unique<ProfilingRequestHandler<QueryT>>(std::move(wrapped),
-//         os), os);
-//     // return std::make_unique<sprint_timer::VerboseQueryHandler<QueryT>>(
-//     //     std::move(wrapped), os);
-// }
-//
-// template <asp::Query QueryT>
-// std::unique_ptr<asp::RequestHandler<QueryT>>
-// decorate_query(std::unique_ptr<asp::RequestHandler<QueryT>> wrapped,
-//          ui::Mediator<ui::Invalidatable>& cacheInvalidationMediator)
-//{
-//     return std::make_unique<CacheAwareQueryHandler<QueryT>>(
-//         std::move(wrapped), cacheInvalidationMediator);
-// }
 
 } // namespace sprint_timer::compose
 

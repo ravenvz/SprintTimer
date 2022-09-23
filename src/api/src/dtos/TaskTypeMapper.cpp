@@ -23,37 +23,37 @@
 
 namespace sprint_timer::api {
 
-auto makeDTO(TaskType taskType) -> TaskTypeDTO
+auto TaskTypeMapper::convert(const TaskType& kind) const -> TaskTypeDTO
 {
     using enum TaskType;
 
-    switch (taskType) {
+    switch (kind) {
     case Project:
         return TaskTypeDTO::Project;
     case Folder:
         return TaskTypeDTO::Folder;
     case Regular:
         return TaskTypeDTO::Regular;
-    };
-
-    return TaskTypeDTO::Regular;
+    default:
+        throw std::runtime_error{"TaskTypeMapper: wrong enum type"};
+    }
 }
 
-auto fromDTO(const TaskTypeDTO& taskType) -> TaskType
+auto TaskTypeMapper::convert(const TaskTypeDTO& dto) const -> TaskType
 {
+
     using enum TaskTypeDTO;
 
-    switch (taskType) {
+    switch (dto) {
     case Project:
         return TaskType::Project;
-        break;
     case Folder:
         return TaskType::Folder;
     case Regular:
         return TaskType::Regular;
-    };
-
-    return TaskType::Regular;
+    default:
+        throw std::runtime_error{"TaskTypeMapper: wrong enum type"};
+    }
 }
 
 } // namespace sprint_timer::api

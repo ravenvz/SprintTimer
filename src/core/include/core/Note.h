@@ -35,6 +35,8 @@ public:
 
     [[nodiscard]] auto textNotes() const -> std::string;
 
+    friend auto operator==(const Note&, const Note&) -> bool = default;
+
 private:
     std::string note;
 };

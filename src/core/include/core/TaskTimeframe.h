@@ -23,16 +23,33 @@
 #define TASKTIMEFRAME_H_TJRHDXEA
 
 #include "core/Recurrence.h"
+#include "core/utils/Algutils.h"
 #include "date_wrapper/date_wrapper.h"
 #include <optional>
 
 namespace sprint_timer {
 
 struct TaskTimeframe {
-    dw::DateTimeRange frame;
+    dw::DateTime start{dw::current_date_time_local()};
+    std::optional<dw::DateTime> due;
     std::optional<dw::DateTime> remindAt;
     std::optional<Recurrence> recurrence;
 };
+
+inline auto operator==(const TaskTimeframe& lhs, const TaskTimeframe& rhs)
+    -> bool
+{
+    auto date_time_equal = [](const auto& left, const auto& right) {
+        return std::tuple(
+                   left.date(), left.hour(), left.minute(), left.second()) ==
+               std::tuple(
+                   right.date(), right.hour(), right.minute(), right.second());
+    };
+    return date_time_equal(lhs.start, rhs.start) &&
+           utils::opt_equal(lhs.due, rhs.due, date_time_equal) &&
+           lhs.recurrence == rhs.recurrence &&
+           utils::opt_equal(lhs.remindAt, rhs.remindAt, date_time_equal);
+}
 
 } // namespace sprint_timer
 

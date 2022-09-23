@@ -19,42 +19,46 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ADDTASKDIALOGPROXY_H_JMC1VRX7
-#define ADDTASKDIALOGPROXY_H_JMC1VRX7
+#ifndef ADDTASKDIALOGLIFESTYLEPROXY_H_FWLS94SN
+#define ADDTASKDIALOGLIFESTYLEPROXY_H_FWLS94SN
 
 #include "DisplayableDialogLifestyleProxy.h"
+#include "api/IConfig.h"
 #include "qt_gui/dialogs/AddTaskDialog.h"
-#include "qt_gui/presentation/AddTaskControl.h"
+#include "qt_gui/presentation/AddTaskDialogContract.h"
 
 namespace sprint_timer::compose {
 
-class AddTaskDialogProxy : public DisplaybleDialogLifestyleProxy {
+class AddTaskDialogLifestyleProxy : public DisplaybleDialogLifestyleProxy {
 public:
-    AddTaskDialogProxy(
-        sprint_timer::ui::contracts::AddTaskControl::Presenter& presenter,
-        QAbstractItemModel& tagModel);
+    AddTaskDialogLifestyleProxy(
+        ui::contracts::AddTaskDialogContract::Presenter& presenter,
+        api::IConfig& settings);
+
+    auto create() -> std::unique_ptr<ui::qt_gui::DisplayableDialog> override;
 
 private:
-    sprint_timer::ui::contracts::AddTaskControl::Presenter& presenter;
-    QAbstractItemModel& tagModel;
-
-    std::unique_ptr<ui::qt_gui::DisplayableDialog> create() override;
+    ui::contracts::AddTaskDialogContract::Presenter& presenter;
+    api::IConfig& settings;
 };
 
-inline AddTaskDialogProxy::AddTaskDialogProxy(
-    sprint_timer::ui::contracts::AddTaskControl::Presenter& presenter_,
-    QAbstractItemModel& tagModel_)
+inline AddTaskDialogLifestyleProxy::AddTaskDialogLifestyleProxy(
+    ui::contracts::AddTaskDialogContract::Presenter& presenter_,
+    api::IConfig& settings_)
     : presenter{presenter_}
-    , tagModel{tagModel_}
+    , settings{settings_}
 {
 }
 
-inline std::unique_ptr<ui::qt_gui::DisplayableDialog>
-AddTaskDialogProxy::create()
+inline auto AddTaskDialogLifestyleProxy::create()
+    -> std::unique_ptr<ui::qt_gui::DisplayableDialog>
 {
-    return std::make_unique<ui::qt_gui::AddTaskDialog>(tagModel, presenter);
+    auto view =
+        std::make_unique<ui::qt_gui::AddTaskDialog>(settings.firstDayOfWeek());
+    view->setPresenter(presenter);
+    return view;
 }
 
 } // namespace sprint_timer::compose
 
-#endif /* end of include guard: ADDTASKDIALOGPROXY_H_JMC1VRX7 */
+#endif /* end of include guard: ADDTASKDIALOGLIFESTYLEPROXY_H_FWLS94SN */

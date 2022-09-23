@@ -20,25 +20,24 @@
 **
 *********************************************************************************/
 #include "api/dtos/TaskTreeMapper.h"
-#include "api/dtos/TaskMapper.h"
-#include "api/dtos/TaskTypeMapper.h"
 
 namespace sprint_timer::api {
 
-auto makeDTO(const TaskTree& taskTree) -> TaskTreeDTO
+TaskTreeMapper::TaskTreeMapper(const Converter<TaskDTO, Task>& taskMapper_)
+    : taskMapper{taskMapper_}
 {
-    auto mapNode = [](const TaskNode& taskNode) {
-        return TaskNodeDTO{makeDTO(taskNode.task), makeDTO(taskNode.type)};
-    };
-    return taskTree.mapped<TaskNodeDTO>(mapNode);
 }
 
-auto fromDTO(const TaskTreeDTO& taskTreeDto) -> TaskTree
+auto TaskTreeMapper::convert(const TaskTree& tree) const -> TaskTreeDTO
 {
-    auto mapNode = [](const TaskNodeDTO& taskNode) {
-        return TaskNode{fromDTO(taskNode.task), fromDTO(taskNode.type)};
-    };
-    return taskTreeDto.mapped<TaskNode>(mapNode);
+    auto mapNode = [&](const auto& task) { return taskMapper(task); };
+    return tree.mapped<TaskDTO>(mapNode);
+}
+
+auto TaskTreeMapper::convert(const TaskTreeDTO& dto) const -> TaskTree
+{
+    auto mapNode = [&](const auto& taskDto) { return taskMapper(taskDto); };
+    return dto.mapped<Task>(mapNode);
 }
 
 } // namespace sprint_timer::api

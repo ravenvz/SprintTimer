@@ -22,6 +22,7 @@
 #ifndef UNFINISHEDTASKSCONTRACT_H_3TEOUIV4
 #define UNFINISHEDTASKSCONTRACT_H_3TEOUIV4
 
+#include "api/dtos/TaskDTO.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
 
@@ -31,12 +32,12 @@ class View;
 
 class Presenter : public mvp::BasePresenter<View> {
 public:
-    virtual void changeTaskSelection(size_t index, std::string&& uuid) = 0;
+    virtual void changeTaskSelection(api::TaskDTO&& task) = 0;
 };
 
 class View : public mvp::BaseView<View, Presenter> {
 public:
-    virtual void selectTask(std::optional<size_t> taskIndex) = 0;
+    virtual void selectTask(const std::optional<std::string>& uuid) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::TaskViewContract

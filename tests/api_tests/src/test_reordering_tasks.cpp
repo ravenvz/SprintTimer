@@ -52,10 +52,38 @@ public:
 
 TEST_F(DISABLED_ReorderingTasksFixture, changing_active_tasks_order)
 {
-    createTaskHandler.handle(CreateTaskCommand{"Task 1", {"Tag1"}, 1});
-    createTaskHandler.handle(CreateTaskCommand{"Task 2", {"Tag2"}, 2});
-    createTaskHandler.handle(CreateTaskCommand{"Task 3", {"Tag3"}, 3});
-    createTaskHandler.handle(CreateTaskCommand{"Task 4", {"Tag4"}, 4});
+    createTaskHandler.handle(CreateTaskCommand{"Task 1",
+                                               {"Tag1"},
+                                               1,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Task 2",
+                                               {"Tag2"},
+                                               2,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Task 3",
+                                               {"Tag3"},
+                                               3,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Task 4",
+                                               {"Tag4"},
+                                               4,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto tasks = activeTasksHandler.handle(ActiveTasksQuery{});
     const auto uuids =
         extractUuids(activeTasksHandler.handle(ActiveTasksQuery{}));

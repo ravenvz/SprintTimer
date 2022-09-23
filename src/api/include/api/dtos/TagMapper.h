@@ -20,21 +20,19 @@
 **
 *********************************************************************************/
 #include "core/Tag.h"
+#include "core/utils/Converter.h"
 #include <ranges>
 #include <span>
 
 namespace sprint_timer::api {
 
-inline auto dtoAdapter(std::span<const Tag> tags)
-{
-    return std::views::transform(tags,
-                                 [](const auto& tag) { return tag.name(); });
-}
+class TagMapper : public Converter<std::string, Tag> {
+private:
+    [[nodiscard]] auto convert(const Tag& tag) const
+        -> std::string override;
 
-inline auto dtoAdapter(std::span<const std::string> tagStrings)
-{
-    return std::views::transform(
-        tagStrings, [](const auto& str) { return Tag{str}; });
-}
+    [[nodiscard]] auto convert(const std::string& dto) const
+        -> Tag override;
+};
 
 } // namespace sprint_timer::api

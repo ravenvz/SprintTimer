@@ -24,42 +24,29 @@
 
 #include "api/dtos/SprintDTO.h"
 #include "core/Sprint.h"
+#include "core/utils/Converter.h"
 #include <ranges>
 #include <span>
 
 namespace sprint_timer::api {
 
-auto makeDTO(const Sprint& sprint) -> dw::DateTimeRange;
+class SprintMapper : public Converter<SprintDTO, SprintRecord> {
+private:
+    [[nodiscard]] auto convert(const SprintRecord& sprintRecord) const
+        -> SprintDTO override;
 
-auto fromDTO(const dw::DateTimeRange& dto) -> Sprint;
+    [[nodiscard]] auto convert(const SprintDTO& dto) const
+        -> SprintRecord override;
+};
 
-inline auto dtoAdapter(std::span<const Sprint> sprints)
-{
-    return std::views::transform(
-        sprints, [](const auto& sprint) { return makeDTO(sprint); });
-}
+class SprintDatetimeMapper : public Converter<dw::DateTimeRange, Sprint> {
+private:
+    [[nodiscard]] auto convert(const Sprint& sprint) const
+        -> dw::DateTimeRange override;
 
-inline auto dtoAdapter(std::span<const dw::DateTimeRange> dtos)
-{
-    return std::views::transform(dtos,
-                                 [](const auto& dto) { return fromDTO(dto); });
-}
-
-auto fromDTO(const SprintDTO& dto) -> SprintRecord;
-
-auto makeDTO(const SprintRecord& sprint) -> SprintDTO;
-
-inline auto dtoAdapter(std::span<const SprintRecord> sprints)
-{
-    return std::views::transform(
-        sprints, [](const auto& sprint) { return makeDTO(sprint); });
-}
-
-inline auto dtoAdapter(std::span<const SprintDTO> dtos)
-{
-    return std::views::transform(dtos,
-                                 [](const auto& dto) { return fromDTO(dto); });
-}
+    [[nodiscard]] auto convert(const dw::DateTimeRange& dto) const
+        -> Sprint override;
+};
 
 } // namespace sprint_timer::api
 

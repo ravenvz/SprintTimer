@@ -22,6 +22,10 @@
 #ifndef TESTQUERYHANDLERCOMPOSER_H_UAVBEGPJ
 #define TESTQUERYHANDLERCOMPOSER_H_UAVBEGPJ
 
+#include "api/OperationalRangeReader.h"
+#include "api/SprintDistributionReader.h"
+#include "api/SprintStorage.h"
+#include "api/TaskStorage.h"
 #include "api/handlers/ActiveTasksHandler.h"
 #include "api/handlers/AllTagsHandler.h"
 #include "api/handlers/DailyStatisticsHandler.h"
@@ -37,11 +41,6 @@
 #include "api/handlers/WorkdayStatisticsHandler.h"
 #include "api/handlers/WorktimeStatisticsHandler.h"
 #include "api_tests/QueryHandlerComposer.h"
-#include "api/OperationalRangeReader.h"
-#include "api/SprintDistributionReader.h"
-#include "api/SprintStorage.h"
-#include "api/TaskStorage.h"
-#include "core/TaskTreeMetadataReader.h"
 
 namespace sprint_timer::compose {
 
@@ -55,7 +54,11 @@ struct TestQueryHandlerComposer final : public QueryHandlerComposer {
         SprintDistributionReader& mondayFirstWeeklyDistReader_,
         SprintDistributionReader& sundayFirstWeeklyDistReader_,
         SprintDistributionReader& monthlyDistReader_,
-        TaskTreeMetadataReader& taskTreeMetadataStorage_);
+        const Converter<api::TaskDTO, Task>& taskMapper_,
+        const Converter<std::string, Tag>& tagMapper_,
+        // const Converter<dw::DateTimeRange, Sprint>& sprintMapper_,
+        const Converter<api::SprintDTO, SprintRecord>& sprintMapper_,
+        const Converter<api::TaskTreeDTO, TaskTree>& taskTreeMapper_);
 
     asp::QueryHandler<api::ActiveTasksQuery>& activeTasksHandler() override;
 

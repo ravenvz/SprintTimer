@@ -20,12 +20,14 @@
 **
 *********************************************************************************/
 #include "api/handlers/RequestSprintsHandler.h"
-#include "api/dtos/SprintMapper.h"
 
 namespace sprint_timer::api {
 
-RequestSprintsHandler::RequestSprintsHandler(SprintStorageReader& reader_)
+RequestSprintsHandler::RequestSprintsHandler(
+    SprintStorageReader& reader_,
+    const Converter<SprintDTO, SprintRecord>& sprintMapper_)
     : reader{reader_}
+    , sprintMapper{sprintMapper_}
 {
 }
 
@@ -35,7 +37,7 @@ RequestSprintsHandler::handle(const RequestSprintsQuery& query)
     const auto sprintRecords = reader.findByDateRange(query.dateRange);
     std::vector<SprintDTO> res;
     res.reserve(sprintRecords.size());
-    std::ranges::copy(dtoAdapter(sprintRecords), std::back_inserter(res));
+    std::ranges::copy(sprintMapper(sprintRecords), std::back_inserter(res));
     return res;
 }
 

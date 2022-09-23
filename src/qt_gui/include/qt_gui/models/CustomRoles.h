@@ -31,7 +31,7 @@ enum CustomRoles {
     InsertRole,
     ReplaceRole,
     ToggleCheckedRole,
-    ItemRole
+    ItemRole,
 };
 
 } // namespace sprint_timer::ui::qt_gui

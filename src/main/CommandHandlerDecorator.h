@@ -24,7 +24,7 @@
 
 #include "CacheAwareCommandHandler.h"
 #include "ErrorReportingCommandHandler.h"
-#include "ProfilingRequestHandler.h"
+#include "ProfilingCommandHandler.h"
 #include "VerboseRequestHandler.h"
 
 namespace sprint_timer::compose {
@@ -38,8 +38,10 @@ decorate_command(std::unique_ptr<asp::RequestHandler<CommandT>> wrapped,
     auto cacheAwareHandler =
         std::make_unique<CacheAwareCommandHandler<CommandT>>(
             std::move(wrapped), cacheInvalidationMediator);
-    auto verboseHandler = std::make_unique<VerboseRequestHandler<CommandT>>(
+    auto profilingHandler = std::make_unique<ProfilingCommandHandler<CommandT>>(
         std::move(cacheAwareHandler), os);
+    auto verboseHandler = std::make_unique<VerboseRequestHandler<CommandT>>(
+        std::move(profilingHandler), os);
     auto errorReportingHandler =
         std::make_unique<ErrorReportingCommandHandler<CommandT>>(
             std::move(verboseHandler));

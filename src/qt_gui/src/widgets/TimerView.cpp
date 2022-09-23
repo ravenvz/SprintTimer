@@ -88,14 +88,10 @@ TimerView::TimerView(ui::contracts::RegisterSprintControl::Presenter&
     connect(submissionBox,
             QOverload<int>::of(&QComboBox::activated),
             [this, &taskModel_](int row) {
-                auto uuid =
-                    taskModel_
-                        .data(taskModel_.index(row, 0), CustomRoles::IdRole)
-                        .toString()
-                        .toStdString();
+                const auto var = taskModel_.data(taskModel_.index(row, 0),
+                                                 CustomRoles::ItemRole);
                 if (auto p = presenter(); p) {
-                    p.value()->changeTaskSelection(static_cast<size_t>(row),
-                                                   std::move(uuid));
+                    p.value()->changeTaskSelection(var.value<api::TaskDTO>());
                 }
             });
 }
@@ -129,9 +125,18 @@ void TimerView::submitSprints(
     registerSprintControlPresenter.registerSprintBulk(taskUuid, timeIntervals);
 }
 
-void TimerView::selectTask(size_t taskIndex)
+void TimerView::selectTask(const std::optional<std::string>& uuid)
 {
-    submissionBox->setCurrentIndex(static_cast<int>(taskIndex));
+    // TODO very similar to TaskView::selectTask
+    auto findIndex = [&](const std::string& id) {
+        const auto matches =
+            submissionBox->model()->match(submissionBox->model()->index(0, 0),
+                                          CustomRoles::IdRole,
+                                          QString::fromStdString(id));
+        return matches.isEmpty() ? -1 : matches.front().row();
+    };
+    const auto maybeIndex = utils::transform(uuid, findIndex);
+    submissionBox->setCurrentIndex(maybeIndex.value_or(-1));
 }
 
 void TimerView::onUpdateTimerValue(std::chrono::seconds currentValue)

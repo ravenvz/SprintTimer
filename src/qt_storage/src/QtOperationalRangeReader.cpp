@@ -21,39 +21,35 @@
 *********************************************************************************/
 #include "qt_storage/QtOperationalRangeReader.h"
 #include "qt_storage/DatabaseDescription.h"
-#include "qt_storage/utils/DateTimeConverter.h"
 #include "qt_storage/utils/QueryUtils.h"
 
 namespace sprint_timer::storage::qt_storage {
 
-QtOperationalRangeReader::QtOperationalRangeReader(
-    QString connectionName_)
+QtOperationalRangeReader::QtOperationalRangeReader(QString connectionName_)
     : connectionName{std::move(connectionName_)}
 {
 }
 
-dw::DateRange QtOperationalRangeReader::operationalRange()
+auto QtOperationalRangeReader::operationalRange() -> dw::DateRange
 {
-    using namespace qt_storage;
     QSqlQuery query{QSqlDatabase::database(connectionName)};
+
     tryExecute(query,
                QString{"SELECT date(min(%1)), date(max(%1)) FROM %2;"}
                    .arg(SprintTable::Columns::startTime)
                    .arg(SprintTable::name));
+
     if (query.next()) {
         const dw::DateRange range{
-            utils::DateTimeConverter::date(query.record().value(0).toDate()),
+            dateConverter(query.record().value(0).toDate()),
             std::max(dw::current_date_local(),
-                     utils::DateTimeConverter::date(
-                         query.record().value(1).toDate()))};
+                     dateConverter(query.record().value(1).toDate()))};
         query.finish();
         return range;
     }
-    else {
-        query.finish();
-        return dw::DateRange{dw::current_date_local(),
-                             dw::current_date_local()};
-    }
+
+    query.finish();
+    return dw::DateRange{dw::current_date_local(), dw::current_date_local()};
 }
 
 } // namespace sprint_timer::storage::qt_storage

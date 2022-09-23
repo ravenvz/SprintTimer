@@ -23,37 +23,36 @@
 
 namespace sprint_timer::ui::qt_gui::utils {
 
-QDateTime toQDateTime(const dw::DateTime& dt)
+auto DateTimeConverter::convert(const QDateTime& qDateTime) const
+    -> dw::DateTime
+{
+    return dw::DateTime{std::chrono::system_clock::time_point{
+               std::chrono::milliseconds{qDateTime.toMSecsSinceEpoch()}}} +
+           std::chrono::seconds{qDateTime.offsetFromUtc()};
+}
+
+auto DateTimeConverter::convert(const dw::DateTime& dateTime) const -> QDateTime
 {
     return QDateTime::fromMSecsSinceEpoch(
-        dw::to_time_point<std::chrono::milliseconds>(dt)
+        dw::to_time_point<std::chrono::milliseconds>(dateTime)
             .time_since_epoch()
             .count(),
         Qt::OffsetFromUTC);
 }
 
-QDate toQDate(const dw::DateTime& dt) { return toQDateTime(dt).date(); }
-
-QDate toQDate(const dw::Date& date)
-{
-    return QDate(static_cast<int>(date.year()),
-                 static_cast<int>(static_cast<unsigned>(date.month())),
-                 static_cast<int>(static_cast<unsigned>(date.day())));
-}
-
-dw::DateTime toDateTime(const QDateTime& qdt)
-{
-    return dw::DateTime{std::chrono::system_clock::time_point{
-               std::chrono::milliseconds{qdt.toMSecsSinceEpoch()}}} +
-           std::chrono::seconds{qdt.offsetFromUtc()};
-}
-
-dw::Date toDate(const QDate& date)
+auto DateConverter::convert(const QDate& qDate) const -> dw::Date
 {
     using namespace dw;
-    return Date{Year{date.year()},
-                Month{static_cast<unsigned>(date.month())},
-                Day{static_cast<unsigned>(date.day())}};
+    return Date{Year{qDate.year()},
+                Month{static_cast<unsigned>(qDate.month())},
+                Day{static_cast<unsigned>(qDate.day())}};
+}
+
+auto DateConverter::convert(const dw::Date& date) const -> QDate
+{
+    return {static_cast<int>(date.year()),
+            static_cast<int>(static_cast<unsigned>(date.month())),
+            static_cast<int>(static_cast<unsigned>(date.day()))};
 }
 
 } // namespace sprint_timer::ui::qt_gui::utils

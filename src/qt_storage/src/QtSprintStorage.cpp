@@ -21,9 +21,6 @@
 *********************************************************************************/
 #include "qt_storage/QtSprintStorage.h"
 
-#include <iostream>
-#include <iterator>
-
 namespace sprint_timer::storage::qt_storage {
 
 QtSprintStorage::QtSprintStorage(std::unique_ptr<SprintStorageReader> reader_,
@@ -42,28 +39,16 @@ QtSprintStorage::findByDateRange(const dw::DateRange& dateRange)
 void QtSprintStorage::save(const std::string& taskUuid,
                            const std::vector<Sprint>& sprints)
 {
-    std::copy(cbegin(sprints),
-              cend(sprints),
-              std::ostream_iterator<
-                  std::iterator_traits<decltype(cbegin(sprints))>::value_type>(
-                  std::cout, ", "));
-    std::cout << '\n';
     writer->save(taskUuid, sprints);
 }
 
-void QtSprintStorage::remove(const Sprint& sprint)
-{
-    writer->remove(sprint);
-}
+void QtSprintStorage::remove(const Sprint& sprint) { writer->remove(sprint); }
 
 void QtSprintStorage::remove(const std::vector<Sprint>& sprints)
 {
     writer->remove(sprints);
 }
 
-void QtSprintStorage::restore(const Sprint& sprint)
-{
-    writer->restore(sprint);
-}
+void QtSprintStorage::restore(const Sprint& sprint) { writer->restore(sprint); }
 
 } // namespace sprint_timer::storage::qt_storage

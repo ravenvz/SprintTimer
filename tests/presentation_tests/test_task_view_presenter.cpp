@@ -19,48 +19,24 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "mocks/CommandHandlerMock.h"
-#include "mocks/QueryHandlerMock.h"
 #include "api/requests/RegisterSprintBulkCommand.h"
 #include "api/requests/ToggleTaskCompletedCommand.h"
+#include "mocks/CommandHandlerMock.h"
+#include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/TaskViewPresenter.h"
 
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::Truly;
-
-namespace {
-
-// std::vector<sprint_timer::Sprint>
-// makeConsecutiveSprints(const sprint_timer::Task& task,
-//                        size_t numSprints,
-//                        dw::DateTimeRange startingRange = {
-//                            dw::current_date_time(), dw::current_date_time()})
-// {
-//     using namespace std::chrono_literals;
-//     using namespace sprint_timer;
-//     std::vector<Sprint> result;
-//     size_t sprintUuid{1};
-//     result.reserve(numSprints);
-//     for (size_t i = 0; i < numSprints; ++i) {
-//         result.emplace_back(task.name(),
-//                             startingRange,
-//                             task.tags(),
-//                             std::to_string(sprintUuid++),
-//                             task.uuid());
-//         startingRange = dw::add_offset(startingRange, 25min);
-//     }
-//     return result;
-// }
-
-} // namespace
-
 using namespace sprint_timer;
 
 class TaskViewViewMock : public ui::contracts::TaskViewContract::View {
 public:
-    MOCK_METHOD(void, selectTask, (std::optional<size_t>), (override));
+    MOCK_METHOD(void,
+                selectTask,
+                (const std::optional<std::string>&),
+                (override));
 };
 
 class TaskSelectionColleagueMock
@@ -75,14 +51,25 @@ public:
     ui::TaskViewPresenter sut{taskSelectionMediator};
     TaskSelectionColleagueMock fakeColleague;
     NiceMock<TaskViewViewMock> view;
+    api::TaskDTO someTask{"123",
+                          {"Tag1", "Tag2"},
+                          "Some name",
+                          5,
+                          {},
+                          false,
+                          dw::current_date_time_local(),
+                          std::nullopt,
+                          api::TaskTimeframeDTO{},
+                          api::TaskTypeDTO::Regular};
 };
 
 TEST_F(TaskViewPresenterFixture,
        updates_view_with_selection_when_view_is_attached)
 {
-    taskSelectionMediator.changeSelection(&fakeColleague, 2, "123");
+    taskSelectionMediator.changeSelection(&fakeColleague,
+                                          api::TaskDTO{someTask});
 
-    EXPECT_CALL(view, selectTask(std::optional<size_t>{2}));
+    EXPECT_CALL(view, selectTask(std::optional<std::string>{someTask.uuid}));
 
     sut.attachView(view);
 }
@@ -90,28 +77,23 @@ TEST_F(TaskViewPresenterFixture,
 TEST_F(TaskViewPresenterFixture,
        notifies_task_selection_meditator_when_selected_task_changed)
 {
-    const size_t selectionIndex{3};
-    std::string uuid{"123"};
     TaskSelectionColleagueMock taskSelectionColleague;
 
-    sut.changeTaskSelection(selectionIndex, std::move(uuid));
+    sut.changeTaskSelection(api::TaskDTO{someTask});
 
-    EXPECT_EQ(std::optional<size_t>(3), taskSelectionMediator.taskIndex());
-    EXPECT_EQ(std::optional<std::string>("123"),
-              taskSelectionMediator.taskUuid());
+    EXPECT_EQ(std::optional<api::TaskDTO>(someTask),
+              taskSelectionMediator.currentSelection());
 }
 
 TEST_F(
     TaskViewPresenterFixture,
     updates_task_selection_in_view_when_mediator_notifies_about_selection_change)
 {
-    const size_t taskIndex{22};
-    std::string taskUuid{"123"};
     taskSelectionMediator.addColleague(&fakeColleague);
     sut.attachView(view);
 
-    EXPECT_CALL(view, selectTask(std::optional<size_t>(taskIndex)));
+    EXPECT_CALL(view, selectTask(std::optional<std::string>(someTask.uuid)));
 
-    taskSelectionMediator.changeSelection(
-        &fakeColleague, taskIndex, std::move(taskUuid));
+    taskSelectionMediator.changeSelection(&fakeColleague,
+                                          api::TaskDTO{someTask});
 }

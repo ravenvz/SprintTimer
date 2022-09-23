@@ -23,28 +23,11 @@
 #define TASKTREEDTO_H_JN159NM6
 
 #include "api/dtos/TaskDTO.h"
-#include "api/dtos/TaskTypeDTO.h"
 #include "core/Tree.h"
 
 namespace sprint_timer::api {
 
-struct TaskNodeDTO {
-    TaskDTO task;
-    TaskTypeDTO type;
-
-    friend bool operator==(const TaskNodeDTO&, const TaskNodeDTO&) = default;
-};
-
-template <class CharT, class Traits>
-std::basic_ostream<CharT, Traits>&
-operator<<(std::basic_ostream<CharT, Traits>& os, const TaskNodeDTO& taskNode)
-{
-    os << "TaskNodeDTO{";
-    os << taskNode.task << taskNode.type << "}";
-    return os;
-}
-
-using TaskTreeDTO = Tree<std::string, TaskNodeDTO>;
+using TaskTreeDTO = Tree<std::string, TaskDTO>;
 
 } // namespace sprint_timer::api
 

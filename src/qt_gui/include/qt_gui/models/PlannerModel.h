@@ -22,118 +22,98 @@
 #ifndef PLANNERMODEL_H_IUTH8WE0
 #define PLANNERMODEL_H_IUTH8WE0
 
+#include "qt_gui/TreeModel.h"
 #include "qt_gui/presentation/PlannerContract.h"
 #include <QAbstractItemModel>
+#include <QColor>
+#include <qmimedata.h>
 
 namespace sprint_timer::ui::qt_gui {
 
-class PlannerModel : public QAbstractItemModel,
-                     public contracts::PlannerContract::View {
+class PlannerModel : public TreeModel {
 public:
-    PlannerModel(QObject* parent = nullptr);
+    explicit PlannerModel(QObject* parent = nullptr);
 
-    // Qt::DropActions supportedDropActions() const override
-    // {
-    //     return Qt::MoveAction;
-    // }
-    //
-    // Qt::DropActions supportedDragActions() const override
-    // {
-    //     return Qt::MoveAction;
-    // }
-    //
-    // Qt::ItemFlags flags(const QModelIndex& index) const override
-    // {
-    //     if (!index.isValid() || index.model() != this) {
-    //         return Qt::ItemIsDropEnabled;
-    //     }
-    //     return QStandardItemModel::flags(index) | Qt::ItemIsUserCheckable |
-    //            Qt::ItemIsDragEnabled;
-    // }
+    auto supportedDropActions() const -> Qt::DropActions override;
 
-    QVariant headerData(int section,
-                        Qt::Orientation orientation,
-                        int role) const override;
+    auto supportedDragActions() const -> Qt::DropActions override;
 
-    QVariant data(const QModelIndex& index, int role) const override;
+    auto mimeTypes() const -> QStringList override;
 
-    QModelIndex
-    index(int row, int column, const QModelIndex& parent) const override;
+    auto mimeData(const QModelIndexList& indexes) const -> QMimeData* override;
 
-    QModelIndex parent(const QModelIndex& index) const override;
+    auto dropMimeData(const QMimeData* data,
+                      Qt::DropAction action,
+                      int row,
+                      int column,
+                      const QModelIndex& parent) -> bool override;
 
-    // bool setData(const QModelIndex& index,
-    //              const QVariant& value,
-    //              int role = Qt::EditRole) override
-    // {
-    //     return false;
-    // }
-    //
-    // bool moveRows(const QModelIndex& sourceParent,
+    auto flags(const QModelIndex& index) const -> Qt::ItemFlags override;
+
+    // auto headerData(int section, Qt::Orientation orientation, int role) const
+    //     -> QVariant override;
+
+    auto data(const QModelIndex& index, int role) const -> QVariant override;
+
+    // auto index(int row, int column, const QModelIndex& parent) const
+    //     -> QModelIndex override;
+
+    // auto parent(const QModelIndex& index) const -> QModelIndex override;
+
+    // auto setData(const QModelIndex& index, const QVariant& value, int role)
+    //     -> bool override;
+
+    // auto moveRows(const QModelIndex& sourceParent,
     //               int sourceRow,
     //               int count,
     //               const QModelIndex& destinationParent,
-    //               int destinationChild) override
-    // {
-    //     return false;
-    // }
-    //
-    // bool removeRows(int row,
-    //                 int count,
-    //                 const QModelIndex& parent = QModelIndex{}) override
-    // {
-    //     return false;
-    // }
-    //
-    // bool insertRows(int row,
-    //                 int count,
-    //                 const QModelIndex& parent = QModelIndex{}) override
-    // {
-    //     return false;
-    // }
-    //
-    int rowCount(const QModelIndex& parent) const override;
+    //               int destinationChild) -> bool override;
 
-    int columnCount(const QModelIndex& parent) const override;
+    // auto removeRows(int row, int count, const QModelIndex& parent)
+    //     -> bool override;
 
-    void displayPlanner(const api::TaskTreeDTO& taskTree) override;
+    // auto insertRows(int row, int count, const QModelIndex& parent)
+    //     -> bool override;
 
-    void displayGoals();
+    // auto rowCount(const QModelIndex& parent) const -> int override;
 
-    void displayProjects();
+    // auto columnCount(const QModelIndex& parent) const -> int override;
 
-    void displayReviews();
+    auto displayPlanner(
+        const Tree<std::string, contracts::PlannerContract::PlannerItem>&
+            taskTree) -> void;
+
+    auto displayGoals() -> void;
+
+    auto displayProjects() -> void;
+
+    auto displayReviews() -> void;
 
 private:
-    class Item {
-    public:
-        Item(std::string uuid_,
-             QString name_,
-             int expected_,
-             int actual_,
-             bool finished_,
-             QString tags_,
-             std::optional<QDateTime> dueDate_,
-             std::optional<QDateTime> reminder_,
-             api::TaskTypeDTO type_,
-             std::optional<QString> notes_);
-
-        Item();
-
-        ~Item();
-
-        std::string uuid;
-        QStringList data;
-        bool finished{};
-        api::TaskTypeDTO type{api::TaskTypeDTO::Regular};
-        QString notes;
+    struct ItemRepr {
+        QString payload;
+        QColor pen;
+        QColor brush;
     };
-
+    struct Item {
+        std::string uuid;
+        ItemRepr name;
+        ItemRepr tags;
+        ItemRepr progress;
+        ItemRepr dueDate;
+        QString notes;
+        ItemRepr reminder;
+        bool finished;
+        api::TaskTypeDTO type;
+    };
     Tree<std::string, Item> storage;
+    std::unique_ptr<Item> root;
 
-    std::optional<std::pair<const Item*, int>> findParent(Item* node) const;
+    auto findParent(Item* node) const
+        -> std::optional<std::pair<const Item*, int>>;
 
-    friend Item toPlannerItem(const api::TaskNodeDTO& taskNode);
+    auto makeItem(const contracts::PlannerContract::PlannerItem& dto) const
+        -> Item;
 };
 
 } // namespace sprint_timer::ui::qt_gui

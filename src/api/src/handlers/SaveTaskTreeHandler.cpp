@@ -22,24 +22,24 @@
 #include "api/handlers/SaveTaskTreeHandler.h"
 #include "api/dtos/TaskTreeMapper.h"
 #include "api/dtos/TaskTypeMapper.h"
+#include "core/TaskMetadataTree.h"
 
 namespace sprint_timer::api {
 
 SaveTaskTreeHandler::SaveTaskTreeHandler(
-    TaskTreeMetadataStorage& taskTreeStorage_, ActionInvoker& actionInvoker_)
-    : taskTreeStorage{taskTreeStorage_}
+    TaskStorage& taskStorage_,
+    ActionInvoker& actionInvoker_,
+    const Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
+    : taskStorage{taskStorage_}
     , actionInvoker{actionInvoker_}
+    , taskTreeMapper{taskTreeMapper_}
 {
 }
 
 void SaveTaskTreeHandler::handle(const SaveTaskTreeCommand& command)
 {
-    // TODO wire invoker
-    auto mapper = [](const TaskNodeDTO& node) {
-        return TaskMetadata{node.task.uuid, fromDTO(node.type)};
-    };
-    const auto metadataTree = command.taskTree.mapped<TaskMetadata>(mapper);
-    taskTreeStorage.saveTree(metadataTree);
+    // // TODO wire invoker
+    taskStorage.saveTree(taskTreeMapper(command.taskTree));
 }
 
 } // namespace sprint_timer::api

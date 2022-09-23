@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "core/Task.h"
 #include "core/SprintTimerException.h"
+#include "core/utils/Algutils.h"
 #include <algorithm>
 #include <iostream>
 #include <utility>
@@ -55,8 +56,9 @@ Task::Task(std::string name_,
            std::vector<Tag> tags_,
            bool completed_,
            dw::DateTime lastModified_,
+           TaskType kind_,
            std::optional<Note> note_,
-           std::optional<TaskTimeframe> taskTimeframe_)
+           TaskTimeframe taskTimeframe_)
     : taskName{std::move(name_)}
     , estimated{estimatedCost_}
     , sprintCont{std::move(sprints_)}
@@ -66,7 +68,24 @@ Task::Task(std::string name_,
     , frame{std::move(taskTimeframe_)}
     , note{std::move(note_)}
     , timeStamp{lastModified_}
+    , type{kind_}
 {
+}
+
+auto Task::finish() const -> Task { return *this; }
+
+auto Task::edit(const Task& desiredTask) const -> Task
+{
+    return Task{desiredTask.name(),
+                desiredTask.estimatedCost(),
+                sprintCont,
+                id,
+                desiredTask.tag,
+                isCompleted(),
+                dw::current_date_time_local(),
+                desiredTask.kind(),
+                desiredTask.notes(),
+                desiredTask.timeFrame()};
 }
 
 std::string Task::name() const { return taskName; }
@@ -91,32 +110,29 @@ auto Task::goalProgress() const -> GoalProgress
 
 auto Task::sprints() const -> std::span<const Sprint> { return sprintCont; }
 
-auto Task::activeSince() const -> std::optional<dw::DateTime>
-{
-    return std::nullopt;
-}
+auto Task::activeSince() const -> dw::DateTime { return frame.start; }
 
-auto Task::dueTo() const -> std::optional<dw::DateTime> { return std::nullopt; }
+auto Task::dueTo() const -> std::optional<dw::DateTime> { return frame.due; }
 
 auto Task::remindAt() const -> std::optional<dw::DateTime>
 {
-    return std::nullopt;
+    return frame.remindAt;
 }
 
 auto Task::recurrence() const -> std::optional<Recurrence>
 {
-    return std::nullopt;
+    return frame.recurrence;
 }
 
 auto Task::notes() const -> std::optional<Note> { return note; }
 
-auto Task::timeFrame() const -> std::optional<TaskTimeframe> { return frame; }
+auto Task::timeFrame() const -> const TaskTimeframe& { return frame; }
 
-auto Task::finish() -> std::optional<Task> { return std::nullopt; }
+auto Task::kind() const -> TaskType { return type; }
 
-void Task::setCompleted(bool completed_) { completed = completed_; }
+auto Task::setCompleted(bool completed_) -> void { completed = completed_; }
 
-void Task::addSprint(Sprint sprint)
+auto Task::addSprint(Sprint sprint) -> void
 {
     if (conflictDetectedWith(sprint)) {
         std::stringstream ss;
@@ -134,34 +150,52 @@ void Task::addSprint(Sprint sprint)
     timeStamp = dw::current_date_time_local();
 }
 
-bool Task::conflictDetectedWith(const Sprint& sprint) const
+auto Task::conflictDetectedWith(const Sprint& sprint) const -> bool
 {
     // TODO if sprint order is enforced sorted, might use binary search
     return std::ranges::any_of(sprintCont, sprints_in_conflict{sprint});
 }
 
-std::ostream& operator<<(std::ostream& os, const Task& task)
+auto operator<<(std::ostream& os, const Task& task) -> std::ostream&
 {
+    using utils::inspect;
     os << prefixTags(task.tags());
-    if (!task.tags().empty())
+    if (!task.tags().empty()) {
         os << " ";
+    }
     os << task.name() << " ";
     os << task.actualCost() << "/" << task.estimatedCost() << " ";
     os << "Uuid: " << task.uuid() << " ";
-    os << task.lastModified();
+    os << "Time: start: " << task.activeSince() << ", due: ";
+    if (const auto due = task.dueTo(); due) {
+        os << *due;
+    }
+    else {
+        os << "unlimited";
+    }
+    inspect(task.remindAt(),
+            [&](const auto& reminder) { os << ", Reminder: " << reminder; });
+    inspect(task.recurrence(), [&](const auto& recurr) {
+        os << ", Next recurrence: " << recurr.nextRecurrence();
+    });
+    os << ", " << task.lastModified()
+       << ", type: " << std::to_string(static_cast<int>(task.kind()));
     return os;
 }
 
-bool operator==(const Task& lhs, const Task& rhs)
+auto operator==(const Task& lhs, const Task& rhs) -> bool
 {
     return lhs.uuid() == rhs.uuid() && lhs.name() == rhs.name() &&
+           lhs.kind() == rhs.kind() &&
            lhs.estimatedCost() == rhs.estimatedCost() &&
            lhs.actualCost() == rhs.actualCost() &&
            std::equal(cbegin(lhs.tags()),
                       cend(lhs.tags()),
                       cbegin(rhs.tags()),
                       cend(rhs.tags())) &&
-           lhs.isCompleted() == rhs.isCompleted()
+           lhs.isCompleted() == rhs.isCompleted() &&
+           lhs.notes() == rhs.notes() &&
+           lhs.timeFrame() == rhs.timeFrame()
            // There is a reason to compare them by seconds, as last modified
            // timestamp can come from different sources with different precision
            // TODO need to control the sources as this can end up badly

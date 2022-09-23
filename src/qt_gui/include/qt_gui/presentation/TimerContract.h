@@ -22,11 +22,12 @@
 #ifndef TIMERCONTRACT_H_DSHEHJTD
 #define TIMERCONTRACT_H_DSHEHJTD
 
+#include "api/dtos/TaskDTO.h"
+#include "date_wrapper/date_wrapper.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
 #include "qt_gui/presentation/TaskSelectionMediator.h"
 #include <chrono>
-#include "date_wrapper/date_wrapper.h"
 #include <optional>
 #include <string>
 #include <vector>
@@ -46,7 +47,7 @@ public:
 
     virtual void onZoneClicked() = 0;
 
-    virtual void changeTaskSelection(size_t index, std::string&& uuid) = 0;
+    virtual void changeTaskSelection(api::TaskDTO&& task) = 0;
 };
 
 class View : public mvp::BaseView<View, Presenter> {
@@ -58,7 +59,7 @@ public:
     virtual void
     submitSprints(const std::vector<dw::DateTimeRange>& timeIntervals) = 0;
 
-    virtual void selectTask(size_t taskIndex) = 0;
+    virtual void selectTask(const std::optional<std::string>& uuid) = 0;
 };
 
 struct TimerUiModel {

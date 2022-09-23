@@ -22,20 +22,24 @@
 #ifndef UNFINISHEDTASKSHANDLER_H_LVO6P2GE
 #define UNFINISHEDTASKSHANDLER_H_LVO6P2GE
 
+#include "api/TaskStorageReader.h"
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/ActiveTasksQuery.h"
-#include "api/TaskStorageReader.h"
+#include "core/utils/Converter.h"
 
 namespace sprint_timer::api {
 
 class ActiveTasksHandler : public asp::QueryHandler<ActiveTasksQuery> {
 public:
-    explicit ActiveTasksHandler(TaskStorageReader& reader);
+    ActiveTasksHandler(TaskStorageReader& reader,
+                       const Converter<TaskDTO, Task>& taskMapper);
 
-    ActiveTasksQuery::Result handle(const ActiveTasksQuery&) override;
+    auto handle(const ActiveTasksQuery& /*request*/)
+        -> ActiveTasksQuery::Result override;
 
 private:
     TaskStorageReader& reader;
+    const Converter<TaskDTO, Task>& taskMapper;
 };
 
 } // namespace sprint_timer::api

@@ -23,39 +23,39 @@
 #define EDITTASKDIALOGPROXY_H_WZ7UTD03
 
 #include "DisplayableDialogLifestyleProxy.h"
+#include "api/IConfig.h"
 #include "qt_gui/dialogs/EditTaskDialog.h"
 
 namespace sprint_timer::compose {
 
 class EditTaskDialogProxy : public DisplaybleDialogLifestyleProxy {
 public:
-    EditTaskDialogProxy(QAbstractItemModel& tagModel,
-                        QAbstractItemModel& taskModel,
-                        const ui::TaskSelectionContext& taskSelectionContext);
+    EditTaskDialogProxy(
+        ui::contracts::EditTaskDialogContract::Presenter& presenter,
+        api::IConfig& settings);
 
-    std::unique_ptr<ui::qt_gui::DisplayableDialog> create() override;
+    auto create() -> std::unique_ptr<ui::qt_gui::DisplayableDialog> override;
 
 private:
-    QAbstractItemModel& tagModel;
-    QAbstractItemModel& taskModel;
-    const ui::TaskSelectionContext& taskSelectionContext;
+    ui::contracts::EditTaskDialogContract::Presenter& presenter;
+    api::IConfig& settings;
 };
 
-EditTaskDialogProxy::EditTaskDialogProxy(
-    QAbstractItemModel& tagModel_,
-    QAbstractItemModel& taskModel_,
-    const ui::TaskSelectionContext& taskSelectionContext_)
-    : tagModel{tagModel_}
-    , taskModel{taskModel_}
-    , taskSelectionContext{taskSelectionContext_}
+inline EditTaskDialogProxy::EditTaskDialogProxy(
+    ui::contracts::EditTaskDialogContract::Presenter& presenter_,
+    api::IConfig& settings_)
+    : presenter{presenter_}
+    , settings{settings_}
 {
 }
 
-inline std::unique_ptr<ui::qt_gui::DisplayableDialog>
-EditTaskDialogProxy::create()
+inline auto EditTaskDialogProxy::create()
+    -> std::unique_ptr<ui::qt_gui::DisplayableDialog>
 {
-    return std::make_unique<ui::qt_gui::EditTaskDialog>(
-        tagModel, taskModel, taskSelectionContext);
+    auto view =
+        std::make_unique<ui::qt_gui::EditTaskDialog>(settings.firstDayOfWeek());
+    view->setPresenter(presenter);
+    return view;
 }
 
 } // namespace sprint_timer::compose

@@ -19,46 +19,18 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "qt_storage/QtTaskTreeStorage.h"
-#include "qt_storage/DatabaseDescription.h"
-#include "qt_storage/utils/QueryUtils.h"
-#include <utility>
+#ifndef GATEWAYERROR_CPP_CUATJ7IR
+#define GATEWAYERROR_CPP_CUATJ7IR
 
-namespace {
+#include "api/GatewayException.h"
 
-enum class Column {
-    Name,
-    Uuid,
-    EstimatedCost,
-    Tags,
-    Completed,
-    StartTime,
-    FinishTime,
-    Priority,
-    LastModified,
-    SprintUuid
-};
+namespace sprint_timer::api {
 
-} // namespace
-
-namespace sprint_timer::storage::qt_storage {
-
-QtTaskTreeStorage::QtTaskTreeStorage(
-    std::unique_ptr<TaskTreeMetadataReader> reader_,
-    std::unique_ptr<TaskTreeMetadataWriter> writer_)
-    : reader{std::move(reader_)}
-    , writer{std::move(writer_)}
+GatewayException::GatewayException(const std::string& message_)
+    : std::runtime_error{message_}
 {
 }
 
-TaskMetadataTree QtTaskTreeStorage::readTree() const
-{
-    return reader->readTree();
-}
+} // namespace sprint_timer::api
 
-void QtTaskTreeStorage::saveTree(const TaskMetadataTree& taskTree) const
-{
-    writer->saveTree(taskTree);
-}
-
-} // namespace sprint_timer::storage::qt_storage
+#endif /* end of include guard: GATEWAYERROR_CPP_CUATJ7IR */

@@ -35,11 +35,13 @@ struct TestStorageInitializer {
     const QString name{"file::memory:?cache=shared"};
     sprint_timer::storage::qt_storage::ConnectionGuard connectionGuard{
         name, "Keep alive conn"};
-    sprint_timer::storage::qt_storage::DatabaseInitializer db{name};
+    sprint_timer::storage::qt_storage::MigrationManager migrationManager;
+    sprint_timer::storage::qt_storage::DatabaseInitializer db{name,
+                                                              migrationManager};
     sprint_timer::storage::qt_storage::WorkerConnection dbService{
         name, "Worker connection"};
     sprint_timer::storage::qt_storage::QtStorageImplementersFactory factory{
-        dbService.connectionName(), "task_tree_storage"};
+        dbService.connectionName()};
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */

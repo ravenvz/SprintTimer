@@ -24,27 +24,31 @@
 
 #include "api/ActionInvoker.h"
 #include "api/DateTimeProvider.h"
-#include "api/TaskStorageWriter.h"
+#include "api/TaskStorage.h"
 #include "api/UUIDGenerator.h"
 #include "api/com_query/CommandHandler.h"
+#include "api/dtos/TaskDTO.h"
 #include "api/requests/CreateTaskCommand.h"
+#include "core/utils/Converter.h"
 
 namespace sprint_timer::api {
 
 class CreateTaskHandler : public asp::CommandHandler<CreateTaskCommand> {
 public:
-    CreateTaskHandler(TaskStorageWriter& writer,
-                      ActionInvoker& actionInvoker,
-                      UUIDGenerator& uuidGenerator,
-                      DateTimeProvider& dateTimeProvider);
+    CreateTaskHandler(TaskStorage& taskStorage_,
+                      ActionInvoker& actionInvoker_,
+                      UUIDGenerator& uuidGenerator_,
+                      DateTimeProvider& dateTimeProvider_,
+                      const Converter<TaskDTO, Task>& taskMapper_);
 
-    void handle(const CreateTaskCommand& command) override;
+    auto handle(const CreateTaskCommand& command) -> void override;
 
 private:
-    TaskStorageWriter& writer;
+    TaskStorage& taskStorage;
     ActionInvoker& actionInvoker;
     UUIDGenerator& uuidGenerator;
     DateTimeProvider& dateTimeProvider;
+    const Converter<TaskDTO, Task>& taskMapper;
 };
 
 } // namespace sprint_timer::api

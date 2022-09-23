@@ -84,15 +84,15 @@ void TimerPresenter::onTimerTick(std::chrono::seconds timeLeft)
 
 void TimerPresenter::onWorkflowStateChanged(IWorkflow::StateId currentState)
 {
-    if (auto v = view(); v) {
+    utils::inspect(view(), [&](auto* view) {
         using contracts::TimerContract::TimerUiModel;
         switch (currentState) {
         case IWorkflow::StateId::Idle:
-            v.value()->setupUi(
+            view->setupUi(
                 TimerUiModel::idleUiModel(std::string{idleTimerText}));
             break;
         case IWorkflow::StateId::RunningSprint:
-            v.value()->setupUi(TimerUiModel::runningUiModel(
+            view->setupUi(TimerUiModel::runningUiModel(
                 workflow.currentDuration(), std::string{sprintColor}, true));
             break;
         case IWorkflow::StateId::SprintFinished:
@@ -100,29 +100,27 @@ void TimerPresenter::onWorkflowStateChanged(IWorkflow::StateId currentState)
                 mediaPath) {
                 player.play(*mediaPath);
             }
-            if (auto index = taskSelectionMediator.taskIndex(); index) {
-                v.value()->selectTask(*index);
-            }
-            v.value()->setupUi(TimerUiModel::sprintFinishedUiModel(
+            view->selectTask(taskSelectionMediator.taskUuid());
+            view->setupUi(TimerUiModel::sprintFinishedUiModel(
                 std::string{submissionTimerText}));
             break;
         case IWorkflow::StateId::BreakStarted:
-            v.value()->setupUi(TimerUiModel::runningUiModel(
+            view->setupUi(TimerUiModel::runningUiModel(
                 workflow.currentDuration(), std::string{breakColor}, false));
             break;
         case IWorkflow::StateId::BreakFinished:
             player.play(*assetLibrary.filePath(ringSoundId));
             break;
         case IWorkflow::StateId::ZoneEntered:
-            v.value()->setupUi(
+            view->setupUi(
                 TimerUiModel::zoneModeUiModel(std::string{zoneColor}));
             break;
         case IWorkflow::StateId::ZoneLeft:
-            v.value()->setupUi(
+            view->setupUi(
                 TimerUiModel::returnFromZoneUiModel(std::string{sprintColor}));
             break;
         }
-    }
+    });
 }
 
 void TimerPresenter::onTimerClicked()
@@ -142,18 +140,14 @@ void TimerPresenter::onZoneClicked() { workflow.toggleInTheZoneMode(); }
 
 void TimerPresenter::onTaskSelectionChanged()
 {
-    auto v = view();
-    if (!v) {
-        return;
-    }
-    if (auto index = taskSelectionMediator.taskIndex(); index) {
-        v.value()->selectTask(*index);
-    }
+    utils::inspect(view(), [&](auto* view) {
+        view->selectTask(taskSelectionMediator.taskUuid());
+    });
 }
 
-void TimerPresenter::changeTaskSelection(size_t index, std::string&& uuid)
+void TimerPresenter::changeTaskSelection(api::TaskDTO&& task)
 {
-    taskSelectionMediator.changeSelection(this, index, std::move(uuid));
+    taskSelectionMediator.changeSelection(this, std::move(task));
 }
 
 } // namespace sprint_timer::ui

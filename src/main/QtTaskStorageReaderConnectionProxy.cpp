@@ -39,48 +39,54 @@ QtTaskStorageReaderConnectionProxy::QtTaskStorageReaderConnectionProxy(
 {
 }
 
-std::vector<Task>
-QtTaskStorageReaderConnectionProxy::unfinishedTasks()
+auto QtTaskStorageReaderConnectionProxy::unfinishedTasks() -> std::vector<Task>
 {
     checkStorageInteractorInitialized();
     return localStorage->unfinishedTasks();
 }
 
-std::vector<Task> QtTaskStorageReaderConnectionProxy::finishedTasks(
-    const dw::DateRange& dateRange)
+auto QtTaskStorageReaderConnectionProxy::finishedTasks(
+    const dw::DateRange& dateRange) -> std::vector<Task>
 {
     checkStorageInteractorInitialized();
     return localStorage->finishedTasks(dateRange);
 }
 
-std::vector<Task>
-QtTaskStorageReaderConnectionProxy::allTasks(const dw::DateRange& dateRange)
+auto QtTaskStorageReaderConnectionProxy::allTasks(
+    const dw::DateRange& dateRange) -> std::vector<Task>
 {
     checkStorageInteractorInitialized();
     return localStorage->allTasks(dateRange);
 }
 
-std::vector<std::string> QtTaskStorageReaderConnectionProxy::allTags()
+auto QtTaskStorageReaderConnectionProxy::allTags() -> std::vector<std::string>
 {
     checkStorageInteractorInitialized();
     return localStorage->allTags();
 }
 
-std::vector<Task>
-QtTaskStorageReaderConnectionProxy::findByUuid(const std::string& uuid)
+auto QtTaskStorageReaderConnectionProxy::findByUuid(const std::string& uuid)
+    -> std::vector<Task>
 {
     checkStorageInteractorInitialized();
     return localStorage.value().findByUuid(uuid);
 }
 
-std::vector<Task> QtTaskStorageReaderConnectionProxy::findMatching(
-    std::span<const std::string> uuids)
+auto QtTaskStorageReaderConnectionProxy::findMatching(
+    std::span<const std::string> uuids) -> std::vector<Task>
 {
     checkStorageInteractorInitialized();
     return localStorage.value().findMatching(uuids);
 }
 
-void QtTaskStorageReaderConnectionProxy::checkStorageInteractorInitialized()
+auto QtTaskStorageReaderConnectionProxy::taskTree() -> TaskTree
+{
+    checkStorageInteractorInitialized();
+    return localStorage.value().taskTree();
+}
+
+auto QtTaskStorageReaderConnectionProxy::checkStorageInteractorInitialized()
+    -> void
 {
     if (!localStorage) {
         localStorage.emplace(connectionHelper.connectionName());

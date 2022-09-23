@@ -26,8 +26,11 @@
 #include "api/handlers/AllTagsHandler.h"
 #include "api/handlers/CreateTaskHandler.h"
 #include "api_tests/QtStorageInitializer.h"
+#include "api_tests/fixtures/TaskTreeFixture.h"
 #include "api_tests/matchers/MatchesTaskIgnoringUuid.h"
+#include "api_tests/utils/utils.h"
 #include "gmock/gmock.h"
+#include <fstream>
 
 using namespace sprint_timer;
 using namespace sprint_timer::api;
@@ -51,61 +54,42 @@ public:
         queryComposer.allTagsHandler()};
     asp::CommandHandler<UndoLastCommand>& undoHandler{
         commandComposer.undoHandler()};
+    asp::QueryHandler<ReadTaskTreeQuery>& readTaskTreeHandler{
+        queryComposer.readTaskTreeHandler()};
+    asp::CommandHandler<RegisterSprintBulkCommand>& registerSprintsHandler{
+        commandComposer.registerSprintBulkHandler()};
     const sprint_timer::api::DateTimeProvider& dt{
         initializer.dateTimeProvider()};
 };
 
-TEST_F(CreatingTasksFixture, creates_task)
+TEST_F(CreatingTasksFixture, creating_tasks)
 {
-    using namespace std::chrono_literals;
-    const std::string name{"Task name"};
-    const std::vector<std::string> tags{"Tag1", "Tag2"};
-    const int32_t estimatedCost{4};
-    const TaskTimeframeDTO timeFrame{
-        DateTimeRange{current_date_time(), current_date_time() + Days{20}},
-        current_date_time() + 24h,
-        "recurrence string"};
-    const NoteDTO notes{"Some note"};
-    const TaskDTO expected{"any_uuid",
-                           tags,
-                           name,
-                           estimatedCost,
-                           {},
-                           false,
-                           dt.dateTimeLocalNow(),
-                           notes,
-                           timeFrame};
+    const auto tree = fixtures::givenSomeTaskTreeCreated(
+        createTaskHandler, registerSprintsHandler);
 
-    createTaskHandler.handle(
-        CreateTaskCommand{name, tags, estimatedCost, notes, timeFrame});
-    const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
+    const auto actual = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
 
-    std::cout << "Actual:\n" << activeTasks.front() << std::endl;
-    std::cout << "Expected:\n" << expected << std::endl;
-    EXPECT_EQ(1, activeTasks.size());
-    EXPECT_THAT(activeTasks.front(),
-                Truly(matchers::MatchesTaskIgnoringUuid{expected}));
-    EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
-                ::testing::ElementsAre("Tag1", "Tag2"));
+    EXPECT_EQ(tree, actual);
 }
 
 TEST_F(CreatingTasksFixture, undoing_task_creation_cleans_up_associated_tags)
 {
-    const std::string name{"Task name"};
-    const std::vector<std::string> tags{"Tag1", "Tag2"};
-    const int32_t estimatedCost{4};
-    TaskDTO expected{"any_uuid",
-                     tags,
-                     name,
-                     estimatedCost,
-                     {},
-                     false,
-                     dt.dateTimeLocalNow()};
-    createTaskHandler.handle(CreateTaskCommand{name, tags, estimatedCost});
+    const auto tree = fixtures::givenSomeTaskTreeCreated(
+        createTaskHandler, registerSprintsHandler);
+    createTaskHandler.handle(CreateTaskCommand{"Some name",
+                                               {"ExoticTag", "Tag1"},
+                                               4,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
 
     undoHandler.handle(UndoLastCommand{});
 
-    const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
-    EXPECT_TRUE(activeTasks.empty());
-    EXPECT_TRUE(allTagsHandler.handle(AllTagsQuery{}).empty());
+    EXPECT_EQ(tree, readTaskTreeHandler.handle(ReadTaskTreeQuery{}));
+    EXPECT_THAT(
+        allTagsHandler.handle(AllTagsQuery{}),
+        ::testing::UnorderedElementsAre("Tag1", "Tag2", "Tag3", "ProjectTag1"));
 }
+

@@ -42,14 +42,13 @@ public:
     RequestT::Result handle(const RequestT& request) override
     {
         const auto start = std::chrono::steady_clock::now();
-        auto res =
-            asp::RequestHandlerDecorator<RequestT>::handle(std::move(request));
+        auto res = asp::RequestHandlerDecorator<RequestT>::handle(request);
 
         const auto end = std::chrono::steady_clock::now();
 
         {
             std::lock_guard lock{mtx};
-            os << "Handling command: " << request << " ";
+            os << "Handled query: " << request << " in ";
             os << std::chrono::duration_cast<std::chrono::milliseconds>(end -
                                                                         start)
                       .count();

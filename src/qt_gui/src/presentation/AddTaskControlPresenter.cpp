@@ -44,15 +44,30 @@ AddTaskControlPresenter::AddTaskControlPresenter(
 
 void AddTaskControlPresenter::addTask(const api::TaskDTO& details) const
 {
-    createTaskHandler.handle(api::CreateTaskCommand{
-        details.name, details.tags, details.expectedCost});
+    // TODO using std::nullopt as parent. But parent should be <inbox>
+    createTaskHandler.handle(api::CreateTaskCommand{details.name,
+                                                    details.tags,
+                                                    details.expectedCost,
+                                                    details.kind,
+                                                    std::nullopt,
+                                                    std::nullopt,
+                                                    details.notes,
+                                                    details.timeFrame});
 }
 
 void AddTaskControlPresenter::addTask(
     const std::string& encodedDescription) const
 {
     auto [name, tags, cost] = decodeDescription(encodedDescription);
-    createTaskHandler.handle(api::CreateTaskCommand{name, tags, cost});
+    createTaskHandler.handle(
+        api::CreateTaskCommand{name,
+                               tags,
+                               cost,
+                               sprint_timer::api::TaskTypeDTO::Regular,
+                               std::nullopt,
+                               std::nullopt,
+                               std::nullopt,
+                               api::TaskTimeframeDTO{}});
 }
 
 } // namespace sprint_timer::ui

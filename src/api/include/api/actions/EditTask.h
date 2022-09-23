@@ -29,9 +29,7 @@ namespace sprint_timer::api::actions {
 
 class EditTask : public Action {
 public:
-    EditTask(TaskStorageWriter& writer,
-             Task originalTask,
-             const Task& editedTask);
+    EditTask(TaskStorageWriter& writer, Task originalTask, Task editedTask);
 
     void execute() final;
 

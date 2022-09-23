@@ -22,12 +22,19 @@
 #include "external_io/TaskToCsvAlgorithm.h"
 #include "core/utils/StringUtils.h"
 
+namespace {
+
+constexpr std::string_view date_format{"hh:mm dd.MM.yyyy"};
+
+} // namespace
+
 namespace sprint_timer::external_io {
 
 std::vector<std::string>
 TaskToCsvAlgorithm::toRecords(const api::TaskDTO& task) const
 {
     using sprint_timer::utils::join;
+    using sprint_timer::utils::transform;
     std::vector<std::string> records;
     const auto& tags = task.tags;
     records.emplace_back(task.uuid);
@@ -35,9 +42,20 @@ TaskToCsvAlgorithm::toRecords(const api::TaskDTO& task) const
     records.emplace_back(join(cbegin(tags), cend(tags), ","));
     records.emplace_back(std::to_string(task.sprints.size()));
     records.emplace_back(std::to_string(task.expectedCost));
-    records.push_back(std::to_string(task.finished ? 1 : 0));
-    records.push_back(
-        dw::to_string(task.modificationStamp, "hh:mm dd.MM.yyyy"));
+    records.emplace_back(std::to_string(task.finished ? 1 : 0));
+    records.emplace_back(dw::to_string(task.modificationStamp, date_format));
+    records.emplace_back(transform(task.notes, [&](const auto& note) {
+                             return note.text;
+                         }).value_or(""));
+    records.emplace_back(dw::to_string(task.timeFrame.start, date_format));
+    records.emplace_back(transform(task.timeFrame.due, [](auto dateTime) {
+                             return dw::to_string(dateTime, date_format);
+                         }).value_or(""));
+    records.emplace_back(transform(task.timeFrame.remindAt, [](auto dateTime) {
+                             return dw::to_string(dateTime, date_format);
+                         }).value_or(""));
+    records.emplace_back(task.timeFrame.recurrence.value_or(""));
+    records.emplace_back(std::to_string(static_cast<int>(task.kind)));
     return records;
 }
 

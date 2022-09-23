@@ -26,8 +26,8 @@
 
 namespace {
 
-using sprint_timer::api::SprintDTO;
 using sprint_timer::SprintRecord;
+using sprint_timer::api::SprintDTO;
 using sprint_timer::ui::qt_gui::HistoryModel;
 
 HistoryModel::HistoryData
@@ -67,15 +67,16 @@ namespace {
 HistoryModel::HistoryData
 transformToHistoryData(const std::vector<SprintDTO>& sprints)
 {
-    using sprint_timer::ui::qt_gui::utils::toQDate;
+    using sprint_timer::ui::qt_gui::utils::DateConverter;
     HistoryModel::HistoryData taskSprintsHistory;
     taskSprintsHistory.reserve(sprints.size());
     std::transform(cbegin(sprints),
                    cend(sprints),
                    std::back_inserter(taskSprintsHistory),
                    [](const auto& elem) {
-                       return std::make_pair(toQDate(elem.timeRange.start()),
-                                             sprintToString(elem));
+                       return std::make_pair(
+                           DateConverter{}(elem.timeRange.start().date()),
+                           sprintToString(elem));
                    });
     return taskSprintsHistory;
 }

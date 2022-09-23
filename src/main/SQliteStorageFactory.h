@@ -32,7 +32,6 @@ namespace sprint_timer::compose {
 class SQliteStorageFactory : public api::StorageImplementersFactory {
 public:
     SQliteStorageFactory(ThreadConnectionHelper& connectionHelper,
-                         std::filesystem::path fileStorageDir,
                          api::IConfig& applicationSettings);
 
     std::unique_ptr<SprintStorage> sprintStorage() const override;
@@ -53,12 +52,8 @@ public:
 
     std::unique_ptr<WorkScheduleStorage> scheduleStorage() const override;
 
-    std::unique_ptr<TaskTreeMetadataStorage>
-    taskTreeStorage(TaskStorageReader&) const override;
-
 private:
     ThreadConnectionHelper& connectionHelper;
-    std::filesystem::path fileStorageDir;
     api::IConfig& applicationSettings;
 };
 

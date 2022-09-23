@@ -23,22 +23,25 @@
 
 namespace sprint_timer::ui {
 
-void TaskSelectionMediator::changeSelection(TaskSelectionColleague* caller,
-                                            size_t taskIndex,
-                                            std::string&& taskUuid)
+auto TaskSelectionMediator::changeSelection(TaskSelectionColleague* caller,
+                                            std::optional<api::TaskDTO>&& task)
+    -> void
 {
-    index = taskIndex;
-    uuid = std::move(taskUuid);
-
+    selection = std::move(task);
     mediate(caller,
             [](auto* colleague) { colleague->onTaskSelectionChanged(); });
 }
 
-std::optional<size_t> TaskSelectionMediator::taskIndex() const { return index; }
-
-std::optional<std::string> TaskSelectionMediator::taskUuid() const
+auto TaskSelectionMediator::currentSelection() const
+    -> const std::optional<api::TaskDTO>&
 {
-    return uuid;
+    return selection;
+}
+
+auto TaskSelectionMediator::taskUuid() const -> std::optional<std::string>
+{
+    return utils::transform(selection,
+                            [](const auto& task) { return task.uuid; });
 }
 
 } // namespace sprint_timer::ui

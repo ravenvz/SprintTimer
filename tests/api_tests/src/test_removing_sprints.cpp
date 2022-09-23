@@ -52,7 +52,14 @@ public:
 TEST_F(RemovingSprintsFixture, removing_sprints_decrements_task_actual_count)
 {
     using namespace std::chrono_literals;
-    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 5});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1"},
+                                               5,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const DateTimeRange range{current_date_time_local(),
@@ -73,14 +80,24 @@ TEST_F(RemovingSprintsFixture, removing_sprints_decrements_task_actual_count)
                             5,
                             {range, add_offset(range, 5h)},
                             false,
-                            current_date_time_local()})));
+                            current_date_time_local(),
+                            std::nullopt,
+                            TaskTimeframeDTO{},
+                            TaskTypeDTO::Regular})));
 }
 
 TEST_F(RemovingSprintsFixture, undoing_removing_sprints)
 {
 
     using namespace std::chrono_literals;
-    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 5});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1"},
+                                               5,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const DateTimeRange range{current_date_time_local(),
@@ -102,5 +119,8 @@ TEST_F(RemovingSprintsFixture, undoing_removing_sprints)
                     5,
                     {range, add_offset(range, 3h), add_offset(range, 5h)},
                     false,
-                    current_date_time_local()})));
+                    current_date_time_local(),
+                    std::nullopt,
+                    TaskTimeframeDTO{},
+                    TaskTypeDTO::Regular})));
 }

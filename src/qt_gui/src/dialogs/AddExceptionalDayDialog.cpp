@@ -44,9 +44,11 @@ AddExceptionalDayDialog::AddExceptionalDayDialog(dw::Weekday firstDayOfWeek_,
     auto buttons = std::make_unique<QDialogButtonBox>(QDialogButtonBox::Ok |
                                                       QDialogButtonBox::Cancel);
 
+    const utils::DateConverter dateConverter;
+
     calendar->setFirstDayOfWeek(
         firstDayOfWeek_ == dw::Weekday::Monday ? Qt::Monday : Qt::Sunday);
-    calendar->setSelectedDate(utils::toQDate(preselectedDate_));
+    calendar->setSelectedDate(dateConverter(preselectedDate_));
 
     daysDurationField->setValue(1);
 
@@ -63,10 +65,11 @@ AddExceptionalDayDialog::AddExceptionalDayDialog(dw::Weekday firstDayOfWeek_,
             [&data_,
              numDays = daysDurationField.get(),
              numSprints = numSprintsField.get(),
-             cal = calendar.get()]() {
+             cal = calendar.get(),
+             &converter = dateConverter]() {
                 data_.numDays = numDays->value();
                 data_.sprintsPerDay = numSprints->value();
-                data_.startDate = utils::toDate(cal->selectedDate());
+                data_.startDate = converter(cal->selectedDate());
             });
 
     layout->addRow(calendar.release());

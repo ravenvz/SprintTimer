@@ -33,13 +33,13 @@ enum class Columns {
     FinishTime,
 };
 
-QVariant columnData(const QSqlRecord& record, Columns column);
+auto columnData(const QSqlRecord& record, Columns column) -> QVariant;
 
-std::vector<sprint_timer::SprintRecord>
-sprintsFromQuery(QSqlQuery& query);
+auto sprintsFromQuery(QSqlQuery& query)
+    -> std::vector<sprint_timer::SprintRecord>;
 
-sprint_timer::SprintRecord
-sprintFromQSqlRecord(const QSqlRecord& record);
+auto sprintFromQSqlRecord(const QSqlRecord& record)
+    -> sprint_timer::SprintRecord;
 
 } // namespace
 
@@ -64,8 +64,8 @@ QtSprintStorageReader::QtSprintStorageReader(QString connectionName_)
                                           .arg(SprintView::name));
 }
 
-std::vector<SprintRecord>
-QtSprintStorageReader::findByDateRange(const dw::DateRange& dateRange)
+auto QtSprintStorageReader::findByDateRange(const dw::DateRange& dateRange)
+    -> std::vector<SprintRecord>
 {
     findByDateRangeQuery.bindValue(":startTime",
                                    QVariant(QString::fromStdString(to_string(
@@ -83,8 +83,8 @@ QtSprintStorageReader::findByDateRange(const dw::DateRange& dateRange)
 
 namespace {
 
-std::vector<sprint_timer::SprintRecord>
-sprintsFromQuery(QSqlQuery& query)
+auto sprintsFromQuery(QSqlQuery& query)
+    -> std::vector<sprint_timer::SprintRecord>
 {
     using namespace sprint_timer::storage::qt_storage;
     const auto records = copyAllRecords(query);
@@ -97,17 +97,17 @@ sprintsFromQuery(QSqlQuery& query)
     return sprints;
 }
 
-sprint_timer::SprintRecord
-sprintFromQSqlRecord(const QSqlRecord& record)
+auto sprintFromQSqlRecord(const QSqlRecord& record)
+    -> sprint_timer::SprintRecord
 {
     using sprint_timer::SprintRecord;
     using sprint_timer::Tag;
-    using sprint_timer::storage::utils::DateTimeConverter;
+    const sprint_timer::storage::utils::DateTimeConverter dateTimeConverter;
     QString name{columnData(record, Columns::Name).toString()};
     QDateTime start = columnData(record, Columns::StartTime).toDateTime();
     QDateTime finish = columnData(record, Columns::FinishTime).toDateTime();
-    const dw::DateTimeRange timeSpan{DateTimeConverter::dateTime(start),
-                                     DateTimeConverter::dateTime(finish)};
+    const dw::DateTimeRange timeSpan{dateTimeConverter(start),
+                                     dateTimeConverter(finish)};
     QStringList tagNames{columnData(record, Columns::Tags)
                              .toString()
                              .split(",", Qt::SkipEmptyParts)};
@@ -119,7 +119,7 @@ sprintFromQSqlRecord(const QSqlRecord& record)
     return SprintRecord{name.toStdString(), timeSpan, tags};
 }
 
-QVariant columnData(const QSqlRecord& record, Columns column)
+auto columnData(const QSqlRecord& record, Columns column) -> QVariant
 {
     return record.value(static_cast<int>(column));
 }

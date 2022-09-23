@@ -33,13 +33,14 @@ public:
     explicit QtSprintStorageReader(QString connectionName);
 
     QtSprintStorageReader(QtSprintStorageReader&&) = delete;
-    QtSprintStorageReader& operator=(QtSprintStorageReader&&) = delete;
-
     QtSprintStorageReader(const QtSprintStorageReader&) = delete;
-    QtSprintStorageReader& operator=(const QtSprintStorageReader&) = delete;
 
-    std::vector<SprintRecord>
-    findByDateRange(const dw::DateRange& dateRange) final;
+    auto operator=(QtSprintStorageReader&&) -> QtSprintStorageReader& = delete;
+    auto operator=(const QtSprintStorageReader&)
+        -> QtSprintStorageReader& = delete;
+
+    auto findByDateRange(const dw::DateRange& dateRange)
+        -> std::vector<SprintRecord> final;
 
 private:
     QString connectionName;

@@ -28,15 +28,92 @@
 
 namespace sprint_timer::ui::contracts::PlannerContract {
 
+struct Item {
+    std::string description;
+    std::string_view foreground;
+    std::string_view background;
+
+    friend auto operator==(const Item&, const Item&) -> bool = default;
+};
+
+struct Colors {
+    std::pair<std::string_view, std::string_view> textColor;
+    std::pair<std::string_view, std::string_view> tagColor;
+    std::pair<std::string_view, std::string_view> progressColor;
+    std::pair<std::string_view, std::string_view> dueDateColor;
+    std::pair<std::string_view, std::string_view> reminderColor;
+
+    friend auto operator==(const Colors&, const Colors&) -> bool = default;
+};
+
+struct PlannerItem {
+    std::string uuid;
+    Item name;
+    Item tags;
+    Item progress;
+    dw::DateTime activeSince{dw::current_date_time_local()};
+    Item dueDate;
+    std::string notes;
+    Item reminder;
+    bool finished;
+    api::TaskTypeDTO type;
+
+    friend auto operator==(const PlannerItem&, const PlannerItem&)
+        -> bool = default;
+};
+
+using PlannerTree = Tree<std::string, PlannerItem>;
+
+struct TaskParent {
+    std::string parent;
+    std::optional<int64_t> beforePosition;
+};
+
+template <class CharT, class Traits>
+auto operator<<(std::basic_ostream<CharT, Traits>& os,
+                const PlannerItem& plannerItem)
+    -> std::basic_ostream<CharT, Traits>&
+{
+    auto displayItem = [&](const auto& item) {
+        os << "\t" << '"' << item.description << "\" " << item.background << " "
+           << item.foreground << '\n';
+    };
+    os << "PlannerItem{" << plannerItem.uuid << "\n";
+    displayItem(plannerItem.name);
+    displayItem(plannerItem.tags);
+    displayItem(plannerItem.progress);
+    os << " start: " << plannerItem.activeSince;
+    displayItem(plannerItem.dueDate);
+    displayItem(plannerItem.reminder);
+    os << '\t' << plannerItem.notes << '\n';
+    os << '\t' << plannerItem.finished << '\n';
+    os << '\t' << plannerItem.type << '\n';
+    os << "}";
+    return os;
+}
+
 class View;
 
 class Presenter : public mvp::BasePresenter<View> {
 public:
+    virtual auto moveNodes(const std::optional<std::string>& sourceParent,
+                           int64_t sourceRow,
+                           int64_t count,
+                           const std::optional<std::string>& destinationParent,
+                           int64_t destinationChild) -> void = 0;
+
+    virtual auto deleteTask(std::string&& taskUuid) -> void = 0;
+
+    virtual auto changeTaskAdditionContext(std::optional<std::string>&& parent,
+                                           bool isSubtask) -> void = 0;
+
+    virtual auto changeTaskEditionContext(const std::string& uuid) -> void = 0;
 };
 
 class View : public mvp::BaseView<View, Presenter> {
 public:
-    virtual void displayPlanner(const api::TaskTreeDTO& taskTree) = 0;
+    virtual void
+    displayPlanner(const Tree<std::string, PlannerItem>& taskTree) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::PlannerContract

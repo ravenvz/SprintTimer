@@ -19,29 +19,35 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKTREEFILESTORAGE_H_YQ94RXZP
-#define TASKTREEFILESTORAGE_H_YQ94RXZP
+#include "qt_gui/presentation/EditTaskDialogPresenter.h"
 
-#include "core/TaskTreeMetadataStorage.h"
-#include <QSqlQuery>
-#include <filesystem>
+namespace sprint_timer::ui {
 
-namespace sprint_timer::storage::qt_storage {
+EditTaskDialogPresenter::EditTaskDialogPresenter(
+    edit_task_handler_t& editTaskHandler_,
+    all_tags_handler_t& allTagsHandler_,
+    const EditTaskContext& editTaskContext_)
+    : editTaskHandler{editTaskHandler_}
+    , allTagsHandler{allTagsHandler_}
+    , editTaskContext{editTaskContext_}
+{
+}
 
-class QtTaskTreeStorage : public TaskTreeMetadataStorage {
-public:
-    QtTaskTreeStorage(std::unique_ptr<TaskTreeMetadataReader> reader,
-                      std::unique_ptr<TaskTreeMetadataWriter> writer);
+auto EditTaskDialogPresenter::onEditTaskAccepted(api::TaskDTO&& editedTask)
+    -> void
+{
+    editedTask.uuid = editTaskContext.task().uuid;
+    editTaskHandler.handle(api::EditTaskCommand{editedTask});
+}
 
-    [[nodiscard]] TaskMetadataTree readTree() const override;
+auto EditTaskDialogPresenter::updateViewImpl() -> void
+{
+    utils::inspect(view(), [&](auto* view) {
+        const auto tags = allTagsHandler.handle(api::AllTagsQuery{});
+        view->fillTags(tags);
+        view->fillTaskDetails(editTaskContext.task());
+    });
+}
 
-    void saveTree(const TaskMetadataTree& taskTree) const override;
+} // namespace sprint_timer::ui
 
-private:
-    std::unique_ptr<TaskTreeMetadataReader> reader;
-    std::unique_ptr<TaskTreeMetadataWriter> writer;
-};
-
-} // namespace sprint_timer::storage::qt_storage
-
-#endif /* end of include guard: TASKTREEFILESTORAGE_H_YQ94RXZP */

@@ -63,7 +63,7 @@ public:
 
     void onTaskSelectionChanged() override;
 
-    void changeTaskSelection(size_t index, std::string&& uuid) override;
+    void changeTaskSelection(api::TaskDTO&& task) override;
 
 private:
     IWorkflow& workflow;

@@ -35,18 +35,18 @@ TaskViewPresenter::~TaskViewPresenter()
     taskSelectionMediator.removeColleague(this);
 }
 
-void TaskViewPresenter::changeTaskSelection(size_t index, std::string&& uuid)
+void TaskViewPresenter::changeTaskSelection(api::TaskDTO&& task)
 {
-    taskSelectionMediator.changeSelection(this, index, std::move(uuid));
+    taskSelectionMediator.changeSelection(this, std::move(task));
 }
 
 void TaskViewPresenter::updateViewImpl() { onTaskSelectionChanged(); }
 
 void TaskViewPresenter::onTaskSelectionChanged()
 {
-    if (auto v = view(); v) {
-        v.value()->selectTask(taskSelectionMediator.taskIndex());
-    }
+    utils::inspect(view(), [&](auto* view) {
+        view->selectTask(taskSelectionMediator.taskUuid());
+    });
 }
 
 } // namespace sprint_timer::ui

@@ -7,7 +7,7 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-void tryExecute(QSqlQuery& query, const QString& queryStr)
+auto tryExecute(QSqlQuery& query, const QString& queryStr) -> void
 {
     try {
         if (!query.exec(queryStr)) {
@@ -21,7 +21,7 @@ void tryExecute(QSqlQuery& query, const QString& queryStr)
     }
 }
 
-void tryExecute(QSqlQuery& query)
+auto tryExecute(QSqlQuery& query) -> void
 {
     try {
         if (!query.exec()) {
@@ -35,7 +35,8 @@ void tryExecute(QSqlQuery& query)
     }
 }
 
-QSqlQuery tryPrepare(const QString& connectionName, const QString& queryStr)
+auto tryPrepare(const QString& connectionName, const QString& queryStr)
+    -> QSqlQuery
 {
     QSqlQuery query{QSqlDatabase::database(connectionName)};
     try {
@@ -51,7 +52,8 @@ QSqlQuery tryPrepare(const QString& connectionName, const QString& queryStr)
     }
 }
 
-std::vector<QSqlRecord> tryFetchAll(QSqlQuery& query, const QString& queryStr)
+auto tryFetchAll(QSqlQuery& query, const QString& queryStr)
+    -> std::vector<QSqlRecord>
 {
     if (!query.exec(queryStr)) {
         throw QueryError{"Error executing query", query};
@@ -59,7 +61,7 @@ std::vector<QSqlRecord> tryFetchAll(QSqlQuery& query, const QString& queryStr)
     return copyAllRecords(query);
 }
 
-std::vector<QSqlRecord> tryFetchAll(QSqlQuery& query)
+auto tryFetchAll(QSqlQuery& query) -> std::vector<QSqlRecord>
 {
     if (!query.exec()) {
         throw QueryError{"Error executing query", query};
@@ -67,11 +69,11 @@ std::vector<QSqlRecord> tryFetchAll(QSqlQuery& query)
     return copyAllRecords(query);
 }
 
-std::vector<QSqlRecord> copyAllRecords(QSqlQuery& query)
+auto copyAllRecords(QSqlQuery& query) -> std::vector<QSqlRecord>
 {
     std::vector<QSqlRecord> records;
-    // It is not guaranteed that the size will be determined, or driver has this
-    // feature
+    // It is not guaranteed that the size will be determined or that driver has
+    // this feature
     if (query.size() > 0) {
         records.reserve(static_cast<size_t>(query.size()));
     }
@@ -80,6 +82,40 @@ std::vector<QSqlRecord> copyAllRecords(QSqlQuery& query)
     }
     query.finish();
     return records;
+}
+
+auto maybeString(const QSqlRecord& record, int column)
+    -> std::optional<std::string>
+{
+    if (auto val = record.value(column); not val.isNull()) {
+        return val.toString().toStdString();
+    }
+    return std::nullopt;
+}
+
+auto maybeInt(const QSqlRecord& record, int column) -> std::optional<int>
+{
+    if (auto val = record.value(column); not val.isNull()) {
+        return val.toInt();
+    }
+    return std::nullopt;
+}
+
+auto maybeBool(const QSqlRecord& record, int column) -> std::optional<bool>
+{
+    if (auto val = record.value(column); not val.isNull()) {
+        return val.toBool();
+    }
+    return std::nullopt;
+}
+
+auto maybeDateTime(const QSqlRecord& record, int column)
+    -> std::optional<QDateTime>
+{
+    if (auto val = record.value(column); !val.isNull()) {
+        return val.toDateTime();
+    }
+    return std::nullopt;
 }
 
 } // namespace sprint_timer::storage::qt_storage

@@ -19,26 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef QTTASKTREESTORAGEWRITER_H_XDLUUTCC
-#define QTTASKTREESTORAGEWRITER_H_XDLUUTCC
+#ifndef EDITTASKCONTEXT_H_YUAALUYC
+#define EDITTASKCONTEXT_H_YUAALUYC
 
-#include "core/TaskTreeMetadataWriter.h"
-#include <QString>
-#include <filesystem>
+#include "api/dtos/TaskDTO.h"
 
-namespace sprint_timer::storage::qt_storage {
+namespace sprint_timer::ui {
 
-class QtTaskTreeWriter : public TaskTreeMetadataWriter {
+class EditTaskContext {
 public:
-    QtTaskTreeWriter(QString connectionName, std::filesystem::path storageDir);
+    EditTaskContext();
 
-    void saveTree(const TaskMetadataTree& taskTree) const override;
+    explicit EditTaskContext(api::TaskDTO&& task);
+
+    [[nodiscard]] auto task() const -> const api::TaskDTO&;
+
+    friend auto operator==(const EditTaskContext&, const EditTaskContext&)
+        -> bool = default;
 
 private:
-    QString connectionName;
-    std::filesystem::path storageDir;
+    api::TaskDTO editedTask;
 };
 
-} // namespace sprint_timer::storage::qt_storage
+} // namespace sprint_timer::ui
 
-#endif /* end of include guard: QTTASKTREESTORAGEWRITER_H_XDLUUTCC */
+#endif /* end of include guard: EDITTASKCONTEXT_H_YUAALUYC */

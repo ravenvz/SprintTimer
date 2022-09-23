@@ -97,6 +97,14 @@ constexpr auto inspect(Opt&& opt, Func&& func) -> void
     }
 }
 
+template <typename T, typename Comp>
+auto opt_equal(const std::optional<T>& lhs,
+               const std::optional<T>& rhs,
+               Comp&& cmp) -> bool
+{
+    return ((!lhs && !rhs) || (lhs && rhs && cmp(lhs.value(), rhs.value())));
+}
+
 } // namespace sprint_timer::utils
 
 namespace sprint_timer::ranges_ext {

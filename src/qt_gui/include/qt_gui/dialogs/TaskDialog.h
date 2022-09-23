@@ -24,31 +24,54 @@
 
 #include "api/dtos/TaskDTO.h"
 #include "qt_gui/dialogs/DisplayableDialog.h"
+#include "qt_gui/presentation/DateRangeSelectorContract.h"
+#include "qt_gui/utils/DateTimeConverter.h"
+#include <QStringListModel>
 
 class QAbstractItemModel;
 class QLineEdit;
 class QSpinBox;
+class QDateTimeEdit;
+class QTextEdit;
+class QGroupBox;
+class QComboBox;
 
 namespace sprint_timer::ui::qt_gui {
 
 class TaskDialog : public DisplayableDialog {
 public:
-    explicit TaskDialog(QAbstractItemModel& tagModel,
-                        QWidget* parent = nullptr);
+    explicit TaskDialog(dw::Weekday firstDayOfWeek, QWidget* parent = nullptr);
 
 protected:
-    [[nodiscard]] api::TaskDTO parseFormFields() const;
+    [[nodiscard]] auto parseFormFields() const -> api::TaskDTO;
 
-    void fillFormFields(const api::TaskDTO& task);
+    auto fillFormFields(const api::TaskDTO& task) -> void;
 
-    [[nodiscard]] bool nameIsEmpty() const;
+    auto fillTagField(std::span<const std::string> tags) -> void;
 
-    void markNameFieldRed();
+    [[nodiscard]] auto nameIsEmpty() const -> bool;
+
+    auto markNameFieldRed() -> void;
 
 private:
+    dw::Weekday firstDayOfWeek;
     QLineEdit* name;
     QSpinBox* cost;
-    QLineEdit* tags;
+    QLineEdit* tagsField;
+    QStringListModel typesModel;
+    QStringListModel tagModel;
+    QComboBox* typesBox;
+    QDateTimeEdit* start;
+    QGroupBox* dueFrame;
+    QDateTimeEdit* due;
+    QGroupBox* reminderFrame;
+    QDateTimeEdit* reminder;
+    QLineEdit* recurrence;
+    QTextEdit* notes;
+    utils::DateTimeConverter dateTimeConverter;
+
+    auto maybeDateTime(QDateTimeEdit* widget) const
+        -> std::optional<dw::DateTime>;
 };
 
 } // namespace sprint_timer::ui::qt_gui

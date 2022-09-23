@@ -22,22 +22,26 @@
 #ifndef EDITTASKHANDLER_H_J64RSQ3N
 #define EDITTASKHANDLER_H_J64RSQ3N
 
-#include "api/com_query/CommandHandler.h"
-#include "api/requests//EditTaskCommand.h"
 #include "api/ActionInvoker.h"
 #include "api/TaskStorage.h"
+#include "api/com_query/CommandHandler.h"
+#include "api/requests//EditTaskCommand.h"
+#include "core/utils/Converter.h"
 
 namespace sprint_timer::api {
 
 class EditTaskHandler : public asp::CommandHandler<EditTaskCommand> {
 public:
-    EditTaskHandler(TaskStorage& taskStorage, ActionInvoker& actionInvoker);
+    EditTaskHandler(TaskStorage& taskStorage,
+                    ActionInvoker& actionInvoker,
+                    const Converter<TaskDTO, Task>& taskMapper);
 
     void handle(const EditTaskCommand& command) override;
 
 private:
     TaskStorage& taskStorage;
     ActionInvoker& actionInvoker;
+    const Converter<TaskDTO, Task>& taskMapper;
 };
 
 } // namespace sprint_timer::api

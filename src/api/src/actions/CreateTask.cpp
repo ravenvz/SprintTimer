@@ -20,24 +20,46 @@
 **
 *********************************************************************************/
 #include "api/actions/CreateTask.h"
+#include "api/GatewayException.h"
+#include "core/utils/Algutils.h"
 
 namespace sprint_timer::api::actions {
 
-CreateTask::CreateTask(TaskStorageWriter& taskStorageWriter,
-                       Task newTask)
-    : writer{taskStorageWriter}
-    , task{std::move(newTask)}
+CreateTask::CreateTask(TaskStorage& taskStorage_,
+                       Task task_,
+                       std::optional<std::string> parent_,
+                       std::optional<int64_t> beforePosition_)
+    : taskStorage{taskStorage_}
+    , task{std::move(task_)}
+    , parent{std::move(parent_)}
+    , beforePosition{beforePosition_}
 {
 }
 
-void CreateTask::execute() { writer.save(task); }
+auto CreateTask::execute() -> void
+{
+    auto taskTree = taskStorage.taskTree();
+    taskTree.addChild(task.uuid(), task, parent, beforePosition);
+    taskStorage.saveTree(taskTree);
+    taskStorage.save(task);
+}
 
-void CreateTask::undo() { writer.remove(task.uuid()); }
+auto CreateTask::undo() -> void
+{
+    auto taskTree = taskStorage.taskTree();
+    const auto pos = taskTree.positionInChildren(task.uuid());
+    taskTree.removeNodes(parent, static_cast<int64_t>(*pos), 1);
+    taskStorage.saveTree(taskTree);
+    taskStorage.remove(task.uuid());
+}
 
-std::string CreateTask::describe() const
+auto CreateTask::describe() const -> std::string
 {
     std::stringstream ss;
-    ss << "Add new task '" << task << "'";
+    ss << "Creating task action: " << task;
+    utils::inspect(parent, [&](const auto& uuid) { ss << ", uuid: " << uuid; });
+    utils::inspect(beforePosition,
+                   [&](auto pos) { ss << ", beforePos: " << pos; });
     return ss.str();
 }
 

@@ -23,22 +23,22 @@
 #define EDITTASKDIALOG_H_FOEBNJZV
 
 #include "qt_gui/dialogs/TaskDialog.h"
+#include "qt_gui/presentation/EditTaskDialogContract.h"
 #include "qt_gui/presentation/TaskSelectionContext.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-class EditTaskDialog : public TaskDialog {
+class EditTaskDialog : public TaskDialog,
+                       public contracts::EditTaskDialogContract::View {
 public:
-    EditTaskDialog(QAbstractItemModel& tagModel,
-                   QAbstractItemModel& taskModel,
-                   const TaskSelectionContext& taskSelectionContext,
-                   QWidget* parent = nullptr);
+    explicit EditTaskDialog(dw::Weekday firstDayOfWeek,
+                            QWidget* parent = nullptr);
 
     void accept() override;
 
-private:
-    const TaskSelectionContext& taskSelectionContext;
-    QAbstractItemModel& taskModel;
+    auto fillTaskDetails(const api::TaskDTO& original) -> void override;
+
+    auto fillTags(std::span<const std::string> tags) -> void override;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -22,49 +22,40 @@
 #ifndef PLANNERWINDOW_H_SRA2PAHG
 #define PLANNERWINDOW_H_SRA2PAHG
 
+#include "qt_gui/presentation/PlannerContract.h"
 #include "qt_gui/widgets/StandaloneDisplayableWidget.h"
-#include <QAbstractItemModel>
-#include <QPushButton>
-#include <QTreeView>
-#include <QVBoxLayout>
+#include <QAbstractItemDelegate>
+#include <memory>
+
+class QTreeView;
+
+class QVBoxLayout;
+
+class QAbstractItemModel;
 
 namespace sprint_timer::ui::qt_gui {
 
-class PlannerWindow : public StandaloneDisplayableWidget {
+class PlannerWindow : public StandaloneDisplayableWidget,
+                      public contracts::PlannerContract::View {
 public:
-    explicit PlannerWindow(std::unique_ptr<QAbstractItemModel> plannerModel_,
-                           QWidget* parent_ = nullptr)
+    PlannerWindow(QAbstractItemModel& plannerModel_,
+                  QAbstractItemDelegate& itemDelegate_,
+                  Displayable& addTaskDialog_,
+                  Displayable& editTaskDialog_,
+                  QWidget* parent_ = nullptr);
 
-        : StandaloneDisplayableWidget{parent_}
-        , plannerModel{std::move(plannerModel_)}
-    {
-        auto lt = std::make_unique<QHBoxLayout>();
-
-        auto pbPlanner = std::make_unique<QPushButton>("Planning");
-        auto pbGoals = std::make_unique<QPushButton>("Goals");
-        auto pbProjects = std::make_unique<QPushButton>("Projects");
-        auto pbReview = std::make_unique<QPushButton>("Review");
-        auto buttonLayout = std::make_unique<QVBoxLayout>();
-
-        auto buttonWidget = std::make_unique<QWidget>();
-        buttonLayout->addWidget(pbPlanner.release());
-        buttonLayout->addWidget(pbGoals.release());
-        buttonLayout->addWidget(pbProjects.release());
-        buttonLayout->addWidget(pbReview.release());
-        buttonWidget->setLayout(buttonLayout.release());
-        lt->addWidget(buttonWidget.release());
-        lt->addWidget(outlineView);
-
-        setLayout(lt.release());
-
-        outlineView->setModel(plannerModel.get());
-        // const auto items = buildSampleTree();
-        // plannerModel.displayPlanner(items);
-    }
+    auto displayPlanner(const contracts::PlannerContract::PlannerTree& taskTree)
+        -> void override;
 
 private:
-    std::unique_ptr<QAbstractItemModel> plannerModel;
-    QTreeView* outlineView = std::make_unique<QTreeView>().release();
+    QAbstractItemModel& plannerModel;
+    QTreeView* outlineView;
+    Displayable& addTaskDialog;
+    Displayable& editTaskDialog;
+
+    auto showContextMenu(const QPoint& pos) const -> void;
+
+    [[nodiscard]] auto selectedTaskUuid() const -> std::string;
 };
 
 } // namespace sprint_timer::ui::qt_gui

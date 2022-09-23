@@ -30,14 +30,13 @@ namespace sprint_timer::storage::qt_storage {
 
 class MigrationManager {
 public:
-    MigrationManager(unsigned currentDbVersion);
+    auto runMigrations(const QString& connectionName,
+                       unsigned currentDatabaseVersion) const -> void;
 
-    void runMigrations(const QString& connectionName) const;
-
-    void addMigration(unsigned version, std::unique_ptr<Migration> migration);
+    auto addMigration(unsigned version, std::unique_ptr<Migration> migration)
+        -> void;
 
 private:
-    unsigned currentDatabaseVersion;
     std::unordered_map<unsigned, std::unique_ptr<Migration>> migrations;
 };
 

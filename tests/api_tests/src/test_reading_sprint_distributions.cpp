@@ -71,8 +71,14 @@ generate_n_consecutive_ranges(ForwardIt first, dw::DateTime base, int n)
 
 TEST_F(ReadingSprintDistributionsFixture, reads_sprint_daily_distribution)
 {
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", {"Tag1", "Tag2"}, 28});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1", "Tag2"},
+                                               28,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     std::vector<dw::DateTimeRange> sprintRanges;
@@ -113,8 +119,14 @@ TEST_F(ReadingSprintDistributionsFixture, reads_monthly_distribution)
     auto first_day_of_month = [](const Date& date) {
         return Date{date.year(), date.month(), Day{1}};
     };
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", std::vector<std::string>{}, 25});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               std::vector<std::string>{},
+                                               25,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const Date someDate{Year{2018}, Month{12}, Day{2}};
@@ -157,8 +169,14 @@ TEST_F(ReadingSprintDistributionsFixture, reads_monthly_distribution)
 TEST_F(ReadingSprintDistributionsFixture,
        reads_sprint_weekly_distribution_with_monday_first_setting)
 {
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", std::vector<std::string>{}, 12});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               std::vector<std::string>{},
+                                               12,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const dw::DateTime upperDate{Date{Year{2016}, Month{2}, Day{12}}};
@@ -206,8 +224,14 @@ TEST_F(ReadingSprintDistributionsFixture,
 TEST_F(ReadingSprintDistributionsFixture,
        reads_sprint_weekly_distribution_with_sunday_first_setting)
 {
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", std::vector<std::string>{}, 77});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               std::vector<std::string>{},
+                                               77,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const dw::DateTime upperDate{Date{Year{2016}, Month{2}, Day{12}}};
@@ -256,8 +280,14 @@ TEST_F(ReadingSprintDistributionsFixture,
        ignores_deleted_sprints_when_reading_sprint_distribution)
 {
     using namespace std::chrono_literals;
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", std::vector<std::string>{}, 77});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               std::vector<std::string>{},
+                                               77,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
     const dw::DateTime someDateTime{Date{Year{2016}, Month{2}, Day{12}}};

@@ -50,6 +50,7 @@ inline const QStringView completed{QStringLiteral("completed")};
 inline const QStringView lastModified{QStringLiteral("last_modified")};
 inline const QStringView uuid{QStringLiteral("uuid")};
 inline const QStringView deleted{QStringLiteral("deleted")};
+inline const QStringView type{QStringLiteral("type")};
 } // namespace Columns
 
 } // namespace TaskTable
@@ -141,6 +142,18 @@ inline const QStringView text{QStringLiteral("text")};
 
 } // namespace NotesTable
 
+namespace TaskTreeTable {
+
+inline const QStringView name{QStringLiteral("task_tree")};
+
+namespace Columns {
+
+inline const QStringView task_uuid{QStringLiteral("task_uuid")};
+
+} // namespace Columns
+
+} // namespace TaskTreeTable
+
 namespace TaskTagView {
 inline const QStringView name{QStringLiteral("task_tag_view")};
 
@@ -206,19 +219,13 @@ namespace TaskViewDeleteTrigger {
 inline const QStringView name{QStringLiteral("on_task_view_delete")};
 } // namespace TaskViewDeleteTrigger
 
-namespace TaskViewUpdateTrigger {
-inline const QStringView name{QStringLiteral("on_task_view_update")};
-} // namespace TaskViewUpdateTrigger
+namespace AdvTaskViewUpdateTrigger {
+inline const QStringView name{QStringLiteral("on_adv_task_view_update")};
+} // namespace AdvTaskViewUpdateTrigger
 
-namespace CalendarTable {
-inline const QStringView name{QStringLiteral("calendar")};
-
-namespace Columns {
-inline const QStringView id{QStringLiteral("id")};
-inline const QStringView dt{QStringLiteral("dt")};
-} // namespace Columns
-
-} // namespace CalendarTable
+namespace CleanEmptyNotesTrigger {
+inline const QStringView name{QStringLiteral("clean_empty_notes")};
+} // namespace CleanEmptyNotesTrigger
 
 } // namespace sprint_timer::storage::qt_storage
 

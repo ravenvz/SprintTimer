@@ -24,9 +24,17 @@
 
 #include "api/DefaultDateTimeProvider.h"
 #include "api/ObservableActionInvoker.h"
+#include "api/dtos/NoteMapper.h"
+#include "api/dtos/SprintMapper.h"
+#include "api/dtos/TagMapper.h"
+#include "api/dtos/TaskMapper.h"
+#include "api/dtos/TaskTimeframeMapper.h"
+#include "api/dtos/TaskTreeMapper.h"
+#include "api/dtos/TaskTypeMapper.h"
 #include "api_tests/FakeUuidGenerator.h"
 #include "api_tests/TestCommandHandlerComposer.h"
 #include "api_tests/TestQueryHandlerComposer.h"
+#include "api_tests/constants.h"
 #include "common_utils/DateTimeProviderMock.h"
 #include "qt_storage/DatabaseInitializer.h"
 #include "qt_storage/QtStorageImplementersFactory.h"
@@ -52,18 +60,18 @@ struct TestStorageInitializer {
         return dtProvider;
     }
 
-    std::filesystem::path fileStoragePath{"tests/tmp"};
-
 private:
     QCoreApplication app;
     const QString name{"file::memory:?cache=shared"};
     sprint_timer::storage::qt_storage::ConnectionGuard connectionGuard{
         name, "Keep alive conn"};
-    sprint_timer::storage::qt_storage::DatabaseInitializer db{name};
+    sprint_timer::storage::qt_storage::MigrationManager migrationManager;
+    sprint_timer::storage::qt_storage::DatabaseInitializer db{name,
+                                                              migrationManager};
     sprint_timer::storage::qt_storage::WorkerConnection dbService{
         name, "Worker connection"};
     sprint_timer::storage::qt_storage::QtStorageImplementersFactory factory{
-        dbService.connectionName(), fileStoragePath};
+        dbService.connectionName()};
     std::unique_ptr<sprint_timer::TaskStorage> taskStorage{
         factory.taskStorage()};
     std::unique_ptr<sprint_timer::SprintStorage> sprintStorage{
@@ -74,18 +82,32 @@ private:
     FakeUuidGenerator uuidGenerator;
     std::unique_ptr<sprint_timer::WorkScheduleStorage> workScheduleStorage{
         factory.scheduleStorage()};
-    std::unique_ptr<sprint_timer::TaskTreeMetadataStorage> taskTreeStorage{
-        factory.taskTreeStorage(*taskStorage)};
+
+    sprint_timer::api::NoteMapper noteMapper;
+    sprint_timer::api::SprintDatetimeMapper sprintDateTimeMapper;
+    sprint_timer::api::SprintMapper sprintMapper;
+    sprint_timer::api::TagMapper tagMapper;
+    sprint_timer::api::TaskTimeframeMapper timeFrameMapper;
+    sprint_timer::api::TaskTypeMapper taskTypeMapper;
+    sprint_timer::api::TaskMapper taskMapper{noteMapper,
+                                             tagMapper,
+                                             timeFrameMapper,
+                                             taskTypeMapper,
+                                             sprintDateTimeMapper};
+    sprint_timer::api::TaskTreeMapper taskTreeMapper{taskMapper};
+
     std::unique_ptr<sprint_timer::compose::CommandHandlerComposer>
         commandHandlerComp{
             std::make_unique<sprint_timer::compose::TestCommandHandlerComposer>(
                 actionInvoker,
                 *taskStorage,
                 *sprintStorage,
-                *taskTreeStorage,
                 *workScheduleStorage,
                 uuidGenerator,
-                dtProvider)};
+                dtProvider,
+                taskMapper,
+                sprintDateTimeMapper,
+                taskTreeMapper)};
     std::unique_ptr<sprint_timer::SprintDistributionReader> dailyDistReader{
         factory.dailyDistReader(30)};
     std::unique_ptr<sprint_timer::SprintDistributionReader>
@@ -105,7 +127,10 @@ private:
                 *mondayFirstDistReader,
                 *sundayFirstDistReader,
                 *monthlyDistReader,
-                *taskTreeStorage)};
+                taskMapper,
+                tagMapper,
+                sprintMapper,
+                taskTreeMapper)};
     sprint_timer::api::DefaultDateTimeProvider dtProvider;
 };
 

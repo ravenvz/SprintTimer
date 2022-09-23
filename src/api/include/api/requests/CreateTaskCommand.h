@@ -24,6 +24,8 @@
 
 #include "api/dtos/NoteDTO.h"
 #include "api/dtos/TaskTimeframeDTO.h"
+#include "api/dtos/TaskTypeDTO.h"
+#include "core/utils/Algutils.h"
 #include <cstdint>
 #include <vector>
 
@@ -36,36 +38,49 @@ struct CreateTaskCommand {
     std::string name;
     std::vector<std::string> tags;
     int32_t estimatedCost{0};
+    TaskTypeDTO type{TaskTypeDTO::Regular};
+    std::optional<std::string> parent;
+    std::optional<int64_t> insertBeforePos;
     std::optional<NoteDTO> notes{};
-    std::optional<TaskTimeframeDTO> timeFrame{};
+    TaskTimeframeDTO timeFrame{};
 
-    friend bool operator==(const CreateTaskCommand&,
-                           const CreateTaskCommand&) = default;
+    friend auto operator==(const CreateTaskCommand&, const CreateTaskCommand&)
+        -> bool = default;
 };
 
 template <class CharT, class Traits>
-std::basic_ostream<CharT, Traits>&
-operator<<(std::basic_ostream<CharT, Traits>& os,
-           const CreateTaskCommand& command)
+auto operator<<(std::basic_ostream<CharT, Traits>& os,
+                const CreateTaskCommand& command)
+    -> std::basic_ostream<CharT, Traits>&
 {
+    using utils::inspect;
+
     os << "CreateTaskCommand{";
     os << command.name << ", ";
     for (const auto& tag : command.tags) {
         os << '#' << tag << ' ';
     }
     os << command.estimatedCost << ", ";
-    if (auto notes = command.notes; notes) {
-        os << "notes present, ";
-    }
-    if (auto frame = command.timeFrame; frame) {
-        os << frame->frame << " ";
-        if (auto remind = frame->remindAt; remind) {
-            os << "reminder: " << *remind << " ";
-        }
-        if (auto recurrence = frame->recurrence; recurrence) {
-            os << "recurrence: " << *recurrence;
-        }
-    }
+
+    os << "type: " << static_cast<int>(command.type) << ", ";
+
+    inspect(command.notes,
+            [&](const auto& /* dto */) { os << "notes present, "; });
+
+    inspect(command.parent,
+            [&](const auto& uuid) { os << "parent: " << uuid << ", "; });
+    inspect(command.insertBeforePos,
+            [&](auto pos) { os << ", pos: " << pos << ", "; });
+
+    const auto& frame = command.timeFrame;
+    os << "start: " << frame.start;
+    inspect(frame.due, [&](dw::DateTime due) { os << " due: " << due; });
+    inspect(frame.remindAt,
+            [&](const auto& remind) { os << " reminder: " << remind << ", "; });
+    inspect(frame.recurrence, [&](const auto& recurrence) {
+        os << " recurrence: " << recurrence;
+    });
+
     os << "}";
     return os;
 }

@@ -44,22 +44,41 @@ public:
         commandComposer.undoHandler()};
 };
 
-TEST_F(FinishingTaskFixture, finishing_recurring_task_creates_another_task_instance) {
+TEST_F(FinishingTaskFixture,
+       finishing_recurring_task_creates_another_task_instance)
+{
     FAIL();
 }
 
-TEST_F(FinishingTaskFixture, undoing_finishing_recurring_task_removes_created_task_instance) {
+TEST_F(FinishingTaskFixture,
+       undoing_finishing_recurring_task_removes_created_task_instance)
+{
     FAIL();
 }
 
 TEST_F(FinishingTaskFixture, toggling_task_completion_alters_timestamp)
 {
     const DateTime timeStamp{DateTime{Date{Year{2021}, Month{5}, Day{4}}}};
-    createTaskHandler.handle(CreateTaskCommand{"Name", {"Tag9"}, 7});
+    createTaskHandler.handle(CreateTaskCommand{"Name",
+                                               {"Tag9"},
+                                               7,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto uuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
-    const TaskDTO expected{
-        uuid, {"Tag9"}, "Name", 7, {}, true, current_date_time_local()};
+    const TaskDTO expected{uuid,
+                           {"Tag9"},
+                           "Name",
+                           7,
+                           {},
+                           true,
+                           current_date_time_local(),
+                           std::nullopt,
+                           TaskTimeframeDTO{},
+                           TaskTypeDTO::Regular};
 
     toggleTaskCompletedHandler.handle(
         ToggleTaskCompletedCommand{uuid, timeStamp});
@@ -70,10 +89,26 @@ TEST_F(FinishingTaskFixture, toggling_task_completion_alters_timestamp)
 TEST_F(FinishingTaskFixture, undoing_task_completion)
 {
     const DateTime timeStamp{DateTime{Date{Year{2021}, Month{5}, Day{4}}}};
-    createTaskHandler.handle(CreateTaskCommand{"Name", {"Tag9"}, 7});
+    createTaskHandler.handle(CreateTaskCommand{"Name",
+                                               {"Tag9"},
+                                               7,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto uuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
-    const TaskDTO expected{uuid, {"Tag9"}, "Name", 7, {}, false, timeStamp};
+    const TaskDTO expected{uuid,
+                           {"Tag9"},
+                           "Name",
+                           7,
+                           {},
+                           false,
+                           timeStamp,
+                           std::nullopt,
+                           TaskTimeframeDTO{},
+                           TaskTypeDTO::Regular};
     toggleTaskCompletedHandler.handle(
         ToggleTaskCompletedCommand{uuid, timeStamp});
 

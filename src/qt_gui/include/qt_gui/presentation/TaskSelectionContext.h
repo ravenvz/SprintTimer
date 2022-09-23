@@ -22,6 +22,7 @@
 #ifndef TASKSELECTIONCONTEXT_H_4NHWBLM6
 #define TASKSELECTIONCONTEXT_H_4NHWBLM6
 
+#include "api/dtos/TaskDTO.h"
 #include <optional>
 #include <string>
 
@@ -31,9 +32,10 @@ class TaskSelectionContext {
 public:
     virtual ~TaskSelectionContext() = default;
 
-    virtual std::optional<size_t> taskIndex() const = 0;
+    [[nodiscard]] virtual auto taskUuid() const -> std::optional<std::string> = 0;
 
-    virtual std::optional<std::string> taskUuid() const = 0;
+    [[nodiscard]] virtual auto currentSelection() const
+        -> const std::optional<api::TaskDTO>& = 0;
 };
 
 } // namespace sprint_timer::ui

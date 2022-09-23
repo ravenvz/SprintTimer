@@ -4,10 +4,12 @@ target_sources(test_presentation
     PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/test_active_tasks_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_add_task_control_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_add_task_dialog_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_best_workday_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_daily_statistics_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_data_export_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_date_range_selector_presenter.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/test_edit_task_dialog_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_daytime_statistics_presenter.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_history_mediator.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_history_presenter.cpp"

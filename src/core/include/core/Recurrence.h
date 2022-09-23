@@ -34,6 +34,9 @@ public:
 
     [[nodiscard]] auto pattern() const -> std::string;
 
+    friend auto operator==(const Recurrence&, const Recurrence&)
+        -> bool = default;
+
 private:
     std::string recPattern;
 };

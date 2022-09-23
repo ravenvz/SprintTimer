@@ -3,10 +3,12 @@ add_executable(${SPRINT_MAIN})
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+find_package(Qt6 REQUIRED COMPONENTS Test)
+
 target_sources(${SPRINT_MAIN}
     PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/AddSprintDialogProxy.h"
-        "${CMAKE_CURRENT_LIST_DIR}/AddTaskDialogProxy.h"
+        "${CMAKE_CURRENT_LIST_DIR}/AddTaskDialogLifestyleProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/BestWorkdayPresenterProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/CacheAwareCommandHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/CacheAwareQueryHandler.h"
@@ -65,6 +67,7 @@ target_link_libraries(
         ${GUI_LIB}
         ${STORAGE_LIB}
         ${EXTERNAL_IO_LIB}
+        Qt6::Test
 )
 
 install(TARGETS ${SPRINT_MAIN} RUNTIME DESTINATION ${EXECUTABLE_INSTALL_PATH_SUFFIX})

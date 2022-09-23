@@ -55,10 +55,22 @@ TEST_F(
     RequestingActiveTasksFixture,
     requesting_active_tasks_treating_recently_modified_finished_task_as_active)
 {
-    createTaskHandler.handle(
-        CreateTaskCommand{"Task name", {"Tag1", "Tag2"}, 4});
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some other task", {"SomeTag"}, 2});
+    createTaskHandler.handle(CreateTaskCommand{"Task name",
+                                               {"Tag1", "Tag2"},
+                                               4,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Some other task",
+                                               {"SomeTag"},
+                                               2,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto tasks = activeTasksHandler.handle(ActiveTasksQuery{});
     std::vector<std::string> uuids;
     std::transform(cbegin(tasks),
@@ -70,19 +82,25 @@ TEST_F(
 
     EXPECT_THAT(activeTasksHandler.handle(ActiveTasksQuery{}),
                 ElementsAre(TaskDTO{uuids.front(),
-                                       {"Tag1", "Tag2"},
-                                       "Task name",
-                                       4,
-                                       {},
-                                       true,
-                                       current_date_time_local()},
+                                    {"Tag1", "Tag2"},
+                                    "Task name",
+                                    4,
+                                    {},
+                                    true,
+                                    current_date_time_local(),
+                                    std::nullopt,
+                                    TaskTimeframeDTO{},
+                                    TaskTypeDTO::Regular},
                             TaskDTO{uuids.back(),
-                                       {"SomeTag"},
-                                       "Some other task",
-                                       2,
-                                       {},
-                                       false,
-                                       current_date_time_local()}));
+                                    {"SomeTag"},
+                                    "Some other task",
+                                    2,
+                                    {},
+                                    false,
+                                    current_date_time_local(),
+                                    std::nullopt,
+                                    TaskTimeframeDTO{},
+                                    TaskTypeDTO::Regular}));
 }
 
 // TEST_F(RequestingActiveTasksFixture,

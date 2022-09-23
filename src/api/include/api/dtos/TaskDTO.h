@@ -24,6 +24,7 @@
 
 #include "api/dtos/NoteDTO.h"
 #include "api/dtos/TaskTimeframeDTO.h"
+#include "api/dtos/TaskTypeDTO.h"
 #include "core/utils/Algutils.h"
 #include "date_wrapper/date_wrapper.h"
 #include <optional>
@@ -36,21 +37,23 @@ struct TaskDTO {
     std::string uuid;
     std::vector<std::string> tags;
     std::string name;
-    int expectedCost;
+    int expectedCost{0};
     std::vector<dw::DateTimeRange> sprints;
-    bool finished;
+    bool finished{false};
     dw::DateTime modificationStamp{dw::current_date_time_local()};
-    std::optional<NoteDTO> notes = std::nullopt;
-    std::optional<TaskTimeframeDTO> timeFrame = std::nullopt;
+    std::optional<NoteDTO> notes{std::nullopt};
+    TaskTimeframeDTO timeFrame;
+    TaskTypeDTO kind{TaskTypeDTO::Regular};
 
-    friend bool operator==(const TaskDTO&, const TaskDTO&) = default;
+    friend auto operator==(const TaskDTO&, const TaskDTO&) -> bool = default;
 };
 
 template <class CharT, class Traits>
-std::basic_ostream<CharT, Traits>&
-operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
+auto operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
+    -> std::basic_ostream<CharT, Traits>&
 {
     using utils::inspect;
+    using utils::or_else;
 
     os << "TaskDTO{" << task.uuid << ", ";
     for (const auto& element : task.tags) {
@@ -59,16 +62,22 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
     os << task.name << ", ";
     os << task.sprints.size() << '/' << task.expectedCost << ", ";
     os << (task.finished ? "finished, " : "pending, ");
+    os << "type: " << static_cast<int>(task.kind) << ", ";
     inspect(task.notes,
             [&](const auto& note) { os << '"' << note.text << "\", "; });
-    inspect(task.timeFrame, [&](const auto& frame) {
-        os << frame.frame << ", ";
-        inspect(frame.remindAt, [&](const auto& reminder) {
-            os << "remind: " << reminder << ", ";
-        });
-        inspect(frame.recurrence, [&](const auto& recurrence) {
-            os << "recurrence: " << '"' << recurrence << "\", ";
-        });
+    os << " start: " << task.timeFrame.start << ", due: ";
+    if (auto due = task.timeFrame.due; due) {
+        os << *due;
+    }
+    else {
+        os << "unlimited";
+    }
+    // os << frame.due.value_or(std::string{"unlimited"});
+    inspect(task.timeFrame.remindAt, [&](const auto& reminder) {
+        os << " reminder: " << reminder << ", ";
+    });
+    inspect(task.timeFrame.recurrence, [&](const auto& recurrence) {
+        os << "recurrence: " << '"' << recurrence << "\", ";
     });
     os << task.modificationStamp << '}';
     return os;

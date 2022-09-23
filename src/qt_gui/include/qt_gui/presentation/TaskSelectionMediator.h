@@ -22,6 +22,7 @@
 #ifndef TASKSELECTIONMEDIATOR_H_K1DXY98M
 #define TASKSELECTIONMEDIATOR_H_K1DXY98M
 
+#include "api/dtos/TaskDTO.h"
 #include "qt_gui/presentation/Mediator.h"
 #include "qt_gui/presentation/TaskSelectionColleague.h"
 #include "qt_gui/presentation/TaskSelectionContext.h"
@@ -34,16 +35,17 @@ class TaskSelectionMediator : public Mediator<TaskSelectionColleague>,
                               public TaskSelectionContext {
 public:
     void changeSelection(TaskSelectionColleague* caller,
-                         size_t taskIndex,
-                         std::string&& taskUuid);
+                         std::optional<api::TaskDTO>&& task);
 
-    std::optional<size_t> taskIndex() const override;
+    auto taskUuid() const -> std::optional<std::string> override;
 
-    std::optional<std::string> taskUuid() const override;
+    auto currentSelection() const
+        -> const std::optional<api::TaskDTO>& override;
 
 private:
     std::optional<size_t> index;
     std::optional<std::string> uuid;
+    std::optional<api::TaskDTO> selection;
 };
 
 } // namespace sprint_timer::ui

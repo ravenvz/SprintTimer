@@ -24,6 +24,8 @@
 
 #include "api/dtos/TaskDTO.h"
 #include "date_wrapper/date_wrapper.h"
+#include <filesystem>
+#include <iostream>
 #include <span>
 
 std::vector<std::string>
@@ -37,5 +39,19 @@ constexpr dw::DateTimeRange createRange(dw::DateTime start) noexcept
     using namespace std::chrono_literals;
     return dw::DateTimeRange{start, start + 25min};
 }
+
+struct TempFile {
+    explicit TempFile(std::filesystem::path file_);
+
+    ~TempFile();
+
+    // Calling this function prevents file deletion. Might be useful for
+    // debugging.
+    auto retain() -> void;
+
+private:
+    std::filesystem::path file;
+    bool shouldBeRetained{false};
+};
 
 #endif /* end of include guard: UTILS_H_4MJTC1OS */

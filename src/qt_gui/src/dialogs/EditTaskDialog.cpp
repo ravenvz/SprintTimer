@@ -20,49 +20,43 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/EditTaskDialog.h"
+#include "core/utils/Algutils.h"
 #include "qt_gui/metatypes/TaskDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-EditTaskDialog::EditTaskDialog(
-    QAbstractItemModel& tagModel_,
-    QAbstractItemModel& taskModel_,
-    const TaskSelectionContext& taskSelectionContext_,
-    QWidget* parent_)
-    : TaskDialog{tagModel_, parent_}
-    , taskSelectionContext{taskSelectionContext_}
-    , taskModel{taskModel_}
+EditTaskDialog::EditTaskDialog(dw::Weekday firstDayOfWeek_, QWidget* parent_)
+    : TaskDialog{firstDayOfWeek_, parent_}
 {
-    const auto ind = taskSelectionContext.taskIndex();
-    if (!ind) {
-        return;
-    }
-    const auto modelIndex = taskModel.index(static_cast<int>(*ind), 0);
-    const auto item = taskModel.data(modelIndex, CustomRoles::ItemRole);
-    const auto task = item.value<api::TaskDTO>();
-
-    fillFormFields(task);
     setWindowTitle("Edit task");
 }
 
 void EditTaskDialog::accept()
 {
+    using sprint_timer::utils::inspect;
+
     if (nameIsEmpty()) {
         markNameFieldRed();
         return;
     }
-    const auto selectedTask = taskSelectionContext.taskIndex();
-    if (!selectedTask) {
-        return;
-    }
-    const auto editedTask = parseFormFields();
-    QVariant var;
-    var.setValue(editedTask);
-    taskModel.setData(taskModel.index(static_cast<int>(*selectedTask), 0),
-                      var,
-                      CustomRoles::ReplaceRole);
+
+    inspect(presenter(), [&](auto* presenter) {
+        auto editedTask = parseFormFields();
+        presenter->onEditTaskAccepted(parseFormFields());
+    });
+
     QDialog::accept();
+}
+
+auto EditTaskDialog::fillTaskDetails(const api::TaskDTO& original) -> void
+{
+    fillFormFields(original);
+}
+
+auto EditTaskDialog::fillTags(std::span<const std::string> tags) -> void
+{
+    fillTagField(tags);
 }
 
 } // namespace sprint_timer::ui::qt_gui

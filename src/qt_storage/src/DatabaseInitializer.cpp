@@ -24,14 +24,7 @@
 #include "qt_storage/DatabaseDescription.h"
 #include "qt_storage/DatabaseError.h"
 #include "qt_storage/QueryError.h"
-#include "qt_storage/migrations/MigrationManager.h"
-#include "qt_storage/migrations/Migration_v3.h"
-#include "qt_storage/migrations/Migration_v4.h"
-#include "qt_storage/migrations/Migration_v5.h"
-#include "qt_storage/migrations/Migration_v6.h"
-#include "qt_storage/migrations/Migration_v7.h"
 #include "qt_storage/utils/QueryUtils.h"
-#include <QDebug>
 #include <QSqlDriver>
 #include <QSqlError>
 #include <QStringBuilder>
@@ -57,18 +50,17 @@ void createViews(QSqlQuery& query);
 
 void createTriggers(QSqlQuery& query);
 
-MigrationManager prepareMigrationManager(QSqlDatabase& database);
-
 } // namespace
 
 namespace sprint_timer::storage::qt_storage {
 
-DatabaseInitializer::DatabaseInitializer(const QString& filename)
+DatabaseInitializer::DatabaseInitializer(
+    const QString& filename_, const MigrationManager& migrationManager_)
 {
     const QString connectionName{"SprintTimerDesktop"};
-    const bool dbIsNew = databaseFileNotFound(filename);
+    const bool dbIsNew = databaseFileNotFound(filename_);
 
-    ConnectionGuard connectionGuard{filename, connectionName};
+    ConnectionGuard connectionGuard{filename_, connectionName};
 
     auto db = QSqlDatabase::database(connectionName);
 
@@ -76,8 +68,7 @@ DatabaseInitializer::DatabaseInitializer(const QString& filename)
         create(db);
     }
 
-    const auto migrationManager = prepareMigrationManager(db);
-    migrationManager.runMigrations(connectionName);
+    migrationManager_.runMigrations(connectionName, currentDatabaseVersion);
 }
 
 } // namespace sprint_timer::storage::qt_storage
@@ -122,7 +113,8 @@ void createTables(QSqlQuery& query)
         TaskTable::Columns::estimatedCost % " INTEGER, " %
         TaskTable::Columns::completed % " BOOLEAN, " %
         TaskTable::Columns::lastModified % " DATETIME, " %
-        TaskTable::Columns::deleted % " BOOLEAN DEFAULT 0);"};
+        TaskTable::Columns::deleted % " BOOLEAN DEFAULT 0, " %
+        TaskTable::Columns::type % " INTEGER DEFAULT 2);"};
 
     const QString createSprintTable{
         "CREATE TABLE " % SprintTable::name % "(" % SprintTable::Columns::id %
@@ -191,6 +183,10 @@ void createTables(QSqlQuery& query)
         NotesTable::Columns::task_id % ") REFERENCES " % TaskTable::name % "(" %
         TaskTable::Columns::id % ") ON DELETE CASCADE);"};
 
+    const QString createTaskTreeTable{
+        "CREATE TABLE IF NOT EXISTS " % TaskTreeTable::name % " (" %
+        TaskTreeTable::Columns::task_uuid % " STRING);"};
+
     tryExecute(query, createInfoTable);
     tryExecute(query, createTaskTable);
     tryExecute(query, createTagTable);
@@ -200,6 +196,7 @@ void createTables(QSqlQuery& query)
     tryExecute(query, createScheduleTable);
     tryExecute(query, createNotesTable);
     tryExecute(query, createTaskTimeframeTable);
+    tryExecute(query, createTaskTreeTable);
 }
 
 void createViews(QSqlQuery& query)
@@ -255,8 +252,9 @@ void createViews(QSqlQuery& query)
         TaskTable::Columns::completed % ", " % "GROUP_CONCAT(" %
         TagTable::name % "." % TagTable::Columns::name % ") " %
         TasksView::Aliases::tags % ", " % TaskTable::Columns::lastModified %
-        ", " % TaskTable::Columns::uuid % ", " % NotesTable::Columns::text %
-        ", " % TaskTimeframeTable::Columns::start % ", " %
+        ", " % TaskTable::Columns::uuid % ", " % TaskTable::Columns::type %
+        ", " % NotesTable::Columns::text % ", " %
+        TaskTimeframeTable::Columns::start % ", " %
         TaskTimeframeTable::Columns::due % ", " %
         TaskTimeframeTable::Columns::reminder % ", " %
         TaskTimeframeTable::Columns::recurrence % " FROM " % TaskTable::name %
@@ -285,10 +283,12 @@ void createViews(QSqlQuery& query)
         ", " % TaskTimeframeTable::Columns::start % ", " %
         TaskTimeframeTable::Columns::due % ", " %
         TaskTimeframeTable::Columns::reminder % ", " %
-        TaskTimeframeTable::Columns::recurrence % " FROM " % TasksView::name %
-        " LEFT JOIN " % CleanSprintView::name % " ON " % CleanSprintView::name %
-        "." % SprintTable::Columns::task_id % " = " % TasksView::name % "." %
-        TasksView::Aliases::task_id % ";"};
+        TaskTimeframeTable::Columns::recurrence % ", " %
+        TaskTable::Columns::type % ", " % TasksView::name % "." %
+        TasksView::Aliases::task_id % " " % TaskTable::Columns::id % " FROM " %
+        TasksView::name % " LEFT JOIN " % CleanSprintView::name % " ON " %
+        CleanSprintView::name % "." % SprintTable::Columns::task_id % " = " %
+        TasksView::name % "." % TasksView::Aliases::task_id % ";"};
 
     tryExecute(query, createTaskTagView);
     tryExecute(query, createSprintView);
@@ -343,33 +343,55 @@ void createTriggers(QSqlQuery& query)
         SprintTable::Columns::startTime % ", NEW." %
         SprintTable::Columns::finishTime % "; END;"};
 
-    // Trigger to remove from task_view
     const QString createTaskViewDeleteTrigger{
         "CREATE TRIGGER " % TaskViewDeleteTrigger::name %
         " INSTEAD OF DELETE ON " % TasksView::name % " BEGIN " %
         "DELETE FROM " % TaskTable::name % " WHERE " % TaskTable::Columns::id %
         " = OLD." % TaskTable::Columns::id % ";" % " END;"};
 
-    // Trigger on update on task_view
-    const QString createTaskViewUpdateTrigger{
-        "CREATE TRIGGER " % TaskViewUpdateTrigger::name %
-        " INSTEAD OF UPDATE ON " % TasksView::name % " BEGIN " % "UPDATE " %
+    const QString createAdvTaskViewUpdateTrigger{
+        "CREATE TRIGGER " % AdvTaskViewUpdateTrigger::name %
+        " INSTEAD OF UPDATE ON " % AdvTaskView::name % " BEGIN " % "UPDATE " %
         TaskTable::name % " SET " % TaskTable::Columns::name % " = NEW." %
         TaskTable::Columns::name % ", " % TaskTable::Columns::estimatedCost %
         " = NEW." % TaskTable::Columns::estimatedCost % ", " %
         TaskTable::Columns::completed % " = NEW." %
-        TaskTable::Columns::completed % ", " % TaskTable::Columns::deleted %
-        " = OLD." % TaskTable::Columns::deleted % ", " %
+        TaskTable::Columns::completed % ", " %
         TaskTable::Columns::lastModified % " = NEW." %
-        TaskTable::Columns::lastModified % " WHERE " % TaskTable::Columns::id %
-        " = OLD." % TaskTable::Columns::id % ";" % " END;"};
+        TaskTable::Columns::lastModified % ", " % TaskTable::Columns::type %
+        " = NEW." % TaskTable::Columns::type % " WHERE " %
+        TaskTable::Columns::id % " = OLD." % TaskTable::Columns::id %
+        "; "
+        "INSERT INTO " %
+        NotesTable::name % "(" % NotesTable::Columns::task_id % ", " %
+        NotesTable::Columns::text % ") VALUES(OLD." % NotesTable::Columns::id %
+        ", NEW." % NotesTable::Columns::text % ") ON CONFLICT(" %
+        NotesTable::Columns::task_id % ") DO UPDATE SET " %
+        NotesTable::Columns::text % "=NEW." % NotesTable::Columns::text % ";" %
+        "UPDATE " % TaskTimeframeTable::name % " SET " %
+        TaskTimeframeTable::Columns::start % " = NEW." %
+        TaskTimeframeTable::Columns::start % ", " %
+        TaskTimeframeTable::Columns::due % " = NEW." %
+        TaskTimeframeTable::Columns::due % ", " %
+        TaskTimeframeTable::Columns::reminder % " = NEW." %
+        TaskTimeframeTable::Columns::reminder % ", " %
+        TaskTimeframeTable::Columns::recurrence % " = NEW." %
+        TaskTimeframeTable::Columns::recurrence % " WHERE " %
+        TaskTimeframeTable::Columns::task_id % " = OLD." %
+        TaskTable::Columns::id % "; END;"};
+
+    const QString createCleanEmptyNotesTrigger{
+        "CREATE TRIGGER " % CleanEmptyNotesTrigger::name % " AFTER UPDATE ON " %
+        NotesTable::name % " BEGIN DELETE FROM " % NotesTable::name %
+        " WHERE " % NotesTable::Columns::text % " IS NULL; END;"};
 
     tryExecute(query, createInsteadOfTaskTagInsertTrigger);
     tryExecute(query, createCleanOrphanedTagTrigger);
     tryExecute(query, createSprintViewDeleteTrigger);
     tryExecute(query, createSprintViewInsertTrigger);
     tryExecute(query, createTaskViewDeleteTrigger);
-    tryExecute(query, createTaskViewUpdateTrigger);
+    tryExecute(query, createAdvTaskViewUpdateTrigger);
+    tryExecute(query, createCleanEmptyNotesTrigger);
 }
 
 void populateInfoTable(QSqlDatabase& database)
@@ -385,17 +407,6 @@ void populateInfoTable(QSqlDatabase& database)
     if (!query.exec()) {
         throw QueryError{"Error updating database version", query};
     }
-}
-
-MigrationManager prepareMigrationManager(QSqlDatabase& /*database*/)
-{
-    MigrationManager migrationManager{currentDatabaseVersion};
-    migrationManager.addMigration(2, std::make_unique<Migration_v3>());
-    migrationManager.addMigration(3, std::make_unique<Migration_v4>());
-    migrationManager.addMigration(4, std::make_unique<Migration_v5>());
-    migrationManager.addMigration(5, std::make_unique<Migration_v6>());
-    migrationManager.addMigration(6, std::make_unique<Migration_v7>());
-    return migrationManager;
 }
 
 } // namespace

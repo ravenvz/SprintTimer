@@ -72,14 +72,54 @@ dw::DateTimeRange givenStatisticsDataFixtureLoaded(
 {
     using namespace sprint_timer::api;
 
-    createTaskHandler.handle(CreateTaskCommand{"First task", {"Tag1"}, 4});
-    createTaskHandler.handle(CreateTaskCommand{"Second task", {"Tag2"}, 2});
-    createTaskHandler.handle(CreateTaskCommand{"Third task", {"Tag3"}, 5});
-    createTaskHandler.handle(
-        CreateTaskCommand{"Fourth task", {"Tag2", "Tag1"}, 6});
-    createTaskHandler.handle(CreateTaskCommand{"Fifth task", {"Tag4"}, 4});
-    createTaskHandler.handle(
-        CreateTaskCommand{"Sixth task", {"Tag5", "Tag4"}, 3});
+    createTaskHandler.handle(CreateTaskCommand{"First task",
+                                               {"Tag1"},
+                                               4,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Second task",
+                                               {"Tag2"},
+                                               2,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Third task",
+                                               {"Tag3"},
+                                               5,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Fourth task",
+                                               {"Tag2", "Tag1"},
+                                               6,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Fifth task",
+                                               {"Tag4"},
+                                               4,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Sixth task",
+                                               {"Tag5", "Tag4"},
+                                               3,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
 
     registerSprintsHandler.handle(
         RegisterSprintBulkCommand{"0", firstTaskSprints});

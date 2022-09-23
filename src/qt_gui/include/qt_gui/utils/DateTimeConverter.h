@@ -22,20 +22,25 @@
 #ifndef DATETIMECONVERTER_H_Y4Z1XDHQ
 #define DATETIMECONVERTER_H_Y4Z1XDHQ
 
-#include <QDateTime>
+#include "core/utils/Converter.h"
 #include "date_wrapper/date_wrapper.h"
+#include <QDateTime>
 
 namespace sprint_timer::ui::qt_gui::utils {
 
-QDateTime toQDateTime(const dw::DateTime& dt);
+class DateTimeConverter : public Converter<QDateTime, dw::DateTime> {
+    [[nodiscard]] auto convert(const QDateTime& qDateTime) const
+        -> dw::DateTime override;
 
-QDate toQDate(const dw::DateTime& dt);
+    [[nodiscard]] auto convert(const dw::DateTime& dateTime) const
+        -> QDateTime override;
+};
 
-QDate toQDate(const dw::Date& date);
+class DateConverter : public Converter<QDate, dw::Date> {
+    [[nodiscard]] auto convert(const QDate& qDate) const -> dw::Date override;
 
-dw::DateTime toDateTime(const QDateTime& qdt);
-
-dw::Date toDate(const QDate& date);
+    [[nodiscard]] auto convert(const dw::Date& date) const -> QDate override;
+};
 
 } // namespace sprint_timer::ui::qt_gui::utils
 

@@ -43,7 +43,7 @@ public:
              QStyledItemDelegate& delegate,
              QWidget* parent = nullptr);
 
-    void selectTask(std::optional<size_t> taskIndex) override;
+    void selectTask(const std::optional<std::string>& uuid) override;
 
 private:
     StandaloneDisplayable& sprintsForTaskView;

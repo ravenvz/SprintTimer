@@ -11,6 +11,7 @@ target_sources(${API_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/api/DateTimeProvider.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/DefaultDateTimeProvider.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/IConfig.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/GatewayException.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/HandlerException.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/ObservableActionInvoker.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/OperationalRangeReader.h"
@@ -23,6 +24,9 @@ target_sources(${API_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorage.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorageReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskStorageWriter.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskTreeMetadataStorage.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskTreeMetadataReader.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/TaskTreeMetadataWriter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/UUIDGenerator.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/WorkScheduleReader.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/WorkScheduleStorage.h"
@@ -123,6 +127,7 @@ target_sources(${API_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/WorktimeStatisticsQuery.h"
 
     PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/src/GatewayException.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/ObservableActionInvoker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/actions/ChangeTasksPriorities.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/actions/ChangeWorkSchedule.cpp"
@@ -136,6 +141,7 @@ target_sources(${API_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/dtos/DayPart.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dtos/NoteMapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dtos/SprintMapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/dtos/TagMapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dtos/TaskMapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dtos/TaskTimeframeMapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/dtos/TaskTreeMapper.cpp"

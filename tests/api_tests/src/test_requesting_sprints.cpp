@@ -50,9 +50,22 @@ public:
 TEST_F(RequestingSprintsFixture, requesting_sprints_in_given_date_range)
 {
     using ::testing::Truly;
-    createTaskHandler.handle(CreateTaskCommand{"Some task", {"Tag1"}, 17});
-    createTaskHandler.handle(
-        CreateTaskCommand{"Another task", {"Tag3", "Tag5"}, 8});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1"},
+                                               17,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"Another task",
+                                               {"Tag3", "Tag5"},
+                                               8,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const DateTime someDateTime{current_date_time_local()};
     const DateTime rangeStart = someDateTime - Days{5};
     const DateTime rangeEnd = someDateTime + Days{5};
@@ -95,8 +108,14 @@ TEST_F(RequestingSprintsFixture,
     const DateTimeRange first{someDateTime, someDateTime + 25min};
     const DateTimeRange second{someDateTime + 3h, someDateTime + 3h + 25min};
     const DateTimeRange third{someDateTime + 7h, someDateTime + 7h + 25min};
-    createTaskHandler.handle(
-        CreateTaskCommand{"Some task", {"Tag1", "Tag2"}, 8});
+    createTaskHandler.handle(CreateTaskCommand{"Some task",
+                                               {"Tag1", "Tag2"},
+                                               8,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
     const auto uuid =
         extractUuids(activeTasksHandler.handle(ActiveTasksQuery{})).front();
     registerSprintBulkHandler.handle(

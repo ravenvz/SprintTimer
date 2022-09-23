@@ -41,12 +41,12 @@ DistributionReaderBase::DistributionReaderBase(QString connectionName_,
 {
 }
 
-std::vector<int>
-DistributionReaderBase::sprintDistribution(const dw::DateRange& dateRange)
+auto DistributionReaderBase::sprintDistribution(const dw::DateRange& dateRange)
+    -> std::vector<int>
 {
-    using namespace storage::utils;
-    const QDate startDate = DateTimeConverter::qDate(dateRange.start());
-    const QDate endDate = DateTimeConverter::qDate(dateRange.finish());
+    const storage::utils::DateConverter dateConverter;
+    const QDate startDate = dateConverter(dateRange.start());
+    const QDate endDate = dateConverter(dateRange.finish());
 
     rangeQuery.bindValue(":start_date", startDate);
     rangeQuery.bindValue(":end_date", endDate);
@@ -59,9 +59,10 @@ DistributionReaderBase::sprintDistribution(const dw::DateRange& dateRange)
     return zeroFilledDistribution(startDate, unfilled);
 }
 
-std::vector<int> DistributionReaderBase::zeroFilledDistribution(
+auto DistributionReaderBase::zeroFilledDistribution(
     const QDate& startDate,
     const std::vector<std::pair<QDate, int>>& unfilled) const
+    -> std::vector<int>
 {
     std::vector<int> sprintCount(distributionSize, 0);
 
@@ -82,13 +83,13 @@ std::vector<int> DistributionReaderBase::zeroFilledDistribution(
     return sprintCount;
 }
 
-QDate DistributionReaderBase::normalizeDate(const QDate& date) const
+auto DistributionReaderBase::normalizeDate(const QDate& date) const -> QDate
 {
     return date;
 }
 
-bool DistributionReaderBase::compareDate(const QDate& expected,
-                                         const QDate& probeDate) const
+auto DistributionReaderBase::compareDate(const QDate& expected,
+                                         const QDate& probeDate) const -> bool
 {
     return expected == probeDate;
 }
@@ -97,7 +98,6 @@ QtSprintDailyDistributionReader::QtSprintDailyDistributionReader(
     QString connectionName_, size_t numBins_)
     : DistributionReaderBase{std::move(connectionName_), numBins_}
 {
-    using namespace qt_storage;
     rangeQuery = tryPrepare(connectionName,
                             QString{"SELECT COUNT(*), DATE(%1) "
                                     "FROM %2 WHERE "
@@ -109,8 +109,8 @@ QtSprintDailyDistributionReader::QtSprintDailyDistributionReader(
                                 .arg(CleanSprintView::name));
 }
 
-QDate QtSprintDailyDistributionReader::nextExpectedDate(
-    const QDate& referenceDate) const
+auto QtSprintDailyDistributionReader::nextExpectedDate(
+    const QDate& referenceDate) const -> QDate
 {
     return referenceDate.addDays(1);
 }
@@ -119,7 +119,6 @@ QtSprintDistReaderMondayFirst::QtSprintDistReaderMondayFirst(
     QString connectionName_, size_t numBins_)
     : DistributionReaderBase{std::move(connectionName_), numBins_}
 {
-    using namespace qt_storage;
     rangeQuery = tryPrepare(connectionName,
                             QString{"SELECT COUNT(*), start_time "
                                     "FROM %2 WHERE "
@@ -133,19 +132,21 @@ QtSprintDistReaderMondayFirst::QtSprintDistReaderMondayFirst(
                                 .arg(CleanSprintView::name));
 }
 
-QDate QtSprintDistReaderMondayFirst::nextExpectedDate(
-    const QDate& referenceDate) const
+auto QtSprintDistReaderMondayFirst::nextExpectedDate(
+    const QDate& referenceDate) const -> QDate
 {
     return referenceDate.addDays(daysInWeek);
 }
 
-QDate QtSprintDistReaderMondayFirst::normalizeDate(const QDate& date) const
+auto QtSprintDistReaderMondayFirst::normalizeDate(const QDate& date) const
+    -> QDate
 {
     return date;
 }
 
-bool QtSprintDistReaderMondayFirst::compareDate(const QDate& expected,
+auto QtSprintDistReaderMondayFirst::compareDate(const QDate& expected,
                                                 const QDate& probeDate) const
+    -> bool
 {
     return expected.weekNumber() == probeDate.weekNumber();
 }
@@ -154,7 +155,6 @@ QtSprintDistReaderSundayFirst::QtSprintDistReaderSundayFirst(
     QString connectionName_, size_t numBins_)
     : DistributionReaderBase{std::move(connectionName_), numBins_}
 {
-    using namespace qt_storage;
     rangeQuery =
         tryPrepare(connectionName,
                    QString{"SELECT COUNT(*), DATE(%1, 'weekday 6') AS saturday "
@@ -167,13 +167,14 @@ QtSprintDistReaderSundayFirst::QtSprintDistReaderSundayFirst(
                        .arg(CleanSprintView::name));
 }
 
-QDate QtSprintDistReaderSundayFirst::nextExpectedDate(
-    const QDate& referenceDate) const
+auto QtSprintDistReaderSundayFirst::nextExpectedDate(
+    const QDate& referenceDate) const -> QDate
 {
     return referenceDate.addDays(daysInWeek);
 }
 
-QDate QtSprintDistReaderSundayFirst::normalizeDate(const QDate& date) const
+auto QtSprintDistReaderSundayFirst::normalizeDate(const QDate& date) const
+    -> QDate
 {
     if (date.dayOfWeek() == Qt::DayOfWeek::Sunday) {
         return date.addDays(6);
@@ -181,8 +182,9 @@ QDate QtSprintDistReaderSundayFirst::normalizeDate(const QDate& date) const
     return date.addDays(Qt::DayOfWeek::Saturday - date.dayOfWeek());
 }
 
-bool QtSprintDistReaderSundayFirst::compareDate(const QDate& expected,
+auto QtSprintDistReaderSundayFirst::compareDate(const QDate& expected,
                                                 const QDate& probeDate) const
+    -> bool
 {
     return expected == probeDate;
 }
@@ -191,7 +193,6 @@ QtSprintMonthlyDistributionReader::QtSprintMonthlyDistributionReader(
     QString connectionName_, size_t numBins_)
     : DistributionReaderBase{std::move(connectionName_), numBins_}
 {
-    using namespace qt_storage;
     rangeQuery = tryPrepare(connectionName,
                             QString{"SELECT COUNT(*), start_time "
                                     "FROM %2 WHERE "
@@ -203,14 +204,14 @@ QtSprintMonthlyDistributionReader::QtSprintMonthlyDistributionReader(
                                 .arg(CleanSprintView::name));
 }
 
-QDate QtSprintMonthlyDistributionReader::nextExpectedDate(
-    const QDate& referenceDate) const
+auto QtSprintMonthlyDistributionReader::nextExpectedDate(
+    const QDate& referenceDate) const -> QDate
 {
     return referenceDate.addMonths(1);
 }
 
-bool QtSprintMonthlyDistributionReader::compareDate(
-    const QDate& expected, const QDate& probeDate) const
+auto QtSprintMonthlyDistributionReader::compareDate(
+    const QDate& expected, const QDate& probeDate) const -> bool
 {
     return expected.month() == probeDate.month();
 }
@@ -219,7 +220,8 @@ bool QtSprintMonthlyDistributionReader::compareDate(
 
 namespace {
 
-std::vector<std::pair<QDate, int>> unfilledDistribution(QSqlQuery& query)
+auto unfilledDistribution(QSqlQuery& query)
+    -> std::vector<std::pair<QDate, int>>
 {
     using namespace sprint_timer::storage::qt_storage;
     const auto records = copyAllRecords(query);

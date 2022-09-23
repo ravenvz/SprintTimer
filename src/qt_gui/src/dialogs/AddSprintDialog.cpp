@@ -87,7 +87,7 @@ AddSprintDialog::AddSprintDialog(
                         .toString()
                         .toStdString();
                 const auto firstSprintStart =
-                    utils::toDateTime(startTime->dateTime());
+                    utils::DateTimeConverter{}(startTime->dateTime());
                 const auto numSprints = sprintNumber->value();
                 presenter_.registerConsecutiveSprints(
                     taskUuid, firstSprintStart, numSprints, sprintDuration);

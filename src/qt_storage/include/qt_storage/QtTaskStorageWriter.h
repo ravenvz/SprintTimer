@@ -24,6 +24,7 @@
 
 #include "api/TaskStorageWriter.h"
 #include "core/Tag.h"
+#include "utils/DateTimeConverter.h"
 #include <QSqlQuery>
 #include <span>
 
@@ -39,18 +40,22 @@ public:
     QtTaskStorageWriter(const QtTaskStorageWriter&) = delete;
     QtTaskStorageWriter& operator=(const QtTaskStorageWriter&) = delete;
 
-    void save(const Task& task) final;
+    auto save(const Task& task) -> void final;
 
-    void remove(const std::string& uuid) final;
+    auto remove(const std::string& uuid) -> void final;
 
-    void edit(const Task& oldTask, const Task& editedTask) final;
+    auto edit(const Task& oldTask, const Task& editedTask) -> void final;
 
-    void toggleCompleted(const std::string& uuid,
-                         const dw::DateTime& timeStamp) final;
+    auto toggleCompleted(const std::string& uuid, const dw::DateTime& timeStamp)
+        -> void final;
 
-    void updatePriorities(const std::vector<std::string>& priorities) final;
+    auto updatePriorities(const std::vector<std::string>& priorities)
+        -> void final;
 
-    void editTag(const std::string& oldName, const std::string& newName) final;
+    auto editTag(const std::string& oldName, const std::string& newName)
+        -> void final;
+
+    auto saveTree(const TaskTree& taskTree) -> void final;
 
 private:
     QString connectionName;
@@ -65,16 +70,19 @@ private:
     QSqlQuery insertSprintQuery;
     QSqlQuery insertNotesQuery;
     QSqlQuery insertTimeframeQuery;
+    QSqlQuery insertIntoTaskTreeQuery;
+    utils::DateTimeConverter dateTimeConverter;
 
-    void insertTags(const QString& taskUuid, std::span<const Tag> tags);
+    auto insertTags(const QString& taskUuid, std::span<const Tag> tags) -> void;
 
-    void removeTags(const QString& taskUuid, std::span<const Tag> tags);
+    auto removeTags(const QString& taskUuid, std::span<const Tag> tags) -> void;
 
-    void insertSprint(const QString& taskUuid, const Sprint& sprint);
+    auto insertSprint(const QString& taskUuid, const Sprint& sprint) -> void;
 
-    void insertNotes(const QString& taskUuid, const Note& notes);
+    auto insertNotes(const QString& taskUuid, const Note& notes) -> void;
 
-    void insertTimeframe(const QString& taskUuid, TaskTimeframe timeFrame);
+    auto insertTimeframe(const QString& taskUuid, TaskTimeframe timeFrame)
+        -> void;
 };
 
 } // namespace sprint_timer::storage::qt_storage

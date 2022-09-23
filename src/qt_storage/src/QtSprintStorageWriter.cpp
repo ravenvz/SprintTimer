@@ -22,7 +22,6 @@
 #include "qt_storage/QtSprintStorageWriter.h"
 #include "qt_storage/DatabaseDescription.h"
 #include "qt_storage/TransactionGuard.h"
-#include "qt_storage/utils/DateTimeConverter.h"
 #include "qt_storage/utils/QueryUtils.h"
 
 namespace sprint_timer::storage::qt_storage {
@@ -72,11 +71,8 @@ void QtSprintStorageWriter::save(const std::string& taskUuid,
 void QtSprintStorageWriter::save(const std::string& taskUuid,
                                  const Sprint& sprint)
 {
-    using storage::utils::DateTimeConverter;
-    const QDateTime startTime =
-        DateTimeConverter::qDateTime(sprint.timeSpan().start());
-    const QDateTime finishTime =
-        DateTimeConverter::qDateTime(sprint.timeSpan().finish());
+    const QDateTime startTime = dateTimeConverter(sprint.timeSpan().start());
+    const QDateTime finishTime = dateTimeConverter(sprint.timeSpan().finish());
     saveSprintQuery.bindValue(":todo_uuid",
                               QVariant(QString::fromStdString(taskUuid)));
     saveSprintQuery.bindValue(":startTime", QVariant(startTime));
@@ -86,18 +82,14 @@ void QtSprintStorageWriter::save(const std::string& taskUuid,
 
 void QtSprintStorageWriter::remove(const Sprint& sprint)
 {
-    using storage::utils::DateTimeConverter;
-    const QDateTime startTime =
-        DateTimeConverter::qDateTime(sprint.timeSpan().start());
+    const QDateTime startTime = dateTimeConverter(sprint.timeSpan().start());
     deleteSprintQuery.bindValue(":startTime", QVariant(startTime));
     tryExecute(deleteSprintQuery);
 }
 
 void QtSprintStorageWriter::restore(const Sprint& sprint)
 {
-    using storage::utils::DateTimeConverter;
-    const QDateTime startTime =
-        DateTimeConverter::qDateTime(sprint.timeSpan().start());
+    const QDateTime startTime = dateTimeConverter(sprint.timeSpan().start());
     restoreSprintQuery.bindValue(":startTime", QVariant(startTime));
     tryExecute(restoreSprintQuery);
 }

@@ -23,6 +23,7 @@
 #define QTSPRINTSTORAGEWRITER_H_U7AAXVTC
 
 #include "api/SprintStorageWriter.h"
+#include "qt_storage/utils/DateTimeConverter.h"
 #include <QSqlQuery>
 
 namespace sprint_timer::storage::qt_storage {
@@ -51,6 +52,7 @@ private:
     QSqlQuery saveSprintQuery;
     QSqlQuery deleteSprintQuery;
     QSqlQuery restoreSprintQuery;
+    utils::DateTimeConverter dateTimeConverter;
 
     void save(const std::string& taskUuid, const Sprint& sprint);
 };

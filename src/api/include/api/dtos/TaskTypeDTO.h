@@ -43,7 +43,6 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskTypeDTO& dto)
     case Regular:
         os << "Regular";
     }
-    os << "}";
     return os;
 }
 

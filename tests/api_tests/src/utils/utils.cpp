@@ -40,3 +40,17 @@ extractUuids(std::span<const sprint_timer::api::TaskDTO> taskDTOs)
         taskDTOs, begin(uuids), [](const auto& elem) { return elem.uuid; });
     return uuids;
 }
+
+TempFile::TempFile(std::filesystem::path file_)
+    : file{std::move(file_)}
+{
+}
+
+TempFile::~TempFile()
+{
+    if (not shouldBeRetained) {
+        std::filesystem::remove(file);
+    }
+}
+
+auto TempFile::retain() -> void { shouldBeRetained = true; }

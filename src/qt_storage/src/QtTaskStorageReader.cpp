@@ -20,17 +20,24 @@
 **
 *********************************************************************************/
 #include "qt_storage/QtTaskStorageReader.h"
+#include "api/GatewayException.h"
 #include "core/Note.h"
+#include "core/utils/Algutils.h"
 #include "core/utils/StringUtils.h"
 #include "qt_storage/DatabaseDescription.h"
 #include "qt_storage/utils/DateTimeConverter.h"
 #include "qt_storage/utils/QueryUtils.h"
+#include <fstream>
 
 namespace {
 
 using sprint_timer::Task;
+using sprint_timer::storage::qt_storage::maybeBool;
+using sprint_timer::storage::qt_storage::maybeDateTime;
+using sprint_timer::storage::qt_storage::maybeInt;
+using sprint_timer::storage::qt_storage::maybeString;
 
-enum class Column {
+enum class TaskColumn {
     Uuid = 0,
     Name,
     EstimatedCost,
@@ -43,41 +50,52 @@ enum class Column {
     Start,
     Due,
     Reminder,
-    Recurrence
+    Recurrence,
+    Type,
+    Id
 };
+
+enum class TaskMetadataColumn { Uuid = 0 };
 
 enum class TagColumn { Id, Name };
 
-std::vector<Task> tasksFromQuery(QSqlQuery& query);
+struct TaskMetadata {
+    std::string uuid{};
+};
+
+template <class CharT, class Traits>
+auto operator<<(std::basic_ostream<CharT, Traits>& os, const TaskMetadata& data)
+    -> std::basic_ostream<CharT, Traits>&;
+
+using TaskMetadataTree = sprint_timer::Tree<std::string, TaskMetadata>;
+
+auto tasksFromQuery(QSqlQuery& query) -> std::vector<Task>;
 
 auto taskFromRecords(auto first, auto last) -> Task;
 
-std::vector<std::string> tagsFromQuery(QSqlQuery& query);
+auto tagsFromQuery(QSqlQuery& query) -> std::vector<std::string>;
 
-std::string tagFromRecord(const QSqlRecord& record);
+auto tagFromRecord(const QSqlRecord& record) -> std::string;
 
-QVariant columnData(const QSqlRecord& record, Column column);
-
-auto readName(const QSqlRecord& record) -> std::string;
-
-auto readUuid(const QSqlRecord& record) -> std::string;
-
-auto readString(const QSqlRecord& record, Column column) -> std::string;
-
-auto readEstimatedCost(const QSqlRecord& record) -> int;
-
-auto readDateTime(const QSqlRecord& record, Column column) -> dw::DateTime;
-
-auto readTags(const QSqlRecord& record) -> std::vector<sprint_timer::Tag>;
-
-auto readCompletionState(const QSqlRecord& record) -> bool;
-
-auto readLastModificationStamp(const QSqlRecord& record) -> dw::DateTime;
-
-auto readNotes(const QSqlRecord& record) -> std::optional<sprint_timer::Note>;
-
-auto readTimeframe(const QSqlRecord& record)
+auto readTimeframe(
+    const QSqlRecord& record, int start, int due, int reminder, int recurrence)
     -> std::optional<sprint_timer::TaskTimeframe>;
+
+auto readTreeMetadata(const QString& connectionName) -> TaskMetadataTree;
+
+auto readTags(const QSqlRecord& record, int column)
+    -> std::vector<sprint_timer::Tag>;
+
+auto to_int(TaskColumn taskColumn) -> int;
+
+auto to_int(TaskMetadataColumn taskNodeColumn) -> int;
+
+auto to_int(TagColumn tagColumn) -> int;
+
+auto convertDateTime(const std::optional<QDateTime>& dateTime)
+    -> std::optional<dw::DateTime>;
+
+auto makeTaskType(int32_t numeric) -> sprint_timer::TaskType;
 
 } // namespace
 
@@ -88,8 +106,9 @@ QtTaskStorageReader::QtTaskStorageReader(QString connectionName_)
 {
     finishedTasksQuery =
         tryPrepare(connectionName,
-                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
-                           "FROM %9 "
+                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, "
+                           "%11, %12, %13, %14 "
+                           "FROM %15 "
                            "WHERE %4 = 1 AND DATE(%6) >= (:start_date) "
                            "AND DATE(%6) <= (:end_date) "
                            "ORDER BY %6, %1;"}
@@ -101,12 +120,19 @@ QtTaskStorageReader::QtTaskStorageReader(QString connectionName_)
                        .arg(TaskTable::Columns::lastModified)
                        .arg(SprintTable::Columns::startTime)
                        .arg(SprintTable::Columns::finishTime)
+                       .arg(NotesTable::Columns::text)
+                       .arg(TaskTimeframeTable::Columns::start)
+                       .arg(TaskTimeframeTable::Columns::due)
+                       .arg(TaskTimeframeTable::Columns::reminder)
+                       .arg(TaskTimeframeTable::Columns::recurrence)
+                       .arg(TaskTable::Columns::type)
                        .arg(AdvTaskView::name));
 
     allTasksQuery = tryPrepare(
         connectionName,
-        QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
-                "FROM %9 "
+        QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, "
+                "%13, %14 "
+                "FROM %15 "
                 "WHERE DATE(%6) >= (:start_date) AND DATE(%6) <= (:end_date) "
                 "ORDER BY %6, %1;"}
             .arg(TaskTable::Columns::uuid)
@@ -117,12 +143,19 @@ QtTaskStorageReader::QtTaskStorageReader(QString connectionName_)
             .arg(TaskTable::Columns::lastModified)
             .arg(SprintTable::Columns::startTime)
             .arg(SprintTable::Columns::finishTime)
+            .arg(NotesTable::Columns::text)
+            .arg(TaskTimeframeTable::Columns::start)
+            .arg(TaskTimeframeTable::Columns::due)
+            .arg(TaskTimeframeTable::Columns::reminder)
+            .arg(TaskTimeframeTable::Columns::recurrence)
+            .arg(TaskTable::Columns::type)
             .arg(AdvTaskView::name));
 
     findByUuidQuery =
         tryPrepare(connectionName,
-                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
-                           "FROM %9 "
+                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, "
+                           "%11, %12, %13, %14 "
+                           "FROM %15 "
                            "WHERE %1 = (:uuid) "
                            "ORDER BY %6, %1;"}
                        .arg(TaskTable::Columns::uuid)
@@ -133,47 +166,39 @@ QtTaskStorageReader::QtTaskStorageReader(QString connectionName_)
                        .arg(TaskTable::Columns::lastModified)
                        .arg(SprintTable::Columns::startTime)
                        .arg(SprintTable::Columns::finishTime)
-                       .arg(AdvTaskView::name));
-
-    findMatchingQuery =
-        tryPrepare(connectionName,
-                   QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
-                           "FROM %9 "
-                           "WHERE %1 IN ((:uuids_list));"}
-                       .arg(TaskTable::Columns::uuid)
-                       .arg(TaskTable::Columns::name)
-                       .arg(TaskTable::Columns::estimatedCost)
-                       .arg(TaskTable::Columns::completed)
-                       .arg(TasksView::Aliases::tags)
-                       .arg(TaskTable::Columns::lastModified)
-                       .arg(SprintTable::Columns::startTime)
-                       .arg(SprintTable::Columns::finishTime)
+                       .arg(NotesTable::Columns::text)
+                       .arg(TaskTimeframeTable::Columns::start)
+                       .arg(TaskTimeframeTable::Columns::due)
+                       .arg(TaskTimeframeTable::Columns::reminder)
+                       .arg(TaskTimeframeTable::Columns::recurrence)
+                       .arg(TaskTable::Columns::type)
                        .arg(AdvTaskView::name));
 }
 
 std::vector<Task> QtTaskStorageReader::unfinishedTasks()
 {
     QSqlQuery query{QSqlDatabase::database(connectionName)};
-    tryExecute(
-        query,
-        QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13 "
-                "FROM %14 "
-                "WHERE %4 = 0 OR %6 > DATETIME('now', '-1 day') "
-                "ORDER BY %6, %1;"}
-            .arg(TaskTable::Columns::uuid)
-            .arg(TaskTable::Columns::name)
-            .arg(TaskTable::Columns::estimatedCost)
-            .arg(TaskTable::Columns::completed)
-            .arg(AdvTaskView::Aliases::tags)
-            .arg(TaskTable::Columns::lastModified)
-            .arg(SprintTable::Columns::startTime)
-            .arg(SprintTable::Columns::finishTime)
-            .arg(NotesTable::Columns::text)
-            .arg(TaskTimeframeTable::Columns::start)
-            .arg(TaskTimeframeTable::Columns::due)
-            .arg(TaskTimeframeTable::Columns::reminder)
-            .arg(TaskTimeframeTable::Columns::recurrence)
-            .arg(AdvTaskView::name));
+    tryExecute(query,
+               QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, "
+                       "%12, %13, %14 "
+                       "FROM %15 "
+                       "WHERE %4 = 0 OR %6 > DATETIME('now', '-1 day') "
+                       "ORDER BY %6, %1;"}
+                   .arg(TaskTable::Columns::uuid)
+                   .arg(TaskTable::Columns::name)
+                   .arg(TaskTable::Columns::estimatedCost)
+                   .arg(TaskTable::Columns::completed)
+                   .arg(AdvTaskView::Aliases::tags)
+                   .arg(TaskTable::Columns::lastModified)
+                   .arg(SprintTable::Columns::startTime)
+                   .arg(SprintTable::Columns::finishTime)
+                   .arg(NotesTable::Columns::text)
+                   .arg(TaskTimeframeTable::Columns::start)
+                   .arg(TaskTimeframeTable::Columns::due)
+                   .arg(TaskTimeframeTable::Columns::reminder)
+                   .arg(TaskTimeframeTable::Columns::recurrence)
+                   .arg(TaskTable::Columns::type)
+                   .arg(AdvTaskView::name));
     return tasksFromQuery(query);
 }
 
@@ -229,23 +254,57 @@ QtTaskStorageReader::findMatching(std::span<const std::string> uuids)
         cbegin(uuids), cend(uuids), ",", [](const auto& id) {
             return "'" + std::string{id} + "'";
         });
+
     QSqlQuery query(QSqlDatabase::database(connectionName));
     tryExecute(query,
-               QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8 "
-                       "FROM %9 "
-                       "WHERE %1 IN (%10);"}
+               QString{"SELECT %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, "
+                       "%12, %13, %14 "
+                       "FROM %15 "
+                       "WHERE %1 IN (%16);"}
                    .arg(TaskTable::Columns::uuid)
                    .arg(TaskTable::Columns::name)
                    .arg(TaskTable::Columns::estimatedCost)
                    .arg(TaskTable::Columns::completed)
-                   .arg(TasksView::Aliases::tags)
+                   .arg(AdvTaskView::Aliases::tags)
                    .arg(TaskTable::Columns::lastModified)
                    .arg(SprintTable::Columns::startTime)
                    .arg(SprintTable::Columns::finishTime)
+                   .arg(NotesTable::Columns::text)
+                   .arg(TaskTimeframeTable::Columns::start)
+                   .arg(TaskTimeframeTable::Columns::due)
+                   .arg(TaskTimeframeTable::Columns::reminder)
+                   .arg(TaskTimeframeTable::Columns::recurrence)
+                   .arg(TaskTable::Columns::type)
                    .arg(AdvTaskView::name)
                    .arg(QString::fromStdString(us)));
-
     return tasksFromQuery(query);
+}
+
+auto QtTaskStorageReader::taskTree() -> TaskTree
+{
+    const auto metaTree = readTreeMetadata(connectionName);
+
+    std::vector<std::string> uuids;
+
+    std::ranges::copy(metaTree.keys(), std::back_inserter(uuids));
+
+    auto tasks = findMatching(uuids);
+    std::unordered_map<std::string, Task> taskMap;
+    for (auto& task : tasks) {
+        taskMap.insert({task.uuid(), std::move(task)});
+    }
+
+    auto combine = [&](const auto& payload) {
+        if (auto it = taskMap.find(payload.uuid); it != taskMap.cend()) {
+            return it->second;
+        }
+        throw api::GatewayException{std::string{"Error reading task tree: "} +
+                                    std::string{"task with uuid = "} +
+                                    payload.uuid +
+                                    std::string{" cannot be found."}};
+    };
+
+    return metaTree.mapped<Task>(combine);
 }
 
 } // namespace sprint_timer::storage::qt_storage
@@ -255,6 +314,51 @@ namespace {
 using sprint_timer::Sprint;
 using sprint_timer::Tag;
 using sprint_timer::Task;
+
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os, const TaskMetadata& data)
+{
+    os << "TaskMetadata{";
+    os << "uuid: " << data.uuid << "}";
+    return os;
+}
+
+auto readTreeMetadata(const QString& connectionName) -> TaskMetadataTree
+{
+    using namespace sprint_timer::storage::qt_storage;
+    using sprint_timer::utils::transform;
+
+    using entry_t = TaskMetadataTree::entry_t;
+
+    QSqlQuery query(QSqlDatabase::database(connectionName));
+
+    tryExecute(query,
+               QString{"SELECT %1 from %2"}
+                   .arg(TaskTreeTable::Columns::task_uuid)
+                   .arg(TaskTreeTable::name));
+
+    auto read_metadata =
+        [](const auto& record) -> std::optional<TaskMetadataTree::entry_t> {
+        auto uuid = maybeString(record, to_int(TaskMetadataColumn::Uuid));
+        return transform(uuid, [](const auto& id) {
+            return TaskMetadataTree::entry_t{id, id};
+        });
+    };
+
+    const auto records = copyAllRecords(query);
+    if (records.empty()) {
+        return TaskMetadataTree{};
+    }
+
+    std::vector<std::optional<entry_t>> flattenedTree;
+    flattenedTree.reserve(records.size());
+
+    std::ranges::transform(
+        records, std::back_inserter(flattenedTree), read_metadata);
+
+    return TaskMetadataTree::unflatten(flattenedTree);
+}
 
 auto tasksFromQuery(QSqlQuery& query) -> std::vector<Task>
 {
@@ -266,9 +370,9 @@ auto tasksFromQuery(QSqlQuery& query) -> std::vector<Task>
     }
 
     for (auto it = records.cbegin(); it != records.cend();) {
-        QVariant uuid = columnData(*it, Column::Uuid);
+        QVariant uuid = it->value(to_int(TaskColumn::Uuid));
         auto next = std::find_if(it, records.cend(), [&](const auto& record) {
-            return columnData(record, Column::Uuid) != uuid;
+            return record.value(to_int(TaskColumn::Uuid)) != uuid;
         });
         tasks.push_back(taskFromRecords(it, next));
         it = next;
@@ -279,21 +383,32 @@ auto tasksFromQuery(QSqlQuery& query) -> std::vector<Task>
 
 auto taskFromRecords(auto first, auto last) -> Task
 {
-    using sprint_timer::storage::utils::DateTimeConverter;
+    const sprint_timer::storage::utils::DateTimeConverter dateTimeConverter;
+    using namespace sprint_timer::storage::qt_storage;
+    using sprint_timer::utils::transform;
 
-    const auto name = readName(*first);
-    const auto uuid = readUuid(*first);
-    const auto estimatedCost = readEstimatedCost(*first);
-    const auto tags = readTags(*first);
-    const auto finished = readCompletionState(*first);
-    const auto lastModified = readLastModificationStamp(*first);
-    const auto notes = readNotes(*first);
-    const auto timeFrame = readTimeframe(*first);
+    const auto name = maybeString(*first, to_int(TaskColumn::Name));
+    const auto uuid = maybeString(*first, to_int(TaskColumn::Uuid));
+    const auto estimatedCost =
+        maybeInt(*first, to_int(TaskColumn::EstimatedCost));
+    const auto tags = readTags(*first, to_int(TaskColumn::Tags));
+    const auto finished = maybeBool(*first, to_int(TaskColumn::Completed));
+    const auto lastModified = convertDateTime(
+        maybeDateTime(*first, to_int(TaskColumn::LastModified)));
+    const auto type = maybeInt(*first, to_int(TaskColumn::Type));
+    const auto notes =
+        transform(maybeString(*first, to_int(TaskColumn::Note)),
+                  [](const auto& str) { return sprint_timer::Note{str}; });
+    const auto timeFrame = readTimeframe(*first,
+                                         to_int(TaskColumn::Start),
+                                         to_int(TaskColumn::Due),
+                                         to_int(TaskColumn::Reminder),
+                                         to_int(TaskColumn::Recurrence));
 
     std::vector<Sprint> sprints;
     for (; first != last; ++first) {
         const QDateTime startTime{
-            columnData(*first, Column::StartTime).toDateTime()};
+            first->value(to_int(TaskColumn::StartTime)).toDateTime()};
         // If task has no sprints, field would be an empty string thus
         // resulting an invalid QDateTime when parsing. So we break here
         // and task will have empty sprints.
@@ -301,48 +416,37 @@ auto taskFromRecords(auto first, auto last) -> Task
             break;
         }
         const QDateTime finishTime{
-            columnData(*first, Column::FinishTime).toDateTime()};
-        sprints.push_back(
-            Sprint{dw::DateTimeRange{DateTimeConverter::dateTime(startTime),
-                                     DateTimeConverter::dateTime(finishTime)}});
+            first->value(to_int(TaskColumn::FinishTime)).toDateTime()};
+        sprints.push_back(Sprint{dw::DateTimeRange{
+            dateTimeConverter(startTime), dateTimeConverter(finishTime)}});
     }
 
-    return Task{name,
-                estimatedCost,
-                sprints,
-                uuid,
-                tags,
-                finished,
-                lastModified,
-                notes,
-                timeFrame};
+    try {
+        return Task{name.value(),
+                    estimatedCost.value(),
+                    sprints,
+                    uuid.value(),
+                    tags,
+                    finished.value(),
+                    lastModified.value(),
+                    transform(type,
+                              [](const auto& integralType) {
+                                  return makeTaskType(integralType);
+                              })
+                        .value(),
+                    notes,
+                    timeFrame.value()};
+    }
+    catch (std::exception& exc) {
+        throw sprint_timer::api::GatewayException{"Malformed task record."};
+    }
 };
 
-auto readName(const QSqlRecord& record) -> std::string
+auto readTags(const QSqlRecord& record, int column)
+    -> std::vector<sprint_timer::Tag>
 {
-    return readString(record, Column::Name);
-}
-
-auto readUuid(const QSqlRecord& record) -> std::string
-{
-    return readString(record, Column::Uuid);
-}
-
-auto readString(const QSqlRecord& record, Column column) -> std::string
-{
-    return std::string{columnData(record, column).toString().toStdString()};
-}
-
-auto readEstimatedCost(const QSqlRecord& record) -> int
-{
-    return columnData(record, Column::EstimatedCost).toInt();
-}
-
-auto readTags(const QSqlRecord& record) -> std::vector<sprint_timer::Tag>
-{
-    const QStringList tagNames{columnData(record, Column::Tags)
-                                   .toString()
-                                   .split(",", Qt::SkipEmptyParts)};
+    const QStringList tagNames{
+        record.value(column).toString().split(",", Qt::SkipEmptyParts)};
     std::vector<Tag> tags;
     std::ranges::transform(
         tagNames, std::back_inserter(tags), [](const auto& tag) {
@@ -352,61 +456,30 @@ auto readTags(const QSqlRecord& record) -> std::vector<sprint_timer::Tag>
     return tags;
 }
 
-auto readCompletionState(const QSqlRecord& record) -> bool
+auto readTimeframe(const QSqlRecord& record,
+                   int start,
+                   int due,
+                   int reminder,
+                   int recurrence) -> std::optional<sprint_timer::TaskTimeframe>
 {
-    return columnData(record, Column::Completed).toBool();
-}
+    using namespace sprint_timer::storage::qt_storage;
+    using sprint_timer::utils::transform;
 
-auto readLastModificationStamp(const QSqlRecord& record) -> dw::DateTime
-{
-    return readDateTime(record, Column::LastModified);
-}
+    const auto startV = convertDateTime(maybeDateTime(record, start));
+    const auto dueV = convertDateTime(maybeDateTime(record, due));
+    const auto reminderV = convertDateTime(maybeDateTime(record, reminder));
 
-auto readDateTime(const QSqlRecord& record, Column column) -> dw::DateTime
-{
-    return sprint_timer::storage::utils::DateTimeConverter::dateTime(
-        columnData(record, column).toDateTime());
-}
-
-auto readNotes(const QSqlRecord& record) -> std::optional<sprint_timer::Note>
-{
-    if (auto nt = columnData(record, Column::Note); !nt.isNull()) {
-        return sprint_timer::Note{nt.toString().toStdString()};
-    }
-    return std::nullopt;
-}
-
-auto readTimeframe(const QSqlRecord& record)
-    -> std::optional<sprint_timer::TaskTimeframe>
-{
-    using sprint_timer::storage::utils::DateTimeConverter;
-
-    auto readOptionalDateTime =
-        [](const QSqlRecord& record,
-           Column column) -> std::optional<dw::DateTime> {
-        if (auto maybe = columnData(record, column); !maybe.isNull()) {
-            return DateTimeConverter::dateTime(maybe.toDateTime());
-        }
-        return std::nullopt;
-    };
-
-    const auto start = readOptionalDateTime(record, Column::Start);
-    const auto due = readOptionalDateTime(record, Column::Due);
-    const auto reminder = readOptionalDateTime(record, Column::Reminder);
-
-    std::optional<sprint_timer::Recurrence> recurrence;
-    if (auto recurr = columnData(record, Column::Recurrence);
-        !recurr.isNull()) {
-        recurrence = sprint_timer::Recurrence{recurr.toString().toStdString()};
+    std::optional<sprint_timer::Recurrence> recurrenceV;
+    if (auto recurr = record.value(recurrence); !recurr.isNull()) {
+        recurrenceV = sprint_timer::Recurrence{recurr.toString().toStdString()};
     }
 
     std::optional<sprint_timer::TaskTimeframe> timeFrame;
-    if (start && due) {
-        timeFrame = sprint_timer::TaskTimeframe{
-            dw::DateTimeRange{*start, *due}, reminder, recurrence};
-    }
-
-    return timeFrame;
+    return sprint_timer::TaskTimeframe{
+        startV.value_or(dw::current_date_time_local()),
+        dueV,
+        reminderV,
+        recurrenceV};
 }
 
 std::vector<std::string> tagsFromQuery(QSqlQuery& query)
@@ -416,22 +489,47 @@ std::vector<std::string> tagsFromQuery(QSqlQuery& query)
     std::vector<std::string> tags;
     tags.reserve(records.size());
     std::ranges::transform(records, std::back_inserter(tags), tagFromRecord);
-    while (query.next()) {
-        tags.push_back(tagFromRecord(query.record()));
-    }
     return tags;
 }
 
 std::string tagFromRecord(const QSqlRecord& record)
 {
-    return record.value(static_cast<int>(TagColumn::Name))
-        .toString()
-        .toStdString();
+    return record.value(to_int(TagColumn::Name)).toString().toStdString();
 }
 
-QVariant columnData(const QSqlRecord& record, Column column)
+auto to_int(TaskColumn taskColumn) -> int
 {
-    return record.value(static_cast<int>(column));
+    return static_cast<int>(taskColumn);
 }
 
+auto to_int(TaskMetadataColumn taskNodeColumn) -> int
+{
+    return static_cast<int>(taskNodeColumn);
+}
+
+auto to_int(TagColumn tagColumn) -> int { return static_cast<int>(tagColumn); }
+
+auto convertDateTime(const std::optional<QDateTime>& dateTime)
+    -> std::optional<dw::DateTime>
+{
+    const sprint_timer::storage::utils::DateTimeConverter dateTimeConverter;
+    using namespace sprint_timer::storage::qt_storage;
+    using sprint_timer::utils::transform;
+
+    return transform(dateTime,
+                     [&](const auto& dt) { return dateTimeConverter(dt); });
+}
+
+auto makeTaskType(int32_t numeric) -> sprint_timer::TaskType
+{
+    using sprint_timer::TaskType;
+    switch (numeric) {
+    case static_cast<int32_t>(TaskType::Project):
+    case static_cast<int32_t>(TaskType::Folder):
+    case static_cast<int32_t>(TaskType::Regular):
+        return static_cast<TaskType>(numeric);
+    default:
+        throw std::runtime_error{"TaskTypeDTO enum is out of range"};
+    }
+}
 } // namespace

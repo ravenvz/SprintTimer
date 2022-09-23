@@ -19,30 +19,40 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-
 #include "api/actions/DeleteTask.h"
 
 namespace sprint_timer::api::actions {
 
-DeleteTask::DeleteTask(TaskStorageWriter& taskStorageWriter_,
-                       Task taskToRemove_)
-    : taskWriter{taskStorageWriter_}
+DeleteTask::DeleteTask(TaskStorage& taskStorage_, Task taskToRemove_)
+    : taskStorage{taskStorage_}
     , task{std::move(taskToRemove_)}
 {
 }
 
-void DeleteTask::execute()
+auto DeleteTask::execute() -> void
 {
-    if (task.actualCost() == 0) {
-        taskWriter.remove(task.uuid());
-        return;
-    }
-    taskWriter.remove(task.uuid());
+    auto taskTree = taskStorage.taskTree();
+    parent = taskTree.parent(task.uuid());
+    position = taskTree.positionInChildren(task.uuid());
+    subTree = taskTree.subTree(task.uuid());
+    taskTree.removeNode(task.uuid());
+    taskStorage.saveTree(taskTree);
+    subTree.dfs([&](const auto& uuid, const auto& /*task*/) {
+        taskStorage.remove(uuid);
+    });
 }
 
-void DeleteTask::undo() { taskWriter.save(task); }
+auto DeleteTask::undo() -> void
+{
+    auto taskTree = taskStorage.taskTree();
+    taskTree.addSubtree(subTree, parent, position);
+    taskStorage.saveTree(taskTree);
+    subTree.dfs([&](const auto& /*key*/, const auto& payload) {
+        taskStorage.save(payload);
+    });
+}
 
-std::string DeleteTask::describe() const
+auto DeleteTask::describe() const -> std::string
 {
     std::stringstream ss;
     ss << "Delete task '" << task << "'";

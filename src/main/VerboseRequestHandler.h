@@ -25,6 +25,7 @@
 #include "api/com_query/RequestHandlerDecorator.h"
 #include <iostream>
 #include <memory>
+#include <mutex>
 
 namespace sprint_timer {
 
@@ -39,6 +40,7 @@ public:
 
 private:
     std::ostream& os;
+    std::mutex mtx;
 };
 
 template <asp::Request RequestT>
@@ -54,9 +56,11 @@ template <asp::Request RequestT>
 RequestT::Result
 VerboseRequestHandler<RequestT>::handle(const RequestT& request)
 {
-    os << "Handling request: " << request << '\n';
+    {
+        std::lock_guard lock{mtx};
+        os << "Handling request: " << request << '\n';
+    }
     return asp::RequestHandlerDecorator<RequestT>::handle(request);
-    // return res;
 }
 
 } // namespace sprint_timer

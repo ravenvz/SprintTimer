@@ -19,20 +19,35 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKTREEMETADATASTORAGE_H_TYKA93GF
-#define TASKTREEMETADATASTORAGE_H_TYKA93GF
+#ifndef ADDTASKCONTEXT_H_JQ5GOMSB
+#define ADDTASKCONTEXT_H_JQ5GOMSB
 
-#include "core/TaskTree.h"
-#include "core/TaskTreeMetadataReader.h"
-#include "core/TaskTreeMetadataWriter.h"
+#include <optional>
+#include <string>
 
-namespace sprint_timer {
+namespace sprint_timer::ui {
 
-class TaskTreeMetadataStorage : public TaskTreeMetadataReader,
-                                public TaskTreeMetadataWriter {
+enum class TaskAddMode { Sibling, Subtask };
+
+class AddTaskContext {
+public:
+    AddTaskContext();
+
+    AddTaskContext(std::optional<std::string>&& parentUuid,
+                   TaskAddMode taskAddMode);
+
+    [[nodiscard]] auto parent() const -> const std::optional<std::string>&;
+
+    [[nodiscard]] auto mode() const -> TaskAddMode;
+
+    friend auto operator==(const AddTaskContext&, const AddTaskContext&)
+        -> bool = default;
+
+private:
+    std::optional<std::string> parentTaskUuid;
+    TaskAddMode taskAddMode{TaskAddMode::Subtask};
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::ui
 
-#endif /* end of include guard: TASKTREEMETADATASTORAGE_H_TYKA93GF */
-
+#endif /* end of include guard: ADDTASKCONTEXT_H_JQ5GOMSB */

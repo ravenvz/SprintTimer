@@ -40,33 +40,38 @@ public:
     QtTaskStorage(const QtTaskStorage&) = delete;
     QtTaskStorage& operator=(const QtTaskStorage&) = delete;
 
-    std::vector<Task> unfinishedTasks() final;
+    auto unfinishedTasks() -> std::vector<Task> final;
 
-    std::vector<Task>
-    finishedTasks(const dw::DateRange& dateRange) final;
+    auto finishedTasks(const dw::DateRange& dateRange)
+        -> std::vector<Task> final;
 
-    std::vector<Task> allTasks(const dw::DateRange& dateRange) final;
+    auto allTasks(const dw::DateRange& dateRange) -> std::vector<Task> final;
 
-    std::vector<std::string> allTags() final;
+    auto allTags() -> std::vector<std::string> final;
 
-    std::vector<Task> findByUuid(const std::string& uuid) final;
+    auto findByUuid(const std::string& uuid) -> std::vector<Task> final;
 
-    std::vector<Task>
-    findMatching(std::span<const std::string> uuids) final;
+    auto findMatching(std::span<const std::string> uuids)
+        -> std::vector<Task> final;
 
-    void save(const Task& task) final;
+    auto taskTree() -> TaskTree final;
 
-    void remove(const std::string& uuid) final;
+    auto save(const Task& task) -> void final;
 
-    void edit(const Task& oldTask,
-              const Task& editedTask) final;
+    auto saveTree(const TaskTree& taskTree) -> void final;
 
-    void toggleCompleted(const std::string& uuid,
-                         const dw::DateTime& timeStamp) final;
+    auto remove(const std::string& uuid) -> void final;
 
-    void updatePriorities(const std::vector<std::string>& priorities) final;
+    auto edit(const Task& oldTask, const Task& editedTask) -> void final;
 
-    void editTag(const std::string& oldName, const std::string& newName) final;
+    auto toggleCompleted(const std::string& uuid, const dw::DateTime& timeStamp)
+        -> void final;
+
+    auto updatePriorities(const std::vector<std::string>& priorities)
+        -> void final;
+
+    auto editTag(const std::string& oldName, const std::string& newName)
+        -> void final;
 
 private:
     std::unique_ptr<TaskStorageReader> reader;

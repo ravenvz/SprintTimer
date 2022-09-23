@@ -33,13 +33,13 @@ TaskSprintsPresenter::TaskSprintsPresenter(
 
 void TaskSprintsPresenter::updateViewImpl()
 {
-    if (auto v = view(); v) {
-        if (auto uuid = taskSelectionContext.taskUuid(); uuid) {
+    utils::inspect(view(), [&](auto* view) {
+        utils::inspect(taskSelectionContext.taskUuid(), [&](const auto& uuid) {
             const auto sprints =
-                sprintsForTaskHandler.handle(api::SprintsForTaskQuery{*uuid});
-            v.value()->displaySprints(sprints);
-        }
-    }
+                sprintsForTaskHandler.handle(api::SprintsForTaskQuery{uuid});
+            view->displaySprints(sprints);
+        });
+    });
 }
 
 } // namespace sprint_timer::ui

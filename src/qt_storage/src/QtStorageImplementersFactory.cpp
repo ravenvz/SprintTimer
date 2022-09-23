@@ -24,17 +24,15 @@
 #include "qt_storage/QtSprintDistributionReader.h"
 #include "qt_storage/QtSprintStorage.h"
 #include "qt_storage/QtTaskStorage.h"
-#include "qt_storage/QtTaskTreeReader.h"
-#include "qt_storage/QtTaskTreeStorage.h"
-#include "qt_storage/QtTaskTreeWriter.h"
 #include "qt_storage/QtWorkScheduleStorage.h"
+#include <fstream>
+#include <utility>
 
 namespace sprint_timer::storage::qt_storage {
 
 QtStorageImplementersFactory::QtStorageImplementersFactory(
-    const QString& connectionName_, std::filesystem::path fileStorageDir)
+    const QString& connectionName_)
     : connectionName{connectionName_}
-    , storageDir{fileStorageDir}
 {
 }
 
@@ -89,15 +87,6 @@ std::unique_ptr<WorkScheduleStorage>
 QtStorageImplementersFactory::scheduleStorage() const
 {
     return std::make_unique<QtWorkScheduleStorage>(connectionName);
-}
-
-std::unique_ptr<TaskTreeMetadataStorage>
-QtStorageImplementersFactory::taskTreeStorage(
-    TaskStorageReader& taskReader) const
-{
-    return std::make_unique<QtTaskTreeStorage>(
-        std::make_unique<QtTaskTreeReader>(storageDir),
-        std::make_unique<QtTaskTreeWriter>(connectionName, storageDir));
 }
 
 } // namespace sprint_timer::storage::qt_storage

@@ -28,17 +28,9 @@ namespace sprint_timer::api::actions {
 
 EditTask::EditTask(TaskStorageWriter& writer_,
                    Task originalTask_,
-                   const Task& editedTask_)
+                   Task editedTask_)
     : writer{writer_}
-    , editedTask{editedTask_.name(),
-                 editedTask_.estimatedCost(),
-                 std::vector<Sprint>{originalTask_.sprints().begin(),
-                                     originalTask_.sprints().end()},
-                 originalTask_.uuid(),
-                 std::vector<Tag>{editedTask_.tags().begin(),
-                                  editedTask_.tags().end()},
-                 originalTask_.isCompleted(),
-                 dw::current_date_time_local()}
+    , editedTask{std::move(editedTask_)}
     , originalTask{std::move(originalTask_)}
 {
 }

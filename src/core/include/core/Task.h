@@ -27,6 +27,7 @@
 #include "core/Sprint.h"
 #include "core/Tag.h"
 #include "core/TaskTimeframe.h"
+#include "core/TaskType.h"
 #include "core/utils/StringUtils.h"
 #include "date_wrapper/date_wrapper.h"
 #include <vector>
@@ -39,55 +40,63 @@ namespace sprint_timer {
  * non-completed state. It also has an estimated const in sprints
  * and a number of sprints that were actually spent on this Task. */
 class Task {
-
 public:
-    Task(std::string name,
-         int estimatedCost,
-         std::vector<Sprint> sprints,
-         std::string uuid,
-         std::vector<Tag> tags,
-         bool completed,
-         dw::DateTime lastModified,
-         std::optional<Note> note = std::nullopt,
-         std::optional<TaskTimeframe> taskTimeframe = std::nullopt);
+    Task(std::string name_,
+         int estimatedCost_,
+         std::vector<Sprint> sprints_,
+         std::string uuid_,
+         std::vector<Tag> tags_,
+         bool completed_,
+         dw::DateTime lastModified_,
+         TaskType kind_,
+         std::optional<Note> note_,
+         TaskTimeframe taskTimeframe_);
 
     Task() = default;
 
-    [[nodiscard]] std::string name() const;
+    // Task(Task&& other) = default;
+    //
+    // Task& operator=(Task&& other) = default;
 
-    [[nodiscard]] bool isCompleted() const;
+    [[nodiscard]] auto finish() const -> Task;
 
-    [[nodiscard]] int estimatedCost() const;
+    [[nodiscard]] auto edit(const Task& desiredTask) const -> Task;
 
-    [[nodiscard]] int actualCost() const;
+    [[nodiscard]] auto name() const -> std::string;
 
-    [[nodiscard]] std::string uuid() const;
+    [[nodiscard]] auto isCompleted() const -> bool;
 
-    [[nodiscard]] std::span<const Tag> tags() const;
+    [[nodiscard]] auto estimatedCost() const -> int;
 
-    [[nodiscard]] dw::DateTime lastModified() const;
+    [[nodiscard]] auto actualCost() const -> int;
 
-    [[nodiscard]] GoalProgress goalProgress() const;
+    [[nodiscard]] auto uuid() const -> std::string;
 
-    [[nodiscard]] std::span<const Sprint> sprints() const;
+    [[nodiscard]] auto tags() const -> std::span<const Tag>;
 
-    [[nodiscard]] std::optional<dw::DateTime> activeSince() const;
+    [[nodiscard]] auto lastModified() const -> dw::DateTime;
 
-    [[nodiscard]] std::optional<dw::DateTime> dueTo() const;
+    [[nodiscard]] auto goalProgress() const -> GoalProgress;
 
-    [[nodiscard]] std::optional<dw::DateTime> remindAt() const;
+    [[nodiscard]] auto sprints() const -> std::span<const Sprint>;
 
-    [[nodiscard]] std::optional<Recurrence> recurrence() const;
+    [[nodiscard]] auto activeSince() const -> dw::DateTime;
 
-    [[nodiscard]] std::optional<Note> notes() const;
+    [[nodiscard]] auto dueTo() const -> std::optional<dw::DateTime>;
 
-    [[nodiscard]] std::optional<TaskTimeframe> timeFrame() const;
+    [[nodiscard]] auto remindAt() const -> std::optional<dw::DateTime>;
 
-    std::optional<Task> finish();
+    [[nodiscard]] auto recurrence() const -> std::optional<Recurrence>;
 
-    void setCompleted(bool completed);
+    [[nodiscard]] auto notes() const -> std::optional<Note>;
 
-    void addSprint(Sprint sprint);
+    [[nodiscard]] auto timeFrame() const -> const TaskTimeframe&;
+
+    [[nodiscard]] auto kind() const -> TaskType;
+
+    auto setCompleted(bool completed) -> void;
+
+    auto addSprint(Sprint sprint) -> void;
 
 private:
     std::string taskName;
@@ -96,16 +105,17 @@ private:
     std::string id;
     std::vector<Tag> tag;
     bool completed{false};
-    std::optional<TaskTimeframe> frame;
+    TaskTimeframe frame;
     std::optional<Note> note;
     dw::DateTime timeStamp{dw::current_date_time_local()};
+    TaskType type{TaskType::Regular};
 
-    bool conflictDetectedWith(const Sprint& sprint) const;
+    [[nodiscard]] auto conflictDetectedWith(const Sprint& sprint) const -> bool;
 };
 
-std::ostream& operator<<(std::ostream& os, const Task& task);
+auto operator<<(std::ostream& os, const Task& task) -> std::ostream&;
 
-bool operator==(const Task& lhs, const Task& rhs);
+auto operator==(const Task& lhs, const Task& rhs) -> bool;
 
 } // namespace sprint_timer
 

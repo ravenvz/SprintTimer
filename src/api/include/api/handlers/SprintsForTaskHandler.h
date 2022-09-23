@@ -22,21 +22,24 @@
 #ifndef SPRINTSFORTASKHANDLER_H_3MQVBOC5
 #define SPRINTSFORTASKHANDLER_H_3MQVBOC5
 
+#include "api/TaskStorageReader.h"
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/SprintsForTaskQuery.h"
-#include "api/TaskStorageReader.h"
+#include "core/utils/Converter.h"
 
 namespace sprint_timer::api {
 
 class SprintsForTaskHandler : public asp::QueryHandler<SprintsForTaskQuery> {
 public:
-    explicit SprintsForTaskHandler(TaskStorageReader& reader);
+    SprintsForTaskHandler(TaskStorageReader& reader,
+                          const Converter<std::string, Tag>& tagMapper);
 
-    SprintsForTaskQuery::Result
-    handle(const SprintsForTaskQuery& query) override;
+    auto handle(const SprintsForTaskQuery& query)
+        -> SprintsForTaskQuery::Result override;
 
 private:
     TaskStorageReader& reader;
+    const Converter<std::string, Tag>& tagMapper;
 };
 
 } // namespace sprint_timer::api

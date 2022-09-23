@@ -19,11 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef ICONFIG_H
-#define ICONFIG_H
-
-// TODO don't think this belongs to the core. Move it from the core when jobs to
-// purge depencies on settings are done application-wise
+#ifndef ICONFIG_H_BSPVJYKP
+#define ICONFIG_H_BSPVJYKP
 
 #include "date_wrapper/date_wrapper.h"
 #include <chrono>
@@ -75,4 +72,5 @@ public:
 
 } // namespace sprint_timer::api
 
-#endif // ICONFIG_H
+#endif /* end of include guard: ICONFIG_H_BSPVJYKP */
+

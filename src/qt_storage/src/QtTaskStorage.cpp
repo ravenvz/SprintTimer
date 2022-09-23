@@ -30,59 +30,72 @@ QtTaskStorage::QtTaskStorage(std::unique_ptr<TaskStorageReader> reader_,
 {
 }
 
-std::vector<Task> QtTaskStorage::unfinishedTasks()
+auto QtTaskStorage::unfinishedTasks() -> std::vector<Task>
 {
     return reader->unfinishedTasks();
 }
 
-std::vector<Task>
-QtTaskStorage::finishedTasks(const dw::DateRange& dateRange)
+auto QtTaskStorage::finishedTasks(const dw::DateRange& dateRange)
+    -> std::vector<Task>
 {
     return reader->finishedTasks(dateRange);
 }
 
-std::vector<Task>
-QtTaskStorage::allTasks(const dw::DateRange& dateRange)
+auto QtTaskStorage::allTasks(const dw::DateRange& dateRange)
+    -> std::vector<Task>
 {
     return reader->allTasks(dateRange);
 }
 
-std::vector<Task> QtTaskStorage::findByUuid(const std::string& uuid)
+auto QtTaskStorage::findByUuid(const std::string& uuid) -> std::vector<Task>
 {
     return reader->findByUuid(uuid);
 }
 
-std::vector<Task>
-QtTaskStorage::findMatching(std::span<const std::string> uuids)
+auto QtTaskStorage::findMatching(std::span<const std::string> uuids)
+    -> std::vector<Task>
 {
     return reader->findMatching(uuids);
 }
 
-std::vector<std::string> QtTaskStorage::allTags() { return reader->allTags(); }
+auto QtTaskStorage::taskTree() -> TaskTree { return reader->taskTree(); }
 
-void QtTaskStorage::save(const Task& task) { writer->save(task); }
+auto QtTaskStorage::allTags() -> std::vector<std::string>
+{
+    return reader->allTags();
+}
 
-void QtTaskStorage::remove(const std::string& uuid) { writer->remove(uuid); }
+auto QtTaskStorage::save(const Task& task) -> void { writer->save(task); }
 
-void QtTaskStorage::edit(const Task& oldTask,
-                         const Task& editedTask)
+auto QtTaskStorage::saveTree(const TaskTree& taskTree) -> void
+{
+    writer->saveTree(taskTree);
+}
+
+auto QtTaskStorage::remove(const std::string& uuid) -> void
+{
+    writer->remove(uuid);
+}
+
+auto QtTaskStorage::edit(const Task& oldTask, const Task& editedTask) -> void
 {
     writer->edit(oldTask, editedTask);
 }
 
-void QtTaskStorage::toggleCompleted(const std::string& uuid,
-                                    const dw::DateTime& timeStamp)
+auto QtTaskStorage::toggleCompleted(const std::string& uuid,
+                                    const dw::DateTime& timeStamp) -> void
 {
     writer->toggleCompleted(uuid, timeStamp);
 }
 
-void QtTaskStorage::updatePriorities(const std::vector<std::string>& priorities)
+auto QtTaskStorage::updatePriorities(const std::vector<std::string>& priorities)
+    -> void
 {
     writer->updatePriorities(priorities);
 }
 
-void QtTaskStorage::editTag(const std::string& oldName,
-                            const std::string& newName)
+auto QtTaskStorage::editTag(const std::string& oldName,
+                            const std::string& newName) -> void
 {
     writer->editTag(oldName, newName);
 }

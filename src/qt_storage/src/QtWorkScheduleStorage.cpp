@@ -19,13 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include <utility>
-
-#include "qt_storage/DatabaseDescription.h"
 #include "qt_storage/QtWorkScheduleStorage.h"
+#include "qt_storage/DatabaseDescription.h"
 #include "qt_storage/TransactionGuard.h"
 #include "qt_storage/utils/DateTimeConverter.h"
 #include "qt_storage/utils/QueryUtils.h"
+#include <utility>
 
 namespace {
 
@@ -180,8 +179,8 @@ namespace {
 std::pair<dw::Date, sprint_timer::WeekSchedule>
 recordToSchedule(const QSqlRecord& record)
 {
-    using sprint_timer::storage::utils::DateTimeConverter;
-    const auto appliedSince = DateTimeConverter::date(
+    using sprint_timer::storage::utils::DateConverter;
+    const auto appliedSince = DateConverter{}(
         record.value(static_cast<int>(ScheduleColumns::AppliedSince)).toDate());
     const auto mon_goal =
         record.value(static_cast<int>(ScheduleColumns::MondayGoal)).toInt();
@@ -211,10 +210,10 @@ recordToSchedule(const QSqlRecord& record)
 
 std::pair<dw::Date, int> recordToExceptionalDay(const QSqlRecord& record)
 {
-    using sprint_timer::storage::utils::DateTimeConverter;
+    using sprint_timer::storage::utils::DateConverter;
     const auto goal =
         record.value(static_cast<int>(ExceptionalDaysColumn::Goal)).toInt();
-    const auto date = DateTimeConverter::date(
+    const auto date = DateConverter{}(
         record.value(static_cast<int>(ExceptionalDaysColumn::Date)).toDate());
 
     return {date, goal};

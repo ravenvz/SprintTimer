@@ -24,12 +24,18 @@
 
 #include "api/dtos/NoteDTO.h"
 #include "core/Note.h"
+#include "core/utils/Converter.h"
 
 namespace sprint_timer::api {
 
-auto fromDTO(const NoteDTO& dto) -> Note;
+class NoteMapper : public Converter<NoteDTO, Note> {
+private:
+    [[nodiscard]] auto convert(const Note& note) const
+        -> NoteDTO override;
 
-auto makeDTO(const Note& note) -> NoteDTO;
+    [[nodiscard]] auto convert(const NoteDTO& dto) const
+        -> Note override;
+};
 
 } // namespace sprint_timer::api
 

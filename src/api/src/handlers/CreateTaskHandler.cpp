@@ -21,42 +21,45 @@
 *********************************************************************************/
 #include "api/handlers/CreateTaskHandler.h"
 #include "api/actions/CreateTask.h"
-#include "api/dtos/NoteMapper.h"
-#include "api/dtos/TagMapper.h"
-#include "api/dtos/TaskTimeframeMapper.h"
-#include "core/utils/Algutils.h"
+
+namespace {
+
+using sprint_timer::api::CreateTaskCommand;
+using sprint_timer::utils::and_then;
+using sprint_timer::utils::transform;
+
+} // namespace
 
 namespace sprint_timer::api {
 
-CreateTaskHandler::CreateTaskHandler(TaskStorageWriter& writer_,
-                                     ActionInvoker& actionInvoker_,
-                                     UUIDGenerator& uuidGenerator_,
-                                     DateTimeProvider& dateTimeProvider_)
-    : writer{writer_}
+CreateTaskHandler::CreateTaskHandler(
+    TaskStorage& taskStorage_,
+    ActionInvoker& actionInvoker_,
+    UUIDGenerator& uuidGenerator_,
+    DateTimeProvider& dateTimeProvider_,
+    const Converter<TaskDTO, Task>& taskMapper_)
+    : taskStorage{taskStorage_}
     , actionInvoker{actionInvoker_}
     , uuidGenerator{uuidGenerator_}
     , dateTimeProvider{dateTimeProvider_}
+    , taskMapper{taskMapper_}
 {
 }
 
-void CreateTaskHandler::handle(const CreateTaskCommand& command)
+auto CreateTaskHandler::handle(const CreateTaskCommand& command) -> void
 {
-    std::vector<Tag> tags;
-    std::ranges::copy(dtoAdapter(command.tags), std::back_inserter(tags));
+    auto dto = TaskDTO{uuidGenerator.generateUUID(),
+                       command.tags,
+                       command.name,
+                       command.estimatedCost,
+                       {},
+                       false,
+                       dateTimeProvider.dateTimeLocalNow(),
+                       command.notes,
+                       command.timeFrame,
+                       command.type};
     actionInvoker.execute(std::make_unique<actions::CreateTask>(
-        writer,
-        Task{command.name,
-             command.estimatedCost,
-             {},
-             uuidGenerator.generateUUID(),
-             tags,
-             false,
-             dateTimeProvider.dateTimeLocalNow(),
-             utils::transform(command.notes,
-                              [&](const auto note) { return fromDTO(note); }),
-             utils::transform(command.timeFrame, [&](const auto& frame) {
-                 return fromDTO(frame);
-             })}));
+        taskStorage, taskMapper(dto), command.parent, command.insertBeforePos));
 }
 
 } // namespace sprint_timer::api

@@ -32,12 +32,16 @@ TestQueryHandlerComposer::TestQueryHandlerComposer(
     SprintDistributionReader& mondayFirstWeeklyDistReader_,
     SprintDistributionReader& sundayFirstWeeklyDistReader_,
     SprintDistributionReader& monthlyDistReader_,
-    TaskTreeMetadataReader& taskTreeMetadataStorage_)
-    : activeTasks{taskStorage_}
+    const Converter<api::TaskDTO, Task>& taskMapper_,
+    const Converter<std::string, Tag>& tagMapper_,
+    // const Converter<dw::DateTimeRange, Sprint>& sprintMapper_,
+    const Converter<api::SprintDTO, SprintRecord>& sprintMapper_,
+    const Converter<api::TaskTreeDTO, TaskTree>& taskTreeMapper_)
+    : activeTasks{taskStorage_, taskMapper_}
     , allTags{taskStorage_}
-    , requestSprints{sprintStorage_}
-    , finishedTasks{taskStorage_}
-    , sprintsForTask{taskStorage_}
+    , requestSprints{sprintStorage_, sprintMapper_}
+    , finishedTasks{taskStorage_, taskMapper_}
+    , sprintsForTask{taskStorage_, tagMapper_}
     , operationalRange{operationRangeReader_}
     , dailyDistribution{dailyDistReader_}
     , mondayFirstWeeklyDistribution{mondayFirstWeeklyDistReader_}
@@ -46,7 +50,7 @@ TestQueryHandlerComposer::TestQueryHandlerComposer(
     , workSchedule{workScheduleReader_}
     , sprintStatistics{sprintStorage_}
     , workdaysStatistics{sprintStatistics}
-    , readTaskTree{taskStorage_, taskTreeMetadataStorage_}
+    , readTaskTree{taskStorage_, taskTreeMapper_}
 {
 }
 
