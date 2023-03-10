@@ -6,6 +6,7 @@ target_sources(${API_LIB}
     PUBLIC
         "${CMAKE_CURRENT_LIST_DIR}/include/api/Action.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/ActionInvoker.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/api/ActionInvokerImpl.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/BoostUUIDGenerator.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/DataExporter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/api/DateTimeProvider.h"
@@ -127,6 +128,7 @@ target_sources(${API_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/api/requests/WorktimeStatisticsQuery.h"
 
     PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/src/ActionInvokerImpl.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/GatewayException.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/ObservableActionInvoker.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/actions/ChangeTasksPriorities.cpp"

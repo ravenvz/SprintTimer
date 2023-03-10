@@ -20,9 +20,9 @@
 **
 *********************************************************************************/
 #include "api/handlers/DeleteTaskHandler.h"
-#include "api/dtos/TaskMapper.h"
 #include "api/HandlerException.h"
 #include "api/actions/DeleteTask.h"
+#include "api/dtos/TaskMapper.h"
 
 namespace sprint_timer::api {
 
@@ -43,8 +43,8 @@ void DeleteTaskHandler::handle(const DeleteTaskCommand& command)
         throw HandlerException{message};
     }
 
-    actionInvoker.execute(std::make_unique<actions::DeleteTask>(
-        taskStorage, matchingUuid.front()));
+    actionInvoker.execute(
+        actions::DeleteTask{taskStorage, matchingUuid.front()});
 }
 
 } // namespace sprint_timer::api

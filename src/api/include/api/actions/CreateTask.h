@@ -22,7 +22,6 @@
 #ifndef CREATETASK_H_ISATC8JM
 #define CREATETASK_H_ISATC8JM
 
-#include "api/Action.h"
 #include "api/TaskStorage.h"
 #include "api/TaskTreeMetadataStorage.h"
 
@@ -30,18 +29,18 @@
 
 namespace sprint_timer::api::actions {
 
-class CreateTask : public Action {
+class CreateTask {
 public:
     CreateTask(TaskStorage& taskStorage_,
                Task task_,
                std::optional<std::string> parent_,
                std::optional<int64_t> beforePosition_);
 
-    auto execute() -> void final;
+    auto execute() -> void;
 
-    auto undo() -> void final;
+    auto undo() -> void;
 
-    [[nodiscard]] auto describe() const -> std::string final;
+    [[nodiscard]] auto describe() const -> std::string;
 
 private:
     TaskStorage& taskStorage;

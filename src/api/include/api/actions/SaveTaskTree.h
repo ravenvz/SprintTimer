@@ -22,20 +22,19 @@
 #ifndef SAVETASKTREE_H_SY2F9HUS
 #define SAVETASKTREE_H_SY2F9HUS
 
-#include "api/Action.h"
 #include "api/TaskStorage.h"
 
 namespace sprint_timer::api::actions {
 
-class SaveTaskTree : public Action {
+class SaveTaskTree {
 public:
     explicit SaveTaskTree(TaskStorage& taskStorage_);
 
-    auto execute() -> void final;
+    auto execute() -> void;
 
-    auto undo() -> void final;
+    auto undo() -> void;
 
-    [[nodiscard]] auto describe() const -> std::string final;
+    [[nodiscard]] auto describe() const -> std::string;
 
 private:
     TaskStorage& taskStorage;

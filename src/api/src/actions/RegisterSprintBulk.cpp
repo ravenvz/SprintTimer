@@ -33,11 +33,11 @@ RegisterSprintBulk::RegisterSprintBulk(SprintStorageWriter& writer_,
 {
 }
 
-void RegisterSprintBulk::execute() { writer.save(taskUuid, sprints); }
+auto RegisterSprintBulk::execute() -> void { writer.save(taskUuid, sprints); }
 
-void RegisterSprintBulk::undo() { writer.remove(sprints); }
+auto RegisterSprintBulk::undo() -> void { writer.remove(sprints); }
 
-std::string RegisterSprintBulk::describe() const
+auto RegisterSprintBulk::describe() const -> std::string
 {
     std::stringstream ss;
     ss << "Register new sprint bulk:\n";

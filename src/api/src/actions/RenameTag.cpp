@@ -33,11 +33,11 @@ RenameTag::RenameTag(TaskStorageWriter& tagStorageWriter,
 {
 }
 
-void RenameTag::execute() { writer.editTag(oldName_, newName_); }
+auto RenameTag::execute() -> void { writer.editTag(oldName_, newName_); }
 
-void RenameTag::undo() { writer.editTag(newName_, oldName_); }
+auto RenameTag::undo() -> void { writer.editTag(newName_, oldName_); }
 
-std::string RenameTag::describe() const
+auto RenameTag::describe() const -> std::string
 {
     std::stringstream ss;
     ss << "Edit tag (" << oldName_ << " -> " << newName_ << ")";

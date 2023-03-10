@@ -30,8 +30,9 @@ void Observable::detach(Observer& observer) { observers.erase(&observer); }
 void Observable::notify()
 {
     for (auto* observer : observers) {
-        if (observer)
+        if (observer) {
             observer->update();
+        }
     }
 }
 

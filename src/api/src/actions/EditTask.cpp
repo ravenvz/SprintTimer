@@ -35,11 +35,11 @@ EditTask::EditTask(TaskStorageWriter& writer_,
 {
 }
 
-void EditTask::execute() { writer.edit(originalTask, editedTask); }
+auto EditTask::execute() -> void { writer.edit(originalTask, editedTask); }
 
-void EditTask::undo() { writer.edit(editedTask, originalTask); }
+auto EditTask::undo() -> void { writer.edit(editedTask, originalTask); }
 
-std::string EditTask::describe() const
+auto EditTask::describe() const -> std::string
 {
     std::stringstream ss;
     ss << "Edit task '" << originalTask << " -> " << editedTask << "'";

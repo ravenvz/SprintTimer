@@ -34,8 +34,8 @@ RenameTagHandler::RenameTagHandler(TaskStorageWriter& writer_,
 
 void RenameTagHandler::handle(const RenameTagCommand& command)
 {
-    actionInvoker.execute(std::make_unique<actions::RenameTag>(
-        writer, command.oldName, command.newName));
+    actionInvoker.execute(
+        actions::RenameTag{writer, command.oldName, command.newName});
 }
 
 } // namespace sprint_timer::api

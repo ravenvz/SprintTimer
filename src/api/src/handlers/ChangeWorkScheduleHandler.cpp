@@ -33,8 +33,8 @@ ChangeWorkScheduleHandler::ChangeWorkScheduleHandler(
 
 void ChangeWorkScheduleHandler::handle(const ChangeWorkScheduleCommand& command)
 {
-    actionInvoker.execute(std::make_unique<actions::ChangeWorkSchedule>(
-        writer, command.oldSchedule, command.newSchedule));
+    actionInvoker.execute(actions::ChangeWorkSchedule{
+        writer, command.oldSchedule, command.newSchedule});
 }
 
 } // namespace sprint_timer::api

@@ -22,20 +22,19 @@
 #ifndef DELETESPRINT_H_QH45FZZY
 #define DELETESPRINT_H_QH45FZZY
 
-#include "api/Action.h"
 #include "api/SprintStorageWriter.h"
 
 namespace sprint_timer::api::actions {
 
-class DeleteSprint : public Action {
+class DeleteSprint {
 public:
-    DeleteSprint(SprintStorageWriter& writer, Sprint sprintToRemove);
+    DeleteSprint(SprintStorageWriter& writer_, Sprint sprint);
 
-    void execute() final;
+    auto execute() -> void;
 
-    void undo() final;
+    auto undo() -> void;
 
-    std::string describe() const final;
+    [[nodiscard]] auto describe() const -> std::string;
 
 private:
     SprintStorageWriter& writer;

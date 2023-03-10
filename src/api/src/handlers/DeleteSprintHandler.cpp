@@ -34,8 +34,8 @@ DeleteSprintHandler::DeleteSprintHandler(SprintStorageWriter& sprintStorage_,
 
 void DeleteSprintHandler::handle(const DeleteSprintCommand& command)
 {
-    actionInvoker.execute(std::make_unique<actions::DeleteSprint>(
-        sprintStorage, Sprint{command.timeRange}));
+    actionInvoker.execute(
+        actions::DeleteSprint{sprintStorage, Sprint{command.timeRange}});
 }
 
 } // namespace sprint_timer::api

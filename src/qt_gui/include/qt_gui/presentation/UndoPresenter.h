@@ -60,7 +60,6 @@ private:
 
     void updateViewImpl() override;
 
-private:
     Mediator<Invalidatable>& cacheInvalidationMediator;
     UndoObserver undoObserver;
 };

@@ -32,11 +32,17 @@ ChangeWorkSchedule::ChangeWorkSchedule(WorkScheduleWriter& writer_,
 {
 }
 
-void ChangeWorkSchedule::execute() { writer.updateSchedule(newWorkSchedule); }
+auto ChangeWorkSchedule::execute() -> void
+{
+    writer.updateSchedule(newWorkSchedule);
+}
 
-void ChangeWorkSchedule::undo() { writer.updateSchedule(oldWorkSchedule); }
+auto ChangeWorkSchedule::undo() -> void
+{
+    writer.updateSchedule(oldWorkSchedule);
+}
 
-std::string ChangeWorkSchedule::describe() const
+auto ChangeWorkSchedule::describe() const -> std::string
 {
     std::stringstream ss;
     ss << "Change workdays \nfrom:\n";

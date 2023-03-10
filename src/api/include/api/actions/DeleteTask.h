@@ -22,21 +22,20 @@
 #ifndef DELETETASK_H_07POXQ41
 #define DELETETASK_H_07POXQ41
 
-#include "api/Action.h"
 #include "api/SprintStorage.h"
 #include "api/TaskStorage.h"
 
 namespace sprint_timer::api::actions {
 
-class DeleteTask : public Action {
+class DeleteTask {
 public:
     DeleteTask(TaskStorage& taskStorage, Task taskToRemove);
 
-    auto execute() -> void final;
+    auto execute() -> void;
 
-    auto undo() -> void final;
+    auto undo() -> void;
 
-    [[nodiscard]] auto describe() const -> std::string final;
+    [[nodiscard]] auto describe() const -> std::string;
 
 private:
     TaskStorage& taskStorage;

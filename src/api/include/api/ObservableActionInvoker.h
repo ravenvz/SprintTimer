@@ -24,22 +24,23 @@
 
 #include "api/ActionInvoker.h"
 #include "core/Observable.h"
-#include <stack>
 
 namespace sprint_timer {
 
 class ObservableActionInvoker : public ActionInvoker, public Observable {
 public:
-    void execute(std::unique_ptr<Action> action) override;
+    explicit ObservableActionInvoker(ActionInvoker& wrapped_);
 
-    void undo() override;
+    auto execute(Action action) -> void override;
 
-    std::string lastActionDescription() const override;
+    auto undo() -> void override;
 
-    bool hasUndoableActions() const override;
+    [[nodiscard]] auto lastActionDescription() const -> std::string override;
+
+    [[nodiscard]] auto hasUndoableActions() const -> bool override;
 
 private:
-    std::stack<std::unique_ptr<Action>> actionStack;
+    ActionInvoker& wrapped;
 };
 
 } // namespace sprint_timer

@@ -22,22 +22,21 @@
 #ifndef TOGGLETASKCOMPLETED_H_BSLZSITB
 #define TOGGLETASKCOMPLETED_H_BSLZSITB
 
-#include "api/Action.h"
 #include "api/TaskStorageWriter.h"
 
 namespace sprint_timer::api::actions {
 
-class ToggleTaskCompleted : public Action {
+class ToggleTaskCompleted {
 public:
     ToggleTaskCompleted(TaskStorageWriter& taskStorageWriter,
                         std::string uuid,
                         dw::DateTime lastModificationTimestamp);
 
-    void execute() final;
+    auto execute() -> void;
 
-    void undo() final;
+    auto undo() -> void;
 
-    std::string describe() const final;
+    [[nodiscard]] auto describe() const -> std::string;
 
 private:
     TaskStorageWriter& writer;

@@ -66,12 +66,12 @@
 #include "SettingsWatchingAssetLibrary.h"
 #include "SoundPlayerFactory.h"
 #include "StatisticsWindowProxy.h"
-#include "SynchronizingActionInvoker.h"
 #include "TagEditorProxy.h"
 #include "TaskSprintsViewProxy.h"
 #include "WorkScheduleEditorLifestyleProxy.h"
 #include "WorkScheduleEditorPresenterProxy.h"
 #include "WorkflowProxy.h"
+#include "api/ActionInvokerImpl.h"
 #include "api/handlers/ActiveTasksHandler.h"
 #include "api/handlers/AllTagsHandler.h"
 #include "api/handlers/SaveTaskTreeHandler.h"
@@ -276,18 +276,16 @@ std::string getOrCreateSprintTimerDataDirectory()
 
 } // namespace
 
-class VerboseActionInvoker : public sprint_timer::ObservableActionInvoker {
+class VerboseActionInvoker : public sprint_timer::ActionInvoker {
 public:
-    explicit VerboseActionInvoker(
-        sprint_timer::ObservableActionInvoker& wrapped_)
+    explicit VerboseActionInvoker(sprint_timer::ActionInvoker& wrapped_)
         : wrapped{wrapped_}
     {
     }
 
-    void execute(std::unique_ptr<sprint_timer::Action> action) override
+    void execute(sprint_timer::Action action) override
     {
-        std::cout << "Executing action: " << std::endl;
-        std::cout << action->describe() << std::endl;
+        std::cout << "Executing action: " << action.describe() << std::endl;
         wrapped.execute(std::move(action));
     }
 
@@ -297,30 +295,30 @@ public:
         wrapped.undo();
     }
 
-    std::string lastActionDescription() const override
+    [[nodiscard]] auto lastActionDescription() const -> std::string override
     {
         return wrapped.lastActionDescription();
     }
 
-    bool hasUndoableActions() const override
+    [[nodiscard]] auto hasUndoableActions() const -> bool override
     {
         return wrapped.hasUndoableActions();
     }
-
-    void attach(sprint_timer::Observer& observer) override
-    {
-        wrapped.attach(observer);
-    }
-
-    void detach(sprint_timer::Observer& observer) override
-    {
-        wrapped.detach(observer);
-    }
-
-    void notify() override { wrapped.notify(); }
+    //
+    // void attach(sprint_timer::Observer& observer) override
+    // {
+    //     wrapped.attach(observer);
+    // }
+    //
+    // void detach(sprint_timer::Observer& observer) override
+    // {
+    //     wrapped.detach(observer);
+    // }
+    //
+    // void notify() override { wrapped.notify(); }
 
 private:
-    sprint_timer::ObservableActionInvoker& wrapped;
+    sprint_timer::ActionInvoker& wrapped;
 };
 
 void applyStyleSheet(QApplication& app)
@@ -403,12 +401,11 @@ int main(int argc, char* argv[])
     auto operationalRangeReader = storageFactory.operationalRangeReader();
     auto scheduleStorage = storageFactory.scheduleStorage();
 
-    Observable desyncObservable;
+    // Observable desyncObservable;
 
-    ObservableActionInvoker observableActionInvoker;
-    VerboseActionInvoker verboseActionInvoker{observableActionInvoker};
-    compose::SyncronizingActionInvoker actionInvoker{verboseActionInvoker,
-                                                     desyncObservable};
+    ActionInvokerImpl defaultActionInvoker;
+    VerboseActionInvoker verboseActionInvoker{defaultActionInvoker};
+    ObservableActionInvoker actionInvoker{verboseActionInvoker};
 
     using namespace api;
 
@@ -967,7 +964,7 @@ int main(int argc, char* argv[])
          todayProgressPresenter,
          todaySprintsPresenter}};
 
-    compose::DataConsistencyWatcher watcher{desyncObservable,
+    compose::DataConsistencyWatcher watcher{actionInvoker,
                                             compositeDataFetcher};
 
     auto todayProgressIndicator = std::make_unique<TodayProgressIndicator>();

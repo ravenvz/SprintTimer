@@ -1,6 +1,8 @@
 #ifndef OBSERVER_H_GTZ5CZ1I
 #define OBSERVER_H_GTZ5CZ1I
 
+#include <functional>
+
 namespace sprint_timer {
 
 class Observer {

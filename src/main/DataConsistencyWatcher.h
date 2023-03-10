@@ -29,18 +29,15 @@ namespace sprint_timer::compose {
 
 class DataConsistencyWatcher : public Observer {
 public:
-    DataConsistencyWatcher(Observable& dataInconsistencyObserver_,
+    DataConsistencyWatcher(Observable& dataDesyncObserver_,
                            mvp::DataFetcher& dataFetcher_)
-        : dataInconsistencyObserver{dataInconsistencyObserver_}
+        : dataDesyncObserver{dataDesyncObserver_}
         , dataFetcher{dataFetcher_}
     {
-        dataInconsistencyObserver.attach(*this);
+        dataDesyncObserver.attach(*this);
     }
 
-    ~DataConsistencyWatcher() override
-    {
-        dataInconsistencyObserver.detach(*this);
-    }
+    ~DataConsistencyWatcher() override { dataDesyncObserver.detach(*this); }
 
     void update() override
     {
@@ -49,7 +46,7 @@ public:
     }
 
 private:
-    Observable& dataInconsistencyObserver;
+    Observable& dataDesyncObserver;
     mvp::DataFetcher& dataFetcher;
 };
 

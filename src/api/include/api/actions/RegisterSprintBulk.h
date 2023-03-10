@@ -19,22 +19,21 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/Action.h"
 #include "api/SprintStorageWriter.h"
 
 namespace sprint_timer::api::actions {
 
-class RegisterSprintBulk : public Action {
+class RegisterSprintBulk {
 public:
     RegisterSprintBulk(SprintStorageWriter& writer_,
                        std::string taskUuid_,
                        std::vector<Sprint> sprints_);
 
-    void execute() override;
+    auto execute() -> void;
 
-    void undo() override;
+    auto undo() -> void;
 
-    std::string describe() const override;
+    [[nodiscard]] auto describe() const -> std::string;
 
 private:
     SprintStorageWriter& writer;

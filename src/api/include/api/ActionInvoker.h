@@ -23,7 +23,8 @@
 #define ACTIONINVOKER_H_BMI3FZHH
 
 #include "api/Action.h"
-#include <memory>
+#include "core/Observable.h"
+#include <stack>
 #include <string>
 
 namespace sprint_timer {
@@ -32,13 +33,13 @@ class ActionInvoker {
 public:
     virtual ~ActionInvoker() = default;
 
-    virtual void execute(std::unique_ptr<Action> action) = 0;
+    virtual auto execute(Action action) -> void = 0;
 
-    virtual void undo() = 0;
+    virtual auto undo() -> void = 0;
 
-    virtual std::string lastActionDescription() const = 0;
+    [[nodiscard]] virtual auto lastActionDescription() const -> std::string = 0;
 
-    virtual bool hasUndoableActions() const = 0;
+    [[nodiscard]] virtual auto hasUndoableActions() const -> bool = 0;
 };
 
 } // namespace sprint_timer

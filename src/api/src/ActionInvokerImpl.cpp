@@ -19,35 +19,33 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/ObservableActionInvoker.h"
+#include "api/ActionInvokerImpl.h"
 
 namespace sprint_timer {
 
-ObservableActionInvoker::ObservableActionInvoker(ActionInvoker& wrapped_)
-    : wrapped{wrapped_}
+auto ActionInvokerImpl::execute(Action action) -> void
 {
+    action.execute();
+    actions.push(std::move(action));
 }
 
-auto ObservableActionInvoker::execute(Action action) -> void
+auto ActionInvokerImpl::undo() -> void
 {
-    wrapped.execute(std::move(action));
-    notify();
+    if (not hasUndoableActions()) {
+        return;
+    }
+    actions.top().undo();
+    actions.pop();
 }
 
-auto ObservableActionInvoker::undo() -> void
+auto ActionInvokerImpl::lastActionDescription() const -> std::string
 {
-    wrapped.undo();
-    notify();
+    return actions.empty() ? "" : actions.top().describe();
 }
 
-auto ObservableActionInvoker::lastActionDescription() const -> std::string
+auto ActionInvokerImpl::hasUndoableActions() const -> bool
 {
-    return wrapped.lastActionDescription();
-}
-
-auto ObservableActionInvoker::hasUndoableActions() const -> bool
-{
-    return wrapped.hasUndoableActions();
+    return !actions.empty();
 }
 
 } // namespace sprint_timer

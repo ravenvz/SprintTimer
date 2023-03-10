@@ -48,7 +48,6 @@ target_sources(${SPRINT_MAIN}
         "${CMAKE_CURRENT_LIST_DIR}/SoundPlayerFactory.h"
         "${CMAKE_CURRENT_LIST_DIR}/SprintsForTaskQueryHandlerSpecialization.h"
         "${CMAKE_CURRENT_LIST_DIR}/StatisticsWindowProxy.h"
-        "${CMAKE_CURRENT_LIST_DIR}/SynchronizingActionInvoker.h"
         "${CMAKE_CURRENT_LIST_DIR}/TagEditorProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/TaskSprintsViewProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/ThreadConnectionHelper.cpp"

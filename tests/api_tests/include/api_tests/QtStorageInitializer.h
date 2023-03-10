@@ -22,6 +22,7 @@
 #ifndef QTSTORAGEINITIALIZER_H_WR5MUUAC
 #define QTSTORAGEINITIALIZER_H_WR5MUUAC
 
+#include "api/ActionInvokerImpl.h"
 #include "api/DefaultDateTimeProvider.h"
 #include "api/ObservableActionInvoker.h"
 #include "api/dtos/NoteMapper.h"
@@ -78,7 +79,8 @@ private:
         factory.sprintStorage()};
     std::unique_ptr<sprint_timer::OperationalRangeReader>
         operationalRangeReader{factory.operationalRangeReader()};
-    sprint_timer::ObservableActionInvoker actionInvoker;
+    sprint_timer::ActionInvokerImpl defaultActionInvoker;
+    sprint_timer::ObservableActionInvoker actionInvoker{defaultActionInvoker};
     FakeUuidGenerator uuidGenerator;
     std::unique_ptr<sprint_timer::WorkScheduleStorage> workScheduleStorage{
         factory.scheduleStorage()};

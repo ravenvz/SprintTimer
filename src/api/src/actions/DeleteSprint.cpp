@@ -23,18 +23,17 @@
 
 namespace sprint_timer::api::actions {
 
-DeleteSprint::DeleteSprint(SprintStorageWriter& writer_,
-                           Sprint sprintToRemove_)
+DeleteSprint::DeleteSprint(SprintStorageWriter& writer_, Sprint sprint_)
     : writer{writer_}
-    , sprint{sprintToRemove_}
+    , sprint{sprint_}
 {
 }
 
-void DeleteSprint::execute() { writer.remove(sprint); }
+auto DeleteSprint::execute() -> void { writer.remove(sprint); }
 
-void DeleteSprint::undo() { writer.restore(sprint); }
+auto DeleteSprint::undo() -> void { writer.restore(sprint); }
 
-std::string DeleteSprint::describe() const
+auto DeleteSprint::describe() const -> std::string
 {
     std::stringstream ss;
     ss << "Remove sprint '" << sprint << "'";

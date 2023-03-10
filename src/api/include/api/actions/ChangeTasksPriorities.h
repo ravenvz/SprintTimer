@@ -22,27 +22,26 @@
 #ifndef CHANGETASKSPRIORITIES_H_MDWA0JUJ
 #define CHANGETASKSPRIORITIES_H_MDWA0JUJ
 
-#include "api/Action.h"
 #include "api/TaskStorageWriter.h"
 
 namespace sprint_timer::api::actions {
 
-class ChangeTasksPriorities : public Action {
+class ChangeTasksPriorities {
 public:
-    ChangeTasksPriorities(TaskStorageWriter& taskStorageWriter,
-                          std::vector<std::string> old_order,
-                          std::vector<std::string> new_order);
+    ChangeTasksPriorities(TaskStorageWriter& taskStorageWriter_,
+                          std::vector<std::string> oldOrder_,
+                          std::vector<std::string> newOrder_);
 
-    void execute() final;
+    auto execute() -> void;
 
-    void undo() final;
+    auto undo() -> void;
 
-    std::string describe() const final;
+    [[nodiscard]] auto describe() const -> std::string;
 
 private:
     TaskStorageWriter& writer;
-    std::vector<std::string> old_order_;
-    std::vector<std::string> new_order_;
+    std::vector<std::string> oldOrder;
+    std::vector<std::string> newOrder;
 };
 
 } // namespace sprint_timer::api::actions

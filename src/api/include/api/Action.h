@@ -22,23 +22,81 @@
 #ifndef ACTION_H_LZE48PW5
 #define ACTION_H_LZE48PW5
 
+#include <memory>
 #include <string>
 
 namespace sprint_timer {
 
-/* Note that Action is a Command in classical Command pattern.
- * This name was choosen so that it would not be confused with user
- * commands. Actions are used in api module internally and are not
- * ment to be used by api module clients directly. */
 class Action {
 public:
-    virtual ~Action() = default;
+    template <typename ActionT>
+    Action(ActionT action_)
+        : pimpl{std::make_unique<ActionModel<ActionT>>(std::move(action_))}
+    {
+    }
 
-    virtual void execute() = 0;
+    ~Action() = default;
 
-    virtual void undo() = 0;
+    Action(const Action& other)
+        : pimpl{other.pimpl->clone()}
+    {
+    }
 
-    virtual std::string describe() const = 0;
+    auto operator=(const Action& other) -> Action&
+    {
+        if (&other == this) {
+            return *this;
+        }
+        other.pimpl->clone().swap(pimpl);
+        return *this;
+    }
+
+    Action(Action&& other) = default;
+    auto operator=(Action&& other) -> Action& = default;
+
+    auto execute() -> void { pimpl->do_execute(); }
+
+    auto undo() -> void { pimpl->do_undo(); }
+
+    auto describe() const -> std::string { return pimpl->do_describe(); }
+
+private:
+    struct ActionConcept {
+        virtual ~ActionConcept() = default;
+
+        virtual auto do_execute() -> void = 0;
+
+        virtual auto do_undo() -> void = 0;
+
+        [[nodiscard]] virtual auto do_describe() const -> std::string = 0;
+
+        virtual auto clone() -> std::unique_ptr<ActionConcept> = 0;
+    };
+
+    template <typename ActionT> struct ActionModel : public ActionConcept {
+        explicit ActionModel(ActionT action_)
+            : action{std::move(action_)}
+        {
+        }
+
+        auto do_execute() -> void override { action.execute(); }
+
+        auto do_undo() -> void override { action.undo(); }
+
+        [[nodiscard]] auto do_describe() const -> std::string override
+        {
+            return action.describe();
+        }
+
+        auto clone() -> std::unique_ptr<ActionConcept> override
+        {
+            return std::make_unique<ActionModel>(*this);
+        }
+
+        ActionT action;
+    };
+
+    std::unique_ptr<ActionConcept> pimpl;
 };
 
 } // namespace sprint_timer

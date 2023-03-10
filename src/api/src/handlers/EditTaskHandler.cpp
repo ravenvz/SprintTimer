@@ -38,7 +38,7 @@ EditTaskHandler::EditTaskHandler(TaskStorage& taskStorage_,
 {
 }
 
-void EditTaskHandler::handle(const EditTaskCommand& command)
+auto EditTaskHandler::handle(const EditTaskCommand& command) -> void
 {
     const Task desiredTask{taskMapper(command.editedTask)};
     const auto matchingUuid = taskStorage.findByUuid(desiredTask.uuid());
@@ -52,15 +52,8 @@ void EditTaskHandler::handle(const EditTaskCommand& command)
     const Task& originalTask = matchingUuid.front();
     const Task editedTask = originalTask.edit(desiredTask);
 
-    std::cout << "Original task" << std::endl;
-    std::cout << originalTask << std::endl;
-    std::cout << "Desired task" << std::endl;
-    std::cout << desiredTask << std::endl;
-    std::cout << "Edited task" << std::endl;
-    std::cout << editedTask << std::endl;
-
-    actionInvoker.execute(std::make_unique<actions::EditTask>(
-        taskStorage, originalTask, editedTask));
+    actionInvoker.execute(
+        actions::EditTask{taskStorage, originalTask, editedTask});
 }
 
 } // namespace sprint_timer::api

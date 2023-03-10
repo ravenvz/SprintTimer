@@ -20,25 +20,38 @@
 **
 *********************************************************************************/
 #include "api/actions/ChangeTasksPriorities.h"
+#include <string_view>
+
+namespace {
+
+constexpr std::string_view name{"Store unfinished tasks order"};
+
+} // namespace
 
 namespace sprint_timer::api::actions {
 
 ChangeTasksPriorities::ChangeTasksPriorities(TaskStorageWriter& writer_,
-                                             std::vector<std::string> old_order,
-                                             std::vector<std::string> new_order)
+                                             std::vector<std::string> oldOrder_,
+                                             std::vector<std::string> newOrder_)
     : writer{writer_}
-    , old_order_{std::move(old_order)}
-    , new_order_{std::move(new_order)}
+    , oldOrder{std::move(oldOrder_)}
+    , newOrder{std::move(newOrder_)}
 {
 }
 
-void ChangeTasksPriorities::execute() { writer.updatePriorities(new_order_); }
-
-void ChangeTasksPriorities::undo() { writer.updatePriorities(old_order_); }
-
-std::string ChangeTasksPriorities::describe() const
+auto ChangeTasksPriorities::execute() -> void
 {
-    return "Store unfinished tasks order";
+    writer.updatePriorities(newOrder);
+}
+
+auto ChangeTasksPriorities::undo() -> void
+{
+    writer.updatePriorities(oldOrder);
+}
+
+auto ChangeTasksPriorities::describe() const -> std::string
+{
+    return std::string{name};
 }
 
 } // namespace sprint_timer::api::actions

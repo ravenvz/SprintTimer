@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "api/ObservableActionInvoker.h"
+#include "api/ActionInvoker.h"
 #include "api/TaskStorage.h"
 #include "api/dtos/TaskDTO.h"
 #include "api/handlers/ActiveTasksHandler.h"

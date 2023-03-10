@@ -22,23 +22,22 @@
 #ifndef RENAMETAG_H_5X4BJA83
 #define RENAMETAG_H_5X4BJA83
 
-#include "api/Action.h"
 #include "api/TaskStorageWriter.h"
 #include <iostream>
 
 namespace sprint_timer::api::actions {
 
-class RenameTag : public Action {
+class RenameTag {
 public:
     RenameTag(TaskStorageWriter& tagStorageWriter,
               std::string oldName,
               std::string newName);
 
-    void execute() final;
+    auto execute() -> void;
 
-    void undo() final;
+    auto undo() -> void;
 
-    std::string describe() const final;
+    [[nodiscard]] auto describe() const -> std::string;
 
 private:
     TaskStorageWriter& writer;
@@ -46,7 +45,7 @@ private:
     const std::string newName_;
 };
 
-} // namespace sprint_timer::use_cases
+} // namespace sprint_timer::api::actions
 
 #endif /* end of include guard: RENAMETAG_H_5X4BJA83 */
 

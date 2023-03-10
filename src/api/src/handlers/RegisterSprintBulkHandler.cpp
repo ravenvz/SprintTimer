@@ -126,8 +126,8 @@ void RegisterSprintBulkHandler::handle(const RegisterSprintBulkCommand& command)
             return Sprint{sp.timeSpan()};
         }));
 
-    actionInvoker.execute(std::make_unique<actions::RegisterSprintBulk>(
-        sprintStorage, command.taskUuid, sprints));
+    actionInvoker.execute(
+        actions::RegisterSprintBulk{sprintStorage, command.taskUuid, sprints});
 }
 
 void RegisterSprintBulkHandler::throwIfTaskDoesNotExist(

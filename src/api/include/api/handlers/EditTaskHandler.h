@@ -36,7 +36,7 @@ public:
                     ActionInvoker& actionInvoker,
                     const Converter<TaskDTO, Task>& taskMapper);
 
-    void handle(const EditTaskCommand& command) override;
+    auto handle(const EditTaskCommand& command) -> void override;
 
 private:
     TaskStorage& taskStorage;

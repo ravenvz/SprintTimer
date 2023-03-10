@@ -34,8 +34,8 @@ ChangeActiveTasksPriorityHandler::ChangeActiveTasksPriorityHandler(
 void ChangeActiveTasksPriorityHandler::handle(
     const ChangeActiveTasksPriorityCommand& command)
 {
-    actionInvoker.execute(std::make_unique<actions::ChangeTasksPriorities>(
-        writer, command.oldOrder, command.newOrder));
+    actionInvoker.execute(actions::ChangeTasksPriorities{
+        writer, command.oldOrder, command.newOrder});
 }
 
 } // namespace sprint_timer::api

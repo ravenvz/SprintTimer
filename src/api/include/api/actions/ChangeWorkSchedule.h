@@ -22,22 +22,21 @@
 #ifndef CHANGEWORKSCHEDULE_H_PKVJV23C
 #define CHANGEWORKSCHEDULE_H_PKVJV23C
 
-#include "api/Action.h"
 #include "api/WorkScheduleWriter.h"
 
 namespace sprint_timer::api::actions {
 
-class ChangeWorkSchedule : public Action {
+class ChangeWorkSchedule {
 public:
     ChangeWorkSchedule(WorkScheduleWriter& writer,
                        const WorkSchedule& oldWorkSchedule,
                        const WorkSchedule& newWorkSchedule);
 
-    void execute() final;
+    auto execute() -> void;
 
-    void undo() final;
+    auto undo() -> void;
 
-    std::string describe() const final;
+    auto describe() const -> std::string;
 
 private:
     WorkScheduleWriter& writer;

@@ -19,9 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "gmock/gmock.h"
 #include "qt_gui/presentation/UndoContract.h"
 #include "qt_gui/presentation/UndoPresenter.h"
+#include "gmock/gmock.h"
 
 using namespace ::testing;
 
@@ -34,10 +34,7 @@ public:
 
 class ActionInvokerMock : public sprint_timer::ActionInvoker {
 public:
-    MOCK_METHOD(void,
-                execute,
-                (std::unique_ptr<sprint_timer::Action>),
-                (override));
+    MOCK_METHOD(void, execute, (sprint_timer::Action), (override));
 
     MOCK_METHOD(void, undo, (), (override));
 

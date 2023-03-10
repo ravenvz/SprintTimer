@@ -37,14 +37,17 @@ ToggleTaskCompleted::ToggleTaskCompleted(TaskStorageWriter& taskStorageWriter_,
 {
 }
 
-void ToggleTaskCompleted::execute()
+auto ToggleTaskCompleted::execute() -> void
 {
     writer.toggleCompleted(uuid, dw::current_date_time_local());
 }
 
-void ToggleTaskCompleted::undo() { writer.toggleCompleted(uuid, oldTimeStamp); }
+auto ToggleTaskCompleted::undo() -> void
+{
+    writer.toggleCompleted(uuid, oldTimeStamp);
+}
 
-std::string ToggleTaskCompleted::describe() const
+auto ToggleTaskCompleted::describe() const -> std::string
 {
     std::stringstream ss;
     ss << "Toggle task completion for " << uuid;

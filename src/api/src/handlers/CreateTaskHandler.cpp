@@ -58,8 +58,8 @@ auto CreateTaskHandler::handle(const CreateTaskCommand& command) -> void
                        command.notes,
                        command.timeFrame,
                        command.type};
-    actionInvoker.execute(std::make_unique<actions::CreateTask>(
-        taskStorage, taskMapper(dto), command.parent, command.insertBeforePos));
+    actionInvoker.execute(actions::CreateTask{
+        taskStorage, taskMapper(dto), command.parent, command.insertBeforePos});
 }
 
 } // namespace sprint_timer::api

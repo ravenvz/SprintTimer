@@ -67,6 +67,7 @@ UndoPresenter::UndoObserver::UndoObserver(Observable& undoObservable_,
     : undoObservable{undoObservable_}
     , ref{ref_}
 {
+    std::cout << "Attaching observer" << std::endl;
     undoObservable.attach(*this);
 }
 
