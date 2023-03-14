@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "api/handlers/SaveTaskTreeHandler.h"
+#include "api/actions/SaveTaskTree.h"
 #include "api/dtos/TaskTreeMapper.h"
 #include "api/dtos/TaskTypeMapper.h"
 #include "core/TaskMetadataTree.h"
@@ -38,8 +39,8 @@ SaveTaskTreeHandler::SaveTaskTreeHandler(
 
 void SaveTaskTreeHandler::handle(const SaveTaskTreeCommand& command)
 {
-    // // TODO wire invoker
-    taskStorage.saveTree(taskTreeMapper(command.taskTree));
+    actionInvoker.execute(
+        actions::SaveTaskTree{taskStorage, taskTreeMapper(command.taskTree)});
 }
 
 } // namespace sprint_timer::api

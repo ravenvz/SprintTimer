@@ -22,7 +22,7 @@ target_sources(test_api
     "${CMAKE_CURRENT_LIST_DIR}/src/fixtures/TaskTreeFixture.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/matchers/MatchesSprintIgnoringUuid.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/matchers/MatchesTaskIgnoringUuid.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/test_changing_task_tree.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/test_saving_and_reverting_task_tree.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_changing_work_schedule.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_creating_tasks.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_editing_task.cpp"

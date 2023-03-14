@@ -23,5 +23,25 @@
 
 namespace sprint_timer::api::actions {
 
+SaveTaskTree::SaveTaskTree(TaskStorage& taskStorage_, TaskTree taskTree_)
+    : taskStorage{taskStorage_}
+    , taskTree{std::move(taskTree_)}
+{
+}
+
+auto SaveTaskTree::execute() -> void
+{
+    auto previousTree = taskStorage.taskTree();
+    taskStorage.saveTree(taskTree);
+    taskTree = std::move(previousTree);
+}
+
+auto SaveTaskTree::undo() -> void { taskStorage.saveTree(taskTree); }
+
+auto SaveTaskTree::describe() const -> std::string
+{
+    return "Saving task tree";
+}
+
 } // namespace sprint_timer::api::actions
 

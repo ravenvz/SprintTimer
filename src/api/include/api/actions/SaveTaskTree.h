@@ -28,7 +28,7 @@ namespace sprint_timer::api::actions {
 
 class SaveTaskTree {
 public:
-    explicit SaveTaskTree(TaskStorage& taskStorage_);
+    SaveTaskTree(TaskStorage& taskStorage_, TaskTree taskTree_);
 
     auto execute() -> void;
 
@@ -38,6 +38,7 @@ public:
 
 private:
     TaskStorage& taskStorage;
+    TaskTree taskTree;
 };
 
 } // namespace sprint_timer::api::actions
