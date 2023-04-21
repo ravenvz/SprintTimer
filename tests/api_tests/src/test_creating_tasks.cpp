@@ -19,8 +19,8 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/ObservableActionInvoker.h"
 #include "api/ActionInvoker.h"
+#include "api/ObservableActionInvoker.h"
 #include "api/TaskStorage.h"
 #include "api/dtos/TaskDTO.h"
 #include "api/handlers/ActiveTasksHandler.h"
@@ -94,3 +94,37 @@ TEST_F(CreatingTasksFixture, undoing_task_creation_cleans_up_associated_tags)
         ::testing::UnorderedElementsAre("Tag1", "Tag2", "Tag3", "ProjectTag1"));
 }
 
+TEST_F(CreatingTasksFixture, creating_subtask_inherits_parents_due_date)
+{
+    using namespace std::chrono_literals;
+    using namespace dw;
+    const auto tree = fixtures::givenTaskTreeWithDueDatesCreated(
+        createTaskHandler, registerSprintsHandler);
+    const auto time =
+        DateTime{Date{Year{2023}, Month{6}, Day{19}}} + Days{10} + 4h;
+    const TaskDTO expected{
+        "6", // Generated uuid after fixture tree has been created
+        {},
+        "Subtask that inherits due date",
+        5,
+        {},
+        false,
+        dw::current_date_time_local(),
+        std::nullopt,
+        TaskTimeframeDTO{
+            dw::current_date_time_local(), time, std::nullopt, std::nullopt},
+        TaskTypeDTO::Regular};
+    const auto treeBefore = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
+
+    createTaskHandler.handle(CreateTaskCommand{"Subtask that inherits due date",
+                                               {},
+                                               5,
+                                               TaskTypeDTO::Regular,
+                                               "2",
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+
+    const auto updatedTree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
+    EXPECT_EQ(expected, updatedTree.payload("6").value());
+}

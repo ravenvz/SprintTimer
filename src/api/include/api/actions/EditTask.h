@@ -22,13 +22,16 @@
 #ifndef EDITTASKCOMMAND_H_3FYYCQWP
 #define EDITTASKCOMMAND_H_3FYYCQWP
 
-#include "api/TaskStorageWriter.h"
+#include "api/DateTimeProvider.h"
+#include "api/TaskStorage.h"
+#include "core/TaskTree.h"
+#include <optional>
 
 namespace sprint_timer::api::actions {
 
 class EditTask {
 public:
-    EditTask(TaskStorageWriter& writer, Task originalTask, Task editedTask);
+    EditTask(TaskStorage& taskStorage, Task originalTask, Task editedTask);
 
     auto execute() -> void;
 
@@ -37,9 +40,11 @@ public:
     [[nodiscard]] auto describe() const -> std::string;
 
 private:
-    TaskStorageWriter& writer;
+    TaskStorage& taskStorage;
     Task editedTask;
     Task originalTask;
+    TaskTree originalSubtree;
+    TaskTree editedSubtree;
 };
 
 } // namespace sprint_timer::api::actions

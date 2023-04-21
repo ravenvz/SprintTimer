@@ -22,15 +22,20 @@
 #ifndef TOGGLETASKCOMPLETED_H_BSLZSITB
 #define TOGGLETASKCOMPLETED_H_BSLZSITB
 
-#include "api/TaskStorageWriter.h"
+#include "api/DateTimeProvider.h"
+#include "api/TaskStorage.h"
+#include "api/UUIDGenerator.h"
+#include <optional>
 
 namespace sprint_timer::api::actions {
 
 class ToggleTaskCompleted {
 public:
-    ToggleTaskCompleted(TaskStorageWriter& taskStorageWriter,
+    ToggleTaskCompleted(TaskStorage& taskStorage,
                         std::string uuid,
-                        dw::DateTime lastModificationTimestamp);
+                        dw::DateTime lastModificationTimestamp,
+                        UUIDGenerator& uuidGenerator,
+                        const DateTimeProvider& dateTimeProvider);
 
     auto execute() -> void;
 
@@ -39,9 +44,12 @@ public:
     [[nodiscard]] auto describe() const -> std::string;
 
 private:
-    TaskStorageWriter& writer;
+    TaskStorage& storage;
     const std::string uuid;
     const dw::DateTime oldTimeStamp;
+    UUIDGenerator& uuidGenerator;
+    const DateTimeProvider& dateTimeProvider;
+    std::optional<std::string> recurringTaskUuid;
 };
 
 } // namespace sprint_timer::api::actions

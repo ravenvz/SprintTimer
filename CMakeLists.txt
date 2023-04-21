@@ -27,7 +27,7 @@ set(EXTERNAL_IO_LIB external_io)
 
 # Link this 'library' to set the c++ standard / compile-time options requested
 add_library(sprint_timer_options INTERFACE)
-target_compile_features(sprint_timer_options INTERFACE cxx_std_20)
+target_compile_features(sprint_timer_options INTERFACE cxx_std_23)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
     option(ENABLE_BUILD_WITH_TIME_TRACE "Enable -ftime-trace to generate time tracing .json files on clang" OFF)

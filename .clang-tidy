@@ -1,5 +1,5 @@
 ---
-Checks:          '*,-google-runtime-references,-llvm-header-guard,-fuchsia-*,-llvmlibc-callee-namespace,-altera-*'
+Checks:          '*,-google-runtime-references,-llvm-header-guard,-fuchsia-*,-llvmlibc-*,-altera-*'
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false

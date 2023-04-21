@@ -30,6 +30,7 @@
 #include <ranges>
 #include <sstream>
 #include <stack>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -40,6 +41,10 @@ namespace sprint_timer {
 
 template <std::default_initializable KeyT, std::default_initializable PayloadT>
 class Tree {
+
+    template <typename TransformFunc>
+    using TransformResultT = std::remove_cvref_t<
+        std::invoke_result_t<TransformFunc, const PayloadT&>>;
 
     // TODO should we expose entry as <K, P> or just payload? If former then
     // change in structure required
@@ -107,10 +112,10 @@ public:
                     const std::optional<int64_t>& insertBeforePosition) -> void;
 
     /* Func is (const PayloadT&) -> TransPayload */
-    template <typename TransPayload, typename Func>
+    template <typename Func>
     auto mapped(Func func,
                 const std::optional<KeyT>& initial = std::nullopt) const
-        -> Tree<KeyT, TransPayload>;
+        -> Tree<KeyT, TransformResultT<Func>>;
 
     /* Return view to all keys in unspecified order. */
     auto keysView() const;
@@ -187,13 +192,13 @@ Tree<KeyT, PayloadT>::Tree() = default;
 template <std::default_initializable KeyT, std::default_initializable PayloadT>
 Tree<KeyT, PayloadT>::Tree(const Tree& other)
 {
-    *this = other.mapped<PayloadT>(std::identity{});
+    *this = other.mapped(std::identity{});
 }
 
 template <std::default_initializable KeyT, std::default_initializable PayloadT>
 Tree<KeyT, PayloadT>& Tree<KeyT, PayloadT>::operator=(const Tree& other)
 {
-    *this = other.mapped<PayloadT>(std::identity{});
+    *this = other.mapped(std::identity{});
     return *this;
 }
 
@@ -234,12 +239,12 @@ auto Tree<KeyT, PayloadT>::addSubtree(
 
 /* Func is (const PayloadT&) -> TransPayload */
 template <std::default_initializable KeyT, std::default_initializable PayloadT>
-template <typename TransPayload, typename Func>
+template <typename Func>
 auto Tree<KeyT, PayloadT>::mapped(Func func,
                                   const std::optional<KeyT>& initial) const
-    -> Tree<KeyT, TransPayload>
+    -> Tree<KeyT, TransformResultT<Func>>
 {
-    Tree<KeyT, TransPayload> mappedTree;
+    Tree<KeyT, TransformResultT<Func>> mappedTree;
 
     auto transformPayload = [&](auto level, auto* node) {
         // If we are dealing with subTree, parent of the first node would
@@ -528,7 +533,7 @@ auto Tree<KeyT, PayloadT>::display() const -> std::string
 template <std::default_initializable KeyT, std::default_initializable PayloadT>
 Tree<KeyT, PayloadT> Tree<KeyT, PayloadT>::subTree(const KeyT& key) const
 {
-    return mapped<PayloadT>(std::identity{}, key);
+    return mapped(std::identity{}, key);
 }
 
 template <class CharT, class Traits, class KeyT, class PayloadT>

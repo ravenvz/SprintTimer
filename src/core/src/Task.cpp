@@ -72,9 +72,9 @@ Task::Task(std::string name_,
 {
 }
 
-auto Task::finish() const -> Task { return *this; }
+auto Task::finish(const std::string& uuid) const -> Task { return *this; }
 
-auto Task::edit(const Task& desiredTask) const -> Task
+auto Task::edit(const Task& desiredTask, dw::DateTime currentTime) const -> Task
 {
     return Task{desiredTask.name(),
                 desiredTask.estimatedCost(),
@@ -82,7 +82,7 @@ auto Task::edit(const Task& desiredTask) const -> Task
                 id,
                 desiredTask.tag,
                 isCompleted(),
-                dw::current_date_time_local(),
+                currentTime,
                 desiredTask.kind(),
                 desiredTask.notes(),
                 desiredTask.timeFrame()};
@@ -156,6 +156,57 @@ auto Task::conflictDetectedWith(const Sprint& sprint) const -> bool
     return std::ranges::any_of(sprintCont, sprints_in_conflict{sprint});
 }
 
+auto Task::inheritDate(const Task& other, dw::DateTime currentTime) const
+    -> Task
+{
+    if (not other.dueTo()) {
+        return *this;
+    }
+    return Task{
+        taskName,
+        estimated,
+        sprintCont,
+        id,
+        tag,
+        completed,
+        currentTime,
+        type,
+        note,
+        TaskTimeframe{other.timeFrame().start, other.timeFrame().due.value()}};
+    // TaskTimeframe{
+    //     frame.start, other.dueTo(), frame.remindAt, frame.recurrence}};
+}
+
+auto Task::inheritDateIfNotSet(const Task& other,
+                               dw::DateTime currentTime) const -> Task
+{
+    if (frame.due or not other.dueTo() or other.frame.due == frame.due) {
+        return *this;
+    }
+    return inheritDate(other, currentTime);
+}
+
+auto Task::nextRecurrence(const std::string& nextUuid,
+                          dw::DateTime currentTime) const -> std::optional<Task>
+{
+    auto n_r = [&](const auto& rec) { return rec.nextRecurrence(currentTime); };
+    auto n_dt = [&, this](const auto& dt) {
+        return Task{
+            taskName,
+            estimated,
+            sprintCont,
+            nextUuid,
+            tag,
+            completed,
+            currentTime,
+            type,
+            note,
+            TaskTimeframe{currentTime, dt, frame.remindAt, frame.recurrence}};
+    };
+
+    return recurrence().and_then(n_r).transform(n_dt);
+}
+
 auto operator<<(std::ostream& os, const Task& task) -> std::ostream&
 {
     using utils::inspect;
@@ -175,10 +226,11 @@ auto operator<<(std::ostream& os, const Task& task) -> std::ostream&
     }
     inspect(task.remindAt(),
             [&](const auto& reminder) { os << ", Reminder: " << reminder; });
-    inspect(task.recurrence(), [&](const auto& recurr) {
-        os << ", Next recurrence: " << recurr.nextRecurrence();
-    });
-    os << ", " << task.lastModified()
+    os << ", recurrence: "
+       << task.recurrence()
+              .transform([](const auto rec) { return rec.pattern(); })
+              .value_or("none");
+    os << ", modified: " << task.lastModified()
        << ", type: " << std::to_string(static_cast<int>(task.kind()));
     return os;
 }

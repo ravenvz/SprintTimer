@@ -22,15 +22,34 @@
 #ifndef RECURRENCE_H_4H7M9DQE
 #define RECURRENCE_H_4H7M9DQE
 
+#include "core/DomainException.h"
 #include "date_wrapper/date_wrapper.h"
+#include <optional>
+#include <string_view>
 
 namespace sprint_timer {
+
+// enum class RecPeriod {
+//     Minutes,
+//     Hours,
+//     Weekdays,
+//     Weeks,
+//     Months,
+//     Years,
+// };
+//
+// class Rec {
+// public:
+//     Rec()
+// private:
+// };
 
 class Recurrence {
 public:
     explicit Recurrence(std::string recPattern);
 
-    [[nodiscard]] auto nextRecurrence() const -> dw::DateTime;
+    [[nodiscard]] auto nextRecurrence(dw::DateTime currentDateTime) const
+        -> std::optional<dw::DateTime>;
 
     [[nodiscard]] auto pattern() const -> std::string;
 
@@ -41,17 +60,7 @@ private:
     std::string recPattern;
 };
 
-inline Recurrence::Recurrence(std::string recPattern_)
-    : recPattern{std::move(recPattern_)}
-{
-}
-
-inline auto Recurrence::nextRecurrence() const -> dw::DateTime
-{
-    return dw::current_date_time_local();
-}
-
-inline auto Recurrence::pattern() const -> std::string { return recPattern; }
+auto validateRecurrence(std::string_view pattern) -> void;
 
 } // namespace sprint_timer
 

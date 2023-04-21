@@ -150,6 +150,8 @@ std::string formatDecimal(double value, int precision = 2);
 
 std::vector<std::string_view> split(std::string_view str, char delimeter);
 
+auto split(std::string_view str, std::string_view delimiter) -> std::vector<std::string_view>;
+
 } // namespace sprint_timer::utils
 
 #endif /* end of include guard: STRINGUTILS_H_Y89VODRG */

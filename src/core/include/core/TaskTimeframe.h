@@ -30,13 +30,43 @@
 namespace sprint_timer {
 
 struct TaskTimeframe {
+    constexpr TaskTimeframe() = default;
+
+    constexpr TaskTimeframe(
+        dw::DateTime start_,
+        std::optional<dw::DateTime> due_ = std::nullopt,
+        std::optional<dw::DateTime> remindAt_ = std::nullopt,
+        std::optional<Recurrence> recurrence_ = std::nullopt)
+        : start{start_}
+        , due{due_}
+        , remindAt{remindAt_}
+        , recurrence{std::move(recurrence_)}
+    {
+    }
+
+    constexpr TaskTimeframe(
+        dw::DateTime start_,
+        Recurrence recurrence_,
+        std::optional<dw::DateTime> remindAt_ = std::nullopt)
+        : start{start_}
+        , remindAt{remindAt_}
+        , recurrence{std::move(recurrence_)}
+    {
+    }
+
+    constexpr auto inherit(const TaskTimeframe& other) const noexcept
+        -> TaskTimeframe
+    {
+        return TaskTimeframe{other.start, other.due};
+    }
+
     dw::DateTime start{dw::current_date_time_local()};
-    std::optional<dw::DateTime> due;
-    std::optional<dw::DateTime> remindAt;
-    std::optional<Recurrence> recurrence;
+    std::optional<dw::DateTime> due{};
+    std::optional<dw::DateTime> remindAt{};
+    std::optional<Recurrence> recurrence{};
 };
 
-inline auto operator==(const TaskTimeframe& lhs, const TaskTimeframe& rhs)
+constexpr auto operator==(const TaskTimeframe& lhs, const TaskTimeframe& rhs)
     -> bool
 {
     auto date_time_equal = [](const auto& left, const auto& right) {

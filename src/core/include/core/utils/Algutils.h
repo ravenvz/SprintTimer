@@ -1,4 +1,4 @@
-/********************************************************************************
+/********************************************************************************Alg
 **
 ** Copyright (C) 2016-2021 Pavel Pavlov.
 **
@@ -98,9 +98,9 @@ constexpr auto inspect(Opt&& opt, Func&& func) -> void
 }
 
 template <typename T, typename Comp>
-auto opt_equal(const std::optional<T>& lhs,
-               const std::optional<T>& rhs,
-               Comp&& cmp) -> bool
+constexpr auto opt_equal(const std::optional<T>& lhs,
+                         const std::optional<T>& rhs,
+                         Comp&& cmp) -> bool
 {
     return ((!lhs && !rhs) || (lhs && rhs && cmp(lhs.value(), rhs.value())));
 }
@@ -111,11 +111,12 @@ namespace sprint_timer::ranges_ext {
 
 template <class F, class T, class U>
 concept foldable = std::regular_invocable<F&, T, U> &&
-    std::convertible_to<std::invoke_result_t<F&, T, U>, T>;
+                   std::convertible_to<std::invoke_result_t<F&, T, U>, T>;
 
 template <class F, class T, class I>
-concept indirectly_binary_foldable = std::indirectly_readable<I> &&
-    std::copy_constructible<F> && foldable<F, T, std::iter_value_t<I>> &&
+concept indirectly_binary_foldable =
+    std::indirectly_readable<I> && std::copy_constructible<F> &&
+    foldable<F, T, std::iter_value_t<I>> &&
     foldable<F, T, std::iter_reference_t<I>> &&
     foldable<F, T, std::iter_common_reference_t<I>>;
 

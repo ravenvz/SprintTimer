@@ -70,14 +70,14 @@ auto operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
         os << *due;
     }
     else {
-        os << "unlimited";
+        os << "unlimited ";
     }
     // os << frame.due.value_or(std::string{"unlimited"});
     inspect(task.timeFrame.remindAt, [&](const auto& reminder) {
         os << " reminder: " << reminder << ", ";
     });
     inspect(task.timeFrame.recurrence, [&](const auto& recurrence) {
-        os << "recurrence: " << '"' << recurrence << "\", ";
+        os << " recurrence: " << '"' << recurrence << "\", ";
     });
     os << task.modificationStamp << '}';
     return os;

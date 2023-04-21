@@ -75,8 +75,7 @@ void TaskView::selectTask(const std::optional<std::string>& uuid)
                                             QString::fromStdString(id));
         return matches.isEmpty() ? QModelIndex{} : matches.front();
     };
-    const auto maybeIndex = utils::transform(uuid, findIndex);
-    setCurrentIndex(maybeIndex.value_or(QModelIndex{}));
+    setCurrentIndex(uuid.transform(findIndex).value_or(QModelIndex{}));
 }
 
 void TaskView::showContextMenu(const QPoint& pos) const

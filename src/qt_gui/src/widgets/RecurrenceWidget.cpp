@@ -19,17 +19,11 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef TASKTREEDTO_H_JN159NM6
-#define TASKTREEDTO_H_JN159NM6
+#include "qt_gui/widgets/RecurrenceWidget.h"
 
-#include "api/dtos/TaskDTO.h"
-#include "core/Tree.h"
-#include <string>
+namespace sprint_timer::ui::qt_gui {
 
-namespace sprint_timer::api {
 
-using TaskTreeDTO = Tree<std::string, TaskDTO>;
 
-} // namespace sprint_timer::api
+} // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: TASKTREEDTO_H_JN159NM6 */

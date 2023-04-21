@@ -22,6 +22,7 @@
 #ifndef TASKTIMEFRAMEDTO_H_Z5XCFSPI
 #define TASKTIMEFRAMEDTO_H_Z5XCFSPI
 
+#include "core/utils/Algutils.h"
 #include "date_wrapper/date_wrapper.h"
 #include <optional>
 #include <string>
@@ -53,6 +54,22 @@ inline auto operator==(const TaskTimeframeDTO& lhs, const TaskTimeframeDTO& rhs)
            ((!lhs.remindAt && !rhs.remindAt) ||
             (lhs.remindAt && rhs.remindAt &&
              date_time_equal(*lhs.remindAt, *rhs.remindAt)));
+}
+
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os, const TaskTimeframeDTO& frame)
+{
+    os << "TimeframeDTO{";
+    os << "start: " << frame.start << " ";
+    utils::inspect(frame.due,
+                   [&](const auto& x) { os << "due: " << x << " "; });
+    utils::inspect(frame.remindAt,
+                   [&](const auto& x) { os << "remind: " << x << " "; });
+    utils::inspect(frame.recurrence,
+                   [&](const auto& x) { os << "recurrence: " << x; });
+    os << "}";
+    return os;
 }
 
 } // namespace sprint_timer::api

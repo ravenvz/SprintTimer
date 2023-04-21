@@ -42,9 +42,12 @@ TestCommandHandlerComposer::TestCommandHandlerComposer(
     , deleteTask{taskStorage_, actionInvoker_}
     , registerSprintBulk{std::make_unique<api::RegisterSprintBulkHandler>(
           taskStorage_, sprintStorage_, actionInvoker_, sprintMapper_)}
-    , toggleTaskCompleted{taskStorage_, actionInvoker_}
+    , toggleTaskCompleted{taskStorage_,
+                          actionInvoker_,
+                          generator_,
+                          dateTimeProvider_}
     , deleteSprint{sprintStorage_, actionInvoker_}
-    , editTask{taskStorage_, actionInvoker_, taskMapper_}
+    , editTask{taskStorage_, actionInvoker_, dateTimeProvider_, taskMapper_}
     , reorderTasks{taskStorage_, actionInvoker_}
     , renameTag{taskStorage_, actionInvoker_}
     , changeSchedule{scheduleStorage_, actionInvoker_}

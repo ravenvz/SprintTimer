@@ -48,18 +48,32 @@ CreateTaskHandler::CreateTaskHandler(
 
 auto CreateTaskHandler::handle(const CreateTaskCommand& command) -> void
 {
-    auto dto = TaskDTO{uuidGenerator.generateUUID(),
-                       command.tags,
-                       command.name,
-                       command.estimatedCost,
-                       {},
-                       false,
-                       dateTimeProvider.dateTimeLocalNow(),
-                       command.notes,
-                       command.timeFrame,
-                       command.type};
+    const auto dto = TaskDTO{uuidGenerator.generateUUID(),
+                             command.tags,
+                             command.name,
+                             command.estimatedCost,
+                             {},
+                             false,
+                             dateTimeProvider.dateTimeLocalNow(),
+                             command.notes,
+                             command.timeFrame,
+                             command.type};
+    const auto task = [&]() {
+        const auto t = taskMapper(dto);
+        if (not command.parent or command.timeFrame.due) {
+            return t;
+        }
+        const auto matchingTasks =
+            taskStorage.findByUuid(command.parent.value());
+        if (matchingTasks.empty()) {
+            // TODO throw proper exception
+            throw std::runtime_error{"Throw handler exception here"};
+        }
+        const auto parentTask = matchingTasks.front();
+        return t.inheritDate(parentTask, dateTimeProvider.dateTimeLocalNow());
+    }();
     actionInvoker.execute(actions::CreateTask{
-        taskStorage, taskMapper(dto), command.parent, command.insertBeforePos});
+        taskStorage, task, command.parent, command.insertBeforePos});
 }
 
 } // namespace sprint_timer::api

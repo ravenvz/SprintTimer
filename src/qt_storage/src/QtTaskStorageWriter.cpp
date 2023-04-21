@@ -225,8 +225,6 @@ auto QtTaskStorageWriter::edit(const Task& oldTask, const Task& editedTask)
     -> void
 {
     using namespace utils;
-    using sprint_timer::utils::and_then;
-    using sprint_timer::utils::transform;
 
     const QString taskUuid = QString::fromStdString(oldTask.uuid());
 
@@ -237,26 +235,35 @@ auto QtTaskStorageWriter::edit(const Task& oldTask, const Task& editedTask)
     editTaskQuery.bindValue(":uuid", taskUuid);
     editTaskQuery.bindValue(":completed", editedTask.isCompleted());
     editTaskQuery.bindValue(
-        ":text", transform(editedTask.notes(), [](const auto& note) {
-                     return QVariant{QString::fromStdString(note.textNotes())};
-                 }).value_or(QVariant{}));
-
+        ":text",
+        editedTask.notes()
+            .transform([](const auto& note) {
+                return QVariant{QString::fromStdString(note.textNotes())};
+            })
+            .value_or(QVariant{}));
     editTaskQuery.bindValue(":start",
                             dateTimeConverter(editedTask.activeSince()));
-    editTaskQuery.bindValue(
-        ":due", transform(editedTask.dueTo(), [this](const auto& dateTime) {
-                    return QVariant{dateTimeConverter(dateTime)};
-                }).value_or(QVariant{}));
-    editTaskQuery.bindValue(
-        ":reminder",
-        transform(editedTask.remindAt(), [this](const auto& dateTime) {
-            return QVariant{dateTimeConverter(dateTime)};
-        }).value_or(QVariant{}));
+    editTaskQuery.bindValue(":due",
+                            editedTask.dueTo()
+                                .transform([this](const auto& dateTime) {
+                                    return QVariant{
+                                        dateTimeConverter(dateTime)};
+                                })
+                                .value_or(QVariant{}));
+    editTaskQuery.bindValue(":reminder",
+                            editedTask.remindAt()
+                                .transform([this](const auto& dateTime) {
+                                    return QVariant{
+                                        dateTimeConverter(dateTime)};
+                                })
+                                .value_or(QVariant{}));
     editTaskQuery.bindValue(
         ":recurrence",
-        transform(editedTask.recurrence(), [](const auto& recurrence) {
-            return QVariant{QString::fromStdString(recurrence.pattern())};
-        }).value_or(QVariant{}));
+        editedTask.recurrence()
+            .transform([](const auto& recurrence) {
+                return QVariant{QString::fromStdString(recurrence.pattern())};
+            })
+            .value_or(QVariant{}));
 
     editTaskQuery.bindValue(":type", static_cast<int>(editedTask.kind()));
 

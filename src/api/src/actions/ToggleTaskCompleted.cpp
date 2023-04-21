@@ -28,23 +28,50 @@ using dw::DateTime;
 
 namespace sprint_timer::api::actions {
 
-ToggleTaskCompleted::ToggleTaskCompleted(TaskStorageWriter& taskStorageWriter_,
-                                         std::string uuid_,
-                                         dw::DateTime lastModified_)
-    : writer{taskStorageWriter_}
+// TODO start with adding uuid generator and dateTimeProvider
+ToggleTaskCompleted::ToggleTaskCompleted(
+    TaskStorage& taskStorage_,
+    std::string uuid_,
+    dw::DateTime lastModified_,
+    UUIDGenerator& uuidGenerator_,
+    const DateTimeProvider& dateTimeProvider_)
+    : storage{taskStorage_}
     , uuid{std::move(uuid_)}
     , oldTimeStamp{lastModified_}
+    , uuidGenerator{uuidGenerator_}
+    , dateTimeProvider{dateTimeProvider_}
 {
 }
 
 auto ToggleTaskCompleted::execute() -> void
 {
-    writer.toggleCompleted(uuid, dw::current_date_time_local());
+    auto matchingUuid = storage.findByUuid(uuid);
+    if (matchingUuid.empty()) {
+        // TODO throw proper exception
+        throw std::runtime_error{"Can't find task with given uuid"};
+    }
+    const auto task = matchingUuid.front();
+    if (task.isCompleted()) {
+        storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
+    }
+    else {
+        if (not task.recurrence()) {
+            storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
+        }
+        else {
+            auto nextTask = task.nextRecurrence(uuidGenerator.generateUUID(),
+                                                dw::current_date_time());
+            if (nextTask) {
+                storage.save(*nextTask);
+            }
+            storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
+        }
+    }
 }
 
 auto ToggleTaskCompleted::undo() -> void
 {
-    writer.toggleCompleted(uuid, oldTimeStamp);
+    storage.toggleCompleted(uuid, oldTimeStamp);
 }
 
 auto ToggleTaskCompleted::describe() const -> std::string

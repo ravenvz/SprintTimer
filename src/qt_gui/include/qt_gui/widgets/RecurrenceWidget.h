@@ -19,34 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#ifndef EDITTASKHANDLER_H_J64RSQ3N
-#define EDITTASKHANDLER_H_J64RSQ3N
+#ifndef RECURRENCEWIDGET_H_ZGAJIBGS
+#define RECURRENCEWIDGET_H_ZGAJIBGS
 
-#include "api/ActionInvoker.h"
-#include "api/DateTimeProvider.h"
-#include "api/TaskStorage.h"
-#include "api/com_query/CommandHandler.h"
-#include "api/requests//EditTaskCommand.h"
-#include "core/utils/Converter.h"
+namespace sprint_timer::ui::qt_gui {
 
-namespace sprint_timer::api {
-
-class EditTaskHandler : public asp::CommandHandler<EditTaskCommand> {
+class RecurrenceWidget {
 public:
-    EditTaskHandler(TaskStorage& taskStorage,
-                    ActionInvoker& actionInvoker,
-                    const DateTimeProvider& dateTimeProvider,
-                    const Converter<TaskDTO, Task>& taskMapper);
-
-    auto handle(const EditTaskCommand& command) -> void override;
-
 private:
-    TaskStorage& taskStorage;
-    ActionInvoker& actionInvoker;
-    const DateTimeProvider& dateTimeProvider;
-    const Converter<TaskDTO, Task>& taskMapper;
+    
 };
 
-} // namespace sprint_timer::api
+} // namespace sprint_timer::ui::qt_gui
 
-#endif /* end of include guard: EDITTASKHANDLER_H_J64RSQ3N */
+#endif /* end of include guard: RECURRENCEWIDGET_H_ZGAJIBGS */

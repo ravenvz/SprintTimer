@@ -549,13 +549,13 @@ int main(int argc, char* argv[])
         cacheInvalidationMediator);
     auto toggleCompletionHandler =
         compose::decorate_command<ToggleTaskCompletedCommand>(
-            std::make_unique<ToggleTaskCompletedHandler>(*taskStorage,
-                                                         actionInvoker),
+            std::make_unique<ToggleTaskCompletedHandler>(
+                *taskStorage, actionInvoker, uuidGenerator, dateTimeProvider),
             outputStream,
             cacheInvalidationMediator);
     auto editTaskHandler = compose::decorate_command<EditTaskCommand>(
         std::make_unique<EditTaskHandler>(
-            *taskStorage, actionInvoker, taskMapper),
+            *taskStorage, actionInvoker, dateTimeProvider, taskMapper),
         outputStream,
         cacheInvalidationMediator);
     auto registerSprintBulkHandler =

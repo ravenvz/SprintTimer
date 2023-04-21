@@ -31,13 +31,13 @@ TaskTreeMapper::TaskTreeMapper(const Converter<TaskDTO, Task>& taskMapper_)
 auto TaskTreeMapper::convert(const TaskTree& tree) const -> TaskTreeDTO
 {
     auto mapNode = [&](const auto& task) { return taskMapper(task); };
-    return tree.mapped<TaskDTO>(mapNode);
+    return tree.mapped(mapNode);
 }
 
 auto TaskTreeMapper::convert(const TaskTreeDTO& dto) const -> TaskTree
 {
     auto mapNode = [&](const auto& taskDto) { return taskMapper(taskDto); };
-    return dto.mapped<Task>(mapNode);
+    return dto.mapped(mapNode);
 }
 
 } // namespace sprint_timer::api

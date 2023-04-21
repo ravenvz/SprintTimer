@@ -81,7 +81,7 @@ TEST_F(EditingTaskFixture,
     const TaskTimeframeDTO changedFrame{current_date_time_local() - dw::Days{3},
                                         current_date_time_local() + Days{20},
                                         current_date_time_local() + Days{10},
-                                        "recurrence string"};
+                                        "Mon,Tue 2023-*-* 11:05:00"};
     const TaskDTO editedTask{uuid,
                              {"ChangedTag"},
                              "Changed task name",
@@ -107,6 +107,99 @@ TEST_F(EditingTaskFixture,
 
     EXPECT_EQ(expected,
               readTaskTreeHandler.handle(ReadTaskTreeQuery{}).payload(uuid));
+}
+
+TEST_F(
+    EditingTaskFixture,
+    editing_due_date_updates_subtasks_due_dates_if_they_were_not_set_unequal_to_parents)
+{
+    using namespace std::chrono_literals;
+    const auto tree = fixtures::givenTaskTreeWithDueDatesCreated(
+        createTaskHandler, registerSprintsHandler);
+    const std::string uuid{"1"};
+    const DateTime referenceTime{DateTime{Date{Year{2023}, Month{8}, Day{3}}} +
+                                 9h};
+    const TaskTimeframeDTO updatedTimeFrame{dw::current_date_time_local(),
+                                            referenceTime,
+                                            std::nullopt,
+                                            std::nullopt};
+    const TaskDTO editedTask{uuid,
+                             {},
+                             "project1",
+                             30,
+                             {},
+                             false,
+                             current_date_time_local(),
+                             std::nullopt,
+                             updatedTimeFrame,
+                             TaskTypeDTO::Project};
+    auto extractTimeFrame = [](const auto& node) { return node.timeFrame; };
+    Tree<std::string, TaskTimeframeDTO> expected;
+    expected.addChild("0", TaskTimeframeDTO{}, std::nullopt);
+    expected.addChild("1", updatedTimeFrame, "0");
+    expected.addChild(
+        "2",
+        TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{6}, Day{19}}} + 4h,
+                         DateTime{Date{Year{2023}, Month{6}, Day{19}}} +
+                             Days{10} + 4h,
+                         std::nullopt,
+                         std::nullopt},
+        "1");
+    expected.addChild("3", updatedTimeFrame, "1");
+    expected.addChild("4", updatedTimeFrame, "3");
+    expected.addChild("5", TaskTimeframeDTO{}, std::nullopt);
+
+    editTaskHandler.handle(EditTaskCommand{editedTask});
+
+    const auto editedTree = readTaskTreeHandler.handle(ReadTaskTreeQuery{})
+                                .mapped(extractTimeFrame);
+    EXPECT_EQ(expected, editedTree);
+}
+
+TEST_F(EditingTaskFixture, undoing_task_edition_restores_subtask_due_dates)
+{
+    using namespace std::chrono_literals;
+    const auto tree = fixtures::givenTaskTreeWithDueDatesCreated(
+        createTaskHandler, registerSprintsHandler);
+    const std::string uuid{"1"};
+    const DateTime referenceTime{DateTime{Date{Year{2023}, Month{8}, Day{3}}} +
+                                 9h};
+    const TaskTimeframeDTO updatedTimeFrame{dw::current_date_time_local(),
+                                            referenceTime,
+                                            std::nullopt,
+                                            std::nullopt};
+    const TaskDTO editedTask{uuid,
+                             {"SomeNewTag"},
+                             "project1",
+                             30,
+                             {},
+                             false,
+                             current_date_time_local(),
+                             std::nullopt,
+                             updatedTimeFrame,
+                             TaskTypeDTO::Project};
+    auto extractTimeFrame = [](const auto& node) { return node.timeFrame; };
+    Tree<std::string, TaskTimeframeDTO> expected;
+    expected.addChild("0", TaskTimeframeDTO{}, std::nullopt);
+    expected.addChild("1", updatedTimeFrame, "0");
+    expected.addChild(
+        "2",
+        TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{6}, Day{19}}} + 4h,
+                         DateTime{Date{Year{2023}, Month{6}, Day{19}}} +
+                             Days{10} + 4h,
+                         std::nullopt,
+                         std::nullopt},
+        "1");
+    expected.addChild("3", updatedTimeFrame, "1");
+    expected.addChild("4", updatedTimeFrame, "3");
+    expected.addChild("5", TaskTimeframeDTO{}, std::nullopt);
+    editTaskHandler.handle(EditTaskCommand{editedTask});
+
+    undoHandler.handle(UndoLastCommand{});
+
+    const auto actual = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
+    EXPECT_EQ(tree, actual);
+    EXPECT_TRUE(allTagsHandler.handle(api::AllTagsQuery{}).empty());
 }
 
 TEST_F(EditingTaskFixture, handles_orphaned_and_new_tags)

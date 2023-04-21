@@ -22,24 +22,30 @@
 #ifndef TOGGLETASKCOMPLETEDHANDLER_H_IEDFOGBK
 #define TOGGLETASKCOMPLETEDHANDLER_H_IEDFOGBK
 
+#include "api/ActionInvoker.h"
+#include "api/DateTimeProvider.h"
+#include "api/TaskStorage.h"
+#include "api/UUIDGenerator.h"
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/ToggleTaskCompletedCommand.h"
-#include "api/ActionInvoker.h"
-#include "api/TaskStorageWriter.h"
 
 namespace sprint_timer::api {
 
 class ToggleTaskCompletedHandler
     : public asp::CommandHandler<ToggleTaskCompletedCommand> {
 public:
-    ToggleTaskCompletedHandler(TaskStorageWriter& writer,
-                               ActionInvoker& actionInvoker);
+    ToggleTaskCompletedHandler(TaskStorage& taskStorage,
+                               ActionInvoker& actionInvoker,
+                               UUIDGenerator& uuidGenerator,
+                               const DateTimeProvider& dateTimeProvider);
 
     void handle(const ToggleTaskCompletedCommand& command) override;
 
 private:
-    TaskStorageWriter& writer;
+    TaskStorage& taskStorage;
     ActionInvoker& actionInvoker;
+    UUIDGenerator& uuidGenerator;
+    const DateTimeProvider& dateTimeProvider;
 };
 
 } // namespace sprint_timer::api

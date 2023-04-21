@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "api_tests/fixtures/TaskTreeFixture.h"
+#include <optional>
 
 namespace fixtures {
 
@@ -195,4 +196,155 @@ auto givenSomeTaskTreeCreated(
 
     return tree;
 }
+
+auto givenTaskTreeWithDueDatesCreated(
+    CommandHandler<CreateTaskCommand>& createTaskHandler,
+    CommandHandler<RegisterSprintBulkCommand>& registerSprintsHandler)
+    -> TaskTreeDTO
+{
+    using Tags = std::vector<std::string>;
+    using namespace dw;
+    using namespace std::chrono_literals;
+
+    DateTime referenceTime = DateTime{Date{Year{2023}, Month{6}, Day{19}}} + 4h;
+
+    /*
+     * folder1
+     *    project1
+     *       task1 // Due date is set
+     *       task2
+     *          task3
+     *
+     * task4
+     * */
+    createTaskHandler.handle(CreateTaskCommand{"folder1",
+                                               Tags{},
+                                               0,
+                                               TaskTypeDTO::Folder,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"project1",
+                                               Tags{},
+                                               30,
+                                               TaskTypeDTO::Project,
+                                               "0",
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{
+        "task1",
+        Tags{},
+        5,
+        TaskTypeDTO::Regular,
+        "1",
+        std::nullopt,
+        std::nullopt,
+        TaskTimeframeDTO{
+            referenceTime, referenceTime + Days{10}, std::nullopt}});
+    createTaskHandler.handle(CreateTaskCommand{"task2",
+                                               Tags{},
+                                               15,
+                                               TaskTypeDTO::Regular,
+                                               "1",
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"task3",
+                                               Tags{},
+                                               10,
+                                               TaskTypeDTO::Regular,
+                                               "3",
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(CreateTaskCommand{"task4",
+                                               Tags{},
+                                               7,
+                                               TaskTypeDTO::Regular,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               TaskTimeframeDTO{}});
+    TaskTreeDTO tree;
+    tree.addChild("0",
+                  TaskDTO{"0",
+                          Tags{},
+                          "folder1",
+                          0,
+                          std::vector<DateTimeRange>{},
+                          false,
+                          dw::current_date_time_local(),
+                          std::nullopt,
+                          TaskTimeframeDTO{},
+                          TaskTypeDTO::Folder},
+                  std::nullopt);
+    tree.addChild("1",
+                  TaskDTO{"1",
+                          Tags{},
+                          "project1",
+                          30,
+                          std::vector<DateTimeRange>{},
+                          false,
+                          dw::current_date_time_local(),
+                          std::nullopt,
+                          TaskTimeframeDTO{},
+                          TaskTypeDTO::Project},
+                  "0");
+    tree.addChild("2",
+                  TaskDTO{"2",
+                          Tags{},
+                          "task1",
+                          5,
+                          std::vector<DateTimeRange>{},
+                          false,
+                          dw::current_date_time_local(),
+                          std::nullopt,
+                          TaskTimeframeDTO{referenceTime,
+                                           referenceTime + Days{10},
+                                           std::nullopt,
+                                           std::nullopt},
+                          TaskTypeDTO::Regular},
+                  "1");
+    tree.addChild("3",
+                  TaskDTO{"3",
+                          Tags{},
+                          "task2",
+                          15,
+                          std::vector<DateTimeRange>{},
+                          false,
+                          dw::current_date_time_local(),
+                          std::nullopt,
+                          TaskTimeframeDTO{},
+                          TaskTypeDTO::Regular},
+                  "1");
+    tree.addChild("4",
+                  TaskDTO{"4",
+                          Tags{},
+                          "task3",
+                          10,
+                          std::vector<DateTimeRange>{},
+                          false,
+                          dw::current_date_time_local(),
+                          std::nullopt,
+                          TaskTimeframeDTO{},
+                          TaskTypeDTO::Regular},
+                  "3");
+    tree.addChild("5",
+                  TaskDTO{"5",
+                          Tags{},
+                          "task4",
+                          7,
+                          std::vector<DateTimeRange>{},
+                          false,
+                          dw::current_date_time_local(),
+                          std::nullopt,
+                          TaskTimeframeDTO{},
+                          TaskTypeDTO::Regular},
+                  std::nullopt);
+
+    return tree;
+}
+
 } // namespace fixtures

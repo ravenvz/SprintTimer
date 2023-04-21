@@ -31,9 +31,11 @@ namespace sprint_timer::api {
 
 EditTaskHandler::EditTaskHandler(TaskStorage& taskStorage_,
                                  ActionInvoker& actionInvoker_,
+                                 const DateTimeProvider& dateTimeProvider_,
                                  const Converter<TaskDTO, Task>& taskMapper_)
     : taskStorage{taskStorage_}
     , actionInvoker{actionInvoker_}
+    , dateTimeProvider{dateTimeProvider_}
     , taskMapper{taskMapper_}
 {
 }
@@ -50,7 +52,8 @@ auto EditTaskHandler::handle(const EditTaskCommand& command) -> void
     }
 
     const Task& originalTask = matchingUuid.front();
-    const Task editedTask = originalTask.edit(desiredTask);
+    const Task editedTask =
+        originalTask.edit(desiredTask, dateTimeProvider.dateTimeLocalNow());
 
     actionInvoker.execute(
         actions::EditTask{taskStorage, originalTask, editedTask});

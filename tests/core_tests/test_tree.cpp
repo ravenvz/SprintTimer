@@ -87,13 +87,13 @@ TEST_F(TreeFixture, able_to_transform_tree_to_tree_with_another_payload_type)
     expected.addChild("10", "100", "2");
     auto square = [](const int& x) { return std::to_string(x * x); };
 
-    sprint_timer::Tree<std::string, std::string> actual{
-        sut.mapped<std::string>(square)};
+    sprint_timer::Tree<std::string, std::string> actual{sut.mapped(square)};
 
     EXPECT_EQ(expected, actual);
 }
 
-TEST_F(TreeFixture, add_child_throws_when_parent_is_bogus) {
+TEST_F(TreeFixture, add_child_throws_when_parent_is_bogus)
+{
     sprint_timer::Tree<std::string, int> tree;
     tree.addChild("1", 1, std::nullopt);
 
@@ -357,7 +357,8 @@ TEST_F(TreeFixture, moving_root_nodes_within_root_itself)
     EXPECT_EQ(expected, actual);
 }
 
-TEST_F(TreeFixture, moving_root_nodes_in_reparenting_combinations) {
+TEST_F(TreeFixture, moving_root_nodes_in_reparenting_combinations)
+{
     /*
      * 1
      * 2

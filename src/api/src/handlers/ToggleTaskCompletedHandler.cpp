@@ -25,17 +25,26 @@
 namespace sprint_timer::api {
 
 ToggleTaskCompletedHandler::ToggleTaskCompletedHandler(
-    TaskStorageWriter& writer_, ActionInvoker& actionInvoker_)
-    : writer{writer_}
+    TaskStorage& taskStorage_,
+    ActionInvoker& actionInvoker_,
+    UUIDGenerator& uuidGenerator_,
+    const DateTimeProvider& dateTimeProvider_)
+    : taskStorage{taskStorage_}
     , actionInvoker{actionInvoker_}
+    , uuidGenerator{uuidGenerator_}
+    , dateTimeProvider{dateTimeProvider_}
 {
 }
 
 void ToggleTaskCompletedHandler::handle(
     const ToggleTaskCompletedCommand& command)
 {
-    actionInvoker.execute(actions::ToggleTaskCompleted{
-        writer, command.taskUuid, command.lastModificationTimestamp});
+    actionInvoker.execute(
+        actions::ToggleTaskCompleted{taskStorage,
+                                     command.taskUuid,
+                                     command.lastModificationTimestamp,
+                                     uuidGenerator,
+                                     dateTimeProvider});
 }
 
 } // namespace sprint_timer::api

@@ -35,6 +35,18 @@ auto givenSomeTaskTreeCreated(
     asp::CommandHandler<sprint_timer::api::RegisterSprintBulkCommand>&
         registerSprintsHandler) -> sprint_timer::api::TaskTreeDTO;
 
+auto givenTaskTreeWithDueDatesCreated(
+    asp::CommandHandler<sprint_timer::api::CreateTaskCommand>&
+        createTaskHandler,
+    asp::CommandHandler<sprint_timer::api::RegisterSprintBulkCommand>&
+        registerSprintsHandler) -> sprint_timer::api::TaskTreeDTO;
+
+auto givenTaskTreeWithRecurringTasksCreated(
+    asp::CommandHandler<sprint_timer::api::CreateTaskCommand>&
+        createTaskHandler,
+    asp::CommandHandler<sprint_timer::api::RegisterSprintBulkCommand>&
+        registerSprintsHandler) -> sprint_timer::api::TaskTreeDTO;
+
 } // namespace fixtures
 
 #endif /* end of include guard: TASKTREEFIXTURE_H_S5Q2CJOR */

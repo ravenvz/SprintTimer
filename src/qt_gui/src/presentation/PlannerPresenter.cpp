@@ -180,8 +180,7 @@ void PlannerPresenter::updateViewImpl()
                 .release(),
         };
         const auto itemMaker = MakeItem{strategies};
-        v.value()->displayPlanner(
-            data.mapped<contracts::PlannerContract::PlannerItem>(itemMaker));
+        v.value()->displayPlanner(data.mapped(itemMaker));
     }
 }
 

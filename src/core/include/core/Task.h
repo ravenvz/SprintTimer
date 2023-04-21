@@ -30,6 +30,7 @@
 #include "core/TaskType.h"
 #include "core/utils/StringUtils.h"
 #include "date_wrapper/date_wrapper.h"
+#include <optional>
 #include <vector>
 
 namespace sprint_timer {
@@ -58,9 +59,10 @@ public:
     //
     // Task& operator=(Task&& other) = default;
 
-    [[nodiscard]] auto finish() const -> Task;
+    [[nodiscard]] auto finish(const std::string& uuid) const -> Task;
 
-    [[nodiscard]] auto edit(const Task& desiredTask) const -> Task;
+    [[nodiscard]] auto edit(const Task& desiredTask,
+                            dw::DateTime currentTime) const -> Task;
 
     [[nodiscard]] auto name() const -> std::string;
 
@@ -94,9 +96,20 @@ public:
 
     [[nodiscard]] auto kind() const -> TaskType;
 
+    // Returns new copy of this task but with given uuid;
+    [[nodiscard]] auto clone(std::string uuid) const -> Task;
+
     auto setCompleted(bool completed) -> void;
 
     auto addSprint(Sprint sprint) -> void;
+
+    auto inheritDate(const Task& other, dw::DateTime currentTime) const -> Task;
+
+    auto inheritDateIfNotSet(const Task& other, dw::DateTime currentTime) const
+        -> Task;
+
+    auto nextRecurrence(const std::string& uuid, dw::DateTime currentTime) const
+        -> std::optional<Task>;
 
 private:
     std::string taskName;

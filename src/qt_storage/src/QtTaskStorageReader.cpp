@@ -304,7 +304,7 @@ auto QtTaskStorageReader::taskTree() -> TaskTree
                                     std::string{" cannot be found."}};
     };
 
-    return metaTree.mapped<Task>(combine);
+    return metaTree.mapped(combine);
 }
 
 } // namespace sprint_timer::storage::qt_storage
